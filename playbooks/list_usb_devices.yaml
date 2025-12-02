@@ -22,5 +22,9 @@
   tasks:
     - name: "Listing USB devices"
       ansible.builtin.shell: |
-        lsusb || printf -- "Error: lsusb not installed\n"
+        if $( command -v lsusb > /dev/null ); then
+          lsusb
+        else
+          printf -- "[SKIP] lsusb not installed\n"
+        fi
       changed_when: false

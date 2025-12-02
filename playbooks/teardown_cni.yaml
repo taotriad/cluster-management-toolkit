@@ -42,55 +42,24 @@
         executable: "/bin/bash"
         cmd: |
           set -o pipefail
-          if [ -x /usr/sbin/ip ]; then
-            for network in $(cat /proc/net/dev | grep -E "^antrea|^genev" | cut -f 1 -d:); do
-              ip link set dev "${network}" down || true
-              ip link delete "${network}" || true
-            done
-            for network in $(cat /proc/net/dev | grep -E "^cali|^tunl0:" | cut -f 1 -d:); do
-              ip link set dev "${network}" down || true
-              ip link delete "${network}" || true
-            done
-            for network in $(cat /proc/net/dev | grep -E "^cilium|^lxc" | cut -f 1 -d:); do
-              ip link set dev "${network}" down || true
-              ip link delete "${network}" || true
-            done
-            for network in $(cat /proc/net/dev | grep -E "^flannel|^cni0" | cut -f 1 -d:); do
-              ip link set dev "${network}" down || true
-              ip link delete "${network}" || true
-            done
-            for network in $(cat /proc/net/dev | grep -E "^veth" | cut -f 1 -d:); do
-              ip link set dev "${network}" down || true
-              ip link delete "${network}" || true
-            done
-            for network in $(cat /proc/net/dev | grep -E "^kube-bridge" | cut -f 1 -d:); do
-              ip link set dev "${network}" down || true
-              ip link delete "${network}" || true
-            done
-            for network in $(cat /proc/net/dev | grep -E "^datapath|^vxlan|^\s*weave" | cut -f 1 -d:); do
+          # This looks a bit messy, but it minimises code repeat
+          matches=\
+          "^antrea|^genev|"\
+          "^cali|^tunl0:|"\
+          "^cilium|^lxc|"\
+          "^flannel|^cni0|"\
+          "^veth|"\
+          "^kube-bridge|"\
+          "^datapath|^vxlan|^\s*weave"
+          # While we still get code duplication of the loop statement,
+          # we avoid evaluating the conditional for every iteration
+          if $( command -v ip > /dev/null ); then
+            for network in $(grep -E ${matches} /proc/net/dev | cut -f 1 -d:); do
               ip link set dev "${network}" down || true
               ip link delete "${network}" || true
             done
           else
-            for network in $(cat /proc/net/dev | grep -E "^antrea|^genev" | cut -f 1 -d:); do
-              ifconfig "${network}" down || true
-            done
-            for network in $(cat /proc/net/dev | grep -E "^cali|^tunl0:" | cut -f 1 -d:); do
-              ifconfig "${network}" down || true
-            done
-            for network in $(cat /proc/net/dev | grep -E "^cilium|^lxc" | cut -f 1 -d:); do
-              ifconfig "${network}" down || true
-            done
-            for network in $(cat /proc/net/dev | grep -E "^flannel|^cni0" | cut -f 1 -d:); do
-              ifconfig "${network}" down || true
-            done
-            for network in $(cat /proc/net/dev | grep -E "^veth" | cut -f 1 -d:); do
-              ifconfig "${network}" down || true
-            done
-            for network in $(cat /proc/net/dev | grep -E "^kube-bridge" | cut -f 1 -d:); do
-              ifconfig "${network}" down || true
-            done
-            for network in $(cat /proc/net/dev | grep -E "^datapath|^vxlan|^\s*weave" | cut -f 1 -d:); do
+            for network in $(grep -E ${matches} /proc/net/dev | cut -f 1 -d:); do
               ifconfig "${network}" down || true
             done
           fi
@@ -101,13 +70,17 @@
         executable: "/bin/bash"
         cmd: |
           set -o pipefail
+          # While we used a list of interfaces to delete above to avoid
+          # code repeat, that should not be done here, for the simple
+          # reason that a minor mistake when we delete files is permanent;
+          # deleted interfaces can be recreated.
           rm -rf /etc/cni/* /var/lib/cni /var/lib/weave
-          rm -rf /opt/cni/bin/antrea
-          rm -rf /opt/cni/bin/calico
-          rm -rf /opt/cni/bin/calico-ipam
-          rm -rf /opt/cni/bin/cilium-cni
-          rm -rf /opt/cni/bin/flannel
-          rm -rf /opt/cni/bin/weave
+          rm -f /opt/cni/bin/antrea
+          rm -f /opt/cni/bin/calico
+          rm -f /opt/cni/bin/calico-ipam
+          rm -f /opt/cni/bin/cilium-cni
+          rm -f /opt/cni/bin/flannel
+          rm -f /opt/cni/bin/weave
           iptables -F
           iptables -t nat -F
           iptables -t mangle -F

@@ -22,5 +22,9 @@
   tasks:
     - name: "Listing PCI devices"
       ansible.builtin.shell: |
-        lspci -n -n || printf -- "Error: lspci not installed\n"
+        if $( command -v lspci > /dev/null ); then
+          lspci -n -n
+        else
+          printf -- "[SKIP] lspci not installed\n"
+        fi
       changed_when: false

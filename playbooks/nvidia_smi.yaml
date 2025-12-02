@@ -22,7 +22,7 @@
         executable: "/bin/bash"
         cmd: |
           set -o pipefail
-          if [ -x /usr/bin/nvidia-smi ]; then
+          if $( command -v nvidia-smi > /dev/null ); then
             nvidia-smi | sed -e '/^\s*$/q'
           else
             printf -- "[SKIP] nvidia-smi not installed\n"

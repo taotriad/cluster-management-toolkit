@@ -20,5 +20,9 @@
   tasks:
     - name: "Listing CPU information"
       ansible.builtin.shell: |
-        lscpu || printf -- "Error: lscpu not installed\n"
+        if $( command -v lscpu > /dev/null ); then
+          lscpu
+        else
+          printf -- "[SKIP] lscpu not installed\n"
+        fi
       changed_when: false

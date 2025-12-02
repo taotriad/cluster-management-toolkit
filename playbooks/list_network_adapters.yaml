@@ -47,54 +47,67 @@
               printf -- "%s" "${result}"
             fi
           }
-          for dev in $(/bin/ls /sys/class/net | grep -E "^en|^wl"); do
-            driver=$(readlink /sys/class/net/${dev}/device/driver/module)
-            if [ x"${driver}" != x"" ]; then
-              driver="$(basename ${driver})"
-            else
-              driver="<unknown>"
-            fi
-            addr=$(cat /sys/class/net/${dev}/address)
-            operstate=$(cat /sys/class/net/${dev}/operstate)
-            ipaddrs=""
-            if [ -x /usr/sbin/ip ]; then
-              tmp="$(/usr/sbin/ip addr show dev ${dev} | grep inet | tr -s ' ' | cut -f 2,3 -d' ' | sed -e 's/\/.*//' | tr '\n' ' ')"
-            else
-              tmp="$(/sbin/ifconfig ${dev} | grep "inet" | sed -e 's/.*\(inet .*\)netmask.*/\1/;s/.*\(inet6 .*\)prefixlen.*/\1/')"
-            fi
-            ipaddrs=$(echo ${tmp})
-            printf -- "%s [%s]: (%s) %s\n" "${dev}" "${addr}" "${operstate}" "${ipaddrs}"
-            printf -- "driver: %s\n" "${driver}"
-            # Is this a wireless adapter?
-            if [ x"${dev##wl}" != x"${dev}" ]; then
-              if [ ! -x /sbin/iw ]; then
-                printf -- "\n/sbin/iw not available; unable to display detailed information about wireless network interfaces\n" > /dev/stderr
+          # Testing with command is not enough, since this playbook
+          # is executed as a regular user, and ip/ifconfig might be in sbin.
+          ip=$(command -v ip || (test -x "/sbin/ip" && echo "/sbin/ip") || (test -x "/usr/sbin/ip" && echo "/usr/sbin/ip"))
+          ifconfig=$(command -v ifconfig || (test -x "/usr/sbin/ifconfig" && echo "/usr/sbin/ifconfig"))
+          network_tool=1
+          [ -z "${ip}" ] && [ -z "${ifconfig}" ] && network_tool=0
+          if [ ${network_tool} -eq 1 ]; then
+            for dev in $(/bin/ls /sys/class/net | grep -E "^en|^wl"); do
+              driver=$(readlink /sys/class/net/${dev}/device/driver/module)
+              if [ x"${driver}" != x"" ]; then
+                driver="$(basename ${driver})"
               else
-                # If so ifconfig is of no use
-                receive=$(/sbin/iw "${dev}" link | grep "rx bitrate" | sed -e 's,.*rx bitrate: \(.*MBit/s\).*,\1,')
-                transmit=$(/sbin/iw "${dev}" link | grep "tx bitrate" | sed -e 's,.*tx bitrate: \(.*MBit/s\).*,\1,')
-                if [ -z "${transmit}" ]; then
-                  transmit="[unknown]"
-                fi
-                if [ -z "${receive}" ]; then
-                  receive="[unknown]"
-                fi
-                printf -- "transmit: %s\n" "${transmit}"
-                printf -- "receive: %s\n" "${receive}"
+                driver="<unknown>"
               fi
-            else
-              supported=$(/sbin/ethtool ${dev} 2> /dev/null | sed -e 's/^\(\t[[:alpha:]]\)/\f\1/' | awk 'BEGIN { RS="\f" } /^\tSupported link modes/ { print }' | sed -e 's/Supported link modes: //')
-              advertised=$(/sbin/ethtool ${dev} 2> /dev/null | sed -e 's/^\(\t[[:alpha:]]\)/\f\1/' | awk 'BEGIN { RS="\f" } /^\tAdvertised link modes/ { print }' | sed -e 's/Advertised link modes: //')
-              speed=$(/sbin/ethtool ${dev} 2> /dev/null | sed -e 's/^\(\t[[:alpha:]]\)/\f\1/' | awk 'BEGIN { RS="\f" } /^\tSpeed/ { print }' | sed -e 's/\s*Speed: //')
-              speed=$(echo ${speed} | sed -e 's/Unknown!/[unknown]/')
-              supported_full=$(get_speeds Full "${supported}")
-              supported_half=$(get_speeds Half "${supported}")
-              advertised_full=$(get_speeds Full "${advertised}")
-              advertised_half=$(get_speeds Half "${advertised}")
-              printf -- "speed: %s\n" "${speed}"
-              printf -- "supported: %s\n" "${supported_full} ${supported_half}"
-              printf -- "advertised: %s\n" "${advertised_full} ${advertised_half}"
-            fi
-            printf -- "\n"
-          done
+              addr=$(cat /sys/class/net/${dev}/address)
+              operstate=$(cat /sys/class/net/${dev}/operstate)
+              ipaddrs=""
+              if [ -n "${ip}" ]; then
+                tmp="$(${ip} addr show dev ${dev} | grep inet | tr -s ' ' | cut -f 2,3 -d' ' | sed -e 's/\/.*//' | tr '\n' ' ')"
+              elif [ -n "${ifconfig}" ]; then
+                tmp="$(${ifconfig} ${dev} | grep "inet" | sed -e 's/.*\(inet .*\)netmask.*/\1/;s/.*\(inet6 .*\)prefixlen.*/\1/')"
+              fi
+              ipaddrs=$(echo ${tmp})
+              printf -- "%s [%s]: (%s) %s\n" "${dev}" "${addr}" "${operstate}" "${ipaddrs}"
+              printf -- "driver: %s\n" "${driver}"
+              # Is this a wireless adapter; if so we need to use iw.
+              if [ x"${dev##wl}" != x"${dev}" ]; then
+                # Testing with command is not enough, since this playbook
+                # is executed as a regular user.
+                iw=$( command -v iw || ( test -x "/sbin/iw" && echo "/sbin/iw" ) || ( test -x "/usr/sbin/iw" && echo "/usr/sbin/iw" ) )
+                if [ -n "${iw}" ]; then
+                  receive=$(${iw} "${dev}" link | grep "rx bitrate" | sed -e 's,.*rx bitrate: \(.*MBit/s\).*,\1,')
+                  transmit=$(${iw} "${dev}" link | grep "tx bitrate" | sed -e 's,.*tx bitrate: \(.*MBit/s\).*,\1,')
+                  if [ -z "${transmit}" ]; then
+                    transmit="[unknown]"
+                  fi
+                  if [ -z "${receive}" ]; then
+                    receive="[unknown]"
+                  fi
+                  printf -- "transmit: %s\n" "${transmit}"
+                  printf -- "receive: %s\n" "${receive}"
+                else
+                  printf -- "\nWarning: Could not find iw; unable to display detailed information about wireless network interfaces\n" > /dev/stderr
+                fi
+              else
+                ethtool=$(command -v ethtool || (test -x "/sbin/ethtool" && echo "/sbin/ethtool") || (test -x "/usr/sbin/ethtool" && echo "/usr/sbin/ethtool"))
+                supported=$(${ethtool} ${dev} 2> /dev/null | sed -e 's/^\(\t[[:alpha:]]\)/\f\1/' | awk 'BEGIN { RS="\f" } /^\tSupported link modes/ { print }' | sed -e 's/Supported link modes: //')
+                advertised=$(${ethtool} ${dev} 2> /dev/null | sed -e 's/^\(\t[[:alpha:]]\)/\f\1/' | awk 'BEGIN { RS="\f" } /^\tAdvertised link modes/ { print }' | sed -e 's/Advertised link modes: //')
+                speed=$(${ethtool} ${dev} 2> /dev/null | sed -e 's/^\(\t[[:alpha:]]\)/\f\1/' | awk 'BEGIN { RS="\f" } /^\tSpeed/ { print }' | sed -e 's/\s*Speed: //')
+                speed=$(echo ${speed} | sed -e 's/Unknown!/[unknown]/')
+                supported_full=$(get_speeds Full "${supported}")
+                supported_half=$(get_speeds Half "${supported}")
+                advertised_full=$(get_speeds Full "${advertised}")
+                advertised_half=$(get_speeds Half "${advertised}")
+                printf -- "speed: %s\n" "${speed}"
+                printf -- "supported: %s\n" "${supported_full} ${supported_half}"
+                printf -- "advertised: %s\n" "${advertised_full} ${advertised_half}"
+              fi
+              printf -- "\n"
+            done
+          else
+            printf -- "\nError: Could neither find ip nor ifconfig; please file a bug report, include expected path to ip/ifconfig\n" > /dev/stderr
+          fi
       changed_when: false
