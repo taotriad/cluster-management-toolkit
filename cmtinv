@@ -1949,8 +1949,7 @@ COMMANDLINE: dict[str, CommandType] = {
                     ANSIThemeStr(",", "separator"),
                     ANSIThemeStr("...", "argument")],
                 "validation": {
-                    "validator": "regex",
-                    "regex": r"^[a-z_][a-z0-9_-]*$",
+                    "validator": "hostname_ip_or_ansible_group",
                     "list_separator": ",",
                 },
             },

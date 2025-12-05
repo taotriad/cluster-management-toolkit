@@ -47,6 +47,7 @@ def validate_name(rtype: str, name: str) -> bool:
                          dns-subdomain
                          path-segment
                          port-name
+                         ansible-group
             name (str): The name to check for validity
         Returns:
             (bool): True if valid, False if invalid
@@ -60,6 +61,7 @@ def validate_name(rtype: str, name: str) -> bool:
 
     name_regex = re.compile(r"^[a-z0-9]([a-z0-9-]*[a-z0-9])?$")
     portname_regex = re.compile(r"^([a-z0-9]+[a-z0-9-].*[a-z0-9]|[a-z0-9])$")
+    ansible_group_regex = re.compile(r"^([a-zA-Z]+[a-zA-Z0-9_]*)$")
 
     if rtype in ("dns-subdomain", "dns-label"):
         if rtype == "dns-label":
@@ -100,6 +102,9 @@ def validate_name(rtype: str, name: str) -> bool:
         if tmp is None:
             invalid = True
         maxlen = 15
+    elif rtype == "ansible-group":
+        if ansible_group_regex.match(name) is None:
+            invalid = True
     else:
         msg = [
             [("validate_name()", "emphasis"),
@@ -533,8 +538,11 @@ def validate_argument(arg: str, arg_string: list[ANSIThemeStr], options: dict) -
                 subarg = subarg.replace("~", HOMEDIR, 1)
             if not (result := validator_path(subarg, error_on_failure=error_on_failure)):
                 break
-        elif validator in ("hostname", "hostname_or_path", "hostname_or_ip", "ip"):
+        elif validator in ("hostname", "hostname_or_path",
+                           "hostname_ip_or_ansible_group",
+                           "hostname_or_ip", "ip"):
             valid_dns_label = validate_name("dns-subdomain", subarg)
+            valid_ansible_group = validate_name("ansible-group", subarg)
             if validators is not None:
                 valid_ipv4_address = validators.ipv4(subarg)
                 valid_ipv6_address = validators.ipv6(subarg)
@@ -561,7 +569,8 @@ def validate_argument(arg: str, arg_string: list[ANSIThemeStr], options: dict) -
                                                  "default")], stderr=True)
                 result = False
                 break
-            if validator == "ip" and not valid_ipv4_address and not valid_ipv6_address:
+            if validator == "ip" \
+                    and not any((valid_ipv4_address, valid_ipv6_address)):
                 if error_on_failure:
                     ansithemeprint([ANSIThemeStr(f"{programname}", "programname"),
                                     ANSIThemeStr(": “", "default"),
@@ -570,14 +579,26 @@ def validate_argument(arg: str, arg_string: list[ANSIThemeStr], options: dict) -
                                                  "default")], stderr=True)
                 result = False
                 break
-            if validator == "hostname_or_ip" and not valid_dns_label \
-                    and not valid_ipv4_address and not valid_ipv6_address:
+            if validator == "hostname_or_ip" \
+                    and not any((valid_dns_label, valid_ipv4_address, valid_ipv6_address)):
                 if error_on_failure:
                     ansithemeprint([ANSIThemeStr(f"{programname}", "programname"),
                                     ANSIThemeStr(": “", "default"),
                                     ANSIThemeStr(f"{subarg}", "option"),
                                     ANSIThemeStr("“ is neither a valid hostname "
                                                  "nor a valid IP-address.",
+                                                 "default")], stderr=True)
+                result = False
+                break
+            if validator == "hostname_ip_or_ansible_group" \
+                    and not any((valid_dns_label, valid_ipv4_address,
+                                 valid_ipv6_address, valid_ansible_group)):
+                if error_on_failure:
+                    ansithemeprint([ANSIThemeStr(f"{programname}", "programname"),
+                                    ANSIThemeStr(": “", "default"),
+                                    ANSIThemeStr(f"{subarg}", "option"),
+                                    ANSIThemeStr("“ is neither a valid hostname, "
+                                                 "IP-address, nor Ansible group.",
                                                  "default")], stderr=True)
                 result = False
                 break
