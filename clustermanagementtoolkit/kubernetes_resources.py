@@ -1835,6 +1835,10 @@ kubernetes_resources: dict[tuple[str, str], dict[str, Union[list[str], str, bool
         "api": "ccruntimes",
         "namespaced": False,
     },
+    ("PeerPod", "confidentialcontainers.org"): {
+        "api_paths": ["apis/confidentialcontainers.org/v1alpha1/"],
+        "api": "peerpods",
+    },
     # config.gatekeeper.sh
     ("Config", "config.gatekeeper.sh"): {
         "api_paths": ["apis/config.gatekeeper.sh/v1alpha1/"],
@@ -3101,6 +3105,12 @@ kubernetes_resources: dict[tuple[str, str], dict[str, Union[list[str], str, bool
         "api_paths": ["apis/kargo.akuity.io/v1alpha1/"],
         "api": "warehouses",
     },
+    # kataconfiguration.openshift.io
+    ("KataConfig", "kataconfiguration.openshift.io"): {
+        "api_paths": ["apis/kataconfiguration.openshift.io/v1/"],
+        "api": "kataconfigs",
+        "namespaced": False,
+    },
     # keda.sh
     ("ClusterTriggerAuthentication", "keda.sh"): {
         "api_paths": ["apis/keda.sh/v1alpha1/"],
@@ -4033,6 +4043,10 @@ kubernetes_resources: dict[tuple[str, str], dict[str, Union[list[str], str, bool
         "api_paths": ["apis/metal3.io/v1alpha1/"],
         "api": "bmceventsubscriptions",
     },
+    ("DataImage", "metal3.io"): {
+        "api_paths": ["apis/metal3.io/v1alpha1/"],
+        "api": "dataimages",
+    },
     ("FirmwareSchema", "metal3.io"): {
         "api_paths": ["apis/metal3.io/v1alpha1/"],
         "api": "firmwareschemas",
@@ -4041,9 +4055,17 @@ kubernetes_resources: dict[tuple[str, str], dict[str, Union[list[str], str, bool
         "api_paths": ["apis/metal3.io/v1alpha1/"],
         "api": "hardwaredata",
     },
+    ("HostFirmwareComponents", "metal3.io"): {
+        "api_paths": ["apis/metal3.io/v1alpha1/"],
+        "api": "hostfirmwarecomponents",
+    },
     ("HostFirmwareSettings", "metal3.io"): {
         "api_paths": ["apis/metal3.io/v1alpha1/"],
         "api": "hostfirmwaresettings",
+    },
+    ("HostUpdatePolicy", "metal3.io"): {
+        "api_paths": ["apis/metal3.io/v1alpha1/"],
+        "api": "hostupdatepolicies",
     },
     ("PreprovisioningImage", "metal3.io"): {
         "api_paths": ["apis/metal3.io/v1alpha1/"],
@@ -4677,6 +4699,12 @@ kubernetes_resources: dict[tuple[str, str], dict[str, Union[list[str], str, bool
     ("VirtualMachinePool", "pool.kubevirt.io"): {
         "api_paths": ["apis/pool.kubevirt.io/v1alpha1/"],
         "api": "virtualmachinepools",
+    },
+    # populator.storage.k8s.io
+    ("VolumePopulator", "populator.storage.k8s.io"): {
+        "api_paths": ["apis/populator.storage.k8s.io/v1beta1/"],
+        "api": "volumepopulators",
+        "namespaced": False,
     },
     # postgresql.cnpg.io
     ("Backup", "postgresql.cnpg.io"): {
