@@ -1058,6 +1058,28 @@ def secure_symlink(src: FilePath, dst: FilePath, verbose: bool = False,
     return [SecurityStatus.OK]
 
 
+# This executes a command with the output captured
+def execute_command_with_response(args: list[str], env: Optional[dict] = None) -> tuple[str, int]:
+    """
+    Executes a command and returns stdout
+
+        Parameters:
+            args ([str]): The commandline
+            env (dict): Environment variables to set
+        Returns:
+            (str, int):
+                (str): The stdout from the execution
+                (int): The return value from the execution
+    """
+    if env is None:
+        result = subprocess.run(args, stdout=PIPE, stderr=STDOUT, check=False)
+    else:
+        result = subprocess.run(args, stdout=PIPE, stderr=STDOUT, env=env, check=False)
+    retval = result.returncode
+
+    return result.stdout.decode("utf-8", errors="replace"), retval
+
+
 # This executes a command without capturing the output
 def execute_command(args: list[Union[FilePath, str]],
                     env: Optional[dict] = None, comparison: int = 0) -> bool:
@@ -1071,26 +1093,6 @@ def execute_command(args: list[Union[FilePath, str]],
         Returns:
             (bool): True if retval.returncode == comparison, False otherwise
     """
-    if env is None:
-        retval = subprocess.run(args, check=False)
-    else:
-        retval = subprocess.run(args, env=env, check=False)
-    return retval.returncode == comparison
+    _result, retval = execute_command_with_response(args, env)
 
-
-# This executes a command with the output captured
-def execute_command_with_response(args: list[str], env: Optional[dict] = None) -> str:
-    """
-    Executes a command and returns stdout
-
-        Parameters:
-            args ([str]): The commandline
-            env (dict): Environment variables to set
-        Returns:
-            (str): The stdout from the execution
-    """
-    if env is None:
-        result = subprocess.run(args, stdout=PIPE, stderr=STDOUT, check=False)
-    else:
-        result = subprocess.run(args, stdout=PIPE, stderr=STDOUT, env=env, check=False)
-    return result.stdout.decode("utf-8", errors="replace")
+    return retval == comparison

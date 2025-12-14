@@ -562,7 +562,7 @@ def get_github_version(url: str, version_regex: str) -> Optional[tuple[list[str]
                 body = deep_get(release, DictPath("body"), "")
                 versions.append((list(tmp_match.groups()), published_at, body))
     if versions:
-        return cast(tuple[list[str], str, str], natsorted(versions, reverse=True)[0])
+        return natsorted(versions, reverse=True)[0]
 
     return [], "", ""
 

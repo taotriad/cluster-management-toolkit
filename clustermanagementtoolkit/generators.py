@@ -237,7 +237,7 @@ def format_list(items: Any, fieldlen: int, pad: bool,
             elif field_formatter:
                 formatted_string = field_formatter(string, "numerical", selected)
             else:
-                default_field_color = cast(ThemeAttr, field_colors[min(i, len(field_colors) - 1)])
+                default_field_color = field_colors[min(i, len(field_colors) - 1)]
                 formatted_string, __string = map_value(string, selected=selected,
                                                        default_field_color=default_field_color,
                                                        mapping=mapping)

@@ -130,7 +130,7 @@ def test_check_sudo_configuration(verbose: bool = False) -> tuple[str, bool]:
                     "verbose": True,
                     "quiet_on_ok": False,
                 },
-                "    (ALL) NOPASSWD: ALL",
+                ("    (ALL) NOPASSWD: ALL", 0),
                 # We shouldn't exit and no new errors
                 (False, 0, 0, 0, 0),
                 None,
@@ -142,7 +142,7 @@ def test_check_sudo_configuration(verbose: bool = False) -> tuple[str, bool]:
                     "verbose": False,
                     "quiet_on_ok": True,
                 },
-                "    (ALL) NOPASSWD: ALL",
+                ("    (ALL) NOPASSWD: ALL", 0),
                 # We shouldn't exit and no new errors
                 (False, 0, 0, 0, 0),
                 None,
@@ -154,7 +154,7 @@ def test_check_sudo_configuration(verbose: bool = False) -> tuple[str, bool]:
                     "verbose": True,
                     "quiet_on_ok": False,
                 },
-                "    (ALL : ALL) ALL",
+                ("    (ALL : ALL) ALL", 0),
                 # We shouldn't exit; 1 new error
                 (False, 0, 1, 0, 0),
                 None,
@@ -166,7 +166,7 @@ def test_check_sudo_configuration(verbose: bool = False) -> tuple[str, bool]:
                     "verbose": False,
                     "quiet_on_ok": True,
                 },
-                "    (ALL : ALL) ALL",
+                ("    (ALL : ALL) ALL", 0),
                 # We shouldn't exit; 1 new error
                 (False, 0, 1, 0, 0),
                 None,
@@ -178,7 +178,7 @@ def test_check_sudo_configuration(verbose: bool = False) -> tuple[str, bool]:
                     "verbose": True,
                     "quiet_on_ok": False,
                 },
-                "User foobar is not allowed to run sudo on baz",
+                ("User foobar is not allowed to run sudo on baz", 1),
                 # We shouldn't exit; 1 new error
                 (False, 0, 1, 0, 0),
                 None,
@@ -190,7 +190,7 @@ def test_check_sudo_configuration(verbose: bool = False) -> tuple[str, bool]:
                     "verbose": False,
                     "quiet_on_ok": True,
                 },
-                "User foobar is not allowed to run sudo on baz",
+                ("User foobar is not allowed to run sudo on baz", 1),
                 # We shouldn't exit; 1 new error
                 (False, 0, 1, 0, 0),
                 None,
@@ -650,7 +650,7 @@ def test_check_known_hosts_hashing(verbose: bool = False) -> tuple[str, bool]:
                 {
                     "verbose": True,
                 },
-                "hashknownhosts no",
+                ("hashknownhosts no", 0),
                 # We shouldn't exit and no new errors
                 (False, 0, 0, 0, 0),
             ),
@@ -659,14 +659,14 @@ def test_check_known_hosts_hashing(verbose: bool = False) -> tuple[str, bool]:
                 {
                     "verbose": False,
                 },
-                "hashknownhosts no",
+                ("hashknownhosts no", 0),
                 # We shouldn't exit and no new errors
                 (False, 0, 0, 0, 0),
             ),
             # Known hosts hashing enabled
             (
                 {},
-                "hashknownhosts yes",
+                ("hashknownhosts yes", 0),
                 # We shouldn't exit; 1 new warning
                 (False, 0, 0, 1, 0),
             ),

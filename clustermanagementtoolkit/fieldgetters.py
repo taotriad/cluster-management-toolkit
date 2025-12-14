@@ -11,7 +11,7 @@ Get data for fields in a list; typically used to populate _extra_data
 
 import copy
 import re
-from typing import Any, Optional
+from typing import Any
 from collections.abc import Callable
 
 from clustermanagementtoolkit.cmtio import execute_command_with_response, secure_which
@@ -51,7 +51,7 @@ def fieldgetter_executable_version(**kwargs: Any) -> list[Any]:
     version = []
 
     if executable_path:
-        result: Optional[str] = execute_command_with_response([executable_path] + args)
+        result, _retval = execute_command_with_response([executable_path] + args)
         if result:
             for line in result.splitlines():
                 if (tmp := re.match(version_regex, line)) is not None:
@@ -85,8 +85,8 @@ def fieldgetter_crc_version(**kwargs: Any) -> list[Any]:
         crc_path = None
 
     if crc_path:
-        args = ["status"]
-        result: Optional[str] = execute_command_with_response([crc_path] + args)
+        args = ["version"]
+        result, _retval = execute_command_with_response([crc_path] + args)
 
         if result:
             for line in result.splitlines():
@@ -97,7 +97,7 @@ def fieldgetter_crc_version(**kwargs: Any) -> list[Any]:
             # OK, we hopefully have a CRC cluster setup; it might not be running, but that's OK,
             # we want the version information anyway.
             args = ["version"]
-            result = execute_command_with_response([crc_path] + args)
+            result, _retval = execute_command_with_response([crc_path] + args)
 
         if result is not None:
             for line in result.splitlines():

@@ -52,7 +52,7 @@ def test_fieldgetter_executable_version(verbose: bool = False) -> tuple[str, boo
                     "args": ["--version"],
                     "version_regex": r"true.+ (\d+)(\.)(\d+)",
                 },
-                "true (GNU coreutils) 9.5",
+                ("true (GNU coreutils) 9.5", 1),
                 ["9.5"],
                 None,
             ),
@@ -62,7 +62,7 @@ def test_fieldgetter_executable_version(verbose: bool = False) -> tuple[str, boo
                     "args": ["version"],
                     "version_regex": r"true.+ (\d+)(\.)(\d+)",
                 },
-                "",
+                ("", 1),
                 [""],
                 None,
             ),
@@ -170,41 +170,43 @@ def test_fieldgetter_crc_version(verbose: bool = False) -> tuple[str, bool]:
             (
                 [0],
                 [FileNotFoundError],
-                ["Machine does not exist", ""],
+                ("", 1),
                 [""],
                 None,
             ),
             (
                 [0],
                 ["/usr/bin/crc"],
-                ["Machine does not exist", ""],
+                ("Machine does not exist", 1),
                 [""],
                 None,
             ),
             (
                 [0],
                 ["/usr/bin/crc"],
-                ["CRC VM:          Running",
-                 "CRC version: 2.46.0+8f40e8\nOpenShift version: 4.17.10\n"
-                 "MicroShift version: 4.17.10"],
+                ("CRC version: 2.46.0+8f40e8\n"
+                 "OpenShift version: 4.17.10\n"
+                 "MicroShift version: 4.17.10", 0),
                 ["2.46.0+8f40e8"],
                 None,
             ),
             (
                 [0, 1, 3],
                 ["/usr/bin/crc"],
-                ["CRC VM:          Running",
-                 "CRC version: 2.46.0+8f40e8\nOpenShift version: 4.17.10\n"
-                 "Podman version: 1.2.3\nSomething else here"],
+                ("CRC version: 2.46.0+8f40e8\n"
+                 "OpenShift version: 4.17.10\n"
+                 "Podman version: 1.2.3\n"
+                 "Something else here", 0),
                 ["2.46.0+8f40e8", "4.17.10", "1.2.3"],
                 None,
             ),
             (
                 [4],
                 ["/usr/bin/crc"],
-                ["CRC VM:          Running",
-                 "CRC version: 2.46.0+8f40e8\nOpenShift version: 4.17.10\n"
-                 "Podman version: 1.2.3\nSomething else here"],
+                ("CRC version: 2.46.0+8f40e8\n"
+                 "OpenShift version: 4.17.10\n"
+                 "Podman version: 1.2.3\n"
+                 "Something else here", 0),
                 [],
                 None,
             ),
@@ -217,7 +219,7 @@ def test_fieldgetter_crc_version(verbose: bool = False) -> tuple[str, bool]:
                                 side_effect=mock_response_1), \
                         mock.patch("clustermanagementtoolkit.fieldgetters."
                                    "execute_command_with_response",
-                                   side_effect=mock_response_2):
+                                   return_value=mock_response_2):
                     tmp = fun(fields=fields)
                 if tmp != expected_result:
                     message = f"{fun.__name__}() did not yield expected result:\n" \
@@ -226,6 +228,7 @@ def test_fieldgetter_crc_version(verbose: bool = False) -> tuple[str, bool]:
                     result = False
                     break
             except Exception as e:
+                raise
                 if expected_exception is not None:
                     if isinstance(e, expected_exception):
                         pass

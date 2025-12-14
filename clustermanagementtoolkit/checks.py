@@ -151,7 +151,7 @@ def check_sudo_configuration(**kwargs: Any) -> tuple[bool, int, int, int, int]:
                         ANSIThemeStr("localhost", "hostname"),
                         ANSIThemeStr("]", "phase")])
     args = ["/usr/bin/sudo", "-l"]
-    result = execute_command_with_response(args)
+    result, _retval = execute_command_with_response(args)
 
     sudoer = True
 
@@ -429,7 +429,7 @@ def check_known_hosts_hashing(**kwargs: Any) -> tuple[bool, int, int, int, int]:
                         ANSIThemeStr(" settings can vary per host this test "
                                      "is not 100% reliable.\n", "default")])
     args = [SSH_BIN_PATH, "-G", "localhost"]
-    result = execute_command_with_response(args)
+    result, _retval = execute_command_with_response(args)
 
     hashknownhosts_regex = re.compile(r"^hashknownhosts\s+yes$")
 

@@ -153,7 +153,7 @@ def test_execute_command_with_response(checkdata: dict) -> tuple[int, str]:
     expect_exception = deep_get(checkdata, DictPath("expect_exception"), None)
 
     try:
-        result = execute_command_with_response(command, env=env)
+        result, _retval = execute_command_with_response(command, env=env)
         if result != expect:
             return 1, f"expected {expect}, got {result}"
         if expect_exception is not None:

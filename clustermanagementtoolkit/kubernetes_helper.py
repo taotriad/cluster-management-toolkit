@@ -649,7 +649,7 @@ def kubectl_get_version() -> tuple[Optional[int], Optional[int], str,
     args = [kubectl_path, "version", "-oyaml"]
 
     try:
-        response = execute_command_with_response(args)
+        response, _retval = execute_command_with_response(args)
         version_data = yaml.safe_load(response)
     except yaml.scanner.ScannerError:  # pragma: no cover
         return -1, -1, "", -1, -1, ""

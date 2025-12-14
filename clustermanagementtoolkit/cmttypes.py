@@ -18,7 +18,7 @@ import os
 from pathlib import Path, PurePath
 import sys
 import traceback
-from typing import Any, NewType, Optional, Union
+from typing import Any, cast, NewType, Optional, Union
 
 DictPath = NewType("DictPath", str)
 
@@ -118,6 +118,8 @@ def deep_pop(dictionary: Optional[Any], path: DictPath, key: DictPath, default: 
     Given a dictionary, a path into that dictionary, and a key at that path, pop the key
     and return its value (or default if the dict, path, or key doesn't exist).
 
+    FIXME: Surely this implementation is broken?
+
         Parameters:
             dictionary (dict|CommentedMap): The dict to get the value from
             path (DictPath): A dict path
@@ -126,9 +128,13 @@ def deep_pop(dictionary: Optional[Any], path: DictPath, key: DictPath, default: 
         Returns:
             (Any): The value from the path
     """
-    reduced_path: Optional[DictPath] = deep_get(dictionary, path, default)
+    reduced_path: Optional[Union[dict, DictPath]] = \
+        deep_get(dictionary, path, default)
     if reduced_path is not None:
-        result = reduced_path.pop(key, default)
+        if isinstance(reduced_path, dict):
+            result = reduced_path.pop(key, default)
+        else:
+            result = reduced_path
     else:
         result = default
 
@@ -923,7 +929,7 @@ def loglevel_to_name(loglevel: LogLevel) -> str:
         loglevel = LogLevel.DEBUG
     elif loglevel < LogLevel.EMERG or loglevel > LogLevel.DIFFSAME:
         loglevel = LogLevel.INFO
-    return loglevel_mappings.get(loglevel)
+    return cast(str, loglevel_mappings.get(loglevel))
 
 
 def get_loglevel_names() -> list[str]:

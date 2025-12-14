@@ -666,7 +666,7 @@ def install_software_with_pip_fallback(packages: dict, pip_proxy: str = "",
             sys.exit(errno.ENOENT)
 
         args = [apt_cache_path, "madison"] + list(packages.keys())
-        response = execute_command_with_response(args)
+        response, _retval = execute_command_with_response(args)
         split_response = response.splitlines()
 
         for line in split_response:
@@ -696,7 +696,7 @@ def install_software_with_pip_fallback(packages: dict, pip_proxy: str = "",
             sys.exit(errno.ENOENT)
 
         args = [zypper_path, "info"] + list(packages.keys())
-        response = execute_command_with_response(args)
+        response, _retval = execute_command_with_response(args)
         split_response = response.splitlines()
 
         information_for_regex: re.Pattern[str] = re.compile(r"^Information for package (.+):$")
@@ -728,7 +728,7 @@ def install_software_with_pip_fallback(packages: dict, pip_proxy: str = "",
             sys.exit(errno.ENOENT)
 
         args = [yum_path, "list", "-q"] + list(packages.keys())
-        response = execute_command_with_response(args)
+        response, _retval = execute_command_with_response(args)
         split_response = response.splitlines()
 
         information_for_regex = re.compile(r"^([^.]+).+$")

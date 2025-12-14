@@ -120,9 +120,6 @@ from clustermanagementtoolkit import checks
 
 try:
     import prctl
-    # Pylint complains that prctl does not have a member called set_name();
-    # prctl disagrees...
-    # pylint: disable-next=no-member
     prctl.set_name(os.path.basename(sys.argv[0]))
     prctl.set_proctitle(" ".join(sys.argv))
 except ModuleNotFoundError:  # pragma: no cover
@@ -787,7 +784,7 @@ def check_version_from_executable(command: FilePath, args: list[str],
         cpath = None
 
     if cpath is not None:
-        result = execute_command_with_response([cpath] + args)
+        result, _retval = execute_command_with_response([cpath] + args)
 
         if result is not None:
             versionoutput = result.splitlines()
@@ -979,7 +976,7 @@ def __upgrade_cni(cni: str, upgradetype: str, context: str,
                     else:
                         # This should check whether kubectl is >= 1.22;
                         # otherwise we need to use create
-                        execute_command_with_response(args)
+                        _result, _retval = execute_command_with_response(args)
         else:
             ansithemeprint([ANSIThemeStr("No newer version available.", "default")])
     elif install_command is not None and (version is None or len(version) == 0):
@@ -1123,8 +1120,9 @@ def teardown_cni(options: list[tuple[str, str]], args: list[str]) -> None:
     kubectl_path = secure_which(FilePath("/usr/bin/kubectl"),
                                 fallback_allowlist=["/etc/alternatives"],
                                 security_policy=SecurityPolicy.ALLOWLIST_RELAXED)
-    context = execute_command_with_response([kubectl_path,
-                                             "config", "current-context"]).splitlines()[0]
+    result, _retval = \
+        execute_command_with_response([kubectl_path, "config", "current-context"])
+    context_name = result.splitlines()[0]
     cni = installation_info[cluster_name]["cni"]
     if cni in ("", "<none>", "<unknown>"):
         ansithemeprint([ANSIThemeStr("Error", "error"),
@@ -1229,12 +1227,12 @@ def teardown_cni(options: list[tuple[str, str]], args: list[str]) -> None:
         kubectl_path = secure_which(FilePath("/usr/bin/kubectl"),
                                     fallback_allowlist=["/etc/alternatives"],
                                     security_policy=SecurityPolicy.ALLOWLIST_RELAXED)
-        execute_command_with_response([kubectl_path, "delete", "-f", cni_path])
+        _result, _retval = execute_command_with_response([kubectl_path, "delete", "-f", cni_path])
 
     if uninstall_command is not None:
         # In case we have an uninstall command we run that
         substitutions = {
-            "<<<context>>>": context,
+            "<<<context>>>": context_name,
         }
         check_and_print_status(execute_command(substitute_list(uninstall_command, substitutions)))
 
@@ -1338,8 +1336,9 @@ def upgrade_cni(options: list[tuple[str, str]], args: list[str]) -> None:
         secure_which(FilePath("/usr/bin/kubectl"),
                      fallback_allowlist=["/etc/alternatives"],
                      security_policy=SecurityPolicy.ALLOWLIST_RELAXED)
-    context_name = \
-        execute_command_with_response([kubectl_path, "config", "current-context"]).splitlines()[0]
+    result, _retval = \
+        execute_command_with_response([kubectl_path, "config", "current-context"])
+    context_name = result.splitlines()[0]
 
     if install_cni:
         ansithemeprint([ANSIThemeStr("\n[Installing CNI]", "phase")])
@@ -1624,7 +1623,7 @@ def install_ansible_posix() -> bool:
     # Old versions of ansible-galaxy does not have the list command;
     # if it does not work we just assume that ansible.posix is missing
     args = ["/usr/bin/ansible-galaxy", "collection", "list"]
-    result = execute_command_with_response(args)
+    result, _retval = execute_command_with_response(args)
 
     if "COLLECTION_ACTION: invalid choice" in result or "ansible.posix" not in result:
         http_proxy = deep_get(cmtlib.cmtconfig, DictPath("Network#http_proxy"), "")
@@ -1770,7 +1769,7 @@ def check_versions(pkg_packages: list[str], version_checks: list[tuple[str, list
         regex = version_check[2]
 
         try:
-            response = execute_command_with_response(args)
+            response, _retval = execute_command_with_response(args)
         except FileNotFoundError:
             other_versions.append((tmp_software, "<none>", "", []))
             continue
@@ -2226,7 +2225,7 @@ def __task_setup_bash_completion(installation_info: dict, verbose: bool = False)
     secure_mkdir(BASH_COMPLETION_DIR, verbose=True)
 
     args = ["/usr/bin/kubectl", "completion", "bash"]
-    result = execute_command_with_response(args)
+    result, _retval = execute_command_with_response(args)
     secure_write_string(BASH_COMPLETION_DIR.joinpath("kubectl"), result)
 
 
@@ -2611,7 +2610,7 @@ def __task_drain_control_planes(installation_info: dict, verbose: bool = False) 
     # might already be partially deconfigured
     # XXX: This should be done on the control plane(s), not on localhost
     args = ["/usr/bin/sudo", "/usr/bin/lsof", "-i", "-P", "-n"]
-    response = execute_command_with_response(args)
+    response, _retval = execute_command_with_response(args)
     running = False
     for line in response.splitlines():
         if "6443 (LISTEN)" in line:
@@ -5280,15 +5279,15 @@ def create_cluster(options: list[tuple[str, str]], args: list[str]) -> None:
                         if verbose:
                             check_and_print_status(execute_command(args + [uri], env=env))
                         else:
-                            execute_command_with_response(args + [uri], env=env)
+                            _result, _retval = execute_command_with_response(args + [uri], env=env)
                     if wtype in ("namespace", "secret+tls"):
-                        dry_run_result = \
+                        dry_run_result, _retval = \
                             execute_command_with_response(args + ["--dry-run=server"], env=env)
                         if "already exists" not in dry_run_result:
                             if verbose:
                                 check_and_print_status(execute_command(args, env=env))
                             else:
-                                execute_command_with_response(args, env=env)
+                                _result, _retval = execute_command_with_response(args, env=env)
                     if data is not None:
                         # pylint: disable-next=consider-using-with
                         tf = tempfile.NamedTemporaryFile(delete=True)
@@ -5297,7 +5296,7 @@ def create_cluster(options: list[tuple[str, str]], args: list[str]) -> None:
                         if verbose:
                             check_and_print_status(execute_command(args + [path], env=env))
                         else:
-                            execute_command_with_response(args + [path], env=env)
+                            _result, _retval = execute_command_with_response(args + [path], env=env)
                 elif "helm" in data:
                     if helm_path is None:
                         ansithemeprint([ANSIThemeStr("Warning", "warning"),
@@ -5344,12 +5343,12 @@ def create_cluster(options: list[tuple[str, str]], args: list[str]) -> None:
                     if verbose:
                         check_and_print_status(execute_command(args))
                     else:
-                        execute_command_with_response(args)
+                        _result, _retval = execute_command_with_response(args)
 
                     # Check whether the component is already installed
                     args = [helm_path, "list", "--namespace", namespace,
                             "--filter", f"^{hname}$", "--no-headers"]
-                    response = execute_command_with_response(args, env=env)
+                    response, _retval = execute_command_with_response(args, env=env)
                     tmp = re.match(fr"^{hname}\s.+{version}$", response)
                     # We've got an exact match for version and name; for now we just ignore.
                     # We might add a remove + install policy later.
@@ -5369,7 +5368,7 @@ def create_cluster(options: list[tuple[str, str]], args: list[str]) -> None:
                     if verbose:
                         check_and_print_status(execute_command(args, env=env))
                     else:
-                        execute_command_with_response(args, env=env)
+                        _result, _retval = execute_command_with_response(args, env=env)
 
                     args = [helm_path, "upgrade", hname, chart, "--namespace", namespace,
                             "--version", version, "--install"]
@@ -5395,7 +5394,7 @@ def create_cluster(options: list[tuple[str, str]], args: list[str]) -> None:
                     if verbose:
                         check_and_print_status(execute_command(args, env=env))
                     else:
-                        execute_command_with_response(args, env=env)
+                        _result, _retval = execute_command_with_response(args, env=env)
 
             installation_info = \
                 update_installation_info(cluster_name=cluster_name, state="deploying", phase=i)

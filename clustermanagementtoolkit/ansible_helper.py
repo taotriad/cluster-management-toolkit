@@ -336,7 +336,7 @@ def ansible_get_inventory_pretty(**kwargs: Any) -> list[Union[list[ANSIThemeStr]
     except ruyaml.constructor.DuplicateKeyError as e:
         keyname = re.match(r".*found duplicate key \"(.+?)\".*", str(e).replace("\n", "\\n"))
         if keyname:
-            raise KeyError(f"duplicate key: {keyname[1]}")
+            raise KeyError(f"duplicate key: {keyname[1]}") from e
         raise e
 
     # We want the entire inventory
@@ -1272,7 +1272,7 @@ def ansible_delete_log(log: str, **kwargs: Any) -> None:
                 dirpath (str): The path to the logs
     """
     dirpath: str = deep_get(kwargs, DictPath("dirpath"), ANSIBLE_LOG_DIR)
-    logpath: str = Path(f"{dirpath}/{log}")
+    logpath: Path = Path(f"{dirpath}/{log}")
     if logpath.exists():
         if logpath.is_dir():
             for file in logpath.iterdir():

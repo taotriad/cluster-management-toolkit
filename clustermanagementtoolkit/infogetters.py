@@ -559,7 +559,7 @@ def transform_list(vlist: Union[list, dict], transform: dict) -> list[Any]:
             result.append(tuple(tmp3))
 
     if sort:
-        return cast(list[Any], natsorted(result))
+        return natsorted(result)
 
     return result
 
@@ -2740,7 +2740,7 @@ def get_cmt_log(obj: dict, **kwargs: Any) -> \
                     fmt = ThemeAttr("logview", f"severity_{themeref}")
                 if fmt is None:
                     fmt = ThemeAttr("main", "default")
-                reformatted_msg.append(ThemeStr(string, cast(ThemeAttr, fmt)))
+                reformatted_msg.append(ThemeStr(string, fmt))
             messages.append(reformatted_msg)
 
     return timestamps, facilities, severities, messages
@@ -2814,7 +2814,9 @@ def get_log_info(**kwargs: Any) -> list[Type]:
     journalctl_path: FilePath = secure_which(FilePath(os.path.join(BINDIR, "journalctl")),
                                              fallback_allowlist=["/bin", "/usr/bin"],
                                              security_policy=SecurityPolicy.ALLOWLIST_STRICT)
-    args: list[str] = [sudo_path, journalctl_path, "--no-pager", "-o", "json"]
+    # Pass -n to sudo to ensure that it doesn't try to authenticate interactively;
+    # let it fail instead if it cannot sudo non-interactively.
+    args: list[str] = [sudo_path, "-n", journalctl_path, "--no-pager", "-o", "json"]
 
     logs: list[tuple[str, str, list[str], str]] = [
         ("Latest boot, last 1h", "[dmesg]",
@@ -2829,8 +2831,8 @@ def get_log_info(**kwargs: Any) -> list[Type]:
 
     try:
         for name, action, log, parser in logs:
-            response = execute_command_with_response(args + log)
-            if not response:
+            response, retval = execute_command_with_response(args + log)
+            if not response or retval:
                 continue
 
             # The first entry in the obj list holds metadata;

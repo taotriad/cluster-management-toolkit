@@ -945,7 +945,7 @@ def check_versions_apt(packages: list[str]) -> list[tuple[str, str, str, list[st
                                         fallback_allowlist=["/bin", "/usr/bin"],
                                         security_policy=SecurityPolicy.ALLOWLIST_STRICT)
     args = [apt_cache_path, "policy"] + packages
-    response = cmtio.execute_command_with_response(args)
+    response, _retval = cmtio.execute_command_with_response(args)
     split_response = response.splitlines()
     installed_regex = re.compile(r"^\s*Installed: (.*)")
     candidate_regex = re.compile(r"^\s*Candidate: (.*)")
@@ -977,11 +977,11 @@ def check_versions_apt(packages: list[str]) -> list[tuple[str, str, str, list[st
             apt_cache_path = cmtio.secure_which(FilePath("apt-cache"),
                                                 fallback_allowlist=["/bin", "/usr/bin"],
                                                 security_policy=SecurityPolicy.ALLOWLIST_STRICT)
-            _args = [apt_cache_path, "madison", package]
-            _response = cmtio.execute_command_with_response(_args)
-            _split_response = _response.splitlines()
+            args2 = [apt_cache_path, "madison", package]
+            response2, _retval = cmtio.execute_command_with_response(args2)
+            split_response2 = response2.splitlines()
             all_versions = []
-            for version in _split_response:
+            for version in split_response2:
                 if version.endswith(" Packages"):
                     all_versions.append(__extract_version(version))
             natsorted_versions = []
@@ -992,6 +992,7 @@ def check_versions_apt(packages: list[str]) -> list[tuple[str, str, str, list[st
     return versions
 
 
+# pylint: disable-next=too-many-locals
 def check_versions_yum(packages: list[str]) -> list[tuple[str, str, str, list[str]]]:
     """
     Given a list of packages, return installed, candidate, and all available versions.
@@ -1007,7 +1008,7 @@ def check_versions_yum(packages: list[str]) -> list[tuple[str, str, str, list[st
     yum_path = cmtio.secure_which(FilePath("/usr/bin/yum"), fallback_allowlist=["/usr/bin"],
                                   security_policy=SecurityPolicy.ALLOWLIST_RELAXED)
     args = [yum_path, "-y", "-q", "list", "--showduplicates"] + packages
-    response = cmtio.execute_command_with_response(args)
+    response, _retval = cmtio.execute_command_with_response(args)
     split_response = response.splitlines()
 
     package_version = re.compile(r"^([^.]+)[^\s]+[\s]+([^\s]+).*")
@@ -1067,7 +1068,7 @@ def check_versions_zypper(packages: list[str]) -> list[tuple[str, str, str, list
     zypper_path = cmtio.secure_which(FilePath("/usr/bin/zypper"), fallback_allowlist=["/usr/bin"],
                                      security_policy=SecurityPolicy.ALLOWLIST_RELAXED)
     args = [zypper_path, "search", "-s", "-x"] + packages
-    response = cmtio.execute_command_with_response(args)
+    response, _retval = cmtio.execute_command_with_response(args)
     split_response = response.splitlines()
 
     # il | kubernetes1.28-kubeadm | package | 1.28.3-150400.5.1 | x86_64 | kubic

@@ -82,9 +82,6 @@ from clustermanagementtoolkit.ansithemeprint import ansithemestr_join_list
 
 try:
     import prctl
-    # Pylint complains that prctl does not have a member called set_name();
-    # prctl disagrees...
-    # pylint: disable-next=no-member
     prctl.set_name(os.path.basename(sys.argv[0]))
     prctl.set_proctitle(" ".join(sys.argv))
 except ModuleNotFoundError:  # pragma: no cover
@@ -913,7 +910,6 @@ def populate_playbooks() -> dict:
     return playbooks
 
 
-# pylint: disable-next=too-many-branches
 def populate_playbooks_lookup(**kwargs: Any) -> dict:
     """
     Populate a lookup table from playbook aliases to playbook names.
@@ -1117,7 +1113,7 @@ def run_playbook(options: list[tuple[str, str]], args: list[str]) -> int:
         sys.exit(errno.ENOENT)
 
     playbooks = populate_playbooks()
-    playbooks_lookup = populate_playbooks_lookup(playbooks = playbooks)
+    playbooks_lookup = populate_playbooks_lookup(playbooks=playbooks)
 
     if playbook_alias not in playbooks_lookup:
         ansithemeprint([ANSIThemeStr("Error", "error"),

@@ -92,9 +92,6 @@ from clustermanagementtoolkit.ansithemeprint import ansithemeinput_password
 
 try:
     import prctl
-    # Pylint complains that prctl does not have a member called set_name();
-    # prctl disagrees...
-    # pylint: disable-next=no-member
     prctl.set_name(os.path.basename(sys.argv[0]))
     prctl.set_proctitle(" ".join(sys.argv))
 except ModuleNotFoundError:  # pragma: no cover
