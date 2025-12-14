@@ -2,7 +2,7 @@
 
 If you haven't already cloned the CMT repository, first do so:
 
-`git clone https://github.com/intel/cluster-management-toolkit.git`
+`git clone https://github.com/taotriad/cluster-management-toolkit.git`
 
 ## .netrc
 

@@ -36,4 +36,4 @@ for improvements, let us know. The templates are versioned for a reason.
 
 Please file feature requests in our issue tracker:
 
-[Feature Request](https://github.com/intel/cluster-management-toolkit/issues).
+[Feature Request](https://github.com/taotriad/cluster-management-toolkit/issues).

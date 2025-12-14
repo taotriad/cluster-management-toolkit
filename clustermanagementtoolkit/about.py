@@ -10,7 +10,9 @@ for Cluster Management Toolkit for Kubernetes
 
 import sys
 
-COPYRIGHT = "Copyright © 2019-2025 Intel Corporation"
+COPYRIGHT = \
+    "Copyright © 2019-2025 Intel Corporation\n" \
+    "Copyright © 2025 David Weinehall\n"
 
 LICENSE = "This is free software; see the source for copying conditions.  There is NO\n"
 LICENSE += "warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE."
@@ -20,16 +22,16 @@ PROGRAM_SUITE_FULL_NAME = "Cluster Management Toolkit for Kubernetes"
 PROGRAM_SUITE_VERSION = "0.8.5"
 
 UI_PROGRAM_NAME = "cmu"
-UI_PROGRAM_VERSION = "0.5.2"
+UI_PROGRAM_VERSION = "0.5.3"
 
 TOOL_PROGRAM_NAME = "cmt"
-TOOL_PROGRAM_VERSION = "0.6.6"
+TOOL_PROGRAM_VERSION = "0.6.7"
 
 INSTALL_PROGRAM_NAME = "cmt-install"
-INSTALL_PROGRAM_VERSION = "0.13.7"
+INSTALL_PROGRAM_VERSION = "0.13.8"
 
 ADMIN_PROGRAM_NAME = "cmtadm"
-ADMIN_PROGRAM_VERSION = "0.9.3"
+ADMIN_PROGRAM_VERSION = "0.9.4"
 
 INVENTORY_PROGRAM_NAME = "cmtinv"
 INVENTORY_PROGRAM_VERSION = "0.4.7"

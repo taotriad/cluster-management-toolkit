@@ -70,7 +70,7 @@ N/A.
 
 ### Changes to _cmt_ in v0.8.6
 
-No changes.
+* Support JoinConfiguration API v1beta4.
 
 ### Changes to _cmtadm_ in v0.8.6
 
@@ -84,13 +84,19 @@ No changes.
 
 ### Changes to _cmtinv_ in v0.8.6
 
-No changes.
+* Added the `explain` command for playbooks; it explains the actions a playbook will perform.
+  This only works if the playbook has been documented properly.
+* It is now possible to refer to playbooks by an alias (and consequently to define aliases
+  in the playbooks).
+* `ping` now has supports the `--verbose` flag.
 
 ### Changes to _cmu_ in v0.8.6
 
 * The container status in the container log view now trims control characters.
 * The clusteroverview has now been fixed not to overwrite the first line
   of the event pad.
+* The log view now only outputs the logs from journalctl if non-interactive
+  sudo is configured.
 
 ### Changes to other files in v0.8.6
 
@@ -105,6 +111,8 @@ No changes.
   for resources that it did not know about (possibly also in other places).
   Now it'll log a message about it and silently ignore the request.
 * ClusterDeployment v1alpha5; support options.suffixAdmin and helm.extraArgs.
+* `cmt-install` now installs ruamel.yaml (those who prefer ruyaml currently
+  need to install it manually).
 
 ### Notable view-file changes (by API-files)
 
