@@ -1059,22 +1059,26 @@ def secure_symlink(src: FilePath, dst: FilePath, verbose: bool = False,
 
 
 # This executes a command with the output captured
-def execute_command_with_response(args: list[str], env: Optional[dict] = None) -> tuple[str, int]:
+def execute_command_with_response(args: list[str], env: Optional[dict] = None,
+                                  stdinput: Optional[bytes] = None) -> tuple[str, int]:
     """
     Executes a command and returns stdout
 
         Parameters:
             args ([str]): The commandline
-            env (dict): Environment variables to set
+            env (dict): Environment variables to set [optional]
+            stdinput ([str]): stdin to pass through the process [optional]
         Returns:
             (str, int):
                 (str): The stdout from the execution
                 (int): The return value from the execution
     """
     if env is None:
-        result = subprocess.run(args, stdout=PIPE, stderr=STDOUT, check=False)
+        result = subprocess.run(args, stdout=PIPE, stderr=STDOUT,
+                                input=stdinput, check=False)
     else:
-        result = subprocess.run(args, stdout=PIPE, stderr=STDOUT, env=env, check=False)
+        result = subprocess.run(args, stdout=PIPE, stderr=STDOUT,
+                                input=stdinput, env=env, check=False)
     retval = result.returncode
 
     return result.stdout.decode("utf-8", errors="replace"), retval

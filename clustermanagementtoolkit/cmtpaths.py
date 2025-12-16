@@ -100,6 +100,8 @@ KUBE_CREDENTIALS_FILE = KUBE_CONFIG_DIR.joinpath("credentials")
 SSH_DIR = HOMEDIR.joinpath(".ssh")
 SSH_BIN_PATH = FilePath("/usr/bin/ssh")
 
+FPING_BIN_PATH = FilePath("/usr/bin/fping")
+
 NETRC_PATH = HOMEDIR.joinpath(".netrc")
 DOT_ANSIBLE_PATH = HOMEDIR.joinpath(".ansible")
 

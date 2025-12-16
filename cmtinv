@@ -40,10 +40,10 @@ from clustermanagementtoolkit import about
 
 from clustermanagementtoolkit.cmttypes import deep_get, deep_get_with_fallback, DictPath, FilePath
 from clustermanagementtoolkit.cmttypes import FilePathAuditError, ProgrammingError, UnknownError
-from clustermanagementtoolkit.cmttypes import SecurityStatus
+from clustermanagementtoolkit.cmttypes import SecurityPolicy, SecurityStatus
 
 from clustermanagementtoolkit.cmtpaths import SYSTEM_ANSIBLE_PLAYBOOK_DIR, ANSIBLE_PLAYBOOK_DIR
-from clustermanagementtoolkit.cmtpaths import HOMEDIR, SSH_DIR
+from clustermanagementtoolkit.cmtpaths import HOMEDIR, SSH_DIR, FPING_BIN_PATH
 from clustermanagementtoolkit.cmtpaths import DEFAULT_THEME_FILE
 
 from clustermanagementtoolkit import cmtio
@@ -89,6 +89,51 @@ except ModuleNotFoundError:  # pragma: no cover
 
 PROGRAMDESCRIPTION = "Query or modify the host inventory."
 PROGRAMAUTHORS = "Written by David Weinehall."
+
+
+def get_groups_or_hosts(groups_or_hosts: str = "", error_on_failure: bool = True) -> list[str]:
+    """
+    Given a comma-separated string split it into tokens and expand them into a list
+    of hosts from the Ansible inventory. If the string is empty or None the hosts
+    of the "all" group will be returned.
+
+        Parameters:
+            groups_or_hosts (str): A comma-separated string
+                                   with a list of hosts or groups [optional]
+            error_on_failure (bool): Print an error message f unknown hosts/groups are specified
+        Returns:
+            (list[str]): A list of host names
+    """
+    if groups_or_hosts is not None and groups_or_hosts:
+        groups_or_hosts_list: list[str] = groups_or_hosts.split(",")
+        selection: list[str] = []
+        all_hosts = ansible_get_hosts_by_group(ANSIBLE_INVENTORY, "all")
+        for group_or_host in groups_or_hosts_list:
+            # First check if there's a group by this name
+            hosts = ansible_get_hosts_by_group(ANSIBLE_INVENTORY, group_or_host)
+            # If the group is empty let's try to see if it is a host
+            if not hosts:
+                if group_or_host in all_hosts:
+                    selection.append(group_or_host)
+                elif error_on_failure:
+                    ansithemeprint([ANSIThemeStr("Warning", "warning"),
+                                    ANSIThemeStr(": Skipping unknown or empty ", "default"),
+                                    ANSIThemeStr("host or group “", "default"),
+                                    ANSIThemeStr(group_or_host, "argument"),
+                                    ANSIThemeStr("“", "default")], stderr=True)
+            else:
+                selection += hosts
+        # Eliminate duplicates
+        selection = list(set(selection))
+    else:
+        selection = ansible_get_hosts_by_group(ANSIBLE_INVENTORY, "all")
+
+    if not selection and error_on_failure:
+        ansithemeprint([ANSIThemeStr("Error", "error"),
+                        ANSIThemeStr(": No valid hosts or groups specified; ", "default"),
+                        ANSIThemeStr("aborting.", "default")], stderr=True)
+
+    return selection
 
 
 # pylint: disable-next=unused-argument
@@ -1071,6 +1116,8 @@ def run_playbook(options: list[tuple[str, str]], args: list[str]) -> int:
     thus mixing group and host names should be OK; but if there are overlaps the group
     is prioritised over the hostname.
 
+    TODO: Convert run_playbook to use get_groups_or_hosts()
+
         Parameters:
             options (list[(str, str)]): List of opt, optarg
             args (list[str]):
@@ -1098,7 +1145,8 @@ def run_playbook(options: list[tuple[str, str]], args: list[str]) -> int:
                 selection.append(group_or_host)
             else:
                 ansithemeprint([ANSIThemeStr("Warning", "warning"),
-                                ANSIThemeStr(": Skipping unknown host or group “", "default"),
+                                ANSIThemeStr(": Skipping unknown or empty ", "default"),
+                                ANSIThemeStr("host or group “", "default"),
                                 ANSIThemeStr(group_or_host, "argument"),
                                 ANSIThemeStr("“", "default")], stderr=True)
         else:
@@ -1193,56 +1241,125 @@ def run_playbook(options: list[tuple[str, str]], args: list[str]) -> int:
     return 0
 
 
-# pylint: disable-next=too-many-branches,too-many-locals
-def ping(options: list[tuple[str, str]], args: list[str]) -> int:
+# pylint: disable-next=too-many-branches,too-many-locals,unused-argument
+def fping(options: list[tuple[str, str]], args: list[str]) -> int:
     """
-    Ping hosts or groups of hosts.
-    Default: ping all hosts.
+    Fping hosts or groups of hosts.
+    Default: fping all hosts.
     Note: A well-formed inventory should not have groups with the same name as any of the hosts,
-    thus mixing group and host names should be OK; but if there are overlaps the group
-    are prioritised over the hostname.
+    thus mixing group and host names should be OK; but if there are overlaps group names
+    are prioritised over host names.
 
         Parameters:
             options (list[(str, str)]): [unused]
             args (list[str]): list of hosts or groups [optional]
         Returns:
-            (int): 0
+            (int): 0 on success, ENOENT if no valid hosts/groups are specified
     """
-    hoststatuses = []
+    hoststatuses: list[tuple[str, str, str]] = []
+
+    fallback_allowlist = ["/bin", "/sbin", "/usr/bin", "/usr/sbin",
+                          "/usr/local/bin", "/usr/local/sbin", f"{HOMEDIR}/bin"]
+    security_policy = SecurityPolicy.ALLOWLIST_RELAXED
+
+    try:
+        fping_path = cmtio.secure_which(FilePath(FPING_BIN_PATH),
+                                        fallback_allowlist=fallback_allowlist,
+                                        security_policy=security_policy)
+    except (FileNotFoundError, RuntimeError):
+        ansithemeprint([ANSIThemeStr("Warning", "warning"),
+                        ANSIThemeStr(": ", "default"),
+                        ANSIThemeStr("fping", "programname"),
+                        ANSIThemeStr(" is not installed; cannot complete request", "default")],
+                       stderr=True)
+        sys.exit(errno.ENOENT)
+
+    groups_or_hosts: str = ""
+    if args:
+        groups_or_hosts = args[0]
+
+    selection = get_groups_or_hosts(groups_or_hosts, error_on_failure=True)
+
+    if not selection:
+        sys.exit(errno.ENOENT)
+
+    print("Please stand by, attempting to fping hosts")
+    print()
+
+    stdinput: bytes = "\n".join(selection).encode("utf-8")
+    result, _retval = cmtio.execute_command_with_response([fping_path], stdinput=stdinput)
+
+    maxlen = 0
+
+    if result:
+        for hostresult in natsorted(result.splitlines()):
+            if "duplicate for" in hostresult:
+                continue
+
+            tmp = re.match(r"(.+?): (.+)", hostresult)
+            if tmp is not None:
+                host = tmp[1]
+                maxlen = max(len(host), maxlen)
+                if tmp[2] == "Name or service not known":
+                    hoststatuses.append((tmp[1], "COULD NOT RESOLVE", "critical"))
+                else:
+                    hoststatuses.append((tmp[1], f"FAILED ({tmp[2]})", "unknown"))
+                continue
+
+            tmp = re.match(r"(.+?) (is (alive|unreachable))", hostresult)
+            if tmp is not None:
+                host = tmp[1]
+                maxlen = max(len(host), maxlen)
+                if tmp[2] == "is alive":
+                    hoststatuses.append((tmp[1], "SUCCESS", "success"))
+                else:
+                    hoststatuses.append((tmp[1], "UNREACHABLE", "error"))
+                continue
+
+    header = "Hostname:"
+
+    maxlen = max(maxlen, len(header))
+
+    if hoststatuses:
+        ansithemeprint([ANSIThemeStr(header, "header"),
+                        ANSIThemeStr(f"{''.ljust(maxlen - len(header))}  ", "default"),
+                        ANSIThemeStr("Status:", "header")])
+
+        for hostname, status, status_group in hoststatuses:
+            ansithemeprint([ANSIThemeStr(f"{hostname.ljust(maxlen)}  ", "default"),
+                            ANSIThemeStr(f"{status}", status_group)])
+
+    return 0
+
+
+def ping(options: list[tuple[str, str]], args: list[str]) -> int:
+    """
+    Ping hosts or groups of hosts.
+    Default: ping all hosts.
+    Note: A well-formed inventory should not have groups with the same name as any of the hosts,
+    thus mixing group and host names should be OK; but if there are overlaps group names
+    are prioritised over host names.
+
+        Parameters:
+            options (list[(str, str)]): [unused]
+            args (str): A comma-separated string with a list of hosts or groups [optional]
+        Returns:
+            (int): 0 on success, ENOENT if no valid hosts/groups are specified
+    """
+    hoststatuses: list[tuple[str, str, str]] = []
     verbose: bool = False
 
     for opt, _optarg in options:
         if opt == "--verbose":
             verbose = True
 
-    if args is not None and args:
-        groups_or_hosts = args[0].split(",")
-        selection = []
-        _all = ansible_get_hosts_by_group(ANSIBLE_INVENTORY, "all")
-        for group_or_host in groups_or_hosts:
-            # First check if there's a group by this name
-            hosts = ansible_get_hosts_by_group(ANSIBLE_INVENTORY, group_or_host)
-            # If the group is empty let's try to see if it is a host
-            if not hosts:
-                if group_or_host in _all:
-                    selection.append(group_or_host)
-                else:
-                    ansithemeprint([ANSIThemeStr("Warning", "warning"),
-                                    ANSIThemeStr(": Skipping unknown ", "default"),
-                                    ANSIThemeStr("host or group “", "default"),
-                                    ANSIThemeStr(group_or_host, "argument"),
-                                    ANSIThemeStr("“", "default")], stderr=True)
-            else:
-                selection += hosts
-        # Eliminate duplicates
-        selection = list(set(selection))
-    else:
-        selection = ansible_get_hosts_by_group(ANSIBLE_INVENTORY, "all")
+    groups_or_hosts: str = ""
+    if args:
+        groups_or_hosts = args[0]
+
+    selection = get_groups_or_hosts(groups_or_hosts, error_on_failure=True)
 
     if not selection:
-        ansithemeprint([ANSIThemeStr("Error", "error"),
-                        ANSIThemeStr(": No valid hosts or groups specified; ", "default"),
-                        ANSIThemeStr("aborting.", "default")], stderr=True)
         sys.exit(errno.ENOENT)
 
     print("Please stand by, attempting to ping hosts")
@@ -1630,6 +1747,44 @@ COMMANDLINE: dict[str, CommandType] = {
         "optional_args": [],
         "callback": list_groups,
     },
+    "Fping": {
+        "command": ["fping"],
+        "values": [
+            ANSIThemeStr("[", "separator"),
+            ANSIThemeStr("GROUP/HOST", "argument"),
+            ANSIThemeStr(",", "separator"),
+            ANSIThemeStr("...", "argument"),
+            ANSIThemeStr("]", "separator")],
+        "description": [
+            ANSIThemeStr("Fping ", "description"),
+            ANSIThemeStr("GROUP", "argument"),
+            ANSIThemeStr(",", "separator"),
+            ANSIThemeStr("...", "argument"),
+            ANSIThemeStr(" or ", "description"),
+            ANSIThemeStr("HOST", "argument"),
+            ANSIThemeStr(",", "separator"),
+            ANSIThemeStr("...", "argument"),
+            ANSIThemeStr(" (Default: “", "description"),
+            ANSIThemeStr("all", "argument"),
+            ANSIThemeStr("“)", "description")],
+        "required_args": [],
+        "optional_args": [
+            {
+                "name": "groups_or_hosts",
+                "string": [
+                    ANSIThemeStr("[", "separator"),
+                    ANSIThemeStr("GROUP/HOST", "argument"),
+                    ANSIThemeStr(",", "separator"),
+                    ANSIThemeStr("...", "argument"),
+                    ANSIThemeStr("]", "separator")],
+                "validation": {
+                    "validator": "hostname_ip_or_ansible_group",
+                    "list_separator": ",",
+                },
+            },
+        ],
+        "callback": fping,
+    },
     "Ping": {
         "command": ["ping"],
         "values": [
@@ -1667,7 +1822,8 @@ COMMANDLINE: dict[str, CommandType] = {
                     ANSIThemeStr("...", "argument"),
                     ANSIThemeStr("]", "separator")],
                 "validation": {
-                    "validator": "hostname_or_ip",
+                    "validator": "hostname_ip_or_ansible_group",
+                    "list_separator": ",",
                 },
             },
         ],

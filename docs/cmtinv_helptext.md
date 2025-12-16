@@ -79,9 +79,15 @@ Query or modify the host inventory.
   __`--include-vars`__
   Show group variables  
 
+### `fping` _[_GROUP/HOST_,_..._]_
+#### Fping _GROUP_,_..._ or _HOST_,_..._ (Default: “_all_“)
+  
 ### `ping` _[_GROUP/HOST_,_..._]_
 #### Ansible ping _GROUP_,_..._ or _HOST_,_..._ (Default: “_all_“)
   
+  __`--verbose`__
+  Be more verbose  
+
 ### `rebuild-inventory`
 #### Create inventory for an existing Kubernetes cluster
   

@@ -89,6 +89,7 @@ N/A.
 * It is now possible to refer to playbooks by an alias (and consequently to define aliases
   in the playbooks).
 * `ping` now has supports the `--verbose` flag.
+* Added `fping` command.
 
 ### Changes to _cmu_ in v0.8.6
 
