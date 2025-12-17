@@ -4522,7 +4522,8 @@ kubernetes_resources: dict[tuple[str, str], dict[str, Union[list[str], str, bool
         "namespaced": False,
     },
     ("OLM", "operator.openshift.io"): {
-        "api_paths": ["apis/operator.openshift.io/v1alpha1/"],
+        "api_paths": ["apis/operator.openshift.io/v1/",
+                      "apis/operator.openshift.io/v1alpha1/"],
         "api": "olms",
         "namespaced": False,
     },
