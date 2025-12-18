@@ -1097,6 +1097,8 @@ def execute_command(args: list[Union[FilePath, str]],
         Returns:
             (bool): True if retval.returncode == comparison, False otherwise
     """
-    _result, retval = execute_command_with_response(args, env)
-
-    return retval == comparison
+    if env is None:
+        result = subprocess.run(args, check=False)
+    else:
+        result = subprocess.run(args, env=env, check=False)
+    return result.returncode == comparison
