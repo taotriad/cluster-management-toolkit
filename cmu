@@ -661,6 +661,22 @@ def generate_list_header(uip: UIProps, field_dict: dict, is_taggable: bool = Fal
         # This tells the length of the alignment of the header
         fieldlen = deep_get(field_dict, DictPath(f"{field}#fieldlen"))
         header = deep_get(field_dict, DictPath(f"{field}#header"))
+        if isinstance(header, list):
+            errmsg = [
+                [("Headers for lists should be regular strings; ", "error")],
+                [("field = ", "default"),
+                 (f"{field}", "argument"),
+                 (" (type: ", "default"),
+                 (f"{type(header)}", "argument"),
+                 (", expected: ", "default"),
+                 (f"{str}", "argument"),
+                 (")", "default")],
+            ]
+            unformatted_msg, formatted_msg = ANSIThemeStr.format_error_msg(errmsg)
+            cmtlog.log(LogLevel.ERR, msg=unformatted_msg, messages=formatted_msg)
+            raise ProgrammingError(unformatted_msg,
+                                   severity=LogLevel.ERR,
+                                   formatted_msg=formatted_msg)
         ralign = deep_get(field_dict, DictPath(f"{field}#ralign"), False)
 
         # We cannot use ljust/rjust on the string,
