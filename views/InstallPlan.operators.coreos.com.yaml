@@ -30,3 +30,147 @@ listview:
           # We only want the first version in the list
           limit: 1
       formatter: "list"
+infoview:
+  name: "Install Plan Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["subscription", "cluster_service_version",
+                 "approval", "approved", "phase"]
+    rows:
+      approval:
+        header: [["Approval:", ["main", "infoheader"]]]
+        path: "spec#approval"
+        type: "str"
+      approved:
+        header: [["Approved:", ["main", "infoheader"]]]
+        path: "spec#approved"
+        type: "bool"
+      cluster_service_version:
+        header: [["C", ["main", "infoheader_shortcut"]],
+                 ["luster Service Version:", ["main", "infoheader"]]]
+        paths:
+          - path: "spec#clusterServiceVersionNames"
+            pathtype: "list"
+            # We only want the first version in the list
+            limit: 1
+        formatter: "list"
+      phase:
+        header: [["Phase:", ["main", "infoheader"]]]
+        path: "status#phase"
+        type: "str"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              "Complete":
+                field_colors:
+                  - context: "main"
+                    type: "status_done"
+      subscription:
+        header: [["S", ["main", "infoheader_shortcut"]],
+                 ["ubscription:", ["main", "infoheader"]]]
+        paths:
+          - path: "metadata#ownerReferences"
+            pathtype: "items"
+            subpaths:
+              - "name"
+            when:
+              - key: "kind"
+                eq: "Subscription"
+        default: "<none>"
+  listpad:
+    listgetter: "listgetter_path"
+    listgetter_args:
+      path: "status#plan"
+    infogetter: "generic_infogetter"
+    field_indexes:
+      Normal:
+        fields: ["kind", "name", "resolving",
+                 "source_namespace", "source_name", "version"]
+        sortcolumn: "kind"
+    fields:
+      kind:
+        header: "Kind:"
+        paths:
+          - path: [["resource#kind"], ["resource#group"]]
+            pathtype: "tuple"
+            type: ["kind", "kind"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "kind"
+            - type: "api_group"
+          field_separators:
+            - type: "kind_api_group"
+      name:
+        header: "Name:"
+        path: "resource#name"
+        type: "str"
+      resolving:
+        header: "Resolving:"
+        path: "resolving"
+        type: "str"
+      source_name:
+        header: "Source Name:"
+        path: "resource#sourceName"
+        type: "str"
+      source_namespace:
+        header: "Source Namespace:"
+        path: "resource#sourceNamespace"
+        type: "str"
+        formatting:
+          field_colors:
+            - type: "namespace"
+      version:
+        header: "Version:"
+        path: "resource#version"
+        type: "str"
+        formatting:
+          field_colors:
+            - type: "version"
+  shortcuts:
+    "Catalog Sources":
+      key: "s"
+      read_only: true
+      helptext: "Show Catalog Sources"
+      title: "Catalog Sources:"
+      widget: "windowwidget"
+      itemgetter: "get_list_as_list"
+      itemgetter_args:
+        path: "status#catalogSources"
+      # This isn't supported for now
+      sortcolumn: "name"
+    "Cluster Service Versions":
+      key: "c"
+      modifier: "shift"
+      read_only: true
+      helptext: "Show Cluster Service Versions"
+      title: "Cluster Service Versions:"
+      widget: "windowwidget"
+      selectable: true
+      itemgetter: "get_list_as_list"
+      itemgetter_args:
+        path: "spec#clusterServiceVersionNames"
+      # This isn't supported for now
+      sortcolumn: "name"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        kind: "ClusterServiceVersion"
+        api_family: "operators.coreos.com"
+        _parent_namespace_path: "metadata#namespace"
+        name_path: 0
+    "Subscription":
+      key: "s"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for Subscription"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        owner_reference_path: "metadata#ownerReferences"
+        kind: "Subscription"
+        api_family: "operators.coreos.com"
+        namespace_path: "metadata#namespace"

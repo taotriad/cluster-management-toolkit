@@ -25,3 +25,135 @@ listview:
       header: "Source:"
       path: "spec#source"
       type: "str"
+infoview:
+  name: "Subscription Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["source", "install_plan_approval", "install_plan",
+                 "current_csv", "installed_csv", "state"]
+    rows:
+      current_csv:
+        header: [["Current CSV:", ["main", "infoheader"]]]
+        path: "status#installedCSV"
+        type: "str"
+      installed_csv:
+        header: [["Installed CSV:", ["main", "infoheader"]]]
+        path: "status#installedCSV"
+        type: "str"
+      install_plan:
+        header: [["I", ["main", "infoheader_shortcut"]],
+                 ["nstall Plan:", ["main", "infoheader"]]]
+        paths:
+          - path: [["status#installPlanRef#namespace"],
+                   ["status#installPlanRef#name"]]
+            pathtype: "tuple"
+            default: ["", "<none>"]
+            type: ["name", "name"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "namespace"
+            - type: "generic"
+          field_separators:
+            - type: "namespace"
+      install_plan_approval:
+        header: [["Install Plan Approval:", ["main", "infoheader"]]]
+        path: "spec#installPlanApproval"
+        type: "str"
+      source:
+        header: [["S", ["main", "infoheader_shortcut"]],
+                 ["ource:", ["main", "infoheader"]]]
+        paths:
+          - path: [["spec#sourceNamespace"], ["spec#source"]]
+            pathtype: "tuple"
+            default: ["", "<none>"]
+            type: ["name", "name"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "namespace"
+            - type: "generic"
+          field_separators:
+            - type: "namespace"
+      state:
+        header: [["State:", ["main", "infoheader"]]]
+        path: "status#state"
+        type: "str"
+  listpad:
+    listgetter: "listgetter_path"
+    listgetter_args:
+      path: "status#catalogHealth"
+    infogetter: "generic_infogetter"
+    field_indexes:
+      Normal:
+        fields: ["kind", "namespace", "name", "healthy"]
+        sortcolumn: "namespace"
+    fields:
+      healthy:
+        header: "Healthy:"
+        path: "healthy"
+        type: "str"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              "True":
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+              "False":
+                field_colors:
+                  - context: "main"
+                    type: "status_not_ok"
+      kind:
+        header: "Kind:"
+        paths:
+          - path: [["catalogSourceRef#kind"], ["catalogSourceRef#apiVersion"]]
+            pathtype: "tuple"
+            type: ["kind", "api_group"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "kind"
+            - type: "api_group"
+          field_separators:
+            - type: "kind_api_group"
+      name:
+        header: "Name:"
+        path: "catalogSourceRef#name"
+        type: "str"
+      namespace:
+        header: "Namespace:"
+        path: "catalogSourceRef#namespace"
+        type: "str"
+        formatting:
+          field_colors:
+            - type: "namespace"
+  shortcuts:
+    "Install Plan":
+      key: "i"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for Install Plan"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind: "InstallPlan"
+        api_family: "operators.coreos.com"
+        name_path: "status#installPlanRef#name"
+        namespace_path: "status#installPlanRef#namespace"
+    "Source":
+      key: "s"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for Operator Source"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind: "CatalogSource"
+        api_family: "operators.coreos.com"
+        name_path: "spec#source"
+        namespace_path: "spec#sourceNamespace"
