@@ -96,7 +96,7 @@ def scan_and_add_ssh_keys(hosts: list[str]) -> None:
     # Note: Paramiko seems to have issues if .ssh/known_hosts does not exist,
     # so "touch" the file just in case.
     old_umask = os.umask(0o077)
-    Path(known_hosts, mode=0o600, exist_ok=True).touch()
+    Path(known_hosts).touch(mode=0o600, exist_ok=True)
     os.umask(old_umask)
 
     try:
