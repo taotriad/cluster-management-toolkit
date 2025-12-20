@@ -647,7 +647,7 @@ workloads:
           # version#; if <<<version>>> is encountered in a URI it will be
           # substituted for the value of the version field.
           # [optional; default: ""]
-          version: "v0.17.3"
+          version: "v0.18.3"
           # The URI[s] to the data;
           # this field can be either a string (a single URI) or a list
           # (a single or multiple URIs)
@@ -669,7 +669,7 @@ workloads:
       - kubectl:
           method: "apply"
           type: "file"
-          version: "v1.18.1"
+          version: "v1.19.2"
           # yamllint disable-line rule:line-length
           uri: "https://github.com/cert-manager/cert-manager/releases/download/<<<version>>>/cert-manager.crds.yaml"
       - helm:
@@ -686,7 +686,7 @@ workloads:
           # Create the namespace if it doesn't exist?
           createNamespace: true
           # The version to install
-          version: "v1.18.1"
+          version: "v1.19.2"
           # Extra arguments to pass to helm.
           # To allow logical grouping of options each option is its own list;
           # these lists will be concatenated into once.
@@ -714,7 +714,7 @@ workloads:
         # Create the namespace if it doesn't exist?
         createNamespace: true
         # The version to install
-        version: "v0.18.0"
+        version: "v0.20.3"
   - name: "intel-resource-drivers-for-kubernetes"
     # If you enable this you need to enable DRA support too and use
     # Kubernetes 1.31 or newer
