@@ -38,12 +38,12 @@
       ansible.builtin.apt:
         update_cache: true
         force_apt_get: true
-      when: "ansible_os_family == 'Debian'"
+      when: "ansible_facts['os_family'] == 'Debian'"
     - name: "Unmarking packages as held"
       ansible.builtin.shell: |
         apt-mark unhold "{{ item }}" || true
-      loop: "{{ held_packages }}"
-      when: "ansible_os_family == 'Debian' and (vars['held_packages'] | length > 0)"
+      loop: "{{ lookup('ansible.builtin.vars', 'held_packages') }}"
+      when: "ansible_facts['os_family'] == 'Debian' and (lookup('ansible.builtin.vars', 'held_packages', default='') | length > 0)"
       changed_when: true
     - name: "Installing custom packages"
       ansible.builtin.apt:
@@ -51,52 +51,52 @@
         force_apt_get: true
         # allow downgrading packages
         force: true
-      when: "ansible_os_family == 'Debian' and (vars['packages'] | length > 0)"
+      when: "ansible_facts['os_family'] == 'Debian' and (lookup('ansible.builtin.vars', 'packages', default='') | length > 0)"
     - name: "Marking packages as held"
       ansible.builtin.shell: |
         apt-mark hold "{{ item }}" || true
-      loop: "{{ vars['held_packages'] }}"
-      when: "ansible_os_family == 'Debian' and (vars['held_packages'] | length > 0)"
+      loop: "{{ lookup('ansible.builtin.vars', 'held_packages') }}"
+      when: "ansible_facts['os_family'] == 'Debian' and (lookup('ansible.builtin.vars', 'held_packages', default='') | length > 0)"
       changed_when: true
     - name: "Updating package cache"
       ansible.builtin.dnf:
         update_cache: true
-      when: "ansible_os_family == 'RedHat'"
+      when: "ansible_facts['os_family'] == 'RedHat'"
     - name: "Unmarking packages as held"
       ansible.builtin.shell: |
         dnf versionlock delete "{{ item }}" || true
-      loop: "{{ held_packages }}"
-      when: "ansible_os_family == 'RedHat' and (vars['held_packages'] | length > 0)"
+      loop: "{{ lookup('ansible.builtin.vars', 'held_packages') }}"
+      when: "ansible_facts['os_family'] == 'RedHat' and (lookup('ansible.builtin.vars', 'held_packages', default='') | length > 0)"
       changed_when: true
     - name: "Installing custom packages"
       ansible.builtin.dnf:
         pkg: "{{ packages }}"
         allow_downgrade: true
         disable_excludes: "kubernetes"
-      when: "ansible_os_family == 'RedHat' and (vars['packages'] | length > 0)"
+      when: "ansible_facts['os_family'] == 'RedHat' and (lookup('ansible.builtin.vars', 'packages', default='') | length > 0)"
     - name: "Marking packages as held"
       ansible.builtin.shell: |
         dnf versionlock add "{{ item }}" || true
-      loop: "{{ vars['held_packages'] }}"
-      when: "ansible_os_family == 'RedHat' and (vars['held_packages'] | length > 0)"
+      loop: "{{ lookup('ansible.builtin.vars', 'held_packages') }}"
+      when: "ansible_facts['os_family'] == 'RedHat' and (lookup('ansible.builtin.vars', 'held_packages', default='') | length > 0)"
       changed_when: true
     - name: "Updating package cache"
       ansible.builtin.shell: |
         zypper --gpg-auto-import-keys refresh
-      when: "ansible_os_family == 'Suse'"
+      when: "ansible_facts['os_family'] == 'Suse'"
       changed_when: true
     - name: "Unmarking packages as held"
       ansible.builtin.shell: |
         zypper removelock {{ held_packages | join(' ') }} || true
-      when: "ansible_os_family == 'Suse' and (vars['held_packages'] | length > 0)"
+      when: "ansible_facts['os_family'] == 'Suse' and (lookup('ansible.builtin.vars', 'held_packages', default='') | length > 0)"
       changed_when: true
     - name: "Installing custom packages"
       ansible.builtin.shell: |
         zypper -n install -f -y {{ packages | join(' ') }}
-      when: "ansible_os_family == 'Suse' and (vars['packages'] | length > 0)"
+      when: "ansible_facts['os_family'] == 'Suse' and (lookup('ansible.builtin.vars', 'packages', default='') | length > 0)"
       changed_when: true
     - name: "Marking packages as held"
       ansible.builtin.shell: |
         zypper addlock {{ held_packages | join(' ') }} || true
-      when: "ansible_os_family == 'Suse' and (vars['held_packages'] | length > 0)"
+      when: "ansible_facts['os_family'] == 'Suse' and (lookup('ansible.builtin.vars', 'held_packages', default='') | length > 0)"
       changed_when: true

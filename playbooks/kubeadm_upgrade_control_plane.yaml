@@ -34,11 +34,11 @@
       ansible.builtin.apt:
         update_cache: true
         force_apt_get: true
-      when: "ansible_os_family == 'Debian'"
+      when: "ansible_facts['os_family'] == 'Debian'"
     - name: "Unmarking packages as held"
       ansible.builtin.shell: |
         apt-mark unhold kubeadm kubelet kubectl || true
-      when: "ansible_os_family == 'Debian'"
+      when: "ansible_facts['os_family'] == 'Debian'"
       changed_when: true
     - name: "Removing deprecated config flags"
       ansible.builtin.shell:
@@ -73,7 +73,7 @@
           - "kubelet={{ requested_control_plane_k8s_version }}"
           - "kubectl={{ requested_control_plane_k8s_version }}"
         force_apt_get: true
-      when: "ansible_os_family == 'Debian'"
+      when: "ansible_facts['os_family'] == 'Debian'"
     - name: "Restarting kubelet"
       ansible.builtin.systemd:
         name: "kubelet"
@@ -82,16 +82,16 @@
     - name: "Marking packages as held"
       ansible.builtin.shell: |
         apt-mark hold kubeadm kubelet kubectl || true
-      when: "ansible_os_family == 'Debian'"
+      when: "ansible_facts['os_family'] == 'Debian'"
       changed_when: true
     - name: "Updating package cache"
       ansible.builtin.dnf:
         update_cache: true
-      when: "ansible_os_family == 'RedHat'"
+      when: "ansible_facts['os_family'] == 'RedHat'"
     - name: "Unmarking packages as held"
       ansible.builtin.shell: |
         dnf versionlock delete kubeadm kubelet kubectl || true
-      when: "ansible_os_family == 'RedHat'"
+      when: "ansible_facts['os_family'] == 'RedHat'"
       changed_when: true
     - name: "Installing new versions of kubeadm, kubelet and kubectl"
       ansible.builtin.dnf:
@@ -100,11 +100,11 @@
           - "kubelet-{{ requested_control_plane_k8s_version }}"
           - "kubectl-{{ requested_control_plane_k8s_version }}"
         disable_excludes: "kubernetes"
-      when: "ansible_os_family == 'RedHat'"
+      when: "ansible_facts['os_family'] == 'RedHat'"
     - name: "Marking packages as held"
       ansible.builtin.shell: |
         dnf versionlock add kubeadm kubelet kubectl || true
-      when: "ansible_os_family == 'RedHat'"
+      when: "ansible_facts['os_family'] == 'RedHat'"
       changed_when: true
     - name: "Creating temporary file for upgrade configuration"
       ansible.builtin.tempfile:

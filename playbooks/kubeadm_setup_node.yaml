@@ -31,15 +31,15 @@
       ansible.builtin.apt:
         update_cache: true
         force_apt_get: true
-      when: "ansible_os_family == 'Debian'"
+      when: "ansible_facts['os_family'] == 'Debian'"
     - name: "Gathering package facts"
       ansible.builtin.package_facts:
         manager: "apt"
-      when: "ansible_os_family == 'Debian'"
+      when: "ansible_facts['os_family'] == 'Debian'"
     - name: "Unmarking packages as held"
       ansible.builtin.shell: |
         apt-mark unhold kubeadm kubelet kubectl || true
-      when: "ansible_os_family == 'Debian'"
+      when: "ansible_facts['os_family'] == 'Debian'"
       changed_when: true
     - name: "Installing Kubernetes packages"
       ansible.builtin.apt:
@@ -48,20 +48,20 @@
           - "kubeadm={{ control_plane_k8s_version }}"
           - "kubectl={{ control_plane_k8s_version }}"
         force_apt_get: true
-      when: "ansible_os_family == 'Debian'"
+      when: "ansible_facts['os_family'] == 'Debian'"
     - name: "Marking packages as held"
       ansible.builtin.shell: |
         apt-mark hold kubeadm kubelet kubectl || true
-      when: "ansible_os_family == 'Debian'"
+      when: "ansible_facts['os_family'] == 'Debian'"
       changed_when: true
     - name: "Gathering package facts"
       ansible.builtin.package_facts:
         manager: "rpm"
-      when: "ansible_os_family == 'RedHat'"
+      when: "ansible_facts['os_family'] == 'RedHat'"
     - name: "Unmarking packages as held"
       ansible.builtin.shell: |
         dnf versionlock delete kubeadm kubelet kubectl || true
-      when: "ansible_os_family == 'RedHat'"
+      when: "ansible_facts['os_family'] == 'RedHat'"
       changed_when: true
     - name: "Installing Kubernetes packages"
       ansible.builtin.dnf:
@@ -70,15 +70,15 @@
           - "kubeadm-{{ control_plane_k8s_version }}"
           - "kubectl-{{ control_plane_k8s_version }}"
         disable_excludes: "kubernetes"
-      when: "ansible_os_family == 'RedHat'"
+      when: "ansible_facts['os_family'] == 'RedHat'"
     - name: "Marking packages as held"
       ansible.builtin.shell: |
         dnf versionlock add kubeadm kubelet kubectl || true
-      when: "ansible_os_family == 'RedHat'"
+      when: "ansible_facts['os_family'] == 'RedHat'"
       changed_when: true
     - name: "Enabling kubelet"
       ansible.builtin.systemd:
         name: "kubelet"
         enabled: true
         state: "started"
-      when: "ansible_os_family == 'RedHat'"
+      when: "ansible_facts['os_family'] == 'RedHat'"

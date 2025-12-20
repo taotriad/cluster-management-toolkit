@@ -39,13 +39,13 @@
       ansible.builtin.apt:
         update_cache: true
         force_apt_get: true
-      when: "ansible_os_family == 'Debian'"
+      when: "ansible_facts['os_family'] == 'Debian'"
     - name: "Installing docker.io"  # noqa package-latest
       ansible.builtin.apt:
         name: "docker.io"
         state: "latest"
         force_apt_get: true
-      when: "ansible_os_family == 'Debian'"
+      when: "ansible_facts['os_family'] == 'Debian'"
     - name: "Creating /etc/docker"
       ansible.builtin.file:
         path: "/etc/docker"

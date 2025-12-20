@@ -25,11 +25,11 @@
     - name: "Checking whether the host runs an OS supported for control planes"
       ansible.builtin.fail:
         msg: "Only Debian-derivatives and Red Hat-derivatives are supported as control planes"
-      when: "(ansible_os_family not in ['Debian', 'RedHat']) and (role == 'control-plane')"
+      when: "(ansible_facts['os_family'] not in ['Debian', 'RedHat']) and (role == 'control-plane')"
     - name: "Checking whether the host runs an OS supported for nodes"
       ansible.builtin.fail:
         msg: "Only Debian-derivatives and Red Hat-derivatives are supported as nodes"
-      when: "(ansible_os_family not in ['Debian', 'RedHat']) and (role == 'node')"
+      when: "(ansible_facts['os_family'] not in ['Debian', 'RedHat']) and (role == 'node')"
     - name: "hide_on_ok: Checking if the host is a Kubernetes control plane"  # noqa name[casing]
       ansible.builtin.shell: |
         lsof -i:6443 -sTCP:LISTEN -t > /dev/null

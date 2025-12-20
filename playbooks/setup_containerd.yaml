@@ -54,36 +54,36 @@
       ansible.builtin.apt:
         update_cache: true
         force_apt_get: true
-      when: "ansible_os_family == 'Debian'"
+      when: "ansible_facts['os_family'] == 'Debian'"
     - name: "Installing containerd"  # noqa package-latest
       ansible.builtin.apt:
         name: "containerd"
         state: "latest"
         force_apt_get: true
-      when: "ansible_os_family == 'Debian'"
+      when: "ansible_facts['os_family'] == 'Debian'"
     - name: "Installing runc"  # noqa package-latest
       ansible.builtin.apt:
         name: "runc"
         state: "latest"
         force_apt_get: true
-      when: "ansible_os_family == 'Debian'"
+      when: "ansible_facts['os_family'] == 'Debian'"
     - name: "Installing containerd and runc"  # noqa package-latest
       ansible.builtin.dnf:
         name:
           - "containerd"
           - "runc"
         state: "latest"
-      when: "ansible_os_family == 'RedHat'"
+      when: "ansible_facts['os_family'] == 'RedHat'"
     - name: "Updating package cache"
       ansible.builtin.shell: |
         zypper --gpg-auto-import-keys refresh
-      when: "ansible_os_family == 'Suse'"
+      when: "ansible_facts['os_family'] == 'Suse'"
       changed_when: true
     - name: "Installing containerd"  # noqa package-latest
       ansible.builtin.shell: |
         zypper -n remove containerd runc || true
         zypper -n install -y containerd runc
-      when: "ansible_os_family == 'Suse'"
+      when: "ansible_facts['os_family'] == 'Suse'"
       changed_when: true
     - name: "Configuring crictl"
       ansible.builtin.template:

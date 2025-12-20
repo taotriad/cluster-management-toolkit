@@ -86,7 +86,7 @@
         path: "/etc/apt/keyrings"
         state: "directory"
         mode: "0755"
-      when: "ansible_os_family == 'Debian'"
+      when: "ansible_facts['os_family'] == 'Debian'"
     - name: "Creating temporary directory for CRI-O repository key"
       ansible.builtin.tempfile:
         state: "directory"
@@ -101,7 +101,7 @@
         use_proxy: "{{ use_proxy | default('no') }}"
       environment:
         https_proxy: "{{ https_proxy | default('') }}"
-      when: "(ansible_os_family in ['Debian', 'Suse'])"
+      when: "(ansible_facts['os_family'] in ['Debian', 'Suse'])"
     - name: "Fetching CRI-O OBS repository key"
       ansible.builtin.get_url:
         url: "https://download.opensuse.org/repositories/isv:/cri-o:/stable:/v{{ crio_major_version }}.{{ crio_minor_version }}/deb/Release.key"
@@ -111,7 +111,7 @@
         use_proxy: "{{ use_proxy | default('no') }}"
       environment:
         https_proxy: "{{ https_proxy | default('') }}"
-      when: "ansible_os_family == 'Debian'"
+      when: "ansible_facts['os_family'] == 'Debian'"
     - name: "Fetching security:netfilter repository key"
       ansible.builtin.get_url:
         url: "https://download.opensuse.org/repositories/security:/netfilter/openSUSE_Leap_15.4/repodata/repomd.xml.key"
@@ -121,52 +121,52 @@
         use_proxy: "{{ use_proxy | default('no') }}"
       environment:
         https_proxy: "{{ https_proxy | default('') }}"
-      when: "ansible_os_family == 'Suse'"
+      when: "ansible_facts['os_family'] == 'Suse'"
     - name: "Importing repository keys"  # noqa: command-instead-of-module
       ansible.builtin.shell: |
         rpm --import "{{ tempdir.path }}/kubic.key"
         rpm --import "{{ tempdir.path }}/security_netfilter.key"
-      when: "ansible_os_family == 'Suse'"
+      when: "ansible_facts['os_family'] == 'Suse'"
       changed_when: true
     - name: "Configuring package repository for CRI-O"
       ansible.builtin.template:
         dest: "/etc/apt/sources.list.d/cri-o.list"
         src: "templates/etc/apt/sources.list.d/cri-o.list.j2"
         mode: "0644"
-      when: "ansible_os_family == 'Debian'"
+      when: "ansible_facts['os_family'] == 'Debian'"
     - name: "Configuring package repository for CRI-O"
       ansible.builtin.template:
         dest: "/etc/zypp/repos.d/kubic.repo"
         src: "templates/etc/zypp/repos.d/kubic.repo.j2"
         mode: "0644"
-      when: "ansible_os_family == 'Suse'"
+      when: "ansible_facts['os_family'] == 'Suse'"
     - name: "Configuring package repository for conntrack-tools"
       ansible.builtin.template:
         dest: "/etc/zypp/repos.d/security_netfilter.repo"
         src: "templates/etc/zypp/repos.d/security_netfilter.repo.j2"
         mode: "0644"
-      when: "ansible_os_family == 'Suse'"
+      when: "ansible_facts['os_family'] == 'Suse'"
     - name: "Configuring package repository proxy for CRI-O"
       ansible.builtin.template:
         dest: "/etc/apt/apt.conf.d/01proxy-cri-o"
         src: "templates/etc/apt/apt.conf.d/01proxy-cri-o.j2"
         mode: "0644"
-      when: "(ansible_os_family == 'Debian') and (use_proxy | default('no') == 'yes')"
+      when: "(ansible_facts['os_family'] == 'Debian') and (use_proxy | default('no') == 'yes')"
     - name: "Pinning CRI-O repository"
       ansible.builtin.template:
         dest: "/etc/apt/preferences.d/cri-o"
         src: "templates/etc/apt/preferences.d/cri-o"
         mode: "0644"
-      when: "ansible_os_family == 'Debian'"
+      when: "ansible_facts['os_family'] == 'Debian'"
     - name: "Updating package cache"
       ansible.builtin.apt:
         update_cache: true
         force_apt_get: true
-      when: "ansible_os_family == 'Debian'"
+      when: "ansible_facts['os_family'] == 'Debian'"
     - name: "Updating package cache"
       ansible.builtin.shell: |
         zypper --gpg-auto-import-keys refresh
-      when: "ansible_os_family == 'Suse'"
+      when: "ansible_facts['os_family'] == 'Suse'"
       changed_when: true
     # This is necessary in case the old version of cri-o has been installed before
     - name: "Remove containers-common"
@@ -176,18 +176,18 @@
           - "cri-o"
         state: "absent"
         force_apt_get: true
-      when: "ansible_os_family == 'Debian'"
+      when: "ansible_facts['os_family'] == 'Debian'"
     - name: "Installing cri-o"  # noqa package-latest
       ansible.builtin.apt:
         name: "cri-o"
         state: "latest"
         force_apt_get: true
-      when: "ansible_os_family == 'Debian'"
+      when: "ansible_facts['os_family'] == 'Debian'"
     - name: "Installing cri-o and dependencies"
       ansible.builtin.shell: |
         zypper -n install conntrack-tools cni-plugins conmon libcontainers-common runc
         zypper -n install --repo kubic -y cri-o
-      when: "ansible_os_family == 'Suse'"
+      when: "ansible_facts['os_family'] == 'Suse'"
       changed_when: true
     - name: "Configure cri-o to use default apparmor_profile"
       ansible.builtin.template:
@@ -206,7 +206,7 @@
         name: "cri-o-runc"
         state: "latest"
         force_apt_get: true
-      when: "ansible_os_family == 'Debian'"
+      when: "ansible_facts['os_family'] == 'Debian'"
     - name: "Configuring crictl"
       ansible.builtin.template:
         dest: "/etc/crictl.yaml"
