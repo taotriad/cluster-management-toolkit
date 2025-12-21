@@ -123,6 +123,10 @@ CertificateIssued:
   field_colors:
     - context: "main"
       type: "status_ok"
+CertificateRotationStarted:
+  field_colors:
+    - context: "main"
+      type: "status_ok"
 CertificateUpdated:
   field_colors:
     - context: "main"
