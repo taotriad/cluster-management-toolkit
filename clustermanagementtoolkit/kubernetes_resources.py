@@ -152,6 +152,16 @@ kubernetes_resources: dict[tuple[str, str], dict[str, Union[list[str], str, bool
         "api": "azurepodidentityexceptions",
     },
     # admissionregistration.k8s.io
+    ("MutatingAdmissionPolicy", "admissionregistration.k8s.io"): {
+        "api_paths": ["apis/admissionregistration.k8s.io/v1alpha1/"],
+        "api": "mutatingadmissionpolicies",
+        "namespaced": False,
+    },
+    ("MutatingAdmissionPolicyBinding", "admissionregistration.k8s.io"): {
+        "api_paths": ["apis/admissionregistration.k8s.io/v1alpha1/"],
+        "api": "mutatingadmissionpolicybindings",
+        "namespaced": False,
+    },
     ("MutatingWebhookConfiguration", "admissionregistration.k8s.io"): {
         "api_paths": ["apis/admissionregistration.k8s.io/v1/",
                       "apis/admissionregistration.k8s.io/v1beta1/"],
@@ -1977,7 +1987,8 @@ kubernetes_resources: dict[tuple[str, str], dict[str, Union[list[str], str, bool
         "namespaced": False,
     },
     ("InsightsDataGather", "config.openshift.io"): {
-        "api_paths": ["apis/config.openshift.io/v1alpha1/"],
+        "api_paths": ["apis/config.openshift.io/v1alpha2/",
+                      "apis/config.openshift.io/v1alpha1/"],
         "api": "insightsdatagathers",
         "namespaced": False,
     },
@@ -2905,7 +2916,8 @@ kubernetes_resources: dict[tuple[str, str], dict[str, Union[list[str], str, bool
     },
     # insights.openshift.io
     ("DataGather", "insights.openshift.io"): {
-        "api_paths": ["apis/insights.openshift.io/v1alpha1/"],
+        "api_paths": ["apis/insights.openshift.io/v1alpha2/",
+                      "apis/insights.openshift.io/v1alpha1/"],
         "api": "datagathers",
         "namespaced": False,
     },
@@ -4445,6 +4457,11 @@ kubernetes_resources: dict[tuple[str, str], dict[str, Union[list[str], str, bool
     ("ClusterCSIDriver", "operator.openshift.io"): {
         "api_paths": ["apis/operator.openshift.io/v1/"],
         "api": "clustercsidrivers",
+        "namespaced": False,
+    },
+    ("ClusterVersionOperator", "operator.openshift.io"): {
+        "api_paths": ["apis/operator.openshift.io/v1alpha1/"],
+        "api": "clusterversionoperators",
         "namespaced": False,
     },
     ("Config", "operator.openshift.io"): {
