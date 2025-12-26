@@ -1,0 +1,87 @@
+---
+kind: "ClusterUserDefinedNetwork"
+api_family: "k8s.ovn.org"
+default_command: "clusteruserdefinednetworks"
+command:
+  - "clruserdefnetworks"
+  - "clruserdefnetwork"
+  - "clruserdefnets"
+  - "clruserdefnet"
+listview:
+  name: "Cluster User Defined Networks"
+  group: "Networking"
+  field_indexes:
+    Normal:
+      fields: ["name", "topology", "age"]
+  fields:
+    topology:
+      header: "Topology:"
+      path: "spec#network#topology"
+      default: "<unset>"
+      type: "str"
+infoview:
+  name: "Cluster User Defined Network Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["topology",
+                 "namespace_label_selector",
+                 "layer2_header",
+                 "layer2_ipam_header",
+                 "layer2_ipam_lifecycle",
+                 "layer2_role",
+                 "layer2_subnets"]
+    rows:
+      namespace_label_selector:
+        header: [["Namespace La", ["main", "infoheader"]],
+                 ["b", ["main", "infoheader_shortcut"]],
+                 ["el Selector:", ["main", "infoheader"]]]
+        paths:
+          - path: ["spec#namespaceSelector#matchLabels"]
+            pathtype: "key_value"
+            default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "key"
+            - type: "value"
+          field_separators:
+            - type: "selector"
+      layer2_header:
+        header: [["Layer 2:", ["main", "infoheader"]]]
+      layer2_ipam_header:
+        header: [["  IPAM:", ["main", "infoheader"]]]
+      layer2_ipam_lifecycle:
+        header: [["    Lifecycle:", ["main", "infoheader"]]]
+        path: "spec#network#layer2#ipam#lifecycle"
+        default: "<unset>"
+        type: "str"
+      layer2_role:
+        header: [["  Role:", ["main", "infoheader"]]]
+        path: "spec#network#layer2#role"
+        type: "str"
+      layer2_subnets:
+        header: [["  Subnets:", ["main", "infoheader"]]]
+        path: "spec#network#layer2#subnets"
+        default: ["<none>"]
+        type: "raw"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "address"
+      topology:
+        header: [["Topology:", ["main", "infoheader"]]]
+        path: "spec#network#topology"
+        default: "<unset>"
+        type: "str"
+  shortcuts:
+    "Namespace Label Selector":
+      key: "b"
+      read_only: true
+      helptext: "Namespace label selector"
+      widget: "windowwidget"
+      title: "Namespace Label Selector:"
+      headers: ["Key:", "Value:"]
+      itemgetter: "get_key_value"
+      itemgetter_args:
+        path: "spec#namespaceSelector#matchLabels"

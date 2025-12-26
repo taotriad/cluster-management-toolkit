@@ -1,0 +1,60 @@
+---
+kind: "UserDefinedNetwork"
+api_family: "k8s.ovn.org"
+default_command: "userdefinednetworks"
+command:
+  - "userdefnetworks"
+  - "userdefnetwork"
+  - "userdefnets"
+  - "userdefnet"
+listview:
+  name: "User Defined Networks"
+  group: "Networking"
+  field_indexes:
+    Normal:
+      fields: ["namespace", "name", "topology", "age"]
+      sortcolumn: "namespace"
+  fields:
+    topology:
+      header: "Topology:"
+      path: "spec#topology"
+      default: "<unset>"
+      type: "str"
+infoview:
+  name: "User Defined Network Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["topology", "layer2_header",
+                 "layer2_ipam_header",
+                 "layer2_ipam_lifecycle",
+                 "layer2_role",
+                 "layer2_subnets"]
+    rows:
+      layer2_header:
+        header: [["Layer 2:", ["main", "infoheader"]]]
+      layer2_ipam_header:
+        header: [["  IPAM:", ["main", "infoheader"]]]
+      layer2_ipam_lifecycle:
+        header: [["    Lifecycle:", ["main", "infoheader"]]]
+        path: "spec#layer2#ipam#lifecycle"
+        default: "<unset>"
+        type: "str"
+      layer2_role:
+        header: [["  Role:", ["main", "infoheader"]]]
+        path: "spec#layer2#role"
+        type: "str"
+      layer2_subnets:
+        header: [["  Subnets:", ["main", "infoheader"]]]
+        path: "spec#layer2#subnets"
+        default: ["<none>"]
+        type: "raw"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "address"
+      topology:
+        header: [["Topology:", ["main", "infoheader"]]]
+        path: "spec#topology"
+        default: "<unset>"
+        type: "str"
