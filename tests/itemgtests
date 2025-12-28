@@ -14,8 +14,10 @@
 # SPDX-License-Identifier: MIT
 
 from datetime import datetime, timezone
+import os
 from pathlib import PurePath
 import sys
+import time
 from typing import Any
 from unittest import mock
 import yaml
@@ -1711,6 +1713,11 @@ def test_get_list_fields(verbose: bool = False) -> tuple[str, bool]:
 
         for obj, kwargs, expected_result, expected_exception in testdata:
             try:
+                # To ensure that the success/failure of the timestamp related testcases
+                # comes down to the local timezone we need to set a timezone when running
+                # the test.
+                os.environ["TZ"] = "Europe/Helsinki"
+                time.tzset()
                 tmp = fun(obj, **kwargs)
                 if tmp != expected_result:
                     message = f"{fun.__name__}() did not yield expected result:\n" \
