@@ -80,7 +80,7 @@ PYLINT_PYTHON_VERSION := 3.9
 
 # W0511 is TODO/XXX/FIXME; we know that these are things that we should fix eventually.
 # Hence we do not need warnings about them.
-PYLINT_DISABLE := W0511
+PYLINT_DISABLE := W0511,similarities
 
 # Warn about useless disable
 PYLINT_ENABLE := useless-suppression
