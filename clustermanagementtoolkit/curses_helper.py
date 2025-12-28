@@ -52,9 +52,8 @@ from clustermanagementtoolkit.ansithemeprint import ansithemestr_join_list
 from clustermanagementtoolkit import cmtlib
 
 theme: dict = {}
-themefile: Optional[FilePath] = None
-
-mousemask = 0  # pylint: disable=invalid-name
+themefile: Optional[FilePath] = None  # pylint: disable=invalid-name
+mousemask: int = 0  # pylint: disable=invalid-name
 
 
 # A reference to text formatting
@@ -2149,7 +2148,7 @@ def themearray_wrap_line(themearray: list[Union[ThemeRef, ThemeStr]],
     return themearrays
 
 
-ignoreinput: bool = False
+ignoreinput: bool = False  # pylint: disable=invalid-name
 
 
 def __move_xoffset(**kwargs: Any) -> tuple[Retval, dict]:
@@ -4990,7 +4989,7 @@ class UIProps:
         return Retval.MATCH, {}
 
     def __select_menu(self, **kwargs: Any) -> tuple[Retval, dict]:
-        refresh_apis = deep_get(kwargs, DictPath("refresh_apis"), False)
+        refresh_apis = deep_get(kwargs, DictPath("refresh_apis"), "none")
         selectwindow = deep_get(kwargs, DictPath("selectwindow"))
 
         retval = selectwindow(self, refresh_apis=refresh_apis)
@@ -5147,7 +5146,7 @@ class UIProps:
                 "action": "key_callback",
                 "action_call": self.__select_menu,
                 "action_args": {
-                    "refresh_apis": True,
+                    "refresh_apis": "all",
                 }
             },
             "Toggle mouse on/off": {
