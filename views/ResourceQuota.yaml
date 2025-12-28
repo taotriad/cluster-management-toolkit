@@ -101,7 +101,7 @@ infoview:
       hard:
         header: "Hard:"
         path: "hard"
-        type: "raw"
+        type: "str"
         formatter: "numerical"
         align: "right"
       resource:
@@ -111,7 +111,7 @@ infoview:
       used:
         header: "Used:"
         path: "used"
-        type: "raw"
+        type: "str"
         formatter: "numerical"
         align: "right"
   shortcuts:

@@ -2018,8 +2018,8 @@ def get_rq_item_info(**kwargs: Any) -> list[Type]:
         return []
 
     for resource in deep_get(obj, hard_path, []):
-        used = deep_get(obj, DictPath(f"{used_path}#{resource}"), [])
-        hard = deep_get(obj, DictPath(f"{hard_path}#{resource}"), [])
+        used = deep_get(obj, DictPath(f"{used_path}#{resource}"), 0)
+        hard = deep_get(obj, DictPath(f"{hard_path}#{resource}"), 0)
 
         info.append(type("InfoClass", (), {
             "resource": resource,
