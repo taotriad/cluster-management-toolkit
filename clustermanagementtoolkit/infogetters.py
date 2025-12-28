@@ -1037,7 +1037,6 @@ def get_obj(obj: dict, field_dict: dict, field_names: list[str],
                         _default2 = default
                     val1 = deep_get(obj, DictPath(path[0]), _default1)
                     val2 = deep_get(obj, DictPath(path[1]), _default2)
-                    # pylint: disable-next=unidiomatic-typecheck
                     if type(val1) != type(val2):  # noqa: E721
                         res = -2
                     elif val1 == val2:

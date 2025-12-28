@@ -26,10 +26,10 @@ from clustermanagementtoolkit.cmttypes import deep_get, DictPath, FilePath
 
 from clustermanagementtoolkit import cmtvalidators
 
-programname: str = ""
-programversion: str = ""
-programdescription: str = ""
-programauthors: str = ""
+programname: str = ""  # pylint: disable=invalid-name
+programversion: str = ""  # pylint: disable=invalid-name
+programdescription: str = ""  # pylint: disable=invalid-name
+programauthors: str = ""  # pylint: disable=invalid-name
 
 
 class ValidationTypeOptional(TypedDict, total=False):

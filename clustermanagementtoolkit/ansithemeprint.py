@@ -326,8 +326,8 @@ class ANSIThemeStr:
         return "\n".join(joined_strings), themearray_list
 
 
-theme: Optional[dict] = None
-themepath: Optional[FilePath] = None
+theme: Optional[dict] = None  # pylint: disable=invalid-name
+themepath: Optional[FilePath] = None  # pylint: disable=invalid-name
 
 
 FALLBACK_THEME = {

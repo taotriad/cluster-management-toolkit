@@ -23,7 +23,7 @@ from clustermanagementtoolkit.cmttypes import deep_get, DictPath, LogLevel
 
 from clustermanagementtoolkit.ansithemeprint import ANSIThemeStr
 
-logger: Optional[logging.Logger] = None
+logger: Optional[logging.Logger] = None  # pylint: disable=invalid-name
 
 
 def log_array_to_string(msglist: list[Union[str, list[ANSIThemeStr]]]) -> str:

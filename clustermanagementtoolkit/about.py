@@ -14,8 +14,8 @@ COPYRIGHT = \
     "Copyright © 2019-2025 Intel Corporation\n" \
     "Copyright © 2025 David Weinehall\n"
 
-LICENSE = "This is free software; see the source for copying conditions.  There is NO\n"
-LICENSE += "warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE."
+LICENSE = "This is free software; see the source for copying conditions.  There is NO\n" \
+          "warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE."
 
 PROGRAM_SUITE_NAME = "CMT"
 PROGRAM_SUITE_FULL_NAME = "Cluster Management Toolkit for Kubernetes"
@@ -39,11 +39,9 @@ INVENTORY_PROGRAM_VERSION = "0.4.7"
 # We don't support Python-versions older than 3.9
 version_info = sys.version_info
 if version_info.major < 3 or version_info.minor < 9:  # pragma: no cover
-    # pylint: disable-next=invalid-name
     installed_version = str(version_info.major)
     installed_version += "." + str(version_info.minor)
     installed_version += "." + str(version_info.micro)
-    # pylint: disable-next=invalid-name
     msg = "Critical: Minimum supported Python-version is 3.9.0.\n"
     msg += "Installed version is " + installed_version
     msg += "; aborting."

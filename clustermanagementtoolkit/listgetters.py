@@ -242,7 +242,6 @@ def filter_list_entry(obj: dict[str, Any], caller_obj: dict[str, Any], filters: 
                                     target_value = ""
                             else:
                                 target_value = deep_get(_dict, DictPath(key))
-                            # pylint: disable-next=unidiomatic-typecheck
                             if type(value) == type(target_value) \
                                     and value == target_value:  # noqa: E721
                                 matched = True
