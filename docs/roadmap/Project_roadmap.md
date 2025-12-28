@@ -1,8 +1,8 @@
 # Project roadmap
 
-## Principal goals for 2025
+## Principal goals for 2026
 
-The main goal for 2025 is to get __Cluster Management Toolkit for Kubernetes__ (__CMT__)
+The main goal for 2026 is to get __Cluster Management Toolkit for Kubernetes__ (__CMT__)
 ready for mainstream adoption. The code quality should be such that it does not
 scare off first time contributors. It must be at least _theoretically possible_
 to distribute __CMT__ as a part of a Linux distribution
@@ -41,6 +41,9 @@ tests have been added for the moved code.
       helpers to use to process that data, a list of actions that can be performed
       on that data, as well as information about what, if any, relationships the data
       has with data in other info views.
+    * [ ] Use pygments to do syntax highlighting instead of our own hackish solution.
+      For this to work we need to write a custom output plugin, since we need the output
+      to be themestring format.
 
 ## Q3 roadmap
 
