@@ -9,8 +9,12 @@ listview:
   name: "Network Policies"
   group: "Network"
   field_indexes:
+    Wide:
+      fields: ["namespace", "name", "controller",
+               "pod_label_selector", "pod_set_based_selector", "age"]
+      sortcolumn: "namespace"
     Normal:
-      fields: ["namespace", "name", "controller", "pod_label_selector", "age"]
+      fields: ["namespace", "name", "controller", "age"]
       sortcolumn: "namespace"
   fields:
     controller:
@@ -48,12 +52,28 @@ listview:
           - type: "value"
         field_separators:
           - type: "selector"
+    pod_set_based_selector:
+      header: "Pod Set-based Selector:"
+      paths:
+        - path: "spec#podSelector#matchExpressions"
+          pathtype: "match_expression"
+          default: "<none>"
+      formatter: "list"
+      formatting:
+        field_colors:
+          - type: "key"
+          - type: "operator"
+          - type: "value"
+        field_separators:
+          - type: "space"
+          - type: "no_pad"
 infoview:
   name: "Network Policy Info"
   infopad:
     row_indexes:
       Normal:
-        fields: ["controller", "pod_label_selector", "policy_types"]
+        fields: ["controller", "pod_label_selector",
+                 "pod_set_based_selector", "policy_types"]
     rows:
       controller:
         header: [["C", ["main", "infoheader_shortcut"]],
@@ -80,7 +100,9 @@ infoview:
             - type: "kind_api_group"
             - type: "kind"
       pod_label_selector:
-        header: [["Pod Label Selector:", ["main", "infoheader"]]]
+        header: [["Pod La", ["main", "infoheader"]],
+                 ["b", ["main", "infoheader_shortcut"]],
+                 ["el Selector:", ["main", "infoheader"]]]
         paths:
           - path: ["spec#podSelector#matchLabels"]
             pathtype: "key_value"
@@ -92,6 +114,21 @@ infoview:
             - type: "value"
           field_separators:
             - type: "selector"
+      pod_set_based_selector:
+        header: [["Set-based Selector:", ["main", "infoheader"]]]
+        paths:
+          - path: "spec#podSelector#matchExpressions"
+            pathtype: "match_expression"
+            default: "<none>"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "key"
+            - type: "operator"
+            - type: "value"
+          field_separators:
+            - type: "space"
+            - type: "no_pad"
       policy_types:
         header: [["Policy Types:", ["main", "infoheader"]]]
         path: "spec#policyTypes"
@@ -169,3 +206,13 @@ infoview:
         _pass_obj: true
         namespace_path: "metadata#namespace"
         owner_reference_path: "metadata#ownerReferences"
+    "Pod Label Selector":
+      key: "b"
+      read_only: true
+      helptext: "Pod Label selector"
+      widget: "windowwidget"
+      title: "Pod Label Selector:"
+      headers: ["Key:", "Value:"]
+      itemgetter: "get_key_value"
+      itemgetter_args:
+        path: "spec#podSelector#matchLabels"
