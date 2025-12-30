@@ -215,7 +215,7 @@ Test results:
 	No issues identified.
 
 Code scanned:
-	Total lines of code: 82622
+	Total lines of code: 86063
 	Total lines skipped (#nosec): 8
 
 Run metrics:
@@ -249,39 +249,40 @@ Output:
 ```
 Name                                                  Stmts   Miss Branch BrPart  Cover
 ---------------------------------------------------------------------------------------
-clustermanagementtoolkit/listgetters.py                1212   1006    654     12  15.6%
-clustermanagementtoolkit/infogetters.py                1695   1346   1020     23  19.3%
-clustermanagementtoolkit/cluster_actions.py             223    175     72      3  19.3%
-clustermanagementtoolkit/curses_helper.py              2394   1811   1124     21  21.0%
-clustermanagementtoolkit/kubernetes_helper.py          1494   1045    760     62  25.8%
-clustermanagementtoolkit/logparser.py                  2008   1384   1125     32  26.6%
-clustermanagementtoolkit/networkio.py                   364    258    185      3  27.3%
-clustermanagementtoolkit/listgetters_async.py           119     76     54      2  31.8%
-clustermanagementtoolkit/checks.py                      635    341    248      0  43.9%
-clustermanagementtoolkit/generators.py                  732    371    384     28  46.5%
-clustermanagementtoolkit/formatters.py                  807    366    424     32  52.1%
-clustermanagementtoolkit/datagetters.py                 277    125    142     16  53.0%
-clustermanagementtoolkit/cmtlib.py                      659    161    388     31  73.3%
-clustermanagementtoolkit/ansible_helper.py              805    207    490     24  73.4%
-clustermanagementtoolkit/cmtio.py                       425     39    242     21  89.8%
-clustermanagementtoolkit/reexecutor.py                   72      2     34      3  95.3%
-clustermanagementtoolkit/itemgetters.py                 478     17    266     14  95.6%
-clustermanagementtoolkit/ansithemeprint.py              216      7     84      3  96.0%
-clustermanagementtoolkit/fieldgetters.py                 83      0     48      3  97.7%
-clustermanagementtoolkit/cmtvalidators.py               324      6    200      2  98.1%
-clustermanagementtoolkit/commandparser.py               444      1    250      2  99.6%
-clustermanagementtoolkit/cmttypes.py                    471      1    178      0  99.8%
-clustermanagementtoolkit/about.py                        18      0      0      0 100.0%
-clustermanagementtoolkit/cmtio_yaml.py                   34      0      6      0 100.0%
-clustermanagementtoolkit/cmtpaths.py                     89      0      0      0 100.0%
-clustermanagementtoolkit/cni_data.py                     58      0      8      0 100.0%
+clustermanagementtoolkit/listgetters.py                1236   1030    656     12  15.4%
+clustermanagementtoolkit/cluster_actions.py             226    178     74      3  19.0%
+clustermanagementtoolkit/infogetters.py                1729   1376   1038     23  19.1%
+clustermanagementtoolkit/curses_helper.py              2504   1877   1130     19  21.6%
+clustermanagementtoolkit/logparser.py                  2059   1445   1122     34  25.7%
+clustermanagementtoolkit/networkio.py                   391    284    178      3  26.0%
+clustermanagementtoolkit/kubernetes_helper.py          1625   1122    784     83  27.7%
+clustermanagementtoolkit/listgetters_async.py           119     76     52      2  31.0%
+clustermanagementtoolkit/cmtlog.py                       82     50     42      1  33.1%
+clustermanagementtoolkit/checks.py                      637    342    250      1  44.0%
+clustermanagementtoolkit/datagetters.py                 276    144    144     12  45.7%
+clustermanagementtoolkit/generators.py                  758    374    386     28  47.4%
+clustermanagementtoolkit/formatters.py                  804    363    422     32  52.3%
+clustermanagementtoolkit/ansible_helper.py              823    223    486     27  71.9%
+clustermanagementtoolkit/cmtlib.py                      578    124    326     14  76.1%
+clustermanagementtoolkit/cmtio.py                       426     45    226     20  88.2%
+clustermanagementtoolkit/itemgetters.py                 524     47    284     18  89.7%
+clustermanagementtoolkit/cni_data.py                     92      1     36      8  93.0%
+clustermanagementtoolkit/ansithemeprint.py              224     12     86      4  94.2%
+clustermanagementtoolkit/cmtio_yaml.py                   62      3     14      1  94.7%
+clustermanagementtoolkit/reexecutor.py                   72      2     28      3  95.0%
+clustermanagementtoolkit/cmtvalidators.py               337     11    210      5  96.3%
+clustermanagementtoolkit/fieldgetters.py                 74      0     44      3  97.5%
+clustermanagementtoolkit/cmttypes.py                    492      4    190      3  99.0%
+clustermanagementtoolkit/commandparser.py               448      1    254      2  99.6%
+clustermanagementtoolkit/about.py                        17      0      0      0 100.0%
+clustermanagementtoolkit/cmtpaths.py                     90      0      0      0 100.0%
 clustermanagementtoolkit/helptexts.py                    23      0      0      0 100.0%
-clustermanagementtoolkit/kubernetes_resources.py          3      0      0      0 100.0%
+clustermanagementtoolkit/kubernetes_resources.py          5      0      0      0 100.0%
 clustermanagementtoolkit/objgetters.py                   56      0     12      0 100.0%
 clustermanagementtoolkit/pvtypes.py                       1      0      0      0 100.0%
 clustermanagementtoolkit/recommended_permissions.py      11      0      0      0 100.0%
 ---------------------------------------------------------------------------------------
-TOTAL                                                 16230   8745   8398    337  43.5%
+TOTAL                                                 16801   9134   8474    361  43.1%
 ```
 
 ### Flake8 Results for v0.8.6
@@ -298,44 +299,46 @@ No output.
 Commandline: `mypy --follow-imports silent --explicit-package-bases --ignore-missing --disallow-untyped-calls --disallow-untyped-defs --disallow-incomplete-defs --check-untyped-defs --disallow-untyped-decorators --warn-redundant-casts --warn-unused-ignores`.
 Execute with `make mypy-markdown`.
 
-| Source file                                         | Score                                                 |
-| :-------------------------------------------------- | :---------------------------------------------------- |
-| cmt                                                 | Success: no issues found in 1 source file             |
-| cmtadm                                              | Success: no issues found in 1 source file             |
-| cmt-install                                         | Success: no issues found in 1 source file             |
-| cmtinv                                              | Success: no issues found in 1 source file             |
-| cmu                                                 | **Found 91 errors in 1 file (checked 1 source file)** |
-| clustermanagementtoolkit/about.py                   | Success: no issues found in 1 source file             |
-| clustermanagementtoolkit/ansible_helper.py          | Success: no issues found in 1 source file             |
-| clustermanagementtoolkit/ansithemeprint.py          | Success: no issues found in 1 source file             |
-| clustermanagementtoolkit/checks.py                  | Success: no issues found in 1 source file             |
-| clustermanagementtoolkit/cluster_actions.py         | Success: no issues found in 1 source file             |
-| clustermanagementtoolkit/cmtio.py                   | Success: no issues found in 1 source file             |
-| clustermanagementtoolkit/cmtio_yaml.py              | Success: no issues found in 1 source file             |
-| clustermanagementtoolkit/cmtlib.py                  | Success: no issues found in 1 source file             |
-| clustermanagementtoolkit/cmtpaths.py                | Success: no issues found in 1 source file             |
-| clustermanagementtoolkit/cmttypes.py                | Success: no issues found in 1 source file             |
-| clustermanagementtoolkit/cmtvalidators.py           | Success: no issues found in 1 source file             |
-| clustermanagementtoolkit/cni_data.py                | Success: no issues found in 1 source file             |
-| clustermanagementtoolkit/commandparser.py           | Success: no issues found in 1 source file             |
-| clustermanagementtoolkit/curses_helper.py           | Success: no issues found in 1 source file             |
-| clustermanagementtoolkit/datagetters.py             | Success: no issues found in 1 source file             |
-| clustermanagementtoolkit/fieldgetters.py            | Success: no issues found in 1 source file             |
-| clustermanagementtoolkit/formatters.py              | Success: no issues found in 1 source file             |
-| clustermanagementtoolkit/generators.py              | Success: no issues found in 1 source file             |
-| clustermanagementtoolkit/helptexts.py               | Success: no issues found in 1 source file             |
-| clustermanagementtoolkit/infogetters.py             | **Found 18 errors in 1 file (checked 1 source file)** |
-| clustermanagementtoolkit/itemgetters.py             | Success: no issues found in 1 source file             |
-| clustermanagementtoolkit/kubernetes_helper.py       | Success: no issues found in 1 source file             |
-| clustermanagementtoolkit/kubernetes_resources.py    | Success: no issues found in 1 source file             |
-| clustermanagementtoolkit/listgetters.py             | Success: no issues found in 1 source file             |
-| clustermanagementtoolkit/listgetters_async.py       | Success: no issues found in 1 source file             |
-| clustermanagementtoolkit/logparser.py               | **Found 62 errors in 1 file (checked 1 source file)** |
-| clustermanagementtoolkit/networkio.py               | Success: no issues found in 1 source file             |
-| clustermanagementtoolkit/objgetters.py              | Success: no issues found in 1 source file             |
-| clustermanagementtoolkit/pvtypes.py                 | Success: no issues found in 1 source file             |
-| clustermanagementtoolkit/recommended_permissions.py | Success: no issues found in 1 source file             |
-| clustermanagementtoolkit/reexecutor.py              | Success: no issues found in 1 source file             |
+| Source file                                         | Score                                                   |
+| :-------------------------------------------------- | :------------------------------------------------------ |
+| cmt                                                 | **Found 18 errors in 5 files (checked 1 source file)**  |
+| cmtadm                                              | **Found 20 errors in 6 files (checked 1 source file)**  |
+| cmt-install                                         | **Found 5 errors in 2 files (checked 1 source file)**   |
+| cmtinv                                              | **Found 12 errors in 3 files (checked 1 source file)**  |
+| cmu                                                 | **Found 175 errors in 6 files (checked 1 source file)** |
+| clustermanagementtoolkit/about.py                   | Success: no issues found in 1 source file               |
+| clustermanagementtoolkit/ansible_helper.py          | **Found 2 errors in 2 files (checked 1 source file)**   |
+| clustermanagementtoolkit/ansithemeprint.py          | Found 1 error in 1 file (checked 1 source file)         |
+| clustermanagementtoolkit/checks.py                  | **Found 9 errors in 3 files (checked 1 source file)**   |
+| clustermanagementtoolkit/cluster_actions.py         | **Found 13 errors in 4 files (checked 1 source file)**  |
+| clustermanagementtoolkit/cmtio.py                   | Success: no issues found in 1 source file               |
+| clustermanagementtoolkit/cmtio_yaml.py              | Found 1 error in 1 file (checked 1 source file)         |
+| clustermanagementtoolkit/cmtlib.py                  | **Found 5 errors in 2 files (checked 1 source file)**   |
+| clustermanagementtoolkit/cmtlog.py                  | Found 1 error in 1 file (checked 1 source file)         |
+| clustermanagementtoolkit/cmtpaths.py                | Success: no issues found in 1 source file               |
+| clustermanagementtoolkit/cmttypes.py                | Success: no issues found in 1 source file               |
+| clustermanagementtoolkit/cmtvalidators.py           | Found 1 error in 1 file (checked 1 source file)         |
+| clustermanagementtoolkit/cni_data.py                | **Found 5 errors in 2 files (checked 1 source file)**   |
+| clustermanagementtoolkit/commandparser.py           | **Found 9 errors in 3 files (checked 1 source file)**   |
+| clustermanagementtoolkit/curses_helper.py           | **Found 5 errors in 2 files (checked 1 source file)**   |
+| clustermanagementtoolkit/datagetters.py             | **Found 5 errors in 2 files (checked 1 source file)**   |
+| clustermanagementtoolkit/fieldgetters.py            | Found 1 error in 1 file (checked 1 source file)         |
+| clustermanagementtoolkit/formatters.py              | **Found 5 errors in 2 files (checked 1 source file)**   |
+| clustermanagementtoolkit/generators.py              | **Found 5 errors in 2 files (checked 1 source file)**   |
+| clustermanagementtoolkit/helptexts.py               | **Found 5 errors in 2 files (checked 1 source file)**   |
+| clustermanagementtoolkit/infogetters.py             | **Found 23 errors in 4 files (checked 1 source file)**  |
+| clustermanagementtoolkit/itemgetters.py             | **Found 6 errors in 3 files (checked 1 source file)**   |
+| clustermanagementtoolkit/kubernetes_helper.py       | **Found 12 errors in 3 files (checked 1 source file)**  |
+| clustermanagementtoolkit/kubernetes_resources.py    | Success: no issues found in 1 source file               |
+| clustermanagementtoolkit/listgetters.py             | **Found 13 errors in 4 files (checked 1 source file)**  |
+| clustermanagementtoolkit/listgetters_async.py       | **Found 13 errors in 4 files (checked 1 source file)**  |
+| clustermanagementtoolkit/logparser.py               | **Found 66 errors in 3 files (checked 1 source file)**  |
+| clustermanagementtoolkit/networkio.py               | **Found 9 errors in 3 files (checked 1 source file)**   |
+| clustermanagementtoolkit/objgetters.py              | **Found 5 errors in 2 files (checked 1 source file)**   |
+| clustermanagementtoolkit/pvtypes.py                 | Success: no issues found in 1 source file               |
+| clustermanagementtoolkit/recommended_permissions.py | Success: no issues found in 1 source file               |
+| clustermanagementtoolkit/reexecutor.py              | Success: no issues found in 1 source file               |
+
 
 ### Pylint Results for v0.8.6
 
@@ -358,6 +361,7 @@ Currently all complaints are due to missing function or method docstrings.
 | clustermanagementtoolkit/cmtio.py                   | 10.00/10 |
 | clustermanagementtoolkit/cmtio_yaml.py              | 10.00/10 |
 | clustermanagementtoolkit/cmtlib.py                  | 10.00/10 |
+| clustermanagementtoolkit/cmtlog.py                  | 10.00/10 |
 | clustermanagementtoolkit/cmtpaths.py                | 10.00/10 |
 | clustermanagementtoolkit/cmttypes.py                | 10.00/10 |
 | clustermanagementtoolkit/cmtvalidators.py           | 10.00/10 |
@@ -393,10 +397,10 @@ Output:
 Running regexploit to check for ReDoS attacks
 
 Checking executables
-Processed 67 regexes
+Processed 69 regexes
 
 Checking libraries
-Processed 142 regexes
+Processed 148 regexes
 ```
 
 ### Ruff Results for v0.8.6
@@ -419,12 +423,15 @@ Output:
 ┌──────────────┐
 │ Scan Summary │
 └──────────────┘
-Some files were skipped or only partially analyzed.
-  Partially scanned: 3 files only partially analyzed due to parsing or internal Semgrep errors
-  Scan skipped: 997 files matching --exclude patterns, 63 files matching .semgrepignore patterns
-  For a full list of skipped files, run semgrep with the --verbose flag.
-
-Ran 693 rules on 97 files: 0 findings.
+✅ Scan completed successfully.
+ • Findings: 0 (0 blocking)
+ • Rules run: 2452
+ • Targets scanned: 0
+ • Parsed lines: an unknown percentage
+ • Scan skipped:
+   ◦ Files matching .semgrepignore patterns: 69
+ • For a detailed list of skipped files and lines, run semgrep with the --verbose flag
+Ran 2452 rules on 0 files: 0 findings.
 ```
 
 ### validate_playbooks Results for v0.8.6
@@ -433,7 +440,7 @@ Commandline: `ansible-lint`.
 Execute with: `make validate_playbooks`.
 
 ```
-Passed: 0 failure(s), 0 warning(s) on 54 files. Last profile that met the validation criteria was 'production'.
+Passed: 0 failure(s), 0 warning(s) on 57 files. Last profile that met the validation criteria was 'production'.
 ```
 
 ### validate_yaml Results for v0.8.6
@@ -446,9 +453,9 @@ Output:
 ```
 Summary:
      fail: 0
-     skip: 3
-  success: 863
-    total: 866
+     skip: 4
+  success: 953
+    total: 957
 ```
 
 ### YAMLlint Results for v0.8.6
