@@ -25,7 +25,7 @@ import yaml
 
 from clustermanagementtoolkit import cmttypes
 from clustermanagementtoolkit.cmttypes import deep_get, deep_get_list, deep_get_with_fallback
-from clustermanagementtoolkit.cmttypes import deep_set, DictPath
+from clustermanagementtoolkit.cmttypes import deep_pop, deep_set, DictPath
 from clustermanagementtoolkit.cmttypes import FilePath, LogLevel, validate_args
 from clustermanagementtoolkit.cmttypes import UnknownError, ArgumentValidationError
 from clustermanagementtoolkit.cmttypes import ProgrammingError, FilePathAuditError
@@ -317,6 +317,103 @@ def test_deep_get_with_fallback(verbose: bool = False) -> tuple[str, bool]:
                       f"    expected: {expected_result5}"
             result = False
 
+    return message, result
+
+
+def test_deep_pop(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = deep_pop
+
+    if result:
+        # Indata format:
+        # (obj, path, key, default, expected_result)
+        testdata: tuple = (
+            (
+                {
+                    "kind": "Node",
+                    "metadata": {
+                        "name": "mynode",
+                    },
+                },
+                "metadata",
+                "name",
+                None,
+                "mynode",
+            ),
+            (
+                {
+                    "kind": "Node",
+                    "metadata": {
+                        "name": "mynode",
+                    },
+                },
+                None,
+                "name",
+                "mynode",
+                "mynode",
+            ),
+            (
+                {
+                    "kind": "Node",
+                    "metadata": {
+                        "name": "mynode",
+                    },
+                },
+                "kind2",
+                None,
+                None,
+                None,
+            ),
+            (
+                None,
+                "kind2",
+                None,
+                None,
+                None,
+            ),
+            (
+                1,
+                "kind2",
+                None,
+                None,
+                None,
+            ),
+            (
+                {
+                    "kind": "Node",
+                    "metadata": {
+                        "name": "mynode",
+                    },
+                },
+                1,
+                None,
+                None,
+                None,
+            ),
+            (
+                {
+                    "kind": "Node",
+                    "metadata": {
+                        "name": "mynode",
+                    },
+                },
+                "metadata", # Existing path
+                3,  # Invalid key type
+                "mynode",   # default
+                "mynode",  # expected result
+            ),
+        )
+
+        for obj, path, key, default, expected_result in testdata:
+            tmp = fun(obj, path, key, default)
+            if tmp != expected_result:
+                message = f"{fun.__name__}() did not yield expected result:\n" \
+                          f"           result: {tmp}\n" \
+                          f"  expected result: {expected_result}"
+                result = False
+                break
     return message, result
 
 
@@ -1077,6 +1174,11 @@ def test_loglevel_to_name(verbose: bool = False) -> tuple[str, bool]:
                     "loglevel": LogLevel.ALL + 1,
                 },
                 "Info", None),
+            (
+                {
+                    "loglevel": None,
+                },
+                "Info", None),
         )
 
         for indata, expected_result, expected_exception in testdata:
@@ -1238,6 +1340,10 @@ tests: dict[tuple[str, ...], dict[str, Any]] = {
     },
     ("deep_get_with_fallback()", ): {
         "callable": test_deep_get_with_fallback,
+        "result": None,
+    },
+    ("deep_pop()", ): {
+        "callable": test_deep_pop,
         "result": None,
     },
     ("deep_set()", ): {
