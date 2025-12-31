@@ -13,10 +13,13 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+import logging
 import sys
-from typing import Any
+import tempfile
+from typing import Any, Optional
+from unittest import mock
 
-from clustermanagementtoolkit.cmttypes import deep_get, DictPath
+from clustermanagementtoolkit.cmttypes import deep_get, DictPath, FilePath, LogLevel
 from clustermanagementtoolkit.ansithemeprint import ANSIThemeStr, ansithemeprint
 from clustermanagementtoolkit.ansithemeprint import init_ansithemeprint
 from clustermanagementtoolkit import cmtlog
@@ -77,9 +80,86 @@ def test_log_array_to_string(verbose: bool = False) -> tuple[str, bool]:
     return message, result
 
 
+def test_set_logger(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = cmtlog.set_logger
+
+    if result:
+        try:
+            with tempfile.TemporaryDirectory() as td:
+                tempdir = FilePath(td)
+                with mock.patch("clustermanagementtoolkit.cmtlog.cmtpaths.CMT_LOGS_DIR", tempdir):
+                    fun("cmtlogtessts", LogLevel.INFO)
+        except Exception as e:
+            message = f"{fun.__name__}() did not yield expected result:\n" \
+                      f"      exception: {type(e)}\n"
+            result = False
+    return message, result
+
+
+def test_set_level(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = cmtlog.set_level
+
+    if result:
+        # Indata format:
+        # (loglevel, expected_result, expected_exception)
+        testdata: tuple[Any, ...] = (
+            (LogLevel.DEBUG, logging.DEBUG, None),
+            (LogLevel.INFO, logging.INFO, None),
+            (LogLevel.WARNING, logging.WARNING, None),
+            (LogLevel.ERR, logging.ERROR, None),
+            (LogLevel.CRIT, logging.CRITICAL, None),
+            (None, None, ValueError),
+        )
+
+        for loglevel, expected_result, expected_exception in testdata:
+            try:
+                fun(loglevel)
+                tmp = cmtlog.logger.getEffectiveLevel()
+                if tmp != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"          input: {repr(loglevel)}\n" \
+                              f"         output: {tmp}\n" \
+                              f"       expected: {expected_result}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  f"          input: {repr(loglevel)}\n" \
+                                  f"      exception: {type(e)}\n" \
+                                  f"       expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"          input: {repr(loglevel)}\n" \
+                              f"      exception: {type(e)}\n" \
+                              f"       expected: {expected_result}"
+                    result = False
+                    break
+    return message, result
+
+
 tests: dict[tuple[str, ...], dict[str, Any]] = {
     ("log_array_to_string()",): {
         "callable": test_log_array_to_string,
+        "result": None,
+    },
+    ("set_logger()",): {
+        "callable": test_set_logger,
+        "result": None,
+    },
+    ("set_level()",): {
+        "callable": test_set_level,
         "result": None,
     },
 }
