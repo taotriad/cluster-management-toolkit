@@ -55,7 +55,7 @@ def log_array_to_string(msglist: list[Union[str, list[ANSIThemeStr]]]) -> str:
 
 def set_logger(name: str, loglevel: LogLevel) -> None:
     """
-    Return a logger that generates log messages as YAML-list entries.
+    Registers a logger that generates log messages as YAML-list entries.
 
         Parameters:
             name (str): The name of the module that the logger is to be used in
