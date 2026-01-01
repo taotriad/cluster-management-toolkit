@@ -117,6 +117,26 @@ def test_set_level(verbose: bool = False) -> tuple[str, bool]:
             (None, None, ValueError),
         )
 
+        # First test whether None-check works properly
+        with mock.patch("clustermanagementtoolkit.cmtlog.logger", None):
+            try:
+                fun(LogLevel.DEBUG)
+                tmp = cmtlog.logger.getEffectiveLevel()
+                message = f"{fun.__name__}() did not yield expected result:\n" \
+                          f"          input: {repr(loglevel)} (logger not initialized)\n" \
+                          f"         output: {tmp}\n" \
+                          f"       expected: {TypeError}"
+                result = False
+                return message, result
+            except Exception as e:
+                if not isinstance(e, TypeError):
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"          input: {repr(loglevel)} (logger not initialized)\n" \
+                              f"      exception: {type(e)}\n" \
+                              f"       expected: {TypeError}"
+                    result = False
+                    return message, result
+
         for loglevel, expected_result, expected_exception in testdata:
             try:
                 fun(loglevel)
