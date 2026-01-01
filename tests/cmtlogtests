@@ -16,7 +16,7 @@
 import logging
 import sys
 import tempfile
-from typing import Any, Optional
+from typing import Any
 from unittest import mock
 
 from clustermanagementtoolkit.cmttypes import deep_get, DictPath, FilePath, LogLevel
@@ -123,7 +123,7 @@ def test_set_level(verbose: bool = False) -> tuple[str, bool]:
                 fun(LogLevel.DEBUG)
                 tmp = cmtlog.logger.getEffectiveLevel()
                 message = f"{fun.__name__}() did not yield expected result:\n" \
-                          f"          input: {repr(loglevel)} (logger not initialized)\n" \
+                          f"          input: {repr(LogLevel)} (logger not initialized)\n" \
                           f"         output: {tmp}\n" \
                           f"       expected: {TypeError}"
                 result = False
@@ -131,7 +131,7 @@ def test_set_level(verbose: bool = False) -> tuple[str, bool]:
             except Exception as e:
                 if not isinstance(e, TypeError):
                     message = f"{fun.__name__}() did not yield expected result:\n" \
-                              f"          input: {repr(loglevel)} (logger not initialized)\n" \
+                              f"          input: {repr(LogLevel)} (logger not initialized)\n" \
                               f"      exception: {type(e)}\n" \
                               f"       expected: {TypeError}"
                     result = False
@@ -143,11 +143,68 @@ def test_set_level(verbose: bool = False) -> tuple[str, bool]:
                 tmp = cmtlog.logger.getEffectiveLevel()
                 if tmp != expected_result:
                     message = f"{fun.__name__}() did not yield expected result:\n" \
-                              f"          input: {repr(loglevel)}\n" \
+                              f"          input: {repr(LogLevel)}\n" \
                               f"         output: {tmp}\n" \
                               f"       expected: {expected_result}"
                     result = False
                     break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  f"          input: {repr(LogLevel)}\n" \
+                                  f"      exception: {type(e)}\n" \
+                                  f"       expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"          input: {repr(LogLevel)}\n" \
+                              f"      exception: {type(e)}\n" \
+                              f"       expected: {expected_result}"
+                    result = False
+                    break
+    return message, result
+
+
+def test_log(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = cmtlog.log
+
+    if result:
+        # Indata format:
+        # (loglevel, msg, messages, expected_result, expected_exception)
+        testdata: tuple[Any, ...] = (
+            (LogLevel.DEBUG, "Test message", None, None, None),
+            (LogLevel.INFO, "Test message", None, None, None),
+            (LogLevel.WARNING, "Test message", None, None, None),
+            (LogLevel.ERR, "Test message", None, None, None),
+            (LogLevel.CRIT, "Test message", None, None, None),
+            (LogLevel.INFO, None, ["Foo", " bar", " baz"], None, None),
+            (LogLevel.INFO, None, [[ANSIThemeStr("Test message", "info")]], None, None),
+            (LogLevel.INFO, None, None, None, None),
+            (None, None, "Test message", None, ValueError),
+        )
+
+        # First test whether None-check works properly
+        with mock.patch("clustermanagementtoolkit.cmtlog.logger", None):
+            try:
+                fun(LogLevel.DEBUG)
+            except Exception as e:
+                message = f"{fun.__name__}() did not yield expected result:\n" \
+                          f"          input: {repr(LogLevel)} (logger not initialized)\n" \
+                          f"      exception: {type(e)}\n" \
+                          f"       expected: {None}"
+                result = False
+                return message, result
+
+        for loglevel, msg, messages, expected_result, expected_exception in testdata:
+            try:
+                fun(loglevel, msg=msg, messages=messages)
             except Exception as e:
                 if expected_exception is not None:
                     if isinstance(e, expected_exception):
@@ -180,6 +237,10 @@ tests: dict[tuple[str, ...], dict[str, Any]] = {
     },
     ("set_level()",): {
         "callable": test_set_level,
+        "result": None,
+    },
+    ("log()",): {
+        "callable": test_log,
         "result": None,
     },
 }
