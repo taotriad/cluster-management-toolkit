@@ -399,7 +399,7 @@ def test_deep_pop(verbose: bool = False) -> tuple[str, bool]:
                         "name": "mynode",
                     },
                 },
-                "metadata", # Existing path
+                "metadata",  # Existing path
                 3,  # Invalid key type
                 "mynode",   # default
                 "mynode",  # expected result
