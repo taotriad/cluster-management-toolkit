@@ -81,9 +81,20 @@ def set_logger(name: str, loglevel: LogLevel) -> None:
 
 
 def __loglevel_to_logger(loglevel: LogLevel) -> Callable:
-    if logger is None:
-        raise ValueError("cmtlog.__loglevel_to_logger() "
-                         "called without being initialized; aborting.")
+    """
+    Return a logger for the specified loglevel.
+
+        Parameters:
+            loglevel (LogLevel): The loglevel to return a logger for
+        Returns:
+            (Callable): A logger callable
+        Raises:
+            ValueError: Unsupported LogLevel
+            TypeError: logger called without being initialized
+    """
+    if logger is None:  # pragma: nocover
+        raise TypeError("cmtlog.__loglevel_to_logger() "
+                        "called without being initialized; aborting.")
 
     if loglevel == LogLevel.DEBUG:
         return logger.debug
@@ -152,6 +163,8 @@ def set_level(loglevel: LogLevel) -> None:
         Parameters:
             loglevel (LogLevel): One of LogLevel.DEBUG, LogLevel.INFO, LogLevel.WARNING,
                                  LogLevel.ERR, LogLevel.CRIT
+        Raises:
+            TypeError: logger called without being initialized
     """
     if logger is None:
         raise TypeError("cmtlog.log() called without being initialized; aborting.")

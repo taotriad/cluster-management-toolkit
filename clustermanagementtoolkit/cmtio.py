@@ -8,7 +8,7 @@
 # pylint: disable=too-many-lines
 
 """
-I/O helpers
+I/O helpers.
 """
 
 import errno
@@ -33,7 +33,7 @@ def expand_path(path: str, search_paths: Optional[list[str]] = None,
                 suffixes: Optional[list[str]] = None,
                 fallback: str = "") -> tuple[FilePath, bool]:
     """
-    Given a path, filename or partial filename, expand it to its full path
+    Given a path, filename or partial filename, expand it to its full path.
 
         Parameters:
             path (str): A path, filename, or partial filename
@@ -85,7 +85,7 @@ def expand_path(path: str, search_paths: Optional[list[str]] = None,
 
 def join_securitystatus_set(separator: str, securitystatuses: set[SecurityStatus]) -> str:
     """
-    Given a set of violations, join it to a sorted string
+    Given a set of violations, join it to a sorted string.
 
         Parameters:
             separator (str): The separator to use between items
@@ -352,7 +352,7 @@ def check_path(path: FilePath, **kwargs: Any) -> list[SecurityStatus]:
 
 def secure_rm(path: FilePath, ignore_non_existing: bool = False) -> None:
     """
-    Remove a file
+    Remove a file.
 
         Parameters:
             path (FilePath): The path to the file to remove
@@ -396,7 +396,7 @@ def secure_rm(path: FilePath, ignore_non_existing: bool = False) -> None:
 
 def secure_rmdir(path: FilePath, ignore_non_existing: bool = False) -> None:
     """
-    Remove a directory
+    Remove a directory.
 
         Parameters:
             path (FilePath): The path to the directory to remove
@@ -542,7 +542,7 @@ def secure_read(path: FilePath,
                 directory_is_symlink: bool = False,
                 read_mode: str = "r", temporary: bool = False) -> Union[str, bytes]:
     """
-    Read the content of a file in a safe manner
+    Read the content of a file in a safe manner.
 
         Parameters:
             path (FilePath): The path to read from
@@ -635,7 +635,7 @@ def secure_read(path: FilePath,
 def secure_read_string(path: FilePath, checks: Optional[list[SecurityChecks]] = None,
                        directory_is_symlink: bool = False, temporary: bool = False) -> str:
     """
-    Read a string from a file in a safe manner
+    Read a string from a file in a safe manner.
 
         Parameters:
             path (FilePath): The path to read from
@@ -766,7 +766,8 @@ def secure_which(path: FilePath, fallback_allowlist: list[str],
 def secure_mkdir(directory: FilePath, permissions: int = 0o750, verbose: bool = False,
                  exist_ok: bool = True, exit_on_failure: bool = False) -> list[SecurityStatus]:
     """
-    Create a directory if it does not already exist
+    Create a directory if it does not already exist.
+
         Parameters:
             directory (str): The path to the directory to create
             permissions (int): File permissions (None uses system defaults)
@@ -829,7 +830,8 @@ def secure_copy(src: FilePath, dst: FilePath, verbose: bool = False,
                 exit_on_failure: bool = False,
                 permissions: Optional[int] = None) -> list[SecurityStatus]:
     """
-    Copy a file
+    Copy a file.
+
         Parameters:
             src (str): The path to copy from
             dst (str): The path to copy to
@@ -931,7 +933,8 @@ def secure_symlink(src: FilePath, dst: FilePath, verbose: bool = False,
                    exit_on_failure: bool = False,
                    replace_existing: bool = False) -> list[SecurityStatus]:
     """
-    Create or replace a symlink
+    Create or replace a symlink.
+
         Parameters:
             src (str): The path to link from
             dst (str): The path to link to
@@ -1062,7 +1065,7 @@ def secure_symlink(src: FilePath, dst: FilePath, verbose: bool = False,
 def execute_command_with_response(args: list[str], env: Optional[dict] = None,
                                   stdinput: Optional[bytes] = None) -> tuple[str, int]:
     """
-    Executes a command and returns stdout
+    Executes a command and returns stdout.
 
         Parameters:
             args ([str]): The commandline
@@ -1088,7 +1091,7 @@ def execute_command_with_response(args: list[str], env: Optional[dict] = None,
 def execute_command(args: list[Union[FilePath, str]],
                     env: Optional[dict] = None, comparison: int = 0) -> bool:
     """
-    Executes a command
+    Executes a command.
 
         Parameters:
             args ([str]): The commandline
