@@ -249,20 +249,20 @@ Output:
 ```
 Name                                                  Stmts   Miss Branch BrPart  Cover
 ---------------------------------------------------------------------------------------
-clustermanagementtoolkit/listgetters.py                1236   1030    656     12  15.4%
+clustermanagementtoolkit/listgetters.py                1236   1016    656     12  16.5%
 clustermanagementtoolkit/cluster_actions.py             226    178     74      3  19.0%
 clustermanagementtoolkit/infogetters.py                1729   1376   1038     23  19.1%
 clustermanagementtoolkit/curses_helper.py              2504   1877   1130     19  21.6%
 clustermanagementtoolkit/logparser.py                  2059   1445   1122     34  25.7%
-clustermanagementtoolkit/networkio.py                   391    284    178      3  26.0%
+clustermanagementtoolkit/networkio.py                   389    282    178      3  26.1%
 clustermanagementtoolkit/kubernetes_helper.py          1625   1122    784     83  27.7%
 clustermanagementtoolkit/listgetters_async.py           119     76     52      2  31.0%
 clustermanagementtoolkit/checks.py                      637    342    250      1  44.0%
-clustermanagementtoolkit/datagetters.py                 276    144    144     12  45.7%
+clustermanagementtoolkit/datagetters.py                 276    140    144     12  47.1%
 clustermanagementtoolkit/generators.py                  758    374    386     28  47.4%
 clustermanagementtoolkit/formatters.py                  804    363    422     32  52.3%
 clustermanagementtoolkit/ansible_helper.py              823    223    486     27  71.9%
-clustermanagementtoolkit/cmtlib.py                      578    124    326     14  76.1%
+clustermanagementtoolkit/cmtlib.py                      576    119    326     15  76.7%
 clustermanagementtoolkit/cmtio.py                       426     40    226     20  89.0%
 clustermanagementtoolkit/itemgetters.py                 524     47    284     18  89.7%
 clustermanagementtoolkit/cni_data.py                     92      1     36      8  93.0%
@@ -282,7 +282,7 @@ clustermanagementtoolkit/objgetters.py                   56      0     12      0
 clustermanagementtoolkit/pvtypes.py                       1      0      0      0 100.0%
 clustermanagementtoolkit/recommended_permissions.py      11      0      0      0 100.0%
 ---------------------------------------------------------------------------------------
-TOTAL                                                 16799   9075   8472    357  43.5%
+TOTAL                                                 16795   9050   8472    358  43.6%
 ```
 
 ### Flake8 Results for v0.8.6

@@ -15,7 +15,7 @@ import base64
 import binascii
 from datetime import datetime, timezone, timedelta, date
 import errno
-from pathlib import Path, PurePath
+from pathlib import Path
 import re
 import sys
 from typing import Any, cast, Optional, Union

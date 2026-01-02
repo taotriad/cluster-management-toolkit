@@ -228,7 +228,6 @@ def test_fieldgetter_crc_version(verbose: bool = False) -> tuple[str, bool]:
                     result = False
                     break
             except Exception as e:
-                raise
                 if expected_exception is not None:
                     if isinstance(e, expected_exception):
                         pass
