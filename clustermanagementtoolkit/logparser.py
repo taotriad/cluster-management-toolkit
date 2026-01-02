@@ -57,7 +57,7 @@ try:
     sryaml = ruyaml.YAML(typ="safe")
 except ModuleNotFoundError:  # pragma: no cover
     try:
-        import ruamel.yaml as ruyaml  # type: ignore
+        import ruamel.yaml as ruyaml  # type: ignore[no-redef,unused-ignore]
         ryaml = ruyaml.YAML()
         sryaml = ruyaml.YAML(typ="safe")
     except ModuleNotFoundError:  # pragma: no cover

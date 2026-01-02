@@ -44,7 +44,7 @@ try:
     sryaml = ruyaml.YAML(typ="safe")
 except ModuleNotFoundError:  # pragma: no cover
     try:
-        import ruamel.yaml as ruyaml  # type: ignore
+        import ruamel.yaml as ruyaml  # type: ignore[no-redef,unused-ignore]
         ryaml = ruyaml.YAML()
         sryaml = ruyaml.YAML(typ="safe")
     except ModuleNotFoundError:  # pragma: no cover
@@ -589,7 +589,7 @@ def guess_kind(kind: Union[str, tuple[str, str]]) -> tuple[str, str]:
     ]
     unformatted_msg, formatted_msg = ANSIThemeStr.format_error_msg(errmsg)
     cmtlog.log(LogLevel.INFO, msg=unformatted_msg, messages=formatted_msg)
-    unknown_kubernetes_resources[(kind)] = None
+    unknown_kubernetes_resources[kind] = {}
 
     return kind
 
@@ -2446,7 +2446,7 @@ class KubernetesHelper:
             ]
             unformatted_msg, formatted_msg = ANSIThemeStr.format_error_msg(errmsg)
             cmtlog.log(LogLevel.ERR, msg=unformatted_msg, messages=formatted_msg)
-            return 422, f"POST requested for unknown kind {kind[0]}.{kind[1]}; ignoring."
+            return f"POST requested for unknown kind {kind[0]}.{kind[1]}; ignoring.", 422
 
         fullitem = f"{kind[0]}.{kind[1]} {name}"
         if namespaced:
@@ -2529,7 +2529,7 @@ class KubernetesHelper:
             ]
             unformatted_msg, formatted_msg = ANSIThemeStr.format_error_msg(errmsg)
             cmtlog.log(LogLevel.ERR, msg=unformatted_msg, messages=formatted_msg)
-            return 422, f"PATCH requested for unknown kind {kind[0]}.{kind[1]}; ignoring."
+            return f"PATCH requested for unknown kind {kind[0]}.{kind[1]}; ignoring.", 422
 
         fullitem = f"{kind[0]}.{kind[1]} {name}"
         if namespaced:
@@ -2594,7 +2594,7 @@ class KubernetesHelper:
             ]
             unformatted_msg, formatted_msg = ANSIThemeStr.format_error_msg(errmsg)
             cmtlog.log(LogLevel.ERR, msg=unformatted_msg, messages=formatted_msg)
-            return 422, f"DELETE requested for unknown kind {kind[0]}.{kind[1]}; ignoring."
+            return f"DELETE requested for unknown kind {kind[0]}.{kind[1]}; ignoring.", 422
 
         fullitem = f"{kind[0]}.{kind[1]} {name}"
         if namespaced:
@@ -2675,7 +2675,7 @@ class KubernetesHelper:
                 ]
                 unformatted_msg, formatted_msg = ANSIThemeStr.format_error_msg(errmsg)
                 cmtlog.log(LogLevel.ERR, msg=unformatted_msg, messages=formatted_msg)
-                return 422, f"GET requested for unknown kind {kind[0]}.{kind[1]}; ignoring."
+                return None, 422
         else:
             api_paths = [raw_path]
             api = ""
@@ -3182,7 +3182,7 @@ class KubernetesHelper:
                 if deep_get(tmp, DictPath("kind")) == "List":
                     d = deep_get(tmp, DictPath("items"), [])
                 else:
-                    d = [tmp]  # type: ignore
+                    d = [tmp]
             if d is None:
                 d = []
             for item in d:

@@ -100,7 +100,7 @@ except ModuleNotFoundError:  # pragma: no cover
 PROGRAMDESCRIPTION = "Commandline tool for managing Kubernetes clusters."
 PROGRAMAUTHORS = "Written by David Weinehall."
 
-kh: kubernetes_helper.KubernetesHelper = None  # type: ignore pylint: disable=invalid-name
+kh: kubernetes_helper.KubernetesHelper = None  # type: ignore # pylint: disable=invalid-name
 
 
 def request_ansible_password() -> None:

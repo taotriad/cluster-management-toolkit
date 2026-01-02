@@ -645,7 +645,7 @@ def get_pod_affinity(obj: dict, **kwargs: Any) -> list[tuple[str, str, str, str,
 
 
 # pylint: disable-next=too-many-locals,too-many-branches
-def get_pod_configmaps(obj: dict, **kwargs: Any) -> Optional[list[tuple[str, str]]]:
+def get_pod_configmaps(obj: dict, **kwargs: Any) -> Optional[list[dict[str, Any]]]:
     """
     Get a list of all pods referencing a configmap.
 
@@ -658,9 +658,11 @@ def get_pod_configmaps(obj: dict, **kwargs: Any) -> Optional[list[tuple[str, str
                 cm_name (str|[str]): The name/path to the ConfigMap name
                 pod_name (str): The name of the pod
         Returns:
-            ([(str, str)]):
-                (str): Namespace of the pod using this ConfigMap
-                (str): Name of the pod using this ConfigMap
+            ([dict[str, Any]]):
+                ((str, str)):
+                    (str): ConfigMap namespace
+                    (str): Pod name
+                (dict): The Pod object that matches the namespace
     """
     if (kh := deep_get(kwargs, DictPath("kubernetes_helper"))) is None:
         raise ProgrammingError("get_pod_configmaps() called without kubernetes_helper")

@@ -257,14 +257,13 @@ clustermanagementtoolkit/logparser.py                  2059   1445   1122     34
 clustermanagementtoolkit/networkio.py                   391    284    178      3  26.0%
 clustermanagementtoolkit/kubernetes_helper.py          1625   1122    784     83  27.7%
 clustermanagementtoolkit/listgetters_async.py           119     76     52      2  31.0%
-clustermanagementtoolkit/cmtlog.py                       82     50     42      1  33.1%
 clustermanagementtoolkit/checks.py                      637    342    250      1  44.0%
 clustermanagementtoolkit/datagetters.py                 276    144    144     12  45.7%
 clustermanagementtoolkit/generators.py                  758    374    386     28  47.4%
 clustermanagementtoolkit/formatters.py                  804    363    422     32  52.3%
 clustermanagementtoolkit/ansible_helper.py              823    223    486     27  71.9%
 clustermanagementtoolkit/cmtlib.py                      578    124    326     14  76.1%
-clustermanagementtoolkit/cmtio.py                       426     45    226     20  88.2%
+clustermanagementtoolkit/cmtio.py                       426     40    226     20  89.0%
 clustermanagementtoolkit/itemgetters.py                 524     47    284     18  89.7%
 clustermanagementtoolkit/cni_data.py                     92      1     36      8  93.0%
 clustermanagementtoolkit/ansithemeprint.py              224     12     86      4  94.2%
@@ -272,17 +271,18 @@ clustermanagementtoolkit/cmtio_yaml.py                   62      3     14      1
 clustermanagementtoolkit/reexecutor.py                   72      2     28      3  95.0%
 clustermanagementtoolkit/cmtvalidators.py               337     11    210      5  96.3%
 clustermanagementtoolkit/fieldgetters.py                 74      0     44      3  97.5%
-clustermanagementtoolkit/cmttypes.py                    492      4    190      3  99.0%
 clustermanagementtoolkit/commandparser.py               448      1    254      2  99.6%
 clustermanagementtoolkit/about.py                        17      0      0      0 100.0%
+clustermanagementtoolkit/cmtlog.py                       80      0     40      0 100.0%
 clustermanagementtoolkit/cmtpaths.py                     90      0      0      0 100.0%
+clustermanagementtoolkit/cmttypes.py                    492      0    190      0 100.0%
 clustermanagementtoolkit/helptexts.py                    23      0      0      0 100.0%
 clustermanagementtoolkit/kubernetes_resources.py          5      0      0      0 100.0%
 clustermanagementtoolkit/objgetters.py                   56      0     12      0 100.0%
 clustermanagementtoolkit/pvtypes.py                       1      0      0      0 100.0%
 clustermanagementtoolkit/recommended_permissions.py      11      0      0      0 100.0%
 ---------------------------------------------------------------------------------------
-TOTAL                                                 16801   9134   8474    361  43.1%
+TOTAL                                                 16799   9075   8472    357  43.5%
 ```
 
 ### Flake8 Results for v0.8.6
@@ -301,44 +301,43 @@ Execute with `make mypy-markdown`.
 
 | Source file                                         | Score                                                   |
 | :-------------------------------------------------- | :------------------------------------------------------ |
-| cmt                                                 | **Found 18 errors in 5 files (checked 1 source file)**  |
-| cmtadm                                              | **Found 20 errors in 6 files (checked 1 source file)**  |
-| cmt-install                                         | **Found 5 errors in 2 files (checked 1 source file)**   |
-| cmtinv                                              | **Found 12 errors in 3 files (checked 1 source file)**  |
-| cmu                                                 | **Found 175 errors in 6 files (checked 1 source file)** |
+| cmt                                                 | Success: no issues found in 1 source file               |
+| cmtadm                                              | Success: no issues found in 1 source file               |
+| cmt-install                                         | Success: no issues found in 1 source file               |
+| cmtinv                                              | Success: no issues found in 1 source file               |
+| cmu                                                 | **Found 91 errors in 2 files (checked 1 source file)**  |
 | clustermanagementtoolkit/about.py                   | Success: no issues found in 1 source file               |
-| clustermanagementtoolkit/ansible_helper.py          | **Found 2 errors in 2 files (checked 1 source file)**   |
-| clustermanagementtoolkit/ansithemeprint.py          | Found 1 error in 1 file (checked 1 source file)         |
-| clustermanagementtoolkit/checks.py                  | **Found 9 errors in 3 files (checked 1 source file)**   |
-| clustermanagementtoolkit/cluster_actions.py         | **Found 13 errors in 4 files (checked 1 source file)**  |
+| clustermanagementtoolkit/ansible_helper.py          | Success: no issues found in 1 source file               |
+| clustermanagementtoolkit/ansithemeprint.py          | Success: no issues found in 1 source file               |
+| clustermanagementtoolkit/checks.py                  | Success: no issues found in 1 source file               |
+| clustermanagementtoolkit/cluster_actions.py         | Success: no issues found in 1 source file               |
 | clustermanagementtoolkit/cmtio.py                   | Success: no issues found in 1 source file               |
-| clustermanagementtoolkit/cmtio_yaml.py              | Found 1 error in 1 file (checked 1 source file)         |
-| clustermanagementtoolkit/cmtlib.py                  | **Found 5 errors in 2 files (checked 1 source file)**   |
-| clustermanagementtoolkit/cmtlog.py                  | Found 1 error in 1 file (checked 1 source file)         |
+| clustermanagementtoolkit/cmtio_yaml.py              | Success: no issues found in 1 source file               |
+| clustermanagementtoolkit/cmtlib.py                  | Success: no issues found in 1 source file               |
+| clustermanagementtoolkit/cmtlog.py                  | Success: no issues found in 1 source file               |
 | clustermanagementtoolkit/cmtpaths.py                | Success: no issues found in 1 source file               |
 | clustermanagementtoolkit/cmttypes.py                | Success: no issues found in 1 source file               |
-| clustermanagementtoolkit/cmtvalidators.py           | Found 1 error in 1 file (checked 1 source file)         |
-| clustermanagementtoolkit/cni_data.py                | **Found 5 errors in 2 files (checked 1 source file)**   |
-| clustermanagementtoolkit/commandparser.py           | **Found 9 errors in 3 files (checked 1 source file)**   |
-| clustermanagementtoolkit/curses_helper.py           | **Found 5 errors in 2 files (checked 1 source file)**   |
-| clustermanagementtoolkit/datagetters.py             | **Found 5 errors in 2 files (checked 1 source file)**   |
-| clustermanagementtoolkit/fieldgetters.py            | Found 1 error in 1 file (checked 1 source file)         |
-| clustermanagementtoolkit/formatters.py              | **Found 5 errors in 2 files (checked 1 source file)**   |
-| clustermanagementtoolkit/generators.py              | **Found 5 errors in 2 files (checked 1 source file)**   |
-| clustermanagementtoolkit/helptexts.py               | **Found 5 errors in 2 files (checked 1 source file)**   |
-| clustermanagementtoolkit/infogetters.py             | **Found 23 errors in 4 files (checked 1 source file)**  |
-| clustermanagementtoolkit/itemgetters.py             | **Found 6 errors in 3 files (checked 1 source file)**   |
-| clustermanagementtoolkit/kubernetes_helper.py       | **Found 12 errors in 3 files (checked 1 source file)**  |
+| clustermanagementtoolkit/cmtvalidators.py           | Success: no issues found in 1 source file               |
+| clustermanagementtoolkit/cni_data.py                | Success: no issues found in 1 source file               |
+| clustermanagementtoolkit/commandparser.py           | Success: no issues found in 1 source file               |
+| clustermanagementtoolkit/curses_helper.py           | Success: no issues found in 1 source file               |
+| clustermanagementtoolkit/datagetters.py             | Success: no issues found in 1 source file               |
+| clustermanagementtoolkit/fieldgetters.py            | Success: no issues found in 1 source file               |
+| clustermanagementtoolkit/formatters.py              | Success: no issues found in 1 source file               |
+| clustermanagementtoolkit/generators.py              | Success: no issues found in 1 source file               |
+| clustermanagementtoolkit/helptexts.py               | Success: no issues found in 1 source file               |
+| clustermanagementtoolkit/infogetters.py             | **Found 17 errors in 1 files (checked 1 source file)**  |
+| clustermanagementtoolkit/itemgetters.py             | Success: no issues found in 1 source file               |
+| clustermanagementtoolkit/kubernetes_helper.py       | Success: no issues found in 1 source file               |
 | clustermanagementtoolkit/kubernetes_resources.py    | Success: no issues found in 1 source file               |
-| clustermanagementtoolkit/listgetters.py             | **Found 13 errors in 4 files (checked 1 source file)**  |
-| clustermanagementtoolkit/listgetters_async.py       | **Found 13 errors in 4 files (checked 1 source file)**  |
-| clustermanagementtoolkit/logparser.py               | **Found 66 errors in 3 files (checked 1 source file)**  |
-| clustermanagementtoolkit/networkio.py               | **Found 9 errors in 3 files (checked 1 source file)**   |
-| clustermanagementtoolkit/objgetters.py              | **Found 5 errors in 2 files (checked 1 source file)**   |
+| clustermanagementtoolkit/listgetters.py             | Success: no issues found in 1 source file               |
+| clustermanagementtoolkit/listgetters_async.py       | Success: no issues found in 1 source file               |
+| clustermanagementtoolkit/logparser.py               | **Found 60 errors in 1 file (checked 1 source file)**   |
+| clustermanagementtoolkit/networkio.py               | Success: no issues found in 1 source file               |
+| clustermanagementtoolkit/objgetters.py              | Success: no issues found in 1 source file               |
 | clustermanagementtoolkit/pvtypes.py                 | Success: no issues found in 1 source file               |
 | clustermanagementtoolkit/recommended_permissions.py | Success: no issues found in 1 source file               |
 | clustermanagementtoolkit/reexecutor.py              | Success: no issues found in 1 source file               |
-
 
 ### Pylint Results for v0.8.6
 

@@ -227,8 +227,8 @@ selected_namespace = ""  # pylint: disable=invalid-name
 # defaults
 defaultview = ""  # pylint: disable=invalid-name
 
-kh: KubernetesHelper = None  # type: ignore pylint: disable=invalid-name
-kh_cache: KubernetesResourceCache = None  # type: ignore pylint: disable=invalid-name
+kh: KubernetesHelper = None  # type: ignore # pylint: disable=invalid-name
+kh_cache: KubernetesResourceCache = None  # type: ignore # pylint: disable=invalid-name
 
 executor = reexecutor.ReExecutor()
 async_data: dict = {}
@@ -1219,7 +1219,7 @@ def genericlistloop(stdscr: curses.window, **kwargs: Any) -> Retval:
 
         uip.stdscr.timeout(100)
         c = uip.stdscr.getch()
-        retval: Retval = uip.generic_keycheck(c)
+        retval = uip.generic_keycheck(c)
 
         if retval == Retval.MATCH:
             continue
@@ -1468,11 +1468,12 @@ def genericlistloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                                                          default=False):
                         continue
 
-                retval = actionfunc(uip=uip, items=[], action=actionlist[action],
-                                    values=selection_vars, kind=kind,
-                                    **actionfunc_args)
-                if retval is not None and retval == Retval.RETURNFULL:
-                    return retval
+                if action:
+                    retval = actionfunc(uip=uip, items=[], action=actionlist[action],
+                                        values=selection_vars, kind=kind,
+                                        **actionfunc_args)
+                    if retval is not None and retval == Retval.RETURNFULL:
+                        return retval
 
                 uip.force_update()
                 continue
@@ -2041,11 +2042,12 @@ def genericlistloop(stdscr: curses.window, **kwargs: Any) -> Retval:
 
                 selection_vars["_tagged_items"] = list(tagged_items)
                 selection_vars["action_args"] = action_args
-                retval = actionfunc(uip=uip, items=items, action=actionlist[action],
-                                    values=selection_vars, kind=kind, title=title,
-                                    **actionfunc_args)
-                if retval is not None and retval == Retval.RETURNFULL:
-                    return retval
+                if action:
+                    retval = actionfunc(uip=uip, items=items, action=actionlist[action],
+                                        values=selection_vars, kind=kind, title=title,
+                                        **actionfunc_args)
+                    if retval is not None and retval == Retval.RETURNFULL:
+                        return retval
 
                 uip.force_update()
                 uip.update_forced = True
@@ -3758,10 +3760,10 @@ def process_selection(**kwargs: Any) -> dict[str, Any]:
 
         Parameters:
             **kwargs (dict[str, Any]): Keyword arguments
-                process_selection (dict[str, Any]): A lookup table for substitution
+                process_selection (dict[int, Any]): A lookup table for substitution
                                                     the output from input selections.
     """
-    process_selection_dict: dict[str, dict[str, dict[str, Any]]] = \
+    process_selection_dict: dict[int, dict[str, dict[str, Any]]] = \
         deep_get(kwargs, DictPath("process_selection"), {})
 
     for i, selection in enumerate(deep_get(kwargs, DictPath("selection"), [])):
@@ -4589,7 +4591,7 @@ def genericinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
 
         uip.stdscr.timeout(100)
         c = uip.stdscr.getch()
-        retval: Retval = uip.generic_keycheck(c)
+        retval = uip.generic_keycheck(c)
 
         if retval == Retval.MATCH:
             continue

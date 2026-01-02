@@ -527,22 +527,22 @@ def __usage(options: list[tuple[str, str]], args: list[str]) -> int:
             tmpline = []
             for segment in line:
                 themeref = segment.get_themeref()
-                string = str(segment)
-                string = string.replace("<", "\\<")
-                string = string.replace(">", "\\>")
-                string = string.replace("`", "\\`")
+                rstring = str(segment)
+                rstring = rstring.replace("<", "\\<")
+                rstring = rstring.replace(">", "\\>")
+                rstring = rstring.replace("`", "\\`")
                 if themeref in ("option", "emphasis"):
-                    stripped, lcount = lstrip_count(string, " ")
+                    stripped, lcount = lstrip_count(rstring, " ")
                     stripped, rcount = rstrip_count(stripped, " ")
                     if stripped and not stripped.startswith("__") and not stripped.endswith("__"):
-                        string = "".ljust(lcount) + f"__{stripped}__" + "".ljust(rcount)
-                        segment = ANSIThemeStr(string, themeref)
+                        rstring = "".ljust(lcount) + f"__{stripped}__" + "".ljust(rcount)
+                        segment = ANSIThemeStr(rstring, themeref)
                 elif themeref in ("argument", "note", "path", "version"):
-                    stripped, lcount = lstrip_count(string, " ")
+                    stripped, lcount = lstrip_count(rstring, " ")
                     stripped, rcount = rstrip_count(stripped, " ")
                     if stripped and not stripped.startswith("_") and not stripped.endswith("_"):
-                        string = "".ljust(lcount) + f"_{stripped}_" + "".ljust(rcount)
-                        segment = ANSIThemeStr(string, themeref)
+                        rstring = "".ljust(lcount) + f"_{stripped}_" + "".ljust(rcount)
+                        segment = ANSIThemeStr(rstring, themeref)
                 # elif themeref not in ("command", "default",
                 #                       "description", "programname", "separator"):
                 #     sys.exit(themeref)

@@ -599,8 +599,7 @@ def update_version_cache(**kwargs: Any) -> None:
     sources: dict = {}
     try:
         for path in natsorted(Path(cmtpaths.SYSTEM_SOFTWARE_SOURCES_DIR).iterdir()):
-            path = str(path)
-            if not path.endswith((".yml", ".yaml")):
+            if not path.name.endswith((".yml", ".yaml")):
                 continue
             source = dict(secure_read_yaml(FilePath(path), directory_is_symlink=True))
             for key, data in source.items():
@@ -612,7 +611,7 @@ def update_version_cache(**kwargs: Any) -> None:
                                     ANSIThemeStr(" from ", "default"),
                                     ANSIThemeStr(f"{old_path}", "path"),
                                     ANSIThemeStr(" with entry from ", "default"),
-                                    ANSIThemeStr(f"{path}", "path")])
+                                    ANSIThemeStr(f"{path.name}", "path")])
                     sources.pop(key)
                 sources[key] = data
     except (FileNotFoundError, TypeError):
@@ -620,8 +619,7 @@ def update_version_cache(**kwargs: Any) -> None:
 
     try:
         for path in natsorted(Path(software_sources_dir).iterdir()):
-            path = str(path)
-            if not path.endswith((".yml", ".yaml")):
+            if not path.name.endswith((".yml", ".yaml")):
                 continue
             source = dict(secure_read_yaml(FilePath(path), directory_is_symlink=True))
             for key, data in source.items():
@@ -633,7 +631,7 @@ def update_version_cache(**kwargs: Any) -> None:
                                     ANSIThemeStr(" from ", "default"),
                                     ANSIThemeStr(f"{old_path}", "path"),
                                     ANSIThemeStr(" with entry from ", "default"),
-                                    ANSIThemeStr(f"{path}", "path")])
+                                    ANSIThemeStr(f"{path.name}", "path")])
                     sources.pop(key)
                 sources[key] = data
     except (FileNotFoundError, TypeError):

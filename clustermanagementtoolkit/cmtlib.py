@@ -424,8 +424,7 @@ def read_cmtconfig() -> dict:
     system_config_dir = Path(cmtpaths.SYSTEM_CMT_CONFIG_FILE_DIR)
     if system_config_dir.is_dir():
         for path in natsorted(system_config_dir.iterdir()):
-            path = str(path)
-            filename = PurePath(path).name
+            filename = path.name
 
             # Skip tempfiles and only read entries that end with .y{,a}ml
             if filename.startswith(("~", ".")) or not filename.endswith((".yaml", ".yml")):
@@ -442,8 +441,7 @@ def read_cmtconfig() -> dict:
     config_dir = Path(cmtpaths.CMT_CONFIG_FILE_DIR)
     if config_dir.is_dir():
         for path in natsorted(Path(cmtpaths.CMT_CONFIG_FILE_DIR).iterdir()):
-            path = cast(str, path)
-            filename = PurePath(str(path)).name
+            filename = path.name
 
             # Skip tempfiles and only read entries that end with .y{,a}ml
             if filename.startswith(("~", ".")) or not filename.endswith((".yaml", ".yml")):
@@ -742,7 +740,8 @@ def timestamp_to_datetime(timestamp: str, default: datetime = none_timestamp()) 
 
 # pylint: disable-next=too-many-branches,too-many-statements
 def make_set_expression_list(expression_list: list[dict],
-                             key: str = "", toleration: bool = False) -> list[tuple[str, str, str]]:
+                             key: str = "", toleration: bool = False) -> \
+                                list[Union[tuple[str, str, str], tuple[str, str, str, Any]]]:
     """
     Create a list of set expressions (key, operator, values).
 
@@ -753,7 +752,7 @@ def make_set_expression_list(expression_list: list[dict],
         Returns:
             ([(key, operator, values)]): A set expression list
     """
-    expressions = []
+    expressions: list[Union[tuple[str, str, str], tuple[str, str, str, Any]]] = []
 
     if expression_list is not None:
         if not isinstance(expression_list, list):
@@ -824,7 +823,8 @@ def make_set_expression(expression_list: list[dict]) -> str:
         Returns:
             (str): The set expressions joined into one string
     """
-    vlist = make_set_expression_list(expression_list)
+    vlist: list[tuple[str, str, str]] = \
+        cast(list[tuple[str, str, str]], make_set_expression_list(expression_list))
     xlist = []
     for key, operator, values in vlist:
         xlist.append(f"{key} {operator}{values}")

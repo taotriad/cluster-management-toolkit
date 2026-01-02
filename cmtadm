@@ -45,7 +45,7 @@ try:
     sryaml = ruyaml.YAML(typ="safe")
 except ModuleNotFoundError:  # pragma: no cover
     try:
-        import ruamel.yaml as ruyaml  # type: ignore
+        import ruamel.yaml as ruyaml  # type: ignore[no-redef,unused-ignore]
         ryaml = ruyaml.YAML()
         sryaml = ruyaml.YAML(typ="safe")
     except ModuleNotFoundError:  # pragma: no cover
@@ -133,7 +133,7 @@ DEFAULT_POD_NETWORK_CIDR = "10.244.0.0/16"
 
 no_password = False  # pylint: disable=invalid-name
 
-kh: kubernetes_helper.KubernetesHelper = None  # type: ignore pylint: disable=invalid-name
+kh: kubernetes_helper.KubernetesHelper = None  # type: ignore # pylint: disable=invalid-name
 
 cri_data: dict = {
     "containerd": {
