@@ -29,6 +29,7 @@ about: list[list[Union[ThemeRef, ThemeStr]]] = [
     [ThemeStr(f" {UI_PROGRAM_NAME} ", ThemeAttr("main", "about_text_highlight")), ThemeStr("v", ThemeAttr("main", "about_text")), ThemeStr(f"{UI_PROGRAM_VERSION}", ThemeAttr("main", "about_version"))],  # noqa: E501 pylint: disable=line-too-long
     [ThemeStr("", ThemeAttr("main", "about_text"))],
     [ThemeStr(" Copyright © 2019-2025 Intel Corporation", ThemeAttr("main", "about_text_highlight"))],  # noqa: E501 pylint: disable=line-too-long
+    [ThemeStr(" Copyright © 2025-2026 David Weinehall", ThemeAttr("main", "about_text_highlight"))],  # noqa: E501 pylint: disable=line-too-long
     [ThemeStr("", ThemeAttr("main", "about_text"))],
     [ThemeStr(" Author(s):", ThemeAttr("main", "about_text_highlight"))],
     [ThemeStr(" David Weinehall", ThemeAttr("main", "about_text"))],

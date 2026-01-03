@@ -24,7 +24,7 @@ PROGRAMVERSION = "v0.0.1"
 PROGRAMDESCRIPTION = "Generate statistics that are useful for release notes"
 PROGRAMAUTHORS = "Written by David Weinehall."
 
-COPYRIGHT = "Copyright © 2025 David Weinehall"
+COPYRIGHT = "Copyright © 2025-2026 David Weinehall"
 
 LICENSE = "This is free software; see the source for copying conditions.  There is NO\n"
 LICENSE += "warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE."

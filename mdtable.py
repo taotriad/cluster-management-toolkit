@@ -24,7 +24,7 @@ PROGRAMVERSION = "v0.0.4"
 PROGRAMDESCRIPTION = "Reformat tabulated data to Markdown"
 PROGRAMAUTHORS = "Written by David Weinehall."
 
-COPYRIGHT = "Copyright © 2024-2025 David Weinehall"
+COPYRIGHT = "Copyright © 2024-2026 David Weinehall"
 
 LICENSE = "This is free software; see the source for copying conditions.  There is NO\n"
 LICENSE += "warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE."

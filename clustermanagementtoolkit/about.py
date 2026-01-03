@@ -12,7 +12,7 @@ import sys
 
 COPYRIGHT = \
     "Copyright © 2019-2025 Intel Corporation\n" \
-    "Copyright © 2025 David Weinehall\n"
+    "Copyright © 2025-2026 David Weinehall\n"
 
 LICENSE = "This is free software; see the source for copying conditions.  There is NO\n" \
           "warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE."
