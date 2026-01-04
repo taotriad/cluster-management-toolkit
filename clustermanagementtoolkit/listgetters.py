@@ -2174,7 +2174,7 @@ def listgetter_join_dicts_to_list(obj: dict[str, Any],
             obj (dict): The object to extract data from
             **kwargs (dict[str, Any]): Keyword arguments
                 key_paths (str): The paths to join paths from
-                key_name (str): The name to give to the give key field
+                key_name (str): The name to give to the key field
                 fields ([dict[str, str]]): A list of dict paths, and the names to give them
         Returns:
             (([dict[str, Any]], int)):
@@ -2182,9 +2182,9 @@ def listgetter_join_dicts_to_list(obj: dict[str, Any],
                 (int): The status for the request
     """
     vlist: list[dict[str, Any]] = []
-    key_paths = deep_get(kwargs, DictPath("key_paths"), "")
-    key_name = deep_get(kwargs, DictPath("key_name"), "")
-    fields = deep_get(kwargs, DictPath("fields"), [])
+    key_paths: list[str] = deep_get(kwargs, DictPath("key_paths"), [])
+    key_name: str = deep_get(kwargs, DictPath("key_name"), "key")
+    fields: list[dict[Any, Any]] = deep_get(kwargs, DictPath("fields"), [])
 
     keys = set()
 
@@ -2198,15 +2198,13 @@ def listgetter_join_dicts_to_list(obj: dict[str, Any],
         }
         for field in fields:
             path = deep_get(field, DictPath("path"), "")
-            name = deep_get(field, DictPath("name"))
-            if name is None:
+            if (name := deep_get(field, DictPath("name"))) is None:
                 continue
             value = deep_get(obj, DictPath(f"{path}#{key}"))
             d[name] = value
         if len(d) <= 1:
             continue
         vlist.append(d)
-
     return vlist, 200
 
 

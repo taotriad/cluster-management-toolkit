@@ -741,7 +741,7 @@ def timestamp_to_datetime(timestamp: str, default: datetime = none_timestamp()) 
 # pylint: disable-next=too-many-branches,too-many-statements
 def make_set_expression_list(expression_list: list[dict],
                              key: str = "", toleration: bool = False) -> \
-                                list[Union[tuple[str, str, str], tuple[str, str, str, Any]]]:
+        list[Union[tuple[str, str, str], tuple[str, str, str, Any]]]:
     """
     Create a list of set expressions (key, operator, values).
 
