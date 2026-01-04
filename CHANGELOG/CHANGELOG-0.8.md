@@ -249,7 +249,7 @@ Output:
 ```
 Name                                                  Stmts   Miss Branch BrPart  Cover
 ---------------------------------------------------------------------------------------
-clustermanagementtoolkit/listgetters.py                1236   1016    656     12  16.5%
+clustermanagementtoolkit/listgetters.py                1235    995    656     12  18.2%
 clustermanagementtoolkit/cluster_actions.py             226    178     74      3  19.0%
 clustermanagementtoolkit/infogetters.py                1729   1376   1038     23  19.1%
 clustermanagementtoolkit/curses_helper.py              2504   1877   1130     19  21.6%
@@ -282,7 +282,7 @@ clustermanagementtoolkit/objgetters.py                   56      0     12      0
 clustermanagementtoolkit/pvtypes.py                       1      0      0      0 100.0%
 clustermanagementtoolkit/recommended_permissions.py      11      0      0      0 100.0%
 ---------------------------------------------------------------------------------------
-TOTAL                                                 16795   9050   8472    358  43.6%
+TOTAL                                                 16794   9029   8472    358  43.7%
 ```
 
 ### Flake8 Results for v0.8.6
@@ -305,7 +305,7 @@ Execute with `make mypy-markdown`.
 | cmtadm                                              | Success: no issues found in 1 source file               |
 | cmt-install                                         | Success: no issues found in 1 source file               |
 | cmtinv                                              | Success: no issues found in 1 source file               |
-| cmu                                                 | **Found 91 errors in 2 files (checked 1 source file)**  |
+| cmu                                                 | **Found 91 errors in 1 files (checked 1 source file)**  |
 | clustermanagementtoolkit/about.py                   | Success: no issues found in 1 source file               |
 | clustermanagementtoolkit/ansible_helper.py          | Success: no issues found in 1 source file               |
 | clustermanagementtoolkit/ansithemeprint.py          | Success: no issues found in 1 source file               |

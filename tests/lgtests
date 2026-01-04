@@ -813,6 +813,203 @@ def test_filter_list_entry(verbose: bool = False) -> tuple[str, bool]:
     return message, result
 
 
+def test_listgetter_join_dicts_to_list(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = listgetters.listgetter_join_dicts_to_list
+
+    if result:
+        # Indata format:
+        # (obj, kwargs, expected_result, expected_exception)
+        testdata: tuple[Any, ...] = (
+            (
+                {
+                    "spec": {
+                        "resources": {
+                            "limits": {
+                                "storage": "100Gi",
+                            },
+                            "requests": {
+                                "storage": "20Gi",
+                            },
+                        },
+                    },
+                },
+                {
+                    "key_paths": ["spec#resources#limits", "spec#resources#requests"],
+                    "key_name": "resource",
+                    "fields": [
+                        {
+                            "path": "spec#resources#limits",
+                            "name": "limit",
+                            "default": None,
+                        },
+                        {
+                            "path": "spec#resources#requests",
+                            "name": "request",
+                            "default": None,
+                        },
+                    ],
+                },
+                ([{'resource': 'storage', 'limit': '100Gi', 'request': '20Gi'}], 200),
+                None,
+            ),
+            (
+                {
+                    "spec": {
+                        "resources": {
+                            "limits": {
+                                "storage": "100Gi",
+                            },
+                            "requests": {
+                                "storage": "20Gi",
+                            },
+                        },
+                    },
+                },
+                {
+                    "key_paths": ["spec#resources#limits", "spec#resources#requests"],
+                    "key_name": None,
+                    "fields": [
+                        {
+                            "path": "spec#resources#limits",
+                            "name": "limit",
+                            "default": None,
+                        },
+                        {
+                            "path": "spec#resources#requests",
+                            "name": "request",
+                            "default": None,
+                        },
+                    ],
+                },
+                ([{'key': 'storage', 'limit': '100Gi', 'request': '20Gi'}], 200),
+                None,
+            ),
+            (
+                {
+                    "spec": {
+                        "resources": {
+                            "limits": {
+                                "storage": "100Gi",
+                            },
+                            "requests": {
+                                "storage": "20Gi",
+                            },
+                        },
+                    },
+                },
+                {
+                    "key_paths": [],
+                    "key_name": "request",
+                    "fields": [
+                        {
+                            "path": "spec#resources#limits",
+                            "name": "limit",
+                            "default": None,
+                        },
+                        {
+                            "path": "spec#resources#requests",
+                            "name": "request",
+                            "default": None,
+                        },
+                    ],
+                },
+                ([], 200),
+                None,
+            ),
+            (
+                {
+                    "spec": {
+                        "resources": {
+                            "limits": {
+                                "storage": "100Gi",
+                            },
+                            "requests": {
+                                "storage": "20Gi",
+                            },
+                        },
+                    },
+                },
+                {
+                    "key_paths": ["spec#resources#limits", "spec#resources#requests"],
+                    "key_name": "resource",
+                    "fields": [],
+                },
+                ([], 200),
+                None,
+            ),
+            (
+                {
+                    "spec": {
+                        "resources": {
+                            "limits": {
+                                "storage": "100Gi",
+                            },
+                            "requests": {
+                                "storage": "20Gi",
+                            },
+                        },
+                    },
+                },
+                {
+                    "key_paths": ["spec#resources#limits", "spec#resources#requests"],
+                    "key_name": "resource",
+                    "fields": [
+                        {
+                            "path": "spec#resources#limits",
+                            "default": None,
+                        },
+                        {
+                            "path": "spec#resources#requests",
+                            "name": "request",
+                            "default": None,
+                        },
+                    ],
+                },
+                ([{'resource': 'storage', 'request': '20Gi'}], 200),
+                None,
+            ),
+        )
+
+        for obj, kwargs, expected_result, expected_exception in testdata:
+            try:
+                tmp = fun(obj, **kwargs)
+                import yaml
+                print(yaml.dump(tmp))
+                print(yaml.dump(expected_result))
+                if tmp != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              "            obj:\n" \
+                              f"{yaml_dump(obj, base_indent=17)}\n" \
+                              f"         result: {tmp}\n" \
+                              f"       expected: {expected_result}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  "            obj:\n" \
+                                  f"{yaml_dump(obj, base_indent=17)}\n" \
+                                  f"      exception: {type(e)}\n" \
+                                  f"       expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              "            obj:\n" \
+                              f"{yaml_dump(obj, base_indent=17)}\n" \
+                              f"      exception: {type(e)}\n" \
+                              f"       expected: {expected_result}"
+                    result = False
+                    break
+    return message, result
+
+
 def test_listgetter_noop(verbose: bool = False) -> tuple[str, bool]:
     message = ""
     result = True
@@ -857,7 +1054,6 @@ def test_listgetter_noop(verbose: bool = False) -> tuple[str, bool]:
                     result = False
                     break
     return message, result
-
 
 
 def test_listgetter_feature_gates(verbose: bool = False) -> tuple[str, bool]:
@@ -1389,6 +1585,10 @@ tests: dict[tuple[str, ...], dict[str, Any]] = {
     },
     ("filter_list_entry()",): {
         "callable": test_filter_list_entry,
+        "result": None,
+    },
+    ("listgetter_join_dicts_to_list()",): {
+        "callable": test_listgetter_join_dicts_to_list,
         "result": None,
     },
     ("listgetter_noop()",): {
