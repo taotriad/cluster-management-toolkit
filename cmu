@@ -41,7 +41,7 @@ except ModuleNotFoundError:  # pragma: no cover
     DecodeException = json.decoder.JSONDecodeError  # type: ignore
 from operator import itemgetter
 import os
-from pathlib import Path
+from pathlib import Path, PurePath
 import re
 import signal
 import socket
@@ -58,7 +58,7 @@ try:
     sryaml = ruyaml.YAML(typ="safe")
 except ModuleNotFoundError:  # pragma: no cover
     try:
-        import ruamel.yaml as ruyaml  # type: ignore
+        import ruamel.yaml as ruyaml  # type: ignore[no-redef,unused-ignore]
         ryaml = ruyaml.YAML()
         sryaml = ruyaml.YAML(typ="safe")
     except ModuleNotFoundError:  # pragma: no cover
@@ -181,7 +181,7 @@ from clustermanagementtoolkit import reexecutor
 
 try:
     import prctl
-    prctl.set_name(os.path.basename(sys.argv[0]))
+    prctl.set_name(PurePath(sys.argv[0]).name)
     prctl.set_proctitle(" ".join(sys.argv))
 except ModuleNotFoundError:  # pragma: no cover
     pass
@@ -8418,24 +8418,27 @@ def list_configuration_files(basedir: FilePath) -> list[tuple[str, str, str]]:
     plist: list[tuple[str, str, str]] = []
     files: list[tuple[str, str, str]] = []
 
-    if os.path.isdir(basedir):
-        for filename in os.listdir(basedir):
-            if filename.startswith(("~", ".")):
+    try:
+        for filename in Path(basedir).iterdir():
+            if filename.name.startswith(("~", ".")):
                 continue
 
             # real path, display name, type
-            if filename.endswith((".yaml", ".yml")):
-                files.append((f"{basedir}/{filename}", filename, "Configuration File"))
-            elif os.path.isdir(f"{basedir}/{filename}"):
-                if os.path.isfile(f"{basedir}/{filename}/kustomization.yaml"):
-                    files.append((f"{basedir}/{filename}", filename, "Kustomization"))
+            if filename.suffix in (".yaml", ".yml"):
+                files.append((str(filename), filename.name, "Configuration File"))
+            elif filename.is_dir():
+                if Path(filename / "kustomization.yaml").is_file():
+                    files.append((str(filename), filename.name, "Kustomization"))
                 else:
-                    files.append((f"{basedir}/{filename}", filename, "<dir>"))
+                    files.append((str(filename), filename.name, "<dir>"))
             else:
                 continue
+    except OSError:
+        # Ignore non-directories
+        pass
 
     # Always provide a means to navigate up in the directory tree
-    plist = [(f"{os.path.dirname(basedir)}", "..", "<dir>")]
+    plist = [(str(Path(basedir).parent), "..", "<dir>")]
     plist += cast(list[tuple[str, str, str]], natsorted(files))
 
     return plist

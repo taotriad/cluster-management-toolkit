@@ -22,7 +22,7 @@ from getpass import getuser
 from glob import glob
 import grp
 import os
-from pathlib import Path
+from pathlib import Path, PurePath
 import pwd
 import re
 import shutil
@@ -120,7 +120,7 @@ from clustermanagementtoolkit import checks
 
 try:
     import prctl
-    prctl.set_name(os.path.basename(sys.argv[0]))
+    prctl.set_name(PurePath(sys.argv[0]).name)
     prctl.set_proctitle(" ".join(sys.argv))
 except ModuleNotFoundError:  # pragma: no cover
     pass

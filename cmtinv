@@ -19,7 +19,7 @@
 import errno
 from getpass import getuser
 import os
-from pathlib import Path
+from pathlib import Path, PurePath
 import re
 import sys
 from typing import Any, cast, Union
@@ -82,7 +82,7 @@ from clustermanagementtoolkit.ansithemeprint import ansithemestr_join_list
 
 try:
     import prctl
-    prctl.set_name(os.path.basename(sys.argv[0]))
+    prctl.set_name(PurePath(sys.argv[0]).name)
     prctl.set_proctitle(" ".join(sys.argv))
 except ModuleNotFoundError:  # pragma: no cover
     pass

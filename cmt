@@ -27,7 +27,7 @@ from getpass import getuser
 import hashlib
 from operator import itemgetter
 import os
-from pathlib import Path
+from pathlib import Path, PurePath
 import re
 import sys
 from typing import Any, cast, Optional
@@ -92,7 +92,7 @@ from clustermanagementtoolkit.ansithemeprint import ansithemeinput_password
 
 try:
     import prctl
-    prctl.set_name(os.path.basename(sys.argv[0]))
+    prctl.set_name(PurePath(sys.argv[0]).name)
     prctl.set_proctitle(" ".join(sys.argv))
 except ModuleNotFoundError:  # pragma: no cover
     pass
