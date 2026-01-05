@@ -28,6 +28,8 @@ from clustermanagementtoolkit.cmttypes import deep_get, DictPath, ProgrammingErr
 from clustermanagementtoolkit.ansithemeprint import ANSIThemeStr
 from clustermanagementtoolkit.ansithemeprint import ansithemeprint, init_ansithemeprint
 
+from clustermanagementtoolkit import formatters
+
 from clustermanagementtoolkit import kubernetes_helper
 
 from clustermanagementtoolkit import listgetters
@@ -813,6 +815,112 @@ def test_filter_list_entry(verbose: bool = False) -> tuple[str, bool]:
     return message, result
 
 
+def test_listgetter_configmap_data(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = listgetters.listgetter_configmap_data
+
+    if result:
+        # Indata format:
+        # (obj, kwargs, expected_result, expected_exception)
+        testdata: tuple[Any, ...] = (
+            (
+                {
+                    "metadata": {
+                        "namespace": "kube-system",
+                        "name": "bootstrap",
+                    },
+                    "data": {
+                        "status": "complete",
+                    },
+                },
+                {},
+                (
+                    [
+                        {
+                            "cm_name": "bootstrap",
+                            "cm_namespace": "kube-system",
+                            "configmap": "status",
+                            "type": "Text or Base64 encoded binary",
+                            "formatter": formatters.format_none,
+                            "data": "complete",
+                        }
+                    ], 200),
+                None,
+            ),
+            (
+                {
+                    "metadata": {
+                        "namespace": "kube-system",
+                        "name": "bootstrap",
+                    },
+                },
+                {},
+                (
+                    [], 200),
+                None,
+            ),
+            (
+                {
+                    "metadata": {
+                        "namespace": "kube-system",
+                        "name": "bootstrap",
+                    },
+                    "binary_data": {
+                        "foo": None,
+                    },
+                },
+                {},
+                (
+                    [
+                        {
+                            "cm_name": "bootstrap",
+                            "cm_namespace": "kube-system",
+                            "configmap": "foo",
+                            "type": "Binary",
+                            "formatter": None,
+                            "data": None,
+                        }
+                    ], 200),
+                None,
+            ),
+        )
+
+        for obj, kwargs, expected_result, expected_exception in testdata:
+            try:
+                tmp = fun(obj, **kwargs)
+                if tmp != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              "            obj:\n" \
+                              f"{yaml_dump(obj, base_indent=17)}\n" \
+                              f"         result: {tmp}\n" \
+                              f"       expected: {expected_result}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  "            obj:\n" \
+                                  f"{yaml_dump(obj, base_indent=17)}\n" \
+                                  f"      exception: {type(e)}\n" \
+                                  f"       expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              "            obj:\n" \
+                              f"{yaml_dump(obj, base_indent=17)}\n" \
+                              f"      exception: {type(e)}\n" \
+                              f"       expected: {expected_result}"
+                    result = False
+                    break
+    return message, result
+
+
 def test_listgetter_join_dicts_to_list(verbose: bool = False) -> tuple[str, bool]:
     message = ""
     result = True
@@ -976,9 +1084,6 @@ def test_listgetter_join_dicts_to_list(verbose: bool = False) -> tuple[str, bool
         for obj, kwargs, expected_result, expected_exception in testdata:
             try:
                 tmp = fun(obj, **kwargs)
-                import yaml
-                print(yaml.dump(tmp))
-                print(yaml.dump(expected_result))
                 if tmp != expected_result:
                     message = f"{fun.__name__}() did not yield expected result:\n" \
                               "            obj:\n" \
@@ -1150,9 +1255,6 @@ def test_listgetter_feature_gates(verbose: bool = False) -> tuple[str, bool]:
         for obj, kwargs, expected_result, expected_exception in testdata:
             try:
                 tmp = fun(obj, **kwargs)
-                import yaml
-                print(yaml.dump(tmp))
-                print(yaml.dump(expected_result))
                 if tmp != expected_result:
                     message = f"{fun.__name__}() did not yield expected result:\n" \
                               "            obj:\n" \
@@ -1585,6 +1687,10 @@ tests: dict[tuple[str, ...], dict[str, Any]] = {
     },
     ("filter_list_entry()",): {
         "callable": test_filter_list_entry,
+        "result": None,
+    },
+    ("listgetter_configmap_data()",): {
+        "callable": test_listgetter_configmap_data,
         "result": None,
     },
     ("listgetter_join_dicts_to_list()",): {
