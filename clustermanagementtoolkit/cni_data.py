@@ -44,10 +44,17 @@ def __patch_cni_calico(cni_path: FilePath, pod_network_cidr: str) -> bool:
     dl_mod: list[Any] = []
 
     for d in dl:
-        if deep_get(d, DictPath("kind"), "") == "Installation":
-            for ippool in deep_get(d, DictPath("spec#calicoNetwork#ipPools"), []):
-                if deep_get(ippool, DictPath("name"), "") == "default-ipv4-ippool":
-                    deep_set(ippool, DictPath("cidr"), f"{pod_network_cidr}")
+        if deep_get(d, DictPath("kind"), "") == "DaemonSet":
+            for ippool in deep_get(d, DictPath("spec#template#spec#containers"), []):
+                if deep_get(ippool, DictPath("name"), "") == "calico-node":
+                    for i, env in enumerate(deep_get(ippool, DictPath("env"), [])):
+                        if deep_get(env, DictPath("name"), "") == "CALICO_IPV4POOL_CIDR":
+                            ippool["env"].remove(i)
+                    ippool["env"].append({
+                        "name": "CALICO_IPV4POOL_CIDR",
+                        "value": pod_network_cidr,
+                    })
+                    break
         dl_mod.append(d)
     secure_write_yaml(cni_path, dl_mod, sort_keys=False, permissions=0o644)
     return True
@@ -287,12 +294,8 @@ cni_data: dict[str, dict[str, CNIDataType]] = {
             "urls": [
                 {
                     "url": "https://raw.githubusercontent.com/projectcalico/"
-                           "calico/<<<version>>>/manifests/tigera-operator.yaml",
-                    "filename": "tigera-operator-<<<version>>>.yaml",
-                }, {
-                    "url": "https://raw.githubusercontent.com/projectcalico/"
-                           "calico/<<<version>>>/manifests/custom-resources.yaml",
-                    "filename": "calico-custom-resources-<<<version>>>.yaml",
+                           "calico/<<<version>>>/manifests/calico.yaml",
+                    "filename": "calico-<<<version>>>.yaml",
                     "patch": __patch_cni_calico,
                 }
             ]
