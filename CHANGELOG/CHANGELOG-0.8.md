@@ -64,7 +64,9 @@ secrets, etc.
 
 ## Urgent Upgrade Notes for v0.8.6
 
-N/A.
+This is the last release of __CMT__ with support for Debian 11 (Bullseye),
+Ubuntu 22.04 LTS (Jammy Jellyfish), and Python 3.9. __CMT__ v0.8.7 will require
+Python 3.11 or newer.
 
 ## Changes by Component in v0.8.6
 
@@ -81,6 +83,9 @@ N/A.
 * It is now possible to specify whether or not the cluster-name should
   be appended to the kubernetes-admin username in .kube/config.
 * Extra arguments can now be supplied when installing helm charts.
+* It's now possible to ignore errors when tearing down control planes;
+  this allows tearing down clusters that are in such a poor state that
+  the control plane does not respond at all.
 
 ### Changes to _cmtinv_ in v0.8.6
 

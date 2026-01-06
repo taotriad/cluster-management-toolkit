@@ -809,7 +809,9 @@ def __upgrade_cni(cni: str, upgradetype: str, context: str,
             upgradetype (str): Valid options CNI, executable
             context (str): The cluster context
             pod_network_cidr (str): The CIDR of the pod network
-            cni_version (str): A hardcoded CNI version
+            **kwargs (dict[str, Any]): Keyword arguments
+                cni_version (str): A hardcoded CNI version
+                verbose (bool): Be extra verbose
     """
     verbose = deep_get(kwargs, DictPath("verbose"), False)
     cni_version = deep_get(kwargs, DictPath("cni_version"))
@@ -1024,9 +1026,9 @@ def setup_cni(options: list[tuple[str, str]], args: list[str]) -> None:
                           (optional; if not specified the default CNI will be used)
     """
     # default options
-    confirm = True
-    reinstall = False
-    verbose = False
+    confirm: bool = True
+    reinstall: bool = False
+    verbose: bool = False
 
     for opt, _optarg in options:
         if opt == "--reinstall":
@@ -1266,10 +1268,10 @@ def upgrade_cni(options: list[tuple[str, str]], args: list[str]) -> None:
     """
     global kh  # pylint: disable=global-statement
 
-    pod_network_cidr = None
-    verbose = False
-    cni_version = None
-    cni_executable_version = None
+    pod_network_cidr: Optional[str] = None
+    verbose: bool = False
+    cni_version: Optional[str] = None
+    cni_executable_version: Optional[str] = None
 
     if args:
         cni = args[0]
@@ -1364,8 +1366,10 @@ def __setup_cni(cni: str, context_name: str, cluster_name: str, **kwargs: Any) -
             cni (str): The CNI to configure and install
             context_name (str): The name of the cluster context
             cluster_name (str): The name of the cluster
-            cni_version (str): A hardcoded CNI version
-            cni_executable_version (str): A hardcoded CNI executable version
+            **kwargs (dict[str, Any]): Keyword arguments
+                cni_executable_version (str): A hardcoded CNI executable version
+                cni_version (str): A hardcoded CNI version
+                verbose (bool): Be more verbose
         Returns:
             result (bool): True on success, False on failure
     """
@@ -1504,16 +1508,18 @@ def add_ssh_keys_to_authorized_keys() -> bool:
 
 
 # pylint: disable-next=unused-argument
-def __task_check_and_create_ssh_key(installation_info: dict, verbose: bool = False) -> None:
+def __task_check_and_create_ssh_key(installation_info: dict, **kwargs: Any) -> None:
     """
     An installer task that checks whether the system has an ssh-key,
     and creates one if not.
 
         Parameters:
             installation_info (dict): A dict with installation information [unused]
+            **kwargs (dict[str, Any]): Keyword arguments
+                confirm (bool): Ask for confirmation before creating an ssh key if none
+                                exists; if confirm=False then this step will fail instead
     """
-    # FIXME
-    confirm: bool = True
+    confirm: bool = deep_get(kwargs, DictPath("confirm"), True)
 
     if not check_for_ssh_key():
         if confirm:
@@ -1533,13 +1539,14 @@ def __task_check_and_create_ssh_key(installation_info: dict, verbose: bool = Fal
 
 
 # pylint: disable-next=unused-argument
-def __task_scan_and_add_ssh_keys(installation_info: dict, verbose: bool = False) -> None:
+def __task_scan_and_add_ssh_keys(installation_info: dict, **kwargs: Any) -> None:
     """
     An installer task that scans all specified control planes for public ssh keys
     and adds them to known hosts.
 
         Parameters:
             installation_info (dict): A dict with installation information [unused]
+            **kwargs (dict[str, Any]): Keyword arguments [unused]
     """
     cluster_name = installation_info["installation_target"]
     nodes = deep_get(installation_info, DictPath(f"{cluster_name}#nodes"), [])
@@ -1556,12 +1563,13 @@ def __task_scan_and_add_ssh_keys(installation_info: dict, verbose: bool = False)
 
 
 # pylint: disable-next=unused-argument
-def __task_add_ssh_keys_to_inventory(installation_info: dict, verbose: bool = False) -> None:
+def __task_add_ssh_keys_to_inventory(installation_info: dict, **kwargs: Any) -> None:
     """
     An installer task that adds SSH keys to the Ansible inventory.
 
         Parameters:
             installation_info (dict): A dict with installation information [unused]
+            **kwargs (dict[str, Any]): Keyword arguments [unused]
     """
     pubkey = None
     d = ansible_get_inventory_dict()
@@ -1607,7 +1615,7 @@ def __task_check_and_add_ssh_keys_to_authorized_keys(**kwargs: Any) -> None:
     An installer task that adds SSH keys to authorized keys.
 
         Parameters:
-            **kwargs (dict[str, Any]): Keyword arguments
+            **kwargs (dict[str, Any]): Keyword arguments [unused]
     """
     add_ssh_keys_to_authorized_keys()
 
@@ -1641,12 +1649,13 @@ def install_ansible_posix() -> bool:
 
 
 # pylint: disable-next=unused-argument
-def __task_check_and_install_ansible_posix(installation_info: dict, verbose: bool = False) -> None:
+def __task_check_and_install_ansible_posix(installation_info: dict, **kwargs: Any) -> None:
     """
     An installer task that installs Ansible-posix.
 
         Parameters:
             installation_info (dict): A dict with installation information [unused]
+            **kwargs (dict[str, Any]): Keyword arguments [unused]
     """
     check_and_print_status(install_ansible_posix())
 
@@ -1890,7 +1899,7 @@ def run_playbook(playbookpath: FilePath, hosts: list[str], **kwargs: Any) -> tup
 
 def run_playbooks(playbooks: list[tuple[list[ANSIThemeStr], FilePath]],
                   hosts: Optional[list[str]] = None,
-                  extra_values: Optional[dict] = None, verbose: bool = False) -> bool:
+                  extra_values: Optional[dict] = None, **kwargs: Any) -> bool:
     """
     Run a set of playbooks.
 
@@ -1898,10 +1907,13 @@ def run_playbooks(playbooks: list[tuple[list[ANSIThemeStr], FilePath]],
             playbooks ([([ANSIThemeStr], FilePath)]): A list of playbooks
             hosts ([str]): The hosts to run the playbooks on
             extra_values (dict): Variables to set before running the playbooks
-            verbose (bool): If the results are printed, should skipped tasks be printed too?
+            **kwargs (dict[str, Any]): Keyword arguments
+                verbose (bool): If the results are printed, should skipped tasks be printed too?
         Returns:
             (bool): True on success, False on failure
     """
+    verbose: bool = deep_get(kwargs, DictPath("verbose"), False)
+
     if not playbooks or hosts is None:
         return True
 
@@ -1960,12 +1972,13 @@ def populate_playbooks_from_dir(path: FilePath) -> list[tuple[list[ANSIThemeStr]
 
 
 # pylint: disable-next=unused-argument
-def __task_request_ansible_password(installation_info: dict, verbose: bool = False) -> None:
+def __task_request_ansible_password(installation_info: dict, **kwargs: Any) -> None:
     """
     An installer task that requests the ansible password.
 
         Parameters:
             installation_info (dict): A dict with installation information [unused]
+            **kwargs (dict[str, Any]): Keyword arguments [unused]
     """
     # Check whether ansible_password is defined or not
     if deep_get(ansible_configuration, DictPath("ansible_password")) is None and not no_password:
@@ -1994,7 +2007,7 @@ def __task_request_ansible_password(installation_info: dict, verbose: bool = Fal
 
 def __run_playbooks_on_selection(playbooks: list[tuple[list[ANSIThemeStr], FilePath]],
                                  selection: list[str], extra_values: Optional[dict] = None,
-                                 verbose: bool = False) -> None:
+                                 **kwargs: Any) -> None:
     """
     A helper that runs a playbook list on a selection.
 
@@ -2002,10 +2015,14 @@ def __run_playbooks_on_selection(playbooks: list[tuple[list[ANSIThemeStr], FileP
             playbooks ([(description, playbookpath)]): A playbook list
             selection ([str]): A list of hosts
             extra_values (dict): A dict of values to set before running the playbook
-            verbose (bool): If the results are printed, should skipped tasks be printed too?
+            **kwargs (dict[str, Any]): Keyword arguments
+                ignore_errors (bool): Continue even if an error is encountered
     """
-    check_and_print_status(run_playbooks(playbooks, hosts=selection,
-                                         extra_values=extra_values, verbose=verbose))
+    ignore_errors: bool = deep_get(kwargs, DictPath("ignore_errors"), False)
+
+    result = run_playbooks(playbooks, hosts=selection, extra_values=extra_values, **kwargs)
+    if not ignore_errors:
+        check_and_print_status(result)
 
 
 def __selection_control_planes() -> list[str]:
@@ -2033,7 +2050,7 @@ def __selection_localhost() -> list[str]:
 def __generic_task_run_playbooks_on_selection(selection: list[str], installation_info: dict,
                                               playbook_dir: FilePath,
                                               extra_values: Optional[dict] = None,
-                                              verbose: bool = False) -> None:
+                                              **kwargs: Any) -> None:
     """
     A generic helper to run playbooks on selection.
 
@@ -2042,23 +2059,23 @@ def __generic_task_run_playbooks_on_selection(selection: list[str], installation
             installation_info (dict): A dict with installation information
             playbook_dir (FilePath): The directory of playbooks
             extra_values (dict): Additional values to pass along when running the playbooks
-            verbose (bool): If the results are printed, should skipped tasks be printed too?
+            **kwargs (dict[str, Any]): Keyword arguments
     """
     paths = __playbook_paths_from_path(playbook_dir)
     playbooks = populate_playbooks_from_filenames(paths)
     if extra_values is None:
         extra_values = {}
     __run_playbooks_on_selection(playbooks=playbooks, selection=selection,
-                                 extra_values=extra_values, verbose=verbose)
+                                 extra_values=extra_values, **kwargs)
 
 
-def __task_run_prepreparation_playbooks(installation_info: dict, verbose: bool = False) -> None:
+def __task_run_prepreparation_playbooks(installation_info: dict, **kwargs: Any) -> None:
     """
     A task that runs pre-preparation playbooks.
 
         Parameters:
             installation_info (dict): A dict with installation information
-            verbose (bool): If the results are printed, should skipped tasks be printed too?
+            **kwargs (dict[str, Any]): Keyword arguments
     """
     # The default selection is control planes;
     # the playbooks need to explicitly specify if the play should be run on other hosts
@@ -2067,21 +2084,20 @@ def __task_run_prepreparation_playbooks(installation_info: dict, verbose: bool =
         __generic_task_run_playbooks_on_selection(selection=selection,
                                                   installation_info=installation_info,
                                                   playbook_dir=CMT_PRE_PREPARE_DIR,
-                                                  extra_values={}, verbose=verbose)
+                                                  extra_values={}, **kwargs)
     except FileNotFoundError as e:
         if CMT_PRE_PREPARE_DIR not in str(e):
             raise
 
 
 # pylint: disable-next=unused-argument
-def __task_run_preparation_playbooks_on_localhost(installation_info: dict,
-                                                  verbose: bool = False) -> None:
+def __task_run_preparation_playbooks_on_localhost(installation_info: dict, **kwargs: Any) -> None:
     """
     An installer task that runs preparation playbooks on localhost.
 
         Parameters:
             installation_info (dict): A dict with installation information [unused]
-            verbose (bool): If the results are printed, should skipped tasks be printed too?
+            **kwargs (dict[str, Any]): Keyword arguments
     """
     os_distro = identify_distro()
     selection = __selection_localhost()
@@ -2124,18 +2140,17 @@ def __task_run_preparation_playbooks_on_localhost(installation_info: dict,
         "minor_versions": minor_versions,
     }
     __run_playbooks_on_selection(playbooks=playbooks, selection=selection,
-                                 extra_values=extra_values, verbose=verbose)
+                                 extra_values=extra_values, **kwargs)
 
 
 # pylint: disable-next=too-many-locals
-def __task_run_preparation_playbooks_on_hosts(installation_info: dict,
-                                              verbose: bool = False) -> None:
+def __task_run_preparation_playbooks_on_hosts(installation_info: dict, **kwargs: Any) -> None:
     """
     An installer task that runs preparation playbooks on hosts.
 
         Parameters:
             installation_info (dict): A dict with installation information
-            verbose (bool): If the results are printed, should skipped tasks be printed too?
+            **kwargs (dict[str, Any]): Keyword arguments
     """
     cluster_name = installation_info["installation_target"]
     k8s_distro = installation_info[cluster_name]["distro"]
@@ -2187,16 +2202,16 @@ def __task_run_preparation_playbooks_on_hosts(installation_info: dict,
         "minor_versions": minor_versions,
     }
     __run_playbooks_on_selection(playbooks=playbooks, selection=selection,
-                                 extra_values=extra_values, verbose=verbose)
+                                 extra_values=extra_values, **kwargs)
 
 
-def __task_run_postpreparation_playbooks(installation_info: dict, verbose: bool = False) -> None:
+def __task_run_postpreparation_playbooks(installation_info: dict, **kwargs: Any) -> None:
     """
     A task that runs post-preparation playbooks.
 
         Parameters:
             installation_info (dict): A dict with installation information
-            verbose (bool): If the results are printed, should skipped tasks be printed too?
+            **kwargs (dict[str, Any]): Keyword arguments
     """
     # The default selection is control planes;
     # the playbooks need to explicitly specify if the play should be run on other hosts
@@ -2205,37 +2220,41 @@ def __task_run_postpreparation_playbooks(installation_info: dict, verbose: bool 
         __generic_task_run_playbooks_on_selection(selection=selection,
                                                   installation_info=installation_info,
                                                   playbook_dir=CMT_POST_PREPARE_DIR,
-                                                  extra_values={}, verbose=verbose)
+                                                  extra_values={}, **kwargs)
     except FileNotFoundError as e:
         if CMT_POST_PREPARE_DIR not in str(e):
             raise
 
 
 # pylint: disable-next=unused-argument
-def __task_setup_bash_completion(installation_info: dict, verbose: bool = False) -> None:
+def __task_setup_bash_completion(installation_info: dict, **kwargs: Any) -> None:
     """
     An installer task that sets up bash completion.
 
         Parameters:
             installation_info (dict): A dict with installation information [unused]
+            **kwargs (dict[str, Any]): Keyword arguments
+                verbose (bool): Be verbose when creating directories
     """
-    secure_mkdir(FilePath(HOMEDIR).joinpath(".local"), verbose=True)
-    secure_mkdir(FilePath(HOMEDIR).joinpath(".local", "share"), verbose=True)
-    secure_mkdir(BASH_COMPLETION_BASE_DIR, verbose=True)
-    secure_mkdir(BASH_COMPLETION_DIR, verbose=True)
+    verbose: bool = deep_get(kwargs, DictPath("verbose"), False)
+
+    secure_mkdir(FilePath(HOMEDIR).joinpath(".local"), verbose=verbose)
+    secure_mkdir(FilePath(HOMEDIR).joinpath(".local", "share"), verbose=verbose)
+    secure_mkdir(BASH_COMPLETION_BASE_DIR, verbose=verbose)
+    secure_mkdir(BASH_COMPLETION_DIR, verbose=verbose)
 
     args = ["/usr/bin/kubectl", "completion", "bash"]
     result, _retval = execute_command_with_response(args)
     secure_write_string(BASH_COMPLETION_DIR.joinpath("kubectl"), result)
 
 
-def __task_run_presetup_playbooks(installation_info: dict, verbose: bool = False) -> None:
+def __task_run_presetup_playbooks(installation_info: dict, **kwargs: Any) -> None:
     """
     A task that runs pre-setup playbooks.
 
         Parameters:
             installation_info (dict): A dict with installation information
-            verbose (bool): If the results are printed, should skipped tasks be printed too?
+            **kwargs (dict[str, Any]): Keyword arguments
     """
     # The default selection is control planes;
     # the playbooks need to explicitly specify if the play should be run on other hosts
@@ -2244,19 +2263,19 @@ def __task_run_presetup_playbooks(installation_info: dict, verbose: bool = False
         __generic_task_run_playbooks_on_selection(selection=selection,
                                                   installation_info=installation_info,
                                                   playbook_dir=CMT_PRE_SETUP_DIR,
-                                                  extra_values={}, verbose=verbose)
+                                                  extra_values={}, **kwargs)
     except FileNotFoundError as e:
         if CMT_PRE_SETUP_DIR not in str(e):
             raise
 
 
-def __task_run_setup_playbooks_on_localhost(installation_info: dict, verbose: bool = False) -> None:
+def __task_run_setup_playbooks_on_localhost(installation_info: dict, **kwargs: Any) -> None:
     """
     An installer task that runs playbooks on localhost.
 
         Parameters:
             installation_info (dict): A dict with installation information
-            verbose (bool): If the results are printed, should skipped tasks be printed too?
+            **kwargs (dict[str, Any]): Keyword arguments
     """
     cluster_name = installation_info["installation_target"]
     pod_network_cidr = installation_info[cluster_name]["pod_network_cidr"]
@@ -2288,17 +2307,16 @@ def __task_run_setup_playbooks_on_localhost(installation_info: dict, verbose: bo
         "held_packages": held_packages,
     }
     __run_playbooks_on_selection(playbooks=playbooks, selection=selection,
-                                 extra_values=extra_values, verbose=verbose)
+                                 extra_values=extra_values, **kwargs)
 
 
-def __task_run_setup_playbooks_on_control_planes(installation_info: dict,
-                                                 verbose: bool = False) -> None:
+def __task_run_setup_playbooks_on_control_planes(installation_info: dict, **kwargs: Any) -> None:
     """
     An installer task that runs playbooks on control planes.
 
         Parameters:
             installation_info (dict): A dict with installation information
-            verbose (bool): If the results are printed, should skipped tasks be printed too?
+            **kwargs (dict[str, Any]): Keyword arguments
     """
     cluster_name = installation_info["installation_target"]
     k8s_distro = installation_info[cluster_name]["distro"]
@@ -2343,16 +2361,16 @@ def __task_run_setup_playbooks_on_control_planes(installation_info: dict,
         **extra_values_setup,
     }
     __run_playbooks_on_selection(playbooks=playbooks, selection=selection,
-                                 extra_values=extra_values, verbose=verbose)
+                                 extra_values=extra_values, **kwargs)
 
 
-def __task_run_postsetup_playbooks(installation_info: dict, verbose: bool = False) -> None:
+def __task_run_postsetup_playbooks(installation_info: dict, **kwargs: Any) -> None:
     """
     A task that runs post-setup playbooks.
 
         Parameters:
             installation_info (dict): A dict with installation information
-            verbose (bool): If the results are printed, should skipped tasks be printed too?
+            **kwargs (dict[str, Any]): Keyword arguments
     """
     # The default selection is control planes;
     # the playbooks need to explicitly specify if the play should be run on other hosts
@@ -2361,7 +2379,7 @@ def __task_run_postsetup_playbooks(installation_info: dict, verbose: bool = Fals
         __generic_task_run_playbooks_on_selection(selection=selection,
                                                   installation_info=installation_info,
                                                   playbook_dir=CMT_POST_SETUP_DIR,
-                                                  extra_values={}, verbose=verbose)
+                                                  extra_values={}, **kwargs)
     except FileNotFoundError as e:
         if CMT_POST_SETUP_DIR not in str(e):
             raise
@@ -2446,12 +2464,13 @@ def merge_kubeconfigs(kubeconfig1: Union[dict[str, Any], ruyaml.comments.Comment
 
 
 # pylint: disable-next=unused-argument
-def __task_import_kubeconfig(installation_info: dict, verbose: bool = False) -> None:
+def __task_import_kubeconfig(installation_info: dict, **kwargs: Any) -> None:
     """
     An installer task that merges a Kube config into ~/.kube/config.
 
         Parameters:
             installation_info (dict): A dict with installation information
+            **kwargs (dict[str, Any]): Keyword arguments [unused]
     """
     cluster_name = deep_get(installation_info, DictPath("installation_target"))
     admin_name = deep_get(installation_info, DictPath(f"{cluster_name}#admin_name"),
@@ -2502,12 +2521,13 @@ def __task_import_kubeconfig(installation_info: dict, verbose: bool = False) -> 
 
 
 # pylint: disable-next=unused-argument,too-many-locals
-def __task_adjust_kubeconfig_server_address(installation_info: dict, verbose: bool = False) -> None:
+def __task_adjust_kubeconfig_server_address(installation_info: dict, **kwargs: Any) -> None:
     """
     An installer task that replaces localhost for the real IP-address of the API-server.
 
         Parameters:
             installation_info (dict): A dict with installation information
+            **kwargs (dict[str, Any]): Keyword arguments [unused]
     """
     global kh  # pylint: disable=global-statement
 
@@ -2577,14 +2597,17 @@ def __task_adjust_kubeconfig_server_address(installation_info: dict, verbose: bo
     secure_write_yaml(KUBE_CONFIG_FILE, d, permissions=0o600, sort_keys=False)
 
 
-# pylint: disable-next=unused-argument
-def __task_setup_cni(installation_info: dict, verbose: bool = False) -> None:
+def __task_setup_cni(installation_info: dict, **kwargs: Any) -> None:
     """
     An installer task that sets up a CNI.
 
         Parameters:
             installation_info (dict): A dict with installation information
+            **kwargs (dict[str, Any]): Keyword arguments [unused]
+                verbose (bool): Be more verbose
     """
+    verbose: bool = deep_get(kwargs, DictPath("verbose"), False)
+
     cluster_name = deep_get(installation_info, DictPath("installation_target"))
     cni = deep_get(installation_info, DictPath(f"{cluster_name}#cni"))
     admin_name = deep_get(installation_info, DictPath(f"{cluster_name}#admin_name"),
@@ -2592,16 +2615,17 @@ def __task_setup_cni(installation_info: dict, verbose: bool = False) -> None:
     context_name = f"{admin_name}@{cluster_name}"
 
     # If everything is successful so far we deploy the pod network
-    __setup_cni(cni, context_name, cluster_name)
+    __setup_cni(cni, context_name, cluster_name, verbose=verbose)
 
 
 # pylint: disable-next=unused-argument
-def __task_drain_control_planes(installation_info: dict, verbose: bool = False) -> None:
+def __task_drain_control_planes(installation_info: dict, **kwargs: Any) -> None:
     """
     An installer task that drains control plains.
 
         Parameters:
             installation_info (dict): A dict with installation information [unused]
+            **kwargs (dict[str, Any]): Keyword arguments
     """
     controlplanes = __selection_control_planes()
 
@@ -2678,13 +2702,13 @@ def __task_uncordon_control_planes(installation_info: dict, verbose: bool = Fals
             sys.exit(errno.EINVAL)
 
 
-def __task_run_preupgrade_playbooks(installation_info: dict, verbose: bool = False) -> None:
+def __task_run_preupgrade_playbooks(installation_info: dict, **kwargs: Any) -> None:
     """
     A task that runs pre-upgrade playbooks.
 
         Parameters:
             installation_info (dict): A dict with installation information
-            verbose (bool): If the results are printed, should skipped tasks be printed too?
+            **kwargs (dict[str, Any]): Keyword arguments
     """
     # The default selection is control planes;
     # the playbooks need to explicitly specify if the play should be run on other hosts
@@ -2693,21 +2717,20 @@ def __task_run_preupgrade_playbooks(installation_info: dict, verbose: bool = Fal
         __generic_task_run_playbooks_on_selection(selection=selection,
                                                   installation_info=installation_info,
                                                   playbook_dir=CMT_PRE_UPGRADE_DIR,
-                                                  extra_values={}, verbose=verbose)
+                                                  extra_values={}, **kwargs)
     except FileNotFoundError as e:
         if CMT_PRE_UPGRADE_DIR not in str(e):
             raise
 
 
 # Run upgrade playbooks on control planes
-def __task_run_upgrade_playbooks_on_control_planes(installation_info: dict,
-                                                   verbose: bool = False) -> None:
+def __task_run_upgrade_playbooks_on_control_planes(installation_info: dict, **kwargs: Any) -> None:
     """
     A task that runs upgrade playbooks on control planes.
 
         Parameters:
             installation_info (dict): A dict with installation information
-            verbose (bool): If the results are printed, should skipped tasks be printed too?
+            **kwargs (dict[str, Any]): Keyword arguments
     """
     cluster_name = installation_info["installation_target"]
     k8s_distro = installation_info[cluster_name]["distro"]
@@ -2762,16 +2785,16 @@ def __task_run_upgrade_playbooks_on_control_planes(installation_info: dict,
         **extra_values_upgrade,
     }
     __run_playbooks_on_selection(playbooks=playbooks, selection=selection,
-                                 extra_values=extra_values, verbose=verbose)
+                                 extra_values=extra_values, **kwargs)
 
 
-def __task_run_postupgrade_playbooks(installation_info: dict, verbose: bool = False) -> None:
+def __task_run_postupgrade_playbooks(installation_info: dict, **kwargs: Any) -> None:
     """
     A task that runs post-upgrade playbooks.
 
         Parameters:
             installation_info (dict): A dict with installation information [unused]
-            verbose (bool): If the results are printed, should skipped tasks be printed too?
+            **kwargs (dict[str, Any]): Keyword arguments
     """
     # The default selection is control planes;
     # the playbooks need to explicitly specify if the play should be run on other hosts
@@ -2780,21 +2803,22 @@ def __task_run_postupgrade_playbooks(installation_info: dict, verbose: bool = Fa
         __generic_task_run_playbooks_on_selection(selection=selection,
                                                   installation_info=installation_info,
                                                   playbook_dir=CMT_POST_UPGRADE_DIR,
-                                                  extra_values={}, verbose=verbose)
+                                                  extra_values={}, **kwargs)
     except FileNotFoundError as e:
         if CMT_POST_UPGRADE_DIR not in str(e):
             raise
 
 
 # pylint: disable-next=unused-argument
-def __task_verify_that_cluster_has_no_nodes(installation_info: dict, verbose: bool = False) -> None:
+def __task_verify_that_cluster_has_no_nodes(installation_info: dict, **kwargs: Any) -> None:
     """
     A task that verifies that no non-control plane nodes remain in the cluster.
 
         Parameters:
             installation_info (dict): A dict with installation information [unused]
+            **kwargs (dict[str, Any]): Keyword arguments [unused]
     """
-    node_statuses = __get_node_info()
+    node_statuses = __get_node_info(**kwargs)
 
     if node_statuses is not None:
         for node in node_statuses:
@@ -2808,13 +2832,13 @@ def __task_verify_that_cluster_has_no_nodes(installation_info: dict, verbose: bo
     ansithemeprint([ANSIThemeStr("OK", "ok")])
 
 
-def __task_run_preteardown_playbooks(installation_info: dict, verbose: bool = False) -> None:
+def __task_run_preteardown_playbooks(installation_info: dict, **kwargs: Any) -> None:
     """
     A task that runs pre-teardown playbooks.
 
         Parameters:
             installation_info (dict): A dict with installation information
-            verbose (bool): If the results are printed, should skipped tasks be printed too?
+            **kwargs (dict[str, Any]): Keyword arguments
     """
     # The default selection is control planes;
     # the playbooks need to explicitly specify if the play should be run on other hosts
@@ -2823,21 +2847,20 @@ def __task_run_preteardown_playbooks(installation_info: dict, verbose: bool = Fa
         __generic_task_run_playbooks_on_selection(selection=selection,
                                                   installation_info=installation_info,
                                                   playbook_dir=CMT_PRE_TEARDOWN_DIR,
-                                                  extra_values={}, verbose=verbose)
+                                                  extra_values={}, **kwargs)
     except FileNotFoundError as e:
         if CMT_PRE_TEARDOWN_DIR not in str(e):
             raise
 
 
 # Run teardown playbooks on control planes
-def __task_run_teardown_playbooks_on_control_planes(installation_info: dict,
-                                                    verbose: bool = False) -> None:
+def __task_run_teardown_playbooks_on_control_planes(installation_info: dict, **kwargs: Any) -> None:
     """
     A task that runs teardown playbooks on control planes.
 
         Parameters:
             installation_info (dict): A dict with installation information
-            verbose (bool): If the results are printed, should skipped tasks be printed too?
+            **kwargs (dict[str, Any]): Keyword arguments
     """
     cluster_name = installation_info["installation_target"]
     k8s_distro = installation_info[cluster_name]["distro"]
@@ -2846,16 +2869,16 @@ def __task_run_teardown_playbooks_on_control_planes(installation_info: dict,
         populate_playbooks_from_filenames(teardown_control_plane_targets[k8s_distro]["playbooks"])
 
     __run_playbooks_on_selection(playbooks=playbooks, selection=selection,
-                                 extra_values={}, verbose=verbose)
+                                 extra_values={}, **kwargs)
 
 
-def __task_run_postteardown_playbooks(installation_info: dict, verbose: bool = False) -> None:
+def __task_run_postteardown_playbooks(installation_info: dict, **kwargs: Any) -> None:
     """
     A task that runs post-teardown playbooks.
 
         Parameters:
             installation_info (dict): A dict with installation information [unused]
-            verbose (bool): If the results are printed, should skipped tasks be printed too?
+            **kwargs (dict[str, Any]): Keyword arguments
     """
     # The default selection is control planes;
     # the playbooks need to explicitly specify if the play should be run on other hosts
@@ -2864,19 +2887,20 @@ def __task_run_postteardown_playbooks(installation_info: dict, verbose: bool = F
         __generic_task_run_playbooks_on_selection(selection=selection,
                                                   installation_info=installation_info,
                                                   playbook_dir=CMT_POST_TEARDOWN_DIR,
-                                                  extra_values={}, verbose=verbose)
+                                                  extra_values={}, **kwargs)
     except FileNotFoundError as e:
         if CMT_POST_TEARDOWN_DIR not in str(e):
             raise
 
 
 # pylint: disable-next=unused-argument,too-many-branches
-def __task_remove_kubeconfig(installation_info: dict, verbose: bool = False) -> None:
+def __task_remove_kubeconfig(installation_info: dict, **kwargs: Any) -> None:
     """
     An installer task that removes a cluster configuration from ~/.kube/config.
 
         Parameters:
             installation_info (dict): A dict with installation information
+            **kwargs (dict[str, Any]): Keyword arguments [unused]
     """
     if not Path(KUBE_CONFIG_DIR).is_dir():
         check_and_print_status(True)
@@ -2946,13 +2970,13 @@ def __task_remove_kubeconfig(installation_info: dict, verbose: bool = False) -> 
     check_and_print_status(True)
 
 
-def __task_run_prepurge_playbooks(installation_info: dict, verbose: bool = False) -> None:
+def __task_run_prepurge_playbooks(installation_info: dict, **kwargs: Any) -> None:
     """
     A task that runs pre-purge playbooks.
 
         Parameters:
             installation_info (dict): A dict with installation information
-            verbose (bool): If the results are printed, should skipped tasks be printed too?
+            **kwargs (dict[str, Any]): Keyword arguments
     """
     # The default selection is control planes;
     # the playbooks need to explicitly specify if the play should be run on other hosts
@@ -2961,21 +2985,20 @@ def __task_run_prepurge_playbooks(installation_info: dict, verbose: bool = False
         __generic_task_run_playbooks_on_selection(selection=selection,
                                                   installation_info=installation_info,
                                                   playbook_dir=CMT_PRE_PURGE_DIR,
-                                                  extra_values={}, verbose=verbose)
+                                                  extra_values={}, **kwargs)
     except FileNotFoundError as e:
         if CMT_PRE_PURGE_DIR not in str(e):
             raise
 
 
 # Run purge playbooks on control planes
-def __task_run_purge_playbooks_on_control_planes(installation_info: dict,
-                                                 verbose: bool = False) -> None:
+def __task_run_purge_playbooks_on_control_planes(installation_info: dict, **kwargs: Any) -> None:
     """
     An installer task that runs purge playbooks on control planes.
 
         Parameters:
             installation_info (dict): A dict with installation information
-            verbose (bool): If the results are printed, should skipped tasks be printed too?
+            **kwargs (dict[str, Any]): Keyword arguments
     """
     cluster_name = installation_info["installation_target"]
     k8s_distro = installation_info[cluster_name]["distro"]
@@ -3008,16 +3031,16 @@ def __task_run_purge_playbooks_on_control_planes(installation_info: dict,
         "held_packages": held_packages,
     }
     __run_playbooks_on_selection(playbooks=playbooks, selection=selection,
-                                 extra_values=extra_values, verbose=verbose)
+                                 extra_values=extra_values, **kwargs)
 
 
-def __task_run_postpurge_playbooks(installation_info: dict, verbose: bool = False) -> None:
+def __task_run_postpurge_playbooks(installation_info: dict, **kwargs: Any) -> None:
     """
     A task that runs post-purge playbooks.
 
         Parameters:
             installation_info (dict): A dict with installation information
-            verbose (bool): If the results are printed, should skipped tasks be printed too?
+            **kwargs (dict[str, Any]): Keyword arguments
     """
     # The default selection is control planes;
     # the playbooks need to explicitly specify if the play should be run on other hosts
@@ -3026,7 +3049,7 @@ def __task_run_postpurge_playbooks(installation_info: dict, verbose: bool = Fals
         __generic_task_run_playbooks_on_selection(selection=selection,
                                                   installation_info=installation_info,
                                                   playbook_dir=CMT_POST_PURGE_DIR,
-                                                  extra_values={}, verbose=verbose)
+                                                  extra_values={}, **kwargs)
     except FileNotFoundError as e:
         if CMT_POST_PURGE_DIR not in str(e):
             raise
@@ -3232,7 +3255,7 @@ purge_control_plane_tasks: list[tuple[list[ANSIThemeStr], Callable[..., None]]] 
 
 def run_tasks(tasks: list[tuple[list[ANSIThemeStr], Callable[..., None]]],
               phase: int, phase_skiplist: set[int],
-              final_state: str, verbose: bool = False) -> None:
+              final_state: str, **kwargs: Any) -> None:
     """
     Run tasks.
 
@@ -3243,8 +3266,13 @@ def run_tasks(tasks: list[tuple[list[ANSIThemeStr], Callable[..., None]]],
             phase (int): The installation phase
             phase_skiplist (set(int)): A set of phases to skip
             final_state (str): The state to set if the task completes successfully
-            verbose (bool): If the results are printed, should skipped tasks be printed too?
+            **kwargs (dict[str, Any]): Keyword arguments
+                verbose (bool): If the results are printed, should skipped tasks be printed too?
+                ignore_errors (bool): Continue even if an error is encountered
     """
+    ignore_errors: bool = deep_get(kwargs, DictPath("ignore_errors"), False)
+    verbose: bool = deep_get(kwargs, DictPath("verbose"), False)
+
     installation_info = get_installation_info()
 
     if not isinstance(phase, int):
@@ -3253,7 +3281,8 @@ def run_tasks(tasks: list[tuple[list[ANSIThemeStr], Callable[..., None]]],
     for i in range(phase, len(tasks)):
         ansithemeprint([ANSIThemeStr("\n• ", "separator")] + tasks[i][0])
         if i not in set(phase_skiplist):
-            tasks[i][1](installation_info=installation_info, verbose=verbose)
+            tasks[i][1](installation_info=installation_info,
+                        verbose=verbose, ignore_errors=ignore_errors)
         if i < len(tasks) - 1:
             installation_info = update_installation_info(phase=i)
         else:
@@ -3625,8 +3654,8 @@ def import_cluster(options: list[tuple[str, str]], args: list[str]) -> None:
         elif opt == "--verbose":
             verbose = True
 
-    __task_check_and_create_ssh_key(installation_info={})
-    __task_add_ssh_keys_to_inventory(installation_info={})
+    __task_check_and_create_ssh_key(installation_info={}, verbose=verbose)
+    __task_add_ssh_keys_to_inventory(installation_info={}, verbose=verbose)
     print()
 
     if kh is None:
@@ -4932,7 +4961,8 @@ def create_cluster(options: list[tuple[str, str]], args: list[str]) -> None:
     # Now we can setup the CNI
     if state == "setup_cni":
         __setup_cni(cni, context_name, cluster_name,
-                    cni_version=cni_version, cni_executable_version=cni_executable_version)
+                    cni_version=cni_version, cni_executable_version=cni_executable_version,
+                    verbose=verbose)
         phase = 0
         state = "deploy_workloads"
         installation_info = \
@@ -5845,15 +5875,26 @@ def setup_control_planes(options: list[tuple[str, Any]], args: list[str]) -> Non
                         ANSIThemeStr(" with the real IP-address of this host.\n", "default")])
 
 
-def __get_node_info() -> list[dict]:
+def __get_node_info(**kwargs: Any) -> list[dict]:
+    ignore_errors: bool = deep_get(kwargs, DictPath("ignore_errors"), False)
+
     global kh  # pylint: disable=global-statement
 
     if not Path(KUBE_CONFIG_FILE).is_file():
-        ansithemeprint([ANSIThemeStr("Critical", "critical"),
-                        ANSIThemeStr(": Could not find ", "default"),
-                        ANSIThemeStr(f"{KUBE_CONFIG_FILE}", "path"),
-                        ANSIThemeStr("; aborting.", "default")], stderr=True)
-        sys.exit(errno.ENOENT)
+        if ignore_errors:
+            ansithemeprint([ANSIThemeStr("Warning", "warning"),
+                            ANSIThemeStr(": Could not find ", "default"),
+                            ANSIThemeStr(f"{KUBE_CONFIG_FILE}", "path"),
+                            ANSIThemeStr("; ignoring since “", "default"),
+                            ANSIThemeStr("--ignore-errors", "option"),
+                            ANSIThemeStr("“ was specified.", "default")], stderr=True)
+            return []
+        else:
+            ansithemeprint([ANSIThemeStr("Critical", "critical"),
+                            ANSIThemeStr(": Could not find ", "default"),
+                            ANSIThemeStr(f"{KUBE_CONFIG_FILE}", "path"),
+                            ANSIThemeStr("; aborting.", "default")], stderr=True)
+            sys.exit(errno.ENOENT)
 
     if kh is None:
         kh = kubernetes_helper.KubernetesHelper(about.PROGRAM_SUITE_NAME,
@@ -5861,22 +5902,40 @@ def __get_node_info() -> list[dict]:
 
     # If kh is *still* None here something has gone wrong. It is time to exit.
     if kh is None:
-        ansithemeprint([ANSIThemeStr("Critical", "critical"),
-                        ANSIThemeStr(": Failed to initialise connection to API-server; "
-                                     "do you have a running cluster? Aborting.",
-                                     "default")], stderr=True)
-        sys.exit(errno.ENXIO)
+        if ignore_errors:
+            ansithemeprint([ANSIThemeStr("Warning", "warning"),
+                            ANSIThemeStr(": Failed to initialise connection to ",
+                                         "default"),
+                            ANSIThemeStr("API-server; ignoring since “", "default"),
+                            ANSIThemeStr("--ignore-errors", "option"),
+                            ANSIThemeStr("“ was specified.", "default")], stderr=True)
+            return []
+        else:
+            ansithemeprint([ANSIThemeStr("Critical", "critical"),
+                            ANSIThemeStr(": Failed to initialise connection to API-server; "
+                                         "do you have a running cluster? Aborting.",
+                                         "default")], stderr=True)
+            sys.exit(errno.ENXIO)
 
     node_statuses = []
 
     vlist, status = kh.get_list_by_kind_namespace(("Node", ""), "")
     if status != 200:
-        ansithemeprint([ANSIThemeStr("Error", "error"),
-                        ANSIThemeStr(": API-server returned ", "default"),
-                        ANSIThemeStr(f"{status}", "errorvalue"),
-                        ANSIThemeStr("; aborting.", "default")], stderr=True)
-        sys.exit(errno.EINVAL)
-    if vlist is None:
+        if ignore_errors:
+            ansithemeprint([ANSIThemeStr("Error", "error"),
+                            ANSIThemeStr(": API-server returned ", "default"),
+                            ANSIThemeStr(f"{status}", "errorvalue"),
+                            ANSIThemeStr("; ignoring since “", "default"),
+                            ANSIThemeStr("--ignore-errors", "option"),
+                            ANSIThemeStr("“ was specified.", "default")], stderr=True)
+            return []
+        else:
+            ansithemeprint([ANSIThemeStr("Error", "error"),
+                            ANSIThemeStr(": API-server returned ", "default"),
+                            ANSIThemeStr(f"{status}", "errorvalue"),
+                            ANSIThemeStr("; aborting.", "default")], stderr=True)
+            sys.exit(errno.EINVAL)
+    if not vlist:
         ansithemeprint([ANSIThemeStr("Error", "error"),
                         ANSIThemeStr(": API-server did not return any data",
                                      "default")], stderr=True)
@@ -5953,7 +6012,7 @@ def get_control_planes(fail_on_empty: bool = True) -> list[tuple[str, str]]:
     return controlplanes
 
 
-# pylint: disable-next=unused-argument,too-many-branches,too-many-statements
+# pylint: disable-next=unused-argument,too-many-branches,too-many-statements,too-many-locals
 def teardown_control_plane(options: list[tuple[str, str]], args: list[str]) -> None:
     """
     Teardown an existing control plane.
@@ -5981,7 +6040,8 @@ def teardown_control_plane(options: list[tuple[str, str]], args: list[str]) -> N
     state = deep_get(installation_info, DictPath(f"{cluster_name}#state"))
     phase: Union[str, int] = deep_get(installation_info, DictPath(f"{cluster_name}#phase"))
     phase_skiplist = set(deep_get(installation_info, DictPath(f"{cluster_name}#phase_skiplist")))
-    verbose = False
+    verbose: bool = False
+    ignore_errors: bool = False
 
     if k8s_distro is None or k8s_distro == "<none>":
         ansithemeprint([ANSIThemeStr("Error", "error"),
@@ -6027,6 +6087,8 @@ def teardown_control_plane(options: list[tuple[str, str]], args: list[str]) -> N
             phase = __validate_task_index(teardown_control_plane_tasks, phase)
         elif opt == "--save-ansible-logs":
             ansible_configuration["save_logs"] = True
+        elif opt == "--ignore-errors":
+            ignore_errors = True
         elif opt == "--verbose":
             verbose = True
         elif opt == "-Y":
@@ -6052,7 +6114,8 @@ def teardown_control_plane(options: list[tuple[str, str]], args: list[str]) -> N
     installation_info = update_installation_info(state="tearing_down", phase=0)
 
     run_tasks(tasks=teardown_control_plane_tasks, phase=cast(int, phase),
-              phase_skiplist=phase_skiplist, final_state="torn_down", verbose=verbose)
+              phase_skiplist=phase_skiplist, final_state="torn_down", verbose=verbose,
+              ignore_errors=ignore_errors)
     ansithemeprint([ANSIThemeStr("\nCluster teardown successful", "success")])
 
 
@@ -7780,6 +7843,17 @@ COMMANDLINE: dict[str, CommandType] = {
 
         ],
         "options": {
+            "--ignore-errors": {
+                "description": [
+                    ANSIThemeStr("Ignore errors during teardown", "description")],
+                "extended_description": [
+                    [ANSIThemeStr("DANGEROUS", "critical"),
+                     ANSIThemeStr(": Unconditionally tear down the cluster", "description")],
+                    [ANSIThemeStr("even if the control plane isn't responding.", "description")],
+                    [ANSIThemeStr("This may have unintended consequences,", "description")],
+                    [ANSIThemeStr("such as leaving configuration files behind", "description")],
+                ],
+            },
             "--resume": {
                 "description": [
                     ANSIThemeStr("Resume teardown", "description")],

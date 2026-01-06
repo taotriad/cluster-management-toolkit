@@ -250,6 +250,13 @@ If _KUBERNETES_VERSION_ is not specified the newest available version will be us
   
 __Note__: Before running this command all nodes must have been removed first. The configuration for the control plane and any software installed during setup will NOT be removed
   
+  __`--ignore-errors`__
+  Ignore errors during teardown  
+  DANGEROUS: Unconditionally tear down the cluster
+  even if the control plane isn't responding.
+  This may have unintended consequences,
+  such as leaving configuration files behind
+
   __`--resume`__
   Resume teardown  
   This can be used to resume operations
