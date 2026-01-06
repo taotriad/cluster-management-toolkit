@@ -5159,7 +5159,7 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
     raw_logs = False
     tmp_log_level = deep_get(cmtlib.cmtconfig, DictPath("Pod#loglevel"), "Info")
     log_level = name_to_loglevel(tmp_log_level)
-    show_borders = deep_get(cmtlib.cmtconfig, DictPath("Pod#show_borders"), True)
+    show_borders = deep_get(cmtlib.cmtconfig, DictPath("Global#borders"), True)
     uip.toggle_borders(borders=show_borders)
     show_timestamps = deep_get(cmtlib.cmtconfig, DictPath("Pod#show_timestamps"), True)
     uip.toggle_timestamps(show_timestamps)

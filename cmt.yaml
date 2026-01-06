@@ -365,9 +365,6 @@ Pod:
   # ["[", "FULL", "]"] -- "[WARNING]<message>"
   # severity_prefix: []
 
-  # Show borders and scrollbars
-  # show_borders: true
-
   # Path to directories with locally installed parser files; this can also be
   # used to override the default parsers--any locally provided match rules will
   # apply be applied before the default parsers; prioritised by the order of
