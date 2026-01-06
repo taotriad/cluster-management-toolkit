@@ -53,32 +53,65 @@ def test___patch_cni_calico(verbose: bool = False) -> tuple[str, bool]:
         testdata: tuple[Any, ...] = (
             (
                 "---\n"
-                "kind: Installation\n"
+                "kind: DaemonSet\n"
                 "spec:\n"
-                "  calicoNetwork:\n"
-                "    ipPools:\n"
-                "    - name: default-ipv4-ippool\n"
-                "      cidr: 192.168.0.0/16\n",
+                "  template:\n"
+                "    spec:\n"
+                "      containers:\n"
+                "      - name: calico-node\n"
+                "        env:\n"
+                "        - name: CALICO_IPV4POOL_CIDR\n"
+                "          value: 192.168.0.0/16\n",
                 "10.244.0.0/16",
                 [SecurityStatus.OK],
                 True,
                 "---\n"
-                "kind: Installation\n"
+                "kind: DaemonSet\n"
                 "spec:\n"
-                "  calicoNetwork:\n"
-                "    ipPools:\n"
-                "    - name: default-ipv4-ippool\n"
-                "      cidr: 10.244.0.0/16\n",
+                "  template:\n"
+                "    spec:\n"
+                "      containers:\n"
+                "      - name: calico-node\n"
+                "        env:\n"
+                "        - name: CALICO_IPV4POOL_CIDR\n"
+                "          value: 10.244.0.0/16\n",
                 None,
             ),
             (
                 "---\n"
-                "kind: Installation\n"
+                "kind: DaemonSet\n"
                 "spec:\n"
-                "  calicoNetwork:\n"
-                "    ipPools:\n"
-                "    - name: default-ipv4-ippool\n"
-                "      cidr: 192.168.0.0/16\n",
+                "  template:\n"
+                "    spec:\n"
+                "      containers:\n"
+                "      - name: calico-node\n"
+                "        env: []\n",
+                "10.244.0.0/16",
+                [SecurityStatus.OK],
+                True,
+                "---\n"
+                "kind: DaemonSet\n"
+                "spec:\n"
+                "  template:\n"
+                "    spec:\n"
+                "      containers:\n"
+                "      - name: calico-node\n"
+                "        env:\n"
+                "        - name: CALICO_IPV4POOL_CIDR\n"
+                "          value: 10.244.0.0/16\n",
+                None,
+            ),
+            (
+                "---\n"
+                "kind: DaemonSet\n"
+                "spec:\n"
+                "  template:\n"
+                "    spec:\n"
+                "      containers:\n"
+                "      - name: calico-node\n"
+                "        env:\n"
+                "        - name: CALICO_IPV4POOL_CIDR\n"
+                "          value: 192.168.0.0/16\n",
                 "10.244.0.0/16",
                 [SecurityStatus.PERMISSIONS],
                 True,

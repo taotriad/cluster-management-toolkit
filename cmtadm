@@ -5889,12 +5889,11 @@ def __get_node_info(**kwargs: Any) -> list[dict]:
                             ANSIThemeStr("--ignore-errors", "option"),
                             ANSIThemeStr("“ was specified.", "default")], stderr=True)
             return []
-        else:
-            ansithemeprint([ANSIThemeStr("Critical", "critical"),
-                            ANSIThemeStr(": Could not find ", "default"),
-                            ANSIThemeStr(f"{KUBE_CONFIG_FILE}", "path"),
-                            ANSIThemeStr("; aborting.", "default")], stderr=True)
-            sys.exit(errno.ENOENT)
+        ansithemeprint([ANSIThemeStr("Critical", "critical"),
+                        ANSIThemeStr(": Could not find ", "default"),
+                        ANSIThemeStr(f"{KUBE_CONFIG_FILE}", "path"),
+                        ANSIThemeStr("; aborting.", "default")], stderr=True)
+        sys.exit(errno.ENOENT)
 
     if kh is None:
         kh = kubernetes_helper.KubernetesHelper(about.PROGRAM_SUITE_NAME,
@@ -5910,12 +5909,11 @@ def __get_node_info(**kwargs: Any) -> list[dict]:
                             ANSIThemeStr("--ignore-errors", "option"),
                             ANSIThemeStr("“ was specified.", "default")], stderr=True)
             return []
-        else:
-            ansithemeprint([ANSIThemeStr("Critical", "critical"),
-                            ANSIThemeStr(": Failed to initialise connection to API-server; "
-                                         "do you have a running cluster? Aborting.",
-                                         "default")], stderr=True)
-            sys.exit(errno.ENXIO)
+        ansithemeprint([ANSIThemeStr("Critical", "critical"),
+                        ANSIThemeStr(": Failed to initialise connection to API-server; "
+                                     "do you have a running cluster? Aborting.",
+                                     "default")], stderr=True)
+        sys.exit(errno.ENXIO)
 
     node_statuses = []
 
@@ -5929,12 +5927,11 @@ def __get_node_info(**kwargs: Any) -> list[dict]:
                             ANSIThemeStr("--ignore-errors", "option"),
                             ANSIThemeStr("“ was specified.", "default")], stderr=True)
             return []
-        else:
-            ansithemeprint([ANSIThemeStr("Error", "error"),
-                            ANSIThemeStr(": API-server returned ", "default"),
-                            ANSIThemeStr(f"{status}", "errorvalue"),
-                            ANSIThemeStr("; aborting.", "default")], stderr=True)
-            sys.exit(errno.EINVAL)
+        ansithemeprint([ANSIThemeStr("Error", "error"),
+                        ANSIThemeStr(": API-server returned ", "default"),
+                        ANSIThemeStr(f"{status}", "errorvalue"),
+                        ANSIThemeStr("; aborting.", "default")], stderr=True)
+        sys.exit(errno.EINVAL)
     if not vlist:
         ansithemeprint([ANSIThemeStr("Error", "error"),
                         ANSIThemeStr(": API-server did not return any data",

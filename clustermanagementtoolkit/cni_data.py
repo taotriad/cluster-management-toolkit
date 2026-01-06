@@ -43,13 +43,14 @@ def __patch_cni_calico(cni_path: FilePath, pod_network_cidr: str) -> bool:
     dl: Generator = secure_read_yaml_all(cni_path)
     dl_mod: list[Any] = []
 
+    # pylint: disable=too-many-nested-blocks
     for d in dl:
         if deep_get(d, DictPath("kind"), "") == "DaemonSet":
             for ippool in deep_get(d, DictPath("spec#template#spec#containers"), []):
                 if deep_get(ippool, DictPath("name"), "") == "calico-node":
                     for i, env in enumerate(deep_get(ippool, DictPath("env"), [])):
                         if deep_get(env, DictPath("name"), "") == "CALICO_IPV4POOL_CIDR":
-                            ippool["env"].remove(i)
+                            ippool["env"].pop(i)
                     ippool["env"].append({
                         "name": "CALICO_IPV4POOL_CIDR",
                         "value": pod_network_cidr,
