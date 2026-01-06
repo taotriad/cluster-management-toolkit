@@ -28,5 +28,5 @@ will fail to run otherwise.
 
 ## Limitations
 
-* CRI-O is currently not support as CRI on Red Hat-based distros.
+* CRI-O is currently not supported as CRI on Red Hat-based distros.
 * Upgrading is not supported on SUSE-based distros.
