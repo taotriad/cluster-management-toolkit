@@ -43,7 +43,9 @@ listview:
           - type: "kind"
     description:
       header: "Description:"
-      path: "metadata#annotations#openshift.io/description"
+      paths:
+        - path: ["metadata#annotations#openshift.io/description",
+                 "metadata#annotations#kubernetes.io/description"]
       default: "<none>"
       type: "str"
     display_name:
