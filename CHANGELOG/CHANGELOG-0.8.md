@@ -155,15 +155,15 @@ No changes.
 | :------------- | :-------------- | :-------------------------------------- |
 | ansible-runner | 2.1.4           | openSUSE/SLES/RHEL, unsupported distros |
 | cryptography   |                 | openSUSE, unsupported distros           |
-| jinja2         | 3.1.5           | openSUSE/SLES/RHEL, unsupported distros |
+| jinja2         | 3.1.6           | openSUSE/SLES/RHEL, unsupported distros |
 | natsort        | 8.0.2           | openSUSE/SLES/RHEL, unsupported distros |
 | paramiko       |                 | openSUSE/SLES/RHEL, unsupported distros |
 | PyYAML         | 6.0             | Unsupported distros                     |
-| ruamel.yaml    | 0.17.16         | Unsupported distros [1]                 |
+| ruamel.yaml    | 0.17.21         | Unsupported distros [1]                 |
 | ruyaml         | 0.91.0          | Unsupported distros [1]                 |
-| setuptools     | 70.0.0          | openSUSE/SLES/RHEL, unsupported distros |
+| setuptools     | 78.1.1          | openSUSE/SLES/RHEL, unsupported distros |
 | ujson          | 5.4.0           | openSUSE/SLES/RHEL, unsupported distros |
-| urllib3        | 1.26.19         | openSUSE/SLES, unsupported distros      |
+| urllib3        | 2.6.0           | openSUSE/SLES, unsupported distros      |
 | validators     | 0.22.0          | openSUSE/SLES/RHEL, unsupported distros |
 
 **[1]**: Only one of `ruamel.yaml` and `ruyaml` is necessary.
@@ -254,40 +254,40 @@ Output:
 ```
 Name                                                  Stmts   Miss Branch BrPart  Cover
 ---------------------------------------------------------------------------------------
-clustermanagementtoolkit/listgetters.py                1235    995    656     12  18.2%
-clustermanagementtoolkit/cluster_actions.py             226    178     74      3  19.0%
+clustermanagementtoolkit/listgetters.py                1235    986    656     12  18.9%
 clustermanagementtoolkit/infogetters.py                1729   1376   1038     23  19.1%
+clustermanagementtoolkit/cluster_actions.py             226    176     74      2  20.0%
 clustermanagementtoolkit/curses_helper.py              2504   1877   1130     19  21.6%
-clustermanagementtoolkit/logparser.py                  2059   1445   1122     34  25.7%
+clustermanagementtoolkit/logparser.py                  2059   1443   1122     34  25.7%
 clustermanagementtoolkit/networkio.py                   389    282    178      3  26.1%
-clustermanagementtoolkit/kubernetes_helper.py          1625   1122    784     83  27.7%
+clustermanagementtoolkit/kubernetes_helper.py          1625   1085    784     96  30.3%
 clustermanagementtoolkit/listgetters_async.py           119     76     52      2  31.0%
 clustermanagementtoolkit/checks.py                      637    342    250      1  44.0%
-clustermanagementtoolkit/datagetters.py                 276    140    144     12  47.1%
+clustermanagementtoolkit/datagetters.py                 276    147    144     12  44.5%
 clustermanagementtoolkit/generators.py                  758    374    386     28  47.4%
-clustermanagementtoolkit/formatters.py                  804    363    422     32  52.3%
-clustermanagementtoolkit/ansible_helper.py              823    223    486     27  71.9%
-clustermanagementtoolkit/cmtlib.py                      576    119    326     15  76.7%
-clustermanagementtoolkit/cmtio.py                       426     40    226     20  89.0%
+clustermanagementtoolkit/formatters.py                  804    347    422     37  54.3%
+clustermanagementtoolkit/ansible_helper.py              823    221    486     27  72.0%
+clustermanagementtoolkit/cmtlib.py                      576    120    326     13  76.8%
+clustermanagementtoolkit/cmtio.py                       426     45    226     20  88.2%
 clustermanagementtoolkit/itemgetters.py                 524     47    284     18  89.7%
-clustermanagementtoolkit/cni_data.py                     92      1     36      8  93.0%
+clustermanagementtoolkit/cni_data.py                     96      1     40     10  91.9%
 clustermanagementtoolkit/ansithemeprint.py              224     12     86      4  94.2%
-clustermanagementtoolkit/cmtio_yaml.py                   62      3     14      1  94.7%
-clustermanagementtoolkit/reexecutor.py                   72      2     28      3  95.0%
 clustermanagementtoolkit/cmtvalidators.py               337     11    210      5  96.3%
+clustermanagementtoolkit/reexecutor.py                   72      1     28      2  97.0%
+clustermanagementtoolkit/cmtio_yaml.py                   62      1     14      1  97.4%
 clustermanagementtoolkit/fieldgetters.py                 74      0     44      3  97.5%
 clustermanagementtoolkit/commandparser.py               448      1    254      2  99.6%
+clustermanagementtoolkit/cmttypes.py                    492      1    190      0  99.9%
 clustermanagementtoolkit/about.py                        17      0      0      0 100.0%
 clustermanagementtoolkit/cmtlog.py                       80      0     40      0 100.0%
 clustermanagementtoolkit/cmtpaths.py                     90      0      0      0 100.0%
-clustermanagementtoolkit/cmttypes.py                    492      0    190      0 100.0%
 clustermanagementtoolkit/helptexts.py                    23      0      0      0 100.0%
 clustermanagementtoolkit/kubernetes_resources.py          5      0      0      0 100.0%
 clustermanagementtoolkit/objgetters.py                   56      0     12      0 100.0%
 clustermanagementtoolkit/pvtypes.py                       1      0      0      0 100.0%
 clustermanagementtoolkit/recommended_permissions.py      11      0      0      0 100.0%
 ---------------------------------------------------------------------------------------
-TOTAL                                                 16794   9029   8472    358  43.7%
+TOTAL                                                 16798   8972   8476    374  44.1%
 ```
 
 ### Flake8 Results for v0.8.6
