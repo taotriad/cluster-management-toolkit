@@ -10,7 +10,18 @@ listview:
   group: "OpenShift"
   field_indexes:
     Normal:
-      fields: ["name", "age"]
+      fields: ["name", "infrastructure_name", "infrastructure_topology", "age"]
+  fields:
+    infrastructure_name:
+      header: "Infrastructure Name:"
+      path: "status#infrastructureName"
+      default: "<unset>"
+      type: "str"
+    infrastructure_topology:
+      header: "Infrastructure Topology:"
+      path: "status#infrastructureTopology"
+      default: "<unset>"
+      type: "str"
 infoview:
   name: "Infrastructure Info"
   infopad:
@@ -25,7 +36,7 @@ infoview:
       api_server_header:
         header: [["API-server:", ["main", "infoheader"]]]
       api_server_internal_uri:
-        header: [["  URL:", ["main", "infoheader"]]]
+        header: [["  Internal URL:", ["main", "infoheader"]]]
         path: "status#apiServerInternalURI"
         type: "str"
       api_server_url:
@@ -43,23 +54,29 @@ infoview:
       etcd_discovery_domain:
         header: [["etcd Discovery Domain:", ["main", "infoheader"]]]
         path: "status#etcdDiscoveryDomain"
+        default: "<unset>"
+        fallback_on_empty: true
         type: "str"
       infrastructure_name:
         header: [["I", ["main", "infoheader_shortcut"]],
                  ["nfrastructure Name:", ["main", "infoheader"]]]
         path: "status#infrastructureName"
+        default: "<unset>"
         type: "str"
       infrastructure_topology:
         header: [["Infrastructure Topology:", ["main", "infoheader"]]]
         path: "status#infrastructureTopology"
+        default: "<unset>"
         type: "str"
       platform_header:
         header: [["Platform:", ["main", "infoheader"]]]
       platform_platform:
         header: [["  Platform:", ["main", "infoheader"]]]
         path: "status#platform"
+        default: "<unset>"
         type: "str"
       platform_status_type:
         header: [["  Status (Type):", ["main", "infoheader"]]]
         path: "status#platformStatus#type"
+        default: "<unset>"
         type: "str"
