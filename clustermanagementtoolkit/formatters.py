@@ -660,6 +660,30 @@ KEY_HEADERS: tuple[str, ...] = (
 )
 
 
+# pylint: disable=unused-argument
+def format_cel(lines: Union[str, list[str]], **kwargs: Any) -> \
+        list[list[Union[ThemeRef, ThemeStr]]]:
+    """
+    CEL formatter; returns the text with syntax highlighting for Common Expression Language.
+
+        Parameters:
+            lines ([str]): A list of strings
+            *or*
+            lines (str): a string with newlines that should be split
+            **kwargs (dict[str, Any]): Keyword arguments
+        Returns:
+            ([themearray]): A list of themearrays
+    """
+    dumps: list[list[Union[ThemeRef, ThemeStr]]] = []
+
+    if isinstance(lines, str):
+        lines = split_msg(lines.strip())
+
+    for line in lines:
+        dumps.append([ThemeStr(line, ThemeAttr("types", "generic"))])
+    return dumps
+
+
 def format_crt(lines: Union[str, list[str]], **kwargs: Any) -> \
         list[list[Union[ThemeRef, ThemeStr]]]:
     """
@@ -1594,6 +1618,7 @@ def map_dataformat(dataformat: str) -> Callable[[Union[str, list[str]]],
 # Formatters acceptable for direct use in view files
 formatter_allowlist: dict[str, Callable] = {
     "format_caddyfile": format_caddyfile,
+    "format_cel": format_cel,
     "format_crt": format_crt,
     "format_fluentbit": format_fluentbit,
     "format_haproxy": format_haproxy,

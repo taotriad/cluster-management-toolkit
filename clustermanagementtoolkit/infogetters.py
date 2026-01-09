@@ -2624,12 +2624,20 @@ def logpad_formatted(obj: dict, **kwargs: Any) -> list[list[Union[ThemeRef, Them
         Returns:
             ([[ThemeRef|ThemeStr]]): A list of messages
     """
+    paths: list[DictPath] = DictPath(deep_get(kwargs, DictPath("paths"), []))
     path: DictPath = DictPath(deep_get(kwargs, DictPath("path"), ""))
     dump_formatter_tmp = deep_get(kwargs, DictPath("formatter"), "format_none")
     dump_formatter = deep_get(formatter_allowlist, DictPath(dump_formatter_tmp))
     if dump_formatter is None:
         raise ValueError(f"{dump_formatter_tmp} is not a valid formatter; "
                          "the view-file is probably incorrect.")
+
+    if paths:
+        for tmp in paths:
+            tmppath = deep_get(tmp, DictPath("path"))
+            if deep_get(obj, DictPath(tmppath)):
+                path = tmppath
+                break
 
     return dump_formatter(deep_get(obj, path, ""))
 
