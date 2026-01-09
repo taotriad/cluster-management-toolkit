@@ -116,7 +116,9 @@ infoview:
             - type: "kind"
       description:
         header: [["Description:", ["main", "infoheader"]]]
-        path: "metadata#annotations#openshift.io/description"
+        paths:
+          - path: ["metadata#annotations#openshift.io/description",
+                 "metadata#annotations#kubernetes.io/description"]
         default: "<none>"
         type: "str"
       display_name:
