@@ -1,14 +1,14 @@
 ---
-kind: "ValidatingAdmissionPolicyBinding"
+kind: "MutatingAdmissionPolicyBinding"
 api_family: "admissionregistration.k8s.io"
-default_command: "validatingadmissionpolicybindings"
+default_command: "mutatingadmissionpolicybindings"
 command:
-  - "vapolbindings"
-  - "vapolbinding"
-  - "vapolbs"
-  - "vapolb"
+  - "mapolbindings"
+  - "mapolbinding"
+  - "mapolbs"
+  - "mapolb"
 listview:
-  name: "Validating Admission Policy Bindings"
+  name: "Mutating Admission Policy Bindings"
   group: "API & Extendability"
   field_indexes:
     Normal:
@@ -25,12 +25,11 @@ listview:
       default: "<unset>"
       type: "str"
 infoview:
-  name: "Validating Admission Policy Binding Info"
+  name: "Mutating Admission Policy Binding Info"
   infopad:
     row_indexes:
       Normal:
         fields: ["policy_name",
-                 "cluster_version",
                  "param_ref_header",
                  "param_ref_name",
                  "param_ref_namespace",
@@ -42,22 +41,8 @@ infoview:
                  "namespace_label_selector",
                  "namespace_set_based_selector",
                  "object_label_selector",
-                 "object_set_based_selector",
-                 "validation_actions"]
+                 "object_set_based_selector"]
     rows:
-      cluster_version:
-        header: [["Cluster ", ["main", "infoheader"]],
-                 ["V", ["main", "infoheader_shortcut"]],
-                 ["ersion:", ["main", "infoheader"]]]
-        paths:
-          - path: "metadata#ownerReferences"
-            pathtype: "items"
-            subpaths:
-              - "name"
-            when:
-              - key: "kind"
-                eq: "ClusterVersion"
-        default: "<none>"
       match_policy:
         header: [["  Match Policy:", ["main", "infoheader"]]]
         path: "spec#matchResources#matchPolicy"
@@ -177,25 +162,19 @@ infoview:
                  ["olicy:", ["main", "infoheader"]]]
         path: "spec#policyName"
         type: "str"
-      validation_actions:
-        header: [["Validation Actions:", ["main", "infoheader"]]]
-        paths:
-          - path: "spec#validationActions"
-            pathtype: "list"
-        formatter: "list"
   shortcuts:
-    "Cluster Version":
-      key: "v"
+    "Show MutatingAdmissionPolicy":
+      key: "p"
       modifier: "shift"
       read_only: true
-      helptext: "Open info page for Cluster Version"
+      helptext: "Open list page for Mutating Admission Policy"
       action: "call"
       action_call: "resourceinfodispatch_with_lookup"
       action_args:
         _pass_obj: true
-        owner_reference_path: "metadata#ownerReferences"
-        kind: "ClusterVersion"
-        api_family: "config.openshift.io"
+        name_path: "spec#policyName"
+        kind: "MutatingAdmissionPolicy"
+        api_family: "admissionregistration.k8s.io"
     "Namespace Label Selector":
       key: "b"
       read_only: true
@@ -227,15 +206,3 @@ infoview:
       itemgetter: "get_key_value"
       itemgetter_args:
         path: "spec#paramRef#selector#matchLabels"
-    "Show ValidatingAdmissionPolicy":
-      key: "p"
-      modifier: "shift"
-      read_only: true
-      helptext: "Open list page for Validating Admission Policy"
-      action: "call"
-      action_call: "resourceinfodispatch_with_lookup"
-      action_args:
-        _pass_obj: true
-        name_path: "spec#policyName"
-        kind: "ValidatingAdmissionPolicy"
-        api_family: "admissionregistration.k8s.io"

@@ -32,12 +32,24 @@ infoview:
         default: "<unset>"
         type: "str"
   logpad:
-    infogetter: "logpad_yaml"
+    infogetter: "logpad_formatted"
     timestamps: false
     infogetter_args:
       path: "expression"
+      formatter: "format_cel"
   shortcuts:
     # __ValidatingAdmissionPolicyRule
     # has no last applied configuration or events
     "Show Events": null
     "Last Applied Configuration": null
+    "Show Message Expression":
+      key: "m"
+      read_only: true
+      helptext: "Show Message Expression"
+      widget: "windowwidget"
+      title: "Message Expression:"
+      itemgetter: "get_strings_from_string"
+      itemgetter_args:
+        path: "messageExpression"
+      # Not supported for now
+      sortcolumn: "name"

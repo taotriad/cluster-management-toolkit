@@ -1,17 +1,23 @@
 ---
-kind: "ValidatingAdmissionPolicy"
+kind: "MutatingAdmissionPolicy"
 api_family: "admissionregistration.k8s.io"
-default_command: "validatingadmissionpolicies"
+default_command: "mutatingadmissionpolicies"
 command:
-  - "vapols"
-  - "vapol"
+  - "mapols"
+  - "mapol"
 listview:
-  name: "Validating Admission Policies"
+  name: "Mutating Admission Policies"
   group: "API & Extendability"
   field_indexes:
     Normal:
-      fields: ["name", "validations", "param_kind", "age"]
+      fields: ["name", "mutations", "param_kind", "age"]
   fields:
+    mutations:
+      header: "Mutations:"
+      path: "spec#mutations"
+      type: "len"
+      formatter: "numerical"
+      align: "right"
     param_kind:
       header: "Parameter Kind:"
       paths:
@@ -26,18 +32,12 @@ listview:
           - type: "api_group"
         field_separators:
           - type: "kind_api_group"
-    validations:
-      header: "Validations:"
-      path: "spec#validations"
-      type: "len"
-      formatter: "numerical"
-      align: "right"
 infoview:
-  name: "Validating Admission Policy Info"
+  name: "Mutating Admission Policy Info"
   infopad:
     row_indexes:
       Normal:
-        fields: ["param_kind", "failure_policy",
+        fields: ["param_kind", "failure_policy", "reinvocation_policy",
                  "match_constraints_header", "match_constraints_match_policy",
                  "match_constraints_namespace_label_selector",
                  "match_constraints_namespace_set_based_selector",
@@ -70,21 +70,6 @@ infoview:
             - type: "value"
           field_separators:
             - type: "selector"
-      match_constraints_object_label_selector:
-        header: [["  ", ["main", "infoheader"]],
-                 ["O", ["main", "infoheader_shortcut"]],
-                 ["bject Label Selector:", ["main", "infoheader"]]]
-        paths:
-          - path: ["spec#matchConstraints#objectSelector#matchLabels"]
-            pathtype: "key_value"
-            default: ["<none>"]
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "key"
-            - type: "value"
-          field_separators:
-            - type: "selector"
       match_constraints_namespace_set_based_selector:
         header: [["  Set-based Namespace Selector:", ["main", "infoheader"]]]
         paths:
@@ -100,6 +85,21 @@ infoview:
           field_separators:
             - type: "space"
             - type: "no_pad"
+      match_constraints_object_label_selector:
+        header: [["  ", ["main", "infoheader"]],
+                 ["O", ["main", "infoheader_shortcut"]],
+                 ["bject Label Selector:", ["main", "infoheader"]]]
+        paths:
+          - path: ["spec#matchConstraints#objectSelector#matchLabels"]
+            pathtype: "key_value"
+            default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "key"
+            - type: "value"
+          field_separators:
+            - type: "selector"
       match_constraints_object_set_based_selector:
         header: [["  Set-based Object Selector:", ["main", "infoheader"]]]
         paths:
@@ -130,10 +130,15 @@ infoview:
             - type: "api_group"
           field_separators:
             - type: "kind_api_group"
+      reinvocation_policy:
+        header: [["Reinvocation Policy:", ["main", "infoheader"]]]
+        path: "spec#reinvocationPolicy"
+        default: "<unset>"
+        type: "str"
   listpad:
     on_activation:
       call: "resourceinfodispatch"
-      kind: "__ValidatingAdmissionPolicyRule"
+      kind: "__MutatingAdmissionPolicyRule"
       api_family: "admissionregistration.k8s.io"
     listgetter: "listgetter_path"
     listgetter_args:
@@ -142,10 +147,10 @@ infoview:
           type: "list"
           key_name: "type"
           key_value: "Match Condition"
-        - path: "spec#validations"
+        - path: "spec#mutations"
           type: "list"
           key_name: "type"
-          key_value: "Validation"
+          key_value: "Mutation"
         - path: "spec#variables"
           type: "list"
           key_name: "type"
@@ -153,17 +158,14 @@ infoview:
     infogetter: "generic_infogetter"
     field_indexes:
       Normal:
-        fields: ["type", "name", "message", "reason", "expression"]
+        fields: ["type", "name", "patch_type", "expression"]
         sortcolumn: "message"
     fields:
       expression:
         header: "Expression:"
-        path: "expression"
-        default: "<unset>"
-        type: "str"
-      message:
-        header: "Message:"
-        path: "message"
+        paths:
+          - path: ["applyConfiguration#expression", "expression"]
+            type: "str"
         default: "<unset>"
         type: "str"
       name:
@@ -171,10 +173,9 @@ infoview:
         path: "name"
         default: "<unset>"
         type: "str"
-      reason:
-        header: "Reason:"
-        path: "reason"
-        default: "<unset>"
+      patch_type:
+        header: "Patch Type:"
+        path: "patchType"
         type: "str"
       type:
         header: "Type:"

@@ -1,0 +1,30 @@
+---
+kind: "__MutatingAdmissionPolicyRule"
+api_family: "admissionregistration.k8s.io"
+default_command: "__"
+infoview:
+  name: "Mutating Admission Policy Rule"
+  infopad:
+    name_path: null
+    creation_timestamp_path: null
+    row_indexes:
+      Normal:
+        fields: ["patch_type"]
+    rows:
+      patch_type:
+        header: [["Patch Type:", ["main", "infoheader"]]]
+        path: "patchType"
+        type: "str"
+  logpad:
+    infogetter: "logpad_formatted"
+    timestamps: false
+    infogetter_args:
+      paths:
+        - path: "applyConfiguration#expression"
+        - path: "expression"
+      formatter: "format_cel"
+  shortcuts:
+    # __MutatingAdmissionPolicyRule
+    # has no last applied configuration or events
+    "Show Events": null
+    "Last Applied Configuration": null
