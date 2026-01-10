@@ -47,10 +47,11 @@ infoview:
           field_colors:
             - type: "version"
   logpad:
-    infogetter: "logpad_yaml"
-    timestamps: false
+    infogetter: "logpad_formatted"
     infogetter_args:
+      formatter: "format_yaml"
       path: "annotations"
+    timestamps: false
   shortcuts:
     # __ImageStreamSub has no last applied configuration or events
     "Show Events": null

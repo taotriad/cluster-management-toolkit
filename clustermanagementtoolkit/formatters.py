@@ -536,14 +536,15 @@ def format_yaml_line(line: str, **kwargs: Any) -> tuple[list[Union[ThemeRef, The
 
 
 # pylint: disable-next=too-many-branches,too-many-locals,too-many-statements
-def format_yaml(lines: Union[str, list[str]], **kwargs: Any) -> \
+def format_yaml(lines: Union[str, list[str], dict], **kwargs: Any) -> \
         list[list[Union[ThemeRef, ThemeStr]]]:
     """
     YAML formatter; returns the text with syntax highlighting for YAML.
 
         Parameters:
-            lines (str|[str]): A list of strings *or*
-                               a string with newlines that should be split
+            lines (str|[str]|dict): A list of strings *or*
+                               a string with newlines that should be split,
+                               *or* a dict to dump as yaml
             **kwargs (dict[str, Any]): Keyword arguments
         Returns:
             ([themearray]): A list of themearrays
@@ -562,6 +563,8 @@ def format_yaml(lines: Union[str, list[str]], **kwargs: Any) -> \
                 return format_none(lines)
         else:
             lines = [lines]
+    elif isinstance(lines, dict):
+        lines = [lines]
 
     generic_format = ThemeAttr("types", "generic")
 
