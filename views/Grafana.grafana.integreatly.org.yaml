@@ -24,30 +24,34 @@ infoview:
       admin_password:
         header: [["Admin Password:", ["main", "infoheader"]]]
         path: "spec#config#security#admin_password"
+        default: "<unset>"
         type: "str"
       admin_user:
         header: [["Admin User:", ["main", "infoheader"]]]
         path: "spec#config#security#admin_user"
+        default: "<unset>"
         type: "str"
       auth_disable_login_form:
         header: [["  Disable Login Form:", ["main", "infoheader"]]]
         path: "spec#config#auth#disable_login_form"
+        default: "<unset>"
         type: "bool"
       auth_disable_signout_menu:
         header: [["  Disable Signout Menu:", ["main", "infoheader"]]]
         path: "spec#config#auth#disable_signout_menu"
+        default: "<unset>"
         type: "bool"
       auth_enable_anonymous:
         header: [["  Enable Anonymous:", ["main", "infoheader"]]]
         path: "spec#config#auth.anonymous#enabled"
+        default: "<unset>"
         type: "bool"
       auth_header:
         header: [["Auth:", ["main", "infoheader"]]]
       dashboard_set_based_selector:
         header: [["Dashboard Set-based Selector:", ["main", "infoheader"]]]
         paths:
-          - path: "spec#dashboardLabelSelector"
-            subpath: "matchExpressions"
+          - path: "spec#dashboardLabelSelector#matchExpressions"
             pathtype: "match_expression"
             default: "<none>"
         formatter: "list"
@@ -62,12 +66,14 @@ infoview:
       ingress_enabled:
         header: [["  Enabled:", ["main", "infoheader"]]]
         path: "spec#ingress#enabled"
+        default: "<unset>"
         type: "bool"
       ingress_header:
         header: [["Ingress:", ["main", "infoheader"]]]
       ingress_hostname:
         header: [["  Hostname:", ["main", "infoheader"]]]
         path: "spec#ingress#hostname"
+        default: "<unset>"
         type: "str"
         formatting:
           field_colors:
@@ -75,16 +81,20 @@ infoview:
       ingress_path:
         header: [["  Path:", ["main", "infoheader"]]]
         path: "spec#ingress#path"
+        default: "<unset>"
         type: "str"
       ingress_pathtype:
         header: [["  Path-type:", ["main", "infoheader"]]]
         path: "spec#ingress#pathType"
+        default: "<unset>"
         type: "str"
       loglevel:
         header: [["Loglevel:", ["main", "infoheader"]]]
         path: "spec#config#log#level"
+        default: "<unset>"
         type: "str"
       log_mode:
         header: [["Log Mode:", ["main", "infoheader"]]]
         path: "spec#config#log#mode"
+        default: "<unset>"
         type: "str"

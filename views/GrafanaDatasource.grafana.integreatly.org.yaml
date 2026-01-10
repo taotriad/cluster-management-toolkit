@@ -14,3 +14,85 @@ listview:
     Normal:
       fields: ["namespace", "name", "age"]
       sortcolumn: "namespace"
+infoview:
+  name: "Grafana Datasource Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["instance_label_selector", "allow_cross_namespace_import",
+                 "datasource_header", "datasource_name", "datasource_access",
+                 "datasource_database", "datasource_type", "datasource_url",
+                 "datasource_json_data_header",
+                 "datasource_json_data_time_interval",
+                 "datasource_json_data_tls_skip_verify"]
+    rows:
+      allow_cross_namespace_import:
+        header: [["Allow Cross Namespace Import:", ["main", "infoheader"]]]
+        path: "spec#allowCrossNamespaceImport"
+        default: "<unset>"
+        type: "bool"
+      datasource_access:
+        header: [["  Access:", ["main", "infoheader"]]]
+        path: "spec#datasource#access"
+        default: "<unset>"
+        type: "str"
+      datasource_header:
+        header: [["Datasource:", ["main", "infoheader"]]]
+      datasource_name:
+        header: [["  Name:", ["main", "infoheader"]]]
+        path: "spec#datasource#name"
+        default: "<unset>"
+        type: "str"
+      datasource_database:
+        header: [["  Database:", ["main", "infoheader"]]]
+        path: "spec#datasource#database"
+        default: "<unset>"
+        type: "str"
+      datasource_json_data_header:
+        header: [["  JSON-data:", ["main", "infoheader"]]]
+      datasource_json_data_time_interval:
+        header: [["    Time Interval:", ["main", "infoheader"]]]
+        path: "spec#datasource#jsonData#timeInterval"
+        type: "str"
+        formatter: "numerical"
+      datasource_json_data_tls_skip_verify:
+        header: [["    TLS Skip Verify:", ["main", "infoheader"]]]
+        path: "spec#datasource#jsonData#tlsSkipVerify"
+        type: "bool"
+      datasource_type:
+        header: [["  Type:", ["main", "infoheader"]]]
+        path: "spec#datasource#type"
+        default: "<unset>"
+        type: "str"
+      datasource_url:
+        header: [["  URL:", ["main", "infoheader"]]]
+        path: "spec#datasource#url"
+        default: "<unset>"
+        type: "str"
+        formatter: "address"
+      instance_label_selector:
+        header: [["Instance La", ["main", "infoheader"]],
+                 ["b", ["main", "infoheader_shortcut"]],
+                 ["el Selector:", ["main", "infoheader"]]]
+        paths:
+          - path: ["spec#instanceSelector#matchLabels"]
+            pathtype: "key_value"
+            default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "key"
+            - type: "value"
+          field_separators:
+            - type: "selector"
+  shortcuts:
+    "Instance Label Selector":
+      key: "b"
+      read_only: true
+      helptext: "Instance Label selector"
+      widget: "windowwidget"
+      title: "Instance Label Selector:"
+      headers: ["Key:", "Value:"]
+      itemgetter: "get_key_value"
+      itemgetter_args:
+        path: "spec#instanceSelector#matchLabels"
