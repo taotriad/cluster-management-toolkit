@@ -114,7 +114,7 @@ coverage: setup_tests
 	fi; \
 	printf -- "\n\n  Running: tests/atptests --include-clear\n\n" ;\
 	$$cmd run --branch --append tests/atptests --include-clear --end-at 0 || exit 1 ;\
-	printf -- "\n\nRunning python3-coverage to check test coverage\n" ;\
+	printf -- "\n\nRunning $$cmd to check test coverage\n" ;\
 	for test in $(python_unit_tests); do \
 		printf -- "\n\n  Running: $$test\n\n" ;\
 		$$cmd run --branch --append $$test || exit 1 ;\
@@ -134,7 +134,7 @@ coverage-manual: setup_tests
 		printf -- "\n\n$$cmd not installed; skipping.\n\n\n"; \
 		exit 0; \
 	fi; \
-	printf -- "\n\nRunning python3-coverage to check test coverage\n" ;\
+	printf -- "\n\nRunning $$cmd to check test coverage\n" ;\
 	printf -- "\n\n  Running: tests/atptests --include-clear --include-input\n\n" ;\
 	$$cmd run --branch --append tests/atptests --include-clear --include-input ;\
 	$$cmd report --sort cover --precision 1 ;\
@@ -152,7 +152,7 @@ coverage-ansible: setup_tests
 		printf -- "\n\n$$cmd not installed; skipping.\n\n\n"; \
 		exit 0; \
 	fi; \
-	printf -- "\n\nRunning python3-coverage to check test coverage\n" ;\
+	printf -- "\n\nRunning $$cmd to check test coverage\n" ;\
 	printf -- "\n\n  Running: tests/cmtlibtests --include-ansible\n\n" ;\
 	$$cmd run --branch --append tests/cmtlibtests --include-ansible || exit 1 ;\
 	printf -- "\n\n  Running: tests/ansibletests\n\n" ;\
@@ -172,7 +172,7 @@ coverage-cluster: setup_tests
 		printf -- "\n\n$$cmd not installed; skipping.\n\n\n"; \
 		exit 0; \
 	fi; \
-	printf -- "\n\nRunning python3-coverage to check test coverage\n" ;\
+	printf -- "\n\nRunning $$cmd to check test coverage\n" ;\
 	printf -- "\n\n  Running: tests/async_fetch\n\n" ;\
 	$$cmd run --branch --append tests/async_fetch || exit 1 ;\
 	printf -- "\n\n  Running: tests/dgtests --include-cluster\n\n" ;\
@@ -225,7 +225,7 @@ semgrep: unhack_sources
 		printf -- "\n\n$$cmd not installed; skipping.\n\n\n"; \
 		exit 0; \
 	fi; \
-	printf -- "\n\nRunning semgrep to check for common security issues in Python code\n" ;\
+	printf -- "\n\nRunning $$cmd to check for common security issues in Python code\n" ;\
 	printf -- "Note: if this is taking a very long time you might be behind a proxy;\n" ;\
 	printf -- "if that's the case you need to set the environment variable https_proxy\n\n" ;\
 	(cd tests/modified_repo ;\
@@ -252,7 +252,7 @@ bandit:
 		printf -- "\n\n$$cmd not installed; skipping.\n\n\n" ;\
 		exit 0 ;\
 	fi ;\
-	printf -- "\n\nRunning bandit to check for common security issues in Python code\n\n" ;\
+	printf -- "\n\nRunning $$cmd to check for common security issues in Python code\n\n" ;\
 	$$cmd -c .bandit $(python_executables) $(python_test_executables) clustermanagementtoolkit/*.py
 
 ruff:
@@ -289,7 +289,7 @@ pylint:
 		printf -- "\n\n$$cmd not installed; skipping.\n\n\n" ;\
 		exit 0 ;\
 	fi ;\
-	printf -- "\n\nRunning pylint to check Python code quality\n\n" ;\
+	printf -- "\n\nRunning $$cmd to check Python code quality\n\n" ;\
 	for file in $(python_executables) clustermanagementtoolkit/*.py; do \
 		case $$file in \
 		'noxfile.py') \
@@ -323,7 +323,7 @@ pylint-tests:
 		printf -- "\n\n$$cmd not installed; skipping.\n\n\n" ;\
 		exit 0 ;\
 	fi ;\
-	printf -- "\n\nRunning pylint to check Python code quality\n\n" ;\
+	printf -- "\n\nRunning $$cmd to check Python code quality\n\n" ;\
 	for file in $(python_test_executables); do \
 		printf -- "File: $$file\n" ;\
 		PYTHONPATH=. $$cmd --py-version $(PYLINT_PYTHON_VERSION) --disable $(PYLINT_DISABLE) --enable $(PYLINT_ENABLE) $$file ;\
@@ -335,9 +335,9 @@ flake8:
 		printf -- "\n\n$$cmd not installed; skipping.\n\n\n" ;\
 		exit 0 ;\
 	fi ;\
-	printf -- "\n\nRunning flake8 to check Python code quality\n\n" ;\
+	printf -- "\n\nRunning $$cmd to check Python code quality\n\n" ;\
 	$$cmd --ignore $(FLAKE8_IGNORE) --max-line-length 100 --statistics $(python_executables) clustermanagementtoolkit/*.py && printf -- "OK\n\n" ;\
-	printf -- "\n\nRunning flake8 to check Python test case code quality\n\n" ;\
+	printf -- "\n\nRunning $$cmd to check Python test case code quality\n\n" ;\
 	$$cmd --ignore $(FLAKE8_IGNORE) --max-line-length 100 --statistics $(python_test_executables) && printf -- "OK\n\n"
 
 regexploit:
@@ -346,7 +346,7 @@ regexploit:
 		printf -- "\n\n$$cmd not installed (install with 'pipx install regexploit' or pipx install --proxy <proxy> regexploit'); skipping.\n\n\n" ;\
 		exit 0 ;\
 	fi ;\
-	printf -- "\n\nRunning regexploit to check for ReDoS attacks\n\n" ;\
+	printf -- "\n\nRunning $$cmd to check for ReDoS attacks\n\n" ;\
 	printf -- "Checking executables\n" ;\
 	$$cmd $(python_executables) $(python_test_executables) &&\
 	printf -- "\nChecking libraries\n" ;\
@@ -358,7 +358,7 @@ yamllint:
 		printf -- "\n\n$$cmd not installed; skipping.\n\n\n"; \
 		exit 0; \
 	fi; \
-	printf -- "\n\nRunning yamllint to check that all YAML is valid\n\n"; \
+	printf -- "\n\nRunning $$cmd to check that all YAML is valid\n\n"; \
 	for dir in $(yaml_dirs); do \
 		$$cmd $$dir/*.yaml; \
 	done; \
@@ -372,7 +372,7 @@ mypy:
 		printf -- "\n\n$$cmd not installed; skipping.\n\n\n"; \
 		exit 0; \
 	fi; \
-	printf -- "\n\nRunning mypy to check Python typing\n\n"; \
+	printf -- "\n\nRunning $$cmd to check Python typing\n\n"; \
 	for file in $(python_executables) clustermanagementtoolkit/*.py; do \
 		$$cmd $(MYPY_FLAGS) $$file || true; \
 	done
@@ -385,7 +385,7 @@ mypy-tests:
 		printf -- "\n\n$$cmd not installed; skipping.\n\n\n"; \
 		exit 0; \
 	fi; \
-	printf -- "\n\nRunning mypy to check Python typing\n\n"; \
+	printf -- "\n\nRunning $$cmd to check Python typing\n\n"; \
 	for file in $(python_test_executables); do \
 		$$cmd $(MYPY_FLAGS) $$file || true; \
 	done
@@ -430,7 +430,7 @@ validate_playbooks:
 		printf -- "\n\n$$cmd not installed; skipping.\n\n\n"; \
 		exit 0; \
 	fi; \
-	printf -- "\n\nRunning ansible-lint to check that all Ansible playbooks are valid\n\n"; \
+	printf -- "\n\nRunning $$cmd to check that all Ansible playbooks are valid\n\n"; \
 	ansible-lint playbooks/*.yaml
 
 export_src:
