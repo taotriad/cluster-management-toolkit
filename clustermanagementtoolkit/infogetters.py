@@ -56,6 +56,7 @@ from clustermanagementtoolkit.cmtpaths import BINDIR
 
 from clustermanagementtoolkit.cmttypes import deep_get, deep_get_list, deep_get_with_fallback
 from clustermanagementtoolkit.cmttypes import deep_set, DictPath, FilePath, SecurityPolicy
+from clustermanagementtoolkit.cmttypes import LogLevel
 from clustermanagementtoolkit.cmttypes import ProgrammingError, StatusGroup, name_to_loglevel
 
 from clustermanagementtoolkit.curses_helper import color_status_group
@@ -82,7 +83,6 @@ from clustermanagementtoolkit.kubernetes_helper import KubernetesResourceCache
 from clustermanagementtoolkit import listgetters
 
 import clustermanagementtoolkit.logparser as logparsers
-from clustermanagementtoolkit.logparser import LogLevel
 
 from clustermanagementtoolkit.ansithemeprint import ANSIThemeStr
 
@@ -160,8 +160,8 @@ def __process_timestamp(value: Union[Sequence[Union[int, str]], str],
 
 
 # pylint: disable-next=too-many-locals,too-many-branches,too-many-statements
-def process_value(value: Any, vtype: str, **kwargs: Any) -> \
-        Union[int, float, str, list[str], list[tuple[str]], datetime, None]:
+def process_value(value: Any, vtype: Union[str, list], **kwargs: Any) -> \
+        Union[int, float, str, list[str], tuple[str], datetime, None]:
     """
     Reformat values; returns data in a format suitable for further processing.
 
@@ -176,7 +176,7 @@ def process_value(value: Any, vtype: str, **kwargs: Any) -> \
                 replace_quotes (str): Quote replacement policy (no, pretty, same)
                 view (str): The view being processed
         Returns:
-            (int|float|str|[str]|datetime): The processed value
+            (int|float|str|[str]|(str)|datetime): The processed value
     """
     action: str = deep_get(kwargs, DictPath("action"))
     field_index: str = deep_get(kwargs, DictPath("field_index"))
@@ -192,7 +192,7 @@ def process_value(value: Any, vtype: str, **kwargs: Any) -> \
                                 DictPath(f"Global#kind_format_{field_index}"),
                                 DictPath("Global#kind_format")], "mixed")
 
-    new_value: Union[int, float, str, list[str], datetime, None] = None
+    new_value: Union[int, float, str, list[str], tuple[str], datetime, None] = None
 
     if vtype == "str":
         new_value = __process_string(value, replace_quotes)
@@ -270,7 +270,7 @@ def process_value(value: Any, vtype: str, **kwargs: Any) -> \
         if isinstance(value, list):
             new_value = _values
         elif isinstance(value, tuple):
-            new_value = tuple(cast(list, _values))
+            new_value = tuple(_values)
     elif vtype == "raw":
         # Do not convert this type
         new_value = value
@@ -500,11 +500,11 @@ def transform_list(vlist: Union[list, dict], transform: dict) -> list[Any]:
             key_data.append(key)
         else:
             for _regex in key_regexes:
-                _tmp = re.match(_regex, key)
-                if _tmp is not None:
+                re_tmp: Optional[re.Match] = re.match(_regex, key)
+                if re_tmp is not None:
                     for group in key_groups:
-                        if group < len(_tmp.groups()):
-                            _tmp2 = _tmp.groups()[group]
+                        if group < len(re_tmp.groups()):
+                            _tmp2 = re_tmp.groups()[group]
                             if _tmp2 is None and group < len(key_defaults):
                                 key_data.append(key_defaults[group])
                             else:
@@ -524,11 +524,10 @@ def transform_list(vlist: Union[list, dict], transform: dict) -> list[Any]:
 
             value = str(value)
 
-            _tmp = re.match(_regex, value)
-            if _tmp is not None:
+            if (re_tmp := re.match(_regex, value)) is not None:
                 for group in value_groups:
-                    if group < len(_tmp.groups()):
-                        _tmp2 = _tmp.groups()[group]
+                    if group < len(re_tmp.groups()):
+                        _tmp2 = re_tmp.groups()[group]
                         if _tmp2 is None and group < len(value_defaults):
                             value_data.append(value_defaults[group])
                         else:
@@ -541,7 +540,7 @@ def transform_list(vlist: Union[list, dict], transform: dict) -> list[Any]:
                         tmp += value_join[min(i, len(value_join) - 1)]
                 value_data = [tmp]
 
-        tmp3 = []
+        tmp3: list[Any] = []
         for _output in output:
             if _output == "key":
                 if len(key_data) == 1:
@@ -601,7 +600,7 @@ def format_controller(controller: tuple[tuple[str, str], str], show_kind: str) -
 
 # pylint: disable-next=too-many-locals,too-many-branches,too-many-statements
 def get_obj(obj: dict, field_dict: dict, field_names: list[str],
-            field_index: str, view: str, **kwargs: Any) -> Type:
+            field_index: str, view: str, **kwargs: Any) -> Optional[Type]:
     """
     Extract data for all fields in a list row from an object.
 
@@ -656,7 +655,7 @@ def get_obj(obj: dict, field_dict: dict, field_names: list[str],
             default = ""
         else:
             default = deep_get(field, DictPath("default"))
-        global_default = default
+        global_default: Any = default
         fallback_on_empty = deep_get(field, DictPath("fallback_on_empty"), False)
         formatter = deep_get(field, DictPath("formatter"))
         action = None
@@ -804,7 +803,7 @@ def get_obj(obj: dict, field_dict: dict, field_names: list[str],
                         subpaths = deep_get(_path, DictPath("subpaths"), [])
                         if subpaths:
                             _value = deep_get_with_fallback(_value, subpaths)
-                        if not when_filter(_path, item=None, key=_key, value=_value):
+                        if not when_filter(_path, item={}, key=_key, value=_value):
                             continue
                         _regexes_key = deep_get(_path, DictPath("key#regex"), [])
                         _regexes_value = deep_get(_path, DictPath("value#regex"), [])
@@ -822,11 +821,10 @@ def get_obj(obj: dict, field_dict: dict, field_names: list[str],
                         # when using multiple regexes the first matching regex exits
                         match = False
                         for _regex in _regexes_key:
-                            _tmp = re.match(_regex, _key)
-                            if _tmp is None:
+                            if (re_tmp := re.match(_regex, _key)) is None:
                                 continue
 
-                            for group in _tmp.groups():
+                            for group in re_tmp.groups():
                                 if group is not None:
                                     _key = group
                                     match = True
@@ -834,11 +832,10 @@ def get_obj(obj: dict, field_dict: dict, field_names: list[str],
                                 break
                         match = False
                         for _regex in _regexes_value:
-                            _tmp = re.match(_regex, _value)
-                            if _tmp is None:
+                            if (re_tmp := re.match(_regex, _value)) is None:
                                 continue
 
-                            for group in _tmp.groups():
+                            for group in re_tmp.groups():
                                 if group is not None:
                                     _value = group
                                     match = True
@@ -860,21 +857,15 @@ def get_obj(obj: dict, field_dict: dict, field_names: list[str],
                     tmp = deep_get_with_fallback(obj, path)
                     if isinstance(tmp, list):
                         value = []
-                        subpath = deep_get(_path, DictPath("subpath"))
-                        if subpath is None:
-                            value = make_set_expression_list(tmp, toleration=ptype == "toleration")
-                        else:
-                            value = make_set_expression_list(tmp, toleration=ptype == "toleration")
-                            for _tmp in tmp:
-                                __tmp = deep_get(_tmp, DictPath(subpath), _tmp)
-                                value.append(make_set_expression_list(__tmp))
+                        value = make_set_expression_list(tmp, toleration=ptype == "toleration")
                         if len(value) == 1:
                             _values.append((value[0], "raw"))
                         else:
                             for tmp in value:
                                 _values.append((tmp, "raw"))
                     elif isinstance(tmp, dict):
-                        value = make_set_expression_list(tmp, toleration=ptype == "toleration")
+                        # XXX: Is this code really used?
+                        value = make_set_expression_list([tmp], toleration=ptype == "toleration")
                         _values.append((value, "raw"))
                     else:
                         _values.append((default, "raw"))
@@ -1110,7 +1101,7 @@ def get_obj(obj: dict, field_dict: dict, field_names: list[str],
                             mpath = [mpath]
                         tmp = deep_get_list(obj, mpath, default=[],
                                             fallback_on_empty=fallback_on_empty)
-                        if index is not None:
+                        if tmp is not None and index is not None:
                             try:
                                 tmp = [tmp[index]]
                             except IndexError:
@@ -1160,9 +1151,8 @@ def get_obj(obj: dict, field_dict: dict, field_names: list[str],
                                                             deep_get(subpath,
                                                                      DictPath("transform"), {}))
                                     for _regex in _regexes:
-                                        _tmp = re.match(_regex, _raw)
-                                        if _tmp is not None:
-                                            for group in _tmp.groups():
+                                        if (re_tmp := re.match(_regex, _raw)) is not None:
+                                            for group in re_tmp.groups():
                                                 if group is not None:
                                                     tmp.append(group)
                                             break
@@ -1228,9 +1218,8 @@ def get_obj(obj: dict, field_dict: dict, field_names: list[str],
                         _regexes = [_regexes]
                     if _raw is not None and _raw:
                         for _regex in _regexes:
-                            _tmp = re.match(_regex, _raw)
-                            if _tmp is not None:
-                                for group in _tmp.groups():
+                            if (re_tmp := re.match(_regex, _raw)) is not None:
+                                for group in re_tmp.groups():
                                     if group is not None:
                                         value.append(group)
                                 break
@@ -1344,9 +1333,8 @@ def get_obj(obj: dict, field_dict: dict, field_names: list[str],
                 "view": view,
             }
             if unique_values:
-                unique = []
-                _values = [unique.append(x) for x in _values if x not in unique]
-                _values = unique
+                # Remove duplicates
+                _values = list(dict.fromkeys(_values))
             for value, vtype_ in _values:
                 if isinstance(vtype_, list):
                     if value is None or not value:
@@ -1855,7 +1843,7 @@ def get_key_value_info(**kwargs: Any) -> list[Type]:
         return info
 
     for key, value in vlist.items():
-        decoded_value = ""
+        decoded_value: Union[str, bytes] = ""
 
         vtype, value = cmtlib.decode_value(value)
         vlen = len(value)
@@ -1866,7 +1854,7 @@ def get_key_value_info(**kwargs: Any) -> list[Type]:
             vtype = "empty"
 
         if vtype.startswith("base64-utf-8"):
-            fully_decoded_value = base64.b64decode(decoded_value).decode("utf-8")
+            fully_decoded_value: Union[str, bytes] = base64.b64decode(decoded_value).decode("utf-8")
         else:
             fully_decoded_value = decoded_value
 
@@ -2475,7 +2463,7 @@ def get_journalctl_log(obj: dict, **kwargs: Any) -> \
         remnants = None
         msg = ""
 
-        raw_severity = int(deep_get(d, DictPath("PRIORITY"), "6"))
+        raw_severity: LogLevel = LogLevel(int(deep_get(d, DictPath("PRIORITY"), "6")))
         raw_msg = deep_get(d, DictPath("MESSAGE"), "")
 
         if show_raw:
@@ -2624,7 +2612,7 @@ def logpad_formatted(obj: dict, **kwargs: Any) -> list[list[Union[ThemeRef, Them
         Returns:
             ([[ThemeRef|ThemeStr]]): A list of messages
     """
-    paths: list[DictPath] = DictPath(deep_get(kwargs, DictPath("paths"), []))
+    paths: list[DictPath] = deep_get(kwargs, DictPath("paths"), [])
     path: DictPath = DictPath(deep_get(kwargs, DictPath("path"), ""))
     dump_formatter_tmp = deep_get(kwargs, DictPath("formatter"), "format_none")
     dump_formatter = deep_get(formatter_allowlist, DictPath(dump_formatter_tmp))
@@ -2644,7 +2632,7 @@ def logpad_formatted(obj: dict, **kwargs: Any) -> list[list[Union[ThemeRef, Them
 
 # pylint: disable-next=too-many-locals,too-many-branches,too-many-statements
 def get_cmt_log(obj: dict, **kwargs: Any) -> \
-        tuple[list[str], list[Union[str, tuple[str, str]]], list[LogLevel],
+        tuple[list[datetime], list[Union[str, tuple[str, str]]], list[LogLevel],
               list[Union[list[Union[ThemeRef, ThemeStr]], str]]]:
     """
     Extract log entries from CMT log.
@@ -2658,14 +2646,14 @@ def get_cmt_log(obj: dict, **kwargs: Any) -> \
                 filepath (str): The path to the file to read log messages from
         Returns:
             (([str], [str], [str], [str])):
-                ([str]): A list of formatted timestamps
+                ([datetime]): A list of formatted timestamps
                 ([str|(str, str)]): A list of facilities
                 ([LogLevel]): A list of severities
                 ([ThemeArray]): A list of ThemeArrays
     """
     filepath = deep_get(obj, DictPath("filepath"), "")
     severity_prefixes = deep_get(kwargs, DictPath("severity_prefixes"), False)
-    timestamps: list[str] = []
+    timestamps: list[datetime] = []
     facilities: list[Union[str, tuple[str, str]]] = []
     severities: list[LogLevel] = []
     messages: list[Union[list[Union[ThemeRef, ThemeStr]], str]] = []

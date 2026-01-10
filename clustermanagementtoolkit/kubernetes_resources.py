@@ -2783,6 +2783,14 @@ kubernetes_resources: dict[tuple[str, str], dict[str, Union[list[str], str, bool
         "namespaced": False,
     },
     # grafana.integreatly.org
+    ("GrafanaAlertRuleGroup", "grafana.integreatly.org"): {
+        "api_paths": ["apis/grafana.integreatly.org/v1beta1/"],
+        "api": "grafanaalertrulegroups",
+    },
+    ("GrafanaContactPoint", "grafana.integreatly.org"): {
+        "api_paths": ["apis/grafana.integreatly.org/v1beta1/"],
+        "api": "grafanacontactpoints",
+    },
     ("GrafanaDashboard", "grafana.integreatly.org"): {
         "api_paths": ["apis/grafana.integreatly.org/v1beta1/"],
         "api": "grafanadashboards",
@@ -2794,6 +2802,30 @@ kubernetes_resources: dict[tuple[str, str], dict[str, Union[list[str], str, bool
     ("GrafanaFolder", "grafana.integreatly.org"): {
         "api_paths": ["apis/grafana.integreatly.org/v1beta1/"],
         "api": "grafanafolders",
+    },
+    ("GrafanaLibraryPanel", "grafana.integreatly.org"): {
+        "api_paths": ["apis/grafana.integreatly.org/v1beta1/"],
+        "api": "grafanalibrarypanels",
+    },
+    ("GrafanaMuteTiming", "grafana.integreatly.org"): {
+        "api_paths": ["apis/grafana.integreatly.org/v1beta1/"],
+        "api": "grafanamutetimings",
+    },
+    ("GrafanaNotificationPolicy", "grafana.integreatly.org"): {
+        "api_paths": ["apis/grafana.integreatly.org/v1beta1/"],
+        "api": "grafananotificationpolicies",
+    },
+    ("GrafanaNotificationPolicyRoute", "grafana.integreatly.org"): {
+        "api_paths": ["apis/grafana.integreatly.org/v1beta1/"],
+        "api": "grafananotificationpolicyroutes",
+    },
+    ("GrafanaNotificationTemplate", "grafana.integreatly.org"): {
+        "api_paths": ["apis/grafana.integreatly.org/v1beta1/"],
+        "api": "grafananotificationtemplates",
+    },
+    ("GrafanaServiceAccount", "grafana.integreatly.org"): {
+        "api_paths": ["apis/grafana.integreatly.org/v1beta1/"],
+        "api": "grafanaserviceaccounts",
     },
     ("Grafana", "grafana.integreatly.org"): {
         "api_paths": ["apis/grafana.integreatly.org/v1beta1/"],

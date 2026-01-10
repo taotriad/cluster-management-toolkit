@@ -12,7 +12,7 @@ for cases where the obj provided from the list view is not sufficient
 
 from pathlib import Path, PurePath
 import sys
-from typing import Any
+from typing import Any, cast
 from collections.abc import Callable
 
 try:
@@ -84,7 +84,7 @@ def objgetter_ansible_log(path: FilePath) -> dict:
         Returns:
             (dict): An ansible log entry
     """
-    tmpobj: dict[str, Any] = secure_read_yaml(path.joinpath("metadata.yaml"))
+    tmpobj: dict[str, Any] = cast(dict, secure_read_yaml(path.joinpath("metadata.yaml")))
     tmpobj["log_path"] = str(path)
 
     # The playbook directory itself may be a symlink.

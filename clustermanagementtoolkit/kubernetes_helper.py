@@ -771,7 +771,7 @@ def __read_kubeconfig(config_path: Optional[FilePath] = None) -> dict[str, Any]:
     kubeconfig: dict = {}
 
     try:
-        kubeconfig = secure_read_yaml(FilePath(config_path))
+        kubeconfig = cast(dict, secure_read_yaml(FilePath(config_path)))
     except FileNotFoundError:
         errmsg: list[list[tuple[str, str]]] = [
             [("FileNotFoundError occurred when ", "default"),
@@ -3178,7 +3178,7 @@ class KubernetesHelper:
             else:
                 d = []
             if not d and Path(testdata).is_file():
-                tmp = secure_read_yaml(FilePath(testdata))
+                tmp = cast(dict, secure_read_yaml(FilePath(testdata)))
                 if deep_get(tmp, DictPath("kind")) == "List":
                     d = deep_get(tmp, DictPath("items"), [])
                 else:
