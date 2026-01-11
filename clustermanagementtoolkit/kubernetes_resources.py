@@ -616,11 +616,13 @@ kubernetes_resources: dict[tuple[str, str], dict[str, Union[list[str], str, bool
     # x-k8s APIs
     # addons.cluster.x-k8s.io
     ("ClusterResourceSetBinding", "addons.cluster.x-k8s.io"): {
-        "api_paths": ["apis/addons.cluster.x-k8s.io/v1beta1/"],
+        "api_paths": ["apis/addons.cluster.x-k8s.io/v1beta2/",
+                      "apis/addons.cluster.x-k8s.io/v1beta1/"],
         "api": "clusterresourcesetbindings",
     },
     ("ClusterResourceSet", "addons.cluster.x-k8s.io"): {
-        "api_paths": ["apis/addons.cluster.x-k8s.io/v1beta1/"],
+        "api_paths": ["apis/addons.cluster.x-k8s.io/v1beta2/",
+                      "apis/addons.cluster.x-k8s.io/v1beta1/"],
         "api": "clusterresourcesets",
     },
     # jobset.x-k8s.io
@@ -650,44 +652,54 @@ kubernetes_resources: dict[tuple[str, str], dict[str, Union[list[str], str, bool
         "api": "k0sworkerconfigtemplates",
     },
     ("KubeadmConfig", "bootstrap.cluster.x-k8s.io"): {
-        "api_paths": ["apis/bootstrap.cluster.x-k8s.io/v1beta1/"],
+        "api_paths": ["apis/bootstrap.cluster.x-k8s.io/v1beta2/",
+                      "apis/bootstrap.cluster.x-k8s.io/v1beta1/"],
         "api": "kubeadmconfigs",
     },
     ("KubeadmConfigTemplate", "bootstrap.cluster.x-k8s.io"): {
-        "api_paths": ["apis/bootstrap.cluster.x-k8s.io/v1beta1/"],
+        "api_paths": ["apis/bootstrap.cluster.x-k8s.io/v1beta2/",
+                      "apis/bootstrap.cluster.x-k8s.io/v1beta1/"],
         "api": "kubeadmconfigtemplates",
     },
     # cluster.x-k8s.io
     ("ClusterClass", "cluster.x-k8s.io"): {
-        "api_paths": ["apis/cluster.x-k8s.io/v1beta1/"],
+        "api_paths": ["apis/cluster.x-k8s.io/v1beta2/",
+                      "apis/cluster.x-k8s.io/v1beta1/"],
         "api": "clusterclasses",
     },
     ("Cluster", "cluster.x-k8s.io"): {
-        "api_paths": ["apis/cluster.x-k8s.io/v1beta1/"],
+        "api_paths": ["apis/cluster.x-k8s.io/v1beta2/",
+                      "apis/cluster.x-k8s.io/v1beta1/"],
         "api": "clusters",
     },
     ("MachineDeployment", "cluster.x-k8s.io"): {
-        "api_paths": ["apis/cluster.x-k8s.io/v1beta1/"],
+        "api_paths": ["apis/cluster.x-k8s.io/v1beta2/",
+                      "apis/cluster.x-k8s.io/v1beta1/"],
         "api": "machinedeployments",
     },
     ("MachineDrainRule", "cluster.x-k8s.io"): {
-        "api_paths": ["apis/cluster.x-k8s.io/v1beta1/"],
+        "api_paths": ["apis/cluster.x-k8s.io/v1beta2/",
+                      "apis/cluster.x-k8s.io/v1beta1/"],
         "api": "machinedrainrules",
     },
     ("MachineHealthCheck", "cluster.x-k8s.io"): {
-        "api_paths": ["apis/cluster.x-k8s.io/v1beta1/"],
+        "api_paths": ["apis/cluster.x-k8s.io/v1beta2/",
+                      "apis/cluster.x-k8s.io/v1beta1/"],
         "api": "machinehealthchecks",
     },
     ("MachinePool", "cluster.x-k8s.io"): {
-        "api_paths": ["apis/cluster.x-k8s.io/v1beta1/"],
+        "api_paths": ["apis/cluster.x-k8s.io/v1beta2/",
+                      "apis/cluster.x-k8s.io/v1beta1/"],
         "api": "machinepools",
     },
     ("Machine", "cluster.x-k8s.io"): {
-        "api_paths": ["apis/cluster.x-k8s.io/v1beta1/"],
+        "api_paths": ["apis/cluster.x-k8s.io/v1beta2/",
+                      "apis/cluster.x-k8s.io/v1beta1/"],
         "api": "machines",
     },
     ("MachineSet", "cluster.x-k8s.io"): {
-        "api_paths": ["apis/cluster.x-k8s.io/v1beta1/"],
+        "api_paths": ["apis/cluster.x-k8s.io/v1beta2/",
+                      "apis/cluster.x-k8s.io/v1beta1/"],
         "api": "machinesets",
     },
     # clusterctl.cluster.x-k8s.io
@@ -717,11 +729,13 @@ kubernetes_resources: dict[tuple[str, str], dict[str, Union[list[str], str, bool
         "api": "k0smotroncontrolplanetemplates",
     },
     ("KubeadmControlPlane", "controlplane.cluster.x-k8s.io"): {
-        "api_paths": ["apis/controlplane.cluster.x-k8s.io/v1beta1/"],
+        "api_paths": ["apis/controlplane.cluster.x-k8s.io/v1beta2/",
+                      "apis/controlplane.cluster.x-k8s.io/v1beta1/"],
         "api": "kubeadmcontrolplanes",
     },
     ("KubeadmControlPlaneTemplate", "controlplane.cluster.x-k8s.io"): {
-        "api_paths": ["apis/controlplane.cluster.x-k8s.io/v1beta1/"],
+        "api_paths": ["apis/controlplane.cluster.x-k8s.io/v1beta2/",
+                      "apis/controlplane.cluster.x-k8s.io/v1beta1/"],
         "api": "kubeadmcontrolplanetemplates",
     },
     # inference.networking.x-k8s.io
@@ -992,12 +1006,14 @@ kubernetes_resources: dict[tuple[str, str], dict[str, Union[list[str], str, bool
         "api": "inclusterippools",
     },
     ("IPAddress", "ipam.cluster.x-k8s.io"): {
-        "api_paths": ["apis/ipam.cluster.x-k8s.io/v1beta1/",
+        "api_paths": ["apis/ipam.cluster.x-k8s.io/v1beta2/",
+                      "apis/ipam.cluster.x-k8s.io/v1beta1/",
                       "apis/ipam.cluster.x-k8s.io/v1alpha1/"],
         "api": "ipaddresses",
     },
     ("IPAddressClaim", "ipam.cluster.x-k8s.io"): {
-        "api_paths": ["apis/ipam.cluster.x-k8s.io/v1beta1/",
+        "api_paths": ["apis/ipam.cluster.x-k8s.io/v1beta2/",
+                      "apis/ipam.cluster.x-k8s.io/v1beta1/",
                       "apis/ipam.cluster.x-k8s.io/v1alpha1/"],
         "api": "ipaddressclaims",
     },
@@ -1118,7 +1134,8 @@ kubernetes_resources: dict[tuple[str, str], dict[str, Union[list[str], str, bool
     },
     # runtime.cluster.x-k8s.io
     ("ExtensionConfig", "runtime.cluster.x-k8s.io"): {
-        "api_paths": ["apis/runtime.cluster.x-k8s.io/v1alpha1/"],
+        "api_paths": ["apis/runtime.cluster.x-k8s.io/v1beta2/",
+                      "apis/runtime.cluster.x-k8s.io/v1alpha1/"],
         "api": "extensionconfigs",
         "namespaced": False,
     },
