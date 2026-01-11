@@ -183,6 +183,7 @@ prepare_targets: dict = {
             FilePath("prepare_passwordless_ansible.yaml"),
             FilePath("install_packages.yaml"),
             FilePath("prepare_control_plane.yaml"),
+            FilePath("add_kubernetes_repo.yaml"),
         ],
         "deb_packages": [
         ],
@@ -269,8 +270,12 @@ setup_control_plane_targets: dict = {
     "rke2": {
         "pretty_name": [("RKE2", "programname")],
         "playbooks": [
+            FilePath("install_packages.yaml"),
             FilePath("rke2_setup_control_plane.yaml"),
             FilePath("fetch_kube_config.yaml"),
+        ],
+        "suse_packages": [
+            "kubernetes-cni",
         ],
         "extra_values": {},
     },
@@ -2422,7 +2427,7 @@ def merge_kubeconfigs(kubeconfig1: Union[dict[str, Any], ruyaml.comments.Comment
                             ANSIThemeStr(cluster_name, "hostname"),
                             ANSIThemeStr(" already exists in ", "default"),
                             ANSIThemeStr(KUBE_CONFIG_FILE, "path"),
-                            ANSIThemeStr("; manual merge is necessary.", "default"),
+                            ANSIThemeStr("; manual merge is necessary. ", "default"),
                             ANSIThemeStr("Merge aborted.", "default")], stderr=True)
             return kubeconfig1
         clusters[cluster_name] = dict(cluster)
@@ -2436,7 +2441,7 @@ def merge_kubeconfigs(kubeconfig1: Union[dict[str, Any], ruyaml.comments.Comment
                             ANSIThemeStr(context_name, "argument"),
                             ANSIThemeStr(" already exists in ", "default"),
                             ANSIThemeStr(KUBE_CONFIG_FILE, "path"),
-                            ANSIThemeStr("; manual merge is necessary.", "default"),
+                            ANSIThemeStr("; manual merge is necessary. ", "default"),
                             ANSIThemeStr("Merge aborted.", "default")], stderr=True)
             return kubeconfig1
         contexts[context_name] = dict(context)
@@ -2450,7 +2455,7 @@ def merge_kubeconfigs(kubeconfig1: Union[dict[str, Any], ruyaml.comments.Comment
                             ANSIThemeStr(user_name, "argument"),
                             ANSIThemeStr(" already exists in ", "default"),
                             ANSIThemeStr(KUBE_CONFIG_FILE, "path"),
-                            ANSIThemeStr("; manual merge is necessary.", "default"),
+                            ANSIThemeStr("; manual merge is necessary. ", "default"),
                             ANSIThemeStr("Merge aborted.", "default")], stderr=True)
             return kubeconfig1
         users[user_name] = dict(user)
@@ -2498,18 +2503,23 @@ def __task_import_kubeconfig(installation_info: dict, **kwargs: Any) -> None:
     except (FileNotFoundError, TypeError):
         pass
 
-    # Before merging we may need to rename the admin user + context
+    # Before merging we may need to rename the cluster, the admin, and the context
+    for cluster in deep_get(d2, DictPath("clusters"), []):
+        if deep_get(cluster, DictPath("name")) in (cluster_name, "default"):
+            cluster["name"] = cluster_name
+
     for context in deep_get(d2, DictPath("contexts"), []):
-        if deep_get(context, DictPath("name")) in (context_name,
+        if deep_get(context, DictPath("name")) in (context_name, "default",
                                                    f"kubernetes-admin@{cluster_name}"):
+            context["context"]["cluster"] = cluster_name
             context["context"]["user"] = admin_name
             context["name"] = context_name
 
     for user in deep_get(d2, DictPath("users"), []):
-        if deep_get(user, DictPath("name")) in (admin_name, "kubernetes-admin"):
+        if deep_get(user, DictPath("name")) in (admin_name, "default", "kubernetes-admin"):
             user["name"] = admin_name
 
-    if deep_get(d2, DictPath("current-context")) in (context_name,
+    if deep_get(d2, DictPath("current-context")) in (context_name, "default",
                                                      f"kubernetes-admin@{cluster_name}"):
         d2["current-context"] = context_name
 
