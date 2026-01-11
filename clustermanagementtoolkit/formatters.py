@@ -536,7 +536,7 @@ def format_yaml_line(line: str, **kwargs: Any) -> tuple[list[Union[ThemeRef, The
 
 
 # pylint: disable-next=too-many-branches,too-many-locals,too-many-statements
-def format_yaml(lines: Union[str, list[str], dict], **kwargs: Any) -> \
+def format_yaml(lines: Union[str, list[str], dict, list[dict]], **kwargs: Any) -> \
         list[list[Union[ThemeRef, ThemeStr]]]:
     """
     YAML formatter; returns the text with syntax highlighting for YAML.
@@ -584,7 +584,9 @@ def format_yaml(lines: Union[str, list[str], dict], **kwargs: Any) -> \
                 split_dump = yaml.dump(obj, default_flow_style=False,
                                        indent=indent, width=sys.maxsize).splitlines()
         else:
-            split_dump = obj.splitlines()
+            # The type ignore below is necessary because of the way we pass data
+            # to this function.
+            split_dump = obj.splitlines()  # type: ignore[attr-defined]
         first = True
         if (split_dump and "\n" not in obj
                 and split_dump[0].startswith("'") and split_dump[0].endswith("'")):
