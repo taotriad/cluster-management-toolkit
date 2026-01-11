@@ -8,7 +8,8 @@ infoview:
     name_path: "name"
     creation_timestamp_path: null
   logpad:
-    infogetter: "logpad_yaml"
-    timestamps: false
+    infogetter: "logpad_formatted"
     infogetter_args:
+      formatter: "format_yaml"
       path: ""
+    timestamps: false

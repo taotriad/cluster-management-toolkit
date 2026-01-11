@@ -1,9 +1,10 @@
-[google-k8s]
-name=google-k8s
+{% for minor_version in minor_versions %}
+[kubernetes-1.{{ minor_version }}]
+name=Kubernetes
+baseurl=https://pkgs.k8s.io/core:/stable:/v1.{{ minor_version }}/rpm/
 enabled=1
-autorefresh=1
-baseurl=https://packages.cloud.google.com/yum/repos/kubernetes-el7-x86_64
-type=rpm-md
 gpgcheck=1
+gpgkey=https://pkgs.k8s.io/core:/stable:/v1.{{ minor_version }}/rpm/repodata/repomd.xml.key
 # Prioritise these over the distro packages, but leave room for other repos
 priority=10
+{% endfor %}

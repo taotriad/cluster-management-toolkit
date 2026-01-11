@@ -17,7 +17,8 @@ infoview:
         type: "int"
         formatter: "numerical"
   logpad:
-    infogetter: "logpad_yaml"
-    timestamps: false
+    infogetter: "logpad_formatted"
     infogetter_args:
+      formatter: "format_yaml"
       path: "template"
+    timestamps: false

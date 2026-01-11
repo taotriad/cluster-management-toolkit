@@ -16,7 +16,8 @@ infoview:
   name: "FRR Configuration Info"
   infopad:
   logpad:
-    infogetter: "logpad_yaml"
+    infogetter: "logpad_formatted"
     infogetter_args:
+      formatter: "format_yaml"
       path: "spec#bgp"
     timestamps: false

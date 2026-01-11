@@ -28,7 +28,6 @@ import re
 import sys
 from typing import Any, cast, Optional, Type, Union
 from collections.abc import Callable, Sequence
-import yaml
 
 try:
     from natsort import natsorted
@@ -2627,7 +2626,12 @@ def logpad_formatted(obj: dict, **kwargs: Any) -> list[list[Union[ThemeRef, Them
                 path = tmppath
                 break
 
-    return dump_formatter(deep_get(obj, path, ""))
+    if path:
+        data = deep_get(obj, DictPath(path))
+    else:
+        data = obj
+
+    return dump_formatter(data)
 
 
 # pylint: disable-next=too-many-locals,too-many-branches,too-many-statements
@@ -2739,33 +2743,6 @@ def get_cmt_log(obj: dict, **kwargs: Any) -> \
             messages.append(reformatted_msg)
 
     return timestamps, facilities, severities, messages
-
-
-def logpad_yaml(obj: dict, **kwargs: Any) -> list[list[Union[ThemeRef, ThemeStr]]]:
-    """
-    Takes an object and dumps it as formatted YAML.
-
-        Parameters:
-            obj (dict): The dict to dump formatted as YAML
-            **kwargs (dict[str, Any]): Keyword arguments
-        Returns:
-            ([themearray]): A list of themearrays
-    """
-    path = deep_get(kwargs, DictPath("path"), "")
-    messages: list = []
-
-    try:
-        if path:
-            data = deep_get(obj, DictPath(path))
-        else:
-            data = obj
-        if data is not None:
-            tmp = yaml.dump(data, width=16384)
-            messages = formatters.format_yaml(tmp, **kwargs)
-    except yaml.YAMLError:
-        pass
-
-    return messages
 
 
 def logpad_msg_getter(obj: dict, **kwargs: Any) -> list[list[Union[ThemeRef, ThemeStr]]]:
@@ -3024,8 +3001,6 @@ infogetter_allowlist: dict[str, Callable] = {
     "logpad_formatted": logpad_formatted,
     # XXX: We should aim to replace this with logpad_formatted
     "logpad_msg_getter": logpad_msg_getter,
-    # XXX: We should aim to replace this with logpad_formatted
-    "logpad_yaml": logpad_yaml,
     "logpad_files": logpad_files,
     "get_journalctl_log": get_journalctl_log,
     "get_task_log": get_task_log,

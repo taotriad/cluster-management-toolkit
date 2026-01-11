@@ -18,7 +18,8 @@ infoview:
   name: "RKE K8s Service Option Info"
   infopad:
   logpad:
-    infogetter: "logpad_yaml"
-    timestamps: false
+    infogetter: "logpad_formatted"
     infogetter_args:
+      formatter: "format_yaml"
       path: "serviceOptions"
+    timestamps: false

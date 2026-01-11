@@ -1895,7 +1895,6 @@
 								"logpad_files",
 								"logpad_formatted",
 								"logpad_msg_getter",
-								"logpad_yaml",
 								"get_cmt_log",
 								"get_journalctl_log",
 								"get_task_log",

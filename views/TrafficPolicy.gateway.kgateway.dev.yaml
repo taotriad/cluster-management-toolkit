@@ -64,8 +64,9 @@ infoview:
         type: "int"
         formatter: "numerical"
   logpad:
-    infogetter: "logpad_yaml"
+    infogetter: "logpad_formatted"
     infogetter_args:
+      formatter: "format_yaml"
       path: "spec#transformation"
     timestamps: false
   shortcuts:
