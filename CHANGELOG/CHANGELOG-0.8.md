@@ -346,7 +346,7 @@ Execute with `make mypy-markdown`.
 
 ### Pylint Results for v0.8.6
 
-Commandline: `pylint --py-version 3.9 --disable W0511 --enable useless-suppression`.
+Commandline: `pylint --py-version 3.9 --disable W0511, similarities --enable useless-suppression`.
 Table generated with `make pylint-markdown`.
 Currently all complaints are due to missing function or method docstrings.
 
