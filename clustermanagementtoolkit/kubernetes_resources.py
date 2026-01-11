@@ -265,11 +265,13 @@ kubernetes_resources: dict[tuple[str, str], dict[str, Union[list[str], str, bool
     },
     # gateway.networking.k8s.io
     ("BackendLBPolicy", "gateway.networking.k8s.io"): {
-        "api_paths": ["apis/gateway.networking.k8s.io/v1alpha2/"],
+        "api_paths": ["apis/gateway.networking.k8s.io/v1/",
+                      "apis/gateway.networking.k8s.io/v1alpha2/"],
         "api": "backendlbpolicies",
     },
     ("BackendTLSPolicy", "gateway.networking.k8s.io"): {
-        "api_paths": ["apis/gateway.networking.k8s.io/v1alpha3/"],
+        "api_paths": ["apis/gateway.networking.k8s.io/v1/",
+                      "apis/gateway.networking.k8s.io/v1alpha3/"],
         "api": "backendtlspolicies",
     },
     ("GatewayClass", "gateway.networking.k8s.io"): {
@@ -302,13 +304,15 @@ kubernetes_resources: dict[tuple[str, str], dict[str, Union[list[str], str, bool
         "api": "tcproutes",
     },
     ("TLSRoute", "gateway.networking.k8s.io"): {
-        "api_paths": ["apis/gateway.networking.k8s.io/v1alpha2/"],
+        "api_paths": ["apis/gateway.networking.k8s.io/v1alpha3/",
+                      "apis/gateway.networking.k8s.io/v1alpha2/"],
         "api": "tlsroutes",
     },
     ("UDPRoute", "gateway.networking.k8s.io"): {
         "api_paths": ["apis/gateway.networking.k8s.io/v1alpha2/"],
         "api": "udproutes",
     },
+    # gateway.networking.x-k8s.io
     ("XBackendTrafficPolicy", "gateway.networking.x-k8s.io"): {
         "api_paths": ["apis/gateway.networking.x-k8s.io/v1alpha1/"],
         "api": "xbackendtrafficpolicies",
@@ -316,6 +320,11 @@ kubernetes_resources: dict[tuple[str, str], dict[str, Union[list[str], str, bool
     ("XListenerSet", "gateway.networking.x-k8s.io"): {
         "api_paths": ["apis/gateway.networking.x-k8s.io/v1alpha1/"],
         "api": "xlistenersets",
+    },
+    ("XMesh", "gateway.networking.x-k8s.io"): {
+        "api_paths": ["apis/gateway.networking.x-k8s.io/v1alpha1/"],
+        "api": "xmeshes",
+        "namespaced": False,
     },
     # groupsnapshot.storage.k8s.io
     ("VolumeGroupSnapshotClass", "groupsnapshot.storage.k8s.io"): {
@@ -1409,6 +1418,12 @@ kubernetes_resources: dict[tuple[str, str], dict[str, Union[list[str], str, bool
     ("VulnerabilityReport", "aquasecurity.github.io"): {
         "api_paths": ["apis/aquasecurity.github.io/v1alpha1/"],
         "api": "vulnerabilityreports",
+    },
+    # auditlog.cattle.io
+    ("AuditPolicy", "auditlog.cattle.io"): {
+        "api_paths": ["apis/auditlog.cattle.io/v1/"],
+        "api": "auditpolicies",
+        "namespaced": False,
     },
     # auth.kio.kasten.io
     ("K10ClusterRoleBinding", "auth.kio.kasten.io"): {
@@ -2520,6 +2535,17 @@ kubernetes_resources: dict[tuple[str, str], dict[str, Union[list[str], str, bool
                       "apis/export.kubevirt.io/v1alpha1/"],
         "api": "virtualmachineexports",
     },
+    # ext.cattle.io
+    ("Kubeconfig", "ext.cattle.io"): {
+        "api_paths": ["apis/ext.cattle.io/v1/"],
+        "api": "kubeconfigs",
+        "namespaced": False,
+    },
+    ("Token", "ext.cattle.io"): {
+        "api_paths": ["apis/ext.cattle.io/v1/"],
+        "api": "tokens",
+        "namespaced": False,
+    },
     # extensions.istio.io
     ("WasmPlugin", "extensions.istio.io"): {
         "api_paths": ["apis/extensions.istio.io/v1alpha1/", "apis/install.istio.io/v1alpha1/"],
@@ -2611,9 +2637,17 @@ kubernetes_resources: dict[tuple[str, str], dict[str, Union[list[str], str, bool
         "api_paths": ["apis/fleet.cattle.io/v1alpha1/"],
         "api": "helmapps",
     },
+    ("HelmOp", "fleet.cattle.io"): {
+        "api_paths": ["apis/fleet.cattle.io/v1alpha1/"],
+        "api": "helmops",
+    },
     ("ImageScan", "fleet.cattle.io"): {
         "api_paths": ["apis/fleet.cattle.io/v1alpha1/"],
         "api": "imagescans",
+    },
+    ("Schedule", "fleet.cattle.io"): {
+        "api_paths": ["apis/fleet.cattle.io/v1alpha1/"],
+        "api": "schedules",
     },
     # flows.knative.dev
     ("Parallel", "flows.knative.dev"): {
@@ -2666,6 +2700,10 @@ kubernetes_resources: dict[tuple[str, str], dict[str, Union[list[str], str, bool
     ("Backend", "gateway.kgateway.dev"): {
         "api_paths": ["apis/gateway.kgateway.dev/v1alpha1/"],
         "api": "backends",
+    },
+    ("BackendConfigPolicy", "gateway.kgateway.dev"): {
+        "api_paths": ["apis/gateway.kgateway.dev/v1alpha1/"],
+        "api": "backendconfigpolicies",
     },
     ("DirectResponse", "gateway.kgateway.dev"): {
         "api_paths": ["apis/gateway.kgateway.dev/v1alpha1/"],
@@ -5500,6 +5538,12 @@ kubernetes_resources: dict[tuple[str, str], dict[str, Union[list[str], str, bool
         "api_paths": ["apis/tekton.dev/v1alpha1/"],
         "api": "verificationpolicies",
     },
+    # telemetry.cattle.io
+    ("SecretRequest", "telemetry.cattle.io"): {
+        "api_paths": ["apis/telemetry.cattle.io/v1/"],
+        "api": "secretrequests",
+        "namespaced": False,
+    },
     # telemetry.intel.com
     ("TASPolicy", "telemetry.intel.com"): {
         "api_paths": ["apis/telemetry.intel.com/v1alpha1/"],
@@ -5685,6 +5729,15 @@ kubernetes_resources: dict[tuple[str, str], dict[str, Union[list[str], str, bool
     ("Tuned", "tuned.openshift.io"): {
         "api_paths": ["apis/tuned.openshift.io/v1/"],
         "api": "tuneds",
+    },
+    # turtles-capi.cattle.io
+    ("CAPIProvider", "turtles-capi.cattle.io"): {
+        "api_paths": ["apis/turtles-capi.cattle.io/v1alpha1/"],
+        "api": "capiproviders",
+    },
+    ("ClusterctlConfig", "turtles-capi.cattle.io"): {
+        "api_paths": ["apis/turtles-capi.cattle.io/v1alpha1/"],
+        "api": "clusterctlconfigs",
     },
     # ui.cattle.io
     ("NavLink", "ui.cattle.io"): {
