@@ -835,6 +835,22 @@ kubernetes_resources: dict[tuple[str, str], dict[str, Union[list[str], str, bool
         "api_paths": ["apis/infrastructure.cluster.x-k8s.io/v1beta1/"],
         "api": "azuremanagedmachinepools",
     },
+    ("DevCluster", "infrastructure.cluster.x-k8s.io"): {
+        "api_paths": ["apis/infrastructure.cluster.x-k8s.io/v1beta1/"],
+        "api": "devclusters",
+    },
+    ("DevClusterTemplate", "infrastructure.cluster.x-k8s.io"): {
+        "api_paths": ["apis/infrastructure.cluster.x-k8s.io/v1beta1/"],
+        "api": "devclustertemplates",
+    },
+    ("DevMachine", "infrastructure.cluster.x-k8s.io"): {
+        "api_paths": ["apis/infrastructure.cluster.x-k8s.io/v1beta1/"],
+        "api": "devmachines",
+    },
+    ("DevMachineTemplate", "infrastructure.cluster.x-k8s.io"): {
+        "api_paths": ["apis/infrastructure.cluster.x-k8s.io/v1beta1/"],
+        "api": "devmachinetemplates",
+    },
     ("DockerCluster", "infrastructure.cluster.x-k8s.io"): {
         "api_paths": ["apis/infrastructure.cluster.x-k8s.io/v1beta1/"],
         "api": "dockerclusters",
