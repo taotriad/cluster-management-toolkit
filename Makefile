@@ -225,6 +225,7 @@ semgrep: unhack_sources
 		printf -- "\n\n$$cmd not installed; skipping.\n\n\n"; \
 		exit 0; \
 	fi; \
+	$$cmd --version ;\
 	printf -- "\n\nRunning $$cmd to check for common security issues in Python code\n" ;\
 	printf -- "Note: if this is taking a very long time you might be behind a proxy;\n" ;\
 	printf -- "if that's the case you need to set the environment variable https_proxy\n\n" ;\
@@ -253,6 +254,8 @@ bandit:
 		exit 0 ;\
 	fi ;\
 	printf -- "\n\nRunning $$cmd to check for common security issues in Python code\n\n" ;\
+	$$cmd --version ;\
+	printf -- "\n" ;\
 	$$cmd -c .bandit $(python_executables) $(python_test_executables) clustermanagementtoolkit/*.py
 
 ruff:
@@ -262,6 +265,8 @@ ruff:
 		exit 0 ;\
 	fi ;\
 	printf -- "\n\nRunning $$cmd to check Python code quality\n\n" ;\
+	$$cmd --version ;\
+	printf -- "\n" ;\
 	for file in $(python_executables) clustermanagementtoolkit/*.py; do \
 		case $$file in \
 		'noxfile.py') \
@@ -278,6 +283,8 @@ ruff-tests:
 		exit 0 ;\
 	fi ;\
 	printf -- "\n\nRunning $$cmd to check Python code quality\n\n" ;\
+	$$cmd --version ;\
+	printf -- "\n" ;\
 	for file in $(python_test_executables); do \
 		printf -- "File: $$file\n" ;\
 		$$cmd check --target-version $(RUFF_PYTHON_VERSION) $$file ;\
@@ -290,6 +297,8 @@ pylint:
 		exit 0 ;\
 	fi ;\
 	printf -- "\n\nRunning $$cmd to check Python code quality\n\n" ;\
+	$$cmd --version ;\
+	printf -- "\n" ;\
 	for file in $(python_executables) clustermanagementtoolkit/*.py; do \
 		case $$file in \
 		'noxfile.py') \
@@ -336,8 +345,12 @@ flake8:
 		exit 0 ;\
 	fi ;\
 	printf -- "\n\nRunning $$cmd to check Python code quality\n\n" ;\
+	$$cmd --version ;\
+	printf -- "\n" ;\
 	$$cmd --ignore $(FLAKE8_IGNORE) --max-line-length 100 --statistics $(python_executables) clustermanagementtoolkit/*.py && printf -- "OK\n\n" ;\
 	printf -- "\n\nRunning $$cmd to check Python test case code quality\n\n" ;\
+	$$cmd --version ;\
+	printf -- "\n" ;\
 	$$cmd --ignore $(FLAKE8_IGNORE) --max-line-length 100 --statistics $(python_test_executables) && printf -- "OK\n\n"
 
 regexploit:
@@ -359,6 +372,8 @@ yamllint:
 		exit 0; \
 	fi; \
 	printf -- "\n\nRunning $$cmd to check that all YAML is valid\n\n"; \
+	$$cmd --version ;\
+	printf -- "\n" ;\
 	for dir in $(yaml_dirs); do \
 		$$cmd $$dir/*.yaml; \
 	done; \
@@ -373,6 +388,8 @@ mypy:
 		exit 0; \
 	fi; \
 	printf -- "\n\nRunning $$cmd to check Python typing\n\n"; \
+	$$cmd --version ;\
+	printf -- "\n" ;\
 	for file in $(python_executables) clustermanagementtoolkit/*.py; do \
 		$$cmd $(MYPY_FLAGS) $$file || true; \
 	done
@@ -386,6 +403,8 @@ mypy-tests:
 		exit 0; \
 	fi; \
 	printf -- "\n\nRunning $$cmd to check Python typing\n\n"; \
+	$$cmd --version ;\
+	printf -- "\n" ;\
 	for file in $(python_test_executables); do \
 		$$cmd $(MYPY_FLAGS) $$file || true; \
 	done
@@ -431,7 +450,9 @@ validate_playbooks:
 		exit 0; \
 	fi; \
 	printf -- "\n\nRunning $$cmd to check that all Ansible playbooks are valid\n\n"; \
-	ansible-lint playbooks/*.yaml
+	$$cmd --version 2> /dev/null ;\
+	printf -- "\n" ;\
+	$$cmd playbooks/*.yaml
 
 export_src:
 	git archive --format zip --output ~/cmt-$(shell date -I).zip origin/main
