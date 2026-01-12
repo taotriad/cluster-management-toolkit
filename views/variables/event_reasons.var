@@ -263,6 +263,10 @@ CreateCertificate:
   field_colors:
     - context: "main"
       type: "status_ok"
+CreateCompleted:
+  field_colors:
+    - context: "main"
+      type: "status_done"
 CreateDeployment:
   field_colors:
     - context: "main"
@@ -284,6 +288,10 @@ CreateResourceSuccess:
     - context: "main"
       type: "status_ok"
 CreateService:
+  field_colors:
+    - context: "main"
+      type: "status_ok"
+CreateStarted:
   field_colors:
     - context: "main"
       type: "status_ok"
@@ -1340,6 +1348,10 @@ ProgressDeadlineExceeded:
   field_colors:
     - context: "main"
       type: "status_warning"
+ProgressHostsCompleted:
+  field_colors:
+    - context: "main"
+      type: "status_done"
 PrometheusRuleCreated:
   field_colors:
     - context: "main"
@@ -1392,6 +1404,10 @@ Rebooted:
   field_colors:
     - context: "main"
       type: "status_warning"
+ReconcileCompleted:
+  field_colors:
+    - context: "main"
+      type: "status_done"
 ReconcileFailed:
   field_colors:
     - context: "main"
@@ -1400,10 +1416,18 @@ ReconcileHCO:
   field_colors:
     - context: "main"
       type: "status_ok"
+ReconcileInProgress:
+  field_colors:
+    - context: "main"
+      type: "status_ok"
 ReconcileRequeuing:
   field_colors:
     - context: "main"
       type: "status_pending"
+ReconcileStarted:
+  field_colors:
+    - context: "main"
+      type: "status_ok"
 ReconcileSucceeded:
   field_colors:
     - context: "main"
@@ -1981,6 +2005,14 @@ Unschedulable:
     - context: "main"
       type: "status_not_ok"
 UpdateCertificate:
+  field_colors:
+    - context: "main"
+      type: "status_ok"
+UpdateCompleted:
+  field_colors:
+    - context: "main"
+      type: "status_done"
+UpdateInProgress:
   field_colors:
     - context: "main"
       type: "status_ok"

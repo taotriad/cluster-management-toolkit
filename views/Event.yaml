@@ -334,6 +334,10 @@ listview:
               field_colors:
                 - context: "main"
                   type: "status_ok"
+            CreateCompleted:
+              field_colors:
+                - context: "main"
+                  type: "status_done"
             CreateDeployment:
               field_colors:
                 - context: "main"
@@ -355,6 +359,10 @@ listview:
                 - context: "main"
                   type: "status_ok"
             CreateService:
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+            CreateStarted:
               field_colors:
                 - context: "main"
                   type: "status_ok"
@@ -1411,6 +1419,10 @@ listview:
               field_colors:
                 - context: "main"
                   type: "status_warning"
+            ProgressHostsCompleted:
+              field_colors:
+                - context: "main"
+                  type: "status_done"
             PrometheusRuleCreated:
               field_colors:
                 - context: "main"
@@ -1463,6 +1475,10 @@ listview:
               field_colors:
                 - context: "main"
                   type: "status_warning"
+            ReconcileCompleted:
+              field_colors:
+                - context: "main"
+                  type: "status_done"
             ReconcileFailed:
               field_colors:
                 - context: "main"
@@ -1471,10 +1487,18 @@ listview:
               field_colors:
                 - context: "main"
                   type: "status_ok"
+            ReconcileInProgress:
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
             ReconcileRequeuing:
               field_colors:
                 - context: "main"
                   type: "status_pending"
+            ReconcileStarted:
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
             ReconcileSucceeded:
               field_colors:
                 - context: "main"
@@ -2055,6 +2079,14 @@ listview:
               field_colors:
                 - context: "main"
                   type: "status_ok"
+            UpdateCompleted:
+              field_colors:
+                - context: "main"
+                  type: "status_done"
+            UpdateInProgress:
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
             Updated:
               field_colors:
                 - context: "main"
@@ -2558,6 +2590,10 @@ infoview:
                 field_colors:
                   - context: "main"
                     type: "status_ok"
+              CreateCompleted:
+                field_colors:
+                  - context: "main"
+                    type: "status_done"
               CreateDeployment:
                 field_colors:
                   - context: "main"
@@ -2579,6 +2615,10 @@ infoview:
                   - context: "main"
                     type: "status_ok"
               CreateService:
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+              CreateStarted:
                 field_colors:
                   - context: "main"
                     type: "status_ok"
@@ -3635,6 +3675,10 @@ infoview:
                 field_colors:
                   - context: "main"
                     type: "status_warning"
+              ProgressHostsCompleted:
+                field_colors:
+                  - context: "main"
+                    type: "status_done"
               PrometheusRuleCreated:
                 field_colors:
                   - context: "main"
@@ -3687,6 +3731,10 @@ infoview:
                 field_colors:
                   - context: "main"
                     type: "status_warning"
+              ReconcileCompleted:
+                field_colors:
+                  - context: "main"
+                    type: "status_done"
               ReconcileFailed:
                 field_colors:
                   - context: "main"
@@ -3695,10 +3743,18 @@ infoview:
                 field_colors:
                   - context: "main"
                     type: "status_ok"
+              ReconcileInProgress:
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
               ReconcileRequeuing:
                 field_colors:
                   - context: "main"
                     type: "status_pending"
+              ReconcileStarted:
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
               ReconcileSucceeded:
                 field_colors:
                   - context: "main"
@@ -4276,6 +4332,14 @@ infoview:
                   - context: "main"
                     type: "status_not_ok"
               UpdateCertificate:
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+              UpdateCompleted:
+                field_colors:
+                  - context: "main"
+                    type: "status_done"
+              UpdateInProgress:
                 field_colors:
                   - context: "main"
                     type: "status_ok"
