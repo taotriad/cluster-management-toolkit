@@ -53,7 +53,9 @@ infoview:
         type: "raw"
         formatter: "list"
       selector:
-        header: [["Selector:", ["main", "infoheader"]]]
+        header: [["La", ["main", "infoheader"]],
+                 ["b", ["main", "infoheader_shortcut"]],
+                 ["el Selector:", ["main", "infoheader"]]]
         paths:
           - path: ["spec#selector#matchLabels"]
             pathtype: "key_value"
@@ -159,6 +161,16 @@ infoview:
         owner_reference_path: "metadata#ownerReferences"
         kind: "ClusterVersion"
         api_family: "config.openshift.io"
+    "Label Selector":
+      key: "b"
+      read_only: true
+      helptext: "Show label selector"
+      widget: "windowwidget"
+      title: "Label Selector:"
+      headers: ["Key:", "Value:"]
+      itemgetter: "get_key_value"
+      itemgetter_args:
+        path: "spec#selector#matchLabels"
     "Service Monitor Endpoints":
       key: "s"
       modifier: "shift"
