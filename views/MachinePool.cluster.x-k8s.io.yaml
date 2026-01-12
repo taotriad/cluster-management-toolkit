@@ -9,9 +9,77 @@ listview:
   group: "Cluster Configuration"
   field_indexes:
     Normal:
-      fields: ["namespace", "name", "phase", "replicas", "age", "version"]
+      fields: ["namespace", "name", "cluster",
+               "desired_replicas", "current_replicas",
+               "ready_replicas", "uptodate_replicas",
+               "available_replicas",
+               "paused", "phase", "age", "version"]
       sortcolumn: "namespace"
   fields:
+    available_replicas:
+      header: "Available:"
+      paths:
+        - path: ["status#availableReplicas", "status#replicas"]
+          pathtype: "comparison"
+          default: [0, 0]
+      align: "right"
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          ranges:
+            - min: 0
+              max: 1
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+            - default: true
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+    cluster:
+      header: "Current:"
+      path: "spec#cluster"
+      default: "<unset>"
+      type: "str"
+    current_replicas:
+      header: "Current:"
+      paths:
+        - path: ["status#replicas",
+                 "spec#replicas"]
+          pathtype: "comparison"
+          default: [0, 0]
+      align: "right"
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          ranges:
+            - min: 0
+              max: 1
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+            - default: true
+              field_colors:
+                - context: "main"
+                  type: "status_not_ok"
+    desired_replicas:
+      header: "Desired:"
+      path: "spec#replicas"
+      default: 0
+      type: "int"
+      formatter: "numerical"
+      align: "right"
+    paused:
+      header: "Paused:"
+      paths:
+        - path: "status#conditions"
+          pathtype: "items"
+          subpath: "status"
+          when:
+            - key: "type"
+              eq: "Paused"
+          default: ["False"]
+      type: "str"
     phase:
       header: "Phase:"
       path: "status#phase"
@@ -40,11 +108,51 @@ listview:
               field_colors:
                 - context: "main"
                   type: "status_not_ok"
-    replicas:
-      header: "Replicas:"
-      path: "status#replicas"
-      type: "int"
-      formatter: "numerical"
+    ready_replicas:
+      header: "Ready:"
+      paths:
+        - path: ["status#readyReplicas", "status#replicas"]
+          pathtype: "comparison"
+          default: [0, 0]
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          ranges:
+            - min: 0
+              max: 1
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+            - min: -1
+              max: 0
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+            - default: true
+              field_colors:
+                - context: "main"
+                  type: "status_not_ok"
+      align: "right"
+    uptodate_replicas:
+      header: "Up to Date:"
+      paths:
+        - path: ["status#upToDateReplicas",
+                 "status#replicas"]
+          pathtype: "comparison"
+          default: [0, 0]
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          ranges:
+            - min: 0
+              max: 1
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+            - default: true
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
       align: "right"
     version:
       header: "Version:"
