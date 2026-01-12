@@ -9,5 +9,50 @@ listview:
   group: "Cluster Configuration"
   field_indexes:
     Normal:
-      fields: ["namespace", "name", "age"]
+      fields: ["namespace", "name", "variables_ready", "paused", "age"]
       sortcolumn: "namespace"
+  fields:
+    paused:
+      header: "Paused:"
+      paths:
+        - path: "status#conditions"
+          pathtype: "items"
+          subpath: "status"
+          when:
+            - key: "type"
+              eq: "Paused"
+      type: "str"
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          mappings:
+            "True":
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+            "False":
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+    variables_ready:
+      header: "Variables Ready:"
+      paths:
+        - path: "status#conditions"
+          pathtype: "items"
+          subpath: "status"
+          when:
+            - key: "type"
+              eq: "VariablesReady"
+      type: "str"
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          mappings:
+            "False":
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+            "True":
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
