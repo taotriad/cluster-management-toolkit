@@ -661,6 +661,14 @@ kubernetes_resources: dict[tuple[str, str], dict[str, Union[list[str], str, bool
                       "apis/bootstrap.cluster.x-k8s.io/v1beta1/"],
         "api": "kubeadmconfigtemplates",
     },
+    ("RKE2Config", "bootstrap.cluster.x-k8s.io"): {
+        "api_paths": ["apis/bootstrap.cluster.x-k8s.io/v1beta1/"],
+        "api": "rke2configs",
+    },
+    ("RKE2ConfigTemplate", "bootstrap.cluster.x-k8s.io"): {
+        "api_paths": ["apis/bootstrap.cluster.x-k8s.io/v1beta1/"],
+        "api": "rke2configtemplates",
+    },
     # cluster.x-k8s.io
     ("ClusterClass", "cluster.x-k8s.io"): {
         "api_paths": ["apis/cluster.x-k8s.io/v1beta2/",
@@ -737,6 +745,14 @@ kubernetes_resources: dict[tuple[str, str], dict[str, Union[list[str], str, bool
         "api_paths": ["apis/controlplane.cluster.x-k8s.io/v1beta2/",
                       "apis/controlplane.cluster.x-k8s.io/v1beta1/"],
         "api": "kubeadmcontrolplanetemplates",
+    },
+    ("RKE2ControlPlane", "controlplane.cluster.x-k8s.io"): {
+        "api_paths": ["apis/controlplane.cluster.x-k8s.io/v1beta1/"],
+        "api": "rke2controlplanes",
+    },
+    ("RKE2ControlPlaneTemplate", "controlplane.cluster.x-k8s.io"): {
+        "api_paths": ["apis/controlplane.cluster.x-k8s.io/v1beta1/"],
+        "api": "rke2controlplanetemplates",
     },
     # inference.networking.x-k8s.io
     ("InferenceModel", "inference.networking.x-k8s.io"): {
@@ -836,43 +852,53 @@ kubernetes_resources: dict[tuple[str, str], dict[str, Union[list[str], str, bool
         "api": "azuremanagedmachinepools",
     },
     ("DevCluster", "infrastructure.cluster.x-k8s.io"): {
-        "api_paths": ["apis/infrastructure.cluster.x-k8s.io/v1beta1/"],
+        "api_paths": ["apis/infrastructure.cluster.x-k8s.io/v1beta2/",
+                      "apis/infrastructure.cluster.x-k8s.io/v1beta1/"],
         "api": "devclusters",
     },
     ("DevClusterTemplate", "infrastructure.cluster.x-k8s.io"): {
-        "api_paths": ["apis/infrastructure.cluster.x-k8s.io/v1beta1/"],
+        "api_paths": ["apis/infrastructure.cluster.x-k8s.io/v1beta2/",
+                      "apis/infrastructure.cluster.x-k8s.io/v1beta1/"],
         "api": "devclustertemplates",
     },
     ("DevMachine", "infrastructure.cluster.x-k8s.io"): {
-        "api_paths": ["apis/infrastructure.cluster.x-k8s.io/v1beta1/"],
+        "api_paths": ["apis/infrastructure.cluster.x-k8s.io/v1beta2/",
+                      "apis/infrastructure.cluster.x-k8s.io/v1beta1/"],
         "api": "devmachines",
     },
     ("DevMachineTemplate", "infrastructure.cluster.x-k8s.io"): {
-        "api_paths": ["apis/infrastructure.cluster.x-k8s.io/v1beta1/"],
+        "api_paths": ["apis/infrastructure.cluster.x-k8s.io/v1beta2/",
+                      "apis/infrastructure.cluster.x-k8s.io/v1beta1/"],
         "api": "devmachinetemplates",
     },
     ("DockerCluster", "infrastructure.cluster.x-k8s.io"): {
-        "api_paths": ["apis/infrastructure.cluster.x-k8s.io/v1beta1/"],
+        "api_paths": ["apis/infrastructure.cluster.x-k8s.io/v1beta2/",
+                      "apis/infrastructure.cluster.x-k8s.io/v1beta1/"],
         "api": "dockerclusters",
     },
     ("DockerClusterTemplate", "infrastructure.cluster.x-k8s.io"): {
-        "api_paths": ["apis/infrastructure.cluster.x-k8s.io/v1beta1/"],
+        "api_paths": ["apis/infrastructure.cluster.x-k8s.io/v1beta2/",
+                      "apis/infrastructure.cluster.x-k8s.io/v1beta1/"],
         "api": "dockerclustertemplates",
     },
     ("DockerMachinePool", "infrastructure.cluster.x-k8s.io"): {
-        "api_paths": ["apis/infrastructure.cluster.x-k8s.io/v1beta1/"],
+        "api_paths": ["apis/infrastructure.cluster.x-k8s.io/v1beta2/",
+                      "apis/infrastructure.cluster.x-k8s.io/v1beta1/"],
         "api": "dockermachinepools",
     },
     ("DockerMachinePoolTemplate", "infrastructure.cluster.x-k8s.io"): {
-        "api_paths": ["apis/infrastructure.cluster.x-k8s.io/v1beta1/"],
+        "api_paths": ["apis/infrastructure.cluster.x-k8s.io/v1beta2/",
+                      "apis/infrastructure.cluster.x-k8s.io/v1beta1/"],
         "api": "dockermachinepooltemplates",
     },
     ("DockerMachine", "infrastructure.cluster.x-k8s.io"): {
-        "api_paths": ["apis/infrastructure.cluster.x-k8s.io/v1beta1/"],
+        "api_paths": ["apis/infrastructure.cluster.x-k8s.io/v1beta2/",
+                      "apis/infrastructure.cluster.x-k8s.io/v1beta1/"],
         "api": "dockermachines",
     },
     ("DockerMachineTemplate", "infrastructure.cluster.x-k8s.io"): {
-        "api_paths": ["apis/infrastructure.cluster.x-k8s.io/v1beta1/"],
+        "api_paths": ["apis/infrastructure.cluster.x-k8s.io/v1beta2/",
+                      "apis/infrastructure.cluster.x-k8s.io/v1beta1/"],
         "api": "dockermachinetemplates",
     },
     ("GCPCluster", "infrastructure.cluster.x-k8s.io"): {
