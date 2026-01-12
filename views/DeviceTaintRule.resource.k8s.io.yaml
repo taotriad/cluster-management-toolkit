@@ -81,7 +81,7 @@ infoview:
     "Device Label Selector":
       key: "b"
       read_only: true
-      helptext: "Device Label selector"
+      helptext: "Show device label selector"
       widget: "windowwidget"
       title: "Device Label Selector:"
       headers: ["Key:", "Value:"]

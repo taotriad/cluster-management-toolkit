@@ -342,7 +342,7 @@ infoview:
     "Service Monitor Label Selector":
       key: "b"
       read_only: true
-      helptext: "Service Monitor Label selector"
+      helptext: "Show service monitor label selector"
       widget: "windowwidget"
       title: "Label Selector:"
       headers: ["Key:", "Value:"]

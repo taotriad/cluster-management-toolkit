@@ -78,7 +78,7 @@ infoview:
     "Namespace Label Selector":
       key: "b"
       read_only: true
-      helptext: "Namespace label selector"
+      helptext: "Show namespace label selector"
       widget: "windowwidget"
       title: "Namespace Label Selector:"
       headers: ["Key:", "Value:"]

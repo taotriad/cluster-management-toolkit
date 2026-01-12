@@ -253,7 +253,7 @@ infoview:
     "Label Selector":
       key: "b"
       read_only: true
-      helptext: "Label selector"
+      helptext: "Show label selector"
       widget: "windowwidget"
       title: "Label Selector:"
       headers: ["Key:", "Value:"]

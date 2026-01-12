@@ -291,7 +291,7 @@ infoview:
     "Show node names":
       key: "m"
       read_only: true
-      helptext: "List node name selector"
+      helptext: "Show node name selector"
       widget: "windowwidget"
       title: "Node names:"
       itemgetter: "get_list_as_list"

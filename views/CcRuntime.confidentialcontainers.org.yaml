@@ -119,7 +119,7 @@ infoview:
     "Node Label Selector":
       key: "b"
       read_only: true
-      helptext: "Node Label selector"
+      helptext: "Show node label selector"
       widget: "windowwidget"
       title: "Label Selector:"
       headers: ["Key:", "Value:"]

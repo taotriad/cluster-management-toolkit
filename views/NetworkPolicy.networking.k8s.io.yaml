@@ -209,7 +209,7 @@ infoview:
     "Pod Label Selector":
       key: "b"
       read_only: true
-      helptext: "Pod Label selector"
+      helptext: "Show pod label selector"
       widget: "windowwidget"
       title: "Pod Label Selector:"
       headers: ["Key:", "Value:"]

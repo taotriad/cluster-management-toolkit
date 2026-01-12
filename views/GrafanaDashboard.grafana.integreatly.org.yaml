@@ -56,7 +56,7 @@ infoview:
     "Instance Label Selector":
       key: "b"
       read_only: true
-      helptext: "Instance Label selector"
+      helptext: "Show instance label selector"
       widget: "windowwidget"
       title: "Instance Label Selector:"
       headers: ["Key:", "Value:"]
