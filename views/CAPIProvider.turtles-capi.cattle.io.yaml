@@ -1,0 +1,165 @@
+---
+kind: "CAPIProvider"
+api_family: "turtles-capi.cattle.io"
+default_command: "capiproviders"
+command:
+  - "capiprovs"
+  - "capiprov"
+listview:
+  name: "CAPI Providers"
+  group: "Rancher"
+  field_indexes:
+    Normal:
+      fields: ["namespace", "name", "type", "provider", "installed_version",
+               "phase", "age"]
+      sortcolumn: "namespace"
+  fields:
+    installed_version:
+      header: "Installed Version:"
+      path: "status#installedVersion"
+      type: "str"
+      formatting:
+        field_colors:
+          - type: "version"
+    phase:
+      header: "Phase:"
+      path: "status#phase"
+      type: "str"
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          mappings:
+            Ready:
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+    provider:
+      header: "Provider:"
+      path: "status#name"
+      type: "str"
+    type:
+      header: "Type:"
+      path: "spec#type"
+      type: "str"
+infoview:
+  name: "CAPI Provider Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["type", "provider", "installed_version",
+                 "contract",
+                 "additional_manifests_header",
+                 "additional_manifests_name",
+                 "additional_manifests_namespace",
+                 "config_secret",
+                 "fetch_config_header",
+                 "fetch_config_label_selector",
+                 "phase"]
+    rows:
+      additional_manifests_header:
+        header: [["Additional Manifests:", ["main", "infoheader"]]]
+      additional_manifests_name:
+        header: [["  Name:", ["main", "infoheader"]]]
+        path: "spec#additionalManifests#name"
+        type: "str"
+      additional_manifests_namespace:
+        header: [["  Namespace:", ["main", "infoheader"]]]
+        path: "spec#additionalManifests#namespace"
+        type: "str"
+        formatting:
+          field_colors:
+            - type: "namespace"
+      config_secret:
+        header: [["Config ", ["main", "infoheader"]],
+                 ["S", ["main", "infoheader_shortcut"]],
+                 ["ecret:", ["main", "infoheader"]]]
+        path: "spec#configSecret#name"
+        type: "str"
+      contract:
+        header: [["Contract:", ["main", "infoheader"]]]
+        path: "status#contract"
+        type: "str"
+        formatting:
+          field_colors:
+            - type: "version"
+      enable_automatic_update:
+        header: [["Enable Automatic Update:", ["main", "infoheader"]]]
+        path: "spec#enableAutomaticUpdate"
+        type: "bool"
+      fetch_config_header:
+        header: [["Fetch Config Selector:", ["main", "infoheader"]]]
+      fetch_config_label_selector:
+        header: [["  La", ["main", "infoheader"]],
+                 ["b", ["main", "infoheader_shortcut"]],
+                 ["el Selector:", ["main", "infoheader"]]]
+        paths:
+          - path: ["spec#fetchConfig#selector#matchLabels"]
+            pathtype: "key_value"
+            default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "key"
+            - type: "value"
+          field_separators:
+            - type: "selector"
+      installed_version:
+        header: [["Installed Version:", ["main", "infoheader"]]]
+        path: "status#installedVersion"
+        type: "str"
+        formatting:
+          field_colors:
+            - type: "version"
+      phase:
+        header: [["Phase:", ["main", "infoheader"]]]
+        path: "status#phase"
+        type: "str"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              Ready:
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+      provider:
+        header: [["Provider:", ["main", "infoheader"]]]
+        path: "status#name"
+        type: "str"
+      type:
+        header: [["Type:", ["main", "infoheader"]]]
+        path: "spec#type"
+        type: "str"
+  shortcuts:
+    "Fetch Config Label Selector":
+      key: "b"
+      read_only: true
+      helptext: "Show fetch config label selector"
+      widget: "windowwidget"
+      title: "Fetch Config Label Selector:"
+      headers: ["Key:", "Value:"]
+      itemgetter: "get_key_value"
+      itemgetter_args:
+        path: "spec#fetchConfig#selector#matchLabels"
+    "Open Secret":
+      key: "s"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for Secret"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind: "Secret"
+        namespace_path: "metadata#namespace"
+        name_path: "spec#configSecret#name"
+    "Variables":
+      key: "v"
+      read_only: true
+      helptext: "List variables"
+      widget: "windowwidget"
+      title: "Variables:"
+      headers: ["Key:", "Value:"]
+      itemgetter: "get_key_value"
+      itemgetter_args:
+        path: "status#variables"
