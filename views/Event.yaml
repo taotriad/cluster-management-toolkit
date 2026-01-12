@@ -2011,6 +2011,14 @@ listview:
               field_colors:
                 - context: "main"
                   type: "status_warning"
+            TopologyCreate:
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+            TopologyUpdate:
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
             TrafficWeightUpdated:
               field_colors:
                 - context: "main"
@@ -4227,6 +4235,14 @@ infoview:
                 field_colors:
                   - context: "main"
                     type: "status_warning"
+              TopologyCreate:
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+              TopologyUpdate:
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
               TrafficWeightUpdated:
                 field_colors:
                   - context: "main"
