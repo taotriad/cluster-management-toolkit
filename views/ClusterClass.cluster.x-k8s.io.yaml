@@ -167,6 +167,7 @@ infoview:
       action_args:
         _pass_obj: true
         kind_path: "spec#controlPlane#machineInfrastructure#templateRef#kind"
+        # yamllint disable-line rule:line-length
         api_version_path: "spec#controlPlane#machineInfrastructure#templateRef#apiVersion"
         namespace_path: "metadata#namespace"
         name_path: "spec#controlPlane#machineInfrastructure#templateRef#name"
