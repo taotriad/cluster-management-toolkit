@@ -56,3 +56,117 @@ listview:
               field_colors:
                 - context: "main"
                   type: "status_ok"
+infoview:
+  name: "Cluster Class Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["control_plane_template",
+                 "machine_template",
+                 "cluster_template"]
+    rows:
+      control_plane_template:
+        header: [["Control ", ["main", "infoheader"]],
+                 ["P", ["main", "infoheader_shortcut"]],
+                 ["lane Template:", ["main", "infoheader"]]]
+        paths:
+          - path: [["spec#controlPlane#templateRef#kind"],
+                   ["spec#controlPlane#templateRef#apiVersion"],
+                   ["metadata#namespace"],
+                   ["spec#controlPlane#templateRef#name"]]
+            pathtype: "tuple"
+            type: ["kind", "api_group", "name", "name"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "kind"
+            - type: "api_group"
+            - type: "namespace"
+            - type: "generic"
+          field_separators:
+            - type: "kind_api_group"
+            - type: "kind"
+            - type: "namespace"
+      machine_template:
+        header: [["Machine ", ["main", "infoheader"]],
+                 ["T", ["main", "infoheader_shortcut"]],
+                 ["emplate:", ["main", "infoheader"]]]
+        paths:
+          - path: [["spec#controlPlane#machineInfrastructure#templateRef#kind"],
+                   ["spec#controlPlane#machineInfrastructure#templateRef#apiVersion"],
+                   ["metadata#namespace"],
+                   ["spec#controlPlane#machineInfrastructure#templateRef#name"]]
+            pathtype: "tuple"
+            type: ["kind", "api_group", "name", "name"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "kind"
+            - type: "api_group"
+            - type: "namespace"
+            - type: "generic"
+          field_separators:
+            - type: "kind_api_group"
+            - type: "kind"
+            - type: "namespace"
+      cluster_template:
+        header: [["C", ["main", "infoheader_shortcut"]],
+                 ["luster Template:", ["main", "infoheader"]]]
+        paths:
+          - path: [["spec#infrastructure#templateRef#kind"],
+                   ["spec#infrastructure#templateRef#apiVersion"],
+                   ["metadata#namespace"],
+                   ["spec#infrastructure#templateRef#name"]]
+            pathtype: "tuple"
+            type: ["kind", "api_group", "name", "name"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "kind"
+            - type: "api_group"
+            - type: "namespace"
+            - type: "generic"
+          field_separators:
+            - type: "kind_api_group"
+            - type: "kind"
+            - type: "namespace"
+  shortcuts:
+    "Cluster Template":
+      key: "c"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for cluster template"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind_path: "spec#infrastructure#templateRef#kind"
+        api_version_path: "spec#infrastructure#templateRef#apiVersion"
+        namespace_path: "metadata#namespace"
+        name_path: "spec#infrastructure#templateRef#name"
+    "Control Plane Template":
+      key: "p"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for control plane template"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind_path: "spec#controlPlane#templateRef#kind"
+        api_version_path: "spec#controlPlane#templateRef#apiVersion"
+        namespace_path: "metadata#namespace"
+        name_path: "spec#controlPlane#templateRef#name"
+    "Machine Template":
+      key: "t"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for machine template"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind_path: "spec#controlPlane#machineInfrastructure#templateRef#kind"
+        api_version_path: "spec#controlPlane#machineInfrastructure#templateRef#apiVersion"
+        namespace_path: "metadata#namespace"
+        name_path: "spec#controlPlane#machineInfrastructure#templateRef#name"

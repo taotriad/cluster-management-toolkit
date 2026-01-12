@@ -15,15 +15,9 @@ listview:
 infoview:
   name: "Docker Cluster Template Info"
   infopad:
-  shortcuts:
-    "Cluster template":
-      key: "t"
-      modifier: "shift"
-      read_only: true
-      helptext: "Show Docker Cluster template"
-      action: "call"
-      action_call: "view_yaml"
-      action_args:
-        title: "Docker Cluster template"
-        _pass_obj: true
-        path: "spec#template"
+  logpad:
+    infogetter: "logpad_formatted"
+    infogetter_args:
+      formatter: "format_yaml"
+      path: "spec#template"
+    timestamps: false
