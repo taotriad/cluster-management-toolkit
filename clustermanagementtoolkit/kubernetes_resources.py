@@ -1885,6 +1885,24 @@ kubernetes_resources: dict[tuple[str, str], dict[str, Union[list[str], str, bool
         "api": "clusterscans",
         "namespaced": False,
     },
+    # clickhouse-keeper.altinity.com
+    ("ClickHouseKeeperInstallation", "clickhouse-keeper.altinity.com"): {
+        "api_paths": ["apis/clickhouse-keeper.altinity.com/v1/"],
+        "api": "clickhousekeeperinstallations",
+    },
+    # clickhouse.altinity.com
+    ("ClickHouseInstallation", "clickhouse.altinity.com"): {
+        "api_paths": ["apis/clickhouse.altinity.com/v1/"],
+        "api": "clickhouseinstallations",
+    },
+    ("ClickHouseInstallationTemplate", "clickhouse.altinity.com"): {
+        "api_paths": ["apis/clickhouse.altinity.com/v1/"],
+        "api": "clickhouseinstallationtemplates",
+    },
+    ("ClickHouseOperatorConfiguration", "clickhouse.altinity.com"): {
+        "api_paths": ["apis/clickhouse.altinity.com/v1/"],
+        "api": "clickhouseoperatorconfigurations",
+    },
     # clone.kubevirt.io
     ("VirtualMachineClone", "clone.kubevirt.io"): {
         "api_paths": ["apis/clone.kubevirt.io/v1beta1/",
