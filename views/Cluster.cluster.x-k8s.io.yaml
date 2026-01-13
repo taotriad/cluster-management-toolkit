@@ -9,9 +9,14 @@ listview:
   group: "Cluster Configuration"
   field_indexes:
     Normal:
-      fields: ["namespace", "name", "phase", "age"]
+      fields: ["namespace", "name", "cluster_class", "version", "phase", "age"]
       sortcolumn: "namespace"
   fields:
+    cluster_class:
+      header: "Cluster Class:"
+      path: "spec#topology#class"
+      default: "<unset>"
+      type: "str"
     phase:
       header: "Phase:"
       path: "status#phase"
@@ -40,22 +45,38 @@ listview:
               field_colors:
                 - context: "main"
                   type: "status_not_ok"
+    version:
+      header: "Version:"
+      path: "spec#topology#version"
+      default: "<unset>"
+      type: "str"
+      formatting:
+        field_colors:
+          - type: "version"
 infoview:
   name: "Cluster Info"
   infopad:
     row_indexes:
       Normal:
-        fields: ["cluster_network_header", "cluster_network_cidr_blocks",
+        fields: ["cluster_network_header",
+                 "cluster_network_pod_cidr_blocks",
+                 "cluster_network_service_cidr_blocks",
                  "cluster_network_service_domain", "control_plane",
                  "control_plane_endpoint", "control_plane_ready",
                  "infrastructure", "infrastructure_ready", "phase"]
     rows:
       cluster_network_header:
         header: [["Cluster Network:", ["main", "infoheader"]]]
-      cluster_network_cidr_blocks:
+      cluster_network_pod_cidr_blocks:
         header: [["  Pod CIDR Blocks:", ["main", "infoheader"]]]
         paths:
           - path: ["spec#clusterNetwork#pods#cidrBlocks"]
+            pathtype: "list"
+        formatter: "address"
+      cluster_network_service_cidr_blocks:
+        header: [["  Service CIDR Blocks:", ["main", "infoheader"]]]
+        paths:
+          - path: ["spec#clusterNetwork#services#cidrBlocks"]
             pathtype: "list"
         formatter: "address"
       cluster_network_service_domain:
@@ -85,6 +106,7 @@ infoview:
         paths:
           - path: [["spec#controlPlaneEndpoint#host"],
                    ["spec#controlPlaneEndpoint#port"]]
+            default: ["<unset>"]
             pathtype: "tuple"
             type: ["name", "name"]
         # FIXME: The formatter needs to be improved to handle lists
@@ -98,8 +120,15 @@ infoview:
             - type: "port"
       control_plane_ready:
         header: [["Control Plane Ready:", ["main", "infoheader"]]]
-        path: "status#controlPlaneReady"
-        type: "bool"
+        paths:
+          - path: "status#conditions"
+            pathtype: "items"
+            subpath: "status"
+            when:
+              - key: "type"
+                eq: "ControlPlaneMachinesReady"
+            default: ["False"]
+        type: "str"
         formatter: "value_mapper"
         formatting:
           mapping:
@@ -132,8 +161,15 @@ infoview:
             - type: "namespace"
       infrastructure_ready:
         header: [["Infrastructure Ready:", ["main", "infoheader"]]]
-        path: "status#infrastructureReady"
-        type: "bool"
+        paths:
+          - path: "status#conditions"
+            pathtype: "items"
+            subpath: "status"
+            when:
+              - key: "type"
+                eq: "InfrastructureReady"
+            default: ["False"]
+        type: "str"
         formatter: "value_mapper"
         formatting:
           mapping:
@@ -185,9 +221,9 @@ infoview:
       action_args:
         _pass_obj: true
         kind_path: "spec#controlPlaneRef#kind"
-        api_version_path: "spec#controlPlaneRef#apiVersion"
+        api_family_path: "spec#controlPlaneRef#apiGroup"
         name_path: "spec#controlPlaneRef#name"
-        namespace_path: "spec#controlPlaneRef#namespace"
+        namespace_path: "metadata#namespace"
     "Open infrastructure":
       key: "i"
       modifier: "shift"
@@ -200,4 +236,4 @@ infoview:
         kind_path: "spec#infrastructureRef#kind"
         api_version_path: "spec#infrastructureRef#apiVersion"
         name_path: "spec#infrastructureRef#name"
-        namespace_path: "spec#infrastructureRef#namespace"
+        namespace_path: "metadata#namespace"
