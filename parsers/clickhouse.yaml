@@ -2,6 +2,25 @@
 - name: "clickhouse"
   show_in_selector: false
   matchkeys:
+    - image_name: "/altinity/clickhouse-operator"
     - image_name: "/bitnami/clickhouse"
+    - image_name: /altinity/metrics-exporter
   parser_rules:
     - name: "strip_ansicodes"
+    - name: "glog"
+    - name: "tab_separated"
+    # This match rule is NOT robust, it will fail if the elements
+    # in the configuration block is reordered, for instance.
+    - name: "yaml_line"
+      options:
+        block_start:
+          - matchtype: "exact"
+            matchkey: "runtime:"
+            matchline: "any"
+            format_block_start: true
+        block_end:
+          - matchtype: "regex"
+            # The start of a message in glog format
+            matchkey: '^[A-Z]\d{4} .*'
+            format_block_end: false
+            process_block_end: false
