@@ -100,6 +100,7 @@ configmap_signatures:
     format_name: "JSON"
     signatures:
       - data_suffix: ".json"
+      - data_suffix: ".json.example"
       # Not all JSON-data has a .json suffix
       - namespace: "calico-system"
         prefix: "cni-config"
@@ -328,6 +329,7 @@ configmap_signatures:
     format_name: "YAML"
     signatures:
       - data_suffix: ".yaml"
+      - data_suffix: ".yaml.example"
       - data_suffix: ".yml"
       - namespace: "istio-system"
         prefix: "istio"
