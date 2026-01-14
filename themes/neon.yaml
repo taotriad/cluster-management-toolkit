@@ -213,6 +213,9 @@ color_pairs_curses:
   severity_diffheader:
     unselected: [["white", "normal"], ["black", "normal"]]
     selected: [["black", "normal"], ["white", "normal"]]
+  status_ignored:
+    unselected: [["black", "bright"], ["black", "normal"]]
+    selected: [["black", "bright"], ["white", "normal"]]
   status_critical:
     unselected: [["black", "normal"], ["red", "bright"]]
     selected: [["white", "bright"], ["red", "bright"]]
@@ -726,6 +729,7 @@ main:
   severity_high: "severity_error"
   severity_medium: "severity_warning"
   severity_low: "severity_notice"
+  status_ignored: "status_ignored"
   status_critical: "status_critical"
   status_unknown: "status_unknown"
   status_not_ok: ["status_not_ok", "bold"]
