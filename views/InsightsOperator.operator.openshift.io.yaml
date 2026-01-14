@@ -1,0 +1,145 @@
+---
+kind: "InsightsOperator"
+api_family: "operator.openshift.io"
+default_command: "insightsoperators"
+command:
+  - "insightsops"
+  - "insightsop"
+listview:
+  name: "Insights Operators"
+  group: "OpenShift"
+  field_indexes:
+    Normal:
+      fields: ["name", "ready_replicas", "age"]
+  fields:
+    ready_replicas:
+      header: "Ready:"
+      path: "status#readyReplicas"
+      type: "int"
+      formatter: "numerical"
+      align: "right"
+infoview:
+  name: "Insights Operator Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["cluster_version", "loglevel", "operator_loglevel",
+                 "management_state", "ready_replicas",
+                 "insights_report_header",
+                 "insights_report_downloaded_at"]
+    rows:
+      cluster_version:
+        header: [["Cluster ", ["main", "infoheader"]],
+                 ["V", ["main", "infoheader_shortcut"]],
+                 ["ersion:", ["main", "infoheader"]]]
+        paths:
+          - path: "metadata#ownerReferences"
+            pathtype: "items"
+            subpaths:
+              - "name"
+            when:
+              - key: "kind"
+                eq: "ClusterVersion"
+        default: "<none>"
+      insights_report_downloaded_at:
+        header: [["  Downloaded At:", ["main", "infoheader"]]]
+        path: "status#insightsReport#downloadedAt"
+        type: "timestamp"
+        formatter: "timestamp"
+      insights_report_header:
+        header: [["Insights Report:", ["main", "infoheader"]]]
+      loglevel:
+        header: [["Loglevel:", ["main", "infoheader"]]]
+        path: "spec#logLevel"
+        type: "str"
+      management_state:
+        header: [["Management State:", ["main", "infoheader"]]]
+        path: "spec#managementState"
+        type: "str"
+      operator_loglevel:
+        header: [["Operator Loglevel:", ["main", "infoheader"]]]
+        path: "spec#operatorLogLevel"
+        type: "str"
+      ready_replicas:
+        header: [["Ready Replicas:", ["main", "infoheader"]]]
+        path: "status#readyReplicas"
+        type: "int"
+        formatter: "numerical"
+  listpad:
+    listgetter: "listgetter_path"
+    listgetter_args:
+      path: "status#gatherStatus#gatherers"
+      subpath: "conditions"
+      path_fields:
+        - "lastGatherDuration"
+        - "name"
+    infogetter: "generic_infogetter"
+    field_indexes:
+      Normal:
+        fields: ["name", "type", "status", "reason", "last_transition",
+                 "last_duration", "message"]
+        sortcolumn: "status"
+    fields:
+      last_duration:
+        header: "Duration:"
+        path: "lastGatherDuration"
+        type: "str"
+        formatter: "numerical"
+      last_transition:
+        header: "Last Transition:"
+        path: "lastTransitionTime"
+        type: "timestamp"
+        formatter: "timestamp"
+      message:
+        header: "Message:"
+        path: "message"
+        type: "str"
+      name:
+        header: "Name:"
+        path: "name"
+        type: "str"
+      reason:
+        header: "Reason:"
+        path: "reason"
+        type: "str"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              GatherError:
+                field_colors:
+                  - context: "main"
+                    type: "status_not_ok"
+              GatheredOK:
+                field_colors:
+                  - context: "main"
+                    type: "status_done"
+              GatheredWithError:
+                field_colors:
+                  - context: "main"
+                    type: "status_not_ok"
+              NoData:
+                field_colors:
+                  - context: "main"
+                    type: "status_ignored"
+      status:
+        header: "Status:"
+        path: "status"
+        type: "str"
+      type:
+        header: "Type:"
+        path: "type"
+        type: "str"
+  shortcuts:
+    "Cluster Version":
+      key: "v"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for Cluster Version"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        owner_reference_path: "metadata#ownerReferences"
+        kind: "ClusterVersion"
+        api_family: "config.openshift.io"
