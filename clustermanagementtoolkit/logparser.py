@@ -532,7 +532,8 @@ def split_iso_timestamp(message: str, timestamp: datetime) -> tuple[str, datetim
         # 2020-02-20 13:47:41[.,]008416: (assume UTC)
         # 2020/02/20 13:47:41[.,]008416 (assume UTC)
         # 2020-02-20 13:47:41[.,]008416Z (Z = UTC)
-        tmp = re.match(r"^(\d{4})[-/](\d\d)[-/](\d\d) (\d\d:\d\d:\d\d[.,]\d+)[Z:]? ?(.*)", message)
+        # 2020.02.20 13:47:41[.,]008416 (assume UTC)
+        tmp = re.match(r"^(\d{4})[-/.](\d\d)[-/.](\d\d) (\d\d:\d\d:\d\d[.,]\d+)[Z:]? ?(.*)", message)
         if tmp is not None:
             year = tmp[1]
             month = tmp[2]
