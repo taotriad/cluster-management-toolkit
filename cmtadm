@@ -718,7 +718,7 @@ def update_installation_info(**kwargs: Any) -> dict:
     return info
 
 
-def check_and_print_status(retval: bool) -> None:
+def check_and_print_status(retval: bool, ignore_errors: bool = False) -> None:
     """
     A wrapper that prints OK if retval is True
     and NOT OK and aborts if retval is False.
@@ -728,6 +728,9 @@ def check_and_print_status(retval: bool) -> None:
     """
     if retval:
         ansithemeprint([ANSIThemeStr("OK", "ok")])
+    elif ignore_errors:
+        ansithemeprint([ANSIThemeStr("NOT OK", "notok"),
+                        ANSIThemeStr("; ignoring errors.", "default")], stderr=True)
     else:
         ansithemeprint([ANSIThemeStr("NOT OK", "notok"),
                         ANSIThemeStr("; aborting.", "default")], stderr=True)
@@ -2637,6 +2640,7 @@ def __task_drain_control_planes(installation_info: dict, **kwargs: Any) -> None:
             installation_info (dict): A dict with installation information [unused]
             **kwargs (dict[str, Any]): Keyword arguments
     """
+    ignore_errors: bool = deep_get(kwargs, DictPath("ignore_errors"), False)
     controlplanes = __selection_control_planes()
 
     # Check if there is an API-server running that will listen to our request;
@@ -2672,7 +2676,7 @@ def __task_drain_control_planes(installation_info: dict, **kwargs: Any) -> None:
         args.append("--disable-eviction")
 
     for controlplane in controlplanes:
-        check_and_print_status(execute_command(args + [controlplane]))
+        check_and_print_status(execute_command(args + [controlplane]), ignore_errors=ignore_errors)
 
 
 # pylint: disable-next=unused-argument

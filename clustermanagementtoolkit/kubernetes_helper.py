@@ -646,7 +646,7 @@ def kubectl_get_version() -> tuple[Optional[int], Optional[int], str,
     except FileNotFoundError:  # pragma: no cover
         return -1, -1, "", -1, -1, ""
 
-    args = [kubectl_path, "version", "-oyaml"]
+    args = [kubectl_path, "version", "-oyaml", "--client=true"]
 
     try:
         response, _retval = execute_command_with_response(args)
