@@ -1,0 +1,120 @@
+---
+kind: "DockerMachinePool"
+api_family: "infrastructure.cluster.x-k8s.io"
+default_command: "dockermachinepools"
+command:
+  - "dockermp"
+listview:
+  name: "Docker Machine Pools"
+  group: "Cluster Configuration"
+  field_indexes:
+    Normal:
+      fields: ["namespace", "name",
+               "machine_pool", "pool_name", "cluster", "age"]
+      sortcolumn: "namespace"
+  fields:
+    cluster:
+      header: "Cluster:"
+      paths:
+        - path: "metadata#ownerReferences"
+          pathtype: "items"
+          subpaths:
+            - "name"
+          when:
+            - key: "kind"
+              eq: "Cluster"
+      default: "<unset>"
+      type: "str"
+    machine_pool:
+      header: "Machine Pool:"
+      paths:
+        - path: "metadata#ownerReferences"
+          pathtype: "items"
+          subpaths:
+            - "name"
+          when:
+            - key: "kind"
+              eq: "MachinePool"
+      default: "<unset>"
+      type: "str"
+    pool_name:
+      header: "Pool Name:"
+      path: "metadata#labels#topology.cluster.x-k8s.io/pool-name"
+      default: "<unset>"
+      type: "str"
+infoview:
+  name: "Docker Machine Pool Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["machine_pool", "pool_name", "cluster",
+                 "template_header", "template_custom_image"]
+    rows:
+      cluster:
+        header: [["Cl", ["main", "infoheader"]],
+                 ["u", ["main", "infoheader_shortcut"]],
+                 ["ster:", ["main", "infoheader"]]]
+        paths:
+          - path: "metadata#ownerReferences"
+            pathtype: "items"
+            subpaths:
+              - "name"
+            when:
+              - key: "kind"
+                eq: "Cluster"
+        default: "<unset>"
+        type: "str"
+      machine_pool:
+        header: [["Machine ", ["main", "infoheader"]],
+                 ["P", ["main", "infoheader_shortcut"]],
+                 ["ool:", ["main", "infoheader"]]]
+        paths:
+          - path: "metadata#ownerReferences"
+            pathtype: "items"
+            subpaths:
+              - "name"
+            when:
+              - key: "kind"
+                eq: "MachinePool"
+        default: "<unset>"
+        type: "str"
+      pool_name:
+        header: [["Pool Name:", ["main", "infoheader"]]]
+        path: "metadata#labels#topology.cluster.x-k8s.io/pool-name"
+        default: "<unset>"
+        type: "str"
+      template_header:
+        header: [["Template:", ["main", "infoheader"]]]
+      template_custom_image:
+        header: [["  Custom Image:", ["main", "infoheader"]]]
+        path: "spec#template#customImage"
+        default: "<unset>"
+        type: "str"
+  shortcuts:
+    "Open Cluster":
+      key: "u"
+      read_only: true
+      helptext: "Open info page for Cluster"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind: "Cluster"
+        api_family: "cluster.x-k8s.io"
+        controller: false
+        namespace_path: "metadata#namespace"
+        owner_reference_path: "metadata#ownerReferences"
+    "Open Machine Pool":
+      key: "p"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for Machine Pool"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind: "MachinePool"
+        api_family: "cluster.x-k8s.io"
+        controller: true
+        owner_reference_path: "metadata#ownerReferences"
+        namespace_path: "metadata#namespace"

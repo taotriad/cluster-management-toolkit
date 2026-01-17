@@ -7003,6 +7003,8 @@ def resourceinfodispatch_with_lookup(stdscr: curses.window, **kwargs: Any) -> Re
     if owner_reference_path is not None and obj is not None:
         # Search for a controller, or the first reference that matches the kind if specified
         owner_references = deep_get(obj, DictPath(owner_reference_path), [])
+        accept_only_owner: bool = deep_get(kwargs, DictPath("accept_only_owner"), False)
+        must_be_controller: Optional[bool] = deep_get(kwargs, DictPath("controller"))
         for ref in owner_references:
             ref_name = deep_get(ref, DictPath("name"))
 
@@ -7011,21 +7013,26 @@ def resourceinfodispatch_with_lookup(stdscr: curses.window, **kwargs: Any) -> Re
             if holder_identity is not None and ref_name != holder_identity:
                 continue
 
-            ref_kind = deep_get(ref, DictPath("kind"))
             ref_api_version = deep_get(ref, DictPath("apiVersion"))
             if "/" in ref_api_version:
                 ref_api_family = ref_api_version.split("/")[0]
             else:
                 ref_api_family = ""
-            ref_kind = (ref_kind, ref_api_family)
-            accept_only_owner = deep_get(kwargs, DictPath("accept_only_owner"), False)
-            if deep_get(ref, DictPath("controller"), False):
+            ref_kind: tuple[str, str] = (deep_get(ref, DictPath("kind")), ref_api_family)
+            is_controller: bool = deep_get(ref, DictPath("controller"), False)
+            if is_controller:
                 controller = (ref_kind, ref_name)
             elif kind is not None and kind == ref_kind \
                     or holder_identity is not None \
                     or accept_only_owner and len(owner_references) == 1:
                 if non_controller is None:
                     non_controller = (ref_kind, ref_name)
+            if must_be_controller is not None and is_controller == must_be_controller:
+                if is_controller:
+                    non_controller = None
+                else:
+                    controller = None
+                break
 
     if controller is not None:
         kind, name = controller
