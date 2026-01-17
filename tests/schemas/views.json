@@ -2007,6 +2007,10 @@
 													},
 													"minItems": 1
 												},
+												"controller": {
+													"description": "If set this determines whether the owner_reference is a controller or not",
+													"type": "boolean"
+												},
 												"_extra_args": {
 													"description": "Extra arguments to pass to calls",
 													"type": "object"

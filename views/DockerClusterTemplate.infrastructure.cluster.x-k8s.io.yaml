@@ -15,9 +15,51 @@ listview:
 infoview:
   name: "Docker Cluster Template Info"
   infopad:
+    row_indexes:
+      Normal:
+        fields: ["cluster_class"]
+    rows:
+      cluster_class:
+        header: [["C", ["main", "infoheader_shortcut"]],
+                 ["luster Class:", ["main", "infoheader"]]]
+        paths:
+          - path: "metadata#ownerReferences"
+            pathtype: "items"
+            subpaths:
+              - "kind"
+              - "apiVersion"
+              - "name"
+            when:
+              - key: "kind"
+                eq: "ClusterClass"
+            type: ["kind", "api_group", "name"]
+        default: "<none>"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "kind"
+            - type: "api_group"
+            - type: "generic"
+          field_separators:
+            - type: "kind_api_group"
+            - type: "kind"
   logpad:
     infogetter: "logpad_formatted"
     infogetter_args:
       formatter: "format_yaml"
       path: "spec#template"
     timestamps: false
+  shortcuts:
+    "Open cluster class":
+      key: "c"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for Cluster Class"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind: "ClusterClass"
+        api_family: "cluster.x-k8s.io"
+        namespace_path: "metadata#namespace"
+        owner_reference_path: "metadata#ownerReferences"

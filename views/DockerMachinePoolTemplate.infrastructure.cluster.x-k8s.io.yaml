@@ -1,19 +1,19 @@
 ---
-kind: "KubeadmControlPlaneTemplate"
-api_family: "controlplane.cluster.x-k8s.io"
-default_command: "kubeadmcontrolplanetemplates"
+kind: "DockerMachinePoolTemplate"
+api_family: "infrastructure.cluster.x-k8s.io"
+default_command: "dockermachinepooltemplates"
 command:
-  - "kubeadmcptempls"
-  - "kubeadmcptempl"
+  - "dockermchpooltempls"
+  - "dockermchpooltempl"
 listview:
-  name: "Kubeadm Control Plane Templates"
+  name: "Docker Machine Pool Templates"
   group: "Cluster Configuration"
   field_indexes:
     Normal:
       fields: ["namespace", "name", "age"]
       sortcolumn: "namespace"
 infoview:
-  name: "Kubeadm Control Plane Template Info"
+  name: "Docker Machine Pool Template Info"
   infopad:
     row_indexes:
       Normal:
