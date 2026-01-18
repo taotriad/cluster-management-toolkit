@@ -1,0 +1,220 @@
+---
+kind: "VCluster"
+api_family: "infrastructure.cluster.x-k8s.io"
+default_command: "vclusters"
+command:
+  - "vclrs"
+  - "vclr"
+listview:
+  name: "VClusters"
+  group: "Cluster Configuration"
+  field_indexes:
+    Normal:
+      fields: ["namespace", "name", "cluster", "ready", "phase", "age",
+               "reason"]
+      sortcolumn: "namespace"
+  fields:
+    cluster:
+      header: "Cluster:"
+      path: "metadata#labels#cluster.x-k8s.io/cluster-name"
+      type: "str"
+    phase:
+      header: "Phase:"
+      path: "status#phase"
+      default: "<unset>"
+      type: "str"
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          mappings:
+            Deployed:
+              field_colors:
+                - context: "main"
+                  type: "status_done"
+            Failed:
+              field_colors:
+                - context: "main"
+                  type: "status_not_ok"
+            Pending:
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+    ready:
+      header: "Ready:"
+      paths:
+        - path: "status#conditions"
+          pathtype: "items"
+          subpath: "status"
+          when:
+            - key: "type"
+              eq: "Ready"
+          default: ["False"]
+      type: "str"
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          mappings:
+            "True":
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+            "False":
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+    reason:
+      header: "Reason:"
+      path: "status#reason"
+      type: "str"
+infoview:
+  name: "VCluster Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["cluster", "controller", "control_plane_endpoint",
+                 "helm_release_header",
+                 "helm_release_chart_header",
+                 "helm_release_chart_name",
+                 "helm_release_chart_repo",
+                 "helm_release_chart_version",
+                 "helm_release_values",
+                 "phase", "reason", "ready"]
+    rows:
+      cluster:
+        header: [["Cluster:", ["main", "infoheader"]]]
+        path: "metadata#labels#cluster.x-k8s.io/cluster-name"
+        type: "str"
+      controller:
+        header: [["C", ["main", "infoheader_shortcut"]],
+                 ["ontroller:", ["main", "infoheader"]]]
+        paths:
+          - path: "metadata#ownerReferences"
+            pathtype: "items"
+            subpaths:
+              - "kind"
+              - "apiVersion"
+              - "name"
+            when:
+              - key: "controller"
+                eq: true
+            type: ["kind", "api_group", "name"]
+        default: "<none>"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "kind"
+            - type: "api_group"
+            - type: "generic"
+          field_separators:
+            - type: "kind_api_group"
+            - type: "kind"
+      control_plane_endpoint:
+        header: [["Control Plane Endpoint:", ["main", "infoheader"]]]
+        paths:
+          - path: [["spec#controlPlaneEndpoint#host"],
+                   ["spec#controlPlaneEndpoint#port"]]
+            default: ["<unset>"]
+            pathtype: "tuple"
+            type: ["name", "name"]
+        # FIXME: The formatter needs to be improved to handle lists
+        # that contain addresses, etc.
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "address"
+            - type: "port"
+          field_separators:
+            - type: "port"
+      helm_release_header:
+        header: [["Helm Release:", ["main", "infoheader"]]]
+      helm_release_chart_header:
+        header: [["  Chart:", ["main", "infoheader"]]]
+      helm_release_chart_name:
+        header: [["    Name:", ["main", "infoheader"]]]
+        path: "spec#helmRelease#chart#name"
+        default: "<unset>"
+        type: "str"
+      helm_release_chart_repo:
+        header: [["    Repo:", ["main", "infoheader"]]]
+        path: "spec#helmRelease#chart#repo"
+        default: "<unset>"
+        type: "str"
+        formatting:
+          field_colors:
+            - type: "url"
+      helm_release_chart_version:
+        header: [["    Version:", ["main", "infoheader"]]]
+        path: "spec#helmRelease#chart#version"
+        default: "<unset>"
+        type: "str"
+        formatting:
+          field_colors:
+            - type: "version"
+      helm_release_values:
+        header: [["  Values:", ["main", "infoheader"]]]
+        path: "spec#helmRelease#values"
+        default: "<unset>"
+        type: "str"
+        formatting:
+          field_colors:
+            - type: "path"
+      phase:
+        header: [["Phase:", ["main", "infoheader"]]]
+        path: "status#phase"
+        default: "<unset>"
+        type: "str"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              Deployed:
+                field_colors:
+                  - context: "main"
+                    type: "status_done"
+              Failed:
+                field_colors:
+                  - context: "main"
+                    type: "status_not_ok"
+              Pending:
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+      ready:
+        header: [["Ready:", ["main", "infoheader"]]]
+        paths:
+          - path: "status#conditions"
+            pathtype: "items"
+            subpath: "status"
+            when:
+              - key: "type"
+                eq: "Ready"
+            default: ["False"]
+        type: "str"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              "True":
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+              "False":
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+      reason:
+        header: [["Reason:", ["main", "infoheader"]]]
+        path: "status#reason"
+        type: "str"
+  shortcuts:
+    "Open controller":
+      key: "c"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for controller"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        namespace_path: "metadata#namespace"
+        owner_reference_path: "metadata#ownerReferences"
