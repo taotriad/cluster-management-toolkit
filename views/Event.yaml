@@ -503,6 +503,10 @@ listview:
               field_colors:
                 - context: "main"
                   type: "status_warning"
+            Deleted:
+              field_colors:
+                - context: "main"
+                  type: "status_done"
             DeletedDaemonSet:
               field_colors:
                 - context: "main"
@@ -523,6 +527,10 @@ listview:
               field_colors:
                 - context: "main"
                   type: "status_warning"
+            Deleting:
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
             DeletingLoadBalancer:
               field_colors:
                 - context: "main"
@@ -2759,6 +2767,10 @@ infoview:
                 field_colors:
                   - context: "main"
                     type: "status_warning"
+              Deleted:
+                field_colors:
+                  - context: "main"
+                    type: "status_done"
               DeletedDaemonSet:
                 field_colors:
                   - context: "main"
@@ -2779,6 +2791,10 @@ infoview:
                 field_colors:
                   - context: "main"
                     type: "status_warning"
+              Deleting:
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
               DeletingLoadBalancer:
                 field_colors:
                   - context: "main"
