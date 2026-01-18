@@ -6298,6 +6298,15 @@ def do_command(stdscr: curses.window, **kwargs: Any) -> None:
     for arg in _args:
         if isinstance(arg, str):
             args.append(arg)
+        elif isinstance(arg, dict):
+            # For now we only support joining
+            tmp = ""
+            for arg2 in deep_get(arg, DictPath("join"), []):
+                if isinstance(arg2, str):
+                    tmp += arg2
+                if isinstance(arg2, list):
+                    tmp += deep_get_with_fallback(obj, DictPath(arg2), "")
+            args.append(tmp)
         elif isinstance(arg, list):
             for path in arg:
                 tmp = deep_get(obj, DictPath(path))
