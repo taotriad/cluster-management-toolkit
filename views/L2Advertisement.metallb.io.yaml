@@ -21,8 +21,7 @@ infoview:
                  "ip_address_pool_label_selector",
                  "ip_address_pool_set_based_selector",
                  "node_label_selector",
-                 "node_set_based_selector",
-                 ]
+                 "node_set_based_selector"]
     rows:
       interfaces:
         header: [["Interfaces:", ["main", "infoheader"]]]
@@ -53,7 +52,7 @@ infoview:
             - type: "selector"
       ip_address_pool_set_based_selector:
         header: [["IP-Address Pool Set-based Selector:",
-                 ["main", "infoheader"]]]
+                  ["main", "infoheader"]]]
         paths:
           - path: "spec#ipAddressPoolSelectors#matchExpressions"
             pathtype: "match_expression"
