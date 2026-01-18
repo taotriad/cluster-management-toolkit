@@ -961,6 +961,22 @@ kubernetes_resources: dict[tuple[str, str], dict[str, Union[list[str], str, bool
         "api_paths": ["apis/infrastructure.cluster.x-k8s.io/v1beta2/"],
         "api": "ibmvpcmachinetemplates",
     },
+    ("KubevirtCluster", "infrastructure.cluster.x-k8s.io"): {
+        "api_paths": ["apis/infrastructure.cluster.x-k8s.io/v1alpha1/"],
+        "api": "kubevirtclusters",
+    },
+    ("KubevirtClusterTemplate", "infrastructure.cluster.x-k8s.io"): {
+        "api_paths": ["apis/infrastructure.cluster.x-k8s.io/v1alpha1/"],
+        "api": "kubevirtclustertemplates",
+    },
+    ("KubevirtMachine", "infrastructure.cluster.x-k8s.io"): {
+        "api_paths": ["apis/infrastructure.cluster.x-k8s.io/v1alpha1/"],
+        "api": "kubevirtmachines",
+    },
+    ("KubevirtMachineTemplate", "infrastructure.cluster.x-k8s.io"): {
+        "api_paths": ["apis/infrastructure.cluster.x-k8s.io/v1alpha1/"],
+        "api": "kubevirtmachinetemplates",
+    },
     ("Metal3Remediation", "infrastructure.cluster.x-k8s.io"): {
         "api_paths": ["apis/infrastructure.cluster.x-k8s.io/v1beta1/"],
         "api": "metal3remediations",
@@ -4881,7 +4897,8 @@ kubernetes_resources: dict[tuple[str, str], dict[str, Union[list[str], str, bool
     },
     # pool.kubevirt.io
     ("VirtualMachinePool", "pool.kubevirt.io"): {
-        "api_paths": ["apis/pool.kubevirt.io/v1alpha1/"],
+        "api_paths": ["apis/pool.kubevirt.io/v1beta1/",
+                      "apis/pool.kubevirt.io/v1alpha1/"],
         "api": "virtualmachinepools",
     },
     # populator.storage.k8s.io
