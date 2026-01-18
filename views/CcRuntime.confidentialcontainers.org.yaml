@@ -121,7 +121,7 @@ infoview:
       read_only: true
       helptext: "Show node label selector"
       widget: "windowwidget"
-      title: "Label Selector:"
+      title: "Node Label Selector:"
       headers: ["Key:", "Value:"]
       itemgetter: "get_key_value"
       itemgetter_args:

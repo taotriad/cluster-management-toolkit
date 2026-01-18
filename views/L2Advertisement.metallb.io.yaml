@@ -17,28 +17,104 @@ infoview:
   infopad:
     row_indexes:
       Normal:
-        fields: ["interfaces", "ip_address_pool"]
+        fields: ["interfaces", "ip_address_pools",
+                 "ip_address_pool_label_selector",
+                 "ip_address_pool_set_based_selector",
+                 "node_label_selector",
+                 "node_set_based_selector",
+                 ]
     rows:
       interfaces:
         header: [["Interfaces:", ["main", "infoheader"]]]
         path: "spec#interfaces"
+        default: ["<unset>"]
         type: "raw"
         formatter: "list"
-      ip_address_pool:
-        header: [["IP-Address Pool:", ["main", "infoheader"]]]
-        path: "spec#interfaces"
+      ip_address_pools:
+        header: [["IP-Address Pools:", ["main", "infoheader"]]]
+        path: "spec#ipAddressPools"
+        default: ["<unset>"]
         type: "raw"
         formatter: "list"
+      ip_address_pool_label_selector:
+        header: [["IP-A", ["main", "infoheader"]],
+                 ["d", ["main", "infoheader_shortcut"]],
+                 ["dress Pool Node Label Selector:", ["main", "infoheader"]]]
+        paths:
+          - path: ["spec#ipAddressPoolSelectors#matchLabels"]
+            pathtype: "key_value"
+            default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "key"
+            - type: "value"
+          field_separators:
+            - type: "selector"
+      ip_address_pool_set_based_selector:
+        header: [["IP-Address Pool Set-based Selector:",
+                 ["main", "infoheader"]]]
+        paths:
+          - path: "spec#ipAddressPoolSelectors#matchExpressions"
+            pathtype: "match_expression"
+            default: "<none>"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "key"
+            - type: "operator"
+            - type: "value"
+          field_separators:
+            - type: "space"
+            - type: "no_pad"
+      node_label_selector:
+        header: [["Node La", ["main", "infoheader"]],
+                 ["b", ["main", "infoheader_shortcut"]],
+                 ["el Selector:", ["main", "infoheader"]]]
+        paths:
+          - path: ["spec#nodeSelectors#matchLabels"]
+            pathtype: "key_value"
+            default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "key"
+            - type: "value"
+          field_separators:
+            - type: "selector"
+      node_set_based_selector:
+        header: [["Node Set-based Selector:", ["main", "infoheader"]]]
+        paths:
+          - path: "spec#nodeSelectors#matchExpressions"
+            pathtype: "match_expression"
+            default: "<none>"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "key"
+            - type: "operator"
+            - type: "value"
+          field_separators:
+            - type: "space"
+            - type: "no_pad"
   shortcuts:
-    "Node Selectors":
-      key: "s"
-      modifier: "shift"
+    "IP-Address Pool Label Selector":
+      key: "d"
       read_only: true
-      helptext: "Show node selectors"
-      action: "call"
-      action_call: "view_yaml"
-      action_args:
-        title: "Node Selectors"
-        _pass_obj: true
-        path: "spec#nodeSelectors"
-        include_root: true
+      helptext: "Show IP-address label selector"
+      widget: "windowwidget"
+      title: "IP-Address Label Selector:"
+      headers: ["Key:", "Value:"]
+      itemgetter: "get_key_value"
+      itemgetter_args:
+        path: "spec#nodeSelectors#matchLabels"
+    "Node Label Selector":
+      key: "b"
+      read_only: true
+      helptext: "Show node label selector"
+      widget: "windowwidget"
+      title: "Node Label Selector:"
+      headers: ["Key:", "Value:"]
+      itemgetter: "get_key_value"
+      itemgetter_args:
+        path: "spec#nodeSelectors#matchLabels"

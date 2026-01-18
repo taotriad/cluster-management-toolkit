@@ -34,7 +34,10 @@ infoview:
   infopad:
     row_indexes:
       Normal:
-        fields: ["auto_assign", "avoid_buggy_ips", "addresses"]
+        fields: ["auto_assign", "avoid_buggy_ips", "addresses",
+                 "status_header",
+                 "status_assigned_ipv4", "status_available_ipv4",
+                 "status_assigned_ipv6", "status_available_ipv6"]
     rows:
       addresses:
         header: [["Addresses:", ["main", "infoheader"]]]
@@ -52,3 +55,29 @@ infoview:
         path: "spec#avoidBuggyIPs"
         default: "<unset>"
         type: "bool"
+      status_assigned_ipv4:
+        header: [["  Assigned IPv4:", ["main", "infoheader"]]]
+        path: "status#assignedIPv4"
+        default: "<unset>"
+        type: "int"
+        formatter: "numerical"
+      status_assigned_ipv6:
+        header: [["  Assigned IPv6:", ["main", "infoheader"]]]
+        path: "status#assignedIPv6"
+        default: "<unset>"
+        type: "int"
+        formatter: "numerical"
+      status_available_ipv4:
+        header: [["  Available IPv4:", ["main", "infoheader"]]]
+        path: "status#availableIPv4"
+        default: "<unset>"
+        type: "int"
+        formatter: "numerical"
+      status_available_ipv6:
+        header: [["  Available IPv6:", ["main", "infoheader"]]]
+        path: "status#availableIPv6"
+        default: "<unset>"
+        type: "int"
+        formatter: "numerical"
+      status_header:
+        header: [["Status:", ["main", "infoheader"]]]
