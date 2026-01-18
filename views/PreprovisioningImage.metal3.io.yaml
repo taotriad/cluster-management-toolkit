@@ -3,7 +3,7 @@ kind: "PreprovisioningImage"
 api_family: "metal3.io"
 default_command: "preprovisioningimages"
 listview:
-  name: "Preprovisioning Image"
+  name: "Preprovisioning Images"
   group: "Provisioning"
   field_indexes:
     Normal:

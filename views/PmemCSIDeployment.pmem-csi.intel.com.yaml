@@ -7,7 +7,7 @@ command:
   - "pmemcsidep"
   - "pcd"
 listview:
-  name: "PMEM CSI Deployment"
+  name: "PMEM CSI Deployments"
   group: "Storage & Backups"
   field_indexes:
     Normal:

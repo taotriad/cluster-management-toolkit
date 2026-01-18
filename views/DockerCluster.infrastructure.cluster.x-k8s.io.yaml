@@ -6,7 +6,7 @@ command:
   - "dockerclrs"
   - "dockerclr"
 listview:
-  name: "Docker Cluster"
+  name: "Docker Clusters"
   group: "Cluster Configuration"
   field_indexes:
     Normal:

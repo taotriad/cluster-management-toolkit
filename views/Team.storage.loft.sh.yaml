@@ -5,7 +5,7 @@ default_command: "teams.storage"
 command:
   - "team.storage"
 listview:
-  name: "Team"
+  name: "Teams"
   group: "Lôft"
   field_indexes:
     Normal:

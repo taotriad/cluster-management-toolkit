@@ -7,7 +7,7 @@ command:
   - "teams.mgmnt"
   - "team.mgmnt"
 listview:
-  name: "Team"
+  name: "Teams"
   group: "Lôft"
   field_indexes:
     Normal:
