@@ -84,8 +84,8 @@ listview:
     paused:
       header: "Paused:"
       path: "spec#updateStrategy#rollingUpdate#paused"
-      type: "str"
       default: "False"
+      type: "str"
       formatter: "value_mapper"
       formatting:
         mapping:

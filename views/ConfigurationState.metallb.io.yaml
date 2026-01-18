@@ -1,0 +1,77 @@
+---
+kind: "ConfigurationState"
+api_family: "metallb.io"
+default_command: "configurationstates"
+command:
+  - "configstates"
+  - "configstate"
+listview:
+  name: "Configuration States"
+  group: "Network"
+  field_indexes:
+    Normal:
+      fields: ["namespace", "name", "result", "error_summary", "age"]
+      sortcolumn: "namespace"
+  fields:
+    error_summary:
+      header: "Error Summary:"
+      path: "status#errorSummary"
+      default: "<unset>"
+      type: "str"
+    result:
+      header: "Result:"
+      path: "status#result"
+      default: "<unset>"
+      type: "str"
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          mappings:
+            Invalid:
+              field_colors:
+                - context: "main"
+                  type: "status_not_ok"
+            Unknown:
+              field_colors:
+                - context: "main"
+                  type: "status_unknown"
+            Valid:
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+            "<unset>":
+              field_colors:
+                - context: "types"
+                  type: "unset"
+infoview:
+  name: "Configuration State Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["result"]
+    rows:
+      result:
+        header: [["Result:", ["main", "infoheader"]]]
+        path: "status#result"
+        default: "<unset>"
+        type: "str"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              Invalid:
+                field_colors:
+                  - context: "main"
+                    type: "status_not_ok"
+              Unknown:
+                field_colors:
+                  - context: "main"
+                    type: "status_unknown"
+              Valid:
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+              "<unset>":
+                field_colors:
+                  - context: "types"
+                    type: "unset"
