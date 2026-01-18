@@ -244,6 +244,10 @@ ContainerGCFailed:
   field_colors:
     - context: "main"
       type: "status_warning"
+ControlPlaneInitialized:
+  field_colors:
+    - context: "main"
+      type: "status_done"
 ControlPlaneTopology:
   field_colors:
     - context: "main"
@@ -1878,6 +1882,10 @@ SuccessfulMountVolume:
     - context: "main"
       type: "status_ok"
 SuccessfulRescale:
+  field_colors:
+    - context: "main"
+      type: "status_ok"
+SuccessfulSetNodeRef:
   field_colors:
     - context: "main"
       type: "status_ok"

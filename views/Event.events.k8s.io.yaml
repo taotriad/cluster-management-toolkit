@@ -319,6 +319,10 @@ listview:
               field_colors:
                 - context: "main"
                   type: "status_warning"
+            ControlPlaneInitialized:
+              field_colors:
+                - context: "main"
+                  type: "status_done"
             ControlPlaneTopology:
               field_colors:
                 - context: "main"
@@ -1956,6 +1960,10 @@ listview:
               field_colors:
                 - context: "main"
                   type: "status_ok"
+            SuccessfulSetNodeRef:
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
             SuccessfulUpdateSubset:
               field_colors:
                 - context: "main"
@@ -2587,6 +2595,10 @@ infoview:
                 field_colors:
                   - context: "main"
                     type: "status_warning"
+              ControlPlaneInitialized:
+                field_colors:
+                  - context: "main"
+                    type: "status_done"
               ControlPlaneTopology:
                 field_colors:
                   - context: "main"
@@ -4221,6 +4233,10 @@ infoview:
                   - context: "main"
                     type: "status_ok"
               SuccessfulRescale:
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+              SuccessfulSetNodeRef:
                 field_colors:
                   - context: "main"
                     type: "status_ok"
