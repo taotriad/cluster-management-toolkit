@@ -988,6 +988,10 @@ listview:
               field_colors:
                 - context: "main"
                   type: "status_warning"
+            IPAllocated:
+              field_colors:
+                - context: "main"
+                  type: "status_done"
             IPTablesUsageObserved:
               field_colors:
                 - context: "main"
@@ -3252,6 +3256,10 @@ infoview:
                 field_colors:
                   - context: "main"
                     type: "status_warning"
+              IPAllocated:
+                field_colors:
+                  - context: "main"
+                    type: "status_done"
               IPTablesUsageObserved:
                 field_colors:
                   - context: "main"
