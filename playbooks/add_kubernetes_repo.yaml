@@ -21,7 +21,7 @@
           - description: "/etc/apt/keyrings/kubernetes-apt-keyring.asc"
             conditions:
               - "Debian and derivatives"
-          - description: "/etc/apt/sources.list.d/kubernetes.list"
+          - description: "/etc/apt/sources.list.d/kubernetes.sources"
             conditions:
               - "Debian and derivatives"
           - description: "/etc/apt/apt.conf.d/01proxy-kubernetes"
@@ -71,8 +71,8 @@
       when: "ansible_facts['os_family'] == 'Debian'"
     - name: "Configuring package repository for Kubernetes"
       ansible.builtin.template:
-        src: "templates/etc/apt/sources.list.d/kubernetes.list.j2"
-        dest: "/etc/apt/sources.list.d/kubernetes.list"
+        src: "templates/etc/apt/sources.list.d/kubernetes.sources.j2"
+        dest: "/etc/apt/sources.list.d/kubernetes.sources"
         mode: "0644"
       when: "ansible_facts['os_family'] == 'Debian'"
     - name: "Configuring package repository proxy for Kubernetes"
