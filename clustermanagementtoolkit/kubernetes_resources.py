@@ -4255,9 +4255,17 @@ kubernetes_resources: dict[tuple[str, str], dict[str, Union[list[str], str, bool
         "api_paths": ["apis/metallb.io/v1beta1/"],
         "api": "bgpadvertisements",
     },
+    ("BGPPeer", "metallb.io"): {
+        "api_paths": ["apis/metallb.io/v1beta2/"],
+        "api": "bgppeers",
+    },
     ("Community", "metallb.io"): {
         "api_paths": ["apis/metallb.io/v1beta1/"],
         "api": "communities",
+    },
+    ("ConfigurationState", "metallb.io"): {
+        "api_paths": ["apis/metallb.io/v1beta1/"],
+        "api": "configurationstates",
     },
     ("IPAddressPool", "metallb.io"): {
         "api_paths": ["apis/metallb.io/v1beta1/"],
@@ -4267,13 +4275,13 @@ kubernetes_resources: dict[tuple[str, str], dict[str, Union[list[str], str, bool
         "api_paths": ["apis/metallb.io/v1beta1/"],
         "api": "l2advertisements",
     },
+    ("ServiceBGPStatus", "metallb.io"): {
+        "api_paths": ["apis/metallb.io/v1beta1/"],
+        "api": "servicebgpstatuses",
+    },
     ("ServiceL2Status", "metallb.io"): {
         "api_paths": ["apis/metallb.io/v1beta1/"],
         "api": "servicel2statuses",
-    },
-    ("BGPPeer", "metallb.io"): {
-        "api_paths": ["apis/metallb.io/v1beta2/"],
-        "api": "bgppeers",
     },
     # migrations.kubevirt.io
     ("MigrationPolicy", "migrations.kubevirt.io"): {
