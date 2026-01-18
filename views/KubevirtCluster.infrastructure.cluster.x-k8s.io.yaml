@@ -1,0 +1,161 @@
+---
+kind: "KubevirtCluster"
+api_family: "infrastructure.cluster.x-k8s.io"
+default_command: "kubevirtclusters"
+command:
+  - "kubevirtclrs"
+  - "kubevirtclr"
+  - "kvclrs"
+  - "kvclr"
+listview:
+  name: "Kubevirt Clusters"
+  group: "Cluster Configuration"
+  field_indexes:
+    Normal:
+      fields: ["namespace", "name", "cluster", "ready", "age"]
+      sortcolumn: "namespace"
+  fields:
+    cluster:
+      header: "Cluster:"
+      path: "metadata#labels#cluster.x-k8s.io/cluster-name"
+      type: "str"
+    ready:
+      header: "Ready:"
+      paths:
+        - path: "status#conditions"
+          pathtype: "items"
+          subpath: "status"
+          when:
+            - key: "type"
+              eq: "Ready"
+          default: ["False"]
+      type: "str"
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          mappings:
+            "True":
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+            "False":
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+infoview:
+  name: "Kubevirt Cluster Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["cluster", "controller", "control_plane_endpoint",
+                 "ssh_keys", "ready"]
+    rows:
+      cluster:
+        header: [["Cluster:", ["main", "infoheader"]]]
+        path: "metadata#labels#cluster.x-k8s.io/cluster-name"
+        type: "str"
+      controller:
+        header: [["C", ["main", "infoheader_shortcut"]],
+                 ["ontroller:", ["main", "infoheader"]]]
+        paths:
+          - path: "metadata#ownerReferences"
+            pathtype: "items"
+            subpaths:
+              - "kind"
+              - "apiVersion"
+              - "name"
+            when:
+              - key: "controller"
+                eq: true
+            type: ["kind", "api_group", "name"]
+        default: "<none>"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "kind"
+            - type: "api_group"
+            - type: "generic"
+          field_separators:
+            - type: "kind_api_group"
+            - type: "kind"
+      control_plane_endpoint:
+        header: [["Control Plane Endpoint:", ["main", "infoheader"]]]
+        paths:
+          - path: [["spec#controlPlaneEndpoint#host"],
+                   ["spec#controlPlaneEndpoint#port"]]
+            default: ["<unset>"]
+            pathtype: "tuple"
+            type: ["name", "name"]
+        # FIXME: The formatter needs to be improved to handle lists
+        # that contain addresses, etc.
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "address"
+            - type: "port"
+          field_separators:
+            - type: "port"
+      ready:
+        header: [["Ready:", ["main", "infoheader"]]]
+        paths:
+          - path: "status#conditions"
+            pathtype: "items"
+            subpath: "status"
+            when:
+              - key: "type"
+                eq: "Ready"
+            default: ["False"]
+        type: "str"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              "True":
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+              "False":
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+      ssh_keys:
+        header: [["S", ["main", "infoheader_shortcut"]],
+                 ["SH-Keys:", ["main", "infoheader"]]]
+        path: "spec#sshKeys#dataSecretName"
+        default: "<unset>"
+        type: "str"
+  shortcuts:
+    "Open controller":
+      key: "c"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for controller"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        namespace_path: "metadata#namespace"
+        owner_reference_path: "metadata#ownerReferences"
+    "Open SSH-key data secret":
+      key: "s"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for SSH-key Secret"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind: "Secret"
+        namespace_path: "metadata#namespace"
+        name_path: "spec#sshKeys#dataSecretName"
+    "View Control Plane Service Template":
+      key: "t"
+      modifier: "shift"
+      read_only: true
+      helptext: "Show Control Plane Service Template"
+      action: "call"
+      action_call: "view_yaml"
+      action_args:
+        title: "Control Plane Service Template"
+        _pass_obj: true
+        path: "spec#controlPlaneServiceTemplate"

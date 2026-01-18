@@ -1,27 +1,30 @@
 ---
-kind: "KubeadmControlPlaneTemplate"
-api_family: "controlplane.cluster.x-k8s.io"
-default_command: "kubeadmcontrolplanetemplates"
+kind: "KubevirtMachineTemplate"
+api_family: "infrastructure.cluster.x-k8s.io"
+default_command: "kubevirtmachinetemplates"
 command:
-  - "kubeadmcptmpls"
-  - "kubeadmcptmpl"
+  - "kubevirtmchtmpls"
+  - "kubevirtmchtmpl"
+  - "kvmchtmpls"
+  - "kvmchtmpl"
 listview:
-  name: "Kubeadm Control Plane Templates"
+  name: "Kubevirt Machine Templates"
   group: "Cluster Configuration"
   field_indexes:
     Normal:
       fields: ["namespace", "name", "age"]
       sortcolumn: "namespace"
 infoview:
-  name: "Kubeadm Control Plane Template Info"
+  name: "Kubevirt Machine Template Info"
   infopad:
     row_indexes:
       Normal:
-        fields: ["cluster_class"]
+        fields: ["cluster"]
     rows:
-      cluster_class:
-        header: [["C", ["main", "infoheader_shortcut"]],
-                 ["luster Class:", ["main", "infoheader"]]]
+      cluster:
+        header: [["Cl", ["main", "infoheader"]],
+                 ["u", ["main", "infoheader_shortcut"]],
+                 ["ster:", ["main", "infoheader"]]]
         paths:
           - path: "metadata#ownerReferences"
             pathtype: "items"
@@ -31,7 +34,7 @@ infoview:
               - "name"
             when:
               - key: "kind"
-                eq: "ClusterClass"
+                eq: "Cluster"
             type: ["kind", "api_group", "name"]
         default: "<none>"
         formatter: "list"
@@ -50,16 +53,15 @@ infoview:
       path: "spec#template"
     timestamps: false
   shortcuts:
-    "Open cluster class":
-      key: "c"
-      modifier: "shift"
+    "Open cluster":
+      key: "u"
       read_only: true
-      helptext: "Open info page for Cluster Class"
+      helptext: "Open info page for Cluster"
       action: "call"
       action_call: "resourceinfodispatch_with_lookup"
       action_args:
         _pass_obj: true
-        kind: "ClusterClass"
+        kind: "Cluster"
         api_family: "cluster.x-k8s.io"
         namespace_path: "metadata#namespace"
         owner_reference_path: "metadata#ownerReferences"

@@ -1,0 +1,140 @@
+---
+kind: "KubevirtMachine"
+api_family: "infrastructure.cluster.x-k8s.io"
+default_command: "kubevirtmachines"
+command:
+  - "kvmachs"
+  - "kvmach"
+listview:
+  name: "Kubevirt Machines"
+  group: "Cluster Configuration"
+  field_indexes:
+    Normal:
+      fields: ["namespace", "name", "provider_id", "age"]
+  fields:
+    provider_id:
+      header: "Provider ID:"
+      path: "spec#providerID"
+      type: "str"
+infoview:
+  name: "Kubevirt Machine Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["controller", "provider_id",
+                 "vm_bootstrap_check_strategy",
+                 "node_updated", "ready"]
+    rows:
+      controller:
+        header: [["C", ["main", "infoheader_shortcut"]],
+                 ["ontroller:", ["main", "infoheader"]]]
+        paths:
+          - path: "metadata#ownerReferences"
+            pathtype: "items"
+            subpaths:
+              - "kind"
+              - "apiVersion"
+              - "name"
+            when:
+              - key: "controller"
+                eq: true
+            type: ["kind", "api_group", "name"]
+        default: "<none>"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "kind"
+            - type: "api_group"
+            - type: "generic"
+          field_separators:
+            - type: "kind_api_group"
+            - type: "kind"
+      node_updated:
+        header: [["Node Updated:", ["main", "infoheader"]]]
+        path: "status#nodeupdated"
+        default: "<unset>"
+        type: "bool"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              "True":
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+              "False":
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+      provider_id:
+        header: [["Provider ID:", ["main", "infoheader"]]]
+        path: "spec#providerID"
+        type: "str"
+      ready:
+        header: [["Ready:", ["main", "infoheader"]]]
+        paths:
+          - path: "status#conditions"
+            pathtype: "items"
+            subpath: "status"
+            when:
+              - key: "type"
+                eq: "Ready"
+            default: ["False"]
+        type: "str"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              "True":
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+              "False":
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+      vm_bootstrap_check_strategy:
+        header: [["Virtual Machine Bootstrap Check Strategy:",
+                  ["main", "infoheader"]]]
+        path: "spec#virtualMachineBootstrapCheck#checkStrategy"
+        default: "<unset>"
+        type: "str"
+  shortcuts:
+    "Addresses":
+      key: "a"
+      modifier: "shift"
+      read_only: true
+      helptext: "List addresses"
+      widget: "windowwidget"
+      title: "Addresses:"
+      headers: ["Address:", "Type:"]
+      itemgetter: "get_list_fields"
+      itemgetter_args:
+        path: "status#addresses"
+        fields:
+          - "address"
+          - "type"
+      # Not supported for now
+      sortcolumn: "type"
+    "Open controller":
+      key: "c"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for controller"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        owner_reference_path: "metadata#ownerReferences"
+        namespace_path: "metadata#namespace"
+    "Virtual Cluster Template":
+      key: "t"
+      modifier: "shift"
+      read_only: true
+      helptext: "Show virtual cluster template"
+      action: "call"
+      action_call: "view_yaml"
+      action_args:
+        title: "Virtual Cluster Template"
+        _pass_obj: true
+        path: "spec#virtualMachineTemplate"

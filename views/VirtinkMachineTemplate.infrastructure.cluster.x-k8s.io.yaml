@@ -3,11 +3,11 @@ kind: "VirtinkMachineTemplate"
 api_family: "infrastructure.cluster.x-k8s.io"
 default_command: "virtinkmachinetemplates"
 command:
-  - "vimachtempls"
-  - "vimachtempl"
+  - "vimchtmpls"
+  - "vimchtmpl"
 listview:
   name: "Virtink Machine Templates"
-  group: "Virtualization"
+  group: "Cluster Configuration"
   field_indexes:
     Normal:
       fields: ["namespace", "name", "age"]

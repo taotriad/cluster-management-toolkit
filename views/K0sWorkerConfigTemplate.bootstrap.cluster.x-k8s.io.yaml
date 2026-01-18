@@ -3,8 +3,8 @@ kind: "K0sWorkerConfigTemplate"
 api_family: "bootstrap.cluster.x-k8s.io"
 default_command: "k0sworkerconfigtemplates"
 command:
-  - "k0sworkerconftempls"
-  - "k0sworkerconftempl"
+  - "k0sworkerconftmpls"
+  - "k0sworkerconftmpl"
 listview:
   name: "K0s Worker Config Templates"
   group: "Cluster Configuration"

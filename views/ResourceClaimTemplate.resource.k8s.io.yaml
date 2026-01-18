@@ -5,8 +5,8 @@ default_command: "resourceclaimtemplates"
 command:
   - "resclaimtemplates"
   - "resclaimtemplate"
-  - "resclaimtempls"
-  - "resclaimtempl"
+  - "resclaimtmpls"
+  - "resclaimtmpl"
 listview:
   name: "Resource Claim Templates"
   group: "Dynamic Resource Allocation"

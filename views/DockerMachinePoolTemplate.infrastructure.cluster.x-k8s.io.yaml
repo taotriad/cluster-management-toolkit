@@ -3,8 +3,8 @@ kind: "DockerMachinePoolTemplate"
 api_family: "infrastructure.cluster.x-k8s.io"
 default_command: "dockermachinepooltemplates"
 command:
-  - "dockermchpooltempls"
-  - "dockermchpooltempl"
+  - "dockermchpooltmpls"
+  - "dockermchpooltmpl"
 listview:
   name: "Docker Machine Pool Templates"
   group: "Cluster Configuration"

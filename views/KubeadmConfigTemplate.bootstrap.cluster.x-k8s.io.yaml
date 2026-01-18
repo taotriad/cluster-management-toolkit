@@ -3,8 +3,8 @@ kind: "KubeadmConfigTemplate"
 api_family: "bootstrap.cluster.x-k8s.io"
 default_command: "kubeadmconfigtemplates"
 command:
-  - "kubeadmconftempls"
-  - "kubeadmconftempl"
+  - "kubeadmconftmpls"
+  - "kubeadmconftmpl"
 listview:
   name: "Kubeadm Config Templates"
   group: "Cluster Configuration"
