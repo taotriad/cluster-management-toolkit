@@ -37,6 +37,7 @@ listview:
     replicas:
       header: "Replicas:"
       path: "spec#infra#replicas"
+      default: "<unset>"
       type: "int"
       formatter: "numerical"
       align: "right"
@@ -116,6 +117,7 @@ infoview:
       replicas:
         header: [["Replicas:", ["main", "infoheader"]]]
         path: "spec#infra#replicas"
+        default: "<unset>"
         type: "int"
         formatter: "numerical"
       target_kubevirt_registry:

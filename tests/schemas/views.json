@@ -1474,6 +1474,9 @@
 																"description": "An option or argument to pass to the command",
 																"type": "string"
 															}, {
+																"description": "A join list",
+																"type": "object"
+															}, {
 																"description": "A path to fetch the option or argument to pass to the command from",
 																"type": "array",
 																"items": {
@@ -1994,6 +1997,9 @@
 															{
 																"description": "An option or argument to pass to the command",
 																"type": "string"
+															}, {
+																"description": "A join list",
+																"type": "object"
 															}, {
 																"description": "A path to fetch the option or argument to pass to the command from",
 																"type": "array",
@@ -2596,6 +2602,9 @@
 															{
 																"description": "An option or argument to pass to the command",
 																"type": "string"
+															}, {
+																"description": "A join list",
+																"type": "object"
 															}, {
 																"description": "A path to fetch the option or argument to pass to the command from",
 																"type": "array",

@@ -6255,7 +6255,7 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
     return Retval.RETURNFULL
 
 
-# pylint: disable-next=too-many-locals,too-many-branches
+# pylint: disable-next=too-many-locals,too-many-branches,too-many-statements
 def do_command(stdscr: curses.window, **kwargs: Any) -> None:
     """
     Execute a command on localhost.

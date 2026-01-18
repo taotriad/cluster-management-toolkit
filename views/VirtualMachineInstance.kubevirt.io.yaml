@@ -121,9 +121,10 @@ listview:
       helptext: "SSH to VM"
       action: "command"
       action_args:
-        command: ["virtctl", "ssh", "--local-ssh", "--local-ssh-opts",
+        command: ["virtctl", "ssh", "--local-ssh-opts",
                   "-o StrictHostKeyChecking=no", "-n",
-                  ["metadata#namespace"], ["metadata#name"]]
+                  ["metadata#namespace"],
+                  {"join": ["vmi/", ["metadata#name"]]}]
         _pass_obj: true
 infoview:
   name: "Virtual Machine Instance Info"
@@ -383,9 +384,10 @@ infoview:
       helptext: "SSH to VM"
       widget: "command"
       widget_args:
-        command: ["virtctl", "ssh", "--local-ssh", "--local-ssh-opts",
+        command: ["virtctl", "ssh", "--local-ssh-opts",
                   "-o StrictHostKeyChecking=no", "-n",
-                  ["metadata#namespace"], ["metadata#name"]]
+                  ["metadata#namespace"],
+                  {"join": ["vmi/", ["metadata#name"]]}]
         _pass_obj: true
     "Show interfaces":
       key: "i"

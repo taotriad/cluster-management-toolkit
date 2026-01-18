@@ -68,6 +68,7 @@ infoview:
             subpaths:
               - "name"
               - "deviceName"
+            default: ["<unset>"]
         formatter: "list"
         formatting:
           field_colors:
