@@ -10,24 +10,16 @@ listview:
   group: "Cluster Configuration"
   field_indexes:
     Normal:
-      fields: ["namespace", "name", "control_plane_endpoint", "ready", "age"]
+      fields: ["namespace", "name", "cluster", "ready", "age"]
   fields:
-    control_plane_endpoint:
-      header: "Control Plane Endpoint:"
-      paths:
-        - path: [["spec#controlPlaneEndpoint#host"],
-                 ["spec#controlPlaneEndpoint#port"]]
-          pathtype: "tuple"
-      formatter: "list"
-      formatting:
-        field_colors:
-          - type: "ipaddress"
-          - type: "port"
-        field_separators:
-          - type: "port"
+    cluster:
+      header: "Cluster:"
+      path: "metadata#labels#cluster.x-k8s.io/cluster-name"
+      type: "str"
     ready:
       header: "Ready:"
       path: "status#ready"
+      default: false
       type: "str"
       formatter: "value_mapper"
       formatting:
@@ -46,10 +38,12 @@ infoview:
   infopad:
     row_indexes:
       Normal:
-        fields: ["controller", "control_plane_endpoint_header",
-                 "control_plane_endpoint_host",
-                 "control_plane_endpoint_port", "ready"]
+        fields: ["cluster", "controller", "control_plane_endpoint", "ready"]
     rows:
+      cluster:
+        header: [["Cluster:", ["main", "infoheader"]]]
+        path: "metadata#labels#cluster.x-k8s.io/cluster-name"
+        type: "str"
       controller:
         header: [["C", ["main", "infoheader_shortcut"]],
                  ["ontroller:", ["main", "infoheader"]]]
@@ -74,21 +68,27 @@ infoview:
           field_separators:
             - type: "kind_api_group"
             - type: "kind"
-      control_plane_endpoint_header:
+      control_plane_endpoint:
         header: [["Control Plane Endpoint:", ["main", "infoheader"]]]
-      control_plane_endpoint_host:
-        header: [["  Host:", ["main", "infoheader"]]]
-        path: "spec#controlPlaneEndpoint#host"
-        type: "raw"
-        formatter: "address"
-      control_plane_endpoint_port:
-        header: [["  Port:", ["main", "infoheader"]]]
-        path: "spec#controlPlaneEndpoint#port"
-        type: "str"
-        formatter: "numerical"
+        paths:
+          - path: [["spec#controlPlaneEndpoint#host"],
+                   ["spec#controlPlaneEndpoint#port"]]
+            default: ["<unset>"]
+            pathtype: "tuple"
+            type: ["name", "name"]
+        # FIXME: The formatter needs to be improved to handle lists
+        # that contain addresses, etc.
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "address"
+            - type: "port"
+          field_separators:
+            - type: "port"
       ready:
         header: [["Ready:", ["main", "infoheader"]]]
         path: "status#ready"
+        default: false
         type: "str"
         formatter: "value_mapper"
         formatting:
@@ -114,3 +114,14 @@ infoview:
         _pass_obj: true
         namespace_path: "metadata#namespace"
         owner_reference_path: "metadata#ownerReferences"
+    "View Control Plane Service Template":
+      key: "t"
+      modifier: "shift"
+      read_only: true
+      helptext: "Show Control Plane Service Template"
+      action: "call"
+      action_call: "view_yaml"
+      action_args:
+        title: "Control Plane Service Template"
+        _pass_obj: true
+        path: "spec#controlPlaneServiceTemplate"

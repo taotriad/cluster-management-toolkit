@@ -21,14 +21,14 @@ listview:
       formatting:
         mapping:
           mappings:
-            "True":
-              field_colors:
-                - context: "main"
-                  type: "status_ok"
             "False":
               field_colors:
                 - context: "main"
                   type: "status_not_ok"
+            "True":
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
     status:
       header: "Status:"
       path: "status#printableStatus"

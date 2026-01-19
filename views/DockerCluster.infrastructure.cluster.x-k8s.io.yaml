@@ -32,14 +32,14 @@ listview:
       formatting:
         mapping:
           mappings:
-            "True":
-              field_colors:
-                - context: "main"
-                  type: "status_ok"
             "False":
               field_colors:
                 - context: "main"
                   type: "status_pending"
+            "True":
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
 infoview:
   name: "Docker Cluster Info"
   infopad:

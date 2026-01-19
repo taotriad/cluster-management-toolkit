@@ -111,6 +111,7 @@ infoview:
       short_names:
         header: [["Short Names:", ["main", "infoheader"]]]
         path: "spec#names#shortNames"
+        default: ["<none>"]
         type: "raw"
         formatter: "list"
       singular:

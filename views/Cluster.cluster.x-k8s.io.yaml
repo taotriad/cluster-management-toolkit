@@ -62,8 +62,13 @@ infoview:
                  "cluster_network_pod_cidr_blocks",
                  "cluster_network_service_cidr_blocks",
                  "cluster_network_service_domain", "control_plane",
-                 "control_plane_endpoint", "control_plane_ready",
-                 "infrastructure", "infrastructure_ready", "phase"]
+                 "control_plane_endpoint",
+                 "control_plane_initialized",
+                 "control_plane_ready",
+                 "control_plane_replicas",
+                 "infrastructure", "infrastructure_ready",
+                 "worker_replicas",
+                 "phase"]
     rows:
       cluster_network_header:
         header: [["Cluster Network:", ["main", "infoheader"]]]
@@ -118,6 +123,23 @@ infoview:
             - type: "port"
           field_separators:
             - type: "port"
+      control_plane_initialized:
+        header: [["Control Plane Initialized:", ["main", "infoheader"]]]
+        path: "status#initialization#controlPlaneInitialized"
+        default: "<unset>"
+        type: "bool"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              "True":
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+              "False":
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
       control_plane_ready:
         header: [["Control Plane Ready:", ["main", "infoheader"]]]
         paths:
@@ -141,6 +163,48 @@ infoview:
                 field_colors:
                   - context: "main"
                     type: "status_pending"
+      control_plane_replicas:
+        header: [["Control Plane Replicas:", ["main", "infoheader"]]]
+        paths:
+          - path: [["status#controlPlane#desiredReplicas"],
+                   " Desired",
+                   ["status#controlPlane#replicas"],
+                   " Current",
+                   ["status#controlPlane#readyReplicas"],
+                   " Ready",
+                   ["status#controlPlane#upToDateReplicas"],
+                   " Up to Date",
+                   ["status#controlPlane#availableReplicas"],
+                   " Available"]
+            pathtype: "tuple"
+            default: [0, "", 0, "", 0, "", 0, "", 0, "", 0, ""]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "numerical"
+            - type: "generic"
+            - type: "numerical"
+            - type: "generic"
+            - type: "numerical"
+            - type: "generic"
+            - type: "numerical"
+            - type: "generic"
+            - type: "numerical"
+            - type: "generic"
+            - type: "numerical"
+            - type: "generic"
+          field_separators:
+            - type: "no_pad"
+            - type: "fraction_spaced"
+            - type: "no_pad"
+            - type: "fraction_spaced"
+            - type: "no_pad"
+            - type: "fraction_spaced"
+            - type: "no_pad"
+            - type: "fraction_spaced"
+            - type: "no_pad"
+            - type: "fraction_spaced"
+            - type: "no_pad"
       infrastructure:
         header: [["I", ["main", "infoheader_shortcut"]],
                  ["nfrastructure:", ["main", "infoheader"]]]
@@ -159,6 +223,23 @@ infoview:
           field_separators:
             - type: "kind"
             - type: "namespace"
+      infrastructure_provisioned:
+        header: [["Infrastructure Provisioned:", ["main", "infoheader"]]]
+        path: "status#initialization#infrastructureProvisioned"
+        default: "<unset>"
+        type: "bool"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              "True":
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+              "False":
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
       infrastructure_ready:
         header: [["Infrastructure Ready:", ["main", "infoheader"]]]
         paths:
@@ -210,6 +291,48 @@ infoview:
                 field_colors:
                   - context: "main"
                     type: "status_not_ok"
+      worker_replicas:
+        header: [["Worker Replicas:", ["main", "infoheader"]]]
+        paths:
+          - path: [["status#workers#desiredReplicas"],
+                   " Desired",
+                   ["status#workers#replicas"],
+                   " Current",
+                   ["status#workers#readyReplicas"],
+                   " Ready",
+                   ["status#workers#upToDateReplicas"],
+                   " Up to Date",
+                   ["status#workers#availableReplicas"],
+                   " Available"]
+            pathtype: "tuple"
+            default: [0, "", 0, "", 0, "", 0, "", 0, "", 0, ""]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "numerical"
+            - type: "generic"
+            - type: "numerical"
+            - type: "generic"
+            - type: "numerical"
+            - type: "generic"
+            - type: "numerical"
+            - type: "generic"
+            - type: "numerical"
+            - type: "generic"
+            - type: "numerical"
+            - type: "generic"
+          field_separators:
+            - type: "no_pad"
+            - type: "fraction_spaced"
+            - type: "no_pad"
+            - type: "fraction_spaced"
+            - type: "no_pad"
+            - type: "fraction_spaced"
+            - type: "no_pad"
+            - type: "fraction_spaced"
+            - type: "no_pad"
+            - type: "fraction_spaced"
+            - type: "no_pad"
   shortcuts:
     "Open Control Plane":
       key: "c"

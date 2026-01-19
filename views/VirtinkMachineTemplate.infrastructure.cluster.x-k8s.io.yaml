@@ -43,6 +43,12 @@ infoview:
           field_separators:
             - type: "kind_api_group"
             - type: "kind"
+  logpad:
+    infogetter: "logpad_formatted"
+    infogetter_args:
+      formatter: "format_yaml"
+      path: "spec#template"
+    timestamps: false
   shortcuts:
     "Open Cluster":
       key: "u"
@@ -56,14 +62,3 @@ infoview:
         api_group: "cluster.x-k8s.io"
         namespace_path: "metadata#namespace"
         owner_reference_path: "metadata#ownerReferences"
-    "Virtual Cluster Template":
-      key: "t"
-      modifier: "shift"
-      read_only: true
-      helptext: "Show virtual cluster template"
-      action: "call"
-      action_call: "view_yaml"
-      action_args:
-        title: "Virtual Cluster Template"
-        _pass_obj: true
-        path: "spec#template"

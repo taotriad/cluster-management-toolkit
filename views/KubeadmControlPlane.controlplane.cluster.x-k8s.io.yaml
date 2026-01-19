@@ -11,26 +11,33 @@ listview:
   field_indexes:
     Normal:
       fields: ["namespace", "name", "controller", "initialized",
-               "api_server_available", "replicas", "ready", "updated",
-               "unavailable", "age", "version"]
+               "available", "desired", "replicas", "ready", "uptodate",
+               "age", "version"]
       sortcolumn: "namespace"
   fields:
-    api_server_available:
-      header: "API-server Available:"
-      path: "status#ready"
-      type: "bool"
+    available:
+      header: "Available:"
+      paths:
+        - path: "status#conditions"
+          pathtype: "items"
+          subpath: "status"
+          when:
+            - key: "type"
+              eq: "Available"
+          default: ["False"]
+      type: "str"
       formatter: "value_mapper"
       formatting:
         mapping:
           mappings:
+            "False":
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
             "True":
               field_colors:
                 - context: "main"
                   type: "status_ok"
-            "False":
-              field_colors:
-                - context: "main"
-                  type: "status_not_ok"
     controller:
       header: "Controller:"
       paths:
@@ -54,44 +61,54 @@ listview:
         field_separators:
           - type: "kind_api_group"
           - type: "kind"
+    desired:
+      header: "Desired:"
+      path: "spec#replicas"
+      default: 0
+      type: "int"
+      formatter: "numerical"
+      align: "right"
     initialized:
       header: "Initialized:"
-      path: "status#initialized"
-      type: "bool"
+      paths:
+        - path: ["status#initialization#controlPlaneInitialized",
+                 "status#initialized"]
+          pathtype: "value"
+          default: false
+          type: "bool"
       formatter: "value_mapper"
       formatting:
         mapping:
           mappings:
-            "True":
-              field_colors:
-                - context: "main"
-                  type: "status_ok"
             "False":
               field_colors:
                 - context: "main"
                   type: "status_pending"
+            "True":
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
     ready:
       header: "Ready:"
       path: "status#readyReplicas"
+      default: 0
       type: "int"
       formatter: "numerical"
       align: "right"
     replicas:
       header: "Replicas:"
       path: "status#replicas"
+      default: 0
       type: "int"
       formatter: "numerical"
       align: "right"
-    unavailable:
-      header: "Unavailable:"
-      path: "status#unavailableReplicas"
-      type: "int"
-      formatter: "numerical"
-      align: "right"
-    updated:
-      header: "Updated:"
-      path: "status#updatedReplicas"
-      type: "int"
+    uptodate:
+      header: "Up to Date:"
+      paths:
+        - path: ["status#upToDateReplicas", "status#updatedReplicas"]
+          pathtype: "value"
+          default: 0
+          type: "int"
       formatter: "numerical"
       align: "right"
     version:
@@ -106,26 +123,34 @@ infoview:
   infopad:
     row_indexes:
       Normal:
-        fields: ["controller", "initialized", "api_server_available",
-                 "selector", "replicas", "ready", "updated", "unavailable",
+        fields: ["controller", "initialized", "available",
+                 "selector", "desired", "replicas",
+                 "ready", "uptodate", "rollout_strategy",
                  "template_header", "template_infrastructure", "version"]
     rows:
-      api_server_available:
-        header: [["API-server Available:", ["main", "infoheader"]]]
-        path: "status#ready"
-        type: "bool"
+      available:
+        header: [["Available:", ["main", "infoheader"]]]
+        paths:
+          - path: "status#conditions"
+            pathtype: "items"
+            subpath: "status"
+            when:
+              - key: "type"
+                eq: "Available"
+            default: ["False"]
+        type: "str"
         formatter: "value_mapper"
         formatting:
           mapping:
             mappings:
+              "False":
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
               "True":
                 field_colors:
                   - context: "main"
                     type: "status_ok"
-              "False":
-                field_colors:
-                  - context: "main"
-                    type: "status_not_ok"
       controller:
         header: [["C", ["main", "infoheader_shortcut"]],
                  ["ontroller:", ["main", "infoheader"]]]
@@ -150,25 +175,36 @@ infoview:
           field_separators:
             - type: "kind_api_group"
             - type: "kind"
+      desired:
+        header: [["Desired:", ["main", "infoheader"]]]
+        path: "spec#replicas"
+        default: 0
+        type: "int"
+        formatter: "numerical"
       initialized:
         header: [["Initialized:", ["main", "infoheader"]]]
-        path: "status#initialized"
-        type: "bool"
+        paths:
+          - path: ["status#initialization#controlPlaneInitialized",
+                   "status#initialized"]
+            pathtype: "value"
+            default: false
+            type: "bool"
         formatter: "value_mapper"
         formatting:
           mapping:
             mappings:
-              "True":
-                field_colors:
-                  - context: "main"
-                    type: "status_ok"
               "False":
                 field_colors:
                   - context: "main"
                     type: "status_pending"
+              "True":
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
       ready:
         header: [["Ready:", ["main", "infoheader"]]]
         path: "status#readyReplicas"
+        default: 0
         type: "int"
         formatter: "numerical"
       replicas:
@@ -176,9 +212,33 @@ infoview:
         path: "status#replicas"
         type: "int"
         formatter: "numerical"
+      rollout_strategy:
+        header: [["Rollout Strategy:", ["main", "infoheader"]]]
+        paths:
+          - path: [["spec#rollout#strategy#type"],
+                   " (", "Max Surge: ",
+                   ["spec#rollout#strategy#rollingUpdate#maxSurge"],
+                   ")"]
+            pathtype: "tuple"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "generic"
+            - type: "generic"
+            - context: "main"
+              type: "infoheader"
+            # Ideally we want to achieve numerical with unit here
+            - type: "numerical"
+            - type: "generic"
+          field_separators:
+            - type: "no_pad"
+            - type: "no_pad"
+            - type: "no_pad"
+            - type: "no_pad"
       selector:
         header: [["Selector:", ["main", "infoheader"]]]
         path: "status#selector"
+        default: "<unset>"
         type: "str"
       template_header:
         header: [["Machine Template:", ["main", "infoheader"]]]
@@ -187,9 +247,9 @@ infoview:
                  ["I", ["main", "infoheader_shortcut"]],
                  ["nfrastructure:", ["main", "infoheader"]]]
         paths:
-          - path: [["spec#machineTemplate#infrastructureRef#kind"],
+          - path: [["spec#machineTemplate#spec#infrastructureRef#kind"],
                    ["metadata#namespace"],
-                   ["spec#machineTemplate#infrastructureRef#name"]]
+                   ["spec#machineTemplate#spec#infrastructureRef#name"]]
             pathtype: "tuple"
             type: ["kind", "name", "name"]
         default: "<none>"
@@ -202,15 +262,13 @@ infoview:
           field_separators:
             - type: "kind"
             - type: "namespace"
-      unavailable:
-        header: [["Unavailable:", ["main", "infoheader"]]]
-        path: "status#unavailableReplicas"
-        type: "int"
-        formatter: "numerical"
-      updated:
-        header: [["Updated:", ["main", "infoheader"]]]
-        path: "status#updatedReplicas"
-        type: "int"
+      uptodate:
+        header: [["Up to Date:", ["main", "infoheader"]]]
+        paths:
+          - path: ["status#upToDateReplicas", "status#updatedReplicas"]
+            pathtype: "value"
+            default: 0
+            type: "int"
         formatter: "numerical"
       version:
         header: [["Version:", ["main", "infoheader"]]]
@@ -240,10 +298,10 @@ infoview:
       action_call: "resourceinfodispatch_with_lookup"
       action_args:
         _pass_obj: true
-        api_version_path: "spec#machineTemplate#infrastructureRef#apiVersion"
-        kind_path: "spec#machineTemplate#infrastructureRef#kind"
+        api_version_path: "spec#machineTemplate#spec#infrastructureRef#apiVersion"
+        kind_path: "spec#machineTemplate#spec#infrastructureRef#kind"
         namespace_path: "metadata#namespace"
-        name_path: "spec#machineTemplate#infrastructureRef#name"
+        name_path: "spec#machineTemplate#spec#infrastructureRef#name"
     "View cluster configuration":
       key: "o"
       modifier: "shift"
