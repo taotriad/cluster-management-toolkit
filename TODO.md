@@ -2,6 +2,8 @@
 
 ## Implementation
 
+* None is falsy. Replace checks of the kind `if X is None or X == ""` with just `if X`,
+  and fix other uses of if `if X is not None` similarly.
 * From v0.8.7 we will switch to requiring Python 3.11. This will allow
   us to use the following features added in Python v3.10 and v3.11:
   * TypedDict to type-check dicts.
@@ -42,8 +44,6 @@
 
 ## cmu
 
-* "A" in Inventory view is not listed in the helptext. Fix this and check if there are
-  other built-ins that need helptext or (preferably) moved to be defined in the view-files.
 * Divide ping (inventory & context views) into 2 different categories;
   normal and slow; slow to use with hosts that responded with
   "NO ROUTE TO HOST", "CONNECTION TIMED OUT", or "COULD NOT RESOLVE";

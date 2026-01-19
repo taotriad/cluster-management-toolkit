@@ -92,6 +92,12 @@ listview:
                 - context: "main"
                   type: "status_unknown"
   shortcuts:
+    "Toggle Ansible groups for hosts":
+      key: "a"
+      modifier: "shift"
+      read_only: false
+      helptext: "Toggle Ansible labels"
+      action: "noop"
     "SSH to Host":
       key: "s"
       modifier: "shift"

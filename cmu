@@ -873,7 +873,7 @@ def genericlistloop(stdscr: curses.window, **kwargs: Any) -> Retval:
     else:
         is_namespaced = kh.is_kind_namespaced(kind)
 
-    helptext = generate_helptext(view, "listview", [], {})
+    helptext = generate_helptext(view, "listview", is_namespaced=is_namespaced)
     activatedfun = deep_get(viewref, DictPath("activatedfun"), genericinfoloop)
     on_activation = deep_get(viewref, DictPath("on_activation"), {})
     update_delay = deep_get(viewref, DictPath("update_delay"), -1)
@@ -1561,13 +1561,13 @@ def genericlistloop(stdscr: curses.window, **kwargs: Any) -> Retval:
             compiled_pattern: re.Pattern[str] = re.compile(pattern)
 
             # XXX: This should search the specified sortcolumn, not always in name
-            for item in uip.sorted_list:
+            for listitem in uip.sorted_list:
                 try:
-                    tmp = compiled_pattern.match(item.name)
+                    match_tmp = compiled_pattern.match(listitem.name)
 
-                    if tmp is not None and tmp[0]:
-                        if item not in tagged_items:
-                            tagged_items.add(item)
+                    if match_tmp and match_tmp[0]:
+                        if listitem not in tagged_items:
+                            tagged_items.add(listitem)
                             uip.list_needs_regeneration(True)
                 except re.error:
                     continue
@@ -1582,12 +1582,12 @@ def genericlistloop(stdscr: curses.window, **kwargs: Any) -> Retval:
             compiled_pattern = re.compile(pattern)
 
             # XXX: This should search the specified sortcolumn, not always in name
-            for item in uip.sorted_list:
+            for listitem in uip.sorted_list:
                 try:
-                    tmp = compiled_pattern.match(item.name)
+                    match_tmp = compiled_pattern.match(listitem.name)
 
-                    if tmp is not None and tmp[0]:
-                        tagged_items.discard(item)
+                    if match_tmp and match_tmp[0]:
+                        tagged_items.discard(listitem)
                         uip.list_needs_regeneration(True)
                 except re.error:
                     continue
@@ -1773,10 +1773,10 @@ def genericlistloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                 continue
             # XXX: Currently windowwidget cannot handle ThemeRefs
             bullet = str(ThemeRef("separators", "widgetbullet"))
-            for item in tagged_items:
+            for tagged_item in tagged_items:
                 taggeditemlist.append({
                     "lineattrs": WidgetLineAttrs.NORMAL,
-                    "columns": [[ThemeStr(f"{bullet}{item.name}",
+                    "columns": [[ThemeStr(f"{bullet}{tagged_item.name}",
                                           ThemeAttr("windowwidget", "default"))]],
                 })
             curses_helper.windowwidget(uip.stdscr, uip.maxy, uip.maxx, uip.maxy // 2, uip.maxx // 2,
@@ -2148,6 +2148,9 @@ def genericlistloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                         return retval
                 elif action == "command" and action_args is not None:
                     do_command(uip.stdscr, **action_args)
+                elif action == "noop":
+                    # Use this to show help entries for built-ins.
+                    pass
 
             if force_refresh:
                 uip.force_refresh()
@@ -2715,18 +2718,18 @@ def clusteroverviewloop(stdscr: curses.window, **kwargs: Any) -> Retval:
             # ...  normal   niced system   idle      iowait irq softirq steal guest guest_nice
             #      1        2     3        4         5      6   7       8     9     10
             if stat_raw:
-                tmp = stat_regex.match(stat_raw[0])
-                if tmp is not None:
-                    cputimeuser = int(tmp[1])
-                    cputimeusernice = int(tmp[2])
-                    cputimesystem = int(tmp[3])
-                    cputimeidle = int(tmp[4])
-                    cputimeiowait = int(tmp[5])
-                    cputimeirq = int(tmp[6])
-                    cputimesoftirq = int(tmp[7])
-                    cputimesteal = int(tmp[8])
-                    cputimeguest = int(tmp[9])
-                    cputimeguestnice = int(tmp[10])
+                match_tmp = stat_regex.match(stat_raw[0])
+                if match_tmp is not None:
+                    cputimeuser = int(match_tmp[1])
+                    cputimeusernice = int(match_tmp[2])
+                    cputimesystem = int(match_tmp[3])
+                    cputimeidle = int(match_tmp[4])
+                    cputimeiowait = int(match_tmp[5])
+                    cputimeirq = int(match_tmp[6])
+                    cputimesoftirq = int(match_tmp[7])
+                    cputimesteal = int(match_tmp[8])
+                    cputimeguest = int(match_tmp[9])
+                    cputimeguestnice = int(match_tmp[10])
                     cputimeuser = cputimeuser - cputimeguest
                     cputimeusernice = cputimeusernice - cputimeguestnice
                     cputimetotalidle = cputimeidle + cputimeiowait
@@ -2959,7 +2962,7 @@ def clusteroverviewloop(stdscr: curses.window, **kwargs: Any) -> Retval:
             node_heatmap_xpos = 0
             pod_heatmap_xpos = uip.maxx - pod_heatmap_width - 2
 
-            taints = []
+            taints: list[str] = []
             if nodeinfo:
                 taints = getattr(nodeinfo[selected_node], "taints", ["<none>"])
             if not taints:
@@ -3213,9 +3216,9 @@ def check_cni_updates(cni: str, current_version: str) -> str:
                 versionoutput = result.stdout.splitlines()
                 version_regex: re.Pattern[str] = re.compile(r"^cilium image \(default\): (.*)")
                 for line in versionoutput:
-                    tmp = version_regex.match(line)
-                    if tmp is not None:
-                        candidate_version = tmp[1]
+                    match_tmp = version_regex.match(line)
+                    if match_tmp is not None:
+                        candidate_version = match_tmp[1]
                         break
     else:
         candidate_version = "<Update check not implemented>"
@@ -3672,20 +3675,25 @@ def export_data(stdscr: curses.window, **kwargs: Any) -> Retval:
 
 # pylint: disable-next=too-many-branches,too-many-statements
 def generate_helptext(view: Union[str, tuple[str, str]], viewtype: str,
-                      additional_helptexts: list[tuple[str, str]],
-                      shortcuts: dict[str, dict[str, Any]]) -> list[dict]:
+                      **kwargs: Any) -> list[dict]:
     """
     Generate helptext for a view.
 
         Parameters:
             view (str | (str, str)): The view to generate helptext for
             viewtype (str): The view type (infoview or listview)
-            additional_helptexts ([(str, str)]): Additional helptext
-            shortcuts (dict[str, dict[str, Any]]): The shorts + helptexts to add
+            **kwargs (dict[str, Any]): Keyword arguments
+                additional_helptexts ([(str, str)]): Additional helptext
+                shortcuts (dict[str, dict[str, Any]]): The shorts + helptexts to add
+                is_namespaced (bool): Is this resource namespaced?
         Returns:
             ([dict]): Formatted helptext suitable for passing to windowwidget()
     """
     helptext: list[tuple[str, str]] = []
+    additional_helptexts: list[tuple[str, str]] = \
+        deep_get(kwargs, DictPath("additional_helptexts"), [])
+    shortcuts: dict[str, dict[str, Any]] = deep_get(kwargs, DictPath("shortcuts"), {})
+    is_namespaced: bool = deep_get(kwargs, DictPath("is_namespaced"), False)
 
     if viewtype == "infoview":
         helptext += helptexts.infoviewheader_part1
@@ -3733,6 +3741,9 @@ def generate_helptext(view: Union[str, tuple[str, str]], viewtype: str,
 
         if viewref["kind"] in infoviews:
             helptext += helptexts.openresource
+
+        if is_namespaced:
+            helptext += helptexts.selectnamespace
 
         if "shortcuts" in viewref:
             for shortcut in deep_get(viewref, DictPath("shortcuts")):
@@ -4002,7 +4013,8 @@ def genericinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
     if deep_get(obj, DictPath(annotations)) is not None:
         additional_helptexts += helptexts.annotations
 
-    helptext = generate_helptext(view, "infoview", additional_helptexts, shortcuts=shortcuts)
+    helptext = generate_helptext(view, "infoview",
+                                 additional_helptexts=additional_helptexts, shortcuts=shortcuts)
 
     uip.init_window(field_dict=field_dict, windowheader=windowheader, helptext=helptext,
                     view=viewoverride, sortcolumn=sortcolumn, sortorder_reverse=sortorder_reverse,
@@ -5798,9 +5810,9 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                         facility_extended, _facility = _facility
                     if _facility is None:
                         _facility = ""
-                    tmp = facility_regex.match(_facility)
-                    if tmp is not None:
-                        facility = tmp[1]
+                    match_tmp = facility_regex.match(_facility)
+                    if match_tmp is not None:
+                        facility = match_tmp[1]
                         latest_facility_len = len(facility)
                     elif len(_facility.strip()) != len(_facility) and not _facility.strip():
                         if latest_facility_len == -1:
@@ -6402,10 +6414,11 @@ def executecommand(stdscr: curses.window,
                 waitforkeypress = True
             else:
                 output = result.stdout.decode("utf-8", errors="replace")
-                tmp = re.match(r"^Creating debugging pod (\S+) with container (\S+) .*", output)
-                if tmp is not None:
-                    pod_name = tmp[1]
-                    container_name = tmp[2]
+                match_tmp = \
+                    re.match(r"^Creating debugging pod (\S+) with container (\S+) .*", output)
+                if match_tmp is not None:
+                    pod_name = match_tmp[1]
+                    container_name = match_tmp[2]
 
                     # Wait for the pod to be ready
                     ansithemeprint([ANSIThemeStr("Waiting for debug pod to be ready "
@@ -6520,8 +6533,8 @@ def listviewdispatch(stdscr: curses.window, **kwargs: Any) -> Retval:
         api_family, _api_version = api_family.split("/")
     else:
         # Is the api_family only a version#? Then it's a core API
-        tmp = re.match(r"^v\d+(alpha\d+|beta\d+|)", api_family)
-        if tmp is not None:
+        match_tmp = re.match(r"^v\d+(alpha\d+|beta\d+|)", api_family)
+        if match_tmp is not None:
             api_family = ""
 
     if isinstance(kind, str):
@@ -6753,7 +6766,7 @@ def resourceinfodispatch_with_lookup(stdscr: curses.window, **kwargs: Any) -> Re
                 obj = selected
 
     selection = deep_get(kwargs, DictPath("selection"))
-    fields = []
+    fields: list[Any] = []
     if isinstance(selection, dict):
         if obj is None:
             obj = selection
@@ -7400,9 +7413,9 @@ def delete_resource(**kwargs: Any) -> Retval:
                                                          namespace, force=force)
                 if status != 200:
                     # Status messages can be very verbose; delete everything from URL and on
-                    tmp = re.match(r"^(.+?), URL:.*", message)
-                    if tmp is not None:
-                        message = tmp[1]
+                    match_tmp = re.match(r"^(.+?), URL:.*", message)
+                    if match_tmp is not None:
+                        message = match_tmp[1]
                     win = curses_helper.alert(uip.stdscr, message=message)
                     success = False
                     break
@@ -7410,9 +7423,9 @@ def delete_resource(**kwargs: Any) -> Retval:
         message, status = kh.delete_obj_by_kind_name_namespace(kind, name, namespace, force=force)
         if status != 200:
             # Status messages can be very verbose; delete everything from URL and on
-            tmp = re.match(r"^(.+?), URL:.*", message)
-            if tmp is not None:
-                message = tmp[1]
+            match_tmp = re.match(r"^(.+?), URL:.*", message)
+            if match_tmp is not None:
+                message = match_tmp[1]
             win = curses_helper.alert(uip.stdscr, message=message)
             success = False
             break
@@ -7761,9 +7774,9 @@ def diff_resource_configuration(uip: UIProps, **kwargs: Any) -> Retval:
         # if a different indent is configured we have to modify this
         if indent != 2:
             prefix = line[0]
-            tmp = diff_regex.match(line[1:])
-            if tmp is not None and len(tmp[1]) % 2 == 0:
-                line = prefix + "".ljust(int(len(tmp[1]) / 2) * indent) + tmp[2]
+            match_tmp = diff_regex.match(line[1:])
+            if match_tmp is not None and len(match_tmp[1]) % 2 == 0:
+                line = prefix + "".ljust(int(len(match_tmp[1]) / 2) * indent) + match_tmp[2]
 
         diff.append({
             "lineattrs": WidgetLineAttrs.NORMAL,
@@ -8493,16 +8506,16 @@ def populate_actionlist(**kwargs: Any) -> tuple[list[dict[str, Any]], dict[str, 
         order.append((description, category, name))
 
     currentcategory = ""
-    for item in natsorted(order, key=itemgetter(1, 0)):
-        action = item[0]
-        category = item[1]
+    for action_item in natsorted(order, key=itemgetter(1, 0)):
+        action = action_item[0]
+        category = action_item[1]
         allowoncontrolplane = \
-            deep_get(action_list, DictPath(f"{item[2]}#allow_on_control_plane"), True)
+            deep_get(action_list, DictPath(f"{action_item[2]}#allow_on_control_plane"), True)
         singleoncontrolplane = \
-            deep_get(action_list, DictPath(f"{item[2]}#single_on_control_plane"), False)
-        singleonly = deep_get(action_list, DictPath(f"{item[2]}#single_only"), False)
-        readonly = deep_get(action_list, DictPath(f"{item[2]}#read_only"), False)
-        metadata = deep_get(action_list, DictPath(f"{item[2]}#metadata"), [])
+            deep_get(action_list, DictPath(f"{action_item[2]}#single_on_control_plane"), False)
+        singleonly = deep_get(action_list, DictPath(f"{action_item[2]}#single_only"), False)
+        readonly = deep_get(action_list, DictPath(f"{action_item[2]}#read_only"), False)
+        metadata = deep_get(action_list, DictPath(f"{action_item[2]}#metadata"), [])
         tmp = []
         for md in metadata:
             if isinstance(md, ThemeStr):
@@ -8964,7 +8977,7 @@ def selectwindow(uip: UIProps, **kwargs: Any) -> Retval:
                     continue
             selection = tmpselection
 
-    if selection != "":
+    if isinstance(selection, str) and selection:
         defaultview = selection
         return Retval.RETURNFULL
 
@@ -9435,7 +9448,6 @@ def populate_views(refresh_apis: str = "none") -> None:
             continue
 
         for filename in natsorted(os.listdir(view_dir)):
-            filename = cast(str, filename)
             if filename == "__event_reasons.yaml":
                 d = dict(secure_read_yaml(FilePath(view_dir).joinpath(filename),
                                           directory_is_symlink=True))
@@ -9478,7 +9490,7 @@ def populate_views(refresh_apis: str = "none") -> None:
                 ruyaml.parser.ParserError,
                 ruyaml.scanner.ScannerError,
                 TypeError) as e:
-            printable_errmsg = [
+            printable_errmsg: list[list[tuple[str, str]]] = [
                 [("View-file ", "default"),
                  (f"{view_file}", "path"),
                  (" is invalid; skipping.", "default")],
@@ -9498,7 +9510,7 @@ def populate_views(refresh_apis: str = "none") -> None:
                 ]
                 errmsg += tmplines[1:]
             else:
-                errmsg += [(".", "error")]
+                errmsg.append([(".", "error")])
 
             unformatted_msg, formatted_msg = ANSIThemeStr.format_error_msg(errmsg)
             cmtlog.log(LogLevel.ERR, msg=unformatted_msg, messages=formatted_msg)

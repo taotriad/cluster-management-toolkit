@@ -71,6 +71,10 @@ openresource = [
     ("[Enter]", "Open info page for selected resource"),
 ]
 
+selectnamespace = [
+    ("[Shift] + N", "Select Namespace"),
+]
+
 tagactions = [
     ("T", "Tag / Untag item"),
     ("[Shift] + T", "Tag item by pattern"),
