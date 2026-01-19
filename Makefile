@@ -70,7 +70,8 @@ test_libs_symlink = clustermanagementtoolkit
 # W503 is for line break before binary operator;
 # flake8 warns *both* for breaks before and after.
 # Hence we we need to ignore one of those warnings.
-FLAKE8_IGNORE := F841,W503
+# Finally it seems flake8 doesn't seem to recognise when globals are used.
+FLAKE8_IGNORE := F841,W503,F824
 
 # Used by ruff to check for future and/or deprecated features
 RUFF_PYTHON_VERSION := py39
