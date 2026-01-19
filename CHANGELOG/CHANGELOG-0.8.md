@@ -254,26 +254,26 @@ Output:
 ```
 Name                                                  Stmts   Miss Branch BrPart  Cover
 ---------------------------------------------------------------------------------------
+clustermanagementtoolkit/infogetters.py                1712   1362   1038     16  18.6%
 clustermanagementtoolkit/listgetters.py                1235    986    656     12  18.9%
-clustermanagementtoolkit/infogetters.py                1729   1376   1038     23  19.1%
-clustermanagementtoolkit/cluster_actions.py             226    176     74      2  20.0%
+clustermanagementtoolkit/cluster_actions.py             226    178     74      3  19.0%
 clustermanagementtoolkit/curses_helper.py              2504   1877   1130     19  21.6%
-clustermanagementtoolkit/logparser.py                  2059   1443   1122     34  25.7%
 clustermanagementtoolkit/networkio.py                   389    282    178      3  26.1%
-clustermanagementtoolkit/kubernetes_helper.py          1625   1085    784     96  30.3%
+clustermanagementtoolkit/logparser.py                  2059   1420   1122     32  26.5%
+clustermanagementtoolkit/kubernetes_helper.py          1625   1111    784     77  28.2%
 clustermanagementtoolkit/listgetters_async.py           119     76     52      2  31.0%
 clustermanagementtoolkit/checks.py                      637    342    250      1  44.0%
 clustermanagementtoolkit/datagetters.py                 276    147    144     12  44.5%
 clustermanagementtoolkit/generators.py                  758    374    386     28  47.4%
-clustermanagementtoolkit/formatters.py                  804    347    422     37  54.3%
+clustermanagementtoolkit/formatters.py                  813    323    428     35  57.0%
 clustermanagementtoolkit/ansible_helper.py              823    221    486     27  72.0%
 clustermanagementtoolkit/cmtlib.py                      576    120    326     13  76.8%
 clustermanagementtoolkit/cmtio.py                       426     45    226     20  88.2%
 clustermanagementtoolkit/itemgetters.py                 524     47    284     18  89.7%
 clustermanagementtoolkit/cni_data.py                     96      1     40     10  91.9%
 clustermanagementtoolkit/ansithemeprint.py              224     12     86      4  94.2%
+clustermanagementtoolkit/reexecutor.py                   72      2     28      3  95.0%
 clustermanagementtoolkit/cmtvalidators.py               337     11    210      5  96.3%
-clustermanagementtoolkit/reexecutor.py                   72      1     28      2  97.0%
 clustermanagementtoolkit/cmtio_yaml.py                   62      1     14      1  97.4%
 clustermanagementtoolkit/fieldgetters.py                 74      0     44      3  97.5%
 clustermanagementtoolkit/commandparser.py               448      1    254      2  99.6%
@@ -287,7 +287,7 @@ clustermanagementtoolkit/objgetters.py                   56      0     12      0
 clustermanagementtoolkit/pvtypes.py                       1      0      0      0 100.0%
 clustermanagementtoolkit/recommended_permissions.py      11      0      0      0 100.0%
 ---------------------------------------------------------------------------------------
-TOTAL                                                 16798   8972   8476    374  44.1%
+TOTAL                                                 16790   8940   8482    346  44.1%
 ```
 
 ### Flake8 Results for v0.8.6
@@ -310,7 +310,7 @@ Execute with `make mypy-markdown`.
 | cmtadm                                              | Success: no issues found in 1 source file               |
 | cmt-install                                         | Success: no issues found in 1 source file               |
 | cmtinv                                              | Success: no issues found in 1 source file               |
-| cmu                                                 | **Found 91 errors in 1 files (checked 1 source file)**  |
+| cmu                                                 | **Found 90 errors in 1 file (checked 1 source file)**   |
 | clustermanagementtoolkit/about.py                   | Success: no issues found in 1 source file               |
 | clustermanagementtoolkit/ansible_helper.py          | Success: no issues found in 1 source file               |
 | clustermanagementtoolkit/ansithemeprint.py          | Success: no issues found in 1 source file               |
@@ -331,7 +331,7 @@ Execute with `make mypy-markdown`.
 | clustermanagementtoolkit/formatters.py              | Success: no issues found in 1 source file               |
 | clustermanagementtoolkit/generators.py              | Success: no issues found in 1 source file               |
 | clustermanagementtoolkit/helptexts.py               | Success: no issues found in 1 source file               |
-| clustermanagementtoolkit/infogetters.py             | **Found 17 errors in 1 files (checked 1 source file)**  |
+| clustermanagementtoolkit/infogetters.py             | Success: no issues found in 1 source file               |
 | clustermanagementtoolkit/itemgetters.py             | Success: no issues found in 1 source file               |
 | clustermanagementtoolkit/kubernetes_helper.py       | Success: no issues found in 1 source file               |
 | clustermanagementtoolkit/kubernetes_resources.py    | Success: no issues found in 1 source file               |
@@ -343,6 +343,9 @@ Execute with `make mypy-markdown`.
 | clustermanagementtoolkit/pvtypes.py                 | Success: no issues found in 1 source file               |
 | clustermanagementtoolkit/recommended_permissions.py | Success: no issues found in 1 source file               |
 | clustermanagementtoolkit/reexecutor.py              | Success: no issues found in 1 source file               |
+
+_Note:_ These results have been manually de-duplicated. The errors in logparser.py were accounted to multiple files;
+this has been corrected.
 
 ### Pylint Results for v0.8.6
 
