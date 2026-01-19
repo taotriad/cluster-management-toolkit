@@ -86,6 +86,7 @@ Python 3.11 or newer.
 * It's now possible to ignore errors when tearing down control planes;
   this allows tearing down clusters that are in such a poor state that
   the control plane does not respond at all.
+* Handle RKE2 installation in a slightly more resilient manner.
 
 ### Changes to _cmtinv_ in v0.8.6
 
@@ -103,6 +104,7 @@ Python 3.11 or newer.
   of the event pad.
 * The log view now only outputs the logs from journalctl if non-interactive
   sudo is configured.
+* There are now helptext entries for Toggle Ansible Groups and Select Namespace.
 
 ### Changes to other files in v0.8.6
 
@@ -119,6 +121,9 @@ Python 3.11 or newer.
 * ClusterDeployment v1alpha5; support options.suffixAdmin and helm.extraArgs.
 * `cmt-install` now installs ruamel.yaml (those who prefer ruyaml currently
   need to install it manually).
+* Highlighting for many new event reasons has been added.
+* When running checks/code-checks the versions of the used tools are now
+  printed (when available).
 
 ### Notable view-file changes (by API-files)
 
@@ -139,11 +144,13 @@ No changes.
 ## Known Regressions in v0.8.6
 
 * `cmtadm setup-control-plane` may not be fully working; `cmtadm create-cluster` is now the recommended
-  way to setup clusters, and long-term plans is to deprecate and eventually remove `cmtadm setup-control-plane`.
+  way to setup clusters, and `cmtadm setup-control-plane` will most likely be marked as deprecated
+  during the next release cycle and eventually removed.
 
 ## Known Issues in v0.8.6
 
 * The UI flickers until data has been populated; it can also flicker in certain other scenarios.
+  The issue has not yet been root-caused.
 * The version data view in the UI does not refresh the version data.
   The version data can be refreshed using `cmtadm cv`.
 
