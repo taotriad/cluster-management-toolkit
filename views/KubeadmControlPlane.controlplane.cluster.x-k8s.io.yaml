@@ -298,6 +298,7 @@ infoview:
       action_call: "resourceinfodispatch_with_lookup"
       action_args:
         _pass_obj: true
+        # yamllint disable-line rule:line-length
         api_version_path: "spec#machineTemplate#spec#infrastructureRef#apiVersion"
         kind_path: "spec#machineTemplate#spec#infrastructureRef#kind"
         namespace_path: "metadata#namespace"
