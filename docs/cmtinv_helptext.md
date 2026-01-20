@@ -138,6 +138,10 @@ _Note_: Removing the group “_all_“ is not permitted
 ### `run` __PLAYBOOK_ _HOST_,_..._|_GROUP_,_...__
 #### Run playbook on _HOST_,_..._ or _GROUP_,_..._
   
+  __`--save-ansible-logs`__
+  Save logs from Ansible runs  
+  The logs can be viewed using “cmu logs“
+
   __`--verbose`__
   Be more verbose  
 

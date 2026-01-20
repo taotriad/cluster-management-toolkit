@@ -94,8 +94,9 @@ Python 3.11 or newer.
   This only works if the playbook has been documented properly.
 * It is now possible to refer to playbooks by an alias (and consequently to define aliases
   in the playbooks).
-* `ping` now has supports the `--verbose` flag.
+* `ping` now supports the `--verbose` flag.
 * Added `fping` command.
+* `cmtinv run` now supports the `--save-ansible-logs` flag.
 
 ### Changes to _cmu_ in v0.8.6
 

@@ -1129,7 +1129,9 @@ def run_playbook(options: list[tuple[str, str]], args: list[str]) -> int:
     verbose: bool = False
 
     for opt, _optarg in options:
-        if opt == "--verbose":
+        if opt == "--save-ansible-logs":
+            ansible_configuration["save_logs"] = True
+        elif opt == "--verbose":
             verbose = True
 
     playbook_alias = args[0]
@@ -2075,6 +2077,16 @@ COMMANDLINE: dict[str, CommandType] = {
             ANSIThemeStr(",", "separator"),
             ANSIThemeStr("...", "argument")],
         "options": {
+            "--save-ansible-logs": {
+                "description": [
+                    ANSIThemeStr("Save logs from Ansible runs", "description")],
+                "extended_description": [
+                    [ANSIThemeStr("The logs can be viewed using “", "description"),
+                     ANSIThemeStr("cmu", "programname"),
+                     ANSIThemeStr(" logs", "command"),
+                     ANSIThemeStr("“", "description")]
+                ],
+            },
             "--verbose": {
                 "description": [
                     ANSIThemeStr("Be more verbose", "description")],
