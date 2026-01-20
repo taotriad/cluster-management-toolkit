@@ -1,0 +1,48 @@
+---
+kind: "VolumeAttributesClass"
+api_family: "storage.k8s.io"
+default_command: "volumeattributesclasses"
+command:
+  - "volattrclasses"
+  - "volattrclass"
+  - "vacs"
+  - "vac"
+listview:
+  name: "Volume Attributes Classes"
+  group: "Storage & Backups"
+  field_indexes:
+    Normal:
+      fields: ["name", "driver", "age"]
+  fields:
+    driver:
+      header: "Driver:"
+      path: "driverName"
+      default: "<unset>"
+      type: "str"
+infoview:
+  name: "Volume Attributes Class Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["driver"]
+    rows:
+      driver:
+        header: [["Driver:", ["main", "infoheader"]]]
+        path: "driverName"
+        type: "str"
+  shortcuts:
+    "Parameters":
+      key: "p"
+      modifier: "shift"
+      read_only: true
+      helptext: "Show storage class parameters"
+      widget: "windowwidget"
+      title: "Parameters:"
+      headers: ["Parameter:", "Value:"]
+      itemgetter: "get_key_value"
+      itemgetter_args:
+        path: "parameters"
+      formatting: [["windowwidget", "default"],
+                   ["windowwidget", "highlight"]]
+      # This isn't supported for now
+      sortcolumn: "parameter"
