@@ -7227,12 +7227,17 @@ def view_yaml(stdscr: curses.window, **kwargs: Any) -> Retval:
     if obj is None:
         return Retval.RETURNDONE
     path = deep_get(kwargs, DictPath("path"))
-    if path is not None:
+    paths = deep_get(kwargs, DictPath("paths"))
+    if not paths and path:
+        paths = [path]
+    if paths:
+        _obj = {}
         if deep_get(kwargs, DictPath("include_root"), False):
-            _obj = {f"{path.rsplit('#')[-1]}": deep_get(obj, DictPath(path))}
+            for tmppath in paths:
+                _obj[tmppath.rsplit('#')[-1]] = deep_get(obj, DictPath(tmppath))
         else:
-            _obj = deep_get(obj, DictPath(path))
-        if _obj is None:
+            _obj = deep_get_with_fallback(obj, paths)
+        if not _obj:
             return Retval.RETURNDONE
         obj = [_obj]
     else:
