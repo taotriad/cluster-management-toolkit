@@ -609,6 +609,7 @@ def generator_address(obj: dict, field: str, fieldlen: int, pad: bool,
             else:
                 _vlist.append(ThemeStr(tmp, ThemeAttr("types", "address"), selected))
         if array:
+            item_separator.selected = selected
             array.append(item_separator)
         array += _vlist
 
