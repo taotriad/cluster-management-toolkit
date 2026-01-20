@@ -9,4 +9,211 @@ listview:
   group: "Cilium"
   field_indexes:
     Normal:
-      fields: ["name", "age"]
+      fields: ["name",
+               "ingress", "ingress_deny",
+               "egress", "egress_deny",
+               "age", "valid"]
+    Wide:
+      fields: ["name",
+               "ingress_rules", "ingress_deny_rules",
+               "egress_rules", "egress_deny_rules",
+               "age", "valid", "description"]
+  fields:
+    description:
+      header: "Description:"
+      path: "spec#description"
+      default: "<unset>"
+      type: "str"
+    egress_deny:
+      header: "Egress Deny:"
+      path: "spec#egressDeny"
+      type: "len"
+      formatter: "numerical"
+      align: "right"
+    egress_deny_rules:
+      header: "Egress Deny Rules:"
+      path: "spec#egressDeny"
+      type: "len"
+      formatter: "numerical"
+      align: "right"
+    egress:
+      header: "Egress:"
+      path: "spec#egress"
+      type: "len"
+      formatter: "numerical"
+      align: "right"
+    egress_rules:
+      header: "Egress Rules:"
+      path: "spec#egress"
+      type: "len"
+      formatter: "numerical"
+      align: "right"
+    ingress_deny:
+      header: "Ingress Deny:"
+      path: "spec#ingressDeny"
+      type: "len"
+      formatter: "numerical"
+      align: "right"
+    ingress_deny_rules:
+      header: "Ingress Deny Rules:"
+      path: "spec#ingressDeny"
+      type: "len"
+      formatter: "numerical"
+      align: "right"
+    ingress:
+      header: "Ingress:"
+      path: "spec#ingress"
+      type: "len"
+      formatter: "numerical"
+      align: "right"
+    ingress_rules:
+      header: "Ingress Rules:"
+      path: "spec#ingress"
+      type: "len"
+      formatter: "numerical"
+      align: "right"
+    valid:
+      header: "Valid:"
+      paths:
+        - path: "status#conditions"
+          pathtype: "items"
+          subpath: "status"
+          when:
+            - key: "type"
+              eq: "Valid"
+          default: "<unset>"
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          mappings:
+            "False":
+              field_colors:
+                - context: "main"
+                  type: "status_not_ok"
+            "True":
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+            "<unset>":
+              field_colors:
+                - context: "types"
+                  type: "unset"
+infoview:
+  name: "Cilium Network Policy Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["description", "endpoint_label_selector",
+                 "node_label_selector", "valid"]
+    rows:
+      description:
+        header: [["Description:", ["main", "infoheader"]]]
+        path: "spec#description"
+        default: "<unset>"
+        type: "str"
+      endpoint_label_selector:
+        header: [["Endpoint La", ["main", "infoheader"]],
+                 ["b", ["main", "infoheader_shortcut"]],
+                 ["el Selector:", ["main", "infoheader"]]]
+        paths:
+          - path: ["spec#endpointSelector#matchLabels"]
+            pathtype: "key_value"
+            default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "key"
+            - type: "value"
+          field_separators:
+            - type: "selector"
+      node_label_selector:
+        header: [["Node Label ", ["main", "infoheader"]],
+                 ["S", ["main", "infoheader_shortcut"]],
+                 ["elector:", ["main", "infoheader"]]]
+        paths:
+          - path: ["spec#nodeSelectors#matchLabels"]
+            pathtype: "key_value"
+            default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "key"
+            - type: "value"
+          field_separators:
+            - type: "selector"
+      valid:
+        header: [["Valid:", ["main", "infoheader"]]]
+        paths:
+          - path: "status#conditions"
+            pathtype: "items"
+            subpath: "status"
+            when:
+              - key: "type"
+                eq: "Valid"
+            default: "<unset>"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              "False":
+                field_colors:
+                  - context: "main"
+                    type: "status_not_ok"
+              "True":
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+              "<unset>":
+                field_colors:
+                  - context: "types"
+                    type: "unset"
+  shortcuts:
+    "Endpoint Label Selector":
+      key: "b"
+      read_only: true
+      helptext: "Show Endpoint label selector"
+      widget: "windowwidget"
+      title: "Endpoint Label Selector:"
+      headers: ["Key:", "Value:"]
+      itemgetter: "get_key_value"
+      itemgetter_args:
+        path: "spec#endpointSelector#matchLabels"
+    "Node Label Selector":
+      key: "s"
+      modifier: "shift"
+      read_only: true
+      helptext: "Show node label selector"
+      widget: "windowwidget"
+      title: "Node Label Selector:"
+      headers: ["Key:", "Value:"]
+      itemgetter: "get_key_value"
+      itemgetter_args:
+        path: "spec#nodeSelectors#matchLabels"
+    "View Egress Rules":
+      key: "e"
+      modifier: "shift"
+      read_only: true
+      helptext: "View egress rules"
+      action: "call"
+      action_call: "view_yaml"
+      action_args:
+        title: "egress rules"
+        _pass_obj: true
+        paths:
+          - "spec#egress"
+          - "spec#egressDeny"
+        include_root: true
+    "View Ingress Rules":
+      key: "i"
+      modifier: "shift"
+      read_only: true
+      helptext: "View ingress rules"
+      action: "call"
+      action_call: "view_yaml"
+      action_args:
+        title: "Ingress rules"
+        _pass_obj: true
+        paths:
+          - "spec#ingress"
+          - "spec#ingressDeny"
+        include_root: true

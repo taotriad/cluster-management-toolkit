@@ -1,0 +1,47 @@
+---
+kind: "CiliumCIDRGroup"
+api_family: "cilium.io"
+default_command: "ciliumcidrgroups"
+command:
+  - "ciliumcidrgrps"
+  - "ciliumcidrgrp"
+  - "ccg"
+listview:
+  name: "Cilium CIDR Groups"
+  group: "Cilium"
+  field_indexes:
+    Normal:
+      fields: ["name", "external_cidrs", "age"]
+  fields:
+    external_cidrs:
+      header: "External CIDRs:"
+      path: "spec#externalCIDRs"
+      type: "raw"
+      formatter: "address"
+infoview:
+  name: "Cilium CIDR Group Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["external_cidrs"]
+    rows:
+      external_cidrs:
+        header: [["External ", ["main", "infoheader"]],
+                 ["C", ["main", "infoheader_shortcut"]],
+                 ["IDRs:", ["main", "infoheader"]]]
+        path: "spec#externalCIDRs"
+        type: "raw"
+        formatter: "address"
+  shortcuts:
+    "External CIDRs":
+      key: "c"
+      modifier: "shift"
+      read_only: true
+      helptext: "Show External CIDRs"
+      widget: "windowwidget"
+      title: "External CIDRs:"
+      itemgetter: "get_list_as_list"
+      itemgetter_args:
+        path: "spec#externalCIDRs"
+      # This isn't supported for now
+      sortcolumn: "name"
