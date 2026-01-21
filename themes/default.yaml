@@ -729,7 +729,7 @@ main:
   severity_high: "severity_error"
   severity_medium: "severity_warning"
   severity_low: "severity_notice"
-  status_ignored: "status_ignored"
+  status_ignored: ["status_ignored", "bold"]
   status_critical: "status_critical"
   status_unknown: "status_unknown"
   status_not_ok: ["status_not_ok", "bold"]
