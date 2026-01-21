@@ -4516,6 +4516,10 @@ kubernetes_resources: dict[tuple[str, str], dict[str, Union[list[str], str, bool
         "namespaced": False,
     },
     # nfd.openshift.io
+    ("NodeFeature", "nfd.openshift.io"): {
+        "api_paths": ["apis/nfd.openshift.io/v1alpha1/"],
+        "api": "nodefeatures",
+    },
     ("NodeFeatureDiscovery", "nfd.openshift.io"): {
         "api_paths": ["apis/nfd.openshift.io/v1/"],
         "api": "nodefeaturediscoveries",
