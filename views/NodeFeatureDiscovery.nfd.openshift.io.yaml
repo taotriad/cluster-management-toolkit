@@ -1,0 +1,71 @@
+---
+kind: "NodeFeatureDiscovery"
+api_family: "nfd.openshift.io"
+default_command: "nodefeaturediscoveries"
+command:
+  - "osnfds"
+  - "osnfd"
+listview:
+  name: "Node Feature Discoveries"
+  group: "OpenShift"
+  field_indexes:
+    Normal:
+      fields: ["namespace", "name", "age"]
+      sortcolumn: "namespace"
+infoview:
+  name: "Node Feature Discovery Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["operand_header", "operand_image", "operand_pull_policy",
+                 "operand_service_port",
+                 "enable_taints", "prune_on_delete", "topology_updater"]
+    rows:
+      enable_taints:
+        header: [["Enable Taints:", ["main", "infoheader"]]]
+        path: "spec#enableTaints"
+        default: "<unset>"
+        type: "bool"
+      operand_header:
+        header: [["Operand:", ["main", "infoheader"]]]
+      operand_image:
+        header: [["  Image:", ["main", "infoheader"]]]
+        paths:
+          - path: "spec#operand#image"
+            pathtype: "regex"
+            regex: "^([^:]+):(.*)"
+            default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "generic"
+            - type: "version"
+          field_separators:
+            - type: "version"
+      operand_pull_policy:
+        header: [["  Image Pull Policy:", ["main", "infoheader"]]]
+        path: "spec#operand#imagePullPolicy"
+        default: "<unset>"
+        type: "str"
+      operand_service_port:
+        header: [["  Service Port:", ["main", "infoheader"]]]
+        path: "spec#operand#servicePort"
+        default: "<unset>"
+        type: "int"
+        formatter: "numerical"
+      prune_on_delete:
+        header: [["Pruner on Delete:", ["main", "infoheader"]]]
+        path: "spec#prunerOnDelete"
+        default: "<unset>"
+        type: "bool"
+      topology_updater:
+        header: [["Topology Updater:", ["main", "infoheader"]]]
+        path: "spec#topologyUpdater"
+        default: "<unset>"
+        type: "bool"
+  logpad:
+    infogetter: "logpad_formatted"
+    infogetter_args:
+      formatter: "format_yaml"
+      path: "spec#workerConfig"
+    timestamps: false

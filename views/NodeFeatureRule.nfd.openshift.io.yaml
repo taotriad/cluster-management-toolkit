@@ -1,47 +1,18 @@
 ---
 kind: "NodeFeatureRule"
-api_family: "nfd.k8s-sigs.io"
-default_command: "nodefeaturerules"
+api_family: "nfd.openshift.io"
+default_command: "nodefeaturerules.nfd.openshift.io"
 command:
-  - "nfrules"
-  - "nfrule"
+  - "osnfrules"
+  - "osnfrule"
 listview:
   name: "Node Feature Rules"
-  group: "Cluster Configuration"
+  group: "OpenShift"
   field_indexes:
     Normal:
       fields: ["name", "age"]
 infoview:
   name: "Node Feature Rule Info"
-  infopad:
-    row_indexes:
-      Normal:
-        fields: ["controller"]
-    rows:
-      controller:
-        header: [["C", ["main", "infoheader_shortcut"]],
-                 ["ontroller:", ["main", "infoheader"]]]
-        paths:
-          - path: "metadata#ownerReferences"
-            pathtype: "items"
-            subpaths:
-              - "kind"
-              - "apiVersion"
-              - "name"
-            when:
-              - key: "controller"
-                eq: true
-            type: ["kind", "api_group", "name"]
-        default: "<none>"
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "kind"
-            - type: "api_group"
-            - type: "generic"
-          field_separators:
-            - type: "kind_api_group"
-            - type: "kind"
   listpad:
     listgetter: "listgetter_field"
     listgetter_args:
