@@ -775,12 +775,33 @@ def make_set_expression_list(expression_list: list[dict],
             elif operator == "Exists":
                 new_operator = "Exists"
                 requires_values = "0"
+            elif operator == "InRegexp":
+                new_operator = "In Regexp"
+                requires_values = "1+"
+            elif operator == "IsFalse":
+                new_operator = "Is False"
+                requires_values = "0"
+            elif operator == "IsTrue":
+                new_operator = "Is True"
+                requires_values = "0"
             elif operator == "DoesNotExist":
                 new_operator = "Does Not Exist"
                 requires_values = "0"
+            elif operator == "Ge":
+                new_operator = ">= "
+                requires_values = "1"
             elif operator == "Gt":
                 new_operator = "> "
                 requires_values = "1"
+            elif operator == "Le":
+                new_operator = "=< "
+                requires_values = "1"
+            elif operator == "GtLt":
+                new_operator = "<> "
+                requires_values = "2"
+            elif operator == "GeLe":
+                new_operator = ">< "
+                requires_values = "2"
             elif operator == "Lt":
                 new_operator = "< "
                 requires_values = "1"
