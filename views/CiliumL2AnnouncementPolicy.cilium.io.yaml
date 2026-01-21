@@ -1,0 +1,124 @@
+---
+kind: "CiliumL2AnnouncementPolicy"
+api_family: "cilium.io"
+default_command: "ciliuml2announcementpolicies"
+command:
+  - "l2announcements"
+  - "l2announcement"
+listview:
+  name: "Cilium L2 Announcement Policies"
+  group: "Cilium"
+  field_indexes:
+    Normal:
+      fields: ["name", "age"]
+infoview:
+  name: "Cilium L2 Announcement Policy Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["service_label_selector",
+                 "service_set_based_selector",
+                 "node_label_selector",
+                 "node_set_based_selector",
+                 "interfaces",
+                 "external_ips",
+                 "loadbalancer_ips"]
+    rows:
+      external_ips:
+        header: [["External IPs:", ["main", "infoheader"]]]
+        path: "spec#externalIPs"
+        default: "<unset>"
+        type: "bool"
+      interfaces:
+        header: [["Interfaces:", ["main", "infoheader"]]]
+        path: "spec#interfaces"
+        default: ["<none>"]
+        type: "raw"
+        formatter: "list"
+      loadbalancer_ips:
+        header: [["Loadbalancer IPs:", ["main", "infoheader"]]]
+        path: "spec#externalIPs"
+        default: "<unset>"
+        type: "bool"
+      node_label_selector:
+        header: [["Node Label ", ["main", "infoheader"]],
+                 ["S", ["main", "infoheader_shortcut"]],
+                 ["elector:", ["main", "infoheader"]]]
+        paths:
+          - path: ["spec#nodeSelector#matchLabels"]
+            pathtype: "key_value"
+            default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "key"
+            - type: "value"
+          field_separators:
+            - type: "selector"
+      node_set_based_selector:
+        header: [["Node Set-based Selector:", ["main", "infoheader"]]]
+        paths:
+          - path: "spec#nodeSelector#matchExpressions"
+            pathtype: "match_expression"
+            default: "<none>"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "key"
+            - type: "operator"
+            - type: "value"
+          field_separators:
+            - type: "space"
+            - type: "no_pad"
+      service_label_selector:
+        header: [["Service La", ["main", "infoheader"]],
+                 ["b", ["main", "infoheader_shortcut"]],
+                 ["el Selector:", ["main", "infoheader"]]]
+        paths:
+          - path: ["spec#serviceSelector#matchLabels"]
+            pathtype: "key_value"
+            default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "key"
+            - type: "value"
+          field_separators:
+            - type: "selector"
+      service_set_based_selector:
+        header: [["Service Set-based Selector:", ["main", "infoheader"]]]
+        paths:
+          - path: "spec#serviceSelector#matchExpressions"
+            pathtype: "match_expression"
+            default: "<none>"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "key"
+            - type: "operator"
+            - type: "value"
+          field_separators:
+            - type: "space"
+            - type: "no_pad"
+  shortcuts:
+    "Service Label Selector":
+      key: "b"
+      read_only: true
+      helptext: "Show Service label selector"
+      widget: "windowwidget"
+      title: "Service Label Selector:"
+      headers: ["Key:", "Value:"]
+      itemgetter: "get_key_value"
+      itemgetter_args:
+        path: "spec#serviceSelector#matchLabels"
+    "Node Label Selector":
+      key: "s"
+      modifier: "shift"
+      read_only: true
+      helptext: "Show Node label selector"
+      widget: "windowwidget"
+      title: "Node Label Selector:"
+      headers: ["Key:", "Value:"]
+      itemgetter: "get_key_value"
+      itemgetter_args:
+        path: "spec#nodeSelector#matchLabels"

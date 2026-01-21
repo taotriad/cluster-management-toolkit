@@ -1,0 +1,127 @@
+---
+kind: "CiliumLoadBalancerIPPool"
+api_family: "cilium.io"
+default_command: "ciliumloadbalancerippools"
+command:
+  - "lbippools"
+  - "lbippool"
+listview:
+  name: "Cilium Load Balancer IP Pools"
+  group: "Cilium"
+  field_indexes:
+    Normal:
+      fields: ["name", "disabled", "age"]
+  fields:
+    disabled:
+      header: "Disabled:"
+      path: "spec#disabled"
+      default: false
+      type: "bool"
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          mappings:
+            "False":
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+            "True":
+              field_colors:
+                - context: "main"
+                  type: "status_ignored"
+infoview:
+  name: "Cilium Load Balancer IP Pool Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["service_label_selector",
+                 "service_set_based_selector",
+                 "disabled"]
+    rows:
+      disabled:
+        header: [["Disabled:", ["main", "infoheader"]]]
+        path: "spec#disabled"
+        default: false
+        type: "bool"
+      default: false
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          mappings:
+            "false":
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+            "true":
+              field_colors:
+                - context: "main"
+                  type: "status_not_ok"
+      service_label_selector:
+        header: [["Service La", ["main", "infoheader"]],
+                 ["b", ["main", "infoheader_shortcut"]],
+                 ["el Selector:", ["main", "infoheader"]]]
+        paths:
+          - path: ["spec#serviceSelector#matchLabels"]
+            pathtype: "key_value"
+            default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "key"
+            - type: "value"
+          field_separators:
+            - type: "selector"
+      service_set_based_selector:
+        header: [["Service Set-based Selector:", ["main", "infoheader"]]]
+        paths:
+          - path: "spec#serviceSelector#matchExpressions"
+            pathtype: "match_expression"
+            default: "<none>"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "key"
+            - type: "operator"
+            - type: "value"
+          field_separators:
+            - type: "space"
+            - type: "no_pad"
+  listpad:
+    listgetter: "listgetter_path"
+    listgetter_args:
+      path: "spec#blocks"
+    infogetter: "generic_infogetter"
+    field_indexes:
+      Normal:
+        fields: ["cidr", "start", "stop"]
+        sortcolumn: "cidr"
+    fields:
+      cidr:
+        header: "CIDR:"
+        path: "cidr"
+        default: "<none>"
+        type: "str"
+        formatter: "address"
+      start:
+        header: "Start:"
+        path: "start"
+        default: "<none>"
+        type: "str"
+        formatter: "address"
+      stop:
+        header: "Stop:"
+        path: "stop"
+        default: "<none>"
+        type: "str"
+        formatter: "address"
+  shortcuts:
+    "Service Label Selector":
+      key: "b"
+      read_only: true
+      helptext: "Show Service label selector"
+      widget: "windowwidget"
+      title: "Service Label Selector:"
+      headers: ["Key:", "Value:"]
+      itemgetter: "get_key_value"
+      itemgetter_args:
+        path: "spec#serviceSelector#matchLabels"

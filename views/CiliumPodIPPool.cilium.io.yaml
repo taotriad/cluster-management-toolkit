@@ -1,0 +1,46 @@
+---
+kind: "CiliumPodIPPool"
+api_family: "cilium.io"
+default_command: "ciliumpodippools"
+listview:
+  name: "Cilium Pod IP Pools"
+  group: "Cilium"
+  field_indexes:
+    Normal:
+      fields: ["name", "age"]
+infoview:
+  name: "Cilium Pod IP Pool Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["ipv4_header",
+                 "ipv4_cidrs", "ipv4_mask_size",
+                 "ipv6_header",
+                 "ipv6_cidrs", "ipv6_mask_size"]
+    rows:
+      ipv4_cidrs:
+        header: [["  CIDRs:", ["main", "infoheader"]]]
+        path: "spec#ipv4#cidrs"
+        type: "raw"
+        formatter: "address"
+      ipv4_header:
+        header: [["IPv4:", ["main", "infoheader"]]]
+      ipv4_mask_size:
+        header: [["  Mask Size:", ["main", "infoheader"]]]
+        path: "spec#ipv4#maskSize"
+        default: "<unset>"
+        type: "int"
+        formatter: "numerical"
+      ipv6_cidrs:
+        header: [["  CIDRs:", ["main", "infoheader"]]]
+        path: "spec#ipv6#cidrs"
+        type: "raw"
+        formatter: "address"
+      ipv6_header:
+        header: [["IPv6:", ["main", "infoheader"]]]
+      ipv6_mask_size:
+        header: [["  Mask Size:", ["main", "infoheader"]]]
+        path: "spec#ipv6#maskSize"
+        default: "<unset>"
+        type: "int"
+        formatter: "numerical"
