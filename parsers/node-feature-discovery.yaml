@@ -59,3 +59,10 @@
         - matchtype: "startswith"
           matchkey: "Trace["
           loglevel: "debug"
+- name: "node-feature-discovery"
+  show_in_selector: false
+  matchkeys:
+    - pod_name: "nfd-controller-manager"
+  parser_rules:
+    - name: "glog"
+    - name: "key_value_with_leading_message"
