@@ -1521,6 +1521,10 @@ RequiredInstallerResourcesMissing:
   field_colors:
     - context: "main"
       type: "status_warning"
+RequirementsNotMet:
+  field_colors:
+    - context: "main"
+      type: "status_warning"
 ResolutionFailed:
   field_colors:
     - context: "main"

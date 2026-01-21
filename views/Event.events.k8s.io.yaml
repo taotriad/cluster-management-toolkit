@@ -1596,6 +1596,10 @@ listview:
               field_colors:
                 - context: "main"
                   type: "status_warning"
+            RequirementsNotMet:
+              field_colors:
+                - context: "main"
+                  type: "status_warning"
             ResolutionFailed:
               field_colors:
                 - context: "main"
@@ -3869,6 +3873,10 @@ infoview:
                   - context: "main"
                     type: "status_warning"
               RequiredInstallerResourcesMissing:
+                field_colors:
+                  - context: "main"
+                    type: "status_warning"
+              RequirementsNotMet:
                 field_colors:
                   - context: "main"
                     type: "status_warning"
