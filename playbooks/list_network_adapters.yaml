@@ -54,7 +54,7 @@
           network_tool=1
           [ -z "${ip}" ] && [ -z "${ifconfig}" ] && network_tool=0
           if [ ${network_tool} -eq 1 ]; then
-            for dev in $(/bin/ls /sys/class/net | grep -E "^en|^wl"); do
+            for dev in $(/bin/ls /sys/class/net | grep -E "^em|^en|^p2p|^wl"); do
               driver=$(readlink /sys/class/net/${dev}/device/driver/module)
               if [ x"${driver}" != x"" ]; then
                 driver="$(basename ${driver})"
