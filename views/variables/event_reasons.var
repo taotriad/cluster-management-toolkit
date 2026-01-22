@@ -1764,6 +1764,10 @@ ShutdownInitiated:
   field_colors:
     - context: "main"
       type: "status_pending"
+ShuttingDown:
+  field_colors:
+    - context: "main"
+      type: "status_pending"
 SidecarTerminator:
   field_colors:
     - context: "main"
