@@ -736,6 +736,14 @@ kubernetes_resources: dict[tuple[str, str], dict[str, Union[list[str], str, bool
         "api_paths": ["apis/controlplane.cluster.x-k8s.io/v1beta1/"],
         "api": "k0smotroncontrolplanetemplates",
     },
+    ("KamajiControlPlane", "controlplane.cluster.x-k8s.io"): {
+        "api_paths": ["apis/controlplane.cluster.x-k8s.io/v1alpha1/"],
+        "api": "kamajicontrolplanes",
+    },
+    ("KamajiControlPlaneTemplate", "controlplane.cluster.x-k8s.io"): {
+        "api_paths": ["apis/controlplane.cluster.x-k8s.io/v1alpha1/"],
+        "api": "kamajicontrolplanetemplates",
+    },
     ("KubeadmControlPlane", "controlplane.cluster.x-k8s.io"): {
         "api_paths": ["apis/controlplane.cluster.x-k8s.io/v1beta2/",
                       "apis/controlplane.cluster.x-k8s.io/v1beta1/"],
@@ -2785,6 +2793,15 @@ kubernetes_resources: dict[tuple[str, str], dict[str, Union[list[str], str, bool
         "api_paths": ["apis/forecastle.stakater.com/v1alpha1/"],
         "api": "forecastleapps",
     },
+    # forklift.cdi.kubevirt.io
+    ("OpenstackVolumePopulator", "forklift.cdi.kubevirt.io"): {
+        "api_paths": ["apis/forklift.cdi.kubevirt.io/v1beta1/"],
+        "api": "openstackvolumepopulators",
+    },
+    ("OvirtVolumePopulator", "forklift.cdi.kubevirt.io"): {
+        "api_paths": ["apis/forklift.cdi.kubevirt.io/v1beta1/"],
+        "api": "ovirtvolumepopulators",
+    },
     # fpga.intel.com
     ("AcceleratorFunction", "fpga.intel.com"): {
         "api_paths": ["apis/fpga.intel.com/v2/"],
@@ -3269,6 +3286,11 @@ kubernetes_resources: dict[tuple[str, str], dict[str, Union[list[str], str, bool
         "api": "datastores",
         "namespaced": False,
     },
+    ("KubeconfigGenerator", "kamaji.clastix.io"): {
+        "api_paths": ["apis/kamaji.clastix.io/v1alpha1/"],
+        "api": "kubeconfiggenerators",
+        "namespaced": False,
+    },
     ("TenantControlPlane", "kamaji.clastix.io"): {
         "api_paths": ["apis/kamaji.clastix.io/v1alpha1/"],
         "api": "tenantcontrolplanes",
@@ -3524,6 +3546,10 @@ kubernetes_resources: dict[tuple[str, str], dict[str, Union[list[str], str, bool
         "api_paths": ["apis/kubeovn.io/v1/"],
         "api": "vpc-dnses",
         "namespaced": False,
+    },
+    ("VpcEgressGateway", "kubeovn.io"): {
+        "api_paths": ["apis/kubeovn.io/v1/"],
+        "api": "vpc-egress-gateways",
     },
     ("VpcNatGateway", "kubeovn.io"): {
         "api_paths": ["apis/kubeovn.io/v1/"],
