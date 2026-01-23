@@ -1,0 +1,106 @@
+---
+kind: "ServiceL2Status"
+api_family: "metallb.io"
+default_command: "servicel2statuses"
+command:
+  - "svcl2statuses"
+  - "svcl2status"
+  - "svcl2stats"
+  - "svcl2stat"
+listview:
+  name: "Service L2 Statuses"
+  group: "Network"
+  field_indexes:
+    Normal:
+      fields: ["namespace", "name", "age"]
+      sortcolumn: "namespace"
+infoview:
+  name: "Service L2 Status Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["pod", "node", "service", "interfaces"]
+    rows:
+      interfaces:
+        header: [["Interfaces:", ["main", "infoheader"]]]
+        path: "status#interfaces"
+        default: ["<none>"]
+        type: "raw"
+        formatter: "list"
+      node:
+        header: [["No", ["main", "infoheader"]],
+                 ["d", ["main", "infoheader_shortcut"]],
+                 ["e:", ["main", "infoheader"]]]
+        path: "status#node"
+        default: "<unset>"
+        type: "str"
+      pod:
+        header: [["P", ["main", "infoheader_shortcut"]],
+                 ["od:", ["main", "infoheader"]]]
+        paths:
+          - path: "metadata#namespace"
+          - path: "metadata#ownerReferences"
+            pathtype: "items"
+            subpaths:
+              - "name"
+            when:
+              - key: "kind"
+                eq: "Pod"
+        type: "str"
+        default: "<none>"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "namespace"
+            - type: "generic"
+          item_separator:
+            type: "namespace"
+      service:
+        header: [["S", ["main", "infoheader_shortcut"]],
+                 ["ervice:", ["main", "infoheader"]]]
+        paths:
+          - path: [["status#serviceNamespace"], ["status#serviceName"]]
+            pathtype: "tuple"
+            default: ["<unset>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "namespace"
+            - type: "generic"
+          item_separator:
+            type: "namespace"
+  shortcuts:
+    "Open Node":
+      key: "d"
+      read_only: true
+      helptext: "Open info page for Node"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind: "Node"
+        name_path: "status#node"
+    "Open Pod":
+      key: "p"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for Pod"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind: "Pod"
+        namespace_path: "metadata#namespace"
+        owner_reference_path: "metadata#ownerReferences"
+    "Open Service":
+      key: "s"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for Service"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind: "Service"
+        name_path: "status#serviceName"
+        namespace_path: "status#serviceNamespace"

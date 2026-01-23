@@ -1,0 +1,513 @@
+---
+kind: "TenantControlPlane"
+api_family: "kamaji.clastix.io"
+default_command: "tenantcontrolplanes"
+command:
+  - "tenantcps"
+  - "tenantcp"
+listview:
+  name: "Tenant Control Planes"
+  group: "Cluster Configuration"
+  field_indexes:
+    Wide:
+      fields: ["name", "datastore", "control_plane_endpoint",
+               "available", "desired", "replicas", "ready", "uptodate",
+               "status", "age",
+               "version", "installed_version"]
+    Normal:
+      fields: ["name", "desired", "replicas", "ready", "uptodate",
+               "status", "age"]
+  fields:
+    available:
+      header: "Available:"
+      paths:
+        - path: "status#kubernetesResources#deployment#conditions"
+          pathtype: "items"
+          subpath: "status"
+          when:
+            - key: "type"
+              eq: "Available"
+          default: ["False"]
+      type: "str"
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          mappings:
+            "False":
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+            "True":
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+    control_plane_endpoint:
+      header: "Control Plane Endpoint:"
+      path: "status#controlPlaneEndpoint"
+      default: "<unset>"
+      type: "str"
+      formatter: "address"
+    datastore:
+      header: "Data Store:"
+      path: "spec#dataStore"
+      default: "<unset>"
+      type: "str"
+    desired:
+      header: "Desired:"
+      path: "spec#controlPlane#deployment#replicas"
+      default: 0
+      type: "int"
+      formatter: "numerical"
+      align: "right"
+    installed_version:
+      header: "Installed Version:"
+      path: "status#kubernetesResources#version#version"
+      default: "<unset>"
+      type: "str"
+      formatting:
+        field_colors:
+          - type: "version"
+    ready:
+      header: "Ready:"
+      path: "status#kubernetesResources#deployment#readyReplicas"
+      default: 0
+      type: "int"
+      formatter: "numerical"
+      align: "right"
+    replicas:
+      header: "Replicas:"
+      path: "status#kubernetesResources#deployment#replicas"
+      default: 0
+      type: "int"
+      formatter: "numerical"
+      align: "right"
+    status:
+      header: "Status:"
+      path: "status#kubernetesResources#version#status"
+      default: "<unset>"
+      type: "str"
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          mappings:
+            Ready:
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+    uptodate:
+      header: "Up to Date:"
+      path: "status#kubernetesResources#deployment#updatedReplicas"
+      default: 0
+      type: "int"
+      formatter: "numerical"
+      align: "right"
+    version:
+      header: "Version:"
+      path: "spec#kubernetes#version"
+      default: "<unset>"
+      type: "str"
+      formatting:
+        field_colors:
+          - type: "version"
+infoview:
+  name: "Tenant Control Plane Info"
+  infopad:
+    conditions_path: "status#kubernetesResources#deployment"
+    row_indexes:
+      Normal:
+        fields: ["controller",
+                 "control_plane_endpoint",
+                 "addons_header",
+                 "addons_coredns",
+                 "addons_konnectivity",
+                 "addons_kubeproxy",
+                 "storage_header",
+                 "storage_data_store", "storage_driver",
+                 "storage_certificate", "storage_config",
+                 "kubelet_header",
+                 "kubelet_cgroupfs",
+                 "kubelet_preferred_address_types",
+                 "network_profile_header",
+                 "network_profile_pod_cidr",
+                 "network_profile_service_cidr",
+                 "network_profile_port",
+                 "desired", "replicas", "ready", "uptodate",
+                 "version",
+                 "installed_version",
+                 "status"]
+    rows:
+      addons_coredns:
+        header: [["  CoreDN", ["main", "infoheader"]],
+                 ["S", ["main", "infoheader_shortcut"]],
+                 [":", ["main", "infoheader"]]]
+        path: "status#addons#coreDNS#enabled"
+        default: "<unset>"
+        type: "bool"
+      addons_header:
+        header: [["Addons:", ["main", "infoheader"]]]
+      addons_konnectivity:
+        header: [["  ", ["main", "infoheader"]],
+                 ["K", ["main", "infoheader_shortcut"]],
+                 ["onnectivity:", ["main", "infoheader"]]]
+        path: "status#addons#konnectivity#enabled"
+        default: "<unset>"
+        type: "bool"
+      addons_kubeproxy:
+        header: [["  k", ["main", "infoheader"]],
+                 ["u", ["main", "infoheader_shortcut"]],
+                 ["be-proxy:", ["main", "infoheader"]]]
+        path: "status#addons#kubeProxy#enabled"
+        default: "<unset>"
+        type: "bool"
+      controller:
+        header: [["C", ["main", "infoheader_shortcut"]],
+                 ["ontroller:", ["main", "infoheader"]]]
+        paths:
+          - path: "metadata#ownerReferences"
+            pathtype: "items"
+            subpaths:
+              - "kind"
+              - "apiVersion"
+              - "name"
+            when:
+              - key: "controller"
+                eq: true
+            type: ["kind", "api_group", "name"]
+        default: "<none>"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "kind"
+            - type: "api_group"
+            - type: "generic"
+          field_separators:
+            - type: "kind_api_group"
+            - type: "kind"
+      control_plane_endpoint:
+        header: [["Control Plane Endpoint:", ["main", "infoheader"]]]
+        path: "status#controlPlaneEndpoint"
+        default: "<unset>"
+        type: "str"
+        formatter: "address"
+      desired:
+        header: [["Desired:", ["main", "infoheader"]]]
+        path: "spec#controlPlane#deployment#replicas"
+        default: 0
+        type: "int"
+        formatter: "numerical"
+      installed_version:
+        header: [["Installed Version:", ["main", "infoheader"]]]
+        path: "status#kubernetesResources#version#version"
+        default: "<unset>"
+        type: "str"
+        formatting:
+          field_colors:
+            - type: "version"
+      kubelet_header:
+        header: [["Kubelet:", ["main", "infoheader"]]]
+      kubelet_cgroupfs:
+        header: [["  cgroupfs:", ["main", "infoheader"]]]
+        path: "spec#kubernetes#kubelet#cgroupfs"
+        default: "<unset>"
+        type: "str"
+      kubelet_preferred_address_types:
+        header: [["  Preferred Address Types:", ["main", "infoheader"]]]
+        path: "spec#kubernetes#kubelet#preferredAddressTypes"
+        default: "<unset>"
+        type: "raw"
+        formatter: "list"
+      network_profile_header:
+        header: [["Network Profile:", ["main", "infoheader"]]]
+      network_profile_cluster_domain:
+        header: [["  Cluster Domain:", ["main", "infoheader"]]]
+        path: "spec#networkProfile#clusterDomain"
+        default: "<unset>"
+        type: "str"
+      network_profile_pod_cidr:
+        header: [["  Pod CIDR:", ["main", "infoheader"]]]
+        path: "spec#networkProfile#podCidr"
+        default: "<unset>"
+        type: "str"
+        formatter: "address"
+      network_profile_port:
+        header: [["  Port:", ["main", "infoheader"]]]
+        path: "spec#networkProfile#port"
+        default: "<unset>"
+        type: "int"
+        formatting:
+          field_colors:
+            - type: "port"
+      network_profile_service_cidr:
+        header: [["  Service CIDR:", ["main", "infoheader"]]]
+        path: "spec#networkProfile#serviceCidr"
+        default: "<unset>"
+        type: "str"
+        formatter: "address"
+      ready:
+        header: [["Ready:", ["main", "infoheader"]]]
+        path: "status#kubernetesResources#deployment#readyReplicas"
+        default: 0
+        type: "int"
+        formatter: "numerical"
+      replicas:
+        header: [["Replicas:", ["main", "infoheader"]]]
+        path: "status#kubernetesResources#deployment#replicas"
+        type: "int"
+        formatter: "numerical"
+      status:
+        header: [["Status:", ["main", "infoheader"]]]
+        path: "status#kubernetesResources#version#status"
+        default: "<unset>"
+        type: "str"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              Ready:
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+      storage_data_store:
+        header: [["  ", ["main", "infoheader"]],
+                 ["D", ["main", "infoheader_shortcut"]],
+                 ["ata Store:", ["main", "infoheader"]]]
+        path: "status#storage#dataStoreName"
+        default: "<unset>"
+        type: "str"
+      storage_certificate:
+        header: [["  C", ["main", "infoheader"]],
+                 ["e", ["main", "infoheader_shortcut"]],
+                 ["rtificate:", ["main", "infoheader"]]]
+        path: "status#storage#certificate#secretName"
+        default: "<unset>"
+        type: "str"
+      storage_config:
+        header: [["  C", ["main", "infoheader"]],
+                 ["o", ["main", "infoheader_shortcut"]],
+                 ["nfig:", ["main", "infoheader"]]]
+        path: "status#storage#config#secretName"
+        default: "<unset>"
+        type: "str"
+      storage_driver:
+        header: [["  Driver:", ["main", "infoheader"]]]
+        path: "status#storage#driver"
+        default: "<unset>"
+        type: "str"
+      storage_header:
+        header: [["Storage:", ["main", "infoheader"]]]
+      uptodate:
+        header: [["Up to Date:", ["main", "infoheader"]]]
+        path: "status#kubernetesResources#deployment#updatedReplicas"
+        default: 0
+        type: "int"
+        formatter: "numerical"
+      version:
+        header: [["Version:", ["main", "infoheader"]]]
+        path: "spec#kubernetes#version"
+        default: "<unset>"
+        type: "str"
+        formatting:
+          field_colors:
+            - type: "version"
+  listpad:
+    listgetter: "generic_listgetter"
+    listgetter_args:
+      _kind: "Pod"
+      _label_selector_path: "status#kubernetesResources#deployment#selector"
+      _none_on_empty_selector: true
+    infogetter: "generic_infogetter"
+    on_activation:
+      call: "resourceinfodispatch"
+      kind: "Pod"
+    field_indexes:
+      Wide:
+        fields: ["namespace", "name", "pod_status", "node_name",
+                 "pod_ip", "age", "restarts", "last_restart", "containers"]
+        sortcolumn: "pod_status"
+      Normal:
+        fields: ["namespace", "name", "pod_status", "node_name",
+                 "age", "restarts", "last_restart"]
+        sortcolumn: "pod_status"
+      Compact:
+        fields: ["namespace", "name", "pod_status", "age",
+                 "restarts", "last_restart"]
+        sortcolumn: "pod_status"
+    fields:
+      containers:
+        header: "Containers:"
+        paths:
+          - paths:
+              - "spec#initContainers"
+              - "spec#containers"
+            pathtype: "items"
+            subpaths:
+              - "name"
+              - subpath: "image"
+                regex: ["^.+/[^:^/]+:(.+?)@.*", "^.+/[^:^/]+:(.+)"]
+            type: "raw"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "generic"
+            - type: "version"
+          field_separators:
+            - type: "version"
+      last_restart:
+        header: "Latest Restart:"
+        paths:
+          - path: "status#containerStatuses"
+            pathtype: "items"
+            subpath: ["state#running#startedAt",
+                      "lastState#terminated#finishedAt"]
+            when:
+              - key: "restartCount"
+                gt: 0
+            action: "latest"
+            type: "timestamp"
+        default: -1
+        formatter: "age"
+        align: "right"
+      node_name:
+        header: "Node:"
+        path: "spec#nodeName"
+        type: "host"
+        default: "<none>"
+        formatting:
+          field_colors:
+            - type: "host"
+      pod_ip:
+        header: "Pod IP:"
+        path: "status#podIP"
+        default: "<unset>"
+        type: "address"
+        formatter: "address"
+      restarts:
+        header: "Restarts:"
+        paths:
+          - path: "status#containerStatuses"
+            pathtype: "items"
+            subpath: "restartCount"
+            action: "sum"
+            type: "int"
+        default: 0
+        formatter: "numerical"
+        align: "right"
+  shortcuts:
+    "List Admission Controllers":
+      key: "a"
+      modifier: "shift"
+      read_only: true
+      helptext: "List admission controllers"
+      widget: "windowwidget"
+      title: "Admission Controllers:"
+      itemgetter: "get_list_as_list"
+      itemgetter_args:
+        path: "spec#kubernetes#admissionControllers"
+    "List Certificates":
+      key: "f"
+      read_only: true
+      helptext: "List certificates"
+      widget: "windowwidget"
+      title: "Certificates:"
+      itemgetter: "get_dict_list"
+      itemgetter_args:
+        path: "status#certificates"
+        fields:
+          - "key"
+          - "value#secretName"
+      selectable: true
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        kind: "Secret"
+        name_path: 1
+        _parent_namespace_path: "metadata#namespace"
+    "Open controller":
+      key: "c"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for controller"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        namespace_path: "metadata#namespace"
+        owner_reference_path: "metadata#ownerReferences"
+    "Open Data Store Certificate":
+      key: "e"
+      read_only: true
+      helptext: "Open info page for Data Store certificate"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind: "Secret"
+        namespace_path: "metadata#namespace"
+        name_path: "status#storage#certificate#secretName"
+    "Open Data Store Config":
+      key: "o"
+      read_only: true
+      helptext: "Open info page for Data Store config"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind: "Secret"
+        namespace_path: "metadata#namespace"
+        name_path: "status#storage#config#secretName"
+    "Open Data Store":
+      key: "d"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for Data Store"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind: "DataStore"
+        api_family: "kamaji.clastix.io"
+        namespace_path: "metadata#namespace"
+        name_path: "status#storage#dataStoreName"
+    "Open Kubeconfig":
+      key: "k"
+      read_only: true
+      helptext: "Open info page for Kubeconfig"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind: "Secret"
+        namespace_path: "metadata#namespace"
+        name_path: "status#kubeconfig#admin#secretName"
+    "CoreDNS Configuration":
+      key: "s"
+      modifier: "shift"
+      read_only: true
+      helptext: "Show CoreDNS configuration"
+      action: "call"
+      action_call: "view_yaml"
+      action_args:
+        title: "CoreDNS configuration"
+        _pass_obj: true
+        path: "spec#addons#coreDNS"
+    "Konnectivity Configuration":
+      key: "k"
+      modifier: "shift"
+      read_only: true
+      helptext: "Show Konnectivity configuration"
+      action: "call"
+      action_call: "view_yaml"
+      action_args:
+        title: "Konnectivity configuration"
+        _pass_obj: true
+        path: "spec#addons#konnectivity"
+    "kube-proxy Configuration":
+      key: "u"
+      read_only: true
+      helptext: "Show kube-proxy configuration"
+      action: "call"
+      action_call: "view_yaml"
+      action_args:
+        title: "kube-proxy configuration"
+        _pass_obj: true
+        path: "spec#addons#kubeProxy"

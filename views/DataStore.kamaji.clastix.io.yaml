@@ -1,0 +1,214 @@
+---
+kind: "DataStore"
+api_family: "kamaji.clastix.io"
+default_command: "datastores"
+listview:
+  name: "Data Stores"
+  group: "Cluster Configuration"
+  field_indexes:
+    Normal:
+      fields: ["name", "driver", "age"]
+  fields:
+    driver:
+      header: "Driver:"
+      path: "spec#driver"
+      default: "<unset>"
+      type: "str"
+infoview:
+  name: "Data Store Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["driver",
+                 "ca_header",
+                 "ca_certificate_header",
+                 "ca_certificate_namespace",
+                 "ca_certificate_name",
+                 "ca_certificate_key",
+                 "ca_private_key_header",
+                 "ca_private_key_namespace",
+                 "ca_private_key_name",
+                 "ca_private_key_key",
+                 "client_certificate_header",
+                 "client_certificate_certificate_header",
+                 "client_certificate_certificate_namespace",
+                 "client_certificate_certificate_name",
+                 "client_certificate_certificate_key",
+                 "client_certificate_private_key_header",
+                 "client_certificate_private_key_namespace",
+                 "client_certificate_private_key_name",
+                 "client_certificate_private_key_key",
+                 "used_by"]
+    rows:
+      ca_header:
+        header: [["Certificate ", ["main", "infoheader"]],
+                 ["A", ["main", "infoheader_shortcut"]],
+                 ["uthority:", ["main", "infoheader"]]]
+      ca_certificate_header:
+        header: [["  Certificate:", ["main", "infoheader"]]]
+      ca_certificate_namespace:
+        header: [["    Namespace:", ["main", "infoheader"]]]
+        # yamllint disable-line rule:line-length
+        path: "spec#tlsConfig#certificateAuthority#certificate#secretReference#namespace"
+        default: "<unset>"
+        type: "str"
+        formatting:
+          field_colors:
+            - type: "namespace"
+      ca_certificate_name:
+        header: [["    Name:", ["main", "infoheader"]]]
+        # yamllint disable-line rule:line-length
+        path: "spec#tlsConfig#certificateAuthority#certificate#secretReference#name"
+        default: "<unset>"
+        type: "str"
+      ca_certificate_key:
+        header: [["    Key:", ["main", "infoheader"]]]
+        # yamllint disable-line rule:line-length
+        path: "spec#tlsConfig#certificateAuthority#certificate#secretReference#keyPath"
+        default: "<unset>"
+        type: "str"
+      ca_private_key_header:
+        header: [["  Private Key:", ["main", "infoheader"]]]
+      ca_private_key_namespace:
+        header: [["    Namespace:", ["main", "infoheader"]]]
+        # yamllint disable-line rule:line-length
+        path: "spec#tlsConfig#certificateAuthority#privateKey#secretReference#namespace"
+        default: "<unset>"
+        type: "str"
+        formatting:
+          field_colors:
+            - type: "namespace"
+      ca_private_key_name:
+        header: [["    Name:", ["main", "infoheader"]]]
+        # yamllint disable-line rule:line-length
+        path: "spec#tlsConfig#certificateAuthority#privateKey#secretReference#name"
+        default: "<unset>"
+        type: "str"
+      ca_private_key_key:
+        header: [["    Key:", ["main", "infoheader"]]]
+        # yamllint disable-line rule:line-length
+        path: "spec#tlsConfig#certificateAuthority#privateKey#secretReference#keyPath"
+        default: "<unset>"
+        type: "str"
+      client_certificate_header:
+        header: [["C", ["main", "infoheader_shortcut"]],
+                 ["lient Certificate:", ["main", "infoheader"]]]
+      client_certificate_certificate_header:
+        header: [["  Certificate:", ["main", "infoheader"]]]
+      client_certificate_certificate_namespace:
+        header: [["    Namespace:", ["main", "infoheader"]]]
+        # yamllint disable-line rule:line-length
+        path: "spec#tlsConfig#clientCertificate#certificate#secretReference#namespace"
+        default: "<unset>"
+        type: "str"
+        formatting:
+          field_colors:
+            - type: "namespace"
+      client_certificate_certificate_name:
+        header: [["    Name:", ["main", "infoheader"]]]
+        # yamllint disable-line rule:line-length
+        path: "spec#tlsConfig#clientCertificate#certificate#secretReference#name"
+        default: "<unset>"
+        type: "str"
+      client_certificate_certificate_key:
+        header: [["    Key:", ["main", "infoheader"]]]
+        # yamllint disable-line rule:line-length
+        path: "spec#tlsConfig#clientCertificate#certificate#secretReference#keyPath"
+        default: "<unset>"
+        type: "str"
+      client_certificate_private_key_header:
+        header: [["  Private Key:", ["main", "infoheader"]]]
+      client_certificate_private_key_namespace:
+        header: [["    Namespace:", ["main", "infoheader"]]]
+        # yamllint disable-line rule:line-length
+        path: "spec#tlsConfig#clientCertificate#privateKey#secretReference#namespace"
+        default: "<unset>"
+        type: "str"
+        formatting:
+          field_colors:
+            - type: "namespace"
+      client_certificate_private_key_name:
+        header: [["    Name:", ["main", "infoheader"]]]
+        # yamllint disable-line rule:line-length
+        path: "spec#tlsConfig#clientCertificate#privateKey#secretReference#name"
+        default: "<unset>"
+        type: "str"
+      client_certificate_private_key_key:
+        header: [["    Key:", ["main", "infoheader"]]]
+        # yamllint disable-line rule:line-length
+        path: "spec#tlsConfig#clientCertificate#privateKey#secretReference#keyPath"
+        default: "<unset>"
+        type: "str"
+      driver:
+        header: [["Driver:", ["main", "infoheader"]]]
+        path: "spec#driver"
+        default: "<unset>"
+        type: "str"
+      used_by:
+        header: [["U", ["main", "infoheader_shortcut"]],
+                 ["sed By:", ["main", "infoheader"]]]
+        path: "status#usedBy"
+        default: ["<unset>"]
+        type: "raw"
+        formatter: "list"
+  shortcuts:
+    "Endpoints":
+      key: "e"
+      modifier: "shift"
+      read_only: true
+      helptext: "List endpoints"
+      widget: "windowwidget"
+      title: "Endpoints:"
+      itemgetter: "get_list_as_list"
+      itemgetter_args:
+        path: "spec#endpoints"
+    "Open Certificate Authority Certificate":
+      key: "a"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for Certificate Authority Certificate"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind: "Secret"
+        # yamllint disable-line rule:line-length
+        namespace_path: "spec#tlsConfig#certificateAuthority#certificate#secretReference#namespace"
+        # yamllint disable-line rule:line-length
+        name_path: "spec#tlsConfig#certificateAuthority#certificate#secretReference#name"
+    "Open Client Certificate":
+      key: "c"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for Client Certificate"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind: "Secret"
+        # yamllint disable-line rule:line-length
+        namespace_path: "spec#tlsConfig#clientCertificate#certificate#secretReference#namespace"
+        # yamllint disable-line rule:line-length
+        name_path: "spec#tlsConfig#clientCertificate#certificate#secretReference#name"
+    "Used by Tenant Control Planes":
+      key: "u"
+      modifier: "shift"
+      read_only: true
+      helptext: "List Tenant Control Planes using this Data Store"
+      widget: "windowwidget"
+      title: "Tenant Control Planes:"
+      headers: ["Namespace:", "Name:"]
+      itemgetter: "get_list_as_list"
+      itemgetter_args:
+        path: "status#usedBy"
+        regex: "^(.*?)/(.*)$"
+      selectable: true
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        kind: "TenantControlPlane"
+        api_family: "kamaji.clastix.io"
+        name_path: 1
+        namespace_path: 0
+      # This isn't supported for now
+      sortcolumn: "namespace"

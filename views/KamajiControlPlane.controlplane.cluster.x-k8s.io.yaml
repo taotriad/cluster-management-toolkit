@@ -1,0 +1,299 @@
+---
+kind: "KamajiControlPlane"
+api_family: "controlplane.cluster.x-k8s.io"
+default_command: "kamajicontrolplanes"
+command:
+  - "ktcps"
+  - "ktcp"
+listview:
+  name: "Kamaji Control Planes"
+  group: "Cluster Configuration"
+  field_indexes:
+    Normal:
+      fields: ["namespace", "name", "controller", "initialized",
+               "desired", "replicas", "ready", "uptodate",
+               "age", "version"]
+      sortcolumn: "namespace"
+  fields:
+    controller:
+      header: "Controller:"
+      paths:
+        - path: "metadata#ownerReferences"
+          pathtype: "items"
+          subpaths:
+            - "kind"
+            - "apiVersion"
+            - "name"
+          when:
+            - key: "controller"
+              eq: true
+          type: ["kind", "api_group", "name"]
+      default: "<none>"
+      formatter: "list"
+      formatting:
+        field_colors:
+          - type: "kind"
+          - type: "api_group"
+          - type: "generic"
+        field_separators:
+          - type: "kind_api_group"
+          - type: "kind"
+    desired:
+      header: "Desired:"
+      path: "spec#replicas"
+      default: 0
+      type: "int"
+      formatter: "numerical"
+      align: "right"
+    initialized:
+      header: "Initialized:"
+      paths:
+        - path: ["status#initialization#controlPlaneInitialized",
+                 "status#initialized"]
+          pathtype: "value"
+          default: false
+          type: "bool"
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          mappings:
+            "False":
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+            "True":
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+    ready:
+      header: "Ready:"
+      path: "status#readyReplicas"
+      default: 0
+      type: "int"
+      formatter: "numerical"
+      align: "right"
+    replicas:
+      header: "Replicas:"
+      path: "status#replicas"
+      default: 0
+      type: "int"
+      formatter: "numerical"
+      align: "right"
+    uptodate:
+      header: "Up to Date:"
+      paths:
+        - path: ["status#upToDateReplicas", "status#updatedReplicas"]
+          pathtype: "value"
+          default: 0
+          type: "int"
+      formatter: "numerical"
+      align: "right"
+    version:
+      header: "Version:"
+      path: "spec#version"
+      type: "str"
+      formatting:
+        field_colors:
+          - type: "version"
+infoview:
+  name: "Kamaji Control Plane Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["controller", "control_plane_endpoint",
+                 "data_store",
+                 "kubelet_header",
+                 "kubelet_cgroupfs",
+                 "kubelet_preferred_address_types",
+                 "network_header",
+                 "network_service_type",
+                 "registry",
+                 "initialized",
+                 "external_managed_control_plane",
+                 "selector",
+                 "desired", "replicas", "ready", "uptodate",
+                 "version"]
+    rows:
+      controller:
+        header: [["C", ["main", "infoheader_shortcut"]],
+                 ["ontroller:", ["main", "infoheader"]]]
+        paths:
+          - path: "metadata#ownerReferences"
+            pathtype: "items"
+            subpaths:
+              - "kind"
+              - "apiVersion"
+              - "name"
+            when:
+              - key: "controller"
+                eq: true
+            type: ["kind", "api_group", "name"]
+        default: "<none>"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "kind"
+            - type: "api_group"
+            - type: "generic"
+          field_separators:
+            - type: "kind_api_group"
+            - type: "kind"
+      control_plane_endpoint:
+        header: [["Control Plane Endpoint:", ["main", "infoheader"]]]
+        paths:
+          - path: [["spec#controlPlaneEndpoint#host"],
+                   ["spec#controlPlaneEndpoint#port"]]
+            default: ["<unset>"]
+            pathtype: "tuple"
+            type: ["name", "name"]
+        # FIXME: The formatter needs to be improved to handle lists
+        # that contain addresses, etc.
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "address"
+            - type: "port"
+          field_separators:
+            - type: "port"
+      data_store:
+        header: [["D", ["main", "infoheader_shortcut"]],
+                 ["ata Store:", ["main", "infoheader"]]]
+        path: "spec#dataStoreName"
+        default: "<unset>"
+        type: "str"
+      desired:
+        header: [["Desired:", ["main", "infoheader"]]]
+        path: "spec#replicas"
+        default: 0
+        type: "int"
+        formatter: "numerical"
+      external_managed_control_plane:
+        header: [["External Managed Control Plane:", ["main", "infoheader"]]]
+        path: "status#externalManagedControlPlane"
+        default: "<unset>"
+        type: "bool"
+      initialized:
+        header: [["Initialized:", ["main", "infoheader"]]]
+        paths:
+          - path: ["status#initialization#controlPlaneInitialized",
+                   "status#initialized"]
+            pathtype: "value"
+            default: false
+            type: "bool"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              "False":
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+              "True":
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+      kubelet_cgroupfs:
+        header: [["  cgroupfs:", ["main", "infoheader"]]]
+        path: "spec#kubelet#cgroupfs"
+        default: "<unset>"
+        type: "str"
+      kubelet_header:
+        header: [["Kubelet:", ["main", "infoheader"]]]
+      kubelet_preferred_address_types:
+        header: [["  Preferred Address Types:", ["main", "infoheader"]]]
+        path: "spec#kubelet#preferredAddressTypes"
+        default: ["<unset>"]
+        type: "raw"
+        formatter: "list"
+      network_header:
+        header: [["Network:", ["main", "infoheader"]]]
+      network_service_type:
+        header: [["  Service Type:", ["main", "infoheader"]]]
+        path: "spec#network#serviceType"
+        default: "<unset>"
+        type: "str"
+      node_label_selector:
+        header: [["Node La", ["main", "infoheader"]],
+                 ["b", ["main", "infoheader_shortcut"]],
+                 ["el Selector:", ["main", "infoheader"]]]
+        paths:
+          - path: ["spec#deployment#nodeSelector"]
+            pathtype: "key_value"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "key"
+            - type: "value"
+          field_separators:
+            - type: "selector"
+      ready:
+        header: [["Ready:", ["main", "infoheader"]]]
+        path: "status#readyReplicas"
+        default: 0
+        type: "int"
+        formatter: "numerical"
+      registry:
+        header: [["Registry:", ["main", "infoheader"]]]
+        path: "spec#registry"
+        default: "<unset>"
+        type: "str"
+      replicas:
+        header: [["Replicas:", ["main", "infoheader"]]]
+        path: "status#replicas"
+        type: "int"
+        formatter: "numerical"
+      selector:
+        header: [["Selector:", ["main", "infoheader"]]]
+        path: "status#selector"
+        default: "<unset>"
+        type: "str"
+      uptodate:
+        header: [["Up to Date:", ["main", "infoheader"]]]
+        paths:
+          - path: ["status#upToDateReplicas", "status#updatedReplicas"]
+            pathtype: "value"
+            default: 0
+            type: "int"
+        formatter: "numerical"
+      version:
+        header: [["Version:", ["main", "infoheader"]]]
+        path: "spec#version"
+        type: "str"
+        formatting:
+          field_colors:
+            - type: "version"
+  shortcuts:
+    "Node Label Selector":
+      key: "b"
+      read_only: true
+      helptext: "Show Node label selector"
+      widget: "windowwidget"
+      title: "Node Label Selector:"
+      headers: ["Key:", "Value:"]
+      itemgetter: "get_key_value"
+      itemgetter_args:
+        path: "spec#deployment#nodeSelector"
+    "Open controller":
+      key: "c"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for controller"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        namespace_path: "metadata#namespace"
+        owner_reference_path: "metadata#ownerReferences"
+    "Open Data Store":
+      key: "d"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for Data Store"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind: "DataStore"
+        api_family: "kamaji.clastix.io"
+        namespace_path: "metadata#namespace"
+        name_path: "spec#dataStoreName"
