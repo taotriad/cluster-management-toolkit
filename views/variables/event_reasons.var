@@ -1304,6 +1304,10 @@ OSImageURLOverridden:
   field_colors:
     - context: "main"
       type: "status_ok"
+OSUpgradeSkipped:
+  field_colors:
+    - context: "main"
+      type: "status_done"
 OSUpdateStaged:
   field_colors:
     - context: "main"

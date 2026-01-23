@@ -323,6 +323,10 @@ listview:
               field_colors:
                 - context: "main"
                   type: "status_done"
+            ControlPlaneReady:
+              field_colors:
+                - context: "main"
+                  type: "status_done"
             ControlPlaneTopology:
               field_colors:
                 - context: "main"
@@ -1164,6 +1168,10 @@ listview:
               field_colors:
                 - context: "main"
                   type: "status_ok"
+            nodeAssigned:
+              field_colors:
+                - context: "main"
+                  type: "status_done"
             NodeCurrentRevisionChanged:
               field_colors:
                 - context: "main"
@@ -1372,6 +1380,10 @@ listview:
               field_colors:
                 - context: "main"
                   type: "status_ok"
+            OSUpgradeSkipped:
+              field_colors:
+                - context: "main"
+                  type: "status_done"
             OSUpdateStaged:
               field_colors:
                 - context: "main"
@@ -1600,6 +1612,10 @@ listview:
               field_colors:
                 - context: "main"
                   type: "status_warning"
+            ResetLogicalSwitchAclSuccess:
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
             ResolutionFailed:
               field_colors:
                 - context: "main"
@@ -1825,6 +1841,10 @@ listview:
                 - context: "main"
                   type: "status_warning"
             ShutdownInitiated:
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+            ShuttingDown:
               field_colors:
                 - context: "main"
                   type: "status_pending"
@@ -2132,10 +2152,14 @@ listview:
               field_colors:
                 - context: "main"
                   type: "status_warning"
-            ValidatingAdmissionPolicyBindingCreated:
+            ValidateLogicalSwitchSuccess:
               field_colors:
                 - context: "main"
                   type: "status_ok"
+            ValidatingAdmissionPolicyBindingCreated:
+              field_colors:
+                - context: "main"
+                  type: "status_done"
             ValidatingAdmissionPolicyCreateFailed:
               field_colors:
                 - context: "main"
@@ -2143,19 +2167,19 @@ listview:
             ValidatingAdmissionPolicyCreated:
               field_colors:
                 - context: "main"
-                  type: "status_ok"
+                  type: "status_done"
             ValidatingAdmissionPolicyUpdated:
               field_colors:
                 - context: "main"
-                  type: "status_ok"
+                  type: "status_done"
             ValidatingWebhookConfigurationCreated:
               field_colors:
                 - context: "main"
-                  type: "status_ok"
+                  type: "status_done"
             ValidatingWebhookConfigurationUpdated:
               field_colors:
                 - context: "main"
-                  type: "status_ok"
+                  type: "status_done"
             VolumeFailedDelete:
               field_colors:
                 - context: "main"
@@ -2600,6 +2624,10 @@ infoview:
                   - context: "main"
                     type: "status_warning"
               ControlPlaneInitialized:
+                field_colors:
+                  - context: "main"
+                    type: "status_done"
+              ControlPlaneReady:
                 field_colors:
                   - context: "main"
                     type: "status_done"
@@ -3444,6 +3472,10 @@ infoview:
                 field_colors:
                   - context: "main"
                     type: "status_ok"
+              nodeAssigned:
+                field_colors:
+                  - context: "main"
+                    type: "status_done"
               NodeCurrentRevisionChanged:
                 field_colors:
                   - context: "main"
@@ -3652,6 +3684,10 @@ infoview:
                 field_colors:
                   - context: "main"
                     type: "status_ok"
+              OSUpgradeSkipped:
+                field_colors:
+                  - context: "main"
+                    type: "status_done"
               OSUpdateStaged:
                 field_colors:
                   - context: "main"
@@ -3880,6 +3916,10 @@ infoview:
                 field_colors:
                   - context: "main"
                     type: "status_warning"
+              ResetLogicalSwitchAclSuccess:
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
               ResolutionFailed:
                 field_colors:
                   - context: "main"
@@ -4105,6 +4145,10 @@ infoview:
                   - context: "main"
                     type: "status_warning"
               ShutdownInitiated:
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+              ShuttingDown:
                 field_colors:
                   - context: "main"
                     type: "status_pending"
@@ -4412,10 +4456,14 @@ infoview:
                 field_colors:
                   - context: "main"
                     type: "status_warning"
-              ValidatingAdmissionPolicyBindingCreated:
+              ValidateLogicalSwitchSuccess:
                 field_colors:
                   - context: "main"
                     type: "status_ok"
+              ValidatingAdmissionPolicyBindingCreated:
+                field_colors:
+                  - context: "main"
+                    type: "status_done"
               ValidatingAdmissionPolicyCreateFailed:
                 field_colors:
                   - context: "main"
@@ -4423,19 +4471,19 @@ infoview:
               ValidatingAdmissionPolicyCreated:
                 field_colors:
                   - context: "main"
-                    type: "status_ok"
+                    type: "status_done"
               ValidatingAdmissionPolicyUpdated:
                 field_colors:
                   - context: "main"
-                    type: "status_ok"
+                    type: "status_done"
               ValidatingWebhookConfigurationCreated:
                 field_colors:
                   - context: "main"
-                    type: "status_ok"
+                    type: "status_done"
               ValidatingWebhookConfigurationUpdated:
                 field_colors:
                   - context: "main"
-                    type: "status_ok"
+                    type: "status_done"
               VolumeFailedDelete:
                 field_colors:
                   - context: "main"
