@@ -2113,6 +2113,14 @@
 													"description": "Some actions take a path as argument",
 													"$ref": "#/definitions/simple_path"
 												},
+												"paths": {
+													"description": "Some actions take multiple paths as argument",
+													"type": "array",
+													"items": {
+														"$ref": "#/definitions/path"
+													},
+													"minItems": 1
+												},
 												"process_selection": {
 													"description": "A dict containing transformation rules for selections",
 													"type": "object"
@@ -2419,7 +2427,16 @@
 															"type": "boolean"
 														},
 														"path": {
+															"description": "Some actions take a path as argument",
 															"$ref": "#/definitions/path"
+														},
+														"paths": {
+															"description": "Some actions take multiple paths as argument",
+															"type": "array",
+															"items": {
+																"$ref": "#/definitions/path"
+															},
+															"minItems": 1
 														},
 														"pod_name": {
 															"description": "Pod name or pod name paths for the ConfigMap",
@@ -2478,6 +2495,8 @@
 															"required": [ "items" ]
 														}, {
 															"required": [ "path" ]
+														}, {
+															"required": [ "paths" ]
 														}, {
 															"required": [ "cm_namespace", "cm_name", "pod_name" ]
 														}
