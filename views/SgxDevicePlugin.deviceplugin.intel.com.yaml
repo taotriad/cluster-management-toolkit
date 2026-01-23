@@ -17,6 +17,7 @@ listview:
       header: "Desired:"
       path: "status#desiredNumberScheduled"
       type: "int"
+      formatter: "numerical"
       align: "right"
     node_selector:
       header: "Node Selector:"
@@ -34,4 +35,137 @@ listview:
       header: "Ready:"
       path: "status#numberReady"
       type: "int"
+      formatter: "numerical"
       align: "right"
+infoview:
+  name: "SGX Device Plugin Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["controlled_daemon_set", "image",
+                 "node_label_selector",
+                 "loglevel", "enclave_limit", "provision_limit", "replicas"]
+    rows:
+      controlled_daemon_set:
+        header: [["Controlled ", ["main", "infoheader"]],
+                 ["D", ["main", "infoheader_shortcut"]],
+                 ["aemon Set:", ["main", "infoheader"]]]
+        paths:
+          - path: [["status#controlledDaemonSet#kind"],
+                   ["status#controlledDaemonSet#apiVersion"],
+                   ["status#controlledDaemonSet#namespace"],
+                   ["status#controlledDaemonSet#name"]]
+            pathtype: "tuple"
+            type: ["kind", "api_group", "name", "name"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "kind"
+            - type: "api_group"
+            - type: "namespace"
+            - type: "generic"
+          field_separators:
+            - type: "kind_api_group"
+            - type: "kind"
+            - type: "namespace"
+      enclave_limit:
+        header: [["Enclave Limit:", ["main", "infoheader"]]]
+        path: "spec#enclaveLimit"
+        default: "<unset>"
+        type: "int"
+        formatter: "numerical"
+      image:
+        header: [["Image:", ["main", "infoheader"]]]
+        paths:
+          - path: "spec#image"
+            pathtype: "regex"
+            regex: "^([^:]+):(.*)"
+            default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "generic"
+            - type: "version"
+          field_separators:
+            - type: "version"
+      loglevel:
+        header: [["Loglevel:", ["main", "infoheader"]]]
+        path: "spec#logLevel"
+        default: "<unset>"
+        type: "int"
+        formatter: "numerical"
+      node_label_selector:
+        header: [["Node La", ["main", "infoheader"]],
+                 ["b", ["main", "infoheader_shortcut"]],
+                 ["el Selector:", ["main", "infoheader"]]]
+        paths:
+          - path: ["spec#nodeSelector"]
+            pathtype: "key_value"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "key"
+            - type: "value"
+          field_separators:
+            - type: "selector"
+      provision_limit:
+        header: [["Provision Limit:", ["main", "infoheader"]]]
+        path: "spec#provisionLimit"
+        default: "<unset>"
+        type: "int"
+        formatter: "numerical"
+      replicas:
+        header: [["Replicas:", ["main", "infoheader"]]]
+        paths:
+          - path: [["status#numberReady"], ["status#desiredNumberScheduled"]]
+            pathtype: "tuple"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "numerical"
+            - type: "numerical"
+          field_separators:
+            - type: "fraction"
+  listpad:
+    listgetter: "listgetter_path"
+    listgetter_args:
+      path: "status#nodeNames"
+      rename_bare: "name"
+    infogetter: "generic_infogetter"
+    on_activation:
+      call: "resourceinfodispatch_with_lookup"
+      kind: "Node"
+      name_path: "name"
+    field_indexes:
+      Normal:
+        fields: ["name"]
+        sortcolumn: "name"
+    fields:
+      name:
+        header: "Name:"
+        path: "name"
+        type: "str"
+  shortcuts:
+    "Node Label Selector":
+      key: "b"
+      read_only: true
+      helptext: "Show Node label selector"
+      widget: "windowwidget"
+      title: "Node Label Selector:"
+      headers: ["Key:", "Value:"]
+      itemgetter: "get_key_value"
+      itemgetter_args:
+        path: "spec#nodeSelector"
+    "Open Controlled Daemon Set":
+      key: "d"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for controlled Daemon Set"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind_path: "status#controlledDaemonSet#kind"
+        api_version_path: "status#controlledDaemonSet#apiVersion"
+        namespace_path: "status#controlledDaemonSet#namespace"
+        name_path: "status#controlledDaemonSet#name"

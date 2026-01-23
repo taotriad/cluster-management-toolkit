@@ -11,15 +11,16 @@ listview:
   field_indexes:
     Normal:
       fields: ["name", "desired_number_scheduled",
-               "number_ready", "node_selector", "age"]
+               "number_ready", "node_label_selector", "age"]
   fields:
     desired_number_scheduled:
       header: "Desired:"
       path: "status#desiredNumberScheduled"
       type: "int"
+      formatter: "numerical"
       align: "right"
-    node_selector:
-      header: "Node Selector:"
+    node_label_selector:
+      header: "Node Label Selector:"
       paths:
         - path: ["spec#nodeSelector"]
           pathtype: "key_value"
@@ -34,6 +35,7 @@ listview:
       header: "Ready:"
       path: "status#numberReady"
       type: "int"
+      formatter: "numerical"
       align: "right"
 infoview:
   name: "QAT Device Plugin Info"
@@ -41,7 +43,7 @@ infoview:
     row_indexes:
       Normal:
         fields: ["controlled_daemon_set", "image", "init_image",
-                 "node_selector", "dpdk_driver", "kernel_vf_drivers",
+                 "node_label_selector", "dpdk_driver", "kernel_vf_drivers",
                  "max_num_devices", "loglevel", "replicas"]
     rows:
       controlled_daemon_set:
@@ -113,8 +115,10 @@ infoview:
         path: "spec#maxNumDevices"
         type: "int"
         formatter: "numerical"
-      node_selector:
-        header: [["Node Selector:", ["main", "infoheader"]]]
+      node_label_selector:
+        header: [["Node La", ["main", "infoheader"]],
+                 ["b", ["main", "infoheader_shortcut"]],
+                 ["el Selector:", ["main", "infoheader"]]]
         paths:
           - path: ["spec#nodeSelector"]
             pathtype: "key_value"
@@ -165,6 +169,16 @@ infoview:
         path: "name"
         type: "str"
   shortcuts:
+    "Node Label Selector":
+      key: "b"
+      read_only: true
+      helptext: "Show Node label selector"
+      widget: "windowwidget"
+      title: "Node Label Selector:"
+      headers: ["Key:", "Value:"]
+      itemgetter: "get_key_value"
+      itemgetter_args:
+        path: "spec#nodeSelector"
     "Open Controlled Daemon Set":
       key: "d"
       modifier: "shift"
