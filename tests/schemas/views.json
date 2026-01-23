@@ -1684,6 +1684,10 @@
 							"description": "A screen area used to display information about an object",
 							"type": "object",
 							"properties": {
+								"conditions_path": {
+									"description": "By default the conditions are found under status; use this path to override",
+									"$ref": "#/definitions/simple_path"
+								},
 								"creation_timestamp_path": {
 									"description": "By default the timestamp for the object is read from metadata#creationTimestamp; use this path to override",
 									"oneOf": [
@@ -2495,8 +2499,6 @@
 															"required": [ "items" ]
 														}, {
 															"required": [ "path" ]
-														}, {
-															"required": [ "paths" ]
 														}, {
 															"required": [ "cm_namespace", "cm_name", "pod_name" ]
 														}

@@ -43,19 +43,18 @@ infoview:
         path: "spec#disabled"
         default: false
         type: "bool"
-      default: false
-      formatter: "value_mapper"
-      formatting:
-        mapping:
-          mappings:
-            "false":
-              field_colors:
-                - context: "main"
-                  type: "status_ok"
-            "true":
-              field_colors:
-                - context: "main"
-                  type: "status_not_ok"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              "false":
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+              "true":
+                field_colors:
+                  - context: "main"
+                    type: "status_not_ok"
       service_label_selector:
         header: [["Service La", ["main", "infoheader"]],
                  ["b", ["main", "infoheader_shortcut"]],
