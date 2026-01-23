@@ -8,3 +8,52 @@ listview:
   field_indexes:
     Normal:
       fields: ["name", "age"]
+infoview:
+  name: "Kubelet Config Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["kubelet_config_header",
+                 "kubelet_config_cpu_manager_policy",
+                 "kubelet_config_cpu_manager_reconcile_period",
+                 "machine_config_pool_label_selector"]
+    rows:
+      kubelet_config_header:
+        header: [["Kubelet Config:", ["main", "infoheader"]]]
+      kubelet_config_cpu_manager_policy:
+        header: [["  CPU Manager Policy:", ["main", "infoheader"]]]
+        path: "spec#kubeletConfig#cpuManagerPolicy"
+        default: "<unset>"
+        type: "str"
+      kubelet_config_cpu_manager_reconcile_period:
+        header: [["  CPU Manager Reconcile Period:", ["main", "infoheader"]]]
+        path: "spec#kubeletConfig#cpuManagerReconcilePeriod"
+        default: "<unset>"
+        type: "int"
+        formatter: "numerical"
+      machine_config_pool_label_selector:
+        header: [["Machine Config Pool La", ["main", "infoheader"]],
+                 ["b", ["main", "infoheader_shortcut"]],
+                 ["el Selector:", ["main", "infoheader"]]]
+        paths:
+          - path: ["spec#machineConfigPoolSelector#matchLabels"]
+            pathtype: "key_value"
+            default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "key"
+            - type: "value"
+          field_separators:
+            - type: "selector"
+  shortcuts:
+    "Label Selector":
+      key: "b"
+      read_only: true
+      helptext: "Show label selector"
+      widget: "windowwidget"
+      title: "Machine Config Pool Label Selector:"
+      headers: ["Key:", "Value:"]
+      itemgetter: "get_key_value"
+      itemgetter_args:
+        path: "spec#machineConfigPoolSelector#matchLabels"
