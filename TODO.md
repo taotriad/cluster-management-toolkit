@@ -74,6 +74,9 @@
   a variety of different toolkits to present its data.
 * All generators and other functions used to extract data should be removed from cmu;
   that way we don't have to duplicate functionality between cmu and cmt.
+* Add an (optional) title for logpads.
+* Clear the "Fetching Data" dialog properly when switching to Pod view from a different view
+  (and possibly in other cases).
 
 cmtinv:
 
