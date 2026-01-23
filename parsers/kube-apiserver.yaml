@@ -2,7 +2,7 @@
 - name: "kube-apiserver"
   show_in_selector: false
   matchkeys:
-    - pod_name: "kube-apiserver"
+    - image_name: "/kube-apiserver"
   parser_rules:
     - name: "glog"
     - name: "ts_8601"

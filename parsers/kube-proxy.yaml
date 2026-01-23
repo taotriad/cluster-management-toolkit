@@ -2,7 +2,7 @@
 - name: "kube-proxy"
   show_in_selector: false
   matchkeys:
-    - pod_name: "kube-proxy"
+    - image_name: "/kube-proxy"
   parser_rules:
     - name: "glog"
     - name: "key_value_with_leading_message"

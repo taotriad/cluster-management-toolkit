@@ -2,7 +2,7 @@
 - name: "kube-scheduler"
   show_in_selector: false
   matchkeys:
-    - pod_name: "kube-scheduler"
+    - image_name: "/kube-scheduler"
   parser_rules:
     - name: "glog"
     - name: "key_value_with_leading_message"
