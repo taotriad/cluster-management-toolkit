@@ -3909,6 +3909,8 @@ def genericinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
             creation_timestamp_path = deep_get(viewref, DictPath("creation_timestamp_path"))
         else:
             creation_timestamp_path = "metadata#creationTimestamp"
+        conditions_path = deep_get(viewref, DictPath("conditions_path"), "status")
+
 
         # Number of fields added conditionally
         if name_path is not None and name_path and deep_get(obj, DictPath(name_path)) is not None:
@@ -3966,7 +3968,7 @@ def genericinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
 
     # Always include the shortcut for conditions,
     # unless the path returns None
-    if "conditions" in deep_get(obj, DictPath("status"), {}):
+    if "conditions" in deep_get(obj, DictPath(conditions_path), {}):
         shortcuts["Show Resource Conditions"] = {
             "shortcut": [ord("c")],
             "read_only": True,
@@ -3975,6 +3977,9 @@ def genericinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
             "title": "Conditions:",
             "headers": ["Type:", "Status:", "Last Probe:", "Last Transition:", "Message:"],
             "itemgetter": itemgetters.get_conditions,
+            "itemgetter_args": {
+                "path": f"{conditions_path}#conditions",
+            },
             "force_update": False,
         }
 
@@ -10023,6 +10028,10 @@ def populate_views(refresh_apis: str = "none") -> None:
                 if "creation_timestamp_path" in infopad:
                     infoview_entry["creation_timestamp_path"] = \
                         deep_get(infopad, DictPath("creation_timestamp_path"))
+                # In the default case this is "status".
+                if "conditions_path" in infopad:
+                    infoview_entry["conditions_path"] = \
+                        deep_get(infopad, DictPath("conditions_path"))
 
             list_listgetter = deep_get(listpad, DictPath("listgetter"))
             list_listgetter_args = deep_get(listpad, DictPath("listgetter_args"), {})
