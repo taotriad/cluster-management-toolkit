@@ -203,7 +203,8 @@ def none_timestamp() -> datetime:
         Returns:
             timestamp (datetime): A "None" timestamp
     """
-    return (datetime.combine(date.min, datetime.min.time()) + timedelta(days=1)).astimezone()
+    return (datetime.combine(date.min, datetime.min.time()) \
+            + timedelta(days=1)).replace(tzinfo=timezone.utc)
 
 
 def normalise_cpu_usage_to_millicores(cpu_usage: str) -> float:
