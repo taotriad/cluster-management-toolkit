@@ -338,7 +338,7 @@ def when_filter(when_path: dict, item: dict, key: Optional[str] = None, value: A
             when_key_notendswith = deep_get(when_condition, DictPath("key_notendswith"))
             if when_key_eq is not None and when_key_eq != key:
                 return False
-            if when_key_ne is not None and when_key_eq == key:
+            if when_key_ne is not None and when_key_ne == key:
                 return False
             if when_key_in is not None and key not in when_key_in:
                 return False
