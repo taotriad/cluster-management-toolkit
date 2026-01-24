@@ -147,6 +147,7 @@ def __process_timestamp(value: Union[Sequence[Union[int, str]], str],
         if value == -1:
             new_value = none_timestamp()
         elif isinstance(value, str) and value.startswith("<") and value.endswith(">"):
+            # Hmmm, what's this used by?
             new_value = value
         else:
             new_value = timestamp_to_datetime(cast(str, value))
@@ -430,7 +431,7 @@ def when_filter(when_path: dict, item: dict, key: Optional[str] = None, value: A
             return False
         if when_gt is not None and (value is None or value <= type(value)(when_gt)):
             return False
-        if when_gte is not None and (value is None or value >= type(value)(when_gte)):
+        if when_gte is not None and (value is None or value < type(value)(when_gte)):
             return False
 
         if when_startswith is not None \
