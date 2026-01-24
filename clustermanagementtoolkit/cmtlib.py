@@ -203,7 +203,7 @@ def none_timestamp() -> datetime:
         Returns:
             timestamp (datetime): A "None" timestamp
     """
-    return (datetime.combine(date.min, datetime.min.time()) \
+    return (datetime.combine(date.min, datetime.min.time())
             + timedelta(days=1)).replace(tzinfo=timezone.utc)
 
 

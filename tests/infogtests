@@ -81,6 +81,20 @@ def test_process_value(verbose: bool = False) -> tuple[str, bool]:
             (0, "unix_timestamp", {}, datetime.fromtimestamp(0), None),
             ("1970-01-01 02:00:00", "timestamp", {},
              datetime.strptime("1970-01-01 02:00:00+00:00", "%Y-%m-%d %H:%M:%S%z"), None),
+            (-1, "timestamp", {},
+             datetime.strptime("0001-01-02 00:00:00+00:00", "%Y-%m-%d %H:%M:%S%z"), None),
+            (["1970-01-01 02:00:00", "1970-01-02 02:00:00"], "timestamp", {"action": "earliest"},
+             datetime.strptime("1970-01-01 02:00:00+00:00", "%Y-%m-%d %H:%M:%S%z"), None),
+            (["1970-01-02 02:00:00", "1970-01-01 02:00:00"], "timestamp", {"action": "earliest"},
+             datetime.strptime("1970-01-01 02:00:00+00:00", "%Y-%m-%d %H:%M:%S%z"), None),
+            (["1970-01-01 02:00:00", "1970-01-02 02:00:00"], "timestamp", {"action": "latest"},
+             datetime.strptime("1970-01-02 02:00:00+00:00", "%Y-%m-%d %H:%M:%S%z"), None),
+            (["1970-01-02 02:00:00", "1970-01-01 02:00:00"], "timestamp", {"action": "latest"},
+             datetime.strptime("1970-01-02 02:00:00+00:00", "%Y-%m-%d %H:%M:%S%z"), None),
+            (["1970-01-01 02:00:00", None], "timestamp", {"action": "latest"},
+             datetime.strptime("1970-01-01 02:00:00+00:00", "%Y-%m-%d %H:%M:%S%z"), None),
+            (["1970-01-01 02:00:00", -1], "timestamp", {"action": "latest"},
+             datetime.strptime("1970-01-01 02:00:00+00:00", "%Y-%m-%d %H:%M:%S%z"), None),
             (["answer", 42], ["raw", "raw"], {}, ["answer", 42], None),
             (["answer", 42], [], {}, ["answer", 42], None),
             (["answer", "fortytwo"], ["name", "name"], {}, ["answer", "fortytwo"], None),
@@ -191,6 +205,1158 @@ def test_transform_filter(verbose: bool = False) -> tuple[str, bool]:
                               f"  expected result: {expected_result}\n" \
                               "  transformations:\n" \
                               f"{yaml_dump(transformations, base_indent=17)}"
+                    result = False
+                    break
+    return message, result
+
+
+def test_when_filter(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = infogetters.when_filter
+
+    if result:
+        # Indata format:
+        # (path, item, key, value, expected_result, expected_exception)
+        testdata: tuple = (
+            (
+                # No rules
+                {
+                    "when": [],
+                }, {
+                    "foo": "bar",
+                },
+                None,
+                None,
+                True,
+                None,
+            ),
+            (
+                # key and value not set, when rule missing key
+                {
+                    "when": [
+                        {},
+                    ],
+                }, {
+                    "foo": "bar",
+                },
+                None,
+                None,
+                None,
+                ValueError,
+            ),
+            (
+                # No matching key
+                {
+                    "when": [
+                        {
+                            "key": "type",
+                            "eq": "Ready",
+                        },
+                    ],
+                }, {
+                    "foo": "bar",
+                },
+                None,
+                None,
+                False,
+                None,
+            ),
+            (
+                # Matching key, condition not met
+                {
+                    "when": [
+                        {
+                            "key": "type",
+                            "eq": "Ready",
+                        },
+                    ],
+                }, {
+                    "type": "Available",
+                },
+                None,
+                None,
+                False,
+                None,
+            ),
+            (
+                # Value supplied separately
+                {
+                    "when": [
+                        {
+                            "key": "type",
+                            "eq": "Ready",
+                        },
+                    ],
+                },
+                None,
+                None,
+                "Ready",
+                True,
+                None,
+            ),
+            (
+                # None, condition met
+                {
+                    "when": [
+                        {
+                            "key": "type",
+                            "none": "type",
+                        },
+                    ],
+                }, {
+                    "type": None,
+                },
+                None,
+                None,
+                True,
+                None,
+            ),
+            (
+                # None, condition not met
+                {
+                    "when": [
+                        {
+                            "key": "type",
+                            "none": "type",
+                        },
+                    ],
+                }, {
+                    "type": "Ready",
+                },
+                None,
+                None,
+                False,
+                None,
+            ),
+            (
+                # Not None, condition met
+                {
+                    "when": [
+                        {
+                            "key": "type",
+                            "notnone": "type",
+                        },
+                    ],
+                }, {
+                    "type": "Ready",
+                },
+                None,
+                None,
+                True,
+                None,
+            ),
+            (
+                # Not None, condition not met
+                {
+                    "when": [
+                        {
+                            "key": "type",
+                            "notnone": "type",
+                        },
+                    ],
+                }, {
+                    "type": None,
+                },
+                None,
+                None,
+                False,
+                None,
+            ),
+            (
+                # eq, condition met
+                {
+                    "when": [
+                        {
+                            "key": "type",
+                            "eq": 0,
+                        },
+                    ],
+                }, {
+                    "type": 0,
+                },
+                None,
+                None,
+                True,
+                None,
+            ),
+            (
+                # eq, condition not met
+                {
+                    "when": [
+                        {
+                            "key": "type",
+                            "eq": 1,
+                        },
+                    ],
+                }, {
+                    "type": 0,
+                },
+                None,
+                None,
+                False,
+                None,
+            ),
+            (
+                # ne, condition met
+                {
+                    "when": [
+                        {
+                            "key": "type",
+                            "ne": 1,
+                        },
+                    ],
+                }, {
+                    "type": 0,
+                },
+                None,
+                None,
+                True,
+                None,
+            ),
+            (
+                # ne, condition not met
+                {
+                    "when": [
+                        {
+                            "key": "type",
+                            "ne": 0,
+                        },
+                    ],
+                }, {
+                    "type": 0,
+                },
+                None,
+                None,
+                False,
+                None,
+            ),
+            (
+                # lt, condition met
+                {
+                    "when": [
+                        {
+                            "key": "type",
+                            "lt": 1,
+                        },
+                    ],
+                }, {
+                    "type": 0,
+                },
+                None,
+                None,
+                True,
+                None,
+            ),
+            (
+                # lt, condition not met
+                {
+                    "when": [
+                        {
+                            "key": "type",
+                            "lt": 0,
+                        },
+                    ],
+                }, {
+                    "type": 0,
+                },
+                None,
+                None,
+                False,
+                None,
+            ),
+            (
+                # lte, condition met
+                {
+                    "when": [
+                        {
+                            "key": "type",
+                            "lte": 1,
+                        },
+                    ],
+                }, {
+                    "type": 0,
+                },
+                None,
+                None,
+                True,
+                None,
+            ),
+            (
+                # lte, condition met
+                {
+                    "when": [
+                        {
+                            "key": "type",
+                            "lte": 0,
+                        },
+                    ],
+                }, {
+                    "type": 0,
+                },
+                None,
+                None,
+                True,
+                None,
+            ),
+            (
+                # lte, condition not met
+                {
+                    "when": [
+                        {
+                            "key": "type",
+                            "lte": 0,
+                        },
+                    ],
+                }, {
+                    "type": 1,
+                },
+                None,
+                None,
+                False,
+                None,
+            ),
+            (
+                # gt, condition met
+                {
+                    "when": [
+                        {
+                            "key": "type",
+                            "gt": 0,
+                        },
+                    ],
+                }, {
+                    "type": 1,
+                },
+                None,
+                None,
+                True,
+                None,
+            ),
+            (
+                # gt, condition not met
+                {
+                    "when": [
+                        {
+                            "key": "type",
+                            "gt": 0,
+                        },
+                    ],
+                }, {
+                    "type": 0,
+                },
+                None,
+                None,
+                False,
+                None,
+            ),
+            (
+                # gte, condition met
+                {
+                    "when": [
+                        {
+                            "key": "type",
+                            "gte": 0,
+                        },
+                    ],
+                }, {
+                    "type": 1,
+                },
+                None,
+                None,
+                True,
+                None,
+            ),
+            (
+                # gte, condition met
+                {
+                    "when": [
+                        {
+                            "key": "type",
+                            "gte": 0,
+                        },
+                    ],
+                }, {
+                    "type": 0,
+                },
+                None,
+                None,
+                True,
+                None,
+            ),
+            (
+                # gte, condition not met
+                {
+                    "when": [
+                        {
+                            "key": "type",
+                            "gte": 1,
+                        },
+                    ],
+                }, {
+                    "type": 0,
+                },
+                None,
+                None,
+                False,
+                None,
+            ),
+            (
+                # in, condition met
+                {
+                    "when": [
+                        {
+                            "key": "type",
+                            "in": [0, 1, 2],
+                        },
+                    ],
+                }, {
+                    "type": 1,
+                },
+                None,
+                None,
+                True,
+                None,
+            ),
+            (
+                # in, condition not met
+                {
+                    "when": [
+                        {
+                            "key": "type",
+                            "in": [0, 1, 2],
+                        },
+                    ],
+                }, {
+                    "type": 3,
+                },
+                None,
+                None,
+                False,
+                None,
+            ),
+            (
+                # notin, condition met
+                {
+                    "when": [
+                        {
+                            "key": "type",
+                            "notin": [0, 1, 2],
+                        },
+                    ],
+                }, {
+                    "type": 3,
+                },
+                None,
+                None,
+                True,
+                None,
+            ),
+            (
+                # notin, condition not met
+                {
+                    "when": [
+                        {
+                            "key": "type",
+                            "notin": [0, 1, 2],
+                        },
+                    ],
+                }, {
+                    "type": 1,
+                },
+                None,
+                None,
+                False,
+                None,
+            ),
+            (
+                # missing, condition met
+                {
+                    "when": [
+                        {
+                            "key": "type",
+                            "missing": "type",
+                        },
+                    ],
+                }, {
+                    "type": "Ready",
+                },
+                None,
+                None,
+                False,
+                None,
+            ),
+            (
+                # missing, condition not met
+                {
+                    "when": [
+                        {
+                            "key": "type",
+                            "missing": "type",
+                        },
+                    ],
+                }, {
+                },
+                None,
+                None,
+                True,
+                None,
+            ),
+            (
+                # notmissing, condition met
+                {
+                    "when": [
+                        {
+                            "key": "type",
+                            "notmissing": "type",
+                        },
+                    ],
+                }, {
+                    "type": "Ready",
+                },
+                None,
+                None,
+                True,
+                None,
+            ),
+            (
+                # notmissing, condition not met
+                {
+                    "when": [
+                        {
+                            "key": "type",
+                            "notmissing": "type",
+                        },
+                    ],
+                }, {
+                },
+                None,
+                None,
+                False,
+                None,
+            ),
+            (
+                # startswith, condition met
+                {
+                    "when": [
+                        {
+                            "key": "type",
+                            "startswith": "foo",
+                        },
+                    ],
+                }, {
+                    "type": "foobar",
+                },
+                None,
+                None,
+                True,
+                None,
+            ),
+            (
+                # startswith, condition not met
+                {
+                    "when": [
+                        {
+                            "key": "type",
+                            "startswith": "foo",
+                        },
+                    ],
+                }, {
+                    "type": "barfoo",
+                },
+                None,
+                None,
+                False,
+                None,
+            ),
+            (
+                # endswith, condition met
+                {
+                    "when": [
+                        {
+                            "key": "type",
+                            "endswith": "bar",
+                        },
+                    ],
+                }, {
+                    "type": "foobar",
+                },
+                None,
+                None,
+                True,
+                None,
+            ),
+            (
+                # endswith, condition not met
+                {
+                    "when": [
+                        {
+                            "key": "type",
+                            "endswith": "bar",
+                        },
+                    ],
+                }, {
+                    "type": "barfoo",
+                },
+                None,
+                None,
+                False,
+                None,
+            ),
+            (
+                # notstartswith, condition met
+                {
+                    "when": [
+                        {
+                            "key": "type",
+                            "notstartswith": "bar",
+                        },
+                    ],
+                }, {
+                    "type": "foobar",
+                },
+                None,
+                None,
+                True,
+                None,
+            ),
+            (
+                # notstartswith, condition not met
+                {
+                    "when": [
+                        {
+                            "key": "type",
+                            "notstartswith": "bar",
+                        },
+                    ],
+                }, {
+                    "type": "barfoo",
+                },
+                None,
+                None,
+                False,
+                None,
+            ),
+            (
+                # notendswith, condition met
+                {
+                    "when": [
+                        {
+                            "key": "type",
+                            "notendswith": "foo",
+                        },
+                    ],
+                }, {
+                    "type": "foobar",
+                },
+                None,
+                None,
+                True,
+                None,
+            ),
+            (
+                # notendswith, condition not met
+                {
+                    "when": [
+                        {
+                            "key": "type",
+                            "notendswith": "foo",
+                        },
+                    ],
+                }, {
+                    "type": "barfoo",
+                },
+                None,
+                None,
+                False,
+                None,
+            ),
+            (
+                # isdict, condition met
+                {
+                    "when": [
+                        {
+                            "key": "type",
+                            "isdict": "type",
+                        },
+                    ],
+                }, {
+                    "type": {},
+                },
+                None,
+                None,
+                True,
+                None,
+            ),
+            (
+                # isdict, condition not met
+                {
+                    "when": [
+                        {
+                            "key": "type",
+                            "isdict": "type",
+                        },
+                    ],
+                }, {
+                    "type": 1,
+                },
+                None,
+                None,
+                False,
+                None,
+            ),
+            (
+                # notisdict, condition met
+                {
+                    "when": [
+                        {
+                            "key": "type",
+                            "notisdict": "type",
+                        },
+                    ],
+                }, {
+                    "type": 1,
+                },
+                None,
+                None,
+                True,
+                None,
+            ),
+            (
+                # notisdict, condition not met
+                {
+                    "when": [
+                        {
+                            "key": "type",
+                            "notisdict": "type",
+                        },
+                    ],
+                }, {
+                    "type": {},
+                },
+                None,
+                None,
+                False,
+                None,
+            ),
+            (
+                # dicthaskey, condition met
+                {
+                    "when": [
+                        {
+                            "key": "type",
+                            "dicthaskey": "foo",
+                        },
+                    ],
+                }, {
+                    "type": {
+                        "foo": 1,
+                        "bar": 2,
+                    },
+                },
+                None,
+                None,
+                True,
+                None,
+            ),
+            (
+                # dicthaskey, condition met
+                {
+                    "when": [
+                        {
+                            "key": "type",
+                            "dicthaskey": None,
+                        },
+                    ],
+                }, {
+                    "type": None,
+                },
+                None,
+                None,
+                True,
+                None,
+            ),
+            (
+                # dicthaskey, condition not met
+                {
+                    "when": [
+                        {
+                            "key": "type",
+                            "dicthaskey": "foo",
+                        },
+                    ],
+                }, {
+                    "type": {
+                        "bar": 2,
+                    },
+                },
+                None,
+                None,
+                False,
+                None,
+            ),
+            (
+                # dicthaskey, condition not met
+                {
+                    "when": [
+                        {
+                            "key": "type",
+                            "dicthaskey": "foo",
+                        },
+                    ],
+                }, {
+                    "type": None,
+                },
+                None,
+                None,
+                False,
+                None,
+            ),
+            (
+                # notdicthaskey, condition met
+                {
+                    "when": [
+                        {
+                            "key": "type",
+                            "notdicthaskey": "foo",
+                        },
+                    ],
+                }, {
+                    "type": {
+                        "bar": 2,
+                    },
+                },
+                None,
+                None,
+                True,
+                None,
+            ),
+            (
+                # notdicthaskey, condition met
+                {
+                    "when": [
+                        {
+                            "key": "type",
+                            "notdicthaskey": None,
+                        },
+                    ],
+                }, {
+                    "type": None,
+                },
+                None,
+                None,
+                True,
+                None,
+            ),
+            (
+                # notdicthaskey, condition met
+                {
+                    "when": [
+                        {
+                            "key": "type",
+                            "notdicthaskey": "foo",
+                        },
+                    ],
+                }, {
+                    "type": None,
+                },
+                None,
+                None,
+                True,
+                None,
+            ),
+            (
+                # notdicthaskey, condition not met
+                {
+                    "when": [
+                        {
+                            "key": "type",
+                            "notdicthaskey": "foo",
+                        },
+                    ],
+                }, {
+                    "type": {
+                        "foo": 1,
+                        "bar": 2,
+                    },
+                },
+                None,
+                None,
+                False,
+                None,
+            ),
+            (
+                # key_eq, condition met
+                {
+                    "when": [
+                        {
+                            "key_eq": "foo",
+                        },
+                    ],
+                },
+                None,
+                "foo",
+                None,
+                True,
+                None,
+            ),
+            (
+                # key_eq, condition not met
+                {
+                    "when": [
+                        {
+                            "key_eq": "foo",
+                        },
+                    ],
+                },
+                None,
+                "bar",
+                None,
+                False,
+                None,
+            ),
+            (
+                # key_ne, condition met
+                {
+                    "when": [
+                        {
+                            "key_ne": "foo",
+                        },
+                    ],
+                },
+                None,
+                "bar",
+                None,
+                True,
+                None,
+            ),
+            (
+                # key_ne, condition not met
+                {
+                    "when": [
+                        {
+                            "key_ne": "foo",
+                        },
+                    ],
+                },
+                None,
+                "foo",
+                None,
+                False,
+                None,
+            ),
+            (
+                # key_in, condition met
+                {
+                    "when": [
+                        {
+                            "key_in": ["foo", "bar"],
+                        },
+                    ],
+                },
+                None,
+                "bar",
+                None,
+                True,
+                None,
+            ),
+            (
+                # key_in, condition not met
+                {
+                    "when": [
+                        {
+                            "key_in": ["foo", "bar"],
+                        },
+                    ],
+                },
+                None,
+                "baz",
+                None,
+                False,
+                None,
+            ),
+            (
+                # key_notin, condition met
+                {
+                    "when": [
+                        {
+                            "key_notin": ["foo", "bar"],
+                        },
+                    ],
+                },
+                None,
+                "baz",
+                None,
+                True,
+                None,
+            ),
+            (
+                # key_notin, condition not met
+                {
+                    "when": [
+                        {
+                            "key_notin": ["foo", "bar"],
+                        },
+                    ],
+                },
+                None,
+                "bar",
+                None,
+                False,
+                None,
+            ),
+            (
+                # key_startswith, condition met
+                {
+                    "when": [
+                        {
+                            "key_startswith": "foo",
+                        },
+                    ],
+                },
+                None,
+                "foobar",
+                None,
+                True,
+                None,
+            ),
+            (
+                # key_startswith, condition not met
+                {
+                    "when": [
+                        {
+                            "key_startswith": "foo",
+                        },
+                    ],
+                },
+                None,
+                "barfoo",
+                None,
+                False,
+                None,
+            ),
+            (
+                # key_notstartswith, condition met
+                {
+                    "when": [
+                        {
+                            "key_notstartswith": "foo",
+                        },
+                    ],
+                },
+                None,
+                "barfoo",
+                None,
+                True,
+                None,
+            ),
+            (
+                # key_notstartswith, condition not met
+                {
+                    "when": [
+                        {
+                            "key_notstartswith": "foo",
+                        },
+                    ],
+                },
+                None,
+                "foobar",
+                None,
+                False,
+                None,
+            ),
+            (
+                # key_endswith, condition met
+                {
+                    "when": [
+                        {
+                            "key_endswith": "foo",
+                        },
+                    ],
+                },
+                None,
+                "barfoo",
+                None,
+                True,
+                None,
+            ),
+            (
+                # key_endswith, condition not met
+                {
+                    "when": [
+                        {
+                            "key_endswith": "foo",
+                        },
+                    ],
+                },
+                None,
+                "foobar",
+                None,
+                False,
+                None,
+            ),
+            (
+                # key_notendswith, condition met
+                {
+                    "when": [
+                        {
+                            "key_notendswith": "foo",
+                        },
+                    ],
+                },
+                None,
+                "foobar",
+                None,
+                True,
+                None,
+            ),
+            (
+                # key_notendswith, condition not met
+                {
+                    "when": [
+                        {
+                            "key_notendswith": "foo",
+                        },
+                    ],
+                },
+                None,
+                "barfoo",
+                None,
+                False,
+                None,
+            ),
+        )
+
+        for when_path, item, key, value, expected_result, expected_exception in testdata:
+            try:
+                tmp = fun(when_path, item, key, value)
+                if tmp != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"              key: {key}\n" \
+                              f"            value: {value}\n" \
+                              f"      when_filter: {deep_get(when_path, DictPath('when'))}\n" \
+                              f"             item: {item}\n" \
+                              f"           result: {tmp}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  f"        exception: {type(e)}\n" \
+                                  f"          message: {str(e)}\n" \
+                                  f"         expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"        exception: {type(e)}\n" \
+                              f"          message: {str(e)}\n" \
+                              f"  expected result: {expected_result}"
                     result = False
                     break
     return message, result
@@ -1329,6 +2495,10 @@ tests: dict[tuple[str, ...], dict[str, Any]] = {
     },
     ("transform_filter()",): {
         "callable": test_transform_filter,
+        "result": None,
+    },
+    ("when_filter()",): {
+        "callable": test_when_filter,
         "result": None,
     },
     ("format_controller()",): {
