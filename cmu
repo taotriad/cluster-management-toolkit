@@ -3896,6 +3896,8 @@ def genericinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
         data = obj
     viewoverride = deep_get(viewref, DictPath("viewoverride"), view)
     infopadheight = 0
+    conditions_path: str = "status"
+
     if "infopad" in viewref:
         if "name_path" in viewref:
             name_path = deep_get(viewref, DictPath("name_path"))
@@ -3910,7 +3912,6 @@ def genericinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
         else:
             creation_timestamp_path = "metadata#creationTimestamp"
         conditions_path = deep_get(viewref, DictPath("conditions_path"), "status")
-
 
         # Number of fields added conditionally
         if name_path is not None and name_path and deep_get(obj, DictPath(name_path)) is not None:
