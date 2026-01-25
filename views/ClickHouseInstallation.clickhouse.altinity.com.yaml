@@ -1,0 +1,227 @@
+---
+kind: "ClickHouseInstallation"
+api_family: "clickhouse.altinity.com"
+default_command: "clickhouseinstallations"
+command:
+  - "chinsts"
+  - "chinst"
+listview:
+  name: "Click House Installations"
+  group: "Monitoring"
+  field_indexes:
+    Normal:
+      fields: ["namespace", "name",
+               "clusters", "hosts", "shards", "status", "age"]
+      sortcolumn: "namespace"
+  fields:
+    clusters:
+      header: "Clusters:"
+      path: "status#clusters"
+      default: 0
+      type: "int"
+      formatter: "numerical"
+      align: "right"
+    hosts:
+      header: "Hosts:"
+      path: "status#hosts"
+      default: 0
+      type: "int"
+      formatter: "numerical"
+      align: "right"
+    shards:
+      header: "Shards:"
+      path: "status#shards"
+      default: 0
+      type: "int"
+      formatter: "numerical"
+      align: "right"
+    status:
+      header: "Status:"
+      path: "status#status"
+      type: "str"
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          mappings:
+            Aborted:
+              field_colors:
+                - context: "main"
+                  type: "status_not_ok"
+            Completed:
+              field_colors:
+                - context: "main"
+                  type: "status_done"
+            InProgress:
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+            Terminating:
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+infoview:
+  name: "Click House Installation Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["cluster_configurations",
+                 "chop_header",
+                 "chop_commit",
+                 "chop_date",
+                 "chop_ip",
+                 "chop_version",
+                 "endpoints",
+                 "fqdns",
+                 "pods",
+                 "hosts", "shards", "status"]
+    rows:
+      chop_header:
+        header: [["Chop:", ["main", "infoheader"]]]
+      chop_commit:
+        header: [["  Commit:", ["main", "infoheader"]]]
+        path: "status#chop-commit"
+        default: "<unset>"
+        type: "str"
+      chop_date:
+        header: [["  Date:", ["main", "infoheader"]]]
+        path: "status#chop-date"
+        default: "<unset>"
+        type: "timestamp"
+        formatter: "timestamp"
+      chop_ip:
+        header: [["  IP:", ["main", "infoheader"]]]
+        path: "status#chop-ip"
+        default: "<unset>"
+        type: "str"
+        formatter: "address"
+      chop_version:
+        header: [["  Version:", ["main", "infoheader"]]]
+        path: "status#chop-version"
+        default: "<unset>"
+        type: "str"
+      cluster_configurations:
+        header: [["  ", ["main", "infoheader"]],
+                 ["C", ["main", "infoheader_shortcut"]],
+                 ["lusters:", ["main", "infoheader"]]]
+        paths:
+        - path: "spec#configuration#clusters"
+          pathtype: "items"
+          subpath: "name"
+          default: ["<none>"]
+        type: "raw"
+        formatter: "list"
+      endpoints:
+        header: [["E", ["main", "infoheader_shortcut"]],
+                 ["ndpoints:", ["main", "infoheader"]]]
+        path: "status#endpoints"
+        default: ["<none>"]
+        type: "raw"
+        formatter: "list"
+      fqdns:
+        header: [["F", ["main", "infoheader_shortcut"]],
+                 ["QDNS:", ["main", "infoheader"]]]
+        path: "status#fqdns"
+        default: ["<none>"]
+        type: "raw"
+        formatter: "list"
+      hosts:
+        header: [["Hosts:", ["main", "infoheader"]]]
+        path: "status#hosts"
+        default: 0
+        type: "int"
+        formatter: "numerical"
+      pods:
+        header: [["P", ["main", "infoheader_shortcut"]],
+                 ["ods:", ["main", "infoheader"]]]
+        path: "status#pods"
+        default: ["<none>"]
+        type: "raw"
+        formatter: "list"
+      shards:
+        header: [["Shards:", ["main", "infoheader"]]]
+        path: "status#shards"
+        default: 0
+        type: "int"
+        formatter: "numerical"
+      status:
+        header: [["Status:", ["main", "infoheader"]]]
+        path: "status#status"
+        type: "str"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              Aborted:
+                field_colors:
+                  - context: "main"
+                    type: "status_not_ok"
+              Completed:
+                field_colors:
+                  - context: "main"
+                    type: "status_done"
+              InProgress:
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+              Terminating:
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+  shortcuts:
+    "Cluster configurations":
+      key: "c"
+      modifier: "shift"
+      read_only: true
+      helptext: "List cluster configurations"
+      widget: "windowwidget"
+      title: "Cluster Configurations:"
+      itemgetter: "get_list_fields"
+      itemgetter_args:
+        path: "spec#configuration#clusters"
+        fields:
+          - "name"
+      # This isn't supported for now
+      sortcolumn: "name"
+    "Endpoints":
+      key: "e"
+      modifier: "shift"
+      read_only: true
+      helptext: "List endpoints"
+      widget: "windowwidget"
+      title: "Endpoints:"
+      itemgetter: "get_list_as_list"
+      itemgetter_args:
+        path: "status#endpoints"
+      # This isn't supported for now
+      sortcolumn: "name"
+    "FQDNs":
+      key: "f"
+      modifier: "shift"
+      read_only: true
+      helptext: "List FQDNs"
+      widget: "windowwidget"
+      title: "FQDNs:"
+      itemgetter: "get_list_as_list"
+      itemgetter_args:
+        path: "status#fqdns"
+      # This isn't supported for now
+      sortcolumn: "name"
+    "Pods":
+      key: "p"
+      modifier: "shift"
+      read_only: true
+      helptext: "List Pods"
+      widget: "windowwidget"
+      title: "Pods:"
+      itemgetter: "get_list_as_list"
+      itemgetter_args:
+        paths: ["metadata#namespace", "status#pods"]
+      # This isn't supported for now
+      sortcolumn: "name"
+      selectable: true
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        kind: "Pod"
+        namespace_path: 0
+        name_path: 1
