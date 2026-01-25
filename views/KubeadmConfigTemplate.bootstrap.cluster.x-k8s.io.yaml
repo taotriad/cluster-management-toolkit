@@ -32,6 +32,12 @@ infoview:
               - key: "kind"
                 eq: "Cluster"
         default: "<none>"
+  logpad:
+    infogetter: "logpad_formatted"
+    infogetter_args:
+      formatter: "format_yaml"
+      path: "spec#template"
+    timestamps: false
   shortcuts:
     "Open Cluster":
       key: "u"
@@ -45,37 +51,3 @@ infoview:
         api_family: "cluster.x-k8s.io"
         namespace_path: "metadata#namespace"
         owner_reference_path: "metadata#ownerReferences"
-    "List files":
-      key: "f"
-      modifier: "shift"
-      read_only: true
-      helptext: "List files"
-      widget: "windowwidget"
-      title: "Files:"
-      selectable: true
-      headers: ["Path:", "Owner:", "Permissions:"]
-      itemgetter: "get_list_fields"
-      itemgetter_args:
-        path: "spec#template#spec#files"
-        fields:
-          - "path"
-          - "owner"
-          - "permissions"
-      action: "call"
-      action_call: "decode_and_view_file_templates"
-      action_args:
-        _pass_obj: true
-        _pass_selected: true
-        name_path: 0
-        file_path: "spec#template#spec#files"
-    "View join configuration":
-      key: "j"
-      modifier: "shift"
-      read_only: true
-      helptext: "Show join configuration"
-      action: "call"
-      action_call: "view_yaml"
-      action_args:
-        title: "Join Configuration"
-        _pass_obj: true
-        path: "spec#template#spec#joinConfiguration"
