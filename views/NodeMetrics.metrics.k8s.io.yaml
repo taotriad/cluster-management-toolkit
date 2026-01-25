@@ -6,7 +6,7 @@ command:
   - "nodemetric"
 listview:
   name: "Node Metrics"
-  group: "Monitoring"
+  group: "Observability"
   field_indexes:
     Normal:
       fields: ["name", "cpu_usage", "memory_usage", "window"]

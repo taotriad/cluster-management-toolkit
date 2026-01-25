@@ -7,7 +7,7 @@ command:
   - "promagent"
 listview:
   name: "Prometheus Agents"
-  group: "Monitoring"
+  group: "Observability"
   field_indexes:
     Wide:
       fields: ["namespace", "name", "version", "replicas", "reconciled",

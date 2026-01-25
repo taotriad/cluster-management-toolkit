@@ -7,7 +7,7 @@ command:
   - "otelcol"
 listview:
   name: "OpenTelemetry Collectors"
-  group: "Monitoring"
+  group: "Observability"
   field_indexes:
     Wide:
       fields: ["namespace", "name", "mode", "management_state",

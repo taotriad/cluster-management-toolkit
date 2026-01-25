@@ -7,7 +7,7 @@ command:
   - "otelinst"
 listview:
   name: "Instrumentations"
-  group: "Monitoring"
+  group: "Observability"
   field_indexes:
     Normal:
       fields: ["namespace", "name", "age", "endpoint", "sampler", "sampler_arg"]

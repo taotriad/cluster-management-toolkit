@@ -6,7 +6,7 @@ command:
   - "podmetric"
 listview:
   name: "Pod Metrics"
-  group: "Monitoring"
+  group: "Observability"
   field_indexes:
     Wide:
       fields: ["namespace", "name", "cpu_total", "mem_total",

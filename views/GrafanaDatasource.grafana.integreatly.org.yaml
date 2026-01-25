@@ -9,7 +9,7 @@ command:
   - "grafanads"
 listview:
   name: "Grafana Datasources"
-  group: "Monitoring"
+  group: "Observability"
   field_indexes:
     Normal:
       fields: ["namespace", "name", "age"]

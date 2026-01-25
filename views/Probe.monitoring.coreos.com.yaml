@@ -4,7 +4,7 @@ api_family: "monitoring.coreos.com"
 default_command: "probes"
 listview:
   name: "Probes"
-  group: "Monitoring"
+  group: "Observability"
   field_indexes:
     Normal:
       fields: ["namespace", "name", "age"]

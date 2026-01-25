@@ -7,7 +7,7 @@ command:
   - "tgtalloc"
 listview:
   name: "Target Allocators"
-  group: "Monitoring"
+  group: "Observability"
   field_indexes:
     Normal:
       fields: ["namespace", "name", "management_state", "version", "age"]

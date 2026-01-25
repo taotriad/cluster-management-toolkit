@@ -4,7 +4,7 @@ api_family: "kepler.system.sustainable.computing.io"
 default_command: "keplers"
 listview:
   name: "Keplers"
-  group: "Monitoring"
+  group: "Observability"
   field_indexes:
     Normal:
       fields: ["name", "port", "desired_replicas", "current_replicas",

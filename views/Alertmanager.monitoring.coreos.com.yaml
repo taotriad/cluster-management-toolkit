@@ -6,7 +6,7 @@ command:
   - "alm"
 listview:
   name: "Alertmanagers"
-  group: "Monitoring"
+  group: "Observability"
   field_indexes:
     Normal:
       fields: ["namespace", "name", "version", "replicas", "age"]

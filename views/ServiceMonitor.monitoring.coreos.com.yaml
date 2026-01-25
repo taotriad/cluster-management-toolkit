@@ -7,7 +7,7 @@ command:
   - "svcmon"
 listview:
   name: "Service Monitors"
-  group: "Monitoring"
+  group: "Observability"
   field_indexes:
     Normal:
       fields: ["namespace", "name", "age"]

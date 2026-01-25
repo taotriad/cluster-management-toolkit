@@ -7,7 +7,7 @@ command:
   - "prom"
 listview:
   name: "Prometheuses"
-  group: "Monitoring"
+  group: "Observability"
   field_indexes:
     Normal:
       fields: ["namespace", "name", "version", "replicas", "age"]

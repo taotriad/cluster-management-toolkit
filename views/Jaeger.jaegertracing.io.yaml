@@ -4,7 +4,7 @@ api_family: "jaegertracing.io"
 default_command: "jaegers"
 listview:
   name: "Jaegers"
-  group: "Monitoring"
+  group: "Observability"
   field_indexes:
     Normal:
       fields: ["namespace", "name", "status", "version", "strategy",
