@@ -3924,8 +3924,12 @@ def import_kubeconfig(options: list[tuple[str, str]], args: list[str]) -> None:
                         ANSIThemeStr("a new file will be created.", "default")])
 
     for path in args[0].split(","):
+        # Fully expand home directory reference.
         if path.startswith("~/"):
             path = path.replace("~", HOMEDIR, 1)
+        # Turn a relative path into an absolute path.
+        if not path.startswith(os.path.sep):
+            path = os.getcwd() + os.path.sep + path
         try:
             d = secure_read_yaml(FilePath(path))
         except FileNotFoundError as e:
