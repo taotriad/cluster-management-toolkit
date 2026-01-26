@@ -6127,6 +6127,8 @@ def teardown_control_plane(options: list[tuple[str, str]], args: list[str]) -> N
     run_tasks(tasks=teardown_control_plane_tasks, phase=cast(int, phase),
               phase_skiplist=phase_skiplist, final_state="torn_down", verbose=verbose,
               ignore_errors=ignore_errors)
+
+    installation_info = update_installation_info(state="torn_down", phase=0, cni="<none>")
     ansithemeprint([ANSIThemeStr("\nCluster teardown successful", "success")])
 
 
