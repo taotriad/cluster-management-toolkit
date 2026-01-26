@@ -14,6 +14,7 @@
       container_name: "manager"
     - pod_name: "capmox-controller-manager"
       container_name: "manager"
+    - container_name: "clusterapi-cluster-autoscaler"
   parser_rules:
     - name: "glog"
     - name: "key_value_with_leading_message"
@@ -28,6 +29,9 @@
         - matchtype: "regex"
           matchkey: "^Flag.*has been deprecated"
           loglevel: "warning"
+        - matchtype: "startswith"
+          matchkey: "Cluster Autoscaler "
+          loglevel: "notice"
 - name: "cluster-api"
   show_in_selector: false
   matchkeys:

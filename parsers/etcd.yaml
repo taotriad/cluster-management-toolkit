@@ -3,6 +3,7 @@
   show_in_selector: false
   matchkeys:
     - pod_name: "etcd"
+    - image_name: "/coreos/etcd"
   parser_rules:
     - name: "ts_8601"
     - name: "bracketed_severity"
