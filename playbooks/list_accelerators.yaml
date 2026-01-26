@@ -1,0 +1,35 @@
+---
+- name: "List Accelerators"
+  hosts: "selection"
+  vars:
+    metadata:
+      aliases:
+        - "list-accelerators"
+        - "lsaccels"
+        - "lsaccel"
+      description: "List Accelerators"
+      playbook_types:
+        - "cmtinv"
+        - "inventory"
+        - "nodes"
+      category: "Information"
+      summary:
+        "Information gathering":
+          - description: "Lists Accelerators"
+      read_only: true
+  gather_facts: false
+  become: true
+  become_user: "root"
+  tasks:
+    - name: "Listing Accelerators"
+      ansible.builtin.shell: |
+        if $( command -v lspci > /dev/null ); then
+          lspci -nn -d "::1200"
+          lspci -nn | grep "(DLB)" || /bin/true
+          lspci -nn | grep "(DSA)" || /bin/true
+          lspci -nn | grep "(IAA)" || /bin/true
+          lspci -nn | grep "(QAT)" || /bin/true
+        else
+          printf -- "[SKIP] lspci not installed\n"
+        fi
+      changed_when: false
