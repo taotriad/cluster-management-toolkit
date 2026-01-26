@@ -1908,6 +1908,10 @@ SuccessfulRescale:
   field_colors:
     - context: "main"
       type: "status_ok"
+SuccessfulScale:
+  field_colors:
+    - context: "main"
+      type: "status_ok"
 SuccessfulSetNodeRef:
   field_colors:
     - context: "main"
