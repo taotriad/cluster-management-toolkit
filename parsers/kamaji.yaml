@@ -1,0 +1,10 @@
+---
+- name: "kamaji"
+  show_in_selector: false
+  matchkeys:
+    - image_name: "/clastix/cluster-api-control-plane-provider-kamaji"
+    - image_name: "/clastix/kamaji"
+  parser_rules:
+    - name: "glog"
+    - name: "tab_separated"
+    - name: "json"
