@@ -22,14 +22,17 @@
   become_user: "root"
   tasks:
     - name: "Listing Accelerators"
-      ansible.builtin.shell: |
-        if $( command -v lspci > /dev/null ); then
-          lspci -nn -d "::1200"
-          lspci -nn | grep "(DLB)" || /bin/true
-          lspci -nn | grep "(DSA)" || /bin/true
-          lspci -nn | grep "(IAA)" || /bin/true
-          lspci -nn | grep "(QAT)" || /bin/true
-        else
-          printf -- "[SKIP] lspci not installed\n"
-        fi
+      ansible.builtin.shell:
+        executable: "/bin/bash"
+        cmd: |
+          set -o pipefail
+          if $( command -v lspci > /dev/null ); then
+            lspci -nn -d "::1200"
+            lspci -nn | grep "(DLB)" || /bin/true
+            lspci -nn | grep "(DSA)" || /bin/true
+            lspci -nn | grep "(IAA)" || /bin/true
+            lspci -nn | grep "(QAT)" || /bin/true
+          else
+            printf -- "[SKIP] lspci not installed\n"
+          fi
       changed_when: false
