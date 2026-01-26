@@ -284,6 +284,8 @@ listview:
               filetype: "text"
               pathtype: "raw"
           formatter: "markdown"
+          formatter_args:
+            use_github_tags: true
       - filepath: "{HOME}/.cmt/version-cache/candidate_versions.yaml"
         filetype: "yaml"
         path: "cmctl"

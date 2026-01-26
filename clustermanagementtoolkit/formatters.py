@@ -118,6 +118,7 @@ def format_markdown(lines: Union[str, list[str]], **kwargs: Any) -> \
     strip_empty_start = deep_get(kwargs, DictPath("strip_empty_start"), False)
     strip_empty_end = deep_get(kwargs, DictPath("strip_empty_end"), False)
     end = deep_get(kwargs, DictPath("end"), None)
+    use_github_tags: bool = deep_get(kwargs, DictPath("use_github_tags"), False)
 
     if isinstance(lines, str):
         # Remove all commented-out blocks
@@ -158,6 +159,12 @@ def format_markdown(lines: Union[str, list[str]], **kwargs: Any) -> \
             else:
                 codeblock = ""
             continue
+        # Replace github tags
+        if use_github_tags:
+            line = line.replace(":bug:", "🐛")
+            line = line.replace(":seedling:", "🌱")
+            line = line.replace(":chart_with_upwards_trend:", "📈")
+            line = line.replace(":book:", "📖")
         # For headers we are--for now--lazy
         # Level 1 header
         if line.startswith("# "):
