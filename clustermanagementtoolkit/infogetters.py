@@ -2632,7 +2632,7 @@ def logpad_formatted(obj: dict, **kwargs: Any) -> list[list[Union[ThemeRef, Them
     else:
         data = obj
 
-    return dump_formatter(data)
+    return dump_formatter(data, raw=deep_get(kwargs, DictPath("_show_raw"), False))
 
 
 # pylint: disable-next=too-many-locals,too-many-branches,too-many-statements
