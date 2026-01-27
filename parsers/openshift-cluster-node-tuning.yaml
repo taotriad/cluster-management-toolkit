@@ -38,3 +38,4 @@
         - matchtype: "startswith"
           matchkey: "http: TLS handshake error"
           loglevel: "error"
+    - name: "json"

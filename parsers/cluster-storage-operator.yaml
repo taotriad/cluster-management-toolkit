@@ -1,0 +1,9 @@
+---
+- name: "cluster-storage-operator"
+  show_in_selector: false
+  matchkeys:
+    - pod_name: "cluster-storage-operator"
+      container_name: "cluster-storage-operator"
+  parser_rules:
+    - name: "glog"
+    - name: "key_value_with_leading_message"

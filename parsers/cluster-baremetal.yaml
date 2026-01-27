@@ -1,0 +1,10 @@
+---
+- name: "cluster-baremetal"
+  show_in_selector: false
+  matchkeys:
+    - pod_name: "cluster-baremetal-operator"
+      container_name: "cluster-baremetal-operator"
+  parser_rules:
+    - name: "glog"
+    - name: "key_value"
+    - name: "expand_event"

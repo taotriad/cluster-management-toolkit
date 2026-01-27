@@ -1,0 +1,7 @@
+---
+- name: "openshift-insights"
+  show_in_selector: false
+  matchkeys:
+    - pod_name: "insights-operator"
+  parser_rules:
+    - name: "glog"

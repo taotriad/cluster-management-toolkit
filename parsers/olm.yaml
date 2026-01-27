@@ -13,6 +13,10 @@
     - container_name: "catalog-operator"
     - container_name: "olm-operator"
     - container_name: "packageserver"
+    # These OpenShift names are even more useless,
+    # so use these as fallback identifiers.
+    - pod_name: "catalogd-controller-manager"
+      container_name: "manager"
   parser_rules:
     - name: "ts_8601"
     - name: "glog"

@@ -1,0 +1,8 @@
+---
+- name: "cluster-autoscaler"
+  show_in_selector: false
+  matchkeys:
+    - pod_name: "cluster-autoscaler-operator"
+      container: "cluster-autoscaler-operator"
+  parser_rules:
+    - name: "glog"

@@ -1,0 +1,7 @@
+---
+- name: "volume-data-source-validator"
+  show_in_selector: false
+  matchkeys:
+    - pod_name: "volume-data-source-validator"
+  parser_rules:
+    - name: "glog"

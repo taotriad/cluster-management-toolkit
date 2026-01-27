@@ -3,6 +3,16 @@
   show_in_selector: false
   matchkeys:
     - image_name: "/kube-controller-manager"
+    - pod_name: "kube-controller-manager"
+      container_name: "kube-controller-manager-cert-syncer"
+    - pod_name: "kube-controller-manager"
+      container_name: "kube-controller-manager-recovery-controller"
+    - pod_name: "kube-controller-manager"
+      container_name: "cluster-policy-controller"
+    - pod_name: "kube-controller-manager-operator"
+      container_name: "kube-controller-manager-operator"
+    - pod_name: "kube-controller-manager"
+      container_name: "kube-controller-manager"
   parser_rules:
     - name: "glog"
     - name: "key_value_with_leading_message"

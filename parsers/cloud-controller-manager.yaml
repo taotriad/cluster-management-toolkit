@@ -3,6 +3,10 @@
   show_in_selector: false
   matchkeys:
     - pod_name: "cloud-controller-manager"
+    - pod_name: "cluster-cloud-controller-manager-operator"
+      container_name: "cluster-cloud-controller-manager"
+    - pod_name: "cluster-cloud-controller-manager-operator"
+      container_name: "config-sync-controllers"
   parser_rules:
     - name: "glog"
     - name: "key_value_with_leading_message"
