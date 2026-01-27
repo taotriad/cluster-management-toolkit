@@ -111,7 +111,7 @@ _cmtadm() {
 
 	case "${COMP_WORDS[1]}" in
 	create-cluster|import-kubeconfig)
-		comptopt -o filenames 2> /dev/null
+		compopt -o filenames 2> /dev/null
 		COMPREPLY=( $(compgen -f -- $2) )
 		return
 		;;

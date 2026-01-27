@@ -128,7 +128,7 @@ _cmt() {
 		return
 		;;
 	--ca-cert-file)
-		comptopt -o filenames 2> /dev/null
+		compopt -o filenames 2> /dev/null
 		COMPREPLY=( $(compgen -f -- $2) )
 		return
 		;;

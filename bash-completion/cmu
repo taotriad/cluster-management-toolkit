@@ -90,12 +90,12 @@ _cmu() {
 		return
 		;;
 	--kube-config)
-		comptopt -o filenames 2> /dev/null
+		compopt -o filenames 2> /dev/null
 		COMPREPLY=( $(compgen -f -- $2) )
 		return
 		;;
 	--theme)
-		comptopt -o filenames 2> /dev/null
+		compopt -o filenames 2> /dev/null
 		COMPREPLY=( $(compgen -f -- $2) )
 		return
 		;;
