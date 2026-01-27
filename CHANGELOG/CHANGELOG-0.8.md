@@ -88,6 +88,8 @@ and any distro that does not provide Python 3.11 or newer.
 
 * bash-completion for file names had a typo in the command it used,
   and was thus non-functional. This has been fixed.
+* cmt-install now tries to keep the version of pip3 in sync with
+  the version of python3 used by the program.
 
 ### view-file changes
 
