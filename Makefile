@@ -226,10 +226,10 @@ semgrep: unhack_sources
 		printf -- "\n\n$$cmd not installed; skipping.\n\n\n"; \
 		exit 0; \
 	fi; \
-	$$cmd --version ;\
 	printf -- "\n\nRunning $$cmd to check for common security issues in Python code\n" ;\
 	printf -- "Note: if this is taking a very long time you might be behind a proxy;\n" ;\
 	printf -- "if that's the case you need to set the environment variable https_proxy\n\n" ;\
+	$$cmd --version ;\
 	(cd tests/modified_repo ;\
 	 $$cmd scan $(semgrep_flags) --timeout=0 --no-git-ignore)
 
