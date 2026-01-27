@@ -45,7 +45,9 @@ Some possible parser rules:
   this rule (tries to) format messages where the entire line is a JSON expression
 * json_line:
   this rule (tries to) format messages where a JSON expression is spread over multiple lines;
-  some heuristics are involved, and you might need to provide extra information
+  some heuristics are involved, and you might need to provide extra information.
+  Note: When using the expand_event rule, expand_event needs to be *after*
+  any json_line rules; otherwise the events risk disappearing entirely from the log.
 * glog:
   this rule extracts severity and facility from GLOG style log entries
 * override_severity:

@@ -23,7 +23,6 @@
             - 2
         message:
           field: 3
-    - name: "expand_event"
     - name: "json_line"
       options:
         block_start:
@@ -34,6 +33,7 @@
           - matchtype: "exact"
             matchkey: "}"
             matchline: "any"
+    - name: "expand_event"
     - name: "override_severity"
       overrides:
         - matchtype: "startswith"
