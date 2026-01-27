@@ -10,7 +10,6 @@
         * [Changes to _cmtinv_](#changes-to-cmtinv-in-v086)
         * [Changes to _cmu_](#changes-to-cmu-in-v086)
         * [Changes to other files](#changes-to-other-files-in-v086)
-    * [Fixed Issues](#fixed-issues-in-v086)
     * [Known Regressions](#known-regressions-in-v086)
     * [Dependencies](#dependencies-for-v086)
     * [Test Results](#test-results-for-v086)
@@ -87,6 +86,10 @@ Python 3.11 or newer.
   this allows tearing down clusters that are in such a poor state that
   the control plane does not respond at all.
 * Handle RKE2 installation in a slightly more resilient manner.
+* When tearing down a control plane the CNI will now be marked as `<none>`,
+  to make future cluster creation work properly.
+* When updating the version cache it's now possible to update only
+  the distro cache or the upstream cache.
 
 ### Changes to _cmtinv_ in v0.8.6
 
@@ -125,22 +128,21 @@ Python 3.11 or newer.
 * Highlighting for many new event reasons has been added.
 * When running checks/code-checks the versions of the used tools are now
   printed (when available).
+* Add some more unit-tests.
+* A new tool (`events_new_reasons`) can be used to check whether there are unknown
+  event reasons in the logs, to facilitate adding highlighting for them.
 
-### Notable view-file changes (by API-files)
+### view-file changes
 
-TBD
-
-### Notable view-file changes (by line count)
-
-TBD
+* 224 new view-files.
+* 365 modified view-files.
+* 9 deleted view-files.
 
 ### parser-file changes
 
-TBD
-
-## Fixed Issues in v0.8.6
-
-No changes.
+* 76 new parser-files.
+* 156 modified parser-files.
+* 2 deleted parser-files.
 
 ## Known Regressions in v0.8.6
 
@@ -221,14 +223,25 @@ The results of these tests are as follows:
 Commandline: `bandit -c .bandit`.
 Execute with `make bandit`.
 
+Version: 1.7.10
+
 Output:
 
 ```
+[main]	INFO	profile include tests: B405,B311,B303,B410,B321,B317,B313,B316,B412,B411,B319,B314,B404,B315,B320,B403,B413,B312,B304,B306,B409,B308,B401,B402,B310,B302,B406,B324,B301,B305,B318,B407,B323,B408
+[main]	INFO	profile exclude tests: B507,B101,B606,B106,B703,B107,B601,B103,B110,B105,B108,B702,B502,B104,B505,B112,B604,B503,B605,B504,B501,B701,B603,B609,B610,B602,B607,B611,B608,B506,B201,B102
+[main]	INFO	cli include tests: None
+[main]	INFO	cli exclude tests: None
+[main]	INFO	using config: .bandit
+[main]	INFO	running on Python 3.13.11
+Working... ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 100% 0:00:02
+Run started:2026-01-27 15:16:17.101533
+
 Test results:
 	No issues identified.
 
 Code scanned:
-	Total lines of code: 86063
+	Total lines of code: 88295
 	Total lines skipped (#nosec): 8
 
 Run metrics:
@@ -262,20 +275,20 @@ Output:
 ```
 Name                                                  Stmts   Miss Branch BrPart  Cover
 ---------------------------------------------------------------------------------------
-clustermanagementtoolkit/infogetters.py                1712   1362   1038     16  18.6%
 clustermanagementtoolkit/listgetters.py                1235    986    656     12  18.9%
 clustermanagementtoolkit/cluster_actions.py             226    178     74      3  19.0%
 clustermanagementtoolkit/curses_helper.py              2504   1877   1130     19  21.6%
+clustermanagementtoolkit/logparser.py                  2059   1443   1122     34  25.7%
+clustermanagementtoolkit/infogetters.py                1712   1252   1038     21  25.9%
 clustermanagementtoolkit/networkio.py                   389    282    178      3  26.1%
-clustermanagementtoolkit/logparser.py                  2059   1420   1122     32  26.5%
 clustermanagementtoolkit/kubernetes_helper.py          1625   1111    784     77  28.2%
 clustermanagementtoolkit/listgetters_async.py           119     76     52      2  31.0%
 clustermanagementtoolkit/checks.py                      637    342    250      1  44.0%
 clustermanagementtoolkit/datagetters.py                 276    147    144     12  44.5%
-clustermanagementtoolkit/generators.py                  758    374    386     28  47.4%
-clustermanagementtoolkit/formatters.py                  813    323    428     35  57.0%
+clustermanagementtoolkit/generators.py                  759    375    386     28  47.3%
+clustermanagementtoolkit/formatters.py                  819    359    430     38  53.6%
 clustermanagementtoolkit/ansible_helper.py              823    221    486     27  72.0%
-clustermanagementtoolkit/cmtlib.py                      576    120    326     13  76.8%
+clustermanagementtoolkit/cmtlib.py                      597    134    340     20  75.5%
 clustermanagementtoolkit/cmtio.py                       426     45    226     20  88.2%
 clustermanagementtoolkit/itemgetters.py                 524     47    284     18  89.7%
 clustermanagementtoolkit/cni_data.py                     96      1     40     10  91.9%
@@ -289,19 +302,21 @@ clustermanagementtoolkit/cmttypes.py                    492      1    190      0
 clustermanagementtoolkit/about.py                        17      0      0      0 100.0%
 clustermanagementtoolkit/cmtlog.py                       80      0     40      0 100.0%
 clustermanagementtoolkit/cmtpaths.py                     90      0      0      0 100.0%
-clustermanagementtoolkit/helptexts.py                    23      0      0      0 100.0%
+clustermanagementtoolkit/helptexts.py                    24      0      0      0 100.0%
 clustermanagementtoolkit/kubernetes_resources.py          5      0      0      0 100.0%
 clustermanagementtoolkit/objgetters.py                   56      0     12      0 100.0%
 clustermanagementtoolkit/pvtypes.py                       1      0      0      0 100.0%
 clustermanagementtoolkit/recommended_permissions.py      11      0      0      0 100.0%
 ---------------------------------------------------------------------------------------
-TOTAL                                                 16790   8940   8482    346  44.1%
+TOTAL                                                 16819   8904   8498    363  44.6%
 ```
 
 ### Flake8 Results for v0.8.6
 
 Commandline: `flake8 --max-line-length 100 --ignore F841,W503 --statistics`.
 Execute with `make flake8`.
+
+Version: 7.3.0
 
 Output:
 
@@ -312,13 +327,15 @@ No output.
 Commandline: `mypy --follow-imports silent --explicit-package-bases --ignore-missing --disallow-untyped-calls --disallow-untyped-defs --disallow-incomplete-defs --check-untyped-defs --disallow-untyped-decorators --warn-redundant-casts --warn-unused-ignores`.
 Execute with `make mypy-markdown`.
 
+Version: 1.19.1
+
 | Source file                                         | Score                                                   |
 | :-------------------------------------------------- | :------------------------------------------------------ |
 | cmt                                                 | Success: no issues found in 1 source file               |
 | cmtadm                                              | Success: no issues found in 1 source file               |
 | cmt-install                                         | Success: no issues found in 1 source file               |
 | cmtinv                                              | Success: no issues found in 1 source file               |
-| cmu                                                 | **Found 90 errors in 1 file (checked 1 source file)**   |
+| cmu                                                 | **Found 71 errors in 1 files (checked 1 source file)**  |
 | clustermanagementtoolkit/about.py                   | Success: no issues found in 1 source file               |
 | clustermanagementtoolkit/ansible_helper.py          | Success: no issues found in 1 source file               |
 | clustermanagementtoolkit/ansithemeprint.py          | Success: no issues found in 1 source file               |
@@ -352,14 +369,15 @@ Execute with `make mypy-markdown`.
 | clustermanagementtoolkit/recommended_permissions.py | Success: no issues found in 1 source file               |
 | clustermanagementtoolkit/reexecutor.py              | Success: no issues found in 1 source file               |
 
-_Note:_ These results have been manually de-duplicated. The errors in logparser.py were accounted to multiple files;
+_Note:_ These results have been manually de-duplicated. The errors in logparser.py were accounted for multiple files;
 this has been corrected.
 
 ### Pylint Results for v0.8.6
 
 Commandline: `pylint --py-version 3.9 --disable W0511, similarities --enable useless-suppression`.
 Table generated with `make pylint-markdown`.
-Currently all complaints are due to missing function or method docstrings.
+
+Version: 4.0.4
 
 | Source file                                         | Score    |
 | :-------------------------------------------------- | -------: |
@@ -406,11 +424,11 @@ Currently all complaints are due to missing function or method docstrings.
 Commandline: `regexploit`.
 Execute with `make regexploit`.
 
+Version: 1.0.0
+
 Output:
 
 ```
-Running regexploit to check for ReDoS attacks
-
 Checking executables
 Processed 69 regexes
 
@@ -423,14 +441,56 @@ Processed 148 regexes
 Commandline: `ruff check --target-version py39`.
 Execute with `make ruff`.
 
+Version: 0.0.291
+
 Output:
 
-No output.
+```
+File: cmt
+File: cmtadm
+File: cmt-install
+File: cmtinv
+File: cmu
+File: clustermanagementtoolkit/about.py
+File: clustermanagementtoolkit/ansible_helper.py
+File: clustermanagementtoolkit/ansithemeprint.py
+File: clustermanagementtoolkit/checks.py
+File: clustermanagementtoolkit/cluster_actions.py
+File: clustermanagementtoolkit/cmtio.py
+File: clustermanagementtoolkit/cmtio_yaml.py
+File: clustermanagementtoolkit/cmtlib.py
+File: clustermanagementtoolkit/cmtlog.py
+File: clustermanagementtoolkit/cmtpaths.py
+File: clustermanagementtoolkit/cmttypes.py
+File: clustermanagementtoolkit/cmtvalidators.py
+File: clustermanagementtoolkit/cni_data.py
+File: clustermanagementtoolkit/commandparser.py
+File: clustermanagementtoolkit/curses_helper.py
+File: clustermanagementtoolkit/datagetters.py
+File: clustermanagementtoolkit/fieldgetters.py
+File: clustermanagementtoolkit/formatters.py
+File: clustermanagementtoolkit/generators.py
+File: clustermanagementtoolkit/helptexts.py
+File: clustermanagementtoolkit/infogetters.py
+File: clustermanagementtoolkit/itemgetters.py
+File: clustermanagementtoolkit/kubernetes_helper.py
+File: clustermanagementtoolkit/kubernetes_resources.py
+File: clustermanagementtoolkit/listgetters.py
+File: clustermanagementtoolkit/listgetters_async.py
+File: clustermanagementtoolkit/logparser.py
+File: clustermanagementtoolkit/networkio.py
+File: clustermanagementtoolkit/objgetters.py
+File: clustermanagementtoolkit/pvtypes.py
+File: clustermanagementtoolkit/recommended_permissions.py
+File: clustermanagementtoolkit/reexecutor.py
+```
 
 ### Semgrep Results for v0.8.6
 
 Commandline: `semgrep scan --exclude-rule "generic.secrets.security.detected-generic-secret.detected-generic-secret.semgrep-legacy.30980" --exclude-rule "python.flask.security.xss.audit.direct-use-of-jinja2.direct-use-of-jinja2" --exclude "*.yaml" --exclude "*.j2" --exclude "*.json" --timeout=0 --no-git-ignore`.
 Execute with `make semgrep`.
+
+Version: 1.149.0
 
 Output:
 
@@ -440,13 +500,13 @@ Output:
 └──────────────┘
 ✅ Scan completed successfully.
  • Findings: 0 (0 blocking)
- • Rules run: 2452
+ • Rules run: 2502
  • Targets scanned: 0
  • Parsed lines: an unknown percentage
- • Scan skipped:
-   ◦ Files matching .semgrepignore patterns: 69
+ • Scan skipped: 
+   ◦ Files matching .semgrepignore patterns: 36
  • For a detailed list of skipped files and lines, run semgrep with the --verbose flag
-Ran 2452 rules on 0 files: 0 findings.
+Ran 2502 rules on 0 files: 0 findings.
 ```
 
 ### validate_playbooks Results for v0.8.6
@@ -477,6 +537,8 @@ Summary:
 
 Commandline: `yamllint`.
 Execute with `make yamllint`.
+
+Version: 1.37.1
 
 Output:
 
