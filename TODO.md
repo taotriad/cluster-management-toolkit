@@ -104,6 +104,9 @@ cmtadm:
 
 logparser:
 
+* For key_value_with_leading_message when having allow_bare_keys enabled
+  we should only allow booleans and integers to be unquoted. Otherwise we
+  might end up with regular strings split over multiple lines.
 * All handling of message needs to be rewritten; as soon as a message gets formatted as a themearray
   it can no longer be processed further.
 * Rewrite key_value; the parser is overly complex at the moment; it needs to be simplified
