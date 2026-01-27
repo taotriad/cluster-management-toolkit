@@ -612,16 +612,32 @@ def install_software_with_pip(packages: list[str],
             pip_proxy (str): A proxy to use when installing packages
             verbose (bool): [unused]
     """
-    try:
-        pip3_path = secure_which(FilePath("pip3"),
-                                 fallback_allowlist=["/bin", "/usr/bin"],
-                                 security_policy=SecurityPolicy.ALLOWLIST_RELAXED)
-    except FileNotFoundError:
+    python_major = sys.version_info.major
+    python_minor = sys.version_info.minor
+
+    for path in (FilePath(f"pip3-{python_major}.{python_minor}"),
+                 FilePath(f"pip3-{python_major}{python_minor}"),
+                 FilePath(f"pip-{python_major}.{python_minor}"),
+                 FilePath(f"pip-{python_major}{python_minor}"),
+                 FilePath(f"pip{python_major}.{python_minor}"),
+                 FilePath(f"pip{python_major}{python_minor}"),
+                 FilePath("pip3")):
+        try:
+            # Depending on what distro we use we might need to use a versioned pip,
+            # so test multiple paths until we find a suitable one.
+            pip3_path = secure_which(path, fallback_allowlist=["/bin", "/usr/bin"],
+                                     security_policy=SecurityPolicy.ALLOWLIST_RELAXED)
+            break
+        except FileNotFoundError:
+            pass
+
+    if not pip3_path:
         ansithemeprint([ANSIThemeStr("Critical", "critical"),
                         ANSIThemeStr(": Could not find ", "default"),
                         ANSIThemeStr("pip3", "path"),
                         ANSIThemeStr("; aborting.", "default")], stderr=True)
         sys.exit(errno.ENOENT)
+
     args = [pip3_path, "install"]
     if pip_proxy:
         args += ["--proxy", pip_proxy]
