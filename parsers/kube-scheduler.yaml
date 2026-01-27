@@ -3,6 +3,8 @@
   show_in_selector: false
   matchkeys:
     - image_name: "/kube-scheduler"
+    - container_name: "kube-scheduler"
+      image_name: "/rancher/hardened-kubernetes"
   parser_rules:
     - name: "glog"
     - name: "key_value_with_leading_message"
