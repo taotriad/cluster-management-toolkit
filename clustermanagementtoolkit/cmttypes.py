@@ -18,7 +18,7 @@ import os
 from pathlib import Path, PurePath
 import sys
 import traceback
-from typing import Any, cast, NewType, Optional, Union
+from typing import Any, cast, NewType, Optional
 
 DictPath = NewType("DictPath", str)
 
@@ -28,7 +28,7 @@ class FilePath(str):
     A wrapper used for paths, to ensure correct types.
     """
 
-    def __init__(self, path: Union["FilePath", str, Path, PurePath]) -> None:
+    def __init__(self, path: "FilePath" | str | Path | PurePath) -> None:
         self.path = str(path)
 
     def __str__(self) -> str:
@@ -128,7 +128,7 @@ def deep_pop(dictionary: Optional[Any], path: DictPath, key: DictPath, default: 
         Returns:
             (Any): The value from the path
     """
-    reduced_path: Optional[Union[dict, DictPath]] = \
+    reduced_path: Optional[dict | DictPath] = \
         deep_get(dictionary, path, default)
     if reduced_path is not None:
         if isinstance(reduced_path, dict):
@@ -1015,7 +1015,7 @@ def deep_set(dictionary: Any, path: DictPath, value: Any, create_path: bool = Fa
 
 def __deep_get_recursive(dictionary: dict,
                          path_fragments: list[str],
-                         result: Union[list, None] = None) -> Optional[list[Any]]:
+                         result: list | None = None) -> Optional[list[Any]]:
     if result is None:
         result = []
 
@@ -1100,7 +1100,7 @@ def deep_get_with_fallback(obj: Any,
 
 
 def deep_get_str_tuple_paths(obj: Any,
-                             paths: list[Union[str, list[DictPath]]],
+                             paths: list[str | list[DictPath]],
                              default: str = "", fallback_on_empty: bool = False) -> str:
     """
     Given a dictionary and a list of strings or paths into that dictionary,
@@ -1116,7 +1116,7 @@ def deep_get_str_tuple_paths(obj: Any,
             (str): The joined string
     """
     string: str = ""
-    prev: Union[list, str] = ""
+    prev: list | str = ""
 
     for fragment in paths:
         # This isn't a path, it's a verbatim string

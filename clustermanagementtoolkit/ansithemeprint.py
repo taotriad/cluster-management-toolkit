@@ -15,7 +15,7 @@ import copy
 from pathlib import Path, PurePath
 import subprocess  # nosec
 import sys
-from typing import Any, Optional, Union
+from typing import Any, Optional
 from collections.abc import Sequence
 
 from clustermanagementtoolkit.cmtpaths import SYSTEM_DEFAULT_THEME_FILE
@@ -503,7 +503,7 @@ def themearray_ljust(themearray: list[ANSIThemeStr], width: int) -> list[ANSIThe
     return themearray
 
 
-def ansithemestr_join_list(items: Sequence[Union[str, ANSIThemeStr]],
+def ansithemestr_join_list(items: Sequence[str | ANSIThemeStr],
                            **kwargs: Any) -> list[ANSIThemeStr]:
     """
     Given a list of ANSIThemeStrs or strings + formatting, join them separated by a separator.

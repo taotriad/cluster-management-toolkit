@@ -29,7 +29,7 @@ import os
 from pathlib import Path
 import re
 import sys
-from typing import Any, cast, Union
+from typing import Any, cast
 from collections.abc import Callable
 
 try:
@@ -281,7 +281,7 @@ def filter_list_entry(obj: dict[str, Any], caller_obj: dict[str, Any], filters: 
 
 # listview, listpad
 def generic_listgetter(kind: tuple[str, str], namespace: str,
-                       **kwargs: Any) -> tuple[list[dict[str, Any]], Union[int, str]]:
+                       **kwargs: Any) -> tuple[list[dict[str, Any]], int | str]:
     """
     Fetch data from Kubernetes.
 
@@ -381,7 +381,7 @@ def get_metrics_list(**kwargs: Any) -> tuple[list[dict[str, Any]], int]:
 
 
 # pylint: disable-next=too-many-locals
-def get_pod_containers_list(**kwargs: Any) -> tuple[list[dict[str, Any]], Union[int, str]]:
+def get_pod_containers_list(**kwargs: Any) -> tuple[list[dict[str, Any]], int | str]:
     """
     Get a list of all pods with a separate entry for every container.
 
@@ -455,8 +455,7 @@ def __recurse_data(path: dict, obj: Any) -> Any:
 
 
 # pylint: disable-next=too-many-locals,too-many-branches,too-many-statements
-def listgetter_files(**kwargs: Any) -> tuple[list[Union[str, dict[str, Any]]],
-                                             Union[int, str, None]]:
+def listgetter_files(**kwargs: Any) -> tuple[list[str | dict[str, Any]], int | str | None]:
     """
     Custom listgetter mainly for use with the version data checker.
 
@@ -478,7 +477,7 @@ def listgetter_files(**kwargs: Any) -> tuple[list[Union[str, dict[str, Any]]],
                                 DictPath("extra_values#_extra_data#file_not_found_status")],
                                "File not found", fallback_on_empty=True)
     skip_empty_paths = deep_get(kwargs, DictPath("skip_empty_paths"), False)
-    vlist: list[Union[str, dict[str, Any]]] = []
+    vlist: list[str | dict[str, Any]] = []
     status = None
 
     for path in paths:
@@ -2282,7 +2281,7 @@ def listgetter_matchrules(obj: dict, **kwargs: Any) -> tuple[list[dict], str]:
 
 # pylint: disable-next=too-many-locals
 def listgetter_namespaced_resources(obj: dict, **kwargs: Any) -> \
-        tuple[list, Union[str, int, list[StatusGroup]]]:
+        tuple[list, str | int | list[StatusGroup]]:
     """
     Given a Namespace object, find all objects that belong to that Namespace.
 
@@ -2305,7 +2304,7 @@ def listgetter_namespaced_resources(obj: dict, **kwargs: Any) -> \
     kh_cache = deep_get(kwargs, DictPath("kh_cache"))
 
     vlist = []
-    status: Union[str, int, list[StatusGroup]] = 200
+    status: str | int | list[StatusGroup] = 200
 
     namespaced_resources = deep_get(kwargs, DictPath("resources"),
                                     kh.get_list_of_namespaced_resources())
@@ -2400,7 +2399,7 @@ def listgetter_feature_gates(obj: dict, **kwargs: Any) -> tuple[list[dict[str, A
 
 
 # pylint: disable-next=too-many-locals,too-many-branches,too-many-statements
-def listgetter_path(obj: dict, **kwargs: Any) -> tuple[Union[dict, list[dict]], int]:
+def listgetter_path(obj: dict, **kwargs: Any) -> tuple[dict | list[dict], int]:
     """
     Listgetter for paths.
 

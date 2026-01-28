@@ -11,7 +11,7 @@ YAML I/O helpers
 
 import io
 import sys
-from typing import Any, Optional, Union
+from typing import Any, Optional
 from collections.abc import Generator
 try:
     import yaml
@@ -78,8 +78,10 @@ def ruyaml_dump_to_string(obj: Any, **kwargs: Any) -> str:
 
 
 def secure_write_yaml(path: FilePath,
-                      data: Union[dict, list[dict],
-                                  ruyaml.comments.CommentedMap, ruyaml.comments.CommentedSeq],
+                      data: dict
+                            | list[dict]
+                            | ruyaml.comments.CommentedMap
+                            | ruyaml.comments.CommentedSeq,
                       **kwargs: Any) -> None:
     """
     Dump a dict to a file in YAML-format in a safe manner
@@ -117,9 +119,9 @@ def secure_write_yaml(path: FilePath,
                               write_mode=write_mode, temporary=temporary)
 
 
-def secure_read_yaml(path: FilePath, **kwargs: Any) -> Union[dict,
-                                                             ruyaml.comments.CommentedMap,
-                                                             ruyaml.comments.CommentedSeq]:
+def secure_read_yaml(path: FilePath, **kwargs: Any) -> dict | \
+                                                       ruyaml.comments.CommentedMap | \
+                                                       ruyaml.comments.CommentedSeq:
     """
     Read data in YAML-format from a file in a safe manner
 

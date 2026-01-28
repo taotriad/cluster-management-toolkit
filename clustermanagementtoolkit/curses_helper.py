@@ -24,7 +24,7 @@ import os
 from pathlib import Path, PurePath
 import re
 import sys
-from typing import Any, cast, NamedTuple, NoReturn, Optional, Type, Union
+from typing import Any, cast, NamedTuple, NoReturn, Optional, Type
 from collections.abc import Callable, Sequence
 
 try:
@@ -315,7 +315,7 @@ class ThemeArray:
                              passing this parameter overrides
                              individual members of the ThemeArray
     """
-    def __init__(self, array: list[Union[ThemeRef, ThemeStr]],
+    def __init__(self, array: list[ThemeRef | ThemeStr],
                  selected: Optional[bool] = None) -> None:
         if array is None:
             errmsg = [
@@ -355,7 +355,7 @@ class ThemeArray:
                                    facility=str(themefile),
                                    formatted_msg=formatted_msg)
 
-        newarray: list[Union[ThemeRef, ThemeStr]] = []
+        newarray: list[ThemeRef | ThemeStr] = []
         for item in array:
             if not isinstance(item, (ThemeRef, ThemeStr)):
                 errmsg = [
@@ -386,7 +386,7 @@ class ThemeArray:
 
         self.array = newarray
 
-    def append(self, item: Union[ThemeRef, ThemeStr]) -> None:
+    def append(self, item: ThemeRef | ThemeStr) -> None:
         """
         Append a ThemeRef or ThemeStr to the ThemeArray.
 
@@ -415,7 +415,7 @@ class ThemeArray:
                                    formatted_msg=formatted_msg)
         self.array.append(item)
 
-    def __add__(self, array: Union["ThemeArray", list[Union[ThemeRef, ThemeStr]]]) -> "ThemeArray":
+    def __add__(self, array: "ThemeArray" | list[ThemeRef | ThemeStr]) -> "ThemeArray":
         if isinstance(array, ThemeArray):
             return ThemeArray(self.to_list() + array.to_list())
 
@@ -471,7 +471,7 @@ class ThemeArray:
 
         return repr(obj) == repr(self)
 
-    def to_list(self) -> list[Union[ThemeRef, ThemeStr]]:
+    def to_list(self) -> list[ThemeRef | ThemeStr]:
         """
         Return the ThemeArray as a list of ThemeRef | ThemeStr.
 
@@ -486,7 +486,7 @@ class CursesConfiguration:
     """
     Configuration options for the curses UI.
     """
-    abouttext: list[list[Union[ThemeRef, ThemeStr]]] = []
+    abouttext: list[list[ThemeRef | ThemeStr]] = []
     borders: bool = True
     mousescroll_enable: bool = False
     mousescroll_up: int = 0b10000000000000000
@@ -1008,7 +1008,7 @@ def window_tee_hline(win: curses.window, y: int,
     if formatting is None:
         formatting = ThemeAttr("main", "default")
 
-    hlinearray: list[Union[ThemeRef, ThemeStr]] = [
+    hlinearray: list[ThemeRef | ThemeStr] = [
         ThemeStr(ltee, formatting),
         ThemeStr("".rjust(end - start - 1, hline), formatting),
         ThemeStr(rtee, formatting),
@@ -1147,7 +1147,7 @@ def scrollbar_horizontal(win: curses.window, y: int, minx: int, maxx: int,
 
     maxoffset = width - (maxx - minx) - 1
 
-    scrollbararray: list[Union[ThemeRef, ThemeStr]] = []
+    scrollbararray: list[ThemeRef | ThemeStr] = []
 
     # We only need a scrollbar if we can actually scroll
     if maxoffset > 0:
@@ -1169,7 +1169,7 @@ def scrollbar_horizontal(win: curses.window, y: int, minx: int, maxx: int,
 
         addthemearray(win, scrollbararray, y=y, x=minx)
 
-        draggerarray: list[Union[ThemeRef, ThemeStr]] = [
+        draggerarray: list[ThemeRef | ThemeStr] = [
             ThemeStr(f"{horizontaldragger_left}{horizontaldragger_left}",
                      ThemeAttr("main", "dragger")),
             ThemeStr(f"{horizontaldragger_midpoint}",
@@ -1192,7 +1192,7 @@ def scrollbar_horizontal(win: curses.window, y: int, minx: int, maxx: int,
 
 
 def generate_heatmap(maxwidth: int, stgroups: list[StatusGroup],
-                     selected: int) -> list[list[Union[ThemeRef, ThemeStr]]]:
+                     selected: int) -> list[list[ThemeRef | ThemeStr]]:
     """
     Given [StatusGroup] and an index to the selected item and the max width,
     generate an array of themearrays.
@@ -1204,7 +1204,7 @@ def generate_heatmap(maxwidth: int, stgroups: list[StatusGroup],
         Returns:
             ([ThemeArray]): A list of themearrays
     """
-    heatmap: list[Union[ThemeRef, ThemeStr]] = []
+    heatmap: list[ThemeRef | ThemeStr] = []
 
     if not stgroups:
         return []
@@ -1243,7 +1243,7 @@ def generate_heatmap(maxwidth: int, stgroups: list[StatusGroup],
 
 # pylint: disable-next=too-many-locals
 def percentagebar(minx: int, maxx: int, total: int,
-                  subsets: list[tuple[int, ThemeRef]]) -> list[Union[ThemeRef, ThemeStr]]:
+                  subsets: list[tuple[int, ThemeRef]]) -> list[ThemeRef | ThemeStr]:
     """
     Draw a bar of multiple subsets that sum up to a total.
 
@@ -1259,7 +1259,7 @@ def percentagebar(minx: int, maxx: int, total: int,
         Returns:
             (ThemeArray): The themearray with the percentage bar
     """
-    themearray: list[Union[ThemeRef, ThemeStr]] = []
+    themearray: list[ThemeRef | ThemeStr] = []
 
     bar_width: int = maxx - minx + 1
     subset_total: int = 0
@@ -1738,7 +1738,7 @@ def move_cur_with_offset(curypos: int, yoffset: int,
 
 
 def addthemearray(win: curses.window,
-                  array: list[Union[ThemeRef, ThemeStr]], **kwargs: Any) -> tuple[int, int]:
+                  array: list[ThemeRef | ThemeStr], **kwargs: Any) -> tuple[int, int]:
     """
     Add a ThemeArray to a curses window.
 
@@ -1774,7 +1774,7 @@ def addthemearray(win: curses.window,
 
 # This extracts the string without formatting;
 # once everything uses proper ThemeArray this wo not be necessary anymore
-def themearray_to_string(themearray: list[Union[ThemeRef, ThemeStr]]) -> str:
+def themearray_to_string(themearray: list[ThemeRef | ThemeStr]) -> str:
     """
     Given a themearray return an unformatted string.
 
@@ -1794,8 +1794,8 @@ def themearray_to_string(themearray: list[Union[ThemeRef, ThemeStr]]) -> str:
     return string
 
 
-def themearray_truncate(themearray: list[Union[ThemeRef, ThemeStr]],
-                        max_len: int) -> list[Union[ThemeRef, ThemeStr]]:
+def themearray_truncate(themearray: list[ThemeRef | ThemeStr],
+                        max_len: int) -> list[ThemeRef | ThemeStr]:
     """
     Given a themearray, truncate it to max_len.
 
@@ -1805,7 +1805,7 @@ def themearray_truncate(themearray: list[Union[ThemeRef, ThemeStr]],
         Returns:
             ([ThemeRef | ThemeStr]): The truncated themearray
     """
-    truncated_themearray: list[Union[ThemeRef, ThemeStr]] = []
+    truncated_themearray: list[ThemeRef | ThemeStr] = []
 
     # For the time being (until we implement proper iteration
     # over ThemeArray elements) this is needed.
@@ -1830,7 +1830,7 @@ def themearray_truncate(themearray: list[Union[ThemeRef, ThemeStr]],
     return truncated_themearray
 
 
-def themearray_len(themearray: list[Union[ThemeRef, ThemeStr]]) -> int:
+def themearray_len(themearray: list[ThemeRef | ThemeStr]) -> int:
     """
     Given a themearray return its length.
 
@@ -2002,9 +2002,9 @@ def themestring_to_cursestuple(themestring: ThemeStr,
     return (string, themeattr_to_curses_merged(themeattr, selected))
 
 
-def themearray_select(themearray: Sequence[Union[ThemeRef, ThemeStr]],
+def themearray_select(themearray: Sequence[ThemeRef | ThemeStr],
                       selected: bool = False,
-                      force: bool = False) -> Sequence[Union[ThemeRef, ThemeStr]]:
+                      force: bool = False) -> Sequence[ThemeRef | ThemeStr]:
     """
     Iterate through the themearray and set all selected fields that are currently None.
 
@@ -2017,7 +2017,7 @@ def themearray_select(themearray: Sequence[Union[ThemeRef, ThemeStr]],
         Raises:
             ProgrammingError: themearray is not a themearray
     """
-    themearray_selected: list[Union[ThemeRef, ThemeStr]] = []
+    themearray_selected: list[ThemeRef | ThemeStr] = []
 
     for item in themearray:
         if not isinstance(item, (ThemeRef, ThemeStr)):
@@ -2047,7 +2047,7 @@ def themearray_select(themearray: Sequence[Union[ThemeRef, ThemeStr]],
     return themearray_selected
 
 
-def themearray_flatten(themearray: list[Union[ThemeRef, ThemeStr]],
+def themearray_flatten(themearray: list[ThemeRef | ThemeStr],
                        selected: Optional[bool] = None) -> list[ThemeStr]:
     """
     Replace all ThemeRefs in a ThemeArray with ThemeStr.
@@ -2090,9 +2090,9 @@ def themearray_flatten(themearray: list[Union[ThemeRef, ThemeStr]],
     return themearray_flattened
 
 
-def themearray_wrap_line(themearray: list[Union[ThemeRef, ThemeStr]],
+def themearray_wrap_line(themearray: list[ThemeRef | ThemeStr],
                          maxwidth: int = -1, wrap_marker: bool = True,
-                         selected: Optional[bool] = None) -> list[list[Union[ThemeRef, ThemeStr]]]:
+                         selected: Optional[bool] = None) -> list[list[ThemeRef | ThemeStr]]:
     """
     Given a themearray, split it into multiple lines, each maxwidth long.
 
@@ -2116,8 +2116,8 @@ def themearray_wrap_line(themearray: list[Union[ThemeRef, ThemeStr]],
     else:
         linebreaklen = 0
 
-    themearrays: list[list[Union[ThemeRef, ThemeStr]]] = []
-    tmp_themearray: list[Union[ThemeRef, ThemeStr]] = []
+    themearrays: list[list[ThemeRef | ThemeStr]] = []
+    tmp_themearray: list[ThemeRef | ThemeStr] = []
     tmplen = 0
     i = 0
 
@@ -2290,7 +2290,7 @@ windowwidget_shortcuts = {
 def windowwidget(stdscr: curses.window, maxy: int, maxx: int, y: int, x: int,
                  items: list[dict[str, Any]],
                  **kwargs: Any) \
-        -> Union[set, tuple[int, Union[bool, int, str, None]], bool, int, str, None]:
+        -> set | tuple[int, bool | int | str | None] | bool | int | str | None:
     """
     A generic:ish scrollable window widget with support for one or multiple columns,
     with or without selectable elements.
@@ -2324,7 +2324,7 @@ def windowwidget(stdscr: curses.window, maxy: int, maxx: int, y: int, x: int,
 
     headers: tuple[str, ...] = deep_get(kwargs, DictPath("headers"))
     title: str = deep_get(kwargs, DictPath("title"), "")
-    preselection: Union[str, set[int]] = deep_get(kwargs, DictPath("preselection"), "")
+    preselection: str | set[int] = deep_get(kwargs, DictPath("preselection"), "")
     cursor: bool = deep_get(kwargs, DictPath("cursor"), True)
     taggable: bool = deep_get(kwargs, DictPath("taggable"), False)
     key_f6: bool = deep_get(kwargs, DictPath("KEY_F6"), False)
@@ -2446,10 +2446,10 @@ def windowwidget(stdscr: curses.window, maxy: int, maxx: int, y: int, x: int,
         col, __discard = themeattr_to_curses(ThemeAttr("windowwidget", "header"))
         headerpad.bkgd(" ", col)
 
-    selection: Union[int, str, None] = None
+    selection: int | str | None = None
     curypos = 0
 
-    headerarray: list[Union[ThemeRef, ThemeStr]] = []
+    headerarray: list[ThemeRef | ThemeStr] = []
 
     # Generate headers
     if headers is not None:
@@ -2495,7 +2495,7 @@ def windowwidget(stdscr: curses.window, maxy: int, maxx: int, y: int, x: int,
                 selected_ = False
 
             lineattributes = item["lineattrs"]
-            linearray: list[Union[ThemeRef, ThemeStr]] = []
+            linearray: list[ThemeRef | ThemeStr] = []
 
             if taggable:
                 if y_ in tagged_items:
@@ -2505,7 +2505,7 @@ def windowwidget(stdscr: curses.window, maxy: int, maxx: int, y: int, x: int,
                                               ThemeAttr("windowwidget", "tag")))
 
             for _x, column in enumerate(item["columns"]):
-                themearray: list[Union[ThemeRef, ThemeStr]] = []
+                themearray: list[ThemeRef | ThemeStr] = []
                 length = 0
 
                 for string in column:
@@ -2848,7 +2848,7 @@ class UIProps:
         # Should there be a timestamp in the upper right corner?
         self.timestamp: bool = True
 
-        self.selected: Union[Type, None] = None
+        self.selected: Type | None = None
 
         # For generic information
         self.infopadminwidth: int = 0
@@ -2897,9 +2897,9 @@ class UIProps:
         self.match_index: Optional[int] = None
         self.search_matches: set[int] = set()
         self.timestamps: list[datetime] = []
-        self.facilities: list[Union[str, tuple[str, str]]] = []
+        self.facilities: list[str | tuple[str, str]] = []
         self.severities: list[LogLevel] = []
-        self.messages: list[Union[list[Union[ThemeRef, ThemeStr]], str]] = []
+        self.messages: list[list[ThemeRef | ThemeStr] | str] = []
         # For checking clicks/drags of the scrollbars
         self.leftarrow: tuple[int, int] = -1, -1
         self.rightarrow: tuple[int, int] = -1, -1
@@ -2915,7 +2915,7 @@ class UIProps:
         self.data: Optional[bool] = None
 
         self.windowheader: str = ""
-        self.view: Union[Optional[tuple[str, str]], str] = ""
+        self.view: tuple[str, str] | str | None = ""
 
     def __del__(self) -> None:
         if self.infopad is not None:
@@ -2993,15 +2993,15 @@ class UIProps:
 
     def update_log_info(self,
                         timestamps: list[datetime],
-                        facilities: list[Union[str, tuple[str, str]]],
+                        facilities: list[str | tuple[str, str]],
                         severities: list[LogLevel],
-                        messages: list[Union[list[Union[ThemeRef, ThemeStr]], str]]) -> None:
+                        messages: list[list[ThemeRef | ThemeStr] | str]) -> None:
         """
         Update the information for the parsed container log.
 
             Parameters:
                 timestamps ([datetime]): The timestamps
-                facilities ([Union[str, tuple[str, str]]]): The facilities
+                facilities ([str | tuple[str, str]]): The facilities
                 severities ([LogLevel]): The LogLevels
                 messages ([str | ThemeArray]): The log messages
         """
@@ -3110,7 +3110,7 @@ class UIProps:
         """
         return not self.regenerate_list
 
-    def select(self, selection: Union[Type, None]) -> None:
+    def select(self, selection: Type | None) -> None:
         """
         Select the current object.
 
@@ -3139,7 +3139,7 @@ class UIProps:
         else:
             self.selected = self.sorted_list[self.yoffset + self.curypos]
 
-    def is_selected(self, selected: Union[Type, None]) -> bool:
+    def is_selected(self, selected: Type | None) -> bool:
         """
         Check whether the referenced object is selected.
 
@@ -3153,7 +3153,7 @@ class UIProps:
 
         return self.selected == selected
 
-    def get_selected(self) -> Union[Type, None]:
+    def get_selected(self) -> Type | None:
         """
         Return a reference to the selected object.
 
@@ -3302,7 +3302,7 @@ class UIProps:
         rtee = deep_get(theme, DictPath("boxdrawing#rtee"))
         ltee = deep_get(theme, DictPath("boxdrawing#ltee"))
 
-        timestamparray: list[Union[ThemeRef, ThemeStr]] = [
+        timestamparray: list[ThemeRef | ThemeStr] = [
             ThemeStr(rtee, ThemeAttr("main", "default")),
         ]
 
@@ -3337,7 +3337,7 @@ class UIProps:
             ltee = deep_get(theme, DictPath("boxdrawing#ltee"))
             rtee = deep_get(theme, DictPath("boxdrawing#rtee"))
 
-            winheaderarray: list[Union[ThemeRef, ThemeStr]] = []
+            winheaderarray: list[ThemeRef | ThemeStr] = []
 
             if CursesConfiguration.borders:
                 winheaderarray += [
@@ -3376,7 +3376,7 @@ class UIProps:
         self.draw_winheader()
 
         mousestatus = "On" if get_mousemask() == -1 else "Off"
-        mousearray: list[Union[ThemeRef, ThemeStr]] = [
+        mousearray: list[ThemeRef | ThemeStr] = [
             ThemeStr("Mouse: ", ThemeAttr("statusbar", "infoheader")),
             ThemeStr(f"{mousestatus}", ThemeAttr("statusbar", "highlight"))
         ]
@@ -3386,7 +3386,7 @@ class UIProps:
         ycurpos = self.curypos + self.yoffset
         maxypos = self.maxcurypos + self.maxyoffset
         if ycurpos >= 0 and maxypos >= 0:
-            curposarray: list[Union[ThemeRef, ThemeStr]] = [
+            curposarray: list[ThemeRef | ThemeStr] = [
                 ThemeStr("Line: ", ThemeAttr("statusbar", "infoheader")),
                 ThemeStr(f"{ycurpos + 1}".rjust(len(str(maxypos + 1))),
                          ThemeAttr("statusbar", "highlight")),
@@ -3839,7 +3839,7 @@ class UIProps:
 
     # pylint: disable-next=too-many-locals
     def addthemearray(self, win: Optional[curses.window],
-                      array: list[Union[ThemeRef, ThemeStr]], **kwargs: Any) -> tuple[int, int]:
+                      array: list[ThemeRef | ThemeStr], **kwargs: Any) -> tuple[int, int]:
         """
         Add a ThemeArray to a curses window.
 
@@ -4016,7 +4016,7 @@ class UIProps:
         self.reselect_uid()
 
     def find_all_matches_by_searchkey(self,
-                                      messages: list[Union[list[Union[ThemeRef, ThemeStr]], str]],
+                                      messages: list[list[ThemeRef | ThemeStr] | str],
                                       searchkey: str) -> None:
         """
         Given a search key, find all lines that matches that search key,

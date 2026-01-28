@@ -14,7 +14,7 @@ This generates and post-processes elements for various more complex types
 import copy
 from datetime import datetime
 import re
-from typing import Any, cast, Optional, Type, TypedDict, Union
+from typing import Any, cast, Optional, Type, TypedDict
 from collections.abc import Callable
 import yaml
 
@@ -44,8 +44,8 @@ class RangeType(TypedDict):
             field_colors ([ThemeAttr]): The colors to apply to matching values (length: 1)
             default (bool): Is this the default range?
     """
-    min: Union[None, int, float]
-    max: Union[None, int, float]
+    min: int | float | None
+    max: int | float | None
     field_colors: list[ThemeAttr]
     default: bool
 
@@ -60,7 +60,7 @@ class MappingTypeOptional(TypedDict, total=False):
             match_case (bool): Should mapping be case sensitive?
             mappings (dict): A dict of mappings
     """
-    substitutions: dict[Union[int, str], Union[str, dict, ThemeRef]]
+    substitutions: dict[int | str, str | dict | ThemeRef]
     ranges: list[RangeType]
     match_case: bool
     mappings: dict[Any, dict[str, list[dict[str, str]]]]
@@ -104,7 +104,7 @@ class FormattingType(FormattingTypeOptional):
     """
 
 
-def format_special(string: str, selected: bool) -> Optional[Union[ThemeRef, ThemeStr]]:
+def format_special(string: str, selected: bool) -> Optional[ThemeRef | ThemeStr]:
     """
     Given a string, substitute any special strings with their formatted version.
 
@@ -114,7 +114,7 @@ def format_special(string: str, selected: bool) -> Optional[Union[ThemeRef, Them
         Returns:
             (ThemeRef | ThemeStr): A ThemeStr
     """
-    formatted_string: Optional[Union[ThemeRef, ThemeStr]] = None
+    formatted_string: Optional[ThemeRef | ThemeStr] = None
 
     if string in ("<none>", "<unknown>"):
         fmt = ThemeAttr("types", "none")
@@ -134,7 +134,7 @@ def format_special(string: str, selected: bool) -> Optional[Union[ThemeRef, Them
 
 # pylint: disable-next=too-many-locals,too-many-branches,too-many-statements
 def format_list(items: Any, fieldlen: int, pad: bool,
-                **kwargs: Any) -> list[Union[ThemeRef, ThemeStr]]:
+                **kwargs: Any) -> list[ThemeRef | ThemeStr]:
     """
     Format the elements of a list.
 
@@ -169,7 +169,7 @@ def format_list(items: Any, fieldlen: int, pad: bool,
     field_formatters: list[Optional[Callable]] = \
         deep_get(kwargs, DictPath("field_formatters"), [])
 
-    array: list[Union[ThemeRef, ThemeStr]] = []
+    array: list[ThemeRef | ThemeStr] = []
 
     if item_separator is None:
         item_separator = ThemeRef("separators", "list", selected)
@@ -260,7 +260,7 @@ def format_list(items: Any, fieldlen: int, pad: bool,
 # pylint: disable-next=too-many-locals,too-many-statements,too-many-branches
 def map_value(value: Any, selected: bool = False,
               default_field_color: ThemeAttr = ThemeAttr("types", "generic"),
-              **kwargs: Any) -> tuple[Union[ThemeRef, ThemeStr], str]:
+              **kwargs: Any) -> tuple[ThemeRef | ThemeStr, str]:
     """
     Perform value based mappings; either by doing numerical ranges,
     or by doing string comparisons (optionally case insensitive).
@@ -362,9 +362,9 @@ def map_value(value: Any, selected: bool = False,
     return ThemeStr(string, fmt, selected), string
 
 
-def align_and_pad(array: list[Union[ThemeRef, ThemeStr]], fieldlen: int,
+def align_and_pad(array: list[ThemeRef | ThemeStr], fieldlen: int,
                   pad: bool = False, ralign: bool = False,
-                  selected: bool = False) -> list[Union[ThemeRef, ThemeStr]]:
+                  selected: bool = False) -> list[ThemeRef | ThemeStr]:
     """
     Given a field, align to the left or right, and pad it to fieldlen.
 
@@ -377,7 +377,7 @@ def align_and_pad(array: list[Union[ThemeRef, ThemeStr]], fieldlen: int,
         Returns:
             (ThemeArray): The formatted list
     """
-    tmp_array: list[Union[ThemeRef, ThemeStr]] = []
+    tmp_array: list[ThemeRef | ThemeStr] = []
     stringlen = themearray_len(array)
 
     if ralign:
@@ -397,7 +397,7 @@ def align_and_pad(array: list[Union[ThemeRef, ThemeStr]], fieldlen: int,
 def format_numerical_with_units(string: str, ftype: str,
                                 selected: bool, non_units: Optional[set] = None,
                                 separator_lookup: Optional[dict] = None) \
-        -> list[Union[ThemeRef, ThemeStr]]:
+        -> list[ThemeRef | ThemeStr]:
     """
     Given a string, return it formatted formatted with the numerical parts
     highlighted with the formatting for numerical values, and the remaining
@@ -414,7 +414,7 @@ def format_numerical_with_units(string: str, ftype: str,
             ([ThemeRef | ThemeStr]): A formatted string
     """
     substring: str = ""
-    array: list[Union[ThemeRef, ThemeStr]] = []
+    array: list[ThemeRef | ThemeStr] = []
     numeric = None
     # This is necessary to be able to use pop
     liststring = list(string)
@@ -483,7 +483,7 @@ def format_numerical_with_units(string: str, ftype: str,
     return array
 
 
-def generator_age_raw(value: Union[int, str], selected: bool) -> list[Union[ThemeRef, ThemeStr]]:
+def generator_age_raw(value: int | str, selected: bool) -> list[ThemeRef | ThemeStr]:
     """
     A generator for age that operates directly on a value instead of doing a lookup first.
 
@@ -493,7 +493,7 @@ def generator_age_raw(value: Union[int, str], selected: bool) -> list[Union[Them
         Returns:
             ([ThemeRef | ThemeStr]): A formatted string
     """
-    array: list[Union[ThemeRef, ThemeStr]] = []
+    array: list[ThemeRef | ThemeStr] = []
 
     if value == -1:
         string = ""
@@ -518,7 +518,7 @@ def generator_age_raw(value: Union[int, str], selected: bool) -> list[Union[Them
 # pylint: disable-next=unused-argument,too-many-arguments,too-many-positional-arguments
 def generator_age(obj: dict, field: str, fieldlen: int, pad: bool,
                   ralign: bool, selected: bool,
-                  **formatting: FormattingType) -> list[Union[ThemeRef, ThemeStr]]:
+                  **formatting: FormattingType) -> list[ThemeRef | ThemeStr]:
     """
     A generator for age.
 
@@ -533,7 +533,7 @@ def generator_age(obj: dict, field: str, fieldlen: int, pad: bool,
         Returns:
             ([ThemeRef | ThemeStr]): A formatted string
     """
-    array: list[Union[ThemeRef, ThemeStr]] = []
+    array: list[ThemeRef | ThemeStr] = []
     value = getattr(obj, field)
 
     array = generator_age_raw(value, selected)
@@ -544,7 +544,7 @@ def generator_age(obj: dict, field: str, fieldlen: int, pad: bool,
 # noqa: E501 pylint: disable-next=too-many-arguments,too-many-locals,too-many-branches,too-many-positional-arguments
 def generator_address(obj: dict, field: str, fieldlen: int, pad: bool,
                       ralign: bool, selected: bool,
-                      **formatting: FormattingType) -> list[Union[ThemeRef, ThemeStr]]:
+                      **formatting: FormattingType) -> list[ThemeRef | ThemeStr]:
     """
     A generator for IP-addresses and IP-masks.
 
@@ -582,7 +582,7 @@ def generator_address(obj: dict, field: str, fieldlen: int, pad: bool,
     for separator in separators:
         separator_lookup[str(separator)] = separator
 
-    array: list[Union[ThemeRef, ThemeStr]] = []
+    array: list[ThemeRef | ThemeStr] = []
 
     for item in items:
         subnet = False
@@ -619,7 +619,7 @@ def generator_address(obj: dict, field: str, fieldlen: int, pad: bool,
 # pylint: disable-next=too-many-arguments,too-many-positional-arguments
 def generator_basic(obj: dict, field: str, fieldlen: int, pad: bool,
                     ralign: bool, selected: bool,
-                    **formatting: FormattingType) -> list[Union[ThemeRef, ThemeStr]]:
+                    **formatting: FormattingType) -> list[ThemeRef | ThemeStr]:
     """
     The default generator; it knows about certain special strings,
     but otherwise will use the provided formatting.
@@ -635,7 +635,7 @@ def generator_basic(obj: dict, field: str, fieldlen: int, pad: bool,
         Returns:
             ([ThemeRef | ThemeStr]): A formatted string
     """
-    array: list[Union[ThemeRef, ThemeStr]] = []
+    array: list[ThemeRef | ThemeStr] = []
     value = getattr(obj, field)
     string = str(value)
     field_colors = deep_get(formatting, DictPath("field_colors"), [ThemeAttr("types", "generic")])
@@ -665,7 +665,7 @@ def generator_basic(obj: dict, field: str, fieldlen: int, pad: bool,
 # pylint: disable-next=unused-argument,too-many-arguments,too-many-positional-arguments
 def generator_hex(obj: dict, field: str, fieldlen: int, pad: bool,
                   ralign: bool, selected: bool,
-                  **formatting: FormattingType) -> list[Union[ThemeRef, ThemeStr]]:
+                  **formatting: FormattingType) -> list[ThemeRef | ThemeStr]:
     """
     A generator for hexadecimal values.
 
@@ -680,7 +680,7 @@ def generator_hex(obj: dict, field: str, fieldlen: int, pad: bool,
         Returns:
             ([ThemeRef | ThemeStr]): A formatted string
     """
-    array: list[Union[ThemeRef, ThemeStr]] = []
+    array: list[ThemeRef | ThemeStr] = []
     value = getattr(obj, field)
     string = str(value)
 
@@ -693,7 +693,7 @@ def generator_hex(obj: dict, field: str, fieldlen: int, pad: bool,
 # pylint: disable-next=too-many-locals,too-many-arguments,too-many-positional-arguments
 def generator_list(obj: dict, field: str, fieldlen: int, pad: bool,
                    ralign: bool, selected: bool,
-                   **formatting: FormattingType) -> list[Union[ThemeRef, ThemeStr]]:
+                   **formatting: FormattingType) -> list[ThemeRef | ThemeStr]:
     """
     Generate a formatted list, with support for custom list separators,
     grouped tuples, ellipsising after a certain length, etc.
@@ -749,7 +749,7 @@ def generator_list(obj: dict, field: str, fieldlen: int, pad: bool,
 # noqa: E501 pylint: disable-next=too-many-branches,too-many-locals,too-many-arguments,too-many-positional-arguments
 def generator_list_with_status(obj: dict, field: str, fieldlen: int, pad: bool,
                                ralign: bool, selected: bool,
-                               **formatting: FormattingType) -> list[Union[ThemeRef, ThemeStr]]:
+                               **formatting: FormattingType) -> list[ThemeRef | ThemeStr]:
     """
     Generate a formatted list, mapping the items based on their status.
     FIXME: This implementation is really ugly.
@@ -838,7 +838,7 @@ def generator_list_with_status(obj: dict, field: str, fieldlen: int, pad: bool,
 # pylint: disable-next=unused-argument,too-many-arguments,too-many-positional-arguments
 def generator_mem(obj: dict, field: str, fieldlen: int, pad: bool,
                   ralign: bool, selected: bool,
-                  **formatting: FormattingType) -> list[Union[ThemeRef, ThemeStr]]:
+                  **formatting: FormattingType) -> list[ThemeRef | ThemeStr]:
     """
     Generate formatting for memory usage tuples (free / total).
 
@@ -853,7 +853,7 @@ def generator_mem(obj: dict, field: str, fieldlen: int, pad: bool,
         Returns:
             ([ThemeRef | ThemeStr]): A formatted string
     """
-    array: list[Union[ThemeRef, ThemeStr]] = []
+    array: list[ThemeRef | ThemeStr] = []
     tmp_free, tmp_total = getattr(obj, field)
     free = __remove_units(tmp_free)
     total = __remove_units(tmp_total)
@@ -889,7 +889,7 @@ def generator_mem(obj: dict, field: str, fieldlen: int, pad: bool,
 # pylint: disable-next=too-many-arguments,too-many-positional-arguments
 def generator_numerical_with_units(obj: dict, field: str, fieldlen: int, pad: bool,
                                    ralign: bool, selected: bool,
-                                   **formatting: FormattingType) -> list[Union[ThemeRef, ThemeStr]]:
+                                   **formatting: FormattingType) -> list[ThemeRef | ThemeStr]:
     """
     Generate numerical values with units.
 
@@ -904,7 +904,7 @@ def generator_numerical_with_units(obj: dict, field: str, fieldlen: int, pad: bo
         Returns:
             ([ThemeRef | ThemeStr]): A formatted string
     """
-    array: list[Union[ThemeRef, ThemeStr]] = []
+    array: list[ThemeRef | ThemeStr] = []
     value = getattr(obj, field)
 
     if value in ("<default>", "<none>", "<unset>", "<unbounded>", "<unknown>"):
@@ -931,7 +931,7 @@ def generator_numerical_with_units(obj: dict, field: str, fieldlen: int, pad: bo
 # pylint: disable-next=unused-argument,too-many-arguments,too-many-positional-arguments
 def generator_status(obj: dict, field: str, fieldlen: int, pad: bool,
                      ralign: bool, selected: bool,
-                     **formatting: FormattingType) -> list[Union[ThemeRef, ThemeStr]]:
+                     **formatting: FormattingType) -> list[ThemeRef | ThemeStr]:
     """
     Generate formatting for status messages.
 
@@ -946,7 +946,7 @@ def generator_status(obj: dict, field: str, fieldlen: int, pad: bool,
         Returns:
             ([ThemeRef | ThemeStr]): A formatted string
     """
-    array: list[Union[ThemeRef, ThemeStr]] = []
+    array: list[ThemeRef | ThemeStr] = []
     status = getattr(obj, field)
     status_group = getattr(obj, "status_group")
     fmt = color_status_group(status_group)
@@ -961,7 +961,7 @@ def generator_status(obj: dict, field: str, fieldlen: int, pad: bool,
 # pylint: disable-next=unused-argument,too-many-arguments,too-many-positional-arguments
 def generator_timestamp(obj: dict, field: str, fieldlen: int, pad: bool,
                         ralign: bool, selected: bool,
-                        **formatting: FormattingType) -> list[Union[ThemeRef, ThemeStr]]:
+                        **formatting: FormattingType) -> list[ThemeRef | ThemeStr]:
     """
     Generate a formatted string either from a timestamp or a string;
     special strings such as "<none>" are also handled.
@@ -977,7 +977,7 @@ def generator_timestamp(obj: dict, field: str, fieldlen: int, pad: bool,
         Returns:
             ([ThemeRef | ThemeStr]): A formatted string
     """
-    array: list[Union[ThemeRef, ThemeStr]] = []
+    array: list[ThemeRef | ThemeStr] = []
     string: str = ""
     value = getattr(obj, field)
 
@@ -1006,7 +1006,7 @@ def generator_timestamp(obj: dict, field: str, fieldlen: int, pad: bool,
 # pylint: disable-next=too-many-arguments,too-many-positional-arguments
 def generator_timestamp_with_age(obj: dict, field: str, fieldlen: int, pad: bool,
                                  ralign: bool, selected: bool,
-                                 **formatting: FormattingType) -> list[Union[ThemeRef, ThemeStr]]:
+                                 **formatting: FormattingType) -> list[ThemeRef | ThemeStr]:
     """
     Generate a formatted string either from a timestamp or a string;
     with both timestamp *and* age. Typically used to represent timestamp + duration.
@@ -1022,7 +1022,7 @@ def generator_timestamp_with_age(obj: dict, field: str, fieldlen: int, pad: bool
         Returns:
             ([ThemeRef | ThemeStr]): A formatted string
     """
-    array: list[Union[ThemeRef, ThemeStr]] = []
+    array: list[ThemeRef | ThemeStr] = []
     values = getattr(obj, field)
 
     if len(deep_get(formatting, DictPath("field_colors"), [])) < 2 < len(values):
@@ -1077,7 +1077,7 @@ def generator_timestamp_with_age(obj: dict, field: str, fieldlen: int, pad: bool
 # pylint: disable-next=too-many-arguments,too-many-positional-arguments
 def generator_value_mapper(obj: dict, field: "str", fieldlen: int, pad: bool,
                            ralign: bool, selected: bool,
-                           **formatting: FormattingType) -> list[Union[ThemeRef, ThemeStr]]:
+                           **formatting: FormattingType) -> list[ThemeRef | ThemeStr]:
     """
     Generate a formatted string with value mapping.
 
@@ -1092,7 +1092,7 @@ def generator_value_mapper(obj: dict, field: "str", fieldlen: int, pad: bool,
         Returns:
             ([ThemeRef | ThemeStr]): A formatted string
     """
-    array: list[Union[ThemeRef, ThemeStr]] = []
+    array: list[ThemeRef | ThemeStr] = []
     value = getattr(obj, field)
 
     default_field_color = cast(ThemeAttr,
@@ -1152,7 +1152,7 @@ def processor_timestamp_with_age(obj: dict, field: str, formatting: FormattingTy
 
     if len(values) == 2:
         if values[0] is None:
-            array: list[Union[ThemeRef, ThemeStr]] = [
+            array: list[ThemeRef | ThemeStr] = [
                 ThemeStr("<none>", ThemeAttr("types", "none"))
             ]
         else:
@@ -1194,8 +1194,7 @@ def processor_timestamp_with_age(obj: dict, field: str, formatting: FormattingTy
     return themearray_to_string(array)
 
 
-def __fix_to_str(fix: Union[list[Union[ThemeRef,
-                                       tuple[str, str]]], ThemeRef, tuple[str, str]]) -> str:
+def __fix_to_str(fix: list[ThemeRef | tuple[str, str]] | ThemeRef | tuple[str, str]) -> str:
     """
     Convert a prefix or suffix into a str.
 
@@ -1251,7 +1250,7 @@ def processor_list(obj: Type, field: str, **kwargs: Any) -> str:
             (str): The processed, unformatted string
     """
     item_separator: ThemeRef = deep_get(kwargs, DictPath("item_separator"))
-    field_separators: list[Union[ThemeRef, ThemeStr]] = \
+    field_separators: list[ThemeRef | ThemeStr] = \
         deep_get(kwargs, DictPath("field_separators"))
     ellipsise: int = deep_get(kwargs, DictPath("ellipsise"))
     ellipsis: ThemeRef = deep_get(kwargs, DictPath("ellipsis"))
@@ -1331,7 +1330,7 @@ def processor_list_with_status(obj: Type, field: str, **kwargs: Any) -> str:
             (str): The processed, unformatted string
     """
     item_separator: ThemeRef = deep_get(kwargs, DictPath("item_separator"))
-    field_separators: list[Union[ThemeRef, ThemeStr]] = \
+    field_separators: list[ThemeRef | ThemeStr] = \
         deep_get(kwargs, DictPath("field_separators"))
     ellipsise: int = deep_get(kwargs, DictPath("ellipsise"))
     ellipsis: ThemeRef = deep_get(kwargs, DictPath("ellipsis"))
@@ -1448,8 +1447,7 @@ default_processor: dict[Callable, Callable] = {
 # pylint: disable-next=too-many-branches
 def get_formatting(field: dict[str, Any],
                    formatting: str,
-                   default: dict[str, Any]) \
-        -> Union[list[Union[ThemeAttr, ThemeStr, ThemeRef]], ThemeRef]:
+                   default: dict[str, Any]) -> list[ThemeAttr | ThemeStr | ThemeRef] | ThemeRef:
     """
     Given a field dict, the formatting we want to extract, and the default value to return
     if there's no suitable formatting, extract the formatting.
@@ -1460,8 +1458,8 @@ def get_formatting(field: dict[str, Any],
             default (dict): The default formatting to return if no field-specific formatting
                             is available
     """
-    result: list[Union[ThemeAttr, ThemeStr, ThemeRef]] = []
-    items: Union[dict, list[dict]] = deep_get(field, DictPath(f"formatting#{formatting}"))
+    result: list[ThemeAttr | ThemeStr | ThemeRef] = []
+    items: dict | list[dict] = deep_get(field, DictPath(f"formatting#{formatting}"))
 
     if items is None:
         return deep_get(default, DictPath(f"{formatting}"))

@@ -14,7 +14,7 @@ import logging
 import logging.handlers
 import os
 import sys
-from typing import Any, cast, Optional, Union
+from typing import Any, cast, Optional
 from collections.abc import Callable
 
 from clustermanagementtoolkit import cmtpaths
@@ -26,7 +26,7 @@ from clustermanagementtoolkit.ansithemeprint import ANSIThemeStr
 logger: Optional[logging.Logger] = None  # pylint: disable=invalid-name
 
 
-def log_array_to_string(msglist: list[Union[str, list[ANSIThemeStr]]]) -> str:
+def log_array_to_string(msglist: list[str | list[ANSIThemeStr]]) -> str:
     """
     Convert a list of strings or a list of ANSIThemeArray to a text representation
     that can be written to a YAML-file.

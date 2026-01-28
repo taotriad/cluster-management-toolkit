@@ -8,7 +8,6 @@
   us to use the following features added in Python v3.10 and v3.11:
   * TypedDict to type-check dicts.
   * Structural pattern matching.
-  * Union types as x | y.
   * Self type.
 
 ## curses_helper.py

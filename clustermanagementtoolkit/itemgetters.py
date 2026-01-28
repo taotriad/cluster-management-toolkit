@@ -13,7 +13,7 @@ Get items from lists for use in windowwidget
 
 import re
 import sys
-from typing import Any, cast, Optional, Union
+from typing import Any, cast, Optional
 from collections.abc import Callable
 
 try:
@@ -50,7 +50,7 @@ def get_conditions(obj: dict, **kwargs: Any) -> list[dict]:
     """
     condition_list = []
 
-    path: Union[str, DictPath] = deep_get(kwargs, DictPath("path"), DictPath("status#conditions"))
+    path: str | DictPath = deep_get(kwargs, DictPath("path"), DictPath("status#conditions"))
 
     for condition in deep_get(obj, DictPath(path), []):
         ctype = deep_get(condition, DictPath("type"), "")
@@ -406,10 +406,10 @@ def get_dict_list(obj: dict, **kwargs: Any) -> list[Any]:
     vlist: list[Any] = []
     tmp_vlist = []
 
-    path: Union[str, DictPath] = deep_get(kwargs, DictPath("path"))
+    path: str | DictPath = deep_get(kwargs, DictPath("path"))
     fields = deep_get(kwargs, DictPath("fields"))
 
-    data: Union[dict, list[dict]] = deep_get(obj, DictPath(path), [])
+    data: dict | list[dict] = deep_get(obj, DictPath(path), [])
 
     if isinstance(data, dict):
         data = [data]

@@ -30,7 +30,7 @@ import socket
 from subprocess import CalledProcessError  # nosec
 import sys
 import tempfile
-from typing import Any, cast, Optional, Union
+from typing import Any, cast, Optional
 from collections.abc import Callable
 
 try:
@@ -672,7 +672,7 @@ def update_installation_info(**kwargs: Any) -> dict:
     version: Optional[str] = deep_get(kwargs, DictPath("version"))
     requested_version: Optional[str] = deep_get(kwargs, DictPath("requested_version"))
     state: Optional[str] = deep_get(kwargs, DictPath("state"))
-    phase: Optional[Union[int, str]] = deep_get(kwargs, DictPath("phase"))
+    phase: Optional[int | str] = deep_get(kwargs, DictPath("phase"))
     phase_skiplist: Optional[list[str]] = deep_get(kwargs, DictPath("phase_skiplist"))
     cni: Optional[str] = deep_get(kwargs, DictPath("cni"))
     pod_network_cidr: Optional[str] = deep_get(kwargs, DictPath("pod_network_cidr"))
@@ -1125,7 +1125,7 @@ def teardown_cni(options: list[tuple[str, str]], args: list[str]) -> None:
         sys.exit(errno.EINVAL)
 
     installation_info = get_installation_info()
-    cluster_name = installation_info["installation_target"]
+    cluster_name = deep_get(installation_info, DictPath("installation_target"))
     # We should get this using kubernetes_helper (and allow for manual override)
     kubectl_path = secure_which(FilePath("/usr/bin/kubectl"),
                                 fallback_allowlist=["/etc/alternatives"],
@@ -1285,7 +1285,7 @@ def upgrade_cni(options: list[tuple[str, str]], args: list[str]) -> None:
         cni = args[0]
     else:
         installation_info = get_installation_info()
-        cluster_name = installation_info["installation_target"]
+        cluster_name = deep_get(installation_info, DictPath("installation_target"))
         cni = deep_get(installation_info, DictPath(f"{cluster_name}#cni"))
         pod_network_cidr = deep_get(installation_info, DictPath(f"{cluster_name}#pod_network_cidr"))
 
@@ -1299,7 +1299,7 @@ def upgrade_cni(options: list[tuple[str, str]], args: list[str]) -> None:
         pod_network_cidr = kh.get_pod_network_cidr()
         if pod_network_cidr is None:
             installation_info = get_installation_info()
-            cluster_name = installation_info["installation_target"]
+            cluster_name = deep_get(installation_info, DictPath("installation_target"))
             pod_network_cidr = \
                 deep_get(installation_info, DictPath(f"{cluster_name}#pod_network_cidr"))
         if pod_network_cidr is None:
@@ -1556,7 +1556,7 @@ def __task_scan_and_add_ssh_keys(installation_info: dict, **kwargs: Any) -> None
             installation_info (dict): A dict with installation information [unused]
             **kwargs (dict[str, Any]): Keyword arguments [unused]
     """
-    cluster_name = installation_info["installation_target"]
+    cluster_name = deep_get(installation_info, DictPath("installation_target"))
     nodes = deep_get(installation_info, DictPath(f"{cluster_name}#nodes"), [])
 
     controlplanes = get_control_planes()
@@ -2160,7 +2160,7 @@ def __task_run_preparation_playbooks_on_hosts(installation_info: dict, **kwargs:
             installation_info (dict): A dict with installation information
             **kwargs (dict[str, Any]): Keyword arguments
     """
-    cluster_name = installation_info["installation_target"]
+    cluster_name = deep_get(installation_info, DictPath("installation_target"))
     k8s_distro = installation_info[cluster_name]["distro"]
     os_distro = identify_distro()
     control_planes = deep_get(installation_info, DictPath(f"{cluster_name}#control_planes"), [])
@@ -2285,7 +2285,7 @@ def __task_run_setup_playbooks_on_localhost(installation_info: dict, **kwargs: A
             installation_info (dict): A dict with installation information
             **kwargs (dict[str, Any]): Keyword arguments
     """
-    cluster_name = installation_info["installation_target"]
+    cluster_name = deep_get(installation_info, DictPath("installation_target"))
     pod_network_cidr = installation_info[cluster_name]["pod_network_cidr"]
     os_distro = identify_distro()
     selection = __selection_localhost()
@@ -2326,7 +2326,7 @@ def __task_run_setup_playbooks_on_control_planes(installation_info: dict, **kwar
             installation_info (dict): A dict with installation information
             **kwargs (dict[str, Any]): Keyword arguments
     """
-    cluster_name = installation_info["installation_target"]
+    cluster_name = deep_get(installation_info, DictPath("installation_target"))
     k8s_distro = installation_info[cluster_name]["distro"]
     os_distro = identify_distro()
     pod_network_cidr = installation_info[cluster_name]["pod_network_cidr"]
@@ -2393,9 +2393,9 @@ def __task_run_postsetup_playbooks(installation_info: dict, **kwargs: Any) -> No
             raise
 
 
-def merge_kubeconfigs(kubeconfig1: Union[dict[str, Any], ruyaml.comments.CommentedSeq],
-                      kubeconfig2: Union[dict[str, Any], ruyaml.comments.CommentedSeq]) \
-        -> Union[dict[str, Any], ruyaml.comments.CommentedSeq]:
+def merge_kubeconfigs(kubeconfig1: dict[str, Any] | ruyaml.comments.CommentedSeq,
+                      kubeconfig2: dict[str, Any] | ruyaml.comments.CommentedSeq) \
+        -> dict[str, Any] | ruyaml.comments.CommentedSeq:
     """
     Merge two kubeconfig dicts.
 
@@ -2486,10 +2486,10 @@ def __task_import_kubeconfig(installation_info: dict, **kwargs: Any) -> None:
     context_name = f"{admin_name}@{cluster_name}"
     config_file_name = FilePath(f"{HOMEDIR}/.kube/config.{cluster_name}")
 
-    d1: Union[dict[str, Any], ruyaml.comments.CommentedSeq] = {}
+    d1: dict[str, Any] | ruyaml.comments.CommentedSeq = {}
 
     # This read must not fail, so no exceptions
-    d2: Union[dict[str, Any], ruyaml.comments.CommentedSeq] = secure_read_yaml(config_file_name)
+    d2: dict[str, Any] | ruyaml.comments.CommentedSeq = secure_read_yaml(config_file_name)
 
     # This file will not exist if this is the first cluster
     security_checks = [
@@ -2545,7 +2545,7 @@ def __task_adjust_kubeconfig_server_address(installation_info: dict, **kwargs: A
     global kh  # pylint: disable=global-statement
 
     control_plane_name = __selection_control_planes()[0]
-    cluster_name = installation_info["installation_target"]
+    cluster_name = deep_get(installation_info, DictPath("installation_target"))
 
     try:
         d = secure_read_yaml(KUBE_CONFIG_FILE)
@@ -2746,7 +2746,7 @@ def __task_run_upgrade_playbooks_on_control_planes(installation_info: dict, **kw
             installation_info (dict): A dict with installation information
             **kwargs (dict[str, Any]): Keyword arguments
     """
-    cluster_name = installation_info["installation_target"]
+    cluster_name = deep_get(installation_info, DictPath("installation_target"))
     k8s_distro = installation_info[cluster_name]["distro"]
     os_distro = identify_distro()
     pod_network_cidr = installation_info[cluster_name]["pod_network_cidr"]
@@ -2876,7 +2876,7 @@ def __task_run_teardown_playbooks_on_control_planes(installation_info: dict, **k
             installation_info (dict): A dict with installation information
             **kwargs (dict[str, Any]): Keyword arguments
     """
-    cluster_name = installation_info["installation_target"]
+    cluster_name = deep_get(installation_info, DictPath("installation_target"))
     k8s_distro = installation_info[cluster_name]["distro"]
     selection = __selection_control_planes()
     playbooks = \
@@ -3014,7 +3014,7 @@ def __task_run_purge_playbooks_on_control_planes(installation_info: dict, **kwar
             installation_info (dict): A dict with installation information
             **kwargs (dict[str, Any]): Keyword arguments
     """
-    cluster_name = installation_info["installation_target"]
+    cluster_name = deep_get(installation_info, DictPath("installation_target"))
     k8s_distro = installation_info[cluster_name]["distro"]
     os_distro = identify_distro()
     selection = __selection_control_planes()
@@ -3070,7 +3070,7 @@ def __task_run_postpurge_playbooks(installation_info: dict, **kwargs: Any) -> No
 
 
 def __validate_task_index(tasks: list[tuple[list[ANSIThemeStr], Callable[..., None]]],
-                          phase: Union[str, int]) -> int:
+                          phase: str | int) -> int:
     """
     Helper that validates the installer task index.
 
@@ -3448,7 +3448,7 @@ def prepare_installation(options: list[tuple[str, Any]], args: list[str]) -> Non
     os_distro = identify_distro()
     requested_version = installation_info[cluster_name]["requested_version"]
     state = installation_info[cluster_name]["state"]
-    phase: Union[str, int] = installation_info[cluster_name]["phase"]
+    phase: str | int = installation_info[cluster_name]["phase"]
     phase_skiplist = set(installation_info[cluster_name]["phase_skiplist"])
     verbose = False
     hide_next_step = False
@@ -3912,7 +3912,7 @@ def import_kubeconfig(options: list[tuple[str, str]], args: list[str]) -> None:
             options ([(str, str)]): Options to use when executing this action
             args ([str]): Arguments to use when executing this action
     """
-    kubeconfig: Union[dict[str, Any], ruyaml.comments.CommentedSeq] = {}
+    kubeconfig: dict[str, Any] | ruyaml.comments.CommentedSeq = {}
 
     # First read .kube/config (if it exists)
     try:
@@ -4678,7 +4678,7 @@ def create_cluster(options: list[tuple[str, str]], args: list[str]) -> None:
         pod_network_cidr,
     ]
 
-    cluster_name = installation_info["installation_target"]
+    cluster_name = deep_get(installation_info, DictPath("installation_target"))
     state = deep_get(installation_info, DictPath(f"{cluster_name}#state"))
     phase = deep_get(installation_info, DictPath(f"{cluster_name}#phase"))
 
@@ -5520,7 +5520,7 @@ def setup_control_planes(options: list[tuple[str, Any]], args: list[str]) -> Non
 
     requested_version = installation_info[cluster_name]["requested_version"]
     state = installation_info[cluster_name]["state"]
-    phase: Union[str, int] = installation_info[cluster_name]["phase"]
+    phase: str | int = installation_info[cluster_name]["phase"]
     phase_skiplist = set(installation_info[cluster_name]["phase_skiplist"])
     cni = installation_info[cluster_name]["cni"]
     pod_network_cidr = installation_info[cluster_name]["pod_network_cidr"]
@@ -5984,7 +5984,7 @@ def get_control_planes(fail_on_empty: bool = True) -> list[tuple[str, str]]:
                 (str): The IP-address
     """
     installation_info = get_installation_info()
-    cluster_name = installation_info["installation_target"]
+    cluster_name = deep_get(installation_info, DictPath("installation_target"))
     if cluster_name is None:
         cluster_name = get_cluster_name()
     inventory = ansible_get_inventory_dict()
@@ -6053,7 +6053,7 @@ def teardown_control_plane(options: list[tuple[str, str]], args: list[str]) -> N
     cluster_name = deep_get(installation_info, DictPath("installation_target"))
     k8s_distro = deep_get(installation_info, DictPath(f"{cluster_name}#distro"))
     state = deep_get(installation_info, DictPath(f"{cluster_name}#state"))
-    phase: Union[str, int] = deep_get(installation_info, DictPath(f"{cluster_name}#phase"))
+    phase: str | int = deep_get(installation_info, DictPath(f"{cluster_name}#phase"))
     phase_skiplist = set(deep_get(installation_info, DictPath(f"{cluster_name}#phase_skiplist")))
     verbose: bool = False
     ignore_errors: bool = False
@@ -6159,10 +6159,10 @@ def purge_control_plane(options: list[tuple[str, str]], args: list[str]) -> None
         sys.exit(errno.ENOENT)
 
     installation_info = get_installation_info()
-    cluster_name = installation_info["installation_target"]
-    state = installation_info[cluster_name]["state"]
-    phase: Union[str, int] = installation_info[cluster_name]["phase"]
-    phase_skiplist = set(installation_info[cluster_name]["phase_skiplist"])
+    cluster_name = deep_get(installation_info, DictPath("installation_target"))
+    state = deep_get(installation_info, DictPath(f"{cluster_name}#state"))
+    phase: str | int = deep_get(installation_info, DictPath(f"{cluster_name}#phase"))
+    phase_skiplist = set(deep_get(installation_info, DictPath(f"{cluster_name}#phase_skiplist")))
     verbose = False
 
     if state is None or state not in ("prepared", "torn_down", "purging"):
@@ -6297,7 +6297,7 @@ def upgrade_control_plane(options: list[tuple[str, str]], args: list[str]) -> No
     version = deep_get(installation_info, DictPath(f"{cluster_name}#version"))
     requested_version = deep_get(installation_info, DictPath(f"{cluster_name}#requested_version"))
     state = deep_get(installation_info, DictPath(f"{cluster_name}#state"))
-    phase: Union[str, int] = deep_get(installation_info, DictPath(f"{cluster_name}#phase"))
+    phase: str | int = deep_get(installation_info, DictPath(f"{cluster_name}#phase"))
     phase_skiplist = set(deep_get(installation_info, DictPath(f"{cluster_name}#phase_skiplist")))
     verbose = False
     ignore_feature_gates = False

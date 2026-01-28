@@ -18,7 +18,7 @@ import errno
 from pathlib import Path
 import re
 import sys
-from typing import Any, cast, Optional, Union
+from typing import Any, cast, Optional
 from collections.abc import Generator
 
 from clustermanagementtoolkit.ansithemeprint import ANSIThemeStr, ansithemeprint
@@ -37,7 +37,7 @@ from clustermanagementtoolkit import cmtio
 cmtconfig: dict[str, Any] = {}
 
 
-def decode_value(value: Union[str, bytes]) -> tuple[str, Union[str, bytes]]:
+def decode_value(value: str | bytes) -> tuple[str, str | bytes]:
     """
     Given a value attempt to decode it from base64.
 
@@ -175,8 +175,7 @@ def chunk_list(items: list[Any], chunksize: int) -> Generator[list, None, None]:
         yield items[i:i + chunksize]
 
 
-def clamp(value: Union[int, float],
-          minval: Union[int, float], maxval: Union[int, float]) -> Union[int, float]:
+def clamp(value: int | float, minval: int | float, maxval: int | float) -> int | float:
     """
     Clamp value inside the range minval, maxval.
 
@@ -571,7 +570,7 @@ def seconds_to_age(seconds: int, negative_is_skew: bool = False) -> str:
     return f"{sign}{age}"
 
 
-def get_since(timestamp: Optional[Union[int, datetime]]) -> int:
+def get_since(timestamp: Optional[int | datetime]) -> int:
     """
     Given either a datetime, or an integer, returns how old that
     timestamp is in seconds.
@@ -742,7 +741,7 @@ def timestamp_to_datetime(timestamp: str, default: datetime = none_timestamp()) 
 # pylint: disable-next=too-many-branches,too-many-statements
 def make_set_expression_list(expression_list: list[dict],
                              key: str = "", toleration: bool = False) -> \
-        list[Union[tuple[str, str, str], tuple[str, str, str, Any]]]:
+        list[tuple[str, str, str] | tuple[str, str, str, Any]]:
     """
     Create a list of set expressions (key, operator, values).
 
@@ -753,7 +752,7 @@ def make_set_expression_list(expression_list: list[dict],
         Returns:
             ([(key, operator, values)]): A set expression list
     """
-    expressions: list[Union[tuple[str, str, str], tuple[str, str, str, Any]]] = []
+    expressions: list[tuple[str, str, str] | tuple[str, str, str, Any]] = []
 
     if expression_list is not None:
         if not isinstance(expression_list, list):

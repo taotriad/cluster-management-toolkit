@@ -49,7 +49,7 @@ import subprocess  # nosec
 from subprocess import PIPE, STDOUT  # nosec
 import sys
 from types import FrameType
-from typing import Any, cast, Optional, Type, Union
+from typing import Any, cast, Optional, Type
 from collections.abc import Callable
 
 try:
@@ -321,7 +321,7 @@ def gather_cluster_info(**kwargs: Any) -> None:
 
 
 def format_timestamp(timestamp: datetime,
-                     localtimezone: bool = False) -> list[Union[ThemeRef, ThemeStr]]:
+                     localtimezone: bool = False) -> list[ThemeRef | ThemeStr]:
     """
     Takes datetime and formats it as a YYYY-MM-DD HH:MM:SS themearray.
 
@@ -614,7 +614,7 @@ def generate_list_header(uip: UIProps, field_dict: dict, is_taggable: bool = Fal
             field_dict (dict): The dict containing the description of the field
             is_taggable (bool): Is the list taggable?
     """
-    headerarray: list[Union[ThemeRef, ThemeStr]] = []
+    headerarray: list[ThemeRef | ThemeStr] = []
     first = True
 
     tabstops = []
@@ -730,7 +730,7 @@ def generate_list_row(uip: UIProps, data: Type, field_dict: dict,
             tagprefixlen = len(ThemeRef("separators", "tag"))
 
             if is_tagged:
-                tagprefix: list[Union[ThemeRef, ThemeStr]] = [ThemeRef("separators", "tag")]
+                tagprefix: list[ThemeRef | ThemeStr] = [ThemeRef("separators", "tag")]
             else:
                 tagprefix = [ThemeStr("".ljust(tagprefixlen), ThemeAttr("types", "generic"))]
         else:
@@ -1112,7 +1112,7 @@ def genericlistloop(stdscr: curses.window, **kwargs: Any) -> Retval:
             if uip.statusbar is not None:
                 uip.statusbar.erase()
 
-            statusarray1: list[Union[ThemeRef, ThemeStr]] = []
+            statusarray1: list[ThemeRef | ThemeStr] = []
 
             if view != "Contexts" and selected_namespace:
                 statusarray1 += \
@@ -1134,7 +1134,7 @@ def genericlistloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                     ThemeStr("Label selector: ", ThemeAttr("statusbar", "infoheader")),
                     ThemeStr(f"{label_selector}", ThemeAttr("statusbar", "highlight"))
                 ]
-            statusarray2: list[Union[ThemeRef, ThemeStr]] = []
+            statusarray2: list[ThemeRef | ThemeStr] = []
             if read_only_mode:
                 statusarray2 += [ThemeStr("Read Only Mode", ThemeAttr("statusbar", "highlight"))]
 
@@ -1483,7 +1483,7 @@ def genericlistloop(stdscr: curses.window, **kwargs: Any) -> Retval:
 
             all_ns = "<All>"
             if selected_namespace == "":
-                preselection: Union[str, set] = all_ns
+                preselection: str | set = all_ns
             else:
                 preselection = selected_namespace
             namespace_list = [{
@@ -2465,7 +2465,7 @@ def read_file_async(*args: Any, **kwargs: Any) -> tuple[list[Any], list[StatusGr
     filetype: str = deep_get(kwargs, DictPath("filetype"), "string")
 
     status: StatusGroup = StatusGroup.OK
-    result: Union[dict, list[str]] = []
+    result: dict | list[str] = []
 
     try:
         if filetype == "string":
@@ -2608,9 +2608,9 @@ def clusteroverviewloop(stdscr: curses.window, **kwargs: Any) -> Retval:
     swaptotal = 0
 
     node_statuses: list[StatusGroup] = []
-    node_heatmap: list[list[Union[ThemeRef, ThemeStr]]] = []
+    node_heatmap: list[list[ThemeRef | ThemeStr]] = []
     pod_statuses: list[StatusGroup] = []
-    pod_heatmap: list[list[Union[ThemeRef, ThemeStr]]] = []
+    pod_heatmap: list[list[ThemeRef | ThemeStr]] = []
     events: list[dict[str, Any]] = []
 
     if not islocal:
@@ -2758,7 +2758,7 @@ def clusteroverviewloop(stdscr: curses.window, **kwargs: Any) -> Retval:
         internal_ips_array = generators.format_list(iips, fieldlen=0, pad=False)
         external_ips_array = generators.format_list(eips, fieldlen=0, pad=False)
 
-        infoarrays: list[list[Union[ThemeRef, ThemeStr]]] = [
+        infoarrays: list[list[ThemeRef | ThemeStr]] = [
             [
                 ThemeStr("Control Plane: ", ThemeAttr("main", "infoheader")),
                 ThemeStr(f"{name}", ThemeAttr("types", "generic")),
@@ -2791,7 +2791,7 @@ def clusteroverviewloop(stdscr: curses.window, **kwargs: Any) -> Retval:
         # cpu usage:
         # low-priority (bold blue) / normal (green) / kernel (red) / virtualized (cyan)
         # This is aggregate over all CPUs
-        percentagebar_cpu: list[Union[ThemeRef, ThemeStr]] = \
+        percentagebar_cpu: list[ThemeRef | ThemeStr] = \
             curses_helper.percentagebar(7, uip.infopadwidth - 10, cputimetotal, [
                 (cputimeusernice, ThemeRef("strings", "cputime_user_nice")),
                 (cputimeuser, ThemeRef("strings", "cputime_user")),
@@ -2801,7 +2801,7 @@ def clusteroverviewloop(stdscr: curses.window, **kwargs: Any) -> Retval:
 
         # memory usage:
         # used (green) / buffers (bold blue) / cache (yellow)
-        percentagebar_mem: list[Union[ThemeRef, ThemeStr]] = \
+        percentagebar_mem: list[ThemeRef | ThemeStr] = \
             curses_helper.percentagebar(7, uip.infopadwidth - 10, memtotal, [
                 (memused - memcached - buffers, ThemeRef("strings", "mem")),
                 (buffers, ThemeRef("strings", "buffers")),
@@ -2811,7 +2811,7 @@ def clusteroverviewloop(stdscr: curses.window, **kwargs: Any) -> Retval:
         # swap usage:
         # used (red)
         if swaptotal:
-            percentagebar_or_string_swap: list[Union[ThemeRef, ThemeStr]] = \
+            percentagebar_or_string_swap: list[ThemeRef | ThemeStr] = \
                 curses_helper.percentagebar(6, uip.infopadwidth - 10, swaptotal, [
                     (swapused, ThemeRef("strings", "swap_used"))])
             percentagebar_or_string_swap += [
@@ -2821,7 +2821,7 @@ def clusteroverviewloop(stdscr: curses.window, **kwargs: Any) -> Retval:
         else:
             percentagebar_or_string_swap = [ThemeStr("Disabled", ThemeAttr("types", "none"))]
 
-        tasksarrays: list[list[Union[ThemeRef, ThemeStr]]] = [
+        tasksarrays: list[list[ThemeRef | ThemeStr]] = [
             [
                 ThemeStr("Tasks: ", ThemeAttr("main", "infoheader")),
                 ThemeStr(f"{running}", ThemeAttr("types", "numerical")),
@@ -2896,12 +2896,12 @@ def clusteroverviewloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                     evlens[i] = max(evlens[i], len(val))
 
         # Draw the events over the bottom of the visible area of the listpad
-        eventarrays: list[list[Union[ThemeRef, ThemeStr]]] = [
+        eventarrays: list[list[ThemeRef | ThemeStr]] = [
             [ThemeStr("E", ThemeAttr("main", "listheader_compact_shortcut")),
              ThemeStr("vents:", ThemeAttr("main", "listheader_compact"))],
         ]
 
-        tmp2: list[Union[ThemeRef, ThemeStr]] = []
+        tmp2: list[ThemeRef | ThemeStr] = []
         for i, header in enumerate(evheaders):
             tmp2.append(ThemeStr(header.ljust(evlens[i]), ThemeAttr("main", "listheader")))
             if i < len(evheaders):
@@ -2982,7 +2982,7 @@ def clusteroverviewloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                 node_status = nodeinfo[selected_node].status
                 node_status_group = nodeinfo[selected_node].status_group
 
-            nodearrays: list[list[Union[ThemeRef, ThemeStr]]] = [
+            nodearrays: list[list[ThemeRef | ThemeStr]] = [
                 [
                     ThemeStr(f"Node ({selected_node + 1}/{len(nodeinfo)}):",
                              ThemeAttr("main", "listheader"),
@@ -3029,7 +3029,7 @@ def clusteroverviewloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                 pod_status = podinfo[selected_pod].status
                 pod_status_group = podinfo[selected_pod].status_group
 
-            podarrays: list[list[Union[ThemeRef, ThemeStr]]] = [
+            podarrays: list[list[ThemeRef | ThemeStr]] = [
                 [
                     ThemeStr(f"Pod ({selected_pod + 1}/{len(podinfo)}):",
                              ThemeAttr("main", "listheader"),
@@ -3377,7 +3377,7 @@ def cniloop(stdscr: curses.window, **kwargs: Any) -> Retval:
 
             if not _cnis:
                 cni = "<unknown>"
-                cnistr: list[Union[ThemeRef, ThemeStr]] = [
+                cnistr: list[ThemeRef | ThemeStr] = [
                     ThemeStr(f"{cni}", color_status_group(StatusGroup.UNKNOWN))
                 ]
                 cni_version = "N/A"
@@ -3420,11 +3420,11 @@ def cniloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                 ThemeStr(f"{cni_status[0]}", color_status_group(cni_status[1]))
             ]
 
-            versionarray: list[Union[ThemeRef, ThemeStr]] = [
+            versionarray: list[ThemeRef | ThemeStr] = [
                 ThemeStr("Version: ", ThemeAttr("main", "infoheader")),
             ]
             versionarray += cni_version_str
-            candidateversionarray: list[Union[ThemeRef, ThemeStr]] = [
+            candidateversionarray: list[ThemeRef | ThemeStr] = [
                 ThemeStr("Candidate version: ", ThemeAttr("main", "infoheader")),
             ]
 
@@ -3432,11 +3432,11 @@ def cniloop(stdscr: curses.window, **kwargs: Any) -> Retval:
             candidateversionarray.append(ThemeStr(f"{candidate_version}",
                                                   ThemeAttr("types", "version")))
 
-            namearray: list[Union[ThemeRef, ThemeStr]] = [
+            namearray: list[ThemeRef | ThemeStr] = [
                 ThemeStr("Container Network Interface: ", ThemeAttr("main", "infoheader")),
             ]
             namearray += cnistr
-            statusarray: list[Union[ThemeRef, ThemeStr]] = [
+            statusarray: list[ThemeRef | ThemeStr] = [
                 ThemeStr("Status: ", ThemeAttr("main", "infoheader")),
             ]
             statusarray += cni_status_str
@@ -3674,8 +3674,7 @@ def export_data(stdscr: curses.window, **kwargs: Any) -> Retval:
 
 
 # pylint: disable-next=too-many-branches,too-many-statements
-def generate_helptext(view: Union[str, tuple[str, str]], viewtype: str,
-                      **kwargs: Any) -> list[dict]:
+def generate_helptext(view: str | tuple[str, str], viewtype: str, **kwargs: Any) -> list[dict]:
     """
     Generate helptext for a view.
 
@@ -4076,11 +4075,11 @@ def genericinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
             if uip.statusbar is not None:
                 uip.statusbar.erase()
 
-            statusarray1: list[Union[ThemeRef, ThemeStr]] = [
+            statusarray1: list[ThemeRef | ThemeStr] = [
                 ThemeStr("Fields: ", ThemeAttr("statusbar", "infoheader")),
                 ThemeStr(field_index, ThemeAttr("statusbar", "highlight"))
             ]
-            statusarray2: list[Union[ThemeRef, ThemeStr]] = []
+            statusarray2: list[ThemeRef | ThemeStr] = []
 
             for status_data in deep_get(viewref, DictPath("statusmsg"), []):
                 if len(status_data) == 2:
@@ -4141,7 +4140,7 @@ def genericinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
             if uip.infopad is not None:
                 y = 0
                 if name_path is not None and name_path:
-                    fieldarray: list[Union[ThemeRef, ThemeStr]] = [
+                    fieldarray: list[ThemeRef | ThemeStr] = [
                         ThemeStr("Name:", ThemeAttr("main", "infoheader")),
                         ThemeStr(f" {deep_get(obj, DictPath(name_path))}",
                                  ThemeAttr("types", "generic"))
@@ -4367,7 +4366,7 @@ def genericinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                 if infogetter is not None:
                     tmp = infogetter(formatted_obj, **infogetter_args)
                     timestamps: list[datetime] = []
-                    facilities: list[Union[str, tuple[str, str]]] = []
+                    facilities: list[str | tuple[str, str]] = []
                     severities: list[LogLevel] = []
                     if isinstance(tmp, tuple):
                         timestamps, facilities, severities, messages = tmp
@@ -4404,7 +4403,7 @@ def genericinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
 
             tscount = 0
             for y in range(0, min(uip.logpadheight, len(messages))):
-                facility: list[Union[ThemeRef, ThemeStr]] = []
+                facility: list[ThemeRef | ThemeStr] = []
                 if uip.yoffset + y < len(facilities):
                     fac = facilities[uip.yoffset + y]
 
@@ -4454,7 +4453,7 @@ def genericinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                 else:
                     timestamp = str(timestamps[uip.yoffset + y]).ljust(uip.tspadwidth)
                     tscount += 1
-                tsthemearray: list[Union[ThemeRef, ThemeStr]] = \
+                tsthemearray: list[ThemeRef | ThemeStr] = \
                     [ThemeStr(timestamp, ThemeAttr("logview", "timestamp"))]
 
                 if uip.yoffset + y >= len(severities):
@@ -4476,7 +4475,7 @@ def genericinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                                                    color_log_severity(severity)))
                 if uip.search_matches:
                     line_match = uip.yoffset + y in uip.search_matches
-                    match_prefix: list[Union[ThemeRef, ThemeStr]] = \
+                    match_prefix: list[ThemeRef | ThemeStr] = \
                         [ThemeRef("separators", "matchbullet")]
                     if not line_match:
                         match_prefix = \
@@ -4593,7 +4592,7 @@ def genericinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                                                   DictPath("listpad#on_activation#formatter_path"))
                         on_activation_args["formatter"] = formatter
                         on_activation_args["formatter_path"] = formatter_path
-                    retval: Union[Retval, None] = None
+                    retval: Retval | None = None
                     if view == ("ConfigMap", "") and callable(uip.activatedfun):
                         retval = uip.activatedfun(uip.stdscr,
                                                   obj=deep_get(obj, DictPath(f"data#{match}"), ""),
@@ -4789,7 +4788,7 @@ def genericinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                 curses.doupdate()
                 # Check this condition before confirming
                 # FIXME: This should probably be moved to populate_views()
-                w_confirm: Union[str, bool, Callable] = \
+                w_confirm: str | bool | Callable = \
                     deep_get(sc_value, DictPath("confirm"), False)
                 if isinstance(w_confirm, str):
                     if w_confirm == "path_exists":
@@ -5075,14 +5074,14 @@ def eventdispatch(stdscr: curses.window, **kwargs: Any) -> Retval:
 
 # pylint: disable-next=too-many-arguments,too-many-positional-arguments
 def log_add_line(timestamps: list[datetime],
-                 facilities: list[Union[str, tuple[str, str]]],
+                 facilities: list[str | tuple[str, str]],
                  severities: list[LogLevel],
-                 messages: list[Union[list[Union[ThemeRef, ThemeStr]], str]],
+                 messages: list[list[ThemeRef | ThemeStr] | str],
                  timestamp: Optional[datetime], facility: str,
-                 severity: LogLevel, message: list[Union[ThemeRef, ThemeStr]],
-                 facility_extended: list[Union[ThemeRef, ThemeStr]]) \
-        -> tuple[list[datetime], list[Union[str, tuple[str, str]]], list[LogLevel],
-                 list[Union[list[Union[ThemeRef, ThemeStr]], str]]]:
+                 severity: LogLevel, message: list[ThemeRef | ThemeStr],
+                 facility_extended: list[ThemeRef | ThemeStr]) \
+        -> tuple[list[datetime], list[str | tuple[str, str]], list[LogLevel],
+                 list[list[ThemeRef | ThemeStr] | str]]:
     """
     Add a new line to the log.
 
@@ -5149,7 +5148,7 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
     multilog_containers = deep_get(kwargs, DictPath("multilog_containers"), [])
     all_same_namespace: bool = deep_get(kwargs, DictPath("all_same_namespace"), False)
     multilog_prefix: list[str] = ["namespace", "podname", "container"]
-    facility_extended: list[Union[ThemeRef, ThemeStr]] = []
+    facility_extended: list[ThemeRef | ThemeStr] = []
 
     uip: UIProps = UIProps(stdscr)
 
@@ -5307,7 +5306,7 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                     # to allow the logparser to function without guessing
                     for line in split_msg(rawmsg):
                         splitmsg.append((line, podname, containername, image_id, facility_extended))
-                splitmsg = cast(list[tuple[str, str, str, str, list[Union[ThemeRef, ThemeStr]]]],
+                splitmsg = cast(list[tuple[str, str, str, str, list[ThemeRef | ThemeStr]]],
                                 natsorted(splitmsg, key=itemgetter(0)))
 
             if not uip.continuous_log:
@@ -5319,14 +5318,14 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
             curses.doupdate()
 
             timestamps: list[datetime] = []
-            facilities: list[Union[str, tuple[str, str]]] = []
+            facilities: list[str | tuple[str, str]] = []
             severities: list[LogLevel] = []
-            messages: list[Union[list[Union[ThemeRef, ThemeStr]], str]] = []
+            messages: list[list[ThemeRef | ThemeStr] | str] = []
             parser = None
             prev_timestamp = none_timestamp()
             prev_facility: str = ""
             prev_severity: LogLevel = LogLevel.INFO
-            prev_message: list[Union[ThemeRef, ThemeStr]] = \
+            prev_message: list[ThemeRef | ThemeStr] = \
                 [ThemeStr("", ThemeAttr("types", "generic"))]
             prev_remnants: list = []
             repeat_count: int = 0
@@ -5555,11 +5554,11 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
 
                 status, status_group, restarts, status_message, _age = \
                     datagetters.get_container_status(src_statuses, containername)
-                containerarray: list[Union[ThemeRef, ThemeStr]] = [
+                containerarray: list[ThemeRef | ThemeStr] = [
                     ThemeStr("Container: ", ThemeAttr("main", "infoheader")),
                     ThemeStr(f"{containername}{containertypearray}", ThemeAttr("types", "generic"))
                 ]
-                statusarray: list[Union[ThemeRef, ThemeStr]] = [
+                statusarray: list[ThemeRef | ThemeStr] = [
                     ThemeStr("Status: ", ThemeAttr("main", "infoheader")),
                     ThemeStr(f"{status}", color_status_group(status_group))
                 ]
@@ -5567,29 +5566,29 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                     status_message_ = "\\n".join(split_msg(status_message))
                     statusarray.append(ThemeStr(f" ({status_message_})",
                                        ThemeAttr("types", "generic")))
-                restartsarray: list[Union[ThemeRef, ThemeStr]] = [
+                restartsarray: list[ThemeRef | ThemeStr] = [
                     ThemeStr("Restarts: ", ThemeAttr("main", "infoheader")),
                     ThemeStr(f"{restarts}", ThemeAttr("types", "numerical"))
                 ]
-                podarray: list[Union[ThemeRef, ThemeStr]] = [
+                podarray: list[ThemeRef | ThemeStr] = [
                     ThemeStr("Pod: ", ThemeAttr("main", "infoheader")),
                     ThemeStr(f"{pod_info.name}", ThemeAttr("types", "generic")),
                 ]
-                containeridarray: list[Union[ThemeRef, ThemeStr]] = [
+                containeridarray: list[ThemeRef | ThemeStr] = [
                     ThemeStr("Container ID: ", ThemeAttr("main", "infoheader")),
                     ThemeStr(f"{deep_get(container_status, DictPath('containerID'))}",
                              ThemeAttr("types", "generic")),
                 ]
                 image_name, image_version = \
                     get_image_tuple(deep_get(container_status, DictPath("image")))
-                imagearray: list[Union[ThemeRef, ThemeStr]] = [
+                imagearray: list[ThemeRef | ThemeStr] = [
                     ThemeStr("Image: ", ThemeAttr("main", "infoheader")),
                     ThemeStr(f"{image_name}", ThemeAttr("types", "generic")),
                     ThemeRef("separators", "version"),
                     ThemeStr(f"{image_version}", ThemeAttr("types", "version")),
                 ]
                 image_id = deep_get(container_status, DictPath("imageID"))
-                imageidarray: list[Union[ThemeRef, ThemeStr]] = [
+                imageidarray: list[ThemeRef | ThemeStr] = [
                     ThemeStr("I", ThemeAttr("main", "infoheader_shortcut")),
                     ThemeStr("mage ID: ", ThemeAttr("main", "infoheader")),
                     ThemeStr(f"{image_id}", ThemeAttr("types", "generic")),
@@ -5611,7 +5610,7 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                         ThemeStr("Pod: ", ThemeAttr("main", "infoheader")),
                         ThemeStr(f"{podname}", ThemeAttr("types", "generic")),
                     ]
-                    namespacearray: list[Union[ThemeRef, ThemeStr]] = [
+                    namespacearray: list[ThemeRef | ThemeStr] = [
                         ThemeStr("Namespace: ", ThemeAttr("main", "infoheader")),
                         ThemeStr(f"{namespace}", ThemeAttr("types", "namespace")),
                     ]
@@ -5669,7 +5668,7 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
             # We have two different widths of the statusbar
             if uip.maxx - uip.minx > 108:
                 # Wide version
-                statusarray1: list[Union[ThemeRef, ThemeStr]] = [
+                statusarray1: list[ThemeRef | ThemeStr] = [
                     ThemeStr("Updates: ", ThemeAttr("statusbar", "infoheader")),
                     ThemeStr(f"{interval}", ThemeAttr("statusbar", "highlight")),
                     ThemeRef("separators", "statusbar"),
@@ -5691,7 +5690,7 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                     ThemeStr(f"{loglimit}", ThemeAttr("statusbar", "highlight")),
                     ThemeStr(")", ThemeAttr("statusbar", "default")),
                 ]
-                statusarray2: list[Union[ThemeRef, ThemeStr]] = []
+                statusarray2: list[ThemeRef | ThemeStr] = []
                 if not fold_msg:
                     statusarray2 += [
                         ThemeStr("Unfolding messages", ThemeAttr("statusbar", "highlight")),
@@ -5804,7 +5803,7 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                 if y + yadd > uip.logpadheight:
                     continue
 
-                tsthemearray: list[Union[ThemeRef, ThemeStr]] = \
+                tsthemearray: list[ThemeRef | ThemeStr] = \
                     [ThemeStr(timestamp, ThemeAttr("logview", "timestamp"))]
 
                 if show_facility == "None" or uip.yoffset + y >= len(facilities):
@@ -5839,7 +5838,7 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                 else:
                     severity = severities[uip.yoffset + y]
 
-                msgstrarray: list[Union[ThemeRef, ThemeStr]] = []
+                msgstrarray: list[ThemeRef | ThemeStr] = []
 
                 if severity_prefix:
                     _prefix, _severity_type, _suffix = severity_prefix
@@ -5868,7 +5867,7 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                     msgstrarray += facility_extended
 
                 if facility != "":
-                    facilitystr: list[Union[ThemeRef, ThemeStr]] = [
+                    facilitystr: list[ThemeRef | ThemeStr] = [
                         ThemeRef("separators", "facility_prefix"),
                         ThemeStr(facility, ThemeAttr("logview", "facility")),
                         ThemeRef("separators", "facility_suffix"),
@@ -6292,7 +6291,7 @@ def do_command(stdscr: curses.window, **kwargs: Any) -> None:
     fallback_allowlist: list[str] = ["/bin", "/sbin", "/usr/bin", "/usr/sbin",
                                      "/usr/local/bin", "/usr/local/sbin", f"{HOMEDIR}/bin"]
 
-    _args: list[Union[str, list[str]]] = deep_get(kwargs, DictPath("command"), [])
+    _args: list[str | list[str]] = deep_get(kwargs, DictPath("command"), [])
     input_path: str = deep_get(kwargs, DictPath("input_path"))
 
     if not _args:
@@ -6623,7 +6622,7 @@ def resourceinfodispatch(stdscr: curses.window, **kwargs: Any) -> Retval:
             (Retval): Retval.NOMATCH if no match was found or a container had invalid status,
                       otherwise Retval from the involved object whenever that returns.
     """
-    kind: Union[str, tuple[str, str]] = deep_get(kwargs, DictPath("kind"), ("", ""))
+    kind: str | tuple[str, str] = deep_get(kwargs, DictPath("kind"), ("", ""))
     obj: dict = deep_get(kwargs, DictPath("obj"))
     info = deep_get(kwargs, DictPath("info"))
 
@@ -9926,7 +9925,7 @@ def populate_views(refresh_apis: str = "none") -> None:
                     _header = deep_get(infopad_rows,
                                        DictPath(f"{row}#header"),
                                        [["<unset>", ["types", "unset"]]])
-                    header: list[Union[ThemeRef, ThemeStr]] = []
+                    header: list[ThemeRef | ThemeStr] = []
                     try:
                         for string, formatting in _header:
                             header.append(ThemeStr(string,
@@ -10448,7 +10447,7 @@ def list_views(options: list[tuple[str, str]], args: list[str]) -> None:
                                  "of the field names.", "default")])
 
 
-def checkforview(arg: Union[str, tuple[str, str]]) -> Optional[str]:
+def checkforview(arg: str | tuple[str, str]) -> Optional[str]:
     """
     Check whether a view exists.
 

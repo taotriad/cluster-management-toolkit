@@ -16,7 +16,7 @@ import errno
 from pathlib import Path, PurePath
 import re
 import sys
-from typing import Any, cast, Optional, Union
+from typing import Any, cast, Optional
 from collections.abc import Sequence
 
 from clustermanagementtoolkit import cmtlib
@@ -69,7 +69,7 @@ except ModuleNotFoundError:  # pragma: no cover
              "you may need to (re-)run `cmt-install` or `pip3 install ansible-runner`; aborting.")
 
 
-def get_playbook_path(playbook: Union[FilePath, str]) -> FilePath:
+def get_playbook_path(playbook: FilePath | str) -> FilePath:
     """
     Pass in the name of a playbook that exists in either
     {SYSTEM_PLAYBOOK_DIR} or {ANSIBLE_PLAYBOOK_DIR};
@@ -274,14 +274,14 @@ def ansible_print_action_summary(playbooks: list[tuple[list[ANSIThemeStr], FileP
                 ansithemeprint([ANSIThemeStr(f"        {description}", "default")])
 
 
-def ansible_get_inventory_dict() -> Union[dict[str, Any], ruyaml.comments.CommentedMap]:
+def ansible_get_inventory_dict() -> dict[str, Any] | ruyaml.comments.CommentedMap:
     """
         Get the Ansible inventory and return it as a dict.
 
         Returns:
             (dict): A dictionary with an Ansible inventory
     """
-    d: Union[dict[str, Any], ruyaml.comments.CommentedMap] = {
+    d: dict[str, Any] | ruyaml.comments.CommentedMap = {
         "all": {
             "hosts": {},
             "vars": {},
@@ -303,7 +303,7 @@ def ansible_get_inventory_dict() -> Union[dict[str, Any], ruyaml.comments.Commen
 
 
 # pylint: disable-next=too-many-locals,too-many-branches,too-many-statements
-def ansible_get_inventory_pretty(**kwargs: Any) -> list[Union[list[ANSIThemeStr], str]]:
+def ansible_get_inventory_pretty(**kwargs: Any) -> list[list[ANSIThemeStr] | str]:
     """
         Get the Ansible inventory and return it neatly formatted.
 
@@ -324,7 +324,7 @@ def ansible_get_inventory_pretty(**kwargs: Any) -> list[Union[list[ANSIThemeStr]
     include_hostvars: bool = deep_get(kwargs, DictPath("include_hostvars"), False)
     include_hosts: bool = deep_get(kwargs, DictPath("include_hosts"), True)
 
-    tmp: Union[dict[str, Any], ruyaml.comments.CommentedMap] = {}
+    tmp: dict[str, Any] | ruyaml.comments.CommentedMap = {}
 
     if not Path(ANSIBLE_INVENTORY).is_file():
         return []
@@ -378,7 +378,7 @@ def ansible_get_inventory_pretty(**kwargs: Any) -> list[Union[list[ANSIThemeStr]
 
     tmp_dump = ruyaml_dump_to_string(tmp, replace_null=True, replace_empty=True,
                                      replace_empty_dict=True)
-    dump: list[Union[list[ANSIThemeStr], str]] = []
+    dump: list[list[ANSIThemeStr] | str] = []
 
     if highlight and tmp_dump:
         list_regex = re.compile(r"^(\s*)((- )+)(.*)")
@@ -640,7 +640,7 @@ def ansible_set_vars(inventory: FilePath, group: str, values: dict, **kwargs: An
 
 def ansible_set_groupvars(inventory: FilePath,
                           groups: list[str],
-                          groupvars: Sequence[tuple[str, Union[str, int]]], **kwargs: Any) -> bool:
+                          groupvars: Sequence[tuple[str, str | int]], **kwargs: Any) -> bool:
     """
     Set one or several vars for the specified groups.
 
@@ -697,7 +697,7 @@ def ansible_set_groupvars(inventory: FilePath,
 # Set one or several vars for hosts in the group all
 def ansible_set_hostvars(inventory: FilePath,
                          hosts: list[str],
-                         hostvars: Sequence[tuple[str, Union[str, int]]], **kwargs: Any) -> bool:
+                         hostvars: Sequence[tuple[str, str | int]], **kwargs: Any) -> bool:
     """
     Set one or several vars for the specified hosts.
 
@@ -899,7 +899,7 @@ def ansible_add_hosts(inventory: FilePath, hosts: list[str], **kwargs: Any) -> b
                           "skip_all": skip_all,
                           "temporary": temporary})
 
-    d: Union[dict[str, Any], ruyaml.comments.CommentedMap] = {}
+    d: dict[str, Any] | ruyaml.comments.CommentedMap = {}
 
     tmp_d: Any = None
 
@@ -1031,7 +1031,7 @@ def ansible_remove_groups(inventory: FilePath, groups: list[str], **kwargs: Any)
     if not Path(inventory).is_file():
         return False
 
-    d: Union[dict[str, Any], ruyaml.comments.CommentedMap] = {}
+    d: dict[str, Any] | ruyaml.comments.CommentedMap = {}
     tmp_d: Any = secure_read_yaml(inventory, temporary=temporary)
     if isinstance(tmp_d, (dict, ruyaml.comments.CommentedMap)):
         d = tmp_d
@@ -1620,7 +1620,7 @@ def ansible_run_playbook(playbook: FilePath, **kwargs: Any) -> tuple[int, dict]:
 
     ansible_results: dict = {}
 
-    inventories: Union[dict, list[FilePath]] = []
+    inventories: dict | list[FilePath] = []
 
     if inventory is None:
         inventories = [ANSIBLE_INVENTORY]

@@ -14,7 +14,7 @@ import concurrent.futures
 from datetime import datetime
 import sys
 import threading
-from typing import Any, Optional, Union
+from typing import Any, Optional
 from collections.abc import Callable
 
 
@@ -113,7 +113,7 @@ class ReExecutor:
             return self.futures[key]["args"], self.futures[key]["kwargs"]
         return [], {}
 
-    def get(self, key: str) -> tuple[Union[dict[str, Any], list[Any]], list[Any]]:
+    def get(self, key: str) -> tuple[dict[str, Any] | list[Any], list[Any]]:
         """
         Check if there's available data from a callable; if there is, return it.
 

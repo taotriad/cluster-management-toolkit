@@ -27,7 +27,7 @@ except ModuleNotFoundError:
     DecodeException = json.decoder.JSONDecodeError  # type: ignore
 import re
 import sys
-from typing import Any, Optional, Union
+from typing import Any, Optional
 from collections.abc import Callable
 try:
     import yaml
@@ -85,8 +85,7 @@ def __str_representer(dumper: yaml.Dumper, data: Any) -> yaml.Node:
 
 
 # pylint: disable-next=too-many-locals,too-many-branches,too-many-statements
-def format_markdown(lines: Union[str, list[str]], **kwargs: Any) -> \
-        list[list[Union[ThemeRef, ThemeStr]]]:
+def format_markdown(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef | ThemeStr]]:
     """
     Markdown formatter; returns the text with syntax highlighting for a subset of Markdown.
 
@@ -112,7 +111,7 @@ def format_markdown(lines: Union[str, list[str]], **kwargs: Any) -> \
         (False, True, True): ThemeAttr("types", "markdown_bold_italics"),
     }
 
-    dumps: list[list[Union[ThemeRef, ThemeStr]]] = []
+    dumps: list[list[ThemeRef | ThemeStr]] = []
     start = deep_get(kwargs, DictPath("start"), None)
     include_start = deep_get(kwargs, DictPath("include_start"), False)
     strip_empty_start = deep_get(kwargs, DictPath("strip_empty_start"), False)
@@ -125,7 +124,7 @@ def format_markdown(lines: Union[str, list[str]], **kwargs: Any) -> \
         lines = re.sub(r"<!--.*?-->", r"", lines, flags=re.DOTALL)
         lines = split_msg(lines)
 
-    emptylines: list[Union[ThemeRef, ThemeStr]] = []
+    emptylines: list[ThemeRef | ThemeStr] = []
     started = False
     codeblock = ""
 
@@ -179,7 +178,7 @@ def format_markdown(lines: Union[str, list[str]], **kwargs: Any) -> \
             tformat = ThemeAttr("types", "markdown_header_3")
             line = line.removeprefix("### ")
         else:
-            tmpline: list[Union[ThemeRef, ThemeStr]] = []
+            tmpline: list[ThemeRef | ThemeStr] = []
             if line.startswith("    ") and not codeblock:
                 tformat = ThemeAttr("types", "markdown_code")
                 codeblock = "    "
@@ -244,7 +243,7 @@ def format_markdown(lines: Union[str, list[str]], **kwargs: Any) -> \
 
 
 # pylint: disable-next=unused-argument
-def format_binary(lines: bytes, **kwargs: Any) -> list[list[Union[ThemeRef, ThemeStr]]]:
+def format_binary(lines: bytes, **kwargs: Any) -> list[list[ThemeRef | ThemeStr]]:
     """
     Binary "formatter"; Just returns a message saying that binary views cannot be viewed.
 
@@ -258,8 +257,7 @@ def format_binary(lines: bytes, **kwargs: Any) -> list[list[Union[ThemeRef, Them
 
 
 # pylint: disable=unused-argument
-def format_none(lines: Union[str, list[str]], **kwargs: Any) -> \
-        list[list[Union[ThemeRef, ThemeStr]]]:
+def format_none(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef | ThemeStr]]:
     """
     Noop formatter; returns the text without syntax highlighting.
 
@@ -271,7 +269,7 @@ def format_none(lines: Union[str, list[str]], **kwargs: Any) -> \
         Returns:
             ([themearray]): A list of themearrays
     """
-    dumps: list[list[Union[ThemeRef, ThemeStr]]] = []
+    dumps: list[list[ThemeRef | ThemeStr]] = []
 
     if isinstance(lines, str):
         lines = split_msg(lines)
@@ -281,7 +279,7 @@ def format_none(lines: Union[str, list[str]], **kwargs: Any) -> \
     return dumps
 
 
-def format_ansible_line(line: str, **kwargs: Any) -> list[Union[ThemeRef, ThemeStr]]:
+def format_ansible_line(line: str, **kwargs: Any) -> list[ThemeRef | ThemeStr]:
     """
     Formats a single line of an Ansible play.
 
@@ -294,7 +292,7 @@ def format_ansible_line(line: str, **kwargs: Any) -> list[Union[ThemeRef, ThemeS
     """
     override_formatting: dict[str, ThemeAttr] = \
         deep_get(kwargs, DictPath("override_formatting"), {})
-    tmpline: list[Union[ThemeRef, ThemeStr]] = []
+    tmpline: list[ThemeRef | ThemeStr] = []
     formatting: ThemeAttr = ThemeAttr("types", "generic")
     if (tmp := deep_get(override_formatting, DictPath("__all"))) is not None:
         formatting = tmp
@@ -305,7 +303,7 @@ def format_ansible_line(line: str, **kwargs: Any) -> list[Union[ThemeRef, ThemeS
     return tmpline
 
 
-def format_diff_line(line: str, **kwargs: Any) -> list[Union[ThemeRef, ThemeStr]]:
+def format_diff_line(line: str, **kwargs: Any) -> list[ThemeRef | ThemeStr]:
     """
     Formats a single line of a diff.
 
@@ -321,7 +319,7 @@ def format_diff_line(line: str, **kwargs: Any) -> list[Union[ThemeRef, ThemeStr]
     indent: str = deep_get(kwargs, DictPath("indent"), "")
     diffspace: str = deep_get(kwargs, DictPath("diffspace"), " ")
 
-    tmpline: list[Union[ThemeRef, ThemeStr]] = []
+    tmpline: list[ThemeRef | ThemeStr] = []
 
     # Override all formatting?
     if (tmp := deep_get(override_formatting, DictPath("__all"))) is not None:
@@ -364,8 +362,8 @@ def format_diff_line(line: str, **kwargs: Any) -> list[Union[ThemeRef, ThemeStr]
 
 
 # pylint: disable-next=too-many-locals,too-many-branches,too-many-statements
-def format_yaml_line(line: str, **kwargs: Any) -> tuple[list[Union[ThemeRef, ThemeStr]],
-                                                        list[list[Union[ThemeRef, ThemeStr]]]]:
+def format_yaml_line(line: str, **kwargs: Any) -> tuple[list[ThemeRef | ThemeStr],
+                                                        list[list[ThemeRef | ThemeStr]]]:
     """
     Formats a single line of YAML.
 
@@ -384,7 +382,7 @@ def format_yaml_line(line: str, **kwargs: Any) -> tuple[list[Union[ThemeRef, The
     expand_newline_fields: tuple[str] = deep_get(kwargs, DictPath("expand_newline_fields"), ())
     value_strip_ansicodes: bool = deep_get(kwargs, DictPath("value_strip_ansicodes"), True)
     value_expand_tabs: bool = deep_get(kwargs, DictPath("value_expand_tabs"), False)
-    remnants: list[list[Union[ThemeRef, ThemeStr]]] = []
+    remnants: list[list[ThemeRef | ThemeStr]] = []
 
     if not isinstance(override_formatting, dict):
         raise TypeError("override_formatting should be of type(dict)")
@@ -397,7 +395,7 @@ def format_yaml_line(line: str, **kwargs: Any) -> tuple[list[Union[ThemeRef, The
     comment_format = ThemeAttr("types", "yaml_comment")
     key_format = ThemeAttr("types", "yaml_key")
     value_format = ThemeAttr("types", "yaml_value")
-    list_format: Union[ThemeRef, ThemeStr] = ThemeRef("separators", "yaml_list")
+    list_format: ThemeRef | ThemeStr = ThemeRef("separators", "yaml_list")
     separator_format = ThemeAttr("types", "yaml_key_separator")
     reference_format = ThemeAttr("types", "yaml_reference")
     anchor_format = ThemeAttr("types", "yaml_anchor")
@@ -406,7 +404,7 @@ def format_yaml_line(line: str, **kwargs: Any) -> tuple[list[Union[ThemeRef, The
         # We just return the line unformatted
         return [ThemeStr(line, tmp)], []
 
-    tmpline: list[Union[ThemeRef, ThemeStr]] = []
+    tmpline: list[ThemeRef | ThemeStr] = []
 
     # [whitespace]-<whitespace><value>
     yaml_list_regex: re.Pattern[str] = re.compile(r"^(\s*)- (.*)")
@@ -543,8 +541,8 @@ def format_yaml_line(line: str, **kwargs: Any) -> tuple[list[Union[ThemeRef, The
 
 
 # pylint: disable-next=too-many-branches,too-many-locals,too-many-statements
-def format_yaml(lines: Union[str, list[str], dict, list[dict]], **kwargs: Any) -> \
-        list[list[Union[ThemeRef, ThemeStr]]]:
+def format_yaml(lines: str | list[str] | dict | list[dict], **kwargs: Any) -> \
+        list[list[ThemeRef | ThemeStr]]:
     """
     YAML formatter; returns the text with syntax highlighting for YAML.
 
@@ -556,7 +554,7 @@ def format_yaml(lines: Union[str, list[str], dict, list[dict]], **kwargs: Any) -
         Returns:
             ([themearray]): A list of themearrays
     """
-    dumps: list[list[Union[ThemeRef, ThemeStr]]] = []
+    dumps: list[list[ThemeRef | ThemeStr]] = []
     indent: int = deep_get(cmtlib.cmtconfig, DictPath("Global#indent"), 2)
     is_json: bool = deep_get(kwargs, DictPath("json"), False)
     unfold_msg: bool = deep_get(kwargs, DictPath("unfold_msg"), False)
@@ -614,8 +612,8 @@ def format_yaml(lines: Union[str, list[str], dict, list[dict]], **kwargs: Any) -
                 continue
 
             kwargs["override_formatting"] = override_formatting
-            tmpline: list[Union[ThemeRef, ThemeStr]] = []
-            remnants: list[list[Union[ThemeRef, ThemeStr]]] = []
+            tmpline: list[ThemeRef | ThemeStr] = []
+            remnants: list[list[ThemeRef | ThemeStr]] = []
             tmpline, remnants = format_yaml_line(line, **kwargs)
             if truncated:
                 tmpline += [ThemeStr(" [...] (Truncated)",
@@ -632,8 +630,7 @@ def format_yaml(lines: Union[str, list[str], dict, list[dict]], **kwargs: Any) -
     return dumps
 
 
-def reformat_json(lines: Union[str, list[str]], **kwargs: Any) -> \
-        list[list[Union[ThemeRef, ThemeStr]]]:
+def reformat_json(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef | ThemeStr]]:
     """
     Given a string representation of JSON, reformat it.
 
@@ -673,8 +670,7 @@ KEY_HEADERS: tuple[str, ...] = (
 
 
 # pylint: disable=unused-argument
-def format_cel(lines: Union[str, list[str]], **kwargs: Any) -> \
-        list[list[Union[ThemeRef, ThemeStr]]]:
+def format_cel(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef | ThemeStr]]:
     """
     CEL formatter; returns the text with syntax highlighting for Common Expression Language.
 
@@ -686,7 +682,7 @@ def format_cel(lines: Union[str, list[str]], **kwargs: Any) -> \
         Returns:
             ([themearray]): A list of themearrays
     """
-    dumps: list[list[Union[ThemeRef, ThemeStr]]] = []
+    dumps: list[list[ThemeRef | ThemeStr]] = []
 
     if isinstance(lines, str):
         lines = split_msg(lines.strip())
@@ -696,8 +692,7 @@ def format_cel(lines: Union[str, list[str]], **kwargs: Any) -> \
     return dumps
 
 
-def format_crt(lines: Union[str, list[str]], **kwargs: Any) -> \
-        list[list[Union[ThemeRef, ThemeStr]]]:
+def format_crt(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef | ThemeStr]]:
     """
     CRT formatter; returns the text with syntax highlighting for certificates.
 
@@ -709,7 +704,7 @@ def format_crt(lines: Union[str, list[str]], **kwargs: Any) -> \
         Returns:
             list[themearray]: A list of themearrays
     """
-    dumps: list[list[Union[ThemeRef, ThemeStr]]] = []
+    dumps: list[list[ThemeRef | ThemeStr]] = []
 
     if deep_get(kwargs, DictPath("raw"), False):
         return format_none(lines)
@@ -725,8 +720,7 @@ def format_crt(lines: Union[str, list[str]], **kwargs: Any) -> \
     return dumps
 
 
-def format_haproxy(lines: Union[str, list[str]], **kwargs: Any) -> \
-        list[list[Union[ThemeRef, ThemeStr]]]:
+def format_haproxy(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef | ThemeStr]]:
     """
     HAProxy formatter; returns the text with syntax highlighting for HAProxy.
 
@@ -738,7 +732,7 @@ def format_haproxy(lines: Union[str, list[str]], **kwargs: Any) -> \
         Returns:
             list[themearray]: A list of themearrays
     """
-    dumps: list[list[Union[ThemeRef, ThemeStr]]] = []
+    dumps: list[list[ThemeRef | ThemeStr]] = []
 
     if isinstance(lines, str):
         lines = split_msg(lines)
@@ -764,7 +758,7 @@ def format_haproxy(lines: Union[str, list[str]], **kwargs: Any) -> \
             section = tmp[2]
             whitespace2 = tmp[3]
             label = tmp[4]
-            tmpline: list[Union[ThemeRef, ThemeStr]] = [
+            tmpline: list[ThemeRef | ThemeStr] = [
                 ThemeStr(whitespace1, ThemeAttr("types", "generic")),
                 ThemeStr(section, ThemeAttr("types", "haproxy_section")),
                 ThemeStr(whitespace2, ThemeAttr("types", "generic")),
@@ -796,8 +790,7 @@ def format_haproxy(lines: Union[str, list[str]], **kwargs: Any) -> \
 
 
 # pylint: disable-next=too-many-locals,too-many-branches,too-many-statements
-def format_caddyfile(lines: Union[str, list[str]], **kwargs: Any) -> \
-        list[list[Union[ThemeRef, ThemeStr]]]:
+def format_caddyfile(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef | ThemeStr]]:
     """
     CaddyFile formatter; returns the text with syntax highlighting for CaddyFiles.
 
@@ -809,7 +802,7 @@ def format_caddyfile(lines: Union[str, list[str]], **kwargs: Any) -> \
         Returns:
             list[themearray]: A list of themearrays
     """
-    dumps: list[list[Union[ThemeRef, ThemeStr]]] = []
+    dumps: list[list[ThemeRef | ThemeStr]] = []
 
     if deep_get(kwargs, DictPath("raw"), False):
         return format_none(lines)
@@ -829,7 +822,7 @@ def format_caddyfile(lines: Union[str, list[str]], **kwargs: Any) -> \
     argument_regex: re.Pattern[str] = re.compile(r"^(.*?)(\s{\s*$|$)")
 
     for line in lines:
-        tmpline: list[Union[ThemeRef, ThemeStr]] = []
+        tmpline: list[ThemeRef | ThemeStr] = []
 
         # Empty line
         if not line and not tmpline:
@@ -951,8 +944,7 @@ def format_caddyfile(lines: Union[str, list[str]], **kwargs: Any) -> \
     return dumps
 
 
-def format_mosquitto(lines: Union[str, list[str]], **kwargs: Any) -> \
-        list[list[Union[ThemeRef, ThemeStr]]]:
+def format_mosquitto(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef | ThemeStr]]:
     """
     Mosquitto formatter; returns the text with syntax highlighting for Mosquitto.
 
@@ -964,7 +956,7 @@ def format_mosquitto(lines: Union[str, list[str]], **kwargs: Any) -> \
         Returns:
             list[themearray]: A list of themearrays
     """
-    dumps: list[list[Union[ThemeRef, ThemeStr]]] = []
+    dumps: list[list[ThemeRef | ThemeStr]] = []
 
     if isinstance(lines, str):
         lines = split_msg(lines)
@@ -991,7 +983,7 @@ def format_mosquitto(lines: Union[str, list[str]], **kwargs: Any) -> \
             variable = tmp[1]
             whitespace = tmp[2]
             value = tmp[3]
-            tmpline: list[Union[ThemeRef, ThemeStr]] = [
+            tmpline: list[ThemeRef | ThemeStr] = [
                 ThemeStr(variable, ThemeAttr("types", "mosquitto_variable")),
                 ThemeStr(whitespace, ThemeAttr("types", "generic")),
                 ThemeStr(value, ThemeAttr("types", "generic")),
@@ -1006,8 +998,7 @@ def format_mosquitto(lines: Union[str, list[str]], **kwargs: Any) -> \
 
 
 # pylint: disable-next=too-many-branches
-def format_nginx(lines: Union[str, list[str]], **kwargs: Any) -> \
-        list[list[Union[ThemeRef, ThemeStr]]]:
+def format_nginx(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef | ThemeStr]]:
     """
     NGINX formatter; returns the text with syntax highlighting for NGINX.
 
@@ -1019,7 +1010,7 @@ def format_nginx(lines: Union[str, list[str]], **kwargs: Any) -> \
         Returns:
             list[themearray]: A list of themearrays
     """
-    dumps: list[list[Union[ThemeRef, ThemeStr]]] = []
+    dumps: list[list[ThemeRef | ThemeStr]] = []
 
     if deep_get(kwargs, DictPath("raw"), False):
         return format_none(lines)
@@ -1030,7 +1021,7 @@ def format_nginx(lines: Union[str, list[str]], **kwargs: Any) -> \
     key_regex: re.Pattern[str] = re.compile(r"^(\s*)(#.*$|}|\S+|$)(.+;|.+{|)(\s*#.*$|)")
 
     for line in lines:
-        dump: list[Union[ThemeRef, ThemeStr]] = []
+        dump: list[ThemeRef | ThemeStr] = []
         if not line.strip():
             if not dump:
                 dump += [
@@ -1078,8 +1069,7 @@ def format_nginx(lines: Union[str, list[str]], **kwargs: Any) -> \
 
 
 # pylint: disable-next=too-many-locals,too-many-branches,too-many-statements
-def format_xml(lines: Union[str, list[str]], **kwargs: Any) -> \
-        list[list[Union[ThemeRef, ThemeStr]]]:
+def format_xml(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef | ThemeStr]]:
     """
     XML formatter; returns the text with syntax highlighting for XML.
 
@@ -1091,7 +1081,7 @@ def format_xml(lines: Union[str, list[str]], **kwargs: Any) -> \
         Returns:
             list[themearray]: A list of themearrays
     """
-    dumps: list[list[Union[ThemeRef, ThemeStr]]] = []
+    dumps: list[list[ThemeRef | ThemeStr]] = []
 
     tag_open = False
     tag_named = False
@@ -1115,7 +1105,7 @@ def format_xml(lines: Union[str, list[str]], **kwargs: Any) -> \
 
     # pylint: disable-next=too-many-nested-blocks
     for line in lines:
-        tmpline: list[Union[ThemeRef, ThemeStr]] = []
+        tmpline: list[ThemeRef | ThemeStr] = []
 
         # Empty line
         if not line and not tmpline:
@@ -1269,8 +1259,8 @@ def format_xml(lines: Union[str, list[str]], **kwargs: Any) -> \
     return dumps
 
 
-def format_python_traceback(lines: Union[str, list[str]],
-                            **kwargs: Any) -> list[list[Union[ThemeRef, ThemeStr]]]:
+def format_python_traceback(lines: str | list[str],
+                            **kwargs: Any) -> list[list[ThemeRef | ThemeStr]]:
     """
     Python Traceback formatter; returns the text with syntax highlighting for Python Tracebacks.
 
@@ -1282,7 +1272,7 @@ def format_python_traceback(lines: Union[str, list[str]],
         Returns:
             list[themearray]: A list of themearrays
     """
-    dumps: list[list[Union[ThemeRef, ThemeStr]]] = []
+    dumps: list[list[ThemeRef | ThemeStr]] = []
 
     if isinstance(lines, str):
         lines = split_msg(lines)
@@ -1323,8 +1313,7 @@ def format_python_traceback(lines: Union[str, list[str]],
 
 
 # pylint: disable-next=too-many-branches
-def format_toml(lines: Union[str, list[str]], **kwargs: Any) -> \
-        list[list[Union[ThemeRef, ThemeStr]]]:
+def format_toml(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef | ThemeStr]]:
     """
     TOML formatter; returns the text with syntax highlighting for TOML.
 
@@ -1343,7 +1332,7 @@ def format_toml(lines: Union[str, list[str]], **kwargs: Any) -> \
     # * Handle quoting and escaping of quotes; \''' should not end a multiline, for instance.
     # * XXX: should we highlight key=value for inline tables? Probably not
     # * XXX: should we highlight different types (integer, string, etc.)? Almost certainly not.
-    dumps: list[list[Union[ThemeRef, ThemeStr]]] = []
+    dumps: list[list[ThemeRef | ThemeStr]] = []
 
     multiline_basic = False
     multiline_literal = False
@@ -1357,7 +1346,7 @@ def format_toml(lines: Union[str, list[str]], **kwargs: Any) -> \
     key_value_regex: re.Pattern[str] = re.compile(r"^(\s*)(\S+)(\s*=\s*)(\S+)")
     comment_end_regex: re.Pattern[str] = re.compile(r"^(.*)(#.*)")
 
-    tmpline: list[Union[ThemeRef, ThemeStr]] = []
+    tmpline: list[ThemeRef | ThemeStr] = []
 
     for line in lines:
         if not line:
@@ -1422,8 +1411,7 @@ def format_toml(lines: Union[str, list[str]], **kwargs: Any) -> \
     return dumps
 
 
-def format_fluentbit(lines: Union[str, list[str]], **kwargs: Any) -> \
-        list[list[Union[ThemeRef, ThemeStr]]]:
+def format_fluentbit(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef | ThemeStr]]:
     """
     FluentBit formatter; returns the text with syntax highlighting for FluentBit.
 
@@ -1435,7 +1423,7 @@ def format_fluentbit(lines: Union[str, list[str]], **kwargs: Any) -> \
         Returns:
             list[themearray]: A list of themearrays
     """
-    dumps: list[list[Union[ThemeRef, ThemeStr]]] = []
+    dumps: list[list[ThemeRef | ThemeStr]] = []
 
     if deep_get(kwargs, DictPath("raw"), False):
         return format_none(lines)
@@ -1446,7 +1434,7 @@ def format_fluentbit(lines: Union[str, list[str]], **kwargs: Any) -> \
     key_value_regex: re.Pattern[str] = re.compile(r"^(\s*)(\S*)(\s*)(.*)")
 
     for line in lines:
-        tmpline: list[Union[ThemeRef, ThemeStr]] = []
+        tmpline: list[ThemeRef | ThemeStr] = []
 
         if line.lstrip().startswith("#"):
             tmpline = [
@@ -1479,8 +1467,7 @@ def format_fluentbit(lines: Union[str, list[str]], **kwargs: Any) -> \
     return dumps
 
 
-def format_ini(lines: Union[str, list[str]], **kwargs: Any) -> \
-        list[list[Union[ThemeRef, ThemeStr]]]:
+def format_ini(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef | ThemeStr]]:
     """
     INI formatter; returns the text with syntax highlighting for INI.
 
@@ -1492,7 +1479,7 @@ def format_ini(lines: Union[str, list[str]], **kwargs: Any) -> \
         Returns:
             list[themearray]: A list of themearrays
     """
-    dumps: list[list[Union[ThemeRef, ThemeStr]]] = []
+    dumps: list[list[ThemeRef | ThemeStr]] = []
 
     if deep_get(kwargs, DictPath("raw"), False):
         return format_none(lines)
@@ -1503,7 +1490,7 @@ def format_ini(lines: Union[str, list[str]], **kwargs: Any) -> \
     key_value_regex: re.Pattern[str] = re.compile(r"^(\s*)(\S+)(\s*=\s*)(\S+)")
 
     for line in lines:
-        tmpline: list[Union[ThemeRef, ThemeStr]] = []
+        tmpline: list[ThemeRef | ThemeStr] = []
         if line.lstrip().startswith(("#", ";")):
             tmpline = [
                 ThemeStr(line, ThemeAttr("types", "ini_comment")),
@@ -1536,8 +1523,7 @@ def format_ini(lines: Union[str, list[str]], **kwargs: Any) -> \
     return dumps
 
 
-def format_known_hosts(lines: Union[str, list[str]], **kwargs: Any) -> \
-        list[list[Union[ThemeRef, ThemeStr]]]:
+def format_known_hosts(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef | ThemeStr]]:
     """
     known_hosts formatter; returns the text with syntax highlighting for .ssh/known_hosts.
 
@@ -1549,7 +1535,7 @@ def format_known_hosts(lines: Union[str, list[str]], **kwargs: Any) -> \
         Returns:
             list[themearray]: A list of themearrays
     """
-    dumps: list[list[Union[ThemeRef, ThemeStr]]] = []
+    dumps: list[list[ThemeRef | ThemeStr]] = []
 
     if deep_get(kwargs, DictPath("raw"), False):
         return format_none(lines)
@@ -1560,7 +1546,7 @@ def format_known_hosts(lines: Union[str, list[str]], **kwargs: Any) -> \
     host_keytype_key_regex: re.Pattern[str] = re.compile(r"^(\S+)(\s+)(\S+)(\s+)(\S+)")
 
     for line in lines:
-        tmpline: list[Union[ThemeRef, ThemeStr]] = []
+        tmpline: list[ThemeRef | ThemeStr] = []
         if line.lstrip().startswith(("#", ";")):
             tmpline = [
                 ThemeStr(line, ThemeAttr("types", "known_hosts_comment")),
@@ -1611,8 +1597,7 @@ formatter_mapping: tuple[tuple[tuple[str, ...], tuple[str, ...], Callable], ...]
 )
 
 
-def map_dataformat(dataformat: str) -> Callable[[Union[str, list[str]]],
-                                                list[list[Union[ThemeRef, ThemeStr]]]]:
+def map_dataformat(dataformat: str) -> Callable[[str | list[str]], list[list[ThemeRef | ThemeStr]]]:
     """
     Identify what formatter to use, based either on a file ending or an explicit dataformat tag.
 

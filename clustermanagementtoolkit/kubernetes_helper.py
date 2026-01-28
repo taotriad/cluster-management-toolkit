@@ -32,7 +32,7 @@ import ssl
 import sys
 import tempfile
 import threading
-from typing import Any, cast, Optional, Union
+from typing import Any, cast, Optional
 try:
     import yaml
 except ModuleNotFoundError:  # pragma: no cover
@@ -95,7 +95,7 @@ CIPHERS = [
 renew_lock = threading.Lock()
 
 
-def get_pod_restarts_total(pod: dict[str, Any]) -> tuple[int, Union[int, datetime]]:
+def get_pod_restarts_total(pod: dict[str, Any]) -> tuple[int, int | datetime]:
     """
     Given a Pod object, return the total number of restarts for all containers
     as well as the timestamp of the latest restart.
@@ -109,7 +109,7 @@ def get_pod_restarts_total(pod: dict[str, Any]) -> tuple[int, Union[int, datetim
                         or -1 if number of restarts = 0
     """
     restarts: int = 0
-    restarted_at: Union[int, datetime] = -1
+    restarted_at: int | datetime = -1
 
     # for status in deep_get(pod, DictPath("status#initContainerStatuses"), []) \
     #               + deep_get(pod, DictPath("status#containerStatuses"), []):
@@ -419,14 +419,14 @@ class PoolManagerContext:
     def __init__(self, cert_file: Optional[str] = None, key_file: Optional[str] = None,
                  ca_certs_file: Optional[str] = None, token: Optional[str] = None,
                  insecuretlsskipverify: bool = False) -> None:
-        self.pool_manager: Optional[Union[urllib3.ProxyManager, urllib3.PoolManager]] = None
+        self.pool_manager: Optional[urllib3.ProxyManager | urllib3.PoolManager] = None
         self.cert_file = cert_file
         self.key_file = key_file
         self.ca_certs_file = ca_certs_file
         self.token = token
         self.insecuretlsskipverify = insecuretlsskipverify
 
-    def __enter__(self) -> Union[urllib3.ProxyManager, urllib3.PoolManager]:
+    def __enter__(self) -> urllib3.ProxyManager | urllib3.PoolManager:
         # Only permit a limited set of acceptable ciphers
         ssl_context = urllib3.util.ssl_.create_urllib3_context(ciphers=":".join(CIPHERS))
         # Disable anything older than TLSv1.2
@@ -504,7 +504,7 @@ def kind_tuple_to_name(kind: tuple[str, str]) -> str:
 
 
 # pylint: disable-next=too-many-branches,too-many-return-statements
-def guess_kind(kind: Union[str, tuple[str, str]]) -> tuple[str, str]:
+def guess_kind(kind: str | tuple[str, str]) -> tuple[str, str]:
     """
     Given a Kind without API-group, or (API-name, API-group)
     return the (Kind, API-group) tuple.
@@ -2192,8 +2192,8 @@ class KubernetesHelper:
 
     # pylint: disable-next=too-many-locals,too-many-branches,too-many-statements
     def __rest_helper_generic_json(self, *,
-                                   pool_manager: Union[urllib3.PoolManager, urllib3.ProxyManager],
-                                   **kwargs: Any) -> tuple[Union[str, bytes, None], str, int]:
+                                   pool_manager: urllib3.PoolManager | urllib3.ProxyManager,
+                                   **kwargs: Any) -> tuple[str | bytes | None, str, int]:
         method: Optional[str] = deep_get(kwargs, DictPath("method"))
         url: Optional[str] = deep_get(kwargs, DictPath("url"))
         header_params: Optional[dict] = deep_get(kwargs, DictPath("header_params"))
@@ -2628,7 +2628,7 @@ class KubernetesHelper:
 
     # noqa: E501 pylint: disable-next=too-many-locals,too-many-branches,too-many-statements,too-many-return-statements
     def __rest_helper_get(self, **kwargs: Any) -> \
-            tuple[Union[Optional[dict], list[Optional[dict]]], int]:
+            tuple[dict | list[dict | None] | None, int]:
         kind: Optional[tuple[str, str]] = deep_get(kwargs, DictPath("kind"))
         raw_path: Optional[str] = deep_get(kwargs, DictPath("raw_path"))
         name: str = deep_get(kwargs, DictPath("name"), "")

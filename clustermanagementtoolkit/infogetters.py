@@ -26,7 +26,7 @@ except ModuleNotFoundError:  # pragma: no cover
 import os
 import re
 import sys
-from typing import Any, cast, Optional, Type, Union
+from typing import Any, cast, Optional, Type
 from collections.abc import Callable, Sequence
 
 try:
@@ -99,7 +99,7 @@ def __process_string(value: str, replace_quotes: str) -> str:
     return value
 
 
-def __process_sum_numerical(value: Sequence[Union[int, float]]) -> Union[float, int]:
+def __process_sum_numerical(value: Sequence[int | float]) -> int | float:
     return sum(value)
 
 
@@ -124,8 +124,8 @@ def __process_sum_mem_usage(values: list[str]) -> str:
     return normalise_mem_bytes_to_str(mem_usage_sum)
 
 
-def __process_timestamp(value: Union[Sequence[Union[int, str]], str],
-                        action: str, formatter: str) -> Union[datetime, int]:
+def __process_timestamp(value: Sequence[int | str] | str,
+                        action: str, formatter: str) -> datetime | int:
     new_value: Any = None
 
     if action in ("earliest", "latest") and isinstance(value, (list, tuple)):
@@ -160,8 +160,8 @@ def __process_timestamp(value: Union[Sequence[Union[int, str]], str],
 
 
 # pylint: disable-next=too-many-locals,too-many-branches,too-many-statements
-def process_value(value: Any, vtype: Union[str, list], **kwargs: Any) -> \
-        Union[int, float, str, list[str], tuple[str], datetime, None]:
+def process_value(value: Any, vtype: str | list, **kwargs: Any) -> \
+        int | float | str | list[str] | tuple[str] | datetime | None:
     """
     Reformat values; returns data in a format suitable for further processing.
 
@@ -192,7 +192,7 @@ def process_value(value: Any, vtype: Union[str, list], **kwargs: Any) -> \
                                 DictPath(f"Global#kind_format_{field_index}"),
                                 DictPath("Global#kind_format")], "mixed")
 
-    new_value: Union[int, float, str, list[str], tuple[str], datetime, None] = None
+    new_value: int | float | str | list[str] | tuple[str] | datetime | None = None
 
     if vtype == "str":
         new_value = __process_string(value, replace_quotes)
@@ -224,7 +224,7 @@ def process_value(value: Any, vtype: Union[str, list], **kwargs: Any) -> \
         if value is None:
             new_value = "0"
         else:
-            new_value = str(len(cast(Union[str, Sequence], value)))
+            new_value = str(len(cast(str | Sequence, value)))
     elif vtype == "unix_timestamp":
         new_value = datetime.fromtimestamp(value)
     elif vtype == "timestamp":
@@ -451,7 +451,7 @@ def when_filter(when_path: dict, item: dict, key: Optional[str] = None, value: A
 
 
 # pylint: disable-next=too-many-locals,too-many-branches,too-many-statements
-def transform_list(vlist: Union[list, dict], transform: dict) -> list[Any]:
+def transform_list(vlist: list | dict, transform: dict) -> list[Any]:
     """
     Given data as a list or dict, modify the data according the rules
     in a transformation ruleset.
@@ -1843,7 +1843,7 @@ def get_key_value_info(**kwargs: Any) -> list[Type]:
         return info
 
     for key, value in vlist.items():
-        decoded_value: Union[str, bytes] = ""
+        decoded_value: str | bytes = ""
 
         vtype, value = cmtlib.decode_value(value)
         vlen = len(value)
@@ -1854,7 +1854,7 @@ def get_key_value_info(**kwargs: Any) -> list[Type]:
             vtype = "empty"
 
         if vtype.startswith("base64-utf-8"):
-            fully_decoded_value: Union[str, bytes] = base64.b64decode(decoded_value).decode("utf-8")
+            fully_decoded_value: str | bytes = base64.b64decode(decoded_value).decode("utf-8")
         else:
             fully_decoded_value = decoded_value
 
@@ -2370,8 +2370,8 @@ def get_themearrays(obj: dict, **kwargs: Any) -> dict:
 
 # pylint: disable-next=unused-argument,too-many-locals
 def get_traceflow(obj: dict, **kwargs: Any) -> \
-        tuple[list[datetime], list[Union[str, tuple[str, str]]], list[LogLevel],
-              list[Union[list[Union[ThemeRef, ThemeStr]], str]]]:
+        tuple[list[datetime], list[str | tuple[str, str]], list[LogLevel],
+              list[list[ThemeRef | ThemeStr] | str]]:
     """
     Extract log entries from a traceflow.
 
@@ -2386,9 +2386,9 @@ def get_traceflow(obj: dict, **kwargs: Any) -> \
                 ([ThemeArray]|str): A list of ThemeArrays
     """
     timestamps: list[datetime] = []
-    facilities: list[Union[str, tuple[str, str]]] = []
+    facilities: list[str | tuple[str, str]] = []
     severities: list[LogLevel] = []
-    messages: list[Union[list[Union[ThemeRef, ThemeStr]], str]] = []
+    messages: list[list[ThemeRef | ThemeStr] | str] = []
 
     for result in deep_get(obj, DictPath("status#results"), []):
         node = deep_get(result, DictPath("node"), "<unset>")
@@ -2400,7 +2400,7 @@ def get_traceflow(obj: dict, **kwargs: Any) -> \
             saved_timestamp = datetime.fromtimestamp(tmp_timestamp)
         else:
             saved_timestamp = none_timestamp()
-        message: list[Union[ThemeRef, ThemeStr]] = []
+        message: list[ThemeRef | ThemeStr] = []
         for observation in deep_get(result, DictPath("observations"), []):
             facility = node
             timestamp = saved_timestamp
@@ -2425,8 +2425,8 @@ def get_traceflow(obj: dict, **kwargs: Any) -> \
 
 # pylint: disable-next=too-many-locals,too-many-branches
 def get_journalctl_log(obj: dict, **kwargs: Any) -> \
-        tuple[list[datetime], list[Union[str, tuple[str, str]]], list[LogLevel],
-              list[Union[list[Union[ThemeRef, ThemeStr]], str]]]:
+        tuple[list[datetime], list[str | tuple[str, str]], list[LogLevel],
+              list[list[ThemeRef | ThemeStr] | str]]:
     """
     Extract log entries from journalctl.
 
@@ -2442,9 +2442,9 @@ def get_journalctl_log(obj: dict, **kwargs: Any) -> \
                 ([[ThemeRef|ThemeStr]|str]): A list of messages
     """
     timestamps: list[datetime] = []
-    facilities: list[Union[str, tuple[str, str]]] = []
+    facilities: list[str | tuple[str, str]] = []
     severities: list[LogLevel] = []
-    messages: list[Union[list[Union[ThemeRef, ThemeStr]], str]] = []
+    messages: list[list[ThemeRef | ThemeStr] | str] = []
 
     show_raw: bool = deep_get(kwargs, DictPath("_show_raw"), False)
     objlist = deep_get(obj, DictPath("obj"))
@@ -2510,7 +2510,7 @@ def get_journalctl_log(obj: dict, **kwargs: Any) -> \
 
 
 # pylint: disable-next=unused-argument
-def get_task_log(obj: dict, **kwargs: Any) -> list[list[Union[ThemeRef, ThemeStr]]]:
+def get_task_log(obj: dict, **kwargs: Any) -> list[list[ThemeRef | ThemeStr]]:
     """
     Get logs from Ansible tasks.
 
@@ -2558,7 +2558,7 @@ def get_task_log(obj: dict, **kwargs: Any) -> list[list[Union[ThemeRef, ThemeStr
     return field
 
 
-def logpad_files(obj: dict, **kwargs: Any) -> list[list[Union[ThemeRef, ThemeStr]]]:
+def logpad_files(obj: dict, **kwargs: Any) -> list[list[ThemeRef | ThemeStr]]:
     """
     A wrapper around listgetter_files() to use it as an infogetter.
 
@@ -2600,7 +2600,7 @@ def logpad_files(obj: dict, **kwargs: Any) -> list[list[Union[ThemeRef, ThemeStr
     return formatters.format_none(cast(str, vlist[0]), **formatter_args)
 
 
-def logpad_formatted(obj: dict, **kwargs: Any) -> list[list[Union[ThemeRef, ThemeStr]]]:
+def logpad_formatted(obj: dict, **kwargs: Any) -> list[list[ThemeRef | ThemeStr]]:
     """
     Takes an object and dumps it using the specified format (if possible).
 
@@ -2637,8 +2637,8 @@ def logpad_formatted(obj: dict, **kwargs: Any) -> list[list[Union[ThemeRef, Them
 
 # pylint: disable-next=too-many-locals,too-many-branches,too-many-statements
 def get_cmt_log(obj: dict, **kwargs: Any) -> \
-        tuple[list[datetime], list[Union[str, tuple[str, str]]], list[LogLevel],
-              list[Union[list[Union[ThemeRef, ThemeStr]], str]]]:
+        tuple[list[datetime], list[str | tuple[str, str]], list[LogLevel],
+              list[list[ThemeRef | ThemeStr] | str]]:
     """
     Extract log entries from CMT log.
 
@@ -2659,9 +2659,9 @@ def get_cmt_log(obj: dict, **kwargs: Any) -> \
     filepath = deep_get(obj, DictPath("filepath"), "")
     severity_prefixes = deep_get(kwargs, DictPath("severity_prefixes"), False)
     timestamps: list[datetime] = []
-    facilities: list[Union[str, tuple[str, str]]] = []
+    facilities: list[str | tuple[str, str]] = []
     severities: list[LogLevel] = []
-    messages: list[Union[list[Union[ThemeRef, ThemeStr]], str]] = []
+    messages: list[list[ThemeRef | ThemeStr] | str] = []
 
     d = []
 
@@ -2709,7 +2709,7 @@ def get_cmt_log(obj: dict, **kwargs: Any) -> \
                     facilities.append("".ljust(len(facilitystr)))
             severities.append(severity)
 
-            reformatted_msg: list[Union[ThemeRef, ThemeStr]] = []
+            reformatted_msg: list[ThemeRef | ThemeStr] = []
             for substring in msg:
                 if themestrings:
                     # These log messages are in ANSIThemeStr format;
@@ -2746,7 +2746,7 @@ def get_cmt_log(obj: dict, **kwargs: Any) -> \
     return timestamps, facilities, severities, messages
 
 
-def logpad_msg_getter(obj: dict, **kwargs: Any) -> list[list[Union[ThemeRef, ThemeStr]]]:
+def logpad_msg_getter(obj: dict, **kwargs: Any) -> list[list[ThemeRef | ThemeStr]]:
     """
     Get a string with embedded newlines, split it into a list of ThemeArrays.
 
@@ -2757,7 +2757,7 @@ def logpad_msg_getter(obj: dict, **kwargs: Any) -> list[list[Union[ThemeRef, The
         Returns:
             ([themearray]): A list of themearrays
     """
-    messages: list[list[Union[ThemeRef, ThemeStr]]] = []
+    messages: list[list[ThemeRef | ThemeStr]] = []
 
     path = deep_get(kwargs, DictPath("path"))
     tmp = deep_get(obj, DictPath(path), "")
