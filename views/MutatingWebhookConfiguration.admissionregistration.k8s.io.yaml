@@ -44,9 +44,39 @@ infoview:
     infogetter: "generic_infogetter"
     field_indexes:
       Normal:
-        fields: ["name"]
+        fields: ["name", "admission_review_versions", "timeout",
+                 "failure_policy", "match_policy"]
     fields:
+      admission_review_versions:
+        header: "Admission Review Versions:"
+        path: "admissionReviewVersions"
+        default: ["<unset>"]
+        type: "raw"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "version"
+      failure_policy:
+        header: "Failure Policy:"
+        path: "failurePolicy"
+        default: "<unset>"
+        type: "str"
+      match_policy:
+        header: "Match Policy:"
+        path: "matchPolicy"
+        default: "<unset>"
+        type: "str"
       name:
         header: "Name:"
         path: "name"
+        default: "<unset>"
         type: "str"
+      timeout:
+        header: "Timeout:"
+        path: "timeoutSeconds"
+        default: "<unset>"
+        type: "int"
+        formatter: "numerical"
+        formatting:
+          unit: "s"
+        align: "right"
