@@ -219,7 +219,7 @@ def main() -> int:
         ansithemeprint([ANSIThemeStr(f"[{i:03}/{testcount - 1:03}]", "emphasis"),
                         ANSIThemeStr(f" {', '.join(test)}:", "default")])
         message, result = tests[test]["callable"](verbose=verbose, **tests[test].get("kwargs", {}))
-        if len(message) > 0:
+        if message:
             ansithemeprint([ANSIThemeStr("  FAIL", "error"),
                             ANSIThemeStr(f": {message}", "default")])
         else:

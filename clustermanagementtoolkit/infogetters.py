@@ -26,7 +26,7 @@ except ModuleNotFoundError:  # pragma: no cover
 import os
 import re
 import sys
-from typing import Any, cast, Optional, Type
+from typing import Any, cast, Type
 from collections.abc import Callable, Sequence
 
 try:
@@ -301,7 +301,7 @@ def transform_filter(value: DictPath, transformations: dict) -> Any:
 
 
 # pylint: disable-next=too-many-return-statements,too-many-locals,too-many-branches,too-many-statements # noqa: E501
-def when_filter(when_path: dict, item: dict, key: Optional[str] = None, value: Any = None) -> bool:
+def when_filter(when_path: dict, item: dict, key: str | None = None, value: Any = None) -> bool:
     """
     A filter used by infogetters. Given a dictionary of when-conditions,
     # and either a dict or a key/value pair, return True if all conditions
@@ -500,7 +500,7 @@ def transform_list(vlist: list | dict, transform: dict) -> list[Any]:
             key_data.append(key)
         else:
             for _regex in key_regexes:
-                re_tmp: Optional[re.Match] = re.match(_regex, key)
+                re_tmp: re.Match | None = re.match(_regex, key)
                 if re_tmp is not None:
                     for group in key_groups:
                         if group < len(re_tmp.groups()):
@@ -600,7 +600,7 @@ def format_controller(controller: tuple[tuple[str, str], str], show_kind: str) -
 
 # pylint: disable-next=too-many-locals,too-many-branches,too-many-statements
 def get_obj(obj: dict, field_dict: dict, field_names: list[str],
-            field_index: str, view: str, **kwargs: Any) -> Optional[Type]:
+            field_index: str, view: str, **kwargs: Any) -> Type | None:
     """
     Extract data for all fields in a list row from an object.
 
@@ -2912,7 +2912,7 @@ def get_container_info(**kwargs: Any) -> list[Type]:
     """
     if (kh_ := deep_get(kwargs, DictPath("kubernetes_helper"))) is None:
         raise ProgrammingError("get_container_info() called without kubernetes_helper")
-    kh_cache_: Optional[KubernetesResourceCache] = deep_get(kwargs, DictPath("kh_cache"))
+    kh_cache_: KubernetesResourceCache | None = deep_get(kwargs, DictPath("kh_cache"))
 
     info: list[Type] = []
     containers: dict = {}

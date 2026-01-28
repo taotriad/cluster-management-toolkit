@@ -11,7 +11,7 @@ Get data for fields in a list; typically used to populate _extra_data
 
 import copy
 import re
-from typing import Any, Optional
+from typing import Any
 from collections.abc import Callable
 
 from clustermanagementtoolkit.cmtio import execute_command_with_response, secure_which
@@ -86,7 +86,7 @@ def fieldgetter_crc_version(**kwargs: Any) -> list[Any]:
 
     if crc_path:
         args = ["version"]
-        result: Optional[str]
+        result: str | None
         result, _retval = execute_command_with_response([crc_path] + args)
 
         if result:

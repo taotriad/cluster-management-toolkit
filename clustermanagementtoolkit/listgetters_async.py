@@ -11,7 +11,7 @@ Get list data asynchronously
 
 import re
 import sys
-from typing import Any, Optional
+from typing import Any
 from collections.abc import Callable
 
 try:
@@ -172,7 +172,7 @@ def get_context_list(**kwargs: Any) -> tuple[list[dict], list[str]]:
 # pylint: disable-next=too-many-branches
 def add_resource(key: str, units: dict[str, list[str]],
                  resources: int | float | list[str],
-                 resource: Optional[int | float | str]) -> int | float | list[str]:
+                 resource: int | float | str | None) -> int | float | list[str]:
     """
     Add a resource to the node resource list.
 

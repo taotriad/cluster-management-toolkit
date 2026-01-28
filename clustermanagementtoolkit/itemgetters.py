@@ -13,7 +13,7 @@ Get items from lists for use in windowwidget
 
 import re
 import sys
-from typing import Any, cast, Optional
+from typing import Any, cast
 from collections.abc import Callable
 
 try:
@@ -547,7 +547,7 @@ def get_list_fields(obj: dict, **kwargs: Any) -> list[Any]:
     return vlist
 
 
-def get_package_version_list(obj: dict, **kwargs: Any) -> Optional[list[tuple[str, str]]]:
+def get_package_version_list(obj: dict, **kwargs: Any) -> list[tuple[str, str]] | None:
     """
     Get the package version list.
 
@@ -645,7 +645,7 @@ def get_pod_affinity(obj: dict, **kwargs: Any) -> list[tuple[str, str, str, str,
 
 
 # pylint: disable-next=too-many-locals,too-many-branches
-def get_pod_configmaps(obj: dict, **kwargs: Any) -> Optional[list[dict[str, Any]]]:
+def get_pod_configmaps(obj: dict, **kwargs: Any) -> list[dict[str, Any]] | None:
     """
     Get a list of all pods referencing a configmap.
 
@@ -1034,7 +1034,7 @@ def get_svc_port_target_endpoints(obj: dict, **kwargs: Any) -> list[tuple[str, s
     return port_target_endpoints
 
 
-def get_pv_type(obj: dict) -> Optional[str]:
+def get_pv_type(obj: dict) -> str | None:
     """
     Given a volume object, return its type.
     Note: this is a helper, not an itemgetter.

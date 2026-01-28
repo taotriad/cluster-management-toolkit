@@ -19,7 +19,7 @@ from pathlib import Path, PurePath
 import subprocess  # nosec
 from subprocess import PIPE, STDOUT  # nosec
 import sys
-from typing import Any, cast, Optional
+from typing import Any, cast
 
 from clustermanagementtoolkit.cmttypes import deep_get, DictPath
 from clustermanagementtoolkit.cmttypes import FilePath, FilePathAuditError
@@ -29,8 +29,8 @@ from clustermanagementtoolkit.cmtpaths import HOMEDIR
 
 
 # pylint: disable-next=too-many-branches
-def expand_path(path: str, search_paths: Optional[list[str]] = None,
-                suffixes: Optional[list[str]] = None,
+def expand_path(path: str, search_paths: list[str] | None = None,
+                suffixes: list[str] | None = None,
                 fallback: str = "") -> tuple[FilePath, bool]:
     """
     Given a path, filename or partial filename, expand it to its full path.
@@ -128,11 +128,11 @@ def check_path(path: FilePath, **kwargs: Any) -> list[SecurityStatus]:
             ([SecurityStatus]): [SecurityStatus.OK] if all criteria are met,
                                 otherwise a list of all violated policies
     """
-    parent_owner_allowlist: Optional[list[str]] = \
+    parent_owner_allowlist: list[str] | None = \
         deep_get(kwargs, DictPath("parent_owner_allowlist"), None)
-    owner_allowlist: Optional[list[str]] = \
+    owner_allowlist: list[str] | None = \
         deep_get(kwargs, DictPath("owner_allowlist"), None)
-    checks: Optional[list[SecurityChecks]] = deep_get(kwargs, DictPath("checks"), None)
+    checks: list[SecurityChecks] | None = deep_get(kwargs, DictPath("checks"), None)
     exit_on_critical: bool = deep_get(kwargs, DictPath("exit_on_critical"), False)
     message_on_error: bool = deep_get(kwargs, DictPath("message_on_error"), False)
 
@@ -465,7 +465,7 @@ def secure_write_string(path: FilePath, string: str, **kwargs: Any) -> None:
         Raises:
             cmttypes.FilePathAuditError
     """
-    permissions: Optional[int] = deep_get(kwargs, DictPath("permissions"), None)
+    permissions: int | None = deep_get(kwargs, DictPath("permissions"), None)
     write_mode: str = deep_get(kwargs, DictPath("write_mode"), "w")
     allow_relative_path: bool = deep_get(kwargs, DictPath("allow_relative_path"), False)
     temporary: bool = deep_get(kwargs, DictPath("temporary"), False)
@@ -538,7 +538,7 @@ def secure_write_string(path: FilePath, string: str, **kwargs: Any) -> None:
 
 
 def secure_read(path: FilePath,
-                checks: Optional[list[SecurityChecks]] = None,
+                checks: list[SecurityChecks] | None = None,
                 directory_is_symlink: bool = False,
                 read_mode: str = "r", temporary: bool = False) -> str | bytes:
     """
@@ -632,7 +632,7 @@ def secure_read(path: FilePath,
     return string
 
 
-def secure_read_string(path: FilePath, checks: Optional[list[SecurityChecks]] = None,
+def secure_read_string(path: FilePath, checks: list[SecurityChecks] | None = None,
                        directory_is_symlink: bool = False, temporary: bool = False) -> str:
     """
     Read a string from a file in a safe manner.
@@ -828,7 +828,7 @@ def secure_mkdir(directory: FilePath, permissions: int = 0o750, verbose: bool = 
 # pylint: disable-next=too-many-branches
 def secure_copy(src: FilePath, dst: FilePath, verbose: bool = False,
                 exit_on_failure: bool = False,
-                permissions: Optional[int] = None) -> list[SecurityStatus]:
+                permissions: int | None = None) -> list[SecurityStatus]:
     """
     Copy a file.
 
@@ -1062,8 +1062,8 @@ def secure_symlink(src: FilePath, dst: FilePath, verbose: bool = False,
 
 
 # This executes a command with the output captured
-def execute_command_with_response(args: list[str], env: Optional[dict] = None,
-                                  stdinput: Optional[bytes] = None) -> tuple[str, int]:
+def execute_command_with_response(args: list[str], env: dict | None = None,
+                                  stdinput: bytes | None = None) -> tuple[str, int]:
     """
     Executes a command and returns stdout.
 
@@ -1089,7 +1089,7 @@ def execute_command_with_response(args: list[str], env: Optional[dict] = None,
 
 # This executes a command without capturing the output
 def execute_command(args: list[FilePath | str],
-                    env: Optional[dict] = None, comparison: int = 0) -> bool:
+                    env: dict | None = None, comparison: int = 0) -> bool:
     """
     Executes a command.
 

@@ -14,7 +14,7 @@ import concurrent.futures
 from datetime import datetime
 import sys
 import threading
-from typing import Any, Optional
+from typing import Any
 from collections.abc import Callable
 
 
@@ -22,7 +22,7 @@ class ReExecutor:
     """
     A wrapper class for concurrent futures.
     """
-    def __init__(self, max_workers: Optional[int] = None) -> None:
+    def __init__(self, max_workers: int | None = None) -> None:
         """
         Init method for the ReExecutor() class.
 

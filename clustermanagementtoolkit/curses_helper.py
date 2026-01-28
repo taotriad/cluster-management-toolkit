@@ -24,7 +24,7 @@ import os
 from pathlib import Path, PurePath
 import re
 import sys
-from typing import Any, cast, NamedTuple, NoReturn, Optional, Type
+from typing import Any, cast, NamedTuple, NoReturn, Type
 from collections.abc import Callable, Sequence
 
 try:
@@ -52,7 +52,7 @@ from clustermanagementtoolkit.ansithemeprint import ansithemestr_join_list
 from clustermanagementtoolkit import cmtlib
 
 theme: dict = {}
-themefile: Optional[FilePath] = None  # pylint: disable=invalid-name
+themefile: FilePath | None = None  # pylint: disable=invalid-name
 mousemask: int = 0  # pylint: disable=invalid-name
 
 
@@ -79,9 +79,9 @@ class ThemeStr:
         Parameters:
             string: A string
             themeattr: The themeattr used to format the string
-            selected (Optional[bool]): Selected or unselected formatting
+            selected (bool | None): Selected or unselected formatting
     """
-    def __init__(self, string: str, themeattr: ThemeAttr, selected: Optional[bool] = False) -> None:
+    def __init__(self, string: str, themeattr: ThemeAttr, selected: bool | None = False) -> None:
         if not (isinstance(string, str)
                 and isinstance(themeattr, ThemeAttr)
                 and (selected is None or isinstance(selected, bool))):
@@ -150,7 +150,7 @@ class ThemeStr:
         """
         self.themeattr = themeattr
 
-    def get_selected(self) -> Optional[bool]:
+    def get_selected(self) -> bool | None:
         """
         Return the selected attribute of the ThemeStr.
 
@@ -174,9 +174,9 @@ class ThemeRef:
         Parameters:
             context: The context to use when doing a looking in themes
             key: The key to use when doing a looking in themes
-            selected (Optional[bool]): Should the selected or unselected formatting be used
+            selected (bool | None): Should the selected or unselected formatting be used
     """
-    def __init__(self, context: str, key: str, selected: Optional[bool] = False) -> None:
+    def __init__(self, context: str, key: str, selected: bool | None = False) -> None:
         if not (isinstance(context, str)
                 and isinstance(key, str)
                 and (selected is None or isinstance(selected, bool))):
@@ -289,7 +289,7 @@ class ThemeRef:
                                        self.selected))
         return themearray
 
-    def get_selected(self) -> Optional[bool]:
+    def get_selected(self) -> bool | None:
         """
         Return the selected attribute of the ThemeRef.
 
@@ -316,7 +316,7 @@ class ThemeArray:
                              individual members of the ThemeArray
     """
     def __init__(self, array: list[ThemeRef | ThemeStr],
-                 selected: Optional[bool] = None) -> None:
+                 selected: bool | None = None) -> None:
         if array is None:
             errmsg = [
                 [("ThemeArray()", "emphasis"),
@@ -990,7 +990,7 @@ def color_status_group(status_group: StatusGroup) -> ThemeAttr:
 
 
 def window_tee_hline(win: curses.window, y: int,
-                     start: int, end: int, formatting: Optional[ThemeAttr] = None) -> None:
+                     start: int, end: int, formatting: ThemeAttr | None = None) -> None:
     """
     Draw a horizontal line with "tees" ("├", "┤") at the ends.
 
@@ -1018,7 +1018,7 @@ def window_tee_hline(win: curses.window, y: int,
 
 
 def window_tee_vline(win: curses.window, x: int,
-                     start: int, end: int, formatting: Optional[ThemeAttr] = None) -> None:
+                     start: int, end: int, formatting: ThemeAttr | None = None) -> None:
     """
     Draw a vertical line with "tees" ("┬", "┴") at the ends.
 
@@ -1303,7 +1303,7 @@ def __notification(y: int, x: int, message: str, formatting: ThemeAttr) -> curse
     return win
 
 
-def notice(stdscr: Optional[curses.window], message: str, **kwargs: Any) -> Optional[curses.window]:
+def notice(stdscr: curses.window | None, message: str, **kwargs: Any) -> curses.window | None:
     """
     Show a notification.
 
@@ -1334,7 +1334,7 @@ def notice(stdscr: Optional[curses.window], message: str, **kwargs: Any) -> Opti
     y = tmp_y
     x = tmp_x
 
-    win: Optional[curses.window] = \
+    win: curses.window | None = \
         __notification(y, x, message, ThemeAttr("windowwidget", "notice"))
     if stdscr and wait_for_keypress:
         while True:
@@ -1347,7 +1347,7 @@ def notice(stdscr: Optional[curses.window], message: str, **kwargs: Any) -> Opti
     return win
 
 
-def alert(stdscr: Optional[curses.window], message: str, **kwargs: Any) -> Optional[curses.window]:
+def alert(stdscr: curses.window | None, message: str, **kwargs: Any) -> curses.window | None:
     """
     Show an alert.
 
@@ -1376,7 +1376,7 @@ def alert(stdscr: Optional[curses.window], message: str, **kwargs: Any) -> Optio
     y = tmp_y
     x = tmp_x
 
-    win: Optional[curses.window] = \
+    win: curses.window | None = \
         __notification(y, x, message, ThemeAttr("windowwidget", "alert"))
     if stdscr and wait_for_keypress:
         while True:
@@ -1390,8 +1390,8 @@ def alert(stdscr: Optional[curses.window], message: str, **kwargs: Any) -> Optio
 
 
 # pylint: disable-next=too-many-arguments,too-many-positional-arguments
-def progressbar(win: Optional[curses.window], y: int, minx: int, maxx: int,
-                progress: int, title: Optional[str] = None) -> curses.window:
+def progressbar(win: curses.window | None, y: int, minx: int, maxx: int,
+                progress: int, title: str | None = None) -> curses.window:
     """
     A progress bar.
     Usage: Initialise by calling with a reference to a variable set to None
@@ -1981,7 +1981,7 @@ def themeattr_to_curses_merged(themeattr: ThemeAttr, selected: bool = False) -> 
 
 
 def themestring_to_cursestuple(themestring: ThemeStr,
-                               selected: Optional[bool] = None) -> tuple[str, int]:
+                               selected: bool | None = None) -> tuple[str, int]:
     """
     Given a themestring returns a cursestuple.
 
@@ -2048,7 +2048,7 @@ def themearray_select(themearray: Sequence[ThemeRef | ThemeStr],
 
 
 def themearray_flatten(themearray: list[ThemeRef | ThemeStr],
-                       selected: Optional[bool] = None) -> list[ThemeStr]:
+                       selected: bool | None = None) -> list[ThemeStr]:
     """
     Replace all ThemeRefs in a ThemeArray with ThemeStr.
 
@@ -2092,7 +2092,7 @@ def themearray_flatten(themearray: list[ThemeRef | ThemeStr],
 
 def themearray_wrap_line(themearray: list[ThemeRef | ThemeStr],
                          maxwidth: int = -1, wrap_marker: bool = True,
-                         selected: Optional[bool] = None) -> list[list[ThemeRef | ThemeStr]]:
+                         selected: bool | None = None) -> list[list[ThemeRef | ThemeStr]]:
     """
     Given a themearray, split it into multiple lines, each maxwidth long.
 
@@ -2790,7 +2790,7 @@ class UIProps:
         self.stdscr: curses.window = stdscr
 
         # Helptext
-        self.helptext: Optional[list[dict[str, Any]]] = None
+        self.helptext: list[dict[str, Any]] | None = None
 
         self.update_forced: bool = False
 
@@ -2801,7 +2801,7 @@ class UIProps:
         self.remember_uid: bool = True
 
         # The timestamp
-        self.last_timestamp_update: Optional[str] = None
+        self.last_timestamp_update: str | None = None
 
         self.idle_timeout: int = 5
         self.last_action: datetime = datetime.now()
@@ -2856,14 +2856,14 @@ class UIProps:
         self.infopadxpos: int = 0
         self.infopadheight: int = 0
         self.infopadwidth: int = 0
-        self.infopad: Optional[curses.window] = None
+        self.infopad: curses.window | None = None
         # For lists
         self.headerpadminwidth: int = 0
         self.headerpadypos: int = 0
         self.headerpadxpos: int = 0
         self.headerpadheight: int = 0
         self.headerpadwidth: int = 0
-        self.headerpad: Optional[curses.window] = None
+        self.headerpad: curses.window | None = None
         self.listlen: int = 0
         # This one really is a misnomer and could possible be confused with the infopad
         self.sort_triggered: bool = False
@@ -2875,7 +2875,7 @@ class UIProps:
         self.listpadxpos: int = 0
         self.listpadheight: int = 0
         self.listpadwidth: int = 0
-        self.listpad: Optional[curses.window] = None
+        self.listpad: curses.window | None = None
         self.listpadminwidth: int = 0
         self.reversible: bool = True
         # For logs with a timestamp column
@@ -2883,18 +2883,18 @@ class UIProps:
         self.tspadxpos: int = 0
         self.tspadheight: int = 0
         self.tspadwidth = len("YYYY-MM-DD HH:MM:SS")
-        self.tspad: Optional[curses.window] = None
+        self.tspad: curses.window | None = None
         self.logpadypos: int = 0
         self.logpadxpos: int = 0
         self.logpadheight: int = 0
         self.logpadwidth: int = 0
-        self.logpad: Optional[curses.window] = None
+        self.logpad: curses.window | None = None
         self.loglen: int = 0
         self.logpadminwidth: int = 0
-        self.statusbar: Optional[curses.window] = None
+        self.statusbar: curses.window | None = None
         self.statusbarypos: int = 0
         self.continuous_log: bool = False
-        self.match_index: Optional[int] = None
+        self.match_index: int | None = None
         self.search_matches: set[int] = set()
         self.timestamps: list[datetime] = []
         self.facilities: list[str | tuple[str, str]] = []
@@ -2909,10 +2909,10 @@ class UIProps:
         self.vdragger: tuple[int, int, int] = -1, -1, -1
 
         # Function handler for <enter> / <double-click>
-        self.activatedfun: Optional[Callable] = None
+        self.activatedfun: Callable | None = None
         self.on_activation: dict[str, Any] = {}
-        self.extraref: Optional[str] = None
-        self.data: Optional[bool] = None
+        self.extraref: str | None = None
+        self.data: bool | None = None
 
         self.windowheader: str = ""
         self.view: tuple[str, str] | str | None = ""
@@ -3623,7 +3623,7 @@ class UIProps:
                     pass
 
     def recalculate_logpad_xpos(self, tspadxpos: int = -1,
-                                timestamps: Optional[bool] = None) -> None:
+                                timestamps: bool | None = None) -> None:
         """
         Recalculate the x-position of the logpad. This is necessary when toggling timestamps.
 
@@ -3774,7 +3774,7 @@ class UIProps:
             except curses.error:
                 pass
 
-    def toggle_timestamps(self, timestamps: Optional[bool] = None) -> None:
+    def toggle_timestamps(self, timestamps: bool | None = None) -> None:
         """
         Toggle timestamps on/off.
 
@@ -3798,7 +3798,7 @@ class UIProps:
                                     False to disable borders;
                                     None to toggle borders
         """
-        borders: Optional[bool] = deep_get(kwargs, DictPath("borders"))
+        borders: bool | None = deep_get(kwargs, DictPath("borders"))
 
         if borders is None:
             CursesConfiguration.borders = not CursesConfiguration.borders
@@ -3838,7 +3838,7 @@ class UIProps:
             self.statusbar = curses.newpad(2, self.maxx + 1)
 
     # pylint: disable-next=too-many-locals
-    def addthemearray(self, win: Optional[curses.window],
+    def addthemearray(self, win: curses.window | None,
                       array: list[ThemeRef | ThemeStr], **kwargs: Any) -> tuple[int, int]:
         """
         Add a ThemeArray to a curses window.
@@ -4319,8 +4319,8 @@ class UIProps:
         # If we do not match we will just end up with the old pos
         self.move_cur_with_offset(offset)
 
-    def goto_first_match_by_name_namespace(self, name: Optional[str],
-                                           namespace: Optional[str]) -> Optional[Type]:
+    def goto_first_match_by_name_namespace(self, name: str | None,
+                                           namespace: str | None) -> Type | None:
         """
         This function is used to find the first match based on command line input
         The sort order used will still be the default, to ensure that the partial
@@ -4455,10 +4455,10 @@ class UIProps:
             Returns:
                 (Retval): The return value
         """
-        activatedfun: Optional[Callable] = deep_get(kwargs, DictPath("activatedfun"))
-        extraref: Optional[str] = deep_get(kwargs, DictPath("extraref"))
-        data: Optional[bool] = deep_get(kwargs, DictPath("data"))
-        selected: Optional[Any] = False
+        activatedfun: Callable | None = deep_get(kwargs, DictPath("activatedfun"))
+        extraref: str | None = deep_get(kwargs, DictPath("extraref"))
+        data: bool | None = deep_get(kwargs, DictPath("data"))
+        selected: Any | None = False
 
         try:
             _eventid, x, y, _z, bstate = curses.getmouse()
@@ -4643,9 +4643,9 @@ class UIProps:
             Returns:
                 (Retval): The return value
         """
-        activatedfun: Optional[Callable] = deep_get(kwargs, DictPath("activatedfun"))
-        extraref: Optional[str] = deep_get(kwargs, DictPath("extraref"))
-        data: Optional[bool] = deep_get(kwargs, DictPath("data"))
+        activatedfun: Callable | None = deep_get(kwargs, DictPath("activatedfun"))
+        extraref: str | None = deep_get(kwargs, DictPath("extraref"))
+        data: bool | None = deep_get(kwargs, DictPath("data"))
         selected = self.get_selected()
 
         if activatedfun is not None and selected is not None and selected.ref is not None:

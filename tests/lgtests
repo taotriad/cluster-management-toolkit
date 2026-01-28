@@ -16,7 +16,7 @@
 import builtins
 import importlib
 import sys
-from typing import Any, cast, Optional
+from typing import Any, cast
 from collections.abc import Callable
 from unittest import mock
 import yaml
@@ -38,7 +38,7 @@ from clustermanagementtoolkit import listgetters_async
 # unit-tests for listgetters.py
 
 
-real_import: Optional[Callable] = None  # pylint: disable=invalid-name
+real_import: Callable | None = None  # pylint: disable=invalid-name
 
 import_override: dict = {}
 

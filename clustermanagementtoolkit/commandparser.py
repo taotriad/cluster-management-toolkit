@@ -11,7 +11,7 @@ This module parses command line options and generate helptexts
 
 import errno
 import sys
-from typing import Any, cast, Optional, TypedDict
+from typing import Any, cast, TypedDict
 from collections.abc import Callable
 
 from clustermanagementtoolkit import about
@@ -40,12 +40,12 @@ class ValidationTypeOptional(TypedDict, total=False):
             allowlist ([str]): A list of explicitly allowed values used by the allowlist validator
             regex (str): A regular expression used by the regex validator
             list_separator (str): A separator to use to split the argument into a list
-            valid_range (([Optional[int], Optional[int]])): A range of valid values
+            valid_range (([int | None, int | None])): A range of valid values
     """
     allowlist: list[str]
     regex: str
     list_separator: str
-    valid_range: tuple[Optional[int], Optional[int]]
+    valid_range: tuple[int | None, int | None]
 
 
 class ValidationType(ValidationTypeOptional):
@@ -150,13 +150,13 @@ class CommandType(CommandTypeOptional):
             description ([ANSIThemeStr]): An ANSIThemeArray with a description of the command
             required_args ([ArgumentType]): A list of required arguments
             optional_args ([ArgumentWithOptionalDefaultType]): A list of optional arguments
-            callback (Optional[Callable]): The callback to use
+            callback (Callable | None): The callback to use
     """
     command: list[str]
     description: list[ANSIThemeStr]
     required_args: list[ArgumentType]
     optional_args: list[ArgumentWithOptionalDefaultType]
-    callback: Optional[Callable]
+    callback: Callable | None
 
 
 commandline: dict[str, Any] = {}
@@ -572,7 +572,7 @@ def __command_usage(options: list[tuple[str, str]], args: list[str]) -> int:
 
 def __find_command(__commandline: dict[str, Any], arg: str) -> \
         tuple[str,
-              Optional[Callable[[tuple[str, str], list[str]], None]],
+              Callable[[tuple[str, str], list[str]], None] | None,
               str,
               list[ArgumentType],
               list[ArgumentWithOptionalDefaultType]]:
@@ -590,7 +590,7 @@ def __find_command(__commandline: dict[str, Any], arg: str) -> \
                 ([ArgumentType]): The dict of required arguments for the command
                 ([ArgumentWithOptionalDefaultType]): The dict of optional arguments for the command
     """
-    callback: Optional[Callable[[tuple[str, str], list[str]], None]] = None
+    callback: Callable[[tuple[str, str], list[str]], None] | None = None
     commandname: str = ""
     required_args: list[ArgumentType] = []
     optional_args: list[ArgumentWithOptionalDefaultType] = []
@@ -694,10 +694,10 @@ def parse_commandline(__programname: str, __programversion: str,
                       __programdescription: str, __programauthors: str,
                       argv: list[str],
                       __commandline: dict[str, Any],
-                      default_command: Optional[str] = None,
-                      theme: Optional[FilePath] = None) -> tuple[Callable,
-                                                                 list[tuple[str, str]],
-                                                                 list[str]]:
+                      default_command: str | None = None,
+                      theme: FilePath | None = None) -> tuple[Callable,
+                                                              list[tuple[str, str]],
+                                                              list[str]]:
     """
     Parse the command line.
 

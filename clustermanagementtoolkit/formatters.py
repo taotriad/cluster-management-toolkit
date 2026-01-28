@@ -27,7 +27,7 @@ except ModuleNotFoundError:
     DecodeException = json.decoder.JSONDecodeError  # type: ignore
 import re
 import sys
-from typing import Any, Optional
+from typing import Any
 from collections.abc import Callable
 try:
     import yaml
@@ -1845,9 +1845,9 @@ def identify_cmdata(cmdata_name: str, cm_name: str,
 
 
 def identify_formatter(dataformat: str,
-                       kind: Optional[tuple[str, str]] = None,
-                       obj: Optional[dict[str, Any]] = None,
-                       path: Optional[str] = None) -> Callable:
+                       kind: tuple[str, str] | None = None,
+                       obj: dict[str, Any] | None = None,
+                       path: str | None = None) -> Callable:
     """
     Identify what formatter to use for an object.
 

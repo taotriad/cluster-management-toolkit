@@ -17,7 +17,7 @@ import builtins
 import errno
 import os
 import sys
-from typing import Any, cast, Optional
+from typing import Any, cast
 from collections.abc import Callable
 from unittest import mock
 
@@ -28,7 +28,7 @@ from clustermanagementtoolkit.cmtpaths import DEFAULT_THEME_FILE, THEME_DIR
 from clustermanagementtoolkit.cmttypes import deep_get, DictPath
 from clustermanagementtoolkit.cmttypes import FilePath, FilePathAuditError, ProgrammingError
 
-real_import: Optional[Callable] = None  # pylint: disable=invalid-name
+real_import: Callable | None = None  # pylint: disable=invalid-name
 
 import_override: dict = {}
 
@@ -868,7 +868,7 @@ def main() -> int:
         kwargs = tests[test].get("kwargs", {})
         kwargs["verbose"] = verbose
         message, result = tests[test]["callable"](**kwargs)
-        if len(message) > 0:
+        if message:
             print(f"  \033[1;31mFAIL\033[0m: {message}")
         else:
             print("  \033[1;32mPASS\033[0m")

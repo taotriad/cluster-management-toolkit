@@ -14,7 +14,7 @@ This generates and post-processes elements for various more complex types
 import copy
 from datetime import datetime
 import re
-from typing import Any, cast, Optional, Type, TypedDict
+from typing import Any, cast, Type, TypedDict
 from collections.abc import Callable
 import yaml
 
@@ -104,7 +104,7 @@ class FormattingType(FormattingTypeOptional):
     """
 
 
-def format_special(string: str, selected: bool) -> Optional[ThemeRef | ThemeStr]:
+def format_special(string: str, selected: bool) -> ThemeRef | ThemeStr | None:
     """
     Given a string, substitute any special strings with their formatted version.
 
@@ -114,7 +114,7 @@ def format_special(string: str, selected: bool) -> Optional[ThemeRef | ThemeStr]
         Returns:
             (ThemeRef | ThemeStr): A ThemeStr
     """
-    formatted_string: Optional[ThemeRef | ThemeStr] = None
+    formatted_string: ThemeRef | ThemeStr | None = None
 
     if string in ("<none>", "<unknown>"):
         fmt = ThemeAttr("types", "none")
@@ -158,15 +158,15 @@ def format_list(items: Any, fieldlen: int, pad: bool,
     """
     ralign: bool = deep_get(kwargs, DictPath("ralign"), False)
     selected: bool = deep_get(kwargs, DictPath("selected"), False)
-    item_separator: Optional[ThemeRef] = deep_get(kwargs, DictPath("item_separator"))
-    field_separators: Optional[list[ThemeRef]] = deep_get(kwargs, DictPath("field_separators"))
-    field_colors: Optional[list[ThemeAttr]] = deep_get(kwargs, DictPath("field_colors"))
+    item_separator: ThemeRef | None = deep_get(kwargs, DictPath("item_separator"))
+    field_separators: list[ThemeRef] | None = deep_get(kwargs, DictPath("field_separators"))
+    field_colors: list[ThemeAttr] | None = deep_get(kwargs, DictPath("field_colors"))
     ellipsise: int = deep_get(kwargs, DictPath("ellipsise"), -1)
-    ellipsis: Optional[ThemeRef] = deep_get(kwargs, DictPath("ellipsis"))
+    ellipsis: ThemeRef | None = deep_get(kwargs, DictPath("ellipsis"))
     field_prefixes: list[list[ThemeRef]] = deep_get(kwargs, DictPath("field_prefixes"))
     field_suffixes: list[list[ThemeRef]] = deep_get(kwargs, DictPath("field_suffixes"))
     mapping: dict = deep_get(kwargs, DictPath("mapping"), {})
-    field_formatters: list[Optional[Callable]] = \
+    field_formatters: list[Callable | None] = \
         deep_get(kwargs, DictPath("field_formatters"), [])
 
     array: list[ThemeRef | ThemeStr] = []
@@ -229,7 +229,7 @@ def format_list(items: Any, fieldlen: int, pad: bool,
                 field_sep.selected = selected
                 array.append(field_sep)
 
-            field_formatter: Optional[Callable] = None
+            field_formatter: Callable | None = None
             if field_formatters:
                 field_formatter = field_formatters[min(i, len(field_formatters) - 1)]
             if (tmp := format_special(string, selected)) is not None:
@@ -395,8 +395,8 @@ def align_and_pad(array: list[ThemeRef | ThemeStr], fieldlen: int,
 
 # pylint: disable-next=too-many-branches
 def format_numerical_with_units(string: str, ftype: str,
-                                selected: bool, non_units: Optional[set] = None,
-                                separator_lookup: Optional[dict] = None) \
+                                selected: bool, non_units: set | None = None,
+                                separator_lookup: dict | None = None) \
         -> list[ThemeRef | ThemeStr]:
     """
     Given a string, return it formatted formatted with the numerical parts

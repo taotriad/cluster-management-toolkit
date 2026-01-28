@@ -18,7 +18,7 @@ import errno
 from pathlib import Path
 import re
 import sys
-from typing import Any, cast, Optional
+from typing import Any, cast
 from collections.abc import Generator
 
 from clustermanagementtoolkit.ansithemeprint import ANSIThemeStr, ansithemeprint
@@ -570,7 +570,7 @@ def seconds_to_age(seconds: int, negative_is_skew: bool = False) -> str:
     return f"{sign}{age}"
 
 
-def get_since(timestamp: Optional[int | datetime]) -> int:
+def get_since(timestamp: int | datetime | None) -> int:
     """
     Given either a datetime, or an integer, returns how old that
     timestamp is in seconds.
@@ -1327,9 +1327,9 @@ def setup_paths() -> list[SecurityStatus]:
 
 
 # pylint: disable=too-many-arguments,too-many-positional-arguments
-def check_allowlist(allowlist: dict, allowlist_name: str, value: Optional[Any],
-                    default: Optional[Any] = None, exit_on_fail: bool = True,
-                    allow_none: bool = False) -> Optional[Any]:
+def check_allowlist(allowlist: dict, allowlist_name: str, value: Any | None,
+                    default: Any | None = None, exit_on_fail: bool = True,
+                    allow_none: bool = False) -> Any | None:
     """
     Check whether the provided value is in the allowlist,
     and either return a default, or exit if it's not in the allowlist.

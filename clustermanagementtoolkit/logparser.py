@@ -50,7 +50,7 @@ except ModuleNotFoundError:
 from pathlib import Path
 import re
 import sys
-from typing import Any, cast, Optional
+from typing import Any, cast
 try:
     import ruyaml
     ryaml = ruyaml.YAML()
@@ -1912,8 +1912,8 @@ def expand_event(message: str, severity: LogLevel, **kwargs: Any) \
                 (str): The processed message
                 ([(ThemeArray, LogLevel)]): The formatted remnants
     """
-    remnants: Optional[list[tuple[list[ThemeRef | ThemeStr],
-                                  LogLevel]]] = deep_get(kwargs, DictPath("remnants"))
+    remnants: list[tuple[list[ThemeRef | ThemeStr], LogLevel]] | None = \
+        deep_get(kwargs, DictPath("remnants"))
     fold_msg: bool = deep_get(kwargs, DictPath("fold_msg"), True)
 
     if fold_msg or (remnants is not None and remnants):
@@ -2743,7 +2743,7 @@ def substitute_bullets(message: str, **kwargs: Any) -> str:
 
 # pylint: disable-next=unused-argument
 def python_traceback_scanner_nested_exception(message: str, **kwargs: Any) \
-        -> tuple[tuple[str, Optional[Callable], dict],
+        -> tuple[tuple[str, Callable | None, dict],
                  tuple[datetime, str, LogLevel, list[ThemeRef | ThemeStr]]]:
     """
     Scanner for nested Python tracebacks.
@@ -2771,7 +2771,7 @@ def python_traceback_scanner_nested_exception(message: str, **kwargs: Any) \
     facility: str = ""
     severity: LogLevel = LogLevel.ERR
     message, _timestamp = split_iso_timestamp(message, none_timestamp())
-    processor: tuple[str, Optional[Callable], dict] = \
+    processor: tuple[str, Callable | None, dict] = \
         ("block", python_traceback_scanner_nested_exception, {})
 
     # Default case
@@ -2844,7 +2844,7 @@ def python_traceback_scanner_nested_exception(message: str, **kwargs: Any) \
 
 # pylint: disable-next=unused-argument
 def python_traceback_scanner(message: str, **kwargs: Any) \
-        -> tuple[tuple[str, Optional[Callable], dict],
+        -> tuple[tuple[str, Callable | None, dict],
                  tuple[datetime, str, LogLevel, list[ThemeRef | ThemeStr]]]:
     """
     Scanner for Python tracebacks.
@@ -2872,7 +2872,7 @@ def python_traceback_scanner(message: str, **kwargs: Any) \
     facility: str = ""
     severity: LogLevel = LogLevel.ERR
     message, _timestamp = split_iso_timestamp(message, none_timestamp())
-    processor: tuple[str, Optional[Callable], dict] = ("block", python_traceback_scanner, {})
+    processor: tuple[str, Callable | None, dict] = ("block", python_traceback_scanner, {})
 
     # Default case
     remnants: list[ThemeRef | ThemeStr] = [
@@ -2923,7 +2923,7 @@ def python_traceback_scanner(message: str, **kwargs: Any) \
 
 # pylint: disable-next=unused-argument
 def python_traceback(message: str, **kwargs: Any) \
-        -> tuple[str | tuple[str, Optional[Callable], dict],
+        -> tuple[str | tuple[str, Callable | None, dict],
                  list[tuple[list[ThemeRef | ThemeStr], LogLevel]]]:
     """
     Parser for Python tracebacks.
@@ -2951,7 +2951,7 @@ def python_traceback(message: str, **kwargs: Any) \
     if message.startswith(("Traceback (most recent call last):",
                            "Exception in thread ")):
         remnants = [ThemeStr(message, ThemeAttr("logview", "severity_error"))]
-        processor: tuple[str, Optional[Callable], dict] = \
+        processor: tuple[str, Callable | None, dict] = \
             ("start_block", python_traceback_scanner, {})
         return processor, remnants
 
@@ -2967,10 +2967,9 @@ def python_traceback(message: str, **kwargs: Any) \
 
 # pylint: disable-next=too-many-locals,too-many-branches
 def json_line_scanner(message: str, **kwargs: Any) \
-        -> tuple[tuple[str, Optional[Callable], dict],
+        -> tuple[tuple[str, Callable | None, dict],
                  tuple[datetime, str, LogLevel,
-                       Optional[list[tuple[list[ThemeRef | ThemeStr],
-                                           LogLevel]]]]]:
+                       list[tuple[list[ThemeRef | ThemeStr], LogLevel]] | None]]:
     """
     Scanner for JSON.
 
@@ -3029,7 +3028,7 @@ def json_line_scanner(message: str, **kwargs: Any) \
 
     if message == "}".rstrip() or not matched:
         remnants, _ = formatters.format_yaml_line(message, override_formatting={})
-        processor: tuple[str, Optional[Callable], dict] = ("end_block", None, {})
+        processor: tuple[str, Callable | None, dict] = ("end_block", None, {})
     elif message.lstrip() != message or message == "{":
         remnants, _ = formatters.format_yaml_line(message, override_formatting={})
         processor = ("block", json_line_scanner, {})
@@ -3045,7 +3044,7 @@ def json_line_scanner(message: str, **kwargs: Any) \
 
 # pylint: disable-next=too-many-locals,too-many-branches
 def json_line(message: str,
-              **kwargs: Any) -> tuple[str | tuple[str, Optional[Callable], dict],
+              **kwargs: Any) -> tuple[str | tuple[str, Callable | None, dict],
                                       list[tuple[list[ThemeRef | ThemeStr], LogLevel]]]:
     """
     Parser for JSON.
@@ -3111,7 +3110,7 @@ def json_line(message: str,
         else:
             severity_name = f"severity_{loglevel_to_name(severity).lower()}"
             remnants = [ThemeStr(message, ThemeAttr("logview", severity_name))]
-        processor: tuple[str, Optional[Callable], dict] = \
+        processor: tuple[str, Callable | None, dict] = \
             ("start_block", json_line_scanner, options)
         return processor, remnants
 
@@ -3120,7 +3119,7 @@ def json_line(message: str,
 
 # pylint: disable-next=too-many-locals,too-many-branches
 def yaml_line_scanner(message: str,
-                      **kwargs: Any) -> tuple[tuple[str, Optional[Callable], dict],
+                      **kwargs: Any) -> tuple[tuple[str, Callable | None, dict],
                                               tuple[datetime, str, LogLevel,
                                                     list[tuple[list[ThemeRef | ThemeStr],
                                                                LogLevel]]]]:
@@ -3182,7 +3181,7 @@ def yaml_line_scanner(message: str,
 
     if matched:
         remnants, _ = formatters.format_yaml_line(message, override_formatting={})
-        processor: tuple[str, Optional[Callable], dict] = ("block", yaml_line_scanner, options)
+        processor: tuple[str, Callable | None, dict] = ("block", yaml_line_scanner, options)
     else:
         if process_block_end:
             if format_block_end:
@@ -3199,7 +3198,7 @@ def yaml_line_scanner(message: str,
 
 # pylint: disable-next=too-many-locals,too-many-branches
 def yaml_line(message: str, **kwargs: Any) -> \
-        tuple[str | tuple[str, Optional[Callable], dict],
+        tuple[str | tuple[str, Callable | None, dict],
               str | list[tuple[list[ThemeRef | ThemeStr], LogLevel]]]:
     """
     Parser for YAML.
@@ -3267,7 +3266,7 @@ def yaml_line(message: str, **kwargs: Any) -> \
         else:
             severity_name = f"severity_{loglevel_to_name(severity).lower()}"
             remnants = [ThemeStr(message, ThemeAttr("logview", severity_name))]
-        processor: tuple[str, Optional[Callable], dict] = \
+        processor: tuple[str, Callable | None, dict] = \
             ("start_block", yaml_line_scanner, options)
         return processor, remnants
 
@@ -3276,7 +3275,7 @@ def yaml_line(message: str, **kwargs: Any) -> \
 
 # pylint: disable-next=too-many-locals,too-many-branches
 def diff_line_scanner(message: str,
-                      **kwargs: Any) -> tuple[tuple[str, Optional[Callable], dict],
+                      **kwargs: Any) -> tuple[tuple[str, Callable | None, dict],
                                               tuple[datetime, str, LogLevel,
                                                     list[tuple[list[ThemeRef | ThemeStr],
                                                                LogLevel]]]]:
@@ -3341,7 +3340,7 @@ def diff_line_scanner(message: str,
                                                indent=deep_get(options, DictPath("indent"), ""),
                                                diffspace=deep_get(options,
                                                                   DictPath("diffspace"), ""))
-        processor: tuple[str, Optional[Callable], dict] = ("block", diff_line_scanner, options)
+        processor: tuple[str, Callable | None, dict] = ("block", diff_line_scanner, options)
     else:
         if process_block_end:
             if format_block_end:
@@ -3357,7 +3356,7 @@ def diff_line_scanner(message: str,
 
 
 # pylint: disable-next=too-many-locals,too-many-branches
-def diff_line(message: str, **kwargs: Any) -> tuple[tuple[str, Optional[Callable], dict],
+def diff_line(message: str, **kwargs: Any) -> tuple[tuple[str, Callable | None, dict],
                                                     list[tuple[list[ThemeRef | ThemeStr],
                                                                LogLevel]]]:
     """
@@ -3427,7 +3426,7 @@ def diff_line(message: str, **kwargs: Any) -> tuple[tuple[str, Optional[Callable
         else:
             severity_name = f"severity_{loglevel_to_name(severity).lower()}"
             remnants = [ThemeStr(message, ThemeAttr("logview", severity_name))]
-        processor: tuple[str, Optional[Callable], dict] = \
+        processor: tuple[str, Callable | None, dict] = \
             ("start_block", diff_line_scanner, options)
         return processor, remnants
 
@@ -3436,7 +3435,7 @@ def diff_line(message: str, **kwargs: Any) -> tuple[tuple[str, Optional[Callable
 
 # pylint: disable-next=too-many-locals,too-many-branches
 def ansible_line_scanner(message: str,
-                         **kwargs: Any) -> tuple[tuple[str, Optional[Callable], dict],
+                         **kwargs: Any) -> tuple[tuple[str, Callable | None, dict],
                                                  tuple[datetime, str, LogLevel,
                                                        list[tuple[list[ThemeRef | ThemeStr],
                                                                   LogLevel]]]]:
@@ -3477,7 +3476,7 @@ def ansible_line_scanner(message: str,
 
     # We're approaching the end
     if final_block and not message:
-        processor: tuple[str, Optional[Callable], dict] = ("end_block", None, {})
+        processor: tuple[str, Callable | None, dict] = ("end_block", None, {})
     else:
         if "final_block" in options:
             tmp = re.match(r"^.+?:\sok=(\d+)\s+"
@@ -3533,7 +3532,7 @@ def ansible_line_scanner(message: str,
 
 
 def ansible_line(message: str,
-                 **kwargs: Any) -> tuple[tuple[str, Optional[Callable], dict],
+                 **kwargs: Any) -> tuple[tuple[str, Callable | None, dict],
                                          list[tuple[list[ThemeRef | ThemeStr], LogLevel]]]:
     """
     Parser for Ansible results.
@@ -3567,7 +3566,7 @@ def ansible_line(message: str,
         severity_name = f"severity_{loglevel_to_name(severity).lower()}"
         remnants = [ThemeStr(message, ThemeAttr("logview", severity_name))]
         options["eof"] = "end_block"
-        processor: tuple[str, Optional[Callable], dict] = \
+        processor: tuple[str, Callable | None, dict] = \
             ("start_block", ansible_line_scanner, options)
         return processor, remnants
 
@@ -3576,7 +3575,7 @@ def ansible_line(message: str,
 
 # pylint: disable-next=too-many-locals,too-many-branches
 def custom_line_scanner(message: str, **kwargs: Any) \
-        -> tuple[tuple[str, Optional[Callable], dict],
+        -> tuple[tuple[str, Callable | None, dict],
                  tuple[datetime, str, LogLevel, list[ThemeRef | ThemeStr]]]:
     """
     Scanner for custom block messages.
@@ -3637,7 +3636,7 @@ def custom_line_scanner(message: str, **kwargs: Any) \
 
     if matched:
         remnants = [ThemeStr(message, ThemeAttr("logview", f"severity_{loglevel_name}"))]
-        processor: tuple[str, Optional[Callable], dict] = ("block", custom_line_scanner, options)
+        processor: tuple[str, Callable | None, dict] = ("block", custom_line_scanner, options)
     else:
         if process_block_end:
             if format_block_end:
@@ -3653,7 +3652,7 @@ def custom_line_scanner(message: str, **kwargs: Any) \
 
 
 # pylint: disable-next=too-many-locals,too-many-branches
-def custom_line(message: str, **kwargs: Any) -> tuple[tuple[str, Optional[Callable], dict],
+def custom_line(message: str, **kwargs: Any) -> tuple[tuple[str, Callable | None, dict],
                                                       list[tuple[list[ThemeRef | ThemeStr],
                                                                  LogLevel]]]:
     """
@@ -3716,7 +3715,7 @@ def custom_line(message: str, **kwargs: Any) -> tuple[tuple[str, Optional[Callab
         else:
             severity_name = f"severity_{loglevel_to_name(severity).lower()}"
             remnants = [ThemeStr(message, ThemeAttr("logview", severity_name))]
-        processor: tuple[str, Optional[Callable], dict] = \
+        processor: tuple[str, Callable | None, dict] = \
             ("start_block", custom_line_scanner, options)
         return processor, remnants
 
@@ -3872,7 +3871,7 @@ def custom_splitter(message: str, **kwargs: Any) -> \
 # pylint: disable-next=too-many-locals,too-many-branches,too-many-statements
 def parsing_multiplexer(message: str, filters: list[str | tuple], **kwargs: Any) \
         -> tuple[str, LogLevel,
-                 list[ThemeRef | ThemeStr] | tuple[str, Optional[Callable], dict],
+                 list[ThemeRef | ThemeStr] | tuple[str, Callable | None, dict],
                  list[tuple[list[ThemeRef | ThemeStr], LogLevel]]]:
     """
     The main loop for the parser; it will iterate loop through all rules specified for
@@ -4306,7 +4305,7 @@ def get_parser_list() -> set[Parser]:
 # pylint: disable-next=too-many-locals
 def logparser_initialised(**kwargs: Any) \
         -> tuple[datetime, str, LogLevel,
-                 list[ThemeRef | ThemeStr] | tuple[str, Optional[Callable], dict],
+                 list[ThemeRef | ThemeStr] | tuple[str, Callable | None, dict],
                  list[tuple[list[ThemeRef | ThemeStr], LogLevel]]]:
     """
     This is used when the parser is already initialised.
@@ -4326,7 +4325,7 @@ def logparser_initialised(**kwargs: Any) \
                 (rstr): An unformatted string
                 ([(ThemeArray, LogLevel)]): Formatted remainders with severity
     """
-    parser: Optional[Parser] = deep_get(kwargs, DictPath("parser"))
+    parser: Parser | None = deep_get(kwargs, DictPath("parser"))
     message: str = deep_get(kwargs, DictPath("message"), "")
     fold_msg: bool = deep_get(kwargs, DictPath("fold_msg"), True)
     line: int = deep_get(kwargs, DictPath("line"), 0)
@@ -4390,9 +4389,9 @@ def logparser_initialised(**kwargs: Any) \
 # pylint: disable-next=too-many-locals,too-many-branches,too-many-statements
 def logparser(pod_name: str, container_name: str, image_name: str, message: str, **kwargs: Any) \
         -> tuple[datetime, str, LogLevel,
-                 list[ThemeRef | ThemeStr] | tuple[str, Optional[Callable], dict],
+                 list[ThemeRef | ThemeStr] | tuple[str, Callable | None, dict],
                  list[tuple[list[ThemeRef | ThemeStr], LogLevel]],
-                 tuple[Optional[str], str], Parser]:
+                 tuple[str | None, str], Parser]:
     """
     This (re-)initialises the parser; it will identify what parser rules to use
     helped by pod_name, container_name, and image_name;
@@ -4427,7 +4426,7 @@ def logparser(pod_name: str, container_name: str, image_name: str, message: str,
                 (Parser): A reference to the parser rules that are used
     """
     fold_msg: bool = deep_get(kwargs, DictPath("fold_msg"), True)
-    override_parser: Optional[Parser] = deep_get(kwargs, DictPath("override_parser"))
+    override_parser: Parser | None = deep_get(kwargs, DictPath("override_parser"))
     container_type: str = deep_get(kwargs, DictPath("container_type"), "container")
     line: int = deep_get(kwargs, DictPath("line"), 0)
     facility: str = ""

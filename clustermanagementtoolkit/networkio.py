@@ -23,7 +23,7 @@ import sys
 import tarfile
 import tempfile
 import time
-from typing import Any, cast, Optional
+from typing import Any, cast
 from collections.abc import Callable, Sequence
 
 import paramiko
@@ -171,7 +171,7 @@ checksum_functions: dict[str, Callable] = {
 
 
 def verify_checksum(checksum: bytes,
-                    checksum_type: str, data: bytes, filename: Optional[str] = None) -> bool:
+                    checksum_type: str, data: bytes, filename: str | None = None) -> bool:
     """
     Checksum data against a checksum file
 
@@ -241,7 +241,7 @@ def verify_checksum(checksum: bytes,
     return True
 
 
-def get_netrc_token(url: Optional[str]) -> Optional[str]:
+def get_netrc_token(url: str | None) -> str | None:
     """
     Given a URL, check whether there's a matching bearer token in .netrc,
     and if so, return it.
@@ -251,7 +251,7 @@ def get_netrc_token(url: Optional[str]) -> Optional[str]:
         Returns:
             (str): A bearer token, o None if no token could be found
     """
-    token: Optional[str] = None
+    token: str | None = None
 
     if url is None or not url.startswith(("http://", "https://")):
         return token
@@ -269,7 +269,7 @@ def get_netrc_token(url: Optional[str]) -> Optional[str]:
     is_machine: bool = False
 
     for line in netrc_lines:
-        tmp: Optional[re.Match] = re.match(r"^(machine|password)\s(.+)$", line.strip())
+        tmp: re.Match | None = re.match(r"^(machine|password)\s(.+)$", line.strip())
         if tmp is not None:
             if tmp[1] == "machine" and tmp[2] == base_url:
                 is_machine = True
@@ -292,7 +292,7 @@ def get_netrc_token(url: Optional[str]) -> Optional[str]:
 
 # pylint: disable-next=too-many-locals,too-many-branches,too-many-statements
 def download_files(directory: str,
-                   fetch_urls: Sequence[tuple[str, str, Optional[str], Optional[str]]],
+                   fetch_urls: Sequence[tuple[str, str, str | None, str | None]],
                    permissions: int = 0o644) -> bool:
     """
     Download files; if the file is a tar file it can extract a file.
@@ -524,7 +524,7 @@ def download_files(directory: str,
     return retval
 
 
-def get_github_version(url: str, version_regex: str) -> Optional[tuple[list[str], str, str]]:
+def get_github_version(url: str, version_regex: str) -> tuple[list[str], str, str] | None:
     """
     Given a github repository find the latest release;
     exclude releases that do not match the regex and prereleases.
@@ -672,11 +672,11 @@ def update_version_cache(**kwargs: Any) -> None:
         else:
             changelog_age = None
         tmp: str = deep_get(data, DictPath("candidate_version#function"), "")
-        candidate_version_func: Optional[Callable] = \
+        candidate_version_func: Callable | None = \
             deep_get(candidate_version_function_allowlist, DictPath(tmp))
         candidate_version_args: dict = deep_get(data, DictPath("candidate_version#args"), {})
 
-        candidate_version_tuple: Optional[tuple] = None
+        candidate_version_tuple: tuple | None = None
         release_body = ""
 
         # By default we only update the cache once per hour unless forced

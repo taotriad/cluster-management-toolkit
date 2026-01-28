@@ -14,7 +14,7 @@ import logging
 import logging.handlers
 import os
 import sys
-from typing import Any, cast, Optional
+from typing import Any, cast
 from collections.abc import Callable
 
 from clustermanagementtoolkit import cmtpaths
@@ -23,7 +23,7 @@ from clustermanagementtoolkit.cmttypes import deep_get, DictPath, LogLevel
 
 from clustermanagementtoolkit.ansithemeprint import ANSIThemeStr
 
-logger: Optional[logging.Logger] = None  # pylint: disable=invalid-name
+logger: logging.Logger | None = None  # pylint: disable=invalid-name
 
 
 def log_array_to_string(msglist: list[str | list[ANSIThemeStr]]) -> str:

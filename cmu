@@ -49,7 +49,7 @@ import subprocess  # nosec
 from subprocess import PIPE, STDOUT  # nosec
 import sys
 from types import FrameType
-from typing import Any, cast, Optional, Type
+from typing import Any, cast, Type
 from collections.abc import Callable
 
 try:
@@ -187,13 +187,13 @@ except ModuleNotFoundError:  # pragma: no cover
     pass
 
 
-def signal_handler(sig: int, frame: Optional[FrameType]) -> None:
+def signal_handler(sig: int, frame: FrameType | None) -> None:
     """
     Signal handler for keypresses.
 
         Parameters:
             sig (int): The signal to handle [unused]
-            frame (Optional[FrameType]): The frame [unused]
+            frame (FrameType | None): The frame [unused]
     """
     del sig
     del frame
@@ -431,7 +431,7 @@ def get_image_tuple(image: str) -> tuple[str, str]:
                 (str): The container name
                 (str): The container version
     """
-    tmp: Optional[re.Match[str]] = re.match(r"^(.*):(.*)", image)
+    tmp: re.Match[str] | None = re.match(r"^(.*):(.*)", image)
     if tmp is not None:
         image_name = f"{tmp[1]}"
         image_version = f"{tmp[2]}"
@@ -1307,7 +1307,7 @@ def genericlistloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                                            uip.maxy // 2, uip.maxx // 2, actions,
                                            title=action_title)
             selection = None
-            if tmpselection is not None and tmpselection != "":
+            if tmpselection:
                 selection = ""
                 for i, element in enumerate(tmpselection):
                     if element:
@@ -1316,7 +1316,7 @@ def genericlistloop(stdscr: curses.window, **kwargs: Any) -> Retval:
             curses.doupdate()
 
             actionfunc_args: dict = {}
-            if selection is not None and selection != "":
+            if selection:
                 actionfunc = None
 
                 # Map the description back to key
@@ -1511,7 +1511,7 @@ def genericlistloop(stdscr: curses.window, **kwargs: Any) -> Retval:
             if isinstance(tmpselection, str):
                 selection = tmpselection
 
-            if selection is not None and selection:
+            if selection:
                 if selection == all_ns:
                     selected_namespace = ""
                 else:
@@ -1875,7 +1875,7 @@ def genericlistloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                                                       uip.maxy // 2, uip.maxx // 2, actions,
                                                       title=action_title)
             selection = None
-            if tmpselection is not None and tmpselection != "":
+            if tmpselection:
                 selection = ""
                 for i, element in enumerate(tmpselection):
                     if element:
@@ -1883,7 +1883,7 @@ def genericlistloop(stdscr: curses.window, **kwargs: Any) -> Retval:
             uip.refresh_all()
             curses.doupdate()
 
-            if selection is not None and selection != "":
+            if selection:
                 actionfunc = None
 
                 # Map the description back to key
@@ -2133,7 +2133,7 @@ def genericlistloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                         title_name = deep_get_str_tuple_paths(selected.ref, title_name_paths, "")
                     elif selected is not None:
                         title_name = getattr(selected, "name", "")
-                    if title_name != "":
+                    if title_name:
                         title_name = f" ({title_name})"
                     action_args["named_title"] = f"{title}{title_name}"
                 action_call = deep_get(value, DictPath("action_call"))
@@ -2495,7 +2495,7 @@ def run_ansible_play_async(*args: Any, **kwargs: Any) -> tuple[dict[str, Any], l
                 playbook (FilePath): The playbook to run
                 selection ([str]): The hosts to run the play on
                 verbose (bool): Output status updates for every new Ansible event?
-                save_logs (Optional[bool]): Override the save_logs variable in ansible_configuration
+                save_logs (bool | None): Override the save_logs variable in ansible_configuration
         Returns:
             ((dict, int)):
                 (dict): The results of the run
@@ -2505,7 +2505,7 @@ def run_ansible_play_async(*args: Any, **kwargs: Any) -> tuple[dict[str, Any], l
     playbook: FilePath = deep_get(kwargs, DictPath("playbook"))
     selection: list[str] = deep_get(kwargs, DictPath("selection"), [])
     verbose: bool = deep_get(kwargs, DictPath("verbose"), False)
-    save_logs: Optional[bool] = deep_get(kwargs, DictPath("save_logs"))
+    save_logs: bool | None = deep_get(kwargs, DictPath("save_logs"))
     status, result = ansible_run_playbook_on_selection(playbook=playbook,
                                                        selection=selection,
                                                        verbose=verbose, save_logs=save_logs)
@@ -3829,7 +3829,7 @@ def genericinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
         title_path = deep_get(kwargs, DictPath("title_path"))
         if title_path is not None:
             title = deep_get(obj, DictPath(title_path))
-        if obj_path != "":
+        if obj_path:
             obj = deep_get(obj, DictPath(obj_path))
         else:
             obj = [obj]
@@ -3890,7 +3890,7 @@ def genericinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
     labels = deep_get(viewref, DictPath("labels"))
     annotations = deep_get(viewref, DictPath("annotations"))
     extraref = deep_get(viewref, DictPath("extraref"))
-    data: Optional[dict] = None
+    data: dict | None = None
     if deep_get(viewref, DictPath("data"), False):
         data = obj
     viewoverride = deep_get(viewref, DictPath("viewoverride"), view)
@@ -4699,7 +4699,7 @@ def genericinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                 continue
 
             widget: str = deep_get(sc_value, DictPath("widget"), "")
-            force_update: Optional[bool] = deep_get(sc_value, DictPath("force_update"))
+            force_update: bool | None = deep_get(sc_value, DictPath("force_update"))
             tmpselection = None
             if widget == "windowwidget":
                 w_title = deep_get(sc_value, DictPath("title"), "")
@@ -4915,7 +4915,7 @@ def genericinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                         title_name = deep_get_str_tuple_paths(cast(dict, ref), title_name_paths, "")
                     elif selected is not None:
                         title_name = getattr(selected, "name", "")
-                    if title_name != "":
+                    if title_name:
                         title_name = f" ({title_name})"
                     action_args["named_title"] = f"{title}{title_name}"
 
@@ -5077,7 +5077,7 @@ def log_add_line(timestamps: list[datetime],
                  facilities: list[str | tuple[str, str]],
                  severities: list[LogLevel],
                  messages: list[list[ThemeRef | ThemeStr] | str],
-                 timestamp: Optional[datetime], facility: str,
+                 timestamp: datetime | None, facility: str,
                  severity: LogLevel, message: list[ThemeRef | ThemeStr],
                  facility_extended: list[ThemeRef | ThemeStr]) \
         -> tuple[list[datetime], list[str | tuple[str, str]], list[LogLevel],
@@ -5090,7 +5090,7 @@ def log_add_line(timestamps: list[datetime],
             facilities ([str|(str, str)]): The list of facilities
             severities ([LogLevel]): The list of severities
             messages ([[ThemeRef|ThemeStr]|str]): The list of log messages
-            timestamp (Optional[datetime]): The timestamp of the message to add
+            timestamp (datetime | None): The timestamp of the message to add
             facility ([str]): The facility of the message to add
             severity ([LogLevel]): The severity of the message to add
             message ([ThemeRef|ThemeStr]|str): The message to add
@@ -5337,7 +5337,7 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
             linecount: int = len(splitmsg)
             linepercent: int = int(linecount * 0.1)
 
-            progressbar: Optional[curses.window] = None
+            progressbar: curses.window | None = None
             if linecount > 1000:
                 progressbar = curses_helper.progressbar(None, y=uip.maxy // 2, minx=(uip.minx + 8),
                                                         maxx=(uip.maxx - 8), progress=0,
@@ -5562,7 +5562,7 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                     ThemeStr("Status: ", ThemeAttr("main", "infoheader")),
                     ThemeStr(f"{status}", color_status_group(status_group))
                 ]
-                if status_message != "":
+                if status_message:
                     status_message_ = "\\n".join(split_msg(status_message))
                     statusarray.append(ThemeStr(f" ({status_message_})",
                                        ThemeAttr("types", "generic")))
@@ -5866,7 +5866,7 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                 if facility_extended is not None and facility_extended:
                     msgstrarray += facility_extended
 
-                if facility != "":
+                if facility:
                     facilitystr: list[ThemeRef | ThemeStr] = [
                         ThemeRef("separators", "facility_prefix"),
                         ThemeStr(facility, ThemeAttr("logview", "facility")),
@@ -6066,12 +6066,12 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                                            uip.maxx // 2, option_list, title="Parser options",
                                            cursor=True, preselection=preselection, taggable=True)
             selection = None
-            if tmpselection is not None and tmpselection != "":
+            if tmpselection:
                 selection = tmpselection
             uip.refresh_all()
 
             # Some option changed, so we need to re-render the log
-            if selection is not None and preselection != selection:
+            if selection and preselection != selection:
                 # Perform the changes
                 modified_options = preselection.symmetric_difference(selection)
                 for i in modified_options:
@@ -6120,10 +6120,10 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                                                       title="Override Logparser", cursor=True,
                                                       preselection=preselection)
             selection = None
-            if tmpselection is not None and tmpselection != "":
+            if tmpselection:
                 selection = tmpselection
             uip.refresh_all()
-            if selection is not None and selection:
+            if selection:
                 if selection == "<autodetect>":
                     override_parser = None
                 else:
@@ -6148,7 +6148,7 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                                                       title="Select Loglevel", cursor=True,
                                                       preselection=loglevel_to_name(log_level))
             selection = None
-            if tmpselection is not None and tmpselection != "":
+            if tmpselection:
                 selection = tmpselection
             uip.refresh_all()
             if isinstance(selection, str) and selection:
@@ -6203,10 +6203,10 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                                                       title="Select Facility Level", cursor=True,
                                                       preselection=show_facility)
             selection = None
-            if tmpselection is not None and tmpselection != "":
+            if tmpselection:
                 selection = tmpselection
             uip.refresh_all()
-            if selection is not None and selection:
+            if selection:
                 show_facility = selection
             uip.yoffset = 0
             uip.xoffset = 0
@@ -7031,7 +7031,7 @@ def resourceinfodispatch_with_lookup(stdscr: curses.window, **kwargs: Any) -> Re
         # Search for a controller, or the first reference that matches the kind if specified
         owner_references = deep_get(obj, DictPath(owner_reference_path), [])
         accept_only_owner: bool = deep_get(kwargs, DictPath("accept_only_owner"), False)
-        must_be_controller: Optional[bool] = deep_get(kwargs, DictPath("controller"))
+        must_be_controller: bool | None = deep_get(kwargs, DictPath("controller"))
         for ref in owner_references:
             ref_name = deep_get(ref, DictPath("name"))
 
@@ -7143,7 +7143,7 @@ def __run_playbook(playbookpath: FilePath, hosts: list[str], **kwargs: Any) -> i
     return retval
 
 
-def run_playbook(playbook: dict, hosts: list[str], values: Optional[dict] = None) -> int:
+def run_playbook(playbook: dict, hosts: list[str], values: dict | None = None) -> int:
     """
     Run a playbook.
 
@@ -8698,7 +8698,7 @@ def populate_playbooklist(**kwargs: Any) -> tuple[list[dict], dict]:
                 single_item (bool): Has only a single item been selected?
                 cluster_available (bool): Is the cluster available?
     """
-    context: Optional[dict] = deep_get(kwargs, DictPath("context"))
+    context: dict | None = deep_get(kwargs, DictPath("context"))
     actions: list[dict] = deep_get(kwargs, DictPath("actions"))
     action_list: dict = deep_get(kwargs, DictPath("action_list"), {})
     control_plane_selected: bool = deep_get(kwargs, DictPath("control_plane_selected"), False)
@@ -9335,7 +9335,7 @@ key_mappings: dict[str, list[int]] = {
 
 
 # pylint: disable-next=too-many-branches
-def map_key(view_file: str, shortcut: str, activatedfun: Optional[Callable],
+def map_key(view_file: str, shortcut: str, activatedfun: Callable | None,
             key: str, modifier: str) -> tuple[list[int], str]:
     """
     Setup a shortcut mapping and return the key-code(s) + helptext.
@@ -10447,7 +10447,7 @@ def list_views(options: list[tuple[str, str]], args: list[str]) -> None:
                                  "of the field names.", "default")])
 
 
-def checkforview(arg: str | tuple[str, str]) -> Optional[str]:
+def checkforview(arg: str | tuple[str, str]) -> str | None:
     """
     Check whether a view exists.
 
@@ -10576,7 +10576,7 @@ def open_view(options: list[tuple[str, str]], args: list[str]) -> None:
             sys.exit(errno.EINVAL)
         defaultview = tmpview
     else:
-        if tmpdefaultview is not None and tmpdefaultview != "":
+        if tmpdefaultview:
             defaultview = tmpdefaultview
         else:
             defaultview = "Selector"

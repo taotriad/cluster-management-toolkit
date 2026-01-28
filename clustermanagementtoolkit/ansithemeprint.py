@@ -15,7 +15,7 @@ import copy
 from pathlib import Path, PurePath
 import subprocess  # nosec
 import sys
-from typing import Any, Optional
+from typing import Any
 from collections.abc import Sequence
 
 from clustermanagementtoolkit.cmtpaths import SYSTEM_DEFAULT_THEME_FILE
@@ -326,8 +326,8 @@ class ANSIThemeStr:
         return "\n".join(joined_strings), themearray_list
 
 
-theme: Optional[dict] = None  # pylint: disable=invalid-name
-themepath: Optional[FilePath] = None  # pylint: disable=invalid-name
+theme: dict | None = None  # pylint: disable=invalid-name
+themepath: FilePath | None = None  # pylint: disable=invalid-name
 
 
 FALLBACK_THEME = {
@@ -455,7 +455,7 @@ def ansithemearray_to_str(themearray: list[ANSIThemeStr], **kwargs: Any) -> str:
 
 
 def themearray_override_formatting(themearray: list[ANSIThemeStr],
-                                   formatting: Optional[str]) -> list[ANSIThemeStr]:
+                                   formatting: str | None) -> list[ANSIThemeStr]:
     """
     Override the formatting of an ANSIThemeArray (list[ANSIThemeStr]).
 
@@ -518,7 +518,7 @@ def ansithemestr_join_list(items: Sequence[str | ANSIThemeStr],
     """
     formatting: str = deep_get(kwargs, DictPath("formatting"), "default")
     if "separator" in kwargs:
-        separator: Optional[ANSIThemeStr] = deep_get(kwargs, DictPath("separator"))
+        separator: ANSIThemeStr | None = deep_get(kwargs, DictPath("separator"))
     else:
         separator = ANSIThemeStr(", ", "separator")
 
@@ -689,7 +689,7 @@ def ansithemeprint(themearray: list[ANSIThemeStr], **kwargs: Any) -> None:
         print(string)
 
 
-def init_ansithemeprint(themefile: Optional[FilePath] = None) -> None:
+def init_ansithemeprint(themefile: FilePath | None = None) -> None:
     """
     Initialise ansithemeprint.
 
@@ -700,7 +700,7 @@ def init_ansithemeprint(themefile: Optional[FilePath] = None) -> None:
     global themepath  # pylint: disable=global-statement
 
     # If we get None as theme we use the builtin fallback theme
-    if themefile is None or not themefile:
+    if not themefile:
         theme = FALLBACK_THEME
         themepath = FilePath("<built-in default>")
         return

@@ -18,7 +18,7 @@ import os
 from pathlib import Path, PurePath
 import sys
 import traceback
-from typing import Any, cast, NewType, Optional
+from typing import Any, cast, NewType
 
 DictPath = NewType("DictPath", str)
 
@@ -90,7 +90,7 @@ def reformat_msg(msg: list[list[tuple[str, str]]]) -> str:
 
 
 # Keep this first so we can use it in the exceptions
-def deep_get(dictionary: Optional[Any], path: DictPath, default: Any = None) -> Any:
+def deep_get(dictionary: Any | None, path: DictPath, default: Any = None) -> Any:
     """
     Given a dictionary and a path into that dictionary, get the value.
 
@@ -113,7 +113,7 @@ def deep_get(dictionary: Optional[Any], path: DictPath, default: Any = None) -> 
     return result
 
 
-def deep_pop(dictionary: Optional[Any], path: DictPath, key: DictPath, default: Any = None) -> Any:
+def deep_pop(dictionary: Any | None, path: DictPath, key: DictPath, default: Any = None) -> Any:
     """
     Given a dictionary, a path into that dictionary, and a key at that path, pop the key
     and return its value (or default if the dict, path, or key doesn't exist).
@@ -128,7 +128,7 @@ def deep_pop(dictionary: Optional[Any], path: DictPath, key: DictPath, default: 
         Returns:
             (Any): The value from the path
     """
-    reduced_path: Optional[dict | DictPath] = \
+    reduced_path: dict | DictPath | None = \
         deep_get(dictionary, path, default)
     if reduced_path is not None:
         if isinstance(reduced_path, dict):
@@ -161,17 +161,17 @@ class UnknownError(Exception):
             lineno (str): The line the error occurred on (optional)
             ppid (str): The parent pid of the process (optional)
     """
-    traceback: Optional[str] = None
+    traceback: str | None = None
 
     def __init__(self, message: str, **kwargs: Any) -> None:
-        severity: Optional[Any] = deep_get(kwargs, DictPath("severity"))
-        facility: Optional[str] = deep_get(kwargs, DictPath("facility"))
-        formatted_msg: Optional[Any] = deep_get(kwargs, DictPath("formatted_msg"))
-        timestamp: Optional[datetime] = deep_get(kwargs, DictPath("timestamp"))
-        file: Optional[str] = deep_get(kwargs, DictPath("file"))
-        function: Optional[str] = deep_get(kwargs, DictPath("function"))
-        lineno: Optional[int] = deep_get(kwargs, DictPath("lineno"))
-        ppid: Optional[int] = deep_get(kwargs, DictPath("ppid"))
+        severity: Any | None = deep_get(kwargs, DictPath("severity"))
+        facility: str | None = deep_get(kwargs, DictPath("facility"))
+        formatted_msg: Any | None = deep_get(kwargs, DictPath("formatted_msg"))
+        timestamp: datetime | None = deep_get(kwargs, DictPath("timestamp"))
+        file: str | None = deep_get(kwargs, DictPath("file"))
+        function: str | None = deep_get(kwargs, DictPath("function"))
+        lineno: int | None = deep_get(kwargs, DictPath("lineno"))
+        ppid: int | None = deep_get(kwargs, DictPath("ppid"))
 
         try:
             # This is to get the necessary stack info
@@ -262,20 +262,20 @@ class ArgumentValidationError(Exception):
             lineno (str): The line the error occurred on (optional)
             ppid (str): The parent pid of the process (optional)
     """
-    traceback: Optional[str] = None
+    traceback: str | None = None
 
     def __init__(self, **kwargs: Any) -> None:
-        message: Optional[str] = deep_get(kwargs, DictPath("message"))
-        subexception: Optional[Exception] = deep_get(kwargs, DictPath("subexception"))
-        severity: Optional[Any] = deep_get(kwargs, DictPath("severity"))
-        facility: Optional[str] = deep_get(kwargs, DictPath("facility"))
-        formatted_msg: Optional[list[list[tuple[str, str]]]] = deep_get(kwargs,
-                                                                        DictPath("formatted_msg"))
-        timestamp: Optional[datetime] = deep_get(kwargs, DictPath("timestamp"))
-        file: Optional[str] = deep_get(kwargs, DictPath("file"))
-        function: Optional[str] = deep_get(kwargs, DictPath("function"))
-        lineno: Optional[int] = deep_get(kwargs, DictPath("lineno"))
-        ppid: Optional[int] = deep_get(kwargs, DictPath("ppid"))
+        message: str | None = deep_get(kwargs, DictPath("message"))
+        subexception: Exception | None = deep_get(kwargs, DictPath("subexception"))
+        severity: Any | None = deep_get(kwargs, DictPath("severity"))
+        facility: str | None = deep_get(kwargs, DictPath("facility"))
+        formatted_msg: list[list[tuple[str, str]]] | None = deep_get(kwargs,
+                                                                     DictPath("formatted_msg"))
+        timestamp: datetime | None = deep_get(kwargs, DictPath("timestamp"))
+        file: str | None = deep_get(kwargs, DictPath("file"))
+        function: str | None = deep_get(kwargs, DictPath("function"))
+        lineno: int | None = deep_get(kwargs, DictPath("lineno"))
+        ppid: int | None = deep_get(kwargs, DictPath("ppid"))
         try:
             # This is to get the necessary stack info
             raise UserWarning
@@ -375,18 +375,18 @@ class ProgrammingError(Exception):
             lineno (str): The line the error occurred on (optional)
             ppid (str): The parent pid of the process (optional)
     """
-    traceback: Optional[str] = None
+    traceback: str | None = None
 
     def __init__(self, message: str, **kwargs: Any) -> None:
-        subexception: Optional[Exception] = deep_get(kwargs, DictPath("subexception"))
-        severity: Optional[Any] = deep_get(kwargs, DictPath("severity"))
-        facility: Optional[str] = deep_get(kwargs, DictPath("facility"))
-        formatted_msg: Optional[Any] = deep_get(kwargs, DictPath("formatted_msg"))
-        timestamp: Optional[datetime] = deep_get(kwargs, DictPath("timestamp"))
-        file: Optional[str] = deep_get(kwargs, DictPath("file"))
-        function: Optional[str] = deep_get(kwargs, DictPath("function"))
-        lineno: Optional[int] = deep_get(kwargs, DictPath("lineno"))
-        ppid: Optional[int] = deep_get(kwargs, DictPath("ppid"))
+        subexception: Exception | None = deep_get(kwargs, DictPath("subexception"))
+        severity: Any | None = deep_get(kwargs, DictPath("severity"))
+        facility: str | None = deep_get(kwargs, DictPath("facility"))
+        formatted_msg: Any | None = deep_get(kwargs, DictPath("formatted_msg"))
+        timestamp: datetime | None = deep_get(kwargs, DictPath("timestamp"))
+        file: str | None = deep_get(kwargs, DictPath("file"))
+        function: str | None = deep_get(kwargs, DictPath("function"))
+        lineno: int | None = deep_get(kwargs, DictPath("lineno"))
+        ppid: int | None = deep_get(kwargs, DictPath("ppid"))
         try:
             # This is to get the necessary stack info
             raise UserWarning
@@ -483,18 +483,18 @@ class FilePathAuditError(Exception):
             lineno (str): The line the error occurred on (optional)
             ppid (str): The parent pid of the process (optional)
     """
-    traceback: Optional[str] = None
+    traceback: str | None = None
 
     def __init__(self, message: str, **kwargs: Any) -> None:
-        path: Optional[FilePath] = deep_get(kwargs, DictPath("path"))
-        severity: Optional[Any] = deep_get(kwargs, DictPath("severity"))
-        facility: Optional[str] = deep_get(kwargs, DictPath("facility"))
-        formatted_msg: Optional[Any] = deep_get(kwargs, DictPath("formatted_msg"))
-        timestamp: Optional[datetime] = deep_get(kwargs, DictPath("timestamp"))
-        file: Optional[str] = deep_get(kwargs, DictPath("file"))
-        function: Optional[str] = deep_get(kwargs, DictPath("function"))
-        lineno: Optional[int] = deep_get(kwargs, DictPath("lineno"))
-        ppid: Optional[int] = deep_get(kwargs, DictPath("ppid"))
+        path: FilePath | None = deep_get(kwargs, DictPath("path"))
+        severity: Any | None = deep_get(kwargs, DictPath("severity"))
+        facility: str | None = deep_get(kwargs, DictPath("facility"))
+        formatted_msg: Any | None = deep_get(kwargs, DictPath("formatted_msg"))
+        timestamp: datetime | None = deep_get(kwargs, DictPath("timestamp"))
+        file: str | None = deep_get(kwargs, DictPath("file"))
+        function: str | None = deep_get(kwargs, DictPath("function"))
+        lineno: int | None = deep_get(kwargs, DictPath("lineno"))
+        ppid: int | None = deep_get(kwargs, DictPath("ppid"))
         try:
             # This is to get the necessary stack info
             raise UserWarning
@@ -1015,7 +1015,7 @@ def deep_set(dictionary: Any, path: DictPath, value: Any, create_path: bool = Fa
 
 def __deep_get_recursive(dictionary: dict,
                          path_fragments: list[str],
-                         result: list | None = None) -> Optional[list[Any]]:
+                         result: list | None = None) -> list[Any] | None:
     if result is None:
         result = []
 
@@ -1040,8 +1040,8 @@ def __deep_get_recursive(dictionary: dict,
 
 def deep_get_list(dictionary: Any,
                   paths: list[DictPath],
-                  default: Optional[list[Any]] = None,
-                  fallback_on_empty: bool = False) -> Optional[list[Any]]:
+                  default: list[Any] | None = None,
+                  fallback_on_empty: bool = False) -> list[Any] | None:
     """
     Given a dictionary and a list of paths into that dictionary, get all values.
 
@@ -1072,7 +1072,7 @@ def deep_get_list(dictionary: Any,
 
 def deep_get_with_fallback(obj: Any,
                            paths: list[DictPath],
-                           default: Optional[Any] = None, fallback_on_empty: bool = False) -> Any:
+                           default: Any | None = None, fallback_on_empty: bool = False) -> Any:
     """
     Given a dictionary and a list of paths into that dictionary,
     get the value from the first path that has a value.

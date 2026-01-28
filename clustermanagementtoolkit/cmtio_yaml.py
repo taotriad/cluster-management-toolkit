@@ -11,7 +11,7 @@ YAML I/O helpers
 
 import io
 import sys
-from typing import Any, Optional
+from typing import Any
 from collections.abc import Generator
 try:
     import yaml
@@ -100,7 +100,7 @@ def secure_write_yaml(path: FilePath,
         Raises:
             cmttypes.FilePathAuditError
     """
-    permissions: Optional[int] = deep_get(kwargs, DictPath("permissions"))
+    permissions: int | None = deep_get(kwargs, DictPath("permissions"))
     replace_empty: bool = deep_get(kwargs, DictPath("replace_empty"), False)
     replace_empty_dict: bool = deep_get(kwargs, DictPath("replace_empty_dict"), False)
     replace_null: bool = deep_get(kwargs, DictPath("replace_null"), False)
@@ -145,7 +145,7 @@ def secure_read_yaml(path: FilePath, **kwargs: Any) -> dict | \
             FileNotFoundError
             cmttypes.FilePathAuditError
     """
-    checks: Optional[list[SecurityChecks]] = deep_get(kwargs, DictPath("checks"), None)
+    checks: list[SecurityChecks] | None = deep_get(kwargs, DictPath("checks"), None)
     directory_is_symlink: bool = deep_get(kwargs, DictPath("directory_is_symlink"), False)
     temporary: bool = deep_get(kwargs, DictPath("temporary"), False)
     asynchronous: bool = deep_get(kwargs, DictPath("asynchronous"), False)
@@ -188,7 +188,7 @@ def secure_read_yaml_all(path: FilePath, **kwargs: Any) -> Generator:
             ruyaml.parser.ParserError
             ruamel.yaml.constructor.DuplicateKeyError
     """
-    checks: Optional[list[SecurityChecks]] = deep_get(kwargs, DictPath("checks"), None)
+    checks: list[SecurityChecks] | None = deep_get(kwargs, DictPath("checks"), None)
     directory_is_symlink: bool = deep_get(kwargs, DictPath("directory_is_symlink"), False)
     temporary: bool = deep_get(kwargs, DictPath("temporary"), False)
 

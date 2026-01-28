@@ -12,7 +12,7 @@ Helpers for preparing/installing/tearing down/purging a cluster.
 import errno
 import re
 import sys
-from typing import Any, cast, Optional
+from typing import Any, cast
 
 from clustermanagementtoolkit.ansible_helper import ansible_print_action_summary
 from clustermanagementtoolkit.ansible_helper import populate_playbooks_from_filenames
@@ -82,7 +82,7 @@ vm_destroy_template_playbooks: list[FilePath] = [
 ]
 
 
-def get_crio_version(kubernetes_version: tuple[int, int]) -> Optional[tuple[str, str]]:
+def get_crio_version(kubernetes_version: tuple[int, int]) -> tuple[str, str] | None:
     """
     Given a Kubernetes version, return the matching cri-o version.
 
@@ -245,7 +245,7 @@ def get_api_server_package_version(**kwargs: Any) -> tuple[str, str, str]:
     return version, version_major, version_minor
 
 
-def run_playbook(playbookpath: FilePath, hosts: list[str], extra_values: Optional[dict] = None,
+def run_playbook(playbookpath: FilePath, hosts: list[str], extra_values: dict | None = None,
                  quiet: bool = False, verbose: bool = False) -> tuple[int, dict]:
     """
     Run an Ansible playbook.
@@ -316,8 +316,8 @@ def run_playbooks(playbooks: list[tuple[list[ANSIThemeStr], FilePath]], **kwargs
         Returns:
             (int): 0 on success, non-zero on failure
     """
-    hosts: Optional[list[str]] = deep_get(kwargs, DictPath("hosts"))
-    extra_values: Optional[dict] = deep_get(kwargs, DictPath("extra_values"))
+    hosts: list[str] | None = deep_get(kwargs, DictPath("hosts"))
+    extra_values: dict | None = deep_get(kwargs, DictPath("extra_values"))
     verbose: bool = deep_get(kwargs, DictPath("verbose"), False)
 
     if not playbooks or hosts is None:

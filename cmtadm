@@ -30,7 +30,7 @@ import socket
 from subprocess import CalledProcessError  # nosec
 import sys
 import tempfile
-from typing import Any, cast, Optional
+from typing import Any, cast
 from collections.abc import Callable
 
 try:
@@ -451,7 +451,7 @@ def get_control_plane_version(controlplane: str, k8s_distro: str) -> str:
 
 
 # pylint: disable-next=too-many-locals,too-many-branches,too-many-statements
-def rebuild_installation_info(state: Optional[str] = None) -> None:
+def rebuild_installation_info(state: str | None = None) -> None:
     """
     If the installation info file does not exist, but a cluster already exists
     and is part of the inventory, this function will try to rebuild the installation info file.
@@ -573,7 +573,7 @@ def rebuild_installation_info(state: Optional[str] = None) -> None:
                              pod_network_cidr=pod_network_cidr)
 
 
-def get_installation_info(cluster_name: Optional[str] = None,
+def get_installation_info(cluster_name: str | None = None,
                           ignore_non_existing: bool = True) -> dict:
     """
     Return installation info for a cluster, or prepares a new entry if no entry exists yet.
@@ -666,19 +666,19 @@ def update_installation_info(**kwargs: Any) -> dict:
         Returns:
             (dict): The updated installation info
     """
-    installation_target: Optional[str] = deep_get(kwargs, DictPath("installation_target"))
-    cluster_name: Optional[str] = deep_get(kwargs, DictPath("cluster_name"))
-    distro: Optional[str] = deep_get(kwargs, DictPath("distro"))
-    version: Optional[str] = deep_get(kwargs, DictPath("version"))
-    requested_version: Optional[str] = deep_get(kwargs, DictPath("requested_version"))
-    state: Optional[str] = deep_get(kwargs, DictPath("state"))
-    phase: Optional[int | str] = deep_get(kwargs, DictPath("phase"))
-    phase_skiplist: Optional[list[str]] = deep_get(kwargs, DictPath("phase_skiplist"))
-    cni: Optional[str] = deep_get(kwargs, DictPath("cni"))
-    pod_network_cidr: Optional[str] = deep_get(kwargs, DictPath("pod_network_cidr"))
-    cri: Optional[str] = deep_get(kwargs, DictPath("cri"))
-    control_planes: Optional[list[str]] = deep_get(kwargs, DictPath("control_planes"))
-    nodes: Optional[list[str]] = deep_get(kwargs, DictPath("nodes"))
+    installation_target: str | None = deep_get(kwargs, DictPath("installation_target"))
+    cluster_name: str | None = deep_get(kwargs, DictPath("cluster_name"))
+    distro: str | None = deep_get(kwargs, DictPath("distro"))
+    version: str | None = deep_get(kwargs, DictPath("version"))
+    requested_version: str | None = deep_get(kwargs, DictPath("requested_version"))
+    state: str | None = deep_get(kwargs, DictPath("state"))
+    phase: int | str | None = deep_get(kwargs, DictPath("phase"))
+    phase_skiplist: list[str] | None = deep_get(kwargs, DictPath("phase_skiplist"))
+    cni: str | None = deep_get(kwargs, DictPath("cni"))
+    pod_network_cidr: str | None = deep_get(kwargs, DictPath("pod_network_cidr"))
+    cri: str | None = deep_get(kwargs, DictPath("cri"))
+    control_planes: list[str] | None = deep_get(kwargs, DictPath("control_planes"))
+    nodes: list[str] = deep_get(kwargs, DictPath("nodes"))
 
     info = get_installation_info(cluster_name=cluster_name)
 
@@ -1276,10 +1276,10 @@ def upgrade_cni(options: list[tuple[str, str]], args: list[str]) -> None:
     """
     global kh  # pylint: disable=global-statement
 
-    pod_network_cidr: Optional[str] = None
+    pod_network_cidr: str | None = None
     verbose: bool = False
-    cni_version: Optional[str] = None
-    cni_executable_version: Optional[str] = None
+    cni_version: str | None = None
+    cni_executable_version: str | None = None
 
     if args:
         cni = args[0]
@@ -1867,7 +1867,7 @@ def run_playbook(playbookpath: FilePath, hosts: list[str], **kwargs: Any) -> tup
                 (int): The return value from ansible_run_playbook_on_selection()
                 (dict): A dict with the results from the run
     """
-    extra_values: Optional[dict] = deep_get(kwargs, DictPath("extra_values"))
+    extra_values: dict | None = deep_get(kwargs, DictPath("extra_values"))
     quiet: bool = deep_get(kwargs, DictPath("quiet"), False)
     verbose: bool = deep_get(kwargs, DictPath("verbose"), False)
 
@@ -1906,8 +1906,8 @@ def run_playbook(playbookpath: FilePath, hosts: list[str], **kwargs: Any) -> tup
 
 
 def run_playbooks(playbooks: list[tuple[list[ANSIThemeStr], FilePath]],
-                  hosts: Optional[list[str]] = None,
-                  extra_values: Optional[dict] = None, **kwargs: Any) -> bool:
+                  hosts: list[str] | None = None,
+                  extra_values: dict | None = None, **kwargs: Any) -> bool:
     """
     Run a set of playbooks.
 
@@ -2014,7 +2014,7 @@ def __task_request_ansible_password(installation_info: dict, **kwargs: Any) -> N
 
 
 def __run_playbooks_on_selection(playbooks: list[tuple[list[ANSIThemeStr], FilePath]],
-                                 selection: list[str], extra_values: Optional[dict] = None,
+                                 selection: list[str], extra_values: dict | None = None,
                                  **kwargs: Any) -> None:
     """
     A helper that runs a playbook list on a selection.
@@ -2057,7 +2057,7 @@ def __selection_localhost() -> list[str]:
 # pylint: disable-next=unused-argument
 def __generic_task_run_playbooks_on_selection(selection: list[str], installation_info: dict,
                                               playbook_dir: FilePath,
-                                              extra_values: Optional[dict] = None,
+                                              extra_values: dict | None = None,
                                               **kwargs: Any) -> None:
     """
     A generic helper to run playbooks on selection.
@@ -3101,7 +3101,7 @@ def __validate_task_index(tasks: list[tuple[list[ANSIThemeStr], Callable[..., No
 
 
 def __list_phases(phases: list[tuple[list[ANSIThemeStr], Callable[..., None]]],
-                  start_phase: Optional[int] = 0, phase_skiplist: Optional[list] = None) -> None:
+                  start_phase: int | None = 0, phase_skiplist: list | None = None) -> None:
     """
     Helper that lists installation phases.
     """
@@ -3145,7 +3145,7 @@ def __expand_index_list(index_list: str) -> set[int]:
     return indexes
 
 
-def __format_none(string: Optional[str], fmt: str) -> ANSIThemeStr:
+def __format_none(string: str | None, fmt: str) -> ANSIThemeStr:
     if string is None or string == "<none>":
         __string = ANSIThemeStr("<none>", "none")
     else:
@@ -3304,7 +3304,7 @@ def run_tasks(tasks: list[tuple[list[ANSIThemeStr], Callable[..., None]]],
 
 
 # pylint: disable-next=too-many-branches
-def __find_requested_version(k8s_distro: str, version: Optional[str] = None) -> str:
+def __find_requested_version(k8s_distro: str, version: str | None = None) -> str:
     """
     Based on a provided version, try to find a matching package;
     Passing None will give the latest version, passing major, minor

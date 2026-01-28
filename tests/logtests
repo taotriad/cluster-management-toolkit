@@ -19,7 +19,7 @@ import builtins
 from datetime import datetime
 import importlib
 import sys
-from typing import Any, cast, Optional
+from typing import Any, cast
 from collections.abc import Callable
 from unittest import mock
 import yaml
@@ -33,7 +33,7 @@ from clustermanagementtoolkit import logparser as logparsers
 
 from clustermanagementtoolkit.curses_helper import ThemeStr, ThemeAttr, ThemeRef
 
-real_import: Optional[Callable] = None  # pylint: disable=invalid-name
+real_import: Callable | None = None  # pylint: disable=invalid-name
 
 import_override: dict = {}
 

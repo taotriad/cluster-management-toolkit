@@ -87,18 +87,18 @@ def test_check_path(checkdata: dict) -> tuple[int, str]:
         "exit_on_critical": False,
         "message_on_error": message_on_error,
     }
-    if owner_allowlist is not None:
+    if owner_allowlist:
         kwargs["owner_allowlist"] = owner_allowlist
-    if parent_owner_allowlist is not None:
+    if parent_owner_allowlist:
         kwargs["parent_owner_allowlist"] = parent_owner_allowlist
     try:
         result = check_path(path, **kwargs)
         if result != expect:
             return 1, f"expected {expect}, got {result}"
-        if expect_exception is not None:
+        if expect_exception:
             return 1, f"expected exception {expect_exception}, got {result}"
     except Exception as e:  # pylint: disable=broad-except
-        if expect_exception is not None:
+        if expect_exception:
             if type(e) != expect_exception:  # noqa: E721 pylint: disable=unidiomatic-typecheck
                 return 1, f"expected exception {expect_exception}, got {e}"
         else:
@@ -126,10 +126,10 @@ def test_execute_command(checkdata: dict) -> tuple[int, str]:
         result = execute_command(command, env=env, comparison=comparison)
         if result != expect:
             return 1, f"expected {expect}, got {result}"
-        if expect_exception is not None:
+        if expect_exception:
             return 1, f"expected exception {expect_exception}, got {result}"
     except Exception as e:  # pylint: disable=broad-except
-        if expect_exception is not None:
+        if expect_exception:
             if type(e) != expect_exception:  # noqa: E721 pylint: disable=unidiomatic-typecheck
                 return 1, f"expected exception {expect_exception}, got {e}"
         else:
@@ -156,10 +156,10 @@ def test_execute_command_with_response(checkdata: dict) -> tuple[int, str]:
         result, _retval = execute_command_with_response(command, env=env)
         if result != expect:
             return 1, f"expected {expect}, got {result}"
-        if expect_exception is not None:
+        if expect_exception:
             return 1, f"expected exception {expect_exception}, got {result}"
     except Exception as e:  # pylint: disable=broad-except
-        if expect_exception is not None:
+        if expect_exception:
             if type(e) != expect_exception:  # noqa: E721 pylint: disable=unidiomatic-typecheck
                 return 1, f"expected exception {expect_exception}, got {e}"
         else:
@@ -371,7 +371,7 @@ def test_secure_rm(checkdata: dict) -> tuple[int, str]:
         violations_string = tmp[1]
         fail = set(violations_string.split(","))
 
-    if fail != expect and expect is not None:
+    if fail != expect and expect:
         return 1, f"expected {expect}, got {violations_string}"
 
     # Even when expect is None it's still a FAIL if the directory stays behind
@@ -408,7 +408,7 @@ def test_secure_rmdir(checkdata: dict) -> tuple[int, str]:
         violations_string = tmp[1]
         fail = set(violations_string.split(","))
 
-    if fail != expect and expect is not None:
+    if fail != expect and expect:
         return 1, f"expected {expect} (type: {type(expect)}), got {fail} (type: {type(fail)})"
 
     # Even when expect is None it's still a FAIL if the directory stays behind
@@ -480,7 +480,7 @@ def test_secure_copy(checkdata: dict) -> tuple[int, str]:
             violations_set.discard(SecurityStatus.OK)
         else:
             path_stat = Path(path).stat()
-            if permissions is not None and path_stat.st_mode & 0o777 != permissions:
+            if permissions and path_stat.st_mode & 0o777 != permissions:
                 violations_set.add(SecurityStatus.PERMISSIONS)
                 violations_set.discard(SecurityStatus.OK)
 
@@ -586,7 +586,7 @@ def test_secure_write_string(checkdata: dict) -> tuple[int, str]:
             if path_stat.st_mode & 0o777 != permissions:
                 violations_set.add(repr(SecurityStatus.PERMISSIONS))
 
-    if expect is not None and violations_set != expect:
+    if expect and violations_set != expect:
         return 1, f"expected {', '.join(expect)}, got {', '.join(violations_set)}"
     return 0, ""
 
@@ -635,7 +635,7 @@ def test_secure_write_yaml(checkdata: dict) -> tuple[int, str]:
             if path_stat.st_mode & 0o777 != permissions:
                 violations_set.add(repr(SecurityStatus.PERMISSIONS))
 
-    if expect is not None and violations_set != expect:
+    if expect and violations_set != expect:
         return 1, f"expected {', '.join(expect)}, got {', '.join(violations_set)}"
     return 0, ""
 
@@ -656,7 +656,7 @@ def test_verify_checksum(checkdata: dict) -> tuple[int, str]:
     expect = deep_get(checkdata, DictPath("expect"))
 
     data = cast(bytearray, secure_read(path, read_mode="rb"))
-    if checksum_type is not None:
+    if checksum_type:
         csum = cast(bytes, secure_read(FilePath(f"{path}.{checksum_type}"), read_mode="rb"))
     else:
         csum = cast(bytes, secure_read(FilePath(f"{path}.md5"), read_mode="rb"))

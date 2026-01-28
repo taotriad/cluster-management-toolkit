@@ -16,7 +16,7 @@ import errno
 from pathlib import Path, PurePath
 import re
 import sys
-from typing import Any, cast, Optional
+from typing import Any, cast
 from collections.abc import Sequence
 
 from clustermanagementtoolkit import cmtlib
@@ -1149,7 +1149,7 @@ def ansible_results_extract(event: dict) -> tuple[int, dict]:
                 (int): 0 on success, -1 if host is unreachable, retval on other failure
                 (dict): A dict
     """
-    retval_: Optional[int] = -1
+    retval_: int | None = -1
 
     # Special events
     if deep_get(event, DictPath("event"), "") == "playbook_on_no_hosts_matched":
@@ -1293,9 +1293,9 @@ def ansible_write_log(start_date: datetime, playbook: FilePath, events: list[dic
             playbook (str): The name of the playbook
             events ([dict]): The list of Ansible runs
             **kwargs (dict[str, Any]): Keyword arguments
-                save_logs (Optional[bool]): Override the save_logs variable in ansible_configuration
+                save_logs (bool | None): Override the save_logs variable in ansible_configuration
     """
-    save_logs: Optional[bool] = deep_get(kwargs, DictPath("save_logs"))
+    save_logs: bool | None = deep_get(kwargs, DictPath("save_logs"))
     if save_logs is None:
         save_logs = deep_get(ansible_configuration, DictPath("save_logs"), False)
 
@@ -1605,16 +1605,16 @@ def ansible_run_playbook(playbook: FilePath, **kwargs: Any) -> tuple[int, dict]:
                 inventory (dict): An inventory dict with selection as the list of hosts to run on
                 verbose (bool): Output status updates for every new Ansible event
                 quiet (bool): Disable console output
-                save_logs (Optional[bool]): Override the save_logs variable in ansible_configuration
+                save_logs (bool | None): Override the save_logs variable in ansible_configuration
         Returns:
             ((int, dict)):
                 (int): The return value
                 (dict): The results of the run
     """
-    inventory: Optional[dict] = deep_get(kwargs, DictPath("inventory"), None)
+    inventory: dict | None = deep_get(kwargs, DictPath("inventory"), None)
     verbose: bool = deep_get(kwargs, DictPath("verbose"), False)
     quiet: bool = deep_get(kwargs, DictPath("quiet"), True)
-    save_logs: Optional[bool] = deep_get(kwargs, DictPath("save_logs"))
+    save_logs: bool | None = deep_get(kwargs, DictPath("save_logs"))
 
     forks = deep_get(ansible_configuration, DictPath("ansible_forks"))
 
@@ -1675,7 +1675,7 @@ def ansible_run_playbook_on_selection(playbook: FilePath,
                 values (dict): Extra values to set for the hosts
                 verbose (bool): Output status updates for every new Ansible event
                 quiet (bool): Disable console output
-                save_logs (Optional[bool]): Override the save_logs variable in ansible_configuration
+                save_logs (bool | None): Override the save_logs variable in ansible_configuration
         Returns:
             ((int, dict)):
                 (int): The result from ansible_run_playbook();
@@ -1702,7 +1702,7 @@ def ansible_run_playbook_on_selection(playbook: FilePath,
     values: dict[str, Any] = deep_get(kwargs, DictPath("values"), {})
     verbose: bool = deep_get(kwargs, DictPath("verbose"), False)
     quiet: bool = deep_get(kwargs, DictPath("quiet"), True)
-    save_logs: Optional[bool] = deep_get(kwargs, DictPath("save_logs"))
+    save_logs: bool | None = deep_get(kwargs, DictPath("save_logs"))
 
     if "ansible_sudo_pass" in values and "ansible_become_pass" not in values:
         values["ansible_become_pass"] = values["ansible_sudo_pass"]
@@ -1725,7 +1725,7 @@ def ansible_run_playbook_on_selection(playbook: FilePath,
                                 save_logs=save_logs)
 
 
-def ansible_ping(selection: Optional[list[str]] = None, **kwargs: Any) -> list[tuple[str, str]]:
+def ansible_ping(selection: list[str] | None = None, **kwargs: Any) -> list[tuple[str, str]]:
     """
     Ping all selected hosts.
 

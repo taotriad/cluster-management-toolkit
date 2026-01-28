@@ -90,7 +90,7 @@ def test_get_playbook_path(verbose: bool = False) -> tuple[str, bool]:
                     result = False
                     break
             except Exception as e:
-                if expected_exception is not None:
+                if expected_exception:
                     if isinstance(e, expected_exception):
                         pass
                     else:
@@ -173,7 +173,7 @@ def test_populate_playbooks_from_filenames(verbose: bool = False) -> tuple[str, 
                 if not result:
                     break
             except Exception as e:
-                if expected_exception is not None:
+                if expected_exception:
                     if isinstance(e, expected_exception):
                         pass
                     else:
@@ -229,7 +229,7 @@ def test_ansible_print_action_summary(verbose: bool = False) -> tuple[str, bool]
             try:
                 _tmp = fun(indata)
             except Exception as e:
-                if expected_exception is not None:
+                if expected_exception:
                     if isinstance(e, expected_exception):
                         pass
                     else:
@@ -371,7 +371,7 @@ def test_ansible_get_inventory_pretty(verbose: bool = False) -> tuple[str, bool]
                     result = False
                     break
             except Exception as e:
-                if expected_exception is not None:
+                if expected_exception:
                     if isinstance(e, expected_exception):
                         pass
                     else:
@@ -420,7 +420,7 @@ def test_ansible_get_hosts_by_group(verbose: bool = False) -> tuple[str, bool]:
                     result = False
                     break
             except Exception as e:
-                if expected_exception is not None:
+                if expected_exception:
                     if isinstance(e, expected_exception):
                         pass
                     else:
@@ -467,7 +467,7 @@ def test_ansible_get_groups(verbose: bool = False) -> tuple[str, bool]:
                     result = False
                     break
             except Exception as e:
-                if expected_exception is not None:
+                if expected_exception:
                     if isinstance(e, expected_exception):
                         pass
                     else:
@@ -529,7 +529,7 @@ def test_ansible_get_groups_by_host(verbose: bool = False) -> tuple[str, bool]:
                     result = False
                     break
             except Exception as e:
-                if expected_exception is not None:
+                if expected_exception:
                     if isinstance(e, expected_exception):
                         pass
                     else:
@@ -639,7 +639,7 @@ def test___ansible_create_inventory(verbose: bool = False) -> tuple[str, bool]:
                     if not expected_result:
                         continue
                     output_d = secure_read_yaml(path, temporary=True)
-                    if not (output_d is not None and output_d.items() == expected_content.items()):
+                    if not (output_d and output_d.items() == expected_content.items()):
                         message = f"{fun.__name__}() did not yield expected result:\n" \
                                   " inventory dict:\n" \
                                   f"{yaml_dump(output_d, base_indent=17)}\n" \
@@ -648,7 +648,7 @@ def test___ansible_create_inventory(verbose: bool = False) -> tuple[str, bool]:
                         result = False
                         break
                 except Exception as e:
-                    if expected_exception is not None:
+                    if expected_exception:
                         if isinstance(e, expected_exception):
                             pass
                         else:
@@ -733,7 +733,7 @@ def test_ansible_create_groups(verbose: bool = False) -> tuple[str, bool]:
                             result = False
                             break
                 except Exception as e:
-                    if expected_exception is not None:
+                    if expected_exception:
                         if isinstance(e, expected_exception):
                             pass
                         else:
@@ -810,7 +810,7 @@ def test_ansible_set_vars(verbose: bool = False) -> tuple[str, bool]:
                             result = False
                             break
                 except Exception as e:
-                    if expected_exception is not None:
+                    if expected_exception:
                         if isinstance(e, expected_exception):
                             pass
                         else:
@@ -917,7 +917,7 @@ def test_ansible_set_groupvars(verbose: bool = False) -> tuple[str, bool]:
                         result = False
                         break
                 except Exception as e:
-                    if expected_exception is not None:
+                    if expected_exception:
                         if isinstance(e, expected_exception):
                             pass
                         else:
@@ -1010,7 +1010,7 @@ def test_ansible_set_hostvars(verbose: bool = False) -> tuple[str, bool]:
                         result = False
                         break
                 except Exception as e:
-                    if expected_exception is not None:
+                    if expected_exception:
                         if isinstance(e, expected_exception):
                             pass
                         else:
@@ -1126,7 +1126,7 @@ def test_ansible_unset_groupvars(verbose: bool = False) -> tuple[str, bool]:
                         result = False
                         break
                 except Exception as e:
-                    if expected_exception is not None:
+                    if expected_exception:
                         if isinstance(e, expected_exception):
                             pass
                         else:
@@ -1240,7 +1240,7 @@ def test_ansible_unset_hostvars(verbose: bool = False) -> tuple[str, bool]:
                         result = False
                         break
                 except Exception as e:
-                    if expected_exception is not None:
+                    if expected_exception:
                         if isinstance(e, expected_exception):
                             pass
                         else:
@@ -1356,7 +1356,7 @@ def test_ansible_add_hosts(verbose: bool = False) -> tuple[str, bool]:
                         result = False
                         break
                 except Exception as e:
-                    if expected_exception is not None:
+                    if expected_exception:
                         if isinstance(e, expected_exception):
                             pass
                         else:
@@ -1452,7 +1452,7 @@ def test_ansible_remove_hosts(verbose: bool = False) -> tuple[str, bool]:
                         result = False
                         break
                 except Exception as e:
-                    if expected_exception is not None:
+                    if expected_exception:
                         if isinstance(e, expected_exception):
                             pass
                         else:
@@ -1552,7 +1552,7 @@ def test_ansible_remove_groups(verbose: bool = False) -> tuple[str, bool]:
                         result = False
                         break
                 except Exception as e:
-                    if expected_exception is not None:
+                    if expected_exception:
                         if isinstance(e, expected_exception):
                             pass
                         else:
@@ -1588,7 +1588,7 @@ def test_ansible_get_logs(verbose: bool = False) -> tuple[str, bool]:
                       f"           type: {type(tmp)}\n" \
                       f"       expected: {repr(list)}\n"
             result = False
-        elif len(tmp) > 0:
+        elif tmp:
             if len(tmp[0]) != 4:
                 message = f"{fun.__name__}() did not yield expected result:\n" \
                           f"       len([0]): {len(tmp[0])}\n" \
@@ -1655,7 +1655,7 @@ def test_ansible_extract_failure(verbose: bool = False) -> tuple[str, bool]:
                     result = False
                     break
             except Exception as e:
-                if expected_exception is not None:
+                if expected_exception:
                     if isinstance(e, expected_exception):
                         pass
                     else:
@@ -1842,7 +1842,7 @@ def test_ansible_results_extract(verbose: bool = False) -> tuple[str, bool]:
                     result = False
                     break
             except Exception as e:
-                if expected_exception is not None:
+                if expected_exception:
                     if isinstance(e, expected_exception):
                         pass
                     else:
@@ -1919,7 +1919,7 @@ def test_ansible_print_task_results(verbose: bool = False) -> tuple[str, bool]:
                     stderr_lines=stderr_lines, retval=retval, unreachable=unreachable,
                     skipped=skipped, verbose=verbose)
             except Exception as e:
-                if expected_exception is not None:
+                if expected_exception:
                     if isinstance(e, expected_exception):
                         pass
                     else:
@@ -2026,7 +2026,7 @@ def test_ansible_run_playbook(verbose: bool = False) -> tuple[str, bool]:
                                     invalid[task][key] = {}
                                 invalid[task][key]["missing"] = True
                                 match = False
-                            if value is not None:
+                            if value:
                                 if data[key] != value:
                                     invalid[task][key]["mismatch"] = \
                                         {"expected": copy.deepcopy(data[key]),
@@ -2037,7 +2037,7 @@ def test_ansible_run_playbook(verbose: bool = False) -> tuple[str, bool]:
                     result = False
                     break
             except Exception as e:
-                if expected_exception is not None:
+                if expected_exception:
                     if isinstance(e, expected_exception):
                         pass
                     else:
@@ -2096,7 +2096,7 @@ def test_ansible_ping(verbose: bool = False) -> tuple[str, bool]:
                     result = False
                     break
             except Exception as e:
-                if expected_exception is not None:
+                if expected_exception:
                     if isinstance(e, expected_exception):
                         pass
                     else:
