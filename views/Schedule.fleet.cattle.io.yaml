@@ -1,0 +1,124 @@
+---
+kind: "Schedule"
+api_family: "fleet.cattle.io"
+default_command: "schedules.fleet.cattle.io"
+command:
+  - "schedules.cattle"
+  - "schedule.cattle"
+  - "scheds.cattle"
+  - "sched.cattle"
+listview:
+  name: "Schedules"
+  group: "Rancher"
+  field_indexes:
+    Normal:
+      fields: ["namespace", "name", "schedule", "duration",
+               "active", "next_start", "age"]
+  fields:
+    active:
+      header: "Active:"
+      path: "status#active"
+      default: false
+      type: "str"
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          mappings:
+            "True":
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+            "False":
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+    duration:
+      header: "Duration:"
+      path: "spec#duration"
+      default: "<unset>"
+      type: "str"
+      formatter: "numerical"
+    next_start:
+      header: "Next Start:"
+      path: "status#nextStart"
+      default: -1
+      type: "timestamp"
+      formatter: "age"
+    schedule:
+      header: "Schedule:"
+      path: "spec#schedule"
+      default: "<unset>"
+      type: "str"
+infoview:
+  name: "Cron Job Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["schedule", "duration", "active", "next_start"]
+    rows:
+      active:
+        header: [["Active:", ["main", "infoheader"]]]
+        path: "status#active"
+        default: false
+        type: "str"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              "True":
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+              "False":
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+      duration:
+        header: [["Duration:", ["main", "infoheader"]]]
+        path: "spec#duration"
+        default: "<unset>"
+        type: "str"
+        formatter: "numerical"
+      next_start:
+        header: [["Next Start:", ["main", "infoheader"]]]
+        path: "status#nextStart"
+        default: -1
+        type: "timestamp"
+        formatter: "age"
+      schedule:
+        header: [["Schedule:", ["main", "infoheader"]]]
+        path: "spec#schedule"
+        default: "<unset>"
+        type: "str"
+  listpad:
+    listgetter: "listgetter_path"
+    listgetter_args:
+      path: "spec#targets#clusters"
+    infogetter: "generic_infogetter"
+    field_indexes:
+      Normal:
+        fields: ["name", "cluster_name", "cluster_label_selector"]
+    fields:
+      cluster_label_selector:
+        header: "Cluster Label Selector:"
+        paths:
+          - path: ["clusterSelector#matchLabels"]
+            pathtype: "key_value"
+            default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "key"
+            - type: "value"
+          field_separators:
+            - type: "selector"
+      cluster_name:
+        header: "Cluster Name:"
+        path: "clusterName"
+        default: "<unset>"
+        type: "str"
+      name:
+        header: "Name:"
+        path: "name"
+        default: "<unset>"
+        type: "str"
