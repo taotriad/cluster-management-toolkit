@@ -30,13 +30,15 @@ listview:
     ips:
       header: "IPs:"
       path: "ips"
+      default: "<unknown>"
       type: "raw"
-      formatter: "list"
+      formatter: "address"
     ips_ellipsise:
       header: "IPs:"
       path: "ips"
+      default: "<unknown>"
       type: "raw"
-      formatter: "list"
+      formatter: "address"
       formatting:
         ellipsise: 3
     name:
@@ -215,11 +217,8 @@ infoview:
         type: "raw"
         formatter: "list"
         formatting:
-          field_colors:
-            # FIXME: we want numerical_with_units
-            - type: "numerical"
-            # FIXME: we want numerical_with_units
-            - type: "numerical"
+          field_formatters:
+            - "numerical_with_units"
           field_separator:
             - type: "fraction"
         align: "right"
