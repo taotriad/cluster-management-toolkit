@@ -126,7 +126,7 @@ infoview:
       control_plane_initialized:
         header: [["Control Plane Initialized:", ["main", "infoheader"]]]
         path: "status#initialization#controlPlaneInitialized"
-        default: "<unset>"
+        default: false
         type: "bool"
         formatter: "value_mapper"
         formatting:
