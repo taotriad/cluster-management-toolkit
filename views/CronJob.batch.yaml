@@ -24,6 +24,7 @@ listview:
     concurrency_policy:
       header: "Concurrency:"
       path: "spec#concurrencyPolicy"
+      default: "<unset>"
       type: "str"
     containers_jobtemplate:
       header: "Containers:"
@@ -54,10 +55,12 @@ listview:
     schedule:
       header: "Schedule:"
       path: "spec#schedule"
+      default: "<unset>"
       type: "str"
     suspend:
       header: "Suspend:"
       path: "spec#suspend"
+      default: false
       type: "bool"
   actions:
     actionlist:
@@ -115,15 +118,17 @@ infoview:
       parallelism:
         header: [["Parallelism:", ["main", "infoheader"]]]
         path: "spec#jobTemplate#spec#parallelism"
-        type: "str"
         default: "<unset>"
+        type: "str"
       restart_policy:
         header: [["Restart Policy:", ["main", "infoheader"]]]
         path: "spec#jobTemplate#spec#template#spec#restartPolicy"
+        default: "<unset>"
         type: "str"
       schedule:
         header: [["Schedule:", ["main", "infoheader"]]]
         path: "spec#schedule"
+        default: "<unset>"
         type: "str"
       selector:
         header: [["Selector:", ["main", "infoheader"]]]
@@ -140,11 +145,12 @@ infoview:
       starting_deadline:
         header: [["Starting Deadline:", ["main", "infoheader"]]]
         path: "spec#startingDeadlineSeconds"
-        type: "int"
         default: "<unset>"
+        type: "int"
       suspend:
         header: [["Suspend:", ["main", "infoheader"]]]
         path: "spec#suspend"
+        default: false
         type: "bool"
   shortcuts:
     "Trigger Job":
