@@ -74,10 +74,10 @@ test_libs_symlink = clustermanagementtoolkit
 FLAKE8_IGNORE := F841,W503,F824
 
 # Used by ruff to check for future and/or deprecated features
-RUFF_PYTHON_VERSION := py39
+RUFF_PYTHON_VERSION := py311
 
 # Used by pylint to check for future and/or deprecated features
-PYLINT_PYTHON_VERSION := 3.9
+PYLINT_PYTHON_VERSION := 3.11
 
 # W0511 is TODO/XXX/FIXME; we know that these are things that we should fix eventually.
 # Hence we do not need warnings about them.

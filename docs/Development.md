@@ -183,7 +183,7 @@ parameters, returns). Code SHOULD be documented if it's not immediately obvious 
 
 ### Python Version
 
-__CMT__ uses Python 3.9 to allow for compatibility with some (not all) older enterprise distros.
+__CMT__ uses Python 3.11 to allow for compatibility with some (not all) older distros.
 This means that type annotations and the features used MUST NOT require newer versions of Python.
 In some corner cases this means using Any for type hints, and being very generic about the definitions
 for dicts.

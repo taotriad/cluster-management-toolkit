@@ -224,7 +224,7 @@ this has been corrected.
 
 ### Pylint Results for v0.8.7
 
-Commandline: `pylint --py-version 3.9 --disable W0511, similarities --enable useless-suppression`.
+Commandline: `pylint --py-version 3.11 --disable W0511, similarities --enable useless-suppression`.
 Table generated with `make pylint-markdown`.
 
 Version: 4.0.4
