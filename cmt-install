@@ -360,11 +360,9 @@ def install_software_suse(packages: dict | set, verbose: bool = False) -> None:
         pkg_version = None
         compiled_regex: re.Pattern[str] = re.compile(r"^.*Version: (.+?)")
         for line in result.stdout.decode("utf-8").splitlines():
-            tmp = compiled_regex.match(line)
-            if tmp is None:
+            if (re_tmp := compiled_regex.match(line)) is None:
                 continue
-
-            pkg_version = tmp[1]
+            pkg_version = re_tmp[1]
             break
         if pkg_version is not None:
             args = [zypper_path, "versioncmp", pkg_version, recommended_minimum]
@@ -444,11 +442,9 @@ def install_software_fedora(packages: dict | set, verbose: bool = False) -> None
         pkg_version = None
         compiled_regex: re.Pattern[str] = re.compile(r"^.*Version: (.+?)")
         for line in result.stdout.decode("utf-8").splitlines():
-            tmp = compiled_regex.match(line)
-            if tmp is None:
+            if (re_tmp := compiled_regex.match(line)) is None:
                 continue
-
-            pkg_version = tmp[1]
+            pkg_version = re_tmp[1]
             break
 
         if pkg_version is not None and rpmdev_vercmp_path is not None:
@@ -535,11 +531,9 @@ def install_software_deb(packages: dict, verbose: bool = False) -> None:
         pkg_version = None
         compiled_regex: re.Pattern[str] = re.compile(r"^  Installed: (.+)")
         for line in result.stdout.decode("utf-8").splitlines():
-            tmp = compiled_regex.match(line)
-            if tmp is None:
+            if (re_tmp := compiled_regex.match(line)) is None:
                 continue
-
-            pkg_version = tmp[1]
+            pkg_version = re_tmp[1]
             break
         if pkg_version is not None:
             args = [dpkg_path, "--compare-versions", recommended_minimum, "lt", pkg_version]
@@ -718,18 +712,16 @@ def install_software_with_pip_fallback(packages: dict, pip_proxy: str = "",
         not_found_regex: re.Pattern[str] = re.compile(r"^package '([^']+)' not found\.$")
 
         for line in split_response:
-            tmp = information_for_regex.match(line)
-            if tmp is not None:
+            if (re_tmp := information_for_regex.match(line)) is not None:
                 if distro not in deep_get(packages,
-                                          DictPath(f"{tmp[1]}#always-fallback-distros"), []):
-                    if tmp[1] in packages.keys() and tmp[1] not in pkgs:
-                        pkgs[tmp[1]] = packages[tmp[1]]
+                                          DictPath(f"{re_tmp[1]}#always-fallback-distros"), []):
+                    if re_tmp[1] in packages.keys() and re_tmp[1] not in pkgs:
+                        pkgs[re_tmp[1]] = packages[re_tmp[1]]
                     continue
-                fallbacks.add(deep_get(packages, DictPath(f"{tmp[1]}#fallback")))
+                fallbacks.add(deep_get(packages, DictPath(f"{re_tmp[1]}#fallback")))
                 continue
-            tmp = not_found_regex.match(line)
-            if tmp is not None:
-                fallbacks.add(deep_get(packages, DictPath(f"{tmp[1]}#fallback")))
+            if (re_tmp := not_found_regex.match(line)) is not None:
+                fallbacks.add(deep_get(packages, DictPath(f"{re_tmp[1]}#fallback")))
     elif distro in ("fedora", "rhel"):
         try:
             yum_path = secure_which(FilePath("/usr/bin/yum"),
@@ -755,16 +747,14 @@ def install_software_with_pip_fallback(packages: dict, pip_proxy: str = "",
             for line in split_response:
                 if line.startswith(("Available Packages", "Installed Packages")):
                     continue
-                tmp = information_for_regex.match(line)
-
-                if tmp is not None:
-                    found_packages.add(tmp[1])
+                if (re_tmp := information_for_regex.match(line)) is not None:
+                    found_packages.add(re_tmp[1])
                     if distro in deep_get(packages,
-                                          DictPath(f"{tmp[1]}#always-fallback-distros"), []):
-                        fallbacks.add(deep_get(packages, DictPath(f"{tmp[1]}#fallback")))
+                                          DictPath(f"{re_tmp[1]}#always-fallback-distros"), []):
+                        fallbacks.add(deep_get(packages, DictPath(f"{re_tmp[1]}#fallback")))
                         continue
-                    if tmp[1] in packages.keys() and tmp[1] not in pkgs:
-                        pkgs[tmp[1]] = packages[tmp[1]]
+                    if re_tmp[1] in packages.keys() and re_tmp[1] not in pkgs:
+                        pkgs[re_tmp[1]] = packages[re_tmp[1]]
                     continue
         for missing in all_packages.difference(found_packages):
             fallbacks.add(deep_get(packages, DictPath(f"{missing}#fallback")))

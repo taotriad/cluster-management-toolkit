@@ -326,7 +326,7 @@ def get_list_as_string(obj: dict, **kwargs: Any) -> list[tuple[str]]:
     return []
 
 
-# pylint: disable-next=too-many-branches
+# pylint: disable-next=too-many-branches,too-many-locals
 def get_list_as_list(obj: dict, **kwargs: Any) -> list[Any]:
     """
     Get data in list format.
@@ -354,10 +354,9 @@ def get_list_as_list(obj: dict, **kwargs: Any) -> list[Any]:
             if not item:
                 continue
             if _regex is not None:
-                tmp = compiled_regex.match(item)
-                if tmp is not None:
+                if (re_tmp := compiled_regex.match(item)) is not None:
                     tmp2 = []
-                    for group in tmp.groups():
+                    for group in re_tmp.groups():
                         if group is not None:
                             tmp2.append(group)
                     vlist.append(tmp2)
@@ -428,9 +427,8 @@ def get_dict_list(obj: dict, **kwargs: Any) -> list[Any]:
                 if (tmp := deep_get(item, DictPath(field_))) is not None:
                     tmp = str(tmp)
                     if field_regex:
-                        tmp2 = re.match(field_regex, tmp)
-                        if tmp2 is not None:
-                            tmp = tmp2.group(1)
+                        if (re_tmp := re.match(field_regex, tmp)) is not None:
+                            tmp = re_tmp.group(1)
                         else:
                             tmp = " "
                 else:
@@ -588,13 +586,12 @@ def get_pod_affinity(obj: dict, **kwargs: Any) -> list[tuple[str, str, str, str,
                                   r"(Ignored|Preferred|Required)DuringExecution$")
 
         for policy in deep_get(obj, DictPath(f"{path}#{atype}"), ""):
-            tmp = policy_regex.match(policy)
-            if tmp is None:
+            if (re_tmp := policy_regex.match(policy)) is None:
                 scheduling = "Unknown"
                 execution = "Unknown"
             else:
-                scheduling = tmp[1].capitalize()
-                execution = tmp[2]
+                scheduling = re_tmp[1].capitalize()
+                execution = re_tmp[2]
 
             selectors = ""
             for item in deep_get(obj, DictPath(f"{path}#{atype}#{policy}"), []):

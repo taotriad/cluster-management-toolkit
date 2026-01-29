@@ -283,13 +283,12 @@ def str_to_severity(string: str, **kwargs: Any) -> LogLevel:
     }
     # Special case for severity found in trust-manager
     if string.lower().startswith("debug+"):
-        tmp = re.match(r"debug\+(\d+)$", string, re.IGNORECASE)
-        if tmp is not None:
+        if re.match(r"debug\+(\d+)$", string, re.IGNORECASE) is not None:
             return LogLevel.DEBUG
     # Special case for severity found in jobset
     level_regex = re.compile(r"LEVEL\((-\d+)\)")
-    if (tmp := level_regex.match(string)) is not None:
-        severity = int(tmp[1])
+    if (re_tmp := level_regex.match(string)) is not None:
+        severity = int(re_tmp[1])
         # We can only guess for now; the negative loglevels
         # might be custom for JobSet and LeaderWorkerSet;
         # but at least -2 seems to be Info.
@@ -395,10 +394,9 @@ def split_bracketed_severity(message: str, **kwargs: Any) -> tuple[str, LogLevel
         "[debug]": LogLevel.DEBUG,
     }
 
-    tmp = re.match(r"^(\[[A-Za-z]+?\]) ?(.*)", message)
-    if tmp is not None:
-        if (severity := severities.get(tmp[1].lower())) is not None:
-            message = tmp[2]
+    if (re_tmp := re.match(r"^(\[[A-Za-z]+?\]) ?(.*)", message)) is not None:
+        if (severity := severities.get(re_tmp[1].lower())) is not None:
+            message = re_tmp[2]
         else:
             severity = default
     else:
@@ -431,9 +429,9 @@ def split_colon_severity(message: str, **kwargs: Any) -> tuple[str, LogLevel]:
         "DEBUG:": LogLevel.DEBUG,
     }
 
-    if (tmp := re.match(r"^([A-Za-z]+?:) ?(.*)", message)) is not None:
-        if (severity := severities.get(tmp[1].upper())) is not None:
-            message = tmp[2]
+    if (re_tmp := re.match(r"^([A-Za-z]+?:) ?(.*)", message)) is not None:
+        if (severity := severities.get(re_tmp[1].upper())) is not None:
+            message = re_tmp[2]
         else:
             severity = default
     else:
@@ -450,26 +448,21 @@ def is_timestamp(message: str) -> bool:
         Returns:
             (bool): True if the string is a timestamp, False if not
     """
-    tmp = re.match(r"^\d\.\d+e\+09", message)
-    if tmp is not None:
+    if re.match(r"^\d\.\d+e\+09", message) is not None:
         return True
 
-    tmp = re.match(r"^\d{4}[/-]\d\d[/-]\d\d"
-                   r"[ T]"
-                   r"\d\d[\.:]\d\d[\.:]\d\d"
-                   r"([\.,]\d{9} [+-]\d\d[:\.]\d\d|"
-                   r"[\.,]\d{8} [+-]\d\d[:\.]\d\d|"
-                   r"[\.,]\d{6} [+-]\d\d[:\.]\d\d|"
-                   r"[\.,]\d{3} [+-]\d\d[:\.]\d\d|"
-                   r"[\.,]\d{9}Z?|"
-                   r"[\.,]\d{8}Z?|"
-                   r"[\.,]\d{6}Z?|"
-                   r"[\.,]\d{3}Z?|"
-                   r"Z?)$", message)
-
-    if tmp is not None:
-        return True
-    return False
+    return re.match(r"^\d{4}[/-]\d\d[/-]\d\d"
+                    r"[ T]"
+                    r"\d\d[\.:]\d\d[\.:]\d\d"
+                    r"([\.,]\d{9} [+-]\d\d[:\.]\d\d|"
+                    r"[\.,]\d{8} [+-]\d\d[:\.]\d\d|"
+                    r"[\.,]\d{6} [+-]\d\d[:\.]\d\d|"
+                    r"[\.,]\d{3} [+-]\d\d[:\.]\d\d|"
+                    r"[\.,]\d{9}Z?|"
+                    r"[\.,]\d{8}Z?|"
+                    r"[\.,]\d{6}Z?|"
+                    r"[\.,]\d{3}Z?|"
+                    r"Z?)$", message) is not None
 
 
 # pylint: disable-next=too-many-statements
@@ -489,43 +482,44 @@ def split_iso_timestamp(message: str, timestamp: datetime) -> tuple[str, datetim
     # This while loop is merely to allow for breaking out anywhere
     while True:
         # 2020-02-07T13:12:24[.,]224Z (Z = UTC)
-        tmp = re.match(r"^(\d{4}-\d\d-\d\d)T(\d\d:\d\d:\d\d[.,]\d+)Z ?(.*)", message)
-        if tmp is not None:
-            ymd = tmp[1]
-            hmsms = tmp[2][0:len("HH:MM:SS.sss")].replace(",", ".")
+        re_tmp = re.match(r"^(\d{4}-\d\d-\d\d)T(\d\d:\d\d:\d\d[.,]\d+)Z ?(.*)", message)
+        if re_tmp is not None:
+            ymd = re_tmp[1]
+            hmsms = re_tmp[2][0:len("HH:MM:SS.sss")].replace(",", ".")
             tmp_timestamp = f"{ymd} {hmsms}+0000"
-            message = tmp[3]
+            message = re_tmp[3]
             break
 
         # 2020-02-13T12:06:18[.,]011345 [+-]00:00 (+timezone)
         # 2020-09-23T17:12:32[.,]183967091[+-]03:00
         # 2024-11-02 23:20:35[.,]121725861 +0000
-        tmp = re.match(r"^(\d{4}-\d\d-\d\d)[ T](\d\d:\d\d:\d\d[.,]\d+) "
-                       r"?([\+-])(\d\d):?(\d\d) ?(.*)",
-                       message)
-        if tmp is not None:
-            ymd = tmp[1]
-            hmsms = tmp[2][0:len("HH:MM:SS.sss")].replace(",", ".")
-            tzsign = tmp[3]
-            tzhour = tmp[4]
-            tzmin = tmp[5]
+        re_tmp = re.match(r"^(\d{4}-\d\d-\d\d)[ T](\d\d:\d\d:\d\d[.,]\d+) "
+                          r"?([\+-])(\d\d):?(\d\d) ?(.*)",
+                          message)
+        if re_tmp is not None:
+            ymd = re_tmp[1]
+            hmsms = re_tmp[2][0:len("HH:MM:SS.sss")].replace(",", ".")
+            tzsign = re_tmp[3]
+            tzhour = re_tmp[4]
+            tzmin = re_tmp[5]
             tmp_timestamp = f"{ymd} {hmsms}{tzsign}{tzhour}{tzmin}"
-            message = tmp[6]
+            message = re_tmp[6]
             break
 
         # 2020-02-13 12:06:18[+-]00:00 (+timezone)
         # [2020-02-13 12:06:18 [+-]00:00] (+timezone)
         # 2020-02-13T12:06:18[+-]0000 (+timezone)
-        tmp = re.match(r"^\[?(\d{4}-\d\d-\d\d)[ T](\d\d:\d\d:\d\d) ?([\+-])(\d\d):?(\d\d)\]? ?(.*)",
-                       message)
-        if tmp is not None:
-            ymd = tmp[1]
-            hms = tmp[2]
-            tzsign = tmp[3]
-            tzhour = tmp[4]
-            tzmin = tmp[5]
+        re_tmp = re.match(r"^\[?(\d{4}-\d\d-\d\d)[ T](\d\d:\d\d:\d\d) "
+                          r"?([\+-])(\d\d):?(\d\d)\]? ?(.*)",
+                          message)
+        if re_tmp is not None:
+            ymd = re_tmp[1]
+            hms = re_tmp[2]
+            tzsign = re_tmp[3]
+            tzhour = re_tmp[4]
+            tzmin = re_tmp[5]
             tmp_timestamp = f"{ymd} {hms}.000{tzsign}{tzhour}{tzmin}"
-            message = tmp[6]
+            message = re_tmp[6]
             break
 
         # 2020-02-20 13:47:41[.,]008416 (assume UTC)
@@ -533,50 +527,50 @@ def split_iso_timestamp(message: str, timestamp: datetime) -> tuple[str, datetim
         # 2020/02/20 13:47:41[.,]008416 (assume UTC)
         # 2020-02-20 13:47:41[.,]008416Z (Z = UTC)
         # 2020.02.20 13:47:41[.,]008416 (assume UTC)
-        tmp = re.match(r"^(\d{4})[-/.](\d\d)[-/.](\d\d) (\d\d:\d\d:\d\d[.,]\d+)[Z:]? ?(.*)",
-                       message)
-        if tmp is not None:
-            year = tmp[1]
-            month = tmp[2]
-            day = tmp[3]
-            hmsms = tmp[4][0:len("HH:MM:SS.sss")].replace(",", ".")
+        re_tmp = re.match(r"^(\d{4})[-/.](\d\d)[-/.](\d\d) (\d\d:\d\d:\d\d[.,]\d+)[Z:]? ?(.*)",
+                          message)
+        if re_tmp is not None:
+            year = re_tmp[1]
+            month = re_tmp[2]
+            day = re_tmp[3]
+            hmsms = re_tmp[4][0:len("HH:MM:SS.sss")].replace(",", ".")
             tmp_timestamp = f"{year}-{month}-{day} {hmsms}+0000"
-            message = tmp[5]
+            message = re_tmp[5]
             break
 
         # [2021-12-18T20:15:36Z]
         # 2021-12-18T20:15:36Z
-        tmp = re.match(r"^\[?(\d{4}-\d\d-\d\d)T(\d\d:\d\d:\d\d)Z\]? ?(.*)", message)
-        if tmp is not None:
-            ymd = tmp[1]
-            hms = tmp[2]
+        re_tmp = re.match(r"^\[?(\d{4}-\d\d-\d\d)T(\d\d:\d\d:\d\d)Z\]? ?(.*)", message)
+        if re_tmp is not None:
+            ymd = re_tmp[1]
+            hms = re_tmp[2]
             tmp_timestamp = f"{ymd} {hms}.000+0000"
-            message = tmp[3]
+            message = re_tmp[3]
             break
 
         # 2020-02-20 13:47:41 (assume UTC)
         # 2020/02/20 13:47:41 (assume UTC)
-        tmp = re.match(r"^(\d{4})[-/](\d\d)[-/](\d\d) (\d\d:\d\d:\d\d) ?(.*)", message)
-        if tmp is not None:
-            year = tmp[1]
-            month = tmp[2]
-            day = tmp[3]
-            hms = tmp[4]
+        re_tmp = re.match(r"^(\d{4})[-/](\d\d)[-/](\d\d) (\d\d:\d\d:\d\d) ?(.*)", message)
+        if re_tmp is not None:
+            year = re_tmp[1]
+            month = re_tmp[2]
+            day = re_tmp[3]
+            hms = re_tmp[4]
             tmp_timestamp = f"{year}-{month}-{day} {hms}.000+0000"
-            message = tmp[5]
+            message = re_tmp[5]
             break
 
         # 2020-02-07 13:12:24[.,]224
         # [2020-02-07 13:12:24[.,]224]
-        tmp = re.match(r"^\[?(\d{4}-\d\d-\d\d) (\d\d:\d\d:\d\d)(,|\.)(\d+)\]? ?(.*)", message)
-        if tmp is not None:
-            ymd = tmp[1]
-            hms = tmp[2]
+        re_tmp = re.match(r"^\[?(\d{4}-\d\d-\d\d) (\d\d:\d\d:\d\d)(,|\.)(\d+)\]? ?(.*)", message)
+        if re_tmp is not None:
+            ymd = re_tmp[1]
+            hms = re_tmp[2]
             # This just matches the separator; we don't use it
-            # _sep = tmp[3]
-            ms = tmp[4]
+            # _sep = re_tmp[3]
+            ms = re_tmp[4]
             tmp_timestamp = f"{ymd} {hms}.{ms}+0000"
-            message = tmp[5]
+            message = re_tmp[5]
             break
 
         break
@@ -612,9 +606,9 @@ def strip_iso_timestamp_with_tz(message: str) -> str:
         Returns:
             (str): The stripped message
     """
-    tmp = re.match(r"^\d{4}-\d\d-\d\d \d\d:\d\d:\d\d\.\d\d\d [A-Z]{3}(\s+?|$)(.*)", message)
-    if tmp is not None:
-        message = tmp[2]
+    re_tmp = re.match(r"^\d{4}-\d\d-\d\d \d\d:\d\d:\d\d\.\d\d\d [A-Z]{3}(\s+?|$)(.*)", message)
+    if re_tmp is not None:
+        message = re_tmp[2]
     return message
 
 
@@ -744,55 +738,54 @@ def http(message: str,
     # If the message starts with a timestamp without a leading IP-address, skip this
     if not message.startswith("["):
         # First try to check if it's an IP-address
-        tmp = re.match(r"^([a-f0-9:][a-f0-9:.]+[a-f0-9])( - - .*)", message)
-        if tmp is not None:
+        if (re_tmp := re.match(r"^([a-f0-9:][a-f0-9:.]+[a-f0-9])( - - .*)", message)) is not None:
             # Just pass-through if validators isn't installed;
             # this might lead to false positives, but it's better than
             # not working at all
-            if validators is None or validators.ipv4(tmp[1]) or validators.ipv6(tmp[1]):
-                ipaddress = tmp[1]
-                message = tmp[2]
+            if validators is None or validators.ipv4(re_tmp[1]) or validators.ipv6(re_tmp[1]):
+                ipaddress = re_tmp[1]
+                message = re_tmp[2]
 
     # Short format
     if ipaddress:
-        tmp = re.match(r"( - - )"                  # separator1
-                       r"(\[)"                     # separator2
-                       r"(\d\d)"                   # day
-                       r"/"
-                       r"([A-Z][a-z][a-z])"        # _month
-                       r"/"
-                       r"(\d{4})"                  # year
-                       r" "
-                       r"(\d\d:\d\d:\d\d)"         # hms
-                       r"(\])"                     # separator3
-                       r"(\s\")"                   # separator4
-                       r"([A-Z]*?\s)"              # verb
-                       r"(\S*?)"                   # address3
-                       r"(\s\S*?)"                 # protocol
-                       r"(\"\s)"                   # separator5
-                       r"(\d+?)"                   # statuscode
-                       r"(\s+[\d-]+?$)", message)  # separator6
+        re_tmp = re.match(r"( - - )"                  # separator1
+                          r"(\[)"                     # separator2
+                          r"(\d\d)"                   # day
+                          r"/"
+                          r"([A-Z][a-z][a-z])"        # _month
+                          r"/"
+                          r"(\d{4})"                  # year
+                          r" "
+                          r"(\d\d:\d\d:\d\d)"         # hms
+                          r"(\])"                     # separator3
+                          r"(\s\")"                   # separator4
+                          r"([A-Z]*?\s)"              # verb
+                          r"(\S*?)"                   # address3
+                          r"(\s\S*?)"                 # protocol
+                          r"(\"\s)"                   # separator5
+                          r"(\d+?)"                   # statuscode
+                          r"(\s+[\d-]+?$)", message)  # separator6
 
-        if tmp is not None:
+        if re_tmp is not None:
             address1 = ipaddress
-            separator1 = tmp[1]
-            separator2 = tmp[2]
-            day = tmp[3]
-            _month = tmp[4]
+            separator1 = re_tmp[1]
+            separator2 = re_tmp[2]
+            day = re_tmp[3]
+            _month = re_tmp[4]
             month = month_to_numerical(_month)
-            year = tmp[5]
-            hms = tmp[6]
+            year = re_tmp[5]
+            hms = re_tmp[6]
             if reformat_timestamps:
                 ts = f"{year}-{month}-{day} {hms}"
             else:
                 ts = f"{day}/{_month}/{year}:{hms}"
-            separator3 = tmp[7]
-            separator4 = tmp[8]
-            verb = tmp[9]
-            address3 = tmp[10]
-            protocol = tmp[11]
-            separator5 = tmp[12]
-            statuscode = tmp[13]
+            separator3 = re_tmp[7]
+            separator4 = re_tmp[8]
+            verb = re_tmp[9]
+            address3 = re_tmp[10]
+            protocol = re_tmp[11]
+            separator5 = re_tmp[12]
+            statuscode = re_tmp[13]
             _statuscode = int(statuscode)
             if 100 <= _statuscode < 300:
                 severity = LogLevel.NOTICE
@@ -800,7 +793,7 @@ def http(message: str,
                 severity = LogLevel.WARNING
             else:
                 severity = LogLevel.ERR
-            separator6 = tmp[14]
+            separator6 = re_tmp[14]
             new_message: Sequence[ThemeRef | ThemeStr] = [
                 ThemeStr(address1, ThemeAttr("logview", "hostname")),
                 ThemeStr(separator1, ThemeAttr("logview", "severity_info")),
@@ -818,53 +811,53 @@ def http(message: str,
             return new_message, severity, facility
 
     if ipaddress:
-        tmp = re.match(r"( - - )"
-                       r"(\[)"
-                       r"(\d\d)"
-                       r"/"
-                       r"([A-Z][a-z][a-z])"
-                       r"/"
-                       r"(\d{4})"
-                       r":"
-                       r"(\d\d:\d\d:\d\d)"
-                       r"(\s\+\d{4}|\s-\d{4})"
-                       r"(\])"
-                       r"(\s\")"
-                       r"([A-Z]*?\s)"
-                       r"(\S*?)"
-                       r"(\s\S*?)"
-                       r"(\"\s)"
-                       r"(\d+?)"
-                       r"(\s+\d+?\s\")"
-                       r"([^\"]*)"
-                       r"(\")"
-                       r"(\s|$)"
-                       r"(\"|.*$)"
-                       r"([^\"]*|$)"
-                       r"(\"|$)"
-                       r"(\s.*$|$)", message)
+        re_tmp = re.match(r"( - - )"
+                          r"(\[)"
+                          r"(\d\d)"
+                          r"/"
+                          r"([A-Z][a-z][a-z])"
+                          r"/"
+                          r"(\d{4})"
+                          r":"
+                          r"(\d\d:\d\d:\d\d)"
+                          r"(\s\+\d{4}|\s-\d{4})"
+                          r"(\])"
+                          r"(\s\")"
+                          r"([A-Z]*?\s)"
+                          r"(\S*?)"
+                          r"(\s\S*?)"
+                          r"(\"\s)"
+                          r"(\d+?)"
+                          r"(\s+\d+?\s\")"
+                          r"([^\"]*)"
+                          r"(\")"
+                          r"(\s|$)"
+                          r"(\"|.*$)"
+                          r"([^\"]*|$)"
+                          r"(\"|$)"
+                          r"(\s.*$|$)", message)
 
-        if tmp is not None:
+        if re_tmp is not None:
             address1 = ipaddress
-            separator1 = tmp[1]
-            separator2 = tmp[2]
-            day = tmp[3]
-            _month = tmp[4]
+            separator1 = re_tmp[1]
+            separator2 = re_tmp[2]
+            day = re_tmp[3]
+            _month = re_tmp[4]
             month = month_to_numerical(_month)
-            year = tmp[5]
-            hms = tmp[6]
-            tz = tmp[7]
+            year = re_tmp[5]
+            hms = re_tmp[6]
+            tz = re_tmp[7]
             if reformat_timestamps:
                 ts = f"{year}-{month}-{day} {hms}{tz}"
             else:
                 ts = f"{day}/{_month}/{year}:{hms}{tz}"
-            separator3 = tmp[8]
-            separator4 = tmp[9]
-            verb = tmp[10]
-            address3 = tmp[11]
-            protocol = tmp[12]
-            separator5 = tmp[13]
-            statuscode = tmp[14]
+            separator3 = re_tmp[8]
+            separator4 = re_tmp[9]
+            verb = re_tmp[10]
+            address3 = re_tmp[11]
+            protocol = re_tmp[12]
+            separator5 = re_tmp[13]
+            statuscode = re_tmp[14]
             _statuscode = int(statuscode)
             if 100 <= _statuscode < 300:
                 severity = LogLevel.NOTICE
@@ -872,12 +865,12 @@ def http(message: str,
                 severity = LogLevel.WARNING
             else:
                 severity = LogLevel.ERR
-            separator6 = tmp[15]
-            address4 = tmp[16]
-            separator7 = tmp[17] + tmp[18] + tmp[19]
-            address5 = tmp[20]
-            separator8 = tmp[21]
-            remainder = tmp[22]
+            separator6 = re_tmp[15]
+            address4 = re_tmp[16]
+            separator7 = re_tmp[17] + re_tmp[18] + re_tmp[19]
+            address5 = re_tmp[20]
+            separator8 = re_tmp[21]
+            remainder = re_tmp[22]
 
             severity_name = f"severity_{loglevel_to_name(severity).lower()}"
             new_message = [
@@ -903,21 +896,21 @@ def http(message: str,
             return new_message, severity, facility
 
     # Alternate formats
-    tmp = re.match(r"^\|\s+"
-                   r"(\d{3})"         # statuscode
-                   r"\s+\|\s+"
-                   r"([0-9.]+)"       # duration
-                   r"([^ ]*)"         # unit
-                   r"\s+\|\s+"
-                   r"([^:^\s]*)"      # hostname
-                   r":(\d+?)"         # port
-                   r"\s+\|\s+"
-                   r"([A-Z]+)"        # verb
-                   r"\s+"
-                   r"(.*)", message)  # url
+    re_tmp = re.match(r"^\|\s+"
+                      r"(\d{3})"         # statuscode
+                      r"\s+\|\s+"
+                      r"([0-9.]+)"       # duration
+                      r"([^ ]*)"         # unit
+                      r"\s+\|\s+"
+                      r"([^:^\s]*)"      # hostname
+                      r":(\d+?)"         # port
+                      r"\s+\|\s+"
+                      r"([A-Z]+)"        # verb
+                      r"\s+"
+                      r"(.*)", message)  # url
 
-    if tmp is not None:
-        statuscode = tmp[1]
+    if re_tmp is not None:
+        statuscode = re_tmp[1]
         _statuscode = int(statuscode)
         if 100 <= _statuscode < 300:
             severity = LogLevel.NOTICE
@@ -925,12 +918,12 @@ def http(message: str,
             severity = LogLevel.WARNING
         else:
             severity = LogLevel.ERR
-        duration = tmp[2]
-        unit = tmp[3]
-        hostname = tmp[4]
-        port = tmp[5]
-        verb = tmp[6]
-        url = tmp[7]
+        duration = re_tmp[2]
+        unit = re_tmp[3]
+        hostname = re_tmp[4]
+        port = re_tmp[5]
+        verb = re_tmp[6]
+        url = re_tmp[7]
         severity_name = f"severity_{loglevel_to_name(severity).lower()}"
         new_message = [
             ThemeStr("| ", ThemeAttr("logview", "severity_info")),
@@ -949,42 +942,42 @@ def http(message: str,
         ]
         return new_message, severity, facility
 
-    tmp = re.match(r"^\["
-                   r"(\d{4}-\d\d-\d\d)"
-                   r"T"
-                   r"(\d\d:\d\d:\d\d\.\d\d\d)Z"
-                   r"\] \""
-                   r"([A-Z]+)"
-                   r"\s"
-                   r"([^\s]+)"
-                   r"\s"
-                   r"([^\"]+)"
-                   r"\" "
-                   r"([\d]+)"
-                   r" ([^\s]+)"
-                   r" ([^\s]+)"
-                   r" ([^\s]+)"
-                   r" ([^\s]+)"
-                   r" ([^\s]+) "
-                   r"\"([^\"]+)\" "
-                   r"\"([^\"]+)\" "
-                   r"\"([^\"]+)\" "
-                   r"\"([^\"]+)\" "
-                   r"\"([^\"]+)\"", message)
+    re_tmp = re.match(r"^\["
+                      r"(\d{4}-\d\d-\d\d)"
+                      r"T"
+                      r"(\d\d:\d\d:\d\d\.\d\d\d)Z"
+                      r"\] \""
+                      r"([A-Z]+)"
+                      r"\s"
+                      r"([^\s]+)"
+                      r"\s"
+                      r"([^\"]+)"
+                      r"\" "
+                      r"([\d]+)"
+                      r" ([^\s]+)"
+                      r" ([^\s]+)"
+                      r" ([^\s]+)"
+                      r" ([^\s]+)"
+                      r" ([^\s]+) "
+                      r"\"([^\"]+)\" "
+                      r"\"([^\"]+)\" "
+                      r"\"([^\"]+)\" "
+                      r"\"([^\"]+)\" "
+                      r"\"([^\"]+)\"", message)
 
-    if tmp is not None:
-        date = tmp[1]
-        hmsms = tmp[2]
+    if re_tmp is not None:
+        date = re_tmp[1]
+        hmsms = re_tmp[2]
 
         if reformat_timestamps:
             ts = f"{date} {hmsms} +0000"
         else:
             ts = f"{date}T{hmsms}Z"
 
-        verb = tmp[3]
-        address1 = tmp[4]
-        protocol = tmp[5]
-        statuscode = tmp[6]
+        verb = re_tmp[3]
+        address1 = re_tmp[4]
+        protocol = re_tmp[5]
+        statuscode = re_tmp[6]
         _statuscode = int(statuscode)
         if 100 <= _statuscode < 300:
             severity = LogLevel.NOTICE
@@ -994,16 +987,16 @@ def http(message: str,
             severity = LogLevel.ERR
         severity_name = f"severity_{loglevel_to_name(severity).lower()}"
 
-        number0 = tmp[7]
-        number1 = tmp[8]
-        number2 = tmp[9]
-        number3 = tmp[10]
-        number4 = tmp[11]
-        client = tmp[12]
-        str0 = tmp[13]
-        str1 = tmp[14]
-        str2 = tmp[15]
-        str3 = tmp[16]
+        number0 = re_tmp[7]
+        number1 = re_tmp[8]
+        number2 = re_tmp[9]
+        number3 = re_tmp[10]
+        number4 = re_tmp[11]
+        client = re_tmp[12]
+        str0 = re_tmp[13]
+        str1 = re_tmp[14]
+        str2 = re_tmp[15]
+        str3 = re_tmp[16]
 
         new_message = [
             ThemeStr(f"[{ts}] ", ThemeAttr("logview", "timestamp")),
@@ -1065,20 +1058,21 @@ def split_glog(message: str, **kwargs: Any) \
         loggingerror = "ERROR: logging before flag.Parse"
         message = message.removeprefix("ERROR: logging before flag.Parse: ")
 
-    tmp = re.match(r"^([A-Z]\d{4} \d\d:\d\d:\d\d\.\d)\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d\.\d{9}Z (.*)",
-                   message)
-    if tmp is not None:
-        message = f"{tmp[1]}{tmp[2]}"
+    re_tmp = \
+        re.match(r"^([A-Z]\d{4} \d\d:\d\d:\d\d\.\d)\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d\.\d{9}Z (.*)",
+                 message)
+    if re_tmp is not None:
+        message = f"{re_tmp[1]}{re_tmp[2]}"
 
-    tmp = re.match(r"^([A-Z])\d\d\d\d \d\d:\d\d:\d\d\.\d+\s+(\d+)\s(.+?:\d+)\](.*)", message)
-    if tmp is not None:
-        severity = letter_to_severity(tmp[1])
+    re_tmp = re.match(r"^([A-Z])\d\d\d\d \d\d:\d\d:\d\d\.\d+\s+(\d+)\s(.+?:\d+)\](.*)", message)
+    if re_tmp is not None:
+        severity = letter_to_severity(re_tmp[1])
 
         # We do not use PID, but it is here just to document the meaning of the field
-        # _pid = tmp[2]
+        # _pid = re_tmp[2]
 
-        facility = f"{(tmp[3])}"
-        message = f"{(tmp[4])}"
+        facility = f"{(re_tmp[3])}"
+        message = f"{(re_tmp[4])}"
         # The first character is always whitespace unless this is an empty line
         if message:
             message = message[1:]
@@ -1194,11 +1188,10 @@ def tab_separated(message: str, **kwargs: Any) \
 def __split_severity_facility_style(message: str, **kwargs: Any) -> tuple[str, LogLevel, str]:
     severity: LogLevel = deep_get(kwargs, DictPath("severity"), LogLevel.INFO)
     facility: str = deep_get(kwargs, DictPath("facility"), "")
-    tmp = re.match(r"^\s*([A-Z]+)\s+([a-zA-Z-\.]+)\s+(.*)", message)
-    if tmp is not None:
-        severity = str_to_severity(tmp[1], default=severity)
-        facility = tmp[2]
-        message = tmp[3]
+    if (re_tmp := re.match(r"^\s*([A-Z]+)\s+([a-zA-Z-\.]+)\s+(.*)", message)) is not None:
+        severity = str_to_severity(re_tmp[1], default=severity)
+        facility = re_tmp[2]
+        message = re_tmp[3]
     return message, severity, facility
 
 
@@ -1594,7 +1587,7 @@ def json_event(message: str,
 
     new_message: str | list[ThemeRef | ThemeStr] = []
     remnants: list[tuple[list[ThemeRef | ThemeStr], LogLevel]] = []
-    tmp = message.split(" ", 2)
+    tmp: list[str] = message.split(" ", 2)
 
     if not message.startswith("EVENT ") or len(tmp) < 3:
         return message, severity, facility, remnants
@@ -1614,10 +1607,9 @@ def json_event(message: str,
                            ThemeStr(" [No changes]", ThemeAttr("logview", "unchanged"))]
     elif event in ("UpdatePod", "UpdateNamespace"):
         severity_name = f"severity_{loglevel_to_name(severity).lower()}"
-        tmp2 = re.match(r"^({.*})\s*({.*})", tmp[2])
-        if tmp2 is not None:
+        if (re_tmp := re.match(r"^({.*})\s*({.*})", tmp[2])) is not None:
             try:
-                old = json.loads(tmp2[1])
+                old = json.loads(re_tmp[1])
             except DecodeException:
                 new_message = \
                     [ThemeStr(f"{tmp[1]} {event}", ThemeAttr("logview", severity_name)),
@@ -1628,7 +1620,7 @@ def json_event(message: str,
 
             old_str = json_dumps(old)
             try:
-                new = json.loads(tmp2[2])
+                new = json.loads(re_tmp[2])
             except DecodeException:
                 new_message = [ThemeStr(f"{tmp[0]} {event}",
                                         ThemeAttr("logview", severity_name)),
@@ -1679,10 +1671,9 @@ def split_angle_bracketed_facility(message: str, facility: str = "") -> tuple[st
                 (str): The message part
                 (str): The facility
     """
-    tmp = re.match(r"^<(.+?)>\s?(.*)", message)
-    if tmp is not None:
-        facility = tmp[1]
-        message = tmp[2]
+    if (re_tmp := re.match(r"^<(.+?)>\s?(.*)", message)) is not None:
+        facility = re_tmp[1]
+        message = re_tmp[2]
     return message, facility
 
 
@@ -1698,10 +1689,9 @@ def split_colon_facility(message: str, facility: str = "") -> tuple[str, str]:
                 (str): The message part
                 (str): The facility
     """
-    tmp = re.match(r"^(\S+?):\s?(.*)", message)
-    if tmp is not None:
-        facility = tmp[1]
-        message = tmp[2]
+    if (re_tmp := re.match(r"^(\S+?):\s?(.*)", message)) is not None:
+        facility = re_tmp[1]
+        message = re_tmp[2]
     return message, facility
 
 
@@ -1723,13 +1713,10 @@ def split_bracketed_timestamp_severity_facility(message: str,
     severity: LogLevel = deep_get(kwargs, DictPath("default_loglevel"), LogLevel.INFO)
     facility: str = ""
 
-    tmp = re.match(r"^\[([^ ]+) ([^ ]+) (.+?)\]: (.+)", message)
-
-    if tmp is not None:
-        severity = str_to_severity(tmp[2])
-        facility = tmp[3]
-        message = tmp[4]
-
+    if (re_tmp := re.match(r"^\[([^ ]+) ([^ ]+) (.+?)\]: (.+)", message)) is not None:
+        severity = str_to_severity(re_tmp[2])
+        facility = re_tmp[3]
+        message = re_tmp[4]
     return message, severity, facility
 
 
@@ -1959,13 +1946,14 @@ def expand_event(message: str, severity: LogLevel, **kwargs: Any) \
     indent = 2
     type_format = ThemeAttr("main", "status_unknown")
     # Try to extract an embedded severity; use it if higher than severity
-    tmp = re.match(r"^.*(type: ')([A-Z][a-z]+)(' reason: ')([A-Za-z][A-Za-z-.]+)('.*)", raw_message)
-    if tmp is not None:
+    re_tmp = re.match(r"^.*(type: ')([A-Z][a-z]+)(' reason: ')([A-Za-z][A-Za-z-.]+)('.*)",
+                      raw_message)
+    if re_tmp is not None:
         _severity = severity
-        if tmp[2] == "Normal":
+        if re_tmp[2] == "Normal":
             _severity = LogLevel.INFO
             type_format = ThemeAttr("main", "status_ok")
-        elif tmp[2] == "Warning":
+        elif re_tmp[2] == "Warning":
             _severity = LogLevel.WARNING
             type_format = ThemeAttr("main", "status_admin")
         severity = min(severity, _severity)
@@ -1980,16 +1968,16 @@ def expand_event(message: str, severity: LogLevel, **kwargs: Any) \
                                ThemeAttr("types", "yaml_reference"))], severity))
     severity_name = f"severity_{loglevel_to_name(severity).lower()}"
     message_format = ThemeAttr("logview", severity_name)
-    if tmp is not None:
-        reason_format = deep_get(event_reasons, DictPath(tmp[4]),
+    if re_tmp is not None:
+        reason_format = deep_get(event_reasons, DictPath(re_tmp[4]),
                                  ThemeAttr("logview", severity_name))
         remnants.append(([ThemeStr(raw_message[eventend:eventend + 3],
                                    ThemeAttr("types", "yaml_reference")),
-                          ThemeStr(tmp[1], message_format),
-                          ThemeStr(tmp[2], type_format),
-                          ThemeStr(tmp[3], message_format),
-                          ThemeStr(tmp[4], reason_format),
-                          ThemeStr(tmp[5], message_format)], severity))
+                          ThemeStr(re_tmp[1], message_format),
+                          ThemeStr(re_tmp[2], type_format),
+                          ThemeStr(re_tmp[3], message_format),
+                          ThemeStr(re_tmp[4], reason_format),
+                          ThemeStr(re_tmp[5], message_format)], severity))
     else:
         remnants.append(([ThemeStr(raw_message[eventend:eventend + 3],
                                    ThemeAttr("types", "yaml_reference")),
@@ -2038,7 +2026,7 @@ def format_key_value(key: str, value: str,
     return tmp
 
 
-def sysctl(message: str, **kwargs: Any) -> tuple[str, LogLevel, str,
+def sysctl(message: str, **kwargs: Any) -> tuple[str, LogLevel, list[ThemeRef | ThemeStr],
                                                  list[tuple[list[ThemeRef | ThemeStr],
                                                             LogLevel]]]:
     """
@@ -2050,6 +2038,13 @@ def sysctl(message: str, **kwargs: Any) -> tuple[str, LogLevel, str,
                 severity (LogLevel): The log severity
                 facility (str): The log facility
         Returns:
+            (str|ThemeArray, LogLevel, str, [(ThemeArray, LogLevel)]):
+                (str): The facility of the message
+                (LogLevel): The LogLevel of the message
+                (str|ThemeArray): The untouched or formatted message
+                ([(ThemeArray, LogLevel)]):
+                    (ThemeArray): The formatted strings of the remnant
+                    (LogLevel): The severity of the remnant
     """
     severity: LogLevel = deep_get(kwargs, DictPath("severity"), LogLevel.INFO)
     facility: str = deep_get(kwargs, DictPath("facility"), "")
@@ -2086,12 +2081,13 @@ def key_value(message: str, **kwargs: Any) -> tuple[str, LogLevel, str,
                 options (dict): Additional, rule specific, options
         Returns:
             (str|ThemeArray, LogLevel, str, [(ThemeArray, LogLevel)]):
-                (str|ThemeArray): The untouched or formatted message
-                (LogLevel): The LogLevel of the message
                 (str): The facility of the message
+                (LogLevel): The LogLevel of the message
+                (str|ThemeArray): The untouched or formatted message
                 ([(ThemeArray, LogLevel)]):
                     (ThemeArray): The formatted strings of the remnant
                     (LogLevel): The severity of the remnant
+
     """
     severity: LogLevel = deep_get(kwargs, DictPath("severity"), LogLevel.INFO)
     facility: str = deep_get(kwargs, DictPath("facility"), "")
@@ -2115,9 +2111,9 @@ def key_value(message: str, **kwargs: Any) -> tuple[str, LogLevel, str,
 
     # Split all key=value pairs. Make sure not to process "=="
     key_value_regex = re.compile(r"^(.*?[^=])=($|[^=].*$)")
-    tmp = re.findall(r"(?:\".*?\"|\S)+", message.replace("\\\"", "<<<quote>>>"))
+    tmp: list[str] | None = re.findall(r"(?:\".*?\"|\S)+", message.replace("\\\"", "<<<quote>>>"))
     # pylint: disable-next=too-many-nested-blocks
-    if tmp is not None:
+    if tmp:
         # First go through the list of matches and check that there are at least one
         # key=value pair; we do not allow *only* bare keys. While it could theoretically
         # occur, it leaves too much room for false positives.
@@ -2127,8 +2123,8 @@ def key_value(message: str, **kwargs: Any) -> tuple[str, LogLevel, str,
 
         d: dict = {}
         for item in tmp:
-            tmp2 = key_value_regex.match(item)
-            if tmp2 is None:
+            re_tmp = key_value_regex.match(item)
+            if re_tmp is None:
                 if allow_bare_keys and not item.endswith(":"):
                     if item not in d:
                         d[item] = None
@@ -2136,8 +2132,8 @@ def key_value(message: str, **kwargs: Any) -> tuple[str, LogLevel, str,
                     # Give up; this line cannot be parsed as a set of key=value
                     return facility, severity, message, remnants
             else:
-                key = tmp2[1]
-                value = tmp2[2].replace("<<<quote>>>", "\\\"")
+                key = re_tmp[1]
+                value = re_tmp[2].replace("<<<quote>>>", "\\\"")
                 if key not in d:
                     d[key] = value
                 else:
@@ -2212,12 +2208,11 @@ def key_value(message: str, **kwargs: Any) -> tuple[str, LogLevel, str,
             if err.startswith("\"") and err.endswith("\""):
                 err = err[1:-1]
             message = f"{msg}"
-            tmp = re.match(r"^(\d+ errors? occurred:)(.*)", err)
-            if tmp is not None:
+            if (re_tmp := re.match(r"^(\d+ errors? occurred:)(.*)", err)) is not None:
                 severity_name = f"severity_{loglevel_to_name(severity).lower()}"
-                remnants.append(([ThemeStr(tmp[1], ThemeAttr("logview", severity_name))],
+                remnants.append(([ThemeStr(re_tmp[1], ThemeAttr("logview", severity_name))],
                                  severity))
-                s = tmp[2].replace("\\t", "").split("\\n")
+                s = re_tmp[2].replace("\\t", "").split("\\n")
                 for line in s:
                     if line:
                         # Real bullets look so much nicer
@@ -2233,10 +2228,10 @@ def key_value(message: str, **kwargs: Any) -> tuple[str, LogLevel, str,
                                                        ThemeAttr("logview", severity_name))],
                                              severity))
         else:
-            tmp = []
+            msg_tmp = []
             # If we are extracting msg we always want msg first
             if LogparserConfiguration.msg_extract and not fold_msg and msg:
-                tmp.append(msg)
+                msg_tmp.append(msg)
                 # Pop the first matching _msg
                 for _msg in messages:
                     if _msg in d:
@@ -2244,7 +2239,7 @@ def key_value(message: str, **kwargs: Any) -> tuple[str, LogLevel, str,
                         break
                 for key in errors:
                     if (value := d.pop(key, "")):
-                        tmp.append(format_key_value(key, value, severity, error_keys=errors))
+                        msg_tmp.append(format_key_value(key, value, severity, error_keys=errors))
             else:
                 if LogparserConfiguration.msg_first:
                     if fold_msg:
@@ -2253,16 +2248,16 @@ def key_value(message: str, **kwargs: Any) -> tuple[str, LogLevel, str,
                             if value:
                                 if LogparserConfiguration.msg_extract and key in messages:
                                     # We already have the message extracted
-                                    tmp.append(msg)
+                                    msg_tmp.append(msg)
                                 else:
-                                    tmp.append(f"{key}={value}")
+                                    msg_tmp.append(f"{key}={value}")
                     else:
                         if (msg := deep_get_with_fallback(d, messages, "")):
                             force_severity = False
                             if not any(key in errors for key in d):
                                 force_severity = True
-                            tmp.append(format_key_value("msg", msg, severity,
-                                       force_severity=force_severity))
+                            msg_tmp.append(format_key_value("msg", msg, severity,
+                                                            force_severity=force_severity))
                         # Pop the first matching _msg
                         for _msg in messages:
                             if _msg in d:
@@ -2270,17 +2265,17 @@ def key_value(message: str, **kwargs: Any) -> tuple[str, LogLevel, str,
                                 break
                         for key in errors:
                             if (value := d.pop(key, "")):
-                                tmp.append(format_key_value(key, value, severity))
+                                msg_tmp.append(format_key_value(key, value, severity))
 
             for d_key, d_value in d.items():
                 if not fold_msg:
                     if d_key == "collector" \
                             and collector_bullets \
                             and LogparserConfiguration.bullet_collectors:
-                        tmp.append(f"• {d_value}")
+                        msg_tmp.append(f"• {d_value}")
                     elif d_key in versions:
-                        tmp.append(format_key_value(d_key, d_value,
-                                                    LogLevel.NOTICE, force_severity=True))
+                        msg_tmp.append(format_key_value(d_key, d_value,
+                                                        LogLevel.NOTICE, force_severity=True))
                     else:
                         if is_event and d_key == "type":
                             severity_ = severity
@@ -2288,14 +2283,14 @@ def key_value(message: str, **kwargs: Any) -> tuple[str, LogLevel, str,
                                 severity_ = LogLevel.NOTICE
                             elif d_value.strip("\"") == "Warning":
                                 severity_ = LogLevel.WARNING
-                            tmp.append(format_key_value(d_key, d_value,
-                                                        severity_, force_severity=True))
+                            msg_tmp.append(format_key_value(d_key, d_value,
+                                                            severity_, force_severity=True))
                             severity = min(severity, severity_)
                         elif is_event and d_key == "reason":
                             reason_format = deep_get(event_reasons, DictPath(d_value.strip("\"")))
-                            tmp.append(format_key_value(d_key, d_value, severity_,
-                                                        force_severity=True,
-                                                        value_format=reason_format))
+                            msg_tmp.append(format_key_value(d_key, d_value, severity_,
+                                                            force_severity=True,
+                                                            value_format=reason_format))
                         else:
                             d_value, severity_ = \
                                 custom_override_severity(d_value, severity,
@@ -2304,24 +2299,24 @@ def key_value(message: str, **kwargs: Any) -> tuple[str, LogLevel, str,
                                                                  "overrides": severity_overrides,
                                                              }})
                             force_severity = severity_ != severity
-                            tmp.append(format_key_value(d_key, d_value, severity_,
-                                                        force_severity=force_severity,
-                                                        allow_bare_keys=allow_bare_keys))
+                            msg_tmp.append(format_key_value(d_key, cast(str, d_value), severity_,
+                                                            force_severity=force_severity,
+                                                            allow_bare_keys=allow_bare_keys))
                 else:
                     if d_value:
-                        tmp.append(f"{d_key}={d_value}")
+                        msg_tmp.append(f"{d_key}={d_value}")
                     else:
-                        tmp.append(f"{d_key}")
+                        msg_tmp.append(f"{d_key}")
 
             if fold_msg:
-                message = " ".join(tmp)
+                message = " ".join(msg_tmp)
             else:
-                if tmp:
-                    message = tmp.pop(0)
+                if msg_tmp:
+                    message = msg_tmp.pop(0)
                 else:
                     message = ""
-                if tmp:
-                    remnants = (tmp, severity)
+                if msg_tmp:
+                    remnants = (msg_tmp, severity)
 
     if LogparserConfiguration.expand_newlines \
             and "\\n" in message \
@@ -2386,8 +2381,8 @@ def key_value_with_leading_message(message: str, **kwargs: Any) -> \
         return facility, severity, message, remnants
 
     # Split into substrings based on spaces
-    tmp = re.findall(r"(?:\".*?\"|\S)+", message.replace("\\\"", "<<<quote>>>"))
-    if tmp is not None and tmp:
+    tmp: list[str] | None = re.findall(r"(?:\".*?\"|\S)+", message.replace("\\\"", "<<<quote>>>"))
+    if tmp:
         # First go through the list of matches and check that there are at least one
         # key=value pair; we do not allow *only* bare keys. While it could theoretically
         # occur, it leaves too much room for false positives.
@@ -2447,8 +2442,7 @@ def modinfo(message: str, **kwargs: Any) \
             **kwargs (dict[str, Any]): Keyword arguments [unused]
         Returns:
             ((str, LogLevel, str, [(ThemeArray, LogLevel)]))):
-                (str): The log facility
-                (ThemeArray): The formatted string
+                (str): The facility of the message
                 (LogLevel): The LogLevel of the message
                 (str|ThemeArray): The unchanged message if nothing matched,
                                   or the formatted themearray
@@ -2458,11 +2452,10 @@ def modinfo(message: str, **kwargs: Any) \
     severity = LogLevel.INFO
     remnants: list[tuple[list[ThemeRef | ThemeStr], LogLevel]] = []
 
-    tmp = re.match(r"^([a-z][\S]*?):(\s+)(.+)", message)
-    if tmp is not None:
-        key = tmp[1]
-        whitespace = tmp[2]
-        value = tmp[3]
+    if (re_tmp := re.match(r"^([a-z][\S]*?):(\s+)(.+)", message)) is not None:
+        key = re_tmp[1]
+        whitespace = re_tmp[2]
+        value = re_tmp[3]
         new_message: list[ThemeRef | ThemeStr] = [
             ThemeStr(key, ThemeAttr("types", "key")),
             ThemeRef("separators", "keyvalue"),
@@ -2526,55 +2519,54 @@ def directory(message: str,
 
     remnants: list[tuple[list[ThemeRef | ThemeStr], LogLevel]] = []
 
-    tmp = re.match(r"^(total)\s+(\d+)$", message)
-    if tmp is not None:
+    if (re_tmp := re.match(r"^(total)\s+(\d+)$", message)) is not None:
         return facility, severity, message, remnants
 
-    tmp = re.match(r"^(.)"                  # etype
-                   r"(.{9})"                # permissions
-                   r"(\+|\s)"               # acl
-                   r"(\s+)"                 # space1
-                   r"(\d+)"                 # linkcount
-                   r"(\s+)"                 # space2
-                   r"([^\s]+)"              # owner
-                   r"(\s+)"                 # space3
-                   r"([^\s]+)"              # group
-                   r"(\s+)"                 # space4
-                   r"(\d+)"                 # size part1
-                   r"(,\s+\d+|)"            # size part2
-                   r"(\s+)"                 # space5
-                   r"([^\s]+)"              # month
-                   r"(\s+)"                 # space6
-                   r"(\d+)"                 # day
-                   r"(\s+)"                 # space7
-                   r"([^\s]+)"              # yearortime
-                   r"(\s+)"                 # space8
-                   r"(.+?)"                 # name
-                   r"(=|\||/|)$", message)  # suffix
-    if tmp is None:
+    re_tmp = re.match(r"^(.)"                  # etype
+                      r"(.{9})"                # permissions
+                      r"(\+|\s)"               # acl
+                      r"(\s+)"                 # space1
+                      r"(\d+)"                 # linkcount
+                      r"(\s+)"                 # space2
+                      r"([^\s]+)"              # owner
+                      r"(\s+)"                 # space3
+                      r"([^\s]+)"              # group
+                      r"(\s+)"                 # space4
+                      r"(\d+)"                 # size part1
+                      r"(,\s+\d+|)"            # size part2
+                      r"(\s+)"                 # space5
+                      r"([^\s]+)"              # month
+                      r"(\s+)"                 # space6
+                      r"(\d+)"                 # day
+                      r"(\s+)"                 # space7
+                      r"([^\s]+)"              # yearortime
+                      r"(\s+)"                 # space8
+                      r"(.+?)"                 # name
+                      r"(=|\||/|)$", message)  # suffix
+    if re_tmp is None:
         # This is unlikely to be a directory match
         return facility, severity, message, remnants
 
-    etype = tmp[1]
-    permissions = tmp[2]
-    acl = tmp[3]
-    space1 = tmp[4]
-    linkcount = tmp[5]
-    space2 = tmp[6]
-    owner = tmp[7]
-    space3 = tmp[8]
-    group = tmp[9]
-    space4 = tmp[10]
-    size = tmp[11] + tmp[12]
-    space5 = tmp[13]
-    month = tmp[14]
-    space6 = tmp[15]
-    day = tmp[16]
-    space7 = tmp[17]
-    yearortime = tmp[18]
-    space8 = tmp[19]
-    name = tmp[20]
-    suffix = tmp[21]
+    etype = re_tmp[1]
+    permissions = re_tmp[2]
+    acl = re_tmp[3]
+    space1 = re_tmp[4]
+    linkcount = re_tmp[5]
+    space2 = re_tmp[6]
+    owner = re_tmp[7]
+    space3 = re_tmp[8]
+    group = re_tmp[9]
+    space4 = re_tmp[10]
+    size = re_tmp[11] + re_tmp[12]
+    space5 = re_tmp[13]
+    month = re_tmp[14]
+    space6 = re_tmp[15]
+    day = re_tmp[16]
+    space7 = re_tmp[17]
+    yearortime = re_tmp[18]
+    space8 = re_tmp[19]
+    name = re_tmp[20]
+    suffix = re_tmp[21]
 
     _message: list[ThemeRef | ThemeStr] = [
         ThemeStr(f"{etype}", ThemeAttr("types", "dir_type")),
@@ -2623,15 +2615,14 @@ def directory(message: str,
         ]
     # symbolic link
     elif etype == "l":
-        tmp2 = re.match(r"^(.+?)( -> )(.+)", name)
-        if tmp2 is None:
+        if (re_tmp := re.match(r"^(.+?)( -> )(.+)", name)) is None:
             _message += [
                 ThemeStr(f"{name}", ThemeAttr("types", "dir_symlink_name"))
             ]
         else:
             _message += [
-                ThemeStr(f"{tmp2[1]}", ThemeAttr("types", "dir_symlink_name")),
-                ThemeStr(f"{tmp2[2]}", ThemeAttr("types", "dir_symlink_link"))
+                ThemeStr(f"{re_tmp[1]}", ThemeAttr("types", "dir_symlink_name")),
+                ThemeStr(f"{re_tmp[2]}", ThemeAttr("types", "dir_symlink_link"))
             ]
             # There is no suffix for devices or regular files,
             # but we can distinguish the two based on the file size;
@@ -2640,23 +2631,23 @@ def directory(message: str,
             if not suffix:
                 if "," in size:
                     _message += [
-                        ThemeStr(f"{tmp2[3]}", ThemeAttr("types", "dir_dev")),
+                        ThemeStr(f"{re_tmp[3]}", ThemeAttr("types", "dir_dev")),
                     ]
                 else:
                     _message += [
-                        ThemeStr(f"{tmp2[3]}", ThemeAttr("types", "dir_file")),
+                        ThemeStr(f"{re_tmp[3]}", ThemeAttr("types", "dir_file")),
                     ]
             elif suffix == "|":
                 _message += [
-                    ThemeStr(f"{tmp2[3]}", ThemeAttr("types", "dir_pipe")),
+                    ThemeStr(f"{re_tmp[3]}", ThemeAttr("types", "dir_pipe")),
                 ]
             elif suffix == "=":
                 _message += [
-                    ThemeStr(f"{tmp2[3]}", ThemeAttr("types", "dir_socket")),
+                    ThemeStr(f"{re_tmp[3]}", ThemeAttr("types", "dir_socket")),
                 ]
             elif suffix == "/":
                 _message += [
-                    ThemeStr(f"{tmp2[3]}", ThemeAttr("types", "dir_dir")),
+                    ThemeStr(f"{re_tmp[3]}", ThemeAttr("types", "dir_dir")),
                 ]
             else:
                 raise ValueError(f"Unhandled suffix {suffix} in line {message}")
@@ -2707,14 +2698,14 @@ def seconds_severity_facility(message: str, **kwargs: Any) \
     severity: LogLevel = LogLevel.INFO
     remnants: list[tuple[list[ThemeRef | ThemeStr], LogLevel]] = []
 
-    tmp = re.match(r"(\[\s*?\d+?\.\d+?s\])\s+([A-Z]+?)\s+(\S+?)\s(.*)", message)
-    if tmp is not None:
-        severity = str_to_severity(tmp[2], default=severity)
+    re_tmp = re.match(r"(\[\s*?\d+?\.\d+?s\])\s+([A-Z]+?)\s+(\S+?)\s(.*)", message)
+    if re_tmp is not None:
+        severity = str_to_severity(re_tmp[2], default=severity)
         severity_name = f"severity_{loglevel_to_name(severity).lower()}"
-        facility = tmp[3]
+        facility = re_tmp[3]
         new_message: list[ThemeRef | ThemeStr] = \
-            [ThemeStr(f"{tmp[1]} ", ThemeAttr("logview", "timestamp")),
-             ThemeStr(f"{tmp[4]}", ThemeAttr("logview", severity_name))]
+            [ThemeStr(f"{re_tmp[1]} ", ThemeAttr("logview", "timestamp")),
+             ThemeStr(f"{re_tmp[4]}", ThemeAttr("logview", severity_name))]
         return facility, severity, new_message, remnants
 
     return facility, severity, message, remnants
@@ -2779,42 +2770,42 @@ def python_traceback_scanner_nested_exception(message: str, **kwargs: Any) \
         ThemeStr(message, ThemeAttr("logview", "severity_info"))
     ]
 
-    tmp = re.match(r"^([A-Z])\d\d\d\d \d\d:\d\d:\d\d\.\d+\s+(\d+)\s(.+?:\d+)\] (.*)", message)
-    if tmp is not None:
-        message = tmp[4]
+    re_tmp = re.match(r"^([A-Z])\d\d\d\d \d\d:\d\d:\d\d\.\d+\s+(\d+)\s(.+?:\d+)\] (.*)", message)
+    if re_tmp is not None:
+        message = re_tmp[4]
         remnants = [
             ThemeStr(message, ThemeAttr("logview", "severity_info"))
         ]
 
-    if (tmp := re.match(r"^(\s+\+ )"
-                        r"(Exception Group Traceback "
-                        r"\(most recent call last\):)", message)) is not None:
+    if (re_tmp := re.match(r"^(\s+\+ )"
+                           r"(Exception Group Traceback "
+                           r"\(most recent call last\):)", message)) is not None:
         remnants = [
-            ThemeStr(tmp[1], ThemeAttr("logview", "severity_info")),
-            ThemeStr(tmp[2], ThemeAttr("logview", "severity_error")),
+            ThemeStr(re_tmp[1], ThemeAttr("logview", "severity_info")),
+            ThemeStr(re_tmp[2], ThemeAttr("logview", "severity_error")),
         ]
-    elif (tmp := re.match(r"^(\s+\|\s+)(During handling of the above "
-                          r"exception, another exception occurred:)",
-                          message)) is not None:
+    elif (re_tmp := re.match(r"^(\s+\|\s+)(During handling of the above "
+                             r"exception, another exception occurred:)",
+                             message)) is not None:
         remnants = [
-            ThemeStr(tmp[1], ThemeAttr("logview", "severity_info")),
-            ThemeStr(tmp[2], ThemeAttr("logview", "severity_error")),
+            ThemeStr(re_tmp[1], ThemeAttr("logview", "severity_info")),
+            ThemeStr(re_tmp[2], ThemeAttr("logview", "severity_error")),
         ]
-    elif (tmp := re.match(r"^(\s+\|\s+)(Traceback "
-                          r"\(most recent call last\):)", message)) is not None:
+    elif (re_tmp := re.match(r"^(\s+\|\s+)(Traceback "
+                             r"\(most recent call last\):)", message)) is not None:
         remnants = [
-            ThemeStr(tmp[1], ThemeAttr("logview", "severity_info")),
-            ThemeStr(tmp[2], ThemeAttr("logview", "severity_error")),
+            ThemeStr(re_tmp[1], ThemeAttr("logview", "severity_info")),
+            ThemeStr(re_tmp[2], ThemeAttr("logview", "severity_error")),
         ]
-    elif (tmp := re.match(r"^(\s+\|\s+)(File \")(.+?)(\", line )"
-                          r"(\d+)(, in )(.*)", message)) is not None:
+    elif (re_tmp := re.match(r"^(\s+\|\s+)(File \")(.+?)(\", line )"
+                             r"(\d+)(, in )(.*)", message)) is not None:
         remnants = [
-            ThemeStr(tmp[1], ThemeAttr("logview", "severity_info")),
-            ThemeStr(tmp[2], ThemeAttr("types", "path")),
-            ThemeStr(tmp[3], ThemeAttr("logview", "severity_info")),
-            ThemeStr(tmp[4], ThemeAttr("types", "lineno")),
-            ThemeStr(tmp[5], ThemeAttr("logview", "severity_info")),
-            ThemeStr(tmp[6], ThemeAttr("types", "path")),
+            ThemeStr(re_tmp[1], ThemeAttr("logview", "severity_info")),
+            ThemeStr(re_tmp[2], ThemeAttr("types", "path")),
+            ThemeStr(re_tmp[3], ThemeAttr("logview", "severity_info")),
+            ThemeStr(re_tmp[4], ThemeAttr("types", "lineno")),
+            ThemeStr(re_tmp[5], ThemeAttr("logview", "severity_info")),
+            ThemeStr(re_tmp[6], ThemeAttr("types", "path")),
         ]
     elif re.match(r"^\s+\+-+$", message):
         remnants = [
@@ -2822,21 +2813,21 @@ def python_traceback_scanner_nested_exception(message: str, **kwargs: Any) \
         ]
         processor = ("end_block", None, {})
     else:
-        if (tmp := re.match(r"^(\s+\|\s+)"
-                            r"(\S+?Error:|"
-                            r"\S+?Exception:|"
-                            r"ExceptionGroup:|"
-                            r"GeneratorExit:|"
-                            r"KeyboardInterrupt:|"
-                            r"StopIteration:|"
-                            r"StopAsyncIteration:|"
-                            r"SystemExit:|"
-                            r"socket.gaierror:"
-                            r")( .*)", message)) is not None:
+        if (re_tmp := re.match(r"^(\s+\|\s+)"
+                               r"(\S+?Error:|"
+                               r"\S+?Exception:|"
+                               r"ExceptionGroup:|"
+                               r"GeneratorExit:|"
+                               r"KeyboardInterrupt:|"
+                               r"StopIteration:|"
+                               r"StopAsyncIteration:|"
+                               r"SystemExit:|"
+                               r"socket.gaierror:"
+                               r")( .*)", message)) is not None:
             remnants = [
-                ThemeStr(tmp[1], ThemeAttr("logview", "severity_info")),
-                ThemeStr(tmp[2], ThemeAttr("logview", "severity_error")),
-                ThemeStr(tmp[3], ThemeAttr("logview", "severity_info")),
+                ThemeStr(re_tmp[1], ThemeAttr("logview", "severity_info")),
+                ThemeStr(re_tmp[2], ThemeAttr("logview", "severity_error")),
+                ThemeStr(re_tmp[3], ThemeAttr("logview", "severity_info")),
             ]
 
     return processor, (timestamp, facility, severity, remnants)
@@ -2879,39 +2870,39 @@ def python_traceback_scanner(message: str, **kwargs: Any) \
         ThemeStr(message, ThemeAttr("logview", "severity_info"))
     ]
 
-    tmp = re.match(r"^([A-Z])\d\d\d\d \d\d:\d\d:\d\d\.\d+\s+(\d+)\s(.+?:\d+)\] (.*)", message)
-    if tmp is not None:
-        message = tmp[4]
+    re_tmp = re.match(r"^([A-Z])\d\d\d\d \d\d:\d\d:\d\d\.\d+\s+(\d+)\s(.+?:\d+)\] (.*)", message)
+    if re_tmp is not None:
+        message = re_tmp[4]
         remnants = [
             ThemeStr(message, ThemeAttr("logview", "severity_info"))
         ]
 
-    if (tmp := re.match(r"^(\s+File \")(.+?)(\", line )(\d+)(, in )(.*)", message)) is not None:
+    if (re_tmp := re.match(r"^(\s+File \")(.+?)(\", line )(\d+)(, in )(.*)", message)) is not None:
         remnants = [
-            ThemeStr(tmp[1], ThemeAttr("logview", "severity_info")),
-            ThemeStr(tmp[2], ThemeAttr("types", "path")),
-            ThemeStr(tmp[3], ThemeAttr("logview", "severity_info")),
-            ThemeStr(tmp[4], ThemeAttr("types", "lineno")),
-            ThemeStr(tmp[5], ThemeAttr("logview", "severity_info")),
-            ThemeStr(tmp[6], ThemeAttr("types", "path")),
+            ThemeStr(re_tmp[1], ThemeAttr("logview", "severity_info")),
+            ThemeStr(re_tmp[2], ThemeAttr("types", "path")),
+            ThemeStr(re_tmp[3], ThemeAttr("logview", "severity_info")),
+            ThemeStr(re_tmp[4], ThemeAttr("types", "lineno")),
+            ThemeStr(re_tmp[5], ThemeAttr("logview", "severity_info")),
+            ThemeStr(re_tmp[6], ThemeAttr("types", "path")),
         ]
     else:
-        if (tmp := re.match(r"(^\S+?Error:|"
-                            r"^\S+?Exception:|"
-                            r"GeneratorExit:|"
-                            r"KeyboardInterrupt:|"
-                            r"StopIteration:|"
-                            r"StopAsyncIteration:|"
-                            r"SystemExit:|"
-                            r"socket.gaierror:"
-                            r")( .*)", message)) is not None:
+        if (re_tmp := re.match(r"(^\S+?Error:|"
+                               r"^\S+?Exception:|"
+                               r"GeneratorExit:|"
+                               r"KeyboardInterrupt:|"
+                               r"StopIteration:|"
+                               r"StopAsyncIteration:|"
+                               r"SystemExit:|"
+                               r"socket.gaierror:"
+                               r")( .*)", message)) is not None:
             remnants = [
-                ThemeStr(tmp[1], ThemeAttr("logview", "severity_error")),
-                ThemeStr(tmp[2], ThemeAttr("logview", "severity_info")),
+                ThemeStr(re_tmp[1], ThemeAttr("logview", "severity_error")),
+                ThemeStr(re_tmp[2], ThemeAttr("logview", "severity_info")),
             ]
             # This doesn't handle the stack trace that may follow the traceback,
             # but we cannot support that unless we have a forward-looking scanner.
-            if not tmp[2].startswith(" <") or tmp[2].endswith(">"):
+            if not re_tmp[2].startswith(" <") or re_tmp[2].endswith(">"):
                 processor = ("end_block", None, {})
         elif message == ">":
             processor = ("end_block", None, {})
@@ -3042,7 +3033,7 @@ def json_line_scanner(message: str, **kwargs: Any) \
     return processor, (timestamp, facility, severity, remnants)
 
 
-# pylint: disable-next=too-many-locals,too-many-branches
+# pylint: disable-next=too-many-branches
 def json_line(message: str,
               **kwargs: Any) -> tuple[str | tuple[str, Callable | None, dict],
                                       list[tuple[list[ThemeRef | ThemeStr], LogLevel]]]:
@@ -3100,8 +3091,7 @@ def json_line(message: str,
                 if message.endswith(matchkey):
                     matched = True
             elif matchtype == "regex":
-                tmp = re.match(matchkey, message)
-                if tmp is not None:
+                if re.match(matchkey, message) is not None:
                     matched = True
 
     if matched:
@@ -3175,8 +3165,7 @@ def yaml_line_scanner(message: str,
             if message.startswith(matchkey):
                 matched = False
         elif matchtype == "regex":
-            tmp = matchkey.match(message)
-            if tmp is not None:
+            if matchkey.match(message) is not None:
                 matched = False
 
     if matched:
@@ -3196,7 +3185,7 @@ def yaml_line_scanner(message: str,
     return processor, (timestamp, facility, severity, remnants)
 
 
-# pylint: disable-next=too-many-locals,too-many-branches
+# pylint: disable-next=too-many-branches
 def yaml_line(message: str, **kwargs: Any) -> \
         tuple[str | tuple[str, Callable | None, dict],
               str | list[tuple[list[ThemeRef | ThemeStr], LogLevel]]]:
@@ -3256,8 +3245,7 @@ def yaml_line(message: str, **kwargs: Any) -> \
                 if message.endswith(matchkey):
                     matched = True
             elif matchtype == "regex":
-                tmp = re.match(matchkey, message)
-                if tmp is not None:
+                if re.match(matchkey, message) is not None:
                     matched = True
 
     if matched:
@@ -3331,8 +3319,7 @@ def diff_line_scanner(message: str,
             if message.startswith(matchkey):
                 matched = False
         elif matchtype == "regex":
-            tmp = matchkey.match(message)
-            if tmp is not None:
+            if matchkey.match(message) is not None:
                 matched = False
 
     if matched:
@@ -3355,7 +3342,7 @@ def diff_line_scanner(message: str,
     return processor, (timestamp, facility, severity, remnants)
 
 
-# pylint: disable-next=too-many-locals,too-many-branches
+# pylint: disable-next=too-many-branches
 def diff_line(message: str, **kwargs: Any) -> tuple[tuple[str, Callable | None, dict],
                                                     list[tuple[list[ThemeRef | ThemeStr],
                                                                LogLevel]]]:
@@ -3415,8 +3402,7 @@ def diff_line(message: str, **kwargs: Any) -> tuple[tuple[str, Callable | None, 
                 if message.endswith(matchkey):
                     matched = True
             elif matchtype == "regex":
-                tmp = matchkey.match(message)
-                if tmp is not None:
+                if matchkey.match(message) is not None:
                     matched = True
 
     if matched:
@@ -3479,21 +3465,21 @@ def ansible_line_scanner(message: str,
         processor: tuple[str, Callable | None, dict] = ("end_block", None, {})
     else:
         if "final_block" in options:
-            tmp = re.match(r"^.+?:\sok=(\d+)\s+"
-                           r"changed=(\d+)\s+"
-                           r"unreachable=(\d+)\s+"
-                           r"failed=(\d+)\s+"
-                           r"skipped=(\d+)\s+"
-                           r"rescued=(\d+)\s+"
-                           r"ignored=(\d+)$", message)
-            if tmp is not None:
-                ok = int(tmp[1])
-                changed = int(tmp[2])
-                unreachable = int(tmp[3])
-                failed = int(tmp[4])
-                skipped = int(tmp[5])
-                rescued = int(tmp[6])
-                ignored = int(tmp[7])
+            re_tmp = re.match(r"^.+?:\sok=(\d+)\s+"
+                              r"changed=(\d+)\s+"
+                              r"unreachable=(\d+)\s+"
+                              r"failed=(\d+)\s+"
+                              r"skipped=(\d+)\s+"
+                              r"rescued=(\d+)\s+"
+                              r"ignored=(\d+)$", message)
+            if re_tmp is not None:
+                ok = int(re_tmp[1])
+                changed = int(re_tmp[2])
+                unreachable = int(re_tmp[3])
+                failed = int(re_tmp[4])
+                skipped = int(re_tmp[5])
+                rescued = int(re_tmp[6])
+                ignored = int(re_tmp[7])
 
                 # These are sorted in order of severity; "highest" wins
                 if ok:

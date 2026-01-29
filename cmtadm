@@ -428,18 +428,17 @@ def get_control_plane_version(controlplane: str, k8s_distro: str) -> str:
                 tmp = deep_get(result, DictPath("msg_lines"), [])
                 break
 
-        if len(tmp) == 0:
+        if not tmp:
             raise ValueError(f"Error: Received empty version data from {controlplane} "
                              f"(retval: {retval}); aborting.")
 
         package_version_regex: re.Pattern[str] = re.compile(r"^(.*?): (.*)")
 
         for line in tmp:
-            tmp2 = package_version_regex.match(line)
-            if tmp2 is None:
+            if (re_tmp := package_version_regex.match(line)) is None:
                 continue
-            package = tmp2[1]
-            package_version = tmp2[2]
+            package = re_tmp[1]
+            package_version = re_tmp[2]
             if package == "kubeadm":
                 version = package_version
                 break
@@ -759,9 +758,8 @@ def check_version_from_url(url: str, version_regex: str) -> list[str]:
             versionoutput = tmp.splitlines()
             _version_regex: re.Pattern[str] = re.compile(version_regex)
             for line in versionoutput:
-                tmp_match = _version_regex.match(line)
-                if tmp_match is not None:
-                    version = list(tmp_match.groups())
+                if (re_tmp := _version_regex.match(line)) is not None:
+                    version = list(re_tmp.groups())
                     break
     return version
 
@@ -798,9 +796,8 @@ def check_version_from_executable(command: FilePath, args: list[str],
             versionoutput = result.splitlines()
             _version_regex: re.Pattern[str] = re.compile(version_regex)
             for line in versionoutput:
-                tmp = _version_regex.match(line)
-                if tmp is not None:
-                    version = list(tmp.groups())
+                if (re_tmp := _version_regex.match(line)) is not None:
+                    version = list(re_tmp.groups())
                     break
     return version
 
@@ -860,11 +857,11 @@ def __upgrade_cni(cni: str, upgradetype: str, context: str,
                                           version_command_regex)
     candidate_version = []
     if cni_version is not None:
-        if (tmp_candidate_version := re.match(manual_candidate_version_regex, cni_version)) is None:
+        if (re_tmp := re.match(manual_candidate_version_regex, cni_version)) is None:
             check_and_print_status(False)
         # The type ignore below is necessary because mypy doesn't recognise that
         # check_and_print_status always aborts with sys.exit() when called with False
-        candidate_version = list(tmp_candidate_version.groups())  # type: ignore
+        candidate_version = list(re_tmp.groups())  # type: ignore
     elif candidate_version_url is not None:
         ansithemeprint([ANSIThemeStr("\n• ", "separator"),
                         ANSIThemeStr(f"Checking {upgradetype} candidate version", "action")])
@@ -1797,9 +1794,8 @@ def check_versions(pkg_packages: list[str], version_checks: list[tuple[str, list
         if regex is None:
             tmp_installed_version = response
         else:
-            tmp_match = re.match(regex, response)
-            if tmp_match is not None:
-                tmp_installed_version = tmp_match[1]
+            if (re_tmp := re.match(regex, response)) is not None:
+                tmp_installed_version = re_tmp[1]
             else:
                 tmp_installed_version = "<none>"
         other_versions.append((tmp_software, tmp_installed_version, "", []))
@@ -2567,8 +2563,7 @@ def __task_adjust_kubeconfig_server_address(installation_info: dict, **kwargs: A
             # Is this cluster a localhost?
             server = deep_get(cluster, DictPath("cluster#server"), "")
             if server.startswith("https://127") or server == "::1":
-                tmp = re.match(r"^(https://)([^:]+)(:.*)", server)
-                if tmp is None:
+                if (re_tmp := re.match(r"^(https://)([^:]+)(:.*)", server)) is None:
                     ansithemeprint([ANSIThemeStr("Error", "error"),
                                     ANSIThemeStr(": Failed to extract server address.",
                                                  "default")])
@@ -2577,9 +2572,9 @@ def __task_adjust_kubeconfig_server_address(installation_info: dict, **kwargs: A
                                     ANSIThemeStr("; aborting.", "default")], stderr=True)
                     sys.exit(errno.EINVAL)
 
-                prefix = tmp[1]
-                server_address = tmp[2]
-                server_port_and_path = tmp[3]
+                prefix = re_tmp[1]
+                server_address = re_tmp[2]
+                server_port_and_path = re_tmp[3]
 
                 # Try to figure out the internal IP of the control plane;
                 # this only works if we're running this on the control plane;
@@ -3375,9 +3370,8 @@ def __find_requested_version(k8s_distro: str, version: str | None = None) -> str
 
         # FIXME: we could fetch the channel file from upstream to get the version list,
         # but for now we just accept any version
-        tmp = re.match(r"^v?(\d+\.\d+).*", version)
-        if tmp is not None:
-            requested_version = tmp[1]
+        if (re_tmp := re.match(r"^v?(\d+\.\d+).*", version)) is not None:
+            requested_version = re_tmp[1]
     else:
         raise ValueError(f"No support for distro {k8s_distro} implemented")
 
@@ -3869,11 +3863,10 @@ def import_cluster(options: list[tuple[str, str]], args: list[str]) -> None:
         package_version_regex: re.Pattern[str] = re.compile(r"^(.*?): (.*)")
 
         for line in tmp:
-            tmp2 = package_version_regex.match(line)
-            if tmp2 is None:
+            if (re_tmp := package_version_regex.match(line)) is None:
                 continue
-            package = tmp2[1]
-            version = tmp2[2]
+            package = re_tmp[1]
+            version = re_tmp[2]
             if package == "kubeadm":
                 k8s_distro = "kubeadm"
                 update_installation_info(cluster_name=cluster_name, distro=k8s_distro,
@@ -4061,14 +4054,13 @@ def show_configuration(action: str,
             if str(e) in ("[Errno -2] Name or service not known",
                           "[Errno -3] Temporary failure in name resolution",
                           "[Errno -5] No address associated with hostname"):
-                tmp = re.match(r"^\[Errno (-\d+)\] (.+)", str(e))
-                if tmp is None:
+                if (re_tmp := re.match(r"^\[Errno (-\d+)\] (.+)", str(e))) is None:
                     # If we cannot extract the error we re-raise it since we don't know
                     # how to handle it
                     raise
-                if not deep_get(failures, DictPath(tmp[2]), []):
-                    failures[tmp[2]] = []
-                failures[tmp[2]].append(controlplane)
+                if not deep_get(failures, DictPath(re_tmp[2]), []):
+                    failures[re_tmp[2]] = []
+                failures[re_tmp[2]].append(controlplane)
         control_plane_info.append((controlplane, ip))
 
     node_info = []
@@ -4080,14 +4072,13 @@ def show_configuration(action: str,
             if str(e) in ("[Errno -2] Name or service not known",
                           "[Errno -3] Temporary failure in name resolution",
                           "[Errno -5] No address associated with hostname"):
-                tmp = re.match(r"^\[Errno (-\d+)\] (.+)", str(e))
-                if tmp is None:
+                if (re_tmp := re.match(r"^\[Errno (-\d+)\] (.+)", str(e))) is None:
                     # If we cannot extract the error we re-raise it since we don't know
                     # how to handle it
                     raise
-                if not deep_get(failures, DictPath(tmp[2]), []):
-                    failures[tmp[2]] = []
-                failures[tmp[2]].append(node)
+                if not deep_get(failures, DictPath(re_tmp[2]), []):
+                    failures[re_tmp[2]] = []
+                failures[re_tmp[2]].append(node)
         node_info.append((node, ip))
 
     # If we fail to get the IP-address of any of the hostnames
@@ -5397,10 +5388,9 @@ def create_cluster(options: list[tuple[str, str]], args: list[str]) -> None:
                     args = [helm_path, "list", "--namespace", namespace,
                             "--filter", f"^{hname}$", "--no-headers"]
                     response, _retval = execute_command_with_response(args, env=env)
-                    tmp = re.match(fr"^{hname}\s.+{version}$", response)
-                    # We've got an exact match for version and name; for now we just ignore.
-                    # We might add a remove + install policy later.
-                    if tmp is not None:
+                    if re.match(fr"^{hname}\s.+{version}$", response) is not None:
+                        # We've got an exact match for version and name; for now we just ignore.
+                        # We might add a remove + install policy later.
                         ansithemeprint([ANSIThemeStr("Warning", "warning"),
                                         ANSIThemeStr(": The component ", "default"),
                                         ANSIThemeStr(f"{hname}", "argument"),
@@ -6906,8 +6896,7 @@ def audit(options: list[tuple[str, str]], args: list[str]) -> None:
         logindefs = secure_read_string(FilePath("/etc/login.defs"))
         usergroups_regex: re.Pattern[str] = re.compile(r"^USERGROUPS_ENAB\s+yes")
         for line in logindefs.splitlines():
-            tmp = usergroups_regex.match(line)
-            if tmp is not None:
+            if usergroups_regex.match(line) is not None:
                 usergroup = groupname
 
     kwargs: dict[str, str] = {

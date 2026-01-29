@@ -355,15 +355,15 @@ def get_metrics_list(**kwargs: Any) -> tuple[list[dict[str, Any]], int]:
 
     metric_set = set()
     for line in metrics:
-        if (tmp := metrics_regex.match(line)) is None:
+        if (re_tmp := metrics_regex.match(line)) is None:
             continue
-        metric = tmp[1]
+        metric = re_tmp[1]
         metric_set.add(metric)
 
         if filters is not None and metric not in filters:
             continue
 
-        fields = [f"{x}" for x in next(csv.reader([tmp[2]], delimiter=",", quotechar="\""))]
+        fields = [f"{x}" for x in next(csv.reader([re_tmp[2]], delimiter=",", quotechar="\""))]
         if not fields:
             continue
         d: dict[str, Any] = {
@@ -529,8 +529,8 @@ def listgetter_files(**kwargs: Any) -> tuple[list[str | dict[str, Any]], int | s
             if regex:
                 match = False
                 for line in d.splitlines():
-                    if (tmp := re.match(regex, line)):
-                        for group in tmp.groups():
+                    if (re_tmp := re.match(regex, line)):
+                        for group in re_tmp.groups():
                             if group:
                                 item[key].append(group)
                         match = True

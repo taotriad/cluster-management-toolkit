@@ -879,11 +879,10 @@ def populate_playbooks() -> dict:
             if playbook_path.name.startswith(("~", ".")):
                 continue
 
-            tmp = yaml_regex.match(playbook_path.name)
-            if tmp is None:
+            if (re_tmp := yaml_regex.match(playbook_path.name)) is None:
                 continue
 
-            playbookname = str(tmp[1])
+            playbookname = str(re_tmp[1])
 
             if playbookname in playbooks:
                 continue
@@ -1298,24 +1297,22 @@ def fping(options: list[tuple[str, str]], args: list[str]) -> int:
             if "duplicate for" in hostresult:
                 continue
 
-            tmp = re.match(r"(.+?): (.+)", hostresult)
-            if tmp is not None:
-                host = tmp[1]
+            if (re_tmp := re.match(r"(.+?): (.+)", hostresult)) is not None:
+                host = re_tmp[1]
                 maxlen = max(len(host), maxlen)
-                if tmp[2] == "Name or service not known":
-                    hoststatuses.append((tmp[1], "COULD NOT RESOLVE", "critical"))
+                if re_tmp[2] == "Name or service not known":
+                    hoststatuses.append((re_tmp[1], "COULD NOT RESOLVE", "critical"))
                 else:
-                    hoststatuses.append((tmp[1], f"FAILED ({tmp[2]})", "unknown"))
+                    hoststatuses.append((re_tmp[1], f"FAILED ({re_tmp[2]})", "unknown"))
                 continue
 
-            tmp = re.match(r"(.+?) (is (alive|unreachable))", hostresult)
-            if tmp is not None:
-                host = tmp[1]
+            if (re_tmp := re.match(r"(.+?) (is (alive|unreachable))", hostresult)) is not None:
+                host = re_tmp[1]
                 maxlen = max(len(host), maxlen)
-                if tmp[2] == "is alive":
-                    hoststatuses.append((tmp[1], "SUCCESS", "success"))
+                if re_tmp[2] == "is alive":
+                    hoststatuses.append((re_tmp[1], "SUCCESS", "success"))
                 else:
-                    hoststatuses.append((tmp[1], "UNREACHABLE", "error"))
+                    hoststatuses.append((re_tmp[1], "UNREACHABLE", "error"))
                 continue
 
     header = "Hostname:"

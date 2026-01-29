@@ -53,7 +53,6 @@ def validate_name(rtype: str, name: str) -> bool:
             (bool): True if valid, False if invalid
     """
     invalid = False
-    tmp = None
     maxlen = -1
 
     if name is None:
@@ -82,8 +81,7 @@ def validate_name(rtype: str, name: str) -> bool:
                 invalid = True
                 break
 
-            tmp = name_regex.match(label)
-            if tmp is None:
+            if name_regex.match(label) is None:
                 invalid = True
     elif rtype == "path-segment":
         if name in (".", "..") or "/" in name or "%" in name:
@@ -98,8 +96,7 @@ def validate_name(rtype: str, name: str) -> bool:
             invalid = True
         # A portname can be at most 15 characters long
         # and cannot start or end with "-"
-        tmp = name_regex.match(name.lower())
-        if tmp is None:
+        if name_regex.match(name.lower()) is None:
             invalid = True
         maxlen = 15
     elif rtype == "ansible-group":
@@ -230,9 +227,7 @@ def validate_fqdn(fqdn: str, message_on_error: bool = False) -> HostNameStatus:
                 return HostNameStatus.DNS_LABEL_PUNYCODE_TOO_LONG
             raise
 
-        tmp = dnslabel_regex.match(idna_dnslabel)
-
-        if tmp is None:
+        if dnslabel_regex.match(idna_dnslabel) is None:
             if message_on_error:
                 msg = [ANSIThemeStr("Error", "error"),
                        ANSIThemeStr(": the DNS label ", "default"),
@@ -284,30 +279,19 @@ def validator_bool(value: Any, error_on_failure: bool = True) -> tuple[bool, boo
     result = False
     retval = False
 
-    if isinstance(value, bool):
-        result = True
-        retval = value
-    elif isinstance(value, int):
-        if value == 0:
+    match value:
+        case False | 0 | "0" | "n" | "no" | "false":
             result = True
             retval = False
-        elif value == 1:
+        case True | 1 | "1" | "y" | "yes" | "true":
             result = True
             retval = True
-    elif isinstance(value, str):
-        if value.lower() in ("1", "y", "yes", "true"):
-            result = True
-            retval = True
-        elif value.lower() in ("0", "n", "no", "false"):
-            result = True
-            retval = False
-
-    if not result:
-        if error_on_failure:
-            ansithemeprint([ANSIThemeStr(f"{programname}", "programname"),
-                            ANSIThemeStr(": “", "default"),
-                            ANSIThemeStr(f"{value}", "option"),
-                            ANSIThemeStr("“ is not a boolean.", "default")], stderr=True)
+        case _:
+            if error_on_failure:
+                ansithemeprint([ANSIThemeStr(f"{programname}", "programname"),
+                                ANSIThemeStr(": “", "default"),
+                                ANSIThemeStr(f"{value}", "option"),
+                                ANSIThemeStr("“ is not a boolean.", "default")], stderr=True)
 
     return result, retval
 
@@ -630,8 +614,7 @@ def validate_argument(arg: str, arg_string: list[ANSIThemeStr], options: dict) -
                                    stderr=True)
                 break
         elif validator == "regex":
-            tmp = re.match(validator_regex, subarg)
-            if tmp is None:
+            if re.match(validator_regex, subarg) is None:
                 if error_on_failure:
                     ansithemeprint([ANSIThemeStr(f"{programname}", "programname"),
                                     ANSIThemeStr(": “", "default"),

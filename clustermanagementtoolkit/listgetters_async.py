@@ -144,9 +144,8 @@ def get_context_list(**kwargs: Any) -> tuple[list[dict], list[str]]:
             current = "".ljust(len(tag_prefix))
 
         server_address = ""
-        tmp = server_address_regex.match(server)
-        if tmp is not None:
-            server_address = tmp[2]
+        if (re_tmp := server_address_regex.match(server)) is not None:
+            server_address = re_tmp[2]
             hosts.append(server_address)
 
         vlist.append({

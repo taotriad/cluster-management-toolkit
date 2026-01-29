@@ -142,11 +142,11 @@ def populate_playbooks_from_paths(paths: list[FilePath]) -> list[tuple[list[ANSI
             continue
 
         # Only process playbooks
-        if (tmp := yaml_regex.match(pathname)) is None:
+        if (re_tmp := yaml_regex.match(pathname)) is None:
             raise ValueError(f"The playbook filename “{pathname}“ does not end with "
                              ".yaml or .yml; this is most likely a programming error.")
 
-        playbookname = tmp[1]
+        playbookname = re_tmp[1]
 
         # The playbook directory itself may be a symlink.
         # This is expected behaviour when installing from a git repo,
@@ -334,9 +334,8 @@ def ansible_get_inventory_pretty(**kwargs: Any) -> list[list[ANSIThemeStr] | str
     except TypeError:
         d = {}
     except ruyaml.constructor.DuplicateKeyError as e:
-        keyname = re.match(r".*found duplicate key \"(.+?)\".*", str(e).replace("\n", "\\n"))
-        if keyname:
-            raise KeyError(f"duplicate key: {keyname[1]}") from e
+        if (re_tmp := re.match(r".*found duplicate key \"(.+?)\".*", str(e).replace("\n", "\\n"))):
+            raise KeyError(f"duplicate key: {re_tmp[1]}") from e
         raise e
 
     # We want the entire inventory
@@ -385,22 +384,20 @@ def ansible_get_inventory_pretty(**kwargs: Any) -> list[list[ANSIThemeStr] | str
         key_value_regex = re.compile(r"^(.*?)(:)(.*)")
         for data in tmp_dump.splitlines():
             # Is it a list?
-            tmp2 = list_regex.match(data)
-            if tmp2 is not None:
-                indent = tmp2[1]
-                listmarker = tmp2[2]
-                item = tmp2[4]
+            if (re_tmp := list_regex.match(data)) is not None:
+                indent = re_tmp[1]
+                listmarker = re_tmp[2]
+                item = re_tmp[4]
                 dump.append([ANSIThemeStr(indent, "default"),
                              ANSIThemeStr(listmarker, "yaml_list"),
                              ANSIThemeStr(item, "yaml_value")])
                 continue
 
             # Is it key: value?
-            tmp2 = key_value_regex.match(data)
-            if tmp2 is not None:
-                key = tmp2[1]
-                separator = tmp2[2]
-                value = tmp2[3]
+            if (re_tmp := key_value_regex.match(data)) is not None:
+                key = re_tmp[1]
+                separator = re_tmp[2]
+                value = re_tmp[3]
                 dump.append([ANSIThemeStr(key, "yaml_key"),
                              ANSIThemeStr(separator, "yaml_key_separator"),
                              ANSIThemeStr(value, "yaml_value")])
@@ -1070,12 +1067,11 @@ def ansible_get_logs() -> list[tuple[str, str, FilePath, datetime]]:
 
     for path in Path(ANSIBLE_LOG_DIR).iterdir():
         filename = str(path.name)
-        tmp = timestamp_regex.match(filename)
-        if tmp is None:
+        if (re_tmp := timestamp_regex.match(filename)) is None:
             # Skip files that cannot be interpreted as filenames
             continue
-        date = datetime.strptime(tmp[1], "%Y-%m-%d_%H:%M:%S.%f")
-        name = tmp[2]
+        date = datetime.strptime(re_tmp[1], "%Y-%m-%d_%H:%M:%S.%f")
+        name = re_tmp[2]
         logs.append((filename, name, FilePath(path), date))
     return logs
 
@@ -1305,9 +1301,8 @@ def ansible_write_log(start_date: datetime, playbook: FilePath, events: list[dic
     playbook_name = str(playbook)
     if "/" in playbook_name:
         tmp2 = str(PurePath(playbook_name).name)
-        tmp = re.match(r"^(.*)\.ya?ml$", tmp2)
-        if tmp is not None:
-            playbook_name = tmp[1]
+        if (re_tmp := re.match(r"^(.*)\.ya?ml$", tmp2)) is not None:
+            playbook_name = re_tmp[1]
 
     directory_name = f"{start_date}_{playbook_name}".replace(" ", "_")
     secure_mkdir(FilePath(f"{ANSIBLE_LOG_DIR}/{directory_name}"), exit_on_failure=True)

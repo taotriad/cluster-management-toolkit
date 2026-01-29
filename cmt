@@ -1431,11 +1431,10 @@ def add_nodes(options: list[tuple[str, str]], args: list[str]) -> int:
         kubeadm_version_regex: re.Pattern[str] = re.compile(r"^(.*?): (.*)")
 
         for line in tmp:
-            match_tmp = kubeadm_version_regex.match(line)
-            if match_tmp is None:
+            if (re_tmp := kubeadm_version_regex.match(line)) is None:
                 continue
-            if match_tmp[1] == "kubeadm":
-                kubeadm_version = match_tmp[2]
+            if re_tmp[1] == "kubeadm":
+                kubeadm_version = re_tmp[2]
                 break
 
         if not kubeadm_version:
@@ -1455,15 +1454,14 @@ def add_nodes(options: list[tuple[str, str]], args: list[str]) -> int:
         first_control_plane = vlist[0][0]
         node_data = kh.get_ref_by_kind_name_namespace(("Node", ""), first_control_plane, "")
         kubelet_version = deep_get(node_data, DictPath("status#nodeInfo#kubeletVersion"), "")
-        match_tmp = re.match(r"^(v\d+)\.(\d+).*", kubelet_version)
-        if match_tmp is None:
+        if (re_tmp := re.match(r"^(v\d+)\.(\d+).*", kubelet_version)) is None:
             ansithemeprint([ANSIThemeStr("Error", "error"),
                             ANSIThemeStr(": Failed to get kubelet version from control plane; "
                                          "aborting.", "default")], stderr=True)
             sys.exit(errno.EBADMSG)
-        rke2_version = f"{match_tmp[1]}.{match_tmp[2]}"
-        version_major = match_tmp[1][1:]
-        version_minor = match_tmp[2]
+        rke2_version = f"{re_tmp[1]}.{re_tmp[2]}"
+        version_major = re_tmp[1][1:]
+        version_minor = re_tmp[2]
 
     if cri is None:
         cri = "containerd"

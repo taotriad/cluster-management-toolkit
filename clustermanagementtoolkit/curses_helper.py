@@ -714,11 +714,11 @@ def __init_pair(pair: str, color_pair: tuple[int, int], color_nr: int) -> None:
     try:
         curses.init_pair(color_nr, fg, bg)
     except (curses.error, ValueError) as e:
-        tmp = re.match(r"^Color number is greater than COLORS-1 \((\d+)\).*", str(e))
-        if str(e).startswith("init_pair() returned ERR") or tmp is not None:
+        re_tmp = re.match(r"^Color number is greater than COLORS-1 \((\d+)\).*", str(e))
+        if str(e).startswith("init_pair() returned ERR") or re_tmp:
             mask = 7
-            if tmp is not None:
-                mask = int(tmp[1])
+            if re_tmp:
+                mask = int(re_tmp[1])
 
             errmsg = [
                 [("Initialising color pair ", "warning"),

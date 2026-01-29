@@ -567,19 +567,17 @@ def ansithemeinput(themearray: list[ANSIThemeStr], **kwargs: Any) -> str:
         raise ProgrammingError("ansithemeinput() used without calling init_ansithemeprint() first; "
                                "this is a programming error.")
 
-    if color == "auto":
-        if not sys.stdout.isatty():  # pragma: no cover
-            use_color = False
-        else:
+    match color:
+        case "auto":
+            use_color = sys.stdout.isatty()
+        case "always":
             use_color = True
-    elif color == "always":
-        use_color = True
-    elif color == "never":
-        use_color = False
-    else:
-        raise ValueError("Incorrect value for color passed to ansithemeinput(); "
-                         "the only valid values are ”always”, ”auto”, and ”never”; "
-                         "this is a programming error.")
+        case "never":
+            use_color = False
+        case _:
+            raise ValueError("Incorrect value for color passed to ansithemeinput(); "
+                             "the only valid values are ”always”, ”auto”, and ”never”; "
+                             "this is a programming error.")
 
     string = ansithemearray_to_str(themearray, color=use_color)
     try:
@@ -616,19 +614,17 @@ def ansithemeinput_password(themearray: list[ANSIThemeStr], **kwargs: Any) -> st
         raise ProgrammingError("ansithemeinput_password() used without calling "
                                "init_ansithemeprint() first; this is a programming error.")
 
-    if color == "auto":
-        if not sys.stdout.isatty():  # pragma: no cover
-            use_color = False
-        else:
+    match color:
+        case "auto":
+            use_color = sys.stdout.isatty()
+        case "always":
             use_color = True
-    elif color == "always":
-        use_color = True
-    elif color == "never":
-        use_color = False
-    else:
-        raise ValueError("Incorrect value for color passed to ansithemeinput_password(); "
-                         "the only valid values are ”always”, ”auto”, and ”never”; "
-                         "this is a programming error.")
+        case "never":
+            use_color = False
+        case _:
+            raise ValueError("Incorrect value for color passed to ansithemeinput_password(); "
+                             "the only valid values are ”always”, ”auto”, and ”never”; "
+                             "this is a programming error.")
 
     string = ansithemearray_to_str(themearray, color=use_color)
     try:
@@ -665,21 +661,20 @@ def ansithemeprint(themearray: list[ANSIThemeStr], **kwargs: Any) -> None:
         raise ProgrammingError("ansithemeprint() used without calling init_ansithemeprint() first; "
                                "this is a programming error.")
 
-    if color == "auto":
-        if stderr and not sys.stderr.isatty():  # pragma: no cover
-            use_color = False
-        elif not stderr and not sys.stdout.isatty():  # pragma: no cover
-            use_color = False
-        else:
+    match color:
+        case "auto":
+            if stderr:
+                use_color = sys.stderr.isatty()
+            else:
+                use_color = sys.stdout.isatty()
+        case "always":
             use_color = True
-    elif color == "always":
-        use_color = True
-    elif color == "never":
-        use_color = False
-    else:
-        raise ValueError("Incorrect value for color passed to ansithemeprint(); "
-                         "the only valid values are ”always”, ”auto”, and ”never”; "
-                         "this is a programming error.")
+        case "never":
+            use_color = False
+        case _:
+            raise ValueError("Incorrect value for color passed to ansithemeprint(); "
+                             "the only valid values are ”always”, ”auto”, and ”never”; "
+                             "this is a programming error.")
 
     string = ansithemearray_to_str(themearray, color=use_color)
 

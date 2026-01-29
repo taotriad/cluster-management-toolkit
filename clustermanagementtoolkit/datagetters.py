@@ -286,26 +286,25 @@ def datagetter_latest_version(obj: dict[str, Any],
         version_regex = re.compile(r"^v(\d+)($|beta\d+|alpha\d+)$")
         tmp_versions = []
         for version in versions:
-            tmp = version_regex.match(version)
-            if tmp is None:
+            if (re_tmp := version_regex.match(version)) is None:
                 raise ValueError(f"Failed to parse version number {version}")
             try:
-                major = int(tmp[1])
+                major = int(re_tmp[1])
             except ValueError as e:
                 raise ValueError(f"Failed to parse version number {version}") from e
-            if tmp[2] == "":
+            if re_tmp[2] == "":
                 minor = 0
                 patch = 0
-            elif tmp[2].startswith("beta"):
+            elif re_tmp[2].startswith("beta"):
                 minor = -1
                 try:
-                    patch = int(tmp[2].removeprefix("beta"))
+                    patch = int(re_tmp[2].removeprefix("beta"))
                 except ValueError as e:
                     raise ValueError(f"Failed to parse version number {version}") from e
-            elif tmp[2].startswith("alpha"):
+            elif re_tmp[2].startswith("alpha"):
                 minor = -2
                 try:
-                    patch = int(tmp[2].removeprefix("alpha"))
+                    patch = int(re_tmp[2].removeprefix("alpha"))
                 except ValueError as e:
                     raise ValueError(f"Failed to parse version number {version}") from e
             else:

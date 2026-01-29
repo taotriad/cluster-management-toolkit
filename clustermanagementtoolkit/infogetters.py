@@ -575,23 +575,24 @@ def format_controller(controller: tuple[tuple[str, str], str], show_kind: str) -
     """
     pod = controller[1]
 
-    if not show_kind:
-        fmt_controller = ""
-    elif show_kind == "short":
-        fmt_controller = controller[0][0]
-    elif show_kind == "full":
-        fmt_controller = ".".join(controller[0])
-    elif show_kind == "mixed":
-        # Strip the API group for standard controllers,
-        # but show for custom controllers
-        if controller[0] in (("StatefulSet", "apps"), ("ReplicaSet", "apps"),
-                             ("DaemonSet", "apps"), ("Job", "batch"),
-                             ("CronJob", "batch"), ("Node", "")):
+    match show_kind:
+        case "":
+            fmt_controller = ""
+        case "short":
             fmt_controller = controller[0][0]
-        else:
+        case "full":
             fmt_controller = ".".join(controller[0])
-    else:
-        raise ValueError(f"unknown value passed to show_kind: {show_kind}")
+        case "mixed":
+            # Strip the API group for standard controllers,
+            # but show for custom controllers
+            if controller[0] in (("StatefulSet", "apps"), ("ReplicaSet", "apps"),
+                                 ("DaemonSet", "apps"), ("Job", "batch"),
+                                 ("CronJob", "batch"), ("Node", "")):
+                fmt_controller = controller[0][0]
+            else:
+                fmt_controller = ".".join(controller[0])
+        case _:
+            raise ValueError(f"unknown value passed to show_kind: {show_kind}")
 
     if fmt_controller.endswith("."):
         fmt_controller = fmt_controller[:-1]

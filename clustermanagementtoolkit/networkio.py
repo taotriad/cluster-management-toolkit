@@ -118,11 +118,10 @@ def scan_and_add_ssh_keys(hosts: list[str]) -> None:
                           "[Errno -3] Temporary failure in name resolution",
                           "[Errno -5] No address associated with hostname"):
                 continue
-            tmp = re.match(r"^\[Errno (-\d+)\] (.+)", str(e))
-            if tmp is not None:
+            if (re_tmp := re.match(r"^\[Errno (-\d+)\] (.+)", str(e))) is not None:
                 ansithemeprint([ANSIThemeStr("Error", "error"),
                                 ANSIThemeStr(": ", "default"),
-                                ANSIThemeStr(f"{tmp[2]} (hostname: ", "default"),
+                                ANSIThemeStr(f"{re_tmp[2]} (hostname: ", "default"),
                                 ANSIThemeStr(f"{host}", "hostname"),
                                 ANSIThemeStr("); aborting.", "default")],
                                stderr=True)
@@ -220,11 +219,10 @@ def verify_checksum(checksum: bytes,
             match_checksum = line
             break
 
-        tmp = regex.match(line)
-        if tmp is not None:
-            if filename is not None and tmp[2] != filename:
+        if (re_tmp := regex.match(line)) is not None:
+            if filename and re_tmp[2] != filename:
                 continue
-            match_checksum = tmp[1]
+            match_checksum = re_tmp[1]
             break
 
     if match_checksum is None:
@@ -269,13 +267,12 @@ def get_netrc_token(url: str | None) -> str | None:
     is_machine: bool = False
 
     for line in netrc_lines:
-        tmp: re.Match | None = re.match(r"^(machine|password)\s(.+)$", line.strip())
-        if tmp is not None:
-            if tmp[1] == "machine" and tmp[2] == base_url:
+        if (re_tmp := re.match(r"^(machine|password)\s(.+)$", line.strip())) is not None:
+            if re_tmp[1] == "machine" and re_tmp[2] == base_url:
                 is_machine = True
                 continue
-            if tmp[1] == "password" and is_machine:
-                token = tmp[2]
+            if re_tmp[1] == "password" and is_machine:
+                token = re_tmp[2]
                 break
     return token
 
@@ -429,13 +426,12 @@ def download_files(directory: str,
                 retval = False
                 continue
             if "Name or service not known" in str(e):
-                tmp = re.match(r"^.*Failed to resolve \'(.+?)\'.*$", str(e))
-                if tmp is not None:
+                if (re_tmp := re.match(r"^.*Failed to resolve \'(.+?)\'.*$", str(e))) is not None:
                     stripped_proxy = "[THISWILLNOTMATCH]"
                     if https_proxy:
                         stripped_proxy = https_proxy.removeprefix("http://")
                         stripped_proxy = stripped_proxy.removeprefix("https://").split(":")[0]
-                    if stripped_proxy == tmp[1]:
+                    if stripped_proxy == re_tmp[1]:
                         ansithemeprint([ANSIThemeStr("Error", "error"),
                                         ANSIThemeStr(": Could not connect to ", "default"),
                                         ANSIThemeStr("https_proxy=", "default"),
@@ -448,7 +444,7 @@ def download_files(directory: str,
                         ansithemeprint([ANSIThemeStr("Error", "error"),
                                         ANSIThemeStr(": Name or service not known; ", "default"),
                                         ANSIThemeStr("URL ", "default"),
-                                        ANSIThemeStr(f"{tmp[1]}", "url")], stderr=True)
+                                        ANSIThemeStr(f"{re_tmp[1]}", "url")], stderr=True)
                 else:
                     ansithemeprint([ANSIThemeStr("Error", "error"),
                                     ANSIThemeStr(": Name or service not known; URL ", "default"),
@@ -555,12 +551,12 @@ def get_github_version(url: str, version_regex: str) -> tuple[list[str], str, st
                 if prerelease or draft:
                     continue
                 name = deep_get(release, DictPath("tag_name"), "")
-                if (tmp_match := compiled_version_regex.match(name)) is None:
+                if (re_tmp := compiled_version_regex.match(name)) is None:
                     continue
                 created_at = deep_get(release, DictPath("created_at"), "<unknown>")
                 published_at = deep_get(release, DictPath("published_at"), created_at)
                 body = deep_get(release, DictPath("body"), "")
-                versions.append((list(tmp_match.groups()), published_at, body))
+                versions.append((list(re_tmp.groups()), published_at, body))
     if versions:
         return natsorted(versions, reverse=True)[0]
 
@@ -706,9 +702,8 @@ def update_version_cache(**kwargs: Any) -> None:
             # Split it using the same regex that we'd normally use to split the string.
             candidate_version_regex = \
                 deep_get(candidate_version_args, DictPath("version_regex"), "")
-            tmp2 = re.match(candidate_version_regex, tmp)
-            if tmp2 is not None:
-                candidate_version_tuple = tmp2.groups()
+            if (re_tmp := re.match(candidate_version_regex, tmp)) is not None:
+                candidate_version_tuple = re_tmp.groups()
 
         if not (force or not changelog_age
                 or changelog_age.days > 0 or changelog_age.seconds > interval):
