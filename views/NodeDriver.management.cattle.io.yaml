@@ -91,9 +91,9 @@ infoview:
                  ["U", ["main", "infoheader_shortcut"]],
                  ["RL:", ["main", "infoheader"]]]
         path: "spec#uiUrl"
-        type: "str"
         fallback_on_empty: true
         default: "<unset>"
+        type: "str"
         formatting:
           field_colors:
             - type: "url"

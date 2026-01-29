@@ -58,6 +58,7 @@ infoview:
       loglevel:
         header: [["Loglevel:", ["main", "infoheader"]]]
         path: "spec#logLevel"
+        default: "<unset>"
         type: "str"
       management_state:
         header: [["Management State:", ["main", "infoheader"]]]
