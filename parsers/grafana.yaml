@@ -1,4 +1,18 @@
 ---
+- name: "grafana-operator"
+  show_in_selector: false
+  matchkeys:
+    - pod_name: "grafana-operator"
+      container_name: "manager"
+    - image_name: "/grafana/grafana-operator"
+  parser_rules:
+    - name: "glog"
+    - name: "tab_separated"
+    - name: "override_severity"
+      overrides:
+        - matchtype: "startswith"
+          matchkey: "Trace["
+          loglevel: "debug"
 - name: "grafana"
   show_in_selector: false
   matchkeys:
@@ -38,16 +52,3 @@
         - matchtype: "startswith"
           matchkey: "Starting Grafana"
           loglevel: "notice"
-- name: "grafana-operator"
-  show_in_selector: false
-  matchkeys:
-    - pod_name: "grafana-operator"
-      container_name: "manager"
-  parser_rules:
-    - name: "glog"
-    - name: "tab_separated"
-    - name: "override_severity"
-      overrides:
-        - matchtype: "startswith"
-          matchkey: "Trace["
-          loglevel: "debug"
