@@ -15,7 +15,7 @@ import copy
 from pathlib import Path, PurePath
 import subprocess  # nosec
 import sys
-from typing import Any
+from typing import Any, Self
 from collections.abc import Sequence
 
 from clustermanagementtoolkit.cmtpaths import SYSTEM_DEFAULT_THEME_FILE
@@ -71,7 +71,7 @@ class ANSIThemeStr:
     def __repr__(self) -> str:
         return f"ANSIThemeStr(string=\"{self.string}\", themeref=\"{self.themeref}\")"
 
-    def format(self, themeref: str) -> "ANSIThemeStr":
+    def format(self, themeref: str) -> Self:
         """
         Apply new formatting to the ANSIThemeStr
 

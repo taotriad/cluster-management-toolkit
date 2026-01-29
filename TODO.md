@@ -2,13 +2,9 @@
 
 ## Implementation
 
-* None is falsy. Replace checks of the kind `if X is None or X == ""` with just `if X`,
-  and fix other uses of if `if X is not None` similarly.
 * From v0.8.7 we will switch to requiring Python 3.11. This will allow
   us to use the following features added in Python v3.10 and v3.11:
-  * TypedDict to type-check dicts.
   * Structural pattern matching.
-  * Self type.
 
 ## curses_helper.py
 
