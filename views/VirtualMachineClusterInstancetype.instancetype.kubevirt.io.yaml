@@ -110,7 +110,7 @@ infoview:
       read_only: true
       helptext: "Show description"
       widget: "windowwidget"
-      title: "GPUs:"
+      title: "Description:"
       itemgetter: "get_strings_from_string"
       itemgetter_args:
         path: "metadata#annotations#instancetype.kubevirt.io/description"
