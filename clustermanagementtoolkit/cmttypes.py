@@ -18,7 +18,7 @@ import os
 from pathlib import Path, PurePath
 import sys
 import traceback
-from typing import Any, cast, NewType
+from typing import Any, cast, NewType, Union
 
 DictPath = NewType("DictPath", str)
 
@@ -28,7 +28,8 @@ class FilePath(str):
     A wrapper used for paths, to ensure correct types.
     """
 
-    def __init__(self, path: "FilePath" | str | Path | PurePath) -> None:
+    # We need to use Union here since we have a forward declaration.
+    def __init__(self, path: Union["FilePath", str, Path, PurePath]) -> None:
         self.path = str(path)
 
     def __str__(self) -> str:

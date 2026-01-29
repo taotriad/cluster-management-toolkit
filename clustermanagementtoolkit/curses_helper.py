@@ -24,7 +24,7 @@ import os
 from pathlib import Path, PurePath
 import re
 import sys
-from typing import Any, cast, NamedTuple, NoReturn, Type
+from typing import Any, cast, NamedTuple, NoReturn, Type, Union
 from collections.abc import Callable, Sequence
 
 try:
@@ -415,7 +415,8 @@ class ThemeArray:
                                    formatted_msg=formatted_msg)
         self.array.append(item)
 
-    def __add__(self, array: "ThemeArray" | list[ThemeRef | ThemeStr]) -> "ThemeArray":
+    # We need to use Union here since we have a forward declaration.
+    def __add__(self, array: Union["ThemeArray", list[Union[ThemeRef, ThemeStr]]]) -> "ThemeArray":
         if isinstance(array, ThemeArray):
             return ThemeArray(self.to_list() + array.to_list())
 
