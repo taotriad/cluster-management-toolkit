@@ -1,0 +1,54 @@
+---
+kind: "__InsightsReport"
+api_family: "insights.openshift.io"
+default_command: "__"
+infoview:
+  name: "Insights Report Data"
+  infopad:
+    name_path: null
+    creation_timestamp_path: null
+    row_indexes:
+      Normal:
+        fields: ["description", "total_risk", "advisor_uri"]
+    rows:
+      advisor_uri:
+        header: [["Advisor ", ["main", "infoheader"]],
+                 ["U", ["main", "infoheader_shortcut"]],
+                 ["RI:", ["main", "infoheader"]]]
+        path: "advisorURI"
+        fallback_on_empty: true
+        default: "<unset>"
+        type: "str"
+        formatting:
+          field_colors:
+            - type: "url"
+      description:
+        header: [["D", ["main", "infoheader_shortcut"]],
+                 ["escription:", ["main", "infoheader"]]]
+        path: "description"
+        type: "str"
+      total_risk:
+        header: [["Total Risk:", ["main", "infoheader"]]]
+        path: "totalRisk"
+        default: "<unset>"
+        type: "str"
+  shortcuts:
+    "Show Description":
+      key: "d"
+      modifier: "shift"
+      read_only: true
+      helptext: "Show description"
+      widget: "windowwidget"
+      title: "Description"
+      itemgetter: "get_strings_from_string"
+      itemgetter_args:
+        path: "description"
+    "Open Advisor URI":
+      key: "u"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open Advisor URI in browser"
+      action: "execute"
+      action_args:
+        command: ["xdg-open",
+                  ["advisorURI"]]

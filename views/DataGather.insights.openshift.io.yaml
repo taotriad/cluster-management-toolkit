@@ -1,0 +1,84 @@
+---
+kind: "DataGather"
+api_family: "insights.openshift.io"
+default_command: "datagathers"
+listview:
+  name: "Data Gathers"
+  group: "OpenShift"
+  field_indexes:
+    Normal:
+      fields: ["name", "gatherer_mode", "age"]
+  fields:
+    gatherer_mode:
+      header: "Gatherer Mode:"
+      path: "spec#gatherers#mode"
+      default: <unset>"
+      type: "str"
+infoview:
+  name: "Data Gather Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["gatherers_header", "gatherers_mode",
+                 "insights_report_header", "insights_report_downloaded_time",
+                 "insights_report_uri"]
+    rows:
+      gatherers_header:
+        header: [["Gatherers:", ["main", "infoheader"]]]
+      gatherers_mode:
+        header: [["  Mode:", ["main", "infoheader"]]]
+        path: "spec#gatherers#mode"
+        default: "<unset>"
+        type: "str"
+      insights_report_downloaded_time:
+        header: [["  Downloaded Time:", ["main", "infoheader"]]]
+        path: "status#insightsReport#downloadedTime"
+        default: "<unset>"
+        type: "str"
+      insights_report_header:
+        header: [["Insights Report:", ["main", "infoheader"]]]
+      insights_report_uri:
+        header: [["  ", ["main", "infoheader"]],
+                 ["U", ["main", "infoheader_shortcut"]],
+                 ["RI:", ["main", "infoheader"]]]
+        path: "status#insightsReport#uri"
+        fallback_on_empty: true
+        default: "<unset>"
+        type: "str"
+        formatting:
+          field_colors:
+            - type: "url"
+  listpad:
+    on_activation:
+      call: "resourceinfodispatch"
+      kind: "__InsightsReport"
+      api_family: "insights.openshift.io"
+    listgetter: "listgetter_path"
+    listgetter_args:
+      path: "status#insightsReport#healthChecks"
+    infogetter: "generic_infogetter"
+    field_indexes:
+      Normal:
+        fields: ["total_risk", "description"]
+        sortcolumn: "total_risk"
+    fields:
+      description:
+        header: "Description:"
+        path: "description"
+        default: "<unset>"
+        type: "str"
+      total_risk:
+        header: "Total Risk:"
+        path: "totalRisk"
+        default: "<unset>"
+        type: "str"
+  shortcuts:
+    "Open Insights Report URL":
+      key: "u"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open Insights Report URL in browser"
+      action: "execute"
+      action_args:
+        command: ["xdg-open",
+                  ["status#insightsReport#uri"]]
