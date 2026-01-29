@@ -1249,6 +1249,10 @@ ObservedConfigWriteError:
   field_colors:
     - context: "main"
       type: "status_warning"
+OnDiskStateValidationFailed:
+  field_colors:
+    - context: "main"
+      type: "status_warning"
 OOMKilling:
   field_colors:
     - context: "main"
@@ -1365,6 +1369,10 @@ Preempting:
   field_colors:
     - context: "main"
       type: "status_pending"
+PreflightConfigDriftCheckFailed:
+  field_colors:
+    - context: "main"
+      type: "status_warning"
 ProbeError:
   field_colors:
     - context: "main"
