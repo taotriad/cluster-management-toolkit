@@ -87,9 +87,12 @@ def test_check_path(checkdata: dict) -> tuple[int, str]:
         "exit_on_critical": False,
         "message_on_error": message_on_error,
     }
-    if owner_allowlist:
+    # Note: we want to be able to pass empty lists here,
+    # so we cannot check whether owner_allowlist is truthy,
+    # we need to check if it's not None.
+    if owner_allowlist is not None:
         kwargs["owner_allowlist"] = owner_allowlist
-    if parent_owner_allowlist:
+    if parent_owner_allowlist is not None:
         kwargs["parent_owner_allowlist"] = parent_owner_allowlist
     try:
         result = check_path(path, **kwargs)
