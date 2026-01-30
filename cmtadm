@@ -1443,6 +1443,7 @@ def check_for_ssh_key() -> bool:
             retval (bool): True if a key exists, False if no key exists
     """
     retval = False
+    # TODO: Rewrite using pathlib
     files = [file for file in glob(os.path.join(HOMEDIR, ".ssh", "*.pub")) if os.path.isfile(file)]
     for file in files:
         if os.path.isfile(file) and os.path.isfile(file.removesuffix(".pub")):
@@ -1477,15 +1478,9 @@ def add_ssh_keys_to_authorized_keys() -> bool:
     retval: bool = False
 
     # Since we run create_ssh_key() before this task we can safely assume that .ssh/ exists
-    for path in Path(SSH_DIR).iterdir():
-        if not path.name.endswith(".pub"):
-            continue
-
-        tmp = secure_read_string(FilePath(path))
-        if tmp is not None:
-            tmplines = tmp.splitlines()
-            pubkey = tmplines[0]
-            if len(pubkey) == 0:
+    for path in Path(SSH_DIR).glob("*.pub"):
+        if (tmp := secure_read_string(FilePath(path))) is not None:
+            if not (pubkey := tmp.splitlines()[0]):
                 continue
 
         exists = False
@@ -1493,8 +1488,7 @@ def add_ssh_keys_to_authorized_keys() -> bool:
         authorized_keys_path = SSH_DIR.joinpath("authorized_keys")
 
         try:
-            tmp = secure_read_string(authorized_keys_path)
-            if tmp is not None and tmp:
+            if (tmp := secure_read_string(authorized_keys_path)):
                 for line in tmp:
                     if line == pubkey[0]:
                         exists = True
@@ -1582,6 +1576,7 @@ def __task_add_ssh_keys_to_inventory(installation_info: dict, **kwargs: Any) -> 
     __authorized_keys = deep_get(__vars, DictPath("authorized_keys"), [])
     found_key = False
 
+    # TODO: Rewrite using glob()
     for path in Path(SSH_DIR).iterdir():
         if not str(path).endswith(".pub"):
             continue
@@ -1949,13 +1944,15 @@ def __playbook_paths_from_path(playbook_path: FilePath) -> list[FilePath]:
     playbook_paths = []
 
     # Populate list of playbooks
+    # Note: cannot use glob, since glob neither supports
+    # "{pattern1,pattern2} nor ("pattern1", "pattern2)
     for path in Path(playbook_path).iterdir():
         # Do not process backups, etc.
         if path.name.startswith(("~", ".")):
             continue
-        if not path.name.endswith((".yml", ".yaml")):
+        if not path.suffix in (".yml", ".yaml"):
             continue
-        playbook_paths.append(FilePath(str(path)))
+        playbook_paths.append(FilePath(path))
 
     return playbook_paths
 
@@ -6866,7 +6863,7 @@ security_audit_checks: list[dict[str, Any]] = [
 ]
 
 
-# pylint: disable-next=unused-argument,too-many-locals
+# pylint: disable-next=unused-argument
 def audit(options: list[tuple[str, str]], args: list[str]) -> None:
     """
     Run security audit checks.
