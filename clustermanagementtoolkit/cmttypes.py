@@ -64,8 +64,16 @@ class FilePath(str):
             Returns:
                 (FilePath): The new FilePath
             Raises:
+                FilePathAuditError: At least one of the subpaths started with a path separator
                 TypeError: paths was an unsupported type
         """
+        # If any of the path elements start with "/" we regard it as an attempt
+        # to do path-based attacks. It seems that PurePath(path).joinpath("/")
+        # does not handle joining strings starting with a path separator in a safe manner,
+        # so we better implement the check ourselves.
+        if (subpath := next((s for s in paths if s.startswith(os.path.sep)), "")):
+            raise FilePathAuditError("Subpath contains path separator", path=subpath)
+
         # PurePath will raise TypeError if an element
         # in the list/tuple isn't a string
         return FilePath(PurePath(self.path).joinpath(*paths))

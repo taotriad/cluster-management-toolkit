@@ -90,6 +90,9 @@ and any distro that does not provide Python 3.11 or newer.
   and was thus non-functional. This has been fixed.
 * cmt-install now tries to keep the version of pip3 in sync with
   the version of python3 used by the program.
+* FilePath().joinpath() now disallows joining paths that starts
+  with the path separator; this is necessary because PurePath
+  does not handle such paths in a predictable manner.
 
 ### view-file changes
 
