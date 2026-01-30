@@ -27,7 +27,7 @@ from clustermanagementtoolkit import cmtlib
 
 # unit-tests for cmtlib.py
 
-TEST_DIR = FilePath(str(PurePath(__file__).parent.joinpath("testpaths")))
+TEST_DIR = FilePath(PurePath(__file__).parent.joinpath("testpaths"))
 
 
 def yaml_dump(data: Any, base_indent: int = 4) -> str:
