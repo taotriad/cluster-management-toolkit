@@ -76,6 +76,11 @@ def test_filepath(verbose: bool = False) -> tuple[str, bool]:
              os.path.join(f"{os.path.sep}home", "testuser", ".config", "user-dirs.dirs"), None),
             ((FilePath(".config"), PurePath("user-dirs.dirs")),
              os.path.join(f"{os.path.sep}home", "testuser", ".config", "user-dirs.dirs"), None),
+            # PurePath does not behave correctly when asked to join path segments starting
+            # with a path separator; this should trigger an exception. If this test-case
+            # returns /etc there's potential for attacks.
+            ((FilePath(".config"), PurePath(f"{os.path.sep}etc"), "passwd"),
+             None, FilePathAuditError),
             # Not a valid path segment
             ((42,),
              None, TypeError),
