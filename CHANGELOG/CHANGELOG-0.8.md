@@ -66,6 +66,12 @@ secrets, etc.
 __CMT__ v0.8.7 no longer supports Debian 11 (Bullseye), Ubuntu 22.04 LTS (Jammy Jellyfish)
 and any distro that does not provide Python 3.11 or newer.
 
+Packages for upstream packages of Kubernetes older than v1.32 are signed
+with a key that's no longer valid. Installation of new clusters are
+thus only supported for v1.32+; likewise upgrading from clusters older than v1.32
+will not work (except possibly from v1.31). When skipping versions it's recommended
+to reinstall the cluster from scratch.
+
 ## Changes by Component in v0.8.7
 
 ### Changes to _cmt_ in v0.8.7

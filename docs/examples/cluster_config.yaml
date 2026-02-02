@@ -22,7 +22,7 @@ options:
   # distro: "kubeadm"
 
   # Kubernetes version; valid options:
-  # 1.<minor>
+  # 1.<minor> [If distro is kubeadm only version 1.32 and higher are supported]
   # latest
   # [optional; default: latest]
   # version: "latest"
