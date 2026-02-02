@@ -1950,7 +1950,7 @@ def __playbook_paths_from_path(playbook_path: FilePath) -> list[FilePath]:
         # Do not process backups, etc.
         if path.name.startswith(("~", ".")):
             continue
-        if not path.suffix in (".yml", ".yaml"):
+        if path.suffix not in (".yml", ".yaml"):
             continue
         playbook_paths.append(FilePath(path))
 
