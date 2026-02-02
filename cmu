@@ -2582,8 +2582,8 @@ def clusteroverviewloop(stdscr: curses.window, **kwargs: Any) -> Retval:
     meminfo_raw: list[str] = []
     stat_raw: list[str] = []
 
-    podinfo: list[Type] = []
-    nodeinfo: list[Type] = []
+    podinfo: list[Any] = []
+    nodeinfo: list[Any] = []
 
     pod_heatmap_width: int = 0
     node_heatmap_width: int = 0
@@ -2602,8 +2602,8 @@ def clusteroverviewloop(stdscr: curses.window, **kwargs: Any) -> Retval:
     buffers = 0
     memtotal = 1
     swapused = 0
-    running = 0
-    tasks = 0
+    running: str = "0"
+    tasks: str = "0"
 
     swaptotal = 0
 
@@ -2644,11 +2644,11 @@ def clusteroverviewloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                         stat_raw = deep_get(ansible_result, DictPath("stdout_lines"), [])
                     uip.force_update()
         if (result := executor.get("node")) != ([], []):
-            nodeinfo, node_statuses = result
+            nodeinfo, node_statuses = cast(tuple[list[Any], list[Any]], result)
         if (result := executor.get("pod")) != ([], []):
-            podinfo, pod_statuses = result
+            podinfo, pod_statuses = cast(tuple[list[Any], list[Any]], result)
         if (result := executor.get("event")) != ([], []):
-            events, _status = result
+            events, _event_status = cast(tuple[list[dict[str, Any]], list[Any]], result)
 
         if uip.is_update_triggered():
             # The data in some fields might become shorter, so we need to trigger a clear
@@ -2749,11 +2749,24 @@ def clusteroverviewloop(stdscr: curses.window, **kwargs: Any) -> Retval:
             pod_heatmap_width = ((uip.maxx - uip.minx - 1) * 4 // 5) - 1
 
         k8s_distro, _status = kh.identify_k8s_distro()
+        _1, _2, server_git_version = kh.get_api_server_version()
 
         if k8s_distro is not None:
-            k8s_distro_string = ThemeStr(f"{k8s_distro}", ThemeAttr("types", "generic"))
+            k8s_distro_string: ThemeStr | ThemeRef = ThemeStr(f"{k8s_distro}",
+                                                              ThemeAttr("types", "generic"))
         else:
             k8s_distro_string = ThemeStr("<unknown>", ThemeAttr("types", "unset"))
+
+        if server_git_version:
+            k8s_server_version: list[ThemeStr | ThemeRef] = [
+                ThemeStr(" (", ThemeAttr("types", "generic")),
+                ThemeStr(f"{server_git_version}", ThemeAttr("types", "version")),
+                ThemeStr(")", ThemeAttr("types", "generic")),
+            ]
+        else:
+            k8s_server_version = [
+                ThemeStr(" (Version data unavailable)", ThemeAttr("main", "status_warning")),
+            ]
 
         internal_ips_array = generators.format_list(iips, fieldlen=0, pad=False)
         external_ips_array = generators.format_list(eips, fieldlen=0, pad=False)
@@ -2771,7 +2784,7 @@ def clusteroverviewloop(stdscr: curses.window, **kwargs: Any) -> Retval:
             ], [
                 ThemeStr("Kubernetes Distro: ", ThemeAttr("main", "infoheader")),
                 k8s_distro_string,
-            ], [
+            ] + k8s_server_version, [
                 ThemeStr("Internal IP-address(es): ", ThemeAttr("main", "infoheader")),
             ] + internal_ips_array, [  # type: ignore
                 ThemeStr("External IP-address(es): ", ThemeAttr("main", "infoheader")),
@@ -2788,11 +2801,14 @@ def clusteroverviewloop(stdscr: curses.window, **kwargs: Any) -> Retval:
             uip.addthemearray(uip.infopad, row, y=y + i, x=0)
         y += i
 
+        percentagebar_margin: int = 11 if CursesConfiguration.borders else 9
+        eventarray_margin: int = 1 if CursesConfiguration.borders else 0
+
         # cpu usage:
         # low-priority (bold blue) / normal (green) / kernel (red) / virtualized (cyan)
         # This is aggregate over all CPUs
         percentagebar_cpu: list[ThemeRef | ThemeStr] = \
-            curses_helper.percentagebar(7, uip.infopadwidth - 10, cputimetotal, [
+            curses_helper.percentagebar(7, uip.infopadwidth - percentagebar_margin, cputimetotal, [
                 (cputimeusernice, ThemeRef("strings", "cputime_user_nice")),
                 (cputimeuser, ThemeRef("strings", "cputime_user")),
                 (cputimetotalsystem, ThemeRef("strings", "cputime_total_system")),
@@ -2802,7 +2818,7 @@ def clusteroverviewloop(stdscr: curses.window, **kwargs: Any) -> Retval:
         # memory usage:
         # used (green) / buffers (bold blue) / cache (yellow)
         percentagebar_mem: list[ThemeRef | ThemeStr] = \
-            curses_helper.percentagebar(7, uip.infopadwidth - 10, memtotal, [
+            curses_helper.percentagebar(7, uip.infopadwidth - percentagebar_margin, memtotal, [
                 (memused - memcached - buffers, ThemeRef("strings", "mem")),
                 (buffers, ThemeRef("strings", "buffers")),
                 (memcached, ThemeRef("strings", "cached"))
@@ -2811,15 +2827,19 @@ def clusteroverviewloop(stdscr: curses.window, **kwargs: Any) -> Retval:
         # swap usage:
         # used (red)
         if swaptotal:
-            percentagebar_or_string_swap: list[ThemeRef | ThemeStr] = \
-                curses_helper.percentagebar(6, uip.infopadwidth - 10, swaptotal, [
-                    (swapused, ThemeRef("strings", "swap_used"))])
-            percentagebar_or_string_swap += [
-                ThemeStr(f"{100 * swapused // swaptotal}", ThemeAttr("main", "dim")),
+            percentagebar_or_string_swap: list[ThemeRef | ThemeStr] = [
+                ThemeStr("[", ThemeAttr("types", "generic"))
+            ] + curses_helper.percentagebar(7, uip.infopadwidth - percentagebar_margin, swaptotal,
+                                            [(swapused, ThemeRef("strings", "swap_used"))]) + [
+                ThemeStr("]", ThemeAttr("types", "generic")),
+                ThemeStr(f"{str(100 * swapused // swaptotal).rjust(4)}",
+                         ThemeAttr("types", "numerical")),
                 ThemeRef("separators", "percentage"),
             ]
         else:
-            percentagebar_or_string_swap = [ThemeStr("Disabled", ThemeAttr("types", "none"))]
+            percentagebar_or_string_swap = [
+                ThemeStr("Disabled", ThemeAttr("types", "none")),
+            ]
 
         tasksarrays: list[list[ThemeRef | ThemeStr]] = [
             [
@@ -2833,7 +2853,7 @@ def clusteroverviewloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                 ThemeStr("[", ThemeAttr("types", "generic"))
             ] + percentagebar_cpu + [
                 ThemeStr("]", ThemeAttr("types", "generic")),
-                ThemeStr(f"{str(100 * cputimetotalused // cputimetotal).rjust(3)}",
+                ThemeStr(f"{str(100 * cputimetotalused // cputimetotal).rjust(4)}",
                          ThemeAttr("types", "numerical")),
                 ThemeRef("separators", "percentage"),
             ], [
@@ -2841,7 +2861,7 @@ def clusteroverviewloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                 ThemeStr("[", ThemeAttr("types", "generic"))
             ] + percentagebar_mem + [
                 ThemeStr("]", ThemeAttr("types", "generic")),
-                ThemeStr(str(100 * memused // memtotal).rjust(3),
+                ThemeStr(str(100 * memused // memtotal).rjust(4),
                          ThemeAttr("types", "numerical")),
                 ThemeRef("separators", "percentage"),
             ], [
@@ -2948,12 +2968,14 @@ def clusteroverviewloop(stdscr: curses.window, **kwargs: Any) -> Retval:
             eventarrays.append(tmp2)
 
         y += 1
-        curses_helper.window_tee_hline(uip.stdscr, y=y, start=0, end=uip.maxx)
+        curses_helper.window_tee_hline(uip.stdscr, y=y, start=0, end=uip.maxx,
+                                       tee=CursesConfiguration.borders)
 
         for i, row in enumerate(eventarrays):
-            uip.addthemearray(uip.stdscr, row, y=y + i, x=1)
+            uip.addthemearray(uip.stdscr, row, y=y + i, x=eventarray_margin)
         y += i + 1
-        curses_helper.window_tee_hline(uip.stdscr, y=y, start=0, end=uip.maxx)
+        curses_helper.window_tee_hline(uip.stdscr, y=y, start=0, end=uip.maxx,
+                                       tee=CursesConfiguration.borders)
 
         selected_pod = min(selected_pod, len(podinfo))
         selected_node = min(selected_node, len(nodeinfo))
@@ -3223,11 +3245,11 @@ def check_cni_updates(cni: str, current_version: str) -> str:
     else:
         candidate_version = "<Update check not implemented>"
 
-    if candidate_version is not None:
+    if candidate_version:
         if versiontuple(current_version) < versiontuple(candidate_version):
             candidate_version = ""
-        else:
-            candidate_version = "No newer version found"
+    if not candidate_version:
+        candidate_version = "No newer version found"
 
     return candidate_version
 

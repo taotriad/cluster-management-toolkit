@@ -990,21 +990,27 @@ def color_status_group(status_group: StatusGroup) -> ThemeAttr:
         return ThemeAttr("main", stgroup_mapping[StatusGroup.UNKNOWN])
 
 
-def window_tee_hline(win: curses.window, y: int,
-                     start: int, end: int, formatting: ThemeAttr | None = None) -> None:
+# pylint: disable-next=too-many-arguments,too-many-positional-arguments
+def window_tee_hline(win: curses.window, y: int, start: int, end: int,
+                     tee: bool = True, formatting: ThemeAttr | None = None) -> None:
     """
     Draw a horizontal line with "tees" ("├", "┤") at the ends.
 
         Parameters:
             win (curses.window): The curses window to operate on
             y (int): The y-coordinate
-            start (int): the starting point of the hline
-            end (int): the ending point of the hline
+            start (int): The starting point of the hline
+            end (int): The ending point of the hline
+            tee (bool): Should the line include tees at the ends?
             formatting (ThemeAttr): Optional ThemeAttr to apply to the line
     """
-    ltee = deep_get(theme, DictPath("boxdrawing#ltee"))
-    rtee = deep_get(theme, DictPath("boxdrawing#rtee"))
     hline = deep_get(theme, DictPath("boxdrawing#hline"))
+    if tee:
+        ltee = deep_get(theme, DictPath("boxdrawing#ltee"))
+        rtee = deep_get(theme, DictPath("boxdrawing#rtee"))
+    else:
+        ltee = hline
+        rtee = hline
 
     if formatting is None:
         formatting = ThemeAttr("main", "default")
@@ -2572,7 +2578,8 @@ def windowwidget(stdscr: curses.window, maxy: int, maxx: int, y: int, x: int,
                 headerxoffset = xoffset
             headerpad.noutrefresh(0, headerxoffset,
                                   headerpadypos, xpos + 1, headerpadypos, xpos + width - 2)
-            window_tee_hline(win, 2, 0, width - 1, ThemeAttr("windowwidget", "boxdrawing"))
+            window_tee_hline(win, 2, 0, width - 1,
+                             formatting=ThemeAttr("windowwidget", "boxdrawing"))
 
         listpad.noutrefresh(yoffset, xoffset, listpadypos,
                             xpos + 1, ypos + height - 2, xpos + width - 2)
@@ -3303,9 +3310,12 @@ class UIProps:
         rtee = deep_get(theme, DictPath("boxdrawing#rtee"))
         ltee = deep_get(theme, DictPath("boxdrawing#ltee"))
 
-        timestamparray: list[ThemeRef | ThemeStr] = [
-            ThemeStr(rtee, ThemeAttr("main", "default")),
-        ]
+        timestamparray: list[ThemeRef | ThemeStr] = []
+
+        if CursesConfiguration.borders:
+            timestamparray += [
+                ThemeStr(rtee, ThemeAttr("main", "default")),
+            ]
 
         if self.helpstring:
             timestamparray += [

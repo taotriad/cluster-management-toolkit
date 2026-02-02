@@ -952,8 +952,8 @@ def __upgrade_cni(cni: str, upgradetype: str, context: str,
                     new_path = FilePath(directory).joinpath(filename)
                     args = [str(kubectl_path)]
                     kubectl_major_version, kubectl_minor_version, _kubectl_git_version, \
-                        _server_major_version, _server_minor_version, _server_git_version = \
-                        kubernetes_helper.kubectl_get_version()
+                        _1, _2, _3 = \
+                        kubernetes_helper.kubectl_get_version(client_only=True)
                     if kubectl_major_version is None or kubectl_minor_version is None:
                         ansithemeprint([ANSIThemeStr("Critical", "critical"),
                                         ANSIThemeStr(": Could not extract ", "default"),

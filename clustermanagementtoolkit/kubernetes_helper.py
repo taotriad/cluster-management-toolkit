@@ -624,11 +624,13 @@ def update_api_status(kind: tuple[str, str], listview: bool = False,
     kubernetes_resources[kind]["local"] = local
 
 
-def kubectl_get_version() -> tuple[int | None, int | None, str,
-                                   int | None, int | None, str]:
+def kubectl_get_version(client_only: bool = False) -> tuple[int | None, int | None, str,
+                                                            int | None, int | None, str]:
     """
     Get kubectl & API-server version.
 
+        Parameters:
+            client_only (bool): Only check version data for kubectl
         Returns:
             (int, int, str, int, int, str):
                 (int): Major client version
@@ -646,7 +648,9 @@ def kubectl_get_version() -> tuple[int | None, int | None, str,
     except FileNotFoundError:  # pragma: no cover
         return -1, -1, "", -1, -1, ""
 
-    args = [kubectl_path, "version", "-oyaml", "--client=true"]
+    args = [kubectl_path, "version", "-oyaml"]
+    if client_only:
+        args.append("--client=true")
 
     try:
         response, _retval = execute_command_with_response(args)
