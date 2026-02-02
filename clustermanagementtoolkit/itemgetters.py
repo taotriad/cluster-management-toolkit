@@ -27,7 +27,8 @@ from clustermanagementtoolkit.cmttypes import ProgrammingError
 
 from clustermanagementtoolkit import cmtlib
 from clustermanagementtoolkit.cmtlib import disksize_to_human, get_package_versions, get_since
-from clustermanagementtoolkit.cmtlib import make_label_selector, make_set_expression
+from clustermanagementtoolkit.cmtlib import make_label_selector
+from clustermanagementtoolkit.cmtlib import make_set_expression, make_set_expression_list
 from clustermanagementtoolkit.cmtlib import split_msg, timestamp_to_datetime
 
 from clustermanagementtoolkit import kubernetes_helper
@@ -802,27 +803,13 @@ def get_pod_tolerations(obj: dict, **kwargs: Any) -> list[tuple[str, str, str, s
                 (str): effect
                 (str): timeout
     """
-    tolerations: list[tuple[str, str, str, str, str]] = []
-
-    for toleration in deep_get_with_fallback(obj, [DictPath("spec#tolerations"),
-                                                   DictPath("scheduling#tolerations")], []):
-        effect = deep_get(toleration, DictPath("effect"), "All")
-        key = deep_get(toleration, DictPath("key"), "All")
-        operator = deep_get(toleration, DictPath("operator"), "Equal")
-
-        # Eviction timeout
-        toleration_seconds = deep_get(toleration, DictPath("tolerationSeconds"))
-        if toleration_seconds is None:
-            timeout = "Never"
-        elif toleration_seconds <= 0:
-            timeout = "Immediately"
-        else:
-            timeout = str(toleration_seconds)
-
-        value = deep_get(toleration, DictPath("value"), "")
-        tolerations.append((key, operator, value, effect, timeout))
-
-    return tolerations
+    expression_list: list[dict[str, Any]] = \
+        deep_get_with_fallback(obj, [DictPath("spec#tolerations"),
+                                     DictPath("scheduling#tolerations")], [])
+    return cast(list[tuple[str, str, str, str, str]],
+                make_set_expression_list(expression_list,
+                                         timeout_paths=[DictPath("tolerationSeconds")],
+                                         is_toleration=True))
 
 
 def get_resource_list(obj: dict, **kwargs: Any) -> list[tuple[str, str, str]]:

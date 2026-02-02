@@ -738,100 +738,158 @@ def timestamp_to_datetime(timestamp: str, default: datetime = none_timestamp()) 
     return none_timestamp()
 
 
-# pylint: disable-next=too-many-branches,too-many-statements
-def make_set_expression_list(expression_list: list[dict],
-                             key: str = "", toleration: bool = False) -> \
-        list[tuple[str, str, str] | tuple[str, str, str, Any]]:
+EXPRESSION_LOOKUP: dict[str, Any] = {
+    "In": {
+        "pretty_operator": "In ",
+        "required_values": "1+",
+    },
+    "NotIn": {
+        "pretty_operator": "Not In ",
+        "required_values": "1+",
+    },
+    "Equal": {
+        "pretty_operator": "= ",
+        "required_values": "1+",
+    },
+    "Exists": {
+        "pretty_operator": "Exists",
+        "required_values": "0",
+    },
+    "InRegexp": {
+        "pretty_operator": "In Regexp",
+        "required_values": "1+",
+    },
+    "IsFalse": {
+        "pretty_operator": "Is False",
+        "required_values": "0",
+    },
+    "IsTrue": {
+        "pretty_operator": "Is True",
+        "required_values": "0",
+    },
+    "DoesNotExist": {
+        "pretty_operator": "Does Not Exist",
+        "required_values": "0",
+    },
+    "Ge": {
+        "pretty_operator": ">= ",
+        "required_values": "1",
+    },
+    "Gt": {
+        "pretty_operator": "> ",
+        "required_values": "1",
+    },
+    "Le": {
+        "pretty_operator": "=< ",
+        "required_values": "1",
+    },
+    "GtLt": {
+        "pretty_operator": "<> ",
+        "required_values": "2",
+    },
+    "GeLe": {
+        "pretty_operator": ">< ",
+        "required_values": "2",
+    },
+    "Lt": {
+        "pretty_operator": "< ",
+        "required_values": "1",
+    }
+}
+
+
+# pylint: disable-next=too-many-branches,too-many-statements,too-many-locals
+def make_set_expression_list(expression_list: list[dict[str, Any]], **kwargs: Any) \
+        -> list[tuple[str, str, str] | tuple[str, str, str, str, str]]:
     """
-    Create a list of set expressions (key, operator, values).
+    Create a list of match expressions (key, operator, values)
+    or tolerations {key, operator, values, effect}.
 
         Parameters:
             expression_list ([dict]): A list of dicts to extract extract the data from
-            key (str):
-            toleration (bool): Is this a match expression or a toleration?
+            **kwargs (dict[str, Any]): Keyword arguments
+                key: str = "All",
+                operator_paths: list[DictPath] | None = None,
+                key_paths: list[DictPath] | None = None,
+                values_paths: list[DictPath] | None = None,
+                effect_paths: list[DictPath] | None = None,
+                timeout_paths: list[DictPath] | None = None,
+                is_toleration (bool): Is this a match expression or a toleration?
         Returns:
             ([(key, operator, values)]): A set expression list
     """
-    expressions: list[tuple[str, str, str] | tuple[str, str, str, Any]] = []
+    expressions: list[tuple[str, str, str] | tuple[str, str, str, str, str]] = []
+    is_toleration: bool = deep_get(kwargs, DictPath("is_toleration"), False)
+    key: str = deep_get(kwargs, DictPath("key"), "All")
+    operator_paths: list[DictPath] = deep_get(kwargs, DictPath("operator_paths"),
+                                              [DictPath("operator"), DictPath("op")])
+    key_paths: list[DictPath] = deep_get(kwargs, DictPath("key_paths"),
+                                         [DictPath("key"), DictPath("scopeName")])
+    values_paths: list[DictPath] = deep_get(kwargs, DictPath("values_paths"),
+                                            [DictPath("values"), DictPath("value")])
+    effect_paths: list[DictPath] = deep_get(kwargs, DictPath("effect_paths"),
+                                            [DictPath("effect")])
+    timeout_paths: list[DictPath] = deep_get(kwargs, DictPath("timeout_paths"),
+                                             [DictPath("timeout")])
 
     if expression_list is not None:
         if not isinstance(expression_list, list):
             raise TypeError("expression_list must be a list")
         for expression in expression_list:
-            operator = deep_get_with_fallback(expression,
-                                              [DictPath("operator"), DictPath("op")], "")
-            requires_values = None
-            if not isinstance(operator, str):
-                raise TypeError("operator must be a str")
-            if operator == "In":
-                new_operator = "In "
-                requires_values = "1+"
-            elif operator == "NotIn":
-                new_operator = "Not In "
-                requires_values = "1+"
-            elif operator == "Equals":
-                new_operator = "= "
-                requires_values = "1+"
-            elif operator == "Exists":
-                new_operator = "Exists"
-                requires_values = "0"
-            elif operator == "InRegexp":
-                new_operator = "In Regexp"
-                requires_values = "1+"
-            elif operator == "IsFalse":
-                new_operator = "Is False"
-                requires_values = "0"
-            elif operator == "IsTrue":
-                new_operator = "Is True"
-                requires_values = "0"
-            elif operator == "DoesNotExist":
-                new_operator = "Does Not Exist"
-                requires_values = "0"
-            elif operator == "Ge":
-                new_operator = ">= "
-                requires_values = "1"
-            elif operator == "Gt":
-                new_operator = "> "
-                requires_values = "1"
-            elif operator == "Le":
-                new_operator = "=< "
-                requires_values = "1"
-            elif operator == "GtLt":
-                new_operator = "<> "
-                requires_values = "2"
-            elif operator == "GeLe":
-                new_operator = ">< "
-                requires_values = "2"
-            elif operator == "Lt":
-                new_operator = "< "
-                requires_values = "1"
-            else:
-                raise ValueError(f"Unknown operator '{operator}'")
-            key = deep_get_with_fallback(expression, [DictPath("key"), DictPath("scopeName")], key)
-            if not isinstance(key, str):
-                raise TypeError("key must be a str")
-
-            tmp = deep_get_with_fallback(expression, [DictPath("values"), DictPath("value")], [])
-            if not isinstance(tmp, list):
+            operator = deep_get_with_fallback(expression, operator_paths)
+            new_key = deep_get_with_fallback(expression, key_paths, key)
+            tmp_values = deep_get_with_fallback(expression, values_paths, [])
+            if not isinstance(tmp_values, list):
                 raise TypeError("values must be a list")
 
-            if requires_values == "0" and tmp and len(max(tmp, key=len)):
+            if not new_key:
+                new_key = "All"
+                if operator != "Exists":
+                    raise ValueError("When key is unset or empty operator must be 'Exists'")
+            if not operator:
+                if not tmp_values:
+                    operator = "Exists"
+                else:
+                    operator = "Equal"
+            if not isinstance(operator, str):
+                raise TypeError(f"Operator {operator} is type: {type(operator)}, expected str")
+            if operator not in EXPRESSION_LOOKUP:
+                raise ValueError(f"Unknown operator '{operator}'")
+            if not isinstance(new_key, str):
+                raise TypeError(f"Key {new_key} is type: {type(new_key)}, expected str")
+            pretty_operator = deep_get(EXPRESSION_LOOKUP, DictPath(f"{operator}#pretty_operator"))
+            required_values = deep_get(EXPRESSION_LOOKUP, DictPath(f"{operator}#required_values"))
+
+            if required_values == "0" and tmp_values and len(max(tmp_values, key=len)):
                 # Exists and DoesNotExist do no accept values;
                 # for the sake of convenience we still accept empty values
-                raise ValueError(f"operator {operator} does not accept values; values {tmp}")
-            if requires_values == "1" and len(tmp) != 1:
-                raise ValueError(f"operator {operator} requires exactly 1 value; values {tmp}")
-            if requires_values == "1+" and len(tmp) < 1:
-                raise ValueError(f"operator {operator} requires at least 1 value; values {tmp}")
-            values = ",".join(tmp)
-            if requires_values != "0" and operator not in ("Gt", "Lt"):
+                raise ValueError(f"operator {operator} does not accept values; "
+                                 f"values {tmp_values}")
+            if required_values == "1" and len(tmp_values) != 1:
+                raise ValueError(f"operator {operator} requires exactly 1 value; "
+                                 f"values {tmp_values}")
+            if required_values == "1+" and len(tmp_values) < 1:
+                raise ValueError(f"operator {operator} requires at least 1 value; "
+                                 f"values {tmp_values}")
+            values = ",".join(tmp_values)
+            if required_values != "0" and operator not in ("Gt", "Lt"):
                 values = f"[{values}]"
 
-            if toleration:
-                effect = deep_get(expression, DictPath("effect"), "All")
-                expressions.append((str(key), str(new_operator), values, effect))
+            if is_toleration:
+                effect = deep_get_with_fallback(expression, effect_paths, "All")
+                toleration_timeout = deep_get_with_fallback(expression, timeout_paths,
+                                                            "Never", fallback_on_empty=True)
+                toleration_timeout = str(toleration_timeout)
+                try:
+                    if int(toleration_timeout) <= 0:
+                        toleration_timeout = "Immediately"
+                except ValueError:
+                    pass
+                expressions.append((new_key, pretty_operator, values, effect, toleration_timeout))
             else:
-                expressions.append((str(key), str(new_operator), values))
+                # Toleration timeout can either be time in seconds,
+                # Immediately, or Never
+                expressions.append((new_key, pretty_operator, values))
     return expressions
 
 
@@ -1200,7 +1258,6 @@ def get_latest_upstream_version(component: str) -> str:
 
         Parameters:
             component (str): The component to return the latest version for
-            **kwargs (dict[str, Any]): Keyword arguments [unused]
         Returns:
             (str): The latest upstream Kubernetes version;
                    or an empty string if the version could not be determined

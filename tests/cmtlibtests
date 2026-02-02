@@ -402,6 +402,7 @@ def test_normalise_cpu_usage_to_millicores(verbose: bool = False) -> tuple[str, 
         # Indata format:
         # (cpu_usage, expected_result, expected_exception)
         testdata: tuple[Any, ...] = (
+            ("2k", 2000.0, None),
             ("512", 512000, None),
             ("10m", 10.0, None),
             ("200u", 0.2, None),
@@ -1182,62 +1183,62 @@ def test_make_set_expression_list(verbose: bool = False) -> tuple[str, bool]:
             # Valid
             ([{"operator": "Exists",
                "key": "node-role.kubernetes.io/control-plane",
-               "values": [""]}],
+               "values": [""]}], False,
              [("node-role.kubernetes.io/control-plane", "Exists", "")], None),
             # Too many values
             ([{"operator": "Exists",
                "key": "node-role.kubernetes.io/control-plane",
-               "values": ["1"]}],
+               "values": ["1"]}], False,
              None, ValueError),
             # Valid
             ([{"operator": "DoesNotExist",
                "key": "node-role.kubernetes.io/control-plane",
-               "values": [""]}],
+               "values": [""]}], False,
              [("node-role.kubernetes.io/control-plane", "Does Not Exist", "")], None),
             # Too many values
             ([{"operator": "DoesNotExist",
                "key": "node-role.kubernetes.io/control-plane",
-               "values": ["1"]}],
+               "values": ["1"]}], False,
              None, ValueError),
             # Valid
             ([{"operator": "In",
                "key": "node-role.kubernetes.io/control-plane",
-               "values": ["foo", "bar", "baz"]}],
+               "values": ["foo", "bar", "baz"]}], False,
              [("node-role.kubernetes.io/control-plane", "In ", "[foo,bar,baz]")], None),
             # Too few values
             ([{"operator": "In",
                "key": "node-role.kubernetes.io/control-plane",
-               "values": []}],
+               "values": []}], False,
              None, ValueError),
             # Valid
             ([{"operator": "NotIn",
                "key": "node-role.kubernetes.io/control-plane",
-               "values": ["foo", "bar", "baz"]}],
+               "values": ["foo", "bar", "baz"]}], False,
              [("node-role.kubernetes.io/control-plane", "Not In ", "[foo,bar,baz]")], None),
             # Too few values
             ([{"operator": "NotIn",
                "key": "node-role.kubernetes.io/control-plane",
-               "values": []}],
+               "values": []}], False,
              None, ValueError),
             # Valid
             ([{"operator": "Gt",
                "key": "node-role.kubernetes.io/control-plane",
-               "values": ["1"]}],
+               "values": ["1"]}], False,
              [("node-role.kubernetes.io/control-plane", "> ", "1")], None),
             # Too many values
             ([{"operator": "Gt",
                "key": "node-role.kubernetes.io/control-plane",
-               "values": ["1", "2"]}],
+               "values": ["1", "2"]}], False,
              None, ValueError),
             # Valid
             ([{"operator": "Lt",
                "key": "node-role.kubernetes.io/control-plane",
-               "values": ["42"]}],
+               "values": ["42"]}], False,
              [("node-role.kubernetes.io/control-plane", "< ", "42")], None),
             # Too many values
             ([{"operator": "Lt",
                "key": "node-role.kubernetes.io/control-plane",
-               "values": ["42", "42"]}],
+               "values": ["42", "42"]}], False,
              None, ValueError),
             # Multiple valid set expressions
             ([{"operator": "DoesNotExist",
@@ -1245,39 +1246,80 @@ def test_make_set_expression_list(verbose: bool = False) -> tuple[str, bool]:
                "values": [""]},
               {"operator": "In",
                "key": "node-role.kubernetes.io/control-plane",
-               "values": ["foo", "bar", "baz"]},],
+               "values": ["foo", "bar", "baz"]}], False,
              [("node-role.kubernetes.io/control-plane", "Does Not Exist", ""),
               ("node-role.kubernetes.io/control-plane", "In ", "[foo,bar,baz]")], None),
             # Invalid type for operator
             ([{"operator": 1,
                "key": "node-role.kubernetes.io/control-plane",
-               "values": ["42", "42"]}],
+               "values": ["42", "42"]}], False,
              None, TypeError),
             # Invalid type for operator
             ([{"operator": "NonExistingOperator",
                "key": "node-role.kubernetes.io/control-plane",
-               "values": ["42", "42"]}],
+               "values": ["42", "42"]}], False,
              None, ValueError),
             # Invalid type for values
             ([{"operator": "Exists",
                "key": "node-role.kubernetes.io/control-plane",
-               "values": ""}],
+               "values": ""}], False,
              None, TypeError),
             # Invalid type for key
             ([{"operator": "Exists",
                "key": 1,
-               "values": [""]}],
+               "values": [""]}], False,
              None, TypeError),
-            (None, [], None),
+            # Empty everything
+            (None, False, [], None),
             # Incorrect type
-            ("a", None, TypeError),
+            ("a", False, None, TypeError),
+            # Valid toleration
+            ([{"operator": "Exists",
+               "key": "node-role.kubernetes.io/control-plane",
+               "values": [],
+               "effect": "PreferNoSchedule",
+               "timeout": "Immediately"}], True,
+             [("node-role.kubernetes.io/control-plane", "Exists", "",
+               "PreferNoSchedule", "Immediately")], None),
+            # Valid toleration
+            ([{"operator": "Exists",
+               "key": "node-role.kubernetes.io/control-plane",
+               "values": [],
+               "effect": "PreferNoSchedule",
+               "timeout": "-1"}], True,
+             [("node-role.kubernetes.io/control-plane", "Exists", "",
+               "PreferNoSchedule", "Immediately")], None),
+            # Valid toleration
+            ([{"operator": "Exists",
+               "key": "node-role.kubernetes.io/control-plane",
+               "values": [],
+               "effect": "PreferNoSchedule",
+               "timeout": "0"}], True,
+             [("node-role.kubernetes.io/control-plane", "Exists", "",
+               "PreferNoSchedule", "Immediately")], None),
+            # Valid toleration
+            ([{"operator": "Exists",
+               "key": "node-role.kubernetes.io/control-plane",
+               "values": [],
+               "effect": "PreferNoSchedule",
+               "timeout": ""}], True,
+             [("node-role.kubernetes.io/control-plane", "Exists", "",
+               "PreferNoSchedule", "Never")], None),
+            # Valid toleration
+            ([{"operator": "Exists",
+               "key": "node-role.kubernetes.io/control-plane",
+               "values": [],
+               "effect": "PreferNoSchedule"}], True,
+             [("node-role.kubernetes.io/control-plane", "Exists", "",
+               "PreferNoSchedule", "Never")], None),
         )
-        for indata, expected_result, expected_exception in testdata:
+        for expression_list, is_toleration, expected_result, expected_exception in testdata:
             try:
-                tmp = fun(indata)
+                tmp = fun(expression_list, is_toleration=is_toleration)
                 if tmp != expected_result:
                     message = f"{fun.__name__}() did not yield expected type:\n" \
-                              f"          input: {indata}\n" \
+                              f"          input: {expression_list}\n" \
+                              f"  is_toleration: {is_toleration}\n" \
                               f"         output: {tmp}\n" \
                               f"       expected: {expected_result}"
                     result = False
@@ -1288,14 +1330,16 @@ def test_make_set_expression_list(verbose: bool = False) -> tuple[str, bool]:
                         pass
                     else:
                         message = f"{fun.__name__}() did not yield expected result:\n" \
-                                  f"          input: {indata}\n" \
+                                  f"          input: {expression_list}\n" \
+                                  f"  is_toleration: {is_toleration}\n" \
                                   f"      exception: {type(e)}\n" \
                                   f"       expected: {expected_exception}"
                         result = False
                         break
                 else:
                     message = f"{fun.__name__}() did not yield expected result:\n" \
-                              f"          input: {indata}\n" \
+                              f"          input: {expression_list}\n" \
+                              f"  is_toleration: {is_toleration}\n" \
                               f"      exception: {type(e)}\n"
                     result = False
                     break
@@ -1397,7 +1441,11 @@ def test_make_set_expression(verbose: bool = False) -> tuple[str, bool]:
                "values": ""}],
              None, TypeError),
             # Empty expression
-            ([{}], None, ValueError),
+            # Missing key is treated as All
+            # Missing operator is treated as Equal unless key is missing, in whih case
+            # it's treated as Exists
+            # Missing values is expected when operator is Exists
+            ([{}], "All Exists", ValueError),
             ([], "", None),
             (None, "", None),
             # Incorrect type
