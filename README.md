@@ -5,7 +5,7 @@
 [![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/taotriad/cluster-management-toolkit/badge)](https://securityscorecards.dev/viewer/?uri=github.com/taotriad/cluster-management-toolkit)
 [![Known Vulnerabilities](https://snyk.io/test/github/taotriad/cluster-management-toolkit/badge.svg)](https://snyk.io/test/github/taotriad/cluster-management-toolkit)
 ![GitHub last commit (branch)](https://img.shields.io/github/last-commit/taotriad/cluster-management-toolkit/main)
-![GitHub commits since tagged version](https://img.shields.io/github/commits-since/taotriad/cluster-management-toolkit/v0.8.5/main)
+![GitHub commits since tagged version](https://img.shields.io/github/commits-since/taotriad/cluster-management-toolkit/v0.8.6/main)
 
 ![CMT Logo](docs/images/cmt_logo.png 'CMT Logo')
 
