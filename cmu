@@ -4310,6 +4310,7 @@ def genericinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                         vlist, _status = listgetter(obj, **listgetter_args)
                     first_fetch = False
                     uip.update_forced = False
+                    uip.refresh_all()
 
                 infogetter = deep_get(viewref, DictPath("listpad#infogetter"))
                 infogetter_filters = deep_get(viewref, DictPath("listpad#infogetter_filters"), None)
@@ -4794,6 +4795,7 @@ def genericinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                                                    items=w_items, headers=w_headers,
                                                    title=w_title, cursor=w_selectable,
                                                    sortcolumn=w_sortcolumn)
+                    uip.refresh_all()
                     if not tmpselection:
                         continue
             elif widget == "inputbox":

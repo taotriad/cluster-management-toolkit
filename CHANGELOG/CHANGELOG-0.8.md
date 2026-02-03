@@ -88,7 +88,12 @@ to reinstall the cluster from scratch.
 
 ### Changes to _cmu_ in v0.8.7
 
-* TBD
+* Hopefully most bugs with artefacts remaining when closing windows
+  or switching views have now been fixed.
+* Several issues with borderless mode have been fixed.
+* The clusteroverview now shows the control plane version.
+* action_execute_command() is now more resilient if it receives
+  incorrect input arguments.
 
 ### Changes to other files in v0.8.7
 

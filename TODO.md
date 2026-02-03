@@ -6,18 +6,7 @@
   us to use the following features added in Python v3.10 and v3.11:
   * Structural pattern matching.
 
-## curses_helper.py
-
-* We need to rewrite the UI to remove reliance on stdscr; stdscr should just be blank
-  canvas. This solves all the rescaling issues, as well as limitations with what characters
-  can go where, etc.
-* Borders should be drawn by curses_helper, not by win.border().
-* The timestamp needs to be its own window.
-  The border should be part of the bottom-most canvas and only needs redrawing if we
-  resize the window or toggle borders.
-* Scrollbars need their own windows.
-
-## All
+## General
 
 * listgetters need to support passing both a label selector and a match selector
   in listgetter_args.
@@ -29,7 +18,19 @@
 * Is it possible to rewrite the generator/processor system in a way that processors
   could be completely eliminated?
 * Introduce .kube/current-context and have all clusters in .kube have their own files
-  (named config-clustername) rather than merging the config-files
+  (named config-clustername) rather than merging the config-files;
+  or even have them in .kube/config.d/clustername.yaml?
+
+## curses_helper.py
+
+* We need to rewrite the UI to remove reliance on stdscr; stdscr should just be blank
+  canvas. This solves all the rescaling issues, as well as limitations with what characters
+  can go where, etc.
+* Borders should be drawn by curses_helper, not by win.border().
+* The timestamp needs to be its own window.
+  The border should be part of the bottom-most canvas and only needs redrawing if we
+  resize the window or toggle borders.
+* Scrollbars need their own windows.
 
 ## cmt-install
 
@@ -64,14 +65,12 @@
   and hopefully cut down on the amount of special cases.
 * Audit and make a list of all necessary types.
 * Make generic_infogetter consistent WRT to paths:
-  ["literal", ["path"], [["alternate1", "alternate2"]]].
+  ["literal", ["path"], [["alternate_path1"], ["alternate_path2"], "literal"]].
 * All use of curses should be abstracted away; ideally cmu should be able to use
   a variety of different toolkits to present its data.
 * All generators and other functions used to extract data should be removed from cmu;
   that way we don't have to duplicate functionality between cmu and cmt.
 * Add an (optional) title for logpads.
-* Clear the "Fetching Data" dialog properly when switching to Pod view from a different view
-  (and possibly in other cases).
 
 cmtinv:
 
