@@ -1,0 +1,12 @@
+---
+- name: "rke2-cluster-api"
+  show_in_selector: false
+  matchkeys:
+    - image_name: "/rancher/cluster-api-provider-rke2-controlplane"
+    - image_name: "/rancher/cluster-api-provider-rke2-bootstrap"
+  parser_rules:
+    - name: "glog"
+    - name: "key_value_with_leading_message"
+      options:
+        versions:
+          - "version"
