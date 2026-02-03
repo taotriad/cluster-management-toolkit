@@ -516,7 +516,7 @@ check_theme_use: setup_tests
 	for theme in themes/*.yaml; do \
 		printf -- "\nChecking against theme file $$theme:\n" ;\
 		printf -- "---\n" ;\
-		./tests/check_theme_use $$theme $(python_executables) $(python_test_executables) clustermanagementtoolkit/*.py ;\
+		./tests/check_theme_use $$theme $(python_executables) clustermanagementtoolkit/*.py ;\
 	done
 
 build:
