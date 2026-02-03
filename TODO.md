@@ -71,6 +71,8 @@
 * All generators and other functions used to extract data should be removed from cmu;
   that way we don't have to duplicate functionality between cmu and cmt.
 * Add an (optional) title for logpads.
+* Make extended facilities non-repeating in the same way that regular facilities are
+  (see podlog).
 
 cmtinv:
 

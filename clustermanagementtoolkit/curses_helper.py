@@ -2905,7 +2905,7 @@ class UIProps:
         self.match_index: int | None = None
         self.search_matches: set[int] = set()
         self.timestamps: list[datetime] = []
-        self.facilities: list[str | tuple[str, str]] = []
+        self.facilities: list[tuple[list[ThemeRef | ThemeStr], str] | str] = []
         self.severities: list[LogLevel] = []
         self.messages: list[list[ThemeRef | ThemeStr] | str] = []
         # For checking clicks/drags of the scrollbars
@@ -3001,7 +3001,7 @@ class UIProps:
 
     def update_log_info(self,
                         timestamps: list[datetime],
-                        facilities: list[str | tuple[str, str]],
+                        facilities: list[tuple[list[ThemeRef | ThemeStr], str] | str],
                         severities: list[LogLevel],
                         messages: list[list[ThemeRef | ThemeStr] | str]) -> None:
         """
@@ -3009,7 +3009,7 @@ class UIProps:
 
             Parameters:
                 timestamps ([datetime]): The timestamps
-                facilities ([str | tuple[str, str]]): The facilities
+                facilities ([([ThemeRef | ThemeStr], str) | str]): The severities
                 severities ([LogLevel]): The LogLevels
                 messages ([str | ThemeArray]): The log messages
         """

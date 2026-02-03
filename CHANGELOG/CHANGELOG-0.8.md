@@ -94,6 +94,7 @@ to reinstall the cluster from scratch.
 * The clusteroverview now shows the control plane version.
 * action_execute_command() is now more resilient if it receives
   incorrect input arguments.
+* Fix crash in multilog view.
 
 ### Changes to other files in v0.8.7
 

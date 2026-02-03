@@ -1702,7 +1702,8 @@ def genericlistloop(stdscr: curses.window, **kwargs: Any) -> Retval:
             uip.list_needs_regeneration(True)
             infogetter_extra_args["_vlist"] = []
         elif c == ord("A") and view == "Inventory" and not tagged_items:
-            selected = uip.get_selected()
+            if not (selected := uip.get_selected()):
+                continue
             groups = ansible_get_groups(ANSIBLE_INVENTORY)
             inventory = ansible_get_inventory_dict()
 
@@ -1734,21 +1735,22 @@ def genericlistloop(stdscr: curses.window, **kwargs: Any) -> Retval:
             for keep in ["all", "controlplane", "controlplanes", "master", "node", "nodes"]:
                 if keep in host_groups:
                     new_groups.append(keep)
-            for i in selection:
-                new_groups.append(groups[i])
+            if selection:
+                for i in selection:
+                    new_groups.append(groups[i])
 
-            add_groups = set(new_groups) - set(host_groups)
-            remove_groups = set(host_groups) - set(new_groups)
+                add_groups = set(new_groups) - set(host_groups)
+                remove_groups = set(host_groups) - set(new_groups)
 
-            for group in add_groups:
-                retval = ansible_add_hosts(inventory=ANSIBLE_INVENTORY,
-                                           hosts=[selected.name], group=group, skip_all=False)
-            for group in remove_groups:
-                retval = ansible_remove_hosts(inventory=ANSIBLE_INVENTORY,
-                                              hosts=[selected.name], group=group)
+                for group in add_groups:
+                    retval = ansible_add_hosts(inventory=ANSIBLE_INVENTORY,
+                                               hosts=[selected.name], group=group, skip_all=False)
+                for group in remove_groups:
+                    retval = ansible_remove_hosts(inventory=ANSIBLE_INVENTORY,
+                                                  hosts=[selected.name], group=group)
 
-            if add_groups or remove_groups:
-                uip.force_update()
+                if add_groups or remove_groups:
+                    uip.force_update()
             uip.refresh_all()
             curses.doupdate()
         elif c == ord("F") and is_taggable:
@@ -4389,7 +4391,7 @@ def genericinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                 if infogetter is not None:
                     tmp = infogetter(formatted_obj, **infogetter_args)
                     timestamps: list[datetime] = []
-                    facilities: list[str | tuple[str, str]] = []
+                    facilities: list[tuple[list[ThemeRef | ThemeStr], str] | str] = []
                     severities: list[LogLevel] = []
                     if isinstance(tmp, tuple):
                         timestamps, facilities, severities, messages = tmp
@@ -5098,11 +5100,13 @@ def eventdispatch(stdscr: curses.window, **kwargs: Any) -> Retval:
 
 # pylint: disable-next=too-many-arguments,too-many-positional-arguments
 def log_add_line(timestamps: list[datetime],
-                 facilities: list[str | tuple[str, str]],
+                 facilities: list[tuple[list[ThemeRef | ThemeStr], str] | str],
                  severities: list[LogLevel],
                  messages: list[list[ThemeRef | ThemeStr] | str],
-                 timestamp: datetime | None, facility: str,
-                 severity: LogLevel, message: list[ThemeRef | ThemeStr],
+                 timestamp: datetime | None,
+                 facility: str,
+                 severity: LogLevel,
+                 message: list[ThemeRef | ThemeStr],
                  facility_extended: list[ThemeRef | ThemeStr]) \
         -> tuple[list[datetime], list[str | tuple[str, str]], list[LogLevel],
                  list[list[ThemeRef | ThemeStr] | str]]:
@@ -5111,21 +5115,21 @@ def log_add_line(timestamps: list[datetime],
 
         Parameters:
             timestamps ([datetime]): The list of timestamps
-            facilities ([str|(str, str)]): The list of facilities
+            facilities ([([ThemeRef | ThemeStr], str) | str]): The list of severities
             severities ([LogLevel]): The list of severities
-            messages ([[ThemeRef|ThemeStr]|str]): The list of log messages
+            messages ([[ThemeRef | ThemeStr] | str]): The list of log messages
             timestamp (datetime | None): The timestamp of the message to add
             facility ([str]): The facility of the message to add
             severity ([LogLevel]): The severity of the message to add
-            message ([ThemeRef|ThemeStr]|str): The message to add
-            facility_extended ([ThemeRef|ThemeStr): A formatted facility;
+            message ([ThemeRef | ThemeStr] | str): The message to add
+            facility_extended ([ThemeRef | ThemeStr): A formatted facility;
                                                       used in podlog-viewer
         Returns:
             (([datetime], [str], [LogLevel], [ThemeRef|ThemeStr])):
                 ([datetime]): The updated list of timestamps
-                ([str|(str, str)]): The updated list of facilities
+                ([([ThemeRef | ThemeStr], str) | str]): The updated list of facilities
                 ([LogLevel]): The updated list of severities
-                ([[ThemeRef|ThemeStr]|str]): The updated list of log messages
+                ([[ThemeRef | ThemeStr] | str]): The updated list of log messages
     """
     if timestamp is not None and timestamp != none_timestamp():
         timestamps.append(timestamp.astimezone())
@@ -5342,7 +5346,7 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
             curses.doupdate()
 
             timestamps: list[datetime] = []
-            facilities: list[str | tuple[str, str]] = []
+            facilities: list[tuple[list[ThemeRef | ThemeStr], str] | str] = []
             severities: list[LogLevel] = []
             messages: list[list[ThemeRef | ThemeStr] | str] = []
             parser = None
@@ -5422,8 +5426,19 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                         if not callable(processor[1]):
                             raise ProgrammingError(f"processor: {processor} does not "
                                                    "contain a valid processor")
-                        processor, _logentry = \
-                            processor[1](splitmsg[j], fold_msg=fold_msg, options=options)
+                        if isinstance(splitmsg[j], tuple):
+                            processor, _logentry = \
+                                processor[1](splitmsg[j][0], fold_msg=fold_msg, options=options)
+                        else:
+                            # Maybe I'm missing something, but we're checking whether
+                            # processor[1] is callable above, and the conditional above
+                            # is binary, so it cannot get into this branch with a different
+                            # value than in the other branch. It doesn't make sense that
+                            # the above call is accepted but this one needs a cast.
+                            # Oh well; the cast below is only to make mypy happy.
+                            processor, _logentry = \
+                                cast(Callable, processor[1])(splitmsg[j],
+                                                             fold_msg=fold_msg, options=options)
                         _block_state = processor[0]
                         if _block_state != "end_block_not_processed":
                             _logentries.append(_logentry)
@@ -5434,13 +5449,15 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                                 timestamps, facilities, severities, messages = \
                                     log_add_line(timestamps, facilities, severities, messages,
                                                  timestamp_, facility, severity,
-                                                 _logentries[0][3], facility_extended)
+                                                 cast(list[ThemeRef | ThemeStr], _logentries[0][3]),
+                                                 facility_extended)
                             if len(_logentries) > 1:
                                 for _timestamp, _facility, _severity, _message in _logentries[1:]:
                                     timestamps, facilities, severities, messages = \
                                         log_add_line(timestamps, facilities, severities, messages,
                                                      _timestamp, "".ljust(len(facility)), severity,
-                                                     _message, facility_extended)
+                                                     cast(list[ThemeRef | ThemeStr], _message),
+                                                     facility_extended)
                                 break
                         elif _block_state == "break":
                             # We got something indicating that this is not a valid block; abort
@@ -5452,7 +5469,8 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                                 timestamps, facilities, severities, messages = \
                                     log_add_line(timestamps, facilities, severities, messages,
                                                  _timestamp, "".ljust(len(facility)), severity,
-                                                 _message, facility_extended)
+                                                 cast(list[ThemeRef | ThemeStr], _message),
+                                                 facility_extended)
                             _block_state = "end_block"
                         else:
                             _block_state = "break"
@@ -5509,7 +5527,9 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
 
                 timestamps, facilities, severities, messages = \
                     log_add_line(timestamps, facilities, severities, messages, timestamp_,
-                                 facility, severity, message, facility_extended)
+                                 facility, severity,
+                                 cast(list[ThemeRef | ThemeStr], message),
+                                 facility_extended)
 
                 if remnants is not None and remnants:
                     # Remnants are used for unfolding multi-line messages that have been
@@ -6270,25 +6290,39 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                 else:
                     timestamp = str(timestamps[y])[0:uip.tspadwidth]
 
-                if y >= len(facilities) or facilities[y] == "":
+                if y >= len(facilities) or not facilities[y]:
                     facility = ""
                 else:
-                    if facilities[y].strip() == "":
-                        facility = f" {facilities[y]}  "
+                    tmp_facility_raw = facilities[y]
+
+                    # This is facility_extended + facility
+                    if isinstance(tmp_facility_raw, tuple):
+                        # It seems that mypy doesn't understand that facilities[y] can
+                        # only be a tuple here
+                        tmp_facility_extended, tmp_facility = tmp_facility_raw
+                        if isinstance(tmp_facility_extended, list):
+                            facility = themearray_to_string(tmp_facility_extended) + tmp_facility
+                        else:
+                            facility = tmp_facility_extended + tmp_facility
+                    # If the facility is just padding we don't add brackets
+                    elif not tmp_facility_raw.strip():
+                        facility = f" {tmp_facility_raw}  "
                     else:
-                        facility = f"<{facilities[y]}> "
+                        facility = f"<{tmp_facility_raw}> "
 
                 if uip.yoffset + y >= len(severities):
                     severity_str = f"{lvl_to_4letter_severity(LogLevel.INFO)}: "
                 else:
                     severity_str = f"{lvl_to_4letter_severity(severities[y])}: "
 
-                message = themearray_to_string(messages[y])
+                tmp_message = messages[y]
+                if isinstance(tmp_message, list):
+                    tmp_message = themearray_to_string(tmp_message)
 
                 if raw_logs:
-                    data += f"{timestamp}  {message}\n"
+                    data += f"{timestamp}  {tmp_message}\n"
                 else:
-                    data += f"{timestamp}  {severity_str}{facility}{message}\n"
+                    data += f"{timestamp}  {severity_str}{facility}{tmp_message}\n"
 
             secure_write_string(FilePath(filename), data, allow_relative_path=True)
 
@@ -6613,8 +6647,8 @@ def patch_object(stdscr: curses.window, **kwargs: Any) -> Retval:
     namespace: str = deep_get(kwargs, DictPath("namespace"))
     patch: dict[str, Any] = deep_get(kwargs, DictPath("args#patch"))
     values: dict[str, Any] = deep_get(kwargs, DictPath("values"), {})
-    path_substitutions: list[dict[str, Any]] = \
-        deep_get(kwargs, DictPath("args#path_substitutions"), [])
+    path_substitutions: dict[str, Any] = \
+        deep_get(kwargs, DictPath("args#path_substitutions"), {})
     subresource: str = deep_get(kwargs, DictPath("args#subresource"), "")
     strategic_merge: bool = deep_get(kwargs, DictPath("args#strategic_merge"), False)
 
@@ -8171,7 +8205,7 @@ def action_execute_command(uip: UIProps, **kwargs: Any) -> None:
                 items ([(str, str)]): A list of items that can be substituted into argument lists
     """
     values: dict[str, Any] = deep_get(kwargs, DictPath("values"))
-    items: list[tuple[str, str]] = deep_get(kwargs, DictPath("items"))
+    items: list[tuple[str, str] | str] | tuple[str, str] | str = deep_get(kwargs, DictPath("items"))
 
     tmpargs: list[str] = deep_get(values, DictPath("action_args#command"), [])
     iterate: bool = deep_get(values, DictPath("action_args#iterate"), False)
@@ -8220,9 +8254,9 @@ def action_execute_command(uip: UIProps, **kwargs: Any) -> None:
         ansithemeprint(msg)
 
         if iterate:
-            iterations = items
+            iterations: list[tuple[str, str] | str] = items
         else:
-            iterations = [items]
+            iterations = [cast(tuple[str, str] | str, items)]
 
         for item in iterations:
             substitutions = {}
