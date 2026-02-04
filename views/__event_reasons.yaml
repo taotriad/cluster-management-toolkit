@@ -67,6 +67,10 @@ ApplyingManifest:
   field_colors:
     - context: "main"
       type: "status_pending"
+AssistedControllerIsReady:
+  field_colors:
+    - context: "main"
+      type: "status_ok"
 AssociationError:
   field_colors:
     - context: "main"
@@ -143,7 +147,7 @@ CIDRAssignmentFailed:
 ClientCertificateCreated:
   field_colors:
     - context: "main"
-      type: "status_ok"
+      type: "status_done"
 "Cluster-Authentication-OperatorPanic":
   field_colors:
     - context: "main"
@@ -151,7 +155,7 @@ ClientCertificateCreated:
 ClusterCSIDriverCreated:
   field_colors:
     - context: "main"
-      type: "status_ok"
+      type: "status_done"
 ClusterInfrastructureStatus:
   field_colors:
     - context: "main"
@@ -163,7 +167,7 @@ ClusterIPNotAllocated:
 ClusterRoleBindingCreated:
   field_colors:
     - context: "main"
-      type: "status_ok"
+      type: "status_done"
 ClusterRoleBindingCreateFailed:
   field_colors:
     - context: "main"
@@ -171,11 +175,11 @@ ClusterRoleBindingCreateFailed:
 ClusterRoleCreated:
   field_colors:
     - context: "main"
-      type: "status_ok"
+      type: "status_done"
 ClusterTriggerAuthenticationAdded:
   field_colors:
     - context: "main"
-      type: "status_ok"
+      type: "status_done"
 ClusterUpgradeBackupControllerUpdatingStatus:
   field_colors:
     - context: "main"
@@ -203,7 +207,7 @@ ConfigDriftMonitorStopped:
 ConfigMapCreated:
   field_colors:
     - context: "main"
-      type: "status_ok"
+      type: "status_done"
 ConfigMapCreateFailed:
   field_colors:
     - context: "main"
@@ -399,11 +403,11 @@ CSRApproved:
 CSRCreated:
   field_colors:
     - context: "main"
-      type: "status_ok"
+      type: "status_done"
 CustomResourceDefinitionCreated:
   field_colors:
     - context: "main"
-      type: "status_ok"
+      type: "status_done"
 CustomResourceDefinitionCreateFailed:
   field_colors:
     - context: "main"
@@ -480,7 +484,7 @@ DeletingManifest:
 DeploymentCreated:
   field_colors:
     - context: "main"
-      type: "status_ok"
+      type: "status_done"
 DeploymentCreateFailed:
   field_colors:
     - context: "main"
@@ -576,7 +580,7 @@ EtcdMembersErrorUpdatingStatus:
 ETCDSnapshotCreated:
   field_colors:
     - context: "main"
-      type: "status_ok"
+      type: "status_done"
 Evicted:
   field_colors:
     - context: "main"
@@ -956,7 +960,7 @@ JobComplete:
 JobCreated:
   field_colors:
     - context: "main"
-      type: "status_ok"
+      type: "status_done"
 JobRunning:
   field_colors:
     - context: "main"
@@ -1061,10 +1065,18 @@ MPIJobSucceeded:
   field_colors:
     - context: "main"
       type: "status_done"
+MutatingWebhookConfigurationCreated:
+  field_colors:
+    - context: "main"
+      type: "status_done"
+MutatingWebhookConfigurationUpdated:
+  field_colors:
+    - context: "main"
+      type: "status_done"
 NamespaceCreated:
   field_colors:
     - context: "main"
-      type: "status_ok"
+      type: "status_done"
 NamespaceUpdated:
   field_colors:
     - context: "main"
@@ -1077,6 +1089,10 @@ NetworkNotReady:
   field_colors:
     - context: "main"
       type: "status_not_ok"
+NetworkPolicyCreated:
+  field_colors:
+    - context: "main"
+      type: "status_done"
 NewReplicaSetAvailable:
   field_colors:
     - context: "main"
@@ -1206,6 +1222,10 @@ ObserveIdentityProviders:
     - context: "main"
       type: "status_ok"
 ObserveInternalRegistryHostnameChanged:
+  field_colors:
+    - context: "main"
+      type: "status_ok"
+ObserveProxyConfig:
   field_colors:
     - context: "main"
       type: "status_ok"
@@ -1352,7 +1372,7 @@ PodCreateFailed:
 PodDisruptionBudgetCreated:
   field_colors:
     - context: "main"
-      type: "status_ok"
+      type: "status_done"
 PodGroupPending:
   field_colors:
     - context: "main"
@@ -1392,11 +1412,11 @@ ProgressHostsCompleted:
 PrometheusRuleCreated:
   field_colors:
     - context: "main"
-      type: "status_ok"
+      type: "status_done"
 Provisioned:
   field_colors:
     - context: "main"
-      type: "status_ok"
+      type: "status_done"
 Provisioning:
   field_colors:
     - context: "main"
@@ -1592,7 +1612,7 @@ RevisionTriggered:
 RoleBindingCreated:
   field_colors:
     - context: "main"
-      type: "status_ok"
+      type: "status_done"
 RoleBindingCreateFailed:
   field_colors:
     - context: "main"
@@ -1604,7 +1624,7 @@ RoleBindingCreateFailed:
 RoleCreated:
   field_colors:
     - context: "main"
-      type: "status_ok"
+      type: "status_done"
 RoleCreateFailed:
   field_colors:
     - context: "main"
@@ -1849,6 +1869,10 @@ StaticPodInstallerFailed:
   field_colors:
     - context: "main"
       type: "status_warning"
+StatusNotFound:
+  field_colors:
+    - context: "main"
+      type: "status_warning"
 "Status degraded":
   field_colors:
     - context: "main"
@@ -1872,7 +1896,7 @@ Stopped:
 StorageVersionMigrationCreated:
   field_colors:
     - context: "main"
-      type: "status_ok"
+      type: "status_done"
 Suspended:
   field_colors:
     - context: "main"
@@ -1996,7 +2020,7 @@ TerminationStoppedServing:
 TFJobCreated:
   field_colors:
     - context: "main"
-      type: "status_ok"
+      type: "status_done"
 TFJobFailed:
   field_colors:
     - context: "main"
