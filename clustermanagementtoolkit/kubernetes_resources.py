@@ -1088,9 +1088,21 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api": "ipaddressclaims",
     },
     # kmm.sigs.x-k8s.io
+    ("BootModuleConfig", "kmm.sigs.x-k8s.io"): {
+        "api_paths": ["apis/kmm.sigs.x-k8s.io/v1beta1/"],
+        "api": "bootmoduleconfigs",
+    },
     ("Module", "kmm.sigs.x-k8s.io"): {
         "api_paths": ["apis/kmm.sigs.x-k8s.io/v1beta1/"],
         "api": "modules",
+    },
+    ("ModuleBuildSignConfig", "kmm.sigs.x-k8s.io"): {
+        "api_paths": ["apis/kmm.sigs.x-k8s.io/v1beta1/"],
+        "api": "modulebuildsignconfigs",
+    },
+    ("ModuleImagesConfig", "kmm.sigs.x-k8s.io"): {
+        "api_paths": ["apis/kmm.sigs.x-k8s.io/v1beta1/"],
+        "api": "moduleimagesconfigs",
     },
     ("NodeModulesConfig", "kmm.sigs.x-k8s.io"): {
         "api_paths": ["apis/kmm.sigs.x-k8s.io/v1beta1/"],
@@ -1098,12 +1110,14 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "namespaced": False,
     },
     ("PreflightValidation", "kmm.sigs.x-k8s.io"): {
-        "api_paths": ["apis/kmm.sigs.x-k8s.io/v1beta1/"],
+        "api_paths": ["apis/kmm.sigs.x-k8s.io/v1beta2/",
+                      "apis/kmm.sigs.x-k8s.io/v1beta1/"],
         "api": "preflightvalidations",
         "namespaced": False,
     },
     ("PreflightValidationOCP", "kmm.sigs.x-k8s.io"): {
-        "api_paths": ["apis/kmm.sigs.x-k8s.io/v1beta1/"],
+        "api_paths": ["apis/kmm.sigs.x-k8s.io/v1beta2/",
+                      "apis/kmm.sigs.x-k8s.io/v1beta1/"],
         "api": "preflightvalidationsocp",
         "namespaced": False,
     },
@@ -1222,6 +1236,12 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
     },
 
     # Other APIs
+    # aaq.kubevirt.io
+    ("AAQ", "aaq.kubevirt.io"): {
+        "api_paths": ["apis/aaq.kubevirt.io/v1alpha1/"],
+        "api": "aaqs",
+        "namespaced": False,
+    },
     # access.smi-spec.io
     ("TrafficTarget", "access.smi-spec.io"): {
         "api_paths": ["apis/access.smi-spec.io/v1alpha2/"],
@@ -4382,6 +4402,55 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api_paths": ["apis/monitoring.coreos.com/v1/"],
         "api": "thanosrulers",
     },
+    # monitoring.rhobs
+    ("Alertmanager", "monitoring.rhobs"): {
+        "api_paths": ["apis/monitoring.rhobs/v1/"],
+        "api": "alertmanagers",
+    },
+    ("PodMonitor", "monitoring.rhobs"): {
+        "api_paths": ["apis/monitoring.rhobs/v1/"],
+        "api": "podmonitors",
+    },
+    ("Probe", "monitoring.rhobs"): {
+        "api_paths": ["apis/monitoring.rhobs/v1/"],
+        "api": "probes",
+    },
+    ("Prometheus", "monitoring.rhobs"): {
+        "api_paths": ["apis/monitoring.rhobs/v1/"],
+        "api": "prometheuses",
+    },
+    ("PrometheusRule", "monitoring.rhobs"): {
+        "api_paths": ["apis/monitoring.rhobs/v1/"],
+        "api": "prometheusrules",
+    },
+    ("ServiceMonitor", "monitoring.rhobs"): {
+        "api_paths": ["apis/monitoring.rhobs/v1/"],
+        "api": "servicemonitors",
+    },
+    ("ThanosRuler", "monitoring.rhobs"): {
+        "api_paths": ["apis/monitoring.rhobs/v1/"],
+        "api": "thanosrulers",
+    },
+    ("AlertmanagerConfig", "monitoring.rhobs"): {
+        "api_paths": ["apis/monitoring.rhobs/v1alpha1/"],
+        "api": "alertmanagerconfigs",
+    },
+    ("MonitoringStack", "monitoring.rhobs"): {
+        "api_paths": ["apis/monitoring.rhobs/v1alpha1/"],
+        "api": "monitoringstacks",
+    },
+    ("PrometheusAgent", "monitoring.rhobs"): {
+        "api_paths": ["apis/monitoring.rhobs/v1alpha1/"],
+        "api": "prometheusagents",
+    },
+    ("ScrapeConfig", "monitoring.rhobs"): {
+        "api_paths": ["apis/monitoring.rhobs/v1alpha1/"],
+        "api": "scrapeconfigs",
+    },
+    ("ThanosQuerier", "monitoring.rhobs"): {
+        "api_paths": ["apis/monitoring.rhobs/v1alpha1/"],
+        "api": "thanosqueriers",
+    },
     # mtq.kubevirt.io
     ("MTQ", "mtq.kubevirt.io"): {
         "api_paths": ["apis/mtq.kubevirt.io/v1alpha1/"],
@@ -4617,6 +4686,16 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
     ("ObjectBucket", "objectbucket.io"): {
         "api_paths": ["apis/objectbucket.io/v1alpha1/"],
         "api": "objectbuckets",
+        "namespaced": False,
+    },
+    # observability.openshift.io
+    ("ObservabilityInstaller", "observability.openshift.io"): {
+        "api_paths": ["apis/observability.openshift.io/v1alpha1/"],
+        "api": "observabilityinstallers",
+    },
+    ("UIPlugin", "observability.openshift.io"): {
+        "api_paths": ["apis/observability.openshift.io/v1alpha1/"],
+        "api": "uiplugins",
         "namespaced": False,
     },
     # olm.operatorframework.io
@@ -4881,6 +4960,19 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api_paths": ["apis/performance.openshift.io/v2/"],
         "api": "performanceprofiles",
         "namespaced": False,
+    },
+    # perses.dev
+    ("Perses", "perses.dev"): {
+        "api_paths": ["apis/perses.dev/v1alpha1/"],
+        "api": "perses",
+    },
+    ("PersesDashboard", "perses.dev"): {
+        "api_paths": ["apis/perses.dev/v1alpha1/"],
+        "api": "persesdashboards",
+    },
+    ("PersesDatasource", "perses.dev"): {
+        "api_paths": ["apis/perses.dev/v1alpha1/"],
+        "api": "persesdatasources",
     },
     # platform.openshift.io
     ("PlatformOperator", "platform.openshift.io"): {
@@ -5490,7 +5582,8 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
     },
     # ssp.kubevirt.io
     ("SSP", "ssp.kubevirt.io"): {
-        "api_paths": ["apis/ssp.kubevirt.io/v1beta2/"],
+        "api_paths": ["apis/ssp.kubevirt.io/v1beta3/",
+                      "apis/ssp.kubevirt.io/v1beta2/"],
         "api": "ssps",
     },
     # stackconfigpolicy.k8s.elastic.co
