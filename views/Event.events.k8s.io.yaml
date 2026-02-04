@@ -1420,6 +1420,10 @@ listview:
               field_colors:
                 - context: "main"
                   type: "status_done"
+            Overwritten:
+              field_colors:
+                - context: "main"
+                  type: "status_warning"
             PatchPodDeletionCostFailed:
               field_colors:
                 - context: "main"
@@ -3760,6 +3764,10 @@ infoview:
                 field_colors:
                   - context: "main"
                     type: "status_done"
+              Overwritten:
+                field_colors:
+                  - context: "main"
+                    type: "status_warning"
               PatchPodDeletionCostFailed:
                 field_colors:
                   - context: "main"
