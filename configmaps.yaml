@@ -176,6 +176,9 @@ configmap_signatures:
       - namespace: "openshift-operator"
         prefix: "applied-cluster"
         data_prefix: "applied"
+      - prefix: "whereabouts-flatfile-config"
+        data_prefix: "whereabouts.conf"
+        data_suffix: "whereabouts.conf"
 
   jws:
     format_name: "JWS"
