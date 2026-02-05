@@ -9,7 +9,8 @@ cilium-cli:
   candidate_version:
     function: "get_github_version"
     args:
-      url: "https://api.github.com/repos/cilium/cilium-cli/releases"
+      # yamllint disable rule:line-length
+      url: "https://api.github.com/repos/cilium/cilium-cli/releases?per_page=100"
       version_regex: 'v(\d+)(\.)(\d+)(\.)(\d+)$'
   changelog:
     from_body: true

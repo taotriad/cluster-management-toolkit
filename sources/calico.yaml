@@ -9,7 +9,8 @@ calicoctl:
   candidate_version:
     function: "get_github_version"
     args:
-      url: "https://api.github.com/repos/projectcalico/calico/releases"
+      # yamllint disable rule:line-length
+      url: "https://api.github.com/repos/projectcalico/calico/releases?per_page=100"
       version_regex: 'v(\d+)(\.)(\d+)(\.)(\d+)$'
   changelog:
     # yamllint disable rule:line-length

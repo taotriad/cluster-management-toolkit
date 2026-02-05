@@ -4,7 +4,8 @@ kubernetes:
   candidate_version:
     function: "get_github_version"
     args:
-      url: "https://api.github.com/repos/kubernetes/kubernetes/releases"
+      # yamllint disable rule:line-length
+      url: "https://api.github.com/repos/kubernetes/kubernetes/releases?per_page=100"
       version_regex: 'v(\d+)(\.)(\d+)(\.)(\d+)$'
   changelog:
     # yamllint disable rule:line-length
@@ -16,7 +17,8 @@ kustomize:
   candidate_version:
     function: "get_github_version"
     args:
-      url: "https://api.github.com/repos/kubernetes-sigs/kustomize/releases"
+      # yamllint disable rule:line-length
+      url: "https://api.github.com/repos/kubernetes-sigs/kustomize/releases?per_page=100"
       version_regex: 'kustomize/v(\d+)(\.)(\d+)(\.)(\d+)$'
   changelog:
     from_body: true

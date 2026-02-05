@@ -9,7 +9,7 @@ antctl:
   candidate_version:
     function: "get_github_version"
     args:
-      url: "https://api.github.com/repos/antrea-io/antrea/releases"
+      url: "https://api.github.com/repos/antrea-io/antrea/releases?per_page=100"
       version_regex: 'v(\d+)(\.)(\d+)(\.)(\d+)$'
   changelog:
     from_body: true
