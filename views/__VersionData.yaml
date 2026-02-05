@@ -313,7 +313,7 @@ listview:
           installed_version:
             fieldgetter: "fieldgetter_executable_version"
             fieldgetter_args:
-              executable: "/usr/local/bin/rke2"
+              executable: "/opt/rke2/bin/rke2"
               args: ["--version"]
               # yamllint disable-line rule:line-length
               version_regex: '^rke2 version v(\d+)(\.)(\d+)(\.)(\d+)(\+)([a-z0-9]+).*'
