@@ -451,6 +451,8 @@ Python 3.11 or newer.
 * Add some more unit-tests.
 * A new tool (`events_new_reasons`) can be used to check whether there are unknown
   event reasons in the logs, to facilitate adding highlighting for them.
+* Fix version-check for RKE2.
+* Add a version-check for Rancher.
 
 ### view-file changes
 

@@ -57,6 +57,7 @@ def fieldgetter_executable_version(**kwargs: Any) -> list[Any]:
                 if (tmp := re.match(version_regex, line)) is not None:
                     for field in tmp.groups():
                         version.append(field)
+                    break
     return ["".join(version)]
 
 
