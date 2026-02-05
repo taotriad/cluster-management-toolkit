@@ -8,3 +8,4 @@
     - name: "glog"
     - name: "key_value"
     - name: "key_value_with_leading_message"
+    - name: "expand_event"

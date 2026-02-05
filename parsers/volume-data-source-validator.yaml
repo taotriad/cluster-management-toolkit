@@ -5,3 +5,9 @@
     - pod_name: "volume-data-source-validator"
   parser_rules:
     - name: "glog"
+    - name: "key_value_with_leading_message"
+    - name: "override_severity"
+      overrides:
+        - matchtype: "startswith"
+          matchkey: "Version: "
+          loglevel: "notice"

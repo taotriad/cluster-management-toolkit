@@ -8,3 +8,4 @@
       container_name: "image-pruner"
   parser_rules:
     - name: "glog"
+    - name: "key_value_with_leading_message"

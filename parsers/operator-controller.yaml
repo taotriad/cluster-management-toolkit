@@ -1,0 +1,9 @@
+---
+- name: "operator-controller"
+  show_in_selector: false
+  matchkeys:
+    - pod_name: "operator-controller-controller-manager"
+      container_name: "manager"
+  parser_rules:
+    - name: "glog"
+    - name: "key_value_with_leading_message"

@@ -6,3 +6,9 @@
       container_name: "cluster-autoscaler-operator"
   parser_rules:
     - name: "glog"
+    - name: "key_value"
+    - name: "override_severity"
+      overrides:
+        - matchtype: "startswith"
+          matchkey: "Version: cluster-autoscaler-operator"
+          loglevel: "notice"

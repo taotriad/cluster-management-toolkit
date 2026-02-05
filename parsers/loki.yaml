@@ -7,4 +7,5 @@
     - name: "json"
     - name: "key_value"
       options:
-        versions: "version"
+        versions:
+          - "version"

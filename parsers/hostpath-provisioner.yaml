@@ -8,6 +8,7 @@
     - pod_name: "csi-hostpath-resizer"
   parser_rules:
     - name: "glog"
+    - name: "json"
     - name: "override_severity"
       overrides:
         - matchtype: "startswith"

@@ -1,0 +1,18 @@
+---
+- name: "cluster-monitor"
+  show_in_selector: false
+  matchkeys:
+    - container_name: "cluster-monitoring-operator"
+    - container_name: "monitoring-plugin"
+    - container_name: "openshift-state-metrics"
+    - pod_name: "telemeter-client"
+      container_name: "telemeter-client"
+    - pod_name: "telemeter-client"
+      container_name: "reload"
+    - container_name: "thanos-query"
+  parser_rules:
+    - name: "glog"
+    - name: "key_value_with_leading_message"
+      options:
+        versions:
+          - "version"

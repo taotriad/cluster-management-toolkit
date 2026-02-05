@@ -33,6 +33,7 @@
     - pod_name: "prometheus-node-exporter"
       container_name: "node-exporter"
     - image_name: "/prometheus/node-exporter"
+    - container_name: "node-exporter"
     - image_name: "/prometheus-operator/prometheus-operator"
     - pod_name: "prom-operator"
       container_name: "kube-prometheus-stack"
@@ -55,6 +56,9 @@
   matchkeys:
     - image_name: "/prometheus/prometheus"
     - image_name: "/prometheus-operator/prometheus-config-reloader"
+    - container_name: "config-reloader"
+    - container_name: "init-config-reloader"
+      container_type: "init_container"
     - image_name: "/prometheus-operator/prometheus-config-reloader"
       container_type: "init_container"
     - pod_name: "prometheus-kube-prometheus-blackbox-exporter"
@@ -83,3 +87,19 @@
         - matchtype: "startswith"
           matchkey: "Starting prometheus-config-reloader"
           loglevel: "notice"
+- name: "prometheus"
+  show_in_selector: false
+  matchkeys:
+    - container_name: "thanos-sidecar"
+    - container_name: "prometheus"
+  parser_rules:
+    - name: "glog"
+    - name: "key_value"
+      options:
+        versions:
+          - "version"
+    - name: "override_severity"
+      overrides:
+        - matchtype: "startswith"
+          matchkey: "Warning:"
+          loglevel: "warning"

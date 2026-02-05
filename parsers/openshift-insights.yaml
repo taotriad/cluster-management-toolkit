@@ -5,3 +5,4 @@
     - pod_name: "insights-operator"
   parser_rules:
     - name: "glog"
+    - name: "expand_event"

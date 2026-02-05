@@ -1,0 +1,7 @@
+---
+- name: "assisted-installer"
+  show_in_selector: false
+  matchkeys:
+    - image_name: "/rhai/assisted-installer-controller"
+  parser_rules:
+    - name: "key_value"

@@ -1,0 +1,12 @@
+---
+- name: "kmm"
+  show_in_selector: false
+  matchkeys:
+    - image_name: "/kmm/kernel-module-management"
+  parser_rules:
+    - name: "glog"
+    - name: "key_value_with_leading_message"
+      options:
+        allow_bare_keys: true
+        versions:
+          - "version"

@@ -1,0 +1,19 @@
+- name: "openshift-observability"
+  show_in_selector: false
+  matchkeys:
+    - image_name: "/cluster-observability-operator/obo-prometheus"
+  parser_rules:
+    - name: "glog"
+    - name: "key_value_with_leading_message"
+      options:
+        versions:
+          - "version"
+- name: "openshift-observability"
+  show_in_selector: false
+  matchkeys:
+    - image_name: "/cluster-observability-operator/cluster-observability"
+    - image_name: "/cluster-observability-operator/perses"
+  parser_rules:
+    - name: "glog"
+    - name: "tab_separated"
+    - name: "expand_event"
