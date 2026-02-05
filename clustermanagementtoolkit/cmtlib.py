@@ -839,8 +839,11 @@ def make_set_expression_list(expression_list: list[dict[str, Any]], **kwargs: An
             operator = deep_get_with_fallback(expression, operator_paths)
             new_key = deep_get_with_fallback(expression, key_paths, key)
             tmp_values = deep_get_with_fallback(expression, values_paths, [])
+            if tmp_values and isinstance(tmp_values, str):
+                tmp_values = [tmp_values]
             if not isinstance(tmp_values, list):
-                raise TypeError("values must be a list")
+                raise TypeError("values must be a string or list; "
+                                f"{tmp_values} is of type {type(tmp_values)}")
 
             if not new_key:
                 new_key = "All"
@@ -860,6 +863,11 @@ def make_set_expression_list(expression_list: list[dict[str, Any]], **kwargs: An
             pretty_operator = deep_get(EXPRESSION_LOOKUP, DictPath(f"{operator}#pretty_operator"))
             required_values = deep_get(EXPRESSION_LOOKUP, DictPath(f"{operator}#required_values"))
 
+            # While all documentation seems to indicate that Equal requires a value,
+            # reality disagrees.
+            if operator == "Equal" and not tmp_values:
+                tmp_values = ["<empty>"]
+
             if required_values == "0" and tmp_values and len(max(tmp_values, key=len)):
                 # Exists and DoesNotExist do no accept values;
                 # for the sake of convenience we still accept empty values
@@ -872,7 +880,7 @@ def make_set_expression_list(expression_list: list[dict[str, Any]], **kwargs: An
                 raise ValueError(f"operator {operator} requires at least 1 value; "
                                  f"values {tmp_values}")
             values = ",".join(tmp_values)
-            if required_values != "0" and operator not in ("Gt", "Lt"):
+            if required_values != "0" and operator not in ("Equal", "Gt", "Lt"):
                 values = f"[{values}]"
 
             if is_toleration:
