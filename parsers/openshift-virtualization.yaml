@@ -1,3 +1,4 @@
+---
 - name: "openshift-virtualization"
   show_in_selector: false
   matchkeys:

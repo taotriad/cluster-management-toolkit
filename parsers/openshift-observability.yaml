@@ -1,3 +1,4 @@
+---
 - name: "openshift-observability"
   show_in_selector: false
   matchkeys:
