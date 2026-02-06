@@ -985,6 +985,34 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api_paths": ["apis/infrastructure.cluster.x-k8s.io/v1alpha1/"],
         "api": "kubevirtmachinetemplates",
     },
+    ("Metal3Cluster", "infrastructure.cluster.x-k8s.io"): {
+        "api_paths": ["apis/infrastructure.cluster.x-k8s.io/v1beta1/"],
+        "api": "metal3clusters",
+    },
+    ("Metal3ClusterTemplate", "infrastructure.cluster.x-k8s.io"): {
+        "api_paths": ["apis/infrastructure.cluster.x-k8s.io/v1beta1/"],
+        "api": "metal3clustertemplates",
+    },
+    ("Metal3DataClaim", "infrastructure.cluster.x-k8s.io"): {
+        "api_paths": ["apis/infrastructure.cluster.x-k8s.io/v1beta1/"],
+        "api": "metal3dataclaims",
+    },
+    ("Metal3Data", "infrastructure.cluster.x-k8s.io"): {
+        "api_paths": ["apis/infrastructure.cluster.x-k8s.io/v1beta1/"],
+        "api": "metal3datas",
+    },
+    ("Metal3DataTemplate", "infrastructure.cluster.x-k8s.io"): {
+        "api_paths": ["apis/infrastructure.cluster.x-k8s.io/v1beta1/"],
+        "api": "metal3datatemplates",
+    },
+    ("Metal3Machine", "infrastructure.cluster.x-k8s.io"): {
+        "api_paths": ["apis/infrastructure.cluster.x-k8s.io/v1beta1/"],
+        "api": "metal3machines",
+    },
+    ("Metal3MachineTemplate", "infrastructure.cluster.x-k8s.io"): {
+        "api_paths": ["apis/infrastructure.cluster.x-k8s.io/v1beta1/"],
+        "api": "metal3machinetemplates",
+    },
     ("Metal3Remediation", "infrastructure.cluster.x-k8s.io"): {
         "api_paths": ["apis/infrastructure.cluster.x-k8s.io/v1beta1/"],
         "api": "metal3remediations",
@@ -4290,6 +4318,14 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
     ("HardwareData", "metal3.io"): {
         "api_paths": ["apis/metal3.io/v1alpha1/"],
         "api": "hardwaredata",
+    },
+    ("HostClaim", "metal3.io"): {
+        "api_paths": ["apis/metal3.io/v1alpha1/"],
+        "api": "hostclaims",
+    },
+    ("HostDeployPolicy", "metal3.io"): {
+        "api_paths": ["apis/metal3.io/v1alpha1/"],
+        "api": "hostdeploypolicies",
     },
     ("HostFirmwareComponents", "metal3.io"): {
         "api_paths": ["apis/metal3.io/v1alpha1/"],
