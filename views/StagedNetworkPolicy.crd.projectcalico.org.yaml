@@ -6,8 +6,8 @@ command:
   - "stagednetworkpolicy.crd.projectcalico.org"
   - "stagednetworkpolicies.calico"
   - "stagednetworkpolicy.calico"
-  - "scnetpols"
-  - "scnetpol"
+  - "snetpols"
+  - "snetpol"
 listview:
   name: "Staged Network Policies"
   group: "Calico"
