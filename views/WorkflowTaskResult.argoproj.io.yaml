@@ -1,0 +1,57 @@
+---
+kind: "WorkflowTaskResult"
+api_family: "argoproj.io"
+default_command: "workflowtaskresults"
+command:
+  - "wftresults"
+  - "wftresult"
+listview:
+  name: "Workflow Task Results [Internal API]"
+  group: "CI / CD"
+  field_indexes:
+    Normal:
+      fields: ["namespace", "name", "workflow", "completed", "age"]
+      sortcolumn: "namespace"
+  fields:
+    completed:
+      header: "Completed:"
+      path: "metadata#labels#workflows.argoproj.io/report-outputs-completed"
+      default: false
+      type: "bool"
+    workflow:
+      header: "Workflow:"
+      path: "metadata#labels#workflows.argoproj.io/workflow"
+      default: "<unset>"
+      type: "str"
+infoview:
+  name: "Workflow Task Result Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["workflow", "completed"]
+    rows:
+      completed:
+        header: [["Completed:", ["main", "infoheader"]]]
+        path: "metadata#labels#workflows.argoproj.io/report-outputs-completed"
+        default: false
+        type: "bool"
+      workflow:
+        header: [["W", ["main", "infoheader_shortcut"]],
+                 ["orkflow:", ["main", "infoheader"]]]
+        path: "metadata#labels#workflows.argoproj.io/workflow"
+        default: "<unset>"
+        type: "str"
+  shortcuts:
+    "Workflow":
+      key: "w"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for Workflow"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind: "Workflow"
+        api_family: "argoproj.io"
+        name_path: "metadata#labels#workflows.argoproj.io/workflow"
+        namespace_path: "metadata#namespace"

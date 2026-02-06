@@ -2,6 +2,9 @@
 kind: "Workflow"
 api_family: "argoproj.io"
 default_command: "workflows"
+command:
+  - "wfs"
+  - "wf"
 listview:
   name: "Workflows"
   group: "CI / CD"
@@ -90,6 +93,7 @@ infoview:
     listgetter_args:
       _kind: "Pod"
       _label_selector_path: "spec#podMetadata#labels"
+      _none_on_empty_selector: true
     infogetter: "generic_infogetter"
     on_activation:
       call: "resourceinfodispatch"
