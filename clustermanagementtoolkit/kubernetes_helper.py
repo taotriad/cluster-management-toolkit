@@ -2039,9 +2039,7 @@ class KubernetesHelper:
             # and can thus get data without the Kubernetes API being available.
             if deep_get(cmtlib.cmtconfig, DictPath("Debug#developer_mode")) \
                     and deep_get(cmtlib.cmtconfig, DictPath("Debug#use_testdata")):
-                for path in Path(f"{HOMEDIR}/testdata").iterdir():
-                    if not path.name.endswith(".yaml"):
-                        continue
+                for path in Path(f"{HOMEDIR}/testdata").glob("*.yaml"):
                     tmp = path.name.removesuffix(".yaml")
                     tmp_split = tmp.split(".", maxsplit=1)
                     if len(tmp_split) == 1:
@@ -3130,7 +3128,7 @@ class KubernetesHelper:
                 joined_kind = ".".join(kind)
             testdata = f"{HOMEDIR}/testdata/{joined_kind}.yaml"
             if Path(testdata).is_file():
-                d = secure_read_yaml(FilePath(testdata))
+                d = secure_read_yaml(FilePath(testdata), asynchronous=True)
                 if deep_get(d, DictPath("kind")) == "List":
                     vlist = deep_get(d, DictPath("items"), [])
                 else:
