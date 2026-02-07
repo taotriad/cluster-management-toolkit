@@ -9,3 +9,21 @@ listview:
     Normal:
       fields: ["namespace", "name", "age"]
       sortcolumn: "namespace"
+infoview:
+  name: "Helm Chart Config Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["failure_policy"]
+    rows:
+      failure_policy:
+        header: [["Failure Policy:", ["main", "infoheader"]]]
+        path: "spec#failurePolicy"
+        default: "<unset>"
+        type: "str"
+  logpad:
+    infogetter: "logpad_formatted"
+    infogetter_args:
+      formatter: "format_yaml"
+      path: "spec#valuesContent"
+    timestamps: false

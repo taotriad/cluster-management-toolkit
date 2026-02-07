@@ -3042,6 +3042,84 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api_paths": ["apis/grafana.integreatly.org/v1beta1/"],
         "api": "grafanas",
     },
+    # harvesterhci.io
+    ("Addon", "harvesterhci.io"): {
+        "api_paths": ["apis/harvesterhci.io/v1beta1/"],
+        "api": "addons",
+    },
+    ("BlockDevice", "harvesterhci.io"): {
+        "api_paths": ["apis/harvesterhci.io/v1beta1/"],
+        "api": "blockdevices",
+    },
+    ("KeyPair", "harvesterhci.io"): {
+        "api_paths": ["apis/harvesterhci.io/v1beta1/"],
+        "api": "keypairs",
+    },
+    ("LVMVolumeGroup", "harvesterhci.io"): {
+        "api_paths": ["apis/harvesterhci.io/v1beta1/"],
+        "api": "lvmvolumegroups",
+    },
+    ("NetworkFilesystem", "harvesterhci.io"): {
+        "api_paths": ["apis/harvesterhci.io/v1beta1/"],
+        "api": "networkfilesystems",
+    },
+    ("Preference", "harvesterhci.io"): {
+        "api_paths": ["apis/harvesterhci.io/v1beta1/"],
+        "api": "preferences",
+    },
+    ("ResourceQuota", "harvesterhci.io"): {
+        "api_paths": ["apis/harvesterhci.io/v1beta1/"],
+        "api": "resourcequotas",
+    },
+    ("ScheduleVMBackup", "harvesterhci.io"): {
+        "api_paths": ["apis/harvesterhci.io/v1beta1/"],
+        "api": "schedulevmbackups",
+    },
+    ("Setting", "harvesterhci.io"): {
+        "api_paths": ["apis/harvesterhci.io/v1beta1/"],
+        "api": "settings",
+        "namespaced": False,
+    },
+    ("SupportBundle", "harvesterhci.io"): {
+        "api_paths": ["apis/harvesterhci.io/v1beta1/"],
+        "api": "supportbundles",
+    },
+    ("UpgradeLog", "harvesterhci.io"): {
+        "api_paths": ["apis/harvesterhci.io/v1beta1/"],
+        "api": "upgradelogs",
+    },
+    ("Upgrade", "harvesterhci.io"): {
+        "api_paths": ["apis/harvesterhci.io/v1beta1/"],
+        "api": "upgrades",
+    },
+    ("Version", "harvesterhci.io"): {
+        "api_paths": ["apis/harvesterhci.io/v1beta1/"],
+        "api": "versions",
+    },
+    ("VirtualMachineBackup", "harvesterhci.io"): {
+        "api_paths": ["apis/harvesterhci.io/v1beta1/"],
+        "api": "virtualmachinebackups",
+    },
+    ("VirtualMachineImageDownloader", "harvesterhci.io"): {
+        "api_paths": ["apis/harvesterhci.io/v1beta1/"],
+        "api": "virtualmachineimagedownloaders",
+    },
+    ("VirtualMachineImage", "harvesterhci.io"): {
+        "api_paths": ["apis/harvesterhci.io/v1beta1/"],
+        "api": "virtualmachineimages",
+    },
+    ("VirtualMachineRestore", "harvesterhci.io"): {
+        "api_paths": ["apis/harvesterhci.io/v1beta1/"],
+        "api": "virtualmachinerestores",
+    },
+    ("VirtualMachineTemplate", "harvesterhci.io"): {
+        "api_paths": ["apis/harvesterhci.io/v1beta1/"],
+        "api": "virtualmachinetemplates",
+    },
+    ("VirtualMachineTemplateVersion", "harvesterhci.io"): {
+        "api_paths": ["apis/harvesterhci.io/v1beta1/"],
+        "api": "virtualmachinetemplateversions",
+    },
     # hco.kubevirt.io
     ("HyperConverged", "hco.kubevirt.io"): {
         "api_paths": ["apis/hco.kubevirt.io/v1beta1/"],
@@ -3495,6 +3573,10 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api": "viewers",
     },
     # kubeovn.io
+    ("Configuration", "kubeovn.io"): {
+        "api_paths": ["apis/kubeovn.io/v1/"],
+        "api": "configurations",
+    },
     ("HtbQos", "kubeovn.io"): {
         "api_paths": ["apis/kubeovn.io/v1/"],
         "api": "htbqoses",
@@ -3719,6 +3801,16 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api_paths": ["apis/linkerd.io/v1alpha2/"],
         "api": "serviceprofiles",
     },
+    # loadbalancer.harvesterhci.io
+    ("IPPool", "loadbalancer.harvesterhci.io"): {
+        "api_paths": ["apis/loadbalancer.harvesterhci.io/v1beta1/"],
+        "api": "ippools",
+        "namespaced": False,
+    },
+    ("LoadBalancer", "loadbalancer.harvesterhci.io"): {
+        "api_paths": ["apis/loadbalancer.harvesterhci.io/v1beta1/"],
+        "api": "loadbalancers",
+    },
     # logging-extensions.banzaicloud.io
     ("EventTailer", "logging-extensions.banzaicloud.io"): {
         "api_paths": ["apis/logging-extensions.banzaicloud.io/v1alpha1/"],
@@ -3835,6 +3927,10 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
     ("InstanceManager", "longhorn.io"): {
         "api_paths": ["apis/longhorn.io/v1beta2/"],
         "api": "instancemanagers",
+    },
+    ("LHNode", "longhorn.io"): {
+        "api_paths": ["apis/longhorn.io/v1beta2/"],
+        "api": "lhnodes",
     },
     ("Node", "longhorn.io"): {
         "api_paths": ["apis/longhorn.io/v1beta2/"],
@@ -4529,6 +4625,27 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api": "networkaddonsconfigs",
         "namespaced": False,
     },
+    # network.harvesterhci.io
+    ("ClusterNetwork", "network.harvesterhci.io"): {
+        "api_paths": ["apis/network.harvesterhci.io/v1beta1/"],
+        "api": "clusternetworks",
+        "namespaced": False,
+    },
+    ("LinkMonitor", "network.harvesterhci.io"): {
+        "api_paths": ["apis/network.harvesterhci.io/v1beta1/"],
+        "api": "linkmonitors",
+        "namespaced": False,
+    },
+    ("VlanConfig", "network.harvesterhci.io"): {
+        "api_paths": ["apis/network.harvesterhci.io/v1beta1/"],
+        "api": "vlanconfigs",
+        "namespaced": False,
+    },
+    ("VlanStatus", "network.harvesterhci.io"): {
+        "api_paths": ["apis/network.harvesterhci.io/v1beta1/"],
+        "api": "vlanstatuses",
+        "namespaced": False,
+    },
     # network.openshift.io
     ("ClusterNetwork", "network.openshift.io"): {
         "api_paths": ["apis/network.openshift.io/v1/"],
@@ -4658,6 +4775,26 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
     ("NodeFeatureRule", "nfd.openshift.io"): {
         "api_paths": ["apis/nfd.openshift.io/v1alpha1/"],
         "api": "nodefeaturerules",
+    },
+    # node.harvesterhci.io
+    ("CloudInit", "node.harvesterhci.io"): {
+        "api_paths": ["apis/node.harvesterhci.io/v1beta1/"],
+        "api": "cloudinits",
+        "namespaced": False,
+    },
+    ("Hugepage", "node.harvesterhci.io"): {
+        "api_paths": ["apis/node.harvesterhci.io/v1beta1/"],
+        "api": "hugepages",
+        "namespaced": False,
+    },
+    ("Ksmtuned", "node.harvesterhci.io"): {
+        "api_paths": ["apis/node.harvesterhci.io/v1beta1/"],
+        "api": "ksmtuneds",
+        "namespaced": False,
+    },
+    ("NodeConfig", "node.harvesterhci.io"): {
+        "api_paths": ["apis/node.harvesterhci.io/v1beta1/"],
+        "api": "nodeconfigs",
     },
     # nodeinfo.volcano.sh
     ("Numatopology", "nodeinfo.volcano.sh"): {

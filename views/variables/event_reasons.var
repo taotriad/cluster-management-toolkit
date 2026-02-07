@@ -187,6 +187,10 @@ CommandIssued:
   field_colors:
     - context: "main"
       type: "status_done"
+Complete:
+  field_colors:
+    - context: "main"
+      type: "status_done"
 Completed:
   field_colors:
     - context: "main"
@@ -1452,6 +1456,10 @@ QuotaReserved:
   field_colors:
     - context: "main"
       type: "status_done"
+ready:
+  field_colors:
+    - context: "main"
+      type: "status_ok"
 Ready:
   field_colors:
     - context: "main"
@@ -1576,6 +1584,10 @@ ResolutionFailed:
   field_colors:
     - context: "main"
       type: "status_warning"
+Resolved:
+  field_colors:
+    - context: "main"
+      type: "status_done"
 ResourceReconciliationIncomplete:
   field_colors:
     - context: "main"
@@ -1968,6 +1980,10 @@ SyncError:
   field_colors:
     - context: "main"
       type: "status_warning"
+SyncJob:
+  field_colors:
+    - context: "main"
+      type: "status_pending"
 SystemOOM:
   field_colors:
     - context: "main"
@@ -2088,6 +2104,10 @@ Unschedulable:
   field_colors:
     - context: "main"
       type: "status_not_ok"
+UPDATE:
+  field_colors:
+    - context: "main"
+      type: "status_ok"
 UpdateCertificate:
   field_colors:
     - context: "main"
@@ -2116,6 +2136,14 @@ UpdateFailed:
   field_colors:
     - context: "main"
       type: "status_warning"
+Validated:
+  field_colors:
+    - context: "main"
+      type: "status_ok"
+ValidateFailed:
+  field_colors:
+    - context: "main"
+      type: "status_not_ok"
 ValidateLogicalSwitchSuccess:
   field_colors:
     - context: "main"
