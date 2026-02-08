@@ -292,7 +292,13 @@
 								"^.*$": {
 									"anyOf": [
 										{
-											"description": "Substitute the value with a literal string",
+											"description": "Substitute the value with a boolean",
+											"type": "boolean"
+										}, {
+											"description": "Substitute the value with an integer",
+											"type": "integer"
+										}, {
+											"description": "Substitute the value with a string",
 											"type": "string"
 										}, {
 											"description": "A ThemeRef(context, type) or ThemeString(string, ThemeAttr(context, type))",
@@ -676,7 +682,18 @@
 						"type": "object",
 						"patternProperties": {
 							"^.*$": {
-								"type": "string"
+								"anyOf": [
+									{
+										"description": "Substitute the value with a string",
+										"type": "string"
+									}, {
+										"description": "Substitute the value with an integer",
+										"type": "integer"
+									}, {
+										"description": "Substitute the value with a boolean",
+										"type": "boolean"
+									}
+								]
 							}
 						}
 					},
