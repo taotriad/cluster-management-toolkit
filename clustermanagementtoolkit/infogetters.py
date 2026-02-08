@@ -2629,7 +2629,7 @@ def logpad_formatted(obj: dict, **kwargs: Any) -> list[list[ThemeRef | ThemeStr]
                 break
 
     if path:
-        data = deep_get(obj, DictPath(path))
+        data = deep_get(obj, DictPath(path), "")
     else:
         data = obj
 
