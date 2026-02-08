@@ -1,0 +1,230 @@
+---
+kind: "Ksmtuned"
+api_family: "node.harvesterhci.io"
+default_command: "hugepages"
+listview:
+  name: "KSM Tuned"
+  group: "Harvester"
+  field_indexes:
+    Normal:
+      fields: ["name", "node", "mode", "phase", "age"]
+  fields:
+    mode:
+      header: "Mode:"
+      path: "spec#mode"
+      default: "<unset>"
+      type: "str"
+    node:
+      header: "Node:"
+      paths:
+        - path: "metadata#ownerReferences"
+          pathtype: "items"
+          subpaths:
+            - "name"
+          when:
+            - key: "kind"
+              eq: "Node"
+      default: "<none>"
+      formatter: "list"
+    phase:
+      header: "Phase:"
+      paths:
+        - path: ["status#ksmdPhase", "spec#run"]
+          pathtype: "value"
+      default: "<unset>"
+      type: "str"
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          mappings:
+            prune:
+              field_colors:
+                - context: "main"
+                  type: "status_done"
+            Pruned:
+              field_colors:
+                - context: "main"
+                  type: "status_done"
+            run:
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+            Running:
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+            stop:
+              field_colors:
+                - context: "main"
+                  type: "status_done"
+            Stopped:
+              field_colors:
+                - context: "main"
+                  type: "status_done"
+infoview:
+  name: "Hugepage Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["node", "threshold_coefficient", "merge_across_nodes",
+                 "parameters_header",
+                 "parameters_boost",
+                 "parameters_decay",
+                 "parameters_max_pages",
+                 "parameters_min_pages",
+                 "parameters_sleep",
+                 "status_header",
+                 "status_full_scans",
+                 "status_shared",
+                 "status_sharing",
+                 "status_stable_node_chains",
+                 "status_stable_node_dups",
+                 "status_unshared",
+                 "status_volatile",
+                 "phase"]
+    rows:
+      merge_across_nodes:
+        header: [["Merge Across Nodes:", ["main", "infoheader"]]]
+        path: "spec#mergeAcrossNodes"
+        default: 0
+        type: "int"
+        formatter: "numerical"
+      node:
+        header: [["No", ["main", "infoheader"]],
+                 ["d", ["main", "infoheader_shortcut"]],
+                 ["e:", ["main", "infoheader"]]]
+        paths:
+          - path: "metadata#ownerReferences"
+            pathtype: "items"
+            subpaths:
+              - "name"
+            when:
+              - key: "kind"
+                eq: "Node"
+        default: "<none>"
+        formatter: "list"
+      parameters_header:
+        header: [["Parameters:", ["main", "infoheader"]]]
+      parameters_boost:
+        header: [["  Boost:", ["main", "infoheader"]]]
+        path: "spec#ksmtunedParameters#boost"
+        type: "int"
+        formatter: "numerical"
+      parameters_decay:
+        header: [["  Decay:", ["main", "infoheader"]]]
+        path: "spec#ksmtunedParameters#decay"
+        type: "int"
+        formatter: "numerical"
+      parameters_max_pages:
+        header: [["  Max Pages:", ["main", "infoheader"]]]
+        path: "spec#ksmtunedParameters#maxPages"
+        type: "int"
+        formatter: "numerical"
+      parameters_min_pages:
+        header: [["  Min Pages:", ["main", "infoheader"]]]
+        path: "spec#ksmtunedParameters#minPages"
+        type: "int"
+        formatter: "numerical"
+      parameters_sleep:
+        header: [["  Sleep:", ["main", "infoheader"]]]
+        path: "spec#ksmtunedParameters#sleepMsec"
+        type: "int"
+        formatter: "numerical"
+        formatting:
+          unit: "ms"
+      phase:
+        header: [["Phase:", ["main", "infoheader"]]]
+        paths:
+          - path: ["status#ksmdPhase", "spec#run"]
+            pathtype: "value"
+        default: "<unset>"
+        type: "str"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              prune:
+                field_colors:
+                  - context: "main"
+                    type: "status_done"
+              Pruned:
+                field_colors:
+                  - context: "main"
+                    type: "status_done"
+              run:
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+              Running:
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+              stop:
+                field_colors:
+                  - context: "main"
+                    type: "status_done"
+              Stopped:
+                field_colors:
+                  - context: "main"
+                    type: "status_done"
+      status_header:
+        header: [["Status:", ["main", "infoheader"]]]
+      status_full_scans:
+        header: [["  Full Scans:", ["main", "infoheader"]]]
+        path: "status#fullScans"
+        default: 0
+        type: "int"
+        formatter: "numerical"
+      status_shared:
+        header: [["  Used Shared Pages:", ["main", "infoheader"]]]
+        path: "status#shared"
+        default: 0
+        type: "int"
+        formatter: "numerical"
+      status_sharing:
+        header: [["  Sharing:", ["main", "infoheader"]]]
+        path: "status#sharing"
+        default: 0
+        type: "int"
+        formatter: "numerical"
+      status_stable_node_chains:
+        header: [["  Stable KSM Node Chains:", ["main", "infoheader"]]]
+        path: "status#stableNodeChains"
+        default: 0
+        type: "int"
+        formatter: "numerical"
+      status_stable_node_dups:
+        header: [["  Duplicated KSM Pages:", ["main", "infoheader"]]]
+        path: "status#stableNodeDups"
+        default: 0
+        type: "int"
+        formatter: "numerical"
+      status_unshared:
+        header: [["  Unshared Pages:", ["main", "infoheader"]]]
+        path: "status#unshared"
+        default: 0
+        type: "int"
+        formatter: "numerical"
+      status_volatile:
+        header: [["  Volatile Pages:", ["main", "infoheader"]]]
+        path: "status#volatile"
+        default: 0
+        type: "int"
+        formatter: "numerical"
+      threshold_coefficient:
+        header: [["Threshold Coefficient:", ["main", "infoheader"]]]
+        path: "spec#thresCoef"
+        default: 0
+        type: "int"
+        formatter: "numerical"
+  shortcuts:
+    "Open Node":
+      key: "d"
+      read_only: true
+      helptext: "Open info page for Node"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind: "Node"
+        owner_reference_path: "metadata#ownerReferences"

@@ -1,0 +1,150 @@
+---
+kind: "Addon"
+api_family: "harvesterhci.io"
+default_command: "addons.harvesterhci.io"
+command:
+  - "hvstaddons"
+  - "hvstaddon"
+listview:
+  name: "Addons"
+  group: "Harvester"
+  field_indexes:
+    Normal:
+      fields: ["namespace", "name", "status", "age"]
+      sortcolumn: "namespace"
+  fields:
+    status:
+      header: "Status:"
+      path: "status#status"
+      default: "<unset>"
+      type: "str"
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          mappings:
+            AddonDeploySuccessful:
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+            AddonDisabled:
+              field_colors:
+                - context: "main"
+                  type: "status_ignored"
+            AddonDisabling:
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+            AddonEnabling:
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+            AddonUpdating:
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+  actions:
+    actionlist:
+      "Disable Addon":
+        description: "Disable Addon"
+        category: "Resource Level"
+        actionfunc: "patch_resource"
+        extravars:
+          action_str: "Disabling"
+          args:
+            patch:
+              spec:
+                enabled: false
+            strategic_merge: false
+      "Enable Addon":
+        description: "Enable Addon"
+        category: "Resource Level"
+        actionfunc: "patch_resource"
+        extravars:
+          action_str: "Enabling"
+          args:
+            patch:
+              spec:
+                enabled: true
+            strategic_merge: false
+infoview:
+  name: "Addon Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["display_name", "chart", "version", "repo",
+                 "enabled", "experimental", "status"]
+    rows:
+      chart:
+        header: [["Chart:", ["main", "infoheader"]]]
+        path: "spec#chart"
+        default: "<unset>"
+        type: "str"
+      display_name:
+        header: [["Display Name:", ["main", "infoheader"]]]
+        path: "metadata#labels#addon.harvesterhci.io/displayName"
+        default: "<unset>"
+        type: "str"
+      enabled:
+        header: [["Enabled:", ["main", "infoheader"]]]
+        path: "spec#enabled"
+        default: "<unset>"
+        type: "bool"
+      experimental:
+        header: [["Experimental:", ["main", "infoheader"]]]
+        paths:
+          - path: "metadata#labels#addon.harvesterhci.io/experimental"
+            pathtype: "remap"
+            substitutions:
+              "false": false
+              "true": true
+        default: false
+        type: "bool"
+      repo:
+        header: [["Repo:", ["main", "infoheader"]]]
+        path: "spec#repo"
+        default: "<unset>"
+        type: "str"
+        formatter: "address"
+      status:
+        header: [["Status:", ["main", "infoheader"]]]
+        path: "status#status"
+        default: "<unset>"
+        type: "str"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              AddonDeploySuccessful:
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+              AddonDisabled:
+                field_colors:
+                  - context: "main"
+                    type: "status_ignored"
+              AddonDisabling:
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+              AddonEnabling:
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+              AddonUpdating:
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+      version:
+        header: [["Version:", ["main", "infoheader"]]]
+        path: "spec#version"
+        default: "<unset>"
+        type: "str"
+        formatting:
+          field_colors:
+            - type: "version"
+  logpad:
+    infogetter: "logpad_formatted"
+    infogetter_args:
+      formatter: "format_yaml"
+      path: "spec#valuesContent"
+    timestamps: false

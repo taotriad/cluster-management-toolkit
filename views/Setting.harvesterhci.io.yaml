@@ -1,0 +1,33 @@
+---
+kind: "Setting"
+api_family: "harvesterhci.io"
+default_command: "settings"
+listview:
+  name: "Settings"
+  group: "Harvester"
+  field_indexes:
+    Normal:
+      fields: ["name", "value", "age"]
+  fields:
+    value:
+      header: "Value:"
+      path: "value"
+      default: "<unset>"
+      type: "str"
+infoview:
+  name: "Setting Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["value"]
+    rows:
+      value:
+        header: [["Value:", ["main", "infoheader"]]]
+        path: "value"
+        default: "<unset>"
+        type: "str"
+  logpad:
+    infogetter: "logpad_formatted"
+    infogetter_args:
+      path: "default"
+    timestamps: false

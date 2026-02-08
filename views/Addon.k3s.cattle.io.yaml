@@ -1,7 +1,10 @@
 ---
 kind: "Addon"
 api_family: "k3s.cattle.io"
-default_command: "addons"
+default_command: "addons.k3s.cattle.io"
+command:
+  - "k3saddons"
+  - "k3saddon"
 listview:
   name: "Addons"
   group: "Rancher"
@@ -19,6 +22,7 @@ infoview:
       source:
         header: [["Source:", ["main", "infoheader"]]]
         path: "spec#source"
+        default: "<unset>"
         type: "str"
       checksum:
         header: [["Checksum:", ["main", "infoheader"]]]

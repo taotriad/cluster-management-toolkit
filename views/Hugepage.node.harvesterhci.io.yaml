@@ -1,0 +1,140 @@
+---
+kind: "Hugepage"
+api_family: "node.harvesterhci.io"
+default_command: "hugepages"
+listview:
+  name: "Hugepages"
+  group: "Harvester"
+  field_indexes:
+    Normal:
+      fields: ["name", "node", "age"]
+  fields:
+    node:
+      header: "Node:"
+      paths:
+        - path: "metadata#ownerReferences"
+          pathtype: "items"
+          subpaths:
+            - "name"
+          when:
+            - key: "kind"
+              eq: "Node"
+      default: "<none>"
+      formatter: "list"
+infoview:
+  name: "Hugepage Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["node",
+                 "hugepages_header",
+                 "hugepages_enabled",
+                 "hugepages_defrag",
+                 "hugepages_size",
+                 "hugepages_meminfo_header",
+                 "hugepages_meminfo_total",
+                 "hugepages_meminfo_free",
+                 "hugepages_meminfo_reserved",
+                 "hugepages_meminfo_surplus",
+                 "hugepages_meminfo_anonymous",
+                 "hugepages_shmem_header",
+                 "hugepages_shmem_enabled",
+                 "hugepages_shmem_count"]
+    rows:
+      hugepages_header:
+        header: [["Hugepages:", ["main", "infoheader"]]]
+      hugepages_defrag:
+        header: [["  Defrag:", ["main", "infoheader"]]]
+        paths:
+          - path: ["status#transparent#defrag",
+                   "spec#transparent#defrag"]
+            pathtype: "value"
+        default: "<unset>"
+        type: "str"
+      hugepages_enabled:
+        header: [["  Enabled:", ["main", "infoheader"]]]
+        paths:
+          - path: ["status#transparent#enabled",
+                   "spec#transparent#enabled"]
+            pathtype: "value"
+        default: "<unset>"
+        type: "str"
+      hugepages_meminfo_header:
+        header: [["  Meminfo:", ["main", "infoheader"]]]
+      hugepages_meminfo_anonymous:
+        header: [["    Anonymous:", ["main", "infoheader"]]]
+        path: "status#meminfo#anonHugePages"
+        default: 0
+        type: "int"
+        formatter: "numerical"
+      hugepages_meminfo_free:
+        header: [["    Free:", ["main", "infoheader"]]]
+        path: "status#meminfo#hugePagesFree"
+        default: 0
+        type: "int"
+        formatter: "numerical"
+      hugepages_meminfo_reserved:
+        header: [["    Reserved:", ["main", "infoheader"]]]
+        path: "status#meminfo#hugePagesRsvd"
+        default: 0
+        type: "int"
+        formatter: "numerical"
+      hugepages_meminfo_surplus:
+        header: [["    Surplus:", ["main", "infoheader"]]]
+        path: "status#meminfo#hugePagesSurp"
+        default: 0
+        type: "int"
+        formatter: "numerical"
+      hugepages_meminfo_total:
+        header: [["    Total:", ["main", "infoheader"]]]
+        path: "status#meminfo#hugePagesTotal"
+        default: 0
+        type: "int"
+        formatter: "numerical"
+      hugepages_shmem_count:
+        header: [["    Count:", ["main", "infoheader"]]]
+        path: "status#meminfo#shmemHugePages"
+        default: 0
+        type: "int"
+        formatter: "numerical"
+      hugepages_shmem_enabled:
+        header: [["    Enabled:", ["main", "infoheader"]]]
+        paths:
+          - path: ["status#transparent#shmemEnabled",
+                   "spec#transparent#shmemEnabled"]
+            pathtype: "value"
+        default: "<unset>"
+        type: "str"
+      hugepages_shmem_header:
+        header: [["  Shared Memory Hugepages:", ["main", "infoheader"]]]
+      hugepages_size:
+        header: [["  Size:", ["main", "infoheader"]]]
+        path: "status#meminfo#hugepageSize"
+        default: 0
+        type: "int"
+        formatter: "numerical"
+      node:
+        header: [["No", ["main", "infoheader"]],
+                 ["d", ["main", "infoheader_shortcut"]],
+                 ["e:", ["main", "infoheader"]]]
+        paths:
+          - path: "metadata#ownerReferences"
+            pathtype: "items"
+            subpaths:
+              - "name"
+            when:
+              - key: "kind"
+                eq: "Node"
+        default: "<none>"
+        formatter: "list"
+  shortcuts:
+    "Open Node":
+      key: "d"
+      read_only: true
+      helptext: "Open info page for Node"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind: "Node"
+        owner_reference_path: "metadata#ownerReferences"

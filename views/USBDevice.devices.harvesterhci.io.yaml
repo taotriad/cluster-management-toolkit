@@ -1,0 +1,98 @@
+---
+kind: "USBDevice"
+api_family: "devices.harvesterhci.io"
+default_command: "usbdevices.devices.harvesterhci.io"
+command:
+  - "hvstusbdevs"
+  - "hvstusbdev"
+listview:
+  name: "USB Devices"
+  group: "Harvester"
+  field_indexes:
+    Normal:
+      fields: ["name", "description", "id", "age"]
+      sortcolumn: "id"
+  fields:
+    description:
+      header: "Description:"
+      path: "status#description"
+      default: "<unset>"
+      type: "str"
+    id:
+      header: "ID:"
+      paths:
+        - path: [["status#vendorID"], ["status#productID"]]
+          pathtype: "tuple"
+          default: ["<unset>"]
+      formatter: "list"
+      formatting:
+        field_colors:
+          - type: "numerical"
+          - type: "numerical"
+        field_separators:
+          - type: "resource"
+infoview:
+  name: "USB Device Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["resource_name", "description", "id",
+                 "device_path", "pci_address", "enabled", "node"]
+    rows:
+      description:
+        header: [["Description:", ["main", "infoheader"]]]
+        path: "status#description"
+        default: "<unset>"
+        type: "str"
+      device_path:
+        header: [["Device Path:", ["main", "infoheader"]]]
+        path: "status#devicePath"
+        default: "<unset>"
+        type: "str"
+      enabled:
+        header: [["Enabled:", ["main", "infoheader"]]]
+        path: "status#enabled"
+        default: "<unset>"
+        type: "bool"
+      id:
+        header: [["ID:", ["main", "infoheader"]]]
+        paths:
+          - path: [["status#vendorID"], ["status#productID"]]
+            pathtype: "tuple"
+            default: ["<unset>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "numerical"
+            - type: "numerical"
+          field_separators:
+            - type: "resource"
+      node:
+        header: [["No", ["main", "infoheader"]],
+                 ["d", ["main", "infoheader_shortcut"]],
+                 ["e:", ["main", "infoheader"]]]
+        path: "status#nodeName"
+        default: "<unset>"
+        type: "str"
+      pci_address:
+        header: [["PCI Address:", ["main", "infoheader"]]]
+        path: "status#pciAddress"
+        default: "<unset>"
+        type: "str"
+        formatter: "address"
+      resource_name:
+        header: [["Resource Name:", ["main", "infoheader"]]]
+        path: "status#resourceName"
+        default: "<unset>"
+        type: "str"
+  shortcuts:
+    "Open Node":
+      key: "d"
+      read_only: true
+      helptext: "Open info page for Node"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind: "Node"
+        name_path: "status#nodeName"

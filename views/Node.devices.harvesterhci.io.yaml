@@ -1,0 +1,17 @@
+---
+kind: "Node"
+api_family: "devices.harvesterhci.io"
+default_command: "nodes.devices.harvesterhci.io"
+command:
+  - "hvstnodes"
+  - "hvstnode"
+listview:
+  name: "Nodes"
+  group: "Harvester"
+  field_indexes:
+    Normal:
+      fields: ["name", "age"]
+      sortcolumn: "namespace"
+infoview:
+  name: "Node Info"
+  infopad:

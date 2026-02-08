@@ -1,0 +1,111 @@
+---
+kind: "PCIDevice"
+api_family: "devices.harvesterhci.io"
+default_command: "pcidevices.devices.harvesterhci.io"
+command:
+  - "hvstpcidevs"
+  - "hvstpcidev"
+listview:
+  name: "PCI Devices"
+  group: "Harvester"
+  field_indexes:
+    Wide:
+      fields: ["name", "resource_name", "description", "driver", "id", "age"]
+      sortcolumn: "namespace"
+    Normal:
+      fields: ["name", "description", "id", "age"]
+      sortcolumn: "namespace"
+  fields:
+    description:
+      header: "Description:"
+      path: "status#description"
+      default: "<unset>"
+      type: "str"
+    driver:
+      header: "Driver:"
+      path: "metadata#annotations#harvesterhci.io/pcideviceDriver"
+      default: "<unset>"
+      type: "str"
+    id:
+      header: "ID:"
+      paths:
+        - path: [["status#vendorId"], ["status#deviceId"]]
+          pathtype: "tuple"
+          default: ["<unset>"]
+      formatter: "list"
+      formatting:
+        field_colors:
+          - type: "numerical"
+          - type: "numerical"
+        field_separators:
+          - type: "resource"
+    resource_name:
+      header: "Resource Name:"
+      path: "status#resourceName"
+      default: "<unset>"
+      type: "str"
+infoview:
+  name: "PCI Device Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["resource_name", "description", "class_id", "id",
+                 "pci_address", "iommu_group", "node"]
+    rows:
+      class_id:
+        header: [["Class ID:", ["main", "infoheader"]]]
+        path: "status#classId"
+        default: "<unset>"
+        type: "str"
+      description:
+        header: [["Description:", ["main", "infoheader"]]]
+        path: "status#description"
+        default: "<unset>"
+        type: "str"
+      id:
+        header: [["ID:", ["main", "infoheader"]]]
+        paths:
+          - path: [["status#vendorId"], ["status#productId"]]
+            pathtype: "tuple"
+            default: ["<unset>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "numerical"
+            - type: "numerical"
+          field_separators:
+            - type: "resource"
+      iommu_group:
+        header: [["IOMMU Group:", ["main", "infoheader"]]]
+        path: "status#iommuGroup"
+        default: "<unset>"
+        type: "str"
+      node:
+        header: [["No", ["main", "infoheader"]],
+                 ["d", ["main", "infoheader_shortcut"]],
+                 ["e:", ["main", "infoheader"]]]
+        path: "status#nodeName"
+        default: "<unset>"
+        type: "str"
+      pci_address:
+        header: [["PCI Address:", ["main", "infoheader"]]]
+        path: "status#address"
+        default: "<unset>"
+        type: "str"
+        formatter: "address"
+      resource_name:
+        header: [["Resource Name:", ["main", "infoheader"]]]
+        path: "status#resourceName"
+        default: "<unset>"
+        type: "str"
+  shortcuts:
+    "Open Node":
+      key: "d"
+      read_only: true
+      helptext: "Open info page for Node"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind: "Node"
+        name_path: "status#nodeName"

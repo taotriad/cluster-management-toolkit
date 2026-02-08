@@ -16,7 +16,7 @@ listview:
       fields: ["namespace", "name",
                "pod_label_selector", "pod_set_based_selector",
                "types", "age"]
-      sortclumn: "namespace"
+      sortcolumn: "namespace"
   fields:
     pod_label_selector:
       header: "Pod Label Selector:"
