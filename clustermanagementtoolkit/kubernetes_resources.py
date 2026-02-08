@@ -2604,6 +2604,52 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api": "sgxdeviceplugins",
         "namespaced": False,
     },
+    # devices.harvesterhci.io
+    ("MigConfiguration", "devices.harvesterhci.io"): {
+        "api_paths": ["apis/devices.harvesterhci.io/v1beta1/"],
+        "api": "migconfigurations",
+        "namespaced": False,
+    },
+    ("Node", "devices.harvesterhci.io"): {
+        "api_paths": ["apis/devices.harvesterhci.io/v1beta1/"],
+        "api": "nodes",
+        "namespaced": False,
+    },
+    ("PCIDeviceClaim", "devices.harvesterhci.io"): {
+        "api_paths": ["apis/devices.harvesterhci.io/v1beta1/"],
+        "api": "pcideviceclaims",
+        "namespaced": False,
+    },
+    ("PCIDevice", "devices.harvesterhci.io"): {
+        "api_paths": ["apis/devices.harvesterhci.io/v1beta1/"],
+        "api": "pcidevices",
+        "namespaced": False,
+    },
+    ("SRIOVGPUDevice", "devices.harvesterhci.io"): {
+        "api_paths": ["apis/devices.harvesterhci.io/v1beta1/"],
+        "api": "sriovgpudevices",
+        "namespaced": False,
+    },
+    ("SRIOVNetworkDevice", "devices.harvesterhci.io"): {
+        "api_paths": ["apis/devices.harvesterhci.io/v1beta1/"],
+        "api": "sriovnetworkdevices",
+        "namespaced": False,
+    },
+    ("USBDeviceClaim", "devices.harvesterhci.io"): {
+        "api_paths": ["apis/devices.harvesterhci.io/v1beta1/"],
+        "api": "usbdeviceclaims",
+        "namespaced": False,
+    },
+    ("USBDevice", "devices.harvesterhci.io"): {
+        "api_paths": ["apis/devices.harvesterhci.io/v1beta1/"],
+        "api": "usbdevices",
+        "namespaced": False,
+    },
+    ("VGPUDevice", "devices.harvesterhci.io"): {
+        "api_paths": ["apis/devices.harvesterhci.io/v1beta1/"],
+        "api": "vgpudevices",
+        "namespaced": False,
+    },
     # devices.kubeedge.io
     ("DeviceModel", "devices.kubeedge.io"): {
         "api_paths": ["apis/devices.kubeedge.io/v1beta1/"],
@@ -4480,6 +4526,23 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
     ("ServiceL2Status", "metallb.io"): {
         "api_paths": ["apis/metallb.io/v1beta1/"],
         "api": "servicel2statuses",
+    },
+    # migration.harvesterhci.io
+    ("OpenstackSource", "migration.harvesterhci.io"): {
+        "api_paths": ["apis/migration.harvesterhci.io/v1beta1/"],
+        "api": "openstacksources",
+    },
+    ("OvaSource", "migration.harvesterhci.io"): {
+        "api_paths": ["apis/migration.harvesterhci.io/v1beta1/"],
+        "api": "ovasources",
+    },
+    ("VirtualMachineImport", "migration.harvesterhci.io"): {
+        "api_paths": ["apis/migration.harvesterhci.io/v1beta1/"],
+        "api": "virtualmachineimports",
+    },
+    ("VmwareSource", "migration.harvesterhci.io"): {
+        "api_paths": ["apis/migration.harvesterhci.io/v1beta1/"],
+        "api": "vmwaresources",
     },
     # migrations.kubevirt.io
     ("MigrationPolicy", "migrations.kubevirt.io"): {
