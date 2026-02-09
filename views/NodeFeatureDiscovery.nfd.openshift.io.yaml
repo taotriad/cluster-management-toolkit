@@ -19,6 +19,7 @@ infoview:
       Normal:
         fields: ["operand_header", "operand_image", "operand_pull_policy",
                  "operand_service_port",
+                 "extra_label_namespaces",
                  "enable_taints", "prune_on_delete", "topology_updater"]
     rows:
       enable_taints:
@@ -26,6 +27,11 @@ infoview:
         path: "spec#enableTaints"
         default: "<unset>"
         type: "bool"
+      extra_label_namespaces:
+        header: [["Extra Label Namespaces:", ["main", "infoheader"]]]
+        path: "spec#extraLabelNs"
+        type: "raw"
+        formatter: "list"
       operand_header:
         header: [["Operand:", ["main", "infoheader"]]]
       operand_image:
@@ -69,3 +75,21 @@ infoview:
       formatter: "format_yaml"
       path: "spec#workerConfig"
     timestamps: false
+  shortcuts:
+    "Extra Label Namespaces":
+      key: "b"
+      read_only: true
+      helptext: "List extra label Namespaces"
+      widget: "windowwidget"
+      title: "Extra Label Namespaces:"
+      selectable: true
+      itemgetter: "get_list_as_list"
+      itemgetter_args:
+        path: "spec#extraLabelNs"
+      # Not supported for now
+      sortcolumn: "name"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        kind: "Namespace"
+        name_path: 0
