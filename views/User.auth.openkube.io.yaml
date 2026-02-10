@@ -1,0 +1,247 @@
+---
+kind: "User"
+api_family: "auth.openkube.io"
+default_command: "users.auth.openkube.io"
+command:
+  - "users.openkube"
+  - "user.openkube"
+  - "kubeusers"
+  - "kubeuser"
+listview:
+  name: "Users"
+  group: "Authorization & Access Control"
+  field_indexes:
+    Wide:
+      fields: ["name", "auto_renew", "expiration",
+               "next_renewal", "phase", "age", "message"]
+    Normal:
+      fields: ["name", "auto_renew", "expiration", "phase", "age", "message"]
+  fields:
+    auto_renew:
+      header: "Auto-Renew:"
+      path: "spec#auth#autoRenew"
+      default: "<unset>"
+      type: "bool"
+    expiration:
+      header: "Expiration:"
+      path: "status#expiryTime"
+      default: "<unset>"
+      type: "str"
+      formatter: "timestamp"
+    message:
+      header: "Message:"
+      path: "status#message"
+      default: "<unset>"
+      type: "str"
+    next_renewal:
+      header: "Next Renewal:"
+      path: "status#nextRenewalAt"
+      default: "<unset>"
+      type: "str"
+      formatter: "timestamp"
+    phase:
+      header: "Phase:"
+      path: "status#phase"
+      default: "<unset>"
+      type: "str"
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          mappings:
+            Active:
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+            Error:
+              field_colors:
+                - context: "main"
+                  type: "status_not_ok"
+            Expired:
+              field_colors:
+                - context: "main"
+                  type: "status_warning"
+            Pending:
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+            Renewing:
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+infoview:
+  name: "User Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["expiration", "kubeconfig", "kubeconfig_note",
+                 "next_renewal", "auto_renew",
+                 "ttl", "type", "message", "phase"]
+    rows:
+      auto_renew:
+        header: [["Auto-Renew:", ["main", "infoheader"]]]
+        path: "spec#auth#autoRenew"
+        default: "<unset>"
+        type: "bool"
+      expiration:
+        header: [["Expiration:", ["main", "infoheader"]]]
+        path: "status#expiryTime"
+        default: "<unset>"
+        type: "str"
+        formatter: "timestamp"
+      kubeconfig:
+        header: [["k", ["main", "infoheader"]],
+                 ["ubeconfig:", ["main", "infoheader"]]]
+        paths:
+          - path: ["Secret", ["metadata#name"], "-kubeconfig"]
+            pathtype: "tuple"
+        default: "<unset>"
+        type: "str"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "kind"
+            - type: "generic"
+            - type: "generic"
+          field_separators:
+            - type: "kind"
+            - type: "no_pad"
+      kubeconfig_note:
+        header: [["  Note:", ["main", "infoheader_note"]],
+                 [" Currently ", ["main", "default"]],
+                 ["CMU", ["types", "programname"]],
+                 [" does not support generating a ", ["main", "default"]],
+                 ["shortcut for this resource.", ["main", "default"]]]
+      message:
+        header: [["Message:", ["main", "infoheader"]]]
+        path: "status#message"
+        default: "<unset>"
+        type: "str"
+      next_renewal:
+        header: [["Next Renewal:", ["main", "infoheader"]]]
+        path: "status#nextRenewalAt"
+        default: "<unset>"
+        type: "str"
+        formatter: "timestamp"
+      phase:
+        header: [["Phase:", ["main", "infoheader"]]]
+        path: "status#phase"
+        default: "<unset>"
+        type: "str"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              Active:
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+              Error:
+                field_colors:
+                  - context: "main"
+                    type: "status_not_ok"
+              Expired:
+                field_colors:
+                  - context: "main"
+                    type: "status_warning"
+              Pending:
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+              Renewing:
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+      ttl:
+        header: [["TTL:", ["main", "infoheader"]]]
+        path: "spec#auth#ttl"
+        default: "<unset>"
+        type: "str"
+        formatter: "numerical"
+      type:
+        header: [["Type:", ["main", "infoheader"]]]
+        path: "spec#auth#type"
+        default: "<unset>"
+        type: "str"
+  listpad:
+    on_activation:
+      call: null
+    listgetter: "listgetter_path"
+    listgetter_args:
+      paths:
+        - path: "spec#roles"
+          type: "list"
+          key_name: "__type"
+          key_value: "Role"
+        - path: "spec#clusterRoles"
+          type: "list"
+          key_name: "__type"
+          key_value: "ClusterRole"
+    infogetter: "generic_infogetter"
+    infogetter_args:
+      _extra_data:
+        namespace: ["metadata#namespace"]
+    field_indexes:
+      Normal:
+        fields: ["type", "target_namespace",
+                 "existing_role", "existing_cluster_role"]
+        sortcolumn: "type"
+    fields:
+      existing_cluster_role:
+        header: "Existing Cluster Role:"
+        path: "existingClusterRole"
+        default: "<none>"
+        type: "str"
+      existing_role:
+        header: "Existing Role:"
+        path: "existingRole"
+        default: "<none>"
+        type: "str"
+      target_namespace:
+        header: "Target Namespace:"
+        path: "namespace"
+        default: "<none>"
+        type: "str"
+        formatting:
+          field_colors:
+            - type: "namespace"
+      type:
+        header: "Type:"
+        path: "__type"
+        type: "str"
+  shortcuts:
+    "Open Cluster Role":
+      key: "c"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for Cluster Role"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_selected_obj: true
+        kind: "ClusterRole"
+        api_family: "rbac.authorization.k8s.io"
+        name_path: "existingClusterRole"
+    "Open Role":
+      key: "r"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for Role"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_selected_obj: true
+        kind: "Role"
+        api_family: "rbac.authorization.k8s.io"
+        name_path: "existingRole"
+        namespace_path: "namespace"
+    "Open Target Namespace":
+      key: "n"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for target Namespace"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_selected_obj: true
+        kind: "Namespace"
+        name_path: "namespace"

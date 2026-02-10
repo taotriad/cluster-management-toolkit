@@ -1580,6 +1580,12 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api_paths": ["apis/auth.kio.kasten.io/v1alpha1/"],
         "api": "k10clusterroles",
     },
+    # auth.openkube.io
+    ("User", "auth.openkube.io"): {
+        "api_paths": ["apis/auth.openkube.io/v1alpha1/"],
+        "api": "users",
+        "namespaced": False,
+    },
     # authorization.openshift.io
     ("ClusterRole", "authorization.openshift.io"): {
         "api_paths": ["apis/authorization.openshift.io/v1/"],
