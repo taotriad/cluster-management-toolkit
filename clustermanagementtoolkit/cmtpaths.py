@@ -119,12 +119,12 @@ SSH_ARGS_RELAXED_CRYPTOS = \
 # Accepted CA signature algorithms
 SSH_ARGS_STRICT_CA_SIGNATURE_ALGORITHMS = \
     "rsa-sha2-512," \
+    "ssh-ed25519," \
     "ecdsa-sha2-nistp521," \
     "ecdsa-sha2-nistp384"
 
 SSH_ARGS_RELAXED_CA_SIGNATURE_ALGORITHMS = \
     f"{SSH_ARGS_STRICT_CA_SIGNATURE_ALGORITHMS}," \
-    "ssh-ed25519," \
     "rsa-sha2-256"
 
 # Accepted key exchange algorithms
@@ -149,22 +149,26 @@ SSH_ARGS_RELAXED_MACS = \
 SSH_ARGS_STRICT_HOST_KEY_ALGORITHMS = \
     "rsa-sha2-512," \
     "rsa-sha2-512-cert-v01@openssh.com," \
+    "ssh-ed25519," \
+    "ssh-ed25519-cert-v01@openssh.com," \
+    "sk-ssh-ed25519@openssh.com," \
+    "sk-ssh-ed25519-cert-v01@openssh.com," \
     "ecdsa-sha2-nistp521," \
     "ecdsa-sha2-nistp521-cert-v01@openssh.com," \
     "ecdsa-sha2-nistp384," \
     "ecdsa-sha2-nistp384-cert-v01@openssh.com"
 
 SSH_ARGS_RELAXED_HOST_KEY_ALGORITHMS = \
-    f"{SSH_ARGS_STRICT_HOST_KEY_ALGORITHMS}," \
-    "ssh-ed25519," \
-    "ssh-ed25519-cert-v01@openssh.com," \
-    "sk-ssh-ed25519@openssh.com," \
-    "sk-ssh-ed25519-cert-v01@openssh.com"
+    f"{SSH_ARGS_STRICT_HOST_KEY_ALGORITHMS}"
 
 # Accepted public key types
 SSH_ARGS_STRICT_PUB_KEY_TYPES = \
     "rsa-sha2-512," \
     "rsa-sha2-512-cert-v01@openssh.com," \
+    "ssh-ed25519," \
+    "ssh-ed25519-cert-v01@openssh.com," \
+    "sk-ssh-ed25519@openssh.com," \
+    "sk-ssh-ed25519-cert-v01@openssh.com," \
     "ecdsa-sha2-nistp521," \
     "ecdsa-sha2-nistp521-cert-v01@openssh.com," \
     "ecdsa-sha2-nistp384," \
@@ -173,11 +177,7 @@ SSH_ARGS_STRICT_PUB_KEY_TYPES = \
 SSH_ARGS_RELAXED_PUB_KEY_TYPES = \
     f"{SSH_ARGS_STRICT_PUB_KEY_TYPES}," \
     "rsa-sha2-256," \
-    "rsa-sha2-256-cert-v01@openssh.com," \
-    "ssh-ed25519," \
-    "ssh-ed25519-cert-v01@openssh.com," \
-    "sk-ssh-ed25519@openssh.com," \
-    "sk-ssh-ed25519-cert-v01@openssh.com"
+    "rsa-sha2-256-cert-v01@openssh.com"
 
 # Strict SSH configuration
 SSH_ARGS_STRICT: list[str] = [
@@ -212,7 +212,7 @@ SSH_ARGS_RELAXED: list[str] = [
 ]
 
 SSH_KEYGEN_BIN_PATH = FilePath("/usr/bin/ssh-keygen")
-SSH_KEYGEN_ARGS: list[str] = ["-t", "ecdsa", "-b", "521", "-N", ""]
+SSH_KEYGEN_ARGS: list[str] = ["-t", "ed25519", "-N", ""]
 
 BASH_COMPLETION_DIRNAME = "bash-completion"
 BASH_COMPLETION_BASE_DIR = HOMEDIR.joinpath(f".local/share/{BASH_COMPLETION_DIRNAME}")

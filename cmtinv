@@ -580,10 +580,11 @@ def rebuild_inventory(options: list[tuple[str, str]], args: list[str]) -> int:
             raise ProgrammingError(f"Failed to add {hosts} to group {group}")
 
     # Finally import the hostkey into authorized_keys
+    # Note: We should add a means of customising what keys to add
     pubkey = None
 
     try:
-        tmp = cmtio.secure_read_string(SSH_DIR.joinpath("id_ecdsa.pub"))
+        tmp = cmtio.secure_read_string(SSH_DIR.joinpath("id_ed25519.pub"))
     except FilePathAuditError as e:
         # We cannot import non-existing hostkeys...
         if "SecurityStatus.DOES_NOT_EXIST" in str(e):
@@ -596,7 +597,7 @@ def rebuild_inventory(options: list[tuple[str, str]], args: list[str]) -> int:
     if pubkey is None or not pubkey:
         ansithemeprint([ANSIThemeStr("Error", "error"),
                         ANSIThemeStr(": Failed to read ", "default"),
-                        ANSIThemeStr(f"{HOMEDIR}/.ssh/id_ecdsa.pub", "path"),
+                        ANSIThemeStr(f"{HOMEDIR}/.ssh/id_ed25519.pub", "path"),
                         ANSIThemeStr("; aborting.", "default")], stderr=True)
         sys.exit(errno.ENOENT)
 

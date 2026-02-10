@@ -1454,13 +1454,15 @@ def check_for_ssh_key() -> bool:
 
 def create_ssh_key() -> bool:
     """
-    Create a new ssh key (ECDSA-P521 format).
+    Create a new ssh key (ED25519 format).
+    Note: This function should be modified to allow the user to default to an existing key
+    even if that key isn't in ed25519 format.
 
         Returns:
             retval (bool): True on success, False on failure
     """
-    if not os.path.exists(f"{HOMEDIR}/.ssh/id_ecdsa"):
-        args = [SSH_KEYGEN_BIN_PATH] + SSH_KEYGEN_ARGS + ["-f", f"{SSH_DIR}/id_ecdsa"]
+    if not os.path.exists(f"{HOMEDIR}/.ssh/id_ed25519"):
+        args = [SSH_KEYGEN_BIN_PATH] + SSH_KEYGEN_ARGS + ["-f", f"{SSH_DIR}/id_ed25519"]
         retval = execute_command(args)
     else:
         retval = True

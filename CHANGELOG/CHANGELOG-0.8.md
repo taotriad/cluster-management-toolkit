@@ -105,6 +105,12 @@ to reinstall the cluster from scratch.
 * FilePath().joinpath() now disallows joining paths that starts
   with the path separator; this is necessary because PurePath
   does not handle such paths in a predictable manner.
+* The default SSH key type has been changed from __ECDSA__ to __Ed25519__.
+  We no longer need to bother about FIPS 140-2, nor do we care
+  about backwards compatibility with appliances, etc.
+* This change also adds __Ed25519__ to the strict ssh key set;
+  most security researchers seem to agree that __Ed25519__ is as secure as,
+  and probably more secure than, __ECDSA__.
 
 ### view-file changes
 

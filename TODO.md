@@ -2,24 +2,25 @@
 
 ## Implementation
 
-* From v0.8.7 we will switch to requiring Python 3.11. This will allow
-  us to use the following features added in Python v3.10 and v3.11:
-  * Structural pattern matching.
+* In v0.8.7 we switched to requiring Python 3.11. This allows
+  us to use the structural pattern matching. Since we do a lot of string
+  parsing with many different variants we should really make use of this.
 
 ## General
 
 * listgetters need to support passing both a label selector and a match selector
   in listgetter_args.
-* When running either cmt or cmu, check whether .ssh/id_ecdsa.pub is in authorized_keys.
-  in .cmt/ansible/inventory.yaml; if not, add it.
+* When running either cmt or cmu, check whether `.ssh/id_*.pub` is in authorized_keys.
+  in `.cmt/ansible/inventory.yaml`; if not, add it.
 * Rewrite command_parser to treat options passed before a command as global,
   and to allow options interspersed with arguments.  Perhaps even add short options.
 * Add `--dry-run` support for more commands.
 * Is it possible to rewrite the generator/processor system in a way that processors
   could be completely eliminated?
-* Introduce .kube/current-context and have all clusters in .kube have their own files
+* Introduce `.kube/current-context` and have all clusters in `.kube` have their own files
   (named config-clustername) rather than merging the config-files;
-  or even have them in .kube/config.d/clustername.yaml?
+  or even have them in `.kube/config.d/clustername.yaml`?
+* Add the post-quantum variants of ed25519.
 
 ## curses_helper.py
 
@@ -73,6 +74,7 @@
 * Add an (optional) title for logpads.
 * Make extended facilities non-repeating in the same way that regular facilities are
   (see podlog).
+* get_obj() is a monstrosity and needs to be refactored.
 
 cmtinv:
 
