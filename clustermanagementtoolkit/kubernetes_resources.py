@@ -2778,6 +2778,11 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api_paths": ["apis/eventing.keda.sh/v1alpha1/"],
         "api": "cloudeventsources",
     },
+    ("ClusterCloudEventSource", "eventing.keda.sh"): {
+        "api_paths": ["apis/eventing.keda.sh/v1alpha1/"],
+        "api": "clustercloudeventsources",
+        "namespaced": False,
+    },
     # eventing.knative.dev
     ("Broker", "eventing.knative.dev"): {
         "api_paths": ["apis/eventing.knative.dev/v1/",
