@@ -2674,12 +2674,13 @@ def __task_drain_control_planes(installation_info: dict, **kwargs: Any) -> None:
 
 
 # pylint: disable-next=unused-argument
-def __task_uncordon_control_planes(installation_info: dict, verbose: bool = False) -> None:
+def __task_uncordon_control_planes(installation_info: dict, **kwargs: Any) -> None:
     """
     An installer task that uncordons control planes.
 
         Parameters:
             installation_info (dict): A dict with installation information [unused]
+            **kwargs (dict[str, Any]): Keyword arguments [unused]
     """
     global kh  # pylint: disable=global-statement
 
