@@ -1,0 +1,74 @@
+---
+kind: "LinkMonitor"
+api_family: "network.harvesterhci.io"
+default_command: "linkmonitors"
+listview:
+  name: "Link Monitors"
+  group: "Harvester"
+  field_indexes:
+    Normal:
+      fields: ["name", "age"]
+infoview:
+  name: "Link Monitor Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["target_link_rule_header",
+                 "target_link_rule_name_rule",
+                 "target_link_rule_type_rule"]
+    rows:
+      target_link_rule_header:
+        header: [["Target Link Rule:", ["main", "infoheader"]]]
+      target_link_rule_name_rule:
+        header: [["  Name Rule:", ["main", "infoheader"]]]
+        path: "spec#targetLinkRule#nameRule"
+        default: "<unset>"
+        type: "str"
+      target_link_rule_type_rule:
+        header: [["  Type Rule:", ["main", "infoheader"]]]
+        path: "spec#targetLinkRule#typeRule"
+        default: "<unset>"
+        type: "str"
+  listpad:
+    listgetter: "listgetter_path"
+    listgetter_args:
+      path: "status#linkStatus#harvester"
+    infogetter: "generic_infogetter"
+    field_indexes:
+      Normal:
+        fields: ["index", "name", "mac", "type", "promiscuous", "state"]
+        sortcolumn: "index"
+    fields:
+      index:
+        header: "Index:"
+        path: "index"
+        default: "<none>"
+        type: "str"
+        formatter: "numerical"
+        align: "right"
+      name:
+        header: "Name:"
+        path: "name"
+        default: "<none>"
+        type: "str"
+      mac:
+        header: "MAC Address:"
+        path: "mac"
+        default: "<none>"
+        type: "str"
+        formatter: "address"
+      promiscuous:
+        header: "Promiscuous:"
+        path: "promiscuous"
+        default: "<none>"
+        type: "bool"
+      state:
+        header: "State:"
+        path: "state"
+        default: "<none>"
+        type: "str"
+      type:
+        header: "Type:"
+        path: "type"
+        default: "<none>"
+        type: "str"

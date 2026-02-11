@@ -1,0 +1,13 @@
+---
+kind: "ClusterNetwork"
+api_family: "network.harvesterhci.io"
+default_command: "clusternetworks"
+listview:
+  name: "Cluster Networks"
+  group: "Harvester"
+  field_indexes:
+    Normal:
+      fields: ["name", "age"]
+infoview:
+  name: "Cluster Network Info"
+  infopad:
