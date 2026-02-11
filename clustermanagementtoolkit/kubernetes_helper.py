@@ -1737,6 +1737,9 @@ class KubernetesHelper:
                         if manager == "kubeadm":
                             tmp_k8s_distro = "kubeadm"
                             break
+                        if manager == "vcluster":
+                            tmp_k8s_distro = "vcluster"
+                            break
                 if tmp_k8s_distro is None:
                     # Older versions of Kubernetes doesn't have managedFields;
                     # fall back to checking whether the annotation
