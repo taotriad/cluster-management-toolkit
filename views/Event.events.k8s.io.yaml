@@ -972,6 +972,10 @@ listview:
               field_colors:
                 - context: "main"
                   type: "status_warning"
+            InstallComponentFailed:
+              field_colors:
+                - context: "main"
+                  type: "status_warning"
             InstallerPodFailed:
               field_colors:
                 - context: "main"
@@ -3341,6 +3345,10 @@ infoview:
                   - context: "main"
                     type: "status_warning"
               InstallCheckFailed:
+                field_colors:
+                  - context: "main"
+                    type: "status_warning"
+              InstallComponentFailed:
                 field_colors:
                   - context: "main"
                     type: "status_warning"

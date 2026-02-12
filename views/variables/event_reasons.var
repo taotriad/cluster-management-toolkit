@@ -896,6 +896,10 @@ InstallCheckFailed:
   field_colors:
     - context: "main"
       type: "status_warning"
+InstallComponentFailed:
+  field_colors:
+    - context: "main"
+      type: "status_warning"
 InstallerPodFailed:
   field_colors:
     - context: "main"
