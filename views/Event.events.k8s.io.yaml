@@ -343,6 +343,10 @@ listview:
               field_colors:
                 - context: "main"
                   type: "status_ok"
+            CorruptDockerImage:
+              field_colors:
+                - context: "main"
+                  type: "status_not_ok"
             CrashLoopBackOff:
               field_colors:
                 - context: "main"
@@ -593,6 +597,10 @@ listview:
                 - context: "main"
                   type: "status_warning"
             DNSConfigForming:
+              field_colors:
+                - context: "main"
+                  type: "status_warning"
+            DockerHung:
               field_colors:
                 - context: "main"
                   type: "status_warning"
@@ -860,6 +868,14 @@ listview:
               field_colors:
                 - context: "main"
                   type: "status_ok"
+            FilesystemIsNotReadOnly:
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+            FilesystemIsReadOnly:
+              field_colors:
+                - context: "main"
+                  type: "status_critical"
             FileSystemResizeFailed:
               field_colors:
                 - context: "main"
@@ -1052,6 +1068,10 @@ listview:
               field_colors:
                 - context: "main"
                   type: "status_warning"
+            KernelOops:
+              field_colors:
+                - context: "main"
+                  type: "status_critical"
             KeyPairVerified:
               field_colors:
                 - context: "main"
@@ -1120,6 +1140,10 @@ listview:
               field_colors:
                 - context: "main"
                   type: "status_ok"
+            MemoryReadError:
+              field_colors:
+                - context: "main"
+                  type: "status_not_ok"
             MissingJob:
               field_colors:
                 - context: "main"
@@ -2096,6 +2120,10 @@ listview:
               field_colors:
                 - context: "main"
                   type: "status_done"
+            TaskHung:
+              field_colors:
+                - context: "main"
+                  type: "status_warning"
             TerminationGracefulTerminationFinished:
               field_colors:
                 - context: "main"
@@ -2180,6 +2208,10 @@ listview:
               field_colors:
                 - context: "main"
                   type: "status_unknown"
+            UnregisterNetDevice:
+              field_colors:
+                - context: "main"
+                  type: "status_warning"
             Unschedulable:
               field_colors:
                 - context: "main"
@@ -2719,6 +2751,10 @@ infoview:
                 field_colors:
                   - context: "main"
                     type: "status_ok"
+              CorruptDockerImage:
+                field_colors:
+                  - context: "main"
+                    type: "status_not_ok"
               CrashLoopBackOff:
                 field_colors:
                   - context: "main"
@@ -2969,6 +3005,10 @@ infoview:
                   - context: "main"
                     type: "status_warning"
               DNSConfigForming:
+                field_colors:
+                  - context: "main"
+                    type: "status_warning"
+              DockerHung:
                 field_colors:
                   - context: "main"
                     type: "status_warning"
@@ -3236,6 +3276,14 @@ infoview:
                 field_colors:
                   - context: "main"
                     type: "status_ok"
+              FilesystemIsNotReadOnly:
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+              FilesystemIsReadOnly:
+                field_colors:
+                  - context: "main"
+                    type: "status_critical"
               FileSystemResizeFailed:
                 field_colors:
                   - context: "main"
@@ -3428,6 +3476,10 @@ infoview:
                 field_colors:
                   - context: "main"
                     type: "status_warning"
+              KernelOops:
+                field_colors:
+                  - context: "main"
+                    type: "status_critical"
               KeyPairVerified:
                 field_colors:
                   - context: "main"
@@ -3496,6 +3548,10 @@ infoview:
                 field_colors:
                   - context: "main"
                     type: "status_ok"
+              MemoryReadError:
+                field_colors:
+                  - context: "main"
+                    type: "status_not_ok"
               MissingJob:
                 field_colors:
                   - context: "main"
@@ -4472,6 +4528,10 @@ infoview:
                 field_colors:
                   - context: "main"
                     type: "status_done"
+              TaskHung:
+                field_colors:
+                  - context: "main"
+                    type: "status_warning"
               TerminationGracefulTerminationFinished:
                 field_colors:
                   - context: "main"
@@ -4556,6 +4616,10 @@ infoview:
                 field_colors:
                   - context: "main"
                     type: "status_unknown"
+              UnregisterNetDevice:
+                field_colors:
+                  - context: "main"
+                    type: "status_warning"
               Unschedulable:
                 field_colors:
                   - context: "main"

@@ -267,6 +267,10 @@ Cordon:
   field_colors:
     - context: "main"
       type: "status_ok"
+CorruptDockerImage:
+  field_colors:
+    - context: "main"
+      type: "status_not_ok"
 CrashLoopBackOff:
   field_colors:
     - context: "main"
@@ -517,6 +521,10 @@ DetectedUnhealthy:
     - context: "main"
       type: "status_warning"
 DNSConfigForming:
+  field_colors:
+    - context: "main"
+      type: "status_warning"
+DockerHung:
   field_colors:
     - context: "main"
       type: "status_warning"
@@ -784,6 +792,14 @@ FileChangeWatchdogStarted:
   field_colors:
     - context: "main"
       type: "status_ok"
+FilesystemIsNotReadOnly:
+  field_colors:
+    - context: "main"
+      type: "status_ok"
+FilesystemIsReadOnly:
+  field_colors:
+    - context: "main"
+      type: "status_critical"
 FileSystemResizeFailed:
   field_colors:
     - context: "main"
@@ -976,6 +992,10 @@ KEDAScalerFailed:
   field_colors:
     - context: "main"
       type: "status_warning"
+KernelOops:
+  field_colors:
+    - context: "main"
+      type: "status_critical"
 KeyPairVerified:
   field_colors:
     - context: "main"
@@ -1044,6 +1064,10 @@ MemberRemove:
   field_colors:
     - context: "main"
       type: "status_ok"
+MemoryReadError:
+  field_colors:
+    - context: "main"
+      type: "status_not_ok"
 MissingJob:
   field_colors:
     - context: "main"
@@ -2020,6 +2044,10 @@ TaskCompleted:
   field_colors:
     - context: "main"
       type: "status_done"
+TaskHung:
+  field_colors:
+    - context: "main"
+      type: "status_warning"
 TerminationGracefulTerminationFinished:
   field_colors:
     - context: "main"
@@ -2104,6 +2132,10 @@ Unknown:
   field_colors:
     - context: "main"
       type: "status_unknown"
+UnregisterNetDevice:
+  field_colors:
+    - context: "main"
+      type: "status_warning"
 Unschedulable:
   field_colors:
     - context: "main"
