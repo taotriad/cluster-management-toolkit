@@ -3,9 +3,13 @@
   show_in_selector: false
   matchkeys:
     - image_name: "/sig-storage/csi-attacher"
+    - image_name: "/longhornio/csi-attacher"
     - image_name: "/sig-storage/csi-provisioner"
+    - image_name: "/longhornio/csi-provisioner"
     - image_name: "/sig-storage/csi-resizer"
+    - image_name: "/longhornio/csi-resizer"
     - image_name: "/sig-storage/csi-snapshotter"
+    - image_name: "/longhornio/csi-snapshotter"
   parser_rules:
     - name: "glog"
     - name: "key_value_with_leading_message"
