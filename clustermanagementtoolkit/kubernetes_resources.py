@@ -1255,6 +1255,12 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api_paths": ["apis/operator.cluster.x-k8s.io/v1alpha2/"],
         "api": "runtimeextensionproviders",
     },
+    # readiness.node.x-k8s.io
+    ("NodeReadinessRule", "readiness.node.x-k8s.io"): {
+        "api_paths": ["apis/readiness.node.x-k8s.io/v1alpha1/"],
+        "api": "nodereadinessrules",
+        "namespaced": False,
+    },
     # runtime.cluster.x-k8s.io
     ("ExtensionConfig", "runtime.cluster.x-k8s.io"): {
         "api_paths": ["apis/runtime.cluster.x-k8s.io/v1beta2/",

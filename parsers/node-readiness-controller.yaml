@@ -1,0 +1,8 @@
+---
+- name: "node-readiness-controller"
+  show_in_selector: false
+  matchkeys:
+    - image_name: "/node-readiness-controller/node-readiness-controller"
+  parser_rules:
+    - name: "glog"
+    - name: "tab_separated"
