@@ -1003,6 +1003,10 @@ listview:
               field_colors:
                 - context: "main"
                   type: "status_warning"
+            InvalidConfiguration:
+              field_colors:
+                - context: "main"
+                  type: "status_warning"
             InvalidDiskCapacity:
               field_colors:
                 - context: "main"
@@ -3408,6 +3412,10 @@ infoview:
                   - context: "main"
                     type: "status_pending"
               InternalError:
+                field_colors:
+                  - context: "main"
+                    type: "status_warning"
+              InvalidConfiguration:
                 field_colors:
                   - context: "main"
                     type: "status_warning"

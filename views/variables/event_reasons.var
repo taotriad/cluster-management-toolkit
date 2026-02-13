@@ -932,6 +932,10 @@ InternalError:
   field_colors:
     - context: "main"
       type: "status_warning"
+InvalidConfiguration:
+  field_colors:
+    - context: "main"
+      type: "status_warning"
 InvalidDiskCapacity:
   field_colors:
     - context: "main"
