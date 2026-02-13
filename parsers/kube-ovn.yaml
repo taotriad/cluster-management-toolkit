@@ -36,3 +36,9 @@
         regex: '^(\[\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d.\d\d:\d\d\] )?(.*)'
         message:
           field: 2
+- name: "kube-ovn"
+  show_in_selector: false
+  matchkeys:
+    - image_name: "/rancher/harvester-kubeovn-operator"
+  parser_rules:
+    - name: "json"

@@ -62,6 +62,7 @@
     - name: "glog"
     - name: "key_value_with_leading_message"
     - name: "expand_event"
+    - name: "json"
     - name: "override_severity"
       overrides:
         - matchtype: "startswith"

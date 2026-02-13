@@ -1,0 +1,29 @@
+---
+- name: "harvester"
+  show_in_selector: false
+  matchkeys:
+    - image_name: "/rancher/harvester-cluster-repo"
+  parser_rules:
+    - name: "http"
+- name: "harvester"
+  show_in_selector: false
+  matchkeys:
+    - image_name: "/rancher/harvester-eventrouter"
+  parser_rules:
+    - name: "json"
+- name: "harvester"
+  show_in_selector: false
+  matchkeys:
+    - image_name: "/rancher/harvester-load-balancer"
+    - image_name: "/rancher/harvester:"
+  parser_rules:
+    - name: "glog"
+    - name: "key_value"
+    - name: "override_severity"
+      overrides:
+        - matchtype: "regex"
+          matchkey: "^Starting .+ version "
+          loglevel: "notice"
+        - matchtype: "regex"
+          matchkey: ".+(ontroller|anager) v.+ is starting$"
+          loglevel: "notice"

@@ -1,0 +1,9 @@
+---
+- name: "whereabouts"
+  show_in_selector: false
+  matchkeys:
+    - image_name: "/k8snetworkplumbingwg/whereabouts"
+  parser_rules:
+    - name: "ts_8601"
+    - name: "glog"
+    - name: "bracketed_severity"
