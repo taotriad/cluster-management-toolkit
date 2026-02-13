@@ -3105,6 +3105,12 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api_paths": ["apis/grafana.integreatly.org/v1beta1/"],
         "api": "grafanas",
     },
+    # habanalabs.habana.ai
+    ("ClusterPolicy", "habanalabs.habana.ai"): {
+        "api_paths": ["apis/habanalabs.habana.ai/v1/"],
+        "api": "clusterpolicies",
+        "namespaced": False,
+    },
     # harvesterhci.io
     ("Addon", "harvesterhci.io"): {
         "api_paths": ["apis/harvesterhci.io/v1beta1/"],
@@ -4543,6 +4549,11 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
     ("ServiceL2Status", "metallb.io"): {
         "api_paths": ["apis/metallb.io/v1beta1/"],
         "api": "servicel2statuses",
+    },
+    # migrations.kubevirt.io
+    ("MigController", "migrations.kubevirt.io"): {
+        "api_paths": ["apis/migrations.kubevirt.io/v1alpha1/"],
+        "api": "migcontrollers",
     },
     # migration.harvesterhci.io
     ("OpenstackSource", "migration.harvesterhci.io"): {
