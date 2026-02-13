@@ -51,7 +51,7 @@
         message:
           field: 2
 - name: "fluentd"
-  show_in_selector: true
+  show_in_selector: false
   matchkeys:
     - image_name: "/fluent/fluent-bit"
   parser_rules:
@@ -83,3 +83,37 @@
           transform: "str"
         message:
           field: 3
+- name: "fluentd"
+  show_in_selector: false
+  matchkeys:
+    - image_name: "/rancher/mirrored-kube-logging-fluentd"
+  parser_rules:
+    - name: "custom_splitter"
+      options:
+        regex: '^\d{4}-\d\d-\d\d \d\d:\d\d:\d\d .\d{4} \[([a-z]{4})\]: (.*)'
+        severity:
+          field: 1
+          transform: "4letter"
+        message:
+          field: 2
+    - name: "custom_line"
+      options:
+        block_start:
+          - matchtype: "startswith"
+            matchkey: "using configuration file:"
+            matchline: "any"
+            format_block_start: true
+        block_end:
+          - matchtype: "exact"
+            matchkey: "</ROOT>"
+            matchline: "any"
+            format_block_end: true
+        loglevel: "info"
+    - name: "override_severity"
+      overrides:
+        - matchtype: "regex"
+          matchkey: "gem '.+' version '.+'"
+          loglevel: "notice"
+        - matchtype: "startswith"
+          matchkey: "starting fluentd"
+          loglevel: "notice"
