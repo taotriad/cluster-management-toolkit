@@ -1,0 +1,14 @@
+---
+- name: "metal3"
+  show_in_selector: false
+  matchkeys:
+    - image_name: "/metal3-io/baremetal-operator"
+  parser_rules:
+    - name: "json"
+- name: "metal3"
+  show_in_selector: false
+  matchkeys:
+    - image_name: "/metal3-io/cluster-api-provider-metal3"
+  parser_rules:
+    - name: "glog"
+    - name: "key_value_with_leading_message"
