@@ -2111,17 +2111,34 @@ def listgetter_dict_list(obj: dict[str, Any], **kwargs: Any) -> tuple[list[dict[
     {"key": key_from_dict, "value": value_from_dict}
     This is to ensure that we can get the key without knowing the name of the key.
 
+    If multiple paths are provided they will be merged as {key_name: key_value, "value": value};
+    this form can be used if you have multiple dicts that you want to use as a list.
+
         Parameters:
             obj (dict): The object to convert to a list
+            path (str): The path to get the data from
+            paths (str): The paths to get the data from
         Returns:
             (([dict[str, Any]], int)):
                 ([dict[str, Any]]): The list representation of the dict
                 (int): The status for the request
     """
     path = deep_get(kwargs, DictPath("path"))
+    paths = deep_get(kwargs, DictPath("paths"))
     vlist = []
-    for key, value in deep_get(obj, DictPath(path), {}).items():
-        vlist.append({"key": key, "value": value})
+    if path:
+        for key, value in deep_get(obj, DictPath(path), {}).items():
+            vlist.append({"key": key, "value": value})
+    elif paths:
+        for item in paths:
+            path = deep_get(item, DictPath("path"), "")
+            key_name = deep_get(item, DictPath("key_name"), "key")
+            key_value = deep_get(item, DictPath("key_value"))
+            entry: dict[str, Any] = {
+                key_name: key_value,
+                "value": deep_get(obj, path),
+            }
+            vlist.append(entry)
     return vlist, 200
 
 

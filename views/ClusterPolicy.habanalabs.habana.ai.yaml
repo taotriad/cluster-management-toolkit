@@ -1,0 +1,313 @@
+---
+kind: "ClusterPolicy"
+api_family: "habanalabs.habana.ai"
+default_command: "clusterpolicies.habanalabs"
+command:
+  - "clusterpolicy.habanalabs"
+  - "hlclusterpolicies"
+  - "hlclusterpolicy"
+  - "hlclusterpols"
+  - "hlclusterpol"
+  - "hlclrpols"
+  - "hlclrpol"
+listview:
+  name: "Cluster Policies"
+  group: "Accelerators"
+  field_indexes:
+    Normal:
+      fields: ["name", "age"]
+infoview:
+  name: "Cluster Policy Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["driver_header",
+                 "driver_loader_header",
+                 "driver_loader_external_ports",
+                 "driver_loader_firmware_flush",
+                 "driver_loader_mellanox_ofed_repo_path",
+                 "driver_loader_mellanox_ofed_version",
+                 "driver_loader_images",
+                 "driver_loader_repo_server",
+                 "driver_loader_repo_path",
+                 "driver_runner_image",
+                 "device_plugin_image",
+                 "feature_discovery_header",
+                 "feature_discovery_nfd_plugin",
+                 "feature_discovery_runner_image",
+                 "metric_exporter_header",
+                 "metric_exporter_interval",
+                 "metric_exporter_port",
+                 "metric_exporter_runner_image",
+                 "runtime_header",
+                 "runtime_configuration_header",
+                 "runtime_configuration_container_engine",
+                 "runtime_configuration_engine_container_runtime_configuration",
+                 "runtime_configuration_habana_container_runtime_configuration",
+                 "runtime_runner_image",
+                 "bmc_monitoring_image",
+                 "image_registry"]
+    rows:
+      bmc_monitoring_image:
+        header: [["BMC Monitoring Image:", ["main", "infoheader"]]]
+        paths:
+          - path: [["spec#bmc_monitoring#image#repository"],
+                   ["spec#bmc_monitoring#image#tag"]]
+            pathtype: "tuple"
+            default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "generic"
+            - type: "version"
+          field_separators:
+            - type: "version"
+      device_plugin_image:
+        header: [["Device Plugin Image:", ["main", "infoheader"]]]
+        paths:
+          - path: [["spec#device_plugin#image#repository"],
+                   ["spec#device_plugin#image#tag"]]
+            pathtype: "tuple"
+            default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "generic"
+            - type: "version"
+          field_separators:
+            - type: "version"
+      driver_header:
+        header: [["Driver:", ["main", "infoheader"]]]
+      driver_loader_header:
+        header: [["  Loader:", ["main", "infoheader"]]]
+      driver_loader_external_ports:
+        header: [["    External Ports:", ["main", "infoheader"]]]
+        path: "spec#driver#driver_loader#external_ports"
+        default: "<unset>"
+        type: "bool"
+      driver_loader_firmware_flush:
+        header: [["    Firmware Flush:", ["main", "infoheader"]]]
+        path: "spec#driver#driver_loader#firmware_flush"
+        default: "<unset>"
+        type: "bool"
+      driver_loader_images:
+        header: [["    ", ["main", "infoheader"]],
+                 ["I", ["main", "infoheader_shortcut"]],
+                 ["mages:", ["main", "infoheader"]]]
+        paths:
+          - path: "spec#driver#driver_loader#images"
+            pathtype: "dictkeys"
+            default: ["<none>"]
+        type: "raw"
+        formatter: "list"
+      driver_loader_mellanox_ofed_repo_path:
+        header: [["    Mellanox OFED Repo Path:", ["main", "infoheader"]]]
+        path: "spec#driver#driver_loader#mlnx_ofed_repo_path"
+        default: "<unset>"
+        type: "str"
+      driver_loader_mellanox_ofed_version:
+        header: [["    Mellanox OFED Version:", ["main", "infoheader"]]]
+        path: "spec#driver#driver_loader#mlnx_ofed_version"
+        default: "<unset>"
+        type: "str"
+        formatting:
+          field_colors:
+            - type: "version"
+      driver_loader_repo_path:
+        header: [["    Repo Path:", ["main", "infoheader"]]]
+        path: "spec#driver#driver_loader#repo_path"
+        default: "<unset>"
+        type: "str"
+      driver_loader_repo_server:
+        header: [["    Repo Server:", ["main", "infoheader"]]]
+        path: "spec#driver#driver_loader#repo_server"
+        default: "<unset>"
+        type: "str"
+      driver_runner_image:
+        header: [["  Runner Image:", ["main", "infoheader"]]]
+        paths:
+          - path: [["spec#driver#driver_runner#image#repository"],
+                   ["spec#driver#driver_runner#image#tag"]]
+            pathtype: "tuple"
+            default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "generic"
+            - type: "version"
+          field_separators:
+            - type: "version"
+      feature_discovery_header:
+        header: [["Feature Discovery:", ["main", "infoheader"]]]
+      feature_discovery_nfd_plugin:
+        header: [["  NFD Plugin:", ["main", "infoheader"]]]
+        path: "spec#feature_discovery#nfd_plugin"
+        default: "<unset>"
+        type: "str"
+      feature_discovery_runner_image:
+        header: [["  Runner Image:", ["main", "infoheader"]]]
+        paths:
+          - path: [["spec#feature_discovery#runner#image#repository"],
+                   ["spec#feature_discovery#runner#image#tag"]]
+            pathtype: "tuple"
+            default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "generic"
+            - type: "version"
+          field_separators:
+            - type: "version"
+      image_registry:
+        header: [["Image Registry:", ["main", "infoheader"]]]
+        path: "spec#image_registry"
+        default: "<unset>"
+        type: "str"
+      metric_exporter_header:
+        header: [["Metrics Exporter:", ["main", "infoheader"]]]
+      metric_exporter_interval:
+        header: [["  Interval:", ["main", "infoheader"]]]
+        path: "spec#metric_exporter#interval"
+        default: "<unset>"
+        type: "int"
+        formatter: "numerical"
+        formatting:
+          unit: "s"
+      metric_exporter_port:
+        header: [["  Port:", ["main", "infoheader"]]]
+        path: "spec#metric_exporter#port"
+        default: "<unset>"
+        type: "int"
+        formatting:
+          - type: "port"
+      metric_exporter_runner_image:
+        header: [["  Runner Image:", ["main", "infoheader"]]]
+        paths:
+          - path: [["spec#metric_exporter#runner#image#repository"],
+                   ["spec#metric_exporter#runner#image#tag"]]
+            pathtype: "tuple"
+            default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "generic"
+            - type: "version"
+          field_separators:
+            - type: "version"
+      runtime_configuration_header:
+        header: [["  Configuration:", ["main", "infoheader"]]]
+      runtime_configuration_container_engine:
+        header: [["    Container Engine:", ["main", "infoheader"]]]
+        path: "spec#runtime#configuration#container_engine"
+        default: "<unset>"
+        type: "str"
+      runtime_configuration_engine_container_runtime_configuration:
+        header: [["    Engine Container Runtime Configuration:", ["main", "infoheader"]]]
+        path: "spec#runtime#configuration#engine_container_runtime_configuration"
+        fallback_on_empty: true
+        default: "<empty>"
+        type: "str"
+      runtime_configuration_habana_container_runtime_configuration:
+        header: [["    Habana Container Runtime Configuration:", ["main", "infoheader"]]]
+        path: "spec#runtime#configuration#habana_container_runtime_configuration"
+        fallback_on_empty: true
+        default: "<empty>"
+        type: "str"
+      runtime_header:
+        header: [["Runtime:", ["main", "infoheader"]]]
+      runtime_runner_image:
+        header: [["  Runner Image:", ["main", "infoheader"]]]
+        paths:
+          - path: [["spec#runtime#runner#image#repository"],
+                   ["spec#runtime#runner#image#tag"]]
+            pathtype: "tuple"
+            default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "generic"
+            - type: "version"
+          field_separators:
+            - type: "version"
+  listpad:
+    listgetter: "listgetter_dict_list"
+    listgetter_args:
+      paths:
+        - path: "spec#bmc_monitoring#resources"
+          key_name: "container"
+          key_value: "bmc_monitoring"
+        - path: "spec#device_plugin#resources"
+          key_name: "container"
+          key_value: "device_plugin"
+        - path: "spec#driver#driver_loader#resources"
+          key_name: "container"
+          key_value: "driver_loader"
+        - path: "spec#driver#driver_runner#resources"
+          key_name: "container"
+          key_value: "driver_runner"
+        - path: "spec#feature_discovery#runner#resources"
+          key_name: "container"
+          key_value: "feature_discovery"
+        - path: "spec#metric_exporter#runner#resources"
+          key_name: "container"
+          key_value: "metric_exporter"
+        - path: "spec#runtime#runner#resources"
+          key_name: "container"
+          key_value: "runtime"
+    infogetter: "generic_infogetter"
+    on_activation:
+      call: "resourceinfodispatch_with_lookup"
+      kind: "Node"
+      name_path: "name"
+    field_indexes:
+      Normal:
+        fields: ["container",
+                 "cpu_request", "cpu_limit", "mem_request", "mem_limit"]
+        sortcolumn: "container"
+    fields:
+      container:
+        header: "Container:"
+        path: "container"
+        type: "str"
+      cpu_limit:
+        header: "CPU Limit:"
+        path: "value#limits#cpu"
+        type: "str"
+        formatter: "numerical"
+        align: "right"
+      cpu_request:
+        header: "CPU Request:"
+        path: "value#requests#cpu"
+        type: "str"
+        formatter: "numerical"
+        align: "right"
+      mem_limit:
+        header: "Memory Limit:"
+        path: "value#limits#memory"
+        type: "str"
+        formatter: "numerical"
+        align: "right"
+      mem_request:
+        header: "Memory Request:"
+        path: "value#requests#memory"
+        type: "str"
+        formatter: "numerical"
+        align: "right"
+  shortcuts:
+    "Driver Loader Images":
+      key: "i"
+      modifier: "shift"
+      read_only: true
+      helptext: "Show Driver Loader Images"
+      widget: "windowwidget"
+      title: "Driver Loader Images:"
+      headers: ["Image:", "Repository:", "Tag:"]
+      itemgetter: "get_dict_list"
+      itemgetter_args:
+        path: "spec#driver#driver_loader#images"
+        fields:
+          - "key"
+          - "value#repository"
+          - "value#tag"
+      # This isn't supported for now
+      sortcolumn: "image"
