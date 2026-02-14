@@ -3471,9 +3471,23 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api_paths": ["apis/k8s.ovn.org/v1/"],
         "api": "egressservices",
     },
+    ("NetworkQoS", "k8s.ovn.org"): {
+        "api_paths": ["apis/k8s.ovn.org/v1alpha1/"],
+        "api": "networkqoses",
+    },
+    ("RouteAdvertisements", "k8s.ovn.org"): {
+        "api_paths": ["apis/k8s.ovn.org/v1/"],
+        "api": "routeadvertisements",
+        "namespaced": False,
+    },
     ("UserDefinedNetwork", "k8s.ovn.org"): {
         "api_paths": ["apis/k8s.ovn.org/v1/"],
         "api": "userdefinednetworks",
+    },
+    ("VTEP", "k8s.ovn.org"): {
+        "api_paths": ["apis/k8s.ovn.org/v1/"],
+        "api": "vteps",
+        "namespaced": False,
     },
     # kagent.dev
     ("Agent", "kagent.dev"): {
