@@ -2796,11 +2796,24 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
                       "apis/eventing.knative.dev/v1beta1/"],
         "api": "brokers",
     },
+    ("EventPolicy", "eventing.knative.dev"): {
+        "api_paths": ["apis/eventing.knative.dev/v1alpha1/"],
+        "api": "eventpolicies",
+    },
+    ("EventTransform", "eventing.knative.dev"): {
+        "api_paths": ["apis/eventing.knative.dev/v1alpha1/"],
+        "api": "eventtransforms",
+    },
     ("EventType", "eventing.knative.dev"): {
         "api_paths": ["apis/eventing.knative.dev/v1/",
+                      "apis/eventing.knative.dev/v1beta3/",
                       "apis/eventing.knative.dev/v1beta2/",
                       "apis/eventing.knative.dev/v1beta1/"],
         "api": "eventtypes",
+    },
+    ("RequestReply", "eventing.knative.dev"): {
+        "api_paths": ["apis/eventing.knative.dev/v1alpha1/"],
+        "api": "requestreplies",
     },
     ("Trigger", "eventing.knative.dev"): {
         "api_paths": ["apis/eventing.knative.dev/v1/",
@@ -5756,6 +5769,15 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api": "sharedsecrets",
         "namespaced": False,
     },
+    # sinks.knative.dev
+    ("IntegrationSink", "sinks.knative.dev"): {
+        "api_paths": ["apis/sinks.knative.dev/v1alpha1/"],
+        "api": "integrationsinks",
+    },
+    ("JobSink", "sinks.knative.dev"): {
+        "api_paths": ["apis/sinks.knative.dev/v1alpha1/"],
+        "api": "jobsinks",
+    },
     # slo.koordinator.sh
     ("NodeMetric", "slo.koordinator.sh"): {
         "api_paths": ["apis/slo.koordinator.sh/v1alpha1/"],
@@ -5791,6 +5813,10 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
     ("ContainerSource", "sources.knative.dev"): {
         "api_paths": ["apis/sources.knative.dev/v1/", "apis/sources.knative.dev/v1beta1/"],
         "api": "containersources",
+    },
+    ("IntegrationSource", "sources.knative.dev"): {
+        "api_paths": ["apis/sources.knative.dev/v1alpha1/"],
+        "api": "integrationsources",
     },
     ("PingSource", "sources.knative.dev"): {
         "api_paths": ["apis/sources.knative.dev/v1/", "apis/sources.knative.dev/v1beta1/"],
