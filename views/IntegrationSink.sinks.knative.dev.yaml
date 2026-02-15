@@ -1,0 +1,179 @@
+---
+kind: "IntegrationSink"
+api_family: "sinks.knative.dev"
+default_command: "integrationsinks"
+command:
+  - "intsinks"
+  - "intsink"
+listview:
+  name: "Integration Sinks"
+  group: "Knative"
+  field_indexes:
+    Wide:
+      fields: ["namespace", "name", "address", "ready", "age", "reason"]
+    Normal:
+      fields: ["namespace", "name", "ready", "age", "reason"]
+  fields:
+    ready:
+      header: "Ready:"
+      paths:
+        - path: "status#conditions"
+          pathtype: "items"
+          subpath: "status"
+          when:
+            - key: "type"
+              eq: "Ready"
+      type: "str"
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          mappings:
+            "True":
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+            "False":
+              field_colors:
+                - context: "main"
+                  type: "status_not_ok"
+    reason:
+      header: "Reason:"
+      paths:
+        - path: "status#conditions"
+          pathtype: "items"
+          subpath: "message"
+          when:
+            - key: "type"
+              eq: "Ready"
+      type: "list"
+      formatter: "list"
+    address:
+      header: "Address:"
+      path: "status#address#url"
+      default: "<unset>"
+      type: "str"
+      formatter: "address"
+infoview:
+  name: "Integration Sink Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["log_header",
+                 "log_logger_name",
+                 "log_level",
+                 "log_mask",
+                 "log_multiline",
+                 "log_show_all_properties",
+                 "log_show_body",
+                 "log_show_body_type",
+                 "log_show_cached_streams",
+                 "log_show_exchange_pattern",
+                 "log_show_headers",
+                 "log_show_properties",
+                 "log_show_streams",
+                 "addresses"]
+    rows:
+      addresses:
+        header: [["A", ["main", "infoheader_shortcut"]],
+                 ["ddresses:", ["main", "infoheader"]]]
+        paths:
+          - path: "status#addresses"
+            pathtype: "items"
+            subpaths:
+              - "url"
+            default: ["<unset>"]
+        type: "list"
+        formatter: "address"
+        formatting:
+          ellipsise: 3
+      log_header:
+        header: [["Log:", ["main", "infoheader"]]]
+      log_level:
+        header: [["  Level:", ["main", "infoheader"]]]
+        path: "spec#log#level"
+        type: "str"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              TRACE:
+                field_colors:
+                  - context: "logview"
+                    type: "severity_debug"
+              DEBUG:
+                field_colors:
+                  - context: "logview"
+                    type: "severity_debug"
+              INFO:
+                field_colors:
+                  - context: "logview"
+                    type: "severity_info"
+              WARN:
+                field_colors:
+                  - context: "logview"
+                    type: "severity_warning"
+              ERROR:
+                field_colors:
+                  - context: "logview"
+                    type: "severity_error"
+              OFF:
+                field_colors:
+                  - context: "logview"
+                    type: "severity_debug"
+      log_mask:
+        header: [["  Log Mask:", ["main", "infoheader"]]]
+        path: "spec#log#logMask"
+        type: "bool"
+      log_logger_name:
+        header: [["  Logger Name:", ["main", "infoheader"]]]
+        path: "spec#log#loggerName"
+        type: "str"
+      log_multiline:
+        header: [["  Multi-line:", ["main", "infoheader"]]]
+        path: "spec#log#multiline"
+        type: "bool"
+      log_show_all_properties:
+        header: [["  Show All Properties:", ["main", "infoheader"]]]
+        path: "spec#log#showAllProperties"
+        type: "bool"
+      log_show_body:
+        header: [["  Show Body:", ["main", "infoheader"]]]
+        path: "spec#log#showBody"
+        type: "bool"
+      log_show_body_type:
+        header: [["  Show Body Type:", ["main", "infoheader"]]]
+        path: "spec#log#showBodyType"
+        type: "bool"
+      log_show_cached_streams:
+        header: [["  Show Cached Streams:", ["main", "infoheader"]]]
+        path: "spec#log#showCachedStreams"
+        type: "bool"
+      log_show_exchange_pattern:
+        header: [["  Show Exchange Pattern:", ["main", "infoheader"]]]
+        path: "spec#log#showExchangePattern"
+        type: "bool"
+      log_show_headers:
+        header: [["  Show Headers:", ["main", "infoheader"]]]
+        path: "spec#log#showHeaders"
+        type: "bool"
+      log_show_properties:
+        header: [["  Show Properties:", ["main", "infoheader"]]]
+        path: "spec#log#showProperties"
+        type: "bool"
+      log_show_streams:
+        header: [["  Show Streams:", ["main", "infoheader"]]]
+        path: "spec#log#showStreams"
+        type: "bool"
+  shortcuts:
+    "Addresses":
+      key: "a"
+      modifier: "shift"
+      read_only: true
+      helptext: "List addresses"
+      widget: "windowwidget"
+      title: "Addresses:"
+      itemgetter: "get_list_fields"
+      itemgetter_args:
+        path: "status#addresses"
+        fields:
+          - "url"

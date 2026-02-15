@@ -1,0 +1,245 @@
+---
+kind: "JobSink"
+api_family: "sinks.knative.dev"
+default_command: "jobsinks"
+listview:
+  name: "Job Sinks"
+  group: "Knative"
+  field_indexes:
+    Wide:
+      fields: ["namespace", "name", "address", "ready", "age", "reason"]
+    Normal:
+      fields: ["namespace", "name", "ready", "age", "reason"]
+  fields:
+    ready:
+      header: "Ready:"
+      paths:
+        - path: "status#conditions"
+          pathtype: "items"
+          subpath: "status"
+          when:
+            - key: "type"
+              eq: "Ready"
+      type: "str"
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          mappings:
+            "True":
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+            "False":
+              field_colors:
+                - context: "main"
+                  type: "status_not_ok"
+    reason:
+      header: "Reason:"
+      paths:
+        - path: "status#conditions"
+          pathtype: "items"
+          subpath: "message"
+          when:
+            - key: "type"
+              eq: "Ready"
+      type: "list"
+      formatter: "list"
+    address:
+      header: "Address:"
+      path: "status#address#url"
+      default: "<unset>"
+      type: "str"
+      formatter: "address"
+infoview:
+  name: "Job Sink Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["address", "job_selector"]
+    rows:
+      address:
+        header: [["Address:", ["main", "infoheader"]]]
+        path: "status#address#url"
+        type: "str"
+      job_selector:
+        header: [["Job Selector:", ["main", "infoheader"]]]
+        path: "status#job#selector"
+        type: "str"
+  listpad:
+    listgetter: "generic_listgetter"
+    listgetter_args:
+      _kind: "Job"
+      _api_family: "batch"
+      _label_selector_path: "status#job#selector"
+      _none_on_empty_selector: true
+    infogetter: "generic_infogetter"
+    on_activation:
+      call: "resourceinfodispatch"
+      kind: "Job"
+      api_family: "batch"
+    field_indexes:
+      Wide:
+        fields: ["namespace", "name", "controller", "completions", "duration",
+                 "state", "age", "completion_time_with_age", "completion_mode",
+                 "suspended", "containers_template"]
+        sortcolumn: "state"
+      Normal:
+        fields: ["namespace", "name", "controller", "completions", "duration",
+                 "state", "age", "completion_time", "completion_mode",
+                 "containers_template"]
+        sortcolumn: "state"
+    fields:
+      completion_mode:
+        header: "Completion Mode:"
+        path: "spec#completionMode"
+        type: "str"
+        default: "NonIndexed"
+      completions:
+        header: "Completions:"
+        paths:
+          - path: [["status#succeeded"], ["spec#completions"]]
+            pathtype: "tuple"
+            default: [0, 0]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "numerical"
+            - type: "numerical"
+          field_separators:
+            - type: "fraction"
+        align: "right"
+      completion_time:
+        header: "Completion Time:"
+        path: "status#completionTime"
+        type: "timestamp"
+        formatter: "timestamp"
+      completion_time_with_age:
+        header: "Completion Time:"
+        paths:
+          - paths: [["status#startTime"], " (", "Duration: ",
+                    ["status#completionTime"], ")"]
+            pathtype: "timestamp_with_age"
+        formatter: "timestamp_with_age"
+        formatting:
+          field_colors:
+            # This is a meta-type, indicating where the timestamp goes
+            - type: "timestamp"
+            - type: "generic"
+            - type: "generic"
+            # This is a meta-type, indicating where the age goes
+            - type: "age"
+            - type: "generic"
+      containers_template:
+        header: "Containers:"
+        paths:
+          - paths:
+              - "spec#template#spec#initContainers"
+              - "spec#template#spec#containers"
+            pathtype: "items"
+            subpaths:
+              - "name"
+              - subpath: "image"
+            type: "raw"
+        formatter: "list"
+      controller:
+        header: "Controller:"
+        paths:
+          - path: "metadata#ownerReferences"
+            pathtype: "items"
+            subpaths:
+              - "kind"
+              - "apiVersion"
+              - "name"
+            when:
+              - key: "controller"
+                eq: true
+            type: ["kind", "api_group", "name"]
+        default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "kind"
+            - type: "api_group"
+            - type: "generic"
+          field_separators:
+            - type: "kind_api_group"
+            - type: "kind"
+      duration:
+        header: "Duration:"
+        paths:
+          - paths: [["status#startTime"], ["status#completionTime"]]
+            pathtype: "timediff"
+        default: 0
+        formatter: "age"
+        align: "right"
+      state:
+        header: "State:"
+        paths:
+          - path: "status"
+            pathtype: "substitution"
+            subpath: "active"
+            when:
+              - key: "active"
+                notnone: true
+              - key: "active"
+                gt: 0
+            substitute: "Running"
+          - path: "status#conditions"
+            pathtype: "items"
+            subpath: "reason"
+            when:
+              - key: "type"
+                eq: "Failed"
+              - key: "status"
+                eq: "True"
+          - path: "status#conditions"
+            pathtype: "substitution"
+            subpath: "type"
+            when:
+              - key: "status"
+                eq: "True"
+              - key: "type"
+                eq: "Complete"
+            substitute: "Completed"
+        default: "<unset>"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              Active:
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+              Completed:
+                field_colors:
+                  - context: "main"
+                    type: "status_done"
+              Running:
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+              "<unset>":
+                field_colors:
+                  - context: "types"
+                    type: "unset"
+              __default:
+                field_colors:
+                  - context: "main"
+                    type: "status_not_ok"
+      suspended:
+        header: "Suspended:"
+        path: "spec#suspend"
+        default: "<unset>"
+        type: "bool"
+  shortcuts:
+    "Job template":
+      key: "t"
+      modifier: "shift"
+      read_only: true
+      helptext: "Show Job template"
+      action: "call"
+      action_call: "view_yaml"
+      action_args:
+        title: "Job template"
+        _pass_obj: true
+        path: "spec#job"
