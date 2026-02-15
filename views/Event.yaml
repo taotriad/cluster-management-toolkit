@@ -999,6 +999,10 @@ listview:
               field_colors:
                 - context: "main"
                   type: "status_pending"
+            IntegrationSinkReconciled:
+              field_colors:
+                - context: "main"
+                  type: "status_done"
             InternalError:
               field_colors:
                 - context: "main"
@@ -3411,6 +3415,10 @@ infoview:
                 field_colors:
                   - context: "main"
                     type: "status_pending"
+              IntegrationSinkReconciled:
+                field_colors:
+                  - context: "main"
+                    type: "status_done"
               InternalError:
                 field_colors:
                   - context: "main"
