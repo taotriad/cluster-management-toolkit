@@ -49,6 +49,10 @@ listview:
               field_colors:
                 - context: "main"
                   type: "status_not_ok"
+            Unknown:
+              field_colors:
+                - context: "main"
+                  type: "status_unknown"
     reason:
       header: "Reason:"
       paths:
@@ -81,7 +85,7 @@ infoview:
     row_indexes:
       Normal:
         fields: ["url", "latest_created_revision",
-                 "latest_ready_revision", "ready"]
+                 "latest_ready_revision", "ready", "reason"]
     rows:
       latest_created_revision:
         header: [["Latest Crea", ["main", "infoheader"]],
@@ -117,6 +121,21 @@ infoview:
                 field_colors:
                   - context: "main"
                     type: "status_not_ok"
+              Unknown:
+                field_colors:
+                  - context: "main"
+                    type: "status_unknown"
+      reason:
+        header: [["Reason:", ["main", "infoheader"]]]
+        paths:
+          - path: "status#conditions"
+            pathtype: "items"
+            subpath: "message"
+            when:
+              - key: "type"
+                eq: "Ready"
+        type: "list"
+        formatter: "list"
       url:
         header: [["URL:", ["main", "infoheader"]]]
         path: "status#address#url"

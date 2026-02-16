@@ -1,28 +1,20 @@
 ---
-kind: "Trigger"
-api_family: "eventing.knative.dev"
-default_command: "triggers"
+kind: "PingSource"
+api_family: "sources.knative.dev"
+default_command: "pingsources"
+command:
+  - "pingsrcs"
+  - "pingsrc"
 listview:
-  name: "Triggers"
+  name: "Ping Sources"
   group: "Knative"
   field_indexes:
     Wide:
-      fields: ["namespace", "name", "broker", "subscriber_uri", "ready",
-               "age", "reason"]
+      fields: ["namespace", "name", "sink_uri", "schedule", "ready", "age",
+               "reason"]
     Normal:
-      fields: ["namespace", "name", "broker", "ready", "age", "reason"]
+      fields: ["namespace", "name", "schedule", "ready", "age", "reason"]
   fields:
-    subscriber_uri:
-      header: "Subscriber URI:"
-      path: "status#subscriberUri"
-      default: "<unset>"
-      type: "str"
-      formatter: "address"
-    broker:
-      header: "Broker:"
-      path: "spec#broker"
-      default: "<unset>"
-      type: "str"
     ready:
       header: "Ready:"
       paths:
@@ -32,7 +24,6 @@ listview:
           when:
             - key: "type"
               eq: "Ready"
-      default: "<unknown>"
       type: "str"
       formatter: "value_mapper"
       formatting:
@@ -43,10 +34,6 @@ listview:
                 - context: "main"
                   type: "status_ok"
             "False":
-              field_colors:
-                - context: "main"
-                  type: "status_not_ok"
-            "<unknown>":
               field_colors:
                 - context: "main"
                   type: "status_not_ok"
@@ -61,31 +48,33 @@ listview:
               eq: "Ready"
       type: "list"
       formatter: "list"
+    schedule:
+      header: "Schedule:"
+      path: "spec#schedule"
+      default: "<unset>"
+      type: "str"
+    sink_uri:
+      header: "Sink URI:"
+      path: "status#sinkUri"
+      default: "<unset>"
+      type: "str"
 infoview:
-  name: "Trigger Info"
+  name: "Ping Source Info"
   infopad:
     row_indexes:
       Normal:
-        fields: ["broker",
-                 "dead_letter_sink_uri",
-                 "subscriber_header",
-                 "subscriber_subscriber",
-                 "subscriber_uri",
-                 "ready", "reason"]
+        fields: ["sink_header",
+                 "sink_sink",
+                 "sink_uri",
+                 "schedule",
+                 "ready",
+                 "reason"]
     rows:
-      broker:
-        header: [["Br", ["main", "infoheader"]],
-                 ["o", ["main", "infoheader_shortcut"]],
-                 ["ker:", ["main", "infoheader"]]]
-        path: "spec#broker"
+      content_type:
+        header: [["Content Type:", ["main", "infoheader"]]]
+        path: "spec#contentType"
         default: "<unset>"
         type: "str"
-      dead_letter_sink_uri:
-        header: [["Dead Letter Sink URI:", ["main", "infoheader"]]]
-        path: "status#deadLetterSinkUri"
-        default: "<unset>"
-        type: "str"
-        formatter: "address"
       ready:
         header: [["Ready:", ["main", "infoheader"]]]
         paths:
@@ -119,17 +108,22 @@ infoview:
                 eq: "Ready"
         type: "list"
         formatter: "list"
-      subscriber_header:
-        header: [["Subscriber:", ["main", "infoheader"]]]
-      subscriber_subscriber:
+      schedule:
+        header: [["Schedule:", ["main", "infoheader"]]]
+        path: "spec#schedule"
+        default: "<unset>"
+        type: "str"
+      sink_header:
+        header: [["Sink:", ["main", "infoheader"]]]
+      sink_sink:
         header: [["  ", ["main", "infoheader"]],
                  ["S", ["main", "infoheader_shortcut"]],
-                 ["ubscriber:", ["main", "infoheader"]]]
+                 ["ink:", ["main", "infoheader"]]]
         paths:
-          - path: [["spec#subscriber#ref#kind"],
-                   ["spec#subscriber#ref#apiVersion"],
-                   ["spec#subscriber#ref#namespace"],
-                   ["spec#subscriber#ref#name"]]
+          - path: [["spec#sink#ref#kind"],
+                   ["spec#sink#ref#apiVersion"],
+                   ["metadata#namespace"],
+                   ["spec#sink#ref#name"]]
             pathtype: "tuple"
             type: ["kind", "api_group", "name", "name"]
         default: "<none>"
@@ -144,35 +138,43 @@ infoview:
             - type: "kind_api_group"
             - type: "kind"
             - type: "namespace"
-      subscriber_uri:
-        header: [["  Subscriber URI:", ["main", "infoheader"]]]
-        path: "status#subscriberURI"
+      sink_uri:
+        header: [["  URI:", ["main", "infoheader"]]]
+        path: "status#sinkUri"
         default: "<unset>"
         type: "str"
         formatter: "address"
+  logpad:
+    infogetter: "logpad_formatted"
+    infogetter_args:
+      formatter: "format_yaml"
+      path: "spec#data"
+    timestamps: false
   shortcuts:
-    "Open Broker":
-      key: "o"
-      read_only: true
-      helptext: "Open Broker"
-      action: "call"
-      action_call: "resourceinfodispatch_with_lookup"
-      action_args:
-        _pass_obj: true
-        kind: "Broker"
-        api_version: "eventing.knative.dev"
-        namespace_path: "metadata#namespace"
-        name_path: "spec#broker"
-    "Open dead letter Sink":
+    "Open Sink":
       key: "s"
       modifier: "shift"
       read_only: true
-      helptext: "Open subscriber"
+      helptext: "Open Sink"
       action: "call"
       action_call: "resourceinfodispatch_with_lookup"
       action_args:
         _pass_obj: true
-        kind_path: "spec#subscriber#ref#kind"
-        api_version_path: "spec#subscriber#ref#apiVersion"
-        namespace_path: "spec#subscriber#ref#namespace"
-        name_path: "spec#subscriber#ref#name"
+        kind_path: "spec#sink#ref#kind"
+        api_version_path: "spec#sink#ref#apiVersion"
+        namespace_path: "metadata#namespace"
+        name_path: "spec#sink#ref#name"
+    "CE Attributes":
+      key: "c"
+      modifier: "shift"
+      read_only: true
+      helptext: "List CE Attributes"
+      widget: "windowwidget"
+      title: "CE Attributes:"
+      headers: ["Type:", "Source:"]
+      itemgetter: "get_list_fields"
+      itemgetter_args:
+        path: "status#ceAttributes"
+        fields:
+          - "type"
+          - "source"

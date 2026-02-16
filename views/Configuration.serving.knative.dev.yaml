@@ -65,7 +65,7 @@ infoview:
     row_indexes:
       Normal:
         fields: ["controller", "latest_created_revision",
-                 "latest_ready_revision"]
+                 "latest_ready_revision", "ready", "reason"]
     rows:
       controller:
         header: [["C", ["main", "infoheader_shortcut"]],
@@ -103,6 +103,39 @@ infoview:
                  ["eady Revision:", ["main", "infoheader"]]]
         path: "status#latestReadyRevisionName"
         type: "str"
+      ready:
+        header: [["Ready:", ["main", "infoheader"]]]
+        paths:
+          - path: "status#conditions"
+            pathtype: "items"
+            subpath: "status"
+            when:
+              - key: "type"
+                eq: "Ready"
+        type: "str"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              "True":
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+              "False":
+                field_colors:
+                  - context: "main"
+                    type: "status_not_ok"
+      reason:
+        header: [["Reason:", ["main", "infoheader"]]]
+        paths:
+          - path: "status#conditions"
+            pathtype: "items"
+            subpath: "message"
+            when:
+              - key: "type"
+                eq: "Ready"
+        type: "list"
+        formatter: "list"
   shortcuts:
     "Open controller":
       key: "c"

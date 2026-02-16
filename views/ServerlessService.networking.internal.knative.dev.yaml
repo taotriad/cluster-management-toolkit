@@ -70,7 +70,7 @@ infoview:
       Normal:
         fields: ["controller", "object_ref", "service",
                  "private_service", "protocol_type", "mode",
-                 "number_of_activators"]
+                 "number_of_activators", "ready", "reason"]
     rows:
       controller:
         header: [["C", ["main", "infoheader_shortcut"]],
@@ -132,6 +132,39 @@ infoview:
         header: [["Protocol Type:", ["main", "infoheader"]]]
         path: "spec#protocolType"
         type: "str"
+      ready:
+        header: [["Ready:", ["main", "infoheader"]]]
+        paths:
+          - path: "status#conditions"
+            pathtype: "items"
+            subpath: "status"
+            when:
+              - key: "type"
+                eq: "Ready"
+        type: "str"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              "True":
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+              "False":
+                field_colors:
+                  - context: "main"
+                    type: "status_not_ok"
+      reason:
+        header: [["Reason:", ["main", "infoheader"]]]
+        paths:
+          - path: "status#conditions"
+            pathtype: "items"
+            subpath: "message"
+            when:
+              - key: "type"
+                eq: "Ready"
+        type: "list"
+        formatter: "list"
       service:
         header: [["S", ["main", "infoheader_shortcut"]],
                  ["ervice:", ["main", "infoheader"]]]

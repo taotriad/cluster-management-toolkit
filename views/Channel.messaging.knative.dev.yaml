@@ -1,14 +1,25 @@
 ---
-kind: "Subscription"
+kind: "Channel"
 api_family: "messaging.knative.dev"
-default_command: "subscriptions"
+default_command: "channels"
+command:
+  - "channels"
+  - "channel"
 listview:
-  name: "Subscriptions"
+  name: "Channels"
   group: "Knative"
   field_indexes:
+    Wide:
+      fields: ["namespace", "name", "address", "ready", "age", "reason"]
     Normal:
       fields: ["namespace", "name", "ready", "age", "reason"]
   fields:
+    address:
+      header: "Address:"
+      path: "status#address#url"
+      default: "<unset>"
+      type: "str"
+      formatter: "address"
     ready:
       header: "Ready:"
       paths:
@@ -43,33 +54,39 @@ listview:
       type: "list"
       formatter: "list"
 infoview:
-  name: "Subscription Info"
+  name: "Channel Info"
   infopad:
     row_indexes:
       Normal:
-        fields: ["controller",
-                 "channel",
+        fields: ["address",
+                 "channel_header",
+                 "channel_template",
+                 "channel_channel",
                  "delivery_header",
                  "delivery_backoff_delay",
                  "delivery_backoff_policy",
                  "delivery_dead_letter_sink",
                  "delivery_dead_letter_sink_uri",
                  "delivery_reset",
-                 "reply_header",
-                 "reply_reply",
-                 "reply_uri",
-                 "subscriber_uri",
-                 "ready", "reason"]
+                 ]
     rows:
-      channel:
-        header: [["C", ["main", "infoheader"]],
+      address:
+        header: [["Address:", ["main", "infoheader"]]]
+        path: "status#address#url"
+        default: "<unset>"
+        type: "str"
+        formatter: "address"
+      channel_header:
+        header: [["Channel:", ["main", "infoheader"]]]
+      channel_channel:
+        header: [["  C", ["main", "infoheader"]],
                  ["h", ["main", "infoheader_shortcut"]],
                  ["annel:", ["main", "infoheader"]]]
         paths:
-          - path: [["spec#channel#kind"],
-                   ["spec#channel#apiVersion"],
-                   ["metadata#namespace"],
-                   ["spec#channel#name"]]
+          - path: [["status#channel#kind"],
+                   ["status#channel#apiVersion"],
+                   ["status#channel#namespace"],
+                   ["status#channel#name"]]
             pathtype: "tuple"
             type: ["kind", "api_group", "name", "name"]
         default: "<none>"
@@ -84,30 +101,23 @@ infoview:
             - type: "kind_api_group"
             - type: "kind"
             - type: "namespace"
-      controller:
-        header: [["C", ["main", "infoheader_shortcut"]],
-                 ["ontroller:", ["main", "infoheader"]]]
+      channel_template:
+        header: [["  ", ["main", "infoheader"]],
+                 ["T", ["main", "infoheader_shortcut"]],
+                 ["emplate:", ["main", "infoheader"]]]
         paths:
-          - path: "metadata#ownerReferences"
-            pathtype: "items"
-            subpaths:
-              - "kind"
-              - "apiVersion"
-              - "name"
-            when:
-              - key: "controller"
-                eq: true
-            type: ["kind", "api_group", "name"]
-        default: "<none>"
+          - path: [["spec#channelTemplate#kind"],
+                   ["spec#channelTemplate#apiVersion"]]
+            pathtype: "tuple"
+            default: ["<none>"]
+            type: ["kind", "api_group"]
         formatter: "list"
         formatting:
           field_colors:
             - type: "kind"
             - type: "api_group"
-            - type: "generic"
           field_separators:
             - type: "kind_api_group"
-            - type: "kind"
       delivery_dead_letter_sink:
         header: [["  ", ["main", "infoheader"]],
                  ["D", ["main", "infoheader_shortcut"]],
@@ -155,40 +165,34 @@ infoview:
         default: "<unset>"
         type: "int"
         formatter: "numerical"
-      reply_header:
-        header: [["Reply:", ["main", "infoheader"]]]
-      reply_reply:
-        header: [["  ", ["main", "infoheader"]],
-                 ["R", ["main", "infoheader_shortcut"]],
-                 ["eply:", ["main", "infoheader"]]]
-        paths:
-          - path: [["spec#reply#ref#kind"],
-                   ["spec#reply#ref#apiVersion"],
-                   ["spec#reply#ref#namespace"],
-                   ["spec#reply#ref#name"]]
-            pathtype: "tuple"
-            type: ["kind", "api_group", "name", "name"]
-        default: "<none>"
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "kind"
-            - type: "api_group"
-            - type: "namespace"
-            - type: "generic"
-          field_separators:
-            - type: "kind_api_group"
-            - type: "kind"
-            - type: "namespace"
+  listpad:
+    on_activation:
+      call: "resourceinfodispatch"
+      kind: "__SubscriberData"
+      api_family: "messaging.knative.dev"
+    listgetter: "listgetter_path"
+    listgetter_args:
+      join_key: "uid"
+      paths:
+       - path: "spec#subscribers"
+         type: "list"
+       - path: "status#subscribers"
+         type: "list"
+    infogetter: "generic_infogetter"
+    field_indexes:
+      Normal:
+        fields: ["name", "ready"]
+        sortcolumn: "name"
+    fields:
+      name:
+        header: "Name:"
+        path: "name"
+        default: "<unset>"
+        type: "str"
       ready:
-        header: [["Ready:", ["main", "infoheader"]]]
-        paths:
-          - path: "status#conditions"
-            pathtype: "items"
-            subpath: "status"
-            when:
-              - key: "type"
-                eq: "Ready"
+        header: "Ready:"
+        path: "ready"
+        default: "<unset>"
         type: "str"
         formatter: "value_mapper"
         formatting:
@@ -201,33 +205,7 @@ infoview:
               "False":
                 field_colors:
                   - context: "main"
-                    type: "status_not_ok"
-      reason:
-        header: [["Reason:", ["main", "infoheader"]]]
-        paths:
-          - path: "status#conditions"
-            pathtype: "items"
-            subpath: "message"
-            when:
-              - key: "type"
-                eq: "Ready"
-        type: "list"
-        formatter: "list"
-      reply_uri:
-        header: [["  Reply URI:", ["main", "infoheader"]]]
-        path: "status#physicalSubscription#replyUri"
-        default: "<unset>"
-        type: "str"
-        formatter: "address"
-      subscriber_uri:
-        header: [["Subscriber URI:", ["main", "infoheader"]]]
-        paths:
-          - path: ["status#physicalSubscription#subscriberUri",
-                   "spec#subscriber#uri"]
-            pathtype: "value"
-            default: ["<unset>"]
-        type: "list"
-        formatter: "address"
+                    type: "status_pending"
   shortcuts:
     "Open channel":
       key: "h"
@@ -237,21 +215,10 @@ infoview:
       action_call: "resourceinfodispatch_with_lookup"
       action_args:
         _pass_obj: true
-        kind_path: "spec#channel#kind"
-        api_version_path: "spec#channel#apiVersion"
-        namespace_path: "metadata#namespace"
-        name_path: "spec#channel#name"
-    "Open controller":
-      key: "c"
-      modifier: "shift"
-      read_only: true
-      helptext: "Open info page for controller"
-      action: "call"
-      action_call: "resourceinfodispatch_with_lookup"
-      action_args:
-        _pass_obj: true
-        namespace_path: "metadata#namespace"
-        owner_reference_path: "metadata#ownerReferences"
+        kind_path: "status#channel#kind"
+        api_version_path: "status#channel#apiVersion"
+        namespace_path: "status#channel#namespace"
+        name_path: "status#channel#name"
     "Open dead letter Sink":
       key: "d"
       modifier: "shift"
@@ -265,16 +232,16 @@ infoview:
         api_version_path: "spec#delivery#deadLetterSink#ref#apiVersion"
         namespace_path: "spec#delivery#deadLetterSink#ref#namespace"
         name_path: "spec#delivery#deadLetterSink#ref#name"
-    "Open reply":
-      key: "r"
+    "View Channel Template":
+      key: "t"
       modifier: "shift"
       read_only: true
-      helptext: "Open info page for reply"
+      helptext: "Show Channel Template"
       action: "call"
-      action_call: "resourceinfodispatch_with_lookup"
+      action_call: "view_yaml"
       action_args:
+        title: "Channel Template"
+        _named_title: true
         _pass_obj: true
-        kind_path: "spec#reply#ref#kind"
-        api_version_path: "spec#reply#ref#apiVersion"
-        namespace_path: "spec#reply#ref#namespace"
-        name_path: "spec#reply#ref#name"
+        path: "spec#channelTemplate#spec"
+        include_root: true

@@ -17,6 +17,8 @@
       container_name: "autoscaler"
     - image_regex: '^.*knative.*serving.*'
       container_name: "activator"
+    - image_regex: '^.*knative.*serving.*'
+      container_name: "cleanup"
   parser_rules:
     - name: "glog"
     - name: "ts_8601"

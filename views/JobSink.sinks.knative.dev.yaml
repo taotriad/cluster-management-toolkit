@@ -55,7 +55,7 @@ infoview:
   infopad:
     row_indexes:
       Normal:
-        fields: ["address", "job_selector"]
+        fields: ["address", "job_selector", "ready", "reason"]
     rows:
       address:
         header: [["Address:", ["main", "infoheader"]]]
@@ -68,6 +68,39 @@ infoview:
         path: "status#job#selector"
         default: "<none>"
         type: "str"
+      ready:
+        header: [["Ready:", ["main", "infoheader"]]]
+        paths:
+          - path: "status#conditions"
+            pathtype: "items"
+            subpath: "status"
+            when:
+              - key: "type"
+                eq: "Ready"
+        type: "str"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              "True":
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+              "False":
+                field_colors:
+                  - context: "main"
+                    type: "status_not_ok"
+      reason:
+        header: [["Reason:", ["main", "infoheader"]]]
+        paths:
+          - path: "status#conditions"
+            pathtype: "items"
+            subpath: "message"
+            when:
+              - key: "type"
+                eq: "Ready"
+        type: "list"
+        formatter: "list"
   listpad:
     listgetter: "generic_listgetter"
     listgetter_args:

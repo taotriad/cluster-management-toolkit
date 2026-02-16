@@ -2,7 +2,8 @@
 - name: "knative"
   show_in_selector: false
   matchkeys:
-    - image_name: "/knative-releases/log-sink"
+    - image_regex: ".*knative.*log-sink"
+      container_name: "sink"
   parser_rules:
     - name: "custom_splitter"
       options:
@@ -44,3 +45,10 @@
         - matchtype: "regex"
           matchkey: ".*log-sink .+on JVM"
           loglevel: "notice"
+- name: "knative"
+  show_in_selector: false
+  matchkeys:
+    - image_regex: '.*knative.*'
+      container_name: "migrate"
+  parser_rules:
+    - name: "json"

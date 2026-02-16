@@ -1,0 +1,270 @@
+---
+kind: "Sequence"
+api_family: "flows.knative.dev"
+default_command: "sequences"
+listview:
+  name: "Sequences"
+  group: "Knative"
+  field_indexes:
+    Wide:
+      fields: ["namespace", "name", "address", "ready", "age", "reason"]
+    Normal:
+      fields: ["namespace", "name", "ready", "age", "reason"]
+  fields:
+    address:
+      header: "Address:"
+      path: "status#address#url"
+      default: "<unset>"
+      type: "str"
+      formatter: "address"
+    ready:
+      header: "Ready:"
+      paths:
+        - path: "status#conditions"
+          pathtype: "items"
+          subpath: "status"
+          when:
+            - key: "type"
+              eq: "Ready"
+      type: "str"
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          mappings:
+            "True":
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+            "False":
+              field_colors:
+                - context: "main"
+                  type: "status_not_ok"
+    reason:
+      header: "Reason:"
+      paths:
+        - path: "status#conditions"
+          pathtype: "items"
+          subpath: "message"
+          when:
+            - key: "type"
+              eq: "Ready"
+      type: "list"
+      formatter: "list"
+infoview:
+  name: "Sequence Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["address", "channel_template", "reply", "ready", "reason"]
+    rows:
+      address:
+        header: [["Address:", ["main", "infoheader"]]]
+        path: "status#address#url"
+        default: "<unset>"
+        type: "str"
+        formatter: "address"
+      channel_template:
+        header: [["Channel ", ["main", "infoheader"]],
+                 ["T", ["main", "infoheader_shortcut"]],
+                 ["emplate:", ["main", "infoheader"]]]
+        paths:
+          - path: [["spec#channelTemplate#kind"],
+                   ["spec#channelTemplate#apiVersion"]]
+            pathtype: "tuple"
+            default: ["<none>"]
+            type: ["kind", "api_group"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "kind"
+            - type: "api_group"
+          field_separators:
+            - type: "kind_api_group"
+      delivery_dead_letter_sink:
+        header: [["  ", ["main", "infoheader"]],
+                 ["D", ["main", "infoheader_shortcut"]],
+                 ["ead Letter Sink:", ["main", "infoheader"]]]
+        paths:
+          - path: [["spec#channel#kind"],
+                   ["spec#channel#apiVersion"],
+                   ["metadata#namespace"],
+                   ["spec#channel#name"]]
+            pathtype: "tuple"
+            type: ["kind", "api_group", "name", "name"]
+        default: "<none>"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "kind"
+            - type: "api_group"
+            - type: "namespace"
+            - type: "generic"
+          field_separators:
+            - type: "kind_api_group"
+            - type: "kind"
+            - type: "namespace"
+      ready:
+        header: [["Ready:", ["main", "infoheader"]]]
+        paths:
+          - path: "status#conditions"
+            pathtype: "items"
+            subpath: "status"
+            when:
+              - key: "type"
+                eq: "Ready"
+        type: "str"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              "True":
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+              "False":
+                field_colors:
+                  - context: "main"
+                    type: "status_not_ok"
+              Unknown:
+                field_colors:
+                  - context: "main"
+                    type: "status_unknown"
+      reason:
+        header: [["Reason:", ["main", "infoheader"]]]
+        paths:
+          - path: "status#conditions"
+            pathtype: "items"
+            subpath: "message"
+            when:
+              - key: "type"
+                eq: "Ready"
+        type: "list"
+        formatter: "list"
+      reply:
+        header: [["R", ["main", "infoheader_shortcut"]],
+                 ["eply:", ["main", "infoheader"]]]
+        paths:
+          - path: [["spec#reply#ref#kind"],
+                   ["spec#reply#ref#apiVersion"],
+                   ["spec#reply#ref#namespace"],
+                   ["spec#reply#ref#name"]]
+            pathtype: "tuple"
+            type: ["kind", "api_group", "name", "name"]
+        default: "<none>"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "kind"
+            - type: "api_group"
+            - type: "namespace"
+            - type: "generic"
+          field_separators:
+            - type: "kind_api_group"
+            - type: "kind"
+            - type: "namespace"
+  listpad:
+    on_activation:
+      call: "resourceinfodispatch_with_lookup"
+      kind_path: "ref#kind"
+      api_version_path: "ref#apiVersion"
+      namespace_path: "ref#namespace"
+      name_path: "ref#name"
+    listgetter: "listgetter_path"
+    listgetter_args:
+      path: "spec#steps"
+    infogetter: "generic_infogetter"
+    field_indexes:
+      Normal:
+        fields: ["kind", "namespace", "name"]
+        sortcolumn: "kind"
+    fields:
+      kind:
+        header: "Kind:"
+        paths:
+          - path: [["ref#kind"], ["ref#apiVersion"]]
+            pathtype: "tuple"
+            type: ["kind", "api_group"]
+            default: ["<unset>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "kind"
+            - type: "api_group"
+          field_separators:
+            - type: "kind_api_group"
+      name:
+        header: "Name:"
+        path: "ref#name"
+        default: "<unset>"
+        type: "str"
+      namespace:
+        header: "Namespace:"
+        path: "ref#namespace"
+        default: "<unset>"
+        type: "str"
+        formatting:
+          field_colors:
+            - type: "namespace"
+  shortcuts:
+    "Open reply":
+      key: "r"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for reply"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind_path: "spec#reply#ref#kind"
+        api_version_path: "spec#reply#ref#apiVersion"
+        namespace_path: "spec#reply#ref#namespace"
+        name_path: "spec#reply#ref#name"
+    "Show Channels":
+      key: "h"
+      read_only: true
+      helptext: "Show Channels"
+      widget: "windowwidget"
+      headers: ["Kind:", "API-version:", "Namespace:", "Name:", "Ready:"]
+      selectable: true
+      itemgetter: "get_list_fields"
+      itemgetter_args:
+        path: "status#channelStatuses"
+        fields:
+          - "channel#kind"
+          - "channel#apiVersion"
+          - "channel#namespace"
+          - "channel#name"
+          - "ready#status"
+      # This isn't supported for now
+      sortcolumn: "namespace"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        kind_path: 0
+        api_version_path: 1
+        namespace_path: 2
+        name_path: 3
+    "Show subscriptions":
+      key: "s"
+      modifier: "shift"
+      read_only: true
+      helptext: "Show Subscriptions"
+      widget: "windowwidget"
+      headers: ["Namespace:", "Name:", "Ready:"]
+      selectable: true
+      itemgetter: "get_list_fields"
+      itemgetter_args:
+        path: "status#subscriptionStatuses"
+        fields:
+          - "subscription#namespace"
+          - "subscription#name"
+          - "ready#status"
+      # This isn't supported for now
+      sortcolumn: "namespace"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        kind: "Subscription"
+        api_family: "messaging.knative.dev"
+        namespace_path: 0
+        name_path: 1

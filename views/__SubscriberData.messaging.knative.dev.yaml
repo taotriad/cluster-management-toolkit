@@ -15,7 +15,7 @@ infoview:
                  "delivery_backoff_policy",
                  "delivery_dead_letter_sink_uri",
                  "delivery_retry",
-                 "ready"]
+                 "ready", "reason"]
     rows:
       delivery_dead_letter_sink_uri:
         header: [["  Dead Letter Sink URI:", ["main", "infoheader"]]]
@@ -58,6 +58,17 @@ infoview:
                 field_colors:
                   - context: "main"
                     type: "status_pending"
+      reason:
+        header: [["Reason:", ["main", "infoheader"]]]
+        paths:
+          - path: "status#conditions"
+            pathtype: "items"
+            subpath: "message"
+            when:
+              - key: "type"
+                eq: "Ready"
+        type: "list"
+        formatter: "list"
       reply_uri:
         header: [["Reply URI:", ["main", "infoheader"]]]
         path: "replyUri"

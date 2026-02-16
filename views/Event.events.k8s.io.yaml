@@ -209,7 +209,7 @@ listview:
             CertificateUpdated:
               field_colors:
                 - context: "main"
-                  type: "status_ok"
+                  type: "status_done"
             # A bit odd reason, but...
             cert-manager.io:
               field_colors:
@@ -294,7 +294,7 @@ listview:
             ConfigMapUpdated:
               field_colors:
                 - context: "main"
-                  type: "status_ok"
+                  type: "status_done"
             ConfigMapUpdateFailed:
               field_colors:
                 - context: "main"
@@ -575,7 +575,7 @@ listview:
             DeploymentUpdated:
               field_colors:
                 - context: "main"
-                  type: "status_ok"
+                  type: "status_done"
             DeploymentUpdateFailed:
               field_colors:
                 - context: "main"
@@ -1195,7 +1195,7 @@ listview:
             NamespaceUpdated:
               field_colors:
                 - context: "main"
-                  type: "status_ok"
+                  type: "status_done"
             NeedsReinstall:
               field_colors:
                 - context: "main"
@@ -1331,7 +1331,7 @@ listview:
             ObserveFeatureFlagsUpdated:
               field_colors:
                 - context: "main"
-                  type: "status_ok"
+                  type: "status_done"
             ObserveIdentityProviders:
               field_colors:
                 - context: "main"
@@ -1359,7 +1359,7 @@ listview:
             ObserveStorageUpdated:
               field_colors:
                 - context: "main"
-                  type: "status_ok"
+                  type: "status_done"
             ObserveTLSSecurityProfile:
               field_colors:
                 - context: "main"
@@ -1476,6 +1476,10 @@ listview:
               field_colors:
                 - context: "main"
                   type: "status_pending"
+            PingSourceDeploymentUpdated:
+              field_colors:
+                - context: "main"
+                  type: "status_done"
             PodBindSuccessful:
               field_colors:
                 - context: "main"
@@ -1667,7 +1671,7 @@ listview:
             ReplicaSetUpdated:
               field_colors:
                 - context: "main"
-                  type: "status_ok"
+                  type: "status_done"
             ReportEtcdMembersErrorUpdatingStatus:
               field_colors:
                 - context: "main"
@@ -1799,7 +1803,7 @@ listview:
             RolloutUpdated:
               field_colors:
                 - context: "main"
-                  type: "status_ok"
+                  type: "status_done"
             RotationError:
               field_colors:
                 - context: "main"
@@ -2191,7 +2195,7 @@ listview:
             TrafficWeightUpdated:
               field_colors:
                 - context: "main"
-                  type: "status_ok"
+                  type: "status_done"
             TriggerAuthenticationAdded:
               field_colors:
                 - context: "main"
@@ -2243,7 +2247,7 @@ listview:
             Updated:
               field_colors:
                 - context: "main"
-                  type: "status_ok"
+                  type: "status_done"
             UpdateDeployment:
               field_colors:
                 - context: "main"
@@ -2625,7 +2629,7 @@ infoview:
               CertificateUpdated:
                 field_colors:
                   - context: "main"
-                    type: "status_ok"
+                    type: "status_done"
               # A bit odd reason, but...
               cert-manager.io:
                 field_colors:
@@ -2710,7 +2714,7 @@ infoview:
               ConfigMapUpdated:
                 field_colors:
                   - context: "main"
-                    type: "status_ok"
+                    type: "status_done"
               ConfigMapUpdateFailed:
                 field_colors:
                   - context: "main"
@@ -2991,7 +2995,7 @@ infoview:
               DeploymentUpdated:
                 field_colors:
                   - context: "main"
-                    type: "status_ok"
+                    type: "status_done"
               DeploymentUpdateFailed:
                 field_colors:
                   - context: "main"
@@ -3611,7 +3615,7 @@ infoview:
               NamespaceUpdated:
                 field_colors:
                   - context: "main"
-                    type: "status_ok"
+                    type: "status_done"
               NeedsReinstall:
                 field_colors:
                   - context: "main"
@@ -3747,7 +3751,7 @@ infoview:
               ObserveFeatureFlagsUpdated:
                 field_colors:
                   - context: "main"
-                    type: "status_ok"
+                    type: "status_done"
               ObserveIdentityProviders:
                 field_colors:
                   - context: "main"
@@ -3775,7 +3779,7 @@ infoview:
               ObserveStorageUpdated:
                 field_colors:
                   - context: "main"
-                    type: "status_ok"
+                    type: "status_done"
               ObserveTLSSecurityProfile:
                 field_colors:
                   - context: "main"
@@ -3892,6 +3896,10 @@ infoview:
                 field_colors:
                   - context: "main"
                     type: "status_pending"
+              PingSourceDeploymentUpdated:
+                field_colors:
+                  - context: "main"
+                    type: "status_done"
               PodBindSuccessful:
                 field_colors:
                   - context: "main"
@@ -4083,7 +4091,7 @@ infoview:
               ReplicaSetUpdated:
                 field_colors:
                   - context: "main"
-                    type: "status_ok"
+                    type: "status_done"
               ReportEtcdMembersErrorUpdatingStatus:
                 field_colors:
                   - context: "main"
@@ -4215,7 +4223,7 @@ infoview:
               RolloutUpdated:
                 field_colors:
                   - context: "main"
-                    type: "status_ok"
+                    type: "status_done"
               RotationError:
                 field_colors:
                   - context: "main"
@@ -4607,7 +4615,7 @@ infoview:
               TrafficWeightUpdated:
                 field_colors:
                   - context: "main"
-                    type: "status_ok"
+                    type: "status_done"
               TriggerAuthenticationAdded:
                 field_colors:
                   - context: "main"
@@ -4659,7 +4667,7 @@ infoview:
               Updated:
                 field_colors:
                   - context: "main"
-                    type: "status_ok"
+                    type: "status_done"
               UpdateDeployment:
                 field_colors:
                   - context: "main"

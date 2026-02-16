@@ -53,7 +53,8 @@ infoview:
     row_indexes:
       Normal:
         fields: ["controller", "container_concurrency",
-                 "actual_replicas", "enable_service_links", "timeout"]
+                 "actual_replicas", "enable_service_links", "timeout",
+                 "ready", "reason"]
     rows:
       actual_replicas:
         header: [["Actual Replicas:", ["main", "infoheader"]]]
@@ -105,6 +106,39 @@ infoview:
             - type: "unit"
           field_separators:
             - type: "no_pad"
+      ready:
+        header: [["Ready:", ["main", "infoheader"]]]
+        paths:
+          - path: "status#conditions"
+            pathtype: "items"
+            subpath: "status"
+            when:
+              - key: "type"
+                eq: "Ready"
+        type: "str"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              "True":
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+              "False":
+                field_colors:
+                  - context: "main"
+                    type: "status_not_ok"
+      reason:
+        header: [["Reason:", ["main", "infoheader"]]]
+        paths:
+          - path: "status#conditions"
+            pathtype: "items"
+            subpath: "message"
+            when:
+              - key: "type"
+                eq: "Ready"
+        type: "list"
+        formatter: "list"
   shortcuts:
     "Open controller":
       key: "c"

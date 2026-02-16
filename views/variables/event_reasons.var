@@ -133,7 +133,7 @@ CertificateRotationStarted:
 CertificateUpdated:
   field_colors:
     - context: "main"
-      type: "status_ok"
+      type: "status_done"
 # A bit odd reason, but...
 cert-manager.io:
   field_colors:
@@ -218,7 +218,7 @@ ConfigMapCreateFailed:
 ConfigMapUpdated:
   field_colors:
     - context: "main"
-      type: "status_ok"
+      type: "status_done"
 ConfigMapUpdateFailed:
   field_colors:
     - context: "main"
@@ -499,7 +499,7 @@ DeploymentCreateFailed:
 DeploymentUpdated:
   field_colors:
     - context: "main"
-      type: "status_ok"
+      type: "status_done"
 DeploymentUpdateFailed:
   field_colors:
     - context: "main"
@@ -1119,7 +1119,7 @@ NamespaceCreated:
 NamespaceUpdated:
   field_colors:
     - context: "main"
-      type: "status_ok"
+      type: "status_done"
 NeedsReinstall:
   field_colors:
     - context: "main"
@@ -1255,7 +1255,7 @@ ObserveExternalRegistryHostnameChanged:
 ObserveFeatureFlagsUpdated:
   field_colors:
     - context: "main"
-      type: "status_ok"
+      type: "status_done"
 ObserveIdentityProviders:
   field_colors:
     - context: "main"
@@ -1283,7 +1283,7 @@ ObserveStorageFailed:
 ObserveStorageUpdated:
   field_colors:
     - context: "main"
-      type: "status_ok"
+      type: "status_done"
 ObserveTLSSecurityProfile:
   field_colors:
     - context: "main"
@@ -1400,6 +1400,10 @@ Pending:
   field_colors:
     - context: "main"
       type: "status_pending"
+PingSourceDeploymentUpdated:
+  field_colors:
+    - context: "main"
+      type: "status_done"
 PodBindSuccessful:
   field_colors:
     - context: "main"
@@ -1591,7 +1595,7 @@ ReplicaSetNotAvailable:
 ReplicaSetUpdated:
   field_colors:
     - context: "main"
-      type: "status_ok"
+      type: "status_done"
 ReportEtcdMembersErrorUpdatingStatus:
   field_colors:
     - context: "main"
@@ -1723,7 +1727,7 @@ RolloutStepCompleted:
 RolloutUpdated:
   field_colors:
     - context: "main"
-      type: "status_ok"
+      type: "status_done"
 RotationError:
   field_colors:
     - context: "main"
@@ -2115,7 +2119,7 @@ TopologyUpdate:
 TrafficWeightUpdated:
   field_colors:
     - context: "main"
-      type: "status_ok"
+      type: "status_done"
 TriggerAuthenticationAdded:
   field_colors:
     - context: "main"
@@ -2167,7 +2171,7 @@ UpdateInProgress:
 Updated:
   field_colors:
     - context: "main"
-      type: "status_ok"
+      type: "status_done"
 UpdateDeployment:
   field_colors:
     - context: "main"
