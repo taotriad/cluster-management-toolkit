@@ -1,0 +1,213 @@
+---
+kind: "InMemoryChannel"
+api_family: "messaging.knative.dev"
+default_command: "inmemorychannels"
+command:
+  - "inmemchannels"
+  - "inmemchannel"
+  - "inmemchs"
+  - "inmemch"
+listview:
+  name: "In Memory Channels"
+  group: "Knative"
+  field_indexes:
+    Wide:
+      fields: ["namespace", "name", "address", "ready", "age", "reason"]
+    Normal:
+      fields: ["namespace", "name", "ready", "age", "reason"]
+  fields:
+    address:
+      header: "Address:"
+      path: "status#address#url"
+      default: "<unset>"
+      type: "str"
+      formatter: "address"
+    ready:
+      header: "Ready:"
+      paths:
+        - path: "status#conditions"
+          pathtype: "items"
+          subpath: "status"
+          when:
+            - key: "type"
+              eq: "Ready"
+      type: "str"
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          mappings:
+            "True":
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+            "False":
+              field_colors:
+                - context: "main"
+                  type: "status_not_ok"
+    reason:
+      header: "Reason:"
+      paths:
+        - path: "status#conditions"
+          pathtype: "items"
+          subpath: "message"
+          when:
+            - key: "type"
+              eq: "Ready"
+      type: "list"
+      formatter: "list"
+infoview:
+  name: "In Memory Channel Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["controller", "address",
+                 "delivery_header",
+                 "delivery_backoff_delay",
+                 "delivery_backoff_policy",
+                 "delivery_dead_letter_sink",
+                 "delivery_dead_letter_sink_uri",
+                 "delivery_retry"]
+    rows:
+      address:
+        header: [["Address:", ["main", "infoheader"]]]
+        path: "status#address#url"
+        default: "<unset>"
+        type: "str"
+        formatter: "address"
+      controller:
+        header: [["C", ["main", "infoheader_shortcut"]],
+                 ["ontroller:", ["main", "infoheader"]]]
+        paths:
+          - path: "metadata#ownerReferences"
+            pathtype: "items"
+            subpaths:
+              - "kind"
+              - "apiVersion"
+              - "name"
+            when:
+              - key: "controller"
+                eq: true
+            type: ["kind", "api_group", "name"]
+        default: "<none>"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "kind"
+            - type: "api_group"
+            - type: "generic"
+          field_separators:
+            - type: "kind_api_group"
+            - type: "kind"
+      delivery_dead_letter_sink:
+        header: [["  ", ["main", "infoheader"]],
+                 ["D", ["main", "infoheader_shortcut"]],
+                 ["ead Letter Sink:", ["main", "infoheader"]]]
+        paths:
+          - path: [["spec#delivery#deadLetterSink#ref#kind"],
+                   ["spec#delivery#deadLetterSink#ref#apiVersion"],
+                   ["spec#delivery#deadLetterSink#ref#namespace"],
+                   ["spec#delivery#deadLetterSink#ref#name"]]
+            pathtype: "tuple"
+            type: ["kind", "api_group", "name", "name"]
+        default: "<none>"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "kind"
+            - type: "api_group"
+            - type: "namespace"
+            - type: "generic"
+          field_separators:
+            - type: "kind_api_group"
+            - type: "kind"
+            - type: "namespace"
+      delivery_dead_letter_sink_uri:
+        header: [["  Dead Letter Sink URI:", ["main", "infoheader"]]]
+        path: "status#deadLetterSinkUri"
+        default: "<unset>"
+        type: "str"
+        formatter: "address"
+      delivery_header:
+        header: [["Delivery:", ["main", "infoheader"]]]
+      delivery_backoff_delay:
+        header: [["  Backoff Delay:", ["main", "infoheader"]]]
+        path: "spec#delivery#backoffDelay"
+        default: "<unset>"
+        type: "str"
+      delivery_backoff_policy:
+        header: [["  Backoff Policy:", ["main", "infoheader"]]]
+        path: "spec#delivery#backoffPolicy"
+        default: "<unset>"
+        type: "str"
+      delivery_retry:
+        header: [["  Retry:", ["main", "infoheader"]]]
+        path: "spec#delivery#retry"
+        default: "<unset>"
+        type: "int"
+        formatter: "numerical"
+  listpad:
+    on_activation:
+      call: "resourceinfodispatch"
+      kind: "__SubscriberData"
+      api_family: "messaging.knative.dev"
+    listgetter: "listgetter_path"
+    listgetter_args:
+      join_key: "uid"
+      paths:
+       - path: "spec#subscribers"
+         type: "list"
+       - path: "status#subscribers"
+         type: "list"
+    infogetter: "generic_infogetter"
+    field_indexes:
+      Normal:
+        fields: ["name", "ready"]
+        sortcolumn: "name"
+    fields:
+      name:
+        header: "Name:"
+        path: "name"
+        default: "<unset>"
+        type: "str"
+      ready:
+        header: "Ready:"
+        path: "ready"
+        default: "<unset>"
+        type: "str"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              "True":
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+              "False":
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+  shortcuts:
+    "Open controller":
+      key: "c"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for controller"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        namespace_path: "metadata#namespace"
+        owner_reference_path: "metadata#ownerReferences"
+    "Open dead letter Sink":
+      key: "d"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open dead letter Sink"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind_path: "spec#delivery#deadLetterSink#ref#kind"
+        api_version_path: "spec#delivery#deadLetterSink#ref#apiVersion"
+        namespace_path: "spec#delivery#deadLetterSink#ref#namespace"
+        name_path: "spec#delivery#deadLetterSink#ref#name"

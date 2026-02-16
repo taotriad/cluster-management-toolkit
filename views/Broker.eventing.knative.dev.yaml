@@ -1,0 +1,210 @@
+---
+kind: "Broker"
+api_family: "eventing.knative.dev"
+default_command: "brokers"
+listview:
+  name: "Brokers"
+  group: "Knative"
+  field_indexes:
+    Wide:
+      fields: ["namespace", "name", "address", "class", "ready", "age",
+               "reason"]
+    Normal:
+      fields: ["namespace", "name", "ready", "age", "reason"]
+  fields:
+    address:
+      header: "Address:"
+      path: "status#address#url"
+      default: "<unset>"
+      type: "str"
+      formatter: "address"
+    class:
+      header: "Class:"
+      path: "metadata#annotations#eventing.knative.dev/broker.class"
+      default: "<unset>"
+      type: "str"
+    ready:
+      header: "Ready:"
+      paths:
+        - path: "status#conditions"
+          pathtype: "items"
+          subpath: "status"
+          when:
+            - key: "type"
+              eq: "Ready"
+      type: "str"
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          mappings:
+            "True":
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+            "False":
+              field_colors:
+                - context: "main"
+                  type: "status_not_ok"
+    reason:
+      header: "Reason:"
+      paths:
+        - path: "status#conditions"
+          pathtype: "items"
+          subpath: "message"
+          when:
+            - key: "type"
+              eq: "Ready"
+      type: "list"
+      formatter: "list"
+infoview:
+  name: "Broker Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["configuration", "address",
+                 "channel_header",
+                 "channel_channel",
+                 "channel_address",
+                 "delivery_header",
+                 "delivery_backoff_delay",
+                 "delivery_backoff_policy",
+                 "delivery_dead_letter_sink",
+                 "delivery_dead_letter_sink_uri",
+                 "delivery_reset"]
+    rows:
+      address:
+        header: [["Address:", ["main", "infoheader"]]]
+        path: "status#address#url"
+        default: "<unset>"
+        type: "str"
+        formatter: "address"
+      channel_address:
+        header: [["  Address:", ["main", "infoheader"]]]
+        path: "status#annotations#knative.dev/channelAddress"
+        default: "<unset>"
+        type: "str"
+        formatter: "address"
+      channel_header:
+        header: [["Channel:", ["main", "infoheader"]]]
+      channel_channel:
+        header: [["  C", ["main", "infoheader"]],
+                 ["h", ["main", "infoheader_shortcut"]],
+                 ["annel:", ["main", "infoheader"]]]
+        paths:
+          - path: [["status#annotations#knative.dev/channelKind"],
+                   ["status#annotations#knative.dev/channelApiVersion"],
+                   ["metadata#namespace"],
+                   ["status#annotations#knative.dev/channelName"]]
+            pathtype: "tuple"
+            type: ["kind", "api_group", "name", "name"]
+        default: "<none>"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "kind"
+            - type: "api_group"
+            - type: "namespace"
+            - type: "generic"
+          field_separators:
+            - type: "kind_api_group"
+            - type: "kind"
+            - type: "namespace"
+      configuration:
+        header: [["C", ["main", "infoheader_shortcut"]],
+                 ["onfiguration:", ["main", "infoheader"]]]
+        paths:
+          - path: [["spec#config#namespace"], ["spec#config#name"]]
+            pathtype: "tuple"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "namespace"
+            - type: "generic"
+          field_separators:
+            - type: "namespace"
+      delivery_dead_letter_sink:
+        header: [["  ", ["main", "infoheader"]],
+                 ["D", ["main", "infoheader_shortcut"]],
+                 ["ead Letter Sink:", ["main", "infoheader"]]]
+        paths:
+          - path: [["spec#delivery#deadLetterSink#ref#kind"],
+                   ["spec#delivery#deadLetterSink#ref#apiVersion"],
+                   ["spec#delivery#deadLetterSink#ref#namespace"],
+                   ["spec#delivery#deadLetterSink#ref#name"]]
+            pathtype: "tuple"
+            type: ["kind", "api_group", "name", "name"]
+        default: "<none>"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "kind"
+            - type: "api_group"
+            - type: "namespace"
+            - type: "generic"
+          field_separators:
+            - type: "kind_api_group"
+            - type: "kind"
+            - type: "namespace"
+      delivery_dead_letter_sink_uri:
+        header: [["  Dead Letter Sink URI:", ["main", "infoheader"]]]
+        path: "status#deadLetterSinkUri"
+        default: "<unset>"
+        type: "str"
+        formatter: "address"
+      delivery_header:
+        header: [["Delivery:", ["main", "infoheader"]]]
+      delivery_backoff_delay:
+        header: [["  Backoff Delay:", ["main", "infoheader"]]]
+        path: "spec#delivery#backoffDelay"
+        default: "<unset>"
+        type: "str"
+      delivery_backoff_policy:
+        header: [["  Backoff Policy:", ["main", "infoheader"]]]
+        path: "spec#delivery#backoffPolicy"
+        default: "<unset>"
+        type: "str"
+      delivery_reset:
+        header: [["  Retry:", ["main", "infoheader"]]]
+        path: "spec#delivery#retry"
+        default: "<unset>"
+        type: "int"
+        formatter: "numerical"
+  shortcuts:
+    "Open channel":
+      key: "h"
+      read_only: true
+      helptext: "Open channel"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind_path: "status#annotations#knative.dev/channelKind"
+        api_version_path: "status#annotations#knative.dev/channelApiVersion"
+        namespace_path: "metadata#namespace"
+        name_path: "status#annotations#knative.dev/channelName"
+    "Open Configuration":
+      key: "c"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open ConfigMap for configuration"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind: "ConfigMap"
+        api_family: ""
+        namespace_path: "spec#config#namespace"
+        name_path: "spec#config#name"
+    "Open dead letter Sink":
+      key: "d"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open dead letter Sink"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind_path: "spec#delivery#deadLetterSink#ref#kind"
+        api_version_path: "spec#delivery#deadLetterSink#ref#apiVersion"
+        namespace_path: "spec#delivery#deadLetterSink#ref#namespace"
+        name_path: "spec#delivery#deadLetterSink#ref#name"

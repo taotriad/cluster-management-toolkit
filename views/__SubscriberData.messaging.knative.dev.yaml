@@ -1,0 +1,72 @@
+---
+kind: "__SubscriberData"
+api_family: "messaging.knative.dev"
+default_command: "__"
+infoview:
+  name: "Subscriber Data"
+  infopad:
+    name_path: "name"
+    creation_timestamp_path: null
+    row_indexes:
+      Normal:
+        fields: ["subscriber_uri", "reply_uri",
+                 "delivery_header",
+                 "delivery_backoff_delay",
+                 "delivery_backoff_policy",
+                 "delivery_dead_letter_sink_uri",
+                 "delivery_retry",
+                 "ready"]
+    rows:
+      delivery_dead_letter_sink_uri:
+        header: [["  Dead Letter Sink URI:", ["main", "infoheader"]]]
+        path: "delivery#deadLetterSink#uri"
+        default: "<unset>"
+        type: "str"
+        formatter: "address"
+      delivery_header:
+        header: [["Delivery:", ["main", "infoheader"]]]
+      delivery_backoff_delay:
+        header: [["  Backoff Delay:", ["main", "infoheader"]]]
+        path: "delivery#backoffDelay"
+        default: "<unset>"
+        type: "str"
+      delivery_backoff_policy:
+        header: [["  Backoff Policy:", ["main", "infoheader"]]]
+        path: "delivery#backoffPolicy"
+        default: "<unset>"
+        type: "str"
+      delivery_retry:
+        header: [["  Retry:", ["main", "infoheader"]]]
+        path: "delivery#retry"
+        default: "<unset>"
+        type: "int"
+        formatter: "numerical"
+      ready:
+        header: [["Ready:", ["main", "infoheader"]]]
+        path: "ready"
+        default: "<unset>"
+        type: "str"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              "True":
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+              "False":
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+      reply_uri:
+        header: [["Reply URI:", ["main", "infoheader"]]]
+        path: "replyUri"
+        default: "<unset>"
+        type: "str"
+        formatter: "address"
+      subscriber_uri:
+        header: [["Subscriber URI:", ["main", "infoheader"]]]
+        path: "subscriberUri"
+        default: "<unset>"
+        type: "str"
+        formatter: "address"

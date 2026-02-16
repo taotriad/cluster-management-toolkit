@@ -2,13 +2,15 @@
 - name: "knative-eventing"
   show_in_selector: false
   matchkeys:
-    - pod_name: "eventing-controller"
-    - pod_name: "eventing-webhook"
-    - pod_name: "imc-dispatcher"
-    - pod_name: "imc-controller"
-    - pod_name: "mt-broker-controller"
-    - pod_name: "mt-broker-filter"
-    - pod_name: "mt-broker-ingress"
+    - image_name: "/knative-releases/knative.dev/eventing/cmd/controller"
+    - image_name: "/knative-releases/knative.dev/eventing/cmd/webhook"
+    - image_name: "/knative-releases/knative.dev/eventing/cmd/in_memory/channel_dispatcher"
+    - image_name: "/knative-releases/knative.dev/eventing/cmd/in_memory/channel_controller"
+    - image_name: "/knative-releases/knative.dev/eventing/cmd/mtchannel_broker"
+    - image_name: "/knative-releases/knative.dev/eventing/cmd/broker/filter"
+    - image_name: "/knative-releases/knative.dev/eventing/cmd/broker/ingress"
+    - image_name: "/knative-releases/knative.dev/eventing/cmd/jobsink"
+    - image_name: "/knative-releases/knative.dev/eventing/cmd/requestreply"
   parser_rules:
     - name: "glog"
     - name: "ts_8601"

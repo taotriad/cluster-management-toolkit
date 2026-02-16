@@ -62,6 +62,7 @@ listview:
     version:
       header: "Version:"
       path: "status#version"
+      default: "<unset>"
       type: "str"
       formatting:
         field_colors:
@@ -98,6 +99,7 @@ infoview:
       version:
         header: [["Version:", ["main", "infoheader"]]]
         path: "status#version"
+        default: "<unset>"
         type: "str"
         formatting:
           field_colors:

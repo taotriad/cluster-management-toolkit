@@ -1,0 +1,246 @@
+---
+kind: "Subscription"
+api_family: "messaging.knative.dev"
+default_command: "subscriptions"
+listview:
+  name: "Subscriptions"
+  group: "Knative"
+  field_indexes:
+    Normal:
+      fields: ["namespace", "name", "ready", "age", "reason"]
+  fields:
+    ready:
+      header: "Ready:"
+      paths:
+        - path: "status#conditions"
+          pathtype: "items"
+          subpath: "status"
+          when:
+            - key: "type"
+              eq: "Ready"
+      type: "str"
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          mappings:
+            "True":
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+            "False":
+              field_colors:
+                - context: "main"
+                  type: "status_not_ok"
+    reason:
+      header: "Reason:"
+      paths:
+        - path: "status#conditions"
+          pathtype: "items"
+          subpath: "message"
+          when:
+            - key: "type"
+              eq: "Ready"
+      type: "list"
+      formatter: "list"
+infoview:
+  name: "Subscription Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["controller",
+                 "channel",
+                 "delivery_header",
+                 "delivery_backoff_delay",
+                 "delivery_backoff_policy",
+                 "delivery_dead_letter_sink",
+                 "delivery_dead_letter_sink_uri",
+                 "delivery_reset",
+                 "reply_header",
+                 "reply_reply",
+                 "reply_uri",
+                 "subscriber_uri"]
+    rows:
+      channel:
+        header: [["C", ["main", "infoheader"]],
+                 ["h", ["main", "infoheader_shortcut"]],
+                 ["annel:", ["main", "infoheader"]]]
+        paths:
+          - path: [["spec#channel#kind"],
+                   ["spec#channel#apiVersion"],
+                   ["metadata#namespace"],
+                   ["spec#channel#name"]]
+            pathtype: "tuple"
+            type: ["kind", "api_group", "name", "name"]
+        default: "<none>"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "kind"
+            - type: "api_group"
+            - type: "namespace"
+            - type: "generic"
+          field_separators:
+            - type: "kind_api_group"
+            - type: "kind"
+            - type: "namespace"
+      controller:
+        header: [["C", ["main", "infoheader_shortcut"]],
+                 ["ontroller:", ["main", "infoheader"]]]
+        paths:
+          - path: "metadata#ownerReferences"
+            pathtype: "items"
+            subpaths:
+              - "kind"
+              - "apiVersion"
+              - "name"
+            when:
+              - key: "controller"
+                eq: true
+            type: ["kind", "api_group", "name"]
+        default: "<none>"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "kind"
+            - type: "api_group"
+            - type: "generic"
+          field_separators:
+            - type: "kind_api_group"
+            - type: "kind"
+      delivery_dead_letter_sink:
+        header: [["  ", ["main", "infoheader"]],
+                 ["D", ["main", "infoheader_shortcut"]],
+                 ["ead Letter Sink:", ["main", "infoheader"]]]
+        paths:
+          - path: [["spec#channel#kind"],
+                   ["spec#channel#apiVersion"],
+                   ["metadata#namespace"],
+                   ["spec#channel#name"]]
+            pathtype: "tuple"
+            type: ["kind", "api_group", "name", "name"]
+        default: "<none>"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "kind"
+            - type: "api_group"
+            - type: "namespace"
+            - type: "generic"
+          field_separators:
+            - type: "kind_api_group"
+            - type: "kind"
+            - type: "namespace"
+      delivery_dead_letter_sink_uri:
+        header: [["  Dead Letter Sink URI:", ["main", "infoheader"]]]
+        path: "status#physicalSubscription#deadLetterSinkUri"
+        default: "<unset>"
+        type: "str"
+        formatter: "address"
+      delivery_header:
+        header: [["Delivery:", ["main", "infoheader"]]]
+      delivery_backoff_delay:
+        header: [["  Backoff Delay:", ["main", "infoheader"]]]
+        path: "spec#delivery#backoffDelay"
+        default: "<unset>"
+        type: "str"
+      delivery_backoff_policy:
+        header: [["  Backoff Policy:", ["main", "infoheader"]]]
+        path: "spec#delivery#backoffPolicy"
+        default: "<unset>"
+        type: "str"
+      delivery_reset:
+        header: [["  Retry:", ["main", "infoheader"]]]
+        path: "spec#delivery#retry"
+        default: "<unset>"
+        type: "int"
+        formatter: "numerical"
+      reply_header:
+        header: [["Reply:", ["main", "infoheader"]]]
+      reply_reply:
+        header: [["  ", ["main", "infoheader"]],
+                 ["R", ["main", "infoheader_shortcut"]],
+                 ["eply:", ["main", "infoheader"]]]
+        paths:
+          - path: [["spec#reply#ref#kind"],
+                   ["spec#reply#ref#apiVersion"],
+                   ["spec#reply#ref#namespace"],
+                   ["spec#reply#ref#name"]]
+            pathtype: "tuple"
+            type: ["kind", "api_group", "name", "name"]
+        default: "<none>"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "kind"
+            - type: "api_group"
+            - type: "namespace"
+            - type: "generic"
+          field_separators:
+            - type: "kind_api_group"
+            - type: "kind"
+            - type: "namespace"
+      reply_uri:
+        header: [["  Reply URI:", ["main", "infoheader"]]]
+        path: "status#physicalSubscription#replyUri"
+        default: "<unset>"
+        type: "str"
+        formatter: "address"
+      subscriber_uri:
+        header: [["Subscriber URI:", ["main", "infoheader"]]]
+        paths:
+          - path: ["status#physicalSubscription#subscriberUri",
+                   "spec#subscriber#uri"]
+            pathtype: "value"
+            default: ["<unset>"]
+        type: "list"
+        formatter: "address"
+  shortcuts:
+    "Open channel":
+      key: "h"
+      read_only: true
+      helptext: "Open channel"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind_path: "spec#channel#kind"
+        api_version_path: "spec#channel#apiVersion"
+        namespace_path: "metadata#namespace"
+        name_path: "spec#channel#name"
+    "Open controller":
+      key: "c"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for controller"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        namespace_path: "metadata#namespace"
+        owner_reference_path: "metadata#ownerReferences"
+    "Open dead letter Sink":
+      key: "d"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open dead letter Sink"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind_path: "spec#delivery#deadLetterSink#ref#kind"
+        api_version_path: "spec#delivery#deadLetterSink#ref#apiVersion"
+        namespace_path: "spec#delivery#deadLetterSink#ref#namespace"
+        name_path: "spec#delivery#deadLetterSink#ref#name"
+    "Open reply":
+      key: "r"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for reply"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind_path: "spec#reply#ref#kind"
+        api_version_path: "spec#reply#ref#apiVersion"
+        namespace_path: "spec#reply#ref#namespace"
+        name_path: "spec#reply#ref#name"

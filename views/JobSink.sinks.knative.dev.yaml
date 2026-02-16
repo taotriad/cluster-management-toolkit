@@ -11,6 +11,12 @@ listview:
     Normal:
       fields: ["namespace", "name", "ready", "age", "reason"]
   fields:
+    address:
+      header: "Address:"
+      path: "status#address#url"
+      default: "<unset>"
+      type: "str"
+      formatter: "address"
     ready:
       header: "Ready:"
       paths:
@@ -44,12 +50,6 @@ listview:
               eq: "Ready"
       type: "list"
       formatter: "list"
-    address:
-      header: "Address:"
-      path: "status#address#url"
-      default: "<unset>"
-      type: "str"
-      formatter: "address"
 infoview:
   name: "Job Sink Info"
   infopad:
@@ -60,10 +60,13 @@ infoview:
       address:
         header: [["Address:", ["main", "infoheader"]]]
         path: "status#address#url"
+        default: "<unset>"
         type: "str"
+        formatter: "address"
       job_selector:
         header: [["Job Selector:", ["main", "infoheader"]]]
         path: "status#job#selector"
+        default: "<none>"
         type: "str"
   listpad:
     listgetter: "generic_listgetter"
