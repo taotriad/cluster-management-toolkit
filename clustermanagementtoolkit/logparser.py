@@ -391,8 +391,8 @@ def split_bracketed_severity(message: str, **kwargs: Any) -> tuple[str, LogLevel
         "[info]": LogLevel.INFO,
         "[system]": LogLevel.INFO,  # MySQL seems to have its own loglevels
         "[note]": LogLevel.INFO,    # none of which makes every much sense
-        "[verbose]": LogLevel.DEBUG, # whereabouts has its own loglevels; it has both
-                                     # verbose and debug; we don't, so just treat them the same
+        "[verbose]": LogLevel.DEBUG,  # whereabouts has its own loglevels; it has both
+                                      # verbose and debug; we don't, so just treat them the same
         "[debug]": LogLevel.DEBUG,
     }
 
