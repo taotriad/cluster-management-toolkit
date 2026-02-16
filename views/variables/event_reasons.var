@@ -1952,10 +1952,10 @@ StorageVersionMigrationCreated:
   field_colors:
     - context: "main"
       type: "status_done"
-Suspended:
+SubscriberResolveFailed:
   field_colors:
     - context: "main"
-      type: "status_pending"
+      type: "status_not_ok"
 SucceededDaemonPod:
   field_colors:
     - context: "main"
@@ -2008,6 +2008,10 @@ SuccessfulUpdateSubset:
   field_colors:
     - context: "main"
       type: "status_ok"
+Suspended:
+  field_colors:
+    - context: "main"
+      type: "status_pending"
 Sync:
   field_colors:
     - context: "main"
