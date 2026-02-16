@@ -117,7 +117,7 @@ infoview:
                 field_colors:
                   - context: "logview"
                     type: "severity_error"
-              OFF:
+              "OFF":
                 field_colors:
                   - context: "logview"
                     type: "severity_debug"

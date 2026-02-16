@@ -160,7 +160,7 @@ infoview:
       action_args:
         _pass_obj: true
         kind: "Broker"
-        api_version: "eventing.knative.dev"
+        api_family: "eventing.knative.dev"
         namespace_path: "metadata#namespace"
         name_path: "spec#broker"
     "Open dead letter Sink":

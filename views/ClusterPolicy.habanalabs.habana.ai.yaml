@@ -179,7 +179,8 @@ infoview:
         default: "<unset>"
         type: "int"
         formatting:
-          - type: "port"
+          field_colors:
+            - type: "port"
       metric_exporter_runner_image:
         header: [["  Runner Image:", ["main", "infoheader"]]]
         paths:
@@ -202,13 +203,17 @@ infoview:
         default: "<unset>"
         type: "str"
       runtime_configuration_engine_container_runtime_configuration:
-        header: [["    Engine Container Runtime Configuration:", ["main", "infoheader"]]]
+        header: [["    Engine Container Runtime Configuration:",
+                  ["main", "infoheader"]]]
+        # yamllint disable-line rule:line-length
         path: "spec#runtime#configuration#engine_container_runtime_configuration"
         fallback_on_empty: true
         default: "<empty>"
         type: "str"
       runtime_configuration_habana_container_runtime_configuration:
-        header: [["    Habana Container Runtime Configuration:", ["main", "infoheader"]]]
+        header: [["    Habana Container Runtime Configuration:",
+                  ["main", "infoheader"]]]
+        # yamllint disable-line rule:line-length
         path: "spec#runtime#configuration#habana_container_runtime_configuration"
         fallback_on_empty: true
         default: "<empty>"

@@ -7,6 +7,7 @@
   parser_rules:
     - name: "custom_splitter"
       options:
+        # yamllint disable-line rule:line-length
         regex: '^\d{4}-\d\d-\d\d \d\d:\d\d:\d\d.\d{3} ([A-Z]{4})  \[([^]]+)\] (.*)'
         severity:
           field: 1

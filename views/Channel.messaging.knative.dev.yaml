@@ -67,8 +67,7 @@ infoview:
                  "delivery_backoff_policy",
                  "delivery_dead_letter_sink",
                  "delivery_dead_letter_sink_uri",
-                 "delivery_reset",
-                 ]
+                 "delivery_reset"]
     rows:
       address:
         header: [["Address:", ["main", "infoheader"]]]
@@ -174,10 +173,10 @@ infoview:
     listgetter_args:
       join_key: "uid"
       paths:
-       - path: "spec#subscribers"
-         type: "list"
-       - path: "status#subscribers"
-         type: "list"
+        - path: "spec#subscribers"
+          type: "list"
+        - path: "status#subscribers"
+          type: "list"
     infogetter: "generic_infogetter"
     field_indexes:
       Normal:
