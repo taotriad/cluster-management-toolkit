@@ -170,15 +170,13 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
     },
     ("ValidatingAdmissionPolicy", "admissionregistration.k8s.io"): {
         "api_paths": ["apis/admissionregistration.k8s.io/v1/",
-                      "apis/admissionregistration.k8s.io/v1beta1/",
-                      "apis/admissionregistration.k8s.io/v1alpha1/"],
+                      "apis/admissionregistration.k8s.io/v1beta1/"],
         "api": "validatingadmissionpolicies",
         "namespaced": False,
     },
     ("ValidatingAdmissionPolicyBinding", "admissionregistration.k8s.io"): {
         "api_paths": ["apis/admissionregistration.k8s.io/v1/",
-                      "apis/admissionregistration.k8s.io/v1beta1/",
-                      "apis/admissionregistration.k8s.io/v1alpha1/"],
+                      "apis/admissionregistration.k8s.io/v1beta1/"],
         "api": "validatingadmissionpolicybindings",
         "namespaced": False,
     },
@@ -232,7 +230,8 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api": "leases",
     },
     ("LeaseCandidate", "coordination.k8s.io"): {
-        "api_paths": ["apis/coordination.k8s.io/v1alpha1/"],
+        "api_paths": ["apis/coordination.k8s.io/v1beta1/",
+                      "apis/coordination.k8s.io/v1alpha1/"],
         "api": "leasecandidates",
     },
     # discovery.k8s.io
@@ -265,13 +264,11 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
     },
     # gateway.networking.k8s.io
     ("BackendLBPolicy", "gateway.networking.k8s.io"): {
-        "api_paths": ["apis/gateway.networking.k8s.io/v1/",
-                      "apis/gateway.networking.k8s.io/v1alpha2/"],
+        "api_paths": ["apis/gateway.networking.k8s.io/v1/"],
         "api": "backendlbpolicies",
     },
     ("BackendTLSPolicy", "gateway.networking.k8s.io"): {
-        "api_paths": ["apis/gateway.networking.k8s.io/v1/",
-                      "apis/gateway.networking.k8s.io/v1alpha3/"],
+        "api_paths": ["apis/gateway.networking.k8s.io/v1/"],
         "api": "backendtlspolicies",
     },
     ("GatewayClass", "gateway.networking.k8s.io"): {
@@ -396,8 +393,7 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
     },
     ("IPAddress", "networking.k8s.io"): {
         "api_paths": ["apis/networking.k8s.io/v1/",
-                      "apis/networking.k8s.io/v1beta1/",
-                      "apis/networking.k8s.io/v1alpha1/"],
+                      "apis/networking.k8s.io/v1beta1/"],
         "api": "ipaddresses",
         "namespaced": False,
     },
@@ -419,8 +415,7 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
     },
     ("ServiceCIDR", "networking.k8s.io"): {
         "api_paths": ["apis/networking.k8s.io/v1/",
-                      "apis/networking.k8s.io/v1beta1/",
-                      "apis/networking.k8s.io/v1alpha1/"],
+                      "apis/networking.k8s.io/v1beta1/"],
         "api": "servicecidrs",
         "namespaced": False,
     },
@@ -465,8 +460,7 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
     ("DeviceClass", "resource.k8s.io"): {
         "api_paths": ["apis/resource.k8s.io/v1/",
                       "apis/resource.k8s.io/v1beta2/",
-                      "apis/resource.k8s.io/v1beta1/",
-                      "apis/resource.k8s.io/v1alpha3/"],
+                      "apis/resource.k8s.io/v1beta1/"],
         "api": "deviceclasses",
         "namespaced": False,
     },
@@ -475,54 +469,22 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api": "devicetaintrules",
         "namespaced": False,
     },
-    ("PodScheduling", "resource.k8s.io"): {
-        # => PodSchedulingContext
-        "api_paths": ["apis/resource.k8s.io/v1alpha1/"],
-        "api": "podschedulings",
-    },
-    ("PodSchedulingContext", "resource.k8s.io"): {
-        "api_paths": ["apis/resource.k8s.io/v1alpha3/",
-                      "apis/resource.k8s.io/v1alpha2/"],
-        "api": "podschedulingcontexts",
-    },
     ("ResourceClaim", "resource.k8s.io"): {
         "api_paths": ["apis/resource.k8s.io/v1/",
                       "apis/resource.k8s.io/v1beta2/",
-                      "apis/resource.k8s.io/v1beta1/",
-                      "apis/resource.k8s.io/v1alpha3/",
-                      "apis/resource.k8s.io/v1alpha2/",
-                      "apis/resource.k8s.io/v1alpha1/"],
+                      "apis/resource.k8s.io/v1beta1/"],
         "api": "resourceclaims",
-    },
-    ("ResourceClaimParameters", "resource.k8s.io"): {
-        "api_paths": ["apis/resource.k8s.io/v1alpha2/"],
-        "api": "resourceclaimparameters",
     },
     ("ResourceClaimTemplate", "resource.k8s.io"): {
         "api_paths": ["apis/resource.k8s.io/v1/",
                       "apis/resource.k8s.io/v1beta2/",
-                      "apis/resource.k8s.io/v1beta1/",
-                      "apis/resource.k8s.io/v1alpha3/",
-                      "apis/resource.k8s.io/v1alpha2/",
-                      "apis/resource.k8s.io/v1alpha1/"],
+                      "apis/resource.k8s.io/v1beta1/"],
         "api": "resourceclaimtemplates",
-    },
-    ("ResourceClass", "resource.k8s.io"): {
-        "api_paths": ["apis/resource.k8s.io/v1alpha2/",
-                      "apis/resource.k8s.io/v1alpha1/"],
-        "api": "resourceclasses",
-        "namespaced": False,
-    },
-    ("ResourceClassParameters", "resource.k8s.io"): {
-        "api_paths": ["apis/resource.k8s.io/v1alpha2/"],
-        "api": "resourceclassparameters",
     },
     ("ResourceSlice", "resource.k8s.io"): {
         "api_paths": ["apis/resource.k8s.io/v1/",
                       "apis/resource.k8s.io/v1beta2/",
-                      "apis/resource.k8s.io/v1beta1/",
-                      "apis/resource.k8s.io/v1alpha3/",
-                      "apis/resource.k8s.io/v1alpha2/"],
+                      "apis/resource.k8s.io/v1beta1/"],
         "api": "resourceslices",
         "namespaced": False,
     },
@@ -531,6 +493,10 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api_paths": ["apis/scheduling.k8s.io/v1/"],
         "api": "priorityclasses",
         "namespaced": False,
+    },
+    ("Workload", "scheduling.k8s.io"): {
+        "api_paths": ["apis/scheduling.k8s.io/v1/"],
+        "api": "workloads",
     },
     # scheduling.sigs.k8s.io
     ("ElasticQuota", "scheduling.sigs.k8s.io"): {
@@ -600,8 +566,7 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
     },
     ("VolumeAttributesClass", "storage.k8s.io"): {
         "api_paths": ["apis/storage.k8s.io/v1/",
-                      "apis/storage.k8s.io/v1beta1/",
-                      "apis/storage.k8s.io/v1alpha1/"],
+                      "apis/storage.k8s.io/v1beta1/"],
         "api": "volumeattributesclasses",
         "namespaced": False,
     },
@@ -3054,25 +3019,6 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
     ("GMConnector", "gmc.opea.io"): {
         "api_paths": ["apis/gmc.opea.io/v1alpha3/"],
         "api": "gmconnectors",
-    },
-    # gpu.resource.intel.com
-    ("DeviceClassParameters", "gpu.resource.intel.com"): {
-        "api_paths": ["apis/gpu.resource.intel.com/v1alpha2/"],
-        "api": "deviceclassparameters",
-        "namespaced": False,
-    },
-    ("GpuAllocationState", "gpu.resource.intel.com"): {
-        "api_paths": ["apis/gpu.resource.intel.com/v1alpha2/"],
-        "api": "gpuallocationstates",
-    },
-    ("GpuClaimParameters", "gpu.resource.intel.com"): {
-        "api_paths": ["apis/gpu.resource.intel.com/v1alpha2/"],
-        "api": "gpuclaimparameters",
-    },
-    ("GpuClassParameters", "gpu.resource.intel.com"): {
-        "api_paths": ["apis/gpu.resource.intel.com/v1alpha2/"],
-        "api": "gpuclassparameters",
-        "namespaced": False,
     },
     # grafana.integreatly.org
     ("GrafanaAlertRuleGroup", "grafana.integreatly.org"): {

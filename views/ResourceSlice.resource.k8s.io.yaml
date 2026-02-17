@@ -10,8 +10,13 @@ listview:
   group: "Dynamic Resource Allocation"
   field_indexes:
     Normal:
-      fields: ["name", "pool", "resource_slice_count", "age"]
+      fields: ["name", "driver", "pool", "resource_slice_count", "age"]
   fields:
+    driver:
+      header: "Driver:"
+      path: "spec#driver"
+      default: "<unset>"
+      type: "str"
     pool:
       header: "Pool:"
       path: "spec#pool#name"

@@ -14,6 +14,15 @@ listview:
 infoview:
   name: "Device Class Info"
   infopad:
+    row_indexes:
+      Normal:
+        fields: ["extended_name"]
+    rows:
+      extended_name:
+        header: [["Extended Name:", ["main", "infoheader"]]]
+        path: "spec#extendedResourceName"
+        default: "<unset>"
+        type: "str"
   shortcuts:
     "Device class configuration":
       key: "c"

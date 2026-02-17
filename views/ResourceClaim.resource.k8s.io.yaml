@@ -17,16 +17,11 @@ infoview:
   infopad:
     row_indexes:
       Normal:
-        fields: ["controller", "parameters_ref", "resource_class",
-                 "allocation_mode", "deallocation_requested",
+        fields: ["controller",
                  "device_header", "device_requests",
-                 "device_allocations", "reserved_for"]
+                 "device_allocations",
+                 "reserved_for"]
     rows:
-      allocation_mode:
-        header: [["Allocation Mode:", ["main", "infoheader"]]]
-        path: "spec#allocationMode"
-        default: "<unset>"
-        type: "str"
       controller:
         header: [["C", ["main", "infoheader_shortcut"]],
                  ["ontroller:", ["main", "infoheader"]]]
@@ -51,11 +46,6 @@ infoview:
           field_separators:
             - type: "kind_api_group"
             - type: "kind"
-      deallocation_requested:
-        header: [["Deallocation Requested:", ["main", "infoheader"]]]
-        path: "status#deallocationRequested"
-        type: "str"
-        default: false
       device_allocations:
         header: [["  ", ["main", "infoheader"]],
                  ["A", ["main", "infoheader_shortcut"]],
@@ -80,26 +70,6 @@ infoview:
               - "name"
         default: "<none>"
         formatter: "list"
-      parameters_ref:
-        header: [["P", ["main", "infoheader_shortcut"]],
-                 ["arameters Ref:", ["main", "infoheader"]]]
-        paths:
-          - path: [["spec#parametersRef#kind"],
-                   ["spec#parametersRef#apiVersion"],
-                   ["spec#parametersRef#name"]]
-            pathtype: "tuple"
-            type: ["kind", "api_group", "name"]
-            default: ["<unset>"]
-            fallback_on_empty: true
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "kind"
-            - type: "api_group"
-            - type: "generic"
-          field_separators:
-            - type: "kind_api_group"
-            - type: "kind"
       reserved_for:
         header: [["R", ["main", "infoheader_shortcut"]],
                  ["eserved For:", ["main", "infoheader"]]]
@@ -119,11 +89,6 @@ infoview:
           field_separators:
             - type: "kind"
           ellipsise: 3
-      resource_class:
-        header: [["Resource Class:", ["main", "infoheader"]]]
-        path: "spec#resourceClassName"
-        default: "<unset>"
-        type: "str"
   shortcuts:
     "Node Selectors":
       key: "s"
