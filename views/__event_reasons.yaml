@@ -725,6 +725,10 @@ FailedReconcile:
   field_colors:
     - context: "main"
       type: "status_warning"
+FailedResourceClaimCreation:
+  field_colors:
+    - context: "main"
+      type: "status_warning"
 FailedScheduling:
   field_colors:
     - context: "main"
