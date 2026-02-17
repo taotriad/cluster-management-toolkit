@@ -2606,6 +2606,11 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api": "iaadeviceplugins",
         "namespaced": False,
     },
+    ("NpuDevicePlugin", "deviceplugin.intel.com"): {
+        "api_paths": ["apis/deviceplugin.intel.com/v1/"],
+        "api": "npudeviceplugins",
+        "namespaced": False,
+    },
     ("QatDevicePlugin", "deviceplugin.intel.com"): {
         "api_paths": ["apis/deviceplugin.intel.com/v1/"],
         "api": "qatdeviceplugins",
