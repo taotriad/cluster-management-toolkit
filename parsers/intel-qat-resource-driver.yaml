@@ -1,0 +1,13 @@
+---
+- name: "intel-qat-resource-driver"
+  show_in_selector: false
+  matchkeys:
+    - pod_name: "intel-qat-resource-driver"
+  parser_rules:
+    - name: "glog"
+    - name: "ts_8601"
+    - name: "override_severity"
+      overrides:
+        - matchtype: "startswith"
+          matchkey: "Driver Version:"
+          loglevel: "notice"
