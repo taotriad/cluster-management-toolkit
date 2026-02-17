@@ -3875,7 +3875,8 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api": "generaterequests",
     },
     ("GlobalContextEntry", "kyverno.io"): {
-        "api_paths": ["apis/kyverno.io/v2alpha1/"],
+        "api_paths": ["apis/kyverno.io/v2/",
+                      "apis/kyverno.io/v2alpha1/"],
         "api": "globalcontextentries",
         "namespaced": False,
     },
@@ -5269,6 +5270,56 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
     ("PlatformOperator", "platform.openshift.io"): {
         "api_paths": ["apis/platform.openshift.io/v1alpha1/"],
         "api": "platformoperators",
+        "namespaced": False,
+    },
+    # policies.kyverno.io
+    ("DeletingPolicy", "policies.kyverno.io"): {
+        "api_paths": ["apis/policies.kyverno.io/v1/"],
+        "api": "deletingpolicies",
+        "namespaced": False,
+    },
+    ("GeneratingPolicy", "policies.kyverno.io"): {
+        "api_paths": ["apis/policies.kyverno.io/v1/"],
+        "api": "generatingpolicies",
+        "namespaced": False,
+    },
+    ("ImageValidatingPolicy", "policies.kyverno.io"): {
+        "api_paths": ["apis/policies.kyverno.io/v1/"],
+        "api": "imagevalidatingpolicies",
+        "namespaced": False,
+    },
+    ("MutatingPolicy", "policies.kyverno.io"): {
+        "api_paths": ["apis/policies.kyverno.io/v1/"],
+        "api": "mutatingpolicies",
+        "namespaced": False,
+    },
+    ("NamespacedDeletingPolicy", "policies.kyverno.io"): {
+        "api_paths": ["apis/policies.kyverno.io/v1/"],
+        "api": "namespaceddeletingpolicies",
+    },
+    ("NamespacedGeneratingPolicy", "policies.kyverno.io"): {
+        "api_paths": ["apis/policies.kyverno.io/v1/"],
+        "api": "namespacedgeneratingpolicies",
+    },
+    ("NamespacedImageValidatingPolicy", "policies.kyverno.io"): {
+        "api_paths": ["apis/policies.kyverno.io/v1/"],
+        "api": "namespacedimagevalidatingpolicies",
+    },
+    ("NamespacedMutatingPolicy", "policies.kyverno.io"): {
+        "api_paths": ["apis/policies.kyverno.io/v1/"],
+        "api": "namespacedmutatingpolicies",
+    },
+    ("NamespacedValidatingPolicy", "policies.kyverno.io"): {
+        "api_paths": ["apis/policies.kyverno.io/v1/"],
+        "api": "namespacedvalidatingpolicies",
+    },
+    ("PolicyException", "policies.kyverno.io"): {
+        "api_paths": ["apis/policies.kyverno.io/v1/"],
+        "api": "policyexceptions",
+    },
+    ("ValidatingPolicy", "policies.kyverno.io"): {
+        "api_paths": ["apis/policies.kyverno.io/v1/"],
+        "api": "validatingpolicies",
         "namespaced": False,
     },
     # policy.cert-manager.io
