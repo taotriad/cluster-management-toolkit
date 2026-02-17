@@ -2,7 +2,33 @@
 - name: "habanalabs-device-plugin"
   show_in_selector: false
   matchkeys:
-    - pod_name: "habanalabs-device-plugin"
+    - image_name: "/intel/gaudi-base-operator"
+  parser_rules:
+    - name: "tab_separated"
+- name: "habanalabs-device-plugin"
+  show_in_selector: false
+  matchkeys:
+    - image_name: "/intel/gaudi-container-runtime"
+  parser_rules:
+    - name: "key_value"
+- name: "habanalabs-device-plugin"
+  show_in_selector: false
+  matchkeys:
+    - image_name: "/intel/gaudi-device-plugin"
+    - image_name: "/intel/gaudi-metric-exporter"
   parser_rules:
     - name: "ts_8601"
     - name: "json"
+- name: "habanalabs-device-plugin"
+  show_in_selector: false
+  matchkeys:
+    - image_name: "/intel/gaudi-feature-discovery"
+  parser_rules:
+    - name: "custom_splitter"
+      options:
+        regex: '^\d{4}.\d\d.\d\d \d\d.\d\d.\d\d ([A-Z]+) (.*)'
+        severity:
+          field: 1
+          transform: "str"
+        message:
+          field: 2
