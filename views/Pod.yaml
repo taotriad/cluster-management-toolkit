@@ -661,11 +661,13 @@ infoview:
       helptext: "Show container resources"
       title: "Resources:"
       widget: "windowwidget"
-      headers: ["Request Type:", "Limits:"]
+      headers: ["Request Type:", "Resource:"]
       itemgetter: "get_key_value"
       itemgetter_args:
         source: "selected"
         path: "resources"
+        ignored_keys:
+          - "claims"
       # This isn't supported for now
       sortcolumn: "requests"
     "SSH to Node":

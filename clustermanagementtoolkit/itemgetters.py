@@ -271,6 +271,7 @@ def get_key_value(obj: dict, **kwargs: Any) -> list[tuple[str, Any]]:
         Raises:
             TypeError: The type for value is not supported by get_key_value()
     """
+    ignored_keys: list[str] = deep_get(kwargs, DictPath("ignored_keys"), [])
     vlist = []
 
     if (path := deep_get(kwargs, DictPath("path"), "")):
@@ -284,6 +285,8 @@ def get_key_value(obj: dict, **kwargs: Any) -> list[tuple[str, Any]]:
                 # Log + Return empty?
                 raise TypeError("Could not convert list of key=value into a dict") from e
         for key_, value_ in d.items():
+            if key_ in ignored_keys:
+                continue
             if isinstance(value_, (list, tuple)):
                 value = ",".join(value_)
             elif isinstance(value_, dict):
