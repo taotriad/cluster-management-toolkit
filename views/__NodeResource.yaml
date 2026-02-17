@@ -11,8 +11,8 @@ listview:
     kind: "Node"
     postprocessor: "postprocessor_node_resources"
     units:
-      millicores: ["gpu.intel.com/millicores"]
-      mem: ["memory", "ephemeral-storage"]
+      millicores: ["cpu", "gpu.intel.com/millicores"]
+      mem: ["memory", "ephemeral-storage", "hugepages-1Gi", "hugepages-2Mi"]
   field_indexes:
     Normal:
       fields: ["name", "allocatable", "capacity"]
