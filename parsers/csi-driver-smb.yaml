@@ -3,6 +3,7 @@
   show_in_selector: false
   matchkeys:
     - image_name: "/sig-storage/smbplugin"
+    - image_name: "/k8s-staging-sig-storage/smbplugin"
   parser_rules:
     - name: "glog"
     - name: "custom_line"
