@@ -220,7 +220,7 @@ listview:
           installed_version:
             fieldgetter: "fieldgetter_executable_version"
             fieldgetter_args:
-              executable: "/usr/bin/kueuectl"
+              executable: ["/usr/bin/kueuectl", "/usr/bin/kubectl-kueue"]
               args: ["version"]
               version_regex: '^Client Version: v(\d+)(\.)(\d+)(\.)(\d+)'
           file_not_found_status: "No changelog found"

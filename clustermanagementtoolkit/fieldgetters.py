@@ -22,7 +22,7 @@ from clustermanagementtoolkit.cmttypes import deep_get, DictPath, FilePath
 from clustermanagementtoolkit.cmttypes import ProgrammingError, SecurityPolicy
 
 
-def fieldgetter_executable_version(**kwargs: Any) -> list[Any]:
+def fieldgetter_executable_version(**kwargs: Any) -> list[str]:
     """
     A fieldgetter that provides the version from an executable.
 
@@ -34,7 +34,7 @@ def fieldgetter_executable_version(**kwargs: Any) -> list[Any]:
         Returns:
             [str]: The version tuple
     """
-    executable: FilePath = FilePath(deep_get(kwargs, DictPath("executable"), ""))
+    executables: FilePath | list[FilePath] = deep_get(kwargs, DictPath("executable"), "")
     args: list[str] = deep_get(kwargs, DictPath("args"), [])
     version_regex: str = deep_get(kwargs, DictPath("version_regex"), '')
 
@@ -42,22 +42,28 @@ def fieldgetter_executable_version(**kwargs: Any) -> list[Any]:
     fallback_allowlist = ["/bin", "/sbin", "/usr/bin", "/usr/sbin",
                           "/usr/local/bin", "/usr/local/sbin", f"{HOMEDIR}/bin"]
 
-    try:
-        executable_path = secure_which(FilePath(executable), fallback_allowlist=fallback_allowlist,
-                                       security_policy=security_policy)
-    except FileNotFoundError:
-        executable_path = None
+    if isinstance(executables, (str, FilePath)):
+        executables = [FilePath(executables)]
 
-    version = []
+    version: list[str] = []
 
-    if executable_path:
-        result, _retval = execute_command_with_response([executable_path] + args)
-        if result:
-            for line in result.splitlines():
-                if (tmp := re.match(version_regex, line)) is not None:
-                    for field in tmp.groups():
-                        version.append(field)
-                    break
+    for executable in executables:
+        try:
+            executable_path = secure_which(FilePath(executable),
+                                           fallback_allowlist=fallback_allowlist,
+                                           security_policy=security_policy)
+        except FileNotFoundError:
+            continue
+
+        if executable_path:
+            result, _retval = execute_command_with_response([executable_path] + args)
+            if result:
+                for line in result.splitlines():
+                    if (tmp := re.match(version_regex, line)) is not None:
+                        for field in tmp.groups():
+                            version.append(field)
+                        break
+
     return ["".join(version)]
 
 
