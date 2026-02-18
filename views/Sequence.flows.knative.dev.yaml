@@ -206,7 +206,7 @@ infoview:
           field_colors:
             - type: "namespace"
   shortcuts:
-    "Open reply":
+    "Open Reply":
       key: "r"
       modifier: "shift"
       read_only: true

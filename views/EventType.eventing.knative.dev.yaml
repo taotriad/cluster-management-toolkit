@@ -1,0 +1,216 @@
+---
+kind: "EventType"
+api_family: "eventing.knative.dev"
+default_command: "eventtypes"
+listview:
+  name: "Event Types"
+  group: "Knative"
+  field_indexes:
+    Wide:
+      fields: ["namespace", "name", "type", "source", "ready", "age", "description", "reason"]
+    Normal:
+      fields: ["namespace", "name", "type", "ready", "age", "description", "reason"]
+  fields:
+    description:
+      header: "Description:"
+      path: "spec#description"
+      default: "<unset>"
+      type: "str"
+    ready:
+      header: "Ready:"
+      paths:
+        - path: "status#conditions"
+          pathtype: "items"
+          subpath: "status"
+          when:
+            - key: "type"
+              eq: "Ready"
+      type: "str"
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          mappings:
+            "True":
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+            "False":
+              field_colors:
+                - context: "main"
+                  type: "status_not_ok"
+    reason:
+      header: "Reason:"
+      paths:
+        - path: "status#conditions"
+          pathtype: "items"
+          subpath: "message"
+          when:
+            - key: "type"
+              eq: "Ready"
+      type: "list"
+      formatter: "list"
+    source:
+      header: "Source:"
+      paths:
+        - path: "spec#attributes"
+          pathtype: "items"
+          subpath: "value"
+          when:
+            - key: "name"
+              eq: "source"
+      default: "<unset>"
+      type: "str"
+    type:
+      header: "Type:"
+      paths:
+        - path: "spec#attributes"
+          pathtype: "items"
+          subpath: "value"
+          when:
+            - key: "name"
+              eq: "type"
+      default: "<unset>"
+      type: "str"
+infoview:
+  name: "Event Type Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["description", "controller", "reference",
+                 "type", "source", "ready", "reason"]
+    rows:
+      controller:
+        header: [["C", ["main", "infoheader_shortcut"]],
+                 ["ontroller:", ["main", "infoheader"]]]
+        paths:
+          - path: "metadata#ownerReferences"
+            pathtype: "items"
+            subpaths:
+              - "kind"
+              - "apiVersion"
+              - "name"
+            when:
+              - key: "controller"
+                eq: true
+            type: ["kind", "api_group", "name"]
+        default: "<none>"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "kind"
+            - type: "api_group"
+            - type: "generic"
+          field_separators:
+            - type: "kind_api_group"
+            - type: "kind"
+      description:
+        header: [["Description:", ["main", "infoheader"]]]
+        path: "spec#description"
+        default: "<unset>"
+        type: "str"
+      ready:
+        header: [["Ready:", ["main", "infoheader"]]]
+        paths:
+          - path: "status#conditions"
+            pathtype: "items"
+            subpath: "status"
+            when:
+              - key: "type"
+                eq: "Ready"
+        type: "str"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              "True":
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+              "False":
+                field_colors:
+                  - context: "main"
+                    type: "status_not_ok"
+              Unknown:
+                field_colors:
+                  - context: "main"
+                    type: "status_unknown"
+      reason:
+        header: [["Reason:", ["main", "infoheader"]]]
+        paths:
+          - path: "status#conditions"
+            pathtype: "items"
+            subpath: "message"
+            when:
+              - key: "type"
+                eq: "Ready"
+        type: "list"
+        formatter: "list"
+      reference:
+        header: [["R", ["main", "infoheader_shortcut"]],
+                 ["eference:", ["main", "infoheader"]]]
+        paths:
+          - path: [["spec#reference#kind"],
+                   ["spec#reference#apiVersion"],
+                   ["spec#reference#namespace"],
+                   ["spec#reference#name"]]
+            pathtype: "tuple"
+            type: ["kind", "api_group", "name", "name"]
+        default: "<none>"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "kind"
+            - type: "api_group"
+            - type: "namespace"
+            - type: "generic"
+          field_separators:
+            - type: "kind_api_group"
+            - type: "kind"
+            - type: "namespace"
+      source:
+        header: [["Source:", ["main", "infoheader"]]]
+        paths:
+          - path: "spec#attributes"
+            pathtype: "items"
+            subpath: "value"
+            when:
+              - key: "name"
+                eq: "source"
+        default: "<unset>"
+        type: "str"
+      type:
+        header: [["Type:", ["main", "infoheader"]]]
+        paths:
+          - path: "spec#attributes"
+            pathtype: "items"
+            subpath: "value"
+            when:
+              - key: "name"
+                eq: "type"
+        default: "<unset>"
+        type: "str"
+  shortcuts:
+    "Open controller":
+      key: "c"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for controller"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        namespace_path: "metadata#namespace"
+        owner_reference_path: "metadata#ownerReferences"
+    "Open Reference":
+      key: "r"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for reference"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind_path: "spec#reference#kind"
+        api_version_path: "spec#reference#apiVersion"
+        namespace_path: "spec#reference#namespace"
+        name_path: "spec#reference#name"

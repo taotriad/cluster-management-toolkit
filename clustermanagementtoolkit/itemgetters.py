@@ -465,87 +465,92 @@ def get_list_fields(obj: dict, **kwargs: Any) -> list[Any]:
     vlist: list[Any] = []
 
     # pylint: disable-next=too-many-nested-blocks
-    if "path" in kwargs and "fields" in kwargs:
+    if "path" in kwargs and ("fields" in kwargs or "nested_fields" in kwargs):
         raw_path = deep_get(kwargs, DictPath("path"))
+        pass_ref = deep_get(kwargs, DictPath("pass_ref"), False)
+        override_types = deep_get(kwargs, DictPath("override_types"), [])
+
         if isinstance(raw_path, str):
             raw_path = [raw_path]
+
         paths = []
         for path in raw_path:
             paths.append(DictPath(path))
-        fields = deep_get(kwargs, DictPath("fields"), [])
-        pass_ref = deep_get(kwargs, DictPath("pass_ref"), False)
-        override_types = deep_get(kwargs, DictPath("override_types"), [])
-        for item_index, item in enumerate(deep_get_with_fallback(obj, paths, [])):
-            tmp = []
-            for i, field in enumerate(fields):
-                default = ""
-                value_type = "value"
-                quote = False
-                index_template = "<<<index>>>"
-                if isinstance(field, dict):
-                    default = deep_get(field, DictPath("default"), "")
-                    index_template = deep_get(field, DictPath("index_template"), "<<<index>>>")
-                    value_type = deep_get(field, DictPath("value"), "value")
-                    quote = deep_get(field, DictPath("quote"), False)
-                    # Needs to be last here, since it overwrites field
-                    field = deep_get(field, DictPath("name"), "")
+        tmp_fields = deep_get(kwargs, DictPath("fields"), [])
+        nested_fields = deep_get(kwargs, DictPath("nested_fields"), [tmp_fields])
 
-                # Instead of inserting a field here we insert a field containing list index
-                if value_type == "index":
-                    index_str = cmtlib.substitute_string(index_template,
-                                                         {"<<<index>>>": str(item_index)})
-                    tmp.append(index_str)
-                    continue
+        for fields in nested_fields:
+            for item_index, item in enumerate(deep_get_with_fallback(obj, paths, [])):
+                tmp = []
+                for i, field in enumerate(fields):
+                    default = ""
+                    value_type = "value"
+                    quote = False
+                    index_template = "<<<index>>>"
+                    if isinstance(field, dict):
+                        default = deep_get(field, DictPath("default"), "")
+                        index_template = deep_get(field, DictPath("index_template"), "<<<index>>>")
+                        value_type = deep_get(field, DictPath("value"), "value")
+                        quote = deep_get(field, DictPath("quote"), False)
+                        # Needs to be last here, since it overwrites field
+                        field = deep_get(field, DictPath("name"), "")
 
-                if isinstance(field, str):
-                    field = [DictPath(field)]
+                    # Instead of inserting a field here we insert a field containing list index
+                    if value_type == "index":
+                        index_str = cmtlib.substitute_string(index_template,
+                                                             {"<<<index>>>": str(item_index)})
+                        tmp.append(index_str)
+                        continue
 
-                value_ = deep_get_with_fallback(item, field, default)
-                if value_type == "key":
-                    for key in field:
-                        if key in item:
-                            value = key
-                elif (isinstance(value_, list)
-                        or (i < len(fields) and i < len(override_types)
-                            and override_types[i] == "list")):
-                    value = ", ".join(value_)
-                elif (isinstance(value_, dict)
-                        or (i < len(fields) and i < len(override_types)
-                            and override_types[i] == "dict")):
-                    value = ", ".join(f"{key}:{val}" for (key, val) in value_.items())
-                # We do not need to check for bool, since it is a subclass of int
-                elif (isinstance(value_, (int, float))
-                        or (i < len(fields) and i < len(override_types)
-                            and override_types[i] == "str")):
-                    value = str(value_)
-                elif isinstance(value_, str):
-                    if (i < len(fields) and i < len(override_types)
-                            and override_types[i] == "timestamp"):
+                    if isinstance(field, str):
+                        field = [DictPath(field)]
 
-                        # Empty string or None indicates a missing timestamp
-                        if value_ is None or not value_:
-                            value = "<unset>"
+                    value_ = deep_get_with_fallback(item, field, default)
+                    if value_type == "key":
+                        for key in field:
+                            if key in item:
+                                value = key
+                    elif (isinstance(value_, list)
+                            or (i < len(fields) and i < len(override_types)
+                                and override_types[i] == "list")):
+                        value = ", ".join(value_)
+                    elif (isinstance(value_, dict)
+                            or (i < len(fields) and i < len(override_types)
+                                and override_types[i] == "dict")):
+                        value = ", ".join(f"{key}:{val}" for (key, val) in value_.items())
+                    # We do not need to check for bool, since it is a subclass of int
+                    elif (isinstance(value_, (int, float))
+                            or (i < len(fields) and i < len(override_types)
+                                and override_types[i] == "str")):
+                        value = str(value_)
+                    elif isinstance(value_, str):
+                        if (i < len(fields) and i < len(override_types)
+                                and override_types[i] == "timestamp"):
+
+                            # Empty string or None indicates a missing timestamp
+                            if value_ is None or not value_:
+                                value = "<unset>"
+                            else:
+                                timestamp = timestamp_to_datetime(value_)
+                                value = f"{timestamp.astimezone():%Y-%m-%d %H:%M:%S}"
+                        elif (i < len(fields) and i < len(override_types)
+                                and override_types[i] == "age"):
+                            if value_ is None:
+                                value = "<unset>"
+                            else:
+                                timestamp = timestamp_to_datetime(value_)
+                                value = cmtlib.seconds_to_age(get_since(timestamp))
                         else:
-                            timestamp = timestamp_to_datetime(value_)
-                            value = f"{timestamp.astimezone():%Y-%m-%d %H:%M:%S}"
-                    elif (i < len(fields) and i < len(override_types)
-                            and override_types[i] == "age"):
-                        if value_ is None:
-                            value = "<unset>"
-                        else:
-                            timestamp = timestamp_to_datetime(value_)
-                            value = cmtlib.seconds_to_age(get_since(timestamp))
+                            value = value_
                     else:
-                        value = value_
+                        raise ValueError(f"Unhandled type {type(value_)} for {field}={value}")
+                    if quote:
+                        value = f"\"{value}\""
+                    tmp.append(value)
+                if pass_ref:
+                    vlist.append({"fields": tmp, "ref": item})
                 else:
-                    raise ValueError(f"Unhandled type {type(value_)} for {field}={value}")
-                if quote:
-                    value = f"\"{value}\""
-                tmp.append(value)
-            if pass_ref:
-                vlist.append({"fields": tmp, "ref": item})
-            else:
-                vlist.append(tmp)
+                    vlist.append(tmp)
     return vlist
 
 

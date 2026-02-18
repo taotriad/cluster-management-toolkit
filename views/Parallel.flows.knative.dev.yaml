@@ -1,0 +1,320 @@
+---
+kind: "Parallel"
+api_family: "flows.knative.dev"
+default_command: "parallels"
+listview:
+  name: "Parallels"
+  group: "Knative"
+  field_indexes:
+    Wide:
+      fields: ["namespace", "name", "address", "ready", "age", "reason"]
+    Normal:
+      fields: ["namespace", "name", "ready", "age", "reason"]
+  fields:
+    address:
+      header: "Address:"
+      path: "status#address#url"
+      default: "<unset>"
+      type: "str"
+      formatter: "address"
+    ready:
+      header: "Ready:"
+      paths:
+        - path: "status#conditions"
+          pathtype: "items"
+          subpath: "status"
+          when:
+            - key: "type"
+              eq: "Ready"
+      type: "str"
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          mappings:
+            "True":
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+            "False":
+              field_colors:
+                - context: "main"
+                  type: "status_not_ok"
+    reason:
+      header: "Reason:"
+      paths:
+        - path: "status#conditions"
+          pathtype: "items"
+          subpath: "message"
+          when:
+            - key: "type"
+              eq: "Ready"
+      type: "list"
+      formatter: "list"
+infoview:
+  name: "Parallel Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["address",
+                 "ingress_channel_header",
+                 "ingress_channel_channel",
+                 "ingress_channel_ready",
+                 "reply",
+                 "ready", "reason"]
+    rows:
+      address:
+        header: [["Address:", ["main", "infoheader"]]]
+        path: "status#address#url"
+        default: "<unset>"
+        type: "str"
+        formatter: "address"
+      ingress_channel_channel:
+        header: [["  C", ["main", "infoheader"]],
+                 ["h", ["main", "infoheader_shortcut"]],
+                 ["annel:", ["main", "infoheader"]]]
+        paths:
+          - path: [["status#ingressChannelStatus#channel#kind"],
+                   ["status#ingressChannelStatus#channel#apiVersion"],
+                   ["status#ingressChannelStatus#channel#namespace"],
+                   ["status#ingressChannelStatus#channel#name"]]
+            pathtype: "tuple"
+            default: ["<unset>"]
+            type: ["kind", "api_group", "name", "name"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "kind"
+            - type: "api_group"
+            - type: "namespace"
+            - type: "generic"
+          field_separators:
+            - type: "kind_api_group"
+            - type: "kind"
+            - type: "namespace"
+      ingress_channel_header:
+        header: [["Ingress Channel:", ["main", "infoheader"]]]
+      ingress_channel_ready:
+        header: [["  Ready:", ["main", "infoheader"]]]
+        path: "status#ingressChannelStatus#ready#status"
+        default: "<unset>"
+        type: "bool"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              "True":
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+              "False":
+                field_colors:
+                  - context: "main"
+                    type: "status_not_ok"
+              Unknown:
+                field_colors:
+                  - context: "main"
+                    type: "status_unknown"
+      ready:
+        header: [["Ready:", ["main", "infoheader"]]]
+        paths:
+          - path: "status#conditions"
+            pathtype: "items"
+            subpath: "status"
+            when:
+              - key: "type"
+                eq: "Ready"
+        type: "str"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              "True":
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+              "False":
+                field_colors:
+                  - context: "main"
+                    type: "status_not_ok"
+              Unknown:
+                field_colors:
+                  - context: "main"
+                    type: "status_unknown"
+      reason:
+        header: [["Reason:", ["main", "infoheader"]]]
+        paths:
+          - path: "status#conditions"
+            pathtype: "items"
+            subpath: "message"
+            when:
+              - key: "type"
+                eq: "Ready"
+        type: "list"
+        formatter: "list"
+      reply:
+        header: [["R", ["main", "infoheader_shortcut"]],
+                 ["eply:", ["main", "infoheader"]]]
+        paths:
+          - path: [["spec#reply#ref#kind"],
+                   ["spec#reply#ref#apiVersion"],
+                   ["spec#reply#ref#namespace"],
+                   ["spec#reply#ref#name"]]
+            pathtype: "tuple"
+            type: ["kind", "api_group", "name", "name"]
+        default: "<none>"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "kind"
+            - type: "api_group"
+            - type: "namespace"
+            - type: "generic"
+          field_separators:
+            - type: "kind_api_group"
+            - type: "kind"
+            - type: "namespace"
+  listpad:
+    listgetter: "listgetter_path"
+    listgetter_args:
+      path: "spec#branches"
+    infogetter: "generic_infogetter"
+    field_indexes:
+      Normal:
+        fields: ["filter", "subscriber"]
+        sortcolumn: "filter"
+    fields:
+      filter:
+        header: "Filter:"
+        paths:
+          - path: [["filter#ref#kind"], ["filter#ref#apiVersion"],
+                   ["filter#ref#namespace"], ["filter#ref#name"]]
+            pathtype: "tuple"
+            type: ["kind", "api_group", "name", "name"]
+            default: ["<none>"]
+        type: "str"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "kind"
+            - type: "api_group"
+            - type: "namespace"
+            - type: "generic"
+          field_separators:
+            - type: "kind_api_group"
+            - type: "kind"
+            - type: "namespace"
+      subscriber:
+        header: "Subscriber:"
+        paths:
+          - path: [["subscriber#ref#kind"], ["subscriber#ref#apiVersion"],
+                   ["subscriber#ref#namespace"], ["subscriber#ref#name"]]
+            pathtype: "tuple"
+            type: ["kind", "api_group", "name", "name"]
+            default: ["<none>"]
+        type: "str"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "kind"
+            - type: "api_group"
+            - type: "namespace"
+            - type: "generic"
+          field_separators:
+            - type: "kind_api_group"
+            - type: "kind"
+            - type: "namespace"
+  shortcuts:
+    "Open channel":
+      key: "h"
+      read_only: true
+      helptext: "Open channel"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind_path: "status#ingressChannelStatus#channel#kind"
+        api_version_path: "status#ingressChannelStatus#channel#apiVersion"
+        namespace_path: "status#ingressChannelStatus#channel#namespace"
+        name_path: "status#ingressChannelStatus#channel#name"
+    "Open reply":
+      key: "r"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for reply"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind_path: "spec#reply#ref#kind"
+        api_version_path: "spec#reply#ref#apiVersion"
+        namespace_path: "spec#reply#ref#namespace"
+        name_path: "spec#reply#ref#name"
+    "Open Filter":
+      key: "f"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for filter"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      force_update: true
+      action_args:
+        _pass_selected: true
+        _pass_selected_obj: true
+        kind_path: "filter#ref#kind"
+        api_version_path: filter#ref#apiVersion"
+        namespace_path: "filter#ref#namespace"
+        name_path: "filter#ref#name"
+    "Open Subscription":
+      key: "s"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for subscription"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      force_update: true
+      action_args:
+        _pass_selected: true
+        _pass_selected_obj: true
+        kind_path: "subscriber#ref#kind"
+        api_version_path: subscriber#ref#apiVersion"
+        namespace_path: "subscriber#ref#namespace"
+        name_path: "subscriber#ref#name"
+    "Show branch statuses":
+      key: "b"
+      read_only: true
+      helptext: "Show branch statuses"
+      widget: "windowwidget"
+      title: "Branch Statuses:"
+      selectable: true
+      headers: ["Kind:", "API-Version:", "Namespace:", "Name:", "Ready:"]
+      itemgetter: "get_list_fields"
+      itemgetter_args:
+        path: "status#branchStatuses"
+        fields_type: "nested_list"
+        nested_fields:
+          - ["filterChannelStatus#channel#kind",
+             "filterChannelStatus#channel#apiVersion",
+             "filterChannelStatus#channel#namespace",
+             "filterChannelStatus#channel#name",
+             "filterChannelStatus#ready#status"]
+          - ["filterSubscriptionStatus#subscription#kind",
+             "filterSubscriptionStatus#subscription#apiVersion",
+             "filterSubscriptionStatus#subscription#namespace",
+             "filterSubscriptionStatus#subscription#name",
+             "filterSubscriptionStatus#ready#status"]
+          - ["subscriberSubscriptionStatus#subscription#kind",
+             "subscriberSubscriptionStatus#subscription#apiVersion",
+             "subscriberSubscriptionStatus#subscription#namespace",
+             "subscriberSubscriptionStatus#subscription#name",
+             "subscriberSubscriptionStatus#ready#status"]
+      # This isn't supported for now
+      sortcolumn: "namespace"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        _pass_selected: true
+        kind_path: 0
+        api_version_path: 1
+        namespace_path: 2
+        name_path: 3
