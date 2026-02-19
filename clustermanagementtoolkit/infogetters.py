@@ -1833,14 +1833,13 @@ def get_key_value_info(**kwargs: Any) -> list[Type]:
 
         Parameters:
             **kwargs (dict[str, Any]): Keyword arguments
-                vlist ([dict[str, Any]]): The list of key/value objects
+                vlist (dict[str, Any]): The dict of key/value objects
         Returns:
             ([InfoClass]): A list with info
     """
     info: list[Type] = []
 
-    vlist = deep_get(kwargs, DictPath("_vlist"))
-    if vlist is None:
+    if not (vlist := deep_get(kwargs, DictPath("_vlist"))):
         return info
 
     for key, value in vlist.items():
