@@ -114,7 +114,7 @@ from clustermanagementtoolkit import curses_helper
 
 from clustermanagementtoolkit import cmtlib
 from clustermanagementtoolkit.cmtlib import decode_value, clamp, get_package_versions
-from clustermanagementtoolkit.cmtlib import make_label_selector
+from clustermanagementtoolkit.cmtlib import make_label_selector, make_label_selector_set_expression
 from clustermanagementtoolkit.cmtlib import none_timestamp, timestamp_to_datetime
 from clustermanagementtoolkit.cmtlib import split_msg, versiontuple, read_cmtconfig, substitute_list
 from clustermanagementtoolkit.cmtlib import check_allowlist
@@ -2120,6 +2120,12 @@ def genericlistloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                     action_args["selected"] = selected
                 if "_pass_selection_vars" in action_args:
                     action_args["selection_vars"] = selection_vars
+                if "_parent_kind_tuple_paths" in action_args and selected is not None:
+                    parent_kind_path, parent_api_version_path = \
+                        deep_get(action_args, DictPath("_parent_kind_tuple_paths"))
+                    parent_kind = deep_get(obj, parent_kind_path, "")
+                    parent_api_version = deep_get(obj, parent_api_version_path, "")
+                    action_args["_parent_kind_tuple"] = (parent_kind, parent_api_version)
                 if "_parent_namespace_path" in action_args and selected is not None:
                     parent_namespace_path = \
                         deep_get(action_args, DictPath("_parent_namespace_path"))
@@ -4269,7 +4275,16 @@ def genericinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                         elif isinstance(label_value, list):
                             label_selectors[label_key] = deep_get_with_fallback(obj, label_value)
                     listgetter_args["label_selector"] = make_label_selector(label_selectors)
-                if not deep_get(listgetter_args, DictPath("label_selector"), "") \
+                _set_based_selector_path = \
+                    deep_get(listgetter_args, DictPath("_set_based_selector_path"))
+                if _set_based_selector_path:
+                    set_expression = \
+                        make_label_selector_set_expression(deep_get(obj, _set_based_selector_path))
+                    if listgetter_args["label_selector"]:
+                        listgetter_args["label_selector"] += "," + set_expression
+                    else:
+                        listgetter_args["label_selector"] = set_expression
+                if not listgetter_args["label_selector"] \
                         and deep_get(listgetter_args, DictPath("_none_on_empty_selector"), False):
                     listgetter = listgetters.listgetter_noop
                 _field_selector = deep_get(listgetter_args, DictPath("_field_selector"), {})
@@ -4921,6 +4936,12 @@ def genericinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                     action_args["selected"] = selected
                 if "_pass_selected_obj" in action_args and selected is not None:
                     action_args["selected_obj"] = getattr(selected, "ref", None)
+                if "_parent_kind_tuple_paths" in action_args and selected is not None:
+                    parent_kind_path, parent_api_version_path = \
+                        deep_get(action_args, DictPath("_parent_kind_tuple_paths"))
+                    parent_kind = deep_get(obj, parent_kind_path, "")
+                    parent_api_version = deep_get(obj, parent_api_version_path, "")
+                    action_args["_parent_kind_tuple"] = (parent_kind, parent_api_version)
                 if "_parent_namespace_path" in action_args:
                     parent_namespace_path = \
                         deep_get(action_args, DictPath("_parent_namespace_path"))
@@ -6799,7 +6820,8 @@ def resourceinfodispatch_with_lookup(stdscr: curses.window, **kwargs: Any) -> Re
                 namespaced_name (str): A "namespace<separator>name" string
                 namespaced_name_path (str): The path to a "namespace<separator>name" string
                 namespaced_name_separator (str): The separator for the namespaced_name string
-                _parent_namespace: Namespace of the parent object
+                _parent_kind_tuple: Kind tuple from the parent object
+                _parent_namespace: Namespace from the parent object
                 owner_reference_path (DictPath): The path to the owner reference
                 holder_identity_path (DictPath): The path to the holder identity
         Returns:
@@ -7129,6 +7151,15 @@ def resourceinfodispatch_with_lookup(stdscr: curses.window, **kwargs: Any) -> Re
             # This is needed since CiliumID, for instance, is an integer
             if name is not None:
                 name = str(name)
+
+    parent_kind_tuple = deep_get(kwargs, DictPath("_parent_kind_tuple"), ("", ""))
+    if parent_kind_tuple != ("", ""):
+        parent_kind, parent_api_version = parent_kind_tuple
+        if "/" in parent_api_version:
+            parent_api_family = parent_api_version.split("/")[0]
+        else:
+            parent_api_family = ""
+        kind = (parent_kind, parent_api_family)
 
     if kind is None or isinstance(kind, tuple) and kind[0] is None:
         return Retval.NOMATCH
