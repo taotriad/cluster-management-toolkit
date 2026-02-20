@@ -1,19 +1,18 @@
 ---
-kind: "PingSource"
+kind: "IntegrationSource"
 api_family: "sources.knative.dev"
-default_command: "pingsources"
+default_command: "integrationsources"
 command:
-  - "pingsrcs"
-  - "pingsrc"
+  - "integrationsrcs"
+  - "integrationsrc"
 listview:
-  name: "Ping Sources"
+  name: "Integration Sources"
   group: "Knative"
   field_indexes:
     Wide:
-      fields: ["namespace", "name", "sink_uri", "schedule", "ready", "age",
-               "reason"]
+      fields: ["namespace", "name", "sink_uri", "ready", "age", "reason"]
     Normal:
-      fields: ["namespace", "name", "schedule", "ready", "age", "reason"]
+      fields: ["namespace", "name", "ready", "age", "reason"]
   fields:
     ready:
       header: "Ready:"
@@ -53,11 +52,6 @@ listview:
               eq: "Ready"
       type: "list"
       formatter: "list"
-    schedule:
-      header: "Schedule:"
-      path: "spec#schedule"
-      default: "<unset>"
-      type: "str"
     sink_uri:
       header: "Sink URI:"
       paths:
@@ -67,21 +61,19 @@ listview:
       type: "str"
       formatter: "address"
 infoview:
-  name: "Ping Source Info"
+  name: "Integration Source Info"
   infopad:
     row_indexes:
       Normal:
         fields: ["sink_header",
                  "sink_sink",
                  "sink_uri",
-                 "schedule",
+                 "timer_header",
+                 "timer_message",
+                 "timer_content_type",
+                 "timer_period",
                  "ready", "reason"]
     rows:
-      content_type:
-        header: [["Content Type:", ["main", "infoheader"]]]
-        path: "spec#contentType"
-        default: "<unset>"
-        type: "str"
       ready:
         header: [["Ready:", ["main", "infoheader"]]]
         paths:
@@ -120,11 +112,6 @@ infoview:
                 eq: "Ready"
         type: "list"
         formatter: "list"
-      schedule:
-        header: [["Schedule:", ["main", "infoheader"]]]
-        path: "spec#schedule"
-        default: "<unset>"
-        type: "str"
       sink_header:
         header: [["Sink:", ["main", "infoheader"]]]
       sink_sink:
@@ -137,8 +124,8 @@ infoview:
                    ["metadata#namespace"],
                    ["spec#sink#ref#name"]]
             pathtype: "tuple"
+            default: ["", "", "", "<unset>"]
             type: ["kind", "api_group", "name", "name"]
-        default: "<none>"
         formatter: "list"
         formatting:
           field_colors:
@@ -158,12 +145,22 @@ infoview:
         default: "<unset>"
         type: "str"
         formatter: "address"
-  logpad:
-    infogetter: "logpad_formatted"
-    infogetter_args:
-      formatter: "format_yaml"
-      path: "spec#data"
-    timestamps: false
+      timer_header:
+        header: [["Timer:", ["main", "infoheader"]]]
+      timer_content_type:
+        header: [["  Content Type:", ["main", "infoheader"]]]
+        path: "spec#timer#contentType"
+        default: "<unset>"
+        type: "str"
+      timer_message:
+        header: [["  Message:", ["main", "infoheader"]]]
+        path: "spec#timer#message"
+        type: "str"
+      timer_period:
+        header: [["  Period:", ["main", "infoheader"]]]
+        path: "spec#timer#period"
+        type: "int"
+        formatter: "numerical"
   shortcuts:
     "Open Sink":
       key: "s"
@@ -178,17 +175,3 @@ infoview:
         api_version_path: "spec#sink#ref#apiVersion"
         namespace_path: "metadata#namespace"
         name_path: "spec#sink#ref#name"
-    "CE Attributes":
-      key: "c"
-      modifier: "shift"
-      read_only: true
-      helptext: "List CE Attributes"
-      widget: "windowwidget"
-      title: "CE Attributes:"
-      headers: ["Type:", "Source:"]
-      itemgetter: "get_list_fields"
-      itemgetter_args:
-        path: "status#ceAttributes"
-        fields:
-          - "type"
-          - "source"

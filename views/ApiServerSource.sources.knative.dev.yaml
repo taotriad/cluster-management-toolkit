@@ -1,20 +1,27 @@
 ---
-kind: "PingSource"
+kind: "ApiServerSource"
 api_family: "sources.knative.dev"
-default_command: "pingsources"
+default_command: "apiserversources"
 command:
-  - "pingsrcs"
-  - "pingsrc"
+  - "apiserversrcs"
+  - "apiserversrc"
+  - "apisrvsrcs"
+  - "apisrvsrc"
 listview:
-  name: "Ping Sources"
+  name: "API-Server Sources"
   group: "Knative"
   field_indexes:
     Wide:
-      fields: ["namespace", "name", "sink_uri", "schedule", "ready", "age",
-               "reason"]
+      fields: ["namespace", "name", "sink_uri", "mode",
+               "ready", "age", "reason"]
     Normal:
-      fields: ["namespace", "name", "schedule", "ready", "age", "reason"]
+      fields: ["namespace", "name", "ready", "mode", "age", "reason"]
   fields:
+    mode:
+      header: "Mode:"
+      path: "spec#mode"
+      default: "<unset>"
+      type: "str"
     ready:
       header: "Ready:"
       paths:
@@ -53,11 +60,6 @@ listview:
               eq: "Ready"
       type: "list"
       formatter: "list"
-    schedule:
-      header: "Schedule:"
-      path: "spec#schedule"
-      default: "<unset>"
-      type: "str"
     sink_uri:
       header: "Sink URI:"
       paths:
@@ -67,19 +69,19 @@ listview:
       type: "str"
       formatter: "address"
 infoview:
-  name: "Ping Source Info"
+  name: "API-Server Source Info"
   infopad:
     row_indexes:
       Normal:
         fields: ["sink_header",
                  "sink_sink",
                  "sink_uri",
-                 "schedule",
+                 "mode",
                  "ready", "reason"]
     rows:
-      content_type:
-        header: [["Content Type:", ["main", "infoheader"]]]
-        path: "spec#contentType"
+      mode:
+        header: [["Mode:", ["main", "infoheader"]]]
+        path: "spec#mode"
         default: "<unset>"
         type: "str"
       ready:
@@ -120,11 +122,6 @@ infoview:
                 eq: "Ready"
         type: "list"
         formatter: "list"
-      schedule:
-        header: [["Schedule:", ["main", "infoheader"]]]
-        path: "spec#schedule"
-        default: "<unset>"
-        type: "str"
       sink_header:
         header: [["Sink:", ["main", "infoheader"]]]
       sink_sink:
@@ -137,8 +134,8 @@ infoview:
                    ["metadata#namespace"],
                    ["spec#sink#ref#name"]]
             pathtype: "tuple"
+            default: ["", "", "", "<unset>"]
             type: ["kind", "api_group", "name", "name"]
-        default: "<none>"
         formatter: "list"
         formatting:
           field_colors:
@@ -158,12 +155,58 @@ infoview:
         default: "<unset>"
         type: "str"
         formatter: "address"
-  logpad:
-    infogetter: "logpad_formatted"
-    infogetter_args:
-      formatter: "format_yaml"
-      path: "spec#data"
-    timestamps: false
+  listpad:
+    listgetter: "listgetter_path"
+    listgetter_args:
+      path: "spec#resources"
+    infogetter: "generic_infogetter"
+    field_indexes:
+      Normal:
+        fields: ["kind", "label_selector", "set_based_selector"]
+        sortcolumn: "kind"
+    fields:
+      kind:
+        header: "Kind:"
+        paths:
+          - path: [["kind"], ["apiVersion"]]
+            pathtype: "tuple"
+            type: ["kind", "api_group"]
+            default: ["<unset>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "kind"
+            - type: "api_version"
+          field_separators:
+            - type: "kind_api_group"
+      label_selector:
+        header: "Label Selector:"
+        paths:
+          - path: ["selector#matchLabels"]
+            pathtype: "key_value"
+            default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "key"
+            - type: "value"
+          field_separators:
+            - type: "selector"
+      set_based_selector:
+        header: "Set-based Selector:"
+        paths:
+          - path: "selector#matchExpressions"
+            pathtype: "match_expression"
+            default: "<none>"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "key"
+            - type: "operator"
+            - type: "value"
+          field_separators:
+            - type: "space"
+            - type: "no_pad"
   shortcuts:
     "Open Sink":
       key: "s"
@@ -178,17 +221,27 @@ infoview:
         api_version_path: "spec#sink#ref#apiVersion"
         namespace_path: "metadata#namespace"
         name_path: "spec#sink#ref#name"
-    "CE Attributes":
-      key: "c"
+    "View CloudEvent Overrides":
+      key: "o"
       modifier: "shift"
       read_only: true
-      helptext: "List CE Attributes"
-      widget: "windowwidget"
-      title: "CE Attributes:"
-      headers: ["Type:", "Source:"]
-      itemgetter: "get_list_fields"
-      itemgetter_args:
-        path: "status#ceAttributes"
-        fields:
-          - "type"
-          - "source"
+      helptext: "Show CloudEvent Overrides"
+      action: "call"
+      action_call: "view_yaml"
+      action_args:
+        title: "CloudEvent Overrides"
+        _named_title: true
+        _pass_obj: true
+        path: "spec#ceOverrides"
+    "View Container Template":
+      key: "t"
+      modifier: "shift"
+      read_only: true
+      helptext: "Show Container Template"
+      action: "call"
+      action_call: "view_yaml"
+      action_args:
+        title: "Container Template"
+        _named_title: true
+        _pass_obj: true
+        path: "spec#template"

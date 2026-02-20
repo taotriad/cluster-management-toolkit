@@ -1,22 +1,17 @@
 ---
-kind: "JobSink"
-api_family: "sinks.knative.dev"
-default_command: "jobsinks"
+kind: "SinkBinding"
+api_family: "sources.knative.dev"
+default_command: "sinkbindings"
 listview:
-  name: "Job Sinks"
+  name: "Sink Bindings"
   group: "Knative"
   field_indexes:
     Wide:
-      fields: ["namespace", "name", "address", "ready", "age", "reason"]
+      fields: ["namespace", "name", "sink_uri",
+               "ready", "age", "reason"]
     Normal:
       fields: ["namespace", "name", "ready", "age", "reason"]
   fields:
-    address:
-      header: "Address:"
-      path: "status#address#url"
-      default: "<unset>"
-      type: "str"
-      formatter: "address"
     ready:
       header: "Ready:"
       paths:
@@ -55,24 +50,29 @@ listview:
               eq: "Ready"
       type: "list"
       formatter: "list"
+    sink_uri:
+      header: "Sink URI:"
+      paths:
+        - path: ["status#sinkUri", "spec#sink#uri"]
+          pathtype: "value"
+      default: "<unset>"
+      type: "str"
+      formatter: "address"
 infoview:
-  name: "Job Sink Info"
+  name: "Sink Binding Info"
   infopad:
     row_indexes:
       Normal:
-        fields: ["address", "job_selector", "ready", "reason"]
+        fields: ["sink_header",
+                 "sink_sink",
+                 "sink_uri",
+                 "subject_header",
+                 "subject_kind",
+                 "subject_referent",
+                 "subject_label_selector",
+                 "subject_set_based_selector",
+                 "ready", "reason"]
     rows:
-      address:
-        header: [["Address:", ["main", "infoheader"]]]
-        path: "status#address#url"
-        default: "<unset>"
-        type: "str"
-        formatter: "address"
-      job_selector:
-        header: [["Job Selector:", ["main", "infoheader"]]]
-        path: "status#job#selector"
-        default: "<none>"
-        type: "str"
       ready:
         header: [["Ready:", ["main", "infoheader"]]]
         paths:
@@ -111,18 +111,108 @@ infoview:
                 eq: "Ready"
         type: "list"
         formatter: "list"
+      sink_header:
+        header: [["Sink:", ["main", "infoheader"]]]
+      sink_sink:
+        header: [["  ", ["main", "infoheader"]],
+                 ["S", ["main", "infoheader_shortcut"]],
+                 ["ink:", ["main", "infoheader"]]]
+        paths:
+          - path: [["spec#sink#ref#kind"],
+                   ["spec#sink#ref#apiVersion"],
+                   ["metadata#namespace"],
+                   ["spec#sink#ref#name"]]
+            pathtype: "tuple"
+            default: ["", "", "", "<unset>"]
+            type: ["kind", "api_group", "name", "name"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "kind"
+            - type: "api_group"
+            - type: "namespace"
+            - type: "generic"
+          field_separators:
+            - type: "kind_api_group"
+            - type: "kind"
+            - type: "namespace"
+      sink_uri:
+        header: [["  URI:", ["main", "infoheader"]]]
+        paths:
+          - path: ["status#sinkUri", "spec#sink#uri"]
+            pathtype: "value"
+        default: "<unset>"
+        type: "str"
+        formatter: "address"
+      subject_header:
+        header: [["Subject:", ["main", "infoheader"]]]
+      subject_kind:
+        header: [["  Kind:", ["main", "infoheader"]]]
+        paths:
+          - path: [["spec#subject#kind"], ["spec#subject#apiVersion"]]
+            pathtype: "tuple"
+            type: ["kind", "api_group"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "kind"
+            - type: "api_group"
+          field_separators:
+            - type: "kind_api_group"
+      subject_label_selector:
+        header: [["  La", ["main", "infoheader"]],
+                 ["b", ["main", "infoheader_shortcut"]],
+                 ["el Selector:", ["main", "infoheader"]]]
+        paths:
+          - path: ["spec#subject#selector#matchLabels"]
+            pathtype: "key_value"
+            default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "key"
+            - type: "value"
+          field_separators:
+            - type: "selector"
+      subject_referent:
+        header: [["  ", ["main", "infoheader"]],
+                 ["R", ["main", "infoheader_shortcut"]],
+                 ["eferent:", ["main", "infoheader"]]]
+        paths:
+          - path: [["spec#subject#namespace"], ["spec#subject#name"]]
+            pathtype: "tuple"
+            default: ["<unset>"]
+        formatter: "list"
+        foramtting:
+          field_colors:
+            - type: "namespace"
+            - type: "generic"
+      subject_set_based_selector:
+        header: [["  Set-based Selector:", ["main", "infoheader"]]]
+        paths:
+          - path: "spec#subject#selector#matchExpressions"
+            pathtype: "match_expression"
+            default: "<none>"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "key"
+            - type: "operator"
+            - type: "value"
+          field_separators:
+            - type: "space"
+            - type: "no_pad"
   listpad:
     listgetter: "generic_listgetter"
     listgetter_args:
-      _kind: "Job"
-      _api_family: "batch"
-      _label_selector_path: "status#job#selector"
+      _kind_path: "spec#subject#kind"
+      _api_version_path: "spec#subject#apiVersion"
+      _label_selector_path: "spec#subject#selector#matchLabels"
+      _set_based_selector_path: "spec#subject#selector#matchExpressions"
       _none_on_empty_selector: true
     infogetter: "generic_infogetter"
     on_activation:
-      call: "resourceinfodispatch"
-      kind: "Job"
-      api_family: "batch"
+      call: null
     field_indexes:
       Wide:
         fields: ["namespace", "name", "controller", "completions", "duration",
@@ -278,14 +368,63 @@ infoview:
         default: "<unset>"
         type: "bool"
   shortcuts:
-    "Job template":
-      key: "t"
+    "Open Subject":
+      key: "enter"
+      read_only: true
+      helptext: "Open info page for selected resource"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_selected_obj: true
+        _parent_kind_tuple_paths: ["spec#subject#kind",
+                                   "spec#subject#apiVersion"]
+        name_path: "metadata#name"
+        namespace_path: "metadata#namespace"
+    "Open Referent Subject":
+      key: "r"
       modifier: "shift"
       read_only: true
-      helptext: "Show Job template"
+      helptext: "Open referent subject"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind_path: "spec#subject#kind"
+        api_version_path: "spec#subject#apiVersion"
+        namespace_path: "spec#subject#namespace"
+        name_path: "spec#subject#name"
+    "Open Sink":
+      key: "s"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open Sink"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind_path: "spec#sink#ref#kind"
+        api_version_path: "spec#sink#ref#apiVersion"
+        namespace_path: "metadata#namespace"
+        name_path: "spec#sink#ref#name"
+    "View CloudEvent Overrides":
+      key: "o"
+      modifier: "shift"
+      read_only: true
+      helptext: "Show CloudEvent Overrides"
       action: "call"
       action_call: "view_yaml"
       action_args:
-        title: "Job template"
+        title: "CloudEvent Overrides"
+        _named_title: true
         _pass_obj: true
-        path: "spec#job"
+        path: "spec#ceOverrides"
+    "Subject Label Selector":
+      key: "b"
+      read_only: true
+      helptext: "Show subject label selector"
+      widget: "windowwidget"
+      title: "Subject Label Selector:"
+      headers: ["Key:", "Value:"]
+      itemgetter: "get_key_value"
+      itemgetter_args:
+        path: "spec#subject#selector#matchLabels"

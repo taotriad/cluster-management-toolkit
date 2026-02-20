@@ -18,6 +18,7 @@ listview:
           when:
             - key: "type"
               eq: "Ready"
+          default: ["<unset>"]
       type: "str"
       formatter: "value_mapper"
       formatting:
@@ -31,6 +32,10 @@ listview:
               field_colors:
                 - context: "main"
                   type: "status_not_ok"
+            "<unset>":
+              field_colors:
+                - context: "types"
+                  type: "unset"
     reason:
       header: "Reason:"
       paths:
@@ -189,6 +194,7 @@ infoview:
             when:
               - key: "type"
                 eq: "Ready"
+            default: ["<unset>"]
         type: "str"
         formatter: "value_mapper"
         formatting:
@@ -202,6 +208,10 @@ infoview:
                 field_colors:
                   - context: "main"
                     type: "status_not_ok"
+              "<unset>":
+                field_colors:
+                  - context: "types"
+                    type: "unset"
       reason:
         header: [["Reason:", ["main", "infoheader"]]]
         paths:

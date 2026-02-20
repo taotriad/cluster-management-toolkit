@@ -58,6 +58,10 @@ infoview:
                 field_colors:
                   - context: "main"
                     type: "status_pending"
+            "<unset>":
+              field_colors:
+                - context: "types"
+                  type: "unset"
       reason:
         header: [["Reason:", ["main", "infoheader"]]]
         paths:
