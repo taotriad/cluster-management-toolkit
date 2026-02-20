@@ -5375,6 +5375,27 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api": "profiles",
         "namespaced": False,
     },
+    # projectcontour.io
+    ("HTTPProxy", "projectcontour.io"): {
+        "api_paths": ["apis/projectcontour.io/v1/"],
+        "api": "httpproxies",
+    },
+    ("TLSCertificateDelegation", "projectcontour.io"): {
+        "api_paths": ["apis/projectcontour.io/v1/"],
+        "api": "tlscertificatedelegations",
+    },
+    ("ContourConfiguration", "projectcontour.io"): {
+        "api_paths": ["apis/projectcontour.io/v1alpha1/"],
+        "api": "contourconfigurations",
+    },
+    ("ContourDeployment", "projectcontour.io"): {
+        "api_paths": ["apis/projectcontour.io/v1alpha1/"],
+        "api": "contourdeployments",
+    },
+    ("ExtensionService", "projectcontour.io"): {
+        "api_paths": ["apis/projectcontour.io/v1alpha1/"],
+        "api": "extensionservices",
+    },
     # project.cattle.io
     ("AppRevision", "project.cattle.io"): {
         "api_paths": ["apis/project.cattle.io/v3/"],
