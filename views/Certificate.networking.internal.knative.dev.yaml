@@ -8,7 +8,7 @@ command:
   - "kncert"
 listview:
   name: "Certificates"
-  group: "Machine Learning"
+  group: "Knative"
   field_indexes:
     Normal:
       fields: ["namespace", "name", "age", "ready", "reason"]

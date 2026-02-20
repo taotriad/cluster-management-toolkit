@@ -9,7 +9,7 @@ command:
   - "dommap"
 listview:
   name: "Domain Mappings"
-  group: "Machine Learning"
+  group: "Knative"
   field_indexes:
     Normal:
       fields: ["namespace", "name", "age"]

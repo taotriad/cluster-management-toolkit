@@ -7,7 +7,7 @@ command:
   - "clrdomclaim"
 listview:
   name: "Cluster Domain Claims"
-  group: "Machine Learning"
+  group: "Knative"
   field_indexes:
     Normal:
       fields: ["name", "age"]
