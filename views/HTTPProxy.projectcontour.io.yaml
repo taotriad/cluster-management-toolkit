@@ -1,0 +1,319 @@
+---
+kind: "HTTPProxy"
+api_family: "projectcontour.io"
+default_command: "httpproxies"
+listview:
+  name: "HTTP Proxies"
+  group: "Network"
+  field_indexes:
+    Wide:
+      fields: ["namespace", "name", "fqdn", "tls_secret",
+               "status", "age", "status_description"]
+      sortcolumn: "namespace"
+    Normal:
+      fields: ["namespace", "name",
+               "status", "age", "status_description"]
+      sortcolumn: "namespace"
+  fields:
+    fqdn:
+      header: "FQDN:"
+      path: "spec#virtualhost#fqdn"
+      default: "<unset>"
+      type: "str"
+    status:
+      header: "Status:"
+      path: "status#currentStatus"
+      default: "<unset>"
+      type: "str"
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          mappings:
+            invalid:
+              field_colors:
+                - context: "main"
+                  type: "status_warning"
+            NotReconciled:
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+            valid:
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+    status_description:
+      header: "Message:"
+      path: "status#description"
+      default: "<unset>"
+      type: "str"
+    tls_secret:
+      header: "TLS Secret:"
+      path: "spec#virtualhost#tls#secretName"
+      default: "<unset>"
+      type: "str"
+infoview:
+  name: "HTTP Proxy Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["controller", "fqdn",
+                 "tls_header",
+                 "tls_secret",
+                 "tls_passthrough",
+                 "tls_enable_fallback_certificate",
+                 "tls_client_validation_header",
+                 "tls_client_validation_skip",
+                 "tls_client_validation_ca_secret",
+                 "tls_client_validation_crl_secret",
+                 "tls_client_validation_crl_only_verify_leaf_cert",
+                 "tls_client_validation_optional_client_certificate",
+                 "tls_client_validation_forward_client_certificate_header",
+                 "tls_client_validation_forward_client_certificate_subject",
+                 "tls_client_validation_forward_client_certificate_cert",
+                 "tls_client_validation_forward_client_certificate_chain",
+                 "tls_client_validation_forward_client_certificate_dns",
+                 "tls_client_validation_forward_client_certificate_uri",
+                 "status", "status_description"]
+    rows:
+      controller:
+        header: [["C", ["main", "infoheader_shortcut"]],
+                 ["ontroller:", ["main", "infoheader"]]]
+        paths:
+          - path: "metadata#ownerReferences"
+            pathtype: "items"
+            subpaths:
+              - "kind"
+              - "apiVersion"
+              - "name"
+            when:
+              - key: "controller"
+                eq: true
+            type: ["kind", "api_group", "name"]
+        default: "<none>"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "kind"
+            - type: "api_group"
+            - type: "generic"
+          field_separators:
+            - type: "kind_api_group"
+            - type: "kind"
+      fqdn:
+        header: [["FQDN:", ["main", "infoheader"]]]
+        path: "spec#virtualhost#fqdn"
+        default: "<unset>"
+        type: "str"
+      status:
+        header: [["Status:", ["main", "infoheader"]]]
+        path: "status#currentStatus"
+        default: "<unset>"
+        type: "str"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              invalid:
+                field_colors:
+                  - context: "main"
+                    type: "status_warning"
+              NotReconciled:
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+              valid:
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+      status_description:
+        header: [["Message:", ["main", "infoheader"]]]
+        path: "status#description"
+        default: "<unset>"
+        type: "str"
+      tls_header:
+        header: [["TLS:", ["main", "infoheader"]]]
+      tls_enable_fallback_certificate:
+        header: [["  Enable Fallback Certificate:", ["main", "infoheader"]]]
+        path: "spec#virtualhost#tls#enableFallbackCertificate"
+        default: false
+        type: "bool"
+      tls_passthrough:
+        header: [["  Session Passthrough:", ["main", "infoheader"]]]
+        path: "spec#virtualhost#tls#passthrough"
+        default: false
+        type: "bool"
+      tls_secret:
+        header: [["  ", ["main", "infoheader"]],
+                 ["S", ["main", "infoheader_shortcut"]],
+                 ["ecret:", ["main", "infoheader"]]]
+        path: "spec#virtualhost#tls#secretName"
+        default: "<unset>"
+        type: "str"
+      tls_client_validation_header:
+        header: [["  Client Certificate Validation:", ["main", "infoheader"]]]
+      tls_client_validation_ca_secret:
+        header: [["    CA Secret:", ["main", "infoheader"]]]
+        path: "spec#virtualhost#tls#caSecret"
+        default: "<unset>"
+        type: "str"
+      tls_client_validation_crl_secret:
+        header: [["    CRL Secret:", ["main", "infoheader"]]]
+        path: "spec#virtualhost#tls#crlSecret"
+        default: "<unset>"
+        type: "str"
+      tls_client_validation_crl_only_verify_leaf_cert:
+        header: [["    CRL Only Verify Leaf Certificate:",
+                  ["main", "infoheader"]]]
+        path: "spec#virtualhost#clientValidation#crlOnlyVerifyLeafCert"
+        default: false
+        type: "bool"
+      tls_client_validation_skip:
+        header: [["    Skip Validation:", ["main", "infoheader"]]]
+        path: "spec#virtualhost#clientValidation#skipClientCertValidation"
+        default: false
+        type: "bool"
+      tls_client_validation_optional_client_certificate:
+        header: [["    Optional Client Certificate:", ["main", "infoheader"]]]
+        path: "spec#virtualhost#clientValidation#optionalClientCertificate"
+        default: false
+        type: "bool"
+      tls_client_validation_forward_client_certificate_header:
+        header: [["    Forward Client Certificate:", ["main", "infoheader"]]]
+      tls_client_validation_forward_client_certificate_subject:
+        header: [["      Subject:", ["main", "infoheader"]]]
+        path: "spec#virtualhost#clientValidation#forwardClientCertificate#subject"
+        default: false
+        type: "bool"
+      tls_client_validation_forward_client_certificate_cert:
+        header: [["      Cert:", ["main", "infoheader"]]]
+        path: "spec#virtualhost#clientValidation#forwardClientCertificate#cert"
+        default: false
+        type: "bool"
+      tls_client_validation_forward_client_certificate_chain:
+        header: [["      Chain:", ["main", "infoheader"]]]
+        path: "spec#virtualhost#clientValidation#forwardClientCertificate#chain"
+        default: false
+        type: "bool"
+      tls_client_validation_forward_client_certificate_dns:
+        header: [["      DNS:", ["main", "infoheader"]]]
+        path: "spec#virtualhost#clientValidation#forwardClientCertificate#dns"
+        default: false
+        type: "bool"
+      tls_client_validation_forward_client_certificate_uri:
+        header: [["      URI:", ["main", "infoheader"]]]
+        path: "spec#virtualhost#clientValidation#forwardClientCertificate#uri"
+        default: false
+        type: "bool"
+  listpad:
+    listgetter: "listgetter_path"
+    listgetter_args:
+      path: "spec#routes"
+    infogetter: "generic_infogetter"
+    field_indexes:
+      Normal:
+        fields: ["services", "permit_insecure", "enable_websockets",
+                 "idle_timeout_policy", "response_timeout_policy",
+                 "retry_count", "retry_on"]
+    fields:
+      retry_count:
+        header: "Retry Count:"
+        path: "retryPolicy#count"
+        default: "<unset>"
+        type: "int"
+        formatter: "numerical"
+        align: "right"
+      retry_on:
+        header: "Retry On:"
+        path: "retryPolicy#retryOn"
+        default: ["<unset>"]
+        type: "raw"
+        formatter: "list"
+      enable_websockets:
+        header: "Enable Websockets:"
+        path: "enableWebsockets"
+        default: "<unset>"
+        type: "bool"
+      idle_timeout_policy:
+        header: "Idle Timeout:"
+        path: "timeoutPolicy#idle"
+        default: "<unset>"
+        type: "str"
+      response_timeout_policy:
+        header: "Response Timeout:"
+        path: "timeoutPolicy#response"
+        default: "<unset>"
+        type: "str"
+      permit_insecure:
+        header: "Permit Insecure:"
+        path: "permitInsecure"
+        default: "<unset>"
+        type: "bool"
+      services:
+        header: "Services:"
+        paths:
+          - path: "services"
+            pathtype: "items"
+            subpaths:
+              - "name"
+              - "port"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "generic"
+            - type: "port"
+          field_separators:
+            - type: "port"
+  shortcuts:
+    "Open controller":
+      key: "c"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for controller"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        namespace_path: "metadata#namespace"
+        owner_reference_path: "metadata#ownerReferences"
+    "Open TLS Secret":
+      key: "s"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for TLS Secret"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind: "Secret"
+        name_path: "spec#virtualhost#tls#secretName"
+        namespaced_name_path: "spec#virtualhost#tls#secretName"
+        namespaced_name_separator: "/"
+        _parent_namespace_path: "metadata#namespace"
+    "Open CA Secret":
+      key: "a"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for CA Secret"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind: "Secret"
+        name_path: "spec#virtualhost#tls#caSecret"
+        namespaced_name_path: "spec#virtualhost#tls#caSecret"
+        namespaced_name_separator: "/"
+        _parent_namespace_path: "metadata#namespace"
+    "Open CRL Secret":
+      key: "r"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for CRL Secret"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind: "Secret"
+        name_path: "spec#virtualhost#tls#crlSecret"
+        namespaced_name_path: "spec#virtualhost#tls#crlSecret"
+        namespaced_name_separator: "/"
+        _parent_namespace_path: "metadata#namespace"

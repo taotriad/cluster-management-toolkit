@@ -1,0 +1,48 @@
+---
+kind: "TLSCertificateDelegation"
+api_family: "projectcontour.io"
+default_command: "tlscertificatedelegations"
+command:
+  - "tlscerts"
+  - "tlscert"
+listview:
+  name: "TLS Certificate Delegations"
+  group: "Network"
+  field_indexes:
+    Normal:
+      fields: ["namespace", "name", "age"]
+      sortcolumn: "namespace"
+infoview:
+  name: "TLS Certificate Delegation Info"
+  infopad:
+  listpad:
+    on_activation:
+      call: "resourceinfodispatch_with_lookup"
+      kind: "Secret"
+      name_path: "secretName"
+      namespace_path: "_extra_data#namespace"
+    listgetter: "listgetter_path"
+    listgetter_args:
+      path: "spec#delegations"
+    infogetter: "generic_infogetter"
+    infogetter_args:
+      _extra_data:
+        namespace: ["metadata#namespace"]
+    field_indexes:
+      Normal:
+        fields: ["secret_name", "target_namespaces"]
+    fields:
+      secret_name:
+        header: "Secret Name:"
+        path: "secretName"
+        default: "<unset>"
+        type: "str"
+      target_namespaces:
+        header: "Target Namespaces:"
+        path: "targetNamespaces"
+        default: ["<none>"]
+        type: "raw"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "namespace"
