@@ -183,7 +183,7 @@ infoview:
             pathtype: "tuple"
             default: ["<unset>"]
         formatter: "list"
-        foramtting:
+        formatting:
           field_colors:
             - type: "namespace"
             - type: "generic"

@@ -55,14 +55,16 @@ def fieldgetter_executable_version(**kwargs: Any) -> list[str]:
         except FileNotFoundError:
             continue
 
-        if executable_path:
-            result, _retval = execute_command_with_response([executable_path] + args)
-            if result:
-                for line in result.splitlines():
-                    if (tmp := re.match(version_regex, line)) is not None:
-                        for field in tmp.groups():
-                            version.append(field)
-                        break
+        if not executable_path:
+            continue
+
+        result, _retval = execute_command_with_response([executable_path] + args)
+        if result:
+            for line in result.splitlines():
+                if (tmp := re.match(version_regex, line)) is not None:
+                    for field in tmp.groups():
+                        version.append(field)
+                    break
 
     return ["".join(version)]
 

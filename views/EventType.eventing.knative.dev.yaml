@@ -7,9 +7,11 @@ listview:
   group: "Knative"
   field_indexes:
     Wide:
-      fields: ["namespace", "name", "type", "source", "ready", "age", "description", "reason"]
+      fields: ["namespace", "name", "type", "source", "ready", "age",
+               "description", "reason"]
     Normal:
-      fields: ["namespace", "name", "type", "ready", "age", "description", "reason"]
+      fields: ["namespace", "name", "type", "ready", "age",
+               "description", "reason"]
   fields:
     description:
       header: "Description:"

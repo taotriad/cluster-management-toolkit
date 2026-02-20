@@ -181,6 +181,7 @@ infoview:
         header: [["    Forward Client Certificate:", ["main", "infoheader"]]]
       tls_client_validation_forward_client_certificate_subject:
         header: [["      Subject:", ["main", "infoheader"]]]
+        # yamllint disable-line rule:line-length
         path: "spec#virtualhost#clientValidation#forwardClientCertificate#subject"
         default: false
         type: "bool"

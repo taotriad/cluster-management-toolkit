@@ -933,7 +933,7 @@ def make_label_selector_set_expression(expression_list: list[dict]) -> str:
         key = deep_get(d, DictPath("key"))
         operator = deep_get(d, DictPath("operator"))
         values = deep_get(d, DictPath("values"))
-        vlist.append(f"{key} {operator.lower()} ({",".join(values)})")
+        vlist.append(f"{key} {operator.lower()} ({','.join(values)})")
     return ", ".join(vlist)
 
 

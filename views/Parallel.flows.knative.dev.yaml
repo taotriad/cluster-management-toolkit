@@ -300,7 +300,6 @@ infoview:
       itemgetter: "get_list_fields"
       itemgetter_args:
         path: "status#branchStatuses"
-        fields_type: "nested_list"
         nested_fields:
           - ["filterChannelStatus#channel#kind",
              "filterChannelStatus#channel#apiVersion",

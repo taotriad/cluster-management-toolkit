@@ -2165,6 +2165,15 @@
 													"description": "Alternate path to use when getting a multi-component name for _named_title",
 													"$ref": "#/definitions/tuple_paths"
 												},
+												"_parent_kind_tuple_paths": {
+													"description": "Paths to get kind and apiVersion from the parent obj",
+													"type": "array",
+													"items": {
+														"$ref": "#/definitions/simple_path"
+													},
+													"minitems": 2,
+													"minitems": 2
+												},
 												"_parent_namespace_path": {
 													"description": "Path to get the namespace of the parent obj",
 													"$ref": "#/definitions/simple_path"
@@ -2368,6 +2377,13 @@
 															"description": "If set to False a temporary resource type will be created instead of trying to match known types",
 															"type": "boolean"
 														},
+														"ignored_keys": {
+															"description": "A list of keys that get_key_value should ignore",
+															"type": "array",
+															"items": {
+																"type": "string"
+															}
+														},
 														"items": {
 															"type": "array",
 															"properties": {
@@ -2427,6 +2443,16 @@
 														"namespace_path": {
 															"description": "Path to get the namespace of the objects from (used with get_kubernetes_objects)",
 															"$ref": "#/definitions/path"
+														},
+														"nested_fields": {
+															"description": "A list of lists with paths",
+															"type": "array",
+															"items": {
+																"type": "array",
+																"items": {
+																	"$ref": "#/definitions/path"
+																}
+															}
 														},
 														"override_types": {
 															"description": "Override the type of the object",

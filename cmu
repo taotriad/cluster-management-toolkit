@@ -5108,7 +5108,7 @@ def eventdispatch(stdscr: curses.window, **kwargs: Any) -> Retval:
     if "/" not in api_version:
         api_family = ""
     else:
-        api_family = api_version.split("/")[0]
+        api_family = api_version.split("/", maxsplit=1)[0]
     kind = (kind, api_family)
 
     name_path = deep_get(kwargs, DictPath("name_path"))
@@ -6614,7 +6614,7 @@ def listviewdispatch(stdscr: curses.window, **kwargs: Any) -> Retval:
     if api_family is None:
         api_family = ""
     if "/" in api_family:
-        api_family, _api_version = api_family.split("/")
+        api_family, _api_version = api_family.split("/", maxsplit=1)
     else:
         # Is the api_family only a version#? Then it's a core API
         match_tmp = re.match(r"^v\d+(alpha\d+|beta\d+|)", api_family)
@@ -6716,7 +6716,7 @@ def resourceinfodispatch(stdscr: curses.window, **kwargs: Any) -> Retval:
             if "/" not in api_version:
                 api_family = ""
             else:
-                api_family = api_version.split("/")[0]
+                api_family = api_version.split("/", maxsplit=1)[0]
             kind = (kind, api_family)
         kwargs.pop("apiVersion", None)
         kwargs["kind"] = kind
@@ -7090,7 +7090,7 @@ def resourceinfodispatch_with_lookup(stdscr: curses.window, **kwargs: Any) -> Re
                 api_version = deep_get_with_fallback(obj, api_version_path)
                 if api_version is not None:
                     if "/" in api_version:
-                        api_group = api_version.split("/")[0]
+                        api_group = api_version.split("/", maxsplit=1)[0]
                     else:
                         api_group = ""
             api_group = deep_get_with_fallback(obj, api_group_path, api_group)
@@ -7122,7 +7122,7 @@ def resourceinfodispatch_with_lookup(stdscr: curses.window, **kwargs: Any) -> Re
 
             ref_api_version = deep_get(ref, DictPath("apiVersion"))
             if "/" in ref_api_version:
-                ref_api_family = ref_api_version.split("/")[0]
+                ref_api_family = ref_api_version.split("/", maxsplit=1)[0]
             else:
                 ref_api_family = ""
             ref_kind: tuple[str, str] = (deep_get(ref, DictPath("kind")), ref_api_family)
@@ -7156,7 +7156,7 @@ def resourceinfodispatch_with_lookup(stdscr: curses.window, **kwargs: Any) -> Re
     if parent_kind_tuple != ("", ""):
         parent_kind, parent_api_version = parent_kind_tuple
         if "/" in parent_api_version:
-            parent_api_family = parent_api_version.split("/")[0]
+            parent_api_family = parent_api_version.split("/", maxsplit=1)[0]
         else:
             parent_api_family = ""
         kind = (parent_kind, parent_api_family)
@@ -9585,7 +9585,7 @@ def populate_views(refresh_apis: str = "none") -> None:
 
             tmp = match_tmp[1]
             if "." in tmp:
-                kind, api_family = tmp.split(".", 1)
+                kind, api_family = tmp.split(".", maxsplit=1)
             else:
                 kind = tmp
                 api_family = ""
