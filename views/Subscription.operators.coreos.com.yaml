@@ -81,6 +81,12 @@ infoview:
         path: "status#state"
         type: "str"
   listpad:
+    on_activation:
+      call: "resourceinfodispatch_with_lookup"
+      kind_path: "catalogSourceRef#kind"
+      api_version_path: "catalogSourceRef#apiVersion"
+      namespace_path: ["catalogSourceRef#namespace", "_extra_data#namespace"]
+      name_path: "catalogSourceRef#name"
     listgetter: "listgetter_path"
     listgetter_args:
       path: "status#catalogHealth"
