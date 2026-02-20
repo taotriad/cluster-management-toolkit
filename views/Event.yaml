@@ -1503,6 +1503,10 @@ listview:
               field_colors:
                 - context: "main"
                   type: "status_not_ok"
+            PolicyViolation:
+              field_colors:
+                - context: "main"
+                  type: "status_warning"
             Preempted:
               field_colors:
                 - context: "main"
@@ -3935,6 +3939,10 @@ infoview:
                 field_colors:
                   - context: "main"
                     type: "status_not_ok"
+              PolicyViolation:
+                field_colors:
+                  - context: "main"
+                    type: "status_warning"
               Preempted:
                 field_colors:
                   - context: "main"
