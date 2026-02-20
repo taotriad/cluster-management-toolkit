@@ -4280,11 +4280,11 @@ def genericinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                 if _set_based_selector_path:
                     set_expression = \
                         make_label_selector_set_expression(deep_get(obj, _set_based_selector_path))
-                    if listgetter_args["label_selector"]:
+                    if deep_get(listgetter_args, DictPath("label_selector")):
                         listgetter_args["label_selector"] += "," + set_expression
                     else:
                         listgetter_args["label_selector"] = set_expression
-                if not listgetter_args["label_selector"] \
+                if not deep_get(listgetter_args, DictPath("label_selector")) \
                         and deep_get(listgetter_args, DictPath("_none_on_empty_selector"), False):
                     listgetter = listgetters.listgetter_noop
                 _field_selector = deep_get(listgetter_args, DictPath("_field_selector"), {})
