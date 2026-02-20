@@ -2144,6 +2144,10 @@ UnexpectedAdmissionError:
   field_colors:
     - context: "main"
       type: "status_warning"
+UnexpectedJob:
+  field_colors:
+    - context: "main"
+      type: "status_warning"
 Unhealthy:
   field_colors:
     - context: "main"

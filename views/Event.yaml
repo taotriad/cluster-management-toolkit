@@ -2215,6 +2215,10 @@ listview:
               field_colors:
                 - context: "main"
                   type: "status_warning"
+            UnexpectedJob:
+              field_colors:
+                - context: "main"
+                  type: "status_warning"
             Unhealthy:
               field_colors:
                 - context: "main"
@@ -4640,6 +4644,10 @@ infoview:
                   - context: "main"
                     type: "status_ok"
               UnexpectedAdmissionError:
+                field_colors:
+                  - context: "main"
+                    type: "status_warning"
+              UnexpectedJob:
                 field_colors:
                   - context: "main"
                     type: "status_warning"
