@@ -111,6 +111,8 @@ to reinstall the cluster from scratch.
 * This change also adds __Ed25519__ to the strict ssh key set;
   most security researchers seem to agree that __Ed25519__ is as secure as,
   and probably more secure than, __ECDSA__.
+* Fixed crash in get_key_value_info() if passed an empty dict
+  get_key_value_info() would crash.
 
 ### view-file changes
 
