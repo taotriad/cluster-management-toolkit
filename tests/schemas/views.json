@@ -2047,7 +2047,7 @@
 													"$ref": "#/definitions/simple_path"
 												},
 												"formatter": {
-													"$ref": "#/definitions/formatter"
+													"type": "string"
 												},
 												"holder_identity_path": {
 													"description": "Path to get the name and namespace of the object from if there's a holder identity",

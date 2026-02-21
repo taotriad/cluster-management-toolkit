@@ -60,7 +60,7 @@ infoview:
       node_name:
         header: [["No", ["main", "infoheader"]],
                  ["d", ["main", "infoheader_shortcut"]],
-                 ["e Name:", ["main", "infoheader"]]]
+                 ["e:", ["main", "infoheader"]]]
         path: "spec#nodeName"
         type: "host"
         default: "<none>"

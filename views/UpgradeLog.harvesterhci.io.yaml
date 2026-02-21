@@ -3,7 +3,7 @@ kind: "UpgradeLog"
 api_family: "harvesterhci.io"
 default_command: "upgradelogs.harvesterhci.io"
 command:
-  - upgradelog.harvesterhci.io"
+  - "upgradelog.harvesterhci.io"
 listview:
   name: "Upgrade Logs"
   group: "Harvester"

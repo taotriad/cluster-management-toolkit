@@ -83,6 +83,7 @@ infoview:
         paths:
           - path: "parameters"
             pathtype: "key_value"
+            default: ["<none>"]
         formatter: "list"
         formatting:
           field_colors:

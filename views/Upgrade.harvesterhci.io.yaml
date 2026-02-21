@@ -3,7 +3,7 @@ kind: "Upgrade"
 api_family: "harvesterhci.io"
 default_command: "upgrades.harvesterhci.io"
 command:
-  - upgrade.harvesterhci.io"
+  - "upgrade.harvesterhci.io"
 listview:
   name: "Upgrades"
   group: "Harvester"

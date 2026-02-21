@@ -1,0 +1,193 @@
+---
+kind: "DataVolume"
+api_family: "cdi.kubevirt.io"
+default_command: "datavolumes"
+command:
+  - "datavols"
+  - "datavol"
+listview:
+  name: "Data Volumes"
+  group: "Harvester"
+  field_indexes:
+    Normal:
+      fields: ["namespace", "name", "progress", "restarts", "phase", "age"]
+      sortcolumn: "namespace"
+  fields:
+    phase:
+      header: "Phase:"
+      path: "status#phase"
+      default: "<unset>"
+      type: "str"
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          mappings:
+            "ImportFailed":
+              field_colors:
+                - context: "main"
+                  type: "status_not_ok"
+            "ImportInProgress":
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+            "ImportScheduled":
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+            "ImportSucceeded":
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+    progress:
+      header: "Progress:"
+      path: "status#progress"
+      default: "<unset>"
+      type: "str"
+      formatter: "numerical"
+      align: "right"
+    restarts:
+      header: "Restarts:"
+      path: "status#restartCount"
+      default: "<unset>"
+      type: "int"
+      formatter: "numerical"
+      align: "right"
+infoview:
+  name: "Data Volume Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["persistent_volume_claim",
+                 "source_header",
+                 "source_http_header",
+                 "source_http_uri",
+                 "access_modes",
+                 "volume_mode",
+                 "progress", "restarts", "phase"]
+    rows:
+      access_modes:
+        header: [["Access Modes:", ["main", "infoheader"]]]
+        paths:
+          - path: "spec#storage#accessModes"
+            pathtype: "remap"
+            substitutions:
+              "ReadWriteOnce": "RWO"
+              "ReadWriteOncePod": "RWOP"
+              "ReadWriteMany": "RWM"
+              "ReadOnlyMany": "ROX"
+        type: "raw"
+        formatter: "list"
+      persistent_volume_claim:
+        header: [["P", ["main", "infoheader_shortcut"]],
+                 ["ersistent Volume Claim:", ["main", "infoheader"]]]
+        path: "status#claimName"
+        default: "<none>"
+        type: "str"
+      phase:
+        header: [["Phase:", ["main", "infoheader"]]]
+        path: "status#phase"
+        default: "<unset>"
+        type: "str"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              "ImportFailed":
+                field_colors:
+                  - context: "main"
+                    type: "status_not_ok"
+              "ImportInProgress":
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+              "ImportScheduled":
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+              "ImportSucceeded":
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+      progress:
+        header: [["Progress:", ["main", "infoheader"]]]
+        path: "status#progress"
+        default: "<unset>"
+        type: "str"
+        formatter: "numerical"
+      restarts:
+        header: [["Restarts:", ["main", "infoheader"]]]
+        path: "status#restartCount"
+        default: "<unset>"
+        type: "int"
+        formatter: "numerical"
+      source_header:
+        header: [["Source:", ["main", "infoheader"]]]
+      source_http_header:
+        header: [["  HTTP:", ["main", "infoheader"]]]
+      source_http_uri:
+        header: [["    URI:", ["main", "infoheader"]]]
+        path: "spec#source#http#url"
+        default: "<unset>"
+        type: "str"
+        formatter: "address"
+      volume_mode:
+        header: [["Volume Mode:", ["main", "infoheader"]]]
+        path: "spec#storage#volumeMode"
+        default: "<unset>"
+        type: "str"
+  shortcuts:
+    "Owner References":
+      key: "o"
+      modifier: "shift"
+      read_only: true
+      helptext: "List Owner References"
+      widget: "windowwidget"
+      title: "Owner References:"
+      selectable: true
+      headers: ["Kind:", "API-Version:", "Namespace:", "Name:"]
+      itemgetter: "get_list_fields"
+      itemgetter_args:
+        path: "metadata#ownerReferences"
+        fields:
+          - "kind"
+          - "apiVersion"
+          - "namespace"
+          - "name"
+      # This isn't supported for now
+      sortcolumn: "kind"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind_path: 0
+        api_version_path: 1
+        namespace_path: 2
+        name_path: 3
+        _parent_namespace_path: "metadata#namespace"
+    "Persistent Volume Claim":
+      key: "p"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for Persistent Volume Claim"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind: "PersistentVolumeClaim"
+        name_path: "status#claimName"
+        namespace_path: "metadata#namespace"
+    "Show storage resources":
+      key: "r"
+      modifier: "shift"
+      read_only: true
+      helptext: "Show storage resources"
+      title: "Storage Resources:"
+      widget: "windowwidget"
+      headers: ["Request Type:", "Resource:"]
+      itemgetter: "get_key_value"
+      itemgetter_args:
+        path: "spec#storage#resources"
+        ignored_keys:
+          - "claims"
+      # This isn't supported for now
+      sortcolumn: "requests"

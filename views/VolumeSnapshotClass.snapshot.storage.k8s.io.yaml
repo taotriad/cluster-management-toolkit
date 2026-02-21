@@ -27,7 +27,7 @@ infoview:
   infopad:
     row_indexes:
       Normal:
-        fields: ["driver", "deletion_policy"]
+        fields: ["driver", "deletion_policy", "parameters"]
     rows:
       deletion_policy:
         header: [["Deletion Policy:", ["main", "infoheader"]]]
@@ -37,3 +37,33 @@ infoview:
         header: [["Driver:", ["main", "infoheader"]]]
         path: "driver"
         type: "str"
+      parameters:
+        header: [["P", ["main", "infoheader_shortcut"]],
+                 ["arameters:", ["main", "infoheader"]]]
+        paths:
+          - path: "parameters"
+            pathtype: "key_value"
+            default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "key"
+            - type: "value"
+          field_separators:
+            - type: "keyvalue"
+  shortcuts:
+    "Parameters":
+      key: "p"
+      modifier: "shift"
+      read_only: true
+      helptext: "Show storage class parameters"
+      widget: "windowwidget"
+      title: "Parameters:"
+      headers: ["Parameter:", "Value:"]
+      itemgetter: "get_key_value"
+      itemgetter_args:
+        path: "parameters"
+      formatting: [["windowwidget", "default"],
+                   ["windowwidget", "highlight"]]
+      # This isn't supported for now
+      sortcolumn: "parameter"

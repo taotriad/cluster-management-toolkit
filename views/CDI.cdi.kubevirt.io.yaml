@@ -124,6 +124,7 @@ infoview:
       phase:
         header: [["Phase:", ["main", "infoheader"]]]
         path: "status#phase"
+        default: "<unset>"
         type: "str"
       uninstall_strategy:
         header: [["Uninstall Strategy:", ["main", "infoheader"]]]

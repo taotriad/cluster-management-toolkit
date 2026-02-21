@@ -184,6 +184,7 @@ infoview:
       volume_mode:
         header: [["Volume Mode:", ["main", "infoheader"]]]
         path: "spec#volumeMode"
+        default: "<unset>"
         type: "str"
   listpad:
     listgetter: "generic_listgetter"

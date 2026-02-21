@@ -3,7 +3,7 @@ kind: "Version"
 api_family: "harvesterhci.io"
 default_command: "versions.harvesterhci.io"
 command:
-  - version.harvesterhci.io"
+  - "version.harvesterhci.io"
 listview:
   name: "Versions"
   group: "Harvester"

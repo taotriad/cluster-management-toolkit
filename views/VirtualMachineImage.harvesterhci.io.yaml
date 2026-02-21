@@ -1,0 +1,187 @@
+---
+kind: "VirtualMachineImage"
+api_family: "harvesterhci.io"
+default_command: "virtualmachineimages.harvesterhci.io"
+command:
+  - "virtualmachineimage.harvesterhci.io"
+  - "vmimgs.harvesterhci.io"
+  - "vmimg.harvesterhci.io"
+listview:
+  name: "Virtual Machine Images"
+  group: "Harvester"
+  field_indexes:
+    Normal:
+      fields: ["namespace", "name", "display_name", "backend",
+               "storage_class", "size", "virtual_size", "age"]
+      sortcolumn: "namespace"
+  fields:
+    backend:
+      header: "Backend:"
+      path: "spec#backend"
+      default: "<unset>"
+      type: "str"
+    display_name:
+      header: "Display Name:"
+      path: "spec#displayName"
+      default: "<unset>"
+      type: "str"
+    size:
+      header: "Size:"
+      paths:
+        - path: "status#size"
+          type: "disk_usage"
+          default: "<unset>"
+      formatter: "numerical"
+      align: "right"
+    storage_class:
+      header: "Storage Class:"
+      path: "status#storageClassName"
+      default: "<unset>"
+      type: "str"
+    virtual_size:
+      header: "Virtual Size:"
+      paths:
+        - path: "status#virtualSize"
+          type: "disk_usage"
+          default: "<unset>"
+      formatter: "numerical"
+      align: "right"
+infoview:
+  name: "Virtual Machine Image Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["display_name", "storage_class", "persistent_volume_claim",
+                 "backend", "source_type", "size", "virtual_size", "url",
+                 "retries", "failed", "progress"]
+    rows:
+      backend:
+        header: [["Backend:", ["main", "infoheader"]]]
+        path: "spec#backend"
+        default: "<unset>"
+        type: "str"
+      display_name:
+        header: [["Display Name:", ["main", "infoheader"]]]
+        path: "spec#displayName"
+        default: "<unset>"
+        type: "str"
+      failed:
+        header: [["Failed:", ["main", "infoheader"]]]
+        path: "status#failed"
+        default: "<unset>"
+        type: "int"
+        formatter: "numerical"
+      persistent_volume_claim:
+        header: [["P", ["main", "infoheader_shortcut"]],
+                 ["ersistent Volume Claim:", ["main", "infoheader"]]]
+        paths:
+          - path: [["spec#pvcNamespace"], ["pvcName"]]
+            pathtype: "tuple"
+            fallback_on_empty: true
+            default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "namespace"
+            - type: "generic"
+          field_separator:
+            - type: "namespace"
+      progress:
+        header: [["Progress:", ["main", "infoheader"]]]
+        path: "status#progress"
+        default: "<unset>"
+        type: "int"
+        formatter: "numerical"
+        formatting:
+          unit: "%"
+      retries:
+        header: [["Retries:", ["main", "infoheader"]]]
+        path: "spec#retry"
+        default: "<unset>"
+        type: "int"
+        formatter: "numerical"
+      size:
+        header: [["Size:", ["main", "infoheader"]]]
+        paths:
+          - path: "status#size"
+            type: "disk_usage"
+            default: "<unset>"
+        formatter: "numerical"
+      source_type:
+        header: [["Source Type:", ["main", "infoheader"]]]
+        path: "spec#sourceType"
+        default: "<unset>"
+        type: "str"
+      storage_class:
+        header: [["S", ["main", "infoheader_shortcut"]],
+                 ["torage Class:", ["main", "infoheader"]]]
+        path: "status#storageClassName"
+        default: "<unset>"
+        type: "str"
+      url:
+        header: [["URI:", ["main", "infoheader"]]]
+        paths:
+          - path: ["status#appliedUrl", "spec#url"]
+            pathtype: "value"
+        formatter: "address"
+      virtual_size:
+        header: [["Virtual Size:", ["main", "infoheader"]]]
+        paths:
+          - path: "status#virtualSize"
+            type: "disk_usage"
+            default: "<unset>"
+        formatter: "numerical"
+  shortcuts:
+    "Open Persistent Volume Claim":
+      key: "c"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for Persisstent Volume Claim"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind: "PersistentVolumeClaim"
+        namespace_path: "metadata#namespace"
+        name_path: "status#storageClassName"
+    "Open Storage Class":
+      key: "s"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for Storage Class"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind: "StorageClass"
+        api_family: "storage.k8s.io"
+        namespace_path: "metadata#namespace"
+        name_path: "status#storageClassName"
+    "Owner References":
+      key: "o"
+      modifier: "shift"
+      read_only: true
+      helptext: "List Owner References"
+      widget: "windowwidget"
+      title: "Owner References:"
+      selectable: true
+      headers: ["Kind:", "API-Version:", "Namespace:", "Name:"]
+      itemgetter: "get_list_fields"
+      itemgetter_args:
+        path: "metadata#ownerReferences"
+        fields:
+          - "kind"
+          - "apiVersion"
+          - "namespace"
+          - "name"
+      # This isn't supported for now
+      sortcolumn: "kind"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind_path: 0
+        api_version_path: 1
+        namespace_path: 2
+        name_path: 3
+        _parent_namespace_path: "metadata#namespace"
