@@ -1,0 +1,51 @@
+---
+kind: "Version"
+api_family: "harvesterhci.io"
+default_command: "versions.harvesterhci.io"
+command:
+  - version.harvesterhci.io"
+listview:
+  name: "Versions"
+  group: "Harvester"
+  field_indexes:
+    Normal:
+      fields: ["namespace", "name", "age"]
+      sortcolumn: "namespace"
+infoview:
+  name: "Version Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["iso_image_header", "iso_image_uri", "iso_image_checksum",
+                 "release_date"]
+    rows:
+      iso_image_header:
+        header: [["ISO Image:", ["main", "infoheader"]]]
+      iso_image_checksum:
+        header: [["  Checksum:", ["main", "infoheader"]]]
+        path: "spec#isoChecksum"
+        default: "<unset>"
+        type: "str"
+        formatter: "hex"
+      iso_image_uri:
+        header: [["  ISO Image URI:", ["main", "infoheader"]]]
+        path: "spec#isoURL"
+        default: "<unset>"
+        type: "str"
+        formatter: "address"
+      release_date:
+        header: [["Release Date:", ["main", "infoheader"]]]
+        paths:
+          - path: "spec#releaseDate"
+            pathtype: "regex"
+            regex: '^(\d{4})(\d\d)(\d\d)$'
+            default: ["<unset>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "timestamp"
+            - type: "timestamp"
+            - type: "timestamp"
+          field_separators:
+            - type: "date"
+            - type: "date"

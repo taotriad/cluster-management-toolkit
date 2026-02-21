@@ -1,0 +1,77 @@
+---
+kind: "Upgrade"
+api_family: "harvesterhci.io"
+default_command: "upgrades.harvesterhci.io"
+command:
+  - upgrade.harvesterhci.io"
+listview:
+  name: "Upgrades"
+  group: "Harvester"
+  field_indexes:
+    Normal:
+      fields: ["namespace", "name", "version", "previous_version", "age"]
+      sortcolumn: "namespace"
+  fields:
+    previous_version:
+      header: "Previous Version:"
+      path: "status#previousVersion"
+      default: "<unset>"
+      type: "str"
+      formatting:
+        field_colors:
+          - type: "version"
+    version:
+      header: "Version:"
+      path: "spec#version"
+      default: "<unset>"
+      type: "str"
+      formatting:
+        field_colors:
+          - type: "version"
+infoview:
+  name: "Upgrade Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["image", "image_id",
+                 "log_header", "log_enabled", "log_upgrade_log",
+                 "version", "previous_version"]
+    rows:
+      image:
+        header: [["Image:", ["main", "infoheader"]]]
+        path: "spec#image"
+        default: "<unset>"
+        type: "str"
+      image_id:
+        header: [["Image ID:", ["main", "infoheader"]]]
+        path: "status#imageID"
+        default: "<unset>"
+        type: "str"
+      log_header:
+        header: [["Log:", ["main", "infoheader"]]]
+      log_enabled:
+        header: [["  Enabled:", ["main", "infoheader"]]]
+        path: "spec#logEnabled"
+        default: "<unset>"
+        type: "bool"
+      log_upgrade_log:
+        header: [["  Upgrade Log:", ["main", "infoheader"]]]
+        path: "status#upgradeLog"
+        default: "<unset>"
+        type: "str"
+      previous_version:
+        header: [["Previous Version:", ["main", "infoheader"]]]
+        path: "status#previousVersion"
+        default: "<unset>"
+        type: "str"
+        formatting:
+          field_colors:
+            - type: "version"
+      version:
+        header: [["Version:", ["main", "infoheader"]]]
+        path: "spec#version"
+        default: "<unset>"
+        type: "str"
+        formatting:
+          field_colors:
+            - type: "version"
