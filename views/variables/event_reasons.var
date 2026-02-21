@@ -295,6 +295,10 @@ CreateDestinationRule:
   field_colors:
     - context: "main"
       type: "status_ok"
+CreatedPVCPrimeSuccessfully:
+  field_colors:
+    - context: "main"
+      type: "status_ok"
 CreateFailed:
   field_colors:
     - context: "main"
@@ -544,6 +548,10 @@ EnvVarControllerUpdatingStatus:
   field_colors:
     - context: "main"
       type: "status_warning"
+ErrCreatingPVCPrime:
+  field_colors:
+    - context: "main"
+      type: "status_warning"
 ErrGetKeyPair:
   field_colors:
     - context: "main"
@@ -553,6 +561,10 @@ ErrImageNeverPull:
     - context: "main"
       type: "status_warning"
 ErrImagePull:
+  field_colors:
+    - context: "main"
+      type: "status_warning"
+ErrImportFailed:
   field_colors:
     - context: "main"
       type: "status_warning"
@@ -592,6 +604,10 @@ ETCDSnapshotCreated:
   field_colors:
     - context: "main"
       type: "status_done"
+ETCDSnapshotDeleted:
+  field_colors:
+    - context: "main"
+      type: "status_done"
 Evicted:
   field_colors:
     - context: "main"
@@ -613,6 +629,14 @@ ExitedWithCode:
     - context: "main"
       type: "status_warning"
 ExperimentFailed:
+  field_colors:
+    - context: "main"
+      type: "status_warning"
+Ext4Error:
+  field_colors:
+    - context: "main"
+      type: "status_not_ok"
+Ext4Warning:
   field_colors:
     - context: "main"
       type: "status_warning"
@@ -880,6 +904,14 @@ ImageStreamImportModeChanged:
   field_colors:
     - context: "main"
       type: "status_ok"
+ImportInProgress:
+  field_colors:
+    - context: "main"
+      type: "status_pending"
+ImportScheduled:
+  field_colors:
+    - context: "main"
+      type: "status_done"
 InClusterUpgrade:
   field_colors:
     - context: "main"
@@ -952,6 +984,10 @@ InvalidSpec:
   field_colors:
     - context: "main"
       type: "status_warning"
+IOError:
+  field_colors:
+    - context: "main"
+      type: "status_not_ok"
 IPAddressNotAllocated:
   field_colors:
     - context: "main"
@@ -1389,6 +1425,10 @@ OSUpgradeApplied:
     - context: "main"
       type: "status_done"
 Overwritten:
+  field_colors:
+    - context: "main"
+      type: "status_warning"
+OwnerRefInvalidNamespace:
   field_colors:
     - context: "main"
       type: "status_warning"
