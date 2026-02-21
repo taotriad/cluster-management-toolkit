@@ -1,0 +1,81 @@
+---
+kind: "UpgradeLog"
+api_family: "harvesterhci.io"
+default_command: "upgradelogs.harvesterhci.io"
+command:
+  - upgradelog.harvesterhci.io"
+listview:
+  name: "Upgrade Logs"
+  group: "Harvester"
+  field_indexes:
+    Normal:
+      fields: ["namespace", "name", "version", "previous_version", "age"]
+      sortcolumn: "namespace"
+  fields:
+    previous_version:
+      header: "Previous Version:"
+      path: "status#previousVersion"
+      default: "<unset>"
+      type: "str"
+      formatting:
+        field_colors:
+          - type: "version"
+    version:
+      header: "Version:"
+      path: "spec#version"
+      default: "<unset>"
+      type: "str"
+      formatting:
+        field_colors:
+          - type: "version"
+infoview:
+  name: "Upgrade Log Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["upgrade", "upgrade_name"]
+    rows:
+      upgrade:
+        header: [["U", ["main", "infoheader_shortcut"]],
+                 ["pgrade:", ["main", "infoheader"]]]
+        paths:
+          - path: "metadata#ownerReferences"
+            pathtype: "items"
+            subpaths:
+              - "kind"
+              - "apiVersion"
+              - "name"
+            when:
+              - key: "kind"
+                eq: "Upgrade"
+            type: ["kind", "api_group", "name"]
+        default: "<none>"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "kind"
+            - type: "api_group"
+            - type: "generic"
+          field_separators:
+            - type: "kind_api_group"
+            - type: "kind"
+      upgrade_name:
+        header: [["Upgrade Name:", ["main", "infoheader"]]]
+        path: "spec#upgradeName"
+        default: "<unset>"
+        type: "str"
+  shortcuts:
+    "Open Upgrade":
+      key: "u"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for Upgrade"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind: "Upgrade"
+        api_family: "harvesterhci.io"
+        controller: false
+        namespace_path: "metadata#namespace"
+        owner_reference_path: "metadata#ownerReferences"
