@@ -1070,6 +1070,7 @@ strings:
     selected: [[".", ["main", "status_done"]]]
 
 separators:
+  date: [["-", ["types", "unit"]]]
   no_pad: [["", ["types", "generic"]]]
   range: [["–", ["types", "range"]]]
   tag: [["✓ ", ["types", "tag"]]]
