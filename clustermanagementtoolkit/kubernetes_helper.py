@@ -1722,6 +1722,9 @@ class KubernetesHelper:
                     managed_fields = deep_get(node, DictPath("metadata#managedFields"), [])
                     for managed_field in managed_fields:
                         manager = deep_get(managed_field, DictPath("manager"), "")
+                        if manager == "harvester":
+                            tmp_k8s_distro = "harvester"
+                            break
                         if manager == "rke2":
                             tmp_k8s_distro = "rke2"
                             break
