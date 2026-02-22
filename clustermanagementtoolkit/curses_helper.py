@@ -2966,8 +2966,8 @@ class UIProps:
                                          key=attrgetter(sortkey1, sortkey2),
                                          reverse=self.sortorder_reverse)
         except TypeError:
-            # We could not sort the list; we should log and just keep the current sort order
-            pass
+            # We could not sort the list; we just keep the current sort order
+            self.sorted_list = self.info
 
         pos = self.curypos + self.yoffset
 
@@ -2980,7 +2980,7 @@ class UIProps:
                     uid = getattr(item, "__uid")
                 except AttributeError:
                     pass
-                # If the first element lacks "__uid" all elemenets will lack it
+                # If the first element lacks "__uid" all elements will lack it
                 if uid is None:
                     break
                 if self.selected_uid is None and y == pos:
@@ -4160,30 +4160,33 @@ class UIProps:
         sortkey1, sortkey2 = self.get_sortkeys()
         sortkey = sortkey2 if sortkey1 == "status_group" else sortkey1
 
-        for entry in natsorted(info, key=attrgetter(sortkey1, sortkey2),
-                               reverse=self.sortorder_reverse):
-            entryval = getattr(entry, sortkey)
+        try:
+            for entry in natsorted(info, key=attrgetter(sortkey1, sortkey2),
+                                   reverse=self.sortorder_reverse):
+                entryval = getattr(entry, sortkey)
 
-            # OK, from here we want to go to next entry
-            if y == pos:
-                if sortkey == "age" or self.sortkey1 == "seen":
-                    current = cmtlib.seconds_to_age(entryval)
-                else:
-                    current = entryval
-            elif y > pos:
-                if sortkey == "name":
-                    if current[0] != entryval[0]:
-                        newpos = y - pos
-                        break
-                elif sortkey == "age" or self.sortkey1 == "seen":
-                    if current != cmtlib.seconds_to_age(entryval):
-                        newpos = y - pos
-                        break
-                else:
-                    if current != entryval:
-                        newpos = y - pos
-                        break
-            y += 1
+                # OK, from here we want to go to next entry
+                if y == pos:
+                    if sortkey == "age" or self.sortkey1 == "seen":
+                        current = cmtlib.seconds_to_age(entryval)
+                    else:
+                        current = entryval
+                elif y > pos:
+                    if sortkey == "name":
+                        if current[0] != entryval[0]:
+                            newpos = y - pos
+                            break
+                    elif sortkey == "age" or self.sortkey1 == "seen":
+                        if current != cmtlib.seconds_to_age(entryval):
+                            newpos = y - pos
+                            break
+                    else:
+                        if current != entryval:
+                            newpos = y - pos
+                            break
+                y += 1
+        except TypeError:
+            return
 
         # If we do not match we will just end up with the old pos
         self.move_cur_with_offset(newpos)
@@ -4213,36 +4216,39 @@ class UIProps:
         sortkey1, sortkey2 = self.get_sortkeys()
         sortkey = sortkey2 if sortkey1 == "status_group" else sortkey1
 
-        # Search backward within sort category
-        # prev namespace when sorted by namespace
-        # prev (existing) letter when sorted by name
-        # prev status when sorted by status
-        # prev node when sorted by node
-        for entry in natsorted(info, key=attrgetter(sortkey1, sortkey2),
-                               reverse=self.sortorder_reverse):
-            entryval = getattr(entry, sortkey)
-            if current is None:
-                if sortkey == "age" or self.sortkey1 == "seen":
-                    current = cmtlib.seconds_to_age(entryval)
+        try:
+            # Search backward within sort category
+            # prev namespace when sorted by namespace
+            # prev (existing) letter when sorted by name
+            # prev status when sorted by status
+            # prev node when sorted by node
+            for entry in natsorted(info, key=attrgetter(sortkey1, sortkey2),
+                                   reverse=self.sortorder_reverse):
+                entryval = getattr(entry, sortkey)
+                if current is None:
+                    if sortkey == "age" or self.sortkey1 == "seen":
+                        current = cmtlib.seconds_to_age(entryval)
+                    else:
+                        current = entryval
+
+                if y == pos:
+                    break
+
+                if sortkey == "name" and current is not None and current:
+                    if current[0] != entryval[0]:
+                        current = entryval
+                        newpos = y - pos
+                elif sortkey == "age":
+                    if current != cmtlib.seconds_to_age(getattr(entry, sortkey)):
+                        current = cmtlib.seconds_to_age(entryval)
+                        newpos = y - pos
                 else:
-                    current = entryval
-
-            if y == pos:
-                break
-
-            if sortkey == "name" and current is not None and current:
-                if current[0] != entryval[0]:
-                    current = entryval
-                    newpos = y - pos
-            elif sortkey == "age":
-                if current != cmtlib.seconds_to_age(getattr(entry, sortkey)):
-                    current = cmtlib.seconds_to_age(entryval)
-                    newpos = y - pos
-            else:
-                if current != entryval:
-                    current = entryval
-                    newpos = y - pos
-            y += 1
+                    if current != entryval:
+                        current = entryval
+                        newpos = y - pos
+                y += 1
+        except TypeError:
+            return
 
         # If we do not match we will just end up with the old pos
         if not newpos:
@@ -4262,8 +4268,12 @@ class UIProps:
         offset = 0
 
         # Search within sort category
-        sorted_list = natsorted(info, key=attrgetter(self.sortkey1, self.sortkey2),
-                                reverse=self.sortorder_reverse)
+        try:
+            sorted_list = natsorted(info, key=attrgetter(self.sortkey1, self.sortkey2),
+                                    reverse=self.sortorder_reverse)
+        except TypeError:
+            return
+
         match = False
         for y in range(pos, len(sorted_list)):
             tmp2 = getattr(sorted_list[y], self.sortcolumn)
@@ -4305,8 +4315,12 @@ class UIProps:
         offset = 0
 
         # Search within sort category
-        sorted_list = natsorted(info, key=attrgetter(self.sortkey1, self.sortkey2),
-                                reverse=self.sortorder_reverse)
+        try:
+            sorted_list = natsorted(info, key=attrgetter(self.sortkey1, self.sortkey2),
+                                    reverse=self.sortorder_reverse)
+        except TypeError:
+            return
+
         match = False
         for y in reversed(range(0, pos)):
             tmp2 = getattr(sorted_list[y], self.sortcolumn)
@@ -4349,8 +4363,12 @@ class UIProps:
             return None
 
         # Search within sort category
-        sorted_list = natsorted(self.info, key=attrgetter(self.sortkey1, self.sortkey2),
-                                reverse=self.sortorder_reverse)
+        try:
+            sorted_list = natsorted(self.info, key=attrgetter(self.sortkey1, self.sortkey2),
+                                    reverse=self.sortorder_reverse)
+        except TypeError:
+            return None
+
         first_match = None
         unique_match = None
         match_count = 0
