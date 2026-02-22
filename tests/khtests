@@ -107,7 +107,7 @@ def test_guess_kind(verbose: bool = False) -> tuple[str, bool]:
             (("DaemonSet", ""), ("DaemonSet", "apps"), None),
             (("daemonsets", "apps"), ("DaemonSet", "apps"), None),
             ("daemonsets.apps", ("DaemonSet", "apps"), None),
-            (("GpuAllocationState", ""), ("GpuAllocationState", "gpu.resource.intel.com"), None),
+            (("QatDevicePlugin", ""), ("QatDevicePlugin", "deviceplugin.intel.com"), None),
             # Unknown kinds should also be accepted
             (("Workflow", ""), ("Workflow", ""), None),
             (("__Log", ""), ("__Log", ""), None),
@@ -694,7 +694,7 @@ def test_identify_k8s_distro(verbose: bool = False) -> tuple[str, bool]:
     result = True
 
     fun = kh.identify_k8s_distro
-    k8s_distros = ("crc", "k0s", "k3d", "k3s", "kind", "kubeadm",
+    k8s_distros = ("crc", "k0s", "k3d", "k3s", "kind", "kubeadm", "harvester",
                    "minikube", "microk8s", "openshift", "rke2", "talos", "vcluster")
 
     if result:
