@@ -7,7 +7,7 @@ command:
   - "datavol"
 listview:
   name: "Data Volumes"
-  group: "Harvester"
+  group: "Storage & Backups"
   field_indexes:
     Normal:
       fields: ["namespace", "name", "progress", "restarts", "phase", "age"]
