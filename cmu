@@ -3925,7 +3925,7 @@ def genericinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
         data = obj
     viewoverride = deep_get(viewref, DictPath("viewoverride"), view)
     infopadheight = 0
-    conditions_path: str = "status"
+    conditions_path: str = "status#conditions"
 
     if "infopad" in viewref:
         if "name_path" in viewref:
@@ -3940,7 +3940,7 @@ def genericinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
             creation_timestamp_path = deep_get(viewref, DictPath("creation_timestamp_path"))
         else:
             creation_timestamp_path = "metadata#creationTimestamp"
-        conditions_path = deep_get(viewref, DictPath("conditions_path"), "status")
+        conditions_path = deep_get(viewref, DictPath("conditions_path"), "status#conditions")
 
         # Number of fields added conditionally
         if name_path is not None and name_path and deep_get(obj, DictPath(name_path)) is not None:
@@ -3998,7 +3998,7 @@ def genericinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
 
     # Always include the shortcut for conditions,
     # unless the path returns None
-    if "conditions" in deep_get(obj, DictPath(conditions_path), {}):
+    if deep_get(obj, DictPath(conditions_path)) is not None:
         shortcuts["Show Resource Conditions"] = {
             "shortcut": [ord("c")],
             "read_only": True,
@@ -4008,7 +4008,7 @@ def genericinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
             "headers": ["Type:", "Status:", "Last Probe:", "Last Transition:", "Message:"],
             "itemgetter": itemgetters.get_conditions,
             "itemgetter_args": {
-                "path": f"{conditions_path}#conditions",
+                "path": f"{conditions_path}",
             },
             "force_update": False,
         }

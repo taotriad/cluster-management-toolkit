@@ -6,6 +6,8 @@ command:
   - "virtualmachineimage.harvesterhci.io"
   - "vmimgs.harvesterhci.io"
   - "vmimg.harvesterhci.io"
+  - "hvstvmimgs"
+  - "hvstvmimg"
 listview:
   name: "Virtual Machine Images"
   group: "Harvester"

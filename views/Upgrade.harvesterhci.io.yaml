@@ -4,6 +4,8 @@ api_family: "harvesterhci.io"
 default_command: "upgrades.harvesterhci.io"
 command:
   - "upgrade.harvesterhci.io"
+  - "hvstupgrades"
+  - "hvstupgrade"
 listview:
   name: "Upgrades"
   group: "Harvester"
@@ -55,7 +57,9 @@ infoview:
         default: "<unset>"
         type: "bool"
       log_upgrade_log:
-        header: [["  Upgrade Log:", ["main", "infoheader"]]]
+        header: [["  ", ["main", "infoheader"]],
+                 ["U", ["main", "infoheader_shortcut"]],
+                 ["pgrade Log:", ["main", "infoheader"]]]
         path: "status#upgradeLog"
         default: "<unset>"
         type: "str"
@@ -75,3 +79,18 @@ infoview:
         formatting:
           field_colors:
             - type: "version"
+  shortcuts:
+    "Open Upgrade Log":
+      key: "u"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for Upgrade Log"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind: "UpgradeLog"
+        api_family: "harvesterhci.io"
+        controller: false
+        namespace_path: "metadata#namespace"
+        name_path: "status#upgradeLog"

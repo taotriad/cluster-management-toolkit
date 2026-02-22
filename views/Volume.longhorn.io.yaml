@@ -26,6 +26,18 @@ listview:
               field_colors:
                 - context: "main"
                   type: "status_warning"
+            "faulted":
+              field_colors:
+                - context: "main"
+                  type: "status_not_ok"
+            "healthy":
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+            "unknown":
+              field_colors:
+                - context: "main"
+                  type: "status_unknown"
     state:
       header: "State:"
       path: "status#state"
@@ -38,6 +50,22 @@ listview:
               field_colors:
                 - context: "main"
                   type: "status_ok"
+            "attaching":
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+            "creating":
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+            "detached":
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+            "detaching":
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
   actions:
     actionlist:
       "Delete resource":
@@ -77,6 +105,18 @@ infoview:
                 field_colors:
                   - context: "main"
                     type: "status_warning"
+              "faulted":
+                field_colors:
+                  - context: "main"
+                    type: "status_not_ok"
+              "healthy":
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+              "unknown":
+                field_colors:
+                  - context: "main"
+                    type: "status_unknown"
       state:
         header: [["State:", ["main", "infoheader"]]]
         path: "status#state"
@@ -89,3 +129,19 @@ infoview:
                 field_colors:
                   - context: "main"
                     type: "status_ok"
+              "attaching":
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+              "creating":
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+              "detached":
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+              "detaching":
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"

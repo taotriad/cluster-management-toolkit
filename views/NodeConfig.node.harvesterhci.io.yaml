@@ -1,0 +1,33 @@
+---
+kind: "NodeConfig"
+api_family: "node.harvesterhci.io"
+default_command: "nodeconfigs"
+listview:
+  name: "NodeConfigs"
+  group: "Harvester"
+  field_indexes:
+    Normal:
+      fields: ["namespace", "name", "age"]
+infoview:
+  name: "Node Config Info"
+  infopad:
+    conditions_path: "status#ntpConditions"
+    row_indexes:
+      Normal:
+        fields: ["ntp_config_header",
+                 "ntp_config_servers"]
+    rows:
+      ntp_config_header:
+        header: [["NTP Config:", ["main", "infoheader"]]]
+      ntp_config_servers:
+        header: [["  NTP Servers:", ["main", "infoheader"]]]
+        path: "spec#ntpConfigs#ntpServers"
+        default: "<unset>"
+        type: "str"
+        formatter: "address"
+  logpad:
+    infogetter: "logpad_formatted"
+    infogetter_args:
+      formatter: "format_yaml"
+      path: "spec#longhornConfig"
+    timestamps: false

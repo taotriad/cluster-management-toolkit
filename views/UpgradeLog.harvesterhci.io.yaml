@@ -4,36 +4,27 @@ api_family: "harvesterhci.io"
 default_command: "upgradelogs.harvesterhci.io"
 command:
   - "upgradelog.harvesterhci.io"
+  - "hvstupgradelogs"
+  - "hvstupgradelog"
 listview:
   name: "Upgrade Logs"
   group: "Harvester"
   field_indexes:
     Normal:
-      fields: ["namespace", "name", "version", "previous_version", "age"]
+      fields: ["namespace", "name", "upgrade", "age"]
       sortcolumn: "namespace"
   fields:
-    previous_version:
-      header: "Previous Version:"
-      path: "status#previousVersion"
+    upgrade:
+      header: "Upgrade:"
+      path: "spec#upgradeName"
       default: "<unset>"
       type: "str"
-      formatting:
-        field_colors:
-          - type: "version"
-    version:
-      header: "Version:"
-      path: "spec#version"
-      default: "<unset>"
-      type: "str"
-      formatting:
-        field_colors:
-          - type: "version"
 infoview:
   name: "Upgrade Log Info"
   infopad:
     row_indexes:
       Normal:
-        fields: ["upgrade", "upgrade_name"]
+        fields: ["upgrade"]
     rows:
       upgrade:
         header: [["U", ["main", "infoheader_shortcut"]],
@@ -59,11 +50,6 @@ infoview:
           field_separators:
             - type: "kind_api_group"
             - type: "kind"
-      upgrade_name:
-        header: [["Upgrade Name:", ["main", "infoheader"]]]
-        path: "spec#upgradeName"
-        default: "<unset>"
-        type: "str"
   shortcuts:
     "Open Upgrade":
       key: "u"

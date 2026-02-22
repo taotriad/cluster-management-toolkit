@@ -4,6 +4,8 @@ api_family: "harvesterhci.io"
 default_command: "versions.harvesterhci.io"
 command:
   - "version.harvesterhci.io"
+  - "hvstversions"
+  - "hvstversion"
 listview:
   name: "Versions"
   group: "Harvester"

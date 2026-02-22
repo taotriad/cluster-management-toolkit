@@ -1,0 +1,135 @@
+---
+kind: "ClusterFlow"
+api_family: "logging.banzaicloud.io"
+default_command: "clusterflows"
+command:
+  - "clrflows"
+  - "clrflow"
+listview:
+  name: "Cluster Flows"
+  group: "Logging"
+  field_indexes:
+    Normal:
+      fields: ["namespace", "name", "active", "age", "problems"]
+      sortcolumn: "namespace"
+  fields:
+    active:
+      header: "Active:"
+      path: "status#active"
+      default: "<unset>"
+      type: "str"
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          mappings:
+            "True":
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+            "False":
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+    problems:
+      header: "Problems:"
+      path: "status#problems"
+      default: "<unset>"
+      type: "str"
+infoview:
+  name: "Cluster Flow Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["problems", "active"]
+    rows:
+      active:
+        header: [["Active:", ["main", "infoheader"]]]
+        path: "status#active"
+        default: "<unset>"
+        type: "str"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              "True":
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+              "False":
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+      problems:
+        header: [["Problems:", ["main", "infoheader"]]]
+        path: "status#problems"
+        default: "<unset>"
+        type: "str"
+  listpad:
+    listgetter: "listgetter_path"
+    listgetter_args:
+      path: "spec#match"
+    infogetter: "generic_infogetter"
+    field_indexes:
+      Normal:
+        fields: ["namespace_selector",
+                 "container_selector",
+                 "label_selector"]
+        sortcolumn: "namespace_selector"
+    fields:
+      container_selector:
+        header: "Container Selector:"
+        path: "select#container_names"
+        default: ["<none>"]
+        type: "raw"
+        formatter: "list"
+      label_selector:
+        header: "Label Selector:"
+        paths:
+          - path: "select#labels"
+            pathtype: "key_value"
+            default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "key"
+            - type: "value"
+          field_separators:
+            - type: "selector"
+      namespace_selector:
+        header: "Namespace Selector:"
+        path: "select#namespaces"
+        default: ["<none>"]
+        type: "raw"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "namespace"
+  shortcuts:
+    "Owner References":
+      key: "o"
+      modifier: "shift"
+      read_only: true
+      helptext: "List Owner References"
+      widget: "windowwidget"
+      title: "Owner References:"
+      selectable: true
+      headers: ["Kind:", "API-Version:", "Namespace:", "Name:"]
+      itemgetter: "get_list_fields"
+      itemgetter_args:
+        path: "metadata#ownerReferences"
+        fields:
+          - "kind"
+          - "apiVersion"
+          - "namespace"
+          - "name"
+      # This isn't supported for now
+      sortcolumn: "kind"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind_path: 0
+        api_version_path: 1
+        namespace_path: 2
+        name_path: 3
+        _parent_namespace_path: "metadata#namespace"

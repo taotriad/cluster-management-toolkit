@@ -112,7 +112,7 @@ listview:
 infoview:
   name: "Tenant Control Plane Info"
   infopad:
-    conditions_path: "status#kubernetesResources#deployment"
+    conditions_path: "status#kubernetesResources#deployment#conditions"
     row_indexes:
       Normal:
         fields: ["controller",

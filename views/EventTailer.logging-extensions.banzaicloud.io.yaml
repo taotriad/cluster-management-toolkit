@@ -1,0 +1,46 @@
+---
+kind: "EventTailer"
+api_family: "logging-extensions.banzaicloud.io"
+default_command: "eventtailers"
+command:
+  - "evtailers"
+  - "evtailer"
+listview:
+  name: "Event Tailers"
+  group: "Logging"
+  field_indexes:
+    Normal:
+      fields: ["name", "age"]
+infoview:
+  name: "Event Tailer Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["control_namespace"]
+    rows:
+      control_namespace:
+        header: [["C", ["main", "infoheader_shortcut"]],
+                 ["ontrol Namespace:", ["main", "infoheader"]]]
+        path: "spec#controlNamespace"
+        type: "str"
+        formatting:
+          field_colors:
+            - type: "namespace"
+  logpad:
+    infogetter: "logpad_formatted"
+    infogetter_args:
+      formatter: "format_yaml"
+      path: "spec"
+    timestamps: false
+  shortcuts:
+    "Open Control Namespace":
+      key: "c"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for Control Namespace"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind: "Namespace"
+        name_path: "spec#controlNamespace"

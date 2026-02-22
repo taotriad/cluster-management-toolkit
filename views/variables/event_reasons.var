@@ -800,6 +800,10 @@ FastControllerResync:
   field_colors:
     - context: "main"
       type: "status_warning"
+Faulted:
+  field_colors:
+    - context: "main"
+      type: "status_not_ok"
 FeatureGatesInitialized:
   field_colors:
     - context: "main"
@@ -884,6 +888,10 @@ HcoUpdateError:
   field_colors:
     - context: "main"
       type: "status_warning"
+Healthy:
+  field_colors:
+    - context: "main"
+      type: "status_ok"
 HTTPServerStoppedListening:
   field_colors:
     - context: "main"
@@ -1404,6 +1412,10 @@ OperatorVersionChanged:
   field_colors:
     - context: "main"
       type: "status_ok"
+Orphaned:
+  field_colors:
+    - context: "main"
+      type: "status_warning"
 OSImageURLOverridden:
   field_colors:
     - context: "main"

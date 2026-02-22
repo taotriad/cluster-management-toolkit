@@ -2,6 +2,9 @@
 kind: "ClusterNetwork"
 api_family: "network.harvesterhci.io"
 default_command: "clusternetworks"
+command:
+  - "hvstclrnets"
+  - "hvstclrnet"
 listview:
   name: "Cluster Networks"
   group: "Harvester"

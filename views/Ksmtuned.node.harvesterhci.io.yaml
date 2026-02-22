@@ -1,7 +1,7 @@
 ---
 kind: "Ksmtuned"
 api_family: "node.harvesterhci.io"
-default_command: "hugepages"
+default_command: "ksmtuneds"
 listview:
   name: "KSM Tuned"
   group: "Harvester"
@@ -62,7 +62,7 @@ listview:
                 - context: "main"
                   type: "status_done"
 infoview:
-  name: "Hugepage Info"
+  name: "KSM Tuned Info"
   infopad:
     row_indexes:
       Normal:

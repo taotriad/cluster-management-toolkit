@@ -20,12 +20,12 @@ infoview:
   infopad:
     row_indexes:
       Normal:
-        fields: ["node_name"]
+        fields: ["node"]
     rows:
-      node_name:
+      node:
         header: [["No", ["main", "infoheader"]],
                  ["d", ["main", "infoheader_shortcut"]],
-                 ["e Name:", ["main", "infoheader"]]]
+                 ["e:", ["main", "infoheader"]]]
         paths:
           - path: "metadata#ownerReferences"
             pathtype: "items"

@@ -1,0 +1,42 @@
+---
+kind: "VirtualMachineTemplateVersion"
+api_family: "harvesterhci.io"
+default_command: "virtualmachinetemplateversions.harvesterhci.io"
+command:
+  - "virtualmachinetemplateversion.harvesterhci.io"
+  - "vmtmplversions.harvesterhci.io"
+  - "vmtmplversion.harvesterhci.io"
+  - "hvstvmtmplvers"
+  - "hvstvmtmplver"
+listview:
+  name: "Virtual Machine Template Versions"
+  group: "Harvester"
+  field_indexes:
+    Wide:
+      fields: ["namespace", "name", "description", "template_id",
+               "version", "age"]
+      sortcolumn: "namespace"
+    Normal:
+      fields: ["namespace", "name", "description", "age"]
+      sortcolumn: "namespace"
+  fields:
+    description:
+      header: "Description:"
+      path: "spec#description"
+      default: "<unset>"
+      type: "str"
+    template_id:
+      header: "Template ID:"
+      path: "spec#templateId"
+      default: "<unset>"
+      type: "str"
+    version:
+      header: "Version:"
+      path: "status#version"
+      default: "<unset>"
+      type: "int"
+      formatter: "numerical"
+      align: "right"
+infoview:
+  name: "Virtual Machine Template Version Info"
+  infopad:
