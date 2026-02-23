@@ -1,0 +1,157 @@
+---
+kind: "ManagedChart"
+api_family: "management.cattle.io"
+default_command: "managedcharts.management.cattle.io"
+command:
+  - "managedcharts.cattle"
+  - "managedchart.cattle"
+listview:
+  name: "Managed Charts"
+  group: "Rancher"
+  field_indexes:
+    Normal:
+      fields: ["namespace", "name", "age"]
+      sort_column: "namespace"
+infoview:
+  name: "Managed Chart Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["chart", "release_name", "repo_name",
+                 "default_namespace", "timeout", "ready_clusters", "version"]
+    rows:
+      chart:
+        header: [["Chart:", ["main", "infoheader"]]]
+        path: "spec#chart"
+        default: "<unset>"
+        type: "str"
+      default_namespace:
+        header: [["D", ["main", "infoheader_shortcut"]],
+                 ["efault Namespace:", ["main", "infoheader"]]]
+        path: "spec#defaultNamespace"
+        default: "<unset>"
+        type: "str"
+        formatting:
+          field_colors:
+            - type: "namespace"
+      timeout:
+        header: [["Timeout:", ["main", "infoheader"]]]
+        path: "spec#timeoutSeconds"
+        default: "<unset>"
+        type: "int"
+        formatter: "numerical"
+        formatting:
+          unit: "s"
+      release_name:
+        header: [["Release Name:", ["main", "infoheader"]]]
+        path: "spec#releaseName"
+        default: "<unset>"
+        type: "str"
+      ready_clusters:
+        header: [["Ready Clusters:", ["main", "infoheader"]]]
+        path: "status#display#readyClusters"
+        default: "<unset>"
+        type: "str"
+        formatter: "numerical"
+      repo_name:
+        header: [["Repo Name:", ["main", "infoheader"]]]
+        path: "spec#repoName"
+        default: "<unset>"
+        type: "str"
+      version:
+        header: [["Version:", ["main", "infoheader"]]]
+        path: "spec#version"
+        type: "str"
+        formatting:
+          field_colors:
+            - type: "version"
+  listpad:
+    listgetter: "listgetter_path"
+    listgetter_args:
+      path: "spec#targets"
+    infogetter: "generic_infogetter"
+    field_indexes:
+      Normal:
+        fields: ["cluster_name", "cluster_selector"]
+        sortcolumn: "cluster_name"
+    fields:
+      cluster_name:
+        header: "Cluster Name:"
+        path: "clusterName"
+        default: "<unset>"
+        type: "str"
+      cluster_selector:
+        header: "Cluster Selector:"
+        paths:
+          - path: "clusterSelector#matchExpressions"
+            pathtype: "match_expression"
+            default: "<none>"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "key"
+            - type: "operator"
+            - type: "value"
+          field_separators:
+            - type: "space"
+            - type: "no_pad"
+  shortcuts:
+    "Open Namespace":
+      key: "d"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for Namespace"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind: "Namespace"
+        name_path: "spec#defaultNamespace"
+    "List Compare Patches":
+      key: "c"
+      modifier: "shift"
+      read_only: true
+      helptext: "List compare patches"
+      widget: "windowwidget"
+      title: "Compare Patches:"
+      selectable: true
+      headers: ["Kind:", "API-Version:", "Name:", "JSON Pointers:"]
+      itemgetter: "get_list_fields"
+      itemgetter_args:
+        path: "spec#diff#comparePatches"
+        fields:
+          - "kind"
+          - "apiVersion"
+          - "name"
+          - "jsonPointers"
+      # This isn't supported for now
+      sortcolumn: "kind"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind_path: 0
+        api_version_path: 1
+        namespace_path: "metadata#namespace"
+        name_path: 2
+    "List Partitions":
+      key: "p"
+      modifier: "shift"
+      read_only: true
+      helptext: "List partitions"
+      widget: "windowwidget"
+      title: "Partitions:"
+      selectable: true
+      headers: ["Name:", "Count:", "Max Unavailable:",
+                "Desired:", "Ready:"]
+      itemgetter: "get_list_fields"
+      itemgetter_args:
+        path: "status#partitions"
+        fields:
+          - "name"
+          - "count"
+          - "maxUnavailable"
+          - "summary#ready"
+          - "summary#desiredReady"
+      # This isn't supported for now
+      sortcolumn: "name"
