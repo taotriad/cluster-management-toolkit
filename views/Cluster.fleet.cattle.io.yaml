@@ -50,6 +50,7 @@ infoview:
       agent_migrated:
         header: [["  Migrated:", ["main", "infoheader"]]]
         path: "status#agentMigrated"
+        default: "<unset>"
         type: "bool"
       agent_last_seen:
         header: [["  Last Seen:", ["main", "infoheader"]]]
@@ -61,6 +62,7 @@ infoview:
                  ["p", ["main", "infoheader_shortcut"]],
                  ["ace:", ["main", "infoheader"]]]
         path: "status#agent#namespace"
+        default: "<unset>"
         type: "str"
         formatting:
           field_colors:
@@ -68,19 +70,24 @@ infoview:
       agent_namespace_migrated:
         header: [["  Namespace Migrated:", ["main", "infoheader"]]]
         path: "status#agentNamespaceMigrated"
+        default: "<unset>"
         type: "bool"
       agent_tls_mode:
         header: [["  TLS Mode:", ["main", "infoheader"]]]
         path: "status#agentTLSMode"
+        default: "<unset>"
         type: "bool"
       api_server_url:
         header: [["API-server URL:", ["main", "infoheader"]]]
         path: "status#apiServerURL"
+        default: "<unset>"
         type: "str"
+        formatter: "address"
       cluster_namespace:
         header: [["C", ["main", "infoheader_shortcut"]],
                  ["luster Namespace:", ["main", "infoheader"]]]
         path: "status#namespace"
+        default: "<unset>"
         type: "str"
         formatting:
           field_colors:
@@ -88,6 +95,7 @@ infoview:
       garbage_collection_interval:
         header: [["Garbage Collection Interval:", ["main", "infoheader"]]]
         path: "status#garbageCollectionInterval"
+        default: "<unset>"
         type: "str"
         formatter: "numerical"
       kubeconfig:
@@ -113,6 +121,7 @@ infoview:
       ready_bundles:
         header: [["Ready Bundles:", ["main", "infoheader"]]]
         path: "status#display#readyBundles"
+        default: "<unset>"
         type: "str"
         formatter: "numerical"
   shortcuts:

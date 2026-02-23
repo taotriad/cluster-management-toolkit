@@ -1,0 +1,156 @@
+---
+kind: "CustomMachine"
+api_family: "rke.cattle.io"
+default_command: "custommachines"
+listview:
+  name: "Custom Machines"
+  group: "Rancher"
+  field_indexes:
+    Normal:
+      fields: ["namespace", "name", "provider_id", "ready", "age"]
+      sortcolumn: "namespace"
+  fields:
+    provider_id:
+      header: "Provider ID:"
+      path: "spec#providerID"
+      default: "<unset>"
+      type: "str"
+      formatter: "address"
+    ready:
+      header: "Ready:"
+      path: "status#ready"
+      type: "str"
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          mappings:
+            "True":
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+            "False":
+              field_colors:
+                - context: "main"
+                  type: "status_not_ok"
+            "<unset>":
+              field_colors:
+                - context: "types"
+                  type: "unset"
+infoview:
+  name: "Custom Machine Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["hostname", "cluster_name", "internal_ips", "external_ips",
+                 "provider_id", "ready"]
+    rows:
+      cluster_name:
+        header: [["Cl", ["main", "infoheader"]],
+                 ["u", ["main", "infoheader_shortcut"]],
+                 ["ster Name:", ["main", "infoheader"]]]
+        path: "metadata#labels#cluster.x-k8s.io/cluster-name"
+        default: "<unset>"
+        type: "str"
+      external_ips:
+        header: [["External IPs:", ["main", "infoheader"]]]
+        paths:
+          - path: "status#addresses"
+            pathtype: "items"
+            subpaths:
+              - "address"
+            when:
+              - key: "type"
+                eq: "ExternalIP"
+            default: ["<none>"]
+        formatter: "address"
+      hostname:
+        header: [["Hostname:", ["main", "infoheader"]]]
+        paths:
+          - path: "status#addresses"
+            pathtype: "items"
+            subpaths:
+              - "address"
+            when:
+              - key: "type"
+                eq: "Hostname"
+            default: ["<unset>"]
+        formatter: "address"
+      internal_ips:
+        header: [["Internal IPs:", ["main", "infoheader"]]]
+        paths:
+          - path: "status#addresses"
+            pathtype: "items"
+            subpaths:
+              - "address"
+            when:
+              - key: "type"
+                eq: "InternalIP"
+            default: ["<unset>"]
+        formatter: "address"
+      provider_id:
+        header: [["Provider ID:", ["main", "infoheader"]]]
+        path: "spec#providerID"
+        default: "<unset>"
+        type: "str"
+        formatter: "address"
+      ready:
+        header: [["Ready:", ["main", "infoheader"]]]
+        path: "status#ready"
+        type: "str"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              "True":
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+              "False":
+                field_colors:
+                  - context: "main"
+                    type: "status_not_ok"
+              "<unset>":
+                field_colors:
+                  - context: "types"
+                    type: "unset"
+  shortcuts:
+    "Open Cluster":
+      key: "u"
+      read_only: true
+      helptext: "Open info page for Cluster"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind: "Cluster"
+        api_family: "cluster.x-k8s.io"
+        namespace_path: "metadata#namespace"
+        name_path: "metadata#labels#cluster.x-k8s.io/cluster-name"
+    "Owner References":
+      key: "o"
+      modifier: "shift"
+      read_only: true
+      helptext: "List Owner References"
+      widget: "windowwidget"
+      title: "Owner References:"
+      selectable: true
+      headers: ["Kind:", "API-Version:", "Namespace:", "Name:"]
+      itemgetter: "get_list_fields"
+      itemgetter_args:
+        path: "metadata#ownerReferences"
+        fields:
+          - "kind"
+          - "apiVersion"
+          - "namespace"
+          - "name"
+      # This isn't supported for now
+      sortcolumn: "kind"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind_path: 0
+        api_version_path: 1
+        namespace_path: 2
+        name_path: 3
+        _parent_namespace_path: "metadata#namespace"

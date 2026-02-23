@@ -58,7 +58,8 @@ infoview:
   infopad:
     row_indexes:
       Normal:
-        fields: ["cluster_network_header",
+        fields: ["controller",
+                 "cluster_network_header",
                  "cluster_network_pod_cidr_blocks",
                  "cluster_network_service_cidr_blocks",
                  "cluster_network_service_domain", "control_plane",
@@ -88,9 +89,34 @@ infoview:
         header: [["  Service Domain:", ["main", "infoheader"]]]
         path: "spec#clusterNetwork#serviceDomain"
         type: "str"
-      control_plane:
+      controller:
         header: [["C", ["main", "infoheader_shortcut"]],
-                 ["ontrol Plane:", ["main", "infoheader"]]]
+                 ["ontroller:", ["main", "infoheader"]]]
+        paths:
+          - path: "metadata#ownerReferences"
+            pathtype: "items"
+            subpaths:
+              - "kind"
+              - "apiVersion"
+              - "name"
+            when:
+              - key: "controller"
+                eq: true
+            type: ["kind", "api_group", "name"]
+        default: "<none>"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "kind"
+            - type: "api_group"
+            - type: "generic"
+          field_separators:
+            - type: "kind_api_group"
+            - type: "kind"
+      control_plane:
+        header: [["C", ["main", "infoheader"]],
+                 ["o", ["main", "infoheader_shortcut"]],
+                 ["ntrol Plane:", ["main", "infoheader"]]]
         paths:
           - path: [["spec#controlPlaneRef#kind"],
                    ["spec#controlPlaneRef#namespace"],
@@ -334,9 +360,19 @@ infoview:
             - type: "fraction_spaced"
             - type: "no_pad"
   shortcuts:
-    "Open Control Plane":
+    "Open controller":
       key: "c"
       modifier: "shift"
+      read_only: true
+      helptext: "Open info page for controller"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        namespace_path: "metadata#namespace"
+        owner_reference_path: "metadata#ownerReferences"
+    "Open Control Plane":
+      key: "o"
       read_only: true
       helptext: "Open info page for Cluster Plane"
       action: "call"
