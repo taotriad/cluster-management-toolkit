@@ -13,24 +13,9 @@ infoview:
   infopad:
     row_indexes:
       Normal:
-        fields: ["kubelet_config_header",
-                 "kubelet_config_cpu_manager_policy",
-                 "kubelet_config_cpu_manager_reconcile_period",
-                 "machine_config_pool_label_selector"]
+        fields: ["machine_config_pool_label_selector",
+                 "machine_config_pool_set_based_selector"]
     rows:
-      kubelet_config_header:
-        header: [["Kubelet Config:", ["main", "infoheader"]]]
-      kubelet_config_cpu_manager_policy:
-        header: [["  CPU Manager Policy:", ["main", "infoheader"]]]
-        path: "spec#kubeletConfig#cpuManagerPolicy"
-        default: "<unset>"
-        type: "str"
-      kubelet_config_cpu_manager_reconcile_period:
-        header: [["  CPU Manager Reconcile Period:", ["main", "infoheader"]]]
-        path: "spec#kubeletConfig#cpuManagerReconcilePeriod"
-        default: "<unset>"
-        type: "int"
-        formatter: "numerical"
       machine_config_pool_label_selector:
         header: [["Machine Config Pool La", ["main", "infoheader"]],
                  ["b", ["main", "infoheader_shortcut"]],
@@ -46,11 +31,33 @@ infoview:
             - type: "value"
           field_separators:
             - type: "selector"
+      machine_config_pool_set_based_selector:
+        header: [["Machine Config Pool Set-based Selector:",
+                  ["main", "infoheader"]]]
+        paths:
+          - path: "spec#selector#matchExpressions"
+            pathtype: "match_expression"
+            default: "<none>"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "key"
+            - type: "operator"
+            - type: "value"
+          field_separators:
+            - type: "space"
+            - type: "no_pad"
+  logpad:
+    infogetter: "logpad_formatted"
+    infogetter_args:
+      formatter: "format_yaml"
+      path: "spec#kubeletConfig"
+    timestamps: false
   shortcuts:
-    "Label Selector":
+    "Machine Config Pool Label Selector":
       key: "b"
       read_only: true
-      helptext: "Show label selector"
+      helptext: "Show Machine Config Pool label selector"
       widget: "windowwidget"
       title: "Machine Config Pool Label Selector:"
       headers: ["Key:", "Value:"]
