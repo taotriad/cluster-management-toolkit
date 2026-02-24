@@ -10,7 +10,7 @@ listview:
   group: "Rancher"
   field_indexes:
     Normal:
-      fields: ["name", "content_size", "age"]
+      fields: ["name", "content_size", "reference_count", "age"]
   fields:
     content_size:
       header: "Content Size:"
@@ -18,12 +18,18 @@ listview:
       type: "len"
       formatter: "numerical"
       align: "right"
+    reference_count:
+      header: "Reference Count:"
+      path: "status#referenceCount"
+      type: "int"
+      formatter: "numerical"
+      align: "right"
 infoview:
   name: "Content Info"
   infopad:
     row_indexes:
       Normal:
-        fields: ["sha256", "content_size", "content_type"]
+        fields: ["sha256", "content_size", "content_type", "reference_count"]
     rows:
       content_size:
         header: [["Content Size:", ["main", "infoheader"]]]
@@ -36,6 +42,11 @@ infoview:
           - path: "content"
             pathtype: "identify_type"
         type: "str"
+      reference_count:
+        header: [["Reference Count:", ["main", "infoheader"]]]
+        path: "status#referenceCount"
+        type: "int"
+        formatter: "numerical"
       sha256:
         header: [["SHA256:", ["main", "infoheader"]]]
         path: "sha256sum"

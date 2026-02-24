@@ -90,7 +90,6 @@ infoview:
       helptext: "List cluster labels"
       widget: "windowwidget"
       title: "Cluster Labels:"
-      selectable: true
       itemgetter: "get_list_as_list"
       itemgetter_args:
         path: "spec#clusterLabels"

@@ -28,9 +28,7 @@ listview:
       header: "Repo:"
       path: "spec#gitRepo"
       type: "str"
-      formatting:
-        field_colors:
-          - type: "url"
+      formatter: "address"
 infoview:
   name: "Cluster Repo Info"
   infopad:
@@ -41,6 +39,7 @@ infoview:
       branch:
         header: [["Branch:", ["main", "infoheader"]]]
         path: "spec#gitBranch"
+        default: "<unset>"
         type: "str"
         formatting:
           field_colors:
@@ -60,10 +59,9 @@ infoview:
         header: [["R", ["main", "infoheader_shortcut"]],
                  ["epo:", ["main", "infoheader"]]]
         path: "spec#gitRepo"
+        default: "<unset>"
         type: "str"
-        formatting:
-          field_colors:
-            - type: "url"
+        formatter: "address"
   shortcuts:
     "Open URL":
       key: "r"

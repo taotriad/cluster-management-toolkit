@@ -6,8 +6,13 @@ listview:
   name: "Plans"
   group: "Rancher"
   field_indexes:
+    Wide:
+      fields: ["namespace", "name", "image", "channel",
+               "version", "latest_version", "age"]
+      sortcolumn: "namespace"
     Normal:
-      fields: ["namespace", "name", "image", "channel", "version", "age"]
+      fields: ["namespace", "name", "image",
+               "version", "latest_version", "age"]
       sortcolumn: "namespace"
   fields:
     channel:
@@ -22,6 +27,14 @@ listview:
       header: "Image:"
       path: "spec#upgrade#image"
       type: "str"
+    latest_version:
+      header: "Latest Version:"
+      path: "status#latestVersion"
+      type: "str"
+      default: "<unset>"
+      formatting:
+        field_colors:
+          - type: "version"
     version:
       header: "Version:"
       path: "spec#version"
@@ -40,7 +53,10 @@ infoview:
                  "drain_ignore_daemon_sets", "drain_force",
                  "drain_disable_eviction",
                  "drain_skip_wait_for_delete_timeout", "channel",
-                 "version", "node_selector", "concurrency"]
+                 "version", "latest_version",
+                 "node_label_selector",
+                 "node_set_based_selector",
+                 "concurrency"]
     rows:
       channel:
         header: [["Channel:", ["main", "infoheader"]]]
@@ -89,8 +105,31 @@ infoview:
         default: "<unset>"
         type: "numerical"
         formatter: "numerical"
-      node_selector:
-        header: [["Node Selector:", ["main", "infoheader"]]]
+      node_label_selector:
+        header: [["Node La", ["main", "infoheader"]],
+                 ["b", ["main", "infoheader_shortcut"]],
+                 ["el Selector:", ["main", "infoheader"]]]
+        paths:
+          - path: ["spec#nodeSelector#matchLabels"]
+            pathtype: "key_value"
+            default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "key"
+            - type: "value"
+          field_separators:
+            - type: "selector"
+      latest_version:
+        header: [["Latest Version:", ["main", "infoheader"]]]
+        path: "status#latestVersion"
+        type: "str"
+        default: "<unset>"
+        formatting:
+          field_colors:
+            - type: "version"
+      node_set_based_selector:
+        header: [["Node Set-based Selector:", ["main", "infoheader"]]]
         paths:
           - path: "spec#nodeSelector#matchExpressions"
             pathtype: "match_expression"
@@ -107,8 +146,18 @@ infoview:
       prepare:
         header: [["P", ["main", "infoheader_shortcut"]],
                  ["repare:", ["main", "infoheader"]]]
-        path: "spec#prepare#image"
-        type: "str"
+        paths:
+          - path: "spec#prepare#image"
+            pathtype: "regex"
+            regex: "^([^:]+):(.*)|^(.+)"
+            default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "generic"
+            - type: "version"
+          field_separators:
+            - type: "version"
       service_account:
         header: [["S", ["main", "infoheader_shortcut"]],
                  ["ervice Account:", ["main", "infoheader"]]]
@@ -117,8 +166,18 @@ infoview:
       upgrade:
         header: [["U", ["main", "infoheader_shortcut"]],
                  ["pgrade:", ["main", "infoheader"]]]
-        path: "spec#upgrade#image"
-        type: "str"
+        paths:
+          - path: "spec#upgrade#image"
+            pathtype: "regex"
+            regex: "^([^:]+):(.*)|^(.+)"
+            default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "generic"
+            - type: "version"
+          field_separators:
+            - type: "version"
       version:
         header: [["Version:", ["main", "infoheader"]]]
         path: "spec#version"
@@ -128,6 +187,40 @@ infoview:
           field_colors:
             - type: "version"
   shortcuts:
+    "Node Label Selector":
+      key: "b"
+      read_only: true
+      helptext: "Show node label selector"
+      widget: "windowwidget"
+      title: "Node Label Selector:"
+      headers: ["Key:", "Value:"]
+      itemgetter: "get_key_value"
+      itemgetter_args:
+        path: "spec#nodeSelector#matchLabels"
+    "Secrets":
+      key: "s"
+      read_only: true
+      helptext: "List Secrets"
+      widget: "windowwidget"
+      title: "Secrets:"
+      selectable: true
+      headers: ["Name:", "Path:"]
+      itemgetter: "get_list_fields"
+      itemgetter_args:
+        path: "spec#secrets"
+        fields:
+          - "name"
+          - "path"
+      # This isn't supported for now
+      sortcolumn: "name"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        _pass_selected: true
+        kind: "Secret"
+        name_path: 0
+        namespace_path: "metadata#namespace"
     "Service Account":
       key: "s"
       modifier: "shift"

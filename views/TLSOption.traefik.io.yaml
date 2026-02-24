@@ -88,10 +88,10 @@ infoview:
       widget: "windowwidget"
       title: "Secrets:"
       selectable: true
-      action: "call"
       itemgetter: "get_list_as_list"
       itemgetter_args:
         path: "spec#clientAuth#secretNames"
+      action: "call"
       action_call: "resourceinfodispatch_with_lookup"
       action_args:
         _pass_obj: true

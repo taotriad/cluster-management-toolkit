@@ -17,6 +17,7 @@ listview:
     last_refresh:
       header: "Last Refresh:"
       path: "LastRefresh"
+      default: "<unset>"
       type: "str"
       formatter: "timestamp"
     needs_refresh:
@@ -34,8 +35,19 @@ infoview:
   infopad:
     row_indexes:
       Normal:
-        fields: ["user", "username", "last_refresh", "needs_refresh"]
+        fields: ["user", "username",
+                 "provider_header",
+                 "provider_principal_ids",
+                 "provider_usernames",
+                 "last_login",
+                 "last_refresh", "needs_refresh"]
     rows:
+      last_login:
+        header: [["Last Login:", ["main", "infoheader"]]]
+        path: "lastLogin"
+        default: "<unset>"
+        type: "str"
+        formatter: "timestamp"
       last_refresh:
         header: [["Last Refresh:", ["main", "infoheader"]]]
         path: "LastRefresh"
@@ -45,6 +57,24 @@ infoview:
         header: [["Needs Refresh:", ["main", "infoheader"]]]
         path: "NeedsRefresh"
         type: "bool"
+      provider_header:
+        header: [["Provider Extras:", ["main", "infoheader"]]]
+      provider_principal_ids:
+        header: [["  ", ["main", "infoheader"]],
+                 ["P", ["main", "infoheader_shortcut"]],
+                 ["rincipal IDs:", ["main", "infoheader"]]]
+        path: "ExtraByProvider#local#principalid"
+        default: ["<none>"]
+        type: "raw"
+        formatter: "list"
+      provider_usernames:
+        header: [["  U", ["main", "infoheader"]],
+                 ["s", ["main", "infoheader_shortcut"]],
+                 ["ernames:", ["main", "infoheader"]]]
+        path: "ExtraByProvider#local#username"
+        default: ["<none>"]
+        type: "raw"
+        formatter: "list"
       user:
         header: [["U", ["main", "infoheader_shortcut"]],
                  ["ser:", ["main", "infoheader"]]]
@@ -89,3 +119,26 @@ infoview:
         owner_reference_path: "metadata#ownerReferences"
         kind: "User"
         api_family: "management.cattle.io"
+    "List provider principal IDs":
+      key: "p"
+      modifier: "shift"
+      read_only: true
+      helptext: "List provider principal IDs"
+      widget: "windowwidget"
+      title: "Provider Principal IDs:"
+      itemgetter: "get_list_as_list"
+      itemgetter_args:
+        path: "ExtraByProvider#local#principalid"
+      # Not supported for now
+      sortcolumn: "id"
+    "List provider Usernames":
+      key: "s"
+      read_only: true
+      helptext: "List provider usernames"
+      widget: "windowwidget"
+      title: "Provider Usernames:"
+      itemgetter: "get_list_as_list"
+      itemgetter_args:
+        path: "ExtraByProvider#local#username"
+      # Not supported for now
+      sortcolumn: "name"

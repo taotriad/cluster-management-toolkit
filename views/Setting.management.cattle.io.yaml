@@ -10,8 +10,13 @@ listview:
   group: "Rancher"
   field_indexes:
     Normal:
-      fields: ["name", "source", "age", "value"]
+      fields: ["name", "source", "customized", "age", "value"]
   fields:
+    customized:
+      header: "Customized:"
+      path: "customized"
+      default: "<unset>"
+      type: "bool"
     source:
       header: "Source:"
       path: "source"
@@ -27,8 +32,13 @@ infoview:
   infopad:
     row_indexes:
       Normal:
-        fields: ["source"]
+        fields: ["source", "customized"]
     rows:
+      customized:
+        header: [["Customized:", ["main", "infoheader"]]]
+        path: "customized"
+        default: "<unset>"
+        type: "bool"
       source:
         header: [["Source:", ["main", "infoheader"]]]
         path: "source"
