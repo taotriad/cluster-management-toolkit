@@ -11,7 +11,7 @@ listview:
   field_indexes:
     Normal:
       fields: ["namespace", "name", "age"]
-      sort_column: "namespace"
+      sortcolumn: "namespace"
 infoview:
   name: "Managed Chart Info"
   infopad:

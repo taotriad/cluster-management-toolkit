@@ -84,7 +84,6 @@ infoview:
         default: "<unset>"
         type: "int"
         formatter: "numerical"
-        align: "right"
   logpad:
     infogetter: "logpad_formatted"
     infogetter_args:

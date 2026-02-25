@@ -80,7 +80,7 @@ infoview:
       widget: "windowwidget"
       title: "Owner References:"
       selectable: true
-      headers: ["Kind:", "API-Version:", "Namespace:", "Name:"]
+      headers: ["Kind:", "API-Version:", "Name:"]
       itemgetter: "get_list_fields"
       itemgetter_args:
         path: "metadata#ownerReferences"
@@ -97,6 +97,5 @@ infoview:
         _pass_obj: true
         kind_path: 0
         api_version_path: 1
-        namespace_path: 2
-        name_path: 3
+        name_path: 2
         _parent_namespace_path: "metadata#namespace"

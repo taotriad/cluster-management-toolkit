@@ -191,7 +191,8 @@ infoview:
         type: "host"
         default: "<unset>"
         formatting:
-          - field_colors: "host"
+          field_colors:
+            - type: "host"
       worker:
         header: [["Worker:", ["main", "infoheader"]]]
         path: "spec#worker"

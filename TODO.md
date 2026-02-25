@@ -8,6 +8,9 @@
 
 ## General
 
+* "[Shift] + O" to open the list of ownerReferences should probably
+  be made a global shortcut in the same way that labels, annotations,
+  conditions, etc. are.
 * listgetters need to support passing both a label selector and a match selector
   in listgetter_args.
 * When running either cmt or cmu, check whether `.ssh/id_*.pub` is in authorized_keys.
