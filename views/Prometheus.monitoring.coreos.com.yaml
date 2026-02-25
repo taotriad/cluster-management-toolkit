@@ -444,6 +444,7 @@ infoview:
       read_only: true
       helptext: "Show affinities"
       widget: "windowwidget"
+      title: "Affinities:"
       headers: ["Type:", "Scheduling:", "Execution:", "Selector:", "Topology:"]
       itemgetter: "get_pod_affinity"
       # This isn't supported for now

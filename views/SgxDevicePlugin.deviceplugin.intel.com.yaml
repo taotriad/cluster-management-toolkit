@@ -11,7 +11,7 @@ listview:
   field_indexes:
     Normal:
       fields: ["name", "desired_number_scheduled", "number_ready",
-               "node_selector", "age"]
+               "node_label_selector", "age"]
   fields:
     desired_number_scheduled:
       header: "Desired:"
@@ -19,11 +19,12 @@ listview:
       type: "int"
       formatter: "numerical"
       align: "right"
-    node_selector:
+    node_label_selector:
       header: "Node Selector:"
       paths:
         - path: ["spec#nodeSelector"]
           pathtype: "key_value"
+          default: ["<unset>"]
       formatter: "list"
       formatting:
         field_colors:
@@ -101,6 +102,7 @@ infoview:
         paths:
           - path: ["spec#nodeSelector"]
             pathtype: "key_value"
+            default: ["<unset>"]
         formatter: "list"
         formatting:
           field_colors:

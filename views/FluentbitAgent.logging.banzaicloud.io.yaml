@@ -11,3 +11,175 @@ listview:
 infoview:
   name: "Fluentbit Agent Info"
   infopad:
+    row_indexes:
+      Normal:
+        fields: ["image", "logging_ref", "tolerations",
+                 "node_label_selector",
+                 "disable_kubernetes_filters",
+                 "metrics_header",
+                 "prometheus_rules", "prometheus_service_monitor",
+                 "input_tail_header",
+                 "input_tail_parser", "input_tail_path", "input_tail_tag"]
+    rows:
+      disable_kubernetes_filters:
+        header: [["Disable Kubernetes Filters:", ["main", "infoheader"]]]
+        path: "spec#disableKubernetesFilter"
+        default: false
+        type: "bool"
+      image:
+        header: [["Image:", ["main", "infoheader"]]]
+        paths:
+          - path: [["spec#image#repository"], ["spec#image#tag"]]
+            pathtype: "tuple"
+            default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "generic"
+            - type: "version"
+          field_separators:
+            - type: "version"
+      input_tail_header:
+        header: [["Input Tail:", ["main", "infoheader"]]]
+      input_tail_parser:
+        header: [["  Parser:", ["main", "infoheader"]]]
+        path: "spec#inputTail#Parser"
+        default: "<unset>"
+        type: "str"
+      input_tail_path:
+        header: [["  Path:", ["main", "infoheader"]]]
+        path: "spec#inputTail#Path"
+        default: "<unset>"
+        type: "path"
+        formatting:
+          field_colors:
+            - type: "path"
+      input_tail_tag:
+        header: [["  Tag:", ["main", "infoheader"]]]
+        path: "spec#inputTail#Tag"
+        default: "<unset>"
+        type: "str"
+      logging_ref:
+        header: [["Logging Reference:", ["main", "infoheader"]]]
+        path: "spec#loggingRef"
+        default: "<unset>"
+        type: "str"
+      metrics_header:
+        header: [["Metrics:", ["main", "infoheader"]]]
+      node_label_selector:
+        header: [["Node Label Selector:", ["main", "infoheader"]]]
+        paths:
+          - path: ["spec#nodeSelector"]
+            pathtype: "key_value"
+            default: ["<unset>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "key"
+            - type: "value"
+          field_separators:
+            - type: "selector"
+      prometheus_rules:
+        header: [["  Prometheus Rules:", ["main", "infoheader"]]]
+        path: "spec#metrics#prometheusRules"
+        default: "<unset>"
+        type: "bool"
+      prometheus_service_monitor:
+        header: [["  Service Monitor:", ["main", "infoheader"]]]
+        path: "spec#metrics#serviceMonitor"
+        default: "<unset>"
+        type: "bool"
+      tolerations:
+        header: [["Tolerations:", ["main", "infoheader"]]]
+        paths:
+          - path: "spec#tolerations"
+            pathtype: "toleration"
+            default: "<none>"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "key"
+            - type: "operator"
+            - type: "value"
+            - type: "effect"
+          field_separators:
+            - type: "space"
+            - type: "no_pad"
+            - type: "keyvalue"
+  shortcuts:
+    "Node Label Selector":
+      key: "b"
+      read_only: true
+      helptext: "Show Node label selector"
+      widget: "windowwidget"
+      title: "Node Label Selector:"
+      headers: ["Key:", "Value:"]
+      itemgetter: "get_key_value"
+      itemgetter_args:
+        path: "spec#nodeSelector"
+    "Owner References":
+      key: "o"
+      modifier: "shift"
+      read_only: true
+      helptext: "List Owner References"
+      widget: "windowwidget"
+      title: "Owner References:"
+      selectable: true
+      headers: ["Kind:", "API-Version:", "Namespace:", "Name:"]
+      itemgetter: "get_list_fields"
+      itemgetter_args:
+        path: "metadata#ownerReferences"
+        fields:
+          - "kind"
+          - "apiVersion"
+          - "namespace"
+          - "name"
+      # This isn't supported for now
+      sortcolumn: "kind"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind_path: 0
+        api_version_path: 1
+        namespace_path: 2
+        name_path: 3
+        _parent_namespace_path: "metadata#namespace"
+    "Resources":
+      key: "r"
+      modifier: "shift"
+      read_only: true
+      helptext: "Show resources"
+      widget: "windowwidget"
+      title: "Resources:"
+      headers: ["Request Type:", "Limits:"]
+      itemgetter: "get_key_value"
+      itemgetter_args:
+        path: "spec#resources"
+    "Show tolerations":
+      key: "t"
+      read_only: true
+      helptext: "Show tolerations"
+      title: "Tolerations:"
+      widget: "windowwidget"
+      headers: ["Key:", "Operator:", "Value:", "Effect:", "Timeout:"]
+      itemgetter: "get_pod_tolerations"
+      # This isn't supported for now
+      sortcolumn: "key"
+    "List Volume Mounts":
+      key: "v"
+      modifier: "shift"
+      read_only: true
+      helptext: "List volume mounts"
+      widget: "windowwidget"
+      title: "Volume Mounts:"
+      headers: ["Source:", "Destination:", "Read Only:"]
+      itemgetter: "get_list_fields"
+      itemgetter_args:
+        path: "spec#extraVolumeMounts"
+        fields:
+          - "source"
+          - "destination"
+          - "readOnly"
+      # This isn't supported for now
+      sortcolumn: "source"

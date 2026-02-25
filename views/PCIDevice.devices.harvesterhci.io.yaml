@@ -57,6 +57,9 @@ infoview:
         path: "status#classId"
         default: "<unset>"
         type: "str"
+        formatting:
+          field_colors:
+            - type: "numerical"
       description:
         header: [["Description:", ["main", "infoheader"]]]
         path: "status#description"
@@ -65,7 +68,7 @@ infoview:
       id:
         header: [["ID:", ["main", "infoheader"]]]
         paths:
-          - path: [["status#vendorId"], ["status#productId"]]
+          - path: [["status#vendorId"], ["status#deviceId"]]
             pathtype: "tuple"
             default: ["<unset>"]
         formatter: "list"
@@ -80,6 +83,9 @@ infoview:
         path: "status#iommuGroup"
         default: "<unset>"
         type: "str"
+        formatting:
+          field_colors:
+            - type: "numerical"
       node:
         header: [["No", ["main", "infoheader"]],
                  ["d", ["main", "infoheader_shortcut"]],
@@ -95,7 +101,7 @@ infoview:
         path: "status#address"
         default: "<unset>"
         type: "str"
-        formatter: "address"
+        formatter: "hex"
       resource_name:
         header: [["Resource Name:", ["main", "infoheader"]]]
         path: "status#resourceName"

@@ -86,6 +86,12 @@ infoview:
         formatting:
           field_colors:
             - type: "namespace"
+  logpad:
+    infogetter: "logpad_formatted"
+    infogetter_args:
+      formatter: "format_yaml"
+      path: "spec#fluentd"
+    timestamps: false
   shortcuts:
     "Open Control Namespace":
       key: "c"

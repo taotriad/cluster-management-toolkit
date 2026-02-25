@@ -40,7 +40,7 @@ infoview:
   infopad:
     row_indexes:
       Normal:
-        fields: ["problems", "active"]
+        fields: ["logging_reference", "problems", "active"]
     rows:
       active:
         header: [["Active:", ["main", "infoheader"]]]
@@ -59,6 +59,11 @@ infoview:
                 field_colors:
                   - context: "main"
                     type: "status_pending"
+      logging_reference:
+        header: [["Logging Reference:", ["main", "infoheader"]]]
+        path: "spec#loggingRef"
+        default: "<unset>"
+        type: "str"
       problems:
         header: [["Problems:", ["main", "infoheader"]]]
         path: "status#problems"
@@ -105,6 +110,37 @@ infoview:
           field_colors:
             - type: "namespace"
   shortcuts:
+    "Show Filters":
+      key: "f"
+      modifier: "shift"
+      read_only: true
+      helptext: "Show filters"
+      action: "call"
+      action_call: "view_yaml"
+      action_args:
+        title: "Filters"
+        _pass_obj: true
+        path: "spec#filters"
+        include_root: true
+    "List Cluster Outputs":
+      key: "c"
+      modifier: "shift"
+      read_only: true
+      helptext: "List Cluster Outputs"
+      widget: "windowwidget"
+      title: "Cluster Outputs:"
+      selectable: true
+      itemgetter: "get_list_as_list"
+      itemgetter_args:
+        path: "spec#globalOutputRefs"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind: "ClusterOutput"
+        api_family_path: "logging.banzaicloud.io"
+        name_path: 0
+        _parent_namespace_path: "metadata#namespace"
     "Owner References":
       key: "o"
       modifier: "shift"

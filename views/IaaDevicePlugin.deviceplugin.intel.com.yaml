@@ -11,7 +11,7 @@ listview:
   field_indexes:
     Normal:
       fields: ["name", "desired_number_scheduled", "number_ready",
-               "node_selector", "age"]
+               "node_label_selector", "age"]
   fields:
     desired_number_scheduled:
       header: "Desired:"
@@ -19,10 +19,11 @@ listview:
       type: "int"
       align: "right"
     node_selector:
-      header: "Node Selector:"
+      header: "Node Label Selector:"
       paths:
         - path: ["spec#nodeSelector"]
           pathtype: "key_value"
+          default: ["<unset>"]
       formatter: "list"
       formatting:
         field_colors:
@@ -41,7 +42,7 @@ infoview:
     row_indexes:
       Normal:
         fields: ["controlled_daemon_set", "image", "init_image",
-                 "node_selector", "shared_device_number", "loglevel",
+                 "node_label_selector", "shared_device_number", "loglevel",
                  "replicas"]
     rows:
       controlled_daemon_set:
@@ -109,11 +110,12 @@ infoview:
         path: "spec#maxNumDevices"
         type: "int"
         formatter: "numerical"
-      node_selector:
-        header: [["Node Selector:", ["main", "infoheader"]]]
+      node_label_selector:
+        header: [["Node Label Selector:", ["main", "infoheader"]]]
         paths:
           - path: ["spec#nodeSelector"]
             pathtype: "key_value"
+            default: ["<unset>"]
         formatter: "list"
         formatting:
           field_colors:
@@ -166,6 +168,16 @@ infoview:
         path: "name"
         type: "str"
   shortcuts:
+    "Node Label Selector":
+      key: "b"
+      read_only: true
+      helptext: "Show Node label selector"
+      widget: "windowwidget"
+      title: "Node Label Selector:"
+      headers: ["Key:", "Value:"]
+      itemgetter: "get_key_value"
+      itemgetter_args:
+        path: "spec#nodeSelector"
     "Open Controlled Daemon Set":
       key: "d"
       modifier: "shift"

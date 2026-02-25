@@ -48,7 +48,10 @@ infoview:
         header: [["Device Path:", ["main", "infoheader"]]]
         path: "status#devicePath"
         default: "<unset>"
-        type: "str"
+        type: "path"
+        formatting:
+          field_colors:
+            - type: "path"
       enabled:
         header: [["Enabled:", ["main", "infoheader"]]]
         path: "status#enabled"
@@ -82,7 +85,7 @@ infoview:
         path: "status#pciAddress"
         default: "<unset>"
         type: "str"
-        formatter: "address"
+        formatter: "hex"
       resource_name:
         header: [["Resource Name:", ["main", "infoheader"]]]
         path: "status#resourceName"

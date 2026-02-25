@@ -9,10 +9,35 @@ listview:
   name: "Addons"
   group: "Harvester"
   field_indexes:
+    Wide:
+      fields: ["namespace", "name", "display_name",
+               "enabled", "experimental", "status", "age"]
+      sortcolumn: "namespace"
     Normal:
-      fields: ["namespace", "name", "status", "age"]
+      fields: ["namespace", "name",
+               "enabled", "experimental", "status", "age"]
       sortcolumn: "namespace"
   fields:
+    display_name:
+      header: "Display Name:"
+      path: "metadata#labels#addon.harvesterhci.io/displayName"
+      default: "<unset>"
+      type: "str"
+    enabled:
+      header: "Enabled:"
+      path: "spec#enabled"
+      default: "<unset>"
+      type: "bool"
+    experimental:
+      header: "Experimental:"
+      paths:
+        - path: "metadata#labels#addon.harvesterhci.io/experimental"
+          pathtype: "remap"
+          substitutions:
+            "false": false
+            "true": true
+      default: false
+      type: "bool"
     status:
       header: "Status:"
       path: "status#status"

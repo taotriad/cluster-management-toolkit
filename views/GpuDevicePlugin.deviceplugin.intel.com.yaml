@@ -24,6 +24,7 @@ listview:
       paths:
         - path: ["spec#nodeSelector"]
           pathtype: "key_value"
+          default: ["<unset>"]
       formatter: "list"
       formatting:
         field_colors:
@@ -114,6 +115,7 @@ infoview:
         paths:
           - path: ["spec#nodeSelector"]
             pathtype: "key_value"
+            default: ["<unset>"]
         formatter: "list"
         formatting:
           field_colors:

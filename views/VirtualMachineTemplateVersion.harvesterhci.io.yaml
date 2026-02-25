@@ -40,3 +40,66 @@ listview:
 infoview:
   name: "Virtual Machine Template Version Info"
   infopad:
+    row_indexes:
+      Normal:
+        fields: ["description", "controller", "template_id", "version"]
+    rows:
+      controller:
+        header: [["C", ["main", "infoheader_shortcut"]],
+                 ["ontroller:", ["main", "infoheader"]]]
+        paths:
+          - path: "metadata#ownerReferences"
+            pathtype: "items"
+            subpaths:
+              - "kind"
+              - "apiVersion"
+              - "name"
+            when:
+              - key: "controller"
+                eq: true
+            type: ["kind", "api_group", "name"]
+        default: "<none>"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "kind"
+            - type: "api_group"
+            - type: "generic"
+          field_separators:
+            - type: "kind_api_group"
+            - type: "kind"
+      description:
+        header: [["Description:", ["main", "infoheader"]]]
+        path: "spec#description"
+        default: "<unset>"
+        type: "str"
+      template_id:
+        header: [["Template ID:", ["main", "infoheader"]]]
+        path: "spec#templateId"
+        default: "<unset>"
+        type: "str"
+      version:
+        header: [["Version:", ["main", "infoheader"]]]
+        path: "status#version"
+        default: "<unset>"
+        type: "int"
+        formatter: "numerical"
+        align: "right"
+  logpad:
+    infogetter: "logpad_formatted"
+    infogetter_args:
+      formatter: "format_yaml"
+      path: "spec#vm"
+    timestamps: false
+  shortcuts:
+    "Open controller":
+      key: "c"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for controller"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        namespace_path: "metadata#namespace"
+        owner_reference_path: "metadata#ownerReferences"
