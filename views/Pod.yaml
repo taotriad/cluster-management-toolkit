@@ -85,14 +85,6 @@ listview:
       formatting:
         field_colors:
           - type: "host"
-    nominated_node_name:
-      header: "Nominated Node:"
-      path: "status#nominatedNodeName"
-      default: "<none>"
-      type: "host"
-      formatting:
-        field_colors:
-          - type: "host"
     pod_ip:
       header: "Pod IP:"
       path: "status#podIP"
