@@ -21,6 +21,9 @@ listview:
               eq: "Node"
       default: "<none>"
       formatter: "list"
+      formatting:
+        field_colors:
+          - type: "host"
 infoview:
   name: "Hugepage Info"
   infopad:
@@ -127,6 +130,9 @@ infoview:
                 eq: "Node"
         default: "<none>"
         formatter: "list"
+        formatting:
+          field_colors:
+            - type: "host"
   shortcuts:
     "Open Node":
       key: "d"

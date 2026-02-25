@@ -186,9 +186,9 @@ infoview:
                 eq: "LiveMigratable"
         type: "str"
       node_name:
-        header: "Node Name:"
+        header: "Node:"
         path: "status#nodeName"
-        type: "str"
+        type: "host"
         formatting:
           field_colors:
             - type: "host"

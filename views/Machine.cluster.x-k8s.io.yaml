@@ -10,7 +10,7 @@ listview:
   group: "Cluster Configuration"
   field_indexes:
     Normal:
-      fields: ["namespace", "name", "cluster", "node_ref", "provider_id",
+      fields: ["namespace", "name", "cluster", "node", "provider_id",
                "phase", "age", "version"]
       sortcolumn: "namespace"
   fields:
@@ -18,10 +18,10 @@ listview:
       header: "Cluster:"
       path: "spec#clusterName"
       type: "str"
-    node_ref:
-      header: "Node Ref:"
+    node:
+      header: "Node:"
       path: "status#nodeRef#name"
-      type: "str"
+      type: "host"
       formatting:
         field_colors:
           - type: "host"
@@ -170,9 +170,9 @@ infoview:
       node_name:
         header: [["No", ["main", "infoheader"]],
                  ["d", ["main", "infoheader_shortcut"]],
-                 ["e Name:", ["main", "infoheader"]]]
+                 ["e:", ["main", "infoheader"]]]
         path: "status#nodeRef#name"
-        type: "str"
+        type: "host"
         formatting:
           field_colors:
             - type: "host"

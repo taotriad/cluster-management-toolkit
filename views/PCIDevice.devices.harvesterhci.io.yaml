@@ -87,6 +87,9 @@ infoview:
         path: "status#nodeName"
         default: "<unset>"
         type: "str"
+        formatting:
+          field_colors:
+            - type: "host"
       pci_address:
         header: [["PCI Address:", ["main", "infoheader"]]]
         path: "status#address"

@@ -138,7 +138,7 @@ infoview:
       node_name:
         header: "Node:"
         path: "secondary#node"
-        type: "str"
+        type: "host"
         formatting:
           field_colors:
             - type: "host"

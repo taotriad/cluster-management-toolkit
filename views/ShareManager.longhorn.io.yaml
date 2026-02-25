@@ -13,7 +13,10 @@ listview:
       header: "Node:"
       path: "status#ownerID"
       default: "<unset>"
-      type: "str"
+      type: "host"
+      formatting:
+        field_colors:
+          - type: "host"
     state:
       header: "State:"
       path: "status#state"
@@ -79,7 +82,10 @@ infoview:
                  ["e:", ["main", "infoheader"]]]
         path: "status#ownerID"
         default: "<unset>"
-        type: "str"
+        type: "host"
+        formatting:
+          field_colors:
+            - type: "host"
       state:
         header: [["State:", ["main", "infoheader"]]]
         path: "status#state"

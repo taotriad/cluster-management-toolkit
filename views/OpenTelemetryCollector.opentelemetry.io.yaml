@@ -47,7 +47,10 @@ listview:
       header: "Mode:"
       path: "spec#mode"
       default: "<unset>"
-      type: "str"
+      type: "host"
+      formatting:
+        field_colors:
+          - type: "host"
     ready_replicas:
       header: "Ready:"
       paths:

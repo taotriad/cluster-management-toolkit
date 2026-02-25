@@ -36,7 +36,7 @@ listview:
     node_name:
       header: "Node:"
       path: "spec#nodeName"
-      type: "str"
+      type: "host"
       formatting:
         field_colors:
           - type: "host"
@@ -84,9 +84,9 @@ infoview:
       node_name:
         header: [["No", ["main", "infoheader"]],
                  ["d", ["main", "infoheader_shortcut"]],
-                 ["e Name:", ["main", "infoheader"]]]
+                 ["e:", ["main", "infoheader"]]]
         path: "spec#nodeName"
-        type: "str"
+        type: "host"
         formatting:
           field_colors:
             - type: "host"

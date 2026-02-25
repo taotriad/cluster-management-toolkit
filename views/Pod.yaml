@@ -81,7 +81,15 @@ listview:
       header: "Node:"
       path: "spec#nodeName"
       default: "<none>"
-      type: "str"
+      type: "host"
+      formatting:
+        field_colors:
+          - type: "host"
+    nominated_node_name:
+      header: "Nominated Node:"
+      path: "status#nominatedNodeName"
+      default: "<none>"
+      type: "host"
       formatting:
         field_colors:
           - type: "host"

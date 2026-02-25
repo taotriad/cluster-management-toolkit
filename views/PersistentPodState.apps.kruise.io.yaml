@@ -68,9 +68,12 @@ infoview:
         path: "key"
         type: "str"
       node_name:
-        header: "Node Name:"
+        header: "Node:"
         path: "value#nodeName"
-        type: "str"
+        type: "host"
+        formatting:
+          field_colors:
+            - type: "host"
       topology_labels:
         header: "Topology Labels:"
         paths:

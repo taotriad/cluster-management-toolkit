@@ -76,7 +76,10 @@ infoview:
       name:
         header: "Node:"
         path: "nodeName"
-        type: "str"
+        type: "host"
+        formatting:
+          field_colors:
+            - type: "host"
       current_revision:
         header: "Current Revision:"
         path: "currentRevision"

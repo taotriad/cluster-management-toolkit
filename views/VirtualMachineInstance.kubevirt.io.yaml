@@ -32,9 +32,9 @@ listview:
               eq: "LiveMigratable"
       type: "str"
     node_name:
-      header: "Node Name:"
+      header: "Node:"
       path: "status#nodeName"
-      type: "str"
+      type: "host"
       formatting:
         field_colors:
           - type: "host"
@@ -178,9 +178,9 @@ infoview:
       node_name:
         header: [["No", ["main", "infoheader"]],
                  ["d", ["main", "infoheader_shortcut"]],
-                 ["e Name:", ["main", "infoheader"]]]
+                 ["e:", ["main", "infoheader"]]]
         path: "status#nodeName"
-        type: "str"
+        type: "host"
         formatting:
           field_colors:
             - type: "host"
@@ -326,8 +326,11 @@ infoview:
       node_name:
         header: "Node:"
         path: "spec#nodeName"
-        type: "host"
         default: "<none>"
+        type: "host"
+        formatting:
+          field_colors:
+            - type: "host"
       pod_ip:
         header: "Pod IP:"
         path: "status#podIP"

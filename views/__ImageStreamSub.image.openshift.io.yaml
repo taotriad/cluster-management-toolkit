@@ -29,7 +29,10 @@ infoview:
       import_mode:
         header: [["Import Node:", ["main", "infoheader"]]]
         path: "importPolicy#importMode"
-        type: "str"
+        type: "host"
+        formatting:
+          field_colors:
+            - type: "host"
       reference_policy:
         header: [["Reference Policy:", ["main", "infoheader"]]]
         path: "referencePolicy#type"

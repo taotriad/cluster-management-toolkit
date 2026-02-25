@@ -13,10 +13,13 @@ listview:
       fields: ["namespace", "name", "node_name", "age"]
   fields:
     node_name:
-      header: "Node Name:"
+      header: "Node:"
       path: "status#nodeName"
-      type: "str"
       default: "<unset>"
+      type: "host"
+      formatting:
+        field_colors:
+          - type: "host"
 infoview:
   name: "Node Info"
   infopad:
@@ -169,21 +172,26 @@ infoview:
       node_name:
         header: [["No", ["main", "infoheader"]],
                  ["d", ["main", "infoheader_shortcut"]],
-                 ["e Name:", ["main", "infoheader"]]]
+                 ["e:", ["main", "infoheader"]]]
         path: "status#nodeName"
-        type: "str"
         default: "<unset>"
+        type: "host"
+        formatting:
+          field_colors:
+            - type: "host"
       node_pool_name:
         header: [["Node Pool Name:", ["main", "infoheader"]]]
         path: "spec#nodePoolName"
-        type: "str"
         default: "<unset>"
         fallback_on_empty: true
+        type: "str"
       requested_hostname:
         header: [["Requested Hostname:", ["main", "infoheader"]]]
         path: "spec#requestedHostname"
-        type: "str"
+        type: "host"
         default: "<unset>"
+        formatting:
+          - field_colors: "host"
       worker:
         header: [["Worker:", ["main", "infoheader"]]]
         path: "spec#worker"

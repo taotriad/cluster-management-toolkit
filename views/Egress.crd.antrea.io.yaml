@@ -16,7 +16,7 @@ listview:
     node_name:
       header: "Node:"
       path: "status#egressNode"
-      type: "str"
+      type: "host"
       formatting:
         field_colors:
           - type: "host"
