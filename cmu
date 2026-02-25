@@ -6306,7 +6306,7 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
             for y in range(0, uip.loglen):
                 # Even when the log is raw we want the first timestamp
                 if y >= len(timestamps) or isinstance(timestamps[y], str) \
-                        or timestamps[uip.yoffset + y] == none_timestamp():
+                        or timestamps[y] == none_timestamp():
                     timestamp = "".ljust(uip.tspadwidth)
                 else:
                     timestamp = str(timestamps[y])[0:uip.tspadwidth]
@@ -6331,7 +6331,7 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                     else:
                         facility = f"<{tmp_facility_raw}> "
 
-                if uip.yoffset + y >= len(severities):
+                if y >= len(severities):
                     severity_str = f"{lvl_to_4letter_severity(LogLevel.INFO)}: "
                 else:
                     severity_str = f"{lvl_to_4letter_severity(severities[y])}: "
