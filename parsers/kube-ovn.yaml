@@ -42,3 +42,24 @@
     - image_name: "/rancher/harvester-kubeovn-operator"
   parser_rules:
     - name: "json"
+- name: "kube-ovn"
+  show_in_selector: false
+  matchkeys:
+    - image_name: "/kubeovn/kube-ovn"
+    - image_name: "/kubeovn/kube-ovn"
+      container_type: "init_container"
+  parser_rules:
+    - name: "glog"
+    - name: "custom_line"
+      options:
+        block_start:
+          - matchtype: "startswith"
+            matchkey: "--------"
+            matchline: "any"
+            format_block_start: true
+        block_end:
+          - matchtype: "startswith"
+            matchkey: "--------"
+            matchline: "any"
+            format_block_end: true
+        loglevel: "notice"

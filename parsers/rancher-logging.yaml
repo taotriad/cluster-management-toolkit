@@ -1,0 +1,7 @@
+---
+- name: "rancher-logging"
+  show_in_selector: false
+  matchkeys:
+    - image_name: "/rancher/mirrored-kube-logging-logging-operator"
+  parser_rules:
+    - name: "json"

@@ -9,6 +9,7 @@
   show_in_selector: false
   matchkeys:
     - image_name: "/rancher/harvester-eventrouter"
+    - image_name: "/rancher/harvester-seeder"
   parser_rules:
     - name: "json"
 - name: "harvester"
@@ -16,6 +17,14 @@
   matchkeys:
     - image_name: "/rancher/harvester-load-balancer"
     - image_name: "/rancher/harvester:"
+    - image_name: "/rancher/harvester-network-controller"
+    - image_name: "/rancher/harvester-network-webhook"
+    - image_name: "/rancher/harvester-networkfs-manager"
+    - image_name: "/rancher/harvester-node-disk-manager"
+    - image_name: "/rancher/harvester-node-manager"
+    - image_name: "/rancher/harvester-pcidevices"
+    - image_name: "/rancher/harvester-vm-import-controller"
+    - image_name: "/rancher/harvester-webhook"
   parser_rules:
     - name: "glog"
     - name: "key_value"

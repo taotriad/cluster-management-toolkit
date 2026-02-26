@@ -38,6 +38,7 @@
     - pod_name: "prom-operator"
       container_name: "kube-prometheus-stack"
     - image_name: "/prometheus-operator/prometheus-operator"
+    - image_name: "/rancher/mirrored-prometheus-operator-prometheus-operator"
   parser_rules:
     - name: "key_value"
       options:

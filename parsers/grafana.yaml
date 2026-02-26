@@ -31,6 +31,7 @@
       container_name: "grafana-sc-dashboard"
     - pod_name: "dls-grafana"
       container_name: "grafana-sc-datasources"
+    - image_name: "/rancher/mirrored-grafana-grafana"
   parser_rules:
     - name: "key_value"
       options:

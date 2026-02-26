@@ -3,5 +3,8 @@
   show_in_selector: false
   matchkeys:
     - image_name: "/kiwigrid/k8s-sidecar"
+    - image_name: "/rancher/mirrored-kiwigrid-k8s-sidecar"
+    - image_name: "/rancher/mirrored-kiwigrid-k8s-sidecar"
+      container_type: "init_container"
   parser_rules:
     - name: "json"

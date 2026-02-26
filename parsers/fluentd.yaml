@@ -54,6 +54,7 @@
   show_in_selector: false
   matchkeys:
     - image_name: "/fluent/fluent-bit"
+    - image_name: "/rancher/mirrored-fluent-fluent-bit"
   parser_rules:
     - name: "custom_line"
       options:
