@@ -1620,6 +1620,14 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api": "sealedsecrets",
     },
     # bmc.tinkerbell.org
+    ("BaseboardManagement", "bmc.tinkerbell.org"): {
+        "api_paths": ["apis/bmc.tinkerbell.org/v1alpha1/"],
+        "api": "baseboardmanagements",
+    },
+    ("BMCTask", "bmc.tinkerbell.org"): {
+        "api_paths": ["apis/bmc.tinkerbell.org/v1alpha1/"],
+        "api": "bmctasks",
+    },
     ("Job", "bmc.tinkerbell.org"): {
         "api_paths": ["apis/bmc.tinkerbell.org/v1alpha1/"],
         "api": "jobs",
@@ -4441,6 +4449,19 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
     ("Subscription", "messaging.knative.dev"): {
         "api_paths": ["apis/messaging.knative.dev/v1/"],
         "api": "subscriptions",
+    },
+    # metal.harvesterhci.io
+    ("AddressPool", "metal.harvesterhci.io"): {
+        "api_paths": ["apis/metal.harvesterhci.io/v1alpha1/"],
+        "api": "addresspools",
+    },
+    ("Cluster", "metal.harvesterhci.io"): {
+        "api_paths": ["apis/metal.harvesterhci.io/v1alpha1/"],
+        "api": "clusters",
+    },
+    ("Inventory", "metal.harvesterhci.io"): {
+        "api_paths": ["apis/metal.harvesterhci.io/v1alpha1/"],
+        "api": "inventories",
     },
     # metal3.io
     ("BareMetalHost", "metal3.io"): {

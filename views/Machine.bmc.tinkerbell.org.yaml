@@ -1,0 +1,135 @@
+---
+kind: "Machine"
+api_family: "bmc.tinkerbell.org"
+default_command: "machines.bmc.tinkerbell.org"
+command:
+  - "tinkmachines"
+  - "tinkmachine"
+listview:
+  name: "Machine"
+  group: "Tinkerbell"
+  field_indexes:
+    Normal:
+      fields: ["namespace", "name", "power_state", "age"]
+      sortcolumn: "namespace"
+  fields:
+    power_state:
+      header: "Power State:"
+      path: "status#powerState"
+      default: "<unset>"
+      type: "str"
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          mappings:
+            "unknown":
+              field_colors:
+                - context: "main"
+                  type: "status_unknown"
+            "<unset>":
+              field_colors:
+                - context: "main"
+                  type: "status_ignored"
+infoview:
+  name: "Machine Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["connection_header",
+                 "connection_authentication_secret",
+                 "connection_host",
+                 "connection_insecure_tls",
+                 "power_state"]
+    rows:
+      connection_header:
+        header: [["Connection:", ["main", "infoheader"]]]
+      connection_authentication_secret:
+        header: [["  ", ["main", "infoheader"]],
+                 ["A", ["main", "infoheader_shortcut"]],
+                 ["uthentication Secret:", ["main", "infoheader"]]]
+        paths:
+          - path: [["spec#connection#authSecretRef#namespace"],
+                   ["spec#connection#authSecretRef#name"]]
+            pathtype: "tuple"
+            default: ["<unset>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "namespace"
+            - type: "generic"
+          field_separators:
+            - type: "namespace"
+      connection_host:
+        header: [["  Host:", ["main", "infoheader"]]]
+        paths:
+          - path: [["spec#connection#host"], ["spec#connection#port"]]
+            pathtype: "tuple"
+            default: ["<unset>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "host"
+            - type: "port"
+          field_separators:
+            - type: "port"
+      connection_insecure_tls:
+        header: [["  Insecure TLS:", ["main", "infoheader"]]]
+        path: "spec#connection#insecureTLS"
+        default: "<unset>"
+        type: "bool"
+      power_state:
+        header: [["Power State:", ["main", "infoheader"]]]
+        path: "status#powerState"
+        default: "<unset>"
+        type: "str"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              "unknown":
+                field_colors:
+                  - context: "main"
+                    type: "status_unknown"
+              "<unset>":
+                field_colors:
+                  - context: "main"
+                    type: "status_ignored"
+  shortcuts:
+    "Open Authentication Secret":
+      key: "a"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for authentication Secret"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        namespace_path: "spec#connection#authSecretRef#namespace"
+        name_path: "spec#connection#authSecretRef#name"
+        kind: "Secret"
+    "Owner References":
+      key: "o"
+      modifier: "shift"
+      read_only: true
+      helptext: "List Owner References"
+      widget: "windowwidget"
+      title: "Owner References:"
+      selectable: true
+      headers: ["Kind:", "API-Version:", "Name:"]
+      itemgetter: "get_list_fields"
+      itemgetter_args:
+        path: "metadata#ownerReferences"
+        fields:
+          - "kind"
+          - "apiVersion"
+          - "name"
+      # This isn't supported for now
+      sortcolumn: "kind"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind_path: 0
+        api_version_path: 1
+        name_path: 2
+        _parent_namespace_path: "metadata#namespace"

@@ -964,7 +964,6 @@ types:
   separator_list_start: ["separator_list_start", "bold"]
   separator_logical_and: "separator_logical_and"
   separator_logical_or: "separator_logical_or"
-  separator_macaddress: "separator_address"
   separator_methods: "separator_methods"
   separator_namespace: "separator_namespace"
   separator_namespaces: "separator_namespaces"
@@ -1098,7 +1097,6 @@ separators:
   ellipsis: [["...", ["types", "separator_ellipsis"]]]
   ipv4address: [[".", ["types", "separator_address"]]]
   ipv6address: [[":", ["types", "separator_address"]]]
-  macaddress: [[":", ["types", "separator_address"]]]
   ipmask: [["/", ["types", "separator_ipmask"]]]
   fraction: [["/", ["types", "separator_fraction"]]]
   fraction_spaced: [[" / ", ["types", "separator_fraction"]]]

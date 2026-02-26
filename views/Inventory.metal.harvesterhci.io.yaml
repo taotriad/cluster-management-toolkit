@@ -1,0 +1,122 @@
+---
+kind: "Inventory"
+api_family: "metal.harvesterhci.io"
+default_command: "inventories.metal.harvesterhci.io"
+command:
+  - "hvstmetalinventories"
+  - "hvstmetalinventory"
+  - "hvstmetalinvs"
+  - "hvstmetalinv"
+listview:
+  name: "Inventory"
+  group: "Harvester"
+  field_indexes:
+    Wide:
+      fields: ["namespace", "name", "generated_password",
+               "allocated_node_address", "status", "age"]
+      sortcolumn: "namespace"
+    Normal:
+      fields: ["namespace", "name", "allocated_node_address", "status", "age"]
+      sortcolumn: "namespace"
+  fields:
+    allocated_node_address:
+      header: "Allocated Node Address:"
+      path: "status#pxeBootConfig#address"
+      default: "<unset>"
+      type: "str"
+      formatter: "address"
+    generated_password:
+      header: "Generated Password:"
+      path: "status#generatedPassword"
+      default: "<unset>"
+      type: "str"
+    status:
+      header: "Status:"
+      path: "status#status"
+      default: "<unset>"
+      type: "str"
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          mappings:
+            inventoryNodeReady:
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+            "<unset>":
+              field_colors:
+                - context: "main"
+                  type: "status_ignored"
+infoview:
+  name: "Inventory Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["owner_cluster",
+                 "generated_password", "allocated_node_address", "status"]
+    rows:
+      allocated_node_address:
+        header: [["Allocated Node Address:", ["main", "infoheader"]]]
+        path: "status#pxeBootConfig#address"
+        default: "<unset>"
+        type: "str"
+        formatter: "address"
+      generated_password:
+        header: [["Generated Password:", ["main", "infoheader"]]]
+        path: "status#generatedPassword"
+        default: "<unset>"
+        type: "str"
+      owner_cluster:
+        header: [["Owner Cl", ["main", "infoheader"]],
+                 ["u", ["main", "infoheader_shortcut"]],
+                 ["ster:", ["main", "infoheader"]]]
+        paths:
+          - path: [["status#ownerCluster#namespace"],
+                   ["status#ownerCluster#name"]]
+            pathtype: "tuple"
+            fallback_on_empty: true
+            default: ["<unset>"]
+        type: "raw"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "namespace"
+            - type: "generic"
+          field_separators:
+            - type: "namespace"
+      status:
+        header: [["Status:", ["main", "infoheader"]]]
+        path: "status#status"
+        default: "<unset>"
+        type: "str"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              inventoryNodeReady:
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+              "<unset>":
+                field_colors:
+                  - context: "main"
+                    type: "status_ignored"
+  logpad:
+    infogetter: "logpad_formatted"
+    infogetter_args:
+      formatter: "format_yaml"
+      path: "spec"
+    timestamps: false
+  shortcuts:
+    "Open Owner Cluster":
+      key: "u"
+      read_only: true
+      helptext: "Open info page for owner Cluster"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        namespace_path: "status#ownerCluster#namespace"
+        name_path: "status#ownerCluster#name"
+        kind: "Cluster"
+        api_family: "metal.harvesterhci.io"

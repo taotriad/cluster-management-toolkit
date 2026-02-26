@@ -307,6 +307,10 @@ CreatePodFailed:
   field_colors:
     - context: "main"
       type: "status_warning"
+CreateResourceFailed:
+  field_colors:
+    - context: "main"
+      type: "status_warning"
 CreateResourceSuccess:
   field_colors:
     - context: "main"

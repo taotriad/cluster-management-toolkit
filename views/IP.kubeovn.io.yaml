@@ -8,7 +8,7 @@ command:
   - "koips"
   - "koip"
 listview:
-  name: "Kube-OVN IPs"
+  name: "IPs"
   group: "Kube-OVN"
   field_indexes:
     Normal:
@@ -18,24 +18,29 @@ listview:
       header: "IPv4:"
       paths:
         - path: ["spec#v4IpAddress", "spec#ipAddress"]
+      default: "<unset>"
+      fallback_on_empty: true
       type: "str"
       formatter: "address"
     ipv6:
       header: "IPv6:"
       path: "spec#v6IpAddress"
+      default: "<unset>"
+      fallback_on_empty: true
       type: "str"
       formatter: "address"
     mac:
       header: "MAC:"
       path: "spec#macAddress"
+      default: "<unset>"
+      fallback_on_empty: true
       type: "str"
       formatter: "address"
-      formatting:
-        field_separators:
-          - type: "macaddress"
     node_name:
       header: "Node:"
       path: "spec#nodeName"
+      default: "<unset>"
+      fallback_on_empty: true
       type: "host"
       formatting:
         field_colors:
@@ -43,9 +48,11 @@ listview:
     subnet:
       header: "Subnet:"
       path: "spec#subnet"
+      default: "<unset>"
+      fallback_on_empty: true
       type: "str"
 infoview:
-  name: "Kube-OVN IP Info"
+  name: "IP Info"
   infopad:
     row_indexes:
       Normal:
@@ -55,16 +62,22 @@ infoview:
         header: [["IPv4:", ["main", "infoheader"]]]
         paths:
           - path: ["spec#v4IpAddress", "spec#ipAddress"]
+        default: "<unset>"
+        fallback_on_empty: true
         type: "str"
         formatter: "address"
       ipv6:
         header: [["IPv6:", ["main", "infoheader"]]]
         path: "spec#v6IpAddress"
+        default: "<unset>"
+        fallback_on_empty: true
         type: "str"
         formatter: "address"
       mac:
         header: [["MAC:", ["main", "infoheader"]]]
         path: "spec#macAddress"
+        default: "<unset>"
+        fallback_on_empty: true
         type: "str"
         formatter: "address"
       pod:
@@ -86,6 +99,8 @@ infoview:
                  ["d", ["main", "infoheader_shortcut"]],
                  ["e:", ["main", "infoheader"]]]
         path: "spec#nodeName"
+        default: "<unset>"
+        fallback_on_empty: true
         type: "host"
         formatting:
           field_colors:
@@ -94,6 +109,8 @@ infoview:
         header: [["S", ["main", "infoheader_shortcut"]],
                  ["ubnet:", ["main", "infoheader"]]]
         path: "spec#subnet"
+        default: "<unset>"
+        fallback_on_empty: true
         type: "str"
   shortcuts:
     "Node":

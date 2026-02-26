@@ -136,11 +136,11 @@ infoview:
         _pass_obj: true
         namespace_path: "metadata#namespace"
         owner_reference_path: "metadata#ownerReferences"
-    "Open SSH-key data secret":
+    "Open SSH key data secret":
       key: "s"
       modifier: "shift"
       read_only: true
-      helptext: "Open info page for SSH-key Secret"
+      helptext: "Open info page for SSH key Secret"
       action: "call"
       action_call: "resourceinfodispatch_with_lookup"
       action_args:

@@ -1,0 +1,50 @@
+---
+kind: "KeyPair"
+api_family: "harvesterhci.io"
+default_command: "keypairs.harvesterhci.io"
+command:
+  - "hvstkeypairs"
+  - "hvstkeypair"
+listview:
+  name: "Key Pairs"
+  group: "Harvester"
+  field_indexes:
+    Normal:
+      fields: ["namespace", "name", "fingerprint", "age", "description"]
+      sortcolumn: "namespace"
+  fields:
+    description:
+      header: "Description:"
+      path: "metadata#annotations#field.cattle.io/description"
+      default: "<unset>"
+      type: "str"
+    fingerprint:
+      header: "Fingerprint:"
+      path: "status#fingerPrint"
+      default: "<unset>"
+      type: "str"
+      formatter: "hex"
+infoview:
+  name: "Key Pair Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["description", "fingerprint"]
+    rows:
+      description:
+        header: [["Description:", ["main", "infoheader"]]]
+        path: "metadata#annotations#field.cattle.io/description"
+        default: "<unset>"
+        type: "str"
+      fingerprint:
+        header: [["Fingerprint:", ["main", "infoheader"]]]
+        path: "status#fingerPrint"
+        default: "<unset>"
+        type: "str"
+        formatter: "hex"
+  logpad:
+    infogetter: "logpad_formatted"
+    infogetter_args:
+      formatter: "format_yaml"
+      path: "spec#publicKey"
+    timestamps: false

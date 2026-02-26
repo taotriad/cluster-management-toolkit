@@ -13,6 +13,7 @@ listview:
     namespaces:
       header: "Namespaces:"
       path: "spec#namespaces"
+      default: "<none>"
       type: "raw"
       formatter: "list"
     standby:

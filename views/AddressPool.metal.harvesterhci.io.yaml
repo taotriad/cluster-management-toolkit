@@ -1,0 +1,147 @@
+---
+kind: "AddressPool"
+api_family: "metal.harvesterhci.io"
+default_command: "addresspools.metal.harvesterhci.io"
+command:
+  - "hvstaddresspools"
+  - "hvstaddresspool"
+  - "hvstaddrpools"
+  - "hvstaddrpool"
+listview:
+  name: "Address Pools"
+  group: "Harvester"
+  field_indexes:
+    Wide:
+      fields: ["namespace", "name", "start_address", "end_address",
+               "netmask", "status", "age"]
+      sortcolumn: "namespace"
+    Normal:
+      fields: ["namespace", "name", "status", "age"]
+      sortcolumn: "namespace"
+  fields:
+    end_address:
+      header: "End Address:"
+      path: "status#lastAddress"
+      default: "<unset>"
+      type: "str"
+      formatter: "address"
+    netmask:
+      header: "Netmask:"
+      path: "status#netmask"
+      default: "<unset>"
+      type: "str"
+      formatter: "address"
+    start_address:
+      header: "Start Address:"
+      path: "status#startAddress"
+      default: "<unset>"
+      type: "str"
+      formatter: "address"
+    status:
+      header: "Status:"
+      path: "status#status"
+      default: "<unset>"
+      type: "str"
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          mappings:
+            poolExhausted:
+              field_colors:
+                - context: "main"
+                  type: "status_warning"
+            poolReady:
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+            "<unset>":
+              field_colors:
+                - context: "main"
+                  type: "status_ignored"
+infoview:
+  name: "Address Pool Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["configuration_header",
+                 "configuration_cidr",
+                 "configuration_gateway",
+                 "configuration_netmask",
+                 "configuration_reserved_addresses",
+                 "available_addresses",
+                 "start_address",
+                 "end_address",
+                 "netmask",
+                 "status"]
+    rows:
+      available_addresses:
+        header: [["Available Addresses:", ["main", "infoheader"]]]
+        path: "status#availableAddresses"
+        default: "<unset>"
+        type: "int"
+        formatter: "numerical"
+      configuration_cidr:
+        header: [["  CIDR:", ["main", "infoheader"]]]
+        path: "spec#cidr"
+        default: "<unset>"
+        type: "str"
+        formatter: "address"
+      configuration_gateway:
+        header: [["  Gateway:", ["main", "infoheader"]]]
+        path: "spec#gateway"
+        default: "<unset>"
+        type: "str"
+        formatter: "address"
+      configuration_header:
+        header: [["Configuration:", ["main", "infoheader"]]]
+      configuration_netmask:
+        header: [["  Netmask:", ["main", "infoheader"]]]
+        path: "spec#netmask"
+        default: "<unset>"
+        type: "str"
+        formatter: "address"
+      configuration_reserved_addresses:
+        header: [["  Reserved Addresses:", ["main", "infoheader"]]]
+        path: "spec#reservedAddresses"
+        default: "<none>"
+        type: "raw"
+        formatter: "list"
+      end_address:
+        header: [["End Address:", ["main", "infoheader"]]]
+        path: "status#lastAddress"
+        default: "<unset>"
+        type: "str"
+        formatter: "address"
+      netmask:
+        header: [["Netmask:", ["main", "infoheader"]]]
+        path: "status#netmask"
+        default: "<unset>"
+        type: "str"
+        formatter: "address"
+      start_address:
+        header: [["Start Address:", ["main", "infoheader"]]]
+        path: "status#startAddress"
+        default: "<unset>"
+        type: "str"
+        formatter: "address"
+      status:
+        header: [["Status:", ["main", "infoheader"]]]
+        path: "status#status"
+        default: "<unset>"
+        type: "str"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              poolReady:
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+              poolExhausted:
+                field_colors:
+                  - context: "main"
+                    type: "status_warning"
+              "<unset>":
+                field_colors:
+                  - context: "main"
+                    type: "status_ignored"

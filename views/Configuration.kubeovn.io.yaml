@@ -1,0 +1,81 @@
+---
+kind: "Configuration"
+api_family: "kubeovn.io"
+default_command: "configurations.kubeovn.io"
+command:
+  - "kubeovnconfigurations"
+  - "kubeovnconfiguration"
+listview:
+  name: "Configuration"
+  group: "Kube-OVN"
+  field_indexes:
+    Normal:
+      fields: ["namespace", "name", "status", "age"]
+      sortcolumn: "namespace"
+  fields:
+    status:
+      header: "Status:"
+      path: "status#status"
+      default: "<unset>"
+      type: "str"
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          mappings:
+            Deployed:
+              field_colors:
+                - context: "main"
+                  type: "status_done"
+            "<unset>":
+              field_colors:
+                - context: "main"
+                  type: "status_ignored"
+infoview:
+  name: "Configuration Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["matching_node_addresses", "status"]
+    rows:
+      matching_node_addresses:
+        header: [["Matching Node ", ["main", "infoheader"]],
+                 ["A", ["main", "infoheader_shortcut"]],
+                 ["ddresses:", ["main", "infoheader"]]]
+        path: "status#matchingNodeAddresses"
+        default: ["<unset>"]
+        type: "raw"
+        formatter: "address"
+      status:
+        header: [["Status:", ["main", "infoheader"]]]
+        path: "status#status"
+        default: "<unset>"
+        type: "str"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              Deployed:
+                field_colors:
+                  - context: "main"
+                    type: "status_done"
+              "<unset>":
+                field_colors:
+                  - context: "main"
+                    type: "status_ignored"
+  logpad:
+    infogetter: "logpad_formatted"
+    infogetter_args:
+      formatter: "format_yaml"
+      path: "spec"
+    timestamps: false
+  shortcuts:
+    "List Matching Node Addresses":
+      key: "a"
+      modifier: "shift"
+      read_only: true
+      helptext: "List matching node addresses"
+      widget: "windowwidget"
+      title: "Maching Node Addresses:"
+      itemgetter: "get_list_as_list"
+      itemgetter_args:
+        path: "status#matchingNodeAddresses"

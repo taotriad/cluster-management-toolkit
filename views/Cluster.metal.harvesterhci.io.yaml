@@ -1,0 +1,250 @@
+---
+kind: "Cluster"
+api_family: "metal.harvesterhci.io"
+default_command: "clusters.metal.harvesterhci.io"
+command:
+  - "hvstmetalclrs"
+  - "hvstmetalclr"
+listview:
+  name: "Cluster"
+  group: "Harvester"
+  field_indexes:
+    Normal:
+      fields: ["namespace", "name", "address", "status", "age"]
+      sortcolumn: "namespace"
+  fields:
+    address:
+      header: "Address:"
+      path: "status#clusterAddress"
+      default: "<unset>"
+      type: "str"
+      formatter: "address"
+    status:
+      header: "Status:"
+      path: "status#status"
+      default: "<unset>"
+      type: "str"
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          mappings:
+            clusterRunning:
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+            "<unset>":
+              field_colors:
+                - context: "main"
+                  type: "status_ignored"
+infoview:
+  name: "Cluster Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["address",
+                 "image_url",
+                 "cluster_config_header",
+                 "cluster_config_config_url",
+                 "cluster_config_provisioning_template",
+                 "cluster_config_nameservers",
+                 "cluster_config_ssh_keys",
+                 "cluster_config_stream_image_mode",
+                 "cluster_config_wipe_disks",
+                 "cluster_config_vlan_id",
+                 "vip_config_header",
+                 "vip_config_address_pool",
+                 "vip_config_static_address",
+                 "token", "version", "status"]
+    rows:
+      address:
+        header: [["Address:", ["main", "infoheader"]]]
+        path: "status#clusterAddress"
+        default: "<unset>"
+        type: "str"
+        formatter: "address"
+      cluster_config_header:
+        header: [["Cluster Configuration:", ["main", "infoheader"]]]
+      cluster_config_config_url:
+        header: [["  Config URL:", ["main", "infoheader"]]]
+        path: "spec#clusterConfig#configURL"
+        default: "<unset>"
+        type: "str"
+        formatter: "address"
+      cluster_config_provisioning_template:
+        header: [["  Provisioning Template:", ["main", "infoheader"]]]
+        path: "spec#clusterConfig#customProvisioningTemplate"
+        default: "<unset>"
+        type: "str"
+      cluster_config_nameservers:
+        header: [["  Na", ["main", "infoheader"]],
+                 ["m", ["main", "infoheader_shortcut"]],
+                 ["eservers:", ["main", "infoheader"]]]
+        path: "spec#clusterConfig#nameservers"
+        default: ["<none>"]
+        type: "raw"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "host"
+      cluster_config_ssh_keys:
+        header: [["  ", ["main", "infoheader"]],
+                 ["S", ["main", "infoheader_shortcut"]],
+                 ["SH Keys:", ["main", "infoheader"]]]
+        path: "spec#clusterConfig#sshKeys"
+        default: ["<none>"]
+        type: "raw"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "numerical"
+      cluster_config_stream_image_mode:
+        header: [["  Stream Image Mode:", ["main", "infoheader"]]]
+        path: "spec#clusterConfig#streamImageMode"
+        default: "<unset>"
+        type: "bool"
+      cluster_config_vlan_id:
+        header: [["  VLAN ID:", ["main", "infoheader"]]]
+        path: "spec#clusterConfig#vlanID"
+        type: "int"
+        formatter: "numerical"
+      cluster_config_wipe_disks:
+        header: [["  Wipe Disks:", ["main", "infoheader"]]]
+        path: "spec#clusterConfig#wipeDisks"
+        default: "<unset>"
+        type: "bool"
+      image_url:
+        header: [["Image URL:", ["main", "infoheader"]]]
+        path: "spec#imageURL"
+        default: "<unset>"
+        type: "str"
+        formatter: "address"
+      status:
+        header: [["Status:", ["main", "infoheader"]]]
+        path: "status#status"
+        default: "<unset>"
+        type: "str"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              clusterConfigReady:
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+              clusterRunning:
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+              tinkConfigReady:
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+              "<unset>":
+                field_colors:
+                  - context: "main"
+                    type: "status_ignored"
+      token:
+        header: [["Token:", ["main", "infoheader"]]]
+        path: "status#clusterToken"
+        default: "<unset>"
+        type: "str"
+      version:
+        header: [["Version:", ["main", "infoheader"]]]
+        path: "spec#version"
+        default: "<unset>"
+        type: "str"
+        formatting:
+          field_colors:
+            - type: "version"
+      vip_config_address_pool:
+        header: [["  ", ["main", "infoheader"]],
+                 ["A", ["main", "infoheader_shortcut"]],
+                 ["ddress Pool:", ["main", "infoheader"]]]
+        paths:
+          - path: [["spec#vipConfig#addressPoolReference#namespace"],
+                   ["spec#vipConfig#addressPoolReference#name"]]
+            pathtype: "tuple"
+            fallback_on_empty: true
+            default: ["<unset>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "namespace"
+            - type: "generic"
+          field_separators:
+            - type: "namespace"
+      vip_config_header:
+        header: [["VIP Configuration:", ["main", "infoheader"]]]
+      vip_config_static_address:
+        header: [["  Static Address:", ["main", "infoheader"]]]
+        path: "spec#vipConfig#staticAddress"
+        default: "<unset>"
+        type: "str"
+        formatter: "address"
+  shortcuts:
+    "List Nameservers":
+      key: "m"
+      read_only: true
+      helptext: "List nameservers"
+      widget: "windowwidget"
+      title: "Nameservers:"
+      itemgetter: "get_list_as_list"
+      itemgetter_args:
+        path: "spec#clusterConfig#nameservers"
+    "List Nodes":
+      key: "d"
+      read_only: true
+      helptext: "List Nodes"
+      widget: "windowwidget"
+      title: "Nodes:"
+      selectable: true
+      headers: ["Address Pool Namespace:", "Address Pool Name:",
+                "Inventory Namespace:", "Inventory Name:"]
+      itemgetter: "get_list_fields"
+      itemgetter_args:
+        path: "spec#nodes"
+        fields:
+          - "addressPoolReference#namespace"
+          - "addressPoolReference#name"
+          - "inventoryReference#namespace"
+          - "inventoryReference#name"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        namespace_path: 2
+        name_path: 3
+        kind: "Inventory"
+        api_family: "metal.harvesterhci.io"
+    "List SSH keys":
+      key: "k"
+      modifier: "shift"
+      read_only: true
+      helptext: "List SSH keys"
+      widget: "windowwidget"
+      title: "SSH keys:"
+      itemgetter: "get_list_as_list"
+      itemgetter_args:
+        path: "spec#clusterConfig#sshKeys"
+    "Open Address Pool":
+      key: "a"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for Address Pool"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        namespace_path: "spec#vipConfig#addressPoolReference#namespace"
+        name_path: "spec#vipConfig#addressPoolReference#name"
+        kind: "AddressPool"
+        api_family: "metal.harvesterhci.io"
+    "Show Bond Options":
+      key: "b"
+      read_only: true
+      helptext: "Show bond options"
+      action: "call"
+      action_call: "view_yaml"
+      action_args:
+        title: "Bond Options"
+        _pass_obj: true
+        path: "spec#clusterConfig#bondOptions"
