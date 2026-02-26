@@ -3913,6 +3913,25 @@ def genericinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
         if kind is not None and kind[1]:
             windowheader = f"{windowheader} ({kind[1]})"
 
+    # On the one hand we want to be able to override defaults,
+    # but on the other hand we also want to be able to toggle values.
+    # Hence we cannot apply the overrides in the input loop;
+    # we need to apply it beforehand.
+
+    # Populate useful variables that can be used in the statusbar
+    if formatter:
+        deep_set(infoview_args, DictPath("formatter"), formatter.__name__)
+        formatter_args = deep_get(infoview_args, DictPath("formatter_args"), {})
+        if not view[1]:
+            kind_joined = view[0]
+        else:
+            kind_joined = ".".join(view)
+        # Apply user configuration
+        for key, value in formatter_args.items():
+            if key in deep_get(cmtlib.cmtconfig, DictPath(f"{kind_joined}#formatter_args"), {}):
+                formatter_args[key] = \
+                    deep_get(cmtlib.cmtconfig, DictPath(f"{kind_joined}#formatter_args#{key}"))
+
     sortorder_reverse = deep_get(viewref, DictPath("sortorder_reverse"), False)
     reversible = deep_get(viewref, DictPath("reversible"), True)
     activatedfun = deep_get(viewref, DictPath("activatedfun"))
@@ -4093,10 +4112,6 @@ def genericinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
 
     # pylint: disable-next=too-many-nested-blocks
     while True:
-        # Populate useful variables that can be used in the statusbar
-        if formatter:
-            deep_set(infoview_args, DictPath("formatter"), formatter.__name__)
-
         # Output infopad and listpad if we have one
         if uip.is_update_triggered():
             # The data in some fields might become shorter, so we need to trigger a clear
@@ -4393,7 +4408,6 @@ def genericinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                     decoded_obj = cast(str, obj)
 
                 if formatter is not None and decoded_obj is not None:
-                    formatter_args = deep_get(infoview_args, DictPath("formatter_args"), {})
                     formatted_obj = formatter(decoded_obj, raw=raw_output, **formatter_args)
                 else:
                     formatted_obj = decoded_obj

@@ -378,3 +378,9 @@ Pod:
   #   - "{HOME}/local_parsers"
   #   - "/opt/cmt/parsers"
   #   - ...
+
+__ResourceView:
+  # Should the viewer unfold lines? Choosing true here will
+  # (try) to expand lines (such as JSON) that can be unfolded.
+  # formatter_args:
+  #   unfold_msg: true
