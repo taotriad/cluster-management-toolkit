@@ -147,6 +147,9 @@ infoview:
         path: "spec#startingDeadlineSeconds"
         default: "<unset>"
         type: "int"
+        formatter: "numerical"
+        formatting:
+          unit: "s"
       suspend:
         header: [["Suspend:", ["main", "infoheader"]]]
         path: "spec#suspend"

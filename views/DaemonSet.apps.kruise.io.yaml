@@ -20,7 +20,6 @@ listview:
         - path: ["status#numberAvailable", "status#currentNumberScheduled"]
           pathtype: "comparison"
           default: [0, 0]
-      align: "right"
       formatter: "value_mapper"
       formatting:
         mapping:
@@ -34,6 +33,7 @@ listview:
               field_colors:
                 - context: "main"
                   type: "status_pending"
+      align: "right"
     current_replicas:
       header: "Current:"
       paths:
@@ -41,7 +41,6 @@ listview:
                  "status#desiredNumberScheduled"]
           pathtype: "comparison"
           default: [0, 0]
-      align: "right"
       formatter: "value_mapper"
       formatting:
         mapping:
@@ -55,6 +54,7 @@ listview:
               field_colors:
                 - context: "main"
                   type: "status_not_ok"
+      align: "right"
     desired_replicas:
       header: "Desired:"
       path: "status#desiredNumberScheduled"
