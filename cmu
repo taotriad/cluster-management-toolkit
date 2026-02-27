@@ -4956,6 +4956,11 @@ def genericinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                     parent_kind = deep_get(obj, parent_kind_path, "")
                     parent_api_version = deep_get(obj, parent_api_version_path, "")
                     action_args["_parent_kind_tuple"] = (parent_kind, parent_api_version)
+                if "_parent_name_path" in action_args:
+                    parent_name_path = \
+                        deep_get(action_args, DictPath("_parent_name_path"))
+                    action_args["_parent_name"] = \
+                        deep_get(obj, DictPath(parent_name_path), "")
                 if "_parent_namespace_path" in action_args:
                     parent_namespace_path = \
                         deep_get(action_args, DictPath("_parent_namespace_path"))
@@ -5085,9 +5090,10 @@ def genericinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                             return retval
                 if force_update is None:
                     force_update = True
-            if force_update is not None and force_update:
-                uip.update_forced = True
+            if force_update:
                 uip.force_update()
+                uip.update_forced = True
+                uip.force_idle()
 
 
 def eventdispatch(stdscr: curses.window, **kwargs: Any) -> Retval:
@@ -6678,17 +6684,23 @@ def patch_object(stdscr: curses.window, **kwargs: Any) -> Retval:
             (Retval): The return value
     """
     kind: tuple[str, str] = deep_get(kwargs, DictPath("kind"))
-    name: str = deep_get(kwargs, DictPath("name"))
+    _parent_name: str = deep_get(kwargs, DictPath("_parent_name"))
+    name: str = deep_get(kwargs, DictPath("name"), _parent_name)
     namespace: str = deep_get(kwargs, DictPath("namespace"))
     patch: dict[str, Any] = deep_get(kwargs, DictPath("args#patch"))
     values: dict[str, Any] = deep_get(kwargs, DictPath("values"), {})
+    if not values and "selected" in kwargs:
+        values = deep_get(kwargs, DictPath("selected"))
     path_substitutions: dict[str, Any] = \
         deep_get(kwargs, DictPath("args#path_substitutions"), {})
     subresource: str = deep_get(kwargs, DictPath("args#subresource"), "")
     strategic_merge: bool = deep_get(kwargs, DictPath("args#strategic_merge"), False)
 
     for key_path, value_path in path_substitutions.items():
-        value: Any = deep_get(values, DictPath(value_path))
+        if isinstance(values, dict):
+            value: Any = deep_get(values, DictPath(value_path))
+        else:
+            value = getattr(values, value_path)
         deep_set(patch, DictPath(key_path), value, create_path=True)
 
     _message, _status = kh.patch_obj_by_kind_name_namespace(kind, name, namespace, patch,
