@@ -58,8 +58,9 @@ infoview:
           field_colors:
             - type: "url"
       node:
-        header: [["N", ["main", "infoheader_shortcut"]],
-                 ["ode:", ["main", "infoheader"]]]
+        header: [["No", ["main", "infoheader"]],
+                 ["d", ["main", "infoheader_shortcut"]],
+                 ["e:", ["main", "infoheader"]]]
         path: "spec#nodeName"
         type: "host"
         default: "<none>"
@@ -81,8 +82,7 @@ infoview:
         type: "str"
   shortcuts:
     "Node":
-      key: "n"
-      modifier: "shift"
+      key: "d"
       read_only: true
       helptext: "Open info page for Node"
       action: "call"

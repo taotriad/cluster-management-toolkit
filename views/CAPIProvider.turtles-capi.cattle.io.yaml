@@ -29,6 +29,18 @@ listview:
       formatting:
         mapping:
           mappings:
+            Failed:
+              field_colors:
+                - context: "main"
+                  type: "status_not_ok"
+            Pending:
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+            Provisioning:
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
             Ready:
               field_colors:
                 - context: "main"
@@ -48,26 +60,26 @@ infoview:
       Normal:
         fields: ["type", "provider", "installed_version",
                  "contract",
-                 "additional_manifests_header",
-                 "additional_manifests_name",
-                 "additional_manifests_namespace",
+                 "additional_manifests",
                  "config_secret",
                  "fetch_config_header",
                  "fetch_config_label_selector",
+                 "fetch_config_set_based_selector",
                  "phase"]
     rows:
-      additional_manifests_header:
-        header: [["Additional Manifests:", ["main", "infoheader"]]]
-      additional_manifests_name:
-        header: [["  Name:", ["main", "infoheader"]]]
-        path: "spec#additionalManifests#name"
-        type: "str"
-      additional_manifests_namespace:
-        header: [["  Namespace:", ["main", "infoheader"]]]
-        path: "spec#additionalManifests#namespace"
-        type: "str"
+      additional_manifests:
+        header: [["A", ["main", "infoheader_shortcut"]],
+                 ["dditional Manifests:", ["main", "infoheader"]]]
+        paths:
+          - path: [["spec#additionalManifests#namespace"],
+                   ["spec#additionalManifests#name"]]
+            pathtype: "tuple"
+        formatter: "list"
         formatting:
           field_colors:
+            - type: "namespace"
+            - type: "generic"
+          field_separators:
             - type: "namespace"
       config_secret:
         header: [["Config ", ["main", "infoheader"]],
@@ -103,6 +115,21 @@ infoview:
             - type: "value"
           field_separators:
             - type: "selector"
+      fetch_config_set_based_selector:
+        header: [["  Set-based Selector:", ["main", "infoheader"]]]
+        paths:
+          - path: ["spec#fetchConfig#selector#matchExpressions"]
+            pathtype: "match_expression"
+            default: "<none>"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "key"
+            - type: "operator"
+            - type: "value"
+          field_separators:
+            - type: "space"
+            - type: "no_pad"
       installed_version:
         header: [["Installed Version:", ["main", "infoheader"]]]
         path: "status#installedVersion"
@@ -118,6 +145,18 @@ infoview:
         formatting:
           mapping:
             mappings:
+              Failed:
+                field_colors:
+                  - context: "main"
+                    type: "status_not_ok"
+              Pending:
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+              Provisioning:
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
               Ready:
                 field_colors:
                   - context: "main"
@@ -141,6 +180,18 @@ infoview:
       itemgetter: "get_key_value"
       itemgetter_args:
         path: "spec#fetchConfig#selector#matchLabels"
+    "Additional Manifests":
+      key: "a"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for additional manifests ConfigMap"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind: "ConfigMap"
+        namespace_path: "spec#additionalManifests#namespace"
+        name_path: "spec#additionalManifests#name"
     "Open Secret":
       key: "s"
       modifier: "shift"

@@ -45,6 +45,7 @@ listview:
       paths:
         - path: ["spec#podSelector#matchLabels"]
           pathtype: "key_value"
+          default: ["<none>"]
       formatter: "list"
       formatting:
         field_colors:

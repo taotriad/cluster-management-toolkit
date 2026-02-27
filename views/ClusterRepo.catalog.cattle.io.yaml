@@ -34,7 +34,7 @@ infoview:
   infopad:
     row_indexes:
       Normal:
-        fields: ["repo", "branch", "commit", "download_time"]
+        fields: ["repo", "configmap", "branch", "commit", "download_time"]
     rows:
       branch:
         header: [["Branch:", ["main", "infoheader"]]]
@@ -50,8 +50,24 @@ infoview:
         default: "<unset>"
         type: "str"
         formatter: "hex"
+      configmap:
+        header: [["C", ["main", "infoheader_shortcut"]],
+                 ["onfigMap:", ["main", "infoheader"]]]
+        paths:
+          - path: [["status#indexConfigMapNamespace"], ["indexConfigMapName"]]
+            pathtype: "tuple"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "namespace"
+            - type: "generic"
       download_time:
         header: [["Download Time:", ["main", "infoheader"]]]
+        path: "status#downloadTime"
+        type: "str"
+        formatter: "timestamp"
+      helm:
+        header: [["Helm:", ["main", "infoheader"]]]
         path: "status#downloadTime"
         type: "str"
         formatter: "timestamp"
@@ -63,6 +79,18 @@ infoview:
         type: "str"
         formatter: "address"
   shortcuts:
+    "Open ConfigMap":
+      key: "c"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open ConfigMap"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind: "ConfigMap"
+        namespace_path: "status#indexConfigMapNamespace"
+        name_path: "status#indexConfigMapName"
     "Open URL":
       key: "r"
       modifier: "shift"

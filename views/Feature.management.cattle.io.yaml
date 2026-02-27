@@ -11,7 +11,7 @@ listview:
   field_indexes:
     Normal:
       fields: ["name", "custom_value", "default",
-               "dynamic", "age", "description"]
+               "dynamic", "locked", "age", "description"]
   fields:
     custom_value:
       header: "Custom Value:"
@@ -33,6 +33,35 @@ listview:
       path: "status#dynamic"
       default: "<unset>"
       type: "bool"
+    locked:
+      header: "Locked:"
+      path: "status#locked"
+      default: false
+      type: "bool"
+  actions:
+    actionlist:
+      "Disable Feature":
+        description: "Disable Feature"
+        category: "Resource Level"
+        actionfunc: "patch_resource"
+        extravars:
+          action_str: "Disabling"
+          args:
+            patch:
+              spec:
+                value: false
+            strategic_merge: false
+      "Enable Feature":
+        description: "Enable Feature"
+        category: "Resource Level"
+        actionfunc: "patch_resource"
+        extravars:
+          action_str: "Enabling"
+          args:
+            patch:
+              spec:
+                value: true
+            strategic_merge: false
 infoview:
   name: "Feature Info"
   infopad:

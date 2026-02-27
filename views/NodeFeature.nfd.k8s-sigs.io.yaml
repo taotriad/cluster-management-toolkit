@@ -16,7 +16,7 @@ infoview:
   infopad:
     row_indexes:
       Normal:
-        fields: ["controller", "cpu_header", "cpu_vendor", "cpu_family",
+        fields: ["controller", "pod", "cpu_header", "cpu_vendor", "cpu_family",
                  "cpu_model", "cpu_cstate", "cpu_flags", "cpu_sgx",
                  "pstate_header", "pstate_governor", "pstate_turbo",
                  "pstate_status", "network_devices", "storage"]
@@ -129,6 +129,28 @@ infoview:
         formatter: "list"
         formatting:
           ellipsise: 20
+      pod:
+        header: [["Po", ["main", "infoheader"]],
+                 ["d", ["main", "infoheader_shortcut"]],
+                 [":", ["main", "infoheader"]]]
+        paths:
+          - path: "metadata#ownerReferences"
+            pathtype: "items"
+            subpaths:
+              - "kind"
+              - "name"
+            when:
+              - key: "kind"
+                eq: "Pod"
+            type: ["kind", "name"]
+        default: "<none>"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "kind"
+            - type: "generic"
+          field_separators:
+            - type: "kind"
       pstate_header:
         header: [["PState:", ["main", "infoheader"]]]
       pstate_governor:
@@ -220,6 +242,18 @@ infoview:
         _pass_obj: true
         namespace_path: "metadata#namespace"
         owner_reference_path: "metadata#ownerReferences"
+    "Open Pod":
+      key: "d"
+      read_only: true
+      helptext: "Open info page for Pod"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind: "Pod"
+        namespace_path: "metadata#namespace"
+        owner_reference_path: "metadata#ownerReferences"
+        controller: false
     "Storage Devices":
       key: "s"
       modifier: "shift"

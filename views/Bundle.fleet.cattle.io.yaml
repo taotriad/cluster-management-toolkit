@@ -37,7 +37,9 @@ infoview:
   infopad:
     row_indexes:
       Normal:
-        fields: ["default_namespace", "ready"]
+        fields: ["default_namespace",
+                 "max_new", "max_unavailable", "unavailable",
+                 "ready"]
     rows:
       default_namespace:
         header: [["D", ["main", "infoheader_shortcut"]],
@@ -47,6 +49,16 @@ infoview:
         formatting:
           field_colors:
             - type: "namespace"
+      max_new:
+        header: [["Max New:", ["main", "infoheader"]]]
+        path: "status#maxNew"
+        type: "int"
+        formatter: "numerical"
+      max_unavailable:
+        header: [["Max Unavailable:", ["main", "infoheader"]]]
+        path: "status#maxUnavailable"
+        type: "int"
+        formatter: "numerical"
       ready:
         header: [["Ready:", ["main", "infoheader"]]]
         paths:
@@ -58,7 +70,48 @@ infoview:
             - type: "numerical"
           field_separators:
             - type: "fraction"
+      unavailable:
+        header: [["Unavailable:", ["main", "infoheader"]]]
+        path: "status#unavailable"
+        type: "int"
+        formatter: "numerical"
+  logpad:
+    infogetter: "logpad_formatted"
+    infogetter_args:
+      formatter: "format_yaml"
+      path: "spec#resources"
+      include_root: true
+    timestamps: false
   shortcuts:
+    "Helm Configuration":
+      key: "h"
+      read_only: true
+      helptext: "Show Helm configuration"
+      action: "call"
+      action_call: "view_yaml"
+      action_args:
+        title: "Helm Configuration"
+        _pass_obj: true
+        path: "spec#helm"
+    "List partititions":
+      key: "p"
+      modifier: "shift"
+      read_only: true
+      helptext: "List partitions"
+      widget: "windowwidget"
+      title: "Partitions:"
+      headers: ["Name:", "Count:", "Max Unavailable:",
+                "Desired Ready:", "Ready:"]
+      itemgetter: "get_list_fields"
+      itemgetter_args:
+        path: "status#partitions"
+        # pass_ref: true
+        fields:
+          - "name"
+          - "count"
+          - "maxUnavailable"
+          - "summary#desiredReady"
+          - "summary#ready"
     "Open default Namespace":
       key: "d"
       modifier: "shift"
@@ -70,3 +123,15 @@ infoview:
         _pass_obj: true
         name_path: "spec#defaultNamespace"
         kind: "Namespace"
+    "Targets":
+      key: "t"
+      modifier: "shift"
+      read_only: true
+      helptext: "Show Targets"
+      action: "call"
+      action_call: "view_yaml"
+      action_args:
+        title: "Targets"
+        _pass_obj: true
+        path: "spec#targets"
+        include_root: true
