@@ -73,7 +73,6 @@ infoview:
         formatter: "numerical"
         formatting:
           unit: "s"
-        align: "right"
       secret:
         header: [["S", ["main", "infoheader_shortcut"]],
                  ["ecret:", ["main", "infoheader"]]]

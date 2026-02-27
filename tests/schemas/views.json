@@ -2,6 +2,29 @@
 	"description": "A definition of a list and/or info view",
 	"type": "object",
 	"definitions": {
+		"action_call_allowlist": {
+			"description": "The permitted values for action_call",
+			"enum": [
+				"create_namespace",
+				"decode_and_view_data",
+				"decode_and_view_file_templates",
+				"edit_resource",
+				"eventdispatch",
+				"export_data",
+				"listviewdispatch",
+				"patch_object",
+				"resourceinfodispatch_from_pod_resource_list",
+				"resourceinfodispatch_with_lookup",
+				"resourceinfodispatch_from_selection",
+				"set_cluster_context",
+				"ssh_to_host",
+				"view_last_applied_configuration",
+				"view_obj",
+				"view_pod_logs",
+				"view_json",
+				"view_yaml"
+			]
+		},
 		"api_family": {
 			"description": "A Kubernetes API family",
 			"oneOf": [
@@ -16,6 +39,16 @@
 					"description": "The API belongs to the core API",
 					"type": "null"
 				}
+			]
+		},
+		"datagetter_allowlist": {
+			"description": "The permitted values for datagetter",
+			"enum": [
+				"datagetter_container_status",
+				"datagetter_deprecated_api",
+				"datagetter_metrics",
+				"datagetter_endpoint_ips",
+				"datagetter_eps_endpoints"
 			]
 		},
 		"default": {
@@ -124,13 +157,7 @@
 						},
 						"datagetter":  {
 							"description": "Custom function to use to get data from an object",
-							"enum": [
-								"datagetter_container_status",
-								"datagetter_deprecated_api",
-								"datagetter_metrics",
-								"datagetter_endpoint_ips",
-								"datagetter_eps_endpoints"
-							]
+							"$ref": "#/definitions/datagetter_allowlist"
 						},
 						"default": {
 							"$ref": "#/definitions/default"
@@ -147,10 +174,7 @@
 						},
 						"generator": {
 							"description": "Custom generator to use when formatting the data",
-							"enum": [
-								"generator_mem",
-								"generator_status"
-							]
+							"$ref": "#/definitions/generator_allowlist"
 						},
 						"header": {
 							"$ref": "#/definitions/header"
@@ -327,6 +351,13 @@
 				}
 			},
 			"addititionalProperties": false
+		},
+		"generator_allowlist": {
+			"description": "The permitted values for generator",
+			"enum": [
+				"generator_mem",
+				"generator_status"
+			]
 		},
 		"header": {
 			"description": "A header to use for fields",
@@ -1555,7 +1586,8 @@
 											"additionalProperties": false
 										},
 										"action_call": {
-											"type": "string"
+											"description": "The function to call from a shortcut",
+											"$ref": "#/definitions/action_call_allowlist"
 										},
 										"confirm": {
 											"description": "Should the program ask for confirmation before performing the action",
@@ -2004,6 +2036,10 @@
 														}
 													]
 												},
+												"args": {
+													"description": "Arguments to pass to patch_object",
+													"type": "object"
+												},
 												"command": {
 													"description": "Command to execute; only valid if widget is 'command'; use nested arrays to denote paths",
 													"type": "array",
@@ -2174,6 +2210,10 @@
 													"minitems": 2,
 													"minitems": 2
 												},
+												"_parent_name_path": {
+													"description": "Path to get the namee of the parent obj",
+													"$ref": "#/definitions/simple_path"
+												},
 												"_parent_namespace_path": {
 													"description": "Path to get the namespace of the parent obj",
 													"$ref": "#/definitions/simple_path"
@@ -2251,7 +2291,8 @@
 											"additionalProperties": false
 										},
 										"action_call": {
-											"type": "string"
+											"description": "The function to call from a shortcut",
+											"$ref": "#/definitions/action_call_allowlist"
 										},
 										"confirm": {
 											"description": "Function or value to use to decide whether or not to show the confirmation dialogue",
@@ -2394,7 +2435,8 @@
 																	"type": "string"
 																},
 																"action_call": {
-																	"type": "string"
+																	"description": "The function to call from a shortcut",
+																	"$ref": "#/definitions/action_call_allowlist"
 																},
 																"action_args": {
 																	"args": {
