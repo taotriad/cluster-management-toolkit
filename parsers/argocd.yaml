@@ -8,6 +8,11 @@
     - pod_name: "argocd-notifications-controller"
     - pod_name: "argocd-repo-server"
     - pod_name: "argocd-server"
+    - image_name: "/argoproj/argocli"
+    - image_name: "/argoproj/workflow-controller"
+    - image_name: "/argoproj/argoexec"
+    - image_name: "/argoproj/argoexec"
+      container_type: "init_container"
   parser_rules:
     - name: "glog"
     - name: "key_value"

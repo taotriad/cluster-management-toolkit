@@ -13,8 +13,35 @@
       container_name: "minio"
     - pod_name: "minio-"
       container_name: "mc"
+    - image_name: "/minio/minio"
   parser_rules:
     - name: "ts_8601"
+    - name: "custom_line"
+      options:
+        block_start:
+          - matchtype: "startswith"
+            # yamllint disable-line rule:line-length
+            matchkey: "WARNING: MINIO_ACCESS_KEY and MINIO_SECRET_KEY are deprecated."
+            matchline: "any"
+            format_block_start: true
+        block_end:
+          - matchtype: "startswith"
+            # yamllint disable-line rule:line-length
+            matchkey: "         Please use MINIO_ROOT_USER and MINIO_ROOT_PASSWORD"
+            matchline: "any"
+            format_block_end: true
+        loglevel: "warning"
+    - name: "override_severity"
+      overrides:
+        - matchtype: "startswith"
+          matchkey: "Version:"
+          loglevel: "notice"
+        - matchtype: "startswith"
+          matchkey: "WARNING:"
+          loglevel: "warning"
+        - matchtype: "startswith"
+          matchkey: "Warning:"
+          loglevel: "warning"
 - name: "minio"
   show_in_selector: false
   matchkeys:

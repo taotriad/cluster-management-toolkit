@@ -38,11 +38,30 @@ listview:
             Error:
               field_colors:
                 - context: "main"
+                  type: "status_not_ok"
+            Failed:
+              field_colors:
+                - context: "main"
                   type: "status_warning"
+            Pending:
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+            Running:
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
             Succeeded:
               field_colors:
                 - context: "main"
                   type: "status_done"
+  actions:
+    actionlist:
+      "Delete resource":
+        description: "Delete resource"
+        category: "Resource Level"
+        confirm: true
+        actionfunc: "delete_resource"
 infoview:
   name: "Workflow Info"
   infopad:
@@ -53,6 +72,7 @@ infoview:
       entrypoint:
         header: [["Entrypoint:", ["main", "infoheader"]]]
         path: "spec#entrypoint"
+        default: "<unset>"
         type: "str"
       service_account:
         header: [["S", ["main", "infoheader_shortcut"]],
@@ -60,7 +80,7 @@ infoview:
         path: "spec#serviceAccountName"
         type: "str"
       phase:
-        header: [["Status:", ["main", "infoheader"]]]
+        header: [["Phase:", ["main", "infoheader"]]]
         path: "status#phase"
         type: "str"
         formatter: "value_mapper"
@@ -70,7 +90,19 @@ infoview:
               Error:
                 field_colors:
                   - context: "main"
+                    type: "status_not_ok"
+              Failed:
+                field_colors:
+                  - context: "main"
                     type: "status_warning"
+              Pending:
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+              Running:
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
               Succeeded:
                 field_colors:
                   - context: "main"

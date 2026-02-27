@@ -1,0 +1,57 @@
+---
+kind: "WorkflowTemplate"
+api_family: "argoproj.io"
+default_command: "workflowtemplates"
+command:
+  - "wftmpls"
+  - "wftmpl"
+listview:
+  name: "Workflow Templates"
+  group: "CI / CD"
+  field_indexes:
+    Normal:
+      fields: ["namespace", "name", "age"]
+      sortcolumn: "namespace"
+  actions:
+    actionlist:
+      "Delete resource":
+        description: "Delete resource"
+        category: "Resource Level"
+        confirm: true
+        actionfunc: "delete_resource"
+infoview:
+  name: "Workflow Template Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["entrypoint"]
+    rows:
+      entrypoint:
+        header: [["Entrypoint:", ["main", "infoheader"]]]
+        path: "spec#entrypoint"
+        default: "<unset>"
+        type: "str"
+  shortcuts:
+    "Arguments":
+      key: "a"
+      modifier: "shift"
+      read_only: true
+      helptext: "Show arguments"
+      action: "call"
+      action_call: "view_yaml"
+      action_args:
+        title: "Arguments"
+        _pass_obj: true
+        path: "spec#arguments"
+    "Templates":
+      key: "t"
+      modifier: "shift"
+      read_only: true
+      helptext: "Show templates"
+      action: "call"
+      action_call: "view_yaml"
+      action_args:
+        title: "Templates"
+        _pass_obj: true
+        path: "spec#templates"
+        include_root: true
