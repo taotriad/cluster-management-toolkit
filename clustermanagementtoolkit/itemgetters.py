@@ -510,6 +510,13 @@ def get_list_fields(obj: dict, **kwargs: Any) -> list[Any]:
                         for key in field:
                             if key in item:
                                 value = key
+                    elif value_type == "label_selector":
+                        tmp_selectors = []
+                        for tmp_selector in value_:
+                            tmp_selectors.append(make_label_selector(tmp_selector))
+                        value = ",".join(tmp_selectors)
+                    elif value_type == "match_expression":
+                        value = make_set_expression(value_)
                     elif (isinstance(value_, list)
                             or (i < len(fields) and i < len(override_types)
                                 and override_types[i] == "list")):
