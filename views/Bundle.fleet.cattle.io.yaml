@@ -80,7 +80,6 @@ infoview:
     infogetter_args:
       formatter: "format_yaml"
       path: "spec#resources"
-      include_root: true
     timestamps: false
   shortcuts:
     "Helm Configuration":
