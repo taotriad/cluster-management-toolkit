@@ -4254,6 +4254,11 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api_paths": ["apis/management.cattle.io/v3/"],
         "api": "nodetemplates",
     },
+    ("OIDCClient", "management.cattle.io"): {
+        "api_paths": ["apis/management.cattle.io/v3/"],
+        "api": "oidcclients",
+        "namespaced": False,
+    },
     ("PodSecurityAdmissionConfigurationTemplate", "management.cattle.io"): {
         "api_paths": ["apis/management.cattle.io/v3/"],
         "api": "podsecurityadmissionconfigurationtemplates",

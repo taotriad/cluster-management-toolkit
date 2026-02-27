@@ -1,0 +1,199 @@
+---
+kind: "OIDCClient"
+api_family: "management.cattle.io"
+default_command: "oidcclients.management.cattle.io"
+command:
+  - "oidcclients.mgmnt.cattle"
+  - "oidcclient.mgmnt.cattle"
+  - "oidccs.mgmnt.cattle"
+  - "oidcc.mgmnt.cattle"
+listview:
+  name: "OpenID Connect Clients"
+  group: "Rancher"
+  field_indexes:
+    Normal:
+      fields: ["name", "client_id",
+               "token_expiration", "refresh_token_expiration", "age"]
+  fields:
+    client_id:
+      header: "Client ID:"
+      path: "status#clientID"
+      default: "<unset>"
+      type: "str"
+    refresh_token_expiration:
+      header: "Refresh Token Expiration:"
+      path: "spec#refreshTokenExpirationSeconds"
+      default: "<unset>"
+      type: "int"
+      formatter: "numerical"
+      formatting:
+        unit: "s"
+      align: "right"
+    token_expiration:
+      header: "Token Expiration:"
+      path: "spec#tokenExpirationSeconds"
+      default: "<unset>"
+      type: "int"
+      formatter: "numerical"
+      formatting:
+        unit: "s"
+      align: "right"
+  actions:
+    actionlist:
+      "Create Client Secret":
+        description: "Create a new Client Secret"
+        category: "Resource Level"
+        actionfunc: "patch_resource"
+        extravars:
+          action_str: "Creating Client Secret"
+          args:
+            patch:
+              metadata:
+                annotations:
+                  cattle.io/oidc-client-secret-create: "true"
+            strategic_merge: false
+infoview:
+  name: "OpenID Connect Client Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["client_id", "secret",
+                 "token_expiration", "refresh_token_expiration"]
+    rows:
+      client_id:
+        header: [["Client ID:", ["main", "infoheader"]]]
+        path: "status#clientID"
+        default: "<unset>"
+        type: "str"
+      refresh_token_expiration:
+        header: [["Refresh Token Expiration:", ["main", "infoheader"]]]
+        path: "spec#refreshTokenExpirationSeconds"
+        default: "<unset>"
+        type: "int"
+        formatter: "numerical"
+        formatting:
+          unit: "s"
+        align: "right"
+      secret:
+        header: [["S", ["main", "infoheader_shortcut"]],
+                 ["ecret:", ["main", "infoheader"]]]
+        paths:
+          - path: ["Secret", "cattle-oidc-client-secrets", ["status#clientID"]]
+            pathtype: "tuple"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "kind"
+            - type: "namespace"
+            - type: "generic"
+          field_separators:
+            - type: "kind"
+            - type: "namespace"
+      token_expiration:
+        header: [["Token Expiration:", ["main", "infoheader"]]]
+        path: "spec#tokenExpirationSeconds"
+        default: "<unset>"
+        type: "int"
+        formatter: "numerical"
+        formatting:
+          unit: "s"
+  listpad:
+    listgetter: "listgetter_dict_list"
+    listgetter_args:
+      path: "status#clientSecrets"
+    infogetter: "generic_infogetter"
+    infogetter_args:
+      _extra_data:
+        name: ["metadata#name"]
+    field_indexes:
+      Normal:
+        fields: ["secret", "last_five_characters", "created_at"]
+        sortcolumn: "client_secret"
+    fields:
+      created_at:
+        header: "Created At:"
+        path: "value#createdAt"
+        default: "<unset>"
+        type: "int"
+        formatter: "numerical"
+      last_five_characters:
+        header: "Last Five Characters:"
+        path: "value#lastFiveCharacters"
+        default: "<unset>"
+        type: "str"
+      secret:
+        header: "Secret:"
+        path: "key"
+        default: "<unset>"
+        type: "str"
+  shortcuts:
+    "Open Secret":
+      key: "s"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for Secret"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind: "Secret"
+        namespace: "cattle-oidc-client-secrets"
+        name_path: "status#clientID"
+    "Create Client Secret":
+      key: "c"
+      modifier: "shift"
+      read_only: false
+      helptext: "Create a new Client Secret"
+      action: "call"
+      action_call: "patch_object"
+      action_args:
+        _pass_obj: true
+        args:
+          patch:
+            metadata:
+              annotations:
+                cattle.io/oidc-client-secret-create: "true"
+            strategic_merge: false
+        kind: "OIDCClient"
+        api_family: "management.cattle.io"
+        _parent_name_path: "metadata#name"
+    "Delete Client Secret":
+      key: "d"
+      modifier: "shift"
+      read_only: false
+      helptext: "Delete selected Client Secret"
+      action: "call"
+      action_call: "patch_object"
+      action_args:
+        _pass_selected: true
+        args:
+          patch:
+            metadata:
+              annotations:
+                cattle.io/oidc-client-secret-remove: "dummy"
+            strategic_merge: false
+          path_substitutions:
+            "metadata#annotations#cattle.io/oidc-client-secret-remove": "secret"
+        kind: "OIDCClient"
+        api_family: "management.cattle.io"
+        _parent_name_path: "metadata#name"
+    "Regenerate Client Secret":
+      key: "r"
+      modifier: "shift"
+      read_only: false
+      helptext: "Regenerate selected Client Secret"
+      action: "call"
+      action_call: "patch_object"
+      action_args:
+        _pass_selected: true
+        args:
+          patch:
+            metadata:
+              annotations:
+                cattle.io/oidc-client-secret-regenerate: "dummy"
+          path_substitutions:
+            # yamllint disable-line rule:line-length
+            "metadata#annotations#cattle.io/oidc-client-secret-regenerate": "secret"
+        kind: "OIDCClient"
+        api_family: "management.cattle.io"
+        _parent_name_path: "metadata#name"
