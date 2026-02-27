@@ -94,7 +94,9 @@ to reinstall the cluster from scratch.
 * The clusteroverview now shows the control plane version.
 * action_execute_command() is now more resilient if it receives
   incorrect input arguments.
-* Fix crash in multilog view.
+* Fix a crash in multilog view.
+* Fix a crash when exporting logs.
+* Fix a potential crash when accessing listgetter_args["label_selector"]
 
 ### Changes to other files in v0.8.7
 
@@ -113,6 +115,14 @@ to reinstall the cluster from scratch.
   and probably more secure than, __ECDSA__.
 * Fixed crash in get_key_value_info() if passed an empty dict
   get_key_value_info() would crash.
+* get_list_fields() can now format selectors.
+* patch_object() is now slightly more flexible.
+* formatter_args can now be overriden using cmt.yaml.
+* generator_hex() now handles special strings.
+* searching or sorting a column with a non-basic type as values,
+  such as tuples, no longer causes a crash.
+* Harvester is now detected as a Kubernetes distro.
+* Kubernetes object requests can now use set-based selector operations too.
 
 ### view-file changes
 
