@@ -1660,6 +1660,7 @@ cmdata_format: tuple[tuple[str, str, str, str, str], ...] = (
     ("", "", "ssh_known_hosts", "ssh_known_hosts", "known_hosts"),
     ("calico-system", "cni-config", "", "", "JSON"),
     ("", "canal-config", "cni_network_config", "", "JSON"),
+    ("cattle-capi-system", "capi-additional-rbac-roles", "", "manifests", "YAML"),
     ("", "", "fluentbit.conf", "", "FluentBit"),
     ("", "intel-iaa-config", "iaa.conf", "iaa.conf", "JSON"),
     ("istio-system", "istio", "", "", "YAML"),
