@@ -6666,7 +6666,7 @@ def listviewdispatch(stdscr: curses.window, **kwargs: Any) -> Retval:
     return Retval.RETURNDONE
 
 
-# pylint: disable-next=unused-argument
+# pylint: disable-next=unused-argument,too-many-locals
 def patch_object(stdscr: curses.window, **kwargs: Any) -> Retval:
     """
     Patch an object.
