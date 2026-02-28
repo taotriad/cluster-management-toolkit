@@ -1,13 +1,15 @@
 # This file contains ways to determine the file format for configmaps;
 # many configmaps do not use a standard suffix to identify the file format.
 # The file format can be determined by:
-# (namespace, name prefix, data prefix, data suffix)
+# (namespace, name prefix, name suffix, data prefix, data suffix)
 # data header [str]
 # data header [binary]
 #
+# Note: data_header and data_binary are mutually exclusive.
+#
 # The data signatures are sorted by data type; some types are effectively
 # synonyms in that they'll be treated identically internally (NDJSON vs JSON,
-# for instance), but for clarify they're separared here.
+# for instance), but for clarity they're separared here.
 #
 # An empty text signature is kept last, to ensure that there
 # is a sensible fallback.
@@ -423,4 +425,5 @@ configmap_signatures:
       - namespace: ""
         name_prefix: ""
         name_suffix: ""
+        data_prefix: ""
         data_suffix: ""
