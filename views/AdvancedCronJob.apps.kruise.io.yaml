@@ -60,6 +60,28 @@ listview:
         category: "Resource Level"
         confirm: true
         actionfunc: "delete_resource"
+      "Unpause resource":
+        description: "Unpause resource"
+        category: "Resource Level"
+        actionfunc: "patch_resource"
+        extravars:
+          action_str: "Unpausing"
+          args:
+            patch:
+              spec:
+                paused: false
+            strategic_merge: false
+      "Pause resource":
+        description: "Pause resource"
+        category: "Resource Level"
+        actionfunc: "patch_resource"
+        extravars:
+          action_str: "Pausing"
+          args:
+            patch:
+              spec:
+                paused: true
+            strategic_merge: false
 infoview:
   name: "Advanced Cron Job Info"
   infopad:

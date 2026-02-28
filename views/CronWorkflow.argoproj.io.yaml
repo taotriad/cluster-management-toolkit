@@ -12,7 +12,8 @@ listview:
   group: "CI / CD"
   field_indexes:
     Normal:
-      fields: ["namespace", "name", "succeeded", "failed", "phase", "age"]
+      fields: ["namespace", "name", "succeeded", "failed", "suspended",
+               "phase", "age"]
       sortcolumn: "namespace"
   fields:
     failed:
@@ -55,6 +56,23 @@ listview:
       type: "int"
       formatter: "numerical"
       align: "right"
+    suspended:
+      header: "Suspended:"
+      path: "spec#suspend"
+      default: false
+      type: "bool"
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          mappings:
+            "False":
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+            "True":
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
   actions:
     actionlist:
       "Delete resource":
@@ -62,13 +80,38 @@ listview:
         category: "Resource Level"
         confirm: true
         actionfunc: "delete_resource"
+      "Resume resource":
+        description: "Resume resource"
+        category: "Resource Level"
+        actionfunc: "patch_resource"
+        extravars:
+          action_str: "Resuming"
+          args:
+            patch:
+              spec:
+                suspend: false
+            strategic_merge: false
+      "Suspend resource":
+        description: "Suspend resource"
+        category: "Resource Level"
+        actionfunc: "patch_resource"
+        extravars:
+          action_str: "Suspending"
+          args:
+            patch:
+              spec:
+                suspend: true
+            strategic_merge: false
 infoview:
   name: "Cron Workflow Info"
   infopad:
     row_indexes:
       Normal:
-        fields: ["concurrency_policy", "starting_deadline", "last_scheduled",
-                 "schedules", "succeeded", "failed", "phase"]
+        fields: ["concurrency_policy", "successful_jobs_history_limit",
+                 "failed_jobs_history_limit",
+                 "starting_deadline", "last_scheduled",
+                 "schedules", "timezone", "when",
+                 "succeeded", "failed", "suspended", "phase"]
     rows:
       concurrency_policy:
         header: [["Concurrency Policy:", ["main", "infoheader"]]]
@@ -91,6 +134,11 @@ infoview:
                 field_colors:
                   - context: "main"
                     type: "status_not_ok"
+      failed_jobs_history_limit:
+        header: [["Failed Jobs History Limit:", ["main", "infoheader"]]]
+        path: "spec#failedJobsHistoryLimit"
+        type: "int"
+        formatter: "numerical"
       last_scheduled:
         header: [["Last Scheduled:", ["main", "infoheader"]]]
         path: "status#lastScheduledTime"
@@ -129,11 +177,48 @@ infoview:
         formatter: "numerical"
         formatting:
           unit: "s"
+      stop_strategy:
+        header: [["Stop Strategy:", ["main", "infoheader"]]]
+        path: "spec#stopStrategy#expression"
+        default: "<unset>"
+        type: "str"
       succeeded:
         header: [["Succeeded:", ["main", "infoheader"]]]
         path: "status#succeeded"
         type: "int"
         formatter: "numerical"
+      successful_jobs_history_limit:
+        header: [["Successful Jobs History Limit:", ["main", "infoheader"]]]
+        path: "spec#successfulJobsHistoryLimit"
+        type: "int"
+        formatter: "numerical"
+      suspended:
+        header: [["Suspended:", ["main", "infoheader"]]]
+        path: "spec#suspend"
+        default: false
+        type: "bool"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              "False":
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+              "True":
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+      timezone:
+        header: [["Timezone:", ["main", "infoheader"]]]
+        path: "spec#timezone"
+        default: "<unset>"
+        type: "str"
+      when:
+        header: [["When:", ["main", "infoheader"]]]
+        path: "spec#when"
+        default: "<unset>"
+        type: "str"
   listpad:
     listgetter: "generic_listgetter"
     listgetter_args:

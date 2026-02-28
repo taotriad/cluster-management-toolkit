@@ -7,9 +7,9 @@ listview:
   group: "Workloads"
   field_indexes:
     Wide:
-      fields: ["namespace", "name", "age", "replicated_jobs"]
+      fields: ["namespace", "name", "restarts", "age", "replicated_jobs"]
     Normal:
-      fields: ["namespace", "name", "age"]
+      fields: ["namespace", "name", "restarts", "age"]
   fields:
     replicated_jobs:
       header: "Replicated Jobs:"
@@ -27,6 +27,13 @@ listview:
           - type: "version"
         field_separators:
           - type: "version"
+    restarts:
+      header: "Restarts:"
+      path: "status#restarts"
+      default: "<unset>"
+      type: "int"
+      formatter: "numerical"
+      align: "right"
   actions:
     actionlist:
       "Delete resource":

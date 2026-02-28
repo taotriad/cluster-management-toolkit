@@ -10,7 +10,7 @@ listview:
   group: "Workloads"
   field_indexes:
     Normal:
-      fields: ["namespace", "name", "schedule", "suspend", "active",
+      fields: ["namespace", "name", "schedule", "suspended", "active",
                "concurrency_policy", "last_scheduled", "last_successful",
                "age", "containers_jobtemplate"]
       sortcolumn: "namespace"
@@ -57,11 +57,23 @@ listview:
       path: "spec#schedule"
       default: "<unset>"
       type: "str"
-    suspend:
-      header: "Suspend:"
+    suspended:
+      header: "Suspended:"
       path: "spec#suspend"
       default: false
       type: "bool"
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          mappings:
+            "False":
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+            "True":
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
   actions:
     actionlist:
       "Trigger Job":
@@ -78,31 +90,54 @@ listview:
         category: "Resource Level"
         confirm: true
         actionfunc: "delete_resource"
+      "Resume resource":
+        # Requires Kubernetes 1.22+
+        description: "Resume resource"
+        category: "Resource Level"
+        actionfunc: "patch_resource"
+        extravars:
+          action_str: "Resuming"
+          args:
+            patch:
+              spec:
+                suspend: false
+            strategic_merge: true
+      "Suspend resource":
+        # Requires Kubernetes 1.22+
+        description: "Suspend resource"
+        category: "Resource Level"
+        actionfunc: "patch_resource"
+        extravars:
+          action_str: "Suspending"
+          args:
+            patch:
+              spec:
+                suspend: true
+            strategic_merge: true
 infoview:
   name: "Cron Job Info"
   infopad:
     row_indexes:
       Normal:
-        fields: ["concurrency_policy", "restart_policy", "selector",
-                 "parallelism", "completions", "starting_deadline",
-                 "suspend", "schedule", "last_scheduled", "last_successful",
-                 "active"]
+        fields: ["concurrency_policy", "successful_jobs_history_limit",
+                 "failed_jobs_history_limit",
+                 "starting_deadline", "suspended", "schedule", "timezone",
+                 "last_scheduled", "last_successful", "active"]
     rows:
       active:
         header: [["Active:", ["main", "infoheader"]]]
         path: "status#active"
         type: "len"
         formatter: "numerical"
-      completions:
-        header: [["Completions:", ["main", "infoheader"]]]
-        path: "spec#jobTemplate#spec#completions"
-        default: 0
-        type: "int"
-        formatter: "numerical"
       concurrency_policy:
         header: [["Concurrency Policy:", ["main", "infoheader"]]]
         path: "spec#concurrencyPolicy"
         type: "raw"
+      failed_jobs_history_limit:
+        header: [["Failed Jobs History Limit:", ["main", "infoheader"]]]
+        path: "spec#failedJobsHistoryLimit"
+        type: "int"
+        formatter: "numerical"
       last_scheduled:
         header: [["Last Scheduled:", ["main", "infoheader"]]]
         path: "status#lastScheduleTime"
@@ -115,33 +150,11 @@ infoview:
         default: -1
         type: "timestamp"
         formatter: "age"
-      parallelism:
-        header: [["Parallelism:", ["main", "infoheader"]]]
-        path: "spec#jobTemplate#spec#parallelism"
-        default: "<unset>"
-        type: "str"
-      restart_policy:
-        header: [["Restart Policy:", ["main", "infoheader"]]]
-        path: "spec#jobTemplate#spec#template#spec#restartPolicy"
-        default: "<unset>"
-        type: "str"
       schedule:
         header: [["Schedule:", ["main", "infoheader"]]]
         path: "spec#schedule"
         default: "<unset>"
         type: "str"
-      selector:
-        header: [["Selector:", ["main", "infoheader"]]]
-        paths:
-          - path: ["spec#selector"]
-            pathtype: "key_value"
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "key"
-            - type: "value"
-          field_separators:
-            - type: "selector"
       starting_deadline:
         header: [["Starting Deadline:", ["main", "infoheader"]]]
         path: "spec#startingDeadlineSeconds"
@@ -150,11 +163,33 @@ infoview:
         formatter: "numerical"
         formatting:
           unit: "s"
-      suspend:
-        header: [["Suspend:", ["main", "infoheader"]]]
+      successful_jobs_history_limit:
+        header: [["Successful Jobs History Limit:", ["main", "infoheader"]]]
+        path: "spec#successfulJobsHistoryLimit"
+        type: "int"
+        formatter: "numerical"
+      suspended:
+        header: [["Suspended:", ["main", "infoheader"]]]
         path: "spec#suspend"
         default: false
         type: "bool"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              "False":
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+              "True":
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+      timezone:
+        header: [["Timezone:", ["main", "infoheader"]]]
+        path: "spec#timeZone"
+        default: "<unset>"
+        type: "str"
   shortcuts:
     "Trigger Job":
       key: "j"

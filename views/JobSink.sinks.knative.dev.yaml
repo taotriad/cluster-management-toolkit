@@ -126,12 +126,12 @@ infoview:
     field_indexes:
       Wide:
         fields: ["namespace", "name", "controller", "completions", "duration",
-                 "state", "age", "completion_time_with_age", "completion_mode",
-                 "suspended", "containers_template"]
+                 "suspended", "state", "age", "completion_time_with_age",
+                 "completion_mode", "containers_template"]
         sortcolumn: "state"
       Normal:
         fields: ["namespace", "name", "controller", "completions", "duration",
-                 "state", "age", "completion_time", "completion_mode",
+                 "suspended", "state", "age", "completion_time",
                  "containers_template"]
         sortcolumn: "state"
     fields:
@@ -157,6 +157,7 @@ infoview:
       completion_time:
         header: "Completion Time:"
         path: "status#completionTime"
+        default: "<unset>"
         type: "timestamp"
         formatter: "timestamp"
       completion_time_with_age:

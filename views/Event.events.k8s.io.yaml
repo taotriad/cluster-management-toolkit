@@ -1120,6 +1120,10 @@ listview:
               field_colors:
                 - context: "main"
                   type: "status_done"
+            JobCreationFailed:
+              field_colors:
+                - context: "main"
+                  type: "status_not_ok"
             JobRunning:
               field_colors:
                 - context: "main"
@@ -3612,6 +3616,10 @@ infoview:
                 field_colors:
                   - context: "main"
                     type: "status_done"
+              JobCreationFailed:
+                field_colors:
+                  - context: "main"
+                    type: "status_not_ok"
               JobRunning:
                 field_colors:
                   - context: "main"

@@ -159,6 +159,18 @@ listview:
       path: "spec#suspend"
       default: "<unset>"
       type: "bool"
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          mappings:
+            "False":
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+            "True":
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
   actions:
     actionlist:
       "Delete resource":
@@ -360,6 +372,18 @@ infoview:
         path: "spec#suspend"
         default: "<unset>"
         type: "bool"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              "False":
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+              "True":
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
   listpad:
     listgetter: "generic_listgetter"
     listgetter_args:
@@ -465,6 +489,32 @@ infoview:
         formatter: "numerical"
         align: "right"
   shortcuts:
+    "Owner References":
+      key: "o"
+      modifier: "shift"
+      read_only: true
+      helptext: "List Owner References"
+      widget: "windowwidget"
+      title: "Owner References:"
+      selectable: true
+      headers: ["Kind:", "API-Version:", "Name:"]
+      itemgetter: "get_list_fields"
+      itemgetter_args:
+        path: "metadata#ownerReferences"
+        fields:
+          - "kind"
+          - "apiVersion"
+          - "name"
+      # This isn't supported for now
+      sortcolumn: "kind"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind_path: 0
+        api_version_path: 1
+        name_path: 2
+        _parent_namespace_path: "metadata#namespace"
     "Label Selector":
       key: "b"
       read_only: true

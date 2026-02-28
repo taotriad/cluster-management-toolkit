@@ -67,18 +67,39 @@ infoview:
   infopad:
     row_indexes:
       Normal:
-        fields: ["cleanup", "interactive", "state"]
+        fields: ["cleanup", "interactive", "deadline", "tasks", "size", "state"]
     rows:
       cleanup:
         header: [["Cleanup:", ["main", "infoheader"]]]
         path: "spec#cleanup"
         default: "<unset>"
         type: "bool"
+      deadline:
+        header: [["Deadline:", ["main", "infoheader"]]]
+        path: "spec#deadlineSeconds"
+        default: "<unset>"
+        type: "int"
+        formatter: "numerical"
+        formatting:
+          unit: "s"
       interactive:
         header: [["Interactive:", ["main", "infoheader"]]]
         path: "spec#interactive"
         default: "<unset>"
         type: "bool"
+      size:
+        header: [["Size:", ["main", "infoheader"]]]
+        paths:
+          - path: [["status#size"], ["spec#size"]]
+            pathtype: "tuple"
+            default: [0, 0]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "numerical"
+            - type: "numerical"
+          field_separators:
+            - type: "fraction"
       state:
         header: [["State:", ["main", "infoheader"]]]
         paths:
@@ -121,6 +142,12 @@ infoview:
                 field_colors:
                   - context: "types"
                     type: "unset"
+      tasks:
+        header: [["Tasks:", ["main", "infoheader"]]]
+        path: "spec#tasks"
+        default: "<unset>"
+        type: "int"
+        formatter: "numerical"
   listpad:
     listgetter: "generic_listgetter"
     listgetter_args:
@@ -136,13 +163,14 @@ infoview:
     field_indexes:
       Wide:
         fields: ["namespace", "name", "controller", "completions",
-                 "duration", "state", "age", "completion_time_with_age",
-                 "completion_mode", "suspended", "containers_template"]
+                 "duration", "suspended", "state", "age",
+                 "completion_time_with_age", "completion_mode",
+                 "containers_template"]
         sortcolumn: "state"
       Normal:
-        fields: ["namespace", "name", "controller", "completions",
-                 "duration", "state", "age", "completion_time",
-                 "completion_mode", "containers_template"]
+        fields: ["namespace", "name", "completions",
+                 "duration", "suspended", "state", "age", "completion_time",
+                 "containers_template"]
         sortcolumn: "state"
     fields:
       completion_mode:
@@ -167,6 +195,7 @@ infoview:
       completion_time:
         header: "Completion Time:"
         path: "status#completionTime"
+        default: "<unset>"
         type: "timestamp"
         formatter: "timestamp"
       completion_time_with_age:
@@ -278,3 +307,20 @@ infoview:
                 field_colors:
                   - context: "main"
                     type: "status_not_ok"
+      suspended:
+        header: "Suspended:"
+        path: "spec#suspend"
+        default: "<unset>"
+        type: "bool"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              "False":
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+              "True":
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
