@@ -123,6 +123,7 @@ to reinstall the cluster from scratch.
   such as tuples, no longer causes a crash.
 * Harvester is now detected as a Kubernetes distro.
 * Kubernetes object requests can now use set-based selector operations too.
+* ConfigMap signatures are no longer hardcoded in formatters.py.
 
 ### view-file changes
 
