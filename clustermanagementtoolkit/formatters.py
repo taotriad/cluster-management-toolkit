@@ -25,9 +25,10 @@ except ModuleNotFoundError:
     import json  # type: ignore
     json_is_ujson = False  # pylint: disable=invalid-name
     DecodeException = json.decoder.JSONDecodeError  # type: ignore
+from pathlib import Path
 import re
 import sys
-from typing import Any
+from typing import Any, cast
 from collections.abc import Callable
 try:
     import yaml
@@ -35,10 +36,15 @@ except ModuleNotFoundError:  # pragma: no cover
     sys.exit("ModuleNotFoundError: Could not import yaml; "
              "you may need to (re-)run `cmt-install` or `pip3 install PyYAML`; aborting.")
 
-from clustermanagementtoolkit.cmttypes import deep_get, DictPath
+from clustermanagementtoolkit.cmttypes import deep_get, DictPath, FilePath
+from clustermanagementtoolkit.cmttypes import FilePathAuditError, StatusGroup
 
 from clustermanagementtoolkit import cmtlib
 from clustermanagementtoolkit.cmtlib import split_msg, strip_ansicodes
+
+from clustermanagementtoolkit.cmtio_yaml import secure_read_yaml
+
+from clustermanagementtoolkit.cmtpaths import HOMEDIR, SYSTEM_PARSERS_DIR, PARSER_DIR
 
 from clustermanagementtoolkit.curses_helper import ThemeAttr, ThemeRef, ThemeStr, themearray_len
 
@@ -1633,150 +1639,148 @@ formatter_allowlist: dict[str, Callable] = {
 }
 
 
-# These are based on attributes of the name of the cmdata
-cmdata_format: tuple[tuple[str, str, str, str, str], ...] = (
-    # cm namespace, cm name prefix, cmdata prefix, cmdata suffix, dataformat
-    # To do an exact match on cmdata set both cmdata prefix and cmdata suffix to the same string
-    # (this will work unless you have a string that contains the same substring twice)
-    ("", "", "caBundle", "caBundle", "CRT"),
-    ("", "image-registry-certificates", "", "", "CRT"),
-    ("", "", "", ".crt", "CRT"),
-    ("", "", "", ".pem", "CRT"),
-    ("", "", "", "client-ca-file", "CRT"),
-    ("", "", "haproxy.cfg", "haproxy.cfg", "HAProxy"),
-    ("", "", "", ".ini", "INI"),
-    ("", "", "", ".ndjson", "NDJSON"),
-    ("", "", "", ".json", "JSON"),
-    ("", "", "", ".json.example", "JSON"),
-    ("", "", "mosquitto.conf", "mosquitto.conf", "mosquitto"),
-    ("", "", "", ".sh", "Shell Script"),
-    ("", "", "", ".svg", "SVG"),
-    ("", "", "", ".toml", "TOML"),
-    ("", "", "", ".xml", "XML"),
-    ("", "", "", ".yaml", "YAML"),
-    ("", "", "", ".yaml.example", "YAML"),
-    ("", "", "", ".yml", "YAML"),
-    ("", "", "known_hosts", "known_hosts", "known_hosts"),
-    ("", "", "ssh_known_hosts", "ssh_known_hosts", "known_hosts"),
-    ("calico-system", "cni-config", "", "", "JSON"),
-    ("", "canal-config", "cni_network_config", "", "JSON"),
-    ("cattle-capi-system", "capi-additional-rbac-roles", "", "manifests", "YAML"),
-    ("", "", "fluentbit.conf", "", "FluentBit"),
-    ("", "intel-iaa-config", "iaa.conf", "iaa.conf", "JSON"),
-    ("istio-system", "istio", "", "", "YAML"),
-    ("", "k10-k10-metering-config", "", "", "YAML"),
-    ("", "kubeapps-clusters-config", "clusters.conf", "", "JSON"),
-    ("", "kubeapps-internal-kubeappsapis-configmap", "plugins.conf", "", "JSON"),
-    ("kubeflow", "centraldashboard-config", "", "", "JSON"),
-    ("kubeflow", "inferenceservice-config", "", "", "JSON"),
-    ("kubeflow", "trial-templates", "", "Template", "YAML"),
-    ("kubeflow", "workflow-controller-configmap", "", "", "YAML"),
-    ("kubescape", "host-scanner-definition", "host-scanner-yaml", "host-scanner-yaml", "YAML"),
-    ("kubescape", "ks-capabilities", "capabilities", "capabilities", "JSON"),
-    ("kubescape", "ks-cloud-config", "clusterData", "clusterData", "JSON"),
-    ("kube-public", "cluster-info", "kubeconfig", "", "YAML"),
-    ("kube-public", "cluster-info", "jws-", "", "JWS"),
-    ("kube-system", "antrea", "antrea-agent", "", "YAML"),
-    ("kube-system", "antrea", "antrea-controller", "", "YAML"),
-    ("kube-system", "antrea", "antrea-cni", "", "JSON"),
-    ("kube-system", "cluster-config", "install-config", "", "YAML"),
-    ("kube-system", "", "cni_network_config", "", "JSON"),
-    ("", "coredns", "Corefile", "", "CaddyFile"),
-    ("kube-system", "rke2-coredns", "Corefile", "", "CaddyFile"),
-    ("kube-system", "rke2-coredns", "linear", "", "YAML"),
-    ("kube-system", "rke2-etcd-snapshots", "", "", "JSON"),
-    ("kube-system", "kubeadm-config", "", "", "YAML"),
-    ("kube-system", "kubeconfig-in-cluster", "kubeconfig", "", "YAML"),
-    ("kube-system", "kubelet-config", "", "", "YAML"),
-    ("kube-system", "kube-proxy", "", "config.conf", "YAML"),
-    ("kube-system", "scheduler-extender-policy", "policy.cfg", "", "JSON"),
-    ("", "", "nginx.conf", "nginx.conf", "NGINX"),
-    ("", "kubeshark-nginx", "default.conf", "default.conf", "NGINX"),
-    ("", "kubeapps", "vhost.conf", "vhost.conf", "NGINX"),
-    ("", "kubeapps", "k8s-api-proxy.conf", "k8s-api-proxy.conf", "NGINX"),
-    ("", "linkerd-config", "values", "", "YAML"),
-    ("", "", "nfd-master.conf", "", "YAML"),
-    ("", "", "nfd-worker.conf", "", "YAML"),
-    ("", "", "resourceClaimParameters.config", "resourceClaimParameters.config", "INI"),
-    ("", "", "vf-memory.config", "vf-memory.config", "JSON"),
-    ("", "trivy-operator", "nodeCollector.volumeMounts", "", "JSON"),
-    ("", "trivy-operator", "nodeCollector.volumes", "", "JSON"),
-    ("", "trivy-operator", "scanJob.podTemplateContainerSecurityContext", "", "JSON"),
-    ("", "", "volcano-admission.conf", "volcano-admission.conf", "YAML"),
-    ("", "", "volcano-scheduler.conf", "volcano-scheduler.conf", "YAML"),
-    ("", "whereabouts-flatfile-config", "whereabouts.conf", "whereabouts.conf", "JSON"),
-    ("", "", "", ".py", "Python"),
-    # Openshift
-    ("", "dns-default", "Corefile", "", "CaddyFile"),
-    ("", "v4-0-config-system-cliconfig", "v4-0-config-system-cliconfig", "", "JSON"),
-    ("openshift-authentication", "v4-0-config-system-metadata", "oauthMetadata", "", "JSON"),
-    ("openshift-config-managed", "oauth-openshift", "oauthMetadata", "", "JSON"),
-    ("openshift-kube-apiserver", "check-endpoints-kubeconfig", "kubeconfig", "", "YAML"),
-    ("openshift-kube-apiserver", "config", "kubeconfig", "", "JSON"),
-    ("openshift-kube-apiserver", "control-plane-node-kubeconfig", "kubeconfig", "", "YAML"),
-    ("openshift-kube-apiserver",
-     "kube-apiserver-cert-syncer-kubeconfig", "kubeconfig", "", "YAML"),
-    ("openshift-kube-apiserver", "oauth-metadata", "oauthMetadata", "", "JSON"),
-    ("openshift-kube-controller-manager",
-     "controller-manager-kubeconfig", "kubeconfig", "", "JSON"),
-    ("openshift-kube-controller-manager",
-     "kube-controller-cert-syncer-kubeconfig", "kubeconfig", "", "JSON"),
-    ("openshift-kube-scheduler",
-     "kube-scheduler-cert-syncer-kubeconfig", "kubeconfig", "", "JSON"),
-    ("openshift-kube-scheduler", "scheduler-kubeconfig", "kubeconfig", "", "JSON"),
-    ("openshift-machine-config-operator", "coreos-bootimages", "stream", "", "JSON"),
-    ("openshift-operator", "applied-cluster", "applied", "", "JSON"),
-    ("openshift-ovn-kubernetes", "ovnkube-config", "ovnkube.conf", "ovnkube.conf", "INI"),
-    # Keep last; match everything that does not match anything
-    ("", "", "", "", "Text"),
-)
+"""
+Signatures used to detect format for ConfigMaps.
+These signatures are based on the names of the ConfigMap and its data.
+
+Fields, in order:
+    Data Format
+    ConfigMap Namespace
+    ConfigMap Name (prefix)
+    ConfigMap Name (suffix)
+    ConfigMap Data Name (prefix)
+    ConfigMap Data Name (suffix)
+
+To do an exact match you can set prefix == suffix.
+Note: This *may* fail if the same substring occurs twice; first and last in the name.
+"""
+cmdata_format: list[tuple[str, str, str, str, str, str]] = []
 
 
 # These are based on the data itself
-cmdata_header: tuple[tuple[str, str], ...] = (
-    ("<?xml ", "XML"),
-    ("/bin/sh", "Shell Script"),
-    ("/usr/bin/env bash", "BASH"),
-    ("/usr/bin/env perl", "Perl"),
-    ("/usr/bin/env python", "Python"),
-    ("/bin/bash", "BASH"),
-    ("/bin/dash", "Shell Script"),
-    ("/bin/zsh", "ZSH"),
-    ("python", "Python"),
-    ("perl", "Perl"),
-    ("perl", "Ruby"),
-    ("-----BEGIN CERTIFICATE-----", "CRT"),
-)
+"""
+Signatures used to detect format for ConfigMaps.
+These signatures are based on the data itself.
+
+Fields, in order:
+    Data Format
+    Data (prefix)
+"""
+cmdata_header: list[tuple[str, str]] = []
 
 
-# Binary file headers
-cmdata_bin_header: tuple[tuple[int, tuple[int, ...], str], ...] = (
-    (0, (0x1f, 0x8b), "gz / tar+gz"),
-    (0, (0x1f, 0x9d), "lzw / tar+lzw"),
-    (0, (0x1f, 0xa0), "lzh / tar+lzh"),
-    (0, (0xfd, 0x37, 0x7a, 0x58, 0x5a, 0x0), "xz / tar+xz"),
-    (0, (0x42, 0x5a, 0x68), "bz2 / tar+bz2"),
-    (0, (0x4c, 0x49, 0x50), "lzip"),
-    (2, (0x2d, 0x68, 0x6c, 0x30, 0x2d), "lzh (no compression)"),
-    (2, (0x2d, 0x68, 0x6c, 0x35, 0x2d), "lzh (8KiB sliding window)"),
-    (0, (0x51, 0x46, 0x49), "qcow"),
-    (0, (0x30, 0x37, 0x30, 0x37, 0x30, 0x37), "cpio"),
-    (0, (0x28, 0xb5, 0x2f, 0xfd), "zstd"),
-    (0, (0x50, 0x4b, 0x03, 0x04), "zip"),
-    (0, (0x50, 0x4b, 0x05, 0x06), "zip (empty)"),
-    (0, (0x50, 0x4b, 0x07, 0x08), "zip (spanned archive)"),
-    (0, (0x52, 0x61, 0x72, 0x21, 0x1a, 0x07, 0x00), "rar (v1.50+)"),
-    (0, (0x52, 0x61, 0x72, 0x21, 0x1a, 0x07, 0x01, 0x00), "rar (v5.00+)"),
-    (0, (0x7f, 0x45, 0x4c, 0x46), "ELF"),
-    (0x8001, (0x43, 0x44, 0x30, 0x30, 0x31), "ISO 9660"),
-    (0x8801, (0x43, 0x44, 0x30, 0x30, 0x31), "ISO 9660"),
-    (0x9001, (0x43, 0x44, 0x30, 0x30, 0x31), "ISO 9660"),
-    (0, (0x75, 0x73, 0x74, 0x61, 0x72, 0x00, 0x30, 0x30), "tar"),
-    (0, (0x75, 0x73, 0x74, 0x61, 0x72, 0x20, 0x20, 0x00), "tar"),
-    (0, (0x78, 0x61, 0x72, 0x21), "xar"),
-    (0, (0x21, 0x3c, 0x61, 0x72, 0x63, 0x68, 0x3e, 0x0a), "deb"),
-    (0, (0xed, 0xab, 0xee, 0xdb), "rpm"),
-)
+"""
+Signatures used to detect format for ConfigMaps.
+These signatures are based on the data itself, in binary format.
+
+Fields, in order:
+    Data Format
+    Offset
+    Data (array)
+"""
+cmdata_bin_header: list[tuple[str, int, tuple[int, ...]]] = []
+
+
+"""
+Overrides for base64 detection; some short ASCII strings
+are indistinguishable from base64; override some of the false positives
+we've found.
+"""
+cmdata_base64_overrides: list[str] = []
+
+
+# pylint: disable-next=too-many-locals,too-many-branches
+def import_configmap_signatures() -> StatusGroup:
+    """
+    Import configmap signatures and populate cmdata_format,
+    cmdata_header, and cmdata_bin_header.
+
+        Returns:
+                (status): StatusGroup.OK on success, StatusGroup.WARNING
+                          if file or path doesn't exist
+        Raises:
+            ruyaml.composer.ComposerError (synchronous mode)
+            ruyaml.parser.ParserError (synchronous mode)
+            ruyaml.scanner.ScannerError (synchronous mode)
+            ruyaml.constructor.DuplicateKeyError (synchronous mode)
+            yaml.parser.ParserError (asynchronous mode)
+            cmttypes.FilePathAuditError
+    """
+    global cmdata_format  # pylint: disable=global-statement
+    global cmdata_header  # pylint: disable=global-statement
+    global cmdata_bin_header  # pylint: disable=global-statement
+    global cmdata_base64_overrides  # pylint: disable=global-statement
+
+    new_cmdata_format: list[tuple[str, str, str, str, str, str]] = []
+    new_cmdata_header: list[tuple[str, str]] = []
+    new_cmdata_bin_header: list[tuple[str, int, tuple[int, ...]]] = []
+    status: StatusGroup = StatusGroup.OK
+
+    d: dict[str, Any] = {}
+
+    parser_dirs = []
+    parser_dirs += deep_get(cmtlib.cmtconfig, DictPath("Pod#local_parsers"), [])
+    parser_dirs.append(PARSER_DIR)
+    parser_dirs.append(SYSTEM_PARSERS_DIR)
+
+    for parser_dir in parser_dirs:
+        if parser_dir.startswith("{HOME}"):
+            parser_dir = parser_dir.replace("{HOME}", HOMEDIR, 1)
+
+        path = Path(parser_dir).joinpath("configmaps.yaml")
+        if not path.is_file():
+            continue
+
+        if not cmdata_format:
+            try:
+                d = cast(dict, secure_read_yaml(FilePath(path),
+                                                directory_is_symlink=True, asynchronous=True))
+            except FilePathAuditError as e:
+                if "SecurityStatus.PARENT_DOES_NOT_EXIST" in str(e) \
+                        or "SecurityStatus.DOES_NOT_EXIST" in str(e):
+                    status = StatusGroup.WARNING
+                else:
+                    raise
+
+        cmdata_base64_overrides = deep_get(d, DictPath("base64_overrides"), [])
+
+        # The key is just the group for the type and can be safely ignored
+        for _key, entry in deep_get(d, DictPath("configmap_signatures"), {}).items():
+            format_name = deep_get(entry, DictPath("format_name"), "<unknown>")
+            for signature in deep_get(entry, DictPath("signatures"), []):
+                # Namespace of the ConfigMap
+                namespace: str = deep_get(signature, DictPath("namespace"), "")
+                # Name of the ConfigMap; prefix and suffix
+                name_prefix: str = deep_get(signature, DictPath("prefix"), "")
+                name_suffix: str = deep_get(signature, DictPath("suffix"), "")
+                # Name of the data; prefix and suffix
+                data_prefix: str = deep_get(signature, DictPath("data_prefix"), "")
+                data_suffix: str = deep_get(signature, DictPath("data_suffix"), "")
+                # Content of the data; string and binary
+                data_header: str = deep_get(signature, DictPath("data_header"), "")
+                data_offset: int = deep_get(signature, DictPath("data_header"), 0x0)
+                data_binary: list[int] = deep_get(signature, DictPath("data_binary"), [])
+
+                if any((namespace, name_prefix, name_suffix, data_prefix, data_suffix)):
+                    new_cmdata_format.append((format_name, namespace, name_prefix, name_suffix,
+                                              data_prefix, data_suffix))
+                if data_header:
+                    new_cmdata_header.append((format_name, data_header))
+                if data_binary:
+                    new_cmdata_bin_header.append((format_name, data_offset, tuple(data_binary)))
+
+                # This is a catch-all.
+                if not any((namespace, name_prefix, name_suffix,
+                            data_prefix, data_suffix, data_header, data_binary)):
+                    new_cmdata_format.append((format_name, namespace, name_prefix, name_suffix,
+                                              data_prefix, data_suffix))
+
+    if new_cmdata_format:
+        cmdata_format = new_cmdata_format
+        cmdata_header = new_cmdata_header
+        cmdata_bin_header = new_cmdata_bin_header
+
+    return status
 
 
 # pylint: disable-next=too-many-locals,too-many-branches
@@ -1796,10 +1800,19 @@ def identify_cmdata(cmdata_name: str, cm_name: str,
                 description (str): The description of the format
                 formatter (Callable): The formatter to use
     """
+    uudata: bool = False
+
     if not data:
         return "Empty", format_none
 
-    uudata: bool = False
+    if not cmdata_format:
+        # This will populate cmdata_format, cmdata_header, and cmdata_bin_header
+        _status = import_configmap_signatures()
+
+    # For very short strings b64decode cannot tell the difference between
+    # bas64 data and ASCII. Add workarounds for some very common short strings.
+    if data in cmdata_base64_overrides:
+        return "Text", format_none
 
     if "\n" not in data:
         try:
@@ -1813,7 +1826,7 @@ def identify_cmdata(cmdata_name: str, cm_name: str,
         try:
             data = decoded.decode("utf-8")
         except UnicodeDecodeError:
-            for offset, match_bin_infix, dataformat in cmdata_bin_header:
+            for dataformat, offset, match_bin_infix in cmdata_bin_header:
                 if len(decoded) < len(match_bin_infix) + offset:
                     continue
 
@@ -1828,17 +1841,21 @@ def identify_cmdata(cmdata_name: str, cm_name: str,
     # or other type of signature to help
     if splitmsg and splitmsg[0].startswith(("#!", "-----")):
         for tmp in cmdata_header:
-            match_infix, dataformat = tmp
+            tmp_dataformat, match_infix = tmp
             if match_infix in data:
+                dataformat = tmp_dataformat
                 break
 
     if not dataformat:
-        for match_cm_namespace, match_cm_name, \
-                match_cmdata_prefix, match_cmdata_suffix, dataformat in cmdata_format:
+        for tmp_dataformat, match_cm_namespace, match_cm_name_prefix, match_cm_name_suffix, \
+                match_cmdata_prefix, match_cmdata_suffix in cmdata_format:
+            # pylint: disable-next=too-many-boolean-expressions
             if ((not match_cm_namespace or match_cm_namespace == cm_namespace)
-                    and cm_name.startswith(match_cm_name)
+                    and cm_name.startswith(match_cm_name_prefix)
+                    and cm_name.endswith(match_cm_name_suffix)
                     and cmdata_name.startswith(match_cmdata_prefix)
                     and cmdata_name.endswith(match_cmdata_suffix)):
+                dataformat = tmp_dataformat
                 break
 
     formatter = map_dataformat(dataformat)

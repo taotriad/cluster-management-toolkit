@@ -4092,7 +4092,10 @@ def init_parser_list() -> None:
         for ppath in cast(list[Path], natsorted(Path(parser_dir).iterdir())):
             filename = ppath.name
 
-            if filename.startswith(("~", ".")) or not filename.endswith((".yaml", ".yml")):
+            if filename.startswith(("~", ".")) \
+                    or not filename.endswith((".yaml", ".yml")) \
+                    or filename.endswith("configmaps.yaml"):
+
                 continue
 
             parser_files.append(FilePath(ppath))

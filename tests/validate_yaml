@@ -118,6 +118,10 @@ def validate_file(yaml_path: str, schema_path: str,
         if verbose > 2:
             msg = f"\n{yaml_path} is excluded; skipping.\n"
         retval = -1
+    elif yaml_path.endswith("configmaps.yaml"):
+        if verbose > 2:
+            msg = f"\n{yaml_path} is the configmaps mapping; skipping; skipping.\n"
+        retval = -1
     elif yaml_path.endswith("BUNDLE.yaml"):
         if verbose > 2:
             msg = f"\n{yaml_path} is a bundle; skipping.\n"
