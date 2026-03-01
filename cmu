@@ -10936,19 +10936,31 @@ COMMANDLINE: dict[str, CommandType] = {
                     "validator": "regex",
                     # In order:
                     # object (RFC-1123 dns-subdomain)
-                    # object (RFC-1123 dns-subdomain):container (RFC-1123 dns-label)
+                    # [object (RFC-1123 dns-subdomain):container (RFC-1123 dns-label)]
+                    # object (RFC-1123 dns-subdomain):configmap_data ([A-Za-z0-9_.-)
                     # namespace (RFC-1123 dns-label)/name (RFC-1123 dns-subdomain)
-                    # namespace (RFC-1123 dns-label)/name (RFC-1123 dns-subdomain):container
-                    # (RFC-1123 dns-label)
+                    # [namespace (RFC-1123 dns-label)/name (RFC-1123 dns-subdomain):container]
+                    # namespace (RFC-1123 dns-label)/name (RFC-1123 dns-subdomain):configmap_data
+                    # ([A-Za-z0-9_.-])
+                    #
+                    # Note that containers will be accepted by the configmap_data regex,
+                    # and thus does not need a separate regex. This means that invalid
+                    # container names can be specified, but this isn't an issue since at worst
+                    # cmu will simply fail to find them.
+                    #
+                    # Maybe we should modify the command parser to optionally split using
+                    # a regex before checking arguments?
+                    # we could do r"([^/]*)/?([^:]+):?(.*)" and validate each individual
+                    # component separately. This wouldn't solve the Pod/ConfigMap/others
+                    # issue, but it'd make things clearer. We could then use different
+                    # validators for different components instead of having to use regex.
                     "regex":
                         r"^("
-                        r"[a-z0-9][a-z0-9.-]{0,251}[a-z0-9]?|"
-                        r"[a-z0-9][a-z0-9.-]{0,251}[a-z0-9]?:|"
-                        r"[a-z0-9][a-z0-9.-]{0,251}[a-z0-9]?:[a-z0-9][a-z0-9.-]{0,61}[a-z0-9]?|"
-                        r"[a-z0-9][a-z0-9.-]{0,61}[a-z0-9]/[a-z0-9][a-z0-9.-]{0,251}[a-z0-9]?|"
-                        r"[a-z0-9][a-z0-9.-]{0,61}[a-z0-9]/[a-z0-9][a-z0-9.-]{0,251}[a-z0-9]?:|"
+                        r"[a-z0-9][a-z0-9.-]{0,251}[a-z0-9]?:?|"
+                        r"[a-z0-9][a-z0-9.-]{0,251}[a-z0-9]?:[a-z0-9][a-z0-9._-]{0,61}[a-z0-9]?|"
+                        r"[a-z0-9][a-z0-9.-]{0,61}[a-z0-9]/[a-z0-9][a-z0-9.-]{0,251}[a-z0-9]?:?|"
                         r"[a-z0-9][a-z0-9.-]{0,61}[a-z0-9]/[a-z0-9][a-z0-9.-]{0,251}[a-z0-9]?:"
-                        r"[a-z0-9][a-z0-9.-]{0,61}[a-z0-9]?"
+                        r"[a-z0-9][a-z0-9._-]{0,61}[a-z0-9]?"
                         r")$",
                 },
             },
