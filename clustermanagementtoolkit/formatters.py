@@ -568,7 +568,11 @@ def format_yaml(lines: str | list[str] | dict | list[dict], **kwargs: Any) -> \
     if isinstance(lines, str):
         if is_json or (lines.startswith("{") and lines.rstrip().endswith("}") and unfold_msg):
             try:
-                d = json.loads(lines)
+                # Treat json as YAML; in case we misidentify YAML as JSON we might
+                # fail to decode the data. YAML is more forgiving. Note that this
+                # may result in the file being reformatted. This isn't ideal,
+                # but it's the only reliable way to be able to expand a JSON/YAML structure.
+                d = yaml.safe_load(lines)
                 lines = [json_dumps(d)]
             except DecodeException:
                 return format_none(lines)
