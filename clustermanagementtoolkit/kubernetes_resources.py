@@ -291,9 +291,13 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
                       "apis/gateway.networking.k8s.io/v1beta1/"],
         "api": "httproutes",
     },
+    ("ListenerSet", "gateway.networking.k8s.io"): {
+        "api_paths": ["apis/gateway.networking.k8s.io/v1/"],
+        "api": "listenersets",
+    },
     ("ReferenceGrant", "gateway.networking.k8s.io"): {
-        "api_paths": ["apis/gateway.networking.k8s.io/v1beta1/",
-                      "apis/gateway.networking.k8s.io/v1alpha2/"],
+        "api_paths": ["apis/gateway.networking.k8s.io/v1/",
+                      "apis/gateway.networking.k8s.io/v1beta1/"],
         "api": "referencegrants",
     },
     ("TCPRoute", "gateway.networking.k8s.io"): {
@@ -301,8 +305,7 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api": "tcproutes",
     },
     ("TLSRoute", "gateway.networking.k8s.io"): {
-        "api_paths": ["apis/gateway.networking.k8s.io/v1alpha3/",
-                      "apis/gateway.networking.k8s.io/v1alpha2/"],
+        "api_paths": ["apis/gateway.networking.k8s.io/v1/"],
         "api": "tlsroutes",
     },
     ("UDPRoute", "gateway.networking.k8s.io"): {
@@ -732,9 +735,21 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api_paths": ["apis/inference.networking.x-k8s.io/v1alpha2/"],
         "api": "inferencemodels",
     },
+    ("InferenceModelRewrite", "inference.networking.x-k8s.io"): {
+        "api_paths": ["apis/inference.networking.x-k8s.io/v1alpha2/"],
+        "api": "inferencemodelrewrites",
+    },
+    ("InferenceObjective", "inference.networking.x-k8s.io"): {
+        "api_paths": ["apis/inference.networking.x-k8s.io/v1alpha2/"],
+        "api": "inferenceobjectives",
+    },
     ("InferencePool", "inference.networking.x-k8s.io"): {
         "api_paths": ["apis/inference.networking.x-k8s.io/v1alpha2/"],
         "api": "inferencepools",
+    },
+    ("InferencePoolImport", "inference.networking.x-k8s.io"): {
+        "api_paths": ["apis/inference.networking.x-k8s.io/v1alpha1/"],
+        "api": "inferencepoolimports",
     },
     # infrastructure.cluster.x-k8s.io
     ("AWSClusterControllerIdentity", "infrastructure.cluster.x-k8s.io"): {
