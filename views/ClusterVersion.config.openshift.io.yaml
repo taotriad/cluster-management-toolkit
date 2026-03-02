@@ -94,8 +94,10 @@ infoview:
   infopad:
     row_indexes:
       Normal:
-        fields: ["channel", "cluster_id", "desired_channels",
-                 "desired_image", "desired_url", "desired_version"]
+        fields: ["channel", "cluster_id",
+                 "desired_header",
+                 "desired_channels", "desired_image",
+                 "desired_url", "desired_version"]
     rows:
       channel:
         header: [["Channel:", ["main", "infoheader"]]]
@@ -105,17 +107,20 @@ infoview:
         header: [["Cluster ID:", ["main", "infoheader"]]]
         path: "spec#clusterID"
         type: "str"
+        formatter: "hex"
       desired_channels:
-        header: [["Desired Channel:", ["main", "infoheader"]]]
+        header: [["  Channel:", ["main", "infoheader"]]]
         path: "status#desired#channels"
         type: "raw"
         formatter: "list"
+      desired_header:
+        header: [["Desired:", ["main", "infoheader"]]]
       desired_image:
-        header: [["Desired Image:", ["main", "infoheader"]]]
+        header: [["  Image:", ["main", "infoheader"]]]
         path: "status#desired#image"
         type: "str"
       desired_url:
-        header: [["Desired ", ["main", "infoheader"]],
+        header: [["  ", ["main", "infoheader"]],
                  ["U", ["main", "infoheader_shortcut"]],
                  ["RL:", ["main", "infoheader"]]]
         path: "status#desired#url"
@@ -124,7 +129,7 @@ infoview:
           field_colors:
             - type: "url"
       desired_version:
-        header: [["Desired Version:", ["main", "infoheader"]]]
+        header: [["  Version:", ["main", "infoheader"]]]
         path: "status#desired#version"
         type: "str"
         formatting:
@@ -174,6 +179,17 @@ infoview:
         path: "unmanaged"
         type: "bool"
   shortcuts:
+    "Enabled Capabilities":
+      key: "c"
+      modifier: "shift"
+      read_only: true
+      helptext: "List enabled capabilities"
+      widget: "windowwidget"
+      title: "Enabled Capabilities:"
+      # headers: ["Key:", "Value:"]
+      itemgetter: "get_list_as_list"
+      itemgetter_args:
+        path: "status#capabilities#enabledCapabilities"
     "Open URL":
       key: "u"
       modifier: "shift"

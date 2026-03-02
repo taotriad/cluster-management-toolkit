@@ -333,12 +333,14 @@ def get_list_as_string(obj: dict, **kwargs: Any) -> list[tuple[str]]:
 # pylint: disable-next=too-many-branches,too-many-locals
 def get_list_as_list(obj: dict, **kwargs: Any) -> list[Any]:
     """
-    Get data in list format.
+    Get data in list format; if multiple lists are provided
+    each list will be treated as a separate column
 
         Parameters:
             obj (dict): The object to get data from
             **kwargs (dict[str, Any]): Keyword arguments
                 path (str): The path to the list
+                paths (str): The path to the list
         Returns:
             ([dict]): A list of data
     """
