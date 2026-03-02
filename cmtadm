@@ -101,7 +101,7 @@ from clustermanagementtoolkit import cmtlib
 from clustermanagementtoolkit.cmtlib import check_versions_apt
 from clustermanagementtoolkit.cmtlib import check_versions_yum, check_versions_zypper
 from clustermanagementtoolkit.cmtlib import get_latest_upstream_version
-from clustermanagementtoolkit.cmtlib import identify_distro, read_cmtconfig
+from clustermanagementtoolkit.cmtlib import identify_arch, identify_distro, read_cmtconfig
 from clustermanagementtoolkit.cmtlib import substitute_list, substitute_string
 
 from clustermanagementtoolkit.cni_data import cni_data
@@ -824,8 +824,13 @@ def __upgrade_cni(cni: str, upgradetype: str, context: str,
     if upgradetype not in ("CNI", "executable"):
         raise ValueError(f"Unknown upgradetype {upgradetype}; this is a programming error.")
 
-    # FIXME: for now we hardcode this
-    arch = "amd64"
+    arch_aliases = deep_get(cni_data, DictPath(f"{cni}#{upgradetype}#arch_aliases"), {})
+
+    # Just to mess things up it's not enough to know the arch that the distro
+    # expects; we sometimes need the arch that github expects.
+    arch = identify_arch()
+    arch = deep_get(arch_aliases, DictPath(arch), arch)
+
     version_command = deep_get(cni_data, DictPath(f"{cni}#{upgradetype}#version_command"))
     version_command_regex = deep_get(cni_data, DictPath(f"{cni}#{upgradetype}#version_regex"))
     candidate_version_url = \

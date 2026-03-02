@@ -42,7 +42,7 @@ We aim for CMT v0.9.0 to be the first release with distro packages.
 <!--
 | Filename | sha512 hash |
 | :------- | :---------- |
-| [fixme](https://fixme) (Debian 11+ amd64 / Ubuntu 22.04+) | `fixme` |
+| [fixme](https://fixme) (Debian 11+ all / Ubuntu 22.04+ all / Raspberry Pi OS arm64) | `fixme` |
 | [fixme](https://fixme) (RHEL 9+ amd64) | `fixme` |
 | [fixme](https://fixme) (SLES/openSUSE 15.4+ amd64) | `fixme` |
 -->

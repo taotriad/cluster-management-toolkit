@@ -1,14 +1,17 @@
 # Pre-requisites / tested platforms for the toolkit
 
-The installer, `cmt-install` has only been tested on Debian, Ubuntu, and openSUSE/SLES.
-Any up to date Debian-derivative is likely work, but openSUSE 15/SLES 15 should work too,
-as long as python39 or later is installed.
+The installer, `cmt-install` has only been tested on Debian, Ubuntu, Raspberry Pi OS,
+openSUSE/SLES, and Red Hat Enterprise Linux.
 
 If the dependencies are installed manually, any distro or self-compiled
 system that provides recent enough versions of all pre-requisites should be expected to work.
 Windows is not supported at the moment, and is unlikely to work even
 if all dependencies are been provided manually, due to differences
 in path lookup and various I/O-operations.
+
+macOS support will be added when a suitable development system is availble.
+With today's memory prices even a Mac Mini is too expensive to buy for the singular
+purpose of just adding macOS support.
 
 ## Dependencies for the toolkit (from `requirements.txt`)
 
@@ -17,7 +20,7 @@ in path lookup and various I/O-operations.
 * `python3-jinja2` (>= 3.1.6)
 * `python3-natsort` (>= 8.0.2)
 * `python3-prctl` (not a strict necessity, recommended for cleaner ps output)
-* `python3-ruyaml` _or_ `python3-ruamel` (ruyaml seems to be more actively maintained, but either is fine)
+* `python3-ruyaml` _or_ `python3-ruamel.yaml` (ruyaml seems to be more actively maintained, but either is fine)
 * `python3-ujson` (>= 5.4.0; not a strict necessity, just a nice performance improvement)
 * `python3-urllib3` (>= 2.6.3)
 * `python3-validators` (>= 0.22.0)
@@ -27,7 +30,8 @@ in path lookup and various I/O-operations.
 
 The development platforms for __CMT__ are Debian and Ubuntu, and those two are thus the most tested platforms.
 __CMT__ support for openSUSE/SLES, RHEL8, and Fedora systems has also been added, but the support for those platforms
-are less tested and may have limitations. Notably _CRI-O_ is currently not supported on RHEL8.
+are is tested and may have limitations. Notably _CRI-O_ is currently not supported on RHEL8 (and has not been tested
+on RHEL9).
 
 Other distributions are not supported at this point. This also applies to Windows.
 
@@ -43,8 +47,9 @@ completely (*not recommended*).
 
 # Supported hardware architectures
 
-The only supported hardware architecture at the moment is _x86-64_/_amd64_.
-_arm_, _arm64_, _ppc64le_, and _s390x_ are not supported, but may be added if there's interest.
+_CMT_ has been tested to work on _x86-64_/_amd64_ (many different systems) and on _arm64_ (Raspberry Pi 5).
+No tests have been made on _ppc64le_, and _s390x_, but as long as the required dependencies
+are available there are no reasons for it not to work. Feel free to report success/failure.
 
 # Other pre-requisites
 

@@ -283,6 +283,10 @@ cni_data: dict[str, dict[str, CNIDataType]] = {
                     "filename": "kubectl-calico",
                 }
             ]
+            "arch_aliases": {
+                "x86_64": "amd64",
+                "aarch64": "arm64",
+            },
         },
         "CNI": {
             "version_command": ["kubectl", "calico", "version"],
@@ -338,6 +342,10 @@ cni_data: dict[str, dict[str, CNIDataType]] = {
                     "filename": "cilium",
                 }
             ],
+            "arch_aliases": {
+                "x86_64": "amd64",
+                "aarch64": "arm64",
+            },
         },
         "CNI": {
             "version_command": ["cilium", "--context", "<<<context>>>", "version"],
