@@ -282,7 +282,7 @@ cni_data: dict[str, dict[str, CNIDataType]] = {
                     "checksum_type": "sha256",
                     "filename": "kubectl-calico",
                 }
-            ]
+            ],
             "arch_aliases": {
                 "x86_64": "amd64",
                 "aarch64": "arm64",
