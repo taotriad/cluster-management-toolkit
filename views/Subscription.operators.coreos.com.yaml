@@ -25,6 +25,13 @@ listview:
       header: "Source:"
       path: "spec#source"
       type: "str"
+  actions:
+    actionlist:
+      "Delete resource":
+        description: "Delete resource"
+        category: "Resource Level"
+        confirm: true
+        actionfunc: "delete_resource"
 infoview:
   name: "Subscription Info"
   infopad:
@@ -34,11 +41,13 @@ infoview:
                  "current_csv", "installed_csv", "state"]
     rows:
       current_csv:
-        header: [["Current CSV:", ["main", "infoheader"]]]
-        path: "status#installedCSV"
+        header: [["Current Cluster Service Version:", ["main", "infoheader"]]]
+        path: "status#currentCSV"
         type: "str"
       installed_csv:
-        header: [["Installed CSV:", ["main", "infoheader"]]]
+        header: [["Installed ", ["main", "infoheader"]],
+                 ["C", ["main", "infoheader_shortcut"]],
+                 ["luster Service Version:", ["main", "infoheader"]]]
         path: "status#installedCSV"
         type: "str"
       install_plan:
@@ -137,6 +146,19 @@ infoview:
           field_colors:
             - type: "namespace"
   shortcuts:
+    "CSV":
+      key: "c"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for Cluster Service Version"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind: "ClusterServiceVersion"
+        api_family: "operators.coreos.com"
+        name_path: "status#installedCSV"
+        namespace_path: "metadata#namespace"
     "Install Plan":
       key: "i"
       modifier: "shift"
