@@ -599,6 +599,10 @@ listview:
               field_colors:
                 - context: "main"
                   type: "status_warning"
+            DisabledCopiedCSVs:
+              field_colors:
+                - context: "main"
+                  type: "status_warning"
             DNSConfigForming:
               field_colors:
                 - context: "main"
@@ -3092,6 +3096,10 @@ infoview:
                   - context: "main"
                     type: "status_warning"
               DetectedUnhealthy:
+                field_colors:
+                  - context: "main"
+                    type: "status_warning"
+              DisabledCopiedCSVs:
                 field_colors:
                   - context: "main"
                     type: "status_warning"

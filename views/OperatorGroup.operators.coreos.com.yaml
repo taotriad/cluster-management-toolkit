@@ -22,8 +22,10 @@ infoview:
   infopad:
     row_indexes:
       Normal:
-        fields: ["cluster_version", "target_namespaces",
-                 "namespaces", "upgrade_strategy", "last_updated"]
+        fields: ["cluster_version", "static_provided_apis",
+                 "target_namespaces", "namespace_label_selector",
+                 "namespaces", "service_account",
+                 "upgrade_strategy", "last_updated"]
     rows:
       cluster_version:
         header: [["Cluster ", ["main", "infoheader"]],
@@ -44,20 +46,48 @@ infoview:
         default: -1
         type: "timestamp"
         formatter: "timestamp"
+      namespace_label_selector:
+        header: [["Namespace La", ["main", "infoheader"]],
+                 ["b", ["main", "infoheader_shortcut"]],
+                 ["el Selector:", ["main", "infoheader"]]]
+        paths:
+          - path: ["spec#selector#matchLabels"]
+            pathtype: "key_value"
+            default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "key"
+            - type: "value"
+          field_separators:
+            - type: "selector"
       namespaces:
         header: [["Name", ["main", "infoheader"]],
                  ["s", ["main", "infoheader_shortcut"]],
                  ["paces:", ["main", "infoheader"]]]
         path: "status#namespaces"
+        default: ["<none>"]
         type: "raw"
         formatter: "list"
         formatting:
           field_colors:
             - type: "namespace"
+      service_account:
+        header: [["S", ["main", "infoheader_shortcut"]],
+                 ["ervice Account:", ["main", "infoheader"]]]
+        path: "spec#serviceAccountName"
+        default: "<unset>"
+        type: "str"
+      static_provided_apis:
+        header: [["Static Provided APIs:", ["main", "infoheader"]]]
+        path: "spec#staticProvidedAPIs"
+        default: "<unset>"
+        type: "bool"
       target_namespaces:
         header: [["T", ["main", "infoheader_shortcut"]],
                  ["arget Namespaces:", ["main", "infoheader"]]]
         path: "spec#targetNamespaces"
+        default: ["ALL NAMESPACES"]
         type: "raw"
         formatter: "list"
         formatting:
@@ -81,6 +111,28 @@ infoview:
         owner_reference_path: "metadata#ownerReferences"
         kind: "ClusterVersion"
         api_family: "config.openshift.io"
+    "Namespace Label Selector":
+      key: "b"
+      read_only: true
+      helptext: "Show namespace label selector"
+      widget: "windowwidget"
+      title: "Namespace Label Selector:"
+      headers: ["Key:", "Value:"]
+      itemgetter: "get_key_value"
+      itemgetter_args:
+        path: "spec#selector#matchLabels"
+    "Service Account":
+      key: "s"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for Service Account"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind: "ServiceAccount"
+        namespace_path: "metadata#namespace"
+        name_path: "spec#serviceAccountName"
     "Show Namespace list":
       key: "s"
       read_only: true

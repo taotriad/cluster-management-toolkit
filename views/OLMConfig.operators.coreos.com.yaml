@@ -16,7 +16,8 @@ infoview:
   infopad:
     row_indexes:
       Normal:
-        fields: ["cluster_version"]
+        fields: ["cluster_version",
+                 "disable_copied_csvs", "package_server_sync_interval"]
     rows:
       cluster_version:
         header: [["Cluster ", ["main", "infoheader"]],
@@ -31,6 +32,17 @@ infoview:
               - key: "kind"
                 eq: "ClusterVersion"
         default: "<none>"
+      disable_copied_csvs:
+        header: [["Disable Copied CSVs:", ["main", "infoheader"]]]
+        path: "spec#features#disableCopiedCSVs"
+        default: false
+        type: "bool"
+      package_server_sync_interval:
+        header: [["Package Server Sync Interval:", ["main", "infoheader"]]]
+        path: "spec#features#packageServerSyncInterval"
+        default: "12h"
+        type: "str"
+        formatter: "numerical"
   shortcuts:
     "Cluster Version":
       key: "v"

@@ -111,6 +111,7 @@ infoview:
         header: [["S", ["main", "infoheader_shortcut"]],
                  ["ervice Account:", ["main", "infoheader"]]]
         path: "spec#serviceAccountName"
+        default: "<unset>"
         type: "str"
   listpad:
     listgetter: "listgetter_join_dicts_to_list"

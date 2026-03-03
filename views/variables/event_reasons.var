@@ -528,6 +528,10 @@ DetectedUnhealthy:
   field_colors:
     - context: "main"
       type: "status_warning"
+DisabledCopiedCSVs:
+  field_colors:
+    - context: "main"
+      type: "status_warning"
 DNSConfigForming:
   field_colors:
     - context: "main"
