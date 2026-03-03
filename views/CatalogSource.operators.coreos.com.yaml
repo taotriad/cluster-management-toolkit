@@ -47,8 +47,17 @@ infoview:
         type: "str"
       image:
         header: [["Image:", ["main", "infoheader"]]]
-        path: "spec#image"
-        type: "str"
+        paths:
+          - path: "spec#image"
+            pathtype: "regex"
+            regex: "^([^:]+):(.*)"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "generic"
+            - type: "version"
+          field_separators:
+            - type: "version"
       priority:
         header: [["Priority:", ["main", "infoheader"]]]
         path: "spec#priority"
@@ -63,3 +72,14 @@ infoview:
         header: [["Source Type:", ["main", "infoheader"]]]
         path: "spec#sourceType"
         type: "str"
+  shortcuts:
+    "gRPC Pod Config":
+      key: "g"
+      helptext: "Show gRPC Pod Config"
+      read_only: true
+      action: "call"
+      action_call: "view_yaml"
+      action_args:
+        title: "gRPC Pod Config"
+        _pass_obj: true
+        path: "spec#grpcPodConfig"

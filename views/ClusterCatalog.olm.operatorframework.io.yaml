@@ -86,9 +86,17 @@ infoview:
         header: [["Source:", ["main", "infoheader"]]]
       source_image_ref:
         header: [["  Image Ref:", ["main", "infoheader"]]]
-        path: "spec#source#image#ref"
-        default: "<unset>"
-        type: "str"
+        paths:
+          - path: "spec#source#image#ref"
+            pathtype: "regex"
+            regex: "^([^:]+):(.*)"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "generic"
+            - type: "version"
+          field_separators:
+            - type: "version"
       source_image_poll_interval:
         header: [["  Image Poll Interval:", ["main", "infoheader"]]]
         path: "spec#source#image#pollIntervalMinutes"
@@ -99,9 +107,17 @@ infoview:
           unit: "m"
       source_resolved_image_ref:
         header: [["  Resolved Image Ref:", ["main", "infoheader"]]]
-        path: "status#resolvedSource#image#ref"
-        default: "<unset>"
-        type: "str"
+        paths:
+          - path: "status#resolvedSource#image#ref"
+            pathtype: "regex"
+            regex: "^([^:]+):(.*)"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "generic"
+            - type: "version"
+          field_separators:
+            - type: "version"
       source_resolved_type:
         header: [["  Resolved Type:", ["main", "infoheader"]]]
         path: "status#resolvedSource#type"

@@ -9,15 +9,21 @@ listview:
   group: "API & Extendability"
   field_indexes:
     Normal:
-      fields: ["namespace", "name", "age"]
+      fields: ["namespace", "name", "upgrade_strategy", "age"]
       sortcolumn: "namespace"
+  fields:
+    upgrade_strategy:
+      header: "Upgrade Strategy:"
+      path: "spec#upgradeStrategy"
+      default: "<unset>"
+      type: "str"
 infoview:
   name: "Operator Group Info"
   infopad:
     row_indexes:
       Normal:
         fields: ["cluster_version", "target_namespaces",
-                 "namespaces", "last_updated"]
+                 "namespaces", "upgrade_strategy", "last_updated"]
     rows:
       cluster_version:
         header: [["Cluster ", ["main", "infoheader"]],
@@ -57,6 +63,11 @@ infoview:
         formatting:
           field_colors:
             - type: "namespace"
+      upgrade_strategy:
+        header: [["Upgrade Strategy:", ["main", "infoheader"]]]
+        path: "spec#upgradeStrategy"
+        default: "<unset>"
+        type: "str"
   shortcuts:
     "Cluster Version":
       key: "v"

@@ -3,7 +3,8 @@ kind: "InstallPlan"
 api_family: "operators.coreos.com"
 default_command: "installplans"
 # Not sure InstallPlan deserves a 2-letter abbreviation,
-# even if the CRD thinks so
+# even if the CRD thinks so, especially since there are CRDs
+# for IP-addressess...
 # command:
 # - "ip"
 listview:
@@ -11,7 +12,8 @@ listview:
   group: "API & Extendability"
   field_indexes:
     Normal:
-      fields: ["namespace", "name", "csv", "approval", "approved", "age"]
+      fields: ["namespace", "name", "csv", "approval", "approved", "phase",
+               "age"]
       sortcolumn: "namespace"
   fields:
     approval:
@@ -22,6 +24,18 @@ listview:
       header: "Approved:"
       path: "spec#approved"
       type: "bool"
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          mappings:
+            "True":
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+            "False":
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
     csv:
       header: "CSV:"
       paths:
@@ -30,6 +44,34 @@ listview:
           # We only want the first version in the list
           limit: 1
       formatter: "list"
+    phase:
+      header: "Phase:"
+      path: "status#phase"
+      type: "str"
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          mappings:
+            Complete:
+              field_colors:
+                - context: "main"
+                  type: "status_done"
+            Failed:
+              field_colors:
+                - context: "main"
+                  type: "status_not_ok"
+            Installing:
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+            Planning:
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+            RequiresApproval:
+              field_colors:
+                - context: "main"
+                  type: "status_highlight"
 infoview:
   name: "Install Plan Info"
   infopad:
@@ -46,6 +88,18 @@ infoview:
         header: [["Approved:", ["main", "infoheader"]]]
         path: "spec#approved"
         type: "bool"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              "True":
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+              "False":
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
       cluster_service_version:
         header: [["C", ["main", "infoheader_shortcut"]],
                  ["luster Service Version:", ["main", "infoheader"]]]
@@ -63,10 +117,26 @@ infoview:
         formatting:
           mapping:
             mappings:
-              "Complete":
+              Complete:
                 field_colors:
                   - context: "main"
                     type: "status_done"
+              Failed:
+                field_colors:
+                  - context: "main"
+                    type: "status_not_ok"
+              Installing:
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+              Planning:
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+              RequiresApproval:
+                field_colors:
+                  - context: "main"
+                    type: "status_highlight"
       subscription:
         header: [["S", ["main", "infoheader_shortcut"]],
                  ["ubscription:", ["main", "infoheader"]]]
@@ -80,14 +150,24 @@ infoview:
                 eq: "Subscription"
         default: "<none>"
   listpad:
+    on_activation:
+      call: "resourceinfodispatch_with_lookup"
+      kind_path: "resource#kind"
+      api_group_path: "resource#group"
+      name_path: "resource#name"
+      namespace_path: "_extra_data#namespace"
     listgetter: "listgetter_path"
     listgetter_args:
       path: "status#plan"
     infogetter: "generic_infogetter"
+    infogetter_args:
+      _extra_data:
+        namespace: ["metadata#namespace"]
     field_indexes:
       Normal:
-        fields: ["kind", "name", "resolving",
-                 "source_namespace", "source_name", "version"]
+        fields: ["kind", "name",
+                 "source_namespace", "source_name", "version", "status",
+                 "resolving"]
         sortcolumn: "kind"
     fields:
       kind:
@@ -122,6 +202,43 @@ infoview:
         formatting:
           field_colors:
             - type: "namespace"
+      status:
+        header: "Status:"
+        path: "status"
+        default: "<unset>"
+        type: "str"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              Created:
+                field_colors:
+                  - context: "main"
+                    type: "status_done"
+              NotCreated:
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+              NotPresent:
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+              Present:
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+              Unknown:
+                field_colors:
+                  - context: "main"
+                    type: "status_unknown"
+              UnsupportedResource:
+                field_colors:
+                  - context: "main"
+                    type: "status_warning"
+              WaitingForApi:
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
       version:
         header: "Version:"
         path: "resource#version"

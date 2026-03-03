@@ -231,6 +231,9 @@ color_pairs_curses:
   status_warning:
     unselected: [["yellow", "normal"], ["black", "normal"]]
     selected: [["yellow", "normal"], ["white", "normal"]]
+  status_highlight:
+    unselected: [["green", "bright"], ["black", "normal"]]
+    selected: [["green", "bright"], ["white", "normal"]]
   status_ok:
     unselected: [["green", "normal"], ["black", "normal"]]
     selected: [["green", "normal"], ["white", "normal"]]

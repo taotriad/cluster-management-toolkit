@@ -9,22 +9,56 @@ listview:
   name: "Subscriptions"
   group: "API & Extendability"
   field_indexes:
+    Wide:
+      fields: ["namespace", "name", "csv", "source", "channel", "state", "age"]
+      sortcolumn: "namespace"
     Normal:
-      fields: ["namespace", "name", "package", "source", "channel", "age"]
+      fields: ["namespace", "name", "channel", "state", "age"]
       sortcolumn: "namespace"
   fields:
     channel:
       header: "Channel:"
       path: "spec#channel"
+      default: "<unset>"
       type: "str"
-    package:
-      header: "Package:"
-      path: "spec#name"
-      type: "str"
+    csv:
+      header: "Cluster Service Version:"
+      paths:
+        - path: ["status#installedCSV", "status#currentCSV"]
+          pathtype: "value"
     source:
       header: "Source:"
       path: "spec#source"
       type: "str"
+    state:
+      header: "State:"
+      path: "status#state"
+      default: "Unknown"
+      type: "str"
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          mappings:
+            AtLatestKnown:
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+            Unknown:
+              field_colors:
+                - context: "main"
+                  type: "status_unknown"
+            UpgradeFailed:
+              field_colors:
+                - context: "main"
+                  type: "status_warning"
+            UpgradeAvailable:
+              field_colors:
+                - context: "main"
+                  type: "status_highlight"
+            UpgradePending:
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
   actions:
     actionlist:
       "Delete resource":
@@ -37,9 +71,14 @@ infoview:
   infopad:
     row_indexes:
       Normal:
-        fields: ["source", "install_plan_approval", "install_plan",
+        fields: ["source", "channel", "install_plan_approval", "install_plan",
                  "current_csv", "installed_csv", "state"]
     rows:
+      channel:
+        header: [["Channel:", ["main", "infoheader"]]]
+        path: "spec#channel"
+        default: "<unset>"
+        type: "str"
       current_csv:
         header: [["Current Cluster Service Version:", ["main", "infoheader"]]]
         path: "status#currentCSV"
@@ -88,7 +127,32 @@ infoview:
       state:
         header: [["State:", ["main", "infoheader"]]]
         path: "status#state"
+        default: "Unknown"
         type: "str"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              AtLatestKnown:
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+              Unknown:
+                field_colors:
+                  - context: "main"
+                    type: "status_unknown"
+              UpgradeFailed:
+                field_colors:
+                  - context: "main"
+                    type: "status_warning"
+              UpgradeAvailable:
+                field_colors:
+                  - context: "main"
+                    type: "status_highlight"
+              UpgradePending:
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
   listpad:
     on_activation:
       call: "resourceinfodispatch_with_lookup"

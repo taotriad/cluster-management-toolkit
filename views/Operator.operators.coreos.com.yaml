@@ -7,7 +7,14 @@ listview:
   group: "API & Extendability"
   field_indexes:
     Normal:
-      fields: ["name", "age"]
+      fields: ["name", "references", "age"]
+  fields:
+    references:
+      header: "References:"
+      path: "status#components#refs"
+      type: "len"
+      formatter: "numerical"
+      align: "right"
 infoview:
   name: "Operator Info"
   infopad:
@@ -30,3 +37,30 @@ infoview:
           field_separators:
             - type: "space"
             - type: "no_pad"
+  shortcuts:
+    "List References":
+      key: "r"
+      modifier: "shift"
+      read_only: true
+      helptext: "List references"
+      title: "References:"
+      widget: "windowwidget"
+      headers: ["Kind:", "API-version:", "Namespace:", "Name:"]
+      selectable: true
+      itemgetter: "get_list_fields"
+      itemgetter_args:
+        path: "status#components#refs"
+        fields:
+          - "kind"
+          - "apiVersion"
+          - "namespace"
+          - "name"
+      # This isn't supported for now
+      sortcolumn: "name"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        kind_path: 0
+        api_version_path: 1
+        namespace_path: 2
+        name_path: 3

@@ -28,19 +28,21 @@ infoview:
   infopad:
     row_indexes:
       Normal:
-        fields: ["package_name", "catalog_header",
-                 "catalog_display_name", "catalog_source",
-                 "catalog_namespace", "catalog_publisher",
+        fields: ["package_name", "catalog_source_header",
+                 "catalog_source_display_name", "catalog_source_name",
+                 "catalog_source_namespace", "catalog_source_publisher",
                  "provider_header", "provider_name", "provider_url",
                  "channels", "default_channel"]
     rows:
-      catalog_header:
-        header: [["Catalog:", ["main", "infoheader"]]]
-      catalog_display_name:
+      catalog_source_header:
+        header: [["Catalog ", ["main", "infoheader"]],
+                 ["S", ["main", "infoheader_shortcut"]],
+                 ["ource:", ["main", "infoheader"]]]
+      catalog_source_display_name:
         header: [["  Display Name:", ["main", "infoheader"]]]
         path: "status#catalogSourceDisplayName"
         type: "str"
-      catalog_namespace:
+      catalog_source_namespace:
         header: [["  ", ["main", "infoheader"]],
                  ["C", ["main", "infoheader_shortcut"]],
                  ["atalog Namespace:", ["main", "infoheader"]]]
@@ -49,12 +51,12 @@ infoview:
         formatting:
           field_colors:
             - type: "namespace"
-      catalog_publisher:
+      catalog_source_publisher:
         header: [["  Publisher:", ["main", "infoheader"]]]
         path: "status#catalogSourcePublisher"
         type: "str"
-      catalog_source:
-        header: [["  Source:", ["main", "infoheader"]]]
+      catalog_source_name:
+        header: [["  Name:", ["main", "infoheader"]]]
         path: "status#catalogSource"
         type: "str"
       channels:
@@ -98,6 +100,19 @@ infoview:
         _pass_obj: true
         kind: "Namespace"
         name_path: "status#catalogSourceNamespace"
+    "Catalog Source":
+      key: "s"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for Catalog Source"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind: "CatalogSource"
+        api_family: "operators.coreos.com"
+        namespace_path: "status#catalogSourceNamespace"
+        name_path: "status#catalogSource"
     "Channels":
       key: "h"
       read_only: true
