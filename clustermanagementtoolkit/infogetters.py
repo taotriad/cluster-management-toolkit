@@ -99,31 +99,6 @@ def __process_string(value: str, replace_quotes: str) -> str:
     return value
 
 
-def __process_sum_numerical(value: Sequence[int | float]) -> int | float:
-    return sum(value)
-
-
-def __process_stringify_list(values: Sequence[Any]) -> list[str]:
-    tmp: list[str] = []
-    for value in values:
-        tmp.append(str(value))
-    return tmp
-
-
-def __process_sum_cpu_usage(values: list[str]) -> str:
-    cpu_usage_sum = 0.0
-    for value in values:
-        cpu_usage_sum += normalise_cpu_usage_to_millicores(value)
-    return f"{cpu_usage_sum:0.1f}"
-
-
-def __process_sum_mem_usage(values: list[str]) -> str:
-    mem_usage_sum = 0
-    for value in values:
-        mem_usage_sum += normalise_mem_to_bytes(value)
-    return normalise_mem_bytes_to_str(mem_usage_sum)
-
-
 def __process_timestamp(value: Sequence[int | str] | str,
                         action: str, formatter: str) -> datetime | int:
     new_value: Any = None
@@ -198,14 +173,14 @@ def process_value(value: Any, vtype: str | list, **kwargs: Any) -> \
         new_value = __process_string(value, replace_quotes)
     elif vtype in ("float", "int", "bool"):
         if isinstance(value, (list, tuple)) and action == "sum":
-            new_value = __process_sum_numerical(value)
+            new_value = sum(value)
         elif isinstance(value, tuple):
-            new_value = __process_stringify_list(value)
+            new_value = [str(s) for s in value]
         else:
             new_value = str(value)
     elif vtype in ("cpu_usage", "cpu_usage_round"):
         if isinstance(value, list) and action == "sum":
-            new_value = __process_sum_cpu_usage(value)
+            new_value = f"{sum(normalise_cpu_usage_to_millicores(n) for n in value):0.1f}"
         elif vtype == "cpu_usage_round":
             tmp_float = normalise_cpu_usage_to_millicores(value)
             new_value = f"{int(tmp_float / 1000)}"
@@ -214,7 +189,8 @@ def process_value(value: Any, vtype: str | list, **kwargs: Any) -> \
             new_value = f"{tmp_float:0.1f}"
     elif vtype == "mem_usage":
         if isinstance(value, list) and action == "sum":
-            new_value = __process_sum_mem_usage(value)
+            new_value = \
+                f"{normalise_mem_bytes_to_str(sum(normalise_mem_to_bytes(n) for n in value))}"
         else:
             tmp_int = normalise_mem_to_bytes(value)
             new_value = normalise_mem_bytes_to_str(tmp_int)
