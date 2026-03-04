@@ -431,6 +431,7 @@ configmap_signatures:
         data_suffix: ""
 # Note that matches are case sensitive.
 base64_overrides:
+  - "disabled"
   - "null"
   - "Null"
   - "none"
