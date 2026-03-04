@@ -39,9 +39,7 @@ INVENTORY_PROGRAM_VERSION = "0.4.7"
 # We don't support Python-versions older than 3.11
 version_info = sys.version_info
 if version_info.major < 3 or version_info.minor < 11:  # pragma: no cover
-    # pylint: disable-next=invalid-name
     installed_version: str = f"{version_info.major}.{version_info.minor}.{version_info.micro}"
-    # pylint: disable-next=invalid-name
     msg = "Critical: Minimum supported Python-version is 3.11.0.\n" \
           f"Installed version is {installed_version}" \
           "; aborting."
