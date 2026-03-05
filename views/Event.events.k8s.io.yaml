@@ -1616,10 +1616,14 @@ listview:
               field_colors:
                 - context: "main"
                   type: "status_ok"
-            ProvisioningFailed:
+            ProvisioningError:
               field_colors:
                 - context: "main"
                   type: "status_warning"
+            ProvisioningFailed:
+              field_colors:
+                - context: "main"
+                  type: "status_not_ok"
             ProvisioningSucceeded:
               field_colors:
                 - context: "main"
@@ -4116,10 +4120,14 @@ infoview:
                 field_colors:
                   - context: "main"
                     type: "status_ok"
-              ProvisioningFailed:
+              ProvisioningError:
                 field_colors:
                   - context: "main"
                     type: "status_warning"
+              ProvisioningFailed:
+                field_colors:
+                  - context: "main"
+                    type: "status_not_ok"
               ProvisioningSucceeded:
                 field_colors:
                   - context: "main"
