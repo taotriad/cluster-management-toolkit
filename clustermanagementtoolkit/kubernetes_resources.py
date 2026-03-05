@@ -2655,6 +2655,55 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
     ("DataScienceCluster", "datasciencecluster.opendatahub.io"): {
         "api_paths": ["apis/datasciencecluster.opendatahub.io/v1/"],
         "api": "datascienceclusters",
+    # deckhouse.io
+    ("DeckhouseRelease", "deckhouse.io"): {
+        "api_paths": ["apis/deckhouse.io/v1alpha1/"],
+        "api": "deckhousereleases",
+        "namespaced": False,
+    },
+    ("ModuleConfig", "deckhouse.io"): {
+        "api_paths": ["apis/deckhouse.io/v1alpha1/"],
+        "api": "moduleconfigs",
+        "namespaced": False,
+    },
+    ("ModuleDocumentation", "deckhouse.io"): {
+        "api_paths": ["apis/deckhouse.io/v1alpha1/"],
+        "api": "moduledocumentations",
+        "namespaced": False,
+    },
+    ("ModuleRelease", "deckhouse.io"): {
+        "api_paths": ["apis/deckhouse.io/v1alpha1/"],
+        "api": "modulereleases",
+        "namespaced": False,
+    },
+    ("Module", "deckhouse.io"): {
+        "api_paths": ["apis/deckhouse.io/v1alpha1/"],
+        "api": "modules",
+        "namespaced": False,
+    },
+    ("ModuleSettingsDefinition", "deckhouse.io"): {
+        "api_paths": ["apis/deckhouse.io/v1alpha1/"],
+        "api": "modulesettingsdefinitions",
+        "namespaced": False,
+    },
+    ("ModuleSource", "deckhouse.io"): {
+        "api_paths": ["apis/deckhouse.io/v1alpha1/"],
+        "api": "modulesources",
+        "namespaced": False,
+    },
+    ("ObjectKeeper", "deckhouse.io"): {
+        "api_paths": ["apis/deckhouse.io/v1alpha1/"],
+        "api": "objectkeepers",
+        "namespaced": False,
+    },
+    ("ModulePullOverride", "deckhouse.io"): {
+        "api_paths": ["apis/deckhouse.io/v1alpha2/"],
+        "api": "modulepulloverrides",
+        "namespaced": False,
+    },
+    ("ModuleUpdatePolicy", "deckhouse.io"): {
+        "api_paths": ["apis/deckhouse.io/v1alpha2/"],
+        "api": "moduleupdatepolicies",
         "namespaced": False,
     },
     # deviceplugin.intel.com
