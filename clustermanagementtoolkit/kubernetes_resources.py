@@ -240,22 +240,10 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
                       "apis/discovery.k8s.io/v1beta1/"],
         "api": "endpointslices",
     },
-    # dscinitialization.opendatahub.io
-    ("DSCInitialization", "dscinitialization.opendatahub.io"): {
-        "api_paths": ["apis/dscinitialization.opendatahub.io/v1/"],
-        "api": "dscinitializations",
-        "namespaced": False,
-    },
     # events.k8s.io
     ("Event", "events.k8s.io"): {
         "api_paths": ["apis/events.k8s.io/v1/"],
         "api": "events",
-    },
-    # features.opendatahub.io
-    ("FeatureTracker", "features.opendatahub.io"): {
-        "api_paths": ["apis/features.opendatahub.io/v1/"],
-        "api": "featuretrackers",
-        "namespaced": False,
     },
     # flowcontrol.apiserver.k8s.io
     ("FlowSchema", "flowcontrol.apiserver.k8s.io"): {
@@ -2655,6 +2643,7 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
     ("DataScienceCluster", "datasciencecluster.opendatahub.io"): {
         "api_paths": ["apis/datasciencecluster.opendatahub.io/v1/"],
         "api": "datascienceclusters",
+    },
     # deckhouse.io
     ("DeckhouseRelease", "deckhouse.io"): {
         "api_paths": ["apis/deckhouse.io/v1alpha1/"],
@@ -2856,6 +2845,12 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api_paths": ["apis/dist.kio.kasten.io/v1alpha1/"],
         "api": "distributions",
     },
+    # dscinitialization.opendatahub.io
+    ("DSCInitialization", "dscinitialization.opendatahub.io"): {
+        "api_paths": ["apis/dscinitialization.opendatahub.io/v1/"],
+        "api": "dscinitializations",
+        "namespaced": False,
+    },
     # ebpf.monitoring.dev
     ("EbpfDaemonSet", "ebpf.monitoring.dev"): {
         "api_paths": ["apis/ebpf.monitoring.dev/v1alpha1/"],
@@ -2951,6 +2946,12 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
                       "apis/eventing.knative.dev/v1beta2/",
                       "apis/eventing.knative.dev/v1beta1/"],
         "api": "triggers",
+    },
+    # features.opendatahub.io
+    ("FeatureTracker", "features.opendatahub.io"): {
+        "api_paths": ["apis/features.opendatahub.io/v1/"],
+        "api": "featuretrackers",
+        "namespaced": False,
     },
     # flavor.kubevirt.io
     ("VirtualMachineClusterFlavor", "flavor.kubevirt.io"): {
