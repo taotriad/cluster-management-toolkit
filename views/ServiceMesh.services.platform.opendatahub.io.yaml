@@ -1,0 +1,173 @@
+---
+kind: "ServiceMesh"
+api_family: "services.platform.opendatahub.io"
+default_command: "servicemeshes.services.platform.opendatahub.io"
+command:
+  - "servicemeshes.opendatahub"
+  - "servicemesh.opendatahub"
+  - "svcmeshes.opendatahub"
+  - "svcmesh.opendatahub"
+listview:
+  name: "Service Meshes"
+  group: "Machine Learning"
+  field_indexes:
+    Normal:
+      fields: ["name", "phase", "age"]
+  fields:
+    phase:
+      header: "Phase:"
+      path: "status#phase"
+      type: "str"
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          mappings:
+            Error:
+              field_colors:
+                - context: "main"
+                  type: "status_not_ok"
+            "Not Ready":
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+            Progressing:
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+            Ready:
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+infoview:
+  name: "Service Mesh Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["controller",
+                 "auth_header",
+                 "auth_audiences",
+                 "control_plane_header",
+                 "control_plane_name",
+                 "control_plane_namespace",
+                 "control_plane_metrics_collection",
+                 "management_state",
+                 "phase"]
+    rows:
+      auth_audiences:
+        header: [["  ", ["main", "infoheader"]],
+                 ["A", ["main", "infoheader_shortcut"]],
+                 ["udiences:", ["main", "infoheader"]]]
+        path: "spec#auth#audiences"
+        default: ["<none>"]
+        type: "raw"
+        formatter: "address"
+      auth_header:
+        header: [["Auth:", ["main", "infoheader"]]]
+      control_plane_header:
+        header: [["Control Plane:", ["main", "infoheader"]]]
+      control_plane_metrics_collection:
+        header: [["  Metrics Collection:", ["main", "infoheader"]]]
+        path: "spec#controlPlane#metricsCollection"
+        default: "<unset>"
+        type: "str"
+      control_plane_name:
+        header: [["  Name:", ["main", "infoheader"]]]
+        path: "spec#controlPlane#name"
+        default: "<unset>"
+        type: "str"
+      control_plane_namespace:
+        header: [["  ", ["main", "infoheader"]],
+                 ["N", ["main", "infoheader_shortcut"]],
+                 ["amespace:", ["main", "infoheader"]]]
+        path: "spec#controlPlane#namespace"
+        default: "<unset>"
+        type: "str"
+        formatting:
+          field_colors:
+            - type: "namespace"
+      controller:
+        header: [["C", ["main", "infoheader_shortcut"]],
+                 ["ontroller:", ["main", "infoheader"]]]
+        paths:
+          - path: "metadata#ownerReferences"
+            pathtype: "items"
+            subpaths:
+              - "kind"
+              - "apiVersion"
+              - "name"
+            when:
+              - key: "controller"
+                eq: true
+            type: ["kind", "api_group", "name"]
+        default: "<none>"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "kind"
+            - type: "api_group"
+            - type: "generic"
+          field_separators:
+            - type: "kind_api_group"
+            - type: "kind"
+      management_state:
+        header: [["Management State:", ["main", "infoheader"]]]
+        path: "spec#managementState"
+        default: "<unset>"
+        type: "str"
+      phase:
+        header: [["Phase:", ["main", "infoheader"]]]
+        path: "status#phase"
+        type: "str"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              Error:
+                field_colors:
+                  - context: "main"
+                    type: "status_not_ok"
+              "Not Ready":
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+              Progressing:
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+              Ready:
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+  shortcuts:
+    "Open controller":
+      key: "c"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for controller"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        namespace_path: "metadata#namespace"
+        owner_reference_path: "metadata#ownerReferences"
+    "Open control plane Namespace":
+      key: "n"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for control plane Namespace"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind: "Namespace"
+        name_path: "spec#controlPlane#namespace"
+    "List Audiences":
+      key: "a"
+      modifier: "shift"
+      read_only: true
+      helptext: "List audiences"
+      widget: "windowwidget"
+      title: "Audiences:"
+      itemgetter: "get_list_as_list"
+      itemgetter_args:
+        path: "spec#auth#audiences"

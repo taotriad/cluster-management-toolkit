@@ -1,0 +1,113 @@
+---
+kind: "Auth"
+api_family: "services.platform.opendatahub.io"
+default_command: "auths.services.platform.opendatahub.io"
+command:
+  - "auths.opendatahub"
+  - "auth.opendatahub"
+listview:
+  name: "Auths"
+  group: "Machine Learning"
+  field_indexes:
+    Normal:
+      fields: ["name", "phase", "age"]
+  fields:
+    phase:
+      header: "Phase:"
+      path: "status#phase"
+      type: "str"
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          mappings:
+            Error:
+              field_colors:
+                - context: "main"
+                  type: "status_not_ok"
+            "Not Ready":
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+            Progressing:
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+            Ready:
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+infoview:
+  name: "Auth Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["admin_groups", "allowed_groups", "phase"]
+    rows:
+      admin_groups:
+        header: [["A", ["main", "infoheader_shortcut"]],
+                 ["dmin Groups:", ["main", "infoheader"]]]
+        path: "spec#adminGroups"
+        default: ["<none>"]
+        type: "raw"
+        formatter: "list"
+      allowed_groups:
+        header: [["Allowed ", ["main", "infoheader"]],
+                 ["G", ["main", "infoheader_shortcut"]],
+                 ["roups:", ["main", "infoheader"]]]
+        path: "spec#allowedGroups"
+        default: ["<none>"]
+        type: "raw"
+        formatter: "list"
+      phase:
+        header: [["Phase:", ["main", "infoheader"]]]
+        path: "status#phase"
+        type: "str"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              Error:
+                field_colors:
+                  - context: "main"
+                    type: "status_not_ok"
+              "Not Ready":
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+              Progressing:
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+              Ready:
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+  shortcuts:
+    "List Admin Groups":
+      key: "a"
+      modifier: "shift"
+      read_only: true
+      helptext: "List admin groups"
+      widget: "windowwidget"
+      title: "Admin Groups:"
+      selectable: true
+      itemgetter: "get_list_as_list"
+      itemgetter_args:
+        path: "spec#adminGroups"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind: "Group"
+        api_family: "user.openshift.io"
+        name_path: 0
+    "List Allowed Groups":
+      key: "g"
+      modifier: "shift"
+      read_only: true
+      helptext: "List allowed groups"
+      widget: "windowwidget"
+      title: "Allowed Groups:"
+      itemgetter: "get_list_as_list"
+      itemgetter_args:
+        path: "spec#allowedGroups"

@@ -1,0 +1,223 @@
+---
+kind: "DSCInitialization"
+api_family: "dscinitialization.opendatahub.io"
+default_command: "dscinitializations.dscinitialization.opendatahub.io"
+command:
+  - "dcsinits.opendatahub"
+  - "dscinit.opendatahub"
+listview:
+  name: "DSC Initializations"
+  group: "Machine Learning"
+  field_indexes:
+    Normal:
+      fields: ["name", "phase", "age"]
+  fields:
+    phase:
+      header: "Phase:"
+      path: "status#phase"
+      type: "str"
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          mappings:
+            Error:
+              field_colors:
+                - context: "main"
+                  type: "status_not_ok"
+            "Not Ready":
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+            Progressing:
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+            Ready:
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+infoview:
+  name: "DSC Initialization Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["applications_namespace",
+                 "monitoring_header",
+                 "monitoring_namespace",
+                 "monitoring_management_state",
+                 "service_mesh_header",
+                 "service_mesh_auth_header",
+                 "service_mesh_auth_audiences",
+                 "service_mesh_control_plane_header",
+                 "service_mesh_control_plane_name",
+                 "service_mesh_control_plane_namespace",
+                 "service_mesh_control_plane_metrics_collection",
+                 "service_mesh_management_state",
+                 "trusted_ca_bundle_header",
+                 "trusted_ca_bundle_custom_ca_bundle",
+                 "trusted_ca_bundle_management_state",
+                 "release_header",
+                 "release_name",
+                 "release_version",
+                 "phase"]
+    rows:
+      applications_namespace:
+        header: [["A", ["main", "infoheader"]],
+                 ["p", ["main", "infoheader_shortcut"]],
+                 ["plications Namespace:", ["main", "infoheader"]]]
+        path: "spec#applicationsNamespace"
+        default: "<unset>"
+        type: "str"
+        formatting:
+          field_colors:
+            - type: "namespace"
+      monitoring_header:
+        header: [["Monitoring:", ["main", "infoheader"]]]
+      monitoring_management_state:
+        header: [["  Management State:", ["main", "infoheader"]]]
+        path: "spec#monitoring#managementState"
+        default: "<unset>"
+        type: "str"
+      monitoring_namespace:
+        header: [["  Na", ["main", "infoheader"]],
+                 ["m", ["main", "infoheader_shortcut"]],
+                 ["espace:", ["main", "infoheader"]]]
+        path: "spec#monitoring#namespace"
+        default: "<unset>"
+        type: "str"
+        formatting:
+          field_colors:
+            - type: "namespace"
+      phase:
+        header: [["Phase:", ["main", "infoheader"]]]
+        path: "status#phase"
+        type: "str"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              Error:
+                field_colors:
+                  - context: "main"
+                    type: "status_not_ok"
+              "Not Ready":
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+              Progressing:
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+              Ready:
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+      release_header:
+        header: [["Release:", ["main", "infoheader"]]]
+      release_name:
+        header: [["  Name:", ["main", "infoheader"]]]
+        path: "status#release#name"
+        default: "<unset>"
+        type: "str"
+      release_version:
+        header: [["  Version:", ["main", "infoheader"]]]
+        path: "status#release#version"
+        default: "<unset>"
+        type: "str"
+        formatting:
+          field_colors:
+            - type: "version"
+      service_mesh_auth_audiences:
+        header: [["    ", ["main", "infoheader"]],
+                 ["A", ["main", "infoheader_shortcut"]],
+                 ["udiences:", ["main", "infoheader"]]]
+        path: "spec#serviceMesh#auth#audiences"
+        default: ["<none>"]
+        type: "raw"
+        formatter: "address"
+      service_mesh_auth_header:
+        header: [["  Auth:", ["main", "infoheader"]]]
+      service_mesh_control_plane_header:
+        header: [["  Control Plane:", ["main", "infoheader"]]]
+      service_mesh_control_plane_metrics_collection:
+        header: [["    Metrics Collection:", ["main", "infoheader"]]]
+        path: "spec#serviceMesh#controlPlane#metricsCollection"
+        default: "<unset>"
+        type: "str"
+      service_mesh_control_plane_name:
+        header: [["    Name:", ["main", "infoheader"]]]
+        path: "spec#serviceMesh#controlPlane#name"
+        default: "<unset>"
+        type: "str"
+      service_mesh_control_plane_namespace:
+        header: [["    ", ["main", "infoheader"]],
+                 ["N", ["main", "infoheader_shortcut"]],
+                 ["amespace:", ["main", "infoheader"]]]
+        path: "spec#serviceMesh#controlPlane#namespace"
+        default: "<unset>"
+        type: "str"
+        formatting:
+          field_colors:
+            - type: "namespace"
+      service_mesh_header:
+        header: [["Service Mesh:", ["main", "infoheader"]]]
+      service_mesh_management_state:
+        header: [["  Management State:", ["main", "infoheader"]]]
+        path: "spec#serviceMesh#managementState"
+        default: "<unset>"
+        type: "str"
+      trusted_ca_bundle_header:
+        header: [["Trusted CA Bundle:", ["main", "infoheader"]]]
+      trusted_ca_bundle_custom_ca_bundle:
+        header: [["  Custom CA Bundle:", ["main", "infoheader"]]]
+        path: "spec#trustedCABundle#customCABundle"
+        fallback_on_empty: true
+        default: "<none>"
+        type: "str"
+      trusted_ca_bundle_management_state:
+        header: [["  Management State:", ["main", "infoheader"]]]
+        path: "spec#trustedCABundle#managementState"
+        default: "<unset>"
+        type: "str"
+  shortcuts:
+    "Open control plane Namespace":
+      key: "n"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for control plane Namespace"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind: "Namespace"
+        name_path: "spec#controlPlane#namespace"
+    "Open applications Namespace":
+      key: "p"
+      read_only: true
+      helptext: "Open info page for applications Namespace"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind: "Namespace"
+        name_path: "spec#applicationsNamespace"
+    "Open monitoring Namespace":
+      key: "m"
+      read_only: true
+      helptext: "Open info page for monitoring Namespace"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind: "Namespace"
+        name_path: "spec#monitoring#namespace"
+    "List Service Mesh Audiences":
+      key: "a"
+      modifier: "shift"
+      read_only: true
+      helptext: "List Service Mesh audiences"
+      widget: "windowwidget"
+      title: "Service Mesh Audiences:"
+      itemgetter: "get_list_as_list"
+      itemgetter_args:
+        path: "spec#serviceMesh#auth#audiences"

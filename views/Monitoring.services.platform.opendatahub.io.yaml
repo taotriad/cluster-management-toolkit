@@ -1,0 +1,119 @@
+---
+kind: "Monitoring"
+api_family: "services.platform.opendatahub.io"
+default_command: "monitorings.services.platform.opendatahub.io"
+command:
+  - "monitorings.opendatahub"
+  - "monitoring.opendatahub"
+  - "mons.opendatahub"
+  - "mon.opendatahub"
+listview:
+  name: "Monitorings"
+  group: "Machine Learning"
+  field_indexes:
+    Normal:
+      fields: ["name", "phase", "age"]
+  fields:
+    phase:
+      header: "Phase:"
+      path: "status#phase"
+      type: "str"
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          mappings:
+            Error:
+              field_colors:
+                - context: "main"
+                  type: "status_not_ok"
+            "Not Ready":
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+            Progressing:
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+            Ready:
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+infoview:
+  name: "Monitoring Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["namespace",
+                 "phase"]
+    rows:
+      namespace:
+        header: [["N", ["main", "infoheader_shortcut"]],
+                 ["amespace:", ["main", "infoheader"]]]
+        path: "spec#namespace"
+        default: "<unset>"
+        type: "str"
+        formatting:
+          field_colors:
+            - type: "namespace"
+      phase:
+        header: [["Phase:", ["main", "infoheader"]]]
+        path: "status#phase"
+        type: "str"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              Error:
+                field_colors:
+                  - context: "main"
+                    type: "status_not_ok"
+              "Not Ready":
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+              Progressing:
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+              Ready:
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+  shortcuts:
+    "Open Namespace":
+      key: "n"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for Namespace"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind: "Namespace"
+        name_path: "spec#namespace"
+    "Owner References":
+      key: "o"
+      modifier: "shift"
+      read_only: true
+      helptext: "List Owner References"
+      widget: "windowwidget"
+      title: "Owner References:"
+      selectable: true
+      headers: ["Kind:", "API-Version:", "Name:"]
+      itemgetter: "get_list_fields"
+      itemgetter_args:
+        path: "metadata#ownerReferences"
+        fields:
+          - "kind"
+          - "apiVersion"
+          - "name"
+      # This isn't supported for now
+      sortcolumn: "kind"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind_path: 0
+        api_version_path: 1
+        name_path: 2
+        _parent_namespace_path: "metadata#namespace"
