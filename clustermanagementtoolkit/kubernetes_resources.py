@@ -240,10 +240,22 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
                       "apis/discovery.k8s.io/v1beta1/"],
         "api": "endpointslices",
     },
+    # dscinitialization.opendatahub.io
+    ("DSCInitialization", "dscinitialization.opendatahub.io"): {
+        "api_paths": ["apis/dscinitialization.opendatahub.io/v1/"],
+        "api": "dscinitializations",
+        "namespaced": False,
+    },
     # events.k8s.io
     ("Event", "events.k8s.io"): {
         "api_paths": ["apis/events.k8s.io/v1/"],
         "api": "events",
+    },
+    # features.opendatahub.io
+    ("FeatureTracker", "features.opendatahub.io"): {
+        "api_paths": ["apis/features.opendatahub.io/v1/"],
+        "api": "featuretrackers",
+        "namespaced": False,
     },
     # flowcontrol.apiserver.k8s.io
     ("FlowSchema", "flowcontrol.apiserver.k8s.io"): {
@@ -2018,6 +2030,77 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api_paths": ["apis/cluster.loft.sh/v1/"],
         "api": "virtualclusters",
     },
+    # components.platform.opendatahub.io
+    ("CodeFlare", "components.platform.opendatahub.io"): {
+        "api_paths": ["apis/components.platform.opendatahub.io/v1alpha1/"],
+        "api": "codeflares",
+        "namespaced": False,
+    },
+    ("Dashboard", "components.platform.opendatahub.io"): {
+        "api_paths": ["apis/components.platform.opendatahub.io/v1alpha1/"],
+        "api": "dashboards",
+        "namespaced": False,
+    },
+    ("DataSciencePipelines", "components.platform.opendatahub.io"): {
+        "api_paths": ["apis/components.platform.opendatahub.io/v1alpha1/"],
+        "api": "datasciencepipelines",
+        "namespaced": False,
+    },
+    ("FeastOperator", "components.platform.opendatahub.io"): {
+        "api_paths": ["apis/components.platform.opendatahub.io/v1alpha1/"],
+        "api": "feastoperators",
+        "namespaced": False,
+    },
+    ("Kserve", "components.platform.opendatahub.io"): {
+        "api_paths": ["apis/components.platform.opendatahub.io/v1alpha1/"],
+        "api": "kserves",
+        "namespaced": False,
+    },
+    ("Kueue", "components.platform.opendatahub.io"): {
+        "api_paths": ["apis/components.platform.opendatahub.io/v1alpha1/"],
+        "api": "kueues",
+        "namespaced": False,
+    },
+    ("LlamaStackOperator", "components.platform.opendatahub.io"): {
+        "api_paths": ["apis/components.platform.opendatahub.io/v1alpha1/"],
+        "api": "llamastackoperators",
+        "namespaced": False,
+    },
+    ("ModelController", "components.platform.opendatahub.io"): {
+        "api_paths": ["apis/components.platform.opendatahub.io/v1alpha1/"],
+        "api": "modelcontrollers",
+        "namespaced": False,
+    },
+    ("ModelMeshServing", "components.platform.opendatahub.io"): {
+        "api_paths": ["apis/components.platform.opendatahub.io/v1alpha1/"],
+        "api": "modelmeshservings",
+        "namespaced": False,
+    },
+    ("ModelRegistry", "components.platform.opendatahub.io"): {
+        "api_paths": ["apis/components.platform.opendatahub.io/v1alpha1/"],
+        "api": "modelregistries",
+        "namespaced": False,
+    },
+    ("Ray", "components.platform.opendatahub.io"): {
+        "api_paths": ["apis/components.platform.opendatahub.io/v1alpha1/"],
+        "api": "rays",
+        "namespaced": False,
+    },
+    ("TrainingOperator", "components.platform.opendatahub.io"): {
+        "api_paths": ["apis/components.platform.opendatahub.io/v1alpha1/"],
+        "api": "trainingoperators",
+        "namespaced": False,
+    },
+    ("TrustyAI", "components.platform.opendatahub.io"): {
+        "api_paths": ["apis/components.platform.opendatahub.io/v1alpha1/"],
+        "api": "trustyais",
+        "namespaced": False,
+    },
+    ("Workbenches", "components.platform.opendatahub.io"): {
+        "api_paths": ["apis/components.platform.opendatahub.io/v1alpha1/"],
+        "api": "workbenches",
+        "namespaced": False,
+    },
     # confidentialcontainers.org
     ("CcRuntime", "confidentialcontainers.org"): {
         "api_paths": ["apis/confidentialcontainers.org/v1beta1/"],
@@ -2567,6 +2650,12 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
     ("Subscription", "dapr.io"): {
         "api_paths": ["apis/dapr.io/v2alpha1/"],
         "api": "subscriptions",
+    },
+    # datasciencecluster.opendatahub.io
+    ("DataScienceCluster", "datasciencecluster.opendatahub.io"): {
+        "api_paths": ["apis/datasciencecluster.opendatahub.io/v1/"],
+        "api": "datascienceclusters",
+        "namespaced": False,
     },
     # deviceplugin.intel.com
     ("DlbDevicePlugin", "deviceplugin.intel.com"): {
@@ -3285,6 +3374,11 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api_paths": ["apis/imageregistry.operator.openshift.io/v1/"],
         "api": "imagepruners",
         "namespaced": False,
+    },
+    # infrastructure.opendatahub.io
+    ("HardwareProfile", "infrastructure.opendatahub.io"): {
+        "api_paths": ["apis/infrastructure.opendatahub.io/v1alpha1/"],
+        "api": "hardwareprofiles",
     },
     # ingress.operator.openshift.io
     ("DNSRecord", "ingress.operator.openshift.io"): {
@@ -5756,6 +5850,22 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
     ("ServiceCertSignerOperatorConfig", "servicecertsigner.config.openshift.io"): {
         "api_paths": ["apis/servicecertsigner.config.openshift.io/v1alpha1/"],
         "api": "servicecertsigneroperatorconfigs",
+        "namespaced": False,
+    },
+    # services.platform.opendatahub.io
+    ("Auth", "services.platform.opendatahub.io"): {
+        "api_paths": ["apis/services.platform.opendatahub.io/v1alpha1/"],
+        "api": "auths",
+        "namespaced": False,
+    },
+    ("Monitoring", "services.platform.opendatahub.io"): {
+        "api_paths": ["apis/services.platform.opendatahub.io/v1alpha1/"],
+        "api": "monitorings",
+        "namespaced": False,
+    },
+    ("ServiceMesh", "services.platform.opendatahub.io"): {
+        "api_paths": ["apis/services.platform.opendatahub.io/v1alpha1/"],
+        "api": "servicemeshes",
         "namespaced": False,
     },
     # serving.knative.dev
