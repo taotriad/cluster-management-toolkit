@@ -24,6 +24,13 @@ listview:
       path: "spec#policyName"
       default: "<unset>"
       type: "str"
+  actions:
+    actionlist:
+      "Delete resource":
+        description: "Delete resource"
+        category: "Resource Level"
+        confirm: true
+        actionfunc: "delete_resource"
 infoview:
   name: "Mutating Admission Policy Binding Info"
   infopad:

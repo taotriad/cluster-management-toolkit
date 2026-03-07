@@ -17,18 +17,18 @@ listview:
     active:
       header: "Active:"
       path: "spec#active"
-      type: "bool"
       default: "<unset>"
+      type: "bool"
     builtin:
       header: "Built-in:"
       path: "spec#builtIn"
-      type: "bool"
       default: "<unset>"
+      type: "bool"
     display_name:
       header: "Display Name:"
       path: "status#displayName"
-      type: "str"
       default: "<unset>"
+      type: "str"
 infoview:
   name: "Kontainer Driver Info"
   infopad:
@@ -40,44 +40,44 @@ infoview:
       active:
         header: [["Active:", ["main", "infoheader"]]]
         path: "spec#active"
-        type: "bool"
         default: "<unset>"
+        type: "bool"
       builtin:
         header: [["Built-in:", ["main", "infoheader"]]]
         path: "spec#builtIn"
-        type: "bool"
         default: "<unset>"
+        type: "bool"
       checksum:
         header: [["Checksum:", ["main", "infoheader"]]]
         path: "spec#checksum"
-        type: "str"
         fallback_on_empty: true
         default: "<unset>"
+        type: "str"
         formatter: "hex"
       display_name:
         header: [["Display Name:", ["main", "infoheader"]]]
         path: "status#displayName"
-        type: "str"
         default: "<unset>"
+        type: "str"
       ui_url:
         header: [["UI URL:", ["main", "infoheader"]]]
         path: "spec#uiUrl"
-        type: "str"
         fallback_on_empty: true
+        type: "str"
         default: "<unset>"
       url:
         header: [["URL:", ["main", "infoheader"]]]
         path: "spec#url"
-        type: "str"
         fallback_on_empty: true
+        type: "str"
         default: "<unset>"
       whitelist_domains:
         header: [["Whitelist ", ["main", "infoheader"]],
                  ["D", ["main", "infoheader_shortcut"]],
                  ["omains:", ["main", "infoheader"]]]
         path: "spec#whitelistDomains"
-        type: "raw"
         default: ["<none>"]
+        type: "raw"
         formatter: "list"
   shortcuts:
     "List Whitelist Domains":

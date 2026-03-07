@@ -64,22 +64,22 @@ infoview:
       checksum:
         header: [["Checksum:", ["main", "infoheader"]]]
         path: "spec#checksum"
-        type: "str"
         fallback_on_empty: true
         default: "<unset>"
+        type: "str"
         formatter: "hex"
       description:
         header: [["Description:", ["main", "infoheader"]]]
         path: "spec#description"
+        default: "<unset>"
         type: "str"
         fallback_on_empty: true
-        default: "<unset>"
       display_name:
         header: [["Display Name:", ["main", "infoheader"]]]
         path: "spec#displayName"
+        default: "<unset>"
         type: "str"
         fallback_on_empty: true
-        default: "<unset>"
       external_id:
         header: [["External ID:", ["main", "infoheader"]]]
         path: "spec#externalId"

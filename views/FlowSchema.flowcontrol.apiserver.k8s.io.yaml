@@ -57,6 +57,13 @@ listview:
       formatting:
         item_separator:
           type: "space"
+  actions:
+    actionlist:
+      "Delete resource":
+        description: "Delete resource"
+        category: "Resource Level"
+        confirm: true
+        actionfunc: "delete_resource"
 infoview:
   name: "Flow Schema Info"
   infopad:

@@ -32,6 +32,13 @@ listview:
           - type: "api_group"
         field_separators:
           - type: "kind_api_group"
+  actions:
+    actionlist:
+      "Delete resource":
+        description: "Delete resource"
+        category: "Resource Level"
+        confirm: true
+        actionfunc: "delete_resource"
 infoview:
   name: "Mutating Admission Policy Info"
   infopad:
