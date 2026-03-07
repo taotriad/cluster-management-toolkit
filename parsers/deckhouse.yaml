@@ -2,8 +2,17 @@
 - name: "deckhouse"
   show_in_selector: false
   matchkeys:
+    # We need to specify the container name too;
+    # otherwise it'll match kube-rbac-proxy which we want to match
+    # from another file.
     - image_name: "/deckhouse/ce"
+      container_name: "deckhouse"
+    - image_name: "/deckhouse/ce"
+      container_name: "handler"
+    - image_name: "/deckhouse/ce"
+      container_name: "registry-packages-proxy"
   parser_rules:
+    - name: "glog"
     - name: "json"
     - name: "override_severity"
       overrides:
