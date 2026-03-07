@@ -1,0 +1,136 @@
+---
+kind: "ModuleSource"
+api_family: "deckhouse.io"
+default_command: "modulesources"
+command:
+  - "modsources"
+  - "modsource"
+  - "modsrcs"
+  - "modsrc"
+listview:
+  name: "Module Sources"
+  group: "Deckhouse"
+  field_indexes:
+    Normal:
+      fields: ["name", "modules", "phase", "age", "message"]
+  fields:
+    message:
+      header: "Message:"
+      path: "status#message"
+      type: "str"
+    modules:
+      header: "Modules:"
+      path: "status#modulesCount"
+      type: "int"
+      formatter: "numerical"
+      align: "right"
+    phase:
+      header: "Phase:"
+      path: "status#phase"
+      type: "str"
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          mappings:
+            Active:
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+            Terminating:
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+  actions:
+    actionlist:
+      "Delete resource":
+        description: "Delete resource"
+        category: "Resource Level"
+        confirm: true
+        actionfunc: "delete_resource"
+infoview:
+  name: "Module Source Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["registry_header",
+                 "registry_ca",
+                 "registry_scheme",
+                 "registry_repo",
+                 "registry_docker_config",
+                 "message", "phase"]
+    rows:
+      message:
+        header: [["Message:", ["main", "infoheader"]]]
+        path: "status#message"
+        type: "str"
+      phase:
+        header: [["Phase:", ["main", "infoheader"]]]
+        path: "status#phase"
+        type: "str"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              Active:
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+              Terminating:
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+      registry_ca:
+        header: [["  CA:", ["main", "infoheader"]]]
+        path: "spec#registry#ca"
+        default: "<unset>"
+        fallback_on_empty: true
+        type: "str"
+      registry_docker_config:
+        header: [["  Docker Config:", ["main", "infoheader"]]]
+        path: "spec#registry#dockerCfg"
+        default: "<unset>"
+        fallback_on_empty: true
+        type: "str"
+      registry_header:
+        header: [["Registry:", ["main", "infoheader"]]]
+      registry_repo:
+        header: [["  Repo:", ["main", "infoheader"]]]
+        path: "spec#registry#repo"
+        default: "<unset>"
+        fallback_on_empty: true
+        type: "str"
+        formatter: "address"
+      registry_scheme:
+        header: [["  Scheme:", ["main", "infoheader"]]]
+        path: "spec#registry#scheme"
+        default: "<unset>"
+        fallback_on_empty: true
+        type: "str"
+  listpad:
+    listgetter: "listgetter_path"
+    listgetter_args:
+      path: "status#modules"
+    infogetter: "generic_infogetter"
+    field_indexes:
+      Normal:
+        fields: ["name", "version", "checksum"]
+        sortcolumn: "name"
+    fields:
+      name:
+        header: "Name:"
+        path: "name"
+        default: "<unset>"
+        type: "str"
+      version:
+        header: "Version:"
+        path: "version"
+        default: "<unset>"
+        type: "str"
+        formatting:
+          field_colors:
+            - type: "version"
+      checksum:
+        header: "Checksum:"
+        path: "checksum"
+        default: "<unset>"
+        type: "str"

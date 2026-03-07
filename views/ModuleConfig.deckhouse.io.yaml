@@ -1,0 +1,98 @@
+---
+kind: "ModuleConfig"
+api_family: "deckhouse.io"
+default_command: "moduleconfigs"
+command:
+  - "modconfigs"
+  - "modconfig"
+  - "modconfs"
+  - "modconf"
+listview:
+  name: "Module Configs"
+  group: "Deckhouse"
+  field_indexes:
+    Normal:
+      fields: ["name", "version", "enabled", "source", "maintenance",
+               "update_policy", "age", "message"]
+  fields:
+    enabled:
+      header: "Enabled:"
+      path: "spec#enabled"
+      default: "<unset>"
+      type: "bool"
+    maintenance:
+      header: "Maintenance:"
+      path: "spec#maintenannnce"
+      default: "<unset>"
+      type: "str"
+    message:
+      header: "Message:"
+      path: "status#message"
+      type: "str"
+    source:
+      header: "Source:"
+      path: "spec#source"
+      default: "<unset>"
+      type: "str"
+    update_policy:
+      header: "Update Policy:"
+      path: "spec#updatePolicy"
+      default: "<unset>"
+      type: "str"
+    version:
+      header: "Version:"
+      path: "status#version"
+      default: "<unset>"
+      type: "str"
+      formatting:
+        field_colors:
+          - type: "version"
+      align: "right"
+infoview:
+  name: "Module Config Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["version", "enabled", "source", "maintenance",
+                 "update_policy"]
+    rows:
+      enabled:
+        header: [["Enabled:", ["main", "infoheader"]]]
+        path: "spec#enabled"
+        default: "<unset>"
+        type: "bool"
+      maintenance:
+        header: [["Maintenance:", ["main", "infoheader"]]]
+        path: "spec#maintenannnce"
+        default: "<unset>"
+        type: "str"
+      source:
+        header: [["Source:", ["main", "infoheader"]]]
+        path: "spec#source"
+        default: "<unset>"
+        type: "str"
+      update_policy:
+        header: [["Update Policy:", ["main", "infoheader"]]]
+        path: "spec#updatePolicy"
+        default: "<unset>"
+        type: "str"
+      version:
+        header: [["Version:", ["main", "infoheader"]]]
+        path: "status#version"
+        default: "<unset>"
+        type: "str"
+        formatting:
+          field_colors:
+            - type: "version"
+  shortcuts:
+    "Settings":
+      key: "s"
+      modifier: "shift"
+      read_only: true
+      helptext: "Show settings"
+      action: "call"
+      action_call: "view_yaml"
+      action_args:
+        title: "Settings"
+        _pass_obj: true
+        path: "spec#settings"

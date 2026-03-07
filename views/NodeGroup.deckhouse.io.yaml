@@ -1,0 +1,305 @@
+---
+kind: "NodeGroup"
+api_family: "deckhouse.io"
+default_command: "nodegroups"
+listview:
+  name: "Node Groups"
+  group: "Deckhouse"
+  field_indexes:
+    Normal:
+      fields: ["name", "node_type", "nodes", "uptodate", "instances",
+               "desired", "min", "max", "standby", "ready", "synced",
+               "age", "message"]
+  fields:
+    desired:
+      header: "Desired:"
+      path: "status#desired"
+      default: 0
+      type: "int"
+      formatter: "numerical"
+      align: "right"
+    instances:
+      header: "Instances:"
+      path: "status#instances"
+      default: 0
+      type: "int"
+      formatter: "numerical"
+      align: "right"
+    max:
+      header: "Max:"
+      path: "status#max"
+      default: 0
+      type: "int"
+      formatter: "numerical"
+      align: "right"
+    message:
+      header: "Message:"
+      path: "status#conditionSummary#statusMessage"
+      type: "str"
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          mappings:
+            Deployed:
+              field_colors:
+                - context: "main"
+                  type: "status_done"
+            Pending:
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+            Superseded:
+              field_colors:
+                - context: "main"
+                  type: "status_done"
+            Suspended:
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+    min:
+      header: "Min:"
+      path: "status#min"
+      default: 0
+      type: "int"
+      formatter: "numerical"
+      align: "right"
+    node_type:
+      header: "Node Type:"
+      path: "spec#nodeType"
+      default: "<unset>"
+      type: "str"
+    nodes:
+      header: "Nodes:"
+      path: "status#nodes"
+      default: 0
+      type: "int"
+      formatter: "numerical"
+      align: "right"
+    ready:
+      header: "Ready:"
+      path: "status#ready"
+      default: 0
+      type: "int"
+      formatter: "numerical"
+      align: "right"
+    standby:
+      header: "Standby:"
+      path: "status#standby"
+      default: 0
+      type: "int"
+      formatter: "numerical"
+      align: "right"
+    synced:
+      header: "Synced:"
+      path: "status#synced"
+      default: false
+      type: "bool"
+    uptodate:
+      header: "Up to Date:"
+      path: "status#upToDate"
+      default: 0
+      type: "int"
+      formatter: "numerical"
+      align: "right"
+infoview:
+  name: "Node Group Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["node_type",
+                 "kubelet_header",
+                 "kubelet_container_header",
+                 "kubelet_container_max_log_files",
+                 "kubelet_container_max_log_size",
+                 "kubelet_max_pods",
+                 "kubelet_resource_reservation_header",
+                 "kubelet_resource_reservation_mode",
+                 "kubelet_resource_reservation_cpu",
+                 "kubelet_resource_reservation_ephemeral_storage",
+                 "kubelet_resource_reservation_memory",
+                 "kubelet_topology_manager_header",
+                 "kubelet_topology_manager_enabled",
+                 "kubelet_topology_manager_policy",
+                 "kubelet_topology_manager_scope",
+                 "node_drain_timeout",
+                 "nodes", "uptodate", "instances",
+                 "desired", "min", "max", "standby", "ready", "synced",
+                 "kubernetes_version", "message"]
+    rows:
+      desired:
+        header: [["Desired:", ["main", "infoheader"]]]
+        path: "status#desired"
+        default: 0
+        type: "int"
+        formatter: "numerical"
+      instances:
+        header: [["Instances:", ["main", "infoheader"]]]
+        path: "status#instances"
+        default: 0
+        type: "int"
+        formatter: "numerical"
+      kubelet_header:
+        header: [["kubelet:", ["main", "infoheader"]]]
+      kubelet_container_header:
+        header: [["  Container:", ["main", "infoheader"]]]
+      kubelet_container_max_log_files:
+        header: [["    Max Log Files:", ["main", "infoheader"]]]
+        path: "spec#kubelet#containerLogMaxFiles"
+        default: 4
+        type: "int"
+        formatter: "numerical"
+      kubelet_container_max_log_size:
+        header: [["    Max Log Size:", ["main", "infoheader"]]]
+        path: "spec#kubelet#containerLogMaxSize"
+        default: 50Mi
+        type: "int"
+        formatter: "numerical"
+      kubelet_max_pods:
+        header: [["  Max Pods:", ["main", "infoheader"]]]
+        path: "spec#kubelet#maxPods"
+        default: "<unset>"
+        type: "int"
+        formatter: "numerical"
+      kubelet_resource_reservation_header:
+        header: [["  Resource Reservation:", ["main", "infoheader"]]]
+      kubelet_resource_reservation_mode:
+        header: [["    Mode:", ["main", "infoheader"]]]
+        path: "spec#kubelet#resourceReservation#mode"
+        default: "Auto"
+        type: "str"
+      kubelet_resource_reservation_cpu:
+        header: [["    CPU:", ["main", "infoheader"]]]
+        path: "spec#kubelet#resourceReservation#static#cpu"
+        default: "<unset>"
+        type: "str"
+        formatter: "numerical"
+      kubelet_resource_reservation_ephemeral_storage:
+        header: [["    Ephemeral Storage:", ["main", "infoheader"]]]
+        path: "spec#kubelet#resourceReservation#static#ephemeralStorage"
+        default: "<unset>"
+        type: "str"
+        formatter: "numerical"
+      kubelet_resource_reservation_memory:
+        header: [["    Memory:", ["main", "infoheader"]]]
+        path: "spec#kubelet#resourceReservation#static#memory"
+        default: "<unset>"
+        type: "str"
+        formatter: "numerical"
+      kubelet_root_dir:
+        header: [["  Root Directory:", ["main", "infoheader"]]]
+        path: "spec#kubelet#rootDir"
+        default: "<unset>"
+        type: "str"
+      kubelet_topology_manager_header:
+        header: [["  Topology Manager:", ["main", "infoheader"]]]
+      kubelet_topology_manager_enabled:
+        header: [["    Enabled:", ["main", "infoheader"]]]
+        path: "spec#kubelet#topologyManager#enabled"
+        default: false
+        type: "bool"
+      kubelet_topology_manager_policy:
+        header: [["    Policy:", ["main", "infoheader"]]]
+        path: "spec#kubelet#topologyManager#policy"
+        default: "None"
+        type: "str"
+      kubelet_topology_manager_scope:
+        header: [["    Scope:", ["main", "infoheader"]]]
+        path: "spec#kubelet#topologyManager#scope"
+        default: "Container"
+        type: "str"
+      kubernetes_version:
+        header: [["Kubernetes Version:", ["main", "infoheader"]]]
+        path: "status#kubernetesVersion"
+        type: "str"
+        formatting:
+          field_colors:
+            - type: "version"
+      max:
+        header: [["Max:", ["main", "infoheader"]]]
+        path: "status#max"
+        default: 0
+        type: "int"
+        formatter: "numerical"
+      message:
+        header: [["Message:", ["main", "infoheader"]]]
+        path: "status#conditionSummary#statusMessage"
+        type: "str"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              Deployed:
+                field_colors:
+                  - context: "main"
+                    type: "status_done"
+              Pending:
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+              Superseded:
+                field_colors:
+                  - context: "main"
+                    type: "status_done"
+              Suspended:
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+      min:
+        header: [["Min:", ["main", "infoheader"]]]
+        path: "status#min"
+        default: 0
+        type: "int"
+        formatter: "numerical"
+      node_drain_timeout:
+        header: [["Node Drain Timeout:", ["main", "infoheader"]]]
+        path: "spec#nodeDrainTimeoutSecond"
+        default: "<unset>"
+        type: "int"
+        formatter: "numerical"
+        formatting:
+          unit: "s"
+      node_type:
+        header: [["Node Type:", ["main", "infoheader"]]]
+        path: "spec#nodeType"
+        default: "<unset>"
+        type: "str"
+      nodes:
+        header: [["Nodes:", ["main", "infoheader"]]]
+        path: "status#nodes"
+        default: 0
+        type: "int"
+        formatter: "numerical"
+      ready:
+        header: [["Ready:", ["main", "infoheader"]]]
+        path: "status#ready"
+        default: 0
+        type: "int"
+        formatter: "numerical"
+      standby:
+        header: [["Standby:", ["main", "infoheader"]]]
+        path: "status#standby"
+        default: 0
+        type: "int"
+        formatter: "numerical"
+      synced:
+        header: [["Synced:", ["main", "infoheader"]]]
+        path: "status#synced"
+        default: false
+        type: "bool"
+      uptodate:
+        header: [["Up to Date:", ["main", "infoheader"]]]
+        path: "status#upToDate"
+        default: 0
+        type: "int"
+        formatter: "numerical"
+  shortcuts:
+    "View Node Template":
+      key: "t"
+      read_only: true
+      helptext: "Show Node template"
+      action: "call"
+      action_call: "view_yaml"
+      action_args:
+        title: "Node Template"
+        _pass_obj: true
+        path: "spec#nodeTemplate"

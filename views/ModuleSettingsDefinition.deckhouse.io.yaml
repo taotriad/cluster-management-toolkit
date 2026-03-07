@@ -1,0 +1,37 @@
+---
+kind: "ModuleSettingsDefinition"
+api_family: "deckhouse.io"
+default_command: "modulesettingsdefinitions"
+command:
+  - "modsettingsdefs"
+  - "modsettingsdef"
+listview:
+  name: "Module Settings Definitions"
+  group: "Deckhouse"
+  field_indexes:
+    Normal:
+      fields: ["name", "age"]
+infoview:
+  name: "Module Settings Definition Info"
+  infopad:
+  listpad:
+    on_activation:
+      call: "resourceinfodispatch"
+      kind: "__ResourceView"
+      formatter: "format_yaml"
+      obj_path: "schema"
+      title_path: "name"
+    listgetter: "listgetter_path"
+    listgetter_args:
+      path: "spec#versions"
+    infogetter: "generic_infogetter"
+    field_indexes:
+      Normal:
+        fields: ["name"]
+        sortcolumn: "name"
+    fields:
+      name:
+        header: "Name:"
+        path: "name"
+        default: "<unset>"
+        type: "str"

@@ -1,0 +1,214 @@
+---
+kind: "ModuleRelease"
+api_family: "deckhouse.io"
+default_command: "modulereleases"
+command:
+  - "modreleases"
+  - "modrelease"
+listview:
+  name: "Module Releases"
+  group: "Deckhouse"
+  field_indexes:
+    Normal:
+      fields: ["name", "weight", "version", "update_policy",
+               "approved", "phase", "transition_time",
+               "pull_duration", "age", "message"]
+  fields:
+    approved:
+      header: "Approved:"
+      path: "status#approved"
+      default: "<unset>"
+      type: "bool"
+    message:
+      header: "Message:"
+      path: "status#message"
+      type: "str"
+    phase:
+      header: "Phase:"
+      path: "status#phase"
+      type: "str"
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          mappings:
+            Deployed:
+              field_colors:
+                - context: "main"
+                  type: "status_done"
+            Pending:
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+            Superseded:
+              field_colors:
+                - context: "main"
+                  type: "status_done"
+            Suspended:
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+    pull_duration:
+      header: "Pull Duration:"
+      path: "status#pullDuration"
+      type: "str"
+      formatter: "numerical"
+      align: "right"
+    transition_time:
+      header: "Transition Time:"
+      path: "status#transitionTime"
+      type: "timestamp"
+      formatter: "age"
+      align: "right"
+    update_policy:
+      header: "Update Policy:"
+      path: "spec#updatePolicy"
+      default: "<unset>"
+      type: "str"
+    version:
+      header: "Version:"
+      path: "spec#version"
+      default: "<unset>"
+      type: "str"
+      formatting:
+        field_colors:
+          - type: "version"
+    weight:
+      header: "Weight:"
+      path: "spec#weight"
+      type: "int"
+      formatter: "numerical"
+      align: "right"
+infoview:
+  name: "Module Release Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["controller", "version", "module_name",
+                 "weight", "update_policy",
+                 "approved", "pull_duration", "size",
+                 "transition_time", "phase"]
+    rows:
+      approved:
+        header: [["Approved:", ["main", "infoheader"]]]
+        path: "status#approved"
+        default: "<unset>"
+        type: "bool"
+      controller:
+        header: [["C", ["main", "infoheader_shortcut"]],
+                 ["ontroller:", ["main", "infoheader"]]]
+        paths:
+          - path: "metadata#ownerReferences"
+            pathtype: "items"
+            subpaths:
+              - "kind"
+              - "apiVersion"
+              - "name"
+            when:
+              - key: "controller"
+                eq: true
+            type: ["kind", "api_group", "name"]
+        default: "<none>"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "kind"
+            - type: "api_group"
+            - type: "generic"
+          field_separators:
+            - type: "kind_api_group"
+            - type: "kind"
+      module_name:
+        header: [["Module Name:", ["main", "infoheader"]]]
+        path: "spec#moduleName"
+        default: "<unset>"
+        type: "str"
+      phase:
+        header: [["Phase:", ["main", "infoheader"]]]
+        path: "status#phase"
+        type: "str"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              Deployed:
+                field_colors:
+                  - context: "main"
+                    type: "status_done"
+              Pending:
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+              Superseded:
+                field_colors:
+                  - context: "main"
+                    type: "status_done"
+              Suspended:
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+      pull_duration:
+        header: [["Pull Duration:", ["main", "infoheader"]]]
+        path: "status#pullDuration"
+        type: "str"
+        formatter: "numerical"
+      size:
+        header: [["Size:", ["main", "infoheader"]]]
+        path: "status#size"
+        type: "int"
+        formatter: "numerical"
+      transition_time:
+        header: [["Transition Time:", ["main", "infoheader"]]]
+        path: "status#transitionTime"
+        type: "timestamp"
+        formatter: "age"
+      update_policy:
+        header: [["Update Policy:", ["main", "infoheader"]]]
+        path: "spec#updatePolicy"
+        default: "<unset>"
+        type: "str"
+      version:
+        header: [["Version:", ["main", "infoheader"]]]
+        path: "spec#version"
+        default: "<unset>"
+        type: "str"
+        formatting:
+          field_colors:
+            - type: "version"
+      weight:
+        header: [["Weight:", ["main", "infoheader"]]]
+        path: "spec#weight"
+        type: "int"
+        formatter: "numerical"
+  shortcuts:
+    "Open controller":
+      key: "c"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for controller"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        namespace_path: "metadata#namespace"
+        owner_reference_path: "metadata#ownerReferences"
+    "Show Changelog":
+      key: "c"
+      read_only: true
+      helptext: "Show changelog"
+      action: "call"
+      action_call: "view_obj"
+      action_args:
+        title: "Changelog"
+        _pass_obj: true
+        path: "spec#changelog"
+    "Show Requirements":
+      key: "r"
+      modifier: "shift"
+      read_only: true
+      helptext: "Show requirements"
+      action: "call"
+      action_call: "view_yaml"
+      action_args:
+        title: "Requirements"
+        _pass_obj: true
+        path: "spec#requirements"

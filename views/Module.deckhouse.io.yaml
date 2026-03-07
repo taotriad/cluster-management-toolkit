@@ -1,0 +1,266 @@
+---
+kind: "Module"
+api_family: "deckhouse.io"
+default_command: "modules"
+command:
+  - "mods"
+  - "mod"
+listview:
+  name: "Modules"
+  group: "Deckhouse"
+  field_indexes:
+    Wide:
+      fields: ["name", "weight", "critical", "version", "channel", "source",
+               "stage", "enabled", "ready", "phase", "age", "message"]
+    Normal:
+      fields: ["name", "version", "enabled", "ready", "phase", "age"]
+  fields:
+    channel:
+      header: "Channel:"
+      path: "properties#releaseChannel"
+      type: "str"
+    critical:
+      header: "Critical:"
+      path: "properties#critical"
+      default: false
+      type: "bool"
+    enabled:
+      header: "Enabled:"
+      paths:
+        - path: "status#conditions"
+          pathtype: "items"
+          subpath: "status"
+          when:
+            - key: "type"
+              eq: "EnabledByModuleManager"
+      type: "str"
+    message:
+      header: "Message:"
+      paths:
+        - path: "status#conditions"
+          pathtype: "items"
+          subpath: "message"
+          when:
+            - key: "type"
+              eq: "EnabledByModuleManager"
+          default: ""
+      type: "str"
+    phase:
+      header: "Phase:"
+      path: "status#phase"
+      type: "str"
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          mappings:
+            Available:
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+            Conflict:
+              field_colors:
+                - context: "main"
+                  type: "status_not_ok"
+            Downloaded:
+              field_colors:
+                - context: "main"
+                  type: "status_done"
+            Downloading:
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+            DownloadingError:
+              field_colors:
+                - context: "main"
+                  type: "status_not_ok"
+            Error:
+              field_colors:
+                - context: "main"
+                  type: "status_not_ok"
+            Installing:
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+            Ready:
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+            Reconciling:
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+            Unavailable:
+              field_colors:
+                - context: "main"
+                  type: "status_not_ok"
+    ready:
+      header: "Ready:"
+      paths:
+        - path: "status#conditions"
+          pathtype: "items"
+          subpath: "status"
+          when:
+            - key: "type"
+              eq: "IsReady"
+      type: "str"
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          mappings:
+            "True":
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+            "False":
+              field_colors:
+                - context: "main"
+                  type: "status_not_ok"
+    source:
+      header: "Source:"
+      path: "properties#source"
+      default: "<unset>"
+      type: "str"
+    stage:
+      header: "Stage:"
+      path: "properties#stage"
+      default: "<unset>"
+      type: "str"
+    version:
+      header: "Version:"
+      path: "properties#version"
+      default: "<unset>"
+      type: "str"
+      formatting:
+        field_colors:
+          - type: "version"
+    weight:
+      header: "Weight:"
+      path: "properties#weight"
+      type: "int"
+      formatter: "numerical"
+      align: "right"
+infoview:
+  name: "Module Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["description", "weight", "critical", "version",
+                 "channel", "source", "stage", "enabled", "ready", "phase"]
+    rows:
+      channel:
+        header: [["Channel:", ["main", "infoheader"]]]
+        path: "properties#releaseChannel"
+        type: "str"
+      critical:
+        header: [["Critical:", ["main", "infoheader"]]]
+        path: "properties#critical"
+        default: false
+        type: "bool"
+      description:
+        header: [["Description:", ["main", "infoheader"]]]
+        path: "metadata#annotations#en.meta.deckhouse.io/description"
+        default: "<unset>"
+        type: "str"
+      enabled:
+        header: [["Enabled:", ["main", "infoheader"]]]
+        paths:
+          - path: "status#conditions"
+            pathtype: "items"
+            subpath: "status"
+            when:
+              - key: "type"
+                eq: "EnabledByModuleManager"
+        type: "str"
+      phase:
+        header: [["Phase:", ["main", "infoheader"]]]
+        path: "status#phase"
+        type: "str"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              Available:
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+              Conflict:
+                field_colors:
+                  - context: "main"
+                    type: "status_not_ok"
+              Downloaded:
+                field_colors:
+                  - context: "main"
+                    type: "status_done"
+              Downloading:
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+              DownloadingError:
+                field_colors:
+                  - context: "main"
+                    type: "status_not_ok"
+              Error:
+                field_colors:
+                  - context: "main"
+                    type: "status_not_ok"
+              Installing:
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+              Ready:
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+              Reconciling:
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+              Unavailable:
+                field_colors:
+                  - context: "main"
+                    type: "status_not_ok"
+      ready:
+        header: [["Ready:", ["main", "infoheader"]]]
+        paths:
+          - path: "status#conditions"
+            pathtype: "items"
+            subpath: "status"
+            when:
+              - key: "type"
+                eq: "IsReady"
+        type: "str"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              "True":
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+              "False":
+                field_colors:
+                  - context: "main"
+                    type: "status_not_ok"
+      source:
+        header: [["Source:", ["main", "infoheader"]]]
+        path: "properties#source"
+        default: "<unset>"
+        type: "str"
+      stage:
+        header: [["Stage:", ["main", "infoheader"]]]
+        path: "properties#stage"
+        default: "<unset>"
+        type: "str"
+      version:
+        header: [["Version:", ["main", "infoheader"]]]
+        path: "properties#version"
+        default: "<unset>"
+        type: "str"
+        formatting:
+          field_colors:
+            - type: "version"
+      weight:
+        header: [["Weight:", ["main", "infoheader"]]]
+        path: "properties#weight"
+        type: "int"
+        formatter: "numerical"
