@@ -839,6 +839,10 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api_paths": ["apis/infrastructure.cluster.x-k8s.io/v1beta1/"],
         "api": "azuremanagedmachinepools",
     },
+    ("DeckhouseControlPlane", "infrastructure.cluster.x-k8s.io"): {
+        "api_paths": ["apis/infrastructure.cluster.x-k8s.io/v1alpha1/"],
+        "api": "deckhousecontrolplanes",
+    },
     ("DevCluster", "infrastructure.cluster.x-k8s.io"): {
         "api_paths": ["apis/infrastructure.cluster.x-k8s.io/v1beta2/",
                       "apis/infrastructure.cluster.x-k8s.io/v1beta1/"],
@@ -1052,6 +1056,18 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
     ("RemoteMachineTemplate", "infrastructure.cluster.x-k8s.io"): {
         "api_paths": ["apis/infrastructure.cluster.x-k8s.io/v1beta1/"],
         "api": "remotemachinetemplates",
+    },
+    ("StaticCluster", "infrastructure.cluster.x-k8s.io"): {
+        "api_paths": ["apis/infrastructure.cluster.x-k8s.io/v1alpha1/"],
+        "api": "staticclusters",
+    },
+    ("StaticMachine", "infrastructure.cluster.x-k8s.io"): {
+        "api_paths": ["apis/infrastructure.cluster.x-k8s.io/v1alpha1/"],
+        "api": "staticmachines",
+    },
+    ("StaticMachineTemplate", "infrastructure.cluster.x-k8s.io"): {
+        "api_paths": ["apis/infrastructure.cluster.x-k8s.io/v1alpha1/"],
+        "api": "staticmachinetemplates",
     },
     ("VCluster", "infrastructure.cluster.x-k8s.io"): {
         "api_paths": ["apis/infrastructure.cluster.x-k8s.io/v1alpha1/"],
@@ -2316,6 +2332,11 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api_paths": ["apis/configuration.konghq.com/v1beta1/"],
         "api": "udpingresses",
     },
+    # connection.gatekeeper.sh
+    ("Connection", "connection.gatekeeper.sh"): {
+        "api_paths": ["apis/connection.gatekeeper.sh/v1alpha1/"],
+        "api": "connections",
+    },
     # console.openshift.io
     ("ConsoleCLIDownload", "console.openshift.io"): {
         "api_paths": ["apis/console.openshift.io/v1/"],
@@ -2645,9 +2666,153 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api": "datascienceclusters",
     },
     # deckhouse.io
+    ("AuthorizationRule", "deckhouse.io"): {
+        "api_paths": ["apis/deckhouse.io/v1alpha1/"],
+        "api": "authorizationrules",
+    },
+    ("ClusterAlert", "deckhouse.io"): {
+        "api_paths": ["apis/deckhouse.io/v1alpha1/"],
+        "api": "clusteralerts",
+        "namespaced": False,
+    },
+    ("ClusterAuthorizationRule", "deckhouse.io"): {
+        "api_paths": ["apis/deckhouse.io/v1/"],
+        "api": "clusterauthorizationrules",
+        "namespaced": False,
+    },
+    ("ClusterDaemonSetMetric", "deckhouse.io"): {
+        "api_paths": ["apis/deckhouse.io/v1beta1/"],
+        "api": "clusterdaemonsetmetrics",
+        "namespaced": False,
+    },
+    ("ClusterDeploymentMetric", "deckhouse.io"): {
+        "api_paths": ["apis/deckhouse.io/v1beta1/"],
+        "api": "clusterdeploymentmetrics",
+        "namespaced": False,
+    },
+    ("ClusterIngressMetric", "deckhouse.io"): {
+        "api_paths": ["apis/deckhouse.io/v1beta1/"],
+        "api": "clusteringressmetrics",
+        "namespaced": False,
+    },
+    ("ClusterLogDestination", "deckhouse.io"): {
+        "api_paths": ["apis/deckhouse.io/v1alpha1/"],
+        "api": "clusterlogdestinations",
+        "namespaced": False,
+    },
+    ("ClusterLoggingConfig", "deckhouse.io"): {
+        "api_paths": ["apis/deckhouse.io/v1alpha2/"],
+        "api": "clusterloggingconfigs",
+        "namespaced": False,
+    },
+    ("ClusterPodMetric", "deckhouse.io"): {
+        "api_paths": ["apis/deckhouse.io/v1beta1/"],
+        "api": "clusterpodmetrics",
+        "namespaced": False,
+    },
+    ("ClusterServiceMetric", "deckhouse.io"): {
+        "api_paths": ["apis/deckhouse.io/v1beta1/"],
+        "api": "clusterservicemetrics",
+        "namespaced": False,
+    },
+    ("ClusterStatefulSetMetric", "deckhouse.io"): {
+        "api_paths": ["apis/deckhouse.io/v1beta1/"],
+        "api": "clusterstatefulsetmetrics",
+        "namespaced": False,
+    },
+    ("CustomAlertmanager", "deckhouse.io"): {
+        "api_paths": ["apis/deckhouse.io/v1alpha1/"],
+        "api": "customalertmanagers",
+        "namespaced": False,
+    },
+    ("CustomPrometheusRules", "deckhouse.io"): {
+        "api_paths": ["apis/deckhouse.io/v1/"],
+        "api": "customprometheusrules",
+        "namespaced": False,
+    },
+    ("DaemonSetMetric", "deckhouse.io"): {
+        "api_paths": ["apis/deckhouse.io/v1beta1/"],
+        "api": "daemonsetmetrics",
+    },
     ("DeckhouseRelease", "deckhouse.io"): {
         "api_paths": ["apis/deckhouse.io/v1alpha1/"],
         "api": "deckhousereleases",
+        "namespaced": False,
+    },
+    ("DeploymentMetric", "deckhouse.io"): {
+        "api_paths": ["apis/deckhouse.io/v1beta1/"],
+        "api": "deploymentmetrics",
+    },
+    ("Descheduler", "deckhouse.io"): {
+        "api_paths": ["apis/deckhouse.io/v1alpha2/"],
+        "api": "deschedulers",
+        "namespaced": False,
+    },
+    ("DexAuthenticator", "deckhouse.io"): {
+        "api_paths": ["apis/deckhouse.io/v1/"],
+        "api": "dexauthenticators",
+    },
+    ("DexClient", "deckhouse.io"): {
+        "api_paths": ["apis/deckhouse.io/v1/"],
+        "api": "dexclients",
+    },
+    ("DexProvider", "deckhouse.io"): {
+        "api_paths": ["apis/deckhouse.io/v1/"],
+        "api": "dexproviders",
+        "namespaced": False,
+    },
+    ("Downtime", "deckhouse.io"): {
+        "api_paths": ["apis/deckhouse.io/v1alpha1/"],
+        "api": "downtimes",
+        "namespaced": False,
+    },
+    ("GrafanaAdditionalDatasource", "deckhouse.io"): {
+        "api_paths": ["apis/deckhouse.io/v1/"],
+        "api": "grafanaadditionaldatasources",
+        "namespaced": False,
+    },
+    ("GrafanaAlertsChannel", "deckhouse.io"): {
+        "api_paths": ["apis/deckhouse.io/v1alpha1/"],
+        "api": "grafanaalertschannels",
+        "namespaced": False,
+    },
+    ("GrafanaDashboardDefinition", "deckhouse.io"): {
+        "api_paths": ["apis/deckhouse.io/v1/"],
+        "api": "grafanadashboarddefinitions",
+        "namespaced": False,
+    },
+    ("Group", "deckhouse.io"): {
+        "api_paths": ["apis/deckhouse.io/v1alpha1/"],
+        "api": "groups",
+        "namespaced": False,
+    },
+    ("IngressMetric", "deckhouse.io"): {
+        "api_paths": ["apis/deckhouse.io/v1beta1/"],
+        "api": "ingressmetrics",
+    },
+    ("IngressNginxController", "deckhouse.io"): {
+        "api_paths": ["apis/deckhouse.io/v1/"],
+        "api": "ingressnginxcontrollers",
+        "namespaced": False,
+    },
+    ("Instance", "deckhouse.io"): {
+        "api_paths": ["apis/deckhouse.io/v1alpha1/"],
+        "api": "instances",
+        "namespaced": False,
+    },
+    ("InstanceTypesCatalog", "deckhouse.io"): {
+        "api_paths": ["apis/deckhouse.io/v1alpha1/"],
+        "api": "instancetypescatalogs",
+        "namespaced": False,
+    },
+    ("LocalPathProvisioner", "deckhouse.io"): {
+        "api_paths": ["apis/deckhouse.io/v1alpha1/"],
+        "api": "localpathprovisioners",
+        "namespaced": False,
+    },
+    ("Module", "deckhouse.io"): {
+        "api_paths": ["apis/deckhouse.io/v1alpha1/"],
+        "api": "modules",
         "namespaced": False,
     },
     ("ModuleConfig", "deckhouse.io"): {
@@ -2665,9 +2830,9 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api": "modulereleases",
         "namespaced": False,
     },
-    ("Module", "deckhouse.io"): {
-        "api_paths": ["apis/deckhouse.io/v1alpha1/"],
-        "api": "modules",
+    ("ModulePullOverride", "deckhouse.io"): {
+        "api_paths": ["apis/deckhouse.io/v1alpha2/"],
+        "api": "modulepulloverrides",
         "namespaced": False,
     },
     ("ModuleSettingsDefinition", "deckhouse.io"): {
@@ -2680,19 +2845,103 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api": "modulesources",
         "namespaced": False,
     },
+    ("ModuleUpdatePolicy", "deckhouse.io"): {
+        "api_paths": ["apis/deckhouse.io/v1alpha2/"],
+        "api": "moduleupdatepolicies",
+        "namespaced": False,
+    },
+    ("NamespaceMetric", "deckhouse.io"): {
+        "api_paths": ["apis/deckhouse.io/v1beta1/"],
+        "api": "namespacemetrics",
+    },
+    ("NodeGroup", "deckhouse.io"): {
+        "api_paths": ["apis/deckhouse.io/v1/"],
+        "api": "nodegroups",
+        "namespaced": False,
+    },
+    ("NodeGroupConfiguration", "deckhouse.io"): {
+        "api_paths": ["apis/deckhouse.io/v1alpha1/"],
+        "api": "nodegroupconfigurations",
+        "namespaced": False,
+    },
+    ("NodeUser", "deckhouse.io"): {
+        "api_paths": ["apis/deckhouse.io/v1/"],
+        "api": "nodeusers",
+        "namespaced": False,
+    },
     ("ObjectKeeper", "deckhouse.io"): {
         "api_paths": ["apis/deckhouse.io/v1alpha1/"],
         "api": "objectkeepers",
         "namespaced": False,
     },
-    ("ModulePullOverride", "deckhouse.io"): {
-        "api_paths": ["apis/deckhouse.io/v1alpha2/"],
-        "api": "modulepulloverrides",
+    ("OperationPolicy", "deckhouse.io"): {
+        "api_paths": ["apis/deckhouse.io/v1alpha1/"],
+        "api": "operationpolicies",
         "namespaced": False,
     },
-    ("ModuleUpdatePolicy", "deckhouse.io"): {
+    ("PodMetric", "deckhouse.io"): {
+        "api_paths": ["apis/deckhouse.io/v1beta1/"],
+        "api": "podmetrics",
+    },
+    ("PodLoggingConfig", "deckhouse.io"): {
+        "api_paths": ["apis/deckhouse.io/v1alpha1/"],
+        "api": "podloggingconfigs",
+    },
+    ("Project", "deckhouse.io"): {
         "api_paths": ["apis/deckhouse.io/v1alpha2/"],
-        "api": "moduleupdatepolicies",
+        "api": "projects",
+        "namespaced": False,
+    },
+    ("ProjectTemplate", "deckhouse.io"): {
+        "api_paths": ["apis/deckhouse.io/v1alpha1/"],
+        "api": "projecttemplates",
+        "namespaced": False,
+    },
+    ("PrometheusRemoteWrite", "deckhouse.io"): {
+        "api_paths": ["apis/deckhouse.io/v1/"],
+        "api": "prometheusremotewrites",
+        "namespaced": False,
+    },
+    ("SecurityPolicy", "deckhouse.io"): {
+        "api_paths": ["apis/deckhouse.io/v1alpha1/"],
+        "api": "securitypolicies",
+        "namespaced": False,
+    },
+    ("SecurityPolicyException", "deckhouse.io"): {
+        "api_paths": ["apis/deckhouse.io/v1alpha1/"],
+        "api": "securitypolicyexceptions",
+    },
+    ("ServiceMetric", "deckhouse.io"): {
+        "api_paths": ["apis/deckhouse.io/v1beta1/"],
+        "api": "servicemetrics",
+    },
+    ("SSHCredentials", "deckhouse.io"): {
+        "api_paths": ["apis/deckhouse.io/v1alpha2/"],
+        "api": "sshcredentials",
+        "namespaced": False,
+    },
+    ("StatefulSetMetric", "deckhouse.io"): {
+        "api_paths": ["apis/deckhouse.io/v1beta1/"],
+        "api": "statefulsetmetrics",
+    },
+    ("StaticInstance", "deckhouse.io"): {
+        "api_paths": ["apis/deckhouse.io/v1alpha2/"],
+        "api": "staticinstances",
+        "namespaced": False,
+    },
+    ("UpmeterHookProbe", "deckhouse.io"): {
+        "api_paths": ["apis/deckhouse.io/v1/"],
+        "api": "upmeterhookprobes",
+        "namespaced": False,
+    },
+    ("UpmeterRemoteWrite", "deckhouse.io"): {
+        "api_paths": ["apis/deckhouse.io/v1/"],
+        "api": "upmeterremotewrites",
+        "namespaced": False,
+    },
+    ("User", "deckhouse.io"): {
+        "api_paths": ["apis/deckhouse.io/v1/"],
+        "api": "users",
         "namespaced": False,
     },
     # deviceplugin.intel.com
@@ -2873,7 +3122,7 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
     },
     # expansion.gatekeeper.sh
     ("ExpansionTemplate", "expansion.gatekeeper.sh"): {
-        "api_paths": ["apis/expansion.gatekeeper.sh/v1alpha1/"],
+        "api_paths": ["apis/expansion.gatekeeper.sh/v1beta1/"],
         "api": "expansiontemplate",
         "namespaced": False,
     },
@@ -4275,6 +4524,51 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api": "pinnedimagesets",
         "namespaced": False,
     },
+    # machine.sapcloud.io
+    ("AlicloudMachineClass", "machine.sapcloud.io"): {
+        "api_paths": ["apis/machine.sapcloud.io/v1alpha1/"],
+        "api": "alicloudmachineclasses",
+    },
+    ("AWSMachineClass", "machine.sapcloud.io"): {
+        "api_paths": ["apis/machine.sapcloud.io/v1alpha1/"],
+        "api": "awsmachineclasses",
+    },
+    ("AzureMachineClass", "machine.sapcloud.io"): {
+        "api_paths": ["apis/machine.sapcloud.io/v1alpha1/"],
+        "api": "azuremachineclasses",
+    },
+    ("GCPMachineClass", "machine.sapcloud.io"): {
+        "api_paths": ["apis/machine.sapcloud.io/v1alpha1/"],
+        "api": "gcpmachineclasses",
+    },
+    ("MachineDeployment", "machine.sapcloud.io"): {
+        "api_paths": ["apis/machine.sapcloud.io/v1alpha1/"],
+        "api": "machinedeployments",
+    },
+    ("Machine", "machine.sapcloud.io"): {
+        "api_paths": ["apis/machine.sapcloud.io/v1alpha1/"],
+        "api": "machines",
+    },
+    ("MachineSet", "machine.sapcloud.io"): {
+        "api_paths": ["apis/machine.sapcloud.io/v1alpha1/"],
+        "api": "machinesets",
+    },
+    ("OpenStackMachineClass", "machine.sapcloud.io"): {
+        "api_paths": ["apis/machine.sapcloud.io/v1alpha1/"],
+        "api": "openstackmachineclasses",
+    },
+    ("PacketMachineClass", "machine.sapcloud.io"): {
+        "api_paths": ["apis/machine.sapcloud.io/v1alpha1/"],
+        "api": "packetmachineclasses",
+    },
+    ("VsphereMachineClass", "machine.sapcloud.io"): {
+        "api_paths": ["apis/machine.sapcloud.io/v1alpha1/"],
+        "api": "vspheremachineclasses",
+    },
+    ("YandexMachineClass", "machine.sapcloud.io"): {
+        "api_paths": ["apis/machine.sapcloud.io/v1alpha1/"],
+        "api": "yandexmachineclasses",
+    },
     # machinelearning.seldon.io
     ("SeldonDeployment", "machinelearning.seldon.io"): {
         "api_paths": ["apis/machinelearning.seldon.io/v1/",
@@ -5115,6 +5409,93 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api_paths": ["apis/objectbucket.io/v1alpha1/"],
         "api": "objectbuckets",
         "namespaced": False,
+    },
+    # observability.deckhouse.io
+    ("ClusterMetric", "observability.deckhouse.io"): {
+        "api_paths": ["apis/observability.deckhouse.io/v1alpha1/"],
+        "api": "clustermetrics",
+        "namespaced": False,
+    },
+    ("ClusterObservabilityDashboard", "observability.deckhouse.io"): {
+        "api_paths": ["apis/observability.deckhouse.io/v1alpha1/"],
+        "api": "clusterobservabilitydashboards",
+        "namespaced": False,
+    },
+    ("ClusterObservabilityMetricsRecordingRule", "observability.deckhouse.io"): {
+        "api_paths": ["apis/observability.deckhouse.io/v1alpha1/"],
+        "api": "clusterobservabilitymetricsrecordingrules",
+        "namespaced": False,
+    },
+    ("ClusterObservabilityMetricsRulesGroup", "observability.deckhouse.io"): {
+        "api_paths": ["apis/observability.deckhouse.io/v1alpha1/"],
+        "api": "clusterobservabilitymetricsrulesgroups",
+        "namespaced": False,
+    },
+    ("ClusterObservabilityNotificationChannel", "observability.deckhouse.io"): {
+        "api_paths": ["apis/observability.deckhouse.io/v1alpha1/"],
+        "api": "clusterobservabilitynotificationchannels",
+        "namespaced": False,
+    },
+    ("ClusterObservabilityNotificationPolicy", "observability.deckhouse.io"): {
+        "api_paths": ["apis/observability.deckhouse.io/v1alpha1/"],
+        "api": "clusterobservabilitynotificationpolicies",
+        "namespaced": False,
+    },
+    ("ClusterObservabilityNotificationSilence", "observability.deckhouse.io"): {
+        "api_paths": ["apis/observability.deckhouse.io/v1alpha1/"],
+        "api": "clusterobservabilitynotificationsilences",
+        "namespaced": False,
+    },
+    ("ClusterObservabilityPropagatedDashboard", "observability.deckhouse.io"): {
+        "api_paths": ["apis/observability.deckhouse.io/v1alpha1/"],
+        "api": "clusterobservabilitypropagateddashboards",
+        "namespaced": False,
+    },
+    ("ClusterObservabilityPropagatedMetricsRulesGroup", "observability.deckhouse.io"): {
+        "api_paths": ["apis/observability.deckhouse.io/v1alpha1/"],
+        "api": "clusterobservabilitypropagatedmetricsrulesgroups",
+        "namespaced": False,
+    },
+    ("ClusterObservabilityPropagatedNotificationChannel", "observability.deckhouse.io"): {
+        "api_paths": ["apis/observability.deckhouse.io/v1alpha1/"],
+        "api": "clusterobservabilitypropagatednotificationchannels",
+        "namespaced": False,
+    },
+    ("ObservabilityDashboard", "observability.deckhouse.io"): {
+        "api_paths": ["apis/observability.deckhouse.io/v1alpha1/"],
+        "api": "observabilitydashboards",
+    },
+    ("ObservabilityDatasource", "observability.deckhouse.io"): {
+        "api_paths": ["apis/observability.deckhouse.io/v1alpha1/"],
+        "api": "observabilitydatasources",
+    },
+    ("ObservabilityMetricsAlertingRuleOverride", "observability.deckhouse.io"): {
+        "api_paths": ["apis/observability.deckhouse.io/v1alpha1/"],
+        "api": "observabilitymetricsalertingruleoverrides",
+    },
+    ("ObservabilityMetricsAlertingRule", "observability.deckhouse.io"): {
+        "api_paths": ["apis/observability.deckhouse.io/v1alpha1/"],
+        "api": "observabilitymetricsalertingrules",
+    },
+    ("ObservabilityMetricsRecordingRule", "observability.deckhouse.io"): {
+        "api_paths": ["apis/observability.deckhouse.io/v1alpha1/"],
+        "api": "observabilitymetricsrecordingrules",
+    },
+    ("ObservabilityMetricsRulesGroup", "observability.deckhouse.io"): {
+        "api_paths": ["apis/observability.deckhouse.io/v1alpha1/"],
+        "api": "observabilitymetricsrulesgroups",
+    },
+    ("ObservabilityNotificationChannel", "observability.deckhouse.io"): {
+        "api_paths": ["apis/observability.deckhouse.io/v1alpha1/"],
+        "api": "observabilitynotificationchannels",
+    },
+    ("ObservabilityNotificationPolicy", "observability.deckhouse.io"): {
+        "api_paths": ["apis/observability.deckhouse.io/v1alpha1/"],
+        "api": "observabilitynotificationpolicies",
+    },
+    ("ObservabilityNotificationSilence", "observability.deckhouse.io"): {
+        "api_paths": ["apis/observability.deckhouse.io/v1alpha1/"],
+        "api": "observabilitynotificationsilences",
     },
     # observability.openshift.io
     ("ObservabilityInstaller", "observability.openshift.io"): {
@@ -6144,9 +6525,17 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "namespaced": False,
     },
     # status.gatekeeper.sh
-    ("MutatorPodStatus", "status.gatekeeper.sh"): {
+    ("ConfigPodStatus", "status.gatekeeper.sh"): {
         "api_paths": ["apis/status.gatekeeper.sh/v1beta1/"],
-        "api": "mutatorpodstatuses",
+        "api": "configpodstatuses",
+    },
+    ("ConnectionPodStatus", "status.gatekeeper.sh"): {
+        "api_paths": ["apis/status.gatekeeper.sh/v1alpha1/"],
+        "api": "connectionpodstatuses",
+    },
+    ("ConstraintPodStatus", "status.gatekeeper.sh"): {
+        "api_paths": ["apis/status.gatekeeper.sh/v1beta1/"],
+        "api": "constraintpodstatuses",
     },
     ("ConstraintTemplatePodStatus", "status.gatekeeper.sh"): {
         "api_paths": ["apis/status.gatekeeper.sh/v1beta1/"],
@@ -6156,9 +6545,9 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api_paths": ["apis/status.gatekeeper.sh/v1beta1/"],
         "api": "expansiontemplatepodstatuses",
     },
-    ("ConstraintPodStatus", "status.gatekeeper.sh"): {
+    ("MutatorPodStatus", "status.gatekeeper.sh"): {
         "api_paths": ["apis/status.gatekeeper.sh/v1beta1/"],
-        "api": "constraintpodstatuses",
+        "api": "mutatorpodstatuses",
     },
     # storage.loft.sh
     ("AccessKey", "storage.loft.sh"): {
@@ -6261,6 +6650,12 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
     ("PolicyBinding", "sts.min.io"): {
         "api_paths": ["apis/sts.min.io/v1beta1/"],
         "api": "policybindings",
+    },
+    # syncset.gatekeeper.sh
+    ("SyncSet", "syncset.gatekeeper.sh"): {
+        "api_paths": ["apis/syncset.gatekeeper.sh/v1alpha1/"],
+        "api": "syncsets",
+        "namespaced": False,
     },
     # system.antrea.io
     ("AntreaControllerInfo", "system.antrea.io"): {
