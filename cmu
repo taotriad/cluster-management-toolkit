@@ -4595,7 +4595,7 @@ def genericinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                         name = item.ref["name"]
                         ikind = item.type
                     elif view == ("ConfigMap", "") \
-                            and item.type in (rtype[4] for rtype in formatters.cmdata_format):
+                            and item.type in (rtype[0] for rtype in formatters.cmdata_format):
                         name = item.data
                         ikind = deep_get(viewref, DictPath("listpad#on_activation#kind"), "")
                         if isinstance(ikind, str):
