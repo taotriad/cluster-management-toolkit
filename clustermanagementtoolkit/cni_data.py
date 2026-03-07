@@ -216,6 +216,7 @@ class CNIDataTypeOptional(TypedDict, total=False):
     version_command: list[str]
     version_regex: str
     urls: list[URLType]
+    arch_aliases: dict[str, str]
     upgrade: list[str]
     install: list[str]
     uninstall: list[str]
