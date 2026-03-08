@@ -25,6 +25,7 @@ infoview:
                  "description",
                  "cpu_header", "cpu_guest", "cpu_dedicated_placement",
                  "cpu_isolate_emulator_thread",
+                 "cpu_max_sockets",
                  "io_threads_policy",
                  "gpus",
                  "mem_header", "mem_guest",
@@ -50,6 +51,12 @@ infoview:
         path: "spec#cpu#isolateEmulatorThread"
         default: "<unset>"
         type: "bool"
+      cpu_max_sockets:
+        header: [["  Max Sockets:", ["main", "infoheader"]]]
+        path: "spec#cpu#maxSockets"
+        default: "<unset>"
+        type: "int"
+        formatter: "numerical"
       description:
         header: [["D", ["main", "infoheader_shortcut"]],
                  ["escription:", ["main", "infoheader"]]]

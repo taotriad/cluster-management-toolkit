@@ -3,6 +3,7 @@ kind: "Node"
 api_family: "longhorn.io"
 default_command: "nodes.longhorn.io"
 command:
+  - "node.longhorn.io"
   - "lhnodes"
   - "lhnode"
 listview:
@@ -166,3 +167,98 @@ infoview:
         fallback_on_empty: true
         default: "<unset>"
         type: "str"
+  listpad:
+    listgetter: "listgetter_dict_list"
+    listgetter_args:
+      paths:
+        # Make sure to keep the paths in this order;
+        # latter paths take priority, so make sure that
+        # status is after spec.
+        - path: "spec#disks"
+        - path: "status#diskStatus"
+      join_paths: true
+    infogetter: "generic_infogetter"
+    field_indexes:
+      Normal:
+        fields: ["name", "disk_type", "filesystem",
+                 "path", "allow_scheduling",
+                 "eviction_requested", "available", "maximum", "scheduled",
+                 "instance_manager"]
+        sortcolumn: "name"
+    fields:
+      allow_scheduling:
+        header: "Allow Scheduling:"
+        path: "value#allowScheduling"
+        default: "<unset>"
+        type: "bool"
+      available:
+        header: "Available:"
+        paths:
+          - path: "value#storageAvailable"
+            type: "disk_usage"
+            default: 0
+        formatter: "numerical"
+        align: "right"
+      disk_type:
+        header: "Disk Type:"
+        path: "value#diskType"
+        default: "<unset>"
+        type: "str"
+      eviction_requested:
+        header: "Eviction Requested:"
+        path: "value#evictionRequested"
+        default: "<unset>"
+        type: "bool"
+      filesystem:
+        header: "Filesystem:"
+        path: "value#filesystemType"
+        default: "<unset>"
+        type: "str"
+      instance_manager:
+        header: "Instance Manager:"
+        path: "value#instanceManagerName"
+        default: "<unset>"
+        type: "str"
+      maximum:
+        header: "Maximum:"
+        paths:
+          - path: "value#storageMaximum"
+            type: "disk_usage"
+            default: 0
+        formatter: "numerical"
+        align: "right"
+      name:
+        header: "Name:"
+        path: "key"
+        default: "<unset>"
+        type: "str"
+      path:
+        header: "Path:"
+        path: "value#path"
+        default: "<unset>"
+        type: "str"
+        formatting:
+          field_colors:
+            - type: "path"
+      scheduled:
+        header: "Scheduled:"
+        paths:
+          - path: "value#storageScheduled"
+            type: "disk_usage"
+            default: 0
+        formatter: "numerical"
+        align: "right"
+  shortcuts:
+    "Open Instance Manager":
+      key: "i"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open Instance Manager"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_selected_obj: true
+        kind: "InstanceManager"
+        api_family: "longhorn.io"
+        name_path: "value#instanceManagerName"
+        _parent_namespace_path: "metadata#namespace"

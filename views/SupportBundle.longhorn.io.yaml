@@ -1,0 +1,193 @@
+---
+kind: "SupportBundle"
+api_family: "longhorn.io"
+default_command: "supportbundles.longhorn.io"
+command:
+  - "lhsupportbundles"
+  - "lhsupportbundle"
+listview:
+  name: "Support Bundles"
+  group: "Storage & Backups"
+  field_indexes:
+    Normal:
+      fields: ["namespace", "name", "description", "issue_url", "state", "age"]
+      sortcolumn: "namespace"
+  fields:
+    description:
+      header: "Description:"
+      path: "spec#description"
+      default: "<unset>"
+      type: "str"
+    issue_url:
+      header: "Issue URL:"
+      path: "spec#issueURL"
+      default: "<unset>"
+      fallback_on_empty: true
+      type: "str"
+      formatter: "address"
+    state:
+      header: "State:"
+      path: "status#state"
+      default: "<unset>"
+      type: "str"
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          mappings:
+            Deleting:
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+            Error:
+              field_colors:
+                - context: "main"
+                  type: "status_not_ok"
+            Generating:
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+            Purging:
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+            ReadyForDownload:
+              field_colors:
+                - context: "main"
+                  type: "status_done"
+            Replaced:
+              field_colors:
+                - context: "main"
+                  type: "status_done"
+            Started:
+              field_colors:
+                - context: "main"
+                  type: "status_done"
+            Unknown:
+              field_colors:
+                - context: "main"
+                  type: "status_unknown"
+            "<unset>":
+              field_colors:
+                - context: "types"
+                  type: "unset"
+  actions:
+    actionlist:
+      "Delete resource":
+        description: "Delete resource"
+        category: "Resource Level"
+        confirm: true
+        actionfunc: "delete_resource"
+infoview:
+  name: "Support Bundle Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["description", "issue_url", "image",
+                 "filename", "filesize",
+                 "owner_id", "manager_ip",
+                 "progress", "state"]
+    rows:
+      description:
+        header: [["Description:", ["main", "infoheader"]]]
+        path: "spec#description"
+        default: "<unset>"
+        type: "str"
+      issue_url:
+        header: [["Issue URL:", ["main", "infoheader"]]]
+        path: "spec#issueURL"
+        default: "<unset>"
+        fallback_on_empty: true
+        type: "str"
+      filename:
+        header: [["Filename:", ["main", "infoheader"]]]
+        path: "status#filename"
+        default: "<unset>"
+        fallback_on_empty: true
+        type: "str"
+        formatting:
+          field_colors:
+            - type: "path"
+      filesize:
+        header: [["Filesize:", ["main", "infoheader"]]]
+        paths:
+          - path: "status#filesize"
+            type: "disk_usage"
+            default: 0
+        formatter: "numerical"
+      image:
+        header: [["Image:", ["main", "infoheader"]]]
+        paths:
+          - path: "status#image"
+            pathtype: "regex"
+            regex: "^([^:]+):(.*)"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "generic"
+            - type: "version"
+          field_separators:
+            - type: "version"
+      manager_ip:
+        header: [["Manager IP:", ["main", "infoheader"]]]
+        path: "status#managerIP"
+        default: "<unset>"
+        type: "str"
+        formatter: "address"
+      owner_id:
+        header: [["Owner ID:", ["main", "infoheader"]]]
+        path: "status#ownerID"
+        default: "<unset>"
+        type: "str"
+      progress:
+        header: [["Progress:", ["main", "infoheader"]]]
+        path: "status#progress"
+        default: 0
+        type: "int"
+        formatter: "numerical"
+        formatting:
+          unit: "%"
+      state:
+        header: [["State:", ["main", "infoheader"]]]
+        path: "status#state"
+        default: "<unset>"
+        type: "str"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              Deleting:
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+              Error:
+                field_colors:
+                  - context: "main"
+                    type: "status_not_ok"
+              Generating:
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+              Purging:
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+              ReadyForDownload:
+                field_colors:
+                  - context: "main"
+                    type: "status_done"
+              Replaced:
+                field_colors:
+                  - context: "main"
+                    type: "status_done"
+              Started:
+                field_colors:
+                  - context: "main"
+                    type: "status_done"
+              Unknown:
+                field_colors:
+                  - context: "main"
+                    type: "status_unknown"
+              "<unset>":
+                field_colors:
+                  - context: "types"
+                    type: "unset"

@@ -1,0 +1,127 @@
+---
+kind: "SupportBundle"
+api_family: "harvesterhci.io"
+default_command: "supportbundles.harvesterhci.io"
+command:
+  - "hvstsupportbundles"
+  - "hvstsupportbundle"
+listview:
+  name: "Support Bundles"
+  group: "Harvester"
+  field_indexes:
+    Normal:
+      fields: ["namespace", "name", "description", "issue_url", "state", "age"]
+      sortcolumn: "namespace"
+  fields:
+    description:
+      header: "Description:"
+      path: "spec#description"
+      default: "<unset>"
+      type: "str"
+    issue_url:
+      header: "Issue URL:"
+      path: "spec#issueURL"
+      default: "<unset>"
+      fallback_on_empty: true
+      type: "str"
+      formatter: "address"
+    state:
+      header: "State:"
+      path: "status#state"
+      default: "<unset>"
+      type: "str"
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          mappings:
+            error:
+              field_colors:
+                - context: "main"
+                  type: "status_not_ok"
+            generating:
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+            ready:
+              field_colors:
+                - context: "main"
+                  type: "status_done"
+            "<unset>":
+              field_colors:
+                - context: "types"
+                  type: "unset"
+  actions:
+    actionlist:
+      "Delete resource":
+        description: "Delete resource"
+        category: "Resource Level"
+        confirm: true
+        actionfunc: "delete_resource"
+infoview:
+  name: "Support Bundle Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["description", "issue_url",
+                 "filename", "filesize", "progress", "state"]
+    rows:
+      description:
+        header: [["Description:", ["main", "infoheader"]]]
+        path: "spec#description"
+        default: "<unset>"
+        type: "str"
+      issue_url:
+        header: [["Issue URL:", ["main", "infoheader"]]]
+        path: "spec#issueURL"
+        default: "<unset>"
+        fallback_on_empty: true
+        type: "str"
+      filename:
+        header: [["Filename:", ["main", "infoheader"]]]
+        path: "status#filename"
+        default: "<unset>"
+        fallback_on_empty: true
+        type: "str"
+        formatting:
+          field_colors:
+            - type: "path"
+      filesize:
+        header: [["Filesize:", ["main", "infoheader"]]]
+        paths:
+          - path: "status#filesize"
+            type: "disk_usage"
+            default: 0
+        formatter: "numerical"
+      progress:
+        header: [["Progress:", ["main", "infoheader"]]]
+        path: "status#progress"
+        default: 0
+        type: "int"
+        formatter: "numerical"
+        formatting:
+          unit: "%"
+      state:
+        header: [["State:", ["main", "infoheader"]]]
+        path: "status#state"
+        default: "<unset>"
+        type: "str"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              error:
+                field_colors:
+                  - context: "main"
+                    type: "status_not_ok"
+              generating:
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+              ready:
+                field_colors:
+                  - context: "main"
+                    type: "status_done"
+              "<unset>":
+                field_colors:
+                  - context: "types"
+                    type: "unset"

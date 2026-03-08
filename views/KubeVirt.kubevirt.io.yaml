@@ -49,8 +49,32 @@ infoview:
         fields: ["controller", "image_pull_policy",
                  "observed_kubevirt_registry", "observed_kubevirt_version",
                  "target_kubevirt_registry", "target_kubevirt_version",
+                 "configuration_header",
+                 "configuration_vm_state_storage_class",
+                 "configuration_vm_rollout_strategy",
+                 "configuration_additional_guest_memory_overhead_ratio",
                  "replicas", "phase"]
     rows:
+      configuration_additional_guest_memory_overhead_ratio:
+        header: [["  Additional Guest Memory Overhead Ratio:",
+                 ["main", "infoheader"]]]
+        path: "spec#configuration#additionalGuestMemoryOverheadRatio"
+        type: "str"
+        formatter: "numerical"
+      configuration_header:
+        header: [["Configuration:", ["main", "infoheader"]]]
+      configuration_vm_rollout_strategy:
+        header: [["  VM Rollout Strategy:", ["main", "infoheader"]]]
+        path: "spec#configuration#vmRolloutStrategy"
+        default: "<none>"
+        type: "str"
+      configuration_vm_state_storage_class:
+        header: [["  VM-State ", ["main", "infoheader"]],
+                 ["S", ["main", "infoheader_shortcut"]],
+                 ["torage Class:", ["main", "infoheader"]]]
+        path: "spec#configuration#vmStateStorageClass"
+        default: "<none>"
+        type: "str"
       controller:
         header: [["C", ["main", "infoheader_shortcut"]],
                  ["ontroller:", ["main", "infoheader"]]]
@@ -143,6 +167,18 @@ infoview:
         _pass_obj: true
         namespace_path: "metadata#namespace"
         owner_reference_path: "metadata#ownerReferences"
+    "Open Storage Class":
+      key: "s"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for Storage Class"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind: "StorageClass"
+        api_family: "storage.k8s.io"
+        name_path: "spec#configuration#vmStateStorageClass"
     "Show Generations":
       key: "g"
       modifier: "shift"

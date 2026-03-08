@@ -32,7 +32,7 @@ listview:
       paths:
         - path: "status#size"
           type: "disk_usage"
-          default: "<unset>"
+          default: 0
       formatter: "numerical"
       align: "right"
     storage_class:

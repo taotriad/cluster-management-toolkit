@@ -4,7 +4,7 @@ api_family: "longhorn.io"
 default_command: "sharemanagers"
 listview:
   name: "Share Managers"
-  group: "Harvester"
+  group: "Storage & Backups"
   field_indexes:
     Normal:
       fields: ["namespace", "name", "node", "state", "age"]
