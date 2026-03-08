@@ -2125,8 +2125,21 @@ def listgetter_dict_list(obj: dict[str, Any], **kwargs: Any) -> tuple[list[dict[
     """
     path = deep_get(kwargs, DictPath("path"))
     paths = deep_get(kwargs, DictPath("paths"))
+    join_paths: bool = deep_get(kwargs, DictPath("join_paths"), False)
     vlist = []
-    if path:
+    if paths and join_paths:
+        new_obj: dict[str, Any] = {}
+        # First we need to join the paths
+        for item in paths:
+            path = deep_get(item, DictPath("path"), "")
+            for key, value in deep_get(obj, DictPath(path), {}).items():
+                if key not in new_obj:
+                    new_obj[key] = {}
+                new_obj[key].update(value)
+        # Now we can create the list
+        for key, value in new_obj.items():
+            vlist.append({"key": key, "value": value})
+    elif path:
         for key, value in deep_get(obj, DictPath(path), {}).items():
             vlist.append({"key": key, "value": value})
     elif paths:
