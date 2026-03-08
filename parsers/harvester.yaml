@@ -15,6 +15,13 @@
 - name: "harvester"
   show_in_selector: false
   matchkeys:
+    - image_name: "/rancher/support-bundle-kit"
+  parser_rules:
+    - name: "glog"
+    - name: "key_value"
+- name: "harvester"
+  show_in_selector: false
+  matchkeys:
     - image_name: "/rancher/harvester-load-balancer"
     - image_name: "/rancher/harvester:"
     - image_name: "/rancher/harvester-network-controller"

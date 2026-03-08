@@ -36,3 +36,10 @@
       options:
         versions:
           - "version"
+- name: "longhorn"
+  show_in_selector: false
+  matchkeys:
+    - image_name: "/longhornio/support-bundle-kit"
+  parser_rules:
+    - name: "glog"
+    - name: "key_value"
