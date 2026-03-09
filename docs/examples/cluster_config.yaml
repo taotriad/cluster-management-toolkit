@@ -44,7 +44,7 @@ options:
   # cilium
   # flannel
   # kube-router
-  # weave
+  # weave [no longer maintained upstream; not recommended on production systems]
   # none [no cni will be installed]
   # [optional; default: cilium]
   # cni: "cilium"

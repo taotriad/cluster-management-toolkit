@@ -7419,6 +7419,10 @@ COMMANDLINE: dict[str, CommandType] = {
             [ANSIThemeStr("you can specify ", "description"),
              ANSIThemeStr("none", "argument"),
              ANSIThemeStr(".", "description")],
+            [ANSIThemeStr("Warning: ", "warning"),
+             ANSIThemeStr("weave", "argument"),
+             ANSIThemeStr(" is no longer maintained upstream", "description")],
+            [ANSIThemeStr("and is thus not recommended for production use.", "description")],
         ],
         "options": {
             "--resume": {
@@ -7604,7 +7608,11 @@ COMMANDLINE: dict[str, CommandType] = {
              ANSIThemeStr("weave", "argument")],
             [ANSIThemeStr("By default ", "description"),
              ANSIThemeStr("cilium", "argument"),
-             ANSIThemeStr(" will be used as CNI", "description")],
+             ANSIThemeStr(" will be used as CNI.", "description")],
+            [ANSIThemeStr("Warning: ", "warning"),
+             ANSIThemeStr("weave", "argument"),
+             ANSIThemeStr(" is no longer maintained upstream", "description")],
+            [ANSIThemeStr("and is thus not recommended for production use.", "description")],
         ],
         "options": {
             "--reinstall": {

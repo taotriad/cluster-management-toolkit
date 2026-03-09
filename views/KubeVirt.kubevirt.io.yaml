@@ -57,7 +57,7 @@ infoview:
     rows:
       configuration_additional_guest_memory_overhead_ratio:
         header: [["  Additional Guest Memory Overhead Ratio:",
-                 ["main", "infoheader"]]]
+                  ["main", "infoheader"]]]
         path: "spec#configuration#additionalGuestMemoryOverheadRatio"
         type: "str"
         formatter: "numerical"
