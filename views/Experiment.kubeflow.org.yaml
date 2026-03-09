@@ -55,7 +55,7 @@ infoview:
         type: "int"
         formatter: "numerical"
       parallel_trials:
-        header: [["Paralllel Trials:", ["main", "infoheader"]]]
+        header: [["Parallel Trials:", ["main", "infoheader"]]]
         path: "spec#parallelTrialCount"
         default: "<unset>"
         type: "int"

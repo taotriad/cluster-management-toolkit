@@ -105,7 +105,7 @@ infoview:
       key: "p"
       modifier: "shift"
       read_only: true
-      helptext: "Show preferrred persistent topology"
+      helptext: "Show preferred persistent topology"
       action: "call"
       action_call: "view_yaml"
       action_args:

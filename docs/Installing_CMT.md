@@ -12,7 +12,7 @@ of API requests you might run into GitHub's daily rate limit,
 which will cause requests to fail.
 
 If you haven't done so already you should always consider adding
-a _Personal Accesss Token_ for GitHub to your `.netrc` file.
+a _Personal Access Token_ for GitHub to your `.netrc` file.
 
 See instructions here: [Using a GitHub PAT](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens).
 

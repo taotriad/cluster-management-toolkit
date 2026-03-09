@@ -22,7 +22,7 @@ listview:
       type: "bool"
     maintenance:
       header: "Maintenance:"
-      path: "spec#maintenannnce"
+      path: "spec#maintenance"
       default: "<unset>"
       type: "str"
     message:
@@ -63,7 +63,7 @@ infoview:
         type: "bool"
       maintenance:
         header: [["Maintenance:", ["main", "infoheader"]]]
-        path: "spec#maintenannnce"
+        path: "spec#maintenance"
         default: "<unset>"
         type: "str"
       source:
