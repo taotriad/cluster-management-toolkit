@@ -2488,6 +2488,11 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api_paths": ["apis/crd.antrea.io/v1alpha1/"],
         "api": "externalnodes",
     },
+    ("FlowExporterDestination", "crd.antrea.io"): {
+        "api_paths": ["apis/crd.antrea.io/v1alpha1/"],
+        "api": "flowexporterdestinations",
+        "namespaced": False,
+    },
     ("Group", "crd.antrea.io"): {
         "api_paths": ["apis/crd.antrea.io/v1beta1/",
                       "apis/crd.antrea.io/v1alpha3/"],

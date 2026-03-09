@@ -9,9 +9,15 @@ listview:
   name: "Tiers"
   group: "Antrea"
   field_indexes:
+    Wide:
+      fields: ["name", "priority", "description", "age"]
     Normal:
       fields: ["name", "priority", "age"]
   fields:
+    description:
+      header: "Description:"
+      path: "spec#description"
+      type: "str"
     priority:
       header: "Priority:"
       path: "spec#priority"

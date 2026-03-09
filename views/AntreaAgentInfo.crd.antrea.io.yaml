@@ -72,8 +72,47 @@ infoview:
   infopad:
     row_indexes:
       Normal:
-        fields: ["node_name", "pod", "node_subnets", "version"]
+        fields: ["node_name", "pod", "node_subnets",
+                 "node_port_local_port_range",
+                 "network_info_header",
+                 "network_info_pod_mtu",
+                 "network_info_transport_interface",
+                 "network_info_transport_interface_ips",
+                 "network_info_transport_interface_mtu",
+                 "api_port", "version"]
     rows:
+      api_port:
+        header: [["API Port:", ["main", "infoheader"]]]
+        path: "apiPort"
+        type: "int"
+        formatter: "numerical"
+        formatting:
+          field_colors:
+            - type: "port"
+      network_info_header:
+        header: [["Network Info:", ["main", "infoheader"]]]
+      network_info_pod_mtu:
+        header: [["  Pod MTU:", ["main", "infoheader"]]]
+        path: "networkInfo#podMTU"
+        type: "int"
+        formatter: "numerical"
+      network_info_transport_interface:
+        header: [["  Transport Interface:", ["main", "infoheader"]]]
+        path: "networkInfo#transportInterface"
+        default: "<unset>"
+        type: "str"
+      network_info_transport_interface_ips:
+        header: [["  ", ["main", "infoheader"]],
+                 ["T", ["main", "infoheader_shortcut"]],
+                 ["ransport Interface IPs:", ["main", "infoheader"]]]
+        path: "networkInfo#transportInterfaceIPs"
+        type: "raw"
+        formatter: "address"
+      network_info_transport_interface_mtu:
+        header: [["  Transport Interface MTU:", ["main", "infoheader"]]]
+        path: "networkInfo#transportInterfaceMTU"
+        type: "int"
+        formatter: "numerical"
       node_name:
         header: [["No", ["main", "infoheader"]],
                  ["d", ["main", "infoheader_shortcut"]],
@@ -83,8 +122,19 @@ infoview:
         formatting:
           field_colors:
             - type: "host"
+      node_port_local_port_range:
+        header: [["Node Port Local Port Range:", ["main", "infoheader"]]]
+        path: "nodePortLocalPortRange"
+        type: "str"
+        formatter: "numerical"
+        formatting:
+          field_colors:
+            - type: "port"
+            - type: "port"
       node_subnets:
-        header: [["Node Subnets:", ["main", "infoheader"]]]
+        header: [["Node Subnet", ["main", "infoheader"]],
+                 ["s", ["main", "infoheader_shortcut"]],
+                 [":", ["main", "infoheader"]]]
         path: "nodeSubnets"
         type: "raw"
         formatter: "address"
@@ -108,6 +158,12 @@ infoview:
         formatting:
           field_colors:
             - type: "version"
+  logpad:
+    infogetter: "logpad_formatted"
+    infogetter_args:
+      formatter: "format_yaml"
+      path: "ovsInfo"
+    timestamps: false
   shortcuts:
     "Network Policy Controller":
       key: "c"
@@ -142,17 +198,6 @@ infoview:
         kind_path: "podRef#kind"
         name_path: "podRef#name"
         namespace_path: "podRef#namespace"
-    "View Open vSwitch Info":
-      key: "o"
-      modifier: "shift"
-      read_only: true
-      helptext: "View Open vSwitch info"
-      action: "call"
-      action_call: "view_yaml"
-      action_args:
-        _pass_obj: true
-        title: "Open vSwitch Info"
-        path: "ovsInfo"
     "Show Resource Conditions":
       key: "c"
       helptext: "Show resource conditions"
@@ -168,3 +213,22 @@ infoview:
           - "status"
           - "lastHeartbeatTime"
         override_types: ["", "", "timestamp"]
+    "Show Node subnets":
+      key: "s"
+      read_only: true
+      helptext: "List Node subnets"
+      widget: "windowwidget"
+      title: "Node subnets:"
+      itemgetter: "get_list_as_list"
+      itemgetter_args:
+        path: "nodeSubnets"
+    "Show Transport Interface IPs":
+      key: "t"
+      modifier: "shift"
+      read_only: true
+      helptext: "List transport interface IPS"
+      widget: "windowwidget"
+      title: "Transport Interface IPs:"
+      itemgetter: "get_list_as_list"
+      itemgetter_args:
+        path: "networkInfo#transportInterfaceIPs"
