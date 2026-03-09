@@ -1630,15 +1630,12 @@ def ansible_run_playbook(playbook: FilePath, **kwargs: Any) -> tuple[int, dict]:
     elif not quiet:
         event_handler = __ansible_run_event_handler_cb
 
-    # We need to run with ANSIBLE_JINJA2_NATIVE=False
-    # to be compatible with Ubuntu 22.04 LTS
     runner = ansible_runner.interface.run(json_mode=True,
                                           quiet=True,
                                           playbook=playbook,
                                           inventory=inventories,
                                           forks=forks,
-                                          event_handler=event_handler,
-                                          envvars={"ANSIBLE_JINJA2_NATIVE": False})
+                                          event_handler=event_handler)
 
     retval = 0
     if runner is not None:
