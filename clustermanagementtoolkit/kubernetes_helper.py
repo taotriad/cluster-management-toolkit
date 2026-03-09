@@ -1722,30 +1722,16 @@ class KubernetesHelper:
                     managed_fields = deep_get(node, DictPath("metadata#managedFields"), [])
                     for managed_field in managed_fields:
                         manager = deep_get(managed_field, DictPath("manager"), "")
-                        if manager == "harvester":
-                            tmp_k8s_distro = "harvester"
-                            break
-                        if manager == "rke2":
-                            tmp_k8s_distro = "rke2"
-                            break
-                        if manager == "k0s":
-                            tmp_k8s_distro = "k0s"
-                            break
-                        if manager.startswith("deploy@k3d"):
-                            tmp_k8s_distro = "k3d"
-                            break
-                        if manager == "k3s":
-                            tmp_k8s_distro = "k3s"
-                            break
-                        if manager == "kubeadm":
-                            tmp_k8s_distro = "kubeadm"
-                            break
-                        if manager == "vcluster":
-                            tmp_k8s_distro = "vcluster"
-                            break
-                        if manager == "crc":
-                            tmp_k8s_distro = "crc"
-                            break
+                        if manager in ("crc"
+                                       "deploy@k3d",
+                                       "harvester",
+                                       "k0s",
+                                       "k3s",
+                                       "k8e",
+                                       "kubeadm",
+                                       "rke2",
+                                       "vcluster"):
+                            tmp_k8s_distro = manager
                 if tmp_k8s_distro is None:
                     # Older versions of Kubernetes doesn't have managedFields;
                     # fall back to checking whether the annotation

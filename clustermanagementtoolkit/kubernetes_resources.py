@@ -3771,6 +3771,16 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api": "etcdsnapshotfiles",
         "namespaced": False,
     },
+    # k8e.cattle.io
+    ("Addon", "k8e.cattle.io"): {
+        "api_paths": ["apis/k8e.cattle.io/v1/"],
+        "api": "addons",
+    },
+    ("ETCDSnapshotFile", "k8e.cattle.io"): {
+        "api_paths": ["apis/k8e.cattle.io/v1/"],
+        "api": "etcdsnapshotfiles",
+        "namespaced": False,
+    },
     # k8s.cni.cncf.io
     ("NetworkAttachmentDefinition", "k8s.cni.cncf.io"): {
         "api_paths": ["apis/k8s.cni.cncf.io/v1/"],

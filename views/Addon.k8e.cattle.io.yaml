@@ -1,13 +1,13 @@
 ---
 kind: "Addon"
-api_family: "k3s.cattle.io"
-default_command: "addons.k3s.cattle.io"
+api_family: "k8e.cattle.io"
+default_command: "addons.k8e.cattle.io"
 command:
-  - "k3saddons"
-  - "k3saddon"
+  - "k8eaddons"
+  - "k8eaddon"
 listview:
   name: "Addons"
-  group: "Rancher"
+  group: "K8E"
   field_indexes:
     Wide:
       fields: ["namespace", "name", "age", "source"]
@@ -45,26 +45,3 @@ infoview:
         default: "<unset>"
         type: "str"
         formatter: "hex"
-  shortcuts:
-    "List GVKs":
-      key: "v"
-      modifier: "shift"
-      read_only: true
-      helptext: "List GVKs"
-      widget: "windowwidget"
-      title: "GVKs:"
-      selectable: true
-      itemgetter: "get_list_fields"
-      itemgetter_args:
-        path: "status#gvks"
-        fields:
-          - "Kind"
-          - "Group"
-          - "Version"
-      # Not supported for now
-      sortcolumn: "kind"
-      action: "call"
-      action_call: "listviewdispatch"
-      action_args:
-        kind_path: 0
-        api_group_path: 1
