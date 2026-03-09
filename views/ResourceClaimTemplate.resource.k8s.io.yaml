@@ -12,21 +12,22 @@ listview:
   group: "Dynamic Resource Allocation"
   field_indexes:
     Normal:
-      fields: ["namespace", "name", "age"]
+      fields: ["namespace", "name", "requests", "age"]
       sortcolumn: "namespace"
+  fields:
+    requests:
+      header: "Requests:"
+      path: "spec#spec#devices#requests"
+      type: "len"
+      formatter: "numerical"
+      align: "right"
 infoview:
   name: "Resource Claim Template Info"
   infopad:
     row_indexes:
       Normal:
-        fields: ["parameters_ref", "resource_class",
-                 "allocation_mode", "device_requests"]
+        fields: ["device_requests"]
     rows:
-      allocation_mode:
-        header: [["Allocation Mode:", ["main", "infoheader"]]]
-        path: "spec#spec#allocationMode"
-        default: "<unset>"
-        type: "str"
       device_requests:
         header: [["Device Re", ["main", "infoheader"]],
                  ["q", ["main", "infoheader_shortcut"]],
@@ -38,46 +39,7 @@ infoview:
               - "name"
         default: "<none>"
         formatter: "list"
-      parameters_ref:
-        header: [["P", ["main", "infoheader_shortcut"]],
-                 ["arameters Ref:", ["main", "infoheader"]]]
-        paths:
-          - path: [["spec#spec#parametersRef#kind"],
-                   ["spec#spec#parametersRef#apiVersion"],
-                   ["spec#spec#parametersRef#name"]]
-            pathtype: "tuple"
-            type: ["kind", "api_group", "name"]
-            default: ["<unset>"]
-            fallback_on_empty: true
-        default: "<none>"
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "kind"
-            - type: "api_group"
-            - type: "generic"
-          field_separators:
-            - type: "kind_api_group"
-            - type: "kind"
-      resource_class:
-        header: [["Resource Class:", ["main", "infoheader"]]]
-        path: "spec#spec#resourceClassName"
-        default: "<unset>"
-        type: "str"
   shortcuts:
-    "Open parameters":
-      key: "p"
-      modifier: "shift"
-      read_only: true
-      helptext: "Open info page for parameters"
-      action: "call"
-      action_call: "resourceinfodispatch_with_lookup"
-      action_args:
-        _pass_obj: true
-        api_version_path: "spec#spec#parametersRef#apiGroup"
-        kind_path: "spec#spec#parametersRef#kind"
-        namespace_path: "metadata#namespace"
-        name_path: "spec#spec#parametersRef#name"
     "Show device requests":
       key: "q"
       read_only: true

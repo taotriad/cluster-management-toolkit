@@ -10,8 +10,15 @@ listview:
   group: "Dynamic Resource Allocation"
   field_indexes:
     Normal:
-      fields: ["name", "driver", "pool", "resource_slice_count", "age"]
+      fields: ["name", "driver", "pool", "resource_slice_count",
+               "device_count", "age"]
   fields:
+    device_count:
+      header: "Device Count:"
+      path: "spec#devices"
+      type: "len"
+      formatter: "numerical"
+      align: "right"
     driver:
       header: "Driver:"
       path: "spec#driver"
@@ -23,7 +30,7 @@ listview:
       default: "<unset>"
       type: "str"
     resource_slice_count:
-      header: "Count:"
+      header: "Slice Count:"
       path: "spec#pool#resourceSliceCount"
       default: "<unset>"
       type: "int"
@@ -34,8 +41,8 @@ infoview:
   infopad:
     row_indexes:
       Normal:
-        fields: ["controller", "node_name", "pool",
-                 "resource_slice_count", "driver"]
+        fields: ["controller", "node_name",
+                 "pool", "resource_slice_count", "driver"]
     rows:
       controller:
         header: [["C", ["main", "infoheader_shortcut"]],
@@ -73,7 +80,7 @@ infoview:
                  ["d", ["main", "infoheader_shortcut"]],
                  ["e Name:", ["main", "infoheader"]]]
         paths:
-          - path: ["spec#nodeName", "nodeName"]
+          - path: "spec#nodeName"
             pathtype: "str"
             default: "<unset>"
         type: "str"
@@ -98,16 +105,24 @@ infoview:
     infogetter: "generic_infogetter"
     field_indexes:
       Normal:
-        fields: ["resource", "attributes"]
+        fields: ["resource",
+                 "all_nodes", "allow_multiple_allocations",
+                 "attributes"]
     fields:
-      resource:
-        header: "Resource:"
-        path: "name"
-        type: "str"
+      all_nodes:
+        header: "All Nodes:"
+        path: "spec#allNodes"
+        default: false
+        type: "bool"
+      allow_multiple_allocations:
+        header: "Allow Multiple Allocations:"
+        path: "spec#allowMultipleAllocations"
+        default: false
+        type: "bool"
       attributes:
         header: "Attributes:"
         paths:
-          - path: "basic#attributes"
+          - path: "attributes"
             pathtype: "key_value"
             subpaths:
               - "bool"
@@ -116,8 +131,25 @@ infoview:
               - "version"
         formatter: "list"
         formatting:
+          field_colors:
+            - type: "key"
+            - type: "value"
           field_separators:
             - type: "keyvalue"
+      node_name:
+        header: "Node Name:"
+        paths:
+          - path: "nodeName"
+            pathtype: "str"
+            default: "<unset>"
+        type: "str"
+        formatting:
+          field_colors:
+            - type: "host"
+      resource:
+        header: "Resource:"
+        path: "name"
+        type: "str"
   shortcuts:
     "Open controller":
       key: "c"
