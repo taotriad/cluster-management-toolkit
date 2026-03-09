@@ -3442,7 +3442,7 @@ def cniloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                 cnistr.append(ThemeStr(")", ThemeAttr("types", "generic")))
                 cni_version = "N/A"
                 cni_version_str = [
-                    ThemeStr(f"{cni_version[0]}", color_status_group(StatusGroup.UNKNOWN))
+                    ThemeStr(f"{cni_version}", color_status_group(StatusGroup.UNKNOWN))
                 ]
                 cni_status = ("N/A", StatusGroup.UNKNOWN)
 
