@@ -77,7 +77,7 @@ from clustermanagementtoolkit import about
 
 from clustermanagementtoolkit.cmttypes import deep_get, deep_get_with_fallback
 from clustermanagementtoolkit.cmttypes import deep_get_str_tuple_paths, deep_set, DictPath
-from clustermanagementtoolkit.cmttypes import FilePath, Retval
+from clustermanagementtoolkit.cmttypes import FilePath, Retval, LogLevel
 from clustermanagementtoolkit.cmttypes import SecurityPolicy, SecurityStatus, StatusGroup
 from clustermanagementtoolkit.cmttypes import ProgrammingError, FilePathAuditError
 from clustermanagementtoolkit.cmttypes import name_to_loglevel, loglevel_to_name
@@ -105,7 +105,7 @@ from clustermanagementtoolkit.cmtvalidators import validate_name
 from clustermanagementtoolkit.commandparser import parse_commandline, CommandType
 
 from clustermanagementtoolkit.logparser import logparser, logparser_initialised
-from clustermanagementtoolkit.logparser import LogLevel, LogparserConfiguration
+from clustermanagementtoolkit.logparser import LogparserConfiguration
 from clustermanagementtoolkit.logparser import lvl_to_letter_severity, lvl_to_4letter_severity
 from clustermanagementtoolkit.logparser import lvl_to_word_severity
 from clustermanagementtoolkit.logparser import get_parser_list
@@ -9650,7 +9650,6 @@ def populate_views(refresh_apis: str = "none") -> None:
                 errmsg += [
                     [(f"{type(e)}", "error"),
                      (": ", "default")] + tmplines[0],
-
                 ]
                 errmsg += tmplines[1:]
             else:
