@@ -2069,6 +2069,10 @@ SuccessfulMountVolume:
   field_colors:
     - context: "main"
       type: "status_ok"
+SuccessfulReconcile:
+  field_colors:
+    - context: "main"
+      type: "status_ok"
 SuccessfulRescale:
   field_colors:
     - context: "main"

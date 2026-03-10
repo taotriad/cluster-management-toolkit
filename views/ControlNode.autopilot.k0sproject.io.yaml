@@ -1,0 +1,97 @@
+---
+kind: "ControlNode"
+api_family: "autopilot.k0sproject.io"
+default_command: "controlnodes.autopilot.k0sproject.io"
+command:
+  - "k0scontrolnodes"
+  - "k0scontrolnode"
+  - "k0sctrlnos"
+  - "k0sctrlno"
+listview:
+  name: "Control Nodes"
+  group: "OpenShift"
+  field_indexes:
+    Normal:
+      fields: ["name", "internal_ips", "k0s_version", "age"]
+  fields:
+    internal_ips:
+      header: "Internal IPs:"
+      paths:
+        - path: "status#addresses"
+          pathtype: "items"
+          subpath: "address"
+          when:
+            - key: "type"
+              eq: "InternalIP"
+          default: ["<unset>"]
+      formatter: "address"
+      formatting:
+        ellipsise: 3
+    k0s_version:
+      header: "k0s Version:"
+      path: "status#k0sVersion"
+      type: "str"
+      formatting:
+        field_colors:
+          - type: "version"
+  shortcuts:
+    "SSH to host":
+      key: "s"
+      modifier: "shift"
+      read_only: false
+      helptext: "SSH to host"
+      action: "call"
+      action_call: "ssh_to_host"
+      action_args:
+        _pass_obj: true
+        name_path: "metadata#name"
+infoview:
+  name: "Control Node Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["hostname", "internal_ips", "external_ips", "k0s_version"]
+    rows:
+      external_ips:
+        header: [["External IPs:", ["main", "infoheader"]]]
+        paths:
+          - path: "status#addresses"
+            pathtype: "items"
+            subpaths:
+              - "address"
+            when:
+              - key: "type"
+                eq: "ExternalIP"
+            default: ["<none>"]
+        formatter: "address"
+      hostname:
+        header: [["Hostname:", ["main", "infoheader"]]]
+        paths:
+          - path: "status#addresses"
+            pathtype: "items"
+            subpaths:
+              - "address"
+            when:
+              - key: "type"
+                eq: "Hostname"
+            default: ["<unset>"]
+        formatter: "address"
+      internal_ips:
+        header: [["Internal IPs:", ["main", "infoheader"]]]
+        paths:
+          - path: "status#addresses"
+            pathtype: "items"
+            subpaths:
+              - "address"
+            when:
+              - key: "type"
+                eq: "InternalIP"
+            default: ["<unset>"]
+        formatter: "address"
+      k0s_version:
+        header: [["k0s Version:", ["main", "infoheader"]]]
+        path: "status#k0sVersion"
+        type: "str"
+        formatting:
+          field_colors:
+            - type: "version"

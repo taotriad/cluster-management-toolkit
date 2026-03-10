@@ -5,6 +5,7 @@
     - image_name: "/kube-proxy"
     - container_name: "kube-proxy"
       image_name: "/rancher/hardened-kubernetes"
+    - image_name: "/k0sproject/kube-proxy"
   parser_rules:
     - name: "glog"
     - name: "key_value_with_leading_message"

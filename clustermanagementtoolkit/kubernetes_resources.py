@@ -1611,6 +1611,22 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api_paths": ["apis/authorization.openshift.io/v1/"],
         "api": "rolebindingrestrictions",
     },
+    # autopilot.k0sproject.io
+    ("ControlNode", "autopilot.k0sproject.io"): {
+        "api_paths": ["apis/autopilot.k0sproject.io/v1beta2/"],
+        "api": "controlnodes",
+        "namespaced": False,
+    },
+    ("Plan", "autopilot.k0sproject.io"): {
+        "api_paths": ["apis/autopilot.k0sproject.io/v1beta2/"],
+        "api": "plans",
+        "namespaced": False,
+    },
+    ("UpdateConfig", "autopilot.k0sproject.io"): {
+        "api_paths": ["apis/autopilot.k0sproject.io/v1beta2/"],
+        "api": "updateconfigs",
+        "namespaced": False,
+    },
     # autoscaling.k8s.elastic.co
     ("ElasticsearchAutoscaler", "autoscaling.k8s.elastic.co"): {
         "api_paths": ["apis/autoscaling.k8s.elastic.co/v1alpha1/"],
@@ -3582,6 +3598,11 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
     ("HelmChart", "helm.cattle.io"): {
         "api_paths": ["apis/helm.cattle.io/v1/"],
         "api": "helmcharts",
+    },
+    # helm.k0sproject.io
+    ("Chart", "helm.k0sproject.io"): {
+        "api_paths": ["apis/helm.k0sproject.io/v1beta1/"],
+        "api": "charts",
     },
     # helm.openshift.io
     ("HelmChartRepository", "helm.openshift.io"): {
