@@ -50,28 +50,34 @@ from clustermanagementtoolkit.curses_helper import ThemeAttr, ThemeRef, ThemeStr
 
 
 if json_is_ujson:
-    def json_dumps(obj: dict) -> str:
+    def json_dumps(obj: dict[str, Any] | list[dict[str, Any]], **kwargs: Any) -> str:
         """
         Dump Python object to JSON in text format; ujson version.
 
             Parameters:
-                obj (dict): The JSON object to dump
+                obj (dict|[dict]): The JSON object to dump
+                **kwargs (dict[str, Any]): Keyword arguments
+                    indent (int): Indentation (default: 2)
+                    escape_forward_slashes (bool): Escape forward slashes (default: False)
             Returns:
                 (str): The serialized JSON object
         """
-        indent = 2
-        return json.dumps(obj, indent=indent, escape_forward_slashes=False)
+        indent = deep_get(kwargs, DictPath("indent"), 2)
+        escape_forward_slashes = deep_get(kwargs, DictPath("escape_forward_slashes"), False)
+        return json.dumps(obj, indent=indent, escape_forward_slashes=escape_forward_slashes)
 else:
-    def json_dumps(obj: dict) -> str:
+    def json_dumps(obj: dict[str, Any] | list[dict[str, Any]], **kwargs: Any) -> str:
         """
         Dump Python object to JSON in text format; json version.
 
             Parameters:
-                obj (dict): The JSON object to dump
+                obj (dict|[dict]): The JSON object to dump
+                **kwargs (dict[str, Any]): Keyword arguments
+                    indent (int): Indentation (default: 2)
             Returns:
                 (str): The serialized JSON object
         """
-        indent = 2
+        indent = deep_get(kwargs, DictPath("indent"), 2)
         return json.dumps(obj, indent=indent)
 
 

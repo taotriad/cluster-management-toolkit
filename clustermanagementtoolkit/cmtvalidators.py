@@ -586,6 +586,9 @@ def validate_argument(arg: str, arg_string: list[ANSIThemeStr], options: dict) -
                                                  "default")], stderr=True)
                 result = False
                 break
+        elif validator in ("dns-label", "dns-subdomain"):
+            if not (result := validate_name(validator, subarg)):
+                break
         elif validator in ("taint", "untaint"):
             if not (result := validator_taint(subarg, validator,
                                               error_on_failure=error_on_failure)):

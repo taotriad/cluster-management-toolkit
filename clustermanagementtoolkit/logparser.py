@@ -96,6 +96,7 @@ from clustermanagementtoolkit import cmtlib
 from clustermanagementtoolkit.cmtlib import none_timestamp, strip_ansicodes
 
 from clustermanagementtoolkit import formatters
+from clustermanagementtoolkit.formatters import json_dumps
 
 from clustermanagementtoolkit.curses_helper import themearray_len, themearray_to_string
 from clustermanagementtoolkit.curses_helper import ThemeAttr, ThemeRef, ThemeStr
@@ -142,32 +143,6 @@ class LogparserConfiguration:
     # Replace tabs within values
     expand_tabs: bool = True
     using_bundles: bool = False
-
-
-if json_is_ujson:
-    def json_dumps(obj: dict[str, Any]) -> str:
-        """
-        Dump JSON object to text format; ujson version.
-
-            Parameters:
-                obj (dict): The JSON object to dump
-            Returns:
-                str: The serialized JSON object
-        """
-        indent = 2
-        return json.dumps(obj, indent=indent, escape_forward_slashes=False)
-else:
-    def json_dumps(obj: dict[str, Any]) -> str:
-        """
-        Dump JSON object to text format; json version.
-
-            Parameters:
-                obj (dict): The JSON object to dump
-            Returns:
-                str: The serialized JSON object
-        """
-        indent = 2
-        return json.dumps(obj, indent=indent)
 
 
 def month_to_numerical(month: str) -> str:
