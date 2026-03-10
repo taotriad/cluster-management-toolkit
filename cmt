@@ -47,15 +47,34 @@ except ModuleNotFoundError:  # pragma: no cover
     sys.exit("ModuleNotFoundError: Could not import natsort; "
              "you may need to (re-)run `cmt-install` or `pip3 install natsort`; aborting.")
 
+try:
+    import ruyaml
+    ryaml = ruyaml.YAML()
+    sryaml = ruyaml.YAML(typ="safe")
+except ModuleNotFoundError:  # pragma: no cover
+    try:
+        import ruamel.yaml as ruyaml  # type: ignore[no-redef,unused-ignore]
+        ryaml = ruyaml.YAML()
+        sryaml = ruyaml.YAML(typ="safe")
+    except ModuleNotFoundError:  # pragma: no cover
+        sys.exit("ModuleNotFoundError: Could not import ruyaml/ruamel.yaml; "
+                 "you may need to (re-)run `cmt-install` or `pip3 install ruyaml/ruamel.yaml`; "
+                 "aborting.")
+
 # This has to be first, since it checks for the correct Python version
 from clustermanagementtoolkit import about
 
 from clustermanagementtoolkit.cluster_actions import get_crio_version
 
-from clustermanagementtoolkit.cmttypes import deep_get, DictPath, SecurityStatus
+from clustermanagementtoolkit.cmttypes import deep_get, DictPath, SecurityStatus, LogLevel
 from clustermanagementtoolkit.cmttypes import FilePath, FilePathAuditError, HostNameStatus
-from clustermanagementtoolkit.cmtpaths import CMT_CONFIG_FILE, CMT_CONFIG_FILENAME
+
+from clustermanagementtoolkit import cmtpaths
+from clustermanagementtoolkit.cmtpaths import CMT_CONFIG_FILE, CMT_CONFIG_FILENAME, HOMEDIR
 from clustermanagementtoolkit.cmtpaths import DEFAULT_THEME_FILE, VIEW_DIR, SYSTEM_VIEWS_DIR
+
+from clustermanagementtoolkit import cmtlog
+
 from clustermanagementtoolkit.cmtvalidators import validate_fqdn, validator_bool
 
 from clustermanagementtoolkit.commandparser import parse_commandline, CommandType
@@ -89,6 +108,11 @@ from clustermanagementtoolkit import checks
 from clustermanagementtoolkit.ansithemeprint import ANSIThemeStr, ansithemestr_join_list
 from clustermanagementtoolkit.ansithemeprint import ansithemeprint, ansithemeinput
 from clustermanagementtoolkit.ansithemeprint import ansithemeinput_password
+
+from clustermanagementtoolkit.formatters import json_dumps
+
+from clustermanagementtoolkit.kubernetes_resources import unknown_kubernetes_resources
+from clustermanagementtoolkit.kubernetes_resources import event_reasons
 
 try:
     import prctl
@@ -2608,7 +2632,314 @@ def list_api_resources(options: list[tuple[str, str]], args: list[str]) -> int:
     return result
 
 
+# pylint: disable-next=too-many-locals,too-many-branches,too-many-statements
+def lookup_resource_type(resource_type: str) -> tuple[str, str]:
+    """
+    Given a resource type or resource type alias,
+    try to find its (kind, apiVersion) tuple.
+
+    Note: Currently this scans all view-files. This is extremely inefficient;
+    we really need to implement this using a pre-built lookup table.
+    It's OK to fail a live lookup for kinds we know that aren't available from
+    the server, but it's not OK to wait for ages for the lookup to take place.
+    """
+    # Check whether the kind is know right away; if it is we save time not doing a lookup.
+    kind = None
+
+    try:
+        tmp_kind = guess_kind(resource_type)
+        if tmp_kind not in unknown_kubernetes_resources:
+            kind = tmp_kind
+    except NameError:
+        pass
+
+    # OK, we'll need to scan the view-files
+    # pylint: disable-next=too-many-nested-blocks
+    if not kind:
+        view_dirs: list[str] = []
+
+        view_dirs.append(cmtpaths.SYSTEM_VIEWS_DIR)
+        view_dirs.append(cmtpaths.VIEW_DIR)
+        view_dirs += deep_get(cmtlib.cmtconfig, DictPath("General#local_views"), [])
+
+        view_files = []
+
+        yaml_regex: re.Pattern[str] = re.compile(r"^(.*)\.ya?ml$")
+
+        for view_dir in view_dirs:
+            if view_dir.startswith("{HOME}"):
+                view_dir = view_dir.replace("{HOME}", HOMEDIR, 1)
+
+            if not os.path.isdir(view_dir):
+                continue
+
+            for filename in natsorted(os.listdir(view_dir)):
+                # This conveniently also populates the event reasons;
+                # we need that the event view.
+                if filename == "__event_reasons.yaml":
+                    d = dict(secure_read_yaml(FilePath(view_dir).joinpath(filename),
+                                              directory_is_symlink=True))
+                    for reason, data in d.items():
+                        # Only try to read the data if it's well-formed
+                        if data and deep_get(data, DictPath("field_colors")):
+                            context = deep_get(data["field_colors"][0], DictPath("context"), "main")
+                            ftype = deep_get(data["field_colors"][0], DictPath("type"), "status_ok")
+                            match (context, ftype):
+                                case ("main", "status_critical"):
+                                    event_reasons[reason] = ANSIThemeStr(reason, "critical")
+                                case ("main", "status_unknown"):
+                                    event_reasons[reason] = ANSIThemeStr(reason, "unknown")
+                                case ("main", "status_not_ok"):
+                                    event_reasons[reason] = ANSIThemeStr(reason, "notok")
+                                case ("main", "status_warning"):
+                                    event_reasons[reason] = ANSIThemeStr(reason, "warning")
+                                case ("main", "status_pending"):
+                                    event_reasons[reason] = ANSIThemeStr(reason, "play")
+                                case ("main", "status_ok"):
+                                    event_reasons[reason] = ANSIThemeStr(reason, "note")
+                                case ("main", "status_done"):
+                                    event_reasons[reason] = ANSIThemeStr(reason, "success")
+                                case ("types", "unset"):
+                                    event_reasons[reason] = ANSIThemeStr(reason, "none")
+                    continue
+
+                if filename.startswith(("~", ".", "__")):
+                    continue
+
+                if yaml_regex.match(filename) is None:
+                    continue
+
+                view_files.append(os.path.join(view_dir, filename))
+
+        for view_file in view_files:
+            try:
+                d = dict(secure_read_yaml(FilePath(view_file), directory_is_symlink=True))
+            except (ruyaml.composer.ComposerError,
+                    ruyaml.constructor.DuplicateKeyError,
+                    ruyaml.parser.ParserError,
+                    ruyaml.scanner.ScannerError,
+                    TypeError) as e:
+                printable_errmsg: list[list[tuple[str, str]]] = [
+                    [("View-file ", "default"),
+                     (f"{view_file}", "path"),
+                     (" is invalid; skipping.", "default")],
+                ]
+                _, printable_formatted_msg = ANSIThemeStr.format_error_msg(printable_errmsg)
+                tmplines = [[(line.replace("\"", "\\\""),
+                              "default")] for line in str(e).splitlines()]
+                errmsg = [
+                    [("View-file ", "default"),
+                     (f"{view_file}", "path"),
+                     (" is invalid; skipping:", "default")],
+                ]
+                if tmplines:
+                    errmsg += [
+                        [(f"{type(e)}", "error"),
+                         (": ", "default")] + tmplines[0],
+                    ]
+                    errmsg += tmplines[1:]
+                else:
+                    errmsg.append([(".", "error")])
+
+                unformatted_msg, formatted_msg = ANSIThemeStr.format_error_msg(errmsg)
+                cmtlog.log(LogLevel.ERR, msg=unformatted_msg, messages=formatted_msg)
+                for line in printable_formatted_msg:
+                    ansithemeprint(line, stderr=True)
+                print()
+                continue
+
+            new_kind = deep_get(d, DictPath("kind"), "")
+            new_api_family = deep_get(d, DictPath("api_family"), "")
+
+            aliases = set(deep_get(d, DictPath("command"), []))
+            if aliases and resource_type in aliases:
+                kind = (new_kind, new_api_family)
+                break
+
+    if not kind:
+        ansithemeprint([ANSIThemeStr("Error", "error"),
+                        ANSIThemeStr(f": unknown resource type {resource_type}", "default")],
+                                     stderr=True)
+        sys.exit(errno.ENOENT)
+
+    return kind
+
+
+# pylint: disable-next=too-many-branches
+def get_resources(options: list[tuple[str, str]], args: list[str]) -> int:
+    """
+    List resources of type KIND.
+
+        Parameters:
+            options ([(str, str)]): Options to use when executing this action
+            args ([str]): Arguments to use when executing this action
+        Returns:
+            (int): 0 on success, exits with errno on failure
+    """
+    global kh  # pylint: disable=global-statement
+
+    namespace = "default"
+    output_format = "table"
+#   color = "auto"
+#   wide = False
+
+    # Valid formats:
+    # table = Normal output format (default)
+    # json = json
+    # yaml = yaml
+    output_format = "table"
+
+    for opt, optarg in options:
+        if opt == "--namespace":
+            namespace = optarg
+        elif opt == "-A":
+            namespace = ""
+    #   elif opt == "--color":
+    #       color = optarg
+        elif opt == "--format":
+            output_format = optarg
+    #   elif opt == "--wide":
+    #       wide = True
+
+    if output_format not in ("json", "yaml"):
+        ansithemeprint([ANSIThemeStr(f"Output format {output_format} currently not supported",
+                                     "warning")])
+        sys.exit(errno.EINVAL)
+
+    if kh is None:
+        kh = kubernetes_helper.KubernetesHelper(about.PROGRAM_SUITE_NAME,
+                                                about.PROGRAM_SUITE_VERSION, None)
+
+    resources = []
+
+    resource_type = args[0]
+    if len(args) > 1:
+        resources = args[1].split(",")
+
+    if namespace == "ALL":
+        namespace = ""
+
+    kind = lookup_resource_type(resource_type)
+
+    status = 200
+    if resources:
+        vlist = []
+        for resource in resources:
+            if (tmp := kh.get_ref_by_kind_name_namespace(kind, resource, namespace)):
+                vlist.append(tmp)
+                status = 200
+            else:
+                # Randomly picked
+                status = 404
+    else:
+        vlist, status = kh.get_list_by_kind_namespace(kind, namespace=namespace)
+
+    if not vlist:
+        if status == 200:
+            if namespace == "ALL":
+                ansithemeprint([ANSIThemeStr("No resources found", "note")])
+            else:
+                ansithemeprint([ANSIThemeStr(f"No resources found in {namespace} namespace.",
+                                             "note")])
+        # We need error handling here.
+        return 0
+
+    if output_format == "json":
+        print(json_dumps(vlist))
+    elif output_format == "yaml":
+        print(yaml.dump(vlist))
+
+    return 0
+
+
 CMT_COMMANDLINE: dict[str, CommandType] = {
+    "List Resources": {
+        "command": ["get"],
+        "values":
+            [ANSIThemeStr("RESOURCE_TYPE", "argument"),
+             ANSIThemeStr(" [", "separator"),
+             ANSIThemeStr("RESOURCE", "argument"),
+             ANSIThemeStr(",", "separator"),
+             ANSIThemeStr("...", "argument"),
+             ANSIThemeStr("]", "separator")],
+        "description":
+            [ANSIThemeStr("List resources of ", "description"),
+             ANSIThemeStr("RESOURCE_TYPE", "argument")],
+        "extended_description": [
+            [ANSIThemeStr("Optionally limited to ", "description"),
+             ANSIThemeStr("RESOURCE", "argument"),
+             ANSIThemeStr(",", "separator"),
+             ANSIThemeStr("...", "argument")],
+        ],
+        "options": {
+            "--namespace": {
+                "values": [
+                    ANSIThemeStr("NAMESPACE", "argument"),
+                    ANSIThemeStr("|", "separator"),
+                    ANSIThemeStr("ALL", "argument")],
+                "description":
+                    [ANSIThemeStr("List resources in ", "description"),
+                     ANSIThemeStr("NAMESPACE", "argument")],
+            },
+            "-A": {
+                "description":
+                    [ANSIThemeStr("Equivalent to ", "description"),
+                     ANSIThemeStr("--namespace ", "option"),
+                     ANSIThemeStr("ALL", "argument")],
+            },
+            "--format": {
+                "values": [
+                    ANSIThemeStr("FORMAT", "argument")],
+                "description": [
+                    ANSIThemeStr("Format the output as ", "description"),
+                    ANSIThemeStr("FORMAT", "argument")],
+                "extended_description": [
+                    [ANSIThemeStr("Valid formats are:", "description")],
+                    [ANSIThemeStr("json", "argument"),
+                     ANSIThemeStr(" (JSON)", "description")],
+                    [ANSIThemeStr("yaml", "argument"),
+                     ANSIThemeStr(" (YAML)", "description")],
+                #   [ANSIThemeStr("table", "argument"),
+                #    ANSIThemeStr(" (table with information)", "description")],
+                ],
+                "requires_arg": True,
+                "validation": {
+                    "validator": "allowlist",
+                    "allowlist": [
+                        "json",
+                        "yaml",
+                        "table"
+                    ],
+                },
+            },
+            "--wide": {
+                "description": [
+                    ANSIThemeStr("Wide output format", "description")],
+            },
+        },
+        "required_args": [
+            {
+                "name": "KIND",
+                "string": [
+                    ANSIThemeStr("KIND", "argument")],
+                "validation": {
+                    "validator": "dns-subdomain",
+                },
+            },
+        ],
+        "optional_args": [
+            {
+                "name": "RESOURCE",
+                "string": [
+                    ANSIThemeStr("RESOURCE", "argument")],
+                "validation": {
+                    "validator": "dns-label",
+                    "list_separator": ",",
+                },
+            },
+        ],
+        "callback": get_resources,
+    },
     "Cordon Node": {
         "command": ["cordon"],
         "values":
@@ -3785,7 +4116,7 @@ CMT_COMMANDLINE: dict[str, CommandType] = {
                     ANSIThemeStr("FORMAT", "argument")],
                 "description": [
                     ANSIThemeStr("Format the output as ", "description"),
-                    ANSIThemeStr("FORMAT", "description")],
+                    ANSIThemeStr("FORMAT", "argument")],
                 "extended_description": [
                     [ANSIThemeStr("Valid formats are:", "description")],
                     [ANSIThemeStr("table", "argument"),
