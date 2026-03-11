@@ -13,6 +13,47 @@ be good to consult the
 [project roadmap](roadmap/Project_roadmap.md#project-roadmap).
 It tries to provide a highlevel view of what is planned for the upcoming year or so.
 
+## Release Checklist
+
+### Verify that everything passes release criteria
+
+* [ ] `pipx upgrade-all` *(Ensures that regexploit and semgrep are the most recent version)*
+* [ ] `make build` *(Generate views from templates and rebuild the resource type index)*
+* [ ] `generate_helptexts` *(Regenerate the helptexts for for all command line tools)*
+* [ ] `make checks` *(Runs mypy, pylint, flake8, ruff)*
+* [ ] `make code-checks` *(Runs bandit, regexploit, semgrep, yamllint, validate_playbooks, validate_yaml)*
+
+Release exceptions must be granted for any new warnings from `make mypy` (the existing
+warnings are acceptable for the time being). No new warnings from any other
+components are accepted.
+
+### Prepare changelog
+
+_Note:_ These steps assumes that the changelog has been updated whenever major
+changes have been made. This covers only the final steps.
+
+* [ ] Double-check that all dependencies in the *Dependencies* chapter
+      matches the dependencies in `requirements.txt`.
+* [ ] Insert the output from `make bandit`.
+* [ ] `make coverage`, `make coverage-ansible` *(with working Ansible)*,
+      `make coverage-cluster` *(with a working cluster)*
+* [ ] Insert the output from `make coverage-cluster` in the changelog.
+* [ ] Insert the output from `make flake8`.
+* [ ] `make mypy-markdown` *(Note: mypy is likely to account the issues in __logparser.py__
+      to several files; if any file ends up with the exact same number of errors
+      as logparser.py has it's likely that this is the case; if so you need to manually
+      adjust the numbers. Likewise, if cmu says that it found errors in two files
+      that's also `logparser.py` being accounted for twice)*.
+* [ ] Insert the output from `make mypy-markdown` in the changelog,
+      and if necessary, adjust it.
+* [ ] Insert the output from `make pylint`.
+* [ ] Insert the output from `make regexploit`.
+* [ ] Insert the output from `make ruff`.
+* [ ] Insert the output from `make semgrep`.
+* [ ] Insert the output from `make validate_playbooks`.
+* [ ] Insert the output from `make validate_yaml`.
+* [ ] Insert the output from `make yamllint`.
+
 ## Testing
 
 All contributions MUST be tested when applicable. Remember: tested contributions are good,
