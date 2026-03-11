@@ -3,7 +3,7 @@ kind: "WorkloadSpread"
 api_family: "apps.kruise.io"
 default_command: "workloadspreads"
 command:
-  - "kruiseds"
+  - "kruisews"
 listview:
   name: "Workload Spreads"
   group: "Kruise"
