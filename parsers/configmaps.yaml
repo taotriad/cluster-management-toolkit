@@ -107,8 +107,6 @@ configmap_signatures:
       # Not all JSON-data has a .json suffix
       - namespace: "calico-system"
         prefix: "cni-config"
-      - namespace: "cattle-fleet-system"
-        data_prefix: "config"
       - namespace: "cattle-fleet-local-system"
         data_prefix: "config"
       - prefix: "intel-iaa-config"
@@ -265,6 +263,11 @@ configmap_signatures:
       - data_header: "/usr/bin/env perl"
       - data_header: "/bin/perl"
 
+  powershell:
+    format_name: "PowerShell"
+    signatures:
+      - data_suffix: ".ps1"
+
   python:
     format_name: "Python"
     signatures:
@@ -341,6 +344,9 @@ configmap_signatures:
       - namespace: "cattle-capi-system"
         prefix: "capi-additional-rbac-roles"
         data_prefix: "manifests"
+      - namespace: "cattle-fleet-system"
+        data_prefix: "config"
+        data_suffix: "config"
       - namespace: "istio-system"
         prefix: "istio"
       - prefix: "k10-k10-metering-config"
