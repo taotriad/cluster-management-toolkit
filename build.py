@@ -25,7 +25,6 @@ def main() -> None:
     """
     Main function for the program.
     """
-
     # Before doing anything else, make sure that the user is not running as root
     if os.geteuid() == 0:
         sys.exit("CRITICAL: This program should not be run as the root user; aborting.")

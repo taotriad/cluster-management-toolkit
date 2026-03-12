@@ -1,0 +1,7448 @@
+%YAML 1.1
+---
+apireqcount:
+  kind:
+  - APIRequestCount
+  - apiserver.openshift.io
+  viewfile: APIRequestCount.apiserver.openshift.io.yaml
+apireqcounts:
+  kind:
+  - APIRequestCount
+  - apiserver.openshift.io
+  viewfile: APIRequestCount.apiserver.openshift.io.yaml
+apiserver.config:
+  kind:
+  - APIServer
+  - config.openshift.io
+  viewfile: APIServer.config.openshift.io.yaml
+apiservers.config:
+  kind:
+  - APIServer
+  - config.openshift.io
+  viewfile: APIServer.config.openshift.io.yaml
+apisvcs:
+  kind:
+  - APIService
+  - apiregistration.k8s.io
+  viewfile: APIService.apiregistration.k8s.io.yaml
+apisvc:
+  kind:
+  - APIService
+  - apiregistration.k8s.io
+  viewfile: APIService.apiregistration.k8s.io.yaml
+apisvcs.cattle:
+  kind:
+  - APIService
+  - management.cattle.io
+  viewfile: APIService.management.cattle.io.yaml
+apisvc.cattle:
+  kind:
+  - APIService
+  - management.cattle.io
+  viewfile: APIService.management.cattle.io.yaml
+apiservice.cattle:
+  kind:
+  - APIService
+  - management.cattle.io
+  viewfile: APIService.management.cattle.io.yaml
+apiservices.cattle:
+  kind:
+  - APIService
+  - management.cattle.io
+  viewfile: APIService.management.cattle.io.yaml
+af:
+  kind:
+  - AcceleratorFunction
+  - fpga.intel.com
+  viewfile: AcceleratorFunction.fpga.intel.com.yaml
+accesskey.storage:
+  kind:
+  - AccessKey
+  - storage.loft.sh
+  viewfile: AccessKey.storage.loft.sh.yaml
+kaccount:
+  kind:
+  - Account
+  - tenancy.kiosk.sh
+  viewfile: Account.tenancy.kiosk.sh.yaml
+kaccounts:
+  kind:
+  - Account
+  - tenancy.kiosk.sh
+  viewfile: Account.tenancy.kiosk.sh.yaml
+account.kiosk:
+  kind:
+  - Account
+  - tenancy.kiosk.sh
+  viewfile: Account.tenancy.kiosk.sh.yaml
+accountquotas.kiosk:
+  kind:
+  - AccountQuota
+  - config.kiosk.sh
+  viewfile: AccountQuota.config.kiosk.sh.yaml
+kaccountquotas:
+  kind:
+  - AccountQuota
+  - config.kiosk.sh
+  viewfile: AccountQuota.config.kiosk.sh.yaml
+kaccountquota:
+  kind:
+  - AccountQuota
+  - config.kiosk.sh
+  viewfile: AccountQuota.config.kiosk.sh.yaml
+hvstaddon:
+  kind:
+  - Addon
+  - harvesterhci.io
+  viewfile: Addon.harvesterhci.io.yaml
+hvstaddons:
+  kind:
+  - Addon
+  - harvesterhci.io
+  viewfile: Addon.harvesterhci.io.yaml
+k3saddon:
+  kind:
+  - Addon
+  - k3s.cattle.io
+  viewfile: Addon.k3s.cattle.io.yaml
+k3saddons:
+  kind:
+  - Addon
+  - k3s.cattle.io
+  viewfile: Addon.k3s.cattle.io.yaml
+k8eaddon:
+  kind:
+  - Addon
+  - k8e.cattle.io
+  viewfile: Addon.k8e.cattle.io.yaml
+k8eaddons:
+  kind:
+  - Addon
+  - k8e.cattle.io
+  viewfile: Addon.k8e.cattle.io.yaml
+addrgrp:
+  kind:
+  - AddressGroup
+  - controlplane.antrea.io
+  viewfile: AddressGroup.controlplane.antrea.io.yaml
+addrgrps:
+  kind:
+  - AddressGroup
+  - controlplane.antrea.io
+  viewfile: AddressGroup.controlplane.antrea.io.yaml
+addressgrps:
+  kind:
+  - AddressGroup
+  - controlplane.antrea.io
+  viewfile: AddressGroup.controlplane.antrea.io.yaml
+addressgrp:
+  kind:
+  - AddressGroup
+  - controlplane.antrea.io
+  viewfile: AddressGroup.controlplane.antrea.io.yaml
+hvstaddresspools:
+  kind:
+  - AddressPool
+  - metal.harvesterhci.io
+  viewfile: AddressPool.metal.harvesterhci.io.yaml
+hvstaddresspool:
+  kind:
+  - AddressPool
+  - metal.harvesterhci.io
+  viewfile: AddressPool.metal.harvesterhci.io.yaml
+hvstaddrpools:
+  kind:
+  - AddressPool
+  - metal.harvesterhci.io
+  viewfile: AddressPool.metal.harvesterhci.io.yaml
+hvstaddrpool:
+  kind:
+  - AddressPool
+  - metal.harvesterhci.io
+  viewfile: AddressPool.metal.harvesterhci.io.yaml
+admnetpol:
+  kind:
+  - AdminNetworkPolicy
+  - policy.networking.k8s.io
+  viewfile: AdminNetworkPolicy.policy.networking.k8s.io.yaml
+admnetpols:
+  kind:
+  - AdminNetworkPolicy
+  - policy.networking.k8s.io
+  viewfile: AdminNetworkPolicy.policy.networking.k8s.io.yaml
+admchecks:
+  kind:
+  - AdmissionCheck
+  - kueue.x-k8s.io
+  viewfile: AdmissionCheck.kueue.x-k8s.io.yaml
+admcheck:
+  kind:
+  - AdmissionCheck
+  - kueue.x-k8s.io
+  viewfile: AdmissionCheck.kueue.x-k8s.io.yaml
+admr:
+  kind:
+  - AdmissionReport
+  - kyverno.io
+  viewfile: AdmissionReport.kyverno.io.yaml
+admrs:
+  kind:
+  - AdmissionReport
+  - kyverno.io
+  viewfile: AdmissionReport.kyverno.io.yaml
+advcronjob:
+  kind:
+  - AdvancedCronJob
+  - apps.kruise.io
+  viewfile: AdvancedCronJob.apps.kruise.io.yaml
+advcronjobs:
+  kind:
+  - AdvancedCronJob
+  - apps.kruise.io
+  viewfile: AdvancedCronJob.apps.kruise.io.yaml
+kagents:
+  kind:
+  - Agent
+  - kagent.dev
+  viewfile: Agent.kagent.dev.yaml
+kagent:
+  kind:
+  - Agent
+  - kagent.dev
+  viewfile: Agent.kagent.dev.yaml
+alm:
+  kind:
+  - Alertmanager
+  - monitoring.coreos.com
+  viewfile: Alertmanager.monitoring.coreos.com.yaml
+almconfs:
+  kind:
+  - AlertmanagerConfig
+  - monitoring.coreos.com
+  viewfile: AlertmanagerConfig.monitoring.coreos.com.yaml
+almconf:
+  kind:
+  - AlertmanagerConfig
+  - monitoring.coreos.com
+  viewfile: AlertmanagerConfig.monitoring.coreos.com.yaml
+announcement.management:
+  kind:
+  - Announcement
+  - management.loft.sh
+  viewfile: Announcement.management.loft.sh.yaml
+announcement.mgmnt:
+  kind:
+  - Announcement
+  - management.loft.sh
+  viewfile: Announcement.management.loft.sh.yaml
+announcements.mgmnt:
+  kind:
+  - Announcement
+  - management.loft.sh
+  viewfile: Announcement.management.loft.sh.yaml
+aai:
+  kind:
+  - AntreaAgentInfo
+  - crd.antrea.io
+  viewfile: AntreaAgentInfo.crd.antrea.io.yaml
+aci:
+  kind:
+  - AntreaControllerInfo
+  - crd.antrea.io
+  viewfile: AntreaControllerInfo.crd.antrea.io.yaml
+apisrvsrcs:
+  kind:
+  - ApiServerSource
+  - sources.knative.dev
+  viewfile: ApiServerSource.sources.knative.dev.yaml
+apiserversrcs:
+  kind:
+  - ApiServerSource
+  - sources.knative.dev
+  viewfile: ApiServerSource.sources.knative.dev.yaml
+apiserversrc:
+  kind:
+  - ApiServerSource
+  - sources.knative.dev
+  viewfile: ApiServerSource.sources.knative.dev.yaml
+apisrvsrc:
+  kind:
+  - ApiServerSource
+  - sources.knative.dev
+  viewfile: ApiServerSource.sources.knative.dev.yaml
+apmsrvs:
+  kind:
+  - ApmServer
+  - apm.k8s.elastic.co
+  viewfile: ApmServer.apm.k8s.elastic.co.yaml
+apmsrv:
+  kind:
+  - ApmServer
+  - apm.k8s.elastic.co
+  viewfile: ApmServer.apm.k8s.elastic.co.yaml
+apps.cattle:
+  kind:
+  - App
+  - catalog.cattle.io
+  viewfile: App.catalog.cattle.io.yaml
+app.cattle:
+  kind:
+  - App
+  - catalog.cattle.io
+  viewfile: App.catalog.cattle.io.yaml
+app.mgmnt:
+  kind:
+  - App
+  - management.loft.sh
+  viewfile: App.management.loft.sh.yaml
+apps.mgmnt:
+  kind:
+  - App
+  - management.loft.sh
+  viewfile: App.management.loft.sh.yaml
+app.management:
+  kind:
+  - App
+  - management.loft.sh
+  viewfile: App.management.loft.sh.yaml
+app.storage:
+  kind:
+  - App
+  - storage.loft.sh
+  viewfile: App.storage.loft.sh.yaml
+appproj:
+  kind:
+  - AppProject
+  - argoproj.io
+  viewfile: AppProject.argoproj.io.yaml
+appprojs:
+  kind:
+  - AppProject
+  - argoproj.io
+  viewfile: AppProject.argoproj.io.yaml
+apprepos:
+  kind:
+  - AppRepository
+  - kubeapps.com
+  viewfile: AppRepository.kubeapps.com.yaml
+apprepo:
+  kind:
+  - AppRepository
+  - kubeapps.com
+  viewfile: AppRepository.kubeapps.com.yaml
+apps:
+  kind:
+  - Application
+  - app.k8s.io
+  viewfile: Application.app.k8s.io.yaml
+app:
+  kind:
+  - Application
+  - app.k8s.io
+  viewfile: Application.app.k8s.io.yaml
+argoapps:
+  kind:
+  - Application
+  - argoproj.io
+  viewfile: Application.argoproj.io.yaml
+argoapp:
+  kind:
+  - Application
+  - argoproj.io
+  viewfile: Application.argoproj.io.yaml
+appset:
+  kind:
+  - ApplicationSet
+  - argoproj.io
+  viewfile: ApplicationSet.argoproj.io.yaml
+appsets:
+  kind:
+  - ApplicationSet
+  - argoproj.io
+  viewfile: ApplicationSet.argoproj.io.yaml
+appl2grps:
+  kind:
+  - AppliedToGroup
+  - controlplane.antrea.io
+  viewfile: AppliedToGroup.controlplane.antrea.io.yaml
+appliedtogrps:
+  kind:
+  - AppliedToGroup
+  - controlplane.antrea.io
+  viewfile: AppliedToGroup.controlplane.antrea.io.yaml
+appl2grp:
+  kind:
+  - AppliedToGroup
+  - controlplane.antrea.io
+  viewfile: AppliedToGroup.controlplane.antrea.io.yaml
+appliedtogrp:
+  kind:
+  - AppliedToGroup
+  - controlplane.antrea.io
+  viewfile: AppliedToGroup.controlplane.antrea.io.yaml
+auths.opendatahub:
+  kind:
+  - Auth
+  - services.platform.opendatahub.io
+  viewfile: Auth.services.platform.opendatahub.io.yaml
+auth.opendatahub:
+  kind:
+  - Auth
+  - services.platform.opendatahub.io
+  viewfile: Auth.services.platform.opendatahub.io.yaml
+authconfs.cattle:
+  kind:
+  - AuthConfig
+  - management.cattle.io
+  viewfile: AuthConfig.management.cattle.io.yaml
+authconf.cattle:
+  kind:
+  - AuthConfig
+  - management.cattle.io
+  viewfile: AuthConfig.management.cattle.io.yaml
+authconfig.cattle:
+  kind:
+  - AuthConfig
+  - management.cattle.io
+  viewfile: AuthConfig.management.cattle.io.yaml
+authconfigs.cattle:
+  kind:
+  - AuthConfig
+  - management.cattle.io
+  viewfile: AuthConfig.management.cattle.io.yaml
+authreq:
+  kind:
+  - AuthRequest
+  - dex.coreos.com
+  viewfile: AuthRequest.dex.coreos.com.yaml
+authreqs:
+  kind:
+  - AuthRequest
+  - dex.coreos.com
+  viewfile: AuthRequest.dex.coreos.com.yaml
+authentication.config:
+  kind:
+  - Authentication
+  - config.openshift.io
+  viewfile: Authentication.config.openshift.io.yaml
+authentications.config:
+  kind:
+  - Authentication
+  - config.openshift.io
+  viewfile: Authentication.config.openshift.io.yaml
+authentication.operator:
+  kind:
+  - Authentication
+  - operator.openshift.io
+  viewfile: Authentication.operator.openshift.io.yaml
+authentications.operator:
+  kind:
+  - Authentication
+  - operator.openshift.io
+  viewfile: Authentication.operator.openshift.io.yaml
+authop:
+  kind:
+  - Authentication
+  - operator.openshift.io
+  viewfile: Authentication.operator.openshift.io.yaml
+linkerdauthorizationpolicy:
+  kind:
+  - AuthorizationPolicy
+  - policy.linkerd.io
+  viewfile: AuthorizationPolicy.policy.linkerd.io.yaml
+ldauthpolicy:
+  kind:
+  - AuthorizationPolicy
+  - policy.linkerd.io
+  viewfile: AuthorizationPolicy.policy.linkerd.io.yaml
+ldauthpol:
+  kind:
+  - AuthorizationPolicy
+  - policy.linkerd.io
+  viewfile: AuthorizationPolicy.policy.linkerd.io.yaml
+authorizationpolicy.linkerd:
+  kind:
+  - AuthorizationPolicy
+  - policy.linkerd.io
+  viewfile: AuthorizationPolicy.policy.linkerd.io.yaml
+authpol.linkerd:
+  kind:
+  - AuthorizationPolicy
+  - policy.linkerd.io
+  viewfile: AuthorizationPolicy.policy.linkerd.io.yaml
+authpolicies.linkerd:
+  kind:
+  - AuthorizationPolicy
+  - policy.linkerd.io
+  viewfile: AuthorizationPolicy.policy.linkerd.io.yaml
+ldauthpolicies:
+  kind:
+  - AuthorizationPolicy
+  - policy.linkerd.io
+  viewfile: AuthorizationPolicy.policy.linkerd.io.yaml
+ldauthpols:
+  kind:
+  - AuthorizationPolicy
+  - policy.linkerd.io
+  viewfile: AuthorizationPolicy.policy.linkerd.io.yaml
+authorizationpolicies.linkerd:
+  kind:
+  - AuthorizationPolicy
+  - policy.linkerd.io
+  viewfile: AuthorizationPolicy.policy.linkerd.io.yaml
+authpolicy.linkerd:
+  kind:
+  - AuthorizationPolicy
+  - policy.linkerd.io
+  viewfile: AuthorizationPolicy.policy.linkerd.io.yaml
+authpols.linkerd:
+  kind:
+  - AuthorizationPolicy
+  - policy.linkerd.io
+  viewfile: AuthorizationPolicy.policy.linkerd.io.yaml
+istioauthpols:
+  kind:
+  - AuthorizationPolicy
+  - security.istio.io
+  viewfile: AuthorizationPolicy.security.istio.io.yaml
+authorizationpolicies.istio:
+  kind:
+  - AuthorizationPolicy
+  - security.istio.io
+  viewfile: AuthorizationPolicy.security.istio.io.yaml
+authpolicy.istio:
+  kind:
+  - AuthorizationPolicy
+  - security.istio.io
+  viewfile: AuthorizationPolicy.security.istio.io.yaml
+authorizationpolicy.istio:
+  kind:
+  - AuthorizationPolicy
+  - security.istio.io
+  viewfile: AuthorizationPolicy.security.istio.io.yaml
+authpols.istio:
+  kind:
+  - AuthorizationPolicy
+  - security.istio.io
+  viewfile: AuthorizationPolicy.security.istio.io.yaml
+istioauthpolicies:
+  kind:
+  - AuthorizationPolicy
+  - security.istio.io
+  viewfile: AuthorizationPolicy.security.istio.io.yaml
+authpolicies.istio:
+  kind:
+  - AuthorizationPolicy
+  - security.istio.io
+  viewfile: AuthorizationPolicy.security.istio.io.yaml
+authpol.istio:
+  kind:
+  - AuthorizationPolicy
+  - security.istio.io
+  viewfile: AuthorizationPolicy.security.istio.io.yaml
+istioauthorizationpolicy:
+  kind:
+  - AuthorizationPolicy
+  - security.istio.io
+  viewfile: AuthorizationPolicy.security.istio.io.yaml
+istioauthpol:
+  kind:
+  - AuthorizationPolicy
+  - security.istio.io
+  viewfile: AuthorizationPolicy.security.istio.io.yaml
+istioauthpolicy:
+  kind:
+  - AuthorizationPolicy
+  - security.istio.io
+  viewfile: AuthorizationPolicy.security.istio.io.yaml
+bfdprof:
+  kind:
+  - BFDProfile
+  - metallb.io
+  viewfile: BFDProfile.metallb.io.yaml
+bfdprofs:
+  kind:
+  - BFDProfile
+  - metallb.io
+  viewfile: BFDProfile.metallb.io.yaml
+bgpads:
+  kind:
+  - BGPAdvertisement
+  - metallb.io
+  viewfile: BGPAdvertisement.metallb.io.yaml
+bgpad:
+  kind:
+  - BGPAdvertisement
+  - metallb.io
+  viewfile: BGPAdvertisement.metallb.io.yaml
+backendlbp:
+  kind:
+  - BackendLBPolicy
+  - gateway.networking.k8s.io
+  viewfile: BackendLBPolicy.gateway.networking.k8s.io.yaml
+backendlbps:
+  kind:
+  - BackendLBPolicy
+  - gateway.networking.k8s.io
+  viewfile: BackendLBPolicy.gateway.networking.k8s.io.yaml
+backendtlsp:
+  kind:
+  - BackendTLSPolicy
+  - gateway.networking.k8s.io
+  viewfile: BackendTLSPolicy.gateway.networking.k8s.io.yaml
+backendtlsps:
+  kind:
+  - BackendTLSPolicy
+  - gateway.networking.k8s.io
+  viewfile: BackendTLSPolicy.gateway.networking.k8s.io.yaml
+bgsrs:
+  kind:
+  - BackgroundScanReport
+  - kyverno.io
+  viewfile: BackgroundScanReport.kyverno.io.yaml
+bgsr:
+  kind:
+  - BackgroundScanReport
+  - kyverno.io
+  viewfile: BackgroundScanReport.kyverno.io.yaml
+backstoreloc:
+  kind:
+  - BackupStorageLocation
+  - velero.io
+  viewfile: BackupStorageLocation.velero.io.yaml
+backstorelocs:
+  kind:
+  - BackupStorageLocation
+  - velero.io
+  viewfile: BackupStorageLocation.velero.io.yaml
+lhbackuptargets:
+  kind:
+  - BackupTarget
+  - longhorn.io
+  viewfile: BackupTarget.longhorn.io.yaml
+lhbaktgt:
+  kind:
+  - BackupTarget
+  - longhorn.io
+  viewfile: BackupTarget.longhorn.io.yaml
+lhbackuptarget:
+  kind:
+  - BackupTarget
+  - longhorn.io
+  viewfile: BackupTarget.longhorn.io.yaml
+lhbaktgts:
+  kind:
+  - BackupTarget
+  - longhorn.io
+  viewfile: BackupTarget.longhorn.io.yaml
+balloonpol:
+  kind:
+  - BalloonsPolicy
+  - config.nri
+  viewfile: BalloonsPolicy.config.nri.yaml
+balloonspols:
+  kind:
+  - BalloonsPolicy
+  - config.nri
+  viewfile: BalloonsPolicy.config.nri.yaml
+ballpol:
+  kind:
+  - BalloonsPolicy
+  - config.nri
+  viewfile: BalloonsPolicy.config.nri.yaml
+ballpols:
+  kind:
+  - BalloonsPolicy
+  - config.nri
+  viewfile: BalloonsPolicy.config.nri.yaml
+balloonpols:
+  kind:
+  - BalloonsPolicy
+  - config.nri
+  viewfile: BalloonsPolicy.config.nri.yaml
+balloonspol:
+  kind:
+  - BalloonsPolicy
+  - config.nri
+  viewfile: BalloonsPolicy.config.nri.yaml
+bcastjobs:
+  kind:
+  - BroadcastJob
+  - apps.kruise.io
+  viewfile: BroadcastJob.apps.kruise.io.yaml
+bcastjob:
+  kind:
+  - BroadcastJob
+  - apps.kruise.io
+  viewfile: BroadcastJob.apps.kruise.io.yaml
+build.config:
+  kind:
+  - Build
+  - config.openshift.io
+  viewfile: Build.config.openshift.io.yaml
+builds.config:
+  kind:
+  - Build
+  - config.openshift.io
+  viewfile: Build.config.openshift.io.yaml
+bundles.cattle:
+  kind:
+  - Bundle
+  - fleet.cattle.io
+  viewfile: Bundle.fleet.cattle.io.yaml
+bundle.cattle:
+  kind:
+  - Bundle
+  - fleet.cattle.io
+  viewfile: Bundle.fleet.cattle.io.yaml
+bundledeps.cattle:
+  kind:
+  - BundleDeployment
+  - fleet.cattle.io
+  viewfile: BundleDeployment.fleet.cattle.io.yaml
+bundledep.cattle:
+  kind:
+  - BundleDeployment
+  - fleet.cattle.io
+  viewfile: BundleDeployment.fleet.cattle.io.yaml
+bundledeployment.cattle:
+  kind:
+  - BundleDeployment
+  - fleet.cattle.io
+  viewfile: BundleDeployment.fleet.cattle.io.yaml
+bundledeployments.cattle:
+  kind:
+  - BundleDeployment
+  - fleet.cattle.io
+  viewfile: BundleDeployment.fleet.cattle.io.yaml
+bundlensmaps.cattle:
+  kind:
+  - BundleNamespaceMapping
+  - fleet.cattle.io
+  viewfile: BundleNamespaceMapping.fleet.cattle.io.yaml
+bundlensmap.cattle:
+  kind:
+  - BundleNamespaceMapping
+  - fleet.cattle.io
+  viewfile: BundleNamespaceMapping.fleet.cattle.io.yaml
+capiprovs:
+  kind:
+  - CAPIProvider
+  - turtles-capi.cattle.io
+  viewfile: CAPIProvider.turtles-capi.cattle.io.yaml
+capiprov:
+  kind:
+  - CAPIProvider
+  - turtles-capi.cattle.io
+  viewfile: CAPIProvider.turtles-capi.cattle.io.yaml
+kubebench:
+  kind:
+  - CISKubeBenchReport
+  - aquasecurity.github.io
+  viewfile: CISKubeBenchReport.aquasecurity.github.io.yaml
+csidrvs:
+  kind:
+  - CSIDriver
+  - storage.k8s.io
+  viewfile: CSIDriver.storage.k8s.io.yaml
+csidrv:
+  kind:
+  - CSIDriver
+  - storage.k8s.io
+  viewfile: CSIDriver.storage.k8s.io.yaml
+csistoragecaps:
+  kind:
+  - CSIStorageCapacity
+  - storage.k8s.io
+  viewfile: CSIStorageCapacity.storage.k8s.io.yaml
+csistoragecap:
+  kind:
+  - CSIStorageCapacity
+  - storage.k8s.io
+  viewfile: CSIStorageCapacity.storage.k8s.io.yaml
+cimg:
+  kind:
+  - CachedImage
+  - kuik.enix.io
+  viewfile: CachedImage.kuik.enix.io.yaml
+cimgs:
+  kind:
+  - CachedImage
+  - kuik.enix.io
+  viewfile: CachedImage.kuik.enix.io.yaml
+cassdc:
+  kind:
+  - CassandraDatacenter
+  - cassandra.datastax.com
+  viewfile: CassandraDatacenter.cassandra.datastax.com.yaml
+cassdcs:
+  kind:
+  - CassandraDatacenter
+  - cassandra.datastax.com
+  viewfile: CassandraDatacenter.cassandra.datastax.com.yaml
+catalogs.cattle:
+  kind:
+  - Catalog
+  - management.cattle.io
+  viewfile: Catalog.management.cattle.io.yaml
+catalog.cattle:
+  kind:
+  - Catalog
+  - management.cattle.io
+  viewfile: Catalog.management.cattle.io.yaml
+catsrc:
+  kind:
+  - CatalogSource
+  - operators.coreos.com
+  viewfile: CatalogSource.operators.coreos.com.yaml
+catsrcs:
+  kind:
+  - CatalogSource
+  - operators.coreos.com
+  viewfile: CatalogSource.operators.coreos.com.yaml
+catalogstmpl.cattle:
+  kind:
+  - CatalogTemplate
+  - management.cattle.io
+  viewfile: CatalogTemplate.management.cattle.io.yaml
+catalogtmpl.cattle:
+  kind:
+  - CatalogTemplate
+  - management.cattle.io
+  viewfile: CatalogTemplate.management.cattle.io.yaml
+cattmplatevers.cattle:
+  kind:
+  - CatalogTemplateVersion
+  - management.cattle.io
+  viewfile: CatalogTemplateVersion.management.cattle.io.yaml
+cattmplatever.cattle:
+  kind:
+  - CatalogTemplateVersion
+  - management.cattle.io
+  viewfile: CatalogTemplateVersion.management.cattle.io.yaml
+cephcl:
+  kind:
+  - CephClient
+  - ceph.rook.io
+  viewfile: CephClient.ceph.rook.io.yaml
+cephcls:
+  kind:
+  - CephClient
+  - ceph.rook.io
+  viewfile: CephClient.ceph.rook.io.yaml
+cephclr:
+  kind:
+  - CephCluster
+  - ceph.rook.io
+  viewfile: CephCluster.ceph.rook.io.yaml
+cephclrs:
+  kind:
+  - CephCluster
+  - ceph.rook.io
+  viewfile: CephCluster.ceph.rook.io.yaml
+cephfs:
+  kind:
+  - CephFilesystem
+  - ceph.rook.io
+  viewfile: CephFilesystem.ceph.rook.io.yaml
+cephsvgs:
+  kind:
+  - CephFilesystemSubVolumeGroup
+  - ceph.rook.io
+  viewfile: CephFilesystemSubVolumeGroup.ceph.rook.io.yaml
+acephfssvg:
+  kind:
+  - CephFilesystemSubVolumeGroup
+  - ceph.rook.io
+  viewfile: CephFilesystemSubVolumeGroup.ceph.rook.io.yaml
+cephsvg:
+  kind:
+  - CephFilesystemSubVolumeGroup
+  - ceph.rook.io
+  viewfile: CephFilesystemSubVolumeGroup.ceph.rook.io.yaml
+acephfssvgs:
+  kind:
+  - CephFilesystemSubVolumeGroup
+  - ceph.rook.io
+  viewfile: CephFilesystemSubVolumeGroup.ceph.rook.io.yaml
+certs:
+  kind:
+  - Certificate
+  - cert-manager.io
+  viewfile: Certificate.cert-manager.io.yaml
+cert:
+  kind:
+  - Certificate
+  - cert-manager.io
+  viewfile: Certificate.cert-manager.io.yaml
+kncerts:
+  kind:
+  - Certificate
+  - networking.internal.knative.dev
+  viewfile: Certificate.networking.internal.knative.dev.yaml
+kncert:
+  kind:
+  - Certificate
+  - networking.internal.knative.dev
+  viewfile: Certificate.networking.internal.knative.dev.yaml
+kncertificates:
+  kind:
+  - Certificate
+  - networking.internal.knative.dev
+  viewfile: Certificate.networking.internal.knative.dev.yaml
+certreq:
+  kind:
+  - CertificateRequest
+  - cert-manager.io
+  viewfile: CertificateRequest.cert-manager.io.yaml
+certreqs:
+  kind:
+  - CertificateRequest
+  - cert-manager.io
+  viewfile: CertificateRequest.cert-manager.io.yaml
+certreqpol:
+  kind:
+  - CertificateRequestPolicy
+  - policy.cert-manager.io
+  viewfile: CertificateRequestPolicy.policy.cert-manager.io.yaml
+certreqpols:
+  kind:
+  - CertificateRequestPolicy
+  - policy.cert-manager.io
+  viewfile: CertificateRequestPolicy.policy.cert-manager.io.yaml
+certsignreq:
+  kind:
+  - CertificateSigningRequest
+  - certificates.k8s.io
+  viewfile: CertificateSigningRequest.certificates.k8s.io.yaml
+certsignreqs:
+  kind:
+  - CertificateSigningRequest
+  - certificates.k8s.io
+  viewfile: CertificateSigningRequest.certificates.k8s.io.yaml
+csr:
+  kind:
+  - CertificateSigningRequest
+  - certificates.k8s.io
+  viewfile: CertificateSigningRequest.certificates.k8s.io.yaml
+csrs:
+  kind:
+  - CertificateSigningRequest
+  - certificates.k8s.io
+  viewfile: CertificateSigningRequest.certificates.k8s.io.yaml
+channels:
+  kind:
+  - Channel
+  - messaging.knative.dev
+  viewfile: Channel.messaging.knative.dev.yaml
+channel:
+  kind:
+  - Channel
+  - messaging.knative.dev
+  viewfile: Channel.messaging.knative.dev.yaml
+ciliumcidrgrps:
+  kind:
+  - CiliumCIDRGroup
+  - cilium.io
+  viewfile: CiliumCIDRGroup.cilium.io.yaml
+ciliumcidrgrp:
+  kind:
+  - CiliumCIDRGroup
+  - cilium.io
+  viewfile: CiliumCIDRGroup.cilium.io.yaml
+ccg:
+  kind:
+  - CiliumCIDRGroup
+  - cilium.io
+  viewfile: CiliumCIDRGroup.cilium.io.yaml
+ccnp:
+  kind:
+  - CiliumClusterwideNetworkPolicy
+  - cilium.io
+  viewfile: CiliumClusterwideNetworkPolicy.cilium.io.yaml
+ceps:
+  kind:
+  - CiliumEndpoint
+  - cilium.io
+  viewfile: CiliumEndpoint.cilium.io.yaml
+cep:
+  kind:
+  - CiliumEndpoint
+  - cilium.io
+  viewfile: CiliumEndpoint.cilium.io.yaml
+ciliumep:
+  kind:
+  - CiliumEndpoint
+  - cilium.io
+  viewfile: CiliumEndpoint.cilium.io.yaml
+ciliumeps:
+  kind:
+  - CiliumEndpoint
+  - cilium.io
+  viewfile: CiliumEndpoint.cilium.io.yaml
+cew:
+  kind:
+  - CiliumExternalWorkload
+  - cilium.io
+  viewfile: CiliumExternalWorkload.cilium.io.yaml
+ciliumid:
+  kind:
+  - CiliumIdentity
+  - cilium.io
+  viewfile: CiliumIdentity.cilium.io.yaml
+ciliumids:
+  kind:
+  - CiliumIdentity
+  - cilium.io
+  viewfile: CiliumIdentity.cilium.io.yaml
+l2announcements:
+  kind:
+  - CiliumL2AnnouncementPolicy
+  - cilium.io
+  viewfile: CiliumL2AnnouncementPolicy.cilium.io.yaml
+l2announcement:
+  kind:
+  - CiliumL2AnnouncementPolicy
+  - cilium.io
+  viewfile: CiliumL2AnnouncementPolicy.cilium.io.yaml
+lbippools:
+  kind:
+  - CiliumLoadBalancerIPPool
+  - cilium.io
+  viewfile: CiliumLoadBalancerIPPool.cilium.io.yaml
+lbippool:
+  kind:
+  - CiliumLoadBalancerIPPool
+  - cilium.io
+  viewfile: CiliumLoadBalancerIPPool.cilium.io.yaml
+clrp:
+  kind:
+  - CiliumLocalRedirectPolicy
+  - cilium.io
+  viewfile: CiliumLocalRedirectPolicy.cilium.io.yaml
+cnp:
+  kind:
+  - CiliumNetworkPolicy
+  - cilium.io
+  viewfile: CiliumNetworkPolicy.cilium.io.yaml
+ciliumnetpols:
+  kind:
+  - CiliumNetworkPolicy
+  - cilium.io
+  viewfile: CiliumNetworkPolicy.cilium.io.yaml
+ciliumnetpol:
+  kind:
+  - CiliumNetworkPolicy
+  - cilium.io
+  viewfile: CiliumNetworkPolicy.cilium.io.yaml
+ciliumnp:
+  kind:
+  - CiliumNetworkPolicy
+  - cilium.io
+  viewfile: CiliumNetworkPolicy.cilium.io.yaml
+ciliumnps:
+  kind:
+  - CiliumNetworkPolicy
+  - cilium.io
+  viewfile: CiliumNetworkPolicy.cilium.io.yaml
+cns:
+  kind:
+  - CiliumNode
+  - cilium.io
+  viewfile: CiliumNode.cilium.io.yaml
+ciliumns:
+  kind:
+  - CiliumNode
+  - cilium.io
+  viewfile: CiliumNode.cilium.io.yaml
+cn:
+  kind:
+  - CiliumNode
+  - cilium.io
+  viewfile: CiliumNode.cilium.io.yaml
+ciliumn:
+  kind:
+  - CiliumNode
+  - cilium.io
+  viewfile: CiliumNode.cilium.io.yaml
+ciliumnodeconf:
+  kind:
+  - CiliumNodeConfig
+  - cilium.io
+  viewfile: CiliumNodeConfig.cilium.io.yaml
+ciliumnodeconfs:
+  kind:
+  - CiliumNodeConfig
+  - cilium.io
+  viewfile: CiliumNodeConfig.cilium.io.yaml
+chinst:
+  kind:
+  - ClickHouseInstallation
+  - clickhouse.altinity.com
+  viewfile: ClickHouseInstallation.clickhouse.altinity.com.yaml
+chinsts:
+  kind:
+  - ClickHouseInstallation
+  - clickhouse.altinity.com
+  viewfile: ClickHouseInstallation.clickhouse.altinity.com.yaml
+cl:
+  kind:
+  - Cluster
+  - cluster.x-k8s.io
+  viewfile: Cluster.cluster.x-k8s.io.yaml
+cluster.cattle:
+  kind:
+  - Cluster
+  - fleet.cattle.io
+  viewfile: Cluster.fleet.cattle.io.yaml
+clrs.cattle:
+  kind:
+  - Cluster
+  - fleet.cattle.io
+  viewfile: Cluster.fleet.cattle.io.yaml
+clusters.cattle:
+  kind:
+  - Cluster
+  - fleet.cattle.io
+  viewfile: Cluster.fleet.cattle.io.yaml
+clr.cattle:
+  kind:
+  - Cluster
+  - fleet.cattle.io
+  viewfile: Cluster.fleet.cattle.io.yaml
+k0sclr:
+  kind:
+  - Cluster
+  - k0smotron.io
+  viewfile: Cluster.k0smotron.io.yaml
+k0sclrs:
+  kind:
+  - Cluster
+  - k0smotron.io
+  viewfile: Cluster.k0smotron.io.yaml
+k3kclrs:
+  kind:
+  - Cluster
+  - k3k.io
+  viewfile: Cluster.k3k.io.yaml
+k3kclr:
+  kind:
+  - Cluster
+  - k3k.io
+  viewfile: Cluster.k3k.io.yaml
+clrs.mgmnt.cattle:
+  kind:
+  - Cluster
+  - management.cattle.io
+  viewfile: Cluster.management.cattle.io.yaml
+clr.mgmnt.cattle:
+  kind:
+  - Cluster
+  - management.cattle.io
+  viewfile: Cluster.management.cattle.io.yaml
+clusters.mgmnt.cattle:
+  kind:
+  - Cluster
+  - management.cattle.io
+  viewfile: Cluster.management.cattle.io.yaml
+cluster.mgmnt.cattle:
+  kind:
+  - Cluster
+  - management.cattle.io
+  viewfile: Cluster.management.cattle.io.yaml
+cluster.mgmnt:
+  kind:
+  - Cluster
+  - management.loft.sh
+  viewfile: Cluster.management.loft.sh.yaml
+cluster.management:
+  kind:
+  - Cluster
+  - management.loft.sh
+  viewfile: Cluster.management.loft.sh.yaml
+clusters.management:
+  kind:
+  - Cluster
+  - management.loft.sh
+  viewfile: Cluster.management.loft.sh.yaml
+clusters.mgmnt:
+  kind:
+  - Cluster
+  - management.loft.sh
+  viewfile: Cluster.management.loft.sh.yaml
+hvstmetalclrs:
+  kind:
+  - Cluster
+  - metal.harvesterhci.io
+  viewfile: Cluster.metal.harvesterhci.io.yaml
+hvstmetalclr:
+  kind:
+  - Cluster
+  - metal.harvesterhci.io
+  viewfile: Cluster.metal.harvesterhci.io.yaml
+cnpgclr:
+  kind:
+  - Cluster
+  - postgresql.cnpg.io
+  viewfile: Cluster.postgresql.cnpg.io.yaml
+cnpgclrs:
+  kind:
+  - Cluster
+  - postgresql.cnpg.io
+  viewfile: Cluster.postgresql.cnpg.io.yaml
+clrprov.cattle:
+  kind:
+  - Cluster
+  - provisioning.cattle.io
+  viewfile: Cluster.provisioning.cattle.io.yaml
+clrprovs.cattle:
+  kind:
+  - Cluster
+  - provisioning.cattle.io
+  viewfile: Cluster.provisioning.cattle.io.yaml
+clusters.storage:
+  kind:
+  - Cluster
+  - storage.loft.sh
+  viewfile: Cluster.storage.loft.sh.yaml
+cluster.storage:
+  kind:
+  - Cluster
+  - storage.loft.sh
+  viewfile: Cluster.storage.loft.sh.yaml
+clra.mgmnt:
+  kind:
+  - ClusterAccess
+  - management.loft.sh
+  viewfile: ClusterAccess.management.loft.sh.yaml
+clras.mgmnt:
+  kind:
+  - ClusterAccess
+  - management.loft.sh
+  viewfile: ClusterAccess.management.loft.sh.yaml
+clusteraccess.management:
+  kind:
+  - ClusterAccess
+  - management.loft.sh
+  viewfile: ClusterAccess.management.loft.sh.yaml
+clra.storage:
+  kind:
+  - ClusterAccess
+  - storage.loft.sh
+  viewfile: ClusterAccess.storage.loft.sh.yaml
+clras.storage:
+  kind:
+  - ClusterAccess
+  - storage.loft.sh
+  viewfile: ClusterAccess.storage.loft.sh.yaml
+clusteraccess.storage:
+  kind:
+  - ClusterAccess
+  - storage.loft.sh
+  viewfile: ClusterAccess.storage.loft.sh.yaml
+cadmr:
+  kind:
+  - ClusterAdmissionReport
+  - kyverno.io
+  viewfile: ClusterAdmissionReport.kyverno.io.yaml
+cadmrs:
+  kind:
+  - ClusterAdmissionReport
+  - kyverno.io
+  viewfile: ClusterAdmissionReport.kyverno.io.yaml
+cbgsr:
+  kind:
+  - ClusterBackgroundScanReport
+  - kyverno.io
+  viewfile: ClusterBackgroundScanReport.kyverno.io.yaml
+cbgsrs:
+  kind:
+  - ClusterBackgroundScanReport
+  - kyverno.io
+  viewfile: ClusterBackgroundScanReport.kyverno.io.yaml
+clrcat:
+  kind:
+  - ClusterCatalog
+  - olm.operatorframework.io
+  viewfile: ClusterCatalog.olm.operatorframework.io.yaml
+clrcats:
+  kind:
+  - ClusterCatalog
+  - olm.operatorframework.io
+  viewfile: ClusterCatalog.olm.operatorframework.io.yaml
+cc:
+  kind:
+  - ClusterClass
+  - cluster.x-k8s.io
+  viewfile: ClusterClass.cluster.x-k8s.io.yaml
+clustercompliance:
+  kind:
+  - ClusterComplianceReport
+  - aquasecurity.github.io
+  viewfile: ClusterComplianceReport.aquasecurity.github.io.yaml
+clustercompliances:
+  kind:
+  - ClusterComplianceReport
+  - aquasecurity.github.io
+  viewfile: ClusterComplianceReport.aquasecurity.github.io.yaml
+clusterconfigaudits:
+  kind:
+  - ClusterConfigAuditReport
+  - aquasecurity.github.io
+  viewfile: ClusterConfigAuditReport.aquasecurity.github.io.yaml
+clusterconfigaudit:
+  kind:
+  - ClusterConfigAuditReport
+  - aquasecurity.github.io
+  viewfile: ClusterConfigAuditReport.aquasecurity.github.io.yaml
+clrconf.ks:
+  kind:
+  - ClusterConfiguration
+  - installer.kubesphere.io
+  viewfile: ClusterConfiguration.installer.kubesphere.io.yaml
+clrconfs.ks:
+  kind:
+  - ClusterConfiguration
+  - installer.kubesphere.io
+  viewfile: ClusterConfiguration.installer.kubesphere.io.yaml
+clrdomclaim:
+  kind:
+  - ClusterDomainClaim
+  - networking.internal.knative.dev
+  viewfile: ClusterDomainClaim.networking.internal.knative.dev.yaml
+clrdomclaims:
+  kind:
+  - ClusterDomainClaim
+  - networking.internal.knative.dev
+  viewfile: ClusterDomainClaim.networking.internal.knative.dev.yaml
+clrextensions:
+  kind:
+  - ClusterExtension
+  - olm.operatorframework.io
+  viewfile: ClusterExtension.olm.operatorframework.io.yaml
+clrext:
+  kind:
+  - ClusterExtension
+  - olm.operatorframework.io
+  viewfile: ClusterExtension.olm.operatorframework.io.yaml
+clrexts:
+  kind:
+  - ClusterExtension
+  - olm.operatorframework.io
+  viewfile: ClusterExtension.olm.operatorframework.io.yaml
+clrextension:
+  kind:
+  - ClusterExtension
+  - olm.operatorframework.io
+  viewfile: ClusterExtension.olm.operatorframework.io.yaml
+clrflow:
+  kind:
+  - ClusterFlow
+  - logging.banzaicloud.io
+  viewfile: ClusterFlow.logging.banzaicloud.io.yaml
+clrflows:
+  kind:
+  - ClusterFlow
+  - logging.banzaicloud.io
+  viewfile: ClusterFlow.logging.banzaicloud.io.yaml
+clustergroups.antrea:
+  kind:
+  - ClusterGroup
+  - crd.antrea.io
+  viewfile: ClusterGroup.crd.antrea.io.yaml
+clrgroups.antrea:
+  kind:
+  - ClusterGroup
+  - crd.antrea.io
+  viewfile: ClusterGroup.crd.antrea.io.yaml
+clustergroup.antrea:
+  kind:
+  - ClusterGroup
+  - crd.antrea.io
+  viewfile: ClusterGroup.crd.antrea.io.yaml
+clrgroup.antrea:
+  kind:
+  - ClusterGroup
+  - crd.antrea.io
+  viewfile: ClusterGroup.crd.antrea.io.yaml
+clrgrps.antrea:
+  kind:
+  - ClusterGroup
+  - crd.antrea.io
+  viewfile: ClusterGroup.crd.antrea.io.yaml
+clrgrp.antrea:
+  kind:
+  - ClusterGroup
+  - crd.antrea.io
+  viewfile: ClusterGroup.crd.antrea.io.yaml
+clrgrps.cattle:
+  kind:
+  - ClusterGroup
+  - fleet.cattle.io
+  viewfile: ClusterGroup.fleet.cattle.io.yaml
+clustergroup.cattle:
+  kind:
+  - ClusterGroup
+  - fleet.cattle.io
+  viewfile: ClusterGroup.fleet.cattle.io.yaml
+clrgrp.cattle:
+  kind:
+  - ClusterGroup
+  - fleet.cattle.io
+  viewfile: ClusterGroup.fleet.cattle.io.yaml
+clustergroups.cattle:
+  kind:
+  - ClusterGroup
+  - fleet.cattle.io
+  viewfile: ClusterGroup.fleet.cattle.io.yaml
+clrgroup.cattle:
+  kind:
+  - ClusterGroup
+  - fleet.cattle.io
+  viewfile: ClusterGroup.fleet.cattle.io.yaml
+clrgroups.cattle:
+  kind:
+  - ClusterGroup
+  - fleet.cattle.io
+  viewfile: ClusterGroup.fleet.cattle.io.yaml
+clrimgpols:
+  kind:
+  - ClusterImagePolicy
+  - config.openshift.io
+  viewfile: ClusterImagePolicy.config.openshift.io.yaml
+clrimgpol:
+  kind:
+  - ClusterImagePolicy
+  - config.openshift.io
+  viewfile: ClusterImagePolicy.config.openshift.io.yaml
+clusterinfraassessments:
+  kind:
+  - ClusterInfraAssessmentReport
+  - aquasecurity.github.io
+  viewfile: ClusterInfraAssessmentReport.aquasecurity.github.io.yaml
+clusterinfraassessment:
+  kind:
+  - ClusterInfraAssessmentReport
+  - aquasecurity.github.io
+  viewfile: ClusterInfraAssessmentReport.aquasecurity.github.io.yaml
+clusterinterceptor.tekton:
+  kind:
+  - ClusterInterceptor
+  - triggers.tekton.dev
+  viewfile: ClusterInterceptor.triggers.tekton.dev.yaml
+clusterinterceptors.tekton:
+  kind:
+  - ClusterInterceptor
+  - triggers.tekton.dev
+  viewfile: ClusterInterceptor.triggers.tekton.dev.yaml
+hvstclrnet:
+  kind:
+  - ClusterNetwork
+  - network.harvesterhci.io
+  viewfile: ClusterNetwork.network.harvesterhci.io.yaml
+hvstclrnets:
+  kind:
+  - ClusterNetwork
+  - network.harvesterhci.io
+  viewfile: ClusterNetwork.network.harvesterhci.io.yaml
+acnp:
+  kind:
+  - ClusterNetworkPolicy
+  - crd.antrea.io
+  viewfile: ClusterNetworkPolicy.crd.antrea.io.yaml
+clusteroperator.config:
+  kind:
+  - ClusterOperator
+  - config.openshift.io
+  viewfile: ClusterOperator.config.openshift.io.yaml
+clusteroperators.config:
+  kind:
+  - ClusterOperator
+  - config.openshift.io
+  viewfile: ClusterOperator.config.openshift.io.yaml
+clroutput:
+  kind:
+  - ClusterOutput
+  - logging.banzaicloud.io
+  viewfile: ClusterOutput.logging.banzaicloud.io.yaml
+clroutputs:
+  kind:
+  - ClusterOutput
+  - logging.banzaicloud.io
+  viewfile: ClusterOutput.logging.banzaicloud.io.yaml
+hlclusterpols:
+  kind:
+  - ClusterPolicy
+  - habanalabs.habana.ai
+  viewfile: ClusterPolicy.habanalabs.habana.ai.yaml
+hlclusterpol:
+  kind:
+  - ClusterPolicy
+  - habanalabs.habana.ai
+  viewfile: ClusterPolicy.habanalabs.habana.ai.yaml
+hlclrpols:
+  kind:
+  - ClusterPolicy
+  - habanalabs.habana.ai
+  viewfile: ClusterPolicy.habanalabs.habana.ai.yaml
+hlclusterpolicy:
+  kind:
+  - ClusterPolicy
+  - habanalabs.habana.ai
+  viewfile: ClusterPolicy.habanalabs.habana.ai.yaml
+clusterpolicy.habanalabs:
+  kind:
+  - ClusterPolicy
+  - habanalabs.habana.ai
+  viewfile: ClusterPolicy.habanalabs.habana.ai.yaml
+hlclusterpolicies:
+  kind:
+  - ClusterPolicy
+  - habanalabs.habana.ai
+  viewfile: ClusterPolicy.habanalabs.habana.ai.yaml
+hlclrpol:
+  kind:
+  - ClusterPolicy
+  - habanalabs.habana.ai
+  viewfile: ClusterPolicy.habanalabs.habana.ai.yaml
+clusterpolicy.kyverno:
+  kind:
+  - ClusterPolicy
+  - kyverno.io
+  viewfile: ClusterPolicy.kyverno.io.yaml
+kyclrpols:
+  kind:
+  - ClusterPolicy
+  - kyverno.io
+  viewfile: ClusterPolicy.kyverno.io.yaml
+kyclusterpolicy:
+  kind:
+  - ClusterPolicy
+  - kyverno.io
+  viewfile: ClusterPolicy.kyverno.io.yaml
+kyclusterpols:
+  kind:
+  - ClusterPolicy
+  - kyverno.io
+  viewfile: ClusterPolicy.kyverno.io.yaml
+kyclusterpolicies:
+  kind:
+  - ClusterPolicy
+  - kyverno.io
+  viewfile: ClusterPolicy.kyverno.io.yaml
+kyclrpol:
+  kind:
+  - ClusterPolicy
+  - kyverno.io
+  viewfile: ClusterPolicy.kyverno.io.yaml
+kyclusterpol:
+  kind:
+  - ClusterPolicy
+  - kyverno.io
+  viewfile: ClusterPolicy.kyverno.io.yaml
+nvclusterpols:
+  kind:
+  - ClusterPolicy
+  - nvidia.com
+  viewfile: ClusterPolicy.nvidia.com.yaml
+nvclrpol:
+  kind:
+  - ClusterPolicy
+  - nvidia.com
+  viewfile: ClusterPolicy.nvidia.com.yaml
+nvclrpols:
+  kind:
+  - ClusterPolicy
+  - nvidia.com
+  viewfile: ClusterPolicy.nvidia.com.yaml
+clusterpolicy.nvidia:
+  kind:
+  - ClusterPolicy
+  - nvidia.com
+  viewfile: ClusterPolicy.nvidia.com.yaml
+nvclusterpolicies:
+  kind:
+  - ClusterPolicy
+  - nvidia.com
+  viewfile: ClusterPolicy.nvidia.com.yaml
+nvclusterpol:
+  kind:
+  - ClusterPolicy
+  - nvidia.com
+  viewfile: ClusterPolicy.nvidia.com.yaml
+nvclusterpolicy:
+  kind:
+  - ClusterPolicy
+  - nvidia.com
+  viewfile: ClusterPolicy.nvidia.com.yaml
+cpolr:
+  kind:
+  - ClusterPolicyReport
+  - wgpolicyk8s.io
+  viewfile: ClusterPolicyReport.wgpolicyk8s.io.yaml
+cpolrs:
+  kind:
+  - ClusterPolicyReport
+  - wgpolicyk8s.io
+  viewfile: ClusterPolicyReport.wgpolicyk8s.io.yaml
+clusterqs:
+  kind:
+  - ClusterQueue
+  - kueue.x-k8s.io
+  viewfile: ClusterQueue.kueue.x-k8s.io.yaml
+clusterq:
+  kind:
+  - ClusterQueue
+  - kueue.x-k8s.io
+  viewfile: ClusterQueue.kueue.x-k8s.io.yaml
+clusterrbacassessment:
+  kind:
+  - ClusterRbacAssessmentReport
+  - aquasecurity.github.io
+  viewfile: ClusterRbacAssessmentReport.aquasecurity.github.io.yaml
+clusterrbacassessments:
+  kind:
+  - ClusterRbacAssessmentReport
+  - aquasecurity.github.io
+  viewfile: ClusterRbacAssessmentReport.aquasecurity.github.io.yaml
+clrreg.cattle:
+  kind:
+  - ClusterRegistration
+  - fleet.cattle.io
+  viewfile: ClusterRegistration.fleet.cattle.io.yaml
+clusterregs.cattle:
+  kind:
+  - ClusterRegistration
+  - fleet.cattle.io
+  viewfile: ClusterRegistration.fleet.cattle.io.yaml
+clrregs.cattle:
+  kind:
+  - ClusterRegistration
+  - fleet.cattle.io
+  viewfile: ClusterRegistration.fleet.cattle.io.yaml
+clusterreg.cattle:
+  kind:
+  - ClusterRegistration
+  - fleet.cattle.io
+  viewfile: ClusterRegistration.fleet.cattle.io.yaml
+clrregistrationtokens.cattle:
+  kind:
+  - ClusterRegistrationToken
+  - fleet.cattle.io
+  viewfile: ClusterRegistrationToken.fleet.cattle.io.yaml
+clrregtoken.cattle:
+  kind:
+  - ClusterRegistrationToken
+  - fleet.cattle.io
+  viewfile: ClusterRegistrationToken.fleet.cattle.io.yaml
+clrregtokens.cattle:
+  kind:
+  - ClusterRegistrationToken
+  - fleet.cattle.io
+  viewfile: ClusterRegistrationToken.fleet.cattle.io.yaml
+clrregistrationtoken.cattle:
+  kind:
+  - ClusterRegistrationToken
+  - fleet.cattle.io
+  viewfile: ClusterRegistrationToken.fleet.cattle.io.yaml
+clrregtokens.mgmnt.cattle:
+  kind:
+  - ClusterRegistrationToken
+  - management.cattle.io
+  viewfile: ClusterRegistrationToken.management.cattle.io.yaml
+clrregistrationtokens.mgmnt.cattle:
+  kind:
+  - ClusterRegistrationToken
+  - management.cattle.io
+  viewfile: ClusterRegistrationToken.management.cattle.io.yaml
+clrregtoken.mgmnt.cattle:
+  kind:
+  - ClusterRegistrationToken
+  - management.cattle.io
+  viewfile: ClusterRegistrationToken.management.cattle.io.yaml
+clrregistrationtoken.mgmnt.cattle:
+  kind:
+  - ClusterRegistrationToken
+  - management.cattle.io
+  viewfile: ClusterRegistrationToken.management.cattle.io.yaml
+clrrepos:
+  kind:
+  - ClusterRepo
+  - catalog.cattle.io
+  viewfile: ClusterRepo.catalog.cattle.io.yaml
+clrrepo:
+  kind:
+  - ClusterRepo
+  - catalog.cattle.io
+  viewfile: ClusterRepo.catalog.cattle.io.yaml
+osclusterrole:
+  kind:
+  - ClusterRole
+  - authorization.openshift.io
+  viewfile: ClusterRole.authorization.openshift.io.yaml
+osclusterroles:
+  kind:
+  - ClusterRole
+  - authorization.openshift.io
+  viewfile: ClusterRole.authorization.openshift.io.yaml
+clusterrole.authorization.openshift.io:
+  kind:
+  - ClusterRole
+  - authorization.openshift.io
+  viewfile: ClusterRole.authorization.openshift.io.yaml
+osclr:
+  kind:
+  - ClusterRole
+  - authorization.openshift.io
+  viewfile: ClusterRole.authorization.openshift.io.yaml
+clr:
+  kind:
+  - ClusterRole
+  - rbac.authorization.k8s.io
+  viewfile: ClusterRole.rbac.authorization.k8s.io.yaml
+osclusterrolebinding:
+  kind:
+  - ClusterRoleBinding
+  - authorization.openshift.io
+  viewfile: ClusterRoleBinding.authorization.openshift.io.yaml
+osclrb:
+  kind:
+  - ClusterRoleBinding
+  - authorization.openshift.io
+  viewfile: ClusterRoleBinding.authorization.openshift.io.yaml
+osclusterrolebindings:
+  kind:
+  - ClusterRoleBinding
+  - authorization.openshift.io
+  viewfile: ClusterRoleBinding.authorization.openshift.io.yaml
+clusterrolebinding.authorization.openshift.io:
+  kind:
+  - ClusterRoleBinding
+  - authorization.openshift.io
+  viewfile: ClusterRoleBinding.authorization.openshift.io.yaml
+clrb:
+  kind:
+  - ClusterRoleBinding
+  - rbac.authorization.k8s.io
+  viewfile: ClusterRoleBinding.rbac.authorization.k8s.io.yaml
+clrroletmpl.management:
+  kind:
+  - ClusterRoleTemplate
+  - management.loft.sh
+  viewfile: ClusterRoleTemplate.management.loft.sh.yaml
+clusterroletemplate.mgmnt:
+  kind:
+  - ClusterRoleTemplate
+  - management.loft.sh
+  viewfile: ClusterRoleTemplate.management.loft.sh.yaml
+clrroletmpl.mgmnt:
+  kind:
+  - ClusterRoleTemplate
+  - management.loft.sh
+  viewfile: ClusterRoleTemplate.management.loft.sh.yaml
+clusterroletemplate.management:
+  kind:
+  - ClusterRoleTemplate
+  - management.loft.sh
+  viewfile: ClusterRoleTemplate.management.loft.sh.yaml
+clrroletmpls.management:
+  kind:
+  - ClusterRoleTemplate
+  - management.loft.sh
+  viewfile: ClusterRoleTemplate.management.loft.sh.yaml
+clrroletmpls.mgmnt:
+  kind:
+  - ClusterRoleTemplate
+  - management.loft.sh
+  viewfile: ClusterRoleTemplate.management.loft.sh.yaml
+clusterroletemplates.mgmnt:
+  kind:
+  - ClusterRoleTemplate
+  - management.loft.sh
+  viewfile: ClusterRoleTemplate.management.loft.sh.yaml
+clusterroletemplate.storage:
+  kind:
+  - ClusterRoleTemplate
+  - storage.loft.sh
+  viewfile: ClusterRoleTemplate.storage.loft.sh.yaml
+clrroletmpl.storage:
+  kind:
+  - ClusterRoleTemplate
+  - storage.loft.sh
+  viewfile: ClusterRoleTemplate.storage.loft.sh.yaml
+clrroletmpls.storage:
+  kind:
+  - ClusterRoleTemplate
+  - storage.loft.sh
+  viewfile: ClusterRoleTemplate.storage.loft.sh.yaml
+clrroletemplatebinding.cattle:
+  kind:
+  - ClusterRoleTemplateBinding
+  - management.cattle.io
+  viewfile: ClusterRoleTemplateBinding.management.cattle.io.yaml
+clrroletemplatebindings.cattle:
+  kind:
+  - ClusterRoleTemplateBinding
+  - management.cattle.io
+  viewfile: ClusterRoleTemplateBinding.management.cattle.io.yaml
+clrsboms:
+  kind:
+  - ClusterSbomReport
+  - aquasecurity.github.io
+  viewfile: ClusterSbomReport.aquasecurity.github.io.yaml
+clrsbom:
+  kind:
+  - ClusterSbomReport
+  - aquasecurity.github.io
+  viewfile: ClusterSbomReport.aquasecurity.github.io.yaml
+clrscans:
+  kind:
+  - ClusterScan
+  - cis.cattle.io
+  viewfile: ClusterScan.cis.cattle.io.yaml
+clrscan:
+  kind:
+  - ClusterScan
+  - cis.cattle.io
+  viewfile: ClusterScan.cis.cattle.io.yaml
+clrscanbenchmark:
+  kind:
+  - ClusterScanBenchmark
+  - cis.cattle.io
+  viewfile: ClusterScanBenchmark.cis.cattle.io.yaml
+clrscanbenchs:
+  kind:
+  - ClusterScanBenchmark
+  - cis.cattle.io
+  viewfile: ClusterScanBenchmark.cis.cattle.io.yaml
+clrscanbench:
+  kind:
+  - ClusterScanBenchmark
+  - cis.cattle.io
+  viewfile: ClusterScanBenchmark.cis.cattle.io.yaml
+clrscanbenchmarks:
+  kind:
+  - ClusterScanBenchmark
+  - cis.cattle.io
+  viewfile: ClusterScanBenchmark.cis.cattle.io.yaml
+clrscanprofile:
+  kind:
+  - ClusterScanProfile
+  - cis.cattle.io
+  viewfile: ClusterScanProfile.cis.cattle.io.yaml
+clrscanprof:
+  kind:
+  - ClusterScanProfile
+  - cis.cattle.io
+  viewfile: ClusterScanProfile.cis.cattle.io.yaml
+clrscanprofs:
+  kind:
+  - ClusterScanProfile
+  - cis.cattle.io
+  viewfile: ClusterScanProfile.cis.cattle.io.yaml
+clrscanprofiles:
+  kind:
+  - ClusterScanProfile
+  - cis.cattle.io
+  viewfile: ClusterScanProfile.cis.cattle.io.yaml
+clrscanreports:
+  kind:
+  - ClusterScanReport
+  - cis.cattle.io
+  viewfile: ClusterScanReport.cis.cattle.io.yaml
+clrscanreport:
+  kind:
+  - ClusterScanReport
+  - cis.cattle.io
+  viewfile: ClusterScanReport.cis.cattle.io.yaml
+csvs:
+  kind:
+  - ClusterServiceVersion
+  - operators.coreos.com
+  viewfile: ClusterServiceVersion.operators.coreos.com.yaml
+csv:
+  kind:
+  - ClusterServiceVersion
+  - operators.coreos.com
+  viewfile: ClusterServiceVersion.operators.coreos.com.yaml
+clrservingruntimes:
+  kind:
+  - ClusterServingRuntime
+  - serving.kserve.io
+  viewfile: ClusterServingRuntime.serving.kserve.io.yaml
+clrsrvruntimes:
+  kind:
+  - ClusterServingRuntime
+  - serving.kserve.io
+  viewfile: ClusterServingRuntime.serving.kserve.io.yaml
+clrservingruntime:
+  kind:
+  - ClusterServingRuntime
+  - serving.kserve.io
+  viewfile: ClusterServingRuntime.serving.kserve.io.yaml
+clrsrvruntime:
+  kind:
+  - ClusterServingRuntime
+  - serving.kserve.io
+  viewfile: ClusterServingRuntime.serving.kserve.io.yaml
+clrstoragecontainers:
+  kind:
+  - ClusterStorageContainer
+  - serving.kserve.io
+  viewfile: ClusterStorageContainer.serving.kserve.io.yaml
+clrstoragecontainer:
+  kind:
+  - ClusterStorageContainer
+  - serving.kserve.io
+  viewfile: ClusterStorageContainer.serving.kserve.io.yaml
+clrtrrt:
+  kind:
+  - ClusterTrainingRuntime
+  - trainer.kubeflow.org
+  viewfile: ClusterTrainingRuntime.trainer.kubeflow.org.yaml
+clustertriggerauth:
+  kind:
+  - ClusterTriggerAuthentication
+  - keda.sh
+  viewfile: ClusterTriggerAuthentication.keda.sh.yaml
+cta:
+  kind:
+  - ClusterTriggerAuthentication
+  - keda.sh
+  viewfile: ClusterTriggerAuthentication.keda.sh.yaml
+clrtrustbundle:
+  kind:
+  - ClusterTrustBundle
+  - certificates.k8s.io
+  viewfile: ClusterTrustBundle.certificates.k8s.io.yaml
+clrtrustbundles:
+  kind:
+  - ClusterTrustBundle
+  - certificates.k8s.io
+  viewfile: ClusterTrustBundle.certificates.k8s.io.yaml
+clruserdefnetwork:
+  kind:
+  - ClusterUserDefinedNetwork
+  - k8s.ovn.org
+  viewfile: ClusterUserDefinedNetwork.k8s.ovn.org.yaml
+clruserdefnetworks:
+  kind:
+  - ClusterUserDefinedNetwork
+  - k8s.ovn.org
+  viewfile: ClusterUserDefinedNetwork.k8s.ovn.org.yaml
+clruserdefnet:
+  kind:
+  - ClusterUserDefinedNetwork
+  - k8s.ovn.org
+  viewfile: ClusterUserDefinedNetwork.k8s.ovn.org.yaml
+clruserdefnets:
+  kind:
+  - ClusterUserDefinedNetwork
+  - k8s.ovn.org
+  viewfile: ClusterUserDefinedNetwork.k8s.ovn.org.yaml
+clusterversions.config:
+  kind:
+  - ClusterVersion
+  - config.openshift.io
+  viewfile: ClusterVersion.config.openshift.io.yaml
+clusterversion.config:
+  kind:
+  - ClusterVersion
+  - config.openshift.io
+  viewfile: ClusterVersion.config.openshift.io.yaml
+clusterversions.config.openshift.io:
+  kind:
+  - ClusterVersion
+  - config.openshift.io
+  viewfile: ClusterVersion.config.openshift.io.yaml
+clrvulns:
+  kind:
+  - ClusterVulnerabilityReport
+  - aquasecurity.github.io
+  viewfile: ClusterVulnerabilityReport.aquasecurity.github.io.yaml
+clrvuln:
+  kind:
+  - ClusterVulnerabilityReport
+  - aquasecurity.github.io
+  viewfile: ClusterVulnerabilityReport.aquasecurity.github.io.yaml
+clrwftmpl:
+  kind:
+  - ClusterWorkflowTemplate
+  - argoproj.io
+  viewfile: ClusterWorkflowTemplate.argoproj.io.yaml
+clrwftmpls:
+  kind:
+  - ClusterWorkflowTemplate
+  - argoproj.io
+  viewfile: ClusterWorkflowTemplate.argoproj.io.yaml
+comp.dapr:
+  kind:
+  - Component
+  - dapr.io
+  viewfile: Component.dapr.io.yaml
+comps.dapr:
+  kind:
+  - Component
+  - dapr.io
+  viewfile: Component.dapr.io.yaml
+component.dapr:
+  kind:
+  - Component
+  - dapr.io
+  viewfile: Component.dapr.io.yaml
+components.dapr:
+  kind:
+  - Component
+  - dapr.io
+  viewfile: Component.dapr.io.yaml
+cctl:
+  kind:
+  - CompositeController
+  - metacontroller.k8s.io
+  viewfile: CompositeController.metacontroller.k8s.io.yaml
+configs.imageregistry:
+  kind:
+  - Config
+  - imageregistry.operator.openshift.io
+  viewfile: Config.imageregistry.operator.openshift.io.yaml
+config.imageregistry:
+  kind:
+  - Config
+  - imageregistry.operator.openshift.io
+  viewfile: Config.imageregistry.operator.openshift.io.yaml
+config.operator:
+  kind:
+  - Config
+  - operator.openshift.io
+  viewfile: Config.operator.openshift.io.yaml
+configs.operator:
+  kind:
+  - Config
+  - operator.openshift.io
+  viewfile: Config.operator.openshift.io.yaml
+config.samples:
+  kind:
+  - Config
+  - samples.operator.openshift.io
+  viewfile: Config.samples.operator.openshift.io.yaml
+cfgaudits:
+  kind:
+  - ConfigAuditReport
+  - aquasecurity.github.io
+  viewfile: ConfigAuditReport.aquasecurity.github.io.yaml
+configaudits:
+  kind:
+  - ConfigAuditReport
+  - aquasecurity.github.io
+  viewfile: ConfigAuditReport.aquasecurity.github.io.yaml
+cfgaudit:
+  kind:
+  - ConfigAuditReport
+  - aquasecurity.github.io
+  viewfile: ConfigAuditReport.aquasecurity.github.io.yaml
+configaudit:
+  kind:
+  - ConfigAuditReport
+  - aquasecurity.github.io
+  viewfile: ConfigAuditReport.aquasecurity.github.io.yaml
+cm:
+  kind:
+  - ConfigMap
+  - ''
+  viewfile: ConfigMap.yaml
+configuration.dapr:
+  kind:
+  - Configuration
+  - dapr.io
+  viewfile: Configuration.dapr.io.yaml
+configurations.dapr:
+  kind:
+  - Configuration
+  - dapr.io
+  viewfile: Configuration.dapr.io.yaml
+conf.dapr:
+  kind:
+  - Configuration
+  - dapr.io
+  viewfile: Configuration.dapr.io.yaml
+confs.dapr:
+  kind:
+  - Configuration
+  - dapr.io
+  viewfile: Configuration.dapr.io.yaml
+kubeovnconfigurations:
+  kind:
+  - Configuration
+  - kubeovn.io
+  viewfile: Configuration.kubeovn.io.yaml
+kubeovnconfiguration:
+  kind:
+  - Configuration
+  - kubeovn.io
+  viewfile: Configuration.kubeovn.io.yaml
+configurations.knative:
+  kind:
+  - Configuration
+  - serving.knative.dev
+  viewfile: Configuration.serving.knative.dev.yaml
+conf.knative:
+  kind:
+  - Configuration
+  - serving.knative.dev
+  viewfile: Configuration.serving.knative.dev.yaml
+confs.knative:
+  kind:
+  - Configuration
+  - serving.knative.dev
+  viewfile: Configuration.serving.knative.dev.yaml
+configuration.knative:
+  kind:
+  - Configuration
+  - serving.knative.dev
+  viewfile: Configuration.serving.knative.dev.yaml
+configstates:
+  kind:
+  - ConfigurationState
+  - metallb.io
+  viewfile: ConfigurationState.metallb.io.yaml
+configstate:
+  kind:
+  - ConfigurationState
+  - metallb.io
+  viewfile: ConfigurationState.metallb.io.yaml
+consoles.config:
+  kind:
+  - Console
+  - config.openshift.io
+  viewfile: Console.config.openshift.io.yaml
+console.config:
+  kind:
+  - Console
+  - config.openshift.io
+  viewfile: Console.config.openshift.io.yaml
+containerrecreatereq:
+  kind:
+  - ContainerRecreateRequest
+  - apps.kruise.io
+  viewfile: ContainerRecreateRequest.apps.kruise.io.yaml
+containerrecreatereqs:
+  kind:
+  - ContainerRecreateRequest
+  - apps.kruise.io
+  viewfile: ContainerRecreateRequest.apps.kruise.io.yaml
+containersrc:
+  kind:
+  - ContainerSource
+  - sources.knative.dev
+  viewfile: ContainerSource.sources.knative.dev.yaml
+containersrcs:
+  kind:
+  - ContainerSource
+  - sources.knative.dev
+  viewfile: ContainerSource.sources.knative.dev.yaml
+contents.cattle:
+  kind:
+  - Content
+  - fleet.cattle.io
+  viewfile: Content.fleet.cattle.io.yaml
+content.cattle:
+  kind:
+  - Content
+  - fleet.cattle.io
+  viewfile: Content.fleet.cattle.io.yaml
+k0scontrolnodes:
+  kind:
+  - ControlNode
+  - autopilot.k0sproject.io
+  viewfile: ControlNode.autopilot.k0sproject.io.yaml
+k0scontrolnode:
+  kind:
+  - ControlNode
+  - autopilot.k0sproject.io
+  viewfile: ControlNode.autopilot.k0sproject.io.yaml
+k0sctrlnos:
+  kind:
+  - ControlNode
+  - autopilot.k0sproject.io
+  viewfile: ControlNode.autopilot.k0sproject.io.yaml
+k0sctrlno:
+  kind:
+  - ControlNode
+  - autopilot.k0sproject.io
+  viewfile: ControlNode.autopilot.k0sproject.io.yaml
+crevs:
+  kind:
+  - ControllerRevision
+  - apps
+  viewfile: ControllerRevision.apps.yaml
+crev:
+  kind:
+  - ControllerRevision
+  - apps
+  viewfile: ControllerRevision.apps.yaml
+coreprovs:
+  kind:
+  - CoreProvider
+  - operator.cluster.x-k8s.io
+  viewfile: CoreProvider.operator.cluster.x-k8s.io.yaml
+coreprov:
+  kind:
+  - CoreProvider
+  - operator.cluster.x-k8s.io
+  viewfile: CoreProvider.operator.cluster.x-k8s.io.yaml
+cjs:
+  kind:
+  - CronJob
+  - batch
+  viewfile: CronJob.batch.yaml
+cj:
+  kind:
+  - CronJob
+  - batch
+  viewfile: CronJob.batch.yaml
+cwfs:
+  kind:
+  - CronWorkflow
+  - argoproj.io
+  viewfile: CronWorkflow.argoproj.io.yaml
+cronwf:
+  kind:
+  - CronWorkflow
+  - argoproj.io
+  viewfile: CronWorkflow.argoproj.io.yaml
+cwf:
+  kind:
+  - CronWorkflow
+  - argoproj.io
+  viewfile: CronWorkflow.argoproj.io.yaml
+cronwfs:
+  kind:
+  - CronWorkflow
+  - argoproj.io
+  viewfile: CronWorkflow.argoproj.io.yaml
+crds:
+  kind:
+  - CustomResourceDefinition
+  - apiextensions.k8s.io
+  viewfile: CustomResourceDefinition.apiextensions.k8s.io.yaml
+crd:
+  kind:
+  - CustomResourceDefinition
+  - apiextensions.k8s.io
+  viewfile: CustomResourceDefinition.apiextensions.k8s.io.yaml
+dnses.config:
+  kind:
+  - DNS
+  - config.openshift.io
+  viewfile: DNS.config.openshift.io.yaml
+dns.config:
+  kind:
+  - DNS
+  - config.openshift.io
+  viewfile: DNS.config.openshift.io.yaml
+dscinit.opendatahub:
+  kind:
+  - DSCInitialization
+  - dscinitialization.opendatahub.io
+  viewfile: DSCInitialization.dscinitialization.opendatahub.io.yaml
+dcsinits.opendatahub:
+  kind:
+  - DSCInitialization
+  - dscinitialization.opendatahub.io
+  viewfile: DSCInitialization.dscinitialization.opendatahub.io.yaml
+kruiseds:
+  kind:
+  - DaemonSet
+  - apps.kruise.io
+  viewfile: DaemonSet.apps.kruise.io.yaml
+ds:
+  kind:
+  - DaemonSet
+  - apps
+  viewfile: DaemonSet.apps.yaml
+datavol:
+  kind:
+  - DataVolume
+  - cdi.kubevirt.io
+  viewfile: DataVolume.cdi.kubevirt.io.yaml
+datavols:
+  kind:
+  - DataVolume
+  - cdi.kubevirt.io
+  viewfile: DataVolume.cdi.kubevirt.io.yaml
+dctl:
+  kind:
+  - DecoratorController
+  - metacontroller.k8s.io
+  viewfile: DecoratorController.metacontroller.k8s.io.yaml
+decorator:
+  kind:
+  - DecoratorController
+  - metacontroller.k8s.io
+  viewfile: DecoratorController.metacontroller.k8s.io.yaml
+decorators:
+  kind:
+  - DecoratorController
+  - metacontroller.k8s.io
+  viewfile: DecoratorController.metacontroller.k8s.io.yaml
+dec:
+  kind:
+  - DecoratorController
+  - metacontroller.k8s.io
+  viewfile: DecoratorController.metacontroller.k8s.io.yaml
+dep:
+  kind:
+  - Deployment
+  - apps
+  viewfile: Deployment.apps.yaml
+deploy:
+  kind:
+  - Deployment
+  - apps
+  viewfile: Deployment.apps.yaml
+dstrules:
+  kind:
+  - DestinationRule
+  - networking.istio.io
+  viewfile: DestinationRule.networking.istio.io.yaml
+destrules:
+  kind:
+  - DestinationRule
+  - networking.istio.io
+  viewfile: DestinationRule.networking.istio.io.yaml
+destrule:
+  kind:
+  - DestinationRule
+  - networking.istio.io
+  viewfile: DestinationRule.networking.istio.io.yaml
+dstrule:
+  kind:
+  - DestinationRule
+  - networking.istio.io
+  viewfile: DestinationRule.networking.istio.io.yaml
+devclasses:
+  kind:
+  - DeviceClass
+  - resource.k8s.io
+  viewfile: DeviceClass.resource.k8s.io.yaml
+devclass:
+  kind:
+  - DeviceClass
+  - resource.k8s.io
+  viewfile: DeviceClass.resource.k8s.io.yaml
+devtaintrules:
+  kind:
+  - DeviceTaintRule
+  - resource.k8s.io
+  viewfile: DeviceTaintRule.resource.k8s.io.yaml
+devtaintrule:
+  kind:
+  - DeviceTaintRule
+  - resource.k8s.io
+  viewfile: DeviceTaintRule.resource.k8s.io.yaml
+dresponse:
+  kind:
+  - DirectResponse
+  - gateway.kgateway.dev
+  viewfile: DirectResponse.gateway.kgateway.dev.yaml
+dresponses:
+  kind:
+  - DirectResponse
+  - gateway.kgateway.dev
+  viewfile: DirectResponse.gateway.kgateway.dev.yaml
+dlbdevplugin:
+  kind:
+  - DlbDevicePlugin
+  - deviceplugin.intel.com
+  viewfile: DlbDevicePlugin.deviceplugin.intel.com.yaml
+dlbdevplugins:
+  kind:
+  - DlbDevicePlugin
+  - deviceplugin.intel.com
+  viewfile: DlbDevicePlugin.deviceplugin.intel.com.yaml
+dockerclrs:
+  kind:
+  - DockerCluster
+  - infrastructure.cluster.x-k8s.io
+  viewfile: DockerCluster.infrastructure.cluster.x-k8s.io.yaml
+dockerclr:
+  kind:
+  - DockerCluster
+  - infrastructure.cluster.x-k8s.io
+  viewfile: DockerCluster.infrastructure.cluster.x-k8s.io.yaml
+dockerclrtmpls:
+  kind:
+  - DockerClusterTemplate
+  - infrastructure.cluster.x-k8s.io
+  viewfile: DockerClusterTemplate.infrastructure.cluster.x-k8s.io.yaml
+dockerclrtmpl:
+  kind:
+  - DockerClusterTemplate
+  - infrastructure.cluster.x-k8s.io
+  viewfile: DockerClusterTemplate.infrastructure.cluster.x-k8s.io.yaml
+dockermp:
+  kind:
+  - DockerMachinePool
+  - infrastructure.cluster.x-k8s.io
+  viewfile: DockerMachinePool.infrastructure.cluster.x-k8s.io.yaml
+dockermchpooltmpl:
+  kind:
+  - DockerMachinePoolTemplate
+  - infrastructure.cluster.x-k8s.io
+  viewfile: DockerMachinePoolTemplate.infrastructure.cluster.x-k8s.io.yaml
+dockermchpooltmpls:
+  kind:
+  - DockerMachinePoolTemplate
+  - infrastructure.cluster.x-k8s.io
+  viewfile: DockerMachinePoolTemplate.infrastructure.cluster.x-k8s.io.yaml
+dockermchtmpls:
+  kind:
+  - DockerMachineTemplate
+  - infrastructure.cluster.x-k8s.io
+  viewfile: DockerMachineTemplate.infrastructure.cluster.x-k8s.io.yaml
+dockermchtmpl:
+  kind:
+  - DockerMachineTemplate
+  - infrastructure.cluster.x-k8s.io
+  viewfile: DockerMachineTemplate.infrastructure.cluster.x-k8s.io.yaml
+dommaps:
+  kind:
+  - DomainMapping
+  - serving.knative.dev
+  viewfile: DomainMapping.serving.knative.dev.yaml
+dommap:
+  kind:
+  - DomainMapping
+  - serving.knative.dev
+  viewfile: DomainMapping.serving.knative.dev.yaml
+dommappings:
+  kind:
+  - DomainMapping
+  - serving.knative.dev
+  viewfile: DomainMapping.serving.knative.dev.yaml
+dommapping:
+  kind:
+  - DomainMapping
+  - serving.knative.dev
+  viewfile: DomainMapping.serving.knative.dev.yaml
+dsadevplugin:
+  kind:
+  - DsaDevicePlugin
+  - deviceplugin.intel.com
+  viewfile: DsaDevicePlugin.deviceplugin.intel.com.yaml
+dsadevplugins:
+  kind:
+  - DsaDevicePlugin
+  - deviceplugin.intel.com
+  viewfile: DsaDevicePlugin.deviceplugin.intel.com.yaml
+dynschema.cattle:
+  kind:
+  - DynamicSchema
+  - management.cattle.io
+  viewfile: DynamicSchema.management.cattle.io.yaml
+dynschemas.cattle:
+  kind:
+  - DynamicSchema
+  - management.cattle.io
+  viewfile: DynamicSchema.management.cattle.io.yaml
+etcdsnapshots:
+  kind:
+  - ETCDSnapshotFile
+  - k3s.cattle.io
+  viewfile: ETCDSnapshotFile.k3s.cattle.io.yaml
+etcdsnapshot:
+  kind:
+  - ETCDSnapshotFile
+  - k3s.cattle.io
+  viewfile: ETCDSnapshotFile.k3s.cattle.io.yaml
+elmapsrv:
+  kind:
+  - ElasticMapsServer
+  - maps.k8s.elastic.co
+  viewfile: ElasticMapsServer.maps.k8s.elastic.co.yaml
+elmapsrvs:
+  kind:
+  - ElasticMapsServer
+  - maps.k8s.elastic.co
+  viewfile: ElasticMapsServer.maps.k8s.elastic.co.yaml
+eq:
+  kind:
+  - ElasticQuota
+  - scheduling.sigs.k8s.io
+  viewfile: ElasticQuota.scheduling.sigs.k8s.io.yaml
+eqs:
+  kind:
+  - ElasticQuota
+  - scheduling.sigs.k8s.io
+  viewfile: ElasticQuota.scheduling.sigs.k8s.io.yaml
+elsearch:
+  kind:
+  - Elasticsearch
+  - elasticsearch.k8s.elastic.co
+  viewfile: Elasticsearch.elasticsearch.k8s.elastic.co.yaml
+elsearches:
+  kind:
+  - Elasticsearch
+  - elasticsearch.k8s.elastic.co
+  viewfile: Elasticsearch.elasticsearch.k8s.elastic.co.yaml
+eps:
+  kind:
+  - EndpointSlice
+  - discovery.k8s.io
+  viewfile: EndpointSlice.discovery.k8s.io.yaml
+ep:
+  kind:
+  - Endpoints
+  - ''
+  viewfile: Endpoints.yaml
+lhengine:
+  kind:
+  - Engine
+  - longhorn.io
+  viewfile: Engine.longhorn.io.yaml
+lhengines:
+  kind:
+  - Engine
+  - longhorn.io
+  viewfile: Engine.longhorn.io.yaml
+lhengineimg:
+  kind:
+  - EngineImage
+  - longhorn.io
+  viewfile: EngineImage.longhorn.io.yaml
+lhengineimages:
+  kind:
+  - EngineImage
+  - longhorn.io
+  viewfile: EngineImage.longhorn.io.yaml
+lhengineimage:
+  kind:
+  - EngineImage
+  - longhorn.io
+  viewfile: EngineImage.longhorn.io.yaml
+lhengineimgs:
+  kind:
+  - EngineImage
+  - longhorn.io
+  viewfile: EngineImage.longhorn.io.yaml
+ev.events:
+  kind:
+  - Event
+  - events.k8s.io
+  viewfile: Event.events.k8s.io.yaml
+event.events:
+  kind:
+  - Event
+  - events.k8s.io
+  viewfile: Event.events.k8s.io.yaml
+ev.events.k8s.io:
+  kind:
+  - Event
+  - events.k8s.io
+  viewfile: Event.events.k8s.io.yaml
+evev:
+  kind:
+  - Event
+  - events.k8s.io
+  viewfile: Event.events.k8s.io.yaml
+event.events.k8s.io:
+  kind:
+  - Event
+  - events.k8s.io
+  viewfile: Event.events.k8s.io.yaml
+event.management:
+  kind:
+  - Event
+  - management.loft.sh
+  viewfile: Event.management.loft.sh.yaml
+ev.mgmnt:
+  kind:
+  - Event
+  - management.loft.sh
+  viewfile: Event.management.loft.sh.yaml
+ev:
+  kind:
+  - Event
+  - ''
+  viewfile: Event.yaml
+evtailer:
+  kind:
+  - EventTailer
+  - logging-extensions.banzaicloud.io
+  viewfile: EventTailer.logging-extensions.banzaicloud.io.yaml
+evtailers:
+  kind:
+  - EventTailer
+  - logging-extensions.banzaicloud.io
+  viewfile: EventTailer.logging-extensions.banzaicloud.io.yaml
+exposedsecrets:
+  kind:
+  - ExposedSecretReport
+  - aquasecurity.github.io
+  viewfile: ExposedSecretReport.aquasecurity.github.io.yaml
+exposedsecret:
+  kind:
+  - ExposedSecretReport
+  - aquasecurity.github.io
+  viewfile: ExposedSecretReport.aquasecurity.github.io.yaml
+ee:
+  kind:
+  - ExternalEntity
+  - crd.antrea.io
+  viewfile: ExternalEntity.crd.antrea.io.yaml
+eip:
+  kind:
+  - ExternalIPPool
+  - crd.antrea.io
+  viewfile: ExternalIPPool.crd.antrea.io.yaml
+frrconf:
+  kind:
+  - FRRConfiguration
+  - frrk8s.metallb.io
+  viewfile: FRRConfiguration.frrk8s.metallb.io.yaml
+frrconfs:
+  kind:
+  - FRRConfiguration
+  - frrk8s.metallb.io
+  viewfile: FRRConfiguration.frrk8s.metallb.io.yaml
+frrnostate:
+  kind:
+  - FRRNodeState
+  - frrk8s.metallb.io
+  viewfile: FRRNodeState.frrk8s.metallb.io.yaml
+frrnostates:
+  kind:
+  - FRRNodeState
+  - frrk8s.metallb.io
+  viewfile: FRRNodeState.frrk8s.metallb.io.yaml
+feature.cattle:
+  kind:
+  - Feature
+  - management.cattle.io
+  viewfile: Feature.management.cattle.io.yaml
+features.cattle:
+  kind:
+  - Feature
+  - management.cattle.io
+  viewfile: Feature.management.cattle.io.yaml
+feature.management:
+  kind:
+  - Feature
+  - management.loft.sh
+  viewfile: Feature.management.loft.sh.yaml
+feature.mgmnt:
+  kind:
+  - Feature
+  - management.loft.sh
+  viewfile: Feature.management.loft.sh.yaml
+features.mgmnt:
+  kind:
+  - Feature
+  - management.loft.sh
+  viewfile: Feature.management.loft.sh.yaml
+feat.mgmnt:
+  kind:
+  - Feature
+  - management.loft.sh
+  viewfile: Feature.management.loft.sh.yaml
+feats.mgmnt:
+  kind:
+  - Feature
+  - management.loft.sh
+  viewfile: Feature.management.loft.sh.yaml
+featuregates.config:
+  kind:
+  - FeatureGate
+  - config.openshift.io
+  viewfile: FeatureGate.config.openshift.io.yaml
+featuregate.config:
+  kind:
+  - FeatureGate
+  - config.openshift.io
+  viewfile: FeatureGate.config.openshift.io.yaml
+felixconfs:
+  kind:
+  - FelixConfiguration
+  - crd.projectcalico.org
+  viewfile: FelixConfiguration.crd.projectcalico.org.yaml
+felixconf:
+  kind:
+  - FelixConfiguration
+  - crd.projectcalico.org
+  viewfile: FelixConfiguration.crd.projectcalico.org.yaml
+fleetworkspaces:
+  kind:
+  - FleetWorkspace
+  - management.cattle.io
+  viewfile: FleetWorkspace.management.cattle.io.yaml
+fleetworkspaces.cattle:
+  kind:
+  - FleetWorkspace
+  - management.cattle.io
+  viewfile: FleetWorkspace.management.cattle.io.yaml
+fleetworkspace.cattle:
+  kind:
+  - FleetWorkspace
+  - management.cattle.io
+  viewfile: FleetWorkspace.management.cattle.io.yaml
+fleetworkspace:
+  kind:
+  - FleetWorkspace
+  - management.cattle.io
+  viewfile: FleetWorkspace.management.cattle.io.yaml
+fpgadevplugin:
+  kind:
+  - FpgaDevicePlugin
+  - deviceplugin.intel.com
+  viewfile: FpgaDevicePlugin.deviceplugin.intel.com.yaml
+fpgadevplugins:
+  kind:
+  - FpgaDevicePlugin
+  - deviceplugin.intel.com
+  viewfile: FpgaDevicePlugin.deviceplugin.intel.com.yaml
+fpga:
+  kind:
+  - FpgaRegion
+  - fpga.intel.com
+  viewfile: FpgaRegion.fpga.intel.com.yaml
+kargofreight:
+  kind:
+  - Freight
+  - kargo.akuity.io
+  viewfile: Freight.kargo.akuity.io.yaml
+kargofreights:
+  kind:
+  - Freight
+  - kargo.akuity.io
+  viewfile: Freight.kargo.akuity.io.yaml
+gw:
+  kind:
+  - Gateway
+  - gateway.networking.k8s.io
+  viewfile: Gateway.gateway.networking.k8s.io.yaml
+gws:
+  kind:
+  - Gateway
+  - gateway.networking.k8s.io
+  viewfile: Gateway.gateway.networking.k8s.io.yaml
+istiogw:
+  kind:
+  - Gateway
+  - networking.istio.io
+  viewfile: Gateway.networking.istio.io.yaml
+istiogws:
+  kind:
+  - Gateway
+  - networking.istio.io
+  viewfile: Gateway.networking.istio.io.yaml
+gwclass:
+  kind:
+  - GatewayClass
+  - gateway.networking.k8s.io
+  viewfile: GatewayClass.gateway.networking.k8s.io.yaml
+gwclasses:
+  kind:
+  - GatewayClass
+  - gateway.networking.k8s.io
+  viewfile: GatewayClass.gateway.networking.k8s.io.yaml
+gwext:
+  kind:
+  - GatewayExtension
+  - gateway.kgateway.dev
+  viewfile: GatewayExtension.gateway.kgateway.dev.yaml
+gwexts:
+  kind:
+  - GatewayExtension
+  - gateway.kgateway.dev
+  viewfile: GatewayExtension.gateway.kgateway.dev.yaml
+gitrepos.cattle:
+  kind:
+  - GitRepo
+  - fleet.cattle.io
+  viewfile: GitRepo.fleet.cattle.io.yaml
+gitrepo.cattle:
+  kind:
+  - GitRepo
+  - fleet.cattle.io
+  viewfile: GitRepo.fleet.cattle.io.yaml
+gitreporestr.cattle:
+  kind:
+  - GitRepoRestriction
+  - fleet.cattle.io
+  viewfile: GitRepoRestriction.fleet.cattle.io.yaml
+gitreporestrs.cattle:
+  kind:
+  - GitRepoRestriction
+  - fleet.cattle.io
+  viewfile: GitRepoRestriction.fleet.cattle.io.yaml
+globalnetpol:
+  kind:
+  - GlobalNetworkPolicy
+  - crd.projectcalico.org
+  viewfile: GlobalNetworkPolicy.crd.projectcalico.org.yaml
+globalnetpols:
+  kind:
+  - GlobalNetworkPolicy
+  - crd.projectcalico.org
+  viewfile: GlobalNetworkPolicy.crd.projectcalico.org.yaml
+globalnetsets:
+  kind:
+  - GlobalNetworkSet
+  - crd.projectcalico.org
+  viewfile: GlobalNetworkSet.crd.projectcalico.org.yaml
+globalnetset:
+  kind:
+  - GlobalNetworkSet
+  - crd.projectcalico.org
+  viewfile: GlobalNetworkSet.crd.projectcalico.org.yaml
+globalrb.mgmnt.cattle:
+  kind:
+  - GlobalRole
+  - management.cattle.io
+  viewfile: GlobalRole.management.cattle.io.yaml
+globalrbs.mgmnt.cattle:
+  kind:
+  - GlobalRole
+  - management.cattle.io
+  viewfile: GlobalRole.management.cattle.io.yaml
+globalroles.mgmnt.cattle:
+  kind:
+  - GlobalRole
+  - management.cattle.io
+  viewfile: GlobalRole.management.cattle.io.yaml
+globalrole.mgmnt.cattle:
+  kind:
+  - GlobalRole
+  - management.cattle.io
+  viewfile: GlobalRole.management.cattle.io.yaml
+globalclrbs.mgmnt.cattle:
+  kind:
+  - GlobalRoleBinding
+  - management.cattle.io
+  viewfile: GlobalRoleBinding.management.cattle.io.yaml
+globalclrb.mgmnt.cattle:
+  kind:
+  - GlobalRoleBinding
+  - management.cattle.io
+  viewfile: GlobalRoleBinding.management.cattle.io.yaml
+gpudevplugins:
+  kind:
+  - GpuDevicePlugin
+  - deviceplugin.intel.com
+  viewfile: GpuDevicePlugin.deviceplugin.intel.com.yaml
+gpudevplugin:
+  kind:
+  - GpuDevicePlugin
+  - deviceplugin.intel.com
+  viewfile: GpuDevicePlugin.deviceplugin.intel.com.yaml
+grafanadb:
+  kind:
+  - GrafanaDashboard
+  - grafana.integreatly.org
+  viewfile: GrafanaDashboard.grafana.integreatly.org.yaml
+grafanadbs:
+  kind:
+  - GrafanaDashboard
+  - grafana.integreatly.org
+  viewfile: GrafanaDashboard.grafana.integreatly.org.yaml
+grafanadatasrc:
+  kind:
+  - GrafanaDatasource
+  - grafana.integreatly.org
+  viewfile: GrafanaDatasource.grafana.integreatly.org.yaml
+grafanadatasrcs:
+  kind:
+  - GrafanaDatasource
+  - grafana.integreatly.org
+  viewfile: GrafanaDatasource.grafana.integreatly.org.yaml
+grafanadss:
+  kind:
+  - GrafanaDatasource
+  - grafana.integreatly.org
+  viewfile: GrafanaDatasource.grafana.integreatly.org.yaml
+grafanads:
+  kind:
+  - GrafanaDatasource
+  - grafana.integreatly.org
+  viewfile: GrafanaDatasource.grafana.integreatly.org.yaml
+group.antrea:
+  kind:
+  - Group
+  - crd.antrea.io
+  viewfile: Group.crd.antrea.io.yaml
+grps.antrea:
+  kind:
+  - Group
+  - crd.antrea.io
+  viewfile: Group.crd.antrea.io.yaml
+groups.antrea:
+  kind:
+  - Group
+  - crd.antrea.io
+  viewfile: Group.crd.antrea.io.yaml
+grp.antrea:
+  kind:
+  - Group
+  - crd.antrea.io
+  viewfile: Group.crd.antrea.io.yaml
+helmrepos:
+  kind:
+  - HelmChartRepository
+  - helm.openshift.io
+  viewfile: HelmChartRepository.helm.openshift.io.yaml
+helmrepo:
+  kind:
+  - HelmChartRepository
+  - helm.openshift.io
+  viewfile: HelmChartRepository.helm.openshift.io.yaml
+hpa:
+  kind:
+  - HorizontalPodAutoscaler
+  - autoscaling
+  viewfile: HorizontalPodAutoscaler.autoscaling.yaml
+hosteps:
+  kind:
+  - HostEndpoint
+  - crd.projectcalico.org
+  viewfile: HostEndpoint.crd.projectcalico.org.yaml
+hostep:
+  kind:
+  - HostEndpoint
+  - crd.projectcalico.org
+  viewfile: HostEndpoint.crd.projectcalico.org.yaml
+hypcon:
+  kind:
+  - HyperConverged
+  - hco.kubevirt.io
+  viewfile: HyperConverged.hco.kubevirt.io.yaml
+hypcons:
+  kind:
+  - HyperConverged
+  - hco.kubevirt.io
+  viewfile: HyperConverged.hco.kubevirt.io.yaml
+koip:
+  kind:
+  - IP
+  - kubeovn.io
+  viewfile: IP.kubeovn.io.yaml
+kubeovnip:
+  kind:
+  - IP
+  - kubeovn.io
+  viewfile: IP.kubeovn.io.yaml
+koips:
+  kind:
+  - IP
+  - kubeovn.io
+  viewfile: IP.kubeovn.io.yaml
+kubeovnips:
+  kind:
+  - IP
+  - kubeovn.io
+  viewfile: IP.kubeovn.io.yaml
+ipamblk:
+  kind:
+  - IPAMBlock
+  - crd.projectcalico.org
+  viewfile: IPAMBlock.crd.projectcalico.org.yaml
+ipamblks:
+  kind:
+  - IPAMBlock
+  - crd.projectcalico.org
+  viewfile: IPAMBlock.crd.projectcalico.org.yaml
+ipaddr:
+  kind:
+  - IPAddress
+  - networking.k8s.io
+  viewfile: IPAddress.networking.k8s.io.yaml
+ipaddrs:
+  kind:
+  - IPAddress
+  - networking.k8s.io
+  viewfile: IPAddress.networking.k8s.io.yaml
+ipaddrpool:
+  kind:
+  - IPAddressPool
+  - metallb.io
+  viewfile: IPAddressPool.metallb.io.yaml
+ipaddrpools:
+  kind:
+  - IPAddressPool
+  - metallb.io
+  viewfile: IPAddressPool.metallb.io.yaml
+aipp:
+  kind:
+  - IPPool
+  - crd.antrea.io
+  viewfile: IPPool.crd.antrea.io.yaml
+calicoippool:
+  kind:
+  - IPPool
+  - crd.projectcalico.org
+  viewfile: IPPool.crd.projectcalico.org.yaml
+calicoippools:
+  kind:
+  - IPPool
+  - crd.projectcalico.org
+  viewfile: IPPool.crd.projectcalico.org.yaml
+cipp:
+  kind:
+  - IPPool
+  - crd.projectcalico.org
+  viewfile: IPPool.crd.projectcalico.org.yaml
+cncf-ippool:
+  kind:
+  - IPPool
+  - whereabouts.cni.cncf.io
+  viewfile: IPPool.whereabouts.cni.cncf.io.yaml
+cncf-ippools:
+  kind:
+  - IPPool
+  - whereabouts.cni.cncf.io
+  viewfile: IPPool.whereabouts.cni.cncf.io.yaml
+iaadevplugins:
+  kind:
+  - IaaDevicePlugin
+  - deviceplugin.intel.com
+  viewfile: IaaDevicePlugin.deviceplugin.intel.com.yaml
+iaadevplugin:
+  kind:
+  - IaaDevicePlugin
+  - deviceplugin.intel.com
+  viewfile: IaaDevicePlugin.deviceplugin.intel.com.yaml
+knimg:
+  kind:
+  - Image
+  - caching.internal.knative.dev
+  viewfile: Image.caching.internal.knative.dev.yaml
+image.caching.internal.knative.dev:
+  kind:
+  - Image
+  - caching.internal.knative.dev
+  viewfile: Image.caching.internal.knative.dev.yaml
+knimages:
+  kind:
+  - Image
+  - caching.internal.knative.dev
+  viewfile: Image.caching.internal.knative.dev.yaml
+image.knative:
+  kind:
+  - Image
+  - caching.internal.knative.dev
+  viewfile: Image.caching.internal.knative.dev.yaml
+images.knative:
+  kind:
+  - Image
+  - caching.internal.knative.dev
+  viewfile: Image.caching.internal.knative.dev.yaml
+knimage:
+  kind:
+  - Image
+  - caching.internal.knative.dev
+  viewfile: Image.caching.internal.knative.dev.yaml
+image.config.openshift.io:
+  kind:
+  - Image
+  - config.openshift.io
+  viewfile: Image.config.openshift.io.yaml
+images.config:
+  kind:
+  - Image
+  - config.openshift.io
+  viewfile: Image.config.openshift.io.yaml
+osconfimage:
+  kind:
+  - Image
+  - config.openshift.io
+  viewfile: Image.config.openshift.io.yaml
+osconfimages:
+  kind:
+  - Image
+  - config.openshift.io
+  viewfile: Image.config.openshift.io.yaml
+image.config:
+  kind:
+  - Image
+  - config.openshift.io
+  viewfile: Image.config.openshift.io.yaml
+osconfimg:
+  kind:
+  - Image
+  - config.openshift.io
+  viewfile: Image.config.openshift.io.yaml
+image.image.openshift.io:
+  kind:
+  - Image
+  - image.openshift.io
+  viewfile: Image.image.openshift.io.yaml
+osimage:
+  kind:
+  - Image
+  - image.openshift.io
+  viewfile: Image.image.openshift.io.yaml
+images.openshift:
+  kind:
+  - Image
+  - image.openshift.io
+  viewfile: Image.image.openshift.io.yaml
+osimg:
+  kind:
+  - Image
+  - image.openshift.io
+  viewfile: Image.image.openshift.io.yaml
+image.openshift:
+  kind:
+  - Image
+  - image.openshift.io
+  viewfile: Image.image.openshift.io.yaml
+osimages:
+  kind:
+  - Image
+  - image.openshift.io
+  viewfile: Image.image.openshift.io.yaml
+osimgs:
+  kind:
+  - Image
+  - image.openshift.io
+  viewfile: Image.image.openshift.io.yaml
+imagecontentpolicy.config:
+  kind:
+  - ImageContentPolicy
+  - config.openshift.io
+  viewfile: ImageContentPolicy.config.openshift.io.yaml
+imagecontentpolicies.config:
+  kind:
+  - ImageContentPolicy
+  - config.openshift.io
+  viewfile: ImageContentPolicy.config.openshift.io.yaml
+imglistpulljobs:
+  kind:
+  - ImageListPullJob
+  - apps.kruise.io
+  viewfile: ImageListPullJob.apps.kruise.io.yaml
+imglistpulljob:
+  kind:
+  - ImageListPullJob
+  - apps.kruise.io
+  viewfile: ImageListPullJob.apps.kruise.io.yaml
+imgpulljob:
+  kind:
+  - ImagePullJob
+  - apps.kruise.io
+  viewfile: ImagePullJob.apps.kruise.io.yaml
+imgpulljobs:
+  kind:
+  - ImagePullJob
+  - apps.kruise.io
+  viewfile: ImagePullJob.apps.kruise.io.yaml
+imagestream.openshift:
+  kind:
+  - ImageStream
+  - image.openshift.io
+  viewfile: ImageStream.image.openshift.io.yaml
+osimagestream:
+  kind:
+  - ImageStream
+  - image.openshift.io
+  viewfile: ImageStream.image.openshift.io.yaml
+imagestreams.openshift:
+  kind:
+  - ImageStream
+  - image.openshift.io
+  viewfile: ImageStream.image.openshift.io.yaml
+osimgstreams:
+  kind:
+  - ImageStream
+  - image.openshift.io
+  viewfile: ImageStream.image.openshift.io.yaml
+osimagestreams:
+  kind:
+  - ImageStream
+  - image.openshift.io
+  viewfile: ImageStream.image.openshift.io.yaml
+osimgstream:
+  kind:
+  - ImageStream
+  - image.openshift.io
+  viewfile: ImageStream.image.openshift.io.yaml
+imagestream.image.openshift.io:
+  kind:
+  - ImageStream
+  - image.openshift.io
+  viewfile: ImageStream.image.openshift.io.yaml
+imagestreamtag.image.openshift.io:
+  kind:
+  - ImageStreamTag
+  - image.openshift.io
+  viewfile: ImageStreamTag.image.openshift.io.yaml
+osimagestreamtags:
+  kind:
+  - ImageStreamTag
+  - image.openshift.io
+  viewfile: ImageStreamTag.image.openshift.io.yaml
+imagestreamtag.openshift:
+  kind:
+  - ImageStreamTag
+  - image.openshift.io
+  viewfile: ImageStreamTag.image.openshift.io.yaml
+osimagestreamtag:
+  kind:
+  - ImageStreamTag
+  - image.openshift.io
+  viewfile: ImageStreamTag.image.openshift.io.yaml
+osimgstreamtags:
+  kind:
+  - ImageStreamTag
+  - image.openshift.io
+  viewfile: ImageStreamTag.image.openshift.io.yaml
+imagestreamtags.openshift:
+  kind:
+  - ImageStreamTag
+  - image.openshift.io
+  viewfile: ImageStreamTag.image.openshift.io.yaml
+osimgstreamtag:
+  kind:
+  - ImageStreamTag
+  - image.openshift.io
+  viewfile: ImageStreamTag.image.openshift.io.yaml
+imagetag.openshift:
+  kind:
+  - ImageTag
+  - image.openshift.io
+  viewfile: ImageTag.image.openshift.io.yaml
+imagetag.image.openshift.io:
+  kind:
+  - ImageTag
+  - image.openshift.io
+  viewfile: ImageTag.image.openshift.io.yaml
+osimgtag:
+  kind:
+  - ImageTag
+  - image.openshift.io
+  viewfile: ImageTag.image.openshift.io.yaml
+imagetags.openshift:
+  kind:
+  - ImageTag
+  - image.openshift.io
+  viewfile: ImageTag.image.openshift.io.yaml
+osimagetag:
+  kind:
+  - ImageTag
+  - image.openshift.io
+  viewfile: ImageTag.image.openshift.io.yaml
+osimgtags:
+  kind:
+  - ImageTag
+  - image.openshift.io
+  viewfile: ImageTag.image.openshift.io.yaml
+osimagetags:
+  kind:
+  - ImageTag
+  - image.openshift.io
+  viewfile: ImageTag.image.openshift.io.yaml
+inmemchannels:
+  kind:
+  - InMemoryChannel
+  - messaging.knative.dev
+  viewfile: InMemoryChannel.messaging.knative.dev.yaml
+inmemch:
+  kind:
+  - InMemoryChannel
+  - messaging.knative.dev
+  viewfile: InMemoryChannel.messaging.knative.dev.yaml
+inmemchannel:
+  kind:
+  - InMemoryChannel
+  - messaging.knative.dev
+  viewfile: InMemoryChannel.messaging.knative.dev.yaml
+inmemchs:
+  kind:
+  - InMemoryChannel
+  - messaging.knative.dev
+  viewfile: InMemoryChannel.messaging.knative.dev.yaml
+infgraphs:
+  kind:
+  - InferenceGraph
+  - serving.kserve.io
+  viewfile: InferenceGraph.serving.kserve.io.yaml
+infgraph:
+  kind:
+  - InferenceGraph
+  - serving.kserve.io
+  viewfile: InferenceGraph.serving.kserve.io.yaml
+inferencesvc:
+  kind:
+  - InferenceService
+  - serving.kserve.io
+  viewfile: InferenceService.serving.kserve.io.yaml
+infsvcs:
+  kind:
+  - InferenceService
+  - serving.kserve.io
+  viewfile: InferenceService.serving.kserve.io.yaml
+inferencesvcs:
+  kind:
+  - InferenceService
+  - serving.kserve.io
+  viewfile: InferenceService.serving.kserve.io.yaml
+infsvc:
+  kind:
+  - InferenceService
+  - serving.kserve.io
+  viewfile: InferenceService.serving.kserve.io.yaml
+infraassessments:
+  kind:
+  - InfraAssessmentReport
+  - aquasecurity.github.io
+  viewfile: InfraAssessmentReport.aquasecurity.github.io.yaml
+infraassessment:
+  kind:
+  - InfraAssessmentReport
+  - aquasecurity.github.io
+  viewfile: InfraAssessmentReport.aquasecurity.github.io.yaml
+infrastructure.config:
+  kind:
+  - Infrastructure
+  - config.openshift.io
+  viewfile: Infrastructure.config.openshift.io.yaml
+infrastructures.config:
+  kind:
+  - Infrastructure
+  - config.openshift.io
+  viewfile: Infrastructure.config.openshift.io.yaml
+ingress.config:
+  kind:
+  - Ingress
+  - config.openshift.io
+  viewfile: Ingress.config.openshift.io.yaml
+ingresses.config:
+  kind:
+  - Ingress
+  - config.openshift.io
+  viewfile: Ingress.config.openshift.io.yaml
+ingresses.knative:
+  kind:
+  - Ingress
+  - networking.internal.knative.dev
+  viewfile: Ingress.networking.internal.knative.dev.yaml
+kningresses:
+  kind:
+  - Ingress
+  - networking.internal.knative.dev
+  viewfile: Ingress.networking.internal.knative.dev.yaml
+ingress.knative:
+  kind:
+  - Ingress
+  - networking.internal.knative.dev
+  viewfile: Ingress.networking.internal.knative.dev.yaml
+kningress:
+  kind:
+  - Ingress
+  - networking.internal.knative.dev
+  viewfile: Ingress.networking.internal.knative.dev.yaml
+ing:
+  kind:
+  - Ingress
+  - networking.k8s.io
+  viewfile: Ingress.networking.k8s.io.yaml
+ingclass:
+  kind:
+  - IngressClass
+  - networking.k8s.io
+  viewfile: IngressClass.networking.k8s.io.yaml
+ingclasses:
+  kind:
+  - IngressClass
+  - networking.k8s.io
+  viewfile: IngressClass.networking.k8s.io.yaml
+ingroutes:
+  kind:
+  - IngressRoute
+  - traefik.io
+  viewfile: IngressRoute.traefik.io.yaml
+ingroute:
+  kind:
+  - IngressRoute
+  - traefik.io
+  viewfile: IngressRoute.traefik.io.yaml
+ingroutetcps:
+  kind:
+  - IngressRouteTCP
+  - traefik.io
+  viewfile: IngressRouteTCP.traefik.io.yaml
+ingroutetcp:
+  kind:
+  - IngressRouteTCP
+  - traefik.io
+  viewfile: IngressRouteTCP.traefik.io.yaml
+ingrouteudps:
+  kind:
+  - IngressRouteUDP
+  - traefik.io
+  viewfile: IngressRouteUDP.traefik.io.yaml
+ingrouteudp:
+  kind:
+  - IngressRouteUDP
+  - traefik.io
+  viewfile: IngressRouteUDP.traefik.io.yaml
+insightsops:
+  kind:
+  - InsightsOperator
+  - operator.openshift.io
+  viewfile: InsightsOperator.operator.openshift.io.yaml
+insightsop:
+  kind:
+  - InsightsOperator
+  - operator.openshift.io
+  viewfile: InsightsOperator.operator.openshift.io.yaml
+lhinstmgr:
+  kind:
+  - InstanceManager
+  - longhorn.io
+  viewfile: InstanceManager.longhorn.io.yaml
+lhinstancemanager:
+  kind:
+  - InstanceManager
+  - longhorn.io
+  viewfile: InstanceManager.longhorn.io.yaml
+lhinstmgrs:
+  kind:
+  - InstanceManager
+  - longhorn.io
+  viewfile: InstanceManager.longhorn.io.yaml
+lhinstancemanagers:
+  kind:
+  - InstanceManager
+  - longhorn.io
+  viewfile: InstanceManager.longhorn.io.yaml
+otelinst:
+  kind:
+  - Instrumentation
+  - opentelemetry.io
+  viewfile: Instrumentation.opentelemetry.io.yaml
+otelinsts:
+  kind:
+  - Instrumentation
+  - opentelemetry.io
+  viewfile: Instrumentation.opentelemetry.io.yaml
+intsink:
+  kind:
+  - IntegrationSink
+  - sinks.knative.dev
+  viewfile: IntegrationSink.sinks.knative.dev.yaml
+intsinks:
+  kind:
+  - IntegrationSink
+  - sinks.knative.dev
+  viewfile: IntegrationSink.sinks.knative.dev.yaml
+integrationsrcs:
+  kind:
+  - IntegrationSource
+  - sources.knative.dev
+  viewfile: IntegrationSource.sources.knative.dev.yaml
+integrationsrc:
+  kind:
+  - IntegrationSource
+  - sources.knative.dev
+  viewfile: IntegrationSource.sources.knative.dev.yaml
+hvstmetalinv:
+  kind:
+  - Inventory
+  - metal.harvesterhci.io
+  viewfile: Inventory.metal.harvesterhci.io.yaml
+hvstmetalinventories:
+  kind:
+  - Inventory
+  - metal.harvesterhci.io
+  viewfile: Inventory.metal.harvesterhci.io.yaml
+hvstmetalinvs:
+  kind:
+  - Inventory
+  - metal.harvesterhci.io
+  viewfile: Inventory.metal.harvesterhci.io.yaml
+hvstmetalinventory:
+  kind:
+  - Inventory
+  - metal.harvesterhci.io
+  viewfile: Inventory.metal.harvesterhci.io.yaml
+iop:
+  kind:
+  - IstioOperator
+  - install.istio.io
+  viewfile: IstioOperator.install.istio.io.yaml
+io:
+  kind:
+  - IstioOperator
+  - install.istio.io
+  viewfile: IstioOperator.install.istio.io.yaml
+volcanojobs:
+  kind:
+  - Job
+  - batch.volcano.sh
+  viewfile: Job.batch.volcano.sh.yaml
+volcanojob:
+  kind:
+  - Job
+  - batch.volcano.sh
+  viewfile: Job.batch.volcano.sh.yaml
+volcjobs:
+  kind:
+  - Job
+  - batch.volcano.sh
+  viewfile: Job.batch.volcano.sh.yaml
+volcjob:
+  kind:
+  - Job
+  - batch.volcano.sh
+  viewfile: Job.batch.volcano.sh.yaml
+k0sworkerconftmpls:
+  kind:
+  - K0sWorkerConfigTemplate
+  - bootstrap.cluster.x-k8s.io
+  viewfile: K0sWorkerConfigTemplate.bootstrap.cluster.x-k8s.io.yaml
+k0sworkerconftmpl:
+  kind:
+  - K0sWorkerConfigTemplate
+  - bootstrap.cluster.x-k8s.io
+  viewfile: K0sWorkerConfigTemplate.bootstrap.cluster.x-k8s.io.yaml
+k0scps:
+  kind:
+  - K0smotronControlPlane
+  - controlplane.cluster.x-k8s.io
+  viewfile: K0smotronControlPlane.controlplane.cluster.x-k8s.io.yaml
+k0scp:
+  kind:
+  - K0smotronControlPlane
+  - controlplane.cluster.x-k8s.io
+  viewfile: K0smotronControlPlane.controlplane.cluster.x-k8s.io.yaml
+ktcp:
+  kind:
+  - KamajiControlPlane
+  - controlplane.cluster.x-k8s.io
+  viewfile: KamajiControlPlane.controlplane.cluster.x-k8s.io.yaml
+ktcps:
+  kind:
+  - KamajiControlPlane
+  - controlplane.cluster.x-k8s.io
+  viewfile: KamajiControlPlane.controlplane.cluster.x-k8s.io.yaml
+hvstkeypairs:
+  kind:
+  - KeyPair
+  - harvesterhci.io
+  viewfile: KeyPair.harvesterhci.io.yaml
+hvstkeypair:
+  kind:
+  - KeyPair
+  - harvesterhci.io
+  viewfile: KeyPair.harvesterhci.io.yaml
+eventings.knative:
+  kind:
+  - KnativeEventing
+  - operator.knative.dev
+  viewfile: KnativeEventing.operator.knative.dev.yaml
+kneventing:
+  kind:
+  - KnativeEventing
+  - operator.knative.dev
+  viewfile: KnativeEventing.operator.knative.dev.yaml
+kneventings:
+  kind:
+  - KnativeEventing
+  - operator.knative.dev
+  viewfile: KnativeEventing.operator.knative.dev.yaml
+eventing.knative:
+  kind:
+  - KnativeEventing
+  - operator.knative.dev
+  viewfile: KnativeEventing.operator.knative.dev.yaml
+knservings:
+  kind:
+  - KnativeServing
+  - operator.knative.dev
+  viewfile: KnativeServing.operator.knative.dev.yaml
+servings.knative:
+  kind:
+  - KnativeServing
+  - operator.knative.dev
+  viewfile: KnativeServing.operator.knative.dev.yaml
+serving.knative:
+  kind:
+  - KnativeServing
+  - operator.knative.dev
+  viewfile: KnativeServing.operator.knative.dev.yaml
+knserving:
+  kind:
+  - KnativeServing
+  - operator.knative.dev
+  viewfile: KnativeServing.operator.knative.dev.yaml
+kontainerdrivers.cattle:
+  kind:
+  - KontainerDriver
+  - management.cattle.io
+  viewfile: KontainerDriver.management.cattle.io.yaml
+kontainerdrv.cattle:
+  kind:
+  - KontainerDriver
+  - management.cattle.io
+  viewfile: KontainerDriver.management.cattle.io.yaml
+kontainerdriver.cattle:
+  kind:
+  - KontainerDriver
+  - management.cattle.io
+  viewfile: KontainerDriver.management.cattle.io.yaml
+kontainerdrvs.cattle:
+  kind:
+  - KontainerDriver
+  - management.cattle.io
+  viewfile: KontainerDriver.management.cattle.io.yaml
+kubectlconfs:
+  kind:
+  - KubeControllersConfiguration
+  - crd.projectcalico.org
+  viewfile: KubeControllersConfiguration.crd.projectcalico.org.yaml
+kubectlconf:
+  kind:
+  - KubeControllersConfiguration
+  - crd.projectcalico.org
+  viewfile: KubeControllersConfiguration.crd.projectcalico.org.yaml
+kubehunter:
+  kind:
+  - KubeHunterReport
+  - aquasecurity.github.io
+  viewfile: KubeHunterReport.aquasecurity.github.io.yaml
+kubestorageversionmigrators.operator:
+  kind:
+  - KubeStorageVersionMigrator
+  - operator.openshift.io
+  viewfile: KubeStorageVersionMigrator.operator.openshift.io.yaml
+kubestorageversionmigrator.operator:
+  kind:
+  - KubeStorageVersionMigrator
+  - operator.openshift.io
+  viewfile: KubeStorageVersionMigrator.operator.openshift.io.yaml
+ksver:
+  kind:
+  - KubeStorageVersionMigrator
+  - operator.openshift.io
+  viewfile: KubeStorageVersionMigrator.operator.openshift.io.yaml
+kubeadmcfgs:
+  kind:
+  - KubeadmConfig
+  - bootstrap.cluster.x-k8s.io
+  viewfile: KubeadmConfig.bootstrap.cluster.x-k8s.io.yaml
+kubeadmcfg:
+  kind:
+  - KubeadmConfig
+  - bootstrap.cluster.x-k8s.io
+  viewfile: KubeadmConfig.bootstrap.cluster.x-k8s.io.yaml
+kubeadmconftmpls:
+  kind:
+  - KubeadmConfigTemplate
+  - bootstrap.cluster.x-k8s.io
+  viewfile: KubeadmConfigTemplate.bootstrap.cluster.x-k8s.io.yaml
+kubeadmconftmpl:
+  kind:
+  - KubeadmConfigTemplate
+  - bootstrap.cluster.x-k8s.io
+  viewfile: KubeadmConfigTemplate.bootstrap.cluster.x-k8s.io.yaml
+kubeadmcps:
+  kind:
+  - KubeadmControlPlane
+  - controlplane.cluster.x-k8s.io
+  viewfile: KubeadmControlPlane.controlplane.cluster.x-k8s.io.yaml
+kubeadmcp:
+  kind:
+  - KubeadmControlPlane
+  - controlplane.cluster.x-k8s.io
+  viewfile: KubeadmControlPlane.controlplane.cluster.x-k8s.io.yaml
+kubeadmcptmpls:
+  kind:
+  - KubeadmControlPlaneTemplate
+  - controlplane.cluster.x-k8s.io
+  viewfile: KubeadmControlPlaneTemplate.controlplane.cluster.x-k8s.io.yaml
+kubeadmcptmpl:
+  kind:
+  - KubeadmControlPlaneTemplate
+  - controlplane.cluster.x-k8s.io
+  viewfile: KubeadmControlPlaneTemplate.controlplane.cluster.x-k8s.io.yaml
+kubevirtclrs:
+  kind:
+  - KubevirtCluster
+  - infrastructure.cluster.x-k8s.io
+  viewfile: KubevirtCluster.infrastructure.cluster.x-k8s.io.yaml
+kubevirtclr:
+  kind:
+  - KubevirtCluster
+  - infrastructure.cluster.x-k8s.io
+  viewfile: KubevirtCluster.infrastructure.cluster.x-k8s.io.yaml
+kvclrs:
+  kind:
+  - KubevirtCluster
+  - infrastructure.cluster.x-k8s.io
+  viewfile: KubevirtCluster.infrastructure.cluster.x-k8s.io.yaml
+kvclr:
+  kind:
+  - KubevirtCluster
+  - infrastructure.cluster.x-k8s.io
+  viewfile: KubevirtCluster.infrastructure.cluster.x-k8s.io.yaml
+kvmachs:
+  kind:
+  - KubevirtMachine
+  - infrastructure.cluster.x-k8s.io
+  viewfile: KubevirtMachine.infrastructure.cluster.x-k8s.io.yaml
+kvmach:
+  kind:
+  - KubevirtMachine
+  - infrastructure.cluster.x-k8s.io
+  viewfile: KubevirtMachine.infrastructure.cluster.x-k8s.io.yaml
+kubevirtmchtmpls:
+  kind:
+  - KubevirtMachineTemplate
+  - infrastructure.cluster.x-k8s.io
+  viewfile: KubevirtMachineTemplate.infrastructure.cluster.x-k8s.io.yaml
+kubevirtmchtmpl:
+  kind:
+  - KubevirtMachineTemplate
+  - infrastructure.cluster.x-k8s.io
+  viewfile: KubevirtMachineTemplate.infrastructure.cluster.x-k8s.io.yaml
+kvmchtmpls:
+  kind:
+  - KubevirtMachineTemplate
+  - infrastructure.cluster.x-k8s.io
+  viewfile: KubevirtMachineTemplate.infrastructure.cluster.x-k8s.io.yaml
+kvmchtmpl:
+  kind:
+  - KubevirtMachineTemplate
+  - infrastructure.cluster.x-k8s.io
+  viewfile: KubevirtMachineTemplate.infrastructure.cluster.x-k8s.io.yaml
+l2ads:
+  kind:
+  - L2Advertisement
+  - metallb.io
+  viewfile: L2Advertisement.metallb.io.yaml
+l2ad:
+  kind:
+  - L2Advertisement
+  - metallb.io
+  viewfile: L2Advertisement.metallb.io.yaml
+lvmclrs:
+  kind:
+  - LVMCluster
+  - lvm.topolvm.io
+  viewfile: LVMCluster.lvm.topolvm.io.yaml
+lvmclr:
+  kind:
+  - LVMCluster
+  - lvm.topolvm.io
+  viewfile: LVMCluster.lvm.topolvm.io.yaml
+lvmvolgrp:
+  kind:
+  - LVMVolumeGroup
+  - lvm.topolvm.io
+  viewfile: LVMVolumeGroup.lvm.topolvm.io.yaml
+lvmvolgrps:
+  kind:
+  - LVMVolumeGroup
+  - lvm.topolvm.io
+  viewfile: LVMVolumeGroup.lvm.topolvm.io.yaml
+lvmvolgrpnodestats:
+  kind:
+  - LVMVolumeGroupNodeStatus
+  - lvm.topolvm.io
+  viewfile: LVMVolumeGroupNodeStatus.lvm.topolvm.io.yaml
+lvmvolgroupnodestat:
+  kind:
+  - LVMVolumeGroupNodeStatus
+  - lvm.topolvm.io
+  viewfile: LVMVolumeGroupNodeStatus.lvm.topolvm.io.yaml
+lvmvolgroupnodestats:
+  kind:
+  - LVMVolumeGroupNodeStatus
+  - lvm.topolvm.io
+  viewfile: LVMVolumeGroupNodeStatus.lvm.topolvm.io.yaml
+lvmvolgrpnodestat:
+  kind:
+  - LVMVolumeGroupNodeStatus
+  - lvm.topolvm.io
+  viewfile: LVMVolumeGroupNodeStatus.lvm.topolvm.io.yaml
+lws:
+  kind:
+  - LeaderWorkerSet
+  - leaderworkerset.x-k8s.io
+  viewfile: LeaderWorkerSet.leaderworkerset.x-k8s.io.yaml
+limits:
+  kind:
+  - LimitRange
+  - ''
+  viewfile: LimitRange.yaml
+lr:
+  kind:
+  - LimitRange
+  - ''
+  viewfile: LimitRange.yaml
+lclra.cluster:
+  kind:
+  - LocalClusterAccess
+  - cluster.loft.sh
+  viewfile: LocalClusterAccess.cluster.loft.sh.yaml
+lclras.cluster:
+  kind:
+  - LocalClusterAccess
+  - cluster.loft.sh
+  viewfile: LocalClusterAccess.cluster.loft.sh.yaml
+localclusteraccess.cluster:
+  kind:
+  - LocalClusterAccess
+  - cluster.loft.sh
+  viewfile: LocalClusterAccess.cluster.loft.sh.yaml
+lclra.storage:
+  kind:
+  - LocalClusterAccess
+  - storage.loft.sh
+  viewfile: LocalClusterAccess.storage.loft.sh.yaml
+lclras.storage:
+  kind:
+  - LocalClusterAccess
+  - storage.loft.sh
+  viewfile: LocalClusterAccess.storage.loft.sh.yaml
+localclusteraccess.storage:
+  kind:
+  - LocalClusterAccess
+  - storage.loft.sh
+  viewfile: LocalClusterAccess.storage.loft.sh.yaml
+localq:
+  kind:
+  - LocalQueue
+  - kueue.x-k8s.io
+  viewfile: LocalQueue.kueue.x-k8s.io.yaml
+localqs:
+  kind:
+  - LocalQueue
+  - kueue.x-k8s.io
+  viewfile: LocalQueue.kueue.x-k8s.io.yaml
+localuser.storage:
+  kind:
+  - LocalUser
+  - storage.loft.sh
+  viewfile: LocalUser.storage.loft.sh.yaml
+lvol:
+  kind:
+  - LogicalVolume
+  - topolvm.io
+  viewfile: LogicalVolume.topolvm.io.yaml
+lvols:
+  kind:
+  - LogicalVolume
+  - topolvm.io
+  viewfile: LogicalVolume.topolvm.io.yaml
+tinkmachines:
+  kind:
+  - Machine
+  - bmc.tinkerbell.org
+  viewfile: Machine.bmc.tinkerbell.org.yaml
+tinkmachine:
+  kind:
+  - Machine
+  - bmc.tinkerbell.org
+  viewfile: Machine.bmc.tinkerbell.org.yaml
+x-machines:
+  kind:
+  - Machine
+  - cluster.x-k8s.io
+  viewfile: Machine.cluster.x-k8s.io.yaml
+x-machine:
+  kind:
+  - Machine
+  - cluster.x-k8s.io
+  viewfile: Machine.cluster.x-k8s.io.yaml
+os-machine:
+  kind:
+  - Machine
+  - machine.openshift.io
+  viewfile: Machine.machine.openshift.io.yaml
+os-machines:
+  kind:
+  - Machine
+  - machine.openshift.io
+  viewfile: Machine.machine.openshift.io.yaml
+machinedeploys:
+  kind:
+  - MachineDeployment
+  - cluster.x-k8s.io
+  viewfile: MachineDeployment.cluster.x-k8s.io.yaml
+machinedeps:
+  kind:
+  - MachineDeployment
+  - cluster.x-k8s.io
+  viewfile: MachineDeployment.cluster.x-k8s.io.yaml
+machinedep:
+  kind:
+  - MachineDeployment
+  - cluster.x-k8s.io
+  viewfile: MachineDeployment.cluster.x-k8s.io.yaml
+x-md:
+  kind:
+  - MachineDeployment
+  - cluster.x-k8s.io
+  viewfile: MachineDeployment.cluster.x-k8s.io.yaml
+machinedeploy:
+  kind:
+  - MachineDeployment
+  - cluster.x-k8s.io
+  viewfile: MachineDeployment.cluster.x-k8s.io.yaml
+x-mhc:
+  kind:
+  - MachineHealthCheck
+  - cluster.x-k8s.io
+  viewfile: MachineHealthCheck.cluster.x-k8s.io.yaml
+x-mhcs:
+  kind:
+  - MachineHealthCheck
+  - cluster.x-k8s.io
+  viewfile: MachineHealthCheck.cluster.x-k8s.io.yaml
+os-mhcs:
+  kind:
+  - MachineHealthCheck
+  - machine.openshift.io
+  viewfile: MachineHealthCheck.machine.openshift.io.yaml
+os-mhc:
+  kind:
+  - MachineHealthCheck
+  - machine.openshift.io
+  viewfile: MachineHealthCheck.machine.openshift.io.yaml
+mp:
+  kind:
+  - MachinePool
+  - cluster.x-k8s.io
+  viewfile: MachinePool.cluster.x-k8s.io.yaml
+x-machineset:
+  kind:
+  - MachineSet
+  - cluster.x-k8s.io
+  viewfile: MachineSet.cluster.x-k8s.io.yaml
+x-ms:
+  kind:
+  - MachineSet
+  - cluster.x-k8s.io
+  viewfile: MachineSet.cluster.x-k8s.io.yaml
+x-machinesets:
+  kind:
+  - MachineSet
+  - cluster.x-k8s.io
+  viewfile: MachineSet.cluster.x-k8s.io.yaml
+os-ms:
+  kind:
+  - MachineSet
+  - machine.openshift.io
+  viewfile: MachineSet.machine.openshift.io.yaml
+managedcharts.cattle:
+  kind:
+  - ManagedChart
+  - management.cattle.io
+  viewfile: ManagedChart.management.cattle.io.yaml
+managedchart.cattle:
+  kind:
+  - ManagedChart
+  - management.cattle.io
+  viewfile: ManagedChart.management.cattle.io.yaml
+meshtlsauth:
+  kind:
+  - MeshTLSAuthentication
+  - policy.linkerd.io
+  viewfile: MeshTLSAuthentication.policy.linkerd.io.yaml
+meshtlsauths:
+  kind:
+  - MeshTLSAuthentication
+  - policy.linkerd.io
+  viewfile: MeshTLSAuthentication.policy.linkerd.io.yaml
+metric.autoscaling.internal.knative.dev:
+  kind:
+  - Metric
+  - autoscaling.internal.knative.dev
+  viewfile: Metric.autoscaling.internal.knative.dev.yaml
+metrics.knative:
+  kind:
+  - Metric
+  - autoscaling.internal.knative.dev
+  viewfile: Metric.autoscaling.internal.knative.dev.yaml
+knmetric:
+  kind:
+  - Metric
+  - autoscaling.internal.knative.dev
+  viewfile: Metric.autoscaling.internal.knative.dev.yaml
+metric.knative:
+  kind:
+  - Metric
+  - autoscaling.internal.knative.dev
+  viewfile: Metric.autoscaling.internal.knative.dev.yaml
+knmetrics:
+  kind:
+  - Metric
+  - autoscaling.internal.knative.dev
+  viewfile: Metric.autoscaling.internal.knative.dev.yaml
+miniclr:
+  kind:
+  - MiniCluster
+  - flux-framework.org
+  viewfile: MiniCluster.flux-framework.org.yaml
+miniclrs:
+  kind:
+  - MiniCluster
+  - flux-framework.org
+  viewfile: MiniCluster.flux-framework.org.yaml
+kmodelcfgs:
+  kind:
+  - ModelConfig
+  - kagent.dev
+  viewfile: ModelConfig.kagent.dev.yaml
+kmodelconfig:
+  kind:
+  - ModelConfig
+  - kagent.dev
+  viewfile: ModelConfig.kagent.dev.yaml
+kmodelcfg:
+  kind:
+  - ModelConfig
+  - kagent.dev
+  viewfile: ModelConfig.kagent.dev.yaml
+kmodelconfigs:
+  kind:
+  - ModelConfig
+  - kagent.dev
+  viewfile: ModelConfig.kagent.dev.yaml
+mod:
+  kind:
+  - Module
+  - deckhouse.io
+  viewfile: Module.deckhouse.io.yaml
+mods:
+  kind:
+  - Module
+  - deckhouse.io
+  viewfile: Module.deckhouse.io.yaml
+modconf:
+  kind:
+  - ModuleConfig
+  - deckhouse.io
+  viewfile: ModuleConfig.deckhouse.io.yaml
+modconfigs:
+  kind:
+  - ModuleConfig
+  - deckhouse.io
+  viewfile: ModuleConfig.deckhouse.io.yaml
+modconfs:
+  kind:
+  - ModuleConfig
+  - deckhouse.io
+  viewfile: ModuleConfig.deckhouse.io.yaml
+modconfig:
+  kind:
+  - ModuleConfig
+  - deckhouse.io
+  viewfile: ModuleConfig.deckhouse.io.yaml
+modrelease:
+  kind:
+  - ModuleRelease
+  - deckhouse.io
+  viewfile: ModuleRelease.deckhouse.io.yaml
+modreleases:
+  kind:
+  - ModuleRelease
+  - deckhouse.io
+  viewfile: ModuleRelease.deckhouse.io.yaml
+modsettingsdefs:
+  kind:
+  - ModuleSettingsDefinition
+  - deckhouse.io
+  viewfile: ModuleSettingsDefinition.deckhouse.io.yaml
+modsettingsdef:
+  kind:
+  - ModuleSettingsDefinition
+  - deckhouse.io
+  viewfile: ModuleSettingsDefinition.deckhouse.io.yaml
+modsrcs:
+  kind:
+  - ModuleSource
+  - deckhouse.io
+  viewfile: ModuleSource.deckhouse.io.yaml
+modsources:
+  kind:
+  - ModuleSource
+  - deckhouse.io
+  viewfile: ModuleSource.deckhouse.io.yaml
+modsrc:
+  kind:
+  - ModuleSource
+  - deckhouse.io
+  viewfile: ModuleSource.deckhouse.io.yaml
+modsource:
+  kind:
+  - ModuleSource
+  - deckhouse.io
+  viewfile: ModuleSource.deckhouse.io.yaml
+mon.opendatahub:
+  kind:
+  - Monitoring
+  - services.platform.opendatahub.io
+  viewfile: Monitoring.services.platform.opendatahub.io.yaml
+mons.opendatahub:
+  kind:
+  - Monitoring
+  - services.platform.opendatahub.io
+  viewfile: Monitoring.services.platform.opendatahub.io.yaml
+monitorings.opendatahub:
+  kind:
+  - Monitoring
+  - services.platform.opendatahub.io
+  viewfile: Monitoring.services.platform.opendatahub.io.yaml
+monitoring.opendatahub:
+  kind:
+  - Monitoring
+  - services.platform.opendatahub.io
+  viewfile: Monitoring.services.platform.opendatahub.io.yaml
+mapols:
+  kind:
+  - MutatingAdmissionPolicy
+  - admissionregistration.k8s.io
+  viewfile: MutatingAdmissionPolicy.admissionregistration.k8s.io.yaml
+mapol:
+  kind:
+  - MutatingAdmissionPolicy
+  - admissionregistration.k8s.io
+  viewfile: MutatingAdmissionPolicy.admissionregistration.k8s.io.yaml
+mapolb:
+  kind:
+  - MutatingAdmissionPolicyBinding
+  - admissionregistration.k8s.io
+  viewfile: MutatingAdmissionPolicyBinding.admissionregistration.k8s.io.yaml
+mapolbindings:
+  kind:
+  - MutatingAdmissionPolicyBinding
+  - admissionregistration.k8s.io
+  viewfile: MutatingAdmissionPolicyBinding.admissionregistration.k8s.io.yaml
+mapolbs:
+  kind:
+  - MutatingAdmissionPolicyBinding
+  - admissionregistration.k8s.io
+  viewfile: MutatingAdmissionPolicyBinding.admissionregistration.k8s.io.yaml
+mapolbinding:
+  kind:
+  - MutatingAdmissionPolicyBinding
+  - admissionregistration.k8s.io
+  viewfile: MutatingAdmissionPolicyBinding.admissionregistration.k8s.io.yaml
+mwhcs:
+  kind:
+  - MutatingWebhookConfiguration
+  - admissionregistration.k8s.io
+  viewfile: MutatingWebhookConfiguration.admissionregistration.k8s.io.yaml
+mwhc:
+  kind:
+  - MutatingWebhookConfiguration
+  - admissionregistration.k8s.io
+  viewfile: MutatingWebhookConfiguration.admissionregistration.k8s.io.yaml
+nvdrvs:
+  kind:
+  - NVIDIADriver
+  - nvidia.com
+  viewfile: NVIDIADriver.nvidia.com.yaml
+nvidiadrv:
+  kind:
+  - NVIDIADriver
+  - nvidia.com
+  viewfile: NVIDIADriver.nvidia.com.yaml
+nvdrv:
+  kind:
+  - NVIDIADriver
+  - nvidia.com
+  viewfile: NVIDIADriver.nvidia.com.yaml
+nvidiadrvs:
+  kind:
+  - NVIDIADriver
+  - nvidia.com
+  viewfile: NVIDIADriver.nvidia.com.yaml
+ns:
+  kind:
+  - Namespace
+  - ''
+  viewfile: Namespace.yaml
+networks.config:
+  kind:
+  - Network
+  - config.openshift.io
+  viewfile: Network.config.openshift.io.yaml
+network.config:
+  kind:
+  - Network
+  - config.openshift.io
+  viewfile: Network.config.openshift.io.yaml
+network.operator:
+  kind:
+  - Network
+  - operator.openshift.io
+  viewfile: Network.operator.openshift.io.yaml
+networks.operator:
+  kind:
+  - Network
+  - operator.openshift.io
+  viewfile: Network.operator.openshift.io.yaml
+networkattachmentdefinitions:
+  kind:
+  - NetworkAttachmentDefinition
+  - k8s.cni.cncf.io
+  viewfile: NetworkAttachmentDefinition.k8s.cni.cncf.io.yaml
+netattachdef:
+  kind:
+  - NetworkAttachmentDefinition
+  - k8s.cni.cncf.io
+  viewfile: NetworkAttachmentDefinition.k8s.cni.cncf.io.yaml
+netattachdefs:
+  kind:
+  - NetworkAttachmentDefinition
+  - k8s.cni.cncf.io
+  viewfile: NetworkAttachmentDefinition.k8s.cni.cncf.io.yaml
+net-attach-def:
+  kind:
+  - NetworkAttachmentDefinition
+  - k8s.cni.cncf.io
+  viewfile: NetworkAttachmentDefinition.k8s.cni.cncf.io.yaml
+net-attach-defs:
+  kind:
+  - NetworkAttachmentDefinition
+  - k8s.cni.cncf.io
+  viewfile: NetworkAttachmentDefinition.k8s.cni.cncf.io.yaml
+network-attachment-definition:
+  kind:
+  - NetworkAttachmentDefinition
+  - k8s.cni.cncf.io
+  viewfile: NetworkAttachmentDefinition.k8s.cni.cncf.io.yaml
+networkauth:
+  kind:
+  - NetworkAuthentication
+  - policy.linkerd.io
+  viewfile: NetworkAuthentication.policy.linkerd.io.yaml
+networkauths:
+  kind:
+  - NetworkAuthentication
+  - policy.linkerd.io
+  viewfile: NetworkAuthentication.policy.linkerd.io.yaml
+netauth:
+  kind:
+  - NetworkAuthentication
+  - policy.linkerd.io
+  viewfile: NetworkAuthentication.policy.linkerd.io.yaml
+netauths:
+  kind:
+  - NetworkAuthentication
+  - policy.linkerd.io
+  viewfile: NetworkAuthentication.policy.linkerd.io.yaml
+cpnetpols:
+  kind:
+  - NetworkPolicy
+  - controlplane.antrea.io
+  viewfile: NetworkPolicy.controlplane.antrea.io.yaml
+cpnetpol:
+  kind:
+  - NetworkPolicy
+  - controlplane.antrea.io
+  viewfile: NetworkPolicy.controlplane.antrea.io.yaml
+cpnetpolicy:
+  kind:
+  - NetworkPolicy
+  - controlplane.antrea.io
+  viewfile: NetworkPolicy.controlplane.antrea.io.yaml
+cpnetworkpolicies:
+  kind:
+  - NetworkPolicy
+  - controlplane.antrea.io
+  viewfile: NetworkPolicy.controlplane.antrea.io.yaml
+controlplanenetworkpolicies:
+  kind:
+  - NetworkPolicy
+  - controlplane.antrea.io
+  viewfile: NetworkPolicy.controlplane.antrea.io.yaml
+cpnetpolicies:
+  kind:
+  - NetworkPolicy
+  - controlplane.antrea.io
+  viewfile: NetworkPolicy.controlplane.antrea.io.yaml
+cpnetworkpolicy:
+  kind:
+  - NetworkPolicy
+  - controlplane.antrea.io
+  viewfile: NetworkPolicy.controlplane.antrea.io.yaml
+controlplanenetworkpolicy:
+  kind:
+  - NetworkPolicy
+  - controlplane.antrea.io
+  viewfile: NetworkPolicy.controlplane.antrea.io.yaml
+networkpolicies.antrea:
+  kind:
+  - NetworkPolicy
+  - crd.antrea.io
+  viewfile: NetworkPolicy.crd.antrea.io.yaml
+anetpols:
+  kind:
+  - NetworkPolicy
+  - crd.antrea.io
+  viewfile: NetworkPolicy.crd.antrea.io.yaml
+networkpolicy.antrea:
+  kind:
+  - NetworkPolicy
+  - crd.antrea.io
+  viewfile: NetworkPolicy.crd.antrea.io.yaml
+anp:
+  kind:
+  - NetworkPolicy
+  - crd.antrea.io
+  viewfile: NetworkPolicy.crd.antrea.io.yaml
+networkpolicy.crd.antrea.io:
+  kind:
+  - NetworkPolicy
+  - crd.antrea.io
+  viewfile: NetworkPolicy.crd.antrea.io.yaml
+anetpol:
+  kind:
+  - NetworkPolicy
+  - crd.antrea.io
+  viewfile: NetworkPolicy.crd.antrea.io.yaml
+networkpolicies.calico:
+  kind:
+  - NetworkPolicy
+  - crd.projectcalico.org
+  viewfile: NetworkPolicy.crd.projectcalico.org.yaml
+networkpolicy.crd.projectcalico.org:
+  kind:
+  - NetworkPolicy
+  - crd.projectcalico.org
+  viewfile: NetworkPolicy.crd.projectcalico.org.yaml
+cnetpols:
+  kind:
+  - NetworkPolicy
+  - crd.projectcalico.org
+  viewfile: NetworkPolicy.crd.projectcalico.org.yaml
+cnetpol:
+  kind:
+  - NetworkPolicy
+  - crd.projectcalico.org
+  viewfile: NetworkPolicy.crd.projectcalico.org.yaml
+networkpolicy.calico:
+  kind:
+  - NetworkPolicy
+  - crd.projectcalico.org
+  viewfile: NetworkPolicy.crd.projectcalico.org.yaml
+netpol:
+  kind:
+  - NetworkPolicy
+  - networking.k8s.io
+  viewfile: NetworkPolicy.networking.k8s.io.yaml
+netpols:
+  kind:
+  - NetworkPolicy
+  - networking.k8s.io
+  viewfile: NetworkPolicy.networking.k8s.io.yaml
+netpolstats:
+  kind:
+  - NetworkPolicyStats
+  - stats.antrea.io
+  viewfile: NetworkPolicyStats.stats.antrea.io.yaml
+nodes.config:
+  kind:
+  - Node
+  - config.openshift.io
+  viewfile: Node.config.openshift.io.yaml
+node.config:
+  kind:
+  - Node
+  - config.openshift.io
+  viewfile: Node.config.openshift.io.yaml
+hvstnode:
+  kind:
+  - Node
+  - devices.harvesterhci.io
+  viewfile: Node.devices.harvesterhci.io.yaml
+hvstnodes:
+  kind:
+  - Node
+  - devices.harvesterhci.io
+  viewfile: Node.devices.harvesterhci.io.yaml
+lhnode:
+  kind:
+  - Node
+  - longhorn.io
+  viewfile: Node.longhorn.io.yaml
+node.longhorn.io:
+  kind:
+  - Node
+  - longhorn.io
+  viewfile: Node.longhorn.io.yaml
+lhnodes:
+  kind:
+  - Node
+  - longhorn.io
+  viewfile: Node.longhorn.io.yaml
+nodes.cattle:
+  kind:
+  - Node
+  - management.cattle.io
+  viewfile: Node.management.cattle.io.yaml
+node.cattle:
+  kind:
+  - Node
+  - management.cattle.io
+  viewfile: Node.management.cattle.io.yaml
+'no':
+  kind:
+  - Node
+  - ''
+  viewfile: Node.yaml
+nodrv.cattle:
+  kind:
+  - NodeDriver
+  - management.cattle.io
+  viewfile: NodeDriver.management.cattle.io.yaml
+nodedrivers.cattle:
+  kind:
+  - NodeDriver
+  - management.cattle.io
+  viewfile: NodeDriver.management.cattle.io.yaml
+nodedrvs.cattle:
+  kind:
+  - NodeDriver
+  - management.cattle.io
+  viewfile: NodeDriver.management.cattle.io.yaml
+nodrvs.cattle:
+  kind:
+  - NodeDriver
+  - management.cattle.io
+  viewfile: NodeDriver.management.cattle.io.yaml
+nodedrv.cattle:
+  kind:
+  - NodeDriver
+  - management.cattle.io
+  viewfile: NodeDriver.management.cattle.io.yaml
+nodedriver.cattle:
+  kind:
+  - NodeDriver
+  - management.cattle.io
+  viewfile: NodeDriver.management.cattle.io.yaml
+nfeats:
+  kind:
+  - NodeFeature
+  - nfd.k8s-sigs.io
+  viewfile: NodeFeature.nfd.k8s-sigs.io.yaml
+nfeat:
+  kind:
+  - NodeFeature
+  - nfd.k8s-sigs.io
+  viewfile: NodeFeature.nfd.k8s-sigs.io.yaml
+osnfd:
+  kind:
+  - NodeFeatureDiscovery
+  - nfd.openshift.io
+  viewfile: NodeFeatureDiscovery.nfd.openshift.io.yaml
+osnfds:
+  kind:
+  - NodeFeatureDiscovery
+  - nfd.openshift.io
+  viewfile: NodeFeatureDiscovery.nfd.openshift.io.yaml
+nfeatgrp:
+  kind:
+  - NodeFeatureGroup
+  - nfd.k8s-sigs.io
+  viewfile: NodeFeatureGroup.nfd.k8s-sigs.io.yaml
+nfeatgrps:
+  kind:
+  - NodeFeatureGroup
+  - nfd.k8s-sigs.io
+  viewfile: NodeFeatureGroup.nfd.k8s-sigs.io.yaml
+nfrules:
+  kind:
+  - NodeFeatureRule
+  - nfd.k8s-sigs.io
+  viewfile: NodeFeatureRule.nfd.k8s-sigs.io.yaml
+nfrule:
+  kind:
+  - NodeFeatureRule
+  - nfd.k8s-sigs.io
+  viewfile: NodeFeatureRule.nfd.k8s-sigs.io.yaml
+osnfrule:
+  kind:
+  - NodeFeatureRule
+  - nfd.openshift.io
+  viewfile: NodeFeatureRule.nfd.openshift.io.yaml
+osnfrules:
+  kind:
+  - NodeFeatureRule
+  - nfd.openshift.io
+  viewfile: NodeFeatureRule.nfd.openshift.io.yaml
+nodelatencymon:
+  kind:
+  - NodeLatencyMonitor
+  - crd.antrea.io
+  viewfile: NodeLatencyMonitor.crd.antrea.io.yaml
+nodelatmons:
+  kind:
+  - NodeLatencyMonitor
+  - crd.antrea.io
+  viewfile: NodeLatencyMonitor.crd.antrea.io.yaml
+nlmon:
+  kind:
+  - NodeLatencyMonitor
+  - crd.antrea.io
+  viewfile: NodeLatencyMonitor.crd.antrea.io.yaml
+nodelatencymons:
+  kind:
+  - NodeLatencyMonitor
+  - crd.antrea.io
+  viewfile: NodeLatencyMonitor.crd.antrea.io.yaml
+nodelatmon:
+  kind:
+  - NodeLatencyMonitor
+  - crd.antrea.io
+  viewfile: NodeLatencyMonitor.crd.antrea.io.yaml
+nlmons:
+  kind:
+  - NodeLatencyMonitor
+  - crd.antrea.io
+  viewfile: NodeLatencyMonitor.crd.antrea.io.yaml
+koordnodemetrics:
+  kind:
+  - NodeMetric
+  - slo.koordinator.sh
+  viewfile: NodeMetric.slo.koordinator.sh.yaml
+koordnodemetric:
+  kind:
+  - NodeMetric
+  - slo.koordinator.sh
+  viewfile: NodeMetric.slo.koordinator.sh.yaml
+nodemetric:
+  kind:
+  - NodeMetrics
+  - metrics.k8s.io
+  viewfile: NodeMetrics.metrics.k8s.io.yaml
+nrrs:
+  kind:
+  - NodeReadinessRule
+  - readiness.node.x-k8s.io
+  viewfile: NodeReadinessRule.readiness.node.x-k8s.io.yaml
+nrr:
+  kind:
+  - NodeReadinessRule
+  - readiness.node.x-k8s.io
+  viewfile: NodeReadinessRule.readiness.node.x-k8s.io.yaml
+noderestopos:
+  kind:
+  - NodeResourceTopology
+  - topology.node.k8s.io
+  viewfile: NodeResourceTopology.topology.node.k8s.io.yaml
+noderestopo:
+  kind:
+  - NodeResourceTopology
+  - topology.node.k8s.io
+  viewfile: NodeResourceTopology.topology.node.k8s.io.yaml
+koordnodeslos:
+  kind:
+  - NodeSLO
+  - slo.koordinator.sh
+  viewfile: NodeSLO.slo.koordinator.sh.yaml
+koordnodeslo:
+  kind:
+  - NodeSLO
+  - slo.koordinator.sh
+  viewfile: NodeSLO.slo.koordinator.sh.yaml
+numatopos:
+  kind:
+  - Numatopology
+  - nodeinfo.volcano.sh
+  viewfile: Numatopology.nodeinfo.volcano.sh.yaml
+numatopo:
+  kind:
+  - Numatopology
+  - nodeinfo.volcano.sh
+  viewfile: Numatopology.nodeinfo.volcano.sh.yaml
+oauth.config:
+  kind:
+  - OAuth
+  - config.openshift.io
+  viewfile: OAuth.config.openshift.io.yaml
+oauths.config:
+  kind:
+  - OAuth
+  - config.openshift.io
+  viewfile: OAuth.config.openshift.io.yaml
+osoauthaccesstoken:
+  kind:
+  - OAuthAccessToken
+  - oauth.openshift.io
+  viewfile: OAuthAccessToken.oauth.openshift.io.yaml
+oauthaccesstokens.openshift:
+  kind:
+  - OAuthAccessToken
+  - oauth.openshift.io
+  viewfile: OAuthAccessToken.oauth.openshift.io.yaml
+oauthaccesstoken.oauth.openshift.io:
+  kind:
+  - OAuthAccessToken
+  - oauth.openshift.io
+  viewfile: OAuthAccessToken.oauth.openshift.io.yaml
+osoauthaccesstokens:
+  kind:
+  - OAuthAccessToken
+  - oauth.openshift.io
+  viewfile: OAuthAccessToken.oauth.openshift.io.yaml
+oauthaccesstoken.openshift:
+  kind:
+  - OAuthAccessToken
+  - oauth.openshift.io
+  viewfile: OAuthAccessToken.oauth.openshift.io.yaml
+oauthclient.oauth.openshift.io:
+  kind:
+  - OAuthClient
+  - oauth.openshift.io
+  viewfile: OAuthClient.oauth.openshift.io.yaml
+osoauthclients:
+  kind:
+  - OAuthClient
+  - oauth.openshift.io
+  viewfile: OAuthClient.oauth.openshift.io.yaml
+oauthclient.openshift:
+  kind:
+  - OAuthClient
+  - oauth.openshift.io
+  viewfile: OAuthClient.oauth.openshift.io.yaml
+oauthclients.openshift:
+  kind:
+  - OAuthClient
+  - oauth.openshift.io
+  viewfile: OAuthClient.oauth.openshift.io.yaml
+osoauthclient:
+  kind:
+  - OAuthClient
+  - oauth.openshift.io
+  viewfile: OAuthClient.oauth.openshift.io.yaml
+oidccs.mgmnt.cattle:
+  kind:
+  - OIDCClient
+  - management.cattle.io
+  viewfile: OIDCClient.management.cattle.io.yaml
+oidcclient.mgmnt.cattle:
+  kind:
+  - OIDCClient
+  - management.cattle.io
+  viewfile: OIDCClient.management.cattle.io.yaml
+oidcclients.mgmnt.cattle:
+  kind:
+  - OIDCClient
+  - management.cattle.io
+  viewfile: OIDCClient.management.cattle.io.yaml
+oidcc.mgmnt.cattle:
+  kind:
+  - OIDCClient
+  - management.cattle.io
+  viewfile: OIDCClient.management.cattle.io.yaml
+olms.operator:
+  kind:
+  - OLM
+  - operator.openshift.io
+  viewfile: OLM.operator.openshift.io.yaml
+olm.operator:
+  kind:
+  - OLM
+  - operator.openshift.io
+  viewfile: OLM.operator.openshift.io.yaml
+olmconfs:
+  kind:
+  - OLMConfig
+  - operators.coreos.com
+  viewfile: OLMConfig.operators.coreos.com.yaml
+olmconf:
+  kind:
+  - OLMConfig
+  - operators.coreos.com
+  viewfile: OLMConfig.operators.coreos.com.yaml
+objsyncs:
+  kind:
+  - ObjectSync
+  - reliablesyncs.kubeedge.io
+  viewfile: ObjectSync.reliablesyncs.kubeedge.io.yaml
+objsync:
+  kind:
+  - ObjectSync
+  - reliablesyncs.kubeedge.io
+  viewfile: ObjectSync.reliablesyncs.kubeedge.io.yaml
+openshiftcontrollermanagers.operator:
+  kind:
+  - OpenShiftControllerManager
+  - operator.openshift.io
+  viewfile: OpenShiftControllerManager.operator.openshift.io.yaml
+openshiftcontrollermanager.operator:
+  kind:
+  - OpenShiftControllerManager
+  - operator.openshift.io
+  viewfile: OpenShiftControllerManager.operator.openshift.io.yaml
+osc:
+  kind:
+  - OpenStackCluster
+  - infrastructure.cluster.x-k8s.io
+  viewfile: OpenStackCluster.infrastructure.cluster.x-k8s.io.yaml
+osct:
+  kind:
+  - OpenStackClusterTemplate
+  - infrastructure.cluster.x-k8s.io
+  viewfile: OpenStackClusterTemplate.infrastructure.cluster.x-k8s.io.yaml
+osm:
+  kind:
+  - OpenStackMachine
+  - infrastructure.cluster.x-k8s.io
+  viewfile: OpenStackMachine.infrastructure.cluster.x-k8s.io.yaml
+osmt:
+  kind:
+  - OpenStackMachineTemplate
+  - infrastructure.cluster.x-k8s.io
+  viewfile: OpenStackMachineTemplate.infrastructure.cluster.x-k8s.io.yaml
+otelcol:
+  kind:
+  - OpenTelemetryCollector
+  - opentelemetry.io
+  viewfile: OpenTelemetryCollector.opentelemetry.io.yaml
+otelcols:
+  kind:
+  - OpenTelemetryCollector
+  - opentelemetry.io
+  viewfile: OpenTelemetryCollector.opentelemetry.io.yaml
+opconds:
+  kind:
+  - OperatorCondition
+  - operators.coreos.com
+  viewfile: OperatorCondition.operators.coreos.com.yaml
+opcond:
+  kind:
+  - OperatorCondition
+  - operators.coreos.com
+  viewfile: OperatorCondition.operators.coreos.com.yaml
+og:
+  kind:
+  - OperatorGroup
+  - operators.coreos.com
+  viewfile: OperatorGroup.operators.coreos.com.yaml
+operatorhub.config:
+  kind:
+  - OperatorHub
+  - config.openshift.io
+  viewfile: OperatorHub.config.openshift.io.yaml
+operatorhubs.config:
+  kind:
+  - OperatorHub
+  - config.openshift.io
+  viewfile: OperatorHub.config.openshift.io.yaml
+hvstpcidev:
+  kind:
+  - PCIDevice
+  - devices.harvesterhci.io
+  viewfile: PCIDevice.devices.harvesterhci.io.yaml
+hvstpcidevs:
+  kind:
+  - PCIDevice
+  - devices.harvesterhci.io
+  viewfile: PCIDevice.devices.harvesterhci.io.yaml
+pkgmanifest:
+  kind:
+  - PackageManifest
+  - packages.operators.coreos.com
+  viewfile: PackageManifest.packages.operators.coreos.com.yaml
+pkgmanifests:
+  kind:
+  - PackageManifest
+  - packages.operators.coreos.com
+  viewfile: PackageManifest.packages.operators.coreos.com.yaml
+peerauth:
+  kind:
+  - PeerAuthentication
+  - security.istio.io
+  viewfile: PeerAuthentication.security.istio.io.yaml
+peerauths:
+  kind:
+  - PeerAuthentication
+  - security.istio.io
+  viewfile: PeerAuthentication.security.istio.io.yaml
+perfprofile:
+  kind:
+  - PerformanceProfile
+  - performance.openshift.io
+  viewfile: PerformanceProfile.performance.openshift.io.yaml
+perfprofiles:
+  kind:
+  - PerformanceProfile
+  - performance.openshift.io
+  viewfile: PerformanceProfile.performance.openshift.io.yaml
+pv:
+  kind:
+  - PersistentVolume
+  - ''
+  viewfile: PersistentVolume.yaml
+pvc:
+  kind:
+  - PersistentVolumeClaim
+  - ''
+  viewfile: PersistentVolumeClaim.yaml
+pingsrc:
+  kind:
+  - PingSource
+  - sources.knative.dev
+  viewfile: PingSource.sources.knative.dev.yaml
+pingsrcs:
+  kind:
+  - PingSource
+  - sources.knative.dev
+  viewfile: PingSource.sources.knative.dev.yaml
+pmemcsidep:
+  kind:
+  - PmemCSIDeployment
+  - pmem-csi.intel.com
+  viewfile: PmemCSIDeployment.pmem-csi.intel.com.yaml
+pmemcsideps:
+  kind:
+  - PmemCSIDeployment
+  - pmem-csi.intel.com
+  viewfile: PmemCSIDeployment.pmem-csi.intel.com.yaml
+pcd:
+  kind:
+  - PmemCSIDeployment
+  - pmem-csi.intel.com
+  viewfile: PmemCSIDeployment.pmem-csi.intel.com.yaml
+po:
+  kind:
+  - Pod
+  - ''
+  viewfile: Pod.yaml
+podautoscaler.autoscaling.internal.knative.dev:
+  kind:
+  - PodAutoscaler
+  - autoscaling.internal.knative.dev
+  viewfile: PodAutoscaler.autoscaling.internal.knative.dev.yaml
+knpodautoscalers:
+  kind:
+  - PodAutoscaler
+  - autoscaling.internal.knative.dev
+  viewfile: PodAutoscaler.autoscaling.internal.knative.dev.yaml
+podautoscalers.knative:
+  kind:
+  - PodAutoscaler
+  - autoscaling.internal.knative.dev
+  viewfile: PodAutoscaler.autoscaling.internal.knative.dev.yaml
+podautoscaler.knative:
+  kind:
+  - PodAutoscaler
+  - autoscaling.internal.knative.dev
+  viewfile: PodAutoscaler.autoscaling.internal.knative.dev.yaml
+knpodautoscaler:
+  kind:
+  - PodAutoscaler
+  - autoscaling.internal.knative.dev
+  viewfile: PodAutoscaler.autoscaling.internal.knative.dev.yaml
+pdb:
+  kind:
+  - PodDisruptionBudget
+  - policy
+  viewfile: PodDisruptionBudget.policy.yaml
+pg:
+  kind:
+  - PodGroup
+  - scheduling.sigs.k8s.io
+  viewfile: PodGroup.scheduling.sigs.k8s.io.yaml
+pgs:
+  kind:
+  - PodGroup
+  - scheduling.sigs.k8s.io
+  viewfile: PodGroup.scheduling.sigs.k8s.io.yaml
+volcanopodgroup:
+  kind:
+  - PodGroup
+  - scheduling.volcano.sh
+  viewfile: PodGroup.scheduling.volcano.sh.yaml
+volcpodgrps:
+  kind:
+  - PodGroup
+  - scheduling.volcano.sh
+  viewfile: PodGroup.scheduling.volcano.sh.yaml
+volcpodgrp:
+  kind:
+  - PodGroup
+  - scheduling.volcano.sh
+  viewfile: PodGroup.scheduling.volcano.sh.yaml
+volcanopodgroups:
+  kind:
+  - PodGroup
+  - scheduling.volcano.sh
+  viewfile: PodGroup.scheduling.volcano.sh.yaml
+podmetric:
+  kind:
+  - PodMetrics
+  - metrics.k8s.io
+  viewfile: PodMetrics.metrics.k8s.io.yaml
+podmon:
+  kind:
+  - PodMonitor
+  - monitoring.coreos.com
+  viewfile: PodMonitor.monitoring.coreos.com.yaml
+podmons:
+  kind:
+  - PodMonitor
+  - monitoring.coreos.com
+  viewfile: PodMonitor.monitoring.coreos.com.yaml
+podnetconncheck:
+  kind:
+  - PodNetworkConnectivityCheck
+  - controlplane.operator.openshift.io
+  viewfile: PodNetworkConnectivityCheck.controlplane.operator.openshift.io.yaml
+podnetconnchecks:
+  kind:
+  - PodNetworkConnectivityCheck
+  - controlplane.operator.openshift.io
+  viewfile: PodNetworkConnectivityCheck.controlplane.operator.openshift.io.yaml
+podsecadmconftemplate.cattle:
+  kind:
+  - PodSecurityAdmissionConfigurationTemplate
+  - management.cattle.io
+  viewfile: PodSecurityAdmissionConfigurationTemplate.management.cattle.io.yaml
+podsecadmconftemplates.cattle:
+  kind:
+  - PodSecurityAdmissionConfigurationTemplate
+  - management.cattle.io
+  viewfile: PodSecurityAdmissionConfigurationTemplate.management.cattle.io.yaml
+psp:
+  kind:
+  - PodSecurityPolicy
+  - policy
+  viewfile: PodSecurityPolicy.policy.yaml
+podunavailbudget:
+  kind:
+  - PodUnavailableBudget
+  - policy.kruise.io
+  viewfile: PodUnavailableBudget.policy.kruise.io.yaml
+podunavailbudgets:
+  kind:
+  - PodUnavailableBudget
+  - policy.kruise.io
+  viewfile: PodUnavailableBudget.policy.kruise.io.yaml
+kypolicies:
+  kind:
+  - Policy
+  - kyverno.io
+  viewfile: Policy.kyverno.io.yaml
+kypols:
+  kind:
+  - Policy
+  - kyverno.io
+  viewfile: Policy.kyverno.io.yaml
+kypol:
+  kind:
+  - Policy
+  - kyverno.io
+  viewfile: Policy.kyverno.io.yaml
+kypolicy:
+  kind:
+  - Policy
+  - kyverno.io
+  viewfile: Policy.kyverno.io.yaml
+trpolicy:
+  kind:
+  - Policy
+  - tracee.aquasec.com
+  viewfile: Policy.tracee.aquasec.com.yaml
+trpolicies:
+  kind:
+  - Policy
+  - tracee.aquasec.com
+  viewfile: Policy.tracee.aquasec.com.yaml
+trpol:
+  kind:
+  - Policy
+  - tracee.aquasec.com
+  viewfile: Policy.tracee.aquasec.com.yaml
+trpols:
+  kind:
+  - Policy
+  - tracee.aquasec.com
+  viewfile: Policy.tracee.aquasec.com.yaml
+polr:
+  kind:
+  - PolicyReport
+  - wgpolicyk8s.io
+  viewfile: PolicyReport.wgpolicyk8s.io.yaml
+polrs:
+  kind:
+  - PolicyReport
+  - wgpolicyk8s.io
+  viewfile: PolicyReport.wgpolicyk8s.io.yaml
+prioclasses:
+  kind:
+  - PriorityClass
+  - scheduling.k8s.io
+  viewfile: PriorityClass.scheduling.k8s.io.yaml
+pc:
+  kind:
+  - PriorityClass
+  - scheduling.k8s.io
+  viewfile: PriorityClass.scheduling.k8s.io.yaml
+prioclass:
+  kind:
+  - PriorityClass
+  - scheduling.k8s.io
+  viewfile: PriorityClass.scheduling.k8s.io.yaml
+priolevelconfs:
+  kind:
+  - PriorityLevelConfiguration
+  - flowcontrol.apiserver.k8s.io
+  viewfile: PriorityLevelConfiguration.flowcontrol.apiserver.k8s.io.yaml
+priolevelconf:
+  kind:
+  - PriorityLevelConfiguration
+  - flowcontrol.apiserver.k8s.io
+  viewfile: PriorityLevelConfiguration.flowcontrol.apiserver.k8s.io.yaml
+kfprofile:
+  kind:
+  - Profile
+  - kubeflow.org
+  viewfile: Profile.kubeflow.org.yaml
+kubeflowprofile:
+  kind:
+  - Profile
+  - kubeflow.org
+  viewfile: Profile.kubeflow.org.yaml
+kfprofiles:
+  kind:
+  - Profile
+  - kubeflow.org
+  viewfile: Profile.kubeflow.org.yaml
+calicoprofile:
+  kind:
+  - Profile
+  - projectcalico.org
+  viewfile: Profile.projectcalico.org.yaml
+profile.tuned:
+  kind:
+  - Profile
+  - tuned.openshift.io
+  viewfile: Profile.tuned.openshift.io.yaml
+profiles.tuned:
+  kind:
+  - Profile
+  - tuned.openshift.io
+  viewfile: Profile.tuned.openshift.io.yaml
+projectconfs:
+  kind:
+  - Project
+  - config.openshift.io
+  viewfile: Project.config.openshift.io.yaml
+projects.config:
+  kind:
+  - Project
+  - config.openshift.io
+  viewfile: Project.config.openshift.io.yaml
+project.config:
+  kind:
+  - Project
+  - config.openshift.io
+  viewfile: Project.config.openshift.io.yaml
+projectconf:
+  kind:
+  - Project
+  - config.openshift.io
+  viewfile: Project.config.openshift.io.yaml
+kargoproj:
+  kind:
+  - Project
+  - kargo.akuity.io
+  viewfile: Project.kargo.akuity.io.yaml
+kargoprojs:
+  kind:
+  - Project
+  - kargo.akuity.io
+  viewfile: Project.kargo.akuity.io.yaml
+project.cattle:
+  kind:
+  - Project
+  - management.cattle.io
+  viewfile: Project.management.cattle.io.yaml
+projects.cattle:
+  kind:
+  - Project
+  - management.cattle.io
+  viewfile: Project.management.cattle.io.yaml
+proj.mgmnt:
+  kind:
+  - Project
+  - management.loft.sh
+  viewfile: Project.management.loft.sh.yaml
+project.management:
+  kind:
+  - Project
+  - management.loft.sh
+  viewfile: Project.management.loft.sh.yaml
+projs.mgmnt:
+  kind:
+  - Project
+  - management.loft.sh
+  viewfile: Project.management.loft.sh.yaml
+projects.management:
+  kind:
+  - Project
+  - management.loft.sh
+  viewfile: Project.management.loft.sh.yaml
+projects.project.openshift.io:
+  kind:
+  - Project
+  - project.openshift.io
+  viewfile: Project.project.openshift.io.yaml
+projects.project:
+  kind:
+  - Project
+  - project.openshift.io
+  viewfile: Project.project.openshift.io.yaml
+projects:
+  kind:
+  - Project
+  - project.openshift.io
+  viewfile: Project.project.openshift.io.yaml
+project:
+  kind:
+  - Project
+  - project.openshift.io
+  viewfile: Project.project.openshift.io.yaml
+project.project.openshift.io:
+  kind:
+  - Project
+  - project.openshift.io
+  viewfile: Project.project.openshift.io.yaml
+project.project:
+  kind:
+  - Project
+  - project.openshift.io
+  viewfile: Project.project.openshift.io.yaml
+project.storage:
+  kind:
+  - Project
+  - storage.loft.sh
+  viewfile: Project.storage.loft.sh.yaml
+projects.storage:
+  kind:
+  - Project
+  - storage.loft.sh
+  viewfile: Project.storage.loft.sh.yaml
+projs.storage:
+  kind:
+  - Project
+  - storage.loft.sh
+  viewfile: Project.storage.loft.sh.yaml
+proj.storage:
+  kind:
+  - Project
+  - storage.loft.sh
+  viewfile: Project.storage.loft.sh.yaml
+projhelmrepos:
+  kind:
+  - ProjectHelmChartRepository
+  - helm.openshift.io
+  viewfile: ProjectHelmChartRepository.helm.openshift.io.yaml
+projhelmrepo:
+  kind:
+  - ProjectHelmChartRepository
+  - helm.openshift.io
+  viewfile: ProjectHelmChartRepository.helm.openshift.io.yaml
+proms:
+  kind:
+  - Prometheus
+  - monitoring.coreos.com
+  viewfile: Prometheus.monitoring.coreos.com.yaml
+prom:
+  kind:
+  - Prometheus
+  - monitoring.coreos.com
+  viewfile: Prometheus.monitoring.coreos.com.yaml
+promagent:
+  kind:
+  - PrometheusAgent
+  - monitoring.coreos.com
+  viewfile: PrometheusAgent.monitoring.coreos.com.yaml
+promagents:
+  kind:
+  - PrometheusAgent
+  - monitoring.coreos.com
+  viewfile: PrometheusAgent.monitoring.coreos.com.yaml
+promrule:
+  kind:
+  - PrometheusRule
+  - monitoring.coreos.com
+  viewfile: PrometheusRule.monitoring.coreos.com.yaml
+promrules:
+  kind:
+  - PrometheusRule
+  - monitoring.coreos.com
+  viewfile: PrometheusRule.monitoring.coreos.com.yaml
+kargoprom:
+  kind:
+  - Promotion
+  - kargo.akuity.io
+  viewfile: Promotion.kargo.akuity.io.yaml
+kargopromotion:
+  kind:
+  - Promotion
+  - kargo.akuity.io
+  viewfile: Promotion.kargo.akuity.io.yaml
+kargopromotions:
+  kind:
+  - Promotion
+  - kargo.akuity.io
+  viewfile: Promotion.kargo.akuity.io.yaml
+kargoproms:
+  kind:
+  - Promotion
+  - kargo.akuity.io
+  viewfile: Promotion.kargo.akuity.io.yaml
+provider-network:
+  kind:
+  - ProviderNetwork
+  - kubeovn.io
+  viewfile: ProviderNetwork.kubeovn.io.yaml
+providernetworks:
+  kind:
+  - ProviderNetwork
+  - kubeovn.io
+  viewfile: ProviderNetwork.kubeovn.io.yaml
+provreqconfig:
+  kind:
+  - ProvisioningRequestConfig
+  - kueue.x-k8s.io
+  viewfile: ProvisioningRequestConfig.kueue.x-k8s.io.yaml
+provreqconfigs:
+  kind:
+  - ProvisioningRequestConfig
+  - kueue.x-k8s.io
+  viewfile: ProvisioningRequestConfig.kueue.x-k8s.io.yaml
+provreqconf:
+  kind:
+  - ProvisioningRequestConfig
+  - kueue.x-k8s.io
+  viewfile: ProvisioningRequestConfig.kueue.x-k8s.io.yaml
+provreqconfs:
+  kind:
+  - ProvisioningRequestConfig
+  - kueue.x-k8s.io
+  viewfile: ProvisioningRequestConfig.kueue.x-k8s.io.yaml
+pmmchtmpls:
+  kind:
+  - ProxmoxMachineTemplate
+  - infrastructure.cluster.x-k8s.io
+  viewfile: ProxmoxMachineTemplate.infrastructure.cluster.x-k8s.io.yaml
+pmmchtmpl:
+  kind:
+  - ProxmoxMachineTemplate
+  - infrastructure.cluster.x-k8s.io
+  viewfile: ProxmoxMachineTemplate.infrastructure.cluster.x-k8s.io.yaml
+proxy.config:
+  kind:
+  - Proxy
+  - config.openshift.io
+  viewfile: Proxy.config.openshift.io.yaml
+proxies.config:
+  kind:
+  - Proxy
+  - config.openshift.io
+  viewfile: Proxy.config.openshift.io.yaml
+ptjobs:
+  kind:
+  - PyTorchJob
+  - kubeflow.org
+  viewfile: PyTorchJob.kubeflow.org.yaml
+ptjob:
+  kind:
+  - PyTorchJob
+  - kubeflow.org
+  viewfile: PyTorchJob.kubeflow.org.yaml
+qatdevplugins:
+  kind:
+  - QatDevicePlugin
+  - deviceplugin.intel.com
+  viewfile: QatDevicePlugin.deviceplugin.intel.com.yaml
+qatdevplugin:
+  kind:
+  - QatDevicePlugin
+  - deviceplugin.intel.com
+  viewfile: QatDevicePlugin.deviceplugin.intel.com.yaml
+volcanoqs:
+  kind:
+  - Queue
+  - scheduling.volcano.sh
+  viewfile: Queue.scheduling.volcano.sh.yaml
+volcqs:
+  kind:
+  - Queue
+  - scheduling.volcano.sh
+  viewfile: Queue.scheduling.volcano.sh.yaml
+volcqueues:
+  kind:
+  - Queue
+  - scheduling.volcano.sh
+  viewfile: Queue.scheduling.volcano.sh.yaml
+volcqueue:
+  kind:
+  - Queue
+  - scheduling.volcano.sh
+  viewfile: Queue.scheduling.volcano.sh.yaml
+volcq:
+  kind:
+  - Queue
+  - scheduling.volcano.sh
+  viewfile: Queue.scheduling.volcano.sh.yaml
+volcanoq:
+  kind:
+  - Queue
+  - scheduling.volcano.sh
+  viewfile: Queue.scheduling.volcano.sh.yaml
+rayclr:
+  kind:
+  - RayCluster
+  - ray.io
+  viewfile: RayCluster.ray.io.yaml
+rayclrs:
+  kind:
+  - RayCluster
+  - ray.io
+  viewfile: RayCluster.ray.io.yaml
+raysvc:
+  kind:
+  - RayService
+  - ray.io
+  viewfile: RayService.ray.io.yaml
+raysvcs:
+  kind:
+  - RayService
+  - ray.io
+  viewfile: RayService.ray.io.yaml
+rbacassessment:
+  kind:
+  - RbacAssessmentReport
+  - aquasecurity.github.io
+  viewfile: RbacAssessmentReport.aquasecurity.github.io.yaml
+rbacassessments:
+  kind:
+  - RbacAssessmentReport
+  - aquasecurity.github.io
+  viewfile: RbacAssessmentReport.aquasecurity.github.io.yaml
+refgrant:
+  kind:
+  - ReferenceGrant
+  - gateway.networking.k8s.io
+  viewfile: ReferenceGrant.gateway.networking.k8s.io.yaml
+refgrants:
+  kind:
+  - ReferenceGrant
+  - gateway.networking.k8s.io
+  viewfile: ReferenceGrant.gateway.networking.k8s.io.yaml
+lhreplicas:
+  kind:
+  - Replica
+  - longhorn.io
+  viewfile: Replica.longhorn.io.yaml
+lhreplica:
+  kind:
+  - Replica
+  - longhorn.io
+  viewfile: Replica.longhorn.io.yaml
+rs:
+  kind:
+  - ReplicaSet
+  - apps
+  viewfile: ReplicaSet.apps.yaml
+rc:
+  kind:
+  - ReplicationController
+  - ''
+  viewfile: ReplicationController.yaml
+rcs:
+  kind:
+  - ReplicationController
+  - ''
+  viewfile: ReplicationController.yaml
+repos:
+  kind:
+  - Repository
+  - kuik.enix.io
+  viewfile: Repository.kuik.enix.io.yaml
+repo:
+  kind:
+  - Repository
+  - kuik.enix.io
+  viewfile: Repository.kuik.enix.io.yaml
+reqauth:
+  kind:
+  - RequestAuthentication
+  - security.istio.io
+  viewfile: RequestAuthentication.security.istio.io.yaml
+reqauths:
+  kind:
+  - RequestAuthentication
+  - security.istio.io
+  viewfile: RequestAuthentication.security.istio.io.yaml
+resclaims:
+  kind:
+  - ResourceClaim
+  - resource.k8s.io
+  viewfile: ResourceClaim.resource.k8s.io.yaml
+resclaim:
+  kind:
+  - ResourceClaim
+  - resource.k8s.io
+  viewfile: ResourceClaim.resource.k8s.io.yaml
+resclaimtmpls:
+  kind:
+  - ResourceClaimTemplate
+  - resource.k8s.io
+  viewfile: ResourceClaimTemplate.resource.k8s.io.yaml
+resclaimtemplates:
+  kind:
+  - ResourceClaimTemplate
+  - resource.k8s.io
+  viewfile: ResourceClaimTemplate.resource.k8s.io.yaml
+resclaimtmpl:
+  kind:
+  - ResourceClaimTemplate
+  - resource.k8s.io
+  viewfile: ResourceClaimTemplate.resource.k8s.io.yaml
+resclaimtemplate:
+  kind:
+  - ResourceClaimTemplate
+  - resource.k8s.io
+  viewfile: ResourceClaimTemplate.resource.k8s.io.yaml
+kruiserd:
+  kind:
+  - ResourceDistribution
+  - apps.kruise.io
+  viewfile: ResourceDistribution.apps.kruise.io.yaml
+kruiserds:
+  kind:
+  - ResourceDistribution
+  - apps.kruise.io
+  viewfile: ResourceDistribution.apps.kruise.io.yaml
+resflavour:
+  kind:
+  - ResourceFlavor
+  - kueue.x-k8s.io
+  viewfile: ResourceFlavor.kueue.x-k8s.io.yaml
+resflavours:
+  kind:
+  - ResourceFlavor
+  - kueue.x-k8s.io
+  viewfile: ResourceFlavor.kueue.x-k8s.io.yaml
+resourceflavours:
+  kind:
+  - ResourceFlavor
+  - kueue.x-k8s.io
+  viewfile: ResourceFlavor.kueue.x-k8s.io.yaml
+resourceflavour:
+  kind:
+  - ResourceFlavor
+  - kueue.x-k8s.io
+  viewfile: ResourceFlavor.kueue.x-k8s.io.yaml
+resflavor:
+  kind:
+  - ResourceFlavor
+  - kueue.x-k8s.io
+  viewfile: ResourceFlavor.kueue.x-k8s.io.yaml
+resflavors:
+  kind:
+  - ResourceFlavor
+  - kueue.x-k8s.io
+  viewfile: ResourceFlavor.kueue.x-k8s.io.yaml
+rgdefs:
+  kind:
+  - ResourceGraphDefinition
+  - kro.run
+  viewfile: ResourceGraphDefinition.kro.run.yaml
+resgraphdefs:
+  kind:
+  - ResourceGraphDefinition
+  - kro.run
+  viewfile: ResourceGraphDefinition.kro.run.yaml
+resgraphdef:
+  kind:
+  - ResourceGraphDefinition
+  - kro.run
+  viewfile: ResourceGraphDefinition.kro.run.yaml
+rgdef:
+  kind:
+  - ResourceGraphDefinition
+  - kro.run
+  viewfile: ResourceGraphDefinition.kro.run.yaml
+quota:
+  kind:
+  - ResourceQuota
+  - ''
+  viewfile: ResourceQuota.yaml
+rq:
+  kind:
+  - ResourceQuota
+  - ''
+  viewfile: ResourceQuota.yaml
+quotas:
+  kind:
+  - ResourceQuota
+  - ''
+  viewfile: ResourceQuota.yaml
+resslice:
+  kind:
+  - ResourceSlice
+  - resource.k8s.io
+  viewfile: ResourceSlice.resource.k8s.io.yaml
+resslices:
+  kind:
+  - ResourceSlice
+  - resource.k8s.io
+  viewfile: ResourceSlice.resource.k8s.io.yaml
+revision.knative:
+  kind:
+  - Revision
+  - serving.knative.dev
+  viewfile: Revision.serving.knative.dev.yaml
+knrevisions:
+  kind:
+  - Revision
+  - serving.knative.dev
+  viewfile: Revision.serving.knative.dev.yaml
+revisions.knative:
+  kind:
+  - Revision
+  - serving.knative.dev
+  viewfile: Revision.serving.knative.dev.yaml
+knrevision:
+  kind:
+  - Revision
+  - serving.knative.dev
+  viewfile: Revision.serving.knative.dev.yaml
+rkeaddon.cattle:
+  kind:
+  - RkeAddon
+  - management.cattle.io
+  viewfile: RkeAddon.management.cattle.io.yaml
+rkeaddons.cattle:
+  kind:
+  - RkeAddon
+  - management.cattle.io
+  viewfile: RkeAddon.management.cattle.io.yaml
+rkek8ssvcopt:
+  kind:
+  - RkeK8sServiceOption
+  - management.cattle.io
+  viewfile: RkeK8sServiceOption.management.cattle.io.yaml
+rkek8ssvcopts.cattle:
+  kind:
+  - RkeK8sServiceOption
+  - management.cattle.io
+  viewfile: RkeK8sServiceOption.management.cattle.io.yaml
+rkek8ssvcopts:
+  kind:
+  - RkeK8sServiceOption
+  - management.cattle.io
+  viewfile: RkeK8sServiceOption.management.cattle.io.yaml
+rkek8ssvcopt.cattle:
+  kind:
+  - RkeK8sServiceOption
+  - management.cattle.io
+  viewfile: RkeK8sServiceOption.management.cattle.io.yaml
+rkek8ssysimgs:
+  kind:
+  - RkeK8sSystemImage
+  - management.cattle.io
+  viewfile: RkeK8sSystemImage.management.cattle.io.yaml
+rkek8ssysimg:
+  kind:
+  - RkeK8sSystemImage
+  - management.cattle.io
+  viewfile: RkeK8sSystemImage.management.cattle.io.yaml
+osroles:
+  kind:
+  - Role
+  - authorization.openshift.io
+  viewfile: Role.authorization.openshift.io.yaml
+role.authorization.openshift.io:
+  kind:
+  - Role
+  - authorization.openshift.io
+  viewfile: Role.authorization.openshift.io.yaml
+osrole:
+  kind:
+  - Role
+  - authorization.openshift.io
+  viewfile: Role.authorization.openshift.io.yaml
+osrb:
+  kind:
+  - RoleBinding
+  - authorization.openshift.io
+  viewfile: RoleBinding.authorization.openshift.io.yaml
+osrolebindings:
+  kind:
+  - RoleBinding
+  - authorization.openshift.io
+  viewfile: RoleBinding.authorization.openshift.io.yaml
+osrolebinding:
+  kind:
+  - RoleBinding
+  - authorization.openshift.io
+  viewfile: RoleBinding.authorization.openshift.io.yaml
+rolebinding.authorization.openshift.io:
+  kind:
+  - RoleBinding
+  - authorization.openshift.io
+  viewfile: RoleBinding.authorization.openshift.io.yaml
+rb:
+  kind:
+  - RoleBinding
+  - rbac.authorization.k8s.io
+  viewfile: RoleBinding.rbac.authorization.k8s.io.yaml
+roletempl.cattle:
+  kind:
+  - RoleTemplate
+  - management.cattle.io
+  viewfile: RoleTemplate.management.cattle.io.yaml
+roletempls.cattle:
+  kind:
+  - RoleTemplate
+  - management.cattle.io
+  viewfile: RoleTemplate.management.cattle.io.yaml
+roletemplate.cattle:
+  kind:
+  - RoleTemplate
+  - management.cattle.io
+  viewfile: RoleTemplate.management.cattle.io.yaml
+roletemplates.cattle:
+  kind:
+  - RoleTemplate
+  - management.cattle.io
+  viewfile: RoleTemplate.management.cattle.io.yaml
+argorollouts:
+  kind:
+  - Rollout
+  - argoproj.io
+  viewfile: Rollout.argoproj.io.yaml
+argorollout:
+  kind:
+  - Rollout
+  - argoproj.io
+  viewfile: Rollout.argoproj.io.yaml
+knroutes:
+  kind:
+  - Route
+  - serving.knative.dev
+  viewfile: Route.serving.knative.dev.yaml
+knroute:
+  kind:
+  - Route
+  - serving.knative.dev
+  viewfile: Route.serving.knative.dev.yaml
+route.knative:
+  kind:
+  - Route
+  - serving.knative.dev
+  viewfile: Route.serving.knative.dev.yaml
+routes.knative:
+  kind:
+  - Route
+  - serving.knative.dev
+  viewfile: Route.serving.knative.dev.yaml
+sbom:
+  kind:
+  - SbomReport
+  - aquasecurity.github.io
+  viewfile: SbomReport.aquasecurity.github.io.yaml
+sboms:
+  kind:
+  - SbomReport
+  - aquasecurity.github.io
+  viewfile: SbomReport.aquasecurity.github.io.yaml
+sj:
+  kind:
+  - ScaledJob
+  - keda.sh
+  viewfile: ScaledJob.keda.sh.yaml
+so:
+  kind:
+  - ScaledObject
+  - keda.sh
+  viewfile: ScaledObject.keda.sh.yaml
+schedules.cattle:
+  kind:
+  - Schedule
+  - fleet.cattle.io
+  viewfile: Schedule.fleet.cattle.io.yaml
+scheds.cattle:
+  kind:
+  - Schedule
+  - fleet.cattle.io
+  viewfile: Schedule.fleet.cattle.io.yaml
+sched.cattle:
+  kind:
+  - Schedule
+  - fleet.cattle.io
+  viewfile: Schedule.fleet.cattle.io.yaml
+schedule.cattle:
+  kind:
+  - Schedule
+  - fleet.cattle.io
+  viewfile: Schedule.fleet.cattle.io.yaml
+schedsparkapp:
+  kind:
+  - ScheduledSparkApplication
+  - sparkoperator.k8s.io
+  viewfile: ScheduledSparkApplication.sparkoperator.k8s.io.yaml
+schedsparkapps:
+  kind:
+  - ScheduledSparkApplication
+  - sparkoperator.k8s.io
+  viewfile: ScheduledSparkApplication.sparkoperator.k8s.io.yaml
+scheduler.config:
+  kind:
+  - Scheduler
+  - config.openshift.io
+  viewfile: Scheduler.config.openshift.io.yaml
+schedulers.config:
+  kind:
+  - Scheduler
+  - config.openshift.io
+  viewfile: Scheduler.config.openshift.io.yaml
+sealedsec:
+  kind:
+  - SealedSecret
+  - bitnami.com
+  viewfile: SealedSecret.bitnami.com.yaml
+sealedsecs:
+  kind:
+  - SealedSecret
+  - bitnami.com
+  viewfile: SealedSecret.bitnami.com.yaml
+sealsec:
+  kind:
+  - SealedSecret
+  - bitnami.com
+  viewfile: SealedSecret.bitnami.com.yaml
+sealsecs:
+  kind:
+  - SealedSecret
+  - bitnami.com
+  viewfile: SealedSecret.bitnami.com.yaml
+sec:
+  kind:
+  - Secret
+  - ''
+  viewfile: Secret.yaml
+secprovclasses:
+  kind:
+  - SecretProviderClass
+  - secrets-store.csi.x-k8s.io
+  viewfile: SecretProviderClass.secrets-store.csi.x-k8s.io.yaml
+secprovclass:
+  kind:
+  - SecretProviderClass
+  - secrets-store.csi.x-k8s.io
+  viewfile: SecretProviderClass.secrets-store.csi.x-k8s.io.yaml
+kosgs:
+  kind:
+  - SecurityGroup
+  - kubeovn.io
+  viewfile: SecurityGroup.kubeovn.io.yaml
+securitygroups:
+  kind:
+  - SecurityGroup
+  - kubeovn.io
+  viewfile: SecurityGroup.kubeovn.io.yaml
+security-group:
+  kind:
+  - SecurityGroup
+  - kubeovn.io
+  viewfile: SecurityGroup.kubeovn.io.yaml
+kosg:
+  kind:
+  - SecurityGroup
+  - kubeovn.io
+  viewfile: SecurityGroup.kubeovn.io.yaml
+secprofopdaemon:
+  kind:
+  - SecurityProfilesOperatorDaemon
+  - security-profiles-operator.x-k8s.io
+  viewfile: 
+    SecurityProfilesOperatorDaemon.security-profiles-operator.x-k8s.io.yaml
+secprofopd:
+  kind:
+  - SecurityProfilesOperatorDaemon
+  - security-profiles-operator.x-k8s.io
+  viewfile: 
+    SecurityProfilesOperatorDaemon.security-profiles-operator.x-k8s.io.yaml
+secprofopdaemons:
+  kind:
+  - SecurityProfilesOperatorDaemon
+  - security-profiles-operator.x-k8s.io
+  viewfile: 
+    SecurityProfilesOperatorDaemon.security-profiles-operator.x-k8s.io.yaml
+secprofopds:
+  kind:
+  - SecurityProfilesOperatorDaemon
+  - security-profiles-operator.x-k8s.io
+  viewfile: 
+    SecurityProfilesOperatorDaemon.security-profiles-operator.x-k8s.io.yaml
+seldondeps:
+  kind:
+  - SeldonDeployment
+  - machinelearning.seldon.io
+  viewfile: SeldonDeployment.machinelearning.seldon.io.yaml
+seldondep:
+  kind:
+  - SeldonDeployment
+  - machinelearning.seldon.io
+  viewfile: SeldonDeployment.machinelearning.seldon.io.yaml
+seldondeploy:
+  kind:
+  - SeldonDeployment
+  - machinelearning.seldon.io
+  viewfile: SeldonDeployment.machinelearning.seldon.io.yaml
+seldondeploys:
+  kind:
+  - SeldonDeployment
+  - machinelearning.seldon.io
+  viewfile: SeldonDeployment.machinelearning.seldon.io.yaml
+srv:
+  kind:
+  - Server
+  - policy.linkerd.io
+  viewfile: Server.policy.linkerd.io.yaml
+saz:
+  kind:
+  - ServerAuthorization
+  - policy.linkerd.io
+  viewfile: ServerAuthorization.policy.linkerd.io.yaml
+knserverlesssvcs:
+  kind:
+  - ServerlessService
+  - networking.internal.knative.dev
+  viewfile: ServerlessService.networking.internal.knative.dev.yaml
+serverlessservice.knative:
+  kind:
+  - ServerlessService
+  - networking.internal.knative.dev
+  viewfile: ServerlessService.networking.internal.knative.dev.yaml
+srvlsvcs.knative:
+  kind:
+  - ServerlessService
+  - networking.internal.knative.dev
+  viewfile: ServerlessService.networking.internal.knative.dev.yaml
+serverlessservices.knative:
+  kind:
+  - ServerlessService
+  - networking.internal.knative.dev
+  viewfile: ServerlessService.networking.internal.knative.dev.yaml
+serverlesssvcs.knative:
+  kind:
+  - ServerlessService
+  - networking.internal.knative.dev
+  viewfile: ServerlessService.networking.internal.knative.dev.yaml
+srvlsvc.knative:
+  kind:
+  - ServerlessService
+  - networking.internal.knative.dev
+  viewfile: ServerlessService.networking.internal.knative.dev.yaml
+knserverlesssvc:
+  kind:
+  - ServerlessService
+  - networking.internal.knative.dev
+  viewfile: ServerlessService.networking.internal.knative.dev.yaml
+serverlesssvc.knative:
+  kind:
+  - ServerlessService
+  - networking.internal.knative.dev
+  viewfile: ServerlessService.networking.internal.knative.dev.yaml
+srvtransport:
+  kind:
+  - ServersTransport
+  - traefik.io
+  viewfile: ServersTransport.traefik.io.yaml
+srvtransports:
+  kind:
+  - ServersTransport
+  - traefik.io
+  viewfile: ServersTransport.traefik.io.yaml
+srvtransporttcp:
+  kind:
+  - ServersTransportTCP
+  - traefik.io
+  viewfile: ServersTransportTCP.traefik.io.yaml
+srvtransporttcps:
+  kind:
+  - ServersTransportTCP
+  - traefik.io
+  viewfile: ServersTransportTCP.traefik.io.yaml
+knsvc:
+  kind:
+  - Service
+  - serving.knative.dev
+  viewfile: Service.serving.knative.dev.yaml
+svcs.knative:
+  kind:
+  - Service
+  - serving.knative.dev
+  viewfile: Service.serving.knative.dev.yaml
+knsvcs:
+  kind:
+  - Service
+  - serving.knative.dev
+  viewfile: Service.serving.knative.dev.yaml
+service.knative:
+  kind:
+  - Service
+  - serving.knative.dev
+  viewfile: Service.serving.knative.dev.yaml
+svc.knative:
+  kind:
+  - Service
+  - serving.knative.dev
+  viewfile: Service.serving.knative.dev.yaml
+services.knative:
+  kind:
+  - Service
+  - serving.knative.dev
+  viewfile: Service.serving.knative.dev.yaml
+knservice:
+  kind:
+  - Service
+  - serving.knative.dev
+  viewfile: Service.serving.knative.dev.yaml
+svc:
+  kind:
+  - Service
+  - ''
+  viewfile: Service.yaml
+svcs:
+  kind:
+  - Service
+  - ''
+  viewfile: Service.yaml
+sa:
+  kind:
+  - ServiceAccount
+  - ''
+  viewfile: ServiceAccount.yaml
+servicecas:
+  kind:
+  - ServiceCA
+  - operator.openshift.io
+  viewfile: ServiceCA.operator.openshift.io.yaml
+servicecas.operator:
+  kind:
+  - ServiceCA
+  - operator.openshift.io
+  viewfile: ServiceCA.operator.openshift.io.yaml
+serviceca:
+  kind:
+  - ServiceCA
+  - operator.openshift.io
+  viewfile: ServiceCA.operator.openshift.io.yaml
+serviceca.operator:
+  kind:
+  - ServiceCA
+  - operator.openshift.io
+  viewfile: ServiceCA.operator.openshift.io.yaml
+svccidrs:
+  kind:
+  - ServiceCIDR
+  - networking.k8s.io
+  viewfile: ServiceCIDR.networking.k8s.io.yaml
+svccidr:
+  kind:
+  - ServiceCIDR
+  - networking.k8s.io
+  viewfile: ServiceCIDR.networking.k8s.io.yaml
+svccertsigneropconf:
+  kind:
+  - ServiceCertSignerOperatorConfig
+  - servicecertsigner.config.openshift.io
+  viewfile: 
+    ServiceCertSignerOperatorConfig.servicecertsigner.config.openshift.io.yaml
+svccertsigneropconfs:
+  kind:
+  - ServiceCertSignerOperatorConfig
+  - servicecertsigner.config.openshift.io
+  viewfile: 
+    ServiceCertSignerOperatorConfig.servicecertsigner.config.openshift.io.yaml
+svcentries:
+  kind:
+  - ServiceEntry
+  - networking.istio.io
+  viewfile: ServiceEntry.networking.istio.io.yaml
+svcentry:
+  kind:
+  - ServiceEntry
+  - networking.istio.io
+  viewfile: ServiceEntry.networking.istio.io.yaml
+svcl2stats:
+  kind:
+  - ServiceL2Status
+  - metallb.io
+  viewfile: ServiceL2Status.metallb.io.yaml
+svcl2status:
+  kind:
+  - ServiceL2Status
+  - metallb.io
+  viewfile: ServiceL2Status.metallb.io.yaml
+svcl2stat:
+  kind:
+  - ServiceL2Status
+  - metallb.io
+  viewfile: ServiceL2Status.metallb.io.yaml
+svcl2statuses:
+  kind:
+  - ServiceL2Status
+  - metallb.io
+  viewfile: ServiceL2Status.metallb.io.yaml
+svcmesh.opendatahub:
+  kind:
+  - ServiceMesh
+  - services.platform.opendatahub.io
+  viewfile: ServiceMesh.services.platform.opendatahub.io.yaml
+svcmeshes.opendatahub:
+  kind:
+  - ServiceMesh
+  - services.platform.opendatahub.io
+  viewfile: ServiceMesh.services.platform.opendatahub.io.yaml
+servicemeshes.opendatahub:
+  kind:
+  - ServiceMesh
+  - services.platform.opendatahub.io
+  viewfile: ServiceMesh.services.platform.opendatahub.io.yaml
+servicemesh.opendatahub:
+  kind:
+  - ServiceMesh
+  - services.platform.opendatahub.io
+  viewfile: ServiceMesh.services.platform.opendatahub.io.yaml
+svcmon:
+  kind:
+  - ServiceMonitor
+  - monitoring.coreos.com
+  viewfile: ServiceMonitor.monitoring.coreos.com.yaml
+svcmons:
+  kind:
+  - ServiceMonitor
+  - monitoring.coreos.com
+  viewfile: ServiceMonitor.monitoring.coreos.com.yaml
+svcprofs:
+  kind:
+  - ServiceProfile
+  - linkerd.io
+  viewfile: ServiceProfile.linkerd.io.yaml
+svcprof:
+  kind:
+  - ServiceProfile
+  - linkerd.io
+  viewfile: ServiceProfile.linkerd.io.yaml
+srvruntimes:
+  kind:
+  - ServingRuntime
+  - serving.kserve.io
+  viewfile: ServingRuntime.serving.kserve.io.yaml
+srvruntime:
+  kind:
+  - ServingRuntime
+  - serving.kserve.io
+  viewfile: ServingRuntime.serving.kserve.io.yaml
+lhsetting:
+  kind:
+  - Setting
+  - longhorn.io
+  viewfile: Setting.longhorn.io.yaml
+lhsettings:
+  kind:
+  - Setting
+  - longhorn.io
+  viewfile: Setting.longhorn.io.yaml
+setting.cattle:
+  kind:
+  - Setting
+  - management.cattle.io
+  viewfile: Setting.management.cattle.io.yaml
+settings.cattle:
+  kind:
+  - Setting
+  - management.cattle.io
+  viewfile: Setting.management.cattle.io.yaml
+sgxdevplugins:
+  kind:
+  - SgxDevicePlugin
+  - deviceplugin.intel.com
+  viewfile: SgxDevicePlugin.deviceplugin.intel.com.yaml
+sgxdevplugin:
+  kind:
+  - SgxDevicePlugin
+  - deviceplugin.intel.com
+  viewfile: SgxDevicePlugin.deviceplugin.intel.com.yaml
+signingkeies:
+  kind:
+  - SigningKey
+  - dex.coreos.com
+  viewfile: SigningKey.dex.coreos.com.yaml
+sigkey:
+  kind:
+  - SigningKey
+  - dex.coreos.com
+  viewfile: SigningKey.dex.coreos.com.yaml
+sigkeys:
+  kind:
+  - SigningKey
+  - dex.coreos.com
+  viewfile: SigningKey.dex.coreos.com.yaml
+sleepmodeconf.cluster:
+  kind:
+  - SleepModeConfig
+  - cluster.loft.sh
+  viewfile: SleepModeConfig.cluster.loft.sh.yaml
+sleepmodeconfig.cluster:
+  kind:
+  - SleepModeConfig
+  - cluster.loft.sh
+  viewfile: SleepModeConfig.cluster.loft.sh.yaml
+sleepmodeconfs.cluster:
+  kind:
+  - SleepModeConfig
+  - cluster.loft.sh
+  viewfile: SleepModeConfig.cluster.loft.sh.yaml
+space.cluster:
+  kind:
+  - Space
+  - cluster.loft.sh
+  viewfile: Space.cluster.loft.sh.yaml
+kspace:
+  kind:
+  - Space
+  - tenancy.kiosk.sh
+  viewfile: Space.tenancy.kiosk.sh.yaml
+space.kiosk:
+  kind:
+  - Space
+  - tenancy.kiosk.sh
+  viewfile: Space.tenancy.kiosk.sh.yaml
+kspaces:
+  kind:
+  - Space
+  - tenancy.kiosk.sh
+  viewfile: Space.tenancy.kiosk.sh.yaml
+spacetmpl.mgmnt:
+  kind:
+  - SpaceTemplate
+  - management.loft.sh
+  viewfile: SpaceTemplate.management.loft.sh.yaml
+spacetmpls.mgmnt:
+  kind:
+  - SpaceTemplate
+  - management.loft.sh
+  viewfile: SpaceTemplate.management.loft.sh.yaml
+spacetemplates.mgmnt:
+  kind:
+  - SpaceTemplate
+  - management.loft.sh
+  viewfile: SpaceTemplate.management.loft.sh.yaml
+spacetemplate.mgmnt:
+  kind:
+  - SpaceTemplate
+  - management.loft.sh
+  viewfile: SpaceTemplate.management.loft.sh.yaml
+spacetemplate.management:
+  kind:
+  - SpaceTemplate
+  - management.loft.sh
+  viewfile: SpaceTemplate.management.loft.sh.yaml
+spacetemplate.storage:
+  kind:
+  - SpaceTemplate
+  - storage.loft.sh
+  viewfile: SpaceTemplate.storage.loft.sh.yaml
+sparkapps:
+  kind:
+  - SparkApplication
+  - sparkoperator.k8s.io
+  viewfile: SparkApplication.sparkoperator.k8s.io.yaml
+sparkapp:
+  kind:
+  - SparkApplication
+  - sparkoperator.k8s.io
+  viewfile: SparkApplication.sparkoperator.k8s.io.yaml
+stackconfpol:
+  kind:
+  - StackConfigPolicy
+  - stackconfigpolicy.k8s.elastic.co
+  viewfile: StackConfigPolicy.stackconfigpolicy.k8s.elastic.co.yaml
+stackconfpols:
+  kind:
+  - StackConfigPolicy
+  - stackconfigpolicy.k8s.elastic.co
+  viewfile: StackConfigPolicy.stackconfigpolicy.k8s.elastic.co.yaml
+kargostage:
+  kind:
+  - Stage
+  - kargo.akuity.io
+  viewfile: Stage.kargo.akuity.io.yaml
+kargostages:
+  kind:
+  - Stage
+  - kargo.akuity.io
+  viewfile: Stage.kargo.akuity.io.yaml
+sgnetpols:
+  kind:
+  - StagedGlobalNetworkPolicy
+  - crd.projectcalico.org
+  viewfile: StagedGlobalNetworkPolicy.crd.projectcalico.org.yaml
+stagedglobalnetworkpolicy.calico:
+  kind:
+  - StagedGlobalNetworkPolicy
+  - crd.projectcalico.org
+  viewfile: StagedGlobalNetworkPolicy.crd.projectcalico.org.yaml
+stagedglobalnetworkpolicy.crd.projectcalico.org:
+  kind:
+  - StagedGlobalNetworkPolicy
+  - crd.projectcalico.org
+  viewfile: StagedGlobalNetworkPolicy.crd.projectcalico.org.yaml
+sgnetpol:
+  kind:
+  - StagedGlobalNetworkPolicy
+  - crd.projectcalico.org
+  viewfile: StagedGlobalNetworkPolicy.crd.projectcalico.org.yaml
+stagedglobalnetworkpolicies.calico:
+  kind:
+  - StagedGlobalNetworkPolicy
+  - crd.projectcalico.org
+  viewfile: StagedGlobalNetworkPolicy.crd.projectcalico.org.yaml
+stagedkubernetesnetworkpolicy.crd.projectcalico.org:
+  kind:
+  - StagedKubernetesNetworkPolicy
+  - crd.projectcalico.org
+  viewfile: StagedKubernetesNetworkPolicy.crd.projectcalico.org.yaml
+sknetpols:
+  kind:
+  - StagedKubernetesNetworkPolicy
+  - crd.projectcalico.org
+  viewfile: StagedKubernetesNetworkPolicy.crd.projectcalico.org.yaml
+sknetpol:
+  kind:
+  - StagedKubernetesNetworkPolicy
+  - crd.projectcalico.org
+  viewfile: StagedKubernetesNetworkPolicy.crd.projectcalico.org.yaml
+stagedkubernetesnetworkpolicies.calico:
+  kind:
+  - StagedKubernetesNetworkPolicy
+  - crd.projectcalico.org
+  viewfile: StagedKubernetesNetworkPolicy.crd.projectcalico.org.yaml
+stagedkubernetesnetworkpolicy.calico:
+  kind:
+  - StagedKubernetesNetworkPolicy
+  - crd.projectcalico.org
+  viewfile: StagedKubernetesNetworkPolicy.crd.projectcalico.org.yaml
+stagednetworkpolicy.calico:
+  kind:
+  - StagedNetworkPolicy
+  - crd.projectcalico.org
+  viewfile: StagedNetworkPolicy.crd.projectcalico.org.yaml
+snetpol:
+  kind:
+  - StagedNetworkPolicy
+  - crd.projectcalico.org
+  viewfile: StagedNetworkPolicy.crd.projectcalico.org.yaml
+stagednetworkpolicies.calico:
+  kind:
+  - StagedNetworkPolicy
+  - crd.projectcalico.org
+  viewfile: StagedNetworkPolicy.crd.projectcalico.org.yaml
+snetpols:
+  kind:
+  - StagedNetworkPolicy
+  - crd.projectcalico.org
+  viewfile: StagedNetworkPolicy.crd.projectcalico.org.yaml
+stagednetworkpolicy.crd.projectcalico.org:
+  kind:
+  - StagedNetworkPolicy
+  - crd.projectcalico.org
+  viewfile: StagedNetworkPolicy.crd.projectcalico.org.yaml
+kruisests:
+  kind:
+  - StatefulSet
+  - apps.kruise.io
+  viewfile: StatefulSet.apps.kruise.io.yaml
+sts:
+  kind:
+  - StatefulSet
+  - apps
+  viewfile: StatefulSet.apps.yaml
+storage:
+  kind:
+  - Storage
+  - operator.openshift.io
+  viewfile: Storage.operator.openshift.io.yaml
+storage.operator:
+  kind:
+  - Storage
+  - operator.openshift.io
+  viewfile: Storage.operator.openshift.io.yaml
+storages.operator:
+  kind:
+  - Storage
+  - operator.openshift.io
+  viewfile: Storage.operator.openshift.io.yaml
+storages:
+  kind:
+  - Storage
+  - operator.openshift.io
+  viewfile: Storage.operator.openshift.io.yaml
+sc:
+  kind:
+  - StorageClass
+  - storage.k8s.io
+  viewfile: StorageClass.storage.k8s.io.yaml
+scs:
+  kind:
+  - StorageClass
+  - storage.k8s.io
+  viewfile: StorageClass.storage.k8s.io.yaml
+subs:
+  kind:
+  - Subscription
+  - operators.coreos.com
+  viewfile: Subscription.operators.coreos.com.yaml
+sub:
+  kind:
+  - Subscription
+  - operators.coreos.com
+  viewfile: Subscription.operators.coreos.com.yaml
+hvstsupportbundle:
+  kind:
+  - SupportBundle
+  - harvesterhci.io
+  viewfile: SupportBundle.harvesterhci.io.yaml
+hvstsupportbundles:
+  kind:
+  - SupportBundle
+  - harvesterhci.io
+  viewfile: SupportBundle.harvesterhci.io.yaml
+lhsupportbundles:
+  kind:
+  - SupportBundle
+  - longhorn.io
+  viewfile: SupportBundle.longhorn.io.yaml
+lhsupportbundle:
+  kind:
+  - SupportBundle
+  - longhorn.io
+  viewfile: SupportBundle.longhorn.io.yaml
+tas:
+  kind:
+  - TASPolicy
+  - telemetry.intel.com
+  viewfile: TASPolicy.telemetry.intel.com.yaml
+tlscerts:
+  kind:
+  - TLSCertificateDelegation
+  - projectcontour.io
+  viewfile: TLSCertificateDelegation.projectcontour.io.yaml
+tlscert:
+  kind:
+  - TLSCertificateDelegation
+  - projectcontour.io
+  viewfile: TLSCertificateDelegation.projectcontour.io.yaml
+tgtalloc:
+  kind:
+  - TargetAllocator
+  - opentelemetry.io
+  viewfile: TargetAllocator.opentelemetry.io.yaml
+tgtallocs:
+  kind:
+  - TargetAllocator
+  - opentelemetry.io
+  viewfile: TargetAllocator.opentelemetry.io.yaml
+team.mgmnt:
+  kind:
+  - Team
+  - management.loft.sh
+  viewfile: Team.management.loft.sh.yaml
+team.management:
+  kind:
+  - Team
+  - management.loft.sh
+  viewfile: Team.management.loft.sh.yaml
+teams.mgmnt:
+  kind:
+  - Team
+  - management.loft.sh
+  viewfile: Team.management.loft.sh.yaml
+team.storage:
+  kind:
+  - Team
+  - storage.loft.sh
+  viewfile: Team.storage.loft.sh.yaml
+ktemplate:
+  kind:
+  - Template
+  - config.kiosk.sh
+  viewfile: Template.config.kiosk.sh.yaml
+ktemplates:
+  kind:
+  - Template
+  - config.kiosk.sh
+  viewfile: Template.config.kiosk.sh.yaml
+template.kiosk:
+  kind:
+  - Template
+  - config.kiosk.sh
+  viewfile: Template.config.kiosk.sh.yaml
+ktemplateinstance:
+  kind:
+  - TemplateInstance
+  - config.kiosk.sh
+  viewfile: TemplateInstance.config.kiosk.sh.yaml
+ktemplateinstances:
+  kind:
+  - TemplateInstance
+  - config.kiosk.sh
+  viewfile: TemplateInstance.config.kiosk.sh.yaml
+templateinstance.kiosk:
+  kind:
+  - TemplateInstance
+  - config.kiosk.sh
+  viewfile: TemplateInstance.config.kiosk.sh.yaml
+tenantcp:
+  kind:
+  - TenantControlPlane
+  - kamaji.clastix.io
+  viewfile: TenantControlPlane.kamaji.clastix.io.yaml
+tenantcps:
+  kind:
+  - TenantControlPlane
+  - kamaji.clastix.io
+  viewfile: TenantControlPlane.kamaji.clastix.io.yaml
+tiers.antrea:
+  kind:
+  - Tier
+  - crd.antrea.io
+  viewfile: Tier.crd.antrea.io.yaml
+tier.antrea:
+  kind:
+  - Tier
+  - crd.antrea.io
+  viewfile: Tier.crd.antrea.io.yaml
+tiers.calico:
+  kind:
+  - Tier
+  - crd.projectcalico.org
+  viewfile: Tier.crd.projectcalico.org.yaml
+tier.calico:
+  kind:
+  - Tier
+  - crd.projectcalico.org
+  viewfile: Tier.crd.projectcalico.org.yaml
+tokens.cattle:
+  kind:
+  - Token
+  - management.cattle.io
+  viewfile: Token.management.cattle.io.yaml
+token:
+  kind:
+  - Token
+  - management.cattle.io
+  viewfile: Token.management.cattle.io.yaml
+tokens:
+  kind:
+  - Token
+  - management.cattle.io
+  viewfile: Token.management.cattle.io.yaml
+token.cattle:
+  kind:
+  - Token
+  - management.cattle.io
+  viewfile: Token.management.cattle.io.yaml
+topawarepols:
+  kind:
+  - TopologyAwarePolicy
+  - config.nri
+  viewfile: TopologyAwarePolicy.config.nri.yaml
+tapols:
+  kind:
+  - TopologyAwarePolicy
+  - config.nri
+  viewfile: TopologyAwarePolicy.config.nri.yaml
+tapol:
+  kind:
+  - TopologyAwarePolicy
+  - config.nri
+  viewfile: TopologyAwarePolicy.config.nri.yaml
+topawarepol:
+  kind:
+  - TopologyAwarePolicy
+  - config.nri
+  viewfile: TopologyAwarePolicy.config.nri.yaml
+tf:
+  kind:
+  - Traceflow
+  - crd.antrea.io
+  viewfile: Traceflow.crd.antrea.io.yaml
+traefiksvcs:
+  kind:
+  - TraefikService
+  - traefik.io
+  viewfile: TraefikService.traefik.io.yaml
+traefiksvc:
+  kind:
+  - TraefikService
+  - traefik.io
+  viewfile: TraefikService.traefik.io.yaml
+trafficpols:
+  kind:
+  - TrafficPolicy
+  - gateway.kgateway.dev
+  viewfile: TrafficPolicy.gateway.kgateway.dev.yaml
+trafficpol:
+  kind:
+  - TrafficPolicy
+  - gateway.kgateway.dev
+  viewfile: TrafficPolicy.gateway.kgateway.dev.yaml
+ts:
+  kind:
+  - TrafficSplit
+  - split.smi-spec.io
+  viewfile: TrafficSplit.split.smi-spec.io.yaml
+ta:
+  kind:
+  - TriggerAuthentication
+  - keda.sh
+  viewfile: TriggerAuthentication.keda.sh.yaml
+triggerauth:
+  kind:
+  - TriggerAuthentication
+  - keda.sh
+  viewfile: TriggerAuthentication.keda.sh.yaml
+hvstusbdev:
+  kind:
+  - USBDevice
+  - devices.harvesterhci.io
+  viewfile: USBDevice.devices.harvesterhci.io.yaml
+hvstusbdevs:
+  kind:
+  - USBDevice
+  - devices.harvesterhci.io
+  viewfile: USBDevice.devices.harvesterhci.io.yaml
+kruiseunideps:
+  kind:
+  - UnitedDeployment
+  - apps.kruise.io
+  viewfile: UnitedDeployment.apps.kruise.io.yaml
+kruiseunidep:
+  kind:
+  - UnitedDeployment
+  - apps.kruise.io
+  viewfile: UnitedDeployment.apps.kruise.io.yaml
+hvstupgrade:
+  kind:
+  - Upgrade
+  - harvesterhci.io
+  viewfile: Upgrade.harvesterhci.io.yaml
+hvstupgrades:
+  kind:
+  - Upgrade
+  - harvesterhci.io
+  viewfile: Upgrade.harvesterhci.io.yaml
+upgrade.harvesterhci.io:
+  kind:
+  - Upgrade
+  - harvesterhci.io
+  viewfile: Upgrade.harvesterhci.io.yaml
+hvstupgradelog:
+  kind:
+  - UpgradeLog
+  - harvesterhci.io
+  viewfile: UpgradeLog.harvesterhci.io.yaml
+hvstupgradelogs:
+  kind:
+  - UpgradeLog
+  - harvesterhci.io
+  viewfile: UpgradeLog.harvesterhci.io.yaml
+upgradelog.harvesterhci.io:
+  kind:
+  - UpgradeLog
+  - harvesterhci.io
+  viewfile: UpgradeLog.harvesterhci.io.yaml
+kubeuser:
+  kind:
+  - User
+  - auth.openkube.io
+  viewfile: User.auth.openkube.io.yaml
+user.openkube:
+  kind:
+  - User
+  - auth.openkube.io
+  viewfile: User.auth.openkube.io.yaml
+users.openkube:
+  kind:
+  - User
+  - auth.openkube.io
+  viewfile: User.auth.openkube.io.yaml
+kubeusers:
+  kind:
+  - User
+  - auth.openkube.io
+  viewfile: User.auth.openkube.io.yaml
+users.cattle:
+  kind:
+  - User
+  - management.cattle.io
+  viewfile: User.management.cattle.io.yaml
+user.cattle:
+  kind:
+  - User
+  - management.cattle.io
+  viewfile: User.management.cattle.io.yaml
+user.management:
+  kind:
+  - User
+  - management.loft.sh
+  viewfile: User.management.loft.sh.yaml
+users.mgmnt:
+  kind:
+  - User
+  - management.loft.sh
+  viewfile: User.management.loft.sh.yaml
+user.mgmnt:
+  kind:
+  - User
+  - management.loft.sh
+  viewfile: User.management.loft.sh.yaml
+user.storage:
+  kind:
+  - User
+  - storage.loft.sh
+  viewfile: User.storage.loft.sh.yaml
+userattr.cattle:
+  kind:
+  - UserAttribute
+  - management.cattle.io
+  viewfile: UserAttribute.management.cattle.io.yaml
+userattr:
+  kind:
+  - UserAttribute
+  - management.cattle.io
+  viewfile: UserAttribute.management.cattle.io.yaml
+userattrs.cattle:
+  kind:
+  - UserAttribute
+  - management.cattle.io
+  viewfile: UserAttribute.management.cattle.io.yaml
+userattrs:
+  kind:
+  - UserAttribute
+  - management.cattle.io
+  viewfile: UserAttribute.management.cattle.io.yaml
+userdefnets:
+  kind:
+  - UserDefinedNetwork
+  - k8s.ovn.org
+  viewfile: UserDefinedNetwork.k8s.ovn.org.yaml
+userdefnet:
+  kind:
+  - UserDefinedNetwork
+  - k8s.ovn.org
+  viewfile: UserDefinedNetwork.k8s.ovn.org.yaml
+userdefnetwork:
+  kind:
+  - UserDefinedNetwork
+  - k8s.ovn.org
+  viewfile: UserDefinedNetwork.k8s.ovn.org.yaml
+userdefnetworks:
+  kind:
+  - UserDefinedNetwork
+  - k8s.ovn.org
+  viewfile: UserDefinedNetwork.k8s.ovn.org.yaml
+osuseroauthaccesstokens:
+  kind:
+  - UserOAuthAccessToken
+  - oauth.openshift.io
+  viewfile: UserOAuthAccessToken.oauth.openshift.io.yaml
+useroauthaccesstoken.oauth.openshift.io:
+  kind:
+  - UserOAuthAccessToken
+  - oauth.openshift.io
+  viewfile: UserOAuthAccessToken.oauth.openshift.io.yaml
+useroauthaccesstokens.openshift:
+  kind:
+  - UserOAuthAccessToken
+  - oauth.openshift.io
+  viewfile: UserOAuthAccessToken.oauth.openshift.io.yaml
+useroauthaccesstoken.openshift:
+  kind:
+  - UserOAuthAccessToken
+  - oauth.openshift.io
+  viewfile: UserOAuthAccessToken.oauth.openshift.io.yaml
+osuseroauthaccesstoken:
+  kind:
+  - UserOAuthAccessToken
+  - oauth.openshift.io
+  viewfile: UserOAuthAccessToken.oauth.openshift.io.yaml
+vclr:
+  kind:
+  - VCluster
+  - infrastructure.cluster.x-k8s.io
+  viewfile: VCluster.infrastructure.cluster.x-k8s.io.yaml
+vclrs:
+  kind:
+  - VCluster
+  - infrastructure.cluster.x-k8s.io
+  viewfile: VCluster.infrastructure.cluster.x-k8s.io.yaml
+vapol:
+  kind:
+  - ValidatingAdmissionPolicy
+  - admissionregistration.k8s.io
+  viewfile: ValidatingAdmissionPolicy.admissionregistration.k8s.io.yaml
+vapols:
+  kind:
+  - ValidatingAdmissionPolicy
+  - admissionregistration.k8s.io
+  viewfile: ValidatingAdmissionPolicy.admissionregistration.k8s.io.yaml
+vapolb:
+  kind:
+  - ValidatingAdmissionPolicyBinding
+  - admissionregistration.k8s.io
+  viewfile: ValidatingAdmissionPolicyBinding.admissionregistration.k8s.io.yaml
+vapolbindings:
+  kind:
+  - ValidatingAdmissionPolicyBinding
+  - admissionregistration.k8s.io
+  viewfile: ValidatingAdmissionPolicyBinding.admissionregistration.k8s.io.yaml
+vapolbs:
+  kind:
+  - ValidatingAdmissionPolicyBinding
+  - admissionregistration.k8s.io
+  viewfile: ValidatingAdmissionPolicyBinding.admissionregistration.k8s.io.yaml
+vapolbinding:
+  kind:
+  - ValidatingAdmissionPolicyBinding
+  - admissionregistration.k8s.io
+  viewfile: ValidatingAdmissionPolicyBinding.admissionregistration.k8s.io.yaml
+vwhcs:
+  kind:
+  - ValidatingWebhookConfiguration
+  - admissionregistration.k8s.io
+  viewfile: ValidatingWebhookConfiguration.admissionregistration.k8s.io.yaml
+vwhc:
+  kind:
+  - ValidatingWebhookConfiguration
+  - admissionregistration.k8s.io
+  viewfile: ValidatingWebhookConfiguration.admissionregistration.k8s.io.yaml
+hvstversions:
+  kind:
+  - Version
+  - harvesterhci.io
+  viewfile: Version.harvesterhci.io.yaml
+version.harvesterhci.io:
+  kind:
+  - Version
+  - harvesterhci.io
+  viewfile: Version.harvesterhci.io.yaml
+hvstversion:
+  kind:
+  - Version
+  - harvesterhci.io
+  viewfile: Version.harvesterhci.io.yaml
+vpa:
+  kind:
+  - VerticalPodAutoscaler
+  - autoscaling.k8s.io
+  viewfile: VerticalPodAutoscaler.autoscaling.k8s.io.yaml
+vpacheckpoint:
+  kind:
+  - VerticalPodAutoscalerCheckpoint
+  - autoscaling.k8s.io
+  viewfile: VerticalPodAutoscalerCheckpoint.autoscaling.k8s.io.yaml
+vpacheckpoints:
+  kind:
+  - VerticalPodAutoscalerCheckpoint
+  - autoscaling.k8s.io
+  viewfile: VerticalPodAutoscalerCheckpoint.autoscaling.k8s.io.yaml
+viclrs:
+  kind:
+  - VirtinkCluster
+  - infrastructure.cluster.x-k8s.io
+  viewfile: VirtinkCluster.infrastructure.cluster.x-k8s.io.yaml
+viclr:
+  kind:
+  - VirtinkCluster
+  - infrastructure.cluster.x-k8s.io
+  viewfile: VirtinkCluster.infrastructure.cluster.x-k8s.io.yaml
+vimch:
+  kind:
+  - VirtinkMachine
+  - infrastructure.cluster.x-k8s.io
+  viewfile: VirtinkMachine.infrastructure.cluster.x-k8s.io.yaml
+vimchs:
+  kind:
+  - VirtinkMachine
+  - infrastructure.cluster.x-k8s.io
+  viewfile: VirtinkMachine.infrastructure.cluster.x-k8s.io.yaml
+vimchtmpls:
+  kind:
+  - VirtinkMachineTemplate
+  - infrastructure.cluster.x-k8s.io
+  viewfile: VirtinkMachineTemplate.infrastructure.cluster.x-k8s.io.yaml
+vimchtmpl:
+  kind:
+  - VirtinkMachineTemplate
+  - infrastructure.cluster.x-k8s.io
+  viewfile: VirtinkMachineTemplate.infrastructure.cluster.x-k8s.io.yaml
+virtclr.cluster:
+  kind:
+  - VirtualCluster
+  - cluster.loft.sh
+  viewfile: VirtualCluster.cluster.loft.sh.yaml
+virtclrs.cluster:
+  kind:
+  - VirtualCluster
+  - cluster.loft.sh
+  viewfile: VirtualCluster.cluster.loft.sh.yaml
+virtclrs.clr:
+  kind:
+  - VirtualCluster
+  - cluster.loft.sh
+  viewfile: VirtualCluster.cluster.loft.sh.yaml
+virtclrs:
+  kind:
+  - VirtualCluster
+  - cluster.loft.sh
+  viewfile: VirtualCluster.cluster.loft.sh.yaml
+virtclr:
+  kind:
+  - VirtualCluster
+  - cluster.loft.sh
+  viewfile: VirtualCluster.cluster.loft.sh.yaml
+virtclr.clr:
+  kind:
+  - VirtualCluster
+  - cluster.loft.sh
+  viewfile: VirtualCluster.cluster.loft.sh.yaml
+virtualcluster.cluster:
+  kind:
+  - VirtualCluster
+  - cluster.loft.sh
+  viewfile: VirtualCluster.cluster.loft.sh.yaml
+virtualcluster.storage:
+  kind:
+  - VirtualCluster
+  - storage.loft.sh
+  viewfile: VirtualCluster.storage.loft.sh.yaml
+virtclr.storage:
+  kind:
+  - VirtualCluster
+  - storage.loft.sh
+  viewfile: VirtualCluster.storage.loft.sh.yaml
+virtclrs.storage:
+  kind:
+  - VirtualCluster
+  - storage.loft.sh
+  viewfile: VirtualCluster.storage.loft.sh.yaml
+vci.mgmnt:
+  kind:
+  - VirtualClusterInstance
+  - management.loft.sh
+  viewfile: VirtualClusterInstance.management.loft.sh.yaml
+virtclrinsts.management:
+  kind:
+  - VirtualClusterInstance
+  - management.loft.sh
+  viewfile: VirtualClusterInstance.management.loft.sh.yaml
+virtualclusterinstance.mgmnt:
+  kind:
+  - VirtualClusterInstance
+  - management.loft.sh
+  viewfile: VirtualClusterInstance.management.loft.sh.yaml
+virtclrinst.management:
+  kind:
+  - VirtualClusterInstance
+  - management.loft.sh
+  viewfile: VirtualClusterInstance.management.loft.sh.yaml
+virtualclusterinstance.management:
+  kind:
+  - VirtualClusterInstance
+  - management.loft.sh
+  viewfile: VirtualClusterInstance.management.loft.sh.yaml
+vcis.management:
+  kind:
+  - VirtualClusterInstance
+  - management.loft.sh
+  viewfile: VirtualClusterInstance.management.loft.sh.yaml
+virtualclusterinstances.mgmnt:
+  kind:
+  - VirtualClusterInstance
+  - management.loft.sh
+  viewfile: VirtualClusterInstance.management.loft.sh.yaml
+vcis.mgmnt:
+  kind:
+  - VirtualClusterInstance
+  - management.loft.sh
+  viewfile: VirtualClusterInstance.management.loft.sh.yaml
+vci.management:
+  kind:
+  - VirtualClusterInstance
+  - management.loft.sh
+  viewfile: VirtualClusterInstance.management.loft.sh.yaml
+vcis.storage:
+  kind:
+  - VirtualClusterInstance
+  - storage.loft.sh
+  viewfile: VirtualClusterInstance.storage.loft.sh.yaml
+virtclrinst.storage:
+  kind:
+  - VirtualClusterInstance
+  - storage.loft.sh
+  viewfile: VirtualClusterInstance.storage.loft.sh.yaml
+vci.storage:
+  kind:
+  - VirtualClusterInstance
+  - storage.loft.sh
+  viewfile: VirtualClusterInstance.storage.loft.sh.yaml
+virtclrinsts.storage:
+  kind:
+  - VirtualClusterInstance
+  - storage.loft.sh
+  viewfile: VirtualClusterInstance.storage.loft.sh.yaml
+virtualclusterinstance.storage:
+  kind:
+  - VirtualClusterInstance
+  - storage.loft.sh
+  viewfile: VirtualClusterInstance.storage.loft.sh.yaml
+vct.mgmnt:
+  kind:
+  - VirtualClusterTemplate
+  - management.loft.sh
+  viewfile: VirtualClusterTemplate.management.loft.sh.yaml
+vcts.management:
+  kind:
+  - VirtualClusterTemplate
+  - management.loft.sh
+  viewfile: VirtualClusterTemplate.management.loft.sh.yaml
+virtclrtmpl.management:
+  kind:
+  - VirtualClusterTemplate
+  - management.loft.sh
+  viewfile: VirtualClusterTemplate.management.loft.sh.yaml
+virtualclustertemplate.management:
+  kind:
+  - VirtualClusterTemplate
+  - management.loft.sh
+  viewfile: VirtualClusterTemplate.management.loft.sh.yaml
+virtclrtmpls.management:
+  kind:
+  - VirtualClusterTemplate
+  - management.loft.sh
+  viewfile: VirtualClusterTemplate.management.loft.sh.yaml
+vcts.mgmnt:
+  kind:
+  - VirtualClusterTemplate
+  - management.loft.sh
+  viewfile: VirtualClusterTemplate.management.loft.sh.yaml
+vct.management:
+  kind:
+  - VirtualClusterTemplate
+  - management.loft.sh
+  viewfile: VirtualClusterTemplate.management.loft.sh.yaml
+vcts.storage:
+  kind:
+  - VirtualClusterTemplate
+  - storage.loft.sh
+  viewfile: VirtualClusterTemplate.storage.loft.sh.yaml
+virtclrtmpls.storage:
+  kind:
+  - VirtualClusterTemplate
+  - storage.loft.sh
+  viewfile: VirtualClusterTemplate.storage.loft.sh.yaml
+vct.storage:
+  kind:
+  - VirtualClusterTemplate
+  - storage.loft.sh
+  viewfile: VirtualClusterTemplate.storage.loft.sh.yaml
+virtclrtmpl.storage:
+  kind:
+  - VirtualClusterTemplate
+  - storage.loft.sh
+  viewfile: VirtualClusterTemplate.storage.loft.sh.yaml
+virtualclustertemplate.storage:
+  kind:
+  - VirtualClusterTemplate
+  - storage.loft.sh
+  viewfile: VirtualClusterTemplate.storage.loft.sh.yaml
+kvvm:
+  kind:
+  - VirtualMachine
+  - kubevirt.io
+  viewfile: VirtualMachine.kubevirt.io.yaml
+kvvms:
+  kind:
+  - VirtualMachine
+  - kubevirt.io
+  viewfile: VirtualMachine.kubevirt.io.yaml
+vivms:
+  kind:
+  - VirtualMachine
+  - virt.virtink.smartx.com
+  viewfile: VirtualMachine.virt.virtink.smartx.com.yaml
+vivm:
+  kind:
+  - VirtualMachine
+  - virt.virtink.smartx.com
+  viewfile: VirtualMachine.virt.virtink.smartx.com.yaml
+vmclrinstancetype:
+  kind:
+  - VirtualMachineClusterInstancetype
+  - instancetype.kubevirt.io
+  viewfile: VirtualMachineClusterInstancetype.instancetype.kubevirt.io.yaml
+vmclrinstancetypes:
+  kind:
+  - VirtualMachineClusterInstancetype
+  - instancetype.kubevirt.io
+  viewfile: VirtualMachineClusterInstancetype.instancetype.kubevirt.io.yaml
+vmclrprefs:
+  kind:
+  - VirtualMachineClusterPreference
+  - instancetype.kubevirt.io
+  viewfile: VirtualMachineClusterPreference.instancetype.kubevirt.io.yaml
+vmclrpref:
+  kind:
+  - VirtualMachineClusterPreference
+  - instancetype.kubevirt.io
+  viewfile: VirtualMachineClusterPreference.instancetype.kubevirt.io.yaml
+vmimg.harvesterhci.io:
+  kind:
+  - VirtualMachineImage
+  - harvesterhci.io
+  viewfile: VirtualMachineImage.harvesterhci.io.yaml
+hvstvmimgs:
+  kind:
+  - VirtualMachineImage
+  - harvesterhci.io
+  viewfile: VirtualMachineImage.harvesterhci.io.yaml
+hvstvmimg:
+  kind:
+  - VirtualMachineImage
+  - harvesterhci.io
+  viewfile: VirtualMachineImage.harvesterhci.io.yaml
+virtualmachineimage.harvesterhci.io:
+  kind:
+  - VirtualMachineImage
+  - harvesterhci.io
+  viewfile: VirtualMachineImage.harvesterhci.io.yaml
+vmimgs.harvesterhci.io:
+  kind:
+  - VirtualMachineImage
+  - harvesterhci.io
+  viewfile: VirtualMachineImage.harvesterhci.io.yaml
+kvvmis:
+  kind:
+  - VirtualMachineInstance
+  - kubevirt.io
+  viewfile: VirtualMachineInstance.kubevirt.io.yaml
+kvvmi:
+  kind:
+  - VirtualMachineInstance
+  - kubevirt.io
+  viewfile: VirtualMachineInstance.kubevirt.io.yaml
+kvvmipresets:
+  kind:
+  - VirtualMachineInstancePreset
+  - kubevirt.io
+  viewfile: VirtualMachineInstancePreset.kubevirt.io.yaml
+kvvmipreset:
+  kind:
+  - VirtualMachineInstancePreset
+  - kubevirt.io
+  viewfile: VirtualMachineInstancePreset.kubevirt.io.yaml
+kvvmirs:
+  kind:
+  - VirtualMachineInstanceReplicaSet
+  - kubevirt.io
+  viewfile: VirtualMachineInstanceReplicaSet.kubevirt.io.yaml
+kvvmirss:
+  kind:
+  - VirtualMachineInstanceReplicaSet
+  - kubevirt.io
+  viewfile: VirtualMachineInstanceReplicaSet.kubevirt.io.yaml
+vminstancetype:
+  kind:
+  - VirtualMachineInstancetype
+  - instancetype.kubevirt.io
+  viewfile: VirtualMachineInstancetype.instancetype.kubevirt.io.yaml
+vminstancetypes:
+  kind:
+  - VirtualMachineInstancetype
+  - instancetype.kubevirt.io
+  viewfile: VirtualMachineInstancetype.instancetype.kubevirt.io.yaml
+vivmm:
+  kind:
+  - VirtualMachineMigration
+  - virt.virtink.smartx.com
+  viewfile: VirtualMachineMigration.virt.virtink.smartx.com.yaml
+vivmms:
+  kind:
+  - VirtualMachineMigration
+  - virt.virtink.smartx.com
+  viewfile: VirtualMachineMigration.virt.virtink.smartx.com.yaml
+vmprefs:
+  kind:
+  - VirtualMachinePreference
+  - instancetype.kubevirt.io
+  viewfile: VirtualMachinePreference.instancetype.kubevirt.io.yaml
+vmpref:
+  kind:
+  - VirtualMachinePreference
+  - instancetype.kubevirt.io
+  viewfile: VirtualMachinePreference.instancetype.kubevirt.io.yaml
+virtualmachinetemplate.harvesterhci.io:
+  kind:
+  - VirtualMachineTemplate
+  - harvesterhci.io
+  viewfile: VirtualMachineTemplate.harvesterhci.io.yaml
+hvstvmtmpl:
+  kind:
+  - VirtualMachineTemplate
+  - harvesterhci.io
+  viewfile: VirtualMachineTemplate.harvesterhci.io.yaml
+vmtmpl.harvesterhci.io:
+  kind:
+  - VirtualMachineTemplate
+  - harvesterhci.io
+  viewfile: VirtualMachineTemplate.harvesterhci.io.yaml
+hvstvmtmpls:
+  kind:
+  - VirtualMachineTemplate
+  - harvesterhci.io
+  viewfile: VirtualMachineTemplate.harvesterhci.io.yaml
+vmtmpls.harvesterhci.io:
+  kind:
+  - VirtualMachineTemplate
+  - harvesterhci.io
+  viewfile: VirtualMachineTemplate.harvesterhci.io.yaml
+hvstvmtmplver:
+  kind:
+  - VirtualMachineTemplateVersion
+  - harvesterhci.io
+  viewfile: VirtualMachineTemplateVersion.harvesterhci.io.yaml
+hvstvmtmplvers:
+  kind:
+  - VirtualMachineTemplateVersion
+  - harvesterhci.io
+  viewfile: VirtualMachineTemplateVersion.harvesterhci.io.yaml
+vmtmplversion.harvesterhci.io:
+  kind:
+  - VirtualMachineTemplateVersion
+  - harvesterhci.io
+  viewfile: VirtualMachineTemplateVersion.harvesterhci.io.yaml
+vmtmplversions.harvesterhci.io:
+  kind:
+  - VirtualMachineTemplateVersion
+  - harvesterhci.io
+  viewfile: VirtualMachineTemplateVersion.harvesterhci.io.yaml
+virtualmachinetemplateversion.harvesterhci.io:
+  kind:
+  - VirtualMachineTemplateVersion
+  - harvesterhci.io
+  viewfile: VirtualMachineTemplateVersion.harvesterhci.io.yaml
+virtsvcs:
+  kind:
+  - VirtualService
+  - networking.istio.io
+  viewfile: VirtualService.networking.istio.io.yaml
+virtsvc:
+  kind:
+  - VirtualService
+  - networking.istio.io
+  viewfile: VirtualService.networking.istio.io.yaml
+lhvolume:
+  kind:
+  - Volume
+  - longhorn.io
+  viewfile: Volume.longhorn.io.yaml
+lhvols:
+  kind:
+  - Volume
+  - longhorn.io
+  viewfile: Volume.longhorn.io.yaml
+lhvolumes:
+  kind:
+  - Volume
+  - longhorn.io
+  viewfile: Volume.longhorn.io.yaml
+lhvol:
+  kind:
+  - Volume
+  - longhorn.io
+  viewfile: Volume.longhorn.io.yaml
+lhvolattachments:
+  kind:
+  - VolumeAttachment
+  - longhorn.io
+  viewfile: VolumeAttachment.longhorn.io.yaml
+lhvolumeattachment:
+  kind:
+  - VolumeAttachment
+  - longhorn.io
+  viewfile: VolumeAttachment.longhorn.io.yaml
+lhvolattachment:
+  kind:
+  - VolumeAttachment
+  - longhorn.io
+  viewfile: VolumeAttachment.longhorn.io.yaml
+lhvolumeattachments:
+  kind:
+  - VolumeAttachment
+  - longhorn.io
+  viewfile: VolumeAttachment.longhorn.io.yaml
+lhvolattach:
+  kind:
+  - VolumeAttachment
+  - longhorn.io
+  viewfile: VolumeAttachment.longhorn.io.yaml
+lhvolattachs:
+  kind:
+  - VolumeAttachment
+  - longhorn.io
+  viewfile: VolumeAttachment.longhorn.io.yaml
+volattachment:
+  kind:
+  - VolumeAttachment
+  - storage.k8s.io
+  viewfile: VolumeAttachment.storage.k8s.io.yaml
+volattach:
+  kind:
+  - VolumeAttachment
+  - storage.k8s.io
+  viewfile: VolumeAttachment.storage.k8s.io.yaml
+volattachments:
+  kind:
+  - VolumeAttachment
+  - storage.k8s.io
+  viewfile: VolumeAttachment.storage.k8s.io.yaml
+volattachs:
+  kind:
+  - VolumeAttachment
+  - storage.k8s.io
+  viewfile: VolumeAttachment.storage.k8s.io.yaml
+volattrclass:
+  kind:
+  - VolumeAttributesClass
+  - storage.k8s.io
+  viewfile: VolumeAttributesClass.storage.k8s.io.yaml
+vacs:
+  kind:
+  - VolumeAttributesClass
+  - storage.k8s.io
+  viewfile: VolumeAttributesClass.storage.k8s.io.yaml
+vac:
+  kind:
+  - VolumeAttributesClass
+  - storage.k8s.io
+  viewfile: VolumeAttributesClass.storage.k8s.io.yaml
+volattrclasses:
+  kind:
+  - VolumeAttributesClass
+  - storage.k8s.io
+  viewfile: VolumeAttributesClass.storage.k8s.io.yaml
+volimportsrc:
+  kind:
+  - VolumeImportSource
+  - cdi.kubevirt.io
+  viewfile: VolumeImportSource.cdi.kubevirt.io.yaml
+volimportsrcs:
+  kind:
+  - VolumeImportSource
+  - cdi.kubevirt.io
+  viewfile: VolumeImportSource.cdi.kubevirt.io.yaml
+volsnap:
+  kind:
+  - VolumeSnapshot
+  - snapshot.storage.k8s.io
+  viewfile: VolumeSnapshot.snapshot.storage.k8s.io.yaml
+volsnaps:
+  kind:
+  - VolumeSnapshot
+  - snapshot.storage.k8s.io
+  viewfile: VolumeSnapshot.snapshot.storage.k8s.io.yaml
+vs:
+  kind:
+  - VolumeSnapshot
+  - snapshot.storage.k8s.io
+  viewfile: VolumeSnapshot.snapshot.storage.k8s.io.yaml
+vsclass:
+  kind:
+  - VolumeSnapshotClass
+  - snapshot.storage.k8s.io
+  viewfile: VolumeSnapshotClass.snapshot.storage.k8s.io.yaml
+volsnapclass:
+  kind:
+  - VolumeSnapshotClass
+  - snapshot.storage.k8s.io
+  viewfile: VolumeSnapshotClass.snapshot.storage.k8s.io.yaml
+vsclasses:
+  kind:
+  - VolumeSnapshotClass
+  - snapshot.storage.k8s.io
+  viewfile: VolumeSnapshotClass.snapshot.storage.k8s.io.yaml
+volsnapclasses:
+  kind:
+  - VolumeSnapshotClass
+  - snapshot.storage.k8s.io
+  viewfile: VolumeSnapshotClass.snapshot.storage.k8s.io.yaml
+vsc:
+  kind:
+  - VolumeSnapshotContent
+  - snapshot.storage.k8s.io
+  viewfile: VolumeSnapshotContent.snapshot.storage.k8s.io.yaml
+vscs:
+  kind:
+  - VolumeSnapshotContent
+  - snapshot.storage.k8s.io
+  viewfile: VolumeSnapshotContent.snapshot.storage.k8s.io.yaml
+volsnapcontents:
+  kind:
+  - VolumeSnapshotContent
+  - snapshot.storage.k8s.io
+  viewfile: VolumeSnapshotContent.snapshot.storage.k8s.io.yaml
+volsnapcontent:
+  kind:
+  - VolumeSnapshotContent
+  - snapshot.storage.k8s.io
+  viewfile: VolumeSnapshotContent.snapshot.storage.k8s.io.yaml
+volsnaploc:
+  kind:
+  - VolumeSnapshotLocation
+  - velero.io
+  viewfile: VolumeSnapshotLocation.velero.io.yaml
+volsnaplocs:
+  kind:
+  - VolumeSnapshotLocation
+  - velero.io
+  viewfile: VolumeSnapshotLocation.velero.io.yaml
+vpc-nat-gateway:
+  kind:
+  - VpcNatGateway
+  - kubeovn.io
+  viewfile: VpcNatGateway.kubeovn.io.yaml
+vpcnatgateways:
+  kind:
+  - VpcNatGateway
+  - kubeovn.io
+  viewfile: VpcNatGateway.kubeovn.io.yaml
+vpcnatgw:
+  kind:
+  - VpcNatGateway
+  - kubeovn.io
+  viewfile: VpcNatGateway.kubeovn.io.yaml
+vpc-nat-gateways:
+  kind:
+  - VpcNatGateway
+  - kubeovn.io
+  viewfile: VpcNatGateway.kubeovn.io.yaml
+vpcnatgws:
+  kind:
+  - VpcNatGateway
+  - kubeovn.io
+  viewfile: VpcNatGateway.kubeovn.io.yaml
+vulns:
+  kind:
+  - VulnerabilityReport
+  - aquasecurity.github.io
+  viewfile: VulnerabilityReport.aquasecurity.github.io.yaml
+vuln:
+  kind:
+  - VulnerabilityReport
+  - aquasecurity.github.io
+  viewfile: VulnerabilityReport.aquasecurity.github.io.yaml
+kargowarehouses:
+  kind:
+  - Warehouse
+  - kargo.akuity.io
+  viewfile: Warehouse.kargo.akuity.io.yaml
+kargowarehouse:
+  kind:
+  - Warehouse
+  - kargo.akuity.io
+  viewfile: Warehouse.kargo.akuity.io.yaml
+wfs:
+  kind:
+  - Workflow
+  - argoproj.io
+  viewfile: Workflow.argoproj.io.yaml
+wf:
+  kind:
+  - Workflow
+  - argoproj.io
+  viewfile: Workflow.argoproj.io.yaml
+wftresult:
+  kind:
+  - WorkflowTaskResult
+  - argoproj.io
+  viewfile: WorkflowTaskResult.argoproj.io.yaml
+wftresults:
+  kind:
+  - WorkflowTaskResult
+  - argoproj.io
+  viewfile: WorkflowTaskResult.argoproj.io.yaml
+wftmpl:
+  kind:
+  - WorkflowTemplate
+  - argoproj.io
+  viewfile: WorkflowTemplate.argoproj.io.yaml
+wftmpls:
+  kind:
+  - WorkflowTemplate
+  - argoproj.io
+  viewfile: WorkflowTemplate.argoproj.io.yaml
+wlentry:
+  kind:
+  - WorkloadEntry
+  - networking.istio.io
+  viewfile: WorkloadEntry.networking.istio.io.yaml
+wlentries:
+  kind:
+  - WorkloadEntry
+  - networking.istio.io
+  viewfile: WorkloadEntry.networking.istio.io.yaml
+wlgroups:
+  kind:
+  - WorkloadGroup
+  - networking.istio.io
+  viewfile: WorkloadGroup.networking.istio.io.yaml
+wlgroup:
+  kind:
+  - WorkloadGroup
+  - networking.istio.io
+  viewfile: WorkloadGroup.networking.istio.io.yaml
+wlpc:
+  kind:
+  - WorkloadPriorityClass
+  - kueue.x-k8s.io
+  viewfile: WorkloadPriorityClass.kueue.x-k8s.io.yaml
+wlprioclasses:
+  kind:
+  - WorkloadPriorityClass
+  - kueue.x-k8s.io
+  viewfile: WorkloadPriorityClass.kueue.x-k8s.io.yaml
+wlprioclass:
+  kind:
+  - WorkloadPriorityClass
+  - kueue.x-k8s.io
+  viewfile: WorkloadPriorityClass.kueue.x-k8s.io.yaml
+wlpcs:
+  kind:
+  - WorkloadPriorityClass
+  - kueue.x-k8s.io
+  viewfile: WorkloadPriorityClass.kueue.x-k8s.io.yaml
+kruisews:
+  kind:
+  - WorkloadSpread
+  - apps.kruise.io
+  viewfile: WorkloadSpread.apps.kruise.io.yaml

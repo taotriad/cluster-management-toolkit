@@ -3,6 +3,34 @@
 Commandline tool for managing Kubernetes clusters.
 
 ## Commands:
+### `get` __RESOURCE_TYPE_ [_RESOURCE_,_..._]_
+#### List resources of _RESOURCE_TYPE_
+  
+Optionally limited to _RESOURCE_,_..._
+  
+  __`--namespace`__ __NAMESPACE_|_ALL__
+  List resources in _NAMESPACE_  
+
+  __`-A`__
+  Equivalent to __--namespace__ _ALL_  
+
+  __`--color`__ __WHEN__
+  WHEN should the output use ANSI-colors  
+  Valid arguments are:
+  _always_ (always color the output)
+  _auto_ (color the output when outputting
+  to a terminal)
+  _never_ (never color the output)
+
+  __`--format`__ __FORMAT__
+  Format the output as _FORMAT_  
+  Valid formats are:
+  _json_ (JSON)
+  _yaml_ (YAML)
+
+  __`--wide`__
+  Wide output format  
+
 ### `cordon` __NODE_,_..._|_ALL__
 #### Cordon _NODE_,_..._
   
@@ -320,7 +348,7 @@ Set current context, either by specifying context _NAME_ or by specifying contex
   Do not output list headers  
 
   __`--format`__ __FORMAT__
-  Format the output as FORMAT  
+  Format the output as _FORMAT_  
   Valid formats are:
   _table_ (table with information)
   _csv_ (comma-separated values)

@@ -76,7 +76,8 @@ to reinstall the cluster from scratch.
 
 ### Changes to _cmt_ in v0.8.7
 
-* TBD
+* _cmt_ now offers limited support for getting resources (currently the only
+  supported outputs are JSON and YAML).
 
 ### Changes to _cmtadm_ in v0.8.7
 
@@ -145,6 +146,11 @@ to reinstall the cluster from scratch.
 
 ### Python
 
+_Note:_ In most/all cases there are suitable distro packages for these dependencies in SUSE,
+but the package have the Python-version included in their names, so `cmt-install`
+currently does not handle these dependencies properly. Once we switch to providing
+proper distro packages instead this problem should go away.
+
 | PIP Name       | Minimum Version | Note                                    |
 | :------------- | :-------------- | :-------------------------------------- |
 | ansible-runner | 2.1.4           | openSUSE/SLES/RHEL, unsupported distros |
@@ -152,6 +158,7 @@ to reinstall the cluster from scratch.
 | jinja2         | 3.1.6           | openSUSE/SLES/RHEL, unsupported distros |
 | natsort        | 8.0.2           | openSUSE/SLES/RHEL, unsupported distros |
 | paramiko       |                 | openSUSE/SLES/RHEL, unsupported distros |
+| pygments       |                 | OpenSUSE/SLES, unsupported distros      |
 | PyYAML         | 6.0             | Unsupported distros                     |
 | ruamel.yaml    | 0.17.21         | Unsupported distros [1]                 |
 | ruyaml         | 0.91.0          | Unsupported distros [1]                 |
@@ -164,24 +171,25 @@ to reinstall the cluster from scratch.
 
 ### Distro Packages
 
-| Package Name           | Distro             |
-| :--------------------- | :----------------- |
-| ansible                | Debian/Ubuntu/SUSE |
-| python3-ansible-runner | Debian/Ubuntu      |
-| python3-cryptography   | Debian/RHEL/Ubuntu |
-| python3-jinja2         | Debian/Ubuntu      |
-| python3-natsort        | Debian/Ubuntu      |
-| python3-paramiko       | Debian/Ubuntu      |
-| python3-pip            | Debian/Ubuntu      |
-| python3-pyyaml         | RHEL               |
-| python3-ruyaml         | Debian/Ubuntu [1]  |
-| python3-ruamel.yaml    | Debian/Ubuntu [1]  |
-| python3-ruamel-yaml    | RHEL/SUSE          |
-| python3-ujson          | Debian/Ubuntu      |
-| python3-urllib3        | Debian/Ubuntu/RHEL |
-| python3-validators     | Debian/Ubuntu      |
-| python3-yaml           | Debian/Ubuntu      |
-| sshpass                | All                |
+| Package Name                  | Distro             |
+| :---------------------------- | :----------------- |
+| ansible                       | Debian/Ubuntu/SUSE |
+| python3-ansible-runner        | Debian/Ubuntu      |
+| python3-cryptography          | Debian/RHEL/Ubuntu |
+| python3-jinja2                | Debian/Ubuntu      |
+| python3-natsort               | Debian/Ubuntu      |
+| python3-paramiko              | Debian/Ubuntu      |
+| python3-pip                   | Debian/Ubuntu      |
+| python3-pygments              | DEbian/RHEL/Ubuntu |
+| python3-pyyaml                | RHEL               |
+| python3-ruyaml                | Debian/Ubuntu [2]  |
+| python3-ruamel.yaml           | Debian/Ubuntu [2]  |
+| python3-ruamel-yaml           | RHEL/SUSE          |
+| python3-ujson                 | Debian/Ubuntu      |
+| python3-urllib3               | Debian/Ubuntu/RHEL |
+| python3-validators            | Debian/Ubuntu      |
+| python3-yaml                  | Debian/Ubuntu      |
+| sshpass                       | All                |
 
 **[1]**: Only one of `ruamel.yaml` and `ruyaml` is necessary.
 

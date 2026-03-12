@@ -25,7 +25,7 @@ UI_PROGRAM_NAME = "cmu"
 UI_PROGRAM_VERSION = "0.5.4"
 
 TOOL_PROGRAM_NAME = "cmt"
-TOOL_PROGRAM_VERSION = "0.6.7"
+TOOL_PROGRAM_VERSION = "0.6.8"
 
 INSTALL_PROGRAM_NAME = "cmt-install"
 INSTALL_PROGRAM_VERSION = "0.13.9"
@@ -34,7 +34,7 @@ ADMIN_PROGRAM_NAME = "cmtadm"
 ADMIN_PROGRAM_VERSION = "0.9.5"
 
 INVENTORY_PROGRAM_NAME = "cmtinv"
-INVENTORY_PROGRAM_VERSION = "0.4.7"
+INVENTORY_PROGRAM_VERSION = "0.4.8"
 
 # We don't support Python-versions older than 3.11
 version_info = sys.version_info

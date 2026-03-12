@@ -444,7 +444,7 @@ nox: create_test_symlinks
 
 validate_yaml:
 	@printf -- "\n\nRunning validate_yaml to check that all view-files/parser-files/theme-files are valid\n\n"; \
-	./tests/validate_yaml --exclude views/__event_reasons.yaml
+	./tests/validate_yaml --exclude views/__event_reasons.yaml views/__view_index.yaml
 
 validate_playbooks:
 	@cmd=ansible-lint ;\
@@ -521,6 +521,7 @@ check_theme_use: setup_tests
 
 build:
 	./build.py views/templates views/variables views
+	./generate_resource_type_index.py views views/__resource_type_index.yaml
 
 # This rule is used when making a system-wide install
 INSTALL := install --mode=755

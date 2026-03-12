@@ -106,7 +106,7 @@ Create a cluster based on a ClusterDeployment template. This combines all the ne
 ### `setup-control-plane` _[_CNI_] [_POD_NETWORK_CIDR_]_
 #### Setup and launch the control plane
   
-Valid options for CNI (Container Network Interface, aka Pod Network):  _antrea_, _calico_, _canal_, _cilium_, _flannel_, _kube-router_, _weave_, _none_ By default _cilium_ will be used as CNI and _10.244.0.0/16_ will be used as pod network CIDR. If you wish to postpone the choice of CNI you can specify _none_.
+Valid options for CNI (Container Network Interface, aka Pod Network):  _antrea_, _calico_, _canal_, _cilium_, _flannel_, _kube-router_, _weave_, _none_ By default _cilium_ will be used as CNI and _10.244.0.0/16_ will be used as pod network CIDR. If you wish to postpone the choice of CNI you can specify _none_. Warning: _weave_ is no longer maintained upstream and is thus not recommended for production use.
   
   __`--resume`__
   Resume setup  
@@ -160,7 +160,7 @@ Valid options for CNI (Container Network Interface, aka Pod Network):  _antrea_,
 ### `setup-cni` _[_CNI_]_
 #### Install and configure CNI
   
-Valid options for CNI (Container Network Interface, aka Pod Network):  _antrea_, _calico_, _canal_, _cilium_,  _flannel_, _kube-router_, _weave_ By default _cilium_ will be used as CNI
+Valid options for CNI (Container Network Interface, aka Pod Network):  _antrea_, _calico_, _canal_, _cilium_,  _flannel_, _kube-router_, _weave_ By default _cilium_ will be used as CNI. Warning: _weave_ is no longer maintained upstream and is thus not recommended for production use.
   
   __`--reinstall`__
   Try to reinstall the already installed CNI  

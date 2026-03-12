@@ -15,8 +15,6 @@
   in listgetter_args.
 * When running either cmt or cmu, check whether `.ssh/id_*.pub` is in authorized_keys.
   in `.cmt/ansible/inventory.yaml`; if not, add it.
-* Rewrite command_parser to treat options passed before a command as global,
-  and to allow options interspersed with arguments.  Perhaps even add short options.
 * Add `--dry-run` support for more commands.
 * Is it possible to rewrite the generator/processor system in a way that processors
   could be completely eliminated?
@@ -24,6 +22,21 @@
   (named config-clustername) rather than merging the config-files;
   or even have them in `.kube/config.d/clustername.yaml`?
 * Add the post-quantum variants of ed25519.
+
+## commandparser.py and cmtvalidators.py
+
+* __commandparser__: Add support for aliases.
+* __commandparser__: Add support for global vs local options.
+* __commandparser__: Add support for short options.
+* __commandparser__: Loosen the rules for option positions; it should be possible
+  to have the options interspersed with, or after the arguments.
+* __commandparser__: Do partialll argument splitting already in the command parser;
+  since we're doing argument validation in the command parser we know what
+  separators are used.
+* __cmtvalidators__: Further improve the validation, with types such as
+  Kubernetes resource type, resource name, etc.
+* Ideally the commandparser + validator combo should be able to validate
+  namespace/name:subresource for pods & configmaps without resorting to regex.
 
 ## curses_helper.py
 

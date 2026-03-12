@@ -56,10 +56,14 @@ def ruyaml_dump_to_string(obj: Any, **kwargs: Any) -> str:
     replace_null: bool = deep_get(kwargs, DictPath("replace_null"), False)
     replace_empty: bool = deep_get(kwargs, DictPath("replace_empty"), False)
     replace_empty_dict: bool = deep_get(kwargs, DictPath("replace_empty_dict"), False)
+    yaml_version: tuple[int, int] = deep_get(kwargs, DictPath("yaml_version"))
     ryaml.default_flow_style = deep_get(kwargs, DictPath("default_flow_style"), False)
     ryaml.representer.add_representer(type(None), __representer_none)
     f = io.StringIO()
 
+    tmp_yaml_version = ryaml.version
+    if yaml_version:
+        ryaml.version = yaml_version
     if isinstance(obj, (dict, ruyaml.comments.CommentedMap, ruyaml.comments.CommentedSeq)):
         ryaml.dump(obj, f)
     else:
@@ -74,6 +78,7 @@ def ruyaml_dump_to_string(obj: Any, **kwargs: Any) -> str:
         string = string.replace(r"{}", "")
     if replace_null:
         string = string.replace(r"null", "")
+    ryaml.version = tmp_yaml_version
     return string
 
 
@@ -106,6 +111,7 @@ def secure_write_yaml(path: FilePath,
     replace_null: bool = deep_get(kwargs, DictPath("replace_null"), False)
     write_mode: str = deep_get(kwargs, DictPath("write_mode"), "w")
     temporary: bool = deep_get(kwargs, DictPath("temporary"), False)
+    yaml_version: tuple[int, int] = deep_get(kwargs, DictPath("yaml_version"))
 
     if write_mode not in ("a", "w", "x"):
         raise ValueError(f"Invalid write mode “{write_mode}“; "
@@ -114,7 +120,8 @@ def secure_write_yaml(path: FilePath,
     yaml_str = ruyaml_dump_to_string(data, default_flow_style=False,
                                      replace_null=replace_null,
                                      replace_empty=replace_empty,
-                                     replace_empty_dict=replace_empty_dict)
+                                     replace_empty_dict=replace_empty_dict,
+                                     yaml_version=yaml_version)
     cmtio.secure_write_string(path, yaml_str, permissions=permissions,
                               write_mode=write_mode, temporary=temporary)
 
