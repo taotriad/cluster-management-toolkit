@@ -9592,6 +9592,9 @@ def populate_views(refresh_apis: str = "none") -> None:
             continue
 
         for filename in natsorted(os.listdir(view_dir)):
+            if filename == "__resource_type_index.yaml":
+                continue
+
             if filename == "__event_reasons.yaml":
                 d = dict(secure_read_yaml(FilePath(view_dir).joinpath(filename),
                                           directory_is_symlink=True))
