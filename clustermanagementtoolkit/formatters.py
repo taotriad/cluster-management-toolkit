@@ -36,6 +36,11 @@ except ModuleNotFoundError:  # pragma: no cover
     sys.exit("ModuleNotFoundError: Could not import yaml; "
              "you may need to (re-)run `cmt-install` or `pip3 install PyYAML`; aborting.")
 
+import pygments
+import pygments.lexers
+from pygments.formatter import Formatter
+from pygments.token import Token
+
 from clustermanagementtoolkit.cmttypes import deep_get, DictPath, FilePath
 from clustermanagementtoolkit.cmttypes import FilePathAuditError, StatusGroup
 
@@ -47,6 +52,144 @@ from clustermanagementtoolkit.cmtio_yaml import secure_read_yaml
 from clustermanagementtoolkit.cmtpaths import HOMEDIR, SYSTEM_PARSERS_DIR, PARSER_DIR
 
 from clustermanagementtoolkit.curses_helper import ThemeAttr, ThemeRef, ThemeStr, themearray_len
+
+
+COLORSCHEME_SHELLSCRIPT: dict[Any, ThemeAttr] = {
+    # <whitespace>
+    Token.Text.Whitespace: ThemeAttr("types", "generic"),
+    # #! /bin/sh
+    Token.Comment.Hashbang: ThemeAttr("types", "shellscript_hashbang"),
+    # # comment
+    Token.Comment.Single: ThemeAttr("types", "shellscript_comment"),
+    # variable
+    Token.Name.Variable: ThemeAttr("types", "shellscript_variable"),
+    # for, if, else, $(), etc.
+    Token.Keyword: ThemeAttr("types", "shellscript_keyword"),
+    # number
+    Token.Literal.Number: ThemeAttr("types", "shellscript_number"),
+    # <<EOF...EOF
+    Token.Literal.String: ThemeAttr("types", "shellscript_string"),
+    # string
+    Token.Literal.String.Single: ThemeAttr("types", "shellscript_string"),
+    # "
+    Token.Literal.String.Double: ThemeAttr("types", "shellscript_string"),
+    # Escaped values
+    Token.Literal.String.Escape: ThemeAttr("types", "shellscript_escape"),
+    # ${}
+    Token.Literal.String.Interpol: ThemeAttr("types", "shellscript_keyword"),
+    # echo
+    Token.Name.Builtin: ThemeAttr("types", "shellscript_builtin"),
+    # =
+    Token.Operator: ThemeAttr("types", "shellscript_operator"),
+    # |
+    Token.Punctuation: ThemeAttr("types", "shellscript_punctuation"),
+    # text
+    Token.Text: ThemeAttr("types", "shellscript_text"),
+}
+
+
+COLORSCHEME_CRT: dict[Any, ThemeAttr] = {
+    # <whitespace>
+    Token.Text.Whitespace: ThemeAttr("types", "generic"),
+    # ----BEGIN
+    Token.Generic.Heading: ThemeAttr("types", "separator"),
+    # string
+    Token.Literal.String: ThemeAttr("types", "generic"),
+}
+
+
+COLORSCHEME_INI: dict[Any, ThemeAttr] = {
+    # <whitespace>
+    Token.Text.Whitespace: ThemeAttr("types", "generic"),
+    # [keyword]
+    Token.Keyword: ThemeAttr("types", "ini_section"),
+    # key
+    Token.Name.Attribute: ThemeAttr("types", "ini_key"),
+    # =
+    Token.Operator: ThemeAttr("types", "ini_separator"),
+    # value
+    Token.Literal.String: ThemeAttr("types", "ini_value"),
+}
+
+
+COLORSCHEME_NGINX: dict[Any, ThemeAttr] = {
+    # <whitespace>
+    Token.Text.Whitespace: ThemeAttr("types", "generic"),
+    # key
+    Token.Keyword: ThemeAttr("types", "nginx_key"),
+    # string
+    Token.Literal.String: ThemeAttr("types", "nginx_value"),
+    # integer
+    Token.Literal.Number.Integer: ThemeAttr("types", "nginx_value"),
+    # regex
+    Token.Literal.String.Regex: ThemeAttr("types", "nginx_regex"),
+    # $variable
+    Token.Name.Variable: ThemeAttr("types", "nginx_variable"),
+    # constant
+    Token.Name.Constant: ThemeAttr("types", "nginx_value"),
+    # ;
+    Token.Punctuation: ThemeAttr("types", "nginx_punctuation"),
+    # key in namespace
+    Token.Keyword.Namespace: ThemeAttr("types", "nginx_namespace"),
+    # #
+    Token.Comment.Single: ThemeAttr("types", "nginx_comment"),
+}
+
+
+COLORSCHEME_POWERSHELL: dict[Any, ThemeAttr] = {
+    # <whitespace>
+    Token.Text.Whitespace: ThemeAttr("types", "generic"),
+    # $variable
+    Token.Name.Variable: ThemeAttr("types", "powershell_variable"),
+    # =
+    Token.Punctuation: ThemeAttr("types", "powershell_punctuation"),
+    # text (possibly just whitespace?)
+    Token.Text: ThemeAttr("types", "powershell_text"),
+    # string
+    Token.Literal.String.Single: ThemeAttr("types", "powershell_value"),
+    # "
+    Token.Literal.String.Double: ThemeAttr("types", "powershell_value"),
+    # function
+    Token.Keyword: ThemeAttr("types", "powershell_keyword"),
+    # function name
+    Token.Name: ThemeAttr("types", "powershell_name"),
+    # builtin
+    Token.Name.Builtin: ThemeAttr("types", "powershell_builtin"),
+    # # comment
+    Token.Comment: ThemeAttr("types", "powershell_comment"),
+    # -and
+    Token.Operator: ThemeAttr("types", "powershell_operator"),
+}
+
+
+COLORSCHEME_YAML: dict[Any, ThemeAttr] = {
+    # <whitespace>
+    Token.Text.Whitespace: ThemeAttr("types", "generic"),
+    # -
+    Token.Punctuation.Indicator: ThemeAttr("types", "yaml_list"),
+    # !!
+    Token.Keyword.Type: ThemeAttr("types", "yaml_type"),
+    # # Comment
+    Token.Comment.Single: ThemeAttr("types", "yaml_comment"),
+    # key (sadly also seems to match %YAML and <<)
+    Token.Name.Tag: ThemeAttr("types", "yaml_key"),
+    # :
+    Token.Punctuation: ThemeAttr("types", "yaml_key_separator"),
+    # Quoted string
+    Token.Literal.String: ThemeAttr("types", "yaml_value"),
+    # integer or float
+    Token.Literal.Number: ThemeAttr("types", "yaml_value"),
+    # Non-quoted string
+    Token.Literal.Scalar.Plain: ThemeAttr("types", "yaml_value"),
+    # Escaped values
+    Token.Literal.String.Escape: ThemeAttr("types", "yaml_escape"),
+    # &
+    Token.Name.Label: ThemeAttr("types", "yaml_anchor"),
+    # *
+    Token.Name.Variable: ThemeAttr("types", "yaml_reference"),
+    # ---
+    Token.Name.Namespace: ThemeAttr("types", "yaml_comment"),
+}
 
 
 if json_is_ujson:
@@ -552,6 +695,34 @@ def format_yaml_line(line: str, **kwargs: Any) -> tuple[list[ThemeRef | ThemeStr
     return tmpline, remnants
 
 
+class ThemeArrayFormatter(Formatter):
+    buffer: list[list[ThemeStr]] = []
+    colorscheme: dict[str, ThemeAttr] = {}
+
+    def __init__(self, **options: Any):
+        Formatter.__init__(self, **options)
+        self.colorscheme = deep_get(options, DictPath("colorscheme"), {})
+
+    def format(self, tokensource, outfile):
+        # Flush the buffer
+        self.buffer = []
+
+        line: list[ThemeStr] = []
+
+        for ttype, value in tokensource:
+            if value.strip() == "\n":
+                self.buffer.append(line)
+                line = []
+                continue
+            # Use this when adding new formatters
+#           if ttype not in self.colorscheme:
+#               sys.exit(f"{ttype=}\n{value=}")
+            formatting = self.colorscheme.get(ttype, ThemeAttr("main", "default"))
+            line.append(ThemeStr(value, formatting))
+        if line:
+            self.buffer.append(line)
+
+
 # pylint: disable-next=too-many-branches,too-many-locals,too-many-statements
 def format_yaml(lines: str | list[str] | dict | list[dict], **kwargs: Any) -> \
         list[list[ThemeRef | ThemeStr]]:
@@ -572,20 +743,23 @@ def format_yaml(lines: str | list[str] | dict | list[dict], **kwargs: Any) -> \
     unfold_msg: bool = deep_get(kwargs, DictPath("unfold_msg"), False)
 
     if isinstance(lines, str):
-        if is_json or (lines.startswith("{") and lines.rstrip().endswith("}") and unfold_msg):
+        # If it's one single line and starts and ends with either [] or {} we try to expand it.
+        if is_json or (len(lines.splitlines()) == 1 and lines.startswith(("{", "["))
+                       and lines.rstrip().endswith(("}", "]")) and unfold_msg):
             try:
                 # Treat json as YAML; in case we misidentify YAML as JSON we might
                 # fail to decode the data. YAML is more forgiving. Note that this
                 # may result in the file being reformatted. This isn't ideal,
                 # but it's the only reliable way to be able to expand a JSON/YAML structure.
                 d = yaml.safe_load(lines)
-                lines = [json_dumps(d)]
+                lines = json_dumps(d)
             except DecodeException:
-                return format_none(lines)
-        else:
-            lines = [lines]
-    elif isinstance(lines, dict):
-        lines = [lines]
+                pass
+    elif isinstance(lines, dict) or (isinstance(lines, list) and lines \
+                                     and isinstance(lines[0], (list, dict))):
+        lines = yaml.dump(lines)
+    else:
+        lines = "\n".join(lines)
 
     generic_format = ThemeAttr("types", "generic")
 
@@ -595,55 +769,11 @@ def format_yaml(lines: str | list[str] | dict | list[dict], **kwargs: Any) -> \
     if deep_get(kwargs, DictPath("raw"), False):
         override_formatting = {"__all": generic_format}
 
-    yaml.add_representer(str, __str_representer)
+    lexer = pygments.lexers.YamlLexer()
+    formatter = ThemeArrayFormatter(colorscheme=COLORSCHEME_YAML)
+    pygments.highlight(lines, lexer, formatter)
 
-    for i, obj in enumerate(lines):
-        if isinstance(obj, dict):
-            if is_json:
-                split_dump = json.dumps(obj, indent=indent).splitlines()
-            else:
-                split_dump = yaml.dump(obj, default_flow_style=False,
-                                       indent=indent, width=sys.maxsize).splitlines()
-        else:
-            # The type ignore below is necessary because of the way we pass data
-            # to this function.
-            split_dump = obj.splitlines()  # type: ignore[attr-defined]
-        first = True
-        if (split_dump and "\n" not in obj
-                and split_dump[0].startswith("'") and split_dump[0].endswith("'")):
-            split_dump[0] = split_dump[0][1:-1]
-
-        for line in split_dump:
-            truncated = False
-
-            if len(line) >= 16384 - len(" [...] (Truncated)") - 1:
-                line = line[0:16384 - len(" [...] (Truncated)") - 1]
-                truncated = True
-            # This allows us to use the yaml formatter for json too
-            if first:
-                first = False
-                if line in ("|", "|-"):
-                    continue
-            if not line:
-                continue
-
-            kwargs["override_formatting"] = override_formatting
-            tmpline: list[ThemeRef | ThemeStr] = []
-            remnants: list[list[ThemeRef | ThemeStr]] = []
-            tmpline, remnants = format_yaml_line(line, **kwargs)
-            if truncated:
-                tmpline += [ThemeStr(" [...] (Truncated)",
-                            ThemeAttr("types", "yaml_key_error"))]
-            dumps.append(tmpline)
-            if remnants:
-                dumps += remnants
-
-        if i < len(lines) - 1:
-            dumps.append([ThemeStr("", generic_format)])
-            dumps.append([ThemeStr("", generic_format)])
-            dumps.append([ThemeStr("", generic_format)])
-
-    return dumps
+    return formatter.buffer
 
 
 def reformat_json(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef | ThemeStr]]:
@@ -659,30 +789,6 @@ def reformat_json(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef |
     """
     kwargs["json"] = True
     return format_yaml(lines, **kwargs)
-
-
-KEY_HEADERS: tuple[str, ...] = (
-    "-----BEGIN CERTIFICATE-----",
-    "-----END CERTIFICATE-----",
-    "-----BEGIN CERTIFICATE REQUEST-----",
-    "-----END CERTIFICATE REQUEST-----",
-    "-----BEGIN PKCS7-----",
-    "-----END PKCS7-----",
-    "-----BEGIN OPENSSH PRIVATE KEY-----",
-    "-----END OPENSSH PRIVATE KEY-----",
-    "-----BEGIN SSH2 PUBLIC KEY-----",
-    "-----END SSH2 PUBLIC KEY-----",
-    "-----BEGIN PUBLIC KEY-----",
-    "-----END PUBLIC KEY-----",
-    "-----BEGIN PRIVATE KEY-----",
-    "-----END PRIVATE KEY-----",
-    "-----BEGIN DSA PRIVATE KEY-----",
-    "-----END DSA PRIVATE KEY-----",
-    "-----BEGIN RSA PRIVATE KEY-----",
-    "-----END RSA PRIVATE KEY-----",
-    "-----BEGIN EC PRIVATE KEY-----",
-    "-----END EC PRIVATE KEY-----",
-)
 
 
 # pylint: disable=unused-argument
@@ -725,15 +831,14 @@ def format_crt(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef | Th
     if deep_get(kwargs, DictPath("raw"), False):
         return format_none(lines)
 
-    if isinstance(lines, str):
-        lines = split_msg(lines)
+    if isinstance(lines, list):
+        lines = "\n".join(lines)
 
-    for line in lines:
-        if line in KEY_HEADERS:
-            dumps.append([ThemeStr(line, ThemeAttr("types", "separator"))])
-        else:
-            dumps.append([ThemeStr(line, ThemeAttr("types", "generic"))])
-    return dumps
+    lexer = pygments.lexers.AscLexer()
+    formatter = ThemeArrayFormatter(colorscheme=COLORSCHEME_CRT)
+    pygments.highlight(lines, lexer, formatter)
+
+    return formatter.buffer
 
 
 def format_haproxy(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef | ThemeStr]]:
@@ -1031,57 +1136,14 @@ def format_nginx(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef | 
     if deep_get(kwargs, DictPath("raw"), False):
         return format_none(lines)
 
-    if isinstance(lines, str):
-        lines = split_msg(lines)
+    if isinstance(lines, list):
+        lines = "\n".join(lines)
 
-    key_regex: re.Pattern[str] = re.compile(r"^(\s*)(#.*$|}|\S+|$)(.+;|.+{|)(\s*#.*$|)")
+    lexer = pygments.lexers.NginxConfLexer()
+    formatter = ThemeArrayFormatter(colorscheme=COLORSCHEME_NGINX)
+    pygments.highlight(lines, lexer, formatter)
 
-    for line in lines:
-        dump: list[ThemeRef | ThemeStr] = []
-        if not line.strip():
-            if not dump:
-                dump += [
-                    ThemeStr("", ThemeAttr("types", "generic"))
-                ]
-            dumps.append(dump)
-            continue
-
-        # key {
-        # key value[ value...];
-        # key value[ value...] {
-        tmp = key_regex.match(line)
-        if tmp is not None:
-            if tmp[1]:
-                dump += [
-                    ThemeStr(tmp[1], ThemeAttr("types", "generic")),  # whitespace
-                ]
-            if tmp[2]:
-                if tmp[2] == "}":
-                    dump += [
-                        ThemeStr(tmp[2], ThemeAttr("types", "generic")),  # block end
-                    ]
-                elif tmp[2].startswith("#"):
-                    dump += [
-                        ThemeStr(tmp[2], ThemeAttr("types", "nginx_comment"))
-                    ]
-                else:
-                    dump += [
-                        ThemeStr(tmp[2], ThemeAttr("types", "nginx_key"))
-                    ]
-            if tmp[3]:
-                dump += [
-                    ThemeStr(tmp[3][:-1], ThemeAttr("types", "nginx_value")),
-                    # block start / statement end
-                    ThemeStr(tmp[3][-1:], ThemeAttr("types", "generic")),
-                ]
-            if tmp[4]:
-                dump += [
-                    ThemeStr(tmp[4], ThemeAttr("types", "nginx_comment"))
-                ]
-            dumps.append(dump)
-        else:
-            sys.exit(f"__format_nginx(): Could not match line={line}")
-    return dumps
+    return formatter.buffer
 
 
 # pylint: disable-next=too-many-locals,too-many-branches,too-many-statements
@@ -1273,6 +1335,33 @@ def format_xml(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef | Th
         i += 1
 
     return dumps
+
+
+def format_powershell(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef | ThemeStr]]:
+    """
+    Powershell formatter; returns the text with syntax highlighting for Powershell.
+
+        Parameters:
+            lines (list[str]): A list of strings
+            *or*
+            lines (str): A string with newlines that should be split
+            **kwargs (dict[str, Any]): Keyword arguments
+        Returns:
+            list[themearray]: A list of themearrays
+    """
+    dumps: list[list[ThemeRef | ThemeStr]] = []
+
+    if deep_get(kwargs, DictPath("raw"), False):
+        return format_none(lines)
+
+    if isinstance(lines, list):
+        lines = "\n".join(lines)
+
+    lexer = pygments.lexers.PowerShellLexer()
+    formatter = ThemeArrayFormatter(colorscheme=COLORSCHEME_POWERSHELL)
+    pygments.highlight(lines, lexer, formatter)
+
+    return formatter.buffer
 
 
 def format_python_traceback(lines: str | list[str],
@@ -1500,43 +1589,14 @@ def format_ini(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef | Th
     if deep_get(kwargs, DictPath("raw"), False):
         return format_none(lines)
 
-    if isinstance(lines, str):
-        lines = split_msg(lines)
+    if isinstance(lines, list):
+        lines = "\n".join(lines)
 
-    key_value_regex: re.Pattern[str] = re.compile(r"^(\s*)(\S+)(\s*=\s*)(\S+)")
+    lexer = pygments.lexers.IniLexer()
+    formatter = ThemeArrayFormatter(colorscheme=COLORSCHEME_INI)
+    pygments.highlight(lines, lexer, formatter)
 
-    for line in lines:
-        tmpline: list[ThemeRef | ThemeStr] = []
-        if line.lstrip().startswith(("#", ";")):
-            tmpline = [
-                ThemeStr(line, ThemeAttr("types", "ini_comment")),
-            ]
-        elif line.lstrip().startswith("[") and line.rstrip().endswith("]"):
-            tmpline = [
-                ThemeStr(line, ThemeAttr("types", "ini_section")),
-            ]
-        else:
-            tmp = key_value_regex.match(line)
-            if tmp is not None:
-                indentation = tmp[1]
-                key = tmp[2]
-                separator = tmp[3]
-                value = tmp[4]
-
-                if indentation:
-                    tmpline = [
-                        ThemeStr(f"{indentation}", ThemeAttr("types", "generic")),
-                    ]
-                else:
-                    tmpline = []
-
-                tmpline += [
-                    ThemeStr(f"{key}", ThemeAttr("types", "ini_key")),
-                    ThemeStr(f"{separator}", ThemeAttr("types", "ini_key_separator")),
-                    ThemeStr(f"{value}", ThemeAttr("types", "ini_value")),
-                ]
-        dumps.append(tmpline)
-    return dumps
+    return formatter.buffer
 
 
 def format_known_hosts(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef | ThemeStr]]:
@@ -1587,8 +1647,37 @@ def format_known_hosts(lines: str | list[str], **kwargs: Any) -> list[list[Theme
     return dumps
 
 
+def format_shellscript(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef | ThemeStr]]:
+    """
+    Shell script formatter; returns the text with syntax highlighting for shell scripts.
+
+        Parameters:
+            lines (list[str]): A list of strings
+            *or*
+            lines (str): A string with newlines that should be split
+            **kwargs (dict[str, Any]): Keyword arguments
+        Returns:
+            list[themearray]: A list of themearrays
+    """
+    dumps: list[list[ThemeRef | ThemeStr]] = []
+
+    if deep_get(kwargs, DictPath("raw"), False):
+        return format_none(lines)
+
+    if isinstance(lines, list):
+        lines = "\n".join(lines)
+
+    lexer = pygments.lexers.BashLexer()
+    formatter = ThemeArrayFormatter(colorscheme=COLORSCHEME_SHELLSCRIPT)
+    pygments.highlight(lines, lexer, formatter)
+
+    return formatter.buffer
+
+
 # (startswith, endswith, formatter)
 formatter_mapping: tuple[tuple[tuple[str, ...], tuple[str, ...], Callable], ...] = (
+    (("Shell Script",), ("Shell Script",), format_shellscript),
+    (("BASH",), ("BASH",), format_shellscript),
     (("YAML",), ("YAML",), format_yaml),
     (("JSON",), ("JSON",), format_yaml),
     (("NDJSON",), ("NDJSON",), format_yaml),
@@ -1610,6 +1699,7 @@ formatter_mapping: tuple[tuple[tuple[str, ...], tuple[str, ...], Callable], ...]
     (("CaddyFile",), ("CaddyFile",), format_caddyfile),
     (("mosquitto",), ("",), format_mosquitto),
     (("NGINX",), ("NGINX",), format_nginx),
+    (("PowerShell",), ("PowerShell",), format_powershell),
 )
 
 
@@ -1641,6 +1731,7 @@ formatter_allowlist: dict[str, Callable] = {
     "format_mosquitto": format_mosquitto,
     "format_nginx": format_nginx,
     "format_none": format_none,
+    "format_powershell": format_powershell,
     "format_python_traceback": format_python_traceback,
     "format_toml": format_toml,
     "format_xml": format_xml,
