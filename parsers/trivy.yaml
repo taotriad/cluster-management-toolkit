@@ -2,8 +2,7 @@
 - name: "trivy"
   show_in_selector: false
   matchkeys:
-    - pod_name: "trivy-operator"
-      container_name: "trivy-operator"
+    - image_name: "/aquasec/trivy-operator"
   parser_rules:
     - name: "ts_8601"
     - name: "glog"
