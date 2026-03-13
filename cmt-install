@@ -159,11 +159,11 @@ PACKAGES_WITH_PIP_FALLBACK = {
     "python3-pygments": {
         "fallback": "pygments",
         "always-fallback-distros": [
+            "rhel",
             "suse",
         ],
         "never-fallback-distros": [
             "debian",
-            "rhel",
         ],
     },
     "python3-pyyaml": {
