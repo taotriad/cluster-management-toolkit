@@ -789,17 +789,16 @@ class ThemeArrayFormatter(Formatter):
             # Use this when adding new formatters
 #           if ttype not in self.colorscheme:
 #               sys.exit(f"{ttype=}\n{value=}")
-            if value.strip("\n"):
-                formatting = self.colorscheme.get(ttype, ThemeAttr("main", "default"))
-                line.append(ThemeStr(value.rstrip("\n"), formatting))
-            newline_count = len(value) - len(value.rstrip("\n"))
-            for n in range(0, newline_count):
-                if line:
+            splitlines = value.split("\n")
+            formatting = self.colorscheme.get(ttype, ThemeAttr("main", "default"))
+
+            for n, segment in enumerate(splitlines):
+                line.append(ThemeStr(segment, formatting))
+                # If there's a segment after this one we need a newline; otherwise
+                # this is a segment
+                if n + 1 < len(splitlines):
                     self.buffer.append(line)
                     line = []
-                else:
-                    self.buffer.append([ThemeStr("", ThemeAttr("types", "generic"))])
-                continue
         if line:
             self.buffer.append(line)
 
