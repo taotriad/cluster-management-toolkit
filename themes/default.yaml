@@ -525,7 +525,6 @@ color_pairs_curses:
   separator_secret_type:
     unselected: [["black", "bright"], ["black", "normal"]]
     selected: [["black", "bright"], ["white", "normal"]]
-  separator_toml_key_separator: [["white", "bright"], ["black", "normal"]]
   separator_yaml_list:
     unselected: [["yellow", "bright"], ["black", "normal"]]
     selected: [["yellow", "normal"], ["white", "normal"]]
@@ -557,7 +556,7 @@ color_pairs_curses:
   type_ini_operator: [["white", "normal"], ["black", "normal"]]
   type_ini_comment: [["green", "normal"], ["black", "normal"]]
   type_ini_section: [["white", "normal"], ["black", "normal"]]
-  type_ini_key: [["green", "normal"], ["black", "normal"]]
+  type_ini_key: [["green", "bright"], ["black", "normal"]]
   type_ini_value: [["magenta", "normal"], ["black", "normal"]]
   type_iptables_argument:
     unselected: [["green", "normal"], ["black", "normal"]]
@@ -643,10 +642,20 @@ color_pairs_curses:
   type_shellscript_variable:
     unselected: [["cyan", "bright"], ["black", "normal"]]
     selected: [["cyan", "bright"], ["white", "normal"]]
-  type_toml_comment: [["green", "normal"], ["black", "normal"]]
-  type_toml_table: [["cyan", "bright"], ["black", "normal"]]
-  type_toml_key: [["blue", "bright"], ["black", "normal"]]
-  type_toml_value: [["white", "normal"], ["black", "normal"]]
+  type_toml_comment:
+    unselected: [["black", "bright"], ["black", "normal"]]
+    selected: [["black", "normal"], ["white", "normal"]]
+  type_toml_escape:
+    unselected: [["white", "bright"], ["black", "normal"]]
+    selected: [["white", "bright"], ["white", "normal"]]
+  type_toml_key: [["cyan", "bright"], ["black", "normal"]]
+  type_toml_key_separator: [["white", "bright"], ["black", "normal"]]
+  type_toml_punctuation:
+    unselected: [["yellow", "bright"], ["black", "normal"]]
+    selected: [["yellow", "bright"], ["white", "normal"]]
+  type_toml_value:
+    unselected: [["magenta", "normal"], ["black", "normal"]]
+    selected: [["magenta", "normal"], ["white", "normal"]]
   type_yaml_comment:
     unselected: [["black", "bright"], ["black", "normal"]]
     selected: [["black", "normal"], ["white", "normal"]]
@@ -671,6 +680,9 @@ color_pairs_curses:
   type_yaml_escape:
     unselected: [["white", "bright"], ["black", "normal"]]
     selected: [["white", "bright"], ["white", "normal"]]
+  type_xml_comment_preprocessor:
+    unselected: [["green", "bright"], ["black", "normal"]]
+    selected: [["green", "bright"], ["white", "normal"]]
   type_xml_comment: [["cyan", "normal"], ["black", "normal"]]
   type_xml_tag: [["cyan", "bright"], ["black", "normal"]]
   type_xml_declaration: [["cyan", "bright"], ["black", "normal"]]
@@ -954,7 +966,7 @@ types:
   hostname: "hostname"
   host: "type_host"
   ini_comment: "type_ini_comment"
-  ini_key: "type_ini_key"
+  ini_key: ["type_ini_key", "bold"]
   ini_operator: "type_ini_operator"
   ini_section: "type_ini_section"
   ini_value: "type_ini_value"
@@ -1093,9 +1105,10 @@ types:
   tag: ["tag", "bold"]
   timestamp: "type_timestamp"
   toml_comment: "type_toml_comment"
-  toml_key_separator: "separator_toml_key_separator"
+  toml_escape: "type_toml_escape"
+  toml_key_separator: "type_toml_key_separator"
   toml_key: "type_toml_key"
-  toml_table: "type_toml_table"
+  toml_punctuation: "type_toml_punctuation"
   toml_value: "type_toml_value"
   uid: "type_uid"
   undefined: ["type_undefined", "bold"]
@@ -1110,6 +1123,7 @@ types:
   widgetbullet: ["widgetbullet", "bold"]
   xml_attribute_key: "type_xml_attribute_key"
   xml_attribute_value: "type_xml_attribute_value"
+  xml_comment_preprocessor: "type_xml_comment_preprocessor"
   xml_comment: "type_xml_comment"
   xml_content: "type_generic"
   xml_declaration: "type_xml_declaration"
