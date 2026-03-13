@@ -20,6 +20,10 @@ configmap_signatures:
     signatures:
       - data_header: "/usr/bin/env bash"
       - data_header: "/bin/bash"
+      - name_prefix: "etcd-scripts"
+        data_prefix: "etcd.env"
+      - name_prefix: "etcd-scripts"
+        data_prefix: "etcd-common-tools"
 
   bz2:
     format_name: "bz2 / tar+bz2"
@@ -40,13 +44,13 @@ configmap_signatures:
   crt:
     format_name: "CRT"
     signatures:
-      - data_suffix: .crt"
-      - data_suffix: .pem"
+      - data_suffix: ".crt"
+      - data_suffix: ".pem"
       - data_prefix: "caBundle"
         data_suffix: "caBundle"
       - prefix: "image-registry-certificates"
       - data_suffix: "client-ca-file"
-      - data_header: "-----BEGIN CERTIFICATE-----"
+      - data_header: "-----BEGIN "
 
   cpio:
     format_name: "cpio"
@@ -347,6 +351,9 @@ configmap_signatures:
       - namespace: "cattle-fleet-system"
         data_prefix: "config"
         data_suffix: "config"
+      - name_prefix: "cluster-config"
+        data_prefix: "install-config"
+        data_suffix: "install-config"
       - namespace: "istio-system"
         prefix: "istio"
       - prefix: "k10-k10-metering-config"
@@ -388,6 +395,7 @@ configmap_signatures:
         data_prefix: "values"
       - data_prefix: "nfd-master.conf"
       - data_prefix: "nfd-worker.conf"
+      - data_prefix: "nfd-worker-conf"
       - data_prefix: "volcano-admission.conf"
       - data_prefix: "volcano-scheduler.conf"
       - namespace: "openshift-kube-apiserver"
