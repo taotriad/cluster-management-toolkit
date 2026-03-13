@@ -793,7 +793,8 @@ class ThemeArrayFormatter(Formatter):
             formatting = self.colorscheme.get(ttype, ThemeAttr("main", "default"))
 
             for n, segment in enumerate(splitlines):
-                line.append(ThemeStr(segment, formatting))
+                if segment:
+                    line.append(ThemeStr(segment, formatting))
                 # If there's a segment after this one we need a newline; otherwise
                 # this is a segment
                 if n + 1 < len(splitlines):

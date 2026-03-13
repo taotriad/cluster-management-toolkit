@@ -103,6 +103,7 @@ configmap_signatures:
         data_binary: [0x43, 0x44, 0x30, 0x30, 0x31]
       - data_offset: 0x9001
         data_binary: [0x43, 0x44, 0x30, 0x30, 0x31]
+
   json:
     format_name: "JSON"
     signatures:
@@ -446,6 +447,7 @@ configmap_signatures:
         suffix: ""
         data_prefix: ""
         data_suffix: ""
+
 # Note that matches are case sensitive.
 base64_overrides:
   - "disabled"
