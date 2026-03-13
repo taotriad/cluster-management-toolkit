@@ -20,9 +20,9 @@ configmap_signatures:
     signatures:
       - data_header: "/usr/bin/env bash"
       - data_header: "/bin/bash"
-      - name_prefix: "etcd-scripts"
+      - prefix: "etcd-scripts"
         data_prefix: "etcd.env"
-      - name_prefix: "etcd-scripts"
+      - prefix: "etcd-scripts"
         data_prefix: "etcd-common-tools"
 
   bz2:
@@ -177,6 +177,9 @@ configmap_signatures:
       - namespace: "openshift-machine-config-operator"
         prefix: "coreos-bootimages"
         data_prefix: "stream"
+      - namespace: "openshift-network-operator"
+        prefix: "applied-cluster"
+        data_prefix: "applied"
       - namespace: "openshift-operator"
         prefix: "applied-cluster"
         data_prefix: "applied"
@@ -351,7 +354,7 @@ configmap_signatures:
       - namespace: "cattle-fleet-system"
         data_prefix: "config"
         data_suffix: "config"
-      - name_prefix: "cluster-config"
+      - prefix: "cluster-config"
         data_prefix: "install-config"
         data_suffix: "install-config"
       - namespace: "istio-system"
@@ -439,8 +442,8 @@ configmap_signatures:
       # This entry has explicit empty fields to make it clear that
       # it's intended to be a match-all.
       - namespace: ""
-        name_prefix: ""
-        name_suffix: ""
+        prefix: ""
+        suffix: ""
         data_prefix: ""
         data_suffix: ""
 # Note that matches are case sensitive.
