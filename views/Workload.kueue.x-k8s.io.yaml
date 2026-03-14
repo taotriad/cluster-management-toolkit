@@ -1,7 +1,14 @@
 ---
 kind: "Workload"
 api_family: "kueue.x-k8s.io"
-default_command: "workloads"
+default_command: "workloads.kueue.x-k8s.io"
+command:
+  - "kueueworkloads"
+  - "kueueworkload"
+  - "workloads.kueue"
+  - "workload.kueue"
+  - "kueuewls"
+  - "kueuewl"
 listview:
   name: "Workloads"
   group: "Batch Scheduling"
