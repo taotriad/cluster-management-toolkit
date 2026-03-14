@@ -4354,10 +4354,7 @@ def add_nodes(options: list[tuple[str, Any]], args: list[Any]) -> None:
             FilePath("rke2_setup_node.yaml"),
         ]
 
-    if int(requested_minor) < 31:
-        join_configuration_api_version = "kubeadm.k8s.io/v1beta3"
-    else:
-        join_configuration_api_version = "kubeadm.k8s.io/v1beta4"
+    join_configuration_api_version = "kubeadm.k8s.io/v1beta4"
 
     minor_versions = []
     for minor_version in range(32, int(requested_minor) + 1):
@@ -5653,12 +5650,8 @@ def setup_control_planes(options: list[tuple[str, Any]], args: list[str]) -> Non
         requested_major = split_tuple[0]
         requested_minor = split_tuple[1]
 
-        if int(requested_minor) < 31:
-            cluster_configuration_api_version = "kubeadm.k8s.io/v1beta3"
-            init_configuration_api_version = "kubeadm.k8s.io/v1beta3"
-        else:
-            cluster_configuration_api_version = "kubeadm.k8s.io/v1beta4"
-            init_configuration_api_version = "kubeadm.k8s.io/v1beta4"
+        cluster_configuration_api_version = "kubeadm.k8s.io/v1beta4"
+        init_configuration_api_version = "kubeadm.k8s.io/v1beta4"
 
         setup_extras["cluster_configuration_api_version"] = cluster_configuration_api_version
         setup_extras["init_configuration_api_version"] = init_configuration_api_version
