@@ -347,6 +347,8 @@ configmap_signatures:
       - data_suffix: ".yaml"
       - data_suffix: ".yaml.example"
       - data_suffix: ".yml"
+      - suffix: "calico-config"
+        data_prefix: "cni_network_config"
       - suffix: "canal-config"
         data_prefix: "cni_network_config"
       - namespace: "cattle-capi-system"
