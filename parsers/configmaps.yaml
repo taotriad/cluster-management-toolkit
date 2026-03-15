@@ -71,6 +71,9 @@ configmap_signatures:
     format_name: "FluentBit"
     signatures:
       - data_prefix: "fluentbit.conf"
+      - data_prefix: "fluent-bit.conf"
+      - prefix: "rancher-logging"
+        data_prefix: "parsers.conf"
 
   gz:
     format_name: "gz / tar+gz"
