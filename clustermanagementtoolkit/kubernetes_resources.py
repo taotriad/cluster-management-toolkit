@@ -230,8 +230,7 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api": "leases",
     },
     ("LeaseCandidate", "coordination.k8s.io"): {
-        "api_paths": ["apis/coordination.k8s.io/v1beta1/",
-                      "apis/coordination.k8s.io/v1alpha1/"],
+        "api_paths": ["apis/coordination.k8s.io/v1beta1/"],
         "api": "leasecandidates",
     },
     # discovery.k8s.io
@@ -498,7 +497,7 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "namespaced": False,
     },
     ("Workload", "scheduling.k8s.io"): {
-        "api_paths": ["apis/scheduling.k8s.io/v1/"],
+        "api_paths": ["apis/scheduling.k8s.io/v1alpha1/"],
         "api": "workloads",
     },
     # scheduling.sigs.k8s.io

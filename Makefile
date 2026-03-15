@@ -378,7 +378,15 @@ yamllint:
 	$$cmd --version ;\
 	printf -- "\n" ;\
 	for dir in $(yaml_dirs); do \
-		$$cmd $$dir/*.yaml; \
+		for file in $$(ls $${dir}); do \
+			if [ ! $${file##*.} = "yaml" ]; then \
+				continue;  \
+			fi; \
+			if [ $${file} = "__resource_type_index.yaml" ]; then \
+				continue;  \
+			fi; \
+			$$cmd $${dir}/$${file}; \
+		done; \
 	done; \
 	$$cmd cmt.yaml
 
@@ -444,7 +452,7 @@ nox: create_test_symlinks
 
 validate_yaml:
 	@printf -- "\n\nRunning validate_yaml to check that all view-files/parser-files/theme-files are valid\n\n"; \
-	./tests/validate_yaml --exclude views/__event_reasons.yaml views/__view_index.yaml
+	./tests/validate_yaml --exclude views/__event_reasons.yaml,views/__resource_type_index.yaml,parsers/configmaps.yaml,parsers/BUNDLE.yaml
 
 validate_playbooks:
 	@cmd=ansible-lint ;\

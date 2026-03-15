@@ -526,14 +526,6 @@ color_pairs_curses:
   separator_secret_type:
     unselected: [["black", "bright"], ["black", "normal"]]
     selected: [["black", "bright"], ["white", "normal"]]
-  separator_ini_key_separator: [["white", "bright"], ["black", "normal"]]
-  separator_toml_key_separator: [["white", "bright"], ["black", "normal"]]
-  separator_yaml_list:
-    unselected: [["yellow", "bright"], ["black", "normal"]]
-    selected: [["yellow", "normal"], ["white", "normal"]]
-  separator_yaml_key_separator:
-    unselected: [["white", "bright"], ["black", "normal"]]
-    selected: [["black", "normal"], ["white", "normal"]]
   separator_pad:
     unselected: [["white", "normal"], ["black", "normal"]]
     selected: [["black", "normal"], ["white", "normal"]]
@@ -556,10 +548,12 @@ color_pairs_curses:
   type_generic_crypto:
     unselected: [["blue", "bright"], ["black", "normal"]]
     selected: [["blue", "bright"], ["white", "normal"]]
+  type_ini_operator: [["white", "normal"], ["black", "normal"]]
   type_ini_comment: [["green", "normal"], ["black", "normal"]]
-  type_ini_section: [["white", "bright"], ["black", "normal"]]
-  type_ini_key: [["blue", "bright"], ["black", "normal"]]
-  type_ini_value: [["white", "normal"], ["black", "normal"]]
+  type_ini_section: [["white", "normal"], ["black", "normal"]]
+  type_ini_key: [["green", "bright"], ["black", "normal"]]
+  type_ini_separator: [["white", "bright"], ["black", "normal"]]
+  type_ini_value: [["magenta", "normal"], ["black", "normal"]]
   type_iptables_argument:
     unselected: [["green", "normal"], ["black", "normal"]]
     selected: [["green", "normal"], ["white", "normal"]]
@@ -584,12 +578,88 @@ color_pairs_curses:
   type_iptables_variable:
     unselected: [["magenta", "normal"], ["black", "normal"]]
     selected: [["magenta", "normal"], ["white", "normal"]]
-  type_toml_comment: [["green", "normal"], ["black", "normal"]]
-  type_toml_table: [["cyan", "bright"], ["black", "normal"]]
-  type_toml_key: [["blue", "bright"], ["black", "normal"]]
-  type_toml_value: [["white", "normal"], ["black", "normal"]]
+  type_powershell_builtin:
+    unselected: [["cyan", "bright"], ["black", "normal"]]
+    selected: [["cyan", "bright"], ["white", "normal"]]
+  type_powershell_comment:
+    unselected: [["black", "bright"], ["black", "normal"]]
+    selected: [["black", "normal"], ["white", "normal"]]
+  type_powershell_keyword:
+    unselected: [["yellow", "bright"], ["black", "normal"]]
+    selected: [["yellow", "bright"], ["white", "normal"]]
+  type_powershell_name:
+    unselected: [["white", "normal"], ["black", "normal"]]
+    selected: [["black", "normal"], ["white", "normal"]]
+  type_powershell_operator:
+    unselected: [["yellow", "bright"], ["black", "normal"]]
+    selected: [["yellow", "bright"], ["white", "normal"]]
+  type_powershell_punctuation:
+    unselected: [["yellow", "bright"], ["black", "normal"]]
+    selected: [["yellow", "bright"], ["white", "normal"]]
+  type_powershell_text:
+    unselected: [["white", "normal"], ["black", "normal"]]
+    selected: [["black", "normal"], ["white", "normal"]]
+  type_powershell_value:
+    unselected: [["magenta", "bright"], ["black", "normal"]]
+    selected: [["magenta", "bright"], ["white", "normal"]]
+  type_powershell_variable:
+    unselected: [["cyan", "bright"], ["black", "normal"]]
+    selected: [["cyan", "bright"], ["white", "normal"]]
+  type_shellscript_builtin:
+    unselected: [["yellow", "bright"], ["black", "normal"]]
+    selected: [["yellow", "bright"], ["white", "normal"]]
+  type_shellscript_comment:
+    unselected: [["black", "bright"], ["black", "normal"]]
+    selected: [["black", "normal"], ["white", "normal"]]
+  type_shellscript_escape:
+    unselected: [["white", "bright"], ["black", "normal"]]
+    selected: [["black", "normal"], ["white", "normal"]]
+  type_shellscript_hashbang:
+    unselected: [["cyan", "normal"], ["black", "normal"]]
+    selected: [["cyan", "bright"], ["white", "normal"]]
+  type_shellscript_keyword:
+    unselected: [["yellow", "bright"], ["black", "normal"]]
+    selected: [["yellow", "bright"], ["white", "normal"]]
+  type_shellscript_number:
+    unselected: [["magenta", "bright"], ["black", "normal"]]
+    selected: [["magenta", "bright"], ["white", "normal"]]
+  type_shellscript_operator:
+    unselected: [["white", "normal"], ["black", "normal"]]
+    selected: [["black", "normal"], ["white", "normal"]]
+  type_shellscript_punctuation:
+    unselected: [["yellow", "bright"], ["black", "normal"]]
+    selected: [["yellow", "bright"], ["white", "normal"]]
+  type_shellscript_string:
+    unselected: [["magenta", "bright"], ["black", "normal"]]
+    selected: [["magenta", "bright"], ["white", "normal"]]
+  type_shellscript_text:
+    unselected: [["white", "normal"], ["black", "normal"]]
+    selected: [["black", "normal"], ["white", "normal"]]
+  type_shellscript_variable:
+    unselected: [["cyan", "bright"], ["black", "normal"]]
+    selected: [["cyan", "bright"], ["white", "normal"]]
+  type_toml_comment:
+    unselected: [["black", "bright"], ["black", "normal"]]
+    selected: [["black", "normal"], ["white", "normal"]]
+  type_toml_escape:
+    unselected: [["white", "bright"], ["black", "normal"]]
+    selected: [["black", "normal"], ["white", "normal"]]
+  type_toml_key: [["cyan", "bright"], ["black", "normal"]]
+  type_toml_key_separator: [["white", "bright"], ["black", "normal"]]
+  type_toml_punctuation:
+    unselected: [["yellow", "bright"], ["black", "normal"]]
+    selected: [["yellow", "bright"], ["white", "normal"]]
+  type_toml_value:
+    unselected: [["magenta", "normal"], ["black", "normal"]]
+    selected: [["magenta", "normal"], ["white", "normal"]]
+  type_yaml_anchor:
+    unselected: [["green", "bright"], ["black", "normal"]]
+    selected: [["green", "bright"], ["white", "normal"]]
   type_yaml_comment:
     unselected: [["black", "bright"], ["black", "normal"]]
+    selected: [["black", "normal"], ["white", "normal"]]
+  type_yaml_escape:
+    unselected: [["white", "bright"], ["black", "normal"]]
     selected: [["black", "normal"], ["white", "normal"]]
   type_yaml_key:
     unselected: [["cyan", "bright"], ["black", "normal"]]
@@ -597,15 +667,27 @@ color_pairs_curses:
   type_yaml_key_error:
     unselected: [["red", "normal"], ["black", "normal"]]
     selected: [["red", "normal"], ["white", "normal"]]
-  type_yaml_value:
-    unselected: [["white", "normal"], ["black", "normal"]]
+  type_yaml_key_separator:
+    unselected: [["white", "bright"], ["black", "normal"]]
+    selected: [["black", "normal"], ["white", "normal"]]
+  type_yaml_list_separator:
+    unselected: [["yellow", "bright"], ["black", "normal"]]
+    selected: [["yellow", "normal"], ["white", "normal"]]
+  type_yaml_punctuation:
+    unselected: [["white", "bright"], ["black", "normal"]]
     selected: [["black", "normal"], ["white", "normal"]]
   type_yaml_reference:
-    unselected: [["green", "normal"], ["black", "normal"]]
-    selected: [["green", "normal"], ["white", "normal"]]
-  type_yaml_anchor:
+    unselected: [["green", "bright"], ["black", "normal"]]
+    selected: [["green", "bright"], ["white", "normal"]]
+  type_yaml_type:
+    unselected: [["green", "bright"], ["black", "normal"]]
+    selected: [["green", "bright"], ["white", "normal"]]
+  type_yaml_value:
     unselected: [["magenta", "normal"], ["black", "normal"]]
     selected: [["magenta", "normal"], ["white", "normal"]]
+  type_xml_comment_preprocessor:
+    unselected: [["green", "bright"], ["black", "normal"]]
+    selected: [["green", "bright"], ["white", "normal"]]
   type_xml_comment: [["cyan", "normal"], ["black", "normal"]]
   type_xml_tag: [["cyan", "bright"], ["black", "normal"]]
   type_xml_declaration: [["cyan", "bright"], ["black", "normal"]]
@@ -615,10 +697,15 @@ color_pairs_curses:
   type_xml_escape_data: [["yellow", "bright"], ["black", "normal"]]
   type_mosquitto_comment: [["black", "bright"], ["black", "normal"]]
   type_mosquitto_variable: [["magenta", "normal"], ["black", "normal"]]
-  type_nginx_key: [["green", "normal"], ["black", "normal"]]
-  type_nginx_value: [["blue", "bright"], ["black", "normal"]]
+  type_nginx_key: [["cyan", "bright"], ["black", "normal"]]
+  type_nginx_value: [["magenta", "normal"], ["black", "normal"]]
   type_nginx_variable: [["magenta", "normal"], ["black", "normal"]]
-  type_nginx_comment: [["cyan", "normal"], ["black", "normal"]]
+  type_nginx_comment:
+    unselected: [["black", "bright"], ["black", "normal"]]
+    selected: [["black", "normal"], ["white", "normal"]]
+  type_nginx_punctuation: [["white", "normal"], ["black", "normal"]]
+  type_nginx_namespace: [["cyan", "bright"], ["black", "normal"]]
+  type_nginx_regex: [["white", "normal"], ["black", "normal"]]
   type_caddyfile_site: [["blue", "bright"], ["black", "normal"]]
   type_caddyfile_matcher: [["magenta", "bright"], ["black", "normal"]]
   type_caddyfile_argument: [["green", "bright"], ["black", "normal"]]
@@ -882,9 +969,10 @@ types:
   hostname: "hostname"
   host: "type_host"
   ini_comment: "type_ini_comment"
-  ini_key: "type_ini_key"
-  ini_key_separator: "separator_ini_key_separator"
-  ini_section: ["type_ini_section", "bold"]
+  ini_key: ["type_ini_key", "bold"]
+  ini_operator: "type_ini_operator"
+  ini_section: "type_ini_section"
+  ini_separator: "type_ini_separator"
   ini_value: "type_ini_value"
   ipmask: "type_ipmask"
   iptables_argument: "type_iptables_argument"
@@ -926,6 +1014,9 @@ types:
   nginx_key: "type_nginx_key"
   nginx_value: "type_nginx_value"
   nginx_variable: "type_nginx_variable"
+  nginx_punctuation: "type_nginx_punctuation"
+  nginx_namespace: "type_nginx_namespace"
+  nginx_regex: "type_nginx_regex"
   none: ["type_none", "bold"]
   no_pad: "type_generic"
   numerical: "type_numerical"
@@ -933,6 +1024,15 @@ types:
   path: "type_path"
   port: "type_port"
   positive_check: ["type_positive_check", "bold"]
+  powershell_builtin: "type_powershell_builtin"
+  powershell_comment: "type_powershell_comment"
+  powershell_keyword: "type_powershell_keyword"
+  powershell_name: "type_powershell_name"
+  powershell_operator: "type_powershell_operator"
+  powershell_punctuation: "type_powershell_punctuation"
+  powershell_text: "type_powershell_text"
+  powershell_variable: "type_powershell_variable"
+  powershell_value: "type_powershell_value"
   programname: ["programname", "bold"]
   protocol: ["type_protocol", "bold"]
   range: "type_range"
@@ -993,14 +1093,26 @@ types:
   separator_user_uid: "separator_user_uid"
   separator_version: "separator_version"
   service: "type_service"
+  shellscript_builtin: "type_shellscript_builtin"
+  shellscript_comment: "type_shellscript_comment"
+  shellscript_escape: "type_shellscript_escape"
+  shellscript_hashbang: "type_shellscript_hashbang"
+  shellscript_keyword: "type_shellscript_keyword"
+  shellscript_number: "type_shellscript_number"
+  shellscript_operator: "type_shellscript_operator"
+  shellscript_punctuation: "type_shellscript_punctuation"
+  shellscript_string: "type_shellscript_string"
+  shellscript_text: "type_shellscript_text"
+  shellscript_variable: "type_shellscript_variable"
   subset: "type_subset"
   swap_used: "type_swap_used"
   tag: ["tag", "bold"]
   timestamp: "type_timestamp"
   toml_comment: "type_toml_comment"
-  toml_key_separator: "separator_toml_key_separator"
+  toml_escape: "type_toml_escape"
+  toml_key_separator: "type_toml_key_separator"
   toml_key: "type_toml_key"
-  toml_table: "type_toml_table"
+  toml_punctuation: "type_toml_punctuation"
   toml_value: "type_toml_value"
   uid: "type_uid"
   undefined: ["type_undefined", "bold"]
@@ -1015,6 +1127,7 @@ types:
   widgetbullet: ["widgetbullet", "bold"]
   xml_attribute_key: "type_xml_attribute_key"
   xml_attribute_value: "type_xml_attribute_value"
+  xml_comment_preprocessor: "type_xml_comment_preprocessor"
   xml_comment: "type_xml_comment"
   xml_content: "type_generic"
   xml_declaration: "type_xml_declaration"
@@ -1022,13 +1135,16 @@ types:
   xml_escape: "type_xml_escape"
   xml_tag: ["type_xml_tag", "bold"]
   yaml_comment: "type_yaml_comment"
-  yaml_key_error: "type_yaml_key_error"
-  yaml_key_separator: "separator_yaml_key_separator"
   yaml_key: "type_yaml_key"
-  yaml_list: "separator_yaml_list"
+  yaml_key_error: "type_yaml_key_error"
+  yaml_key_separator: "type_yaml_key_separator"
+  yaml_list: "type_yaml_list_separator"
+  yaml_punctuation: "type_yaml_punctuation"
   yaml_reference: "type_yaml_reference"
   yaml_anchor: "type_yaml_anchor"
   yaml_value: "type_yaml_value"
+  yaml_type: "type_yaml_type"
+  yaml_escape: "type_yaml_escape"
 
 strings:
   themeref_missing: [["<themeref missing>", ["main", "status_critical"]]]

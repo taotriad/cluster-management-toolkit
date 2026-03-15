@@ -76,7 +76,7 @@ class ArgumentWithOptionalDefaultType(ArgumentWithDefaultType):
         Parameters:
             name (str)   # The name of the argument
             string ([ANSIThemeStr]): An ANSIThemeArray with a description of the argument
-            validation  (ValidationType): Information about validation to perform on the argument
+            validation (ValidationType): Information about validation to perform on the argument
     """
     name: str
     string: list[ANSIThemeStr]

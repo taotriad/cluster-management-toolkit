@@ -6,11 +6,8 @@ kind: "ClusterDeployment"
 
 # Note: templated installs are only supported for kubeadm and rke2 at the moment
 # This configuration uses:
-#   ClusterConfiguration kubeadm.k8s.io/v1beta3 [Kubernetes 1.23+]
 #   ClusterConfiguration kubeadm.k8s.io/v1beta4 [Kubernetes 1.31+]
-#   InitConfiguration kubeadm.k8s.io/v1beta3 [Kubernetes 1.23+]
 #   InitConfiguration kubeadm.k8s.io/v1beta4 [Kubernetes 1.31+]
-#   JoinConfiguration kubeadm.k8s.io/v1beta3 [Kubernetes 1.23+]
 #   JoinConfiguration kubeadm.k8s.io/v1beta4 [Kubernetes 1.31+]
 #   KubeletConfiguration kubelet.config.k8s.io/v1beta1 [Kubernetes 1.10+]
 #   KubeProxyConfiguration kubeproxy.config.k8s.io/v1alpha1 [Kubernetes 1.12+]
@@ -202,9 +199,11 @@ cluster:
             # cluster_configuration, kube_proxy_configuration, and
             # kubelet_configuration
             # [optional; default: false]
-            # feature-gates: "DynamicResourceAllocation=true"
+            # - name: "feature-gates"
+            #   value: "DynamicResourceAllocation=true"
             # runtime-config is a comma-separated string
-            # runtime-config: "api/alpha=true"
+            # - name: runtime-config
+            #   value: "api/alpha=true"
         # This will be auto-populated from the cluster settings
         clusterName: "{{ cluster_name }}"
         controllerManager:
@@ -216,7 +215,8 @@ cluster:
             # cluster_configuration, as well as in kube_proxy_configuration,
             # and kubelet_configuration
             # [optional; default: false]
-            # feature-gates: "DynamicResourceAllocation=true"
+            # - name: "feature-gates"
+            #   value: "DynamicResourceAllocation=true"
         networking:
           # This will be auto-populated from the cluster settings
           podSubnet: "{{ pod_network_cidr }}"
@@ -229,7 +229,8 @@ cluster:
             # cluster_configuration, as well as in kube_proxy_configuration,
             # and kubelet_configuration
             # [optional; default: false]
-            # feature-gates: "DynamicResourceAllocation=true"
+            # - name: "feature-gates"
+            #   value: "DynamicResourceAllocation=true"
 
       # Path to cluster configuration template, relative to the playbook
       # directory:

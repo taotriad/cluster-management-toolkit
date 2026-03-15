@@ -1136,7 +1136,8 @@ def tab_separated(message: str, **kwargs: Any) \
             d = json.loads(fields[-1])
             json_strs = json_dumps(d)
             for remnant in formatters.format_yaml(json_strs,
-                                                  override_formatting=override_formatting):
+                                                  override_formatting=override_formatting,
+                                                  json=True):
                 remnants.append((remnant, severity))
             # OK, parsing as JSON was successful. Do we expand it or not?
             if fold_msg:

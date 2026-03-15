@@ -860,30 +860,33 @@ def ansithemeprint_formatted(text: str | list[str], **kwargs: Any) -> None:
     elif isinstance(text, list):
         reformatted = "\n".join(text)
 
-    lexer = None
+    if SYNTAX_HIGHLIGHTING:
+        lexer = None
 
-    colorscheme = COLORSCHEME
-    match input_format:
-        case "yaml":
-            # pylint: disable-next=no-member
-            lexer = pygments.lexers.YamlLexer()
-            colorscheme = COLORSCHEME_YAML
-        case "json":
-            # pylint: disable-next=no-member
-            lexer = pygments.lexers.JsonLexer()
-            colorscheme = COLORSCHEME_JSON
-    # pylint: disable-next=no-member
-    formatter = pygments.formatters.TerminalFormatter(bg=background, colorscheme=colorscheme)
+        colorscheme = COLORSCHEME
+        match input_format:
+            case "yaml":
+                # pylint: disable-next=no-member
+                lexer = pygments.lexers.YamlLexer()
+                colorscheme = COLORSCHEME_YAML
+            case "json":
+                # pylint: disable-next=no-member
+                lexer = pygments.lexers.JsonLexer()
+                colorscheme = COLORSCHEME_JSON
+        # pylint: disable-next=no-member
+        formatter = pygments.formatters.TerminalFormatter(bg=background, colorscheme=colorscheme)
 
-    if stderr:
-        output_file = sys.stderr
+        if stderr:
+            output_file = sys.stderr
+        else:
+            output_file = sys.stdout
+
+        if input_format == "text" or not use_color or not SYNTAX_HIGHLIGHTING or not lexer:
+            print(reformatted, file=output_file)
+        else:
+            print(pygments.highlight(reformatted, lexer, formatter), file=output_file)
     else:
-        output_file = sys.stdout
-
-    if input_format == "text" or not use_color or not SYNTAX_HIGHLIGHTING or not lexer:
-        print(reformatted, file=output_file)
-    else:
-        print(pygments.highlight(reformatted, lexer, formatter), file=output_file)
+        print(reformatted)
 
 
 def init_ansithemeprint(themefile: FilePath | None = None) -> None:

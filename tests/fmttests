@@ -103,6 +103,7 @@ def test_json_dumps(verbose: bool = False) -> tuple[str, bool]:
         testdata: tuple[Any, ...] = (
             ({"foo": "bar", "bar": 1}, "{\n  \"foo\": \"bar\",\n  \"bar\": 1\n}", None),
         )
+
         for indata, expected_result, expected_exception in testdata:
             try:
                 if (tmp := fun(indata)) != expected_result:
@@ -215,6 +216,7 @@ def test_format_markdown(verbose: bool = False) -> tuple[str, bool]:
                  [ThemeStr("This_is_not_italics", ThemeAttr("types", "generic"))]],
              None),
         )
+
         for indata, options, expected_result, expected_exception in testdata:
             if isinstance(indata, list):
                 indata_quoted = "\n".join(indata)
@@ -298,6 +300,7 @@ def test_format_ansible_line(verbose: bool = False) -> tuple[str, bool]:
                  ThemeStr("Another random output from Ansible", ThemeAttr("types", "value"))],
              None),
         )
+
         for indata, options, expected_result, expected_exception in testdata:
             try:
                 if (tmp := fun(indata, **options)) != expected_result:
@@ -375,6 +378,7 @@ def test_format_diff_line(verbose: bool = False) -> tuple[str, bool]:
                          ThemeAttr("types", "generic"))],
              None),
         )
+
         for indata, options, expected_result, expected_exception in testdata:
             try:
                 if (tmp := fun(indata, **options)) != expected_result:
@@ -551,6 +555,7 @@ def test_format_yaml_line(verbose: bool = False) -> tuple[str, bool]:
                           '\\"networking.istio.io/v1beta1\\"",',
                           ThemeAttr('logview', 'severity_error'), False)], []), None),
         )
+
         for indata, options, expected_result, expected_exception in testdata:
             try:
                 if (tmp := fun(indata, **options)) != expected_result:
@@ -581,6 +586,293 @@ def test_format_yaml_line(verbose: bool = False) -> tuple[str, bool]:
                               f"           input: \"{indata}\"\n" \
                               "         options:\n" \
                               f"{yaml_dump(options, base_indent=17)}\n" \
+                              f"       exception: {type(e)}\n" \
+                              f"        expected: {expected_result}"
+                    result = False
+                    break
+    return message, result
+
+
+# Note: format_yaml handles both yaml and json, so there's a lot of overlap
+# between this and reformat_json
+def test_format_yaml(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = formatters.format_yaml
+
+    if result:
+        # Indata format:
+        # (lines, options, expected_result, expected_exception)
+        testdata: tuple[Any, ...] = (
+            ("spec:\n"
+             "  foo: 1\n"
+             "  bar: 'baz'",
+             {}, [[ThemeStr("spec", ThemeAttr("types", "yaml_key")),
+                   ThemeStr(":", ThemeAttr("types", "yaml_key_separator"))],
+                  [ThemeStr("  ", ThemeAttr("types", "generic")),
+                   ThemeStr("foo", ThemeAttr("types", "yaml_key")),
+                   ThemeStr(":", ThemeAttr("types", "yaml_key_separator")),
+                   ThemeStr(" ", ThemeAttr("types", "generic")),
+                   ThemeStr("1", ThemeAttr("types", "yaml_value"))],
+                  [ThemeStr("  ", ThemeAttr("types", "generic")),
+                   ThemeStr("bar", ThemeAttr("types", "yaml_key")),
+                   ThemeStr(":", ThemeAttr("types", "yaml_key_separator")),
+                   ThemeStr(" ", ThemeAttr("types", "generic")),
+                   ThemeStr("'", ThemeAttr("types", "yaml_value")),
+                   ThemeStr("baz", ThemeAttr("types", "yaml_value")),
+                   ThemeStr("'", ThemeAttr("types", "yaml_value"))]],
+             None),
+            (["spec:\n"
+              "  foo: 1\n"
+              "  bar: 'baz'",
+              "metadata:\n"
+              "  name: data"],
+             {}, [[ThemeStr("spec", ThemeAttr("types", "yaml_key")),
+                   ThemeStr(":", ThemeAttr("types", "yaml_key_separator"))],
+                  [ThemeStr("  ", ThemeAttr("types", "generic")),
+                   ThemeStr("foo", ThemeAttr("types", "yaml_key")),
+                   ThemeStr(":", ThemeAttr("types", "yaml_key_separator")),
+                   ThemeStr(" ", ThemeAttr("types", "generic")),
+                   ThemeStr("1", ThemeAttr("types", "yaml_value"))],
+                  [ThemeStr("  ", ThemeAttr("types", "generic")),
+                   ThemeStr("bar", ThemeAttr("types", "yaml_key")),
+                   ThemeStr(":", ThemeAttr("types", "yaml_key_separator")),
+                   ThemeStr(" ", ThemeAttr("types", "generic")),
+                   ThemeStr("'", ThemeAttr("types", "yaml_value")),
+                   ThemeStr("baz", ThemeAttr("types", "yaml_value")),
+                   ThemeStr("'", ThemeAttr("types", "yaml_value"))],
+                  [ThemeStr("metadata", ThemeAttr("types", "yaml_key")),
+                   ThemeStr(":", ThemeAttr("types", "yaml_key_separator"))],
+                  [ThemeStr("  ", ThemeAttr("types", "generic")),
+                   ThemeStr("name", ThemeAttr("types", "yaml_key")),
+                   ThemeStr(":", ThemeAttr("types", "yaml_key_separator")),
+                   ThemeStr(" ", ThemeAttr("types", "generic")),
+                   ThemeStr("data", ThemeAttr("types", "yaml_value"))]],
+             None),
+            (["spec:",
+              "  foo: 1",
+              "  bar: 'baz'"],
+             {}, [[ThemeStr("spec", ThemeAttr("types", "yaml_key")),
+                   ThemeStr(":", ThemeAttr("types", "yaml_key_separator"))],
+                  [ThemeStr("  ", ThemeAttr("types", "generic")),
+                   ThemeStr("foo", ThemeAttr("types", "yaml_key")),
+                   ThemeStr(":", ThemeAttr("types", "yaml_key_separator")),
+                   ThemeStr(" ", ThemeAttr("types", "generic")),
+                   ThemeStr("1", ThemeAttr("types", "yaml_value"))],
+                  [ThemeStr("  ", ThemeAttr("types", "generic")),
+                   ThemeStr("bar", ThemeAttr("types", "yaml_key")),
+                   ThemeStr(":", ThemeAttr("types", "yaml_key_separator")),
+                   ThemeStr(" ", ThemeAttr("types", "generic")),
+                   ThemeStr("'", ThemeAttr("types", "yaml_value")),
+                   ThemeStr("baz", ThemeAttr("types", "yaml_value")),
+                   ThemeStr("'", ThemeAttr("types", "yaml_value"))]],
+             None),
+            ({
+                "spec": {
+                    "foo": 1,
+                    "bar": "baz",
+                },
+             },
+             {}, [[ThemeStr("spec", ThemeAttr("types", "yaml_key")),
+                   ThemeStr(":", ThemeAttr("types", "yaml_key_separator"))],
+                  [ThemeStr("  ", ThemeAttr("types", "generic")),
+                   ThemeStr("foo", ThemeAttr("types", "yaml_key")),
+                   ThemeStr(":", ThemeAttr("types", "yaml_key_separator")),
+                   ThemeStr(" ", ThemeAttr("types", "generic")),
+                   ThemeStr("1", ThemeAttr("types", "yaml_value"))],
+                  [ThemeStr("  ", ThemeAttr("types", "generic")),
+                   ThemeStr("bar", ThemeAttr("types", "yaml_key")),
+                   ThemeStr(":", ThemeAttr("types", "yaml_key_separator")),
+                   ThemeStr(" ", ThemeAttr("types", "generic")),
+                   ThemeStr("baz", ThemeAttr("types", "yaml_value"))]],
+             None),
+            ([
+                {
+                    "spec": {
+                        "foo": 1,
+                        "bar": "baz",
+                    },
+                },
+             ],
+             {}, [[ThemeStr("spec", ThemeAttr("types", "yaml_key")),
+                   ThemeStr(":", ThemeAttr("types", "yaml_key_separator"))],
+                  [ThemeStr("  ", ThemeAttr("types", "generic")),
+                   ThemeStr("foo", ThemeAttr("types", "yaml_key")),
+                   ThemeStr(":", ThemeAttr("types", "yaml_key_separator")),
+                   ThemeStr(" ", ThemeAttr("types", "generic")),
+                   ThemeStr("1", ThemeAttr("types", "yaml_value"))],
+                  [ThemeStr("  ", ThemeAttr("types", "generic")),
+                   ThemeStr("bar", ThemeAttr("types", "yaml_key")),
+                   ThemeStr(":", ThemeAttr("types", "yaml_key_separator")),
+                   ThemeStr(" ", ThemeAttr("types", "generic")),
+                   ThemeStr("baz", ThemeAttr("types", "yaml_value"))]],
+             None),
+            ([
+                {
+                    "spec": {
+                        "foo": 1,
+                        "bar": "baz",
+                    },
+                },
+                {
+                    "metadata": {
+                        "name": "data",
+                    },
+                },
+             ],
+             {}, [[ThemeStr("spec", ThemeAttr("types", "yaml_key")),
+                   ThemeStr(":", ThemeAttr("types", "yaml_key_separator"))],
+                  [ThemeStr("  ", ThemeAttr("types", "generic")),
+                   ThemeStr("foo", ThemeAttr("types", "yaml_key")),
+                   ThemeStr(":", ThemeAttr("types", "yaml_key_separator")),
+                   ThemeStr(" ", ThemeAttr("types", "generic")),
+                   ThemeStr("1", ThemeAttr("types", "yaml_value"))],
+                  [ThemeStr("  ", ThemeAttr("types", "generic")),
+                   ThemeStr("bar", ThemeAttr("types", "yaml_key")),
+                   ThemeStr(":", ThemeAttr("types", "yaml_key_separator")),
+                   ThemeStr(" ", ThemeAttr("types", "generic")),
+                   ThemeStr("baz", ThemeAttr("types", "yaml_value"))],
+                  [],
+                  [ThemeStr("metadata", ThemeAttr("types", "yaml_key")),
+                   ThemeStr(":", ThemeAttr("types", "yaml_key_separator"))],
+                  [ThemeStr("  ", ThemeAttr("types", "generic")),
+                   ThemeStr("name", ThemeAttr("types", "yaml_key")),
+                   ThemeStr(":", ThemeAttr("types", "yaml_key_separator")),
+                   ThemeStr(" ", ThemeAttr("types", "generic")),
+                   ThemeStr("data", ThemeAttr("types", "yaml_value"))]],
+             None),
+        )
+
+        for indata, options, expected_result, expected_exception in testdata:
+            try:
+                if (tmp := fun(indata, **options)) != expected_result:
+                    output = tmp
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"           input: \"{indata}\"\n" \
+                              f"         options: {options}\n" \
+                              f"          output: {tmp}\n" \
+                              f"        expected: {expected_result}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  f"           input: \"{indata}\"\n" \
+                                  f"         options: {options}\n" \
+                                  f"       exception: {type(e)}\n" \
+                                  f"        expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"           input: \"{indata}\"\n" \
+                              f"         options: {options}\n" \
+                              f"       exception: {type(e)}\n" \
+                              f"        expected: {expected_result}"
+                    result = False
+                    break
+    return message, result
+
+
+# Note: format_yaml handles both yaml and json, so there's a lot of overlap
+# between this and format_yaml
+def test_reformat_json(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = formatters.reformat_json
+
+    if result:
+        # Indata format:
+        # (lines, options, expected_result, expected_exception)
+        testdata: tuple[Any, ...] = (
+            ("{\n"
+             "  \"spec\": {\n"
+             "    \"foo\": 1,\n"
+             "    \"bar\": \"baz\"\n"
+             "  }\n"
+             "}",
+             {}, [[ThemeStr("{", ThemeAttr("types", "yaml_punctuation"))],
+                  [ThemeStr("  ", ThemeAttr("types", "generic")),
+                   ThemeStr("\"spec\"", ThemeAttr("types", "yaml_key")),
+                   ThemeStr(":", ThemeAttr("types", "yaml_punctuation")),
+                   ThemeStr(" ", ThemeAttr("types", "generic")),
+                   ThemeStr("{", ThemeAttr("types", "yaml_punctuation"))],
+                  [ThemeStr("    ", ThemeAttr("types", "generic")),
+                   ThemeStr("\"foo\"", ThemeAttr("types", "yaml_key")),
+                   ThemeStr(":", ThemeAttr("types", "yaml_punctuation")),
+                   ThemeStr(" ", ThemeAttr("types", "generic")),
+                   ThemeStr("1", ThemeAttr("types", "yaml_value")),
+                   ThemeStr(",", ThemeAttr("types", "yaml_punctuation"))],
+                  [ThemeStr("    ", ThemeAttr("types", "generic")),
+                   ThemeStr("\"bar\"", ThemeAttr("types", "yaml_key")),
+                   ThemeStr(":", ThemeAttr("types", "yaml_punctuation")),
+                   ThemeStr(" ", ThemeAttr("types", "generic")),
+                   ThemeStr("\"baz\"", ThemeAttr("types", "yaml_value"))],
+                  [ThemeStr("  ", ThemeAttr("types", "generic")),
+                   ThemeStr("}", ThemeAttr("types", "yaml_punctuation"))],
+                  [ThemeStr("}", ThemeAttr("types", "yaml_punctuation"))]],
+             None),
+            ({
+                "spec": {
+                    "foo": 1,
+                    "bar": "baz"
+                }
+             },
+             {}, [[ThemeStr("{", ThemeAttr("types", "yaml_punctuation"))],
+                  [ThemeStr("  ", ThemeAttr("types", "generic")),
+                   ThemeStr("\"spec\"", ThemeAttr("types", "yaml_key")),
+                   ThemeStr(":", ThemeAttr("types", "yaml_punctuation")),
+                   ThemeStr(" ", ThemeAttr("types", "generic")),
+                   ThemeStr("{", ThemeAttr("types", "yaml_punctuation"))],
+                  [ThemeStr("    ", ThemeAttr("types", "generic")),
+                   ThemeStr("\"foo\"", ThemeAttr("types", "yaml_key")),
+                   ThemeStr(":", ThemeAttr("types", "yaml_punctuation")),
+                   ThemeStr(" ", ThemeAttr("types", "generic")),
+                   ThemeStr("1", ThemeAttr("types", "yaml_value")),
+                   ThemeStr(",", ThemeAttr("types", "yaml_punctuation"))],
+                  [ThemeStr("    ", ThemeAttr("types", "generic")),
+                   ThemeStr("\"bar\"", ThemeAttr("types", "yaml_key")),
+                   ThemeStr(":", ThemeAttr("types", "yaml_punctuation")),
+                   ThemeStr(" ", ThemeAttr("types", "generic")),
+                   ThemeStr("\"baz\"", ThemeAttr("types", "yaml_value"))],
+                  [ThemeStr("  ", ThemeAttr("types", "generic")),
+                   ThemeStr("}", ThemeAttr("types", "yaml_punctuation"))],
+                  [ThemeStr("}", ThemeAttr("types", "yaml_punctuation"))]],
+             None),
+        )
+
+        for indata, options, expected_result, expected_exception in testdata:
+            try:
+                if (tmp := fun(indata, **options)) != expected_result:
+                    output = tmp
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"           input: \"{indata}\"\n" \
+                              f"         options: {options}\n" \
+                              f"          output: {tmp}\n" \
+                              f"        expected: {expected_result}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  f"           input: \"{indata}\"\n" \
+                                  f"         options: {options}\n" \
+                                  f"       exception: {type(e)}\n" \
+                                  f"        expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"           input: \"{indata}\"\n" \
+                              f"         options: {options}\n" \
                               f"       exception: {type(e)}\n" \
                               f"        expected: {expected_result}"
                     result = False
@@ -626,6 +918,7 @@ def test_format_crt(verbose: bool = False) -> tuple[str, bool]:
                  [ThemeStr("-----END CERTIFICATE-----", ThemeAttr("types", "generic"))]],
              None),
         )
+
         for indata, options, expected_result, expected_exception in testdata:
             try:
                 if (tmp := fun(indata, **options)) != expected_result:
@@ -633,8 +926,7 @@ def test_format_crt(verbose: bool = False) -> tuple[str, bool]:
                               f"           input: \"{indata}\"\n" \
                               "         options:\n" \
                               f"{yaml_dump(options, base_indent=17)}\n" \
-                              "          output:\n" \
-                              f"{themearray_to_string(tmp)}\n" \
+                              f"          output: {themearray_to_string(tmp)}\n" \
                               f"        expected: {expected_result}"
                     result = False
                     break
@@ -676,41 +968,53 @@ def test_format_ini(verbose: bool = False) -> tuple[str, bool]:
             ("# comment\n"
              "[main]\n"
              "setting1 = foo\n"
-             "setting2 = bar", {}, [
+             "setting2 = bar", {},
+             [
                  [ThemeStr("# comment", ThemeAttr("types", "ini_comment"))],
                  [ThemeStr("[main]", ThemeAttr("types", "ini_section"))],
                  [ThemeStr("setting1", ThemeAttr("types", "ini_key")),
-                  ThemeStr(" = ", ThemeAttr("types", "ini_key_separator")),
+                  ThemeStr(" ", ThemeAttr("types", "generic")),
+                  ThemeStr("=", ThemeAttr("types", "ini_separator")),
+                  ThemeStr(" ", ThemeAttr("types", "generic")),
                   ThemeStr("foo", ThemeAttr("types", "ini_value"))],
                  [ThemeStr("setting2", ThemeAttr("types", "ini_key")),
-                  ThemeStr(" = ", ThemeAttr("types", "ini_key_separator")),
+                  ThemeStr(" ", ThemeAttr("types", "generic")),
+                  ThemeStr("=", ThemeAttr("types", "ini_separator")),
+                  ThemeStr(" ", ThemeAttr("types", "generic")),
                   ThemeStr("bar", ThemeAttr("types", "ini_value"))]],
              None),
             (["# comment",
               "[main]",
               "  setting1 = foo",
-              "  setting2 = bar"], {}, [
+              "  setting2 = bar"], {},
+              [
                   [ThemeStr("# comment", ThemeAttr("types", "ini_comment"))],
                   [ThemeStr("[main]", ThemeAttr("types", "ini_section"))],
                   [ThemeStr("  ", ThemeAttr("types", "generic")),
                    ThemeStr("setting1", ThemeAttr("types", "ini_key")),
-                   ThemeStr(" = ", ThemeAttr("types", "ini_key_separator")),
+                   ThemeStr(" ", ThemeAttr("types", "generic")),
+                   ThemeStr("=", ThemeAttr("types", "ini_separator")),
+                   ThemeStr(" ", ThemeAttr("types", "generic")),
                    ThemeStr("foo", ThemeAttr("types", "ini_value"))],
                   [ThemeStr("  ", ThemeAttr("types", "generic")),
                    ThemeStr("setting2", ThemeAttr("types", "ini_key")),
-                   ThemeStr(" = ", ThemeAttr("types", "ini_key_separator")),
+                   ThemeStr(" ", ThemeAttr("types", "generic")),
+                   ThemeStr("=", ThemeAttr("types", "ini_separator")),
+                   ThemeStr(" ", ThemeAttr("types", "generic")),
                    ThemeStr("bar", ThemeAttr("types", "ini_value"))]],
              None),
             (["# comment",
               "[main]",
               "setting1 = foo",
-              "setting2 = bar"], {"raw": True}, [
+              "setting2 = bar"], {"raw": True},
+              [
                   [ThemeStr("# comment", ThemeAttr("types", "generic"))],
                   [ThemeStr("[main]", ThemeAttr("types", "generic"))],
                   [ThemeStr("setting1 = foo", ThemeAttr("types", "generic"))],
                   [ThemeStr("setting2 = bar", ThemeAttr("types", "generic"))]],
              None),
         )
+
         for indata, options, expected_result, expected_exception in testdata:
             if isinstance(indata, list):
                 indata_quoted = "\n".join(indata)
@@ -723,8 +1027,7 @@ def test_format_ini(verbose: bool = False) -> tuple[str, bool]:
                               f"           input: \"{indata_quoted}\"\n" \
                               "         options:\n" \
                               f"{yaml_dump(options, base_indent=17)}\n" \
-                              "          output:\n" \
-                              f"{yaml_dump(tmp, base_indent=17)}\n" \
+                              f"          output: {tmp}\n" \
                               f"        expected: {expected_result}"
                     result = False
                     break
@@ -940,6 +1243,7 @@ def test_format_caddyfile(verbose: bool = False) -> tuple[str, bool]:
                 [ThemeStr('    # comment', ThemeAttr('types', 'generic'), False)],
                 [ThemeStr('}', ThemeAttr('types', 'generic'), False)]], None),
         )
+
         for indata, options, expected_result, expected_exception in testdata:
             if isinstance(indata, list):
                 indata_quoted = "\n".join(indata)
@@ -999,15 +1303,12 @@ def test_format_python_traceback(verbose: bool = False) -> tuple[str, bool]:
              [
                  [ThemeStr("Traceback (most recent call last):",
                            ThemeAttr("logview", "severity_error"))],
-                 [ThemeStr(" File \"", ThemeAttr("logview", "severity_info")),
-                  ThemeStr("<stdin>", ThemeAttr("types", "path")),
-                  ThemeStr("\", line ", ThemeAttr("logview", "severity_info")),
-                  ThemeStr("1", ThemeAttr("types", "lineno")),
-                  ThemeStr(", in ", ThemeAttr("logview", "severity_info")),
-                  ThemeStr("<module>", ThemeAttr("types", "path"))],
-                 [ThemeStr("ZeroDivisionError:", ThemeAttr("logview", "severity_error")),
-                  ThemeStr(" division by zero", ThemeAttr("logview", "severity_info"))],
-             ], None),
+                 [ThemeStr(" File \"<stdin>\", line 1, in <module>",
+                  ThemeAttr("logview", "severity_error"))],
+                 [ThemeStr("ZeroDivisionError", ThemeAttr("logview", "severity_error")),
+                  ThemeStr(": ", ThemeAttr("types", "generic")),
+                  ThemeStr("division by zero", ThemeAttr("types", "generic"))]],
+             None),
             (["Traceback (most recent call last):",
               " File \"<stdin>\", line 1, in <module>",
               "ZeroDivisionError: division by zero"],
@@ -1015,32 +1316,41 @@ def test_format_python_traceback(verbose: bool = False) -> tuple[str, bool]:
              [
                  [ThemeStr("Traceback (most recent call last):",
                            ThemeAttr("logview", "severity_error"))],
-                 [ThemeStr(" File \"", ThemeAttr("logview", "severity_info")),
-                  ThemeStr("<stdin>", ThemeAttr("types", "path")),
-                  ThemeStr("\", line ", ThemeAttr("logview", "severity_info")),
-                  ThemeStr("1", ThemeAttr("types", "lineno")),
-                  ThemeStr(", in ", ThemeAttr("logview", "severity_info")),
-                  ThemeStr("<module>", ThemeAttr("types", "path"))],
-                 [ThemeStr("ZeroDivisionError:", ThemeAttr("logview", "severity_error")),
-                  ThemeStr(" division by zero", ThemeAttr("logview", "severity_info"))]], None),
+                 [ThemeStr(" File \"<stdin>\", line 1, in <module>",
+                  ThemeAttr("logview", "severity_error"))],
+                 [ThemeStr("ZeroDivisionError", ThemeAttr("logview", "severity_error")),
+                  ThemeStr(": ", ThemeAttr("types", "generic")),
+                  ThemeStr("division by zero", ThemeAttr("types", "generic"))]],
+             None),
             (["",
               "Traceback (most recent call last):",
               " File \"<stdin>\", line 1, in <module>",
               "ZeroDivisionError: division by zero"],
              {},
              [
-                 [ThemeStr("", ThemeAttr("logview", "severity_info"))],
                  [ThemeStr("Traceback (most recent call last):",
                            ThemeAttr("logview", "severity_error"))],
-                 [ThemeStr(" File \"", ThemeAttr("logview", "severity_info")),
-                  ThemeStr("<stdin>", ThemeAttr("types", "path")),
-                  ThemeStr("\", line ", ThemeAttr("logview", "severity_info")),
-                  ThemeStr("1", ThemeAttr("types", "lineno")),
-                  ThemeStr(", in ", ThemeAttr("logview", "severity_info")),
-                  ThemeStr("<module>", ThemeAttr("types", "path"))],
-                 [ThemeStr("ZeroDivisionError:", ThemeAttr("logview", "severity_error")),
-                  ThemeStr(" division by zero", ThemeAttr("logview", "severity_info"))]], None),
+                 [ThemeStr(" File \"<stdin>\", line 1, in <module>",
+                  ThemeAttr("logview", "severity_error"))],
+                 [ThemeStr("ZeroDivisionError", ThemeAttr("logview", "severity_error")),
+                  ThemeStr(": ", ThemeAttr("types", "generic")),
+                  ThemeStr("division by zero", ThemeAttr("types", "generic"))]],
+             None),
+            (["",
+              "Traceback (most recent call last):",
+              " File \"<stdin>\", line 1, in <module>",
+              "ZeroDivisionError: division by zero"],
+             {"raw": True},
+             [
+                 [ThemeStr("", ThemeAttr("types", "generic"))],
+                 [ThemeStr("Traceback (most recent call last):",
+                           ThemeAttr("types", "generic"))],
+                 [ThemeStr(" File \"<stdin>\", line 1, in <module>",
+                  ThemeAttr("types", "generic"))],
+                 [ThemeStr("ZeroDivisionError: division by zero", ThemeAttr("types", "generic"))]],
+             None),
         )
+
         for indata, options, expected_result, expected_exception in testdata:
             if isinstance(indata, list):
                 indata_quoted = "\n".join(indata)
@@ -1053,8 +1363,7 @@ def test_format_python_traceback(verbose: bool = False) -> tuple[str, bool]:
                               f"           input: \"{indata_quoted}\"\n" \
                               "         options:\n" \
                               f"{yaml_dump(options, base_indent=17)}\n" \
-                              "          output:\n" \
-                              f"{yaml_dump(tmp, base_indent=17)}\n" \
+                              f"          output: {tmp}\n" \
                               f"        expected: {expected_result}"
                     result = False
                     break
@@ -1097,6 +1406,7 @@ def test_map_dataformat(verbose: bool = False) -> tuple[str, bool]:
             ("file.yaml", formatters.format_yaml, None),
             ("foo.notarecognisedformat", formatters.format_none, None),
         )
+
         for indata, expected_result, expected_exception in testdata:
             try:
                 # pylint: disable-next=comparison-with-callable
@@ -1155,6 +1465,14 @@ tests: dict[tuple[str, ...], dict[str, Any]] = {
     },
     ("format_yaml_line",): {
         "callable": test_format_yaml_line,
+        "result": None,
+    },
+    ("format_yaml",): {
+        "callable": test_format_yaml,
+        "result": None,
+    },
+    ("reformat_json",): {
+        "callable": test_reformat_json,
         "result": None,
     },
     ("format_crt",): {

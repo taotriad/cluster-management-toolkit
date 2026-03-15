@@ -55,6 +55,12 @@
 - name: "prometheus"
   show_in_selector: false
   matchkeys:
+    - image_name: "/rancher/mirrored-kube-logging-config-reloader"
+  parser_rules:
+    - name: "ts_8601"
+- name: "prometheus"
+  show_in_selector: false
+  matchkeys:
     - image_name: "/prometheus/prometheus"
     - image_name: "/prometheus-operator/prometheus-config-reloader"
     - container_name: "config-reloader"
