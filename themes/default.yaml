@@ -525,12 +525,6 @@ color_pairs_curses:
   separator_secret_type:
     unselected: [["black", "bright"], ["black", "normal"]]
     selected: [["black", "bright"], ["white", "normal"]]
-  separator_yaml_list:
-    unselected: [["yellow", "bright"], ["black", "normal"]]
-    selected: [["yellow", "normal"], ["white", "normal"]]
-  separator_yaml_key_separator:
-    unselected: [["white", "bright"], ["black", "normal"]]
-    selected: [["black", "normal"], ["white", "normal"]]
   separator_pad:
     unselected: [["white", "normal"], ["black", "normal"]]
     selected: [["black", "normal"], ["white", "normal"]]
@@ -557,6 +551,7 @@ color_pairs_curses:
   type_ini_comment: [["green", "normal"], ["black", "normal"]]
   type_ini_section: [["white", "normal"], ["black", "normal"]]
   type_ini_key: [["green", "bright"], ["black", "normal"]]
+  type_ini_separator: [["white", "bright"], ["black", "normal"]]
   type_ini_value: [["magenta", "normal"], ["black", "normal"]]
   type_iptables_argument:
     unselected: [["green", "normal"], ["black", "normal"]]
@@ -593,7 +588,7 @@ color_pairs_curses:
     selected: [["yellow", "bright"], ["white", "normal"]]
   type_powershell_name:
     unselected: [["white", "normal"], ["black", "normal"]]
-    selected: [["white", "normal"], ["white", "normal"]]
+    selected: [["black", "normal"], ["white", "normal"]]
   type_powershell_operator:
     unselected: [["yellow", "bright"], ["black", "normal"]]
     selected: [["yellow", "bright"], ["white", "normal"]]
@@ -602,7 +597,7 @@ color_pairs_curses:
     selected: [["yellow", "bright"], ["white", "normal"]]
   type_powershell_text:
     unselected: [["white", "normal"], ["black", "normal"]]
-    selected: [["white", "normal"], ["white", "normal"]]
+    selected: [["black", "normal"], ["white", "normal"]]
   type_powershell_value:
     unselected: [["magenta", "bright"], ["black", "normal"]]
     selected: [["magenta", "bright"], ["white", "normal"]]
@@ -617,7 +612,7 @@ color_pairs_curses:
     selected: [["black", "normal"], ["white", "normal"]]
   type_shellscript_escape:
     unselected: [["white", "bright"], ["black", "normal"]]
-    selected: [["white", "bright"], ["white", "normal"]]
+    selected: [["black", "normal"], ["white", "normal"]]
   type_shellscript_hashbang:
     unselected: [["cyan", "normal"], ["black", "normal"]]
     selected: [["cyan", "bright"], ["white", "normal"]]
@@ -629,7 +624,7 @@ color_pairs_curses:
     selected: [["magenta", "bright"], ["white", "normal"]]
   type_shellscript_operator:
     unselected: [["white", "normal"], ["black", "normal"]]
-    selected: [["white", "normal"], ["white", "normal"]]
+    selected: [["black", "normal"], ["white", "normal"]]
   type_shellscript_punctuation:
     unselected: [["yellow", "bright"], ["black", "normal"]]
     selected: [["yellow", "bright"], ["white", "normal"]]
@@ -638,7 +633,7 @@ color_pairs_curses:
     selected: [["magenta", "bright"], ["white", "normal"]]
   type_shellscript_text:
     unselected: [["white", "normal"], ["black", "normal"]]
-    selected: [["white", "normal"], ["white", "normal"]]
+    selected: [["black", "normal"], ["white", "normal"]]
   type_shellscript_variable:
     unselected: [["cyan", "bright"], ["black", "normal"]]
     selected: [["cyan", "bright"], ["white", "normal"]]
@@ -647,7 +642,7 @@ color_pairs_curses:
     selected: [["black", "normal"], ["white", "normal"]]
   type_toml_escape:
     unselected: [["white", "bright"], ["black", "normal"]]
-    selected: [["white", "bright"], ["white", "normal"]]
+    selected: [["black", "normal"], ["white", "normal"]]
   type_toml_key: [["cyan", "bright"], ["black", "normal"]]
   type_toml_key_separator: [["white", "bright"], ["black", "normal"]]
   type_toml_punctuation:
@@ -656,8 +651,14 @@ color_pairs_curses:
   type_toml_value:
     unselected: [["magenta", "normal"], ["black", "normal"]]
     selected: [["magenta", "normal"], ["white", "normal"]]
+  type_yaml_anchor:
+    unselected: [["green", "bright"], ["black", "normal"]]
+    selected: [["green", "bright"], ["white", "normal"]]
   type_yaml_comment:
     unselected: [["black", "bright"], ["black", "normal"]]
+    selected: [["black", "normal"], ["white", "normal"]]
+  type_yaml_escape:
+    unselected: [["white", "bright"], ["black", "normal"]]
     selected: [["black", "normal"], ["white", "normal"]]
   type_yaml_key:
     unselected: [["cyan", "bright"], ["black", "normal"]]
@@ -665,21 +666,24 @@ color_pairs_curses:
   type_yaml_key_error:
     unselected: [["red", "normal"], ["black", "normal"]]
     selected: [["red", "normal"], ["white", "normal"]]
-  type_yaml_value:
-    unselected: [["magenta", "normal"], ["black", "normal"]]
-    selected: [["magenta", "normal"], ["white", "normal"]]
+  type_yaml_key_separator:
+    unselected: [["white", "bright"], ["black", "normal"]]
+    selected: [["black", "normal"], ["white", "normal"]]
+  type_yaml_list_separator:
+    unselected: [["yellow", "bright"], ["black", "normal"]]
+    selected: [["yellow", "normal"], ["white", "normal"]]
+  type_yaml_punctuation:
+    unselected: [["white", "bright"], ["black", "normal"]]
+    selected: [["black", "normal"], ["white", "normal"]]
   type_yaml_reference:
     unselected: [["green", "bright"], ["black", "normal"]]
     selected: [["green", "bright"], ["white", "normal"]]
   type_yaml_type:
     unselected: [["green", "bright"], ["black", "normal"]]
     selected: [["green", "bright"], ["white", "normal"]]
-  type_yaml_anchor:
-    unselected: [["green", "bright"], ["black", "normal"]]
-    selected: [["green", "bright"], ["white", "normal"]]
-  type_yaml_escape:
-    unselected: [["white", "bright"], ["black", "normal"]]
-    selected: [["white", "bright"], ["white", "normal"]]
+  type_yaml_value:
+    unselected: [["magenta", "normal"], ["black", "normal"]]
+    selected: [["magenta", "normal"], ["white", "normal"]]
   type_xml_comment_preprocessor:
     unselected: [["green", "bright"], ["black", "normal"]]
     selected: [["green", "bright"], ["white", "normal"]]
@@ -692,7 +696,6 @@ color_pairs_curses:
   type_xml_escape_data: [["yellow", "bright"], ["black", "normal"]]
   type_mosquitto_comment: [["black", "bright"], ["black", "normal"]]
   type_mosquitto_variable: [["magenta", "normal"], ["black", "normal"]]
-
   type_nginx_key: [["cyan", "bright"], ["black", "normal"]]
   type_nginx_value: [["magenta", "normal"], ["black", "normal"]]
   type_nginx_variable: [["magenta", "normal"], ["black", "normal"]]
@@ -702,7 +705,6 @@ color_pairs_curses:
   type_nginx_punctuation: [["white", "normal"], ["black", "normal"]]
   type_nginx_namespace: [["cyan", "bright"], ["black", "normal"]]
   type_nginx_regex: [["white", "normal"], ["black", "normal"]]
-
   type_caddyfile_site: [["blue", "bright"], ["black", "normal"]]
   type_caddyfile_matcher: [["magenta", "bright"], ["black", "normal"]]
   type_caddyfile_argument: [["green", "bright"], ["black", "normal"]]
@@ -969,6 +971,7 @@ types:
   ini_key: ["type_ini_key", "bold"]
   ini_operator: "type_ini_operator"
   ini_section: "type_ini_section"
+  ini_separator: "type_ini_separator"
   ini_value: "type_ini_value"
   ipmask: "type_ipmask"
   iptables_argument: "type_iptables_argument"
@@ -1131,10 +1134,11 @@ types:
   xml_escape: "type_xml_escape"
   xml_tag: ["type_xml_tag", "bold"]
   yaml_comment: "type_yaml_comment"
-  yaml_key_error: "type_yaml_key_error"
-  yaml_key_separator: "separator_yaml_key_separator"
   yaml_key: "type_yaml_key"
-  yaml_list: "separator_yaml_list"
+  yaml_key_error: "type_yaml_key_error"
+  yaml_key_separator: "type_yaml_key_separator"
+  yaml_list: "type_yaml_list_separator"
+  yaml_punctuation: "type_yaml_punctuation"
   yaml_reference: "type_yaml_reference"
   yaml_anchor: "type_yaml_anchor"
   yaml_value: "type_yaml_value"

@@ -25,11 +25,12 @@ except ModuleNotFoundError:
     import json  # type: ignore
     json_is_ujson = False  # pylint: disable=invalid-name
     DecodeException = json.decoder.JSONDecodeError  # type: ignore
+import io
 from pathlib import Path
 import re
 import sys
-from typing import Any, cast
-from collections.abc import Callable
+from typing import Any, cast, TypedDict
+from collections.abc import Callable, Generator
 try:
     import yaml
 except ModuleNotFoundError:  # pragma: no cover
@@ -41,11 +42,15 @@ import pygments.lexers
 from pygments.formatter import Formatter
 from pygments.token import Token
 
-from clustermanagementtoolkit.cmttypes import deep_get, DictPath, FilePath
+from clustermanagementtoolkit.cmttypes import deep_get, DictPath, FilePath, LogLevel
 from clustermanagementtoolkit.cmttypes import FilePathAuditError, StatusGroup
 
 from clustermanagementtoolkit import cmtlib
 from clustermanagementtoolkit.cmtlib import split_msg, strip_ansicodes
+
+from clustermanagementtoolkit.ansithemeprint import ANSIThemeStr
+
+from clustermanagementtoolkit import cmtlog
 
 from clustermanagementtoolkit.cmtio_yaml import secure_read_yaml
 
@@ -54,217 +59,555 @@ from clustermanagementtoolkit.cmtpaths import HOMEDIR, SYSTEM_PARSERS_DIR, PARSE
 from clustermanagementtoolkit.curses_helper import ThemeAttr, ThemeRef, ThemeStr, themearray_len
 
 
-COLORSCHEME_CRT: dict[Any, ThemeAttr] = {
+class ColorSchemeEntry(TypedDict, total=True):
+    """
+    A TypedDict for colour scheme for the ThemeArrayFormatter for Pygments.
+
+        Parameters:
+            formatting (ThemeAttr): The formatting to use for the entry
+            type (str): The generic type for the entry
+    """
+    formatting: ThemeAttr
+    type: str
+
+
+COLORSCHEME_CRT: dict[Any, ColorSchemeEntry] = {
     # <whitespace>
-    Token.Text.Whitespace: ThemeAttr("types", "generic"),
+    Token.Text.Whitespace: {
+        "formatting": ThemeAttr("types", "generic"),
+        "type": "whitespace",
+    },
     # ----BEGIN
-    Token.Generic.Heading: ThemeAttr("types", "separator"),
+    Token.Generic.Heading: {
+        "formatting": ThemeAttr("types", "separator"),
+        "type": "header",
+    },
     # string
-    Token.Literal.String: ThemeAttr("types", "generic"),
+    Token.Literal.String: {
+        "formatting": ThemeAttr("types", "generic"),
+        "type": "generic",
+    },
 }
 
 
-COLORSCHEME_INI: dict[Any, ThemeAttr] = {
+COLORSCHEME_INI: dict[Any, ColorSchemeEntry] = {
     # <whitespace>
-    Token.Text.Whitespace: ThemeAttr("types", "generic"),
-    # [keyword]
-    Token.Keyword: ThemeAttr("types", "ini_section"),
-    # key
-    Token.Name.Attribute: ThemeAttr("types", "ini_key"),
-    # =
-    Token.Operator: ThemeAttr("types", "ini_separator"),
-    # value
-    Token.Literal.String: ThemeAttr("types", "ini_value"),
-}
-
-
-COLORSCHEME_NGINX: dict[Any, ThemeAttr] = {
-    # <whitespace>
-    Token.Text.Whitespace: ThemeAttr("types", "generic"),
-    # key
-    Token.Keyword: ThemeAttr("types", "nginx_key"),
-    # string
-    Token.Literal.String: ThemeAttr("types", "nginx_value"),
-    # integer
-    Token.Literal.Number.Integer: ThemeAttr("types", "nginx_value"),
-    # regex
-    Token.Literal.String.Regex: ThemeAttr("types", "nginx_regex"),
-    # $variable
-    Token.Name.Variable: ThemeAttr("types", "nginx_variable"),
-    # constant
-    Token.Name.Constant: ThemeAttr("types", "nginx_value"),
-    # ;
-    Token.Punctuation: ThemeAttr("types", "nginx_punctuation"),
-    # key in namespace
-    Token.Keyword.Namespace: ThemeAttr("types", "nginx_namespace"),
+    Token.Text.Whitespace: {
+        "formatting": ThemeAttr("types", "generic"),
+        "type": "namespace",
+    },
     # #
-    Token.Comment.Single: ThemeAttr("types", "nginx_comment"),
-}
-
-
-COLORSCHEME_POWERSHELL: dict[Any, ThemeAttr] = {
-    # <whitespace>
-    Token.Text.Whitespace: ThemeAttr("types", "generic"),
-    # $variable
-    Token.Name.Variable: ThemeAttr("types", "powershell_variable"),
-    # =
-    Token.Punctuation: ThemeAttr("types", "powershell_punctuation"),
-    # text (possibly just whitespace?)
-    Token.Text: ThemeAttr("types", "powershell_text"),
-    # string
-    Token.Literal.String.Single: ThemeAttr("types", "powershell_value"),
-    # "
-    Token.Literal.String.Double: ThemeAttr("types", "powershell_value"),
-    # function
-    Token.Keyword: ThemeAttr("types", "powershell_keyword"),
-    # function name
-    Token.Name: ThemeAttr("types", "powershell_name"),
-    # builtin
-    Token.Name.Builtin: ThemeAttr("types", "powershell_builtin"),
-    # # comment
-    Token.Comment: ThemeAttr("types", "powershell_comment"),
-    # -and
-    Token.Operator: ThemeAttr("types", "powershell_operator"),
-}
-
-
-COLORSCHEME_PYTHON_TRACEBACK: dict[Any, ThemeAttr] = {
-    # <whitespace>
-    Token.Text.Whitespace: ThemeAttr("types", "generic"),
-    # Exception
-    Token.Generic.Error: ThemeAttr("logview", "severity_error"),
-    # Traceback (most recent call last):
-    Token.Generic.Traceback: ThemeAttr("logview", "severity_error"),
-    # False
-    Token.Keyword.Constant: ThemeAttr("types", "generic"),
-    # raise
-    Token.Keyword: ThemeAttr("types", "generic"),
-    # lineno
-    Token.Literal.Number: ThemeAttr("types", "lineno"),
-    # integer
-    Token.Literal.Number.Integer: ThemeAttr("types", "generic"),
-    # '
-    Token.Literal.String.Single: ThemeAttr("types", "generic"),
-    # "
-    Token.Literal.String.Double: ThemeAttr("types", "generic"),
-    # text
-    Token.Name: ThemeAttr("types", "generic"),
-    # filename
-    Token.Name.Builtin: ThemeAttr("types", "path"),
-    # self
-    Token.Name.Builtin.Pseudo: ThemeAttr("types", "generic"),
-    # Exception
-    Token.Name.Exception: ThemeAttr("types", "generic"),
-    # +
-    Token.Operator: ThemeAttr("types", "generic"),
-    # ()
-    Token.Punctuation: ThemeAttr("types", "generic"),
-    # File
-    Token.Text: ThemeAttr("types", "generic"),
-}
-
-
-COLORSCHEME_SHELLSCRIPT: dict[Any, ThemeAttr] = {
-    # <whitespace>
-    Token.Text.Whitespace: ThemeAttr("types", "generic"),
-    # #! /bin/sh
-    Token.Comment.Hashbang: ThemeAttr("types", "shellscript_hashbang"),
-    # # comment
-    Token.Comment.Single: ThemeAttr("types", "shellscript_comment"),
-    # variable
-    Token.Name.Variable: ThemeAttr("types", "shellscript_variable"),
-    # for, if, else, $(), etc.
-    Token.Keyword: ThemeAttr("types", "shellscript_keyword"),
-    # number
-    Token.Literal.Number: ThemeAttr("types", "shellscript_number"),
-    # <<EOF...EOF
-    Token.Literal.String: ThemeAttr("types", "shellscript_string"),
-    # string
-    Token.Literal.String.Single: ThemeAttr("types", "shellscript_string"),
-    # "
-    Token.Literal.String.Double: ThemeAttr("types", "shellscript_string"),
-    # Escaped values
-    Token.Literal.String.Escape: ThemeAttr("types", "shellscript_escape"),
-    # ${}
-    Token.Literal.String.Interpol: ThemeAttr("types", "shellscript_keyword"),
-    # echo
-    Token.Name.Builtin: ThemeAttr("types", "shellscript_builtin"),
-    # =
-    Token.Operator: ThemeAttr("types", "shellscript_operator"),
-    # |
-    Token.Punctuation: ThemeAttr("types", "shellscript_punctuation"),
-    # text
-    Token.Text: ThemeAttr("types", "shellscript_text"),
-}
-
-
-COLORSCHEME_TOML: dict[Any, ThemeAttr] = {
-    # <whitespace>
-    Token.Text.Whitespace: ThemeAttr("types", "generic"),
-    # # comment
-    Token.Comment.Single: ThemeAttr("types", "toml_comment"),
-    # [section]
-    Token.Keyword: ThemeAttr("types", "toml_section"),
-    # [
-    Token.Keyword.Constant: ThemeAttr("types", "toml_value"),
-    # "
-    Token.Literal.String.Double: ThemeAttr("types", "toml_value"),
-    # \\x09
-    Token.Literal.String.Escape: ThemeAttr("types", "toml_escape"),
-    # string
-    Token.Literal.String.Single: ThemeAttr("types", "toml_value"),
-    # =
-    Token.Operator: ThemeAttr("types", "toml_key_separator"),
+    Token.Comment.Single: {
+        "formatting": ThemeAttr("types", "ini_comment"),
+        "type": "comment",
+    },
+    # [keyword]
+    Token.Keyword: {
+        "formatting": ThemeAttr("types", "ini_section"),
+        "type": "section",
+    },
     # key
-    Token.Name: ThemeAttr("types", "toml_key"),
-    # [
-    Token.Punctuation: ThemeAttr("types", "toml_punctuation"),
+    Token.Name.Attribute: {
+        "formatting": ThemeAttr("types", "ini_key"),
+        "type": "key",
+    },
+    # =
+    Token.Operator: {
+        "formatting": ThemeAttr("types", "ini_separator"),
+        "type": "operator",
+    },
+    # value
+    Token.Literal.String: {
+        "formatting": ThemeAttr("types", "ini_value"),
+        "type": "value",
+    },
 }
 
 
-COLORSCHEME_XML: dict[Any, ThemeAttr] = {
+COLORSCHEME_JSON: dict[Any, ColorSchemeEntry] = {
     # <whitespace>
-    Token.Text.Whitespace: ThemeAttr("types", "generic"),
-    # <?xml version="1.0"?>
-    Token.Comment.Preproc: ThemeAttr("types", "xml_comment_preprocessor"),
-    # xmlns:xsi=
-    Token.Name.Attribute: ThemeAttr("types", "xml_attribute_key"),
-    # <tag
-    Token.Name.Tag: ThemeAttr("types", "xml_tag"),
-    # '"http://www.w3.org/2001/XMLSchema-instance"'
-    Token.Literal.String: ThemeAttr("types", "xml_attribute_value"),
-    # text
-    Token.Text: ThemeAttr("types", "generic"),
-}
-
-
-COLORSCHEME_YAML: dict[Any, ThemeAttr] = {
-    # <whitespace>
-    Token.Text.Whitespace: ThemeAttr("types", "generic"),
-    # -
-    Token.Punctuation.Indicator: ThemeAttr("types", "yaml_list"),
-    # !!
-    Token.Keyword.Type: ThemeAttr("types", "yaml_type"),
-    # # Comment
-    Token.Comment.Single: ThemeAttr("types", "yaml_comment"),
-    # key (sadly also seems to match %YAML and <<)
-    Token.Name.Tag: ThemeAttr("types", "yaml_key"),
-    # :
-    Token.Punctuation: ThemeAttr("types", "yaml_key_separator"),
+    Token.Text.Whitespace: {
+        "formatting": ThemeAttr("types", "generic"),
+        "type": "whitespace",
+    },
+    # Mistakenly identified as a comment by the lexer
+    Token.Comment.Single: {
+        "formatting": ThemeAttr("types", "yaml_value"),
+        "type": "value",
+    },
+    # constant
+    Token.Keyword.Constant: {
+        "formatting": ThemeAttr("types", "yaml_value"),
+        "type": "value",
+    },
+    # error
+    Token.Error: {
+        "formatting": ThemeAttr("types", "yaml_key_error"),
+        "type": "value",
+    },
+    # {
+    Token.Punctuation: {
+        "formatting": ThemeAttr("types", "yaml_punctuation"),
+        "type": "punctuation",
+    },
+    # key
+    Token.Name.Tag: {
+        "formatting": ThemeAttr("types", "yaml_key"),
+        "type": "key",
+    },
+    # Float
+    Token.Literal.Number.Float: {
+        "formatting": ThemeAttr("types", "yaml_value"),
+        "type": "value",
+    },
+    # integer
+    Token.Literal.Number.Integer: {
+        "formatting": ThemeAttr("types", "yaml_value"),
+        "type": "value",
+    },
     # Quoted string
-    Token.Literal.String: ThemeAttr("types", "yaml_value"),
-    # integer or float
-    Token.Literal.Number: ThemeAttr("types", "yaml_value"),
-    # Non-quoted string
-    Token.Literal.Scalar.Plain: ThemeAttr("types", "yaml_value"),
+    Token.Literal.String.Double: {
+        "formatting": ThemeAttr("types", "yaml_value"),
+        "type": "value",
+    },
+}
+
+
+COLORSCHEME_NGINX: dict[Any, ColorSchemeEntry] = {
+    # <whitespace>
+    Token.Text.Whitespace: {
+        "formatting": ThemeAttr("types", "generic"),
+        "type": "whitespace",
+    },
+    # key
+    Token.Keyword: {
+        "formatting": ThemeAttr("types", "nginx_key"),
+        "type": "key",
+    },
+    # string
+    Token.Literal.String: {
+        "formatting": ThemeAttr("types", "nginx_value"),
+        "type": "value",
+    },
+    # integer
+    Token.Literal.Number.Integer: {
+        "formatting": ThemeAttr("types", "nginx_value"),
+        "type": "value",
+    },
+    # regex
+    Token.Literal.String.Regex: {
+        "formatting": ThemeAttr("types", "nginx_regex"),
+        "type": "regex",
+    },
+    # $variable
+    Token.Name.Variable: {
+        "formatting": ThemeAttr("types", "nginx_variable"),
+        "type": "variable",
+    },
+    # constant
+    Token.Name.Constant: {
+        "formatting": ThemeAttr("types", "nginx_value"),
+        "type": "value",
+    },
+    # ;
+    Token.Punctuation: {
+        "formatting": ThemeAttr("types", "nginx_punctuation"),
+        "type": "punctuation",
+    },
+    # key in namespace
+    Token.Keyword.Namespace: {
+        "formatting": ThemeAttr("types", "nginx_namespace"),
+        "type": "namespace",
+    },
+    # #
+    Token.Comment.Single: {
+        "formatting": ThemeAttr("types", "nginx_comment"),
+        "type": "comment",
+    },
+}
+
+
+COLORSCHEME_POWERSHELL: dict[Any, ColorSchemeEntry] = {
+    # <whitespace>
+    Token.Text.Whitespace: {
+        "formatting": ThemeAttr("types", "generic"),
+        "type": "whitespace",
+    },
+    # $variable
+    Token.Name.Variable: {
+        "formatting": ThemeAttr("types", "powershell_variable"),
+        "type": "variable",
+    },
+    # =
+    Token.Punctuation: {
+        "formatting": ThemeAttr("types", "powershell_punctuation"),
+        "type": "punctuation",
+    },
+    # text (possibly just whitespace?)
+    Token.Text: {
+        "formatting": ThemeAttr("types", "powershell_text"),
+        "type": "string",
+    },
+    # string
+    Token.Literal.String.Single: {
+        "formatting": ThemeAttr("types", "powershell_value"),
+        "type": "string",
+    },
+    # "
+    Token.Literal.String.Double: {
+        "formatting": ThemeAttr("types", "powershell_value"),
+        "type": "string",
+    },
+    # function
+    Token.Keyword: {
+        "formatting": ThemeAttr("types", "powershell_keyword"),
+        "type": "keyword",
+    },
+    # function name
+    Token.Name: {
+        "formatting": ThemeAttr("types", "powershell_name"),
+        "type": "function",
+    },
+    # builtin
+    Token.Name.Builtin: {
+        "formatting": ThemeAttr("types", "powershell_builtin"),
+        "type": "builtin",
+    },
+    # # comment
+    Token.Comment: {
+        "formatting": ThemeAttr("types", "powershell_comment"),
+        "type": "comment",
+    },
+    # -and
+    Token.Operator: {
+        "formatting": ThemeAttr("types", "powershell_operator"),
+        "type": "operator",
+    },
+}
+
+
+COLORSCHEME_PYTHON_TRACEBACK: dict[Any, ColorSchemeEntry] = {
+    # <whitespace>
+    Token.Text.Whitespace: {
+        "formatting": ThemeAttr("types", "generic"),
+        "type": "whitespace",
+    },
+    # Exception
+    Token.Generic.Error: {
+        "formatting": ThemeAttr("logview", "severity_error"),
+        "type": "error",
+    },
+    # Traceback (most recent call last):
+    Token.Generic.Traceback: {
+        "formatting": ThemeAttr("logview", "severity_error"),
+        "type": "error",
+    },
+    # False
+    Token.Keyword.Constant: {
+        "formatting": ThemeAttr("types", "generic"),
+        "type": "value",
+    },
+    # raise
+    Token.Keyword: {
+        "formatting": ThemeAttr("types", "generic"),
+        "type": "generic",
+    },
+    # lineno
+    Token.Literal.Number: {
+        "formatting": ThemeAttr("types", "lineno"),
+        "type": "lineno",
+    },
+    # integer
+    Token.Literal.Number.Integer: {
+        "formatting": ThemeAttr("types", "generic"),
+        "type": "value",
+    },
+    # '
+    Token.Literal.String.Single: {
+        "formatting": ThemeAttr("types", "generic"),
+        "type": "value",
+    },
+    # "
+    Token.Literal.String.Double: {
+        "formatting": ThemeAttr("types", "generic"),
+        "type": "value",
+    },
+    # text
+    Token.Name: {
+        "formatting": ThemeAttr("types", "generic"),
+        "type": "value",
+    },
+    # filename
+    Token.Name.Builtin: {
+        "formatting": ThemeAttr("types", "path"),
+        "type": "path",
+    },
+    # self
+    Token.Name.Builtin.Pseudo: {
+        "formatting": ThemeAttr("types", "generic"),
+        "type": "builtin",
+    },
+    # Exception
+    Token.Name.Exception: {
+        "formatting": ThemeAttr("types", "generic"),
+        "type": "builtin",
+    },
+    # +
+    Token.Operator: {
+        "formatting": ThemeAttr("types", "generic"),
+        "type": "operator",
+    },
+    # ()
+    Token.Punctuation: {
+        "formatting": ThemeAttr("types", "generic"),
+        "type": "punctuation",
+    },
+    # File
+    Token.Text: {
+        "formatting": ThemeAttr("types", "generic"),
+        "type": "generic",
+    },
+}
+
+
+COLORSCHEME_SHELLSCRIPT: dict[Any, ColorSchemeEntry] = {
+    # <whitespace>
+    Token.Text.Whitespace: {
+        "formatting": ThemeAttr("types", "generic"),
+        "type": "whitespace",
+    },
+    # #! /bin/sh
+    Token.Comment.Hashbang: {
+        "formatting": ThemeAttr("types", "shellscript_hashbang"),
+        "type": "hashbang",
+    },
+    # # comment
+    Token.Comment.Single: {
+        "formatting": ThemeAttr("types", "shellscript_comment"),
+        "type": "comment",
+    },
+    # variable
+    Token.Name.Variable: {
+        "formatting": ThemeAttr("types", "shellscript_variable"),
+        "type": "variable",
+    },
+    # for, if, else, $(), etc.
+    Token.Keyword: {
+        "formatting": ThemeAttr("types", "shellscript_keyword"),
+        "type": "keyword",
+    },
+    # number
+    Token.Literal.Number: {
+        "formatting": ThemeAttr("types", "shellscript_number"),
+        "type": "value",
+    },
+    # <<EOF...EOF
+    Token.Literal.String: {
+        "formatting": ThemeAttr("types", "shellscript_string"),
+        "type": "value",
+    },
+    # string
+    Token.Literal.String.Single: {
+        "formatting": ThemeAttr("types", "shellscript_string"),
+        "type": "value",
+    },
+    # "
+    Token.Literal.String.Double: {
+        "formatting": ThemeAttr("types", "shellscript_string"),
+        "type": "value",
+    },
     # Escaped values
-    Token.Literal.String.Escape: ThemeAttr("types", "yaml_escape"),
+    Token.Literal.String.Escape: {
+        "formatting": ThemeAttr("types", "shellscript_escape"),
+        "type": "escaped_value",
+    },
+    # ${}
+    Token.Literal.String.Interpol: {
+        "formatting": ThemeAttr("types", "shellscript_keyword"),
+        "type": "keyword",
+    },
+    # echo
+    Token.Name.Builtin: {
+        "formatting": ThemeAttr("types", "shellscript_builtin"),
+        "type": "builtin",
+    },
+    # =
+    Token.Operator: {
+        "formatting": ThemeAttr("types", "shellscript_operator"),
+        "type": "operator",
+    },
+    # |
+    Token.Punctuation: {
+        "formatting": ThemeAttr("types", "shellscript_punctuation"),
+        "type": "punctuation",
+    },
+    # text
+    Token.Text: {
+        "formatting": ThemeAttr("types", "shellscript_text"),
+        "type": "text",
+    },
+}
+
+
+COLORSCHEME_TOML: dict[Any, ColorSchemeEntry] = {
+    # <whitespace>
+    Token.Text.Whitespace: {
+        "formatting": ThemeAttr("types", "generic"),
+        "type": "whitespace",
+    },
+    # # comment
+    Token.Comment.Single: {
+        "formatting": ThemeAttr("types", "toml_comment"),
+        "type": "comment",
+    },
+    # [section]
+    Token.Keyword: {
+        "formatting": ThemeAttr("types", "toml_section"),
+        "type": "section",
+    },
+    # [
+    Token.Keyword.Constant: {
+        "formatting": ThemeAttr("types", "toml_value"),
+        "type": "value",
+    },
+    # "
+    Token.Literal.String.Double: {
+        "formatting": ThemeAttr("types", "toml_value"),
+        "type": "value",
+    },
+    # \\x09
+    Token.Literal.String.Escape: {
+        "formatting": ThemeAttr("types", "toml_escape"),
+        "type": "escaped_value",
+    },
+    # string
+    Token.Literal.String.Single: {
+        "formatting": ThemeAttr("types", "toml_value"),
+        "type": "value",
+    },
+    # =
+    Token.Operator: {
+        "formatting": ThemeAttr("types", "toml_key_separator"),
+        "type": "operator",
+    },
+    # key
+    Token.Name: {
+        "formatting": ThemeAttr("types", "toml_key"),
+        "type": "key",
+    },
+    # [
+    Token.Punctuation: {
+        "formatting": ThemeAttr("types", "toml_punctuation"),
+        "type": "punctuation",
+    },
+}
+
+
+COLORSCHEME_XML: dict[Any, ColorSchemeEntry] = {
+    # <whitespace>
+    Token.Text.Whitespace: {
+        "formatting": ThemeAttr("types", "generic"),
+        "type": "whitespace",
+    },
+    # <?xml version="1.0"?>
+    Token.Comment.Preproc: {
+        "formatting": ThemeAttr("types", "xml_comment_preprocessor"),
+        "type": "preprocessor",
+    },
+    # xmlns:xsi=
+    Token.Name.Attribute: {
+        "formatting": ThemeAttr("types", "xml_attribute_key"),
+        "type": "key",
+    },
+    # <tag
+    Token.Name.Tag: {
+        "formatting": ThemeAttr("types", "xml_tag"),
+        "type": "tag",
+    },
+    # '"http://www.w3.org/2001/XMLSchema-instance"'
+    Token.Literal.String: {
+        "formatting": ThemeAttr("types", "xml_attribute_value"),
+        "type": "value",
+    },
+    # text
+    Token.Text: {
+        "formatting": ThemeAttr("types", "generic"),
+        "type": "generic",
+    },
+}
+
+
+COLORSCHEME_YAML: dict[Any, ColorSchemeEntry] = {
+    # <whitespace>
+    Token.Text.Whitespace: {
+        "formatting": ThemeAttr("types", "generic"),
+        "type": "whitespace",
+    },
+    # -
+    Token.Punctuation.Indicator: {
+        "formatting": ThemeAttr("types", "yaml_list"),
+        "type": "punctuation",
+    },
+    # !!
+    Token.Keyword.Type: {
+        "formatting": ThemeAttr("types", "yaml_type"),
+        "type": "keyword",
+    },
+    # # Comment
+    Token.Comment.Single: {
+        "formatting": ThemeAttr("types", "yaml_comment"),
+        "type": "comment",
+    },
+    # key (sadly also seems to match %YAML and <<)
+    Token.Name.Tag: {
+        "formatting": ThemeAttr("types", "yaml_key"),
+        "type": "key",
+    },
+    # :
+    Token.Punctuation: {
+        "formatting": ThemeAttr("types", "yaml_key_separator"),
+        "type": "punctuation",
+    },
+    # Constant
+    Token.Name.Constant: {
+        "formatting": ThemeAttr("types", "yaml_value"),
+        "type": "value",
+    },
+    # Quoted string
+    Token.Literal.String: {
+        "formatting": ThemeAttr("types", "yaml_value"),
+        "type": "value",
+    },
+    # integer or float
+    Token.Literal.Number: {
+        "formatting": ThemeAttr("types", "yaml_value"),
+        "type": "value",
+    },
+    # Non-quoted string
+    Token.Literal.Scalar.Plain: {
+        "formatting": ThemeAttr("types", "yaml_value"),
+        "type": "value",
+    },
+    # Escaped values
+    Token.Literal.String.Escape: {
+        "formatting": ThemeAttr("types", "yaml_escape"),
+        "type": "escaped_value",
+    },
     # &
-    Token.Name.Label: ThemeAttr("types", "yaml_anchor"),
+    Token.Name.Label: {
+        "formatting": ThemeAttr("types", "yaml_anchor"),
+        "type": "anchor",
+    },
     # *
-    Token.Name.Variable: ThemeAttr("types", "yaml_reference"),
+    Token.Name.Variable: {
+        "formatting": ThemeAttr("types", "yaml_reference"),
+        "type": "reference",
+    },
     # ---
-    Token.Name.Namespace: ThemeAttr("types", "yaml_comment"),
+    Token.Name.Namespace: {
+        "formatting": ThemeAttr("types", "yaml_comment"),
+        "type": "comment",
+    },
 }
 
 
@@ -772,25 +1115,60 @@ def format_yaml_line(line: str, **kwargs: Any) -> tuple[list[ThemeRef | ThemeStr
 
 
 class ThemeArrayFormatter(Formatter):
-    buffer: list[list[ThemeStr]] = []
-    colorscheme: dict[str, ThemeAttr] = {}
+    """
+    A formatter for Pygments that implements support for outputting ThemeArrays.
+    """
+    buffer: list[list[ThemeRef | ThemeStr]] = []
+    colorscheme: dict[str, ColorSchemeEntry] = {}
+    override_formatting: dict[str, ThemeAttr] = {}
+    latest_key: str = ""
+    lexer: Any | None = None
+    unknown_ttypes: set[Any] = set()
 
     def __init__(self, **options: Any):
         Formatter.__init__(self, **options)
         self.colorscheme = deep_get(options, DictPath("colorscheme"), {})
+        self.override_formatting = deep_get(options, DictPath("override_formatting"), {})
+        self.lexer = deep_get(options, DictPath("lexer"))
 
-    def format(self, tokensource, outfile):
+    def format(self, tokensource: Generator, outfile: io.StringIO) -> None:
         # Flush the buffer
         self.buffer = []
+        self.latest_key = ""
 
-        line: list[ThemeStr] = []
+        line: list[ThemeRef | ThemeStr] = []
 
         for ttype, value in tokensource:
             # Use this when adding new formatters
-#           if ttype not in self.colorscheme:
-#               sys.exit(f"{ttype=}\n{value=}")
+            if ttype not in self.colorscheme and ttype not in self.unknown_ttypes:
+                errmsg = [
+                    [("Encountered unknown token type ", "default"),
+                     (f"{ttype}", "argument"),
+                     (" for substring “", "default"),
+                     (f"{value}", "argument"),
+                     ("“ when formatting using lexer ", "default"),
+                     (f"{self.lexer}", "argument")]
+                ]
+                unformatted_msg, formatted_msg = ANSIThemeStr.format_error_msg(errmsg)
+                cmtlog.log(LogLevel.ERR, msg=unformatted_msg, messages=formatted_msg)
+                self.unknown_ttypes.add(ttype)
             splitlines = value.split("\n")
-            formatting = self.colorscheme.get(ttype, ThemeAttr("main", "default"))
+            formatting_entry = self.colorscheme.get(ttype, {
+                "formatting": ThemeAttr("main", "default"),
+                "type": "generic",
+            })
+
+            formatting = deep_get(formatting_entry,
+                                  DictPath("formatting"), ThemeAttr("main", "default"))
+            value_type = deep_get(formatting_entry,
+                                  DictPath("type"), "generic")
+            if value_type == "key":
+                self.latest_key = value
+                formatting = deep_get(self.override_formatting,
+                                      DictPath(f"{self.latest_key}#key"), formatting)
+            elif value_type == "value" and self.latest_key:
+                formatting = deep_get(self.override_formatting,
+                                      DictPath(f"{self.latest_key}#value"), formatting)
 
             for n, segment in enumerate(splitlines):
                 if segment:
@@ -804,7 +1182,7 @@ class ThemeArrayFormatter(Formatter):
             self.buffer.append(line)
 
 
-# pylint: disable-next=too-many-branches,too-many-locals,too-many-statements
+# pylint: disable-next=too-many-branches
 def format_yaml(lines: str | list[str] | dict | list[dict], **kwargs: Any) -> \
         list[list[ThemeRef | ThemeStr]]:
     """
@@ -818,9 +1196,9 @@ def format_yaml(lines: str | list[str] | dict | list[dict], **kwargs: Any) -> \
         Returns:
             ([themearray]): A list of themearrays
     """
-    dumps: list[list[ThemeRef | ThemeStr]] = []
     is_json: bool = deep_get(kwargs, DictPath("json"), False)
     unfold_msg: bool = deep_get(kwargs, DictPath("unfold_msg"), False)
+    yaml.add_representer(str, __str_representer)
 
     if isinstance(lines, str):
         # If it's one single line and starts and ends with either [] or {} we try to expand it.
@@ -835,17 +1213,42 @@ def format_yaml(lines: str | list[str] | dict | list[dict], **kwargs: Any) -> \
                 lines = json_dumps(d)
             except DecodeException:
                 pass
-    elif isinstance(lines, dict) or (isinstance(lines, list) and lines \
-                                     and isinstance(lines[0], (list, dict))):
-        lines = yaml.dump(lines)
+    elif isinstance(lines, dict):
+        if is_json:
+            lines = json_dumps(lines)
+        else:
+            lines = yaml.dump(lines, sort_keys=False)
+    elif isinstance(lines, list) and lines and isinstance(lines[0], dict):
+        # When we get multiple objects it's because they're intended to be flattened
+        # into the same logpad.
+        lline = []
+        for d in lines:
+            if is_json:
+                lline.append(json_dumps(cast(dict, d)))
+            else:
+                lline.append(yaml.dump(d, sort_keys=False))
+        lines = "\n".join(lline)
     else:
-        lines = "\n".join(lines)
+        lines = "\n".join(cast(list[str], lines))
 
     if deep_get(kwargs, DictPath("raw"), False):
         return format_none(lines)
 
-    lexer = pygments.lexers.YamlLexer()
-    formatter = ThemeArrayFormatter(colorscheme=COLORSCHEME_YAML)
+    override_formatting: dict[str, ThemeAttr] = \
+        deep_get(kwargs, DictPath("override_formatting"), {})
+
+    if is_json:
+        # pylint: disable-next=no-member
+        lexer = pygments.lexers.JsonLexer()
+        formatter = ThemeArrayFormatter(colorscheme=COLORSCHEME_JSON,
+                                        override_formatting=override_formatting,
+                                        lexer=lexer)
+    else:
+        # pylint: disable-next=no-member
+        lexer = pygments.lexers.YamlLexer()
+        formatter = ThemeArrayFormatter(colorscheme=COLORSCHEME_YAML,
+                                        override_formatting=override_formatting,
+                                        lexer=lexer)
     pygments.highlight(lines, lexer, formatter)
 
     return formatter.buffer
@@ -901,16 +1304,15 @@ def format_crt(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef | Th
         Returns:
             list[themearray]: A list of themearrays
     """
-    dumps: list[list[ThemeRef | ThemeStr]] = []
-
     if deep_get(kwargs, DictPath("raw"), False):
         return format_none(lines)
 
     if isinstance(lines, list):
         lines = "\n".join(lines)
 
+    # pylint: disable-next=no-member
     lexer = pygments.lexers.AscLexer()
-    formatter = ThemeArrayFormatter(colorscheme=COLORSCHEME_CRT)
+    formatter = ThemeArrayFormatter(colorscheme=COLORSCHEME_CRT, lexer=lexer)
     pygments.highlight(lines, lexer, formatter)
 
     return formatter.buffer
@@ -1208,16 +1610,15 @@ def format_ini(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef | Th
         Returns:
             list[themearray]: A list of themearrays
     """
-    dumps: list[list[ThemeRef | ThemeStr]] = []
-
     if deep_get(kwargs, DictPath("raw"), False):
         return format_none(lines)
 
     if isinstance(lines, list):
         lines = "\n".join(lines)
 
+    # pylint: disable-next=no-member
     lexer = pygments.lexers.IniLexer()
-    formatter = ThemeArrayFormatter(colorscheme=COLORSCHEME_INI)
+    formatter = ThemeArrayFormatter(colorscheme=COLORSCHEME_INI, lexer=lexer)
     pygments.highlight(lines, lexer, formatter)
 
     return formatter.buffer
@@ -1324,7 +1725,6 @@ def format_mosquitto(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRe
     return dumps
 
 
-# pylint: disable-next=too-many-branches
 def format_nginx(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef | ThemeStr]]:
     """
     NGINX formatter; returns the text with syntax highlighting for NGINX.
@@ -1337,22 +1737,20 @@ def format_nginx(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef | 
         Returns:
             list[themearray]: A list of themearrays
     """
-    dumps: list[list[ThemeRef | ThemeStr]] = []
-
     if deep_get(kwargs, DictPath("raw"), False):
         return format_none(lines)
 
     if isinstance(lines, list):
         lines = "\n".join(lines)
 
+    # pylint: disable-next=no-member
     lexer = pygments.lexers.NginxConfLexer()
-    formatter = ThemeArrayFormatter(colorscheme=COLORSCHEME_NGINX)
+    formatter = ThemeArrayFormatter(colorscheme=COLORSCHEME_NGINX, lexer=lexer)
     pygments.highlight(lines, lexer, formatter)
 
     return formatter.buffer
 
 
-# pylint: disable-next=too-many-locals,too-many-branches,too-many-statements
 def format_xml(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef | ThemeStr]]:
     """
     XML formatter; returns the text with syntax highlighting for XML.
@@ -1365,20 +1763,15 @@ def format_xml(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef | Th
         Returns:
             list[themearray]: A list of themearrays
     """
-    dumps: list[list[ThemeRef | ThemeStr]] = []
-
-    tag_open = False
-    tag_named = False
-    comment = False
-
     if deep_get(kwargs, DictPath("raw"), False):
         return format_none(lines)
 
     if isinstance(lines, list):
         lines = "\n".join(lines)
 
+    # pylint: disable-next=no-member
     lexer = pygments.lexers.XmlLexer()
-    formatter = ThemeArrayFormatter(colorscheme=COLORSCHEME_XML)
+    formatter = ThemeArrayFormatter(colorscheme=COLORSCHEME_XML, lexer=lexer)
     pygments.highlight(lines, lexer, formatter)
 
     return formatter.buffer
@@ -1396,16 +1789,15 @@ def format_powershell(lines: str | list[str], **kwargs: Any) -> list[list[ThemeR
         Returns:
             list[themearray]: A list of themearrays
     """
-    dumps: list[list[ThemeRef | ThemeStr]] = []
-
     if deep_get(kwargs, DictPath("raw"), False):
         return format_none(lines)
 
     if isinstance(lines, list):
         lines = "\n".join(lines)
 
+    # pylint: disable-next=no-member
     lexer = pygments.lexers.PowerShellLexer()
-    formatter = ThemeArrayFormatter(colorscheme=COLORSCHEME_POWERSHELL)
+    formatter = ThemeArrayFormatter(colorscheme=COLORSCHEME_POWERSHELL, lexer=lexer)
     pygments.highlight(lines, lexer, formatter)
 
     return formatter.buffer
@@ -1424,22 +1816,20 @@ def format_python_traceback(lines: str | list[str],
         Returns:
             list[themearray]: A list of themearrays
     """
-    dumps: list[list[ThemeRef | ThemeStr]] = []
-
     if deep_get(kwargs, DictPath("raw"), False):
         return format_none(lines)
 
     if isinstance(lines, list):
         lines = "\n".join(lines)
 
+    # pylint: disable-next=no-member
     lexer = pygments.lexers.PythonTracebackLexer()
-    formatter = ThemeArrayFormatter(colorscheme=COLORSCHEME_PYTHON_TRACEBACK)
+    formatter = ThemeArrayFormatter(colorscheme=COLORSCHEME_PYTHON_TRACEBACK, lexer=lexer)
     pygments.highlight(lines, lexer, formatter)
 
     return formatter.buffer
 
 
-# pylint: disable-next=too-many-branches
 def format_toml(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef | ThemeStr]]:
     """
     TOML formatter; returns the text with syntax highlighting for TOML.
@@ -1452,23 +1842,15 @@ def format_toml(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef | T
         Returns:
             list[themearray]: A list of themearrays
     """
-    # Necessary improvements:
-    # * Instead of only checking for lines that end with a comment for key = value,
-    #   and for full comment lines, check for lines that end with a comment
-    #   in any situation (except multiline). Split out the comment and add it last.
-    # * Handle quoting and escaping of quotes; \''' should not end a multiline, for instance.
-    # * XXX: should we highlight key=value for inline tables? Probably not
-    # * XXX: should we highlight different types (integer, string, etc.)? Almost certainly not.
-    dumps: list[list[ThemeRef | ThemeStr]] = []
-
     if deep_get(kwargs, DictPath("raw"), False):
         return format_none(lines)
 
     if isinstance(lines, list):
         lines = "\n".join(lines)
 
+    # pylint: disable-next=no-member
     lexer = pygments.lexers.TOMLLexer()
-    formatter = ThemeArrayFormatter(colorscheme=COLORSCHEME_TOML)
+    formatter = ThemeArrayFormatter(colorscheme=COLORSCHEME_TOML, lexer=lexer)
     pygments.highlight(lines, lexer, formatter)
 
     return formatter.buffer
@@ -1486,16 +1868,15 @@ def format_shellscript(lines: str | list[str], **kwargs: Any) -> list[list[Theme
         Returns:
             list[themearray]: A list of themearrays
     """
-    dumps: list[list[ThemeRef | ThemeStr]] = []
-
     if deep_get(kwargs, DictPath("raw"), False):
         return format_none(lines)
 
     if isinstance(lines, list):
         lines = "\n".join(lines)
 
+    # pylint: disable-next=no-member
     lexer = pygments.lexers.BashLexer()
-    formatter = ThemeArrayFormatter(colorscheme=COLORSCHEME_SHELLSCRIPT)
+    formatter = ThemeArrayFormatter(colorscheme=COLORSCHEME_SHELLSCRIPT, lexer=lexer)
     pygments.highlight(lines, lexer, formatter)
 
     return formatter.buffer
