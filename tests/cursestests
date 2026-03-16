@@ -19,6 +19,7 @@ from pathlib import PurePath
 import os
 import sys
 from typing import Any
+from unittest import mock
 import yaml
 
 from clustermanagementtoolkit import cmtlib
@@ -1659,6 +1660,84 @@ def test_get_labels(verbose: bool = False) -> tuple[str, bool]:
     return message, result
 
 
+def test_map_key(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = curses_helper.map_key
+
+    if result:
+        # Indata format:
+        # (labels, expected_result, expected_exception)
+        testdata: tuple[Any, ...] = (
+            # No callable defined; using Enter is OK
+            ("fake1.yaml", "test1", None, "enter", "",
+             ([curses.KEY_ENTER, 10, 13], "[Enter]"), None),
+            # Callable defined; using Enter is not acceptable
+            ("fake1.yaml", "test1", test_map_key, "enter", "",
+             None, Exception),
+            ("fake1.yaml", "test1", None, "f1", "",
+             ([curses.KEY_F1], "[F1]"), None),
+            ("fake1.yaml", "test1", None, "f1", "shift",
+             ([curses.KEY_F13], "[Shift] + [F1] / [F13]"), None),
+            ("fake1.yaml", "test1", None, "f13", "",
+             ([curses.KEY_F13], "[Shift] + [F1] / [F13]"), None),
+            # Unsupported modifier for F-key
+            ("fake1.yaml", "test1", None, "f1", "ctrl",
+             None, Exception),
+            ("fake1.yaml", "test1", None, "a", "",
+             ([ord("a")], "A"), None),
+            ("fake1.yaml", "test1", None, "a", "shift",
+             ([ord("A")], "[Shift] + A"), None),
+            ("fake1.yaml", "test1", None, "a", "ctrl",
+             ([ord("a") - 96], "[Ctrl] + A"), None),
+            # Unsupported modifier
+            ("fake1.yaml", "test1", None, "a", "alt",
+             None, Exception),
+            # Invalid key
+            ("fake1.yaml", "test1", None, "ab", "",
+             None, Exception),
+        )
+
+        for view_file, shortcut, activatedfun, key, modifier, \
+                expected_result, expected_exception in testdata:
+            try:
+                with mock.patch("sys.exit", side_effect=Exception()):
+                    tmp = fun(view_file, shortcut, activatedfun, key, modifier)
+                if tmp != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"           result: {tmp}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+            except Exception as e:
+                tmp = str(e)
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        if not expected_result or expected_result == tmp:
+                            continue
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  f"           result: {tmp}\n" \
+                                  f"  expected result: {expected_result}"
+                        result = False
+                        break
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  f"        exception: {type(e)}\n" \
+                                  f"          message: {tmp}\n" \
+                                  f"         expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"        exception: {type(e)}\n" \
+                              f"          message: {tmp}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+    return message, result
+
+
 tests: dict[tuple[str, ...], dict[str, Any]] = {
     ("ThemeStr()",): {
         "callable": test_themestring,
@@ -1734,6 +1813,10 @@ tests: dict[tuple[str, ...], dict[str, Any]] = {
     },
     ("get_labels()",): {
         "callable": test_get_labels,
+        "result": None,
+    },
+    ("map_key()",): {
+        "callable": test_map_key,
         "result": None,
     },
 }

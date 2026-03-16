@@ -1570,7 +1570,7 @@ def inputbox(stdscr: curses.window, **kwargs: Any) -> str:
 
     # Show the cursor; seems some implementations of curses (or terminals?)
     # might not support toggling the cursor; they will throw an exception instead.
-    # Catch this an pretend that everything is fine.
+    # Catch this and pretend that everything is fine.
     try:
         curses.curs_set(True)
     except curses.error:
@@ -1607,7 +1607,7 @@ def inputbox(stdscr: curses.window, **kwargs: Any) -> str:
 
     # Hide the cursor; seems some implementations of curses (or terminals?)
     # might not support toggling the cursor; they will throw an exception instead.
-    # Catch this an pretend that everything is fine.
+    # Catch this and pretend that everything is fine.
     try:
         curses.curs_set(False)
     except curses.error:
@@ -2841,23 +2841,20 @@ def map_key(view_file: str, shortcut: str, activatedfun: Callable | None,
 
     if key in ("f1", "f2", "f3", "f4", "f5", "f6",
                "f7", "f8", "f9", "f10", "f11", "f12") and modifier in ("", "shift"):
-        if not modifier:
-            shortcut_key: list[int] = deep_get(key_mappings, DictPath(key))
-            help_key: str = f"[{key.upper()}]"
-        elif modifier == "shift":
+        if modifier == "shift":
             key_: str = key[0] + str(int(key[1:]) + 12)
             num = int(key[1:]) + 12
-            shortcut_key = deep_get(key_mappings, DictPath(key_))
-            help_key = f"[Shift] + [{key.upper()}] / [{key[0].upper()}{num}]"
+            shortcut_key: list[int] = deep_get(key_mappings, DictPath(key_))
+            help_key: str = f"[Shift] + [{key.upper()}] / [{key[0].upper()}{num}]"
         else:
-            sys.exit(f"View-file {view_file} is invalid: "
-                     f"the modifier {modifier}; cannot be combined with {key}; aborting")
+            shortcut_key = deep_get(key_mappings, DictPath(key))
+            help_key = f"[{key.upper()}]"
     elif key in ("f13", "f14", "f15", "f16", "f17", "f18",
                  "f19", "f20", "f21", "f22", "f23", "f24") and not modifier:
-        num = int(key[1:]) - 12
+        num = int(key[1:])
         key_ = key[0] + str(num)
         shortcut_key = deep_get(key_mappings, DictPath(key_))
-        help_key = f"[Shift] + [{key[0].upper()}{num}] / [{key.upper()}]"
+        help_key = f"[Shift] + [{key[0].upper()}{num - 12}] / [{key.upper()}]"
     elif key in ("enter", "return"):
         if modifier or activatedfun is None:
             help_key = "[Enter]"
@@ -2873,7 +2870,7 @@ def map_key(view_file: str, shortcut: str, activatedfun: Callable | None,
         elif modifier == "ctrl":
             help_key = f"[Ctrl] + {key.upper()}"
             shortcut_key = [ord(key) - 96]
-        else:
+        else:  # pragma: nocover
             # This shouldn't be necessary since we check this at the beginning of the function,
             # but pylint complains otherwise.
             sys.exit(f"View-file {view_file} is invalid: "
@@ -2883,7 +2880,7 @@ def map_key(view_file: str, shortcut: str, activatedfun: Callable | None,
         shortcut_key = [ord(key)]
     else:
         sys.exit(f"View-file {view_file} is invalid: "
-                 f"unknown {key}; aborting")
+                 f"unknown key {key}; aborting")
 
     return shortcut_key, help_key
 
