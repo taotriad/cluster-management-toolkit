@@ -731,7 +731,6 @@ if SYNTAX_HIGHLIGHTING:
         Error: ("_brightred_", "_brightred_"),
     }
 
-
     COLORSCHEME_YAML: dict[Any, tuple[str, str]] = {
         Token: ("", ""),
         Token.Literal: ("magenta", "brightmagenta"),
@@ -765,7 +764,6 @@ if SYNTAX_HIGHLIGHTING:
 
         Error: ("_brightred_", "_brightred_"),
     }
-
 
     COLORSCHEME: dict[Any, tuple[str, str]] = {
         Token: ("", ""),
