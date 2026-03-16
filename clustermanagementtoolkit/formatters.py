@@ -658,6 +658,14 @@ def __str_representer(dumper: yaml.Dumper, data: Any) -> yaml.Node:
     return dumper.represent_scalar("tag:yaml.org,2002:str", data)  # pragma: nocover
 
 
+GITHUB_TAGS: tuple[tuple[str, str], ...] = (
+    (":bug:", "🐛"),
+    (":seedling:", "🌱"),
+    (":chart_with_upwards_trend:", "📈"),
+    (":book:", "📖"),
+)
+
+
 # pylint: disable-next=too-many-locals,too-many-branches,too-many-statements
 def format_markdown(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef | ThemeStr]]:
     """
@@ -734,10 +742,8 @@ def format_markdown(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef
             continue
         # Replace github tags
         if use_github_tags:
-            line = line.replace(":bug:", "🐛")
-            line = line.replace(":seedling:", "🌱")
-            line = line.replace(":chart_with_upwards_trend:", "📈")
-            line = line.replace(":book:", "📖")
+            for tag, subst in GITHUB_TAGS:
+                line = line.replace(tag, subst)
         # For headers we are--for now--lazy
         # Level 1 header
         if line.startswith("# "):
