@@ -16,22 +16,8 @@ infoview:
   infopad:
     row_indexes:
       Normal:
-        fields: ["cluster_version",
-                 "disable_copied_csvs", "package_server_sync_interval"]
+        fields: ["disable_copied_csvs", "package_server_sync_interval"]
     rows:
-      cluster_version:
-        header: [["Cluster ", ["main", "infoheader"]],
-                 ["V", ["main", "infoheader_shortcut"]],
-                 ["ersion:", ["main", "infoheader"]]]
-        paths:
-          - path: "metadata#ownerReferences"
-            pathtype: "items"
-            subpaths:
-              - "name"
-            when:
-              - key: "kind"
-                eq: "ClusterVersion"
-        default: "<none>"
       disable_copied_csvs:
         header: [["Disable Copied CSVs:", ["main", "infoheader"]]]
         path: "spec#features#disableCopiedCSVs"
@@ -44,15 +30,29 @@ infoview:
         type: "str"
         formatter: "numerical"
   shortcuts:
-    "Cluster Version":
-      key: "v"
+    "Owner References":
+      key: "o"
       modifier: "shift"
       read_only: true
-      helptext: "Open info page for Cluster Version"
+      helptext: "List Owner References"
+      widget: "windowwidget"
+      title: "Owner References:"
+      selectable: true
+      headers: ["Kind:", "API-Version:", "Name:"]
+      itemgetter: "get_list_fields"
+      itemgetter_args:
+        path: "metadata#ownerReferences"
+        fields:
+          - "kind"
+          - "apiVersion"
+          - "name"
+      # This isn't supported for now
+      sortcolumn: "kind"
       action: "call"
       action_call: "resourceinfodispatch_with_lookup"
       action_args:
         _pass_obj: true
-        owner_reference_path: "metadata#ownerReferences"
-        kind: "ClusterVersion"
-        api_family: "config.openshift.io"
+        kind_path: 0
+        api_version_path: 1
+        name_path: 2
+        _parent_namespace_path: "metadata#namespace"

@@ -20,9 +20,24 @@ infoview:
   infopad:
     row_indexes:
       Normal:
-        fields: ["label_selector"]
+        fields: ["label_selector", "set_based_selector"]
     rows:
       label_selector:
+        header: [["La", ["main", "infoheader"]],
+                 ["b", ["main", "infoheader_shortcut"]],
+                 ["el Selector:", ["main", "infoheader"]]]
+        paths:
+          - path: ["status#components#labelSelector#matchLabels"]
+            pathtype: "key_value"
+            default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "key"
+            - type: "value"
+          field_separators:
+            - type: "selector"
+      set_based_selector:
         header: [["Set-based Selector:", ["main", "infoheader"]]]
         paths:
           - path: "status#components#labelSelector#matchExpressions"
@@ -38,6 +53,16 @@ infoview:
             - type: "space"
             - type: "no_pad"
   shortcuts:
+    "Label Selector":
+      key: "b"
+      read_only: true
+      helptext: "Show label selector"
+      widget: "windowwidget"
+      title: "Label Selector:"
+      headers: ["Key:", "Value:"]
+      itemgetter: "get_key_value"
+      itemgetter_args:
+        path: "status#components#labelSelector#matchLabels"
     "List References":
       key: "r"
       modifier: "shift"

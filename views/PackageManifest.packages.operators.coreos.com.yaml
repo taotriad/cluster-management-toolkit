@@ -9,8 +9,11 @@ listview:
   name: "Package Manifests"
   group: "API & Extendability"
   field_indexes:
+    Wide:
+      fields: ["namespace", "name", "catalog", "channels", "provider", "age"]
+      sortcolumn: "namespace"
     Normal:
-      fields: ["namespace", "name", "catalog", "channels", "age"]
+      fields: ["namespace", "name", "provider", "age"]
       sortcolumn: "namespace"
   fields:
     catalog:
@@ -23,6 +26,10 @@ listview:
       type: "len"
       formatter: "numerical"
       align: "right"
+    provider:
+      header: "Provider:"
+      path: "status#provider#name"
+      type: "str"
 infoview:
   name: "Package Manifest Info"
   infopad:

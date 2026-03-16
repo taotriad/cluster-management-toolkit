@@ -253,11 +253,19 @@ infoview:
       helptext: "Show Catalog Sources"
       title: "Catalog Sources:"
       widget: "windowwidget"
+      selectable: true
       itemgetter: "get_list_as_list"
       itemgetter_args:
         path: "status#catalogSources"
       # This isn't supported for now
       sortcolumn: "name"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        kind: "CatalogSource"
+        api_family: "operators.coreos.com"
+        _parent_namespace_path: "metadata#namespace"
+        name_path: 0
     "Cluster Service Versions":
       key: "c"
       modifier: "shift"

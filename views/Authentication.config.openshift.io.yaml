@@ -16,31 +16,19 @@ infoview:
   infopad:
     row_indexes:
       Normal:
-        fields: ["cluster_version", "oauth_metadata",
+        fields: ["oauth_metadata",
                  "integrated_oauth_metadata", "service_account_issuer",
                  "webhook_token_authenticator_config", "type"]
     rows:
-      cluster_version:
-        header: [["Cluster ", ["main", "infoheader"]],
-                 ["V", ["main", "infoheader_shortcut"]],
-                 ["ersion:", ["main", "infoheader"]]]
-        paths:
-          - path: "metadata#ownerReferences"
-            pathtype: "items"
-            subpaths:
-              - "name"
-            when:
-              - key: "kind"
-                eq: "ClusterVersion"
-        default: "<none>"
       integrated_oauth_metadata:
         header: [["I", ["main", "infoheader_shortcut"]],
                  ["ntegrated OAuth Metadata:", ["main", "infoheader"]]]
         path: "status#integratedOAuthMetadata#name"
         type: "str"
       oauth_metadata:
-        header: [["O", ["main", "infoheader_shortcut"]],
-                 ["Auth Metadata:", ["main", "infoheader"]]]
+        header: [["O", ["main", "infoheader"]],
+                 ["A", ["main", "infoheader_shortcut"]],
+                 ["uth Metadata:", ["main", "infoheader"]]]
         path: "spec#oauthMetadata#name"
         default: "<unset>"
         type: "str"
@@ -62,18 +50,32 @@ infoview:
         path: "spec#webhookTokenAuthenticator#kubeConfig#name"
         type: "str"
   shortcuts:
-    "Cluster Version":
-      key: "v"
+    "Owner References":
+      key: "o"
       modifier: "shift"
       read_only: true
-      helptext: "Open info page for Cluster Version"
+      helptext: "List Owner References"
+      widget: "windowwidget"
+      title: "Owner References:"
+      selectable: true
+      headers: ["Kind:", "API-Version:", "Name:"]
+      itemgetter: "get_list_fields"
+      itemgetter_args:
+        path: "metadata#ownerReferences"
+        fields:
+          - "kind"
+          - "apiVersion"
+          - "name"
+      # This isn't supported for now
+      sortcolumn: "kind"
       action: "call"
       action_call: "resourceinfodispatch_with_lookup"
       action_args:
         _pass_obj: true
-        owner_reference_path: "metadata#ownerReferences"
-        kind: "ClusterVersion"
-        api_family: "config.openshift.io"
+        kind_path: 0
+        api_version_path: 1
+        name_path: 2
+        _parent_namespace_path: "metadata#namespace"
     "Open integrated Oauth metadata":
       key: "i"
       modifier: "shift"
@@ -87,7 +89,7 @@ infoview:
         namespace: "openshift-config-managed"
         kind: "ConfigMap"
     "Open Oauth metadata":
-      key: "o"
+      key: "a"
       modifier: "shift"
       read_only: true
       helptext: "Open info page for OAuth metadata"

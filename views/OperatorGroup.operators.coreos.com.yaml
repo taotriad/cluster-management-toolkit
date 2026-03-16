@@ -9,9 +9,31 @@ listview:
   group: "API & Extendability"
   field_indexes:
     Normal:
-      fields: ["namespace", "name", "upgrade_strategy", "age"]
+      fields: ["namespace", "name", "controller", "upgrade_strategy", "age"]
       sortcolumn: "namespace"
   fields:
+    controller:
+      header: "Controller:"
+      paths:
+        - path: "metadata#ownerReferences"
+          pathtype: "items"
+          subpaths:
+            - "kind"
+            - "apiVersion"
+            - "name"
+          when:
+            - key: "controller"
+              eq: true
+          type: ["kind", "api_group", "name"]
+      formatter: "list"
+      formatting:
+        field_colors:
+          - type: "kind"
+          - type: "api_group"
+          - type: "generic"
+        field_separators:
+          - type: "kind_api_group"
+          - type: "kind"
     upgrade_strategy:
       header: "Upgrade Strategy:"
       path: "spec#upgradeStrategy"
@@ -22,24 +44,34 @@ infoview:
   infopad:
     row_indexes:
       Normal:
-        fields: ["cluster_version", "static_provided_apis",
+        fields: ["controller", "static_provided_apis",
                  "target_namespaces", "namespace_label_selector",
                  "namespaces", "service_account",
                  "upgrade_strategy", "last_updated"]
     rows:
-      cluster_version:
-        header: [["Cluster ", ["main", "infoheader"]],
-                 ["V", ["main", "infoheader_shortcut"]],
-                 ["ersion:", ["main", "infoheader"]]]
+      controller:
+        header: [["C", ["main", "infoheader_shortcut"]],
+                 ["ontroller:", ["main", "infoheader"]]]
         paths:
           - path: "metadata#ownerReferences"
             pathtype: "items"
             subpaths:
+              - "kind"
+              - "apiVersion"
               - "name"
             when:
-              - key: "kind"
-                eq: "ClusterVersion"
-        default: "<none>"
+              - key: "controller"
+                eq: true
+            type: ["kind", "api_group", "name"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "kind"
+            - type: "api_group"
+            - type: "generic"
+          field_separators:
+            - type: "kind_api_group"
+            - type: "kind"
       last_updated:
         header: [["Last Updated:", ["main", "infoheader"]]]
         path: "status#lastUpdated"
@@ -99,18 +131,17 @@ infoview:
         default: "<unset>"
         type: "str"
   shortcuts:
-    "Cluster Version":
-      key: "v"
+    "Open controller":
+      key: "c"
       modifier: "shift"
       read_only: true
-      helptext: "Open info page for Cluster Version"
+      helptext: "Open info page for controller"
       action: "call"
       action_call: "resourceinfodispatch_with_lookup"
       action_args:
         _pass_obj: true
         owner_reference_path: "metadata#ownerReferences"
-        kind: "ClusterVersion"
-        api_family: "config.openshift.io"
+        namespace_path: "metadata#namespace"
     "Namespace Label Selector":
       key: "b"
       read_only: true

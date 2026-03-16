@@ -9,7 +9,7 @@ command:
   - "clruserdefnet"
 listview:
   name: "Cluster User Defined Networks"
-  group: "Networking"
+  group: "Network"
   field_indexes:
     Normal:
       fields: ["name", "topology", "age"]

@@ -9,13 +9,22 @@ listview:
   name: "Cluster Service Versions"
   group: "API & Extendability"
   field_indexes:
+    Wide:
+      fields: ["namespace", "name", "display_name", "version",
+               "reason", "phase", "age", "message"]
+      sortcolumn: "namespace"
     Normal:
-      fields: ["namespace", "name", "display_name", "version", "phase", "age"]
+      fields: ["namespace", "name", "version", "phase", "age"]
       sortcolumn: "namespace"
   fields:
     display_name:
       header: "Display Name:"
       path: "spec#displayName"
+      type: "str"
+    message:
+      header: "Message:"
+      path: "status#message"
+      default: "<unset>"
       type: "str"
     phase:
       header: "Phase:"
@@ -29,11 +38,32 @@ listview:
               field_colors:
                 - context: "main"
                   type: "status_not_ok"
+            Installing:
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
             Pending:
               field_colors:
                 - context: "main"
                   type: "status_pending"
             Succeeded:
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+    reason:
+      header: "Reason:"
+      path: "status#reason"
+      default: "<unset>"
+      type: "str"
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          mappings:
+            Copied:
+              field_colors:
+                - context: "main"
+                  type: "status_done"
+            InstallSucceeded:
               field_colors:
                 - context: "main"
                   type: "status_ok"
@@ -57,7 +87,7 @@ infoview:
     row_indexes:
       Normal:
         fields: ["display_name", "keywords", "maturity", "version",
-                 "minimum_kubernetes_version", "phase"]
+                 "minimum_kubernetes_version", "reason", "message", "phase"]
     rows:
       display_name:
         header: [["Display Name:", ["main", "infoheader"]]]
@@ -71,6 +101,11 @@ infoview:
       maturity:
         header: [["Maturity:", ["main", "infoheader"]]]
         path: "spec#maturity"
+        type: "str"
+      message:
+        header: [["Message:", ["main", "infoheader"]]]
+        path: "status#message"
+        default: "<unset>"
         type: "str"
       minimum_kubernetes_version:
         header: [["Minimum Kubernetes Version:", ["main", "infoheader"]]]
@@ -91,11 +126,32 @@ infoview:
                 field_colors:
                   - context: "main"
                     type: "status_not_ok"
+              Installing:
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
               Pending:
                 field_colors:
                   - context: "main"
                     type: "status_pending"
               Succeeded:
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+      reason:
+        header: [["Reason:", ["main", "infoheader"]]]
+        path: "status#reason"
+        default: "<unset>"
+        type: "str"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              Copied:
+                field_colors:
+                  - context: "main"
+                    type: "status_done"
+              InstallSucceeded:
                 field_colors:
                   - context: "main"
                     type: "status_ok"

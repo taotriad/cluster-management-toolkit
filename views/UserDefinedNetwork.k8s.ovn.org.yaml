@@ -9,7 +9,7 @@ command:
   - "userdefnet"
 listview:
   name: "User Defined Networks"
-  group: "Networking"
+  group: "Network"
   field_indexes:
     Normal:
       fields: ["namespace", "name", "topology", "age"]

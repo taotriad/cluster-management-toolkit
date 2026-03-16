@@ -6,7 +6,7 @@ command:
   - "ts"
 listview:
   name: "Traffic Splits"
-  group: "Networking"
+  group: "Network"
   field_indexes:
     Normal:
       fields: ["namespace", "name", "service", "age"]

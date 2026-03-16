@@ -15,7 +15,13 @@ listview:
   group: "Accelerators"
   field_indexes:
     Normal:
-      fields: ["name", "age"]
+      fields: ["name", "allocation_mode", "age"]
+  fields:
+    allocation_mode:
+      header: "Allocation Mode:"
+      path: "spec#accelerator_allocation_mode"
+      default: "<unset>"
+      type: "str"
 infoview:
   name: "Cluster Policy Info"
   infopad:
@@ -32,6 +38,7 @@ infoview:
                  "driver_loader_repo_path",
                  "driver_runner_image",
                  "device_plugin_image",
+                 "allocation_mode",
                  "feature_discovery_header",
                  "feature_discovery_nfd_plugin",
                  "feature_discovery_runner_image",
@@ -48,6 +55,11 @@ infoview:
                  "bmc_monitoring_image",
                  "image_registry"]
     rows:
+      allocation_mode:
+        header: [["Accelerator Allocation Mode:", ["main", "infoheader"]]]
+        path: "spec#accelerator_allocation_mode"
+        default: "<unset>"
+        type: "str"
       bmc_monitoring_image:
         header: [["BMC Monitoring Image:", ["main", "infoheader"]]]
         paths:

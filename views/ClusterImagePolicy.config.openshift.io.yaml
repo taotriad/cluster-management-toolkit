@@ -16,23 +16,34 @@ infoview:
   infopad:
     row_indexes:
       Normal:
-        fields: ["cluster_version", "scopes", "policy_header",
+        fields: ["controller", "scopes", "policy_header",
                  "policy_root_of_trust_header", "policy_root_of_trust_type",
                  "policy_root_of_trust_public_key"]
     rows:
-      cluster_version:
-        header: [["Cluster ", ["main", "infoheader"]],
-                 ["V", ["main", "infoheader_shortcut"]],
-                 ["ersion:", ["main", "infoheader"]]]
+      controller:
+        header: [["C", ["main", "infoheader_shortcut"]],
+                 ["ontroller:", ["main", "infoheader"]]]
         paths:
           - path: "metadata#ownerReferences"
             pathtype: "items"
             subpaths:
+              - "kind"
+              - "apiVersion"
               - "name"
             when:
-              - key: "kind"
-                eq: "ClusterVersion"
+              - key: "controller"
+                eq: true
+            type: ["kind", "api_group", "name"]
         default: "<none>"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "kind"
+            - type: "api_group"
+            - type: "generic"
+          field_separators:
+            - type: "kind_api_group"
+            - type: "kind"
       policy_header:
         header: [["Policy:", ["main", "infoheader"]]]
       policy_root_of_trust_header:
@@ -54,18 +65,17 @@ infoview:
         type: "raw"
         formatter: "list"
   shortcuts:
-    "Cluster Version":
-      key: "v"
+    "Open controller":
+      key: "c"
       modifier: "shift"
       read_only: true
-      helptext: "Open info page for Cluster Version"
+      helptext: "Open info page for controller"
       action: "call"
       action_call: "resourceinfodispatch_with_lookup"
       action_args:
         _pass_obj: true
+        namespace_path: "metadata#namespace"
         owner_reference_path: "metadata#ownerReferences"
-        kind: "ClusterVersion"
-        api_family: "config.openshift.io"
     "List scopes":
       key: "s"
       modifier: "shift"
