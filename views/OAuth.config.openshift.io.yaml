@@ -16,7 +16,7 @@ infoview:
   infopad:
     row_indexes:
       Normal:
-        fields: ["cluster_version", "login_name", "access_token_max_age"]
+        fields: ["login_name", "access_token_max_age"]
     rows:
       access_token_max_age:
         header: [["Access Token Max Age:", ["main", "infoheader"]]]
@@ -32,36 +32,12 @@ infoview:
             - type: "unit"
           field_separators:
             - type: "no_pad"
-      cluster_version:
-        header: [["Cluster ", ["main", "infoheader"]],
-                 ["V", ["main", "infoheader_shortcut"]],
-                 ["ersion:", ["main", "infoheader"]]]
-        paths:
-          - path: "metadata#ownerReferences"
-            pathtype: "items"
-            subpaths:
-              - "name"
-            when:
-              - key: "kind"
-                eq: "ClusterVersion"
-        default: "<none>"
       login_name:
         header: [["Login Name:", ["main", "infoheader"]]]
         path: "spec#templates#login#name"
+        default: "<unset>"
         type: "str"
   shortcuts:
-    "Cluster Version":
-      key: "v"
-      modifier: "shift"
-      read_only: true
-      helptext: "Open info page for Cluster Version"
-      action: "call"
-      action_call: "resourceinfodispatch_with_lookup"
-      action_args:
-        _pass_obj: true
-        owner_reference_path: "metadata#ownerReferences"
-        kind: "ClusterVersion"
-        api_family: "config.openshift.io"
     "List Identity Providers":
       key: "i"
       modifier: "shift"

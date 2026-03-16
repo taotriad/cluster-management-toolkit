@@ -90,7 +90,6 @@ infoview:
         owner_reference_path: "metadata#ownerReferences"
     "Device class configuration":
       key: "c"
-      modifier: "shift"
       read_only: true
       helptext: "Show device class configuration"
       action: "call"

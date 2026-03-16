@@ -16,21 +16,8 @@ infoview:
   infopad:
     row_indexes:
       Normal:
-        fields: ["cluster_version", "console_url"]
+        fields: ["console_url"]
     rows:
-      cluster_version:
-        header: [["Cluster ", ["main", "infoheader"]],
-                 ["V", ["main", "infoheader_shortcut"]],
-                 ["ersion:", ["main", "infoheader"]]]
-        paths:
-          - path: "metadata#ownerReferences"
-            pathtype: "items"
-            subpaths:
-              - "name"
-            when:
-              - key: "kind"
-                eq: "ClusterVersion"
-        default: "<none>"
       console_url:
         header: [["Console ", ["main", "infoheader"]],
                  ["U", ["main", "infoheader_shortcut"]],
@@ -41,18 +28,6 @@ infoview:
           field_colors:
             - type: "url"
   shortcuts:
-    "Cluster Version":
-      key: "v"
-      modifier: "shift"
-      read_only: true
-      helptext: "Open info page for Cluster Version"
-      action: "call"
-      action_call: "resourceinfodispatch_with_lookup"
-      action_args:
-        _pass_obj: true
-        owner_reference_path: "metadata#ownerReferences"
-        kind: "ClusterVersion"
-        api_family: "config.openshift.io"
     "Open Console":
       key: "u"
       modifier: "shift"

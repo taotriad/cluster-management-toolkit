@@ -126,8 +126,9 @@ infoview:
                   - context: "types"
                     type: "watermark_high"
       owner:
-        header: [["O", ["main", "infoheader_shortcut"]],
-                 ["wner:", ["main", "infoheader"]]]
+        header: [["O", ["main", "infoheader"]],
+                 ["w", ["main", "infoheader_shortcut"]],
+                 ["ner:", ["main", "infoheader"]]]
         paths:
           - path: [["spec#owner#kind"],
                    ["spec#owner#apiVersion"],
@@ -224,8 +225,7 @@ infoview:
         type: "str"
   shortcuts:
     "Open owner":
-      key: "o"
-      modifier: "shift"
+      key: "w"
       read_only: true
       helptext: "Open info page for owner"
       action: "call"

@@ -54,9 +54,9 @@ infoview:
       tls_header:
         header: [["TLS:", ["main", "infoheader"]]]
       tls_options_header:
-        header: [["  ", ["main", "infoheader"]],
-                 ["O", ["main", "infoheader_shortcut"]],
-                 ["ptions:", ["main", "infoheader"]]]
+        header: [["  Opti", ["main", "infoheader"]],
+                 ["o", ["main", "infoheader_shortcut"]],
+                 ["ns:", ["main", "infoheader"]]]
       tls_options_name:
         header: [["    Name:", ["main", "infoheader"]]]
         path: "spec#tls#options#name"
@@ -144,7 +144,6 @@ infoview:
   shortcuts:
     "TLS Options":
       key: "o"
-      modifier: "shift"
       read_only: true
       helptext: "Open info page for TLS Options"
       action: "call"

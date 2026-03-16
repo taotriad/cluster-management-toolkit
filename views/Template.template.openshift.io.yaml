@@ -31,7 +31,6 @@ infoview:
   shortcuts:
     "Show object list":
       key: "o"
-      modifier: "shift"
       read_only: true
       helptext: "List objects"
       widget: "windowwidget"

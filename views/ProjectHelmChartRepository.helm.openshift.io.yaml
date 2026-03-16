@@ -19,21 +19,8 @@ infoview:
         fields: ["description", "disabled",
                  "connection_config_header", "connection_config_url",
                  "connection_config_tls_client_config",
-                 "connection_config_ca", "cluster_version"]
+                 "connection_config_ca"]
     rows:
-      cluster_version:
-        header: [["Cluster ", ["main", "infoheader"]],
-                 ["V", ["main", "infoheader_shortcut"]],
-                 ["ersion:", ["main", "infoheader"]]]
-        paths:
-          - path: "metadata#ownerReferences"
-            pathtype: "items"
-            subpaths:
-              - "name"
-            when:
-              - key: "kind"
-                eq: "ClusterVersion"
-        default: "<none>"
       connection_config_header:
         header: [["Connection Config:", ["main", "infoheader"]]]
       connection_config_url:
@@ -70,18 +57,6 @@ infoview:
         default: false
         type: "bool"
   shortcuts:
-    "Cluster Version":
-      key: "v"
-      modifier: "shift"
-      read_only: true
-      helptext: "Open info page for Cluster Version"
-      action: "call"
-      action_call: "resourceinfodispatch_with_lookup"
-      action_args:
-        _pass_obj: true
-        owner_reference_path: "metadata#ownerReferences"
-        kind: "ClusterVersion"
-        api_family: "config.openshift.io"
     "Open CA-bindle ConfigMap":
       key: "c"
       modifier: "shift"

@@ -88,9 +88,9 @@ infoview:
             - type: "space"
             - type: "no_pad"
       object_label_selector:
-        header: [["  ", ["main", "infoheader"]],
-                 ["O", ["main", "infoheader_shortcut"]],
-                 ["bject Label Selector:", ["main", "infoheader"]]]
+        header: [["  Objec", ["main", "infoheader"]],
+                 ["t", ["main", "infoheader_shortcut"]],
+                 [" Label Selector:", ["main", "infoheader"]]]
         paths:
           - path: ["spec#matchResources#objectSelector#matchLabels"]
             pathtype: "key_value"
@@ -193,8 +193,7 @@ infoview:
       itemgetter_args:
         path: "spec#matchResources#namespaceSelector#matchLabels"
     "Object Label Selector":
-      key: "o"
-      modifier: "shift"
+      key: "t"
       read_only: true
       helptext: "Show object label selector"
       widget: "windowwidget"

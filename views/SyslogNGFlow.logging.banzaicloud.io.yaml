@@ -57,9 +57,9 @@ infoview:
                   - context: "main"
                     type: "status_pending"
       local_output_refs:
-        header: [["Local ", ["main", "infoheader"]],
-                 ["O", ["main", "infoheader_shortcut"]],
-                 ["utput References:", ["main", "infoheader"]]]
+        header: [["L", ["main", "infoheader"]],
+                 ["o", ["main", "infoheader_shortcut"]],
+                 ["cal Output References:", ["main", "infoheader"]]]
         path: "spec#localOutputRefs"
         type: "raw"
         default: ["<none>"]
@@ -86,7 +86,6 @@ infoview:
   shortcuts:
     "Local output references":
       key: "o"
-      modifier: "shift"
       read_only: true
       helptext: "Show local output references"
       widget: "windowwidget"

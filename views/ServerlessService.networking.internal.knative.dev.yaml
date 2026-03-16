@@ -107,8 +107,9 @@ infoview:
         type: "int"
         formatter: "numerical"
       object_ref:
-        header: [["O", ["main", "infoheader_shortcut"]],
-                 ["bject Reference:", ["main", "infoheader"]]]
+        header: [["O", ["main", "infoheader"]],
+                 ["b", ["main", "infoheader_shortcut"]],
+                 ["ject Reference:", ["main", "infoheader"]]]
         paths:
           - path: [["spec#objectRef#kind"],
                    ["spec#objectRef#apiVersion"],
@@ -189,8 +190,7 @@ infoview:
         namespace_path: "metadata#namespace"
         owner_reference_path: "metadata#ownerReferences"
     "Open object reference":
-      key: "o"
-      modifier: "shift"
+      key: "b"
       read_only: true
       helptext: "Open info page for object reference"
       action: "call"

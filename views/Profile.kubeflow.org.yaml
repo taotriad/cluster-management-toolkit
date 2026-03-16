@@ -20,8 +20,9 @@ infoview:
         fields: ["owner", "kind", "namespace", "name"]
     rows:
       owner:
-        header: [["O", ["main", "infoheader_shortcut"]],
-                 ["wner:", ["main", "infoheader"]]]
+        header: [["O", ["main", "infoheader"]],
+                 ["w", ["main", "infoheader_shortcut"]],
+                 ["ner:", ["main", "infoheader"]]]
       kind:
         header: [["  Kind:", ["main", "infoheader"]]]
         paths:
@@ -48,8 +49,7 @@ infoview:
         type: "str"
   shortcuts:
     "Owner":
-      key: "o"
-      modifier: "shift"
+      key: "w"
       read_only: true
       helptext: "Open info view for owner"
       action: "call"

@@ -169,7 +169,6 @@ infoview:
         name_path: "status#dataSecretName"
     "View cluster configuration":
       key: "o"
-      modifier: "shift"
       read_only: true
       helptext: "Show cluster configuration"
       action: "call"

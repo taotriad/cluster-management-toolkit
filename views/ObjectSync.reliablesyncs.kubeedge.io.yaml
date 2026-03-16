@@ -44,8 +44,9 @@ infoview:
         fields: ["object", "object_version"]
     rows:
       object:
-        header: [["O", ["main", "infoheader_shortcut"]],
-                 ["bject:", ["main", "infoheader"]]]
+        header: [["O", ["main", "infoheader"]],
+                 ["b", ["main", "infoheader_shortcut"]],
+                 ["ject:", ["main", "infoheader"]]]
         paths:
           - path: [["spec#objectKind"],
                    ["spec#objectAPIVersion"],
@@ -69,8 +70,7 @@ infoview:
         formatter: "numerical"
   shortcuts:
     "Open object reference":
-      key: "o"
-      modifier: "shift"
+      key: "b"
       read_only: true
       helptext: "Open info page for object reference"
       action: "call"

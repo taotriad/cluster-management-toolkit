@@ -75,8 +75,9 @@ infoview:
         path: "status#level"
         type: "str"
       object_ref:
-        header: [["O", ["main", "infoheader_shortcut"]],
-                 ["bject Reference:", ["main", "infoheader"]]]
+        header: [["O", ["main", "infoheader"]],
+                 ["b", ["main", "infoheader_shortcut"]],
+                 ["ject Reference:", ["main", "infoheader"]]]
         paths:
           - path: [["status#objectRef#resource"], ["status#objectRef#apiGroup"],
                    ["status#objectRef#namespace"],
@@ -153,8 +154,7 @@ infoview:
         type: "str"
   shortcuts:
     "Object Reference":
-      key: "o"
-      modifier: "shift"
+      key: "b"
       read_only: true
       helptext: "Open info page for object reference"
       action: "call"

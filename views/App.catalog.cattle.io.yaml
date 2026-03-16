@@ -140,7 +140,6 @@ infoview:
   shortcuts:
     "Notes":
       key: "o"
-      modifier: "shift"
       read_only: true
       helptext: "Show notes"
       widget: "windowwidget"

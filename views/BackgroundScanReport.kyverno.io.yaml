@@ -88,7 +88,7 @@ infoview:
   infopad:
     row_indexes:
       Normal:
-        fields: ["owner", "severity_header",
+        fields: ["severity_header",
                  "fail", "error", "warn", "skip", "pass"]
     rows:
       error:
@@ -125,27 +125,6 @@ infoview:
                 field_colors:
                   - context: "types"
                     type: "watermark_high"
-      owner:
-        header: [["O", ["main", "infoheader_shortcut"]],
-                 ["wner:", ["main", "infoheader"]]]
-        paths:
-          - path: "metadata#ownerReferences"
-            pathtype: "items"
-            subpaths:
-              - "kind"
-              - "apiVersion"
-              - "name"
-            type: ["kind", "api_group", "name"]
-        default: "<none>"
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "kind"
-            - type: "api_group"
-            - type: "generic"
-          field_separators:
-            - type: "kind_api_group"
-            - type: "kind"
       pass:
         header: [["   Pass:", ["main", "infoheader"]]]
         path: "spec#summary#pass"
@@ -224,16 +203,3 @@ infoview:
         header: "Rule:"
         path: "rule"
         type: "str"
-  shortcuts:
-    "Open owner":
-      key: "o"
-      modifier: "shift"
-      read_only: true
-      helptext: "Open info page for owner"
-      action: "call"
-      action_call: "resourceinfodispatch_with_lookup"
-      action_args:
-        _pass_obj: true
-        namespace_path: "metadata#namespace"
-        owner_reference_path: "metadata#ownerReferences"
-        accept_only_owner: true

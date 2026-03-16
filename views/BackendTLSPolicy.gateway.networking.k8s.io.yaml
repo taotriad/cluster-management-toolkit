@@ -22,9 +22,9 @@ infoview:
                  "validation_ca_certificate_refs"]
     rows:
       tls_options:
-        header: [["TLS ", ["main", "infoheader"]],
-                 ["O", ["main", "infoheader_shortcut"]],
-                 ["ptions:", ["main", "infoheader"]]]
+        header: [["TLS Opti", ["main", "infoheader"]],
+                 ["o", ["main", "infoheader_shortcut"]],
+                 ["ns:", ["main", "infoheader"]]]
         paths:
           - path: ["spec#options"]
             pathtype: "key_value"
@@ -74,7 +74,6 @@ infoview:
   shortcuts:
     "Show TLS Options":
       key: "o"
-      modifier: "shift"
       read_only: true
       helptext: "Show TLS options"
       widget: "windowwidget"

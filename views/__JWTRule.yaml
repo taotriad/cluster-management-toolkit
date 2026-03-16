@@ -87,8 +87,9 @@ infoview:
           field_colors:
             - type: "url"
       output_claim_to_headers:
-        header: [["O", ["main", "infoheader_shortcut"]],
-                 ["utput Claim to Headers (header:claim):",
+        header: [["Output Claim t", ["main", "infoheader"]],
+                 ["o", ["main", "infoheader_shortcut"]],
+                 [" Headers (header:claim):",
                   ["main", "infoheader"]]]
         paths:
           - path: "outputClaimToHeaders"
@@ -196,7 +197,6 @@ infoview:
         include_root: true
     "Output Claim to Headers":
       key: "o"
-      modifier: "shift"
       read_only: true
       helptext: "List output claim to headers"
       widget: "windowwidget"

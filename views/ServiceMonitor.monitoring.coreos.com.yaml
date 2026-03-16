@@ -17,7 +17,7 @@ infoview:
   infopad:
     row_indexes:
       Normal:
-        fields: ["cluster_version", "job_label", "selector",
+        fields: ["job_label", "selector",
                  "namespace_selector", "attach_metadata_header",
                  "attach_metadata_node"]
     rows:
@@ -28,19 +28,6 @@ infoview:
         path: "spec#attachMetadata#node"
         default: "<unset>"
         type: "bool"
-      cluster_version:
-        header: [["Cluster ", ["main", "infoheader"]],
-                 ["V", ["main", "infoheader_shortcut"]],
-                 ["ersion:", ["main", "infoheader"]]]
-        paths:
-          - path: "metadata#ownerReferences"
-            pathtype: "items"
-            subpaths:
-              - "name"
-            when:
-              - key: "kind"
-                eq: "ClusterVersion"
-        default: "<none>"
       job_label:
         header: [["Job Label:", ["main", "infoheader"]]]
         path: "spec#jobLabel"
@@ -149,18 +136,6 @@ infoview:
         formatter: "numerical"
         align: "right"
   shortcuts:
-    "Cluster Version":
-      key: "v"
-      modifier: "shift"
-      read_only: true
-      helptext: "Open info page for Cluster Version"
-      action: "call"
-      action_call: "resourceinfodispatch_with_lookup"
-      action_args:
-        _pass_obj: true
-        owner_reference_path: "metadata#ownerReferences"
-        kind: "ClusterVersion"
-        api_family: "config.openshift.io"
     "Label Selector":
       key: "b"
       read_only: true

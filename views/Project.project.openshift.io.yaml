@@ -74,22 +74,8 @@ infoview:
   infopad:
     row_indexes:
       Normal:
-        fields: ["display_name", "description", "controller",
-                 "cluster_version", "phase"]
+        fields: ["display_name", "description", "controller", "phase"]
     rows:
-      cluster_version:
-        header: [["Cluster ", ["main", "infoheader"]],
-                 ["V", ["main", "infoheader_shortcut"]],
-                 ["ersion:", ["main", "infoheader"]]]
-        paths:
-          - path: "metadata#ownerReferences"
-            pathtype: "items"
-            subpaths:
-              - "name"
-            when:
-              - key: "kind"
-                eq: "ClusterVersion"
-        default: "<none>"
       controller:
         header: [["C", ["main", "infoheader_shortcut"]],
                  ["ontroller:", ["main", "infoheader"]]]
@@ -143,18 +129,6 @@ infoview:
                   - context: "main"
                     type: "status_pending"
   shortcuts:
-    "Cluster Version":
-      key: "v"
-      modifier: "shift"
-      read_only: true
-      helptext: "Open info page for Cluster Version"
-      action: "call"
-      action_call: "resourceinfodispatch_with_lookup"
-      action_args:
-        _pass_obj: true
-        owner_reference_path: "metadata#ownerReferences"
-        kind: "ClusterVersion"
-        api_family: "config.openshift.io"
     "Open controller":
       key: "c"
       modifier: "shift"

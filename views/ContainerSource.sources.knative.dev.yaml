@@ -157,7 +157,6 @@ infoview:
         name_path: "spec#sink#ref#name"
     "View CloudEvent Overrides":
       key: "o"
-      modifier: "shift"
       read_only: true
       helptext: "Show CloudEvent Overrides"
       action: "call"

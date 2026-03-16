@@ -43,8 +43,9 @@ infoview:
         default: "<unset>"
         type: "str"
       origin:
-        header: [["O", ["main", "infoheader_shortcut"]],
-                 ["rigin:", ["main", "infoheader"]]]
+        header: [["Ori", ["main", "infoheader"]],
+                 ["g", ["main", "infoheader_shortcut"]],
+                 ["in:", ["main", "infoheader"]]]
         paths:
           - path: [["origin#kind"], ["origin#name"]]
             pathtype: "tuple"
@@ -96,8 +97,7 @@ infoview:
             - type: "version"
   shortcuts:
     "Origin":
-      key: "o"
-      modifier: "shift"
+      key: "g"
       read_only: true
       helptext: "Open info page for origin"
       action: "call"

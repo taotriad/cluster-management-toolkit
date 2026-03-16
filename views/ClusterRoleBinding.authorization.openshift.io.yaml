@@ -45,22 +45,9 @@ infoview:
   infopad:
     row_indexes:
       Normal:
-        fields: ["cluster_version", "role_ref_header", "role_ref_name",
+        fields: ["role_ref_header", "role_ref_name",
                  "role_ref_kind", "role_ref_exists"]
     rows:
-      cluster_version:
-        header: [["Cluster ", ["main", "infoheader"]],
-                 ["V", ["main", "infoheader_shortcut"]],
-                 ["ersion:", ["main", "infoheader"]]]
-        paths:
-          - path: "metadata#ownerReferences"
-            pathtype: "items"
-            subpaths:
-              - "name"
-            when:
-              - key: "kind"
-                eq: "ClusterVersion"
-        default: "<none>"
       role_ref_exists:
         header: [["  Exists:", ["main", "infoheader"]]]
         paths:
@@ -171,18 +158,6 @@ infoview:
           field_separators:
             - type: "kind_api_group"
   shortcuts:
-    "Cluster Version":
-      key: "v"
-      modifier: "shift"
-      read_only: true
-      helptext: "Open info page for Cluster Version"
-      action: "call"
-      action_call: "resourceinfodispatch_with_lookup"
-      action_args:
-        _pass_obj: true
-        owner_reference_path: "metadata#ownerReferences"
-        kind: "ClusterVersion"
-        api_family: "config.openshift.io"
     "Group Names":
       key: "g"
       modifier: "shift"

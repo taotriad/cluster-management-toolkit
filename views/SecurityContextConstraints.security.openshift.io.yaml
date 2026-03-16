@@ -66,7 +66,6 @@ infoview:
     row_indexes:
       Normal:
         fields:
-          - "cluster_version"
           - "description"
           - "privileged"
           - "allow_host_dir_volume_plugin"
@@ -124,19 +123,6 @@ infoview:
         default: ["<unset>"]
         type: "raw"
         formatter: "list"
-      cluster_version:
-        header: [["Cluster ", ["main", "infoheader"]],
-                 ["V", ["main", "infoheader_shortcut"]],
-                 ["ersion:", ["main", "infoheader"]]]
-        paths:
-          - path: "metadata#ownerReferences"
-            pathtype: "items"
-            subpaths:
-              - "name"
-            when:
-              - key: "kind"
-                eq: "ClusterVersion"
-        default: "<none>"
       description:
         header: [["Description:", ["main", "infoheader"]]]
         path: "metadata#annotations#kubernetes.io/description"
@@ -223,18 +209,6 @@ infoview:
         path: "allowedCapabilities"
       # This isn't supported for now
       sortcolumn: "name"
-    "Cluster Version":
-      key: "v"
-      modifier: "shift"
-      read_only: true
-      helptext: "Open info page for Cluster Version"
-      action: "call"
-      action_call: "resourceinfodispatch_with_lookup"
-      action_args:
-        _pass_obj: true
-        owner_reference_path: "metadata#ownerReferences"
-        kind: "ClusterVersion"
-        api_family: "config.openshift.io"
     "Groups":
       key: "g"
       modifier: "shift"

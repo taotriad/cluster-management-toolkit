@@ -174,7 +174,6 @@ infoview:
       sortcolumn: "namespace"
     "View observed configuration":
       key: "o"
-      modifier: "shift"
       read_only: true
       helptext: "Show observed configuration"
       action: "call"

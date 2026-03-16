@@ -13,11 +13,12 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+from functools import reduce
 import json
 from multiprocessing import Pool
 import os
 import sys
-from typing import cast
+from typing import cast, NewType
 from collections.abc import Iterable
 import yaml
 
@@ -45,6 +46,7 @@ def usage() -> None:
     print("validate_yaml [OPTION]... SCHEMA PATH...")
     print("")
     print("Validate YAML files used by CMT")
+    print("Additionally, view-files are checked for duplicate shortcuts")
     print("")
     print("themes|views|parsers                 Validate all YAML-files in the default")
     print("                                       directory for the specified type")
@@ -83,6 +85,456 @@ def version() -> None:
     Display version information for the program.
     """
     print(f"validate_yaml {__version__}")
+
+
+DictPath = NewType("DictPath", str)
+
+
+def deep_get(dictionary: Any | None, path: DictPath, default: Any = None) -> Any:
+    """
+    Given a dictionary and a path into that dictionary, get the value.
+
+        Parameters:
+            dictionary (dict|CommentedMap): The dict to get the value from
+            path (DictPath): A dict path
+            default (Any): The value to return if the dictionary, path, or result is None
+        Returns:
+            (Any): The value from the path
+    """
+    if dictionary is None:
+        return default
+    if path is None or not path or not isinstance(path, str):
+        return default
+    result = reduce(lambda d,
+                    key: d.get(key, default) if isinstance(d, dict) else default,
+                    path.split("#"), dictionary)
+    if result is None:
+        result = default
+    return result
+
+
+# pylint: disable-next=too-many-branches
+def map_key(shortcut: str, activatedfun: bool, key: str, modifier: str) -> tuple[str, str]:
+    """
+    Setup a shortcut mapping and return the key-code(s) + helptext.
+
+        Parameters:
+            shortcut (str): The shortcut description (used for error messages)
+            activatedfun (bool): Is there an activatedfun defined?
+                                 Used to double-check whether the default shortcut
+                                 for "enter" has been disabled.
+            key (str): They base key
+            modifier (str): The modifier (""/"shift"/"ctrl")
+        Returns:
+            ((int | [int], str)):
+                (str): The helptext
+                (str): The error message, if any
+    """
+    msg: str = ""
+    help_key: str = ""
+
+    if modifier and modifier not in ("ctrl", "shift"):
+        msg = f"Unknown modifier {modifier}; valid modifiers are shift, ctrl"
+    elif key in ("f1", "f2", "f3", "f4", "f5", "f6",
+               "f7", "f8", "f9", "f10", "f11", "f12") and modifier in ("", "shift"):
+        if not modifier:
+            help_key: str = f"[{key.upper()}]"
+        elif modifier == "shift":
+            key_: str = key[0] + str(int(key[1:]) + 12)
+            num = int(key[1:]) + 12
+            help_key = f"[Shift] + [{key.upper()}] / [{key[0].upper()}{num}]"
+        else:
+            msg = f"The modifier {modifier}; cannot be combined with {key}"
+    elif key in ("f13", "f14", "f15", "f16", "f17", "f18",
+                 "f19", "f20", "f21", "f22", "f23", "f24") and not modifier:
+        num = int(key[1:]) - 12
+        key_ = key[0] + str(num)
+        help_key = f"[Shift] + [{key[0].upper()}{num}] / [{key.upper()}]"
+    elif key in ("enter", "return"):
+        if modifier or not activatedfun:
+            help_key = "[Enter]"
+        else:
+            msg = f"The shortcut “{shortcut}“" \
+                   " uses “enter“ as key; this conflicts with " \
+                   "built-in shortcut for “on_activation“"
+    elif modifier:
+        if modifier == "shift":
+            help_key = f"[Shift] + {key.upper()}"
+        elif modifier == "ctrl":
+            help_key = f"[Ctrl] + {key.upper()}"
+        else:
+            # This shouldn't be necessary since we check this at the beginning of the function,
+            # but pylint complains otherwise.
+            msg = f"Unknown modifier {modifier}; valid modifiers are shift, ctrl"
+    elif len(key) == 1:
+        help_key = f"{key.upper()}"
+    else:
+        msg = f"Unknown {key}"
+
+    return help_key, msg
+
+
+listview_reserved_shortcuts: dict[str, dict[str, str]] = {
+    "[Shift] + B": {
+        "description": "Toggle borders",
+    },
+    "[Shift] + W": {
+        "description": "Toggle custom/narrow/normal/wide fields (when available)",
+    },
+    "[Ctrl] + X": {
+        "description": "Exit program",
+    },
+    "[Shift] + M": {
+        "description": "Toggle mouse on/off",
+    },
+    "[F1] / [Shift] + H": {
+        "description": "Show this helptext",
+    },
+    "[F2]": {
+        "description": "Switch main view",
+    },
+    "[F3]": {
+        "description": "Switch main view (recheck available API resources)",
+    },
+    "[F5]": {
+        "description": "Refresh list",
+    },
+    "[F7]": {
+        "description": "Perform Cluster-wide actions",
+    },
+    "[F12]": {
+        "description": "Show information about the program",
+    },
+    "[Shift] + N": {
+        "description": "Select Namespace",
+    },
+    "T": {
+        "description": "Tag / Untag item",
+    },
+    "[Shift] + T": {
+        "description": "Tag item by pattern",
+    },
+    "[Ctrl] + T": {
+        "description": "Untag item by pattern",
+    },
+    "[Shift] + L": {
+        "description": "List tagged items",
+    },
+    ";": {
+        "description": "Perform action on tagged items",
+    },
+    "L": {
+        "description": "Show labels for all tagged items",
+    },
+    "F": {
+        "description": "Select labels and filter by label selector",
+    },
+    "[Shift] + F": {
+        "description": "Clear label selector",
+    },
+    "[Left]": {
+        "description": "Scroll left",
+    },
+    "[Right]": {
+        "description": "Scroll right",
+    },
+    "[Down]": {
+        "description": "Move to next row",
+    },
+    "[Up]": {
+        "description": "Move to previous row",
+    },
+    "[Shift] + [Left]": {
+        "description": "Change sortcolumn",
+    },
+    "[Shift] + [Right]": {
+        "description": "Change sortcolumn",
+    },
+    "[Tab]": {
+        "description": "Jump to next group in sortcolumn",
+    },
+    "[Shift] + [Tab]": {
+        "description": "Jump to previous group in sortcolumn",
+    },
+    "§": {
+        "description": "Jump to next sortcolumn",
+    },
+    "½": {
+        "description": "Jump to previous sortcolumn",
+    },
+    "/": {
+        "description": "Search forwards within column",
+    },
+    "N": {
+        "description": "Search forwards for next match within column",
+    },
+    "?": {
+        "description": "Search backwards within column",
+    },
+    "P": {
+        "description": "Search backwards for previous match within column",
+    },
+    "[Page Up]": {
+        "description": "Scroll 10 lines up",
+    },
+    "[Page Down]": {
+        "description": "Scroll 10 lines down",
+    },
+    "[Shift] + [Home]": {
+        "description": "Jump to beginning",
+    },
+    "[Shift] + [End]": {
+        "description": "Jump to end",
+    },
+    "R": {
+        "description": "Reverse sortorder",
+    },
+    "J": {
+        # Note: this is not a typo;
+        # the same override is used for both JSON and YAML
+        "override": "View YAML dump",
+        "description": "View JSON dump of resource",
+    },
+    "Y": {
+        "override": "View YAML dump",
+        "description": "View YAML dump of resource",
+    },
+    "E": {
+        "override": "Edit resource",
+        "description": "Edit resource",
+    },
+}
+
+
+infoview_reserved_shortcuts: dict[str, dict[str, str]] = {
+    "[Shift] + M": {
+        "description": "Toggle mouse on/off",
+    },
+    "[F1] / [Shift] + H": {
+        "description": "Show this helptext",
+    },
+    "[F2]": {
+        "description": "Switch main view",
+    },
+    "[F3]": {
+        "description": "Switch main view (recheck available API resources)",
+    },
+    "[F5]": {
+        "description": "Refresh list",
+    },
+    "[F12]": {
+        "description": "Show information about the program",
+    },
+    "^": {
+        "description": "Go to parent view",
+    },
+    "J": {
+        # Note: this is not a typo;
+        # the same override is used for both JSON and YAML
+        "override": "View YAML dump",
+        "description": "View JSON dump of resource",
+    },
+    "Y": {
+        "override": "View YAML dump",
+        "description": "View YAML dump of resource",
+    },
+}
+
+
+listpad_reserved_shortcuts: dict[str, dict[str, str]] = {
+    "[Left]": {
+        "description": "Scroll left",
+    },
+    "[Right]": {
+        "description": "Scroll right",
+    },
+    "[Down]": {
+        "description": "Move to next row",
+    },
+    "[Up]": {
+        "description": "Move to previous row",
+    },
+    "[Shift] + [Left]": {
+        "description": "Change sortcolumn",
+    },
+    "[Shift] + [Right]": {
+        "description": "Change sortcolumn",
+    },
+    "[Tab]": {
+        "description": "Jump to next group in sortcolumn",
+    },
+    "[Shift] + [Tab]": {
+        "description": "Jump to previous group in sortcolumn",
+    },
+    "§": {
+        "description": "Jump to next sortcolumn",
+    },
+    "½": {
+        "description": "Jump to previous sortcolumn",
+    },
+    "/": {
+        "description": "Search forwards within column",
+    },
+    "N": {
+        "description": "Search forwards for next match within column",
+    },
+    "?": {
+        "description": "Search backwards within column",
+    },
+    "P": {
+        "description": "Search backwards for previous match within column",
+    },
+    "[Page Up]": {
+        "description": "Scroll 10 lines up",
+    },
+    "[Page Down]": {
+        "description": "Scroll 10 lines down",
+    },
+    "[Shift] + [Home]": {
+        "description": "Jump to beginning",
+    },
+    "[Shift] + [End]": {
+        "description": "Jump to end",
+    },
+    "R": {
+        "description": "Reverse sortorder",
+    },
+}
+
+
+logpad_reserved_shortcuts: dict[str, dict[str, str]] = {
+    "[Shift] + W": {
+        "description": "Toggle line wrapping",
+    },
+    "[Shift] + R": {
+        "description": "Toggle highlighting / formatting (default: On)",
+    },
+    "[Cursor keys]": {
+        "description": "Scroll log up / down / left / right",
+    },
+    "/": {
+        "description": "Search forwards",
+    },
+    "N": {
+        "description": "Search forwards for next match",
+    },
+    "?": {
+        "description": "Search backwards",
+    },
+    "P": {
+        "description": "Search backwards for previous match",
+    },
+    "[Page Up]": {
+        "description": "Scroll one page up",
+    },
+    "[Page Down]": {
+        "description": "Scroll one page down",
+    },
+    "[Shift] + [Home]": {
+        "description": "Jump to beginning",
+    },
+    "[Shift] + [End]": {
+        "description": "Jump to end",
+    },
+    "[Home]": {
+        "description": "Jump to beginning of currently visible lines",
+    },
+    "[End]": {
+        "description": "Jump to end of currently visible lines",
+    },
+    "[Shift] + [Left]": {
+        "description": "Scroll a half page left",
+    },
+    "[Shift] + [Right]": {
+        "description": "Scroll a half page right",
+    },
+}
+
+
+def validate_shortcuts(obj: dict) -> tuple[int, str]:
+    retval: int = 0
+    msg: str = ""
+
+    activatedfun: bool = deep_get(obj, DictPath("listview#on_activation#call")) is not None
+    listview_shortcuts: dict[str, str] = {}
+
+    for shortcut, d in deep_get(obj, DictPath("listview#shortcuts"), {}).items():
+        if d is None:
+            continue
+        key = deep_get(d, DictPath("key"), "")
+        modifier = deep_get(d, DictPath("modifier"), "")
+        helpkey, msg = map_key(shortcut, activatedfun, key, modifier)
+        if msg:
+            retval = 1
+            msg = f"Listview: {msg}"
+            break
+
+        if helpkey in listview_reserved_shortcuts:
+            description = deep_get(listview_reserved_shortcuts,
+                                   DictPath(f"{helpkey}#description"), "")
+            override = deep_get(listview_reserved_shortcuts,
+                                DictPath(f"{helpkey}#override"), "")
+            if override != shortcut:
+                msg = f"Listview: The shortcut “{helpkey}“ used by “{shortcut}“ is " \
+                      f"reserved for “{description}“"
+                retval = 1
+                break
+
+        if helpkey in listview_shortcuts:
+            msg = f"Listview: The shortcut “{helpkey}“ for “{shortcut}“ is already in use for " \
+                  f"“{deep_get(listview_shortcuts, DictPath(helpkey))}“"
+            retval = 1
+            break
+
+        listview_shortcuts[helpkey] = shortcut
+
+    if retval:
+        return retval, msg
+
+    activatedfun = deep_get(obj, DictPath("infoview#listpad#on_activation#call")) is not None
+    has_listpad = deep_get(obj, DictPath("infoview#listpad")) is not None
+    has_logpad = deep_get(obj, DictPath("infoview#logpad")) is not None
+    infoview_shortcuts: dict[str, str] = {}
+
+    for shortcut, d in deep_get(obj, DictPath("infoview#shortcuts"), {}).items():
+        if d is None:
+            continue
+        key = deep_get(d, DictPath("key"), "")
+        modifier = deep_get(d, DictPath("modifier"), "")
+        helpkey, msg = map_key(shortcut, activatedfun, key, modifier)
+        if msg:
+            retval = 1
+            msg = f"Infoview: {msg}"
+            break
+
+        infoview_conditional_reserved_shortcuts = {**infoview_reserved_shortcuts}
+        if has_listpad:
+            infoview_conditional_reserved_shortcuts = {**infoview_conditional_reserved_shortcuts,
+                                                       **listpad_reserved_shortcuts}
+        if has_logpad:
+            infoview_conditional_reserved_shortcuts = {**infoview_conditional_reserved_shortcuts,
+                                                       **logpad_reserved_shortcuts}
+
+        if helpkey in infoview_conditional_reserved_shortcuts:
+            description = deep_get(infoview_conditional_reserved_shortcuts,
+                                   DictPath(f"{helpkey}#description"), "")
+            override = deep_get(infoview_conditional_reserved_shortcuts,
+                                DictPath(f"{helpkey}#override"), "")
+            if override != shortcut:
+                msg = f"Infoview: The shortcut “{helpkey}“ used by “{shortcut}“ is " \
+                      f"reserved for “{description}“"
+                retval = 1
+                break
+
+        if helpkey in infoview_shortcuts:
+            msg = f"Infoview: The shortcut “{helpkey}“ for “{shortcut}“ is already in use for " \
+                  f"“{deep_get(infoview_shortcuts, DictPath(helpkey))}“"
+            retval = 1
+            break
+
+        infoview_shortcuts[helpkey] = shortcut
+
+    return retval, msg
 
 
 # pylint: disable-next=too-many-branches
@@ -145,6 +597,11 @@ def validate_file(yaml_path: str, schema_path: str,
 
         try:
             jsonschema.validate(schema=schema, instance=yaml_data)
+            if schema_path.endswith("views.json"):
+                retval, msg = validate_shortcuts(yaml_data)
+                if retval:
+                    msg = f"{yaml_path}: {msg}"
+                    file = yaml_path
         except jsonschema.exceptions.SchemaError as e:
             msg += f"\nFailed to validate schema {schema_path}"
             msg += f"\njsonschema.exceptions.SchemaError: {e}"

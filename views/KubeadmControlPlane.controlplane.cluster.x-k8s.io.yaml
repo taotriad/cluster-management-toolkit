@@ -305,7 +305,6 @@ infoview:
         name_path: "spec#machineTemplate#spec#infrastructureRef#name"
     "View cluster configuration":
       key: "o"
-      modifier: "shift"
       read_only: true
       helptext: "Show cluster configuration"
       action: "call"

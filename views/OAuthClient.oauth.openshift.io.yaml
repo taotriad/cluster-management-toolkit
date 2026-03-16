@@ -44,25 +44,13 @@ infoview:
   infopad:
     row_indexes:
       Normal:
-        fields: ["cluster_version", "secret", "www_challenge",
+        fields: ["secret", "www_challenge",
                  "token_max_age", "redirect_uris"]
     rows:
-      cluster_version:
-        header: [["Cluster ", ["main", "infoheader"]],
-                 ["V", ["main", "infoheader_shortcut"]],
-                 ["ersion:", ["main", "infoheader"]]]
-        paths:
-          - path: "metadata#ownerReferences"
-            pathtype: "items"
-            subpaths:
-              - "name"
-            when:
-              - key: "kind"
-                eq: "ClusterVersion"
-        default: "<none>"
       secret:
         header: [["Secret:", ["main", "infoheader"]]]
         path: "secret"
+        default: "<unset>"
         type: "str"
       token_max_age:
         header: [["Token Max Age:", ["main", "infoheader"]]]
@@ -73,27 +61,16 @@ infoview:
       www_challenge:
         header: [["Respond with Challenge:", ["main", "infoheader"]]]
         path: "respondWithChallenges"
-        type: "bool"
         default: false
+        type: "bool"
       redirect_uris:
         header: [["R", ["main", "infoheader_shortcut"]],
                  ["edirect URIs:", ["main", "infoheader"]]]
         path: "redirectURIs"
+        default: ["<none>"]
         type: "raw"
         formatter: "list"
   shortcuts:
-    "Cluster Version":
-      key: "v"
-      modifier: "shift"
-      read_only: true
-      helptext: "Open info page for Cluster Version"
-      action: "call"
-      action_call: "resourceinfodispatch_with_lookup"
-      action_args:
-        _pass_obj: true
-        owner_reference_path: "metadata#ownerReferences"
-        kind: "ClusterVersion"
-        api_family: "config.openshift.io"
     "Show Redirect URI list":
       key: "r"
       modifier: "shift"

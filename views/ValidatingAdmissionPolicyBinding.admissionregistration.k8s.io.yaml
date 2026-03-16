@@ -37,7 +37,6 @@ infoview:
     row_indexes:
       Normal:
         fields: ["policy_name",
-                 "cluster_version",
                  "param_ref_header",
                  "param_ref_name",
                  "param_ref_namespace",
@@ -52,19 +51,6 @@ infoview:
                  "object_set_based_selector",
                  "validation_actions"]
     rows:
-      cluster_version:
-        header: [["Cluster ", ["main", "infoheader"]],
-                 ["V", ["main", "infoheader_shortcut"]],
-                 ["ersion:", ["main", "infoheader"]]]
-        paths:
-          - path: "metadata#ownerReferences"
-            pathtype: "items"
-            subpaths:
-              - "name"
-            when:
-              - key: "kind"
-                eq: "ClusterVersion"
-        default: "<none>"
       match_policy:
         header: [["  Match Policy:", ["main", "infoheader"]]]
         path: "spec#matchResources#matchPolicy"
@@ -103,9 +89,9 @@ infoview:
             - type: "space"
             - type: "no_pad"
       object_label_selector:
-        header: [["  ", ["main", "infoheader"]],
-                 ["O", ["main", "infoheader_shortcut"]],
-                 ["bject Label Selector:", ["main", "infoheader"]]]
+        header: [["  Objec", ["main", "infoheader"]],
+                 ["t", ["main", "infoheader_shortcut"]],
+                 [" Label Selector:", ["main", "infoheader"]]]
         paths:
           - path: ["spec#matchResources#objectSelector#matchLabels"]
             pathtype: "key_value"
@@ -191,18 +177,6 @@ infoview:
             pathtype: "list"
         formatter: "list"
   shortcuts:
-    "Cluster Version":
-      key: "v"
-      modifier: "shift"
-      read_only: true
-      helptext: "Open info page for Cluster Version"
-      action: "call"
-      action_call: "resourceinfodispatch_with_lookup"
-      action_args:
-        _pass_obj: true
-        owner_reference_path: "metadata#ownerReferences"
-        kind: "ClusterVersion"
-        api_family: "config.openshift.io"
     "Namespace Label Selector":
       key: "b"
       read_only: true
@@ -214,7 +188,7 @@ infoview:
       itemgetter_args:
         path: "spec#matchResources#namespaceSelector#matchLabels"
     "Object Label Selector":
-      key: "o"
+      key: "t"
       modifier: "shift"
       read_only: true
       helptext: "Show object label selector"
