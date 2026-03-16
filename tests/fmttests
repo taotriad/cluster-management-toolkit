@@ -183,6 +183,15 @@ def test_format_markdown(verbose: bool = False) -> tuple[str, bool]:
                            ThemeAttr(context='types', key='generic'), False),
                   ThemeStr("code", ThemeAttr(context='types', key='markdown_code'), False)]],
              None),
+            ("Github tags, not translated: :bug: :seedling: :chart_with_upwards_trend: :book:",
+            {"use_github_tags": False}, [
+                [ThemeStr("Github tags, not translated: :bug: :seedling: "
+                          ":chart_with_upwards_trend: :book:", ThemeAttr("types", "generic"))],
+            ], None),
+            ("Github tags, translated: :bug: :seedling: :chart_with_upwards_trend: :book:",
+            {"use_github_tags": True}, [
+                [ThemeStr("Github tags, translated: 🐛 🌱 📈 📖", ThemeAttr("types", "generic"))],
+            ], None),
             ("    This is some code\n"
              "\n"
              "The **code** has ended.", {"start": None, "end": None}, [
