@@ -214,43 +214,46 @@ color_pairs_curses:
   severity_diffheader:
     unselected: [["white", "normal"], ["black", "normal"]]
     selected: [["black", "normal"], ["white", "normal"]]
-  status_ignored:
-    unselected: [["black", "bright"], ["black", "normal"]]
-    selected: [["black", "bright"], ["white", "normal"]]
-  status_critical:
-    unselected: [["black", "normal"], ["red", "bright"]]
-    selected: [["white", "bright"], ["red", "bright"]]
-  status_not_ok:
-    unselected: [["red", "bright"], ["black", "normal"]]
-    selected: [["red", "bright"], ["white", "normal"]]
-  status_unknown:
-    unselected: [["red", "bright"], ["black", "normal"]]
-    selected: [["red", "bright"], ["white", "normal"]]
   status_admin:
     unselected: [["yellow", "bright"], ["black", "normal"]]
     selected: [["yellow", "bright"], ["white", "normal"]]
-  status_warning:
-    unselected: [["yellow", "normal"], ["black", "normal"]]
-    selected: [["yellow", "normal"], ["white", "normal"]]
-  status_highlight:
-    unselected: [["green", "bright"], ["black", "normal"]]
-    selected: [["green", "bright"], ["white", "normal"]]
-  status_ok:
-    unselected: [["green", "normal"], ["black", "normal"]]
-    selected: [["green", "normal"], ["white", "normal"]]
+  status_attention:
+    unselected: [["magenta", "bright"], ["black", "normal"]]
+    selected: [["magenta", "bright"], ["white", "normal"]]
+  status_critical:
+    unselected: [["black", "normal"], ["red", "bright"]]
+    selected: [["white", "bright"], ["red", "bright"]]
   status_degraded:
     unselected: [["yellow", "bright"], ["black", "normal"]]
     selected: [["yellow", "normal"], ["white", "normal"]]
-  status_pending:
-    unselected: [["cyan", "bright"], ["black", "normal"]]
-    selected: [["cyan", "normal"], ["white", "normal"]]
   status_done:
     unselected: [["green", "bright"], ["black", "normal"]]
     selected: [["green", "normal"], ["white", "normal"]]
-  log_format_ok: [["black", "normal"], ["green", "normal"]]
-  log_format_unknown: [["black", "normal"], ["red", "normal"]]
+  status_highlight:
+    unselected: [["green", "bright"], ["black", "normal"]]
+    selected: [["green", "bright"], ["white", "normal"]]
+  status_ignored:
+    unselected: [["black", "bright"], ["black", "normal"]]
+    selected: [["black", "bright"], ["white", "normal"]]
+  status_ok:
+    unselected: [["green", "normal"], ["black", "normal"]]
+    selected: [["green", "normal"], ["white", "normal"]]
+  status_not_ok:
+    unselected: [["red", "bright"], ["black", "normal"]]
+    selected: [["red", "bright"], ["white", "normal"]]
+  status_pending:
+    unselected: [["cyan", "bright"], ["black", "normal"]]
+    selected: [["cyan", "normal"], ["white", "normal"]]
+  status_unknown:
+    unselected: [["red", "bright"], ["black", "normal"]]
+    selected: [["red", "bright"], ["white", "normal"]]
+  status_warning:
+    unselected: [["yellow", "normal"], ["black", "normal"]]
+    selected: [["yellow", "normal"], ["white", "normal"]]
   log_format_empty: [["black", "normal"], ["yellow", "normal"]]
+  log_format_ok: [["black", "normal"], ["green", "normal"]]
   log_format_raw: [["black", "normal"], ["yellow", "normal"]]
+  log_format_unknown: [["black", "normal"], ["red", "normal"]]
   log_status: [["yellow", "normal"], ["blue", "normal"]]
   log_status_highlight: [["white", "normal"], ["blue", "normal"]]
   type_deleted:
@@ -820,24 +823,25 @@ main:
   severity_high: "severity_error"
   severity_medium: "severity_warning"
   severity_low: "severity_notice"
-  status_ignored: ["status_ignored", "bold"]
-  status_critical: "status_critical"
-  status_unknown: "status_unknown"
-  status_not_ok: ["status_not_ok", "bold"]
   status_admin: "status_admin"
-  status_warning: "status_warning"
-  status_ok:
-    unselected: ["status_ok", "bold"]
-    selected: "status_ok"
+  status_attention: ["status_attention", "bold"]
+  status_critical: "status_critical"
   status_degraded:
     unselected: ["status_degraded", "bold"]
     selected: "status_degraded"
-  status_pending: "status_pending"
   status_done: "status_done"
-  format_ok: ["log_format_ok", "bold"]
-  format_unknown: ["log_format_unknown", "bold"]
-  format_raw: ["log_format_raw", "bold"]
+  status_ignored: ["status_ignored", "bold"]
+  status_not_ok: ["status_not_ok", "bold"]
+  status_ok:
+    unselected: ["status_ok", "bold"]
+    selected: "status_ok"
+  status_pending: "status_pending"
+  status_unknown: "status_unknown"
+  status_warning: "status_warning"
   format_empty: ["log_format_empty", "bold"]
+  format_ok: ["log_format_ok", "bold"]
+  format_raw: ["log_format_raw", "bold"]
+  format_unknown: ["log_format_unknown", "bold"]
   log_status: ["log_status", "bold"]
   log_status_highlight: ["log_status_highlight", "bold"]
 

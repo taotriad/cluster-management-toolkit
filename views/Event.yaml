@@ -169,6 +169,10 @@ listview:
               field_colors:
                 - context: "main"
                   type: "status_not_ok"
+            BeingReplaced:
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
             BootResync:
               field_colors:
                 - context: "main"
@@ -1251,10 +1255,14 @@ listview:
               field_colors:
                 - context: "main"
                   type: "status_done"
+            NeedsCertRotation:
+              field_colors:
+                - context: "main"
+                  type: "status_attention"
             NeedsReinstall:
               field_colors:
                 - context: "main"
-                  type: "status_ok"
+                  type: "status_attention"
             NetworkNotReady:
               field_colors:
                 - context: "main"
@@ -1735,6 +1743,10 @@ listview:
               field_colors:
                 - context: "main"
                   type: "status_ok"
+            Replaced:
+              field_colors:
+                - context: "main"
+                  type: "status_done"
             ReplicaSetNotAvailable:
               field_colors:
                 - context: "main"
@@ -2677,6 +2689,10 @@ infoview:
                 field_colors:
                   - context: "main"
                     type: "status_not_ok"
+              BeingReplaced:
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
               BootResync:
                 field_colors:
                   - context: "main"
@@ -3759,10 +3775,14 @@ infoview:
                 field_colors:
                   - context: "main"
                     type: "status_done"
+              NeedsCertRotation:
+                field_colors:
+                  - context: "main"
+                    type: "status_attention"
               NeedsReinstall:
                 field_colors:
                   - context: "main"
-                    type: "status_ok"
+                    type: "status_attention"
               NetworkNotReady:
                 field_colors:
                   - context: "main"
@@ -4243,6 +4263,10 @@ infoview:
                 field_colors:
                   - context: "main"
                     type: "status_ok"
+              Replaced:
+                field_colors:
+                  - context: "main"
+                    type: "status_done"
               ReplicaSetNotAvailable:
                 field_colors:
                   - context: "main"
