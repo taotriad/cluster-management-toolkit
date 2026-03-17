@@ -3500,6 +3500,24 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api_paths": ["apis/grafana.integreatly.org/v1beta1/"],
         "api": "grafanas",
     },
+    # grove.io
+    ("ClusterTopology", "grove.io"): {
+        "api_paths": ["apis/grove.io/v1alpha1/"],
+        "api": "clustertopologies",
+        "namespaced": False,
+    },
+    ("PodClique", "grove.io"): {
+        "api_paths": ["apis/grove.io/v1alpha1/"],
+        "api": "podcliques",
+    },
+    ("PodCliqueScalingGroup", "grove.io"): {
+        "api_paths": ["apis/grove.io/v1alpha1/"],
+        "api": "podcliquescalinggroups",
+    },
+    ("PodCliqueSet", "grove.io"): {
+        "api_paths": ["apis/grove.io/v1alpha1/"],
+        "api": "podcliquesets",
+    },
     # habanalabs.habana.ai
     ("ClusterPolicy", "habanalabs.habana.ai"): {
         "api_paths": ["apis/habanalabs.habana.ai/v1/"],
@@ -6205,6 +6223,11 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
     ("Config", "samples.operator.openshift.io"): {
         "api_paths": ["apis/samples.operator.openshift.io/v1/"],
         "api": "configs",
+    },
+    # scheduler.grove.io
+    ("PodGang", "scheduler.grove.io"): {
+        "api_paths": ["apis/scheduler.grove.io/v1alpha1/"],
+        "api": "podgangs",
     },
     # scheduling.koordinator.sh
     ("Device", "scheduling.koordinator.sh"): {
