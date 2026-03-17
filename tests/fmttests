@@ -184,14 +184,14 @@ def test_format_markdown(verbose: bool = False) -> tuple[str, bool]:
                   ThemeStr("code", ThemeAttr(context='types', key='markdown_code'), False)]],
              None),
             ("Github tags, not translated: :bug: :seedling: :chart_with_upwards_trend: :book:",
-            {"use_github_tags": False}, [
-                [ThemeStr("Github tags, not translated: :bug: :seedling: "
-                          ":chart_with_upwards_trend: :book:", ThemeAttr("types", "generic"))],
-            ], None),
+             {"use_github_tags": False},
+             [[ThemeStr("Github tags, not translated: :bug: :seedling: "
+                        ":chart_with_upwards_trend: :book:", ThemeAttr("types", "generic"))]],
+             None),
             ("Github tags, translated: :bug: :seedling: :chart_with_upwards_trend: :book:",
-            {"use_github_tags": True}, [
-                [ThemeStr("Github tags, translated: 🐛 🌱 📈 📖", ThemeAttr("types", "generic"))],
-            ], None),
+             {"use_github_tags": True},
+             [[ThemeStr("Github tags, translated: 🐛 🌱 📈 📖", ThemeAttr("types", "generic"))]],
+             None),
             ("    This is some code\n"
              "\n"
              "The **code** has ended.", {"start": None, "end": None}, [
@@ -223,6 +223,84 @@ def test_format_markdown(verbose: bool = False) -> tuple[str, bool]:
             (["This_is_not_italics"], {},
              [
                  [ThemeStr("This_is_not_italics", ThemeAttr("types", "generic"))]],
+             None),
+            ("\n\nThis has empty newlines at the start; strip!", {"strip_empty_start": True},
+             [
+                 [ThemeStr("This has empty newlines at the start; strip!",
+                           ThemeAttr("types", "generic"))]],
+             None),
+            (["", "", "This has empty newlines at the start; strip!"], {"strip_empty_start": True},
+             [
+                 [ThemeStr("This has empty newlines at the start; strip!",
+                           ThemeAttr("types", "generic"))]],
+             None),
+            ("\n\nThis has empty newlines at the start; keep!", {"strip_empty_start": False},
+             [
+                 [ThemeStr("", ThemeAttr("types", "generic"))],
+                 [ThemeStr("", ThemeAttr("types", "generic"))],
+                 [ThemeStr("This has empty newlines at the start; keep!",
+                           ThemeAttr("types", "generic"))]],
+             None),
+            (["", "", "This has empty newlines at the start; keep!"], {"strip_empty_start": False},
+             [
+                 [ThemeStr("", ThemeAttr("types", "generic"))],
+                 [ThemeStr("", ThemeAttr("types", "generic"))],
+                 [ThemeStr("This has empty newlines at the start; keep!",
+                           ThemeAttr("types", "generic"))]],
+             None),
+            ("This has empty newlines at the end; strip!\n\n\n", {"strip_empty_end": True},
+             [
+                 [ThemeStr("This has empty newlines at the end; strip!",
+                           ThemeAttr("types", "generic"))]],
+             None),
+            (["This has empty newlines at the end; strip!", "", ""], {"strip_empty_end": True},
+             [
+                 [ThemeStr("This has empty newlines at the end; strip!",
+                           ThemeAttr("types", "generic"))]],
+             None),
+            ("This has empty newlines at the end; keep!\n\n\n", {"strip_empty_end": False},
+             [
+                 [ThemeStr("This has empty newlines at the end; keep!",
+                           ThemeAttr("types", "generic"))],
+                 [ThemeStr("", ThemeAttr("types", "generic"))],
+                 [ThemeStr("", ThemeAttr("types", "generic"))]],
+             None),
+            (["This has empty newlines at the end; keep!", "", ""], {"strip_empty_end": False},
+             [
+                 [ThemeStr("This has empty newlines at the end; keep!",
+                           ThemeAttr("types", "generic"))],
+                 [ThemeStr("", ThemeAttr("types", "generic"))],
+                 [ThemeStr("", ThemeAttr("types", "generic"))]],
+             None),
+            (["Start line; keep!", "", "foo"],
+             {"start": "Start line; keep!", "include_start": True},
+             [
+                 [ThemeStr("Start line; keep!",
+                           ThemeAttr("types", "generic"))],
+                 [ThemeStr("", ThemeAttr("types", "generic"))],
+                 [ThemeStr("foo", ThemeAttr("types", "generic"))]],
+             None),
+            (["Start line; strip!", "", "foo"],
+             {"start": "Start line; strip!", "include_start": False, "strip_empty_start": False},
+             [
+                 [ThemeStr("", ThemeAttr("types", "generic"))],
+                 [ThemeStr("foo", ThemeAttr("types", "generic"))]],
+             None),
+            (["Start line; strip!", "", "foo"],
+             {"start": "Start line; strip!", "include_start": False, "strip_empty_start": True},
+             [
+                 [ThemeStr("foo", ThemeAttr("types", "generic"))]],
+             None),
+            (["foo", "", "End line!"], {"end": "End line!", "strip_empty_end": False},
+             [
+                 [ThemeStr("foo",
+                           ThemeAttr("types", "generic"))],
+                 [ThemeStr("", ThemeAttr("types", "generic"))]],
+             None),
+            (["foo", "", "End line!"], {"end": "End line!", "strip_empty_end": True},
+             [
+                 [ThemeStr("foo",
+                           ThemeAttr("types", "generic"))]],
              None),
         )
 
@@ -889,6 +967,72 @@ def test_reformat_json(verbose: bool = False) -> tuple[str, bool]:
     return message, result
 
 
+def test_format_cel(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = formatters.format_cel
+
+    if result:
+        # Indata format:
+        # (lines, options, expected_result, expected_exception)
+        testdata: tuple[Any, ...] = (
+            ("self.minReplicas <= self.replicas && self.replicas <= self.maxReplicas",
+             {"raw": False},
+             [
+                 [ThemeStr("self.minReplicas <= self.replicas && self.replicas <= self.maxReplicas",
+                           ThemeAttr("types", "generic"))]],
+             None),
+            (["self.minReplicas <= self.replicas && self.replicas <= self.maxReplicas"],
+             {"raw": False},
+             [
+                 [ThemeStr("self.minReplicas <= self.replicas && self.replicas <= self.maxReplicas",
+                           ThemeAttr("types", "generic"))]],
+             None),
+            ("self.minReplicas <= self.replicas && self.replicas <= self.maxReplicas",
+             {"raw": True},
+             [
+                 [ThemeStr("self.minReplicas <= self.replicas && self.replicas <= self.maxReplicas",
+                           ThemeAttr("types", "generic"))]],
+             None),
+        )
+
+        for indata, options, expected_result, expected_exception in testdata:
+            try:
+                if (tmp := fun(indata, **options)) != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"           input: \"{indata}\"\n" \
+                              "         options:\n" \
+                              f"{yaml_dump(options, base_indent=17)}\n" \
+                              f"          output: {themearray_to_string(tmp)}\n" \
+                              f"        expected: {expected_result}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  f"           input: \"{indata}\"\n" \
+                                  "         options:\n" \
+                                  f"{yaml_dump(options, base_indent=17)}\n" \
+                                  f"       exception: {type(e)}\n" \
+                                  f"        expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"           input: \"{indata}\"\n" \
+                              "         options:\n" \
+                              f"{yaml_dump(options, base_indent=17)}\n" \
+                              f"       exception: {type(e)}\n" \
+                              f"        expected: {expected_result}"
+                    result = False
+                    break
+    return message, result
+
+
 def test_format_crt(verbose: bool = False) -> tuple[str, bool]:
     message = ""
     result = True
@@ -1482,6 +1626,10 @@ tests: dict[tuple[str, ...], dict[str, Any]] = {
     },
     ("reformat_json",): {
         "callable": test_reformat_json,
+        "result": None,
+    },
+    ("format_cel",): {
+        "callable": test_format_cel,
         "result": None,
     },
     ("format_crt",): {

@@ -659,10 +659,11 @@ def __str_representer(dumper: yaml.Dumper, data: Any) -> yaml.Node:
 
 
 GITHUB_TAGS: tuple[tuple[str, str], ...] = (
-    (":bug:", "🐛"),
-    (":seedling:", "🌱"),
-    (":chart_with_upwards_trend:", "📈"),
     (":book:", "📖"),
+    (":bug:", "🐛"),
+    (":chart_with_upwards_trend:", "📈"),
+    (":seedling:", "🌱"),
+    (":sparkles:", "✨"),
 )
 
 
@@ -706,8 +707,10 @@ def format_markdown(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef
         lines = re.sub(r"<!--.*?-->", r"", lines, flags=re.DOTALL)
         lines = split_msg(lines)
 
-    emptylines: list[ThemeRef | ThemeStr] = []
+    emptylines: list[list[ThemeRef | ThemeStr]] = []
     started = False
+    if start is None:
+        started = True
     codeblock = ""
 
     # pylint: disable-next=too-many-nested-blocks
@@ -727,12 +730,17 @@ def format_markdown(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef
             if not include_start:
                 continue
 
-        if not line:
-            emptylines.append(ThemeStr("", ThemeAttr("types", "generic")))
-            continue
-        if (not strip_empty_start or dumps) and emptylines:
-            dumps.append(emptylines)
+        # If we've got empty lines in the buffer and we encounter a non-empty line
+        # we need to flush the empty line buffer.
+        if line and emptylines:
+            # If there are already lines in the output it's easy; we need to keep the lines.
+            # else we only keep them if strip_empty_start isn't true.
+            if dumps or not strip_empty_start:
+                dumps += emptylines
             emptylines = []
+        elif not line:
+            emptylines.append([ThemeStr("", ThemeAttr("types", "generic"))])
+            continue
 
         if line in ("~~~", "```"):
             if codeblock == "":
@@ -818,7 +826,7 @@ def format_markdown(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef
         continue
 
     if not strip_empty_end and emptylines:
-        dumps.append(emptylines)
+        dumps += emptylines
     return dumps
 
 
@@ -1279,6 +1287,7 @@ def reformat_json(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef |
 def format_cel(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef | ThemeStr]]:
     """
     CEL formatter; returns the text with syntax highlighting for Common Expression Language.
+    Currently this formatter is equivalent to formatter_none.
 
         Parameters:
             lines ([str]): A list of strings
