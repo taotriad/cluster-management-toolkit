@@ -136,7 +136,7 @@ def map_key(shortcut: str, activatedfun: bool, key: str, modifier: str) -> tuple
     if modifier and modifier not in ("ctrl", "shift"):
         msg = f"Unknown modifier {modifier}; valid modifiers are shift, ctrl"
     elif key in ("f1", "f2", "f3", "f4", "f5", "f6",
-               "f7", "f8", "f9", "f10", "f11", "f12") and modifier in ("", "shift"):
+                 "f7", "f8", "f9", "f10", "f11", "f12") and modifier in ("", "shift"):
         if not modifier:
             help_key: str = f"[{key.upper()}]"
         elif modifier == "shift":
