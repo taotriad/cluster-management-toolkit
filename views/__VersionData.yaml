@@ -102,6 +102,8 @@ listview:
               filetype: "text"
               pathtype: "raw"
           formatter: "markdown"
+          formatter_args:
+            strip_empty_end: true
       - filepath: "{HOME}/.cmt/version-cache/candidate_versions.yaml"
         filetype: "yaml"
         path: "helm"
@@ -304,6 +306,8 @@ listview:
               filetype: "text"
               pathtype: "raw"
           formatter: "markdown"
+          formatter_args:
+            strip_empty_end: true
       - filepath: "{HOME}/.cmt/version-cache/candidate_versions.yaml"
         filetype: "yaml"
         path: "rancher"
