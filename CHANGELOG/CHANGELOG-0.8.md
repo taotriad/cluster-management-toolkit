@@ -158,7 +158,7 @@ proper distro packages instead this problem should go away.
 | jinja2         | 3.1.6           | openSUSE/SLES/RHEL, unsupported distros |
 | natsort        | 8.0.2           | openSUSE/SLES/RHEL, unsupported distros |
 | paramiko       |                 | openSUSE/SLES/RHEL, unsupported distros |
-| pygments       |                 | OpenSUSE/SLES, unsupported distros      |
+| pygments       |                 | OpenSUSE/SLES/RHEL, unsupported distros |
 | PyYAML         | 6.0             | Unsupported distros                     |
 | ruamel.yaml    | 0.17.21         | Unsupported distros [1]                 |
 | ruyaml         | 0.91.0          | Unsupported distros [1]                 |
@@ -180,7 +180,7 @@ proper distro packages instead this problem should go away.
 | python3-natsort               | Debian/Ubuntu      |
 | python3-paramiko              | Debian/Ubuntu      |
 | python3-pip                   | Debian/Ubuntu      |
-| python3-pygments              | DEbian/RHEL/Ubuntu |
+| python3-pygments              | Debian/Ubuntu      |
 | python3-pyyaml                | RHEL               |
 | python3-ruyaml                | Debian/Ubuntu [2]  |
 | python3-ruamel.yaml           | Debian/Ubuntu [2]  |
