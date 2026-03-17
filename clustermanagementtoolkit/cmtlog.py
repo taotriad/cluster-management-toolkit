@@ -92,7 +92,7 @@ def __loglevel_to_logger(loglevel: LogLevel) -> Callable:
             ValueError: Unsupported LogLevel
             TypeError: logger called without being initialized
     """
-    if logger is None:  # pragma: nocover
+    if logger is None:  # pragma: no cover
         raise TypeError("cmtlog.__loglevel_to_logger() "
                         "called without being initialized; aborting.")
 

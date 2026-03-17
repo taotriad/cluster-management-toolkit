@@ -1209,6 +1209,144 @@ def test_format_ini(verbose: bool = False) -> tuple[str, bool]:
     return message, result
 
 
+def test_format_known_hosts(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = formatters.format_known_hosts
+
+    if result:
+        # Indata format:
+        # (lines, options, expected_result, expected_exception)
+        testdata: tuple[Any, ...] = (
+            # comment, empty line, ed25519 key, IP-address
+            ("# comment\n\n"
+             "127.0.0.1 ssh-ed25519 AAAAfdshaklfdsahfjksldafhsadk4532423fsadfdsa\n",
+             {},
+             [
+                 [ThemeStr("# comment", ThemeAttr("types", "known_hosts_comment"))],
+                 [],
+                 [ThemeStr("127.0.0.1", ThemeAttr("types", "known_hosts_hostname")),
+                  ThemeStr(" ", ThemeAttr("types", "generic")),
+                  ThemeStr("ssh-ed25519", ThemeAttr("types", "known_hosts_crypto")),
+                  ThemeStr(" ", ThemeAttr("types", "generic")),
+                  ThemeStr("AAAAfdshaklfdsahfjksldafhsadk4532423fsadfdsa",
+                           ThemeAttr("types", "known_hosts_key"))]],
+             None),
+            # comment, ed25519 key, IP-address, raw
+            ("# comment\n"
+             "127.0.0.1 ssh-ed25519 AAAAfdshaklfdsahfjksldafhsadk4532423fsadfdsa\n",
+             {"raw": True},
+             [
+                 [ThemeStr("# comment", ThemeAttr("types", "generic"))],
+                 [ThemeStr("127.0.0.1 ssh-ed25519 AAAAfdshaklfdsahfjksldafhsadk4532423fsadfdsa",
+                           ThemeAttr("types", "generic"))]],
+             None),
+            # comment, ecdsa key, localhost, list of lines
+            (["# comment",
+              "localhost ecdsa-sha2-nistp256 AAAAfdshaklfdsahfjksldafhsadk4532423fsadfdsa"],
+             {},
+             [
+                 [ThemeStr("# comment", ThemeAttr("types", "known_hosts_comment"))],
+                 [ThemeStr("localhost", ThemeAttr("types", "known_hosts_hostname")),
+                  ThemeStr(" ", ThemeAttr("types", "generic")),
+                  ThemeStr("ecdsa-sha2-nistp256", ThemeAttr("types", "known_hosts_crypto")),
+                  ThemeStr(" ", ThemeAttr("types", "generic")),
+                  ThemeStr("AAAAfdshaklfdsahfjksldafhsadk4532423fsadfdsa",
+                           ThemeAttr("types", "known_hosts_key"))]],
+             None),
+            # rsa key, hashed hostname
+            ("|1|u+cnAJeulQDtZuXXyxfq3LKri54=|EkYTz93M1pdd4ncvtvdEAXYImV8= "
+             "ssh-rsa AAAAfdshaklfdsahfjksldafhsadk4532423fsadfdsa\n",
+             {},
+             [
+                 [ThemeStr("|1|u+cnAJeulQDtZuXXyxfq3LKri54=|EkYTz93M1pdd4ncvtvdEAXYImV8=",
+                           ThemeAttr("types", "known_hosts_hostname")),
+                  ThemeStr(" ", ThemeAttr("types", "generic")),
+                  ThemeStr("ssh-rsa", ThemeAttr("types", "known_hosts_crypto")),
+                  ThemeStr(" ", ThemeAttr("types", "generic")),
+                  ThemeStr("AAAAfdshaklfdsahfjksldafhsadk4532423fsadfdsa",
+                           ThemeAttr("types", "known_hosts_key"))]],
+             None),
+            # keyring
+            ("mvs* zos-key-ring-label=\"KeyRingOwner/SSHKnownHostsRing mvs1-ssh-rsa\"",
+             {},
+             [
+                 [ThemeStr("mvs*", ThemeAttr("types", "known_hosts_hostname")),
+                  ThemeStr(" ", ThemeAttr("types", "generic")),
+                  ThemeStr("zos-key-ring-label=", ThemeAttr("types", "known_hosts_crypto")),
+                  ThemeStr("\"KeyRingOwner/SSHKnownHostsRing mvs1-ssh-rsa\"",
+                           ThemeAttr("types", "known_hosts_key"))]],
+             None),
+            # revoked key, ed25519 key, IP-address
+            ("@revoked 127.0.0.1 ssh-ed25519 AAAAfdshaklfdsahfjksldafhsadk4532423fsadfdsa\n",
+             {},
+             [
+                 [ThemeStr("@revoked", ThemeAttr("types", "known_hosts_revoked")),
+                  ThemeStr(" ", ThemeAttr("types", "generic")),
+                  ThemeStr("127.0.0.1", ThemeAttr("types", "known_hosts_hostname")),
+                  ThemeStr(" ", ThemeAttr("types", "generic")),
+                  ThemeStr("ssh-ed25519", ThemeAttr("types", "known_hosts_crypto")),
+                  ThemeStr(" ", ThemeAttr("types", "generic")),
+                  ThemeStr("AAAAfdshaklfdsahfjksldafhsadk4532423fsadfdsa",
+                           ThemeAttr("types", "known_hosts_key"))]],
+             None),
+            # certificate authority, ed25519 key, IP-address
+            ("@cert-authority 127.0.0.1 ssh-ed25519 AAAAfdshaklfdsahfjksldafhsadk4532423fsadfdsa\n",
+             {},
+             [
+                 [ThemeStr("@cert-authority", ThemeAttr("types", "known_hosts_cert_authority")),
+                  ThemeStr(" ", ThemeAttr("types", "generic")),
+                  ThemeStr("127.0.0.1", ThemeAttr("types", "known_hosts_hostname")),
+                  ThemeStr(" ", ThemeAttr("types", "generic")),
+                  ThemeStr("ssh-ed25519", ThemeAttr("types", "known_hosts_crypto")),
+                  ThemeStr(" ", ThemeAttr("types", "generic")),
+                  ThemeStr("AAAAfdshaklfdsahfjksldafhsadk4532423fsadfdsa",
+                           ThemeAttr("types", "known_hosts_key"))]],
+             None),
+        )
+
+        for indata, options, expected_result, expected_exception in testdata:
+            if isinstance(indata, list):
+                indata_quoted = "\n".join(indata)
+            else:
+                indata_quoted = indata
+            indata_quoted = indata_quoted.replace('\n', '\\n')
+            try:
+                if (tmp := fun(indata, **options)) != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"           input: \"{indata_quoted}\"\n" \
+                              "         options:\n" \
+                              f"{yaml_dump(options, base_indent=17)}\n" \
+                              f"          output: {tmp}\n" \
+                              f"        expected: {expected_result}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  f"           input: \"{indata_quoted}\"\n" \
+                                  "         options:\n" \
+                                  f"{yaml_dump(options, base_indent=17)}\n" \
+                                  f"       exception: {type(e)}\n" \
+                                  f"        expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"           input: \"{indata_quoted}\"\n" \
+                              "         options:\n" \
+                              f"{yaml_dump(options, base_indent=17)}\n" \
+                              f"       exception: {type(e)}\n" \
+                              f"        expected: {expected_result}"
+                    result = False
+                    break
+    return message, result
+
+
 def test_format_caddyfile(verbose: bool = False) -> tuple[str, bool]:
     message = ""
     result = True
@@ -1638,6 +1776,10 @@ tests: dict[tuple[str, ...], dict[str, Any]] = {
     },
     ("format_ini",): {
         "callable": test_format_ini,
+        "result": None,
+    },
+    ("format_known_hosts",): {
+        "callable": test_format_known_hosts,
         "result": None,
     },
     ("format_caddyfile",): {

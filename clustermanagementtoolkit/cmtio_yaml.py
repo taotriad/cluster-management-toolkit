@@ -39,7 +39,7 @@ from clustermanagementtoolkit.cmttypes import deep_get, DictPath, FilePath, Secu
 
 # pylint: disable=unused-argument
 def __representer_none(self: Any, data: None) -> Any:
-    return self.represent_scalar("tag:yaml.org,2002:null", "null")  # pragma: nocover
+    return self.represent_scalar("tag:yaml.org,2002:null", "null")  # pragma: no cover
 
 
 def ruyaml_dump_to_string(obj: Any, **kwargs: Any) -> str:

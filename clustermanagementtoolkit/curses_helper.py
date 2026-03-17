@@ -2870,7 +2870,7 @@ def map_key(view_file: str, shortcut: str, activatedfun: Callable | None,
         elif modifier == "ctrl":
             help_key = f"[Ctrl] + {key.upper()}"
             shortcut_key = [ord(key) - 96]
-        else:  # pragma: nocover
+        else:  # pragma: no cover
             # This shouldn't be necessary since we check this at the beginning of the function,
             # but pylint complains otherwise.
             sys.exit(f"View-file {view_file} is invalid: "

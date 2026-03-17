@@ -991,6 +991,8 @@ types:
   key: "type_key"
   kind: "type_kind"
   known_hosts_comment: "type_generic_comment"
+  known_hosts_revoked: "status_not_ok"
+  known_hosts_cert_authority: "status_admin"
   known_hosts_hostname: "hostname"
   known_hosts_crypto: "type_generic_crypto"
   known_hosts_key: "type_generic"

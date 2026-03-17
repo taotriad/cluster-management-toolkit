@@ -38,8 +38,9 @@ except ModuleNotFoundError:  # pragma: no cover
              "you may need to (re-)run `cmt-install` or `pip3 install PyYAML`; aborting.")
 
 import pygments
-import pygments.lexers
 from pygments.formatter import Formatter
+from pygments.lexer import RegexLexer, bygroups
+import pygments.lexers
 from pygments.token import Token
 
 from clustermanagementtoolkit.cmttypes import deep_get, DictPath, FilePath, LogLevel
@@ -168,6 +169,45 @@ COLORSCHEME_JSON: dict[Any, ColorSchemeEntry] = {
     # Quoted string
     Token.Literal.String.Double: {
         "formatting": ThemeAttr("types", "yaml_value"),
+        "type": "value",
+    },
+}
+
+
+COLORSCHEME_KNOWN_HOSTS: dict[Any, ColorSchemeEntry] = {
+    # <whitespace>
+    Token.Whitespace: {
+        "formatting": ThemeAttr("types", "generic"),
+        "type": "namespace",
+    },
+    # #
+    Token.Comment.Single: {
+        "formatting": ThemeAttr("types", "known_hosts_comment"),
+        "type": "comment",
+    },
+    # @cert-authority
+    Token.Heading: {
+        "formatting": ThemeAttr("types", "known_hosts_cert_authority"),
+        "type": "section",
+    },
+    # @revoked
+    Token.Error: {
+        "formatting": ThemeAttr("types", "known_hosts_revoked"),
+        "type": "error",
+    },
+    # [keyword]
+    Token.Keyword: {
+        "formatting": ThemeAttr("types", "known_hosts_crypto"),
+        "type": "section",
+    },
+    # key
+    Token.Name.Attribute: {
+        "formatting": ThemeAttr("types", "known_hosts_hostname"),
+        "type": "key",
+    },
+    # value
+    Token.Literal.String: {
+        "formatting": ThemeAttr("types", "known_hosts_key"),
         "type": "value",
     },
 }
@@ -653,9 +693,9 @@ def __str_representer(dumper: yaml.Dumper, data: Any) -> yaml.Node:
         Returns:
             (yaml.Node): Opaque type internal to python-yaml
     """
-    if "\n" in data:  # pragma: nocover
+    if "\n" in data:  # pragma: no cover
         return dumper.represent_scalar("tag:yaml.org,2002:str", data, style="|")
-    return dumper.represent_scalar("tag:yaml.org,2002:str", data)  # pragma: nocover
+    return dumper.represent_scalar("tag:yaml.org,2002:str", data)  # pragma: no cover
 
 
 GITHUB_TAGS: tuple[tuple[str, str], ...] = (
@@ -1126,6 +1166,44 @@ def format_yaml_line(line: str, **kwargs: Any) -> tuple[list[ThemeRef | ThemeStr
             ]
 
     return tmpline, remnants
+
+
+class KnownHostsLexer(RegexLexer):
+    """
+    A Pygments lexer for SSH known_hosts files.
+    """
+    name = "KnownHosts"
+    aliases = ["known_hosts"]
+    filenames = ["known_hosts", "ssh_known_hosts"]
+
+    tokens = {
+        "root": [
+            # Comment
+            (r"^#.*", Token.Comment.Single),
+            # Key from keyring
+            # hostname(s) keyring reference
+            (r"^(\S+)(\s+)(zos-key-ring-label=)(\".*\")$",
+             bygroups(Token.Name.Attribute, Token.Whitespace, Token.Keyword,
+                      Token.Literal.String)),  # type: ignore[no-untyped-call]
+            # Revoked regular key
+            # hostname(s) keytype key
+            (r"^(@revoked)(\s+)(\S+)(\s+)(\S+)(\s+)(.*)$",
+             bygroups(Token.Error, Token.Whitespace,
+                      Token.Name.Attribute, Token.Whitespace, Token.Keyword,
+                      Token.Whitespace, Token.Literal.String)),  # type: ignore[no-untyped-call]
+            # Cert Authority regular key
+            # hostname(s) keytype key
+            (r"^(@cert-authority)(\s+)(\S+)(\s+)(\S+)(\s+)(.*)$",
+             bygroups(Token.Heading, Token.Whitespace,
+                      Token.Name.Attribute, Token.Whitespace, Token.Keyword,
+                      Token.Whitespace, Token.Literal.String)),  # type: ignore[no-untyped-call]
+            # Regular key
+            # hostname(s) keytype key
+            (r"^(\S+)(\s+)(\S+)(\s+)(.*)$",
+             bygroups(Token.Name.Attribute, Token.Whitespace, Token.Keyword,
+                      Token.Whitespace, Token.Literal.String)),  # type: ignore[no-untyped-call]
+        ]
+    }
 
 
 class ThemeArrayFormatter(Formatter):
@@ -1651,40 +1729,17 @@ def format_known_hosts(lines: str | list[str], **kwargs: Any) -> list[list[Theme
         Returns:
             list[themearray]: A list of themearrays
     """
-    dumps: list[list[ThemeRef | ThemeStr]] = []
-
     if deep_get(kwargs, DictPath("raw"), False):
         return format_none(lines)
 
-    if isinstance(lines, str):
-        lines = split_msg(lines)
+    if isinstance(lines, list):
+        lines = "\n".join(lines)
 
-    host_keytype_key_regex: re.Pattern[str] = re.compile(r"^(\S+)(\s+)(\S+)(\s+)(\S+)")
+    lexer = KnownHostsLexer()
+    formatter = ThemeArrayFormatter(colorscheme=COLORSCHEME_KNOWN_HOSTS, lexer=lexer)
+    pygments.highlight(lines, lexer, formatter)
 
-    for line in lines:
-        tmpline: list[ThemeRef | ThemeStr] = []
-        if line.lstrip().startswith(("#", ";")):
-            tmpline = [
-                ThemeStr(line, ThemeAttr("types", "known_hosts_comment")),
-            ]
-        else:
-            tmp = host_keytype_key_regex.match(line)
-            if tmp is not None:
-                hostname = tmp[1]
-                whitespace1 = tmp[2]
-                crypto = tmp[3]
-                whitespace2 = tmp[4]
-                key = tmp[5]
-
-                tmpline = [
-                    ThemeStr(f"{hostname}", ThemeAttr("types", "known_hosts_hostname")),
-                    ThemeStr(whitespace1, ThemeAttr("types", "generic")),
-                    ThemeStr(f"{crypto}", ThemeAttr("types", "known_hosts_crypto")),
-                    ThemeStr(whitespace2, ThemeAttr("types", "generic")),
-                    ThemeStr(f"{key}", ThemeAttr("types", "known_hosts_key")),
-                ]
-        dumps.append(tmpline)
-    return dumps
+    return formatter.buffer
 
 
 def format_mosquitto(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef | ThemeStr]]:
