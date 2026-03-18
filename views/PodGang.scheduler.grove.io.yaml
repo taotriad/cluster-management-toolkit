@@ -1,0 +1,111 @@
+---
+kind: "PodGang"
+api_family: "scheduler.grove.io"
+default_command: "podgangs"
+listview:
+  name: "Pod Gangs"
+  group: "Scheduling"
+  field_indexes:
+    Normal:
+      fields: ["namespace", "name", "age"]
+      sortcolumn: "namespace"
+infoview:
+  name: "Pod Gang Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["controller"]
+    rows:
+      controller:
+        header: [["C", ["main", "infoheader_shortcut"]],
+                 ["ontroller:", ["main", "infoheader"]]]
+        paths:
+          - path: "metadata#ownerReferences"
+            pathtype: "items"
+            subpaths:
+              - "kind"
+              - "apiVersion"
+              - "name"
+            when:
+              - key: "controller"
+                eq: true
+            type: ["kind", "api_group", "name"]
+        default: "<none>"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "kind"
+            - type: "api_group"
+            - type: "generic"
+          field_separators:
+            - type: "kind_api_group"
+            - type: "kind"
+  listpad:
+    listgetter: "listgetter_path"
+    listgetter_args:
+      path: "spec#podgroups"
+    infogetter: "generic_infogetter"
+    field_indexes:
+      Normal:
+        fields: ["name", "min_replicas", "pod_references"]
+    fields:
+      min_replicas:
+        header: "Min Replicas:"
+        path: "minReplicas"
+        default: 0
+        type: "int"
+        formatter: "numerical"
+        align: "right"
+      name:
+        header: "Name:"
+        path: "name"
+        default: "<unset>"
+        type: "str"
+      pod_references:
+        header: "Pod References:"
+        paths:
+          - path: "podReferences"
+            pathtype: "items"
+            subpaths:
+              - "namespace"
+              - "name"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "namespace"
+            - type: "name"
+          field_separators:
+            - type: "namespace"
+  shortcuts:
+    "Open controller":
+      key: "c"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for controller"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        namespace_path: "metadata#namespace"
+        owner_reference_path: "metadata#ownerReferences"
+    "Pod References":
+      key: "p"
+      modifier: "shift"
+      read_only: true
+      helptext: "List Pod References"
+      title: "Arguments:"
+      widget: "windowwidget"
+      itemgetter: "get_list_fields"
+      itemgetter_args:
+        source: "selected"
+        path: "podReferences"
+        fields:
+          - "namespace"
+          - "name"
+      selectable: true
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        kind: "Pod"
+        name_path: 1
+        namespace_path: 0

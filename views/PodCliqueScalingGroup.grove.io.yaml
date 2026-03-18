@@ -1,0 +1,142 @@
+---
+kind: "PodCliqueScalingGroup"
+api_family: "grove.io"
+default_command: "podcliquescalinggroups"
+command:
+  - "pcsgs"
+  - "pcsg"
+listview:
+  name: "Pod Clique Scaling Groups"
+  group: "Scheduling"
+  field_indexes:
+    Wide:
+      fields: ["namespace", "name", "cliques",
+               "desired_replicas", "scheduled_replicas",
+               "uptodate_replicas", "available_replicas", "age"]
+      sortcolumn: "namespace"
+    Normal:
+      fields: ["namespace", "name", "age"]
+      sortcolumn: "namespace"
+  fields:
+    available_replicas:
+      header: "Available:"
+      paths:
+        - path: ["status#availableReplicas", "status#replicas"]
+          pathtype: "comparison"
+          default: [0, 0]
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          ranges:
+            - min: 0
+              max: 1
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+            - default: true
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+      align: "right"
+    cliques:
+      header: "Cliques:"
+      path: "spec#cliqueNames"
+      default: ["<none>"]
+      type: "raw"
+      formatter: "list"
+    desired_replicas:
+      header: "Desired:"
+      path: "spec#replicas"
+      default: 0
+      type: "int"
+      formatter: "numerical"
+      align: "right"
+    scheduled_replicas:
+      header: "Scheduled:"
+      path: "spec#scheduledReplicas"
+      default: 0
+      type: "int"
+      formatter: "numerical"
+      align: "right"
+    uptodate_replicas:
+      header: "Up to Date:"
+      paths:
+        - path: ["status#updatedReplicas", "status#replicas"]
+          pathtype: "comparison"
+          default: [0, 0]
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          ranges:
+            - min: 0
+              max: 1
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+            - default: true
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+      align: "right"
+infoview:
+  name: "Pod Clique Scaling Group Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["controller", "cliques"]
+    rows:
+      cliques:
+        header: [["Cli", ["main", "infoheader"]],
+                 ["q", ["main", "infoheader_shortcut"]],
+                 ["ues:", ["main", "infoheader"]]]
+        path: "spec#cliqueNames"
+        default: ["<none>"]
+        type: "raw"
+        formatter: "list"
+      controller:
+        header: [["C", ["main", "infoheader_shortcut"]],
+                 ["ontroller:", ["main", "infoheader"]]]
+        paths:
+          - path: "metadata#ownerReferences"
+            pathtype: "items"
+            subpaths:
+              - "kind"
+              - "apiVersion"
+              - "name"
+            when:
+              - key: "controller"
+                eq: true
+            type: ["kind", "api_group", "name"]
+        default: "<none>"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "kind"
+            - type: "api_group"
+            - type: "generic"
+          field_separators:
+            - type: "kind_api_group"
+            - type: "kind"
+  shortcuts:
+    "Open controller":
+      key: "c"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for controller"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        namespace_path: "metadata#namespace"
+        owner_reference_path: "metadata#ownerReferences"
+    "Show cliques":
+      key: "q"
+      read_only: true
+      helptext: "Show cliques"
+      title: "Cliques:"
+      widget: "windowwidget"
+      itemgetter: "get_list_as_list"
+      itemgetter_args:
+        path: "spec#cliqueNames"
+      # This isn't supported for now
+      sortcolumn: "name"

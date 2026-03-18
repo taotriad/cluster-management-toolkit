@@ -1,0 +1,194 @@
+---
+kind: "PodClique"
+api_family: "grove.io"
+default_command: "podcliques"
+command:
+  - "pclqs"
+  - "pclq"
+listview:
+  name: "Pod Cliques"
+  group: "Scheduling"
+  field_indexes:
+    Normal:
+      fields: ["namespace", "name", "role",
+               "desired_replicas",
+               "current_replicas",
+               "scheduled_replicas",
+               "scheduled_gated_replicas",
+               "ready_replicas",
+               "uptodate_replicas",
+               "age"]
+      sortcolumn: "namespace"
+  fields:
+    current_replicas:
+      header: "Current:"
+      path: "status#replicas"
+      default: 0
+      type: "int"
+      formatter: "numerical"
+      align: "right"
+    desired_replicas:
+      header: "Desired:"
+      path: "spec#replicas"
+      default: 0
+      type: "int"
+      formatter: "numerical"
+      align: "right"
+    ready_replicas:
+      header: "Ready:"
+      paths:
+        - path: ["status#readyReplicas", "status#replicas"]
+          pathtype: "comparison"
+          default: [0, 0]
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          ranges:
+            - min: 0
+              max: 1
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+            - min: -1
+              max: 0
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+            - default: true
+              field_colors:
+                - context: "main"
+                  type: "status_not_ok"
+      align: "right"
+    role:
+      header: "Role:"
+      path: "spec#roleName"
+      fallback_on_empty: true
+      default: "<unset>"
+      type: "str"
+    scheduled_gated_replicas:
+      header: "Gated:"
+      path: "spec#scheduledGatedReplicas"
+      default: 0
+      type: "int"
+      formatter: "numerical"
+      align: "right"
+    scheduled_replicas:
+      header: "Scheduled:"
+      path: "spec#scheduledReplicas"
+      default: 0
+      type: "int"
+      formatter: "numerical"
+      align: "right"
+    uptodate_replicas:
+      header: "Up to Date:"
+      paths:
+        - path: ["status#updatedReplicas", "status#replicas"]
+          pathtype: "comparison"
+          default: [0, 0]
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          ranges:
+            - min: 0
+              max: 1
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+            - default: true
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+      align: "right"
+infoview:
+  name: "Pod Clique Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["controller", "role", "replicas"]
+    rows:
+      controller:
+        header: [["C", ["main", "infoheader_shortcut"]],
+                 ["ontroller:", ["main", "infoheader"]]]
+        paths:
+          - path: "metadata#ownerReferences"
+            pathtype: "items"
+            subpaths:
+              - "kind"
+              - "apiVersion"
+              - "name"
+            when:
+              - key: "controller"
+                eq: true
+            type: ["kind", "api_group", "name"]
+        default: "<none>"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "kind"
+            - type: "api_group"
+            - type: "generic"
+          field_separators:
+            - type: "kind_api_group"
+            - type: "kind"
+      replicas:
+        header: [["Replicas:", ["main", "infoheader"]]]
+        paths:
+          - path: [["spec#replicas"], " Desired",
+                   ["status#replicas"], " Current",
+                   ["status#scheduledReplicas"], " Scheduled",
+                   ["status#scheduledGatedReplicas"], " Gated",
+                   ["status#readyReplicas"], " Ready",
+                   ["status#updatedReplicas"], " Up to Date"]
+            pathtype: "tuple"
+            default: [0, "", 0, "", 0, "", 0, "", 0, "", 0, ""]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "numerical"
+            - type: "generic"
+            - type: "numerical"
+            - type: "generic"
+            - type: "numerical"
+            - type: "generic"
+            - type: "numerical"
+            - type: "generic"
+            - type: "numerical"
+            - type: "generic"
+            - type: "numerical"
+            - type: "generic"
+          field_separators:
+            - type: "no_pad"
+            - type: "fraction_spaced"
+            - type: "no_pad"
+            - type: "fraction_spaced"
+            - type: "no_pad"
+            - type: "fraction_spaced"
+            - type: "no_pad"
+            - type: "fraction_spaced"
+            - type: "no_pad"
+            - type: "fraction_spaced"
+            - type: "no_pad"
+      role:
+        header: [["Role:", ["main", "infoheader"]]]
+        path: "spec#roleName"
+        fallback_on_empty: true
+        default: "<unset>"
+        type: "str"
+  logpad:
+    infogetter: "logpad_formatted"
+    infogetter_args:
+      formatter: "format_yaml"
+      path: "spec"
+    timestamps: false
+  shortcuts:
+    "Open controller":
+      key: "c"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for controller"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        namespace_path: "metadata#namespace"
+        owner_reference_path: "metadata#ownerReferences"

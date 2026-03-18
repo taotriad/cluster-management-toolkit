@@ -1,0 +1,7 @@
+---
+- name: "grove"
+  show_in_selector: false
+  matchkeys:
+    - image_name: "/ai-dynamo/grove/grove-operator"
+  parser_rules:
+    - name: "json"

@@ -1,0 +1,122 @@
+---
+kind: "PodCliqueSet"
+api_family: "grove.io"
+default_command: "podcliquesets"
+command:
+  - "pclqsets"
+  - "pclqset"
+listview:
+  name: "Pod Clique Sets"
+  group: "Scheduling"
+  field_indexes:
+    Normal:
+      fields: ["namespace", "name",
+               "desired_replicas",
+               "current_replicas",
+               "available_replicas",
+               "uptodate_replicas", "age"]
+      sortcolumn: "namespace"
+  fields:
+    available_replicas:
+      header: "Available:"
+      paths:
+        - path: ["status#availableReplicas", "status#replicas"]
+          pathtype: "comparison"
+          default: [0, 0]
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          ranges:
+            - min: 0
+              max: 1
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+            - default: true
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+      align: "right"
+    current_replicas:
+      header: "Current:"
+      path: "status#replicas"
+      default: 0
+      type: "int"
+      formatter: "numerical"
+      align: "right"
+    desired_replicas:
+      header: "Desired:"
+      path: "spec#replicas"
+      default: 0
+      type: "int"
+      formatter: "numerical"
+      align: "right"
+    uptodate_replicas:
+      header: "Up to Date:"
+      paths:
+        - path: ["status#updatedReplicas", "status#replicas"]
+          pathtype: "comparison"
+          default: [0, 0]
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          ranges:
+            - min: 0
+              max: 1
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+            - default: true
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+      align: "right"
+infoview:
+  name: "Pod Clique Set Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["replicas"]
+    rows:
+      replicas:
+        header: [["Replicas:", ["main", "infoheader"]]]
+        paths:
+          - path: [["spec#replicas"], " Desired",
+                   ["status#replicas"], " Current",
+                   ["status#availableReplicas"], " Available",
+                   ["status#updatedReplicas"], " Up to Date"]
+            pathtype: "tuple"
+            default: [0, "", 0, "", 0, "", 0, ""]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "numerical"
+            - type: "generic"
+            - type: "numerical"
+            - type: "generic"
+            - type: "numerical"
+            - type: "generic"
+            - type: "numerical"
+            - type: "generic"
+            - type: "numerical"
+            - type: "generic"
+            - type: "numerical"
+            - type: "generic"
+          field_separators:
+            - type: "no_pad"
+            - type: "fraction_spaced"
+            - type: "no_pad"
+            - type: "fraction_spaced"
+            - type: "no_pad"
+            - type: "fraction_spaced"
+            - type: "no_pad"
+            - type: "fraction_spaced"
+            - type: "no_pad"
+            - type: "fraction_spaced"
+            - type: "no_pad"
+  logpad:
+    infogetter: "logpad_formatted"
+    infogetter_args:
+      formatter: "format_yaml"
+      path: "spec#template"
+    timestamps: false
