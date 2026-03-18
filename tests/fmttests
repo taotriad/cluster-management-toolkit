@@ -1347,6 +1347,318 @@ def test_format_known_hosts(verbose: bool = False) -> tuple[str, bool]:
     return message, result
 
 
+def test_format_mosquitto(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = formatters.format_mosquitto
+
+    if result:
+        # Indata format:
+        # (lines, options, expected_result, expected_exception)
+        testdata: tuple[Any, ...] = (
+            ("# comment\n"
+             "description testcase\n"
+             "author \"Test Testson\"\n"
+             "respawn\n"
+             "per_listener_settings false\n"
+             "listener 1883\n"
+             "global_max_connections -1\n"
+             "start on net-device-up\n"
+             "persistent_client_expiration 2d\n"
+             "accept_protocol_versions 3, 4\n"
+             "accept_protocol_versions 3,4,5\n"
+             "listener 0 /tmp/mosquitto.sock\n"
+             "pattern write sensor/%u/data\n"
+             "bridge_tcp_keepalive 0 1 42\n"
+             "",
+             {},
+             [
+                 [ThemeStr("# comment", ThemeAttr("types", "mosquitto_comment"))],
+                 [ThemeStr("description", ThemeAttr("types", "mosquitto_keyword")),
+                  ThemeStr(" ", ThemeAttr("types", "generic")),
+                  ThemeStr("testcase", ThemeAttr("types", "mosquitto_value"))],
+                 [ThemeStr("author", ThemeAttr("types", "mosquitto_keyword")),
+                  ThemeStr(" ", ThemeAttr("types", "generic")),
+                  ThemeStr("\"Test Testson\"", ThemeAttr("types", "mosquitto_value"))],
+                 [ThemeStr("respawn", ThemeAttr("types", "mosquitto_keyword"))],
+                 [ThemeStr("per_listener_settings", ThemeAttr("types", "mosquitto_keyword")),
+                  ThemeStr(" ", ThemeAttr("types", "generic")),
+                  ThemeStr("false", ThemeAttr("types", "mosquitto_number"))],
+                 [ThemeStr("listener", ThemeAttr("types", "mosquitto_keyword")),
+                  ThemeStr(" ", ThemeAttr("types", "generic")),
+                  ThemeStr("1883", ThemeAttr("types", "mosquitto_number"))],
+                 [ThemeStr("global_max_connections", ThemeAttr("types", "mosquitto_keyword")),
+                  ThemeStr(" ", ThemeAttr("types", "generic")),
+                  ThemeStr("-1", ThemeAttr("types", "mosquitto_number"))],
+                 [ThemeStr("start on", ThemeAttr("types", "mosquitto_keyword")),
+                  ThemeStr(" ", ThemeAttr("types", "generic")),
+                  ThemeStr("net-device-up", ThemeAttr("types", "mosquitto_value"))],
+                 [ThemeStr("persistent_client_expiration", ThemeAttr("types", "mosquitto_keyword")),
+                  ThemeStr(" ", ThemeAttr("types", "generic")),
+                  ThemeStr("2", ThemeAttr("types", "generic")),
+                  ThemeStr("d", ThemeAttr("types", "mosquitto_unit"))],
+                 [ThemeStr("accept_protocol_versions", ThemeAttr("types", "mosquitto_keyword")),
+                  ThemeStr(" ", ThemeAttr("types", "generic")),
+                  ThemeStr("3", ThemeAttr("types", "mosquitto_number")),
+                  ThemeStr(", 4", ThemeAttr("types", "mosquitto_number"))],
+                 [ThemeStr("accept_protocol_versions", ThemeAttr("types", "mosquitto_keyword")),
+                  ThemeStr(" ", ThemeAttr("types", "generic")),
+                  ThemeStr("3", ThemeAttr("types", "mosquitto_number")),
+                  ThemeStr(",4,5", ThemeAttr("types", "mosquitto_number"))],
+                 [ThemeStr("listener", ThemeAttr("types", "mosquitto_keyword")),
+                  ThemeStr(" ", ThemeAttr("types", "generic")),
+                  ThemeStr("0", ThemeAttr("types", "mosquitto_number")),
+                  ThemeStr(" ", ThemeAttr("types", "generic")),
+                  ThemeStr("/tmp/mosquitto.sock", ThemeAttr("types", "mosquitto_value"))],
+                 [ThemeStr("pattern", ThemeAttr("types", "mosquitto_keyword")),
+                  ThemeStr(" ", ThemeAttr("types", "generic")),
+                  ThemeStr("write", ThemeAttr("types", "mosquitto_unit")),
+                  ThemeStr(" ", ThemeAttr("types", "generic")),
+                  ThemeStr("sensor/%u/data", ThemeAttr("types", "mosquitto_value"))],
+                 [ThemeStr("bridge_tcp_keepalive", ThemeAttr("types", "mosquitto_keyword")),
+                  ThemeStr(" ", ThemeAttr("types", "generic")),
+                  ThemeStr("0", ThemeAttr("types", "mosquitto_number")),
+                  ThemeStr(" 1 42", ThemeAttr("types", "mosquitto_number"))],
+                ],
+             None),
+        )
+
+        for indata, options, expected_result, expected_exception in testdata:
+            if isinstance(indata, list):
+                indata_quoted = "\n".join(indata)
+            else:
+                indata_quoted = indata
+            indata_quoted = indata_quoted.replace('\n', '\\n')
+            try:
+                if (tmp := fun(indata, **options)) != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"           input: \"{indata_quoted}\"\n" \
+                              "         options:\n" \
+                              f"{yaml_dump(options, base_indent=17)}\n" \
+                              f"          output: {tmp}\n" \
+                              f"        expected: {expected_result}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  f"           input: \"{indata_quoted}\"\n" \
+                                  "         options:\n" \
+                                  f"{yaml_dump(options, base_indent=17)}\n" \
+                                  f"       exception: {type(e)}\n" \
+                                  f"        expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"           input: \"{indata_quoted}\"\n" \
+                              "         options:\n" \
+                              f"{yaml_dump(options, base_indent=17)}\n" \
+                              f"       exception: {type(e)}\n" \
+                              f"        expected: {expected_result}"
+                    result = False
+                    break
+    return message, result
+
+
+def test_format_xml(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = formatters.format_xml
+
+    if result:
+        # Indata format:
+        # (lines, options, expected_result, expected_exception)
+        testdata: tuple[Any, ...] = (
+            (
+                "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+                "<h:table xmlns:h=\"http://www.w3.org/TR/html4/\">\n"
+                "<h:tr>\n"
+                "<h:td>Apples</h:td>\n"
+                "</h:tr>\n"
+                "</h:table>\n"
+                "",
+                {},
+                [
+                    [ThemeStr("<?xml version=\"1.0\" encoding=\"UTF-8\"?>",
+                              ThemeAttr("types", "xml_comment_preprocessor"))],
+                    [ThemeStr("<h:table", ThemeAttr("types", "xml_tag")),
+                     ThemeStr(" ", ThemeAttr("types", "generic")),
+                     ThemeStr("xmlns:h=", ThemeAttr("types", "xml_attribute_key")),
+                     ThemeStr("\"http://www.w3.org/TR/html4/\"",
+                              ThemeAttr("types", "xml_attribute_value")),
+                     ThemeStr(">", ThemeAttr("types", "xml_tag"))],
+                    [ThemeStr("<h:tr", ThemeAttr("types", "xml_tag")),
+                     ThemeStr(">", ThemeAttr("types", "xml_tag"))],
+                    [ThemeStr("<h:td", ThemeAttr("types", "xml_tag")),
+                     ThemeStr(">", ThemeAttr("types", "xml_tag")),
+                     ThemeStr("Apples",
+                              ThemeAttr("types", "generic")),
+                     ThemeStr("</h:td>", ThemeAttr("types", "xml_tag"))],
+                    [ThemeStr("</h:tr>", ThemeAttr("types", "xml_tag"))],
+                    [ThemeStr("</h:table>", ThemeAttr("types", "xml_tag"))],
+                ], None),
+            (
+                [
+                    "<html xsl:version=\"1.0\" xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\">",
+                    "<body style=\"font-family:Arial;font-size:12pt;background-color:#EEEEEE\">",
+                    "<xsl:for-each select=\"breakfast_menu/food\">",
+                    "  <div style=\"background-color:teal;color:white;padding:4px\">",
+                    "    <span style=\"font-weight:bold\"><xsl:value-of select=\"name\"/>"
+                    " - </span>",
+                    "    <xsl:value-of select=\"price\"/>",
+                    "  </div>",
+                    "  <div style=\"margin-left:20px;margin-bottom:1em;font-size:10pt\">",
+                    "    <p>",
+                    "      <xsl:value-of select=\"description\"/>",
+                    "      <span style=\"font-style:italic\"> "
+                    "(<xsl:value-of select=\"calories\"/> calories per serving)</span>",
+                    "    </p>",
+                    "  </div>",
+                    "</xsl:for-each>",
+                ],
+                {},
+                [
+                    [ThemeStr("<html", ThemeAttr("types", "xml_tag")),
+                     ThemeStr(" ", ThemeAttr("types", "generic")),
+                     ThemeStr("xsl:version=", ThemeAttr("types", "xml_attribute_key")),
+                     ThemeStr("\"1.0\"", ThemeAttr("types", "xml_attribute_value")),
+                     ThemeStr(" ", ThemeAttr("types", "generic")),
+                     ThemeStr("xmlns:xsl=", ThemeAttr("types", "xml_attribute_key")),
+                     ThemeStr("\"http://www.w3.org/1999/XSL/Transform\"",
+                              ThemeAttr("types", "xml_attribute_value")),
+                     ThemeStr(">", ThemeAttr("types", "xml_tag"))],
+                    [ThemeStr("<body", ThemeAttr("types", "xml_tag")),
+                     ThemeStr(" ", ThemeAttr("types", "generic")),
+                     ThemeStr("style=", ThemeAttr("types", "xml_attribute_key")),
+                     ThemeStr("\"font-family:Arial;font-size:12pt;background-color:#EEEEEE\"",
+                              ThemeAttr("types", "xml_attribute_value")),
+                     ThemeStr(">", ThemeAttr("types", "xml_tag"))],
+                    [ThemeStr("<xsl:for-each", ThemeAttr("types", "xml_tag")),
+                     ThemeStr(" ", ThemeAttr("types", "generic")),
+                     ThemeStr("select=", ThemeAttr("types", "xml_attribute_key")),
+                     ThemeStr("\"breakfast_menu/food\"", ThemeAttr("types", "xml_attribute_value")),
+                     ThemeStr(">", ThemeAttr("types", "xml_tag"))],
+                    [ThemeStr("  ", ThemeAttr("types", "generic")),
+                     ThemeStr("<div", ThemeAttr("types", "xml_tag")),
+                     ThemeStr(" ", ThemeAttr("types", "generic")),
+                     ThemeStr("style=", ThemeAttr("types", "xml_attribute_key")),
+                     ThemeStr("\"background-color:teal;color:white;padding:4px\"",
+                              ThemeAttr("types", "xml_attribute_value")),
+                     ThemeStr(">", ThemeAttr("types", "xml_tag"))],
+                    [ThemeStr("    ", ThemeAttr("types", "generic")),
+                     ThemeStr("<span", ThemeAttr("types", "xml_tag")),
+                     ThemeStr(" ", ThemeAttr("types", "generic")),
+                     ThemeStr("style=", ThemeAttr("types", "xml_attribute_key")),
+                     ThemeStr("\"font-weight:bold\"", ThemeAttr("types", "xml_attribute_value")),
+                     ThemeStr(">", ThemeAttr("types", "xml_tag")),
+                     ThemeStr("<xsl:value-of", ThemeAttr("types", "xml_tag")),
+                     ThemeStr(" ", ThemeAttr("types", "generic")),
+                     ThemeStr("select=", ThemeAttr("types", "xml_attribute_key")),
+                     ThemeStr("\"name\"", ThemeAttr("types", "xml_attribute_value")),
+                     ThemeStr("/>", ThemeAttr("types", "xml_tag")),
+                     ThemeStr(" ", ThemeAttr("types", "generic")),
+                     ThemeStr("-", ThemeAttr("types", "generic")),
+                     ThemeStr(" ", ThemeAttr("types", "generic")),
+                     ThemeStr("</span>", ThemeAttr("types", "xml_tag"))],
+                    [ThemeStr("    ", ThemeAttr("types", "generic")),
+                     ThemeStr("<xsl:value-of", ThemeAttr("types", "xml_tag")),
+                     ThemeStr(" ", ThemeAttr("types", "generic")),
+                     ThemeStr("select=", ThemeAttr("types", "xml_attribute_key")),
+                     ThemeStr("\"price\"", ThemeAttr("types", "xml_attribute_value")),
+                     ThemeStr("/>", ThemeAttr("types", "xml_tag"))],
+                    [ThemeStr("  ", ThemeAttr("types", "generic")),
+                     ThemeStr("</div>", ThemeAttr("types", "xml_tag"))],
+                    [ThemeStr("  ", ThemeAttr("types", "generic")),
+                     ThemeStr("<div", ThemeAttr("types", "xml_tag")),
+                     ThemeStr(" ", ThemeAttr("types", "generic")),
+                     ThemeStr("style=", ThemeAttr("types", "xml_attribute_key")),
+                     ThemeStr("\"margin-left:20px;margin-bottom:1em;font-size:10pt\"",
+                              ThemeAttr("types", "xml_attribute_value")),
+                     ThemeStr(">", ThemeAttr("types", "xml_tag"))],
+                    [ThemeStr("    ", ThemeAttr("types", "generic")),
+                     ThemeStr("<p", ThemeAttr("types", "xml_tag")),
+                     ThemeStr(">", ThemeAttr("types", "xml_tag"))],
+                    [ThemeStr("      ", ThemeAttr("types", "generic")),
+                     ThemeStr("<xsl:value-of", ThemeAttr("types", "xml_tag")),
+                     ThemeStr(" ", ThemeAttr("types", "generic")),
+                     ThemeStr("select=", ThemeAttr("types", "xml_attribute_key")),
+                     ThemeStr("\"description\"", ThemeAttr("types", "xml_attribute_value")),
+                     ThemeStr("/>", ThemeAttr("types", "xml_tag"))],
+                    [ThemeStr("      ", ThemeAttr("types", "generic")),
+                     ThemeStr("<span", ThemeAttr("types", "xml_tag")),
+                     ThemeStr(" ", ThemeAttr("types", "generic")),
+                     ThemeStr("style=", ThemeAttr("types", "xml_attribute_key")),
+                     ThemeStr("\"font-style:italic\"", ThemeAttr("types", "xml_attribute_value")),
+                     ThemeStr(">", ThemeAttr("types", "xml_tag")),
+                     ThemeStr(" ", ThemeAttr("types", "generic")),
+                     ThemeStr("(", ThemeAttr("types", "generic")),
+                     ThemeStr("<xsl:value-of", ThemeAttr("types", "xml_tag")),
+                     ThemeStr(" ", ThemeAttr("types", "generic")),
+                     ThemeStr("select=", ThemeAttr("types", "xml_attribute_key")),
+                     ThemeStr("\"calories\"", ThemeAttr("types", "xml_attribute_value")),
+                     ThemeStr("/>", ThemeAttr("types", "xml_tag")),
+                     ThemeStr(" ", ThemeAttr("types", "generic")),
+                     ThemeStr("calories", ThemeAttr("types", "generic")),
+                     ThemeStr(" ", ThemeAttr("types", "generic")),
+                     ThemeStr("per", ThemeAttr("types", "generic")),
+                     ThemeStr(" ", ThemeAttr("types", "generic")),
+                     ThemeStr("serving)", ThemeAttr("types", "generic")),
+                     ThemeStr("</span>", ThemeAttr("types", "xml_tag"))],
+                    [ThemeStr("    ", ThemeAttr("types", "generic")),
+                     ThemeStr("</p>", ThemeAttr("types", "xml_tag"))],
+                    [ThemeStr("  ", ThemeAttr("types", "generic")),
+                     ThemeStr("</div>", ThemeAttr("types", "xml_tag"))],
+                    [ThemeStr("</xsl:for-each>", ThemeAttr("types", "xml_tag"))],
+                ], None),
+        )
+
+        for indata, options, expected_result, expected_exception in testdata:
+            if isinstance(indata, list):
+                indata_quoted = "\n".join(indata)
+            else:
+                indata_quoted = indata
+            indata_quoted = indata_quoted.replace('\n', '\\n')
+            try:
+                if (tmp := fun(indata, **options)) != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"           input: \"{indata_quoted}\"\n" \
+                              "         options:\n" \
+                              f"{yaml_dump(options, base_indent=17)}\n" \
+                              f"          output: {tmp}\n" \
+                              f"        expected: {expected_result}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  f"           input: \"{indata_quoted}\"\n" \
+                                  "         options:\n" \
+                                  f"{yaml_dump(options, base_indent=17)}\n" \
+                                  f"       exception: {type(e)}\n" \
+                                  f"        expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"           input: \"{indata_quoted}\"\n" \
+                              "         options:\n" \
+                              f"{yaml_dump(options, base_indent=17)}\n" \
+                              f"       exception: {type(e)}\n" \
+                              f"        expected: {expected_result}"
+                    result = False
+                    break
+    return message, result
+
+
 def test_format_caddyfile(verbose: bool = False) -> tuple[str, bool]:
     message = ""
     result = True
@@ -1683,6 +1995,327 @@ def test_format_python_traceback(verbose: bool = False) -> tuple[str, bool]:
     return message, result
 
 
+def test_format_toml(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = formatters.format_toml
+
+    if result:
+        # Indata format:
+        # (lines, options, expected_result, expected_exception)
+        testdata: tuple[Any, ...] = (
+            (
+                [
+                 "# comment",
+                 "title = \"TOML Example\"",
+                 "",
+                 "[owner]",
+                 "dob = 1979-05-27T07:32:00-08:00",
+                 "",
+                 "[database]",
+                 "enabled = true",
+                 "ports = [ 8000, 8001, 8002 ]",
+                 "data = [ [\"delta\", \"phi\"], [3.14] ]",
+                 "temp_targets = { cpu = 79.5, case = 72.0 }",
+                 "",
+                 "[servers]",
+                 "",
+                 "[servers.alpha]",
+                ],
+             {},
+             [
+                 [ThemeStr("# comment", ThemeAttr("types", "toml_comment"))],
+                 [ThemeStr("title", ThemeAttr("types", "toml_key")),
+                  ThemeStr(" ", ThemeAttr("types", "generic")),
+                  ThemeStr("=", ThemeAttr("types", "toml_key_separator")),
+                  ThemeStr(" ", ThemeAttr("types", "generic")),
+                  ThemeStr("\"", ThemeAttr("types", "toml_value")),
+                  ThemeStr("TOML Example", ThemeAttr("types", "toml_value")),
+                  ThemeStr("\"", ThemeAttr("types", "toml_value"))],
+                 [],
+                 [ThemeStr("[", ThemeAttr("types", "toml_section")),
+                  ThemeStr("owner", ThemeAttr("types", "toml_section")),
+                  ThemeStr("]", ThemeAttr("types", "toml_section"))],
+                 [ThemeStr("dob", ThemeAttr("types", "toml_key")),
+                  ThemeStr(" ", ThemeAttr("types", "generic")),
+                  ThemeStr("=", ThemeAttr("types", "toml_key_separator")),
+                  ThemeStr(" ", ThemeAttr("types", "generic")),
+                  ThemeStr("1979-05-27T07:32:00-08:00", ThemeAttr("types", "toml_value")),
+                  ],
+                 [],
+                 [ThemeStr("[", ThemeAttr("types", "toml_section")),
+                  ThemeStr("database", ThemeAttr("types", "toml_section")),
+                  ThemeStr("]", ThemeAttr("types", "toml_section"))],
+                 [ThemeStr("enabled", ThemeAttr("types", "toml_key")),
+                  ThemeStr(" ", ThemeAttr("types", "generic")),
+                  ThemeStr("=", ThemeAttr("types", "toml_key_separator")),
+                  ThemeStr(" ", ThemeAttr("types", "generic")),
+                  ThemeStr("true", ThemeAttr("types", "toml_value"))],
+                 [ThemeStr("ports", ThemeAttr("types", "toml_key")),
+                  ThemeStr(" ", ThemeAttr("types", "generic")),
+                  ThemeStr("=", ThemeAttr("types", "toml_key_separator")),
+                  ThemeStr(" ", ThemeAttr("types", "generic")),
+                  ThemeStr("[", ThemeAttr("types", "toml_punctuation")),
+                  ThemeStr(" ", ThemeAttr("types", "generic")),
+                  ThemeStr("8000", ThemeAttr("types", "toml_value")),
+                  ThemeStr(",", ThemeAttr("types", "toml_punctuation")),
+                  ThemeStr(" ", ThemeAttr("types", "generic")),
+                  ThemeStr("8001", ThemeAttr("types", "toml_value")),
+                  ThemeStr(",", ThemeAttr("types", "toml_punctuation")),
+                  ThemeStr(" ", ThemeAttr("types", "generic")),
+                  ThemeStr("8002", ThemeAttr("types", "toml_value")),
+                  ThemeStr(" ", ThemeAttr("types", "generic")),
+                  ThemeStr("]", ThemeAttr("types", "toml_punctuation"))],
+                 [ThemeStr("data", ThemeAttr("types", "toml_key")),
+                  ThemeStr(" ", ThemeAttr("types", "generic")),
+                  ThemeStr("=", ThemeAttr("types", "toml_key_separator")),
+                  ThemeStr(" ", ThemeAttr("types", "generic")),
+                  ThemeStr("[", ThemeAttr("types", "toml_punctuation")),
+                  ThemeStr(" ", ThemeAttr("types", "generic")),
+                  ThemeStr("[", ThemeAttr("types", "toml_punctuation")),
+                  ThemeStr("\"", ThemeAttr("types", "toml_value")),
+                  ThemeStr("delta", ThemeAttr("types", "toml_value")),
+                  ThemeStr("\"", ThemeAttr("types", "toml_value")),
+                  ThemeStr(",", ThemeAttr("types", "toml_punctuation")),
+                  ThemeStr(" ", ThemeAttr("types", "generic")),
+                  ThemeStr("\"", ThemeAttr("types", "toml_value")),
+                  ThemeStr("phi", ThemeAttr("types", "toml_value")),
+                  ThemeStr("\"", ThemeAttr("types", "toml_value")),
+                  ThemeStr("]", ThemeAttr("types", "toml_punctuation")),
+                  ThemeStr(",", ThemeAttr("types", "toml_punctuation")),
+                  ThemeStr(" ", ThemeAttr("types", "generic")),
+                  ThemeStr("[", ThemeAttr("types", "toml_punctuation")),
+                  ThemeStr("3.14", ThemeAttr("types", "toml_value")),
+                  ThemeStr("]", ThemeAttr("types", "toml_punctuation")),
+                  ThemeStr(" ", ThemeAttr("types", "generic")),
+                  ThemeStr("]", ThemeAttr("types", "toml_punctuation"))],
+                 [ThemeStr("temp_targets", ThemeAttr("types", "toml_key")),
+                  ThemeStr(" ", ThemeAttr("types", "generic")),
+                  ThemeStr("=", ThemeAttr("types", "toml_key_separator")),
+                  ThemeStr(" ", ThemeAttr("types", "generic")),
+                  ThemeStr("{", ThemeAttr("types", "toml_punctuation")),
+                  ThemeStr(" ", ThemeAttr("types", "generic")),
+                  ThemeStr("cpu", ThemeAttr("types", "toml_key")),
+                  ThemeStr(" ", ThemeAttr("types", "generic")),
+                  ThemeStr("=", ThemeAttr("types", "toml_punctuation")),
+                  ThemeStr(" ", ThemeAttr("types", "generic")),
+                  ThemeStr("79.5", ThemeAttr("types", "toml_value")),
+                  ThemeStr(",", ThemeAttr("types", "toml_punctuation")),
+                  ThemeStr(" ", ThemeAttr("types", "generic")),
+                  ThemeStr("case", ThemeAttr("types", "toml_key")),
+                  ThemeStr(" ", ThemeAttr("types", "generic")),
+                  ThemeStr("=", ThemeAttr("types", "toml_punctuation")),
+                  ThemeStr(" ", ThemeAttr("types", "generic")),
+                  ThemeStr("72.0", ThemeAttr("types", "toml_value")),
+                  ThemeStr(" ", ThemeAttr("types", "generic")),
+                  ThemeStr("}", ThemeAttr("types", "toml_punctuation"))],
+                 [],
+                 [ThemeStr("[", ThemeAttr("types", "toml_section")),
+                  ThemeStr("servers", ThemeAttr("types", "toml_section")),
+                  ThemeStr("]", ThemeAttr("types", "toml_section"))],
+                 [],
+                 [ThemeStr("[", ThemeAttr("types", "toml_section")),
+                  ThemeStr("servers", ThemeAttr("types", "toml_section")),
+                  ThemeStr(".", ThemeAttr("types", "toml_section")),
+                  ThemeStr("alpha", ThemeAttr("types", "toml_section")),
+                  ThemeStr("]", ThemeAttr("types", "toml_section"))],
+             ],
+             None),
+            (
+                [
+                 "int1 = +99",
+                 "int2 = -42",
+                 "int3 = 224_617",
+                 "hex1 = 0xDEADBEEF",
+                 "hex2 = 0xdeadbeef",
+                 "hex3 = 0xdead_beef",
+                 "oct = 0o755",
+                 "bin = 0b11010110",
+                 "exp = 6.626e-34",
+                 "infinity = inf",
+                 "notanumber = nan",
+                ],
+             {},
+             [
+                 [ThemeStr("int1", ThemeAttr("types", "toml_key")),
+                  ThemeStr(" ", ThemeAttr("types", "generic")),
+                  ThemeStr("=", ThemeAttr("types", "toml_key_separator")),
+                  ThemeStr(" ", ThemeAttr("types", "generic")),
+                  ThemeStr("+99", ThemeAttr("types", "toml_value"))],
+                 [ThemeStr("int2", ThemeAttr("types", "toml_key")),
+                  ThemeStr(" ", ThemeAttr("types", "generic")),
+                  ThemeStr("=", ThemeAttr("types", "toml_key_separator")),
+                  ThemeStr(" ", ThemeAttr("types", "generic")),
+                  ThemeStr("-42", ThemeAttr("types", "toml_value"))],
+                 [ThemeStr("int3", ThemeAttr("types", "toml_key")),
+                  ThemeStr(" ", ThemeAttr("types", "generic")),
+                  ThemeStr("=", ThemeAttr("types", "toml_key_separator")),
+                  ThemeStr(" ", ThemeAttr("types", "generic")),
+                  ThemeStr("224_617", ThemeAttr("types", "toml_value"))],
+                 [ThemeStr("hex1", ThemeAttr("types", "toml_key")),
+                  ThemeStr(" ", ThemeAttr("types", "generic")),
+                  ThemeStr("=", ThemeAttr("types", "toml_key_separator")),
+                  ThemeStr(" ", ThemeAttr("types", "generic")),
+                  ThemeStr("0xDEADBEEF", ThemeAttr("types", "toml_value"))],
+                 [ThemeStr("hex2", ThemeAttr("types", "toml_key")),
+                  ThemeStr(" ", ThemeAttr("types", "generic")),
+                  ThemeStr("=", ThemeAttr("types", "toml_key_separator")),
+                  ThemeStr(" ", ThemeAttr("types", "generic")),
+                  ThemeStr("0xdeadbeef", ThemeAttr("types", "toml_value"))],
+                 [ThemeStr("hex3", ThemeAttr("types", "toml_key")),
+                  ThemeStr(" ", ThemeAttr("types", "generic")),
+                  ThemeStr("=", ThemeAttr("types", "toml_key_separator")),
+                  ThemeStr(" ", ThemeAttr("types", "generic")),
+                  ThemeStr("0xdead_beef", ThemeAttr("types", "toml_value"))],
+                 [ThemeStr("oct", ThemeAttr("types", "toml_key")),
+                  ThemeStr(" ", ThemeAttr("types", "generic")),
+                  ThemeStr("=", ThemeAttr("types", "toml_key_separator")),
+                  ThemeStr(" ", ThemeAttr("types", "generic")),
+                  ThemeStr("0o755", ThemeAttr("types", "toml_value"))],
+                 [ThemeStr("bin", ThemeAttr("types", "toml_key")),
+                  ThemeStr(" ", ThemeAttr("types", "generic")),
+                  ThemeStr("=", ThemeAttr("types", "toml_key_separator")),
+                  ThemeStr(" ", ThemeAttr("types", "generic")),
+                  ThemeStr("0b11010110", ThemeAttr("types", "toml_value"))],
+                 [ThemeStr("exp", ThemeAttr("types", "toml_key")),
+                  ThemeStr(" ", ThemeAttr("types", "generic")),
+                  ThemeStr("=", ThemeAttr("types", "toml_key_separator")),
+                  ThemeStr(" ", ThemeAttr("types", "generic")),
+                  ThemeStr("6.626e-34", ThemeAttr("types", "toml_value"))],
+                 [ThemeStr("infinity", ThemeAttr("types", "toml_key")),
+                  ThemeStr(" ", ThemeAttr("types", "generic")),
+                  ThemeStr("=", ThemeAttr("types", "toml_key_separator")),
+                  ThemeStr(" ", ThemeAttr("types", "generic")),
+                  ThemeStr("inf", ThemeAttr("types", "toml_value"))],
+                 [ThemeStr("notanumber", ThemeAttr("types", "toml_key")),
+                  ThemeStr(" ", ThemeAttr("types", "generic")),
+                  ThemeStr("=", ThemeAttr("types", "toml_key_separator")),
+                  ThemeStr(" ", ThemeAttr("types", "generic")),
+                  ThemeStr("nan", ThemeAttr("types", "toml_value"))],
+             ],
+             None),
+            (
+                [
+                 # Valid but discouraged
+                 "'' = \"valid\"",
+                ],
+             {},
+             [
+                 [ThemeStr("'", ThemeAttr("types", "toml_value")),
+                  ThemeStr("'", ThemeAttr("types", "toml_value")),
+                  ThemeStr(" ", ThemeAttr("types", "generic")),
+                  ThemeStr("=", ThemeAttr("types", "toml_key_separator")),
+                  ThemeStr(" ", ThemeAttr("types", "generic")),
+                  ThemeStr("\"", ThemeAttr("types", "toml_value")),
+                  ThemeStr("valid", ThemeAttr("types", "toml_value")),
+                  ThemeStr("\"", ThemeAttr("types", "toml_value"))],
+             ],
+             None),
+            (
+                [
+                 # Missing key; pygment still accepts it though
+                 "= \"invalid\"",
+                ],
+             {},
+             [
+                 [ThemeStr("=", ThemeAttr("types", "toml_key_separator")),
+                  ThemeStr(" ", ThemeAttr("types", "generic")),
+                  ThemeStr("\"", ThemeAttr("types", "toml_value")),
+                  ThemeStr("invalid", ThemeAttr("types", "toml_value")),
+                  ThemeStr("\"", ThemeAttr("types", "toml_value"))],
+             ],
+             None),
+            (
+                [
+                 # Missing value; pygment still accepts it though
+                 "invalid =",
+                ],
+             {},
+             [
+                 [ThemeStr("invalid", ThemeAttr("types", "toml_key")),
+                  ThemeStr(" ", ThemeAttr("types", "generic")),
+                  ThemeStr("=", ThemeAttr("types", "toml_key_separator"))],
+             ],
+             None),
+            (
+                [
+                 # Escaped characters
+                 "test = \"\\\"\""
+                ],
+             {},
+             [
+                 [ThemeStr("test", ThemeAttr("types", "toml_key")),
+                  ThemeStr(" ", ThemeAttr("types", "generic")),
+                  ThemeStr("=", ThemeAttr("types", "toml_key_separator")),
+                  ThemeStr(" ", ThemeAttr("types", "generic")),
+                  ThemeStr("\"", ThemeAttr("types", "toml_value")),
+                  ThemeStr("\\\"", ThemeAttr("types", "toml_escape")),
+                  ThemeStr("\"", ThemeAttr("types", "toml_value"))],
+             ],
+             None),
+            (
+                [
+                 # Multiline string
+                 "test = \"\"\"",
+                 "Roses are red",
+                 "Violets are blue\"\"\"",
+                ],
+             {},
+             [
+                 [ThemeStr("test", ThemeAttr("types", "toml_key")),
+                  ThemeStr(" ", ThemeAttr("types", "generic")),
+                  ThemeStr("=", ThemeAttr("types", "toml_key_separator")),
+                  ThemeStr(" ", ThemeAttr("types", "generic")),
+                  ThemeStr("\"\"\"", ThemeAttr("types", "toml_value"))],
+                 [ThemeStr("Roses are red", ThemeAttr("types", "toml_value"))],
+                 [ThemeStr("Violets are blue", ThemeAttr("types", "toml_value")),
+                  ThemeStr("\"\"\"", ThemeAttr("types", "toml_value"))],
+             ],
+             None),
+        )
+
+        for indata, options, expected_result, expected_exception in testdata:
+            if isinstance(indata, list):
+                indata_quoted = "\n".join(indata)
+            else:
+                indata_quoted = indata
+            indata_quoted = indata_quoted.replace('\n', '\\n')
+            try:
+                if (tmp := fun(indata, **options)) != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"           input: \"{indata_quoted}\"\n" \
+                              "         options:\n" \
+                              f"{yaml_dump(options, base_indent=17)}\n" \
+                              f"          output: {tmp}\n" \
+                              f"        expected: {expected_result}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  f"           input: \"{indata_quoted}\"\n" \
+                                  "         options:\n" \
+                                  f"{yaml_dump(options, base_indent=17)}\n" \
+                                  f"       exception: {type(e)}\n" \
+                                  f"        expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"           input: \"{indata_quoted}\"\n" \
+                              "         options:\n" \
+                              f"{yaml_dump(options, base_indent=17)}\n" \
+                              f"       exception: {type(e)}\n" \
+                              f"        expected: {expected_result}"
+                    result = False
+                    break
+    return message, result
+
+
 def test_map_dataformat(verbose: bool = False) -> tuple[str, bool]:
     message = ""
     result = True
@@ -1782,12 +2415,24 @@ tests: dict[tuple[str, ...], dict[str, Any]] = {
         "callable": test_format_known_hosts,
         "result": None,
     },
+    ("format_mosquitto",): {
+        "callable": test_format_mosquitto,
+        "result": None,
+    },
+    ("format_xml",): {
+        "callable": test_format_xml,
+        "result": None,
+    },
     ("format_caddyfile",): {
         "callable": test_format_caddyfile,
         "result": None,
     },
     ("format_python_traceback",): {
         "callable": test_format_python_traceback,
+        "result": None,
+    },
+    ("format_toml",): {
+        "callable": test_format_toml,
         "result": None,
     },
     ("map_dataformat",): {

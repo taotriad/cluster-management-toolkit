@@ -698,7 +698,13 @@ color_pairs_curses:
   type_xml_escape: [["green", "bright"], ["black", "normal"]]
   type_xml_escape_data: [["yellow", "bright"], ["black", "normal"]]
   type_mosquitto_comment: [["black", "bright"], ["black", "normal"]]
-  type_mosquitto_variable: [["magenta", "normal"], ["black", "normal"]]
+  type_mosquitto_keyword:
+    unselected: [["yellow", "bright"], ["black", "normal"]]
+    selected: [["yellow", "bright"], ["white", "normal"]]
+  type_mosquitto_number:
+    unselected: [["cyan", "normal"], ["black", "normal"]]
+    selected: [["cyan", "normal"], ["white", "normal"]]
+  type_mosquitto_value: [["magenta", "normal"], ["black", "normal"]]
   type_nginx_key: [["cyan", "bright"], ["black", "normal"]]
   type_nginx_value: [["magenta", "normal"], ["black", "normal"]]
   type_nginx_variable: [["magenta", "normal"], ["black", "normal"]]
@@ -1012,7 +1018,10 @@ types:
   matchbullet: "matchbullet"
   mem: "type_mem"
   mosquitto_comment: "type_mosquitto_comment"
-  mosquitto_variable: "type_mosquitto_variable"
+  mosquitto_keyword: "type_mosquitto_keyword"
+  mosquitto_number: "type_mosquitto_number"
+  mosquitto_unit: "type_unit"
+  mosquitto_value: "type_mosquitto_value"
   namespace: "type_namespace"
   negative_check: ["type_negative_check", "bold"]
   nginx_comment: "type_nginx_comment"

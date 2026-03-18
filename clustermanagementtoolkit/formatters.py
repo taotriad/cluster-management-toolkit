@@ -95,7 +95,7 @@ COLORSCHEME_INI: dict[Any, ColorSchemeEntry] = {
     # <whitespace>
     Token.Text.Whitespace: {
         "formatting": ThemeAttr("types", "generic"),
-        "type": "namespace",
+        "type": "whitespace",
     },
     # #
     Token.Comment.Single: {
@@ -176,9 +176,9 @@ COLORSCHEME_JSON: dict[Any, ColorSchemeEntry] = {
 
 COLORSCHEME_KNOWN_HOSTS: dict[Any, ColorSchemeEntry] = {
     # <whitespace>
-    Token.Whitespace: {
+    Token.Text.Whitespace: {
         "formatting": ThemeAttr("types", "generic"),
-        "type": "namespace",
+        "type": "whitespace",
     },
     # #
     Token.Comment.Single: {
@@ -209,6 +209,45 @@ COLORSCHEME_KNOWN_HOSTS: dict[Any, ColorSchemeEntry] = {
     Token.Literal.String: {
         "formatting": ThemeAttr("types", "known_hosts_key"),
         "type": "value",
+    },
+}
+
+
+COLORSCHEME_MOSQUITTO: dict[Any, ColorSchemeEntry] = {
+    # <whitespace>
+    Token.Text.Whitespace: {
+        "formatting": ThemeAttr("types", "generic"),
+        "type": "whitespace",
+    },
+    # #
+    Token.Comment.Single: {
+        "formatting": ThemeAttr("types", "mosquitto_comment"),
+        "type": "comment",
+    },
+    # description|author|start on|exec|...
+    Token.Keyword: {
+        "formatting": ThemeAttr("types", "mosquitto_keyword"),
+        "type": "comment",
+    },
+    # ymwdhm
+    Token.Keyword.Type: {
+        "formatting": ThemeAttr("types", "mosquitto_unit"),
+        "type": "comment",
+    },
+    # 12h30m
+    Token.Literal.Date: {
+        "formatting": ThemeAttr("types", "generic"),
+        "type": "comment",
+    },
+    # value
+    Token.Literal.String: {
+        "formatting": ThemeAttr("types", "mosquitto_value"),
+        "type": "comment",
+    },
+    # integer|bool
+    Token.Literal.Number: {
+        "formatting": ThemeAttr("types", "mosquitto_number"),
+        "type": "comment",
     },
 }
 
@@ -507,6 +546,36 @@ COLORSCHEME_TOML: dict[Any, ColorSchemeEntry] = {
     },
     # [
     Token.Keyword.Constant: {
+        "formatting": ThemeAttr("types", "toml_value"),
+        "type": "value",
+    },
+    # "
+    Token.Literal.Date: {
+        "formatting": ThemeAttr("types", "toml_value"),
+        "type": "date",
+    },
+    # bin
+    Token.Literal.Number.Bin: {
+        "formatting": ThemeAttr("types", "toml_value"),
+        "type": "value",
+    },
+    # float
+    Token.Literal.Number.Float: {
+        "formatting": ThemeAttr("types", "toml_value"),
+        "type": "value",
+    },
+    # hex
+    Token.Literal.Number.Hex: {
+        "formatting": ThemeAttr("types", "toml_value"),
+        "type": "value",
+    },
+    # integer
+    Token.Literal.Number.Integer: {
+        "formatting": ThemeAttr("types", "toml_value"),
+        "type": "value",
+    },
+    # oct
+    Token.Literal.Number.Oct: {
         "formatting": ThemeAttr("types", "toml_value"),
         "type": "value",
     },
@@ -1183,25 +1252,89 @@ class KnownHostsLexer(RegexLexer):
             # Key from keyring
             # hostname(s) keyring reference
             (r"^(\S+)(\s+)(zos-key-ring-label=)(\".*\")$",
-             bygroups(Token.Name.Attribute, Token.Whitespace, Token.Keyword,
+             bygroups(Token.Name.Attribute, Token.Text.Whitespace, Token.Keyword,
                       Token.Literal.String)),  # type: ignore[no-untyped-call]
             # Revoked regular key
             # hostname(s) keytype key
             (r"^(@revoked)(\s+)(\S+)(\s+)(\S+)(\s+)(.*)$",
-             bygroups(Token.Error, Token.Whitespace,
-                      Token.Name.Attribute, Token.Whitespace, Token.Keyword,
-                      Token.Whitespace, Token.Literal.String)),  # type: ignore[no-untyped-call]
+             bygroups(Token.Error, Token.Text.Whitespace,
+                      Token.Name.Attribute, Token.Text.Whitespace, Token.Keyword,
+                      Token.Text.Whitespace, Token.Literal.String)),  # type: ignore[no-untyped-call]
             # Cert Authority regular key
             # hostname(s) keytype key
             (r"^(@cert-authority)(\s+)(\S+)(\s+)(\S+)(\s+)(.*)$",
-             bygroups(Token.Heading, Token.Whitespace,
-                      Token.Name.Attribute, Token.Whitespace, Token.Keyword,
-                      Token.Whitespace, Token.Literal.String)),  # type: ignore[no-untyped-call]
+             bygroups(Token.Heading, Token.Text.Whitespace,
+                      Token.Name.Attribute, Token.Text.Whitespace, Token.Keyword,
+                      Token.Text.Whitespace, Token.Literal.String)),  # type: ignore[no-untyped-call]
             # Regular key
             # hostname(s) keytype key
             (r"^(\S+)(\s+)(\S+)(\s+)(.*)$",
-             bygroups(Token.Name.Attribute, Token.Whitespace, Token.Keyword,
-                      Token.Whitespace, Token.Literal.String)),  # type: ignore[no-untyped-call]
+             bygroups(Token.Name.Attribute, Token.Text.Whitespace, Token.Keyword,
+                      Token.Text.Whitespace, Token.Literal.String)),  # type: ignore[no-untyped-call]
+        ]
+    }
+
+
+class MosquittoLexer(RegexLexer):
+    """
+    A Pygments lexer for Mosquitto files.
+    """
+    name = "Mosquitto"
+    aliases = ["mosquitto"]
+    filenames = ["mosquitto.conf"]
+
+    tokens = {
+        "root": [
+            # Comment
+            (r"^#.*", Token.Comment.Single),
+            # Single directive
+            # respawn|...
+            (r"^(\S+)\s*$", Token.Keyword),
+            # 2-tuple with bool
+            # queue_qos0_messages true
+            (r"^(start on|\S+)(\s+)(true|false)\s*$",
+             bygroups(Token.Keyword, Token.Text.Whitespace,
+                      Token.Literal.Number)),  # type: ignore[no-untyped-call]
+            # 2-tuple with number or list of numbers
+            # Note: This rule isn't ideal; it'll accept
+            # lists with trailing commas and even things like -, -,- and similar stupid things.
+            # listener 1883
+            # accept_protocol_versions 3, 4
+            # accept_protocol_versions 3,4,5
+            (r"^(\S+)(\s*)(-*\d+)(-*[\d, ]*)\s*$",
+             bygroups(Token.Keyword, Token.Text.Whitespace,
+                      Token.Literal.Number,
+                      Token.Literal.Number)),  # type: ignore[no-untyped-call]
+            # 2-tuple with time period; we could use Token.Literal.Date for the entire period,
+            # but we want the unit separate from the Integer.
+            # persistent_client_expiration 2m
+            (r"^(\S+)(\s+)(\d+)([ymwdh])\s*$",
+             bygroups(Token.Keyword, Token.Text.Whitespace,
+                      Token.Literal.Date,
+                      Token.Keyword.Type)),  # type: ignore[no-untyped-call]
+            # 2-tuple with quoted string
+            # start on|keyword value
+            # description "Quoted string"
+            (r"^(start on|\S+)(\s+)(\".*?\")\s*$",
+             bygroups(Token.Keyword, Token.Text.Whitespace,
+                      Token.Literal.String)),  # type: ignore[no-untyped-call]
+            # 2-tuple with string
+            # start on|keyword value
+            # description unquotedstring
+            (r"^(start on|\S+)(\s+)(\S+)\s*$",
+             bygroups(Token.Keyword, Token.Text.Whitespace,
+                      Token.Literal.String)),  # type: ignore[no-untyped-call]
+            # 3-tuple with numerical value followed by string
+            # listener 0 path
+            (r"^(\S+)(\s+)(\d+)(\s)(\S*)\s*$",
+             bygroups(Token.Keyword, Token.Text.Whitespace,
+                      Token.Literal.Number, Token.Text.Whitespace,
+                      Token.Literal.String)),  # type: ignore[no-untyped-call]
+            # 3-tuple with string followed by string
+            (r"^(\S+)(\s+)(\S+)(\s)(\S*)\s*$",
+             bygroups(Token.Keyword, Token.Text.Whitespace,
+                      Token.Keyword.Type, Token.Text.Whitespace,
+                      Token.Literal.String)),  # type: ignore[no-untyped-call]
         ]
     }
 
@@ -1232,7 +1365,9 @@ class ThemeArrayFormatter(Formatter):
 
         for ttype, value in tokensource:
             # Use this when adding new formatters
-            if ttype not in self.colorscheme and ttype not in self.unknown_ttypes:
+            if ttype not in self.colorscheme \
+                    and ttype not in self.unknown_ttypes:  # pragma: nocover
+                sys.exit(f"{ttype=}\n{value=}")
                 errmsg = [
                     [("Encountered unknown token type ", "default"),
                      (f"{ttype}", "argument"),
@@ -1385,6 +1520,35 @@ def format_cel(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef | Th
     return dumps
 
 
+# pylint: disable-next=too-many-branches
+def format_pygments_generic(lines: str | list[str] | dict | list[dict], **kwargs: Any) -> \
+        list[list[ThemeRef | ThemeStr]]:
+    """
+    YAML formatter; returns the text with syntax highlighting for YAML.
+
+        Parameters:
+            lines (str|[str]|dict): A list of strings *or*
+                               a string with newlines that should be split,
+                               *or* a dict to dump as yaml
+            **kwargs (dict[str, Any]): Keyword arguments
+        Returns:
+            ([themearray]): A list of themearrays
+    """
+    if deep_get(kwargs, DictPath("raw"), False):
+        return format_none(lines)
+
+    if isinstance(lines, list):
+        lines = "\n".join(lines)
+
+    # pylint: disable-next=no-member
+    lexer = deep_get(kwargs, DictPath("lexer"))
+    colorscheme = deep_get(kwargs, DictPath("colorscheme"))
+    formatter = ThemeArrayFormatter(colorscheme=colorscheme, lexer=lexer)
+    pygments.highlight(lines, lexer, formatter)
+
+    return formatter.buffer
+
+
 def format_crt(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef | ThemeStr]]:
     """
     CRT formatter; returns the text with syntax highlighting for certificates.
@@ -1397,18 +1561,9 @@ def format_crt(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef | Th
         Returns:
             list[themearray]: A list of themearrays
     """
-    if deep_get(kwargs, DictPath("raw"), False):
-        return format_none(lines)
-
-    if isinstance(lines, list):
-        lines = "\n".join(lines)
-
-    # pylint: disable-next=no-member
-    lexer = pygments.lexers.AscLexer()
-    formatter = ThemeArrayFormatter(colorscheme=COLORSCHEME_CRT, lexer=lexer)
-    pygments.highlight(lines, lexer, formatter)
-
-    return formatter.buffer
+    return format_pygments_generic(lines, **kwargs,
+                                   lexer=pygments.lexers.AscLexer(),
+                                   colorscheme=COLORSCHEME_CRT)
 
 
 def format_haproxy(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef | ThemeStr]]:
@@ -1703,18 +1858,9 @@ def format_ini(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef | Th
         Returns:
             list[themearray]: A list of themearrays
     """
-    if deep_get(kwargs, DictPath("raw"), False):
-        return format_none(lines)
-
-    if isinstance(lines, list):
-        lines = "\n".join(lines)
-
-    # pylint: disable-next=no-member
-    lexer = pygments.lexers.IniLexer()
-    formatter = ThemeArrayFormatter(colorscheme=COLORSCHEME_INI, lexer=lexer)
-    pygments.highlight(lines, lexer, formatter)
-
-    return formatter.buffer
+    return format_pygments_generic(lines, **kwargs,
+                                   lexer=pygments.lexers.IniLexer(),
+                                   colorscheme=COLORSCHEME_INI)
 
 
 def format_known_hosts(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef | ThemeStr]]:
@@ -1729,17 +1875,9 @@ def format_known_hosts(lines: str | list[str], **kwargs: Any) -> list[list[Theme
         Returns:
             list[themearray]: A list of themearrays
     """
-    if deep_get(kwargs, DictPath("raw"), False):
-        return format_none(lines)
-
-    if isinstance(lines, list):
-        lines = "\n".join(lines)
-
-    lexer = KnownHostsLexer()
-    formatter = ThemeArrayFormatter(colorscheme=COLORSCHEME_KNOWN_HOSTS, lexer=lexer)
-    pygments.highlight(lines, lexer, formatter)
-
-    return formatter.buffer
+    return format_pygments_generic(lines, **kwargs,
+                                   lexer=KnownHostsLexer(),
+                                   colorscheme=COLORSCHEME_KNOWN_HOSTS)
 
 
 def format_mosquitto(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef | ThemeStr]]:
@@ -1754,45 +1892,9 @@ def format_mosquitto(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRe
         Returns:
             list[themearray]: A list of themearrays
     """
-    dumps: list[list[ThemeRef | ThemeStr]] = []
-
-    if isinstance(lines, str):
-        lines = split_msg(lines)
-
-    if deep_get(kwargs, DictPath("raw"), False):
-        return format_none(lines)
-
-    mosquitto_variable_regex: re.Pattern[str] = re.compile(r"^(\S+)(\s)(.+)")
-
-    for line in lines:
-        # Is it whitespace?
-        if not line.strip():
-            dumps.append([ThemeStr(line, ThemeAttr("types", "generic"))])
-            continue
-
-        # Is it a comment?
-        if line.startswith("#"):
-            dumps.append([ThemeStr(line, ThemeAttr("types", "mosquitto_comment"))])
-            continue
-
-        # Is it a variable + value?
-        tmp = mosquitto_variable_regex.match(line)
-        if tmp is not None:
-            variable = tmp[1]
-            whitespace = tmp[2]
-            value = tmp[3]
-            tmpline: list[ThemeRef | ThemeStr] = [
-                ThemeStr(variable, ThemeAttr("types", "mosquitto_variable")),
-                ThemeStr(whitespace, ThemeAttr("types", "generic")),
-                ThemeStr(value, ThemeAttr("types", "generic")),
-            ]
-            dumps.append(tmpline)
-            continue
-
-        # Unknown data; just append it unformatted
-        dumps.append([ThemeStr(line, ThemeAttr("types", "generic"))])
-
-    return dumps
+    return format_pygments_generic(lines, **kwargs,
+                                   lexer=MosquittoLexer(),
+                                   colorscheme=COLORSCHEME_MOSQUITTO)
 
 
 def format_nginx(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef | ThemeStr]]:
@@ -1807,18 +1909,9 @@ def format_nginx(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef | 
         Returns:
             list[themearray]: A list of themearrays
     """
-    if deep_get(kwargs, DictPath("raw"), False):
-        return format_none(lines)
-
-    if isinstance(lines, list):
-        lines = "\n".join(lines)
-
-    # pylint: disable-next=no-member
-    lexer = pygments.lexers.NginxConfLexer()
-    formatter = ThemeArrayFormatter(colorscheme=COLORSCHEME_NGINX, lexer=lexer)
-    pygments.highlight(lines, lexer, formatter)
-
-    return formatter.buffer
+    return format_pygments_generic(lines, **kwargs,
+                                   lexer=pygments.lexers.NginxLexer(),
+                                   colorscheme=COLORSCHEME_NGINX)
 
 
 def format_xml(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef | ThemeStr]]:
@@ -1833,18 +1926,9 @@ def format_xml(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef | Th
         Returns:
             list[themearray]: A list of themearrays
     """
-    if deep_get(kwargs, DictPath("raw"), False):
-        return format_none(lines)
-
-    if isinstance(lines, list):
-        lines = "\n".join(lines)
-
-    # pylint: disable-next=no-member
-    lexer = pygments.lexers.XmlLexer()
-    formatter = ThemeArrayFormatter(colorscheme=COLORSCHEME_XML, lexer=lexer)
-    pygments.highlight(lines, lexer, formatter)
-
-    return formatter.buffer
+    return format_pygments_generic(lines, **kwargs,
+                                   lexer=pygments.lexers.XmlLexer(),
+                                   colorscheme=COLORSCHEME_XML)
 
 
 def format_powershell(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef | ThemeStr]]:
@@ -1859,18 +1943,9 @@ def format_powershell(lines: str | list[str], **kwargs: Any) -> list[list[ThemeR
         Returns:
             list[themearray]: A list of themearrays
     """
-    if deep_get(kwargs, DictPath("raw"), False):
-        return format_none(lines)
-
-    if isinstance(lines, list):
-        lines = "\n".join(lines)
-
-    # pylint: disable-next=no-member
-    lexer = pygments.lexers.PowerShellLexer()
-    formatter = ThemeArrayFormatter(colorscheme=COLORSCHEME_POWERSHELL, lexer=lexer)
-    pygments.highlight(lines, lexer, formatter)
-
-    return formatter.buffer
+    return format_pygments_generic(lines, **kwargs,
+                                   lexer=pygments.lexers.PowerShellLexer(),
+                                   colorscheme=COLORSCHEME_POWERSHELL)
 
 
 def format_python_traceback(lines: str | list[str],
@@ -1886,18 +1961,9 @@ def format_python_traceback(lines: str | list[str],
         Returns:
             list[themearray]: A list of themearrays
     """
-    if deep_get(kwargs, DictPath("raw"), False):
-        return format_none(lines)
-
-    if isinstance(lines, list):
-        lines = "\n".join(lines)
-
-    # pylint: disable-next=no-member
-    lexer = pygments.lexers.PythonTracebackLexer()
-    formatter = ThemeArrayFormatter(colorscheme=COLORSCHEME_PYTHON_TRACEBACK, lexer=lexer)
-    pygments.highlight(lines, lexer, formatter)
-
-    return formatter.buffer
+    return format_pygments_generic(lines, **kwargs,
+                                   lexer=pygments.lexers.PythonTracebackLexer(),
+                                   colorscheme=COLORSCHEME_PYTHON_TRACEBACK)
 
 
 def format_toml(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef | ThemeStr]]:
@@ -1912,18 +1978,9 @@ def format_toml(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef | T
         Returns:
             list[themearray]: A list of themearrays
     """
-    if deep_get(kwargs, DictPath("raw"), False):
-        return format_none(lines)
-
-    if isinstance(lines, list):
-        lines = "\n".join(lines)
-
-    # pylint: disable-next=no-member
-    lexer = pygments.lexers.TOMLLexer()
-    formatter = ThemeArrayFormatter(colorscheme=COLORSCHEME_TOML, lexer=lexer)
-    pygments.highlight(lines, lexer, formatter)
-
-    return formatter.buffer
+    return format_pygments_generic(lines, **kwargs,
+                                   lexer=pygments.lexers.TOMLLexer(),
+                                   colorscheme=COLORSCHEME_TOML)
 
 
 def format_shellscript(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef | ThemeStr]]:
@@ -1938,18 +1995,9 @@ def format_shellscript(lines: str | list[str], **kwargs: Any) -> list[list[Theme
         Returns:
             list[themearray]: A list of themearrays
     """
-    if deep_get(kwargs, DictPath("raw"), False):
-        return format_none(lines)
-
-    if isinstance(lines, list):
-        lines = "\n".join(lines)
-
-    # pylint: disable-next=no-member
-    lexer = pygments.lexers.BashLexer()
-    formatter = ThemeArrayFormatter(colorscheme=COLORSCHEME_SHELLSCRIPT, lexer=lexer)
-    pygments.highlight(lines, lexer, formatter)
-
-    return formatter.buffer
+    return format_pygments_generic(lines, **kwargs,
+                                   lexer=pygments.lexers.BashLexer(),
+                                   colorscheme=COLORSCHEME_SHELLSCRIPT)
 
 
 # (startswith, endswith, formatter)
@@ -1975,7 +2023,7 @@ formatter_mapping: tuple[tuple[tuple[str, ...], tuple[str, ...], Callable], ...]
     (("HAProxy",), ("HAProxy",), format_haproxy),
     (("haproxy.cfg",), ("haproxy.cfg",), format_haproxy),
     (("CaddyFile",), ("CaddyFile",), format_caddyfile),
-    (("mosquitto",), ("",), format_mosquitto),
+    (("Mosquitto",), ("",), format_mosquitto),
     (("NGINX",), ("NGINX",), format_nginx),
     (("PowerShell",), ("PowerShell",), format_powershell),
     (("Python Traceback",), ("",), format_python_traceback),
