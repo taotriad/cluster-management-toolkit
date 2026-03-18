@@ -77,7 +77,7 @@ to reinstall the cluster from scratch.
 ### Changes to _cmt_ in v0.8.7
 
 * _cmt_ now offers limited support for getting resources (currently the only
-  supported outputs are JSON and YAML).
+  supported outputs are JSON and YAML, both with syntax highlighting provided by Pygments).
 
 ### Changes to _cmtadm_ in v0.8.7
 
@@ -98,6 +98,8 @@ to reinstall the cluster from scratch.
 * Fix a crash in multilog view.
 * Fix a crash when exporting logs.
 * Fix a potential crash when accessing listgetter_args["label_selector"]
+* List Owner References is now a builtin-shortcuts for all info-views
+  where it hasn't been overriden.
 
 ### Changes to other files in v0.8.7
 
@@ -125,6 +127,25 @@ to reinstall the cluster from scratch.
 * Harvester is now detected as a Kubernetes distro.
 * Kubernetes object requests can now use set-based selector operations too.
 * ConfigMap signatures are no longer hardcoded in formatters.py.
+* When viewing ConfigMaps, as well as when using `view_yaml` and `view_json`,
+  the following formats are now formatted using Pygments instead of poorly handcrafted lexers:
+  * ASCII-armored texts (certs, keys, etc)
+  * BASH and other shell scripts
+  * INI-files
+  * JSON
+  * NGINX
+  * PowerShell
+  * Python Tracebacks
+  * TOML
+  * XML
+  * YAML
+  The following file-formats have had their poorly handcrafted lexers
+  replaced by probably equally poorly handcrafted Pygments-lexers:
+  * known_hosts
+  * Mosquitto
+* Several of the formatters now have better test coverage.
+* Our handwritten, non-Pygments compatible, lexer for Markdown had a few bugfixes.
+* validate_yaml now checks for duplicate keyboard shortcuts.
 
 ### view-file changes
 
@@ -163,7 +184,7 @@ proper distro packages instead this problem should go away.
 | ruamel.yaml    | 0.17.21         | Unsupported distros [1]                 |
 | ruyaml         | 0.91.0          | Unsupported distros [1]                 |
 | setuptools     | 78.1.1          | openSUSE/SLES/RHEL, unsupported distros |
-| ujson          | 5.4.0           | openSUSE/SLES/RHEL, unsupported distros |
+| ujson          | 5.12.0          | openSUSE/SLES/RHEL, unsupported distros |
 | urllib3        | 2.6.3           | openSUSE/SLES, unsupported distros      |
 | validators     | 0.22.0          | openSUSE/SLES/RHEL, unsupported distros |
 
