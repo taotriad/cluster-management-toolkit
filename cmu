@@ -104,7 +104,7 @@ from clustermanagementtoolkit.cmtvalidators import validate_name
 
 from clustermanagementtoolkit.commandparser import parse_commandline, CommandType
 
-from clustermanagementtoolkit.logparser import logparser, logparser_initialised
+from clustermanagementtoolkit.logparser import logparser, logparser_initialised, init_parser_list
 from clustermanagementtoolkit.logparser import LogparserConfiguration
 from clustermanagementtoolkit.logparser import lvl_to_letter_severity, lvl_to_4letter_severity
 from clustermanagementtoolkit.logparser import lvl_to_word_severity
@@ -4684,6 +4684,10 @@ def genericinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
             uip.refresh_all()
             continue
         if c == ord(""):
+            # Reload the selected view-file, and if we're in the pod or podlog view,
+            # also the parser-files.
+            if view in (("Pod", ""), ("__PodLogView", "")):
+                init_parser_list(force_reinit=True)
             if (retval := selectwindow(uip, refresh_apis="selected")) == Retval.RETURNFULL:
                 return retval
             uip.refresh_all()
@@ -6018,6 +6022,7 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                 return retval
             uip.refresh_all()
         elif c == ord(""):
+            init_parser_list(force_reinit=True)
             if (retval := selectwindow(uip, refresh_apis="selected")) == Retval.RETURNFULL:
                 return retval
             uip.refresh_all()

@@ -4029,17 +4029,19 @@ def parsing_multiplexer(message: str, filters: list[str | tuple], **kwargs: Any)
 
 
 Parser = namedtuple("Parser", "name show_in_selector match rules")
-parsers = []
+parsers: list[Parser] = []
 
 
 # pylint: disable-next=too-many-locals,too-many-branches,too-many-statements
-def init_parser_list() -> None:
+def init_parser_list(force_reinit: bool = False) -> None:
     """
     Initialise the list of parsers.
     """
-    # This pylint warning seems incorrect--does it not handle namedtuple.append()?
-    # pylint: disable-next=global-variable-not-assigned
+    # pylint: disable-next=global-statement
     global parsers
+
+    if force_reinit:
+        parsers = []
 
     # Get a full list of parsers from all parser directories
     # Start by adding files from the parsers directory
