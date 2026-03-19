@@ -1257,6 +1257,7 @@ separators:
   secret_type: [["/", ["types", "separator_secret_type"]]]
   widgetbullet: [["• ", ["types", "widgetbullet"]]]
   genericbullet: [["• ", ["types", "genericbullet"]]]
+  markdownbullet: [["•", ["types", "genericbullet"]]]
   matchbullet: [["◉ ", ["types", "matchbullet"]]]
   newline: [["\\n", ["types", "separator_newline"]]]
   logbullet: [["• ", ["types", "logbullet"]]]

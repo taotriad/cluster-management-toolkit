@@ -91,6 +91,70 @@ COLORSCHEME_CRT: dict[Any, ColorSchemeEntry] = {
 }
 
 
+COLORSCHEME_MARKDOWN: dict[Any, ColorSchemeEntry] = {
+    # <whitespace>
+    Token.Text.Whitespace: {
+        "formatting": ThemeAttr("types", "generic"),
+        "type": "whitespace",
+    },
+    # text
+    Token.Text: {
+        "formatting": ThemeAttr("types", "generic"),
+        "type": "text",
+    },
+    # List index
+    Token.Keyword: {
+        "formatting": ThemeAttr("main", "highlight"),
+        "type": "text",
+    },
+    # URL,
+    Token.Name.Attribute: {
+        "formatting": ThemeAttr("types", "url"),
+        "type": "text",
+    },
+    # Not sure what this is
+    Token.Name.Label: {
+        "formatting": ThemeAttr("main", "highlight"),
+        "type": "text",
+    },
+    # URL description,
+    Token.Name.Tag: {
+        "formatting": ThemeAttr("main", "highlight"),
+        "type": "text",
+    },
+    # # header
+    Token.Generic.Heading: {
+        "formatting": ThemeAttr("types", "markdown_header_1"),
+        "type": "header",
+    },
+    # ## header
+    Token.Generic.Subheading: {
+        "formatting": ThemeAttr("types", "markdown_header_2"),
+        "type": "header",
+    },
+    # __text__ **text**
+    Token.Generic.Strong: {
+        "formatting": ThemeAttr("types", "markdown_bold"),
+        "type": "text",
+    },
+    # _text_ *text*
+    Token.Generic.Emph: {
+        "formatting": ThemeAttr("types", "markdown_italics"),
+        "type": "text",
+    },
+    # `code`
+    Token.Literal.String.Backtick: {
+        "formatting": ThemeAttr("types", "markdown_code"),
+        "type": "code",
+    },
+    # bug numbers #31563
+    Token.Name.Entity: {
+        "formatting": ThemeAttr("types", "markdown_italics"),
+        "type": "code",
+    },
+}
+
+
 COLORSCHEME_INI: dict[Any, ColorSchemeEntry] = {
     # <whitespace>
     Token.Text.Whitespace: {
@@ -776,6 +840,54 @@ GITHUB_TAGS: tuple[tuple[str, str], ...] = (
 )
 
 
+def render_markdown(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef | ThemeStr]]:
+    """
+    Markdown renderer; renders a Markdown document to ThemeArrays.
+    Note; unlike format_markdown() this renders the target document;
+    it is not syntax highlighting for the source code.
+
+        Parameters:
+            lines (str|[str]): A list of strings *or*
+                               A string with newlines that should be split
+            **kwargs (dict[str, Any]): Keyword arguments
+                start ((str)): Start indicator(s)
+                include_start (bool): Include the start line
+                end ((str)): End indicator(s)
+        Returns:
+            ([themearray]): A list of themearrays
+    """
+    use_github_tags: bool = deep_get(kwargs, DictPath("use_github_tags"), False)
+
+    if deep_get(kwargs, DictPath("raw"), False):
+        return format_none(lines)
+
+    if isinstance(lines, list):
+        lines = "\n".join(lines)
+
+    # Remove all commented-out blocks
+    lines = re.sub(r"<!--.*?-->", r"", lines, flags=re.DOTALL)
+
+    # Replace github tags
+    if use_github_tags:
+        for tag, subst in GITHUB_TAGS:
+            lines = lines.replace(tag, subst)
+
+    # Replace all URLs with just their descriptions and make them bold
+    # Note: Pygments does not handle nested formatting.
+    lines = re.sub(r"\[(.+?)\]\(.+?\)", r"**\1**", lines, flags=re.DOTALL)
+
+    # TODO: we might want to add a hack to make tables look better
+    # when we replace dim/bold in tables we lose the width.
+
+    # pylint: disable-next=no-member
+    lexer = pygments.lexers.MarkdownLexer()
+    formatter = ThemeArrayFormatter(colorscheme=COLORSCHEME_MARKDOWN, lexer=lexer,
+                                    renderer=MarkdownRenderer)
+    pygments.highlight(lines, lexer, formatter)
+
+    return formatter.buffer
+
+
 # pylint: disable-next=too-many-locals,too-many-branches,too-many-statements
 def format_markdown(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef | ThemeStr]]:
     """
@@ -1339,6 +1451,37 @@ class MosquittoLexer(RegexLexer):
     }
 
 
+def MarkdownRenderer(ttype: "Token", value: str) -> tuple["Token", ThemeRef | ThemeStr]:
+    match (ttype, value):
+        case (Token.Keyword, x):
+            if x in ("*", "-", "+"):
+                value = ThemeRef("separators", "markdownbullet")
+        case (Token.Generic.Heading, x):
+            if x.startswith("# "):
+                value = value[2:]
+        case (Token.Generic.Subheading, x):
+            if x.startswith("## "):
+                value = value[3:]
+            elif x.startswith("### "):
+                value = ThemeStr(value[4:], ThemeAttr("types", "markdown_header_3"))
+            elif x.startswith("#### "):
+                value = ThemeStr(value[5:], ThemeAttr("types", "markdown_bold"))
+        case (Token.Literal.String.Backtick, x):
+            if x.startswith("\n```") and x.endswith("```\n"):
+                value = value[4:-4]
+            elif x.startswith("`") and x.endswith("`"):
+                value = value[1:-1]
+        case (Token.Generic.Strong, x):
+            if x.startswith("__") and x.endswith("__") \
+                    or x.startswith("**") and x.endswith("**"):
+                value = value[2:-2]
+        case (Token.Generic.Emph, x):
+            if x.startswith("_") and x.endswith("_") \
+                    or x.startswith("*") and x.endswith("*"):
+                value = value[1:-1]
+    return ttype, value
+
+
 class ThemeArrayFormatter(Formatter):
     """
     A formatter for Pygments that implements support for outputting ThemeArrays.
@@ -1348,6 +1491,7 @@ class ThemeArrayFormatter(Formatter):
     override_formatting: dict[str, ThemeAttr] = {}
     latest_key: str = ""
     lexer: Any | None = None
+    renderer: Callable | None = None
     unknown_ttypes: set[Any] = set()
 
     def __init__(self, **options: Any):
@@ -1355,6 +1499,7 @@ class ThemeArrayFormatter(Formatter):
         self.colorscheme = deep_get(options, DictPath("colorscheme"), {})
         self.override_formatting = deep_get(options, DictPath("override_formatting"), {})
         self.lexer = deep_get(options, DictPath("lexer"))
+        self.renderer = deep_get(options, DictPath("renderer"))
 
     def format(self, tokensource: Generator, outfile: io.StringIO) -> None:
         # Flush the buffer
@@ -1364,10 +1509,15 @@ class ThemeArrayFormatter(Formatter):
         line: list[ThemeRef | ThemeStr] = []
 
         for ttype, value in tokensource:
+            if self.renderer:
+                ttype, value = self.renderer(ttype, value)
+            if isinstance(value, (ThemeRef, ThemeStr)):
+                line.append(value)
+                continue
             # Use this when adding new formatters
             if ttype not in self.colorscheme \
                     and ttype not in self.unknown_ttypes:  # pragma: nocover
-                sys.exit(f"{ttype=}\n{value=}")
+                #sys.exit(f"{ttype=}\n{value=}")
                 errmsg = [
                     [("Encountered unknown token type ", "default"),
                      (f"{ttype}", "argument"),
@@ -2064,6 +2214,7 @@ formatter_allowlist: dict[str, Callable] = {
     "format_xml": format_xml,
     "format_yaml": format_yaml,
     "reformat_json": reformat_json,
+    "render_markdown": render_markdown,
 }
 
 
