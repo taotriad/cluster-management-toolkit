@@ -39,8 +39,14 @@ except ModuleNotFoundError:  # pragma: no cover
 
 import pygments
 from pygments.formatter import Formatter
-from pygments.lexer import RegexLexer, bygroups
-import pygments.lexers
+from pygments.lexer import RegexLexer, Lexer, bygroups
+from pygments.lexers.asc import AscLexer
+from pygments.lexers.configs import IniLexer, NginxConfLexer, TOMLLexer
+from pygments.lexers.data import JsonLexer, YamlLexer
+from pygments.lexers.html import XmlLexer
+from pygments.lexers.markup import MarkdownLexer
+from pygments.lexers.python import PythonTracebackLexer
+from pygments.lexers.shell import BashLexer, PowerShellLexer
 from pygments.token import Token
 
 from clustermanagementtoolkit.cmttypes import deep_get, DictPath, FilePath, LogLevel
@@ -107,7 +113,7 @@ COLORSCHEME_MARKDOWN: dict[Any, ColorSchemeEntry] = {
         "formatting": ThemeAttr("main", "highlight"),
         "type": "text",
     },
-    # URL,
+    # URL
     Token.Name.Attribute: {
         "formatting": ThemeAttr("types", "url"),
         "type": "text",
@@ -117,7 +123,7 @@ COLORSCHEME_MARKDOWN: dict[Any, ColorSchemeEntry] = {
         "formatting": ThemeAttr("main", "highlight"),
         "type": "text",
     },
-    # URL description,
+    # URL description
     Token.Name.Tag: {
         "formatting": ThemeAttr("main", "highlight"),
         "type": "text",
@@ -879,10 +885,9 @@ def render_markdown(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef
     # TODO: we might want to add a hack to make tables look better
     # when we replace dim/bold in tables we lose the width.
 
-    # pylint: disable-next=no-member
-    lexer = pygments.lexers.MarkdownLexer()
-    formatter = ThemeArrayFormatter(colorscheme=COLORSCHEME_MARKDOWN, lexer=lexer,
-                                    renderer=MarkdownRenderer)
+    lexer: Lexer = MarkdownLexer()  # type: ignore
+    formatter = ThemeArrayFormatter(colorscheme=COLORSCHEME_MARKDOWN,
+                                    lexer=lexer, renderer=markdown_renderer)
     pygments.highlight(lines, lexer, formatter)
 
     return formatter.buffer
@@ -1371,18 +1376,21 @@ class KnownHostsLexer(RegexLexer):
             (r"^(@revoked)(\s+)(\S+)(\s+)(\S+)(\s+)(.*)$",
              bygroups(Token.Error, Token.Text.Whitespace,
                       Token.Name.Attribute, Token.Text.Whitespace, Token.Keyword,
-                      Token.Text.Whitespace, Token.Literal.String)),  # type: ignore[no-untyped-call]
+                      Token.Text.Whitespace,
+                      Token.Literal.String)),  # type: ignore[no-untyped-call]
             # Cert Authority regular key
             # hostname(s) keytype key
             (r"^(@cert-authority)(\s+)(\S+)(\s+)(\S+)(\s+)(.*)$",
              bygroups(Token.Heading, Token.Text.Whitespace,
                       Token.Name.Attribute, Token.Text.Whitespace, Token.Keyword,
-                      Token.Text.Whitespace, Token.Literal.String)),  # type: ignore[no-untyped-call]
+                      Token.Text.Whitespace,
+                      Token.Literal.String)),  # type: ignore[no-untyped-call]
             # Regular key
             # hostname(s) keytype key
             (r"^(\S+)(\s+)(\S+)(\s+)(.*)$",
              bygroups(Token.Name.Attribute, Token.Text.Whitespace, Token.Keyword,
-                      Token.Text.Whitespace, Token.Literal.String)),  # type: ignore[no-untyped-call]
+                      Token.Text.Whitespace,
+                      Token.Literal.String)),  # type: ignore[no-untyped-call]
         ]
     }
 
@@ -1451,35 +1459,54 @@ class MosquittoLexer(RegexLexer):
     }
 
 
-def MarkdownRenderer(ttype: "Token", value: str) -> tuple["Token", ThemeRef | ThemeStr]:
+# pylint: disable-next=too-many-branches
+def markdown_renderer(ttype: Any, value: str) -> tuple[Any, str | list[ThemeRef | ThemeStr]]:
+    """
+    Transform Markdown in a way that renders the document rather than just highlighting
+    the syntax; this requires the ThemeArrayFormatter for Pygments; it does not work
+    with standard Pygments formatters.
+
+        Parameters:
+            ttype (pygments.token.Token): The token type
+            value (str): The string to render
+        Returns:
+            (Token, str | [ThemeRef | ThemeStr]): The reformatted data
+    """
+    new_value: str | list[ThemeRef | ThemeStr] = value
+
     match (ttype, value):
         case (Token.Keyword, x):
             if x in ("*", "-", "+"):
-                value = ThemeRef("separators", "markdownbullet")
+                new_value = [ThemeRef("separators", "markdownbullet")]
         case (Token.Generic.Heading, x):
             if x.startswith("# "):
-                value = value[2:]
+                new_value = value[2:]
+            elif re.match(r"#\d+:", x):
+                # This isn't a heading; this is a reference to an issue.
+                issue, description = x.split(":", maxsplit=1)
+                new_value = [ThemeStr(f"{issue}:", ThemeAttr("types", "markdown_italics")),
+                             ThemeStr(f"{description}", ThemeAttr("types", "generic"))]
         case (Token.Generic.Subheading, x):
             if x.startswith("## "):
-                value = value[3:]
+                new_value = value[3:]
             elif x.startswith("### "):
-                value = ThemeStr(value[4:], ThemeAttr("types", "markdown_header_3"))
+                new_value = [ThemeStr(value[4:], ThemeAttr("types", "markdown_header_3"))]
             elif x.startswith("#### "):
-                value = ThemeStr(value[5:], ThemeAttr("types", "markdown_bold"))
+                new_value = [ThemeStr(value[5:], ThemeAttr("types", "markdown_bold"))]
         case (Token.Literal.String.Backtick, x):
             if x.startswith("\n```") and x.endswith("```\n"):
-                value = value[4:-4]
+                new_value = value[4:-4]
             elif x.startswith("`") and x.endswith("`"):
-                value = value[1:-1]
+                new_value = value[1:-1]
         case (Token.Generic.Strong, x):
             if x.startswith("__") and x.endswith("__") \
                     or x.startswith("**") and x.endswith("**"):
-                value = value[2:-2]
+                new_value = value[2:-2]
         case (Token.Generic.Emph, x):
             if x.startswith("_") and x.endswith("_") \
                     or x.startswith("*") and x.endswith("*"):
-                value = value[1:-1]
-    return ttype, value
+                new_value = value[1:-1]
+    return ttype, new_value
 
 
 class ThemeArrayFormatter(Formatter):
@@ -1511,13 +1538,13 @@ class ThemeArrayFormatter(Formatter):
         for ttype, value in tokensource:
             if self.renderer:
                 ttype, value = self.renderer(ttype, value)
-            if isinstance(value, (ThemeRef, ThemeStr)):
-                line.append(value)
+            if isinstance(value, list) and value and isinstance(value[0], (ThemeRef, ThemeStr)):
+                line += value
                 continue
             # Use this when adding new formatters
             if ttype not in self.colorscheme \
                     and ttype not in self.unknown_ttypes:  # pragma: nocover
-                #sys.exit(f"{ttype=}\n{value=}")
+                # sys.exit(f"{ttype=}\n{value=}")
                 errmsg = [
                     [("Encountered unknown token type ", "default"),
                      (f"{ttype}", "argument"),
@@ -1615,14 +1642,12 @@ def format_yaml(lines: str | list[str] | dict | list[dict], **kwargs: Any) -> \
         deep_get(kwargs, DictPath("override_formatting"), {})
 
     if is_json:
-        # pylint: disable-next=no-member
-        lexer = pygments.lexers.JsonLexer()
+        lexer: Lexer = JsonLexer()
         formatter = ThemeArrayFormatter(colorscheme=COLORSCHEME_JSON,
                                         override_formatting=override_formatting,
                                         lexer=lexer)
     else:
-        # pylint: disable-next=no-member
-        lexer = pygments.lexers.YamlLexer()
+        lexer = YamlLexer()
         formatter = ThemeArrayFormatter(colorscheme=COLORSCHEME_YAML,
                                         override_formatting=override_formatting,
                                         lexer=lexer)
@@ -1670,8 +1695,7 @@ def format_cel(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef | Th
     return dumps
 
 
-# pylint: disable-next=too-many-branches
-def format_pygments_generic(lines: str | list[str] | dict | list[dict], **kwargs: Any) -> \
+def format_pygments_generic(lines: str | list[str], **kwargs: Any) -> \
         list[list[ThemeRef | ThemeStr]]:
     """
     YAML formatter; returns the text with syntax highlighting for YAML.
@@ -1690,7 +1714,6 @@ def format_pygments_generic(lines: str | list[str] | dict | list[dict], **kwargs
     if isinstance(lines, list):
         lines = "\n".join(lines)
 
-    # pylint: disable-next=no-member
     lexer = deep_get(kwargs, DictPath("lexer"))
     colorscheme = deep_get(kwargs, DictPath("colorscheme"))
     formatter = ThemeArrayFormatter(colorscheme=colorscheme, lexer=lexer)
@@ -1712,7 +1735,7 @@ def format_crt(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef | Th
             list[themearray]: A list of themearrays
     """
     return format_pygments_generic(lines, **kwargs,
-                                   lexer=pygments.lexers.AscLexer(),
+                                   lexer=AscLexer(),
                                    colorscheme=COLORSCHEME_CRT)
 
 
@@ -2009,7 +2032,7 @@ def format_ini(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef | Th
             list[themearray]: A list of themearrays
     """
     return format_pygments_generic(lines, **kwargs,
-                                   lexer=pygments.lexers.IniLexer(),
+                                   lexer=IniLexer(),
                                    colorscheme=COLORSCHEME_INI)
 
 
@@ -2060,7 +2083,7 @@ def format_nginx(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef | 
             list[themearray]: A list of themearrays
     """
     return format_pygments_generic(lines, **kwargs,
-                                   lexer=pygments.lexers.NginxLexer(),
+                                   lexer=NginxConfLexer(),
                                    colorscheme=COLORSCHEME_NGINX)
 
 
@@ -2077,7 +2100,7 @@ def format_xml(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef | Th
             list[themearray]: A list of themearrays
     """
     return format_pygments_generic(lines, **kwargs,
-                                   lexer=pygments.lexers.XmlLexer(),
+                                   lexer=XmlLexer(),
                                    colorscheme=COLORSCHEME_XML)
 
 
@@ -2094,7 +2117,7 @@ def format_powershell(lines: str | list[str], **kwargs: Any) -> list[list[ThemeR
             list[themearray]: A list of themearrays
     """
     return format_pygments_generic(lines, **kwargs,
-                                   lexer=pygments.lexers.PowerShellLexer(),
+                                   lexer=PowerShellLexer(),
                                    colorscheme=COLORSCHEME_POWERSHELL)
 
 
@@ -2112,7 +2135,7 @@ def format_python_traceback(lines: str | list[str],
             list[themearray]: A list of themearrays
     """
     return format_pygments_generic(lines, **kwargs,
-                                   lexer=pygments.lexers.PythonTracebackLexer(),
+                                   lexer=PythonTracebackLexer(),
                                    colorscheme=COLORSCHEME_PYTHON_TRACEBACK)
 
 
@@ -2129,7 +2152,7 @@ def format_toml(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef | T
             list[themearray]: A list of themearrays
     """
     return format_pygments_generic(lines, **kwargs,
-                                   lexer=pygments.lexers.TOMLLexer(),
+                                   lexer=TOMLLexer(),
                                    colorscheme=COLORSCHEME_TOML)
 
 
@@ -2146,7 +2169,7 @@ def format_shellscript(lines: str | list[str], **kwargs: Any) -> list[list[Theme
             list[themearray]: A list of themearrays
     """
     return format_pygments_generic(lines, **kwargs,
-                                   lexer=pygments.lexers.BashLexer(),
+                                   lexer=BashLexer(),
                                    colorscheme=COLORSCHEME_SHELLSCRIPT)
 
 

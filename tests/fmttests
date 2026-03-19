@@ -695,140 +695,151 @@ def test_format_yaml(verbose: bool = False) -> tuple[str, bool]:
             ("spec:\n"
              "  foo: 1\n"
              "  bar: 'baz'",
-             {}, [[ThemeStr("spec", ThemeAttr("types", "yaml_key")),
-                   ThemeStr(":", ThemeAttr("types", "yaml_key_separator"))],
-                  [ThemeStr("  ", ThemeAttr("types", "generic")),
-                   ThemeStr("foo", ThemeAttr("types", "yaml_key")),
-                   ThemeStr(":", ThemeAttr("types", "yaml_key_separator")),
-                   ThemeStr(" ", ThemeAttr("types", "generic")),
-                   ThemeStr("1", ThemeAttr("types", "yaml_value"))],
-                  [ThemeStr("  ", ThemeAttr("types", "generic")),
-                   ThemeStr("bar", ThemeAttr("types", "yaml_key")),
-                   ThemeStr(":", ThemeAttr("types", "yaml_key_separator")),
-                   ThemeStr(" ", ThemeAttr("types", "generic")),
-                   ThemeStr("'", ThemeAttr("types", "yaml_value")),
-                   ThemeStr("baz", ThemeAttr("types", "yaml_value")),
-                   ThemeStr("'", ThemeAttr("types", "yaml_value"))]],
+             {},
+             [[ThemeStr("spec", ThemeAttr("types", "yaml_key")),
+               ThemeStr(":", ThemeAttr("types", "yaml_key_separator"))],
+              [ThemeStr("  ", ThemeAttr("types", "generic")),
+               ThemeStr("foo", ThemeAttr("types", "yaml_key")),
+               ThemeStr(":", ThemeAttr("types", "yaml_key_separator")),
+               ThemeStr(" ", ThemeAttr("types", "generic")),
+               ThemeStr("1", ThemeAttr("types", "yaml_value"))],
+              [ThemeStr("  ", ThemeAttr("types", "generic")),
+               ThemeStr("bar", ThemeAttr("types", "yaml_key")),
+               ThemeStr(":", ThemeAttr("types", "yaml_key_separator")),
+               ThemeStr(" ", ThemeAttr("types", "generic")),
+               ThemeStr("'", ThemeAttr("types", "yaml_value")),
+               ThemeStr("baz", ThemeAttr("types", "yaml_value")),
+               ThemeStr("'", ThemeAttr("types", "yaml_value"))]],
              None),
-            (["spec:\n"
-              "  foo: 1\n"
-              "  bar: 'baz'",
-              "metadata:\n"
-              "  name: data"],
-             {}, [[ThemeStr("spec", ThemeAttr("types", "yaml_key")),
-                   ThemeStr(":", ThemeAttr("types", "yaml_key_separator"))],
-                  [ThemeStr("  ", ThemeAttr("types", "generic")),
-                   ThemeStr("foo", ThemeAttr("types", "yaml_key")),
-                   ThemeStr(":", ThemeAttr("types", "yaml_key_separator")),
-                   ThemeStr(" ", ThemeAttr("types", "generic")),
-                   ThemeStr("1", ThemeAttr("types", "yaml_value"))],
-                  [ThemeStr("  ", ThemeAttr("types", "generic")),
-                   ThemeStr("bar", ThemeAttr("types", "yaml_key")),
-                   ThemeStr(":", ThemeAttr("types", "yaml_key_separator")),
-                   ThemeStr(" ", ThemeAttr("types", "generic")),
-                   ThemeStr("'", ThemeAttr("types", "yaml_value")),
-                   ThemeStr("baz", ThemeAttr("types", "yaml_value")),
-                   ThemeStr("'", ThemeAttr("types", "yaml_value"))],
-                  [ThemeStr("metadata", ThemeAttr("types", "yaml_key")),
-                   ThemeStr(":", ThemeAttr("types", "yaml_key_separator"))],
-                  [ThemeStr("  ", ThemeAttr("types", "generic")),
-                   ThemeStr("name", ThemeAttr("types", "yaml_key")),
-                   ThemeStr(":", ThemeAttr("types", "yaml_key_separator")),
-                   ThemeStr(" ", ThemeAttr("types", "generic")),
-                   ThemeStr("data", ThemeAttr("types", "yaml_value"))]],
-             None),
-            (["spec:",
-              "  foo: 1",
-              "  bar: 'baz'"],
-             {}, [[ThemeStr("spec", ThemeAttr("types", "yaml_key")),
-                   ThemeStr(":", ThemeAttr("types", "yaml_key_separator"))],
-                  [ThemeStr("  ", ThemeAttr("types", "generic")),
-                   ThemeStr("foo", ThemeAttr("types", "yaml_key")),
-                   ThemeStr(":", ThemeAttr("types", "yaml_key_separator")),
-                   ThemeStr(" ", ThemeAttr("types", "generic")),
-                   ThemeStr("1", ThemeAttr("types", "yaml_value"))],
-                  [ThemeStr("  ", ThemeAttr("types", "generic")),
-                   ThemeStr("bar", ThemeAttr("types", "yaml_key")),
-                   ThemeStr(":", ThemeAttr("types", "yaml_key_separator")),
-                   ThemeStr(" ", ThemeAttr("types", "generic")),
-                   ThemeStr("'", ThemeAttr("types", "yaml_value")),
-                   ThemeStr("baz", ThemeAttr("types", "yaml_value")),
-                   ThemeStr("'", ThemeAttr("types", "yaml_value"))]],
-             None),
-            ({
-                "spec": {
-                    "foo": 1,
-                    "bar": "baz",
-                },
-             },
-             {}, [[ThemeStr("spec", ThemeAttr("types", "yaml_key")),
-                   ThemeStr(":", ThemeAttr("types", "yaml_key_separator"))],
-                  [ThemeStr("  ", ThemeAttr("types", "generic")),
-                   ThemeStr("foo", ThemeAttr("types", "yaml_key")),
-                   ThemeStr(":", ThemeAttr("types", "yaml_key_separator")),
-                   ThemeStr(" ", ThemeAttr("types", "generic")),
-                   ThemeStr("1", ThemeAttr("types", "yaml_value"))],
-                  [ThemeStr("  ", ThemeAttr("types", "generic")),
-                   ThemeStr("bar", ThemeAttr("types", "yaml_key")),
-                   ThemeStr(":", ThemeAttr("types", "yaml_key_separator")),
-                   ThemeStr(" ", ThemeAttr("types", "generic")),
-                   ThemeStr("baz", ThemeAttr("types", "yaml_value"))]],
-             None),
-            ([
+            (
+                ["spec:",
+                 "  foo: 1",
+                 "  bar: 'baz'",
+                 "metadata:",
+                 "  name: data"],
+                {},
+                [[ThemeStr("spec", ThemeAttr("types", "yaml_key")),
+                  ThemeStr(":", ThemeAttr("types", "yaml_key_separator"))],
+                 [ThemeStr("  ", ThemeAttr("types", "generic")),
+                  ThemeStr("foo", ThemeAttr("types", "yaml_key")),
+                  ThemeStr(":", ThemeAttr("types", "yaml_key_separator")),
+                  ThemeStr(" ", ThemeAttr("types", "generic")),
+                  ThemeStr("1", ThemeAttr("types", "yaml_value"))],
+                 [ThemeStr("  ", ThemeAttr("types", "generic")),
+                  ThemeStr("bar", ThemeAttr("types", "yaml_key")),
+                  ThemeStr(":", ThemeAttr("types", "yaml_key_separator")),
+                  ThemeStr(" ", ThemeAttr("types", "generic")),
+                  ThemeStr("'", ThemeAttr("types", "yaml_value")),
+                  ThemeStr("baz", ThemeAttr("types", "yaml_value")),
+                  ThemeStr("'", ThemeAttr("types", "yaml_value"))],
+                 [ThemeStr("metadata", ThemeAttr("types", "yaml_key")),
+                  ThemeStr(":", ThemeAttr("types", "yaml_key_separator"))],
+                 [ThemeStr("  ", ThemeAttr("types", "generic")),
+                  ThemeStr("name", ThemeAttr("types", "yaml_key")),
+                  ThemeStr(":", ThemeAttr("types", "yaml_key_separator")),
+                  ThemeStr(" ", ThemeAttr("types", "generic")),
+                  ThemeStr("data", ThemeAttr("types", "yaml_value"))]],
+                None),
+            (
+                ["spec:",
+                 "  foo: 1",
+                 "  bar: 'baz'"],
+                {},
+                [[ThemeStr("spec", ThemeAttr("types", "yaml_key")),
+                  ThemeStr(":", ThemeAttr("types", "yaml_key_separator"))],
+                 [ThemeStr("  ", ThemeAttr("types", "generic")),
+                  ThemeStr("foo", ThemeAttr("types", "yaml_key")),
+                  ThemeStr(":", ThemeAttr("types", "yaml_key_separator")),
+                  ThemeStr(" ", ThemeAttr("types", "generic")),
+                  ThemeStr("1", ThemeAttr("types", "yaml_value"))],
+                 [ThemeStr("  ", ThemeAttr("types", "generic")),
+                  ThemeStr("bar", ThemeAttr("types", "yaml_key")),
+                  ThemeStr(":", ThemeAttr("types", "yaml_key_separator")),
+                  ThemeStr(" ", ThemeAttr("types", "generic")),
+                  ThemeStr("'", ThemeAttr("types", "yaml_value")),
+                  ThemeStr("baz", ThemeAttr("types", "yaml_value")),
+                  ThemeStr("'", ThemeAttr("types", "yaml_value"))]],
+                None),
+            (
                 {
                     "spec": {
                         "foo": 1,
                         "bar": "baz",
                     },
                 },
-             ],
-             {}, [[ThemeStr("spec", ThemeAttr("types", "yaml_key")),
-                   ThemeStr(":", ThemeAttr("types", "yaml_key_separator"))],
-                  [ThemeStr("  ", ThemeAttr("types", "generic")),
-                   ThemeStr("foo", ThemeAttr("types", "yaml_key")),
-                   ThemeStr(":", ThemeAttr("types", "yaml_key_separator")),
-                   ThemeStr(" ", ThemeAttr("types", "generic")),
-                   ThemeStr("1", ThemeAttr("types", "yaml_value"))],
-                  [ThemeStr("  ", ThemeAttr("types", "generic")),
-                   ThemeStr("bar", ThemeAttr("types", "yaml_key")),
-                   ThemeStr(":", ThemeAttr("types", "yaml_key_separator")),
-                   ThemeStr(" ", ThemeAttr("types", "generic")),
-                   ThemeStr("baz", ThemeAttr("types", "yaml_value"))]],
-             None),
-            ([
-                {
-                    "spec": {
-                        "foo": 1,
-                        "bar": "baz",
+                {},
+                [
+                    [ThemeStr("spec", ThemeAttr("types", "yaml_key")),
+                     ThemeStr(":", ThemeAttr("types", "yaml_key_separator"))],
+                    [ThemeStr("  ", ThemeAttr("types", "generic")),
+                     ThemeStr("foo", ThemeAttr("types", "yaml_key")),
+                     ThemeStr(":", ThemeAttr("types", "yaml_key_separator")),
+                     ThemeStr(" ", ThemeAttr("types", "generic")),
+                     ThemeStr("1", ThemeAttr("types", "yaml_value"))],
+                    [ThemeStr("  ", ThemeAttr("types", "generic")),
+                     ThemeStr("bar", ThemeAttr("types", "yaml_key")),
+                     ThemeStr(":", ThemeAttr("types", "yaml_key_separator")),
+                     ThemeStr(" ", ThemeAttr("types", "generic")),
+                     ThemeStr("baz", ThemeAttr("types", "yaml_value"))]],
+                None),
+            (
+                [
+                    {
+                        "spec": {
+                            "foo": 1,
+                            "bar": "baz",
+                        },
                     },
-                },
-                {
-                    "metadata": {
-                        "name": "data",
+                ],
+                {}, [[ThemeStr("spec", ThemeAttr("types", "yaml_key")),
+                      ThemeStr(":", ThemeAttr("types", "yaml_key_separator"))],
+                     [ThemeStr("  ", ThemeAttr("types", "generic")),
+                      ThemeStr("foo", ThemeAttr("types", "yaml_key")),
+                      ThemeStr(":", ThemeAttr("types", "yaml_key_separator")),
+                      ThemeStr(" ", ThemeAttr("types", "generic")),
+                      ThemeStr("1", ThemeAttr("types", "yaml_value"))],
+                     [ThemeStr("  ", ThemeAttr("types", "generic")),
+                      ThemeStr("bar", ThemeAttr("types", "yaml_key")),
+                      ThemeStr(":", ThemeAttr("types", "yaml_key_separator")),
+                      ThemeStr(" ", ThemeAttr("types", "generic")),
+                      ThemeStr("baz", ThemeAttr("types", "yaml_value"))]],
+                None),
+            (
+                [
+                    {
+                        "spec": {
+                            "foo": 1,
+                            "bar": "baz",
+                        },
                     },
-                },
-             ],
-             {}, [[ThemeStr("spec", ThemeAttr("types", "yaml_key")),
-                   ThemeStr(":", ThemeAttr("types", "yaml_key_separator"))],
-                  [ThemeStr("  ", ThemeAttr("types", "generic")),
-                   ThemeStr("foo", ThemeAttr("types", "yaml_key")),
-                   ThemeStr(":", ThemeAttr("types", "yaml_key_separator")),
-                   ThemeStr(" ", ThemeAttr("types", "generic")),
-                   ThemeStr("1", ThemeAttr("types", "yaml_value"))],
-                  [ThemeStr("  ", ThemeAttr("types", "generic")),
-                   ThemeStr("bar", ThemeAttr("types", "yaml_key")),
-                   ThemeStr(":", ThemeAttr("types", "yaml_key_separator")),
-                   ThemeStr(" ", ThemeAttr("types", "generic")),
-                   ThemeStr("baz", ThemeAttr("types", "yaml_value"))],
-                  [],
-                  [ThemeStr("metadata", ThemeAttr("types", "yaml_key")),
-                   ThemeStr(":", ThemeAttr("types", "yaml_key_separator"))],
-                  [ThemeStr("  ", ThemeAttr("types", "generic")),
-                   ThemeStr("name", ThemeAttr("types", "yaml_key")),
-                   ThemeStr(":", ThemeAttr("types", "yaml_key_separator")),
-                   ThemeStr(" ", ThemeAttr("types", "generic")),
-                   ThemeStr("data", ThemeAttr("types", "yaml_value"))]],
-             None),
+                    {
+                        "metadata": {
+                            "name": "data",
+                        },
+                    },
+                ],
+                {},
+                [[ThemeStr("spec", ThemeAttr("types", "yaml_key")),
+                  ThemeStr(":", ThemeAttr("types", "yaml_key_separator"))],
+                 [ThemeStr("  ", ThemeAttr("types", "generic")),
+                  ThemeStr("foo", ThemeAttr("types", "yaml_key")),
+                  ThemeStr(":", ThemeAttr("types", "yaml_key_separator")),
+                  ThemeStr(" ", ThemeAttr("types", "generic")),
+                  ThemeStr("1", ThemeAttr("types", "yaml_value"))],
+                 [ThemeStr("  ", ThemeAttr("types", "generic")),
+                  ThemeStr("bar", ThemeAttr("types", "yaml_key")),
+                  ThemeStr(":", ThemeAttr("types", "yaml_key_separator")),
+                  ThemeStr(" ", ThemeAttr("types", "generic")),
+                  ThemeStr("baz", ThemeAttr("types", "yaml_value"))],
+                 [],
+                 [ThemeStr("metadata", ThemeAttr("types", "yaml_key")),
+                  ThemeStr(":", ThemeAttr("types", "yaml_key_separator"))],
+                 [ThemeStr("  ", ThemeAttr("types", "generic")),
+                  ThemeStr("name", ThemeAttr("types", "yaml_key")),
+                  ThemeStr(":", ThemeAttr("types", "yaml_key_separator")),
+                  ThemeStr(" ", ThemeAttr("types", "generic")),
+                  ThemeStr("data", ThemeAttr("types", "yaml_value"))]],
+                None),
         )
 
         for indata, options, expected_result, expected_exception in testdata:
@@ -904,33 +915,35 @@ def test_reformat_json(verbose: bool = False) -> tuple[str, bool]:
                    ThemeStr("}", ThemeAttr("types", "yaml_punctuation"))],
                   [ThemeStr("}", ThemeAttr("types", "yaml_punctuation"))]],
              None),
-            ({
-                "spec": {
-                    "foo": 1,
-                    "bar": "baz"
-                }
-             },
-             {}, [[ThemeStr("{", ThemeAttr("types", "yaml_punctuation"))],
-                  [ThemeStr("  ", ThemeAttr("types", "generic")),
-                   ThemeStr("\"spec\"", ThemeAttr("types", "yaml_key")),
-                   ThemeStr(":", ThemeAttr("types", "yaml_punctuation")),
-                   ThemeStr(" ", ThemeAttr("types", "generic")),
-                   ThemeStr("{", ThemeAttr("types", "yaml_punctuation"))],
-                  [ThemeStr("    ", ThemeAttr("types", "generic")),
-                   ThemeStr("\"foo\"", ThemeAttr("types", "yaml_key")),
-                   ThemeStr(":", ThemeAttr("types", "yaml_punctuation")),
-                   ThemeStr(" ", ThemeAttr("types", "generic")),
-                   ThemeStr("1", ThemeAttr("types", "yaml_value")),
-                   ThemeStr(",", ThemeAttr("types", "yaml_punctuation"))],
-                  [ThemeStr("    ", ThemeAttr("types", "generic")),
-                   ThemeStr("\"bar\"", ThemeAttr("types", "yaml_key")),
-                   ThemeStr(":", ThemeAttr("types", "yaml_punctuation")),
-                   ThemeStr(" ", ThemeAttr("types", "generic")),
-                   ThemeStr("\"baz\"", ThemeAttr("types", "yaml_value"))],
-                  [ThemeStr("  ", ThemeAttr("types", "generic")),
-                   ThemeStr("}", ThemeAttr("types", "yaml_punctuation"))],
-                  [ThemeStr("}", ThemeAttr("types", "yaml_punctuation"))]],
-             None),
+            (
+                {
+                    "spec": {
+                        "foo": 1,
+                        "bar": "baz"
+                    }
+                },
+                {},
+                [[ThemeStr("{", ThemeAttr("types", "yaml_punctuation"))],
+                 [ThemeStr("  ", ThemeAttr("types", "generic")),
+                  ThemeStr("\"spec\"", ThemeAttr("types", "yaml_key")),
+                  ThemeStr(":", ThemeAttr("types", "yaml_punctuation")),
+                  ThemeStr(" ", ThemeAttr("types", "generic")),
+                  ThemeStr("{", ThemeAttr("types", "yaml_punctuation"))],
+                 [ThemeStr("    ", ThemeAttr("types", "generic")),
+                  ThemeStr("\"foo\"", ThemeAttr("types", "yaml_key")),
+                  ThemeStr(":", ThemeAttr("types", "yaml_punctuation")),
+                  ThemeStr(" ", ThemeAttr("types", "generic")),
+                  ThemeStr("1", ThemeAttr("types", "yaml_value")),
+                  ThemeStr(",", ThemeAttr("types", "yaml_punctuation"))],
+                 [ThemeStr("    ", ThemeAttr("types", "generic")),
+                  ThemeStr("\"bar\"", ThemeAttr("types", "yaml_key")),
+                  ThemeStr(":", ThemeAttr("types", "yaml_punctuation")),
+                  ThemeStr(" ", ThemeAttr("types", "generic")),
+                  ThemeStr("\"baz\"", ThemeAttr("types", "yaml_value"))],
+                 [ThemeStr("  ", ThemeAttr("types", "generic")),
+                  ThemeStr("}", ThemeAttr("types", "yaml_punctuation"))],
+                 [ThemeStr("}", ThemeAttr("types", "yaml_punctuation"))]],
+                None),
         )
 
         for indata, options, expected_result, expected_exception in testdata:
@@ -1420,8 +1433,116 @@ def test_format_mosquitto(verbose: bool = False) -> tuple[str, bool]:
                   ThemeStr(" ", ThemeAttr("types", "generic")),
                   ThemeStr("0", ThemeAttr("types", "mosquitto_number")),
                   ThemeStr(" 1 42", ThemeAttr("types", "mosquitto_number"))],
-                ],
+             ],
              None),
+        )
+
+        for indata, options, expected_result, expected_exception in testdata:
+            if isinstance(indata, list):
+                indata_quoted = "\n".join(indata)
+            else:
+                indata_quoted = indata
+            indata_quoted = indata_quoted.replace('\n', '\\n')
+            try:
+                if (tmp := fun(indata, **options)) != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"           input: \"{indata_quoted}\"\n" \
+                              "         options:\n" \
+                              f"{yaml_dump(options, base_indent=17)}\n" \
+                              f"          output: {tmp}\n" \
+                              f"        expected: {expected_result}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  f"           input: \"{indata_quoted}\"\n" \
+                                  "         options:\n" \
+                                  f"{yaml_dump(options, base_indent=17)}\n" \
+                                  f"       exception: {type(e)}\n" \
+                                  f"        expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"           input: \"{indata_quoted}\"\n" \
+                              "         options:\n" \
+                              f"{yaml_dump(options, base_indent=17)}\n" \
+                              f"       exception: {type(e)}\n" \
+                              f"        expected: {expected_result}"
+                    result = False
+                    break
+    return message, result
+
+
+def test_format_nginx(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = formatters.format_nginx
+
+    if result:
+        # Indata format:
+        # (lines, options, expected_result, expected_exception)
+        testdata: tuple[Any, ...] = (
+            ("worker_processes auto;\n"
+             "events {\n"
+             "    worker_connections 1024;\n"
+             "}\n"
+             "\n"
+             "if ($request_filename ~ "
+             ".*\\.(?:js|css|jpg|jpeg|gif|png|ico|cur|gz|svg|svgz|mp4|ogg|ogv|webm)$) {\n"
+             "  expires 90d;\n"
+             "}\n"
+             "\n"
+             "rewrite ^/k8s/clusters/.*/proxy(.*) /$1 break;\n",
+             {},
+             [
+                 [ThemeStr("worker_processes", ThemeAttr("types", "nginx_key")),
+                  ThemeStr(" ", ThemeAttr("types", "generic")),
+                  ThemeStr("auto", ThemeAttr("types", "nginx_value")),
+                  ThemeStr(";", ThemeAttr("types", "nginx_punctuation"))],
+                 [ThemeStr("events", ThemeAttr("types", "nginx_key")),
+                  ThemeStr(" ", ThemeAttr("types", "generic")),
+                  ThemeStr("{", ThemeAttr("types", "nginx_punctuation"))],
+                 [ThemeStr("    ", ThemeAttr("types", "generic")),
+                  ThemeStr("worker_connections", ThemeAttr("types", "nginx_namespace")),
+                  ThemeStr(" ", ThemeAttr("types", "generic")),
+                  ThemeStr("1024", ThemeAttr("types", "nginx_value")),
+                  ThemeStr(";", ThemeAttr("types", "nginx_punctuation"))],
+                 [ThemeStr("}", ThemeAttr("types", "nginx_punctuation"))],
+                 [],
+                 [ThemeStr("if", ThemeAttr("types", "nginx_key")),
+                  ThemeStr(" ", ThemeAttr("types", "generic")),
+                  ThemeStr("(", ThemeAttr("types", "nginx_value")),
+                  ThemeStr("$request_filename", ThemeAttr("types", "nginx_variable")),
+                  ThemeStr(" ", ThemeAttr("types", "generic")),
+                  ThemeStr("~", ThemeAttr("types", "nginx_punctuation")),
+                  ThemeStr(" ", ThemeAttr("types", "generic")),
+                  ThemeStr(".*\\.(?:js|css|jpg|jpeg|gif|png|ico|cur|gz|svg|"
+                           "svgz|mp4|ogg|ogv|webm)$)", ThemeAttr("types", "nginx_regex")),
+                  ThemeStr(" ", ThemeAttr("types", "generic")),
+                  ThemeStr("{", ThemeAttr("types", "nginx_punctuation"))],
+                 [ThemeStr("  ", ThemeAttr("types", "generic")),
+                  ThemeStr("expires", ThemeAttr("types", "nginx_namespace")),
+                  ThemeStr(" ", ThemeAttr("types", "generic")),
+                  ThemeStr("90d", ThemeAttr("types", "nginx_value")),
+                  ThemeStr(";", ThemeAttr("types", "nginx_punctuation"))],
+                 [ThemeStr("}", ThemeAttr("types", "nginx_punctuation"))],
+                 [],
+                 [ThemeStr("rewrite", ThemeAttr("types", "nginx_key")),
+                  ThemeStr(" ", ThemeAttr("types", "generic")),
+                  ThemeStr("^/k8s/clusters/.*/proxy(.*)", ThemeAttr("types", "nginx_value")),
+                  ThemeStr(" ", ThemeAttr("types", "generic")),
+                  ThemeStr("/", ThemeAttr("types", "nginx_value")),
+                  ThemeStr("$1", ThemeAttr("types", "nginx_variable")),
+                  ThemeStr(" ", ThemeAttr("types", "generic")),
+                  ThemeStr("break", ThemeAttr("types", "nginx_value")),
+                  ThemeStr(";", ThemeAttr("types", "nginx_punctuation"))]],
+                None),
         )
 
         for indata, options, expected_result, expected_exception in testdata:
@@ -1889,6 +2010,176 @@ def test_format_caddyfile(verbose: bool = False) -> tuple[str, bool]:
     return message, result
 
 
+def test_format_powershell(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = formatters.format_powershell
+
+    if result:
+        # Indata format:
+        # (lines, options, expected_result, expected_exception)
+        testdata: tuple[Any, ...] = (
+            ("# Comment\n"
+             "$ErrorActionPreference = 'Continue'\n"
+             "function CheckFirewallRuleError {\n"
+             "    if ($error[0]) {\n"
+             "        if (($error[0].Exception.NativeErrorCode) "
+             "-and ($error[0].Exception.NativeErrorCode.ToString() -eq \"AlreadyExists\")) {\n"
+             "            Write-Host \"Detected Existing Firewall Rule, Nothing To Do\"\n"
+             "        } else {\n"
+             "            Write-Host \"Error Encountered Setting Up Required Firewall Rule\"\n"
+             "            $error[0].Exception\n"
+             "            exit 1\n"
+             "        }\n"
+             "    }\n"
+             "}\n",
+             {},
+             [
+                 [ThemeStr("# Comment", ThemeAttr("types", "powershell_comment"), False)],
+                 [ThemeStr("$ErrorActionPreference",
+                           ThemeAttr("types", "powershell_variable"), False),
+                  ThemeStr(" ", ThemeAttr("types", "powershell_text"), False),
+                  ThemeStr("=", ThemeAttr("types", "powershell_punctuation"), False),
+                  ThemeStr(" ", ThemeAttr("types", "powershell_text"), False),
+                  ThemeStr("'Continue'", ThemeAttr("types", "powershell_value"), False)],
+                 [ThemeStr("function", ThemeAttr("types", "powershell_keyword"), False),
+                  ThemeStr(" ", ThemeAttr("types", "powershell_text"), False),
+                  ThemeStr("CheckFirewallRuleError", ThemeAttr("types", "powershell_name"), False),
+                  ThemeStr(" ", ThemeAttr("types", "powershell_text"), False),
+                  ThemeStr("{", ThemeAttr("types", "powershell_punctuation"), False)],
+                 [ThemeStr("    ", ThemeAttr("types", "powershell_text"), False),
+                  ThemeStr("if", ThemeAttr("types", "powershell_keyword"), False),
+                  ThemeStr(" ", ThemeAttr("types", "powershell_text"), False),
+                  ThemeStr("(", ThemeAttr("types", "powershell_punctuation"), False),
+                  ThemeStr("$error", ThemeAttr("types", "powershell_variable"), False),
+                  ThemeStr("[", ThemeAttr("types", "powershell_punctuation"), False),
+                  ThemeStr("0", ThemeAttr("types", "powershell_name"), False),
+                  ThemeStr("]", ThemeAttr("types", "powershell_punctuation"), False),
+                  ThemeStr(")", ThemeAttr("types", "powershell_punctuation"), False),
+                  ThemeStr(" ", ThemeAttr("types", "powershell_text"), False),
+                  ThemeStr("{", ThemeAttr("types", "powershell_punctuation"), False)],
+                 [ThemeStr("        ", ThemeAttr("types", "powershell_text"), False),
+                  ThemeStr("if", ThemeAttr("types", "powershell_keyword"), False),
+                  ThemeStr(" ", ThemeAttr("types", "powershell_text"), False),
+                  ThemeStr("(", ThemeAttr("types", "powershell_punctuation"), False),
+                  ThemeStr("(", ThemeAttr("types", "powershell_punctuation"), False),
+                  ThemeStr("$error", ThemeAttr("types", "powershell_variable"), False),
+                  ThemeStr("[", ThemeAttr("types", "powershell_punctuation"), False),
+                  ThemeStr("0", ThemeAttr("types", "powershell_name"), False),
+                  ThemeStr("]", ThemeAttr("types", "powershell_punctuation"), False),
+                  ThemeStr(".", ThemeAttr("types", "powershell_punctuation"), False),
+                  ThemeStr("Exception", ThemeAttr("types", "powershell_name"), False),
+                  ThemeStr(".", ThemeAttr("types", "powershell_punctuation"), False),
+                  ThemeStr("NativeErrorCode", ThemeAttr("types", "powershell_name"), False),
+                  ThemeStr(")", ThemeAttr("types", "powershell_punctuation"), False),
+                  ThemeStr(" ", ThemeAttr("types", "powershell_text"), False),
+                  ThemeStr("-and", ThemeAttr("types", "powershell_operator"), False),
+                  ThemeStr(" ", ThemeAttr("types", "powershell_text"), False),
+                  ThemeStr("(", ThemeAttr("types", "powershell_punctuation"), False),
+                  ThemeStr("$error", ThemeAttr("types", "powershell_variable"), False),
+                  ThemeStr("[", ThemeAttr("types", "powershell_punctuation"), False),
+                  ThemeStr("0", ThemeAttr("types", "powershell_name"), False),
+                  ThemeStr("]", ThemeAttr("types", "powershell_punctuation"), False),
+                  ThemeStr(".", ThemeAttr("types", "powershell_punctuation"), False),
+                  ThemeStr("Exception", ThemeAttr("types", "powershell_name"), False),
+                  ThemeStr(".", ThemeAttr("types", "powershell_punctuation"), False),
+                  ThemeStr("NativeErrorCode", ThemeAttr("types", "powershell_name"), False),
+                  ThemeStr(".", ThemeAttr("types", "powershell_punctuation"), False),
+                  ThemeStr("ToString", ThemeAttr("types", "powershell_name"), False),
+                  ThemeStr("(", ThemeAttr("types", "powershell_punctuation"), False),
+                  ThemeStr(")", ThemeAttr("types", "powershell_punctuation"), False),
+                  ThemeStr(" ", ThemeAttr("types", "powershell_text"), False),
+                  ThemeStr("-eq", ThemeAttr("types", "powershell_operator"), False),
+                  ThemeStr(" ", ThemeAttr("types", "powershell_text"), False),
+                  ThemeStr("\"", ThemeAttr("types", "powershell_value"), False),
+                  ThemeStr("AlreadyExists", ThemeAttr("types", "powershell_value"), False),
+                  ThemeStr("\"", ThemeAttr("types", "powershell_value"), False),
+                  ThemeStr(")", ThemeAttr("types", "powershell_punctuation"), False),
+                  ThemeStr(")", ThemeAttr("types", "powershell_punctuation"), False),
+                  ThemeStr(" ", ThemeAttr("types", "powershell_text"), False),
+                  ThemeStr("{", ThemeAttr("types", "powershell_punctuation"), False)],
+                 [ThemeStr("            ", ThemeAttr("types", "powershell_text"), False),
+                  ThemeStr("Write-Host", ThemeAttr("types", "powershell_builtin"), False),
+                  ThemeStr(" ", ThemeAttr("types", "powershell_text"), False),
+                  ThemeStr("\"", ThemeAttr("types", "powershell_value"), False),
+                  ThemeStr("Detected Existing Firewall Rule, Nothing To Do",
+                           ThemeAttr("types", "powershell_value"), False),
+                  ThemeStr("\"", ThemeAttr("types", "powershell_value"), False)],
+                 [ThemeStr("        ", ThemeAttr("types", "powershell_text"), False),
+                  ThemeStr("}", ThemeAttr("types", "powershell_punctuation"), False),
+                  ThemeStr(" ", ThemeAttr("types", "powershell_text"), False),
+                  ThemeStr("else", ThemeAttr("types", "powershell_keyword"), False),
+                  ThemeStr(" ", ThemeAttr("types", "powershell_text"), False),
+                  ThemeStr("{", ThemeAttr("types", "powershell_punctuation"), False)],
+                 [ThemeStr("            ", ThemeAttr("types", "powershell_text"), False),
+                  ThemeStr("Write-Host", ThemeAttr("types", "powershell_builtin"), False),
+                  ThemeStr(" ", ThemeAttr("types", "powershell_text"), False),
+                  ThemeStr("\"", ThemeAttr("types", "powershell_value"), False),
+                  ThemeStr("Error Encountered Setting Up Required Firewall Rule",
+                           ThemeAttr("types", "powershell_value"), False),
+                  ThemeStr("\"", ThemeAttr("types", "powershell_value"), False)],
+                 [ThemeStr("            ", ThemeAttr("types", "powershell_text"), False),
+                  ThemeStr("$error", ThemeAttr("types", "powershell_variable"), False),
+                  ThemeStr("[", ThemeAttr("types", "powershell_punctuation"), False),
+                  ThemeStr("0", ThemeAttr("types", "powershell_name"), False),
+                  ThemeStr("]", ThemeAttr("types", "powershell_punctuation"), False),
+                  ThemeStr(".", ThemeAttr("types", "powershell_punctuation"), False),
+                  ThemeStr("Exception", ThemeAttr("types", "powershell_name"), False)],
+                 [ThemeStr("            ", ThemeAttr("types", "powershell_text"), False),
+                  ThemeStr("exit", ThemeAttr("types", "powershell_name"), False),
+                  ThemeStr(" ", ThemeAttr("types", "powershell_text"), False),
+                  ThemeStr("1", ThemeAttr("types", "powershell_name"), False)],
+                 [ThemeStr("        ", ThemeAttr("types", "powershell_text"), False),
+                  ThemeStr("}", ThemeAttr("types", "powershell_punctuation"), False)],
+                 [ThemeStr("    ", ThemeAttr("types", "powershell_text"), False),
+                  ThemeStr("}", ThemeAttr("types", "powershell_punctuation"), False)],
+                 [ThemeStr("}", ThemeAttr("types", "powershell_punctuation"), False)],
+             ],
+             None),
+        )
+
+        for indata, options, expected_result, expected_exception in testdata:
+            if isinstance(indata, list):
+                indata_quoted = "\n".join(indata)
+            else:
+                indata_quoted = indata
+            indata_quoted = indata_quoted.replace('\n', '\\n')
+            try:
+                if (tmp := fun(indata, **options)) != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"           input: \"{indata_quoted}\"\n" \
+                              "         options:\n" \
+                              f"{yaml_dump(options, base_indent=17)}\n" \
+                              f"          output: {tmp}\n" \
+                              f"        expected: {expected_result}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  f"           input: \"{indata_quoted}\"\n" \
+                                  "         options:\n" \
+                                  f"{yaml_dump(options, base_indent=17)}\n" \
+                                  f"       exception: {type(e)}\n" \
+                                  f"        expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"           input: \"{indata_quoted}\"\n" \
+                              "         options:\n" \
+                              f"{yaml_dump(options, base_indent=17)}\n" \
+                              f"       exception: {type(e)}\n" \
+                              f"        expected: {expected_result}"
+                    result = False
+                    break
+    return message, result
+
+
 def test_format_python_traceback(verbose: bool = False) -> tuple[str, bool]:
     message = ""
     result = True
@@ -2006,8 +2297,7 @@ def test_format_toml(verbose: bool = False) -> tuple[str, bool]:
         # (lines, options, expected_result, expected_exception)
         testdata: tuple[Any, ...] = (
             (
-                [
-                 "# comment",
+                ["# comment",
                  "title = \"TOML Example\"",
                  "",
                  "[owner]",
@@ -2021,11 +2311,9 @@ def test_format_toml(verbose: bool = False) -> tuple[str, bool]:
                  "",
                  "[servers]",
                  "",
-                 "[servers.alpha]",
-                ],
-             {},
-             [
-                 [ThemeStr("# comment", ThemeAttr("types", "toml_comment"))],
+                 "[servers.alpha]"],
+                {},
+                [[ThemeStr("# comment", ThemeAttr("types", "toml_comment"))],
                  [ThemeStr("title", ThemeAttr("types", "toml_key")),
                   ThemeStr(" ", ThemeAttr("types", "generic")),
                   ThemeStr("=", ThemeAttr("types", "toml_key_separator")),
@@ -2119,12 +2407,10 @@ def test_format_toml(verbose: bool = False) -> tuple[str, bool]:
                   ThemeStr("servers", ThemeAttr("types", "toml_section")),
                   ThemeStr(".", ThemeAttr("types", "toml_section")),
                   ThemeStr("alpha", ThemeAttr("types", "toml_section")),
-                  ThemeStr("]", ThemeAttr("types", "toml_section"))],
-             ],
-             None),
+                  ThemeStr("]", ThemeAttr("types", "toml_section"))]],
+                None),
             (
-                [
-                 "int1 = +99",
+                ["int1 = +99",
                  "int2 = -42",
                  "int3 = 224_617",
                  "hex1 = 0xDEADBEEF",
@@ -2134,11 +2420,9 @@ def test_format_toml(verbose: bool = False) -> tuple[str, bool]:
                  "bin = 0b11010110",
                  "exp = 6.626e-34",
                  "infinity = inf",
-                 "notanumber = nan",
-                ],
-             {},
-             [
-                 [ThemeStr("int1", ThemeAttr("types", "toml_key")),
+                 "notanumber = nan"],
+                {},
+                [[ThemeStr("int1", ThemeAttr("types", "toml_key")),
                   ThemeStr(" ", ThemeAttr("types", "generic")),
                   ThemeStr("=", ThemeAttr("types", "toml_key_separator")),
                   ThemeStr(" ", ThemeAttr("types", "generic")),
@@ -2192,87 +2476,155 @@ def test_format_toml(verbose: bool = False) -> tuple[str, bool]:
                   ThemeStr(" ", ThemeAttr("types", "generic")),
                   ThemeStr("=", ThemeAttr("types", "toml_key_separator")),
                   ThemeStr(" ", ThemeAttr("types", "generic")),
-                  ThemeStr("nan", ThemeAttr("types", "toml_value"))],
-             ],
-             None),
+                  ThemeStr("nan", ThemeAttr("types", "toml_value"))]],
+                None),
             (
-                [
-                 # Valid but discouraged
-                 "'' = \"valid\"",
-                ],
-             {},
-             [
-                 [ThemeStr("'", ThemeAttr("types", "toml_value")),
+                # Valid but discouraged
+                ["'' = \"valid\""],
+                {},
+                [[ThemeStr("'", ThemeAttr("types", "toml_value")),
                   ThemeStr("'", ThemeAttr("types", "toml_value")),
                   ThemeStr(" ", ThemeAttr("types", "generic")),
                   ThemeStr("=", ThemeAttr("types", "toml_key_separator")),
                   ThemeStr(" ", ThemeAttr("types", "generic")),
                   ThemeStr("\"", ThemeAttr("types", "toml_value")),
                   ThemeStr("valid", ThemeAttr("types", "toml_value")),
-                  ThemeStr("\"", ThemeAttr("types", "toml_value"))],
-             ],
-             None),
+                  ThemeStr("\"", ThemeAttr("types", "toml_value"))]],
+                None),
             (
-                [
-                 # Missing key; pygment still accepts it though
-                 "= \"invalid\"",
-                ],
-             {},
-             [
-                 [ThemeStr("=", ThemeAttr("types", "toml_key_separator")),
+                # Missing key; pygment still accepts it though
+                ["= \"invalid\""],
+                {},
+                [[ThemeStr("=", ThemeAttr("types", "toml_key_separator")),
                   ThemeStr(" ", ThemeAttr("types", "generic")),
                   ThemeStr("\"", ThemeAttr("types", "toml_value")),
                   ThemeStr("invalid", ThemeAttr("types", "toml_value")),
-                  ThemeStr("\"", ThemeAttr("types", "toml_value"))],
-             ],
-             None),
+                  ThemeStr("\"", ThemeAttr("types", "toml_value"))]],
+                None),
             (
-                [
-                 # Missing value; pygment still accepts it though
-                 "invalid =",
-                ],
-             {},
-             [
-                 [ThemeStr("invalid", ThemeAttr("types", "toml_key")),
+                # Missing value; pygment still accepts it though
+                ["invalid ="],
+                {},
+                [[ThemeStr("invalid", ThemeAttr("types", "toml_key")),
                   ThemeStr(" ", ThemeAttr("types", "generic")),
-                  ThemeStr("=", ThemeAttr("types", "toml_key_separator"))],
-             ],
-             None),
+                  ThemeStr("=", ThemeAttr("types", "toml_key_separator"))]],
+                None),
             (
-                [
-                 # Escaped characters
-                 "test = \"\\\"\""
-                ],
-             {},
-             [
-                 [ThemeStr("test", ThemeAttr("types", "toml_key")),
+                # Escaped characters
+                ["test = \"\\\"\""],
+                {},
+                [[ThemeStr("test", ThemeAttr("types", "toml_key")),
                   ThemeStr(" ", ThemeAttr("types", "generic")),
                   ThemeStr("=", ThemeAttr("types", "toml_key_separator")),
                   ThemeStr(" ", ThemeAttr("types", "generic")),
                   ThemeStr("\"", ThemeAttr("types", "toml_value")),
                   ThemeStr("\\\"", ThemeAttr("types", "toml_escape")),
-                  ThemeStr("\"", ThemeAttr("types", "toml_value"))],
-             ],
-             None),
+                  ThemeStr("\"", ThemeAttr("types", "toml_value"))]],
+                None),
             (
-                [
-                 # Multiline string
-                 "test = \"\"\"",
+                # Multiline string
+                ["test = \"\"\"",
                  "Roses are red",
-                 "Violets are blue\"\"\"",
-                ],
-             {},
-             [
-                 [ThemeStr("test", ThemeAttr("types", "toml_key")),
+                 "Violets are blue\"\"\""],
+                {},
+                [[ThemeStr("test", ThemeAttr("types", "toml_key")),
                   ThemeStr(" ", ThemeAttr("types", "generic")),
                   ThemeStr("=", ThemeAttr("types", "toml_key_separator")),
                   ThemeStr(" ", ThemeAttr("types", "generic")),
                   ThemeStr("\"\"\"", ThemeAttr("types", "toml_value"))],
                  [ThemeStr("Roses are red", ThemeAttr("types", "toml_value"))],
                  [ThemeStr("Violets are blue", ThemeAttr("types", "toml_value")),
-                  ThemeStr("\"\"\"", ThemeAttr("types", "toml_value"))],
-             ],
-             None),
+                  ThemeStr("\"\"\"", ThemeAttr("types", "toml_value"))]],
+                None),
+        )
+
+        for indata, options, expected_result, expected_exception in testdata:
+            if isinstance(indata, list):
+                indata_quoted = "\n".join(indata)
+            else:
+                indata_quoted = indata
+            indata_quoted = indata_quoted.replace('\n', '\\n')
+            try:
+                if (tmp := fun(indata, **options)) != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"           input: \"{indata_quoted}\"\n" \
+                              "         options:\n" \
+                              f"{yaml_dump(options, base_indent=17)}\n" \
+                              f"          output: {tmp}\n" \
+                              f"        expected: {expected_result}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  f"           input: \"{indata_quoted}\"\n" \
+                                  "         options:\n" \
+                                  f"{yaml_dump(options, base_indent=17)}\n" \
+                                  f"       exception: {type(e)}\n" \
+                                  f"        expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"           input: \"{indata_quoted}\"\n" \
+                              "         options:\n" \
+                              f"{yaml_dump(options, base_indent=17)}\n" \
+                              f"       exception: {type(e)}\n" \
+                              f"        expected: {expected_result}"
+                    result = False
+                    break
+    return message, result
+
+
+def test_format_shellscript(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = formatters.format_shellscript
+
+    if result:
+        # Indata format:
+        # (lines, options, expected_result, expected_exception)
+        testdata: tuple[Any, ...] = (
+            (
+                ["#! /bin/sh",
+                 "for file in $( ls ); do",
+                 "    printf -- \"Hello World ${file}\\n\"",
+                 "done"],
+                {},
+                [
+                    [ThemeStr("#! /bin/sh", ThemeAttr("types", "shellscript_hashbang"))],
+                    [ThemeStr("for", ThemeAttr("types", "shellscript_keyword")),
+                     ThemeStr(" ", ThemeAttr("types", "generic")),
+                     ThemeStr("file", ThemeAttr("types", "shellscript_text")),
+                     ThemeStr(" ", ThemeAttr("types", "generic")),
+                     ThemeStr("in", ThemeAttr("types", "shellscript_keyword")),
+                     ThemeStr(" ", ThemeAttr("types", "generic")),
+                     ThemeStr("$(", ThemeAttr("types", "shellscript_keyword")),
+                     ThemeStr(" ", ThemeAttr("types", "generic")),
+                     ThemeStr("ls", ThemeAttr("types", "shellscript_text")),
+                     ThemeStr(" ", ThemeAttr("types", "generic")),
+                     ThemeStr(")", ThemeAttr("types", "shellscript_keyword")),
+                     ThemeStr(";", ThemeAttr("types", "shellscript_punctuation")),
+                     ThemeStr(" ", ThemeAttr("types", "generic")),
+                     ThemeStr("do", ThemeAttr("types", "shellscript_keyword"))],
+                    [ThemeStr("    ", ThemeAttr("types", "generic")),
+                     ThemeStr("printf", ThemeAttr("types", "shellscript_builtin")),
+                     ThemeStr(" ", ThemeAttr("types", "generic")),
+                     ThemeStr("--", ThemeAttr("types", "shellscript_text")),
+                     ThemeStr(" ", ThemeAttr("types", "generic")),
+                     ThemeStr("\"", ThemeAttr("types", "shellscript_string")),
+                     ThemeStr("Hello World ", ThemeAttr("types", "shellscript_string")),
+                     ThemeStr("${", ThemeAttr("types", "shellscript_keyword")),
+                     ThemeStr("file", ThemeAttr("types", "shellscript_variable")),
+                     ThemeStr("}", ThemeAttr("types", "shellscript_keyword")),
+                     ThemeStr("\\n", ThemeAttr("types", "shellscript_string")),
+                     ThemeStr("\"", ThemeAttr("types", "shellscript_string"))],
+                    [ThemeStr("done", ThemeAttr("types", "shellscript_keyword"))]],
+                None),
         )
 
         for indata, options, expected_result, expected_exception in testdata:
@@ -2419,6 +2771,10 @@ tests: dict[tuple[str, ...], dict[str, Any]] = {
         "callable": test_format_mosquitto,
         "result": None,
     },
+    ("format_nginx",): {
+        "callable": test_format_nginx,
+        "result": None,
+    },
     ("format_xml",): {
         "callable": test_format_xml,
         "result": None,
@@ -2427,12 +2783,20 @@ tests: dict[tuple[str, ...], dict[str, Any]] = {
         "callable": test_format_caddyfile,
         "result": None,
     },
+    ("format_powershell",): {
+        "callable": test_format_powershell,
+        "result": None,
+    },
     ("format_python_traceback",): {
         "callable": test_format_python_traceback,
         "result": None,
     },
     ("format_toml",): {
         "callable": test_format_toml,
+        "result": None,
+    },
+    ("format_shellscript",): {
+        "callable": test_format_shellscript,
         "result": None,
     },
     ("map_dataformat",): {
