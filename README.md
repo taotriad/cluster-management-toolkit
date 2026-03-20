@@ -14,10 +14,30 @@
 __Cluster Management Toolkit for Kubernetes__ (CMT) is a set of tools intended
 to simplify installation and maintenance of _Kubernetes_ clusters. It provides
 tools to setup clusters and manage nodes, either by specifying the configuration
-directly on the command line, or through template files. The _curses_-based
-user interface (_cmu_) presents the various Kubernetes objects (such as
-Pods, Deployments, ConfigMaps, Namespaces, etc.) in a way that tries to obviate
-all object relations.
+directly on the command line, or through template files.
+
+The _curses_-based user interface (_cmu_) presents the various Kubernetes
+objects (such as Pods, Deployments, ConfigMaps, Namespaces, etc.) in a way that
+tries to obviate all object relations. This includes both direct relatations
+such as those defined in ownerReferences, selectors, and volume mounts,
+but also nested relations, such as from Pods directly to a CronJob or Deployment.
+
+The UI also tries its best to improve the viewing experience for the data;
+the Kubernetes objects themselves can be viewed as either JSON or YAML,
+many of the ConfigMaps in text format can be viewed with syntax highlighting,
+and base64-encoded text-documents can be decoded before they're viewed.
+
+Finally container logs are parsed (sometimes in a rather opinionated manner),
+restructed, and highlighted based on the severity of the messages.
+Structures can be unfolded, repeating lines can be deduplicated,
+debug messages and traces are hidden by default, etc.
+
+Currently a bit over 800 object types are supporting to varying levels,
+250 different pod log files are defined (most of them matching multiple signatures),
+and 40+ ConfigMap data types.
+
+The inventory tool, _cmtinv_, allows for managing the Ansible inventory,
+but also running of playbooks.
 
 Installation and management is done through a combination of _Ansible_ playbooks,
 _Python_ scripts, a _curses_-based user interface, as well as calls to _kubectl_

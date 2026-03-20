@@ -8,9 +8,6 @@
 
 ## General
 
-* "[Shift] + O" to open the list of ownerReferences should probably
-  be made a global shortcut in the same way that labels, annotations,
-  conditions, etc. are.
 * listgetters need to support passing both a label selector and a match selector
   in listgetter_args.
 * When running either cmt or cmu, check whether `.ssh/id_*.pub` is in authorized_keys.
@@ -22,6 +19,8 @@
   (named config-clustername) rather than merging the config-files;
   or even have them in `.kube/config.d/clustername.yaml`?
 * Add the post-quantum variants of ed25519.
+* Check whether it'd be measurably beneficial to use orjson instead of ujson.
+* Maybe use yaml.dump(..., explicit_start=True)?
 
 ## commandparser.py and cmtvalidators.py
 
