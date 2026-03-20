@@ -6035,7 +6035,7 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
 
         uip.stdscr.timeout(100)
         c = uip.stdscr.getch()
-        retval: Retval = uip.generic_keycheck(c)
+        retval: Retval | None = uip.generic_keycheck(c)
 
         if retval == Retval.MATCH:
             continue
@@ -7227,7 +7227,7 @@ def resourceinfodispatch_with_lookup(stdscr: curses.window, **kwargs: Any) -> Re
         return Retval.NOMATCH
 
     if namespaced_name_path is not None:
-        namespaced_name = deep_get_with_fallback(obj, DictPath(namespaced_name_path))
+        namespaced_name = deep_get_with_fallback(obj, namespaced_name_path)
     if namespaced_name is not None and namespaced_name_enabled:
         tmp = namespaced_name.split(namespaced_name_separator)
         if len(tmp) == 2:
@@ -7496,13 +7496,14 @@ def action_view_pod_logs(**kwargs: Any) -> Retval:
     return view_pod_logs(uip.stdscr, **values)
 
 
+# pylint: disable-next=unused-argument
 def update_version_cache(stdscr: curses.window, **kwargs: Any) -> Retval:
     """
     Update the list of component versions, and, where applicable, fetch their changelogs
 
         Parameters:
-            **kwargs (dict[str, Any]): Keyword arguments
-                uip (UIProps): A reference to the UI Properties object
+            stdscr (UIProps): A reference to the UI Properties object
+            **kwargs (dict[str, Any]): Keyword arguments [unused]
         Returns:
             (Retval): The return value
     """
@@ -7525,8 +7526,8 @@ def view_last_applied_configuration(stdscr: curses.window, **kwargs: Any) -> Ret
     View the last applied configuration (if available).
 
         Parameters:
+            stdscr (UIProps): A reference to the UI Properties object
             **kwargs (dict[str, Any]): Keyword arguments
-                uip (UIProps): A reference to the UI Properties object
                 obj (dict): The object to extract data from
                 title (str): The title to use for the page
         Returns:
