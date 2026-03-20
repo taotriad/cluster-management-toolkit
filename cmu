@@ -3529,12 +3529,26 @@ def decode_and_view_data(stdscr: curses.window, **kwargs: Any) -> Retval:
         vtype, value = decode_value(bvalue)
         if bvalue == value:
             vtype = bvtype
+    elif "obj" in kwargs and hasattr(kwargs["obj"], "value"):
+        bvalue = kwargs["obj"].value
+        title = kwargs["obj"].key
+        bvtype = kwargs["obj"].vtype
+        vtype, value = decode_value(bvalue)
+        if bvalue == value:
+            vtype = bvtype
     elif "path" in kwargs:
         obj = deep_get(kwargs, DictPath("obj"), {})
         path = deep_get(kwargs, DictPath("path"), "")
         bvalue = deep_get(obj, DictPath(path), "")
         title = deep_get(kwargs, DictPath("title"), "")
         vtype, value = decode_value(bvalue)
+    elif "obj" in kwargs and "value" in kwargs["obj"]:
+        bvalue = deep_get(kwargs, DictPath("obj#value"))
+        title = deep_get(kwargs, DictPath("obj#key"))
+        bvtype = deep_get(kwargs, DictPath("obj#vtype"))
+        vtype, value = decode_value(bvalue)
+        if bvalue == value:
+            vtype = bvtype
     else:
         return Retval.RETURNDONE
 
@@ -3572,9 +3586,10 @@ def decode_and_view_data(stdscr: curses.window, **kwargs: Any) -> Retval:
     if title.endswith((".crt", "tls.key", ".pem", "CAKey")) \
             or isinstance(obj, str) and obj.startswith(("-----BEGIN", "-----END")):
         formatter = formatters.format_crt
-    elif title == ".dockercfg" or title.endswith(".json"):
+    elif title in (".dockercfg", ".dockerconfigjson", "v4-0-config-system-session", "userData") \
+            or title.endswith((".kubeconfig", ".json")):
         formatter = formatters.reformat_json
-    elif title.endswith(".yaml"):
+    elif title == "kubeConfig" or title.endswith(".yaml"):
         formatter = formatters.format_yaml
     else:
         formatter = formatters.format_none
@@ -4609,6 +4624,11 @@ def genericinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                             iapi_family = \
                                 deep_get(viewref, DictPath("listpad#on_activation#api_family"), "")
                             ikind = guess_kind((ikind, iapi_family))
+                    elif view == ("Secret", "") \
+                            and item.vtype in ("base64-utf-8", "base64-utf-8 [truncated]",
+                                               "string"):
+                        name = item.key
+                        ikind = ("Secret", "")
                     else:
                         continue
 
@@ -4620,6 +4640,8 @@ def genericinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                     if name == initial_container:
                         if view == ("ConfigMap", ""):
                             match = item.data
+                        elif view == ("Secret", ""):
+                            match = item
                         else:
                             match = item.ref
                         match_count = 1
@@ -4632,6 +4654,8 @@ def genericinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                         if match_count == 0:
                             if view == ("ConfigMap", ""):
                                 match = item.data
+                            elif view == ("Secret", ""):
+                                match = item
                             else:
                                 match = item.ref
                         match_count += 1
@@ -9421,6 +9445,7 @@ actionfunc_allowlist: dict[str, Callable] = {
 
 # Activatedfuns acceptable for direct use in view files
 activatedfun_allowlist: dict[str, Callable[..., Retval]] = {
+    "decode_and_view_data": decode_and_view_data,
     "listviewdispatch": listviewdispatch,
     "resourceinfodispatch": resourceinfodispatch,
     "resourceinfodispatch_from_pod_resource_list": resourceinfodispatch_from_pod_resource_list,
@@ -10699,16 +10724,17 @@ def open_view(options: list[tuple[str, str]], args: list[str]) -> None:
         if ":" in initial_name:
             initial_name, initial_container = initial_name.split(":")
 
-        if initial_container is not None and \
-                initial_container and defaultview not in ("Pods", "Config Maps"):
+        if initial_container is not None and defaultview not in ("Pods", "Config Maps", "Secrets"):
             ansithemeprint([ANSIThemeStr(f"{about.UI_PROGRAM_NAME}", "programname"),
                             ANSIThemeStr(": invalid syntax;", "default")], stderr=True)
             ansithemeprint([ANSIThemeStr("Specifying a member", "description"),
                             ANSIThemeStr(" is only supported for ", "default"),
                             ANSIThemeStr("pod", "command"),
-                            ANSIThemeStr(" and ", "description"),
+                            ANSIThemeStr(", ", "separator"),
                             ANSIThemeStr("configmap", "command"),
-                            ANSIThemeStr(" view.", "default")], stderr=True)
+                            ANSIThemeStr(" and ", "description"),
+                            ANSIThemeStr("secret", "command"),
+                            ANSIThemeStr(" views.", "default")], stderr=True)
             ansithemeprint([ANSIThemeStr("Try “", "default"),
                             ANSIThemeStr(f"{about.UI_PROGRAM_NAME} ", "programname"),
                             ANSIThemeStr("help", "command"),
