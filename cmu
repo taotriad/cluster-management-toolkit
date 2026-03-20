@@ -110,6 +110,8 @@ from clustermanagementtoolkit.logparser import lvl_to_letter_severity, lvl_to_4l
 from clustermanagementtoolkit.logparser import lvl_to_word_severity
 from clustermanagementtoolkit.logparser import get_parser_list
 
+from clustermanagementtoolkit import networkio
+
 from clustermanagementtoolkit import cmtlib
 from clustermanagementtoolkit.cmtlib import decode_value, clamp, get_package_versions
 from clustermanagementtoolkit.cmtlib import make_label_selector, make_label_selector_set_expression
@@ -7470,6 +7472,30 @@ def action_view_pod_logs(**kwargs: Any) -> Retval:
     return view_pod_logs(uip.stdscr, **values)
 
 
+def update_version_cache(stdscr: curses.window, **kwargs: Any) -> Retval:
+    """
+    Update the list of component versions, and, where applicable, fetch their changelogs
+
+        Parameters:
+            **kwargs (dict[str, Any]): Keyword arguments
+                uip (UIProps): A reference to the UI Properties object
+        Returns:
+            (Retval): The return value
+    """
+
+    msg = [ANSIThemeStr("Updating version cache", "action")]
+
+    curses.endwin()
+    _retval = clear_screen()
+    ansithemeprint(msg)
+
+    networkio.update_version_cache(verbose=True, force=True)
+
+    stdscr.refresh()
+
+    return Retval.RETURNDONE
+
+
 def view_last_applied_configuration(stdscr: curses.window, **kwargs: Any) -> Retval:
     """
     View the last applied configuration (if available).
@@ -9351,7 +9377,7 @@ availability_checker_allowlist: dict[str, Callable] = {
 }
 
 
-# action calls acceptable for direct use in view files
+# action calls acceptable for direct use in view files from shortcuts
 action_call_allowlist: dict[str, Callable] = {
     "create_namespace": create_namespace,
     "decode_and_view_data": decode_and_view_data,
@@ -9366,6 +9392,7 @@ action_call_allowlist: dict[str, Callable] = {
     "resourceinfodispatch_from_selection": resourceinfodispatch_from_selection,
     "set_cluster_context": set_cluster_context,
     "ssh_to_host": ssh_to_host,
+    "update_version_cache": update_version_cache,
     "view_last_applied_configuration": view_last_applied_configuration,
     "view_obj": view_obj,
     "view_pod_logs": view_pod_logs,
@@ -9374,7 +9401,7 @@ action_call_allowlist: dict[str, Callable] = {
 }
 
 
-# Actionfuncs acceptable for direct use in view files
+# Actionfuncs acceptable for direct use in view files from actionlists
 actionfunc_allowlist: dict[str, Callable] = {
     "action_view_pod_logs": action_view_pod_logs,
     "cordon_node": cordon_node,
