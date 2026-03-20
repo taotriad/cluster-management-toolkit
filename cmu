@@ -1528,12 +1528,17 @@ def genericlistloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                                           selected_namespace=selected_namespace,
                                           **fieldgenerator_args)
 
+            # We've regenerated the field_dict and field_names,
+            # so we need to update the infogetter_extra_args;
+            # After that we need to empty uip.info and trigger a new update.
+            infogetter_extra_args["_field_names"] = field_names
+            infogetter_extra_args["_field_dict"] = field_dict
+            uip.update_info([])
             update_field_widths(field_dict, field_names, uip.info)
             tagged_items.clear()
             uip.reinit_window(field_dict=field_dict, sortcolumn=sortcolumn)
             uip.resize_listpad(width=-1)
             uip.refresh_all()
-            uip.update_info([])
             uip.force_update()
             if ".".join(kind) in executor:
                 executor.update(".".join(kind), namespace=selected_namespace)
