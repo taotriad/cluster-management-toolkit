@@ -6891,11 +6891,16 @@ def audit(options: list[tuple[str, str]], args: list[str]) -> None:
     groupname = grp.getgrgid(gid).gr_name
 
     if len(usergroup) == 0 and usergroup_autodetect:
-        logindefs = secure_read_string(FilePath("/etc/login.defs"))
-        usergroups_regex: re.Pattern[str] = re.compile(r"^USERGROUPS_ENAB\s+yes")
-        for line in logindefs.splitlines():
-            if usergroups_regex.match(line) is not None:
-                usergroup = groupname
+        # TODO: login.defs might be a config-dir (/etc/login.defs.d);
+        try:
+            logindefs = secure_read_string(FilePath("/etc/login.defs"))
+            usergroups_regex: re.Pattern[str] = re.compile(r"^USERGROUPS_ENAB\s+yes")
+            for line in logindefs.splitlines():
+                if usergroups_regex.match(line) is not None:
+                    usergroup = groupname
+        except FilePathAuditError:
+            # If there's no such file we default to using the group
+            usergroup = groupname
 
     kwargs: dict[str, str] = {
         "usergroup": usergroup
