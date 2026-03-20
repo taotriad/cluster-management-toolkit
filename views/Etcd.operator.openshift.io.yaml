@@ -24,7 +24,7 @@ infoview:
                  "management_state", "cipher_suites", "min_tls_version",
                  "ready_replicas"]
       Normal:
-        fields: ["cluster_version", "loglevel", "operator_loglevel",
+        fields: ["loglevel", "operator_loglevel",
                  "management_state", "cipher_suites_ellipsise",
                  "min_tls_version", "ready_replicas"]
     rows:
