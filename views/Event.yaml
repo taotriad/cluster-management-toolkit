@@ -1555,6 +1555,14 @@ listview:
               field_colors:
                 - context: "main"
                   type: "status_ok"
+            PodCliqueCreateOrUpdateSuccessful:
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+            PodCliqueScalingGroupCreateSuccessful:
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
             PodCreated:
               field_colors:
                 - context: "main"
@@ -1567,6 +1575,10 @@ listview:
               field_colors:
                 - context: "main"
                   type: "status_done"
+            PodGangCreateOrUpdateSuccessful:
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
             PodGroupPending:
               field_colors:
                 - context: "main"
@@ -4075,6 +4087,14 @@ infoview:
                 field_colors:
                   - context: "main"
                     type: "status_ok"
+              PodCliqueCreateOrUpdateSuccessful:
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+              PodCliqueScalingGroupCreateSuccessful:
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
               PodCreated:
                 field_colors:
                   - context: "main"
@@ -4087,6 +4107,10 @@ infoview:
                 field_colors:
                   - context: "main"
                     type: "status_done"
+              PodGangCreateOrUpdateSuccessful:
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
               PodGroupPending:
                 field_colors:
                   - context: "main"
