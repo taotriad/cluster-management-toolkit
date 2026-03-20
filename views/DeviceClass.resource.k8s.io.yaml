@@ -45,8 +45,18 @@ infoview:
   infopad:
     row_indexes:
       Normal:
-        fields: ["controller", "extended_name"]
+        fields: ["controller", "device_cel_selectors", "extended_name"]
     rows:
+      device_cel_selectors:
+        header: [["Device CEL ", ["main", "infoheader"]],
+                 ["S", ["main", "infoheader_shortcut"]],
+                 ["electors:", ["main", "infoheader"]]]
+        paths:
+          - path: "spec#selectors"
+            pathtype: "items"
+            subpaths:
+              - "cel#expression"
+        formatter: "list"
       controller:
         header: [["C", ["main", "infoheader_shortcut"]],
                  ["ontroller:", ["main", "infoheader"]]]
@@ -100,6 +110,7 @@ infoview:
         path: "spec#config"
     "Device Selectors":
       key: "s"
+      modifier: "shift"
       read_only: true
       helptext: "Show device selectors"
       action: "call"
