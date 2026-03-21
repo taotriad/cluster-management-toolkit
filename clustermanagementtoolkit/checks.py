@@ -772,7 +772,6 @@ def check_kubelet_and_kube_proxy_versions(**kwargs: Any) -> tuple[bool, int, int
     for node in vlist:
         node_name = deep_get(node, DictPath("metadata#name"))
         kubelet_version = deep_get(node, DictPath("status#nodeInfo#kubeletVersion"))
-        kubeproxy_version = deep_get(node, DictPath("status#nodeInfo#kubeProxyVersion"))
         tmp = version_regex.match(kubelet_version)
 
         kubelet_major_version = None
@@ -793,21 +792,6 @@ def check_kubelet_and_kube_proxy_versions(**kwargs: Any) -> tuple[bool, int, int
             critical += 1
             mismatch = True
 
-        tmp = version_regex.match(kubeproxy_version)
-        if tmp is not None:
-            kubeproxy_major_version = int(tmp[1])
-            kubeproxy_minor_version = int(tmp[2])
-        else:
-            ansithemeprint([ANSIThemeStr("  ", "default"),
-                            ANSIThemeStr("Error", "error"),
-                            ANSIThemeStr(":", "default")], stderr=True)
-            ansithemeprint([ANSIThemeStr("    Failed to extract ", "default"),
-                            ANSIThemeStr("kube-proxy", "programname"),
-                            ANSIThemeStr(" version on node ", "default"),
-                            ANSIThemeStr(f"{node_name}", "hostname")], stderr=True)
-            critical += 1
-            mismatch = True
-
         if kubelet_major_version is not None and kubelet_major_version != 1:
             ansithemeprint([ANSIThemeStr("  ", "default"),
                             ANSIThemeStr("Critical", "critical"),
@@ -820,21 +804,6 @@ def check_kubelet_and_kube_proxy_versions(**kwargs: Any) -> tuple[bool, int, int
                             ANSIThemeStr("kubelet ", "programname"),
                             ANSIThemeStr("version ", "default"),
                             ANSIThemeStr(f"{kubelet_version}", "version")], stderr=True)
-            critical += 1
-            mismatch = True
-
-        if kubeproxy_major_version is not None and kubeproxy_major_version != 1:
-            ansithemeprint([ANSIThemeStr("  ", "default"),
-                            ANSIThemeStr("Critical", "critical"),
-                            ANSIThemeStr(": ", "default"),
-                            ANSIThemeStr(about.PROGRAM_SUITE_NAME, "programname"),
-                            ANSIThemeStr(" has not been tested for any other major version "
-                                         "of Kubernetes than v1; node ", "default"),
-                            ANSIThemeStr(f"{node_name}", "hostname"),
-                            ANSIThemeStr(" runs ", "default"),
-                            ANSIThemeStr("kube-proxy ", "programname"),
-                            ANSIThemeStr("version ", "default"),
-                            ANSIThemeStr(f"{kubeproxy_version}", "version")], stderr=True)
             critical += 1
             mismatch = True
 
@@ -902,30 +871,6 @@ def check_kubelet_and_kube_proxy_versions(**kwargs: Any) -> tuple[bool, int, int
             error += 1
             mismatch = True
 
-        if kubelet_minor_version is not None and \
-                kubeproxy_minor_version is not None and \
-                kubelet_minor_version != kubeproxy_minor_version:
-            ansithemeprint([ANSIThemeStr("  ", "default"),
-                            ANSIThemeStr("Error", "error"),
-                            ANSIThemeStr(":", "default")], stderr=True)
-            ansithemeprint([ANSIThemeStr("    The version of ", "default"),
-                            ANSIThemeStr("kubelet", "programname"),
-                            ANSIThemeStr(" (", "default"),
-                            ANSIThemeStr(f"{kubelet_major_version}.{kubelet_minor_version}",
-                                         "version"),
-                            ANSIThemeStr(") on node ", "default"),
-                            ANSIThemeStr(f"{node_name}", "hostname"),
-                            ANSIThemeStr(" is not the same as that of ", "default"),
-                            ANSIThemeStr("kube-proxy", "programname"),
-                            ANSIThemeStr(" (", "default"),
-                            ANSIThemeStr(f"{kubeproxy_major_version}."
-                                         f"{kubeproxy_minor_version}", "version"),
-                            ANSIThemeStr(");", "default")], stderr=True)
-            ansithemeprint([ANSIThemeStr("       this is not supported.",
-                                         "default")], stderr=True)
-            error += 1
-            mismatch = True
-
     if not mismatch:
         ansithemeprint([ANSIThemeStr("  OK", "ok")])
 
@@ -955,7 +900,10 @@ required_pods: dict[str, list[PodListType]] = {
     ],
     "coredns": [
         {
-            "any_of": [("kube-system", "coredns"), ("", "dns-default")],
+            "any_of": [("kube-system", "coredns"), ("", "dns-default"),
+                       # This could theoretically give false positives
+                       # since rke2 also has a pod called rke2-coredns-rke2-coredns-autoscaler
+                       ("kube-system", "rke2-coredns")],
         },
     ],
     "etcd": [
