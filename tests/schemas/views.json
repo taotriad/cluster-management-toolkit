@@ -18,6 +18,7 @@
 				"resourceinfodispatch_from_selection",
 				"set_cluster_context",
 				"ssh_to_host",
+				"update_version_cache",
 				"view_last_applied_configuration",
 				"view_obj",
 				"view_pod_logs",

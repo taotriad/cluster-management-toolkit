@@ -399,7 +399,7 @@ listview:
     "Refresh Version Data":
       key: "r"
       modifier: "shift"
-      ready_only: false
+      read_only: false
       helptext: "Refresh Version Data"
       action: "call"
       action_call: "update_version_cache"
