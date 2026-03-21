@@ -16,7 +16,7 @@ tests have been added for the moved code.
 
 * _General_:
     * [ ] Release __CMT__ v0.8.7.
-      * [ ] Fix Issue #9 (uninstall-cni fails if helper or configuration doesn't exist).
+      * [x] Fix Issue #9 (uninstall-cni fails if helper or configuration doesn't exist).
     * [x] Use Pygments to do syntax highlighting instead of our own hackish solution.
       * [x] Custom output plugin for ThemeArray.
       * _Note:_ If a format has a pre-existing Pygments lexer it's highly likely

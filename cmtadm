@@ -820,6 +820,7 @@ def __upgrade_cni(cni: str, upgradetype: str, context: str,
     """
     verbose = deep_get(kwargs, DictPath("verbose"), False)
     cni_version = deep_get(kwargs, DictPath("cni_version"))
+    download_only = deep_get(kwargs, DictPath("download_only"), False)
 
     if upgradetype not in ("CNI", "executable"):
         raise ValueError(f"Unknown upgradetype {upgradetype}; this is a programming error.")
@@ -890,6 +891,7 @@ def __upgrade_cni(cni: str, upgradetype: str, context: str,
                                                           version_substitutions),
                                           candidate_version_regex)
 
+    # pylint: disable-next=too-many-nested-blocks
     if "urls" in deep_get(cni_data, DictPath(f"{cni}#{upgradetype}"), {}):
         # We should probably use semver here instead
         if version is not None and candidate_version is not None:
@@ -905,7 +907,7 @@ def __upgrade_cni(cni: str, upgradetype: str, context: str,
                 is_new_version = len(candidate_version) > len(version)
 
         # pylint: disable-next=too-many-boolean-expressions
-        if (version is None or not version) \
+        if download_only or (version is None or not version) \
                 or version is not None and (candidate_version is None or not candidate_version) \
                 or is_new_version:
             new_version = "".join(candidate_version)
@@ -920,9 +922,6 @@ def __upgrade_cni(cni: str, upgradetype: str, context: str,
                 "<<<context>>>": context,
             }
 
-            kubectl_path = secure_which(FilePath("/usr/bin/kubectl"),
-                                        fallback_allowlist=["/etc/alternatives"],
-                                        security_policy=SecurityPolicy.ALLOWLIST_RELAXED)
             if upgradetype == "CNI":
                 secure_mkdir(DEPLOYMENT_DIR)
                 directory = DEPLOYMENT_DIR.joinpath("cni")
@@ -955,6 +954,9 @@ def __upgrade_cni(cni: str, upgradetype: str, context: str,
 
                 if upgradetype == "CNI":
                     new_path = FilePath(directory).joinpath(filename)
+                    kubectl_path = secure_which(FilePath("/usr/bin/kubectl"),
+                                                fallback_allowlist=["/etc/alternatives"],
+                                                security_policy=SecurityPolicy.ALLOWLIST_RELAXED)
                     args = [str(kubectl_path)]
                     kubectl_major_version, kubectl_minor_version, _kubectl_git_version, \
                         _1, _2, _3 = \
@@ -978,20 +980,22 @@ def __upgrade_cni(cni: str, upgradetype: str, context: str,
                                         ANSIThemeStr("Patching ", "subaction"),
                                         ANSIThemeStr(f"{filename}", "version")])
                         check_and_print_status(patch_cni_call(new_path, pod_network_cidr))
-                    ansithemeprint([ANSIThemeStr("\n  • ", "separator"),
-                                    ANSIThemeStr("Applying ", "subaction"),
-                                    ANSIThemeStr(f"{filename}", "version")])
-                    if verbose:
-                        # This should check whether kubectl is >= 1.22;
-                        # otherwise we need to use create
-                        check_and_print_status(execute_command(args))
-                    else:
-                        # This should check whether kubectl is >= 1.22;
-                        # otherwise we need to use create
-                        _result, _retval = execute_command_with_response(args)
+                    if not download_only:
+                        ansithemeprint([ANSIThemeStr("\n  • ", "separator"),
+                                        ANSIThemeStr("Applying ", "subaction"),
+                                        ANSIThemeStr(f"{filename}", "version")])
+                        if verbose:
+                            # This should check whether kubectl is >= 1.22;
+                            # otherwise we need to use create
+                            check_and_print_status(execute_command(args))
+                        else:
+                            # This should check whether kubectl is >= 1.22;
+                            # otherwise we need to use create
+                            _result, _retval = execute_command_with_response(args)
         else:
             ansithemeprint([ANSIThemeStr("No newer version available.", "default")])
-    elif install_command is not None and (version is None or len(version) == 0):
+    elif install_command is not None and (version is None or len(version) == 0) \
+            and not download_only:
         new_version = "".join(candidate_version)
 
         ansithemeprint([ANSIThemeStr("\n• ", "separator"),
@@ -1004,7 +1008,7 @@ def __upgrade_cni(cni: str, upgradetype: str, context: str,
             "<<<context>>>": context,
         }
         check_and_print_status(execute_command(substitute_list(install_command, substitutions)))
-    elif upgrade_command is not None:
+    elif upgrade_command is not None and not download_only:
         if version is None or version < candidate_version:
             new_version = "".join(candidate_version)
 
@@ -1128,14 +1132,8 @@ def teardown_cni(options: list[tuple[str, str]], args: list[str]) -> None:
 
     installation_info = get_installation_info()
     cluster_name = deep_get(installation_info, DictPath("installation_target"))
-    # We should get this using kubernetes_helper (and allow for manual override)
-    kubectl_path = secure_which(FilePath("/usr/bin/kubectl"),
-                                fallback_allowlist=["/etc/alternatives"],
-                                security_policy=SecurityPolicy.ALLOWLIST_RELAXED)
-    result, _retval = \
-        execute_command_with_response([kubectl_path, "config", "current-context"])
-    context_name = result.splitlines()[0]
     cni = installation_info[cluster_name]["cni"]
+    pod_network_cidr = deep_get(installation_info, DictPath(f"{cluster_name}#pod_network_cidr"), "")
     if cni in ("", "<none>", "<unknown>"):
         ansithemeprint([ANSIThemeStr("Error", "error"),
                         ANSIThemeStr(": No CNI installed; aborting.", "default")], stderr=True)
@@ -1147,6 +1145,7 @@ def teardown_cni(options: list[tuple[str, str]], args: list[str]) -> None:
     if kh is None:
         kh = kubernetes_helper.KubernetesHelper(about.PROGRAM_SUITE_NAME,
                                                 about.PROGRAM_SUITE_VERSION, None)
+    context_name = kh.get_current_context()
 
     cnis = kh.identify_cni()
     if len(cnis) == 1:
@@ -1180,7 +1179,16 @@ def teardown_cni(options: list[tuple[str, str]], args: list[str]) -> None:
     cni_filenames = []
     uninstall_command = None
 
+    # We now have an understanding of what CNI is expected to be installed.
+    # We cannot rely on the CNI files still being downloaded in the expected location,
+    # nor that any helpers will be installed, so start by downloading them.
+    __upgrade_cni(cni=cni, upgradetype="executable", context=context_name, download_only=True,
+                  pod_network_cidr=pod_network_cidr)
+    __upgrade_cni(cni=cni, upgradetype="CNI", context=context_name, download_only=True,
+                  pod_network_cidr=pod_network_cidr)
+
     urls = deep_get(cni_data, DictPath(f"{cni}#CNI#urls"), [])
+
     # We need to remove the files in reverse order
     for url in reversed(urls):
         filename = deep_get(url, DictPath("filename"), "")
@@ -1266,7 +1274,7 @@ def teardown_cni(options: list[tuple[str, str]], args: list[str]) -> None:
         sys.exit(errno.EINVAL)
 
 
-# pylint: disable-next=too-many-branches,too-many-statements,too-many-locals
+# pylint: disable-next=too-many-branches,too-many-statements
 def upgrade_cni(options: list[tuple[str, str]], args: list[str]) -> None:
     """
     Upgrade the specified CNI to the latest version.
@@ -1310,10 +1318,12 @@ def upgrade_cni(options: list[tuple[str, str]], args: list[str]) -> None:
                                          "default")], stderr=True)
             sys.exit(errno.ENOTSUP)
 
+    if kh is None:
+        kh = kubernetes_helper.KubernetesHelper(about.PROGRAM_SUITE_NAME,
+                                                about.PROGRAM_SUITE_VERSION, None)
+    context_name = kh.get_current_context()
+
     if cni in ("", "<none>", "<unknown>"):
-        if kh is None:
-            kh = kubernetes_helper.KubernetesHelper(about.PROGRAM_SUITE_NAME,
-                                                    about.PROGRAM_SUITE_VERSION, None)
         if not (tmp_cni := kh.identify_cni()):
             cni = "<unknown>"
         elif len(tmp_cni) > 1:
@@ -1343,14 +1353,6 @@ def upgrade_cni(options: list[tuple[str, str]], args: list[str]) -> None:
                         ANSIThemeStr(f"{cni}", "command"),
                         ANSIThemeStr(" is currently not supported; exiting.", "default")])
         sys.exit(errno.ENOTSUP)
-
-    kubectl_path = \
-        secure_which(FilePath("/usr/bin/kubectl"),
-                     fallback_allowlist=["/etc/alternatives"],
-                     security_policy=SecurityPolicy.ALLOWLIST_RELAXED)
-    result, _retval = \
-        execute_command_with_response([kubectl_path, "config", "current-context"])
-    context_name = result.splitlines()[0]
 
     if install_cni:
         ansithemeprint([ANSIThemeStr("\n[Installing CNI]", "phase")])

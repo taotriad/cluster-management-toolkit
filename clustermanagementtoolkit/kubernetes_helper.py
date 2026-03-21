@@ -1097,6 +1097,27 @@ class KubernetesHelper:
                 if tmp is not None:
                     self.token = tmp[1]
 
+    def get_current_context(self, config_path: FilePath | None = None) -> str:
+        """
+        Get current context
+
+            Parameters:
+                config_path (FilePath): The path to the kubeconfig file
+            Returns:
+                (str): The current context
+        """
+        # If config_path is passed as a parameter, use it,
+        # else use the path used when initialising the class
+        if config_path is None:
+            config_path = self.config_path
+        # This should never be needed, but just in case
+        if config_path is None:
+            config_path = KUBE_CONFIG_FILE
+
+        kubeconfig = secure_read_yaml(FilePath(config_path))
+
+        return deep_get(kubeconfig, DictPath("current-context"), "")
+
     # pylint: disable-next=too-many-locals,too-many-branches,too-many-statements
     def set_context(self, config_path: FilePath | None = None,
                     name: str | None = None, unchanged_is_success: bool = False) -> bool:
