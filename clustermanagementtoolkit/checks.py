@@ -699,7 +699,7 @@ def check_client_server_version_match(**kwargs: Any) -> tuple[bool, int, int, in
     return abort, critical, error, warning, note
 
 
-# pylint: disable-next=too-many-statements,too-many-locals,too-many-branches
+# pylint: disable-next=too-many-statements,too-many-locals
 def check_kubelet_and_kube_proxy_versions(**kwargs: Any) -> tuple[bool, int, int, int, int]:
     """
     This checks whether the versions of kubelet and kube-proxy are acceptable.
@@ -774,8 +774,6 @@ def check_kubelet_and_kube_proxy_versions(**kwargs: Any) -> tuple[bool, int, int
 
         kubelet_major_version = None
         kubelet_minor_version = None
-        kubeproxy_major_version = None
-        kubeproxy_minor_version = None
         if tmp is not None:
             kubelet_major_version = int(tmp[1])
             kubelet_minor_version = int(tmp[2])

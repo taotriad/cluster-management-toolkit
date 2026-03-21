@@ -3508,6 +3508,7 @@ def cniloop(stdscr: curses.window, **kwargs: Any) -> Retval:
             return retval
 
 
+# pylint: disable-next=too-many-branches
 def decode_and_view_data(stdscr: curses.window, **kwargs: Any) -> Retval:
     """
     Decode and view data.
@@ -3583,6 +3584,7 @@ def decode_and_view_data(stdscr: curses.window, **kwargs: Any) -> Retval:
         curses_helper.alert(stdscr, message=f"Failed to decode data; unsupported format {vtype}",
                             wait_for_keypress=True)
         return Retval.RETURNDONE
+
     if title.endswith((".crt", "tls.key", ".pem", "CAKey")) \
             or isinstance(obj, str) and obj.startswith(("-----BEGIN", "-----END")):
         formatter = formatters.format_crt
