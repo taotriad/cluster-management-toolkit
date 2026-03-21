@@ -942,8 +942,7 @@ required_pods: dict[str, list[PodListType]] = {
         },
         {
             # calico; Deployment
-            "all_of": [("calico-apiserver", "calico-apiserver"),
-                       ("calico-system", "calico-kube-controllers")],
+            "any_of": [("", "calico-kube-controllers")],
         },
         {
             # canal; DaemonSet
