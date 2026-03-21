@@ -726,8 +726,8 @@ def check_kubelet_and_kube_proxy_versions(**kwargs: Any) -> tuple[bool, int, int
 
     abort = False
 
-    # Check kubelet and kube-proxy versions;
-    # they can be up to two minor versions older than kube-apiserver,
+    # Check kubelet version;
+    # it can be up to two minor versions older than kube-apiserver,
     # but must not be newer
 
     mismatch = False
@@ -755,9 +755,7 @@ def check_kubelet_and_kube_proxy_versions(**kwargs: Any) -> tuple[bool, int, int
     # Kubernetes API based checks
     ansithemeprint([ANSIThemeStr("\n[Checking ", "phase"),
                     ANSIThemeStr("kubelet", "programname"),
-                    ANSIThemeStr(" & ", "phase"),
-                    ANSIThemeStr("kube-proxy", "programname"),
-                    ANSIThemeStr(" versions]", "phase")])
+                    ANSIThemeStr(" version]", "phase")])
 
     if (kh := deep_get(kwargs, DictPath("kubernetes_helper"))) is None:
         raise ProgrammingError("check_kubelet_and_kube_proxy_versions() "
@@ -885,17 +883,20 @@ class PodListType(TypedDict, total=False):
         Parameters:
             any_of ([(str, str)]): At least one of these pods must exist
             all_of ([(str, str)]): All of these pods must exist
+            skip [str]: Ignore this test on the following Kubernetes distros
             note ([ANSIThemeStr]): Additional notes
     """
     any_of: list[tuple[str, str]]
     all_of: list[tuple[str, str]]
+    skip: list[str]
     note: list[ANSIThemeStr]
 
 
 required_pods: dict[str, list[PodListType]] = {
     "api-server": [
         {
-            "any_of": [("kube-system", "kube-apiserver")],
+            "any_of": [("kube-system", "kube-apiserver"),
+                       ("openshift-apiserver", "apiserver")],
         },
     ],
     "coredns": [
@@ -908,24 +909,21 @@ required_pods: dict[str, list[PodListType]] = {
     ],
     "etcd": [
         {
-            "any_of": [("kube-system", "etcd")],
+            "any_of": [("kube-system", "etcd"),
+                       ("openshift-etcd", "etcd")],
         },
     ],
     "kube-controller-manager": [
         {
-            "any_of": [("kube-system", "kube-controller-manager")],
+            "any_of": [("kube-system", "kube-controller-manager"),
+                       ("openshift-kube-controller-manager", "kube-controller-manager-crc")],
         },
     ],
     # DaemonSet
     "kube-proxy": [
         {
             "any_of": [("kube-system", "kube-proxy")],
-            "note": [ANSIThemeStr("Note", "note"),
-                     ANSIThemeStr(": Optional for ", "default"),
-                     ANSIThemeStr("CRC", "programname"),
-                     ANSIThemeStr("/", "separator"),
-                     ANSIThemeStr("OpenShift", "programname"),
-                     ANSIThemeStr(".\n", "default")],
+            "skip": ["crc", "openshift"],
         },
     ],
     "kube-scheduler": [
@@ -973,6 +971,11 @@ required_pods: dict[str, list[PodListType]] = {
             # kube-router; DaemonSet
             # FIXME
             "any_of": [("", "kube-router")],
+        },
+        {
+            # ovn-kubernetes; DaemonSet
+            # FIXME
+            "any_of": [("", "ovnkube")],
         },
         {
             # sdn; DaemonSet
@@ -1066,12 +1069,14 @@ def check_running_pods(**kwargs: Any) -> tuple[bool, int, int, int, int]:
     warning: int = deep_get(kwargs, DictPath("warning"), 0)
     note: int = deep_get(kwargs, DictPath("note"), 0)
 
-    abort = False
+    abort: bool = False
 
     ansithemeprint([ANSIThemeStr("\n[Checking required pods]", "phase")])
 
     if (kh := deep_get(kwargs, DictPath("kubernetes_helper"))) is None:
         raise ProgrammingError("check_running_pods() called without kubernetes_helper")
+
+    k8s_distro, _status = kh.identify_k8s_distro()
 
     pods, _status = kh.get_list_by_kind_namespace(("Pod", ""), "")
     all_ok = True
@@ -1085,7 +1090,19 @@ def check_running_pods(**kwargs: Any) -> tuple[bool, int, int, int, int]:
         for rp_match in rp_data:
             any_of = deep_get(cast(dict, rp_match), DictPath("any_of"), [])
             all_of = deep_get(cast(dict, rp_match), DictPath("all_of"), [])
+
+            skip = deep_get(cast(dict, rp_match), DictPath("skip"), [])
             additional_info = deep_get(cast(dict, rp_match), DictPath("note"), [])
+
+            if k8s_distro in skip:
+                ansithemeprint([ANSIThemeStr("  ", "default"),
+                                ANSIThemeStr("Note", "note"),
+                                ANSIThemeStr(": check for ", "default"),
+                                ANSIThemeStr(f"{rp}", "programname"),
+                                ANSIThemeStr(" is skipped for Kubernetes distro ", "default"),
+                                ANSIThemeStr(f"{k8s_distro}", "programname")])
+                continue
+
             any_of_matches, all_of_matches = get_pod_set(cast(list[dict], pods), any_of, all_of)
 
             if any_of_matches or all_of_matches:
