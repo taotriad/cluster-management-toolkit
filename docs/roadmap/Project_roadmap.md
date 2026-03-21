@@ -15,6 +15,40 @@ tests have been added for the moved code.
 ## Q1 roadmap
 
 * _General_:
+    * [ ] Release __CMT__ v0.8.7.
+      * [ ] Fix Issue #9 (uninstall-cni fails if helper or configuration doesn't exist).
+    * [x] Use Pygments to do syntax highlighting instead of our own hackish solution.
+      * [x] Custom output plugin for ThemeArray.
+      * _Note:_ If a format has a pre-existing Pygments lexer it's highly likely
+        that support can and will be added on request.
+    * [ ] Convert formatters that can use Pygments' built-in lexers.
+      * [x] ASCII armored text (certificates, keys, etc).
+      * [x] INI
+      * [x] JSON
+      * [ ] NDJSON (just needs to be verified to work)
+      * [x] NGINX
+      * [ ] Perl
+      * [x] PowerShell
+      * [ ] Python
+      * [x] Python Tracebacks
+      * [ ] Ruby
+      * [x] Shell Scripts (POSIX sh, bash, dash, posh, zsh)
+      * [x] TOML
+      * [x] XML
+      * [x] YAML
+    * [ ] Convert formatters that can use built-in lexers augmented by additional filters.
+      * [x] Markdown (built-in + custom)
+    * [ ] Convert formatters that needs custom lexers.
+      * [ ] CEL
+      * [ ] HAProxy
+      * [ ] CaddyFile
+      * [ ] FluentBit
+      * [x] known_hosts
+      * [x] Mosquitto
+
+## Q2 roadmap
+
+* _General_:
     * [ ] Refactor libraries in a way that makes a __CMT__ release possible. This includes:
         * [ ] Rewrite all logging to use Python's builtin logging and register a MemoryHandler;
           this way we get flushing whenever the severity is high enough.
@@ -24,9 +58,6 @@ tests have been added for the moved code.
         * [ ] Source code.
         * [ ] Debian package.
         * [ ] Possibly via PIP?
-
-## Q2 roadmap
-
 * _Accessibility_:
     * [ ] Ensure that the Colour Vision Deficiency theme covers all relevant data.
       Using colour coding in conjunction with CVD is acceptable, but only when important
@@ -41,9 +72,6 @@ tests have been added for the moved code.
       helpers to use to process that data, a list of actions that can be performed
       on that data, as well as information about what, if any, relationships the data
       has with data in other info views.
-    * [ ] Use pygments to do syntax highlighting instead of our own hackish solution.
-      For this to work we need to write a custom output plugin, since we need the output
-      to be themestring format.
 
 ## Q3 roadmap
 

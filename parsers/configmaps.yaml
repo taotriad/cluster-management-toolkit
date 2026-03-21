@@ -18,6 +18,7 @@ configmap_signatures:
   bash:
     format_name: "BASH"
     signatures:
+      - data_suffix: ".bash"
       - data_header: "/usr/bin/env bash"
       - data_header: "/bin/bash"
       - prefix: "etcd-scripts"
@@ -265,6 +266,7 @@ configmap_signatures:
       - data_suffix: ".sh"
       - data_header: "/bin/sh"
       - data_header: "/bin/dash"
+      - data_header: "/bin/posh"
 
   perl:
     format_name: "Perl"

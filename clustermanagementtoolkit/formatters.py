@@ -2177,6 +2177,7 @@ def format_shellscript(lines: str | list[str], **kwargs: Any) -> list[list[Theme
 formatter_mapping: tuple[tuple[tuple[str, ...], tuple[str, ...], Callable], ...] = (
     (("Shell Script",), ("Shell Script",), format_shellscript),
     (("BASH",), ("BASH",), format_shellscript),
+    (("ZSH",), ("ZSH",), format_shellscript),
     (("YAML",), ("YAML",), format_yaml),
     (("JSON",), ("JSON",), format_yaml),
     (("NDJSON",), ("NDJSON",), format_yaml),
