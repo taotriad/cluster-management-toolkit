@@ -135,7 +135,9 @@ infoview:
     infogetter: "logpad_formatted"
     infogetter_args:
       path: "spec#info#readme"
-      formatter: "format_markdown"
+      formatter: "render_markdown"
+      formatter_args:
+        use_github_tags: true
     timestamps: false
   shortcuts:
     "Notes":
