@@ -2591,6 +2591,7 @@ def logpad_formatted(obj: dict, **kwargs: Any) -> list[list[ThemeRef | ThemeStr]
     paths: list[DictPath] = deep_get(kwargs, DictPath("paths"), [])
     path: DictPath = DictPath(deep_get(kwargs, DictPath("path"), ""))
     dump_formatter_tmp = deep_get(kwargs, DictPath("formatter"), "format_none")
+    formatter_args = deep_get(kwargs, DictPath("formatter_args"), {})
     dump_formatter = deep_get(formatter_allowlist, DictPath(dump_formatter_tmp))
     if dump_formatter is None:
         raise ValueError(f"{dump_formatter_tmp} is not a valid formatter; "
@@ -2608,7 +2609,8 @@ def logpad_formatted(obj: dict, **kwargs: Any) -> list[list[ThemeRef | ThemeStr]
     else:
         data = obj
 
-    return dump_formatter(data, raw=deep_get(kwargs, DictPath("_show_raw"), False))
+    return dump_formatter(data, raw=deep_get(kwargs, DictPath("_show_raw"), False),
+                          **formatter_args)
 
 
 # pylint: disable-next=too-many-locals,too-many-branches,too-many-statements
