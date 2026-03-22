@@ -345,6 +345,129 @@ def test_format_markdown(verbose: bool = False) -> tuple[str, bool]:
     return message, result
 
 
+def test_render_markdown(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = formatters.render_markdown
+
+    if result:
+        # Indata format:
+        # (lines, options, expected_result, expected_exception)
+        testdata: tuple[Any, ...] = (
+            (["|A simple|Table  |",
+              "|--------|-----|",
+              "|some data !!|foo|"],
+             {},
+             [
+                [ThemeStr("┌────────────┬─────┐", ThemeAttr("types", "generic"))],
+                [ThemeStr("│", ThemeAttr("types", "generic")),
+                 ThemeStr("A simple", ThemeAttr("types", "markdown_table_header")),
+                 ThemeStr("    │", ThemeAttr("types", "generic")),
+                 ThemeStr("Table", ThemeAttr("types", "markdown_table_header")),
+                 ThemeStr("│", ThemeAttr("types", "generic"))],
+                [ThemeStr("├────────────┼─────┤", ThemeAttr("types", "generic"))],
+                [ThemeStr("│some data !!│foo  │", ThemeAttr("types", "generic"))],
+                [ThemeStr("└────────────┴─────┘", ThemeAttr("types", "generic"))]],
+             None),
+            (["A simple|Table",
+              "--------|-----",
+              "some data !!|foo"],
+             {},
+             [
+                [ThemeStr("┌────────────┬─────┐", ThemeAttr("types", "generic"))],
+                [ThemeStr("│", ThemeAttr("types", "generic")),
+                 ThemeStr("A simple", ThemeAttr("types", "markdown_table_header")),
+                 ThemeStr("    │", ThemeAttr("types", "generic")),
+                 ThemeStr("Table", ThemeAttr("types", "markdown_table_header")),
+                 ThemeStr("│", ThemeAttr("types", "generic"))],
+                [ThemeStr("├────────────┼─────┤", ThemeAttr("types", "generic"))],
+                [ThemeStr("│some data !!│foo  │", ThemeAttr("types", "generic"))],
+                [ThemeStr("└────────────┴─────┘", ThemeAttr("types", "generic"))]],
+             None),
+            (["|Table With|Formatted Fields|",
+              "|--------|-----|",
+              "|No formatting| **formatting** no formatting|"],
+             {},
+             [
+                [ThemeStr("┌─────────────┬────────────────────────┐",
+                          ThemeAttr("types", "generic"))],
+                [ThemeStr("│", ThemeAttr("types", "generic")),
+                 ThemeStr("Table With", ThemeAttr("types", "markdown_table_header")),
+                 ThemeStr("   │", ThemeAttr("types", "generic")),
+                 ThemeStr("Formatted Fields", ThemeAttr("types", "markdown_table_header")),
+                 ThemeStr("        │", ThemeAttr("types", "generic"))],
+                [ThemeStr("├─────────────┼────────────────────────┤",
+                          ThemeAttr("types", "generic"))],
+                [ThemeStr("│No formatting│", ThemeAttr("types", "generic")),
+                 ThemeStr("formatting", ThemeAttr("types", "markdown_bold")),
+                 ThemeStr(" no formatting│", ThemeAttr("types", "generic"))],
+                [ThemeStr("└─────────────┴────────────────────────┘",
+                          ThemeAttr("types", "generic"))]],
+             None),
+            (["|Table With|Preformatted Data|",
+              "|--------|-----|",
+              "|No formatting| `cat foo | grep bar` |"],
+             {},
+             [
+                [ThemeStr("┌─────────────┬──────────────────┐",
+                          ThemeAttr("types", "generic"))],
+                [ThemeStr("│", ThemeAttr("types", "generic")),
+                 ThemeStr("Table With", ThemeAttr("types", "markdown_table_header")),
+                 ThemeStr("   │", ThemeAttr("types", "generic")),
+                 ThemeStr("Preformatted Data", ThemeAttr("types", "markdown_table_header")),
+                 ThemeStr(" │", ThemeAttr("types", "generic"))],
+                [ThemeStr("├─────────────┼──────────────────┤",
+                          ThemeAttr("types", "generic"))],
+                [ThemeStr("│No formatting│", ThemeAttr("types", "generic")),
+                 ThemeStr("cat foo | grep bar", ThemeAttr("types", "markdown_code")),
+                 ThemeStr("│", ThemeAttr("types", "generic"))],
+                [ThemeStr("└─────────────┴──────────────────┘",
+                          ThemeAttr("types", "generic"))]],
+             None),
+        )
+
+        for indata, options, expected_result, expected_exception in testdata:
+            if isinstance(indata, list):
+                indata_quoted = "\n".join(indata)
+            else:
+                indata_quoted = indata
+            indata_quoted = indata_quoted.replace("\n", "\\n")
+            try:
+                if (tmp := fun(indata, **options)) != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"           input: \"{indata_quoted}\"\n" \
+                              "         options:\n" \
+                              f"{yaml_dump(options, base_indent=17)}\n" \
+                              f"          output: {repr(tmp)}\n" \
+                              f"        expected: {expected_result}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  f"           input: \"{indata_quoted}\"\n" \
+                                  "         options:\n" \
+                                  f"{yaml_dump(options, base_indent=17)}\n" \
+                                  f"       exception: {type(e)}\n" \
+                                  f"        expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"           input: \"{indata_quoted}\"\n" \
+                              "         options:\n" \
+                              f"{yaml_dump(options, base_indent=17)}\n" \
+                              f"       exception: {type(e)}\n" \
+                              f"        expected: {expected_result}"
+                    result = False
+                    break
+    return message, result
+
+
 def test_format_binary(verbose: bool = False) -> tuple[str, bool]:
     message = ""
     result = True
@@ -2725,6 +2848,10 @@ tests: dict[tuple[str, ...], dict[str, Any]] = {
     },
     ("format_markdown",): {
         "callable": test_format_markdown,
+        "result": None,
+    },
+    ("render_markdown",): {
+        "callable": test_render_markdown,
         "result": None,
     },
     ("format_binary",): {

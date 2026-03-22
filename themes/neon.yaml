@@ -104,6 +104,7 @@ color_pairs_curses:
   markdown_header_1: [["white", "bright"], ["black", "normal"]]
   markdown_header_2: [["yellow", "bright"], ["black", "normal"]]
   markdown_header_3: [["white", "normal"], ["black", "normal"]]
+  markdown_table_header: [["white", "bright"], ["black", "normal"]]
   markdown_bold: [["green", "bright"], ["black", "normal"]]
   markdown_italics: [["cyan", "normal"], ["black", "normal"]]
   markdown_bold_italics: [["cyan", "bright"], ["black", "normal"]]
@@ -751,6 +752,7 @@ boxdrawing:
   hline: "─"
   hline_top: "─"
   hline_bottom: "─"
+  cross: "┼"
   ltee: "├"
   rtee: "┤"
   ttee: "┬"
@@ -1008,6 +1010,7 @@ types:
   markdown_header_1: ["markdown_header_1", ["underline", "bold"]]
   markdown_header_2: ["markdown_header_2", ["underline", "bold"]]
   markdown_header_3: ["markdown_header_3", ["underline"]]
+  markdown_table_header: ["markdown_table_header", "bold"]
   markdown_bold: ["markdown_bold", "bold"]
   markdown_italics: "markdown_italics"
   markdown_bold_italics: ["markdown_bold_italics", "bold"]

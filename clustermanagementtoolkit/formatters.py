@@ -64,6 +64,9 @@ from clustermanagementtoolkit.cmtio_yaml import secure_read_yaml
 from clustermanagementtoolkit.cmtpaths import HOMEDIR, SYSTEM_PARSERS_DIR, PARSER_DIR
 
 from clustermanagementtoolkit.curses_helper import ThemeAttr, ThemeRef, ThemeStr, themearray_len
+from clustermanagementtoolkit.curses_helper import themearray_to_string, themearray_strip
+from clustermanagementtoolkit.curses_helper import themearray_compact, themearray_split
+from clustermanagementtoolkit.curses_helper import themearray_flatten, themearray_replace
 
 
 class ColorSchemeEntry(TypedDict, total=True):
@@ -846,6 +849,105 @@ GITHUB_TAGS: tuple[tuple[str, str], ...] = (
 )
 
 
+def format_markdown_table(lines: list[list[ThemeRef | ThemeStr]]) -> list[list[ThemeStr]]:
+    """
+    Given suitable data create a table from ThemeArray-formatted Markdown.
+
+        Parameters:
+            lines ([[ThemeRef | ThemeStr]]): A list of themearrays
+        Returns:
+            ([[ThemeStr]])): A reformatted list of themearrays
+    """
+    headers: list[list[ThemeStr]] = []
+
+    headers = themearray_split(themearray_compact(lines[0]), separator="|")
+    headers = [themearray_compact(cast(list[ThemeRef | ThemeStr], header)) for header in headers]
+    headers = [themearray_strip(header) for header in headers]
+
+    column_count: int = len(headers) * 2 + 1
+    widths: list[int] = \
+        [themearray_len(cast(list[ThemeRef | ThemeStr], header)) for header in headers]
+    i: int = 0
+
+    rows: list[list[ThemeStr]] = []
+
+    # Calculate the widths; skip the headers
+    for line in lines[2:]:
+        row = themearray_split(themearray_compact(line), separator="|")
+        row = [themearray_compact(cast(list[ThemeRef | ThemeStr], segment)) for segment in row]
+        row = [themearray_strip(segment) for segment in row]
+        for i, field in enumerate(row):
+            try:
+                widths[i] = max(themearray_len(cast(list[ThemeRef | ThemeStr], row[i])), widths[i])
+            except IndexError:
+                pass
+
+    # We've got the widths, time to construct the table:
+
+    # First the top line
+    columns: list[list[ThemeStr]] = [[] for n in range(column_count)]
+    for i in range(len(headers)):
+        columns[i * 2] = [ThemeStr("┬", ThemeAttr("types", "generic"))]
+        columns[i * 2 + 1] = [ThemeStr("".ljust(widths[i], "─"), ThemeAttr("types", "generic"))]
+    columns[0] = [ThemeStr("┌", ThemeAttr("types", "generic"))]
+    columns.append([ThemeStr("┐", ThemeAttr("types", "generic"))])
+    rows.append(themearray_compact([x for xx in columns for x in xx]))
+
+    # Now the header
+    columns = [[] for n in range(column_count)]
+    for i, header in enumerate(headers):
+        header = themearray_replace(header, "🜂", "|")
+        # reformatted header (unless explicitly formatted)
+        if len(header) == 1:
+            header = [ThemeStr(themearray_to_string(cast(list[ThemeRef | ThemeStr], header)),
+                               ThemeAttr("types", "markdown_table_header"))]
+        columns[i * 2] = [ThemeStr("│", ThemeAttr("types", "generic"))]
+        columns[i * 2 + 1] = themearray_strip(header) \
+                         + [ThemeStr("".ljust(widths[i]
+                                              - themearray_len(cast(list[ThemeRef | ThemeStr],
+                                                                    header))),
+                                     ThemeAttr("types", "generic"))]
+    columns.append([ThemeStr("│", ThemeAttr("types", "generic"))])
+    rows.append(themearray_compact([x for xx in columns for x in xx]))
+
+    # Separator between header and data
+    columns = [[] for n in range(column_count)]
+    for i in range(len(headers)):
+        columns[i * 2] = [ThemeStr("┼", ThemeAttr("types", "generic"))]
+        columns[i * 2 + 1] = [ThemeStr("".ljust(widths[i], "─"), ThemeAttr("types", "generic"))]
+    columns[0] = [ThemeStr("├", ThemeAttr("types", "generic"))]
+    columns.append([ThemeStr("┤", ThemeAttr("types", "generic"))])
+    rows.append(themearray_compact([x for xx in columns for x in xx]))
+
+    # Data
+    for line in lines[2:]:
+        columns = [[] for n in range(column_count)]
+        row = themearray_split(themearray_compact(line), separator="|")
+        row = [themearray_compact(cast(list[ThemeRef | ThemeStr], segment)) for segment in row]
+        row = [themearray_strip(segment) for segment in row]
+        for i, field in enumerate(row):
+            columns[i * 2] = [ThemeStr("│", ThemeAttr("types", "generic"))]
+            data = themearray_replace(themearray_strip(field), "🜂", "|")
+            columns[i * 2 + 1] = data \
+                + [ThemeStr("".ljust(widths[i]
+                                     - themearray_len(cast(list[ThemeRef | ThemeStr], data))),
+                            ThemeAttr("types", "generic"))]
+        columns.append([ThemeStr("│", ThemeAttr("types", "generic"))])
+        rows.append(themearray_compact([x for xx in columns for x in xx]))
+
+    # Finally the bottom line
+    columns = [[] for n in range(column_count)]
+    for i in range(len(headers)):
+        columns[i * 2] = [ThemeStr("┴", ThemeAttr("types", "generic"))]
+        columns[i * 2 + 1] = [ThemeStr("".ljust(widths[i], "─"), ThemeAttr("types", "generic"))]
+    columns[0] = [ThemeStr("└", ThemeAttr("types", "generic"))]
+    columns.append([ThemeStr("┘", ThemeAttr("types", "generic"))])
+    rows.append(themearray_compact([x for xx in columns for x in xx]))
+
+    return rows
+
+
+# pylint: disable-next=too-many-statements,too-many-branches
 def render_markdown(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef | ThemeStr]]:
     """
     Markdown renderer; renders a Markdown document to ThemeArrays.
@@ -859,6 +961,7 @@ def render_markdown(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef
                 start ((str)): Start indicator(s)
                 include_start (bool): Include the start line
                 end ((str)): End indicator(s)
+                use_github_tags (bool): Should GitHub tags be used (includes GitHub alerts)?
         Returns:
             ([themearray]): A list of themearrays
     """
@@ -880,17 +983,99 @@ def render_markdown(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef
 
     # Replace all URLs with just their descriptions and make them bold
     # Note: Pygments does not handle nested formatting.
-    lines = re.sub(r"\[(.+?)\]\(.+?\)", r"**\1**", lines, flags=re.DOTALL)
+    lines = re.sub(r"([^!])\[(.+?)\]\(.+?\)", r"\1**\2**", lines)
 
     # TODO: we might want to add a hack to make tables look better
     # when we replace dim/bold in tables we lose the width.
 
     lexer: Lexer = MarkdownLexer()  # type: ignore
     formatter = ThemeArrayFormatter(colorscheme=COLORSCHEME_MARKDOWN,
-                                    lexer=lexer, renderer=markdown_renderer)
+                                    lexer=lexer, renderer=markdown_renderer,
+                                    use_github_alerts=use_github_tags)
     pygments.highlight(lines, lexer, formatter)
 
-    return formatter.buffer
+    formatted_data = formatter.buffer
+
+    # Check for tables
+    new_data: list[list[ThemeRef | ThemeStr]] = []
+    table = []
+    non_table = []
+    table_state = "none"
+
+    # Support non-surrounded tables
+    for line in formatted_data:
+        strline = themearray_to_string(line)
+        if table_state == "none":
+            if "|" in strline:
+                # This is possibly the starting headers of a table;
+                # strip any left- and right-side lines to simplify the parsing.
+                table.append(themearray_strip(themearray_strip(themearray_flatten(line)), "|"))
+                non_table.append(line)
+                table_state = "header"
+                continue
+
+            new_data.append(line)
+            continue
+
+        if table_state == "header":
+            # Now we want a separator
+            if "|" in strline and "---" in strline:
+                table.append(themearray_strip(themearray_strip(themearray_flatten(line)), "|"))
+                non_table.append(line)
+                table_state = "separator"
+                continue
+
+            new_data += non_table
+            table = []
+            non_table = []
+            table_state = "none"
+            continue
+
+        if table_state == "separator":
+            if "|" in strline:
+                table_state = "data"
+                table.append(themearray_strip(themearray_strip(themearray_flatten(line)), "|"))
+                non_table.append(line)
+                continue
+
+            new_data += non_table
+            table = []
+            non_table = []
+            table_state = "none"
+            continue
+
+        if table_state == "data":
+            if "|" in strline:
+                table.append(themearray_strip(themearray_strip(themearray_flatten(line)), "|"))
+                non_table.append(line)
+                continue
+
+            try:
+                tmp_table = format_markdown_table(cast(list[list[ThemeRef | ThemeStr]], table))
+                new_data += cast(list[list[ThemeRef | ThemeStr]], tmp_table)
+            except IndexError:
+                # If we get a malformed table (varying number of columns) we add
+                # the lines; don't try to reformat it.
+                new_data += non_table
+
+            table = []
+            non_table = []
+            table_state = "none"
+
+        new_data.append(line)
+
+    if table and table_state == "data":
+        try:
+            tmp_table = format_markdown_table(cast(list[list[ThemeRef | ThemeStr]], table))
+            new_data += cast(list[list[ThemeRef | ThemeStr]], tmp_table)
+        except IndexError:
+            # If we get a malformed table (varying number of columns) we add
+            # the lines; don't try to reformat it.
+            new_data += non_table
+    elif non_table:
+        new_data += non_table
+
+    return new_data
 
 
 # pylint: disable-next=too-many-locals,too-many-branches,too-many-statements
@@ -1459,8 +1644,33 @@ class MosquittoLexer(RegexLexer):
     }
 
 
+GITHUB_ALERTS: dict[str, list[ThemeRef | ThemeStr]] = {
+    "[!Note]\n": [ThemeStr("ℹ️ ", ThemeAttr("types", "generic")),
+                  ThemeStr(" Note", ThemeAttr("logview", "severity_notice"))],
+    "[!NOTE]\n": [ThemeStr("ℹ️ ", ThemeAttr("types", "generic")),
+                  ThemeStr(" Note", ThemeAttr("logview", "severity_notice"))],
+    "[!Tip]\n": [ThemeStr("💡", ThemeAttr("types", "generic")),
+                 ThemeStr(" Tip", ThemeAttr("types", "markdown_italics"))],
+    "[!TIP]\n": [ThemeStr("💡", ThemeAttr("types", "generic")),
+                 ThemeStr(" Tip", ThemeAttr("types", "markdown_italics"))],
+    "[!Important]\n": [ThemeStr("💬", ThemeAttr("types", "generic")),
+                       ThemeStr(" Important", ThemeAttr("types", "markdown_bold_italics"))],
+    "[!IMPORTANT]\n": [ThemeStr("💬", ThemeAttr("types", "generic")),
+                       ThemeStr(" Important", ThemeAttr("types", "markdown_bold_italics"))],
+    "[!Warning]\n": [ThemeStr("⚠️", ThemeAttr("types", "generic")),
+                     ThemeStr(" Warning", ThemeAttr("logview", "severity_warning"))],
+    "[!WARNING]\n": [ThemeStr("⚠️", ThemeAttr("types", "generic")),
+                     ThemeStr(" Warning", ThemeAttr("logview", "severity_warning"))],
+    "[!Caution]\n": [ThemeStr("🛑", ThemeAttr("types", "generic")),
+                     ThemeStr(" Caution", ThemeAttr("logview", "severity_error"))],
+    "[!CAUTION]\n": [ThemeStr("🛑", ThemeAttr("types", "generic")),
+                     ThemeStr(" Caution", ThemeAttr("logview", "severity_error"))],
+}
+
+
 # pylint: disable-next=too-many-branches
-def markdown_renderer(ttype: Any, value: str) -> tuple[Any, str | list[ThemeRef | ThemeStr]]:
+def markdown_renderer(ttype: Any, value: str, **kwargs: Any) \
+        -> tuple[Any, str | list[ThemeRef | ThemeStr], bool]:
     """
     Transform Markdown in a way that renders the document rather than just highlighting
     the syntax; this requires the ThemeArrayFormatter for Pygments; it does not work
@@ -1469,10 +1679,19 @@ def markdown_renderer(ttype: Any, value: str) -> tuple[Any, str | list[ThemeRef 
         Parameters:
             ttype (pygments.token.Token): The token type
             value (str): The string to render
+            **kwargs (dict[str, Any]): Keyword arguments
+                use_github_alerts (bool): Should GitHub alerts be used?
         Returns:
-            (Token, str | [ThemeRef | ThemeStr]): The reformatted data
+            (Token, str | [ThemeRef | ThemeStr], bool): The reformatted data
+                (Token): The token type
+                (str | [ThemeRef | ThemeStr]): The string to render
+                (bool): Should the line be flushed on return
     """
     new_value: str | list[ThemeRef | ThemeStr] = value
+    use_github_alerts: bool = deep_get(kwargs, DictPath("use_github_alerts"), False)
+
+    if use_github_alerts and value in GITHUB_ALERTS:
+        return ttype, deep_get(GITHUB_ALERTS, DictPath(value)), True
 
     match (ttype, value):
         case (Token.Keyword, x):
@@ -1497,7 +1716,12 @@ def markdown_renderer(ttype: Any, value: str) -> tuple[Any, str | list[ThemeRef 
             if x.startswith("\n```") and x.endswith("```\n"):
                 new_value = value[4:-4]
             elif x.startswith("`") and x.endswith("`"):
-                new_value = value[1:-1]
+                # In backticked text we need to substitute | for something else,
+                # since it can occur in tables (where | is used as separator).
+                # We then need to restore the separator later (to allow for copy'n'paste).
+                # To ensure that the width-counting remains correct we need to substitute
+                # for a single character.
+                new_value = value[1:-1].replace("|", "🜂")
         case (Token.Generic.Strong, x):
             if x.startswith("__") and x.endswith("__") \
                     or x.startswith("**") and x.endswith("**"):
@@ -1506,7 +1730,7 @@ def markdown_renderer(ttype: Any, value: str) -> tuple[Any, str | list[ThemeRef 
             if x.startswith("_") and x.endswith("_") \
                     or x.startswith("*") and x.endswith("*"):
                 new_value = value[1:-1]
-    return ttype, new_value
+    return ttype, new_value, False
 
 
 class ThemeArrayFormatter(Formatter):
@@ -1520,6 +1744,7 @@ class ThemeArrayFormatter(Formatter):
     lexer: Any | None = None
     renderer: Callable | None = None
     unknown_ttypes: set[Any] = set()
+    use_github_alerts: bool = False
 
     def __init__(self, **options: Any):
         Formatter.__init__(self, **options)
@@ -1527,7 +1752,9 @@ class ThemeArrayFormatter(Formatter):
         self.override_formatting = deep_get(options, DictPath("override_formatting"), {})
         self.lexer = deep_get(options, DictPath("lexer"))
         self.renderer = deep_get(options, DictPath("renderer"))
+        self.use_github_alerts = deep_get(options, DictPath("use_github_alerts"), False)
 
+    # pylint: disable-next=too-many-locals
     def format(self, tokensource: Generator, outfile: io.StringIO) -> None:
         # Flush the buffer
         self.buffer = []
@@ -1536,15 +1763,20 @@ class ThemeArrayFormatter(Formatter):
         line: list[ThemeRef | ThemeStr] = []
 
         for ttype, value in tokensource:
+            flush = False
+
             if self.renderer:
-                ttype, value = self.renderer(ttype, value)
+                ttype, value, flush = self.renderer(ttype, value,
+                                                      use_github_alerts=self.use_github_alerts)
             if isinstance(value, list) and value and isinstance(value[0], (ThemeRef, ThemeStr)):
                 line += value
+                if flush:
+                    self.buffer.append(line)
+                    line = []
                 continue
             # Use this when adding new formatters
             if ttype not in self.colorscheme \
                     and ttype not in self.unknown_ttypes:  # pragma: nocover
-                # sys.exit(f"{ttype=}\n{value=}")
                 errmsg = [
                     [("Encountered unknown token type ", "default"),
                      (f"{ttype}", "argument"),
