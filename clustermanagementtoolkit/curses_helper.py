@@ -2097,6 +2097,161 @@ def themearray_flatten(themearray: list[ThemeRef | ThemeStr],
     return themearray_flattened
 
 
+def themearray_compact(themearray: list[ThemeRef | ThemeStr]) -> list[ThemeStr]:
+    """
+    Replace all ThemeRefs in a ThemeArray with ThemeStr,
+    then merge all strings with the same formatting.
+
+        Parameters:
+            themearray (ThemeArray): The themearray to flatten
+            selected (bool): [optional] True is selected, False otherwise
+        Returns:
+            (ThemeArray): The flattened themearray
+        Raises:
+            ProgrammingError: themearray is not a themearray
+    """
+    themearray_flattened: list[ThemeStr] = themearray_flatten(themearray)
+    new_themearray = []
+    latest_str = ""
+    latest_attr = None
+
+    for segment in themearray_flattened:
+        string = str(segment)
+        themeattr = segment.get_themeattr()
+        if latest_attr == themeattr:
+            latest_str += string
+            continue
+
+        if latest_str and latest_attr:
+            new_themearray.append(ThemeStr(latest_str, latest_attr))
+
+        latest_str = string
+        latest_attr = themeattr
+
+    if latest_str and latest_attr:
+        new_themearray.append(ThemeStr(latest_str, latest_attr))
+
+    return new_themearray
+
+
+def themearray_replace(themearray: list[ThemeStr],
+                       oldvalue: str, newvalue: str, count: int = -1) -> list[ThemeStr]:
+    """
+    Search and replace for needle in haystack.
+    Note: Currently only single character replace is supported.
+
+        Parameters:
+            themearray (ThemeArray): The themearray to substitute characters in
+            oldvalue (str): The character search for
+            newvalue (str): The character to replace with
+        Returns:
+            (ThemeArray): The modified themearray
+    """
+    new_themearray: list[ThemeStr] = []
+
+    for segment in themearray:
+        themeattr = segment.themeattr
+        for char in str(segment):
+            if count and char == oldvalue:
+                char = newvalue
+                count -= 1
+            new_themearray.append(ThemeStr(char, themeattr))
+
+    return themearray_compact(new_themearray)
+
+
+def themearray_split(themearray: list[ThemeStr], separator: str = " ") -> list[list[ThemeStr]]:
+    """
+    Perform split() on a ThemeArray.
+
+        Parameters:
+            themearray (ThemeArray): The themearray to split
+            separator (str): The character to split on
+        Returns:
+            ([ThemeArray]): An splitted themearray
+    """
+    themearrays: list[list[ThemeStr]] = []
+    tmp_themearray: list[ThemeStr] = []
+
+    # The only easy way to split a themearray string is to iterate over every single segment,
+    # then over every single character in the segment and reconstruct the constituent parts
+    # until we encounter the separator and then flush.
+    for segment in themearray:
+        themeattr = segment.get_themeattr()
+
+        for char in str(segment):
+            if char == separator:
+                themearrays.append(tmp_themearray)
+                tmp_themearray = []
+                continue
+            tmp_themearray.append(ThemeStr(char, themeattr))
+    if tmp_themearray:
+        themearrays.append(tmp_themearray)
+
+    return themearrays
+
+
+def themearray_lstrip(themearray: list[ThemeStr], characters: str = " ") -> list[ThemeStr]:
+    """
+    Perform lstrip() on a ThemeArray.
+
+        Parameters:
+            themearray (ThemeArray): The themearray to lstrip
+            characters (str): The characters to strip
+        Returns:
+            (ThemeArray): An lstripped themearray
+    """
+    new_themearray: list[ThemeStr] = []
+
+    for segment in themearray:
+        # Skip completely empty leading elements
+        if not new_themearray:
+            if not str(segment).strip(characters):
+                continue
+            new_themearray.append(ThemeStr(str(segment).lstrip(characters),
+                                           segment.get_themeattr()))
+            continue
+        new_themearray.append(segment)
+    return new_themearray
+
+
+def themearray_rstrip(themearray: list[ThemeStr], characters: str = " ") -> list[ThemeStr]:
+    """
+    Perform rstrip() on a ThemeArray.
+
+        Parameters:
+            themearray (ThemeArray): The themearray to rstrip
+            characters (str): The characters to strip
+        Returns:
+            (ThemeArray): An rstripped themearray
+    """
+    new_themearray: list[ThemeStr] = []
+
+    for segment in reversed(themearray):
+        # Skip completely empty leading elements
+        if not new_themearray:
+            if not str(segment).strip(characters):
+                continue
+            new_themearray.append(ThemeStr(str(segment).rstrip(characters),
+                                           segment.get_themeattr()))
+            continue
+        new_themearray.append(segment)
+    return list(reversed(new_themearray))
+
+
+def themearray_strip(themearray: list[ThemeStr], characters: str = " ") -> list[ThemeStr]:
+    """
+    Perform strip() on a ThemeArray.
+
+        Parameters:
+            themearray (ThemeArray): The themearray to strip
+            characters (str): The characters to strip
+        Returns:
+            (ThemeArray): An stripped themearray
+    """
+    return themearray_lstrip(themearray_rstrip(themearray, characters), characters)
+
+
 def themearray_wrap_line(themearray: list[ThemeRef | ThemeStr],
                          maxwidth: int = -1, wrap_marker: bool = True,
                          selected: bool | None = None) -> list[list[ThemeRef | ThemeStr]]:
@@ -2114,7 +2269,8 @@ def themearray_wrap_line(themearray: list[ThemeRef | ThemeStr],
     if maxwidth == -1:
         return [themearray]
 
-    themearray_flat = themearray_flatten(themearray, selected=selected)
+    if not (themearray_flat := themearray_flatten(themearray, selected=selected)):
+        return []
 
     linebreak = ThemeRef("separators", "line_break").to_themearray()
 
