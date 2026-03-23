@@ -180,9 +180,10 @@
 		"text_attribute": {
 			"description": "Text attribute",
 			"enum": [
-				"dim",
-				"normal",
 				"bold",
+				"dim",
+				"italics",
+				"normal",
 				"underline"
 			]
 		}

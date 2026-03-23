@@ -1932,6 +1932,8 @@ def themeattr_to_curses(themeattr: ThemeAttr, selected: bool = False) -> tuple[i
             tmp |= curses.A_NORMAL
         elif item == "bold":
             tmp |= curses.A_BOLD
+        elif item == "italics":
+            tmp |= curses.A_ITALIC
         elif item == "underline":
             tmp |= curses.A_UNDERLINE
         else:

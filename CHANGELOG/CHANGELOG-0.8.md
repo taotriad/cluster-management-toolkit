@@ -56,7 +56,7 @@ or step by step.
 It also provides tools for managing the underlying hosts (and, optionally, hosts
 that are not part of the cluster) using Ansible.
 
-Finally it contains a Curses-based user interface (`cmu`) that provides an overview
+Finally it contains a Curses-based user interface (_cmu_) that provides an overview
 of the cluster objects and their relations; for instance the user interface provides
 links from the Pod view directly to its controller, config maps, logs, namespace,
 secrets, etc.
@@ -93,12 +93,12 @@ to reinstall the cluster from scratch.
   or switching views have now been fixed.
 * Several issues with borderless mode have been fixed.
 * The clusteroverview now shows the control plane version.
-* action_execute_command() is now more resilient if it receives
+* `action_execute_command()` is now more resilient if it receives
   incorrect input arguments.
 * Fix a crash in multilog view.
 * Fix a crash when exporting logs.
-* Fix a potential crash when accessing listgetter_args["label_selector"]
-* List Owner References is now a builtin-shortcuts for all info-views
+* Fix a potential crash when accessing `listgetter_args["label_selector"]`
+* List Owner References is now a builtin shortcut for all info-views
   where it hasn't been overriden.
 
 ### Changes to other files in v0.8.7
@@ -107,7 +107,7 @@ to reinstall the cluster from scratch.
   and was thus non-functional. This has been fixed.
 * cmt-install now tries to keep the version of pip3 in sync with
   the version of python3 used by the program.
-* FilePath().joinpath() now disallows joining paths that starts
+* `FilePath().joinpath()` now disallows joining paths that starts
   with the path separator; this is necessary because PurePath
   does not handle such paths in a predictable manner.
 * The default SSH key type has been changed from __ECDSA__ to __Ed25519__.
@@ -116,17 +116,19 @@ to reinstall the cluster from scratch.
 * This change also adds __Ed25519__ to the strict ssh key set;
   most security researchers seem to agree that __Ed25519__ is as secure as,
   and probably more secure than, __ECDSA__.
-* Fixed crash in get_key_value_info() if passed an empty dict
-  get_key_value_info() would crash.
-* get_list_fields() can now format selectors.
-* patch_object() is now slightly more flexible.
-* formatter_args can now be overriden using cmt.yaml.
-* generator_hex() now handles special strings.
-* searching or sorting a column with a non-basic type as values,
-  such as tuples, no longer causes a crash.
-* Harvester is now detected as a Kubernetes distro.
+* Fixed crash in `get_key_value_info()`; previously if passed an empty dict
+  `get_key_value_info()` would crash.
+* `get_list_fields()` can now format selectors.
+* `patch_object()` is now slightly more flexible.
+* `formatter_args` can now be overriden using cmt.yaml.
+* `generator_hex()` now handles special strings.
+* Searching or sorting a column with a non-basic type as values,
+  such as tuples, no longer causes a crash. The new behaviour is still
+  buggy since it doesn't sort such columns nor is searching *working*
+  but at least it doesn't crash.
+* Harvester and K8e are now detected as Kubernetes distros.
 * Kubernetes object requests can now use set-based selector operations too.
-* ConfigMap signatures are no longer hardcoded in formatters.py.
+* ConfigMap signatures are no longer hardcoded in `formatters.py`.
 * When viewing ConfigMaps, as well as when using `view_yaml` and `view_json`,
   the following formats are now formatted using Pygments instead of poorly handcrafted lexers:
   * ASCII-armored texts (certs, keys, etc)
@@ -151,9 +153,11 @@ to reinstall the cluster from scratch.
 * validate_yaml now checks for duplicate keyboard shortcuts.
 
 > [!NOTE]
-> The Markdown renderer has, for understandable reasons, some limitations, including:
+> The new Markdown renderer has, for understandable reasons,
+> some limitations, including:
 
 **Not supported and Unlikely to be**
+
 * Anything that requires rendering that cannot be handled by a text console;
   such as images, equations, GitHub custom emojis, etc.
 * Color tags.
@@ -161,21 +165,23 @@ to reinstall the cluster from scratch.
 * Old-style Markdown alerts.
 * Auto-numbering of lists.
 * Footnotes.
+* Subscript and superscript; Unicode only includes a subset of the necessary characters.
+  While we could add support for super- and subscripted digits it seems fairly pointless.
+* Strike-through; curses does not support strike-through.
 
 **Not supported, but on the TODO-list**
-* Strike-through.
-* Nested formatting and bold italic.
+
 * Horizontal rulers.
-* Mentions.
-* H4, H5, H6.
+* H5, H6.
 
 **Not supported, but on the Needs further study-list**
-* Subscript and superscript.
+
 * Center/right alignment in tables.
+* Can formatting be used in anchors?
+* Bold italic (Pygments is a limitation; best would be to submit a patch upstream).
 
 **Partially supported but needs improvement**
-* Task lists.
-* Emojis (a small subset is supported).
+
 * Alt-H1.
 * Alt-H2.
 * GitHub emojis and alerts will be enabled by default in v0.8.8.

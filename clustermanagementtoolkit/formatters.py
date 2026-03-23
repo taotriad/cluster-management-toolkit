@@ -68,6 +68,8 @@ from clustermanagementtoolkit.curses_helper import themearray_to_string, themear
 from clustermanagementtoolkit.curses_helper import themearray_compact, themearray_split
 from clustermanagementtoolkit.curses_helper import themearray_flatten, themearray_replace
 
+from clustermanagementtoolkit.github_tags import GITHUB_ALERTS, GITHUB_EMOJIS
+
 
 class ColorSchemeEntry(TypedDict, total=True):
     """
@@ -156,7 +158,7 @@ COLORSCHEME_MARKDOWN: dict[Any, ColorSchemeEntry] = {
         "formatting": ThemeAttr("types", "markdown_code"),
         "type": "code",
     },
-    # bug numbers #31563
+    # bug numbers #31563 and mentions
     Token.Name.Entity: {
         "formatting": ThemeAttr("types", "markdown_italics"),
         "type": "code",
@@ -840,19 +842,6 @@ def __str_representer(dumper: yaml.Dumper, data: Any) -> yaml.Node:
     return dumper.represent_scalar("tag:yaml.org,2002:str", data)  # pragma: no cover
 
 
-GITHUB_TAGS: tuple[tuple[str, str], ...] = (
-    (":ballot_box_with_check:", "☑️"),
-    (":book:", "📖"),
-    (":bug:", "🐛"),
-    (":chart_with_upwards_trend:", "📈"),
-    (":heavy_check_mark:", "✔️"),
-    (":recycle:", "♻️"),
-    (":seedling:", "🌱"),
-    (":sparkles:", "✨"),
-    (":white_check_mark:", "✅"),
-)
-
-
 # pylint: disable-next=too-many-statements
 def format_markdown_table(lines: list[list[ThemeRef | ThemeStr]]) -> list[list[ThemeStr]]:
     """
@@ -983,7 +972,7 @@ def render_markdown(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef
 
     # Replace github tags
     if use_github_tags:
-        for tag, subst in GITHUB_TAGS:
+        for tag, subst in GITHUB_EMOJIS:
             lines = lines.replace(tag, subst)
 
     # Replace all URLs with just their descriptions and make them bold
@@ -1031,6 +1020,7 @@ def render_markdown(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef
                 continue
 
             new_data += non_table
+            new_data.append(line)
             table = []
             non_table = []
             table_state = "none"
@@ -1038,36 +1028,37 @@ def render_markdown(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef
 
         if table_state == "separator":
             if "|" in strline:
-                table_state = "data"
                 table.append(themearray_strip(themearray_strip(themearray_flatten(line)), "|"))
                 non_table.append(line)
+                table_state = "data"
                 continue
 
             new_data += non_table
+            new_data.append(line)
             table = []
             non_table = []
             table_state = "none"
             continue
 
-        if table_state == "data":
-            if "|" in strline:
-                table.append(themearray_strip(themearray_strip(themearray_flatten(line)), "|"))
-                non_table.append(line)
-                continue
+        if "|" in strline:
+            table.append(themearray_strip(themearray_strip(themearray_flatten(line)), "|"))
+            non_table.append(line)
+            continue
 
-            try:
-                tmp_table = format_markdown_table(cast(list[list[ThemeRef | ThemeStr]], table))
-                new_data += cast(list[list[ThemeRef | ThemeStr]], tmp_table)
-            except IndexError:
-                # If we get a malformed table (varying number of columns) we add
-                # the lines; don't try to reformat it.
-                new_data += non_table
-
-            table = []
-            non_table = []
-            table_state = "none"
+        # We've run out of table; try to format and flush it,
+        # then add the remainder.
+        try:
+            tmp_table = format_markdown_table(cast(list[list[ThemeRef | ThemeStr]], table))
+            new_data += cast(list[list[ThemeRef | ThemeStr]], tmp_table)
+        except IndexError:
+            # If we get a malformed table (varying number of columns) we add
+            # the lines verbatim; don't try to reformat them.
+            new_data += non_table
 
         new_data.append(line)
+        table = []
+        non_table = []
+        table_state = "none"
 
     if table and table_state == "data":
         try:
@@ -1102,9 +1093,6 @@ def format_markdown(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef
         # codeblock, bold, italics
         (False, False, False): ThemeAttr("types", "generic"),
         (True, False, False): ThemeAttr("types", "markdown_code"),
-        (True, True, False): ThemeAttr("types", "markdown_code_bold"),
-        (True, False, True): ThemeAttr("types", "markdown_code_italics"),
-        (True, True, True): ThemeAttr("types", "markdown_code_bold_italics"),
         (False, True, False): ThemeAttr("types", "markdown_bold"),
         (False, False, True): ThemeAttr("types", "markdown_italics"),
         (False, True, True): ThemeAttr("types", "markdown_bold_italics"),
@@ -1166,7 +1154,7 @@ def format_markdown(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef
             continue
         # Replace github tags
         if use_github_tags:
-            for tag, subst in GITHUB_TAGS:
+            for tag, subst in GITHUB_EMOJIS:
                 line = line.replace(tag, subst)
         # For headers we are--for now--lazy
         # Level 1 header
@@ -1649,30 +1637,6 @@ class MosquittoLexer(RegexLexer):
     }
 
 
-GITHUB_ALERTS: dict[str, list[ThemeRef | ThemeStr]] = {
-    "[!Note]\n": [ThemeStr("ℹ️ ", ThemeAttr("types", "generic")),
-                  ThemeStr(" Note", ThemeAttr("logview", "severity_notice"))],
-    "[!NOTE]\n": [ThemeStr("ℹ️ ", ThemeAttr("types", "generic")),
-                  ThemeStr(" Note", ThemeAttr("logview", "severity_notice"))],
-    "[!Tip]\n": [ThemeStr("💡", ThemeAttr("types", "generic")),
-                 ThemeStr(" Tip", ThemeAttr("types", "markdown_italics"))],
-    "[!TIP]\n": [ThemeStr("💡", ThemeAttr("types", "generic")),
-                 ThemeStr(" Tip", ThemeAttr("types", "markdown_italics"))],
-    "[!Important]\n": [ThemeStr("💬", ThemeAttr("types", "generic")),
-                       ThemeStr(" Important", ThemeAttr("types", "markdown_bold_italics"))],
-    "[!IMPORTANT]\n": [ThemeStr("💬", ThemeAttr("types", "generic")),
-                       ThemeStr(" Important", ThemeAttr("types", "markdown_bold_italics"))],
-    "[!Warning]\n": [ThemeStr("⚠️", ThemeAttr("types", "generic")),
-                     ThemeStr(" Warning", ThemeAttr("logview", "severity_warning"))],
-    "[!WARNING]\n": [ThemeStr("⚠️", ThemeAttr("types", "generic")),
-                     ThemeStr(" Warning", ThemeAttr("logview", "severity_warning"))],
-    "[!Caution]\n": [ThemeStr("🛑", ThemeAttr("types", "generic")),
-                     ThemeStr(" Caution", ThemeAttr("logview", "severity_error"))],
-    "[!CAUTION]\n": [ThemeStr("🛑", ThemeAttr("types", "generic")),
-                     ThemeStr(" Caution", ThemeAttr("logview", "severity_error"))],
-}
-
-
 # pylint: disable-next=too-many-branches
 def markdown_renderer(ttype: Any, value: str, **kwargs: Any) \
         -> tuple[Any, str | list[ThemeRef | ThemeStr], bool]:
@@ -1708,6 +1672,10 @@ def markdown_renderer(ttype: Any, value: str, **kwargs: Any) \
             elif x == "\n> ":
                 # Quote
                 new_value = x.replace(">", "┃", count=1)
+            elif x == "[ ]":
+                new_value = x.replace("[ ]", "⬜")
+            elif x == "[x]":
+                new_value = x.replace("[x]", "✅")
         case (Token.Generic.Heading, x):
             if x.startswith("# "):
                 new_value = value[2:]
@@ -2445,6 +2413,7 @@ formatter_mapping: tuple[tuple[tuple[str, ...], tuple[str, ...], Callable], ...]
     (("HAProxy",), ("HAProxy",), format_haproxy),
     (("haproxy.cfg",), ("haproxy.cfg",), format_haproxy),
     (("CaddyFile",), ("CaddyFile",), format_caddyfile),
+    (("Markdown",), ("Markdown",), format_markdown),
     (("Mosquitto",), ("",), format_mosquitto),
     (("NGINX",), ("NGINX",), format_nginx),
     (("PowerShell",), ("PowerShell",), format_powershell),

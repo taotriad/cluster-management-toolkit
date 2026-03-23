@@ -234,6 +234,11 @@ configmap_signatures:
     signatures:
       - data_binary: [0x1f, 0x9d]
 
+  markdown:
+    format_name: "Markdown"
+    signatures:
+      - data_suffix: ".md"
+
   mosquitto:
     format_name: "Mosquitto"
     signatures:
