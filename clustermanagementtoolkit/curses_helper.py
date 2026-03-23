@@ -2157,7 +2157,7 @@ def themearray_replace(themearray: list[ThemeStr],
                 count -= 1
             new_themearray.append(ThemeStr(char, themeattr))
 
-    return themearray_compact(new_themearray)
+    return themearray_compact(cast(list[ThemeRef | ThemeStr], new_themearray))
 
 
 def themearray_split(themearray: list[ThemeStr], separator: str = " ") -> list[list[ThemeStr]]:

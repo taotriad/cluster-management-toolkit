@@ -133,19 +133,52 @@ to reinstall the cluster from scratch.
   * BASH and other shell scripts
   * INI-files
   * JSON
+  * Markdown
   * NGINX
   * PowerShell
   * Python Tracebacks
   * TOML
   * XML
   * YAML
-  The following file-formats have had their poorly handcrafted lexers
+* The following file-formats have had their poorly handcrafted lexers
   replaced by probably equally poorly handcrafted Pygments-lexers:
   * known_hosts
   * Mosquitto
+* Secrets are now using syntax-highlighting for some data-types.
 * Several of the formatters now have better test coverage.
-* Our handwritten, non-Pygments compatible, lexer for Markdown had a few bugfixes.
+* Our handwritten, non-Pygments compatible, lexer for Markdown had a few bugfixes;
+  it will be phased out in CMT v0.8.8.
 * validate_yaml now checks for duplicate keyboard shortcuts.
+
+> [!NOTE]
+> The Markdown renderer has, for understandable reasons, some limitations, including:
+
+**Not supported and Unlikely to be**
+* Anything that requires rendering that cannot be handled by a text console;
+  such as images, equations, GitHub custom emojis, etc.
+* Color tags.
+* Section links.
+* Old-style Markdown alerts.
+* Auto-numbering of lists.
+* Footnotes.
+
+**Not supported, but on the TODO-list**
+* Strike-through.
+* Nested formatting and bold italic.
+* Horizontal rulers.
+* Mentions.
+* H4, H5, H6.
+
+**Not supported, but on the Needs further study-list**
+* Subscript and superscript.
+* Center/right alignment in tables.
+
+**Partially supported but needs improvement**
+* Task lists.
+* Emojis (a small subset is supported).
+* Alt-H1.
+* Alt-H2.
+* GitHub emojis and alerts will be enabled by default in v0.8.8.
 
 ### view-file changes
 
@@ -167,10 +200,11 @@ to reinstall the cluster from scratch.
 
 ### Python
 
-_Note:_ In most/all cases there are suitable distro packages for these dependencies in SUSE,
-but the package have the Python-version included in their names, so `cmt-install`
-currently does not handle these dependencies properly. Once we switch to providing
-proper distro packages instead this problem should go away.
+> [!NOTE]
+> In most/all cases there are suitable distro packages for these dependencies in SUSE,
+> but the package have the Python-version included in their names, so `cmt-install`
+> currently does not handle these dependencies properly. Once we switch to providing
+> proper distro packages instead this problem should go away.
 
 | PIP Name       | Minimum Version | Note                                    |
 | :------------- | :-------------- | :-------------------------------------- |
@@ -212,7 +246,7 @@ proper distro packages instead this problem should go away.
 | python3-yaml                  | Debian/Ubuntu      |
 | sshpass                       | All                |
 
-**[1]**: Only one of `ruamel.yaml` and `ruyaml` is necessary.
+**[2]**: Only one of `ruamel.yaml` and `ruyaml` is necessary.
 
 ### Manual Installation or Unknown Distro Packages
 
@@ -282,8 +316,9 @@ Version: 1.19.1
 
 TBD
 
-_Note:_ These results have been manually de-duplicated. The errors in logparser.py were accounted for multiple files;
-this has been corrected.
+> [!NOTE]
+> These results have been manually de-duplicated. The errors in logparser.py were accounted for multiple times;
+> this has been corrected.
 
 ### Pylint Results for v0.8.7
 
@@ -739,7 +774,7 @@ Version: 1.19.1
 | clustermanagementtoolkit/recommended_permissions.py | Success: no issues found in 1 source file               |
 | clustermanagementtoolkit/reexecutor.py              | Success: no issues found in 1 source file               |
 
-_Note:_ These results have been manually de-duplicated. The errors in logparser.py were accounted for multiple files;
+_Note:_ These results have been manually de-duplicated. The errors in logparser.py were accounted for multiple times;
 this has been corrected.
 
 ### Pylint Results for v0.8.6

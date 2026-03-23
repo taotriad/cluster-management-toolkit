@@ -841,14 +841,19 @@ def __str_representer(dumper: yaml.Dumper, data: Any) -> yaml.Node:
 
 
 GITHUB_TAGS: tuple[tuple[str, str], ...] = (
+    (":ballot_box_with_check:", "☑️"),
     (":book:", "📖"),
     (":bug:", "🐛"),
     (":chart_with_upwards_trend:", "📈"),
+    (":heavy_check_mark:", "✔️"),
+    (":recycle:", "♻️"),
     (":seedling:", "🌱"),
     (":sparkles:", "✨"),
+    (":white_check_mark:", "✅"),
 )
 
 
+# pylint: disable-next=too-many-statements
 def format_markdown_table(lines: list[list[ThemeRef | ThemeStr]]) -> list[list[ThemeStr]]:
     """
     Given suitable data create a table from ThemeArray-formatted Markdown.
@@ -974,7 +979,7 @@ def render_markdown(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef
         lines = "\n".join(lines)
 
     # Remove all commented-out blocks
-    lines = re.sub(r"<!--.*?-->", r"", lines, flags=re.DOTALL)
+    lines = re.sub(r"<!--.*?-->\n", r"", lines, flags=re.DOTALL)
 
     # Replace github tags
     if use_github_tags:
@@ -1697,6 +1702,12 @@ def markdown_renderer(ttype: Any, value: str, **kwargs: Any) \
         case (Token.Keyword, x):
             if x in ("*", "-", "+"):
                 new_value = [ThemeRef("separators", "markdownbullet")]
+            elif x in ("\t\n> ", ">\n", "> "):
+                # Markdown alert
+                new_value = x.replace(">", "┃", count=1)
+            elif x == "\n> ":
+                # Quote
+                new_value = x.replace(">", "┃", count=1)
         case (Token.Generic.Heading, x):
             if x.startswith("# "):
                 new_value = value[2:]
@@ -1730,6 +1741,11 @@ def markdown_renderer(ttype: Any, value: str, **kwargs: Any) \
             if x.startswith("_") and x.endswith("_") \
                     or x.startswith("*") and x.endswith("*"):
                 new_value = value[1:-1]
+            elif x.startswith("> "):
+                tmp = x.split(" ", maxsplit=1)
+                return ttype, [ThemeStr("┃ ", ThemeAttr("main", "highlight")),
+                               ThemeStr(tmp[1], ThemeAttr("types", "markdown_italics"))], True
+
     return ttype, new_value, False
 
 
