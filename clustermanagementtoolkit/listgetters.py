@@ -2443,6 +2443,7 @@ def listgetter_path(obj: dict, **kwargs: Any) -> tuple[dict | list[dict], int]:
     """
     vlists = []
     vlist = []
+    tmp: Any = None
 
     rename_bare = deep_get(kwargs, DictPath("rename_bare"), None)
     flatten_dicts = deep_get(kwargs, DictPath("flatten_dicts"), False)
@@ -2477,7 +2478,7 @@ def listgetter_path(obj: dict, **kwargs: Any) -> tuple[dict | list[dict], int]:
             key_value = deep_get(path, DictPath("key_value"))
 
             if ptype == "list":
-                tmp = []
+                tmp[Any] = []
                 for item in deep_get(obj, DictPath(ppath), []):
                     tmpitem = copy.deepcopy(item)
                     if key_name is not None and key_value is not None:
