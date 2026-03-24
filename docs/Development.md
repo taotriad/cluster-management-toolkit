@@ -29,8 +29,13 @@ components are accepted.
 
 ### Prepare changelog
 
-_Note:_ These steps assumes that the changelog has been updated whenever major
-changes have been made. This covers only the final steps.
+> [!NOTE]
+> These steps assume that the changelog has been updated whenever major
+> changes have been made. This covers only the final steps.
+
+> [!TIP]
+> To verify that the changelog looks good it can be helpful to copy it
+> .cmt/version-cache/cmt_changelog.md, and check it using `cmu cv`.
 
 * [ ] Double-check that all dependencies in the *Dependencies* chapter
       matches the dependencies in `requirements.txt`.
