@@ -2882,8 +2882,8 @@ CMT_COMMANDLINE: dict[str, CommandType] = {
                      ANSIThemeStr(" (JSON)", "description")],
                     [ANSIThemeStr("yaml", "argument"),
                      ANSIThemeStr(" (YAML)", "description")],
-                #   [ANSIThemeStr("table", "argument"),
-                #    ANSIThemeStr(" (table with information)", "description")],
+                    # [ANSIThemeStr("table", "argument"),
+                    #  ANSIThemeStr(" (table with information)", "description")],
                 ],
                 "requires_arg": True,
                 "validation": {
