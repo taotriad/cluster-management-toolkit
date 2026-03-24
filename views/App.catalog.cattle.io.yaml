@@ -136,8 +136,6 @@ infoview:
     infogetter_args:
       path: "spec#info#readme"
       formatter: "render_markdown"
-      formatter_args:
-        use_github_tags: true
     timestamps: false
   shortcuts:
     "Notes":

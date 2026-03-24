@@ -361,7 +361,7 @@ def test_render_markdown(verbose: bool = False) -> tuple[str, bool]:
               "",
               "## Header 2",
               "An *italicized* message with a recycling emoji :recycle:"],
-             {},
+             {"use_github_tags": False},
              [
                  [ThemeStr("Header 1", ThemeAttr("types", "markdown_header_1"), False)],
                  [ThemeStr("A", ThemeAttr("types", "generic"), False),
@@ -393,7 +393,7 @@ def test_render_markdown(verbose: bool = False) -> tuple[str, bool]:
               "",
               "## Header 2",
               "An *italicized* message with a recycling emoji :recycle:."],
-             {"use_github_tags": True},
+             {},
              [
                  [ThemeStr("Header 1", ThemeAttr("types", "markdown_header_1"), False)],
                  [ThemeStr("A", ThemeAttr("types", "generic"), False),
@@ -424,6 +424,18 @@ def test_render_markdown(verbose: bool = False) -> tuple[str, bool]:
             (["> [!WARNING]",
               "> This is a test warning."],
              {},
+             [
+                [ThemeStr("┃ ", ThemeAttr("main", "highlight"), False),
+                 ThemeStr("⚠️ ", ThemeAttr("types", "generic"), False),
+                 ThemeStr(" Warning", ThemeAttr("types", "markdown_warning"), False)],
+                [ThemeStr("┃ ", ThemeAttr("main", "highlight"), False),
+                 ThemeStr("This is a test warning.",
+                          ThemeAttr("types", "markdown_italics"), False)]],
+             None),
+            # GitHub alert, tags not replaced
+            (["> [!WARNING]",
+              "> This is a test warning."],
+             {"use_github_tags": False},
              [
                 [ThemeStr("┃ ", ThemeAttr("main", "highlight"), False),
                  ThemeStr("[!WARNING]", ThemeAttr("types", "markdown_italics"), False)],

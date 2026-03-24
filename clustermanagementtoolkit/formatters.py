@@ -959,7 +959,7 @@ def render_markdown(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef
         Returns:
             ([themearray]): A list of themearrays
     """
-    use_github_tags: bool = deep_get(kwargs, DictPath("use_github_tags"), False)
+    use_github_tags: bool = deep_get(kwargs, DictPath("use_github_tags"), True)
 
     if deep_get(kwargs, DictPath("raw"), False):
         return format_none(lines)
@@ -1666,8 +1666,12 @@ def markdown_renderer(ttype: Any, value: str, **kwargs: Any) \
         case (Token.Keyword, x):
             if x in ("*", "-", "+"):
                 new_value = [ThemeRef("separators", "markdownbullet")]
+            elif x == "* ":
+                new_value = [ThemeRef("separators", "markdownbullet"),
+                             ThemeStr(" ", ThemeAttr("types", "generic"))]
             elif x in ("\t\n> ", ">\n", "> "):
                 # Markdown alert
+                x = x.replace("\t", "")
                 new_value = x.replace(">", "┃", count=1)
             elif x == "\n> ":
                 # Quote
@@ -1713,6 +1717,8 @@ def markdown_renderer(ttype: Any, value: str, **kwargs: Any) \
                 tmp = x.split(" ", maxsplit=1)
                 return ttype, [ThemeStr("┃ ", ThemeAttr("main", "highlight")),
                                ThemeStr(tmp[1], ThemeAttr("types", "markdown_italics"))], True
+        case (Token.Text, "\\t"):
+            new_value = ""
 
     return ttype, new_value, False
 

@@ -41,7 +41,6 @@ listview:
             include_end: true
             strip_empty_start: true
             strip_empty_end: true
-            use_github_tags: true
       - filepath: "{HOME}/.cmt/version-cache/candidate_versions.yaml"
         filetype: "yaml"
         path: "crc"
@@ -287,8 +286,6 @@ listview:
               filetype: "text"
               pathtype: "raw"
           formatter: "markdown"
-          formatter_args:
-            use_github_tags: true
       - filepath: "{HOME}/.cmt/version-cache/candidate_versions.yaml"
         filetype: "yaml"
         path: "cmctl"
@@ -328,8 +325,6 @@ listview:
               filetype: "text"
               pathtype: "raw"
           formatter: "markdown"
-          formatter_args:
-            use_github_tags: true
       - filepath: "{HOME}/.cmt/version-cache/candidate_versions.yaml"
         filetype: "yaml"
         path: "rke2"
