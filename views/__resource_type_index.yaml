@@ -3355,6 +3355,16 @@ kargowarehouses:
   - Warehouse
   - kargo.akuity.io
   viewfile: Warehouse.kargo.akuity.io.yaml
+kataconf:
+  kind:
+  - KataConfig
+  - kataconfiguration.openshift.io
+  viewfile: KataConfig.kataconfiguration.openshift.io.yaml
+kataconfs:
+  kind:
+  - KataConfig
+  - kataconfiguration.openshift.io
+  viewfile: KataConfig.kataconfiguration.openshift.io.yaml
 kfprofile:
   kind:
   - Profile

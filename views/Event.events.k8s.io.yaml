@@ -134,6 +134,10 @@ listview:
               field_colors:
                 - context: "main"
                   type: "status_done"
+            AppliedWithWarnings:
+              field_colors:
+                - context: "main"
+                  type: "status_warning"
             ApplyJob:
               field_colors:
                 - context: "main"
@@ -252,6 +256,10 @@ listview:
                 - context: "main"
                   type: "status_not_ok"
             ClusterRoleCreated:
+              field_colors:
+                - context: "main"
+                  type: "status_done"
+            ClusterRoleUpdated:
               field_colors:
                 - context: "main"
                   type: "status_done"
@@ -1376,6 +1384,10 @@ listview:
               field_colors:
                 - context: "main"
                   type: "status_warning"
+            OAuthAPIServerWaitForLatest:
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
             ObserveAPIAudiences:
               field_colors:
                 - context: "main"
@@ -1580,6 +1592,10 @@ listview:
               field_colors:
                 - context: "main"
                   type: "status_done"
+            PodDisruptionBudgetUpdated:
+              field_colors:
+                - context: "main"
+                  type: "status_done"
             PodGangCreateOrUpdateSuccessful:
               field_colors:
                 - context: "main"
@@ -1596,6 +1612,10 @@ listview:
               field_colors:
                 - context: "main"
                   type: "status_warning"
+            PreconditionsPassed:
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
             Preempted:
               field_colors:
                 - context: "main"
@@ -1860,6 +1880,10 @@ listview:
               field_colors:
                 - context: "main"
                   type: "status_warning"
+            RoleUpdated:
+              field_colors:
+                - context: "main"
+                  type: "status_done"
             RolloutAborted:
               field_colors:
                 - context: "main"
@@ -2360,6 +2384,10 @@ listview:
               field_colors:
                 - context: "main"
                   type: "status_done"
+            UpdatedCanaryCertificate:
+              field_colors:
+                - context: "main"
+                  type: "status_done"
             UpdateDeployment:
               field_colors:
                 - context: "main"
@@ -2372,6 +2400,10 @@ listview:
               field_colors:
                 - context: "main"
                   type: "status_warning"
+            Updating:
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
             Validated:
               field_colors:
                 - context: "main"
@@ -2666,6 +2698,10 @@ infoview:
                 field_colors:
                   - context: "main"
                     type: "status_done"
+              AppliedWithWarnings:
+                field_colors:
+                  - context: "main"
+                    type: "status_warning"
               ApplyJob:
                 field_colors:
                   - context: "main"
@@ -2784,6 +2820,10 @@ infoview:
                   - context: "main"
                     type: "status_not_ok"
               ClusterRoleCreated:
+                field_colors:
+                  - context: "main"
+                    type: "status_done"
+              ClusterRoleUpdated:
                 field_colors:
                   - context: "main"
                     type: "status_done"
@@ -3908,6 +3948,10 @@ infoview:
                 field_colors:
                   - context: "main"
                     type: "status_warning"
+              OAuthAPIServerWaitForLatest:
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
               ObserveAPIAudiences:
                 field_colors:
                   - context: "main"
@@ -4112,6 +4156,10 @@ infoview:
                 field_colors:
                   - context: "main"
                     type: "status_done"
+              PodDisruptionBudgetUpdated:
+                field_colors:
+                  - context: "main"
+                    type: "status_done"
               PodGangCreateOrUpdateSuccessful:
                 field_colors:
                   - context: "main"
@@ -4128,6 +4176,10 @@ infoview:
                 field_colors:
                   - context: "main"
                     type: "status_warning"
+              PreconditionsPassed:
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
               Preempted:
                 field_colors:
                   - context: "main"
@@ -4392,6 +4444,10 @@ infoview:
                 field_colors:
                   - context: "main"
                     type: "status_warning"
+              RoleUpdated:
+                field_colors:
+                  - context: "main"
+                    type: "status_done"
               RolloutAborted:
                 field_colors:
                   - context: "main"
@@ -4892,6 +4948,10 @@ infoview:
                 field_colors:
                   - context: "main"
                     type: "status_done"
+              UpdatedCanaryCertificate:
+                field_colors:
+                  - context: "main"
+                    type: "status_done"
               UpdateDeployment:
                 field_colors:
                   - context: "main"
@@ -4904,6 +4964,10 @@ infoview:
                 field_colors:
                   - context: "main"
                     type: "status_warning"
+              Updating:
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
               Validated:
                 field_colors:
                   - context: "main"
