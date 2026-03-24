@@ -1,0 +1,9 @@
+---
+- name: "openshift-sandboxed-containers"
+  show_in_selector: false
+  matchkeys:
+    - image_name: "/openshift-sandboxed-containers/osc-monitor-rhel9"
+  parser_rules:
+    - name: "key_value"
+      options:
+        allow_bare_keys: true
