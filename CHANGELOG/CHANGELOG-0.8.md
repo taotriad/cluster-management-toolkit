@@ -1,3 +1,314 @@
+* [v0.8.8](#v088)
+    * [Downloads](#downloads-for-v088)
+        * [Source Code](#source-code-for-v088)
+        * [Distro Packages](#distro-packages-for-v088)
+    * [General Release Notes](#general-release-notes-for-v088)
+    * [Urgent Upgrade Notes](#urgent-upgrade-notes-for-v088)
+    * [Changes by Component](#changes-by-component-in-v088)
+        * [Changes to _cmt_](#changes-to-cmt-in-v088)
+        * [Changes to _cmtadm_](#changes-to-cmtadm-in-v088)
+        * [Changes to _cmtinv_](#changes-to-cmtinv-in-v088)
+        * [Changes to _cmu_](#changes-to-cmu-in-v088)
+        * [Changes to other files](#changes-to-other-files-in-v088)
+    * [Known Regressions](#known-regressions-in-v088)
+    * [Dependencies](#dependencies-for-v088)
+    * [Test Results](#test-results-for-v088)
+        * [Bandit](#bandit-results-for-v088)
+        * [Coverage](#coverage-results-for-v088)
+        * [Flake8](#flake8-results-for-v088)
+        * [Mypy](#mypy-results-for-v088)
+        * [Pylint](#pylint-results-for-v088)
+        * [Regexploit](#regexploit-results-for-v088)
+        * [Ruff](#ruff-results-for-v088)
+        * [Semgrep](#semgrep-results-for-v088)
+        * [validate_playbooks](#validate_playbooks-results-for-v088)
+        * [validate_yaml](#validate_yaml-results-for-v088)
+        * [YAMLlint](#yamllint-results-for-v088)
+
+# v0.8.8
+
+## Downloads for v0.8.8
+
+### Source Code for v0.8.8
+
+Source code tarballs are created by GitHub. The source code is also
+available by checking out the git repository.
+
+### Distro packages for v0.8.8
+
+CMT v0.8.8 does not include distro packages. It is just a git tag.
+We aim for CMT v0.9.0 to be the first release with distro packages.
+
+<!--
+| Filename | sha512 hash |
+| :------- | :---------- |
+| [fixme](https://fixme) (Debian 11+ all / Ubuntu 22.04+ all / Raspberry Pi OS arm64) | `fixme` |
+| [fixme](https://fixme) (RHEL 9+ amd64) | `fixme` |
+| [fixme](https://fixme) (SLES/openSUSE 15.4+ amd64) | `fixme` |
+-->
+
+## General Release Notes for v0.8.8
+
+This is a tagged release of __Cluster Management Toolkit for Kubernetes__ (CMT).
+It provides support for setting up Kubernetes clusters either using templates (recommended)
+or step by step.
+
+It also provides tools for managing the underlying hosts (and, optionally, hosts
+that are not part of the cluster) using Ansible.
+
+Finally it contains a Curses-based user interface (_cmu_) that provides an overview
+of the cluster objects and their relations; for instance the user interface provides
+links from the Pod view directly to its controller, config maps, logs, namespace,
+secrets, etc.
+
+## Urgent Upgrade Notes for v0.8.8
+
+TBD
+
+## Changes by Component in v0.8.8
+
+### Changes to _cmt_ in v0.8.8
+
+TBD
+
+### Changes to _cmtadm_ in v0.8.8
+
+TBD
+
+### Changes to _cmtinv_ in v0.8.8
+
+TBD
+
+### Changes to _cmu_ in v0.8.8
+
+* There's now a built-in file-viewer. Currently supported formats:
+  * Markdown
+
+### Changes to other files in v0.8.8
+
+* `render_markdown` now enables GitHub tags by default. Testcases have been adjusted accordingly.
+
+### view-file changes
+
+TBD
+
+### parser-file changes
+
+TBD
+
+## Known Regressions in v0.8.8
+
+TBD
+
+## Known Issues in v0.8.8
+
+TBD
+
+## Dependencies for v0.8.8
+
+### Python
+
+> [!NOTE]
+> In most/all cases there are suitable distro packages for these dependencies in SUSE,
+> but the package have the Python-version included in their names, so `cmt-install`
+> currently does not handle these dependencies properly. Once we switch to providing
+> proper distro packages instead this problem should go away.
+
+| PIP Name       | Minimum Version | Note                                    |
+| :------------- | :-------------- | :-------------------------------------- |
+| ansible-runner | 2.1.4           | openSUSE/SLES/RHEL, unsupported distros |
+| cryptography   |                 | openSUSE, unsupported distros           |
+| jinja2         | 3.1.6           | openSUSE/SLES/RHEL, unsupported distros |
+| natsort        | 8.0.2           | openSUSE/SLES/RHEL, unsupported distros |
+| paramiko       |                 | openSUSE/SLES/RHEL, unsupported distros |
+| pygments       |                 | OpenSUSE/SLES/RHEL, unsupported distros |
+| PyYAML         | 6.0             | Unsupported distros                     |
+| ruamel.yaml    | 0.17.21         | Unsupported distros [1]                 |
+| ruyaml         | 0.91.0          | Unsupported distros [1]                 |
+| setuptools     | 78.1.1          | openSUSE/SLES/RHEL, unsupported distros |
+| ujson          | 5.12.0          | openSUSE/SLES/RHEL, unsupported distros |
+| urllib3        | 2.6.3           | openSUSE/SLES, unsupported distros      |
+| validators     | 0.22.0          | openSUSE/SLES/RHEL, unsupported distros |
+
+**[1]**: Only one of `ruamel.yaml` and `ruyaml` is necessary.
+
+### Distro Packages
+
+| Package Name                  | Distro             |
+| :---------------------------- | :----------------- |
+| ansible                       | Debian/Ubuntu/SUSE |
+| python3-ansible-runner        | Debian/Ubuntu      |
+| python3-cryptography          | Debian/RHEL/Ubuntu |
+| python3-jinja2                | Debian/Ubuntu      |
+| python3-natsort               | Debian/Ubuntu      |
+| python3-paramiko              | Debian/Ubuntu      |
+| python3-pip                   | Debian/Ubuntu      |
+| python3-pygments              | Debian/Ubuntu      |
+| python3-pyyaml                | RHEL               |
+| python3-ruyaml                | Debian/Ubuntu [2]  |
+| python3-ruamel.yaml           | Debian/Ubuntu [2]  |
+| python3-ruamel-yaml           | RHEL/SUSE          |
+| python3-ujson                 | Debian/Ubuntu      |
+| python3-urllib3               | Debian/Ubuntu/RHEL |
+| python3-validators            | Debian/Ubuntu      |
+| python3-yaml                  | Debian/Ubuntu      |
+| sshpass                       | All                |
+
+**[2]**: Only one of `ruamel.yaml` and `ruyaml` is necessary.
+
+### Manual Installation or Unknown Distro Packages
+
+| Software | Distro              |
+| :------- | :------------------ |
+| ansible  | Unsupported distros |
+| sshpass  | Unsupported distros |
+
+## Test Results for v0.8.8
+
+Before release the code quality has been checked with _pylint_, _flake8_, _mypy_, and _ruff_.
+The code has been checked for security issues using _bandit_, _regexploit_, and _semgrep_.
+The _Ansible_ playbooks have been checked using _ansible-lint_.
+YAML-files have been checked using _yamllint_ and validated against predefined schemas.
+Unit-test coverage has been measured using _python3-coverage_.
+
+The results of these tests are as follows:
+
+### Bandit Results for v0.8.8
+
+Commandline: `bandit -c .bandit`.
+Execute with `make bandit`.
+
+Version: 1.7.10
+
+Output:
+
+```
+TBD
+```
+
+### Coverage Results for v0.8.8
+
+Commandline: `python3-coverage run --branch --append <file> && python3-coverage report --sort cover --precision 1`.
+
+Execute with:
+
+```
+make coverage
+make coverage-ansible
+make coverage-cluster
+```
+
+Output:
+
+```
+TBD
+```
+
+### Flake8 Results for v0.8.8
+
+Commandline: `flake8 --max-line-length 100 --ignore F841,W503 --statistics`.
+Execute with `make flake8`.
+
+Version: 7.3.0
+
+Output:
+
+TBD
+
+### mypy Results for v0.8.8
+
+Commandline: `mypy --follow-imports silent --explicit-package-bases --ignore-missing --disallow-untyped-calls --disallow-untyped-defs --disallow-incomplete-defs --check-untyped-defs --disallow-untyped-decorators --warn-redundant-casts --warn-unused-ignores`.
+Execute with `make mypy-markdown`.
+
+Version: 1.19.1
+
+TBD
+
+> [!NOTE]
+> These results have been manually de-duplicated. The errors in logparser.py were accounted for multiple times;
+> this has been corrected.
+
+### Pylint Results for v0.8.8
+
+Commandline: `pylint --py-version 3.11 --disable W0511, similarities --enable useless-suppression`.
+Table generated with `make pylint-markdown`.
+
+Version: 4.0.5
+
+TBD
+
+### Regexploit Results for v0.8.8
+
+Commandline: `regexploit`.
+Execute with `make regexploit`.
+
+Version: 1.0.0
+
+Output:
+
+```
+TBD
+```
+
+### Ruff Results for v0.8.8
+
+Commandline: `ruff check --target-version py39`.
+Execute with `make ruff`.
+
+Version: 0.0.291
+
+Output:
+
+TBD
+
+### Semgrep Results for v0.8.8
+
+Commandline: `semgrep scan --exclude-rule "generic.secrets.security.detected-generic-secret.detected-generic-secret.semgrep-legacy.30980" --exclude-rule "python.flask.security.xss.audit.direct-use-of-jinja2.direct-use-of-jinja2" --exclude "*.yaml" --exclude "*.j2" --exclude "*.json" --timeout=0 --no-git-ignore`.
+Execute with `make semgrep`.
+
+Version: 1.156.0
+
+Output:
+
+```
+TBD
+```
+
+### validate_playbooks Results for v0.8.8
+
+Version: 26.1.1
+
+Commandline: `ansible-lint`.
+Execute with: `make validate_playbooks`.
+
+```
+TBD
+```
+
+### validate_yaml Results for v0.8.8
+
+Commandline: `tests/validate_yaml`.
+Execute with: `make validate_yaml`.
+
+Output:
+
+```
+TBD
+```
+
+### YAMLlint Results for v0.8.8
+
+Commandline: `yamllint`.
+Execute with `make yamllint`.
+
+Version: 1.37.1
+
+Output:
+
+TBD
+
+---
+
 * [v0.8.7](#v087)
     * [Downloads](#downloads-for-v087)
         * [Source Code](#source-code-for-v087)
