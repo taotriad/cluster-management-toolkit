@@ -22,6 +22,30 @@ listview:
       path: "spec#accelerator_allocation_mode"
       default: "<unset>"
       type: "str"
+  actions:
+    actionlist:
+      "Set Allocation Mode to DRA":
+        description: "Use DRA for Allocations"
+        category: "Resource Level"
+        actionfunc: "patch_resource"
+        extravars:
+          action_str: "Setting allocation mode to DRA"
+          args:
+            patch:
+              spec:
+                accelerator_allocation_mode: dra
+            strategic_merge: false
+      "Set Allocation Mode to Device Plugin":
+        description: "Use Device Plugin for Allocations"
+        category: "Resource Level"
+        actionfunc: "patch_resource"
+        extravars:
+          action_str: "Setting allocation mode to Device Plugin"
+          args:
+            patch:
+              spec:
+                accelerator_allocation_mode: device-plugin
+            strategic_merge: false
 infoview:
   name: "Cluster Policy Info"
   infopad:

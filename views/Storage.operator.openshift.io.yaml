@@ -24,18 +24,22 @@ infoview:
       loglevel:
         header: [["Loglevel:", ["main", "infoheader"]]]
         path: "spec#logLevel"
+        default: "<unset>"
         type: "str"
       management_state:
         header: [["Management State:", ["main", "infoheader"]]]
         path: "spec#managementState"
+        default: "<unset>"
         type: "str"
       operator_loglevel:
         header: [["Operator Loglevel:", ["main", "infoheader"]]]
         path: "spec#operatorLogLevel"
+        default: "<unset>"
         type: "str"
       version:
         header: [["Version:", ["main", "infoheader"]]]
         path: "status#version"
+        default: "<unset>"
         type: "raw"
         formatting:
           field_colors:

@@ -18,14 +18,16 @@ infoview:
   infopad:
     row_indexes:
       Normal:
-        fields: ["handler", "node_selector"]
+        fields: ["handler", "node_label_selector"]
     rows:
       handler:
         header: [["Handler:", ["main", "infoheader"]]]
         path: "handler"
         type: "str"
-      node_selector:
-        header: [["Node Selector:", ["main", "infoheader"]]]
+      node_label_selector:
+        header: [["Node La", ["main", "infoheader"]],
+                 ["b", ["main", "infoheader_shortcut"]],
+                 ["el Selector:", ["main", "infoheader"]]]
         paths:
           - path: ["scheduling#nodeSelector"]
             pathtype: "key_value"
@@ -58,6 +60,16 @@ infoview:
         formatter: "numerical"
         align: "right"
   shortcuts:
+    "Node Label Selector":
+      key: "b"
+      read_only: true
+      helptext: "Show Node label selector"
+      widget: "windowwidget"
+      title: "Node Label Selector:"
+      headers: ["Key:", "Value:"]
+      itemgetter: "get_key_value"
+      itemgetter_args:
+        path: "scheduling#nodeSelector"
     "Show tolerations":
       key: "t"
       read_only: true
