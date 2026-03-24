@@ -2454,12 +2454,17 @@ def listgetter_path(obj: dict, **kwargs: Any) -> tuple[dict | list[dict], int]:
 
     # A multipath is a path to a dict that in turn contains lists, where you'd want the name
     # of the path containing the lists as a newly created key
-    if multipath is not None:
-        subpaths = deep_get(kwargs, DictPath("subpaths"))
-        for path in subpaths:
+    if multipath:
+        for path in deep_get(kwargs, DictPath("subpaths"), []):
             for item in deep_get(obj, DictPath(f"{multipath}#{path}"), []):
-                tmp = copy.deepcopy(item)
-                tmp["_key"] = path
+                if isinstance(item, dict):
+                    tmp = copy.deepcopy(item)
+                    tmp["_key"] = path
+                else:
+                    tmp = {
+                        "_key": path,
+                        "_value": copy.deepcopy(item),
+                    }
                 vlist.append(tmp)
         return vlist, 200
 

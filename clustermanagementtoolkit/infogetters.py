@@ -331,9 +331,12 @@ def when_filter(when_path: dict, item: dict, key: str | None = None, value: Any 
 
         # Check for none
         if _value is None:
-            if key is None:
-                raise ValueError("key is None")
-            value = deep_get(item, DictPath(key))
+            if isinstance(item, dict):
+                if key is None:
+                    raise ValueError("item is a dict, but key is None")
+                value = deep_get(item, DictPath(key))
+            else:
+                value = item
 
         # These check whether the key has a value
         when_none = deep_get(when_condition, DictPath("none"))
@@ -947,7 +950,7 @@ def get_obj(obj: dict, field_dict: dict, field_names: list[str],
                     tmp = deep_get_with_fallback(obj, path)
                     if tmp is None:
                         tmp = []
-                    if isinstance(tmp, dict):
+                    if not isinstance(tmp, list):
                         tmp = [tmp]
                     for _tmp in tmp:
                         if not when_filter(_path, item=_tmp):
