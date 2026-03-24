@@ -104,7 +104,11 @@ def main() -> None:
 
         global_aliases.update(aliases)
 
-    secure_write_yaml(index_file, resource_type_index, sort_keys=True, yaml_version=(1, 1))
+    # Sort the dict; note: this only sorts the dict on a first-level basis,
+    # but that's all we really need.
+    sorted_dict = {key: value for key, value in sorted(resource_type_index.items(),
+                                                       key=lambda item: item[0])}
+    secure_write_yaml(index_file, sorted_dict, sort_keys=True, yaml_version=(1, 1))
 
 
 if __name__ == "__main__":
