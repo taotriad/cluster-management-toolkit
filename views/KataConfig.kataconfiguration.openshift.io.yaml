@@ -1,0 +1,210 @@
+---
+kind: "KataConfig"
+api_family: "kataconfiguration.openshift.io"
+default_command: "kataconfigs"
+command:
+  - "kataconfs"
+  - "kataconf"
+listview:
+  name: "Kata Configs"
+  group: "OpenShift"
+  field_indexes:
+    Normal:
+      fields: ["name", "in_progress", "total", "ready", "age"]
+  fields:
+    in_progress:
+      header: "In Progress:"
+      paths:
+        - path: "status#conditions"
+          pathtype: "items"
+          subpath: "status"
+          when:
+            - key: "type"
+              eq: "InProgress"
+          default: ["<unknown>"]
+    ready:
+      header: "Ready:"
+      path: "status#kataNodes#readyNodeCount"
+      type: "int"
+      formatter: "numerical"
+      align: "right"
+    total:
+      header: "Total:"
+      path: "status#kataNodes#nodeCount"
+      type: "int"
+      formatter: "numerical"
+      align: "right"
+infoview:
+  name: "Kata Config Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["check_node_eligibility", "enable_peer_pods", "loglevel",
+                 "pool_label_selector", "runtime_classes",
+                 "waiting_for_mco_to_start"]
+    rows:
+      check_node_eligibility:
+        header: [["Check Node Eligibility:", ["main", "infoheader"]]]
+        path: "spec#checkNodeEligibility"
+        default: "<unset>"
+        type: "bool"
+      enable_peer_pods:
+        header: [["Enable Peer Pods:", ["main", "infoheader"]]]
+        path: "spec#enablePeerPods"
+        default: "<unset>"
+        type: "bool"
+      loglevel:
+        header: [["Loglevel:", ["main", "infoheader"]]]
+        path: "spec#logLevel"
+        default: "<unset>"
+        type: "str"
+      pool_label_selector:
+        header: [["Pool La", ["main", "infoheader"]],
+                 ["b", ["main", "infoheader_shortcut"]],
+                 ["el Selector:", ["main", "infoheader"]]]
+        paths:
+          - path: ["spec#kataConfigPoolSelector#matchLabels"]
+            pathtype: "key_value"
+            default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "key"
+            - type: "value"
+          field_separators:
+            - type: "selector"
+      runtime_classes:
+        header: [["R", ["main", "infoheader_shortcut"]],
+                 ["untime Classes:", ["main", "infoheader"]]]
+        path: "status#runtimeClasses"
+        default: ["<none>"]
+        type: "raw"
+        formatter: "list"
+      waiting_for_mco_to_start:
+        header: [["Waiting for MCO to Start:", ["main", "infoheader"]]]
+        path: "status#waitingForMcoToStart"
+        default: "<unset>"
+        type: "bool"
+  listpad:
+    listgetter: "listgetter_path"
+    listgetter_args:
+      multipath: "status#kataNodes"
+      subpaths:
+        - "waitingToInstall"
+        - "installing"
+        - "installed"
+        - "failedToInstall"
+        - "failedToUninstall"
+        - "waitingToUninstall"
+        - "uninstalling"
+    infogetter: "generic_infogetter"
+    field_indexes:
+      Normal:
+        fields: ["name", "status"]
+    fields:
+      name:
+        header: "Name:"
+        path: "_value"
+        default: "<unset>"
+        type: "str"
+      status:
+        header: "Status:"
+        paths:
+          - path: "_key"
+            pathtype: "substitution"
+            when:
+              - eq: "failedToInstall"
+            substitute: "Failed to Install"
+          - path: "_key"
+            pathtype: "substitution"
+            when:
+              - eq: "failedToUninstall"
+            substitute: "Failed to Uninstall"
+          - path: "_key"
+            pathtype: "substitution"
+            when:
+              - eq: "installed"
+            substitute: "Installed"
+          - path: "_key"
+            pathtype: "substitution"
+            when:
+              - eq: "installing"
+            substitute: "Installing"
+          - path: "_key"
+            pathtype: "substitution"
+            when:
+              - eq: "uninstalling"
+            substitute: "Uninstalling"
+          - path: "_key"
+            pathtype: "substitution"
+            when:
+              - eq: "waitingToInstall"
+            substitute: "Waiting to Install"
+          - path: "_key"
+            pathtype: "substitution"
+            when:
+              - eq: "waitingToUninstall"
+            substitute: "Waiting to Uninstall"
+        default: "<unset>"
+        type: "str"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              "Failed to Install":
+                field_colors:
+                  - context: "main"
+                    type: "status_not_ok"
+              "Failed to Uninstall":
+                field_colors:
+                  - context: "main"
+                    type: "status_not_ok"
+              "Installed":
+                field_colors:
+                  - context: "main"
+                    type: "status_done"
+              "Installing":
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+              "Uninstalling":
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+              "Waiting to Install":
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+              "Waiting to Uninstall":
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+  shortcuts:
+    "Pool Label Selector":
+      key: "b"
+      read_only: true
+      helptext: "Show pool label selector"
+      widget: "windowwidget"
+      title: "Pool Label Selector:"
+      headers: ["Key:", "Value:"]
+      itemgetter: "get_key_value"
+      itemgetter_args:
+        path: "spec#kataConfigPoolSelector#matchLabels"
+    "Runtime Classes":
+      key: "r"
+      modifier: "shift"
+      read_only: true
+      helptext: "List Runtime Classes"
+      widget: "windowwidget"
+      title: "Runtime Classes:"
+      itemgetter: "get_list_as_list"
+      itemgetter_args:
+        path: "status#runtimeClasses"
+      selectable: true
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_selected: true
+        kind: "RuntimeClass"
+        api_family: "node.k8s.io"
+        name_path: 0
