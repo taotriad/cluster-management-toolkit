@@ -60,7 +60,7 @@ listviewheader = [
     ("[F2]", "Switch main view"),
     ("[F3]", "Switch main view (recheck available API resources)"),
     ("[F5]", "Refresh list"),
-    ("[F7]", "Perform Cluster-wide actions"),
+    ("[F7]", "Global and cluster-wide actions"),
     ("[F12]", "Show information about the program"),
     ("", ""),
 ]

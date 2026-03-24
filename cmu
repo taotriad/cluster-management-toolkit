@@ -1295,7 +1295,7 @@ def genericlistloop(stdscr: curses.window, **kwargs: Any) -> Retval:
             uip.update_window(update="false")
         # pylint: disable-next=too-many-nested-blocks
         elif c == curses.KEY_F7:
-            action_title: str = "Perform cluster-wide actions"
+            action_title: str = "Global and cluster-wide actions"
             action_src_list: dict[str, dict[str, dict[str, Any]]] = listviewactions
 
             # Populate the list of actions
@@ -1390,42 +1390,23 @@ def genericlistloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                     elif queryfunc == "filechooser":
                         # It is a programming error if either of these two are not set,
                         # so it is OK to get an exception
-                        listgetter = extravars["listgetter"]
-                        basedir = extravars["basedir"]
+                        listgetter = deep_get(extravars, DictPath("listgetter"))
+                        basedir = deep_get(extravars, DictPath("basedir"))
+                        listgetter_args = deep_get(extravars, DictPath("listgetter_args"), {})
                         selected_file = None
                         selected_ptype = None
 
                         while basedir is not None:
-                            tmp_file_list = listgetter(basedir)
+                            if not listgetter:
+                                continue
+                            tmp_file_list = listgetter(basedir=basedir, **listgetter_args)
                             file_list = []
                             for item in tmp_file_list:
                                 realpath, filename, ptype = item
-                                if ptype in ("File", "Configuration File", "Kustomization"):
-                                    fmt = ThemeAttr("windowwidget", "default")
-                                elif ptype == "<dir>":
+                                if ptype == "<dir>":
                                     fmt = ThemeAttr("windowwidget", "highlight")
                                 else:
-                                    errmsg = [
-                                        [("filechooser", "emphasis"),
-                                         (" called with invalid argument(s):", "error")],
-                                        [("ptype = ", "default"),
-                                         (f"{ptype}", "argument"),
-                                         (" (expected one of: ", "default"),
-                                         ("File", "argument"),
-                                         (", ", "default"),
-                                         ("Configuration File", "argument"),
-                                         (", ", "default"),
-                                         ("Kustomization", "argument"),
-                                         (", or ", "default"),
-                                         ("<dir>", "argument"),
-                                         (")", "default")],
-                                    ]
-                                    unformatted_msg, formatted_msg = \
-                                        ANSIThemeStr.format_error_msg(errmsg)
-                                    cmtlog.log(LogLevel.ERR,
-                                               msg=unformatted_msg,
-                                               messages=formatted_msg)
-                                    continue
+                                    fmt = ThemeAttr("windowwidget", "default")
 
                                 file_list.append({
                                     "lineattrs": WidgetLineAttrs.NORMAL,
@@ -1452,7 +1433,7 @@ def genericlistloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                                     if ptype == "<dir>":
                                         basedir = realpath
                                         uip.refresh_all()
-                                    elif ptype in ("File", "Configuration File", "Kustomization"):
+                                    else:
                                         selected_file = realpath
                                         selected_ptype = ptype
                                         basedir = None
@@ -7327,6 +7308,7 @@ def view_obj(stdscr: curses.window, **kwargs: Any) -> Retval:
                 path (str): The path to the data to view
                 include_root (bool): Include the object root (currently necessary for list objects)
                 formatter (Callable|str): The formatter to use to format the data
+                formatter_args (dict[str, Any]): Arguments to pass to the formatter
     """
     selection = deep_get(kwargs, DictPath("selection"))
     if selection is not None:
@@ -7341,6 +7323,7 @@ def view_obj(stdscr: curses.window, **kwargs: Any) -> Retval:
         title = deep_get(obj, DictPath(title_path))
     path = deep_get(kwargs, DictPath("path"))
     formatter = deep_get(kwargs, DictPath("formatter"), formatters.format_yaml)
+    formatter_args = deep_get(kwargs, DictPath("formatter_args"), {})
     if path is not None:
         if deep_get(kwargs, DictPath("include_root"), False):
             obj = [{f"{path.rsplit('#')[-1]}": deep_get(obj, DictPath(path))}]
@@ -7357,7 +7340,8 @@ def view_obj(stdscr: curses.window, **kwargs: Any) -> Retval:
             raise ValueError(f"{formatter} is not in formatter_allowlist")
         formatter = _formatter
     return resourceinfodispatch(stdscr, obj=obj, kind=("__ResourceView", ""),
-                                title=title, formatter=formatter)
+                                title=title, formatter=formatter,
+                                formatter_args=formatter_args)
 
 
 def view_yaml(stdscr: curses.window, **kwargs: Any) -> Retval:
@@ -7496,6 +7480,35 @@ def action_view_pod_logs(**kwargs: Any) -> Retval:
     uip: UIProps = deep_get(kwargs, DictPath("uip"))
     values: dict = deep_get(kwargs, DictPath("values"))
     return view_pod_logs(uip.stdscr, **values)
+
+
+def action_view_file(**kwargs: Any) -> Retval:
+    """
+    Action used to view files.
+
+        Parameters:
+            **kwargs (dict[str, Any]): Keyword arguments
+                uip (UIProps): A reference to the UI Properties object
+                values (dict[str, Any]): The items to operate on
+                formatter (str): The formatter to use
+                formatter_args (str): Arguments to pass to the formatter
+        Returns:
+            (Retval): The return value
+    """
+    uip: UIProps = deep_get(kwargs, DictPath("uip"))
+    values: dict = deep_get(kwargs, DictPath("values"))
+    formatter_str: str = deep_get(kwargs, DictPath("action#actionfunc_args#formatter"))
+    formatter: Callable = \
+        check_allowlist(formatter_allowlist, "action#formatter_allowlist", formatter_str)
+    formatter_args: dict[str, Any] = \
+        deep_get(kwargs, DictPath("action#actionfunc_args#formatter_args"), {})
+
+    path, _filetype = deep_get(values, DictPath("resource_path"), ("", ""))
+    tmp = secure_read_string(path)
+    data = {"data": tmp}
+
+    return view_obj(stdscr=uip.stdscr, formatter=formatter, obj=data,
+                    formatter_args=formatter_args, path="data")
 
 
 # pylint: disable-next=unused-argument
@@ -8640,13 +8653,17 @@ def ssh_to_host(stdscr: curses.window, **kwargs: Any) -> Retval:
     return Retval.RETURNDONE
 
 
-def list_configuration_files(basedir: FilePath) -> list[tuple[str, str, str]]:
+def list_configuration_files(**kwargs: Any) -> list[tuple[str, str, str]]:
     """
     Scan a directory and a list of all {.yml,.yaml} files
     and directories with a kustomization.yaml file in it.
 
         Parameters:
-            basedir (FilePath): The directory to scan
+            **kwargs (dict[str, Any]): Keyword arguments
+                basedir (FilePath): The directory to scan
+                kubernetes_configuration (bool): Are we looking for a Kubernetes configuration?
+                filetypes (dict[str, str]): Permitted suffixes; if empty all types are permitted,
+                                            but none of them identified.
         Returns:
             ([(str, str, str]): A list of directory entries
                 (str): The path to the file
@@ -8656,28 +8673,37 @@ def list_configuration_files(basedir: FilePath) -> list[tuple[str, str, str]]:
     plist: list[tuple[str, str, str]] = []
     files: list[tuple[str, str, str]] = []
 
+    basedir: FilePath = deep_get(kwargs, DictPath("basedir"), HOMEDIR)
+    filetypes: dict[str, str] = deep_get(kwargs, DictPath("filetypes"), {})
+    kubernetes_configuration: bool = deep_get(kwargs, DictPath("kubernetes_configuration"), False)
+
     try:
         for filename in Path(basedir).iterdir():
             if filename.name.startswith(("~", ".")):
                 continue
 
-            # real path, display name, type
-            if filename.suffix in (".yaml", ".yml"):
-                files.append((str(filename), filename.name, "Configuration File"))
-            elif filename.is_dir():
-                if Path(filename / "kustomization.yaml").is_file():
-                    files.append((str(filename), filename.name, "Kustomization"))
-                else:
-                    files.append((str(filename), filename.name, "<dir>"))
-            else:
+            if kubernetes_configuration:
+                # real path, display name, type
+                if filename.suffix in (".yaml", ".yml"):
+                    files.append((str(filename), filename.name, "Configuration File"))
+                elif filename.is_dir():
+                    if Path(filename / "kustomization.yaml").is_file():
+                        files.append((str(filename), filename.name, "Kustomization"))
+                    else:
+                        files.append((str(filename), filename.name, "<dir>"))
                 continue
+            if filename.is_dir():
+                files.append((str(filename), filename.name, "<dir>"))
+            elif filename.suffix in filetypes:
+                files.append((str(filename), filename.name,
+                             deep_get(filetypes, DictPath(filename.suffix), "")))
     except OSError:
         # Ignore non-directories
         pass
 
     # Always provide a means to navigate up in the directory tree
     plist = [(str(Path(basedir).parent), "..", "<dir>")]
-    plist += cast(list[tuple[str, str, str]], natsorted(files))
+    plist += cast(list[tuple[str, str, str]], natsorted(files, key=itemgetter(2, 0)))
 
     return plist
 
@@ -9227,6 +9253,25 @@ def selectorloop(stdscr: curses.window, **kwargs: Any) -> Retval:
 
 
 listviewactions: dict[str, dict[str, Any]] = {
+    "View Markdown document": {
+        "description": "View a Markdown document",
+        "actionfunc": action_view_file,
+        "actionfunc_args": {
+            "formatter": "render_markdown",
+        },
+        "query": "Choose Markdown document to view:",
+        "queryval": "resource_path",
+        "queryfunc": "filechooser",
+        "extravars": {
+            "listgetter": list_configuration_files,
+            "listgetter_args": {
+                "filetypes": {
+                    ".md": "Markdown",
+                }
+            },
+            "basedir": HOMEDIR,
+        },
+    },
     "Apply configuration (local)": {
         "description": "Apply configurations from file/Kustomization (autodetected)",
         "confirm": True,
@@ -9237,6 +9282,9 @@ listviewactions: dict[str, dict[str, Any]] = {
         "extravars": {
             "action": "apply",
             "listgetter": list_configuration_files,
+            "listgetter_args": {
+                "kubernetes_configuration": True,
+            },
             "basedir": DEPLOYMENT_DIR,
         },
         # "confirmfunc":
@@ -9251,6 +9299,9 @@ listviewactions: dict[str, dict[str, Any]] = {
         "extravars": {
             "action": "create",
             "listgetter": list_configuration_files,
+            "listgetter_args": {
+                "kubernetes_configuration": True,
+            },
             "basedir": DEPLOYMENT_DIR,
         },
     },
@@ -9314,6 +9365,9 @@ listviewactions: dict[str, dict[str, Any]] = {
         "extravars": {
             "action": "delete",
             "listgetter": list_configuration_files,
+            "listgetter_args": {
+                "kubernetes_configuration": True,
+            },
             "basedir": DEPLOYMENT_DIR,
         },
     },
@@ -9347,6 +9401,9 @@ listviewactions: dict[str, dict[str, Any]] = {
         "queryfunc": "filechooser",
         "extravars": {
             "listgetter": list_configuration_files,
+            "listgetter_args": {
+                "kubernetes_configuration": True,
+            },
             "basedir": DEPLOYMENT_DIR,
         },
     },
@@ -9431,6 +9488,7 @@ action_call_allowlist: dict[str, Callable] = {
 # Actionfuncs acceptable for direct use in view files from actionlists
 actionfunc_allowlist: dict[str, Callable] = {
     "action_view_pod_logs": action_view_pod_logs,
+    "action_view_file": action_view_file,
     "cordon_node": cordon_node,
     "delete_logs": delete_logs,
     "delete_resource": delete_resource,
