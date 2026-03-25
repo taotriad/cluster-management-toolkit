@@ -157,7 +157,7 @@ infoview:
   infopad:
     row_indexes:
       Normal:
-        fields: ["phase", "conditions", "scheduler",
+        fields: ["phase", "conditions", "scheduler", "node_label_selector",
                  "priority", "priority_class", "preemption_policy",
                  "qos_class", "host_ips", "pod_ips",
                  "termination_grace_period", "enable_service_links",
@@ -290,6 +290,21 @@ infoview:
         fallback_on_empty: true
         unique: true
         formatter: "address"
+      node_label_selector:
+        header: [["Node La", ["main", "infoheader"]],
+                 ["b", ["main", "infoheader_shortcut"]],
+                 ["el Selector:", ["main", "infoheader"]]]
+        paths:
+          - path: ["spec#nodeSelector"]
+            pathtype: "key_value"
+            default: ["<unset>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "key"
+            - type: "value"
+          field_separators:
+            - type: "selector"
       phase:
         header: [["Phase:", ["main", "infoheader"]]]
         paths:
@@ -588,6 +603,16 @@ infoview:
         path: "message"
         type: "str"
   shortcuts:
+    "Node Label Selector":
+      key: "b"
+      read_only: true
+      helptext: "Show Node label selector"
+      widget: "windowwidget"
+      title: "Node Label Selector:"
+      headers: ["Key:", "Value:"]
+      itemgetter: "get_key_value"
+      itemgetter_args:
+        path: "spec#nodeSelector"
     "Show affinities":
       key: "a"
       modifier: "shift"
