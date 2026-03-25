@@ -136,7 +136,7 @@ infoview:
       action_args:
         _pass_obj: true
         kind_path: "spec#output#to#kind"
-        api_version: "image.openshift.io"
+        api_family: "image.openshift.io"
         _parent_namespace_path: "metadata#namespace"
         name_path: "spec#output#to#name"
         namespace_path: "spec#output#to#namespace"
