@@ -5825,16 +5825,24 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
     },
     # perses.dev
     ("Perses", "perses.dev"): {
-        "api_paths": ["apis/perses.dev/v1alpha1/"],
+        "api_paths": ["apis/perses.dev/v1alpha2/",
+                      "apis/perses.dev/v1alpha1/"],
         "api": "perses",
     },
     ("PersesDashboard", "perses.dev"): {
-        "api_paths": ["apis/perses.dev/v1alpha1/"],
+        "api_paths": ["apis/perses.dev/v1alpha2/",
+                      "apis/perses.dev/v1alpha1/"],
         "api": "persesdashboards",
     },
     ("PersesDatasource", "perses.dev"): {
-        "api_paths": ["apis/perses.dev/v1alpha1/"],
+        "api_paths": ["apis/perses.dev/v1alpha2/",
+                      "apis/perses.dev/v1alpha1/"],
         "api": "persesdatasources",
+    },
+    ("PersesGlobalDatasource", "perses.dev"): {
+        "api_paths": ["apis/perses.dev/v1alpha2/"],
+        "api": "persesglobaldatasources",
+        "namespaced": False,
     },
     # platform.openshift.io
     ("PlatformOperator", "platform.openshift.io"): {
