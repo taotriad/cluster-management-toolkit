@@ -6870,6 +6870,7 @@ def resourceinfodispatch_with_lookup(stdscr: curses.window, **kwargs: Any) -> Re
                 api_version_path (DictPath): The path to get the API-version from
                 name (str): The object name
                 name_path (DictPath): The path to get name from
+                name_regex (str): Regex to use to extract the name
                 namespace (str): The object namespace
                 namespace_path (DictPath): The path to get namespace from
                 namespaced_name (str): A "namespace<separator>name" string
@@ -6895,7 +6896,7 @@ def resourceinfodispatch_with_lookup(stdscr: curses.window, **kwargs: Any) -> Re
                 obj = {}
                 for key, attribute in deep_get(kwargs, DictPath("_selected_objs"), []).items():
                     if isinstance(attribute, list):
-                        tmp = getattr(selected, attribute[0])
+                        tmp: Any = getattr(selected, attribute[0])
                         if tmp is not None:
                             obj[key] = tmp[attribute[1]]
                         else:
@@ -6917,6 +6918,7 @@ def resourceinfodispatch_with_lookup(stdscr: curses.window, **kwargs: Any) -> Re
         fields = selection
 
     name = deep_get(kwargs, DictPath("name"))
+    name_regex = deep_get(kwargs, DictPath("name_regex"))
     namespace = deep_get(kwargs, DictPath("namespace"))
     namespaced_name = deep_get(obj, DictPath("namespacedName"))
     namespaced_name_separator = deep_get(kwargs, DictPath("namespaced_name_separator"), "/")
@@ -7225,6 +7227,11 @@ def resourceinfodispatch_with_lookup(stdscr: curses.window, **kwargs: Any) -> Re
         tmp = namespaced_name.split(namespaced_name_separator)
         if len(tmp) == 2:
             namespace, name = tmp
+
+    if name_regex:
+        saved_name = name
+        if (tmp := re.match(name_regex, name)):
+            name = tmp[1]
 
     if name is None or not name:
         return Retval.NOMATCH
