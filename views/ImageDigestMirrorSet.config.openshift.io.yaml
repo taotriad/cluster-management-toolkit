@@ -1,0 +1,37 @@
+---
+kind: "ImageDigestMirrorSet"
+api_family: "config.openshift.io"
+default_command: "imagedigestmirrorsets"
+command:
+  - "imgdigestmirrorsets"
+  - "imgdigestmirrorset"
+listview:
+  name: "Image Digest Mirror Sets"
+  group: "OpenShift"
+  field_indexes:
+    Normal:
+      fields: ["name", "age"]
+infoview:
+  name: "Image Digest Mirror Set Info"
+  infopad:
+  listpad:
+    listgetter: "listgetter_path"
+    listgetter_args:
+      path: "spec#imageDigestMirrors"
+    infogetter: "generic_infogetter"
+    field_indexes:
+      Normal:
+        fields: ["source", "mirrors"]
+        sortcolumn: "source"
+    fields:
+      mirrors:
+        header: "Mirrors:"
+        path: "mirrors"
+        default: ["<none>"]
+        type: "raw"
+        formatter: "list"
+      source:
+        header: "Source:"
+        path: "source"
+        default: "<unset>"
+        type: "str"

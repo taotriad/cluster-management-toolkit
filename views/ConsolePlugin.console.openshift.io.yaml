@@ -18,7 +18,8 @@ infoview:
   infopad:
     row_indexes:
       Normal:
-        fields: ["controller", "backend_header", "backend_service_header",
+        fields: ["display_name", "controller",
+                 "backend_header", "backend_service_header",
                  "backend_service_name", "backend_service_namespace",
                  "backend_service_base_path", "backend_service_port",
                  "backend_type", "i18n_header", "i18n_load_type"]
@@ -82,6 +83,10 @@ infoview:
           field_separators:
             - type: "kind_api_group"
             - type: "kind"
+      display_name:
+        header: [["Display Name:", ["main", "infoheader"]]]
+        path: "spec#displayName"
+        type: "str"
       i18n_header:
         header: [["Internationalization (i18n):", ["main", "infoheader"]]]
       i18n_load_type:

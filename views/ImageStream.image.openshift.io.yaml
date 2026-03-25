@@ -32,6 +32,7 @@ listview:
           pathtype: "items"
           subpaths:
             - "tag"
+          default: ["<none>"]
       type: "raw"
       formatter: "list"
       formatting:
@@ -47,15 +48,18 @@ infoview:
     rows:
       image_repository:
         header: [["Docker Image Repository:", ["main", "infoheader"]]]
-        path: "status#publicDockerImageRepository"
+        path: "status#dockerImageRepository"
+        default: "<unset>"
         type: "str"
       lookup_policy:
         header: [["Lookup Policy:", ["main", "infoheader"]]]
         path: "spec#lookupPolicy#local"
+        default: "<unset>"
         type: "bool"
       public_image_repository:
         header: [["Public Docker Image Repository:", ["main", "infoheader"]]]
         path: "status#publicDockerImageRepository"
+        default: "<unset>"
         type: "str"
       tags:
         header: [["Tags:", ["main", "infoheader"]]]
@@ -64,6 +68,7 @@ infoview:
             pathtype: "items"
             subpaths:
               - "tag"
+            default: ["<none>"]
         type: "raw"
         formatter: "list"
         formatting:

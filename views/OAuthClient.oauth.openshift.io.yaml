@@ -14,18 +14,25 @@ listview:
   field_indexes:
     Wide:
       fields: ["name", "secret", "www_challenge", "token_max_age",
-               "redirect_uris", "age"]
+               "grant_method", "redirect_uris", "age"]
     Normal:
       fields: ["name", "secret", "www_challenge", "token_max_age", "age"]
   fields:
+    grant_method:
+      header: "Grant Method:"
+      path: "grantMethod"
+      default: "<unset>"
+      type: "str"
     redirect_uris:
       header: "Redirect URIs:"
       path: "redirectURIs"
+      default: ["<none>"]
       type: "raw"
       formatter: "list"
     secret:
       header: "Secret:"
       path: "secret"
+      default: "<unset>"
       type: "str"
     token_max_age:
       header: "Token Max Age:"
@@ -37,16 +44,21 @@ listview:
     www_challenge:
       header: "WWW Challenge:"
       path: "respondWithChallenges"
-      type: "bool"
       default: false
+      type: "bool"
 infoview:
   name: "OAuth Client Info"
   infopad:
     row_indexes:
       Normal:
         fields: ["secret", "www_challenge",
-                 "token_max_age", "redirect_uris"]
+                 "token_max_age", "grant_method", "redirect_uris"]
     rows:
+      grant_method:
+        header: [["Grant Method:", ["main", "infoheader"]]]
+        path: "grantMethod"
+        default: "<unset>"
+        type: "str"
       secret:
         header: [["Secret:", ["main", "infoheader"]]]
         path: "secret"

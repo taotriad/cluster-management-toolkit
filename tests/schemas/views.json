@@ -2137,6 +2137,10 @@
 														}
 													]
 												},
+												"name_regex": {
+													"description": "A regex to use to extract a name",
+													"type": "string"
+												},
 												"namespace": {
 													"description": "The namespace of the object",
 													"type": "string"

@@ -20,7 +20,7 @@ infoview:
   infopad:
     row_indexes:
       Normal:
-        fields: ["loglevel", "operator_loglevel",
+        fields: ["plugins", "loglevel", "operator_loglevel",
                  "management_state", "ready_replicas"]
     rows:
       loglevel:
@@ -35,12 +35,29 @@ infoview:
         header: [["Operator Loglevel:", ["main", "infoheader"]]]
         path: "spec#operatorLogLevel"
         type: "str"
+      plugins:
+        header: [["P", ["main", "infoheader_shortcut"]],
+                 ["lugins:", ["main", "infoheader"]]]
+        path: "spec#plugins"
+        default: ["<none>"]
+        type: "raw"
+        formatter: "list"
       ready_replicas:
         header: [["Ready Replicas:", ["main", "infoheader"]]]
         path: "status#readyReplicas"
         type: "int"
         formatter: "numerical"
   shortcuts:
+    "List pluginss":
+      key: "p"
+      modifier: "shift"
+      read_only: true
+      helptext: "List plugins"
+      widget: "windowwidget"
+      title: "Plugins:"
+      itemgetter: "get_list_as_list"
+      itemgetter_args:
+        path: "spec#plugins"
     "List generations":
       key: "g"
       read_only: true

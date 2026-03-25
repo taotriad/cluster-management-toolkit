@@ -16,16 +16,22 @@ infoview:
   infopad:
     row_indexes:
       Normal:
-        fields: ["domain", "apps_domain"]
+        fields: ["domain", "apps_domain", "default_placement"]
     rows:
       apps_domain:
         header: [["Apps Domain:", ["main", "infoheader"]]]
         path: "spec#appsDomain"
         default: "<unset>"
         type: "str"
+      default_placement:
+        header: [["Default Placement:", ["main", "infoheader"]]]
+        path: "status#defaultPlacement"
+        default: "<unset>"
+        type: "str"
       domain:
         header: [["Domain:", ["main", "infoheader"]]]
         path: "spec#domain"
+        default: "<unset>"
         type: "str"
   listpad:
     listgetter: "listgetter_path"

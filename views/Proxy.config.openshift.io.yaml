@@ -16,8 +16,26 @@ infoview:
   infopad:
     row_indexes:
       Normal:
-        fields: ["trusted_ca"]
+        fields: ["http_proxy", "https_proxy", "no_proxy", "trusted_ca"]
     rows:
+      http_proxy:
+        header: [["HTTP Proxy:", ["main", "infoheader"]]]
+        paths:
+          - path: ["status#httpProxy", "spec#httpProxy"]
+            pathtype: "value"
+        formatter: "address"
+      https_proxy:
+        header: [["HTTPS Proxy:", ["main", "infoheader"]]]
+        paths:
+          - path: ["status#httpsProxy", "spec#httpProxy"]
+            pathtype: "value"
+        formatter: "address"
+      no_proxy:
+        header: [["No Proxy:", ["main", "infoheader"]]]
+        paths:
+          - path: ["status#noProxy", "spec#httpProxy"]
+            pathtype: "value"
+        type: "str"
       trusted_ca:
         header: [["Trusted CA:", ["main", "infoheader"]]]
         paths:

@@ -16,6 +16,7 @@ listview:
     ready_replicas:
       header: "Ready Replicas:"
       path: "status#readyReplicas"
+      default: "<unset>"
       type: "int"
       formatter: "numerical"
       align: "right"
@@ -42,6 +43,7 @@ infoview:
       ready_replicas:
         header: [["Ready Replicas:", ["main", "infoheader"]]]
         path: "status#readyReplicas"
+        default: "<unset>"
         type: "int"
         formatter: "numerical"
   shortcuts:

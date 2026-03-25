@@ -1,0 +1,37 @@
+---
+kind: "ImageTagMirrorSet"
+api_family: "config.openshift.io"
+default_command: "imagetagmirrorsets"
+command:
+  - "imgtagmirrorsets"
+  - "imgtagmirrorset"
+listview:
+  name: "Image Tag Mirror Sets"
+  group: "OpenShift"
+  field_indexes:
+    Normal:
+      fields: ["name", "age"]
+infoview:
+  name: "Image Tag Mirror Set Info"
+  infopad:
+  listpad:
+    listgetter: "listgetter_path"
+    listgetter_args:
+      path: "spec#imageTagMirrors"
+    infogetter: "generic_infogetter"
+    field_indexes:
+      Normal:
+        fields: ["source", "mirrors"]
+        sortcolumn: "source"
+    fields:
+      source:
+        header: "Source:"
+        path: "source"
+        default: "<unset>"
+        type: "str"
+      mirrors:
+        header: "Mirrors:"
+        path: "mirrors"
+        default: ["<none>"]
+        type: "raw"
+        formatter: "list"

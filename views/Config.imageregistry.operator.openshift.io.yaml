@@ -5,18 +5,40 @@ default_command: "configs.imageregistry.operator.openshift.io"
 command:
   - "configs.imageregistry"
   - "config.imageregistry"
+  - "confs.imgreg"
+  - "conf.imgreg"
 listview:
   name: "Configs"
   group: "OpenShift"
   field_indexes:
     Normal:
-      fields: ["name", "ready_replicas", "age"]
+      fields: ["name", "desired_replicas", "ready_replicas", "age"]
   fields:
-    ready_replicas:
-      header: "Ready Replicas:"
-      path: "status#readyReplicas"
+    desired_replicas:
+      header: "Desired Replicas:"
+      path: "spec#replicas"
       type: "int"
       formatter: "numerical"
+      align: "right"
+    ready_replicas:
+      header: "Ready Replicas:"
+      paths:
+        - path: ["status#readyReplicas", "spec#replicas"]
+          pathtype: "comparison"
+          default: [0, 0]
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          ranges:
+            - min: 0
+              max: 1
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+            - default: true
+              field_colors:
+                - context: "main"
+                  type: "status_not_ok"
       align: "right"
 infoview:
   name: "Config Info"
@@ -26,14 +48,20 @@ infoview:
         fields: ["http_secret", "default_route", "proxy_header",
                  "proxy_http_proxy", "proxy_https_proxy", "proxy_no_proxy",
                  "loglevel", "operator_loglevel", "management_state",
+                 "node_label_selector",
                  "storage_header", "storage_managed",
                  "storage_management_state", "storage_pvc_claim",
-                 "rollout_strategy", "replicas", "ready_replicas"]
+                 "rollout_strategy", "desired_replicas", "ready_replicas"]
     rows:
       default_route:
         header: [["Default Route:", ["main", "infoheader"]]]
         path: "spec#defaultRoute"
         type: "str"
+      desired_replicas:
+        header: [["Desired Replicas:", ["main", "infoheader"]]]
+        path: "spec#replicas"
+        type: "int"
+        formatter: "numerical"
       http_secret:
         header: [["HTTP Secret:", ["main", "infoheader"]]]
         path: "spec#httpSecret"
@@ -46,10 +74,23 @@ infoview:
         header: [["Management State:", ["main", "infoheader"]]]
         path: "spec#managementState"
         type: "str"
+      node_label_selector:
+        header: [["Node La", ["main", "infoheader"]],
+                 ["b", ["main", "infoheader_shortcut"]],
+                 ["el Selector:", ["main", "infoheader"]]]
+        paths:
+          - path: ["spec#nodeSelector"]
+            pathtype: "key_value"
+            default: ["<unset>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "key"
+            - type: "value"
+          field_separators:
+            - type: "selector"
       proxy_header:
         header: [["Proxy:", ["main", "infoheader"]]]
-        path: "spec#operatorLogLevel"
-        type: "str"
       proxy_http_proxy:
         header: [["  HTTP Proxy:", ["main", "infoheader"]]]
         path: "spec#proxy#httpProxy"
@@ -72,11 +113,6 @@ infoview:
       ready_replicas:
         header: [["Ready Replicas:", ["main", "infoheader"]]]
         path: "status#readyReplicas"
-        type: "int"
-        formatter: "numerical"
-      replicas:
-        header: [["Replicas:", ["main", "infoheader"]]]
-        path: "spec#replicas"
         type: "int"
         formatter: "numerical"
       rollout_strategy:
@@ -125,6 +161,16 @@ infoview:
         api_group_path: 1
         namespace_path: 2
         name_path: 3
+    "Node Label Selector":
+      key: "b"
+      read_only: true
+      helptext: "Show Node label selector"
+      widget: "windowwidget"
+      title: "Node Label Selector:"
+      headers: ["Key:", "Value:"]
+      itemgetter: "get_key_value"
+      itemgetter_args:
+        path: "spec#nodeSelector"
     "Persistent Volume Claim":
       key: "p"
       modifier: "shift"

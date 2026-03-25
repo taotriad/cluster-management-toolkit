@@ -28,6 +28,7 @@ infoview:
     row_indexes:
       Normal:
         fields: ["infrastructure_name", "infrastructure_topology",
+                 "control_plane_topology",
                  "api_server_header", "api_server_url",
                  "api_server_internal_uri", "etcd_discovery_domain",
                  "platform_header", "platform_platform",
@@ -51,6 +52,11 @@ infoview:
             type: "str"
             fallback_on_empty: true
             default: "<empty>"
+      control_plane_topology:
+        header: [["Control Plane Topology:", ["main", "infoheader"]]]
+        path: "status#controlPlaneTopology"
+        default: "<unset>"
+        type: "str"
       etcd_discovery_domain:
         header: [["etcd Discovery Domain:", ["main", "infoheader"]]]
         path: "status#etcdDiscoveryDomain"

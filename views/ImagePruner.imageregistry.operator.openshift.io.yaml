@@ -7,7 +7,49 @@ listview:
   group: "OpenShift"
   field_indexes:
     Normal:
-      fields: ["name", "age"]
+      fields: ["name", "suspended", "age"]
+  fields:
+    suspended:
+      header: "Suspended:"
+      path: "spec#suspend"
+      default: false
+      type: "bool"
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          mappings:
+            "False":
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+            "True":
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+  actions:
+    actionlist:
+      "Resume resource":
+        description: "Resume resource"
+        category: "Resource Level"
+        actionfunc: "patch_resource"
+        extravars:
+          action_str: "Resuming"
+          args:
+            patch:
+              spec:
+                suspend: false
+            strategic_merge: true
+      "Suspend resource":
+        description: "Suspend resource"
+        category: "Resource Level"
+        actionfunc: "patch_resource"
+        extravars:
+          action_str: "Suspending"
+          args:
+            patch:
+              spec:
+                suspend: true
+            strategic_merge: true
 infoview:
   name: "Image Pruner Info"
   infopad:
@@ -17,7 +59,7 @@ infoview:
                  "failed_jobs_history_limit",
                  "ignore_invalid_image_references",
                  "keep_tag_revisions",
-                 "loglevel", "schedule", "suspend"]
+                 "loglevel", "schedule", "suspended"]
     rows:
       failed_jobs_history_limit:
         header: [["Failed Jobs History Limit:", ["main", "infoheader"]]]
@@ -48,7 +90,19 @@ infoview:
         path: "spec#successfulJobsHistoryLimit"
         type: "int"
         formatter: "numerical"
-      suspend:
-        header: [["Suspend:", ["main", "infoheader"]]]
+      suspended:
+        header: [["Suspended:", ["main", "infoheader"]]]
         path: "spec#suspend"
         type: "bool"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              "False":
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+              "True":
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"

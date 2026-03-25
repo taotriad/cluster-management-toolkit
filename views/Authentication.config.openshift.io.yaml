@@ -35,6 +35,7 @@ infoview:
       service_account_issuer:
         header: [["Service Account Issuer:", ["main", "infoheader"]]]
         path: "spec#serviceAccountIssuer"
+        fallback_on_empty: true
         default: "https://kubernetes.default.svc"
         type: "str"
       type:

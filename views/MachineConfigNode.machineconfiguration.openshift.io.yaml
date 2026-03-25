@@ -116,6 +116,10 @@ listview:
               field_colors:
                 - context: "main"
                   type: "status_not_ok"
+            "<unset>":
+              field_colors:
+                - context: "types"
+                  type: "unset"
     resumed:
       header: "Resumed:"
       paths:
@@ -166,6 +170,10 @@ listview:
               field_colors:
                 - context: "main"
                   type: "status_not_ok"
+            "<unset>":
+              field_colors:
+                - context: "types"
+                  type: "unset"
     update_complete:
       header: "Update Complete:"
       paths:

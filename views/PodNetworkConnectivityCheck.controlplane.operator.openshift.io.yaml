@@ -41,7 +41,7 @@ infoview:
         type: "str"
       target_endpoint:
         header: [["Target Endpoint:", ["main", "infoheader"]]]
-        path: "spec#sourcePad"
+        path: "spec#targetEndpoint"
         default: "<none>"
         type: "raw"
         formatter: "address"

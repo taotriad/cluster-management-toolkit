@@ -1,0 +1,155 @@
+---
+kind: "BuildConfig"
+api_family: "build.openshift.io"
+default_command: "buildconfigs.openshift.io"
+command:
+  - "buildconfs"
+  - "buildconf"
+  - "buildcfgs"
+  - "buildcfg"
+listview:
+  name: "Build Configs"
+  group: "OpenShift"
+  field_indexes:
+    Normal:
+      fields: ["namespace", "name", "last_version", "age"]
+  fields:
+    last_version:
+      header: "Last Version:"
+      path: "status#lastVersion"
+      default: "<unset>"
+      type: "int"
+      formatter: "numerical"
+      align: "right"
+infoview:
+  name: "Build Config Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["run_policy", "node_label_selector",
+                 "successful_builds_history_limit",
+                 "failed_builds_history_limit",
+                 "strategy",
+                 "source_type", "output", "image_labels", "last_version"]
+    rows:
+      failed_builds_history_limit:
+        header: [["Failed Builds History Limit:", ["main", "infoheader"]]]
+        path: "spec#failedBuildsHistoryLimit"
+        type: "int"
+        formatter: "numerical"
+      last_version:
+        header: [["Last Version:", ["main", "infoheader"]]]
+        path: "status#lastVersion"
+        default: "<unset>"
+        type: "int"
+        formatter: "numerical"
+      image_labels:
+        header: [["Ima", ["main", "infoheader"]],
+                 ["g", ["main", "infoheader_shortcut"]],
+                 ["e Labels:", ["main", "infoheader"]]]
+        paths:
+          - path: ["spec#output#imageLabels"]
+            pathtype: "key_value"
+            default: ["<unset>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "key"
+            - type: "value"
+          field_separators:
+            - type: "selector"
+      node_label_selector:
+        header: [["Node La", ["main", "infoheader"]],
+                 ["b", ["main", "infoheader_shortcut"]],
+                 ["el Selector:", ["main", "infoheader"]]]
+        paths:
+          - path: ["spec#nodeSelector"]
+            pathtype: "key_value"
+            default: ["<unset>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "key"
+            - type: "value"
+          field_separators:
+            - type: "selector"
+      output:
+        header: [["O", ["main", "infoheader"]],
+                 ["u", ["main", "infoheader_shortcut"]],
+                 ["tput:", ["main", "infoheader"]]]
+        paths:
+          - path: [["spec#output#to#kind"], ["spec#output#to#name"]]
+            pathtype: "tuple"
+            default: ["<unset>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "kind"
+            - type: "generic"
+      run_policy:
+        header: [["Run Policy:", ["main", "infoheader"]]]
+        path: "spec#runPolicy"
+        default: "<unset>"
+        type: "str"
+      source_type:
+        header: [["Source Type:", ["main", "infoheader"]]]
+        path: "spec#source#type"
+        default: "<unset>"
+        type: "str"
+      strategy:
+        header: [["Strategy:", ["main", "infoheader"]]]
+        path: "spec#strategy#type"
+        default: "<unset>"
+        type: "str"
+      successful_builds_history_limit:
+        header: [["Successful Builds History Limit:", ["main", "infoheader"]]]
+        path: "spec#successfulBuildsHistoryLimit"
+        type: "int"
+        formatter: "numerical"
+  shortcuts:
+    "Node Label Selector":
+      key: "b"
+      read_only: true
+      helptext: "Show Node label selector"
+      widget: "windowwidget"
+      title: "Node Label Selector:"
+      headers: ["Key:", "Value:"]
+      itemgetter: "get_key_value"
+      itemgetter_args:
+        path: "spec#nodeSelector"
+    "Image Labels":
+      key: "g"
+      read_only: true
+      helptext: "List image labels"
+      widget: "windowwidget"
+      title: "Image Labels:"
+      headers: ["Key:", "Value:"]
+      itemgetter: "get_key_value"
+      itemgetter_args:
+        path: "spec#output#imageLabels"
+    "Open output":
+      key: "u"
+      read_only: true
+      helptext: "Open info page for output"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind_path: "spec#output#to#kind"
+        api_version: "image.openshift.io"
+        _parent_namespace_path: "metadata#namespace"
+        name_path: "spec#output#to#name"
+        namespace_path: "spec#output#to#namespace"
+        name_regex: "(.*?):.*"
+    "Triggers":
+      key: "t"
+      read_only: true
+      helptext: "View triggers"
+      title: "Triggers:"
+      action: "call"
+      action_call: "view_yaml"
+      action_args:
+        title: "Triggers"
+        _pass_obj: true
+        path: "spec#triggers"
+        include_root: true

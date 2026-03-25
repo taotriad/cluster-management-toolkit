@@ -91,7 +91,6 @@ listview:
         confirm: true
         actionfunc: "delete_resource"
       "Resume resource":
-        # Requires Kubernetes 1.22+
         description: "Resume resource"
         category: "Resource Level"
         actionfunc: "patch_resource"
@@ -103,7 +102,6 @@ listview:
                 suspend: false
             strategic_merge: true
       "Suspend resource":
-        # Requires Kubernetes 1.22+
         description: "Suspend resource"
         category: "Resource Level"
         actionfunc: "patch_resource"

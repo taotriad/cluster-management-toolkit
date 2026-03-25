@@ -7,14 +7,22 @@ listview:
   group: "OpenShift"
   field_indexes:
     Normal:
-      fields: ["name", "age"]
+      fields: ["name", "ready_replicas", "age"]
+  fields:
+    ready_replicas:
+      header: "Ready Replicas:"
+      path: "status#readyReplicas"
+      default: "<unset>"
+      type: "int"
+      formatter: "numerical"
+      align: "right"
 infoview:
   name: "CSI Snapshot Controller Info"
   infopad:
     row_indexes:
       Normal:
         fields: ["loglevel", "operator_loglevel",
-                 "management_state"]
+                 "management_state", "ready_replicas"]
     rows:
       loglevel:
         header: [["Loglevel:", ["main", "infoheader"]]]
@@ -28,6 +36,12 @@ infoview:
         header: [["Operator Loglevel:", ["main", "infoheader"]]]
         path: "spec#operatorLogLevel"
         type: "str"
+      ready_replicas:
+        header: [["Ready Replicas:", ["main", "infoheader"]]]
+        path: "status#readyReplicas"
+        default: "<unset>"
+        type: "int"
+        formatter: "numerical"
   shortcuts:
     "List generations":
       key: "g"
