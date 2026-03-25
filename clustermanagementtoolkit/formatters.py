@@ -143,6 +143,11 @@ COLORSCHEME_MARKDOWN: dict[Any, ColorSchemeEntry] = {
         "formatting": ThemeAttr("types", "markdown_header_2"),
         "type": "header",
     },
+    # ___text___ ***text***
+    Token.Generic.EmphStrong: {
+        "formatting": ThemeAttr("types", "markdown_bold_italics"),
+        "type": "text",
+    },
     # __text__ **text**
     Token.Generic.Strong: {
         "formatting": ThemeAttr("types", "markdown_bold"),

@@ -1022,7 +1022,7 @@ types:
   markdown_table_header: ["markdown_table_header", "bold"]
   markdown_bold: ["markdown_bold", "bold"]
   markdown_italics: ["markdown_italics", "italics"]
-  markdown_bold_italics: ["markdown_bold_italics", "bold"]
+  markdown_bold_italics: ["markdown_bold_italics", ["bold", "italics"]]
   markdown_code: "markdown_code"
   matchbullet: "matchbullet"
   mem: "type_mem"
