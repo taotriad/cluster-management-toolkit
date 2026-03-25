@@ -1460,45 +1460,55 @@ def genericlistloop(stdscr: curses.window, **kwargs: Any) -> Retval:
 
                 uip.force_update()
                 continue
-        elif c == ord("N"):
+        elif c in (ord("w"), ord("A"), ord("N")):
             if not is_namespaced:
                 continue
 
-            all_ns = "<All>"
-            if selected_namespace == "":
-                preselection: str | set = all_ns
-            else:
-                preselection = selected_namespace
-            namespace_list = [{
-                "lineattrs": WidgetLineAttrs.NORMAL,
-                "columns": [[ThemeStr(f"{all_ns}", ThemeAttr("windowwidget", "default"))]],
-                "retval": all_ns,
-            }]
+            if c == ord("w"):
+                if (selected := uip.get_selected()):
+                    selected_namespace = selected.namespace
+            elif c in (ord("A"), ord("N")):
+                all_ns = "<All>"
 
-            tmp, status = \
-                kh.get_list_by_kind_namespace(("Namespace", ""), "", resource_cache=kh_cache)
-            if status == 200:
-                for ns in (deep_get(item, DictPath("metadata#name")) for item in tmp):
-                    namespace_list.append({
+                tmp, status = \
+                    kh.get_list_by_kind_namespace(("Namespace", ""), "", resource_cache=kh_cache)
+
+                if c == ord("A"):
+                    selection = all_ns
+                elif c == ord("N"):
+                    if selected_namespace == "":
+                        preselection: str | set = all_ns
+                    else:
+                        preselection = selected_namespace
+                    namespace_list = [{
                         "lineattrs": WidgetLineAttrs.NORMAL,
-                        "columns": [[ThemeStr(f"{ns}", ThemeAttr("windowwidget", "default"))]],
-                        "retval": ns,
-                    })
+                        "columns": [[ThemeStr(f"{all_ns}", ThemeAttr("windowwidget", "default"))]],
+                        "retval": all_ns,
+                    }]
 
-            tmpselection = \
-                curses_helper.windowwidget(uip.stdscr, uip.maxy, uip.maxx,
-                                           uip.maxy // 2, uip.maxx // 2, namespace_list,
-                                           title="Select Namespace", cursor=True,
-                                           preselection=preselection)
-            selection = None
-            if isinstance(tmpselection, str):
-                selection = tmpselection
+                    if status == 200:
+                        for ns in (deep_get(item, DictPath("metadata#name")) for item in tmp):
+                            namespace_list.append({
+                                "lineattrs": WidgetLineAttrs.NORMAL,
+                                "columns": [[ThemeStr(f"{ns}",
+                                             ThemeAttr("windowwidget", "default"))]],
+                                "retval": ns,
+                            })
 
-            if selection:
-                if selection == all_ns:
-                    selected_namespace = ""
-                else:
-                    selected_namespace = selection
+                    tmpselection = \
+                        curses_helper.windowwidget(uip.stdscr, uip.maxy, uip.maxx,
+                                                   uip.maxy // 2, uip.maxx // 2, namespace_list,
+                                                   title="Select Namespace", cursor=True,
+                                                   preselection=preselection)
+                    selection = None
+                    if isinstance(tmpselection, str):
+                        selection = tmpselection
+
+                if selection:
+                    if selection == all_ns:
+                        selected_namespace = ""
+                    else:
+                        selected_namespace = selection
 
             fieldgenerator_args = {
                 "field_index": field_index,
@@ -1531,7 +1541,7 @@ def genericlistloop(stdscr: curses.window, **kwargs: Any) -> Retval:
         elif c in (ord("t"), ord(" ")) and is_taggable:
             selected = uip.get_selected()
 
-            if selected is not None:
+            if selected:
                 if selected in tagged_items:
                     tagged_items.discard(selected)
                     uip.list_needs_regeneration(True)

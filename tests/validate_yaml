@@ -205,8 +205,15 @@ listview_reserved_shortcuts: dict[str, dict[str, str]] = {
     "[F12]": {
         "description": "Show information about the program",
     },
+    "[Shift] + A": {
+        "description": "Show all Namespaces",
+        "exception_list": [("__Inventory", "")],
+    },
     "[Shift] + N": {
-        "description": "Select Namespace",
+        "description": "Filter by Namespace from list",
+    },
+    "w": {
+        "description": "Filter by Namespace of selected resource",
     },
     "T": {
         "description": "Tag / Untag item",
@@ -456,6 +463,8 @@ def validate_shortcuts(obj: dict) -> tuple[int, str]:
     msg: str = ""
 
     activatedfun: bool = deep_get(obj, DictPath("listview#on_activation#call")) is not None
+    kind = deep_get(obj, DictPath("kind"), "")
+    api_family = deep_get(obj, DictPath("api_family"), "")
     listview_shortcuts: dict[str, str] = {}
 
     for shortcut, d in deep_get(obj, DictPath("listview#shortcuts"), {}).items():
@@ -474,7 +483,9 @@ def validate_shortcuts(obj: dict) -> tuple[int, str]:
                                    DictPath(f"{helpkey}#description"), "")
             override = deep_get(listview_reserved_shortcuts,
                                 DictPath(f"{helpkey}#override"), "")
-            if override != shortcut:
+            exception_list = deep_get(listview_reserved_shortcuts,
+                                      DictPath(f"{helpkey}#exception_list"), [])
+            if override != shortcut and (kind, api_family) not in exception_list:
                 msg = f"Listview: The shortcut “{helpkey}“ used by “{shortcut}“ is " \
                       f"reserved for “{description}“"
                 retval = 1

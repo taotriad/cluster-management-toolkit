@@ -83,6 +83,9 @@ TBD
 
 * There's now a built-in file-viewer. Currently supported formats:
   * Markdown
+* It's now possible to quickly switch between All Namespaces ([Shift] + A),
+  The Namespace of the selected resource (w), or as before Selecting a Namespace
+  from the list of all Namespaces ([Shift] + N).
 
 ### Changes to other files in v0.8.8
 

@@ -70,7 +70,9 @@ openresource = [
 ]
 
 selectnamespace = [
-    ("[Shift] + N", "Select Namespace"),
+    ("[Shift] + A", "Show all Namespaces"),
+    ("[Shift] + N", "Filter by Namespace from list"),
+    ("W", "Filter by Namespace of selected resource"),
 ]
 
 tagactions = [
