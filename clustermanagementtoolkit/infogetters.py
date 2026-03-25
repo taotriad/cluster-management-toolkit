@@ -991,7 +991,7 @@ def get_obj(obj: dict, field_dict: dict, field_names: list[str],
                     else:
                         datetime_start = timestamp_to_datetime(start_time)
                         if isinstance(end_time, int):
-                            datetime_end = start_time + timedelta(seconds=end_time)
+                            datetime_end = datetime_start + timedelta(seconds=end_time)
                         else:
                             datetime_end = timestamp_to_datetime(end_time)
                         timediff = datetime_end - datetime_start
