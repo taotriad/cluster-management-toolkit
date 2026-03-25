@@ -1120,6 +1120,66 @@ clrp:
   - CiliumLocalRedirectPolicy
   - cilium.io
   viewfile: CiliumLocalRedirectPolicy.cilium.io.yaml
+clrpol.habana:
+  kind:
+  - ClusterPolicy
+  - habanalabs.habana.ai
+  viewfile: ClusterPolicy.habanalabs.habana.ai.yaml
+clrpol.hl:
+  kind:
+  - ClusterPolicy
+  - habanalabs.habana.ai
+  viewfile: ClusterPolicy.habanalabs.habana.ai.yaml
+clrpol.ky:
+  kind:
+  - ClusterPolicy
+  - kyverno.io
+  viewfile: ClusterPolicy.kyverno.io.yaml
+clrpol.kyverno:
+  kind:
+  - ClusterPolicy
+  - kyverno.io
+  viewfile: ClusterPolicy.kyverno.io.yaml
+clrpol.nv:
+  kind:
+  - ClusterPolicy
+  - nvidia.com
+  viewfile: ClusterPolicy.nvidia.com.yaml
+clrpol.nvidia:
+  kind:
+  - ClusterPolicy
+  - nvidia.com
+  viewfile: ClusterPolicy.nvidia.com.yaml
+clrpols.habana:
+  kind:
+  - ClusterPolicy
+  - habanalabs.habana.ai
+  viewfile: ClusterPolicy.habanalabs.habana.ai.yaml
+clrpols.hl:
+  kind:
+  - ClusterPolicy
+  - habanalabs.habana.ai
+  viewfile: ClusterPolicy.habanalabs.habana.ai.yaml
+clrpols.ky:
+  kind:
+  - ClusterPolicy
+  - kyverno.io
+  viewfile: ClusterPolicy.kyverno.io.yaml
+clrpols.kyverno:
+  kind:
+  - ClusterPolicy
+  - kyverno.io
+  viewfile: ClusterPolicy.kyverno.io.yaml
+clrpols.nv:
+  kind:
+  - ClusterPolicy
+  - nvidia.com
+  viewfile: ClusterPolicy.nvidia.com.yaml
+clrpols.nvidia:
+  kind:
+  - ClusterPolicy
+  - nvidia.com
+  viewfile: ClusterPolicy.nvidia.com.yaml
 clrprov.cattle:
   kind:
   - Cluster
@@ -1500,6 +1560,16 @@ clusteroperators.config:
   - ClusterOperator
   - config.openshift.io
   viewfile: ClusterOperator.config.openshift.io.yaml
+clusterpolicies.habana:
+  kind:
+  - ClusterPolicy
+  - habanalabs.habana.ai
+  viewfile: ClusterPolicy.habanalabs.habana.ai.yaml
+clusterpolicy.habana:
+  kind:
+  - ClusterPolicy
+  - habanalabs.habana.ai
+  viewfile: ClusterPolicy.habanalabs.habana.ai.yaml
 clusterpolicy.habanalabs:
   kind:
   - ClusterPolicy
