@@ -24,12 +24,15 @@
 
 ## commandparser.py and cmtvalidators.py
 
+* Investigate whether using argparse would be better than using our own parser;
+  it would require some effort too rewrite, but it would standardise things.
+  After a rewrite only the helptexts would need to be customised.
 * __commandparser__: Add support for aliases.
 * __commandparser__: Add support for global vs local options.
 * __commandparser__: Add support for short options.
 * __commandparser__: Loosen the rules for option positions; it should be possible
   to have the options interspersed with, or after the arguments.
-* __commandparser__: Do partialll argument splitting already in the command parser;
+* __commandparser__: Do partial argument splitting already in the command parser;
   since we're doing argument validation in the command parser we know what
   separators are used.
 * __cmtvalidators__: Further improve the validation, with types such as
@@ -56,6 +59,9 @@
 
 ## cmu
 
+* Do we need a commandline option for quick switching between views
+  and executing some commands?
+* Do we need a shell prompt? It would require a LOT of work.
 * Divide ping (inventory & context views) into 2 different categories;
   normal and slow; slow to use with hosts that responded with
   "NO ROUTE TO HOST", "CONNECTION TIMED OUT", or "COULD NOT RESOLVE";
@@ -91,11 +97,11 @@
   (see podlog).
 * get_obj() is a monstrosity and needs to be refactored.
 
-cmtinv:
+## cmtinv
 
 * Optionally limit rebuild-inventory to a subset of clusters.
 
-cmtadm:
+## cmtadm
 
 * prepare_passwordless_ansible won't work on localhost; we're not passing the password,
   and the password might not be the same on the remote system and the local system anyway.
@@ -115,7 +121,7 @@ cmtadm:
   * Add a security warning about file permissions.
   * Add a security warning ansible_pass being used in cmtconfig.
 
-logparser:
+## logparser
 
 * For key_value_with_leading_message when having allow_bare_keys enabled
   we should only allow booleans and integers to be unquoted. Otherwise we
@@ -131,3 +137,10 @@ logparser:
   this way we know the real line length (due to facility etc. we might not have the same starting point
   for every line, so expanding tabs into spaces won't work properly).
   _Note:_ Currently we strip tabs; if we want to handle them we need to modify cmtlib.py:split_msg().
+
+##3 Testability
+
+* To ensure that we can test changes to list- and info-getters, as well as logparsers,
+  we should keep example resources and logs for app resources we add support for.
+  This would also enable us to release-test all view-files and thus gain much better test coverage.
+* For testability of cmu we need to implement input injection support.
