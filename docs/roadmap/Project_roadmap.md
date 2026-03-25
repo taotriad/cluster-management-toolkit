@@ -15,34 +15,26 @@ tests have been added for the moved code.
 ## Q1 roadmap
 
 * _General_:
-    * [ ] Release __CMT__ v0.8.7.
+    * [x] Release __CMT__ v0.8.7.
       * [x] Fix Issue #9 (uninstall-cni fails if helper or configuration doesn't exist).
     * [x] Use Pygments to do syntax highlighting instead of our own hackish solution.
       * [x] Custom output plugin for ThemeArray.
       * _Note:_ If a format has a pre-existing Pygments lexer it's highly likely
         that support can and will be added on request.
-    * [ ] Convert formatters that can use Pygments' built-in lexers.
+    * [x] Convert formatters that can use Pygments' built-in lexers.
       * [x] ASCII armored text (certificates, keys, etc).
       * [x] INI
       * [x] JSON
-      * [ ] NDJSON (just needs to be verified to work)
       * [x] NGINX
-      * [ ] Perl
       * [x] PowerShell
-      * [ ] Python
       * [x] Python Tracebacks
-      * [ ] Ruby
       * [x] Shell Scripts (POSIX sh, bash, dash, posh, zsh)
       * [x] TOML
       * [x] XML
       * [x] YAML
-    * [ ] Convert formatters that can use built-in lexers augmented by additional filters.
+    * [x] Convert formatters that can use built-in lexers augmented by additional filters.
       * [x] Markdown (built-in + custom)
-    * [ ] Convert formatters that needs custom lexers.
-      * [ ] CEL
-      * [ ] HAProxy
-      * [ ] CaddyFile
-      * [ ] FluentBit
+    * [x] Convert formatters that needs custom lexers.
       * [x] known_hosts
       * [x] Mosquitto
 
@@ -58,6 +50,18 @@ tests have been added for the moved code.
         * [ ] Source code.
         * [ ] Debian package.
         * [ ] Possibly via PIP?
+    * Continue work on moving from custom lexers to Pygments.
+    * [ ] Convert formatters that can use Pygments' built-in lexers.
+      * [ ] NDJSON (just needs to be verified to work)
+      * [ ] Perl
+      * [ ] Python
+      * [ ] Ruby
+    * [ ] Convert formatters that needs custom lexers.
+      * [ ] CEL
+      * [ ] HAProxy
+      * [ ] CaddyFile
+      * [ ] FluentBit
+
 * _Accessibility_:
     * [ ] Ensure that the Colour Vision Deficiency theme covers all relevant data.
       Using colour coding in conjunction with CVD is acceptable, but only when important
@@ -76,15 +80,17 @@ tests have been added for the moved code.
 ## Q3 roadmap
 
 * _General_:
-    * [ ] Go through all input helpers, formatters, etc., to see which, if any, we can
-      merge.
+    * [ ] Go through all input helpers, formatters, etc., to see which, if any, we can merge.
     * [ ] tests: Achieve 55% test coverage for `*.py`.
 * _cmu_:
     * [ ] Continue, hopefully conclude, the general refactoring, enabling new _cmt_ functionality.
+    * [ ] If possible it should be possible to reinitialise the UI and thus change themes.
+      This would let users test what themes they like the most, but more importantly it would
+      enable using different themes for different contexts, as a useful reminder about what
+      context you're operating in.
 * _cmt_:
     * [ ] Once the _cmu_ refactoring has taken place we should be in a good place to
-      reuse most of the helpers to implement `cmt get OBJECT`, `cmt describe OBJECT`,
-      etc.
+      reuse most of the helpers to implement `cmt get OBJECT`, `cmt describe OBJECT`, etc.
 
 ## Q4 roadmap
 
@@ -93,6 +99,9 @@ tests have been added for the moved code.
 ## Backlog
 
 * _Project_:
+    * [ ] Get more contributors to ensure that we can meet the basic criteria for OpenSSF
+      Best practices. Currently we are gated by the fact that the bus factor is too low,
+      reviewers are missing, and other things that require multiple contributors.
     * [ ] Write all documentation needed to meet silver criteria for OpenSSF Best Practices.
       Note that several of the requirements for silver and gold criteria make meeting
       all criteria unlikely, but we should still do our best.
