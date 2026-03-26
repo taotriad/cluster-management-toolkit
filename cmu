@@ -7229,7 +7229,6 @@ def resourceinfodispatch_with_lookup(stdscr: curses.window, **kwargs: Any) -> Re
             namespace, name = tmp
 
     if name_regex:
-        saved_name = name
         if (tmp := re.match(name_regex, name)):
             name = tmp[1]
 
