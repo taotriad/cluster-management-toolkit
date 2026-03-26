@@ -97,6 +97,10 @@ configmap_signatures:
         prefix: "ovnkube-config"
         data_prefix: "ovnkube.conf"
         data_suffix: "ovnkube.conf"
+      - prefix: "dcap-operator"
+        suffix: "sys-config"
+        data_prefix: "registries.conf"
+        data_suffix: "registries.conf"
 
   iso_9660:
     format_name: "ISO 9660"
