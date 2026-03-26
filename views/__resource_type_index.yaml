@@ -575,6 +575,26 @@ build.config:
   - Build
   - config.openshift.io
   viewfile: Build.config.openshift.io.yaml
+buildcfg:
+  kind:
+  - BuildConfig
+  - build.openshift.io
+  viewfile: BuildConfig.build.openshift.io.yaml
+buildcfgs:
+  kind:
+  - BuildConfig
+  - build.openshift.io
+  viewfile: BuildConfig.build.openshift.io.yaml
+buildconf:
+  kind:
+  - BuildConfig
+  - build.openshift.io
+  viewfile: BuildConfig.build.openshift.io.yaml
+buildconfs:
+  kind:
+  - BuildConfig
+  - build.openshift.io
+  viewfile: BuildConfig.build.openshift.io.yaml
 builds.config:
   kind:
   - Build
@@ -1765,6 +1785,11 @@ conf.dapr:
   - Configuration
   - dapr.io
   viewfile: Configuration.dapr.io.yaml
+conf.imgreg:
+  kind:
+  - Config
+  - imageregistry.operator.openshift.io
+  viewfile: Config.imageregistry.operator.openshift.io.yaml
 conf.knative:
   kind:
   - Configuration
@@ -1840,6 +1865,11 @@ confs.dapr:
   - Configuration
   - dapr.io
   viewfile: Configuration.dapr.io.yaml
+confs.imgreg:
+  kind:
+  - Config
+  - imageregistry.operator.openshift.io
+  viewfile: Config.imageregistry.operator.openshift.io.yaml
 confs.knative:
   kind:
   - Configuration
@@ -2995,6 +3025,16 @@ imagetags.openshift:
   - ImageTag
   - image.openshift.io
   viewfile: ImageTag.image.openshift.io.yaml
+imgdigestmirrorset:
+  kind:
+  - ImageDigestMirrorSet
+  - config.openshift.io
+  viewfile: ImageDigestMirrorSet.config.openshift.io.yaml
+imgdigestmirrorsets:
+  kind:
+  - ImageDigestMirrorSet
+  - config.openshift.io
+  viewfile: ImageDigestMirrorSet.config.openshift.io.yaml
 imglistpulljob:
   kind:
   - ImageListPullJob
@@ -3015,6 +3055,16 @@ imgpulljobs:
   - ImagePullJob
   - apps.kruise.io
   viewfile: ImagePullJob.apps.kruise.io.yaml
+imgtagmirrorset:
+  kind:
+  - ImageTagMirrorSet
+  - config.openshift.io
+  viewfile: ImageTagMirrorSet.config.openshift.io.yaml
+imgtagmirrorsets:
+  kind:
+  - ImageTagMirrorSet
+  - config.openshift.io
+  viewfile: ImageTagMirrorSet.config.openshift.io.yaml
 inferencesvc:
   kind:
   - InferenceService

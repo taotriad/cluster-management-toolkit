@@ -111,6 +111,14 @@ BootResync:
   field_colors:
     - context: "main"
       type: "status_ok"
+BuildCompleted:
+  field_colors:
+    - context: "main"
+      type: "status_done"
+BuildStarted:
+  field_colors:
+    - context: "main"
+      type: "status_pending"
 CABundleUpdateRequired:
   field_colors:
     - context: "main"
