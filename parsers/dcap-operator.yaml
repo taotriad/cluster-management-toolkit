@@ -1,0 +1,9 @@
+---
+- name: "dcap-operator"
+  show_in_selector: false
+  matchkeys:
+    - pod_name: "dcap-operator"
+      container_name: "docker-build"
+  parser_rules:
+    - name: "glog"
+    - name: "key_value"
