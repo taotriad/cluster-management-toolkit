@@ -44,6 +44,7 @@ from clustermanagementtoolkit.cmtio_yaml import secure_read_yaml
 
 from clustermanagementtoolkit import cmtlib
 from clustermanagementtoolkit.cmtlib import make_label_selector, make_set_expression_list
+from clustermanagementtoolkit.cmtlib import make_cel_expression, make_set_expression
 from clustermanagementtoolkit.cmtlib import none_timestamp, timestamp_to_datetime, get_since
 from clustermanagementtoolkit.cmtlib import normalise_cpu_usage_to_millicores
 from clustermanagementtoolkit.cmtlib import normalise_mem_to_bytes, normalise_mem_bytes_to_str
@@ -833,6 +834,21 @@ def get_obj(obj: dict, field_dict: dict, field_names: list[str],
                             value = default
                     for tmp in value:
                         _values.append((tmp, vtype))
+                elif ptype == "selectors":
+                    value = []
+                    # This is a list of selectors
+                    for selector in path:
+                        tmp = deep_get_with_fallback(obj, path)
+                        if "matchExpressions" in selector:
+                            value.append(make_set_expression(tmp))
+                        elif "matchLabels" in selector:
+                            value.append(make_label_selector(tmp))
+                        else:
+                            value.append(make_cel_expression(tmp))
+                    if len(value) == 1:
+                        _values.append((value[0], "str"))
+                    else:
+                        _values.append((",".join(value), "str"))
                 elif ptype in ("match_expression", "toleration"):
                     tmp = deep_get_with_fallback(obj, path)
                     if isinstance(tmp, list):

@@ -798,6 +798,24 @@ EXPRESSION_LOOKUP: dict[str, Any] = {
 }
 
 
+def make_cel_expression(expression_list: list[dict], **kwargs: Any) -> str:
+    """
+    Join CEL expressions data into one single string.
+
+        Parameters:
+            expression_list (dict): The dict to extract the data from
+        Returns:
+            (str): The set expressions joined into one string
+    """
+    cel_expressions: list[str] = []
+
+    for selector in expression_list:
+        if (tmp := deep_get(selector, DictPath("cel#expression"), "")):
+            cel_expressions.append(tmp)
+
+    return ",".join(cel_expressions)
+
+
 # pylint: disable-next=too-many-branches,too-many-statements,too-many-locals
 def make_set_expression_list(expression_list: list[dict[str, Any]], **kwargs: Any) \
         -> list[tuple[str, str, str] | tuple[str, str, str, str, str]]:

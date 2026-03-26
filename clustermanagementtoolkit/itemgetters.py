@@ -29,6 +29,7 @@ from clustermanagementtoolkit import cmtlib
 from clustermanagementtoolkit.cmtlib import disksize_to_human, get_package_versions, get_since
 from clustermanagementtoolkit.cmtlib import make_label_selector
 from clustermanagementtoolkit.cmtlib import make_set_expression, make_set_expression_list
+from clustermanagementtoolkit.cmtlib import make_cel_expression
 from clustermanagementtoolkit.cmtlib import split_msg, timestamp_to_datetime
 
 from clustermanagementtoolkit import kubernetes_helper
@@ -517,6 +518,8 @@ def get_list_fields(obj: dict, **kwargs: Any) -> list[Any]:
                         for tmp_selector in value_:
                             tmp_selectors.append(make_label_selector(tmp_selector))
                         value = ",".join(tmp_selectors)
+                    elif value_type == "cel":
+                        value = make_cel_expression(value_)
                     elif value_type == "match_expression":
                         value = make_set_expression(value_)
                     elif (isinstance(value_, list)

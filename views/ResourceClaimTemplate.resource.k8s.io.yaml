@@ -39,30 +39,42 @@ infoview:
               - "name"
         default: "<none>"
         formatter: "list"
-  shortcuts:
-    "Show device requests":
-      key: "q"
-      read_only: true
-      helptext: "Show device requests"
-      widget: "windowwidget"
-      title: "Device requests:"
-      headers: ["Name:", "Device Class:", "Allocation Mode:", "Count:"]
-      selectable: true
-      itemgetter: "get_list_fields"
-      itemgetter_args:
-        path: "spec#spec#devices#requests"
-        pass_ref: true
-        fields:
-          - "name"
-          - "exactly#deviceClassName"
-          - "exactly#allocationMode"
-          - "exactly#count"
-      # Not supported for now
-      sortcolumn: "name"
-      action: "call"
-      action_call: "view_yaml"
-      action_args:
-        title: "Device requests"
-        _named_title: true
-        _name_path: "name"
-        _pass_selected_obj: true
+  listpad:
+    listgetter: "listgetter_path"
+    listgetter_args:
+      path: "spec#spec#devices#requests"
+    infogetter: "generic_infogetter"
+    field_indexes:
+      Normal:
+        fields: ["name", "device_class", "allocation_mode", "count",
+                 "selectors"]
+    fields:
+      allocation_mode:
+        header: "Allocation Mode:"
+        path: "exactly#allocationMode"
+        default: "<unset>"
+        type: "str"
+      count:
+        header: "Count:"
+        path: "exactly#deviceClassName"
+        default: "<unset>"
+        type: "str"
+      device_class:
+        header: "Device Class:"
+        path: "exactly#count"
+        default: "<unset>"
+        type: "int"
+        formatter: "numerical"
+        align: "right"
+      name:
+        header: "Name:"
+        path: "name"
+        default: "<unset>"
+        type: "str"
+      selectors:
+        header: "Selectors:"
+        paths:
+          - path: ["exactly#selectors"]
+            pathtype: "selectors"
+            default: "<none>"
+        type: "str"
