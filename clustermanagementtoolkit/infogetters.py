@@ -844,6 +844,8 @@ def get_obj(obj: dict, field_dict: dict, field_names: list[str],
                         elif "matchLabels" in selector:
                             value.append(make_label_selector(tmp))
                         else:
+                            if isinstance(tmp, dict):
+                                tmp = [tmp]
                             value.append(make_cel_expression(tmp))
                     if len(value) == 1:
                         _values.append((value[0], "str"))

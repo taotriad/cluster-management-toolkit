@@ -810,7 +810,9 @@ def make_cel_expression(expression_list: list[dict], **kwargs: Any) -> str:
     cel_expressions: list[str] = []
 
     for selector in expression_list:
-        if (tmp := deep_get(selector, DictPath("cel#expression"), "")):
+        if (tmp := deep_get_with_fallback(selector,
+                                          [DictPath("cel#expression"),
+                                           DictPath("expression")], "")):
             cel_expressions.append(tmp)
 
     return ",".join(cel_expressions)
