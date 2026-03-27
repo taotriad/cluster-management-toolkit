@@ -998,6 +998,13 @@ def get_obj(obj: dict, field_dict: dict, field_names: list[str],
                     if tmp_type not in (dict, list) and len(tmp) == 1:
                         tmp = tmp[0]
                     _values.append((tmp, vtype))
+                elif ptype == "milliseconds":
+                    tmp = deep_get_with_fallback(obj, path, 0)
+                    duration = cmtlib.age_to_seconds(f"{tmp}ms")
+                    # Default to 1 second, since 0 == <unset>
+                    if not duration:
+                        duration = 1
+                    _values.append((duration, "age"))
                 elif ptype == "timediff":
                     if len(mpaths) != 2:
                         raise ValueError(f"Field {name}: when using pathtype: 'timediff' "
