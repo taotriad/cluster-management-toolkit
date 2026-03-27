@@ -687,8 +687,12 @@ def generator_hex(obj: dict, field: str, fieldlen: int, pad: bool,
     if (tmp := format_special(string, selected)) is not None:
         array = [tmp]
     else:
-        array = format_numerical_with_units(string, "numerical",
-                                            selected, non_units=set("0123456789abcdefABCDEF"))
+        if string.startswith(("sha224", "sha256", "sha384", "sha512")):
+            tmp = string.split(":", maxsplit=1)
+            array += [ThemeStr(tmp[0], ThemeAttr("main", "highlight"))]
+            string = f":{tmp[1]}"
+        array += format_numerical_with_units(string, "numerical",
+                                             selected, non_units=set("0123456789abcdefABCDEF"))
 
     return align_and_pad(array, fieldlen=fieldlen, pad=pad, ralign=ralign, selected=selected)
 
