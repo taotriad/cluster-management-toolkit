@@ -46,9 +46,14 @@ infoview:
     infogetter: "generic_infogetter"
     field_indexes:
       Normal:
-        fields: ["name", "device_class", "allocation_mode", "count",
-                 "selectors"]
+        fields: ["name", "device_class", "allocation_mode",
+                 "admin_access", "count", "selectors"]
     fields:
+      admin_access:
+        header: "Admin Access:"
+        path: "exactly#adminAccess"
+        default: false
+        type: "bool"
       allocation_mode:
         header: "Allocation Mode:"
         path: "exactly#allocationMode"

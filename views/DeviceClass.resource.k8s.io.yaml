@@ -10,7 +10,7 @@ listview:
   group: "Dynamic Resource Allocation"
   field_indexes:
     Normal:
-      fields: ["name", "extended_name", "controller", "age"]
+      fields: ["name", "extended_resource", "controller", "age"]
   fields:
     controller:
       header: "Controller:"
@@ -35,8 +35,8 @@ listview:
         field_separators:
           - type: "kind_api_group"
           - type: "kind"
-    extended_name:
-      header: "Extended Name:"
+    extended_resource:
+      header: "Extended Resource:"
       path: "spec#extendedResourceName"
       default: "<unset>"
       type: "str"
@@ -45,18 +45,8 @@ infoview:
   infopad:
     row_indexes:
       Normal:
-        fields: ["controller", "device_cel_selectors", "extended_name"]
+        fields: ["controller", "extended_resource"]
     rows:
-      device_cel_selectors:
-        header: [["Device CEL ", ["main", "infoheader"]],
-                 ["S", ["main", "infoheader_shortcut"]],
-                 ["electors:", ["main", "infoheader"]]]
-        paths:
-          - path: "spec#selectors"
-            pathtype: "items"
-            subpaths:
-              - "cel#expression"
-        formatter: "list"
       controller:
         header: [["C", ["main", "infoheader_shortcut"]],
                  ["ontroller:", ["main", "infoheader"]]]
@@ -81,10 +71,26 @@ infoview:
           field_separators:
             - type: "kind_api_group"
             - type: "kind"
-      extended_name:
-        header: [["Extended Name:", ["main", "infoheader"]]]
+      extended_resource:
+        header: [["Extended Resource:", ["main", "infoheader"]]]
         path: "spec#extendedResourceName"
         default: "<unset>"
+        type: "str"
+  listpad:
+    listgetter: "listgetter_path"
+    listgetter_args:
+      path: "spec#selectors"
+    infogetter: "generic_infogetter"
+    field_indexes:
+      Normal:
+        fields: ["selectors"]
+    fields:
+      selectors:
+        header: "Selectors:"
+        paths:
+          - path: ["cel"]
+            pathtype: "selectors"
+            default: "<none>"
         type: "str"
   shortcuts:
     "Open controller":
@@ -108,15 +114,3 @@ infoview:
         title: "Device Class Configuration"
         _pass_obj: true
         path: "spec#config"
-    "Device Selectors":
-      key: "s"
-      modifier: "shift"
-      read_only: true
-      helptext: "Show device selectors"
-      action: "call"
-      action_call: "view_yaml"
-      action_args:
-        title: "Device Selectors"
-        _pass_obj: true
-        path: "spec#selectors"
-        include_root: true
