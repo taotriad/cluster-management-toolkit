@@ -93,6 +93,9 @@ color_pairs_curses:
   dim:
     unselected: [["black", "bright"], ["black", "normal"]]
     selected: [["black", "normal"], ["white", "normal"]]
+  email:
+    unselected: [["magenta", "bright"], ["black", "normal"]]
+    selected: [["magenta", "normal"], ["white", "normal"]]
   listheader: [["white", "bright"], ["black", "normal"]]
   listheader_compact: [["white", "bright"], ["black", "normal"]]
   listheader_arrows: [["cyan", "normal"], ["black", "normal"]]
@@ -927,6 +930,7 @@ types:
   cputime_user_nice:
     unselected: ["type_cputime_user_nice", "bold"]
     selected: "type_cputime_user_nice"
+  email: "email"
   errorvalue: "type_errorvalue"
   field:
     unselected: "type_field"
@@ -1212,6 +1216,8 @@ strings:
 
 separators:
   date: [["-", ["types", "unit"]]]
+  email_prefix: [["<", ["types", "email"]]]
+  email_suffix: [[">", ["types", "email"]]]
   no_pad: [["", ["types", "generic"]]]
   range: [["–", ["types", "range"]]]
   tag: [["✓ ", ["types", "tag"]]]

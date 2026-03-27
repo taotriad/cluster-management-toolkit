@@ -1,0 +1,347 @@
+---
+kind: "Build"
+api_family: "build.openshift.io"
+default_command: "builds.build.openshift.io"
+command:
+  - "builds"
+  - "build"
+listview:
+  name: "Builds"
+  group: "OpenShift"
+  field_indexes:
+    Normal:
+      fields: ["namespace", "name", "type", "from",
+               "duration", "phase", "age", "reason", "message"]
+      sortcolumn: "phase"
+  fields:
+    duration:
+      header: "Duration:"
+      paths:
+        - paths: [["status#startTimestamp"], ["status#completionTimestamp"]]
+          pathtype: "timediff"
+      default: 0
+      formatter: "age"
+      align: "right"
+    from:
+      header: "From:"
+      path: "spec#from"
+      default: "<unset>"
+      type: "str"
+    message:
+      header: "Message:"
+      path: "status#message"
+      default: "<unset>"
+      type: "str"
+    reason:
+      header: "Reason:"
+      path: "status#reason"
+      default: "<unset>"
+      type: "str"
+    phase:
+      header: "Phase:"
+      path: "status#phase"
+      default: "<unset>"
+      type: "str"
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          mappings:
+            Complete:
+              field_colors:
+                - context: "main"
+                  type: "status_done"
+            Failed:
+              field_colors:
+                - context: "main"
+                  type: "status_not_ok"
+    type:
+      header: "Type:"
+      path: "spec#source#type"
+      default: "<unset>"
+      type: "str"
+infoview:
+  name: "Build Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["service_account",
+                 "build_config",
+                 "node_label_selector",
+                 "revision_header", "revision_type",
+                 "revision_git_header",
+                 "revision_git_commit",
+                 "revision_git_author",
+                 "revision_git_committer",
+                 "revision_git_message",
+                 "strategy_header",
+                 "strategy_type",
+                 "strategy_docker_header",
+                 "strategy_dockerfile_path",
+                 "output_header",
+                 "output_docker_image",
+                 "output_image_digest",
+                 "output_output",
+                 "output_push_secret",
+                 "phase"]
+    rows:
+      build_config:
+        header: [["B", ["main", "infoheader"]],
+                 ["u", ["main", "infoheader_shortcut"]],
+                 ["ild Config:", ["main", "infoheader"]]]
+        paths:
+          - path: [["status#config#kind"],
+                   ["status#config#namespace"],
+                   ["status#config#name"]]
+            pathtype: "tuple"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "kind"
+            - type: "namespace"
+            - type: "generic"
+          field_separators:
+            - type: "kind"
+            - type: "namespace"
+
+      node_label_selector:
+        header: [["Node La", ["main", "infoheader"]],
+                 ["b", ["main", "infoheader_shortcut"]],
+                 ["el Selector:", ["main", "infoheader"]]]
+        paths:
+          - path: ["spec#nodeSelector"]
+            pathtype: "key_value"
+            default: ["<unset>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "key"
+            - type: "value"
+          field_separators:
+            - type: "selector"
+      output_header:
+        header: [["Output:", ["main", "infoheader"]]]
+      output_docker_image:
+        header: [["  Docker Image:", ["main", "infoheader"]]]
+        path: "status#outputDockerImageReference"
+        default: "<none>"
+        type: "str"
+      output_image_digest:
+        header: [["  Image Digest:", ["main", "infoheader"]]]
+        path: "status#output#to#imageDigest"
+        default: "<none>"
+        type: "str"
+        formatter: "hex"
+      output_output:
+        header: [["  O", ["main", "infoheader"]],
+                 ["u", ["main", "infoheader_shortcut"]],
+                 ["tput:", ["main", "infoheader"]]]
+        paths:
+          - path: [["spec#output#to#kind"], ["spec#output#to#name"]]
+            pathtype: "tuple"
+            default: ["<unset>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "kind"
+            - type: "generic"
+      output_push_secret:
+        header: [["  Output ", ["main", "infoheader"]],
+                 ["P", ["main", "infoheader_shortcut"]],
+                 ["ush Secret:", ["main", "infoheader"]]]
+        path: "spec#output#pushSecret#name"
+        default: "<unset>"
+        type: "str"
+      phase:
+        header: [["Phase:", ["main", "infoheader"]]]
+        path: "status#phase"
+        type: "str"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              Complete:
+                field_colors:
+                  - context: "main"
+                    type: "status_done"
+              Failed:
+                field_colors:
+                  - context: "main"
+                    type: "status_not_ok"
+      revision_git_author:
+        header: [["    Author:", ["main", "infoheader"]]]
+        paths:
+          - path: [["spec#revision#git#author#name"],
+                   ["spec#revision#git#author#email"]]
+            pathtype: "tuple"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "generic"
+            - type: "email"
+          field_separators:
+            - type: "space"
+          field_prefixes:
+            -
+              - type: "no_pad"
+            -
+              - type: "email_prefix"
+          field_suffixes:
+            -
+              - type: "no_pad"
+            -
+              - type: "email_suffix"
+      revision_git_commit:
+        header: [["    Commit:", ["main", "infoheader"]]]
+        path: "spec#revision#git#commit"
+        default: "<unset>"
+        type: "str"
+        formatter: "hex"
+      revision_git_committer:
+        header: [["    Committer:", ["main", "infoheader"]]]
+        paths:
+          - path: [["spec#revision#git#author#name"],
+                   ["spec#revision#git#author#email"]]
+            pathtype: "tuple"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "generic"
+            - type: "email"
+          field_separators:
+            - type: "space"
+          field_prefixes:
+            -
+              - type: "no_pad"
+            -
+              - type: "email_prefix"
+          field_suffixes:
+            -
+              - type: "no_pad"
+            -
+              - type: "email_suffix"
+      revision_git_header:
+        header: [["  GIT:", ["main", "infoheader"]]]
+      revision_git_message:
+        header: [["    Me", ["main", "infoheader"]],
+                 ["s", ["main", "infoheader_shortcut"]],
+                 ["sage:", ["main", "infoheader"]]]
+        path: "spec#revision#git#message"
+        default: "<unset>"
+        type: "str"
+      revision_header:
+        header: [["Revision:", ["main", "infoheader"]]]
+      revision_type:
+        header: [["  Type:", ["main", "infoheader"]]]
+        path: "spec#revision#type"
+        default: "<unset>"
+        type: "str"
+      service_account:
+        header: [["S", ["main", "infoheader_shortcut"]],
+                 ["ervice Account:", ["main", "infoheader"]]]
+        path: "spec#serviceAccount"
+        type: "str"
+      strategy_docker_header:
+        header: [["  Docker Strategy:", ["main", "infoheader"]]]
+      strategy_dockerfile_path:
+        header: [["    Dockerfile Path:", ["main", "infoheader"]]]
+        path: "spec#strategy#dockerStrategy#dockerfilePath"
+        default: "<unset>"
+        type: "str"
+      strategy_header:
+        header: [["Strategy:", ["main", "infoheader"]]]
+      strategy_type:
+        header: [["  Type:", ["main", "infoheader"]]]
+        path: "spec#strategy#type"
+        default: "<unset>"
+        type: "str"
+  listpad:
+    listgetter: "listgetter_path"
+    listgetter_args:
+      path: "status#stages"
+    infogetter: "generic_infogetter"
+    field_indexes:
+      Normal:
+        fields: ["name", "duration", "start_time", "steps"]
+        sortcolumn: "start_time"
+    fields:
+      duration:
+        header: "Duration:"
+        paths:
+          - path: "durationMilliseconds"
+            pathtype: "milliseconds"
+            type: "int"
+        formatter: "age"
+        align: "right"
+      name:
+        header: "Name:"
+        path: "name"
+        default: "<unset>"
+        type: "str"
+      start_time:
+        header: "Start Time:"
+        path: "startTime"
+        type: "timestamp"
+        formatter: "timestamp"
+      steps:
+        header: "Steps:"
+        paths:
+          - path: "steps"
+            pathtype: "items"
+            subpaths:
+              - "name"
+        formatter: "list"
+  shortcuts:
+    "Build Config":
+      key: "u"
+      read_only: true
+      helptext: "Open info page for Build Config"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind: "BuildConfig"
+        api_family: "build.openshift.io"
+        namespace_path: "status#config#namespace"
+        name_path: "status#config#name"
+    "Show Commit Message":
+      key: "s"
+      read_only: true
+      helptext: "Show commit message"
+      widget: "windowwidget"
+      itemgetter: "get_strings_from_string"
+      itemgetter_args:
+        path: "spec#revision#git#message"
+    "Node Label Selector":
+      key: "b"
+      read_only: true
+      helptext: "Show Node label selector"
+      widget: "windowwidget"
+      title: "Node Label Selector:"
+      headers: ["Key:", "Value:"]
+      itemgetter: "get_key_value"
+      itemgetter_args:
+        path: "spec#nodeSelector"
+    "Push Secret":
+      key: "p"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for push Secret"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind: "Secret"
+        name_path: "spec#output#pushSecret#name"
+        namespace_path: "metadata#namespace"
+    "Service Account":
+      key: "s"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for Service Account"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind: "ServiceAccount"
+        name_path: "spec#serviceAccount"
+        namespace_path: "metadata#namespace"

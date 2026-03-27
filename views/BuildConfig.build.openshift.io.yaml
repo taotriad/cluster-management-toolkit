@@ -29,7 +29,10 @@ infoview:
         fields: ["run_policy", "node_label_selector",
                  "successful_builds_history_limit",
                  "failed_builds_history_limit",
-                 "strategy",
+                 "strategy_header",
+                 "strategy_type",
+                 "strategy_docker_header",
+                 "strategy_dockerfile_path",
                  "source_type", "output", "image_labels", "last_version"]
     rows:
       failed_builds_history_limit:
@@ -86,6 +89,8 @@ infoview:
           field_colors:
             - type: "kind"
             - type: "generic"
+          field_separators:
+            - type: "kind"
       run_policy:
         header: [["Run Policy:", ["main", "infoheader"]]]
         path: "spec#runPolicy"
@@ -96,8 +101,17 @@ infoview:
         path: "spec#source#type"
         default: "<unset>"
         type: "str"
-      strategy:
+      strategy_docker_header:
+        header: [["  Docker Strategy:", ["main", "infoheader"]]]
+      strategy_dockerfile_path:
+        header: [["    Dockerfile Path:", ["main", "infoheader"]]]
+        path: "spec#strategy#dockerStrategy#dockerfilePath"
+        default: "<unset>"
+        type: "str"
+      strategy_header:
         header: [["Strategy:", ["main", "infoheader"]]]
+      strategy_type:
+        header: [["  Type:", ["main", "infoheader"]]]
         path: "spec#strategy#type"
         default: "<unset>"
         type: "str"
@@ -140,7 +154,6 @@ infoview:
         _parent_namespace_path: "metadata#namespace"
         name_path: "spec#output#to#name"
         namespace_path: "spec#output#to#namespace"
-        name_regex: "(.*?):.*"
     "Triggers":
       key: "t"
       read_only: true

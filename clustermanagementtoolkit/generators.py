@@ -683,6 +683,7 @@ def generator_hex(obj: dict, field: str, fieldlen: int, pad: bool,
     array: list[ThemeRef | ThemeStr] = []
     value = getattr(obj, field)
     string = str(value)
+    tmp: Any = None
 
     if (tmp := format_special(string, selected)) is not None:
         array = [tmp]

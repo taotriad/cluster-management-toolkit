@@ -570,6 +570,11 @@ bgsrs:
   - BackgroundScanReport
   - kyverno.io
   viewfile: BackgroundScanReport.kyverno.io.yaml
+build:
+  kind:
+  - Build
+  - build.openshift.io
+  viewfile: Build.build.openshift.io.yaml
 build.config:
   kind:
   - Build
@@ -595,6 +600,11 @@ buildconfs:
   - BuildConfig
   - build.openshift.io
   viewfile: BuildConfig.build.openshift.io.yaml
+builds:
+  kind:
+  - Build
+  - build.openshift.io
+  viewfile: Build.build.openshift.io.yaml
 builds.config:
   kind:
   - Build
