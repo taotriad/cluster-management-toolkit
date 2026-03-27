@@ -1,17 +1,17 @@
 ---
-- name: "habanalabs-device-plugin"
+- name: "habanalabs"
   show_in_selector: false
   matchkeys:
     - image_name: "/intel/gaudi-base-operator"
   parser_rules:
     - name: "tab_separated"
-- name: "habanalabs-device-plugin"
+- name: "habanalabs"
   show_in_selector: false
   matchkeys:
     - image_name: "/intel/gaudi-container-runtime"
   parser_rules:
     - name: "key_value"
-- name: "habanalabs-device-plugin"
+- name: "habanalabs"
   show_in_selector: false
   matchkeys:
     - image_name: "/intel/gaudi-device-plugin"
@@ -19,7 +19,7 @@
   parser_rules:
     - name: "ts_8601"
     - name: "json"
-- name: "habanalabs-device-plugin"
+- name: "habanalabs"
   show_in_selector: false
   matchkeys:
     - image_name: "/intel/gaudi-feature-discovery"
@@ -32,3 +32,10 @@
           transform: "str"
         message:
           field: 2
+- name: "habanalabs"
+  show_in_selector: false
+  matchkeys:
+    # yamllint disable-line rule:line-length
+    - image_name: "/intel/intel-resource-drivers-for-kubernetes/intel-gaudi-resource-driver"
+  parser_rules:
+    - name: "glog"
