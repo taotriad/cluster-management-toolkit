@@ -2,6 +2,8 @@
 - name: "helm-install"
   show_in_selector: false
   matchkeys:
+    - pod_name: "helm-operation"
+      container_name: "helm"
     - pod_name: "helm-install"
       container_name: "helm"
   parser_rules:
@@ -21,6 +23,10 @@
             matchkey: "+ helm install"
             matchline: "any"
             format_block_start: false
+          - matchtype: "startswith"
+            matchkey: "helm upgrade"
+            matchline: "any"
+            format_block_start: true
         block_end:
           - matchtype: "startswith"
             matchkey: "+ exit"
@@ -32,6 +38,13 @@
         - matchtype: "startswith"
           matchkey: "Starting Tiller v"
           loglevel: "notice"
+- name: "helm-operationn"
+  show_in_selector: false
+  matchkeys:
+    - pod_name: "helm-operation"
+      container_name: "proxy"
+  parser_rules:
+    - name: "glog"
 - name: "helm-provisioner"
   show_in_selector: false
   matchkeys:

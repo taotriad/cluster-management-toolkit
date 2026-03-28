@@ -358,6 +358,7 @@ configmap_signatures:
   yaml:
     format_name: "YAML"
     signatures:
+      - prefix: "impersonation-helm-op"
       - data_suffix: ".yaml"
       - data_suffix: ".yaml.example"
       - data_suffix: ".yml"
