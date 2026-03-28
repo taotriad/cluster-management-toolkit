@@ -3814,6 +3814,15 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api": "etcdsnapshotfiles",
         "namespaced": False,
     },
+    # k6.io
+    ("PrivateLoadZone", "k6.io"): {
+        "api_paths": ["apis/k6.io/v1alpha1/"],
+        "api": "privateloadzones",
+    },
+    ("TestRun", "k6.io"): {
+        "api_paths": ["apis/k6.io/v1alpha1/"],
+        "api": "testruns",
+    },
     # k8e.cattle.io
     ("Addon", "k8e.cattle.io"): {
         "api_paths": ["apis/k8e.cattle.io/v1/"],
