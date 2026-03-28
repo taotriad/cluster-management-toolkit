@@ -5695,6 +5695,26 @@ proxy.config:
   - Proxy
   - config.openshift.io
   viewfile: Proxy.config.openshift.io.yaml
+proxyendpoint.cattle:
+  kind:
+  - ProxyEndpoint
+  - management.cattle.io
+  viewfile: ProxyEndpoint.management.cattle.io.yaml
+proxyendpoints.cattle:
+  kind:
+  - ProxyEndpoint
+  - management.cattle.io
+  viewfile: ProxyEndpoint.management.cattle.io.yaml
+proxyep.cattle:
+  kind:
+  - ProxyEndpoint
+  - management.cattle.io
+  viewfile: ProxyEndpoint.management.cattle.io.yaml
+proxyeps.cattle:
+  kind:
+  - ProxyEndpoint
+  - management.cattle.io
+  viewfile: ProxyEndpoint.management.cattle.io.yaml
 psp:
   kind:
   - PodSecurityPolicy
@@ -6104,26 +6124,22 @@ secprofopd:
   kind:
   - SecurityProfilesOperatorDaemon
   - security-profiles-operator.x-k8s.io
-  viewfile: 
-    SecurityProfilesOperatorDaemon.security-profiles-operator.x-k8s.io.yaml
+  viewfile: SecurityProfilesOperatorDaemon.security-profiles-operator.x-k8s.io.yaml
 secprofopdaemon:
   kind:
   - SecurityProfilesOperatorDaemon
   - security-profiles-operator.x-k8s.io
-  viewfile: 
-    SecurityProfilesOperatorDaemon.security-profiles-operator.x-k8s.io.yaml
+  viewfile: SecurityProfilesOperatorDaemon.security-profiles-operator.x-k8s.io.yaml
 secprofopdaemons:
   kind:
   - SecurityProfilesOperatorDaemon
   - security-profiles-operator.x-k8s.io
-  viewfile: 
-    SecurityProfilesOperatorDaemon.security-profiles-operator.x-k8s.io.yaml
+  viewfile: SecurityProfilesOperatorDaemon.security-profiles-operator.x-k8s.io.yaml
 secprofopds:
   kind:
   - SecurityProfilesOperatorDaemon
   - security-profiles-operator.x-k8s.io
-  viewfile: 
-    SecurityProfilesOperatorDaemon.security-profiles-operator.x-k8s.io.yaml
+  viewfile: SecurityProfilesOperatorDaemon.security-profiles-operator.x-k8s.io.yaml
 secprovclass:
   kind:
   - SecretProviderClass
@@ -6523,14 +6539,12 @@ svccertsigneropconf:
   kind:
   - ServiceCertSignerOperatorConfig
   - servicecertsigner.config.openshift.io
-  viewfile: 
-    ServiceCertSignerOperatorConfig.servicecertsigner.config.openshift.io.yaml
+  viewfile: ServiceCertSignerOperatorConfig.servicecertsigner.config.openshift.io.yaml
 svccertsigneropconfs:
   kind:
   - ServiceCertSignerOperatorConfig
   - servicecertsigner.config.openshift.io
-  viewfile: 
-    ServiceCertSignerOperatorConfig.servicecertsigner.config.openshift.io.yaml
+  viewfile: ServiceCertSignerOperatorConfig.servicecertsigner.config.openshift.io.yaml
 svccidr:
   kind:
   - ServiceCIDR

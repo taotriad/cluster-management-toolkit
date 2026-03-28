@@ -4790,6 +4790,11 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api_paths": ["apis/management.cattle.io/v3/"],
         "api": "projects",
     },
+    ("ProxyEndpoint", "management.cattle.io"): {
+        "api_paths": ["apis/management.cattle.io/v3/"],
+        "api": "proxyendpoints",
+        "namespaced": False,
+    },
     ("RancherUserNotification", "management.cattle.io"): {
         "api_paths": ["apis/management.cattle.io/v3/"],
         "api": "rancherusernotifications",

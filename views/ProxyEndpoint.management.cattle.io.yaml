@@ -1,0 +1,33 @@
+---
+kind: "ProxyEndpoint"
+api_family: "management.cattle.io"
+default_command: "proxyendpoints.management.cattle.io"
+command:
+  - "proxyendpoints.cattle"
+  - "proxyendpoint.cattle"
+  - "proxyeps.cattle"
+  - "proxyep.cattle"
+listview:
+  name: "Proxy Endpoints"
+  group: "Rancher"
+  field_indexes:
+    Normal:
+      fields: ["name", "age"]
+infoview:
+  name: "Proxy Endpoint Info"
+  infopad:
+  listpad:
+    listgetter: "listgetter_path"
+    listgetter_args:
+      path: "spec#routes"
+    infogetter: "generic_infogetter"
+    field_indexes:
+      Normal:
+        fields: ["domain"]
+        sortcolumn: "domain"
+    fields:
+      domain:
+        header: "Domain:"
+        path: "domain"
+        default: "<unset>"
+        type: "str"
