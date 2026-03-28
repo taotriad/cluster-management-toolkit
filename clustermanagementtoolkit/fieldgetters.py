@@ -69,64 +69,6 @@ def fieldgetter_executable_version(**kwargs: Any) -> list[str]:
     return ["".join(version)]
 
 
-# pylint: disable-next=too-many-branches
-def fieldgetter_crc_version(**kwargs: Any) -> list[Any]:
-    """
-    A fieldgetter that provides the version of Code Ready Containers (CRC).
-
-        Parameters:
-            **kwargs (dict[str, Any]): Keyword arguments
-                fields ([int]): The indexes of the CRC version fields to return
-        Returns:
-            ([str]): The list of CRC version fields
-    """
-    fields: list[Any] = deep_get(kwargs, DictPath("fields"), [])
-    security_policy = SecurityPolicy.ALLOWLIST_RELAXED
-    fallback_allowlist = ["/bin", "/sbin", "/usr/bin", "/usr/sbin",
-                          "/usr/local/bin", "/usr/local/sbin", f"{HOMEDIR}/bin"]
-
-    versions = ["", "", "", ""]
-
-    try:
-        crc_path = secure_which(FilePath("/usr/bin/crc"), fallback_allowlist=fallback_allowlist,
-                                security_policy=security_policy)
-    except FileNotFoundError:
-        crc_path = None
-
-    if crc_path:
-        args = ["version"]
-        result: str | None
-        result, _retval = execute_command_with_response([crc_path] + args)
-
-        if result:
-            for line in result.splitlines():
-                if "Machine does not exist" in line:
-                    result = None
-
-        if result is not None:
-            # OK, we hopefully have a CRC cluster setup; it might not be running, but that's OK,
-            # we want the version information anyway.
-            args = ["version"]
-            result, _retval = execute_command_with_response([crc_path] + args)
-
-        if result is not None:
-            for line in result.splitlines():
-                if line.startswith("CRC version: "):
-                    versions[0] = line.removeprefix("CRC version: ")
-                elif line.startswith("OpenShift version: "):
-                    versions[1] = line.removeprefix("OpenShift version: ")
-                elif line.startswith("MicroShift version: "):
-                    versions[2] = line.removeprefix("MicroShift version: ")
-                elif line.startswith("Podman version: "):
-                    versions[3] = line.removeprefix("Podman version: ")
-
-    version_strings = []
-    for field in fields:
-        if field < len(versions):
-            version_strings.append(versions[field])
-    return version_strings
-
-
 def fieldgetter_api_server_version(**kwargs: Any) -> list[Any]:
     """
     A fieldgetter that provides the version of the Kubernetes API-server.
@@ -156,6 +98,5 @@ def fieldgetter_api_server_version(**kwargs: Any) -> list[Any]:
 # Fieldgetters acceptable for direct use in view files
 fieldgetter_allowlist: dict[str, Callable] = {
     "fieldgetter_api_server_version": fieldgetter_api_server_version,
-    "fieldgetter_crc_version": fieldgetter_crc_version,
     "fieldgetter_executable_version": fieldgetter_executable_version,
 }

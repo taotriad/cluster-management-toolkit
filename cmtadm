@@ -1778,7 +1778,12 @@ def check_versions(pkg_packages: list[str], version_checks: list[tuple[str, list
 
     if not (crc_upstream_version := get_latest_upstream_version("crc")):
         crc_upstream_version = "<unknown>"
-    crc_installed_version = fieldgetters.fieldgetter_crc_version(fields=[0])[0]
+
+    crc_version_regex = r"^CRC version: (\d+)(\.)(\d+)(\.)(.+)$"
+    crc_installed_version = \
+        fieldgetters.fieldgetter_executable_version(executable="crc",
+                                                    args=["version"],
+                                                    version_regex=crc_version_regex)[0]
 
     # Now check versions that need special checks
     for version_check in version_checks:
@@ -3974,7 +3979,8 @@ def check_for_updates(options: list[tuple[str, str]], args: list[str]) -> None:
         elif opt == "--verbose":
             verbose = True
 
-    ansithemeprint([ANSIThemeStr("\n[Checking for software updates]", "phase")])
+    if any((update_pkg_cache, update_upstream_cache)):
+        ansithemeprint([ANSIThemeStr("\n[Checking for software updates]", "phase")])
 
     if update_pkg_cache:
         if os_distro in ("debian",):
@@ -3989,6 +3995,8 @@ def check_for_updates(options: list[tuple[str, str]], args: list[str]) -> None:
         ansithemeprint([ANSIThemeStr("\n• ", "separator"),
                         ANSIThemeStr("Updating upstream cache (GitHub, etc.)", "action")])
         update_version_cache(verbose=verbose, force=force)
+
+    ansithemeprint([ANSIThemeStr("\n[Summarising version data]", "phase")])
 
     pkg_packages: list[str] = [
         "ansible",
