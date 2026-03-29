@@ -207,6 +207,8 @@ def process_value(value: Any, vtype: str | list, **kwargs: Any) -> \
     elif vtype == "timestamp":
         new_value = __process_timestamp(value, action, formatter)
     elif isinstance(vtype, list):
+        if isinstance(value, str):
+            value = (value,)
         if not isinstance(value, (list, tuple)):
             raise ValueError(f"Field {field_name}: type({value}) is {vtype}; "
                              f"for type {vtype} pathtype must be a multi-element type")
