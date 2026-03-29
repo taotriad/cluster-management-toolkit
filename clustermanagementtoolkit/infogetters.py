@@ -1546,7 +1546,7 @@ def get_pod_info(**kwargs: Any) -> list[Type]:
             container_statuses = deep_get(obj, DictPath("status#containerStatuses"), [])
             init_container_list = deep_get(obj, DictPath("spec#initContainers"), [])
             init_container_statuses = deep_get(obj, DictPath("status#initContainerStatuses"), [])
-            tolerations = itemgetters.get_pod_tolerations(obj)
+            tolerations = itemgetters.get_tolerations(obj)
             containers = get_containers(containers=init_container_list,
                                         container_statuses=init_container_statuses)
             containers += get_containers(containers=container_list,

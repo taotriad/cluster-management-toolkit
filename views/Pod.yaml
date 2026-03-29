@@ -622,7 +622,7 @@ infoview:
       title: "Affinities:"
       widget: "windowwidget"
       headers: ["Type:", "Scheduling:", "Execution:", "Selector:", "Topology:"]
-      itemgetter: "get_pod_affinity"
+      itemgetter: "get_affinity"
       # This isn't supported for now
       sortcolumn: "type"
     "Execute command in container":
@@ -665,7 +665,7 @@ infoview:
       title: "Tolerations:"
       widget: "windowwidget"
       headers: ["Key:", "Operator:", "Value:", "Effect:", "Timeout:"]
-      itemgetter: "get_pod_tolerations"
+      itemgetter: "get_tolerations"
       # This isn't supported for now
       sortcolumn: "key"
     "Priority Class":

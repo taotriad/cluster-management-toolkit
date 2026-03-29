@@ -58,11 +58,13 @@ infoview:
       cert_ca_duration:
         header: [["    Duration:", ["main", "infoheader"]]]
         path: "spec#certConfig#ca#duration"
+        default: "<unset>"
         type: "str"
         formatter: "age"
       cert_ca_renew_before:
         header: [["    Renew Before:", ["main", "infoheader"]]]
         path: "spec#certConfig#ca#renewBefore"
+        default: "<unset>"
         type: "str"
         formatter: "age"
       cert_server_header:
@@ -70,11 +72,13 @@ infoview:
       cert_server_duration:
         header: [["    Duration:", ["main", "infoheader"]]]
         path: "spec#certConfig#server#duration"
+        default: "<unset>"
         type: "str"
         formatter: "age"
       cert_server_renew_before:
         header: [["    Renew Before:", ["main", "infoheader"]]]
         path: "spec#certConfig#server#renewBefore"
+        default: "<unset>"
         type: "str"
         formatter: "age"
       configuration:
@@ -117,7 +121,9 @@ infoview:
           field_separators:
             - type: "selector"
       infrastructure_tolerations:
-        header: [["  Tolerations:", ["main", "infoheader"]]]
+        header: [["  Tolera", ["main", "infoheader"]],
+                 ["t", ["main", "infoheader_shortcut"]],
+                 ["ions:", ["main", "infoheader"]]]
         paths:
           - path: "spec#infra#tolerations"
             pathtype: "match_expression"
@@ -140,13 +146,34 @@ infoview:
         formatting:
           mapping:
             mappings:
+              Deleting:
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+              Deleted:
+                field_colors:
+                  - context: "main"
+                    type: "status_done"
               Deployed:
                 field_colors:
                   - context: "main"
                     type: "status_done"
+              Deploying:
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+              Error:
+                field_colors:
+                  - context: "main"
+                    type: "status_not_ok"
+              Upgrading:
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
       uninstall_strategy:
         header: [["Uninstall Strategy:", ["main", "infoheader"]]]
         path: "spec#uninstallStrategy"
+        default: "<unset>"
         type: "str"
       version_header:
         header: [["Version:", ["main", "infoheader"]]]
@@ -209,3 +236,15 @@ infoview:
       itemgetter: "get_key_value"
       itemgetter_args:
         path: "spec#workload#nodeSelector"
+    "Show Infrastructure tolerations":
+      key: "t"
+      read_only: true
+      helptext: "Show Infrastructure tolerations"
+      title: "Infrastructure Tolerations:"
+      widget: "windowwidget"
+      headers: ["Key:", "Operator:", "Value:", "Effect:", "Timeout:"]
+      itemgetter: "get_tolerations"
+      itemgetter_args:
+        path: ["spec#infra#tolerations"]
+      # This isn't supported for now
+      sortcolumn: "key"

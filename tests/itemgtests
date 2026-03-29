@@ -1943,11 +1943,11 @@ def test_get_package_version_list(verbose: bool = False) -> tuple[str, bool]:
     return message, result
 
 
-def test_get_pod_affinity(verbose: bool = False) -> tuple[str, bool]:
+def test_get_affinity(verbose: bool = False) -> tuple[str, bool]:
     message = ""
     result = True
 
-    fun = itemgetters.get_pod_affinity
+    fun = itemgetters.get_affinity
 
     if result:
         # Indata format:
@@ -2571,11 +2571,11 @@ def test_get_prepopulated_list(verbose: bool = False) -> tuple[str, bool]:
     return message, result
 
 
-def test_get_pod_tolerations(verbose: bool = False) -> tuple[str, bool]:
+def test_get_tolerations(verbose: bool = False) -> tuple[str, bool]:
     message = ""
     result = True
 
-    fun = itemgetters.get_pod_tolerations
+    fun = itemgetters.get_tolerations
 
     if result:
         # Indata format:
@@ -3527,16 +3527,16 @@ tests: dict[tuple[str, ...], dict[str, Any]] = {
         "callable": test_get_package_version_list,
         "result": None,
     },
-    ("get_pod_affinity()",): {
-        "callable": test_get_pod_affinity,
+    ("get_affinity()",): {
+        "callable": test_get_affinity,
         "result": None,
     },
     ("get_prepopulated_list()",): {
         "callable": test_get_prepopulated_list,
         "result": None,
     },
-    ("get_pod_tolerations()",): {
-        "callable": test_get_pod_tolerations,
+    ("get_tolerations()",): {
+        "callable": test_get_tolerations,
         "result": None,
     },
     ("get_resource_list()",): {

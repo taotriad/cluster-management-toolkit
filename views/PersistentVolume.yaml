@@ -8,8 +8,8 @@ listview:
   group: "Storage & Backups"
   field_indexes:
     Wide:
-      fields: ["name", "storage_class", "access_modes", "reclaim_policy", "volume_mode", "capacity", "status",
-               "age", "claim", "reason"]
+      fields: ["name", "storage_class", "access_modes", "reclaim_policy",
+               "volume_mode", "capacity", "status", "age", "claim", "reason"]
     Normal:
       fields: ["name", "storage_class", "access_modes", "capacity", "status",
                "age"]

@@ -142,7 +142,7 @@ infoview:
       helptext: "Show affinities"
       widget: "windowwidget"
       headers: ["Type:", "Scheduling:", "Execution:", "Selector:", "Topology:"]
-      itemgetter: "get_pod_affinity"
+      itemgetter: "get_affinity"
       itemgetter_args:
         path: "spec#agentAffinity"
       # This isn't supported for now

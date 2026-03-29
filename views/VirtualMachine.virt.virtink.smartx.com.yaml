@@ -133,7 +133,7 @@ infoview:
       widget: "windowwidget"
       headers: ["Type:", "Scheduling:", "Execution:",
                 "Selector:", "Topology:"]
-      itemgetter: "get_pod_affinity"
+      itemgetter: "get_affinity"
       # This isn't supported for now
       sortcolumn: "type"
     "Open Node":

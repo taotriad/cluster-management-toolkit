@@ -2478,7 +2478,7 @@ def listgetter_path(obj: dict, **kwargs: Any) -> tuple[dict | list[dict], int]:
             key_value = deep_get(path, DictPath("key_value"))
 
             if ptype == "list":
-                tmp: Any = []
+                tmp = []
                 for item in deep_get(obj, DictPath(ppath), []):
                     tmpitem = copy.deepcopy(item)
                     if key_name is not None and key_value is not None:

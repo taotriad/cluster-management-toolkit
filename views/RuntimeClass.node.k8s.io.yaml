@@ -78,4 +78,4 @@ infoview:
       headers: ["Key:", "Operator:", "Value:", "Effect:", "Timeout:"]
       # This isn't supported for now
       sortcolumn: "key"
-      itemgetter: "get_pod_tolerations"
+      itemgetter: "get_tolerations"

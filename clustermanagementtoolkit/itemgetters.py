@@ -588,9 +588,9 @@ def get_package_version_list(obj: dict, **kwargs: Any) -> list[tuple[str, str]] 
 
 
 # pylint: disable-next=too-many-locals,too-many-branches
-def get_pod_affinity(obj: dict, **kwargs: Any) -> list[tuple[str, str, str, str, str]]:
+def get_affinity(obj: dict, **kwargs: Any) -> list[tuple[str, str, str, str, str]]:
     """
-    Get a list of pod affinities.
+    Get a list of affinities.
 
         Parameters:
             obj (dict): The object to get data from
@@ -807,10 +807,9 @@ def get_prepopulated_list(obj: dict, **kwargs: Any) -> list[dict]:
     return vlist
 
 
-# pylint: disable-next=unused-argument
-def get_pod_tolerations(obj: dict, **kwargs: Any) -> list[tuple[str, str, str, str, str]]:
+def get_tolerations(obj: dict, **kwargs: Any) -> list[tuple[str, str, str, str, str]]:
     """
-    Get a list of pod tolerations.
+    Get a list of tolerations.
 
         Parameters:
             obj (dict): The object to get data from
@@ -823,9 +822,11 @@ def get_pod_tolerations(obj: dict, **kwargs: Any) -> list[tuple[str, str, str, s
                 (str): effect
                 (str): timeout
     """
-    expression_list: list[dict[str, Any]] = \
-        deep_get_with_fallback(obj, [DictPath("spec#tolerations"),
-                                     DictPath("scheduling#tolerations")], [])
+    path: list[DictPath] = deep_get(kwargs, DictPath("path"),
+                                    [DictPath("spec#tolerations"),
+                                     DictPath("scheduling#tolerations")])
+
+    expression_list: list[dict[str, Any]] = deep_get_with_fallback(obj, path, [])
     return cast(list[tuple[str, str, str, str, str]],
                 make_set_expression_list(expression_list,
                                          timeout_paths=[DictPath("tolerationSeconds")],
@@ -1103,10 +1104,10 @@ itemgetter_allowlist: dict[str, Callable] = {
     "get_dict_list": get_dict_list,
     "get_list_fields": get_list_fields,
     "get_package_version_list": get_package_version_list,
-    "get_pod_affinity": get_pod_affinity,
+    "get_affinity": get_affinity,
     "get_pod_configmaps": get_pod_configmaps,
     "get_prepopulated_list": get_prepopulated_list,
-    "get_pod_tolerations": get_pod_tolerations,
+    "get_tolerations": get_tolerations,
     "get_resource_list": get_resource_list,
     "get_strings_from_string": get_strings_from_string,
     "get_security_context": get_security_context,

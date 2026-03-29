@@ -14,7 +14,15 @@ infoview:
     row_indexes:
       Normal:
         fields: ["controller", "feature_gates", "tls_security_profile_type",
-                 "upload_proxy_url_override", "scratch_space_storage_class"]
+                 "import_proxy_header",
+                 "import_proxy_http_proxy",
+                 "import_proxy_https_proxy",
+                 "import_proxy_no_proxy",
+                 "import_proxy_trusted_ca_proxy",
+                 "upload_proxy_url_override", "scratch_space_storage_class",
+                 "filesystem_overhead_header",
+                 "filesystem_overhead_global",
+                 "filesystem_overhead_storage_class"]
     rows:
       controller:
         header: [["C", ["main", "infoheader_shortcut"]],
@@ -46,6 +54,56 @@ infoview:
         default: ["<none>"]
         type: "raw"
         formatter: "list"
+      filesystem_overhead_global:
+        header: [["  Global:", ["main", "infoheader"]]]
+        path: "status#filesystemOverhead#global"
+        default: "<none>"
+        type: "str"
+        formatter: "numerical"
+      filesystem_overhead_header:
+        header: [["Filesystem Overhead:", ["main", "infoheader"]]]
+      filesystem_overhead_storage_class:
+        header: [["  Storage Class:", ["main", "infoheader"]]]
+        paths:
+          - path: "status#filesystemOverhead#storageClass"
+            pathtype: "key_value"
+            default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "key"
+            - type: "numerical"
+          field_formatters:
+            - ""
+            - "numerical_with_units"
+          field_separators:
+            - type: "keyvalue"
+      import_proxy_header:
+        header: [["Import Proxy:", ["main", "infoheader"]]]
+      import_proxy_http_proxy:
+        header: [["  HTTP Proxy:", ["main", "infoheader"]]]
+        path: "status#importProxy#HTTPProxy"
+        fallback_on_empty: true
+        default: "<none>"
+        type: "str"
+      import_proxy_https_proxy:
+        header: [["  HTTPS Proxy:", ["main", "infoheader"]]]
+        path: "status#importProxy#HTTPSProxy"
+        fallback_on_empty: true
+        default: "<none>"
+        type: "str"
+      import_proxy_no_proxy:
+        header: [["  No Proxy:", ["main", "infoheader"]]]
+        path: "status#importProxy#noProxy"
+        fallback_on_empty: true
+        default: "<none>"
+        type: "str"
+      import_proxy_trusted_ca_proxy:
+        header: [["  Trusted CA Proxy:", ["main", "infoheader"]]]
+        path: "status#importProxy#trustedCAProxy"
+        fallback_on_empty: true
+        default: "<none>"
+        type: "str"
       scratch_space_storage_class:
         header: [["Scratch Space ", ["main", "infoheader"]],
                  ["S", ["main", "infoheader_shortcut"]],
@@ -100,3 +158,21 @@ infoview:
         path: "status#importProxy"
       # Not supported for now
       sortcolumn: "protocol"
+    "Show Requests":
+      key: "e"
+      modifier: "shift"
+      read_only: true
+      helptext: "Show requests"
+      title: "Requests:"
+      widget: "windowwidget"
+      headers: ["Resource:", "Request:", "Limit:"]
+      itemgetter: "get_resource_list"
+      itemgetter_args:
+        allocatable_path: "status#defaultPodResourceRequirements#requests"
+        capacity_path: "status#defaultPodResourceRequirements#limits"
+      formatting: [["windowwidget", "default"],
+                   ["windowwidget", "highlight"],
+                   ["windowwidget", "highlight"]]
+      # Not supported for now
+      # This isn't supported for now
+      sortcolumn: "requests"

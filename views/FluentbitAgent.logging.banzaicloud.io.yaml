@@ -135,7 +135,7 @@ infoview:
       title: "Tolerations:"
       widget: "windowwidget"
       headers: ["Key:", "Operator:", "Value:", "Effect:", "Timeout:"]
-      itemgetter: "get_pod_tolerations"
+      itemgetter: "get_tolerations"
       # This isn't supported for now
       sortcolumn: "key"
     "List Volume Mounts":
