@@ -81,7 +81,7 @@ def fieldgetter_api_server_version(**kwargs: Any) -> list[Any]:
             ([str]): The list of API-server version fields
     """
     if (kh := deep_get(kwargs, DictPath("kubernetes_helper"))) is None:
-        raise ProgrammingError("fieldgetter_api_server_version() called without kubernetes_helper")
+        raise ProgrammingError(f"{__name__}() called without kubernetes_helper")
     fields: list[Any] = deep_get(kwargs, DictPath("fields"), [])
 
     field_list = []

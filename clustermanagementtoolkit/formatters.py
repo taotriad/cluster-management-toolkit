@@ -2722,7 +2722,6 @@ def identify_formatter(dataformat: str,
             else:
                 raise ValueError(f"We do not know how to auto-identify data for kind {kind}")
         else:
-            raise ValueError("identify_formatter() was called without dataformat, "
-                             "and kind, obj, or path=None")
+            raise ValueError(f"{__name__}() called without dataformat, and kind, obj, or path=None")
 
     return formatter

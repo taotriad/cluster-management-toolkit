@@ -56,7 +56,7 @@ def get_kubernetes_list(*args: Any,
             ProgrammingError: Function called without kubernetes_helper
     """
     if (kh := deep_get(kwargs, DictPath("kubernetes_helper"))) is None:
-        raise ProgrammingError("get_kubernetes_list() called without kubernetes_helper")
+        raise ProgrammingError(f"{__name__}() called without kubernetes_helper")
     kh_cache = deep_get(kwargs, DictPath("kh_cache"))
 
     kind = deep_get(kwargs, DictPath("kind"))
@@ -121,7 +121,7 @@ def get_context_list(**kwargs: Any) -> tuple[list[dict], list[str]]:
             ProgrammingError: Function called without kubernetes_helper
     """
     if (kh := deep_get(kwargs, DictPath("kubernetes_helper"))) is None:
-        raise ProgrammingError("get_context_list() called without kubernetes_helper")
+        raise ProgrammingError(f"{__name__}() called without kubernetes_helper")
 
     vlist = []
     hosts = []

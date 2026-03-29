@@ -106,7 +106,7 @@ def get_kubernetes_objects(obj: dict, **kwargs: Any) -> list[tuple[str, ...]]:
             ([(str, str)]): A list of fields from Kubernetes objects
     """
     if (kh := deep_get(kwargs, DictPath("kubernetes_helper"))) is None:
-        raise ProgrammingError("get_kubernetes_objects() called without kubernetes_helper")
+        raise ProgrammingError(f"{__name__}() called without kubernetes_helper")
     kh_cache = deep_get(kwargs, DictPath("kh_cache"))
 
     field_paths = deep_get(kwargs, DictPath("field_paths"), [])
@@ -212,7 +212,7 @@ def get_events(obj: dict, **kwargs: Any) -> list[dict]:
             ([dict]): A list of events
     """
     if (kh := deep_get(kwargs, DictPath("kubernetes_helper"))) is None:
-        raise ProgrammingError("get_events() called without kubernetes_helper")
+        raise ProgrammingError(f"{__name__}() called without kubernetes_helper")
     kh_cache = deep_get(kwargs, DictPath("kh_cache"))
 
     event_list = []
@@ -683,7 +683,7 @@ def get_pod_configmaps(obj: dict, **kwargs: Any) -> list[dict[str, Any]] | None:
                 (dict): The Pod object that matches the namespace
     """
     if (kh := deep_get(kwargs, DictPath("kubernetes_helper"))) is None:
-        raise ProgrammingError("get_pod_configmaps() called without kubernetes_helper")
+        raise ProgrammingError(f"{__name__}() called without kubernetes_helper")
     kh_cache = deep_get(kwargs, DictPath("kh_cache"))
 
     cm_namespace = deep_get(kwargs, DictPath("cm_namespace"))
@@ -1005,7 +1005,7 @@ def get_svc_port_target_endpoints(obj: dict, **kwargs: Any) -> list[tuple[str, s
             ([(str, str, str, str)]): A list of Service port target endpoints
     """
     if (kh := deep_get(kwargs, DictPath("kubernetes_helper"))) is None:
-        raise ProgrammingError("get_svc_port_target_endpoints() called without kubernetes_helper")
+        raise ProgrammingError(f"{__name__}() called without kubernetes_helper")
     kh_cache = deep_get(kwargs, DictPath("kh_cache"))
 
     svcname = deep_get(obj, DictPath("metadata#name"))

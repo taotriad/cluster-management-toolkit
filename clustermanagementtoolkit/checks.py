@@ -1072,7 +1072,7 @@ def check_running_pods(**kwargs: Any) -> tuple[bool, int, int, int, int]:
     ansithemeprint([ANSIThemeStr("\n[Checking required pods]", "phase")])
 
     if (kh := deep_get(kwargs, DictPath("kubernetes_helper"))) is None:
-        raise ProgrammingError("check_running_pods() called without kubernetes_helper")
+        raise ProgrammingError(f"{__name__}() called without kubernetes_helper")
 
     k8s_distro, _status = kh.identify_k8s_distro()
 

@@ -167,7 +167,7 @@ def set_level(loglevel: LogLevel) -> None:
             TypeError: logger called without being initialized
     """
     if logger is None:
-        raise TypeError("cmtlog.log() called without being initialized; aborting.")
+        raise TypeError(f"cmtlog.{__name__}() called without being initialized; aborting.")
 
     if loglevel == LogLevel.DEBUG:
         logger.setLevel(logging.DEBUG)
@@ -180,4 +180,4 @@ def set_level(loglevel: LogLevel) -> None:
     elif loglevel == LogLevel.CRIT:
         logger.setLevel(logging.CRITICAL)
     else:
-        raise ValueError(f"cmtlog.set_level() called with invalid loglevel {loglevel}")
+        raise ValueError(f"cmtlog.{__name__}() called with invalid loglevel {loglevel}")

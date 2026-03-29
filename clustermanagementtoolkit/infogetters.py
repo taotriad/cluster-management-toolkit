@@ -839,16 +839,19 @@ def get_obj(obj: dict, field_dict: dict, field_names: list[str],
                 elif ptype == "selectors":
                     value = []
                     # This is a list of selectors
-                    for selector in path:
-                        tmp = deep_get_with_fallback(obj, path)
+                    if not path and isinstance(obj, dict) and ("matchExpressions" in obj
+                                                               or "matchLabels" in obj
+                                                               or "cel" in obj):
+                        tmp = [obj]
+                    else:
+                        tmp = deep_get_with_fallback(obj, path, [])
+                    for selector in tmp:
                         if "matchExpressions" in selector:
-                            value.append(make_set_expression(tmp))
-                        elif "matchLabels" in selector:
-                            value.append(make_label_selector(tmp))
-                        else:
-                            if isinstance(tmp, dict):
-                                tmp = [tmp]
-                            value.append(make_cel_expression(tmp))
+                            value.append(make_set_expression(selector["matchExpressions"]))
+                        if "matchLabels" in selector:
+                            value.append(make_label_selector(selector["matchLabels"]))
+                        if "cel" in selector:
+                            value.append(make_cel_expression([selector["cel"]]))
                     if len(value) == 1:
                         _values.append((value[0], "str"))
                     else:
@@ -1493,7 +1496,7 @@ def get_pod_info(**kwargs: Any) -> list[Type]:
         return []
 
     if (kh := deep_get(kwargs, DictPath("kubernetes_helper"))) is None:
-        raise ProgrammingError("get_pod_info() called without kubernetes_helper")
+        raise ProgrammingError(f"{__name__}() called without kubernetes_helper")
     kh_cache = deep_get(kwargs, DictPath("kh_cache"))
 
     for obj in vlist:
@@ -2022,7 +2025,7 @@ def get_rq_item_info(**kwargs: Any) -> list[Type]:
     return info
 
 
-# pylint: disable-next=too-many-locals,too-many-statements
+# pylint: disable-next=too-many-locals
 def get_sas_info(**kwargs: Any) -> list[Type]:
     """
     Infogetter for Service Account secrets.
@@ -2036,7 +2039,7 @@ def get_sas_info(**kwargs: Any) -> list[Type]:
             ([InfoClass]): A list with info
     """
     if (kh := deep_get(kwargs, DictPath("kubernetes_helper"))) is None:
-        raise ProgrammingError("get_sas_info() called without kubernetes_helper")
+        raise ProgrammingError(f"{__name__}() called without kubernetes_helper")
     kh_cache = deep_get(kwargs, DictPath("kh_cache"))
 
     obj = deep_get(kwargs, DictPath("_obj"))
@@ -2048,26 +2051,7 @@ def get_sas_info(**kwargs: Any) -> list[Type]:
     saname = deep_get(obj, DictPath("metadata#name"))
     sanamespace = deep_get(obj, DictPath("metadata#namespace"))
 
-    for secret in deep_get(obj, DictPath("secrets"), []):
-        snamespace = deep_get(secret, DictPath("namespace"),
-                              deep_get(obj, DictPath("metadata#namespace")))
-        secret_name = deep_get(secret, DictPath("name"))
-
-        # Get a reference to the secret
-        ref = kh.get_ref_by_kind_name_namespace(("Secret", ""),
-                                                secret_name, snamespace, resource_cache=kh_cache)
-
-        info.append(type("InfoClass", (), {
-            "name": secret_name,
-            "ref": ref,
-            "namespace": snamespace,
-            "kind": ("Secret", ""),
-            "type": "Mountable",
-        }))
-
     for secret in deep_get(obj, DictPath("imagePullSecrets"), []):
-        deep_set(ref, DictPath("kind"), "Secret", create_path=True)
-        deep_set(ref, DictPath("apiVersion"), "", create_path=True)
         snamespace = deep_get(secret, DictPath("namespace"),
                               deep_get(obj, DictPath("metadata#namespace")))
         secret_name = deep_get(secret, DictPath("name"))
@@ -2075,6 +2059,8 @@ def get_sas_info(**kwargs: Any) -> list[Type]:
         # Get a reference to the secret
         ref = kh.get_ref_by_kind_name_namespace(("Secret", ""), secret_name,
                                                 snamespace, resource_cache=kh_cache)
+        deep_set(ref, DictPath("kind"), "Secret", create_path=True)
+        deep_set(ref, DictPath("apiVersion"), "", create_path=True)
 
         info.append(type("InfoClass", (), {
             "name": secret_name,
@@ -2086,6 +2072,8 @@ def get_sas_info(**kwargs: Any) -> list[Type]:
 
     vlist, _status = kh.get_list_by_kind_namespace(("RoleBinding", "rbac.authorization.k8s.io"),
                                                    "", resource_cache=kh_cache)
+
+    # There are other resources we could add reverse entries for, but let's keep things simple.
 
     # Get all Role Bindings that bind to this ServiceAccount
     for ref in vlist:
@@ -2919,7 +2907,7 @@ def get_container_info(**kwargs: Any) -> list[Type]:
             ([InfoClass]): A list with info
     """
     if (kh_ := deep_get(kwargs, DictPath("kubernetes_helper"))) is None:
-        raise ProgrammingError("get_container_info() called without kubernetes_helper")
+        raise ProgrammingError(f"{__name__}() called without kubernetes_helper")
     kh_cache_: KubernetesResourceCache | None = deep_get(kwargs, DictPath("kh_cache"))
 
     info: list[Type] = []

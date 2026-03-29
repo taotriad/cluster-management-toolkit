@@ -241,7 +241,7 @@ def datagetter_latest_version(obj: dict[str, Any],
                 (dict): An empty dict
     """
     if (kh := deep_get(kwargs, DictPath("kubernetes_helper"))) is None:
-        raise ProgrammingError("datagetter_latest_version() called without kubernetes_helper")
+        raise ProgrammingError(f"{__name__}() called without kubernetes_helper")
     kh_cache = deep_get(kwargs, DictPath("kh_cache"))
 
     path = deep_get(kwargs, DictPath("path"))
@@ -397,7 +397,7 @@ def get_pod_status(obj: dict[str, Any], **kwargs: Any) -> tuple[str, StatusGroup
                 (StatusGroup): The StatusGroup of the pod
     """
     if (kh := deep_get(kwargs, DictPath("kubernetes_helper"))) is None:
-        raise ProgrammingError("get_pod_status() called without kubernetes_helper")
+        raise ProgrammingError(f"{__name__}() called without kubernetes_helper")
     kh_cache = deep_get(kwargs, DictPath("kh_cache"))
 
     in_depth_node_status = deep_get(kwargs, DictPath("in_depth_node_status"), True)
@@ -521,7 +521,7 @@ def datagetter_pod_status(obj: dict[str, Any], **kwargs: Any) -> tuple[str, dict
             The return value from get_endpointslices_endpoints and an empty dict
     """
     if (kh := deep_get(kwargs, DictPath("kubernetes_helper"))) is None:
-        raise ProgrammingError("datagetter_pod_status() called without kubernetes_helper")
+        raise ProgrammingError(f"{__name__}() called without kubernetes_helper")
     kh_cache = deep_get(kwargs, DictPath("kh_cache"))
 
     default = deep_get(kwargs, DictPath("default"))
@@ -553,7 +553,7 @@ def datagetter_api_support(obj: dict[str, Any], **kwargs: Any) -> tuple[list[str
                 (dict): An empty dict
     """
     if (kh := deep_get(kwargs, DictPath("kubernetes_helper"))) is None:
-        raise ProgrammingError("datagetter_api_support() called without kubernetes_helper")
+        raise ProgrammingError(f"{__name__}() called without kubernetes_helper")
 
     default = deep_get(kwargs, DictPath("default"))
 
