@@ -102,6 +102,7 @@ infoview:
       image_pull_policy:
         header: [["Image Pull Policy:", ["main", "infoheader"]]]
         path: "spec#imagePullPolicy"
+        default: "<unset>"
         type: "str"
       observed_kubevirt_registry:
         header: [["Observed KubVirt Policy:", ["main", "infoheader"]]]
