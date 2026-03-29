@@ -15,6 +15,7 @@ listview:
     applied:
       header: "Applied:"
       path: "status#applied"
+      default: "<unset>"
       type: "bool"
     value:
       header: "Value:"
@@ -39,4 +40,18 @@ listview:
         actionfunc: "delete_resource"
 infoview:
   name: "Setting Info"
-  infopad: null
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["applied"]
+    rows:
+      applied:
+        header: [["Applied:", ["main", "infoheader"]]]
+        path: "status#applied"
+        default: "<unset>"
+        type: "bool"
+  logpad:
+    infogetter: "logpad_msg_getter"
+    infogetter_args:
+      path: "value"
+    timestamps: false

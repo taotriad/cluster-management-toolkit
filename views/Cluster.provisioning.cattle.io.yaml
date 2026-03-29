@@ -44,7 +44,7 @@ infoview:
     row_indexes:
       Normal:
         fields: ["cluster_name", "client_secret_name",
-                 "kubeconfig", "ready"]
+                 "kubeconfig", "fleet_workspace", "ready"]
     rows:
       client_secret_name:
         header: [["Client ", ["main", "infoheader"]],
@@ -57,6 +57,12 @@ infoview:
                  ["u", ["main", "infoheader_shortcut"]],
                  ["ster Name:", ["main", "infoheader"]]]
         path: "status#clusterName"
+        type: "str"
+      fleet_workspace:
+        header: [["F", ["main", "infoheader_shortcut"]],
+                 ["leet Workspace:", ["main", "infoheader"]]]
+        path: "status#fleetWorkspaceName"
+        default: "<unset>"
         type: "str"
       kubeconfig:
         header: [["K", ["main", "infoheader_shortcut"]],
@@ -92,6 +98,19 @@ infoview:
         api_family: "fleet.cattle.io"
         namespace_path: "metadata#namespace"
         name_path: "status#clusterName"
+    "Open Fleet Workspace":
+      key: "f"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for Fleet Workspace"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind: "FleetWorkspace"
+        api_family: "management.cattle.io"
+        namespace_path: "metadata#namespace"
+        name_path: "status#fleetWorkspaceName"
     "Open Kubeconfig":
       key: "k"
       modifier: "shift"

@@ -9,14 +9,9 @@ listview:
   group: "Network"
   field_indexes:
     Normal:
-      fields: ["namespace", "name", "class", "hosts", "address",
-               "ports", "age"]
+      fields: ["namespace", "name", "ingress_class", "hosts", "address", "age"]
       sortcolumn: "namespace"
   fields:
-    class:
-      header: "Class:"
-      path: "spec#ingressClassName"
-      type: "str"
     address:
       header: "Address:"
       paths:
@@ -38,29 +33,23 @@ listview:
           pathtype: "items"
           subpath:
             - "host"
+          default: ["<none>"]
       formatter: "list"
-    ports:
-      header: "Ports:"
-      paths:
-        - path: ["spec#rules#http#paths#backend#service#port"]
-          pathtype: "appenditems"
-          subpath:
-            - "name"
-            - "number"
-      formatter: "list"
-      formatting:
-        field_colors:
-          - type: "port"
-          - type: "service"
+    ingress_class:
+      header: "Ingress Class:"
+      path: "spec#ingressClassName"
+      default: "<unset>"
+      type: "str"
 infoview:
   name: "Ingress Info"
   infopad:
     row_indexes:
       Normal:
-        fields: ["class", "default_backend"]
+        fields: ["ingress_class", "default_backend"]
     rows:
-      class:
-        header: [["C", ["main", "infoheader_shortcut"]],
+      ingress_class:
+        header: [["Ingress ", ["main", "infoheader"]],
+                 ["C", ["main", "infoheader_shortcut"]],
                  ["lass:", ["main", "infoheader"]]]
         path: "spec#ingressClassName"
         type: "str"

@@ -34,6 +34,18 @@ listview:
       header: "Ready:"
       path: "status#readyToUse"
       type: "str"
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          mappings:
+            "False":
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+            "True":
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
     size:
       header: "Size:"
       path: "status#size"
@@ -71,6 +83,18 @@ infoview:
         header: [["Ready to Use:", ["main", "infoheader"]]]
         path: "status#readyToUse"
         type: "str"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              "False":
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+              "True":
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
       size:
         header: [["Size:", ["main", "infoheader"]]]
         path: "status#size"

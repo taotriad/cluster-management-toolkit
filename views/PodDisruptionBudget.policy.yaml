@@ -18,7 +18,7 @@ listview:
       paths:
         - path: "status#disruptionsAllowed"
           type: "int"
-      default: 0
+          default: 0
       formatter: "numerical"
       align: "right"
     max_unavailable:
@@ -26,7 +26,7 @@ listview:
       paths:
         - path: "spec#maxUnavailable"
           type: "int"
-      default: "<unset>"
+          default: "<unset>"
       formatter: "numerical"
       align: "right"
     min_available:
@@ -34,7 +34,7 @@ listview:
       paths:
         - path: "spec#minAvailable"
           type: "int"
-      default: "<unset>"
+          default: "<unset>"
       formatter: "numerical"
       align: "right"
 infoview:

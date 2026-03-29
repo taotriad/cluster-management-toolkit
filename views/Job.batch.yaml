@@ -9,12 +9,11 @@ listview:
     Wide:
       fields: ["namespace", "name", "controller", "completions", "duration",
                "state", "age", "completion_time_with_age", "completion_mode",
-               "suspended", "containers_template"]
+               "suspended", "containers_template", "images_template"]
       sortcolumn: "state"
     Normal:
       fields: ["namespace", "name", "controller", "completions", "duration",
-               "state", "age", "completion_time", "completion_mode",
-               "containers_template"]
+               "state", "age"]
       sortcolumn: "state"
   fields:
     completion_mode:
@@ -66,7 +65,6 @@ listview:
           pathtype: "items"
           subpaths:
             - "name"
-            - subpath: "image"
           type: "raw"
       formatter: "list"
     controller:
@@ -82,7 +80,7 @@ listview:
             - key: "controller"
               eq: true
           type: ["kind", "api_group", "name"]
-      default: ["<none>"]
+          default: ["<none>"]
       formatter: "list"
       formatting:
         field_colors:
@@ -100,6 +98,26 @@ listview:
       default: 0
       formatter: "age"
       align: "right"
+    images_template:
+      header: "Images:"
+      paths:
+        - paths:
+            - "spec#template#spec#initContainers"
+            - "spec#template#spec#containers"
+          pathtype: "items"
+          subpaths:
+            - subpath: "image"
+              regex: ["^.+/(.+?):.+", "^(.+):.+"]
+            - subpath: "image"
+              regex: ["^.+:(.+)"]
+          type: "raw"
+      formatter: "list"
+      formatting:
+        field_colors:
+          - type: "generic"
+          - type: "version"
+        field_separators:
+          - type: "version"
     state:
       header: "State:"
       paths:
@@ -232,7 +250,7 @@ infoview:
               - key: "controller"
                 eq: true
             type: ["kind", "api_group", "name"]
-        default: "<none>"
+            default: ["<none>"]
         formatter: "list"
         formatting:
           field_colors:
@@ -439,6 +457,7 @@ infoview:
               - key: "controller"
                 eq: true
             type: ["kind", "api_group", "name"]
+            default: ["<none>"]
         formatter: "list"
         formatting:
           field_colors:

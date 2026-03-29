@@ -49,8 +49,22 @@ infoview:
   infopad:
     row_indexes:
       Normal:
-        fields: ["ready"]
+        fields: ["endpoint", "ready"]
     rows:
+      endpoint:
+        header: [["Endpoint:", ["main", "infoheader"]]]
+        paths:
+          - path: [["spec#controlPlaneEndpoint#host"],
+                   ["spec#controlPlaneEndpoint#port"]]
+            pathtype: "tuple"
+            default: ["<unset>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "generic"
+            - type: "port"
+          field_separators:
+            - type: "port"
       ready:
         header: [["Ready:", ["main", "infoheader"]]]
         path: "status#ready"

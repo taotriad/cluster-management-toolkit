@@ -14,7 +14,7 @@ infoview:
     row_indexes:
       Normal:
         fields: ["controller", "feature_gates", "tls_security_profile_type",
-                 "scratch_space_storage_class"]
+                 "upload_proxy_url_override", "scratch_space_storage_class"]
     rows:
       controller:
         header: [["C", ["main", "infoheader_shortcut"]],
@@ -30,7 +30,7 @@ infoview:
               - key: "controller"
                 eq: true
             type: ["kind", "api_group", "name"]
-        default: "<none>"
+            default: ["<none>"]
         formatter: "list"
         formatting:
           field_colors:
@@ -43,15 +43,25 @@ infoview:
       feature_gates:
         header: [["Feature Gates:", ["main", "infoheader"]]]
         path: "spec#featureGates"
+        default: ["<none>"]
         type: "raw"
         formatter: "list"
       scratch_space_storage_class:
-        header: [["Scratch Space Storage Class:", ["main", "infoheader"]]]
+        header: [["Scratch Space ", ["main", "infoheader"]],
+                 ["S", ["main", "infoheader_shortcut"]],
+                 ["torage Class:", ["main", "infoheader"]]]
         path: "status#scratchSpaceStorageClass"
+        default: "<unset>"
         type: "str"
       tls_security_profile_type:
         header: [["TLS Security Profile Type:", ["main", "infoheader"]]]
         path: "spec#tlsSecurityProfile#type"
+        default: "<unset>"
+        type: "str"
+      upload_proxy_url_override:
+        header: [["Upload Proxy URL Override:", ["main", "infoheader"]]]
+        path: "spec#uploadProxyURLOverride"
+        default: "<unset>"
         type: "str"
   shortcuts:
     "Open controller":
@@ -65,6 +75,18 @@ infoview:
         _pass_obj: true
         namespace_path: "metadata#namespace"
         owner_reference_path: "metadata#ownerReferences"
+    "Open Scratch Space Storage Class":
+      key: "s"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for scratch space Storage Class"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind: "StorageClass"
+        api_family: "storage.k8s.io"
+        name_path: "status#scratchSpaceStorageClass"
     "Show proxy settings":
       key: "p"
       modifier: "shift"

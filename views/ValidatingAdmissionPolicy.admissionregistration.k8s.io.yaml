@@ -145,6 +145,10 @@ infoview:
     listgetter: "listgetter_path"
     listgetter_args:
       paths:
+        - path: "spec#auditAnnotations"
+          type: "list"
+          key_name: "type"
+          key_value: "Audit Annotations"
         - path: "spec#matchConditions"
           type: "list"
           key_name: "type"
@@ -160,12 +164,18 @@ infoview:
     infogetter: "generic_infogetter"
     field_indexes:
       Normal:
-        fields: ["type", "name", "message", "reason", "expression"]
+        fields: ["type", "name", "key", "message", "reason",
+                 "expression", "value_expression"]
         sortcolumn: "message"
     fields:
       expression:
         header: "Expression:"
         path: "expression"
+        default: "<unset>"
+        type: "str"
+      key:
+        header: "Key:"
+        path: "key"
         default: "<unset>"
         type: "str"
       message:
@@ -186,6 +196,10 @@ infoview:
       type:
         header: "Type:"
         path: "type"
+        type: "str"
+      value_expression:
+        header: "Value Expression:"
+        path: "valueExpression"
         type: "str"
   shortcuts:
     "Namespace Label Selector":

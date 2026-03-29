@@ -77,9 +77,10 @@ infoview:
           field_colors:
             - type: "version"
   logpad:
-    infogetter: "logpad_msg_getter"
+    infogetter: "logpad_formatted"
     infogetter_args:
       path: "spec#valuesContent"
+      formatter: "format_yaml"
     timestamps: false
   shortcuts:
     "Open Job":

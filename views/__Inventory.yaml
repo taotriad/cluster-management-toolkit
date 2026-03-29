@@ -30,13 +30,13 @@ listview:
     ips:
       header: "IPs:"
       path: "ips"
-      default: "<unknown>"
+      default: "<none>"
       type: "raw"
       formatter: "address"
     ips_ellipsise:
       header: "IPs:"
       path: "ips"
-      default: "<unknown>"
+      default: "<none>"
       type: "raw"
       formatter: "address"
       formatting:

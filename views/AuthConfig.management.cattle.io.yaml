@@ -12,8 +12,13 @@ listview:
   group: "Rancher"
   field_indexes:
     Normal:
-      fields: ["name", "type", "age"]
+      fields: ["name", "type", "logout_all_supported", "age"]
   fields:
+    logout_all_supported:
+      header: "Logout All Supported:"
+      path: "logoutAllSupported"
+      default: "<unset>"
+      type: "bool"
     type:
       header: "Type:"
       path: "type"
@@ -28,7 +33,7 @@ infoview:
     rows:
       logout_all_supported:
         header: [["Logout All Supported:", ["main", "infoheader"]]]
-        path: "type"
+        path: "logoutAllSupported"
         default: "<unset>"
         type: "bool"
       type:

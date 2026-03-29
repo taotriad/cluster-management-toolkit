@@ -31,10 +31,17 @@ infoview:
     row_indexes:
       Normal:
         fields: ["default", "default_logical_switch", "router", "standby",
+                 "bfd_enabled", "external_enabled",
                  "tcp_load_balancer", "tcp_session_load_balancer",
                  "udp_load_balancer", "udp_session_load_balancer",
+                 "sctp_load_balancer", "sctp_session_load_balancer",
                  "subnets", "namespaces"]
     rows:
+      bfd_enabled:
+        header: [["BFD Enabled:", ["main", "infoheader"]]]
+        path: "status#enableBfd"
+        default: "<unset>"
+        type: "bool"
       default:
         header: [["Default:", ["main", "infoheader"]]]
         path: "status#default"
@@ -43,6 +50,11 @@ infoview:
         header: [["Default Logical Switch:", ["main", "infoheader"]]]
         path: "status#defaultLogicalSwitch"
         type: "str"
+      external_enabled:
+        header: [["External Enabled:", ["main", "infoheader"]]]
+        path: "status#enableBfd"
+        default: "<unset>"
+        type: "bool"
       namespaces:
         header: [["N", ["main", "infoheader_shortcut"]],
                  ["amespaces:", ["main", "infoheader"]]]
@@ -65,6 +77,14 @@ infoview:
         default: "<none>"
         type: "raw"
         formatter: "list"
+      sctp_load_balancer:
+        header: [["SCTP Load Balancer:", ["main", "infoheader"]]]
+        path: "status#sctpLoadBalancer"
+        type: "str"
+      sctp_session_load_balancer:
+        header: [["SCTP Session Load Balancer:", ["main", "infoheader"]]]
+        path: "status#sctpSessionLoadBalancer"
+        type: "str"
       tcp_load_balancer:
         header: [["TCP Load Balancer:", ["main", "infoheader"]]]
         path: "status#tcpLoadBalancer"

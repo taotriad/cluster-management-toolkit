@@ -35,7 +35,9 @@ infoview:
     infogetter: "logpad_formatted"
     timestamps: false
     infogetter_args:
-      path: "expression"
+      paths:
+        - path: "valueExpression"
+        - path: "expression"
       formatter: "format_cel"
   shortcuts:
     # __ValidatingAdmissionPolicyRule

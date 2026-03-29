@@ -9,9 +9,25 @@ listview:
   group: "Observability"
   field_indexes:
     Normal:
-      fields: ["namespace", "name", "version", "replicas", "age"]
+      fields: ["namespace", "name", "version", "replicas", "paused", "age"]
       sortcolumn: "namespace"
   fields:
+    paused:
+      header: "Paused:"
+      path: "status#paused"
+      type: "bool"
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          mappings:
+            "True":
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+            "False":
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
     replicas:
       header: "Replicas:"
       path: "spec#replicas"
@@ -74,10 +90,13 @@ infoview:
         path: "spec#logLevel"
         type: "str"
       node_selector:
-        header: [["Node Selector:", ["main", "infoheader"]]]
+        header: [["Node La", ["main", "infoheader"]],
+                 ["b", ["main", "infoheader_shortcut"]],
+                 ["el Selector:", ["main", "infoheader"]]]
         paths:
           - path: ["spec#nodeSelector"]
             pathtype: "key_value"
+            default: ["<unset>"]
         formatter: "list"
         formatting:
           field_colors:
@@ -144,6 +163,16 @@ infoview:
         path: "request"
         type: "raw"
   shortcuts:
+    "Node Label Selector":
+      key: "b"
+      read_only: true
+      helptext: "Show Node label selector"
+      widget: "windowwidget"
+      title: "Node Label Selector:"
+      headers: ["Key:", "Value:"]
+      itemgetter: "get_key_value"
+      itemgetter_args:
+        path: "spec#nodeSelector"
     "Service Account":
       key: "s"
       modifier: "shift"

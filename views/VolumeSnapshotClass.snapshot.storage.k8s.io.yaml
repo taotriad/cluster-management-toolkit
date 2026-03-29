@@ -34,7 +34,8 @@ infoview:
         path: "deletionPolicy"
         type: "str"
       driver:
-        header: [["Driver:", ["main", "infoheader"]]]
+        header: [["D", ["main", "infoheader_shortcut"]],
+                 ["river:", ["main", "infoheader"]]]
         path: "driver"
         type: "str"
       parameters:
@@ -52,6 +53,18 @@ infoview:
           field_separators:
             - type: "keyvalue"
   shortcuts:
+    "Driver":
+      key: "d"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for CSI Driver"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind: "CSIDriver"
+        api_family: "storage.k8s.io"
+        name_path: "driver"
     "Parameters":
       key: "p"
       modifier: "shift"

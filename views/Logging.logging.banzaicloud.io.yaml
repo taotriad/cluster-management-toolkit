@@ -34,6 +34,7 @@ listview:
     watch_namespaces:
       header: "Watch Namespaces:"
       path: "status#watchNamespaces"
+      default: ["<unset>"]
       type: "raw"
       formatter: "list"
       formatting:
@@ -81,6 +82,7 @@ infoview:
       watch_namespaces:
         header: [["Watch Namespaces:", ["main", "infoheader"]]]
         path: "status#watchNamespaces"
+        default: ["<unset>"]
         type: "raw"
         formatter: "list"
         formatting:

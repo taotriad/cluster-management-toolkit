@@ -25,6 +25,7 @@ listview:
                  ["spec#parameters#name"]]
           pathtype: "tuple"
           type: ["kind", "api_group", "name", "name"]
+          default: ["<none>"]
       formatter: "list"
       formatting:
         field_colors:
@@ -56,6 +57,7 @@ infoview:
                    ["spec#parameters#name"]]
             pathtype: "tuple"
             type: ["kind", "api_group", "name"]
+            default: ["<none>"]
         formatter: "list"
         formatting:
           field_colors:

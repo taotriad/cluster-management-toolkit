@@ -22,22 +22,118 @@ listview:
       formatting:
         mapping:
           mappings:
-            "ImportFailed":
+            CloneFailed:
               field_colors:
                 - context: "main"
                   type: "status_not_ok"
-            "ImportInProgress":
+            CloneFromSnapshotSourceInProgress:
               field_colors:
                 - context: "main"
                   type: "status_pending"
-            "ImportScheduled":
+            CloneInProgress:
               field_colors:
                 - context: "main"
                   type: "status_pending"
-            "ImportSucceeded":
+            CloneScheduled:
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+            CloneSucceeded:
               field_colors:
                 - context: "main"
                   type: "status_ok"
+            CSICloneInProgress:
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+            ExpansionInProgress:
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+            Failed:
+              field_colors:
+                - context: "main"
+                  type: "status_not_ok"
+            NamespaceTransferInProgress:
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+            ImportFailed:
+              field_colors:
+                - context: "main"
+                  type: "status_not_ok"
+            ImportInProgress:
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+            ImportScheduled:
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+            ImportSucceeded:
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+            Paused:
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+            Pending:
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+            PendingPopulation:
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+            PrepClaimInProgress:
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+            PVCBound:
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+            RebindInProgress:
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+            SmartClonePVCInProgress:
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+            SnapshotForSmartCloneInProgress:
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+            Succeeded:
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+            Unknown:
+              field_colors:
+                - context: "main"
+                  type: "status_unknown"
+            UploadFailed:
+              field_colors:
+                - context: "main"
+                  type: "status_not_ok"
+            UploadReady:
+              field_colors:
+                - context: "main"
+                  type: "status_done"
+            UploadScheduled:
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+            UploadSucceeded:
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+            WaitForFirstConsumer:
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
     progress:
       header: "Progress:"
       path: "status#progress"
@@ -92,22 +188,118 @@ infoview:
         formatting:
           mapping:
             mappings:
-              "ImportFailed":
+              CloneFailed:
                 field_colors:
                   - context: "main"
                     type: "status_not_ok"
-              "ImportInProgress":
+              CloneFromSnapshotSourceInProgress:
                 field_colors:
                   - context: "main"
                     type: "status_pending"
-              "ImportScheduled":
+              CloneInProgress:
                 field_colors:
                   - context: "main"
                     type: "status_pending"
-              "ImportSucceeded":
+              CloneScheduled:
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+              CloneSucceeded:
                 field_colors:
                   - context: "main"
                     type: "status_ok"
+              CSICloneInProgress:
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+              ExpansionInProgress:
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+              Failed:
+                field_colors:
+                  - context: "main"
+                    type: "status_not_ok"
+              NamespaceTransferInProgress:
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+              ImportFailed:
+                field_colors:
+                  - context: "main"
+                    type: "status_not_ok"
+              ImportInProgress:
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+              ImportScheduled:
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+              ImportSucceeded:
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+              Paused:
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+              Pending:
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+              PendingPopulation:
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+              PrepClaimInProgress:
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+              PVCBound:
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+              RebindInProgress:
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+              SmartClonePVCInProgress:
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+              SnapshotForSmartCloneInProgress:
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+              Succeeded:
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+              Unknown:
+                field_colors:
+                  - context: "main"
+                    type: "status_unknown"
+              UploadFailed:
+                field_colors:
+                  - context: "main"
+                    type: "status_not_ok"
+              UploadReady:
+                field_colors:
+                  - context: "main"
+                    type: "status_done"
+              UploadScheduled:
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+              UploadSucceeded:
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+              WaitForFirstConsumer:
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
       progress:
         header: [["Progress:", ["main", "infoheader"]]]
         path: "status#progress"

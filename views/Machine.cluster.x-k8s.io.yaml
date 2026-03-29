@@ -126,6 +126,7 @@ infoview:
             when:
               - key: "controller"
                 eq: true
+            default: ["<none>"]
         formatter: "list"
         formatting:
           field_colors:

@@ -9,9 +9,12 @@ listview:
   name: "Apps"
   group: "Rancher"
   field_indexes:
-    Normal:
+    Wide:
       fields: ["namespace", "name", "chart", "version", "release_name",
                "release_version", "status", "age", "description"]
+      sortcolumn: "namespace"
+    Normal:
+      fields: ["namespace", "name", "description", "status", "age", "version"]
       sortcolumn: "namespace"
   fields:
     chart:
@@ -63,7 +66,7 @@ infoview:
     row_indexes:
       Normal:
         fields: ["controller", "chart", "version", "release_name",
-                 "release_version", "status", "description"]
+                 "release_version", "description", "status"]
     rows:
       chart:
         header: [["Chart:", ["main", "infoheader"]]]
@@ -83,7 +86,7 @@ infoview:
               - key: "controller"
                 eq: true
             type: ["kind", "api_group", "name"]
-        default: "<none>"
+            default: ["<none>"]
         formatter: "list"
         formatting:
           field_colors:

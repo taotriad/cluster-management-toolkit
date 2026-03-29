@@ -7,9 +7,12 @@ listview:
   name: "Persistent Volume Claims"
   group: "Storage & Backups"
   field_indexes:
-    Normal:
-      fields: ["namespace", "name", "status", "volume", "capacity",
+    Wide:
+      fields: ["namespace", "name", "status", "persistent_volume", "capacity",
                "access_modes", "storage_class", "age", "volume_mode"]
+      sortcolumn: "namespace"
+    Normal:
+      fields: ["namespace", "name", "access_modes", "capacity", "status", "age"]
       sortcolumn: "namespace"
   fields:
     access_modes:
@@ -30,6 +33,10 @@ listview:
       type: "raw"
       formatter: "numerical"
       align: "right"
+    persistent_volume:
+      header: "Persistent Volume:"
+      path: "spec#volumeName"
+      type: "str"
     status:
       header: "Status:"
       path: "status#phase"
@@ -61,10 +68,6 @@ listview:
     storage_class:
       header: "Storage Class:"
       path: "spec#storageClassName"
-      type: "str"
-    volume:
-      header: "Volume:"
-      path: "spec#volumeName"
       type: "str"
     volume_mode:
       header: "Volume Mode:"

@@ -13,13 +13,20 @@ listview:
       header: "Phase:"
       path: "status#phase"
       type: "str"
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          mappings:
+            Deployed:
+              field_colors:
+                - context: "main"
+                  type: "status_done"
 infoview:
   name: "CDI Info"
   infopad:
     row_indexes:
       Normal:
         fields:
-          - "phase"
           - "cert_config_header"
           - "cert_ca_header"
           - "cert_ca_duration"
@@ -29,10 +36,10 @@ infoview:
           - "cert_server_renew_before"
           - "image_pull_policy"
           - "infrastructure_header"
-          - "infrastructure_node_selector"
+          - "infrastructure_node_label_selector"
           - "infrastructure_tolerations"
           - "workload_header"
-          - "workload_node_selector"
+          - "workload_node_label_selector"
           - "uninstall_strategy"
           - "version_header"
           - "version_observed"
@@ -42,6 +49,7 @@ infoview:
           - "configuration_feature_gates"
           - "configuration_tls_security_profile_type"
           - "configuration_datavolume_ttl_seconds"
+          - "phase"
     rows:
       cert_config_header:
         header: [["Certificate Configuration:", ["main", "infoheader"]]]
@@ -93,8 +101,10 @@ infoview:
         type: "str"
       infrastructure_header:
         header: [["Infrastructure:", ["main", "infoheader"]]]
-      infrastructure_node_selector:
-        header: [["  Node Selector:", ["main", "infoheader"]]]
+      infrastructure_node_label_selector:
+        header: [["  Node La", ["main", "infoheader"]],
+                 ["b", ["main", "infoheader_shortcut"]],
+                 ["el Selector:", ["main", "infoheader"]]]
         paths:
           - path: ["spec#infra#nodeSelector"]
             pathtype: "key_value"
@@ -126,6 +136,14 @@ infoview:
         path: "status#phase"
         default: "<unset>"
         type: "str"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              Deployed:
+                field_colors:
+                  - context: "main"
+                    type: "status_done"
       uninstall_strategy:
         header: [["Uninstall Strategy:", ["main", "infoheader"]]]
         path: "spec#uninstallStrategy"
@@ -155,8 +173,10 @@ infoview:
             - type: "version"
       workload_header:
         header: [["Workload:", ["main", "infoheader"]]]
-      workload_node_selector:
-        header: [["  Node Selector:", ["main", "infoheader"]]]
+      workload_node_label_selector:
+        header: [["  No", ["main", "infoheader"]],
+                 ["d", ["main", "infoheader_shortcut"]],
+                 ["e Label Selector:", ["main", "infoheader"]]]
         paths:
           - path: ["spec#workload#nodeSelector"]
             pathtype: "key_value"
@@ -168,3 +188,24 @@ infoview:
             - type: "value"
           field_separators:
             - type: "selector"
+  shortcuts:
+    "Infrastructure Node Label Selector":
+      key: "b"
+      read_only: true
+      helptext: "Show Infrastructure Node label selector"
+      widget: "windowwidget"
+      title: "Node Label Selector:"
+      headers: ["Key:", "Value:"]
+      itemgetter: "get_key_value"
+      itemgetter_args:
+        path: "spec#infra#nodeSelector"
+    "Workload Node Label Selector":
+      key: "d"
+      read_only: true
+      helptext: "Show Workload Node label selector"
+      widget: "windowwidget"
+      title: "Workload Node Label Selector:"
+      headers: ["Key:", "Value:"]
+      itemgetter: "get_key_value"
+      itemgetter_args:
+        path: "spec#workload#nodeSelector"

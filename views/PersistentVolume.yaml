@@ -7,10 +7,12 @@ listview:
   name: "Persistent Volumes"
   group: "Storage & Backups"
   field_indexes:
+    Wide:
+      fields: ["name", "storage_class", "access_modes", "reclaim_policy", "volume_mode", "capacity", "status",
+               "age", "claim", "reason"]
     Normal:
-      fields: ["name", "status", "capacity", "access_modes",
-               "storage_class", "claim", "reclaim_policy",
-               "volume_mode", "age", "reason"]
+      fields: ["name", "storage_class", "access_modes", "capacity", "status",
+               "age"]
   fields:
     access_modes:
       header: "Access Modes:"
@@ -255,6 +257,7 @@ infoview:
               - key: "controller"
                 eq: true
             type: ["kind", "api_group", "name"]
+            default: ["<none>"]
         formatter: "list"
         formatting:
           field_colors:
