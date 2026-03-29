@@ -1026,8 +1026,8 @@ def genericlistloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                     })
                 # Tag hosts in vlist that are no longer part of hosts as deleted
                 for host in vlist_hosts_set - hosts_set:
-                    for i, item in enumerate(vlist):
-                        if deep_get(item, DictPath("name"), "") == host:
+                    for i, d in enumerate(vlist):
+                        if deep_get(d, DictPath("name"), "") == host:
                             vlist[i]["status"] = "DELETED"
                             vlist[i]["__deleted"] = True
                 infogetter_extra_args["_vlist"] = copy.deepcopy(vlist)
