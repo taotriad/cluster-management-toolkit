@@ -2453,9 +2453,7 @@ windowwidget_shortcuts = {
 # }
 # noqa: E501 pylint: disable-next=too-many-arguments,too-many-locals,too-many-statements,too-many-branches,too-many-positional-arguments
 def windowwidget(stdscr: curses.window, maxy: int, maxx: int, y: int, x: int,
-                 items: list[dict[str, Any]],
-                 **kwargs: Any) \
-        -> set | tuple[int, bool | int | str | None] | bool | int | str | None:
+                 items: list[dict[str, Any]], **kwargs: Any) -> Any:
     """
     A generic:ish scrollable window widget with support for one or multiple columns,
     with or without selectable elements.
