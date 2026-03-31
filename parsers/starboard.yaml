@@ -16,7 +16,7 @@
   show_in_selector: false
   matchkeys:
     - image_name: "aquasec/trivy"
-      container_type: "init_container"
+      container_type: "InitContainer"
   parser_rules:
     - name: "strip_ansicodes"
     - name: "custom_splitter"
@@ -31,7 +31,6 @@
   show_in_selector: false
   matchkeys:
     - image_name: "aquasec/trivy"
-      container_type: "container"
     - image_name: "/fairwinds/polaris"
   parser_rules:
     - name: "json_line"

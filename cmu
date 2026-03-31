@@ -1027,6 +1027,9 @@ def genericlistloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                         "ips": [],
                         "ansible_groups": ansible_get_groups_by_host(inventory_dict, host),
                         "status": "UNKNOWN",
+                        "metadata": {
+                            "uid": host,
+                        },
                         "__deleted": False,
                     })
                 # Tag hosts in vlist that are no longer part of hosts as deleted
@@ -3525,16 +3528,16 @@ def decode_and_view_data(stdscr: curses.window, **kwargs: Any) -> Retval:
             (Retval): The return value
     """
     if "selected" in kwargs:
-        bvalue = kwargs["selected"].value
-        title = kwargs["selected"].key
-        bvtype = kwargs["selected"].vtype
+        bvalue = deep_get(kwargs, DictPath("selected#value"))
+        title = deep_get(kwargs, DictPath("selected#key"))
+        bvtype = deep_get(kwargs, DictPath("selected#vtype"))
         vtype, value = decode_value(bvalue)
         if bvalue == value:
             vtype = bvtype
-    elif "obj" in kwargs and hasattr(kwargs["obj"], "value"):
-        bvalue = kwargs["obj"].value
-        title = kwargs["obj"].key
-        bvtype = kwargs["obj"].vtype
+    elif "obj" in kwargs and "value" in kwargs["obj"]:
+        bvalue = deep_get(kwargs, DictPath("obj#value"))
+        title = deep_get(kwargs, DictPath("obj#key"))
+        bvtype = deep_get(kwargs, DictPath("obj#vtype"))
         vtype, value = decode_value(bvalue)
         if bvalue == value:
             vtype = bvtype
@@ -3544,13 +3547,6 @@ def decode_and_view_data(stdscr: curses.window, **kwargs: Any) -> Retval:
         bvalue = deep_get(obj, DictPath(path), "")
         title = deep_get(kwargs, DictPath("title"), "")
         vtype, value = decode_value(bvalue)
-    elif "obj" in kwargs and "value" in kwargs["obj"]:
-        bvalue = deep_get(kwargs, DictPath("obj#value"))
-        title = deep_get(kwargs, DictPath("obj#key"))
-        bvtype = deep_get(kwargs, DictPath("obj#vtype"))
-        vtype, value = decode_value(bvalue)
-        if bvalue == value:
-            vtype = bvtype
     else:
         return Retval.RETURNDONE
 
@@ -4644,11 +4640,11 @@ def genericinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                     # If we have an exact match we do not care about partial matches
                     if name == initial_container:
                         if view == ("ConfigMap", ""):
-                            match = item.data
+                            match = deep_get(item, DictPath("data"))
                         elif view == ("Secret", ""):
                             match = item
                         else:
-                            match = item.ref
+                            match = deep_get(item, DictPath("ref"))
                         match_count = 1
                         break
 
@@ -4658,11 +4654,11 @@ def genericinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                         # If we get more than one partial match we ignore the partial matches.
                         if match_count == 0:
                             if view == ("ConfigMap", ""):
-                                match = item.data
+                                match = deep_get(item, DictPath("data"))
                             elif view == ("Secret", ""):
                                 match = item
                             else:
-                                match = item.ref
+                                match = deep_get(item, DictPath("ref"))
                         match_count += 1
 
                 initial_container = None
@@ -5342,11 +5338,11 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                 if kind == ("InitContainer", ""):
                     src_statuses = \
                         deep_get(pod_info_ref, DictPath("status#initContainerStatuses"), [])
-                    container_type = "init_container"
+                    container_type = "InitContainer"
                 else:
                     src_statuses = \
                         deep_get(pod_info_ref, DictPath("status#containerStatuses"), [])
-                    container_type = "container"
+                    container_type = "Container"
                 container_status = None
                 for container_status in src_statuses:
                     if deep_get(container_status, DictPath("name")) == containername:
@@ -5370,15 +5366,19 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                                                             tail_lines=tail_lines)
                 splitmsg = split_msg(rawmsg)
             else:
-                container_type = "container"
+                container_type = "Container"
                 splitmsg = []
                 image_id = None
-                for namespace, podname, containername, image_id in multilog_containers_full:
+                for namespace, podname, container_type, \
+                        containername, image in multilog_containers_full:
                     if len(multilog_containers) == 1:
                         facility_extended = []
                     elif multilog_prefix == ["container"]:
                         facility_extended = [
                             ThemeRef("separators", "facility_extended_prefix"),
+                            ThemeStr(f"{container_type}",
+                                     ThemeAttr("types", "kind")),
+                            ThemeRef("separators", "kind"),
                             ThemeStr(f"{containername}",
                                      ThemeAttr("types", "facility_extended")),
                             ThemeRef("separators", "facility_extended_suffix"),
@@ -5390,6 +5390,9 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                             ThemeRef("separators", "facility_extended_prefix"),
                             ThemeStr(f"{podname}", ThemeAttr("types", "facility_extended")),
                             ThemeRef("separators", "container"),
+                            ThemeStr(f"{container_type}",
+                                     ThemeAttr("types", "kind")),
+                            ThemeRef("separators", "kind"),
                             ThemeStr(f"{containername}",
                                      ThemeAttr("types", "facility_extended")),
                             ThemeRef("separators", "facility_extended_suffix"),
@@ -5401,6 +5404,9 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                             ThemeRef("separators", "namespace"),
                             ThemeStr(f"{podname}", ThemeAttr("types", "facility_extended")),
                             ThemeRef("separators", "container"),
+                            ThemeStr(f"{container_type}",
+                                     ThemeAttr("types", "kind")),
+                            ThemeRef("separators", "kind"),
                             ThemeStr(f"{containername}",
                                      ThemeAttr("types", "facility_extended")),
                             ThemeRef("separators", "facility_extended_suffix"),
@@ -5415,7 +5421,7 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                     # (podname, containername, image, facility_extended) to each line,
                     # to allow the logparser to function without guessing
                     for line in split_msg(rawmsg):
-                        splitmsg.append((line, podname, containername, image_id, facility_extended))
+                        splitmsg.append((line, podname, containername, image, facility_extended))
                 splitmsg = cast(list[tuple[str, str, str, str, list[ThemeRef | ThemeStr]]],
                                 natsorted(splitmsg, key=itemgetter(0)))
 
@@ -5476,15 +5482,16 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                     line = _line
                 if internal_error:
                     timestamp_, facility, severity, message, remnants, parser, _parser = \
-                        logparser("internal_error", "", "", message=line,
+                        logparser(pod_name="internal_error", message=line,
                                   container_type=container_type, line=i)
                 elif raw_logs:
                     timestamp_, facility, severity, message, remnants, parser, _parser = \
-                        logparser("raw", "", "", message=line,
+                        logparser(pod_name="raw", message=line,
                                   container_type=container_type, line=i)
                 elif override_parser is not None or _parser is None or parser is None:
                     timestamp_, facility, severity, message, remnants, parser, _parser = \
-                        logparser(podname, containername, image, message=line, fold_msg=fold_msg,
+                        logparser(pod_name=podname, container_name=containername,
+                                  image_name=image, message=line, fold_msg=fold_msg,
                                   override_parser=override_parser,
                                   container_type=container_type, line=i)
                 else:
@@ -5730,6 +5737,8 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                 if len(multilog_containers) == 1:
                     containerarray = [
                         ThemeStr("Container: ", ThemeAttr("main", "infoheader")),
+                        ThemeStr(f"{container_type}", ThemeAttr("types", "kind")),
+                        ThemeRef("separators", "kind"),
                         ThemeStr(f"{containername}", ThemeAttr("types", "generic")),
                     ]
                     podarray = [
@@ -5757,11 +5766,13 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                                                field_colors=[
                                                    ThemeAttr("types", "namespace"),
                                                    ThemeAttr("types", "generic"),
-                                                   ThemeAttr("types", "generic")
+                                                   ThemeAttr("types", "kind"),
+                                                   ThemeAttr("types", "generic"),
                                                ],
                                                field_separators=[
                                                    ThemeRef("separators", "namespace"),
-                                                   ThemeRef("separators", "container")
+                                                   ThemeRef("separators", "container"),
+                                                   ThemeRef("separators", "kind"),
                                                ],
                                                ellipsise=3)
                     if all_same_namespace:
@@ -6193,12 +6204,12 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                                            uip.maxx // 2, option_list, title="Parser options",
                                            cursor=True, preselection=preselection, taggable=True)
             selection = None
-            if tmpselection:
+            if tmpselection is not None:
                 selection = tmpselection
             uip.refresh_all()
 
             # Some option changed, so we need to re-render the log
-            if selection and preselection != selection:
+            if selection is not None and preselection != selection:
                 # Perform the changes
                 modified_options = preselection.symmetric_difference(selection)
                 for i in modified_options:
@@ -7467,8 +7478,8 @@ def view_pod_logs(stdscr: curses.window, **kwargs: Any) -> Retval:
                 selected (dict): The selected obj from a listpad
                 _tagged_items (list): A list of tagged items
     """
-    containers: list[tuple[str, str, str]] = []
-    containers_full: list[tuple[str, str, str, str]] = []
+    containers: list[tuple[str, str, str, str]] = []
+    containers_full: list[tuple[str, str, str, str, str]] = []
     items = deep_get(kwargs, DictPath("_tagged_items"), [])
     selected = deep_get(kwargs, DictPath("selected"))
     if selected is not None:
@@ -7480,8 +7491,12 @@ def view_pod_logs(stdscr: curses.window, **kwargs: Any) -> Retval:
         name = deep_get(obj, DictPath("name"))
         container_name = deep_get(obj, DictPath("container"))
         image_id = deep_get(obj, DictPath("image_id"))
-        containers.append((namespace, name, container_name))
-        containers_full.append((namespace, name, container_name, image_id))
+        image = deep_get(obj, DictPath("image"))
+        if image.startswith("sha256:"):
+            image = image_id
+        container_type = deep_get(obj, DictPath("type"))
+        containers.append((namespace, name, container_type, container_name))
+        containers_full.append((namespace, name, container_type, container_name, image))
 
     multilog_args: dict[str, Any] = {
         "multilog_containers": containers,

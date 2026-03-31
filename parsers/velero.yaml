@@ -26,7 +26,7 @@
   matchkeys:
     - pod_name: "velero"
       container_name: "wait-for-minio-setup"
-      container_type: "init_container"
+      container_type: "InitContainer"
   parser_rules:
     - name: "custom_splitter"
       options:

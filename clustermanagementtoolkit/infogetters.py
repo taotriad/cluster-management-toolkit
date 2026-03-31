@@ -2854,6 +2854,7 @@ def get_log_info(**kwargs: Any) -> list[dict]:
             "action": action,
             "created_at": created_at,
             "log_type": log_type,
+            "__uid": name,
         })
     return info
 

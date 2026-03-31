@@ -5,6 +5,6 @@
     - image_name: "/kiwigrid/k8s-sidecar"
     - image_name: "/rancher/mirrored-kiwigrid-k8s-sidecar"
     - image_name: "/rancher/mirrored-kiwigrid-k8s-sidecar"
-      container_type: "init_container"
+      container_type: "InitContainer"
   parser_rules:
     - name: "json"

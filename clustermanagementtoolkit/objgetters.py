@@ -121,10 +121,10 @@ def objgetter_ansible_log(path: FilePath) -> dict:
     ]
     try:
         playbook = secure_read_yaml(playbook_path, checks=checks)
-        tmpobj["name"] = deep_get(playbook, DictPath("vars#metadata#description"))
-        tmpobj["playbook_types"] = deep_get(playbook,
+        tmpobj["name"] = deep_get(playbook[0], DictPath("vars#metadata#description"))
+        tmpobj["playbook_types"] = deep_get(playbook[0],
                                             DictPath("vars#metadata#playbook_types"), ["<any>"])
-        tmpobj["category"] = deep_get(playbook,
+        tmpobj["category"] = deep_get(playbook[0],
                                       DictPath("vars#metadata#category"), "Uncategorized")
     except FileNotFoundError:
         tmpobj["name"] = "File not found"

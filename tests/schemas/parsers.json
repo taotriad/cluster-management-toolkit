@@ -68,8 +68,8 @@
 			"description": "The container type",
 			"type": "string",
 			"enum": [
-				"container",
-				"init_container"
+				"Container",
+				"InitContainer"
 			]
 		},
 		"image_name": {

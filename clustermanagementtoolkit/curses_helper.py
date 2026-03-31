@@ -24,7 +24,7 @@ import os
 from pathlib import Path, PurePath
 import re
 import sys
-from typing import Any, cast, NamedTuple, NoReturn, Type, Union
+from typing import Any, cast, NamedTuple, NoReturn, Union
 from collections.abc import Callable, Sequence
 
 try:
@@ -3123,7 +3123,7 @@ class UIProps:
         self.last_action: datetime = datetime.now()
 
         # Info to use for populating lists, etc.
-        self.sorted_list: list[Type] = []
+        self.sorted_list: list[dict] = []
         self.sortorder_reverse: bool = False
 
         # Used for searching
@@ -3164,7 +3164,7 @@ class UIProps:
         # Should there be a timestamp in the upper right corner?
         self.timestamp: bool = True
 
-        self.selected: Type | None = None
+        self.selected: dict | None = None
 
         # For generic information
         self.infopadminwidth: int = 0
@@ -3184,7 +3184,7 @@ class UIProps:
         # This one really is a misnomer and could possible be confused with the infopad
         self.sort_triggered: bool = False
         self.regenerate_list: bool = False
-        self.info: list[Type] = []
+        self.info: list[dict] = []
         # This is a list of the xoffset for all headers in listviews
         self.tabstops: list[int] = []
         self.listpadypos: int = 0
@@ -3285,7 +3285,7 @@ class UIProps:
             for y, item in enumerate(self.sorted_list):
                 uid = None
                 try:
-                    uid = deep_get(item, "__uid")
+                    uid = deep_get(item, DictPath("__uid"))
                 except AttributeError:
                     pass
                 # If the first element lacks "__uid" all elements will lack it
@@ -3296,7 +3296,7 @@ class UIProps:
                 if uid == self.selected_uid:
                     self.move_cur_with_offset(y - pos)
 
-    def update_info(self, info: list[Type]) -> None:
+    def update_info(self, info: list[dict]) -> None:
         """
         Update the information for the processed list.
 
@@ -3426,7 +3426,7 @@ class UIProps:
         """
         return not self.regenerate_list
 
-    def select(self, selection: Type | None) -> None:
+    def select(self, selection: dict | None) -> None:
         """
         Select the current object.
 
@@ -3435,7 +3435,7 @@ class UIProps:
         """
         self.selected = selection
 
-    def select_if_y(self, y: int, selection: Type) -> None:
+    def select_if_y(self, y: int, selection: dict) -> None:
         """
         Select the current object if y matches the current position.
 
@@ -3455,7 +3455,7 @@ class UIProps:
         else:
             self.selected = self.sorted_list[self.yoffset + self.curypos]
 
-    def is_selected(self, selected: Type | None) -> bool:
+    def is_selected(self, selected: dict | None) -> bool:
         """
         Check whether the referenced object is selected.
 
@@ -3469,12 +3469,12 @@ class UIProps:
 
         return self.selected == selected
 
-    def get_selected(self) -> Type | None:
+    def get_selected(self) -> dict | None:
         """
         Return a reference to the selected object.
 
             Returns:
-                (Type): A reference to the selected object, or None if no object is selected
+                (dict): A reference to the selected object, or None if no object is selected
         """
         return self.selected
 
@@ -4444,7 +4444,7 @@ class UIProps:
         self.yoffset = newoffset
         self.refresh = True
 
-    def next_by_sortkey(self, info: list[Type]) -> None:
+    def next_by_sortkey(self, info: list[dict]) -> None:
         """
         Jump to the next list entry by sortkey; this is used in listpads;
         this doesn't use a user-provided sortkey. Instead it uses a bit of magic:
@@ -4500,7 +4500,7 @@ class UIProps:
         self.move_cur_with_offset(newpos)
 
     # pylint: disable-next=too-many-branches
-    def prev_by_sortkey(self, info: list[Type]) -> None:
+    def prev_by_sortkey(self, info: list[dict]) -> None:
         """
         Jump to the previous list entry by sortkey; this is used in listpads;
         this doesn't use a user-provided sortkey. Instead it uses a bit of magic:
@@ -4564,7 +4564,7 @@ class UIProps:
         else:
             self.move_cur_with_offset(newpos)
 
-    def find_next_by_sortkey(self, info: list[Type], searchkey: str) -> None:
+    def find_next_by_sortkey(self, info: list[dict], searchkey: str) -> None:
         """
         Search a list using search key and jump to the next matching entry.
 
@@ -4611,7 +4611,7 @@ class UIProps:
         # If we do not match we will just end up with the old pos
         self.move_cur_with_offset(offset)
 
-    def find_prev_by_sortkey(self, info: list[Type], searchkey: str) -> None:
+    def find_prev_by_sortkey(self, info: list[dict], searchkey: str) -> None:
         """
         Search a list using search key and jump to the previous matching entry.
 
@@ -4653,7 +4653,7 @@ class UIProps:
         self.move_cur_with_offset(offset)
 
     def goto_first_match_by_name_namespace(self, name: str | None,
-                                           namespace: str | None) -> Type | None:
+                                           namespace: str | None) -> dict | None:
         """
         This function is used to find the first match based on command line input
         The sort order used will still be the default, to ensure that the partial
@@ -4663,11 +4663,10 @@ class UIProps:
                 name (str): The name to search for
                 namespace (str): The namespace to search for
             Returns:
-                (InfoType): The unique match, the first partial match
-                            if no unique match is found, or None if no match is found
+                (dict): The unique match, the first partial match
+                        if no unique match is found, or None if no match is found
         """
-        if self.info is None or not self.info or name is None \
-                or not name or not hasattr(self.info[0], "name"):
+        if not self.info or not name or "name" not in self.info[0]:
             return None
 
         # Search within sort category
@@ -4682,24 +4681,24 @@ class UIProps:
         match_count = 0
 
         for y, listitem in enumerate(sorted_list):
-            if hasattr(sorted_list[0], "namespace"):
-                if namespace is not None and listitem.namespace != namespace:
+            if "namespace" in sorted_list[0]:
+                if namespace and deep_get(listitem, DictPath("namespace")) == namespace:
                     continue
 
-            if listitem.name == name:
+            if deep_get(listitem, DictPath("name")) == name:
                 first_match = y
                 match_count = 1
                 break
 
-            if listitem.name.startswith(name):
-                if first_match is None:
+            if deep_get(listitem, DictPath("name")).startswith(name):
+                if not first_match:
                     first_match = y
                 match_count += 1
 
-        if first_match is not None:
+        if first_match:
             self.move_cur_with_offset(first_match)
         if match_count == 1:
-            unique_match = sorted_list[self.curypos + self.yoffset].ref
+            unique_match = deep_get(sorted_list[self.curypos + self.yoffset], DictPath("ref"))
 
         return unique_match
 
@@ -4778,7 +4777,7 @@ class UIProps:
 
     # noqa: E501 pylint: disable-next=too-many-return-statements,too-many-locals,too-many-statements,too-many-branches
     def handle_mouse_events(self, win: curses.window,
-                            sorted_list: list[Type], **kwargs: Any) -> Retval:
+                            sorted_list: list[dict], **kwargs: Any) -> Retval:
         """
         Handle mouse events.
 

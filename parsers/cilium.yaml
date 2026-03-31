@@ -8,10 +8,10 @@
       container_name: "cilium-operator"
     - pod_name: "cilium"
       container_name: "mount-cgroup"
-      container_type: "init_container"
+      container_type: "InitContainer"
     - pod_name: "cilium"
       container_name: "config"
-      container_type: "init_container"
+      container_type: "InitContainer"
   parser_rules:
     - name: "key_value"
     - name: "custom_splitter"

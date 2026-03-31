@@ -4,7 +4,7 @@
   matchkeys:
     - image_name: "/nvidia/k8s-device-plugin"
     - image_name: "/nvidia/cloud-native/k8s-driver-manager"
-      container_type: "init_container"
+      container_type: "InitContainer"
   parser_rules:
     - name: "glog"
     - name: "custom_line"
@@ -26,7 +26,7 @@
     - image_name: "/nvidia/k8s/container-toolkit"
     - image_name: "/nvidia/k8s/dcgm-exporter"
     - image_name: "/nvidia/cloud-native/gpu-operator-validator"
-      container_type: "init_container"
+      container_type: "InitContainer"
   parser_rules:
     - name: "key_value"
     - name: "override_severity"

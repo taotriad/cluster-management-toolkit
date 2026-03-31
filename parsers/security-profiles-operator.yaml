@@ -4,7 +4,7 @@
   matchkeys:
     - image_name: "/k8s-staging-sp-operator/security-profiles-operator"
     - image_name: "/k8s-staging-sp-operator/security-profiles-operator"
-      container_type: "init_container"
+      container_type: "InitContainer"
   parser_rules:
     - name: "glog"
     - name: "key_value_with_leading_message"

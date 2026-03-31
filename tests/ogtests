@@ -378,29 +378,29 @@ def test_objgetter_ansible_log(verbose: bool = False) -> tuple[str, bool]:
                 None,
                 {
                     "playbook_path": str(TEST_DIR.joinpath("uptime.yaml")),
-                    'created_at': datetime(2023, 5, 6, 16, 2, 39, 12047),
-                    'log_path': str(TEST_DIR.joinpath("2023-05-06_16:02:39.012047_uptime")),
-                    'name': None,
-                    'playbook_types': ['<any>'],
-                    'category': 'Uncategorized',
-                    'logs': [
+                    "created_at": datetime(2023, 5, 6, 16, 2, 39, 12047),
+                    "log_path": str(TEST_DIR.joinpath("2023-05-06_16:02:39.012047_uptime")),
+                    "name": "Uptime",
+                    "playbook_types": ["cmtinv", "inventory", "nodes"],
+                    "category": "Information",
+                    "logs": [
                         {
-                            'index': '01',
-                            'log': {
-                                'playbook': 'uptime',
+                            "index": "01",
+                            "log": {
+                                "playbook": "uptime",
                                 "playbook_file": str(TEST_DIR.joinpath("uptime.yaml")),
-                                'task': 'Checking uptime',
-                                'host': 'myhost',
-                                'start_date': '2023-05-06T13:02:39.327646',
-                                'end_date': '2023-05-06T13:02:39.797642',
-                                'retval': 0,
-                                'no_hosts_matched': False,
-                                'unreachable': False,
-                                'skipped': False,
-                                'status': 'SUCCESS',
-                                'stdout_lines': [
-                                    ' 16:02:39 up 11 days, 16:17,  3 users,  '
-                                    'load average: 1.09, 1.07, 1.09'
+                                "task": "Checking uptime",
+                                "host": "myhost",
+                                "start_date": "2023-05-06T13:02:39.327646",
+                                "end_date": "2023-05-06T13:02:39.797642",
+                                "retval": 0,
+                                "no_hosts_matched": False,
+                                "unreachable": False,
+                                "skipped": False,
+                                "status": "SUCCESS",
+                                "stdout_lines": [
+                                    " 16:02:39 up 11 days, 16:17,  3 users,  "
+                                    "load average: 1.09, 1.07, 1.09"
                                 ],
                             },
                         },
@@ -416,47 +416,47 @@ def test_objgetter_ansible_log(verbose: bool = False) -> tuple[str, bool]:
                     "created_at": datetime(2023, 5, 6, 16, 2, 39, 12047),
                 },
                 {
-                    'playbook': 'uptime',
+                    "playbook": "uptime",
                     "playbook_path": str(TEST_DIR.joinpath("nonexisting.yaml")),
-                    'task': 'Checking uptime',
-                    'host': 'myhost',
-                    'start_date': '2023-05-06T13:02:39.327646',
-                    'end_date': '2023-05-06T13:02:39.797642',
-                    'retval': 0,
-                    'no_hosts_matched': False,
-                    'unreachable': False,
-                    'skipped': False,
-                    'status': 'SUCCESS',
-                    'stdout_lines': [
-                        ' 16:02:39 up 11 days, 16:17,  3 users,  load average: 1.09, 1.07, 1.09'
+                    "task": "Checking uptime",
+                    "host": "myhost",
+                    "start_date": "2023-05-06T13:02:39.327646",
+                    "end_date": "2023-05-06T13:02:39.797642",
+                    "retval": 0,
+                    "no_hosts_matched": False,
+                    "unreachable": False,
+                    "skipped": False,
+                    "status": "SUCCESS",
+                    "stdout_lines": [
+                        " 16:02:39 up 11 days, 16:17,  3 users,  load average: 1.09, 1.07, 1.09"
                     ],
                 },
                 None,
                 {
                     "playbook_path": str(TEST_DIR.joinpath("nonexisting.yaml")),
-                    'created_at': datetime(2023, 5, 6, 16, 2, 39, 12047),
-                    'log_path': str(TEST_DIR.joinpath("2023-05-06_16:02:39.012047_uptime")),
-                    'name': 'File not found',
-                    'playbook_types': ['Unavailable'],
-                    'category': 'Unavailable',
-                    'logs': [
+                    "created_at": datetime(2023, 5, 6, 16, 2, 39, 12047),
+                    "log_path": str(TEST_DIR.joinpath("2023-05-06_16:02:39.012047_uptime")),
+                    "name": "File not found",
+                    "playbook_types": ["Unavailable"],
+                    "category": "Unavailable",
+                    "logs": [
                         {
-                            'index': '01',
-                            'log': {
-                                'playbook': 'uptime',
+                            "index": "01",
+                            "log": {
+                                "playbook": "uptime",
                                 "playbook_path": str(TEST_DIR.joinpath("nonexisting.yaml")),
-                                'task': 'Checking uptime',
-                                'host': 'myhost',
-                                'start_date': '2023-05-06T13:02:39.327646',
-                                'end_date': '2023-05-06T13:02:39.797642',
-                                'retval': 0,
-                                'no_hosts_matched': False,
-                                'unreachable': False,
-                                'skipped': False,
-                                'status': 'SUCCESS',
-                                'stdout_lines': [
-                                    ' 16:02:39 up 11 days, 16:17,  3 users,  '
-                                    'load average: 1.09, 1.07, 1.09'
+                                "task": "Checking uptime",
+                                "host": "myhost",
+                                "start_date": "2023-05-06T13:02:39.327646",
+                                "end_date": "2023-05-06T13:02:39.797642",
+                                "retval": 0,
+                                "no_hosts_matched": False,
+                                "unreachable": False,
+                                "skipped": False,
+                                "status": "SUCCESS",
+                                "stdout_lines": [
+                                    " 16:02:39 up 11 days, 16:17,  3 users,  "
+                                    "load average: 1.09, 1.07, 1.09"
                                 ],
                             },
                         },
@@ -472,19 +472,19 @@ def test_objgetter_ansible_log(verbose: bool = False) -> tuple[str, bool]:
                     "created_at": datetime(2023, 5, 6, 16, 2, 39, 12047),
                 },
                 {
-                    'playbook': 'uptime',
+                    "playbook": "uptime",
                     "playbook_file": str(TEST_DIR.joinpath("uptime.yaml")),
-                    'task': 'Checking uptime',
-                    'host': 'myhost',
-                    'start_date': '2023-05-06T13:02:39.327646',
-                    'end_date': '2023-05-06T13:02:39.797642',
-                    'retval': 0,
-                    'no_hosts_matched': False,
-                    'unreachable': False,
-                    'skipped': False,
-                    'status': 'SUCCESS',
-                    'stdout_lines': [
-                        ' 16:02:39 up 11 days, 16:17,  3 users,  load average: 1.09, 1.07, 1.09'
+                    "task": "Checking uptime",
+                    "host": "myhost",
+                    "start_date": "2023-05-06T13:02:39.327646",
+                    "end_date": "2023-05-06T13:02:39.797642",
+                    "retval": 0,
+                    "no_hosts_matched": False,
+                    "unreachable": False,
+                    "skipped": False,
+                    "status": "SUCCESS",
+                    "stdout_lines": [
+                        " 16:02:39 up 11 days, 16:17,  3 users,  load average: 1.09, 1.07, 1.09"
                     ],
                 },
                 [SecurityStatus.PERMISSIONS],
@@ -507,6 +507,7 @@ def test_objgetter_ansible_log(verbose: bool = False) -> tuple[str, bool]:
                 else:
                     tmp = fun(obj)
                 if tmp != expected_result:
+                    sys.exit(f"            {tmp=}\n\n{expected_result=}")
                     message = f"{fun.__name__}() did not yield expected result:\n" \
                               f"            obj: {obj}\n" \
                               f"       metadata:\n" \

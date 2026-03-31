@@ -25,7 +25,7 @@
   matchkeys:
     - pod_name: "kube-multus-ds"
       container_name: "generate-kubeconfig"
-      container_type: "init_container"
+      container_type: "InitContainer"
   parser_rules:
     - name: "custom_splitter"
       options:
