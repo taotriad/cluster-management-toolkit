@@ -2148,7 +2148,7 @@ def genericlistloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                         title_name_paths = deep_get(action_args, DictPath("_name_tuple_paths"), [])
                         title_name = deep_get_str_tuple_paths(ref, title_name_paths, "")
                     elif selected is not None:
-                        title_name = getattr(selected, "name", "")
+                        title_name = deep_get(selected, DictPath("name"), "")
                     if title_name:
                         title_name = f" ({title_name})"
                     action_args["named_title"] = f"{title}{title_name}"
@@ -3002,7 +3002,7 @@ def clusteroverviewloop(stdscr: curses.window, **kwargs: Any) -> Retval:
 
             taints: list[str] = []
             if nodeinfo:
-                taints = getattr(nodeinfo[selected_node], "taints", ["<none>"])
+                taints = deep_get(nodeinfo[selected_node], DictPath("taints"), ["<none>"])
             if not taints:
                 taints = ["<none>"]
             selectednodetaints = \
@@ -3677,7 +3677,7 @@ def export_data(stdscr: curses.window, **kwargs: Any) -> Retval:
 
     value = None
     if selected is not None:
-        value = getattr(selected, name_attr)
+        value = deep_get(selected, DictPath(name_attr))
     if obj is not None:
         if value is not None:
             value = deep_get(obj, DictPath(f"{base_path}#{value}"))
@@ -4814,7 +4814,7 @@ def genericinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                 if w_itemgetter_src == "selected":
                     selected = uip.get_selected()
                     if selected is not None:
-                        w_ref = getattr(selected, "ref", None)
+                        w_ref = deep_get(selected, "ref", None)
                         if w_ref is not None:
                             if "ref" in w_ref:
                                 w_items = w_itemgetter(w_ref["ref"], **w_itemgetter_args)
@@ -4906,7 +4906,7 @@ def genericinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                 elif "_pass_selected_obj" in w_args:
                     selected = uip.get_selected()
                     if selected is not None:
-                        w_args["obj"] = getattr(selected, "ref")
+                        w_args["obj"] = deep_get(selected, DictPath("ref"))
                 do_command(uip.stdscr, **w_args)
             elif widget == "executecommand":
                 selected = uip.get_selected()
@@ -4916,7 +4916,7 @@ def genericinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                     continue
                 w_ref = None
                 if selected is not None:
-                    w_ref = getattr(selected, "ref", None)
+                    w_ref = deep_get(selected, DictPath("ref"), None)
                 if w_kinds != ["<native>"] \
                         and [deep_get(w_ref, DictPath("kind"), ""),
                              deep_get(w_ref, DictPath("api_group"), "")] not in w_kinds \
@@ -4989,7 +4989,7 @@ def genericinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                 if "_pass_selected" in action_args and selected is not None:
                     action_args["selected"] = selected
                 if "_pass_selected_obj" in action_args and selected is not None:
-                    action_args["selected_obj"] = getattr(selected, "ref", None)
+                    action_args["selected_obj"] = deep_get(selected, DictPath("ref"), None)
                 if "_parent_kind_tuple_paths" in action_args and selected is not None:
                     parent_kind_path, parent_api_version_path = \
                         deep_get(action_args, DictPath("_parent_kind_tuple_paths"))
@@ -5010,7 +5010,7 @@ def genericinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                     title = deep_get(action_args, DictPath("title"), "")
                     title_name: str = ""
                     if selected is not None:
-                        ref = getattr(selected, "ref", None)
+                        ref = deep_get(selected, DictPath("ref"), None)
                     elif tmpselection is not None:
                         ref = tmpselection
                     if "_name_path" in action_args and ref is not None:
@@ -5020,7 +5020,7 @@ def genericinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                         title_name_paths = deep_get(action_args, DictPath("_name_tuple_paths"), [])
                         title_name = deep_get_str_tuple_paths(cast(dict, ref), title_name_paths, "")
                     elif selected is not None:
-                        title_name = getattr(selected, "name", "")
+                        title_name = deep_get(selected, DictPath("name"), "")
                     if title_name:
                         title_name = f" ({title_name})"
                     action_args["named_title"] = f"{title}{title_name}"
@@ -6739,10 +6739,7 @@ def patch_object(stdscr: curses.window, **kwargs: Any) -> Retval:
     strategic_merge: bool = deep_get(kwargs, DictPath("args#strategic_merge"), False)
 
     for key_path, value_path in path_substitutions.items():
-        if isinstance(values, dict):
-            value: Any = deep_get(values, DictPath(value_path))
-        else:
-            value = getattr(values, value_path)
+        value: Any = deep_get(values, DictPath(value_path))
         deep_set(patch, DictPath(key_path), value, create_path=True)
 
     _message, _status = kh.patch_obj_by_kind_name_namespace(kind, name, namespace, patch,
@@ -6909,13 +6906,13 @@ def resourceinfodispatch_with_lookup(stdscr: curses.window, **kwargs: Any) -> Re
                 obj = {}
                 for key, attribute in deep_get(kwargs, DictPath("_selected_objs"), []).items():
                     if isinstance(attribute, list):
-                        tmp: Any = getattr(selected, attribute[0])
+                        tmp: Any = deep_get(selected, DictPath(attribute[0]))
                         if tmp is not None:
                             obj[key] = tmp[attribute[1]]
                         else:
                             obj[key] = None
                     else:
-                        obj[key] = getattr(selected, attribute)
+                        obj[key] = deep_get(selected, DictPath(attribute))
             else:
                 obj = selected
 
@@ -7478,11 +7475,11 @@ def view_pod_logs(stdscr: curses.window, **kwargs: Any) -> Retval:
         items = [selected]
     namespaces = set()
     for obj in items:
-        namespace = getattr(obj, "namespace")
+        namespace = deep_get(obj, DictPath("namespace"))
         namespaces.add(namespace)
-        name = getattr(obj, "name")
-        container_name = getattr(obj, "container")
-        image_id = getattr(obj, "image_id")
+        name = deep_get(obj, DictPath("name"))
+        container_name = deep_get(obj, DictPath("container"))
+        image_id = deep_get(obj, DictPath("image_id"))
         containers.append((namespace, name, container_name))
         containers_full.append((namespace, name, container_name, image_id))
 
@@ -8615,7 +8612,7 @@ def ssh_to_host(stdscr: curses.window, **kwargs: Any) -> Retval:
         elif isinstance(selected, str):
             host = selected
         else:
-            ref = getattr(selected, "ref")
+            ref = deep_get(selected, DictPath("ref"))
             _kind = deep_get(ref, DictPath("kind"), "")
             _api_group = deep_get(ref, DictPath("api_group"), "")
             try:
