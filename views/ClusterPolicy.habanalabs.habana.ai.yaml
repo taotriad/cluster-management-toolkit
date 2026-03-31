@@ -68,6 +68,7 @@ infoview:
                  "driver_loader_repo_path",
                  "driver_runner_image",
                  "device_plugin_image",
+                 "dra_resource_driver_image",
                  "allocation_mode",
                  "feature_discovery_header",
                  "feature_discovery_nfd_plugin",
@@ -109,6 +110,20 @@ infoview:
         paths:
           - path: [["spec#device_plugin#image#repository"],
                    ["spec#device_plugin#image#tag"]]
+            pathtype: "tuple"
+            default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "generic"
+            - type: "version"
+          field_separators:
+            - type: "version"
+      dra_resource_driver_image:
+        header: [["DRA Resource Driver Image:", ["main", "infoheader"]]]
+        paths:
+          - path: [["spec#dra_resource_driver#image#repository"],
+                   ["spec#dra_resource_driver#image#tag"]]
             pathtype: "tuple"
             default: ["<none>"]
         formatter: "list"
@@ -286,6 +301,9 @@ infoview:
         - path: "spec#device_plugin#resources"
           key_name: "container"
           key_value: "device_plugin"
+        - path: "spec#dra_resource_driver#resources"
+          key_name: "container"
+          key_value: "dra_resource_driver"
         - path: "spec#driver#driver_loader#resources"
           key_name: "container"
           key_value: "driver_loader"
