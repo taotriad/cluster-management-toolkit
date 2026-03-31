@@ -14,7 +14,7 @@ This generates and post-processes elements for various more complex types
 import copy
 from datetime import datetime
 import re
-from typing import Any, cast, Type, TypedDict
+from typing import Any, cast, TypedDict
 from collections.abc import Callable
 import yaml
 
@@ -534,7 +534,7 @@ def generator_age(obj: dict, field: str, fieldlen: int, pad: bool,
             ([ThemeRef | ThemeStr]): A formatted string
     """
     array: list[ThemeRef | ThemeStr] = []
-    value = getattr(obj, field)
+    value = deep_get(obj, DictPath(field))
 
     array = generator_age_raw(value, selected)
 
@@ -561,7 +561,7 @@ def generator_address(obj: dict, field: str, fieldlen: int, pad: bool,
     """
     item_separator = deep_get(formatting, DictPath("item_separator"))
 
-    items = getattr(obj, field, [])
+    items = deep_get(obj, DictPath(field), [])
     if items is None:
         items = []
 
@@ -636,7 +636,7 @@ def generator_basic(obj: dict, field: str, fieldlen: int, pad: bool,
             ([ThemeRef | ThemeStr]): A formatted string
     """
     array: list[ThemeRef | ThemeStr] = []
-    value = getattr(obj, field)
+    value = deep_get(obj, DictPath(field))
     string = str(value)
     field_colors = deep_get(formatting, DictPath("field_colors"), [ThemeAttr("types", "generic")])
 
@@ -681,7 +681,7 @@ def generator_hex(obj: dict, field: str, fieldlen: int, pad: bool,
             ([ThemeRef | ThemeStr]): A formatted string
     """
     array: list[ThemeRef | ThemeStr] = []
-    value = getattr(obj, field)
+    value = deep_get(obj, DictPath(field))
     string = str(value)
     tmp: Any = None
 
@@ -717,7 +717,7 @@ def generator_list(obj: dict, field: str, fieldlen: int, pad: bool,
         Returns:
             ([ThemeRef | ThemeStr]): A formatted string
     """
-    items = getattr(obj, field)
+    items = deep_get(obj, DictPath(field))
 
     item_separator = deep_get(formatting, DictPath("item_separator"),
                               ThemeRef("separators", "list", selected))
@@ -773,7 +773,7 @@ def generator_list_with_status(obj: dict, field: str, fieldlen: int, pad: bool,
         Returns:
             ([ThemeRef | ThemeStr]): A formatted string
     """
-    items = getattr(obj, field)
+    items = deep_get(obj, DictPath(field))
     if isinstance(items, tuple):
         items = [items]
 
@@ -862,7 +862,7 @@ def generator_mem(obj: dict, field: str, fieldlen: int, pad: bool,
             ([ThemeRef | ThemeStr]): A formatted string
     """
     array: list[ThemeRef | ThemeStr] = []
-    tmp_free, tmp_total = getattr(obj, field)
+    tmp_free, tmp_total = deep_get(obj, DictPath(field))
     free = __remove_units(tmp_free)
     total = __remove_units(tmp_total)
 
@@ -913,7 +913,7 @@ def generator_numerical_with_units(obj: dict, field: str, fieldlen: int, pad: bo
             ([ThemeRef | ThemeStr]): A formatted string
     """
     array: list[ThemeRef | ThemeStr] = []
-    value = getattr(obj, field)
+    value = deep_get(obj, DictPath(field))
 
     if value in ("<default>", "<none>", "<unset>", "<unbounded>", "<unknown>"):
         if value in ("<default>", "<unbounded>"):
@@ -955,8 +955,8 @@ def generator_status(obj: dict, field: str, fieldlen: int, pad: bool,
             ([ThemeRef | ThemeStr]): A formatted string
     """
     array: list[ThemeRef | ThemeStr] = []
-    status = getattr(obj, field)
-    status_group = getattr(obj, "status_group")
+    status = deep_get(obj, DictPath(field))
+    status_group = deep_get(obj, DictPath("status_group"))
     fmt = color_status_group(status_group)
 
     array = [
@@ -987,7 +987,7 @@ def generator_timestamp(obj: dict, field: str, fieldlen: int, pad: bool,
     """
     array: list[ThemeRef | ThemeStr] = []
     string: str = ""
-    value = getattr(obj, field)
+    value = deep_get(obj, DictPath(field))
 
     if isinstance(value, str):
         if (tmp := format_special(value, selected)) is not None:
@@ -1031,7 +1031,7 @@ def generator_timestamp_with_age(obj: dict, field: str, fieldlen: int, pad: bool
             ([ThemeRef | ThemeStr]): A formatted string
     """
     array: list[ThemeRef | ThemeStr] = []
-    values = getattr(obj, field)
+    values = deep_get(obj, DictPath(field))
 
     if len(deep_get(formatting, DictPath("field_colors"), [])) < 2 < len(values):
         raise ValueError("Received more than 2 fields for timestamp_with_age "
@@ -1101,7 +1101,7 @@ def generator_value_mapper(obj: dict, field: "str", fieldlen: int, pad: bool,
             ([ThemeRef | ThemeStr]): A formatted string
     """
     array: list[ThemeRef | ThemeStr] = []
-    value = getattr(obj, field)
+    value = deep_get(obj, DictPath(field))
 
     default_field_color = cast(ThemeAttr,
                                deep_get(formatting, DictPath("field_colors"),
@@ -1131,7 +1131,7 @@ def processor_timestamp(obj: dict, field: str) -> str:
         Returns:
             (str): The processed value
     """
-    if (value := getattr(obj, field)) is None:
+    if (value := deep_get(obj, DictPath(field))) is None:
         return ""
 
     if isinstance(value, str):
@@ -1152,7 +1152,7 @@ def processor_timestamp_with_age(obj: dict, field: str, formatting: FormattingTy
         Returns:
             (str): The processed value
     """
-    values = getattr(obj, field)
+    values = deep_get(obj, DictPath(field))
 
     if len(deep_get(cast(dict, formatting), DictPath("field_colors"), [])) < 2 < len(values):
         raise ValueError("Received more than 2 fields for timestamp_with_age "
@@ -1236,14 +1236,14 @@ def __fix_to_str(fix: list[ThemeRef | tuple[str, str]] | ThemeRef | tuple[str, s
 
 # For the list processor to work we need to know the length of all the separators
 # pylint: disable-next=too-many-locals
-def processor_list(obj: Type, field: str, **kwargs: Any) -> str:
+def processor_list(obj: dict, field: str, **kwargs: Any) -> str:
     """
     Return the field with separators, prefixes, suffixes, ellipsis, etc.,
     but with formatting stripped; to be used when calculating string length.
     This processor is used for lists.
 
         Parameters:
-            obj (InfoClass): The object to extract the field from
+            obj (dict): The object to extract the field from
             field (str): The field to process
             **kwargs (dict[str, Any]): Keyword arguments
                 item_separator (ThemeRef): The separator between each element in the list
@@ -1265,7 +1265,7 @@ def processor_list(obj: Type, field: str, **kwargs: Any) -> str:
     field_prefixes: list[ThemeRef] = deep_get(kwargs, DictPath("field_prefixes"))
     field_suffixes: list[ThemeRef] = deep_get(kwargs, DictPath("field_suffixes"))
 
-    items = getattr(obj, field)
+    items = deep_get(obj, DictPath(field))
 
     strings: list[str] = []
 
@@ -1316,14 +1316,14 @@ def processor_list(obj: Type, field: str, **kwargs: Any) -> str:
 
 # For the list processor to work we need to know the length of all the separators
 # pylint: disable-next=too-many-locals
-def processor_list_with_status(obj: Type, field: str, **kwargs: Any) -> str:
+def processor_list_with_status(obj: dict, field: str, **kwargs: Any) -> str:
     """
     Return the field with separators, prefixes, suffixes, ellipsis, etc.,
     but with formatting stripped; to be used when calculating string length.
     This processor is used for lists with status.
 
         Parameters:
-            obj (InfoClass): The object to extract the field from
+            obj (dict): The object to extract the field from
             field (str): The field to process
             **kwargs (dict[str, Any]): Keyword arguments
                 item_separator (ThemeRef): The separator between each element in the list
@@ -1345,7 +1345,7 @@ def processor_list_with_status(obj: Type, field: str, **kwargs: Any) -> str:
     field_prefixes: list[ThemeRef] = deep_get(kwargs, DictPath("field_prefixes"))
     field_suffixes: list[ThemeRef] = deep_get(kwargs, DictPath("field_suffixes"))
 
-    items = getattr(obj, field)
+    items = deep_get(obj, DictPath(field))
     if items is None:
         items = []
 
@@ -1405,7 +1405,7 @@ def processor_age(obj: dict, field: str) -> str:
         Returns:
             (str): The processed value
     """
-    seconds = getattr(obj, field)
+    seconds = deep_get(obj, DictPath(field))
     return cmtlib.seconds_to_age(seconds, negative_is_skew=True)
 
 
@@ -1426,7 +1426,7 @@ def processor_mem(obj: dict, field: str) -> str:
         Returns:
             (str): The processed value
     """
-    tmp_free, tmp_total = getattr(obj, field)
+    tmp_free, tmp_total = deep_get(obj, DictPath(field))
     free = __remove_units(tmp_free)
     total = __remove_units(tmp_total)
 
@@ -1683,6 +1683,7 @@ builtin_fields: dict[str, dict[str, Any]] = {
         "header": "Age:",
         "paths": [{
             "path": ["metadata#creationTimestamp"],
+            "pathtype": "value",
             "type": "timestamp",
             "default": -1,
         }],
@@ -1699,11 +1700,13 @@ builtin_fields: dict[str, dict[str, Any]] = {
         "paths": [
             {
                 "path": "status#allocatable#memory",
-                "pathtype": "str",
+                "pathtype": "value",
+                "type": "str",
             },
             {
                 "path": "status#capacity#memory",
-                "pathtype": "str",
+                "pathtype": "value",
+                "type": "str",
             },
         ],
         "generator": generator_mem,

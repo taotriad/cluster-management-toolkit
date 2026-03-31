@@ -19,7 +19,7 @@ import curses.textpad
 from datetime import datetime, timedelta
 from enum import IntFlag
 import errno
-from operator import attrgetter
+from operator import itemgetter
 import os
 from pathlib import Path, PurePath
 import re
@@ -54,6 +54,61 @@ from clustermanagementtoolkit import cmtlib
 theme: dict = {}
 themefile: FilePath | None = None  # pylint: disable=invalid-name
 mousemask: int = 0  # pylint: disable=invalid-name
+
+
+tagged_items: set = set()
+
+
+def get_tagged_items() -> set:
+    """
+    Return a set with the UID of all tagged items.
+
+        Returns:
+            (set): A set of UIDs
+    """
+    return tagged_items
+
+
+def clear_tagged_items() -> None:
+    """
+    Clear the set of tagged items.
+    """
+    tagged_items.clear()
+
+
+def tag_item(item: dict) -> None:
+    """
+    Add the UID of item to the tagged set.
+    """
+    if (uid := deep_get(item, DictPath("__uid"))):
+        tagged_items.add(uid)
+
+
+def untag_item(item: dict) -> None:
+    """
+    Remove the UID of item from the tagged set.
+    """
+    if (uid := deep_get(item, DictPath("__uid"))):
+        tagged_items.discard(uid)
+
+
+def in_tagged_items(item: dict) -> bool:
+    """
+    Check whether the UID of item is in the tagged set.
+    """
+    return deep_get(item, DictPath("__uid")) in tagged_items
+
+
+def get_tagged_objects(items: list[dict]) -> list[dict]:
+    """
+    Return a list of objects for all UIDs matching the tagged set.
+
+        Parameters:
+            items ([dict]): The objects to search
+        Returns:
+            ([dict]): A list of objects
+    """
+    return [d for d in items if deep_get(d, DictPath("__uid")) in tagged_items]
 
 
 # A reference to text formatting
@@ -2638,9 +2693,9 @@ def windowwidget(stdscr: curses.window, maxy: int, maxx: int, y: int, x: int,
                         or "retval" not in item and tmp_selection == preselection:
                     curypos, yoffset = move_cur_with_offset(0, yoffset, maxcurypos, maxyoffset, y_)
                     break
-        tagged_items = set()
+        ww_tagged_items = set()
     elif isinstance(preselection, set):
-        tagged_items = preselection.copy()
+        ww_tagged_items = preselection.copy()
     else:
         raise ValueError("is_taggable() == True, "
                          f"but type(preselection) == {type(preselection)} (must be str or set())")
@@ -2661,7 +2716,7 @@ def windowwidget(stdscr: curses.window, maxy: int, maxx: int, y: int, x: int,
             linearray: list[ThemeRef | ThemeStr] = []
 
             if taggable:
-                if y_ in tagged_items:
+                if y_ in ww_tagged_items:
                     linearray.append(ThemeStr(f"{tagprefix}", ThemeAttr("windowwidget", "tag")))
                 else:
                     linearray.append(ThemeStr("".ljust(tagprefixlen),
@@ -2787,10 +2842,10 @@ def windowwidget(stdscr: curses.window, maxy: int, maxx: int, y: int, x: int,
 
         # While all of these are just navigation
         if taggable and c == ord(" "):
-            if curypos + yoffset in tagged_items:
-                tagged_items.discard(curypos + yoffset)
+            if curypos + yoffset in ww_tagged_items:
+                ww_tagged_items.discard(curypos + yoffset)
             else:
-                tagged_items.add(curypos + yoffset)
+                ww_tagged_items.add(curypos + yoffset)
         elif ord("a") <= c <= ord("z") and cursor:
             # Find the next entry starting with the pressed letter;
             # wrap around if the bottom is hit stop if oldycurypos + oldyoffset is hit
@@ -2909,7 +2964,7 @@ def windowwidget(stdscr: curses.window, maxy: int, maxx: int, y: int, x: int,
     del win
 
     if taggable:
-        return tagged_items
+        return ww_tagged_items
 
     return selection
 
@@ -3196,7 +3251,7 @@ class UIProps:
         pos = self.curypos + self.yoffset
         if len(self.sorted_list) > pos:
             try:
-                self.selected_uid = getattr(self.sorted_list[pos], "__uid")
+                self.selected_uid = deep_get(self.sorted_list[pos], DictPath("__uid"))
             except (AttributeError, IndexError):
                 self.selected_uid = None
 
@@ -3216,7 +3271,7 @@ class UIProps:
         sortkey1, sortkey2 = self.get_sortkeys()
         try:
             self.sorted_list = natsorted(self.info,
-                                         key=attrgetter(sortkey1, sortkey2),
+                                         key=itemgetter(sortkey1, sortkey2),
                                          reverse=self.sortorder_reverse)
         except TypeError:
             # We could not sort the list; we just keep the current sort order
@@ -3230,7 +3285,7 @@ class UIProps:
             for y, item in enumerate(self.sorted_list):
                 uid = None
                 try:
-                    uid = getattr(item, "__uid")
+                    uid = deep_get(item, "__uid")
                 except AttributeError:
                     pass
                 # If the first element lacks "__uid" all elements will lack it
@@ -4414,9 +4469,9 @@ class UIProps:
         sortkey = sortkey2 if sortkey1 == "status_group" else sortkey1
 
         try:
-            for entry in natsorted(info, key=attrgetter(sortkey1, sortkey2),
+            for entry in natsorted(info, key=itemgetter(sortkey1, sortkey2),
                                    reverse=self.sortorder_reverse):
-                entryval = getattr(entry, sortkey)
+                entryval = deep_get(entry, DictPath(sortkey))
 
                 # OK, from here we want to go to next entry
                 if y == pos:
@@ -4475,9 +4530,9 @@ class UIProps:
             # prev (existing) letter when sorted by name
             # prev status when sorted by status
             # prev node when sorted by node
-            for entry in natsorted(info, key=attrgetter(sortkey1, sortkey2),
+            for entry in natsorted(info, key=itemgetter(sortkey1, sortkey2),
                                    reverse=self.sortorder_reverse):
-                entryval = getattr(entry, sortkey)
+                entryval = deep_get(entry, DictPath(sortkey))
                 if current is None:
                     if sortkey == "age" or self.sortkey1 == "seen":
                         current = cmtlib.seconds_to_age(entryval)
@@ -4492,7 +4547,7 @@ class UIProps:
                         current = entryval
                         newpos = y - pos
                 elif sortkey == "age":
-                    if current != cmtlib.seconds_to_age(getattr(entry, sortkey)):
+                    if current != cmtlib.seconds_to_age(deep_get(entry, DictPath(sortkey))):
                         current = cmtlib.seconds_to_age(entryval)
                         newpos = y - pos
                 else:
@@ -4522,14 +4577,14 @@ class UIProps:
 
         # Search within sort category
         try:
-            sorted_list = natsorted(info, key=attrgetter(self.sortkey1, self.sortkey2),
+            sorted_list = natsorted(info, key=itemgetter(self.sortkey1, self.sortkey2),
                                     reverse=self.sortorder_reverse)
         except TypeError:
             return
 
         match = False
         for y in range(pos, len(sorted_list)):
-            tmp2 = getattr(sorted_list[y], self.sortcolumn)
+            tmp2 = deep_get(sorted_list[y], DictPath(self.sortcolumn))
             if self.sortkey1 in ("age", "first_seen", "last_restart", "seen"):
                 tmp2 = [cmtlib.seconds_to_age(tmp2)]
             else:
@@ -4569,14 +4624,14 @@ class UIProps:
 
         # Search within sort category
         try:
-            sorted_list = natsorted(info, key=attrgetter(self.sortkey1, self.sortkey2),
+            sorted_list = natsorted(info, key=itemgetter(self.sortkey1, self.sortkey2),
                                     reverse=self.sortorder_reverse)
         except TypeError:
             return
 
         match = False
         for y in reversed(range(0, pos)):
-            tmp2 = getattr(sorted_list[y], self.sortcolumn)
+            tmp2 = deep_get(sorted_list[y], DictPath(self.sortcolumn))
             if self.sortkey1 in ("age", "seen"):
                 tmp2 = [cmtlib.seconds_to_age(tmp2)]
             else:
@@ -4617,7 +4672,7 @@ class UIProps:
 
         # Search within sort category
         try:
-            sorted_list = natsorted(self.info, key=attrgetter(self.sortkey1, self.sortkey2),
+            sorted_list = natsorted(self.info, key=itemgetter(self.sortkey1, self.sortkey2),
                                     reverse=self.sortorder_reverse)
         except TypeError:
             return None
@@ -4788,25 +4843,28 @@ class UIProps:
                 self.curypos = ypos
                 self.reselect_uid()
 
-                if selected.ref is not None:
+                if deep_get(selected, DictPath("ref")):
                     if extraref is not None:
-                        view = getattr(selected, extraref, self.view)
+                        view = deep_get(selected, DictPath(extraref), self.view)
 
                         on_activation = copy.deepcopy(self.on_activation)
                         kind = deep_get(on_activation, DictPath("kind"), view)
                         on_activation.pop("kind", None)
                         if data is not None:
-                            _retval = activatedfun(self.stdscr, obj=selected.ref, kind=kind,
-                                                   info=data, **on_activation)
+                            _retval = activatedfun(self.stdscr,
+                                                   obj=deep_get(selected, DictPath("ref")),
+                                                   kind=kind, info=data, **on_activation)
                         else:
-                            _retval = activatedfun(self.stdscr, obj=selected.ref, kind=kind,
-                                                   **on_activation)
+                            _retval = activatedfun(self.stdscr,
+                                                   obj=deep_get(selected, DictPath("ref")),
+                                                   kind=kind, **on_activation)
                     else:
                         on_activation = copy.deepcopy(self.on_activation)
                         kind = deep_get(on_activation, DictPath("kind"), self.view)
                         on_activation.pop("kind", None)
-                        _retval = activatedfun(self.stdscr, obj=selected.ref, kind=kind,
-                                               **on_activation)
+                        _retval = activatedfun(self.stdscr,
+                                               obj=deep_get(selected, DictPath("ref")),
+                                               kind=kind, **on_activation)
                     if _retval is not None:
                         self.force_refresh()
                     return _retval
@@ -4830,26 +4888,29 @@ class UIProps:
                     self.reselect_uid()
                 else:
                     # If we click an already selected item we open it
-                    if selected.ref is not None and activatedfun is not None:
+                    if deep_get(selected, DictPath("ref")) and activatedfun:
                         self.force_update()
-                        if extraref is not None:
-                            view = getattr(selected, extraref, self.view)
+                        if extraref:
+                            view = deep_get(selected, DictPath(extraref), self.view)
 
                             on_activation = copy.deepcopy(self.on_activation)
                             kind = deep_get(on_activation, DictPath("kind"), view)
                             on_activation.pop("kind", None)
                             if data is not None:
-                                _retval = activatedfun(self.stdscr, selected.ref, kind,
-                                                       info=data, **on_activation)
+                                _retval = activatedfun(self.stdscr,
+                                                       obj=deep_get(selected, DictPath("ref")),
+                                                       kind=kind, info=data, **on_activation)
                             else:
-                                _retval = activatedfun(self.stdscr, selected.ref, kind,
-                                                       **on_activation)
+                                _retval = activatedfun(self.stdscr,
+                                                       obj=deep_get(selected, DictPath("ref")),
+                                                       kind=kind, **on_activation)
                         else:
                             on_activation = copy.deepcopy(self.on_activation)
                             kind = deep_get(on_activation, DictPath("kind"), self.view)
                             on_activation.pop("kind", None)
-                            _retval = activatedfun(self.stdscr, selected.ref, kind,
-                                                   **on_activation)
+                            _retval = activatedfun(self.stdscr,
+                                                   obj=deep_get(selected, DictPath("ref")),
+                                                   kind=kind, **on_activation)
                         if _retval is not None:
                             self.force_refresh()
                         return _retval
@@ -4930,24 +4991,28 @@ class UIProps:
         data: bool | None = deep_get(kwargs, DictPath("data"))
         selected = self.get_selected()
 
-        if activatedfun is not None and selected is not None and selected.ref is not None:
-            if extraref is not None:
-                view = getattr(selected, extraref, self.view)
+        if activatedfun and deep_get(selected, DictPath("ref")):
+            if extraref:
+                view = deep_get(selected, DictPath(extraref), self.view)
 
                 on_activation = copy.deepcopy(self.on_activation)
                 kind = deep_get(on_activation, DictPath("kind"), view)
                 on_activation.pop("kind", None)
                 if data is not None:
-                    _retval = activatedfun(self.stdscr, obj=selected.ref, kind=kind,
-                                           info=data, **on_activation)
+                    _retval = activatedfun(self.stdscr,
+                                           obj=deep_get(selected, DictPath("ref")),
+                                           kind=kind, info=data, **on_activation)
                 else:
-                    _retval = activatedfun(self.stdscr, obj=selected.ref, kind=kind,
-                                           **on_activation)
+                    _retval = activatedfun(self.stdscr,
+                                           obj=deep_get(selected, DictPath("ref")),
+                                           kind=kind, **on_activation)
             else:
                 on_activation = copy.deepcopy(self.on_activation)
                 kind = deep_get(on_activation, DictPath("kind"), self.view)
                 on_activation.pop("kind", None)
-                _retval = activatedfun(self.stdscr, obj=selected.ref, kind=kind, **on_activation)
+                _retval = activatedfun(self.stdscr,
+                                       obj=deep_get(selected, DictPath("ref")),
+                                       kind=kind, **on_activation)
             if _retval is not None:
                 self.force_refresh()
             return _retval

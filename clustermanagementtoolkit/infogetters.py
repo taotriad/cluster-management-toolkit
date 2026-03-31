@@ -26,7 +26,7 @@ except ModuleNotFoundError:  # pragma: no cover
 import os
 import re
 import sys
-from typing import Any, cast, Type
+from typing import Any, cast
 from collections.abc import Callable, Sequence
 
 try:
@@ -583,7 +583,7 @@ def format_controller(controller: tuple[tuple[str, str], str], show_kind: str) -
 
 # pylint: disable-next=too-many-locals,too-many-branches,too-many-statements
 def get_obj(obj: dict, field_dict: dict, field_names: list[str],
-            field_index: str, view: str, **kwargs: Any) -> Type | None:
+            field_index: str, view: str, **kwargs: Any) -> dict | None:
     """
     Extract data for all fields in a list row from an object.
 
@@ -600,7 +600,7 @@ def get_obj(obj: dict, field_dict: dict, field_names: list[str],
                 deleted (bool): Is the entry deleted?
                 caller_obj (dict): Used for lookups when doing path substitutions
         Returns:
-            (InfoClass): An InfoClass object with the data for all fields in the field_names list
+            (dict): A dict with the data for all fields in the field_names list
     """
     if (kh := deep_get(kwargs, DictPath("kubernetes_helper"))) is None:
         raise ProgrammingError(f"{__name__}() called without kubernetes_helper")
@@ -1408,12 +1408,12 @@ def get_obj(obj: dict, field_dict: dict, field_names: list[str],
         d["ref"] = obj
         d["__deleted"] = deleted
         d["__uid"] = deep_get(obj, DictPath("metadata#uid"))
-        entry = type("InfoClass", (), d)
+        entry = dict(d)
 
     return entry
 
 
-def generic_infogetter(**kwargs: Any) -> list[Type]:
+def generic_infogetter(**kwargs: Any) -> list[dict]:
     """
     Generic getter for information from an object.
 
@@ -1429,14 +1429,13 @@ def generic_infogetter(**kwargs: Any) -> list[Type]:
                 extra_data (dict): Extra data to add to the obj
                 caller_obj (dict): Used for lookups when doing path substitutions
         Returns:
-            ([InfoClass]): A list of InfoClass objects
-                           with the data for all fields in the field_names list
+            ([dict]): A list of dicts with the data for all fields in the field_names list
     """
     if (kh := deep_get(kwargs, DictPath("kubernetes_helper"))) is None:
         raise ProgrammingError(f"{__name__}() called without kubernetes_helper")
     kh_cache = deep_get(kwargs, DictPath("kh_cache"))
 
-    info: list[Type] = []
+    info: list[dict] = []
 
     # Generate an empty entry
     if not (vlist := deep_get(kwargs, DictPath("_vlist"), [])):
@@ -1473,7 +1472,7 @@ def generic_infogetter(**kwargs: Any) -> list[Type]:
 
 
 # pylint: disable-next=too-many-locals
-def get_pod_info(**kwargs: Any) -> list[Type]:
+def get_pod_info(**kwargs: Any) -> list[dict]:
     """
     Infogetter for Pods.
 
@@ -1484,13 +1483,13 @@ def get_pod_info(**kwargs: Any) -> list[Type]:
                 extra_vars (dict): Extra variables
                 filters ([dict]): A dict of filters to apply
         Returns:
-            ([InfoClass]): A list with info
+            ([dict]): A list with info
     """
     in_depth_node_status: bool = deep_get(kwargs, DictPath("in_depth_node_status"), True)
     extra_vars: dict[str, Any] = deep_get(kwargs, DictPath("extra_vars"),
                                           {"show_kind": "", "show_evicted": True})
     filters: list[dict[str, Any]] = deep_get(kwargs, DictPath("filters"), [])
-    info: list[Type] = []
+    info: list[dict] = []
 
     if not (vlist := deep_get(kwargs, DictPath("vlist"))):
         return []
@@ -1555,7 +1554,7 @@ def get_pod_info(**kwargs: Any) -> list[Type]:
             containers += get_containers(containers=container_list,
                                          container_statuses=container_statuses)
 
-            info.append(type("InfoClass", (), {
+            info.append({
                 "namespace": namespace,
                 "name": name,
                 # The reference to the "true" resource object
@@ -1570,13 +1569,13 @@ def get_pod_info(**kwargs: Any) -> list[Type]:
                 "controller": controller,
                 "tolerations": tolerations,
                 "containers": containers,
-            }))
+            })
         else:
             # This is to speed up the cluster overview,
             # which doesn't use most of this information anyway;
             # for clusters with a huge amount of pods
             # this can make a quite significant difference.
-            info.append(type("InfoClass", (), {
+            info.append({
                 "namespace": namespace,
                 "name": name,
                 # The reference to the "true" resource object
@@ -1584,12 +1583,12 @@ def get_pod_info(**kwargs: Any) -> list[Type]:
                 "status": status,
                 "status_group": status_group,
                 "node": nodename,
-            }))
+            })
     return info
 
 
 # pylint: disable-next=too-many-locals
-def get_node_info(**kwargs: Any) -> list[Type]:
+def get_node_info(**kwargs: Any) -> list[dict]:
     """
     Infogetter for Nodes.
 
@@ -1597,9 +1596,9 @@ def get_node_info(**kwargs: Any) -> list[Type]:
             **kwargs (dict[str, Any]): Keyword arguments
                 vlist ([dict[str, Any]]): The list of Node objects
         Returns:
-            info (list[InfoClass]): A list with info
+            info (list[dict]): A list with info
     """
-    info: list[Type] = []
+    info: list[dict] = []
 
     if (vlist := deep_get(kwargs, DictPath("vlist"))) is None or not vlist:
         return []
@@ -1625,7 +1624,7 @@ def get_node_info(**kwargs: Any) -> list[Type]:
         operating_system = deep_get(obj, DictPath("status#nodeInfo#osImage"))
         kernel = deep_get(obj, DictPath("status#nodeInfo#kernelVersion"))
 
-        info.append(type("InfoClass", (), {
+        info.append({
             "name": name,
             "hostname": hostname,
             "ref": ref,
@@ -1641,7 +1640,7 @@ def get_node_info(**kwargs: Any) -> list[Type]:
             "cpu": cpu,
             "mem": mem,
             "taints": taints,
-        }))
+        })
 
     return info
 
@@ -1701,18 +1700,18 @@ def get_node_addresses(addresses: list[dict]) -> tuple[str, list[str], list[str]
 
 
 # pylint: disable-next=too-many-locals
-def get_auth_rule_info(**kwargs: Any) -> list[Type]:
+def get_auth_rule_info(**kwargs: Any) -> list[dict]:
     """
     Infogetter for Istio Authorization Policy Rules.
 
         Parameters:
             **kwargs (dict[str, Any]): Keyword arguments
-                _obj (Dict): The dict to extract data from
+                _obj (dict): The dict to extract data from
         Returns:
-            ([InfoClass]): A list with info
+            ([dict]): A list with info
     """
     obj = deep_get(kwargs, DictPath("_obj"))
-    info: list[Type] = []
+    info: list[dict] = []
 
     if obj is None:
         return []
@@ -1759,23 +1758,23 @@ def get_auth_rule_info(**kwargs: Any) -> list[Type]:
             conditions.append((key, values, key, not_values))
 
         if sources or operations or conditions:
-            info.append(type("InfoClass", (), {
+            info.append({
                 "sources": sources,
                 "operations": operations,
                 "conditions": conditions,
-            }))
+            })
     return info
 
 
-def get_eps_subsets_info(**kwargs: Any) -> list[Type]:
+def get_eps_subsets_info(**kwargs: Any) -> list[dict]:
     """
     Infogetter for EndpointSlice subsets.
 
         Parameters:
             **kwargs (dict[str, Any]): Keyword arguments
-                _obj (Dict): The dict to extract data from
+                _obj (dict): The dict to extract data from
         Returns:
-            info (list[InfoClass]): A list with info
+            info ([dict]): A list with info
     """
     if (obj := deep_get(kwargs, DictPath("_obj"))) is None:
         return []
@@ -1814,7 +1813,7 @@ def get_eps_subsets_info(**kwargs: Any) -> list[Type]:
                 topology.append((key, value))
 
         if ready_addresses:
-            subsets.append(type("InfoClass", (), {
+            subsets.append({
                 "addresstype": addresstype,
                 "addresses": ready_addresses,
                 "ports_eps": ports,
@@ -1822,9 +1821,9 @@ def get_eps_subsets_info(**kwargs: Any) -> list[Type]:
                 "status_group": StatusGroup.OK,
                 "target_ref": target_ref,
                 "topology": topology,
-            }))
+            })
         if not_ready_addresses:
-            subsets.append(type("InfoClass", (), {
+            subsets.append({
                 "addresstype": addresstype,
                 "addresses": not_ready_addresses,
                 "ports_eps": ports,
@@ -1832,21 +1831,21 @@ def get_eps_subsets_info(**kwargs: Any) -> list[Type]:
                 "status_group": StatusGroup.NOT_OK,
                 "target_ref": target_ref,
                 "topology": topology,
-            }))
+            })
     return subsets
 
 
-def get_key_value_info(**kwargs: Any) -> list[Type]:
+def get_key_value_info(**kwargs: Any) -> list[dict]:
     """
     Infogetter for key/value-based information.
 
         Parameters:
             **kwargs (dict[str, Any]): Keyword arguments
-                vlist (dict[str, Any]): The dict of key/value objects
+                _vlist (dict[str, Any]): The dict of key/value objects
         Returns:
-            ([InfoClass]): A list with info
+            ([dict]): A list with info
     """
-    info: list[Type] = []
+    info: list[dict] = []
 
     if not (vlist := deep_get(kwargs, DictPath("_vlist"))):
         return info
@@ -1879,29 +1878,29 @@ def get_key_value_info(**kwargs: Any) -> list[Type]:
             "vtype": vtype,
             "vlen": vlen,
         }
-        info.append(type("InfoClass", (), {
+        info.append({
             "key": key,
             "ref": ref,
             "decoded_value": decoded_value,
             "value": value,
             "vtype": vtype,
             "vlen": vlen,
-        }))
+        })
 
     return info
 
 
-def get_limit_info(**kwargs: Any) -> list[Type]:
+def get_limit_info(**kwargs: Any) -> list[dict]:
     """
     Infogetter for Limits.
 
         Parameters:
             **kwargs (dict[str, Any]): Keyword arguments
         Returns:
-            ([InfoClass]): A list with info
+            ([dict]): A list with info
     """
     obj = deep_get(kwargs, DictPath("_obj"))
-    info: list[Type] = []
+    info: list[dict] = []
 
     if obj is None:
         return []
@@ -1929,7 +1928,7 @@ def get_limit_info(**kwargs: Any) -> list[Type]:
             default_request = deep_get(limit, DictPath(f"defaultRequest#{item}"), "-")
             default_limit = deep_get(limit, DictPath(f"default#{item}"), "-")
             max_lr_ratio = deep_get(limit, DictPath(f"maxLimitRequestRatio#{item}"), "-")
-            info.append(type("InfoClass", (), {
+            info.append({
                 "name": item,
                 "ref": limit,
                 "ltype": ltype,
@@ -1938,22 +1937,22 @@ def get_limit_info(**kwargs: Any) -> list[Type]:
                 "default_request": default_request,
                 "default_limit": default_limit,
                 "max_lr_ratio": max_lr_ratio,
-            }))
+            })
     return info
 
 
-def get_promrules_info(**kwargs: Any) -> list[Type]:
+def get_promrules_info(**kwargs: Any) -> list[dict]:
     """
     Infogetter for Prometheus Rules.
 
         Parameters:
             **kwargs (dict[str, Any]): Keyword arguments
-                _obj (Dict): The dict to extract data from
+                _obj (dict): The dict to extract data from
         Returns:
-            info (list[InfoClass]): A list with info
+            info ([dict]): A list with info
     """
     obj = deep_get(kwargs, DictPath("_obj"))
-    info: list[Type] = []
+    info: list[dict] = []
 
     if obj is None:
         return []
@@ -1985,25 +1984,25 @@ def get_promrules_info(**kwargs: Any) -> list[Type]:
             ref = rule
             age = deep_get(rule, DictPath("for"), "")
             duration = cmtlib.age_to_seconds(age)
-            info.append(type("InfoClass", (), {
+            info.append({
                 "group": name,
                 "ref": ref,
                 "rtype": rtype,
                 "alertrecord": alertrecord,
                 "duration": duration,
-            }))
+            })
     return info
 
 
-def get_rq_item_info(**kwargs: Any) -> list[Type]:
+def get_rq_item_info(**kwargs: Any) -> list[dict]:
     """
     Infogetter for Resource Quotas.
 
         Parameters:
             **kwargs (dict[str, Any]): Keyword arguments
-                _obj (Dict): The dict to extract data from
+                _obj (dict): The dict to extract data from
         Returns:
-            info (list[InfoClass]): A list with info
+            info ([dict]): A list with info
     """
     obj = deep_get(kwargs, DictPath("_obj"))
     hard_path = deep_get(kwargs, DictPath("hard_path"), DictPath("spec#hard"))
@@ -2017,33 +2016,33 @@ def get_rq_item_info(**kwargs: Any) -> list[Type]:
         used = deep_get(obj, DictPath(f"{used_path}#{resource}"), 0)
         hard = deep_get(obj, DictPath(f"{hard_path}#{resource}"), 0)
 
-        info.append(type("InfoClass", (), {
+        info.append({
             "resource": resource,
             "used": used,
             "hard": hard,
-        }))
+        })
     return info
 
 
 # pylint: disable-next=too-many-locals
-def get_sas_info(**kwargs: Any) -> list[Type]:
+def get_sas_info(**kwargs: Any) -> list[dict]:
     """
     Infogetter for Service Account secrets.
 
         Parameters:
             **kwargs (dict[str, Any]): Keyword arguments
-                _obj (Dict): The dict to extract data from
+                _obj (dict): The dict to extract data from
                 kubernetes_helper (KubernetesHelper): A reference to a KubernetesHelper object
                 kh_cache (KubernetesResourceCache): A reference to a KubernetesResourceCache object
         Returns:
-            ([InfoClass]): A list with info
+            ([dict]): A list with info
     """
     if (kh := deep_get(kwargs, DictPath("kubernetes_helper"))) is None:
         raise ProgrammingError(f"{__name__}() called without kubernetes_helper")
     kh_cache = deep_get(kwargs, DictPath("kh_cache"))
 
     obj = deep_get(kwargs, DictPath("_obj"))
-    info: list[Type] = []
+    info: list[dict] = []
 
     if obj is None:
         return []
@@ -2062,13 +2061,13 @@ def get_sas_info(**kwargs: Any) -> list[Type]:
         deep_set(ref, DictPath("kind"), "Secret", create_path=True)
         deep_set(ref, DictPath("apiVersion"), "", create_path=True)
 
-        info.append(type("InfoClass", (), {
+        info.append({
             "name": secret_name,
             "ref": ref,
             "namespace": snamespace,
             "kind": ("Secret", ""),
             "type": "Image Pull",
-        }))
+        })
 
     vlist, _status = kh.get_list_by_kind_namespace(("RoleBinding", "rbac.authorization.k8s.io"),
                                                    "", resource_cache=kh_cache)
@@ -2085,13 +2084,13 @@ def get_sas_info(**kwargs: Any) -> list[Type]:
             subjectnamespace = deep_get(subject, DictPath("namespace"), "")
             if subjectkind == "ServiceAccount" \
                     and subjectname == saname and subjectnamespace == sanamespace:
-                info.append(type("InfoClass", (), {
+                info.append({
                     "name": deep_get(ref, DictPath("metadata#name")),
                     "ref": ref,
                     "namespace": deep_get(ref, DictPath("metadata#namespace")),
                     "kind": ("RoleBinding", "rbac.authorization.k8s.io"),
                     "type": "<unset>",
-                }))
+                })
 
                 # Excellent, we have a Role Binding, now add the role it binds to
                 rolerefkind = (deep_get(ref, DictPath("roleRef#kind"), ""),
@@ -2105,13 +2104,13 @@ def get_sas_info(**kwargs: Any) -> list[Type]:
                     deep_set(roleref, DictPath("kind"), rolerefkind[0], create_path=True)
                     deep_set(roleref, DictPath("apiVersion"), f"{rolerefkind[1]}/",
                              create_path=True)
-                info.append(type("InfoClass", (), {
+                info.append({
                     "name": rolerefname,
                     "ref": roleref,
                     "namespace": subjectnamespace,
                     "kind": rolerefkind,
                     "type": "<unset>",
-                }))
+                })
                 break
 
     vlist, _status = \
@@ -2128,13 +2127,13 @@ def get_sas_info(**kwargs: Any) -> list[Type]:
             subjectnamespace = deep_get(subject, DictPath("namespace"), "")
             if subjectkind == "ServiceAccount" \
                     and subjectname == saname and subjectnamespace == sanamespace:
-                info.append(type("InfoClass", (), {
+                info.append({
                     "name": deep_get(ref, DictPath("metadata#name")),
                     "ref": ref,
                     "namespace": deep_get(ref, DictPath("metadata#namespace")),
                     "kind": ("ClusterRoleBinding", "rbac.authorization.k8s.io"),
                     "type": "<unset>",
-                }))
+                })
 
                 # Excellent, we have a Cluster Role Binding, now add the role it binds to
                 rolerefkind = (deep_get(ref, DictPath("roleRef#kind"), ""),
@@ -2147,27 +2146,27 @@ def get_sas_info(**kwargs: Any) -> list[Type]:
                     deep_set(roleref, DictPath("kind"), rolerefkind[0], create_path=True)
                     deep_set(roleref, DictPath("apiVersion"), f"{rolerefkind[1]}/",
                              create_path=True)
-                info.append(type("InfoClass", (), {
+                info.append({
                     "name": rolerefname,
                     "ref": roleref,
                     "namespace": subjectnamespace,
                     "kind": rolerefkind,
                     "type": "<unset>",
-                }))
+                })
                 break
 
     return info
 
 
-def get_strategy_info(**kwargs: Any) -> list[Type]:
+def get_strategy_info(**kwargs: Any) -> list[dict]:
     """
     Infogetter for Telemetry Aware Scheduling policies.
 
         Parameters:
             **kwargs (dict[str, Any]): Keyword arguments
-                _obj (Dict): The dict to extract data from
+                _obj (dict): The dict to extract data from
         Returns:
-            ([InfoClass]): A list with info
+            ([dict]): A list with info
     """
     obj = deep_get(kwargs, DictPath("_obj"))
     info = []
@@ -2188,48 +2187,48 @@ def get_strategy_info(**kwargs: Any) -> list[Type]:
         name = deep_get(rule, DictPath("metricname"), "")
         operator = deep_get(rule, DictPath("operator"), "")
         target = deep_get(rule, DictPath("target"), -1)
-        info.append(type("InfoClass", (), {
+        info.append({
             "strategy": strategy,
             "name": name,
             "operator": operator,
             "target": target,
             "labels": [],
-        }))
+        })
 
     if dontschedule_rules:
         strategy = "dontschedule"
         # dontschedule can have multiple rules; if it does we build a hackish tree
         if len(dontschedule_rules) > 1:
-            info.append(type("InfoClass", (), {
+            info.append({
                 "strategy": strategy,
                 "name": "",
                 "operator": "",
                 "target": -1,
                 "labels": [],
-            }))
+            })
             for rule in dontschedule_rules:
                 name = rule.get("metricname", "")
                 operator = rule.get("operator", "")
                 target = rule.get("target", -1)
-                info.append(type("InfoClass", (), {
+                info.append({
                     "strategy": "",
                     "name": rule.get("metricname", ""),
                     "operator": rule.get("operator", ""),
                     "target": rule.get("target", -1),
                     "labels": [],
-                }))
+                })
         else:
             rule = dontschedule_rules[0]
             name = rule.get("metricname", "")
             operator = rule.get("operator", "")
             target = rule.get("target", -1)
-            info.append(type("InfoClass", (), {
+            info.append({
                 "strategy": strategy,
                 "name": name,
                 "operator": operator,
                 "target": target,
                 "labels": [],
-            }))
+            })
 
     if scheduleonmetric_rules:
         strategy = "scheduleonmetric"
@@ -2239,13 +2238,13 @@ def get_strategy_info(**kwargs: Any) -> list[Type]:
         name = rule.get("metricname", "")
         operator = rule.get("operator", "")
         target = rule.get("target", -1)
-        info.append(type("InfoClass", (), {
+        info.append({
             "strategy": strategy,
             "name": name,
             "operator": operator,
             "target": target,
             "labels": [],
-        }))
+        })
 
     for rule in labeling_rules:
         strategy = "labeling"
@@ -2255,27 +2254,27 @@ def get_strategy_info(**kwargs: Any) -> list[Type]:
         operator = rule.get("operator", "")
         target = rule.get("target", -1)
         labels = rule.get("labels", [])
-        info.append(type("InfoClass", (), {
+        info.append({
             "strategy": strategy,
             "name": name,
             "operator": operator,
             "target": target,
             "labels": labels,
-        }))
+        })
 
     return info
 
 
 # pylint: disable-next=too-many-locals,too-many-branches
-def get_subsets_info(**kwargs: Any) -> list[Type]:
+def get_subsets_info(**kwargs: Any) -> list[dict]:
     """
     Infogetter for Endpoint subsets.
 
         Parameters:
             **kwargs (dict[str, Any]): Keyword arguments
-                _obj (Dict): The dict to extract data from
+                _obj (dict): The dict to extract data from
         Returns:
-            ([InfoClass]): A list with info
+            ([dict]): A list with info
     """
     if (obj := deep_get(kwargs, DictPath("_obj"))) is None:
         return []
@@ -2339,12 +2338,12 @@ def get_subsets_info(**kwargs: Any) -> list[Type]:
                                    "this shouldn't be possible")
 
     for addresses, ports, status, status_group in subsets:
-        subsets_.append(type("InfoClass", (), {
+        subsets_.append({
             "addresses": addresses,
             "ports": ports,
             "status": status,
             "status_group": status_group,
-        }))
+        })
     return subsets_
 
 
@@ -2765,16 +2764,16 @@ def logpad_msg_getter(obj: dict, **kwargs: Any) -> list[list[ThemeRef | ThemeStr
 
 
 # pylint: disable-next=unused-argument,too-many-locals
-def get_log_info(**kwargs: Any) -> list[Type]:
+def get_log_info(**kwargs: Any) -> list[dict]:
     """
     Infogetter for logs.
 
         Parameters:
             **kwargs (dict): Additional parameters
         Returns:
-            ([InfoClass]): A list with info
+            ([dict]): A list with info
     """
-    info: list[Type] = []
+    info: list[dict] = []
 
     # Fetch kubelet log, if available (for now only useful if run on the control plane)
     sudo_path: FilePath = secure_which(FilePath("sudo"),
@@ -2825,7 +2824,7 @@ def get_log_info(**kwargs: Any) -> list[Type]:
                 datetime.fromtimestamp(int(deep_get(d, DictPath("__REALTIME_TIMESTAMP"))) / 1000000)
             split_response[0]["created_at"] = created_at
 
-            info.append(type("InfoClass", (), {
+            info.append({
                 "name": f"<dynamic> {hostname}: {name}",
                 "ref": {
                     "ref": split_response,
@@ -2835,7 +2834,7 @@ def get_log_info(**kwargs: Any) -> list[Type]:
                 "message": deep_get(d, DictPath("MESSAGE"), ""),
                 "created_at": created_at,
                 "log_type": "journalctl",
-            }))
+            })
     except FileNotFoundError:
         pass
 
@@ -2846,7 +2845,7 @@ def get_log_info(**kwargs: Any) -> list[Type]:
 
     for name, action, ref, created_at in ansible_logs:
         log_type = "Ansible Play"
-        info.append(type("InfoClass", (), {
+        info.append({
             "name": name,
             "ref": {
                 "ref": ref,
@@ -2855,7 +2854,7 @@ def get_log_info(**kwargs: Any) -> list[Type]:
             "action": action,
             "created_at": created_at,
             "log_type": log_type,
-        }))
+        })
     return info
 
 
@@ -2895,7 +2894,7 @@ def __get_container_info(obj: dict, container_type: str,
 
 
 # pylint: disable-next=too-many-locals
-def get_container_info(**kwargs: Any) -> list[Type]:
+def get_container_info(**kwargs: Any) -> list[dict]:
     """
     Infogetter for containers.
 
@@ -2904,13 +2903,13 @@ def get_container_info(**kwargs: Any) -> list[Type]:
                 kubernetes_helper (KubernetesHelper): A reference to a KubernetesHelper object
                 kh_cache (KubernetesResourceCache): A reference to a KubernetesResourceCache object
         Returns:
-            ([InfoClass]): A list with info
+            ([dict]): A list with info
     """
     if (kh_ := deep_get(kwargs, DictPath("kubernetes_helper"))) is None:
         raise ProgrammingError(f"{__name__}() called without kubernetes_helper")
     kh_cache_: KubernetesResourceCache | None = deep_get(kwargs, DictPath("kh_cache"))
 
-    info: list[Type] = []
+    info: list[dict] = []
     containers: dict = {}
 
     # There's no direct way to get a list of unique containers
@@ -2957,7 +2956,7 @@ def get_container_info(**kwargs: Any) -> list[Type]:
             pods.append((deep_get(pod, DictPath("metadata#namespace")),
                          deep_get(pod, DictPath("metadata#name"))))
         instances = containers[(name, container_type, image_version, image_id)]["instances"]
-        info.append(type("InfoClass", (), {
+        info.append({
             "name": name,
             # This replaces ref
             "ref": {
@@ -2973,7 +2972,7 @@ def get_container_info(**kwargs: Any) -> list[Type]:
             "image_id": image_id,
             "pods": pods,
             "pod_references": pod_references,
-        }))
+        })
     return info
 
 

@@ -1597,9 +1597,8 @@ def test_get_key_value_info(verbose: bool = False) -> tuple[str, bool]:
                     break
                 else:
                     for i, item in enumerate(tmp):
-                        tmp2 = dict(item.__dict__)
                         for key, value in expected_result[i].items():
-                            result_value = deep_get(tmp2, DictPath(key))
+                            result_value = deep_get(item, DictPath(key))
                             if result_value != value:
                                 message = f"{fun.__name__}() did not yield expected result:\n" \
                                           f"           result: {result_value}\n" \
@@ -1813,9 +1812,8 @@ def test_get_promrules_info(verbose: bool = False) -> tuple[str, bool]:
                     break
                 else:
                     for i, item in enumerate(tmp):
-                        tmp2 = dict(item.__dict__)
                         for key, value in expected_result[i].items():
-                            result_value = deep_get(tmp2, DictPath(key))
+                            result_value = deep_get(item, DictPath(key))
                             if result_value != value:
                                 message = f"{fun.__name__}() did not yield expected result:\n" \
                                           f"           result: {result_value}\n" \
@@ -2428,7 +2426,7 @@ def test_get_subsets_info(verbose: bool = False) -> tuple[str, bool]:
                     break
                 for i, item in enumerate(expected_result):
                     for key, value in item.items():
-                        result = getattr(tmp[i], key)
+                        result = deep_get(tmp[i], DictPath(key))
                         if len(tmp) != len(expected_result):
                             message = f"{fun.__name__}() did not yield expected result:\n" \
                                       f"   expand_subsets: {expand_subsets}\n" \
