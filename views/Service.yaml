@@ -164,7 +164,7 @@ infoview:
           field_separators:
             - type: "namespace"
       external_ips:
-        header: [["External IPs:", ["main", "infoheader"]]]
+        header: [["External IPs [DEPRECATED]:", ["main", "infoheader"]]]
         path: "spec#externalIPs"
         type: "raw"
         default: "<none>"
