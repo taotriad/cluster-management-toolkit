@@ -6,3 +6,4 @@
       container_name: "kindnet-cni"
   parser_rules:
     - name: "glog"
+    - name: "key_value"
