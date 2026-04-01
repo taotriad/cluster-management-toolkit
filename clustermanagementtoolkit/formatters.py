@@ -158,15 +158,40 @@ COLORSCHEME_MARKDOWN: dict[Any, ColorSchemeEntry] = {
         "formatting": ThemeAttr("types", "markdown_italics"),
         "type": "text",
     },
-    # `code`
-    Token.Literal.String.Backtick: {
-        "formatting": ThemeAttr("types", "markdown_code"),
-        "type": "code",
-    },
     # bug numbers #31563 and mentions
     Token.Name.Entity: {
         "formatting": ThemeAttr("types", "markdown_italics"),
         "type": "code",
+    },
+    # `code` ```code block```
+    Token.Literal.String.Backtick: {
+        "formatting": ThemeAttr("types", "markdown_code"),
+        "type": "code",
+    },
+    # # (used by subparsing of code blocks with specified language)
+    Token.Comment.Single: {
+        "formatting": ThemeAttr("types", "yaml_comment"),
+        "type": "comment",
+    },
+    # Constant (used by subparsing of code blocks with specified language)
+    Token.Name.Constant: {
+        "formatting": ThemeAttr("types", "yaml_value"),
+        "type": "value",
+    },
+    # : (used by subparsing of code blocks with specified language)
+    Token.Punctuation: {
+        "formatting": ThemeAttr("types", "yaml_key_separator"),
+        "type": "punctuation",
+    },
+    # - (used by subparsing of code blocks with specified language)
+    Token.Punctuation.Indicator: {
+        "formatting": ThemeAttr("types", "yaml_list"),
+        "type": "punctuation",
+    },
+    # Non-quoted string (used by subparsing of code blocks with specified language)
+    Token.Literal.Scalar.Plain: {
+        "formatting": ThemeAttr("types", "yaml_value"),
+        "type": "value",
     },
 }
 
@@ -732,6 +757,11 @@ COLORSCHEME_YAML: dict[Any, ColorSchemeEntry] = {
         "formatting": ThemeAttr("types", "generic"),
         "type": "whitespace",
     },
+    # :
+    Token.Punctuation: {
+        "formatting": ThemeAttr("types", "yaml_key_separator"),
+        "type": "punctuation",
+    },
     # -
     Token.Punctuation.Indicator: {
         "formatting": ThemeAttr("types", "yaml_list"),
@@ -751,11 +781,6 @@ COLORSCHEME_YAML: dict[Any, ColorSchemeEntry] = {
     Token.Name.Tag: {
         "formatting": ThemeAttr("types", "yaml_key"),
         "type": "key",
-    },
-    # :
-    Token.Punctuation: {
-        "formatting": ThemeAttr("types", "yaml_key_separator"),
-        "type": "punctuation",
     },
     # Constant
     Token.Name.Constant: {
