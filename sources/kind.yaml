@@ -1,0 +1,12 @@
+---
+kind:
+  description: "kind"
+  candidate_version:
+    function: "get_github_version"
+    args:
+      # yamllint disable rule:line-length
+      url: "https://api.github.com/repos/kubernetes-sigs/kind/releases?per_page=100"
+      version_regex: 'v(\d+)(\.)(\d+)(\.)(\d+)'
+  changelog:
+    from_body: true
+    dest: "kind_changelog.md"

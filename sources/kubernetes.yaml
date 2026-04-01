@@ -10,8 +10,7 @@ kubernetes:
   changelog:
     # yamllint disable rule:line-length
     url: "https://raw.githubusercontent.com/kubernetes/kubernetes/master/CHANGELOG/CHANGELOG-<<<version.0>>>.<<<version.2>>>.md"
-    # yamllint enable rule:line-length
-    dest: "kubernetes_current_changelog.md"
+    dest: "kubernetes_changelog.md"
 kustomize:
   description: "kustomize"
   candidate_version:

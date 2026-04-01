@@ -72,8 +72,7 @@ listview:
                 - 2
           file_not_found_status: "No changelog found"
           paths:
-            # yamllint disable-line rule:line-length
-            - filepath: "{HOME}/.cmt/version-cache/kubernetes_current_changelog.md"
+            - filepath: "{HOME}/.cmt/version-cache/kubernetes_changelog.md"
               filetype: "text"
               pathtype: "raw"
           formatter: "markdown"
@@ -211,6 +210,24 @@ listview:
           file_not_found_status: "No changelog found"
           paths:
             - filepath: "{HOME}/.cmt/version-cache/kargo_changelog.md"
+              filetype: "text"
+              pathtype: "raw"
+          formatter: "markdown"
+      - filepath: "{HOME}/.cmt/version-cache/candidate_versions.yaml"
+        filetype: "yaml"
+        path: "kind"
+        pathtype: "dict"
+        _extra_data:
+          name: "Kind"
+          installed_version:
+            fieldgetter: "fieldgetter_executable_version"
+            fieldgetter_args:
+              executable: "/usr/bin/kind"
+              args: ["version"]
+              version_regex: '^kind v(\d+)(\.)(\d+)(\.)(\d+)'
+          file_not_found_status: "No changelog found"
+          paths:
+            - filepath: "{HOME}/.cmt/version-cache/kind_changelog.md"
               filetype: "text"
               pathtype: "raw"
           formatter: "markdown"
