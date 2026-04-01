@@ -153,12 +153,14 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
     },
     # admissionregistration.k8s.io
     ("MutatingAdmissionPolicy", "admissionregistration.k8s.io"): {
-        "api_paths": ["apis/admissionregistration.k8s.io/v1alpha1/"],
+        "api_paths": ["apis/admissionregistration.k8s.io/v1/",
+                      "apis/admissionregistration.k8s.io/v1alpha1/"],
         "api": "mutatingadmissionpolicies",
         "namespaced": False,
     },
     ("MutatingAdmissionPolicyBinding", "admissionregistration.k8s.io"): {
-        "api_paths": ["apis/admissionregistration.k8s.io/v1alpha1/"],
+        "api_paths": ["apis/admissionregistration.k8s.io/v1/",
+                      "apis/admissionregistration.k8s.io/v1alpha1/"],
         "api": "mutatingadmissionpolicybindings",
         "namespaced": False,
     },
@@ -1609,6 +1611,11 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
     ("RoleBindingRestriction", "authorization.openshift.io"): {
         "api_paths": ["apis/authorization.openshift.io/v1/"],
         "api": "rolebindingrestrictions",
+    },
+    # autoops.k8s.elastic.co
+    ("AutoOpsAgentPolicy", "autoops.k8s.elastic.co"): {
+        "api_paths": ["apis/autoops.k8s.elastic.co/v1alpha1/"],
+        "api": "autoopsagentpolicies",
     },
     # autopilot.k0sproject.io
     ("ControlNode", "autopilot.k0sproject.io"): {
@@ -5825,6 +5832,11 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api_paths": ["apis/operators.operatorframework.io/v1alpha1/"],
         "api": "operators",
         "namespaced": False,
+    },
+    # packageregistry.k8s.elastic.co
+    ("PackageRegistry", "packageregistry.k8s.elastic.co"): {
+        "api_paths": ["apis/packageregistry.k8s.elastic.co/v1alpha1/"],
+        "api": "packageregistries",
     },
     # packages.operators.coreos.com
     ("PackageManifest", "packages.operators.coreos.com"): {
