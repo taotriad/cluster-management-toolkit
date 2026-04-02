@@ -1,0 +1,119 @@
+apiVersion: v1
+items:
+- apiVersion: v1
+  count: 85
+  eventTime: null
+  firstTimestamp: "2026-04-02T05:11:25Z"
+  involvedObject:
+    apiVersion: v1
+    fieldPath: spec.containers{kube-proxy}
+    kind: Pod
+    name: kube-proxy-qk5nk
+    namespace: kube-system
+    resourceVersion: "586"
+    uid: 34c92c78-2821-4d49-a10f-de4bf4e33f97
+  kind: Event
+  lastTimestamp: "2026-04-02T14:09:39Z"
+  message: Container image "registry.k8s.io/kube-proxy:v1.36.0-beta.0" already present
+    on machine and can be accessed by the pod
+  metadata:
+    creationTimestamp: "2026-04-02T05:11:25Z"
+    name: kube-proxy-qk5nk.18a272200e9ece67
+    namespace: kube-system
+    resourceVersion: "54301"
+    uid: 0a052597-666e-456f-aedd-76e0e109b06e
+  reason: Pulled
+  reportingComponent: kubelet
+  reportingInstance: kind-ha-control-plane3
+  source:
+    component: kubelet
+    host: kind-ha-control-plane3
+  type: Normal
+- apiVersion: v1
+  count: 356
+  eventTime: null
+  firstTimestamp: "2026-04-02T05:11:26Z"
+  involvedObject:
+    apiVersion: v1
+    fieldPath: spec.containers{kube-proxy}
+    kind: Pod
+    name: kube-proxy-qk5nk
+    namespace: kube-system
+    resourceVersion: "586"
+    uid: 34c92c78-2821-4d49-a10f-de4bf4e33f97
+  kind: Event
+  lastTimestamp: "2026-04-02T14:09:38Z"
+  message: Back-off restarting failed container kube-proxy in pod kube-proxy-qk5nk_kube-system(34c92c78-2821-4d49-a10f-de4bf4e33f97)
+  metadata:
+    creationTimestamp: "2026-04-02T05:11:26Z"
+    name: kube-proxy-qk5nk.18a2722070eeee3c
+    namespace: kube-system
+    resourceVersion: "54297"
+    uid: d3e6627f-076a-40ad-8bc8-e7775a96d8c9
+  reason: BackOff
+  reportingComponent: kubelet
+  reportingInstance: kind-ha-control-plane3
+  source:
+    component: kubelet
+    host: kind-ha-control-plane3
+  type: Warning
+- apiVersion: v1
+  count: 85
+  eventTime: null
+  firstTimestamp: "2026-04-02T05:11:10Z"
+  involvedObject:
+    apiVersion: v1
+    fieldPath: spec.containers{kube-proxy}
+    kind: Pod
+    name: kube-proxy-zplm8
+    namespace: kube-system
+    resourceVersion: "503"
+    uid: 922d4316-49a4-43ae-b645-99032f5e71ba
+  kind: Event
+  lastTimestamp: "2026-04-02T14:09:22Z"
+  message: Container image "registry.k8s.io/kube-proxy:v1.36.0-beta.0" already present
+    on machine and can be accessed by the pod
+  metadata:
+    creationTimestamp: "2026-04-02T05:11:10Z"
+    name: kube-proxy-zplm8.18a2721c93514f95
+    namespace: kube-system
+    resourceVersion: "54261"
+    uid: dd8b099b-7f29-4f74-a47f-b514519930d8
+  reason: Pulled
+  reportingComponent: kubelet
+  reportingInstance: kind-ha-control-plane2
+  source:
+    component: kubelet
+    host: kind-ha-control-plane2
+  type: Normal
+- apiVersion: v1
+  count: 354
+  eventTime: null
+  firstTimestamp: "2026-04-02T05:11:12Z"
+  involvedObject:
+    apiVersion: v1
+    fieldPath: spec.containers{kube-proxy}
+    kind: Pod
+    name: kube-proxy-zplm8
+    namespace: kube-system
+    resourceVersion: "503"
+    uid: 922d4316-49a4-43ae-b645-99032f5e71ba
+  kind: Event
+  lastTimestamp: "2026-04-02T14:08:17Z"
+  message: Back-off restarting failed container kube-proxy in pod kube-proxy-zplm8_kube-system(922d4316-49a4-43ae-b645-99032f5e71ba)
+  metadata:
+    creationTimestamp: "2026-04-02T05:11:12Z"
+    name: kube-proxy-zplm8.18a2721d32ac4ae0
+    namespace: kube-system
+    resourceVersion: "54119"
+    uid: 4b4e5c71-95ee-4321-8a99-6894ba8ba336
+  reason: BackOff
+  reportingComponent: kubelet
+  reportingInstance: kind-ha-control-plane2
+  source:
+    component: kubelet
+    host: kind-ha-control-plane2
+  type: Warning
+kind: List
+metadata:
+  resourceVersion: ""
