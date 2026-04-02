@@ -28,7 +28,8 @@ listview:
     taint:
       header: "Taint:"
       paths:
-        - path: [["spec#taint#key"], ["spec#taint#value"], ["effect"]]
+        - path: [["spec#taint#key"], ["spec#taint#value"],
+                 ["spec#taint#effect"]]
           pathtype: "tuple"
           default: ["<none>"]
       formatter: "list"
@@ -40,12 +41,26 @@ listview:
         field_separators:
           - type: "keyvalue"
           - type: "field"
+        mapping:
+          mappings:
+            NoSchedule:
+              field_colors:
+                - context: "main"
+                  type: "status_not_ok"
+            PreferNoSchedule:
+              field_colors:
+                - context: "main"
+                  type: "status_warning"
+            NoExecute:
+              field_colors:
+                - context: "main"
+                  type: "status_not_ok"
 infoview:
   name: "Device Taint Rule Info"
   infopad:
     row_indexes:
       Normal:
-        fields: ["device_selector", "taint"]
+        fields: ["device_selector", "taint", "taint_added_at"]
     rows:
       device_selector:
         header: [["Device La", ["main", "infoheader"]],
@@ -65,7 +80,8 @@ infoview:
       taint:
         header: [["Taint:", ["main", "infoheader"]]]
         paths:
-          - path: [["spec#taint#key"], ["spec#taint#value"], ["effect"]]
+          - path: [["spec#taint#key"], ["spec#taint#value"],
+                   ["spec#taint#effect"]]
             pathtype: "tuple"
             default: ["<none>"]
         formatter: "list"
@@ -77,6 +93,26 @@ infoview:
           field_separators:
             - type: "keyvalue"
             - type: "field"
+          mapping:
+            mappings:
+              NoSchedule:
+                field_colors:
+                  - context: "main"
+                    type: "status_not_ok"
+              PreferNoSchedule:
+                field_colors:
+                  - context: "main"
+                    type: "status_warning"
+              NoExecute:
+                field_colors:
+                  - context: "main"
+                    type: "status_not_ok"
+      taint_added_at:
+        header: [["Taint Added At:", ["main", "infoheader"]]]
+        path: "spec#taint#timeAdded"
+        default: -1
+        type: "timestamp"
+        formatter: "timestamp"
   shortcuts:
     "Device Label Selector":
       key: "b"

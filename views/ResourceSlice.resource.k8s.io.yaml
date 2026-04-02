@@ -41,9 +41,15 @@ infoview:
   infopad:
     row_indexes:
       Normal:
-        fields: ["controller", "node_name",
-                 "pool", "resource_slice_count", "driver"]
+        fields: ["controller",
+                 "node_name", "node_selector",
+                 "pool", "all_nodes", "resource_slice_count", "driver"]
     rows:
+      all_nodes:
+        header: [["All Nodes:", ["main", "infoheader"]]]
+        path: "spec#allNodes"
+        default: false
+        type: "bool"
       controller:
         header: [["C", ["main", "infoheader_shortcut"]],
                  ["ontroller:", ["main", "infoheader"]]]
@@ -87,6 +93,13 @@ infoview:
         formatting:
           field_colors:
             - type: "host"
+      node_selector:
+        header: [["Node Selector:", ["main", "infoheader"]]]
+        paths:
+          - path: "spec#nodeSelector#nodeSelectorTerms"
+            pathtype: "selectors"
+            default: ["<none>"]
+        formatter: "list"
       pool:
         header: [["Pool:", ["main", "infoheader"]]]
         path: "spec#pool#name"
@@ -107,16 +120,18 @@ infoview:
       Normal:
         fields: ["resource",
                  "all_nodes", "allow_multiple_allocations",
-                 "attributes"]
+                 "attributes",
+                 "binds_to_node",
+                 "binding_conditions", "binding_failure_conditions"]
     fields:
       all_nodes:
         header: "All Nodes:"
-        path: "spec#allNodes"
+        path: "allNodes"
         default: false
         type: "bool"
       allow_multiple_allocations:
         header: "Allow Multiple Allocations:"
-        path: "spec#allowMultipleAllocations"
+        path: "allowMultipleAllocations"
         default: false
         type: "bool"
       attributes:
@@ -146,6 +161,23 @@ infoview:
         formatting:
           field_colors:
             - type: "host"
+      binding_conditions:
+        header: "Binding Conditions:"
+        path: "bindingConditions"
+        default: ["<none>"]
+        type: "raw"
+        formatter: "list"
+      binding_failure_conditions:
+        header: "Binding Failure Conditions:"
+        path: "bindingFailureConditions"
+        default: ["<none>"]
+        type: "raw"
+        formatter: "list"
+      binds_to_node:
+        header: "Binds to Node:"
+        path: "bindsToNode"
+        default: false
+        type: "bool"
       resource:
         header: "Resource:"
         path: "name"
