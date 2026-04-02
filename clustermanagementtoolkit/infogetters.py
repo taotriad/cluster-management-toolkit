@@ -840,6 +840,7 @@ def get_obj(obj: dict, field_dict: dict, field_names: list[str],
                     value = []
                     # This is a list of selectors
                     if not path and isinstance(obj, dict) and ("matchExpressions" in obj
+                                                               or "matchFields" in obj
                                                                or "matchLabels" in obj
                                                                or "cel" in obj):
                         tmp = [obj]
@@ -848,6 +849,8 @@ def get_obj(obj: dict, field_dict: dict, field_names: list[str],
                     for selector in tmp:
                         if "matchExpressions" in selector:
                             value.append(make_set_expression(selector["matchExpressions"]))
+                        if "matchFields" in selector:
+                            value.append(make_set_expression(selector["matchFields"]))
                         if "matchLabels" in selector:
                             value.append(make_label_selector(selector["matchLabels"]))
                         if "cel" in selector:
