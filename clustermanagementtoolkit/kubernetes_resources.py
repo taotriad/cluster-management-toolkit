@@ -1657,6 +1657,15 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api_paths": ["apis/autoscaling.internal.knative.dev/v1alpha1/"],
         "api": "podautoscalers",
     },
+    # backup.kubevirt.io
+    ("VirtualMachineBackup", "backup.kubevirt.io"): {
+        "api_paths": ["apis/backup.kubevirt.io/v1alpha1/"],
+        "api": "virtualmachinebackups",
+    },
+    ("VirtualMachineBackupTracker", "backup.kubevirt.io"): {
+        "api_paths": ["apis/backup.kubevirt.io/v1alpha1/"],
+        "api": "virtualmachinebackuptrackers",
+    },
     # batch.volcano.sh
     ("Job", "batch.volcano.sh"): {
         "api_paths": ["apis/batch.volcano.sh/v1alpha1/"],
