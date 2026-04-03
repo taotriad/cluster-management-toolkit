@@ -21,6 +21,11 @@
 * Add the post-quantum variants of ed25519.
 * Check whether it'd be measurably beneficial to use orjson instead of ujson.
 * Maybe use yaml.dump(..., explicit_start=True)?
+* itemgetters should ideally either have feature parity, or (preferred),
+  be a strict subset of listgetters; check what would be necessary to achieve
+  the latter. Currently we have no itemgetter that can join lists of dicts.
+  Since we currently don't support multiple listpads we'd really benefit from this,
+  to handle things such as volume + volumeStatus, containers + containerStatus, etc.
 
 ## commandparser.py and cmtvalidators.py
 
