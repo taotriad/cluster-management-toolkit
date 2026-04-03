@@ -1856,6 +1856,9 @@ def format_yaml(lines: str | list[str] | dict | list[dict], **kwargs: Any) -> \
     unfold_msg: bool = deep_get(kwargs, DictPath("unfold_msg"), False)
     yaml.add_representer(str, __str_representer)
 
+    if  isinstance(lines, list) and len(lines) == 1:
+        lines = lines[0]
+
     if isinstance(lines, str):
         # If it's one single line and starts and ends with either [] or {} we try to expand it.
         if is_json or (len(lines.splitlines()) == 1 and lines.startswith(("{", "["))
