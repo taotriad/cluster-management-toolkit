@@ -16,6 +16,7 @@ listview:
     ready:
       header: "Ready:"
       path: "status#ready"
+      default: "<unset>"
       type: "str"
       formatter: "value_mapper"
       formatting:
@@ -32,6 +33,7 @@ listview:
     status:
       header: "Status:"
       path: "status#printableStatus"
+      default: "<unset>"
       type: "str"
       formatter: "value_mapper"
       formatting:
@@ -56,6 +58,7 @@ listview:
     vm_created:
       header: "VM Created:"
       path: "status#created"
+      default: "<unset>"
       type: "str"
   actions:
     actionlist:
