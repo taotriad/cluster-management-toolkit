@@ -565,6 +565,18 @@ color_pairs_curses:
   type_ini_key: [["green", "bright"], ["black", "normal"]]
   type_ini_separator: [["white", "bright"], ["black", "normal"]]
   type_ini_value: [["magenta", "normal"], ["black", "normal"]]
+  type_javascript_punctuation:
+    unselected: [["cyan", "bright"], ["black", "normal"]]
+    selected: [["cyan", "bright"], ["white", "normal"]]
+  type_javascript_builtin:
+    unselected: [["yellow", "bright"], ["black", "normal"]]
+    selected: [["yellow", "bright"], ["white", "normal"]]
+  type_javascript_operator:
+    unselected: [["white", "normal"], ["black", "normal"]]
+    selected: [["black", "normal"], ["white", "normal"]]
+  type_javascript_value:
+    unselected: [["magenta", "bright"], ["black", "normal"]]
+    selected: [["magenta", "bright"], ["white", "normal"]]
   type_iptables_argument:
     unselected: [["green", "normal"], ["black", "normal"]]
     selected: [["green", "normal"], ["white", "normal"]]
@@ -1052,6 +1064,10 @@ types:
   path: "type_path"
   port: "type_port"
   positive_check: ["type_positive_check", "bold"]
+  javascript_builtin: "type_javascript_builtin"
+  javascript_operator: "type_javascript_operator"
+  javascript_punctuation: "type_javascript_punctuation"
+  javascript_value: "type_javascript_value"
   powershell_builtin: "type_powershell_builtin"
   powershell_comment: "type_powershell_comment"
   powershell_keyword: "type_powershell_keyword"

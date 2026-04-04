@@ -44,6 +44,7 @@ from pygments.lexers.asc import AscLexer
 from pygments.lexers.configs import IniLexer, NginxConfLexer, TOMLLexer
 from pygments.lexers.data import JsonLexer, YamlLexer
 from pygments.lexers.html import XmlLexer
+from pygments.lexers.javascript import JavascriptLexer
 from pygments.lexers.markup import MarkdownLexer
 from pygments.lexers.python import PythonTracebackLexer
 from pygments.lexers.shell import BashLexer, PowerShellLexer
@@ -225,6 +226,40 @@ COLORSCHEME_INI: dict[Any, ColorSchemeEntry] = {
     # value
     Token.Literal.String: {
         "formatting": ThemeAttr("types", "ini_value"),
+        "type": "value",
+    },
+}
+
+
+COLORSCHEME_JAVASCRIPT: dict[Any, ColorSchemeEntry] = {
+    # <whitespace>
+    Token.Text.Whitespace: {
+        "formatting": ThemeAttr("types", "generic"),
+        "type": "whitespace",
+    },
+    # builtin
+    Token.Name.Builtin: {
+        "formatting": ThemeAttr("types", "javascript_builtin"),
+        "type": "builtin",
+    },
+    # .
+    Token.Punctuation: {
+        "formatting": ThemeAttr("types", "javascript_punctuation"),
+        "type": "punctuation",
+    },
+    # env
+    Token.Name.Other: {
+        "formatting": ThemeAttr("types", "generic"),
+        "type": "other",
+    },
+    # =
+    Token.Operator: {
+        "formatting": ThemeAttr("types", "javascript_operator"),
+        "type": "operator",
+    },
+    # Quoted string
+    Token.Literal.String.Double: {
+        "formatting": ThemeAttr("types", "javascript_value"),
         "type": "value",
     },
 }
@@ -1797,11 +1832,12 @@ class ThemeArrayFormatter(Formatter):
             # Use this when adding new formatters
             if ttype not in self.colorscheme \
                     and ttype not in self.unknown_ttypes:  # pragma: nocover
+                tmpvalue = value.replace("\"", "\\\"")
                 errmsg = [
                     [("Encountered unknown token type ", "default"),
                      (f"{ttype}", "argument"),
                      (" for substring “", "default"),
-                     (f"{value}", "argument"),
+                     (f"{tmpvalue}", "argument"),
                      ("“ when formatting using lexer ", "default"),
                      (f"{self.lexer}", "argument")]
                 ]
@@ -2291,6 +2327,23 @@ def format_ini(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef | Th
                                    colorscheme=COLORSCHEME_INI)
 
 
+def format_javascript(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef | ThemeStr]]:
+    """
+    JavaScript formatter; returns the text with syntax highlighting for JavaScript.
+
+        Parameters:
+            lines (list[str]): A list of strings
+            *or*
+            lines (str): A string with newlines that should be split
+            **kwargs (dict[str, Any]): Keyword arguments
+        Returns:
+            list[themearray]: A list of themearrays
+    """
+    return format_pygments_generic(lines, **kwargs,
+                                   lexer=JavascriptLexer(),
+                                   colorscheme=COLORSCHEME_JAVASCRIPT)
+
+
 def format_known_hosts(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef | ThemeStr]]:
     """
     known_hosts formatter; returns the text with syntax highlighting for .ssh/known_hosts.
@@ -2446,6 +2499,7 @@ formatter_mapping: tuple[tuple[tuple[str, ...], tuple[str, ...], Callable], ...]
     (("",), (".xml",), format_xml),
     (("INI",), ("INI",), format_ini),
     (("",), (".ini",), format_ini),
+    (("JavaScript",), ("JavaScript",), format_javascript),
     (("JWS",), ("JWS",), format_none),
     (("known_hosts",), ("known_hosts",), format_known_hosts),
     (("FluentBit",), ("FluentBit",), format_fluentbit),
@@ -2483,6 +2537,7 @@ formatter_allowlist: dict[str, Callable] = {
     "format_fluentbit": format_fluentbit,
     "format_haproxy": format_haproxy,
     "format_ini": format_ini,
+    "format_javascript": format_javascript,
     "format_known_hosts": format_known_hosts,
     "format_markdown": format_markdown,
     "format_mosquitto": format_mosquitto,

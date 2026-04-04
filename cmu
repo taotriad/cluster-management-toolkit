@@ -560,7 +560,8 @@ def get_control_planes() -> list[tuple[dict[str, Any], str]]:
 
     # If we have exactly one node, assume that it is the control plane even if it lacks that label
     if not control_planes and len(vlist) == 1:
-        control_planes.append((copy.deepcopy(vlist[0]), deep_get(obj, DictPath("metadata#name"))))
+        control_planes.append((copy.deepcopy(vlist[0]),
+                               deep_get(vlist[0], DictPath("metadata#name"))))
 
     if not control_planes:
         ansithemeprint([ANSIThemeStr("Error", "warning"),
@@ -1472,7 +1473,7 @@ def genericlistloop(stdscr: curses.window, **kwargs: Any) -> Retval:
 
             if c == ord("w"):
                 if (selected := uip.get_selected()):
-                    selected_namespace = selected.namespace
+                    selected_namespace = deep_get(selected, DictPath("namespace"))
             elif c in (ord("A"), ord("N")):
                 all_ns = "<All>"
 
@@ -1711,6 +1712,7 @@ def genericlistloop(stdscr: curses.window, **kwargs: Any) -> Retval:
             if not (selected := uip.get_selected()):
                 continue
             groups = ansible_get_groups(ANSIBLE_INVENTORY)
+            selected_name: str = deep_get(selected, DictPath("name"))
             inventory = ansible_get_inventory_dict()
 
             # These Ansible groups should not be possible to toggle on/off
@@ -1719,7 +1721,7 @@ def genericlistloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                     groups.remove(skip)
                 except (KeyError, ValueError):
                     pass
-            host_groups = ansible_get_groups_by_host(inventory, selected.name)
+            host_groups = ansible_get_groups_by_host(inventory, selected_name)
             grouplist = []
             preselection = set()
             for i, group in enumerate(groups):
@@ -1735,7 +1737,7 @@ def genericlistloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                 curses_helper.windowwidget(uip.stdscr, uip.maxy, uip.maxx,
                                            uip.maxy // 2, uip.maxx // 2, grouplist,
                                            headers=group_headers,
-                                           title=f"Toggle Ansible groups for {selected.name}:",
+                                           title=f"Toggle Ansible groups for {selected_name}:",
                                            cursor=True, taggable=True, preselection=preselection)
             new_groups = []
             for keep in ["all", "controlplane", "controlplanes", "master", "node", "nodes"]:
@@ -1750,10 +1752,10 @@ def genericlistloop(stdscr: curses.window, **kwargs: Any) -> Retval:
 
                 for group in add_groups:
                     retval = ansible_add_hosts(inventory=ANSIBLE_INVENTORY,
-                                               hosts=[selected.name], group=group, skip_all=False)
+                                               hosts=[selected_name], group=group, skip_all=False)
                 for group in remove_groups:
                     retval = ansible_remove_hosts(inventory=ANSIBLE_INVENTORY,
-                                                  hosts=[selected.name], group=group)
+                                                  hosts=[selected_name], group=group)
 
                 if add_groups or remove_groups:
                     uip.force_update()
@@ -2301,6 +2303,7 @@ def __open_reference(**kwargs: Any) -> tuple[Retval, dict]:
     return Retval.MATCH, {}
 
 
+# pylint: disable-next=too-many-locals
 def __list_control_planes(**kwargs: Any) -> tuple[Retval, dict]:
     uip = deep_get(kwargs, DictPath("uip"))
     nodeinfo = deep_get(kwargs, DictPath("nodeinfo"), [])
@@ -4579,7 +4582,6 @@ def genericinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                         facility_ext_suffix_len = \
                             len(ThemeRef("separators", "facility_extended_suffix"))
                         if not fac0.strip():
-
                             facility += [ThemeStr("".ljust(facility_prefix_len),
                                                   ThemeAttr("logview", "facility")),
                                          ThemeStr(fac0, ThemeAttr("logview", "facility")),
@@ -6198,8 +6200,11 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
             _vlist = infogetters.get_container_info(kubernetes_helper=kh, kh_cache_=kh_cache)
             retval = None
             for _obj in _vlist:
-                if _obj.name == containername and _obj.image_id == image_id:
-                    retval = resourceinfodispatch(stdscr, obj=_obj.ref, kind=("__Container", ""))
+                _obj_name = deep_get(_obj, DictPath("name"))
+                _obj_image_id = deep_get(_obj, DictPath("image_id"))
+                _obj_ref = deep_get(_obj, DictPath("ref"))
+                if _obj_name == containername and _obj_image_id == image_id:
+                    retval = resourceinfodispatch(stdscr, obj=_obj_ref, kind=("__Container", ""))
                     uip.force_update()
                     break
             if retval is not None and retval == Retval.RETURNFULL:

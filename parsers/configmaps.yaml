@@ -112,6 +112,11 @@ configmap_signatures:
       - data_offset: 0x9001
         data_binary: [0x43, 0x44, 0x30, 0x30, 0x31]
 
+  javascript:
+    format_name: "JavaScript"
+    signatures:
+      - data_suffix: ".js"
+
   json:
     format_name: "JSON"
     signatures:

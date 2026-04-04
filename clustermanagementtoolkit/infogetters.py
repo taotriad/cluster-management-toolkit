@@ -839,6 +839,7 @@ def get_obj(obj: dict, field_dict: dict, field_names: list[str],
                 elif ptype == "selectors":
                     value = []
                     # This is a list of selectors
+                    # pylint: disable-next=too-many-boolean-expressions
                     if not path and isinstance(obj, dict) and ("matchExpressions" in obj
                                                                or "matchFields" in obj
                                                                or "matchLabels" in obj
