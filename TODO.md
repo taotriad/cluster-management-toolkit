@@ -101,6 +101,8 @@
 * Make extended facilities non-repeating in the same way that regular facilities are
   (see podlog).
 * get_obj() is a monstrosity and needs to be refactored.
+* Since cmu can do syntax highlighting for a lot of formats and render Markdown
+  it might make sense to add a command to display documents.
 
 ## cmtinv
 
