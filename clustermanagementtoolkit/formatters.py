@@ -1856,7 +1856,7 @@ def format_yaml(lines: str | list[str] | dict | list[dict], **kwargs: Any) -> \
     unfold_msg: bool = deep_get(kwargs, DictPath("unfold_msg"), False)
     yaml.add_representer(str, __str_representer)
 
-    if  isinstance(lines, list) and len(lines) == 1:
+    if isinstance(lines, list) and len(lines) == 1:
         lines = lines[0]
 
     if isinstance(lines, str):
