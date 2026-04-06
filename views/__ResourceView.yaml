@@ -22,6 +22,7 @@ infoview:
     "Show Events": null
     "Last Applied Configuration": null
     "View YAML dump": null
+    "Owner References": null
     "Toggle Base64":
       key: "&"
       read_only: true

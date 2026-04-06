@@ -124,4 +124,9 @@ infoview:
                   - context: "main"
                     type: "status_unknown"
   shortcuts:
+    # This is a non-Kubernetes resource,
+    # so no events, no last applied configuration,
+    # and no owner references.
+    "Show Events": null
     "Last Applied Configuration": null
+    "Owner References": null

@@ -9,7 +9,7 @@ listview:
   group: "Core"
   field_indexes:
     Wide:
-      fields: ["namespace", "name", "svc_type", "cluster_ips",
+      fields: ["namespace", "name", "controller", "svc_type", "cluster_ips",
                "external_ips", "ports_svc", "age"]
       sortcolumn: "namespace"
     Normal:
@@ -25,6 +25,29 @@ listview:
           default: "<none>"
           none_str_as_none: true
       formatter: "address"
+    controller:
+      header: "Controller:"
+      paths:
+        - path: "metadata#ownerReferences"
+          pathtype: "items"
+          subpaths:
+            - "kind"
+            - "apiVersion"
+            - "name"
+          when:
+            - key: "controller"
+              eq: true
+          type: ["kind", "api_group", "name"]
+          default: ["<none>"]
+      formatter: "list"
+      formatting:
+        field_colors:
+          - type: "kind"
+          - type: "api_group"
+          - type: "generic"
+        field_separators:
+          - type: "kind_api_group"
+          - type: "kind"
     external_ips:
       header: "External-IPs:"
       paths:
@@ -164,7 +187,7 @@ infoview:
           field_separators:
             - type: "namespace"
       external_ips:
-        header: [["External IPs [DEPRECATED]:", ["main", "infoheader"]]]
+        header: [["External IPs:", ["main", "infoheader"]]]
         path: "spec#externalIPs"
         type: "raw"
         default: "<none>"

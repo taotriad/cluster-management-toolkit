@@ -9,6 +9,12 @@ listview:
   name: "Deployments"
   group: "Workloads"
   field_indexes:
+    Wide:
+      fields: ["namespace", "name", "controller", "desired_replicas",
+               "current_replicas", "ready_replicas",
+               "uptodate_replicas", "available_replicas",
+               "unavailable_replicas", "paused", "age"]
+      sortcolumn: "namespace"
     Normal:
       fields: ["namespace", "name", "desired_replicas",
                "current_replicas", "ready_replicas",
@@ -36,6 +42,29 @@ listview:
                 - context: "main"
                   type: "status_pending"
       align: "right"
+    controller:
+      header: "Controller:"
+      paths:
+        - path: "metadata#ownerReferences"
+          pathtype: "items"
+          subpaths:
+            - "kind"
+            - "apiVersion"
+            - "name"
+          when:
+            - key: "controller"
+              eq: true
+          type: ["kind", "api_group", "name"]
+          default: ["<none>"]
+      formatter: "list"
+      formatting:
+        field_colors:
+          - type: "kind"
+          - type: "api_group"
+          - type: "generic"
+        field_separators:
+          - type: "kind_api_group"
+          - type: "kind"
     current_replicas:
       header: "Current:"
       paths:
@@ -208,7 +237,7 @@ infoview:
   infopad:
     row_indexes:
       Normal:
-        fields: ["label_selector", "set_based_selector",
+        fields: ["controller", "label_selector", "set_based_selector",
                  "update_strategy", "replicas", "available", "paused"]
     rows:
       available:
@@ -232,6 +261,30 @@ infoview:
                 field_colors:
                   - context: "main"
                     type: "status_not_ok"
+      controller:
+        header: [["C", ["main", "infoheader_shortcut"]],
+                 ["ontroller:", ["main", "infoheader"]]]
+        paths:
+          - path: "metadata#ownerReferences"
+            pathtype: "items"
+            subpaths:
+              - "kind"
+              - "apiVersion"
+              - "name"
+            when:
+              - key: "controller"
+                eq: true
+            type: ["kind", "api_group", "name"]
+            default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "kind"
+            - type: "api_group"
+            - type: "generic"
+          field_separators:
+            - type: "kind_api_group"
+            - type: "kind"
       label_selector:
         header: [["La", ["main", "infoheader"]],
                  ["b", ["main", "infoheader_shortcut"]],
@@ -462,6 +515,17 @@ infoview:
         formatter: "numerical"
         align: "right"
   shortcuts:
+    "Open controller":
+      key: "c"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for controller"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        namespace_path: "metadata#namespace"
+        owner_reference_path: "metadata#ownerReferences"
     "Label Selector":
       key: "b"
       read_only: true

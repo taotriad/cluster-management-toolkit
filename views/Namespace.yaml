@@ -8,8 +8,31 @@ listview:
   group: "Core"
   field_indexes:
     Normal:
-      fields: ["name", "phase", "age"]
+      fields: ["name", "controller", "phase", "age"]
   fields:
+    controller:
+      header: "Controller:"
+      paths:
+        - path: "metadata#ownerReferences"
+          pathtype: "items"
+          subpaths:
+            - "kind"
+            - "apiVersion"
+            - "name"
+          when:
+            - key: "controller"
+              eq: true
+          type: ["kind", "api_group", "name"]
+          default: ["<none>"]
+      formatter: "list"
+      formatting:
+        field_colors:
+          - type: "kind"
+          - type: "api_group"
+          - type: "generic"
+        field_separators:
+          - type: "kind_api_group"
+          - type: "kind"
     phase:
       header: "Status:"
       path: "status#phase"

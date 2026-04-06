@@ -126,7 +126,9 @@ infoview:
             - type: "kind_api_group"
   shortcuts:
     # Deprecations have no JSON/YAML,
-    # last applied configuration or events
+    # last applied configuration,  events,
+    # or owner references.
     "Show Events": null
     "Last Applied Configuration": null
     "View YAML dump": null
+    "Owner References": null

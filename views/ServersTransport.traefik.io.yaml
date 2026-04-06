@@ -66,8 +66,9 @@ infoview:
         type: "raw"
         formatter: "numerical"
       certificates_secrets:
-        header: [["C", ["main", "infoheader_shortcut"]],
-                 ["ertificates Secrets:", ["main", "infoheader"]]]
+        header: [["Certificate ", ["main", "infoheader"]],
+                 ["S", ["main", "infoheader_shortcut"]],
+                 ["ecrets:", ["main", "infoheader"]]]
         path: "spec#certificatesSecrets"
         default: ["<none>"]
         type: "raw"
@@ -117,7 +118,7 @@ infoview:
             - type: "url"
   shortcuts:
     "Certificate Secrets":
-      key: "c"
+      key: "s"
       modifier: "shift"
       read_only: true
       helptext: "Show mounts"

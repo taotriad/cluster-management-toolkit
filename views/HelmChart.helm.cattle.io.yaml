@@ -55,7 +55,7 @@ infoview:
         type: "str"
         formatter: "address"
       set:
-        header: [["S", ["main", "infoheader"]],
+        header: [["S", ["main", "infoheader_shortcut"]],
                  ["et:", ["main", "infoheader"]]]
         paths:
           - path: "spec#set"

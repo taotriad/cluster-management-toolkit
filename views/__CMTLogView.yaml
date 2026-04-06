@@ -32,7 +32,10 @@ infoview:
     infogetter: "get_cmt_log"
     timestamps: true
   shortcuts:
-    # Logs have no last applied configuration or events
+    # This is a non-Kubernetes resource,
+    # so no events, no last applied configuration,
+    # no owner references, and viewing it as JSON/YAML doesn't make sense.
     "Show Events": null
     "Last Applied Configuration": null
     "View YAML dump": null
+    "Owner References": null

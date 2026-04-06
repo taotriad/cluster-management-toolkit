@@ -8,7 +8,8 @@ listview:
   group: "Storage & Backups"
   field_indexes:
     Wide:
-      fields: ["namespace", "name", "status", "persistent_volume", "capacity",
+      fields: ["namespace", "name", "controller",
+               "status", "persistent_volume", "capacity",
                "access_modes", "storage_class", "age", "volume_mode"]
       sortcolumn: "namespace"
     Normal:
@@ -33,6 +34,29 @@ listview:
       type: "raw"
       formatter: "numerical"
       align: "right"
+    controller:
+      header: "Controller:"
+      paths:
+        - path: "metadata#ownerReferences"
+          pathtype: "items"
+          subpaths:
+            - "kind"
+            - "apiVersion"
+            - "name"
+          when:
+            - key: "controller"
+              eq: true
+          type: ["kind", "api_group", "name"]
+          default: ["<none>"]
+      formatter: "list"
+      formatting:
+        field_colors:
+          - type: "kind"
+          - type: "api_group"
+          - type: "generic"
+        field_separators:
+          - type: "kind_api_group"
+          - type: "kind"
     persistent_volume:
       header: "Persistent Volume:"
       path: "spec#volumeName"
@@ -85,7 +109,7 @@ infoview:
   infopad:
     row_indexes:
       Normal:
-        fields: ["status", "volume", "capacity", "access_modes",
+        fields: ["controller", "status", "volume", "capacity", "access_modes",
                  "storage_class", "volume_mode"]
     rows:
       access_modes:
@@ -104,6 +128,30 @@ infoview:
         path: "status#capacity#storage"
         type: "raw"
         formatter: "numerical"
+      controller:
+        header: [["C", ["main", "infoheader_shortcut"]],
+                 ["ontroller:", ["main", "infoheader"]]]
+        paths:
+          - path: "metadata#ownerReferences"
+            pathtype: "items"
+            subpaths:
+              - "kind"
+              - "apiVersion"
+              - "name"
+            when:
+              - key: "controller"
+                eq: true
+            type: ["kind", "api_group", "name"]
+            default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "kind"
+            - type: "api_group"
+            - type: "generic"
+          field_separators:
+            - type: "kind_api_group"
+            - type: "kind"
       status:
         header: [["Status:", ["main", "infoheader"]]]
         path: "status#phase"
@@ -182,6 +230,17 @@ infoview:
         formatter: "numerical"
         align: "right"
   shortcuts:
+    "Open controller":
+      key: "c"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for controller"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        namespace_path: "metadata#namespace"
+        owner_reference_path: "metadata#ownerReferences"
     "Open Storage Class":
       key: "s"
       modifier: "shift"

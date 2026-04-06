@@ -8,9 +8,32 @@ listview:
   group: "Core"
   field_indexes:
     Normal:
-      fields: ["namespace", "name", "data", "immutable", "age"]
+      fields: ["namespace", "name", "controller", "data", "immutable", "age"]
       sortcolumn: "namespace"
   fields:
+    controller:
+      header: "Controller:"
+      paths:
+        - path: "metadata#ownerReferences"
+          pathtype: "items"
+          subpaths:
+            - "kind"
+            - "apiVersion"
+            - "name"
+          when:
+            - key: "controller"
+              eq: true
+          type: ["kind", "api_group", "name"]
+          default: ["<none>"]
+      formatter: "list"
+      formatting:
+        field_colors:
+          - type: "kind"
+          - type: "api_group"
+          - type: "generic"
+        field_separators:
+          - type: "kind_api_group"
+          - type: "kind"
     data:
       header: "# of Data:"
       path: "data"

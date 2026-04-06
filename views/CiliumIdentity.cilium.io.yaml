@@ -14,16 +14,26 @@ listview:
 infoview:
   name: "Cilium Identity Info"
   infopad: null
-  shortcuts:
-    "Show Security Labels":
-      key: "s"
-      modifier: "shift"
-      read_only: true
-      helptext: "Show security labels"
-      widget: "windowwidget"
-      title: "Security Labels:"
-      headers: ["Label:", "Value:"]
-      itemgetter: "get_key_value"
-      itemgetter_args:
-        path: "security-labels"
-      formatting: [["windowwidget", "default"], ["windowwidget", "highlight"]]
+  listpad:
+    listgetter: "listgetter_dict_list"
+    listgetter_args:
+      path: "security-labels"
+    infogetter: "generic_infogetter"
+    field_indexes:
+      Normal:
+        fields: ["label", "value"]
+    fields:
+      label:
+        header: "Security Label:"
+        path: "key"
+        type: "str"
+        formatting:
+          field_colors:
+            - type: "key"
+      value:
+        header: "Value:"
+        path: "value"
+        type: "str"
+        formatting:
+          field_colors:
+            - type: "value"

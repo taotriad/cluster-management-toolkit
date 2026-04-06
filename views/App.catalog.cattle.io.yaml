@@ -10,17 +10,40 @@ listview:
   group: "Rancher"
   field_indexes:
     Wide:
-      fields: ["namespace", "name", "chart", "version", "release_name",
-               "release_version", "status", "age", "description"]
+      fields: ["namespace", "name", "controller", "version", "status", "age",
+               "description", "chart", "release_name", "release_version"]
       sortcolumn: "namespace"
     Normal:
-      fields: ["namespace", "name", "description", "status", "age", "version"]
+      fields: ["namespace", "name", "version", "status", "age", "description"]
       sortcolumn: "namespace"
   fields:
     chart:
       header: "Chart:"
       path: "spec#chart#metadata#name"
       type: "str"
+    controller:
+      header: "Controller:"
+      paths:
+        - path: "metadata#ownerReferences"
+          pathtype: "items"
+          subpaths:
+            - "kind"
+            - "apiVersion"
+            - "name"
+          when:
+            - key: "controller"
+              eq: true
+          type: ["kind", "api_group", "name"]
+          default: ["<none>"]
+      formatter: "list"
+      formatting:
+        field_colors:
+          - type: "kind"
+          - type: "api_group"
+          - type: "generic"
+        field_separators:
+          - type: "kind_api_group"
+          - type: "kind"
     description:
       header: "Description:"
       path: "spec#info#description"

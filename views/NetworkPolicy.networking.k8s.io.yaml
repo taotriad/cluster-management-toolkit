@@ -11,7 +11,8 @@ listview:
   field_indexes:
     Wide:
       fields: ["namespace", "name", "controller",
-               "pod_label_selector", "pod_set_based_selector", "age"]
+               "pod_label_selector", "pod_set_based_selector",
+               "policy_types", "age"]
       sortcolumn: "namespace"
     Normal:
       fields: ["namespace", "name", "controller", "age"]
@@ -68,6 +69,11 @@ listview:
         field_separators:
           - type: "space"
           - type: "no_pad"
+    policy_types:
+      header: "Policy Types:"
+      path: "spec#policyTypes"
+      type: "raw"
+      formatter: "list"
 infoview:
   name: "Network Policy Info"
   infopad:
