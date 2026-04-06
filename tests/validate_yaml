@@ -582,7 +582,7 @@ def validate_file(yaml_path: str, schema_path: str,
             msg = f"\n{yaml_path} is excluded; skipping.\n"
         retval = -1
     elif not os.path.isfile(yaml_path):
-        if verbose > 1:
+        if verbose > 2:
             msg = f"\n{yaml_path} is not a file; skipping.\n"
         retval = -1
     else:
@@ -603,7 +603,7 @@ def validate_file(yaml_path: str, schema_path: str,
         except yaml.parser.ParserError as e:
             sys.exit(f"ParserError: {str(e)}\n\ninvalid YAML; aborting.")
 
-        if verbose > 1:
+        if verbose > 2:
             msg = f"Validating {yaml_path} with {schema_path}"
 
         try:
@@ -622,7 +622,7 @@ def validate_file(yaml_path: str, schema_path: str,
                       + f"\njsonschema.exceptions.ValidationError: {e}\n"
             if abort_on_fail:
                 sys.exit(msg + tmp_msg)
-            elif verbose > 2:
+            elif verbose > 1:
                 msg += tmp_msg
             file = yaml_path
             retval = 1
