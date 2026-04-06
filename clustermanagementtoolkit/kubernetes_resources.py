@@ -329,20 +329,20 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
     },
     # groupsnapshot.storage.k8s.io
     ("VolumeGroupSnapshotClass", "groupsnapshot.storage.k8s.io"): {
-        "api_paths": ["apis/groupsnapshot.storage.k8s.io/v1beta1/",
-                      "apis/groupsnapshot.storage.k8s.io/v1alpha1/"],
+        "api_paths": ["apis/groupsnapshot.storage.k8s.io/v1beta2/",
+                      "apis/groupsnapshot.storage.k8s.io/v1beta1/"],
         "api": "volumegroupsnapshotclasses",
         "namespaced": False,
     },
     ("VolumeGroupSnapshotContent", "groupsnapshot.storage.k8s.io"): {
-        "api_paths": ["apis/groupsnapshot.storage.k8s.io/v1beta1/",
-                      "apis/groupsnapshot.storage.k8s.io/v1alpha1/"],
+        "api_paths": ["apis/groupsnapshot.storage.k8s.io/v1beta2/",
+                      "apis/groupsnapshot.storage.k8s.io/v1beta1/"],
         "api": "volumegroupsnapshotcontents",
         "namespaced": False,
     },
     ("VolumeGroupSnapshot", "groupsnapshot.storage.k8s.io"): {
-        "api_paths": ["apis/groupsnapshot.storage.k8s.io/v1beta1/",
-                      "apis/groupsnapshot.storage.k8s.io/v1alpha1/"],
+        "api_paths": ["apis/groupsnapshot.storage.k8s.io/v1beta2/",
+                      "apis/groupsnapshot.storage.k8s.io/v1beta1/"],
         "api": "volumegroupsnapshots",
     },
     # internal.apiserver.k8s.io
