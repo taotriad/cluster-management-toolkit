@@ -120,6 +120,9 @@ configmap_signatures:
   json:
     format_name: "JSON"
     signatures:
+      - namespace: "cattle-fleet-system"
+        data_prefix: "config"
+        data_suffix: "config"
       - data_suffix: ".json"
       - data_suffix: ".json.example"
       # Not all JSON-data has a .json suffix
@@ -363,6 +366,9 @@ configmap_signatures:
   yaml:
     format_name: "YAML"
     signatures:
+      - prefix: "core-cluster-api"
+        data_prefix: "metadata"
+        data_suffix: "metadata"
       - prefix: "impersonation-helm-op"
       - data_suffix: ".yaml"
       - data_suffix: ".yaml.example"
@@ -374,9 +380,6 @@ configmap_signatures:
       - namespace: "cattle-capi-system"
         prefix: "capi-additional-rbac-roles"
         data_prefix: "manifests"
-      - namespace: "cattle-fleet-system"
-        data_prefix: "config"
-        data_suffix: "config"
       - prefix: "cluster-config"
         data_prefix: "install-config"
         data_suffix: "install-config"
