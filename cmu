@@ -2363,7 +2363,12 @@ def __fetch_package_versions(**kwargs: Any) -> tuple[Retval, dict]:
     hostname = deep_get(kwargs, DictPath("hostname"))
 
     _win = curses_helper.notice(uip.stdscr, message="Fetching package versions...")
-    _package_versions = get_package_versions(hostname)
+
+    try:
+        _package_versions = get_package_versions(hostname)
+    except ValueError:
+        _package_versions = []
+
     package_versions = []
     for package, version in _package_versions:
         if version == "N/A":
@@ -3420,7 +3425,7 @@ def __update_cni(uip: UIProps, **kwargs: Any) -> Retval:
         update_cni(uip.stdscr, cni, cni_version, candidate_version)
     uip.refresh_all()
 
-    return Retval.MATCH
+    return Retval.MATCH, {}
 
 
 cniloop_shortcuts = {

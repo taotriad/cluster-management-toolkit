@@ -1008,6 +1008,8 @@ def get_package_versions(hostname: str) -> list[tuple[str, str]]:
     # pylint: disable-next=import-outside-toplevel
     from clustermanagementtoolkit.ansible_helper import get_playbook_path
 
+    package_versions: list[tuple[str, str]] = []
+
     if not isinstance(hostname, str):
         raise TypeError(f"hostname {hostname} is type: {type(hostname)}, expected str")
 
@@ -1015,9 +1017,12 @@ def get_package_versions(hostname: str) -> list[tuple[str, str]]:
     retval, ansible_results = ansible_run_playbook_on_selection(get_versions_path,
                                                                 selection=[hostname])
 
+    # Failing to retrieve package versions shouldn't be treated as a critical error,
+    # except when debugging.
     if not ansible_results:
         raise ValueError(f"Error: Failed to get package versions from {hostname} "
                          f"(retval: {retval}); aborting.")
+        return package_versions
 
     tmp = []
 
@@ -1026,11 +1031,13 @@ def get_package_versions(hostname: str) -> list[tuple[str, str]]:
             tmp = deep_get(result, DictPath("msg_lines"), [])
             break
 
+    # If we fail to get package versions (the systems might be virtual),
+    # return an empty version list.
     if not tmp:
         raise ValueError(f"Error: Received empty version data from {hostname} "
                          f"(retval: {retval}); aborting.")
+        return package_versions
 
-    package_versions = []
     package_version_regex = re.compile(r"^(.*?): (.*)")
 
     for line in tmp:
