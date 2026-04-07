@@ -10,9 +10,34 @@ listview:
   name: "Priority Classes"
   group: "Scheduling & Scaling"
   field_indexes:
+    Wide:
+      fields: ["name", "controller", "priority", "global_default", "age"]
     Normal:
       fields: ["name", "priority", "global_default", "age"]
   fields:
+    controller:
+      header: "Controller:"
+      paths:
+        - path: "metadata#ownerReferences"
+          pathtype: "items"
+          subpaths:
+            - "kind"
+            - "apiVersion"
+            - "name"
+          when:
+            - key: "controller"
+              eq: true
+          type: ["kind", "api_group", "name"]
+          default: ["<none>"]
+      formatter: "list"
+      formatting:
+        field_colors:
+          - type: "kind"
+          - type: "api_group"
+          - type: "generic"
+        field_separators:
+          - type: "kind_api_group"
+          - type: "kind"
     global_default:
       header: "Global Default:"
       path: "globalDefault"
@@ -36,9 +61,33 @@ infoview:
   infopad:
     row_indexes:
       Normal:
-        fields: ["value", "global_default",
+        fields: ["controller", "value", "global_default",
                  "preemption_policy", "description", "description2"]
     rows:
+      controller:
+        header: [["C", ["main", "infoheader_shortcut"]],
+                 ["ontroller:", ["main", "infoheader"]]]
+        paths:
+          - path: "metadata#ownerReferences"
+            pathtype: "items"
+            subpaths:
+              - "kind"
+              - "apiVersion"
+              - "name"
+            when:
+              - key: "controller"
+                eq: true
+            type: ["kind", "api_group", "name"]
+            default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "kind"
+            - type: "api_group"
+            - type: "generic"
+          field_separators:
+            - type: "kind_api_group"
+            - type: "kind"
       global_default:
         header: [["Global Default:", ["main", "infoheader"]]]
         path: "globalDefault"
@@ -173,3 +222,15 @@ infoview:
         default: 0
         formatter: "numerical"
         align: "right"
+  shortcuts:
+    "Open controller":
+      key: "c"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for controller"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        namespace_path: "metadata#namespace"
+        owner_reference_path: "metadata#ownerReferences"

@@ -9,7 +9,7 @@ listview:
   group: "Authorization & Access Control"
   field_indexes:
     Wide:
-      fields: ["name", "role", "controller", "subjects", "age"]
+      fields: ["name", "controller", "role", "subjects", "age"]
     Normal:
       fields: ["name", "subjects", "age"]
   fields:

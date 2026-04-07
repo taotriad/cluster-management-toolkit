@@ -9,6 +9,9 @@ listview:
   name: "CSI Drivers"
   group: "Storage & Backups"
   field_indexes:
+    Wide:
+      fields: ["name", "controller", "attach_required", "pod_info_on_mount",
+               "volume_lifecycle_modes", "age"]
     Normal:
       fields: ["name", "attach_required", "pod_info_on_mount",
                "volume_lifecycle_modes", "age"]
@@ -17,6 +20,29 @@ listview:
       header: "Attach Required:"
       path: "spec#attachRequired"
       type: "bool"
+    controller:
+      header: "Controller:"
+      paths:
+        - path: "metadata#ownerReferences"
+          pathtype: "items"
+          subpaths:
+            - "kind"
+            - "apiVersion"
+            - "name"
+          when:
+            - key: "controller"
+              eq: true
+          type: ["kind", "api_group", "name"]
+          default: ["<none>"]
+      formatter: "list"
+      formatting:
+        field_colors:
+          - type: "kind"
+          - type: "api_group"
+          - type: "generic"
+        field_separators:
+          - type: "kind_api_group"
+          - type: "kind"
     pod_info_on_mount:
       header: "Pod Info on Mount:"
       path: "spec#podInfoOnMount"

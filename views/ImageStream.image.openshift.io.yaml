@@ -15,12 +15,36 @@ listview:
   group: "OpenShift"
   field_indexes:
     Wide:
-      fields: ["namespace", "name", "public_image_repository", "tags", "age"]
+      fields: ["namespace", "name", "controller",
+               "public_image_repository", "tags", "age"]
       sortcolumn: "namespace"
     Normal:
       fields: ["namespace", "name", "age"]
       sortcolumn: "namespace"
   fields:
+    controller:
+      header: "Controller:"
+      paths:
+        - path: "metadata#ownerReferences"
+          pathtype: "items"
+          subpaths:
+            - "kind"
+            - "apiVersion"
+            - "name"
+          when:
+            - key: "controller"
+              eq: true
+          type: ["kind", "api_group", "name"]
+          default: ["<none>"]
+      formatter: "list"
+      formatting:
+        field_colors:
+          - type: "kind"
+          - type: "api_group"
+          - type: "generic"
+        field_separators:
+          - type: "kind_api_group"
+          - type: "kind"
     public_image_repository:
       header: "Public Image Repository:"
       path: "status#publicDockerImageRepository"
@@ -43,9 +67,33 @@ infoview:
   infopad:
     row_indexes:
       Normal:
-        fields: ["lookup_policy", "tags",
+        fields: ["controller", "lookup_policy", "tags",
                  "public_image_repository", "image_repository"]
     rows:
+      controller:
+        header: [["C", ["main", "infoheader_shortcut"]],
+                 ["ontroller:", ["main", "infoheader"]]]
+        paths:
+          - path: "metadata#ownerReferences"
+            pathtype: "items"
+            subpaths:
+              - "kind"
+              - "apiVersion"
+              - "name"
+            when:
+              - key: "controller"
+                eq: true
+            type: ["kind", "api_group", "name"]
+            default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "kind"
+            - type: "api_group"
+            - type: "generic"
+          field_separators:
+            - type: "kind_api_group"
+            - type: "kind"
       image_repository:
         header: [["Docker Image Repository:", ["main", "infoheader"]]]
         path: "status#dockerImageRepository"
@@ -126,3 +174,15 @@ infoview:
         formatting:
           field_colors:
             - type: "version"
+  shortcuts:
+    "Open controller":
+      key: "c"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for controller"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        namespace_path: "metadata#namespace"
+        owner_reference_path: "metadata#ownerReferences"

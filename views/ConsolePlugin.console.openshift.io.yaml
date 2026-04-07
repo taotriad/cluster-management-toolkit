@@ -6,9 +6,34 @@ listview:
   name: "Console Plugins"
   group: "OpenShift"
   field_indexes:
+    Wide:
+      fields: ["name", "display_name", "controller", "age"]
     Normal:
       fields: ["name", "display_name", "age"]
   fields:
+    controller:
+      header: "Controller:"
+      paths:
+        - path: "metadata#ownerReferences"
+          pathtype: "items"
+          subpaths:
+            - "kind"
+            - "apiVersion"
+            - "name"
+          when:
+            - key: "controller"
+              eq: true
+          type: ["kind", "api_group", "name"]
+          default: ["<none>"]
+      formatter: "list"
+      formatting:
+        field_colors:
+          - type: "kind"
+          - type: "api_group"
+          - type: "generic"
+        field_separators:
+          - type: "kind_api_group"
+          - type: "kind"
     display_name:
       header: "Display Name:"
       path: "spec#displayName"

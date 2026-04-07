@@ -9,9 +9,34 @@ listview:
   name: "Validating Admission Policies"
   group: "API & Extendability"
   field_indexes:
+    Wide:
+      fields: ["name", "controller", "param_kind", "validations", "age"]
     Normal:
-      fields: ["name", "validations", "param_kind", "age"]
+      fields: ["name", "param_kind", "validations", "age"]
   fields:
+    controller:
+      header: "Controller:"
+      paths:
+        - path: "metadata#ownerReferences"
+          pathtype: "items"
+          subpaths:
+            - "kind"
+            - "apiVersion"
+            - "name"
+          when:
+            - key: "controller"
+              eq: true
+          type: ["kind", "api_group", "name"]
+          default: ["<none>"]
+      formatter: "list"
+      formatting:
+        field_colors:
+          - type: "kind"
+          - type: "api_group"
+          - type: "generic"
+        field_separators:
+          - type: "kind_api_group"
+          - type: "kind"
     param_kind:
       header: "Parameter Kind:"
       paths:
@@ -44,13 +69,37 @@ infoview:
   infopad:
     row_indexes:
       Normal:
-        fields: ["param_kind", "failure_policy",
+        fields: ["controller", "param_kind", "failure_policy",
                  "match_constraints_header", "match_constraints_match_policy",
                  "match_constraints_namespace_label_selector",
                  "match_constraints_namespace_set_based_selector",
                  "match_constraints_object_label_selector",
                  "match_constraints_object_set_based_selector"]
     rows:
+      controller:
+        header: [["C", ["main", "infoheader_shortcut"]],
+                 ["ontroller:", ["main", "infoheader"]]]
+        paths:
+          - path: "metadata#ownerReferences"
+            pathtype: "items"
+            subpaths:
+              - "kind"
+              - "apiVersion"
+              - "name"
+            when:
+              - key: "controller"
+                eq: true
+            type: ["kind", "api_group", "name"]
+            default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "kind"
+            - type: "api_group"
+            - type: "generic"
+          field_separators:
+            - type: "kind_api_group"
+            - type: "kind"
       failure_policy:
         header: [["Failure Policy:", ["main", "infoheader"]]]
         path: "spec#failurePolicy"
@@ -202,6 +251,17 @@ infoview:
         path: "valueExpression"
         type: "str"
   shortcuts:
+    "Open controller":
+      key: "c"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for controller"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        namespace_path: "metadata#namespace"
+        owner_reference_path: "metadata#ownerReferences"
     "Namespace Label Selector":
       key: "b"
       read_only: true

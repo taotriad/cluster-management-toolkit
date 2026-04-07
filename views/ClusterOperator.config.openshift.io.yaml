@@ -9,6 +9,9 @@ listview:
   name: "Cluster Operators"
   group: "OpenShift"
   field_indexes:
+    Wide:
+      fields: ["name", "controller",
+               "version", "available", "progressing", "degraded", "age"]
     Normal:
       fields: ["name", "version", "available", "progressing", "degraded", "age"]
   fields:
@@ -34,6 +37,29 @@ listview:
               field_colors:
                 - context: "main"
                   type: "status_not_ok"
+    controller:
+      header: "Controller:"
+      paths:
+        - path: "metadata#ownerReferences"
+          pathtype: "items"
+          subpaths:
+            - "kind"
+            - "apiVersion"
+            - "name"
+          when:
+            - key: "controller"
+              eq: true
+          type: ["kind", "api_group", "name"]
+          default: ["<none>"]
+      formatter: "list"
+      formatting:
+        field_colors:
+          - type: "kind"
+          - type: "api_group"
+          - type: "generic"
+        field_separators:
+          - type: "kind_api_group"
+          - type: "kind"
     degraded:
       header: "Degraded:"
       paths:
@@ -83,6 +109,34 @@ listview:
 infoview:
   name: "Cluster Operator Info"
   infopad:
+    row_indexes:
+      Normal:
+        fields: ["controller"]
+    rows:
+      controller:
+        header: [["C", ["main", "infoheader_shortcut"]],
+                 ["ontroller:", ["main", "infoheader"]]]
+        paths:
+          - path: "metadata#ownerReferences"
+            pathtype: "items"
+            subpaths:
+              - "kind"
+              - "apiVersion"
+              - "name"
+            when:
+              - key: "controller"
+                eq: true
+            type: ["kind", "api_group", "name"]
+            default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "kind"
+            - type: "api_group"
+            - type: "generic"
+          field_separators:
+            - type: "kind_api_group"
+            - type: "kind"
   listpad:
     on_activation:
       call: "resourceinfodispatch_with_lookup"
@@ -121,6 +175,17 @@ infoview:
         path: "resource"
         type: "str"
   shortcuts:
+    "Open controller":
+      key: "c"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for controller"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        namespace_path: "metadata#namespace"
+        owner_reference_path: "metadata#ownerReferences"
     "List versions":
       key: "v"
       read_only: true
