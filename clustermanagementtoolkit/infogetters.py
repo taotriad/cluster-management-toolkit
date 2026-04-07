@@ -35,6 +35,20 @@ except ModuleNotFoundError:  # pragma: no cover
     sys.exit("ModuleNotFoundError: Could not import natsort; "
              "you may need to (re-)run `cmt-install` or `pip3 install natsort`; aborting.")
 
+try:
+    import ruyaml
+    ryaml = ruyaml.YAML()
+    sryaml = ruyaml.YAML(typ="safe")
+except ModuleNotFoundError:  # pragma: no cover
+    try:
+        import ruamel.yaml as ruyaml  # type: ignore[no-redef,unused-ignore]
+        ryaml = ruyaml.YAML()
+        sryaml = ruyaml.YAML(typ="safe")
+    except ModuleNotFoundError:  # pragma: no cover
+        sys.exit("ModuleNotFoundError: Could not import ruyaml/ruamel.yaml; "
+                 "you may need to (re-)run `cmt-install` or `pip3 install ruyaml/ruamel.yaml`; "
+                 "aborting.")
+
 from clustermanagementtoolkit import about
 
 from clustermanagementtoolkit.ansible_helper import ansible_get_logs
@@ -2666,8 +2680,11 @@ def get_cmt_log(obj: dict, **kwargs: Any) -> \
 
     try:
         d = list(secure_read_yaml(filepath))
-    except (FileNotFoundError, TypeError):
+    except FileNotFoundError:
         pass
+    except (TypeError, ruyaml.scanner.ScannerError) as e:
+        return ([], ["secure_read_yaml()"], [LogLevel.ERR],
+                [[ThemeStr(f"{e}", ThemeAttr("types", "generic"))]])
 
     if not d or not isinstance(d, list):
         return timestamps, facilities, severities, messages
