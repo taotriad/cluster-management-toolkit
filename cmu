@@ -1025,19 +1025,26 @@ def genericlistloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                         "name": host,
                         "ref": host,
                         "ips": [],
-                        "ansible_groups": ansible_get_groups_by_host(inventory_dict, host),
                         "status": "UNKNOWN",
                         "metadata": {
                             "uid": host,
                         },
                         "__deleted": False,
                     })
-                # Tag hosts in vlist that are no longer part of hosts as deleted
+
+                # Update ansible groups, in case the groups have changed.
+                for i, d in enumerate(vlist):
+                    host = vlist[i]["name"]
+                    vlist[i]["ansible_groups"] = ansible_get_groups_by_host(inventory_dict, host)
+
+                # Tag hosts in vlist that are no longer part of hosts as deleted.
                 for host in vlist_hosts_set - hosts_set:
                     for i, d in enumerate(vlist):
                         if deep_get(d, DictPath("name"), "") == host:
                             vlist[i]["status"] = "DELETED"
                             vlist[i]["__deleted"] = True
+                        vlist[i]["ansible_groups"] = \
+                            ansible_get_groups_by_host(inventory_dict, host)
                 infogetter_extra_args["_vlist"] = copy.deepcopy(vlist)
                 if not uip.listlen:
                     uip.force_update()
@@ -1467,10 +1474,7 @@ def genericlistloop(stdscr: curses.window, **kwargs: Any) -> Retval:
 
                 uip.force_update()
                 continue
-        elif c in (ord("w"), ord("A"), ord("N")):
-            if not is_namespaced:
-                continue
-
+        elif c in (ord("w"), ord("A"), ord("N")) and is_namespaced:
             if c == ord("w"):
                 if (selected := uip.get_selected()):
                     selected_namespace = deep_get(selected, DictPath("namespace"))
@@ -1759,6 +1763,7 @@ def genericlistloop(stdscr: curses.window, **kwargs: Any) -> Retval:
 
                 if add_groups or remove_groups:
                     uip.force_update()
+                    executor.retrigger("hosts")
             uip.refresh_all()
             curses.doupdate()
         elif c == ord("F") and is_taggable:
