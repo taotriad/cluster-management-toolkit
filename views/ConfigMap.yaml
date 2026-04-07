@@ -8,9 +8,32 @@ listview:
   group: "Core"
   field_indexes:
     Normal:
-      fields: ["namespace", "name", "data", "immutable", "age"]
+      fields: ["namespace", "name", "controller", "data", "immutable", "age"]
       sortcolumn: "namespace"
   fields:
+    controller:
+      header: "Controller:"
+      paths:
+        - path: "metadata#ownerReferences"
+          pathtype: "items"
+          subpaths:
+            - "kind"
+            - "apiVersion"
+            - "name"
+          when:
+            - key: "controller"
+              eq: true
+          type: ["kind", "api_group", "name"]
+          default: ["<none>"]
+      formatter: "list"
+      formatting:
+        field_colors:
+          - type: "kind"
+          - type: "api_group"
+          - type: "generic"
+        field_separators:
+          - type: "kind_api_group"
+          - type: "kind"
     data:
       header: "# of Data:"
       path: "data"
@@ -93,6 +116,17 @@ infoview:
         path: "type"
         type: "str"
   shortcuts:
+    "Open controller":
+      key: "c"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for controller"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        namespace_path: "metadata#namespace"
+        owner_reference_path: "metadata#ownerReferences"
     "Attempt to display Certificate info":
       key: "d"
       modifier: "shift"
@@ -163,14 +197,3 @@ infoview:
         kind: "Pod"
         name_path: "metadata#name"
         namespace_path: "metadata#namespace"
-    "Open controller":
-      key: "c"
-      modifier: "shift"
-      read_only: true
-      helptext: "Open info page for controller"
-      action: "call"
-      action_call: "resourceinfodispatch_with_lookup"
-      action_args:
-        _pass_obj: true
-        namespace_path: "metadata#namespace"
-        owner_reference_path: "metadata#ownerReferences"

@@ -60,7 +60,7 @@
 - name: "linkerd"
   matchkeys:
     - container_name: "linkerd-init"
-      container_type: "init_container"
+      container_type: "InitContainer"
   parser_rules:
     - name: "key_value"
     - name: "iptables"

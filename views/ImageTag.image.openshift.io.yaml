@@ -14,11 +14,38 @@ listview:
   name: "Image Tags"
   group: "OpenShift"
   field_indexes:
+    Wide:
+      fields: ["namespace", "name", "controller",
+               "spec", "import_policy", "tag", "version", "age"]
+      sortcolumn: "namespace"
     Normal:
       fields: ["namespace", "name", "spec", "import_policy", "tag",
                "version", "age"]
       sortcolumn: "namespace"
   fields:
+    controller:
+      header: "Controller:"
+      paths:
+        - path: "metadata#ownerReferences"
+          pathtype: "items"
+          subpaths:
+            - "kind"
+            - "apiVersion"
+            - "name"
+          when:
+            - key: "controller"
+              eq: true
+          type: ["kind", "api_group", "name"]
+          default: ["<none>"]
+      formatter: "list"
+      formatting:
+        field_colors:
+          - type: "kind"
+          - type: "api_group"
+          - type: "generic"
+        field_separators:
+          - type: "kind_api_group"
+          - type: "kind"
     import_policy:
       header: "Import Policy:"
       path: "spec#importPolicy#importMode"
@@ -68,10 +95,34 @@ infoview:
   infopad:
     row_indexes:
       Normal:
-        fields: ["display_name", "description",
+        fields: ["display_name", "controller", "description",
                  "provider_display_name", "from", "import_policy",
                  "reference_policy", "spec", "tag", "version"]
     rows:
+      controller:
+        header: [["C", ["main", "infoheader_shortcut"]],
+                 ["ontroller:", ["main", "infoheader"]]]
+        paths:
+          - path: "metadata#ownerReferences"
+            pathtype: "items"
+            subpaths:
+              - "kind"
+              - "apiVersion"
+              - "name"
+            when:
+              - key: "controller"
+                eq: true
+            type: ["kind", "api_group", "name"]
+            default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "kind"
+            - type: "api_group"
+            - type: "generic"
+          field_separators:
+            - type: "kind_api_group"
+            - type: "kind"
       description:
         header: [["Description:", ["main", "infoheader"]]]
         path: "spec#annotations#description"
@@ -145,3 +196,15 @@ infoview:
         formatting:
           field_colors:
             - type: "version"
+  shortcuts:
+    "Open controller":
+      key: "c"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for controller"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        namespace_path: "metadata#namespace"
+        owner_reference_path: "metadata#ownerReferences"

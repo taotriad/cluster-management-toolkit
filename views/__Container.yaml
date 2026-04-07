@@ -155,6 +155,8 @@ infoview:
         formatter: "numerical"
         align: "right"
   shortcuts:
-    # Containers have no last applied configuration or events
+    # Containers have no events, no last applied configuration,
+    # and no owner references.
     "Show Events": null
     "Last Applied Configuration": null
+    "Owner References": null

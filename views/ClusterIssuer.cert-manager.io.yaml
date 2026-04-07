@@ -77,7 +77,7 @@ infoview:
           - path: ["spec#selfSigned#crlDistributionPoints",
                    "spec#ca#crlDistributionPoints"]
             pathtype: "str"
-        default: ""
+        default: ["<none>"]
       type:
         header: [["Type:", ["main", "infoheader"]]]
         paths:

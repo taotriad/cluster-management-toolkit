@@ -47,7 +47,7 @@
   matchkeys:
     - image_name: "/kubeovn/kube-ovn"
     - image_name: "/kubeovn/kube-ovn"
-      container_type: "init_container"
+      container_type: "InitContainer"
   parser_rules:
     - name: "glog"
     - name: "custom_line"

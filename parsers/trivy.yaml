@@ -22,7 +22,7 @@
   show_in_selector: false
   matchkeys:
     - pod_name: "scan-vulnerabilityreport"
-      container_type: "init_container"
+      container_type: "InitContainer"
   parser_rules:
     - name: "strip_ansicodes"
     - name: "ts_8601"

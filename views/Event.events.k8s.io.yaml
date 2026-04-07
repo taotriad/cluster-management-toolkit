@@ -186,6 +186,10 @@ listview:
               field_colors:
                 - context: "main"
                   type: "status_ok"
+            Bound:
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
             BuildCompleted:
               field_colors:
                 - context: "main"
@@ -652,6 +656,10 @@ listview:
               field_colors:
                 - context: "main"
                   type: "status_warning"
+            ErrClaimNotValid:
+              field_colors:
+                - context: "main"
+                  type: "status_warning"
             ErrCreatingPVCPrime:
               field_colors:
                 - context: "main"
@@ -848,6 +856,10 @@ listview:
               field_colors:
                 - context: "main"
                   type: "status_warning"
+            FailedPvcNotFound:
+              field_colors:
+                - context: "main"
+                  type: "status_warning"
             FailedReconcile:
               field_colors:
                 - context: "main"
@@ -1024,6 +1036,14 @@ listview:
               field_colors:
                 - context: "main"
                   type: "status_done"
+            ImportSucceeded:
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+            ImportTargetInUse:
+              field_colors:
+                - context: "main"
+                  type: "status_warning"
             InClusterUpgrade:
               field_colors:
                 - context: "main"
@@ -2762,6 +2782,10 @@ infoview:
                 field_colors:
                   - context: "main"
                     type: "status_ok"
+              Bound:
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
               BuildCompleted:
                 field_colors:
                   - context: "main"
@@ -3228,6 +3252,10 @@ infoview:
                 field_colors:
                   - context: "main"
                     type: "status_warning"
+              ErrClaimNotValid:
+                field_colors:
+                  - context: "main"
+                    type: "status_warning"
               ErrCreatingPVCPrime:
                 field_colors:
                   - context: "main"
@@ -3424,6 +3452,10 @@ infoview:
                 field_colors:
                   - context: "main"
                     type: "status_warning"
+              FailedPvcNotFound:
+                field_colors:
+                  - context: "main"
+                    type: "status_warning"
               FailedReconcile:
                 field_colors:
                   - context: "main"
@@ -3600,6 +3632,14 @@ infoview:
                 field_colors:
                   - context: "main"
                     type: "status_done"
+              ImportSucceeded:
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+              ImportTargetInUse:
+                field_colors:
+                  - context: "main"
+                    type: "status_warning"
               InClusterUpgrade:
                 field_colors:
                   - context: "main"

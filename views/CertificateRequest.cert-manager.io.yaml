@@ -9,9 +9,13 @@ listview:
   name: "Certificate Requests"
   group: "Certificate Management"
   field_indexes:
+    Wide:
+      fields: ["namespace", "name", "controller", "issuer",
+               "condition_ready", "age", "status_message"]
+      sortcolumn: "namespace"
     Normal:
-      fields: ["namespace", "name", "condition_ready",
-               "issuer", "status_message", "age"]
+      fields: ["namespace", "name", "issuer",
+               "condition_ready", "age", "status_message"]
       sortcolumn: "namespace"
   fields:
     condition_ready:
@@ -36,6 +40,29 @@ listview:
               field_colors:
                 - context: "main"
                   type: "status_not_ok"
+    controller:
+      header: "Controller:"
+      paths:
+        - path: "metadata#ownerReferences"
+          pathtype: "items"
+          subpaths:
+            - "kind"
+            - "apiVersion"
+            - "name"
+          when:
+            - key: "controller"
+              eq: true
+          type: ["kind", "api_group", "name"]
+          default: ["<none>"]
+      formatter: "list"
+      formatting:
+        field_colors:
+          - type: "kind"
+          - type: "api_group"
+          - type: "generic"
+        field_separators:
+          - type: "kind_api_group"
+          - type: "kind"
     issuer:
       header: "Issuer:"
       paths:
@@ -64,12 +91,13 @@ infoview:
   infopad:
     row_indexes:
       Normal:
-        fields: ["issuer", "certificate", "username", "uid",
+        fields: ["controller", "issuer", "certificate", "username", "uid",
                  "groups", "condition_ready", "status_message"]
     rows:
       certificate:
-        header: [["C", ["main", "infoheader_shortcut"]],
-                 ["ertificate:", ["main", "infoheader"]]]
+        header: [["Cer", ["main", "infoheader"]],
+                 ["t", ["main", "infoheader_shortcut"]],
+                 ["ificate:", ["main", "infoheader"]]]
         paths:
           - path: "metadata#ownerReferences"
             pathtype: "items"
@@ -108,6 +136,30 @@ infoview:
                 field_colors:
                   - context: "main"
                     type: "status_unknown"
+      controller:
+        header: [["C", ["main", "infoheader_shortcut"]],
+                 ["ontroller:", ["main", "infoheader"]]]
+        paths:
+          - path: "metadata#ownerReferences"
+            pathtype: "items"
+            subpaths:
+              - "kind"
+              - "apiVersion"
+              - "name"
+            when:
+              - key: "controller"
+                eq: true
+            type: ["kind", "api_group", "name"]
+            default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "kind"
+            - type: "api_group"
+            - type: "generic"
+          field_separators:
+            - type: "kind_api_group"
+            - type: "kind"
       groups:
         header: [["Groups:", ["main", "infoheader"]]]
         paths:
@@ -153,9 +205,19 @@ infoview:
           field_colors:
             - type: "user"
   shortcuts:
-    "Certificate":
+    "Open controller":
       key: "c"
       modifier: "shift"
+      read_only: true
+      helptext: "Open info page for controller"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        namespace_path: "metadata#namespace"
+        owner_reference_path: "metadata#ownerReferences"
+    "Certificate":
+      key: "t"
       read_only: true
       helptext: "Open info page for Certificate"
       action: "call"

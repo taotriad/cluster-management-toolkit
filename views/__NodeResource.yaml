@@ -58,7 +58,13 @@ infoview:
         type: "raw"
         formatter: "numerical"
   shortcuts:
+    # This is a non-Kubernetes resource,
+    # so no events, no last applied configuration,
+    # no owner references, and viewing it as JSON/YAML doesn't make sense.
+    "Show Events": null
+    "Last Applied Configuration": null
     "View YAML dump": null
+    "Owner References": null
   listpad:
     listgetter: "generic_listgetter"
     listgetter_args:

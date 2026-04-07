@@ -7,9 +7,16 @@ listview:
   group: "Virtualization"
   field_indexes:
     Normal:
-      fields: ["namespace", "name", "phase", "replicas", "age"]
+      fields: ["namespace", "name", "phase",
+               "outdated_virtual_machine_instance_workloads", "replicas", "age"]
       sortcolumn: "namespace"
   fields:
+    outdated_virtual_machine_instance_workloads:
+      header: "Outdated VMI Workloads:"
+      path: "status#outdatedVirtualMachineInstanceWorkloads"
+      type: "int"
+      formatter: "numerical"
+      align: "right"
     phase:
       header: "Phase:"
       path: "status#phase"
@@ -49,16 +56,20 @@ infoview:
         fields: ["controller", "image_pull_policy",
                  "observed_kubevirt_registry", "observed_kubevirt_version",
                  "target_kubevirt_registry", "target_kubevirt_version",
+                 "operator_version",
+                 "default_architecture",
                  "configuration_header",
                  "configuration_vm_state_storage_class",
                  "configuration_vm_rollout_strategy",
                  "configuration_additional_guest_memory_overhead_ratio",
+                 "outdated_virtual_machine_instance_workloads",
                  "replicas", "phase"]
     rows:
       configuration_additional_guest_memory_overhead_ratio:
         header: [["  Additional Guest Memory Overhead Ratio:",
                   ["main", "infoheader"]]]
         path: "spec#configuration#additionalGuestMemoryOverheadRatio"
+        default: "<unset>"
         type: "str"
         formatter: "numerical"
       configuration_header:
@@ -99,8 +110,13 @@ infoview:
           field_separators:
             - type: "kind_api_group"
             - type: "kind"
+      default_architecture:
+        header: [["Default Architecture:", ["main", "infoheader"]]]
+        path: "status#defaultArchitecture"
+        default: "<unset>"
+        type: "str"
       image_pull_policy:
-        header: [["Image Pull Policy:", ["main", "infoheader"]]]
+        header: [["Image Pull Registry:", ["main", "infoheader"]]]
         path: "spec#imagePullPolicy"
         default: "<unset>"
         type: "str"
@@ -115,6 +131,18 @@ infoview:
         formatting:
           field_colors:
             - type: "version"
+      operator_version:
+        header: [["Operator Version:", ["main", "infoheader"]]]
+        path: "status#operatorVersion"
+        type: "str"
+        formatting:
+          field_colors:
+            - type: "version"
+      outdated_virtual_machine_instance_workloads:
+        header: [["Outdated VMI Workloads:", ["main", "infoheader"]]]
+        path: "status#outdatedVirtualMachineInstanceWorkloads"
+        type: "int"
+        formatter: "numerical"
       phase:
         header: [["Phase:", ["main", "infoheader"]]]
         path: "status#phase"
@@ -146,7 +174,7 @@ infoview:
         type: "int"
         formatter: "numerical"
       target_kubevirt_registry:
-        header: [["Target KubVirt Policy:", ["main", "infoheader"]]]
+        header: [["Target KubVirt Registry:", ["main", "infoheader"]]]
         path: "status#targetKubeVirtRegistry"
         type: "str"
       target_kubevirt_version:
@@ -180,22 +208,49 @@ infoview:
         kind: "StorageClass"
         api_family: "storage.k8s.io"
         name_path: "spec#configuration#vmStateStorageClass"
-    "Show Generations":
+    "View observed deployment config":
+      key: "o"
+      read_only: true
+      helptext: "View observed deployment config"
+      action: "call"
+      action_call: "view_json"
+      action_args:
+        title: "Observed Deployment Config"
+        _pass_obj: true
+        path: "status#observedDeploymentConfig"
+    "View target deployment config":
+      key: "t"
+      read_only: true
+      helptext: "View target deployment config"
+      action: "call"
+      action_call: "view_json"
+      action_args:
+        title: "Observed Target Config"
+        _pass_obj: true
+        path: "status#targetDeploymentConfig"
+    "List Generations":
       key: "g"
-      modifier: "shift"
       read_only: true
       helptext: "List generations"
       widget: "windowwidget"
       title: "Generations:"
-      headers: ["Name:", "Namespace:", "Resource:", "Group:", "Generation:"]
+      selectable: true
+      headers: ["Resource:", "Group:", "Namespace:", "Name:", "Generation:"]
       itemgetter: "get_list_fields"
       itemgetter_args:
         path: "status#generations"
         fields:
-          - "name"
-          - "namespace"
           - "resource"
           - "group"
+          - "namespace"
+          - "name"
           - "lastGeneration"
       # Not supported for now
-      sortcolumn: "name"
+      sortcolumn: "resource"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        kind_path: 0
+        api_group_path: 1
+        namespace_path: 2
+        name_path: 3

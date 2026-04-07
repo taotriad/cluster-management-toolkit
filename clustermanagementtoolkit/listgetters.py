@@ -380,7 +380,7 @@ def get_metrics_list(**kwargs: Any) -> tuple[list[dict[str, Any]], int]:
     return vlist, status
 
 
-# pylint: disable-next=too-many-locals
+# pylint: disable-next=too-many-locals,too-many-branches
 def get_pod_containers_list(**kwargs: Any) -> tuple[list[dict[str, Any]], int | str]:
     """
     Get a list of all pods with a separate entry for every container.
@@ -408,7 +408,8 @@ def get_pod_containers_list(**kwargs: Any) -> tuple[list[dict[str, Any]], int | 
             namespace = deep_get(obj, DictPath("metadata#namespace"))
             name = deep_get(obj, DictPath("metadata#name"))
             node_name = deep_get(obj, DictPath("spec#nodeName"))
-            for container in deep_get(obj, DictPath("spec#containers")):
+            uid = deep_get(obj, DictPath("metadata#uid"))
+            for container in deep_get(obj, DictPath("spec#containers"), []):
                 container_name = deep_get(container, DictPath("name"))
                 reason, status_group, _restarts, _message, _age = \
                     get_container_status(deep_get(obj, DictPath("status#containerStatuses")),
@@ -418,17 +419,54 @@ def get_pod_containers_list(**kwargs: Any) -> tuple[list[dict[str, Any]], int | 
                     if deep_get(container_status, DictPath("name")) == container_name:
                         break
                 if container_status is not None:
+                    image = deep_get(container_status, DictPath("image"), "")
                     image_id = deep_get(container_status, DictPath("imageID"), "")
                 else:
+                    image = "<unavailable>"
                     image_id = "<unavailable>"
                 vlist.append({
                     "namespace": namespace,
                     "name": name,
                     "container": container_name,
+                    "container_type": "Container",
                     "status": reason,
                     "status_group": status_group,
                     "node_name": node_name,
+                    "image": image,
                     "image_id": image_id,
+                    "metadata": {
+                        "uid": f"{uid}-{container_name}",
+                    },
+                })
+
+            for container in deep_get(obj, DictPath("spec#initContainers"), []):
+                container_name = deep_get(container, DictPath("name"))
+                reason, status_group, _restarts, _message, _age = \
+                    get_container_status(deep_get(obj, DictPath("status#initContainerStatuses")),
+                                         container_name)
+                container_status = None
+                for container_status in deep_get(obj, DictPath("status#initContainerStatuses"), []):
+                    if deep_get(container_status, DictPath("name")) == container_name:
+                        break
+                if container_status is not None:
+                    image = deep_get(container_status, DictPath("image"), "")
+                    image_id = deep_get(container_status, DictPath("imageID"), "")
+                else:
+                    image = "<unavailable>"
+                    image_id = "<unavailable>"
+                vlist.append({
+                    "namespace": namespace,
+                    "name": name,
+                    "container_type": "InitContainer",
+                    "container": container_name,
+                    "status": reason,
+                    "status_group": status_group,
+                    "node_name": node_name,
+                    "image": image,
+                    "image_id": image_id,
+                    "metadata": {
+                        "uid": f"{uid}-{container_name}-init",
+                    },
                 })
 
     return vlist, status
@@ -623,6 +661,9 @@ def listgetter_dir(**kwargs: Any) -> tuple[list[dict[str, Any]], int]:
                     "ctime": ctime,
                 },
                 "kind": kind,
+                "metadata": {
+                    "uid": filepath,
+                },
             })
 
     return vlist, status

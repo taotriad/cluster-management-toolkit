@@ -6,10 +6,36 @@ listview:
   name: "Custom Machines"
   group: "Rancher"
   field_indexes:
+    Wide:
+      fields: ["namespace", "name", "controller", "provider_id", "ready", "age"]
+      sortcolumn: "namespace"
     Normal:
       fields: ["namespace", "name", "provider_id", "ready", "age"]
       sortcolumn: "namespace"
   fields:
+    controller:
+      header: "Controller:"
+      paths:
+        - path: "metadata#ownerReferences"
+          pathtype: "items"
+          subpaths:
+            - "kind"
+            - "apiVersion"
+            - "name"
+          when:
+            - key: "controller"
+              eq: true
+          type: ["kind", "api_group", "name"]
+          default: ["<none>"]
+      formatter: "list"
+      formatting:
+        field_colors:
+          - type: "kind"
+          - type: "api_group"
+          - type: "generic"
+        field_separators:
+          - type: "kind_api_group"
+          - type: "kind"
     provider_id:
       header: "Provider ID:"
       path: "spec#providerID"
@@ -41,8 +67,8 @@ infoview:
   infopad:
     row_indexes:
       Normal:
-        fields: ["hostname", "cluster_name", "internal_ips", "external_ips",
-                 "provider_id", "ready"]
+        fields: ["controller", "hostname", "cluster_name",
+                 "internal_ips", "external_ips", "provider_id", "ready"]
     rows:
       cluster_name:
         header: [["Cl", ["main", "infoheader"]],
@@ -51,6 +77,30 @@ infoview:
         path: "metadata#labels#cluster.x-k8s.io/cluster-name"
         default: "<unset>"
         type: "str"
+      controller:
+        header: [["C", ["main", "infoheader_shortcut"]],
+                 ["ontroller:", ["main", "infoheader"]]]
+        paths:
+          - path: "metadata#ownerReferences"
+            pathtype: "items"
+            subpaths:
+              - "kind"
+              - "apiVersion"
+              - "name"
+            when:
+              - key: "controller"
+                eq: true
+            type: ["kind", "api_group", "name"]
+            default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "kind"
+            - type: "api_group"
+            - type: "generic"
+          field_separators:
+            - type: "kind_api_group"
+            - type: "kind"
       external_ips:
         header: [["External IPs:", ["main", "infoheader"]]]
         paths:
@@ -114,6 +164,17 @@ infoview:
                   - context: "types"
                     type: "unset"
   shortcuts:
+    "Open controller":
+      key: "c"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for controller"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        namespace_path: "metadata#namespace"
+        owner_reference_path: "metadata#ownerReferences"
     "Open Cluster":
       key: "u"
       read_only: true

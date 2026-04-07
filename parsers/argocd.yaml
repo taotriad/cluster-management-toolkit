@@ -12,7 +12,7 @@
     - image_name: "/argoproj/workflow-controller"
     - image_name: "/argoproj/argoexec"
     - image_name: "/argoproj/argoexec"
-      container_type: "init_container"
+      container_type: "InitContainer"
   parser_rules:
     - name: "glog"
     - name: "key_value"

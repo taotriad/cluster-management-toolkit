@@ -32,9 +32,9 @@
   show_in_selector: false
   matchkeys:
     - pod_name: "jaeger-query"
-      container_type: "init_container"
+      container_type: "InitContainer"
     - pod_name: "jaeger-collector"
-      container_type: "init_container"
+      container_type: "InitContainer"
     - pod_name: "istio-tracing"
       container_name: "jaeger"
     - pod_name: "jaeger"

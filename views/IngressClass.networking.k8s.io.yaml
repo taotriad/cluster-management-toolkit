@@ -13,7 +13,7 @@ listview:
       fields: ["name", "ingress_controller", "parameters", "age"]
   fields:
     ingress_controller:
-      header: "Controller:"
+      header: "Ingress Controller:"
       path: "spec#controller"
       type: "str"
     parameters:

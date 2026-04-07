@@ -9,11 +9,38 @@ listview:
   name: "Machine Health Checks"
   group: "OpenShift"
   field_indexes:
+    Wide:
+      fields: ["namespace", "name", "controller", "max_unhealthy",
+               "expected_machines", "current_healthy", "age"]
+      sortcolumn: "namespace"
     Normal:
       fields: ["namespace", "name", "max_unhealthy",
                "expected_machines", "current_healthy", "age"]
       sortcolumn: "namespace"
   fields:
+    controller:
+      header: "Controller:"
+      paths:
+        - path: "metadata#ownerReferences"
+          pathtype: "items"
+          subpaths:
+            - "kind"
+            - "apiVersion"
+            - "name"
+          when:
+            - key: "controller"
+              eq: true
+          type: ["kind", "api_group", "name"]
+          default: ["<none>"]
+      formatter: "list"
+      formatting:
+        field_colors:
+          - type: "kind"
+          - type: "api_group"
+          - type: "generic"
+        field_separators:
+          - type: "kind_api_group"
+          - type: "kind"
     current_healthy:
       header: "Current Healthy:"
       path: "status#currentHealthy"
@@ -38,11 +65,35 @@ infoview:
   infopad:
     row_indexes:
       Normal:
-        fields: ["label_selector",
+        fields: ["controller", "label_selector",
                  "set_based_selector", "max_unhealthy", "expected_machines",
                  "current_healthy", "remediations_allowed",
                  "node_startup_timeout"]
     rows:
+      controller:
+        header: [["C", ["main", "infoheader_shortcut"]],
+                 ["ontroller:", ["main", "infoheader"]]]
+        paths:
+          - path: "metadata#ownerReferences"
+            pathtype: "items"
+            subpaths:
+              - "kind"
+              - "apiVersion"
+              - "name"
+            when:
+              - key: "controller"
+                eq: true
+            type: ["kind", "api_group", "name"]
+            default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "kind"
+            - type: "api_group"
+            - type: "generic"
+          field_separators:
+            - type: "kind_api_group"
+            - type: "kind"
       current_healthy:
         header: [["Current Healthy:", ["main", "infoheader"]]]
         path: "status#currentHealthy"
@@ -101,6 +152,17 @@ infoview:
             - type: "space"
             - type: "no_pad"
   shortcuts:
+    "Open controller":
+      key: "c"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for controller"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        namespace_path: "metadata#namespace"
+        owner_reference_path: "metadata#ownerReferences"
     "Label Selector":
       key: "b"
       read_only: true

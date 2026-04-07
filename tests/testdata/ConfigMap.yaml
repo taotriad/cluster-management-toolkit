@@ -1,0 +1,561 @@
+apiVersion: v1
+items:
+- apiVersion: v1
+  data:
+    ca.crt: |
+      -----BEGIN CERTIFICATE-----
+      MIIDBTCCAe2gAwIBAgIIO6cjzblIzlwwDQYJKoZIhvcNAQELBQAwFTETMBEGA1UE
+      AxMKa3ViZXJuZXRlczAeFw0yNjA0MDIwNTA1MjRaFw0zNjAzMzAwNTEwMjRaMBUx
+      EzARBgNVBAMTCmt1YmVybmV0ZXMwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEK
+      AoIBAQCvnAkh3XC8sXqZjtVyNGl5oBDBuBrHK/E1M/rJOjUdS4PSaeCf2RqoBcEu
+      cTn1FnnhC/u76OWlS7WRTur3w2ej0llEm2TPouAfvuo0PkvesMrTdnhMAUgrSA50
+      +ebaylJdeoPk47FxZwFor2bsfwXjnYMIeyhqELmLJXazSffCVaFPt4I6z+CPcORL
+      ChRg7E0q4NBwaOH3SVwgv1gNyNbg6yqAfyWVqgU7qkpErgANEN/YkhkSzy4GUErC
+      cUvkqosCgDSZ9Q8pEioXi6yGu3kVhIH8Q1VwVbFgzzfBUaE+ke2xCrSzy4bVzoql
+      C5O0EK7JsHptfbW6DeiTX0OH/GKHAgMBAAGjWTBXMA4GA1UdDwEB/wQEAwICpDAP
+      BgNVHRMBAf8EBTADAQH/MB0GA1UdDgQWBBTg8WaRtw9B9hpYsNZQj6cPLLcsqDAV
+      BgNVHREEDjAMggprdWJlcm5ldGVzMA0GCSqGSIb3DQEBCwUAA4IBAQASc0ymm2EP
+      mjdEHcNkLYZp2PMRDK5cuMeFrSXEKDQnAfuQL75e0uv1IfcDO8juVteoJq0X0bjo
+      wMPnpk3K5quhPb0nDHPXMrVKR9VPM35oovaEYqBiF8d1wYQlHuuutgHgjFv3lvuJ
+      nzn36yDeCyQef8XzA9v5lybP2XsRvK22x152eVGCsSQwzPNLNCy+udSk5azYF75D
+      HFVDAIMeWAxyZVVJzzxnn310zt/Q9qOYLlkKbZMFCmUKkIntkmnUFUyufKxON/qr
+      UJRcwT7v210rXwp6XswrjJXvb883WEfk7MgW0HrqdYtqB4+zpcmWBAxJNjhc1/De
+      dVuyyjii/NLN
+      -----END CERTIFICATE-----
+  kind: ConfigMap
+  metadata:
+    annotations:
+      kubernetes.io/description: Contains a CA bundle that can be used to verify the
+        kube-apiserver when using internal endpoints such as the internal service
+        IP or kubernetes.default.svc. No other usage is guaranteed across distributions
+        of Kubernetes clusters.
+    creationTimestamp: "2026-04-02T05:10:39Z"
+    name: kube-root-ca.crt
+    namespace: default
+    resourceVersion: "313"
+    uid: 52dc71b6-b4db-4672-9d27-5f2f754a9484
+- apiVersion: v1
+  data:
+    ca.crt: |
+      -----BEGIN CERTIFICATE-----
+      MIIDBTCCAe2gAwIBAgIIO6cjzblIzlwwDQYJKoZIhvcNAQELBQAwFTETMBEGA1UE
+      AxMKa3ViZXJuZXRlczAeFw0yNjA0MDIwNTA1MjRaFw0zNjAzMzAwNTEwMjRaMBUx
+      EzARBgNVBAMTCmt1YmVybmV0ZXMwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEK
+      AoIBAQCvnAkh3XC8sXqZjtVyNGl5oBDBuBrHK/E1M/rJOjUdS4PSaeCf2RqoBcEu
+      cTn1FnnhC/u76OWlS7WRTur3w2ej0llEm2TPouAfvuo0PkvesMrTdnhMAUgrSA50
+      +ebaylJdeoPk47FxZwFor2bsfwXjnYMIeyhqELmLJXazSffCVaFPt4I6z+CPcORL
+      ChRg7E0q4NBwaOH3SVwgv1gNyNbg6yqAfyWVqgU7qkpErgANEN/YkhkSzy4GUErC
+      cUvkqosCgDSZ9Q8pEioXi6yGu3kVhIH8Q1VwVbFgzzfBUaE+ke2xCrSzy4bVzoql
+      C5O0EK7JsHptfbW6DeiTX0OH/GKHAgMBAAGjWTBXMA4GA1UdDwEB/wQEAwICpDAP
+      BgNVHRMBAf8EBTADAQH/MB0GA1UdDgQWBBTg8WaRtw9B9hpYsNZQj6cPLLcsqDAV
+      BgNVHREEDjAMggprdWJlcm5ldGVzMA0GCSqGSIb3DQEBCwUAA4IBAQASc0ymm2EP
+      mjdEHcNkLYZp2PMRDK5cuMeFrSXEKDQnAfuQL75e0uv1IfcDO8juVteoJq0X0bjo
+      wMPnpk3K5quhPb0nDHPXMrVKR9VPM35oovaEYqBiF8d1wYQlHuuutgHgjFv3lvuJ
+      nzn36yDeCyQef8XzA9v5lybP2XsRvK22x152eVGCsSQwzPNLNCy+udSk5azYF75D
+      HFVDAIMeWAxyZVVJzzxnn310zt/Q9qOYLlkKbZMFCmUKkIntkmnUFUyufKxON/qr
+      UJRcwT7v210rXwp6XswrjJXvb883WEfk7MgW0HrqdYtqB4+zpcmWBAxJNjhc1/De
+      dVuyyjii/NLN
+      -----END CERTIFICATE-----
+  kind: ConfigMap
+  metadata:
+    annotations:
+      kubernetes.io/description: Contains a CA bundle that can be used to verify the
+        kube-apiserver when using internal endpoints such as the internal service
+        IP or kubernetes.default.svc. No other usage is guaranteed across distributions
+        of Kubernetes clusters.
+    creationTimestamp: "2026-04-02T05:10:39Z"
+    name: kube-root-ca.crt
+    namespace: kube-node-lease
+    resourceVersion: "314"
+    uid: 0676300b-2e05-4246-89b7-678e926205ce
+- apiVersion: v1
+  data:
+    jws-kubeconfig-abcdef: eyJhbGciOiJIUzI1NiIsImtpZCI6ImFiY2RlZiJ9..Pwg_XpmQ0hwe8ly-rC6vw7URweZBG6Vy2eTSn2DUHVg
+    kubeconfig: |
+      apiVersion: v1
+      clusters:
+      - cluster:
+          certificate-authority-data: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURCVENDQWUyZ0F3SUJBZ0lJTzZjanpibEl6bHd3RFFZSktvWklodmNOQVFFTEJRQXdGVEVUTUJFR0ExVUUKQXhNS2EzVmlaWEp1WlhSbGN6QWVGdzB5TmpBME1ESXdOVEExTWpSYUZ3MHpOakF6TXpBd05URXdNalJhTUJVeApFekFSQmdOVkJBTVRDbXQxWW1WeWJtVjBaWE13Z2dFaU1BMEdDU3FHU0liM0RRRUJBUVVBQTRJQkR3QXdnZ0VLCkFvSUJBUUN2bkFraDNYQzhzWHFaanRWeU5HbDVvQkRCdUJySEsvRTFNL3JKT2pVZFM0UFNhZUNmMlJxb0JjRXUKY1RuMUZubmhDL3U3Nk9XbFM3V1JUdXIzdzJlajBsbEVtMlRQb3VBZnZ1bzBQa3Zlc01yVGRuaE1BVWdyU0E1MAorZWJheWxKZGVvUGs0N0Z4WndGb3IyYnNmd1hqbllNSWV5aHFFTG1MSlhhelNmZkNWYUZQdDRJNnorQ1BjT1JMCkNoUmc3RTBxNE5Cd2FPSDNTVndndjFnTnlOYmc2eXFBZnlXVnFnVTdxa3BFcmdBTkVOL1lraGtTenk0R1VFckMKY1V2a3Fvc0NnRFNaOVE4cEVpb1hpNnlHdTNrVmhJSDhRMVZ3VmJGZ3p6ZkJVYUUra2UyeENyU3p5NGJWem9xbApDNU8wRUs3SnNIcHRmYlc2RGVpVFgwT0gvR0tIQWdNQkFBR2pXVEJYTUE0R0ExVWREd0VCL3dRRUF3SUNwREFQCkJnTlZIUk1CQWY4RUJUQURBUUgvTUIwR0ExVWREZ1FXQkJUZzhXYVJ0dzlCOWhwWXNOWlFqNmNQTExjc3FEQVYKQmdOVkhSRUVEakFNZ2dwcmRXSmxjbTVsZEdWek1BMEdDU3FHU0liM0RRRUJDd1VBQTRJQkFRQVNjMHltbTJFUAptamRFSGNOa0xZWnAyUE1SREs1Y3VNZUZyU1hFS0RRbkFmdVFMNzVlMHV2MUlmY0RPOGp1VnRlb0pxMFgwYmpvCndNUG5wazNLNXF1aFBiMG5ESFBYTXJWS1I5VlBNMzVvb3ZhRVlxQmlGOGQxd1lRbEh1dXV0Z0hnakZ2M2x2dUoKbnpuMzZ5RGVDeVFlZjhYekE5djVseWJQMlhzUnZLMjJ4MTUyZVZHQ3NTUXd6UE5MTkN5K3VkU2s1YXpZRjc1RApIRlZEQUlNZVdBeHlaVlZKenp4bm4zMTB6dC9ROXFPWUxsa0tiWk1GQ21VS2tJbnRrbW5VRlV5dWZLeE9OL3FyClVKUmN3VDd2MjEwclh3cDZYc3dyakpYdmI4ODNXRWZrN01nVzBIcnFkWXRxQjQrenBjbVdCQXhKTmpoYzEvRGUKZFZ1eXlqaWkvTkxOCi0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K
+          server: https://kind-ha-external-load-balancer:6443
+        name: ""
+      contexts: null
+      current-context: ""
+      kind: Config
+      users: null
+  kind: ConfigMap
+  metadata:
+    creationTimestamp: "2026-04-02T05:10:36Z"
+    name: cluster-info
+    namespace: kube-public
+    resourceVersion: "317"
+    uid: 8933ff74-eec4-483a-aceb-9aa4d4e818aa
+- apiVersion: v1
+  data:
+    ca.crt: |
+      -----BEGIN CERTIFICATE-----
+      MIIDBTCCAe2gAwIBAgIIO6cjzblIzlwwDQYJKoZIhvcNAQELBQAwFTETMBEGA1UE
+      AxMKa3ViZXJuZXRlczAeFw0yNjA0MDIwNTA1MjRaFw0zNjAzMzAwNTEwMjRaMBUx
+      EzARBgNVBAMTCmt1YmVybmV0ZXMwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEK
+      AoIBAQCvnAkh3XC8sXqZjtVyNGl5oBDBuBrHK/E1M/rJOjUdS4PSaeCf2RqoBcEu
+      cTn1FnnhC/u76OWlS7WRTur3w2ej0llEm2TPouAfvuo0PkvesMrTdnhMAUgrSA50
+      +ebaylJdeoPk47FxZwFor2bsfwXjnYMIeyhqELmLJXazSffCVaFPt4I6z+CPcORL
+      ChRg7E0q4NBwaOH3SVwgv1gNyNbg6yqAfyWVqgU7qkpErgANEN/YkhkSzy4GUErC
+      cUvkqosCgDSZ9Q8pEioXi6yGu3kVhIH8Q1VwVbFgzzfBUaE+ke2xCrSzy4bVzoql
+      C5O0EK7JsHptfbW6DeiTX0OH/GKHAgMBAAGjWTBXMA4GA1UdDwEB/wQEAwICpDAP
+      BgNVHRMBAf8EBTADAQH/MB0GA1UdDgQWBBTg8WaRtw9B9hpYsNZQj6cPLLcsqDAV
+      BgNVHREEDjAMggprdWJlcm5ldGVzMA0GCSqGSIb3DQEBCwUAA4IBAQASc0ymm2EP
+      mjdEHcNkLYZp2PMRDK5cuMeFrSXEKDQnAfuQL75e0uv1IfcDO8juVteoJq0X0bjo
+      wMPnpk3K5quhPb0nDHPXMrVKR9VPM35oovaEYqBiF8d1wYQlHuuutgHgjFv3lvuJ
+      nzn36yDeCyQef8XzA9v5lybP2XsRvK22x152eVGCsSQwzPNLNCy+udSk5azYF75D
+      HFVDAIMeWAxyZVVJzzxnn310zt/Q9qOYLlkKbZMFCmUKkIntkmnUFUyufKxON/qr
+      UJRcwT7v210rXwp6XswrjJXvb883WEfk7MgW0HrqdYtqB4+zpcmWBAxJNjhc1/De
+      dVuyyjii/NLN
+      -----END CERTIFICATE-----
+  kind: ConfigMap
+  metadata:
+    annotations:
+      kubernetes.io/description: Contains a CA bundle that can be used to verify the
+        kube-apiserver when using internal endpoints such as the internal service
+        IP or kubernetes.default.svc. No other usage is guaranteed across distributions
+        of Kubernetes clusters.
+    creationTimestamp: "2026-04-02T05:10:39Z"
+    name: kube-root-ca.crt
+    namespace: kube-public
+    resourceVersion: "316"
+    uid: 9acd5c34-876f-45cf-bae4-1a96a6a5a79a
+- apiVersion: v1
+  data:
+    Corefile: |
+      .:53 {
+          errors
+          health {
+             lameduck 5s
+          }
+          ready
+          kubernetes cluster.local in-addr.arpa ip6.arpa {
+             pods insecure
+             fallthrough in-addr.arpa ip6.arpa
+             ttl 30
+          }
+          prometheus :9153
+          forward . /etc/resolv.conf {
+             max_concurrent 1000
+          }
+          cache 30 {
+             disable success cluster.local
+             disable denial cluster.local
+          }
+          loop
+          reload
+          loadbalance
+      }
+  kind: ConfigMap
+  metadata:
+    creationTimestamp: "2026-04-02T05:10:36Z"
+    name: coredns
+    namespace: kube-system
+    resourceVersion: "262"
+    uid: c768e0a3-5664-487a-99b7-c46a33124da9
+- apiVersion: v1
+  data:
+    client-ca-file: |
+      -----BEGIN CERTIFICATE-----
+      MIIDBTCCAe2gAwIBAgIIO6cjzblIzlwwDQYJKoZIhvcNAQELBQAwFTETMBEGA1UE
+      AxMKa3ViZXJuZXRlczAeFw0yNjA0MDIwNTA1MjRaFw0zNjAzMzAwNTEwMjRaMBUx
+      EzARBgNVBAMTCmt1YmVybmV0ZXMwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEK
+      AoIBAQCvnAkh3XC8sXqZjtVyNGl5oBDBuBrHK/E1M/rJOjUdS4PSaeCf2RqoBcEu
+      cTn1FnnhC/u76OWlS7WRTur3w2ej0llEm2TPouAfvuo0PkvesMrTdnhMAUgrSA50
+      +ebaylJdeoPk47FxZwFor2bsfwXjnYMIeyhqELmLJXazSffCVaFPt4I6z+CPcORL
+      ChRg7E0q4NBwaOH3SVwgv1gNyNbg6yqAfyWVqgU7qkpErgANEN/YkhkSzy4GUErC
+      cUvkqosCgDSZ9Q8pEioXi6yGu3kVhIH8Q1VwVbFgzzfBUaE+ke2xCrSzy4bVzoql
+      C5O0EK7JsHptfbW6DeiTX0OH/GKHAgMBAAGjWTBXMA4GA1UdDwEB/wQEAwICpDAP
+      BgNVHRMBAf8EBTADAQH/MB0GA1UdDgQWBBTg8WaRtw9B9hpYsNZQj6cPLLcsqDAV
+      BgNVHREEDjAMggprdWJlcm5ldGVzMA0GCSqGSIb3DQEBCwUAA4IBAQASc0ymm2EP
+      mjdEHcNkLYZp2PMRDK5cuMeFrSXEKDQnAfuQL75e0uv1IfcDO8juVteoJq0X0bjo
+      wMPnpk3K5quhPb0nDHPXMrVKR9VPM35oovaEYqBiF8d1wYQlHuuutgHgjFv3lvuJ
+      nzn36yDeCyQef8XzA9v5lybP2XsRvK22x152eVGCsSQwzPNLNCy+udSk5azYF75D
+      HFVDAIMeWAxyZVVJzzxnn310zt/Q9qOYLlkKbZMFCmUKkIntkmnUFUyufKxON/qr
+      UJRcwT7v210rXwp6XswrjJXvb883WEfk7MgW0HrqdYtqB4+zpcmWBAxJNjhc1/De
+      dVuyyjii/NLN
+      -----END CERTIFICATE-----
+    requestheader-allowed-names: '["front-proxy-client"]'
+    requestheader-client-ca-file: |
+      -----BEGIN CERTIFICATE-----
+      MIIDETCCAfmgAwIBAgIIZ8TzTtOHzFowDQYJKoZIhvcNAQELBQAwGTEXMBUGA1UE
+      AxMOZnJvbnQtcHJveHktY2EwHhcNMjYwNDAyMDUwNTI0WhcNMzYwMzMwMDUxMDI0
+      WjAZMRcwFQYDVQQDEw5mcm9udC1wcm94eS1jYTCCASIwDQYJKoZIhvcNAQEBBQAD
+      ggEPADCCAQoCggEBAL/EsiL1KJH0KwN9Zy0CHCBdPKWq9KA3NhOBkiyzvc1e6S3Z
+      kuR9dCKDeSbmWBjE+z1E4ufUJR7HfcZV0/jugJ3hXb6ej13r0x87Z90Acz3z2HHY
+      DIftmOcwmW2tlta7ojIqX/gDEqq9mtWE0KuKaelIFOX0/JsVUteO2eI2FAK2i+u8
+      DyQgy7LcsMHI01QFl0Iwuxi2B0GDo7ITrWzFEp87ogfAlKdY41vn9CF1eU5kOCbi
+      ZIJFyKb+E7T2ERfS4l3w8d2re84yaq1kQi5yVjwyOdYp2yPX1qRPQg4PmBC4KmFr
+      /bhCGpGuyo2xmli6d0tXrr1hU1Y4vijknHeM7dMCAwEAAaNdMFswDgYDVR0PAQH/
+      BAQDAgKkMA8GA1UdEwEB/wQFMAMBAf8wHQYDVR0OBBYEFIgYLNXeytiyFCeweKeH
+      HGyI6bGLMBkGA1UdEQQSMBCCDmZyb250LXByb3h5LWNhMA0GCSqGSIb3DQEBCwUA
+      A4IBAQBeeVG/dqR3XU7bnZlYwdodHmZ9UoFtSJewLqZAOlAgRR3wKa/M+cDa6Cvt
+      8SdpAAkAewPCcFvg62DxFK1wrTrgkbvjpKCBtEx8bn8qUgwDyTfCdVOFT25ya4NX
+      8YaBLvc5Dflv06a4U+qyJn8ew92uG0FT+mOOjPLfFBtYGoh/uoSN29GEedLNAg+v
+      i+sw8egT0qssLuLtDEHO89y491dHRI/JivPKiE1CaIQerKEjqdLtouSQ2g1K8Z7D
+      Fo7B8sFOjuPChONAswaSrJj3aVPKix2wnzMbcjWZrAh17FcOj+yq2P6K1mP6966t
+      Syg6RzXyarpC9btTXK5Ri5X7LBJB
+      -----END CERTIFICATE-----
+    requestheader-extra-headers-prefix: '["X-Remote-Extra-"]'
+    requestheader-group-headers: '["X-Remote-Group"]'
+    requestheader-username-headers: '["X-Remote-User"]'
+  kind: ConfigMap
+  metadata:
+    creationTimestamp: "2026-04-02T05:10:31Z"
+    name: extension-apiserver-authentication
+    namespace: kube-system
+    resourceVersion: "33"
+    uid: cde30b47-cade-46ef-834b-ea1de03c14cf
+- apiVersion: v1
+  data:
+    since: "2026-04-02"
+  kind: ConfigMap
+  metadata:
+    creationTimestamp: "2026-04-02T05:10:31Z"
+    name: kube-apiserver-legacy-service-account-token-tracking
+    namespace: kube-system
+    resourceVersion: "23"
+    uid: 79185519-9f5e-4ea5-ae2d-8768d8ad1dca
+- apiVersion: v1
+  data:
+    config.conf: |-
+      apiVersion: kubeproxy.config.k8s.io/v1alpha1
+      bindAddress: 0.0.0.0
+      bindAddressHardFail: false
+      clientConnection:
+        acceptContentTypes: ""
+        burst: 0
+        contentType: ""
+        kubeconfig: /var/lib/kube-proxy/kubeconfig.conf
+        qps: 0
+      clusterCIDR: 10.220.0.0/16
+      configSyncPeriod: 0s
+      conntrack:
+        maxPerCore: 0
+        min: null
+        tcpBeLiberal: true
+        tcpCloseWaitTimeout: null
+        tcpEstablishedTimeout: null
+        udpStreamTimeout: 0s
+        udpTimeout: 0s
+      detectLocal:
+        bridgeInterface: ""
+        interfaceNamePrefix: ""
+      detectLocalMode: ""
+      enableProfiling: false
+      featureGates:
+        DRAConsumableCapacity: true
+        DRADeviceBindingConditions: true
+        DRAExtendedResource: true
+        DRAPartitionableDevices: true
+        DRASchedulerFilterTimeout: true
+        PersistentVolumeClaimUnusedSinceTime: true
+      healthzBindAddress: ""
+      hostnameOverride: ""
+      iptables:
+        localhostNodePorts: null
+        masqueradeAll: false
+        masqueradeBit: null
+        minSyncPeriod: 1s
+        syncPeriod: 0s
+      ipvs:
+        excludeCIDRs: null
+        minSyncPeriod: 0s
+        scheduler: ""
+        strictARP: false
+        syncPeriod: 0s
+        tcpFinTimeout: 0s
+        tcpTimeout: 0s
+        udpTimeout: 0s
+      kind: KubeProxyConfiguration
+      logging:
+        flushFrequency: 0
+        options:
+          json:
+            infoBufferSize: "0"
+          text:
+            infoBufferSize: "0"
+        verbosity: 0
+      metricsBindAddress: ""
+      mode: nftables
+      nftables:
+        masqueradeAll: false
+        masqueradeBit: null
+        minSyncPeriod: 0s
+        syncPeriod: 0s
+      nodePortAddresses: null
+      oomScoreAdj: null
+      portRange: ""
+      showHiddenMetricsForVersion: ""
+      winkernel:
+        enableDSR: false
+        forwardHealthCheckVip: false
+        networkName: ""
+        rootHnsEndpointName: ""
+        sourceVip: ""
+    kubeconfig.conf: |-
+      apiVersion: v1
+      kind: Config
+      clusters:
+      - cluster:
+          certificate-authority: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+          server: https://kind-ha-external-load-balancer:6443
+        name: default
+      contexts:
+      - context:
+          cluster: default
+          namespace: default
+          user: default
+        name: default
+      current-context: default
+      users:
+      - name: default
+        user:
+          tokenFile: /var/run/secrets/kubernetes.io/serviceaccount/token
+  kind: ConfigMap
+  metadata:
+    creationTimestamp: "2026-04-02T05:10:36Z"
+    labels:
+      app: kube-proxy
+    name: kube-proxy
+    namespace: kube-system
+    resourceVersion: "273"
+    uid: b58df223-f9cf-4a50-898d-a8807e416d2e
+- apiVersion: v1
+  data:
+    ca.crt: |
+      -----BEGIN CERTIFICATE-----
+      MIIDBTCCAe2gAwIBAgIIO6cjzblIzlwwDQYJKoZIhvcNAQELBQAwFTETMBEGA1UE
+      AxMKa3ViZXJuZXRlczAeFw0yNjA0MDIwNTA1MjRaFw0zNjAzMzAwNTEwMjRaMBUx
+      EzARBgNVBAMTCmt1YmVybmV0ZXMwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEK
+      AoIBAQCvnAkh3XC8sXqZjtVyNGl5oBDBuBrHK/E1M/rJOjUdS4PSaeCf2RqoBcEu
+      cTn1FnnhC/u76OWlS7WRTur3w2ej0llEm2TPouAfvuo0PkvesMrTdnhMAUgrSA50
+      +ebaylJdeoPk47FxZwFor2bsfwXjnYMIeyhqELmLJXazSffCVaFPt4I6z+CPcORL
+      ChRg7E0q4NBwaOH3SVwgv1gNyNbg6yqAfyWVqgU7qkpErgANEN/YkhkSzy4GUErC
+      cUvkqosCgDSZ9Q8pEioXi6yGu3kVhIH8Q1VwVbFgzzfBUaE+ke2xCrSzy4bVzoql
+      C5O0EK7JsHptfbW6DeiTX0OH/GKHAgMBAAGjWTBXMA4GA1UdDwEB/wQEAwICpDAP
+      BgNVHRMBAf8EBTADAQH/MB0GA1UdDgQWBBTg8WaRtw9B9hpYsNZQj6cPLLcsqDAV
+      BgNVHREEDjAMggprdWJlcm5ldGVzMA0GCSqGSIb3DQEBCwUAA4IBAQASc0ymm2EP
+      mjdEHcNkLYZp2PMRDK5cuMeFrSXEKDQnAfuQL75e0uv1IfcDO8juVteoJq0X0bjo
+      wMPnpk3K5quhPb0nDHPXMrVKR9VPM35oovaEYqBiF8d1wYQlHuuutgHgjFv3lvuJ
+      nzn36yDeCyQef8XzA9v5lybP2XsRvK22x152eVGCsSQwzPNLNCy+udSk5azYF75D
+      HFVDAIMeWAxyZVVJzzxnn310zt/Q9qOYLlkKbZMFCmUKkIntkmnUFUyufKxON/qr
+      UJRcwT7v210rXwp6XswrjJXvb883WEfk7MgW0HrqdYtqB4+zpcmWBAxJNjhc1/De
+      dVuyyjii/NLN
+      -----END CERTIFICATE-----
+  kind: ConfigMap
+  metadata:
+    annotations:
+      kubernetes.io/description: Contains a CA bundle that can be used to verify the
+        kube-apiserver when using internal endpoints such as the internal service
+        IP or kubernetes.default.svc. No other usage is guaranteed across distributions
+        of Kubernetes clusters.
+    creationTimestamp: "2026-04-02T05:10:39Z"
+    name: kube-root-ca.crt
+    namespace: kube-system
+    resourceVersion: "312"
+    uid: 328c56c4-be1f-42a4-9fab-0cfc2211aad5
+- apiVersion: v1
+  data:
+    ClusterConfiguration: |
+      apiServer:
+        certSANs:
+        - localhost
+        - 127.0.0.1
+        extraArgs:
+        - name: feature-gates
+          value: DRAConsumableCapacity=true,DRADeviceBindingConditions=true,DRAExtendedResource=true,DRAPartitionableDevices=true,DRASchedulerFilterTimeout=true,PersistentVolumeClaimUnusedSinceTime=true
+        - name: runtime-config
+          value: api/alpha=true
+      apiVersion: kubeadm.k8s.io/v1beta4
+      caCertificateValidityPeriod: 87600h0m0s
+      certificateValidityPeriod: 8760h0m0s
+      certificatesDir: /etc/kubernetes/pki
+      clusterName: kind-ha
+      controlPlaneEndpoint: kind-ha-external-load-balancer:6443
+      controllerManager:
+        extraArgs:
+        - name: enable-hostpath-provisioner
+          value: "true"
+        - name: feature-gates
+          value: DRAConsumableCapacity=true,DRADeviceBindingConditions=true,DRAExtendedResource=true,DRAPartitionableDevices=true,DRASchedulerFilterTimeout=true,PersistentVolumeClaimUnusedSinceTime=true
+      dns: {}
+      encryptionAlgorithm: RSA-2048
+      etcd:
+        local:
+          dataDir: /var/lib/etcd
+      imageRepository: registry.k8s.io
+      kind: ClusterConfiguration
+      kubernetesVersion: v1.36.0-beta.0
+      networking:
+        dnsDomain: cluster.local
+        podSubnet: 10.220.0.0/16
+        serviceSubnet: 10.120.0.0/16
+      proxy: {}
+      scheduler:
+        extraArgs:
+        - name: feature-gates
+          value: DRAConsumableCapacity=true,DRADeviceBindingConditions=true,DRAExtendedResource=true,DRAPartitionableDevices=true,DRASchedulerFilterTimeout=true,PersistentVolumeClaimUnusedSinceTime=true
+  kind: ConfigMap
+  metadata:
+    creationTimestamp: "2026-04-02T05:10:35Z"
+    name: kubeadm-config
+    namespace: kube-system
+    resourceVersion: "241"
+    uid: 47d8e865-5dea-4e60-a15a-ae536b70521e
+- apiVersion: v1
+  data:
+    kubelet: |
+      apiVersion: kubelet.config.k8s.io/v1beta1
+      authentication:
+        anonymous:
+          enabled: false
+        webhook:
+          cacheTTL: 0s
+          enabled: true
+        x509:
+          clientCAFile: /etc/kubernetes/pki/ca.crt
+      authorization:
+        mode: Webhook
+        webhook:
+          cacheAuthorizedTTL: 0s
+          cacheUnauthorizedTTL: 0s
+      cgroupDriver: systemd
+      cgroupRoot: /kubelet
+      clusterDNS:
+      - 10.120.0.10
+      clusterDomain: cluster.local
+      containerRuntimeEndpoint: ""
+      cpuManagerReconcilePeriod: 0s
+      crashLoopBackOff: {}
+      evictionHard:
+        imagefs.available: 0%
+        nodefs.available: 0%
+        nodefs.inodesFree: 0%
+      evictionPressureTransitionPeriod: 0s
+      failSwapOn: false
+      featureGates:
+        DRAConsumableCapacity: true
+        DRADeviceBindingConditions: true
+        DRAExtendedResource: true
+        DRAPartitionableDevices: true
+        DRASchedulerFilterTimeout: true
+        PersistentVolumeClaimUnusedSinceTime: true
+      fileCheckFrequency: 0s
+      healthzBindAddress: 127.0.0.1
+      healthzPort: 10248
+      httpCheckFrequency: 0s
+      imageGCHighThresholdPercent: 100
+      imageMaximumGCAge: 0s
+      imageMinimumGCAge: 0s
+      kind: KubeletConfiguration
+      logging:
+        flushFrequency: 0
+        options:
+          json:
+            infoBufferSize: "0"
+          text:
+            infoBufferSize: "0"
+        verbosity: 0
+      memorySwap: {}
+      nodeStatusReportFrequency: 0s
+      nodeStatusUpdateFrequency: 0s
+      rotateCertificates: true
+      runtimeRequestTimeout: 0s
+      shutdownGracePeriod: 0s
+      shutdownGracePeriodCriticalPods: 0s
+      staticPodPath: /etc/kubernetes/manifests
+      streamingConnectionIdleTimeout: 0s
+      syncFrequency: 0s
+      volumeStatsAggPeriod: 0s
+  kind: ConfigMap
+  metadata:
+    creationTimestamp: "2026-04-02T05:10:35Z"
+    name: kubelet-config
+    namespace: kube-system
+    resourceVersion: "244"
+    uid: 106e6ea7-3000-46e0-9e4e-3136e464946f
+- apiVersion: v1
+  data:
+    ca.crt: |
+      -----BEGIN CERTIFICATE-----
+      MIIDBTCCAe2gAwIBAgIIO6cjzblIzlwwDQYJKoZIhvcNAQELBQAwFTETMBEGA1UE
+      AxMKa3ViZXJuZXRlczAeFw0yNjA0MDIwNTA1MjRaFw0zNjAzMzAwNTEwMjRaMBUx
+      EzARBgNVBAMTCmt1YmVybmV0ZXMwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEK
+      AoIBAQCvnAkh3XC8sXqZjtVyNGl5oBDBuBrHK/E1M/rJOjUdS4PSaeCf2RqoBcEu
+      cTn1FnnhC/u76OWlS7WRTur3w2ej0llEm2TPouAfvuo0PkvesMrTdnhMAUgrSA50
+      +ebaylJdeoPk47FxZwFor2bsfwXjnYMIeyhqELmLJXazSffCVaFPt4I6z+CPcORL
+      ChRg7E0q4NBwaOH3SVwgv1gNyNbg6yqAfyWVqgU7qkpErgANEN/YkhkSzy4GUErC
+      cUvkqosCgDSZ9Q8pEioXi6yGu3kVhIH8Q1VwVbFgzzfBUaE+ke2xCrSzy4bVzoql
+      C5O0EK7JsHptfbW6DeiTX0OH/GKHAgMBAAGjWTBXMA4GA1UdDwEB/wQEAwICpDAP
+      BgNVHRMBAf8EBTADAQH/MB0GA1UdDgQWBBTg8WaRtw9B9hpYsNZQj6cPLLcsqDAV
+      BgNVHREEDjAMggprdWJlcm5ldGVzMA0GCSqGSIb3DQEBCwUAA4IBAQASc0ymm2EP
+      mjdEHcNkLYZp2PMRDK5cuMeFrSXEKDQnAfuQL75e0uv1IfcDO8juVteoJq0X0bjo
+      wMPnpk3K5quhPb0nDHPXMrVKR9VPM35oovaEYqBiF8d1wYQlHuuutgHgjFv3lvuJ
+      nzn36yDeCyQef8XzA9v5lybP2XsRvK22x152eVGCsSQwzPNLNCy+udSk5azYF75D
+      HFVDAIMeWAxyZVVJzzxnn310zt/Q9qOYLlkKbZMFCmUKkIntkmnUFUyufKxON/qr
+      UJRcwT7v210rXwp6XswrjJXvb883WEfk7MgW0HrqdYtqB4+zpcmWBAxJNjhc1/De
+      dVuyyjii/NLN
+      -----END CERTIFICATE-----
+  kind: ConfigMap
+  metadata:
+    annotations:
+      kubernetes.io/description: Contains a CA bundle that can be used to verify the
+        kube-apiserver when using internal endpoints such as the internal service
+        IP or kubernetes.default.svc. No other usage is guaranteed across distributions
+        of Kubernetes clusters.
+    creationTimestamp: "2026-04-02T05:10:42Z"
+    name: kube-root-ca.crt
+    namespace: local-path-storage
+    resourceVersion: "379"
+    uid: 654da399-8f8f-4a2f-b5ad-f035b94658b2
+- apiVersion: v1
+  data:
+    config.json: |-
+      {
+              "nodePathMap":[
+              {
+                      "node":"DEFAULT_PATH_FOR_NON_LISTED_NODES",
+                      "paths":["/var/local-path-provisioner"]
+              }
+              ]
+      }
+    helperPod.yaml: |-
+      apiVersion: v1
+      kind: Pod
+      metadata:
+        name: helper-pod
+      spec:
+        priorityClassName: system-node-critical
+        tolerations:
+          - key: node.kubernetes.io/disk-pressure
+            operator: Exists
+            effect: NoSchedule
+        containers:
+        - name: helper-pod
+          image: docker.io/kindest/local-path-helper:v20251211-v0.29.0-alpha-100-g82a92c5d
+          imagePullPolicy: IfNotPresent
+    setup: |-
+      #!/bin/sh
+      set -eu
+      mkdir -m 0777 -p "$VOL_DIR"
+    teardown: |-
+      #!/bin/sh
+      set -eu
+      rm -rf "$VOL_DIR"
+  kind: ConfigMap
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"v1","data":{"config.json":"{\n        \"nodePathMap\":[\n        {\n                \"node\":\"DEFAULT_PATH_FOR_NON_LISTED_NODES\",\n                \"paths\":[\"/var/local-path-provisioner\"]\n        }\n        ]\n}","helperPod.yaml":"apiVersion: v1\nkind: Pod\nmetadata:\n  name: helper-pod\nspec:\n  priorityClassName: system-node-critical\n  tolerations:\n    - key: node.kubernetes.io/disk-pressure\n      operator: Exists\n      effect: NoSchedule\n  containers:\n  - name: helper-pod\n    image: docker.io/kindest/local-path-helper:v20251211-v0.29.0-alpha-100-g82a92c5d\n    imagePullPolicy: IfNotPresent","setup":"#!/bin/sh\nset -eu\nmkdir -m 0777 -p \"$VOL_DIR\"","teardown":"#!/bin/sh\nset -eu\nrm -rf \"$VOL_DIR\""},"kind":"ConfigMap","metadata":{"annotations":{},"name":"local-path-config","namespace":"local-path-storage"}}
+    creationTimestamp: "2026-04-02T05:10:42Z"
+    name: local-path-config
+    namespace: local-path-storage
+    resourceVersion: "392"
+    uid: 9d7b355e-5294-42f5-83a2-4a22e10b3039
+kind: List
+metadata:
+  resourceVersion: ""

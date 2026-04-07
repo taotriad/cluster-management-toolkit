@@ -10,14 +10,38 @@ listview:
   group: "Observability"
   field_indexes:
     Normal:
-      fields: ["namespace", "name", "age"]
+      fields: ["namespace", "name", "controller", "age"]
       sortcolumn: "namespace"
+  fields:
+    controller:
+      header: "Controller:"
+      paths:
+        - path: "metadata#ownerReferences"
+          pathtype: "items"
+          subpaths:
+            - "kind"
+            - "apiVersion"
+            - "name"
+          when:
+            - key: "controller"
+              eq: true
+          type: ["kind", "api_group", "name"]
+          default: ["<none>"]
+      formatter: "list"
+      formatting:
+        field_colors:
+          - type: "kind"
+          - type: "api_group"
+          - type: "generic"
+        field_separators:
+          - type: "kind_api_group"
+          - type: "kind"
 infoview:
   name: "Service Monitor Info"
   infopad:
     row_indexes:
       Normal:
-        fields: ["job_label", "selector",
+        fields: ["controller", "job_label", "selector",
                  "namespace_selector", "attach_metadata_header",
                  "attach_metadata_node"]
     rows:
@@ -28,6 +52,30 @@ infoview:
         path: "spec#attachMetadata#node"
         default: "<unset>"
         type: "bool"
+      controller:
+        header: [["C", ["main", "infoheader_shortcut"]],
+                 ["ontroller:", ["main", "infoheader"]]]
+        paths:
+          - path: "metadata#ownerReferences"
+            pathtype: "items"
+            subpaths:
+              - "kind"
+              - "apiVersion"
+              - "name"
+            when:
+              - key: "controller"
+                eq: true
+            type: ["kind", "api_group", "name"]
+            default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "kind"
+            - type: "api_group"
+            - type: "generic"
+          field_separators:
+            - type: "kind_api_group"
+            - type: "kind"
       job_label:
         header: [["Job Label:", ["main", "infoheader"]]]
         path: "spec#jobLabel"
@@ -136,6 +184,17 @@ infoview:
         formatter: "numerical"
         align: "right"
   shortcuts:
+    "Open controller":
+      key: "c"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for controller"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        namespace_path: "metadata#namespace"
+        owner_reference_path: "metadata#ownerReferences"
     "Label Selector":
       key: "b"
       read_only: true

@@ -19,16 +19,9 @@ listview:
 infoview:
   name: "Network Attachment Definition Info"
   infopad: null
-  shortcuts:
-    "View configuration":
-      key: "c"
-      modifier: "shift"
-      read_only: true
-      helptext: "Show network attachment configuration"
-      action: "call"
-      action_call: "view_obj"
-      action_args:
-        title: "Network Attachment Configuration"
-        formatter: "reformat_json"
-        _pass_obj: true
-        path: "spec#config"
+  logpad:
+    infogetter: "logpad_formatted"
+    infogetter_args:
+      formatter: "reformat_json"
+      path: "spec#config"
+    timestamps: false

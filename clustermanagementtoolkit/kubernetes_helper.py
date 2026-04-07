@@ -200,7 +200,7 @@ def get_node_roles(node: dict) -> list[str]:
         Parameters:
             node (dict): The node object
         Returns:
-            ([str]): THe roles that the node belongs to
+            ([str]): The roles that the node belongs to
     """
     roles: list[str] = []
 
@@ -1767,6 +1767,8 @@ class KubernetesHelper:
                             sys.exit(errno.EINVAL)
                         return "<unknown>", status
                     k8s_distro = tmp_k8s_distro
+                if k8s_distro:
+                    break
             else:
                 # This isn't a control plane; but this might still be vcluster
                 if deep_get(labels, DictPath("vcluster.loft.sh/fake-node"), 'false') == "true":

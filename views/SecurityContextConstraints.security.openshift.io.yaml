@@ -7,7 +7,7 @@ listview:
   group: "OpenShift"
   field_indexes:
     Wide:
-      fields: ["name", "privileged", "capabilities", "selinux",
+      fields: ["name", "controller", "privileged", "capabilities", "selinux",
                "runasuser", "fsgroup", "supgroups", "priority",
                "readonly_rootfs", "age", "volumes"]
     Normal:
@@ -20,6 +20,29 @@ listview:
       path: "allowedCapabilities"
       type: "raw"
       formatter: "list"
+    controller:
+      header: "Controller:"
+      paths:
+        - path: "metadata#ownerReferences"
+          pathtype: "items"
+          subpaths:
+            - "kind"
+            - "apiVersion"
+            - "name"
+          when:
+            - key: "controller"
+              eq: true
+          type: ["kind", "api_group", "name"]
+          default: ["<none>"]
+      formatter: "list"
+      formatting:
+        field_colors:
+          - type: "kind"
+          - type: "api_group"
+          - type: "generic"
+        field_separators:
+          - type: "kind_api_group"
+          - type: "kind"
     fsgroup:
       header: "FS Group:"
       path: "fsGroup#type"
@@ -66,6 +89,7 @@ infoview:
     row_indexes:
       Normal:
         fields:
+          - "controller"
           - "description"
           - "privileged"
           - "allow_host_dir_volume_plugin"
@@ -123,6 +147,30 @@ infoview:
         default: ["<unset>"]
         type: "raw"
         formatter: "list"
+      controller:
+        header: [["C", ["main", "infoheader_shortcut"]],
+                 ["ontroller:", ["main", "infoheader"]]]
+        paths:
+          - path: "metadata#ownerReferences"
+            pathtype: "items"
+            subpaths:
+              - "kind"
+              - "apiVersion"
+              - "name"
+            when:
+              - key: "controller"
+                eq: true
+            type: ["kind", "api_group", "name"]
+            default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "kind"
+            - type: "api_group"
+            - type: "generic"
+          field_separators:
+            - type: "kind_api_group"
+            - type: "kind"
       description:
         header: [["Description:", ["main", "infoheader"]]]
         path: "metadata#annotations#kubernetes.io/description"
@@ -197,9 +245,19 @@ infoview:
         type: "raw"
         formatter: "list"
   shortcuts:
-    "Allowed capabilities":
+    "Open controller":
       key: "c"
       modifier: "shift"
+      read_only: true
+      helptext: "Open info page for controller"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        namespace_path: "metadata#namespace"
+        owner_reference_path: "metadata#ownerReferences"
+    "Allowed capabilities":
+      key: "p"
       read_only: true
       helptext: "List allowed capabilities"
       widget: "windowwidget"

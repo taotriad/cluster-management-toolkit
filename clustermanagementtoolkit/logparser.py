@@ -180,7 +180,7 @@ def letter_to_severity(letter: str, **kwargs: Any) -> LogLevel:
         "I": LogLevel.INFO,
         "D": LogLevel.DEBUG,
     }
-    return severities.get(letter, default)
+    return deep_get(severities, DictPath(letter), default)
 
 
 # Used by Kiali and kubeshark
@@ -203,7 +203,7 @@ def str_3letter_to_severity(string: str, **kwargs: Any) -> LogLevel:
         "DBG": LogLevel.DEBUG,
         "TRC": LogLevel.DEBUG,  # Most likely TRACE; no reason for different loglevel
     }
-    return severities.get(string.upper(), default)
+    return deep_get(severities, DictPath(string.upper()), default)
 
 
 def str_4letter_to_severity(string: str, **kwargs: Any) -> LogLevel:
@@ -229,7 +229,7 @@ def str_4letter_to_severity(string: str, **kwargs: Any) -> LogLevel:
         "DEBU": LogLevel.DEBUG,
         "DEBG": LogLevel.DEBUG,
     }
-    return severities.get(string.upper(), default)
+    return deep_get(severities, DictPath(string.upper()), default)
 
 
 def str_to_severity(string: str, **kwargs: Any) -> LogLevel:
@@ -269,7 +269,7 @@ def str_to_severity(string: str, **kwargs: Any) -> LogLevel:
         # but at least -2 seems to be Info.
         if severity == -2:
             return LogLevel.INFO
-    return severities.get(string.lower(), default)
+    return deep_get(severities, DictPath(string.lower()), default)
 
 
 def lvl_to_letter_severity(lvl: LogLevel) -> str:
@@ -281,7 +281,7 @@ def lvl_to_letter_severity(lvl: LogLevel) -> str:
         Returns:
             (str): The corresponding severity string
     """
-    severities = {
+    severities: dict[LogLevel, str] = {
         LogLevel.CRIT: "C",
         LogLevel.ERR: "E",
         LogLevel.WARNING: "W",
@@ -301,7 +301,7 @@ def lvl_to_4letter_severity(lvl: LogLevel) -> str:
         Returns:
             (str): The corresponding severity string
     """
-    severities = {
+    severities: dict[LogLevel, str] = {
         LogLevel.CRIT: "CRIT",
         LogLevel.ERR: "ERRO",
         LogLevel.WARNING: "WARN",
@@ -321,7 +321,7 @@ def lvl_to_word_severity(lvl: LogLevel) -> str:
         Returns:
             (str): The corresponding severity string
     """
-    severities = {
+    severities: dict[LogLevel, str] = {
         LogLevel.CRIT: "CRITICAL",
         LogLevel.ERR: "ERROR",
         LogLevel.WARNING: "WARNING",
@@ -348,7 +348,7 @@ def split_bracketed_severity(message: str, **kwargs: Any) -> tuple[str, LogLevel
     """
     default: LogLevel = deep_get(kwargs, DictPath("options#default"), LogLevel.DEFAULT)
 
-    severities = {
+    severities: dict[str, LogLevel] = {
         "[fatal]": LogLevel.CRIT,
         # This is for ingress-nginx;
         # normally (syslog) crit is more severe than alert,
@@ -372,7 +372,7 @@ def split_bracketed_severity(message: str, **kwargs: Any) -> tuple[str, LogLevel
     }
 
     if (re_tmp := re.match(r"^(\[[A-Za-z]+?\]) ?(.*)", message)) is not None:
-        if (severity := severities.get(re_tmp[1].lower())) is not None:
+        if (severity := deep_get(severities, DictPath(re_tmp[1].lower()))) is not None:
             message = re_tmp[2]
         else:
             severity = default
@@ -407,7 +407,7 @@ def split_colon_severity(message: str, **kwargs: Any) -> tuple[str, LogLevel]:
     }
 
     if (re_tmp := re.match(r"^([A-Za-z]+?:) ?(.*)", message)) is not None:
-        if (severity := severities.get(re_tmp[1].upper())) is not None:
+        if (severity := deep_get(severities, DictPath(re_tmp[1].upper()))) is not None:
             message = re_tmp[2]
         else:
             severity = default
@@ -1240,12 +1240,12 @@ def split_json_style(message: str, **kwargs: Any) \
         if LogparserConfiguration.msg_first:
             _d = {}
             for key in messages + errors:
-                value = logentry.get(key, None)
+                value = deep_get(logentry, DictPath(key), None)
                 if value is not None:
                     _d[key] = value
             for key in logentry:
                 if key not in messages + errors:
-                    value = logentry.get(key, "")
+                    value = deep_get(logentry, DictPath(key), "")
                     if value is not None:
                         _d[key] = value
             logentry = _d
@@ -3833,7 +3833,7 @@ def custom_splitter(message: str, **kwargs: Any) -> \
 
 
 # pylint: disable-next=too-many-locals,too-many-branches,too-many-statements
-def parsing_multiplexer(message: str, filters: list[str | tuple], **kwargs: Any) \
+def parsing_multiplexer(message: str, filters: list[tuple[str, dict]], **kwargs: Any) \
         -> tuple[str, LogLevel,
                  list[ThemeRef | ThemeStr] | tuple[str, Callable | None, dict],
                  list[tuple[list[ThemeRef | ThemeStr], LogLevel]]]:
@@ -3843,7 +3843,7 @@ def parsing_multiplexer(message: str, filters: list[str | tuple], **kwargs: Any)
 
         Parameters:
             message (str): The message to format
-            filters ([str | (str, Any)]): The list of parser rules to apply (and options)
+            filters ([(str, dict)]): The list of parser rules to apply (and options)
             **kwargs (dict[str, Any]): Keyword arguments
                 fold_msg (bool): Should the message be expanded or folded?
                 options (dict[str, Any]): Options to pass to the block parsers
@@ -4136,21 +4136,21 @@ def init_parser_list(force_reinit: bool = False) -> None:
         # pylint: disable-next=too-many-nested-blocks
         for parser_dict in dl:
             for parser in parser_dict:
-                parser_name = parser.get("name", "")
+                parser_name = deep_get(parser, DictPath("name"), "")
                 if not parser_name:
                     continue
-                show_in_selector = parser.get("show_in_selector", False)
+                show_in_selector = deep_get(parser, DictPath("show_in_selector"), False)
                 matchrules = []
-                for matchkey in parser.get("matchkeys"):
-                    pod_name = matchkey.get("pod_name", "")
-                    container_name = matchkey.get("container_name", "")
-                    image_name = matchkey.get("image_name", "")
-                    image_regex_raw = matchkey.get("image_regex", "")
+                for matchkey in deep_get(parser, DictPath("matchkeys")):
+                    pod_name = deep_get(matchkey, DictPath("pod_name"), "")
+                    container_name = deep_get(matchkey, DictPath("container_name"), "")
+                    image_name = deep_get(matchkey, DictPath("image_name"), "")
+                    image_regex_raw = deep_get(matchkey, DictPath("image_regex"), "")
                     if image_regex_raw:
                         image_regex = re.compile(image_regex_raw)
                     else:
                         image_regex = None
-                    container_type = matchkey.get("container_type", "container")
+                    container_type = deep_get(matchkey, DictPath("container_type"), "Container")
                     # We need at least one way of matching
                     if not pod_name and not container_name and not image_name:
                         continue
@@ -4160,13 +4160,13 @@ def init_parser_list(force_reinit: bool = False) -> None:
                 if not matchrules:
                     continue
 
-                parser_rules = parser.get("parser_rules")
-                if parser_rules is None or not parser_rules:
+                parser_rules = deep_get(parser, DictPath("parser_rules"))
+                if not parser_rules:
                     continue
 
                 rules = []
                 for rule in parser_rules:
-                    rule_name = rule.get("name")
+                    rule_name = deep_get(rule, DictPath("name"))
                     if rule_name in ("angle_bracketed_facility",
                                      "ansible_line",
                                      "bracketed_severity",
@@ -4249,10 +4249,10 @@ def init_parser_list(force_reinit: bool = False) -> None:
 
     # Fallback entries
     parsers.append(Parser(name="basic_8601_raw", show_in_selector=True,
-                          match=[("raw", "", "", "container", None)], rules=[]))
+                          match=[("raw", "", "", "Container", None)], rules=[]))
     # This should always be last
     parsers.append(Parser(name="basic_8601", show_in_selector=True,
-                          match=[("raw", "", "", "container", None)], rules=[("ts_8601", {})]))
+                          match=[("raw", "", "", "Container", None)], rules=[("ts_8601", {})]))
 
 
 def get_parser_list() -> set[Parser]:
@@ -4356,7 +4356,7 @@ def logparser_initialised(**kwargs: Any) \
 
 
 # pylint: disable-next=too-many-locals,too-many-branches,too-many-statements
-def logparser(pod_name: str, container_name: str, image_name: str, message: str, **kwargs: Any) \
+def logparser(**kwargs: Any) \
         -> tuple[datetime, str, LogLevel,
                  list[ThemeRef | ThemeStr] | tuple[str, Callable | None, dict],
                  list[tuple[list[ThemeRef | ThemeStr], LogLevel]],
@@ -4368,16 +4368,16 @@ def logparser(pod_name: str, container_name: str, image_name: str, message: str,
     and different versions of a pod to use different parsers
 
         Parameters:
-            pod_name (str): The name of the pod
-            container_name (str): The name of the container
-            image_name (str): The name of the image
-            message (str): A line to parse
             **kwargs (dict[str, Any]): Keyword arguments
+                pod_name (str): The name of the pod
+                container_name (str): The name of the container
+                image_name (str): The name of the image
+                message (str): A line to parse
                 fold_msg (bool): Should the message be folded (unmodified)
                                  or unfolded (expanded to multiple lines where possible)
                 override_parser (opaque): A reference to the parser rules
                                           to use instead of the autodetected parser
-                container_type (str): container or init_container
+                container_type (str): Container or InitContainer
                 line (int): The line number
         Returns:
             (datetime, str, LogLevel,
@@ -4394,9 +4394,13 @@ def logparser(pod_name: str, container_name: str, image_name: str, message: str,
                     (str): Name of the parser file used
                 (Parser): A reference to the parser rules that are used
     """
+    pod_name: str = deep_get(kwargs, DictPath("pod_name"), "raw")
+    container_name: str = deep_get(kwargs, DictPath("container_name"), "")
+    image_name: str = deep_get(kwargs, DictPath("image_name"), "")
+    message: str = deep_get(kwargs, DictPath("message"), "")
     fold_msg: bool = deep_get(kwargs, DictPath("fold_msg"), True)
     override_parser: Parser | None = deep_get(kwargs, DictPath("override_parser"))
-    container_type: str = deep_get(kwargs, DictPath("container_type"), "container")
+    container_type: str = deep_get(kwargs, DictPath("container_type"), "Container")
     line: int = deep_get(kwargs, DictPath("line"), 0)
     facility: str = ""
 
@@ -4480,7 +4484,7 @@ def logparser(pod_name: str, container_name: str, image_name: str, message: str,
         lparser = "<unknown format>"
         uparser = "basic_8601"
         parser = Parser(name="basic_8601", show_in_selector=True,
-                        match=[("raw", "", "", "container", None)], rules=[("ts_8601", {})])
+                        match=[("raw", "", "", "Container", None)], rules=[("ts_8601", {})])
         facility, severity, rmessage, remnants = \
             parsing_multiplexer(message, filters=parser.rules, fold_msg=fold_msg, options={})
 

@@ -259,9 +259,9 @@ def test_generator_value_mapper(verbose: bool = False) -> tuple[str, bool]:
         # (obj, field, expected_result, expected_exception)
         testdata: tuple = (
             (
-                type("InfoClass", (), {
+                {
                     "state": "Completed",
-                }),
+                },
                 "state",
                 9,
                 2,
@@ -376,33 +376,33 @@ def test_processor_timestamp(verbose: bool = False) -> tuple[str, bool]:
         # (obj, field, expected_result, expected_exception)
         testdata: tuple = (
             (
-                type("InfoClass", (), {
+                {
                     "completion_time": "2024-10-23T20:42:31Z",
-                }),
+                },
                 "completion_time",
                 "2024-10-23T20:42:31Z",
                 None,
             ),
             (
-                type("InfoClass", (), {
+                {
                     "completion_time": datetime(2024, 3, 17, 2, 23, 32, 342062),
-                }),
+                },
                 "completion_time",
                 "2024-03-17 02:23:32",
                 None,
             ),
             (
-                type("InfoClass", (), {
+                {
                     "completion_time": None,
-                }),
+                },
                 "completion_time",
                 "",
                 None,
             ),
             (
-                type("InfoClass", (), {
+                {
                     "completion_time": 42,
-                }),
+                },
                 "completion_time",
                 "42",
                 None,
@@ -450,7 +450,7 @@ def test_processor_timestamp_with_age(verbose: bool = False) -> tuple[str, bool]
         # (obj, field, formatting, expected_result, expected_exception)
         testdata: tuple = (
             (
-                type("InfoClass", (), {
+                {
                     "completion_time_with_age": (
                         "2024-10-23T20:42:31Z",
                         " (",
@@ -458,7 +458,7 @@ def test_processor_timestamp_with_age(verbose: bool = False) -> tuple[str, bool]
                         1087,
                         ")",
                     ),
-                }),
+                },
                 "completion_time_with_age",
                 {
                     "item_separator": ThemeRef("separators", "list", False),
@@ -483,7 +483,7 @@ def test_processor_timestamp_with_age(verbose: bool = False) -> tuple[str, bool]
                 None,
             ),
             (
-                type("InfoClass", (), {
+                {
                     "completion_time_with_age": (
                         "2024-10-23T20:42:31Z",
                         " (",
@@ -491,7 +491,7 @@ def test_processor_timestamp_with_age(verbose: bool = False) -> tuple[str, bool]
                         1087,
                         ")",
                     ),
-                }),
+                },
                 "completion_time_with_age",
                 {
                     "item_separator": ThemeRef("separators", "list", False),
@@ -510,12 +510,12 @@ def test_processor_timestamp_with_age(verbose: bool = False) -> tuple[str, bool]
                 ValueError,
             ),
             (
-                type("InfoClass", (), {
+                {
                     "completion_time_with_age": (
                         datetime(2024, 3, 17, 2, 23, 32, 342062),
                         "23d",
                     ),
-                }),
+                },
                 "completion_time_with_age",
                 {
                     "item_separator": ThemeRef("separators", "list", False),
@@ -540,12 +540,12 @@ def test_processor_timestamp_with_age(verbose: bool = False) -> tuple[str, bool]
                 None,
             ),
             (
-                type("InfoClass", (), {
+                {
                     "completion_time_with_age": (
                         None,
                         None,
                     ),
-                }),
+                },
                 "completion_time_with_age",
                 {
                     "item_separator": ThemeRef("separators", "list", False),
@@ -570,9 +570,9 @@ def test_processor_timestamp_with_age(verbose: bool = False) -> tuple[str, bool]
                 None,
             ),
             (
-                type("InfoClass", (), {
+                {
                     "completion_time_with_age": (),
-                }),
+                },
                 "completion_time_with_age",
                 {
                     "item_separator": ThemeRef("separators", "list", False),
@@ -640,14 +640,14 @@ def test_processor_list(verbose: bool = False) -> tuple[str, bool]:
         testdata: tuple = (
             # api_support not None
             (
-                type("InfoClass", (), {
+                {
                     'name': 'imagecaches.kubefledged.io',
                     'kind': 'ImageCache',
                     'api_group_crd': 'kubefledged.io',
                     'stored_versions': ['v1alpha2'],
                     'scope': 'Namespaced',
                     'api_support': ['Known'],
-                }),
+                },
                 "api_support",
                 ThemeRef("separators", "list"),
                 [ThemeRef("separators", "field")],
@@ -660,14 +660,14 @@ def test_processor_list(verbose: bool = False) -> tuple[str, bool]:
             ),
             # api_support has an empty element
             (
-                type("InfoClass", (), {
+                {
                     'name': 'imagecaches.kubefledged.io',
                     'kind': 'ImageCache',
                     'api_group_crd': 'kubefledged.io',
                     'stored_versions': ['v1alpha2'],
                     'scope': 'Namespaced',
                     'api_support': [''],
-                }),
+                },
                 "api_support",
                 ThemeRef("separators", "list"),
                 [ThemeRef("separators", "field")],
@@ -680,14 +680,14 @@ def test_processor_list(verbose: bool = False) -> tuple[str, bool]:
             ),
             # api_support has a tuple element
             (
-                type("InfoClass", (), {
+                {
                     'name': 'imagecaches.kubefledged.io',
                     'kind': 'ImageCache',
                     'api_group_crd': 'kubefledged.io',
                     'stored_versions': ['v1alpha2'],
                     'scope': 'Namespaced',
                     'api_support': [('Known', "foo")],
-                }),
+                },
                 "api_support",
                 ThemeRef("separators", "list"),
                 [ThemeRef("separators", "field")],
@@ -700,14 +700,14 @@ def test_processor_list(verbose: bool = False) -> tuple[str, bool]:
             ),
             # api_support is a tuple
             (
-                type("InfoClass", (), {
+                {
                     'name': 'imagecaches.kubefledged.io',
                     'kind': 'ImageCache',
                     'api_group_crd': 'kubefledged.io',
                     'stored_versions': ['v1alpha2'],
                     'scope': 'Namespaced',
                     'api_support': ('Known', "foo"),
-                }),
+                },
                 "api_support",
                 ThemeRef("separators", "list"),
                 [ThemeRef("separators", "field")],
@@ -720,14 +720,14 @@ def test_processor_list(verbose: bool = False) -> tuple[str, bool]:
             ),
             # api_support has multiple elements
             (
-                type("InfoClass", (), {
+                {
                     'name': 'imagecaches.kubefledged.io',
                     'kind': 'ImageCache',
                     'api_group_crd': 'kubefledged.io',
                     'stored_versions': ['v1alpha2'],
                     'scope': 'Namespaced',
                     'api_support': ['Known', 'List', 'Info'],
-                }),
+                },
                 "api_support",
                 ThemeRef("separators", "list"),
                 [ThemeRef("separators", "field")],
@@ -740,14 +740,14 @@ def test_processor_list(verbose: bool = False) -> tuple[str, bool]:
             ),
             # api_support has multiple elements, ellipsise at 2
             (
-                type("InfoClass", (), {
+                {
                     'name': 'imagecaches.kubefledged.io',
                     'kind': 'ImageCache',
                     'api_group_crd': 'kubefledged.io',
                     'stored_versions': ['v1alpha2'],
                     'scope': 'Namespaced',
                     'api_support': ['Known', 'List', 'Info'],
-                }),
+                },
                 "api_support",
                 ThemeRef("separators", "list"),
                 [ThemeRef("separators", "field")],
@@ -760,14 +760,14 @@ def test_processor_list(verbose: bool = False) -> tuple[str, bool]:
             ),
             # api_support has multiple elements, prefix, double-suffix (ThemeRef)
             (
-                type("InfoClass", (), {
+                {
                     'name': 'imagecaches.kubefledged.io',
                     'kind': 'ImageCache',
                     'api_group_crd': 'kubefledged.io',
                     'stored_versions': ['v1alpha2'],
                     'scope': 'Namespaced',
                     'api_support': ['Known', 'List'],
-                }),
+                },
                 "api_support",
                 ThemeRef("separators", "list"),
                 [ThemeRef("separators", "field")],
@@ -786,14 +786,14 @@ def test_processor_list(verbose: bool = False) -> tuple[str, bool]:
             ),
             # api_support has multiple elements, prefix, double-suffix ((str, str))
             (
-                type("InfoClass", (), {
+                {
                     'name': 'imagecaches.kubefledged.io',
                     'kind': 'ImageCache',
                     'api_group_crd': 'kubefledged.io',
                     'stored_versions': ['v1alpha2'],
                     'scope': 'Namespaced',
                     'api_support': ['Known', 'List'],
-                }),
+                },
                 "api_support",
                 ThemeRef("separators", "list"),
                 [ThemeRef("separators", "field")],
@@ -812,14 +812,14 @@ def test_processor_list(verbose: bool = False) -> tuple[str, bool]:
             ),
             # api_support is None
             (
-                type("InfoClass", (), {
+                {
                     'name': 'imagecaches.kubefledged.io',
                     'kind': 'ImageCache',
                     'api_group_crd': 'kubefledged.io',
                     'stored_versions': ['v1alpha2'],
                     'scope': 'Namespaced',
                     'api_support': None,
-                }),
+                },
                 "api_support",
                 ThemeRef("separators", "list"),
                 [ThemeRef("separators", "field")],
@@ -880,13 +880,13 @@ def test_processor_list_with_status(verbose: bool = False) -> tuple[str, bool]:
         testdata: tuple = (
             # endpoints not None
             (
-                type("InfoClass", (), {
+                {
                     'namespace': 'cert-manager',
                     'name': 'cert-manager',
                     'ports': [(None, None, None)],
                     'endpoints': [
                         ('10.0.0.97', StatusGroup.OK)],
-                }),
+                },
                 "endpoints",
                 ThemeRef("separators", "list"),
                 [ThemeRef("separators", "field")],
@@ -899,13 +899,13 @@ def test_processor_list_with_status(verbose: bool = False) -> tuple[str, bool]:
             ),
             # endpoints has an empty element
             (
-                type("InfoClass", (), {
+                {
                     'namespace': 'cert-manager',
                     'name': 'cert-manager',
                     'ports': [(None, None, None)],
                     'endpoints': [
                         ('', StatusGroup.OK)],
-                }),
+                },
                 "endpoints",
                 ThemeRef("separators", "list"),
                 [ThemeRef("separators", "field")],
@@ -918,13 +918,13 @@ def test_processor_list_with_status(verbose: bool = False) -> tuple[str, bool]:
             ),
             # endpoints is a tuple
             (
-                type("InfoClass", (), {
+                {
                     'namespace': 'cert-manager',
                     'name': 'cert-manager',
                     'ports': [(None, None, None)],
                     'endpoints': [
                         ('', StatusGroup.OK)],
-                }),
+                },
                 "endpoints",
                 ThemeRef("separators", "list"),
                 [ThemeRef("separators", "field")],
@@ -937,7 +937,7 @@ def test_processor_list_with_status(verbose: bool = False) -> tuple[str, bool]:
             ),
             # endpoints has multiple elements
             (
-                type("InfoClass", (), {
+                {
                     'namespace': 'cert-manager',
                     'name': 'cert-manager',
                     'ports': [(None, None, None)],
@@ -946,7 +946,7 @@ def test_processor_list_with_status(verbose: bool = False) -> tuple[str, bool]:
                         ('10.0.0.98', StatusGroup.OK),
                         ('10.0.0.99', StatusGroup.OK),
                         ('10.0.0.100', StatusGroup.OK)],
-                }),
+                },
                 "endpoints",
                 ThemeRef("separators", "list"),
                 [ThemeRef("separators", "field")],
@@ -965,7 +965,7 @@ def test_processor_list_with_status(verbose: bool = False) -> tuple[str, bool]:
             ),
             # endpoints has multiple elements, ellipsise at 2
             (
-                type("InfoClass", (), {
+                {
                     'namespace': 'cert-manager',
                     'name': 'cert-manager',
                     'ports': [(None, None, None)],
@@ -974,7 +974,7 @@ def test_processor_list_with_status(verbose: bool = False) -> tuple[str, bool]:
                         ('10.0.0.98', StatusGroup.OK),
                         ('10.0.0.99', StatusGroup.OK),
                         ('10.0.0.100', StatusGroup.OK)],
-                }),
+                },
                 "endpoints",
                 ThemeRef("separators", "list"),
                 [ThemeRef("separators", "field")],
@@ -991,14 +991,14 @@ def test_processor_list_with_status(verbose: bool = False) -> tuple[str, bool]:
             ),
             # endpoints has multiple elements, prefix, double-suffix ((str, str))
             (
-                type("InfoClass", (), {
+                {
                     'namespace': 'cert-manager',
                     'name': 'cert-manager',
                     'ports': [(None, None, None)],
                     'endpoints': [
                         ('10.0.0.97', StatusGroup.OK),
                         ('10.0.0.98', StatusGroup.OK)],
-                }),
+                },
                 "endpoints",
                 ThemeRef("separators", "list"),
                 [ThemeRef("separators", "field")],
@@ -1017,12 +1017,12 @@ def test_processor_list_with_status(verbose: bool = False) -> tuple[str, bool]:
             ),
             # endpoints is None
             (
-                type("InfoClass", (), {
+                {
                     'namespace': 'cert-manager',
                     'name': 'cert-manager',
                     'ports': [(None, None, None)],
                     'endpoints': None,
-                }),
+                },
                 "endpoints",
                 ThemeRef("separators", "list"),
                 [ThemeRef("separators", "field")],
@@ -1082,17 +1082,17 @@ def test_processor_age(verbose: bool = False) -> tuple[str, bool]:
         # (obj, field, expected_result, expected_exception)
         testdata: tuple = (
             (
-                type("InfoClass", (), {
+                {
                     "age": 328662,
-                }),
+                },
                 "age",
                 "3d19h",
                 None,
             ),
             (
-                type("InfoClass", (), {
+                {
                     "age": -200,
-                }),
+                },
                 "age",
                 "<clock skew detected>",
                 None,
@@ -1140,17 +1140,17 @@ def test_processor_mem(verbose: bool = False) -> tuple[str, bool]:
         # (obj, field, expected_result, expected_exception)
         testdata: tuple = (
             (
-                type("InfoClass", (), {
+                {
                     "mem": ["15985080Ki", "16087480Ki"],
-                }),
+                },
                 "mem",
                 "0.6% / 15.3GiB",
                 None,
             ),
             (
-                type("InfoClass", (), {
+                {
                     "mem": ["Foo", "Bar"],
-                }),
+                },
                 "mem",
                 None,
                 ValueError,

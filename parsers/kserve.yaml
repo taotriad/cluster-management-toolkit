@@ -14,7 +14,7 @@
   matchkeys:
     - image_name: "/kserve/sklearnserver"
     - image_name: "/kserve/storage-initializer"
-      container_type: "init_container"
+      container_type: "InitContainer"
   parser_rules:
     - name: "ts_8601"
     - name: "custom_splitter"

@@ -1,0 +1,95 @@
+apiVersion: v1
+items:
+- addressType: IPv4
+  apiVersion: discovery.k8s.io/v1
+  endpoints:
+  - addresses:
+    - 172.18.0.2
+    conditions:
+      ready: true
+  - addresses:
+    - 172.18.0.3
+    conditions:
+      ready: true
+  - addresses:
+    - 172.18.0.4
+    conditions:
+      ready: true
+  kind: EndpointSlice
+  metadata:
+    creationTimestamp: "2026-04-02T05:10:33Z"
+    generation: 3
+    labels:
+      kubernetes.io/service-name: kubernetes
+    name: kubernetes
+    namespace: default
+    resourceVersion: "553"
+    uid: 54903cc7-1938-459c-9c36-470103da3dff
+  ports:
+  - name: https
+    port: 6443
+    protocol: TCP
+- addressType: IPv4
+  apiVersion: discovery.k8s.io/v1
+  endpoints:
+  - addresses:
+    - 10.220.0.2
+    conditions:
+      ready: true
+      serving: true
+      terminating: false
+    nodeName: kind-ha-control-plane
+    targetRef:
+      kind: Pod
+      name: coredns-589f44dc88-h2sn6
+      namespace: kube-system
+      uid: f194fa52-a2c7-468b-ab0a-4a690e6d2e94
+  - addresses:
+    - 10.220.0.3
+    conditions:
+      ready: true
+      serving: true
+      terminating: false
+    nodeName: kind-ha-control-plane
+    targetRef:
+      kind: Pod
+      name: coredns-589f44dc88-mgl9q
+      namespace: kube-system
+      uid: 52c80a4b-6966-4e54-9161-be269e7e56a9
+  kind: EndpointSlice
+  metadata:
+    annotations:
+      endpoints.kubernetes.io/last-change-trigger-time: "2026-04-02T05:10:56Z"
+    creationTimestamp: "2026-04-02T05:10:39Z"
+    generateName: kube-dns-
+    generation: 4
+    labels:
+      endpointslice.kubernetes.io/managed-by: endpointslice-controller.k8s.io
+      k8s-app: kube-dns
+      kubernetes.io/cluster-service: "true"
+      kubernetes.io/name: CoreDNS
+      kubernetes.io/service-name: kube-dns
+    name: kube-dns-pp92l
+    namespace: kube-system
+    ownerReferences:
+    - apiVersion: v1
+      blockOwnerDeletion: true
+      controller: true
+      kind: Service
+      name: kube-dns
+      uid: 14de0fd7-afc4-4152-a7e1-913fa05e94e7
+    resourceVersion: "472"
+    uid: 3e4499dd-3aa7-4a6d-b25c-d468be3b480d
+  ports:
+  - name: dns
+    port: 53
+    protocol: UDP
+  - name: dns-tcp
+    port: 53
+    protocol: TCP
+  - name: metrics
+    port: 9153
+    protocol: TCP
+kind: List
+metadata:
+  resourceVersion: ""

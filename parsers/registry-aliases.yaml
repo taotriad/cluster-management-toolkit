@@ -4,7 +4,7 @@
   matchkeys:
     - pod_name: "registry-aliases"
       container_name: "update"
-      container_type: "init_container"
+      container_type: "InitContainer"
   parser_rules:
     - name: "diff_line"
       options:

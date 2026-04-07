@@ -527,9 +527,13 @@ check_theme_use: setup_tests
 		./tests/check_theme_use $$theme $(python_executables) clustermanagementtoolkit/*.py ;\
 	done
 
-build:
+build_templates:
 	./build.py views/templates views/variables views
+
+build_index:
 	./generate_resource_type_index.py views views/__resource_type_index.yaml
+
+build: build_templates build_index
 
 # This rule is used when making a system-wide install
 INSTALL := install --mode=755

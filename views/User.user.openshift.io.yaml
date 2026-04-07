@@ -23,7 +23,7 @@ listview:
       header: "UID:"
       path: "metadata#uid"
       type: "int"
-      formatter: "numerical"
+      formatter: "hex"
 infoview:
   name: "User Info"
   infopad:
@@ -48,7 +48,7 @@ infoview:
         header: [["UID:", ["main", "infoheader"]]]
         path: "metadata#uid"
         type: "int"
-        formatter: "numerical"
+        formatter: "hex"
   shortcuts:
     "Show Identity list":
       key: "i"

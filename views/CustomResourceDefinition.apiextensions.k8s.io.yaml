@@ -10,7 +10,7 @@ listview:
   group: "API & Extendability"
   field_indexes:
     Wide:
-      fields: ["name", "kind", "api_group_crd", "stored_versions",
+      fields: ["name", "controller", "kind", "api_group_crd", "stored_versions",
                "scope", "created_at", "api_support"]
       sortcolumn: "api_group_crd"
     Normal:
@@ -25,6 +25,29 @@ listview:
       header: "API-Group:"
       path: "spec#group"
       type: "str"
+    controller:
+      header: "Controller:"
+      paths:
+        - path: "metadata#ownerReferences"
+          pathtype: "items"
+          subpaths:
+            - "kind"
+            - "apiVersion"
+            - "name"
+          when:
+            - key: "controller"
+              eq: true
+          type: ["kind", "api_group", "name"]
+          default: ["<none>"]
+      formatter: "list"
+      formatting:
+        field_colors:
+          - type: "kind"
+          - type: "api_group"
+          - type: "generic"
+        field_separators:
+          - type: "kind_api_group"
+          - type: "kind"
     created_at:
       header: "Created At:"
       paths:
@@ -78,8 +101,9 @@ infoview:
   infopad:
     row_indexes:
       Normal:
-        fields: ["kind", "list_kind", "api_group", "singular", "plural",
-                 "short_names", "scope", "stored_versions"]
+        fields: ["controller", "kind", "list_kind", "api_group",
+                 "singular", "plural", "short_names",
+                 "scope", "stored_versions"]
     rows:
       api_group:
         header: [["API-Group:", ["main", "infoheader"]]]
@@ -88,6 +112,30 @@ infoview:
         formatting:
           field_colors:
             - type: "api_group"
+      controller:
+        header: [["C", ["main", "infoheader_shortcut"]],
+                 ["ontroller:", ["main", "infoheader"]]]
+        paths:
+          - path: "metadata#ownerReferences"
+            pathtype: "items"
+            subpaths:
+              - "kind"
+              - "apiVersion"
+              - "name"
+            when:
+              - key: "controller"
+                eq: true
+            type: ["kind", "api_group", "name"]
+            default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "kind"
+            - type: "api_group"
+            - type: "generic"
+          field_separators:
+            - type: "kind_api_group"
+            - type: "kind"
       kind:
         header: [["K", ["main", "infoheader_shortcut"]],
                  ["ind:", ["main", "infoheader"]]]
@@ -127,6 +175,17 @@ infoview:
           field_colors:
             - type: "version"
   shortcuts:
+    "Open controller":
+      key: "c"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for controller"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        namespace_path: "metadata#namespace"
+        owner_reference_path: "metadata#ownerReferences"
     "Open list view for kind":
       key: "k"
       modifier: "shift"

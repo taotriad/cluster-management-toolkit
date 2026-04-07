@@ -9,6 +9,9 @@ listview:
   name: "API Services"
   group: "API & Extendability"
   field_indexes:
+    Wide:
+      fields: ["name", "controller",
+               "api_service", "available", "age", "status_message"]
     Normal:
       fields: ["name", "api_service", "available", "age", "status_message"]
   fields:
@@ -52,6 +55,29 @@ listview:
               field_colors:
                 - context: "main"
                   type: "status_not_ok"
+    controller:
+      header: "Controller:"
+      paths:
+        - path: "metadata#ownerReferences"
+          pathtype: "items"
+          subpaths:
+            - "kind"
+            - "apiVersion"
+            - "name"
+          when:
+            - key: "controller"
+              eq: true
+          type: ["kind", "api_group", "name"]
+          default: ["<none>"]
+      formatter: "list"
+      formatting:
+        field_colors:
+          - type: "kind"
+          - type: "api_group"
+          - type: "generic"
+        field_separators:
+          - type: "kind_api_group"
+          - type: "kind"
     status_message:
       header: "Status:"
       paths:
@@ -80,7 +106,7 @@ infoview:
   infopad:
     row_indexes:
       Normal:
-        fields: ["version", "group", "api_version_priority",
+        fields: ["controller", "version", "group", "api_version_priority",
                  "group_priority_minimum", "insecure_skip_tls_verify",
                  "service", "available", "status_message"]
     rows:
@@ -111,6 +137,30 @@ infoview:
                 field_colors:
                   - context: "main"
                     type: "status_not_ok"
+      controller:
+        header: [["C", ["main", "infoheader_shortcut"]],
+                 ["ontroller:", ["main", "infoheader"]]]
+        paths:
+          - path: "metadata#ownerReferences"
+            pathtype: "items"
+            subpaths:
+              - "kind"
+              - "apiVersion"
+              - "name"
+            when:
+              - key: "controller"
+                eq: true
+            type: ["kind", "api_group", "name"]
+            default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "kind"
+            - type: "api_group"
+            - type: "generic"
+          field_separators:
+            - type: "kind_api_group"
+            - type: "kind"
       group:
         header: [["Group:", ["main", "infoheader"]]]
         path: "spec#group"
@@ -178,7 +228,7 @@ infoview:
         name_path: "spec#service#name"
         namespace_path: "spec#service#namespace"
     "View CA bundle":
-      key: "c"
+      key: "a"
       modifier: "shift"
       read_only: true
       helptext: "View CA bundle"
@@ -187,4 +237,15 @@ infoview:
       action_args:
         title: "CA bundle"
         _pass_obj: true
+    "Open controller":
+      key: "c"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for controller"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        namespace_path: "metadata#namespace"
+        owner_reference_path: "metadata#ownerReferences"
         path: "spec#caBundle"

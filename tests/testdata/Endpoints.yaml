@@ -1,0 +1,65 @@
+apiVersion: v1
+items:
+- apiVersion: v1
+  kind: Endpoints
+  metadata:
+    creationTimestamp: "2026-04-02T05:10:33Z"
+    labels:
+      endpointslice.kubernetes.io/skip-mirror: "true"
+    name: kubernetes
+    namespace: default
+    resourceVersion: "552"
+    uid: 903d93bd-5b50-42f5-b4ac-32f1a8791c89
+  subsets:
+  - addresses:
+    - ip: 172.18.0.2
+    - ip: 172.18.0.3
+    - ip: 172.18.0.4
+    ports:
+    - name: https
+      port: 6443
+      protocol: TCP
+- apiVersion: v1
+  kind: Endpoints
+  metadata:
+    annotations:
+      endpoints.kubernetes.io/last-change-trigger-time: "2026-04-02T05:10:56Z"
+    creationTimestamp: "2026-04-02T05:10:40Z"
+    labels:
+      endpoints.kubernetes.io/managed-by: endpoint-controller
+      k8s-app: kube-dns
+      kubernetes.io/cluster-service: "true"
+      kubernetes.io/name: CoreDNS
+    name: kube-dns
+    namespace: kube-system
+    resourceVersion: "473"
+    uid: b3e64bf8-d50c-4c12-a7d8-e24456792060
+  subsets:
+  - addresses:
+    - ip: 10.220.0.2
+      nodeName: kind-ha-control-plane
+      targetRef:
+        kind: Pod
+        name: coredns-589f44dc88-h2sn6
+        namespace: kube-system
+        uid: f194fa52-a2c7-468b-ab0a-4a690e6d2e94
+    - ip: 10.220.0.3
+      nodeName: kind-ha-control-plane
+      targetRef:
+        kind: Pod
+        name: coredns-589f44dc88-mgl9q
+        namespace: kube-system
+        uid: 52c80a4b-6966-4e54-9161-be269e7e56a9
+    ports:
+    - name: metrics
+      port: 9153
+      protocol: TCP
+    - name: dns-tcp
+      port: 53
+      protocol: TCP
+    - name: dns
+      port: 53
+      protocol: UDP
+kind: List
+metadata:
+  resourceVersion: ""

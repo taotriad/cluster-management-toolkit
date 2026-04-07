@@ -3,13 +3,13 @@
   show_in_selector: false
   matchkeys:
     - container_name: "install-cni"
-      container_type: "init_container"
+      container_type: "InitContainer"
       image_name: "/calico/cni"
     - container_name: "install-cni"
-      container_type: "init_container"
+      container_type: "InitContainer"
       image_name: "/fury/calico/cni"
     - container_name: "install-cni"
-      container_type: "init_container"
+      container_type: "InitContainer"
       image_name: "/rancher/hardened-calico"
   parser_rules:
     - name: "ts_8601"
@@ -63,13 +63,13 @@
     - container_name: "calico-kube-controllers"
     - container_name: "calico-typha"
     - container_name: "upgrade-ipam"
-      container_type: "init_container"
+      container_type: "InitContainer"
       image_name: "/calico/cni"
     - container_name: "upgrade-ipam"
-      container_type: "init_container"
+      container_type: "InitContainer"
       image_name: "/fury/calico/cni"
     - container_name: "mount-bpffs"
-      container_type: "init_container"
+      container_type: "InitContainer"
   parser_rules:
     - name: "glog"
     - name: "ts_8601"

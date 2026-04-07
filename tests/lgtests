@@ -1630,10 +1630,7 @@ def test_get_kubernetes_list(verbose: bool = False) -> tuple[str, bool]:
                     if isinstance(status, list) and status and extra_data:
                         found = True
                         break
-                    if isinstance(item, type):
-                        value = getattr(item, expected_path)
-                    else:
-                        value = deep_get(item, DictPath(expected_path), "")
+                    value = deep_get(item, DictPath(expected_path), "")
                     if expected_value in value:
                         found = True
                         break

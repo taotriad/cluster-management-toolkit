@@ -23,3 +23,10 @@ infoview:
   logpad:
     infogetter: "get_task_log"
     timestamps: false
+  shortcuts:
+    # This is a non-Kubernetes resource,
+    # so no events, no last applied configuration,
+    # and no owner references.
+    "Show Events": null
+    "Last Applied Configuration": null
+    "Owner References": null

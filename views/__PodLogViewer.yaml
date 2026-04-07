@@ -14,17 +14,17 @@ listview:
   labels: null
   field_indexes:
     Normal:
-      fields: ["namespace", "name", "container", "status",
-               "node_name", "image_id"]
+      fields: ["namespace", "name", "type", "container", "status",
+               "node_name", "image"]
       sortcolumn: "namespace"
   fields:
     container:
       header: "Container:"
       path: "container"
       type: "str"
-    image_id:
+    image:
       header: "Image:"
-      path: "image_id"
+      path: "image"
       type: "str"
     name:
       header: "Pod Name:"
@@ -49,12 +49,31 @@ listview:
       header: "Status:"
       datagetter: "datagetter_container_status"
       generator: "generator_status"
+    type:
+      header: "Type:"
+      path: "container_type"
+      type: "str"
+      formatting:
+        field_colors:
+          - type: "kind"
   actions:
     actionlist:
       "View Logs":
         description: "View logs for tagged resources interleaved"
         actionfunc: "action_view_pod_logs"
   shortcuts:
+    "Open Pod":
+      key: "p"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info for selected Pod"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_selected: true
+        namespace_path: "namespace"
+        name_path: "name"
+        kind: "Pod"
     "View Log":
       key: "enter"
       read_only: true

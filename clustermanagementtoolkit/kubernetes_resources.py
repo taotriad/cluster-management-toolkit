@@ -153,12 +153,14 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
     },
     # admissionregistration.k8s.io
     ("MutatingAdmissionPolicy", "admissionregistration.k8s.io"): {
-        "api_paths": ["apis/admissionregistration.k8s.io/v1alpha1/"],
+        "api_paths": ["apis/admissionregistration.k8s.io/v1/",
+                      "apis/admissionregistration.k8s.io/v1alpha1/"],
         "api": "mutatingadmissionpolicies",
         "namespaced": False,
     },
     ("MutatingAdmissionPolicyBinding", "admissionregistration.k8s.io"): {
-        "api_paths": ["apis/admissionregistration.k8s.io/v1alpha1/"],
+        "api_paths": ["apis/admissionregistration.k8s.io/v1/",
+                      "apis/admissionregistration.k8s.io/v1alpha1/"],
         "api": "mutatingadmissionpolicybindings",
         "namespaced": False,
     },
@@ -327,20 +329,20 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
     },
     # groupsnapshot.storage.k8s.io
     ("VolumeGroupSnapshotClass", "groupsnapshot.storage.k8s.io"): {
-        "api_paths": ["apis/groupsnapshot.storage.k8s.io/v1beta1/",
-                      "apis/groupsnapshot.storage.k8s.io/v1alpha1/"],
+        "api_paths": ["apis/groupsnapshot.storage.k8s.io/v1beta2/",
+                      "apis/groupsnapshot.storage.k8s.io/v1beta1/"],
         "api": "volumegroupsnapshotclasses",
         "namespaced": False,
     },
     ("VolumeGroupSnapshotContent", "groupsnapshot.storage.k8s.io"): {
-        "api_paths": ["apis/groupsnapshot.storage.k8s.io/v1beta1/",
-                      "apis/groupsnapshot.storage.k8s.io/v1alpha1/"],
+        "api_paths": ["apis/groupsnapshot.storage.k8s.io/v1beta2/",
+                      "apis/groupsnapshot.storage.k8s.io/v1beta1/"],
         "api": "volumegroupsnapshotcontents",
         "namespaced": False,
     },
     ("VolumeGroupSnapshot", "groupsnapshot.storage.k8s.io"): {
-        "api_paths": ["apis/groupsnapshot.storage.k8s.io/v1beta1/",
-                      "apis/groupsnapshot.storage.k8s.io/v1alpha1/"],
+        "api_paths": ["apis/groupsnapshot.storage.k8s.io/v1beta2/",
+                      "apis/groupsnapshot.storage.k8s.io/v1beta1/"],
         "api": "volumegroupsnapshots",
     },
     # internal.apiserver.k8s.io
@@ -1610,6 +1612,11 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api_paths": ["apis/authorization.openshift.io/v1/"],
         "api": "rolebindingrestrictions",
     },
+    # autoops.k8s.elastic.co
+    ("AutoOpsAgentPolicy", "autoops.k8s.elastic.co"): {
+        "api_paths": ["apis/autoops.k8s.elastic.co/v1alpha1/"],
+        "api": "autoopsagentpolicies",
+    },
     # autopilot.k0sproject.io
     ("ControlNode", "autopilot.k0sproject.io"): {
         "api_paths": ["apis/autopilot.k0sproject.io/v1beta2/"],
@@ -1649,6 +1656,15 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
     ("PodAutoscaler", "autoscaling.internal.knative.dev"): {
         "api_paths": ["apis/autoscaling.internal.knative.dev/v1alpha1/"],
         "api": "podautoscalers",
+    },
+    # backup.kubevirt.io
+    ("VirtualMachineBackup", "backup.kubevirt.io"): {
+        "api_paths": ["apis/backup.kubevirt.io/v1alpha1/"],
+        "api": "virtualmachinebackups",
+    },
+    ("VirtualMachineBackupTracker", "backup.kubevirt.io"): {
+        "api_paths": ["apis/backup.kubevirt.io/v1alpha1/"],
+        "api": "virtualmachinebackuptrackers",
     },
     # batch.volcano.sh
     ("Job", "batch.volcano.sh"): {
@@ -5825,6 +5841,11 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api_paths": ["apis/operators.operatorframework.io/v1alpha1/"],
         "api": "operators",
         "namespaced": False,
+    },
+    # packageregistry.k8s.elastic.co
+    ("PackageRegistry", "packageregistry.k8s.elastic.co"): {
+        "api_paths": ["apis/packageregistry.k8s.elastic.co/v1alpha1/"],
+        "api": "packageregistries",
     },
     # packages.operators.coreos.com
     ("PackageManifest", "packages.operators.coreos.com"): {

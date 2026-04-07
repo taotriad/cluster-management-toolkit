@@ -1000,6 +1000,11 @@ clr.mgmnt.cattle:
   - Cluster
   - management.cattle.io
   viewfile: Cluster.management.cattle.io.yaml
+clr.openshift:
+  kind:
+  - ClusterRole
+  - authorization.openshift.io
+  viewfile: ClusterRole.authorization.openshift.io.yaml
 clra.mgmnt:
   kind:
   - ClusterAccess
@@ -1280,6 +1285,26 @@ clrrepos:
   - ClusterRepo
   - catalog.cattle.io
   viewfile: ClusterRepo.catalog.cattle.io.yaml
+clrrole:
+  kind:
+  - ClusterRole
+  - rbac.authorization.k8s.io
+  viewfile: ClusterRole.rbac.authorization.k8s.io.yaml
+clrrole.openshift:
+  kind:
+  - ClusterRole
+  - authorization.openshift.io
+  viewfile: ClusterRole.authorization.openshift.io.yaml
+clrroles:
+  kind:
+  - ClusterRole
+  - rbac.authorization.k8s.io
+  viewfile: ClusterRole.rbac.authorization.k8s.io.yaml
+clrroles.openshift:
+  kind:
+  - ClusterRole
+  - authorization.openshift.io
+  viewfile: ClusterRole.authorization.openshift.io.yaml
 clrroletemplatebinding.cattle:
   kind:
   - ClusterRoleTemplateBinding
@@ -5070,6 +5095,16 @@ osclrb:
   - ClusterRoleBinding
   - authorization.openshift.io
   viewfile: ClusterRoleBinding.authorization.openshift.io.yaml
+osclrrole:
+  kind:
+  - ClusterRole
+  - authorization.openshift.io
+  viewfile: ClusterRole.authorization.openshift.io.yaml
+osclrroles:
+  kind:
+  - ClusterRole
+  - authorization.openshift.io
+  viewfile: ClusterRole.authorization.openshift.io.yaml
 osclusterrole:
   kind:
   - ClusterRole
@@ -5980,11 +6015,21 @@ role.authorization.openshift.io:
   - Role
   - authorization.openshift.io
   viewfile: Role.authorization.openshift.io.yaml
+role.openshift:
+  kind:
+  - Role
+  - authorization.openshift.io
+  viewfile: Role.authorization.openshift.io.yaml
 rolebinding.authorization.openshift.io:
   kind:
   - RoleBinding
   - authorization.openshift.io
   viewfile: RoleBinding.authorization.openshift.io.yaml
+roles.openshift:
+  kind:
+  - Role
+  - authorization.openshift.io
+  viewfile: Role.authorization.openshift.io.yaml
 roletempl.cattle:
   kind:
   - RoleTemplate
@@ -6124,22 +6169,26 @@ secprofopd:
   kind:
   - SecurityProfilesOperatorDaemon
   - security-profiles-operator.x-k8s.io
-  viewfile: SecurityProfilesOperatorDaemon.security-profiles-operator.x-k8s.io.yaml
+  viewfile: 
+    SecurityProfilesOperatorDaemon.security-profiles-operator.x-k8s.io.yaml
 secprofopdaemon:
   kind:
   - SecurityProfilesOperatorDaemon
   - security-profiles-operator.x-k8s.io
-  viewfile: SecurityProfilesOperatorDaemon.security-profiles-operator.x-k8s.io.yaml
+  viewfile: 
+    SecurityProfilesOperatorDaemon.security-profiles-operator.x-k8s.io.yaml
 secprofopdaemons:
   kind:
   - SecurityProfilesOperatorDaemon
   - security-profiles-operator.x-k8s.io
-  viewfile: SecurityProfilesOperatorDaemon.security-profiles-operator.x-k8s.io.yaml
+  viewfile: 
+    SecurityProfilesOperatorDaemon.security-profiles-operator.x-k8s.io.yaml
 secprofopds:
   kind:
   - SecurityProfilesOperatorDaemon
   - security-profiles-operator.x-k8s.io
-  viewfile: SecurityProfilesOperatorDaemon.security-profiles-operator.x-k8s.io.yaml
+  viewfile: 
+    SecurityProfilesOperatorDaemon.security-profiles-operator.x-k8s.io.yaml
 secprovclass:
   kind:
   - SecretProviderClass
@@ -6539,12 +6588,14 @@ svccertsigneropconf:
   kind:
   - ServiceCertSignerOperatorConfig
   - servicecertsigner.config.openshift.io
-  viewfile: ServiceCertSignerOperatorConfig.servicecertsigner.config.openshift.io.yaml
+  viewfile: 
+    ServiceCertSignerOperatorConfig.servicecertsigner.config.openshift.io.yaml
 svccertsigneropconfs:
   kind:
   - ServiceCertSignerOperatorConfig
   - servicecertsigner.config.openshift.io
-  viewfile: ServiceCertSignerOperatorConfig.servicecertsigner.config.openshift.io.yaml
+  viewfile: 
+    ServiceCertSignerOperatorConfig.servicecertsigner.config.openshift.io.yaml
 svccidr:
   kind:
   - ServiceCIDR

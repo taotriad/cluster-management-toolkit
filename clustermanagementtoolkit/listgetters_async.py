@@ -80,12 +80,12 @@ def get_kubernetes_list(*args: Any,
                           key=lambda x: deep_get(x, DictPath(sort_key), ""), reverse=sort_reverse)
     if postprocess == "node":
         vlist = infogetters.get_node_info(**{"vlist": vlist})
-        extra_data = [s.status_group for s in vlist]
+        extra_data = [deep_get(s, DictPath("status_group")) for s in vlist]
     elif postprocess == "pod":
         vlist = infogetters.get_pod_info(**{"vlist": vlist,
                                             "in_depth_node_status": False,
                                             "kubernetes_helper": kh})
-        extra_data = [s.status_group for s in vlist]
+        extra_data = [deep_get(s, DictPath("status_group")) for s in vlist]
     elif callable(postprocessor) or postprocessor in listgetter_postprocessors:
         if not callable(postprocessor):
             postprocessor = listgetter_postprocessors[postprocessor]

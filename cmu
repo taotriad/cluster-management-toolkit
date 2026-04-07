@@ -49,7 +49,7 @@ import subprocess  # nosec
 from subprocess import PIPE, STDOUT  # nosec
 import sys
 from types import FrameType
-from typing import Any, cast, Type
+from typing import Any, cast
 from collections.abc import Callable
 
 try:
@@ -120,6 +120,10 @@ from clustermanagementtoolkit.cmtlib import split_msg, versiontuple, read_cmtcon
 from clustermanagementtoolkit.cmtlib import check_allowlist
 
 from clustermanagementtoolkit import curses_helper
+
+from clustermanagementtoolkit.curses_helper import clear_tagged_items, tag_item, untag_item
+from clustermanagementtoolkit.curses_helper import in_tagged_items, get_tagged_items
+from clustermanagementtoolkit.curses_helper import get_tagged_objects
 
 from clustermanagementtoolkit.curses_helper import CursesConfiguration, color_log_severity
 from clustermanagementtoolkit.curses_helper import format_helptext, get_mousemask
@@ -282,7 +286,7 @@ def gather_cluster_info(**kwargs: Any) -> None:
     join_token = kh_.get_join_token()
     ca_cert_hash = kh_.get_ca_cert_hash()
     control_plane_ip, control_plane_port, control_plane_path = kh_.get_control_plane_address()
-    _control_plane_node, control_plane_name = get_control_plane()
+    _control_plane_node, control_plane_name = get_control_planes()[0]
 
     # This is tricky: we get this from the distro packages;
     # since we cannot assume that we are running cmu on the [main] control plane
@@ -348,7 +352,7 @@ def format_timestamp(timestamp: datetime,
 
 
 # pylint: disable-next=too-many-locals
-def update_field_widths(field_dict: dict, field_names: list[str], objects: list[Type]) -> int:
+def update_field_widths(field_dict: dict, field_names: list[str], objects: list[dict]) -> int:
     """
     Process the fields for a line; calcute how wide each field should be,
     then return the total line length.
@@ -356,8 +360,7 @@ def update_field_widths(field_dict: dict, field_names: list[str], objects: list[
         Parameters:
             field_dict (dict): The dict containing the description of the field
             field_names ([str]): The names of the fields to populate
-            objects ([InfoClass]): An InfoClass object with the data
-                                   for all fields in the field_names list
+            objects ([dict]): A dict with the data for all fields in the field_names list
         Returns:
             (int): The total length of all the fields of a line
     """
@@ -404,7 +407,7 @@ def update_field_widths(field_dict: dict, field_names: list[str], objects: list[
                 else:
                     tmp = processor(obj, field_name)
             else:
-                tmp = getattr(obj, field_name)
+                tmp = deep_get(obj, DictPath(field_name))
 
             tmplen = max(len(str(tmp)), field_dict[field_name].get("fieldlen", 0))
 
@@ -530,35 +533,35 @@ def get_pod_log_by_name_namespace_container(name: str, namespace: str, container
 
 
 # To make the failure case easier, return both the ref and the name of the control plane
-def get_control_plane() -> tuple[dict[str, Any], str]:
+def get_control_planes() -> list[tuple[dict[str, Any], str]]:
     """
-    Return the name and object reference to the control plane.
-    FIXME: This does not support multiple control planes.
+    Returns name and object for all control planes.
 
         Returns:
-            ((dict[str, Any], str)):
-                (dict[str, Any]): The object reference of the control plane
+            ([(dict[str, Any], str)]): A list of control planes
+                (dict[str, Any]): The object for the control plane
                 (str): The name of the control plane
     """
     if not kubernetes_support:
-        return {}, ""
+        return [({}, "")]
 
     vlist, status = kh.get_list_by_kind_namespace(("Node", ""), "", resource_cache=kh_cache)
     control_planes = []
 
     if vlist is None or not vlist or status != 200:
-        return {}, ""
+        return [({}, "")]
 
     # Find control planes; but for now only return the first match
     for obj in vlist:
         labels = deep_get(obj, DictPath("metadata#labels"), {})
         if "node-role.kubernetes.io/control-plane" in labels \
                 or "node-role.kubernetes.io/master" in labels:
-            control_planes.append((obj, deep_get(obj, DictPath("metadata#name"))))
+            control_planes.append((copy.deepcopy(obj), deep_get(obj, DictPath("metadata#name"))))
 
     # If we have exactly one node, assume that it is the control plane even if it lacks that label
     if not control_planes and len(vlist) == 1:
-        control_planes.append((vlist[0], deep_get(vlist[0], DictPath("metadata#name"))))
+        control_planes.append((copy.deepcopy(vlist[0]),
+                               deep_get(vlist[0], DictPath("metadata#name"))))
 
     if not control_planes:
         ansithemeprint([ANSIThemeStr("Error", "warning"),
@@ -574,7 +577,7 @@ def get_control_plane() -> tuple[dict[str, Any], str]:
         for control_plane in control_planes:
             ansithemeprint([ANSIThemeStr(f"  {control_plane[1]}", "default")], stderr=True)
 
-    return control_planes[0][0], control_planes[0][1]
+    return control_planes
 
 
 # pylint: disable-next=unused-argument
@@ -591,12 +594,13 @@ def set_cluster_context(stdscr: curses.window, **kwargs: Any) -> Retval:
     """
     global force_refresh_apis  # pylint: disable=global-statement
 
-    selected: Type = deep_get(kwargs, DictPath("selected"))
+    selected: dict = deep_get(kwargs, DictPath("selected"))
+
     # If we don't have any contexts we won't be able to set the context.
-    if selected is None:
+    if not selected:
         return Retval.RETURNDONE
 
-    name: str = getattr(selected, "name")
+    name: str = deep_get(selected, DictPath("name"))
 
     # If we actually changed context we need to force an API reload,
     # since we might have changed between different clusters
@@ -706,7 +710,7 @@ def generate_list_header(uip: UIProps, field_dict: dict, is_taggable: bool = Fal
 
 
 # pylint: disable-next=too-many-arguments,too-many-locals,too-many-positional-arguments
-def generate_list_row(uip: UIProps, data: Type, field_dict: dict,
+def generate_list_row(uip: UIProps, data: dict, field_dict: dict,
                       ypos: int, is_selected: bool, is_taggable: bool = False,
                       is_tagged: bool = False, is_deleted: bool = False) -> None:
     """
@@ -714,7 +718,7 @@ def generate_list_row(uip: UIProps, data: Type, field_dict: dict,
 
         Parameters:
             uip (UIProps): A reference to the UI Properties object
-            data (Type): The data to generate a list row from
+            data (dict): The data to generate a list row from
             field_dict (dict[str, Any]): The dict containing the description of the field
             ypos (int): The list index
             is_selected (bool): Is the list item selected?
@@ -795,6 +799,8 @@ def genericlistloop(stdscr: curses.window, **kwargs: Any) -> Retval:
     global selected_namespace  # pylint: disable=global-statement
     global initial_name  # pylint: disable=global-statement
     global initial_namespace  # pylint: disable=global-statement
+
+    clear_tagged_items()
 
     # Just in case there are leftover futures from other views
     executor.shutdown()
@@ -916,7 +922,6 @@ def genericlistloop(stdscr: curses.window, **kwargs: Any) -> Retval:
 
     uip.last_action = datetime.now()
     uip.idle_timeout = 5
-    tagged_items: set[Type] = set()
     serverstatus: str = "ok"
 
     first_fetch: bool = True
@@ -1020,16 +1025,26 @@ def genericlistloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                         "name": host,
                         "ref": host,
                         "ips": [],
-                        "ansible_groups": ansible_get_groups_by_host(inventory_dict, host),
                         "status": "UNKNOWN",
+                        "metadata": {
+                            "uid": host,
+                        },
                         "__deleted": False,
                     })
-                # Tag hosts in vlist that are no longer part of hosts as deleted
+
+                # Update ansible groups, in case the groups have changed.
+                for i, d in enumerate(vlist):
+                    host = deep_get(d, DictPath("name"))
+                    vlist[i]["ansible_groups"] = ansible_get_groups_by_host(inventory_dict, host)
+
+                # Tag hosts in vlist that are no longer part of hosts as deleted.
                 for host in vlist_hosts_set - hosts_set:
                     for i, d in enumerate(vlist):
                         if deep_get(d, DictPath("name"), "") == host:
                             vlist[i]["status"] = "DELETED"
                             vlist[i]["__deleted"] = True
+                        vlist[i]["ansible_groups"] = \
+                            ansible_get_groups_by_host(inventory_dict, host)
                 infogetter_extra_args["_vlist"] = copy.deepcopy(vlist)
                 if not uip.listlen:
                     uip.force_update()
@@ -1088,7 +1103,7 @@ def genericlistloop(stdscr: curses.window, **kwargs: Any) -> Retval:
             # We need to generate the list info even if the list is empty,
             # otherwise we'll crash elsewhere
             if not uip.listlen and first_fetch \
-                    or new_data == "pending" and (uip.update_forced or not tagged_items):
+                    or new_data == "pending" and (uip.update_forced or not get_tagged_items()):
                 if "kubernetes_helper" not in infogetter_extra_args:
                     infogetter_extra_args["kubernetes_helper"] = kh
                 if "kh_cache" not in infogetter_extra_args:
@@ -1097,7 +1112,6 @@ def genericlistloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                 uip.update_info(vinfo)
                 uip.force_update()
                 new_data = "true"
-                tagged_items = set()
                 uip.update_forced = False
         if uip.is_update_triggered():
             linelen = update_field_widths(field_dict, field_names, uip.info)
@@ -1205,8 +1219,8 @@ def genericlistloop(stdscr: curses.window, **kwargs: Any) -> Retval:
             for y in range(uip.yoffset,
                            min(uip.yoffset + uip.mincurypos + uip.maxcurypos + 1, uip.listlen)):
                 item = uip.sorted_list[y]
-                is_tagged = item in tagged_items
-                is_deleted = getattr(item, "__deleted", False)
+                is_tagged = in_tagged_items(item)
+                is_deleted = deep_get(item, DictPath("__deleted"), False)
                 generate_list_row(uip, item, field_dict, y - uip.yoffset,
                                   uip.is_selected(item), is_taggable=is_taggable,
                                   is_tagged=is_tagged, is_deleted=is_deleted)
@@ -1239,8 +1253,8 @@ def genericlistloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                     return Retval.RETURNDONE
 
                 if f_back_.f_code.co_name in ("setupui",):
-                    if tagged_items:
-                        tagged_items = set()
+                    if get_tagged_items():
+                        clear_tagged_items()
                         uip.list_needs_regeneration(True)
                 else:
                     return Retval.RETURNDONE
@@ -1460,13 +1474,10 @@ def genericlistloop(stdscr: curses.window, **kwargs: Any) -> Retval:
 
                 uip.force_update()
                 continue
-        elif c in (ord("w"), ord("A"), ord("N")):
-            if not is_namespaced:
-                continue
-
+        elif c in (ord("w"), ord("A"), ord("N")) and is_namespaced:
             if c == ord("w"):
                 if (selected := uip.get_selected()):
-                    selected_namespace = selected.namespace
+                    selected_namespace = deep_get(selected, DictPath("namespace"))
             elif c in (ord("A"), ord("N")):
                 all_ns = "<All>"
 
@@ -1528,7 +1539,7 @@ def genericlistloop(stdscr: curses.window, **kwargs: Any) -> Retval:
             infogetter_extra_args["_field_dict"] = field_dict
             uip.update_info([])
             update_field_widths(field_dict, field_names, uip.info)
-            tagged_items.clear()
+            clear_tagged_items()
             uip.reinit_window(field_dict=field_dict, sortcolumn=sortcolumn)
             uip.resize_listpad(width=-1)
             uip.refresh_all()
@@ -1542,11 +1553,11 @@ def genericlistloop(stdscr: curses.window, **kwargs: Any) -> Retval:
             selected = uip.get_selected()
 
             if selected:
-                if selected in tagged_items:
-                    tagged_items.discard(selected)
+                if in_tagged_items(selected):
+                    untag_item(selected)
                     uip.list_needs_regeneration(True)
                 else:
-                    tagged_items.add(selected)
+                    tag_item(selected)
                     uip.list_needs_regeneration(True)
                 # After we tag an item we advance the cursor (when possible);
                 # this way we can select multiple continuous items in a straight-forward manner
@@ -1561,18 +1572,15 @@ def genericlistloop(stdscr: curses.window, **kwargs: Any) -> Retval:
             # XXX: This should search the specified sortcolumn, not always in name
             for listitem in uip.sorted_list:
                 try:
-                    match_tmp = compiled_pattern.match(listitem.name)
+                    match_tmp = compiled_pattern.match(deep_get(listitem, DictPath("name")))
 
                     if match_tmp and match_tmp[0]:
-                        if listitem not in tagged_items:
-                            tagged_items.add(listitem)
+                        if not in_tagged_items(listitem):
+                            tag_item(listitem)
                             uip.list_needs_regeneration(True)
                 except re.error:
                     continue
         elif c == ord("") and is_taggable:
-            if not tagged_items:
-                continue
-
             # Untag by pattern
             untag_title = f"Untag “{(uip.sortcolumn).rstrip().lower()}“ matching: "
             if not (pattern := curses_helper.inputbox(uip.stdscr, title=untag_title)):
@@ -1582,26 +1590,28 @@ def genericlistloop(stdscr: curses.window, **kwargs: Any) -> Retval:
             # XXX: This should search the specified sortcolumn, not always in name
             for listitem in uip.sorted_list:
                 try:
-                    match_tmp = compiled_pattern.match(listitem.name)
+                    match_tmp = compiled_pattern.match(deep_get(listitem, DictPath("name")))
 
                     if match_tmp and match_tmp[0]:
-                        tagged_items.discard(listitem)
+                        untag_item(listitem)
                         uip.list_needs_regeneration(True)
                 except re.error:
                     continue
         elif c == ord("l") and is_taggable and vlist is not None and uip.listlen:
             # List the union of all labels of the tagged objects (if the objects support labels)
-            if not tagged_items:
+            if not get_tagged_items():
                 selected = uip.get_selected()
-                tagged_items.add(selected)
+                tag_item(selected)
                 uip.list_needs_regeneration(True)
             labellist = []
             labels = []
-            if "namespace" in deep_get(vlist[0], DictPath("metadata"), "") \
-                    and hasattr(item, "namespace"):
-                itemlist = [(item.namespace, item.name) for item in tagged_items]
+            if "namespace" in deep_get(vlist[0], DictPath("metadata"), "") and "namespace" in item:
+                itemlist = [(deep_get(item, DictPath("namespace"), ""),
+                             deep_get(item, DictPath("name")))
+                                for item in get_tagged_objects(uip.sorted_list)]
             else:
-                itemlist = [item.name for item in tagged_items]
+                itemlist = [deep_get(item, DictPath("name"))
+                                for item in get_tagged_objects(uip.sorted_list)]
 
             if not itemlist:
                 continue
@@ -1621,7 +1631,7 @@ def genericlistloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                     if (key, labelref[key]) not in labels:
                         labels.append((key, labelref[key]))
             if not labels:
-                tagged_items.clear()
+                clear_tagged_items()
                 uip.list_needs_regeneration(True)
                 continue
             for key_, value_ in cast(list[tuple[str, str]], natsorted(labels)):
@@ -1635,24 +1645,27 @@ def genericlistloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                                        uip.maxy // 2, uip.maxx // 2,
                                        labellist, headers=label_headers,
                                        cursor=False)
-            tagged_items.clear()
+            clear_tagged_items()
             uip.list_needs_regeneration(True)
             uip.refresh_all()
             curses.doupdate()
         elif c == ord("f") and is_taggable and vlist is not None and uip.listlen:
             # List the union of all labels of the tagged objects and create a label selector
             # from the choices made by the user (if the objects support labels)
-            if not tagged_items:
+            if not get_tagged_items:
                 selected = uip.get_selected()
-                tagged_items.add(selected)
+                tag_item(selected)
                 uip.list_needs_regeneration(True)
 
             labellist = []
             labels = []
-            if "namespace" in deep_get(vlist[0], DictPath("metadata"), ""):
-                itemlist = [(item.namespace, item.name) for item in tagged_items]
+            if "namespace" in deep_get(vlist[0], DictPath("metadata"), "") and "namespace" in item:
+                itemlist = [(deep_get(item, DictPath("namespace"), ""),
+                             deep_get(item, DictPath("name")))
+                                for item in get_tagged_objects(uip.sorted_list)]
             else:
-                itemlist = [item.name for item in tagged_items]
+                itemlist = [deep_get(item, DictPath("name"))
+                                for item in get_tagged_objects(uip.sorted_list)]
 
             if not itemlist:
                 continue
@@ -1691,7 +1704,7 @@ def genericlistloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                         selectors[label[0]] = label[1]
                 label_selector = make_label_selector(selectors)
                 uip.force_update()
-            tagged_items.clear()
+            clear_tagged_items()
             uip.update_info([])
             uip.force_update()
             if ".".join(kind) in executor:
@@ -1699,10 +1712,11 @@ def genericlistloop(stdscr: curses.window, **kwargs: Any) -> Retval:
             uip.update_window(update="false")
             uip.list_needs_regeneration(True)
             infogetter_extra_args["_vlist"] = []
-        elif c == ord("A") and view == "Inventory" and not tagged_items:
+        elif c == ord("A") and view == "Inventory" and not get_tagged_items():
             if not (selected := uip.get_selected()):
                 continue
             groups = ansible_get_groups(ANSIBLE_INVENTORY)
+            selected_name: str = deep_get(selected, DictPath("name"))
             inventory = ansible_get_inventory_dict()
 
             # These Ansible groups should not be possible to toggle on/off
@@ -1711,7 +1725,7 @@ def genericlistloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                     groups.remove(skip)
                 except (KeyError, ValueError):
                     pass
-            host_groups = ansible_get_groups_by_host(inventory, selected.name)
+            host_groups = ansible_get_groups_by_host(inventory, selected_name)
             grouplist = []
             preselection = set()
             for i, group in enumerate(groups):
@@ -1727,7 +1741,7 @@ def genericlistloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                 curses_helper.windowwidget(uip.stdscr, uip.maxy, uip.maxx,
                                            uip.maxy // 2, uip.maxx // 2, grouplist,
                                            headers=group_headers,
-                                           title=f"Toggle Ansible groups for {selected.name}:",
+                                           title=f"Toggle Ansible groups for {selected_name}:",
                                            cursor=True, taggable=True, preselection=preselection)
             new_groups = []
             for keep in ["all", "controlplane", "controlplanes", "master", "node", "nodes"]:
@@ -1742,13 +1756,14 @@ def genericlistloop(stdscr: curses.window, **kwargs: Any) -> Retval:
 
                 for group in add_groups:
                     retval = ansible_add_hosts(inventory=ANSIBLE_INVENTORY,
-                                               hosts=[selected.name], group=group, skip_all=False)
+                                               hosts=[selected_name], group=group, skip_all=False)
                 for group in remove_groups:
                     retval = ansible_remove_hosts(inventory=ANSIBLE_INVENTORY,
-                                                  hosts=[selected.name], group=group)
+                                                  hosts=[selected_name], group=group)
 
                 if add_groups or remove_groups:
                     uip.force_update()
+                    executor.retrigger("hosts")
             uip.refresh_all()
             curses.doupdate()
         elif c == ord("F") and is_taggable:
@@ -1758,7 +1773,7 @@ def genericlistloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                 uip.force_update()
                 uip.refresh_all()
                 curses.doupdate()
-                tagged_items.clear()
+                clear_tagged_items()
                 uip.update_info([])
                 uip.force_update()
                 if ".".join(kind) in executor:
@@ -1769,14 +1784,14 @@ def genericlistloop(stdscr: curses.window, **kwargs: Any) -> Retval:
         elif c == ord("L") and is_taggable:
             # List tagged items
             taggeditemlist = []
-            if not tagged_items:
+            if not get_tagged_items():
                 continue
             # XXX: Currently windowwidget cannot handle ThemeRefs
             bullet = str(ThemeRef("separators", "widgetbullet"))
-            for tagged_item in tagged_items:
+            for tagged_item in get_tagged_objects(uip.sorted_list):
                 taggeditemlist.append({
                     "lineattrs": WidgetLineAttrs.NORMAL,
-                    "columns": [[ThemeStr(f"{bullet}{tagged_item.name}",
+                    "columns": [[ThemeStr(f"{bullet}{deep_get(tagged_item, DictPath('name'))}",
                                           ThemeAttr("windowwidget", "default"))]],
                 })
             curses_helper.windowwidget(uip.stdscr, uip.maxy, uip.maxx, uip.maxy // 2, uip.maxx // 2,
@@ -1790,16 +1805,16 @@ def genericlistloop(stdscr: curses.window, **kwargs: Any) -> Retval:
             autoitem = False
             control_plane_selected = False
 
-            if not tagged_items:
+            if not get_tagged_items():
                 selected = uip.get_selected()
-                tagged_items.add(selected)
+                tag_item(selected)
                 uip.list_needs_regeneration(True)
                 autoitem = True
 
-            for item in tagged_items:
+            for item in get_tagged_objects(uip.sorted_list):
                 # XXX Once all infogetters have been fixed we do not need to check for <none>
-                if not hasattr(item, "name") \
-                        or not getattr(item, "name") or getattr(item, "name") == "<none>":
+                if not deep_get(item, DictPath("name")) \
+                        or deep_get(item, DictPath("name")) == "<none>":
                     errmsg = [
                         [("Kind ", "default"),
                          (f"{kind}", "argument"),
@@ -1812,24 +1827,27 @@ def genericlistloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                     cmtlog.log(LogLevel.WARNING, msg=unformatted_msg, messages=formatted_msg)
                     break
 
-                if hasattr(item, "roles"):
-                    if isinstance(item.roles, (list, tuple)):
-                        if ("control-plane", "") in item.roles:
+                roles = deep_get(item, DictPath("roles"))
+                if roles:
+                    if isinstance(roles, (list, tuple)):
+                        if ("control-plane", "") in roles:
                             control_plane_selected = True
-                        if ("<unknown>", "") in item.roles:
+                        if ("<unknown>", "") in roles:
                             cluster_available = False
                     else:
-                        if "control-plane" in item.roles:
+                        if "control-plane" in roles:
                             control_plane_selected = True
-                        if "<unknown>" in item.roles:
+                        if "<unknown>" in roles:
                             cluster_available = False
-                if hasattr(item, "namespace"):
-                    items.append((item.namespace, item.name))
+                name = deep_get(item, DictPath("name"), "")
+                if "namespace" in item:
+                    namespace = deep_get(item, DictPath("namespace"), "")
+                    items.append((namespace, name))
                 else:
-                    items.append(item.name)
+                    items.append(name)
 
             if not items:
-                tagged_items.clear()
+                clear_tagged_items()
                 uip.list_needs_regeneration(True)
                 continue
 
@@ -1867,7 +1885,7 @@ def genericlistloop(stdscr: curses.window, **kwargs: Any) -> Retval:
 
             if not actions:
                 if autoitem:
-                    tagged_items.clear()
+                    clear_tagged_items()
                     uip.list_needs_regeneration(True)
                 continue
 
@@ -2042,7 +2060,7 @@ def genericlistloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                                                          default=False):
                         continue
 
-                selection_vars["_tagged_items"] = list(tagged_items)
+                selection_vars["_tagged_items"] = get_tagged_objects(uip.sorted_list)
                 selection_vars["action_args"] = action_args
                 if action:
                     retval = actionfunc(uip=uip, items=items, action=actionlist[action],
@@ -2053,10 +2071,10 @@ def genericlistloop(stdscr: curses.window, **kwargs: Any) -> Retval:
 
                 uip.force_update()
                 uip.update_forced = True
-                tagged_items.clear()
+                clear_tagged_items()
                 uip.list_needs_regeneration(True)
                 continue
-            tagged_items.clear()
+            clear_tagged_items()
             uip.list_needs_regeneration(True)
 
         shortcuts = deep_get(viewref, DictPath("shortcuts"), {})
@@ -2109,9 +2127,10 @@ def genericlistloop(stdscr: curses.window, **kwargs: Any) -> Retval:
 
             action = deep_get(value, DictPath("action"), None)
             if action is not None:
+                ref = deep_get(selected, DictPath("ref"))
                 action_args = deep_get(value, DictPath("action_args"), {})
-                if "_pass_obj" in action_args and selected is not None:
-                    action_args["obj"] = selected.ref
+                if "_pass_obj" in action_args and selected:
+                    action_args["obj"] = ref
                 if "_pass_kind" in action_args:
                     action_args["kind"] = kind
                 if "_pass_selected" in action_args and selected is not None:
@@ -2133,12 +2152,12 @@ def genericlistloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                     title_name = ""
                     if "_name_path" in action_args:
                         title_name_path = deep_get(action_args, DictPath("_name_path"), "")
-                        title_name = deep_get(selected.ref, DictPath(title_name_path), "")
+                        title_name = deep_get(ref, DictPath(title_name_path), "")
                     elif "_name_tuple_paths" in action_args:
                         title_name_paths = deep_get(action_args, DictPath("_name_tuple_paths"), [])
-                        title_name = deep_get_str_tuple_paths(selected.ref, title_name_paths, "")
+                        title_name = deep_get_str_tuple_paths(ref, title_name_paths, "")
                     elif selected is not None:
-                        title_name = getattr(selected, "name", "")
+                        title_name = deep_get(selected, DictPath("name"), "")
                     if title_name:
                         title_name = f" ({title_name})"
                     action_args["named_title"] = f"{title}{title_name}"
@@ -2289,12 +2308,72 @@ def __open_reference(**kwargs: Any) -> tuple[Retval, dict]:
     return Retval.MATCH, {}
 
 
+# pylint: disable-next=too-many-locals
+def __list_control_planes(**kwargs: Any) -> tuple[Retval, dict]:
+    uip = deep_get(kwargs, DictPath("uip"))
+    nodeinfo = deep_get(kwargs, DictPath("nodeinfo"), [])
+
+    control_planes = []
+
+    for d in nodeinfo:
+        node = deep_get(d, DictPath("ref"))
+
+        is_control_plane: bool = False
+        labels: dict[str, Any] = deep_get(node, DictPath("metadata#labels"), {})
+
+        if deep_get(labels, DictPath("node-role.kubernetes.io/control-plane")) is not None \
+                or deep_get(labels, DictPath("node-role.kubernetes.io/master")) is not None:
+            is_control_plane = True
+        if not is_control_plane:
+            continue
+
+        nodename = deep_get(node, DictPath("metadata#name"), "")
+        addresses = deep_get(node, DictPath("status#addresses"), [])
+        hostname, iips, eips = infogetters.get_node_addresses(addresses)
+
+        iips_str = ".".join(iips)
+
+        if iips_str == "<none>":
+            iips_fmt = ThemeAttr("windowwidget", "dim")
+        else:
+            iips_fmt = ThemeAttr("windowwidget", "default")
+
+        eips_str = ".".join(eips)
+
+        if iips_str == "<none>":
+            eips_fmt = ThemeAttr("windowwidget", "dim")
+        else:
+            eips_fmt = ThemeAttr("windowwidget", "default")
+
+        control_planes.append({
+            "lineattrs": WidgetLineAttrs.NORMAL,
+            "columns": [[ThemeStr(f"{nodename}", ThemeAttr("windowwidget", "default"))],
+                        [ThemeStr(f"{hostname}", ThemeAttr("windowwidget", "default"))],
+                        [ThemeStr(iips_str, iips_fmt)],
+                        [ThemeStr(eips_str, eips_fmt)]],
+        })
+
+    if not control_planes:
+        return Retval.MATCH, {}
+
+    title = "Control Planes:"
+    headers = ["Node:", "Hostname:", "Internal IPs:", "External IPs:"]
+    curses_helper.windowwidget(uip.stdscr, uip.maxy, uip.maxx, uip.maxy // 2, uip.maxx // 2,
+                               control_planes, title=title, headers=headers, cursor=False)
+    return Retval.MATCH, {}
+
+
 def __fetch_package_versions(**kwargs: Any) -> tuple[Retval, dict]:
     uip = deep_get(kwargs, DictPath("uip"))
     hostname = deep_get(kwargs, DictPath("hostname"))
 
     _win = curses_helper.notice(uip.stdscr, message="Fetching package versions...")
-    _package_versions = get_package_versions(hostname)
+
+    try:
+        _package_versions = get_package_versions(hostname)
+    except ValueError:
+        _package_versions = []
+
     package_versions = []
     for package, version in _package_versions:
         if version == "N/A":
@@ -2329,6 +2408,13 @@ clusteroverview_shortcuts = {
         "Switch main view (recheck available API resources)",
         "Show information about the program",
     ],
+    "List Control Planes": {
+        "helptext": ("[Shift] + C", "Show list of Control Planes"),
+        "shortcut": [ord("C")],
+        "helpgroup": 2,
+        "action": "key_callback",
+        "action_call": __list_control_planes,
+    },
     "Open list page for Events": {
         "helptext": ("[Shift] + E", "Open list page for Events"),
         "shortcut": [ord("E")],
@@ -2574,11 +2660,27 @@ def clusteroverviewloop(stdscr: curses.window, **kwargs: Any) -> Retval:
     selected_pod: int = 0
 
     # Get control plane node
-    control_plane_node, control_plane_name = get_control_plane()
-    control_plane_addresses = deep_get(control_plane_node, DictPath("status#addresses"), [])
-    name, iips, eips = infogetters.get_node_addresses(control_plane_addresses)
+    control_planes = get_control_planes()
+    control_plane_names = [control_plane[1] for control_plane in control_planes]
+    control_plane_name = control_plane_names[0]
+    control_plane_objs = [control_plane[0] for control_plane in control_planes]
+
+    name: str = ""
+    iips: list[str] = []
+    eips: list[str] = []
 
     hostname: str = socket.gethostname()
+
+    for obj in control_plane_objs:
+        addresses = deep_get(obj, DictPath("status#addresses"), [])
+        name_, iips_, eips_ = infogetters.get_node_addresses(addresses)
+        if not eips or eips_ != ["<none>"]:
+            eips += eips_
+        if not iips or iips_ != ["<none>"]:
+            iips += iips_
+        if not name or name == hostname:
+            name = name_
+
     islocal: bool = hostname == name
 
     stat_regex: re.Pattern[str] = re.compile(r"^[A-Za-z]+ +(\d+) +(\d+) +(\d+) +(\d+) "
@@ -2777,11 +2879,14 @@ def clusteroverviewloop(stdscr: curses.window, **kwargs: Any) -> Retval:
         internal_ips_array = generators.format_list(iips, fieldlen=0, pad=False)
         external_ips_array = generators.format_list(eips, fieldlen=0, pad=False)
 
+        control_plane_list = \
+            generators.format_list(control_plane_names, fieldlen=0, pad=False)
+
         infoarrays: list[list[ThemeRef | ThemeStr]] = [
             [
-                ThemeStr("Control Plane: ", ThemeAttr("main", "infoheader")),
-                ThemeStr(f"{name}", ThemeAttr("types", "generic")),
-            ], [
+                ThemeStr("C", ThemeAttr("main", "infoheader_shortcut")),
+                ThemeStr("ontrol Planes: ", ThemeAttr("main", "infoheader")),
+            ] + control_plane_list, [
                 ThemeStr("Cluster Name: ", ThemeAttr("main", "infoheader")),
                 ThemeStr(f"{kh.cluster_name}", ThemeAttr("types", "generic")),
             ], [
@@ -2992,7 +3097,7 @@ def clusteroverviewloop(stdscr: curses.window, **kwargs: Any) -> Retval:
 
             taints: list[str] = []
             if nodeinfo:
-                taints = getattr(nodeinfo[selected_node], "taints", ["<none>"])
+                taints = deep_get(nodeinfo[selected_node], DictPath("taints"), ["<none>"])
             if not taints:
                 taints = ["<none>"]
             selectednodetaints = \
@@ -3006,9 +3111,9 @@ def clusteroverviewloop(stdscr: curses.window, **kwargs: Any) -> Retval:
             node_status_group = StatusGroup.UNKNOWN
 
             if nodeinfo:
-                node_name = nodeinfo[selected_node].name
-                node_status = nodeinfo[selected_node].status
-                node_status_group = nodeinfo[selected_node].status_group
+                node_name = deep_get(nodeinfo[selected_node], DictPath("name"))
+                node_status = deep_get(nodeinfo[selected_node], DictPath("status"))
+                node_status_group = deep_get(nodeinfo[selected_node], DictPath("status_group"))
 
             nodearrays: list[list[ThemeRef | ThemeStr]] = [
                 [
@@ -3051,11 +3156,11 @@ def clusteroverviewloop(stdscr: curses.window, **kwargs: Any) -> Retval:
             pod_status_group = StatusGroup.UNKNOWN
 
             if podinfo:
-                pod_name = podinfo[selected_pod].name
-                pod_namespace = podinfo[selected_pod].namespace
-                pod_node = podinfo[selected_pod].node
-                pod_status = podinfo[selected_pod].status
-                pod_status_group = podinfo[selected_pod].status_group
+                pod_name = deep_get(podinfo[selected_pod], DictPath("name"))
+                pod_namespace = deep_get(podinfo[selected_pod], DictPath("namespace"))
+                pod_node = deep_get(podinfo[selected_pod], DictPath("node"))
+                pod_status = deep_get(podinfo[selected_pod], DictPath("status"))
+                pod_status_group = deep_get(podinfo[selected_pod], DictPath("status_group"))
 
             podarrays: list[list[ThemeRef | ThemeStr]] = [
                 [
@@ -3126,14 +3231,14 @@ def clusteroverviewloop(stdscr: curses.window, **kwargs: Any) -> Retval:
         curses.doupdate()
 
         if podinfo and selected_heatmap == "Pod":
-            __node_name = podinfo[selected_pod].node
-            __pod_name = podinfo[selected_pod].name
-            __namespace = podinfo[selected_pod].namespace
+            __node_name = deep_get(podinfo[selected_pod], DictPath("node"))
+            __pod_name = deep_get(podinfo[selected_pod], DictPath("name"))
+            __namespace = deep_get(podinfo[selected_pod], DictPath("namespace"))
             __info = podinfo
             __selected = selected_pod
             heatmap_width = pod_heatmap_width
         elif nodeinfo and selected_heatmap == "Node":
-            __node_name = nodeinfo[selected_node].name
+            __node_name = deep_get(nodeinfo[selected_node], DictPath("name"))
             __namespace = None
             __pod_name = None
             __info = copy.deepcopy(nodeinfo)
@@ -3160,6 +3265,7 @@ def clusteroverviewloop(stdscr: curses.window, **kwargs: Any) -> Retval:
             "info": __info,
             "selected": __selected,
             "heatmap_width": heatmap_width,
+            "nodeinfo": nodeinfo,
         }
 
         retval, return_args = uip.generic_inputhandler(clusteroverview_shortcuts, **input_args)
@@ -3324,7 +3430,7 @@ def __update_cni(uip: UIProps, **kwargs: Any) -> Retval:
         update_cni(uip.stdscr, cni, cni_version, candidate_version)
     uip.refresh_all()
 
-    return Retval.MATCH
+    return Retval.MATCH, {}
 
 
 cniloop_shortcuts = {
@@ -3508,23 +3614,23 @@ def decode_and_view_data(stdscr: curses.window, **kwargs: Any) -> Retval:
             stdscr (curses.window): The curses window to operate on
             **kwargs (dict[str, Any]): Keyword arguments
                 obj (dict[str, Any]): An object to extract data from
-                selected (Info): An InfoClass object to extract data from
+                selected (dict): A dict to extract data from
                 path (str): The path into the obj
                 title (str): The title to use for the window
         Returns:
             (Retval): The return value
     """
     if "selected" in kwargs:
-        bvalue = kwargs["selected"].value
-        title = kwargs["selected"].key
-        bvtype = kwargs["selected"].vtype
+        bvalue = deep_get(kwargs, DictPath("selected#value"))
+        title = deep_get(kwargs, DictPath("selected#key"))
+        bvtype = deep_get(kwargs, DictPath("selected#vtype"))
         vtype, value = decode_value(bvalue)
         if bvalue == value:
             vtype = bvtype
-    elif "obj" in kwargs and hasattr(kwargs["obj"], "value"):
-        bvalue = kwargs["obj"].value
-        title = kwargs["obj"].key
-        bvtype = kwargs["obj"].vtype
+    elif "obj" in kwargs and "value" in kwargs["obj"]:
+        bvalue = deep_get(kwargs, DictPath("obj#value"))
+        title = deep_get(kwargs, DictPath("obj#key"))
+        bvtype = deep_get(kwargs, DictPath("obj#vtype"))
         vtype, value = decode_value(bvalue)
         if bvalue == value:
             vtype = bvtype
@@ -3534,13 +3640,6 @@ def decode_and_view_data(stdscr: curses.window, **kwargs: Any) -> Retval:
         bvalue = deep_get(obj, DictPath(path), "")
         title = deep_get(kwargs, DictPath("title"), "")
         vtype, value = decode_value(bvalue)
-    elif "obj" in kwargs and "value" in kwargs["obj"]:
-        bvalue = deep_get(kwargs, DictPath("obj#value"))
-        title = deep_get(kwargs, DictPath("obj#key"))
-        bvtype = deep_get(kwargs, DictPath("obj#vtype"))
-        vtype, value = decode_value(bvalue)
-        if bvalue == value:
-            vtype = bvtype
     else:
         return Retval.RETURNDONE
 
@@ -3667,7 +3766,7 @@ def export_data(stdscr: curses.window, **kwargs: Any) -> Retval:
 
     value = None
     if selected is not None:
-        value = getattr(selected, name_attr)
+        value = deep_get(selected, DictPath(name_attr))
     if obj is not None:
         if value is not None:
             value = deep_get(obj, DictPath(f"{base_path}#{value}"))
@@ -3851,6 +3950,8 @@ def genericinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
     """
     global initial_container  # pylint: disable=global-statement
     global executor  # pylint: disable=global-statement
+
+    clear_tagged_items()
 
     # Just in case there are leftover futures from other views
     executor.shutdown()
@@ -4491,7 +4592,6 @@ def genericinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                         facility_ext_suffix_len = \
                             len(ThemeRef("separators", "facility_extended_suffix"))
                         if not fac0.strip():
-
                             facility += [ThemeStr("".ljust(facility_prefix_len),
                                                   ThemeAttr("logview", "facility")),
                                          ThemeStr(fac0, ThemeAttr("logview", "facility")),
@@ -4605,38 +4705,38 @@ def genericinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                 for item in uip.info:
                     # If we are dealing with a config map we are interested in non-binary types
                     # If we are dealing with a pod we are interested in containers
-                    if hasattr(item, "type") \
-                            and item.type in ("[container]", "[init_container]", "[configmap]"):
-                        name = item.ref["name"]
-                        ikind = item.type
+                    ikind = deep_get(item, DictPath("type"))
+                    if ikind in ("[container]", "[init_container]", "[configmap]"):
+                        name = deep_get(item, DictPath("ref#name"))
                     elif view == ("ConfigMap", "") \
-                            and item.type in (rtype[0] for rtype in formatters.cmdata_format):
-                        name = item.data
+                            and ikind in (rtype[0] for rtype in formatters.cmdata_format):
+                        name = deep_get(item, DictPath("data"))
                         ikind = deep_get(viewref, DictPath("listpad#on_activation#kind"), "")
                         if isinstance(ikind, str):
                             iapi_family = \
                                 deep_get(viewref, DictPath("listpad#on_activation#api_family"), "")
                             ikind = guess_kind((ikind, iapi_family))
                     elif view == ("Secret", "") \
-                            and item.vtype in ("base64-utf-8", "base64-utf-8 [truncated]",
-                                               "string"):
-                        name = item.key
+                            and deep_get(item, DictPath("vtype")) in ("base64-utf-8",
+                                                                      "base64-utf-8 [truncated]",
+                                                                      "string"):
+                        name = deep_get(item, DictPath("key"))
                         ikind = ("Secret", "")
                     else:
                         continue
 
                     # If name is not set we skip
-                    if name is None:
+                    if not name:
                         continue
 
                     # If we have an exact match we do not care about partial matches
                     if name == initial_container:
                         if view == ("ConfigMap", ""):
-                            match = item.data
+                            match = deep_get(item, DictPath("data"))
                         elif view == ("Secret", ""):
                             match = item
                         else:
-                            match = item.ref
+                            match = deep_get(item, DictPath("ref"))
                         match_count = 1
                         break
 
@@ -4646,11 +4746,11 @@ def genericinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                         # If we get more than one partial match we ignore the partial matches.
                         if match_count == 0:
                             if view == ("ConfigMap", ""):
-                                match = item.data
+                                match = deep_get(item, DictPath("data"))
                             elif view == ("Secret", ""):
                                 match = item
                             else:
-                                match = item.ref
+                                match = deep_get(item, DictPath("ref"))
                         match_count += 1
 
                 initial_container = None
@@ -4802,7 +4902,7 @@ def genericinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                 if w_itemgetter_src == "selected":
                     selected = uip.get_selected()
                     if selected is not None:
-                        w_ref = getattr(selected, "ref", None)
+                        w_ref = deep_get(selected, "ref", None)
                         if w_ref is not None:
                             if "ref" in w_ref:
                                 w_items = w_itemgetter(w_ref["ref"], **w_itemgetter_args)
@@ -4894,7 +4994,7 @@ def genericinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                 elif "_pass_selected_obj" in w_args:
                     selected = uip.get_selected()
                     if selected is not None:
-                        w_args["obj"] = getattr(selected, "ref")
+                        w_args["obj"] = deep_get(selected, DictPath("ref"))
                 do_command(uip.stdscr, **w_args)
             elif widget == "executecommand":
                 selected = uip.get_selected()
@@ -4904,7 +5004,7 @@ def genericinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                     continue
                 w_ref = None
                 if selected is not None:
-                    w_ref = getattr(selected, "ref", None)
+                    w_ref = deep_get(selected, DictPath("ref"), None)
                 if w_kinds != ["<native>"] \
                         and [deep_get(w_ref, DictPath("kind"), ""),
                              deep_get(w_ref, DictPath("api_group"), "")] not in w_kinds \
@@ -4977,7 +5077,7 @@ def genericinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                 if "_pass_selected" in action_args and selected is not None:
                     action_args["selected"] = selected
                 if "_pass_selected_obj" in action_args and selected is not None:
-                    action_args["selected_obj"] = getattr(selected, "ref", None)
+                    action_args["selected_obj"] = deep_get(selected, DictPath("ref"), None)
                 if "_parent_kind_tuple_paths" in action_args and selected is not None:
                     parent_kind_path, parent_api_version_path = \
                         deep_get(action_args, DictPath("_parent_kind_tuple_paths"))
@@ -4998,7 +5098,7 @@ def genericinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                     title = deep_get(action_args, DictPath("title"), "")
                     title_name: str = ""
                     if selected is not None:
-                        ref = getattr(selected, "ref", None)
+                        ref = deep_get(selected, DictPath("ref"), None)
                     elif tmpselection is not None:
                         ref = tmpselection
                     if "_name_path" in action_args and ref is not None:
@@ -5008,7 +5108,7 @@ def genericinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                         title_name_paths = deep_get(action_args, DictPath("_name_tuple_paths"), [])
                         title_name = deep_get_str_tuple_paths(cast(dict, ref), title_name_paths, "")
                     elif selected is not None:
-                        title_name = getattr(selected, "name", "")
+                        title_name = deep_get(selected, DictPath("name"), "")
                     if title_name:
                         title_name = f" ({title_name})"
                     action_args["named_title"] = f"{title}{title_name}"
@@ -5312,6 +5412,7 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
     # pylint: disable-next=too-many-nested-blocks
     while True:
         if uip.is_update_triggered():
+            containerinfolist = []
             # When following the log we update the log continuously, but tail lines is limited to
             # the number of lines that fits on the screen, and cursor movements are disabled; as
             # soon as the user presses a key the log will stop scrolling and the whole log
@@ -5322,18 +5423,19 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
             if not multilog_containers:
                 pod_info = infogetters.get_pod_info(**{"vlist": [obj]}, kubernetes_helper=kh,
                                                     kh_cache=kh_cache)[0]
-                podname = pod_info.name
-                namespace = pod_info.namespace
+                podname = deep_get(pod_info, DictPath("name"))
+                namespace = deep_get(pod_info, DictPath("namespace"))
+                pod_info_ref = deep_get(pod_info, DictPath("ref"))
                 containername = deep_get(container, DictPath("name"))
 
                 if kind == ("InitContainer", ""):
                     src_statuses = \
-                        deep_get(pod_info.ref, DictPath("status#initContainerStatuses"), [])
-                    container_type = "init_container"
+                        deep_get(pod_info_ref, DictPath("status#initContainerStatuses"), [])
+                    container_type = "InitContainer"
                 else:
                     src_statuses = \
-                        deep_get(pod_info.ref, DictPath("status#containerStatuses"), [])
-                    container_type = "container"
+                        deep_get(pod_info_ref, DictPath("status#containerStatuses"), [])
+                    container_type = "Container"
                 container_status = None
                 for container_status in src_statuses:
                     if deep_get(container_status, DictPath("name")) == containername:
@@ -5357,15 +5459,33 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                                                             tail_lines=tail_lines)
                 splitmsg = split_msg(rawmsg)
             else:
-                container_type = "container"
+                container_type = "Container"
                 splitmsg = []
                 image_id = None
-                for namespace, podname, containername, image_id in multilog_containers_full:
+                for namespace, podname, container_type, \
+                        containername, image, image_id in multilog_containers_full:
+                    # Since we might need the containerinfo later to show the container list,
+                    # and since we're iterating all the info here anyway, let's populate that
+                    # information here instead of iterating the list again elsewhere.
+                    containerinfolist.append({
+                        "lineattrs": WidgetLineAttrs.NORMAL,
+                        "columns": [[ThemeStr(namespace, ThemeAttr("windowwidget", "default"))],
+                                    [ThemeStr(podname, ThemeAttr("windowwidget", "default"))],
+                                    [ThemeStr(container_type,
+                                              ThemeAttr("windowwidget", "default"))],
+                                    [ThemeStr(containername, ThemeAttr("windowwidget", "default"))],
+                                    [ThemeStr(image, ThemeAttr("windowwidget", "default"))],
+                                    [ThemeStr(image_id, ThemeAttr("windowwidget", "default"))]],
+                        "retval": (containername, image_id),
+                    })
                     if len(multilog_containers) == 1:
                         facility_extended = []
                     elif multilog_prefix == ["container"]:
                         facility_extended = [
                             ThemeRef("separators", "facility_extended_prefix"),
+                            ThemeStr(f"{container_type}",
+                                     ThemeAttr("types", "kind")),
+                            ThemeRef("separators", "kind"),
                             ThemeStr(f"{containername}",
                                      ThemeAttr("types", "facility_extended")),
                             ThemeRef("separators", "facility_extended_suffix"),
@@ -5377,6 +5497,9 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                             ThemeRef("separators", "facility_extended_prefix"),
                             ThemeStr(f"{podname}", ThemeAttr("types", "facility_extended")),
                             ThemeRef("separators", "container"),
+                            ThemeStr(f"{container_type}",
+                                     ThemeAttr("types", "kind")),
+                            ThemeRef("separators", "kind"),
                             ThemeStr(f"{containername}",
                                      ThemeAttr("types", "facility_extended")),
                             ThemeRef("separators", "facility_extended_suffix"),
@@ -5388,6 +5511,9 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                             ThemeRef("separators", "namespace"),
                             ThemeStr(f"{podname}", ThemeAttr("types", "facility_extended")),
                             ThemeRef("separators", "container"),
+                            ThemeStr(f"{container_type}",
+                                     ThemeAttr("types", "kind")),
+                            ThemeRef("separators", "kind"),
                             ThemeStr(f"{containername}",
                                      ThemeAttr("types", "facility_extended")),
                             ThemeRef("separators", "facility_extended_suffix"),
@@ -5402,7 +5528,7 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                     # (podname, containername, image, facility_extended) to each line,
                     # to allow the logparser to function without guessing
                     for line in split_msg(rawmsg):
-                        splitmsg.append((line, podname, containername, image_id, facility_extended))
+                        splitmsg.append((line, podname, containername, image, facility_extended))
                 splitmsg = cast(list[tuple[str, str, str, str, list[ThemeRef | ThemeStr]]],
                                 natsorted(splitmsg, key=itemgetter(0)))
 
@@ -5463,15 +5589,16 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                     line = _line
                 if internal_error:
                     timestamp_, facility, severity, message, remnants, parser, _parser = \
-                        logparser("internal_error", "", "", message=line,
+                        logparser(pod_name="internal_error", message=line,
                                   container_type=container_type, line=i)
                 elif raw_logs:
                     timestamp_, facility, severity, message, remnants, parser, _parser = \
-                        logparser("raw", "", "", message=line,
+                        logparser(pod_name="raw", message=line,
                                   container_type=container_type, line=i)
                 elif override_parser is not None or _parser is None or parser is None:
                     timestamp_, facility, severity, message, remnants, parser, _parser = \
-                        logparser(podname, containername, image, message=line, fold_msg=fold_msg,
+                        logparser(pod_name=podname, container_name=containername,
+                                  image_name=image, message=line, fold_msg=fold_msg,
                                   override_parser=override_parser,
                                   container_type=container_type, line=i)
                 else:
@@ -5654,9 +5781,9 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
             if not multilog_containers:
                 containertypearray = f" [Type: {kind[0]}]"
                 if kind == ("InitContainer", ""):
-                    src_statuses = deep_get(pod_info.ref, DictPath("status#initContainerStatuses"))
+                    src_statuses = deep_get(pod_info_ref, DictPath("status#initContainerStatuses"))
                 else:
-                    src_statuses = deep_get(pod_info.ref, DictPath("status#containerStatuses"))
+                    src_statuses = deep_get(pod_info_ref, DictPath("status#containerStatuses"))
 
                 if src_statuses is None or not src_statuses:
                     break
@@ -5668,7 +5795,8 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                 status, status_group, restarts, status_message, _age = \
                     datagetters.get_container_status(src_statuses, containername)
                 containerarray: list[ThemeRef | ThemeStr] = [
-                    ThemeStr("Container: ", ThemeAttr("main", "infoheader")),
+                    ThemeStr("C", ThemeAttr("main", "infoheader_shortcut")),
+                    ThemeStr("ontainer: ", ThemeAttr("main", "infoheader")),
                     ThemeStr(f"{containername}{containertypearray}", ThemeAttr("types", "generic"))
                 ]
                 statusarray: list[ThemeRef | ThemeStr] = [
@@ -5685,7 +5813,7 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                 ]
                 podarray: list[ThemeRef | ThemeStr] = [
                     ThemeStr("Pod: ", ThemeAttr("main", "infoheader")),
-                    ThemeStr(f"{pod_info.name}", ThemeAttr("types", "generic")),
+                    ThemeStr(f"{podname}", ThemeAttr("types", "generic")),
                 ]
                 containeridarray: list[ThemeRef | ThemeStr] = [
                     ThemeStr("Container ID: ", ThemeAttr("main", "infoheader")),
@@ -5702,8 +5830,7 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                 ]
                 image_id = deep_get(container_status, DictPath("imageID"))
                 imageidarray: list[ThemeRef | ThemeStr] = [
-                    ThemeStr("I", ThemeAttr("main", "infoheader_shortcut")),
-                    ThemeStr("mage ID: ", ThemeAttr("main", "infoheader")),
+                    ThemeStr("Image ID: ", ThemeAttr("main", "infoheader")),
                     ThemeStr(f"{image_id}", ThemeAttr("types", "generic")),
                 ]
                 uip.addthemearray(uip.infopad, containerarray, y=0, x=0)
@@ -5716,7 +5843,10 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
             else:
                 if len(multilog_containers) == 1:
                     containerarray = [
-                        ThemeStr("Container: ", ThemeAttr("main", "infoheader")),
+                        ThemeStr("C", ThemeAttr("main", "infoheader_shortcut")),
+                        ThemeStr("ontainer: ", ThemeAttr("main", "infoheader")),
+                        ThemeStr(f"{container_type}", ThemeAttr("types", "kind")),
+                        ThemeRef("separators", "kind"),
                         ThemeStr(f"{containername}", ThemeAttr("types", "generic")),
                     ]
                     podarray = [
@@ -5728,8 +5858,7 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                         ThemeStr(f"{namespace}", ThemeAttr("types", "namespace")),
                     ]
                     containeridarray = [
-                        ThemeStr("I", ThemeAttr("main", "infoheader_shortcut")),
-                        ThemeStr("mage ID: ", ThemeAttr("main", "infoheader")),
+                        ThemeStr("Image ID: ", ThemeAttr("main", "infoheader")),
                         ThemeStr(f"{image_id}", ThemeAttr("types", "generic")),
                     ]
                     uip.addthemearray(uip.infopad, podarray, y=1, x=0)
@@ -5737,18 +5866,21 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                     uip.addthemearray(uip.infopad, containeridarray, y=3, x=0)
                 else:
                     containerarray = [
-                        ThemeStr("Containers: ", ThemeAttr("main", "infoheader")),
+                        ThemeStr("C", ThemeAttr("main", "infoheader_shortcut")),
+                        ThemeStr("ontainers: ", ThemeAttr("main", "infoheader")),
                     ]
                     containerarray += \
                         generators.format_list(multilog_containers, fieldlen=0, pad=False,
                                                field_colors=[
                                                    ThemeAttr("types", "namespace"),
                                                    ThemeAttr("types", "generic"),
-                                                   ThemeAttr("types", "generic")
+                                                   ThemeAttr("types", "kind"),
+                                                   ThemeAttr("types", "generic"),
                                                ],
                                                field_separators=[
                                                    ThemeRef("separators", "namespace"),
-                                                   ThemeRef("separators", "container")
+                                                   ThemeRef("separators", "container"),
+                                                   ThemeRef("separators", "kind"),
                                                ],
                                                ellipsise=3)
                     if all_same_namespace:
@@ -6089,13 +6221,31 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
             uip.refresh_statusbar()
             curses.doupdate()
             uip.force_update()
-        elif c == ord("I"):
+        elif c == ord("C"):
+            retval = None
+            if multilog_containers and len(multilog_containers) > 1:
+                containerheaders: list[str] = ["Namespace:", "Pod:", "Type:", "Container:",
+                                               "Image:", "Image ID:"]
+                # List containers (and upon selection display
+                # information about the selected container)
+                tmpselection = curses_helper.windowwidget(uip.stdscr, uip.maxy, uip.maxx,
+                                                          uip.maxy // 2, uip.maxx // 2,
+                                                          containerinfolist,
+                                                          headers=containerheaders,
+                                                          title="Containers", cursor=True)
+                uip.refresh_all()
+                if not tmpselection:
+                    continue
+                containername, image_id = tmpselection
+
             # XXX: This is very inefficient
             _vlist = infogetters.get_container_info(kubernetes_helper=kh, kh_cache_=kh_cache)
-            retval = None
             for _obj in _vlist:
-                if _obj.name == containername and _obj.image_id == image_id:
-                    retval = resourceinfodispatch(stdscr, obj=_obj.ref, kind=("__Container", ""))
+                _obj_name = deep_get(_obj, DictPath("name"))
+                _obj_image_id = deep_get(_obj, DictPath("image_id"))
+                _obj_ref = deep_get(_obj, DictPath("ref"))
+                if _obj_name == containername and _obj_image_id == image_id:
+                    retval = resourceinfodispatch(stdscr, obj=_obj_ref, kind=("__Container", ""))
                     uip.force_update()
                     break
             if retval is not None and retval == Retval.RETURNFULL:
@@ -6180,12 +6330,12 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                                            uip.maxx // 2, option_list, title="Parser options",
                                            cursor=True, preselection=preselection, taggable=True)
             selection = None
-            if tmpselection:
+            if tmpselection is not None:
                 selection = tmpselection
             uip.refresh_all()
 
             # Some option changed, so we need to re-render the log
-            if selection and preselection != selection:
+            if selection is not None and preselection != selection:
                 # Perform the changes
                 modified_options = preselection.symmetric_difference(selection)
                 for i in modified_options:
@@ -6726,10 +6876,7 @@ def patch_object(stdscr: curses.window, **kwargs: Any) -> Retval:
     strategic_merge: bool = deep_get(kwargs, DictPath("args#strategic_merge"), False)
 
     for key_path, value_path in path_substitutions.items():
-        if isinstance(values, dict):
-            value: Any = deep_get(values, DictPath(value_path))
-        else:
-            value = getattr(values, value_path)
+        value: Any = deep_get(values, DictPath(value_path))
         deep_set(patch, DictPath(key_path), value, create_path=True)
 
     _message, _status = kh.patch_obj_by_kind_name_namespace(kind, name, namespace, patch,
@@ -6896,13 +7043,13 @@ def resourceinfodispatch_with_lookup(stdscr: curses.window, **kwargs: Any) -> Re
                 obj = {}
                 for key, attribute in deep_get(kwargs, DictPath("_selected_objs"), []).items():
                     if isinstance(attribute, list):
-                        tmp: Any = getattr(selected, attribute[0])
+                        tmp: Any = deep_get(selected, DictPath(attribute[0]))
                         if tmp is not None:
                             obj[key] = tmp[attribute[1]]
                         else:
                             obj[key] = None
                     else:
-                        obj[key] = getattr(selected, attribute)
+                        obj[key] = deep_get(selected, DictPath(attribute))
             else:
                 obj = selected
 
@@ -7457,21 +7604,25 @@ def view_pod_logs(stdscr: curses.window, **kwargs: Any) -> Retval:
                 selected (dict): The selected obj from a listpad
                 _tagged_items (list): A list of tagged items
     """
-    containers: list[tuple[str, str, str]] = []
-    containers_full: list[tuple[str, str, str, str]] = []
+    containers: list[tuple[str, str, str, str]] = []
+    containers_full: list[tuple[str, str, str, str, str, str]] = []
     items = deep_get(kwargs, DictPath("_tagged_items"), [])
     selected = deep_get(kwargs, DictPath("selected"))
     if selected is not None:
         items = [selected]
     namespaces = set()
     for obj in items:
-        namespace = getattr(obj, "namespace")
+        namespace = deep_get(obj, DictPath("namespace"))
         namespaces.add(namespace)
-        name = getattr(obj, "name")
-        container_name = getattr(obj, "container")
-        image_id = getattr(obj, "image_id")
-        containers.append((namespace, name, container_name))
-        containers_full.append((namespace, name, container_name, image_id))
+        name = deep_get(obj, DictPath("name"))
+        container_name = deep_get(obj, DictPath("container"))
+        image_id = deep_get(obj, DictPath("ref#image_id"))
+        image = deep_get(obj, DictPath("image"))
+        if image.startswith("sha256:"):
+            image = image_id
+        container_type = deep_get(obj, DictPath("type"))
+        containers.append((namespace, name, container_type, container_name))
+        containers_full.append((namespace, name, container_type, container_name, image, image_id))
 
     multilog_args: dict[str, Any] = {
         "multilog_containers": containers,
@@ -8602,7 +8753,7 @@ def ssh_to_host(stdscr: curses.window, **kwargs: Any) -> Retval:
         elif isinstance(selected, str):
             host = selected
         else:
-            ref = getattr(selected, "ref")
+            ref = deep_get(selected, DictPath("ref"))
             _kind = deep_get(ref, DictPath("kind"), "")
             _api_group = deep_get(ref, DictPath("api_group"), "")
             try:

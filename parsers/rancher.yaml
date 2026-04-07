@@ -36,7 +36,7 @@
     - image_name: "/rancher/fleet"
     - image_name: "/rancher/fleet-agent"
     - image_name: "/rancher/fleet-agent"
-      container_type: "init_container"
+      container_type: "InitContainer"
   parser_rules:
     - name: "glog"
     - name: "json"

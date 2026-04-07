@@ -64,6 +64,6 @@
   matchkeys:
     - pod_name: "elasticsearch"
       container_name: "sysctl"
-      container_type: "init_container"
+      container_type: "InitContainer"
   parser_rules:
     - name: "sysctl"

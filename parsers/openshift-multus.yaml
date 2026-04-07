@@ -6,7 +6,7 @@
       container_name: "kube-multus"
     - pod_name: "multus-additional-cni-plugins"
     - pod_name: "multus-additional-cni-plugins"
-      container_type: "init_container"
+      container_type: "InitContainer"
   parser_rules:
     - name: "ts_8601"
     - name: "override_severity"

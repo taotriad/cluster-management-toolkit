@@ -4,6 +4,6 @@
   matchkeys:
     - pod_name: "kube-fledged"
     - pod_name: "kube-fledged"
-      container_type: "init_container"
+      container_type: "InitContainer"
   parser_rules:
     - name: "glog"

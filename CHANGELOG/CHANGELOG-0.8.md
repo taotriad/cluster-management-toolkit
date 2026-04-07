@@ -101,7 +101,17 @@ TBD
 
 ## Known Regressions in v0.8.8
 
-TBD
+> [!WARNING]
+> While technically not a known regression,
+> all internal data handling has gone through a major rehaul
+> in this version of CMT, to make it easier to share data handling
+> between cmu and cmt.
+>
+> the custom class used for data has been removed in favor of standard
+> dicts; this way we also benefit from easier debugging and better consistency.
+> It does, however, change code in many places in subtle ways,
+> and thus it might cause regressions, especially since we no longer
+> have a hashable data-type.
 
 ## Known Issues in v0.8.8
 

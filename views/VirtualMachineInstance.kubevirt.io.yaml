@@ -9,11 +9,38 @@ listview:
   name: "Virtual Machine Instances"
   group: "Virtualization"
   field_indexes:
+    Wide:
+      fields: ["namespace", "name", "controller", "ipaddresses", "node_name",
+               "live_migratable", "paused", "phase", "ready", "age"]
+      sortcolumn: "phase"
     Normal:
       fields: ["namespace", "name", "ipaddresses", "node_name",
                "live_migratable", "paused", "phase", "ready", "age"]
       sortcolumn: "phase"
   fields:
+    controller:
+      header: "Controller:"
+      paths:
+        - path: "metadata#ownerReferences"
+          pathtype: "items"
+          subpaths:
+            - "kind"
+            - "apiVersion"
+            - "name"
+          when:
+            - key: "controller"
+              eq: true
+          type: ["kind", "api_group", "name"]
+          default: ["<none>"]
+      formatter: "list"
+      formatting:
+        field_colors:
+          - type: "kind"
+          - type: "api_group"
+          - type: "generic"
+        field_separators:
+          - type: "kind_api_group"
+          - type: "kind"
     ipaddresses:
       header: "IP-addresses:"
       paths:
