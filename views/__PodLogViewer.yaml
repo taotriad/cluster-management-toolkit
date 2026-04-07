@@ -62,6 +62,18 @@ listview:
         description: "View logs for tagged resources interleaved"
         actionfunc: "action_view_pod_logs"
   shortcuts:
+    "Open Pod":
+      key: "p"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info for selected Pod"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_selected: true
+        namespace_path: "namespace"
+        name_path: "name"
+        kind: "Pod"
     "View Log":
       key: "enter"
       read_only: true

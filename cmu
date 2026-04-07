@@ -5412,6 +5412,7 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
     # pylint: disable-next=too-many-nested-blocks
     while True:
         if uip.is_update_triggered():
+            containerinfolist = []
             # When following the log we update the log continuously, but tail lines is limited to
             # the number of lines that fits on the screen, and cursor movements are disabled; as
             # soon as the user presses a key the log will stop scrolling and the whole log
@@ -5462,7 +5463,21 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                 splitmsg = []
                 image_id = None
                 for namespace, podname, container_type, \
-                        containername, image in multilog_containers_full:
+                        containername, image, image_id in multilog_containers_full:
+                    # Since we might need the containerinfo later to show the container list,
+                    # and since we're iterating all the info here anyway, let's populate that
+                    # information here instead of iterating the list again elsewhere.
+                    containerinfolist.append({
+                        "lineattrs": WidgetLineAttrs.NORMAL,
+                        "columns": [[ThemeStr(namespace, ThemeAttr("windowwidget", "default"))],
+                                    [ThemeStr(podname, ThemeAttr("windowwidget", "default"))],
+                                    [ThemeStr(container_type,
+                                              ThemeAttr("windowwidget", "default"))],
+                                    [ThemeStr(containername, ThemeAttr("windowwidget", "default"))],
+                                    [ThemeStr(image, ThemeAttr("windowwidget", "default"))],
+                                    [ThemeStr(image_id, ThemeAttr("windowwidget", "default"))]],
+                        "retval": (containername, image_id),
+                    })
                     if len(multilog_containers) == 1:
                         facility_extended = []
                     elif multilog_prefix == ["container"]:
@@ -5780,7 +5795,8 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                 status, status_group, restarts, status_message, _age = \
                     datagetters.get_container_status(src_statuses, containername)
                 containerarray: list[ThemeRef | ThemeStr] = [
-                    ThemeStr("Container: ", ThemeAttr("main", "infoheader")),
+                    ThemeStr("C", ThemeAttr("main", "infoheader_shortcut")),
+                    ThemeStr("ontainer: ", ThemeAttr("main", "infoheader")),
                     ThemeStr(f"{containername}{containertypearray}", ThemeAttr("types", "generic"))
                 ]
                 statusarray: list[ThemeRef | ThemeStr] = [
@@ -5814,8 +5830,7 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                 ]
                 image_id = deep_get(container_status, DictPath("imageID"))
                 imageidarray: list[ThemeRef | ThemeStr] = [
-                    ThemeStr("I", ThemeAttr("main", "infoheader_shortcut")),
-                    ThemeStr("mage ID: ", ThemeAttr("main", "infoheader")),
+                    ThemeStr("Image ID: ", ThemeAttr("main", "infoheader")),
                     ThemeStr(f"{image_id}", ThemeAttr("types", "generic")),
                 ]
                 uip.addthemearray(uip.infopad, containerarray, y=0, x=0)
@@ -5828,7 +5843,8 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
             else:
                 if len(multilog_containers) == 1:
                     containerarray = [
-                        ThemeStr("Container: ", ThemeAttr("main", "infoheader")),
+                        ThemeStr("C", ThemeAttr("main", "infoheader_shortcut")),
+                        ThemeStr("ontainer: ", ThemeAttr("main", "infoheader")),
                         ThemeStr(f"{container_type}", ThemeAttr("types", "kind")),
                         ThemeRef("separators", "kind"),
                         ThemeStr(f"{containername}", ThemeAttr("types", "generic")),
@@ -5842,8 +5858,7 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                         ThemeStr(f"{namespace}", ThemeAttr("types", "namespace")),
                     ]
                     containeridarray = [
-                        ThemeStr("I", ThemeAttr("main", "infoheader_shortcut")),
-                        ThemeStr("mage ID: ", ThemeAttr("main", "infoheader")),
+                        ThemeStr("Image ID: ", ThemeAttr("main", "infoheader")),
                         ThemeStr(f"{image_id}", ThemeAttr("types", "generic")),
                     ]
                     uip.addthemearray(uip.infopad, podarray, y=1, x=0)
@@ -5851,7 +5866,8 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                     uip.addthemearray(uip.infopad, containeridarray, y=3, x=0)
                 else:
                     containerarray = [
-                        ThemeStr("Containers: ", ThemeAttr("main", "infoheader")),
+                        ThemeStr("C", ThemeAttr("main", "infoheader_shortcut")),
+                        ThemeStr("ontainers: ", ThemeAttr("main", "infoheader")),
                     ]
                     containerarray += \
                         generators.format_list(multilog_containers, fieldlen=0, pad=False,
@@ -6205,10 +6221,25 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
             uip.refresh_statusbar()
             curses.doupdate()
             uip.force_update()
-        elif c == ord("I"):
+        elif c == ord("C"):
+            retval = None
+            if multilog_containers and len(multilog_containers) > 1:
+                containerheaders: list[str] = ["Namespace:", "Pod:", "Type:", "Container:",
+                                               "Image:", "Image ID:"]
+                # List containers (and upon selection display
+                # information about the selected container)
+                tmpselection = curses_helper.windowwidget(uip.stdscr, uip.maxy, uip.maxx,
+                                                          uip.maxy // 2, uip.maxx // 2,
+                                                          containerinfolist,
+                                                          headers=containerheaders,
+                                                          title="Containers", cursor=True)
+                uip.refresh_all()
+                if not tmpselection:
+                    continue
+                containername, image_id = tmpselection
+
             # XXX: This is very inefficient
             _vlist = infogetters.get_container_info(kubernetes_helper=kh, kh_cache_=kh_cache)
-            retval = None
             for _obj in _vlist:
                 _obj_name = deep_get(_obj, DictPath("name"))
                 _obj_image_id = deep_get(_obj, DictPath("image_id"))
@@ -7574,7 +7605,7 @@ def view_pod_logs(stdscr: curses.window, **kwargs: Any) -> Retval:
                 _tagged_items (list): A list of tagged items
     """
     containers: list[tuple[str, str, str, str]] = []
-    containers_full: list[tuple[str, str, str, str, str]] = []
+    containers_full: list[tuple[str, str, str, str, str, str]] = []
     items = deep_get(kwargs, DictPath("_tagged_items"), [])
     selected = deep_get(kwargs, DictPath("selected"))
     if selected is not None:
@@ -7585,13 +7616,13 @@ def view_pod_logs(stdscr: curses.window, **kwargs: Any) -> Retval:
         namespaces.add(namespace)
         name = deep_get(obj, DictPath("name"))
         container_name = deep_get(obj, DictPath("container"))
-        image_id = deep_get(obj, DictPath("image_id"))
+        image_id = deep_get(obj, DictPath("ref#image_id"))
         image = deep_get(obj, DictPath("image"))
         if image.startswith("sha256:"):
             image = image_id
         container_type = deep_get(obj, DictPath("type"))
         containers.append((namespace, name, container_type, container_name))
-        containers_full.append((namespace, name, container_type, container_name, image))
+        containers_full.append((namespace, name, container_type, container_name, image, image_id))
 
     multilog_args: dict[str, Any] = {
         "multilog_containers": containers,

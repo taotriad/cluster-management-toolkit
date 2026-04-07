@@ -182,7 +182,7 @@ containerinfo = [
     ("[F8]", "Load full log (Potentially very slow) (Default: limited)"),
     ("[F12]", "Show information about the program"),
     ("", ""),
-    ("[Shift] + I", "Open info page for container image"),
+    ("[Shift] + C", "Open info page for container image"),
     ("[Shift] + R", "Toggle highlighting / formatting (default: On)"),
     ("[Shift] + T", "Toggle timestamps (default: On)"),
     ("[Shift] + D", "Toggle merging of duplicate messages"),
