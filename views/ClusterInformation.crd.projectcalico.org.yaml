@@ -7,7 +7,19 @@ listview:
   group: "Calico"
   field_indexes:
     Normal:
-      fields: ["name", "age"]
+      fields: ["name", "cluster_type", "datastore_ready", "age"]
+  fields:
+    cluster_type:
+      header: "Cluster Type:"
+      paths:
+        - path: "spec#clusterType"
+          pathtype: "split"
+          type: "str"
+      formatter: "list"
+    datastore_ready:
+      header: "Datastore Ready:"
+      path: "spec#datastoreReady"
+      type: "bool"
 infoview:
   name: "Cluster Information Info"
   infopad:

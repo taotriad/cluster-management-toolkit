@@ -9,11 +9,38 @@ listview:
   name: "Bundles"
   group: "Rancher"
   field_indexes:
+    Wide:
+      fields: ["namespace", "name", "controller", "default_namespace",
+               "unavailable", "ready", "age"]
+      sortcolumn: "ready"
     Normal:
       fields: ["namespace", "name", "default_namespace",
                "unavailable", "ready", "age"]
       sortcolumn: "ready"
   fields:
+    controller:
+      header: "Controller:"
+      paths:
+        - path: "metadata#ownerReferences"
+          pathtype: "items"
+          subpaths:
+            - "kind"
+            - "apiVersion"
+            - "name"
+          when:
+            - key: "controller"
+              eq: true
+          type: ["kind", "api_group", "name"]
+          default: ["<none>"]
+      formatter: "list"
+      formatting:
+        field_colors:
+          - type: "kind"
+          - type: "api_group"
+          - type: "generic"
+        field_separators:
+          - type: "kind_api_group"
+          - type: "kind"
     default_namespace:
       header: "Default Namespace:"
       path: "spec#defaultNamespace"
@@ -44,10 +71,34 @@ infoview:
   infopad:
     row_indexes:
       Normal:
-        fields: ["default_namespace",
+        fields: ["controller", "default_namespace",
                  "max_new", "max_unavailable", "unavailable",
                  "ready"]
     rows:
+      controller:
+        header: [["C", ["main", "infoheader_shortcut"]],
+                 ["ontroller:", ["main", "infoheader"]]]
+        paths:
+          - path: "metadata#ownerReferences"
+            pathtype: "items"
+            subpaths:
+              - "kind"
+              - "apiVersion"
+              - "name"
+            when:
+              - key: "controller"
+                eq: true
+            type: ["kind", "api_group", "name"]
+            default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "kind"
+            - type: "api_group"
+            - type: "generic"
+          field_separators:
+            - type: "kind_api_group"
+            - type: "kind"
       default_namespace:
         header: [["D", ["main", "infoheader_shortcut"]],
                  ["efault Namespace:", ["main", "infoheader"]]]
@@ -89,6 +140,17 @@ infoview:
       path: "spec#resources"
     timestamps: false
   shortcuts:
+    "Open controller":
+      key: "c"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for controller"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        namespace_path: "metadata#namespace"
+        owner_reference_path: "metadata#ownerReferences"
     "Helm Configuration":
       key: "h"
       read_only: true

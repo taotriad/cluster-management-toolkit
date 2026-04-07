@@ -9,7 +9,8 @@ listview:
   group: "Cluster Configuration"
   field_indexes:
     Normal:
-      fields: ["namespace", "name", "cluster_class", "version", "phase", "age"]
+      fields: ["namespace", "name", "controller",
+               "cluster_class", "version", "phase", "age"]
       sortcolumn: "namespace"
   fields:
     cluster_class:
@@ -17,6 +18,29 @@ listview:
       path: "spec#topology#class"
       default: "<unset>"
       type: "str"
+    controller:
+      header: "Controller:"
+      paths:
+        - path: "metadata#ownerReferences"
+          pathtype: "items"
+          subpaths:
+            - "kind"
+            - "apiVersion"
+            - "name"
+          when:
+            - key: "controller"
+              eq: true
+          type: ["kind", "api_group", "name"]
+          default: ["<none>"]
+      formatter: "list"
+      formatting:
+        field_colors:
+          - type: "kind"
+          - type: "api_group"
+          - type: "generic"
+        field_separators:
+          - type: "kind_api_group"
+          - type: "kind"
     phase:
       header: "Phase:"
       path: "status#phase"
