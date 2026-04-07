@@ -1034,7 +1034,7 @@ def genericlistloop(stdscr: curses.window, **kwargs: Any) -> Retval:
 
                 # Update ansible groups, in case the groups have changed.
                 for i, d in enumerate(vlist):
-                    host = vlist[i]["name"]
+                    host = deep_get(d, DictPath("name"))
                     vlist[i]["ansible_groups"] = ansible_get_groups_by_host(inventory_dict, host)
 
                 # Tag hosts in vlist that are no longer part of hosts as deleted.

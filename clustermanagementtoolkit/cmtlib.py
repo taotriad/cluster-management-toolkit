@@ -1022,7 +1022,6 @@ def get_package_versions(hostname: str) -> list[tuple[str, str]]:
     if not ansible_results:
         raise ValueError(f"Error: Failed to get package versions from {hostname} "
                          f"(retval: {retval}); aborting.")
-        return package_versions
 
     tmp = []
 
@@ -1036,7 +1035,6 @@ def get_package_versions(hostname: str) -> list[tuple[str, str]]:
     if not tmp:
         raise ValueError(f"Error: Received empty version data from {hostname} "
                          f"(retval: {retval}); aborting.")
-        return package_versions
 
     package_version_regex = re.compile(r"^(.*?): (.*)")
 
