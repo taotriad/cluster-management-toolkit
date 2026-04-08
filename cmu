@@ -2247,14 +2247,14 @@ def __resource_map_cursor(**kwargs: Any) -> tuple[Retval, dict]:
     elif keypress == ord("\t"):
         if oldval < maxval:
             for i in range(selected + 1, len(info)):
-                if info[i].status_group != StatusGroup.OK:
+                if deep_get(info[i], DictPath("status_group")) < StatusGroup.OK:
                     selected = i
                     uip.force_update()
                     break
     elif keypress == curses.KEY_BTAB:
         if oldval > 0:
             for i in range(1, selected):
-                if info[selected - i].status_group != StatusGroup.OK:
+                if deep_get(info[selected - i], DictPath("status_group")) < StatusGroup.OK:
                     selected -= i
                     uip.force_update()
                     break
