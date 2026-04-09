@@ -2361,6 +2361,7 @@
 												"get_image_list",
 												"get_key_value",
 												"get_kubernetes_objects",
+												"get_selector_list",
 												"get_list_as_list",
 												"get_list_as_string",
 												"get_list_fields",

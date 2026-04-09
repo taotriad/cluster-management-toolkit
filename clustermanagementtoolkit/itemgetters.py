@@ -450,6 +450,36 @@ def get_dict_list(obj: dict, **kwargs: Any) -> list[Any]:
     return vlist
 
 
+def get_selector_list(obj: dict, **kwargs: Any) -> list[str]:
+    """
+    Format selectors from a list or dict of selectors.
+
+        Parameters:
+            obj (dict): The object to get data from
+            **kwargs (dict[str, Any]): Keyword arguments
+                path (str): The path to the list or dict
+        Returns:
+            ([str]): A list of selector expressions
+    """
+    path: str = deep_get(kwargs, DictPath("path"))
+    selectors: list[str] = []
+
+    tmp: dict | list = deep_get(obj, DictPath(path), {})
+    if isinstance(tmp, dict):
+        tmp = [tmp]
+
+    for selector in tmp:
+        if "matchExpressions" in selector:
+            selectors.append([make_set_expression(selector["matchExpressions"])])
+        if "matchFields" in selector:
+            selectors.append([make_set_expression(selector["matchFields"])])
+        if "matchLabels" in selector:
+            selectors.append([make_label_selector(selector["matchLabels"])])
+        if "cel" in selector:
+            selectors.append([make_cel_expression([selector["cel"]])])
+    return selectors
+
+
 # pylint: disable-next=too-many-locals,too-many-branches,too-many-statements
 def get_list_fields(obj: dict, **kwargs: Any) -> list[Any]:
     """
@@ -1102,6 +1132,7 @@ itemgetter_allowlist: dict[str, Callable] = {
     "get_list_as_list": get_list_as_list,
     "get_list_as_string": get_list_as_string,
     "get_dict_list": get_dict_list,
+    "get_selector_list": get_selector_list,
     "get_list_fields": get_list_fields,
     "get_package_version_list": get_package_version_list,
     "get_affinity": get_affinity,
