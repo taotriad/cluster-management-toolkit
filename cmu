@@ -551,7 +551,7 @@ def get_control_planes() -> list[tuple[dict[str, Any], str]]:
     if vlist is None or not vlist or status != 200:
         return [({}, "")]
 
-    # Find control planes; but for now only return the first match
+    # Find control planes
     for obj in vlist:
         labels = deep_get(obj, DictPath("metadata#labels"), {})
         if "node-role.kubernetes.io/control-plane" in labels \
@@ -568,14 +568,7 @@ def get_control_planes() -> list[tuple[dict[str, Any], str]]:
                         ANSIThemeStr(": None of the nodes in the cluster are labelled as "
                                      "control planes. The cluster is most likely "
                                      "misconfigured.", "default")], stderr=True)
-        return {}, ""
-    if len(control_planes) > 1:
-        ansithemeprint([ANSIThemeStr("Warning", "warning"),
-                        ANSIThemeStr(": Multiple control planes not supported yet, "
-                                     "found multiple; returning first entry:", "default")],
-                       stderr=True)
-        for control_plane in control_planes:
-            ansithemeprint([ANSIThemeStr(f"  {control_plane[1]}", "default")], stderr=True)
+        return [({}, "")]
 
     return control_planes
 
@@ -2665,6 +2658,11 @@ def clusteroverviewloop(stdscr: curses.window, **kwargs: Any) -> Retval:
     control_plane_name = control_plane_names[0]
     control_plane_objs = [control_plane[0] for control_plane in control_planes]
 
+    if not control_plane_name:
+        control_plane_names = ["<virtual>"]
+        control_plane_name = "<virtual>"
+        control_plane_objs = {}
+
     name: str = ""
     iips: list[str] = []
     eips: list[str] = []
@@ -2879,8 +2877,11 @@ def clusteroverviewloop(stdscr: curses.window, **kwargs: Any) -> Retval:
         internal_ips_array = generators.format_list(iips, fieldlen=0, pad=False)
         external_ips_array = generators.format_list(eips, fieldlen=0, pad=False)
 
-        control_plane_list = \
-            generators.format_list(control_plane_names, fieldlen=0, pad=False)
+        if control_plane_names == ["<virtual>"]:
+            control_plane_list = [ThemeStr("<virtual>", ThemeAttr("types", "unset"))]
+        else:
+            control_plane_list = \
+                generators.format_list(control_plane_names, fieldlen=0, pad=False)
 
         infoarrays: list[list[ThemeRef | ThemeStr]] = [
             [
@@ -3162,6 +3163,14 @@ def clusteroverviewloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                 pod_status = deep_get(podinfo[selected_pod], DictPath("status"))
                 pod_status_group = deep_get(podinfo[selected_pod], DictPath("status_group"))
 
+            if pod_node == "<none>":
+                pod_node_array = \
+                    [ThemeStr(f"{pod_node}".ljust(pod_heatmap_width), ThemeAttr("types", "none"))]
+            else:
+                pod_node_array = \
+                    [ThemeStr(f"{pod_node}".ljust(pod_heatmap_width),
+                              ThemeAttr("main", "highlight"))]
+
             podarrays: list[list[ThemeRef | ThemeStr]] = [
                 [
                     ThemeStr(f"Pod ({selected_pod + 1}/{len(podinfo)}):",
@@ -3187,9 +3196,7 @@ def clusteroverviewloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                     ThemeStr("No", ThemeAttr("main", "infoheader")),
                     ThemeStr("d", ThemeAttr("main", "listheader"),
                              selected=selected_heatmap == "Pod"),
-                    ThemeStr("e: ", ThemeAttr("main", "infoheader")),
-                    ThemeStr(f"{pod_node}".ljust(pod_heatmap_width),
-                             ThemeAttr("main", "highlight")),
+                    ThemeStr("e: ", ThemeAttr("main", "infoheader"))] + pod_node_array + [
                 ], [
                     ThemeStr(" ", ThemeAttr("main", "listheader")),
                     ThemeStr("Status: ", ThemeAttr("main", "infoheader")),
