@@ -9,6 +9,10 @@ listview:
   name: "Profiles"
   group: "OpenShift"
   field_indexes:
+    Wide:
+      fields: ["namespace", "name", "controller",
+               "tuned", "applied", "degraded", "age"]
+      sortcolumn: "namespace"
     Normal:
       fields: ["namespace", "name", "tuned", "applied", "degraded", "age"]
       sortcolumn: "namespace"
@@ -24,6 +28,29 @@ listview:
             - key: "type"
               eq: "Applied"
       type: "str"
+    controller:
+      header: "Controller:"
+      paths:
+        - path: "metadata#ownerReferences"
+          pathtype: "items"
+          subpaths:
+            - "kind"
+            - "apiVersion"
+            - "name"
+          when:
+            - key: "controller"
+              eq: true
+          type: ["kind", "api_group", "name"]
+          default: ["<none>"]
+      formatter: "list"
+      formatting:
+        field_colors:
+          - type: "kind"
+          - type: "api_group"
+          - type: "generic"
+        field_separators:
+          - type: "kind_api_group"
+          - type: "kind"
     degraded:
       header: "Degraded:"
       paths:
@@ -56,7 +83,7 @@ infoview:
   infopad:
     row_indexes:
       Normal:
-        fields: ["tuned", "commandline", "debug",
+        fields: ["controller", "tuned", "commandline", "debug",
                  "stalld", "applied", "degraded"]
     rows:
       applied:
@@ -74,6 +101,30 @@ infoview:
         header: [["Boot Commandline:", ["main", "infoheader"]]]
         path: "status#bootcmdline"
         type: "bool"
+      controller:
+        header: [["C", ["main", "infoheader_shortcut"]],
+                 ["ontroller:", ["main", "infoheader"]]]
+        paths:
+          - path: "metadata#ownerReferences"
+            pathtype: "items"
+            subpaths:
+              - "kind"
+              - "apiVersion"
+              - "name"
+            when:
+              - key: "controller"
+                eq: true
+            type: ["kind", "api_group", "name"]
+            default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "kind"
+            - type: "api_group"
+            - type: "generic"
+          field_separators:
+            - type: "kind_api_group"
+            - type: "kind"
       debug:
         header: [["Debug:", ["main", "infoheader"]]]
         path: "spec#config#debug"
@@ -109,3 +160,15 @@ infoview:
         header: [["Tuned:", ["main", "infoheader"]]]
         path: "spec#config#tunedProfile"
         type: "str"
+  shortcuts:
+    "Open controller":
+      key: "c"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for controller"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        namespace_path: "metadata#namespace"
+        owner_reference_path: "metadata#ownerReferences"

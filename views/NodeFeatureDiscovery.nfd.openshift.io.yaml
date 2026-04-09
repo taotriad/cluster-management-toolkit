@@ -72,8 +72,8 @@ infoview:
   logpad:
     infogetter: "logpad_formatted"
     infogetter_args:
-      formatter: "format_yaml"
-      path: "spec#workerConfig"
+      formatter: "reformat_json"
+      path: "spec#workerConfig#configData"
     timestamps: false
   shortcuts:
     "Extra Label Namespaces":

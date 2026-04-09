@@ -9,12 +9,38 @@ listview:
   name: "Resource Slices"
   group: "Dynamic Resource Allocation"
   field_indexes:
+    Wide:
+      fields: ["name", "controller", "driver", "pool", "resource_slice_count",
+               "device_count", "age"]
     Normal:
       fields: ["name", "driver", "pool", "resource_slice_count",
                "device_count", "age"]
   fields:
+    controller:
+      header: "Controller:"
+      paths:
+        - path: "metadata#ownerReferences"
+          pathtype: "items"
+          subpaths:
+            - "kind"
+            - "apiVersion"
+            - "name"
+          when:
+            - key: "controller"
+              eq: true
+          type: ["kind", "api_group", "name"]
+          default: ["<none>"]
+      formatter: "list"
+      formatting:
+        field_colors:
+          - type: "kind"
+          - type: "api_group"
+          - type: "generic"
+        field_separators:
+          - type: "kind_api_group"
+          - type: "kind"
     device_count:
-      header: "Device Count:"
+      header: "Devices:"
       path: "spec#devices"
       type: "len"
       formatter: "numerical"
@@ -30,7 +56,7 @@ listview:
       default: "<unset>"
       type: "str"
     resource_slice_count:
-      header: "Slice Count:"
+      header: "Slices:"
       path: "spec#pool#resourceSliceCount"
       default: "<unset>"
       type: "int"

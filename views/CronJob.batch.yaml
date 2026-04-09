@@ -9,6 +9,11 @@ listview:
   name: "Cron Jobs"
   group: "Workloads"
   field_indexes:
+    Wide:
+      fields: ["namespace", "name", "controller", "schedule", "suspended",
+               "active", "concurrency_policy", "last_scheduled",
+               "last_successful", "age", "containers_jobtemplate"]
+      sortcolumn: "namespace"
     Normal:
       fields: ["namespace", "name", "schedule", "suspended", "active",
                "concurrency_policy", "last_scheduled", "last_successful",
@@ -38,6 +43,29 @@ listview:
             - subpath: "image"
           type: "raw"
       formatter: "list"
+    controller:
+      header: "Controller:"
+      paths:
+        - path: "metadata#ownerReferences"
+          pathtype: "items"
+          subpaths:
+            - "kind"
+            - "apiVersion"
+            - "name"
+          when:
+            - key: "controller"
+              eq: true
+          type: ["kind", "api_group", "name"]
+          default: ["<none>"]
+      formatter: "list"
+      formatting:
+        field_colors:
+          - type: "kind"
+          - type: "api_group"
+          - type: "generic"
+        field_separators:
+          - type: "kind_api_group"
+          - type: "kind"
     last_scheduled:
       header: "Last Scheduled:"
       path: "status#lastScheduleTime"
@@ -117,8 +145,8 @@ infoview:
   infopad:
     row_indexes:
       Normal:
-        fields: ["concurrency_policy", "successful_jobs_history_limit",
-                 "failed_jobs_history_limit",
+        fields: ["controller", "concurrency_policy",
+                 "successful_jobs_history_limit", "failed_jobs_history_limit",
                  "starting_deadline", "suspended", "schedule", "timezone",
                  "last_scheduled", "last_successful", "active"]
     rows:
@@ -131,6 +159,30 @@ infoview:
         header: [["Concurrency Policy:", ["main", "infoheader"]]]
         path: "spec#concurrencyPolicy"
         type: "raw"
+      controller:
+        header: [["C", ["main", "infoheader_shortcut"]],
+                 ["ontroller:", ["main", "infoheader"]]]
+        paths:
+          - path: "metadata#ownerReferences"
+            pathtype: "items"
+            subpaths:
+              - "kind"
+              - "apiVersion"
+              - "name"
+            when:
+              - key: "controller"
+                eq: true
+            type: ["kind", "api_group", "name"]
+            default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "kind"
+            - type: "api_group"
+            - type: "generic"
+          field_separators:
+            - type: "kind_api_group"
+            - type: "kind"
       failed_jobs_history_limit:
         header: [["Failed Jobs History Limit:", ["main", "infoheader"]]]
         path: "spec#failedJobsHistoryLimit"
@@ -189,6 +241,17 @@ infoview:
         default: "<unset>"
         type: "str"
   shortcuts:
+    "Open controller":
+      key: "c"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for controller"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        namespace_path: "metadata#namespace"
+        owner_reference_path: "metadata#ownerReferences"
     "Trigger Job":
       key: "j"
       modifier: "shift"

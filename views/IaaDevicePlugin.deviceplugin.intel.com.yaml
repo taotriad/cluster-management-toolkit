@@ -18,7 +18,7 @@ listview:
       path: "status#desiredNumberScheduled"
       type: "int"
       align: "right"
-    node_selector:
+    node_label_selector:
       header: "Node Label Selector:"
       paths:
         - path: ["spec#nodeSelector"]
