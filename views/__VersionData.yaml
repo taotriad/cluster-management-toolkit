@@ -326,6 +326,26 @@ listview:
             strip_empty_end: true
       - filepath: "{HOME}/.cmt/version-cache/candidate_versions.yaml"
         filetype: "yaml"
+        path: "harvester"
+        pathtype: "dict"
+        _extra_data:
+          name: "Harvester"
+          installed_version:
+            fieldgetter: "fieldgetter_kubernetes_object_version"
+            fieldgetter_args:
+              kind: "Node"
+              path: "status#nodeInfo#osImage"
+              version_regex: '^Harvester\s+v(\d+)(\.)(\d+)(\.)(.+)$'
+              label_selector:
+                "node-role.kubernetes.io/control-plane": "true"
+          file_not_found_status: "No changelog found"
+          paths:
+            - filepath: "{HOME}/.cmt/version-cache/harvester_changelog.md"
+              filetype: "text"
+              pathtype: "raw"
+          formatter: "markdown"
+      - filepath: "{HOME}/.cmt/version-cache/candidate_versions.yaml"
+        filetype: "yaml"
         path: "rancher"
         pathtype: "dict"
         _extra_data:
@@ -335,8 +355,7 @@ listview:
             fieldgetter_args:
               executable: "/usr/bin/helm"
               args: ["list", "-A"]
-              # yamllint disable-line rule:line-length
-              version_regex: '^rancher\s.+v(\d+)(\.)(\d+)(\.)(\d+)\s*$'
+              version_regex: '^rancher\s.+\s(\S+)$'
           file_not_found_status: "No changelog found"
           paths:
             - filepath: "{HOME}/.cmt/version-cache/rancher_changelog.md"

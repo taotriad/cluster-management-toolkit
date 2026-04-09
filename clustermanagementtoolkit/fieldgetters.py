@@ -16,6 +16,8 @@ from collections.abc import Callable
 
 from clustermanagementtoolkit.cmtio import execute_command_with_response, secure_which
 
+from clustermanagementtoolkit.cmtlib import make_label_selector
+
 from clustermanagementtoolkit.cmtpaths import HOMEDIR
 
 from clustermanagementtoolkit.cmttypes import deep_get, DictPath, FilePath
@@ -95,8 +97,48 @@ def fieldgetter_api_server_version(**kwargs: Any) -> list[Any]:
     return field_list
 
 
+def fieldgetter_kubernetes_object_version(**kwargs: Any) -> list[Any]:
+    """
+    A fieldgetter that fetches the version from the first Kubernetes object
+    that matches the criteria.
+
+        Parameters:
+            **kwargs (dict[str, Any]): Keyword arguments
+                kubernetes_helper (KubernetesHelper): A reference to a KubernetesHelper object
+                version_regex (str): The regular expression to use to extract the version
+                path (str): The path to get the string to extract the version from
+        Returns:
+            ([str]): The list of version fields
+    """
+    version_regex: str = deep_get(kwargs, DictPath("version_regex"), "")
+    kind: str = deep_get(kwargs, DictPath("kind"), "")
+    api_family: str = deep_get(kwargs, DictPath("api_family"), "")
+    path: str = deep_get(kwargs, DictPath("path"), "")
+    namespace: str = deep_get(kwargs, DictPath("namespace"), "")
+    label_selector: dict[str, Any] = deep_get(kwargs, DictPath("label_selector"), {})
+
+    if (kh := deep_get(kwargs, DictPath("kubernetes_helper"))) is None:
+        raise ProgrammingError(f"{__name__}() called without kubernetes_helper")
+
+    version: list[str] = []
+
+    vlist, _status = \
+        kh.get_list_by_kind_namespace((kind, api_family),
+                                      namespace,
+                                      label_selector=make_label_selector(label_selector))
+
+    for obj in vlist:
+        value = deep_get(obj, DictPath(path), "")
+        if (tmp := re.match(version_regex, value)) is not None:
+            for field in tmp.groups():
+                version.append(field)
+            break
+    return ["".join(version)]
+
+
 # Fieldgetters acceptable for direct use in view files
 fieldgetter_allowlist: dict[str, Callable] = {
     "fieldgetter_api_server_version": fieldgetter_api_server_version,
     "fieldgetter_executable_version": fieldgetter_executable_version,
+    "fieldgetter_kubernetes_object_version": fieldgetter_kubernetes_object_version,
 }
