@@ -450,7 +450,7 @@ def get_dict_list(obj: dict, **kwargs: Any) -> list[Any]:
     return vlist
 
 
-def get_selector_list(obj: dict, **kwargs: Any) -> list[str]:
+def get_selector_list(obj: dict, **kwargs: Any) -> list[list[str]]:
     """
     Format selectors from a list or dict of selectors.
 
@@ -459,10 +459,10 @@ def get_selector_list(obj: dict, **kwargs: Any) -> list[str]:
             **kwargs (dict[str, Any]): Keyword arguments
                 path (str): The path to the list or dict
         Returns:
-            ([str]): A list of selector expressions
+            ([[str]]): A list of selector expressions
     """
     path: str = deep_get(kwargs, DictPath("path"))
-    selectors: list[str] = []
+    selectors: list[list[str]] = []
 
     tmp: dict | list = deep_get(obj, DictPath(path), {})
     if isinstance(tmp, dict):
