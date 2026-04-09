@@ -5393,7 +5393,6 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
     ("NodeFeatureRule", "nfd.k8s-sigs.io"): {
         "api_paths": ["apis/nfd.k8s-sigs.io/v1alpha1/"],
         "api": "nodefeaturerules",
-        "namespaced": False,
     },
     # nfd.openshift.io
     ("NodeFeature", "nfd.openshift.io"): {
