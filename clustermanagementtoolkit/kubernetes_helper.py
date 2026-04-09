@@ -1777,6 +1777,17 @@ class KubernetesHelper:
         if k8s_distro is None and tmp_k8s_distro is not None:
             k8s_distro = tmp_k8s_distro
 
+        if not k8s_distro:
+            # Check for distros that need special methods to detect
+            obj = self.get_ref_by_kind_name_namespace(("Deployment", "apps"),
+                                                      "coredns", "kube-system")
+            managed_fields = deep_get(obj, DictPath("metadata#managedFields"), [])
+            for managed_field in managed_fields:
+                manager = deep_get(managed_field, DictPath("manager"), "")
+                if manager in ("kamaji",):
+                    k8s_distro = manager
+                    break
+
         if k8s_distro is None:
             k8s_distro = "<unknown>"
 
