@@ -10,7 +10,7 @@ listview:
   group: "Cluster Configuration"
   field_indexes:
     Wide:
-      fields: ["name", "datastore", "control_plane_endpoint",
+      fields: ["name", "controller", "datastore", "control_plane_endpoint",
                "available", "desired", "replicas", "ready", "uptodate",
                "status", "age",
                "version", "installed_version"]
@@ -41,6 +41,29 @@ listview:
               field_colors:
                 - context: "main"
                   type: "status_ok"
+    controller:
+      header: "Controller:"
+      paths:
+        - path: "metadata#ownerReferences"
+          pathtype: "items"
+          subpaths:
+            - "kind"
+            - "apiVersion"
+            - "name"
+          when:
+            - key: "controller"
+              eq: true
+          type: ["kind", "api_group", "name"]
+          default: ["<none>"]
+      formatter: "list"
+      formatting:
+        field_colors:
+          - type: "kind"
+          - type: "api_group"
+          - type: "generic"
+        field_separators:
+          - type: "kind_api_group"
+          - type: "kind"
     control_plane_endpoint:
       header: "Control Plane Endpoint:"
       path: "status#controlPlaneEndpoint"

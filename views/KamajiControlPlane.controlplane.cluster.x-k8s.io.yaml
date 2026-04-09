@@ -9,8 +9,13 @@ listview:
   name: "Kamaji Control Planes"
   group: "Cluster Configuration"
   field_indexes:
-    Normal:
+    Wide:
       fields: ["namespace", "name", "controller", "initialized",
+               "desired", "replicas", "ready", "uptodate",
+               "age", "version"]
+      sortcolumn: "namespace"
+    Normal:
+      fields: ["namespace", "name", "initialized",
                "desired", "replicas", "ready", "uptodate",
                "age", "version"]
       sortcolumn: "namespace"

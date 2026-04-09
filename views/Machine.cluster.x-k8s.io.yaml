@@ -9,9 +9,12 @@ listview:
   name: "Machines"
   group: "Cluster Configuration"
   field_indexes:
-    Normal:
+    Wide:
       fields: ["namespace", "name", "cluster", "node", "provider_id",
                "phase", "age", "version"]
+      sortcolumn: "namespace"
+    Normal:
+      fields: ["namespace", "name", "cluster", "phase", "age", "version"]
       sortcolumn: "namespace"
   fields:
     cluster:

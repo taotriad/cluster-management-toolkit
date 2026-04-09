@@ -6,11 +6,40 @@ listview:
   name: "KubeVirts"
   group: "Virtualization"
   field_indexes:
+    Wide:
+      fields: ["namespace", "name", "controller",
+               "outdated_virtual_machine_instance_workloads",
+               "replicas", "phase", "age"]
+      sortcolumn: "namespace"
     Normal:
-      fields: ["namespace", "name", "phase",
-               "outdated_virtual_machine_instance_workloads", "replicas", "age"]
+      fields: ["namespace", "name",
+               "outdated_virtual_machine_instance_workloads",
+               "replicas", "phase", "age"]
       sortcolumn: "namespace"
   fields:
+    controller:
+      header: "Controller:"
+      paths:
+        - path: "metadata#ownerReferences"
+          pathtype: "items"
+          subpaths:
+            - "kind"
+            - "apiVersion"
+            - "name"
+          when:
+            - key: "controller"
+              eq: true
+          type: ["kind", "api_group", "name"]
+          default: ["<none>"]
+      formatter: "list"
+      formatting:
+        field_colors:
+          - type: "kind"
+          - type: "api_group"
+          - type: "generic"
+        field_separators:
+          - type: "kind_api_group"
+          - type: "kind"
     outdated_virtual_machine_instance_workloads:
       header: "Outdated VMI Workloads:"
       path: "status#outdatedVirtualMachineInstanceWorkloads"
