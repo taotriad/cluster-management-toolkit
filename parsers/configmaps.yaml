@@ -120,6 +120,10 @@ configmap_signatures:
   json:
     format_name: "JSON"
     signatures:
+      - name_prefix: "ClusterConfiguration"
+        name_suffix: "ClusterConfiguration"
+      - name_prefix: "InitConfiguration"
+        name_suffix: "InitConfiguration"
       - namespace: "cattle-fleet-system"
         data_prefix: "config"
         data_suffix: "config"

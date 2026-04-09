@@ -3,6 +3,7 @@
   show_in_selector: false
   matchkeys:
     - image_name: "/llm-d/llm-d-hpu"
+    - image_name: "/llm-d/llm-d-cpu"
   parser_rules:
     - name: "custom_splitter"
       options:
@@ -43,3 +44,14 @@
         - matchtype: "startswith"
           matchkey: "Internal Error: "
           loglevel: "error"
+        - matchtype: "startswith"
+          matchkey: "vllm: error:"
+          loglevel: "error"
+- name: "llm-d"
+  show_in_selector: false
+  matchkeys:
+    - image_name: "/llm-d/llm-d-inference-scheduler"
+    - image_name: "/llm-d/llm-d-routing-sidecar"
+      container_type: "InitContainer"
+  parser_rules:
+    - name: "json"

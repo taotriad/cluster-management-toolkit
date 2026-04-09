@@ -8,3 +8,4 @@
       container_type: "InitContainer"
   parser_rules:
     - name: "json"
+    - name: "python_traceback"
