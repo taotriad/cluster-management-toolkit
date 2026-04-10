@@ -108,7 +108,7 @@ infoview:
   infopad:
     row_indexes:
       Normal:
-        fields: ["controller", "external_name", "selector", "endpoints",
+        fields: ["controller", "external_name", "label_selector", "endpoints",
                  "endpoint_slices", "type", "allocate_node_balancer_node_ports",
                  "cluster_ips", "traffic_distribution",
                  "external_traffic_policy",
@@ -216,6 +216,21 @@ infoview:
         header: [["IP Family Policy:", ["main", "infoheader"]]]
         path: "spec#ipFamilyPolicy"
         type: "str"
+      label_selector:
+        header: [["La", ["main", "infoheader"]],
+                 ["b", ["main", "infoheader_shortcut"]],
+                 ["el Selector:", ["main", "infoheader"]]]
+        paths:
+          - path: ["spec#selector"]
+            pathtype: "key_value"
+            default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "key"
+            - type: "value"
+          field_separators:
+            - type: "selector"
       ports:
         header: [["P", ["main", "infoheader_shortcut"]],
                  ["orts:", ["main", "infoheader"]]]
@@ -236,19 +251,6 @@ infoview:
           field_separators:
             - type: "port"
             - type: "service"
-      selector:
-        header: [["Selector:", ["main", "infoheader"]]]
-        paths:
-          - path: ["spec#selector"]
-            pathtype: "key_value"
-            default: ["<none>"]
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "key"
-            - type: "value"
-          field_separators:
-            - type: "selector"
       session_affinity:
         header: [["  Affinity:", ["main", "infoheader"]]]
         path: "spec#sessionAffinity"
@@ -412,6 +414,16 @@ infoview:
         api_family: "discovery.k8s.io"
         name_path: "metadata#name"
         namespace_path: "metadata#namespace"
+    "Label Selector":
+      key: "b"
+      read_only: true
+      helptext: "Show label selector"
+      widget: "windowwidget"
+      title: "Label Selector:"
+      headers: ["Key:", "Value:"]
+      itemgetter: "get_key_value"
+      itemgetter_args:
+        path: "spec#selector"
     "Open controller":
       key: "c"
       modifier: "shift"

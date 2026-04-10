@@ -11,10 +11,10 @@ listview:
   field_indexes:
     Wide:
       fields: ["namespace", "name", "mode", "policy",
-               "servers", "agents", "age"]
+               "servers", "agents", "phase", "age"]
       sortcolumn: "namespace"
     Normal:
-      fields: ["namespace", "name", "mode", "policy", "age"]
+      fields: ["namespace", "name", "mode", "policy", "phase", "age"]
       sortcolumn: "namespace"
   fields:
     agents:
@@ -29,6 +29,38 @@ listview:
       path: "spec#mode"
       default: "<unset>"
       type: "str"
+    phase:
+      header: "Phase:"
+      path: "status#phase"
+      type: "str"
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          mappings:
+            Failed:
+              field_colors:
+                - context: "main"
+                  type: "status_not_ok"
+            Pending:
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+            Provisioning:
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+            Ready:
+              field_colors:
+                - context: "main"
+                  type: "status_done"
+            Terminating:
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+            Unknown:
+              field_colors:
+                - context: "main"
+                  type: "status_unknown"
     policy:
       header: "Policy:"
       path: "status#policyName"
@@ -50,8 +82,48 @@ infoview:
                  "persistence_header", "persistence_type",
                  "persistence_storage_request_size",
                  "cluster_cidr", "service_cidr",
-                 "tls_sans"]
+                 "tls_sans",
+                 "sync_configmaps",
+                 "sync_header",
+                 "sync_ingresses",
+                 "sync_persistent_volume_claims",
+                 "sync_priority_classes",
+                 "sync_secrets",
+                 "sync_services",
+                 "host_version", "phase"]
     rows:
+      sync_configmaps:
+        header: [["  Config Maps:", ["main", "infoheader"]]]
+        path: "spec#sync#configMaps#enabled"
+        default: "<unset>"
+        type: "bool"
+      sync_header:
+        header: [["Sync:", ["main", "infoheader"]]]
+      sync_ingresses:
+        header: [["  Ingresses:", ["main", "infoheader"]]]
+        path: "spec#sync#ingresses#enabled"
+        default: "<unset>"
+        type: "bool"
+      sync_persistent_volume_claims:
+        header: [["  Persistent Volume Claims:", ["main", "infoheader"]]]
+        path: "spec#sync#persistentVolumeClaims#enabled"
+        default: "<unset>"
+        type: "bool"
+      sync_priority_classes:
+        header: [["  Priority Classes:", ["main", "infoheader"]]]
+        path: "spec#sync#priorityClasses#enabled"
+        default: "<unset>"
+        type: "bool"
+      sync_secrets:
+        header: [["  Secrets:", ["main", "infoheader"]]]
+        path: "spec#sync#secrets#enabled"
+        default: "<unset>"
+        type: "bool"
+      sync_services:
+        header: [["  Services:", ["main", "infoheader"]]]
+        path: "spec#sync#services#enabled"
+        default: "<unset>"
+        type: "bool"
       agents:
         header: [["Agents:", ["main", "infoheader"]]]
         path: "spec#agents"
@@ -81,17 +153,47 @@ infoview:
         header: [["Persistence:", ["main", "infoheader"]]]
       persistence_storage_request_size:
         header: [["  Storage Request Size:", ["main", "infoheader"]]]
-        path: "status#persistence#storageRequestSize"
+        path: "spec#persistence#storageRequestSize"
         default: "<unset>"
         type: "str"
         formatter: "numerical"
       persistence_type:
         header: [["  Type:", ["main", "infoheader"]]]
-        paths:
-          - path: ["status#persistence#type", "spec#persistence#type"]
-            pathtype: "str"
+        path: "spec#persistence#type"
         default: "<unset>"
         type: "str"
+      phase:
+        header: [["Phase:", ["main", "infoheader"]]]
+        path: "status#phase"
+        type: "str"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              Failed:
+                field_colors:
+                  - context: "main"
+                    type: "status_not_ok"
+              Pending:
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+              Provisioning:
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+              Ready:
+                field_colors:
+                  - context: "main"
+                    type: "status_done"
+              Terminating:
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+              Unknown:
+                field_colors:
+                  - context: "main"
+                    type: "status_unknown"
       policy:
         header: [["Policy:", ["main", "infoheader"]]]
         path: "status#policyName"

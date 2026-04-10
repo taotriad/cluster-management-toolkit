@@ -4,10 +4,16 @@
   matchkeys:
     - image_name: "/rancher/k3k"
   parser_rules:
+    - name: "strip_ansicodes"
+    - name: "key_value"
     - name: "glog"
     - name: "json"
+    - name: "tab_separated"
     - name: "override_severity"
       overrides:
         - matchtype: "startswith"
           matchkey: "Starting k3k"
           loglevel: "notice"
+        - matchtype: "startswith"
+          matchkey: "Error:"
+          loglevel: "error"

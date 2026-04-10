@@ -158,12 +158,22 @@ infoview:
   infopad:
     row_indexes:
       Normal:
-        fields: ["phase", "conditions", "scheduler", "node_label_selector",
+        fields: ["hostname", "scheduler", "node_label_selector",
                  "priority", "priority_class", "preemption_policy",
                  "qos_class", "host_ips", "pod_ips",
                  "termination_grace_period", "enable_service_links",
-                 "container_launch_priority"]
+                 "container_launch_priority", "conditions", "phase"]
     rows:
+      hostname:
+        header: [["Hostname:", ["main", "infoheader"]]]
+        paths:
+          - path: [["spec#hostname"], ["spec#subdomain"]]
+            pathtype: "tuple"
+            default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_separators:
+            - type: "ipv4address"
       conditions:
         header: [["Conditions:", ["main", "infoheader"]]]
         paths:

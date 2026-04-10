@@ -1,0 +1,25 @@
+---
+- name: "k3s"
+  show_in_selector: false
+  matchkeys:
+    - image_name: "/rancher/k3s"
+  parser_rules:
+    - name: "glog"
+    - name: "json"
+    - name: "key_value_with_leading_message"
+    - name: "custom_splitter"
+      options:
+        regex: '^\[([A-Z]{4})\] \[[^]]+\] (.*)'
+        severity:
+          field: 1
+          transform: "4letter"
+        message:
+          field: 2
+    - name: "override_severity"
+      overrides:
+        - matchtype: "startswith"
+          matchkey: "Starting k3s"
+          loglevel: "notice"
+        - matchtype: "startswith"
+          matchkey: "trace["
+          loglevel: "debug"

@@ -70,6 +70,10 @@ ApplyingManifest:
   field_colors:
     - context: "main"
       type: "status_pending"
+ApplyManifestFailed:
+  field_colors:
+    - context: "main"
+      type: "status_warning"
 AssistedControllerIsReady:
   field_colors:
     - context: "main"
