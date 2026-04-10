@@ -3812,11 +3812,13 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
     },
     # k3k.io
     ("Cluster", "k3k.io"): {
-        "api_paths": ["apis/k3k.io/v1alpha1/"],
+        "api_paths": ["apis/k3k.io/v1beta1/",
+                      "apis/k3k.io/v1alpha1/"],
         "api": "clusters",
     },
     ("VirtualClusterPolicy", "k3k.io"): {
-        "api_paths": ["apis/k3k.io/v1alpha1/"],
+        "api_paths": ["apis/k3k.io/v1beta1/",
+                      "apis/k3k.io/v1alpha1/"],
         "api": "virtualclusterpolicies",
         "namespaced": False,
     },
