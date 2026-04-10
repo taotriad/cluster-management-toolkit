@@ -1130,6 +1130,8 @@ def tab_separated(message: str, **kwargs: Any) \
     # timestamp, severity, message, json, or timestamp, severity, facility, json.
     #
     # To do this we check the last field to see if it can be parsed as JSON.
+    #
+    # If it's only 3 fields we assume the third field to be the message.
     if fields[-1].strip().startswith("{") and fields[-1].strip().endswith("}"):
         # This is a promising candidate to be JSON.
         try:
@@ -1156,6 +1158,8 @@ def tab_separated(message: str, **kwargs: Any) \
             # it's (probably) invalid JSON.
             facility = fields[2]
             message = " ".join(fields[3:])
+    elif len(fields) == 3:
+        message = fields[2]
     else:
         facility = fields[2]
         message = " ".join(fields[3:])

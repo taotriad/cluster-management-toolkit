@@ -380,9 +380,7 @@ def strip_ansicodes(message: str) -> str:
                      r"\x1b\[\d+;\d+m|"
                      r"\x1b\[\d+;\d+;\d+m|"
                      r".*?)", message)
-    message = "".join(item for item in tmp if not item.startswith("\x1b"))
-
-    return message
+    return "".join(item for item in tmp if not item.startswith("\x1b"))
 
 
 # pylint: disable-next=too-many-branches
