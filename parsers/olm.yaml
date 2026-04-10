@@ -6,6 +6,7 @@
       container_name: "cluster-olm-operator"
     - image_name: "/operatorhubio/catalog"
     - image_name: "/operator-framework/olm"
+    - image_name: "/operator-framework/opm"
     - image_name: "/operator-framework/catalogd"
     - image_name: "/operator-framework/operator-controller"
     # The name of the images in CRC are often pretty useless,
