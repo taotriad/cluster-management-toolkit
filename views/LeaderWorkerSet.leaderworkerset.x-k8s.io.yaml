@@ -98,8 +98,8 @@ infoview:
     row_indexes:
       Normal:
         fields: ["hpa_pod_selector", "total_pods", "subgroup_size",
-                 "restart_policy", "startup_policy", "rollout_strategy",
-                 "replicas"]
+                 "network_subdomain_policy", "restart_policy",
+                 "startup_policy", "rollout_strategy", "replicas"]
     rows:
       hpa_pod_selector:
         header: [["HPA Pod Selector:", ["main", "infoheader"]]]
@@ -115,6 +115,11 @@ infoview:
             - type: "value"
           field_separators:
             - type: "selector"
+      network_subdomain_policy:
+        header: [["Network Subdomain Policy:", ["main", "infoheader"]]]
+        path: "spec#networkConfig#subdomainPolicy"
+        default: "<unset>"
+        type: "str"
       replicas:
         header: [["Replicas:", ["main", "infoheader"]]]
         paths:
