@@ -1,0 +1,8 @@
+---
+- name: "dra-driver-cpu"
+  show_in_selector: false
+  matchkeys:
+    - image_name: "/dra-driver-cpu/dra-driver-cpu"
+  parser_rules:
+    - name: "glog"
+    - name: "key_value_with_leading_message"
