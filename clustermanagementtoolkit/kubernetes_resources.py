@@ -1214,6 +1214,62 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
                       "apis/kueue.x-k8s.io/v1beta1/"],
         "api": "workloads",
     },
+    # kwok.x-k8s.io
+    ("Attach", "kwok.x-k8s.io"): {
+        "api_paths": ["apis/kwok.x-k8s.io/v1alpha1/"],
+        "api": "attaches",
+    },
+    ("ClusterAttach", "kwok.x-k8s.io"): {
+        "api_paths": ["apis/kwok.x-k8s.io/v1alpha1/"],
+        "api": "clusterattaches",
+        "namespaced": False,
+    },
+    ("ClusterExec", "kwok.x-k8s.io"): {
+        "api_paths": ["apis/kwok.x-k8s.io/v1alpha1/"],
+        "api": "clusterexecs",
+        "namespaced": False,
+    },
+    ("ClusterLogs", "kwok.x-k8s.io"): {
+        "api_paths": ["apis/kwok.x-k8s.io/v1alpha1/"],
+        "api": "clusterlogs",
+        "namespaced": False,
+    },
+    ("ClusterPortForward", "kwok.x-k8s.io"): {
+        "api_paths": ["apis/kwok.x-k8s.io/v1alpha1/"],
+        "api": "clusterportforwards",
+        "namespaced": False,
+    },
+    ("ClusterResourceUsage", "kwok.x-k8s.io"): {
+        "api_paths": ["apis/kwok.x-k8s.io/v1alpha1/"],
+        "api": "clusterresourceusages",
+        "namespaced": False,
+    },
+    ("Exec", "kwok.x-k8s.io"): {
+        "api_paths": ["apis/kwok.x-k8s.io/v1alpha1/"],
+        "api": "execs",
+    },
+    ("Logs", "kwok.x-k8s.io"): {
+        "api_paths": ["apis/kwok.x-k8s.io/v1alpha1/"],
+        "api": "logs",
+    },
+    ("Metric", "kwok.x-k8s.io"): {
+        "api_paths": ["apis/kwok.x-k8s.io/v1alpha1/"],
+        "api": "metrics",
+        "namespaced": False,
+    },
+    ("PortForward", "kwok.x-k8s.io"): {
+        "api_paths": ["apis/kwok.x-k8s.io/v1alpha1/"],
+        "api": "portforwards",
+    },
+    ("ResourceUsage", "kwok.x-k8s.io"): {
+        "api_paths": ["apis/kwok.x-k8s.io/v1alpha1/"],
+        "api": "resourceusages",
+    },
+    ("Stage", "kwok.x-k8s.io"): {
+        "api_paths": ["apis/kwok.x-k8s.io/v1alpha1/"],
+        "api": "stages",
+        "namespaced": False,
+    },
     # leaderworkerset.x-k8s.io
     ("LeaderWorkerSet", "leaderworkerset.x-k8s.io"): {
         "api_paths": ["apis/leaderworkerset.x-k8s.io/v1/"],

@@ -958,8 +958,7 @@ def __upgrade_cni(cni: str, upgradetype: str, context: str,
                                                 fallback_allowlist=["/etc/alternatives"],
                                                 security_policy=SecurityPolicy.ALLOWLIST_RELAXED)
                     args = [str(kubectl_path)]
-                    kubectl_major_version, kubectl_minor_version, _kubectl_git_version, \
-                        _1, _2, _3 = \
+                    kubectl_major_version, kubectl_minor_version, *_ignore = \
                         kubernetes_helper.kubectl_get_version(client_only=True)
                     if kubectl_major_version is None or kubectl_minor_version is None:
                         ansithemeprint([ANSIThemeStr("Critical", "critical"),
@@ -2664,7 +2663,8 @@ def __task_drain_control_planes(installation_info: dict, **kwargs: Any) -> None:
         check_and_print_status(True)
         return
 
-    kubectl_major_version, kubectl_minor_version, *_ignore = kubernetes_helper.kubectl_get_version()
+    kubectl_major_version, kubectl_minor_version, *_ignore = \
+        kubernetes_helper.kubectl_get_version(client_only=True)
     if kubectl_major_version is None or kubectl_minor_version is None:
         ansithemeprint([ANSIThemeStr("Critical", "critical"),
                         ANSIThemeStr(": Could not extract ", "default"),

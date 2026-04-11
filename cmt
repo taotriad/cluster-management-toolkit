@@ -568,8 +568,8 @@ def drain_nodes(options: Sequence[tuple[str, str | None]], args: list[str]) -> i
     header = True
 
     # Check kubectl version
-    kubectl_major_version, kubectl_minor_version, _kubectl_git_version, \
-        _1, _2, _3 = kubectl_get_version(client_only=True)
+    kubectl_major_version, kubectl_minor_version, *_ignore = \
+        kubernetes_helper.kubectl_get_version(client_only=True)
     if kubectl_major_version is None or kubectl_minor_version is None:
         ansithemeprint([ANSIThemeStr("Critical", "critical"),
                         ANSIThemeStr(": Could not extract ", "default"),
