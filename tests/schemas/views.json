@@ -620,6 +620,14 @@
 						"additionalProperties": {
 						}
 					},
+					"newlines": {
+						"description": "How to handle newlines",
+						"enum": [
+							"escape",
+							"replace",
+							"strip"
+						]
+					},
 					"none_str_as_none": {
 						"description": "By default the string None is treated as any other string; if this is true it's instead treated as null",
 						"type": "boolean"

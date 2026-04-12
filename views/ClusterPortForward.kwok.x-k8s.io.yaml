@@ -1,0 +1,77 @@
+---
+kind: "ClusterPortForward"
+api_family: "kwok.x-k8s.io"
+default_command: "clusterportforwards.kwok.x-k8s.io"
+command:
+  - "clrpfs.kwok"
+  - "clrpf.kwok"
+  - "kwokclrpfs"
+  - "kwokclrpf"
+listview:
+  name: "Cluster Port Forwards"
+  group: "Cluster Configuration"
+  field_indexes:
+    Normal:
+      fields: ["name", "age"]
+infoview:
+  name: "Cluster Port Forward Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["selector_header",
+                 "selector_match_names", "selector_match_namespaces"]
+    rows:
+      selector_header:
+        header: [["Selector:", ["main", "infoheader"]]]
+      selector_match_names:
+        header: [["  Match Names:", ["main", "infoheader"]]]
+        path: "spec#selector#matchNames"
+        default: ["ALL"]
+        type: "raw"
+        formatter: "list"
+      selector_match_namespaces:
+        header: [["  Match Namespaces:", ["main", "infoheader"]]]
+        path: "spec#selector#matchNamespaces"
+        default: ["ALL"]
+        type: "raw"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "namespace"
+  listpad:
+    listgetter: "listgetter_path"
+    listgetter_args:
+      path: "spec#forwards"
+    infogetter: "generic_infogetter"
+    field_indexes:
+      Normal:
+        fields: ["target", "ports", "command"]
+    fields:
+      command:
+        header: "Command:"
+        path: "command"
+        type: "raw"
+        formatter: "list"
+        formatting:
+          item_separator:
+            type: "command"
+      ports:
+        header: "Ports:"
+        path: "ports"
+        type: "raw"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "port"
+      target:
+        header: "Target:"
+        paths:
+          - path: [["target#address"], ["target#port"]]
+            pathtype: "tuple"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "service"
+            - type: "port"
+          field_separators:
+            - type: "port"

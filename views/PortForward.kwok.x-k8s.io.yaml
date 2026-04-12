@@ -1,0 +1,56 @@
+---
+kind: "PortForward"
+api_family: "kwok.x-k8s.io"
+default_command: "portforwards.kwok.x-k8s.io"
+command:
+  - "pfs.kwok"
+  - "pf.kwok"
+  - "kwokpfs"
+  - "kwokpf"
+listview:
+  name: "Port Forwards"
+  group: "Cluster Configuration"
+  field_indexes:
+    Normal:
+      fields: ["namespace", "name", "age"]
+      sortcolumn: "namespace"
+infoview:
+  name: "Port Forward Info"
+  infopad:
+  listpad:
+    listgetter: "listgetter_path"
+    listgetter_args:
+      path: "spec#forwards"
+    infogetter: "generic_infogetter"
+    field_indexes:
+      Normal:
+        fields: ["target", "ports", "command"]
+    fields:
+      command:
+        header: "Command:"
+        path: "command"
+        type: "raw"
+        formatter: "list"
+        formatting:
+          item_separator:
+            type: "command"
+      ports:
+        header: "Ports:"
+        path: "ports"
+        type: "raw"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "port"
+      target:
+        header: "Target:"
+        paths:
+          - path: [["target#address"], ["target#port"]]
+            pathtype: "tuple"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "service"
+            - type: "port"
+          field_separators:
+            - type: "port"

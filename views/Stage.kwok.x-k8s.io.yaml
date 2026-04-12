@@ -1,0 +1,126 @@
+---
+kind: "Stage"
+api_family: "kwok.x-k8s.io"
+default_command: "stages.kwok.x-k8s.io"
+command:
+  - "stages.kwok"
+  - "stage.kwok"
+  - "kwokstages"
+  - "kwokstage"
+listview:
+  name: "Stages"
+  group: "Cluster Configuration"
+  field_indexes:
+    Normal:
+      fields: ["name", "resource", "weight", "age"]
+  fields:
+    resource:
+      header: "Resource:"
+      paths:
+        - path: [["spec#resourceRef#kind"], ["spec#resourceRef#apiGroup"]]
+          pathtype: "tuple"
+          type: ["kind", "api_group"]
+          default: ["<none>"]
+      formatter: "list"
+      formatting:
+        field_colors:
+          - type: "kind"
+          - type: "api_group"
+        field_separators:
+          - type: "kind_api_group"
+    weight:
+      header: "Weight:"
+      path: "spec#weight"
+      default: "<unset>"
+      type: "int"
+      formatter: "numerical"
+      align: "right"
+infoview:
+  name: "Stage Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["delay_header", "delay_duration", "delay_jitter_duration",
+                 "weight", "resource", "set_based_selector",
+                 "next_header", "next_delete",
+                 "next_finalizers_header",
+                 "next_finalizers_empty", "next_status_subresource"]
+    rows:
+      delay_duration:
+        header: [["  Duration:", ["main", "infoheader"]]]
+        path: "spec#delay#durationMilliseconds"
+        default: "<unset>"
+        type: "int"
+        formatter: "numerical"
+        formatting:
+          unit: "s"
+      delay_header:
+        header: [["Delay:", ["main", "infoheader"]]]
+      delay_jitter_duration:
+        header: [["  Jitter Duration:", ["main", "infoheader"]]]
+        path: "spec#delay#jitterDurationMilliseconds"
+        default: "<unset>"
+        type: "int"
+        formatter: "numerical"
+        formatting:
+          unit: "s"
+      next_delete:
+        header: [["  Delete:", ["main", "infoheader"]]]
+        path: "spec#next#delete"
+        default: "<unset>"
+        type: "bool"
+      next_header:
+        header: [["Next:", ["main", "infoheader"]]]
+      next_finalizers_header:
+        header: [["  Finalizers:", ["main", "infoheader"]]]
+      next_finalizers_empty:
+        header: [["    Empty:", ["main", "infoheader"]]]
+        path: "spec#next#finalizers#empty"
+        default: "<unset>"
+        type: "bool"
+      next_status_subresource:
+        header: [["  Status Subresource:", ["main", "infoheader"]]]
+        path: "spec#next#statusSubresource"
+        default: "<unset>"
+        type: "str"
+      resource:
+        header: [["Resource:", ["main", "infoheader"]]]
+        paths:
+          - path: [["spec#resourceRef#kind"], ["spec#resourceRef#apiGroup"]]
+            pathtype: "tuple"
+            type: ["kind", "api_group"]
+            default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "kind"
+            - type: "api_group"
+          field_separators:
+            - type: "kind_api_group"
+      set_based_selector:
+        header: [["Set-based Selector:", ["main", "infoheader"]]]
+        paths:
+          - path: "spec#selector#matchExpressions"
+            pathtype: "match_expression"
+            default: "<none>"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "key"
+            - type: "operator"
+            - type: "value"
+          field_separators:
+            - type: "space"
+            - type: "no_pad"
+      weight:
+        header: [["Weight:", ["main", "infoheader"]]]
+        path: "spec#weight"
+        default: "<unset>"
+        type: "int"
+        formatter: "numerical"
+  logpad:
+    infogetter: "logpad_formatted"
+    infogetter_args:
+      formatter: "format_yaml"
+      path: "spec#next#statusTemplate"
+    timestamps: false

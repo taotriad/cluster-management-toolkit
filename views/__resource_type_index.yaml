@@ -345,6 +345,16 @@ argorollouts:
   - Rollout
   - argoproj.io
   viewfile: Rollout.argoproj.io.yaml
+attach.kwok:
+  kind:
+  - Attach
+  - kwok.x-k8s.io
+  viewfile: Attach.kwok.x-k8s.io.yaml
+attaches.kwok:
+  kind:
+  - Attach
+  - kwok.x-k8s.io
+  viewfile: Attach.kwok.x-k8s.io.yaml
 auth.opendatahub:
   kind:
   - Auth
@@ -1025,6 +1035,16 @@ clras.storage:
   - ClusterAccess
   - storage.loft.sh
   viewfile: ClusterAccess.storage.loft.sh.yaml
+clrattach.kwok:
+  kind:
+  - ClusterAttach
+  - kwok.x-k8s.io
+  viewfile: ClusterAttach.kwok.x-k8s.io.yaml
+clrattaches.kwok:
+  kind:
+  - ClusterAttach
+  - kwok.x-k8s.io
+  viewfile: ClusterAttach.kwok.x-k8s.io.yaml
 clrb:
   kind:
   - ClusterRoleBinding
@@ -1060,6 +1080,16 @@ clrdomclaims:
   - ClusterDomainClaim
   - networking.internal.knative.dev
   viewfile: ClusterDomainClaim.networking.internal.knative.dev.yaml
+clrexec.kwok:
+  kind:
+  - ClusterExec
+  - kwok.x-k8s.io
+  viewfile: ClusterExec.kwok.x-k8s.io.yaml
+clrexecs.kwok:
+  kind:
+  - ClusterExec
+  - kwok.x-k8s.io
+  viewfile: ClusterExec.kwok.x-k8s.io.yaml
 clrext:
   kind:
   - ClusterExtension
@@ -1140,6 +1170,16 @@ clrimgpols:
   - ClusterImagePolicy
   - config.openshift.io
   viewfile: ClusterImagePolicy.config.openshift.io.yaml
+clrlog.kwok:
+  kind:
+  - ClusterLogs
+  - kwok.x-k8s.io
+  viewfile: ClusterLogs.kwok.x-k8s.io.yaml
+clrlogs.kwok:
+  kind:
+  - ClusterLogs
+  - kwok.x-k8s.io
+  viewfile: ClusterLogs.kwok.x-k8s.io.yaml
 clroutput:
   kind:
   - ClusterOutput
@@ -1155,6 +1195,16 @@ clrp:
   - CiliumLocalRedirectPolicy
   - cilium.io
   viewfile: CiliumLocalRedirectPolicy.cilium.io.yaml
+clrpf.kwok:
+  kind:
+  - ClusterPortForward
+  - kwok.x-k8s.io
+  viewfile: ClusterPortForward.kwok.x-k8s.io.yaml
+clrpfs.kwok:
+  kind:
+  - ClusterPortForward
+  - kwok.x-k8s.io
+  viewfile: ClusterPortForward.kwok.x-k8s.io.yaml
 clrpol.habana:
   kind:
   - ClusterPolicy
@@ -1285,6 +1335,16 @@ clrrepos:
   - ClusterRepo
   - catalog.cattle.io
   viewfile: ClusterRepo.catalog.cattle.io.yaml
+clrresusage.kwok:
+  kind:
+  - ClusterResourceUsage
+  - kwok.x-k8s.io
+  viewfile: ClusterResourceUsage.kwok.x-k8s.io.yaml
+clrresusages.kwok:
+  kind:
+  - ClusterResourceUsage
+  - kwok.x-k8s.io
+  viewfile: ClusterResourceUsage.kwok.x-k8s.io.yaml
 clrrole:
   kind:
   - ClusterRole
@@ -2425,6 +2485,16 @@ evtailers:
   - EventTailer
   - logging-extensions.banzaicloud.io
   viewfile: EventTailer.logging-extensions.banzaicloud.io.yaml
+exec.kwok:
+  kind:
+  - Exec
+  - kwok.x-k8s.io
+  viewfile: Exec.kwok.x-k8s.io.yaml
+execs.kwok:
+  kind:
+  - Exec
+  - kwok.x-k8s.io
+  viewfile: Exec.kwok.x-k8s.io.yaml
 exposedsecret:
   kind:
   - ExposedSecretReport
@@ -4030,6 +4100,126 @@ kvvms:
   - VirtualMachine
   - kubevirt.io
   viewfile: VirtualMachine.kubevirt.io.yaml
+kwokattach:
+  kind:
+  - Attach
+  - kwok.x-k8s.io
+  viewfile: Attach.kwok.x-k8s.io.yaml
+kwokattaches:
+  kind:
+  - Attach
+  - kwok.x-k8s.io
+  viewfile: Attach.kwok.x-k8s.io.yaml
+kwokclrattach:
+  kind:
+  - ClusterAttach
+  - kwok.x-k8s.io
+  viewfile: ClusterAttach.kwok.x-k8s.io.yaml
+kwokclrattaches:
+  kind:
+  - ClusterAttach
+  - kwok.x-k8s.io
+  viewfile: ClusterAttach.kwok.x-k8s.io.yaml
+kwokclrexec:
+  kind:
+  - ClusterExec
+  - kwok.x-k8s.io
+  viewfile: ClusterExec.kwok.x-k8s.io.yaml
+kwokclrexecs:
+  kind:
+  - ClusterExec
+  - kwok.x-k8s.io
+  viewfile: ClusterExec.kwok.x-k8s.io.yaml
+kwokclrlog:
+  kind:
+  - ClusterLogs
+  - kwok.x-k8s.io
+  viewfile: ClusterLogs.kwok.x-k8s.io.yaml
+kwokclrlogs:
+  kind:
+  - ClusterLogs
+  - kwok.x-k8s.io
+  viewfile: ClusterLogs.kwok.x-k8s.io.yaml
+kwokclrpf:
+  kind:
+  - ClusterPortForward
+  - kwok.x-k8s.io
+  viewfile: ClusterPortForward.kwok.x-k8s.io.yaml
+kwokclrpfs:
+  kind:
+  - ClusterPortForward
+  - kwok.x-k8s.io
+  viewfile: ClusterPortForward.kwok.x-k8s.io.yaml
+kwokclrresusage:
+  kind:
+  - ClusterResourceUsage
+  - kwok.x-k8s.io
+  viewfile: ClusterResourceUsage.kwok.x-k8s.io.yaml
+kwokclrresusages:
+  kind:
+  - ClusterResourceUsage
+  - kwok.x-k8s.io
+  viewfile: ClusterResourceUsage.kwok.x-k8s.io.yaml
+kwokexec:
+  kind:
+  - Exec
+  - kwok.x-k8s.io
+  viewfile: Exec.kwok.x-k8s.io.yaml
+kwokexecs:
+  kind:
+  - Exec
+  - kwok.x-k8s.io
+  viewfile: Exec.kwok.x-k8s.io.yaml
+kwoklog:
+  kind:
+  - Logs
+  - kwok.x-k8s.io
+  viewfile: Logs.kwok.x-k8s.io.yaml
+kwoklogs:
+  kind:
+  - Logs
+  - kwok.x-k8s.io
+  viewfile: Logs.kwok.x-k8s.io.yaml
+kwokmetric:
+  kind:
+  - Metric
+  - kwok.x-k8s.io
+  viewfile: Metric.kwok.x-k8s.io.yaml
+kwokmetrics:
+  kind:
+  - Metric
+  - kwok.x-k8s.io
+  viewfile: Metric.kwok.x-k8s.io.yaml
+kwokpf:
+  kind:
+  - PortForward
+  - kwok.x-k8s.io
+  viewfile: PortForward.kwok.x-k8s.io.yaml
+kwokpfs:
+  kind:
+  - PortForward
+  - kwok.x-k8s.io
+  viewfile: PortForward.kwok.x-k8s.io.yaml
+kwokresusage:
+  kind:
+  - ResourceUsage
+  - kwok.x-k8s.io
+  viewfile: ResourceUsage.kwok.x-k8s.io.yaml
+kwokresusages:
+  kind:
+  - ResourceUsage
+  - kwok.x-k8s.io
+  viewfile: ResourceUsage.kwok.x-k8s.io.yaml
+kwokstage:
+  kind:
+  - Stage
+  - kwok.x-k8s.io
+  viewfile: Stage.kwok.x-k8s.io.yaml
+kwokstages:
+  kind:
+  - Stage
+  - kwok.x-k8s.io
+  viewfile: Stage.kwok.x-k8s.io.yaml
 kyclrpol:
   kind:
   - ClusterPolicy
@@ -4345,6 +4535,16 @@ localuser.storage:
   - LocalUser
   - storage.loft.sh
   viewfile: LocalUser.storage.loft.sh.yaml
+log.kwok:
+  kind:
+  - Logs
+  - kwok.x-k8s.io
+  viewfile: Logs.kwok.x-k8s.io.yaml
+logs.kwok:
+  kind:
+  - Logs
+  - kwok.x-k8s.io
+  viewfile: Logs.kwok.x-k8s.io.yaml
 lr:
   kind:
   - LimitRange
@@ -4485,11 +4685,21 @@ metric.knative:
   - Metric
   - autoscaling.internal.knative.dev
   viewfile: Metric.autoscaling.internal.knative.dev.yaml
+metric.kwok:
+  kind:
+  - Metric
+  - kwok.x-k8s.io
+  viewfile: Metric.kwok.x-k8s.io.yaml
 metrics.knative:
   kind:
   - Metric
   - autoscaling.internal.knative.dev
   viewfile: Metric.autoscaling.internal.knative.dev.yaml
+metrics.kwok:
+  kind:
+  - Metric
+  - kwok.x-k8s.io
+  viewfile: Metric.kwok.x-k8s.io.yaml
 miniclr:
   kind:
   - MiniCluster
@@ -5395,6 +5605,16 @@ perfprofiles:
   - PerformanceProfile
   - performance.openshift.io
   viewfile: PerformanceProfile.performance.openshift.io.yaml
+pf.kwok:
+  kind:
+  - PortForward
+  - kwok.x-k8s.io
+  viewfile: PortForward.kwok.x-k8s.io.yaml
+pfs.kwok:
+  kind:
+  - PortForward
+  - kwok.x-k8s.io
+  viewfile: PortForward.kwok.x-k8s.io.yaml
 pg:
   kind:
   - PodGroup
@@ -5950,6 +6170,16 @@ resslices:
   - ResourceSlice
   - resource.k8s.io
   viewfile: ResourceSlice.resource.k8s.io.yaml
+resusage.kwok:
+  kind:
+  - ResourceUsage
+  - kwok.x-k8s.io
+  viewfile: ResourceUsage.kwok.x-k8s.io.yaml
+resusages.kwok:
+  kind:
+  - ResourceUsage
+  - kwok.x-k8s.io
+  viewfile: ResourceUsage.kwok.x-k8s.io.yaml
 revision.knative:
   kind:
   - Revision
@@ -6169,22 +6399,26 @@ secprofopd:
   kind:
   - SecurityProfilesOperatorDaemon
   - security-profiles-operator.x-k8s.io
-  viewfile: SecurityProfilesOperatorDaemon.security-profiles-operator.x-k8s.io.yaml
+  viewfile: 
+    SecurityProfilesOperatorDaemon.security-profiles-operator.x-k8s.io.yaml
 secprofopdaemon:
   kind:
   - SecurityProfilesOperatorDaemon
   - security-profiles-operator.x-k8s.io
-  viewfile: SecurityProfilesOperatorDaemon.security-profiles-operator.x-k8s.io.yaml
+  viewfile: 
+    SecurityProfilesOperatorDaemon.security-profiles-operator.x-k8s.io.yaml
 secprofopdaemons:
   kind:
   - SecurityProfilesOperatorDaemon
   - security-profiles-operator.x-k8s.io
-  viewfile: SecurityProfilesOperatorDaemon.security-profiles-operator.x-k8s.io.yaml
+  viewfile: 
+    SecurityProfilesOperatorDaemon.security-profiles-operator.x-k8s.io.yaml
 secprofopds:
   kind:
   - SecurityProfilesOperatorDaemon
   - security-profiles-operator.x-k8s.io
-  viewfile: SecurityProfilesOperatorDaemon.security-profiles-operator.x-k8s.io.yaml
+  viewfile: 
+    SecurityProfilesOperatorDaemon.security-profiles-operator.x-k8s.io.yaml
 secprovclass:
   kind:
   - SecretProviderClass
@@ -6490,6 +6724,11 @@ stackconfpols:
   - StackConfigPolicy
   - stackconfigpolicy.k8s.elastic.co
   viewfile: StackConfigPolicy.stackconfigpolicy.k8s.elastic.co.yaml
+stage.kwok:
+  kind:
+  - Stage
+  - kwok.x-k8s.io
+  viewfile: Stage.kwok.x-k8s.io.yaml
 stagedglobalnetworkpolicies.calico:
   kind:
   - StagedGlobalNetworkPolicy
@@ -6535,6 +6774,11 @@ stagednetworkpolicy.crd.projectcalico.org:
   - StagedNetworkPolicy
   - crd.projectcalico.org
   viewfile: StagedNetworkPolicy.crd.projectcalico.org.yaml
+stages.kwok:
+  kind:
+  - Stage
+  - kwok.x-k8s.io
+  viewfile: Stage.kwok.x-k8s.io.yaml
 storage:
   kind:
   - Storage
@@ -6584,12 +6828,14 @@ svccertsigneropconf:
   kind:
   - ServiceCertSignerOperatorConfig
   - servicecertsigner.config.openshift.io
-  viewfile: ServiceCertSignerOperatorConfig.servicecertsigner.config.openshift.io.yaml
+  viewfile: 
+    ServiceCertSignerOperatorConfig.servicecertsigner.config.openshift.io.yaml
 svccertsigneropconfs:
   kind:
   - ServiceCertSignerOperatorConfig
   - servicecertsigner.config.openshift.io
-  viewfile: ServiceCertSignerOperatorConfig.servicecertsigner.config.openshift.io.yaml
+  viewfile: 
+    ServiceCertSignerOperatorConfig.servicecertsigner.config.openshift.io.yaml
 svccidr:
   kind:
   - ServiceCIDR

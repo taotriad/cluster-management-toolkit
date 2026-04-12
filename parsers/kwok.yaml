@@ -1,0 +1,7 @@
+---
+- name: "kwok"
+  show_in_selector: false
+  matchkeys:
+    - image_name: "/kwok/kwok"
+  parser_rules:
+    - name: "json"

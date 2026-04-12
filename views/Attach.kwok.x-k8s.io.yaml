@@ -1,0 +1,42 @@
+---
+kind: "Attach"
+api_family: "kwok.x-k8s.io"
+default_command: "attaches.kwok.x-k8s.io"
+command:
+  - "attaches.kwok"
+  - "attach.kwok"
+  - "kwokattaches"
+  - "kwokattach"
+listview:
+  name: "Attaches"
+  group: "Cluster Configuration"
+  field_indexes:
+    Normal:
+      fields: ["namespace", "name", "age"]
+      sortcolumn: "namespace"
+infoview:
+  name: "Attach Info"
+  infopad:
+  listpad:
+    listgetter: "listgetter_path"
+    listgetter_args:
+      path: "spec#attaches"
+    infogetter: "generic_infogetter"
+    field_indexes:
+      Normal:
+        fields: ["containers", "logs_file"]
+    fields:
+      containers:
+        header: "Containers:"
+        path: "containers"
+        default: ["ALL"]
+        type: "raw"
+        formatter: "list"
+      logs_file:
+        header: "Logs File:"
+        path: "logsFile"
+        default: "<none>"
+        type: "str"
+        formatting:
+          field_colors:
+            - type: "path"

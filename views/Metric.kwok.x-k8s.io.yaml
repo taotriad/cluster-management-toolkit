@@ -1,0 +1,80 @@
+---
+kind: "Metric"
+api_family: "kwok.x-k8s.io"
+default_command: "metrics.kwok.x-k8s.io"
+command:
+  - "metrics.kwok"
+  - "metric.kwok"
+  - "kwokmetrics"
+  - "kwokmetric"
+listview:
+  name: "Metrics"
+  group: "Cluster Configuration"
+  field_indexes:
+    Normal:
+      fields: ["name", "path", "age"]
+  fields:
+    path:
+      header: "Path:"
+      path: "spec#path"
+      default: "<unset>"
+      type: "str"
+infoview:
+  name: "Metric Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["path"]
+    rows:
+      path:
+        header: [["Path:", ["main", "infoheader"]]]
+        path: "spec#path"
+        default: "<unset>"
+        type: "str"
+  listpad:
+    listgetter: "listgetter_path"
+    listgetter_args:
+      path: "spec#metrics"
+    infogetter: "generic_infogetter"
+    field_indexes:
+      Normal:
+        fields: ["kind", "name", "value", "dimension", "help", "labels"]
+        sortcolumn: "kind"
+    fields:
+      dimension:
+        header: "Dimension:"
+        path: "dimension"
+        default: "<unset>"
+        type: "str"
+      help:
+        header: "Help:"
+        path: "help"
+        default: "<unset>"
+        type: "str"
+      kind:
+        header: "Kind:"
+        path: "kind"
+        default: "<unset>"
+        type: "str"
+      labels:
+        header: "Labels:"
+        paths:
+          - path: "labels"
+            pathtype: "key_value"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "key"
+            - type: "value"
+          field_separators:
+            - type: "selector"
+      name:
+        header: "Name:"
+        path: "name"
+        default: "<unset>"
+        type: "str"
+      value:
+        header: "Value:"
+        path: "value"
+        default: "<unset>"
+        type: "raw"

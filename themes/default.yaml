@@ -1231,6 +1231,7 @@ strings:
     selected: [["█", ["main", "status_done"]]]
 
 separators:
+  command: [["; ", ["types", "separator_list"]]]
   date: [["-", ["types", "unit"]]]
   email_prefix: [["<", ["types", "email"]]]
   email_suffix: [[">", ["types", "email"]]]

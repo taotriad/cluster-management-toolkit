@@ -101,15 +101,20 @@ import clustermanagementtoolkit.logparser as logparsers
 from clustermanagementtoolkit.ansithemeprint import ANSIThemeStr
 
 
-def __process_string(value: str, replace_quotes: str) -> str:
+def __process_string(value: str, quotes: str, newlines: str = "escape") -> str:
     # We do not want any newlines, and extra trailing whitespace
     if value is None:
         value = ""
     if isinstance(value, str):
-        value = value.replace("\n", "\\n").rstrip()
-        if replace_quotes == "pretty":
+        if newlines == "strip":
+            value = value.replace("\n", "").rstrip()
+        elif newlines == "replace":
+            value = value.replace("\n", " ").rstrip()
+        else:
+            value = value.replace("\n", "\\n").rstrip()
+        if quotes == "pretty":
             value = value.replace("\\\"", "“")
-        elif replace_quotes == "same":
+        elif quotes == "same":
             value = value.replace("\\\"", "\"")
     return value
 
@@ -173,6 +178,7 @@ def process_value(value: Any, vtype: str | list, **kwargs: Any) -> \
     field_name: str = deep_get(kwargs, DictPath("field_name"))
     formatter: str = deep_get(kwargs, DictPath("formatter"))
     replace_quotes: str = deep_get(kwargs, DictPath("replace_quotes"))
+    newlines: str = deep_get(kwargs, DictPath("newlines"))
     view: str = deep_get(kwargs, DictPath("view"))
 
     override_kind = \
@@ -185,7 +191,7 @@ def process_value(value: Any, vtype: str | list, **kwargs: Any) -> \
     new_value: int | float | str | list[str] | tuple[str] | datetime | None = None
 
     if vtype == "str":
-        new_value = __process_string(value, replace_quotes)
+        new_value = __process_string(value, quotes=replace_quotes, newlines=newlines)
     elif vtype in ("float", "int", "bool"):
         if isinstance(value, (list, tuple)) and action == "sum":
             new_value = sum(value)
@@ -656,6 +662,7 @@ def get_obj(obj: dict, field_dict: dict, field_names: list[str],
         fallback_on_empty = deep_get(field, DictPath("fallback_on_empty"), False)
         formatter = deep_get(field, DictPath("formatter"))
         action = None
+        newlines = None
         replace_quotes = None
 
         if (path is None and not paths or path is not None and paths) and datagetter is None:
@@ -702,6 +709,7 @@ def get_obj(obj: dict, field_dict: dict, field_names: list[str],
                 subpaths = deep_get(_path, DictPath("subpaths"), [])
                 fallback_on_empty = deep_get(_path, DictPath("fallback_on_empty"), False)
                 replace_quotes = deep_get(_path, DictPath("replace_quotes"), "no")
+                newlines = deep_get(_path, DictPath("newlines"), "escape")
                 if ptype == "list":
                     tmp = deep_get_with_fallback(obj, path, default=default,
                                                  fallback_on_empty=fallback_on_empty)
@@ -861,6 +869,8 @@ def get_obj(obj: dict, field_dict: dict, field_names: list[str],
                         tmp = [obj]
                     else:
                         tmp = deep_get_with_fallback(obj, path, [])
+                    if isinstance(tmp, dict):
+                        tmp = [tmp]
                     for selector in tmp:
                         if "matchExpressions" in selector:
                             value.append(make_set_expression(selector["matchExpressions"]))
@@ -1195,7 +1205,7 @@ def get_obj(obj: dict, field_dict: dict, field_names: list[str],
                                     _subpath = [_subpath]
                                 tmp_ = deep_get_with_fallback(item, _subpath, _default)
                                 if isinstance(tmp_, str):
-                                    tmp_ = __process_string(tmp_, replace_quotes="same")
+                                    tmp_ = __process_string(tmp_, quotes="same")
                                 if isinstance(prefix, str):
                                     if isinstance(tmp_, str):
                                         tmp_ = prefix + tmp_
@@ -1356,6 +1366,7 @@ def get_obj(obj: dict, field_dict: dict, field_names: list[str],
                 "field_index": field_index,
                 "field_name": name,
                 "formatter": formatter,
+                "newlines": newlines,
                 "regex_": deep_get(_path, DictPath("regex")),
                 "replace_quotes": replace_quotes,
                 "view": view,

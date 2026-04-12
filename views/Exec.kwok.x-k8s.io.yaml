@@ -1,0 +1,57 @@
+---
+kind: "Exec"
+api_family: "kwok.x-k8s.io"
+default_command: "execs.kwok.x-k8s.io"
+command:
+  - "execs.kwok"
+  - "exec.kwok"
+  - "kwokexecs"
+  - "kwokexec"
+listview:
+  name: "Execs"
+  group: "Cluster Configuration"
+  field_indexes:
+    Normal:
+      fields: ["namespace", "name", "age"]
+      sortcolumn: "namespace"
+infoview:
+  name: "Exec Info"
+  infopad:
+  listpad:
+    listgetter: "listgetter_path"
+    listgetter_args:
+      path: "spec#execs"
+    infogetter: "generic_infogetter"
+    field_indexes:
+      Normal:
+        fields: ["containers", "workdir", "envs"]
+    fields:
+      containers:
+        header: "Containers:"
+        path: "containers"
+        default: ["ALL"]
+        type: "raw"
+        formatter: "list"
+      envs:
+        header: "Environment Variables:"
+        paths:
+          - path: "local#envs"
+            pathtype: "items"
+            subpaths:
+              - "name"
+              - "value"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "key"
+            - type: "value"
+          field_separators:
+            - type: "selector"
+      workdir:
+        header: "Work Dir:"
+        path: "local#workDir"
+        default: "<none>"
+        type: "str"
+        formatting:
+          field_colors:
+            - type: "path"

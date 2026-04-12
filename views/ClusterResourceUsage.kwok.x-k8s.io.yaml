@@ -1,0 +1,43 @@
+---
+kind: "ClusterResourceUsage"
+api_family: "kwok.x-k8s.io"
+default_command: "clusterresourceusages"
+command:
+  - "clrresusages.kwok"
+  - "clrresusage.kwok"
+  - "kwokclrresusages"
+  - "kwokclrresusage"
+listview:
+  name: "Cluster Resource Usages"
+  group: "Cluster Configuration"
+  field_indexes:
+    Normal:
+      fields: ["name", "age"]
+infoview:
+  name: "Cluster Resource Usage Info"
+  infopad:
+  listpad:
+    listgetter: "listgetter_path"
+    listgetter_args:
+      path: "spec#usages"
+    infogetter: "generic_infogetter"
+    field_indexes:
+      Normal:
+        fields: ["cpu", "memory"]
+    fields:
+      cpu:
+        header: "CPU:"
+        paths:
+          - path: "usage#cpu#expression"
+            pathtype: "value"
+            newlines: "replace"
+            default: "<none>"
+            type: "str"
+      memory:
+        header: "Memory:"
+        paths:
+          - path: "usage#memory#expression"
+            pathtype: "value"
+            newlines: "replace"
+            default: "<none>"
+            type: "str"

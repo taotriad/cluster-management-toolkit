@@ -1,0 +1,55 @@
+---
+kind: "Logs"
+api_family: "kwok.x-k8s.io"
+default_command: "logs.kwok.x-k8s.io"
+command:
+  - "logs.kwok"
+  - "log.kwok"
+  - "kwoklogs"
+  - "kwoklog"
+listview:
+  name: "Logs"
+  group: "Cluster Configuration"
+  field_indexes:
+    Normal:
+      fields: ["namespace", "name", "age"]
+      sortcolumn: "namespace"
+infoview:
+  name: "Log Info"
+  infopad:
+  listpad:
+    listgetter: "listgetter_path"
+    listgetter_args:
+      path: "spec#logs"
+    infogetter: "generic_infogetter"
+    field_indexes:
+      Normal:
+        fields: ["containers", "follow", "logs_file", "previous_logs_file"]
+    fields:
+      containers:
+        header: "Containers:"
+        path: "containers"
+        default: ["ALL"]
+        type: "raw"
+        formatter: "list"
+      follow:
+        header: "Follow:"
+        path: "follow"
+        default: false
+        type: "bool"
+      logs_file:
+        header: "Logs File:"
+        path: "logsFile"
+        default: "<none>"
+        type: "str"
+        formatting:
+          field_colors:
+            - type: "path"
+      previous_logs_file:
+        header: "Previous Logs File:"
+        path: "previousLogsFile"
+        default: "<none>"
+        type: "str"
+        formatting:
+          field_colors:
+            - type: "path"

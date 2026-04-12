@@ -1,0 +1,44 @@
+---
+kind: "ResourceUsage"
+api_family: "kwok.x-k8s.io"
+default_command: "resourceusages"
+command:
+  - "resusages.kwok"
+  - "resusage.kwok"
+  - "kwokresusages"
+  - "kwokresusage"
+listview:
+  name: "Resource Usages"
+  group: "Cluster Configuration"
+  field_indexes:
+    Normal:
+      fields: ["namespace", "name", "age"]
+      sortcolumn: "namespace"
+infoview:
+  name: "Resource Usage Info"
+  infopad:
+  listpad:
+    listgetter: "listgetter_path"
+    listgetter_args:
+      path: "spec#usages"
+    infogetter: "generic_infogetter"
+    field_indexes:
+      Normal:
+        fields: ["cpu", "memory"]
+    fields:
+      cpu:
+        header: "CPU:"
+        paths:
+          - path: "usage#cpu#expression"
+            pathtype: "value"
+            newlines: "replace"
+            default: "<none>"
+            type: "str"
+      memory:
+        header: "Memory:"
+        paths:
+          - path: "usage#memory#expression"
+            pathtype: "value"
+            newlines: "replace"
+            default: "<none>"
+            type: "str"
