@@ -1,0 +1,59 @@
+---
+kind: "Work"
+api_family: "multicluster.x-k8s.io"
+default_command: "works"
+listview:
+  name: "Works"
+  group: "Cluster Configuration"
+  field_indexes:
+    Normal:
+      fields: ["namespace", "name", "age"]
+      sortcolumn: "namespace"
+infoview:
+  name: "Works Info"
+  infopad:
+  listpad:
+    on_activation:
+      call: "resourceinfodispatch"
+      kind: "__ResourceView"
+      formatter: "format_yaml"
+      obj_path: ""
+      title: "Manifest"
+    listgetter: "listgetter_path"
+    listgetter_args:
+      path: "spec#workload#manifests"
+    infogetter: "generic_infogetter"
+    field_indexes:
+      Normal:
+        fields: ["kind", "api_family", "namespace", "name"]
+        sortcolumn: "cluster_profile"
+    fields:
+      api_family:
+        header: "API-version:"
+        path: "apiVersion"
+        default: "<unset>"
+        type: "str"
+        formatting:
+          field_colors:
+            - type: "api_group"
+      kind:
+        header: "Kind:"
+        path: "kind"
+        default: "<unset>"
+        type: "str"
+        formatting:
+          field_colors:
+            - type: "kind"
+      name:
+        header: "Name:"
+        path: "metadata#name"
+        default: "<unset>"
+        type: "str"
+      namespace:
+        header: "Namespace:"
+        path: "metadata#namespace"
+        default: "<unset>"
+        type: "str"
+        formatting:
+          field_colors:
+            - type: "namespace"

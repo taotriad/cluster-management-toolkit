@@ -1275,6 +1275,24 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api_paths": ["apis/leaderworkerset.x-k8s.io/v1/"],
         "api": "leaderworkersets",
     },
+    # multicluster.x-k8s.io
+    ("AppliedWork", "multicluster.x-k8s.io"): {
+        "api_paths": ["apis/multicluster.x-k8s.io/v1alpha1/"],
+        "api": "appliedworks",
+        "namespaced": False,
+    },
+    ("ClusterProfile", "multicluster.x-k8s.io"): {
+        "api_paths": ["apis/multicluster.x-k8s.io/v1alpha1/"],
+        "api": "clusterprofiles",
+    },
+    ("PlacementDecision", "multicluster.x-k8s.io"): {
+        "api_paths": ["apis/multicluster.x-k8s.io/v1alpha1/"],
+        "api": "placementdecisions",
+    },
+    ("Work", "multicluster.x-k8s.io"): {
+        "api_paths": ["apis/multicluster.x-k8s.io/v1alpha1/"],
+        "api": "works",
+    },
     # operator.cluster.x-k8s.io
     ("AddonProvider", "operator.cluster.x-k8s.io"): {
         "api_paths": ["apis/operator.cluster.x-k8s.io/v1alpha2/"],

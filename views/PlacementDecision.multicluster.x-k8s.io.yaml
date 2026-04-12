@@ -1,0 +1,57 @@
+---
+kind: "PlacementDecision"
+api_family: "multicluster.x-k8s.io"
+default_command: "placementdecisions"
+listview:
+  name: "Placement Decisions"
+  group: "Cluster Configuration"
+  field_indexes:
+    Normal:
+      fields: ["namespace", "name", "scheduler", "age"]
+      sortcolumn: "namespace"
+  fields:
+    scheduler:
+      header: "Scheduler:"
+      path: "schedulerName"
+      default: "<unset>"
+      type: "str"
+infoview:
+  name: "Placement Decision Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["scheduler"]
+    rows:
+      scheduler:
+        header: [["Scheduler:", ["main", "infoheader"]]]
+        path: "schedulerName"
+        default: "<unset>"
+        type: "str"
+  listpad:
+    listgetter: "listgetter_path"
+    listgetter_args:
+      path: "decisions"
+    infogetter: "generic_infogetter"
+    field_indexes:
+      Normal:
+        fields: ["namespace", "name", "reason"]
+        sortcolumn: "cluster_profile"
+    fields:
+      namespace:
+        header: "Namespace:"
+        path: "clusterProfileRef#namespace"
+        default: "<unset>"
+        type: "str"
+        formatting:
+          field_colors:
+            - type: "namespace"
+      name:
+        header: "Name:"
+        path: "clusterProfileRef#name"
+        default: "<unset>"
+        type: "str"
+      reason:
+        header: "Reason:"
+        path: "reason"
+        default: "<unset>"
+        type: "str"

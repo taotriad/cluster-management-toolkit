@@ -1,0 +1,44 @@
+---
+kind: "ClusterProfile"
+api_family: "multicluster.x-k8s.io"
+default_command: "clusterprofiles"
+command:
+  - "clrprofiles"
+  - "clrprofile"
+  - "clrprofs"
+  - "clrprof"
+listview:
+  name: "Cluster Profiles"
+  group: "Cluster Configuration"
+  field_indexes:
+    Normal:
+      fields: ["namespace", "name", "display_name", "cluster_manager", "age"]
+      sortcolumn: "namespace"
+  fields:
+    cluster_manager:
+      header: "Cluster Manager:"
+      path: "spec#clusterManager#name"
+      default: "<unset>"
+      type: "str"
+    display_name:
+      header: "Display Name:"
+      path: "spec#displayName"
+      default: "<unset>"
+      type: "str"
+infoview:
+  name: "Cluster Profile Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["display_name", "cluster_manager"]
+    rows:
+      cluster_manager:
+        header: [["Cluster Manager:", ["main", "infoheader"]]]
+        path: "spec#clusterManager#name"
+        default: "<unset>"
+        type: "str"
+      display_name:
+        header: [["Display Name:", ["main", "infoheader"]]]
+        path: "spec#displayName"
+        default: "<unset>"
+        type: "str"
