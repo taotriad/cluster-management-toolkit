@@ -8037,8 +8037,7 @@ def perform_action_on_configuration(uip: UIProps, **kwargs: Any) -> Retval:
     curses.endwin()
     _retval = clear_screen()
 
-    kubectl_major_version, kubectl_minor_version, *_ignore = \
-        kubernetes_helper.kubectl_get_version(client_only=True)
+    kubectl_major_version, kubectl_minor_version, *_ignore = kubectl_get_version(client_only=True)
     if kubectl_major_version is None or kubectl_minor_version is None:
         ansithemeprint([ANSIThemeStr("Critical", "critical"),
                         ANSIThemeStr(": Could not extract ", "default"),

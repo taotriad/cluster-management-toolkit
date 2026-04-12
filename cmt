@@ -553,7 +553,7 @@ def cordon_nodes(options: list[tuple[str, str]], args: list[str]) -> int:
     return 0
 
 
-# pylint: disable-next=too-many-branches,too-many-locals
+# pylint: disable-next=too-many-branches
 def drain_nodes(options: Sequence[tuple[str, str | None]], args: list[str]) -> int:
     """
     Drain nodes.
@@ -568,8 +568,7 @@ def drain_nodes(options: Sequence[tuple[str, str | None]], args: list[str]) -> i
     header = True
 
     # Check kubectl version
-    kubectl_major_version, kubectl_minor_version, *_ignore = \
-        kubernetes_helper.kubectl_get_version(client_only=True)
+    kubectl_major_version, kubectl_minor_version, *_ignore = kubectl_get_version(client_only=True)
     if kubectl_major_version is None or kubectl_minor_version is None:
         ansithemeprint([ANSIThemeStr("Critical", "critical"),
                         ANSIThemeStr(": Could not extract ", "default"),
