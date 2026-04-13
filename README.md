@@ -3,7 +3,6 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![OpenSSF Best Practices](https://www.bestpractices.dev/projects/8263/badge)](https://www.bestpractices.dev/projects/11639)
 [![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/taotriad/cluster-management-toolkit/badge)](https://securityscorecards.dev/viewer/?uri=github.com/taotriad/cluster-management-toolkit)
-[![Known Vulnerabilities](https://snyk.io/test/github/taotriad/cluster-management-toolkit/badge.svg)](https://snyk.io/test/github/taotriad/cluster-management-toolkit)
 ![GitHub last commit (branch)](https://img.shields.io/github/last-commit/taotriad/cluster-management-toolkit/main)
 ![GitHub commits since latest release](https://img.shields.io/github/commits-since/taotriad/cluster-management-toolkit/latest)
 
