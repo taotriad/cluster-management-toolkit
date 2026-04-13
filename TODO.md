@@ -8,8 +8,6 @@
 
 ## General
 
-* listgetters need to support passing both a label selector and a match selector
-  in listgetter_args.
 * When running either cmt or cmu, check whether `.ssh/id_*.pub` is in authorized_keys.
   in `.cmt/ansible/inventory.yaml`; if not, add it.
 * Add `--dry-run` support for more commands.
@@ -102,7 +100,7 @@
   (see podlog).
 * get_obj() is a monstrosity and needs to be refactored.
 * Since cmu can do syntax highlighting for a lot of formats and render Markdown
-  it might make sense to add a command to display documents.
+  it might make sense to add a command for viewing documents (`cmu view FILE` or similar).
 
 ## cmtinv
 
@@ -145,7 +143,7 @@
   for every line, so expanding tabs into spaces won't work properly).
   _Note:_ Currently we strip tabs; if we want to handle them we need to modify cmtlib.py:split_msg().
 
-##3 Testability
+## Testability
 
 * To ensure that we can test changes to list- and info-getters, as well as logparsers,
   we should keep example resources and logs for app resources we add support for.
