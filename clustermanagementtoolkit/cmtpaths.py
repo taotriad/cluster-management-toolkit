@@ -129,6 +129,7 @@ SSH_ARGS_RELAXED_CA_SIGNATURE_ALGORITHMS = \
 
 # Accepted key exchange algorithms
 SSH_ARGS_STRICT_KEX = \
+    "sntrup761x25519-sha512@openssh.com," \
     "ecdh-sha2-nistp521," \
     "ecdh-sha2-nistp384"
 

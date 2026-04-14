@@ -16,7 +16,6 @@
 * Introduce `.kube/current-context` and have all clusters in `.kube` have their own files
   (named config-clustername) rather than merging the config-files;
   or even have them in `.kube/config.d/clustername.yaml`?
-* Add the post-quantum variants of ed25519.
 * Check whether it'd be measurably beneficial to use orjson instead of ujson.
 * Maybe use yaml.dump(..., explicit_start=True)?
 * itemgetters should ideally either have feature parity, or (preferred),
