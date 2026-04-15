@@ -5,6 +5,15 @@
     - pod_name: "intel-gpu-resource-driver-"
   parser_rules:
     - name: "glog"
+    - name: "custom_splitter"
+      options:
+        # yamllint disable-line rule:line-length
+        regex: '^\[\d{4}-\d\d-\d\d \d\d:\d\d:\d\d\.\d+\] \[([a-z]+)\] (.*)'
+        severity:
+          field: 1
+          transform: "str"
+        message:
+          field: 2
     - name: "diff_line"
       options:
         block_start:
@@ -15,8 +24,15 @@
           - matchtype: "startswith"
             matchkey: " >"
         indent: "\t"
+    - name: "key_value_with_leading_message"
     - name: "override_severity"
       overrides:
         - matchtype: "startswith"
           matchkey: "DriverVersion:"
           loglevel: "notice"
+        - matchtype: "startswith"
+          matchkey: "Driver Version:"
+          loglevel: "notice"
+        - matchtype: "startswith"
+          matchkey: "\"Warning:"
+          loglevel: "warning"

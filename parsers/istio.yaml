@@ -48,6 +48,12 @@
 - name: "istio"
   show_in_selector: false
   matchkeys:
+    - image_name: "/istio/proxyv2"
+  parser_rules:
+    - name: "tab_separated"
+- name: "istio"
+  show_in_selector: false
+  matchkeys:
     - pod_name: "istiod"
       container_name: "discovery"
   parser_rules:

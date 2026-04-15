@@ -12,6 +12,7 @@
   matchkeys:
     # yamllint disable-line rule:line-length
     - image_name: "/open-telemetry/opentelemetry-collector-releases/opentelemetry-collector"
+    - image_name: "/otel/opentelemetry-collector"
   parser_rules:
     - name: "tab_separated"
       options:
