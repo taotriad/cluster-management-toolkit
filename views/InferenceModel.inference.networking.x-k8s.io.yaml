@@ -2,6 +2,9 @@
 kind: "InferenceModel"
 api_family: "inference.networking.x-k8s.io"
 default_command: "inferencemodels"
+command:
+  - "infmodels"
+  - "infmodel"
 listview:
   name: "Inference Models"
   group: "Machine Learning"

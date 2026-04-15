@@ -1,0 +1,105 @@
+---
+kind: "InferenceModelRewrite"
+api_family: "inference.networking.x-k8s.io"
+default_command: "inferencemodelrewrites"
+command:
+  - "infmodelrewrites"
+  - "infmodelrewrite"
+listview:
+  name: "Inference Model Rewrites"
+  group: "Machine Learning"
+  field_indexes:
+    Normal:
+      fields: ["namespace", "name", "inference_pool", "age"]
+      sortcolumn: "namespace"
+  fields:
+    inference_pool:
+      header: "Inference Pool:"
+      paths:
+        - path: [["spec#poolRef#kind"],
+                 ["spec#poolRef#group"],
+                 ["spec#poolRef#name"]]
+          pathtype: "tuple"
+          default: ["<unset>"]
+          type: ["kind", "api_group", "name"]
+      formatter: "list"
+      formatting:
+        field_colors:
+          - type: "kind"
+          - type: "api_group"
+          - type: "generic"
+        field_separators:
+          - type: "kind_api_group"
+          - type: "kind"
+infoview:
+  name: "Inference Model Rewrite Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["pool_reference"]
+    rows:
+      pool_reference:
+        header: [["P", ["main", "infoheader_shortcut"]],
+                 ["ool Reference:", ["main", "infoheader"]]]
+        paths:
+          - path: [["spec#poolRef#kind"],
+                   ["spec#poolRef#group"],
+                   ["spec#poolRef#name"]]
+            pathtype: "tuple"
+            default: ["<unset>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "kind"
+            - type: "api_group"
+            - type: "generic"
+          field_separators:
+            - type: "kind_api_group"
+            - type: "kind"
+  listpad:
+    listgetter: "listgetter_path"
+    listgetter_args:
+      path: "spec#rules"
+    infogetter: "generic_infogetter"
+    field_indexes:
+      Normal:
+        fields: ["matches", "targets"]
+        sortcolumn: "matches"
+    fields:
+      matches:
+        header: "Matches:"
+        paths:
+          - path: "matches"
+            pathtype: "items"
+            subpaths:
+              - "model#type"
+              - "model#value"
+        default: ["Everything"]
+        formatter: "list"
+      targets:
+        header: "Targets:"
+        paths:
+          - path: "targets"
+            pathtype: "items"
+            subpaths:
+              - "modelRewrite"
+              - "weight"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "generic"
+            - type: "numerical"
+  shortcuts:
+    "Open pool reference":
+      key: "p"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for pool reference"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind_path: "spec#poolRef#kind"
+        api_group_path: "spec#poolRef#group"
+        name_path: "spec#poolRef#name"
+        namespace_path: "metadata#namespace"

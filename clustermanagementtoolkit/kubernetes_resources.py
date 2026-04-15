@@ -345,6 +345,11 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
                       "apis/groupsnapshot.storage.k8s.io/v1beta1/"],
         "api": "volumegroupsnapshots",
     },
+    # inference.networking.k8s.io
+    ("InferencePool", "inference.networking.k8s.io"): {
+        "api_paths": ["apis/inference.networking.k8s.io/v1/"],
+        "api": "inferencepools",
+    },
     # internal.apiserver.k8s.io
     ("StorageVersion", "internal.apiserver.k8s.io"): {
         "api_paths": ["apis/internal.apiserver.k8s.io/v1alpha1/"],
