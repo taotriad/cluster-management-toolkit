@@ -2563,9 +2563,9 @@ def listgetter_path(obj: dict, **kwargs: Any) -> tuple[dict | list[dict], int]:
         tmp2: list[dict[str, Any]] = deep_get(obj, DictPath(path), [])
         vlist = []
         if rename_bare is not None and tmp2 is not None:
-            for dictitem in tmp2:
+            for uuid, dictitem in enumerate(tmp2):
                 if not isinstance(dictitem, dict):
-                    d = {rename_bare: dictitem}
+                    d = {rename_bare: dictitem, "uuid": uuid}
                     if flatten_dicts and isinstance(deep_get(tmp2, DictPath(dictitem)), dict):
                         for key, value in deep_get(tmp2, DictPath(dictitem), {}).items():
                             d[key] = value
