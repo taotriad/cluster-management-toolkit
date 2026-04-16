@@ -1570,6 +1570,10 @@
 													"description": "A variable associated with the shortcut that can be toggled using the toggle_var action",
 													"$ref": "#/definitions/path"
 												},
+												"verbose": {
+													"description": "Should output be verbose",
+													"type": "boolean"
+												},
 												"_named_title": {
 													"description": "Should the name of the selected object be appended to the title",
 													"type": "boolean"
