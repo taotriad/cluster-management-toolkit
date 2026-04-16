@@ -1691,6 +1691,19 @@ class KubernetesHelper:
                     (str): The identified Kubernetes distro; empty if no distro could be identified
                     (int): API-server retval
         """
+        kubernetes_distros: dict[str, str] = {
+            "crc": "crc",
+            "deploy@k3d": "k3d",
+            "harvester": "harvester",
+            "k0s": "k0s",
+            "k3s": "k3s",
+            "k8e": "k8e",
+            "kamaji": "kamaji",
+            "kubeadm": "kubeadm",
+            "rke2": "rke2",
+            "vcluster": "vcluster",
+        }
+
         k8s_distro = None
         exit_on_failure = deep_get(kwargs, DictPath("exit_on_failure"), True)
 
@@ -1709,35 +1722,14 @@ class KubernetesHelper:
             node_roles = get_node_roles(cast(dict, node))
             labels = deep_get(node, DictPath("metadata#labels"), {})
             if "control-plane" in node_roles or "master" in node_roles:
-                cri = deep_get(node, DictPath("status#nodeInfo#containerRuntimeVersion"), "")
-                if cri is not None:
-                    cri = cri.split(":")[0]
-                ipaddresses = []
-                for address in deep_get(node, DictPath("status#addresses")):
-                    if deep_get(address, DictPath("type"), "") == "InternalIP":
-                        ipaddresses.append(deep_get(address, DictPath("address")))
                 tmp_k8s_distro = None
-                minikube_name = deep_get(node, DictPath("metadata#labels#minikube.k8s.io/name"), "")
-                os_image = deep_get(node, DictPath("status#nodeInfo#osImage"), "")
-                images = deep_get(node, DictPath("status#images"), [])
-                for image in images:
-                    names = deep_get(image, DictPath("names"), [])
-                    for name in names:
-                        if "openshift-crc-cluster" in name:
-                            tmp_k8s_distro = "crc"
-                            break
-                        if "openshift-" in name and "ocp-" in name:
-                            tmp_k8s_distro = "openshift"
-                            break
-                    if tmp_k8s_distro is not None:
-                        break
-                if minikube_name != "":
+                if deep_get(node, DictPath("metadata#labels#minikube.k8s.io/name"), ""):
                     tmp_k8s_distro = "minikube"
                 elif deep_get(labels, DictPath("microk8s.io/cluster"), False):
                     tmp_k8s_distro = "microk8s"
                 elif deep_get(node, DictPath("spec#providerID"), "").startswith("kind://"):
                     tmp_k8s_distro = "kind"
-                elif os_image.startswith("Talos"):
+                elif deep_get(node, DictPath("status#nodeInfo#osImage"), "").startswith("Talos"):
                     tmp_k8s_distro = "talos"
                 else:
                     managed_fields = deep_get(node, DictPath("metadata#managedFields"), [])
@@ -1753,11 +1745,25 @@ class KubernetesHelper:
                                        "rke2",
                                        "vcluster"):
                             tmp_k8s_distro = manager
+                        if (tmp_k8s_distro := deep_get(kubernetes_distros, DictPath(manager))):
+                            break
                 if tmp_k8s_distro is None:
-                    # Older versions of Kubernetes doesn't have managedFields;
+                    images = deep_get(node, DictPath("status#images"), [])
+                    for image in images:
+                        names = deep_get(image, DictPath("names"), [])
+                        for name in names:
+                            if "openshift-crc-cluster" in name:
+                                tmp_k8s_distro = "crc"
+                                break
+                            if "openshift-" in name and "ocp-" in name:
+                                tmp_k8s_distro = "openshift"
+                                break
+                        if tmp_k8s_distro is not None:
+                            break
+                if tmp_k8s_distro is None:
+                    # Older versions of Kubernetes do not have managedFields;
                     # fall back to checking whether the annotation
-                    # kubeadm.alpha.kubernetes.io/cri-socket exists if we cannot
-                    # find any managedFields
+                    # kubeadm.alpha.kubernetes.io/cri-socket exists.
                     if deep_get(node, DictPath("metadata#annotations#"
                                                "kubeadm.alpha.kubernetes.io/cri-socket"), ""):
                         tmp_k8s_distro = "kubeadm"
@@ -1784,8 +1790,8 @@ class KubernetesHelper:
             managed_fields = deep_get(obj, DictPath("metadata#managedFields"), [])
             for managed_field in managed_fields:
                 manager = deep_get(managed_field, DictPath("manager"), "")
-                if manager in ("kamaji",):
-                    k8s_distro = manager
+                if (tmp_k8s_distro := deep_get(kubernetes_distros, DictPath(manager))):
+                    k8s_distro = tmp_k8s_distro
                     break
 
         if k8s_distro is None:
