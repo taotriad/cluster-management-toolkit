@@ -439,6 +439,8 @@ listview:
       helptext: "Refresh Version Data"
       action: "call"
       action_call: "update_version_cache"
+      action_args:
+        verbose: true
     "Show Uninstalled Components":
       key: "u"
       modifier: "shift"

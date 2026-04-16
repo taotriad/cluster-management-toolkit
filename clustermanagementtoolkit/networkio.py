@@ -656,6 +656,10 @@ def update_version_cache(**kwargs: Any) -> None:
     changed = False
 
     for key, data in sources.items():
+        description: str = deep_get(data, DictPath("description"), "<no description available>")
+        if verbose:
+            ansithemeprint([ANSIThemeStr("  • ", "separator"),
+                            ANSIThemeStr(description, "programname")])
         interval = deep_get(data, DictPath("interval"), 60 * 60)
         version_last_updated = deep_get(last_update_data, DictPath(f"{key}#version"))
         if version_last_updated:
@@ -679,6 +683,8 @@ def update_version_cache(**kwargs: Any) -> None:
         # or the configuration says differently
         if force or not version_age or version_age.days > 0 or version_age.seconds > interval:
             if candidate_version_func:
+                if verbose:
+                    ansithemeprint([ANSIThemeStr("    Downloading version data.", "default")])
                 release_info = candidate_version_func(**candidate_version_args)
                 if release_info is not None:
                     candidate_version_tuple, release_date, release_body = release_info
@@ -693,6 +699,10 @@ def update_version_cache(**kwargs: Any) -> None:
                     secure_write_yaml(VERSION_CACHE_LAST_UPDATED_PATH,
                                       last_update_data, permissions=0o644)
             changed = True
+        else:
+            if verbose:
+                ansithemeprint([ANSIThemeStr("    Note", "note"),
+                                ANSIThemeStr(": Version data is recent; not updating.", "default")])
 
         if candidate_version_tuple is None:
             # If we've already fetched the data recently we need to use the existing data.
@@ -707,6 +717,9 @@ def update_version_cache(**kwargs: Any) -> None:
 
         if not (force or not changelog_age
                 or changelog_age.days > 0 or changelog_age.seconds > interval):
+            if verbose:
+                ansithemeprint([ANSIThemeStr("    Note", "note"),
+                                ANSIThemeStr(": Changelog is recent; not downloading.", "default")])
             continue
 
         # We (hopefully) have a version now; time to fetch the changelog (if requested)
@@ -740,6 +753,8 @@ def update_version_cache(**kwargs: Any) -> None:
                 # there is no recourse but to skip fetching the changelog.
                 continue
             fetch_url = [(changelog_url, changelog_dest, None, None)]
+            if verbose:
+                ansithemeprint([ANSIThemeStr("    Downloading changelog.", "default")])
             if not download_files(VERSION_CACHE_DIR, fetch_url):
                 ansithemeprint([ANSIThemeStr("Error", "error"),
                                 ANSIThemeStr(": Failed to fetch ", "default"),
