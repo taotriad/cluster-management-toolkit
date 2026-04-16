@@ -42,15 +42,16 @@ infoview:
       read_only: true
       helptext: "Show parent references"
       widget: "windowwidget"
-      headers: ["Kind:", "Group:", "Name:", "Port:"]
+      headers: ["Kind:", "Group:", "Name:", "Port:", "Controller:"]
       itemgetter: "get_list_fields"
       itemgetter_args:
-        path: "spec#parentRefs"
+        path: "status#parents"
         fields:
-          - "kind"
-          - "group"
-          - "name"
-          - "port"
+          - "parentRef#kind"
+          - "parentRef#group"
+          - "parentRef#name"
+          - "parentRef#port"
+          - "controllerName"
       # This isn't supported for now
       sortcolumn: "group"
       selectable: true

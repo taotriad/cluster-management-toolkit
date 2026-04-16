@@ -101,6 +101,65 @@ infoview:
         formatting:
           field_colors:
             - type: "port"
+  listpad:
+    listgetter: "listgetter_path"
+    listgetter_args:
+      path: "status#parents"
+    infogetter: "generic_infogetter"
+    on_activation:
+      call: "resourceinfodispatch_with_lookup"
+      kind_path: "parentRef#kind"
+      api_group_path: "parentRef#group"
+      namespace_path: "parentRef#namespace"
+      name_path: "parentRef#name"
+    field_indexes:
+      Normal:
+        fields: ["kind", "namespace", "name", "conditions"]
+        sortcolumn: "namespace"
+    fields:
+      conditions:
+        header: "Conditions:"
+        paths:
+          - path: "conditions"
+            pathtype: "items"
+            subpaths:
+              - "type"
+              - "status"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "key"
+            - type: "value"
+          field_separators:
+            - type: "keyvalue"
+      kind:
+        header: "Kind:"
+        paths:
+          - path: [["parentRef#kind"],
+                   ["parentRef#group"]]
+            pathtype: "tuple"
+            default: ["<unset>"]
+            type: ["kind", "api_group"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "kind"
+            - type: "api_group"
+          field_separators:
+            - type: "kind_api_group"
+      name:
+        header: "Name:"
+        path: "parentRef#name"
+        default: "<unset>"
+        type: "str"
+      namespace:
+        header: "Namespace:"
+        path: "parentRef#namespace"
+        default: "<unset>"
+        type: "str"
+        formatting:
+          field_colors:
+            - type: "namespace"
   shortcuts:
     "Label Selector":
       key: "b"
