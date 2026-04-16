@@ -50,3 +50,17 @@
         - matchtype: "startswith"
           matchkey: "Starting gunicorn"
           loglevel: "notice"
+- name: "xpu-manager"
+  show_in_selector: false
+  matchkeys:
+    - image_name: "/intel/xpumanager/xpumd"
+  parser_rules:
+    - name: "tab_separated"
+    - name: "override_severity"
+      overrides:
+        - matchtype: "startswith"
+          matchkey: "WARNING:"
+          loglevel: "warning"
+        - matchtype: "startswith"
+          matchkey: "Error:"
+          loglevel: "error"

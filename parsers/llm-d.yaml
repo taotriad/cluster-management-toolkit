@@ -2,8 +2,9 @@
 - name: "llm-d"
   show_in_selector: false
   matchkeys:
-    - image_name: "/llm-d/llm-d-hpu"
     - image_name: "/llm-d/llm-d-cpu"
+    - image_name: "/llm-d/llm-d-hpu"
+    - image_name: "/llm-d/llm-d-xpu"
   parser_rules:
     - name: "custom_splitter"
       options:

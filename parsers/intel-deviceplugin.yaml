@@ -25,5 +25,11 @@
     - container_name: "intel-sgx-aesmd"
     - container_name: "intel-sgx-plugin"
     - container_name: "intel-vpu-plugin"
+    - image_name: "/intel/intel-gpu-levelzero"
   parser_rules:
     - name: "glog"
+    - name: "override_severity"
+      overrides:
+        - matchtype: "startswith"
+          matchkey: "WARNING:"
+          loglevel: "warning"
