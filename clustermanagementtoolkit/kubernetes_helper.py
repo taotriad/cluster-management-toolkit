@@ -1735,16 +1735,6 @@ class KubernetesHelper:
                     managed_fields = deep_get(node, DictPath("metadata#managedFields"), [])
                     for managed_field in managed_fields:
                         manager = deep_get(managed_field, DictPath("manager"), "")
-                        if manager in ("crc"
-                                       "deploy@k3d",
-                                       "harvester",
-                                       "k0s",
-                                       "k3s",
-                                       "k8e",
-                                       "kubeadm",
-                                       "rke2",
-                                       "vcluster"):
-                            tmp_k8s_distro = manager
                         if (tmp_k8s_distro := deep_get(kubernetes_distros, DictPath(manager))):
                             break
                 if tmp_k8s_distro is None:
