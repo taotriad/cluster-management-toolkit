@@ -1736,6 +1736,9 @@ class KubernetesHelper:
                     for managed_field in managed_fields:
                         manager = deep_get(managed_field, DictPath("manager"), "")
                         if (tmp_k8s_distro := deep_get(kubernetes_distros, DictPath(manager))):
+                            if deep_get(node, DictPath("metadata#name"), "").startswith("k3d-") \
+                                    and tmp_k8s_distro == "k3s":
+                                tmp_k8s_distro = "k3d"
                             break
                 if tmp_k8s_distro is None:
                     images = deep_get(node, DictPath("status#images"), [])
