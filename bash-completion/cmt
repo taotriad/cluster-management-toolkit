@@ -59,7 +59,7 @@ _cmt() {
 				COMPREPLY=( $(compgen -W "" -- "$2") )
 				return
 				;;
-			--delete-emptydir-data|--delete-local-data|--disable-eviction|--force|--from-file|--ignore-daemonsets|--ignore-existing|--ignore-non-existing|--include-control-planes|--no-data|--no-header|--no-password|--overwrite|--purge|--save-ansible-logs|--verbose|--wide|-Y)
+			--delete-emptydir-data|--disable-eviction|--force|--from-file|--ignore-daemonsets|--ignore-existing|--ignore-non-existing|--include-control-planes|--no-data|--no-header|--no-password|--overwrite|--purge|--save-ansible-logs|--verbose|--wide|-Y)
 				# These options don't take any arguments
 				;;
 			--api-group|--ca-cert-file|--color|--cri|--forks|--format|--known|--kubernetes-distro|--local|--namespaced|--sort-by|--verbs)
@@ -156,7 +156,7 @@ _cmt() {
 		else
 			# Options that don't have a parameter
 			case "$3" in
-			--include-control-planes|--delete-emptydir-data|--delete-local-data|--disable-eviction|--ignore-daemonsets|--overwrite|--force|--purge|--save-ansible-logs)
+			--include-control-planes|--delete-emptydir-data|--disable-eviction|--ignore-daemonsets|--overwrite|--force|--purge|--save-ansible-logs)
 				nodes=$(kubectl get no --no-headers -o custom-columns='NAME:metadata.name' 2> /dev/null)
 				commands="${commands} ${nodes} ALL"
 				;;
@@ -178,7 +178,6 @@ _cmt() {
 	case "${COMP_WORDS[1]}" in
 	drain)
 		commands=$(add_option_if_not_in_list "--delete-emptydir-data" ${commands})
-		commands=$(add_option_if_not_in_list "--delete-local-data" ${commands})
 		commands=$(add_option_if_not_in_list "--ignore-daemonsets" ${commands})
 		;;
 	prepare|add-node|add-nodes|purge|upgrade-node|upgrade-nodes|remove-node|remove-nodes)

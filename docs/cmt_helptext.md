@@ -45,9 +45,6 @@ Optionally limited to _RESOURCE_,_..._
   Drain nodes even if this would cause __emptyDir__
   data to be deleted
 
-  __`--delete-local-data`__
-  This is an alias for “__--delete-emptydir-data__“  
-
   __`--disable-eviction`__
   Delete pods instead of using evict  
   This bypasses __PodDisruptionBudget__
