@@ -5112,11 +5112,10 @@ class UIProps:
         if self.listpad is None and self.logpad is None:
             return Retval.NOMATCH
 
-        if c == ord("r"):
+        if c == ord("r") and self.listpad is not None and self.reversible:
             # Reverse the sort order
-            if self.listpad is not None and self.reversible:
-                self.sortorder_reverse = not self.sortorder_reverse
-                self.sort_triggered = True
+            self.sortorder_reverse = not self.sortorder_reverse
+            self.sort_triggered = True
             return Retval.MATCH
         if c == curses.KEY_SLEFT:
             # For listpads we switch sort column with this;
