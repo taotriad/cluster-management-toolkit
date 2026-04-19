@@ -1,0 +1,165 @@
+---
+kind: "HelmChart"
+api_family: "source.toolkit.fluxcd.io"
+default_command: "helmcharts.source.toolkit.fluxcd.io"
+command:
+  - "helmcharts.fluxcd"
+  - "helmchart.fluxcd"
+  - "helmcharts.flux"
+  - "helmchart.flux"
+listview:
+  name: "Helm Charts"
+  group: "CI / CD"
+  field_indexes:
+    Wide:
+      fields: ["namespace", "name", "chart", "version", "source",
+               "status", "ready", "age"]
+      sortcolumn: "namespace"
+    Normal:
+      fields: ["namespace", "name", "version", "ready", "age"]
+      sortcolumn: "namespace"
+  fields:
+    chart:
+      header: "Chart:"
+      paths:
+        - path: ["status#observedChartName", "spec#chart"]
+          pathtype: "value"
+      default: "<unset>"
+      type: "str"
+    ready:
+      header: "Ready:"
+      paths:
+        - path: "status#conditions"
+          pathtype: "items"
+          subpath: "status"
+          when:
+            - key: "type"
+              eq: "Ready"
+      default: "<unset>"
+      type: "str"
+    source:
+      header: "Source:"
+      paths:
+        - path: [["spec#sourceRef#kind"], ["apiVersion"],
+                 ["spec#sourceRef#name"]]
+          pathtype: "tuple"
+          type: ["kind", "api_group", "name"]
+      default: ["<unset>"]
+      type: "list"
+      formatter: "list"
+      formatting:
+        field_colors:
+          - type: "kind"
+          - type: "api_group"
+          - type: "generic"
+        field_separators:
+          - type: "kind_api_group"
+          - type: "kind"
+    status:
+      header: "Status:"
+      paths:
+        - path: "status#conditions"
+          pathtype: "items"
+          subpath: "reason"
+          when:
+            - key: "type"
+              eq: "Ready"
+      default: "<unset>"
+      type: "str"
+    version:
+      header: "Version:"
+      path: "spec#version"
+      default: "<unset>"
+      type: "str"
+      formatting:
+        field_colors:
+          - type: "version"
+infoview:
+  name: "Helm Chart Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["chart_header",
+                 "chart_name",
+                 "chart_source_reference",
+                 "chart_digest",
+                 "chart_size",
+                 "chart_version",
+                 "interval", "reconcile_strategy", "url"]
+    rows:
+      chart_digest:
+        header: [["  Digest:", ["main", "infoheader"]]]
+        path: "status#artifact#digest"
+        default: "<unset>"
+        type: "str"
+        formatter: "hex"
+      chart_header:
+        header: [["Chart:", ["main", "infoheader"]]]
+      chart_name:
+        header: [["  Name:", ["main", "infoheader"]]]
+        paths:
+          - path: ["status#observedChartName", "spec#chart"]
+            pathtype: "value"
+        default: "<unset>"
+        type: "str"
+      chart_size:
+        header: [["  Size:", ["main", "infoheader"]]]
+        path: "status#artifact#size"
+        default: "<unset>"
+        type: "int"
+        formatter: "numerical"
+      chart_source_reference:
+        header: [["  ", ["main", "infoheader"]],
+                 ["S", ["main", "infoheader_shortcut"]],
+                 ["ource Reference:", ["main", "infoheader"]]]
+        paths:
+          - path: [["spec#sourceRef#kind"],
+                   ["spec#sourceRef#name"]]
+            pathtype: "tuple"
+            type: ["kind", "name"]
+        default: ["<unset>"]
+        type: "list"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "kind"
+            - type: "generic"
+          field_separators:
+            - type: "kind"
+      chart_version:
+        header: [["  Version:", ["main", "infoheader"]]]
+        path: "spec#version"
+        default: "<unset>"
+        type: "str"
+        formatting:
+          field_colors:
+            - type: "version"
+      interval:
+        header: [["Interval:", ["main", "infoheader"]]]
+        path: "spec#interval"
+        type: "str"
+        formatter: "numerical"
+      reconcile_strategy:
+        header: [["Reconcile Strategy:", ["main", "infoheader"]]]
+        path: "spec#reconcileStrategy"
+        type: "str"
+      url:
+        header: [["URL:", ["main", "infoheader"]]]
+        path: "status#url"
+        default: "<unset>"
+        type: "str"
+        formatter: "address"
+  shortcuts:
+    "Open Helm Chart source reference":
+      key: "s"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for HelmChart source reference"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind_path: "spec#sourceRef#kind"
+        api_group: "source.toolkit.fluxcd.io"
+        namespace_path: "metadata#namespace"
+        name_path: "spec#sourceRef#name"

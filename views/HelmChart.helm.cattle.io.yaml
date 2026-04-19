@@ -1,7 +1,10 @@
 ---
 kind: "HelmChart"
 api_family: "helm.cattle.io"
-default_command: "helmcharts"
+default_command: "helmcharts.helm.cattle.io"
+command:
+  - "helmcharts.cattle"
+  - "helmchart.cattle"
 listview:
   name: "Helm Charts"
   group: "Rancher"

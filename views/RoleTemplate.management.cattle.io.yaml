@@ -5,8 +5,8 @@ default_command: "roletemplates.management.cattle.io"
 command:
   - "roletemplates.cattle"
   - "roletemplate.cattle"
-  - "roletempls.cattle"
-  - "roletempl.cattle"
+  - "roletmpls.cattle"
+  - "roletmpl.cattle"
 listview:
   name: "Role Templates"
   group: "Authorization & Access Control"

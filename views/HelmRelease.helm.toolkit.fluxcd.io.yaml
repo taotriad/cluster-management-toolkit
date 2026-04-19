@@ -1,0 +1,266 @@
+---
+kind: "HelmRelease"
+api_family: "helm.toolkit.fluxcd.io"
+default_command: "helmreleases.helm.toolkit.fluxcd.io"
+command:
+  - "helmreleases.fluxcd"
+  - "helmrelease.fluxcd"
+  - "helmreleases.flux"
+  - "helmrelease.flux"
+  - "helmrels.fluxcd"
+  - "helmrel.fluxcd"
+  - "helmrels.flux"
+  - "helmrel.flux"
+listview:
+  name: "Helm Releases"
+  group: "CI / CD"
+  field_indexes:
+    Wide:
+      fields: ["namespace", "name", "chart_source_reference",
+               "ready", "status", "age", "message"]
+      sortcolumn: "namespace"
+    Normal:
+      fields: ["namespace", "name", "ready", "status", "age"]
+      sortcolumn: "namespace"
+  fields:
+    chart_source_reference:
+      header: "Chart Source Reference:"
+      paths:
+        - path: [["spec#chartRef#kind"],
+                 ["spec#chartRef#namespace"],
+                 ["spec#chartRef#name"]]
+          pathtype: "tuple"
+          type: ["kind", "name", "name"]
+      default: ["<unset>"]
+      type: "list"
+      formatter: "list"
+      formatting:
+        field_colors:
+          - type: "kind"
+          - type: "namespace"
+          - type: "generic"
+        field_separators:
+          - type: "kind"
+          - type: "namespace"
+    message:
+      header: "Status:"
+      paths:
+        - path: "status#conditions"
+          pathtype: "items"
+          subpath: "message"
+          when:
+            - key: "type"
+              eq: "Ready"
+      default: "<unset>"
+      type: "str"
+    ready:
+      header: "Ready:"
+      paths:
+        - path: "status#conditions"
+          pathtype: "items"
+          subpath: "status"
+          when:
+            - key: "type"
+              eq: "Ready"
+      default: "<unset>"
+      type: "str"
+    status:
+      header: "Status:"
+      paths:
+        - path: "status#conditions"
+          pathtype: "items"
+          subpath: "reason"
+          when:
+            - key: "type"
+              eq: "Ready"
+      default: "<unset>"
+      type: "str"
+infoview:
+  name: "Helm Release Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["chart_source_reference", "interval",
+                 "depends_on", "release_name",
+                 "install_header",
+                 "install_remediation_header",
+                 "install_remediation_remediateLastFailure",
+                 "install_remediation_retries",
+                 "storage_namespace"]
+    rows:
+      chart_source_reference:
+        header: [["Chart ", ["main", "infoheader"]],
+                 ["S", ["main", "infoheader_shortcut"]],
+                 ["ource Reference:", ["main", "infoheader"]]]
+        paths:
+          - path: [["spec#chartRef#kind"],
+                   ["spec#chartRef#namespace"],
+                   ["spec#chartRef#name"]]
+            pathtype: "tuple"
+            type: ["kind", "name", "name"]
+        default: ["<unset>"]
+        type: "list"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "kind"
+            - type: "namespace"
+            - type: "generic"
+          field_separators:
+            - type: "kind"
+            - type: "namespace"
+      depends_on:
+        header: [["D", ["main", "infoheader_shortcut"]],
+                 ["epends On:", ["main", "infoheader"]]]
+        paths:
+          - path: "spec#dependsOn"
+            pathtype: "items"
+            subpaths:
+              - "name"
+            default: ["<none>"]
+        formatter: "list"
+      install_header:
+        header: [["Install:", ["main", "infoheader"]]]
+      install_remediation_header:
+        header: [["  Remediation:", ["main", "infoheader"]]]
+      install_remediation_remediateLastFailure:
+        header: [["    Remediate Last Failure:", ["main", "infoheader"]]]
+        path: "spec#install#remediation#remediateLastFailure"
+        default: "<unset>"
+        type: "bool"
+      install_remediation_retries:
+        header: [["    Retries:", ["main", "infoheader"]]]
+        path: "spec#install#remediation#retries"
+        default: "<unset>"
+        type: "int"
+        formatter: "numerical"
+      interval:
+        header: [["Interval:", ["main", "infoheader"]]]
+        path: "spec#interval"
+        type: "str"
+        formatter: "numerical"
+      release_name:
+        header: [["Release Name:", ["main", "infoheader"]]]
+        path: "spec#releaseName"
+        default: "<unset>"
+        type: "str"
+      storage_namespace:
+        header: [["Storage Names", ["main", "infoheader"]],
+                 ["p", ["main", "infoheader_shortcut"]],
+                 ["ace:", ["main", "infoheader"]]]
+        path: "status#storageNamespace"
+        default: "<unset>"
+        type: "str"
+        formatting:
+          field_colors:
+            - type: "namespace"
+  listpad:
+    listgetter: "listgetter_path"
+    listgetter_args:
+      path: "status#history"
+    infogetter: "generic_infogetter"
+    field_indexes:
+      Normal:
+        fields: ["namespace", "name", "chart", "status",
+                 "chart_version", "app_version",
+                 "first_deployed", "last_deployed"]
+        sortcolumn: "namespace"
+    fields:
+      first_deployed:
+        header: "First Deployed:"
+        path: "firstDeployed"
+        type: "timestamp"
+        formatter: "age"
+      last_deployed:
+        header: "Last Deployed:"
+        path: "lastDeployed"
+        type: "timestamp"
+        formatter: "age"
+      app_version:
+        header: "App Version:"
+        path: "appVersion"
+        default: "<unset>"
+        type: "str"
+        formatting:
+          field_colors:
+            - type: "version"
+      chart:
+        header: "Chart:"
+        path: "chartName"
+        default: "<unset>"
+        type: "str"
+      chart_version:
+        header: "Chart Version:"
+        path: "chartVersion"
+        default: "<unset>"
+        type: "str"
+        formatting:
+          field_colors:
+            - type: "version"
+      name:
+        header: "Name:"
+        path: "name"
+        default: "<unset>"
+        type: "str"
+      namespace:
+        header: "Namespace:"
+        path: "namespace"
+        default: "<unset>"
+        type: "str"
+      status:
+        header: "Status:"
+        path: "status"
+        default: "<unknown>"
+        type: "str"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              deployed:
+                field_colors:
+                  - context: "main"
+                    type: "status_done"
+              superseded:
+                field_colors:
+                  - context: "main"
+                    type: "status_ignored"
+              "<unknown>":
+                field_colors:
+                  - context: "main"
+                    type: "status_unknown"
+  shortcuts:
+    "Open storage Namespace":
+      key: "p"
+      read_only: true
+      helptext: "Open info page for storage Namespace"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind: "Namespace"
+        name_path: "status#storageNamespace"
+    "Open Helm Chart source reference":
+      key: "s"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for HelmChart source reference"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind_path: "spec#chartRef#kind"
+        api_group: "source.toolkit.fluxcd.io"
+        namespace_path: "spec#chartRef#namespace"
+        name_path: "spec#chartRef#name"
+    "List dependencies":
+      key: "d"
+      modifier: "shift"
+      read_only: true
+      helptext: "List dependencies"
+      widget: "windowwidget"
+      title: "Dependencies:"
+      itemgetter: "get_list_fields"
+      itemgetter_args:
+        path: "spec#dependsOn"
+        fields:
+          - "name"

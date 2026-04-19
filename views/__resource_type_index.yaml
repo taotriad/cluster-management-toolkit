@@ -580,6 +580,16 @@ bgsrs:
   - BackgroundScanReport
   - kyverno.io
   viewfile: BackgroundScanReport.kyverno.io.yaml
+bootstrapprov:
+  kind:
+  - BootstrapProvider
+  - operator.cluster.x-k8s.io
+  viewfile: BootstrapProvider.operator.cluster.x-k8s.io.yaml
+bootstrapprovs:
+  kind:
+  - BootstrapProvider
+  - operator.cluster.x-k8s.io
+  viewfile: BootstrapProvider.operator.cluster.x-k8s.io.yaml
 build:
   kind:
   - Build
@@ -1265,6 +1275,26 @@ clrpols.nvidia:
   - ClusterPolicy
   - nvidia.com
   viewfile: ClusterPolicy.nvidia.com.yaml
+clrprof:
+  kind:
+  - ClusterProfile
+  - multicluster.x-k8s.io
+  viewfile: ClusterProfile.multicluster.x-k8s.io.yaml
+clrprofile:
+  kind:
+  - ClusterProfile
+  - multicluster.x-k8s.io
+  viewfile: ClusterProfile.multicluster.x-k8s.io.yaml
+clrprofiles:
+  kind:
+  - ClusterProfile
+  - multicluster.x-k8s.io
+  viewfile: ClusterProfile.multicluster.x-k8s.io.yaml
+clrprofs:
+  kind:
+  - ClusterProfile
+  - multicluster.x-k8s.io
+  viewfile: ClusterProfile.multicluster.x-k8s.io.yaml
 clrprov.cattle:
   kind:
   - Cluster
@@ -1515,6 +1545,16 @@ clrstoragecontainers:
   - ClusterStorageContainer
   - serving.kserve.io
   viewfile: ClusterStorageContainer.serving.kserve.io.yaml
+clrtmpl.k0rdent:
+  kind:
+  - ClusterTemplate
+  - k0rdent.mirantis.com
+  viewfile: ClusterTemplate.k0rdent.mirantis.com.yaml
+clrtmpls.k0rdent:
+  kind:
+  - ClusterTemplate
+  - k0rdent.mirantis.com
+  viewfile: ClusterTemplate.k0rdent.mirantis.com.yaml
 clrtrrt:
   kind:
   - ClusterTrainingRuntime
@@ -1785,6 +1825,16 @@ clusters.storage:
   - Cluster
   - storage.loft.sh
   viewfile: Cluster.storage.loft.sh.yaml
+clustertemplate.k0rdent:
+  kind:
+  - ClusterTemplate
+  - k0rdent.mirantis.com
+  viewfile: ClusterTemplate.k0rdent.mirantis.com.yaml
+clustertemplates.k0rdent:
+  kind:
+  - ClusterTemplate
+  - k0rdent.mirantis.com
+  viewfile: ClusterTemplate.k0rdent.mirantis.com.yaml
 clustertriggerauth:
   kind:
   - ClusterTriggerAuthentication
@@ -2010,6 +2060,16 @@ contents.cattle:
   - Content
   - fleet.cattle.io
   viewfile: Content.fleet.cattle.io.yaml
+controlnode.k0s:
+  kind:
+  - ControlNode
+  - autopilot.k0sproject.io
+  viewfile: ControlNode.autopilot.k0sproject.io.yaml
+controlnodes.k0s:
+  kind:
+  - ControlNode
+  - autopilot.k0sproject.io
+  viewfile: ControlNode.autopilot.k0sproject.io.yaml
 controlplanenetworkpolicies:
   kind:
   - NetworkPolicy
@@ -2020,6 +2080,16 @@ controlplanenetworkpolicy:
   - NetworkPolicy
   - controlplane.antrea.io
   viewfile: NetworkPolicy.controlplane.antrea.io.yaml
+controlplaneprov:
+  kind:
+  - ControlPlaneProvider
+  - operator.cluster.x-k8s.io
+  viewfile: ControlPlaneProvider.operator.cluster.x-k8s.io.yaml
+controlplaneprovs:
+  kind:
+  - ControlPlaneProvider
+  - operator.cluster.x-k8s.io
+  viewfile: ControlPlaneProvider.operator.cluster.x-k8s.io.yaml
 coreprov:
   kind:
   - CoreProvider
@@ -2070,6 +2140,16 @@ cpolrs:
   - ClusterPolicyReport
   - wgpolicyk8s.io
   viewfile: ClusterPolicyReport.wgpolicyk8s.io.yaml
+cpprov:
+  kind:
+  - ControlPlaneProvider
+  - operator.cluster.x-k8s.io
+  viewfile: ControlPlaneProvider.operator.cluster.x-k8s.io.yaml
+cpprovs:
+  kind:
+  - ControlPlaneProvider
+  - operator.cluster.x-k8s.io
+  viewfile: ControlPlaneProvider.operator.cluster.x-k8s.io.yaml
 crd:
   kind:
   - CustomResourceDefinition
@@ -2145,6 +2225,16 @@ cta:
   - ClusterTriggerAuthentication
   - keda.sh
   viewfile: ClusterTriggerAuthentication.keda.sh.yaml
+ctrlno.k0s:
+  kind:
+  - ControlNode
+  - autopilot.k0sproject.io
+  viewfile: ControlNode.autopilot.k0sproject.io.yaml
+ctrlnos.k0s:
+  kind:
+  - ControlNode
+  - autopilot.k0sproject.io
+  viewfile: ControlNode.autopilot.k0sproject.io.yaml
 cwf:
   kind:
   - CronWorkflow
@@ -2415,6 +2505,26 @@ eqs:
   - ElasticQuota
   - scheduling.sigs.k8s.io
   viewfile: ElasticQuota.scheduling.sigs.k8s.io.yaml
+etcdmem.k0s:
+  kind:
+  - EtcdMember
+  - etcd.k0sproject.io
+  viewfile: EtcdMember.etcd.k0sproject.io.yaml
+etcdmember.k0s:
+  kind:
+  - EtcdMember
+  - etcd.k0sproject.io
+  viewfile: EtcdMember.etcd.k0sproject.io.yaml
+etcdmembers.k0s:
+  kind:
+  - EtcdMember
+  - etcd.k0sproject.io
+  viewfile: EtcdMember.etcd.k0sproject.io.yaml
+etcdmems.k0s:
+  kind:
+  - EtcdMember
+  - etcd.k0sproject.io
+  viewfile: EtcdMember.etcd.k0sproject.io.yaml
 etcdsnapshot:
   kind:
   - ETCDSnapshotFile
@@ -2775,16 +2885,106 @@ gws:
   - Gateway
   - gateway.networking.k8s.io
   viewfile: Gateway.gateway.networking.k8s.io.yaml
+helmchart.cattle:
+  kind:
+  - HelmChart
+  - helm.cattle.io
+  viewfile: HelmChart.helm.cattle.io.yaml
+helmchart.flux:
+  kind:
+  - HelmChart
+  - source.toolkit.fluxcd.io
+  viewfile: HelmChart.source.toolkit.fluxcd.io.yaml
+helmchart.fluxcd:
+  kind:
+  - HelmChart
+  - source.toolkit.fluxcd.io
+  viewfile: HelmChart.source.toolkit.fluxcd.io.yaml
+helmcharts.cattle:
+  kind:
+  - HelmChart
+  - helm.cattle.io
+  viewfile: HelmChart.helm.cattle.io.yaml
+helmcharts.flux:
+  kind:
+  - HelmChart
+  - source.toolkit.fluxcd.io
+  viewfile: HelmChart.source.toolkit.fluxcd.io.yaml
+helmcharts.fluxcd:
+  kind:
+  - HelmChart
+  - source.toolkit.fluxcd.io
+  viewfile: HelmChart.source.toolkit.fluxcd.io.yaml
+helmrel.flux:
+  kind:
+  - HelmRelease
+  - helm.toolkit.fluxcd.io
+  viewfile: HelmRelease.helm.toolkit.fluxcd.io.yaml
+helmrel.fluxcd:
+  kind:
+  - HelmRelease
+  - helm.toolkit.fluxcd.io
+  viewfile: HelmRelease.helm.toolkit.fluxcd.io.yaml
+helmrelease.flux:
+  kind:
+  - HelmRelease
+  - helm.toolkit.fluxcd.io
+  viewfile: HelmRelease.helm.toolkit.fluxcd.io.yaml
+helmrelease.fluxcd:
+  kind:
+  - HelmRelease
+  - helm.toolkit.fluxcd.io
+  viewfile: HelmRelease.helm.toolkit.fluxcd.io.yaml
+helmreleases.flux:
+  kind:
+  - HelmRelease
+  - helm.toolkit.fluxcd.io
+  viewfile: HelmRelease.helm.toolkit.fluxcd.io.yaml
+helmreleases.fluxcd:
+  kind:
+  - HelmRelease
+  - helm.toolkit.fluxcd.io
+  viewfile: HelmRelease.helm.toolkit.fluxcd.io.yaml
+helmrels.flux:
+  kind:
+  - HelmRelease
+  - helm.toolkit.fluxcd.io
+  viewfile: HelmRelease.helm.toolkit.fluxcd.io.yaml
+helmrels.fluxcd:
+  kind:
+  - HelmRelease
+  - helm.toolkit.fluxcd.io
+  viewfile: HelmRelease.helm.toolkit.fluxcd.io.yaml
 helmrepo:
   kind:
   - HelmChartRepository
   - helm.openshift.io
   viewfile: HelmChartRepository.helm.openshift.io.yaml
+helmrepo.flux:
+  kind:
+  - HelmRepository
+  - source.toolkit.fluxcd.io
+  viewfile: HelmRepository.source.toolkit.fluxcd.io.yaml
+helmrepo.fluxcd:
+  kind:
+  - HelmRepository
+  - source.toolkit.fluxcd.io
+  viewfile: HelmRepository.source.toolkit.fluxcd.io.yaml
 helmrepos:
   kind:
   - HelmChartRepository
   - helm.openshift.io
   viewfile: HelmChartRepository.helm.openshift.io.yaml
+helmrepos.flux:
+  kind:
+  - HelmRepository
+  - source.toolkit.fluxcd.io
+  viewfile: HelmRepository.source.toolkit.fluxcd.io.yaml
+helmrepos.fluxcd:
+  kind:
+  - HelmRepository
+  - source.toolkit.fluxcd.io
+  viewfile: HelmRepository.source.toolkit.fluxcd.io.yaml
 hlclrpol:
   kind:
   - ClusterPolicy
@@ -3190,6 +3390,26 @@ infgraphs:
   - InferenceGraph
   - serving.kserve.io
   viewfile: InferenceGraph.serving.kserve.io.yaml
+infmodel:
+  kind:
+  - InferenceModel
+  - inference.networking.x-k8s.io
+  viewfile: InferenceModel.inference.networking.x-k8s.io.yaml
+infmodelrewrite:
+  kind:
+  - InferenceModelRewrite
+  - inference.networking.x-k8s.io
+  viewfile: InferenceModelRewrite.inference.networking.x-k8s.io.yaml
+infmodelrewrites:
+  kind:
+  - InferenceModelRewrite
+  - inference.networking.x-k8s.io
+  viewfile: InferenceModelRewrite.inference.networking.x-k8s.io.yaml
+infmodels:
+  kind:
+  - InferenceModel
+  - inference.networking.x-k8s.io
+  viewfile: InferenceModel.inference.networking.x-k8s.io.yaml
 infraassessment:
   kind:
   - InfraAssessmentReport
@@ -3200,11 +3420,31 @@ infraassessments:
   - InfraAssessmentReport
   - aquasecurity.github.io
   viewfile: InfraAssessmentReport.aquasecurity.github.io.yaml
+infraprov:
+  kind:
+  - InfrastructureProvider
+  - operator.cluster.x-k8s.io
+  viewfile: InfrastructureProvider.operator.cluster.x-k8s.io.yaml
+infraprovs:
+  kind:
+  - InfrastructureProvider
+  - operator.cluster.x-k8s.io
+  viewfile: InfrastructureProvider.operator.cluster.x-k8s.io.yaml
 infrastructure.config:
   kind:
   - Infrastructure
   - config.openshift.io
   viewfile: Infrastructure.config.openshift.io.yaml
+infrastructureprov:
+  kind:
+  - InfrastructureProvider
+  - operator.cluster.x-k8s.io
+  viewfile: InfrastructureProvider.operator.cluster.x-k8s.io.yaml
+infrastructureprovs:
+  kind:
+  - InfrastructureProvider
+  - operator.cluster.x-k8s.io
+  viewfile: InfrastructureProvider.operator.cluster.x-k8s.io.yaml
 infrastructures.config:
   kind:
   - Infrastructure
@@ -3375,6 +3615,16 @@ ipamblks:
   - IPAMBlock
   - crd.projectcalico.org
   viewfile: IPAMBlock.crd.projectcalico.org.yaml
+ipamprov:
+  kind:
+  - IPAMProvider
+  - operator.cluster.x-k8s.io
+  viewfile: IPAMProvider.operator.cluster.x-k8s.io.yaml
+ipamprovs:
+  kind:
+  - IPAMProvider
+  - operator.cluster.x-k8s.io
+  viewfile: IPAMProvider.operator.cluster.x-k8s.io.yaml
 istioauthorizationpolicy:
   kind:
   - AuthorizationPolicy
@@ -3450,6 +3700,26 @@ k0sctrlnos:
   - ControlNode
   - autopilot.k0sproject.io
   viewfile: ControlNode.autopilot.k0sproject.io.yaml
+k0setcdmem:
+  kind:
+  - EtcdMember
+  - etcd.k0sproject.io
+  viewfile: EtcdMember.etcd.k0sproject.io.yaml
+k0setcdmember:
+  kind:
+  - EtcdMember
+  - etcd.k0sproject.io
+  viewfile: EtcdMember.etcd.k0sproject.io.yaml
+k0setcdmembers:
+  kind:
+  - EtcdMember
+  - etcd.k0sproject.io
+  viewfile: EtcdMember.etcd.k0sproject.io.yaml
+k0setcdmems:
+  kind:
+  - EtcdMember
+  - etcd.k0sproject.io
+  viewfile: EtcdMember.etcd.k0sproject.io.yaml
 k0sworkerconftmpl:
   kind:
   - K0sWorkerConfigTemplate
@@ -6260,11 +6530,6 @@ roles.openshift:
   - Role
   - authorization.openshift.io
   viewfile: Role.authorization.openshift.io.yaml
-roletempl.cattle:
-  kind:
-  - RoleTemplate
-  - management.cattle.io
-  viewfile: RoleTemplate.management.cattle.io.yaml
 roletemplate.cattle:
   kind:
   - RoleTemplate
@@ -6275,7 +6540,12 @@ roletemplates.cattle:
   - RoleTemplate
   - management.cattle.io
   viewfile: RoleTemplate.management.cattle.io.yaml
-roletempls.cattle:
+roletmpl.cattle:
+  kind:
+  - RoleTemplate
+  - management.cattle.io
+  viewfile: RoleTemplate.management.cattle.io.yaml
+roletmpls.cattle:
   kind:
   - RoleTemplate
   - management.cattle.io

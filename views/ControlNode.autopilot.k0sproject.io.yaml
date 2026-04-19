@@ -3,13 +3,17 @@ kind: "ControlNode"
 api_family: "autopilot.k0sproject.io"
 default_command: "controlnodes.autopilot.k0sproject.io"
 command:
+  - "controlnodes.k0s"
+  - "controlnode.k0s"
+  - "ctrlnos.k0s"
+  - "ctrlno.k0s"
   - "k0scontrolnodes"
   - "k0scontrolnode"
   - "k0sctrlnos"
   - "k0sctrlno"
 listview:
   name: "Control Nodes"
-  group: "OpenShift"
+  group: "K0s"
   field_indexes:
     Normal:
       fields: ["name", "internal_ips", "k0s_version", "age"]

@@ -1,0 +1,258 @@
+---
+kind: "ClusterTemplate"
+api_family: "k0rdent.mirantis.com"
+default_command: "clustertemplates.k0rdent.mirantis.com"
+command:
+  - "clustertemplates.k0rdent"
+  - "clustertemplate.k0rdent"
+  - "clrtmpls.k0rdent"
+  - "clrtmpl.k0rdent"
+listview:
+  name: "Cluster Templates"
+  group: "Cluster Configuration"
+  field_indexes:
+    Wide:
+      fields: ["namespace", "name", "chart", "chart_reference",
+               "chart_source_reference", "version", "valid", "age",
+               "description"]
+      sortcolumn: "namespace"
+    Normal:
+      fields: ["namespace", "name", "version", "valid", "age", "description"]
+      sortcolumn: "namespace"
+  fields:
+    chart:
+      header: "Chart:"
+      path: "spec#helm#chartSpec#chart"
+      default: "<unset>"
+      type: "str"
+    chart_reference:
+      header: "Chart Reference:"
+      paths:
+        - path: [["status#chartRef#kind"], ["status#chartRef#name"]]
+          pathtype: "tuple"
+          type: ["kind", "name"]
+      default: ["<unset>"]
+      type: "list"
+      formatter: "list"
+      formatting:
+        field_colors:
+          - type: "kind"
+          - type: "generic"
+        field_separators:
+          - type: "kind"
+    chart_source_reference:
+      header: "Chart Source Reference:"
+      paths:
+        - path: [["spec#helm#chartSpec#sourceRef#kind"],
+                 ["spec#helm#chartSpec#sourceRef#name"]]
+          pathtype: "tuple"
+          type: ["kind", "name"]
+      default: ["<unset>"]
+      type: "list"
+      formatter: "list"
+      formatting:
+        field_colors:
+          - type: "kind"
+          - type: "generic"
+        field_separators:
+          - type: "kind"
+    description:
+      header: "Description:"
+      path: "status#description"
+      default: "<unset>"
+      type: "str"
+    valid:
+      header: "Valid:"
+      path: "status#valid"
+      default: "<unset>"
+      type: "bool"
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          mappings:
+            "True":
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+            "False":
+              field_colors:
+                - context: "main"
+                  type: "status_not_ok"
+    version:
+      header: "Version:"
+      path: "status#chartVersion"
+      default: "<unset>"
+      type: "str"
+      formatting:
+        field_colors:
+          - type: "version"
+infoview:
+  name: "Cluster Template Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["description",
+                 "chart_header",
+                 "chart_name",
+                 "chart_source_reference",
+                 "chart_reference",
+                 "chart_version",
+                 "chart_interval",
+                 "chart_reconcile_strategy",
+                 "schema_config_map",
+                 "providers",
+                 "valid"]
+    rows:
+      chart_header:
+        header: [["Chart:", ["main", "infoheader"]]]
+      chart_interval:
+        header: [["  Interval:", ["main", "infoheader"]]]
+        path: "spec#helm#chartSpec#interval"
+        type: "str"
+        formatter: "numerical"
+      chart_name:
+        header: [["  Name:", ["main", "infoheader"]]]
+        path: "spec#helm#chartSpec#chart"
+        default: "<unset>"
+        type: "str"
+      chart_reconcile_strategy:
+        header: [["  Reconcile Strategy:", ["main", "infoheader"]]]
+        path: "spec#helm#chartSpec#reconcileStrategy"
+        default: "<unset>"
+        type: "str"
+      chart_reference:
+        header: [["  Refe", ["main", "infoheader"]],
+                 ["r", ["main", "infoheader_shortcut"]],
+                 ["ence:", ["main", "infoheader"]]]
+        paths:
+          - path: [["status#chartRef#kind"],
+                   ["status#chartRef#namespace"], ["status#chartRef#name"]]
+            pathtype: "tuple"
+            type: ["kind", "name", "name"]
+        default: ["<unset>"]
+        type: "list"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "kind"
+            - type: "namespace"
+            - type: "generic"
+          field_separators:
+            - type: "kind"
+            - type: "namespace"
+      chart_source_reference:
+        header: [["  ", ["main", "infoheader"]],
+                 ["S", ["main", "infoheader_shortcut"]],
+                 ["ource Reference:", ["main", "infoheader"]]]
+        paths:
+          - path: [["spec#helm#chartSpec#sourceRef#kind"],
+                   ["spec#helm#chartSpec#sourceRef#name"]]
+            pathtype: "tuple"
+            type: ["kind", "name"]
+        default: ["<unset>"]
+        type: "list"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "kind"
+            - type: "generic"
+          field_separators:
+            - type: "kind"
+      chart_version:
+        header: [["  Version:", ["main", "infoheader"]]]
+        path: "status#chartVersion"
+        default: "<unset>"
+        type: "str"
+        formatting:
+          field_colors:
+            - type: "version"
+      description:
+        header: [["Description:", ["main", "infoheader"]]]
+        path: "status#description"
+        default: "<unset>"
+        type: "str"
+      providers:
+        header: [["P", ["main", "infoheader_shortcut"]],
+                 ["roviders:", ["main", "infoheader"]]]
+        path: "status#providers"
+        default: ["<none>"]
+        type: "raw"
+        formatter: "list"
+      schema_config_map:
+        header: [["Schema ", ["main", "infoheader"]],
+                 ["C", ["main", "infoheader_shortcut"]],
+                 ["onfig Map:", ["main", "infoheader"]]]
+        path: "status#schemaConfigMapName"
+        default: "<unset>"
+        type: "str"
+      valid:
+        header: [["Valid:", ["main", "infoheader"]]]
+        path: "status#valid"
+        default: "<unset>"
+        type: "bool"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              "True":
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+              "False":
+                field_colors:
+                  - context: "main"
+                    type: "status_not_ok"
+  logpad:
+    infogetter: "logpad_formatted"
+    infogetter_args:
+      formatter: "format_yaml"
+      path: "status#config"
+    timestamps: false
+  shortcuts:
+    "Open Helm Chart reference":
+      key: "r"
+      read_only: true
+      helptext: "Open info page for HelmChart reference"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind_path: "status#chartRef#kind"
+        api_group: "source.toolkit.fluxcd.io"
+        namespace_path: "status#chartRef#namespace"
+        name_path: "status#chartRef#name"
+    "Open Helm Chart source reference":
+      key: "s"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for HelmChart source reference"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind_path: "spec#helm#chartSpec#sourceRef#kind"
+        api_group: "source.toolkit.fluxcd.io"
+        namespace_path: "metadata#namespace"
+        name_path: "spec#helm#chartSpec#sourceRef#name"
+    "Open schema Config Map":
+      key: "c"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for schema ConfigMap"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind: "ConfigMap"
+        namespace_path: "metadata#namespace"
+        name_path: "status#schemaConfigMapName"
+    "List providers":
+      key: "p"
+      modifier: "shift"
+      read_only: true
+      helptext: "List providers"
+      widget: "windowwidget"
+      title: "Providers:"
+      itemgetter: "get_list_as_list"
+      itemgetter_args:
+        path: "status#providers"

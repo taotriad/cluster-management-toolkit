@@ -1,0 +1,84 @@
+---
+kind: "EtcdMember"
+api_family: "etcd.k0sproject.io"
+default_command: "etcdmembers.etcd.k0sproject.io"
+command:
+  - "etcdmembers.k0s"
+  - "etcdmember.k0s"
+  - "etcdmems.k0s"
+  - "etcdmem.k0s"
+  - "k0setcdmembers"
+  - "k0setcdmember"
+  - "k0setcdmems"
+  - "k0setcdmem"
+listview:
+  name: "Etcd Members"
+  group: "K0s"
+  field_indexes:
+    Normal:
+      fields: ["name", "peer_address", "member_id", "joined",
+               "reconcile_status", "age"]
+  fields:
+    joined:
+      header: "Joined:"
+      paths:
+        - path: "status#conditions"
+          pathtype: "items"
+          subpath: "status"
+          when:
+            - key: "type"
+              eq: "Joined"
+      default: "<unset>"
+      type: "str"
+    member_id:
+      header: "Member ID:"
+      path: "status#memberID"
+      default: "<unset>"
+      type: "str"
+      formatter: "hex"
+    peer_address:
+      header: "Peer Address:"
+      path: "status#peerAddress"
+      default: "<unset>"
+      type: "str"
+      formatter: "address"
+    reconcile_status:
+      header: "Reconcile Status:"
+      path: "status#reconcileStatus"
+      default: "<unset>"
+      type: "str"
+infoview:
+  name: "Etcd Member Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["peer_address", "member_id", "joined", "reconcile_status"]
+    rows:
+      joined:
+        header: [["Joined:", ["main", "infoheader"]]]
+        paths:
+          - path: "status#conditions"
+            pathtype: "items"
+            subpath: "status"
+            when:
+              - key: "type"
+                eq: "Joined"
+        default: "<unset>"
+        type: "str"
+      member_id:
+        header: [["Member ID:", ["main", "infoheader"]]]
+        path: "status#memberID"
+        default: "<unset>"
+        type: "str"
+        formatter: "hex"
+      peer_address:
+        header: [["Peer Address:", ["main", "infoheader"]]]
+        path: "status#peerAddress"
+        default: "<unset>"
+        type: "str"
+        formatter: "address"
+      reconcile_status:
+        header: [["Reconcile Status:", ["main", "infoheader"]]]
+        path: "status#reconcileStatus"
+        default: "<unset>"
+        type: "str"
