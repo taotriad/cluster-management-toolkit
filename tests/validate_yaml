@@ -391,6 +391,9 @@ listpad_reserved_shortcuts: dict[str, dict[str, str]] = {
     "P": {
         "description": "Search backwards for previous match within column",
     },
+    "R": {
+        "description": "Reverse sortorder",
+    },
     "[Page Up]": {
         "description": "Scroll 10 lines up",
     },
