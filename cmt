@@ -97,7 +97,7 @@ from clustermanagementtoolkit.networkio import scan_and_add_ssh_keys
 
 from clustermanagementtoolkit import kubernetes_helper
 from clustermanagementtoolkit.kubernetes_helper import list_contexts, get_node_roles
-from clustermanagementtoolkit.kubernetes_helper import get_node_status, kubectl_get_version
+from clustermanagementtoolkit.kubernetes_helper import get_node_status
 from clustermanagementtoolkit.kubernetes_helper import update_api_status as kh_update_api_status
 from clustermanagementtoolkit.kubernetes_helper import set_context, guess_kind, get_cluster_name
 
