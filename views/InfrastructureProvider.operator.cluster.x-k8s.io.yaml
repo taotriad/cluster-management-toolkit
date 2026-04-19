@@ -1,0 +1,178 @@
+---
+kind: "InfrastructureProvider"
+api_family: "operator.cluster.x-k8s.io"
+default_command: "infrastructureproviders"
+command:
+  - "infrastructureprovs"
+  - "infrastructureprov"
+  - "infraprovs"
+  - "infraprov"
+listview:
+  name: "Infrastructure Providers"
+  group: "Cluster Configuration"
+  field_indexes:
+    Normal:
+      fields: ["namespace", "name", "installed_version", "ready", "age"]
+      sortcolumn: "namespace"
+  fields:
+    installed_version:
+      header: "Installed Version:"
+      path: "status#installedVersion"
+      type: "str"
+      formatting:
+        field_colors:
+          - type: "version"
+    ready:
+      header: "Ready:"
+      paths:
+        - path: "status#conditions"
+          pathtype: "items"
+          subpath: "status"
+          when:
+            - key: "type"
+              eq: "Ready"
+      type: "str"
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          mappings:
+            "True":
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+            "False":
+              field_colors:
+                - context: "main"
+                  type: "status_not_ok"
+infoview:
+  name: "Infrastructure Provider Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["config_secret",
+                 "fetch_config",
+                 "manager_header",
+                 "manager_feature_gates",
+                 "manager_verbosity",
+                 "installed_version", "contract", "ready"]
+    rows:
+      config_secret:
+        header: [["C", ["main", "infoheader_shortcut"]],
+                 ["onfig Secret:", ["main", "infoheader"]]]
+        paths:
+          - path: [["spec#configSecret#namespace"],
+                   ["spec#configSecret#name"]]
+            pathtype: "tuple"
+            default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "namespace"
+            - type: "generic"
+          field_separators:
+            - type: "namespace"
+      contract:
+        header: [["Contract:", ["main", "infoheader"]]]
+        path: "status#contract"
+        type: "str"
+        formatting:
+          field_colors:
+            - type: "version"
+      fetch_config:
+        header: [["Fetch Config:", ["main", "infoheader"]]]
+        path: "spec#fetchConfig#url"
+        default: "<unset>"
+        type: "str"
+        formatter: "address"
+      installed_version:
+        header: [["Installed Version:", ["main", "infoheader"]]]
+        path: "status#installedVersion"
+        type: "str"
+        formatting:
+          field_colors:
+            - type: "version"
+      manager_feature_gates:
+        header: [["  ", ["main", "infoheader"]],
+                 ["F", ["main", "infoheader_shortcut"]],
+                 ["eature Gates:", ["main", "infoheader"]]]
+        paths:
+          - path: "spec#manager#featureGates"
+            pathtype: "key_value"
+        default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "key"
+            - type: "value"
+          field_separators:
+            - type: "selector"
+      manager_header:
+        header: [["Manager:", ["main", "infoheader"]]]
+      manager_verbosity:
+        header: [["  Verbosity:", ["main", "infoheader"]]]
+        path: "spec#manager#verbosity"
+        default: "<unset>"
+        type: "int"
+        formatter: "numerical"
+      ready:
+        header: [["Ready:", ["main", "infoheader"]]]
+        paths:
+          - path: "status#conditions"
+            pathtype: "items"
+            subpath: "status"
+            when:
+              - key: "type"
+                eq: "Ready"
+        type: "str"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              "True":
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+              "False":
+                field_colors:
+                  - context: "main"
+                    type: "status_not_ok"
+  shortcuts:
+    "Open configuration secret":
+      key: "c"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for configruration Secret"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind: "Secret"
+        namespace_path: "spec#configSecret#namespace"
+        name_path: "spec#configSecret#name"
+    "Feature Gates":
+      key: "f"
+      modifier: "shift"
+      read_only: true
+      helptext: "List feature gates"
+      widget: "windowwidget"
+      title: "Feature Gates:"
+      headers: ["Key:", "Value:"]
+      itemgetter: "get_key_value"
+      itemgetter_args:
+        path: "spec#manager#featureGates"
+    "Show Manifest Patches":
+      key: "m"
+      read_only: true
+      helptext: "Show manifest patches"
+      widget: "windowwidget"
+      title: "Manifest Patches:"
+      selectable: true
+      itemgetter: "get_list_as_list"
+      itemgetter_args:
+        path: "spec#manifestPatches"
+        index_template: "Patch <<<index>>>"
+      action: "call"
+      action_call: "view_yaml"
+      action_args:
+        title: "Manifest Patch"
+        _pass_selection: true
