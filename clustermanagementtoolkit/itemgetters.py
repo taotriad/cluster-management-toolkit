@@ -348,6 +348,7 @@ def get_list_as_list(obj: dict, **kwargs: Any) -> list[Any]:
     vlist: list[Any] = []
     # pylint: disable-next=too-many-nested-blocks
     if "path" in kwargs:
+        index_template = deep_get(kwargs, DictPath("index_template"))
         raw_path = deep_get(kwargs, DictPath("path"))
         if isinstance(raw_path, str):
             raw_path = [raw_path]
@@ -357,7 +358,7 @@ def get_list_as_list(obj: dict, **kwargs: Any) -> list[Any]:
         _regex = deep_get(kwargs, DictPath("regex"))
         if _regex is not None:
             compiled_regex = re.compile(_regex)
-        for item in deep_get_with_fallback(obj, paths, []):
+        for i, item in enumerate(deep_get_with_fallback(obj, paths, [])):
             if not item:
                 continue
             if _regex is not None:
@@ -368,7 +369,11 @@ def get_list_as_list(obj: dict, **kwargs: Any) -> list[Any]:
                             tmp2.append(group)
                     vlist.append(tmp2)
             else:
-                vlist.append([item])
+                if index_template:
+                    vlist.append({"fields": [index_template.replace("<<<index>>>", f"{i}")],
+                                  "ref": item})
+                else:
+                    vlist.append([item])
     elif "paths" in kwargs:
         # lists that run out of elements will return ""
         # strings will be treated as constants and thus returned for every row
