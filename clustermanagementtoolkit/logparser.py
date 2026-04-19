@@ -2086,7 +2086,7 @@ def key_value(message: str, **kwargs: Any) -> tuple[str, LogLevel, str,
     facilities = deep_get(options, DictPath("facilities"),
                           ["source", "subsys", "caller", "logger", "Topic"])
     versions = deep_get(options, DictPath("versions"), [])
-    allow_bare_keys: bool = deep_get(options, DictPath("allow_bare_keys"), False)
+    allow_bare_keys: str = deep_get(options, DictPath("allow_bare_keys"), "none")
     substitute_bullets_: bool = deep_get(options, DictPath("substitute_bullets"), True)
     collector_bullets: bool = deep_get(options, DictPath("collector_bullets"), False)
     is_event: bool = deep_get(options, DictPath("is_event"), False)
@@ -2107,11 +2107,16 @@ def key_value(message: str, **kwargs: Any) -> tuple[str, LogLevel, str,
         for item in tmp:
             re_tmp = key_value_regex.match(item)
             if re_tmp is None:
-                if allow_bare_keys and not item.endswith(":"):
+                if not item.endswith(":") \
+                        and allow_bare_keys == "all" \
+                        or allow_bare_keys == "lowercase" and item.lower() == item \
+                        or allow_bare_keys == "uppercase" and item.upper() == item \
+                        or allow_bare_keys == "capitalize" and item.capitalize() == item:
                     if item not in d:
                         d[item] = None
                 else:
                     # Give up; this line cannot be parsed as a set of key=value
+                    # FIXME: we need to handle this when using key_value_with_leading_message
                     return facility, severity, message, remnants
             else:
                 key = re_tmp[1]
