@@ -120,6 +120,9 @@ configmap_signatures:
   json:
     format_name: "JSON"
     signatures:
+      - namespace: "kcm-system"
+        data_prefix: "schema"
+        data_suffix: "schema"
       - prefix: "ClusterConfiguration"
         suffix: "ClusterConfiguration"
       - prefix: "InitConfiguration"

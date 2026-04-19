@@ -7,6 +7,6 @@
     - name: "glog"
     - name: "key_value_with_leading_message"
       options:
-        allow_bare_keys: true
+        allow_bare_keys: "lowercase"
         versions:
           - "version"

@@ -5,3 +5,10 @@
     - container_name: "openstack-cloud-controller-manager"
   parser_rules:
     - name: "glog"
+- name: "openstack"
+  show_in_selector: false
+  matchkeys:
+    - image_name: "/orc/openstack-resource-controller"
+  parser_rules:
+    - name: "glog"
+    - name: "tab_separated"

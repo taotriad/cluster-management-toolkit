@@ -7,7 +7,7 @@
     - name: "glog"
     - name: "key_value"
       options:
-        allow_bare_keys: true
+        allow_bare_keys: "lowercase"
         versions:
           - "release"
     - name: "override_severity"

@@ -1,11 +1,10 @@
 ---
-- name: "kargo"
+- name: "rbac-manager"
   show_in_selector: false
   matchkeys:
-    - image_name: "/akuity/kargo"
+    - image_name: "/reactiveops/rbac-manager"
   parser_rules:
     - name: "key_value"
       options:
-        allow_bare_keys: "lowercase"
         versions:
           - "version"

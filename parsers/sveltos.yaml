@@ -1,0 +1,17 @@
+---
+- name: "sveltos"
+  show_in_selector: false
+  matchkeys:
+    - image_name: "/projectsveltos/access-manager"
+    - image_name: "/projectsveltos/addon-controller"
+    - image_name: "/projectsveltos/classifier"
+    - image_name: "/projectsveltos/event-manager"
+    - image_name: "/projectsveltos/healthcheck-manager"
+    - image_name: "/projectsveltos/mcp-server"
+    - image_name: "/projectsveltos/sveltoscluster-manager"
+    - image_name: "/projectsveltos/shard-controller"
+    - image_name: "/projectsveltos/sveltos-agent"
+    - image_name: "/projectsveltos/techsupport"
+  parser_rules:
+    - name: "glog"
+    - name: "key_value_with_leading_message"

@@ -1,0 +1,8 @@
+---
+- name: "azureserviceoperator"
+  show_in_selector: false
+  matchkeys:
+    - image_name: "/k8s/azureserviceoperator"
+  parser_rules:
+    - name: "glog"
+    - name: "key_value_with_leading_message"

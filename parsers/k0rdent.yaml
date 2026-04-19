@@ -1,0 +1,9 @@
+---
+- name: "k0rdent"
+  show_in_selector: false
+  matchkeys:
+    - image_name: "/k0rdent/kcm/controller"
+    - image_name: "/k0rdent/kcm/telemetry"
+  parser_rules:
+    - name: "glog"
+    - name: "json"

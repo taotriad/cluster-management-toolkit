@@ -2,7 +2,9 @@
 - name: "cert-manager"
   show_in_selector: false
   matchkeys:
-    - pod_name: "cert-manager"
+    - image_name: "/jetstack/cert-manager-controller"
+    - image_name: "/jetstack/cert-manager-cainjector"
+    - image_name: "/jetstack/cert-manager-webhook"
   parser_rules:
     - name: "glog"
     - name: "key_value_with_leading_message"
@@ -10,7 +12,7 @@
         versions:
           - "version"
           - "\"version\""
-        allow_bare_keys: true
+        allow_bare_keys: "lowercase"
     - name: "override_severity"
       overrides:
         - matchtype: "startswith"

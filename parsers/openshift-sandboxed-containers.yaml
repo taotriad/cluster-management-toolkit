@@ -6,4 +6,4 @@
   parser_rules:
     - name: "key_value"
       options:
-        allow_bare_keys: true
+        allow_bare_keys: "lowercase"

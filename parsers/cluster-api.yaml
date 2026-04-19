@@ -15,11 +15,17 @@
     - pod_name: "capmox-controller-manager"
       container_name: "manager"
     - container_name: "clusterapi-cluster-autoscaler"
+    - image_name: "/cluster-api-aws/cluster-api-aws-controller"
+    - image_name: "/cluster-api-gcp/cluster-api-gcp-controller"
+    - image_name: "/cluster-api-vsphere/cluster-api-vsphere-controller"
+    - image_name: "/cluster-api-azure/cluster-api-azure-controller"
+    - image_name: "/capk/capk-manager"
+    - image_name: "/capi-operator/cluster-api-operator"
   parser_rules:
     - name: "glog"
     - name: "key_value_with_leading_message"
       options:
-        allow_bare_keys: true
+        allow_bare_keys: "lowercase"
         versions:
           - "version"
     - name: "override_severity"
