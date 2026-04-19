@@ -3778,13 +3778,21 @@ def export_data(stdscr: curses.window, **kwargs: Any) -> Retval:
         if value is not None:
             value = deep_get(obj, DictPath(f"{base_path}#{value}"))
         else:
-            value = deep_get(obj, DictPath(f"{base_path}"))
+            if base_path is not None and not base_path:
+                value = obj
+            else:
+                value = deep_get(obj, DictPath(f"{base_path}"))
 
-    raw_filename = deep_get(kwargs, DictPath("result"))
+    if not (raw_filename := deep_get(kwargs, DictPath("result"))):
+        return Retval.RETURNDONE
+
     if "/" not in raw_filename:
         filename = FilePath(Path.cwd()).joinpath(raw_filename)
     else:
         filename = FilePath(raw_filename)
+
+    if filename.startswith(f"~{os.path.sep}"):
+        filename = filename.replace(f"~{os.path.sep}", f"{HOMEDIR}{os.path.sep}", count=1)
 
     vtype, value = decode_value(value)
 
@@ -6501,6 +6509,8 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
             uip.refresh_logpad()
             curses.doupdate()
 
+            if filename.startswith(f"~{os.path.sep}"):
+                filename = filename.replace(f"~{os.path.sep}", f"{HOMEDIR}{os.path.sep}", count=1)
             if os.path.exists(filename):
                 curses.doupdate()
                 query_title = f"File “{filename}“ already exists; overwrite?:"
@@ -7551,9 +7561,7 @@ def view_yaml(stdscr: curses.window, **kwargs: Any) -> Retval:
             _obj = deep_get_with_fallback(obj, paths)
         if not _obj:
             return Retval.RETURNDONE
-        obj = [_obj]
-    else:
-        obj = [obj]
+        obj = _obj
     title = deep_get_with_fallback(kwargs, [DictPath("named_title"), DictPath("title")])
     formatter = formatters.format_yaml
     return resourceinfodispatch(stdscr, obj=obj, kind=("__ResourceView", ""),
@@ -8494,7 +8502,10 @@ def delete_logs(**kwargs: Any) -> Retval:
     items = deep_get(kwargs, DictPath("items"), [])
     dirpath: str = deep_get(kwargs, DictPath("action#actionfunc_args#dirpath"))
     if dirpath is not None:
-        dirpath = dirpath.replace("{HOME}", HOMEDIR)
+        if dirpath.startswith("{HOME}"):
+            dirpath = dirpath.replace("{HOME}", HOMEDIR, count=1)
+        if dirpath.startswith(f"~{os.path.sep}"):
+            dirpath = dirpath.replace(f"~{os.path.sep}", f"{HOMEDIR}{os.path.sep}", count=1)
     for item in items:
         ansible_delete_log(item, dirpath=dirpath)
     return Retval.RETURNDONE
@@ -9782,7 +9793,9 @@ def populate_views(refresh_apis: str = "none") -> None:
 
     for view_dir in view_dirs:
         if view_dir.startswith("{HOME}"):
-            view_dir = view_dir.replace("{HOME}", HOMEDIR, 1)
+            view_dir = view_dir.replace("{HOME}", HOMEDIR, count=1)
+        if view_dir.startswith(f"~{os.path.sep}"):
+            view_dir = view_dir.replace(f"~{os.path.sep}", f"{HOMEDIR}{os.path.sep}", count=1)
 
         if not os.path.isdir(view_dir):
             continue
