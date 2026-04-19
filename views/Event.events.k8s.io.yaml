@@ -74,6 +74,10 @@ listview:
       formatting:
         mapping:
           mappings:
+            AccessManagementCreated:
+              field_colors:
+                - context: "main"
+                  type: "status_done"
             AddedInterface:
               field_colors:
                 - context: "main"
@@ -150,6 +154,10 @@ listview:
               field_colors:
                 - context: "main"
                   type: "status_warning"
+            ArtifactUpToDate:
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
             AssistedControllerIsReady:
               field_colors:
                 - context: "main"
@@ -239,6 +247,10 @@ listview:
               field_colors:
                 - context: "main"
                   type: "status_ok"
+            ChartPullSucceeded:
+              field_colors:
+                - context: "main"
+                  type: "status_done"
             CIDRAssignmentFailed:
               field_colors:
                 - context: "main"
@@ -251,6 +263,10 @@ listview:
               field_colors:
                 - context: "main"
                   type: "status_not_ok"
+            ClusterDeploymentControllerEnabled:
+              field_colors:
+                - context: "main"
+                  type: "status_done"
             ClusterCSIDriverCreated:
               field_colors:
                 - context: "main"
@@ -892,6 +908,14 @@ listview:
               field_colors:
                 - context: "main"
                   type: "status_warning"
+            FailedToEnsureProvisioner:
+              field_colors:
+                - context: "main"
+                  type: "status_warning"
+            FailedToEnsureProvisionerCRDs:
+              field_colors:
+                - context: "main"
+                  type: "status_warning"
             FailedToRetrieveImagePullSecret:
               field_colors:
                 - context: "main"
@@ -1012,6 +1036,10 @@ listview:
               field_colors:
                 - context: "main"
                   type: "status_ok"
+            HelmReleaseCreated:
+              field_colors:
+                - context: "main"
+                  type: "status_done"
             HTTPServerStoppedListening:
               field_colors:
                 - context: "main"
@@ -1043,7 +1071,7 @@ listview:
             ImportSucceeded:
               field_colors:
                 - context: "main"
-                  type: "status_ok"
+                  type: "status_done"
             ImportTargetInUse:
               field_colors:
                 - context: "main"
@@ -1113,6 +1141,10 @@ listview:
                 - context: "main"
                   type: "status_warning"
             InvalidDiskCapacity:
+              field_colors:
+                - context: "main"
+                  type: "status_warning"
+            InvalidProviderTemplates:
               field_colors:
                 - context: "main"
                   type: "status_warning"
@@ -1232,6 +1264,10 @@ listview:
               field_colors:
                 - context: "main"
                   type: "status_warning"
+            ManagementIsReady:
+              field_colors:
+                - context: "main"
+                  type: "status_done"
             MasterNodeObserved:
               field_colors:
                 - context: "main"
@@ -1281,6 +1317,10 @@ listview:
                 - context: "main"
                   type: "status_ok"
             MPIJobSucceeded:
+              field_colors:
+                - context: "main"
+                  type: "status_done"
+            MultiClusterServiceControllerEnabled:
               field_colors:
                 - context: "main"
                   type: "status_done"
@@ -1780,6 +1820,10 @@ listview:
               field_colors:
                 - context: "main"
                   type: "status_done"
+            ReleaseIsNotReady:
+              field_colors:
+                - context: "main"
+                  type: "status_warning"
             RELOAD:
               field_colors:
                 - context: "main"
@@ -2148,6 +2192,10 @@ listview:
               field_colors:
                 - context: "main"
                   type: "status_pending"
+            StateManagementProviderCreated:
+              field_colors:
+                - context: "main"
+                  type: "status_done"
             StaticPodInstallerCompleted:
               field_colors:
                 - context: "main"
@@ -2217,6 +2265,22 @@ listview:
                 - context: "main"
                   type: "status_ok"
             "Successful delete ImagePullJob":
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+            SuccessfullyEnsuredAdapter:
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+            SuccessfullyEnsuredProvisioner:
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+            SuccessfullyEnsuredProvisionerCRDs:
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+            SuccessfullyEnsuredRBAC:
               field_colors:
                 - context: "main"
                   type: "status_ok"
@@ -2297,6 +2361,10 @@ listview:
                 - context: "main"
                   type: "status_done"
             TaskHung:
+              field_colors:
+                - context: "main"
+                  type: "status_warning"
+            TemplatesCreationFailed:
               field_colors:
                 - context: "main"
                   type: "status_warning"
@@ -2440,6 +2508,10 @@ listview:
               field_colors:
                 - context: "main"
                   type: "status_pending"
+            UpgradeSucceeded:
+              field_colors:
+                - context: "main"
+                  type: "status_done"
             Validated:
               field_colors:
                 - context: "main"
@@ -2489,6 +2561,10 @@ listview:
                 - context: "main"
                   type: "status_ok"
             WaitingForApproval:
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+            WaitingForSveltosReadiness:
               field_colors:
                 - context: "main"
                   type: "status_pending"
@@ -2674,6 +2750,10 @@ infoview:
         formatting:
           mapping:
             mappings:
+              AccessManagementCreated:
+                field_colors:
+                  - context: "main"
+                    type: "status_done"
               AddedInterface:
                 field_colors:
                   - context: "main"
@@ -2750,6 +2830,10 @@ infoview:
                 field_colors:
                   - context: "main"
                     type: "status_warning"
+              ArtifactUpToDate:
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
               AssistedControllerIsReady:
                 field_colors:
                   - context: "main"
@@ -2839,6 +2923,10 @@ infoview:
                 field_colors:
                   - context: "main"
                     type: "status_ok"
+              ChartPullSucceeded:
+                field_colors:
+                  - context: "main"
+                    type: "status_done"
               CIDRAssignmentFailed:
                 field_colors:
                   - context: "main"
@@ -2851,6 +2939,10 @@ infoview:
                 field_colors:
                   - context: "main"
                     type: "status_not_ok"
+              ClusterDeploymentControllerEnabled:
+                field_colors:
+                  - context: "main"
+                    type: "status_done"
               ClusterCSIDriverCreated:
                 field_colors:
                   - context: "main"
@@ -3492,6 +3584,14 @@ infoview:
                 field_colors:
                   - context: "main"
                     type: "status_warning"
+              FailedToEnsureProvisioner:
+                field_colors:
+                  - context: "main"
+                    type: "status_warning"
+              FailedToEnsureProvisionerCRDs:
+                field_colors:
+                  - context: "main"
+                    type: "status_warning"
               FailedToRetrieveImagePullSecret:
                 field_colors:
                   - context: "main"
@@ -3612,6 +3712,10 @@ infoview:
                 field_colors:
                   - context: "main"
                     type: "status_ok"
+              HelmReleaseCreated:
+                field_colors:
+                  - context: "main"
+                    type: "status_done"
               HTTPServerStoppedListening:
                 field_colors:
                   - context: "main"
@@ -3643,7 +3747,7 @@ infoview:
               ImportSucceeded:
                 field_colors:
                   - context: "main"
-                    type: "status_ok"
+                    type: "status_done"
               ImportTargetInUse:
                 field_colors:
                   - context: "main"
@@ -3713,6 +3817,10 @@ infoview:
                   - context: "main"
                     type: "status_warning"
               InvalidDiskCapacity:
+                field_colors:
+                  - context: "main"
+                    type: "status_warning"
+              InvalidProviderTemplates:
                 field_colors:
                   - context: "main"
                     type: "status_warning"
@@ -3832,6 +3940,10 @@ infoview:
                 field_colors:
                   - context: "main"
                     type: "status_warning"
+              ManagementIsReady:
+                field_colors:
+                  - context: "main"
+                    type: "status_done"
               MasterNodeObserved:
                 field_colors:
                   - context: "main"
@@ -3881,6 +3993,10 @@ infoview:
                   - context: "main"
                     type: "status_ok"
               MPIJobSucceeded:
+                field_colors:
+                  - context: "main"
+                    type: "status_done"
+              MultiClusterServiceControllerEnabled:
                 field_colors:
                   - context: "main"
                     type: "status_done"
@@ -4380,6 +4496,10 @@ infoview:
                 field_colors:
                   - context: "main"
                     type: "status_done"
+              ReleaseIsNotReady:
+                field_colors:
+                  - context: "main"
+                    type: "status_warning"
               RELOAD:
                 field_colors:
                   - context: "main"
@@ -4748,6 +4868,10 @@ infoview:
                 field_colors:
                   - context: "main"
                     type: "status_pending"
+              StateManagementProviderCreated:
+                field_colors:
+                  - context: "main"
+                    type: "status_done"
               StaticPodInstallerCompleted:
                 field_colors:
                   - context: "main"
@@ -4817,6 +4941,22 @@ infoview:
                   - context: "main"
                     type: "status_ok"
               "Successful delete ImagePullJob":
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+              SuccessfullyEnsuredAdapter:
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+              SuccessfullyEnsuredProvisioner:
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+              SuccessfullyEnsuredProvisionerCRDs:
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+              SuccessfullyEnsuredRBAC:
                 field_colors:
                   - context: "main"
                     type: "status_ok"
@@ -4897,6 +5037,10 @@ infoview:
                   - context: "main"
                     type: "status_done"
               TaskHung:
+                field_colors:
+                  - context: "main"
+                    type: "status_warning"
+              TemplatesCreationFailed:
                 field_colors:
                   - context: "main"
                     type: "status_warning"
@@ -5040,6 +5184,10 @@ infoview:
                 field_colors:
                   - context: "main"
                     type: "status_pending"
+              UpgradeSucceeded:
+                field_colors:
+                  - context: "main"
+                    type: "status_done"
               Validated:
                 field_colors:
                   - context: "main"
@@ -5089,6 +5237,10 @@ infoview:
                   - context: "main"
                     type: "status_ok"
               WaitingForApproval:
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+              WaitingForSveltosReadiness:
                 field_colors:
                   - context: "main"
                     type: "status_pending"
