@@ -23,6 +23,22 @@ infoview:
     "Last Applied Configuration": null
     "View YAML dump": null
     "Owner References": null
+    "Export Data":
+      key: "e"
+      modifier: "shift"
+      read_only: false
+      widget: "inputbox"
+      helptext: "Export to file"
+      confirm: "path_exists"
+      confirmtitle: "File already exists; overwrite?:"
+      action: "call"
+      action_call: "export_data"
+      action_args:
+        _pass_result: true
+        _pass_obj: true
+        _extra_args:
+          raw_export: true
+          base_path: ""
     "Toggle Base64":
       key: "&"
       read_only: true
