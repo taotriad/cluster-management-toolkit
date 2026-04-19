@@ -1,0 +1,36 @@
+---
+kind: "DebuggingConfiguration"
+api_family: "lib.projectsveltos.io"
+default_command: "debuggingconfigurations.lib.projectsveltos.io"
+command:
+  - "dbgconfs.sveltos"
+  - "dbgconf.sveltos"
+listview:
+  name: "Debugging Configurations"
+  group: "Sveltos"
+  field_indexes:
+    Normal:
+      fields: ["name", "age"]
+infoview:
+  name: "Debugging Configuration Info"
+  infopad:
+  listpad:
+    listgetter: "listgetter_path"
+    listgetter_args:
+      path: "spec#configuration"
+    infogetter: "generic_infogetter"
+    field_indexes:
+      Normal:
+        fields: ["component", "loglevel"]
+        sortcolumn: "component"
+    fields:
+      component:
+        header: "Component:"
+        path: "component"
+        default: "<unset>"
+        type: "str"
+      loglevel:
+        header: "Loglevel:"
+        path: "logLevel"
+        default: "<unset>"
+        type: "str"

@@ -1,0 +1,520 @@
+---
+kind: "StateManagementProvider"
+api_family: "k0rdent.mirantis.com"
+default_command: "statemanagementproviders.k0rdent.mirantis.com"
+command:
+  - "statemgmntprovs.k0rdent"
+  - "statemgmntprov.k0rdent"
+listview:
+  name: "State Management Providers"
+  group: "K0rdent"
+  field_indexes:
+    Normal:
+      fields: ["name", "rbac_ready", "adapter_ready",
+               "provisioner_ready", "provisioner_crds_ready",
+               "ready", "suspended", "age"]
+  fields:
+    adapter_ready:
+      header: "Adapter:"
+      paths:
+        - path: "status#conditions"
+          pathtype: "substitution"
+          when:
+            - key: "type"
+              eq: "AdapterReady"
+            - key: "status"
+              eq: true
+          substitute: "Ready"
+        - path: "status#conditions"
+          pathtype: "substitution"
+          when:
+            - key: "type"
+              eq: "AdapterReady"
+            - key: "status"
+              eq: false
+          substitute: "Not Ready"
+      default: false
+      type: "str"
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          mappings:
+            "Ready":
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+            "Not Ready":
+              field_colors:
+                - context: "main"
+                  type: "status_not_ok"
+    provisioner_ready:
+      header: "Provisioner:"
+      paths:
+        - path: "status#conditions"
+          pathtype: "substitution"
+          when:
+            - key: "type"
+              eq: "ProvisionerReady"
+            - key: "status"
+              eq: true
+          substitute: "Ready"
+        - path: "status#conditions"
+          pathtype: "substitution"
+          when:
+            - key: "type"
+              eq: "ProvisionerReady"
+            - key: "status"
+              eq: false
+          substitute: "Not Ready"
+      default: false
+      type: "str"
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          mappings:
+            "Ready":
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+            "Not Ready":
+              field_colors:
+                - context: "main"
+                  type: "status_not_ok"
+    provisioner_crds_ready:
+      header: "Provisioner CRDs:"
+      paths:
+        - path: "status#conditions"
+          pathtype: "substitution"
+          when:
+            - key: "type"
+              eq: "ProvisionerCRDsReady"
+            - key: "status"
+              eq: true
+          substitute: "Ready"
+        - path: "status#conditions"
+          pathtype: "substitution"
+          when:
+            - key: "type"
+              eq: "ProvisionerCRDsReady"
+            - key: "status"
+              eq: false
+          substitute: "Not Ready"
+      default: false
+      type: "str"
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          mappings:
+            "Ready":
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+            "Not Ready":
+              field_colors:
+                - context: "main"
+                  type: "status_not_ok"
+    rbac_ready:
+      header: "RBAC:"
+      paths:
+        - path: "status#conditions"
+          pathtype: "substitution"
+          when:
+            - key: "type"
+              eq: "RBACReady"
+            - key: "status"
+              eq: true
+          substitute: "Ready"
+        - path: "status#conditions"
+          pathtype: "substitution"
+          when:
+            - key: "type"
+              eq: "RBACReady"
+            - key: "status"
+              eq: false
+          substitute: "Not Ready"
+      default: false
+      type: "str"
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          mappings:
+            "Ready":
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+            "Not Ready":
+              field_colors:
+                - context: "main"
+                  type: "status_not_ok"
+    ready:
+      header: "Ready:"
+      path: "status#ready"
+      default: "<unset>"
+      type: "str"
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          mappings:
+            "True":
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+            "False":
+              field_colors:
+                - context: "main"
+                  type: "status_not_ok"
+    suspended:
+      header: "Suspended:"
+      path: "spec#suspend"
+      default: "<unset>"
+      type: "bool"
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          mappings:
+            "False":
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+            "True":
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+  actions:
+    actionlist:
+      "Resume resource":
+        description: "Resume resource"
+        category: "Resource Level"
+        actionfunc: "patch_resource"
+        extravars:
+          action_str: "Resuming"
+          args:
+            patch:
+              spec:
+                suspend: false
+            strategic_merge: false
+      "Suspend resource":
+        description: "Suspend resource"
+        category: "Resource Level"
+        actionfunc: "patch_resource"
+        extravars:
+          action_str: "Suspending"
+          args:
+            patch:
+              spec:
+                suspend: true
+            strategic_merge: false
+infoview:
+  name: "State Management Provider Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["label_selector",
+                 "rbac_ready",
+                 "adapter_header",
+                 "adapter_reference",
+                 "adapter_readiness_rule",
+                 "adapter_ready",
+                 "provisioner_ready", "provisioner_crds_ready",
+                 "suspended",
+                 "ready"]
+    rows:
+      adapter_header:
+        header: [["Adapter:", ["main", "infoheader"]]]
+      adapter_reference:
+        header: [["  ", ["main", "infoheader"]],
+                 ["R", ["main", "infoheader_shortcut"]],
+                 ["eference:", ["main", "infoheader"]]]
+        paths:
+          - path: [["spec#adapter#kind"], ["spec#adapter#apiVersion"],
+                   ["spec#adapter#namespace"], ["spec#adapter#name"]]
+            pathtype: "tuple"
+            type: ["kind", "api_group", "name", "name"]
+        default: ["<unset>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "kind"
+            - type: "api_group"
+            - type: "namespace"
+            - type: "name"
+          field_separators:
+            - type: "kind_api_group"
+            - type: "kind"
+            - type: "namespace"
+      adapter_readiness_rule:
+        header: [["  Readiness Rule:", ["main", "infoheader"]]]
+        paths:
+          - path: "spec#adapter#readinessRule"
+            pathtype: "value"
+            newlines: "replace"
+            default: "<none>"
+            type: "str"
+      adapter_ready:
+        header: [["  Ready:", ["main", "infoheader"]]]
+        paths:
+          - path: "status#conditions"
+            pathtype: "substitution"
+            when:
+              - key: "type"
+                eq: "AdapterReady"
+              - key: "status"
+                eq: true
+            substitute: "Ready"
+          - path: "status#conditions"
+            pathtype: "substitution"
+            when:
+              - key: "type"
+                eq: "AdapterReady"
+              - key: "status"
+                eq: false
+            substitute: "Not Ready"
+        default: false
+        type: "str"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              "Ready":
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+              "Not Ready":
+                field_colors:
+                  - context: "main"
+                    type: "status_not_ok"
+      label_selector:
+        header: [["La", ["main", "infoheader"]],
+                 ["b", ["main", "infoheader_shortcut"]],
+                 ["el Selector:", ["main", "infoheader"]]]
+        paths:
+          - path: ["spec#selector#matchLabels"]
+            pathtype: "key_value"
+            default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "key"
+            - type: "value"
+          field_separators:
+            - type: "selector"
+      provisioner_ready:
+        header: [["Provisioner:", ["main", "infoheader"]]]
+        paths:
+          - path: "status#conditions"
+            pathtype: "substitution"
+            when:
+              - key: "type"
+                eq: "ProvisionerReady"
+              - key: "status"
+                eq: true
+            substitute: "Ready"
+          - path: "status#conditions"
+            pathtype: "substitution"
+            when:
+              - key: "type"
+                eq: "ProvisionerReady"
+              - key: "status"
+                eq: false
+            substitute: "Not Ready"
+        default: false
+        type: "str"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              "Ready":
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+              "Not Ready":
+                field_colors:
+                  - context: "main"
+                    type: "status_not_ok"
+      provisioner_crds_ready:
+        header: [["Provisioner CRDs:", ["main", "infoheader"]]]
+        paths:
+          - path: "status#conditions"
+            pathtype: "substitution"
+            when:
+              - key: "type"
+                eq: "ProvisionerCRDsReady"
+              - key: "status"
+                eq: true
+            substitute: "Ready"
+          - path: "status#conditions"
+            pathtype: "substitution"
+            when:
+              - key: "type"
+                eq: "ProvisionerCRDsReady"
+              - key: "status"
+                eq: false
+            substitute: "Not Ready"
+        default: false
+        type: "str"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              "Ready":
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+              "Not Ready":
+                field_colors:
+                  - context: "main"
+                    type: "status_not_ok"
+      rbac_ready:
+        header: [["RBAC:", ["main", "infoheader"]]]
+        paths:
+          - path: "status#conditions"
+            pathtype: "substitution"
+            when:
+              - key: "type"
+                eq: "RBACReady"
+              - key: "status"
+                eq: true
+            substitute: "Ready"
+          - path: "status#conditions"
+            pathtype: "substitution"
+            when:
+              - key: "type"
+                eq: "RBACReady"
+              - key: "status"
+                eq: false
+            substitute: "Not Ready"
+        default: false
+        type: "str"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              "Ready":
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+              "Not Ready":
+                field_colors:
+                  - context: "main"
+                    type: "status_not_ok"
+      ready:
+        header: [["Ready:", ["main", "infoheader"]]]
+        path: "status#ready"
+        default: "<unset>"
+        type: "str"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              "True":
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+              "False":
+                field_colors:
+                  - context: "main"
+                    type: "status_not_ok"
+      suspended:
+        header: [["Suspended:", ["main", "infoheader"]]]
+        path: "spec#suspend"
+        default: "<unset>"
+        type: "bool"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              "False":
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+              "True":
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+  listpad:
+    on_activation:
+      call: "resourceinfodispatch_with_lookup"
+      kind_path: "kind"
+      api_version_path: "apiVersion"
+      namespace_path: "namespace"
+      name_path: "name"
+    listgetter: "listgetter_path"
+    listgetter_args:
+      path: "spec#provisioner"
+    infogetter: "generic_infogetter"
+    field_indexes:
+      Normal:
+        fields: ["kind", "namespace", "name", "readiness_rule"]
+        sortcolumn: "kind"
+    fields:
+      kind:
+        header: "Kind:"
+        paths:
+          - path: [["kind"], ["apiVersion"]]
+            pathtype: "tuple"
+            type: ["kind", "api_group"]
+        default: ["<unset>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "kind"
+            - type: "api_group"
+          field_separators:
+            - type: "kind_api_group"
+      namespace:
+        header: "Namespace:"
+        path: "namespace"
+        default: "<none>"
+        type: "str"
+      name:
+        header: "Name:"
+        path: "name"
+        default: "<unset>"
+        type: "str"
+      readiness_rule:
+        header: "Readiness Rule:"
+        paths:
+          - path: "readinessRule"
+            pathtype: "value"
+            newlines: "replace"
+            default: "<none>"
+            type: "str"
+  shortcuts:
+    "Label Selector":
+      key: "b"
+      read_only: true
+      helptext: "Show label selector"
+      widget: "windowwidget"
+      title: "Label Selector:"
+      headers: ["Key:", "Value:"]
+      itemgetter: "get_key_value"
+      itemgetter_args:
+        path: "spec#selector#matchLabels"
+    "Open Adapter Reference":
+      key: "r"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for adapter reference"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind_path: "spec#adapter#kind"
+        api_version_path: "spec#adapter#apiVersion"
+        namespace_path: "spec#adapter#namespace"
+        name_path: "spec#adapter#name"
+    "List Provisioner CRDs":
+      key: "p"
+      modifier: "shift"
+      read_only: true
+      helptext: "List provisioner CRDs"
+      widget: "windowwidget"
+      title: "Provisioner CRDs:"
+      headers: ["Group:", "Version:", "Resources:"]
+      itemgetter: "get_list_fields"
+      itemgetter_args:
+        path: "spec#provisionerCRDs"
+        fields:
+          - "group"
+          - "version"
+          - "resources"

@@ -175,4 +175,3 @@ infoview:
       action_call: "view_yaml"
       action_args:
         title: "Manifest Patch"
-        _pass_selection: true

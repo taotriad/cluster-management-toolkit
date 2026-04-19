@@ -2444,6 +2444,10 @@
 																"type": "string"
 															}
 														},
+														"index_template": {
+															"description": "A template for the index added; should be on the form '<<<index>>> description'",
+															"type": "string"
+														},
 														"items": {
 															"type": "array",
 															"properties": {

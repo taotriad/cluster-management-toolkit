@@ -9,7 +9,7 @@ command:
   - "clrtmpl.k0rdent"
 listview:
   name: "Cluster Templates"
-  group: "Cluster Configuration"
+  group: "K0rdent"
   field_indexes:
     Wide:
       fields: ["namespace", "name", "chart", "chart_reference",

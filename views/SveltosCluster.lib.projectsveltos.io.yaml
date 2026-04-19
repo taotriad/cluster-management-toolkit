@@ -1,0 +1,151 @@
+---
+kind: "SveltosCluster"
+api_family: "lib.projectsveltos.io"
+default_command: "sveltosclusters.lib.projectsveltos.io"
+command:
+  - "sveltosclrs.sveltos"
+  - "sveltosclr.sveltos"
+  - "clrs.sveltos"
+  - "clr.sveltos"
+listview:
+  name: "Sveltos Clusters"
+  group: "Sveltos"
+  field_indexes:
+    Normal:
+      fields: ["namespace", "name", "version", "connection", "ready", "age"]
+  fields:
+    connection:
+      header: "Connection:"
+      path: "status#connectionStatus"
+      default: "<unset>"
+      type: "str"
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          mappings:
+            Healthy:
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+    ready:
+      header: "Ready:"
+      path: "status#ready"
+      default: "<unset>"
+      type: "str"
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          mappings:
+            "True":
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+            "False":
+              field_colors:
+                - context: "main"
+                  type: "status_not_ok"
+    version:
+      header: "Version:"
+      path: "status#version"
+      default: "<unset>"
+      type: "str"
+      formatting:
+        field_colors:
+          - type: "version"
+infoview:
+  name: "Sveltos Cluster Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["version",
+                 "consecutive_failure_threshold",
+                 "kubeconfig_key_name",
+                 "pull_mode",
+                 "token_request_renewal_header",
+                 "token_request_renewal_interval",
+                 "token_request_renewal_duration",
+                 "token_request_renewal_last_reconciled",
+                 "connection_failures",
+                 "connection",
+                 "ready"]
+    rows:
+      connection:
+        header: [["Connection:", ["main", "infoheader"]]]
+        path: "status#connectionStatus"
+        default: "<unset>"
+        type: "str"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              Healthy:
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+      connection_failures:
+        header: [["Connection Failures:", ["main", "infoheader"]]]
+        path: "status#connectionFailures"
+        default: "<unset>"
+        type: "int"
+        formatter: "numerical"
+      consecutive_failure_threshold:
+        header: [["Consecutive Failure Threshold:", ["main", "infoheader"]]]
+        path: "spec#consecutiveFailureThreshold"
+        default: "<unset>"
+        type: "int"
+        formatter: "numerical"
+      kubeconfig_key_name:
+        header: [["kubeconfig Key Name:", ["main", "infoheader"]]]
+        path: "spec#kubeconfigKeyName"
+        default: "<unset>"
+        type: "str"
+      pull_mode:
+        header: [["Pull Mode:", ["main", "infoheader"]]]
+        path: "spec#pullMode"
+        default: "<unset>"
+        type: "str"
+      ready:
+        header: [["Ready:", ["main", "infoheader"]]]
+        path: "status#ready"
+        default: "<unset>"
+        type: "str"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              "True":
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+              "False":
+                field_colors:
+                  - context: "main"
+                    type: "status_not_ok"
+      token_request_renewal_duration:
+        header: [["  Duration:", ["main", "infoheader"]]]
+        path: "spec#tokenRequestRenewalOption#tokenDuration"
+        default: "<unset>"
+        type: "str"
+        formatter: "numerical"
+      token_request_renewal_header:
+        header: [["Token Request Renewal:", ["main", "infoheader"]]]
+      token_request_renewal_interval:
+        header: [["  Interval:", ["main", "infoheader"]]]
+        path: "spec#tokenRequestRenewalOption#renewTokenRequestInterval"
+        default: "<unset>"
+        type: "str"
+        formatter: "numerical"
+      token_request_renewal_last_reconciled:
+        header: [["  Last Reconciled:", ["main", "infoheader"]]]
+        path: "status#lastReconciledTokenRequestAt"
+        default: "<unset>"
+        type: "timestamp"
+        formatter: "timestamp"
+      version:
+        header: [["Version:", ["main", "infoheader"]]]
+        path: "status#version"
+        default: "<unset>"
+        type: "str"
+        formatting:
+          field_colors:
+            - type: "version"

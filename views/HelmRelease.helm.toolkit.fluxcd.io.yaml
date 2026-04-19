@@ -84,7 +84,7 @@ infoview:
                  "depends_on", "release_name",
                  "install_header",
                  "install_remediation_header",
-                 "install_remediation_remediateLastFailure",
+                 "install_remediation_remediate_last_failure",
                  "install_remediation_retries",
                  "storage_namespace"]
     rows:
@@ -123,7 +123,7 @@ infoview:
         header: [["Install:", ["main", "infoheader"]]]
       install_remediation_header:
         header: [["  Remediation:", ["main", "infoheader"]]]
-      install_remediation_remediateLastFailure:
+      install_remediation_remediate_last_failure:
         header: [["    Remediate Last Failure:", ["main", "infoheader"]]]
         path: "spec#install#remediation#remediateLastFailure"
         default: "<unset>"
@@ -145,9 +145,9 @@ infoview:
         default: "<unset>"
         type: "str"
       storage_namespace:
-        header: [["Storage Names", ["main", "infoheader"]],
-                 ["p", ["main", "infoheader_shortcut"]],
-                 ["ace:", ["main", "infoheader"]]]
+        header: [["Storage Name", ["main", "infoheader"]],
+                 ["s", ["main", "infoheader_shortcut"]],
+                 ["pace:", ["main", "infoheader"]]]
         path: "status#storageNamespace"
         default: "<unset>"
         type: "str"
@@ -230,7 +230,7 @@ infoview:
                     type: "status_unknown"
   shortcuts:
     "Open storage Namespace":
-      key: "p"
+      key: "s"
       read_only: true
       helptext: "Open info page for storage Namespace"
       action: "call"

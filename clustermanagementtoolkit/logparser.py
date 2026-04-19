@@ -2107,6 +2107,7 @@ def key_value(message: str, **kwargs: Any) -> tuple[str, LogLevel, str,
         for item in tmp:
             re_tmp = key_value_regex.match(item)
             if re_tmp is None:
+                # pylint: disable-next=too-many-boolean-expressions
                 if not item.endswith(":") \
                         and allow_bare_keys == "all" \
                         or allow_bare_keys == "lowercase" and item.lower() == item \

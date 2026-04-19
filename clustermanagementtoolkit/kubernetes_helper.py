@@ -1718,6 +1718,7 @@ class KubernetesHelper:
             return "<unknown>", status
 
         tmp_k8s_distro = None
+        # pylint: disable-next=too-many-nested-blocks
         for node in vlist:
             node_roles = get_node_roles(cast(dict, node))
             labels = deep_get(node, DictPath("metadata#labels"), {})

@@ -1,0 +1,18 @@
+---
+kind: "AccessManagement"
+api_family: "k0rdent.mirantis.com"
+default_command: "accessmanagements.k0rdent.mirantis.com"
+command:
+  - "accessmgmnts.k0rdent"
+  - "accessmgmnt.k0rdent"
+  - "amgmnts.k0rdent"
+  - "amgmnt.k0rdent"
+listview:
+  name: "Access Managements"
+  group: "K0rdent"
+  field_indexes:
+    Normal:
+      fields: ["name", "age"]
+infoview:
+  name: "Access Management Info"
+  infopad:

@@ -553,7 +553,6 @@ def cordon_nodes(options: list[tuple[str, str]], args: list[str]) -> int:
     return 0
 
 
-# pylint: disable-next=too-many-branches
 def drain_nodes(options: Sequence[tuple[str, str | None]], args: list[str]) -> int:
     """
     Drain nodes.

@@ -1,0 +1,234 @@
+---
+kind: "ProviderTemplate"
+api_family: "k0rdent.mirantis.com"
+default_command: "providertemplates.k0rdent.mirantis.com"
+command:
+  - "providertemplates.k0rdent"
+  - "providertemplate.k0rdent"
+  - "provtempls.k0rdent"
+  - "provtempl.k0rdent"
+listview:
+  name: "Provider Templates"
+  group: "K0rdent"
+  field_indexes:
+    Wide:
+      fields: ["name", "description", "valid", "age", "validation_error"]
+    Normal:
+      fields: ["name", "valid", "age", "validation_error"]
+  fields:
+    description:
+      header: "Description:"
+      path: "status#description"
+      default: "<unset>"
+      type: "str"
+    valid:
+      header: "Valid:"
+      path: "status#valid"
+      default: "<unset>"
+      type: "str"
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          mappings:
+            "True":
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+            "False":
+              field_colors:
+                - context: "main"
+                  type: "status_not_ok"
+    validation_error:
+      header: "Validation Error:"
+      path: "status#validationError"
+      default: "<unset>"
+      type: "str"
+infoview:
+  name: "Releases Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["description",
+                 "helm_header",
+                 "helm_chart_spec",
+                 "helm_chart_chart",
+                 "helm_chart_interval",
+                 "helm_chart_reconcile_strategy",
+                 "helm_chart_chart_reference",
+                 "helm_chart_source_reference",
+                 "capi_contracts",
+                 "schema_config_map",
+                 "providers",
+                 "valid",
+                 "validation_error"]
+    rows:
+      capi_contracts:
+        header: [["CAPI Contracts:", ["main", "infoheader"]]]
+        paths:
+          - path: "status#capiContracts"
+            pathtype: "key_value"
+            default: ["<unset>"]
+        formatter: "list"
+        formatting:
+          field_separators:
+            - type: "keyvalue"
+      description:
+        header: [["Description:", ["main", "infoheader"]]]
+        path: "status#description"
+        default: "<unset>"
+        type: "str"
+      helm_chart_chart:
+        header: [["    Chart:", ["main", "infoheader"]]]
+        path: "spec#helm#chartSpec#chart"
+        default: "<unset>"
+        type: "str"
+      helm_chart_chart_reference:
+        header: [["    ", ["main", "infoheader"]],
+                 ["C", ["main", "infoheader_shortcut"]],
+                 ["hart Reference:", ["main", "infoheader"]]]
+        paths:
+          - path: [["status#chartRef#kind"],
+                   ["status#chartRef#namespace"],
+                   ["status#chartRef#name"]]
+            pathtype: "tuple"
+            type: ["kind", "name", "name"]
+        default: ["<unset>"]
+        type: "list"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "kind"
+            - type: "namespace"
+            - type: "generic"
+          field_separators:
+            - type: "kind"
+            - type: "namespace"
+      helm_chart_interval:
+        header: [["    Interval:", ["main", "infoheader"]]]
+        path: "spec#helm#chartSpec#interval"
+        default: "<unset>"
+        type: "str"
+        formatter: "numerical"
+      helm_chart_reconcile_strategy:
+        header: [["    Reconcile Strategy:", ["main", "infoheader"]]]
+        path: "spec#helm#chartSpec#reconcileStrategy"
+        default: "<unset>"
+        type: "str"
+      helm_chart_spec:
+        header: [["  Chart Spec:", ["main", "infoheader"]]]
+      helm_chart_source_reference:
+        header: [["  Source Reference:", ["main", "infoheader"]]]
+        paths:
+          - path: [["spec#helm#chartSpec#sourceRef#kind"],
+                   ["spec#helm#chartSpec#sourceRef#name"]]
+            pathtype: "tuple"
+            type: ["kind", "name"]
+        default: ["<unset>"]
+        type: "list"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "kind"
+            - type: "generic"
+          field_separators:
+            - type: "kind"
+      helm_chart_version:
+        header: [["    Version:", ["main", "infoheader"]]]
+        paths:
+          - path: ["status#chartVersion", "spec#helm#chartSpec#version"]
+            pathtype: "value"
+        default: "<unset>"
+        type: "str"
+        formatting:
+          field_colors:
+            - type: "version"
+      helm_header:
+        header: [["Helm:", ["main", "infoheader"]]]
+      providers:
+        header: [["P", ["main", "infoheader_shortcut"]],
+                 ["roviders:", ["main", "infoheader"]]]
+        path: "status#providers"
+        default: ["<none>"]
+        type: "raw"
+        formatter: "list"
+      schema_config_map:
+        header: [["S", ["main", "infoheader_shortcut"]],
+                 ["chema Config Map:", ["main", "infoheader"]]]
+        path: "status#schemaConfigMapName"
+        default: "<unset>"
+        type: "str"
+      valid:
+        header: [["Valid:", ["main", "infoheader"]]]
+        path: "status#valid"
+        default: "<unset>"
+        type: "str"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              "True":
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+              "False":
+                field_colors:
+                  - context: "main"
+                    type: "status_not_ok"
+      validation_error:
+        header: [["Validation Error:", ["main", "infoheader"]]]
+        path: "status#validationError"
+        default: "<unset>"
+        type: "str"
+  logpad:
+    infogetter: "logpad_formatted"
+    infogetter_args:
+      formatter: "format_yaml"
+      path: "status#config"
+    timestamps: false
+  shortcuts:
+    "Open Helm Chart reference":
+      key: "c"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for HelmChart reference"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind_path: "status#chartRef#kind"
+        api_group: "source.toolkit.fluxcd.io"
+        namespace_path: "status#chartRef#namespace"
+        name_path: "status#chartRef#name"
+    "List providers":
+      key: "p"
+      modifier: "shift"
+      read_only: true
+      helptext: "List providers"
+      widget: "windowwidget"
+      title: "Providers:"
+      itemgetter: "get_list_as_list"
+      itemgetter_args:
+        path: "status#providers"
+    "Open schema Config Map":
+      key: "s"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for schema ConfigMap"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind: "ConfigMap"
+        # Note: ProviderTemplate is not a namespaced resource.
+        # There is no dedicated field to hold the namespace
+        # for the Schema ConfigMap, nor are any of the namespaces
+        # used elsewhere more or less obvious than any of the other.
+        # The CRD for the resource doesn't mention that it should
+        # use a hardcoded namespace, and the namespace isn't default.
+        # To have *something* that leads to the right place in
+        # the particular configuration that k0rdent comes with by default
+        # we use status.chartRef.namespace until there's guidance
+        # on what should be used (or an updated version of the API
+        # provides the necessary field).
+        namespace_path: "status#chartRef#namespace"
+        name_path: "status#schemaConfigMapName"

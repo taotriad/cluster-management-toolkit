@@ -2196,6 +2196,10 @@ listview:
               field_colors:
                 - context: "main"
                   type: "status_done"
+            StateManagementProviderSuspended:
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
             StaticPodInstallerCompleted:
               field_colors:
                 - context: "main"
@@ -4872,6 +4876,10 @@ infoview:
                 field_colors:
                   - context: "main"
                     type: "status_done"
+              StateManagementProviderSuspended:
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
               StaticPodInstallerCompleted:
                 field_colors:
                   - context: "main"

@@ -10,6 +10,16 @@ accesskey.storage:
   - AccessKey
   - storage.loft.sh
   viewfile: AccessKey.storage.loft.sh.yaml
+accessmgmnt.k0rdent:
+  kind:
+  - AccessManagement
+  - k0rdent.mirantis.com
+  viewfile: AccessManagement.k0rdent.mirantis.com.yaml
+accessmgmnts.k0rdent:
+  kind:
+  - AccessManagement
+  - k0rdent.mirantis.com
+  viewfile: AccessManagement.k0rdent.mirantis.com.yaml
 account.kiosk:
   kind:
   - Account
@@ -125,6 +135,16 @@ almconfs:
   - AlertmanagerConfig
   - monitoring.coreos.com
   viewfile: AlertmanagerConfig.monitoring.coreos.com.yaml
+amgmnt.k0rdent:
+  kind:
+  - AccessManagement
+  - k0rdent.mirantis.com
+  viewfile: AccessManagement.k0rdent.mirantis.com.yaml
+amgmnts.k0rdent:
+  kind:
+  - AccessManagement
+  - k0rdent.mirantis.com
+  viewfile: AccessManagement.k0rdent.mirantis.com.yaml
 anetpol:
   kind:
   - NetworkPolicy
@@ -1005,6 +1025,36 @@ cl:
   - Cluster
   - cluster.x-k8s.io
   viewfile: Cluster.cluster.x-k8s.io.yaml
+classifier.sveltos:
+  kind:
+  - Classifier
+  - lib.projectsveltos.io
+  viewfile: Classifier.lib.projectsveltos.io.yaml
+classifierrep.sveltos:
+  kind:
+  - ClassifierReport
+  - lib.projectsveltos.io
+  viewfile: ClassifierReport.lib.projectsveltos.io.yaml
+classifierreport.sveltos:
+  kind:
+  - ClassifierReport
+  - lib.projectsveltos.io
+  viewfile: ClassifierReport.lib.projectsveltos.io.yaml
+classifierreports.sveltos:
+  kind:
+  - ClassifierReport
+  - lib.projectsveltos.io
+  viewfile: ClassifierReport.lib.projectsveltos.io.yaml
+classifierreps.sveltos:
+  kind:
+  - ClassifierReport
+  - lib.projectsveltos.io
+  viewfile: ClassifierReport.lib.projectsveltos.io.yaml
+classifiers.sveltos:
+  kind:
+  - Classifier
+  - lib.projectsveltos.io
+  viewfile: Classifier.lib.projectsveltos.io.yaml
 clr:
   kind:
   - ClusterRole
@@ -1025,6 +1075,11 @@ clr.openshift:
   - ClusterRole
   - authorization.openshift.io
   viewfile: ClusterRole.authorization.openshift.io.yaml
+clr.sveltos:
+  kind:
+  - SveltosCluster
+  - lib.projectsveltos.io
+  viewfile: SveltosCluster.lib.projectsveltos.io.yaml
 clra.mgmnt:
   kind:
   - ClusterAccess
@@ -1445,6 +1500,11 @@ clrs.mgmnt.cattle:
   - Cluster
   - management.cattle.io
   viewfile: Cluster.management.cattle.io.yaml
+clrs.sveltos:
+  kind:
+  - SveltosCluster
+  - lib.projectsveltos.io
+  viewfile: SveltosCluster.lib.projectsveltos.io.yaml
 clrsbom:
   kind:
   - ClusterSbomReport
@@ -2255,6 +2315,16 @@ datavols:
   - DataVolume
   - cdi.kubevirt.io
   viewfile: DataVolume.cdi.kubevirt.io.yaml
+dbgconf.sveltos:
+  kind:
+  - DebuggingConfiguration
+  - lib.projectsveltos.io
+  viewfile: DebuggingConfiguration.lib.projectsveltos.io.yaml
+dbgconfs.sveltos:
+  kind:
+  - DebuggingConfiguration
+  - lib.projectsveltos.io
+  viewfile: DebuggingConfiguration.lib.projectsveltos.io.yaml
 dcsinits.opendatahub:
   kind:
   - DSCInitialization
@@ -4970,6 +5040,16 @@ metrics.kwok:
   - Metric
   - kwok.x-k8s.io
   viewfile: Metric.kwok.x-k8s.io.yaml
+mgmnt.k0rdent:
+  kind:
+  - Management
+  - k0rdent.mirantis.com
+  viewfile: Management.k0rdent.mirantis.com.yaml
+mgmnts.k0rdent:
+  kind:
+  - Management
+  - k0rdent.mirantis.com
+  viewfile: Management.k0rdent.mirantis.com.yaml
 miniclr:
   kind:
   - MiniCluster
@@ -6190,6 +6270,26 @@ providernetworks:
   - ProviderNetwork
   - kubeovn.io
   viewfile: ProviderNetwork.kubeovn.io.yaml
+providertemplate.k0rdent:
+  kind:
+  - ProviderTemplate
+  - k0rdent.mirantis.com
+  viewfile: ProviderTemplate.k0rdent.mirantis.com.yaml
+providertemplates.k0rdent:
+  kind:
+  - ProviderTemplate
+  - k0rdent.mirantis.com
+  viewfile: ProviderTemplate.k0rdent.mirantis.com.yaml
+provif.k0rdent:
+  kind:
+  - ProviderInterface
+  - k0rdent.mirantis.com
+  viewfile: ProviderInterface.k0rdent.mirantis.com.yaml
+provifs.k0rdent:
+  kind:
+  - ProviderInterface
+  - k0rdent.mirantis.com
+  viewfile: ProviderInterface.k0rdent.mirantis.com.yaml
 provreqconf:
   kind:
   - ProvisioningRequestConfig
@@ -6210,6 +6310,16 @@ provreqconfs:
   - ProvisioningRequestConfig
   - kueue.x-k8s.io
   viewfile: ProvisioningRequestConfig.kueue.x-k8s.io.yaml
+provtempl.k0rdent:
+  kind:
+  - ProviderTemplate
+  - k0rdent.mirantis.com
+  viewfile: ProviderTemplate.k0rdent.mirantis.com.yaml
+provtempls.k0rdent:
+  kind:
+  - ProviderTemplate
+  - k0rdent.mirantis.com
+  viewfile: ProviderTemplate.k0rdent.mirantis.com.yaml
 proxies.config:
   kind:
   - Proxy
@@ -6340,6 +6450,16 @@ refgrants:
   - ReferenceGrant
   - gateway.networking.k8s.io
   viewfile: ReferenceGrant.gateway.networking.k8s.io.yaml
+release.k0rdent:
+  kind:
+  - Release
+  - k0rdent.mirantis.com
+  viewfile: Release.k0rdent.mirantis.com.yaml
+releases.k0rdent:
+  kind:
+  - Release
+  - k0rdent.mirantis.com
+  viewfile: Release.k0rdent.mirantis.com.yaml
 repo:
   kind:
   - Repository
@@ -7049,6 +7169,16 @@ stages.kwok:
   - Stage
   - kwok.x-k8s.io
   viewfile: Stage.kwok.x-k8s.io.yaml
+statemgmntprov.k0rdent:
+  kind:
+  - StateManagementProvider
+  - k0rdent.mirantis.com
+  viewfile: StateManagementProvider.k0rdent.mirantis.com.yaml
+statemgmntprovs.k0rdent:
+  kind:
+  - StateManagementProvider
+  - k0rdent.mirantis.com
+  viewfile: StateManagementProvider.k0rdent.mirantis.com.yaml
 storage:
   kind:
   - Storage
@@ -7186,6 +7316,16 @@ svcs.knative:
   - Service
   - serving.knative.dev
   viewfile: Service.serving.knative.dev.yaml
+sveltosclr.sveltos:
+  kind:
+  - SveltosCluster
+  - lib.projectsveltos.io
+  viewfile: SveltosCluster.lib.projectsveltos.io.yaml
+sveltosclrs.sveltos:
+  kind:
+  - SveltosCluster
+  - lib.projectsveltos.io
+  viewfile: SveltosCluster.lib.projectsveltos.io.yaml
 ta:
   kind:
   - TriggerAuthentication

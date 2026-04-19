@@ -7,3 +7,9 @@
   parser_rules:
     - name: "glog"
     - name: "json"
+- name: "k0rdent"
+  show_in_selector: false
+  matchkeys:
+    - image_name: "/stakater/reloader"
+  parser_rules:
+    - name: "key_value"

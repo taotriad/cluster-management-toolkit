@@ -1,0 +1,98 @@
+---
+kind: "Classifier"
+api_family: "lib.projectsveltos.io"
+default_command: "classifiers.lib.projectsveltos.io"
+command:
+  - "classifiers.sveltos"
+  - "classifier.sveltos"
+listview:
+  name: "Classifiers"
+  group: "Sveltos"
+  field_indexes:
+    Normal:
+      fields: ["name", "age"]
+infoview:
+  name: "Classifier Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["classifier_labels"]
+    rows:
+      classifier_labels:
+        header: [["C", ["main", "infoheader_shortcut"]],
+                 ["lassifier Labels:", ["main", "infoheader"]]]
+        paths:
+          - path: "spec#classifierLabels"
+            pathtype: "items"
+            subpaths:
+              - "key"
+              - "value"
+        default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "key"
+            - type: "value"
+          field_separators:
+            - type: "keyvalue"
+  listpad:
+    listgetter: "listgetter_path"
+    listgetter_args:
+      path: "status#clusterInfo"
+    infogetter: "generic_infogetter"
+    field_indexes:
+      Normal:
+        fields: ["kind", "namespace", "name", "status"]
+        sortcolumn: "kind"
+    fields:
+      kind:
+        header: "Kind:"
+        paths:
+          - path: [["cluster#kind"], ["cluster#apiVersion"]]
+            pathtype: "tuple"
+            type: ["kind", "api_group"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "kind"
+            - type: "api_group"
+          field_separators:
+            - type: "kind_api_group"
+      name:
+        header: "Name:"
+        path: "cluster#namespace"
+        default: "<unset>"
+        type: "str"
+      namespace:
+        header: "Namespace:"
+        path: "cluster#namespace"
+        default: "<unset>"
+        type: "str"
+      status:
+        header: "Status:"
+        path: "status"
+        default: "<unset>"
+        type: "str"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              Provisioned:
+                field_colors:
+                  - context: "main"
+                    type: "status_done"
+  shortcuts:
+    "Classifier Labels":
+      key: "c"
+      modifier: "shift"
+      read_only: true
+      helptext: "List classifier labels"
+      widget: "windowwidget"
+      title: "Classifier Labels:"
+      headers: ["Key:", "Value:"]
+      itemgetter: "get_list_fields"
+      itemgetter_args:
+        path: "spec#classifierLabels"
+        fields:
+          - "key"
+          - "value"

@@ -1,0 +1,152 @@
+---
+kind: "Release"
+api_family: "k0rdent.mirantis.com"
+default_command: "releases.k0rdent.mirantis.com"
+command:
+  - "releases.k0rdent"
+  - "release.k0rdent"
+listview:
+  name: "Releases"
+  group: "K0rdent"
+  field_indexes:
+    Normal:
+      fields: ["name", "version", "ready", "age"]
+  fields:
+    ready:
+      header: "Ready:"
+      path: "status#ready"
+      type: "str"
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          mappings:
+            "True":
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+            "False":
+              field_colors:
+                - context: "main"
+                  type: "status_not_ok"
+    version:
+      header: "Version:"
+      path: "spec#version"
+      default: "<unset>"
+      type: "str"
+      formatting:
+        field_colors:
+          - type: "version"
+infoview:
+  name: "Releases Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["capi_header",
+                 "capi_template",
+                 "kcm_header",
+                 "kcm_template",
+                 "regional_header",
+                 "regional_template",
+                 "version", "ready"]
+    rows:
+      capi_header:
+        header: [["CAPI:", ["main", "infoheader"]]]
+      capi_template:
+        header: [["  Template:", ["main", "infoheader"]]]
+        path: "spec#capi#template"
+        default: "<unset>"
+        type: "str"
+      kcm_header:
+        header: [["KCM:", ["main", "infoheader"]]]
+      kcm_template:
+        header: [["  Template:", ["main", "infoheader"]]]
+        path: "spec#kcm#template"
+        default: "<unset>"
+        type: "str"
+      regional_header:
+        header: [["Regional:", ["main", "infoheader"]]]
+      regional_template:
+        header: [["  Template:", ["main", "infoheader"]]]
+        path: "spec#regional#template"
+        default: "<unset>"
+        type: "str"
+      ready:
+        header: [["Ready:", ["main", "infoheader"]]]
+        path: "status#ready"
+        type: "str"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              "True":
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+              "False":
+                field_colors:
+                  - context: "main"
+                    type: "status_not_ok"
+      version:
+        header: [["Version:", ["main", "infoheader"]]]
+        path: "spec#version"
+        default: "<unset>"
+        type: "str"
+        formatting:
+          field_colors:
+            - type: "version"
+  listpad:
+    listgetter: "listgetter_path"
+    listgetter_args:
+      path: "spec#providers"
+    infogetter: "generic_infogetter"
+    field_indexes:
+      Normal:
+        fields: ["name", "template"]
+        sortcolumn: "name"
+    fields:
+      name:
+        header: "Name:"
+        path: "name"
+        default: "<unset>"
+        type: "str"
+      template:
+        header: "Template:"
+        path: "template"
+        default: "<unset>"
+        type: "str"
+  shortcuts:
+    "List CAPI Contracts":
+      key: "c"
+      modifier: "shift"
+      read_only: true
+      helptext: "List CAPI contracts"
+      widget: "windowwidget"
+      title: "CAPI Contracts:"
+      itemgetter: "get_dict_list"
+      itemgetter_args:
+        path: "status#capiContracts"
+        fields:
+          - "key"
+          - "value"
+    "List available providers":
+      key: "a"
+      modifier: "shift"
+      read_only: true
+      helptext: "List available providers"
+      widget: "windowwidget"
+      title: "Providers:"
+      itemgetter: "get_list_as_list"
+      itemgetter_args:
+        path: "status#availableProviders"
+    "List providers":
+      key: "p"
+      modifier: "shift"
+      read_only: true
+      helptext: "List providers"
+      widget: "windowwidget"
+      title: "Providers:"
+      itemgetter: "get_list_fields"
+      itemgetter_args:
+        path: "spec#providers"
+        fields:
+          - "name"

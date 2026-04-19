@@ -1,0 +1,111 @@
+---
+kind: "ProviderInterface"
+api_family: "k0rdent.mirantis.com"
+default_command: "providerinterfaces.k0rdent.mirantis.com"
+command:
+  - "provifs.k0rdent"
+  - "provif.k0rdent"
+listview:
+  name: "Provider Interfaces"
+  group: "K0rdent"
+  field_indexes:
+    Normal:
+      fields: ["name", "description", "age"]
+  fields:
+    description:
+      header: "Description:"
+      path: "spec#description"
+      default: "<unset>"
+      type: "str"
+infoview:
+  name: "Provider Interface Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["description"]
+    rows:
+      description:
+        header: [["Description:", ["main", "infoheader"]]]
+        path: "status#description"
+        default: "<unset>"
+        type: "str"
+  listpad:
+    listgetter: "listgetter_path"
+    listgetter_args:
+      path: "spec#clusterIdentities"
+    infogetter: "generic_infogetter"
+    on_activation:
+      call: "listviewdispatch"
+      kind_path: "kind"
+      api_group_path: "group"
+    field_indexes:
+      Normal:
+        fields: ["kind", "group", "version", "references"]
+        sortcolumn: "data"
+    fields:
+      group:
+        header: "Group:"
+        path: "group"
+        type: "str"
+        formatting:
+          field_colors:
+            - type: "api_group"
+      kind:
+        header: "Kind:"
+        path: "kind"
+        type: "str"
+        formatting:
+          field_colors:
+            - type: "kind"
+      references:
+        header: "References:"
+        paths:
+          - path: "references"
+            pathtype: "items"
+            subpaths:
+              - "kind"
+              - "group"
+              - "version"
+              - "nameFieldPath"
+            type: ["kind", "api_group", "name", "name"]
+        default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "kind"
+            - type: "api_group"
+            - type: "version"
+            - type: "generic"
+          field_separators:
+            - type: "kind_api_group"
+            - type: "kind"
+      version:
+        header: "Version:"
+        path: "version"
+        type: "str"
+        formatting:
+          field_colors:
+            - type: "version"
+  shortcuts:
+    "List Cluster GVKs":
+      key: "v"
+      modifier: "shift"
+      read_only: true
+      helptext: "List GVKs"
+      widget: "windowwidget"
+      title: "GVKs:"
+      selectable: true
+      itemgetter: "get_list_fields"
+      itemgetter_args:
+        path: "spec#clusterGVKs"
+        fields:
+          - "kind"
+          - "group"
+          - "version"
+      # Not supported for now
+      sortcolumn: "kind"
+      action: "call"
+      action_call: "listviewdispatch"
+      action_args:
+        kind_path: 0
+        api_group_path: 1

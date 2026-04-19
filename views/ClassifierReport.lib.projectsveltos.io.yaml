@@ -1,0 +1,121 @@
+---
+kind: "ClassifierReport"
+api_family: "lib.projectsveltos.io"
+default_command: "classifierreports.lib.projectsveltos.io"
+command:
+  - "classifierreports.sveltos"
+  - "classifierreport.sveltos"
+  - "classifierreps.sveltos"
+  - "classifierrep.sveltos"
+listview:
+  name: "Classifier Reports"
+  group: "Sveltos"
+  field_indexes:
+    Normal:
+      fields: ["namespace", "name", "phase", "age"]
+      sortcolumn: "namespace"
+  fields:
+    phase:
+      header: "Phase:"
+      path: "status#phase"
+      default: "<unset>"
+      type: "str"
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          mappings:
+            WaitingForDelivery:
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+            "<unset>":
+              field_colors:
+                - context: "main"
+                  type: "status_ignored"
+infoview:
+  name: "Classifier Report Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["classifier",
+                 "cluster_header", "cluster_namespace",
+                 "cluster_name", "cluster_type", "match", "phase"]
+    rows:
+      classifier:
+        header: [["C", ["main", "infoheader_shortcut"]],
+                 ["lassifier:", ["main", "infoheader"]]]
+        path: "spec#classifierName"
+        default: "<unset>"
+        type: "str"
+      cluster_header:
+        header: [["Cl", ["main", "infoheader"]],
+                 ["u", ["main", "infoheader_shortcut"]],
+                 ["ster:", ["main", "infoheader"]]]
+      cluster_name:
+        header: [["  Name:", ["main", "infoheader"]]]
+        path: "spec#clusterName"
+        fallback_on_empty: true
+        default: "<unset>"
+        type: "str"
+      cluster_namespace:
+        header: [["  Namespace:", ["main", "infoheader"]]]
+        path: "spec#clusterNamespace"
+        fallback_on_empty: true
+        default: "<unset>"
+        type: "str"
+        formatting:
+          field_colors:
+            - type: "namespace"
+      cluster_type:
+        header: [["  Type:", ["main", "infoheader"]]]
+        path: "spec#clusterType"
+        fallback_on_empty: true
+        default: "<unset>"
+        type: "str"
+      match:
+        header: [["Match:", ["main", "infoheader"]]]
+        path: "spec#match"
+        default: "<unset>"
+        type: "bool"
+      phase:
+        header: [["Phase:", ["main", "infoheader"]]]
+        path: "status#phase"
+        default: "<unset>"
+        type: "str"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              WaitingForDelivery:
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+              "<unset>":
+                field_colors:
+                  - context: "main"
+                    type: "status_ignored"
+  shortcuts:
+    "Open cluster":
+      key: "u"
+      read_only: true
+      helptext: "Open info page for cluster"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind: "SveltosCluster"
+        api_family: "lib.projectsveltos.io"
+        namespace_path: "spec#clusterNamespace"
+        name_path: "spec#clusterName"
+    "Open classifier":
+      key: "c"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for Classifier"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind: "Classifier"
+        api_family: "lib.projectsveltos.io"
+        name_path: "spec#classifierName"
