@@ -880,7 +880,9 @@ def get_obj(obj: dict, field_dict: dict, field_names: list[str],
                             value.append(make_label_selector(selector["matchLabels"]))
                         if "cel" in selector:
                             value.append(make_cel_expression([selector["cel"]]))
-                    if len(value) == 1:
+                    if not value and default:
+                        _values.append((default, "raw"))
+                    elif len(value) == 1:
                         _values.append((value[0], "str"))
                     else:
                         _values.append((",".join(value), "str"))
@@ -1850,6 +1852,9 @@ def get_eps_subsets_info(**kwargs: Any) -> list[dict]:
                 "status_group": StatusGroup.OK,
                 "target_ref": target_ref,
                 "topology": topology,
+                "ready": deep_get(endpoint, DictPath("conditions#ready")),
+                "serving": deep_get(endpoint, DictPath("conditions#serving")),
+                "terminating": deep_get(endpoint, DictPath("conditions#terminating")),
             })
         if not_ready_addresses:
             subsets.append({
@@ -1860,6 +1865,9 @@ def get_eps_subsets_info(**kwargs: Any) -> list[dict]:
                 "status_group": StatusGroup.NOT_OK,
                 "target_ref": target_ref,
                 "topology": topology,
+                "ready": deep_get(endpoint, DictPath("conditions#ready")),
+                "serving": deep_get(endpoint, DictPath("conditions#serving")),
+                "terminating": deep_get(endpoint, DictPath("conditions#terminating")),
             })
     return subsets
 

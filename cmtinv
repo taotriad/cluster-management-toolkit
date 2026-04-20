@@ -1336,9 +1336,9 @@ def fping(options: list[tuple[str, str]], args: list[str]) -> int:
             ansithemeprint([ANSIThemeStr(f"{hostname.ljust(maxlen)}  ", "default"),
                             ANSIThemeStr(f"{status}", status_group)])
 
-    ansithemeprint([ANSIThemeStr(f"\n    SUCCESS: ", "success"),
+    ansithemeprint([ANSIThemeStr("\n    SUCCESS: ", "success"),
                     ANSIThemeStr(f"{successes}", "default")])
-    ansithemeprint([ANSIThemeStr(f"UNREACHABLE: ", "error"),
+    ansithemeprint([ANSIThemeStr("UNREACHABLE: ", "error"),
                     ANSIThemeStr(f"{unreachables}", "default")])
 
     return 0

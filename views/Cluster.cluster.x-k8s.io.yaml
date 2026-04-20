@@ -102,16 +102,19 @@ infoview:
         paths:
           - path: ["spec#clusterNetwork#pods#cidrBlocks"]
             pathtype: "list"
+            default: ["<none>"]
         formatter: "address"
       cluster_network_service_cidr_blocks:
         header: [["  Service CIDR Blocks:", ["main", "infoheader"]]]
         paths:
           - path: ["spec#clusterNetwork#services#cidrBlocks"]
             pathtype: "list"
+            default: ["<none>"]
         formatter: "address"
       cluster_network_service_domain:
         header: [["  Service Domain:", ["main", "infoheader"]]]
         path: "spec#clusterNetwork#serviceDomain"
+        default: "<unset>"
         type: "str"
       controller:
         header: [["C", ["main", "infoheader_shortcut"]],

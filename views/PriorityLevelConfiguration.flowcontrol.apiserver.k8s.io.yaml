@@ -113,6 +113,7 @@ infoview:
       hand_size:
         header: [["Hand Size:", ["main", "infoheader"]]]
         path: "spec#limited#limitResponse#queuing#handSize"
+        default: "<unset>"
         type: "raw"
         formatter: "numerical"
       nominal_concurrency_shares:
@@ -120,6 +121,7 @@ infoview:
         paths:
           - path: "spec#limited#assuredConcurrencyShares"
             pathtype: "value"
+            default: "<unset>"
         formatter: "numerical"
       priority_type:
         header: [["Priority Type:", ["main", "infoheader"]]]
@@ -128,11 +130,13 @@ infoview:
       queue_length_limit:
         header: [["Queue Length List:", ["main", "infoheader"]]]
         path: "spec#limited#limitResponse#queuing#queueLengthLimit"
+        default: "<unset>"
         type: "raw"
         formatter: "numerical"
       queues:
         header: [["Queues:", ["main", "infoheader"]]]
         path: "spec#limited#limitResponse#queuing#queues"
+        default: "<unset>"
         type: "raw"
         formatter: "numerical"
   shortcuts:

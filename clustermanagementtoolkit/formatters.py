@@ -2302,7 +2302,7 @@ def format_fluentbit(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRe
                 tmpline = [
                     ThemeStr(f"{indentation}", ThemeAttr("types", "generic")),
                     ThemeStr(f"{key}", ThemeAttr("types", "ini_key")),
-                    ThemeStr(f"{separator}", ThemeAttr("types", "ini_key_separator")),
+                    ThemeStr(f"{separator}", ThemeAttr("types", "ini_separator")),
                     ThemeStr(f"{value}", ThemeAttr("types", "ini_value")),
                 ]
         if tmpline:

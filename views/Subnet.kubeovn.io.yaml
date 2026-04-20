@@ -14,36 +14,44 @@ listview:
     cidr_block:
       header: "CIDR block:"
       path: "spec#cidrBlock"
+      default: "<unset>"
       type: "str"
       formatter: "address"
     default:
       header: "Default:"
       path: "spec#default"
+      default: "<unset>"
       type: "bool"
     excluded_ips:
       header: "Excluded IPs:"
       path: "spec#excludeIps"
+      default: ["<none>"]
       type: "raw"
       formatter: "address"
     gateway_type:
       header: "Gateway Type:"
       path: "spec#gatewayType"
+      default: "<unset>"
       type: "str"
     nat_outgoing:
       header: "NAT Outgoing:"
       path: "spec#natOutgoing"
+      default: "<unset>"
       type: "bool"
     private:
       header: "Private:"
       path: "spec#private"
+      default: "<unset>"
       type: "bool"
     provider:
       header: "Provider:"
       path: "spec#provider"
+      default: "<unset>"
       type: "str"
     protocol:
       header: "Protocol:"
       path: "spec#protocol"
+      default: "<unset>"
       type: "str"
     used_ipv4:
       header: "Used IPv4:"
@@ -74,6 +82,7 @@ listview:
     vpc:
       header: "VPC:"
       path: "spec#vpc"
+      default: "<unset>"
       type: "str"
 infoview:
   name: "Subnet Info"
@@ -93,57 +102,73 @@ infoview:
       activate_gateway:
         header: [["Activate Gateway:", ["main", "infoheader"]]]
         path: "status#activateGateway"
+        fallback_on_empty: true
+        default: "<unset>"
         type: "str"
       cidr_block:
         header: [["CIDR Block:", ["main", "infoheader"]]]
         path: "spec#cidrBlock"
+        default: "<unset>"
         type: "str"
         formatter: "address"
       default:
         header: [["Default:", ["main", "infoheader"]]]
         path: "spec#default"
+        default: "<unset>"
         type: "bool"
       dhcpv4_options:
         header: [["DHCPv4 Options:", ["main", "infoheader"]]]
         path: "spec#dhcpV4Options"
+        default: "<unset>"
         type: "str"
       dhcpv4_options_uuid:
         header: [["DHCPv4 Options UUID:", ["main", "infoheader"]]]
         path: "status#dhcpV4OptionsUUID"
+        fallback_on_empty: true
+        default: "<unset>"
         type: "str"
       dhcpv6_options:
         header: [["DHCPv6 Options:", ["main", "infoheader"]]]
         path: "spec#dhcpV6Options"
+        default: "<unset>"
         type: "str"
       dhcpv6_options_uuid:
         header: [["DHCPv6 Options UUID:", ["main", "infoheader"]]]
         path: "status#dhcpV6OptionsUUID"
+        fallback_on_empty: true
+        default: "<unset>"
         type: "str"
       disable_gateway_check:
         header: [["Disable Gateway Check:", ["main", "infoheader"]]]
         path: "spec#disableGatewayCheck"
+        default: "<unset>"
         type: "bool"
       disable_interconnection:
         header: [["Disable Interconnection:", ["main", "infoheader"]]]
         path: "spec#disableInterConnection"
+        default: "<unset>"
         type: "bool"
       enable_dhcp:
         header: [["Enable DHCP:", ["main", "infoheader"]]]
         path: "spec#enableDHCP"
+        default: "<unset>"
         type: "bool"
       enable_ipv6_ra:
         header: [["Enable IPv6 Router Advertisement:", ["main", "infoheader"]]]
         path: "spec#enableIPv6RA"
+        default: "<unset>"
         type: "bool"
       excluded_ips:
         header: [["Excluded IPs:", ["main", "infoheader"]]]
         paths:
           - path: "spec#excludeIps"
             pathtype: "list"
+            default: ["<none>"]
         formatter: "address"
       gateway:
         header: [["Gateway:", ["main", "infoheader"]]]
         path: "spec#gateway"
+        default: "<unset>"
         type: "str"
         formatter: "address"
       gateway_node:
@@ -151,6 +176,8 @@ infoview:
                  ["d", ["main", "infoheader_shortcut"]],
                  ["e:", ["main", "infoheader"]]]
         path: "spec#gatewayNode"
+        fallback_on_empty: true
+        default: "<unset>"
         type: "str"
         formatting:
           field_colors:
@@ -158,35 +185,43 @@ infoview:
       gateway_type:
         header: [["Gateway Type:", ["main", "infoheader"]]]
         path: "spec#gatewayType"
+        default: "<unset>"
         type: "str"
       ipv6_ra_configs:
         header: [["IPv6 Router Advertisement Options:", ["main", "infoheader"]]]
         path: "spec#ipv6RAConfigs"
+        default: "<unset>"
         type: "str"
       logical_gateway:
         header: [["Logical Gateway:", ["main", "infoheader"]]]
         path: "spec#logicalGateway"
+        default: "<unset>"
         type: "bool"
       nat_outgoing:
         header: [["NAT Outgoing Traffic:", ["main", "infoheader"]]]
         path: "spec#natOutgoing"
+        default: "<unset>"
         type: "bool"
       private:
         header: [["Private:", ["main", "infoheader"]]]
         path: "spec#private"
+        default: "<unset>"
         type: "bool"
       protocol:
         header: [["Protocol:", ["main", "infoheader"]]]
         path: "spec#protocol"
+        default: "<unset>"
         type: "str"
       provider:
         header: [["Provider:", ["main", "infoheader"]]]
         path: "spec#provider"
+        default: "<unset>"
         type: "str"
       vpc:
         header: [["V", ["main", "infoheader_shortcut"]],
                  ["PC:", ["main", "infoheader"]]]
         path: "spec#vpc"
+        default: "<unset>"
         type: "str"
       used_ipv4:
         header: [["Used IPv4-addresses:", ["main", "infoheader"]]]

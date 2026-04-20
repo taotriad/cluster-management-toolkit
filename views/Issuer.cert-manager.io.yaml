@@ -50,6 +50,7 @@ infoview:
         paths:
           - path: ["spec#ca#secretName"]
             pathtype: "str"
+        default: "<none>"
       condition_ready:
         header: [["Ready:", ["main", "infoheader"]]]
         paths:

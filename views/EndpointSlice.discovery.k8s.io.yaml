@@ -136,9 +136,12 @@ infoview:
       path: ""
     infogetter: "get_eps_subsets_info"
     field_indexes:
+      Wide:
+        fields: ["addresstype", "addresses", "ports_eps", "status",
+                 "target_ref", "topology", "ready", "serving", "terminating"]
       Normal:
         fields: ["addresstype", "addresses", "ports_eps", "status",
-                 "target_ref", "topology"]
+                 "target_ref"]
     fields:
       addresses:
         header: "Addresses:"
@@ -160,6 +163,16 @@ infoview:
           field_separators:
             - type: "port"
             - type: "service"
+      ready:
+        header: "Ready:"
+        path: "ready"
+        default: "<unset>"
+        type: "bool"
+      serving:
+        header: "Serving:"
+        path: "serving"
+        default: "<unset>"
+        type: "bool"
       status:
         header: "Status:"
       target_ref:
@@ -177,6 +190,11 @@ infoview:
             - type: "kind_api_group"
             - type: "kind"
             - type: "namespace"
+      terminating:
+        header: "Terminating:"
+        path: "terminating"
+        default: "<unset>"
+        type: "bool"
       topology:
         header: "Topology:"
         path: "topology"

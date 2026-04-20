@@ -35,9 +35,7 @@ infoview:
         type: "timestamp"
         formatter: "timestamp"
       holder_identity:
-        header: [["Holder ", ["main", "infoheader"]],
-                 ["I", ["main", "infoheader_shortcut"]],
-                 ["dentity:", ["main", "infoheader"]]]
+        header: [["Holder Identity:", ["main", "infoheader"]]]
         path: "spec#holderIdentity"
         type: "str"
       lease_duration:
@@ -55,16 +53,3 @@ infoview:
         path: "spec#renewTime"
         type: "timestamp"
         formatter: "timestamp"
-  shortcuts:
-    "Holder":
-      key: "i"
-      modifier: "shift"
-      read_only: true
-      helptext: "Open info page for lease holder"
-      action: "call"
-      action_call: "resourceinfodispatch_with_lookup"
-      action_args:
-        _pass_obj: true
-        namespace_path: "metadata#namespace"
-        holder_identity_path: "spec#holderIdentity"
-        owner_reference_path: "metadata#ownerReferences"

@@ -31,6 +31,7 @@ infoview:
       calico_version:
         header: [["Calico Version:", ["main", "infoheader"]]]
         path: "spec#calicoVersion"
+        default: "<unset>"
         type: "str"
         formatting:
           field_colors:

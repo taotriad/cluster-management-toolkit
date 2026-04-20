@@ -346,7 +346,8 @@ def format_timestamp(timestamp: datetime,
             ftimestamp = f"{timestamp.astimezone():%Y-%m-%d %H:%M:%S}"
         else:
             ftimestamp = f"{timestamp:%Y-%m-%d %H:%M:%S}"
-        array = generators.format_numerical_with_units(ftimestamp, "timestamp", False)
+        array = generators.format_numerical_with_units(ftimestamp,
+                                                       selected=False, ftype="timestamp")
 
     return array
 
@@ -393,7 +394,8 @@ def update_field_widths(field_dict: dict, field_names: list[str], objects: list[
                 processor = default_processor.get(generator)
 
             if processor is not None:
-                if processor in (generators.processor_list, generators.processor_list_with_status):
+                if processor in (generators.processor_list,
+                                 generators.processor_list_with_status):
                     tmp = processor(obj, field_name,
                                     item_separator=item_separator,
                                     field_separators=field_separators,
@@ -2874,16 +2876,27 @@ def clusteroverviewloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                 ThemeStr(" (Version data unavailable)", ThemeAttr("main", "status_warning")),
             ]
 
-        internal_ips_array = generators.format_list(iips, fieldlen=0, pad=False)
-        external_ips_array = generators.format_list(eips, fieldlen=0, pad=False)
+        if iips == ["<none>"]:
+            internal_ips_array: list[ThemeRef | ThemeStr] = \
+                [ThemeStr("<none>", ThemeAttr("types", "none"))]
+        else:
+            internal_ips_array = \
+                generators.format_address(iips, selected=False, fieldlen=0, pad=False)
+        if eips == ["<none>"]:
+            external_ips_array: list[ThemeRef | ThemeStr] = \
+                [ThemeStr("<none>", ThemeAttr("types", "none"))]
+        else:
+            external_ips_array = \
+                generators.format_address(eips, selected=False, fieldlen=0, pad=False)
 
         if control_plane_names == ["<virtual>"]:
-            control_plane_list = [ThemeStr("<virtual>", ThemeAttr("types", "unset"))]
+            control_plane_list: list[ThemeRef | ThemeStr] = \
+                [ThemeStr("<virtual>", ThemeAttr("types", "unset"))]
         else:
             control_plane_list = \
                 generators.format_list(control_plane_names, fieldlen=0, pad=False)
 
-        infoarrays: list[list[ThemeRef | ThemeStr]] = [
+        infoarrays: list[list[ThemeStr] | list[ThemeRef | ThemeStr]] = [
             [
                 ThemeStr("C", ThemeAttr("main", "infoheader_shortcut")),
                 ThemeStr("ontrol Planes: ", ThemeAttr("main", "infoheader")),
@@ -2898,9 +2911,9 @@ def clusteroverviewloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                 k8s_distro_string,
             ] + k8s_server_version, [
                 ThemeStr("Internal IP-address(es): ", ThemeAttr("main", "infoheader")),
-            ] + internal_ips_array, [  # type: ignore
+            ] + internal_ips_array, [
                 ThemeStr("External IP-address(es): ", ThemeAttr("main", "infoheader")),
-            ] + external_ips_array, [  # type: ignore
+            ] + external_ips_array, [
                 # Kubernetes port
                 # KubeDNS
                 # control plane load, disk, mem, uptime (requires ansible or local)
@@ -2910,7 +2923,7 @@ def clusteroverviewloop(stdscr: curses.window, **kwargs: Any) -> Retval:
 
         y = 0
         for i, row in enumerate(infoarrays):
-            uip.addthemearray(uip.infopad, row, y=y + i, x=0)
+            uip.addthemearray(uip.infopad, cast(list[ThemeRef | ThemeStr], row), y=y + i, x=0)
         y += i
 
         percentagebar_margin: int = 11 if CursesConfiguration.borders else 9
@@ -4917,7 +4930,7 @@ def genericinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                 if w_itemgetter_src == "selected":
                     selected = uip.get_selected()
                     if selected is not None:
-                        w_ref = deep_get(selected, "ref", None)
+                        w_ref = deep_get(selected, DictPath("ref"), None)
                         if w_ref is not None:
                             if "ref" in w_ref:
                                 w_items = w_itemgetter(w_ref["ref"], **w_itemgetter_args)

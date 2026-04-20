@@ -137,6 +137,7 @@ infoview:
         paths:
           - path: ["spec#selector#matchLabels"]
             pathtype: "key_value"
+            default: ["<none>"]
         formatter: "list"
         formatting:
           field_colors:

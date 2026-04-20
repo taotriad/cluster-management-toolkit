@@ -419,7 +419,7 @@ def __themearray_to_raw_string(themearray: list[ANSIThemeStr]) -> str:
     return string
 
 
-def ansithemearray_to_str(themearray: list[ANSIThemeStr], **kwargs: Any) -> str:
+def ansithemearray_to_str(themearray: str | list[ANSIThemeStr], **kwargs: Any) -> str:
     """
     Convert an ANSIThemeArray (list[ANSIThemeStr]) to a string,
     conditionally with ANSI-formatting.
@@ -439,6 +439,10 @@ def ansithemearray_to_str(themearray: list[ANSIThemeStr], **kwargs: Any) -> str:
         raise ProgrammingError("ansithemearray_to_str() used without calling "
                                "init_ansithemestr() first; this is a programming error.")
     string: str = ""
+
+    if isinstance(themearray, str):
+        return themearray
+
     for themestring in themearray:
         if not isinstance(themestring, ANSIThemeStr):
             raise TypeError("ansithemearray_to_str() only accepts arrays of ANSIThemeStr; "

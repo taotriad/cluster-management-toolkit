@@ -45,13 +45,34 @@ infoview:
   infopad:
     row_indexes:
       Normal:
-        fields: ["ingress_class", "default_backend"]
+        fields: ["ingress_class", "default_backend",
+                 "load_balancer_header",
+                 "load_balancer_ingresses"]
     rows:
+      load_balancer_header:
+        header: [["Load Balancer:", ["main", "infoheader"]]]
+      load_balancer_ingresses:
+        header: [["  Ingresses:", ["main", "infoheader"]]]
+        paths:
+          - path: "status#loadBalancer#ingress"
+            pathtype: "items"
+            subpaths:
+              - "hostname"
+              - "ip"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "hostname"
+            - type: "address"
+          field_formatters:
+            - ""
+            - "address"
       ingress_class:
         header: [["Ingress ", ["main", "infoheader"]],
                  ["C", ["main", "infoheader_shortcut"]],
                  ["lass:", ["main", "infoheader"]]]
         path: "spec#ingressClassName"
+        default: "<unset>"
         type: "str"
       default_backend:
         header: [["D", ["main", "infoheader_shortcut"]],
@@ -61,6 +82,7 @@ infoview:
                    ["spec#defaultBackend#resource#apiGroup"],
                    ["spec#defaultBackend#resource#name"]]
             pathtype: "tuple"
+            default: ["<unset>"]
         formatter: "list"
         formatting:
           field_colors:

@@ -230,12 +230,23 @@ def format_list(items: Any, fieldlen: int, pad: bool,
                 array.append(field_sep)
 
             field_formatter: Callable | None = None
+            field_formatting: FormattingType = {
+                "item_separator": deep_get(kwargs, DictPath("item_separator")),
+                "field_separators": deep_get(kwargs, DictPath("field_separators")),
+                "field_colors": deep_get(kwargs, DictPath("field_colors")),
+                "ellipsise": deep_get(kwargs, DictPath("ellipsise"), -1),
+                "ellipsis": deep_get(kwargs, DictPath("ellipsis")),
+                "field_prefixes": deep_get(kwargs, DictPath("field_prefixes")),
+                "field_suffixes": deep_get(kwargs, DictPath("field_suffixes")),
+            }
+
             if field_formatters:
                 field_formatter = field_formatters[min(i, len(field_formatters) - 1)]
             if (tmp := format_special(string, selected)) is not None:
                 formatted_string = tmp
             elif field_formatter:
-                formatted_string = field_formatter(string, "numerical", selected)
+                formatted_string = field_formatter(string, selected, ftype="numerical",
+                                                   formatting=field_formatting)
             else:
                 default_field_color = field_colors[min(i, len(field_colors) - 1)]
                 formatted_string, __string = map_value(string, selected=selected,
@@ -394,25 +405,97 @@ def align_and_pad(array: list[ThemeRef | ThemeStr], fieldlen: int,
 
 
 # pylint: disable-next=too-many-branches
-def format_numerical_with_units(string: str, ftype: str,
-                                selected: bool, non_units: set | None = None,
-                                separator_lookup: dict | None = None) \
-        -> list[ThemeRef | ThemeStr]:
+def format_address(items: str | list[str],
+                   selected: bool, **kwargs: Any) -> list[ThemeRef | ThemeStr]:
     """
-    Given a string, return it formatted formatted with the numerical parts
+    Given a list of strings, return them formatted as addresses.
+
+        Parameters:
+            items (str|[str]): The strings to format
+            selected (bool): Should the strings be treated as selected?
+            **kwargs (dict[str, Any]): Keyword arguments
+                formatting (FormattingType): Formatting for the data
+        Returns:
+            ([ThemeRef | ThemeStr]): A formatted string
+    """
+    formatting: FormattingType = deep_get(kwargs, DictPath("formatting"), {})
+
+    if isinstance(items, (str, tuple)):
+        items = [items]
+
+    item_separator = deep_get(formatting, DictPath("item_separator"),
+                              ThemeRef("separators", "list", selected))
+
+    separator_lookup = {}
+
+    separators = [ThemeRef("separators", "ipv4address", selected),
+                  ThemeRef("separators", "ipv6address", selected),
+                  ThemeRef("separators", "ipmask", selected)]
+
+    for separator in separators:
+        separator_lookup[str(separator)] = separator
+
+    array: list[ThemeRef | ThemeStr] = []
+
+    for item in items:
+        subnet = False
+        _vlist: list[ThemeRef | ThemeStr] = []
+        tmp = ""
+        for ch in item:
+            if ch in separator_lookup:
+                if tmp:
+                    if subnet:
+                        _vlist.append(ThemeStr(tmp, ThemeAttr("types", "ipmask"), selected))
+                    else:
+                        _vlist.append(ThemeStr(tmp, ThemeAttr("types", "address"), selected))
+                _vlist.append(separator_lookup[ch])
+                tmp = ""
+
+                if ch == "/":
+                    subnet = True
+            else:
+                tmp += ch
+
+        if tmp:
+            if subnet:
+                _vlist.append(ThemeStr(tmp, ThemeAttr("types", "ipmask"), selected))
+            else:
+                _vlist.append(ThemeStr(tmp, ThemeAttr("types", "address"), selected))
+        if array:
+            item_separator.selected = selected
+            array.append(item_separator)
+        array += _vlist
+
+    if not array:
+        array = [
+            ThemeStr("", ThemeAttr("types", "generic"), selected)
+        ]
+
+    return array
+
+
+# pylint: disable-next=too-many-branches,too-many-statements
+def format_numerical_with_units(string: str,
+                                selected: bool, **kwargs: Any) -> list[ThemeRef | ThemeStr]:
+    """
+    Given a string, return it formatted with the numerical parts
     highlighted with the formatting for numerical values, and the remaining
     characters formatted as units.
     Note that decimal points will also be formatted as units.
 
         Parameters:
             string (str): The string to format
-            ftype (str): The formatting type for the non-units
             selected (bool): Should the string be treated as selected?
-            non_units (set[str]): The characters to treat as non-units (default: 0-9)
-            separator_lookup (dict): The formatting to use for units
+            **kwargs (dict[str, Any]): Keyword arguments
+                ftype (str): The formatting type for the non-units
+                non_units (set[str]): The characters to treat as non-units (default: 0-9)
+                separator_lookup (dict): The formatting to use for units
         Returns:
             ([ThemeRef | ThemeStr]): A formatted string
     """
+    ftype = deep_get(kwargs, DictPath("ftype"), "numerical")
+    non_units: set | None = deep_get(kwargs, DictPath("non_units"), None)
+    separator_lookup: dict | None = deep_get(kwargs, DictPath("separator_lookup"), None)
     substring: str = ""
     array: list[ThemeRef | ThemeStr] = []
     numeric = None
@@ -510,7 +593,7 @@ def generator_age_raw(value: int | str, selected: bool) -> list[ThemeRef | Theme
             ThemeStr(string, fmt, selected)
         ]
     else:
-        array = format_numerical_with_units(string, "age", selected)
+        array = format_numerical_with_units(string, selected, ftype="age")
 
     return array
 
@@ -541,7 +624,7 @@ def generator_age(obj: dict, field: str, fieldlen: int, pad: bool,
     return align_and_pad(array, fieldlen=fieldlen, pad=pad, ralign=ralign, selected=selected)
 
 
-# noqa: E501 pylint: disable-next=too-many-arguments,too-many-locals,too-many-branches,too-many-positional-arguments
+# pylint: disable-next=too-many-arguments,too-many-positional-arguments
 def generator_address(obj: dict, field: str, fieldlen: int, pad: bool,
                       ralign: bool, selected: bool,
                       **formatting: FormattingType) -> list[ThemeRef | ThemeStr]:
@@ -559,8 +642,6 @@ def generator_address(obj: dict, field: str, fieldlen: int, pad: bool,
         Returns:
             ([ThemeRef | ThemeStr]): A formatted string
     """
-    item_separator = deep_get(formatting, DictPath("item_separator"))
-
     items = deep_get(obj, DictPath(field), [])
     if items is None:
         items = []
@@ -568,50 +649,7 @@ def generator_address(obj: dict, field: str, fieldlen: int, pad: bool,
     if isinstance(items, str) and items in ("<unset>", "<none>"):
         return format_list([items], fieldlen, pad, ralign=ralign, selected=selected)
 
-    if isinstance(items, (str, tuple)):
-        items = [items]
-
-    separator_lookup = {}
-
-    separators = deep_get(formatting, DictPath("field_separators"))
-    if not separators:
-        separators = [ThemeRef("separators", "ipv4address", selected),
-                      ThemeRef("separators", "ipv6address", selected),
-                      ThemeRef("separators", "ipmask", selected)]
-
-    for separator in separators:
-        separator_lookup[str(separator)] = separator
-
-    array: list[ThemeRef | ThemeStr] = []
-
-    for item in items:
-        subnet = False
-        _vlist = []
-        tmp = ""
-        for ch in item:
-            if ch in separator_lookup:
-                if tmp:
-                    if subnet:
-                        _vlist.append(ThemeStr(tmp, ThemeAttr("types", "ipmask"), selected))
-                    else:
-                        _vlist.append(ThemeStr(tmp, ThemeAttr("types", "address"), selected))
-                _vlist.append(separator_lookup[ch])
-                tmp = ""
-
-                if ch == "/":
-                    subnet = True
-            else:
-                tmp += ch
-
-        if tmp:
-            if subnet:
-                _vlist.append(ThemeStr(tmp, ThemeAttr("types", "ipmask"), selected))
-            else:
-                _vlist.append(ThemeStr(tmp, ThemeAttr("types", "address"), selected))
-        if array:
-            item_separator.selected = selected
-            array.append(item_separator)
-        array += _vlist
+    array = format_address(items, selected, formatting=formatting)
 
     return align_and_pad(array, fieldlen=fieldlen, pad=pad, ralign=ralign, selected=selected)
 
@@ -692,8 +730,8 @@ def generator_hex(obj: dict, field: str, fieldlen: int, pad: bool,
             tmp = string.split(":", maxsplit=1)
             array += [ThemeStr(tmp[0], ThemeAttr("main", "highlight"))]
             string = f":{tmp[1]}"
-        array += format_numerical_with_units(string, "numerical",
-                                             selected, non_units=set("0123456789abcdefABCDEF"))
+        array += format_numerical_with_units(string, selected, ftype="numerical",
+                                             non_units=set("0123456789abcdefABCDEF"))
 
     return align_and_pad(array, fieldlen=fieldlen, pad=pad, ralign=ralign, selected=selected)
 
@@ -931,7 +969,7 @@ def generator_numerical_with_units(obj: dict, field: str, fieldlen: int, pad: bo
     else:
         string = f"{value}{unit}"
 
-    array = format_numerical_with_units(string, "numerical", selected)
+    array = format_numerical_with_units(string, selected, ftype="numerical")
 
     return align_and_pad(array, fieldlen=fieldlen, pad=pad, ralign=ralign, selected=selected)
 
@@ -1006,7 +1044,7 @@ def generator_timestamp(obj: dict, field: str, fieldlen: int, pad: bool,
                 ThemeStr(string, ThemeAttr("types", "generic"), selected)
             ]
         else:
-            array = format_numerical_with_units(string, "timestamp", selected)
+            array = format_numerical_with_units(string, selected, ftype="numerical")
 
     return align_and_pad(array, fieldlen=fieldlen, pad=pad, ralign=ralign, selected=selected)
 
@@ -1044,7 +1082,7 @@ def generator_timestamp_with_age(obj: dict, field: str, fieldlen: int, pad: bool
             ]
         else:
             timestamp_string = datetime_to_timestamp(values[0])
-            array = format_numerical_with_units(timestamp_string, "timestamp", selected)
+            array = format_numerical_with_units(timestamp_string, selected, ftype="timestamp")
             array += [
                 ThemeStr(" (", ThemeAttr("types", "generic"), selected)
             ]
@@ -1071,7 +1109,7 @@ def generator_timestamp_with_age(obj: dict, field: str, fieldlen: int, pad: bool
 
                 timestamp = timestamp_to_datetime(data)
                 timestamp_string = f"{timestamp.astimezone():%Y-%m-%d %H:%M:%S}"
-                array += format_numerical_with_units(timestamp_string, "timestamp", selected)
+                array += format_numerical_with_units(timestamp_string, selected, ftype="timestamp")
             elif deep_get(formatting, DictPath("field_colors"))[i] == ThemeAttr("types", "age"):
                 array += generator_age_raw(data, selected)
             else:
@@ -1165,7 +1203,7 @@ def processor_timestamp_with_age(obj: dict, field: str, formatting: FormattingTy
             ]
         else:
             timestamp_string = datetime_to_timestamp(values[0])
-            array = format_numerical_with_units(timestamp_string, "timestamp", False)
+            array = format_numerical_with_units(timestamp_string, selected=False, ftype="timestamp")
             array += [
                 ThemeStr(" (", ThemeAttr("types", "generic"))
             ]
@@ -1191,7 +1229,7 @@ def processor_timestamp_with_age(obj: dict, field: str, formatting: FormattingTy
                     ]
                 else:
                     # timestamp_string = datetime_to_timestamp(values[0])
-                    array += format_numerical_with_units(data, "timestamp", False)
+                    array += format_numerical_with_units(data, selected=False, ftype="timestamp")
             elif formatting["field_colors"][i] == ThemeAttr("types", "age"):
                 array += generator_age_raw(data, False)
             else:
@@ -1266,6 +1304,8 @@ def processor_list(obj: dict, field: str, **kwargs: Any) -> str:
     field_suffixes: list[ThemeRef] = deep_get(kwargs, DictPath("field_suffixes"))
 
     items = deep_get(obj, DictPath(field))
+    if not isinstance(items, list):
+        items = [items]
 
     strings: list[str] = []
 
@@ -1309,9 +1349,7 @@ def processor_list(obj: dict, field: str, **kwargs: Any) -> str:
         strings.append(string)
         elcount += 1
 
-    vstring = themearray_to_string([item_separator]).join(strings)
-
-    return vstring
+    return themearray_to_string([item_separator]).join(strings)
 
 
 # For the list processor to work we need to know the length of all the separators
@@ -1443,6 +1481,7 @@ def processor_mem(obj: dict, field: str) -> str:
 
 default_processor: dict[Callable, Callable] = {
     generator_age: processor_age,
+    generator_address: processor_list,
     generator_list: processor_list,
     generator_list_with_status: processor_list_with_status,
     generator_mem: processor_mem,
@@ -1544,7 +1583,7 @@ formatter_to_generator_and_processor: dict[str, dict[str, Any]] = {
     },
     "address": {
         "generator": generator_address,
-        "processor": None,
+        "processor": processor_list,
         "field_separators_default": [],
     },
     "timestamp": {
@@ -1836,6 +1875,7 @@ def fieldgenerator(view: str, selected_namespace: str = "",
 
 # Formatters acceptable for use with list fields
 field_formatter_allowlist: dict[str, Callable] = {
+    "address": format_address,
     "numerical_with_units": format_numerical_with_units,
 }
 

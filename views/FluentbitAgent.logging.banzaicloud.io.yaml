@@ -67,7 +67,9 @@ infoview:
       metrics_header:
         header: [["Metrics:", ["main", "infoheader"]]]
       node_label_selector:
-        header: [["Node Label Selector:", ["main", "infoheader"]]]
+        header: [["Node La", ["main", "infoheader"]],
+                 ["b", ["main", "infoheader_shortcut"]],
+                 ["el Selector:", ["main", "infoheader"]]]
         paths:
           - path: ["spec#nodeSelector"]
             pathtype: "key_value"

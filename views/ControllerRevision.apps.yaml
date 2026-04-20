@@ -78,6 +78,12 @@ infoview:
         path: "revision"
         type: "int"
         formatter: "numerical"
+  logpad:
+    infogetter: "logpad_formatted"
+    infogetter_args:
+      formatter: "format_yaml"
+      path: "data#spec#template"
+    timestamps: false
   shortcuts:
     "Open controller":
       key: "c"
@@ -90,14 +96,3 @@ infoview:
         _pass_obj: true
         owner_reference_path: "metadata#ownerReferences"
         namespace_path: "metadata#namespace"
-    "Controller template":
-      key: "t"
-      modifier: "shift"
-      read_only: true
-      helptext: "Show controller template"
-      action: "call"
-      action_call: "view_yaml"
-      action_args:
-        title: "Controller template"
-        _pass_obj: true
-        path: "data#spec#template"
