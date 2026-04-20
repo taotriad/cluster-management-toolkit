@@ -42,9 +42,9 @@ We aim for CMT v0.9.0 to be the first release with distro packages.
 <!--
 | Filename | sha512 hash |
 | :------- | :---------- |
-| [fixme](https://fixme) (Debian 11+ all / Ubuntu 22.04+ all / Raspberry Pi OS arm64) | `fixme` |
-| [fixme](https://fixme) (RHEL 9+ amd64) | `fixme` |
-| [fixme](https://fixme) (SLES/openSUSE 15.4+ amd64) | `fixme` |
+| [fixme](https://fixme) (Debian 12+ all / Ubuntu 24.04+ all / Raspberry Pi OS arm64) | `fixme` |
+| [fixme](https://fixme) (RHEL 8+ amd64) | `fixme` |
+| [fixme](https://fixme) (SLES/openSUSE 15.6+ amd64) | `fixme` |
 -->
 
 ## General Release Notes for v0.8.8
@@ -77,7 +77,7 @@ TBD
 
 ### Changes to _cmtinv_ in v0.8.8
 
-TBD
+* `cmtinv fping` now shows the count of successful/unreachable hosts.
 
 ### Changes to _cmu_ in v0.8.8
 
@@ -107,7 +107,7 @@ TBD
 > in this version of CMT, to make it easier to share data handling
 > between cmu and cmt.
 >
-> the custom class used for data has been removed in favor of standard
+> The custom class used for data has been removed in favor of standard
 > dicts; this way we also benefit from easier debugging and better consistency.
 > It does, however, change code in many places in subtle ways,
 > and thus it might cause regressions, especially since we no longer

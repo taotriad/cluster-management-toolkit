@@ -78,7 +78,7 @@ from clustermanagementtoolkit.kubernetes_helper import get_cluster_name
 from clustermanagementtoolkit import checks
 
 from clustermanagementtoolkit.ansithemeprint import ANSIThemeStr, ansithemeprint
-from clustermanagementtoolkit.ansithemeprint import ansithemestr_join_list
+from clustermanagementtoolkit.ansithemeprint import ansithemestr_join_list, ansithemearray_to_str
 
 try:
     import prctl
@@ -724,6 +724,8 @@ def inventory(options: list[tuple[str, str]], args: list[str]) -> int:
         for item in ansible_get_inventory_pretty(groups=groups, highlight=True,
                                                  include_groupvars=include_groupvars,
                                                  include_hostvars=include_hostvars):
+            if cmtlib.strip_ansicodes(ansithemearray_to_str(item)).startswith(("%YAML", "---")):
+                continue
             ansithemeprint(cast(list, item), color=color)
     except KeyError as e:
         duplicate_key = str(e).removeprefix("'duplicate key: ").removesuffix("'")
@@ -1293,6 +1295,9 @@ def fping(options: list[tuple[str, str]], args: list[str]) -> int:
 
     maxlen = 0
 
+    successes: int = 0
+    unreachables: int = 0
+
     if result:
         for hostresult in natsorted(result.splitlines()):
             if "duplicate for" in hostresult:
@@ -1312,8 +1317,10 @@ def fping(options: list[tuple[str, str]], args: list[str]) -> int:
                 maxlen = max(len(host), maxlen)
                 if re_tmp[2] == "is alive":
                     hoststatuses.append((re_tmp[1], "SUCCESS", "success"))
+                    successes += 1
                 else:
                     hoststatuses.append((re_tmp[1], "UNREACHABLE", "error"))
+                    unreachables += 1
                 continue
 
     header = "Hostname:"
@@ -1328,6 +1335,11 @@ def fping(options: list[tuple[str, str]], args: list[str]) -> int:
         for hostname, status, status_group in hoststatuses:
             ansithemeprint([ANSIThemeStr(f"{hostname.ljust(maxlen)}  ", "default"),
                             ANSIThemeStr(f"{status}", status_group)])
+
+    ansithemeprint([ANSIThemeStr(f"\n    SUCCESS: ", "success"),
+                    ANSIThemeStr(f"{successes}", "default")])
+    ansithemeprint([ANSIThemeStr(f"UNREACHABLE: ", "error"),
+                    ANSIThemeStr(f"{unreachables}", "default")])
 
     return 0
 
