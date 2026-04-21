@@ -97,6 +97,7 @@ infoview:
       configuration_tls_security_profile_type:
         header: [["  TLS Security Profile Type:", ["main", "infoheader"]]]
         path: "spec#config#tlsSecurityProfile#type"
+        default: "<unset>"
         type: "str"
       image_pull_policy:
         header: [["Image Pull Policy:", ["main", "infoheader"]]]

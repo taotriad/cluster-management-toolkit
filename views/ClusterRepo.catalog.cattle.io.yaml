@@ -15,6 +15,7 @@ listview:
     branch:
       header: "Branch:"
       path: "spec#gitBranch"
+      default: "<unset>"
       type: "str"
       formatting:
         field_colors:
@@ -27,6 +28,7 @@ listview:
     repo:
       header: "Repo:"
       path: "spec#gitRepo"
+      default: "<unset>"
       type: "str"
       formatter: "address"
 infoview:
@@ -34,7 +36,8 @@ infoview:
   infopad:
     row_indexes:
       Normal:
-        fields: ["repo", "configmap", "branch", "commit", "download_time"]
+        fields: ["repo", "configmap", "branch", "commit", "url",
+                 "download_time"]
     rows:
       branch:
         header: [["Branch:", ["main", "infoheader"]]]
@@ -75,6 +78,12 @@ infoview:
         header: [["R", ["main", "infoheader_shortcut"]],
                  ["epo:", ["main", "infoheader"]]]
         path: "spec#gitRepo"
+        default: "<unset>"
+        type: "str"
+        formatter: "address"
+      url:
+        header: [["URL:", ["main", "infoheader"]]]
+        path: "status#url"
         default: "<unset>"
         type: "str"
         formatter: "address"

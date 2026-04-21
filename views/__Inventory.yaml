@@ -242,6 +242,7 @@ infoview:
   shortcuts:
     # Inventory has no last applied configuration or events
     "Show Events": null
+    "Owner References": null
     "Last Applied Configuration": null
     "Boot options":
       key: "b"

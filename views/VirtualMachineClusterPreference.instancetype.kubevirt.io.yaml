@@ -27,7 +27,9 @@ infoview:
   infopad:
     row_indexes:
       Normal:
-        fields: ["display_name", "documentation_url", "provider", "tags",
+        fields: ["display_name",
+                 "documentation_url", "support_url",
+                 "provider", "tags",
                  "operating_system",
                  "cpu_header", "cpu_guest", "cpu_topology",
                  "cpu_spread_options_header",
@@ -145,8 +147,13 @@ infoview:
         header: [["Documentation ", ["main", "infoheader"]],
                  ["U", ["main", "infoheader_shortcut"]],
                  ["RL:", ["main", "infoheader"]]]
-        path: "metadata#annotations#openshift.io/documentation-url"
-        type: "str"
+        paths:
+          - path: "metadata#annotations#openshift.io/documentation-url"
+            pathtype: "value"
+            replace_quotes: "stripsurrounding"
+            newlines: "strip"
+            default: "<none>"
+            type: "str"
         formatting:
           field_colors:
             - type: "url"
@@ -180,6 +187,19 @@ infoview:
         header: [["Provider:", ["main", "infoheader"]]]
         path: "metadata#annotations#openshift.io/provider-display-name"
         type: "str"
+      support_url:
+        header: [["S", ["main", "infoheader_shortcut"]],
+                 ["upport URL:", ["main", "infoheader"]]]
+        paths:
+          - path: "metadata#annotations#openshift.io/support-url"
+            pathtype: "value"
+            replace_quotes: "stripsurrounding"
+            newlines: "strip"
+            default: "<none>"
+            type: "str"
+        formatting:
+          field_colors:
+            - type: "url"
       tags:
         header: [["Tags:", ["main", "infoheader"]]]
         paths:
@@ -187,12 +207,25 @@ infoview:
             pathtype: "split"
         formatter: "list"
   shortcuts:
-    "Open URL":
+    "Open Documentation URL":
       key: "u"
       modifier: "shift"
       read_only: true
-      helptext: "Open URL in browser"
+      helptext: "Open documentation URL in browser"
       action: "execute"
       action_args:
         command: ["xdg-open",
                   ["metadata#annotations#openshift.io/documentation-url"]]
+        replace_quotes: "stripsurrounding"
+        newlines: "strip"
+    "Open Support URL":
+      key: "s"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open support URL in browser"
+      action: "execute"
+      action_args:
+        command: ["xdg-open",
+                  ["metadata#annotations#openshift.io/support-url"]]
+        replace_quotes: "stripsurrounding"
+        newlines: "strip"

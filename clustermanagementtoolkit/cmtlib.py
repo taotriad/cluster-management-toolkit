@@ -337,6 +337,47 @@ def disksize_to_human(size: int) -> str:
     return tmp
 
 
+def replace_quotes(string: str, policy: str = "keep") -> str:
+    """
+    Convert and/or substitute quotes.
+
+        Parameters:
+            string (str): The string to process
+            policy (str): The policy to use
+        Returns:
+            (str): The processed string
+    """
+    if policy == "pretty":
+        string = string.replace("\\\"", "“")
+    elif policy == "same":
+        string = string.replace("\\\"", "\"")
+    elif policy == "stripsurrounding" and string.startswith("\"") and string.endswith("\""):
+        string = string[1:-1]
+
+    return string
+
+
+def replace_newlines(string: str, policy: str = "keep") -> str:
+    """
+    Convert newlines, and optionally strip or replace them.
+
+        Parameters:
+            string (str): The string to process
+            policy (str): The policy to use
+        Returns:
+            (str): The processed string
+    """
+    string = string.replace("\r\n", "\n")
+    if policy == "strip":
+        string = string.replace("\n", "").rstrip()
+    elif policy == "replace":
+        string = string.replace("\n", " ").rstrip()
+    elif policy == "escape":
+        string = string.replace("\n", "\\n").rstrip()
+
+    return string
+
+
 def split_msg(rawmsg: str) -> list[str]:
     """
     Split a string into a list of strings, strip NUL-bytes, and convert newlines.
@@ -349,7 +390,7 @@ def split_msg(rawmsg: str) -> list[str]:
     if not isinstance(rawmsg, str):
         raise TypeError(f"rawmsg is type {type(rawmsg)}, expected str")
     # We only want "\n" to represent newlines
-    tmp = rawmsg.replace("\r\n", "\n")
+    tmp = replace_newlines(rawmsg, policy="keep")
     # We also replace all \x00 with <NUL>
     tmp = tmp.replace("\x00", "<NUL>")
     # We also replace non-breaking space with space

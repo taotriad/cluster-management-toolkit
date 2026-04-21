@@ -26,10 +26,12 @@ infoview:
       bpf_connect_time_load_balancing:
         header: [["  Connect Time Load Balancing:", ["main", "infoheader"]]]
         path: "spec#bpfConnectTimeLoadBalancing"
+        default: "<unset>"
         type: "str"
       bpf_enabled:
         header: [["  Enabled:", ["main", "infoheader"]]]
         path: "spec#bpfEnabled"
+        default: "<unset>"
         type: "str"
       bpf_header:
         header: [["BPF:", ["main", "infoheader"]]]
@@ -50,6 +52,7 @@ infoview:
       floating_ips:
         header: [["Floating IPs:", ["main", "infoheader"]]]
         path: "spec#floatingIPs"
+        default: "<unset>"
         type: "bool"
       health_port:
         header: [["Health Port:", ["main", "infoheader"]]]
@@ -60,6 +63,7 @@ infoview:
       log_severity_screen:
         header: [["Log Severity Screen:", ["main", "infoheader"]]]
         path: "spec#logSeverityScreen"
+        default: "<unset>"
         type: "str"
       ipip_enabled:
         header: [["IPIP Enabled:", ["main", "infoheader"]]]

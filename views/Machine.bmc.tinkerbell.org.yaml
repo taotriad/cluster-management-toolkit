@@ -72,6 +72,9 @@ infoview:
             - type: "port"
           field_separators:
             - type: "port"
+          field_formatters:
+            - "address"
+            - ""
       connection_insecure_tls:
         header: [["  Insecure TLS:", ["main", "infoheader"]]]
         path: "spec#connection#insecureTLS"

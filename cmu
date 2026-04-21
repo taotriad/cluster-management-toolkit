@@ -3701,8 +3701,10 @@ def decode_and_view_data(stdscr: curses.window, **kwargs: Any) -> Retval:
     elif title in (".dockercfg", ".dockerconfigjson", "v4-0-config-system-session", "userData") \
             or title.endswith((".kubeconfig", ".json")):
         formatter = formatters.reformat_json
-    elif title == "kubeConfig" or title.endswith(".yaml"):
+    elif title in ("kubeconfig", "kubeConfig", "HelmChartValuesContent") or title.endswith(".yaml"):
         formatter = formatters.format_yaml
+    elif title == "fluent-bit.conf":
+        formatter = formatters.format_fluentbit
     else:
         formatter = formatters.format_none
     return resourceinfodispatch(stdscr, obj=obj, kind=("__ResourceView", ""),
@@ -5159,12 +5161,18 @@ def genericinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                         deep_set(infoview_args, DictPath(var), not tmp)
                 elif action == "execute":
                     _command = deep_get(action_args, DictPath("command"), [])
+                    newlines = deep_get(action_args, DictPath("newlines"), "keep")
+                    replace_quotes = deep_get(action_args, DictPath("replace_quotes"), "keep")
                     # replace paths with data
                     if _command:
                         command = []
                         for _cmd in _command:
                             if isinstance(_cmd, list):
-                                command.append(deep_get_with_fallback(obj, _cmd))
+                                value = deep_get_with_fallback(obj, _cmd)
+                                if isinstance(value, str):
+                                    value = cmtlib.replace_newlines(value, policy=newlines)
+                                    value = cmtlib.replace_quotes(value, policy=replace_quotes)
+                                command.append(value)
                             else:
                                 command.append(_cmd)
                     # Check this condition before confirming
@@ -8600,7 +8608,7 @@ def action_execute_command(uip: UIProps, **kwargs: Any) -> None:
             try:
                 result = subprocess.run(iterargs, check=False)
                 retval = result.returncode
-            except FileNotFoundError:
+            except FileNotFoundError as e:
                 ansithemeprint([ANSIThemeStr("Error", "error"),
                                 ANSIThemeStr(": Command “", "default"),
                                 ANSIThemeStr(f"{args[0]}", "programname"),

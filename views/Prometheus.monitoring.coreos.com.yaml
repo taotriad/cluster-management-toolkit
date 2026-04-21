@@ -17,6 +17,7 @@ listview:
       header: "Replicas:"
       path: "spec#replicas"
       type: "int"
+      formatter: "numerical"
       align: "right"
     version:
       header: "Version:"
@@ -146,6 +147,7 @@ infoview:
         paths:
           - path: ["spec#podMonitorNamespaceSelector#matchLabels"]
             pathtype: "key_value"
+            default: ["<none>"]
         formatter: "list"
         formatting:
           field_colors:
@@ -201,6 +203,7 @@ infoview:
         paths:
           - path: ["spec#probeNamespaceSelector#matchLabels"]
             pathtype: "key_value"
+            default: ["<none>"]
         formatter: "list"
         formatting:
           field_colors:
@@ -228,6 +231,7 @@ infoview:
         paths:
           - path: ["spec#probeSelector#matchLabels"]
             pathtype: "key_value"
+            default: ["<none>"]
         formatter: "list"
         formatting:
           field_colors:
@@ -273,6 +277,7 @@ infoview:
         paths:
           - path: ["spec#ruleNamespaceSelector#matchLabels"]
             pathtype: "key_value"
+            default: ["<none>"]
         formatter: "list"
         formatting:
           field_colors:
@@ -300,6 +305,7 @@ infoview:
         paths:
           - path: ["spec#ruleSelector#matchLabels"]
             pathtype: "key_value"
+            default: ["<none>"]
         formatter: "list"
         formatting:
           field_colors:
@@ -334,6 +340,7 @@ infoview:
         paths:
           - path: ["spec#serviceMonitorNamespaceSelector#matchLabels"]
             pathtype: "key_value"
+            default: ["<none>"]
         formatter: "list"
         formatting:
           field_colors:
@@ -362,6 +369,7 @@ infoview:
         paths:
           - path: ["spec#serviceMonitorSelector#matchLabels"]
             pathtype: "key_value"
+            default: ["<none>"]
         formatter: "list"
         formatting:
           field_colors:

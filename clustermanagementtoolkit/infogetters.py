@@ -106,16 +106,8 @@ def __process_string(value: str, quotes: str, newlines: str = "escape") -> str:
     if value is None:
         value = ""
     if isinstance(value, str):
-        if newlines == "strip":
-            value = value.replace("\n", "").rstrip()
-        elif newlines == "replace":
-            value = value.replace("\n", " ").rstrip()
-        else:
-            value = value.replace("\n", "\\n").rstrip()
-        if quotes == "pretty":
-            value = value.replace("\\\"", "“")
-        elif quotes == "same":
-            value = value.replace("\\\"", "\"")
+        value = cmtlib.replace_newlines(value, policy=newlines)
+        value = cmtlib.replace_quotes(value, policy=quotes)
     return value
 
 
@@ -178,7 +170,7 @@ def process_value(value: Any, vtype: str | list, **kwargs: Any) -> \
     field_name: str = deep_get(kwargs, DictPath("field_name"))
     formatter: str = deep_get(kwargs, DictPath("formatter"))
     replace_quotes: str = deep_get(kwargs, DictPath("replace_quotes"))
-    newlines: str = deep_get(kwargs, DictPath("newlines"))
+    newlines: str = deep_get(kwargs, DictPath("newlines"), "escape")
     view: str = deep_get(kwargs, DictPath("view"))
 
     override_kind = \
@@ -708,7 +700,7 @@ def get_obj(obj: dict, field_dict: dict, field_names: list[str],
                 subpath = deep_get(_path, DictPath("subpath"), "")
                 subpaths = deep_get(_path, DictPath("subpaths"), [])
                 fallback_on_empty = deep_get(_path, DictPath("fallback_on_empty"), False)
-                replace_quotes = deep_get(_path, DictPath("replace_quotes"), "no")
+                replace_quotes = deep_get(_path, DictPath("replace_quotes"), "keep")
                 newlines = deep_get(_path, DictPath("newlines"), "escape")
                 if ptype == "list":
                     tmp = deep_get_with_fallback(obj, path, default=default,

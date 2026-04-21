@@ -1467,7 +1467,7 @@ def test_get_formatter(verbose: bool = False) -> tuple[str, bool]:
                 },
                 {
                     "generator": generators.generator_address,
-                    "processor": None,
+                    "processor": generators.processor_list,
                     "field_colors": [ThemeAttr('types', 'field')],
                     "field_prefixes": [],
                     "field_suffixes": [],
