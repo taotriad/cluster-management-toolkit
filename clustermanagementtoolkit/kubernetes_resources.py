@@ -490,6 +490,11 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
                       "apis/resource.k8s.io/v1beta1/"],
         "api": "resourceclaimtemplates",
     },
+    ("ResourcePoolStatusRequest", "resource.k8s.io"): {
+        "api_paths": ["apis/resource.k8s.io/v1alpha3/"],
+        "api": "resourcepoolstatusrequests",
+        "namespaced": False,
+    },
     ("ResourceSlice", "resource.k8s.io"): {
         "api_paths": ["apis/resource.k8s.io/v1/",
                       "apis/resource.k8s.io/v1beta2/",
@@ -503,8 +508,13 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api": "priorityclasses",
         "namespaced": False,
     },
+    ("PodGroup", "scheduling.k8s.io"): {
+        "api_paths": ["apis/scheduling.k8s.io/v1alpha2/"],
+        "api": "podgroups",
+    },
     ("Workload", "scheduling.k8s.io"): {
-        "api_paths": ["apis/scheduling.k8s.io/v1alpha1/"],
+        "api_paths": ["apis/scheduling.k8s.io/v1alpha2/",
+                      "apis/scheduling.k8s.io/v1alpha1/"],
         "api": "workloads",
     },
     # scheduling.sigs.k8s.io
