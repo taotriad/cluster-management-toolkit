@@ -10,9 +10,20 @@ listview:
   group: "Rancher"
   field_indexes:
     Normal:
-      fields: ["namespace", "name", "version", "age"]
+      fields: ["namespace", "name", "bootstrap", "take_ownership",
+               "version", "age"]
       sortcolumn: "namespace"
   fields:
+    bootstrap:
+      header: "Bootstrap:"
+      path: "spec#bootstrap"
+      default: "<unset>"
+      type: "bool"
+    take_ownership:
+      header: "Take Ownership:"
+      path: "spec#takeOwnership"
+      default: "<unset>"
+      type: "bool"
     version:
       header: "Version:"
       path: "spec#version"
@@ -27,7 +38,8 @@ infoview:
     row_indexes:
       Normal:
         fields: ["chart", "repo", "job_name",
-                 "backoff_limit", "failure_policy", "set", "version"]
+                 "backoff_limit", "failure_policy", "bootstrap",
+                 "set", "take_ownership", "version"]
     rows:
       backoff_limit:
         header: [["Backoff Limit:", ["main", "infoheader"]]]
@@ -35,6 +47,11 @@ infoview:
         default: "<unset>"
         type: "int"
         formatter: "numerical"
+      bootstrap:
+        header: [["Bootstrap:", ["main", "infoheader"]]]
+        path: "spec#bootstrap"
+        default: "<unset>"
+        type: "bool"
       chart:
         header: [["Chart:", ["main", "infoheader"]]]
         path: "spec#chart"
@@ -71,6 +88,11 @@ infoview:
             - type: "value"
           field_separators:
             - type: "keyvalue_log"
+      take_ownership:
+        header: [["Take Ownership:", ["main", "infoheader"]]]
+        path: "spec#takeOwnership"
+        default: "<unset>"
+        type: "bool"
       version:
         header: [["Version:", ["main", "infoheader"]]]
         path: "spec#version"
