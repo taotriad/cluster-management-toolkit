@@ -24,8 +24,18 @@ listview:
       type: "str"
     image:
       header: "Image:"
-      path: "image"
-      type: "str"
+      paths:
+        - path: "image"
+          pathtype: "regex"
+          regex: "^([^:]+):(.*)"
+          default: ["<none>"]
+      formatter: "list"
+      formatting:
+        field_colors:
+          - type: "generic"
+          - type: "version"
+        field_separators:
+          - type: "version"
     name:
       header: "Pod Name:"
       path: "name"

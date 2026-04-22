@@ -63,7 +63,9 @@ infoview:
       external_url:
         header: [["External URL:", ["main", "infoheader"]]]
         path: "spec#externalUrl"
+        default: "<unset>"
         type: "str"
+        formatter: "address"
       image:
         header: [["Image:", ["main", "infoheader"]]]
         paths:
