@@ -8608,7 +8608,7 @@ def action_execute_command(uip: UIProps, **kwargs: Any) -> None:
             try:
                 result = subprocess.run(iterargs, check=False)
                 retval = result.returncode
-            except FileNotFoundError as e:
+            except FileNotFoundError:
                 ansithemeprint([ANSIThemeStr("Error", "error"),
                                 ANSIThemeStr(": Command “", "default"),
                                 ANSIThemeStr(f"{args[0]}", "programname"),

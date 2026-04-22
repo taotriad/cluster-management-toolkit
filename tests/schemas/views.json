@@ -447,6 +447,15 @@
 			"description": "Arguments to pass to the listgetter",
 			"type": "object"
 		},
+		"newlines": {
+			"description": "How to handle newlines",
+			"enum": [
+				"escape",
+				"keep",
+				"replace",
+				"strip"
+			]
+		},
 		"on_activation": {
 			"description": "Action to perform when activating an entry",
 			"type": "object",
@@ -621,12 +630,7 @@
 						}
 					},
 					"newlines": {
-						"description": "How to handle newlines",
-						"enum": [
-							"escape",
-							"replace",
-							"strip"
-						]
+						"$ref": "#/definitions/newlines"
 					},
 					"none_str_as_none": {
 						"description": "By default the string None is treated as any other string; if this is true it's instead treated as null",
@@ -672,11 +676,7 @@
 						"type": "string"
 					},
 					"replace_quotes": {
-						"description": "How to handle quotes",
-						"enum": [
-							"pretty",
-							"same"
-						]
+						"$ref": "#/definitions/replace_quotes"
 					},
 					"subpath": {
 						"$ref": "#/definitions/path"
@@ -956,6 +956,15 @@
 				"timestamp",
 				"unix_timestamp",
 				"version"
+			]
+		},
+		"replace_quotes": {
+			"description": "How to handle quotes",
+			"enum": [
+				"keep",
+				"pretty",
+				"same",
+				"stripsurrounding"
 			]
 		},
 		"row_header": {
@@ -2180,6 +2189,9 @@
 														}
 													]
 												},
+												"newlines": {
+													"$ref": "#/definitions/newlines"
+												},
 												"owner_reference_path": {
 													"description": "Path to get the name and namespace of the object from if there's an owner reference",
 													"$ref": "#/definitions/simple_path"
@@ -2199,6 +2211,9 @@
 												"process_selection": {
 													"description": "A dict containing transformation rules for selections",
 													"type": "object"
+												},
+												"replace_quotes": {
+													"$ref": "#/definitions/replace_quotes"
 												},
 												"title": {
 													"type": "string"
