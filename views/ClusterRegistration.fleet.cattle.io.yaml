@@ -90,7 +90,8 @@ infoview:
       helptext: "List cluster labels"
       widget: "windowwidget"
       title: "Cluster Labels:"
-      itemgetter: "get_list_as_list"
+      headers: ["Key:", "Value:"]
+      itemgetter: "get_key_value"
       itemgetter_args:
         path: "spec#clusterLabels"
       # Not supported for now
