@@ -35,33 +35,40 @@ infoview:
                  "token"]
     rows:
       cluster_name:
-        header: [["Cluster Name:", ["main", "infoheader"]]]
+        header: [["Cl", ["main", "infoheader"]],
+                 ["u", ["main", "infoheader_shortcut"]],
+                 ["ster:", ["main", "infoheader"]]]
         path: "spec#clusterName"
         default: "<none>"
         type: "str"
       command:
         header: [["Command:", ["main", "infoheader"]]]
         path: "status#command"
+        fallback_on_empty: true
         default: "<none>"
         type: "str"
       insecure_command:
         header: [["Insecure Command:", ["main", "infoheader"]]]
         path: "status#insecureCommand"
+        fallback_on_empty: true
         default: "<none>"
         type: "str"
       insecure_node_command:
         header: [["Insecure Node Command:", ["main", "infoheader"]]]
         path: "status#insecureNodeCommand"
+        fallback_on_empty: true
         default: "<none>"
         type: "str"
       insecure_windows_node_command:
         header: [["Insecure Windows Node Command:", ["main", "infoheader"]]]
         path: "status#insecureNodeCommand"
+        fallback_on_empty: true
         default: "<none>"
         type: "str"
       node_command:
         header: [["Node Command:", ["main", "infoheader"]]]
         path: "status#nodeCommand"
+        fallback_on_empty: true
         default: "<none>"
         type: "str"
       token:
@@ -70,7 +77,21 @@ infoview:
         default: "<none>"
         type: "str"
       windows_node_command:
-        header: [["Node Windows Command:", ["main", "infoheader"]]]
+        header: [["Windows Node Command:", ["main", "infoheader"]]]
         path: "status#nodeCommand"
+        fallback_on_empty: true
         default: "<none>"
         type: "str"
+  shortcuts:
+    "Open Cluster":
+      key: "u"
+      read_only: true
+      helptext: "Open info page for Cluster"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        name_path: "spec#clusterName"
+        namespace_path: "metadata#namespace"
+        kind: "Cluster"
+        api_family: "management.cattle.io"
