@@ -193,14 +193,8 @@ cluster:
         apiServer:
           extraArgs:
             # feature-gates is a comma-separated string
-            # To Enable Dynamic Resource Allocations use the following:
-            # Note: also requires alpha APIs and the matching feature gates
-            # to be enabled for controllerManager, kubeProxy and scheduler in
-            # cluster_configuration, kube_proxy_configuration, and
-            # kubelet_configuration
-            # [optional; default: false]
             # - name: "feature-gates"
-            #   value: "DynamicResourceAllocation=true"
+            #   value: "GangScheduling=true"
             # runtime-config is a comma-separated string
             # - name: runtime-config
             #   value: "api/alpha=true"
@@ -209,28 +203,16 @@ cluster:
         controllerManager:
           extraArgs:
             # feature-gates is a comma-separated string
-            # To Enable Dynamic Resource Allocations use the following:
-            # Note: also requires alpha APIs and the matching feature gates
-            # to be enabled for apiServer and scheduler in
-            # cluster_configuration, as well as in kube_proxy_configuration,
-            # and kubelet_configuration
-            # [optional; default: false]
             # - name: "feature-gates"
-            #   value: "DynamicResourceAllocation=true"
+            #   value: "GangScheduling=true"
         networking:
           # This will be auto-populated from the cluster settings
           podSubnet: "{{ pod_network_cidr }}"
         scheduler:
           extraArgs:
             # feature-gates is a comma-separated string
-            # To Enable Dynamic Resource Allocations use the following:
-            # Note: also requires alpha APIs and the matching feature gates
-            # to be enabled for apiServer and controllerManager in
-            # cluster_configuration, as well as in kube_proxy_configuration,
-            # and kubelet_configuration
-            # [optional; default: false]
             # - name: "feature-gates"
-            #   value: "DynamicResourceAllocation=true"
+            #   value: "GangScheduling=true"
 
       # Path to cluster configuration template, relative to the playbook
       # directory:
@@ -265,13 +247,8 @@ cluster:
       data: |
         apiVersion: kubelet.config.k8s.io/v1beta1
         kind: KubeletConfiguration
-        # Enable Dynamic Resource Allocations?
-        # Note: also requires alpha APIs and the matching feature gates
-        # to be enabled for apiServer, controllerManager, kubeProxy
-        # and scheduler in cluster_configuration
-        # [optional; default: false]
         featureGates:
-          # DynamicResourceAllocation: true
+          # GangScheduling: true
         # This will be auto-populated from the cluster settings
         containerRuntimeEndpoint: "{{ cri_socket }}"
 
@@ -284,14 +261,8 @@ cluster:
       data: |
         apiVersion: kubeproxy.config.k8s.io/v1alpha1
         kind: KubeProxyConfiguration
-        # Enable Dynamic Resource Allocations?
-        # Note: also requires alpha APIs and the matching feature gates to be
-        # enabled for apiServer, controllerManager and scheduler in
-        # cluster_configuration
-        # as well as for kubelet in kubelet_configuration
-        # [optional; default: false]
         featureGates:
-          # DynamicResourceAllocation: true
+          # GangScheduling: true
 
       # Path to cluster configuration template, relative to the playbook
       # directory:
@@ -670,7 +641,7 @@ workloads:
       - kubectl:
           method: "apply"
           type: "file"
-          version: "v1.20.1"
+          version: "v1.20.2"
           # yamllint disable-line rule:line-length
           uri: "https://github.com/cert-manager/cert-manager/releases/download/<<<version>>>/cert-manager.crds.yaml"
       - helm:
@@ -687,7 +658,7 @@ workloads:
           # Create the namespace if it doesn't exist?
           createNamespace: true
           # The version to install
-          version: "v1.20.1"
+          version: "v1.20.2"
           # Extra arguments to pass to helm.
           # To allow logical grouping of options each option is its own list;
           # these lists will be concatenated into once.
@@ -715,7 +686,7 @@ workloads:
           # Create the namespace if it doesn't exist?
           createNamespace: true
           # The version to install
-          version: "v0.22.0"
+          version: "v0.22.1"
   - name: "intel-resource-drivers-for-kubernetes"
     # If you enable this you need to enable DRA support too and use
     # Kubernetes 1.31 or newer
