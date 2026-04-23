@@ -1150,6 +1150,7 @@ types:
   subset: "type_subset"
   swap_used: "type_swap_used"
   tag: ["tag", "bold"]
+  timeout: "type_numerical"
   timestamp: "type_timestamp"
   toml_comment: "type_toml_comment"
   toml_escape: "type_toml_escape"
@@ -1311,3 +1312,4 @@ separators:
   facility_prefix: [["<", ["types", "separator_facility_prefix"]]]
   facility_suffix: [[">", ["types", "separator_facility_suffix"]]]
   facility_padding: [[" ", ["types", "separator_facility_suffix"]]]
+  timeout: [["/", ["types", "separator_list"]]]

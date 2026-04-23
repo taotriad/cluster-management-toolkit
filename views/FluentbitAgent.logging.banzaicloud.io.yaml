@@ -96,7 +96,7 @@ infoview:
         paths:
           - path: "spec#tolerations"
             pathtype: "toleration"
-            default: "<none>"
+            default: ["<none>"]
         formatter: "list"
         formatting:
           field_colors:

@@ -9,6 +9,9 @@ listview:
   name: "Resource Claims"
   group: "Dynamic Resource Allocation"
   field_indexes:
+    Wide:
+      fields: ["namespace", "name", "controller", "reserved_for", "age"]
+      sortcolumn: "namespace"
     Normal:
       fields: ["namespace", "name", "controller", "age"]
       sortcolumn: "namespace"
@@ -36,13 +39,36 @@ listview:
         field_separators:
           - type: "kind_api_group"
           - type: "kind"
+    reserved_for:
+      header: "Reserved For:"
+      paths:
+        - path: "status#reservedFor"
+          pathtype: "items"
+          subpaths:
+            - "resource"
+            - "name"
+          type: "raw"
+          default: ["<none>"]
+      formatter: "list"
+      formatting:
+        field_colors:
+          - type: "kind"
+          - type: "generic"
+        field_separators:
+          - type: "kind"
+        ellipsise: 3
 infoview:
   name: "Resource Claim Info"
   infopad:
     row_indexes:
       Normal:
         fields: ["controller",
-                 "device_header", "device_requests",
+                 "device_header",
+                 "device_constraints_header",
+                 "device_constraints_distinct_attribute",
+                 "device_constraints_match_attribute",
+                 "device_constraints_requests",
+                 "device_requests",
                  "device_allocations",
                  "reserved_for"]
     rows:
@@ -80,6 +106,24 @@ infoview:
             subpaths:
               - "request"
         default: "<none>"
+        formatter: "list"
+      device_constraints_distinct_attribute:
+        header: [["    Distinct Attribute:", ["main", "infoheader"]]]
+        path: "spec#devices#constraints#dictinctAttribute"
+        default: "<unset>"
+        type: "str"
+      device_constraints_header:
+        header: [["  Constraints:", ["main", "infoheader"]]]
+      device_constraints_match_attribute:
+        header: [["    Match Attribute:", ["main", "infoheader"]]]
+        path: "spec#devices#constraints#matchAttribute"
+        default: "<unset>"
+        type: "str"
+      device_constraints_requests:
+        header: [["    Requests:", ["main", "infoheader"]]]
+        path: "spec#devices#constraints#requests"
+        default: ["<none>"]
+        type: "raw"
         formatter: "list"
       device_header:
         header: [["Devices:", ["main", "infoheader"]]]

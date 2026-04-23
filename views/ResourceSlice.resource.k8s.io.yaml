@@ -13,8 +13,7 @@ listview:
       fields: ["name", "controller", "driver", "pool", "resource_slice_count",
                "device_count", "age"]
     Normal:
-      fields: ["name", "driver", "pool", "resource_slice_count",
-               "device_count", "age"]
+      fields: ["name", "driver", "resource_slice_count", "device_count", "age"]
   fields:
     controller:
       header: "Controller:"
@@ -143,12 +142,12 @@ infoview:
       path: "spec#devices"
     infogetter: "generic_infogetter"
     field_indexes:
-      Normal:
-        fields: ["resource",
-                 "all_nodes", "allow_multiple_allocations",
-                 "attributes",
-                 "binds_to_node",
+      Wide:
+        fields: ["resource", "capacity", "attributes",
+                 "binds_to_node", "all_nodes", "allow_multiple_allocations",
                  "binding_conditions", "binding_failure_conditions"]
+      Normal:
+        fields: ["resource", "capacity", "attributes"]
     fields:
       all_nodes:
         header: "All Nodes:"
@@ -177,6 +176,23 @@ infoview:
             - type: "value"
           field_separators:
             - type: "keyvalue"
+      capacity:
+        header: "Capacity:"
+        paths:
+          - path: "capacity"
+            pathtype: "key_value"
+            subpaths:
+              - "value"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "key"
+            - type: "value"
+          field_separators:
+            - type: "keyvalue"
+          field_formatters:
+            - ""
+            - "numerical_with_units"
       node_name:
         header: "Node Name:"
         paths:
