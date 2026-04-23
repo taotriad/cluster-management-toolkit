@@ -5969,8 +5969,18 @@ pg:
   kind:
   - PodGroup
   - scheduling.sigs.k8s.io
+  viewfile: PodGroup.scheduling.k8s.io.yaml
+pg.sigs:
+  kind:
+  - PodGroup
+  - scheduling.sigs.k8s.io
   viewfile: PodGroup.scheduling.sigs.k8s.io.yaml
 pgs:
+  kind:
+  - PodGroup
+  - scheduling.sigs.k8s.io
+  viewfile: PodGroup.scheduling.k8s.io.yaml
+pgs.sigs:
   kind:
   - PodGroup
   - scheduling.sigs.k8s.io

@@ -209,7 +209,7 @@ listview:
             BuildStarted:
               field_colors:
                 - context: "main"
-                  type: "status_pending"
+                  type: "status_ok"
             CABundleUpdateRequired:
               field_colors:
                 - context: "main"
@@ -1552,6 +1552,14 @@ listview:
               field_colors:
                 - context: "main"
                   type: "status_warning"
+            OperationCompleted:
+              field_colors:
+                - context: "main"
+                  type: "status_done"
+            OperationStarted:
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
             "OperatorDegraded: MachineConfigControllerFailed":
               field_colors:
                 - context: "main"
@@ -2889,7 +2897,7 @@ infoview:
               BuildStarted:
                 field_colors:
                   - context: "main"
-                    type: "status_pending"
+                    type: "status_ok"
               CABundleUpdateRequired:
                 field_colors:
                   - context: "main"
@@ -4232,6 +4240,14 @@ infoview:
                 field_colors:
                   - context: "main"
                     type: "status_warning"
+              OperationCompleted:
+                field_colors:
+                  - context: "main"
+                    type: "status_done"
+              OperationStarted:
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
               "OperatorDegraded: MachineConfigControllerFailed":
                 field_colors:
                   - context: "main"
