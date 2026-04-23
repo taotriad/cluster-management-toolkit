@@ -49,7 +49,7 @@ infoview:
       admin_access:
         header: "Admin Access:"
         paths:
-          - path: ["exactly#adminAcccess", null]
+          - path: ["exactly#adminAcccess"]
         default: false
         type: "bool"
       allocation_mode:

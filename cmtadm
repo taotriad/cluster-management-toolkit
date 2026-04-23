@@ -6280,10 +6280,10 @@ def upgrade_control_plane(options: list[tuple[str, str]], args: list[str]) -> No
         ansithemeprint([ANSIThemeStr("Error", "error"),
                         ANSIThemeStr(": Installation target ", "default"),
                         ANSIThemeStr(f"{cluster_name}", "hostname"),
-                        ANSIThemeStr(" could not be", "default")], stderr=True),
+                        ANSIThemeStr(" could not be", "default")], stderr=True)
         ansithemeprint([ANSIThemeStr("found in ", "default"),
                         ANSIThemeStr(f"{CMT_INSTALLATION_INFO_FILE}", "path"),
-                        ANSIThemeStr(f".", "default")], stderr=True),
+                        ANSIThemeStr(".", "default")], stderr=True)
         ansithemeprint([ANSIThemeStr("Most likely the cluster was not ", "default"),
                         ANSIThemeStr("installed using ", "default"),
                         ANSIThemeStr(f"{about.PROGRAM_SUITE_NAME}", "programname"),
