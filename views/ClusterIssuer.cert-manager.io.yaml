@@ -209,4 +209,4 @@ infoview:
         _pass_obj: true
         kind: "Secret"
         name_path: "spec#ca#secretName"
-        namespace_path: "metadata#namespace"
+        namespace: "cert-manager"
