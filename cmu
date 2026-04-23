@@ -565,11 +565,15 @@ def get_control_planes() -> list[tuple[dict[str, Any], str]]:
         control_planes.append((copy.deepcopy(vlist[0]),
                                deep_get(vlist[0], DictPath("metadata#name"))))
 
+
+    k8s_distro, _status = kh.identify_k8s_distro()
+
     if not control_planes:
-        ansithemeprint([ANSIThemeStr("Error", "warning"),
-                        ANSIThemeStr(": None of the nodes in the cluster are labelled as "
-                                     "control planes. The cluster is most likely "
-                                     "misconfigured.", "default")], stderr=True)
+        if k8s_distro != "kamaji":
+            ansithemeprint([ANSIThemeStr("Error", "warning"),
+                            ANSIThemeStr(": None of the nodes in the cluster are labelled as "
+                                         "control planes. The cluster is most likely "
+                                         "misconfigured.", "default")], stderr=True)
         return [({}, "")]
 
     return control_planes
