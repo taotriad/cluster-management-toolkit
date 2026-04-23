@@ -882,7 +882,7 @@ def get_obj(obj: dict, field_dict: dict, field_names: list[str],
                     tmp = deep_get_with_fallback(obj, path)
                     if isinstance(tmp, list):
                         value = []
-                        value = make_set_expression_list(tmp, toleration=ptype == "toleration")
+                        value = make_set_expression_list(tmp, is_toleration=ptype == "toleration")
                         if len(value) == 1:
                             _values.append((value[0], "raw"))
                         else:
@@ -890,7 +890,7 @@ def get_obj(obj: dict, field_dict: dict, field_names: list[str],
                                 _values.append((tmp, "raw"))
                     elif isinstance(tmp, dict):
                         # XXX: Is this code really used?
-                        value = make_set_expression_list([tmp], toleration=ptype == "toleration")
+                        value = make_set_expression_list([tmp], is_toleration=ptype == "toleration")
                         _values.append((value, "raw"))
                     else:
                         _values.append((default, "raw"))
