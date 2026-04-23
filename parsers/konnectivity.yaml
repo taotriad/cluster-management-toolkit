@@ -3,6 +3,7 @@
   show_in_selector: false
   matchkeys:
     - image_name: "/k0sproject/apiserver-network-proxy-agent"
+    - image_name: "/kas-network-proxy/proxy-agent"
   parser_rules:
     - name: "glog"
     - name: "key_value_with_leading_message"
