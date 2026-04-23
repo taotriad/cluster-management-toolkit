@@ -1369,8 +1369,8 @@ def get_pod_resource_list(obj: dict[str, Any], **kwargs: Any) -> tuple[list[dict
                 "age": -1,
             })
 
-    if "pod_metrics" not in filter_resources:
-        kind = ("PodMetrics", "metrics.k8s.io")
+    kind = ("PodMetrics", "metrics.k8s.io")
+    if "pod_metrics" not in filter_resources and kh.is_kind_available(kind):
         podmetrics = kh.get_ref_by_kind_name_namespace(kind, pod_name, pod_namespace,
                                                        resource_cache=kh_cache)
         if podmetrics is not None and podmetrics:
@@ -1391,9 +1391,9 @@ def get_pod_resource_list(obj: dict[str, Any], **kwargs: Any) -> tuple[list[dict
                 "age": -1,
             })
 
-    if "cilium_endpoint" not in filter_resources:
-        # Check if there's a matching cilium endpoint
-        kind = ("CiliumEndpoint", "cilium.io")
+    # Check if there's a matching cilium endpoint
+    kind = ("CiliumEndpoint", "cilium.io")
+    if "cilium_endpoint" not in filter_resources and kh.is_kind_available(kind):
         ref = kh.get_ref_by_kind_name_namespace(kind, pod_name, pod_namespace,
                                                 resource_cache=kh_cache)
         if ref is not None and ref:
@@ -1509,7 +1509,7 @@ def get_pod_resource_list(obj: dict[str, Any], **kwargs: Any) -> tuple[list[dict
 
         if kind == ("ConfigAuditReport", "aquasecurity.github.io"):
             ref = vlist_[0]
-            if ref is None or not ref:
+            if not ref:
                 continue
 
             report_name = deep_get(ref, DictPath("metadata#name"))
@@ -1560,7 +1560,7 @@ def get_pod_resource_list(obj: dict[str, Any], **kwargs: Any) -> tuple[list[dict
 
         if kind == ("InfraAssessmentReport", "aquasecurity.github.io"):
             ref = vlist_[0]
-            if ref is None or not ref:
+            if not ref:
                 continue
 
             report_name = deep_get(ref, DictPath("metadata#name"))
@@ -1611,7 +1611,7 @@ def get_pod_resource_list(obj: dict[str, Any], **kwargs: Any) -> tuple[list[dict
 
         if kind == ("VulnerabilityReport", "aquasecurity.github.io"):
             ref = vlist_[0]
-            if ref is None or not ref:
+            if not ref:
                 continue
 
             report_name = deep_get(ref, DictPath("metadata#name"))
@@ -1666,7 +1666,7 @@ def get_pod_resource_list(obj: dict[str, Any], **kwargs: Any) -> tuple[list[dict
 
         if kind == ("ExposedSecretReport", "aquasecurity.github.io"):
             ref = vlist_[0]
-            if ref is None or not ref:
+            if not ref:
                 continue
 
             report_name = deep_get(ref, DictPath("metadata#name"))
@@ -1717,7 +1717,7 @@ def get_pod_resource_list(obj: dict[str, Any], **kwargs: Any) -> tuple[list[dict
 
         if kind == ("SbomReport", "aquasecurity.github.io"):
             ref = vlist_[0]
-            if ref is None or not ref:
+            if not ref:
                 continue
 
             report_name = deep_get(ref, DictPath("metadata#name"))
@@ -1781,7 +1781,7 @@ def get_pod_resource_list(obj: dict[str, Any], **kwargs: Any) -> tuple[list[dict
                     break
             continue
 
-        # OK, this pod is an antrea-agent, so we should look for one that matches it
+        # OK, this pod is an antrea-controller, so we should look for one that matches it
         if kind == ("AntreaControllerInfo", "crd.antrea.io"):
             for item in vlist_:
                 if deep_get(item, DictPath("podRef#namespace"), "") == pod_namespace \
