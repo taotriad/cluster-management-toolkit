@@ -46,15 +46,15 @@ infoview:
   infopad:
     row_indexes:
       Normal:
-        fields: ["daemon_sets_header", "daemon_sets_labels",
+        fields: ["daemon_sets_header", "daemon_sets_label_selector",
                  "priority_class", "state"]
     rows:
       daemon_sets_header:
         header: [["Daemon Sets:", ["main", "infoheader"]]]
-      daemon_sets_labels:
-        header: [["La", ["main", "infoheader"]],
+      daemon_sets_label_selector:
+        header: [["  La", ["main", "infoheader"]],
                  ["b", ["main", "infoheader_shortcut"]],
-                 ["el:", ["main", "infoheader"]]]
+                 ["el Selector:", ["main", "infoheader"]]]
         paths:
           - path: ["spec#daemonsets#labels"]
             pathtype: "key_value"
@@ -67,154 +67,53 @@ infoview:
           field_separators:
             - type: "selector"
       priority_class:
-        header: [["P", ["main", "infoheader_shortcut"]],
+        header: [["  ", ["main", "infoheader"]],
+                 ["P", ["main", "infoheader_shortcut"]],
                  ["riority Class:", ["main", "infoheader"]]]
         path: "spec#daemonsets#priorityClassName"
         type: "str"
       state:
         header: [["State:", ["main", "infoheader"]]]
         path: "status#state"
+        default: "<unset>"
         type: "str"
         formatter: "value_mapper"
         formatting:
           mapping:
             mappings:
+              ignored:
+                field_colors:
+                  - context: "main"
+                    type: "status_ignored"
               notReady:
                 field_colors:
                   - context: "main"
                     type: "status_not_ok"
-  listpad:
-    listgetter: "generic_listgetter"
-    listgetter_args:
-      _kind: "DaemonSet"
-      _api_family: "apps"
-      _label_selector_path: "spec#daemonsets#labels"
-    infogetter: "generic_infogetter"
-    on_activation:
-      call: "resourceinfodispatch"
-      kind: "DaemonSet"
-      api_family: "apps"
-    field_indexes:
-      Normal:
-        fields: ["namespace", "name", "desired_replicas", "current_replicas",
-                 "ready_replicas", "uptodate_replicas", "available_replicas",
-                 "misscheduled_replicas", "age"]
-        sortcolumn: "namespace"
-    fields:
-      available_replicas:
-        header: "Available:"
-        paths:
-          - path: ["status#numberAvailable", "status#currentNumberScheduled"]
-            pathtype: "comparison"
-            default: [0, 0]
-        align: "right"
-        formatter: "value_mapper"
-        formatting:
-          mapping:
-            ranges:
-              - min: 0
-                max: 1
+              ready:
                 field_colors:
                   - context: "main"
                     type: "status_ok"
-              - default: true
+              "<unset>":
                 field_colors:
                   - context: "main"
-                    type: "status_pending"
-      current_replicas:
-        header: "Current:"
-        paths:
-          - path: ["status#currentNumberScheduled",
-                   "status#desiredNumberScheduled"]
-            pathtype: "comparison"
-            default: [0, 0]
-        align: "right"
-        formatter: "value_mapper"
-        formatting:
-          mapping:
-            ranges:
-              - min: 0
-                max: 1
-                field_colors:
-                  - context: "main"
-                    type: "status_ok"
-              - default: true
-                field_colors:
-                  - context: "main"
-                    type: "status_not_ok"
-      desired_replicas:
-        header: "Desired:"
-        path: "status#desiredNumberScheduled"
-        default: 0
-        type: "int"
-        formatter: "numerical"
-        align: "right"
-      misscheduled_replicas:
-        header: "Misscheduled:"
-        path: "status#numberMisscheduled"
-        default: 0
-        type: "raw"
-        formatter: "value_mapper"
-        formatting:
-          mapping:
-            ranges:
-              - min: 0
-                max: 1
-                field_colors:
-                  - context: "main"
-                    type: "status_ok"
-              - default: true
-                field_colors:
-                  - context: "main"
-                    type: "status_warning"
-        align: "right"
-      ready_replicas:
-        header: "Ready:"
-        paths:
-          - path: ["status#numberReady", "status#currentNumberScheduled"]
-            pathtype: "comparison"
-            default: [0, 0]
-        formatter: "value_mapper"
-        formatting:
-          mapping:
-            ranges:
-              - min: 0
-                max: 1
-                field_colors:
-                  - context: "main"
-                    type: "status_ok"
-              - min: -1
-                max: 0
-                field_colors:
-                  - context: "main"
-                    type: "status_pending"
-              - default: true
-                field_colors:
-                  - context: "main"
-                    type: "status_not_ok"
-        align: "right"
-      uptodate_replicas:
-        header: "Up to Date:"
-        paths:
-          - path: ["status#updatedNumberScheduled",
-                   "status#currentNumberScheduled"]
-            pathtype: "comparison"
-            default: [0, 0]
-        formatter: "value_mapper"
-        formatting:
-          mapping:
-            ranges:
-              - min: 0
-                max: 1
-                field_colors:
-                  - context: "main"
-                    type: "status_ok"
-              - default: true
-                field_colors:
-                  - context: "main"
-                    type: "status_pending"
-        align: "right"
+                    type: "status_ignored"
+  logpad:
+    infogetter: "logpad_formatted"
+    infogetter_args:
+      formatter: "format_yaml"
+      path: "spec"
+    timestamps: false
   shortcuts:
+    "Label Selector":
+      key: "b"
+      read_only: true
+      helptext: "Show label selector"
+      widget: "windowwidget"
+      title: "Label Selector:"
+      headers: ["Key:", "Value:"]
+      itemgetter: "get_key_value"
+      itemgetter_args:
+        path: "spec#daemonsets#labels"
     "Priority Class":
       key: "p"
       modifier: "shift"
