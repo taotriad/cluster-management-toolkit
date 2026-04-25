@@ -1075,6 +1075,8 @@ def execute_command_with_response(args: list[str], env: dict | None = None,
             (str, int):
                 (str): The stdout from the execution
                 (int): The return value from the execution
+        Exceptions:
+            OSError ("[Errno 26] Text file busy"): The file is being written to by another process
     """
     if env is None:
         result = subprocess.run(args, stdout=PIPE, stderr=STDOUT,

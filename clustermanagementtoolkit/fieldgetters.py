@@ -60,7 +60,12 @@ def fieldgetter_executable_version(**kwargs: Any) -> list[str]:
         if not executable_path:
             continue
 
-        result, _retval = execute_command_with_response([executable_path] + args)
+        try:
+            result, _retval = execute_command_with_response([executable_path] + args)
+        except OSError as e:
+            if str(e).startswith("[Errno 26] Text file busy"):
+                continue
+
         if result:
             for line in result.splitlines():
                 if (tmp := re.match(version_regex, line)) is not None:
