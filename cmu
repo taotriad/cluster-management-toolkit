@@ -2640,14 +2640,15 @@ def clusteroverviewloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                     activatedfun=activatedfun, on_activation=on_activation)
 
     infopadheight = 10
+    infopadypos = 1
     eventpadheight = 7
 
-    # For generic information
-    uip.init_infopad(height=infopadheight, width=-1, ypos=1, xpos=1)
+    # For generic information + events
+    uip.init_infopad(height=infopadheight + eventpadheight + 1, width=-1, ypos=infopadypos, xpos=1)
 
     # For the status panes
     uip.init_listpad(listheight=1, width=-1,
-                     ypos=infopadheight + eventpadheight + 2, xpos=1, header=False)
+                     ypos=infopadypos + infopadheight + eventpadheight + 1, xpos=1, header=False)
 
     # For the status bar; position is always at the bottom of the screen
     # and the entire width of the screen
@@ -2684,7 +2685,8 @@ def clusteroverviewloop(stdscr: curses.window, **kwargs: Any) -> Retval:
         if not name or name == hostname:
             name = name_
 
-    islocal: bool = hostname == name
+    # islocal: bool = hostname == name
+    islocal = True
 
     stat_regex: re.Pattern[str] = re.compile(r"^[A-Za-z]+ +(\d+) +(\d+) +(\d+) +(\d+) "
                                              r"(\d+) +(\d+) +(\d+) +(\d+) +(\d+) (\d+)$")
@@ -2856,8 +2858,9 @@ def clusteroverviewloop(stdscr: curses.window, **kwargs: Any) -> Retval:
             # We most likely have far more nodes than pods, so give the nodes 20% of the width
             # and the pods 80% of the width; even this is probably too much for the nodes,
             # but we can adjust that later
+            pod_heatmap_right_margin = 2 if CursesConfiguration.borders else 0
             node_heatmap_width = ((uip.maxx - uip.minx - 1) // 5) - 2
-            pod_heatmap_width = ((uip.maxx - uip.minx - 1) * 4 // 5) - 1
+            pod_heatmap_width = ((uip.maxx - uip.minx - 1) * 4 // 5) - pod_heatmap_right_margin
 
         k8s_distro, _status = kh.identify_k8s_distro()
         _1, _2, server_git_version = kh.get_api_server_version()
@@ -2929,8 +2932,7 @@ def clusteroverviewloop(stdscr: curses.window, **kwargs: Any) -> Retval:
             uip.addthemearray(uip.infopad, cast(list[ThemeRef | ThemeStr], row), y=y + i, x=0)
         y += i
 
-        percentagebar_margin: int = 11 if CursesConfiguration.borders else 9
-        eventarray_margin: int = 1 if CursesConfiguration.borders else 0
+        percentagebar_margin: int = 9 if CursesConfiguration.borders else 7
 
         # cpu usage:
         # low-priority (bold blue) / normal (green) / kernel (red) / virtualized (cyan)
@@ -2977,7 +2979,7 @@ def clusteroverviewloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                 ThemeStr(f"{tasks} ", ThemeAttr("types", "numerical")),
                 ThemeStr("running", ThemeAttr("types", "generic")),
             ], [
-                ThemeStr("  CPU: ", ThemeAttr("main", "infoheader")),
+                ThemeStr(" CPU: ", ThemeAttr("main", "infoheader")),
                 ThemeStr("[", ThemeAttr("types", "generic"))
             ] + percentagebar_cpu + [
                 ThemeStr("]", ThemeAttr("types", "generic")),
@@ -2985,7 +2987,7 @@ def clusteroverviewloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                          ThemeAttr("types", "numerical")),
                 ThemeRef("separators", "percentage"),
             ], [
-                ThemeStr("  Mem: ", ThemeAttr("main", "infoheader")),
+                ThemeStr(" Mem: ", ThemeAttr("main", "infoheader")),
                 ThemeStr("[", ThemeAttr("types", "generic"))
             ] + percentagebar_mem + [
                 ThemeStr("]", ThemeAttr("types", "generic")),
@@ -2993,7 +2995,7 @@ def clusteroverviewloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                          ThemeAttr("types", "numerical")),
                 ThemeRef("separators", "percentage"),
             ], [
-                ThemeStr(" Swap: ", ThemeAttr("main", "infoheader")),
+                ThemeStr("Swap: ", ThemeAttr("main", "infoheader")),
             ] + percentagebar_or_string_swap,  # type: ignore
         ]
 
@@ -3043,11 +3045,8 @@ def clusteroverviewloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                 else:
                     evlens[i] = max(evlens[i], len(val))
 
-        # Draw the events over the bottom of the visible area of the listpad
-        eventarrays: list[list[ThemeRef | ThemeStr]] = [
-            [ThemeStr("E", ThemeAttr("main", "listheader_compact_shortcut")),
-             ThemeStr("vents:", ThemeAttr("main", "listheader_compact"))],
-        ]
+        # Draw the events over the bottom of the visible area of the infopad
+        eventarrays: list[list[ThemeRef | ThemeStr]] = []
 
         tmp2: list[ThemeRef | ThemeStr] = []
         for i, header in enumerate(evheaders):
@@ -3098,19 +3097,31 @@ def clusteroverviewloop(stdscr: curses.window, **kwargs: Any) -> Retval:
         y += 1
         curses_helper.window_tee_hline(uip.stdscr, y=y, start=0, end=uip.maxx,
                                        tee=CursesConfiguration.borders)
+        curses_helper.window_tee_hline(uip.infopad, y=y - 1, start=0, end=uip.maxx,
+                                       tee=False)
+
+        # Draw the events over the hline
+        eventarray_header: list[list[ThemeRef | ThemeStr]] = [
+            ThemeStr("E", ThemeAttr("main", "listheader_compact_shortcut")),
+            ThemeStr("vents:", ThemeAttr("main", "listheader_compact")),
+        ]
+        uip.addthemearray(uip.infopad, eventarray_header, y=y - 1, x=0)
 
         for i, row in enumerate(eventarrays):
-            uip.addthemearray(uip.stdscr, row, y=y + i, x=eventarray_margin)
-        y += i + 1
+            uip.addthemearray(uip.infopad, row, y=y + i, x=0)
+        y += i + 2
         curses_helper.window_tee_hline(uip.stdscr, y=y, start=0, end=uip.maxx,
                                        tee=CursesConfiguration.borders)
+        curses_helper.window_tee_hline(uip.infopad, y=y - 1, start=0, end=uip.maxx,
+                                       tee=False)
 
         selected_pod = min(selected_pod, len(podinfo))
         selected_node = min(selected_node, len(nodeinfo))
 
         if nodeinfo or podinfo:
             node_heatmap_xpos = 0
-            pod_heatmap_xpos = uip.maxx - pod_heatmap_width - 2
+            pod_heatmap_xpos = uip.maxx - \
+                pod_heatmap_width - 2 + (2 - pod_heatmap_right_margin)
 
             taints: list[str] = []
             if nodeinfo:

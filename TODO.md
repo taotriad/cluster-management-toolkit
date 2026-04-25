@@ -100,6 +100,8 @@
 * get_obj() is a monstrosity and needs to be refactored.
 * Since cmu can do syntax highlighting for a lot of formats and render Markdown
   it might make sense to add a command for viewing documents (`cmu view FILE` or similar).
+  Note: the viewer already exists available from the global menu ([F7]);
+  we only need to figure out a good solution for having a shortcut directly to it.
 
 ## cmtinv
 
