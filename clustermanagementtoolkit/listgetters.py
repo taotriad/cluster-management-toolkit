@@ -2338,14 +2338,18 @@ def listgetter_matchrules(obj: dict, **kwargs: Any) -> tuple[list[dict], str]:
     for match_feature in deep_get(obj, DictPath("matchFeatures"), []):
         feature = deep_get(match_feature, DictPath("feature"), "")
         match_expressions_dict = deep_get(match_feature, DictPath("matchExpressions"), {})
-        match_expressions = []
-        for match_expression_name, match_expression in match_expressions_dict.items():
-            tmp = make_set_expression_list([match_expression], key=match_expression_name)[0]
-            match_expressions.append(tmp)
-        match_list.append({
-            "feature": f"{feature}",
-            "match_expressions": match_expressions,
-        })
+        match_name_dict = deep_get(match_feature, DictPath("matchName"), {})
+        if match_expressions_dict:
+            for match_expression_name, match_expression in match_expressions_dict.items():
+                tmp = make_set_expression_list([match_expression], key=match_expression_name)[0]
+                match_expressions.append(tmp)
+        elif match_name_dict:
+            match_expressions = make_set_expression_list([match_name_dict])
+        if match_expressions:
+            match_list.append({
+                "feature": f"{feature}",
+                "match_expressions": match_expressions,
+            })
 
     return match_list, status
 
