@@ -313,20 +313,6 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api_paths": ["apis/gateway.networking.k8s.io/v1alpha2/"],
         "api": "udproutes",
     },
-    # gateway.networking.x-k8s.io
-    ("XBackendTrafficPolicy", "gateway.networking.x-k8s.io"): {
-        "api_paths": ["apis/gateway.networking.x-k8s.io/v1alpha1/"],
-        "api": "xbackendtrafficpolicies",
-    },
-    ("XListenerSet", "gateway.networking.x-k8s.io"): {
-        "api_paths": ["apis/gateway.networking.x-k8s.io/v1alpha1/"],
-        "api": "xlistenersets",
-    },
-    ("XMesh", "gateway.networking.x-k8s.io"): {
-        "api_paths": ["apis/gateway.networking.x-k8s.io/v1alpha1/"],
-        "api": "xmeshes",
-        "namespaced": False,
-    },
     # groupsnapshot.storage.k8s.io
     ("VolumeGroupSnapshotClass", "groupsnapshot.storage.k8s.io"): {
         "api_paths": ["apis/groupsnapshot.storage.k8s.io/v1beta2/",
@@ -525,53 +511,6 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
     ("PodGroup", "scheduling.sigs.k8s.io"): {
         "api_paths": ["apis/scheduling.sigs.k8s.io/v1alpha1/"],
         "api": "podgroups",
-    },
-    # secrets-store.csi.x-k8s.io
-    ("SecretProviderClass", "secrets-store.csi.x-k8s.io"): {
-        "api_paths": ["apis/secrets-store.csi.x-k8s.io/v1/"],
-        "api": "secretproviderclasses",
-    },
-    ("SecretProviderClassPodStatus", "secrets-store.csi.x-k8s.io"): {
-        "api_paths": ["apis/secrets-store.csi.x-k8s.io/v1/"],
-        "api": "secretproviderclasspodstatuses",
-    },
-    # security-profiles-operator.x-k8s.io
-    ("AppArmorProfile", "security-profiles-operator.x-k8s.io"): {
-        "api_paths": ["apis/security-profiles-operator.x-k8s.io/v1alpha1/"],
-        "api": "apparmorprofiles",
-        "namespaced": False,
-    },
-    ("ProfileBinding", "security-profiles-operator.x-k8s.io"): {
-        "api_paths": ["apis/security-profiles-operator.x-k8s.io/v1alpha1/"],
-        "api": "profilebindings",
-    },
-    ("ProfileRecording", "security-profiles-operator.x-k8s.io"): {
-        "api_paths": ["apis/security-profiles-operator.x-k8s.io/v1alpha1/"],
-        "api": "profilerecordings",
-    },
-    ("SecurityProfileNodeStatus", "security-profiles-operator.x-k8s.io"): {
-        "api_paths": ["apis/security-profiles-operator.x-k8s.io/v1alpha1/"],
-        "api": "securityprofilenodestatuses",
-        "namespaced": False,
-    },
-    ("SecurityProfilesOperatorDaemon", "security-profiles-operator.x-k8s.io"): {
-        "api_paths": ["apis/security-profiles-operator.x-k8s.io/v1alpha1/"],
-        "api": "securityprofilesoperatordaemons",
-    },
-    ("RawSelinuxProfile", "security-profiles-operator.x-k8s.io"): {
-        "api_paths": ["apis/security-profiles-operator.x-k8s.io/v1alpha2/"],
-        "api": "rawselinuxprofiles",
-        "namespaced": False,
-    },
-    ("SelinuxProfile", "security-profiles-operator.x-k8s.io"): {
-        "api_paths": ["apis/security-profiles-operator.x-k8s.io/v1alpha2/"],
-        "api": "selinuxprofiles",
-        "namespaced": False,
-    },
-    ("SeccompProfile", "security-profiles-operator.x-k8s.io"): {
-        "api_paths": ["apis/security-profiles-operator.x-k8s.io/v1beta1/"],
-        "api": "seccompprofiles",
-        "namespaced": False,
     },
     # snapshot.storage.k8s.io
     ("VolumeSnapshot", "snapshot.storage.k8s.io"): {
@@ -803,6 +742,20 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
     ("ROSAControlPlane", "controlplane.cluster.x-k8s.io"): {
         "api_paths": ["apis/controlplane.cluster.x-k8s.io/v1beta2/"],
         "api": "rosacontrolplanes",
+    },
+    # gateway.networking.x-k8s.io
+    ("XBackendTrafficPolicy", "gateway.networking.x-k8s.io"): {
+        "api_paths": ["apis/gateway.networking.x-k8s.io/v1alpha1/"],
+        "api": "xbackendtrafficpolicies",
+    },
+    ("XListenerSet", "gateway.networking.x-k8s.io"): {
+        "api_paths": ["apis/gateway.networking.x-k8s.io/v1alpha1/"],
+        "api": "xlistenersets",
+    },
+    ("XMesh", "gateway.networking.x-k8s.io"): {
+        "api_paths": ["apis/gateway.networking.x-k8s.io/v1alpha1/"],
+        "api": "xmeshes",
+        "namespaced": False,
     },
     # inference.networking.x-k8s.io
     ("InferenceModel", "inference.networking.x-k8s.io"): {
@@ -1527,6 +1480,53 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api_paths": ["apis/runtime.cluster.x-k8s.io/v1beta2/",
                       "apis/runtime.cluster.x-k8s.io/v1alpha1/"],
         "api": "extensionconfigs",
+        "namespaced": False,
+    },
+    # secrets-store.csi.x-k8s.io
+    ("SecretProviderClass", "secrets-store.csi.x-k8s.io"): {
+        "api_paths": ["apis/secrets-store.csi.x-k8s.io/v1/"],
+        "api": "secretproviderclasses",
+    },
+    ("SecretProviderClassPodStatus", "secrets-store.csi.x-k8s.io"): {
+        "api_paths": ["apis/secrets-store.csi.x-k8s.io/v1/"],
+        "api": "secretproviderclasspodstatuses",
+    },
+    # security-profiles-operator.x-k8s.io
+    ("AppArmorProfile", "security-profiles-operator.x-k8s.io"): {
+        "api_paths": ["apis/security-profiles-operator.x-k8s.io/v1alpha1/"],
+        "api": "apparmorprofiles",
+        "namespaced": False,
+    },
+    ("ProfileBinding", "security-profiles-operator.x-k8s.io"): {
+        "api_paths": ["apis/security-profiles-operator.x-k8s.io/v1alpha1/"],
+        "api": "profilebindings",
+    },
+    ("ProfileRecording", "security-profiles-operator.x-k8s.io"): {
+        "api_paths": ["apis/security-profiles-operator.x-k8s.io/v1alpha1/"],
+        "api": "profilerecordings",
+    },
+    ("SecurityProfileNodeStatus", "security-profiles-operator.x-k8s.io"): {
+        "api_paths": ["apis/security-profiles-operator.x-k8s.io/v1alpha1/"],
+        "api": "securityprofilenodestatuses",
+        "namespaced": False,
+    },
+    ("SecurityProfilesOperatorDaemon", "security-profiles-operator.x-k8s.io"): {
+        "api_paths": ["apis/security-profiles-operator.x-k8s.io/v1alpha1/"],
+        "api": "securityprofilesoperatordaemons",
+    },
+    ("RawSelinuxProfile", "security-profiles-operator.x-k8s.io"): {
+        "api_paths": ["apis/security-profiles-operator.x-k8s.io/v1alpha2/"],
+        "api": "rawselinuxprofiles",
+        "namespaced": False,
+    },
+    ("SelinuxProfile", "security-profiles-operator.x-k8s.io"): {
+        "api_paths": ["apis/security-profiles-operator.x-k8s.io/v1alpha2/"],
+        "api": "selinuxprofiles",
+        "namespaced": False,
+    },
+    ("SeccompProfile", "security-profiles-operator.x-k8s.io"): {
+        "api_paths": ["apis/security-profiles-operator.x-k8s.io/v1beta1/"],
+        "api": "seccompprofiles",
         "namespaced": False,
     },
 
