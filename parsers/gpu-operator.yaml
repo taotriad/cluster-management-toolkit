@@ -2,11 +2,37 @@
 - name: "gpu-operator"
   show_in_selector: false
   matchkeys:
-    - pod_name: "gpu-operator"
+    - image_name: "/nvidia/gpu-operator"
   parser_rules:
     - name: "glog"
-    - name: "ts_8601"
-    - name: "key_value"
-    - name: "spaced_severity_facility"
-    - name: "colon_severity"
     - name: "json"
+    - name: "override_severity"
+      overrides:
+        - matchtype: "startswith"
+          matchkey: "version: "
+          loglevel: "notice"
+- name: "gpu-operator"
+  show_in_selector: false
+  matchkeys:
+    - image_name: "/nvidia/gpu-operator"
+      container_type: "InitContainer"
+  parser_rules:
+    - name: "key_value"
+    - name: "override_severity"
+      overrides:
+        - matchtype: "startswith"
+          matchkey: "version: "
+          loglevel: "notice"
+    - name: "custom_line"
+      options:
+        block_start:
+          - matchtype: "startswith"
+            matchkey: "+------------"
+            matchline: "any"
+            format_block_start: true
+        block_end:
+          - matchtype: "startswith"
+            matchkey: "+------------"
+            matchline: "any"
+            format_block_end: true
+        loglevel: "info"

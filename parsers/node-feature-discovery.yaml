@@ -2,13 +2,7 @@
 - name: "node-feature-discovery"
   show_in_selector: false
   matchkeys:
-    - pod_name: "nfd-gc"
-    - pod_name: "nfd-master"
-    - pod_name: "nfd-worker"
-    - pod_name: "nfd-topology-updater"
-    - pod_name: "nfd-node-feature-discovery"
-    - pod_name: "fpga-discovery-master"
-    - pod_name: "fpga-discovery-worker"
+    - image_name: "/nfd/node-feature-discovery"
   parser_rules:
     - name: "ts_8601"
     - name: "glog"
@@ -59,6 +53,10 @@
         - matchtype: "startswith"
           matchkey: "Trace["
           loglevel: "debug"
+    - name: "key_value_with_leading_message"
+      options:
+        versions:
+          - "version"
 - name: "node-feature-discovery"
   show_in_selector: false
   matchkeys:

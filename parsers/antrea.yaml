@@ -17,26 +17,21 @@
   matchkeys:
     - pod_name: "antrea-agent"
       container_name: "antrea-agent"
+    - pod_name: "antrea-controller"
   parser_rules:
     - name: "glog"
     - name: "key_value_with_leading_message"
+      options:
+        versions:
+          - "version"
     - name: "override_severity"
       overrides:
         - matchtype: "startswith"
           matchkey: "Starting Antrea agent (version"
           loglevel: "notice"
-- name: "antrea-controller"
-  show_in_selector: false
-  matchkeys:
-    - pod_name: "antrea-controller"
-  parser_rules:
-    - name: "glog"
-    - name: "key_value_with_leading_message"
-    - name: "override_severity"
-      overrides:
-        - matchtype: "startswith"
-          matchkey: "http2: \"server\": error"
-          loglevel: "warning"
         - matchtype: "startswith"
           matchkey: "Starting Antrea Controller (version"
           loglevel: "notice"
+        - matchtype: "startswith"
+          matchkey: "http2: \"server\": error"
+          loglevel: "warning"
