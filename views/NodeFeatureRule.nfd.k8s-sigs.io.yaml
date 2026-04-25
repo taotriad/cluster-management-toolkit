@@ -10,8 +10,7 @@ listview:
   group: "Cluster Configuration"
   field_indexes:
     Normal:
-      fields: ["namespace", "name", "controller", "age"]
-      sortcolumn: "namespace"
+      fields: ["name", "controller", "rules", "age"]
   fields:
     controller:
       header: "Controller:"
@@ -36,6 +35,13 @@ listview:
         field_separators:
           - type: "kind_api_group"
           - type: "kind"
+    rules:
+      header: "Rules:"
+      path: "spec#rules"
+      default: 0
+      type: "len"
+      formatter: "numerical"
+      align: "right"
 infoview:
   name: "Node Feature Rule Info"
   infopad:
@@ -78,13 +84,26 @@ infoview:
       api_family: "nfd.k8s-sigs.io"
     field_indexes:
       Normal:
-        fields: ["name", "labels", "extended_resources"]
+        fields: ["name", "labels", "match_features", "extended_resources"]
         sortcolumn: "name"
     fields:
       extended_resources:
         header: "Extended Resources:"
         paths:
           - path: "extendedResources"
+            pathtype: "key_value"
+            default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "key"
+            - type: "value"
+          field_separators:
+            - type: "keyvalue"
+      match_features:
+        header: "Match Features:"
+        paths:
+          - path: ["matchFeatures"]
             pathtype: "key_value"
             default: ["<none>"]
         formatter: "list"
