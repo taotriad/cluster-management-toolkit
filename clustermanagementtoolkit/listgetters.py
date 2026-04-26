@@ -2152,7 +2152,7 @@ def listgetter_dict_list(obj: dict[str, Any], **kwargs: Any) -> tuple[list[dict[
     {"key": key_from_dict, "value": value_from_dict}
     This is to ensure that we can get the key without knowing the name of the key.
 
-    If multiple paths are provided they will be merged as {key_name: key_value, "value": value};
+    If multiple paths are provided they will be merged as {"key_name": key_value, "value": value};
     this form can be used if you have multiple dicts that you want to use as a list.
 
         Parameters:
@@ -2193,25 +2193,6 @@ def listgetter_dict_list(obj: dict[str, Any], **kwargs: Any) -> tuple[list[dict[
                 "value": deep_get(obj, path),
             }
             vlist.append(entry)
-    return vlist, 200
-
-
-def listgetter_field(obj: dict[str, Any], **kwargs: Any) -> tuple[list[dict[str, Any]], int]:
-    """
-    A listgetter that returns a list from a dict.
-    Note: Shouldn't this be merged with listgetter_path() ?!
-
-        Parameters:
-            obj (dict): The object to extract data from
-            **kwargs (dict[str, Any]): Keyword arguments
-                path (str): The path to the list
-        Returns:
-            (([dict[str, Any]], int)):
-                ([dict[str, Any]]): The list representation of the dict
-                (int): The status for the request
-    """
-    path = deep_get(kwargs, DictPath("path"))
-    vlist = deep_get(obj, DictPath(path))
     return vlist, 200
 
 
@@ -2719,7 +2700,6 @@ listgetter_allowlist: dict[str, Callable] = {
     "listgetter_ansible_volumes": listgetter_ansible_volumes,
     "listgetter_configmap_data": listgetter_configmap_data,
     "listgetter_dict_list": listgetter_dict_list,
-    "listgetter_field": listgetter_field,
     "listgetter_join_dicts_to_list": listgetter_join_dicts_to_list,
     "listgetter_join_lists": listgetter_join_lists,
     "listgetter_matchrules": listgetter_matchrules,

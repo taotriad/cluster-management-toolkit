@@ -74,7 +74,7 @@ infoview:
             - type: "kind_api_group"
             - type: "kind"
   listpad:
-    listgetter: "listgetter_field"
+    listgetter: "listgetter_path"
     listgetter_args:
       path: "spec#rules"
     infogetter: "generic_infogetter"

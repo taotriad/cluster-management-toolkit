@@ -14,7 +14,7 @@ listview:
 infoview:
   name: "Node Feature Rule Info"
   listpad:
-    listgetter: "listgetter_field"
+    listgetter: "listgetter_path"
     listgetter_args:
       path: "spec#rules"
     infogetter: "generic_infogetter"

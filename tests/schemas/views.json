@@ -1940,7 +1940,6 @@
 								"listgetter_configmap_data",
 								"listgetter_dict_list",
 								"listgetter_feature_gates",
-								"listgetter_field",
 								"listgetter_join_dicts_to_list",
 								"listgetter_join_lists",
 								"listgetter_matchrules",

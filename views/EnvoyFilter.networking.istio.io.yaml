@@ -29,7 +29,7 @@ infoview:
           field_separators:
             - type: "selector"
   listpad:
-    listgetter: "listgetter_field"
+    listgetter: "listgetter_path"
     listgetter_args:
       path: "spec#configPatches"
     infogetter: "generic_infogetter"
