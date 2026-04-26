@@ -614,8 +614,7 @@ def get_obj(obj: dict, field_dict: dict, field_names: list[str],
         Returns:
             (dict): A dict with the data for all fields in the field_names list
     """
-    if (kh := deep_get(kwargs, DictPath("kubernetes_helper"))) is None:
-        raise ProgrammingError(f"{__name__}() called without kubernetes_helper")
+    kh = deep_get(kwargs, DictPath("kubernetes_helper"))
     kh_cache = deep_get(kwargs, DictPath("kh_cache"))
 
     d = {}
@@ -1454,8 +1453,7 @@ def generic_infogetter(**kwargs: Any) -> list[dict]:
         Returns:
             ([dict]): A list of dicts with the data for all fields in the field_names list
     """
-    if (kh := deep_get(kwargs, DictPath("kubernetes_helper"))) is None:
-        raise ProgrammingError(f"{__name__}() called without kubernetes_helper")
+    kh = deep_get(kwargs, DictPath("kubernetes_helper"))
     kh_cache = deep_get(kwargs, DictPath("kh_cache"))
 
     info: list[dict] = []
@@ -2445,9 +2443,9 @@ def get_traceflow(obj: dict, **kwargs: Any) -> \
     return timestamps, facilities, severities, messages
 
 
-# pylint: disable-next=too-many-locals,too-many-branches
+# pylint: disable-next=too-many-locals,too-many-branches,too-many-statements
 def get_journalctl_log(obj: dict, **kwargs: Any) -> \
-        tuple[list[datetime], list[str | tuple[str, str]], list[LogLevel],
+        tuple[list[datetime], list[str | tuple[str, str] | None], list[LogLevel],
               list[list[ThemeRef | ThemeStr] | str]]:
     """
     Extract log entries from journalctl.
@@ -2464,7 +2462,7 @@ def get_journalctl_log(obj: dict, **kwargs: Any) -> \
                 ([[ThemeRef|ThemeStr]|str]): A list of messages
     """
     timestamps: list[datetime] = []
-    facilities: list[str | tuple[str, str]] = []
+    facilities: list[str | tuple[str, str] | None] = []
     severities: list[LogLevel] = []
     messages: list[list[ThemeRef | ThemeStr] | str] = []
 
@@ -2481,7 +2479,7 @@ def get_journalctl_log(obj: dict, **kwargs: Any) -> \
         timestamp = \
             datetime.fromtimestamp(int(deep_get(d, DictPath("__REALTIME_TIMESTAMP")), 0) / 1000000)
         severity = LogLevel.DEFAULT
-        facility = ""
+        facility = None
         remnants = None
         msg = ""
 
@@ -2504,6 +2502,20 @@ def get_journalctl_log(obj: dict, **kwargs: Any) -> \
         else:
             severity = raw_severity
             msg = raw_msg
+
+        # If this is dmesg we try to extract the facility
+        if deep_get(d, DictPath("SYSLOG_IDENTIFIER")) == "kernel":
+            facility_msg_split = msg.split(": ", maxsplit=1)
+            if len(facility_msg_split) == 2:
+                facility, msg = facility_msg_split
+
+        severity_overrides: dict[str, LogLevel] = {
+            "segfault at": LogLevel.WARNING,    # Normally info
+        }
+
+        for severity_match, severity_override in severity_overrides.items():
+            if severity_match in msg:
+                severity = severity_override
 
         timestamps.append(timestamp.astimezone())
         facilities.append(facility)
@@ -2820,7 +2832,7 @@ def get_log_info(**kwargs: Any) -> list[dict]:
 
     logs: list[tuple[str, str, list[str], str]] = [
         ("Latest boot, last 1h", "[dmesg]",
-         ["-k", "-b", "--since", "1 hour ago", "--lines", "10000"], "glog"),
+         ["-k", "-b", "--lines", "10000"], "glog"),
         ("Latest 1000 lines", "[kubelet]",
          ["--lines", "1000", "-u", "kubelet"], "glog"),
         ("Latest 1000 lines", "[containerd]",

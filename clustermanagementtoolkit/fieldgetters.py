@@ -21,7 +21,7 @@ from clustermanagementtoolkit.cmtlib import make_label_selector
 from clustermanagementtoolkit.cmtpaths import HOMEDIR
 
 from clustermanagementtoolkit.cmttypes import deep_get, DictPath, FilePath
-from clustermanagementtoolkit.cmttypes import ProgrammingError, SecurityPolicy
+from clustermanagementtoolkit.cmttypes import SecurityPolicy
 
 
 def fieldgetter_executable_version(**kwargs: Any) -> list[str]:
@@ -87,11 +87,14 @@ def fieldgetter_api_server_version(**kwargs: Any) -> list[Any]:
         Returns:
             ([str]): The list of API-server version fields
     """
-    if (kh := deep_get(kwargs, DictPath("kubernetes_helper"))) is None:
-        raise ProgrammingError(f"{__name__}() called without kubernetes_helper")
+    kh = deep_get(kwargs, DictPath("kubernetes_helper"))
     fields: list[Any] = deep_get(kwargs, DictPath("fields"), [])
 
     field_list = []
+
+    if not kh:
+        return []
+
     result = kh.get_api_server_version()
     if not fields:
         field_list = list(copy.deepcopy(result))
@@ -121,11 +124,12 @@ def fieldgetter_kubernetes_object_version(**kwargs: Any) -> list[Any]:
     path: str = deep_get(kwargs, DictPath("path"), "")
     namespace: str = deep_get(kwargs, DictPath("namespace"), "")
     label_selector: dict[str, Any] = deep_get(kwargs, DictPath("label_selector"), {})
-
-    if (kh := deep_get(kwargs, DictPath("kubernetes_helper"))) is None:
-        raise ProgrammingError(f"{__name__}() called without kubernetes_helper")
-
     version: list[str] = []
+
+    kh = deep_get(kwargs, DictPath("kubernetes_helper"))
+
+    if not kh:
+        return []
 
     vlist, _status = \
         kh.get_list_by_kind_namespace((kind, api_family),
