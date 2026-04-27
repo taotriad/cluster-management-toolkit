@@ -329,6 +329,7 @@ def get_metrics_list(**kwargs: Any) -> tuple[list[dict[str, Any]], int]:
         Parameters:
             **kwargs (dict[str, Any]): Keyword arguments
                 kubernetes_helper (KubernetesHelper): A reference to a KubernetesHelper object
+                filter ([str]): A list of metrics to return
         Returns:
             (([dict[str, Any]], int)):
                 ([dict[str, Any]]): The list of metrics

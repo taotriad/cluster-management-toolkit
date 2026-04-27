@@ -815,6 +815,146 @@ def test_filter_list_entry(verbose: bool = False) -> tuple[str, bool]:
     return message, result
 
 
+def test_listgetter_ansible_volumes(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = listgetters.listgetter_ansible_volumes
+
+    if result:
+        # Indata format:
+        # (obj, kwargs, expected_result, expected_exception)
+        testdata: tuple[Any, ...] = (
+            (
+                {
+                    "ansible_devices": {
+                        "sda": {
+                            "model": "KXG8AZNV512G LA KIOXIA",
+                            "partitions": {
+                                "sda1": {},
+                                "sda2": {},
+                            },
+                        },
+                    },
+                    "ansible_mounts": [
+                        # This entry is just to get coverage
+                        {},
+                        # This entry is just to get coverage
+                        {
+                            "mount": "/boot/efi",
+                            "fstype": "vfat",
+                            "options": "rw,relatime,fmask=0077,dmask=0077,codepage=437,"
+                                       "iocharset=ascii,shortname=mixed,utf8,errors=remount-ro",
+                            "device": "sda1",
+                            "size_available": 1234,
+                        },
+                        # This entry is just to get coverage
+                        {
+                            "mount": "/mnt",
+                            "fstype": "vfat",
+                            "options": "rw,relatime,fmask=0077,dmask=0077,codepage=437,"
+                                       "iocharset=ascii,shortname=mixed,utf8,errors=remount-ro",
+                            "device": "loop0",
+                            "size_available": 1234,
+                            "size_total": 5678,
+                        },
+                        {
+                            "mount": "/boot/efi",
+                            "fstype": "vfat",
+                            "options": "rw,relatime,fmask=0077,dmask=0077,codepage=437,"
+                                       "iocharset=ascii,shortname=mixed,utf8,errors=remount-ro",
+                            "device": "sda1",
+                            "size_available": 1234,
+                            "size_total": 5678,
+                        },
+                        {
+                            "mount": "/",
+                            "fstype": "ext4",
+                            "options": "rw,relatime,errors=remount-ro",
+                            "device": "sda2",
+                            "size_available": 1234,
+                            "size_total": 5678,
+                        },
+                    ],
+                }, {}, [
+                    {
+                        "mountpoint": "/",
+                        "fstype": "ext4",
+                        "options": ["rw", "relatime", "errors=remount-ro"],
+                        "device": "sda2",
+                        "model": "KXG8AZNV512G LA KIOXIA",
+                        "partition_size_used": "4KiB",
+                        "partition_size_total": "5KiB",
+                    },
+                ], None,
+            ),
+            (
+                {
+                    "ansible_devices": {
+                        "sda": {
+                            "partitions": {
+                                "sda1": {},
+                            },
+                        },
+                    },
+                    "ansible_mounts": [
+                        {
+                            "mount": "/mnt",
+                            "fstype": "nfs",
+                            "options": "nfsvers=3,proto=tcp",
+                            "device": "host:/volume1/partition1",
+                            "size_available": 1234,
+                            "size_total": 5678,
+                        },
+                    ],
+                }, {}, [
+                    {
+                        "mountpoint": "/mnt",
+                        "fstype": "nfs",
+                        "options": ["nfsvers=3", "proto=tcp"],
+                        "device": "host:/volume1/partition1",
+                        "model": "",
+                        "partition_size_used": "4KiB",
+                        "partition_size_total": "5KiB",
+                    },
+                ], None,
+            ),
+        )
+
+        for obj, kwargs, expected_result, expected_exception in testdata:
+            try:
+                tmp, _status = fun(obj, **kwargs)
+                if tmp != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              "            obj:\n" \
+                              f"{yaml_dump(obj, base_indent=17)}\n" \
+                              f"         result: {tmp}\n" \
+                              f"       expected: {expected_result}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  "            obj:\n" \
+                                  f"{yaml_dump(obj, base_indent=17)}\n" \
+                                  f"      exception: {type(e)}\n" \
+                                  f"       expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              "            obj:\n" \
+                              f"{yaml_dump(obj, base_indent=17)}\n" \
+                              f"      exception: {type(e)}\n" \
+                              f"       expected: {expected_result}"
+                    result = False
+                    break
+    return message, result
+
+
 def test_listgetter_configmap_data(verbose: bool = False) -> tuple[str, bool]:
     message = ""
     result = True
@@ -1572,6 +1712,60 @@ def test_listgetter_policy_rules(verbose: bool = False) -> tuple[str, bool]:
     return message, result
 
 
+def test_get_metrics_list(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = listgetters.get_metrics_list
+    indata: Any = None
+
+    if result:
+        # Indata format:
+        # (kh, kh_cache, filter, expected_result, expected_exception)
+        testdata: tuple[Any, ...] = (
+            (kh, kh_cache, ["version_info"], "version_info", None),
+            # Non-existing metric
+            (kh, kh_cache, ["NonExistingMetrics"], None, None),
+            # No kubernetes_helper; should raise
+            (None, kh_cache, [], None, ProgrammingError),
+        )
+        for kh_, kh_cache_, filters, expected_result, expected_exception in testdata:
+            try:
+                tmp2, status = fun(kubernetes_helper=kh_, kh_cache=kh_cache_, filter=filters)
+                if not tmp2 and not expected_result:
+                    continue
+                if (not tmp2 and expected_result) or not isinstance(tmp2, list):
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"         result: {tmp2}\n" \
+                              f"       expected: {expected_result}"
+                    result = False
+                    break
+                tmp = deep_get(tmp2[0], DictPath("name"))
+                if tmp != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"         result: {tmp}\n" \
+                              f"       expected: {expected_result}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  f"      exception: {type(e)}\n" \
+                                  f"       expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"      exception: {type(e)}\n" \
+                              f"       expected: {expected_result}"
+                    result = False
+                    break
+    return message, result
+
+
 def test_get_kubernetes_list(verbose: bool = False) -> tuple[str, bool]:
     message = ""
     result = True
@@ -1686,6 +1880,10 @@ tests: dict[tuple[str, ...], dict[str, Any]] = {
         "callable": test_filter_list_entry,
         "result": None,
     },
+    ("listgetter_ansible_volumes()",): {
+        "callable": test_listgetter_ansible_volumes,
+        "result": None,
+    },
     ("listgetter_configmap_data()",): {
         "callable": test_listgetter_configmap_data,
         "result": None,
@@ -1710,6 +1908,10 @@ tests: dict[tuple[str, ...], dict[str, Any]] = {
 
 
 tests_with_cluster: dict[tuple[str, ...], dict[str, Any]] = {
+    ("get_metrics_list()",): {
+        "callable": test_get_metrics_list,
+        "result": None,
+    },
     ("get_kubernetes_list()",): {
         "callable": test_get_kubernetes_list,
         "result": None,

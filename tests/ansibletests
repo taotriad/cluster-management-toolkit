@@ -2067,7 +2067,10 @@ def test_ansible_ping(verbose: bool = False) -> tuple[str, bool]:
 
     if result:
         ansithemeprint([ANSIThemeStr("  Note", "note"),
-                        ANSIThemeStr(": This check can potentially be very slow.\n", "default")])
+                        ANSIThemeStr(": This check can potentially be very slow.", "default")])
+        ansithemeprint([ANSIThemeStr("  Note", "note"),
+                        ANSIThemeStr(": This check will fail in networks "
+                                     "that resolve non-existing addresses.\n", "default")])
 
         # Indata format:
         # (inventory, expected_result, expected_exception)

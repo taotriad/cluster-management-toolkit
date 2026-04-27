@@ -18,7 +18,7 @@ from typing import Any
 from unittest import mock
 import yaml
 
-from clustermanagementtoolkit.cmttypes import deep_get, DictPath, ProgrammingError
+from clustermanagementtoolkit.cmttypes import deep_get, DictPath
 
 from clustermanagementtoolkit.ansithemeprint import ANSIThemeStr
 from clustermanagementtoolkit.ansithemeprint import ansithemeprint, init_ansithemeprint
@@ -121,7 +121,7 @@ def test_fieldgetter_api_server_version(verbose: bool = False) -> tuple[str, boo
             (FakeKH((1, 29, "v1.29.1")), [1], [29], None),
             (FakeKH((1, 29, "v1.29.1")), [2], ["v1.29.1"], None),
             (FakeKH((1, 29, "v1.29.1")), [], [1, 29, "v1.29.1"], None),
-            (None, [], None, ProgrammingError),
+            (None, [], [], None),
         )
 
         for kh_obj, fields, expected_result, expected_exception in testdata:
