@@ -65,7 +65,7 @@ def test_get_playbook_path(verbose: bool = False) -> tuple[str, bool]:
 
     if result:
         ansithemeprint([ANSIThemeStr("  Note", "note"),
-                        ANSIThemeStr(": These testcases only works correctly if the playbooks "
+                        ANSIThemeStr(": These testcases only work correctly if the playbooks "
                                      "have not been overridden:\n", "default")])
 
         # Indata format:

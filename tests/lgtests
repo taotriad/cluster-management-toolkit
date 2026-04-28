@@ -1712,6 +1712,84 @@ def test_listgetter_policy_rules(verbose: bool = False) -> tuple[str, bool]:
     return message, result
 
 
+def test_generic_listgetter(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = listgetters.generic_listgetter
+    indata: Any = None
+
+    ansithemeprint([ANSIThemeStr("  Note", "note"),
+                    ANSIThemeStr(": These testcases only work correctly when run "
+                                 "on Linux-nodes,", "default")])
+    ansithemeprint([ANSIThemeStr("        running vanilla Kubernetes:\n", "default")])
+
+    if result:
+        # Indata format:
+        # (kh, kh_cache, kind, namespace, label_selector, field_selector,
+        #  expected_result, expected_exception)
+        testdata: tuple[Any, ...] = (
+            # No selector, no Namespace, should find a match
+            (kh, kh_cache, ("Node", ""), "", "", "", ["metadata#name"], None),
+            # No selector, Namespace (but resource isn't namespaced), should find a match
+            (kh, kh_cache, ("Node", ""), "NONAMESPACE", "", "", ["metadata#name"], None),
+            # No selector, namespaced resource, valid namespace, should find a match
+            (kh, kh_cache, ("ConfigMap", ""), "kube-system", "", "", ["metadata#name"], None),
+            # Valid label selector, should find a match
+            (kh, kh_cache, ("Node", ""), "kubernetes.io/os=linux", "", "", ["metadata#name"], None),
+            # Inalid label selector, should NOT find a match
+            (kh, kh_cache, ("Node", ""), "kubernetes.io/os=ASDFDSAFD", "", "", [], None),
+            # Valid field selector, should find a match
+            (kh, kh_cache, ("Namespace", ""), "", "", "status.phase=Active",
+             ["metadata#name", "status#phase"], None),
+            # Invalid field selector, should NOT find a match
+            (kh, kh_cache, ("Namespace", ""), "", "", "status.phase=fDFDSAFDS", [], None),
+            # Invalid kind, should raise
+            (kh, kh_cache, ("Floop", "nonexisting"), "", "", "", [], TypeError),
+            # No kubernetes_helper; should raise
+            (None, kh_cache, ("Node", ""), "", "", "", [], ProgrammingError),
+        )
+        for kh_, kh_cache_, kind, namespace, label_selector, \
+                field_selector, expected_result, expected_exception in testdata:
+            try:
+                tmp, status = fun(kubernetes_helper=kh_, kh_cache=kh_cache_,
+                                  kind=kind, namespace=namespace, label_selector=label_selector,
+                                  field_selector=field_selector)
+                # To be able to test this on any cluster (longer term we should aim to do
+                # this using kind) we cannot rely on a specific answer. Also, even if we
+                # were to use kind we cannot get around the fact that there are fields
+                # such as the timestamp, uid, generation, etc. that cannot be hardcoded.
+                if not len(tmp) and expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              "result lacks content"
+                    result = False
+                    break
+                for path in expected_result:
+                    if not deep_get(tmp[0], DictPath(path)):
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  "            obj:\n" \
+                                  f"{yaml_dump(tmp[0], base_indent=17)}\n" \
+                                  f"path {path} does not exist"
+                        result = False
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  f"      exception: {type(e)}\n" \
+                                  f"       expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"      exception: {type(e)}\n" \
+                              f"       expected: {expected_result}"
+                    result = False
+                    break
+    return message, result
+
+
 def test_get_metrics_list(verbose: bool = False) -> tuple[str, bool]:
     message = ""
     result = True
@@ -1908,6 +1986,10 @@ tests: dict[tuple[str, ...], dict[str, Any]] = {
 
 
 tests_with_cluster: dict[tuple[str, ...], dict[str, Any]] = {
+    ("generic_listgetter()",): {
+        "callable": test_generic_listgetter,
+        "result": None,
+    },
     ("get_metrics_list()",): {
         "callable": test_get_metrics_list,
         "result": None,
