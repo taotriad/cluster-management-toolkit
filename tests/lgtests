@@ -1061,6 +1061,106 @@ def test_listgetter_configmap_data(verbose: bool = False) -> tuple[str, bool]:
     return message, result
 
 
+def test_listgetter_dict_list(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = listgetters.listgetter_dict_list
+
+    if result:
+        # Indata format:
+        # (obj, kwargs, expected_result, expected_exception)
+        testdata: tuple[Any, ...] = (
+            (
+                {
+                    "security-labels": {
+                        "k8s:app": "local-path-provisioner",
+                        "k8s:io.cilium.k8s.namespace.labels.kubernetes.io/metadata.name":
+                            "local-path-storage",
+                        "k8s:io.cilium.k8s.policy.cluster": "kind-kind",
+                        "k8s:io.cilium.k8s.policy.serviceaccount":
+                            "local-path-provisioner-service-account",
+                        "k8s:io.kubernetes.pod.namespace": "local-path-storage",
+                    },
+                },
+                {"path": "security-labels"},
+                (
+                    [
+                        {
+                            "key": "k8s:app",
+                            "value": "local-path-provisioner",
+                        },
+                        {
+                            "key": "k8s:io.cilium.k8s.namespace.labels.kubernetes.io/metadata.name",
+                            "value": "local-path-storage",
+                        },
+                        {
+                            "key": "k8s:io.cilium.k8s.policy.cluster",
+                            "value": "kind-kind",
+                        },
+                        {
+                            "key": "k8s:io.cilium.k8s.policy.serviceaccount",
+                            "value": "local-path-provisioner-service-account",
+                        }, {
+                            "key": "k8s:io.kubernetes.pod.namespace",
+                            "value": "local-path-storage",
+                        },
+                    ], 200),
+                None,
+            ),
+            (
+                {
+                    "security-labels": {
+                        "k8s:app": "local-path-provisioner",
+                        "k8s:io.cilium.k8s.namespace.labels.kubernetes.io/metadata.name":
+                            "local-path-storage",
+                        "k8s:io.cilium.k8s.policy.cluster": "kind-kind",
+                        "k8s:io.cilium.k8s.policy.serviceaccount":
+                            "local-path-provisioner-service-account",
+                        "k8s:io.kubernetes.pod.namespace": "local-path-storage",
+                    },
+                },
+                {},
+                (
+                    [], 200),
+                None,
+            ),
+        )
+
+        for obj, kwargs, expected_result, expected_exception in testdata:
+            try:
+                tmp = fun(obj, **kwargs)
+                if tmp != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              "            obj:\n" \
+                              f"{yaml_dump(obj, base_indent=17)}\n" \
+                              f"         result: {tmp}\n" \
+                              f"       expected: {expected_result}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  "            obj:\n" \
+                                  f"{yaml_dump(obj, base_indent=17)}\n" \
+                                  f"      exception: {type(e)}\n" \
+                                  f"       expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              "            obj:\n" \
+                              f"{yaml_dump(obj, base_indent=17)}\n" \
+                              f"      exception: {type(e)}\n" \
+                              f"       expected: {expected_result}"
+                    result = False
+                    break
+    return message, result
+
+
 def test_listgetter_join_dicts_to_list(verbose: bool = False) -> tuple[str, bool]:
     message = ""
     result = True
@@ -1964,6 +2064,10 @@ tests: dict[tuple[str, ...], dict[str, Any]] = {
     },
     ("listgetter_configmap_data()",): {
         "callable": test_listgetter_configmap_data,
+        "result": None,
+    },
+    ("listgetter_dict_list()",): {
+        "callable": test_listgetter_dict_list,
         "result": None,
     },
     ("listgetter_join_dicts_to_list()",): {

@@ -2160,6 +2160,7 @@ def listgetter_dict_list(obj: dict[str, Any], **kwargs: Any) -> tuple[list[dict[
             obj (dict): The object to convert to a list
             path (str): The path to get the data from
             paths (str): The paths to get the data from
+            join_paths (bool): Merge multiple data sources into one
         Returns:
             (([dict[str, Any]], int)):
                 ([dict[str, Any]]): The list representation of the dict
