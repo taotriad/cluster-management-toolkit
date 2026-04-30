@@ -30,25 +30,26 @@ infoview:
         paths:
           - path: "status#firstSampleStart"
             type: "timestamp"
-            default: -1
+            default: "<unset>"
         formatter: "timestamp"
       last_sample_start:
         header: [["Last Sample Start:", ["main", "infoheader"]]]
         paths:
           - path: "status#lastSampleStart"
             type: "timestamp"
-            default: -1
+            default: "<unset>"
         formatter: "timestamp"
       last_update_time:
         header: [["Last Update Time:", ["main", "infoheader"]]]
         paths:
           - path: "status#lastUpdateTime"
             type: "timestamp"
-            default: -1
+            default: "<unset>"
         formatter: "timestamp"
       total_samples_count:
         header: [["Total Sample Count:", ["main", "infoheader"]]]
         path: "status#totalSamplesCount"
+        default: 0
         type: "int"
         formatter: "numerical"
       version:
@@ -84,6 +85,7 @@ infoview:
         paths:
           - path: "bucketWeights"
             pathtype: "key_value"
+            default: ["<unset>"]
         formatter: "list"
         formatting:
           field_colors:
@@ -100,11 +102,12 @@ infoview:
         paths:
           - path: "referenceTimestamp"
             type: "timestamp"
-            default: -1
+            default: "<unset>"
         formatter: "timestamp"
       total_weight:
         header: "Total Weight:"
         path: "totalWeight"
+        default: "<unset>"
         type: "float"
         formatter: "numerical"
         align: "right"

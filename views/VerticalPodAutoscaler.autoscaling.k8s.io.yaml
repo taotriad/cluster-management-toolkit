@@ -26,6 +26,7 @@ listview:
     update_mode:
       header: "Update Mode:"
       path: "spec#updatePolicy#updateMode"
+      default: "Auto"
       type: "str"
   actions:
     actionlist:
@@ -74,16 +75,26 @@ infoview:
       update_mode:
         header: [["Update Mode:", ["main", "infoheader"]]]
         path: "spec#updatePolicy#updateMode"
+        default: "Auto"
         type: "str"
   listpad:
     listgetter: "listgetter_path"
     listgetter_args:
-      path: "spec#resourcePolicy#containerPolicies"
+      paths:
+        - key_name: "type"
+          key_value: "Policy"
+          type: "list"
+          path: "spec#resourcePolicy#containerPolicies"
+        - key_name: "type"
+          key_value: "Recommendation"
+          type: "list"
+          path: "status#recommendation#containerRecommendations"
     infogetter: "generic_infogetter"
     field_indexes:
       Normal:
-        fields: ["container_name", "controlled_resources",
-                 "min_allowed", "max_allowed"]
+        fields: ["type", "container_name", "controlled_resources",
+                 "min_allowed", "max_allowed", "target", "lower_bound",
+                 "upper_bound", "uncapped_target"]
         sortcolumn: "container_name"
     fields:
       container_name:
@@ -93,13 +104,28 @@ infoview:
       controlled_resources:
         header: "Resources:"
         path: "controlledResources"
+        default: ["<unset>"]
         type: "raw"
         formatter: "list"
+      lower_bound:
+        header: "Lower Bound:"
+        paths:
+          - path: ["lowerBound"]
+            pathtype: "key_value"
+            default: ["<unset>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "key"
+            - type: "value"
+          field_separators:
+            - type: "keyvalue"
       max_allowed:
         header: "Max:"
         paths:
           - path: "maxAllowed"
             pathtype: "key_value"
+            default: ["<unset>"]
         formatter: "list"
         formatting:
           field_colors:
@@ -112,6 +138,50 @@ infoview:
         paths:
           - path: "minAllowed"
             pathtype: "key_value"
+            default: ["<unset>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "key"
+            - type: "value"
+          field_separators:
+            - type: "keyvalue"
+      target:
+        header: "Target:"
+        paths:
+          - path: ["target"]
+            pathtype: "key_value"
+            default: ["<unset>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "key"
+            - type: "value"
+          field_separators:
+            - type: "keyvalue"
+      type:
+        header: "Type:"
+        path: "type"
+        type: "str"
+      uncapped_target:
+        header: "Uncapped Target:"
+        paths:
+          - path: ["uncappedTarget"]
+            pathtype: "key_value"
+            default: ["<unset>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "key"
+            - type: "value"
+          field_separators:
+            - type: "keyvalue"
+      upper_bound:
+        header: "Upper Bound:"
+        paths:
+          - path: ["upperBound"]
+            pathtype: "key_value"
+            default: ["<unset>"]
         formatter: "list"
         formatting:
           field_colors:
