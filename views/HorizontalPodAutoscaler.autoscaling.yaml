@@ -98,26 +98,32 @@ infoview:
           separators:
             - type: "fraction"
   listpad:
-    listgetter: "get_hpa_metrics"
+    listgetter: "listgetter_path"
+    listgetter_args:
+      path: "spec#metrics"
     infogetter: "generic_infogetter"
+    infogetter_args:
+      _extra_data:
+        namespace: ["metadata#namespace"]
     on_activation:
       call: "resourceinfodispatch_with_lookup"
-      kind_path: "described_object_kind"
-      api_version_path: "described_object_api_group"
-      name_path: "described_object_name"
-      namespace_path: "described_object_namespace"
+      kind_path: "object#describedObject#kind"
+      api_version_path: "object#describedObject#apiVersion"
+      name_path: "object#describedObject#name"
+      namespace_path: "_extra_data#namespace"
     field_indexes:
       Normal:
-        fields: ["metrics_type", "name", "described_object",
-                 "target_type", "target_value", "selector"]
+        fields: ["metrics_type", "name", "target_type",
+                 "target_average_percentage", "target_average_value",
+                 "target_value", "described_object", "selector"]
         sortcolumn: "name"
     fields:
       described_object:
         header: "Described Object:"
         paths:
-          - path: [["described_object_kind"],
-                   ["described_object_api_group"],
-                   ["described_object_name"]]
+          - path: [["object#describedObject#kind"],
+                   ["object#describedObject#apiVersion"],
+                   ["object#describedObject#name"]]
             pathtype: "tuple"
             type: ["kind", "api_group", "name"]
         formatter: "list"
@@ -131,32 +137,66 @@ infoview:
             - type: "kind"
       metrics_type:
         header: "Type:"
-        path: "metric_type"
+        path: "type"
         type: "str"
       name:
         header: "Name:"
-        path: "name"
+        paths:
+          - path: ["resource#name", "pods#metric#name",
+                   "object#metric#name", "external#metric#name"]
+            pathtype: "value"
         type: "str"
       selector:
         header: "Selector:"
         paths:
-          - path: "selector"
-            pathtype: "key_value"
+          - path: ["external#metric#selector"]
+            pathtype: "selectors"
+            default: ["<none>"]
         formatter: "list"
-        formatting:
-          field_colors:
-            - type: "key"
-            - type: "value"
-          field_separators:
-            - type: "selector"
       target_type:
         header: "Target Type:"
-        path: "target_type"
+        paths:
+          - path: ["external#target#type",
+                   "object#target#type",
+                   "pods#target#type",
+                   "resource#target#type"]
         type: "str"
+      target_average_percentage:
+        header: "Target Average %:"
+        paths:
+          - path: ["containerResource#target#averageUtilization",
+                   "external#target#averageUtilization",
+                   "object#target#averageUtilization",
+                   "resource#target#averageUtilization",
+                   "pods#target#averageUtilization"]
+        default: "<none>"
+        type: "int"
+        formatter: "numerical"
+        formatting:
+          unit: "%"
+        align: "right"
+      target_average_value:
+        header: "Target Average:"
+        paths:
+          - path: ["containerResource#target#averageValue",
+                   "external#target#averageValue",
+                   "object#target#averageValue",
+                   "resource#target#averageValue",
+                   "pods#target#averageValue"]
+            default: "<none>"
+        type: "int"
+        formatter: "numerical"
+        align: "right"
       target_value:
         header: "Target Value:"
-        path: "target_value"
-        type: "raw"
+        paths:
+          - path: ["containerResource#target#value",
+                   "external#target#value",
+                   "object#target#value",
+                   "resource#target#value",
+                   "pods#target#value"]
+            default: "<none>"
+        type: "int"
         formatter: "numerical"
         align: "right"
   shortcuts:

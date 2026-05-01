@@ -672,69 +672,6 @@ def listgetter_dir(**kwargs: Any) -> tuple[list[dict[str, Any]], int]:
 # Used by listpad
 
 
-# pylint: disable-next=unused-argument,too-many-locals
-def get_hpa_metrics(obj: dict, **kwargs: Any) -> tuple[list[dict[str, Any]], int]:
-    """
-    Get horizontal pod autoscaler metrics.
-
-        Parameters:
-            obj (dict): The object to extract data from
-        Returns:
-            (([dict[str, Any]], int)):
-                ([dict[str, Any]]): The metrics
-                (int): The status for the request
-    """
-    vlist: list[dict[str, Any]] = []
-    status: int = 200
-
-    for metric in deep_get(obj, DictPath("spec#metrics"), []):
-        if "type" not in metric:
-            continue
-        metric_type = deep_get(metric, DictPath("type"))
-        metric_name = metric_type[0].lower() + metric_type[1:]
-        target_type = deep_get(metric, DictPath(f"{metric_name}#target#type"), "")
-        if target_type == "Utilization":
-            target_type = "AverageUtilization"
-        target_type_name = target_type[0].lower() + target_type[1:]
-
-        kind = ""
-        name = ""
-        api_group = ""
-        object_name = ""
-
-        if metric_name in ("resource", "containerResource"):
-            name = deep_get(metric, DictPath(f"{metric_name}#name"))
-        elif metric_name in ("pods", "object", "external"):
-            name = deep_get(metric, DictPath(f"{metric_name}#metric#name"))
-            api_version = ""
-            if metric_type == "Object":
-                kind = deep_get(metric, DictPath(f"{metric_name}#describedObject#kind"))
-                api_version = \
-                    deep_get(metric, DictPath(f"{metric_name}#describedObject#apiVersion"))
-                object_name = deep_get(metric, DictPath(f"{metric_name}#describedObject#name"))
-            api_group = api_version.split("/")[0]
-        else:
-            metric_type += " (Unsupported)"
-
-        target_value = deep_get(metric, DictPath(f"{metric_name}#target#{target_type_name}"), "")
-        selector = deep_get(metric, DictPath(f"{metric_name}#metric#selector#matchLabels"), {})
-
-        d = {
-            "metric_type": metric_type,
-            "name": name,
-            "target_type": target_type,
-            "described_object_kind": kind,
-            "described_object_api_group": api_group,
-            # The autoscaler shares namespace with the described object
-            "described_object_namespace": deep_get(obj, DictPath("metadata#namespace"), ""),
-            "described_object_name": object_name,
-            "selector": selector,
-            "target_value": target_value,
-        }
-        vlist.append(d)
-    return vlist, status
-
-
 # pylint: disable-next=unused-argument
 def get_ingress_rule_list(obj: dict, **kwargs: Any) -> tuple[list[dict[str, Any]], int]:
     """
@@ -2692,7 +2629,6 @@ listgetter_allowlist: dict[str, Callable] = {
     "listgetter_files": listgetter_files,
     "listgetter_dir": listgetter_dir,
     # Used by listpad
-    "get_hpa_metrics": get_hpa_metrics,
     "get_ingress_rule_list": get_ingress_rule_list,
     "get_netpol_rule_list": get_netpol_rule_list,
     "get_pod_resource_list": get_pod_resource_list,

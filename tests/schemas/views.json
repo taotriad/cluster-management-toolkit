@@ -1929,7 +1929,6 @@
 							"description": "Function to use to get list entries",
 							"enum": [
 								"generic_listgetter",
-								"get_hpa_metrics",
 								"get_ingress_rule_list",
 								"get_netpol_rule_list",
 								"get_pod_resource_list",
