@@ -1,0 +1,88 @@
+---
+kind: "__Metrics"
+default_command: "metrics"
+listview:
+  listgetter: "get_metrics_list"
+  name: "Metrics"
+  group: "Administration"
+  check_availability: "is_cluster_reachable"
+  is_taggable: false
+  field_indexes:
+    Normal:
+      fields: ["metric", "count", "fields"]
+      sortcolumn: "metric"
+  fields:
+    count:
+      header: "Count:"
+      path: "count"
+      default: "<unset>"
+      type: "int"
+      formatter: "numerical"
+      align: "right"
+    fields:
+      header: "Fields:"
+      paths:
+        - path: ["fields"]
+          pathtype: "key_value"
+          default: ["<none>"]
+      formatter: "list"
+      formatting:
+        field_colors:
+          - type: "key"
+          - type: "value"
+        field_separators:
+          - type: "selector"
+    metric:
+      header: "Metric:"
+      path: "name"
+      type: "str"
+  shortcuts:
+    # Deprecations have no JSON/YAML and cannot be edited
+    "Edit resource": null
+    "View YAML dump": null
+infoview:
+  name: "Metric Info"
+  infopad:
+    name_path: "name"
+    namespace_path: null
+    creation_timestamp_path: null
+    row_indexes:
+      Normal:
+        fields: ["count"]
+    rows:
+      count:
+        header: [["Count:", ["main", "infoheader"]]]
+        path: "count"
+        default: "<unset>"
+        type: "int"
+        formatter: "numerical"
+  listpad:
+    listgetter: "listgetter_dict_list"
+    listgetter_args:
+      path: "fields"
+      flatten_dicts: true
+    infogetter: "generic_infogetter"
+    field_indexes:
+      Normal:
+        fields: ["key", "value"]
+        sortcolumn: "key"
+    fields:
+      key:
+        header: "Key:"
+        path: "key"
+        type: "str"
+        formatting:
+          field_colors:
+            - type: "key"
+      value:
+        header: "Value:"
+        path: "value"
+        type: "str"
+  shortcuts:
+    # Deprecations have no JSON/YAML,
+    # last applied configuration,  events,
+    # or owner references.
+    "Show Events": null
+    "Last Applied Configuration": null
+    "View YAML dump": null
+    "Owner References": null
