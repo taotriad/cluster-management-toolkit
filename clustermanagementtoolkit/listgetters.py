@@ -352,16 +352,17 @@ def get_metrics_list(**kwargs: Any) -> tuple[list[dict[str, Any]], int]:
     # apiserver_requested_deprecated_apis{group="autoscaling",removed_release="1.25",
     # resource="horizontalpodautoscalers",subresource="",version="v2beta1"} 1
 
-    metrics_regex = re.compile(r"^([^{]*){([^}]*)}\s\d+$")
+    metrics_regex = re.compile(r"^([^{]*){([^}]*)}\s(\d+)$")
 
     metric_set = set()
-    for line in metrics:
+    for line in metrics[1:]:
         if (re_tmp := metrics_regex.match(line)) is None:
             continue
         metric = re_tmp[1]
+        count = re_tmp[3]
         metric_set.add(metric)
 
-        if filters is not None and metric not in filters:
+        if filters and metric not in filters:
             continue
 
         fields = [f"{x}" for x in next(csv.reader([re_tmp[2]], delimiter=",", quotechar="\""))]
@@ -370,6 +371,10 @@ def get_metrics_list(**kwargs: Any) -> tuple[list[dict[str, Any]], int]:
         d: dict[str, Any] = {
             "name": metric,
             "fields": {},
+            "count": count,
+            "metadata": {
+                "uid": line,
+            },
         }
         for field in fields:
             key_value = [f"{x}" for x in next(csv.reader([field], delimiter="=", quotechar="\""))]
