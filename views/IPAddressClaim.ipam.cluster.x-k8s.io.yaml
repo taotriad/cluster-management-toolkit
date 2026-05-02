@@ -1,0 +1,88 @@
+---
+kind: "IPAddressClaim"
+api_family: "ipam.cluster.x-k8s.io"
+default_command: "ipaddressclaims"
+command:
+  - "ipaddrclaims"
+  - "ipaddrclaim"
+listview:
+  name: "IP-Address Claims"
+  group: "Cluster Configuration"
+  field_indexes:
+    Normal:
+      fields: ["namespace", "name", "cluster", "pool", "pool_kind", "age"]
+  fields:
+    cluster:
+      header: "Cluster:"
+      path: "spec#clusterName"
+      default: "<unset>"
+      type: "str"
+    pool:
+      header: "Pool:"
+      path: "spec#poolRef#name"
+      default: "<unset>"
+      type: "str"
+    pool_kind:
+      header: "Pool Kind:"
+      paths:
+        - path: [["spec#poolRef#kind"], ["spec#poolRef#apiGroup"]]
+          pathtype: "tuple"
+          default: ["<unset>"]
+      formatter: "list"
+infoview:
+  name: "IP-Address Claim Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["cluster", "pool"]
+    rows:
+      cluster:
+        header: [["Cluster:", ["main", "infoheader"]]]
+        path: "spec#clusterName"
+        default: "<unset>"
+        type: "str"
+      pool:
+        header: [["P", ["main", "infoheader_shortcut"]],
+                 ["ool:", ["main", "infoheader"]]]
+        paths:
+          - path: [["spec#poolRef#kind"],
+                   ["spec#poolRef#apiGroup"],
+                   ["spec#poolRef#name"]]
+            pathtype: "tuple"
+            type: ["kind", "api_group", "name"]
+            default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "kind"
+            - type: "api_group"
+            - type: "generic"
+          field_separators:
+            - type: "kind_api_group"
+            - type: "kind"
+  shortcuts:
+    "Open Cluster":
+      key: "u"
+      read_only: true
+      helptext: "Open info page for Cluster"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind: "Cluster"
+        api_family: "cluster.x-k8s.io"
+        namespace_path: "metadata#namespace"
+        name_path: "spec#clusterName"
+    "Open IP-Address Pool":
+      key: "p"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for IP-address pool"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind_path: "spec#poolRef#kind"
+        api_group_path: "spec#poolRef#apiGroup"
+        namespace_path: "metadata#namespace"
+        name_path: "spec#poolRef#name"

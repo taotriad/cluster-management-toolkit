@@ -1,0 +1,147 @@
+---
+kind: "GlobalInClusterIPPool"
+api_family: "ipam.cluster.x-k8s.io"
+default_command: "globalinclusterippools"
+command:
+  - "ginclrippools"
+  - "ginclrippool"
+listview:
+  name: "Global In-Cluster IP-Pools"
+  group: "Cluster Configuration"
+  field_indexes:
+    Normal:
+      fields: ["name", "addresses", "used", "free", "total", "age"]
+  fields:
+    addresses:
+      header: "Addresses:"
+      path: "spec#addresses"
+      default: ["<none>"]
+      type: "raw"
+      formatter: "address"
+    free:
+      header: "Free:"
+      path: "status#ipAddresses#free"
+      default: "<unset>"
+      type: "int"
+      formatter: "numerical"
+      align: "right"
+    total:
+      header: "Total:"
+      path: "status#ipAddresses#total"
+      default: "<unset>"
+      type: "int"
+      formatter: "numerical"
+      align: "right"
+    used:
+      header: "Used:"
+      path: "status#ipAddresses#used"
+      default: "<unset>"
+      type: "int"
+      formatter: "numerical"
+      align: "right"
+infoview:
+  name: "Global In-Cluster IP-Pool Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["ip_addresses_header",
+                 "addresses", "gateway",
+                 "start", "end", "prefix", "subnet",
+                 "allocate_reserved_ip_addresses",
+                 "status_header",
+                 "used", "free", "out_of_range", "total"]
+    rows:
+      addresses:
+        header: [["  ", ["main", "infoheader"]],
+                 ["A", ["main", "infoheader_shortcut"]],
+                 ["ddresses:", ["main", "infoheader"]]]
+        path: "spec#addresses"
+        default: ["<none>"]
+        type: "raw"
+        formatter: "address"
+      allocate_reserved_ip_addresses:
+        header: [["  Allocate Reserved IP-Addresses:", ["main", "infoheader"]]]
+        path: "spec#allocateReservedIPAddresses"
+        default: false
+        type: "bool"
+      end:
+        header: [["  End:", ["main", "infoheader"]]]
+        # The description in the CRD disagrees with the spec
+        # with regards to what this field is named;
+        # hence the alternative paths.
+        paths:
+          - path: ["spec#end", "spec#last"]
+            pathtype: "value"
+        default: "<unset>"
+        type: "str"
+        formatter: "address"
+      free:
+        header: [["  Free:", ["main", "infoheader"]]]
+        path: "status#ipAddresses#free"
+        default: "<unset>"
+        type: "int"
+        formatter: "numerical"
+      gateway:
+        header: [["  Gateway:", ["main", "infoheader"]]]
+        path: "spec#gateway"
+        default: "<unset>"
+        type: "str"
+        formatter: "address"
+      ip_addresses_header:
+        header: [["IP-Addresses:", ["main", "infoheader"]]]
+      prefix:
+        header: [["  Prefix:", ["main", "infoheader"]]]
+        path: "spec#prefix"
+        default: "<unset>"
+        type: "int"
+        formatter: "numerical"
+      out_of_range:
+        header: [["  Out of Range:", ["main", "infoheader"]]]
+        path: "status#ipAddresses#outOfRange"
+        default: "<unset>"
+        type: "int"
+        formatter: "numerical"
+      start:
+        header: [["  Start:", ["main", "infoheader"]]]
+        # The description in the CRD disagrees with the spec
+        # with regards to what this field is named;
+        # hence the alternative paths.
+        paths:
+          - path: ["spec#start", "spec#first"]
+            pathtype: "value"
+        default: "<unset>"
+        type: "str"
+        formatter: "address"
+      status_header:
+        header: [["Status:", ["main", "infoheader"]]]
+      subnet:
+        header: [["  Subnet:", ["main", "infoheader"]]]
+        path: "spec#subnet"
+        default: "<unset>"
+        type: "str"
+        formatter: "address"
+      total:
+        header: [["  Total:", ["main", "infoheader"]]]
+        path: "status#ipAddresses#total"
+        default: "<unset>"
+        type: "int"
+        formatter: "numerical"
+      used:
+        header: [["  Used:", ["main", "infoheader"]]]
+        path: "status#ipAddresses#used"
+        default: "<unset>"
+        type: "int"
+        formatter: "numerical"
+  shortcuts:
+    "List Addresses":
+      key: "a"
+      modifier: "shift"
+      read_only: true
+      helptext: "List Addreses"
+      title: "Addresses:"
+      widget: "windowwidget"
+      itemgetter: "get_list_as_list"
+      itemgetter_args:
+        path: "spec#addresses"
+      # This isn't supported for now
+      sortcolumn: "name"
