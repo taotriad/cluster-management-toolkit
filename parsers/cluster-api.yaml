@@ -50,6 +50,12 @@
   matchkeys:
     - pod_name: "capch-controller-manager"
       container_name: "manager"
+    - image_name: "/rancher-sandbox/cluster-api-provider-harvester"
   parser_rules:
     - name: "glog"
     - name: "tab_separated"
+    - name: "override_severity"
+      overrides:
+        - matchtype: "startswith"
+          matchkey: "Warning: "
+          loglevel: "warning"
