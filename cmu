@@ -4016,9 +4016,9 @@ def genericinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
     obj_path = deep_get(kwargs, DictPath("obj_path"))
     title = None
     if obj_path is not None:
+        title = deep_get(kwargs, DictPath("title"), "")
         title_path = deep_get(kwargs, DictPath("title_path"))
-        if title_path is not None:
-            title = deep_get(obj, DictPath(title_path))
+        title = f"{title}{deep_get(obj, DictPath(title_path), '')}"
         if obj_path:
             obj = deep_get(obj, DictPath(obj_path))
         else:
