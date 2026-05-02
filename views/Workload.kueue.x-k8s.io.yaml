@@ -169,6 +169,64 @@ infoview:
                  ["ueue:", ["main", "infoheader"]]]
         path: "spec#queueName"
         type: "str"
+  listpad:
+    listgetter: "listgetter_path"
+    listgetter_args:
+      paths:
+        - path: "spec#podSets"
+          type: "list"
+        - path: "status#admission#podSetAssignments"
+          type: "list"
+      join_key: "name"
+    infogetter: "generic_infogetter"
+    on_activation:
+      call: "resourceinfodispatch"
+      kind: "__ResourceView"
+      formatter: "format_yaml"
+      obj_path: ""
+      title: "PodSet: "
+      title_path: "name"
+    field_indexes:
+      Normal:
+        fields: ["name", "count", "flavors", "resource_usage"]
+        sortcolumn: "name"
+    fields:
+      count:
+        header: "Count:"
+        path: "count"
+        type: "int"
+        formatter: "numerical"
+        align: "right"
+      flavors:
+        header: "Flavors:"
+        paths:
+          - path: "flavors"
+            pathtype: "key_value"
+            default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "key"
+            - type: "value"
+          field_separators:
+            - type: "keyvalue"
+      name:
+        header: "Name:"
+        path: "name"
+        type: "str"
+      resource_usage:
+        header: "Resource Usage:"
+        paths:
+          - path: "resourceUsage"
+            pathtype: "key_value"
+            default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "key"
+            - type: "value"
+          field_separators:
+            - type: "keyvalue"
   shortcuts:
     "Open controller":
       key: "c"
