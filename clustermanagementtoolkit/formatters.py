@@ -1040,10 +1040,6 @@ def render_markdown(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef
         for tag, subst in GITHUB_EMOJIS:
             lines = lines.replace(tag, subst)
 
-    # Replace all URLs with just their descriptions and make them bold
-    # Note: Pygments does not handle nested formatting.
-    lines = re.sub(r"([^!])\[(.+?)\]\(.+?\)", r"\1**\2**", lines)
-
     # TODO: we might want to add a hack to make tables look better
     # when we replace dim/bold in tables we lose the width.
 
