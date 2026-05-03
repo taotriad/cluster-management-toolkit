@@ -32,6 +32,10 @@
     - pod_name: "dls-grafana"
       container_name: "grafana-sc-datasources"
     - image_name: "/rancher/mirrored-grafana-grafana"
+    - image_name: "/rancher/appco-k8s-sidecar"
+    - image_name: "/rancher/appco-k8s-sidecar"
+      container_type: "InitContainer"
+    - image_name: "/rancher/appco-grafana"
   parser_rules:
     - name: "key_value"
       options:
@@ -53,3 +57,6 @@
         - matchtype: "startswith"
           matchkey: "Starting Grafana"
           loglevel: "notice"
+        - matchtype: "startswith"
+          matchkey: "Error checking server process "
+          loglevel: "warning"

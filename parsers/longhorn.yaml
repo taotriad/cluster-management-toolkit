@@ -3,6 +3,7 @@
   show_in_selector: false
   matchkeys:
     - image_name: "/longhornio/longhorn-manager"
+    - image_name: "/longhornio/longhorn-share-manager"
   parser_rules:
     - name: "glog"
     - name: "key_value"
