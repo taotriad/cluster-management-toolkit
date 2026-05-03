@@ -715,6 +715,10 @@ listview:
               field_colors:
                 - context: "main"
                   type: "status_warning"
+            ErrStartingPod:
+              field_colors:
+                - context: "main"
+                  type: "status_warning"
             EtcdCertSignerControllerUpdatingStatus:
               field_colors:
                 - context: "main"
@@ -1055,6 +1059,10 @@ listview:
               field_colors:
                 - context: "main"
                   type: "status_ok"
+            importFailed:
+              field_colors:
+                - context: "main"
+                  type: "status_warning"
             ImportInProgress:
               field_colors:
                 - context: "main"
@@ -3403,6 +3411,10 @@ infoview:
                 field_colors:
                   - context: "main"
                     type: "status_warning"
+              ErrStartingPod:
+                field_colors:
+                  - context: "main"
+                    type: "status_warning"
               EtcdCertSignerControllerUpdatingStatus:
                 field_colors:
                   - context: "main"
@@ -3743,6 +3755,10 @@ infoview:
                 field_colors:
                   - context: "main"
                     type: "status_ok"
+              importFailed:
+                field_colors:
+                  - context: "main"
+                    type: "status_warning"
               ImportInProgress:
                 field_colors:
                   - context: "main"
