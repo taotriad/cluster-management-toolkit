@@ -3928,6 +3928,14 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api_paths": ["apis/harvesterhci.io/v1beta1/"],
         "api": "virtualmachinetemplateversions",
     },
+    ("VolumeRemoteBackup", "harvesterhci.io"): {
+        "api_paths": ["apis/harvesterhci.io/v1beta1/"],
+        "api": "volumeremotebackups",
+    },
+    ("VolumeRemoteRestore", "harvesterhci.io"): {
+        "api_paths": ["apis/harvesterhci.io/v1beta1/"],
+        "api": "volumeremoterestores",
+    },
     # hco.kubevirt.io
     ("HyperConverged", "hco.kubevirt.io"): {
         "api_paths": ["apis/hco.kubevirt.io/v1beta1/"],
@@ -5787,6 +5795,11 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
     ("ClusterNetwork", "network.harvesterhci.io"): {
         "api_paths": ["apis/network.harvesterhci.io/v1beta1/"],
         "api": "clusternetworks",
+        "namespaced": False,
+    },
+    ("HostNetworkConfig", "network.harvesterhci.io"): {
+        "api_paths": ["apis/network.harvesterhci.io/v1beta1/"],
+        "api": "hostnetworkconfigs",
         "namespaced": False,
     },
     ("LinkMonitor", "network.harvesterhci.io"): {
