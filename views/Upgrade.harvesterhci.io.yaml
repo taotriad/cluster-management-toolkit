@@ -42,6 +42,7 @@ infoview:
       image:
         header: [["Image:", ["main", "infoheader"]]]
         path: "spec#image"
+        fallback_on_empty: true
         default: "<unset>"
         type: "str"
       image_id:
@@ -79,6 +80,12 @@ infoview:
         formatting:
           field_colors:
             - type: "version"
+  logpad:
+    infogetter: "logpad_formatted"
+    infogetter_args:
+      formatter: "format_yaml"
+      path: "status#repoInfo"
+    timestamps: false
   shortcuts:
     "Open Upgrade Log":
       key: "u"

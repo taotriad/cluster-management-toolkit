@@ -600,6 +600,16 @@ bgsrs:
   - BackgroundScanReport
   - kyverno.io
   viewfile: BackgroundScanReport.kyverno.io.yaml
+blkdev:
+  kind:
+  - BlockDevice
+  - harvesterhci.io
+  viewfile: BlockDevice.harvesterhci.io.yaml
+blkdevs:
+  kind:
+  - BlockDevice
+  - harvesterhci.io
+  viewfile: BlockDevice.harvesterhci.io.yaml
 bootstrapprov:
   kind:
   - BootstrapProvider
@@ -2795,6 +2805,16 @@ frrnostates:
   - FRRNodeState
   - frrk8s.metallb.io
   viewfile: FRRNodeState.frrk8s.metallb.io.yaml
+ginclrippool:
+  kind:
+  - GlobalInClusterIPPool
+  - ipam.cluster.x-k8s.io
+  viewfile: GlobalInClusterIPPool.ipam.cluster.x-k8s.io.yaml
+ginclrippools:
+  kind:
+  - GlobalInClusterIPPool
+  - ipam.cluster.x-k8s.io
+  viewfile: GlobalInClusterIPPool.ipam.cluster.x-k8s.io.yaml
 gitrepo.cattle:
   kind:
   - GitRepo
@@ -3440,6 +3460,16 @@ imgtagmirrorsets:
   - ImageTagMirrorSet
   - config.openshift.io
   viewfile: ImageTagMirrorSet.config.openshift.io.yaml
+inclrippool:
+  kind:
+  - InClusterIPPool
+  - ipam.cluster.x-k8s.io
+  viewfile: InClusterIPPool.ipam.cluster.x-k8s.io.yaml
+inclrippools:
+  kind:
+  - InClusterIPPool
+  - ipam.cluster.x-k8s.io
+  viewfile: InClusterIPPool.ipam.cluster.x-k8s.io.yaml
 inferencesvc:
   kind:
   - InferenceService
@@ -3660,6 +3690,16 @@ ipaddr:
   - IPAddress
   - networking.k8s.io
   viewfile: IPAddress.networking.k8s.io.yaml
+ipaddrclaim:
+  kind:
+  - IPAddressClaim
+  - ipam.cluster.x-k8s.io
+  viewfile: IPAddressClaim.ipam.cluster.x-k8s.io.yaml
+ipaddrclaims:
+  kind:
+  - IPAddressClaim
+  - ipam.cluster.x-k8s.io
+  viewfile: IPAddressClaim.ipam.cluster.x-k8s.io.yaml
 ipaddrpool:
   kind:
   - IPAddressPool

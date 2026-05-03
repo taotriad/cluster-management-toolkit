@@ -9,6 +9,10 @@ listview:
   name: "Clusters"
   group: "Rancher"
   field_indexes:
+    Wide:
+      fields: ["namespace", "name", "cluster_name",
+               "version", "ready", "age", "kubeconfig"]
+      sortcolumn: "namespace"
     Normal:
       fields: ["namespace", "name", "cluster_name",
                "ready", "age", "kubeconfig"]
@@ -38,13 +42,20 @@ listview:
               field_colors:
                 - context: "main"
                   type: "status_pending"
+    version:
+      header: "Version:"
+      path: "spec#kubernetesVersion"
+      type: "str"
+      formatting:
+        field_colors:
+          - type: "version"
 infoview:
   name: "Cluster Info"
   infopad:
     row_indexes:
       Normal:
         fields: ["cluster_name", "client_secret_name",
-                 "kubeconfig", "fleet_workspace", "ready"]
+                 "kubernetes_version", "kubeconfig", "fleet_workspace", "ready"]
     rows:
       client_secret_name:
         header: [["Client ", ["main", "infoheader"]],
@@ -85,6 +96,13 @@ infoview:
                 field_colors:
                   - context: "main"
                     type: "status_pending"
+      kubernetes_version:
+        header: [["Kubernetes Version:", ["main", "infoheader"]]]
+        path: "spec#kubernetesVersion"
+        type: "str"
+        formatting:
+          field_colors:
+            - type: "version"
   shortcuts:
     "Open Cluster":
       key: "u"

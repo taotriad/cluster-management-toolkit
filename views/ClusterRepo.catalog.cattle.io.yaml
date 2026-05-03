@@ -10,7 +10,7 @@ listview:
   group: "Rancher"
   field_indexes:
     Normal:
-      fields: ["name", "repo", "branch", "download_time"]
+      fields: ["name", "repo", "branch", "download_time", "age"]
   fields:
     branch:
       header: "Branch:"

@@ -11,9 +11,24 @@ listview:
   name: "Tokens"
   group: "Rancher"
   field_indexes:
+    Wide:
+      fields: ["name", "display_name", "login_name", "user", "ttl", "age",
+               "description"]
     Normal:
-      fields: ["name", "user", "ttl", "age"]
+      fields: ["name", "display_name", "login_name", "user", "ttl", "age"]
   fields:
+    description:
+      header: "Description:"
+      path: "description"
+      fallback_on_empty: true
+      default: "<unset>"
+      type: "str"
+    display_name:
+      header: "Display Name:"
+      path: "userPrincipal#displayName"
+      fallback_on_empty: true
+      default: "<unset>"
+      type: "str"
     ttl:
       header: "TTL:"
       path: "ttl"
@@ -26,14 +41,56 @@ listview:
       fallback_on_empty: true
       default: "<unset>"
       type: "str"
+    login_name:
+      header: "Login Name:"
+      path: "userPrincipal#loginName"
+      fallback_on_empty: true
+      default: "<unset>"
+      type: "str"
 infoview:
   name: "Token Info"
   infopad:
     row_indexes:
       Normal:
         fields: ["user", "auth_provider", "ttl", "current", "expired",
-                 "is_derived", "token", "expires_at", "last_used"]
+                 "is_derived",
+                 "user_principal_header",
+                 "user_principal_display_name",
+                 "user_principal_login_name",
+                 "user_principal_me",
+                 "user_principal_type",
+                 "user_principal_provider",
+                 "token", "expires_at", "last_used"]
     rows:
+      user_principal_header:
+        header: [["User Principal:", ["main", "infoheader"]]]
+      user_principal_display_name:
+        header: [["  Display Name:", ["main", "infoheader"]]]
+        path: "userPrincipal#displayName"
+        fallback_on_empty: true
+        default: "<unset>"
+        type: "str"
+      user_principal_login_name:
+        header: [["  Login Name:", ["main", "infoheader"]]]
+        path: "userPrincipal#loginName"
+        fallback_on_empty: true
+        default: "<unset>"
+        type: "str"
+      user_principal_me:
+        header: [["  Me:", ["main", "infoheader"]]]
+        path: "userPrincipal#me"
+        default: "<unset>"
+        type: "bool"
+      user_principal_type:
+        header: [["  Type:", ["main", "infoheader"]]]
+        path: "userPrincipal#principalType"
+        default: "<unset>"
+        type: "str"
+      user_principal_provider:
+        header: [["  Provider:", ["main", "infoheader"]]]
+        path: "userPrincipal#provider"
+        default: "<unset>"
+        type: "str"
       auth_provider:
         header: [["Auth Provider:", ["main", "infoheader"]]]
         path: "authProvider"
