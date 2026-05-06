@@ -15,6 +15,17 @@ listview:
       type: "len"
       formatter: "numerical"
       align: "right"
+  shortcuts:
+    "SSH to host":
+      key: "s"
+      modifier: "shift"
+      read_only: false
+      helptext: "SSH to host"
+      action: "call"
+      action_call: "ssh_to_host"
+      action_args:
+        _pass_obj: true
+        name_path: "metadata#name"
 infoview:
   name: "CSI Node Info"
   infopad:
@@ -85,3 +96,13 @@ infoview:
         _pass_obj: true
         kind: "Node"
         owner_reference_path: "metadata#ownerReferences"
+    "SSH to Node":
+      key: "s"
+      modifier: "shift"
+      read_only: false
+      helptext: "SSH to node"
+      action: "call"
+      action_call: "ssh_to_host"
+      action_args:
+        _pass_obj: true
+        name_path: "metadata#name"

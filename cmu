@@ -2397,6 +2397,16 @@ def __fetch_package_versions(**kwargs: Any) -> tuple[Retval, dict]:
     return Retval.MATCH, {}
 
 
+def __ssh_to_node(**kwargs: Any) -> tuple[Retval, dict]:
+    uip = deep_get(kwargs, DictPath("uip"))
+    node = deep_get(kwargs, DictPath("node"))
+
+    if node and uip:
+        ssh_to_host(uip.stdscr, name=node)
+
+    return Retval.MATCH, {}
+
+
 clusteroverview_shortcuts = {
     "__common_shortcuts": [
         "Toggle mouse on/off",
@@ -2443,6 +2453,13 @@ clusteroverview_shortcuts = {
         "helpgroup": 2,
         "action": "key_callback",
         "action_call": __open_reference,
+    },
+    "SSH to Node": {
+        "helptext": ("[Shift] + S", "SSH to Node"),
+        "shortcut": [ord("S")],
+        "helpgroup": 2,
+        "action": "key_callback",
+        "action_call": __ssh_to_node,
     },
     "Show package versions": {
         "helptext": ("[Shift] + V", "Show package versions"),
@@ -8789,10 +8806,10 @@ def ssh_to_host(stdscr: curses.window, **kwargs: Any) -> Retval:
         Parameters:
             stdscr (curses.window): The curses window to operate on
             **kwargs (dict[str, Any]): Keyword arguments
-                obj (dict[str, Any]): The object to fetch information from
+                obj (dict[str, Any]): The object to fetch information from [optional]
                 name_path (str): The path to the member of the object
-                                 to fetch the name from (optional)
-                name (str): The name of the host (optional)
+                                 to fetch the name from [optional]
+                name (str): The name of the host [optional]
         Returns:
             (Retval): Retval.RETURNDONE
     """
