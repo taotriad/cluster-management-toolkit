@@ -3,6 +3,8 @@ kind: "ClusterClass"
 api_family: "cluster.x-k8s.io"
 default_command: "clusterclasses"
 command:
+  - "clrclasses"
+  - "clrclass"
   - "cc"
 listview:
   name: "Cluster Classes"
@@ -63,7 +65,9 @@ infoview:
       Normal:
         fields: ["control_plane_template",
                  "machine_template",
-                 "cluster_template"]
+                 "cluster_template",
+                 "variables_ready",
+                 "paused"]
     rows:
       control_plane_template:
         header: [["Control ", ["main", "infoheader"]],
@@ -130,6 +134,50 @@ infoview:
             - type: "kind_api_group"
             - type: "kind"
             - type: "namespace"
+      paused:
+        header: [["Paused:", ["main", "infoheader"]]]
+        paths:
+          - path: "status#conditions"
+            pathtype: "items"
+            subpath: "status"
+            when:
+              - key: "type"
+                eq: "Paused"
+        type: "str"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              "True":
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+              "False":
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+      variables_ready:
+        header: [["Variables Ready:", ["main", "infoheader"]]]
+        paths:
+          - path: "status#conditions"
+            pathtype: "items"
+            subpath: "status"
+            when:
+              - key: "type"
+                eq: "VariablesReady"
+        type: "str"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              "False":
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+              "True":
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
   shortcuts:
     "Cluster Template":
       key: "c"

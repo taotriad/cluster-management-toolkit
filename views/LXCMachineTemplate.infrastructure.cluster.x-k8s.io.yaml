@@ -1,0 +1,53 @@
+---
+kind: "LXCMachineTemplate"
+api_family: "infrastructure.cluster.x-k8s.io"
+default_command: "lxcmachinetemplates"
+command:
+  - "lxcmachtempls"
+  - "lxcmachtempl"
+listview:
+  name: "LXC Machine Templates"
+  group: "Cluster Configuration"
+  field_indexes:
+    Normal:
+      fields: ["namespace", "name", "cluster", "age"]
+      sortcolumn: "namespace"
+  fields:
+    cluster:
+      header: "Cluster:"
+      path: "metadata#labels#cluster.x-k8s.io/cluster-name"
+      default: "<unset>"
+      type: "str"
+infoview:
+  name: "LXC Machine Template Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["cluster"]
+    rows:
+      cluster:
+        header: [["Cl", ["main", "infoheader"]],
+                 ["u", ["main", "infoheader_shortcut"]],
+                 ["ster:", ["main", "infoheader"]]]
+        path: "metadata#labels#cluster.x-k8s.io/cluster-name"
+        default: "<unset>"
+        type: "str"
+  logpad:
+    infogetter: "logpad_formatted"
+    infogetter_args:
+      formatter: "format_yaml"
+      path: "spec#template"
+    timestamps: false
+  shortcuts:
+    "Open Cluster":
+      key: "u"
+      read_only: true
+      helptext: "Open info page for Cluster"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind: "Cluster"
+        api_family: "cluster.x-k8s.io"
+        namespace_path: "metadata#namespace"
+        name_path: "metadata#labels#cluster.x-k8s.io/cluster-name"

@@ -1,0 +1,69 @@
+---
+kind: "LXCClusterTemplate"
+api_family: "infrastructure.cluster.x-k8s.io"
+default_command: "lxcclustertemplates"
+command:
+  - "lxcclrtempls"
+  - "lxcclrtempl"
+listview:
+  name: "LXC Cluster Templates"
+  group: "Cluster Configuration"
+  field_indexes:
+    Normal:
+      fields: ["namespace", "name", "cluster_class", "age"]
+      sortcolumn: "namespace"
+  fields:
+    cluster_class:
+      header: "Cluster Class:"
+      paths:
+        - path: "metadata#ownerReferences"
+          pathtype: "items"
+          subpaths:
+            - "name"
+          when:
+            - key: "kind"
+              eq: "ClusterClass"
+          type: ["name"]
+          default: ["<none>"]
+      formatter: "list"
+infoview:
+  name: "LXC Cluster Template Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["cluster_class"]
+    rows:
+      cluster_class:
+        header: [["Clus", ["main", "infoheader"]],
+                 ["t", ["main", "infoheader_shortcut"]],
+                 ["er Class:", ["main", "infoheader"]]]
+        paths:
+          - path: "metadata#ownerReferences"
+            pathtype: "items"
+            subpaths:
+              - "name"
+            when:
+              - key: "kind"
+                eq: "ClusterClass"
+            type: ["name"]
+            default: ["<none>"]
+        formatter: "list"
+  logpad:
+    infogetter: "logpad_formatted"
+    infogetter_args:
+      formatter: "format_yaml"
+      path: "spec#template"
+    timestamps: false
+  shortcuts:
+    "Open Cluster Class":
+      key: "t"
+      read_only: true
+      helptext: "Open info page for Cluster Class"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        namespace_path: "metadata#namespace"
+        owner_reference_path: "metadata#ownerReferences"
+        kind: "ClusterClass"
+        api_family: "cluster.x-k8s.io"

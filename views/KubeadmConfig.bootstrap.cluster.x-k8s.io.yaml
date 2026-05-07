@@ -10,7 +10,8 @@ listview:
   group: "Cluster Configuration"
   field_indexes:
     Wide:
-      fields: ["namespace", "name", "controller", "cluster", "ready", "age"]
+      fields: ["namespace", "name", "controller", "cluster", "paused",
+               "ready", "age"]
       sortcolumn: "namespace"
     Normal:
       fields: ["namespace", "name", "cluster", "ready", "age"]
@@ -19,6 +20,7 @@ listview:
     cluster:
       header: "Cluster:"
       path: "metadata#labels#cluster.x-k8s.io/cluster-name"
+      default: "<unset>"
       type: "str"
     controller:
       header: "Controller:"
@@ -43,10 +45,44 @@ listview:
         field_separators:
           - type: "kind_api_group"
           - type: "kind"
+    paused:
+      header: "Paused:"
+      paths:
+        - path: "status#conditions"
+          pathtype: "items"
+          subpath: "status"
+          when:
+            - key: "type"
+              eq: "Paused"
+          default: ["<unset>"]
+      type: "str"
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          mappings:
+            "True":
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+            "False":
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+            "<unset>":
+              field_colors:
+                - context: "types"
+                  type: "unset"
     ready:
       header: "Ready:"
-      path: "status#ready"
-      type: "bool"
+      paths:
+        - path: "status#conditions"
+          pathtype: "items"
+          subpath: "status"
+          when:
+            - key: "type"
+              eq: "Ready"
+          default: ["<unset>"]
+      type: "str"
       formatter: "value_mapper"
       formatting:
         mapping:
@@ -59,13 +95,17 @@ listview:
               field_colors:
                 - context: "main"
                   type: "status_not_ok"
+            "<unset>":
+              field_colors:
+                - context: "types"
+                  type: "unset"
 infoview:
   name: "Kubeadm Config Info"
   infopad:
     row_indexes:
       Normal:
-        fields: ["cluster", "controller", "control_plane", "ready",
-                 "data_secret_name"]
+        fields: ["cluster", "controller", "control_plane",
+                 "data_secret_name", "paused", "ready"]
     rows:
       cluster:
         header: [["Cl", ["main", "infoheader"]],
@@ -122,10 +162,51 @@ infoview:
           field_separators:
             - type: "kind_api_group"
             - type: "kind"
+      data_secret_name:
+        header: [["Data ", ["main", "infoheader"]],
+                 ["S", ["main", "infoheader_shortcut"]],
+                 ["ecret Name:", ["main", "infoheader"]]]
+        path: "status#dataSecretName"
+        default: "<none>"
+        type: "str"
+      paused:
+        header: [["Paused:", ["main", "infoheader"]]]
+        paths:
+          - path: "status#conditions"
+            pathtype: "items"
+            subpath: "status"
+            when:
+              - key: "type"
+                eq: "Paused"
+            default: ["<unset>"]
+        type: "str"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              "True":
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+              "False":
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+              "<unset>":
+                field_colors:
+                  - context: "types"
+                    type: "unset"
       ready:
         header: [["Ready:", ["main", "infoheader"]]]
-        path: "status#ready"
-        type: "bool"
+        paths:
+          - path: "status#conditions"
+            pathtype: "items"
+            subpath: "status"
+            when:
+              - key: "type"
+                eq: "Ready"
+            default: ["<unset>"]
+        type: "str"
         formatter: "value_mapper"
         formatting:
           mapping:
@@ -138,12 +219,10 @@ infoview:
                 field_colors:
                   - context: "main"
                     type: "status_not_ok"
-      data_secret_name:
-        header: [["Data ", ["main", "infoheader"]],
-                 ["S", ["main", "infoheader_shortcut"]],
-                 ["ecret Name:", ["main", "infoheader"]]]
-        path: "status#dataSecretName"
-        type: "str"
+              "<unset>":
+                field_colors:
+                  - context: "types"
+                    type: "unset"
   shortcuts:
     "Open Cluster":
       key: "u"

@@ -21,6 +21,7 @@
     - image_name: "/cluster-api-azure/cluster-api-azure-controller"
     - image_name: "/capk/capk-manager"
     - image_name: "/capi-operator/cluster-api-operator"
+    - image_name: "/lxc/cluster-api-provider-incus"
   parser_rules:
     - name: "glog"
     - name: "key_value_with_leading_message"

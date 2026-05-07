@@ -1,0 +1,166 @@
+---
+kind: "LXCMachine"
+api_family: "infrastructure.cluster.x-k8s.io"
+default_command: "lxcmachines"
+command:
+  - "lxcmachs"
+  - "lxcmach"
+listview:
+  name: "LXC Machines"
+  group: "Cluster Configuration"
+  field_indexes:
+    Wide:
+      fields: ["namespace", "name", "cluster", "flavor",
+               "instance_type", "ready", "age"]
+      sortcolumn: "namespace"
+    Normal:
+      fields: ["namespace", "name", "cluster", "flavor", "ready", "age"]
+      sortcolumn: "namespace"
+  fields:
+    cluster:
+      header: "Cluster:"
+      path: "metadata#labels#cluster.x-k8s.io/cluster-name"
+      default: "<unset>"
+      type: "str"
+    flavor:
+      header: "Flavor:"
+      path: "spec#flavor"
+      default: "<unset>"
+      type: "str"
+    instance_type:
+      header: "Instance Type:"
+      path: "spec#instanceType"
+      default: "<unset>"
+      type: "str"
+    ready:
+      header: "Ready:"
+      paths:
+        - path: "status#conditions"
+          pathtype: "items"
+          subpath: "status"
+          when:
+            - key: "type"
+              eq: "Ready"
+          default: ["<unset>"]
+      type: "str"
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          mappings:
+            "True":
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+            "False":
+              field_colors:
+                - context: "main"
+                  type: "status_not_ok"
+            "<unset>":
+              field_colors:
+                - context: "types"
+                  type: "unset"
+infoview:
+  name: "LXC Machine Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["controller", "cluster", "flavor",
+                 "instance_type", "profiles", "ready"]
+    rows:
+      controller:
+        header: [["C", ["main", "infoheader_shortcut"]],
+                 ["ontroller:", ["main", "infoheader"]]]
+        paths:
+          - path: "metadata#ownerReferences"
+            pathtype: "items"
+            subpaths:
+              - "kind"
+              - "apiVersion"
+              - "name"
+            when:
+              - key: "controller"
+                eq: true
+            type: ["kind", "api_group", "name"]
+            default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "kind"
+            - type: "api_group"
+            - type: "generic"
+          field_separators:
+            - type: "kind_api_group"
+            - type: "kind"
+      cluster:
+        header: [["Cl", ["main", "infoheader"]],
+                 ["u", ["main", "infoheader_shortcut"]],
+                 ["ster:", ["main", "infoheader"]]]
+        path: "metadata#labels#cluster.x-k8s.io/cluster-name"
+        default: "<unset>"
+        type: "str"
+      flavor:
+        header: [["Flavor:", ["main", "infoheader"]]]
+        path: "spec#flavor"
+        default: "<unset>"
+        type: "str"
+      instance_type:
+        header: [["Instance Type:", ["main", "infoheader"]]]
+        path: "spec#instanceType"
+        default: "<unset>"
+        type: "str"
+      profiles:
+        header: [["Profiles:", ["main", "infoheader"]]]
+        path: "spec#profiles"
+        type: "raw"
+        formatter: "list"
+      ready:
+        header: [["Ready:", ["main", "infoheader"]]]
+        paths:
+          - path: "status#conditions"
+            pathtype: "items"
+            subpath: "status"
+            when:
+              - key: "type"
+                eq: "Ready"
+            default: ["<unset>"]
+        type: "str"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              "True":
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+              "False":
+                field_colors:
+                  - context: "main"
+                    type: "status_not_ok"
+              "<unset>":
+                field_colors:
+                  - context: "types"
+                    type: "unset"
+  shortcuts:
+    "Open controller":
+      key: "c"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for controller"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        namespace_path: "metadata#namespace"
+        owner_reference_path: "metadata#ownerReferences"
+    "Open Cluster":
+      key: "u"
+      read_only: true
+      helptext: "Open info page for Cluster"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind: "Cluster"
+        api_family: "cluster.x-k8s.io"
+        namespace_path: "metadata#namespace"
+        name_path: "metadata#labels#cluster.x-k8s.io/cluster-name"

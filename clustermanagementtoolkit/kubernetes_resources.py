@@ -1052,6 +1052,22 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api_paths": ["apis/infrastructure.cluster.x-k8s.io/v1alpha1/"],
         "api": "kubevirtmachinetemplates",
     },
+    ("LXCCluster", "infrastructure.cluster.x-k8s.io"): {
+        "api_paths": ["apis/infrastructure.cluster.x-k8s.io/v1alpha2/"],
+        "api": "lxcclusters",
+    },
+    ("LXCClusterTemplate", "infrastructure.cluster.x-k8s.io"): {
+        "api_paths": ["apis/infrastructure.cluster.x-k8s.io/v1alpha2/"],
+        "api": "lxcclustertemplates",
+    },
+    ("LXCMachine", "infrastructure.cluster.x-k8s.io"): {
+        "api_paths": ["apis/infrastructure.cluster.x-k8s.io/v1alpha2/"],
+        "api": "lxcmachines",
+    },
+    ("LXCMachineTemplate", "infrastructure.cluster.x-k8s.io"): {
+        "api_paths": ["apis/infrastructure.cluster.x-k8s.io/v1alpha2/"],
+        "api": "lxcmachinetemplates",
+    },
     ("Metal3Cluster", "infrastructure.cluster.x-k8s.io"): {
         "api_paths": ["apis/infrastructure.cluster.x-k8s.io/v1beta1/"],
         "api": "metal3clusters",
