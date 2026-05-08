@@ -743,6 +743,11 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api_paths": ["apis/controlplane.cluster.x-k8s.io/v1beta2/"],
         "api": "rosacontrolplanes",
     },
+    # disaggregatedset.x-k8s.io
+    ("DisaggregatedSet", "disaggregatedset.x-k8s.io"): {
+        "api_paths": ["apis/disaggregatedset.x-k8s.io/v1alpha1/"],
+        "api": "disaggregatedsets",
+    },
     # gateway.networking.x-k8s.io
     ("XBackendTrafficPolicy", "gateway.networking.x-k8s.io"): {
         "api_paths": ["apis/gateway.networking.x-k8s.io/v1alpha1/"],
