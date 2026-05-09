@@ -1,4 +1,5 @@
 #! /usr/bin/env python3
+# vim: ts=4 filetype=python expandtab shiftwidth=4 softtabstop=4 syntax=python
 #
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
@@ -10,31 +11,31 @@ for Cluster Management Toolkit for Kubernetes
 
 import sys
 
-COPYRIGHT = \
+COPYRIGHT: str = \
     "Copyright © 2019-2025 Intel Corporation\n" \
     "Copyright © 2025-2026 David Weinehall\n"
 
-LICENSE = "This is free software; see the source for copying conditions.  There is NO\n" \
+LICENSE: str = "This is free software; see the source for copying conditions.  There is NO\n" \
           "warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE."
 
-PROGRAM_SUITE_NAME = "CMT"
-PROGRAM_SUITE_FULL_NAME = "Cluster Management Toolkit for Kubernetes"
-PROGRAM_SUITE_VERSION = "0.8.7"
+PROGRAM_SUITE_NAME: str = "CMT"
+PROGRAM_SUITE_FULL_NAME: str = "Cluster Management Toolkit for Kubernetes"
+PROGRAM_SUITE_VERSION: str = "0.8.7"
 
-UI_PROGRAM_NAME = "cmu"
-UI_PROGRAM_VERSION = "0.5.5"
+UI_PROGRAM_NAME: str = "cmu"
+UI_PROGRAM_VERSION: str = "0.5.5"
 
-TOOL_PROGRAM_NAME = "cmt"
-TOOL_PROGRAM_VERSION = "0.6.8"
+TOOL_PROGRAM_NAME: str = "cmt"
+TOOL_PROGRAM_VERSION: str = "0.6.8"
 
-INSTALL_PROGRAM_NAME = "cmt-install"
-INSTALL_PROGRAM_VERSION = "0.13.9"
+INSTALL_PROGRAM_NAME: str = "cmt-install"
+INSTALL_PROGRAM_VERSION: str = "0.13.9"
 
-ADMIN_PROGRAM_NAME = "cmtadm"
-ADMIN_PROGRAM_VERSION = "0.9.6"
+ADMIN_PROGRAM_NAME: str = "cmtadm"
+ADMIN_PROGRAM_VERSION: str = "0.9.6"
 
-INVENTORY_PROGRAM_NAME = "cmtinv"
-INVENTORY_PROGRAM_VERSION = "0.4.9"
+INVENTORY_PROGRAM_NAME: str = "cmtinv"
+INVENTORY_PROGRAM_VERSION: str = "0.4.9"
 
 # We don't support Python-versions older than 3.11
 version_info = sys.version_info

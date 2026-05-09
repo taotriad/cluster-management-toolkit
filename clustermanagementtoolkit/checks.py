@@ -21,7 +21,7 @@ import os
 from pathlib import Path
 import re
 import sys
-from typing import Any, cast, TypedDict
+from typing import Any, cast, Sequence, TypedDict
 from collections.abc import Generator
 
 from clustermanagementtoolkit.ansible_helper import ansible_configuration
@@ -31,6 +31,8 @@ from clustermanagementtoolkit.ansible_helper import get_playbook_path
 
 from clustermanagementtoolkit.recommended_permissions import recommended_directory_permissions
 from clustermanagementtoolkit.recommended_permissions import recommended_file_permissions
+from clustermanagementtoolkit.recommended_permissions import DirectoryPermissions
+from clustermanagementtoolkit.recommended_permissions import FilePermissions
 
 from clustermanagementtoolkit.cmtio import execute_command_with_response
 
@@ -1204,8 +1206,8 @@ def check_running_pods(**kwargs: Any) -> tuple[bool, int, int, int, int]:
 
 
 # pylint: disable-next=too-many-statements,too-many-locals,too-many-branches
-def __check_permissions(recommended_permissions: list[dict], pathtype: str,
-                        **kwargs: Any) -> tuple[bool, bool, int, int, int, int]:
+def __check_permissions(recommended_permissions: Sequence[DirectoryPermissions | FilePermissions],
+                        pathtype: str, **kwargs: Any) -> tuple[bool, bool, int, int, int, int]:
     """
     Check permissions for a path.
 

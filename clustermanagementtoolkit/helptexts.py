@@ -1,4 +1,5 @@
 #! /usr/bin/env python3
+# vim: ts=4 filetype=python expandtab shiftwidth=4 softtabstop=4 syntax=python
 #
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
@@ -43,15 +44,15 @@ about: list[list[ThemeRef | ThemeStr]] = [
     [ThemeStr("", ThemeAttr("main", "about_text"))],
 ]
 
-toggleborders = [
+toggleborders: list[tuple[str, str]] = [
     ("[Shift] + B", "Toggle borders"),
 ]
 
-togglewidth = [
+togglewidth: list[tuple[str, str]] = [
     ("[Shift] + W", "Toggle custom/narrow/normal/wide fields (when available)"),
 ]
 
-listviewheader = [
+listviewheader: list[tuple[str, str]] = [
     ("[Ctrl] + X", "Exit program"),
     ("[Shift] + M", "Toggle mouse on/off"),
 ] + togglewidth + toggleborders + [
@@ -65,17 +66,17 @@ listviewheader = [
     ("", ""),
 ]
 
-openresource = [
+openresource: list[tuple[str, str]] = [
     ("[Enter]", "Open info page for selected resource"),
 ]
 
-selectnamespace = [
+selectnamespace: list[tuple[str, str]] = [
     ("[Shift] + A", "Show all Namespaces"),
     ("[Shift] + N", "Filter by Namespace from list"),
     ("W", "Filter by Namespace of selected resource"),
 ]
 
-tagactions = [
+tagactions: list[tuple[str, str]] = [
     ("T", "Tag / Untag item"),
     ("[Shift] + T", "Tag item by pattern"),
     ("[Ctrl] + T", "Untag item by pattern"),
@@ -83,18 +84,18 @@ tagactions = [
     (";", "Perform action on tagged items"),
 ]
 
-selectoractions = [
+selectoractions: list[tuple[str, str]] = [
     ("L", "Show labels for all tagged items"),
     ("F", "Select labels and filter by label selector"),
     ("[Shift] + F", "Clear label selector"),
 ]
 
-infoviewheader_part1 = [
+infoviewheader_part1: list[tuple[str, str]] = [
     ("[ESC]", "Return to previous screen"),
     ("[Ctrl] + X", "Exit program"),
     ("[Shift] + M", "Toggle mouse on/off"),
 ]
-infoviewheader_part2 = [
+infoviewheader_part2: list[tuple[str, str]] = [
 ] + toggleborders + [
     ("", ""),
     ("[F1] / [Shift] + H", "Show this helptext"),
@@ -105,7 +106,7 @@ infoviewheader_part2 = [
     ("^", "Go to parent view"),
 ]
 
-irreversiblelistmovement = [
+irreversiblelistmovement: list[tuple[str, str]] = [
     ("[Left]", "Scroll left"),
     ("[Right]", "Scroll right"),
     ("[Down]", "Move to next row"),
@@ -126,19 +127,19 @@ irreversiblelistmovement = [
     ("[Shift] + [End]", "Jump to end"),
 ]
 
-listmovement = [
+listmovement: list[tuple[str, str]] = [
     ("R", "Reverse sortorder"),
 ] + irreversiblelistmovement
 
-linewrap = [
+linewrap: list[tuple[str, str]] = [
     ("[Shift] + W", "Toggle line wrapping"),
 ]
 
-toggleformatter = [
+toggleformatter: list[tuple[str, str]] = [
     ("[Shift] + R", "Toggle highlighting / formatting (default: On)"),
 ]
 
-logmovement = [
+logmovement: list[tuple[str, str]] = [
     ("[Cursor keys]", "Scroll log up / down / left / right"),
     ("/", "Search forwards"),
     ("N", "Search forwards for next match"),
@@ -154,23 +155,23 @@ logmovement = [
     ("[Shift] + [Right]", "Scroll a half page right"),
 ]
 
-annotations = [
+annotations: list[tuple[str, str]] = [
     ("A", "Show annotations"),
 ]
 
-labels = [
+labels: list[tuple[str, str]] = [
     ("L", "Show labels"),
 ]
 
-spacer = [
+spacer: list[tuple[str, str]] = [
     ("", ""),
 ]
 
-configmapdata = infoviewheader_part1 + infoviewheader_part2 + spacer + [
+configmapdata: list[tuple[str, str]] = infoviewheader_part1 + infoviewheader_part2 + spacer + [
     ("[Shift] + R", "Toggle highlighting / formatting (default: On)"),
 ] + spacer + logmovement
 
-containerinfo = [
+containerinfo: list[tuple[str, str]] = [
     ("[ESC]", "Return to previous screen"),
     ("", ""),
     ("[F1]", "Show this helptext"),

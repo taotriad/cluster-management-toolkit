@@ -1,5 +1,6 @@
 #! /usr/bin/env python3
 # vim: ts=4 filetype=python expandtab shiftwidth=4 softtabstop=4 syntax=python
+# Requires: python3 (>= 3.11)
 #
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
@@ -9,7 +10,25 @@ Known Persistent Volume types. Note: with the introduction of CSIDrivers
 most of these are deprecated.
 """
 
-KNOWN_PV_TYPES = {
+from typing import TypedDict
+
+
+class PVInfoType(TypedDict):
+    """
+    A TypedDict for persistent volume type information.
+
+        Parameters:
+            type (str): The volume type
+            description (str): A description of the volume type
+            properties (dict[str, dict[str, dict | str | bool | None]]): Properties for the volume
+    """
+    type: str
+    description: str
+    properties: dict[str, dict[str, dict | str | bool | None]]
+
+
+KNOWN_PV_TYPES: dict[str, PVInfoType] = {
+    # Deprecated
     "awsElasticBlockStore": {
         "type": "AWS Elastic Block Storage",
         "description": "Represents a Persistent Disk resource in AWS",
@@ -20,6 +39,7 @@ KNOWN_PV_TYPES = {
             "Read Only:": {"path": "readOnly", "default": False},
         },
     },
+    # Deprecated
     "azureDisk": {
         "type": "Azure Disk",
         "description": "Azure Data Disk mount on the host and bind mount to the pod",
@@ -32,38 +52,36 @@ KNOWN_PV_TYPES = {
             "Kind:": {"path": "kind", "default": "shared"},
         },
     },
+    # Deprecated
     "azureFile": {
         "type": "Azure File",
         "description": "Azure File Service mount on the host and bind mount to the pod",
         "properties": {
             "Share Name:": {"path": "shareName"},
             "Read Only:": {"path": "readOnly", "default": False},
-            # These two should combine to a shortcut to a secret; needs formatting + helper
             "Secret Name:": {"path": "secretName"},
             "Secret Namespace:": {"path": "secretNamespace", "default": "<pod namespace>"},
         },
     },
+    # Deprecated
     "cephfs": {
         "type": "Ceph",
+        "description": "CephFS mount on the host that shares a pod's lifetime",
         "properties": {
             "Path:": {"path": "path", "default": "/"},
-            # "Monitors:": {"path": "monitors", "processor": field_processor_list},
-            "Read Only:": {"path": "readOnly", "default": "False"},
+            "Read Only:": {"path": "readOnly", "default": False},
             "Rados User": {"path": "user", "default": "admin"},
-            # Should be a shortcut to a secret; needs formatting
-            # "Secret:": {"path": "secretRef"},
             "Secret File:": {"path": "secretFile", "default": "/etc/ceph/user.secret"},
         },
     },
+    # Deprecated
     "cinder": {
-        # Deprecated
         "type": "OpenStack Cinder Volume",
+        "description": "Cinder volume attached and mounted on kubelets host machine",
         "properties": {
             "Volume ID:": {"path": "volumeID"},
             "Filesystem Type:": {"path": "fsType", "default": "ext4"},
-            "Read Only:": {"path": "readOnly", "default": "False"},
-            # Should be a shortcut to a secret; needs formatting
-            # "Secret:": {"path": "secretRef"},
+            "Read Only:": {"path": "readOnly", "default": False},
         },
     },
     "csi": {
@@ -73,25 +91,21 @@ KNOWN_PV_TYPES = {
             "Volume Handle:": {"path": "volumeHandle"},
             "Driver:": {"path": "driver"},
             "Filesystem Type:": {"path": "fsType", "default": "<unset>"},
-            # {"path": "controllerExpandSecretRef"},
-            # {"path": "controllerPublishSecretRef"},
-            # {"path": "nodeExpandSecretRef"},
-            # {"path": "nodePublishSecretRef"},
             "Read Only:": {"path": "readOnly", "default": False},
-            # {"path": "volumeAttributes"}, # dict(str, str)
             "Storage Pool": {"path": "volumeAttributes#storagePool"},
         },
     },
     "fc": {
         "type": "Fibre Channel Volume",
+        "description": "Fibre Channel resource that is attached "
+                       "to a kubelet's host machine and then exposed to the pod",
         "properties": {
             "Filesystem Type:": {"path": "fsType", "default": "ext4"},
-            # "WorldWide Identifiers:": {"path": "wwids", "processor": field_processor_list},
-            # "Target WorldWide Names:": {"path": "targetWWNs", "processor": field_processor_list},
             "Logical Unit Number:": {"path": "lun"},
-            "Read Only:": {"path": "readOnly", "default": "False"},
+            "Read Only:": {"path": "readOnly", "default": False},
         },
     },
+    # Deprecated
     "flexVolume": {
         "type": "FlexPersistentVolumeSource",
         "description": "Generic persistent volume "
@@ -99,12 +113,11 @@ KNOWN_PV_TYPES = {
         "properties": {
             "Driver:": {"path": "driver"},
             "Filesystem Type:": {"path": "fsType", "default": "<script dependent>"},
-            "Read Only:": {"path": "readOnly", "default": "False"},
-            # Should be a shortcut to a secret; needs formatting
-            # "Secret:": {"path": "secretRef"},
+            "Read Only:": {"path": "readOnly", "default": False},
             "Options": {"path": "options", "default": {}},
         },
     },
+    # Deprecated
     "flocker": {
         "type": "Flocker Volume",
         "description": "Flocker Volume mounted by the Flocker agent",
@@ -113,6 +126,7 @@ KNOWN_PV_TYPES = {
             "Dataset UUID:": {"path": "datasetUUID"},
         },
     },
+    # Deprecated
     "gcePersistentDisk": {
         "type": "GCE Persistent Disk",
         "description": "Google Compute Engine Persistent Disk resource",
@@ -120,9 +134,10 @@ KNOWN_PV_TYPES = {
             "PD Name:": {"path": "pdName"},
             "Partition:": {"path": "partition"},
             "Filesystem Type:": {"path": "fsType", "default": "ext4"},
-            "Read Only:": {"path": "readOnly", "default": "False"},
+            "Read Only:": {"path": "readOnly", "default": False},
         },
     },
+    # Deprecated
     "glusterfs": {
         "type": "GlusterFS",
         "description": "Glusterfs mount that lasts the lifetime of a pod",
@@ -130,7 +145,7 @@ KNOWN_PV_TYPES = {
             "Path:": {"path": "path"},
             "Endpoints:": {"path": "endpoints"},
             "Endpoints Namespace:": {"path": "endpoints", "default": "<PVC namespace>"},
-            "Read Only:": {"path": "readOnly", "default": "False"},
+            "Read Only:": {"path": "readOnly", "default": False},
         },
     },
     "hostPath": {
@@ -144,19 +159,18 @@ KNOWN_PV_TYPES = {
     },
     "iscsi": {
         "type": "iSCSI Disk",
+        "description": "ISCSI Disk resource that is attached "
+                       "to a kubelet's host machine and then exposed to the pod",
         "properties": {
             "iSCSI Qualified Name:": {"path": "iqn"},
             "Logical Unit Number:": {"path": "lun"},
             "Target Portal:": {"path": "targetPortal"},
-            # "Target Portals:": {"path": "targetPortals", "processor": field_processor_list},
             "Filesystem Type:": {"path": "fsType", "default": "ext4"},
             "Chap Auth Discovery:": {"path": "chapAuthDiscovery"},
             "Chap Auth Session:": {"path": "chapAuthSession"},
             "iSCSI Initiator:": {"path": "initiatorName"},
             "iSCSI Interface:": {"path": "iscsiInterface", "default": "tcp"},
-            "Read Only:": {"path": "readOnly", "default": "False"},
-            # Should be a shortcut to a secret; needs formatting
-            # "Secret:": {"path": "secretRef"},
+            "Read Only:": {"path": "readOnly", "default": False},
         },
     },
     "local": {
@@ -173,36 +187,32 @@ KNOWN_PV_TYPES = {
         "properties": {
             "Server:": {"path": "server"},
             "Path:": {"path": "path"},
-            "Read Only:": {"path": "readOnly", "default": "False"},
+            "Read Only:": {"path": "readOnly", "default": False},
         },
     },
+    # Deprecated
     "portworxVolume": {
         "type": "Portworx volume",
+        "description": "Portworx volume attached and mounted on kubelets host machine",
         "properties": {
             "Volume ID:": {"path": "volumeID"},
             "Filesystem Type:": {"path": "fsType", "default": "ext4"},
-            "Read Only:": {"path": "readOnly", "default": "False"},
+            "Read Only:": {"path": "readOnly", "default": False},
         },
     },
+    # Deprecated
     "quobyte": {
         "type": "Quobyte Mount",
         "description": "Quobyte mount that lasts the lifetime of a pod",
         "properties": {
             "Volume Name:": {"path": "volume"},
-            # "Registry:": {
-            #     "path": "registry",
-            #     "processor": field_processor_str_to_list,
-            #     "formatting": {
-            #         "iskeyvalue": True,
-            #         "field_separators": [ThemeRef("separators", "host")]
-            #     }
-            # }, # str(host:port, host:port, ...)
-            "Read Only:": {"path": "readOnly", "default": "False"},
+            "Read Only:": {"path": "readOnly", "default": False},
             "Tenant:": {"path": "tenant"},
             "User:": {"path": "user", "default": "<service account user>"},
             "Group:": {"path": "group", "default": None},
         },
     },
+    # Deprecated
     "rbd": {
         "type": "RBD",
         "description": "Rados Block Device mount that lasts the lifetime of a pod",
@@ -210,17 +220,15 @@ KNOWN_PV_TYPES = {
             "Image:": {"path": "image"},
             "Pool:": {"path": "pool", "default": "rbd"},
             "Filesystem Type:": {"path": "fsType", "default": "ext4"},
-            # "Monitors:": {"path": "monitors", "processor": field_processor_list},
             "Read Only:": {"path": "readOnly"},
             "Rados User": {"path": "user", "default": "admin"},
             "Keyring:": {"path": "keyring", "default": "/etc/ceph/keyring"},
-            # Should be a shortcut to a secret; needs formatting
-            # "Secret:": {"path": "secretRef"},
         },
     },
+    # Deprecated
     "scaleIO": {
-        # Deprecated
         "type": "Persistent ScaleIO Volume",
+        "description": "ScaleIO persistent volume attached and mounted on Kubernetes nodes",
         "properties": {
             "Volume Name:": {"path": "volumeName"},
             "Gateway:": {"path": "gateway"},
@@ -229,25 +237,26 @@ KNOWN_PV_TYPES = {
             "Storage Mode:": {"path": "storageMode", "default": "ThinProvisioned"},
             "Filesystem Type:": {"path": "fsType", "default": "xfs"},
             "Protection Domain:": {"path": "protectionDomain"},
-            "SSL Enabled:": {"path": "sslEnabled", "default": "False"},
+            "SSL Enabled:": {"path": "sslEnabled", "default": False},
             "Read Only:": {"path": "readOnly"},
-            # Should be a shortcut to a secret; needs formatting
-            # "Secret:": {"path": "secretRef"},
         },
     },
+    # Deprecated
     "storageos": {
         "type": "Persistent StorageOS Volume",
+        "description": "StorageOS volume that is attached "
+                       "to the kubelet's host machine and mounted into the pod",
         "properties": {
             "Volume Name:": {"path": "volumeName"},
             "Volume Namespace:": {"path": "volumeNamespace", "default": "<pod namespace>"},
             "Filesystem Type:": {"path": "fsType", "default": "ext4"},
             "Read Only:": {"path": "readOnly"},
-            # Should be a shortcut to a secret; needs formatting
-            # "Secret:": {"path": "secretRef"},
         },
     },
+    # Deprecated
     "vsphereVolume": {
         "type": "vSphere Volume",
+        "description": "vSphere volume attached and mounted on kubelets host machine",
         "properties": {
             "Volume Path:": {"path": "volumePath"},
             "Filesystem Type:": {"path": "fsType", "default": "ext4"},

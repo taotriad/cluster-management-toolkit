@@ -84,7 +84,7 @@ from clustermanagementtoolkit.kubernetes_resources import unknown_kubernetes_res
 from clustermanagementtoolkit.kubernetes_resources import kubernetes_resource_types
 
 # Acceptable ciphers
-CIPHERS = [
+CIPHERS: list[str] = [
     # TLS v1.3
     "TLS_AES_256_GCM_SHA384",
     # TLS v1.2

@@ -12,6 +12,8 @@ used when auditing the local system.
 
 import os
 
+from typing import TypedDict
+
 from clustermanagementtoolkit.cmttypes import FilePath
 
 from clustermanagementtoolkit.cmtpaths import BINDIR, CMTDIR, CMT_LOGS_DIR
@@ -32,7 +34,57 @@ from clustermanagementtoolkit.cmtpaths import KUBE_CREDENTIALS_FILE
 # .ssh/id_*.pub should be 644, 640, or 600
 # .ssh/id_* should be 600
 
-recommended_directory_permissions: list[dict] = [
+class DirectoryPermissions(TypedDict):
+    """
+    A TypedDict for directory permissions.
+
+        Parameters:
+            path (FilePath): Path to check permissions for
+            alertmask (int): The permission mask to apply
+            usergroup_alertmask (int): The permission mask to apply if usergroups are enabled
+            severity (str): The severity of incorrect permissions
+            justification ([(str, str)]): Justification for the severity
+    """
+    path: FilePath
+    alertmask: int
+    usergroup_alertmask: int
+    severity: str
+    justification: list[tuple[str, str]]
+
+
+class FilePermissionsOptional(TypedDict, total=False):
+    """
+    Optional fields in the TypedDict for file permissions.
+
+        Parameters:
+            optional (bool): Is this file optional?
+            executable (bool): Is this file an executable?
+            suffixes ((str, ...)): Suffixes of files to check the permissions for
+    """
+    optional: bool
+    executable: bool
+    suffixes: tuple[str, ...]
+
+
+class FilePermissions(FilePermissionsOptional):
+    """
+    A TypedDict for file permissions.
+
+        Parameters:
+            path (FilePath): Path to check permissions for
+            alertmask (int): The permission mask to apply
+            usergroup_alertmask (int): The permission mask to apply if usergroups are enabled
+            severity (str): The severity of incorrect permissions
+            justification ([(str, str)]): Justification for the severity
+    """
+    path: FilePath
+    alertmask: int
+    usergroup_alertmask: int
+    severity: str
+    justification: list[tuple[str, str]]
+
+
+recommended_directory_permissions: list[DirectoryPermissions] = [
     {
         "path": BINDIR,
         "alertmask": 0o022,
@@ -188,7 +240,7 @@ recommended_directory_permissions: list[dict] = [
     },
 ]
 
-recommended_file_permissions: list[dict] = [
+recommended_file_permissions: list[FilePermissions] = [
     {
         "path": FilePath(os.path.join(BINDIR, "cmtadm")),
         "alertmask": 0o022,
