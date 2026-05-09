@@ -33,14 +33,14 @@ infoview:
             type: ["kind", "api_group", "name"]
             default: ["<none>"]
         formatter: "list"
-      formatting:
-        field_colors:
-          - type: "kind"
-          - type: "api_group"
-          - type: "generic"
-        field_separators:
-          - type: "kind_api_group"
-          - type: "kind"
+        formatting:
+          field_colors:
+            - type: "kind"
+            - type: "api_group"
+            - type: "generic"
+          field_separators:
+            - type: "kind_api_group"
+            - type: "kind"
   logpad:
     infogetter: "logpad_formatted"
     infogetter_args:
