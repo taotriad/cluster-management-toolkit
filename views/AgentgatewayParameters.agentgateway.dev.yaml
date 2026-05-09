@@ -1,0 +1,22 @@
+---
+kind: "AgentgatewayParameters"
+api_family: "agentgateway.dev"
+default_command: "agentgatewayparameters"
+command:
+  - "agentgwparams"
+  - "agentgwparam"
+listview:
+  name: "Agentgateway Parameters"
+  group: "Machine Learning"
+  field_indexes:
+    Normal:
+      fields: ["namespace", "name", "age"]
+infoview:
+  name: "Agentgateway Parameters Info"
+  infopad:
+  logpad:
+    infogetter: "logpad_formatted"
+    infogetter_args:
+      formatter: "format_yaml"
+      path: "spec"
+    timestamps: false

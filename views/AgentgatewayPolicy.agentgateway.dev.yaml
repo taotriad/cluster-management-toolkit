@@ -1,0 +1,77 @@
+---
+kind: "AgentgatewayPolicy"
+api_family: "agentgateway.dev"
+default_command: "agentgatewaypolicies"
+command:
+  - "agentgwpolicies"
+  - "agentgwpolicy"
+  - "agentgwpols"
+  - "agentgwpol"
+listview:
+  name: "Agentgateway Policies"
+  group: "Machine Learning"
+  field_indexes:
+    Normal:
+      fields: ["namespace", "name", "age"]
+infoview:
+  name: "Agentgateway Policy Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["targets"]
+    rows:
+      targets:
+        header: [["T", ["main", "infoheader_shortcut"]],
+                 ["argets:", ["main", "infoheader"]]]
+        paths:
+          - path: "spec#targetRefs"
+            pathtype: "items"
+            subpaths:
+              - "kind"
+              - "group"
+              - "name"
+            type: ["kind", "api_group", "name"]
+            default: ["<none>"]
+        formatter: "list"
+      formatting:
+        field_colors:
+          - type: "kind"
+          - type: "api_group"
+          - type: "generic"
+        field_separators:
+          - type: "kind_api_group"
+          - type: "kind"
+  logpad:
+    infogetter: "logpad_formatted"
+    infogetter_args:
+      formatter: "format_yaml"
+      paths:
+        - path: "spec#frontend"
+        - path: "spec#backend"
+    timestamps: false
+  shortcuts:
+    "List Targets":
+      key: "t"
+      modifier: "shift"
+      read_only: true
+      helptext: "List targets"
+      widget: "windowwidget"
+      title: "Targets:"
+      selectable: true
+      headers: ["Kind:", "API-Group:", "Name:"]
+      itemgetter: "get_list_fields"
+      itemgetter_args:
+        path: "spec#targetRefs"
+        fields:
+          - "kind"
+          - "group"
+          - "name"
+      # Not supported for now
+      sortcolumn: "kind"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        kind_path: 0
+        api_group_path: 1
+        name_path: 2
+        _parent_namespace_path: "metadata#namespace"

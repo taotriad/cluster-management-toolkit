@@ -45,6 +45,19 @@
     - name: "strip_ansicodes"
     - name: "ts_8601"
     - name: "json"
+    - name: "custom_line"
+      options:
+        block_start:
+          - matchtype: "startswith"
+            matchkey: "******************"
+            matchline: "any"
+            format_block_start: true
+        block_end:
+          - matchtype: "startswith"
+            matchkey: "******************"
+            matchline: "any"
+            format_block_end: true
+        loglevel: "info"
     - name: "override_severity"
       overrides:
         - matchtype: "startswith"

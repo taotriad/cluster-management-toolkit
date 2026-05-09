@@ -1,0 +1,56 @@
+---
+kind: "AgentgatewayBackend"
+api_family: "agentgateway.dev"
+default_command: "agentgatewaybackends"
+command:
+  - "agentgwbackends"
+  - "agentgwbackend"
+listview:
+  name: "Agentgateway Backends"
+  group: "Machine Learning"
+  field_indexes:
+    Normal:
+      fields: ["namespace", "name", "age"]
+infoview:
+  name: "Agentgateway Backend Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["auth_header", "auth_key", "auth_secret"]
+    rows:
+      auth_header:
+        header: [["Auth:", ["main", "infoheader"]]]
+      auth_key:
+        header: [["  Key:", ["main", "infoheader"]]]
+        path: "spec#policies#auth#secretRef#key"
+        default: "<none>"
+        type: "str"
+      auth_secret:
+        header: [["  ", ["main", "infoheader"]],
+                 ["S", ["main", "infoheader_shortcut"]],
+                 ["ecret:", ["main", "infoheader"]]]
+        path: "spec#policies#auth#secretRef#name"
+        default: "<unset>"
+        type: "str"
+  logpad:
+    infogetter: "logpad_formatted"
+    infogetter_args:
+      formatter: "format_yaml"
+      paths:
+        - path: "spec#ai"
+        - path: "spec#aws"
+        - path: "spec#mcp"
+    timestamps: false
+  shortcuts:
+    "Secret":
+      key: "s"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for Secret"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind: "Secret"
+        name_path: "spec#policies#auth#secretRef#name"
+        namespace_path: "metadata#namespace"

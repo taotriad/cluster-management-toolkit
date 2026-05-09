@@ -115,6 +115,46 @@ af:
   - AcceleratorFunction
   - fpga.intel.com
   viewfile: AcceleratorFunction.fpga.intel.com.yaml
+agentgwbackend:
+  kind:
+  - AgentgatewayBackend
+  - agentgateway.dev
+  viewfile: AgentgatewayBackend.agentgateway.dev.yaml
+agentgwbackends:
+  kind:
+  - AgentgatewayBackend
+  - agentgateway.dev
+  viewfile: AgentgatewayBackend.agentgateway.dev.yaml
+agentgwparam:
+  kind:
+  - AgentgatewayParameters
+  - agentgateway.dev
+  viewfile: AgentgatewayParameters.agentgateway.dev.yaml
+agentgwparams:
+  kind:
+  - AgentgatewayParameters
+  - agentgateway.dev
+  viewfile: AgentgatewayParameters.agentgateway.dev.yaml
+agentgwpol:
+  kind:
+  - AgentgatewayPolicy
+  - agentgateway.dev
+  viewfile: AgentgatewayPolicy.agentgateway.dev.yaml
+agentgwpolicies:
+  kind:
+  - AgentgatewayPolicy
+  - agentgateway.dev
+  viewfile: AgentgatewayPolicy.agentgateway.dev.yaml
+agentgwpolicy:
+  kind:
+  - AgentgatewayPolicy
+  - agentgateway.dev
+  viewfile: AgentgatewayPolicy.agentgateway.dev.yaml
+agentgwpols:
+  kind:
+  - AgentgatewayPolicy
+  - agentgateway.dev
+  viewfile: AgentgatewayPolicy.agentgateway.dev.yaml
 aipp:
   kind:
   - IPPool
@@ -1135,6 +1175,16 @@ clrcats:
   - ClusterCatalog
   - olm.operatorframework.io
   viewfile: ClusterCatalog.olm.operatorframework.io.yaml
+clrclass:
+  kind:
+  - ClusterClass
+  - cluster.x-k8s.io
+  viewfile: ClusterClass.cluster.x-k8s.io.yaml
+clrclasses:
+  kind:
+  - ClusterClass
+  - cluster.x-k8s.io
+  viewfile: ClusterClass.cluster.x-k8s.io.yaml
 clrconf.ks:
   kind:
   - ClusterConfiguration
@@ -1430,6 +1480,26 @@ clrrepos:
   - ClusterRepo
   - catalog.cattle.io
   viewfile: ClusterRepo.catalog.cattle.io.yaml
+clrresset:
+  kind:
+  - ClusterResourceSet
+  - addons.cluster.x-k8s.io
+  viewfile: ClusterResourceSet.addons.cluster.x-k8s.io.yaml
+clrressetbinding:
+  kind:
+  - ClusterResourceSetBinding
+  - addons.cluster.x-k8s.io
+  viewfile: ClusterResourceSetBinding.addons.cluster.x-k8s.io.yaml
+clrressetbindings:
+  kind:
+  - ClusterResourceSetBinding
+  - addons.cluster.x-k8s.io
+  viewfile: ClusterResourceSetBinding.addons.cluster.x-k8s.io.yaml
+clrressets:
+  kind:
+  - ClusterResourceSet
+  - addons.cluster.x-k8s.io
+  viewfile: ClusterResourceSet.addons.cluster.x-k8s.io.yaml
 clrresusage.kwok:
   kind:
   - ClusterResourceUsage
@@ -4985,6 +5055,46 @@ lws:
   - LeaderWorkerSet
   - leaderworkerset.x-k8s.io
   viewfile: LeaderWorkerSet.leaderworkerset.x-k8s.io.yaml
+lxcclr:
+  kind:
+  - LXCCluster
+  - infrastructure.cluster.x-k8s.io
+  viewfile: LXCCluster.infrastructure.cluster.x-k8s.io.yaml
+lxcclrs:
+  kind:
+  - LXCCluster
+  - infrastructure.cluster.x-k8s.io
+  viewfile: LXCCluster.infrastructure.cluster.x-k8s.io.yaml
+lxcclrtempl:
+  kind:
+  - LXCClusterTemplate
+  - infrastructure.cluster.x-k8s.io
+  viewfile: LXCClusterTemplate.infrastructure.cluster.x-k8s.io.yaml
+lxcclrtempls:
+  kind:
+  - LXCClusterTemplate
+  - infrastructure.cluster.x-k8s.io
+  viewfile: LXCClusterTemplate.infrastructure.cluster.x-k8s.io.yaml
+lxcmach:
+  kind:
+  - LXCMachine
+  - infrastructure.cluster.x-k8s.io
+  viewfile: LXCMachine.infrastructure.cluster.x-k8s.io.yaml
+lxcmachs:
+  kind:
+  - LXCMachine
+  - infrastructure.cluster.x-k8s.io
+  viewfile: LXCMachine.infrastructure.cluster.x-k8s.io.yaml
+lxcmachtempl:
+  kind:
+  - LXCMachineTemplate
+  - infrastructure.cluster.x-k8s.io
+  viewfile: LXCMachineTemplate.infrastructure.cluster.x-k8s.io.yaml
+lxcmachtempls:
+  kind:
+  - LXCMachineTemplate
+  - infrastructure.cluster.x-k8s.io
+  viewfile: LXCMachineTemplate.infrastructure.cluster.x-k8s.io.yaml
 machinedep:
   kind:
   - MachineDeployment

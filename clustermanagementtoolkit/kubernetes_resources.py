@@ -1593,6 +1593,19 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api_paths": ["apis/agent.k8s.elastic.co/v1alpha1/"],
         "api": "agents",
     },
+    # agentgateway.dev
+    ("AgentgatewayBackend", "agentgateway.dev"): {
+        "api_paths": ["apis/agentgateway.dev/v1alpha1/"],
+        "api": "agentgatewaybackends",
+    },
+    ("AgentgatewayParameters", "agentgateway.dev"): {
+        "api_paths": ["apis/agentgateway.dev/v1alpha1/"],
+        "api": "agentgatewayparameters",
+    },
+    ("AgentgatewayPolicy", "agentgateway.dev"): {
+        "api_paths": ["apis/agentgateway.dev/v1alpha1/"],
+        "api": "agentgatewaypolicies",
+    },
     # analysis.koordinator.sh
     ("Recommendation", "analysis.koordinator.sh"): {
         "api_paths": ["apis/analysis.koordinator.sh/v1alpha1/"],
