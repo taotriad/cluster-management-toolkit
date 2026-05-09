@@ -199,6 +199,10 @@ unhack_sources:
 	 mv cmt-install cmt-install.py ;\
 	 mv cmtinv cmtinv.py ;\
 	 mv cmu cmu.py ;\
+	 sed -i -e "s/^''''eval.*$$//;s,#! /bin/sh,#! /usr/bin/env python3,;/^    grep '.*/d;/^    version=\\$$.*/d;/^    \[ \\$$.*/d;/^    exec \/usr\/bin.*/d" build.py ;\
+	 sed -i -e "s/^''''eval.*$$//;s,#! /bin/sh,#! /usr/bin/env python3,;/^    grep '.*/d;/^    version=\\$$.*/d;/^    \[ \\$$.*/d;/^    exec \/usr\/bin.*/d" generate_resource_type_index.py ;\
+	 sed -i -e "s/^''''eval.*$$//;s,#! /bin/sh,#! /usr/bin/env python3,;/^    grep '.*/d;/^    version=\\$$.*/d;/^    \[ \\$$.*/d;/^    exec \/usr\/bin.*/d" genstats.py ;\
+	 sed -i -e "s/^''''eval.*$$//;s,#! /bin/sh,#! /usr/bin/env python3,;/^    grep '.*/d;/^    version=\\$$.*/d;/^    \[ \\$$.*/d;/^    exec \/usr\/bin.*/d" mdtable.py ;\
 	 sed -i -e "s/^''''eval.*$$//;s,#! /bin/sh,#! /usr/bin/env python3,;/^    grep '.*/d;/^    version=\\$$.*/d;/^    \[ \\$$.*/d;/^    exec \/usr\/bin.*/d" cmt.py ;\
 	 sed -i -e "s/^''''eval.*$$//;s,#! /bin/sh,#! /usr/bin/env python3,;/^    grep '.*/d;/^    version=\\$$.*/d;/^    \[ \\$$.*/d;/^    exec \/usr\/bin.*/d" cmtadm.py ;\
 	 sed -i -e "s/^''''eval.*$$//;s,#! /bin/sh,#! /usr/bin/env python3,;/^    grep '.*/d;/^    version=\\$$.*/d;/^    \[ \\$$.*/d;/^    exec \/usr\/bin.*/d" cmt-install.py ;\
@@ -210,16 +214,13 @@ unhack_sources:
 # export the repository, rename the files, remove the hack, and run semgrep on that checkout.
 # We also need to extend the timeout since validation gives up on cmu otherwise.
 #
-# --exclude-rule generic.secrets.security.detected-generic-secret.detected-generic-secret.semgrep-legacy.30980
-# is necessary since it triggers on every single mention of the word secret
-# (which occurs a lot in various Kubernetes API names).
 # --exclude-rule python.flask.security.xss.audit.direct-use-of-jinja2.direct-use-of-jinja2
 # is needed since it flags the risk of cross-site scripting in a file that is:
 # a.) Not used to template HTML (it's templating YAML)
 # b.) Not accepting external input (it's used by the build-system)
 #
 # We validate YAML by other means, so skip *.yaml
-semgrep_flags := --exclude-rule "generic.secrets.security.detected-generic-secret.detected-generic-secret.semgrep-legacy.30980"
+semgrep_flags :=
 semgrep_flags += --exclude-rule "python.flask.security.xss.audit.direct-use-of-jinja2.direct-use-of-jinja2"
 semgrep_flags += --exclude "*.yaml" --exclude "*.j2" --exclude "*.json"
 semgrep: unhack_sources
@@ -233,7 +234,7 @@ semgrep: unhack_sources
 	printf -- "if that's the case you need to set the environment variable https_proxy\n\n" ;\
 	$$cmd --version ;\
 	(cd tests/modified_repo ;\
-	 $$cmd scan $(semgrep_flags) --timeout=0 --no-git-ignore)
+	 $$cmd scan $(semgrep_flags) --timeout=0 --no-git-ignore *.py clustermanagementtoolkit/*.py)
 
 # Run this to show code statistics
 statistics: unhack_sources
