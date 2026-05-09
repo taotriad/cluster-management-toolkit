@@ -48,7 +48,7 @@ infoview:
         type: "int"
         formatter: "numerical"
   shortcuts:
-    "List pluginss":
+    "List plugins":
       key: "p"
       modifier: "shift"
       read_only: true
