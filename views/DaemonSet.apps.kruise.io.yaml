@@ -8,6 +8,12 @@ listview:
   name: "Daemon Sets"
   group: "Kruise"
   field_indexes:
+    Wide:
+      fields: ["namespace", "name", "controller",
+               "desired_replicas", "current_replicas",
+               "ready_replicas", "uptodate_replicas", "available_replicas",
+               "misscheduled_replicas", "paused", "age"]
+      sortcolumn: "namespace"
     Normal:
       fields: ["namespace", "name", "desired_replicas", "current_replicas",
                "ready_replicas", "uptodate_replicas", "available_replicas",
@@ -34,6 +40,29 @@ listview:
                 - context: "main"
                   type: "status_pending"
       align: "right"
+    controller:
+      header: "Controller:"
+      paths:
+        - path: "metadata#ownerReferences"
+          pathtype: "items"
+          subpaths:
+            - "kind"
+            - "apiVersion"
+            - "name"
+          when:
+            - key: "controller"
+              eq: true
+          type: ["kind", "api_group", "name"]
+          default: ["<none>"]
+      formatter: "list"
+      formatting:
+        field_colors:
+          - type: "kind"
+          - type: "api_group"
+          - type: "generic"
+        field_separators:
+          - type: "kind_api_group"
+          - type: "kind"
     current_replicas:
       header: "Current:"
       paths:

@@ -34,9 +34,8 @@ infoview:
         fields: ["cluster_class"]
     rows:
       cluster_class:
-        header: [["Clus", ["main", "infoheader"]],
-                 ["t", ["main", "infoheader_shortcut"]],
-                 ["er Class:", ["main", "infoheader"]]]
+        header: [["C", ["main", "infoheader_shortcut"]],
+                 ["luster Class:", ["main", "infoheader"]]]
         paths:
           - path: "metadata#ownerReferences"
             pathtype: "items"
@@ -56,7 +55,8 @@ infoview:
     timestamps: false
   shortcuts:
     "Open Cluster Class":
-      key: "t"
+      key: "c"
+      modifier: "shift"
       read_only: true
       helptext: "Open info page for Cluster Class"
       action: "call"

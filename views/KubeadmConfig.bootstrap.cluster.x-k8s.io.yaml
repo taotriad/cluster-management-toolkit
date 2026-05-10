@@ -104,8 +104,7 @@ infoview:
   infopad:
     row_indexes:
       Normal:
-        fields: ["cluster", "controller", "control_plane",
-                 "data_secret_name", "paused", "ready"]
+        fields: ["cluster", "controller", "data_secret_name", "paused", "ready"]
     rows:
       cluster:
         header: [["Cl", ["main", "infoheader"]],
@@ -128,31 +127,6 @@ infoview:
                 eq: true
             type: ["kind", "api_group", "name"]
             default: ["<none>"]
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "kind"
-            - type: "api_group"
-            - type: "generic"
-          field_separators:
-            - type: "kind_api_group"
-            - type: "kind"
-      control_plane:
-        header: [["Control ", ["main", "infoheader"]],
-                 ["P", ["main", "infoheader_shortcut"]],
-                 ["lane:", ["main", "infoheader"]]]
-        paths:
-          - path: "metadata#ownerReferences"
-            pathtype: "items"
-            subpaths:
-              - "kind"
-              - "apiVersion"
-              - "name"
-            when:
-              - key: "kind"
-                eq: "KubeadmControlPlane"
-            type: ["kind", "api_group", "name"]
-        default: "<none>"
         formatter: "list"
         formatting:
           field_colors:
@@ -223,6 +197,42 @@ infoview:
                 field_colors:
                   - context: "types"
                     type: "unset"
+  listpad:
+    listgetter: "listgetter_path"
+    listgetter_args:
+      path: "spec#files"
+    infogetter: "generic_infogetter"
+    on_activation:
+      call: "resourceinfodispatch"
+      obj_path: "content"
+      title_path: "path"
+      kind: "__ResourceView"
+      formatter: "identify"
+    field_indexes:
+      Normal:
+        fields: ["path", "owner", "permissions"]
+        sortcolumn: "path"
+    fields:
+      owner:
+        header: "Owner:"
+        path: "owner"
+        default: "<unset>"
+        type: "str"
+      path:
+        header: "Path:"
+        path: "path"
+        default: "<unset>"
+        type: "str"
+        formatting:
+          field_colors:
+            - type: "path"
+      permissions:
+        header: "Permissions:"
+        path: "permissions"
+        default: "<unset>"
+        type: "str"
+        formatter: "numerical"
+        align: "right"
   shortcuts:
     "Open Cluster":
       key: "u"
@@ -247,19 +257,6 @@ infoview:
         _pass_obj: true
         namespace_path: "metadata#namespace"
         owner_reference_path: "metadata#ownerReferences"
-    "Open Kubeadm Control Plane":
-      key: "p"
-      modifier: "shift"
-      read_only: true
-      helptext: "Open info page for Kubeadm Control Plane"
-      action: "call"
-      action_call: "resourceinfodispatch_with_lookup"
-      action_args:
-        _pass_obj: true
-        kind: "KubeadmControlPlane"
-        api_family: "controlplane.cluster.x-k8s.io"
-        namespace_path: "metadata#namespace"
-        owner_reference_path: "metadata#ownerReferences"
     "Open Secret":
       key: "s"
       modifier: "shift"
@@ -282,31 +279,6 @@ infoview:
         title: "Cluster Configuration"
         _pass_obj: true
         path: "spec#clusterConfiguration"
-    "List files":
-      key: "f"
-      modifier: "shift"
-      read_only: true
-      helptext: "List files"
-      widget: "windowwidget"
-      title: "Files:"
-      selectable: true
-      headers: ["Path:", "Owner:", "Permissions:"]
-      itemgetter: "get_list_fields"
-      itemgetter_args:
-        path: "spec#files"
-        fields:
-          - "path"
-          - "owner"
-          - "permissions"
-      # This isn't supported for now
-      sortcolumn: "path"
-      action: "call"
-      action_call: "decode_and_view_file_templates"
-      action_args:
-        _pass_obj: true
-        _pass_selected: true
-        name_path: 0
-        file_path: "spec#files"
     "View init configuration":
       key: "i"
       read_only: true

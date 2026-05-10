@@ -10,7 +10,7 @@ listview:
   group: "Cluster Configuration"
   field_indexes:
     Normal:
-      fields: ["namespace", "name", "cluster", "max_unhealthy",
+      fields: ["namespace", "name", "cluster",
                "expected_machines", "current_healthy", "age"]
       sortcolumn: "namespace"
   fields:
@@ -31,21 +31,15 @@ listview:
       type: "int"
       formatter: "numerical"
       align: "right"
-    max_unhealthy:
-      header: "Max Unhealthy:"
-      paths:
-        - path: ["spec#unhealthyRange", "spec#maxUnhealthy"]
-          pathtype: "str"
-      formatter: "numerical"
-      align: "right"
 infoview:
   name: "Machine Health Check Info"
   infopad:
     row_indexes:
       Normal:
         fields: ["cluster", "label_selector", "set_based_selector",
-                 "max_unhealthy", "expected_machines", "current_healthy",
-                 "remediations_allowed", "node_startup_timeout"]
+                 "targets", "expected_machines", "current_healthy",
+                 "remediations_allowed", "node_startup_timeout",
+                 "unhealthy_node_conditions"]
     rows:
       cluster:
         header: [["Cl", ["main", "infoheader"]],
@@ -84,7 +78,9 @@ infoview:
         type: "int"
         formatter: "numerical"
       label_selector:
-        header: [["Label Selector:", ["main", "infoheader"]]]
+        header: [["La", ["main", "infoheader"]],
+                 ["b", ["main", "infoheader_shortcut"]],
+                 ["el Selector:", ["main", "infoheader"]]]
         paths:
           - path: ["spec#selector#matchLabels"]
             pathtype: "key_value"
@@ -96,16 +92,14 @@ infoview:
             - type: "value"
           field_separators:
             - type: "selector"
-      max_unhealthy:
-        header: [["Max Unhealthy:", ["main", "infoheader"]]]
-        path: "spec#maxUnhealthy"
-        type: "raw"
-        formatter: "numerical"
       node_startup_timeout:
         header: [["Node Startup Timeout:", ["main", "infoheader"]]]
-        path: "spec#nodeStartupTimeout"
-        type: "raw"
+        path: "spec#checks#nodeStartupTimeoutSeconds"
+        default: 600
+        type: "int"
         formatter: "numerical"
+        formatting:
+          unit: "s"
       remediations_allowed:
         header: [["Remediations Allowed:", ["main", "infoheader"]]]
         path: "status#remediationsAllowed"
@@ -127,7 +121,76 @@ infoview:
           field_separators:
             - type: "space"
             - type: "no_pad"
+      targets:
+        header: [["T", ["main", "infoheader_shortcut"]],
+                 ["argets:", ["main", "infoheader"]]]
+        path: "status#targets"
+        default: ["<none>"]
+        type: "raw"
+        formatter: "list"
+      unhealthy_node_conditions:
+        header: [["U", ["main", "infoheader_shortcut"]],
+                 ["nhealthy Node Conditions:", ["main", "infoheader"]]]
+        paths:
+          - path: "spec#checks#unhealthyNodeConditions"
+            pathtype: "items"
+            subpaths:
+              - "type"
+              - "status"
+            default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "generic"
+            - type: "generic"
+          field_separators:
+            - type: "keyvalue"
   shortcuts:
+    "Label Selector":
+      key: "b"
+      read_only: true
+      helptext: "Show label selector"
+      widget: "windowwidget"
+      title: "Label Selector:"
+      headers: ["Key:", "Value:"]
+      itemgetter: "get_key_value"
+      itemgetter_args:
+        path: "spec#selector#matchLabels"
+    "List Target Machines":
+      key: "t"
+      modifier: "shift"
+      read_only: true
+      helptext: "List target Machines"
+      widget: "windowwidget"
+      title: "Machines:"
+      selectable: true
+      itemgetter: "get_list_as_list"
+      itemgetter_args:
+        path: "status#targets"
+      # Not supported for now
+      sortcolumn: "name"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        kind: "Machine"
+        api_family: "cluster.x-k8s.io"
+        _parent_namespace_path: "metadata#namespace"
+        name_path: 0
+    "List Unhealthy Node Conditions":
+      key: "u"
+      modifier: "shift"
+      read_only: true
+      helptext: "List unhealthy node conditions"
+      widget: "windowwidget"
+      title: "Unhealthy Node Conditions:"
+      headers: ["Type:", "Status:", "Timeout (Seconds):"]
+      itemgetter: "get_list_fields"
+      itemgetter_args:
+        path: "spec#checks#unhealthyNodeConditions"
+        fields:
+          - "type"
+          - "status"
+          - "timeoutSeconds"
     "Open Cluster":
       key: "u"
       read_only: true

@@ -96,7 +96,6 @@ infoview:
     on_activation:
       call: "resourceinfodispatch"
       kind: "__ResourceView"
-      formatter: "identify"
       formatter_path: "formatter"
       obj_path: "data"
       title_path: "configmap"

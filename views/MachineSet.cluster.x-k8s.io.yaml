@@ -72,7 +72,7 @@ listview:
         field_colors:
           - type: "version"
 infoview:
-  name: "Machine Info"
+  name: "Machine Set Info"
   infopad:
     row_indexes:
       Normal:
@@ -119,10 +119,13 @@ infoview:
             - type: "kind"
       delete_policy:
         header: [["Delete Policy:", ["main", "infoheader"]]]
-        path: "spec#deletePolicy"
+        path: "spec#deletion#order"
+        default: "Random"
         type: "str"
       label_selector:
-        header: [["Label Selector:", ["main", "infoheader"]]]
+        header: [["La", ["main", "infoheader"]],
+                 ["b", ["main", "infoheader_shortcut"]],
+                 ["el Selector:", ["main", "infoheader"]]]
         paths:
           - path: ["spec#selector#matchLabels"]
             pathtype: "key_value"
@@ -171,9 +174,11 @@ infoview:
       template_failure_domain:
         header: [["  Failure Domain:", ["main", "infoheader"]]]
         path: "spec#template#spec#failureDomain"
+        default: "<unset>"
         type: "str"
       template_header:
-        header: [["Template:", ["main", "infoheader"]]]
+        header: [["T", ["main", "infoheader_shortcut"]],
+                 ["emplate:", ["main", "infoheader"]]]
       template_infrastructure:
         header: [["  ", ["main", "infoheader"]],
                  ["I", ["main", "infoheader_shortcut"]],
@@ -202,6 +207,27 @@ infoview:
           field_colors:
             - type: "version"
   shortcuts:
+    "Label Selector":
+      key: "b"
+      read_only: true
+      helptext: "Show label selector"
+      widget: "windowwidget"
+      title: "Label Selector:"
+      headers: ["Key:", "Value:"]
+      itemgetter: "get_key_value"
+      itemgetter_args:
+        path: "spec#selector#matchLabels"
+    "Machine Template":
+      key: "t"
+      modifier: "shift"
+      read_only: true
+      helptext: "Show Machine template"
+      action: "call"
+      action_call: "view_yaml"
+      action_args:
+        title: "Machine Template"
+        _pass_obj: true
+        path: "spec#template"
     "Open controller":
       key: "c"
       modifier: "shift"

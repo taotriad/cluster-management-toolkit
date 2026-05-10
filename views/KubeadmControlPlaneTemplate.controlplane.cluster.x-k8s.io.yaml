@@ -10,8 +10,22 @@ listview:
   group: "Cluster Configuration"
   field_indexes:
     Normal:
-      fields: ["namespace", "name", "age"]
+      fields: ["namespace", "name", "cluster_class",  "age"]
       sortcolumn: "namespace"
+  fields:
+    cluster_class:
+      header: "Cluster Class:"
+      paths:
+        - path: "metadata#ownerReferences"
+          pathtype: "items"
+          subpaths:
+            - "name"
+          when:
+            - key: "kind"
+              eq: "ClusterClass"
+          type: ["name"]
+          default: ["<none>"]
+      formatter: "list"
 infoview:
   name: "Kubeadm Control Plane Template Info"
   infopad:

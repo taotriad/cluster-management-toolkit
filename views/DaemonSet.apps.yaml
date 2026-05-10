@@ -422,7 +422,7 @@ infoview:
         _pass_obj: true
         namespace_path: "metadata#namespace"
         owner_reference_path: "metadata#ownerReferences"
-    "Pod template":
+    "Pod Template":
       key: "t"
       modifier: "shift"
       read_only: true
@@ -430,6 +430,6 @@ infoview:
       action: "call"
       action_call: "view_yaml"
       action_args:
-        title: "Pod template"
+        title: "Pod Template"
         _pass_obj: true
         path: "spec#template"

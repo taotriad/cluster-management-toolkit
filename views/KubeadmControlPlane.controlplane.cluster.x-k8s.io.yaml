@@ -277,6 +277,42 @@ infoview:
         formatting:
           field_colors:
             - type: "version"
+  listpad:
+    listgetter: "listgetter_path"
+    listgetter_args:
+      path: "spec#kubeadmConfigSpec#files"
+    infogetter: "generic_infogetter"
+    on_activation:
+      call: "resourceinfodispatch"
+      obj_path: "content"
+      title_path: "path"
+      kind: "__ResourceView"
+      formatter: "identify"
+    field_indexes:
+      Normal:
+        fields: ["path", "owner", "permissions"]
+        sortcolumn: "path"
+    fields:
+      owner:
+        header: "Owner:"
+        path: "owner"
+        default: "<unset>"
+        type: "str"
+      path:
+        header: "Path:"
+        path: "path"
+        default: "<unset>"
+        type: "str"
+        formatting:
+          field_colors:
+            - type: "path"
+      permissions:
+        header: "Permissions:"
+        path: "permissions"
+        default: "<unset>"
+        type: "str"
+        formatter: "numerical"
+        align: "right"
   shortcuts:
     "Open controller":
       key: "c"
@@ -313,29 +349,6 @@ infoview:
         title: "Cluster Configuration"
         _pass_obj: true
         path: "spec#kubeadmConfigSpec#clusterConfiguration"
-    "List files":
-      key: "f"
-      modifier: "shift"
-      read_only: true
-      helptext: "List files"
-      widget: "windowwidget"
-      title: "Files:"
-      selectable: true
-      headers: ["Path:", "Owner:", "Permissions:"]
-      itemgetter: "get_list_fields"
-      itemgetter_args:
-        path: "spec#kubeadmConfigSpec#files"
-        fields:
-          - "path"
-          - "owner"
-          - "permissions"
-      action: "call"
-      action_call: "decode_and_view_file_templates"
-      action_args:
-        _pass_obj: true
-        _pass_selected: true
-        name_path: 0
-        file_path: "spec#kubeadmConfigSpec#files"
     "View init configuration":
       key: "i"
       read_only: true

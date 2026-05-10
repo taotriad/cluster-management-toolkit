@@ -13,14 +13,20 @@ listview:
   group: "Cluster Configuration"
   field_indexes:
     Normal:
-      fields: ["namespace", "name", "cluster", "replicas", "ready",
-               "updated", "unavailable", "phase", "age", "version"]
+      fields: ["namespace", "name", "cluster", "ready_replicas",
+               "uptodate_replicas", "paused", "phase", "age", "version"]
       sortcolumn: "namespace"
   fields:
     cluster:
       header: "Cluster:"
       path: "spec#clusterName"
+      default: "<none>"
       type: "str"
+    paused:
+      header: "Paused:"
+      path: "spec#paused"
+      default: false
+      type: "bool"
     phase:
       header: "Phase:"
       path: "status#phase"
@@ -49,27 +55,38 @@ listview:
               field_colors:
                 - context: "main"
                   type: "status_unknown"
-    ready:
-      header: "Ready:"
-      path: "status#readyReplicas"
-      type: "int"
-      formatter: "numerical"
+    ready_replicas:
+      header: "Ready Replicas:"
+      paths:
+        - path: ["status#readyReplicas", "status#replicas"]
+          pathtype: "comparison"
+          default: [0, 0]
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          ranges:
+            - min: 0
+              max: 1
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+            - min: -1
+              max: 0
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+            - default: true
+              field_colors:
+                - context: "main"
+                  type: "status_not_ok"
       align: "right"
-    replicas:
-      header: "Replicas:"
-      path: "status#replicas"
-      type: "int"
-      formatter: "numerical"
-      align: "right"
-    unavailable:
-      header: "Unavailable:"
-      path: "status#unavailableReplicas"
-      type: "int"
-      formatter: "numerical"
-      align: "right"
-    updated:
-      header: "Updated:"
-      path: "status#updatedReplicas"
+    uptodate_replicas:
+      header: "Up to Date:"
+      paths:
+        - path: ["status#upToDateReplicas",
+                 "status#updatedReplicas"]
+          pathtype: "value"
+      default: 0
       type: "int"
       formatter: "numerical"
       align: "right"
@@ -85,22 +102,24 @@ infoview:
   infopad:
     row_indexes:
       Normal:
-        fields: ["cluster", "label_selector", "min_ready",
-                 "progress_deadline", "revision_history_limit",
-                 "replicas", "ready", "updated", "unavailable",
-                 "update_strategy", "phase", "template_header",
-                 "template_cluster_name", "template_labels",
-                 "template_failure_domain", "template_bootstrap",
-                 "template_infrastructure", "template_version"]
+        fields: ["cluster", "label_selector", "set_based_selector",
+                 "max_in_flight_remediations",
+                 "replicas", "update_strategy", "template_header",
+                 "template_machine_name",
+                 "template_bootstrap", "template_infrastructure",
+                 "phase"]
     rows:
       cluster:
         header: [["Cl", ["main", "infoheader"]],
                  ["u", ["main", "infoheader_shortcut"]],
                  ["ster:", ["main", "infoheader"]]]
         path: "spec#clusterName"
+        default: "<none>"
         type: "str"
       label_selector:
-        header: [["Label Selector:", ["main", "infoheader"]]]
+        header: [["La", ["main", "infoheader"]],
+                 ["b", ["main", "infoheader_shortcut"]],
+                 ["el Selector:", ["main", "infoheader"]]]
         paths:
           - path: ["spec#selector#matchLabels"]
             pathtype: "key_value"
@@ -112,18 +131,12 @@ infoview:
             - type: "value"
           field_separators:
             - type: "selector"
-      min_ready:
-        header: [["Min Ready:", ["main", "infoheader"]]]
-        paths:
-          - path: [["spec#minReadySeconds"], "s"]
-            pathtype: "tuple"
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "numerical"
-            - type: "unit"
-          field_separators:
-            - type: "no_pad"
+      max_in_flight_remediations:
+        header: [["Max In Flight Remediations:", ["main", "infoheader"]]]
+        path: "spec#remediation#maxInFlight"
+        default: "ALL"
+        type: "raw"
+        formatter: "numerical"
       phase:
         header: [["Phase:", ["main", "infoheader"]]]
         path: "status#phase"
@@ -152,33 +165,47 @@ infoview:
                 field_colors:
                   - context: "main"
                     type: "status_unknown"
-      progress_deadline:
-        header: [["Progress Deadline:", ["main", "infoheader"]]]
+      replicas:
+        header: [["Replicas:", ["main", "infoheader"]]]
         paths:
-          - path: [["spec#progressDeadlineSeconds"], "s"]
+          - path: [["status#replicas"],
+                   " Desired",
+                   ["status#upToDateReplicas"],
+                   " Up to Date",
+                   ["status#readyReplicas"],
+                   " Ready"]
             pathtype: "tuple"
+            default: [0, "", 0, "", 0, ""]
         formatter: "list"
         formatting:
           field_colors:
             - type: "numerical"
-            - type: "unit"
+            - type: "generic"
+            - type: "numerical"
+            - type: "generic"
+            - type: "numerical"
+            - type: "generic"
           field_separators:
             - type: "no_pad"
-      ready:
-        header: [["Ready:", ["main", "infoheader"]]]
-        path: "status#readyReplicas"
-        type: "int"
-        formatter: "numerical"
-      revision_history_limit:
-        header: [["Revision History Limit:", ["main", "infoheader"]]]
-        path: "spec#revisionHistoryLimit"
-        type: "int"
-        formatter: "numerical"
-      replicas:
-        header: [["Replicas:", ["main", "infoheader"]]]
-        path: "status#replicas"
-        type: "int"
-        formatter: "numerical"
+            - type: "fraction_spaced"
+            - type: "no_pad"
+            - type: "fraction_spaced"
+            - type: "no_pad"
+      set_based_selector:
+        header: [["Set-based Selector:", ["main", "infoheader"]]]
+        paths:
+          - path: "spec#selector#matchExpressions"
+            pathtype: "match_expression"
+            default: "<none>"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "key"
+            - type: "operator"
+            - type: "value"
+          field_separators:
+            - type: "space"
+            - type: "no_pad"
       template_bootstrap:
         header: [["  B", ["main", "infoheader"]],
                  ["o", ["main", "infoheader_shortcut"]],
@@ -199,14 +226,6 @@ infoview:
           field_separators:
             - type: "kind_api_group"
             - type: "kind"
-      template_cluster_name:
-        header: [["  Cluster Name:", ["main", "infoheader"]]]
-        path: "spec#template#spec#clusterName"
-        type: "str"
-      template_failure_domain:
-        header: [["  Failure Domain:", ["main", "infoheader"]]]
-        path: "spec#template#spec#failureDomain"
-        type: "str"
       template_header:
         header: [["Template:", ["main", "infoheader"]]]
       template_infrastructure:
@@ -229,52 +248,27 @@ infoview:
           field_separators:
             - type: "kind_api_group"
             - type: "kind"
-      template_labels:
-        header: [["  Labels:", ["main", "infoheader"]]]
-        paths:
-          - path: ["spec#template#metadata#labels"]
-            pathtype: "key_value"
-            default: ["<none>"]
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "key"
-            - type: "value"
-          field_separators:
-            - type: "keyvalue"
-      template_version:
-        header: [["  Version:", ["main", "infoheader"]]]
-        path: "spec#template#spec#version"
+      template_machine_name:
+        header: [["  Machine Name:", ["main", "infoheader"]]]
+        path: "spec#machineNaming#template"
+        default: "`{{ .machineSet.name }}-{{ .random }}`"
         type: "str"
-        formatting:
-          field_colors:
-            - type: "version"
-      unavailable:
-        header: [["Unavailable:", ["main", "infoheader"]]]
-        path: "status#unavailableReplicas"
-        type: "int"
-        formatter: "numerical"
-      updated:
-        header: [["Updated:", ["main", "infoheader"]]]
-        path: "status#updatedReplicas"
-        type: "int"
-        formatter: "numerical"
       update_strategy:
         header: [["Update Strategy:", ["main", "infoheader"]]]
         paths:
-          - path: [["spec#strategy#type"],
+          - path: [["spec#rollout#strategy#type"],
                    " (", "Max Surge: ",
-                   ["spec#strategy#rollingUpdate#maxSurge"],
+                   ["spec#rollout#strategy#rollingUpdate#maxSurge"],
                    "Max Unavailable: ",
-                   ["spec#strategy#rollingUpdate#maxUnavailable"], ")"]
+                   ["spec#rollout#strategy#rollingUpdate#maxUnavailable"], ")"]
             pathtype: "tuple"
             when:
-              - key: "spec#strategy#type"
+              - key: "spec#rollout#strategy#type"
                 eq: "RollingUpdate"
-          - path: [["spec#strategy#type"]]
+          - path: [["spec#rollout#strategy#type"]]
             pathtype: "tuple"
             when:
-              - key: "spec#strategy#type"
+              - key: "spec#rollout#strategy#type"
                 eq: "Recreate"
         formatter: "list"
         formatting:
@@ -297,7 +291,23 @@ infoview:
             - type: "list"
             - type: "no_pad"
             - type: "no_pad"
+  logpad:
+    infogetter: "logpad_formatted"
+    infogetter_args:
+      formatter: "format_yaml"
+      path: "spec#template"
+    timestamps: false
   shortcuts:
+    "Label Selector":
+      key: "b"
+      read_only: true
+      helptext: "Show label selector"
+      widget: "windowwidget"
+      title: "Label Selector:"
+      headers: ["Key:", "Value:"]
+      itemgetter: "get_key_value"
+      itemgetter_args:
+        path: "spec#selector#matchLabels"
     "Open Cluster":
       key: "u"
       read_only: true

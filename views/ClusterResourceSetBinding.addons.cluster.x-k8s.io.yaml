@@ -37,6 +37,47 @@ infoview:
               - "clusterResourceSetName"
             default: ["<none>"]
         formatter: "list"
+  listpad:
+    listgetter: "listgetter_path"
+    listgetter_args:
+      path: "spec#bindings"
+    infogetter: "generic_infogetter"
+    infogetter_args:
+      _extra_data:
+        namespace: ["metadata#namespace"]
+    on_activation:
+      call: "resourceinfodispatch_with_lookup"
+      kind: "ClusterResourceSet"
+      api_family: "addons.cluster.x-k8s.io"
+      namespace_path: "_extra_data#namespace"
+      name_path: "clusterResourceSetName"
+    field_indexes:
+      Normal:
+        fields: ["cluster_resource_set", "resources"]
+        sortcolumn: "cluster_resource_set"
+    fields:
+      cluster_resource_set:
+        header: "Cluster Resource Set:"
+        path: "clusterResourceSetName"
+        default: "<unset>"
+        type: "str"
+      resources:
+        header: "Resources:"
+        paths:
+          - path: "resources"
+            pathtype: "items"
+            subpaths:
+              - "kind"
+              - "name"
+            type: ["kind", "name"]
+            default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "kind"
+            - type: "generic"
+          field_separators:
+            - type: "kind"
   shortcuts:
     "Open Cluster":
       key: "u"
