@@ -49,7 +49,7 @@ import subprocess  # nosec
 from subprocess import PIPE, STDOUT  # nosec
 import sys
 from types import FrameType
-from typing import Any, cast
+from typing import Any, cast, Sequence
 from collections.abc import Callable
 
 try:
@@ -779,6 +779,122 @@ def generate_list_row(uip: UIProps, data: dict, field_dict: dict,
         uip.addthemearray(uip.listpad, tmp, y=ypos, x=pos + tagprefixlen, deleted=is_deleted)
 
 
+# noqa: E501 pylint: disable-next=too-many-arguments,too-many-positional-arguments,too-many-locals,too-many-return-statements,too-many-branches,too-many-statements
+def input_query(uip: UIProps, queryfunc: str | None,
+                queryval: str | None, query: str | None,
+                selection_vars: dict[str, Any] | None, confirm: bool,
+                extravars: dict[str, Any], description: str) -> bool:
+    """
+    Query the user for input.
+    TODO: Add support for asking multiple queries and/or having multiple fields.
+
+        Parameters:
+            uip (UIProps): The UIProps for the caller
+            queryfunc (str): The query type; valid functions are:
+                             int, str (will use an inputbox)
+                             confirm (will use a boolean statement)
+                             filechooser (will use a file chooser)
+            queryval (str): The variable to query a value for
+            query (str): The query to show
+            selection_vars (dict[str, Any)): A dict to store the result in
+            confirm (bool): Ask for confirmation before performing action?
+            extravars (dict[str, Any]): Extra variables
+            description (str): Description of action to use in confirmation dialog
+        Returns:
+            (bool): True if valid, False if aborted or invalid
+    """
+    result: str | int | None = None
+
+    # pylint: disable-next=too-many-nested-blocks
+    if queryfunc is not None and queryval is not None and query is not None:
+        if queryfunc in ("int", "string"):
+            # Not supported by inputbox widget
+            # querydefault = ""
+            query_title: str = f"{query}: "
+            if not (result := curses_helper.inputbox(uip.stdscr, title=query_title)):
+                return False
+            if queryfunc == "int":
+                try:
+                    result = int(result)
+                except ValueError:
+                    message = f"Provided value for {queryval} is not an integer"
+                    curses_helper.alert(uip.stdscr, message=message,
+                                        wait_for_keypress=True)
+                    return False
+            deep_set(selection_vars, DictPath(f"{queryval}"), result, create_path=True)
+        elif queryfunc == "confirm":
+            querydefault = False
+            query_title = f"{query}?"
+            if not curses_helper.confirmationbox(uip.stdscr, title=query_title,
+                                                 default=querydefault):
+                return False
+        elif queryfunc == "filechooser":
+            # It is a programming error if either of these two are not set,
+            # so it is OK to get an exception
+            listgetter = deep_get(extravars, DictPath("listgetter"))
+            listgetter_args = deep_get(extravars, DictPath("listgetter_args"), {})
+            basedir = deep_get(extravars, DictPath("basedir"))
+            selected_file = None
+            selected_ptype = None
+
+            while basedir is not None:
+                if not listgetter:
+                    return False
+                tmp_file_list = listgetter(basedir=basedir, **listgetter_args)
+                file_list = []
+                for item in tmp_file_list:
+                    realpath, filename, ptype = item
+                    if ptype == "<dir>":
+                        fmt = ThemeAttr("windowwidget", "highlight")
+                    else:
+                        fmt = ThemeAttr("windowwidget", "default")
+
+                    file_list.append({
+                        "lineattrs": WidgetLineAttrs.NORMAL,
+                        "columns": [[ThemeStr(f"{filename}", fmt)],
+                                    [ThemeStr(f"{ptype}",
+                                              ThemeAttr("windowwidget",
+                                                        "description"))]],
+                        "retval": filename,
+                    })
+                tmpselection = \
+                    curses_helper.windowwidget(uip.stdscr, uip.maxy, uip.maxx,
+                                               uip.maxy // 2, uip.maxx // 2, file_list,
+                                               title=query, cursor=True)
+                if tmpselection is None or tmpselection == "":
+                    # This will break out of the loop
+                    basedir = None
+                    selected_file = None
+                    continue
+                selected_entry = tmpselection
+                # Find entry in tmp_file_list
+                for item in tmp_file_list:
+                    realpath, filename, ptype = item
+                    if filename == selected_entry:
+                        if ptype == "<dir>":
+                            basedir = realpath
+                            uip.refresh_all()
+                        else:
+                            selected_file = realpath
+                            selected_ptype = ptype
+                            basedir = None
+                            break
+
+            if selected_file is None:
+                uip.force_update()
+                return False
+            selection_vars = extravars
+            selection_vars["resource_path"] = (selected_file, selected_ptype)
+
+    if confirm:
+        query_title = f"Are you sure you want to perform “{description}“?"
+        if not curses_helper.confirmationbox(uip.stdscr, title=query_title,
+                                             default=False):
+            return False
+
+    return True
+
+
 # noqa: E501 pylint: disable-next=too-many-locals,too-many-branches,too-many-statements,too-many-return-statements
 def genericlistloop(stdscr: curses.window, **kwargs: Any) -> Retval:
     """
@@ -886,7 +1002,6 @@ def genericlistloop(stdscr: curses.window, **kwargs: Any) -> Retval:
 
     is_taggable = (deep_get(viewref, DictPath("is_taggable"), True)
                    and deep_get(viewref, DictPath("actions")) is not None)
-    extra_vars = deep_get(viewref, DictPath("extra_vars"), {})
 
     uip.init_window(field_dict=field_dict, view=kind, windowheader=windowheader,
                     update_delay=update_delay, sortcolumn=sortcolumn,
@@ -910,8 +1025,7 @@ def genericlistloop(stdscr: curses.window, **kwargs: Any) -> Retval:
     listgetter_args["label_selector"] = label_selector
 
     infogetter = deep_get(viewref, DictPath("infogetter"), infogetters.generic_infogetter)
-    infogetter_extra_args = deep_get(viewref, DictPath("extra_vars#infogetter"),
-                                     {"_view": view.strip("*")})
+    infogetter_extra_args: dict[str, Any] = {"_view": view.strip("*")}
     infogetter_extra_args["_field_index"] = field_index.lower()
     infogetter_extra_args["_field_names"] = field_names
     infogetter_extra_args["_field_dict"] = field_dict
@@ -1305,7 +1419,6 @@ def genericlistloop(stdscr: curses.window, **kwargs: Any) -> Retval:
             uip.refresh_all()
             uip.force_update()
             uip.update_window(update="false")
-        # pylint: disable-next=too-many-nested-blocks
         elif c == curses.KEY_F7:
             action_title: str = "Global and cluster-wide actions"
             action_src_list: dict[str, dict[str, dict[str, Any]]] = listviewactions
@@ -1335,6 +1448,7 @@ def genericlistloop(stdscr: curses.window, **kwargs: Any) -> Retval:
 
                 # Map the description back to key
                 action = None
+                description = ""
                 for action in actionlist:
                     description = deep_get(actionlist, DictPath(f"{action}#description"))
                     tmpdescription = ""
@@ -1372,96 +1486,10 @@ def genericlistloop(stdscr: curses.window, **kwargs: Any) -> Retval:
 
                 selection_vars = extravars
 
-                # This should be modified; we might want to ask multiple queries.
-                # At the very least asking for one input plus confirmation.
-                # A multi input box might be useful too.
-                if queryfunc is not None and queryval is not None and query is not None:
-                    if queryfunc in ("int", "string"):
-                        # Not supported by inputbox widget
-                        # querydefault = ""
-                        query_title = f"{query}: "
-                        if not (string := curses_helper.inputbox(uip.stdscr, title=query_title)):
-                            continue
-                        if queryfunc == "int":
-                            try:
-                                string = int(string)
-                            except ValueError:
-                                message = f"{queryval} is not an integer"
-                                curses_helper.alert(uip.stdscr, message=message,
-                                                    wait_for_keypress=True)
-                                continue
-                        selection_vars[queryval] = string
-                        deep_set(selection_vars, DictPath(f"values#{queryval}"), string,
-                                 create_path=True)
-                    elif queryfunc == "confirm":
-                        querydefault = False
-                        query_title = f"{query}?"
-                        if not curses_helper.confirmationbox(uip.stdscr, title=query_title,
-                                                             default=querydefault):
-                            continue
-                    elif queryfunc == "filechooser":
-                        # It is a programming error if either of these two are not set,
-                        # so it is OK to get an exception
-                        listgetter = deep_get(extravars, DictPath("listgetter"))
-                        basedir = deep_get(extravars, DictPath("basedir"))
-                        listgetter_args = deep_get(extravars, DictPath("listgetter_args"), {})
-                        selected_file = None
-                        selected_ptype = None
-
-                        while basedir is not None:
-                            if not listgetter:
-                                continue
-                            tmp_file_list = listgetter(basedir=basedir, **listgetter_args)
-                            file_list = []
-                            for item in tmp_file_list:
-                                realpath, filename, ptype = item
-                                if ptype == "<dir>":
-                                    fmt = ThemeAttr("windowwidget", "highlight")
-                                else:
-                                    fmt = ThemeAttr("windowwidget", "default")
-
-                                file_list.append({
-                                    "lineattrs": WidgetLineAttrs.NORMAL,
-                                    "columns": [[ThemeStr(f"{filename}", fmt)],
-                                                [ThemeStr(f"{ptype}",
-                                                          ThemeAttr("windowwidget",
-                                                                    "description"))]],
-                                    "retval": filename,
-                                })
-                            tmpselection = \
-                                curses_helper.windowwidget(uip.stdscr, uip.maxy, uip.maxx,
-                                                           uip.maxy // 2, uip.maxx // 2, file_list,
-                                                           title=query, cursor=True)
-                            if tmpselection is None or tmpselection == "":
-                                # This will break out of the loop
-                                basedir = None
-                                selected_file = None
-                                continue
-                            selected_entry = tmpselection
-                            # Find entry in tmp_file_list
-                            for item in tmp_file_list:
-                                realpath, filename, ptype = item
-                                if filename == selected_entry:
-                                    if ptype == "<dir>":
-                                        basedir = realpath
-                                        uip.refresh_all()
-                                    else:
-                                        selected_file = realpath
-                                        selected_ptype = ptype
-                                        basedir = None
-                                        break
-
-                        if selected_file is None:
-                            uip.force_update()
-                            continue
-                        selection_vars = extra_vars
-                        selection_vars["resource_path"] = (selected_file, selected_ptype)
-
-                if confirm:
-                    query_title = f"Perform “{description}“?"
-                    if not curses_helper.confirmationbox(uip.stdscr, title=query_title,
-                                                         default=False):
-                        continue
+                if not input_query(uip, queryfunc=queryfunc, queryval=queryval, query=query,
+                                   selection_vars=selection_vars, confirm=confirm,
+                                   extravars=extravars, description=description):
+                    continue
 
                 if action:
                     retval = actionfunc(uip=uip, items=[], action=actionlist[action],
@@ -1650,7 +1678,7 @@ def genericlistloop(stdscr: curses.window, **kwargs: Any) -> Retval:
         elif c == ord("f") and is_taggable and vlist is not None and uip.listlen:
             # List the union of all labels of the tagged objects and create a label selector
             # from the choices made by the user (if the objects support labels)
-            if not get_tagged_items:
+            if not get_tagged_items():
                 selected = uip.get_selected()
                 tag_item(selected)
                 uip.list_needs_regeneration(True)
@@ -1949,114 +1977,10 @@ def genericlistloop(stdscr: curses.window, **kwargs: Any) -> Retval:
 
                 selection_vars = extravars
 
-                # This should be modified; we might want to ask multiple queries.
-                # At the very least asking for one input plus confirmation.
-                # A multi input box might be useful too.
-                if queryfunc is not None and queryval is not None and query is not None:
-                    if queryfunc in ("int", "string"):
-                        # Not supported by inputbox widget
-                        # querydefault = ""
-                        query_title = f"{query}: "
-                        if not (string := curses_helper.inputbox(uip.stdscr, title=query_title)):
-                            continue
-                        if queryfunc == "int":
-                            try:
-                                string = int(string)
-                            except ValueError:
-                                message = f"{queryval} is not an integer"
-                                curses_helper.alert(uip.stdscr, message=message,
-                                                    wait_for_keypress=True)
-                                continue
-                        selection_vars[queryval] = string
-                        deep_set(selection_vars, DictPath(f"values#{queryval}"), string,
-                                 create_path=True)
-                    elif queryfunc == "confirm":
-                        querydefault = False
-                        query_title = f"{query}?"
-                        if not curses_helper.confirmationbox(uip.stdscr, title=query_title,
-                                                             default=querydefault):
-                            continue
-                    elif queryfunc == "filechooser":
-                        # It is a programming error if either of these two are not set,
-                        # so it is OK to get an exception
-                        listgetter = extravars["listgetter"]
-                        basedir = extravars["basedir"]
-                        selected_file = None
-                        selected_ptype = None
-
-                        while basedir is not None:
-                            tmp_file_list = listgetter(basedir)
-                            file_list = []
-                            for item in tmp_file_list:
-                                realpath, filename, ptype = item
-                                if ptype in ("File", "Configuration File", "Kustomization"):
-                                    fmt = ThemeAttr("windowwidget", "default")
-                                elif ptype == "<dir>":
-                                    fmt = ThemeAttr("windowwidget", "highlight")
-                                else:
-                                    errmsg = [
-                                        [("filechooser", "emphasis"),
-                                         (" called with invalid argument(s):", "error")],
-                                        [("ptype = ", "default"),
-                                         (f"{ptype}", "argument"),
-                                         (" (expected one of: ", "default"),
-                                         ("File", "argument"),
-                                         (", ", "default"),
-                                         ("Configuration File", "argument"),
-                                         (", ", "default"),
-                                         ("Kustomization", "argument"),
-                                         (", or ", "default"),
-                                         ("<dir>", "argument"),
-                                         (")", "default")],
-                                    ]
-                                    unformatted_msg, formatted_msg = \
-                                        ANSIThemeStr.format_error_msg(errmsg)
-                                    cmtlog.log(LogLevel.ERR,
-                                               msg=unformatted_msg,
-                                               messages=formatted_msg)
-                                    continue
-
-                                file_list.append({
-                                    "lineattrs": WidgetLineAttrs.NORMAL,
-                                    "columns": [[ThemeStr(f"{filename}", fmt)],
-                                                [ThemeStr(f"{ptype}",
-                                                          ThemeAttr("windowwidget",
-                                                                    "description"))]],
-                                    "retval": filename,
-                                })
-                            tmpselection = \
-                                curses_helper.windowwidget(uip.stdscr, uip.maxy, uip.maxx,
-                                                           uip.maxy // 2, uip.maxx // 2, file_list,
-                                                           title=query, cursor=True)
-                            if tmpselection is None or tmpselection == "":
-                                # This will break out of the loop
-                                basedir = None
-                                selected_file = None
-                                continue
-                            selected_entry = selection
-                            # Find entry in tmp_file_list
-                            for item in tmp_file_list:
-                                realpath, filename, ptype = item
-                                if filename == selected_entry:
-                                    if ptype == "<dir>":
-                                        basedir = realpath
-                                        uip.refresh_all()
-                                    elif ptype in ("File", "Configuration File", "Kustomization"):
-                                        selected_file = realpath
-                                        selected_ptype = ptype
-                                        basedir = None
-                                        break
-
-                        if selected_file is None:
-                            uip.force_update()
-                            continue
-                        selection_vars["resource_path"] = (selected_file, selected_ptype)
-
-                if confirm:
-                    query_title = f"Are you sure you want to perform “{description}“?"
-                    if not curses_helper.confirmationbox(uip.stdscr, title=query_title,
-                                                         default=False):
-                        continue
+                if not input_query(uip, queryfunc=queryfunc, queryval=queryval, query=query,
+                                   selection_vars=selection_vars, confirm=confirm,
+                                   extravars=extravars, description=description):
+                    continue
 
                 selection_vars["_tagged_items"] = get_tagged_objects(uip.sorted_list)
                 selection_vars["action_args"] = action_args
@@ -2088,9 +2012,12 @@ def genericlistloop(stdscr: curses.window, **kwargs: Any) -> Retval:
             if c not in shortcut_keys:
                 continue
 
+            description = deep_get(value, DictPath("description"), "")
+            confirm = deep_get(value, DictPath("confirm"), False)
             query = deep_get(value, DictPath("query"))
             queryval = deep_get(value, DictPath("queryval"))
             queryfunc = deep_get(value, DictPath("queryfunc"))
+            extravars = deep_get(value, DictPath("extravars"), {})
             # Force update data
             force_update = deep_get(value, DictPath("force_update"), False)
             # Force update UI
@@ -2098,28 +2025,10 @@ def genericlistloop(stdscr: curses.window, **kwargs: Any) -> Retval:
 
             selection_vars = None
 
-            # This should be modified; we might want to ask multiple queries.
-            # At the very least asking for one input plus confirmation.
-            # A multi input box might be useful too.
-            if queryfunc is not None and queryval is not None and query is not None:
-                if queryfunc == "string":
-                    # Not supported by inputbox widget
-                    # querydefault = ""
-                    query_title = f"{query}: "
-                    if not (string := curses_helper.inputbox(uip.stdscr, title=query_title)):
-                        continue
-                    selection_vars = {queryval: string}
-                elif queryfunc == "confirm":
-                    querydefault = False
-                    query_title = f"{query}?"
-                    if not curses_helper.confirmationbox(uip.stdscr, title=query_title,
-                                                         default=querydefault):
-                        continue
-            if deep_get(value, DictPath("confirm")):
-                uip.force_update()
-                query_title = deep_get(value, DictPath("title"), "")
-                if not curses_helper.confirmationbox(uip.stdscr, title=query_title, default=False):
-                    continue
+            if not input_query(uip, queryfunc=queryfunc, queryval=queryval, query=query,
+                               selection_vars=selection_vars, confirm=confirm,
+                               extravars=extravars, description=description):
+                continue
 
             selected = uip.get_selected()
 
@@ -2551,7 +2460,8 @@ clusteroverview_shortcuts = {
 
 
 # pylint: disable-next=unused-argument
-def read_file_async(*args: Any, **kwargs: Any) -> tuple[list[Any], list[StatusGroup]]:
+def read_file_async(*args: Any, **kwargs: Any) \
+        -> tuple[dict[str, Any] | list[str], StatusGroup | str]:
     """
     Asynchronously read the contents of a file.
 
@@ -2571,8 +2481,8 @@ def read_file_async(*args: Any, **kwargs: Any) -> tuple[list[Any], list[StatusGr
     path: str = deep_get(kwargs, DictPath("path"))
     filetype: str = deep_get(kwargs, DictPath("filetype"), "string")
 
-    status: StatusGroup = StatusGroup.OK
-    result: dict | list[str] = []
+    status: StatusGroup | str = StatusGroup.OK
+    result: dict[str, Any] | list[str] = []
 
     try:
         if filetype == "string":
@@ -2592,7 +2502,7 @@ def read_file_async(*args: Any, **kwargs: Any) -> tuple[list[Any], list[StatusGr
 
 
 # pylint: disable-next=unused-argument
-def run_ansible_play_async(*args: Any, **kwargs: Any) -> tuple[dict[str, Any], list[StatusGroup]]:
+def run_ansible_play_async(*args: Any, **kwargs: Any) -> tuple[dict[str, Any], int]:
     """
     Asynchronously run an Ansible playbook.
 
@@ -2676,15 +2586,16 @@ def clusteroverviewloop(stdscr: curses.window, **kwargs: Any) -> Retval:
     selected_pod: int = 0
 
     # Get control plane node
-    control_planes = get_control_planes()
-    control_plane_names = [control_plane[1] for control_plane in control_planes]
-    control_plane_name = control_plane_names[0]
-    control_plane_objs = [control_plane[0] for control_plane in control_planes]
+    control_planes: list[tuple[dict[str, Any], str]] = get_control_planes()
+    control_plane_names: list[str] = [control_plane[1] for control_plane in control_planes]
+    control_plane_name: str = control_plane_names[0]
+    control_plane_objs: list[dict[str, Any]] = \
+        [control_plane[0] for control_plane in control_planes]
 
     if not control_plane_name:
         control_plane_names = ["<virtual>"]
         control_plane_name = "<virtual>"
-        control_plane_objs = {}
+        control_plane_objs = []
 
     name: str = ""
     iips: list[str] = []
@@ -3114,11 +3025,11 @@ def clusteroverviewloop(stdscr: curses.window, **kwargs: Any) -> Retval:
         y += 1
         curses_helper.window_tee_hline(uip.stdscr, y=y, start=0, end=uip.maxx,
                                        tee=CursesConfiguration.borders)
-        curses_helper.window_tee_hline(uip.infopad, y=y - 1, start=0, end=uip.maxx,
-                                       tee=False)
+        if uip.infopad:
+            curses_helper.window_tee_hline(uip.infopad, y=y - 1, start=0, end=uip.maxx, tee=False)
 
         # Draw the events over the hline
-        eventarray_header: list[list[ThemeRef | ThemeStr]] = [
+        eventarray_header: list[ThemeRef | ThemeStr] = [
             ThemeStr("E", ThemeAttr("main", "listheader_compact_shortcut")),
             ThemeStr("vents:", ThemeAttr("main", "listheader_compact")),
         ]
@@ -3129,8 +3040,8 @@ def clusteroverviewloop(stdscr: curses.window, **kwargs: Any) -> Retval:
         y += i + 2
         curses_helper.window_tee_hline(uip.stdscr, y=y, start=0, end=uip.maxx,
                                        tee=CursesConfiguration.borders)
-        curses_helper.window_tee_hline(uip.infopad, y=y - 1, start=0, end=uip.maxx,
-                                       tee=False)
+        if uip.infopad:
+            curses_helper.window_tee_hline(uip.infopad, y=y - 1, start=0, end=uip.maxx, tee=False)
 
         selected_pod = min(selected_pod, len(podinfo))
         selected_node = min(selected_node, len(nodeinfo))
@@ -3208,7 +3119,7 @@ def clusteroverviewloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                 pod_status_group = deep_get(podinfo[selected_pod], DictPath("status_group"))
 
             if pod_node == "<none>":
-                pod_node_array = \
+                pod_node_array: list[ThemeRef | ThemeStr] = \
                     [ThemeStr(f"{pod_node}".ljust(pod_heatmap_width), ThemeAttr("types", "none"))]
             else:
                 pod_node_array = \
@@ -3466,14 +3377,14 @@ def update_cni(stdscr: curses.window, cni: str, current_version: str, candidate_
     return retval
 
 
-def __update_cni(uip: UIProps, **kwargs: Any) -> Retval:
+def __update_cni(uip: UIProps, **kwargs: Any) -> tuple[Retval, dict]:
     cni = deep_get(kwargs, DictPath("cni"))
     cni_version = deep_get(kwargs, DictPath("cni_version"))
     candidate_version = deep_get(kwargs, DictPath("candidate_version"))
 
     # If we do not recognise the CNI or we do not support updates we cannot update it
     if not update_cni(uip.stdscr, cni, cni_version, candidate_version, dry_run=True):
-        return Retval.MATCH
+        return Retval.MATCH, {}
 
     # Try to download and install an update
     query_title = f"Update {cni} to version {candidate_version}:"
@@ -3569,7 +3480,7 @@ def cniloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                 cni_version_str = [
                     ThemeStr(f"{cni_version}", color_status_group(StatusGroup.UNKNOWN))
                 ]
-                cni_status = ("N/A", StatusGroup.UNKNOWN)
+                cni_status: tuple[str, StatusGroup, str] = ("N/A", StatusGroup.UNKNOWN, "")
             elif len(_cnis) == 1:
                 cni = _cnis[0][0]
                 cnistr = [
@@ -3599,7 +3510,7 @@ def cniloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                 cni_version_str = [
                     ThemeStr(f"{cni_version}", color_status_group(StatusGroup.UNKNOWN))
                 ]
-                cni_status = ("N/A", StatusGroup.UNKNOWN)
+                cni_status = ("N/A", StatusGroup.UNKNOWN, "")
 
             cni_status_str = [
                 ThemeStr(f"{cni_status[0]}", color_status_group(cni_status[1]))
@@ -3829,6 +3740,27 @@ def export_data(stdscr: curses.window, **kwargs: Any) -> Retval:
             else:
                 value = deep_get(obj, DictPath(f"{base_path}"))
 
+    value = None
+    if not isinstance(value, (str, bytes)):
+        errmsg = [
+            [("export_data()", "emphasis"),
+             (" received incompatible value type:", "error")],
+            [("type: ", "default"),
+             (f"{type(value)}", "argument"),
+             (" (expected one of ", "default"),
+             ("str", "argument"),
+             (", ", "default"),
+             ("bytes", "argument"),
+             (")", "default")],
+        ]
+        unformatted_msg, formatted_msg = ANSIThemeStr.format_error_msg(errmsg)
+        cmtlog.log(LogLevel.ERR, msg=unformatted_msg, messages=formatted_msg)
+
+        curses_helper.alert(stdscr,
+                            message=f"Failed to export data; unsupported value type {type(value)}",
+                            wait_for_keypress=True)
+        return Retval.RETURNDONE
+
     if not (raw_filename := deep_get(kwargs, DictPath("result"))):
         return Retval.RETURNDONE
 
@@ -3908,7 +3840,7 @@ def generate_helptext(view: str | tuple[str, str], viewtype: str, **kwargs: Any)
             helptext += additional_helptexts
             return format_helptext(helptext)
 
-        viewref = infoviews[cast(tuple[str, str], view)]
+        viewref = infoviews[view]
 
         if "listpad" in viewref:
             helptext += helptexts.togglewidth
@@ -4021,17 +3953,6 @@ def genericinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
     obj: dict[str, Any] = deep_get(kwargs, DictPath("obj"))
     view: tuple[str, str] = deep_get(kwargs, DictPath("kind"))
 
-    obj_path = deep_get(kwargs, DictPath("obj_path"))
-    title = None
-    if obj_path is not None:
-        title = deep_get(kwargs, DictPath("title"), "")
-        title_path = deep_get(kwargs, DictPath("title_path"))
-        title = f"{title}{deep_get(obj, DictPath(title_path), '')}"
-        if obj_path:
-            obj = deep_get(obj, DictPath(obj_path))
-        else:
-            obj = [obj]
-
     # If we are using the logpad this can be used to format the data
     formatter_path = deep_get(kwargs, DictPath("formatter_path"))
     # formatter_path has precedence over formatter, to allow ConfigMaps to work properly
@@ -4039,12 +3960,19 @@ def genericinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
     formatter_args: dict[str, Any] = deep_get(kwargs, DictPath("formatter_args"), {})
     if formatter_path is not None:
         formatter = deep_get(obj, DictPath(formatter_path))
-    elif isinstance(formatter, str):
+
+    title: str = deep_get(kwargs, DictPath("title"), "")
+    title_path: str = deep_get(kwargs, DictPath("title_path"), "")
+    title = f"{title}{deep_get(obj, DictPath(title_path), '')}"
+
+    if (obj_path := deep_get(kwargs, DictPath("obj_path"))):
+        obj = deep_get(obj, DictPath(obj_path))
+
+    if isinstance(formatter, str):
         if formatter == "identify":
             _dataformat, formatter = formatters.identify_cmdata(cmdata_name=title, cm_name="",
                                                                 cm_namespace="", data=obj)
-        else:
-            formatter = check_allowlist(formatter_allowlist, "formatter_allowlist", formatter)
+        formatter = check_allowlist(formatter_allowlist, "formatter_allowlist", formatter)
 
     uip = UIProps(stdscr)
 
@@ -4084,11 +4012,9 @@ def genericinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
     infoview_args = copy.deepcopy(viewref.get("infoview_args", {}))
 
     # These are used for anything that uses ResourceViewer
-    if title is not None:
+    if title:
         windowheader = title
-    elif "title" in kwargs:
-        windowheader = deep_get(kwargs, DictPath("title"))
-    elif "title_path" in kwargs:
+    elif title_path:
         windowheader = deep_get(obj, DictPath(title_path), windowheader)
     else:
         kind = deep_get(viewref, DictPath("kind"))
@@ -4420,7 +4346,7 @@ def genericinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                 if creation_timestamp_path is not None \
                         and creation_timestamp_path \
                         and deep_get(obj, DictPath(creation_timestamp_path)) is not None:
-                    timestamp: str = deep_get(obj, DictPath(creation_timestamp_path))
+                    timestamp: str | datetime = deep_get(obj, DictPath(creation_timestamp_path))
 
                     if timestamp is None:
                         field = [ThemeRef("strings", "unset")]
@@ -4645,8 +4571,8 @@ def genericinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
 
                     if fac:
                         if isinstance(fac, tuple):
-                            fac0 = fac[0]
-                            fac1 = fac[1]
+                            fac0: str = fac[0]
+                            fac1: str = fac[1]
                         else:
                             fac0 = fac
                             fac1 = ""
@@ -5106,7 +5032,7 @@ def genericinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                            ANSIThemeStr(f"{containername}", "path")]
                 elif w_command == ["<dnsutils>"]:
                     node_name = deep_get(obj, DictPath("metadata#name"))
-                    containername = None
+                    containername = ""
                     msg = [ANSIThemeStr("Opening dnsutils container on ", "action"),
                            ANSIThemeStr(node_name, "hostname")]
                 else:
@@ -5349,7 +5275,9 @@ def log_add_line(timestamps: list[datetime],
                  severity: LogLevel,
                  message: list[ThemeRef | ThemeStr],
                  facility_extended: list[ThemeRef | ThemeStr]) \
-        -> tuple[list[datetime], list[str | tuple[str, str]], list[LogLevel],
+        -> tuple[list[datetime],
+                 list[tuple[list[ThemeRef | ThemeStr], str] | str],
+                 list[LogLevel],
                  list[list[ThemeRef | ThemeStr] | str]]:
     """
     Add a new line to the log.
@@ -5529,7 +5457,8 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                 rawmsg, internal_error = \
                     get_pod_log_by_name_namespace_container(podname, namespace, containername,
                                                             tail_lines=tail_lines)
-                splitmsg = split_msg(rawmsg)
+                splitmsg: Sequence[str | tuple[str, str, str, str,
+                                               list[ThemeRef | ThemeStr]]] = split_msg(rawmsg)
             else:
                 container_type = "Container"
                 splitmsg = []
@@ -6124,7 +6053,7 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                     [ThemeStr(timestamp, ThemeAttr("logview", "timestamp"))]
 
                 if show_facility == "None" or uip.yoffset + y >= len(facilities):
-                    facility_extended = ""
+                    facility_extended = []
                     facility = ""
                 elif show_facility == "Short":
                     _facility = facilities[uip.yoffset + y]
@@ -6387,14 +6316,14 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                     "retval": "expand_tabs",
                 },
             ]
-            preselection = set()
+            preselection: str | set = set()
 
             for i, option in enumerate(option_list):
-                retval = False
+                option_retval = False
                 option_path = deep_get(option, DictPath("retval"))
                 if option_path is not None:
-                    retval = getattr(LogparserConfiguration, option_path, False)
-                if retval:
+                    option_retval = getattr(LogparserConfiguration, option_path, False)
+                if option_retval and isinstance(preselection, set):
                     preselection.add(i)
 
             tmpselection = \
@@ -6407,7 +6336,8 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
             uip.refresh_all()
 
             # Some option changed, so we need to re-render the log
-            if selection is not None and preselection != selection:
+            if selection is not None \
+                    and preselection != selection and isinstance(preselection, set):
                 # Perform the changes
                 modified_options = preselection.symmetric_difference(selection)
                 for i in modified_options:
@@ -6440,11 +6370,11 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                 "columns": [[ThemeStr("<autodetect>", ThemeAttr("windowwidget", "default"))]],
                 "retval": "<autodetect>",
             }]
-            for parser in natsorted(get_parser_list()):
+            for parser_name in natsorted(get_parser_list()):
                 parserlist.append({
                     "lineattrs": WidgetLineAttrs.NORMAL,
-                    "columns": [[ThemeStr(f"{parser}", ThemeAttr("windowwidget", "default"))]],
-                    "retval": parser,
+                    "columns": [[ThemeStr(f"{parser_name}", ThemeAttr("windowwidget", "default"))]],
+                    "retval": parser_name,
                 })
 
             if override_parser is None:
@@ -6813,7 +6743,7 @@ def executecommand(stdscr: curses.window,
         else:
             args = [kubectl_path, "exec", obj_name, "-n", obj_namespace,
                     "-i", "-t", "--container", container, "--"] + command
-            _result = subprocess.run(args, check=False).returncode
+            _result = subprocess.run(args, check=False)
     else:
         errmsg = [
             [("Function called with invalid argument(s):", "default")],
@@ -7128,11 +7058,11 @@ def resourceinfodispatch_with_lookup(stdscr: curses.window, **kwargs: Any) -> Re
                 obj = selected
 
     selection = deep_get(kwargs, DictPath("selection"))
-    fields: list[Any] = []
+    fields: list[Any] | tuple[Any, ...] = []
     if isinstance(selection, dict):
         if obj is None:
             obj = selection
-        tmp_fields = deep_get(selection, DictPath("fields"), [])
+        tmp_fields: list[Any] | tuple[Any, ...] = deep_get(selection, DictPath("fields"), [])
         if isinstance(tmp_fields, (list, tuple)):
             fields = tmp_fields
     elif isinstance(selection, (list, tuple)):
@@ -7690,6 +7620,10 @@ def view_pod_logs(stdscr: curses.window, **kwargs: Any) -> Retval:
         container_name = deep_get(obj, DictPath("container"))
         image_id = deep_get(obj, DictPath("ref#image_id"))
         image = deep_get(obj, DictPath("image"))
+        if image and isinstance(image, list):
+            image = image[0]
+        if image and isinstance(image, tuple):
+            image = image[0]
         if image.startswith("sha256:"):
             image = image_id
         container_type = deep_get(obj, DictPath("type"))
@@ -7737,7 +7671,7 @@ def action_view_file(**kwargs: Any) -> Retval:
     uip: UIProps = deep_get(kwargs, DictPath("uip"))
     values: dict = deep_get(kwargs, DictPath("values"))
     formatter_str: str = deep_get(kwargs, DictPath("action#actionfunc_args#formatter"))
-    formatter: Callable = \
+    formatter: Callable | None = \
         check_allowlist(formatter_allowlist, "action#formatter_allowlist", formatter_str)
     formatter_args: dict[str, Any] = \
         deep_get(kwargs, DictPath("action#actionfunc_args#formatter_args"), {})
@@ -8129,7 +8063,7 @@ def perform_action_on_configuration(uip: UIProps, **kwargs: Any) -> Retval:
         raise TypeError(f"Unknown resource type {rtype}; this is a programming error.")
 
     args.append(resource_path)
-    result = subprocess.run(args, universal_newlines=True, check=False)
+    _result = subprocess.run(args, universal_newlines=True, check=False)
 
     # waitforkeypress = deep_get(kwargs, DictPath("wait_for_keypress"), False)
     waitforkeypress = True
@@ -8138,7 +8072,7 @@ def perform_action_on_configuration(uip: UIProps, **kwargs: Any) -> Retval:
         ansithemeinput([ANSIThemeStr("\nPress Enter to continue...", "default")])
     uip.stdscr.refresh()
 
-    return result.returncode
+    return Retval.MATCH
 
 
 # pylint: disable-next=too-many-locals,too-many-branches
@@ -8610,10 +8544,10 @@ def action_execute_command(uip: UIProps, **kwargs: Any) -> None:
             retval = 2
             break
         if arg == "<<<items>>>":
-            args += items
+            args += cast(list[str], items)
         elif arg.startswith("<<<items:"):
             separator = arg.removeprefix("<<<items:").removesuffix(">>>")
-            args.append(separator.join(items))
+            args.append(separator.join(cast(list[str], items)))
         else:
             args.append(arg)
 
@@ -8628,7 +8562,7 @@ def action_execute_command(uip: UIProps, **kwargs: Any) -> None:
         ansithemeprint(msg)
 
         if iterate:
-            iterations: list[tuple[str, str] | str] = items
+            iterations: list[tuple[str, str] | str] = cast(list[tuple[str, str] | str], items)
         else:
             iterations = [cast(tuple[str, str] | str, items)]
 

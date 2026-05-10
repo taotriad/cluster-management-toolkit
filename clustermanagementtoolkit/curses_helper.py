@@ -76,27 +76,36 @@ def clear_tagged_items() -> None:
     tagged_items.clear()
 
 
-def tag_item(item: dict) -> None:
+def tag_item(item: dict | None) -> None:
     """
     Add the UID of item to the tagged set.
+
+        Parameters:
+            item (dict[Any, Any] | None): The item to add to the tagged set.
     """
-    if (uid := deep_get(item, DictPath("__uid"))):
+    if item is not None and (uid := deep_get(item, DictPath("__uid"))):
         tagged_items.add(uid)
 
 
-def untag_item(item: dict) -> None:
+def untag_item(item: dict | None) -> None:
     """
     Remove the UID of item from the tagged set.
+
+        Parameters:
+            item (dict[Any, Any] | None): The item to remove from the tagged set.
     """
-    if (uid := deep_get(item, DictPath("__uid"))):
+    if item is not None and (uid := deep_get(item, DictPath("__uid"))):
         tagged_items.discard(uid)
 
 
-def in_tagged_items(item: dict) -> bool:
+def in_tagged_items(item: dict | None) -> bool:
     """
     Check whether the UID of item is in the tagged set.
+
+        Parameters:
+            item (dict[Any, Any] | None): The item to locate in the tagged set.
     """
-    return deep_get(item, DictPath("__uid")) in tagged_items
+    return item is not None and deep_get(item, DictPath("__uid")) in tagged_items
 
 
 def get_tagged_objects(items: list[dict]) -> list[dict]:

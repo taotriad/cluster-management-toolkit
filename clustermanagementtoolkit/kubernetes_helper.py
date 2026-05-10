@@ -1378,7 +1378,8 @@ class KubernetesHelper:
 
         pod_matches = 0
         cni_version = None
-        cni_status = ("<unknown>", StatusGroup.UNKNOWN, "Could not get status")
+        cni_status: tuple[str, StatusGroup, str] = \
+            ("<unknown>", StatusGroup.UNKNOWN, "Could not get status")
 
         # 2. Are there > 0 pods matching the label selector?
         for obj in vlist:

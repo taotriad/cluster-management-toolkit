@@ -1777,7 +1777,7 @@ builtin_fields: dict[str, dict[str, Any]] = {
 
 
 # pylint: disable-next=too-many-branches,too-many-locals
-def fieldgenerator(view: str, selected_namespace: str = "",
+def fieldgenerator(view: str | tuple[str, str], selected_namespace: str = "",
                    **kwargs: Any) -> tuple[dict, list[str], str, bool]:
     """
     Generate a dict with the fields necessary for a view.
@@ -1795,7 +1795,6 @@ def fieldgenerator(view: str, selected_namespace: str = "",
                 sortcolumn (str): The column to use when sorting
                 sortorder_reverse (bool): Should the list be sorted in reverse order
     """
-
     fields = deep_get(kwargs, DictPath("fields"))
     field_index = deep_get(kwargs, DictPath("field_index"))
     field_indexes = deep_get(kwargs, DictPath("field_indexes"))

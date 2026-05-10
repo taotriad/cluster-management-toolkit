@@ -42,11 +42,11 @@ def decode_value(value: str | bytes) -> tuple[str, str | bytes]:
     Given a value attempt to decode it from base64.
 
         Parameters:
-            value (str|bytes): The value to decode
+            value (str | bytes): The value to decode
         Returns:
-            (str, str|bytes):
+            (str, str | bytes):
                 (str): The identified type
-                (str|bytes): The decoded value
+                (str | bytes): The decoded value
     """
     # Is this base64?
     try:
@@ -730,7 +730,7 @@ def timestamp_to_datetime(timestamp: str, default: datetime = none_timestamp()) 
             timestamp (str): The timestamp string to convert
             default (datetime): The value to return if timestamp is None, 0, "", or "None"
         Returns:
-            (int|datetime): -1 if the timestamp was -1, datetime otherwise
+            (int | datetime): -1 if the timestamp was -1, datetime otherwise
     """
     rtimestamp = timestamp
 
@@ -1568,7 +1568,7 @@ def check_allowlist(allowlist: dict, allowlist_name: str, value: Any | None,
     and either return a default, or exit if it's not in the allowlist.
 
         Parameters:
-            allowlist (Dict): A list of allowed values and the corresponding return value
+            allowlist (dict[str, Any]): A list of allowed values and the corresponding return value
             allowlist_name (str): The name of the allow list (used for exit message)
             value (Any): A value that can be used as a dict key
             default (Any): The value to return if the value isn't in the allow list
