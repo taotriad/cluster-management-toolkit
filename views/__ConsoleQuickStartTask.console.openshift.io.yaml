@@ -7,7 +7,7 @@ infoview:
   infopad:
     name_path: "title"
     namespace_path: null
-    creation_timestamp: null
+    creation_timestamp_path: null
     row_indexes:
       Normal:
         fields: ["summary_header", "summary_success", "summary_failed",
