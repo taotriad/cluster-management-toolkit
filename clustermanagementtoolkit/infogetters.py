@@ -1168,6 +1168,7 @@ def get_obj(obj: dict, field_dict: dict, field_names: list[str],
                                     tmp.append(_subpath)
                                 else:
                                     _subpath = deep_get(subpath, DictPath("subpath"))
+                                    _default = deep_get(subpath, DictPath("default"), _default)
                                     _fallback_path = deep_get(subpath, DictPath("fallback_path"))
                                     _fallback_value = deep_get(obj, DictPath(_fallback_path))
                                     if _fallback_value is not None and _default is None:
