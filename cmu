@@ -3972,6 +3972,8 @@ def genericinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
         if formatter == "identify":
             _dataformat, formatter = formatters.identify_cmdata(cmdata_name=title, cm_name="",
                                                                 cm_namespace="", data=obj)
+        if callable(formatter):
+            formatter = formatter.__name__
         formatter = check_allowlist(formatter_allowlist, "formatter_allowlist", formatter)
 
     uip = UIProps(stdscr)
