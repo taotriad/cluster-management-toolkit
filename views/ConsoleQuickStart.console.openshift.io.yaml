@@ -6,8 +6,10 @@ listview:
   name: "Console Quick Starts"
   group: "OpenShift"
   field_indexes:
+    Wide:
+      fields: ["name", "display_name", "controller", "duration", "tasks", "age"]
     Normal:
-      fields: ["name", "controller", "age"]
+      fields: ["name", "duration", "tasks", "age"]
   fields:
     controller:
       header: "Controller:"
@@ -32,13 +34,32 @@ listview:
         field_separators:
           - type: "kind_api_group"
           - type: "kind"
+    display_name:
+      header: "Display Name:"
+      path: "spec#displayName"
+      default: "<unset>"
+      type: "str"
+    duration:
+      header: "Duration:"
+      path: "spec#durationMinutes"
+      type: "int"
+      formatter: "numerical"
+      formatting:
+        unit: "m"
+      align: "right"
+    tasks:
+      header: "Tasks:"
+      path: "spec#tasks"
+      type: "len"
+      formatter: "numerical"
+      align: "right"
 infoview:
   name: "Console Quick Start Info"
   infopad:
     row_indexes:
       Normal:
         fields: ["controller", "display_name",
-                 "description", "duration", "tags"]
+                 "description", "duration", "prerequisites", "tags"]
     rows:
       controller:
         header: [["C", ["main", "infoheader_shortcut"]],
@@ -67,10 +88,12 @@ infoview:
       description:
         header: [["Description:", ["main", "infoheader"]]]
         path: "spec#description"
+        default: "<unset>"
         type: "str"
       display_name:
         header: [["Display Name:", ["main", "infoheader"]]]
         path: "spec#displayName"
+        default: "<unset>"
         type: "str"
       duration:
         header: [["Duration:", ["main", "infoheader"]]]
@@ -79,6 +102,13 @@ infoview:
         formatter: "numerical"
         formatting:
           unit: "m"
+      prerequisites:
+        header: [["P", ["main", "infoheader_shortcut"]],
+                 ["rerequisites:", ["main", "infoheader"]]]
+        path: "spec#prerequisites"
+        type: "raw"
+        default: ["<none>"]
+        formatter: "list"
       tags:
         header: [["Tags:", ["main", "infoheader"]]]
         path: "spec#tags"
@@ -88,9 +118,8 @@ infoview:
   listpad:
     on_activation:
       call: "resourceinfodispatch"
-      kind: "__ResourceView"
-      formatter: "format_yaml"
-      obj_path: ""
+      kind: "__ConsoleQuickStartTask"
+      api_family: "console.openshift.io"
       title_path: "title"
     listgetter: "listgetter_path"
     listgetter_args:

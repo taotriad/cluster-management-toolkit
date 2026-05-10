@@ -1,0 +1,71 @@
+---
+kind: "__ConsoleQuickStartTask"
+api_family: "console.openshift.io"
+default_command: "__"
+infoview:
+  name: "Console Quick Start Task"
+  infopad:
+    name_path: "title"
+    namespace_path: null
+    creation_timestamp: null
+    row_indexes:
+      Normal:
+        fields: ["summary_header", "summary_success", "summary_failed",
+                 "review_header", "review_instructions",
+                 "review_failed_task_help"]
+    rows:
+      review_failed_task_help:
+        header: [["  ", ["main", "infoheader"]],
+                 ["F", ["main", "infoheader_shortcut"]],
+                 ["ailed Task Help:", ["main", "infoheader"]]]
+        path: "review#failedTaskHelp"
+        default: "<unset>"
+        type: "str"
+      review_header:
+        header: [["Review:", ["main", "infoheader"]]]
+      review_instructions:
+        header: [["  ", ["main", "infoheader"]],
+                 ["I", ["main", "infoheader_shortcut"]],
+                 ["nstructions:", ["main", "infoheader"]]]
+        path: "review#instructions"
+        default: "<unset>"
+        type: "str"
+      summary_failed:
+        header: [["  Failed:", ["main", "infoheader"]]]
+        path: "summary#failed"
+        default: "<unset>"
+        type: "str"
+      summary_header:
+        header: [["Summary:", ["main", "infoheader"]]]
+      summary_success:
+        header: [["  Success:", ["main", "infoheader"]]]
+        path: "summary#success"
+        default: "<unset>"
+        type: "str"
+  logpad:
+    infogetter: "logpad_formatted"
+    infogetter_args:
+      path: "description"
+      formatter: "render_markdown"
+    timestamps: false
+  shortcuts:
+    "Show Instructions":
+      key: "i"
+      modifier: "shift"
+      read_only: true
+      helptext: "Show instructions"
+      widget: "windowwidget"
+      title: "Instructions:"
+      itemgetter: "get_strings_from_string"
+      itemgetter_args:
+        path: "review#instructions"
+    "Show Failed Task Help":
+      key: "f"
+      modifier: "shift"
+      read_only: true
+      helptext: "Show failed task help"
+      widget: "windowwidget"
+      title: "Failed Task Help:"
+      itemgetter: "get_strings_from_string"
+      itemgetter_args:
+        path: "review#failedTaskHelp"
