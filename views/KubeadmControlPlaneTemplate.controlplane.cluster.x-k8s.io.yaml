@@ -10,7 +10,7 @@ listview:
   group: "Cluster Configuration"
   field_indexes:
     Normal:
-      fields: ["namespace", "name", "cluster_class",  "age"]
+      fields: ["namespace", "name", "cluster_class", "age"]
       sortcolumn: "namespace"
   fields:
     cluster_class:
