@@ -4021,15 +4021,6 @@ def genericinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
     obj: dict[str, Any] = deep_get(kwargs, DictPath("obj"))
     view: tuple[str, str] = deep_get(kwargs, DictPath("kind"))
 
-    # If we are using the logpad this can be used to format the data
-    formatter_path = deep_get(kwargs, DictPath("formatter_path"))
-    # formatter_path has precedence over formatter, to allow ConfigMaps to work properly
-    formatter = deep_get(kwargs, DictPath("formatter"))
-    formatter_args: dict[str, Any] = deep_get(kwargs, DictPath("formatter_args"), {})
-    if formatter_path is not None:
-        formatter = deep_get(obj, DictPath(formatter_path))
-    elif isinstance(formatter, str):
-        formatter = check_allowlist(formatter_allowlist, "formatter_allowlist", formatter)
     obj_path = deep_get(kwargs, DictPath("obj_path"))
     title = None
     if obj_path is not None:
@@ -4040,6 +4031,20 @@ def genericinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
             obj = deep_get(obj, DictPath(obj_path))
         else:
             obj = [obj]
+
+    # If we are using the logpad this can be used to format the data
+    formatter_path = deep_get(kwargs, DictPath("formatter_path"))
+    # formatter_path has precedence over formatter, to allow ConfigMaps to work properly
+    formatter = deep_get(kwargs, DictPath("formatter"))
+    formatter_args: dict[str, Any] = deep_get(kwargs, DictPath("formatter_args"), {})
+    if formatter_path is not None:
+        formatter = deep_get(obj, DictPath(formatter_path))
+    elif isinstance(formatter, str):
+        if formatter == "identify":
+            _dataformat, formatter = formatters.identify_cmdata(cmdata_name=title, cm_name="",
+                                                                cm_namespace="", data=obj)
+        else:
+            formatter = check_allowlist(formatter_allowlist, "formatter_allowlist", formatter)
 
     uip = UIProps(stdscr)
 
