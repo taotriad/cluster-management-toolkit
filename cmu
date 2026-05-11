@@ -2613,8 +2613,7 @@ def clusteroverviewloop(stdscr: curses.window, **kwargs: Any) -> Retval:
         if not name or name == hostname:
             name = name_
 
-    # islocal: bool = hostname == name
-    islocal = True
+    islocal: bool = hostname == name
 
     stat_regex: re.Pattern[str] = re.compile(r"^[A-Za-z]+ +(\d+) +(\d+) +(\d+) +(\d+) "
                                              r"(\d+) +(\d+) +(\d+) +(\d+) +(\d+) (\d+)$")
