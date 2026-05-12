@@ -1,0 +1,11 @@
+---
+- name: "aaq"
+  show_in_selector: false
+  matchkeys:
+    - image_name: "/kubevirt/aaq-controller"
+    - image_name: "/kubevirt/aaq-operator"
+    - image_name: "/kubevirt/aaq-server"
+  parser_rules:
+    - name: "glog"
+    - name: "json"
+    - name: "key_value_with_leading_message"

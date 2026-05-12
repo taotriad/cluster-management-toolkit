@@ -1574,6 +1574,14 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api": "aaqs",
         "namespaced": False,
     },
+    ("AAQJobQueueConfig", "aaq.kubevirt.io"): {
+        "api_paths": ["apis/aaq.kubevirt.io/v1alpha1/"],
+        "api": "aaqjobqueueconfigs",
+    },
+    ("ApplicationAwareResourceQuota", "aaq.kubevirt.io"): {
+        "api_paths": ["apis/aaq.kubevirt.io/v1alpha1/"],
+        "api": "applicationawareresourcequotas",
+    },
     # access.smi-spec.io
     ("TrafficTarget", "access.smi-spec.io"): {
         "api_paths": ["apis/access.smi-spec.io/v1alpha2/"],

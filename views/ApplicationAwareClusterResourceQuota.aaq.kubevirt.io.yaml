@@ -1,0 +1,121 @@
+---
+kind: "ApplicationAwareClusterResourceQuota"
+api_family: "aaq.kubevirt.io"
+default_command: "applicationawareclusterresourcequotas"
+command:
+  - "aaclrquotas"
+  - "aaclrquota"
+  - "aacrqs"
+  - "aacrq"
+listview:
+  name: "Application Aware Cluster Resource Quotas"
+  group: "Policy"
+  field_indexes:
+    Wide:
+      fields: ["name", "age", "request", "limit"]
+    Normal:
+      fields: ["name", "age"]
+  fields:
+    limit:
+      header: "Limit:"
+      paths:
+        - path: "spec#hard"
+          pathtype: "key_value"
+          when:
+            - key_startswith: "limits."
+      formatter: "list"
+      formatting:
+        field_colors:
+          - type: "key"
+          # Ideally we'd use numerical_with_units
+          - type: "numerical"
+        field_separators:
+          - type: "keyvalue"
+    request:
+      header: "Request:"
+      paths:
+        - path: "spec#hard"
+          pathtype: "key_value"
+          when:
+            - key_notstartswith: "limits."
+      formatter: "list"
+      formatting:
+        field_colors:
+          - type: "key"
+          # Ideally we'd use numerical_with_units
+          - type: "numerical"
+        field_separators:
+          - type: "keyvalue"
+infoview:
+  name: "Application Aware Cluster Resource Quota Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["label_selector", "set_based_selector"]
+    rows:
+      label_selector:
+        header: [["La", ["main", "infoheader"]],
+                 ["b", ["main", "infoheader_shortcut"]],
+                 ["el Selector:", ["main", "infoheader"]]]
+        paths:
+          - path: ["spec#selector#matchLabels"]
+            pathtype: "key_value"
+            default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "key"
+            - type: "value"
+          field_separators:
+            - type: "selector"
+      set_based_selector:
+        header: [["Set-Based Selector:", ["main", "infoheader"]]]
+        paths:
+          - path: "spec#selector#matchExpressions"
+            pathtype: "match_expression"
+            default: "<none>"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "key"
+            - type: "operator"
+            - type: "value"
+          field_separators:
+            - type: "space"
+            - type: "no_pad"
+  listpad:
+    listgetter: "listgetter_path"
+    listgetter_args:
+      path: ""
+    infogetter: "get_rq_item_info"
+    field_indexes:
+      Normal:
+        fields: ["resource", "used", "hard"]
+    fields:
+      hard:
+        header: "Hard:"
+        path: "hard"
+        type: "str"
+        formatter: "numerical"
+        align: "right"
+      resource:
+        header: "Resource:"
+        path: "resource"
+        type: "str"
+      used:
+        header: "Used:"
+        path: "used"
+        type: "str"
+        formatter: "numerical"
+        align: "right"
+  shortcuts:
+    "Label Selector":
+      key: "b"
+      read_only: true
+      helptext: "Show label selector"
+      widget: "windowwidget"
+      title: "Label Selector:"
+      headers: ["Key:", "Value:"]
+      itemgetter: "get_key_value"
+      itemgetter_args:
+        path: "spec#selector#matchLabels"

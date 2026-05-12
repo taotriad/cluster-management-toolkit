@@ -4,6 +4,7 @@ default_command: "resourcequotas"
 command:
   - "quotas"
   - "quota"
+  - "rqs"
   - "rq"
 listview:
   name: "Resource Quotas"
@@ -74,7 +75,7 @@ infoview:
   infopad:
     row_indexes:
       Normal:
-        fields: ["controller", "scope_selector"]
+        fields: ["controller", "scope_set_based_selector"]
     rows:
       controller:
         header: [["C", ["main", "infoheader_shortcut"]],
@@ -100,8 +101,8 @@ infoview:
           field_separators:
             - type: "kind_api_group"
             - type: "kind"
-      scope_selector:
-        header: [["Scope Selector:", ["main", "infoheader"]]]
+      scope_set_based_selector:
+        header: [["Scope Set-Based Selector:", ["main", "infoheader"]]]
         paths:
           - path: "spec#scopeSelector#matchExpressions"
             pathtype: "match_expression"

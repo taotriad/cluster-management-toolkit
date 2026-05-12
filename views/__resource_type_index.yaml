@@ -1,10 +1,50 @@
 %YAML 1.1
 ---
+aaclrquota:
+  kind:
+  - ApplicationAwareClusterResourceQuota
+  - aaq.kubevirt.io
+  viewfile: ApplicationAwareClusterResourceQuota.aaq.kubevirt.io.yaml
+aaclrquotas:
+  kind:
+  - ApplicationAwareClusterResourceQuota
+  - aaq.kubevirt.io
+  viewfile: ApplicationAwareClusterResourceQuota.aaq.kubevirt.io.yaml
+aacrq:
+  kind:
+  - ApplicationAwareClusterResourceQuota
+  - aaq.kubevirt.io
+  viewfile: ApplicationAwareClusterResourceQuota.aaq.kubevirt.io.yaml
+aacrqs:
+  kind:
+  - ApplicationAwareClusterResourceQuota
+  - aaq.kubevirt.io
+  viewfile: ApplicationAwareClusterResourceQuota.aaq.kubevirt.io.yaml
 aai:
   kind:
   - AntreaAgentInfo
   - crd.antrea.io
   viewfile: AntreaAgentInfo.crd.antrea.io.yaml
+aaquota:
+  kind:
+  - ApplicationAwareResourceQuota
+  - aaq.kubevirt.io
+  viewfile: ApplicationAwareResourceQuota.aaq.kubevirt.io.yaml
+aaquotas:
+  kind:
+  - ApplicationAwareResourceQuota
+  - aaq.kubevirt.io
+  viewfile: ApplicationAwareResourceQuota.aaq.kubevirt.io.yaml
+aarq:
+  kind:
+  - ApplicationAwareResourceQuota
+  - aaq.kubevirt.io
+  viewfile: ApplicationAwareResourceQuota.aaq.kubevirt.io.yaml
+aarqs:
+  kind:
+  - ApplicationAwareResourceQuota
+  - aaq.kubevirt.io
+  viewfile: ApplicationAwareResourceQuota.aaq.kubevirt.io.yaml
 accesskey.storage:
   kind:
   - AccessKey
@@ -6841,6 +6881,11 @@ routes.knative:
   - serving.knative.dev
   viewfile: Route.serving.knative.dev.yaml
 rq:
+  kind:
+  - ResourceQuota
+  - ''
+  viewfile: ResourceQuota.yaml
+rqs:
   kind:
   - ResourceQuota
   - ''
