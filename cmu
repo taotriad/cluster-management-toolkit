@@ -1137,7 +1137,7 @@ def genericlistloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                         "name": host,
                         "ref": host,
                         "ips": [],
-                        "status": "UNKNOWN",
+                        "status": "PENDING",
                         "metadata": {
                             "uid": host,
                         },

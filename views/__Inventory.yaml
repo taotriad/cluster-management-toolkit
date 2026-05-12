@@ -73,6 +73,10 @@ listview:
               field_colors:
                 - context: "main"
                   type: "status_not_ok"
+            "PENDING":
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
             "PERMISSION DENIED":
               field_colors:
                 - context: "main"
@@ -85,14 +89,18 @@ listview:
               field_colors:
                 - context: "main"
                   type: "status_ok"
-            "UNKNOWN ERROR":
-              field_colors:
-                - context: "main"
-                  type: "status_not_ok"
             "UNKNOWN":
               field_colors:
                 - context: "main"
                   type: "status_unknown"
+            "UNKNOWN ERROR":
+              field_colors:
+                - context: "main"
+                  type: "status_not_ok"
+            "UNREACHABLE (unknown error)":
+              field_colors:
+                - context: "main"
+                  type: "status_not_ok"
   shortcuts:
     "Toggle Ansible groups for hosts":
       key: "a"
