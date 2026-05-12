@@ -57,12 +57,9 @@ def fieldgetter_executable_version(**kwargs: Any) -> list[str]:
         except FileNotFoundError:
             continue
 
-        if not executable_path:
-            continue
-
         try:
             result, _retval = execute_command_with_response([executable_path] + args)
-        except OSError as e:
+        except OSError as e:  # pragma: nocover
             if str(e).startswith("[Errno 26] Text file busy"):
                 continue
 

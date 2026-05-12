@@ -23,9 +23,15 @@ from clustermanagementtoolkit.cmttypes import deep_get, DictPath
 from clustermanagementtoolkit.ansithemeprint import ANSIThemeStr
 from clustermanagementtoolkit.ansithemeprint import ansithemeprint, init_ansithemeprint
 
+from clustermanagementtoolkit import kubernetes_helper
+
 from clustermanagementtoolkit import fieldgetters
 
 # unit-tests for fieldgetters.py
+
+
+kh: kubernetes_helper.KubernetesHelper = None  # type: ignore
+kh_cache: kubernetes_helper.KubernetesResourceCache = None  # type: ignore
 
 
 def yaml_dump(data: Any, base_indent: int = 4) -> str:
@@ -48,12 +54,44 @@ def test_fieldgetter_executable_version(verbose: bool = False) -> tuple[str, boo
         testdata: tuple = (
             (
                 {
+                    "executable": ["/bin/true"],
+                    "args": ["--version"],
+                    "version_regex": r"true.+ (\d+)(\.)(\d+)",
+                },
+                ("true (GNU coreutils) 9.5", 1),
+                ["9.5"],
+                None,
+            ),
+            (
+                {
                     "executable": "/bin/true",
                     "args": ["--version"],
                     "version_regex": r"true.+ (\d+)(\.)(\d+)",
                 },
                 ("true (GNU coreutils) 9.5", 1),
                 ["9.5"],
+                None,
+            ),
+            # Mock that we didn't get a result
+            (
+                {
+                    "executable": "/bin/true",
+                    "args": ["--version"],
+                    "version_regex": r"true.+ (\d+)(\.)(\d+)",
+                },
+                ("", 1),
+                [""],
+                None,
+            ),
+            # Mock that we got a result that didn't match the regex
+            (
+                {
+                    "executable": "/bin/true",
+                    "args": ["--version"],
+                    "version_regex": r"false.+ (\d+)(\.)(\d+)",
+                },
+                ("true (GNU coreutils) 9.5", 1),
+                [""],
                 None,
             ),
             (
@@ -157,6 +195,137 @@ def test_fieldgetter_api_server_version(verbose: bool = False) -> tuple[str, boo
     return message, result
 
 
+def test_fieldgetter_kubernetes_object_version(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = fieldgetters.fieldgetter_kubernetes_object_version
+
+    if result:
+        # Indata format:
+        # (kh, kh_cache, mock_return_value, kwargs, expected_result, expected_exception)
+        testdata: tuple[Any, ...] = (
+            (
+                kh,
+                kh_cache,
+                ([
+                    {
+                        "kind": "Node",
+                        "apiVersion": "v1",
+                        "metadata": {},
+                        "status": {
+                            "nodeInfo": {
+                                "osImage": "Harvester v1.8.0",
+                            },
+                        },
+                    },
+                ], 200),
+                {
+                    "kind": "Node",
+                    "api_family": "",
+                    "namespace": "",
+                    "path": "status#nodeInfo#osImage",
+                    "version_regex": r"^Harvester\s+v(\d+)(\.)(\d+)(\.)(.+)$",
+                    "label_selector": {
+                        "node-role.kubernetes.io/control-plane": "true",
+                    },
+                },
+                ["1.8.0"],
+                None,
+            ),
+            (
+                kh,
+                kh_cache,
+                ([
+                    {
+                        "kind": "Node",
+                        "apiVersion": "v1",
+                        "metadata": {},
+                        "status": {
+                            "nodeInfo": {
+                                "osImage": "Harvester v1.8.0",
+                            },
+                        },
+                    },
+                ], 200),
+                {
+                    "kind": "Node",
+                    "api_family": "",
+                    "namespace": "",
+                    "path": "",
+                    "version_regex": r"^Harvester\s+v(\d+)(\.)(\d+)(\.)(.+)$",
+                    "label_selector": {
+                        "node-role.kubernetes.io/control-plane": "true",
+                    },
+                },
+                [""],
+                None,
+            ),
+            (
+                None,
+                None,
+                ([
+                    {
+                        "kind": "Node",
+                        "apiVersion": "v1",
+                        "metadata": {},
+                        "status": {
+                            "nodeInfo": {
+                                "osImage": "Harvester v1.8.0",
+                            },
+                        },
+                    },
+                ], 200),
+                {
+                    "kind": "Node",
+                    "api_family": "",
+                    "namespace": "",
+                    "path": "",
+                    "version_regex": r"^Harvester\s+v(\d+)(\.)(\d+)(\.)(.+)$",
+                    "label_selector": {
+                        "node-role.kubernetes.io/control-plane": "true",
+                    },
+                },
+                [],
+                None,
+            ),
+        )
+
+        for kh_, kh_cache_, mock_return_value, \
+                kwargs, expected_result, expected_exception in testdata:
+            try:
+                with mock.patch("clustermanagementtoolkit.kubernetes_helper."
+                                "KubernetesHelper.get_list_by_kind_namespace",
+                                return_value=mock_return_value):
+                    tmp = fun(kubernetes_helper=kh_, kh_cache=kh_cache_, **kwargs)
+                if tmp != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"         fields: {kwargs}\n" \
+                              f"         result: {tmp}" \
+                              f"       expected: {expected_result}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  f"         fields: {kwargs}\n" \
+                                  f"      exception: {type(e)}\n" \
+                                  f"       expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"         fields: {kwargs}\n" \
+                              f"      exception: {type(e)}\n" \
+                              f"       expected: {expected_result}"
+                    result = False
+                    break
+    return message, result
+
+
 tests: dict[tuple[str, ...], dict[str, Any]] = {
     ("fieldgetter_executable_version()",): {
         "callable": test_fieldgetter_executable_version,
@@ -169,7 +338,17 @@ tests: dict[tuple[str, ...], dict[str, Any]] = {
 }
 
 
+tests_with_cluster: dict[tuple[str, ...], dict[str, Any]] = {
+    ("fieldgetter_kubernetes_object_version()",): {
+        "callable": test_fieldgetter_kubernetes_object_version,
+        "result": None,
+    },
+}
+
+
 def main() -> int:
+    global kh
+    global kh_cache
     global tests
 
     fail = 0
@@ -178,6 +357,11 @@ def main() -> int:
     failed_testcases = []
 
     init_ansithemeprint(themefile=None)
+
+    if "--include-cluster" in sys.argv:
+        tests = {**tests, **tests_with_cluster}
+        kh = kubernetes_helper.KubernetesHelper("fgtests", "v0.1")
+        kh_cache = kubernetes_helper.KubernetesResourceCache()
 
     # How many non-prepare testcases do we have?
     testcount = sum(1 for i in tests if not deep_get(tests[i], DictPath("prepare"), False))
@@ -202,6 +386,8 @@ def main() -> int:
                 raise ValueError(f"--end-at TASK requires an integer in the range [0,{testcount}]")
             end_at_task = int(optarg)
             i += 1
+        elif opt == "--include-cluster":
+            pass
         else:
             sys.exit(f"Unknown argument: {opt}")
         i += 1

@@ -180,6 +180,8 @@ coverage-cluster: setup_tests
 	$$cmd run --branch --append tests/async_fetch || exit 1 ;\
 	printf -- "\n\n  Running: tests/dgtests --include-cluster\n\n" ;\
 	$$cmd run --branch --append tests/dgtests --include-cluster || exit 1 ;\
+	printf -- "\n\n  Running: tests/fgtests --include-cluster\n\n" ;\
+	$$cmd run --branch --append tests/fgtests --include-cluster || exit 1 ;\
 	printf -- "\n\n  Running: tests/lgtests --include-cluster\n\n" ;\
 	$$cmd run --branch --append tests/lgtests --include-cluster || exit 1 ;\
 	printf -- "\n\n  Running: tests/khtests --include-cluster\n\n" ;\
