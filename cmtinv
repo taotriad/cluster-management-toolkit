@@ -1295,8 +1295,10 @@ def fping(options: list[tuple[str, str]], args: list[str]) -> int:
 
     maxlen = 0
 
+    failures: int = 0
     successes: int = 0
     unreachables: int = 0
+    unresolvables: int = 0
 
     if result:
         for hostresult in natsorted(result.splitlines()):
@@ -1308,8 +1310,10 @@ def fping(options: list[tuple[str, str]], args: list[str]) -> int:
                 maxlen = max(len(host), maxlen)
                 if re_tmp[2] == "Name or service not known":
                     hoststatuses.append((re_tmp[1], "COULD NOT RESOLVE", "critical"))
+                    unresolvables += 1
                 else:
                     hoststatuses.append((re_tmp[1], f"FAILED ({re_tmp[2]})", "unknown"))
+                    failures += 1
                 continue
 
             if (re_tmp := re.match(r"(.+?) (is (alive|unreachable))", hostresult)) is not None:
@@ -1336,9 +1340,14 @@ def fping(options: list[tuple[str, str]], args: list[str]) -> int:
             ansithemeprint([ANSIThemeStr(f"{hostname.ljust(maxlen)}  ", "default"),
                             ANSIThemeStr(f"{status}", status_group)])
 
-    ansithemeprint([ANSIThemeStr("\n    SUCCESS: ", "success"),
+    ansithemeprint([ANSIThemeStr("\n     SUCCESS: ", "success"),
                     ANSIThemeStr(f"{successes}", "default")])
-    ansithemeprint([ANSIThemeStr("UNREACHABLE: ", "error"),
+    ansithemeprint([ANSIThemeStr("     FAILURE: ", "unknown"),
+                    ANSIThemeStr(f"{failures}", "default")])
+    ansithemeprint([ANSIThemeStr(" UNREACHABLE: ", "error"),
+                    ANSIThemeStr(f"{unreachables}", "default")])
+    ansithemeprint([ANSIThemeStr("UNRESOLVABLE", "critical"),
+                    ANSIThemeStr(": ", "error"),
                     ANSIThemeStr(f"{unreachables}", "default")])
 
     return 0
