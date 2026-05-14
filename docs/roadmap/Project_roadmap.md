@@ -61,6 +61,7 @@ tests have been added for the moved code.
       * [ ] HAProxy
       * [ ] CaddyFile
       * [ ] FluentBit
+    * Check whether it's possible to unify listgetters and infogetters.
 
 * _Accessibility_:
     * [ ] Ensure that the Colour Vision Deficiency theme covers all relevant data.
@@ -70,12 +71,6 @@ tests have been added for the moved code.
 * _cmu_:
     * [ ] UI refactoring: Use the generic input handler from curses helper for all input.
     * [ ] UI refactoring: Unified helptext generation.
-    * [ ] General refactoring: Start working on turning _cmu_ into a generic UI framework
-      that takes YAML files that describe list, info, and data (logpad) views.
-      The descriptions should include helpers to use to fetch data,
-      helpers to use to process that data, a list of actions that can be performed
-      on that data, as well as information about what, if any, relationships the data
-      has with data in other info views.
 
 ## Q3 roadmap
 
@@ -105,6 +100,13 @@ tests have been added for the moved code.
     * [ ] Write all documentation needed to meet silver criteria for OpenSSF Best Practices.
       Note that several of the requirements for silver and gold criteria make meeting
       all criteria unlikely, but we should still do our best.
+* _General_:
+    * [ ] General refactoring: Start working on turning _cmu_ into a generic UI framework
+      that takes YAML files that describe list, info, and data (logpad) views.
+      The descriptions should include helpers to use to fetch data,
+      helpers to use to process that data, a list of actions that can be performed
+      on that data, as well as information about what, if any, relationships the data
+      has with data in other info views.
 * _cmtadm_:
     * [ ] Support for clusters with virtualised control planes.
     * [ ] Support for having multiple different VM-hosts in the same cluster.

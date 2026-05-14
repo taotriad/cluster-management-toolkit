@@ -9640,7 +9640,7 @@ def is_cluster_reachable() -> bool:
     """
     reachable: bool = False
 
-    if kubernetes_support and kh is not None:
+    if kubernetes_support and kh:
         reachable = kh.is_cluster_reachable()
     return reachable
 
