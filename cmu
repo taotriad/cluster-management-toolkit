@@ -124,6 +124,7 @@ from clustermanagementtoolkit import curses_helper
 from clustermanagementtoolkit.curses_helper import clear_tagged_items, tag_item, untag_item
 from clustermanagementtoolkit.curses_helper import in_tagged_items, get_tagged_items
 from clustermanagementtoolkit.curses_helper import get_tagged_objects
+from clustermanagementtoolkit.curses_helper import themearray_strip, themearray_flatten
 
 from clustermanagementtoolkit.curses_helper import CursesConfiguration, color_log_severity
 from clustermanagementtoolkit.curses_helper import format_helptext, get_mousemask
@@ -4273,10 +4274,10 @@ def genericinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                     and not deep_get(viewref, DictPath("no_reload_on_refresh"), False):
                 obj_name = deep_get(obj, DictPath("metadata#name"))
                 obj_namespace = deep_get(obj, DictPath("metadata#namespace"))
-                obj = kh.get_ref_by_kind_name_namespace(view, obj_name, obj_namespace,
-                                                        resource_cache=kh_cache)
+                obj_ = kh.get_ref_by_kind_name_namespace(view, obj_name, obj_namespace,
+                                                         resource_cache=kh_cache)
 
-                if obj is None:
+                if obj_ is None:
                     title = "Error!"
                     errormsg = [{
                         "lineattrs": 0,
@@ -4288,6 +4289,8 @@ def genericinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                                                uip.maxy // 2, uip.maxx // 2, errormsg,
                                                title=title, cursor=False)
                     return Retval.RETURNDONE
+
+                obj = obj_
 
             uip.update_window()
 
@@ -4572,11 +4575,16 @@ def genericinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
 
                     if fac:
                         if isinstance(fac, tuple):
-                            fac0: str = fac[0]
-                            fac1: str = fac[1]
+                            # This is a themearray
+                            if isinstance(fac[0], list):
+                                fac_extended: list[ThemeRef | ThemeStr] = fac[0]
+                            else:
+                                fac_extended = [ThemeStr(fac[1],
+                                                ThemeAttr("types", "facility_extended"))]
+                            fac_regular: str = fac[1]
                         else:
-                            fac0 = fac
-                            fac1 = ""
+                            fac_extended = []
+                            fac_regular = fac
 
                         facility_prefix_len = len(ThemeRef("separators", "facility_prefix"))
                         facility_ext_prefix_len = \
@@ -4584,29 +4592,30 @@ def genericinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                         facility_suffix_len = len(ThemeRef("separators", "facility_suffix"))
                         facility_ext_suffix_len = \
                             len(ThemeRef("separators", "facility_extended_suffix"))
-                        if not fac0.strip():
+                        if not fac_regular.strip():
                             facility += [ThemeStr("".ljust(facility_prefix_len),
                                                   ThemeAttr("logview", "facility")),
-                                         ThemeStr(fac0, ThemeAttr("logview", "facility")),
+                                         ThemeStr(fac_regular, ThemeAttr("logview", "facility")),
                                          ThemeStr("".ljust(facility_suffix_len),
                                                   ThemeAttr("logview", "facility"))]
                         else:
                             facility += [ThemeRef("separators", "facility_prefix"),
-                                         ThemeStr(fac0, ThemeAttr("logview", "facility")),
+                                         ThemeStr(fac_regular, ThemeAttr("logview", "facility")),
                                          ThemeRef("separators", "facility_suffix")]
-                        if fac1:
-                            if not fac1.strip():
+
+                        if fac_extended:
+                            if not themearray_strip(themearray_flatten(fac_extended)):
                                 facility += \
                                     [ThemeStr("".ljust(facility_ext_prefix_len),
-                                              ThemeAttr("logview", "facility")),
-                                     ThemeStr(fac1, ThemeAttr("types", "facility_extended")),
-                                     ThemeStr("".ljust(facility_ext_suffix_len),
+                                              ThemeAttr("logview", "facility"))] \
+                                    + fac_extended + \
+                                    [ThemeStr("".ljust(facility_ext_suffix_len),
                                               ThemeAttr("logview", "facility"))]
                             else:
                                 facility += \
-                                    [ThemeRef("separators", "facility_extended_prefix"),
-                                     ThemeStr(fac1, ThemeAttr("types", "facility_extended")),
-                                     ThemeRef("separators", "facility_extended_suffix")]
+                                    [ThemeRef("separators", "facility_extended_prefix")] \
+                                    + fac_extended + \
+                                    [ThemeRef("separators", "facility_extended_suffix")]
                         facility += [ThemeRef("separators", "facility_padding")]
 
                 if uip.yoffset + y >= len(timestamps) \
@@ -5551,9 +5560,14 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
             prev_facility: str = ""
             prev_severity: LogLevel = LogLevel.INFO
             prev_message: list[ThemeRef | ThemeStr] = \
-                [ThemeStr("", ThemeAttr("types", "generic"))]
+                cast(list[ThemeRef | ThemeStr], [ThemeStr("", ThemeAttr("types", "generic"))])
             prev_remnants: list = []
             repeat_count: int = 0
+            message: list[ThemeRef | ThemeStr] \
+                     | tuple[str, Callable[..., Any] | None, dict[Any, Any]] \
+                     | list[tuple[list[ThemeRef | ThemeStr], LogLevel]] = []
+            facility: tuple[list[ThemeRef | ThemeStr], str] | str = ""
+            _facility: tuple[list[ThemeRef | ThemeStr], str] | str = ""
 
             total_msgs: int = 0
             hidden_msgs: int = 0
@@ -5720,7 +5734,7 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                     prev_timestamp = timestamp_
                     prev_facility = facility
                     prev_severity = severity
-                    prev_message = message
+                    prev_message = cast(list[ThemeRef | ThemeStr], message)
                     prev_remnants = remnants
 
                 timestamps, facilities, severities, messages = \
