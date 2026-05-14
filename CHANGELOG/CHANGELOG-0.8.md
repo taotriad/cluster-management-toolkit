@@ -139,8 +139,8 @@ TBD
 | ruamel.yaml    | 0.17.21         | Unsupported distros [1]                 |
 | ruyaml         | 0.91.0          | Unsupported distros [1]                 |
 | setuptools     | 78.1.1          | openSUSE/SLES/RHEL, unsupported distros |
-| ujson          | 5.12.0          | openSUSE/SLES/RHEL, unsupported distros |
-| urllib3        | 2.6.3           | openSUSE/SLES, unsupported distros      |
+| ujson          | 5.12.1          | openSUSE/SLES/RHEL, unsupported distros |
+| urllib3        | 2.7.0           | openSUSE/SLES, unsupported distros      |
 | validators     | 0.22.0          | openSUSE/SLES/RHEL, unsupported distros |
 
 **[1]**: Only one of `ruamel.yaml` and `ruyaml` is necessary.
