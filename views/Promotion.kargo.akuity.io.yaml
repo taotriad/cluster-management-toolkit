@@ -7,6 +7,8 @@ command:
   - "kargopromotion"
   - "kargoproms"
   - "kargoprom"
+  - "promos"
+  - "promo"
 listview:
   name: "Promotions"
   group: "CI / CD"

@@ -4,8 +4,12 @@
   matchkeys:
     - image_name: "/akuity/kargo"
   parser_rules:
-    - name: "key_value"
-      options:
-        allow_bare_keys: "lowercase"
-        versions:
-          - "version"
+    - name: "tab_separated"
+    - name: "override_severity"
+      overrides:
+        - matchtype: "startswith"
+          matchkey: "Error "
+          loglevel: "error"
+        - matchtype: "startswith"
+          matchkey: "[GIN-debug]"
+          loglevel: "debug"

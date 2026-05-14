@@ -1,0 +1,29 @@
+---
+kind: "__PromotionTaskStep"
+api_family: "kargo.akuity.io"
+default_command: "__"
+infoview:
+  name: "Promotion Task Steps"
+  infopad:
+    name_path: null
+    creation_timestamp_path: null
+    row_indexes:
+      Normal:
+        fields: ["uses", "as"]
+    rows:
+      as:
+        header: [["As:", ["main", "infoheader"]]]
+        path: "as"
+        default: "<unset>"
+        type: "str"
+      uses:
+        header: [["Uses:", ["main", "infoheader"]]]
+        path: "uses"
+        default: "<unset>"
+        type: "str"
+  logpad:
+    infogetter: "logpad_formatted"
+    infogetter_args:
+      path: "config"
+      formatter: "format_yaml"
+    timestamps: false

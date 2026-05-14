@@ -435,6 +435,26 @@ argoapps:
   - Application
   - argoproj.io
   viewfile: Application.argoproj.io.yaml
+argoclranalysistempl:
+  kind:
+  - ClusterAnalysisTemplate
+  - argoproj.io
+  viewfile: ClusterAnalysisTemplate.argoproj.io.yaml
+argoclranalysistempls:
+  kind:
+  - ClusterAnalysisTemplate
+  - argoproj.io
+  viewfile: ClusterAnalysisTemplate.argoproj.io.yaml
+argoclusteranalysistemplate:
+  kind:
+  - ClusterAnalysisTemplate
+  - argoproj.io
+  viewfile: ClusterAnalysisTemplate.argoproj.io.yaml
+argoclusteranalysistemplates:
+  kind:
+  - ClusterAnalysisTemplate
+  - argoproj.io
+  viewfile: ClusterAnalysisTemplate.argoproj.io.yaml
 argorollout:
   kind:
   - Rollout
@@ -1450,6 +1470,16 @@ clrprofs:
   - ClusterProfile
   - multicluster.x-k8s.io
   viewfile: ClusterProfile.multicluster.x-k8s.io.yaml
+clrpromotask:
+  kind:
+  - ClusterPromotionTask
+  - kargo.akuity.io
+  viewfile: ClusterPromotionTask.kargo.akuity.io.yaml
+clrpromotasks:
+  kind:
+  - ClusterPromotionTask
+  - kargo.akuity.io
+  viewfile: ClusterPromotionTask.kargo.akuity.io.yaml
 clrprov.cattle:
   kind:
   - Cluster
@@ -4010,6 +4040,26 @@ kagents:
   - Agent
   - kagent.dev
   viewfile: Agent.kagent.dev.yaml
+kargoclrpromtask:
+  kind:
+  - ClusterPromotionTask
+  - kargo.akuity.io
+  viewfile: ClusterPromotionTask.kargo.akuity.io.yaml
+kargoclrpromtasks:
+  kind:
+  - ClusterPromotionTask
+  - kargo.akuity.io
+  viewfile: ClusterPromotionTask.kargo.akuity.io.yaml
+kargoclusterpromotiontask:
+  kind:
+  - ClusterPromotionTask
+  - kargo.akuity.io
+  viewfile: ClusterPromotionTask.kargo.akuity.io.yaml
+kargoclusterpromotiontasks:
+  kind:
+  - ClusterPromotionTask
+  - kargo.akuity.io
+  viewfile: ClusterPromotionTask.kargo.akuity.io.yaml
 kargofreight:
   kind:
   - Freight
@@ -4045,11 +4095,31 @@ kargopromotions:
   - Promotion
   - kargo.akuity.io
   viewfile: Promotion.kargo.akuity.io.yaml
+kargopromotiontask:
+  kind:
+  - PromotionTask
+  - kargo.akuity.io
+  viewfile: PromotionTask.kargo.akuity.io.yaml
+kargopromotiontasks:
+  kind:
+  - PromotionTask
+  - kargo.akuity.io
+  viewfile: PromotionTask.kargo.akuity.io.yaml
 kargoproms:
   kind:
   - Promotion
   - kargo.akuity.io
   viewfile: Promotion.kargo.akuity.io.yaml
+kargopromtask:
+  kind:
+  - PromotionTask
+  - kargo.akuity.io
+  viewfile: PromotionTask.kargo.akuity.io.yaml
+kargopromtasks:
+  kind:
+  - PromotionTask
+  - kargo.akuity.io
+  viewfile: PromotionTask.kargo.akuity.io.yaml
 kargostage:
   kind:
   - Stage
@@ -6445,6 +6515,26 @@ promagents:
   - PrometheusAgent
   - monitoring.coreos.com
   viewfile: PrometheusAgent.monitoring.coreos.com.yaml
+promo:
+  kind:
+  - Promotion
+  - kargo.akuity.io
+  viewfile: Promotion.kargo.akuity.io.yaml
+promos:
+  kind:
+  - Promotion
+  - kargo.akuity.io
+  viewfile: Promotion.kargo.akuity.io.yaml
+promotask:
+  kind:
+  - PromotionTask
+  - kargo.akuity.io
+  viewfile: PromotionTask.kargo.akuity.io.yaml
+promotasks:
+  kind:
+  - PromotionTask
+  - kargo.akuity.io
+  viewfile: PromotionTask.kargo.akuity.io.yaml
 promrule:
   kind:
   - PrometheusRule

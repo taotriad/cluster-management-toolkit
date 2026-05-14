@@ -4420,6 +4420,16 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api": "tenantcontrolplanes",
     },
     # kargo.akuity.io
+    ("ClusterConfig", "kargo.akuity.io"): {
+        "api_paths": ["apis/kargo.akuity.io/v1alpha1/"],
+        "api": "clusterconfigs",
+        "namespaced": False,
+    },
+    ("ClusterPromotionTask", "kargo.akuity.io"): {
+        "api_paths": ["apis/kargo.akuity.io/v1alpha1/"],
+        "api": "clusterpromotiontasks",
+        "namespaced": False,
+    },
     ("Freight", "kargo.akuity.io"): {
         "api_paths": ["apis/kargo.akuity.io/v1alpha1/"],
         "api": "freights",
@@ -4429,9 +4439,17 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api": "projects",
         "namespaced": False,
     },
+    ("ProjectConfig", "kargo.akuity.io"): {
+        "api_paths": ["apis/kargo.akuity.io/v1alpha1/"],
+        "api": "projectconfigs",
+    },
     ("Promotion", "kargo.akuity.io"): {
         "api_paths": ["apis/kargo.akuity.io/v1alpha1/"],
         "api": "promotions",
+    },
+    ("PromotionTask", "kargo.akuity.io"): {
+        "api_paths": ["apis/kargo.akuity.io/v1alpha1/"],
+        "api": "promotiontasks",
     },
     ("Stage", "kargo.akuity.io"): {
         "api_paths": ["apis/kargo.akuity.io/v1alpha1/"],

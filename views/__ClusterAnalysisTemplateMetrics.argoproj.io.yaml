@@ -1,0 +1,36 @@
+---
+kind: "__ClusterAnalysisTemplateMetrics"
+api_family: "argoproj.io"
+default_command: "__"
+infoview:
+  name: "Cluster Analysis Template Metrics Info"
+  infopad:
+    name_path: "name"
+    creation_timestamp_path: null
+    row_indexes:
+      Normal:
+        fields: ["interval", "failure_limit", "success_condition"]
+    rows:
+      failure_limit:
+        header: [["Failure Limit:", ["main", "infoheader"]]]
+        path: "failureLimit"
+        default: "<unset>"
+        type: "int"
+        formatter: "numerical"
+      interval:
+        header: [["Interval:", ["main", "infoheader"]]]
+        path: "interval"
+        default: "<unset>"
+        type: "str"
+        formatter: "numerical"
+      success_condition:
+        header: [["Success Condition:", ["main", "infoheader"]]]
+        path: "successCondition"
+        default: "<unset>"
+        type: "str"
+  logpad:
+    infogetter: "logpad_formatted"
+    infogetter_args:
+      path: "provider"
+      formatter: "format_yaml"
+    timestamps: false

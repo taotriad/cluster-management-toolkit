@@ -9,10 +9,37 @@ listview:
   name: "Applications"
   group: "CI / CD"
   field_indexes:
+    Wide:
+      fields: ["namespace", "name", "controller",
+               "project", "sync_status", "health", "age"]
+      sortcolumn: "namespace"
     Normal:
       fields: ["namespace", "name", "project", "sync_status", "health", "age"]
       sortcolumn: "namespace"
   fields:
+    controller:
+      header: "Controller:"
+      paths:
+        - path: "metadata#ownerReferences"
+          pathtype: "items"
+          subpaths:
+            - "kind"
+            - "apiVersion"
+            - "name"
+          when:
+            - key: "controller"
+              eq: true
+          type: ["kind", "api_group", "name"]
+          default: ["<none>"]
+      formatter: "list"
+      formatting:
+        field_colors:
+          - type: "kind"
+          - type: "api_group"
+          - type: "generic"
+        field_separators:
+          - type: "kind_api_group"
+          - type: "kind"
     health:
       header: "Health:"
       path: "status#health#status"
@@ -51,30 +78,57 @@ infoview:
   infopad:
     row_indexes:
       Normal:
-        fields: ["project", "controller_namespace",
-                 "source_header", "source_path",
-                 "source_repo_url", "source_target_revision",
-                 "destination_header", "destination_namespace",
-                 "destination_server", "health"]
+        fields: ["controller",
+                 "controller_namespace",
+                 "project",
+                 "sync_header",
+                 "sync_compared_to_header",
+                 "sync_compared_to_source_header",
+                 "sync_compared_to_source_path",
+                 "sync_compared_to_source_repo_url",
+                 "sync_compared_to_source_target_revision",
+                 "sync_compared_to_destination_header",
+                 "sync_compared_to_destination_namespace",
+                 "sync_compared_to_destination_server",
+                 "sync_options",
+                 "sync_revision",
+                 "sync_status",
+                 "health_source",
+                 "health"]
     rows:
+      controller:
+        header: [["C", ["main", "infoheader_shortcut"]],
+                 ["ontroller:", ["main", "infoheader"]]]
+        paths:
+          - path: "metadata#ownerReferences"
+            pathtype: "items"
+            subpaths:
+              - "kind"
+              - "apiVersion"
+              - "name"
+            when:
+              - key: "controller"
+                eq: true
+            type: ["kind", "api_group", "name"]
+            default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "kind"
+            - type: "api_group"
+            - type: "generic"
+          field_separators:
+            - type: "kind_api_group"
+            - type: "kind"
       controller_namespace:
         header: [["C", ["main", "infoheader"]],
                  ["o", ["main", "infoheader_shortcut"]],
                  ["ntroller Namespace:", ["main", "infoheader"]]]
         path: "status#controllerNamespace"
         type: "str"
-      destination_header:
-        header: [["Destination:", ["main", "infoheader"]]]
-      destination_namespace:
-        header: [["  Name", ["main", "infoheader"]],
-                 ["s", ["main", "infoheader_shortcut"]],
-                 ["pace:", ["main", "infoheader"]]]
-        path: "spec#destination#namespace"
-        type: "str"
-      destination_server:
-        header: [["  Server:", ["main", "infoheader"]]]
-        path: "spec#destination#server"
-        type: "str"
+        formatting:
+          field_colors:
+            - type: "namespace"
       health:
         header: [["Health:", ["main", "infoheader"]]]
         path: "status#health#status"
@@ -91,32 +145,112 @@ infoview:
                 field_colors:
                   - context: "main"
                     type: "status_unknown"
+      health_source:
+        header: [["Health Source:", ["main", "infoheader"]]]
+        path: "status#resourceHealthSource"
+        type: "str"
       project:
         header: [["P", ["main", "infoheader_shortcut"]],
                  ["roject:", ["main", "infoheader"]]]
         path: "spec#project"
         default: "default"
         type: "str"
-      source_header:
-        header: [["Source:", ["main", "infoheader"]]]
-      source_path:
-        header: [["  Path:", ["main", "infoheader"]]]
-        path: "spec#source#path"
+      sync_header:
+        header: [["Sync:", ["main", "infoheader"]]]
+      sync_compared_to_destination_header:
+        header: [["    Destination:", ["main", "infoheader"]]]
+      sync_compared_to_destination_namespace:
+        header: [["      Name", ["main", "infoheader"]],
+                 ["s", ["main", "infoheader_shortcut"]],
+                 ["pace:", ["main", "infoheader"]]]
+        paths:
+          - path: ["status#sync#comparedTo#destination#namespace",
+                   "spec#destination#namespace"]
+            pathtype: "value"
         type: "str"
-      source_repo_url:
-        header: [["  Repo ", ["main", "infoheader"]],
+        formatting:
+          field_colors:
+            - type: "namespace"
+      sync_compared_to_destination_server:
+        header: [["      Server:", ["main", "infoheader"]]]
+        paths:
+          - path: ["status#sync#comparedTo#destination#server",
+                   "spec#destination#server"]
+        type: "str"
+      sync_compared_to_header:
+        header: [["  Compared To:", ["main", "infoheader"]]]
+      sync_compared_to_source_header:
+        header: [["    Source:", ["main", "infoheader"]]]
+      sync_compared_to_source_path:
+        header: [["      Path:", ["main", "infoheader"]]]
+        paths:
+          - path: ["status#sync#comparedTo#source#path",
+                   "spec#destination#path"]
+        type: "str"
+        formatting:
+          field_colors:
+            - type: "path"
+      sync_compared_to_source_repo_url:
+        header: [["      Repo ", ["main", "infoheader"]],
                  ["U", ["main", "infoheader_shortcut"]],
                  ["RL:", ["main", "infoheader"]]]
-        path: "spec#source#repoURL"
+        paths:
+          - path: ["status#sync#comparedTo#source#repoURL",
+                   "spec#destination#repoURL"]
         type: "str"
         formatting:
           field_colors:
             - type: "url"
-      source_target_revision:
-        header: [["  Target Revision:", ["main", "infoheader"]]]
-        path: "spec#source#targetRevision"
+      sync_compared_to_source_target_revision:
+        header: [["      Target Revision:", ["main", "infoheader"]]]
+        paths:
+          - path: ["status#sync#comparedTo#source#targetRevision",
+                   "spec#destination#targetRevision"]
         type: "str"
+      sync_options:
+        header: [["  O", ["main", "infoheader"]],
+                 ["p", ["main", "infoheader_shortcut"]],
+                 ["tions:", ["main", "infoheader"]]]
+        path: "spec#syncPolicy#syncOptions"
+        type: "raw"
+        formatter: "list"
+      sync_revision:
+        header: [["  Revision:", ["main", "infoheader"]]]
+        path: "status#sync#revision"
+        type: "str"
+      sync_status:
+        header: [["  Status:", ["main", "infoheader"]]]
+        path: "status#sync#status"
+        type: "str"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              "Unknown":
+                field_colors:
+                  - context: "main"
+                    type: "status_unknown"
   shortcuts:
+    "List Sync Options":
+      key: "p"
+      read_only: true
+      helptext: "List sync options"
+      widget: "windowwidget"
+      title: "Sync Options:"
+      itemgetter: "get_list_as_list"
+      itemgetter_args:
+        path: "spec#syncPolicy#syncOptions"
+    "Open controller":
+      key: "c"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for controller"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        namespace_path: "metadata#namespace"
+        owner_reference_path: "metadata#ownerReferences"
     "Open controller Namespace":
       key: "o"
       read_only: true

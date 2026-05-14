@@ -10,63 +10,132 @@ listview:
   group: "CI / CD"
   field_indexes:
     Normal:
-      fields: ["name", "phase", "age", "message"]
+      fields: ["name", "ready", "age", "message"]
       sortcolumn: "name"
   fields:
     message:
       header: "Message:"
-      path: "status#message"
-      default: "<unset>"
-      type: "str"
-    phase:
-      header: "Status:"
-      path: "status#phase"
+      paths:
+        - path: "status#conditions"
+          pathtype: "items"
+          subpath: "message"
+          when:
+            - key: "type"
+              eq: "Ready"
+    ready:
+      header: "Ready:"
+      paths:
+        - path: "status#conditions"
+          pathtype: "items"
+          subpath: "status"
+          when:
+            - key: "type"
+              eq: "Ready"
+          default: ["<unset>"]
       type: "str"
       formatter: "value_mapper"
       formatting:
         mapping:
           mappings:
-            Initializing:
-              field_colors:
-                - context: "main"
-                  type: "status_pending"
-            InitializationFailed:
-              field_colors:
-                - context: "main"
-                  type: "status_error"
-            Ready:
+            "True":
               field_colors:
                 - context: "main"
                   type: "status_ok"
+            "False":
+              field_colors:
+                - context: "main"
+                  type: "status_not_ok"
+            "<unset>":
+              field_colors:
+                - context: "types"
+                  type: "unset"
 infoview:
   name: "Project Info"
   infopad:
     row_indexes:
       Normal:
-        fields: ["phase", "message"]
+        fields: ["stats_header",
+                 "stats_stages_header",
+                 "stats_stages_count",
+                 "stats_warehouses_header",
+                 "stats_warehouses_count",
+                 "stats_warehouses_health_header",
+                 "stats_warehouses_health_healthy",
+                 "message", "ready"]
     rows:
+      stats_header:
+        header: [["Stats:", ["main", "infoheader"]]]
+      stats_stages_header:
+        header: [["  Stages:", ["main", "infoheader"]]]
+      stats_stages_count:
+        header: [["    Count:", ["main", "infoheader"]]]
+        path: "status#stats#stages#count"
+        default: "<unset>"
+        type: "int"
+        formatter: "numerical"
+      stats_warehouses_header:
+        header: [["  Warehouses:", ["main", "infoheader"]]]
+      stats_warehouses_count:
+        header: [["    Count:", ["main", "infoheader"]]]
+        path: "status#stats#warehouses#count"
+        default: "<unset>"
+        type: "int"
+        formatter: "numerical"
+      stats_warehouses_health_header:
+        header: [["    Health:", ["main", "infoheader"]]]
+      stats_warehouses_health_healthy:
+        header: [["      Healthy:", ["main", "infoheader"]]]
+        paths:
+          - path: ["status#stats#warehouses#health#healthy",
+                   "status#stats#warehouses#count"]
+            pathtype: "comparison"
+            default: [0, 0]
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            ranges:
+              - min: 0
+                max: 1
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+              - default: true
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
       message:
         header: [["Message:", ["main", "infoheader"]]]
-        path: "status#message"
-        default: "<unset>"
-        type: "str"
-      phase:
-        header: [["Status:", ["main", "infoheader"]]]
-        path: "status#phase"
+        paths:
+          - path: "status#conditions"
+            pathtype: "items"
+            subpath: "message"
+            when:
+              - key: "type"
+                eq: "Ready"
+      ready:
+        header: [["Ready:", ["main", "infoheader"]]]
+        paths:
+          - path: "status#conditions"
+            pathtype: "items"
+            subpath: "status"
+            when:
+              - key: "type"
+                eq: "Ready"
+            default: ["<unset>"]
         type: "str"
         formatter: "value_mapper"
         formatting:
           mapping:
             mappings:
-              Initializing:
-                field_colors:
-                  - context: "main"
-                    type: "status_pending"
-              InitializationFailed:
-                field_colors:
-                  - context: "main"
-                    type: "status_error"
-              Ready:
+              "True":
                 field_colors:
                   - context: "main"
                     type: "status_ok"
+              "False":
+                field_colors:
+                  - context: "main"
+                    type: "status_not_ok"
+              "<unset>":
+                field_colors:
+                  - context: "types"
+                    type: "unset"

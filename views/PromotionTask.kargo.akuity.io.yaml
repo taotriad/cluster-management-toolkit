@@ -1,0 +1,118 @@
+---
+kind: "PromotionTask"
+api_family: "kargo.akuity.io"
+default_command: "promotiontasks"
+command:
+  - "kargopromotiontasks"
+  - "kargopromotiontask"
+  - "kargopromtasks"
+  - "kargopromtask"
+  - "promotasks"
+  - "promotask"
+listview:
+  name: "Promotion Tasks"
+  group: "CI / CD"
+  field_indexes:
+    Normal:
+      fields: ["namespace", "name", "steps", "age"]
+      sortcolumn: "namespace"
+  fields:
+    steps:
+      header: "Steps:"
+      path: "spec#steps"
+      default: 0
+      type: "len"
+      formatter: "numerical"
+      align: "right"
+infoview:
+  name: "Promotion Task Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["vars"]
+    rows:
+      vars:
+        header: [["V", ["main", "infoheader_shortcut"]],
+                 ["ars:", ["main", "infoheader"]]]
+        paths:
+          - path: "spec#vars"
+            pathtype: "items"
+            subpaths:
+              - "name"
+              - "value"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "key"
+            - type: "value"
+          field_separators:
+            - type: "keyvalue"
+  listpad:
+    listgetter: "listgetter_path"
+    listgetter_args:
+      path: "spec#steps"
+    infogetter: "generic_infogetter"
+    on_activation:
+      call: "resourceinfodispatch"
+      kind: "__PromotionTaskStep"
+      api_family: "kargo.akuity.io"
+    field_indexes:
+      Normal:
+        fields: ["uses", "as", "path", "out_path", "message", "repo_url"]
+        sortcolumn: "uses"
+    fields:
+      as:
+        header: "As:"
+        path: "as"
+        default: "<unset>"
+        type: "str"
+      message:
+        header: "Message:"
+        path: "config#message"
+        default: "<unset>"
+        type: "str"
+      out_path:
+        header: "Out Path:"
+        path: "config#outPath"
+        default: "<unset>"
+        type: "str"
+        formatting:
+          field_colors:
+            - type: "path"
+      path:
+        header: "Path:"
+        path: "config#path"
+        default: "<unset>"
+        type: "str"
+        formatting:
+          field_colors:
+            - type: "path"
+      repo_url:
+        header: "Repo URL:"
+        path: "config#repoURL"
+        default: "<unset>"
+        type: "str"
+      uses:
+        header: "Uses:"
+        path: "uses"
+        default: "<unset>"
+        type: "str"
+  shortcuts:
+    "Vars":
+      key: "v"
+      modifier: "shift"
+      read_only: true
+      helptext: "List vars"
+      widget: "windowwidget"
+      title: "Vars:"
+      headers: ["Name:", "Value:"]
+      itemgetter: "get_list_fields"
+      itemgetter_args:
+        path: "spec#vars"
+        fields:
+          - "name"
+          - "value"
+      formatting: [["windowwidget", "default"],
+                   ["windowwidget", "highlight"]]
+      # Not supported for now
+      sortcolumn: "value"

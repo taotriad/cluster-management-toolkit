@@ -1,0 +1,102 @@
+---
+kind: "ClusterAnalysisTemplate"
+api_family: "argoproj.io"
+default_command: "clusteranalysistemplates"
+command:
+  - "argoclusteranalysistemplates"
+  - "argoclusteranalysistemplate"
+  - "argoclranalysistempls"
+  - "argoclranalysistempl"
+listview:
+  name: "Cluster Analysis Templates"
+  group: "CI / CD"
+  field_indexes:
+    Normal:
+      fields: ["name", "age"]
+infoview:
+  name: "Cluster Analysis Template Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["args"]
+    rows:
+      args:
+        header: [["A", ["main", "infoheader_shortcut"]],
+                 ["rgs:", ["main", "infoheader"]]]
+        paths:
+          - path: "spec#args"
+            pathtype: "items"
+            subpaths:
+              - "name"
+              - "value"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "key"
+            - type: "value"
+          field_separators:
+            - type: "keyvalue"
+  listpad:
+    listgetter: "listgetter_path"
+    listgetter_args:
+      path: "spec#metrics"
+    infogetter: "generic_infogetter"
+    on_activation:
+      call: "resourceinfodispatch"
+      kind: "__ClusterAnalysisTemplateMetrics"
+      api_family: "argoproj.io"
+    field_indexes:
+      Normal:
+        fields: ["name", "provider", "interval", "failure_limit",
+                 "success_condition"]
+    fields:
+      failure_limit:
+        header: "Failure Limit:"
+        path: "failureLimit"
+        default: "<unset>"
+        type: "int"
+        formatter: "numerical"
+        align: "right"
+      interval:
+        header: "Interval:"
+        path: "interval"
+        default: "<unset>"
+        type: "str"
+        formatter: "numerical"
+        align: "right"
+      name:
+        header: "Name:"
+        path: "name"
+        default: "<unset>"
+        type: "str"
+      provider:
+        header: "Provider:"
+        paths:
+          - path: "provider"
+            pathtype: "dictkeys"
+        default: "<unset>"
+        type: "str"
+      success_condition:
+        header: "Success Condition:"
+        path: "successCondition"
+        default: "<unset>"
+        type: "str"
+  shortcuts:
+    "Args":
+      key: "a"
+      modifier: "shift"
+      read_only: true
+      helptext: "List args"
+      widget: "windowwidget"
+      title: "Args:"
+      headers: ["Name:", "Value:"]
+      itemgetter: "get_list_fields"
+      itemgetter_args:
+        path: "spec#args"
+        fields:
+          - "name"
+          - "value"
+      formatting: [["windowwidget", "default"],
+                   ["windowwidget", "highlight"]]
+      # Not supported for now
+      sortcolumn: "name"

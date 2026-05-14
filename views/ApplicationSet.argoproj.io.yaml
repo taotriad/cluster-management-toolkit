@@ -15,18 +15,13 @@ listview:
 infoview:
   name: "Application Set Info"
   infopad:
+  logpad:
+    infogetter: "logpad_formatted"
+    infogetter_args:
+      formatter: "format_yaml"
+      path: "spec#template"
+    timestamps: false
   shortcuts:
-    "Application template":
-      key: "t"
-      modifier: "shift"
-      read_only: true
-      helptext: "Show Application template"
-      action: "call"
-      action_call: "view_yaml"
-      action_args:
-        title: "Application template"
-        _pass_obj: true
-        path: "spec#template"
     "Generators":
       key: "g"
       modifier: "shift"

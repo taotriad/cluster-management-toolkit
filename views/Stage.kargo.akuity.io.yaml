@@ -9,6 +9,10 @@ listview:
   name: "Stages"
   group: "CI / CD"
   field_indexes:
+    Wide:
+      fields: ["namespace", "name", "current_freight",
+               "health", "ready", "phase", "age", "message"]
+      sortcolumn: "namespace"
     Normal:
       fields: ["namespace", "name", "current_freight", "health", "phase", "age"]
       sortcolumn: "namespace"
@@ -46,9 +50,19 @@ listview:
               field_colors:
                 - context: "types"
                   type: "unset"
+    message:
+      header: "Message:"
+      paths:
+        - path: "status#conditions"
+          pathtype: "items"
+          subpath: "message"
+          when:
+            - key: "type"
+              eq: "Ready"
     phase:
       header: "Phase:"
-      path: "status#phase"
+      path: "status#currentPromotion#status#phase"
+      default: "<unset>"
       type: "str"
       formatter: "value_mapper"
       formatting:
@@ -98,12 +112,43 @@ listview:
               field_colors:
                 - context: "main"
                   type: "status_pending"
+            "<unset>":
+              field_colors:
+                - context: "types"
+                  type: "unset"
+    ready:
+      header: "Ready:"
+      paths:
+        - path: "status#conditions"
+          pathtype: "items"
+          subpath: "status"
+          when:
+            - key: "type"
+              eq: "Ready"
+          default: ["<unset>"]
+      type: "str"
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          mappings:
+            "True":
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+            "False":
+              field_colors:
+                - context: "main"
+                  type: "status_not_ok"
+            "<unset>":
+              field_colors:
+                - context: "types"
+                  type: "unset"
 infoview:
   name: "Stage Info"
   infopad:
     row_indexes:
       Normal:
-        fields: ["health", "phase"]
+        fields: ["health", "phase", "message", "ready"]
     rows:
       current_freight:
         header: [["Current Freight:", ["main", "infoheader"]]]
@@ -138,9 +183,19 @@ infoview:
                 field_colors:
                   - context: "types"
                     type: "unset"
+      message:
+        header: [["Message:", ["main", "infoheader"]]]
+        paths:
+          - path: "status#conditions"
+            pathtype: "items"
+            subpath: "message"
+            when:
+              - key: "type"
+                eq: "Ready"
       phase:
-        header: [["Status:", ["main", "infoheader"]]]
-        path: "status#phase"
+        header: [["Phase:", ["main", "infoheader"]]]
+        path: "status#currentPromotion#status#phase"
+        default: "<unset>"
         type: "str"
         formatter: "value_mapper"
         formatting:
@@ -190,11 +245,51 @@ infoview:
                 field_colors:
                   - context: "main"
                     type: "status_pending"
+              "<unset>":
+                field_colors:
+                  - context: "types"
+                    type: "unset"
+      ready:
+        header: [["Ready:", ["main", "infoheader"]]]
+        paths:
+          - path: "status#conditions"
+            pathtype: "items"
+            subpath: "status"
+            when:
+              - key: "type"
+                eq: "Ready"
+            default: ["<unset>"]
+        type: "str"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              "True":
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+              "False":
+                field_colors:
+                  - context: "main"
+                    type: "status_not_ok"
+              "<unset>":
+                field_colors:
+                  - context: "types"
+                    type: "unset"
   listpad:
     listgetter: "listgetter_path"
     listgetter_args:
       path: "spec#requestedFreight"
     infogetter: "generic_infogetter"
+    infogetter_args:
+      _extra_data:
+        namespace: ["metadata#namespace"]
+    on_activation:
+      call: "resourceinfodispatch_with_lookup"
+      kind_path: "origin#kind"
+      api_family: "kargo.akuity.io"
+      name_path: "origin#name"
+      namespace_path: "_extra_data#namespace"
     field_indexes:
       Normal:
         fields: ["requested_freight", "stages", "direct"]
@@ -235,3 +330,14 @@ infoview:
         title: "Promotion Mechanisms"
         _pass_obj: true
         path: "spec#promotionMechanisms"
+    "View Promotion Template":
+      key: "t"
+      read_only: true
+      helptext: "Show Promotion Template"
+      action: "call"
+      action_call: "view_yaml"
+      action_args:
+        title: "Promotion Template"
+        _named_title: true
+        _pass_obj: true
+        path: "spec#promotionTemplate"

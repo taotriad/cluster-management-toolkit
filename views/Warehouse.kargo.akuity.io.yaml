@@ -10,8 +10,22 @@ listview:
   group: "CI / CD"
   field_indexes:
     Normal:
-      fields: ["namespace", "name", "age"]
+      fields: ["namespace", "name",
+               "freight_creation_policy", "interval", "age"]
       sortcolumn: "namespace"
+  fields:
+    freight_creation_policy:
+      header: "Freight Creation Policy:"
+      path: "spec#freightCreationPolicy"
+      default: "<unset>"
+      type: "str"
+    interval:
+      header: "Interval:"
+      path: "spec#interval"
+      default: "<unset>"
+      type: "str"
+      formatter: "numerical"
+      align: "right"
 infoview:
   name: "Warehouse Info"
   infopad:

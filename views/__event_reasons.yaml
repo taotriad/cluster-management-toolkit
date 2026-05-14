@@ -332,6 +332,10 @@ CreateCompleted:
   field_colors:
     - context: "main"
       type: "status_done"
+created:
+  field_colors:
+    - context: "main"
+      type: "status_done"
 CreateDeployment:
   field_colors:
     - context: "main"
