@@ -9,11 +9,33 @@ listview:
   name: "Catalog Sources"
   group: "API & Extendability"
   field_indexes:
-    Normal:
+    Wide:
       fields: ["namespace", "name", "display_name",
-               "source_type", "publisher", "priority", "age"]
+               "source_type", "publisher", "priority",
+               "connection_state", "age"]
+      sortcolumn: "priority"
+    Normal:
+      fields: ["namespace", "name",
+               "publisher", "priority",
+               "connection_state", "age"]
       sortcolumn: "priority"
   fields:
+    connection_state:
+      header: "Connection State:"
+      path: "status#connectionState#lastObservedState"
+      type: "str"
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          mappings:
+            READY:
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+            TRANSIENT_FAILURE:
+              field_colors:
+                - context: "main"
+                  type: "status_warning"
     display_name:
       header: "Display Name:"
       path: "spec#displayName"
@@ -39,8 +61,41 @@ infoview:
     row_indexes:
       Normal:
         fields: ["display_name", "image", "publisher",
-                 "source_type", "priority"]
+                 "source_type", "priority",
+                 "connection_header",
+                 "connection_address",
+                 "connection_last_connect",
+                 "connection_last_observed_state"]
     rows:
+      connection_address:
+        header: [["  Address:", ["main", "infoheader"]]]
+        paths:
+          - path: ["status#connectionState#address", "spec#address"]
+            pathtype: "value"
+        formatter: "address"
+      connection_header:
+        header: [["Connection:", ["main", "infoheader"]]]
+      connection_last_connect:
+        header: [["  Last Connect:", ["main", "infoheader"]]]
+        path: "status#connectionState#lastConnect"
+        type: "timestamp"
+        formatter: "timestamp"
+      connection_last_observed_state:
+        header: [["  Last Observed State:", ["main", "infoheader"]]]
+        path: "status#connectionState#lastObservedState"
+        type: "str"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              READY:
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+              TRANSIENT_FAILURE:
+                field_colors:
+                  - context: "main"
+                    type: "status_warning"
       display_name:
         header: [["Display Name:", ["main", "infoheader"]]]
         path: "spec#displayName"
