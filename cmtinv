@@ -1245,7 +1245,7 @@ def run_playbook(options: list[tuple[str, str]], args: list[str]) -> int:
     return 0
 
 
-# pylint: disable-next=too-many-branches,too-many-locals,unused-argument
+# pylint: disable-next=too-many-branches,too-many-locals,unused-argument,too-many-statements
 def fping(options: list[tuple[str, str]], args: list[str]) -> int:
     """
     Fping hosts or groups of hosts.
