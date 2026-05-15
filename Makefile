@@ -105,6 +105,10 @@ generate_helptexts:
 coverage_stats:
 	@tests/coverage_stats
 
+coverage-clean:
+	@rm -f .coverage ;\
+	rm -rf htmlcov
+
 coverage: setup_tests
 	@cmd=python3-coverage ;\
 	if command -v python3-coverage > /dev/null 2> /dev/null; then \
