@@ -1348,7 +1348,7 @@ def fping(options: list[tuple[str, str]], args: list[str]) -> int:
                     ANSIThemeStr(f"{unreachables}", "default")])
     ansithemeprint([ANSIThemeStr("UNRESOLVABLE", "critical"),
                     ANSIThemeStr(": ", "error"),
-                    ANSIThemeStr(f"{unreachables}", "default")])
+                    ANSIThemeStr(f"{unresolvables}", "default")])
 
     return 0
 
