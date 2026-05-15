@@ -9771,6 +9771,7 @@ def populate_views(refresh_apis: str = "none") -> None:
     force_refresh: bool = refresh_apis == "all"
 
     if kubernetes_support:
+        ansithemeprint([ANSIThemeStr("Checking available Kubernetes APIs\n", "default")])
         tmp_available_api_families, _status, _modified = \
             kh.get_available_kinds(force_refresh=force_refresh)
     else:
@@ -10996,17 +10997,6 @@ def open_view(options: list[tuple[str, str]], args: list[str]) -> None:
 
     # We do not need escape sequences, so cut down on the delay to 25ms
     os.environ.setdefault("ESCDELAY", "25")
-
-    init_kubernetes_client()
-    ansithemeprint([ANSIThemeStr("Checking available Kubernetes APIs\n", "default")])
-    if kubernetes_support:
-        _available_api_families, _status, _modified = kh.get_available_kinds()
-
-    # Customises the list views if necessary
-    if not infoviews:
-        ansithemeprint([ANSIThemeStr("Populating list of supported views...\n", "default")])
-        populate_views(refresh_apis="all")
-        customise_listviews()
 
     try:
         wrapper(setupui)
