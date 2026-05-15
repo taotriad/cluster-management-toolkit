@@ -2406,7 +2406,7 @@ def key_value_with_leading_message(message: str, **kwargs: Any) -> \
             key_value(rest, fold_msg=fold_msg, severity=severity,
                       facility=facility, options=options)
         LogparserConfiguration.msg_extract = tmp_msg_extract
-        if tmp_new_remnants is not None and tmp_new_remnants:
+        if tmp_new_remnants:
             new_remnants_strs, new_remnants_severity = tmp_new_remnants
             new_remnants = ([first_message] + new_remnants_strs, new_remnants_severity)
         else:
@@ -3843,7 +3843,8 @@ def custom_splitter(message: str, **kwargs: Any) -> \
 
 
 # pylint: disable-next=too-many-locals,too-many-branches,too-many-statements
-def parsing_multiplexer(message: str, filters: list[tuple[str, dict]], **kwargs: Any) \
+def parsing_multiplexer(message: str | list[ThemeRef | ThemeStr],
+                        filters: list[tuple[str, dict]], **kwargs: Any) \
         -> tuple[str, LogLevel,
                  list[ThemeRef | ThemeStr] | tuple[str, Callable | None, dict],
                  list[tuple[list[ThemeRef | ThemeStr], LogLevel]]]:
