@@ -4393,16 +4393,46 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
     },
     # kagent.dev
     ("Agent", "kagent.dev"): {
-        "api_paths": ["apis/kagent.dev/v1alpha1/"],
+        "api_paths": ["apis/kagent.dev/v1alpha2/",
+                      "apis/kagent.dev/v1alpha1/"],
         "api": "agents",
     },
-    ("ModelConfig", "kagent.dev"): {
+    ("AgentHarness", "kagent.dev"): {
+        "api_paths": ["apis/kagent.dev/v1alpha2/"],
+        "api": "agentharnesses",
+    },
+    ("MCPServer", "kagent.dev"): {
         "api_paths": ["apis/kagent.dev/v1alpha1/"],
+        "api": "mcpservers",
+    },
+    ("Memory", "kagent.dev"): {
+        "api_paths": ["apis/kagent.dev/v1alpha1/"],
+        "api": "memories",
+    },
+    ("ModelConfig", "kagent.dev"): {
+        "api_paths": ["apis/kagent.dev/v1alpha2/",
+                      "apis/kagent.dev/v1alpha1/"],
         "api": "modelconfigs",
+    },
+    ("ModelProviderConfig", "kagent.dev"): {
+        "api_paths": ["apis/kagent.dev/v1alpha2/"],
+        "api": "modelproviderconfigs",
+    },
+    ("RemoteMCPServer", "kagent.dev"): {
+        "api_paths": ["apis/kagent.dev/v1alpha2/"],
+        "api": "remotemcpservers",
+    },
+    ("SandboxAgent", "kagent.dev"): {
+        "api_paths": ["apis/kagent.dev/v1alpha2/"],
+        "api": "sandboxagents",
     },
     ("Team", "kagent.dev"): {
         "api_paths": ["apis/kagent.dev/v1alpha1/"],
         "api": "teams",
+    },
+    ("ToolServer", "kagent.dev"): {
+        "api_paths": ["apis/kagent.dev/v1alpha1/"],
+        "api": "toolservers",
     },
     # kamaji.clastix.io
     ("DataStore", "kamaji.clastix.io"): {

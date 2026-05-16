@@ -104,6 +104,7 @@ TBD
   SSH KEX-algorithms.
 * `identify_k8s_distro()` now supports more distros, and is hopefully slightly more reliable.
 * Lots of type-hint complaints from `mypy` have been fixed.
+* The old Markdown formatter has now been removed.
 
 ### view-file changes
 

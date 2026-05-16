@@ -1190,166 +1190,6 @@ def render_markdown(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef
     return new_data
 
 
-# pylint: disable-next=too-many-locals,too-many-branches,too-many-statements
-def format_markdown(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef | ThemeStr]]:
-    """
-    Markdown formatter; returns the text with syntax highlighting for a subset of Markdown.
-
-        Parameters:
-            lines (str|[str]): A list of strings *or*
-                               A string with newlines that should be split
-            **kwargs (dict[str, Any]): Keyword arguments
-                start ((str)): Start indicator(s)
-                include_start (bool): Include the start line
-                end ((str)): End indicator(s)
-        Returns:
-            ([themearray]): A list of themearrays
-    """
-    format_lookup: dict[tuple[bool, bool, bool], ThemeAttr] = {
-        # codeblock, bold, italics
-        (False, False, False): ThemeAttr("types", "generic"),
-        (True, False, False): ThemeAttr("types", "markdown_code"),
-        (False, True, False): ThemeAttr("types", "markdown_bold"),
-        (False, False, True): ThemeAttr("types", "markdown_italics"),
-        (False, True, True): ThemeAttr("types", "markdown_bold_italics"),
-    }
-
-    dumps: list[list[ThemeRef | ThemeStr]] = []
-    start = deep_get(kwargs, DictPath("start"), None)
-    include_start = deep_get(kwargs, DictPath("include_start"), False)
-    strip_empty_start = deep_get(kwargs, DictPath("strip_empty_start"), False)
-    strip_empty_end = deep_get(kwargs, DictPath("strip_empty_end"), False)
-    end = deep_get(kwargs, DictPath("end"), None)
-    use_github_tags: bool = deep_get(kwargs, DictPath("use_github_tags"), False)
-
-    if isinstance(lines, str):
-        # Remove all commented-out blocks
-        lines = re.sub(r"<!--.*?-->", r"", lines, flags=re.DOTALL)
-        lines = split_msg(lines)
-
-    emptylines: list[list[ThemeRef | ThemeStr]] = []
-    started = False
-    if start is None:
-        started = True
-    codeblock = ""
-
-    # pylint: disable-next=too-many-nested-blocks
-    for line in lines:
-        if started and end is not None and line.startswith(end):
-            break
-
-        if codeblock != "~~~":
-            codeblock = ""
-
-        # Skip past all non-start line until we reach the start
-        if not started and start is not None:
-            if not line.startswith(start):
-                continue
-            started = True
-            # This is the start line, but we don't want to include it
-            if not include_start:
-                continue
-
-        # If we've got empty lines in the buffer and we encounter a non-empty line
-        # we need to flush the empty line buffer.
-        if line and emptylines:
-            # If there are already lines in the output it's easy; we need to keep the lines.
-            # else we only keep them if strip_empty_start isn't true.
-            if dumps or not strip_empty_start:
-                dumps += emptylines
-            emptylines = []
-        elif not line:
-            emptylines.append([ThemeStr("", ThemeAttr("types", "generic"))])
-            continue
-
-        if line in ("~~~", "```"):
-            if codeblock == "":
-                codeblock = "~~~"
-            else:
-                codeblock = ""
-            continue
-        # Replace github tags
-        if use_github_tags:
-            for tag, subst in GITHUB_EMOJIS:
-                line = line.replace(tag, subst)
-        # For headers we are--for now--lazy
-        # Level 1 header
-        if line.startswith("# "):
-            tformat = ThemeAttr("types", "markdown_header_1")
-            line = line.removeprefix("# ")
-        # Level 2 header
-        elif line.startswith("## "):
-            tformat = ThemeAttr("types", "markdown_header_2")
-            line = line.removeprefix("## ")
-        # Level 3 header
-        elif line.startswith("### "):
-            tformat = ThemeAttr("types", "markdown_header_3")
-            line = line.removeprefix("### ")
-        else:
-            tmpline: list[ThemeRef | ThemeStr] = []
-            if line.startswith("    ") and not codeblock:
-                tformat = ThemeAttr("types", "markdown_code")
-                codeblock = "    "
-
-            if line.lstrip().startswith(("- ", "* ", "+ ")):
-                striplen = len(line) - len(line.lstrip())
-                if striplen:
-                    tmpline.append(ThemeStr("".ljust(striplen), ThemeAttr("types", "generic")))
-                tmpline.append(ThemeRef("separators", "genericbullet"))
-                line = line[themearray_len(tmpline):]
-
-            tformat = ThemeAttr("types", "generic")
-
-            # Rescue backticks
-            line = line.replace("\\`", "<<<backtick>>>")
-            code_blocks = line.split("`")
-
-            for i, codesection in enumerate(code_blocks):
-                codesection = codesection.replace("<<<backtick>>>", "\\`")
-                # Toggle codeblock
-                if i and codeblock in ("`", ""):
-                    if codeblock == "`":
-                        codeblock = ""
-                    else:
-                        codeblock = "`"
-                # Assume consistent use of **/*/__/_
-                if "**" in codesection and codeblock == "":
-                    bold_sections = codesection.split("**")
-                elif "__" in codesection and codeblock == "":
-                    bold_sections = codesection.split("__")
-                else:
-                    bold_sections = [codesection]
-                bold = True
-
-                for _j, section in enumerate(bold_sections):
-                    if section.startswith("#### "):
-                        section = section.removeprefix("#### ")
-                        bold = True
-                    else:
-                        bold = not bold
-                    if (section.startswith("*") or " *" in section) and codeblock == "":
-                        italics_sections = section.split("*")
-                    elif (section.startswith("_") or " _" in section) and codeblock == "":
-                        italics_sections = section.split("_")
-                    else:
-                        italics_sections = [section]
-                    italics = True
-                    for _k, italics_section in enumerate(italics_sections):
-                        italics = not italics
-                        if not italics_section:
-                            continue
-                        tmpline.append(ThemeStr(italics_section,
-                                       format_lookup[(codeblock != "", bold, italics)]))
-            dumps.append(tmpline)
-            continue
-        dumps.append([ThemeStr(line, tformat)])
-        continue
-
-    if not strip_empty_end and emptylines:
-        dumps += emptylines
-    return dumps
-
-
 # pylint: disable-next=unused-argument
 def format_binary(lines: bytes, **kwargs: Any) -> list[list[ThemeRef | ThemeStr]]:
     """
@@ -2564,7 +2404,7 @@ formatter_mapping: tuple[tuple[tuple[str, ...], tuple[str, ...], Callable], ...]
     (("HAProxy",), ("HAProxy",), format_haproxy),
     (("haproxy.cfg",), ("haproxy.cfg",), format_haproxy),
     (("CaddyFile",), ("CaddyFile",), format_caddyfile),
-    (("Markdown",), ("Markdown",), format_markdown),
+    (("Markdown",), ("Markdown",), render_markdown),
     (("Mosquitto",), ("",), format_mosquitto),
     (("NGINX",), ("NGINX",), format_nginx),
     (("PowerShell",), ("PowerShell",), format_powershell),
@@ -2597,7 +2437,6 @@ formatter_allowlist: dict[str, Callable] = {
     "format_ini": format_ini,
     "format_javascript": format_javascript,
     "format_known_hosts": format_known_hosts,
-    "format_markdown": format_markdown,
     "format_mosquitto": format_mosquitto,
     "format_nginx": format_nginx,
     "format_none": format_none,
