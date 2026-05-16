@@ -29,6 +29,7 @@ infoview:
             subpaths:
               - "name"
               - "value"
+            default: ["<none>"]
         formatter: "list"
         formatting:
           field_colors:

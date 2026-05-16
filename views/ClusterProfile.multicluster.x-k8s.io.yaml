@@ -11,6 +11,10 @@ listview:
   name: "Cluster Profiles"
   group: "Cluster Configuration"
   field_indexes:
+    Wide:
+      fields: ["namespace", "name", "display_name", "cluster_manager",
+               "kubernetes_version", "age"]
+      sortcolumn: "namespace"
     Normal:
       fields: ["namespace", "name", "display_name", "cluster_manager", "age"]
       sortcolumn: "namespace"
@@ -25,12 +29,21 @@ listview:
       path: "spec#displayName"
       default: "<unset>"
       type: "str"
+    kubernetes_version:
+      header: "Kubernetes Version:"
+      path: "status#version#kubernetes"
+      default: "<unset>"
+      type: "str"
+      formatting:
+        field_colors:
+          - type: "version"
 infoview:
   name: "Cluster Profile Info"
   infopad:
     row_indexes:
       Normal:
-        fields: ["display_name", "cluster_manager"]
+        fields: ["display_name", "cluster_manager", "kubernetes_version",
+                 "properties"]
     rows:
       cluster_manager:
         header: [["Cluster Manager:", ["main", "infoheader"]]]
@@ -42,3 +55,47 @@ infoview:
         path: "spec#displayName"
         default: "<unset>"
         type: "str"
+      kubernetes_version:
+        header: [["Kubernetes Version:", ["main", "infoheader"]]]
+        path: "status#version#kubernetes"
+        default: "<unset>"
+        type: "str"
+        formatting:
+          field_colors:
+            - type: "version"
+      properties:
+        header: [["P", ["main", "infoheader_shortcut"]],
+                 ["roperties:", ["main", "infoheader"]]]
+        paths:
+          - path: "status#properties"
+            pathtype: "items"
+            subpaths:
+              - "name"
+              - "value"
+            default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "key"
+            - type: "value"
+          field_separators:
+            - type: "keyvalue"
+  shortcuts:
+    "Properties":
+      key: "p"
+      modifier: "shift"
+      read_only: true
+      helptext: "List properties"
+      widget: "windowwidget"
+      title: "Properties:"
+      headers: ["Name:", "Value:"]
+      itemgetter: "get_list_fields"
+      itemgetter_args:
+        path: "spec#properties"
+        fields:
+          - "name"
+          - "value"
+      formatting: [["windowwidget", "default"],
+                   ["windowwidget", "highlight"]]
+      # Not supported for now
+      sortcolumn: "name"
