@@ -1845,7 +1845,7 @@ def addthemearray(win: curses.window,
 
 # This extracts the string without formatting;
 # once everything uses proper ThemeArray this wo not be necessary anymore
-def themearray_to_string(themearray: list[ThemeRef | ThemeStr]) -> str:
+def themearray_to_string(themearray: Sequence[ThemeRef | ThemeStr]) -> str:
     """
     Given a themearray return an unformatted string.
 
@@ -1901,7 +1901,7 @@ def themearray_truncate(themearray: list[ThemeRef | ThemeStr],
     return truncated_themearray
 
 
-def themearray_len(themearray: list[ThemeRef | ThemeStr]) -> int:
+def themearray_len(themearray: Sequence[ThemeRef | ThemeStr]) -> int:
     """
     Given a themearray return its length.
 
@@ -2266,6 +2266,9 @@ def themearray_lstrip(themearray: list[ThemeStr], characters: str = " ") -> list
             characters (str): The characters to strip
         Returns:
             (ThemeArray): An lstripped themearray
+        Raises:
+            AttributeError: [Propagated from ThemeRef] The ThemeArray has not been flattened;
+                            it contains ThemeRefs.
     """
     new_themearray: list[ThemeStr] = []
 
@@ -2290,6 +2293,9 @@ def themearray_rstrip(themearray: list[ThemeStr], characters: str = " ") -> list
             characters (str): The characters to strip
         Returns:
             (ThemeArray): An rstripped themearray
+        Raises:
+            AttributeError: [Propagated from ThemeRef] The ThemeArray has not been flattened;
+                            it contains ThemeRefs.
     """
     new_themearray: list[ThemeStr] = []
 
@@ -2314,6 +2320,9 @@ def themearray_strip(themearray: list[ThemeStr], characters: str = " ") -> list[
             characters (str): The characters to strip
         Returns:
             (ThemeArray): An stripped themearray
+        Raises:
+            AttributeError: [Propagated from ThemeRef] The ThemeArray has not been flattened;
+                            it contains ThemeRefs.
     """
     return themearray_lstrip(themearray_rstrip(themearray, characters), characters)
 

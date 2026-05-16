@@ -83,13 +83,27 @@ TBD
 
 * There's now a built-in file-viewer. Currently supported formats:
   * Markdown
+* The Markdown viewer now renumbers lists when necessary.
+* There is now a syntax highlighter for JavaScript.
+* `dmesg` logs now show facility where possible.
+* Dynamic logs (from systemctl) are no longer limited to 1 hour;
+  the only limit is number of lines.
 * It's now possible to quickly switch between All Namespaces ([Shift] + A),
   The Namespace of the selected resource (w), or as before Selecting a Namespace
   from the list of all Namespaces ([Shift] + N).
+* The code for input has been refactored a bit to remove code duplication.
+* `Cluster Overview` now supports multiple control planes.
+* `Cluster Overview` now handles clusters without a control plane (virtualised clusters).
+* `Cluster Overview` now calculates widths properly; the Event list no longer disappears
+  if it becomes too wide.
 
 ### Changes to other files in v0.8.8
 
 * `render_markdown` now enables GitHub tags by default. Testcases have been adjusted accordingly.
+* `sntrup761x25519-sha512@openssh.com` (post-quantum version of ed25519) is now part of the permitted
+  SSH KEX-algorithms.
+* `identify_k8s_distro()` now supports more distros, and is hopefully slightly more reliable.
+* Lots of type-hint complaints from `mypy` have been fixed.
 
 ### view-file changes
 
@@ -103,7 +117,7 @@ TBD
 
 > [!WARNING]
 > While technically not a known regression,
-> all internal data handling has gone through a major rehaul
+> all internal data handling has gone through a major overhaul
 > in this version of CMT, to make it easier to share data handling
 > between cmu and cmt.
 >
@@ -115,7 +129,10 @@ TBD
 
 ## Known Issues in v0.8.8
 
-TBD
+* The Markdown formatter doesn't handle dashes in `@mentions`; this is an upstream
+  issue in Pygments and has been reported as [Pygments Issue #3135](https://github.com/pygments/pygments/issues/3135).
+* The Markdown formatter currently doesn't handle Bold Italics `***example***`; this is an upstream
+  issue in Pygments and has been reported as [Pygments Issue #3067](https://github.com/pygments/pygments/issues/3067).
 
 ## Dependencies for v0.8.8
 

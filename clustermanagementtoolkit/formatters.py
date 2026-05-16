@@ -66,6 +66,7 @@ from clustermanagementtoolkit.cmtpaths import HOMEDIR, SYSTEM_PARSERS_DIR, PARSE
 
 from clustermanagementtoolkit.curses_helper import ThemeAttr, ThemeRef, ThemeStr, themearray_len
 from clustermanagementtoolkit.curses_helper import themearray_to_string, themearray_strip
+from clustermanagementtoolkit.curses_helper import themearray_lstrip
 from clustermanagementtoolkit.curses_helper import themearray_compact, themearray_split
 from clustermanagementtoolkit.curses_helper import themearray_flatten, themearray_replace
 
@@ -114,9 +115,14 @@ COLORSCHEME_MARKDOWN: dict[Any, ColorSchemeEntry] = {
         "formatting": ThemeAttr("types", "generic"),
         "type": "text",
     },
-    # List index
+    # List index; non-numbered
     Token.Keyword: {
         "formatting": ThemeAttr("main", "highlight"),
+        "type": "text",
+    },
+    # List index; numbered
+    Token.Name.Other: {
+        "formatting": ThemeAttr("main", "numbered_index"),
         "type": "text",
     },
     # URL
@@ -159,7 +165,7 @@ COLORSCHEME_MARKDOWN: dict[Any, ColorSchemeEntry] = {
         "formatting": ThemeAttr("types", "markdown_italics"),
         "type": "text",
     },
-    # bug numbers #31563 and mentions
+    # bug numbers #31563 and @mentions
     Token.Name.Entity: {
         "formatting": ThemeAttr("types", "markdown_italics"),
         "type": "code",
@@ -1006,7 +1012,7 @@ def format_markdown_table(lines: list[list[ThemeRef | ThemeStr]]) -> list[list[T
     return rows
 
 
-# pylint: disable-next=too-many-statements,too-many-branches
+# pylint: disable-next=too-many-statements,too-many-branches,too-many-locals
 def render_markdown(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef | ThemeStr]]:
     """
     Markdown renderer; renders a Markdown document to ThemeArrays.
@@ -1051,13 +1057,62 @@ def render_markdown(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef
 
     formatted_data = formatter.buffer
 
-    # Check for tables
+    list_indices: dict = {}
+
+    # Reindex lists if necessary.
     new_data: list[list[ThemeRef | ThemeStr]] = []
+
+    for line in formatted_data:
+        # Skip indentation
+        newline: list[ThemeRef | ThemeStr] = []
+        indent_level = 0
+
+        if not themearray_len(themearray_strip(themearray_flatten(line))):
+            list_indices = {}
+            new_data.append(line)
+            continue
+
+        try:
+            for i, segment in enumerate(line):
+                if not isinstance(segment, ThemeStr):
+                    break
+                segment_len = themearray_len([segment])
+                stripped_len = themearray_len(themearray_lstrip([segment]))
+                if not stripped_len:
+                    indent_level = segment_len
+
+                if not stripped_len:
+                    newline.append(segment)
+                    continue
+
+                if segment.get_themeattr() == ThemeAttr("main", "numbered_index"):
+                    index, rest = str(segment).split(".", maxsplit=1)
+                    list_index = list_indices.get(indent_level, -1)
+                    if list_index in (-1, int(index) - 1):
+                        list_index = int(index)
+                        list_indices[indent_level] = list_index
+                        # We don't need to modify this line
+                        break
+                    list_index = list_index + 1
+                    list_indices[indent_level] = list_index
+                    segment.string = f"{list_index}." + rest[0:]
+                    newline.append(segment)
+                    newline += line[i + 1:]
+                    line = newline
+                    break
+        except (AttributeError, ValueError):
+            pass
+        new_data.append(line)
+
+    formatted_data = new_data
+    new_data = []
+
+    # Check for tables
     table = []
     non_table = []
     table_state = "none"
 
-    # Support non-surrounded tables
+    # Support non-surrounded tables.
     for line in formatted_data:
         strline = themearray_to_string(line)
         if table_state == "none":
@@ -1741,6 +1796,13 @@ def markdown_renderer(ttype: Any, value: str, **kwargs: Any) \
                 new_value = x.replace("[ ]", "⬜")
             elif x == "[x]":
                 new_value = x.replace("[x]", "✅")
+            else:
+                try:
+                    index, _separator = x.split(".", maxsplit=1)
+                    if int(index):
+                        ttype = Token.Name.Other
+                except ValueError:
+                    pass
         case (Token.Generic.Heading, x):
             if x.startswith("# "):
                 new_value = value[2:]

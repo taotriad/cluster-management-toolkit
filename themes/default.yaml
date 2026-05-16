@@ -810,6 +810,9 @@ main:
   highlight:
     unselected: ["highlight", "bold"]
     selected: "highlight"
+  numbered_index:
+    unselected: ["highlight", "bold"]
+    selected: "highlight"
   dim:
     unselected: ["dim", "bold"]
     selected: "dim"
