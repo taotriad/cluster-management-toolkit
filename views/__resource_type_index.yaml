@@ -4365,6 +4365,26 @@ kosgs:
   - SecurityGroup
   - kubeovn.io
   viewfile: SecurityGroup.kubeovn.io.yaml
+kremmcpserver:
+  kind:
+  - RemoteMCPServer
+  - kagent.dev
+  viewfile: RemoteMCPServer.kagent.dev.yaml
+kremmcpservers:
+  kind:
+  - RemoteMCPServer
+  - kagent.dev
+  viewfile: RemoteMCPServer.kagent.dev.yaml
+kremotemcpserver:
+  kind:
+  - RemoteMCPServer
+  - kagent.dev
+  viewfile: RemoteMCPServer.kagent.dev.yaml
+kremotemcpservers:
+  kind:
+  - RemoteMCPServer
+  - kagent.dev
+  viewfile: RemoteMCPServer.kagent.dev.yaml
 kruiseds:
   kind:
   - DaemonSet
@@ -4400,6 +4420,26 @@ kruisews:
   - WorkloadSpread
   - apps.kruise.io
   viewfile: WorkloadSpread.apps.kruise.io.yaml
+ksandboxagent:
+  kind:
+  - SandboxAgent
+  - kagent.dev
+  viewfile: SandboxAgent.kagent.dev.yaml
+ksandboxagents:
+  kind:
+  - SandboxAgent
+  - kagent.dev
+  viewfile: SandboxAgent.kagent.dev.yaml
+ksboxagent:
+  kind:
+  - SandboxAgent
+  - kagent.dev
+  viewfile: SandboxAgent.kagent.dev.yaml
+ksboxagents:
+  kind:
+  - SandboxAgent
+  - kagent.dev
+  viewfile: SandboxAgent.kagent.dev.yaml
 kspace:
   kind:
   - Space

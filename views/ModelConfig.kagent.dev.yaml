@@ -24,23 +24,101 @@ infoview:
   infopad:
     row_indexes:
       Normal:
-        fields: ["model", "api_key_secret_header",
-                 "api_key_secret_key", "api_key_secret_name"]
+        fields: ["model", "provider",
+                 "api_key_secret_header",
+                 "api_key_secret_secret",
+                 "api_key_secret_key",
+                 "tls_header",
+                 "tls_ca_cert_secret",
+                 "tls_ca_cert_key",
+                 "tls_disable_system_cas",
+                 "tls_disable_verify"]
     rows:
       api_key_secret_header:
-        header: [["API-Key Secret:", ["main", "infoheader"]]]
+        header: [["API-key Secret:", ["main", "infoheader"]]]
       api_key_secret_key:
         header: [["  Key:", ["main", "infoheader"]]]
         path: "spec#apiKeySecretKey"
-        type: "str"
         default: "<unset>"
-      api_key_secret_name:
-        header: [["  Name:", ["main", "infoheader"]]]
-        path: "spec#apiKeySecretName"
         type: "str"
+      api_key_secret_secret:
+        header: [["  ", ["main", "infoheader"]],
+                 ["S", ["main", "infoheader_shortcut"]],
+                 ["ecret:", ["main", "infoheader"]]]
+        path: "spec#apiKeySecret"
         default: "<unset>"
+        type: "str"
       model:
         header: [["Model:", ["main", "infoheader"]]]
         path: "spec#model"
-        type: "str"
         default: "<unset>"
+        type: "str"
+      provider:
+        header: [["Provider:", ["main", "infoheader"]]]
+        path: "spec#provider"
+        default: "<empty>"
+        type: "str"
+      tls_header:
+        header: [["TLS:", ["main", "infoheader"]]]
+      tls_disable_system_cas:
+        header: [["  Disable System CAs:", ["main", "infoheader"]]]
+        path: "spec#tls#disableSystemCAs"
+        default: false
+        type: "bool"
+      tls_disable_verify:
+        header: [["  Disable Verify:", ["main", "infoheader"]]]
+        path: "spec#tls#disableVerify"
+        default: false
+        type: "bool"
+      tls_ca_cert_key:
+        header: [["  CA Cert Key:", ["main", "infoheader"]]]
+        path: "spec#tls#caCertSecretKey"
+        default: "<unset>"
+        type: "str"
+      tls_ca_cert_secret:
+        header: [["  ", ["main", "infoheader"]],
+                 ["C", ["main", "infoheader_shortcut"]],
+                 ["A Cert Secret:", ["main", "infoheader"]]]
+        path: "spec#tls#caCertSecretRef"
+        default: "<unset>"
+        type: "str"
+  logpad:
+    infogetter: "logpad_formatted"
+    infogetter_args:
+      paths:
+        - path: "spec#anthropic"
+        - path: "spec#anthropicVertexAI"
+        - path: "spec#azureOpenAI"
+        - path: "spec#bedrock"
+        - path: "spec#gemini"
+        - path: "spec#geminiVertexAI"
+        - path: "spec#ollama"
+        - path: "spec#openAI"
+        - path: "spec#sapAICore"
+      formatter: "format_yaml"
+    timestamps: false
+  shortcuts:
+    "Open API-Secret":
+      key: "s"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for API-key Secret"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind: "Secret"
+        name_path: "spec#apiKeySecret"
+        namespace_path: "metadata#namespace"
+    "Open TLS CA Certificate Secret":
+      key: "c"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for TLS CA certificate Secret"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind: "Secret"
+        name_path: "spec#tls#caCertSecretRef"
+        namespace_path: "metadata#namespace"

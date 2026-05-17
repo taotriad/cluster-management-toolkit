@@ -1,0 +1,117 @@
+---
+kind: "RemoteMCPServer"
+api_family: "kagent.dev"
+default_command: "remotemcpservers.kagent.dev"
+command:
+  - "kremotemcpservers"
+  - "kremotemcpserver"
+  - "kremmcpservers"
+  - "kremmcpserver"
+listview:
+  name: "Remote MCP Servers"
+  group: "API & Extendability"
+  field_indexes:
+    Normal:
+      fields: ["namespace", "name", "protocol", "accepted", "age", "url"]
+      sortcolumn: "namespace"
+  fields:
+    accepted:
+      header: "Accepted:"
+      paths:
+        - path: "status#conditions"
+          pathtype: "items"
+          subpath: "status"
+          when:
+            - key: "type"
+              eq: "Accepted"
+      default: "False"
+      type: "str"
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          mappings:
+            "True":
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+            "False":
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+    protocol:
+      header: "Protocol:"
+      path: "spec#protocol"
+      default: "<empty>"
+      type: "str"
+    url:
+      header: "URL:"
+      path: "spec#url"
+      default: "<empty>"
+      type: "str"
+      formatter: "address"
+infoview:
+  name: "Remote MCP Server Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["description", "protocol", "url",
+                 "terminate_on_close",
+                 "sse_read_timeout", "timeout", "accepted"]
+    rows:
+      accepted:
+        header: [["Accepted:", ["main", "infoheader"]]]
+        paths:
+          - path: "status#conditions"
+            pathtype: "items"
+            subpath: "status"
+            when:
+              - key: "type"
+                eq: "Accepted"
+        default: "False"
+        type: "str"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              "True":
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+              "False":
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+      description:
+        header: [["Description:", ["main", "infoheader"]]]
+        path: "spec#description"
+        fallback_on_empty: true
+        default: "<empty>"
+        type: "str"
+      protocol:
+        header: [["Protocol:", ["main", "infoheader"]]]
+        path: "spec#protocol"
+        default: "<empty>"
+        type: "str"
+      sse_read_timeout:
+        header: [["SSE Read Timeout:", ["main", "infoheader"]]]
+        path: "spec#sseReadTimeout"
+        default: "<empty>"
+        type: "str"
+        formatter: "numerical"
+      terminate_on_close:
+        header: [["Terminate On Close:", ["main", "infoheader"]]]
+        path: "spec#terminateOnClose"
+        default: "<unset>"
+        type: "bool"
+      timeout:
+        header: [["Timeout:", ["main", "infoheader"]]]
+        path: "spec#timeout"
+        default: "<empty>"
+        type: "str"
+        formatter: "numerical"
+      url:
+        header: [["URL:", ["main", "infoheader"]]]
+        path: "spec#url"
+        default: "<empty>"
+        type: "str"
+        formatter: "address"

@@ -1,12 +1,14 @@
 ---
-kind: "Agent"
+kind: "SandboxAgent"
 api_family: "kagent.dev"
-default_command: "agents.kagent.dev"
+default_command: "sandboxagents.kagent.dev"
 command:
-  - "kagents"
-  - "kagent"
+  - "ksandboxagents"
+  - "ksandboxagent"
+  - "ksboxagents"
+  - "ksboxagent"
 listview:
-  name: "Agents"
+  name: "Sandbox Agents"
   group: "API & Extendability"
   field_indexes:
     Normal:
@@ -25,7 +27,7 @@ listview:
       default: "<empty>"
       type: "str"
 infoview:
-  name: "Agent Info"
+  name: "Sandbox Agent Info"
   infopad:
     row_indexes:
       Normal:

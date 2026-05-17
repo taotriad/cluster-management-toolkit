@@ -59,8 +59,8 @@ infoview:
         header: [["N", ["main", "infoheader_shortcut"]],
                  ["amespaces:", ["main", "infoheader"]]]
         path: "spec#namespaces"
+        default: ["<none>"]
         type: "raw"
-        default: "<none>"
         formatter: "list"
       router:
         header: [["Router:", ["main", "infoheader"]]]
