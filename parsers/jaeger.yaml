@@ -28,7 +28,19 @@
         - matchtype: "startswith"
           matchkey: "Trace["
           loglevel: "debug"
-- name: "istio-tracing"
+- name: "jaeger-tracing"
+  show_in_selector: false
+  matchkeys:
+    - image_name: "/jaegertracing/jaeger"
+  parser_rules:
+    - name: "tab_separated"
+    - name: "ts_8601"
+    - name: "override_severity"
+      overrides:
+        - matchtype: "startswith"
+          matchkey: "application version: "
+          loglevel: "notice"
+- name: "jaeger-tracing"
   show_in_selector: false
   matchkeys:
     - pod_name: "jaeger-query"
