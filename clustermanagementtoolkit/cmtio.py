@@ -448,13 +448,13 @@ def secure_rmdir(path: FilePath, ignore_non_existing: bool = False) -> None:
 
 
 # pylint: disable-next=too-many-branches
-def secure_write_string(path: FilePath, string: str, **kwargs: Any) -> None:
+def secure_write_string(path: FilePath, string: str | bytes, **kwargs: Any) -> None:
     """
     Write a string to a file in a safe manner.
 
         Parameters:
             path (FilePath): The path to write to
-            string (str): The string to write
+            string (str | bytes): The string to write
             **kwargs (dict[str, Any]): Keyword arguments
                 permissions (int): File permissions (None uses system defaults)
                 write_mode (str): [w, a, x, wb, ab, xb] Write, Append, Exclusive Write,

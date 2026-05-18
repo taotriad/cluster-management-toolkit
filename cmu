@@ -3769,7 +3769,7 @@ def export_data(stdscr: curses.window, **kwargs: Any) -> Retval:
         filename = FilePath(raw_filename)
 
     if filename.startswith(f"~{os.path.sep}"):
-        filename = f"{HOMEDIR}{os.path.sep}{filename[2:]}"
+        filename = FilePath(f"{HOMEDIR}{os.path.sep}{filename[2:]}")
 
     vtype, value = decode_value(value)
 
@@ -3780,11 +3780,11 @@ def export_data(stdscr: curses.window, **kwargs: Any) -> Retval:
     if vtype.startswith("string") or raw_export:
         secure_write_string(filename, value)
     elif vtype.startswith("base64-utf-8"):
-        tmp = base64.b64decode(value).decode("utf-8")
-        secure_write_string(filename, tmp)
+        secure_write_string(filename,
+                            base64.b64decode(value).decode("utf-8"))
     elif vtype.startswith(("base64-binary", "gzip")):
-        tmp = base64.b64decode(value)
-        secure_write_string(filename, tmp, write_mode="wb")
+        secure_write_string(filename, base64.b64decode(value),
+                            write_mode="wb")
     else:
         errmsg = [
             [("export_data()", "emphasis"),
