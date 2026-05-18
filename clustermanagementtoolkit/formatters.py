@@ -1628,10 +1628,12 @@ def markdown_renderer(ttype: Any, value: str, **kwargs: Any) \
             elif x in ("\t\n> ", ">\n", "> "):
                 # Markdown alert
                 x = x.replace("\t", "")
-                new_value = x.replace(">", "┃", count=1)
+                if x.startswith(">"):
+                    new_value = f"┃{x[1:]}"
             elif x == "\n> ":
                 # Quote
-                new_value = x.replace(">", "┃", count=1)
+                if x.startswith(">"):
+                    new_value = f"┃{x[1:]}"
             elif x == "[ ]":
                 new_value = x.replace("[ ]", "⬜")
             elif x == "[x]":

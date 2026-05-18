@@ -3740,7 +3740,6 @@ def export_data(stdscr: curses.window, **kwargs: Any) -> Retval:
             else:
                 value = deep_get(obj, DictPath(f"{base_path}"))
 
-    value = None
     if not isinstance(value, (str, bytes)):
         errmsg = [
             [("export_data()", "emphasis"),
@@ -3770,7 +3769,7 @@ def export_data(stdscr: curses.window, **kwargs: Any) -> Retval:
         filename = FilePath(raw_filename)
 
     if filename.startswith(f"~{os.path.sep}"):
-        filename = filename.replace(f"~{os.path.sep}", f"{HOMEDIR}{os.path.sep}", count=1)
+        filename = f"{HOMEDIR}{os.path.sep}{filename[2:]}"
 
     vtype, value = decode_value(value)
 
@@ -6512,7 +6511,7 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
             curses.doupdate()
 
             if filename.startswith(f"~{os.path.sep}"):
-                filename = filename.replace(f"~{os.path.sep}", f"{HOMEDIR}{os.path.sep}", count=1)
+                filename = f"{HOMEDIR}{os.path.sep}{filename[2:]}"
             if os.path.exists(filename):
                 curses.doupdate()
                 query_title = f"File “{filename}“ already exists; overwrite?:"
@@ -8509,9 +8508,9 @@ def delete_logs(**kwargs: Any) -> Retval:
     dirpath: str = deep_get(kwargs, DictPath("action#actionfunc_args#dirpath"))
     if dirpath is not None:
         if dirpath.startswith("{HOME}"):
-            dirpath = dirpath.replace("{HOME}", HOMEDIR, count=1)
+            dirpath = f"{HOMEDIR}{dirpath[len('.HOME.'):]}"
         if dirpath.startswith(f"~{os.path.sep}"):
-            dirpath = dirpath.replace(f"~{os.path.sep}", f"{HOMEDIR}{os.path.sep}", count=1)
+            dirpath = f"{HOMEDIR}{os.path.sep}{dirpath[2:]}"
     for item in items:
         ansible_delete_log(item, dirpath=dirpath)
     return Retval.RETURNDONE
@@ -9800,9 +9799,9 @@ def populate_views(refresh_apis: str = "none") -> None:
 
     for view_dir in view_dirs:
         if view_dir.startswith("{HOME}"):
-            view_dir = view_dir.replace("{HOME}", HOMEDIR, count=1)
+            view_dir = f"{HOMEDIR}{view_dir[len('.HOME.'):]}"
         if view_dir.startswith(f"~{os.path.sep}"):
-            view_dir = view_dir.replace(f"~{os.path.sep}", f"{HOMEDIR}{os.path.sep}", count=1)
+            view_dir = f"{HOMEDIR}{os.path.sep}{view_dir[2:]}"
 
         if not os.path.isdir(view_dir):
             continue
