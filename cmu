@@ -9770,7 +9770,6 @@ def populate_views(refresh_apis: str = "none") -> None:
     force_refresh: bool = refresh_apis == "all"
 
     if kubernetes_support:
-        ansithemeprint([ANSIThemeStr("Checking available Kubernetes APIs\n", "default")])
         tmp_available_api_families, _status, _modified = \
             kh.get_available_kinds(force_refresh=force_refresh)
     else:
@@ -10747,9 +10746,9 @@ def list_views(options: list[tuple[str, str]], args: list[str]) -> None:
     maxkindlen = 0
 
     # Customises the list views
-    ansithemeprint([ANSIThemeStr("Stand by, updating list of supported views...\n", "default")])
-
     init_kubernetes_client()
+    ansithemeprint([ANSIThemeStr("Checking available Kubernetes APIs", "default")])
+    ansithemeprint([ANSIThemeStr("and updating list of supported views.\n", "default")])
     populate_views(refresh_apis="all")
     customise_listviews()
 
@@ -10943,11 +10942,10 @@ def open_view(options: list[tuple[str, str]], args: list[str]) -> None:
         elif opt == "--disable-kubernetes":
             kubernetes_support = False
 
-    init_kubernetes_client()
-
     # Customises the list views
-    ansithemeprint([ANSIThemeStr("Populating list of supported views...\n", "default")])
-
+    init_kubernetes_client()
+    ansithemeprint([ANSIThemeStr("Checking available Kubernetes APIs", "default")])
+    ansithemeprint([ANSIThemeStr("and updating list of supported views.\n", "default")])
     populate_views(refresh_apis="all")
     customise_listviews()
 
