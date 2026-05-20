@@ -2,6 +2,9 @@
 - name: "security-profiles-operator"
   show_in_selector: false
   matchkeys:
+    - image_name: "/security-profiles-operator/security-profiles-operator"
+    - image_name: "/security-profiles-operator/security-profiles-operator"
+      container_type: "InitContainer"
     - image_name: "/k8s-staging-sp-operator/security-profiles-operator"
     - image_name: "/k8s-staging-sp-operator/security-profiles-operator"
       container_type: "InitContainer"

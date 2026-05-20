@@ -2,7 +2,8 @@
 - name: "csi-driver-nfs"
   show_in_selector: false
   matchkeys:
-    - pod_name: "csi-nfs"
+    - image_name: "/k8s-staging-sig-storage/nfsplugin"
+    - image_name: "/sig-storage/nfsplugin"
   parser_rules:
     - name: "glog"
     - name: "override_severity"

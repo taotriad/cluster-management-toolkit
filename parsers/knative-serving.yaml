@@ -29,6 +29,9 @@
     - name: "override_severity"
       overrides:
         - matchtype: "startswith"
+          matchkey: "\"Warning:"
+          loglevel: "warning"
+        - matchtype: "startswith"
           matchkey: "http2: server: error"
           loglevel: "warning"
         - matchtype: "startswith"

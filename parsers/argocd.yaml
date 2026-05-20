@@ -27,3 +27,15 @@
         - matchtype: "startswith"
           matchkey: "Trace["
           loglevel: "debug"
+- name: "argocd"
+  show_in_selector: false
+  matchkeys:
+    - image_name: "/argoprojlabs/argocd-operator"
+  parser_rules:
+    - name: "glog"
+    - name: "tab_separated"
+    - name: "override_severity"
+      overrides:
+        - matchtype: "startswith"
+          matchkey: "Version of argocd-operator:"
+          loglevel: "notice"
