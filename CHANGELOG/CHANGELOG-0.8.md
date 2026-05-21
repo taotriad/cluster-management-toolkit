@@ -105,6 +105,10 @@ TBD
 * `identify_k8s_distro()` now supports more distros, and is hopefully slightly more reliable.
 * Lots of type-hint complaints from `mypy` have been fixed.
 * The old Markdown formatter has now been removed.
+* `get_api_resources` now uses `apidiscovery.k8s.io` v2 instead of v2beta1; newer clusters have dropped
+  support for v2beta1 and `cmu` / `cmt` would thus experience a massive slowdown;
+  we rather be a bit slower on older Kubernetes that we no longer fully support,
+  rather than be slow on the versions we do support.
 
 ### view-file changes
 
