@@ -1895,7 +1895,7 @@ class KubernetesHelper:
             # Attempt aggregated discovery; we need custom header_params to do this.
             # Fallback to the old method if aggregate discovery isn't supported.
             header_params = {
-                "Accept": "application/json;g=apidiscovery.k8s.io;v=v2beta1;"
+                "Accept": "application/json;g=apidiscovery.k8s.io;v=v2;"
                           "as=APIGroupDiscoveryList,application/json",
                 "Content-Type": "application/json",
                 "User-Agent": f"{self.programname} v{self.programversion}",
@@ -2091,8 +2091,8 @@ class KubernetesHelper:
             # Attempt aggregated discovery; we need custom header_params to do this.
             # Fallback to the old method if aggregate discovery isn't supported.
             header_params = {
-                "Accept": "application/json;g=apidiscovery.k8s.io;"
-                          "v=v2beta1;as=APIGroupDiscoveryList,application/json",
+                "Accept": "application/json;g=apidiscovery.k8s.io;v=v2;"
+                          "as=APIGroupDiscoveryList,application/json",
                 "Content-Type": "application/json",
                 "User-Agent": f"{self.programname} v{self.programversion}",
             }
