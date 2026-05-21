@@ -1,0 +1,307 @@
+---
+kind: "ClusterPolicy"
+api_family: "intel.com"
+default_command: "clusterpolicies.intel"
+command:
+  - "clusterpolicy.intel"
+  - "clrpols.intel"
+  - "clrpol.intel"
+  - "inclusterpolicies"
+  - "inclusterpolicy"
+  - "inclusterpols"
+  - "inclusterpol"
+  - "inclrpols"
+  - "inclrpol"
+listview:
+  name: "Cluster Policies"
+  group: "Accelerators"
+  field_indexes:
+    Normal:
+      fields: ["name", "device_plugin", "dra", "xpu", "age"]
+  fields:
+    device_plugin:
+      header: "Device Plugin:"
+      paths:
+        - path: "status#devicePluginStatus"
+          pathtype: "regex"
+          regex: "^(.+)/(.+)"
+          default: ["<unset>"]
+      type: "str"
+      formatter: "list"
+      formatting:
+        field_colors:
+          - type: "numerical"
+        item_separator:
+          type: "fraction"
+      align: "right"
+    dra:
+      header: "DRA:"
+      paths:
+        - path: "status#draStatus"
+          pathtype: "regex"
+          regex: "^(.+)/(.+)"
+          default: ["<unset>"]
+      type: "str"
+      formatter: "list"
+      formatting:
+        field_colors:
+          - type: "numerical"
+        item_separator:
+          type: "fraction"
+      align: "right"
+    xpu:
+      header: "XPU:"
+      paths:
+        - path: "status#xpuManagerStatus"
+          pathtype: "regex"
+          regex: "^(.+)/(.+)"
+          default: ["<unset>"]
+      type: "str"
+      formatter: "list"
+      formatting:
+        field_colors:
+          - type: "numerical"
+        item_separator:
+          type: "fraction"
+      align: "right"
+infoview:
+  name: "Cluster Policy Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["health_header",
+                 "health_check_interval",
+                 "health_check_core_temperature_threshold",
+                 "health_check_memory_temperature_threshold",
+                 "health_check_power_threshold",
+                 "kueue_enabled",
+                 "nfd_labeling",
+                 "prometheus_integration",
+                 "resource_monitoring",
+                 "resource_registration",
+                 "xpu_header",
+                 "xpu_image",
+                 "xpu_i915_monitoring",
+                 "xpu_loglevel",
+                 "xpu_status",
+                 "dra_header",
+                 "dra_image",
+                 "dra_device_taints",
+                 "dra_health_check_port",
+                 "dra_loglevel",
+                 "dra_status",
+                 "device_plugin_header",
+                 "device_plugin_status",
+                 "loglevel"]
+    rows:
+      device_plugin_header:
+        header: [["Device Plugin:", ["main", "infoheader"]]]
+      device_plugin_status:
+        header: [["  Status:", ["main", "infoheader"]]]
+        paths:
+          - path: "status#devicePluginStatus"
+            pathtype: "regex"
+            regex: "^(.+)/(.+)"
+            default: ["<unset>"]
+        type: "str"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "numerical"
+          item_separator:
+            type: "fraction"
+      dra_header:
+        header: [["DRA:", ["main", "infoheader"]]]
+      dra_image:
+        header: [["  Image:", ["main", "infoheader"]]]
+        paths:
+          - path: "spec#dra#image"
+            pathtype: "regex"
+            regex: "^([^:]+):(.*)"
+            default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "generic"
+            - type: "version"
+          field_separators:
+            - type: "version"
+      dra_health_check_port:
+        header: [["  Health Check Port:", ["main", "infoheader"]]]
+        path: "spec#dra#healthCheckPort"
+        default: "<unset>"
+        type: "int"
+        formatting:
+          field_colors:
+            - type: "port"
+      dra_loglevel:
+        header: [["  Loglevel:", ["main", "infoheader"]]]
+        path: "spec#dra#logLevel"
+        default: "<unset>"
+        type: "int"
+        formatter: "numerical"
+      dra_status:
+        header: [["  Status:", ["main", "infoheader"]]]
+        paths:
+          - path: "status#draStatus"
+            pathtype: "regex"
+            regex: "^(.+)/(.+)"
+            default: ["<unset>"]
+        type: "str"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "numerical"
+          item_separator:
+            type: "fraction"
+      dra_device_taints:
+        header: [["  Device Taints:", ["main", "infoheader"]]]
+        path: "spec#dra#deviceTaints"
+        default: "<unset>"
+        type: "bool"
+      health_header:
+        header: [["Health:", ["main", "infoheader"]]]
+      health_check_interval:
+        header: [["  Check Interval:", ["main", "infoheader"]]]
+        path: "spec#health#checkIntervalSeconds"
+        default: "<unset>"
+        type: "int"
+        formatter: "numerical"
+        formatting:
+          unit: "s"
+      health_check_core_temperature_threshold:
+        header: [["  Core Temperature Threshold:", ["main", "infoheader"]]]
+        path: "spec#health#coreTemperatureThreshold"
+        default: "<unset>"
+        type: "int"
+        formatter: "numerical"
+        formatting:
+          unit: "°C"
+      health_check_memory_temperature_threshold:
+        header: [["  Memory Temperature Threshold:", ["main", "infoheader"]]]
+        path: "spec#health#memoryTemperatureThreshold"
+        default: "<unset>"
+        type: "int"
+        formatter: "numerical"
+        formatting:
+          unit: "°C"
+      health_check_power_threshold:
+        header: [["  Power Threshold:", ["main", "infoheader"]]]
+        path: "spec#health#powerThreshold"
+        default: "<unset>"
+        type: "int"
+        formatter: "numerical"
+        formatting:
+          unit: "W"
+      kueue_enabled:
+        header: [["Kueue:", ["main", "infoheader"]]]
+        paths:
+          - path: "spec"
+            pathtype: "substitution"
+            when:
+              - key: "enableKueue"
+                eq: true
+            substitute: "Enabled"
+          - path: "spec"
+            pathtype: "substitution"
+            when:
+              - key: "enableKueue"
+                eq: false
+            substitute: "Disabled"
+        default: "Disabled"
+        type: "str"
+      loglevel:
+        header: [["Loglevel:", ["main", "infoheader"]]]
+        path: "spec#logLevel"
+        default: "<unset>"
+        type: "int"
+        formatter: "numerical"
+      nfd_labeling:
+        header: [["NFD Labeling:", ["main", "infoheader"]]]
+        path: "spec#useNFDLabeling"
+        default: "<unset>"
+        type: "bool"
+      prometheus_integration:
+        header: [["Prometheus Integration:", ["main", "infoheader"]]]
+        path: "spec#prometheusIntegration"
+        default: "<unset>"
+        type: "bool"
+      resource_monitoring:
+        header: [["Resource Monitoring:", ["main", "infoheader"]]]
+        path: "spec#resourceMonitoring"
+        default: "<unset>"
+        type: "bool"
+      resource_registration:
+        header: [["Resource Registration:", ["main", "infoheader"]]]
+        path: "spec#resourceRegistration"
+        default: "<unset>"
+        type: "str"
+      xpu_header:
+        header: [["XPU:", ["main", "infoheader"]]]
+      xpu_image:
+        header: [["  Image:", ["main", "infoheader"]]]
+        paths:
+          - path: "spec#xpu#image"
+            pathtype: "regex"
+            regex: "^([^:]+):(.*)"
+            default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "generic"
+            - type: "version"
+          field_separators:
+            - type: "version"
+      xpu_loglevel:
+        header: [["  Loglevel:", ["main", "infoheader"]]]
+        path: "spec#xpu#logLevel"
+        default: "<unset>"
+        type: "int"
+        formatter: "numerical"
+      xpu_i915_monitoring:
+        header: [["  i915 Monitoring:", ["main", "infoheader"]]]
+        paths:
+          - path: "spec#xpu"
+            pathtype: "substitution"
+            when:
+              - key: "monitoringI915"
+                eq: true
+            substitute: "Enabled"
+          - path: "spec"
+            pathtype: "substitution"
+            when:
+              - key: "monitoringI915"
+                eq: false
+            substitute: "Disabled"
+        default: "Disabled"
+        type: "str"
+      xpu_status:
+        header: [["  Status:", ["main", "infoheader"]]]
+        paths:
+          - path: "status#xpuManagerStatus"
+            pathtype: "regex"
+            regex: "^(.+)/(.+)"
+            default: ["<unset>"]
+        type: "str"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "numerical"
+          item_separator:
+            type: "fraction"
+  listpad:
+    listgetter: "listgetter_path"
+    listgetter_args:
+      path: "status#errors"
+      rename_bare: "error"
+    infogetter: "generic_infogetter"
+    field_indexes:
+      Normal:
+        fields: ["error"]
+        sortcolumn: "error"
+    fields:
+      error:
+        header: "Error:"
+        path: "error"
+        default: "<none>"
+        type: "str"

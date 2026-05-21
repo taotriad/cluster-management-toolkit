@@ -1,0 +1,149 @@
+---
+kind: "GPUFirmwareUpdate"
+api_family: "intel.com"
+default_command: "gpufirmwareupdates"
+command:
+  - "gpufwupds"
+  - "gpufwupd"
+listview:
+  name: "GPU Firmware Updates"
+  group: "Accelerators"
+  field_indexes:
+    Normal:
+      fields: ["name", "update_method", "device_id", "age"]
+  fields:
+    device_id:
+      header: "Device ID:"
+      path: "spec#pciDeviceID"
+      default: "<unset>"
+      type: "str"
+      formatter: "hex"
+    update_method:
+      header: "Update Method:"
+      path: "spec#updateMethod"
+      default: "<unset>"
+      type: "str"
+infoview:
+  name: "GPU Firmware Update Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["node_label_selector", "image_pull_secret",
+                 "update_method", "update_taint",
+                 "container_image"]
+    rows:
+      container_image:
+        header: [["Container Image:", ["main", "infoheader"]]]
+        paths:
+          - path: "spec#content#containerImage"
+            pathtype: "regex"
+            regex: "^([^:]+):(.*)"
+            default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "generic"
+            - type: "version"
+          field_separators:
+            - type: "version"
+      device_id:
+        header: [["PCI Device ID:", ["main", "infoheader"]]]
+        path: "spec#pciDeviceID"
+        default: "<unset>"
+        type: "str"
+        formatter: "hex"
+      image_pull_secret:
+        header: [["Image ", ["main", "infoheader"]],
+                 ["P", ["main", "infoheader_shortcut"]],
+                 ["ull Secret:", ["main", "infoheader"]]]
+        paths:
+          - path: ["Secret",
+                   ["spec#imagePullSecret#namespace"],
+                   ["spec#imagePullSecret#name"]]
+            pathtype: "tuple"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "kind"
+            - type: "namespace"
+            - type: "generic"
+          field_separators:
+            - type: "kind"
+            - type: "namespace"
+      node_label_selector:
+        header: [["Node La", ["main", "infoheader"]],
+                 ["b", ["main", "infoheader_shortcut"]],
+                 ["el Selector:", ["main", "infoheader"]]]
+        paths:
+          - path: ["spec#nodeSelector"]
+            pathtype: "key_value"
+            default: ["<unset>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "key"
+            - type: "value"
+          field_separators:
+            - type: "selector"
+      update_method:
+        header: [["Update Method:", ["main", "infoheader"]]]
+        path: "spec#updateMethod"
+        default: "<unset>"
+        type: "str"
+      update_taint:
+        header: [["Update Taint:", ["main", "infoheader"]]]
+        path: "spec#updateTaint"
+        default: "<none>"
+        type: "str"
+  listpad:
+    listgetter: "listgetter_path"
+    listgetter_args:
+      path: "spec#content#containerImage"
+    infogetter: "generic_infogetter"
+    field_indexes:
+      Normal:
+        fields: ["filename", "type", "checksum"]
+        sortcolumn: "filename"
+    fields:
+      checksum:
+        header: "Checksum:"
+        path: "checksum"
+        default: "<unset>"
+        type: "str"
+        formatter: "hex"
+      filename:
+        header: "Filename:"
+        path: "filename"
+        default: "<unset>"
+        type: "str"
+        formatting:
+          field_colors:
+            - type: "path"
+      type:
+        header: "Type:"
+        path: "type"
+        default: "<unset>"
+        type: "str"
+  shortcuts:
+    "Node Label Selector":
+      key: "b"
+      read_only: true
+      helptext: "Show Node label selector"
+      widget: "windowwidget"
+      title: "Node Label Selector:"
+      headers: ["Key:", "Value:"]
+      itemgetter: "get_key_value"
+      itemgetter_args:
+        path: "spec#nodeSelector"
+    "Open image pull Secret":
+      key: "p"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for image pull Secret"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        name_path: "spec#imagePullSecret#name"
+        namespace_path: "spec#imagePullSecret#namespace"
+        kind: "Secret"

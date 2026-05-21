@@ -4148,6 +4148,17 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
                       "apis/instancetype.kubevirt.io/v1alpha2/"],
         "api": "virtualmachinepreferences",
     },
+    # intel.com
+    ("ClusterPolicy", "intel.com"): {
+        "api_paths": ["apis/intel.com/v1alpha1/"],
+        "api": "clusterpolicies",
+        "namespaced": False,
+    },
+    ("GPUFirmwareUpdate", "intel.com"): {
+        "api_paths": ["apis/intel.com/v1alpha1/"],
+        "api": "gpufirmwareupdates",
+        "namespaced": False,
+    },
     # ipam.metal3.io
     ("IPAddress", "ipam.metal3.io"): {
         "api_paths": ["apis/ipam.metal3.io/v1alpha1/"],
