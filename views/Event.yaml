@@ -221,6 +221,10 @@ listview:
               field_colors:
                 - context: "main"
                   type: "status_warning"
+            CanaryCertRotated:
+              field_colors:
+                - context: "main"
+                  type: "status_done"
             CertificateExpirationOK:
               field_colors:
                 - context: "main"
@@ -403,6 +407,10 @@ listview:
                 - context: "main"
                   type: "status_done"
             created:
+              field_colors:
+                - context: "main"
+                  type: "status_done"
+            CreatedCanaryCertificate:
               field_colors:
                 - context: "main"
                   type: "status_done"
@@ -2921,6 +2929,10 @@ infoview:
                 field_colors:
                   - context: "main"
                     type: "status_warning"
+              CanaryCertRotated:
+                field_colors:
+                  - context: "main"
+                    type: "status_done"
               CertificateExpirationOK:
                 field_colors:
                   - context: "main"
@@ -3103,6 +3115,10 @@ infoview:
                   - context: "main"
                     type: "status_done"
               created:
+                field_colors:
+                  - context: "main"
+                    type: "status_done"
+              CreatedCanaryCertificate:
                 field_colors:
                   - context: "main"
                     type: "status_done"

@@ -2598,8 +2598,8 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "namespaced": False,
     },
     ("InsightsDataGather", "config.openshift.io"): {
-        "api_paths": ["apis/config.openshift.io/v1alpha2/",
-                      "apis/config.openshift.io/v1alpha1/"],
+        "api_paths": ["apis/config.openshift.io/v1/",
+                      "apis/config.openshift.io/v1alpha2/"],
         "api": "insightsdatagathers",
         "namespaced": False,
     },
@@ -4110,8 +4110,8 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
     },
     # insights.openshift.io
     ("DataGather", "insights.openshift.io"): {
-        "api_paths": ["apis/insights.openshift.io/v1alpha2/",
-                      "apis/insights.openshift.io/v1alpha1/"],
+        "api_paths": ["apis/insights.openshift.io/v1/",
+                      "apis/insights.openshift.io/v1alpha2/"],
         "api": "datagathers",
         "namespaced": False,
     },
@@ -5044,10 +5044,32 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api_paths": ["apis/logging.banzaicloud.io/v1beta1/"],
         "api": "syslogngoutputs",
     },
+    # logging.openshift.io
+    ("LogFileMetricExporter", "logging.openshift.io"): {
+        "api_paths": ["apis/logging.openshift.io/v1alpha1/"],
+        "api": "logfilemetricexporters",
+    },
     # logstash.k8s.elastic.co
     ("Logstash", "logstash.k8s.elastic.co"): {
         "api_paths": ["apis/logstash.k8s.elastic.co/v1alpha1/"],
         "api": "logstashes",
+    },
+    # loki.grafana.com
+    ("AlertingRule", "loki.grafana.com"): {
+        "api_paths": ["apis/loki.grafana.com/v1/"],
+        "api": "alertingrules",
+    },
+    ("LokiStack", "loki.grafana.com"): {
+        "api_paths": ["apis/loki.grafana.com/v1/"],
+        "api": "lokistacks",
+    },
+    ("RecordingRule", "loki.grafana.com"): {
+        "api_paths": ["apis/loki.grafana.com/v1/"],
+        "api": "recordingrules",
+    },
+    ("RulerConfig", "loki.grafana.com"): {
+        "api_paths": ["apis/loki.grafana.com/v1/"],
+        "api": "rulerconfigs",
     },
     # longhorn.io
     ("BackingImageDataSource", "longhorn.io"): {
@@ -6218,6 +6240,10 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api": "observabilitynotificationsilences",
     },
     # observability.openshift.io
+    ("ClusterLogForwarder", "observability.openshift.io"): {
+        "api_paths": ["apis/observability.openshift.io/v1/"],
+        "api": "clusterlogforwarders",
+    },
     ("ObservabilityInstaller", "observability.openshift.io"): {
         "api_paths": ["apis/observability.openshift.io/v1alpha1/"],
         "api": "observabilityinstallers",

@@ -150,6 +150,10 @@ CalculateExpectedPodCountFailed:
   field_colors:
     - context: "main"
       type: "status_warning"
+CanaryCertRotated:
+  field_colors:
+    - context: "main"
+      type: "status_done"
 CertificateExpirationOK:
   field_colors:
     - context: "main"
@@ -332,6 +336,10 @@ CreateCompleted:
     - context: "main"
       type: "status_done"
 created:
+  field_colors:
+    - context: "main"
+      type: "status_done"
+CreatedCanaryCertificate:
   field_colors:
     - context: "main"
       type: "status_done"
