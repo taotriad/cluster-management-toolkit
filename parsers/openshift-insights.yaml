@@ -3,6 +3,36 @@
   show_in_selector: false
   matchkeys:
     - pod_name: "insights-operator"
+    - pod_name: "periodic-gathering"
+    - pod_name: "insights-runtime-extractor"
   parser_rules:
     - name: "glog"
     - name: "expand_event"
+    - name: "key_value_with_leading_message"
+    - name: "custom_splitter"
+      options:
+        regex: '^\[\d{4}-\d\d-\d\dT\d\d:\d\d:\d\dZ ([A-Z]+)\s+([^]]+)\] (.+)'
+        severity:
+          field: 1
+          transform: "string"
+        facility:
+          fields:
+            - 2
+        message:
+          field: 3
+    - name: "ts_8601"
+    - name: "custom_line"
+      options:
+        block_start:
+          - matchtype: "exact"
+            matchkey: "Configuration:"
+            matchline: "any"
+            format_block_start: true
+        block_end:
+          - matchtype: "regex"
+            # yamllint disable-line rule:line-length
+            matchkey: '^\S'
+            matchline: "any"
+            format_block_end: false
+            process_block_end: false
+        loglevel: "info"

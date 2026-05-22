@@ -73,3 +73,4 @@
   parser_rules:
     - name: "glog"
     - name: "tab_separated"
+    - name: "key_value"
