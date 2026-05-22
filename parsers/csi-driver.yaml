@@ -15,3 +15,6 @@
         - matchtype: "startswith"
           matchkey: "\"Version\" version="
           loglevel: "notice"
+        - matchtype: "startswith"
+          matchkey: "Version: "
+          loglevel: "notice"
