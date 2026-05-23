@@ -627,6 +627,48 @@ color_pairs_curses:
   type_powershell_variable:
     unselected: [["cyan", "bright"], ["black", "normal"]]
     selected: [["cyan", "bright"], ["white", "normal"]]
+  type_python_builtin:
+    unselected: [["cyan", "bright"], ["black", "normal"]]
+    selected: [["cyan", "bright"], ["white", "normal"]]
+  type_python_comment:
+    unselected: [["cyan", "normal"], ["black", "normal"]]
+    selected: [["cyan", "bright"], ["white", "normal"]]
+  type_python_docstring:
+    unselected: [["magenta", "normal"], ["black", "normal"]]
+    selected: [["magenta", "bright"], ["white", "normal"]]
+  type_python_escape:
+    unselected: [["white", "bright"], ["black", "normal"]]
+    selected: [["black", "normal"], ["white", "normal"]]
+  type_python_exception:
+    unselected: [["green", "bright"], ["black", "normal"]]
+    selected: [["green", "normal"], ["white", "normal"]]
+  type_python_function:
+    unselected: [["cyan", "bright"], ["black", "normal"]]
+    selected: [["cyan", "bright"], ["white", "normal"]]
+  type_python_interpol:
+    unselected: [["white", "bright"], ["black", "normal"]]
+    selected: [["black", "normal"], ["white", "normal"]]
+  type_python_keyword:
+    unselected: [["yellow", "bright"], ["black", "normal"]]
+    selected: [["yellow", "bright"], ["white", "normal"]]
+  type_python_name:
+    unselected: [["white", "normal"], ["black", "normal"]]
+    selected: [["black", "normal"], ["white", "normal"]]
+  type_python_operator:
+    unselected: [["yellow", "bright"], ["black", "normal"]]
+    selected: [["yellow", "bright"], ["white", "normal"]]
+  type_python_punctuation:
+    unselected: [["white", "normal"], ["black", "normal"]]
+    selected: [["black", "normal"], ["white", "normal"]]
+  type_python_text:
+    unselected: [["white", "normal"], ["black", "normal"]]
+    selected: [["black", "normal"], ["white", "normal"]]
+  type_python_value:
+    unselected: [["magenta", "bright"], ["black", "normal"]]
+    selected: [["magenta", "bright"], ["white", "normal"]]
+  type_python_variable:
+    unselected: [["white", "normal"], ["black", "normal"]]
+    selected: [["black", "normal"], ["white", "normal"]]
   type_shellscript_builtin:
     unselected: [["yellow", "bright"], ["black", "normal"]]
     selected: [["yellow", "bright"], ["white", "normal"]]
@@ -1081,6 +1123,20 @@ types:
   powershell_value: "type_powershell_value"
   programname: ["programname", "bold"]
   protocol: ["type_protocol", "bold"]
+  python_builtin: "type_python_builtin"
+  python_comment: "type_python_comment"
+  python_docstring: "type_python_docstring"
+  python_exception: "type_python_exception"
+  python_escape: "type_python_escape"
+  python_function: "type_python_function"
+  python_interpol: "type_python_interpol"
+  python_keyword: "type_python_keyword"
+  python_name: "type_python_name"
+  python_operator: "type_python_operator"
+  python_punctuation: "type_python_punctuation"
+  python_text: "type_python_text"
+  python_value: "type_python_value"
+  python_variable: "type_python_variable"
   range: "type_range"
   resource: "type_resource"
   secret_type: "type_secret_type"

@@ -7505,6 +7505,8 @@ def view_obj(stdscr: curses.window, **kwargs: Any) -> Retval:
     path = deep_get(kwargs, DictPath("path"))
     formatter = deep_get(kwargs, DictPath("formatter"), formatters.format_yaml)
     formatter_args = deep_get(kwargs, DictPath("formatter_args"), {})
+    if formatter == formatters.map_dataformat:
+        formatter = formatters.map_dataformat(deep_get(formatter_args, DictPath("filetype"), ""))
     if path is not None:
         if deep_get(kwargs, DictPath("include_root"), False):
             obj = [{f"{path.rsplit('#')[-1]}": deep_get(obj, DictPath(path))}]
@@ -7690,9 +7692,10 @@ def action_view_file(**kwargs: Any) -> Retval:
     formatter_args: dict[str, Any] = \
         deep_get(kwargs, DictPath("action#actionfunc_args#formatter_args"), {})
 
-    path, _filetype = deep_get(values, DictPath("resource_path"), ("", ""))
+    path, filetype = deep_get(values, DictPath("resource_path"), ("", ""))
     tmp = secure_read_string(path)
     data = {"data": tmp}
+    formatter_args["filetype"] = filetype
 
     return view_obj(stdscr=uip.stdscr, formatter=formatter, obj=data,
                     formatter_args=formatter_args, path="data")
@@ -9442,20 +9445,41 @@ def selectorloop(stdscr: curses.window, **kwargs: Any) -> Retval:
 
 
 listviewactions: dict[str, dict[str, Any]] = {
-    "View Markdown document": {
-        "description": "View a Markdown document",
+    "View Files": {
+        "description": "View Files",
         "actionfunc": action_view_file,
         "actionfunc_args": {
-            "formatter": "render_markdown",
+            "formatter": "format_autodetect",
         },
-        "query": "Choose Markdown document to view:",
+        "query": "Choose file to view:",
         "queryval": "resource_path",
         "queryfunc": "filechooser",
         "extravars": {
             "listgetter": list_configuration_files,
             "listgetter_args": {
                 "filetypes": {
+                    ".bash": "BASH",
+                    ".crt": "CRT",
+                    ".diff": "Diff",
+                    ".ini": "INI",
+                    ".js": "JavaScript",
+                    ".json": "JSON",
+                    "known_hosts": "known_hosts",
                     ".md": "Markdown",
+                    ".ndjson": "NDJSON",
+                    ".patch": "Diff",
+                    ".pem": "CRT",
+                    ".pl": "Perl",
+                    ".perl": "Perl",
+                    ".ps1": "PowerShell",
+                    ".py": "Python",
+                    ".sh": "Shell Script",
+                    ".toml": "TOML",
+                    ".txt": "Text",
+                    ".xml": "XML",
+                    ".yml": "YAML",
+                    ".yaml": "YAML",
+                    ".zsh": "ZSH",
                 }
             },
             "basedir": HOMEDIR,

@@ -43,10 +43,11 @@ from pygments.lexer import RegexLexer, Lexer, bygroups
 from pygments.lexers.asc import AscLexer
 from pygments.lexers.configs import IniLexer, NginxConfLexer, TOMLLexer
 from pygments.lexers.data import JsonLexer, YamlLexer
+from pygments.lexers.diff import DiffLexer
 from pygments.lexers.html import XmlLexer
 from pygments.lexers.javascript import JavascriptLexer
 from pygments.lexers.markup import MarkdownLexer
-from pygments.lexers.python import PythonTracebackLexer
+from pygments.lexers.python import PythonLexer, PythonTracebackLexer
 from pygments.lexers.shell import BashLexer, PowerShellLexer
 from pygments.token import Token
 
@@ -100,6 +101,40 @@ COLORSCHEME_CRT: dict[Any, ColorSchemeEntry] = {
     Token.Literal.String: {
         "formatting": ThemeAttr("types", "generic"),
         "type": "generic",
+    },
+}
+
+
+COLORSCHEME_DIFF: dict[Any, ColorSchemeEntry] = {
+    # <whitespace>
+    Token.Text.Whitespace: {
+        "formatting": ThemeAttr("types", "generic"),
+        "type": "whitespace",
+    },
+    # diff --git
+    Token.Generic.Heading: {
+        "formatting": ThemeAttr("logview", "severity_diffheader"),
+        "type": "header",
+    },
+    # +++
+    Token.Generic.Inserted: {
+        "formatting": ThemeAttr("logview", "severity_diffplus"),
+        "type": "header",
+    },
+    # ---
+    Token.Generic.Deleted: {
+        "formatting": ThemeAttr("logview", "severity_diffminus"),
+        "type": "header",
+    },
+    # @@
+    Token.Generic.Subheading: {
+        "formatting": ThemeAttr("logview", "severity_diffatat"),
+        "type": "header",
+    },
+    # text
+    Token.Text: {
+        "formatting": ThemeAttr("logview", "severity_diffsame"),
+        "type": "string",
     },
 }
 
@@ -511,6 +546,145 @@ COLORSCHEME_POWERSHELL: dict[Any, ColorSchemeEntry] = {
 }
 
 
+COLORSCHEME_PYTHON: dict[Any, ColorSchemeEntry] = {
+    # <whitespace>
+    Token.Text.Whitespace: {
+        "formatting": ThemeAttr("types", "generic"),
+        "type": "whitespace",
+    },
+    # text
+    Token.Text: {
+        "formatting": ThemeAttr("types", "python_text"),
+        "type": "generic",
+    },
+    # f"{foo}" {}
+    Token.Literal.String.Interpol: {
+        "formatting": ThemeAttr("types", "python_interpol"),
+        "type": "keyword",
+    },
+    # f
+    Token.Literal.String.Affix: {
+        "formatting": ThemeAttr("types", "python_value"),
+        "type": "keyword",
+    },
+    # integer
+    Token.Literal.Number.Integer: {
+        "formatting": ThemeAttr("types", "python_value"),
+        "type": "value",
+    },
+    # octal
+    Token.Literal.Number.Oct: {
+        "formatting": ThemeAttr("types", "python_value"),
+        "type": "value",
+    },
+    # \n
+    Token.Literal.String.Esacpe: {
+        "formatting": ThemeAttr("types", "python_escape"),
+        "type": "escape",
+    },
+    # '
+    Token.Literal.String.Single: {
+        "formatting": ThemeAttr("types", "python_value"),
+        "type": "string",
+    },
+    # "
+    Token.Literal.String.Double: {
+        "formatting": ThemeAttr("types", "python_value"),
+        "type": "string",
+    },
+    # builtin
+    Token.Name.Builtin: {
+        "formatting": ThemeAttr("types", "python_builtin"),
+        "type": "builtin",
+    },
+    # self
+    Token.Name.Builtin.Pseudo: {
+        "formatting": ThemeAttr("types", "python_builtin"),
+        "type": "builtin",
+    },
+    # =
+    Token.Operator: {
+        "formatting": ThemeAttr("types", "python_operator"),
+        "type": "operator",
+    },
+    # # comment
+    Token.Comment.Single: {
+        "formatting": ThemeAttr("types", "python_comment"),
+        "type": "comment",
+    },
+    # #! /usr/bin/python3
+    Token.Comment.Hashbang: {
+        "formatting": ThemeAttr("types", "python_comment"),
+        "type": "hashbang",
+    },
+    # """
+    Token.Literal.String.Doc: {
+        "formatting": ThemeAttr("types", "python_docstring"),
+        "type": "hashbang",
+    },
+    # ,
+    Token.Punctuation: {
+        "formatting": ThemeAttr("types", "python_punctuation"),
+        "type": "punctuation",
+    },
+    # try
+    Token.Keyword: {
+        "formatting": ThemeAttr("types", "python_keyword"),
+        "type": "keyword",
+    },
+    # datetime
+    Token.Name: {
+        "formatting": ThemeAttr("types", "python_name"),
+        "type": "name",
+    },
+    # datetime
+    Token.Name.Namespace: {
+        "formatting": ThemeAttr("types", "python_name"),
+        "type": "name",
+    },
+    # class
+    Token.Name.Class: {
+        "formatting": ThemeAttr("types", "python_keyword"),
+        "type": "keyword",
+    },
+    # is
+    Token.Operator.Word: {
+        "formatting": ThemeAttr("types", "python_keyword"),
+        "type": "keyword",
+    },
+    # Exception
+    Token.Name.Exception: {
+        "formatting": ThemeAttr("types", "python_exception"),
+        "type": "exception",
+    },
+    # function
+    Token.Name.Function: {
+        "formatting": ThemeAttr("types", "python_function"),
+        "type": "function",
+    },
+    # __init__
+    Token.Name.Function.Magic: {
+        "formatting": ThemeAttr("types", "python_function"),
+        "type": "function",
+    },
+    # __doc__
+    Token.Name.Variable.Magic: {
+        "formatting": ThemeAttr("types", "python_variable"),
+        "type": "function",
+    },
+    # from 
+    Token.Keyword.Namespace: {
+        "formatting": ThemeAttr("types", "python_builtin"),
+        "type": "builtin",
+    },
+    # None
+    Token.Keyword.Constant: {
+        "formatting": ThemeAttr("types", "python_builtin"),
+        "type": "builtin",
+    },
+}
+
+
 COLORSCHEME_PYTHON_TRACEBACK: dict[Any, ColorSchemeEntry] = {
     # <whitespace>
     Token.Text.Whitespace: {
@@ -603,7 +777,7 @@ COLORSCHEME_SHELLSCRIPT: dict[Any, ColorSchemeEntry] = {
     },
     # #! /bin/sh
     Token.Comment.Hashbang: {
-        "formatting": ThemeAttr("types", "shellscript_hashbang"),
+        "formatting": ThemeAttr("types", "shellscript_comment"),
         "type": "hashbang",
     },
     # # comment
@@ -1862,34 +2036,10 @@ def reformat_json(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef |
     return format_yaml(lines, **kwargs)
 
 
-# pylint: disable=unused-argument
-def format_cel(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef | ThemeStr]]:
-    """
-    CEL formatter; returns the text with syntax highlighting for Common Expression Language.
-    Currently this formatter is equivalent to formatter_none.
-
-        Parameters:
-            lines ([str]): A list of strings
-            *or*
-            lines (str): a string with newlines that should be split
-            **kwargs (dict[str, Any]): Keyword arguments
-        Returns:
-            ([themearray]): A list of themearrays
-    """
-    dumps: list[list[ThemeRef | ThemeStr]] = []
-
-    if isinstance(lines, str):
-        lines = split_msg(lines.strip())
-
-    for line in lines:
-        dumps.append([ThemeStr(line, ThemeAttr("types", "generic"))])
-    return dumps
-
-
 def format_pygments_generic(lines: str | list[str], **kwargs: Any) -> \
         list[list[ThemeRef | ThemeStr]]:
     """
-    YAML formatter; returns the text with syntax highlighting for YAML.
+    Generic formatter; returns the text with syntax highlighting.
 
         Parameters:
             lines (str|[str]|dict): A list of strings *or*
@@ -1911,92 +2061,6 @@ def format_pygments_generic(lines: str | list[str], **kwargs: Any) -> \
     pygments.highlight(lines, lexer, formatter)
 
     return formatter.buffer
-
-
-def format_crt(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef | ThemeStr]]:
-    """
-    CRT formatter; returns the text with syntax highlighting for certificates.
-
-        Parameters:
-            lines (list[str]): A list of strings
-            *or*
-            lines (str): A string with newlines that should be split
-            **kwargs (dict[str, Any]): Keyword arguments
-        Returns:
-            list[themearray]: A list of themearrays
-    """
-    return format_pygments_generic(lines, **kwargs,
-                                   lexer=AscLexer(),
-                                   colorscheme=COLORSCHEME_CRT)
-
-
-def format_haproxy(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef | ThemeStr]]:
-    """
-    HAProxy formatter; returns the text with syntax highlighting for HAProxy.
-
-        Parameters:
-            lines (list[str]): A list of strings
-            *or*
-            lines (str): A string with newlines that should be split
-            **kwargs (dict[str, Any]): Keyword arguments
-        Returns:
-            list[themearray]: A list of themearrays
-    """
-    dumps: list[list[ThemeRef | ThemeStr]] = []
-
-    if isinstance(lines, str):
-        lines = split_msg(lines)
-
-    if deep_get(kwargs, DictPath("raw"), False):
-        return format_none(lines)
-
-    haproxy_section_regex: re.Pattern[str] = re.compile(r"^(\s*)(global|defaults|frontend|"
-                                                        "backend|listen|resolvers|"
-                                                        r"mailers|peers)(\s*)(.*)")
-    haproxy_setting_regex: re.Pattern[str] = re.compile(r"^(\s*)(\S+)(\s+)(.+)")
-
-    for line in lines:
-        # Is it whitespace?
-        if not line.strip():
-            dumps.append([ThemeStr(line, ThemeAttr("types", "generic"))])
-            continue
-
-        # Is it a new section?
-        tmp = haproxy_section_regex.match(line)
-        if tmp is not None:
-            whitespace1 = tmp[1]
-            section = tmp[2]
-            whitespace2 = tmp[3]
-            label = tmp[4]
-            tmpline: list[ThemeRef | ThemeStr] = [
-                ThemeStr(whitespace1, ThemeAttr("types", "generic")),
-                ThemeStr(section, ThemeAttr("types", "haproxy_section")),
-                ThemeStr(whitespace2, ThemeAttr("types", "generic")),
-                ThemeStr(label, ThemeAttr("types", "haproxy_label")),
-            ]
-            dumps.append(tmpline)
-            continue
-
-        # Is it settings?
-        tmp = haproxy_setting_regex.match(line)
-        if tmp is not None:
-            whitespace1 = tmp[1]
-            setting = tmp[2]
-            whitespace2 = tmp[3]
-            values = tmp[4]
-            tmpline = [
-                ThemeStr(whitespace1, ThemeAttr("types", "generic")),
-                ThemeStr(setting, ThemeAttr("types", "haproxy_setting")),
-                ThemeStr(whitespace2, ThemeAttr("types", "generic")),
-                ThemeStr(values, ThemeAttr("types", "generic")),
-            ]
-            dumps.append(tmpline)
-            continue
-
-        # Unknown data; just append it unformatted
-        dumps.append([ThemeStr(line, ThemeAttr("types", "generic"))])
-
-    return dumps
 
 
 # pylint: disable-next=too-many-locals,too-many-branches,too-many-statements
@@ -2154,6 +2218,64 @@ def format_caddyfile(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRe
     return dumps
 
 
+# pylint: disable=unused-argument
+def format_cel(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef | ThemeStr]]:
+    """
+    CEL formatter; returns the text with syntax highlighting for Common Expression Language.
+    Currently this formatter is equivalent to formatter_none.
+
+        Parameters:
+            lines ([str]): A list of strings
+            *or*
+            lines (str): a string with newlines that should be split
+            **kwargs (dict[str, Any]): Keyword arguments
+        Returns:
+            ([themearray]): A list of themearrays
+    """
+    dumps: list[list[ThemeRef | ThemeStr]] = []
+
+    if isinstance(lines, str):
+        lines = split_msg(lines.strip())
+
+    for line in lines:
+        dumps.append([ThemeStr(line, ThemeAttr("types", "generic"))])
+    return dumps
+
+
+def format_crt(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef | ThemeStr]]:
+    """
+    CRT formatter; returns the text with syntax highlighting for certificates.
+
+        Parameters:
+            lines (list[str]): A list of strings
+            *or*
+            lines (str): A string with newlines that should be split
+            **kwargs (dict[str, Any]): Keyword arguments
+        Returns:
+            list[themearray]: A list of themearrays
+    """
+    return format_pygments_generic(lines, **kwargs,
+                                   lexer=AscLexer(),
+                                   colorscheme=COLORSCHEME_CRT)
+
+
+def format_diff(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef | ThemeStr]]:
+    """
+    Diff formatter; returns the text with syntax highlighting for unified and context diffs.
+
+        Parameters:
+            lines (list[str]): A list of strings
+            *or*
+            lines (str): A string with newlines that should be split
+            **kwargs (dict[str, Any]): Keyword arguments
+        Returns:
+            list[themearray]: A list of themearrays
+    """
+    return format_pygments_generic(lines, **kwargs,
+                                   lexer=DiffLexer(),
+                                   colorscheme=COLORSCHEME_DIFF)
+
+
 def format_fluentbit(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef | ThemeStr]]:
     """
     FluentBit formatter; returns the text with syntax highlighting for FluentBit.
@@ -2207,6 +2329,75 @@ def format_fluentbit(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRe
                 ]
         if tmpline:
             dumps.append(tmpline)
+    return dumps
+
+
+def format_haproxy(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef | ThemeStr]]:
+    """
+    HAProxy formatter; returns the text with syntax highlighting for HAProxy.
+
+        Parameters:
+            lines (list[str]): A list of strings
+            *or*
+            lines (str): A string with newlines that should be split
+            **kwargs (dict[str, Any]): Keyword arguments
+        Returns:
+            list[themearray]: A list of themearrays
+    """
+    dumps: list[list[ThemeRef | ThemeStr]] = []
+
+    if isinstance(lines, str):
+        lines = split_msg(lines)
+
+    if deep_get(kwargs, DictPath("raw"), False):
+        return format_none(lines)
+
+    haproxy_section_regex: re.Pattern[str] = re.compile(r"^(\s*)(global|defaults|frontend|"
+                                                        "backend|listen|resolvers|"
+                                                        r"mailers|peers)(\s*)(.*)")
+    haproxy_setting_regex: re.Pattern[str] = re.compile(r"^(\s*)(\S+)(\s+)(.+)")
+
+    for line in lines:
+        # Is it whitespace?
+        if not line.strip():
+            dumps.append([ThemeStr(line, ThemeAttr("types", "generic"))])
+            continue
+
+        # Is it a new section?
+        tmp = haproxy_section_regex.match(line)
+        if tmp is not None:
+            whitespace1 = tmp[1]
+            section = tmp[2]
+            whitespace2 = tmp[3]
+            label = tmp[4]
+            tmpline: list[ThemeRef | ThemeStr] = [
+                ThemeStr(whitespace1, ThemeAttr("types", "generic")),
+                ThemeStr(section, ThemeAttr("types", "haproxy_section")),
+                ThemeStr(whitespace2, ThemeAttr("types", "generic")),
+                ThemeStr(label, ThemeAttr("types", "haproxy_label")),
+            ]
+            dumps.append(tmpline)
+            continue
+
+        # Is it settings?
+        tmp = haproxy_setting_regex.match(line)
+        if tmp is not None:
+            whitespace1 = tmp[1]
+            setting = tmp[2]
+            whitespace2 = tmp[3]
+            values = tmp[4]
+            tmpline = [
+                ThemeStr(whitespace1, ThemeAttr("types", "generic")),
+                ThemeStr(setting, ThemeAttr("types", "haproxy_setting")),
+                ThemeStr(whitespace2, ThemeAttr("types", "generic")),
+                ThemeStr(values, ThemeAttr("types", "generic")),
+            ]
+            dumps.append(tmpline)
+            continue
+
+        # Unknown data; just append it unformatted
+        dumps.append([ThemeStr(line, ThemeAttr("types", "generic"))])
+
     return dumps
 
 
@@ -2329,6 +2520,23 @@ def format_powershell(lines: str | list[str], **kwargs: Any) -> list[list[ThemeR
                                    colorscheme=COLORSCHEME_POWERSHELL)
 
 
+def format_python(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef | ThemeStr]]:
+    """
+    Python formatter; returns the text with syntax highlighting for Python.
+
+        Parameters:
+            lines (list[str]): A list of strings
+            *or*
+            lines (str): A string with newlines that should be split
+            **kwargs (dict[str, Any]): Keyword arguments
+        Returns:
+            list[themearray]: A list of themearrays
+    """
+    return format_pygments_generic(lines, **kwargs,
+                                   lexer=PythonLexer(),
+                                   colorscheme=COLORSCHEME_PYTHON)
+
+
 def format_python_traceback(lines: str | list[str],
                             **kwargs: Any) -> list[list[ThemeRef | ThemeStr]]:
     """
@@ -2345,23 +2553,6 @@ def format_python_traceback(lines: str | list[str],
     return format_pygments_generic(lines, **kwargs,
                                    lexer=PythonTracebackLexer(),
                                    colorscheme=COLORSCHEME_PYTHON_TRACEBACK)
-
-
-def format_toml(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef | ThemeStr]]:
-    """
-    TOML formatter; returns the text with syntax highlighting for TOML.
-
-        Parameters:
-            lines (list[str]): A list of strings
-            *or*
-            lines (str): A string with newlines that should be split
-            **kwargs (dict[str, Any]): Keyword arguments
-        Returns:
-            list[themearray]: A list of themearrays
-    """
-    return format_pygments_generic(lines, **kwargs,
-                                   lexer=TOMLLexer(),
-                                   colorscheme=COLORSCHEME_TOML)
 
 
 def format_shellscript(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef | ThemeStr]]:
@@ -2381,10 +2572,28 @@ def format_shellscript(lines: str | list[str], **kwargs: Any) -> list[list[Theme
                                    colorscheme=COLORSCHEME_SHELLSCRIPT)
 
 
+def format_toml(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef | ThemeStr]]:
+    """
+    TOML formatter; returns the text with syntax highlighting for TOML.
+
+        Parameters:
+            lines (list[str]): A list of strings
+            *or*
+            lines (str): A string with newlines that should be split
+            **kwargs (dict[str, Any]): Keyword arguments
+        Returns:
+            list[themearray]: A list of themearrays
+    """
+    return format_pygments_generic(lines, **kwargs,
+                                   lexer=TOMLLexer(),
+                                   colorscheme=COLORSCHEME_TOML)
+
+
 # (startswith, endswith, formatter)
 formatter_mapping: tuple[tuple[tuple[str, ...], tuple[str, ...], Callable], ...] = (
     (("Shell Script",), ("Shell Script",), format_shellscript),
     (("BASH",), ("BASH",), format_shellscript),
+    (("Diff",), ("Diff",), format_diff),
     (("ZSH",), ("ZSH",), format_shellscript),
     (("YAML",), ("YAML",), format_yaml),
     (("JSON",), ("JSON",), format_yaml),
@@ -2410,6 +2619,7 @@ formatter_mapping: tuple[tuple[tuple[str, ...], tuple[str, ...], Callable], ...]
     (("Mosquitto",), ("",), format_mosquitto),
     (("NGINX",), ("NGINX",), format_nginx),
     (("PowerShell",), ("PowerShell",), format_powershell),
+    (("Python",), ("",), format_python),
     (("Python Traceback",), ("",), format_python_traceback),
 )
 
@@ -2431,6 +2641,7 @@ def map_dataformat(dataformat: str) -> Callable[[str | list[str]], list[list[The
 
 # Formatters acceptable for direct use in view files
 formatter_allowlist: dict[str, Callable] = {
+    "format_autodetect": map_dataformat,
     "format_caddyfile": format_caddyfile,
     "format_cel": format_cel,
     "format_crt": format_crt,

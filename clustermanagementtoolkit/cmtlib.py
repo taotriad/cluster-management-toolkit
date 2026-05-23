@@ -718,7 +718,7 @@ def reformat_timestamp(timestamp: str) -> str:
             except ValueError:
                 pass
 
-    raise ValueError(f"Could not parse timestamp: {timestamp}")
+    raise ValueError(f"Could not parse timestamp: {timestamp} (type: {type(timestamp)})")
 
 
 # Will take a timestamp and convert it to datetime
