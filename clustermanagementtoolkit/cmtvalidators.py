@@ -399,13 +399,20 @@ def validator_path(value: str, **kwargs: Any) -> bool:
             value (str): The string to validate
             **kwargs (dict[str, Any]): Keyword arguments
                 error_on_failure (bool): Show an error message on failure
+                types ([str]): file and/or dir
         Returns:
             (bool): True if valid, False if invalid
     """
     error_on_failure = deep_get(kwargs, DictPath("error_on_failure"), True)
+    types: list[str] = deep_get(kwargs, DictPath("types"), ["file"])
+    pathtype: str = ""
     valid = True
 
-    if not Path(value).is_file():
+    if Path(value).is_file():
+        pathtype = "file"
+    elif Path(value).is_dir():
+        pathtype = "dir"
+    if pathtype not in types:
         valid = False
     if not valid and error_on_failure:
         ansithemeprint([ANSIThemeStr(f"{programname}", "programname"),
@@ -517,10 +524,17 @@ def validate_argument(arg: str, arg_string: list[ANSIThemeStr], options: dict) -
         if validator == "cidr":
             if not (result := validator_cidr(subarg, error_on_failure=error_on_failure)):
                 break
-        elif validator == "path":
-            if subarg.startswith("~/"):
-                subarg = subarg.replace("~", HOMEDIR, 1)
-            if not (result := validator_path(subarg, error_on_failure=error_on_failure)):
+        elif validator in ("path", "path_file"):
+            if subarg.startswith(f"~{os.path.sep}"):
+                subarg = f"{HOMEDIR}{os.path.sep}{subarg[2:]}"
+            if not (result := validator_path(subarg, error_on_failure=error_on_failure,
+                                             types=["file"])):
+                break
+        elif validator == "path_file_or_dir":
+            if subarg.startswith(f"~{os.path.sep}"):
+                subarg = f"{HOMEDIR}{os.path.sep}{subarg[2:]}"
+            if not (result := validator_path(subarg, error_on_failure=error_on_failure,
+                                             types=["file", "dir"])):
                 break
         elif validator in ("hostname", "hostname_or_path",
                            "hostname_ip_or_ansible_group",

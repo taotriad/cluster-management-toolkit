@@ -564,15 +564,21 @@ color_pairs_curses:
   type_ini_key: [["green", "bright"], ["black", "normal"]]
   type_ini_separator: [["white", "bright"], ["black", "normal"]]
   type_ini_value: [["magenta", "normal"], ["black", "normal"]]
-  type_javascript_punctuation:
-    unselected: [["cyan", "bright"], ["black", "normal"]]
-    selected: [["cyan", "bright"], ["white", "normal"]]
   type_javascript_builtin:
     unselected: [["yellow", "bright"], ["black", "normal"]]
     selected: [["yellow", "bright"], ["white", "normal"]]
+  type_javascript_comment:
+    unselected: [["cyan", "normal"], ["black", "normal"]]
+    selected: [["cyan", "normal"], ["white", "normal"]]
+  type_javascript_exception:
+    unselected: [["yellow", "normal"], ["black", "normal"]]
+    selected: [["yellow", "normal"], ["white", "normal"]]
   type_javascript_operator:
     unselected: [["white", "normal"], ["black", "normal"]]
     selected: [["black", "normal"], ["white", "normal"]]
+  type_javascript_punctuation:
+    unselected: [["cyan", "bright"], ["black", "normal"]]
+    selected: [["cyan", "bright"], ["white", "normal"]]
   type_javascript_value:
     unselected: [["magenta", "bright"], ["black", "normal"]]
     selected: [["magenta", "bright"], ["white", "normal"]]
@@ -604,7 +610,13 @@ color_pairs_curses:
     unselected: [["cyan", "bright"], ["black", "normal"]]
     selected: [["cyan", "bright"], ["white", "normal"]]
   type_powershell_comment:
-    unselected: [["black", "bright"], ["black", "normal"]]
+    unselected: [["cyan", "normal"], ["black", "normal"]]
+    selected: [["cyan", "bright"], ["white", "normal"]]
+  type_powershell_constant:
+    unselected: [["green", "bright"], ["black", "normal"]]
+    selected: [["green", "normal"], ["white", "normal"]]
+  type_powershell_doc:
+    unselected: [["white", "bright"], ["black", "normal"]]
     selected: [["black", "normal"], ["white", "normal"]]
   type_powershell_keyword:
     unselected: [["yellow", "bright"], ["black", "normal"]]
@@ -713,6 +725,9 @@ color_pairs_curses:
   type_toml_punctuation:
     unselected: [["yellow", "bright"], ["black", "normal"]]
     selected: [["yellow", "bright"], ["white", "normal"]]
+  type_toml_section:
+    unselected: [["white", "normal"], ["black", "normal"]]
+    selected: [["black", "normal"], ["white", "normal"]]
   type_toml_value:
     unselected: [["magenta", "normal"], ["black", "normal"]]
     selected: [["magenta", "normal"], ["white", "normal"]]
@@ -783,6 +798,9 @@ color_pairs_curses:
   type_caddyfile_directive: [["magenta", "normal"], ["black", "normal"]]
   type_facility_extended: [["yellow", "normal"], ["black", "normal"]]
   type_haproxy_label: [["green", "normal"], ["black", "normal"]]
+  type_haproxy_section:
+    unselected: [["white", "normal"], ["black", "normal"]]
+    selected: [["black", "normal"], ["white", "normal"]]
   type_haproxy_setting: [["magenta", "normal"], ["black", "normal"]]
   type_errorvalue:
     unselected: [["red", "normal"], ["black", "normal"]]
@@ -1109,11 +1127,15 @@ types:
   port: "type_port"
   positive_check: ["type_positive_check", "bold"]
   javascript_builtin: "type_javascript_builtin"
+  javascript_comment: "type_javascript_comment"
+  javascript_exception: "type_javascript_exception"
   javascript_operator: "type_javascript_operator"
   javascript_punctuation: "type_javascript_punctuation"
   javascript_value: "type_javascript_value"
   powershell_builtin: "type_powershell_builtin"
   powershell_comment: "type_powershell_comment"
+  powershell_constant: "type_powershell_constant"
+  powershell_doc: "type_powershell_doc"
   powershell_keyword: "type_powershell_keyword"
   powershell_name: "type_powershell_name"
   powershell_operator: "type_powershell_operator"

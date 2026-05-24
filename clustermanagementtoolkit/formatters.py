@@ -283,6 +283,36 @@ COLORSCHEME_JAVASCRIPT: dict[Any, ColorSchemeEntry] = {
         "formatting": ThemeAttr("types", "javascript_builtin"),
         "type": "builtin",
     },
+    # TypeError
+    Token.Name.Exception: {
+        "formatting": ThemeAttr("types", "javascript_exception"),
+        "type": "exception",
+    },
+    # var
+    Token.Keyword.Declaration: {
+        "formatting": ThemeAttr("types", "javascript_builtin"),
+        "type": "keyword",
+    },
+    # while
+    Token.Keyword: {
+        "formatting": ThemeAttr("types", "javascript_builtin"),
+        "type": "keyword",
+    },
+    # new
+    Token.Operator.Word: {
+        "formatting": ThemeAttr("types", "javascript_builtin"),
+        "type": "operator",
+    },
+    # //
+    Token.Comment.Single: {
+        "formatting": ThemeAttr("types", "javascript_comment"),
+        "type": "comment",
+    },
+    # /* */
+    Token.Comment.Multiline: {
+        "formatting": ThemeAttr("types", "javascript_comment"),
+        "type": "comment",
+    },
     # .
     Token.Punctuation: {
         "formatting": ThemeAttr("types", "javascript_punctuation"),
@@ -298,7 +328,22 @@ COLORSCHEME_JAVASCRIPT: dict[Any, ColorSchemeEntry] = {
         "formatting": ThemeAttr("types", "javascript_operator"),
         "type": "operator",
     },
-    # Quoted string
+    # false
+    Token.Keyword.Constant: {
+        "formatting": ThemeAttr("types", "javascript_value"),
+        "type": "value",
+    },
+    # 1
+    Token.Literal.Number.Float: {
+        "formatting": ThemeAttr("types", "javascript_value"),
+        "type": "value",
+    },
+    # 'foo'
+    Token.Literal.String.Single: {
+        "formatting": ThemeAttr("types", "javascript_value"),
+        "type": "value",
+    },
+    # "foo"
     Token.Literal.String.Double: {
         "formatting": ThemeAttr("types", "javascript_value"),
         "type": "value",
@@ -513,6 +558,11 @@ COLORSCHEME_POWERSHELL: dict[Any, ColorSchemeEntry] = {
         "formatting": ThemeAttr("types", "powershell_value"),
         "type": "string",
     },
+    # .Synopsis
+    Token.Literal.String.Doc: {
+        "formatting": ThemeAttr("types", "powershell_doc"),
+        "type": "string",
+    },
     # "
     Token.Literal.String.Double: {
         "formatting": ThemeAttr("types", "powershell_value"),
@@ -533,8 +583,18 @@ COLORSCHEME_POWERSHELL: dict[Any, ColorSchemeEntry] = {
         "formatting": ThemeAttr("types", "powershell_builtin"),
         "type": "builtin",
     },
+    # [String]
+    Token.Name.Constant: {
+        "formatting": ThemeAttr("types", "powershell_constant"),
+        "type": "constant",
+    },
     # # comment
     Token.Comment: {
+        "formatting": ThemeAttr("types", "powershell_comment"),
+        "type": "comment",
+    },
+    # <# comment
+    Token.Comment.Multiline: {
         "formatting": ThemeAttr("types", "powershell_comment"),
         "type": "comment",
     },
@@ -567,6 +627,21 @@ COLORSCHEME_PYTHON: dict[Any, ColorSchemeEntry] = {
         "formatting": ThemeAttr("types", "python_value"),
         "type": "keyword",
     },
+    # binary
+    Token.Literal.Number.Bin: {
+        "formatting": ThemeAttr("types", "python_value"),
+        "type": "value",
+    },
+    # float
+    Token.Literal.Number.Float: {
+        "formatting": ThemeAttr("types", "python_value"),
+        "type": "value",
+    },
+    # hex
+    Token.Literal.Number.Hex: {
+        "formatting": ThemeAttr("types", "python_value"),
+        "type": "value",
+    },
     # integer
     Token.Literal.Number.Integer: {
         "formatting": ThemeAttr("types", "python_value"),
@@ -578,7 +653,7 @@ COLORSCHEME_PYTHON: dict[Any, ColorSchemeEntry] = {
         "type": "value",
     },
     # \n
-    Token.Literal.String.Esacpe: {
+    Token.Literal.String.Escape: {
         "formatting": ThemeAttr("types", "python_escape"),
         "type": "escape",
     },
@@ -594,6 +669,11 @@ COLORSCHEME_PYTHON: dict[Any, ColorSchemeEntry] = {
     },
     # builtin
     Token.Name.Builtin: {
+        "formatting": ThemeAttr("types", "python_builtin"),
+        "type": "builtin",
+    },
+    # @decorator
+    Token.Name.Decorator: {
         "formatting": ThemeAttr("types", "python_builtin"),
         "type": "builtin",
     },
@@ -672,7 +752,7 @@ COLORSCHEME_PYTHON: dict[Any, ColorSchemeEntry] = {
         "formatting": ThemeAttr("types", "python_variable"),
         "type": "function",
     },
-    # from 
+    # from
     Token.Keyword.Namespace: {
         "formatting": ThemeAttr("types", "python_builtin"),
         "type": "builtin",
@@ -937,6 +1017,11 @@ COLORSCHEME_XML: dict[Any, ColorSchemeEntry] = {
     Token.Text.Whitespace: {
         "formatting": ThemeAttr("types", "generic"),
         "type": "whitespace",
+    },
+    # <!-- -->
+    Token.Comment.Multiline: {
+        "formatting": ThemeAttr("types", "xml_comment"),
+        "type": "comment",
     },
     # <?xml version="1.0"?>
     Token.Comment.Preproc: {
@@ -1903,9 +1988,9 @@ class ThemeArrayFormatter(Formatter):
                     self.buffer.append(line)
                     line = []
                 continue
-            # Use this when adding new formatters
+            # Use this when adding new formatters; we can ignore empty strings.
             if ttype not in self.colorscheme \
-                    and ttype not in self.unknown_ttypes:  # pragma: nocover
+                    and ttype not in self.unknown_ttypes and value:  # pragma: nocover
                 tmpvalue = value.replace("\"", "\\\"")
                 errmsg = [
                     [("Encountered unknown token type ", "default"),
@@ -1993,7 +2078,7 @@ def format_yaml(lines: str | list[str] | dict | list[dict], **kwargs: Any) -> \
         lline = []
         for d in lines:
             if is_json:
-                lline.append(json_dumps(cast(dict, d)))
+                lline.append(json_dumps(d))
             else:
                 lline.append(yaml.dump(d, sort_keys=False))
         lines = "\n".join(lline)
@@ -2591,36 +2676,52 @@ def format_toml(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef | T
 
 # (startswith, endswith, formatter)
 formatter_mapping: tuple[tuple[tuple[str, ...], tuple[str, ...], Callable], ...] = (
-    (("Shell Script",), ("Shell Script",), format_shellscript),
-    (("BASH",), ("BASH",), format_shellscript),
-    (("Diff",), ("Diff",), format_diff),
-    (("ZSH",), ("ZSH",), format_shellscript),
-    (("YAML",), ("YAML",), format_yaml),
-    (("JSON",), ("JSON",), format_yaml),
-    (("NDJSON",), ("NDJSON",), format_yaml),
+    (("shell",), ("shell",), format_shellscript),
+    (("shell script",), ("shell script",), format_shellscript),
+    (("",), (".sh",), format_shellscript),
+    (("",), (".bash",), format_shellscript),
+    (("bash",), ("bash",), format_shellscript),
+    (("",), (".diff",), format_diff),
+    (("",), (".patch",), format_diff),
+    (("diff",), ("diff",), format_diff),
+    (("",), (".zsh",), format_shellscript),
+    (("zsh",), ("zsh",), format_shellscript),
+    (("json",), ("json",), format_yaml),
+    (("ndjson",), ("ndjson",), format_yaml),
+    (("yaml",), ("yaml",), format_yaml),
     (("",), (".yml", ".yaml", ".json", ".ndjson"), format_yaml),
-    (("TOML",), ("TOML",), format_toml),
+    (("toml",), ("toml",), format_toml),
     (("",), (".toml",), format_toml),
-    (("CRT",), ("CRT",), format_crt),
+    (("crt",), ("crt",), format_crt),
     (("",), (".crt", "tls.key", ".pem", "CAKey"), format_crt),
-    (("XML",), ("XML",), format_xml),
-    (("SVG",), ("SVG",), format_xml),
     (("",), (".xml",), format_xml),
-    (("INI",), ("INI",), format_ini),
+    (("xml",), ("xml",), format_xml),
+    (("",), (".svg",), format_xml),
+    (("svg",), ("svg",), format_xml),
+    (("",), (".xml",), format_xml),
+    (("ini",), ("ini",), format_ini),
     (("",), (".ini",), format_ini),
-    (("JavaScript",), ("JavaScript",), format_javascript),
-    (("JWS",), ("JWS",), format_none),
+    (("js",), ("js",), format_javascript),
+    (("javascript",), ("javascript",), format_javascript),
+    (("",), (".js",), format_javascript),
+    (("jws",), ("jws",), format_none),
     (("known_hosts",), ("known_hosts",), format_known_hosts),
-    (("FluentBit",), ("FluentBit",), format_fluentbit),
-    (("HAProxy",), ("HAProxy",), format_haproxy),
+    (("fluentbit",), ("fluentbit",), format_fluentbit),
+    (("haproxy",), ("haproxy",), format_haproxy),
     (("haproxy.cfg",), ("haproxy.cfg",), format_haproxy),
-    (("CaddyFile",), ("CaddyFile",), format_caddyfile),
-    (("Markdown",), ("Markdown",), render_markdown),
-    (("Mosquitto",), ("",), format_mosquitto),
-    (("NGINX",), ("NGINX",), format_nginx),
-    (("PowerShell",), ("PowerShell",), format_powershell),
-    (("Python",), ("",), format_python),
-    (("Python Traceback",), ("",), format_python_traceback),
+    (("caddyfile",), ("caddyfile",), format_caddyfile),
+    (("markdown",), ("markdown",), render_markdown),
+    (("md",), ("md",), render_markdown),
+    (("",), (".md",), render_markdown),
+    (("mosquitto",), ("",), format_mosquitto),
+    (("nginx",), ("nginx",), format_nginx),
+    (("ps1",), ("ps1",), format_powershell),
+    (("",), (".ps1",), format_powershell),
+    (("powershell",), ("powershell",), format_powershell),
+    (("python",), ("",), format_python),
+    (("py",), ("py",), format_python),
+    (("",), (".py",), format_python),
+    (("python traceback",), ("",), format_python_traceback),
 )
 
 
@@ -2634,7 +2735,8 @@ def map_dataformat(dataformat: str) -> Callable[[str | list[str]], list[list[The
             (function reference): The formatter to use
     """
     for prefix, suffix, formatter_ in formatter_mapping:
-        if dataformat.startswith(prefix) and dataformat.endswith(suffix):
+        if dataformat.lower().startswith(prefix) \
+                and dataformat.lower().endswith(suffix):
             return formatter_
     return format_none
 

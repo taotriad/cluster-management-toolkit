@@ -82,7 +82,20 @@ TBD
 ### Changes to _cmu_ in v0.8.8
 
 * There's now a built-in file-viewer. Currently supported formats:
-  * Markdown
+  * `Context and Unified Diff`
+  * `CRT`
+  * `INI`
+  * `JavaScript`
+  * `JSON`
+  * `Markdown`
+  * `NDJSON`
+  * `PowerShell`
+  * `Python`
+  * `Shell Script`
+  * `Text`
+  * `TOML`
+  * `XML`
+  * `YAML`
 * The Markdown viewer now renumbers lists when necessary.
 * There is now a syntax highlighter for JavaScript.
 * `dmesg` logs now show facility where possible.
@@ -138,6 +151,9 @@ TBD
   issue in Pygments and has been reported as [Pygments Issue #3135](https://github.com/pygments/pygments/issues/3135).
 * The Markdown formatter currently doesn't handle Bold Italics `***example***`; this is an upstream
   issue in Pygments and has been reported as [Pygments Issue #3067](https://github.com/pygments/pygments/issues/3067).
+* Due to the way `cmu` works the file-viewer needs a backing listview,
+  so `Debug Logs` was picked for the purpose (since it's always available
+  even when the cluster is unavailable (or `--disable-kubernetes` is used).
 
 ## Dependencies for v0.8.8
 

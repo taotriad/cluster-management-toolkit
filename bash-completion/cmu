@@ -117,9 +117,14 @@ _cmu() {
 		COMPREPLY=( $(compgen -W "${commands}" -- "$2") )
 		return
 		;;
+	view)
+		compopt -o filenames 2> /dev/null
+		COMPREPLY=( $(compgen -f -- $2) )
+		return
+		;;
 	*)
 		if [ ${COMP_CWORD} -eq 1 ]; then
-			COMPREPLY=( $(compgen -W "VIEW list-namespaces list-views help version --namespace --read-only --kube-config --theme --disable-kubernetes --help --version" -- "$2") )
+			COMPREPLY=( $(compgen -W "VIEW list-namespaces list-views view help version --namespace --read-only --kube-config --theme --disable-kubernetes --help --version" -- "$2") )
 			return
 		fi
 	esac

@@ -234,6 +234,9 @@ selected_namespace = ""  # pylint: disable=invalid-name
 # defaults
 defaultview = ""  # pylint: disable=invalid-name
 
+defaultlistaction: str = ""  # pylint: disable=invalid-name
+defaultpath: tuple[str, str] = ("", "")
+
 kh: KubernetesHelper = None  # type: ignore # pylint: disable=invalid-name
 kh_cache: KubernetesResourceCache = None  # type: ignore # pylint: disable=invalid-name
 
@@ -914,6 +917,8 @@ def genericlistloop(stdscr: curses.window, **kwargs: Any) -> Retval:
     global selected_namespace  # pylint: disable=global-statement
     global initial_name  # pylint: disable=global-statement
     global initial_namespace  # pylint: disable=global-statement
+    global defaultlistaction  # pylint: disable=global-statement
+    global defaultpath  # pylint: disable=global-statement
 
     clear_tagged_items()
 
@@ -1420,7 +1425,7 @@ def genericlistloop(stdscr: curses.window, **kwargs: Any) -> Retval:
             uip.refresh_all()
             uip.force_update()
             uip.update_window(update="false")
-        elif c == curses.KEY_F7:
+        elif defaultlistaction or c == curses.KEY_F7:
             action_title: str = "Global and cluster-wide actions"
             action_src_list: dict[str, dict[str, dict[str, Any]]] = listviewactions
 
@@ -1430,18 +1435,22 @@ def genericlistloop(stdscr: curses.window, **kwargs: Any) -> Retval:
             if not actions:
                 continue
 
-            tmpselection = \
-                curses_helper.windowwidget(uip.stdscr, uip.maxy, uip.maxx,
-                                           uip.maxy // 2, uip.maxx // 2, actions,
-                                           title=action_title)
-            selection = None
-            if tmpselection:
-                selection = ""
-                for i, element in enumerate(tmpselection):
-                    if element:
-                        selection += str(element[0])
-            uip.refresh_all()
-            curses.doupdate()
+            if not defaultlistaction:
+                tmpselection = \
+                    curses_helper.windowwidget(uip.stdscr, uip.maxy, uip.maxx,
+                                               uip.maxy // 2, uip.maxx // 2, actions,
+                                               title=action_title)
+                selection = None
+                if tmpselection:
+                    selection = ""
+                    for i, element in enumerate(tmpselection):
+                        if element:
+                            selection += str(element[0])
+                uip.refresh_all()
+                curses.doupdate()
+            else:
+                selection = defaultlistaction
+                defaultlistaction = ""
 
             actionfunc_args: dict = {}
             if selection:
@@ -1487,15 +1496,24 @@ def genericlistloop(stdscr: curses.window, **kwargs: Any) -> Retval:
 
                 selection_vars = extravars
 
-                if not input_query(uip, queryfunc=queryfunc, queryval=queryval, query=query,
-                                   selection_vars=selection_vars, confirm=confirm,
-                                   extravars=extravars, description=description):
-                    continue
+                if os.path.isdir(defaultpath[0]):
+                    selection_vars["basedir"] = defaultpath[0]
+                    defaultpath = ("", defaultpath[1])
+
+                if not defaultpath[0]:
+                    if not input_query(uip, queryfunc=queryfunc, queryval=queryval, query=query,
+                                       selection_vars=selection_vars, confirm=confirm,
+                                       extravars=extravars, description=description):
+                        continue
+                else:
+                    selection_vars["resource_path"] = defaultpath
+                    defaultpath = ("", "")
 
                 if action:
                     retval = actionfunc(uip=uip, items=[], action=actionlist[action],
                                         values=selection_vars, kind=kind,
                                         **actionfunc_args)
+                    uip.update_window(update="false")
                     if retval is not None and retval == Retval.RETURNFULL:
                         return retval
 
@@ -7505,12 +7523,12 @@ def view_obj(stdscr: curses.window, **kwargs: Any) -> Retval:
     path = deep_get(kwargs, DictPath("path"))
     formatter = deep_get(kwargs, DictPath("formatter"), formatters.format_yaml)
     formatter_args = deep_get(kwargs, DictPath("formatter_args"), {})
+    # pylint: disable-next=comparison-with-callable
     if formatter == formatters.map_dataformat:
         formatter = formatters.map_dataformat(deep_get(formatter_args, DictPath("filetype"), ""))
     if path is not None:
         if deep_get(kwargs, DictPath("include_root"), False):
             obj = [{f"{path.rsplit('#')[-1]}": deep_get(obj, DictPath(path))}]
-        # pylint: disable-next=comparison-with-callable
         elif formatter == formatters.format_yaml:
             obj = [deep_get(obj, DictPath(path))]
         else:
@@ -9445,8 +9463,8 @@ def selectorloop(stdscr: curses.window, **kwargs: Any) -> Retval:
 
 
 listviewactions: dict[str, dict[str, Any]] = {
-    "View Files": {
-        "description": "View Files",
+    "View File": {
+        "description": "View File",
         "actionfunc": action_view_file,
         "actionfunc_args": {
             "formatter": "format_autodetect",
@@ -10652,6 +10670,7 @@ def setupui(stdscr: curses.window) -> None:
 
         Parameters:
             stdscr (curses.window): The curses window to operate on
+            **kwargs (dict[str, Any]): Keyword arguments
     """
     # Hide the cursor; seems some implementations of curses (or terminals?)
     # might not support toggling the cursor; they will throw an exception instead.
@@ -10954,9 +10973,12 @@ def open_view(options: list[tuple[str, str]], args: list[str]) -> None:
     global read_only_mode  # pylint: disable=global-statement
     global selected_namespace  # pylint: disable=global-statement
     global defaultview  # pylint: disable=global-statement
+    global defaultpath  # pylint: disable=global-statement
+    global defaultlistaction  # pylint: disable=global-statement
     global kubernetes_support  # pylint: disable=global-statement
 
     tmpdefaultview = deep_get(cmtlib.cmtconfig, DictPath("Global#defaultview"), "")
+    overrideformat = ""
 
     for opt, optarg in options:
         if opt == "--namespace":
@@ -10965,6 +10987,29 @@ def open_view(options: list[tuple[str, str]], args: list[str]) -> None:
             read_only_mode = True
         elif opt == "--disable-kubernetes":
             kubernetes_support = False
+        elif opt == "--inject-action":
+            defaultlistaction = optarg
+        elif opt == "--format":
+            overrideformat = optarg
+        elif opt == "--inject-view":
+            try:
+                tmppath = ""
+                if args:
+                    tmppath = args[0]
+                    args.pop(0)
+                else:
+                    tmppath = os.getcwd()
+                if tmppath.startswith(f"~{os.path.sep}"):
+                    tmppath = f"{HOMEDIR}{os.path.sep}{tmppath[2:]}"
+                if not tmppath.startswith(os.path.sep):
+                    tmppath = f"{os.getcwd()}{os.path.sep}{tmppath}"
+                defaultpath = (tmppath, os.path.basename(tmppath))
+                args.insert(0, optarg)
+            except IndexError:
+                pass
+
+    if defaultpath[0] and overrideformat:
+        defaultpath = (defaultpath[0], overrideformat)
 
     # Customises the list views
     init_kubernetes_client()
@@ -11035,8 +11080,115 @@ def open_view(options: list[tuple[str, str]], args: list[str]) -> None:
 
 
 COMMANDLINE: dict[str, CommandType] = {
-    # This is purely for the benefit of the helptext generator
     "View": {
+        "command": ["view"],
+        "description": [
+            ANSIThemeStr("Open file viewer", "description")],
+        "values": [ANSIThemeStr("[", "separator"),
+                   ANSIThemeStr("PATH", "argument"),
+                   ANSIThemeStr("]", "separator")],
+        "options": {
+            "--format": {
+                "values": [ANSIThemeStr("FORMAT", "argument")],
+                "description":
+                    [ANSIThemeStr("File FORMAT", "description")],
+                "extended_description": [
+                    [ANSIThemeStr("If the file format cannot be deduced from",
+                                  "description")],
+                    [ANSIThemeStr("the name this option can be used to specify",
+                                  "description")],
+                    [ANSIThemeStr("the file format. Valid formats are:",
+                                  "description")],
+                    [ANSIThemeStr("bash", "argument"),
+                     ANSIThemeStr(", ", "separator"),
+                     ANSIThemeStr("crt", "argument"),
+                     ANSIThemeStr(", ", "separator"),
+                     ANSIThemeStr("diff", "argument"),
+                     ANSIThemeStr("|", "separator"),
+                     ANSIThemeStr("patch", "argument"),
+                     ANSIThemeStr(", ", "separator"),
+                     ANSIThemeStr("ini", "argument"),
+                     ANSIThemeStr(", ", "separator"),
+                     ANSIThemeStr("javascript", "argument"),
+                     ANSIThemeStr("|", "separator"),
+                     ANSIThemeStr("js", "argument"),
+                     ANSIThemeStr(", ", "separator"),
+                     ANSIThemeStr("json", "argument"),
+                     ANSIThemeStr(",", "separator")],
+                    [ANSIThemeStr("markdown", "argument"),
+                     ANSIThemeStr("|", "separator"),
+                     ANSIThemeStr("md", "argument"),
+                     ANSIThemeStr(", ", "separator"),
+                     ANSIThemeStr("ndjson", "argument"),
+                     ANSIThemeStr(", ", "separator"),
+                     ANSIThemeStr("powershell", "argument"),
+                     ANSIThemeStr("|", "separator"),
+                     ANSIThemeStr("ps1", "argument"),
+                     ANSIThemeStr(", ", "separator"),
+                     ANSIThemeStr("python", "argument"),
+                     ANSIThemeStr("|", "separator"),
+                     ANSIThemeStr("py", "argument"),
+                     ANSIThemeStr(",", "separator")],
+                    [ANSIThemeStr("shell", "argument"),
+                     ANSIThemeStr("|", "separator"),
+                     ANSIThemeStr("sh", "argument"),
+                     ANSIThemeStr(", ", "separator"),
+                     ANSIThemeStr("svg", "argument"),
+                     ANSIThemeStr(", ", "separator"),
+                     ANSIThemeStr("toml", "argument"),
+                     ANSIThemeStr(", ", "separator"),
+                     ANSIThemeStr("xml", "argument"),
+                     ANSIThemeStr(", ", "separator"),
+                     ANSIThemeStr("yaml", "argument")],
+                ],
+                "requires_arg": True,
+                "validation": {
+                    "validator": "allowlist",
+                    "allowlist": [
+                        "bash",
+                        "crt",
+                        "diff",
+                        "ini",
+                        "javascript",
+                        "js",
+                        "json",
+                        "markdown",
+                        "md",
+                        "ndjson",
+                        "patch",
+                        "powershell",
+                        "ps1",
+                        "python",
+                        "py",
+                        "shell",
+                        "sh",
+                        "svg",
+                        "toml",
+                        "xml",
+                        "yaml",
+                    ],
+                },
+            },
+        },
+        "required_args": [],
+        "optional_args": [
+            {
+                "name": "path",
+                "string": [
+                    ANSIThemeStr("PATH", "argument")],
+                "validation": {
+                    "validator": "path_file_or_dir",
+                },
+            },
+        ],
+        "implicit_options": [
+            ("--inject-action", "View File"),
+            ("--inject-view", "debuglogs"),
+        ],
+        "callback": open_view,
+    },
+    # This is purely for the benefit of the helptext generator
+    "__View": {
         "command": ["VIEW"],
         "description": [
             ANSIThemeStr("start in ", "description"),
