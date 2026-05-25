@@ -84,6 +84,7 @@ TBD
 * There's now a built-in file-viewer. Currently supported formats:
   * `Context and Unified Diff`
   * `CRT`
+  * `CSS`
   * `INI`
   * `JavaScript`
   * `JSON`

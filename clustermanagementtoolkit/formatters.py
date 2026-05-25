@@ -42,6 +42,7 @@ from pygments.formatter import Formatter
 from pygments.lexer import RegexLexer, Lexer, bygroups
 from pygments.lexers.asc import AscLexer
 from pygments.lexers.configs import IniLexer, NginxConfLexer, TOMLLexer
+from pygments.lexers.css import CssLexer
 from pygments.lexers.data import JsonLexer, YamlLexer
 from pygments.lexers.diff import DiffLexer
 from pygments.lexers.html import XmlLexer
@@ -101,6 +102,125 @@ COLORSCHEME_CRT: dict[Any, ColorSchemeEntry] = {
     Token.Literal.String: {
         "formatting": ThemeAttr("types", "generic"),
         "type": "generic",
+    },
+}
+
+
+COLORSCHEME_CSS: dict[Any, ColorSchemeEntry] = {
+    # <whitespace>
+    Token.Text.Whitespace: {
+        "formatting": ThemeAttr("types", "generic"),
+        "type": "whitespace",
+    },
+    # /* */
+    Token.Comment: {
+        "formatting": ThemeAttr("types", "css_comment"),
+        "type": "comment",
+    },
+    # !important
+    Token.Comment.Preproc: {
+        "formatting": ThemeAttr("types", "css_comment_preprocessor"),
+        "type": "preprocessor",
+    },
+    # padding
+    Token.Keyword: {
+        "formatting": ThemeAttr("types", "css_keyword"),
+        "type": "keyword",
+    },
+    # none
+    Token.Keyword.Constant: {
+        "formatting": ThemeAttr("types", "css_constant"),
+        "type": "constant",
+    },
+    # -moz-
+    Token.Keyword.Pseudo: {
+        "formatting": ThemeAttr("types", "css_pseudo"),
+        "type": "pseudo",
+    },
+    # %
+    Token.Keyword.Type: {
+        "formatting": ThemeAttr("types", "css_type"),
+        "type": "type",
+    },
+    # 1.25
+    Token.Literal.Number.Float: {
+        "formatting": ThemeAttr("types", "css_value"),
+        "type": "value",
+    },
+    # #1a1c1e
+    Token.Literal.Number.Hex: {
+        "formatting": ThemeAttr("types", "css_value"),
+        "type": "value",
+    },
+    # 12
+    Token.Literal.Number.Integer: {
+        "formatting": ThemeAttr("types", "css_value"),
+        "type": "value",
+    },
+    # "quoted string"
+    Token.Literal.String.Double: {
+        "formatting": ThemeAttr("types", "css_value"),
+        "type": "value",
+    },
+    # images/ui-bg_highlight-soft_100_eeeeee_1x100.png
+    Token.Literal.String.Other: {
+        "formatting": ThemeAttr("types", "css_value"),
+        "type": "value",
+    },
+    # Arial
+    Token.Name: {
+        "formatting": ThemeAttr("types", "css_value"),
+        "type": "value",
+    },
+    # rgb
+    Token.Name.Builtin: {
+        "formatting": ThemeAttr("types", "css_builtin"),
+        "type": "builtin",
+    },
+    # ethical-sidebar
+    Token.Name.Class: {
+        "formatting": ThemeAttr("types", "css_class"),
+        "type": "class",
+    },
+    # hover
+    Token.Name.Decorator: {
+        "formatting": ThemeAttr("types", "css_decorator"),
+        "type": "decorator",
+    },
+    # var
+    Token.Name.Function: {
+        "formatting": ThemeAttr("types", "css_function"),
+        "type": "function",
+    },
+    # furo-sidebar-ad-placement
+    Token.Name.Namespace: {
+        "formatting": ThemeAttr("types", "css_namespace"),
+        "type": "namespace",
+    },
+    # a
+    Token.Name.Tag: {
+        "formatting": ThemeAttr("types", "css_tag"),
+        "type": "tag",
+    },
+    # --sidebar-item-spacing-vertical
+    Token.Name.Variable: {
+        "formatting": ThemeAttr("types", "css_variable"),
+        "type": "variable",
+    },
+    # >
+    Token.Operator: {
+        "formatting": ThemeAttr("types", "css_operator"),
+        "type": "operator",
+    },
+    # #
+    Token.Punctuation: {
+        "formatting": ThemeAttr("types", "css_punctuation"),
+        "type": "punctuation",
+    },
+    # text
+    Token.Text: {
+        "formatting": ThemeAttr("types", "default"),
+        "type": "string",
     },
 }
 
@@ -1890,9 +2010,9 @@ def markdown_renderer(ttype: Any, value: str, **kwargs: Any) \
                 if x.startswith(">"):
                     new_value = f"┃{x[1:]}"
             elif x == "\n> ":
-                # Quote
-                if x.startswith(">"):
-                    new_value = f"┃{x[1:]}"
+                # Markdown alert or Quote
+                if x.startswith("\n>"):
+                    new_value = f"\n┃{x[2:]}"
             elif x == "[ ]":
                 new_value = x.replace("[ ]", "⬜")
             elif x == "[x]":
@@ -2344,6 +2464,23 @@ def format_crt(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef | Th
                                    colorscheme=COLORSCHEME_CRT)
 
 
+def format_css(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef | ThemeStr]]:
+    """
+    CSS formatter; returns the text with syntax highlighting for cascading stylesheets.
+
+        Parameters:
+            lines (list[str]): A list of strings
+            *or*
+            lines (str): A string with newlines that should be split
+            **kwargs (dict[str, Any]): Keyword arguments
+        Returns:
+            list[themearray]: A list of themearrays
+    """
+    return format_pygments_generic(lines, **kwargs,
+                                   lexer=CssLexer(),
+                                   colorscheme=COLORSCHEME_CSS)
+
+
 def format_diff(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef | ThemeStr]]:
     """
     Diff formatter; returns the text with syntax highlighting for unified and context diffs.
@@ -2694,6 +2831,8 @@ formatter_mapping: tuple[tuple[tuple[str, ...], tuple[str, ...], Callable], ...]
     (("",), (".toml",), format_toml),
     (("crt",), ("crt",), format_crt),
     (("",), (".crt", "tls.key", ".pem", "CAKey"), format_crt),
+    (("css",), ("css",), format_css),
+    (("",), (".css",), format_css),
     (("",), (".xml",), format_xml),
     (("xml",), ("xml",), format_xml),
     (("",), (".svg",), format_xml),
@@ -2747,6 +2886,7 @@ formatter_allowlist: dict[str, Callable] = {
     "format_caddyfile": format_caddyfile,
     "format_cel": format_cel,
     "format_crt": format_crt,
+    "format_css": format_css,
     "format_fluentbit": format_fluentbit,
     "format_haproxy": format_haproxy,
     "format_ini": format_ini,

@@ -546,6 +546,54 @@ color_pairs_curses:
                                        ["black", "normal"]]
   separator_facility_prefix: [["magenta", "bright"], ["black", "normal"]]
   separator_facility_suffix: [["magenta", "bright"], ["black", "normal"]]
+  type_css_builtin:
+    unselected: [["cyan", "bright"], ["black", "normal"]]
+    selected: [["cyan", "bright"], ["white", "normal"]]
+  type_css_class:
+    unselected: [["cyan", "bright"], ["black", "normal"]]
+    selected: [["cyan", "bright"], ["white", "normal"]]
+  type_css_comment:
+    unselected: [["cyan", "normal"], ["black", "normal"]]
+    selected: [["cyan", "normal"], ["white", "normal"]]
+  type_css_comment_preprocessor:
+    unselected: [["white", "bright"], ["black", "normal"]]
+    selected: [["black", "normal"], ["white", "normal"]]
+  type_css_constant:
+    unselected: [["magenta", "bright"], ["black", "normal"]]
+    selected: [["magenta", "bright"], ["white", "normal"]]
+  type_css_decorator:
+    unselected: [["cyan", "normal"], ["black", "normal"]]
+    selected: [["cyan", "normal"], ["white", "normal"]]
+  type_css_function:
+    unselected: [["cyan", "bright"], ["black", "normal"]]
+    selected: [["cyan", "bright"], ["white", "normal"]]
+  type_css_keyword:
+    unselected: [["green", "bright"], ["black", "normal"]]
+    selected: [["green", "bright"], ["white", "normal"]]
+  type_css_namespace:
+    unselected: [["cyan", "bright"], ["black", "normal"]]
+    selected: [["cyan", "bright"], ["white", "normal"]]
+  type_css_operator:
+    unselected: [["white", "bright"], ["black", "normal"]]
+    selected: [["black", "normal"], ["white", "normal"]]
+  type_css_pseudo:
+    unselected: [["cyan", "normal"], ["black", "normal"]]
+    selected: [["cyan", "normal"], ["white", "normal"]]
+  type_css_punctuation:
+    unselected: [["cyan", "bright"], ["black", "normal"]]
+    selected: [["cyan", "bright"], ["white", "normal"]]
+  type_css_tag:
+    unselected: [["yellow", "bright"], ["black", "normal"]]
+    selected: [["yellow", "bright"], ["white", "normal"]]
+  type_css_type:
+    unselected: [["magenta", "bright"], ["black", "normal"]]
+    selected: [["magenta", "bright"], ["white", "normal"]]
+  type_css_value:
+    unselected: [["magenta", "bright"], ["black", "normal"]]
+    selected: [["magenta", "bright"], ["white", "normal"]]
+  type_css_variable:
+    unselected: [["white", "bright"], ["black", "normal"]]
+    selected: [["black", "normal"], ["white", "normal"]]
   type_dir_dev: [["yellow", "normal"], ["black", "bright"]]
   type_dir_sticky: [["black", "bright"], ["green", "bright"]]
   type_dir_dir: [["blue", "bright"], ["black", "normal"]]
@@ -1033,6 +1081,22 @@ types:
   cputime_total_guest: "type_cputime_total_guest"
   cputime_total_system: "type_cputime_total_system"
   cputime_user: "type_cputime_user"
+  css_builtin: "type_css_builtin"
+  css_class: "type_css_class"
+  css_comment: "type_css_comment"
+  css_comment_preprocessor: "type_css_comment_preprocessor"
+  css_constant: "type_css_constant"
+  css_decorator: "type_css_decorator"
+  css_function: "type_css_function"
+  css_keyword: "type_css_keyword"
+  css_namespace: "type_css_namespace"
+  css_operator: "type_css_operator"
+  css_pseudo: "type_css_pseudo"
+  css_punctuation: "type_css_punctuation"
+  css_tag: "type_css_tag"
+  css_type: "type_css_type"
+  css_variable: "type_css_variable"
+  css_value: "type_css_value"
   default: ["type_default", "bold"]
   deleted: "type_deleted"
   dir_date: "type_generic"

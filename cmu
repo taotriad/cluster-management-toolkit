@@ -9478,6 +9478,7 @@ listviewactions: dict[str, dict[str, Any]] = {
                 "filetypes": {
                     ".bash": "BASH",
                     ".crt": "CRT",
+                    ".css": "CSS",
                     ".diff": "Diff",
                     ".ini": "INI",
                     ".js": "JavaScript",
@@ -11103,6 +11104,8 @@ COMMANDLINE: dict[str, CommandType] = {
                      ANSIThemeStr(", ", "separator"),
                      ANSIThemeStr("crt", "argument"),
                      ANSIThemeStr(", ", "separator"),
+                     ANSIThemeStr("css", "argument"),
+                     ANSIThemeStr(", ", "separator"),
                      ANSIThemeStr("diff", "argument"),
                      ANSIThemeStr("|", "separator"),
                      ANSIThemeStr("patch", "argument"),
@@ -11147,6 +11150,7 @@ COMMANDLINE: dict[str, CommandType] = {
                     "allowlist": [
                         "bash",
                         "crt",
+                        "css",
                         "diff",
                         "ini",
                         "javascript",
