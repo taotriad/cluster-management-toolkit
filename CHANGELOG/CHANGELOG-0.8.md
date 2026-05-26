@@ -63,7 +63,9 @@ secrets, etc.
 
 ## Urgent Upgrade Notes for v0.8.8
 
-TBD
+New commands and options were added to CMT v0.8.8; after installation
+you'll need to either reboot, open a new terminal, or logout/login to
+benefit from bash completion for those.
 
 ## Changes by Component in v0.8.8
 

@@ -1,0 +1,12 @@
+---
+- name: "kured"
+  show_in_selector: false
+  matchkeys:
+    - image_name: "/kubereboot/kured"
+  parser_rules:
+    - name: "key_value"
+    - name: "override_severity"
+      overrides:
+        - matchtype: "startswith"
+          matchkey: "Kubernetes Reboot Daemon: "
+          loglevel: "notice"
