@@ -606,6 +606,42 @@ color_pairs_curses:
   type_generic_crypto:
     unselected: [["blue", "bright"], ["black", "normal"]]
     selected: [["blue", "bright"], ["white", "normal"]]
+  type_html_attribute:
+    unselected: [["green", "bright"], ["black", "normal"]]
+    selected: [["green", "bright"], ["white", "normal"]]
+  type_html_class:
+    unselected: [["cyan", "bright"], ["black", "normal"]]
+    selected: [["cyan", "bright"], ["white", "normal"]]
+  type_html_comment_preprocessor:
+    unselected: [["cyan", "normal"], ["black", "normal"]]
+    selected: [["cyan", "normal"], ["white", "normal"]]
+  type_html_decorator:
+    unselected: [["cyan", "normal"], ["black", "normal"]]
+    selected: [["cyan", "normal"], ["white", "normal"]]
+  type_html_escape:
+    unselected: [["white", "bright"], ["black", "normal"]]
+    selected: [["black", "normal"], ["white", "normal"]]
+  type_html_keyword:
+    unselected: [["cyan", "normal"], ["black", "normal"]]
+    selected: [["cyan", "normal"], ["white", "normal"]]
+  type_html_namespace:
+    unselected: [["cyan", "bright"], ["black", "normal"]]
+    selected: [["cyan", "bright"], ["white", "normal"]]
+  type_html_operator:
+    unselected: [["cyan", "bright"], ["black", "normal"]]
+    selected: [["cyan", "bright"], ["white", "normal"]]
+  type_html_punctuation:
+    unselected: [["cyan", "bright"], ["black", "normal"]]
+    selected: [["cyan", "bright"], ["white", "normal"]]
+  type_html_tag:
+    unselected: [["yellow", "bright"], ["black", "normal"]]
+    selected: [["yellow", "bright"], ["white", "normal"]]
+  type_html_type:
+    unselected: [["magenta", "normal"], ["black", "normal"]]
+    selected: [["magenta", "normal"], ["white", "normal"]]
+  type_html_value:
+    unselected: [["magenta", "normal"], ["black", "normal"]]
+    selected: [["magenta", "normal"], ["white", "normal"]]
   type_ini_operator: [["white", "normal"], ["black", "normal"]]
   type_ini_comment: [["green", "normal"], ["black", "normal"]]
   type_ini_section: [["white", "normal"], ["black", "normal"]]
@@ -1126,6 +1162,18 @@ types:
   haproxy_setting: "type_haproxy_setting"
   hostname: "hostname"
   host: "type_host"
+  html_attribute: "type_html_attribute"
+  html_class: "type_html_class"
+  html_comment_preprocessor: "type_html_comment_preprocessor"
+  html_decorator: "type_html_decorator"
+  html_escape: "type_html_escape"
+  html_keyword: "type_html_keyword"
+  html_namespace: "type_html_namespace"
+  html_operator: "type_html_operator"
+  html_punctuation: "type_html_punctuation"
+  html_tag: "type_html_tag"
+  html_type: "type_html_type"
+  html_value: "type_html_value"
   ini_comment: "type_ini_comment"
   ini_key: ["type_ini_key", "bold"]
   ini_operator: "type_ini_operator"

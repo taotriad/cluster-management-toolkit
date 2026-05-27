@@ -45,7 +45,7 @@ from pygments.lexers.configs import IniLexer, NginxConfLexer, TOMLLexer
 from pygments.lexers.css import CssLexer
 from pygments.lexers.data import JsonLexer, YamlLexer
 from pygments.lexers.diff import DiffLexer
-from pygments.lexers.html import XmlLexer
+from pygments.lexers.html import HtmlLexer, XmlLexer
 from pygments.lexers.javascript import JavascriptLexer
 from pygments.lexers.markup import MarkdownLexer
 from pygments.lexers.python import PythonLexer, PythonTracebackLexer
@@ -264,6 +264,155 @@ COLORSCHEME_DIFF: dict[Any, ColorSchemeEntry] = {
 }
 
 
+COLORSCHEME_HTML: dict[Any, ColorSchemeEntry] = {
+    # <whitespace>
+    Token.Text.Whitespace: {
+        "formatting": ThemeAttr("types", "generic"),
+        "type": "whitespace",
+    },
+    # /* [Embedded JavaScript and Embedded CSS] */
+    Token.Comment: {
+        "formatting": ThemeAttr("types", "css_comment"),
+        "type": "comment",
+    },
+    # // [Embedded JavaScript]
+    Token.Comment.Single: {
+        "formatting": ThemeAttr("types", "javascript_comment"),
+        "type": "comment",
+    },
+    # <!-- -->
+    Token.Comment.Multiline: {
+        "formatting": ThemeAttr("types", "xml_comment"),
+        "type": "comment",
+    },
+    # <!DOCTYPE html>
+    Token.Comment.Preproc: {
+        "formatting": ThemeAttr("types", "html_comment_preprocessor"),
+        "type": "preprocessor",
+    },
+    # media
+    Token.Keyword: {
+        "formatting": ThemeAttr("types", "html_keyword"),
+        "type": "keyword",
+    },
+    # serif
+    Token.Keyword.Constant: {
+        "formatting": ThemeAttr("types", "html_value"),
+        "type": "value",
+    },
+    # var [Embedded JavaScript]
+    Token.Keyword.Declaration: {
+        "formatting": ThemeAttr("types", "javascript_builtin"),
+        "type": "keyword",
+    },
+    # %
+    Token.Keyword.Type: {
+        "formatting": ThemeAttr("types", "html_type"),
+        "type": "type",
+    },
+    # 1.2
+    Token.Literal.Number.Float: {
+        "formatting": ThemeAttr("types", "html_value"),
+        "type": "value",
+    },
+    # 100
+    Token.Literal.Number.Integer: {
+        "formatting": ThemeAttr("types", "html_value"),
+        "type": "value",
+    },
+    # #083194
+    Token.Literal.Number.Hex: {
+        "formatting": ThemeAttr("types", "html_value"),
+        "type": "value",
+    },
+    # en
+    Token.Literal.String: {
+        "formatting": ThemeAttr("types", "html_value"),
+        "type": "value",
+    },
+    # "double quoted"
+    Token.Literal.String.Double: {
+        "formatting": ThemeAttr("types", "html_value"),
+        "type": "value",
+    },
+    # /^toclevel/ [Embedded JavaScript]
+    Token.Literal.String.Regex: {
+        "formatting": ThemeAttr("types", "javascript_value"),
+        "type": "value",
+    },
+    # 'single quoted'
+    Token.Literal.String.Single: {
+        "formatting": ThemeAttr("types", "html_value"),
+        "type": "value",
+    },
+    # Georgia
+    Token.Name: {
+        "formatting": ThemeAttr("types", "html_value"),
+        "type": "value",
+    },
+    # Constant
+    Token.Name.Attribute: {
+        "formatting": ThemeAttr("types", "html_attribute"),
+        "type": "attribute",
+    },
+    # Array [Embedded JavaScript]
+    Token.Name.Builtin: {
+        "formatting": ThemeAttr("types", "javascript_builtin"),
+        "type": "builtin",
+    },
+    # full-width-table
+    Token.Name.Class: {
+        "formatting": ThemeAttr("types", "html_tag"),
+        "type": "tag",
+    },
+    # visited
+    Token.Name.Decorator: {
+        "formatting": ThemeAttr("types", "html_decorator"),
+        "type": "decorator",
+    },
+    # &8212;
+    Token.Name.Entity: {
+        "formatting": ThemeAttr("types", "html_escape"),
+        "type": "escape",
+    },
+    # #toctitle
+    Token.Name.Namespace: {
+        "formatting": ThemeAttr("types", "html_namespace"),
+        "type": "namespace",
+    },
+    # asciidoc [Embedded JavaScript]
+    Token.Name.Other: {
+        "formatting": ThemeAttr("types", "generic"),
+        "type": "other",
+    },
+    # <tag
+    Token.Name.Tag: {
+        "formatting": ThemeAttr("types", "html_tag"),
+        "type": "tag",
+    },
+    # =
+    Token.Operator: {
+        "formatting": ThemeAttr("types", "html_operator"),
+        "type": "operator",
+    },
+    # new [Embedded JavaScript]
+    Token.Operator.Word: {
+        "formatting": ThemeAttr("types", "javascript_builtin"),
+        "type": "operator",
+    },
+    # <
+    Token.Punctuation: {
+        "formatting": ThemeAttr("types", "html_punctuation"),
+        "type": "punctuation",
+    },
+    # text
+    Token.Text: {
+        "formatting": ThemeAttr("types", "generic"),
+        "type": "generic",
+    },
+}
+
+
 COLORSCHEME_MARKDOWN: dict[Any, ColorSchemeEntry] = {
     # <whitespace>
     Token.Text.Whitespace: {
@@ -403,31 +552,6 @@ COLORSCHEME_JAVASCRIPT: dict[Any, ColorSchemeEntry] = {
         "formatting": ThemeAttr("types", "generic"),
         "type": "whitespace",
     },
-    # builtin
-    Token.Name.Builtin: {
-        "formatting": ThemeAttr("types", "javascript_builtin"),
-        "type": "builtin",
-    },
-    # TypeError
-    Token.Name.Exception: {
-        "formatting": ThemeAttr("types", "javascript_exception"),
-        "type": "exception",
-    },
-    # var
-    Token.Keyword.Declaration: {
-        "formatting": ThemeAttr("types", "javascript_builtin"),
-        "type": "keyword",
-    },
-    # while
-    Token.Keyword: {
-        "formatting": ThemeAttr("types", "javascript_builtin"),
-        "type": "keyword",
-    },
-    # new
-    Token.Operator.Word: {
-        "formatting": ThemeAttr("types", "javascript_builtin"),
-        "type": "operator",
-    },
     # //
     Token.Comment.Single: {
         "formatting": ThemeAttr("types", "javascript_comment"),
@@ -438,10 +562,50 @@ COLORSCHEME_JAVASCRIPT: dict[Any, ColorSchemeEntry] = {
         "formatting": ThemeAttr("types", "javascript_comment"),
         "type": "comment",
     },
-    # .
-    Token.Punctuation: {
-        "formatting": ThemeAttr("types", "javascript_punctuation"),
-        "type": "punctuation",
+    # while
+    Token.Keyword: {
+        "formatting": ThemeAttr("types", "javascript_builtin"),
+        "type": "keyword",
+    },
+    # false
+    Token.Keyword.Constant: {
+        "formatting": ThemeAttr("types", "javascript_value"),
+        "type": "value",
+    },
+    # var
+    Token.Keyword.Declaration: {
+        "formatting": ThemeAttr("types", "javascript_builtin"),
+        "type": "keyword",
+    },
+    # 1
+    Token.Literal.Number.Float: {
+        "formatting": ThemeAttr("types", "javascript_value"),
+        "type": "value",
+    },
+    # "foo"
+    Token.Literal.String.Double: {
+        "formatting": ThemeAttr("types", "javascript_value"),
+        "type": "value",
+    },
+    # /^toclevel/
+    Token.Literal.String.Regex: {
+        "formatting": ThemeAttr("types", "javascript_value"),
+        "type": "value",
+    },
+    # 'foo'
+    Token.Literal.String.Single: {
+        "formatting": ThemeAttr("types", "javascript_value"),
+        "type": "value",
+    },
+    # Array
+    Token.Name.Builtin: {
+        "formatting": ThemeAttr("types", "javascript_builtin"),
+        "type": "builtin",
+    },
+    # TypeError
+    Token.Name.Exception: {
+        "formatting": ThemeAttr("types", "javascript_exception"),
+        "type": "exception",
     },
     # env
     Token.Name.Other: {
@@ -453,25 +617,15 @@ COLORSCHEME_JAVASCRIPT: dict[Any, ColorSchemeEntry] = {
         "formatting": ThemeAttr("types", "javascript_operator"),
         "type": "operator",
     },
-    # false
-    Token.Keyword.Constant: {
-        "formatting": ThemeAttr("types", "javascript_value"),
-        "type": "value",
+    # new
+    Token.Operator.Word: {
+        "formatting": ThemeAttr("types", "javascript_builtin"),
+        "type": "operator",
     },
-    # 1
-    Token.Literal.Number.Float: {
-        "formatting": ThemeAttr("types", "javascript_value"),
-        "type": "value",
-    },
-    # 'foo'
-    Token.Literal.String.Single: {
-        "formatting": ThemeAttr("types", "javascript_value"),
-        "type": "value",
-    },
-    # "foo"
-    Token.Literal.String.Double: {
-        "formatting": ThemeAttr("types", "javascript_value"),
-        "type": "value",
+    # .
+    Token.Punctuation: {
+        "formatting": ThemeAttr("types", "javascript_punctuation"),
+        "type": "punctuation",
     },
 }
 
@@ -1202,15 +1356,15 @@ COLORSCHEME_YAML: dict[Any, ColorSchemeEntry] = {
         "formatting": ThemeAttr("types", "yaml_comment"),
         "type": "comment",
     },
-    # key (sadly also seems to match %YAML and <<)
-    Token.Name.Tag: {
-        "formatting": ThemeAttr("types", "yaml_key"),
-        "type": "key",
-    },
     # Constant
     Token.Name.Constant: {
         "formatting": ThemeAttr("types", "yaml_value"),
         "type": "value",
+    },
+    # key (sadly also seems to match %YAML and <<)
+    Token.Name.Tag: {
+        "formatting": ThemeAttr("types", "yaml_key"),
+        "type": "key",
     },
     # Quoted string
     Token.Literal.String: {
@@ -2628,6 +2782,23 @@ def format_haproxy(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef 
     return dumps
 
 
+def format_html(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef | ThemeStr]]:
+    """
+    HTML formatter; returns the text with syntax highlighting for HTML.
+
+        Parameters:
+            lines (list[str]): A list of strings
+            *or*
+            lines (str): A string with newlines that should be split
+            **kwargs (dict[str, Any]): Keyword arguments
+        Returns:
+            list[themearray]: A list of themearrays
+    """
+    return format_pygments_generic(lines, **kwargs,
+                                   lexer=HtmlLexer(),
+                                   colorscheme=COLORSCHEME_HTML)
+
+
 def format_ini(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef | ThemeStr]]:
     """
     INI formatter; returns the text with syntax highlighting for INI.
@@ -2828,6 +2999,8 @@ formatter_mapping: tuple[tuple[tuple[str, ...], tuple[str, ...], Callable], ...]
     (("diff",), ("diff",), format_diff),
     (("",), (".zsh",), format_shellscript),
     (("zsh",), ("zsh",), format_shellscript),
+    (("",), (".html",), format_html),
+    (("html",), ("html",), format_html),
     (("json",), ("json",), format_yaml),
     (("ndjson",), ("ndjson",), format_yaml),
     (("yaml",), ("yaml",), format_yaml),
@@ -2842,6 +3015,8 @@ formatter_mapping: tuple[tuple[tuple[str, ...], tuple[str, ...], Callable], ...]
     (("xml",), ("xml",), format_xml),
     (("",), (".svg",), format_xml),
     (("svg",), ("svg",), format_xml),
+    (("",), (".xhtml",), format_html),
+    (("xhtml",), ("xhtml",), format_html),
     (("",), (".xml",), format_xml),
     (("ini",), ("ini",), format_ini),
     (("",), (".ini",), format_ini),
@@ -2894,6 +3069,7 @@ formatter_allowlist: dict[str, Callable] = {
     "format_css": format_css,
     "format_fluentbit": format_fluentbit,
     "format_haproxy": format_haproxy,
+    "format_html": format_html,
     "format_ini": format_ini,
     "format_javascript": format_javascript,
     "format_known_hosts": format_known_hosts,

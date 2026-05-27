@@ -87,6 +87,7 @@ TBD
   * `Context and Unified Diff`
   * `CRT`
   * `CSS`
+  * `HTML`
   * `INI`
   * `JavaScript`
   * `JSON`
@@ -97,10 +98,10 @@ TBD
   * `Shell Script`
   * `Text`
   * `TOML`
+  * `XHTML`
   * `XML`
   * `YAML`
 * The Markdown viewer now renumbers lists when necessary.
-* There is now a syntax highlighter for JavaScript.
 * `dmesg` logs now show facility where possible.
 * Dynamic logs (from systemctl) are no longer limited to 1 hour;
   the only limit is number of lines.
@@ -157,6 +158,7 @@ TBD
 * Due to the way `cmu` works the file-viewer needs a backing listview,
   so `Debug Logs` was picked for the purpose (since it's always available
   even when the cluster is unavailable (or `--disable-kubernetes` is used).
+* Nested lists and lists with checkboxes in Markdown has some formatting issues.
 
 ## Dependencies for v0.8.8
 
