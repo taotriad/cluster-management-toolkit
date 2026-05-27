@@ -50,6 +50,10 @@ APIServiceCreated:
   field_colors:
     - context: "main"
       type: "status_done"
+APIServiceResourcesNeedReinstall:
+  field_colors:
+    - context: "main"
+      type: "status_attention"
 ApplicationFailed:
   field_colors:
     - context: "main"

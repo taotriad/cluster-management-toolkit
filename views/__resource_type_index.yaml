@@ -1400,6 +1400,11 @@ clrpol.hl:
   - ClusterPolicy
   - habanalabs.habana.ai
   viewfile: ClusterPolicy.habanalabs.habana.ai.yaml
+clrpol.intel:
+  kind:
+  - ClusterPolicy
+  - intel.com
+  viewfile: ClusterPolicy.intel.com.yaml
 clrpol.ky:
   kind:
   - ClusterPolicy
@@ -1430,6 +1435,11 @@ clrpols.hl:
   - ClusterPolicy
   - habanalabs.habana.ai
   viewfile: ClusterPolicy.habanalabs.habana.ai.yaml
+clrpols.intel:
+  kind:
+  - ClusterPolicy
+  - intel.com
+  viewfile: ClusterPolicy.intel.com.yaml
 clrpols.ky:
   kind:
   - ClusterPolicy
@@ -1940,6 +1950,11 @@ clusterpolicy.habanalabs:
   - ClusterPolicy
   - habanalabs.habana.ai
   viewfile: ClusterPolicy.habanalabs.habana.ai.yaml
+clusterpolicy.intel:
+  kind:
+  - ClusterPolicy
+  - intel.com
+  viewfile: ClusterPolicy.intel.com.yaml
 clusterpolicy.kyverno:
   kind:
   - ClusterPolicy
@@ -3035,6 +3050,16 @@ gpudevplugins:
   - GpuDevicePlugin
   - deviceplugin.intel.com
   viewfile: GpuDevicePlugin.deviceplugin.intel.com.yaml
+gpufwupd:
+  kind:
+  - GPUFirmwareUpdate
+  - intel.com
+  viewfile: GPUFirmwareUpdate.intel.com.yaml
+gpufwupds:
+  kind:
+  - GPUFirmwareUpdate
+  - intel.com
+  viewfile: GPUFirmwareUpdate.intel.com.yaml
 grafanadatasrc:
   kind:
   - GrafanaDatasource
@@ -3610,6 +3635,36 @@ inclrippools:
   - InClusterIPPool
   - ipam.cluster.x-k8s.io
   viewfile: InClusterIPPool.ipam.cluster.x-k8s.io.yaml
+inclrpol:
+  kind:
+  - ClusterPolicy
+  - intel.com
+  viewfile: ClusterPolicy.intel.com.yaml
+inclrpols:
+  kind:
+  - ClusterPolicy
+  - intel.com
+  viewfile: ClusterPolicy.intel.com.yaml
+inclusterpol:
+  kind:
+  - ClusterPolicy
+  - intel.com
+  viewfile: ClusterPolicy.intel.com.yaml
+inclusterpolicies:
+  kind:
+  - ClusterPolicy
+  - intel.com
+  viewfile: ClusterPolicy.intel.com.yaml
+inclusterpolicy:
+  kind:
+  - ClusterPolicy
+  - intel.com
+  viewfile: ClusterPolicy.intel.com.yaml
+inclusterpols:
+  kind:
+  - ClusterPolicy
+  - intel.com
+  viewfile: ClusterPolicy.intel.com.yaml
 inferencesvc:
   kind:
   - InferenceService
