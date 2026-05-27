@@ -93,6 +93,11 @@ COLORSCHEME_CRT: dict[Any, ColorSchemeEntry] = {
         "formatting": ThemeAttr("types", "generic"),
         "type": "whitespace",
     },
+    # #
+    Token.Comment: {
+        "formatting": ThemeAttr("types", "separator"),
+        "type": "comment",
+    },
     # ----BEGIN
     Token.Generic.Heading: {
         "formatting": ThemeAttr("types", "separator"),
