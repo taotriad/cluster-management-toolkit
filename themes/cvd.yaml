@@ -547,6 +547,30 @@ color_pairs_curses:
                                        ["black", "normal"]]
   separator_facility_prefix: [["black", "bright"], ["black", "normal"]]
   separator_facility_suffix: [["black", "bright"], ["black", "normal"]]
+  type_cel_comment:
+    unselected: [["black", "bright"], ["black", "normal"]]
+    selected: [["black", "normal"], ["white", "normal"]]
+  type_cel_constant:
+    unselected: [["magenta", "bright"], ["black", "normal"]]
+    selected: [["magenta", "bright"], ["white", "normal"]]
+  type_cel_escape:
+    unselected: [["white", "bright"], ["black", "normal"]]
+    selected: [["black", "normal"], ["white", "normal"]]
+  type_cel_keyword:
+    unselected: [["green", "bright"], ["black", "normal"]]
+    selected: [["green", "bright"], ["white", "normal"]]
+  type_cel_name:
+    unselected: [["cyan", "bright"], ["black", "normal"]]
+    selected: [["cyan", "bright"], ["white", "normal"]]
+  type_cel_operator:
+    unselected: [["cyan", "normal"], ["black", "normal"]]
+    selected: [["cyan", "normal"], ["white", "normal"]]
+  type_cel_punctuation:
+    unselected: [["cyan", "normal"], ["black", "normal"]]
+    selected: [["cyan", "normal"], ["white", "normal"]]
+  type_cel_value:
+    unselected: [["magenta", "bright"], ["black", "normal"]]
+    selected: [["magenta", "bright"], ["white", "normal"]]
   type_css_builtin:
     unselected: [["cyan", "bright"], ["black", "normal"]]
     selected: [["cyan", "bright"], ["white", "normal"]]
@@ -1115,6 +1139,14 @@ types:
   caddyfile_matcher: "type_caddyfile_matcher"
   caddyfile_site: "type_caddyfile_site"
   caddyfile_snippet: "type_generic"
+  cel_comment: "type_cel_comment"
+  cel_constant: "type_cel_constant"
+  cel_escape: "type_cel_escape"
+  cel_keyword: "type_cel_keyword"
+  cel_name: "type_cel_name"
+  cel_operator: "type_cel_operator"
+  cel_punctuation: "type_cel_punctuation"
+  cel_value: "type_cel_value"
   cputime_total_guest: "type_cputime_total_guest"
   cputime_total_system: "type_cputime_total_system"
   cputime_user: "type_cputime_user"

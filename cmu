@@ -9477,6 +9477,7 @@ listviewactions: dict[str, dict[str, Any]] = {
             "listgetter_args": {
                 "filetypes": {
                     ".bash": "BASH",
+                    ".cel": "CEL",
                     ".crt": "CRT",
                     ".css": "CSS",
                     ".diff": "Diff",
@@ -11104,6 +11105,8 @@ COMMANDLINE: dict[str, CommandType] = {
                                   "description")],
                     [ANSIThemeStr("bash", "argument"),
                      ANSIThemeStr(", ", "separator"),
+                     ANSIThemeStr("cel", "argument"),
+                     ANSIThemeStr(", ", "separator"),
                      ANSIThemeStr("crt", "argument"),
                      ANSIThemeStr(", ", "separator"),
                      ANSIThemeStr("css", "argument"),
@@ -11155,6 +11158,7 @@ COMMANDLINE: dict[str, CommandType] = {
                     "validator": "allowlist",
                     "allowlist": [
                         "bash",
+                        "cel",
                         "crt",
                         "css",
                         "diff",

@@ -42,6 +42,12 @@ from pygments.formatter import Formatter
 from pygments.lexer import RegexLexer, Lexer, bygroups
 from pygments.lexers.asc import AscLexer
 from pygments.lexers.configs import IniLexer, NginxConfLexer, TOMLLexer
+try:
+    from pygments.lexers.cel import CELLexer
+    CELLEXER_AVAILABLE = True
+except ModuleNotFoundError:
+    # CELLexer is available from Pygments 2.22
+    CELLEXER_AVAILABLE = False
 from pygments.lexers.css import CssLexer
 from pygments.lexers.data import JsonLexer, YamlLexer
 from pygments.lexers.diff import DiffLexer
@@ -85,6 +91,70 @@ class ColorSchemeEntry(TypedDict, total=True):
     """
     formatting: ThemeAttr
     type: str
+
+
+COLORSCHEME_CEL: dict[Any, ColorSchemeEntry] = {
+    # <whitespace>
+    Token.Text.Whitespace: {
+        "formatting": ThemeAttr("types", "generic"),
+        "type": "whitespace",
+    },
+    # // Comment
+    Token.Comment.Single: {
+        "formatting": ThemeAttr("types", "cel_comment"),
+        "type": "comment",
+    },
+    # in
+    Token.Keyword: {
+        "formatting": ThemeAttr("types", "cel_keyword"),
+        "type": "keyword",
+    },
+    # true
+    Token.Keyword.Constant: {
+        "formatting": ThemeAttr("types", "cel_constant"),
+        "type": "constant",
+    },
+    # namespace
+    Token.Keyword.Reserved: {
+        "formatting": ThemeAttr("types", "cel_keyword"),
+        "type": "keyword",
+    },
+    # 3.14159
+    Token.Literal.Number.Float: {
+        "formatting": ThemeAttr("types", "cel_value"),
+        "type": "value",
+    },
+    # 100
+    Token.Literal.Number.Integer: {
+        "formatting": ThemeAttr("types", "cel_value"),
+        "type": "value",
+    },
+    # string
+    Token.Literal.String: {
+        "formatting": ThemeAttr("types", "cel_value"),
+        "type": "value",
+    },
+    # \\n
+    Token.Literal.String.Escape: {
+        "formatting": ThemeAttr("types", "cel_escape"),
+        "type": "escape",
+    },
+    # name
+    Token.Name: {
+        "formatting": ThemeAttr("types", "cel_name"),
+        "type": "name",
+    },
+    # ||
+    Token.Operator: {
+        "formatting": ThemeAttr("types", "cel_operator"),
+        "type": "operator",
+    },
+    # .
+    Token.Punctuation: {
+        "formatting": ThemeAttr("types", "cel_punctuation"),
+        "type": "punctuation",
+    },
+}
 
 
 COLORSCHEME_CRT: dict[Any, ColorSchemeEntry] = {
@@ -2582,11 +2652,11 @@ def format_caddyfile(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRe
     return dumps
 
 
-# pylint: disable=unused-argument
 def format_cel(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef | ThemeStr]]:
     """
     CEL formatter; returns the text with syntax highlighting for Common Expression Language.
-    Currently this formatter is equivalent to formatter_none.
+    If pygments 2.19.2 or newer is available this will provide syntax highlighting;
+    otherwise format_none will be used instead.
 
         Parameters:
             lines ([str]): A list of strings
@@ -2596,14 +2666,11 @@ def format_cel(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef | Th
         Returns:
             ([themearray]): A list of themearrays
     """
-    dumps: list[list[ThemeRef | ThemeStr]] = []
-
-    if isinstance(lines, str):
-        lines = split_msg(lines.strip())
-
-    for line in lines:
-        dumps.append([ThemeStr(line, ThemeAttr("types", "generic"))])
-    return dumps
+    if CELLEXER_AVAILABLE:
+        return format_pygments_generic(lines, **kwargs,
+                                       lexer=CELLexer(),
+                                       colorscheme=COLORSCHEME_CEL)
+    return format_none(lines)
 
 
 def format_crt(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef | ThemeStr]]:
@@ -3007,6 +3074,8 @@ formatter_mapping: tuple[tuple[tuple[str, ...], tuple[str, ...], Callable], ...]
     (("",), (".yml", ".yaml", ".json", ".ndjson"), format_yaml),
     (("toml",), ("toml",), format_toml),
     (("",), (".toml",), format_toml),
+    (("cel",), ("cel",), format_cel),
+    (("",), (".cel",), format_cel),
     (("crt",), ("crt",), format_crt),
     (("",), (".crt", "tls.key", ".pem", "CAKey"), format_crt),
     (("css",), ("css",), format_css),

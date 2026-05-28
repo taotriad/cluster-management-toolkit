@@ -84,6 +84,7 @@ TBD
 ### Changes to _cmu_ in v0.8.8
 
 * There's now a built-in file-viewer. Currently supported formats:
+  * `Common Expression Language (CEL)` (Note: Syntax highlighting requires Pygments 2.22+)
   * `Context and Unified Diff`
   * `CRT`
   * `CSS`
@@ -158,7 +159,7 @@ TBD
 * Due to the way `cmu` works the file-viewer needs a backing listview,
   so `Debug Logs` was picked for the purpose (since it's always available
   even when the cluster is unavailable (or `--disable-kubernetes` is used).
-* Nested lists and lists with checkboxes in Markdown has some formatting issues.
+* Nested lists and lists with checkboxes in Markdown have some formatting issues.
 
 ## Dependencies for v0.8.8
 
