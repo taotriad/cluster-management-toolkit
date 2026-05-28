@@ -371,18 +371,13 @@ Set current context, either by specifying context _NAME_ or by specifying contex
 ### `help` __COMMAND__
 #### Display help about _COMMAND_ and exit
   
-  __`--format`__ __FORMAT__
-  Output the help as _FORMAT_ instead  
-  Valid formats are:
-  _default_, _markdown_
-
 ### `help|--help`
 #### Display this help and exit
   
   __`--format`__ __FORMAT__
   Output the help as _FORMAT_ instead  
   Valid formats are:
-  _default_, _markdown_
+  _default_, _short_, _markdown_
 
 ### `version|--version`
 #### Output version information and exit

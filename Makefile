@@ -90,8 +90,8 @@ PYLINT_ENABLE := useless-suppression
 
 MYPY_FLAGS := --follow-imports silent --explicit-package-bases --ignore-missing --disallow-untyped-calls --disallow-untyped-defs --disallow-incomplete-defs --check-untyped-defs --disallow-untyped-decorators --warn-redundant-casts --warn-unused-ignores
 
-code-checks: mypy pylint flake8 ruff
-checks: bandit regexploit semgrep yamllint validate_playbooks validate_yaml ruff
+code-checks: ruff flake8 mypy pylint
+checks: ruff bandit regexploit semgrep yamllint validate_playbooks validate_yaml check_helptexts
 
 tests: coverage
 
@@ -99,7 +99,14 @@ clean: remove_test_symlinks
 
 generate_helptexts:
 	@for file in $(python_executables); do \
-		./$$file help --format markdown > docs/$${file}_helptext.md ;\
+		./$${file} help --format markdown > docs/$${file}_helptext.md ;\
+	done
+
+check_helptexts:
+	@printf -- "\n\nChecking helptexts\n\n" ;\
+	for file in $(python_executables); do \
+		printf -- "  Checking helptexts for $${file}\n" ;\
+		./$${file} help --debug > /dev/null && printf -- "    OK\n";\
 	done
 
 coverage_stats:

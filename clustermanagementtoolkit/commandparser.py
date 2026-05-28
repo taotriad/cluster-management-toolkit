@@ -111,6 +111,7 @@ class OptionTypeOptional(TypedDict, total=False):
     requires_arg: bool
     values: list[ANSIThemeStr]
     validation: ValidationType
+    hidden: bool
 
 
 class OptionType(OptionTypeOptional):
@@ -294,11 +295,14 @@ def __usage(options: list[tuple[str, str]], args: list[str]) -> int:
     has_commands: bool = False
     has_options: bool = False
     has_args: bool = False
+    debug: bool = False
 
     output: list[list[ANSIThemeStr]] = []
     output_format: str = "default"
 
     for opt, optarg in options:
+        if opt == "--debug":
+            debug = True
         if opt == "--format":
             output_format = optarg
 
@@ -336,10 +340,12 @@ def __usage(options: list[tuple[str, str]], args: list[str]) -> int:
     if not has_commands:
         commandline.pop("Help", None)
 
-    if output_format == "default":
+    if output_format in ("default", "short"):
         headerstring = [ANSIThemeStr(f"{programname}", "programname")]
     elif output_format == "markdown":  # pragma: no branch
         headerstring = [ANSIThemeStr(f"# ___`{programname}`___", "default")]
+    else:
+        headerstring = []
 
     if has_commands:
         if output_format == "default":
@@ -347,7 +353,7 @@ def __usage(options: list[tuple[str, str]], args: list[str]) -> int:
         elif output_format == "markdown":  # pragma: no branch
             headerstring += [ANSIThemeStr(" __`COMMAND`__", "default")]
 
-    if has_options:
+    if has_options and output_format != "short":
         if output_format == "default":
             headerstring += [ANSIThemeStr(" [", "separator"),
                              ANSIThemeStr("OPTION", "option"),
@@ -370,7 +376,7 @@ def __usage(options: list[tuple[str, str]], args: list[str]) -> int:
     output.append([ANSIThemeStr("", "default")])
 
     if has_commands:
-        if output_format == "default":
+        if output_format in ("default", "short"):
             output.append([ANSIThemeStr("Commands:", "description")])
         elif output_format == "markdown":  # pragma: no branch
             output.append([ANSIThemeStr("## Commands:", "description")])
@@ -414,7 +420,7 @@ def __usage(options: list[tuple[str, str]], args: list[str]) -> int:
 
         values = deep_get(value, DictPath("values"))
         if values is not None:
-            if output_format == "default":
+            if output_format in ("default", "short"):
                 tmp.append(ANSIThemeStr(" ", "default"))
             elif output_format == "markdown":  # pragma: no branch
                 tmp.append(ANSIThemeStr(" _", "default"))
@@ -427,7 +433,7 @@ def __usage(options: list[tuple[str, str]], args: list[str]) -> int:
         maxlen = max(maxlen, tlen)
         if tlen:
             description = deep_get(value, DictPath("description"))
-            if output_format == "default":
+            if output_format in ("default", "short"):
                 commands.append((tmp, description))
             elif output_format == "markdown":  # pragma: no branch
                 description.insert(0, ANSIThemeStr("#### ", "default"))
@@ -452,6 +458,10 @@ def __usage(options: list[tuple[str, str]], args: list[str]) -> int:
 
         options = deep_get(value, DictPath("options"), [])
         for option in options:
+            if output_format == "short":
+                continue
+            if deep_get(value, DictPath(f"options#{option}#hidden"), False):
+                continue
             indent = ""
             if tmp:
                 indent = "  "
@@ -498,16 +508,23 @@ def __usage(options: list[tuple[str, str]], args: list[str]) -> int:
     # cmd[0]: formatted cmd/option
     # cmd[1]: formatted description
     for cmd in commands:
-        if output_format == "default":
+        if output_format in ("default", "short"):
             if themearray_len(cmd[0]) > 27 or \
                     themearray_len(cmd[0]) + 2 + themearray_len(cmd[1]) > 79 or \
                     themearray_len(cmd[1]) > 51:
                 output.append(cmd[0])
                 string = themearray_ljust([ANSIThemeStr("", "default")], 29) + cmd[1]
                 output.append(string)
-                # if themearray_len(string) > 79:
-                #     sys.exit(f"FIXME: {themearray_len(string)} > 79 characters; "
-                #               "please file a bug report.")
+                if debug and themearray_len(string) > 79:
+                    ansithemeprint([ANSIThemeStr("Warning", "warning"),
+                                    ANSIThemeStr(": The helptext string:", "default")], stderr=True)
+                    ansithemeprint([ANSIThemeStr("“", "emphasis")] + string
+                                   + [ANSIThemeStr("“", "emphasis")], stderr=True)
+                    ansithemeprint([ANSIThemeStr(f"is {themearray_len(string)} characters long; "
+                                                  "it should be < 80 characters; "
+                                                  "please file a bug report.\n\n", "default")],
+                                   stderr=True)
+                    sys.exit(errno.EINVAL)
             else:
                 string = themearray_ljust(cmd[0], 29) + cmd[1]
                 output.append(string)
@@ -621,22 +638,20 @@ COMMANDLINEDEFAULTS: dict[str, CommandType] = {
                         ANSIThemeStr("COMMAND", "argument"),
                         ANSIThemeStr(" and exit", "description")],
         "options": {
+            "--debug": {
+                "values": [],
+                "description": [],
+                "hidden": True,
+            },
             "--format": {
-                "values": [ANSIThemeStr("FORMAT", "argument")],
-                "description": [ANSIThemeStr("Output the help as ", "description"),
-                                ANSIThemeStr("FORMAT", "argument"),
-                                ANSIThemeStr(" instead", "description")],
-                "extended_description": [
-                    [ANSIThemeStr("Valid formats are:", "description")],
-                    [ANSIThemeStr("default", "argument"),
-                     ANSIThemeStr(", ", "separator"),
-                     ANSIThemeStr("markdown", "argument")],
-                ],
+                "values": [],
+                "description": [],
                 "requires_arg": True,
                 "validation": {
                     "validator": "allowlist",
-                    "allowlist": ["default", "markdown"],
+                    "allowlist": ["default", "markdown", "short"],
                 },
+                "hidden": True,
             },
         },
         "required_args": [],
@@ -666,12 +681,14 @@ COMMANDLINEDEFAULTS: dict[str, CommandType] = {
                     [ANSIThemeStr("Valid formats are:", "description")],
                     [ANSIThemeStr("default", "argument"),
                      ANSIThemeStr(", ", "separator"),
+                     ANSIThemeStr("short", "argument"),
+                     ANSIThemeStr(", ", "separator"),
                      ANSIThemeStr("markdown", "argument")],
                 ],
                 "requires_arg": True,
                 "validation": {
                     "validator": "allowlist",
-                    "allowlist": ["default", "markdown"],
+                    "allowlist": ["default", "markdown", "short"],
                 },
             },
         },

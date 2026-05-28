@@ -32,7 +32,7 @@ Do not ask for confirmation
   __`--format`__ __FORMAT__
   Output the help as _FORMAT_ instead  
   Valid formats are:
-  _default_, _markdown_
+  _default_, _short_, _markdown_
 
 ### `version|--version`
 #### Output version information and exit

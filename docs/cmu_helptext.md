@@ -3,9 +3,19 @@
 UI for managing Kubernetes clusters.
 
 ## Commands:
-### `VIEW`
-#### start in VIEW
+### `view` _[_PATH_]_
+#### Open file viewer
   
+  __`--format`__ __FORMAT__
+  File FORMAT  
+  If the file format cannot be deduced from
+  the name this option can be used to specify
+  the file format. Valid formats are:
+  _bash_, _cel_, _crt_, _css_, _diff_|_patch_, _html_, _ini_,
+  _javascript_|_js_, _json_,_markdown_|_md_,
+  _ndjson_, _powershell_|_ps1_, _python_|_py_,
+  _shell_|_sh_, _svg_, _toml_, _xhtml_, _xml_, _yaml_
+
 ### `VIEW` _[_NAMESPACE/_]_OBJECT_[_:_[_MEMBER_]]_
 #### start in VIEW for _OBJECT_
   
@@ -61,18 +71,13 @@ _THEME_ to use
 ### `help` __COMMAND__
 #### Display help about _COMMAND_ and exit
   
-  __`--format`__ __FORMAT__
-  Output the help as _FORMAT_ instead  
-  Valid formats are:
-  _default_, _markdown_
-
 ### `help|--help`
 #### Display this help and exit
   
   __`--format`__ __FORMAT__
   Output the help as _FORMAT_ instead  
   Valid formats are:
-  _default_, _markdown_
+  _default_, _short_, _markdown_
 
 ### `version|--version`
 #### Output version information and exit

@@ -7089,7 +7089,8 @@ COMMANDLINE: dict[str, CommandType] = {
                 "extended_description": [
                     [ANSIThemeStr("Alias for:", "description")],
                     [ANSIThemeStr("“", "description"),
-                     ANSIThemeStr("--no-pkg-cache-update --no-upstream-cache-update", "option"),
+                     ANSIThemeStr("--no-pkg-cache-update", "option")],
+                    [ANSIThemeStr(" --no-upstream-cache-update", "option"),
                      ANSIThemeStr("“.", "description")],
                 ],
             },

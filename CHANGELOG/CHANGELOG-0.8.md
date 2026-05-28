@@ -127,6 +127,10 @@ TBD
   support for v2beta1 and `cmu` / `cmt` would thus experience a massive slowdown;
   we rather be a bit slower on older Kubernetes that we no longer fully support,
   rather than be slow on the versions we do support.
+* `make checks` now checks whether any of the helptexts are too long to fit
+  within a normal 80-character wide terminal window.
+* `help | --help` now has an additional format option, short, that only shows
+  the commands, not the arguments. This can be useful to quickly find the name of a command.
 
 ### view-file changes
 
