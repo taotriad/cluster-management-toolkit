@@ -1569,7 +1569,6 @@ def format_markdown_table(lines: list[list[ThemeRef | ThemeStr]]) -> list[list[T
     # Now the header
     columns = [[] for n in range(column_count)]
     for i, header in enumerate(headers):
-        header = themearray_replace(header, "🜂", "|")
         # reformatted header (unless explicitly formatted)
         if len(header) == 1:
             header = [ThemeStr(themearray_to_string(cast(list[ThemeRef | ThemeStr], header)),
@@ -1600,7 +1599,7 @@ def format_markdown_table(lines: list[list[ThemeRef | ThemeStr]]) -> list[list[T
         row = [themearray_strip(segment) for segment in row]
         for i, field in enumerate(row):
             columns[i * 2] = [ThemeStr("│", ThemeAttr("types", "generic"))]
-            data = themearray_replace(themearray_strip(field), "🜂", "|")
+            data = field
             columns[i * 2 + 1] = data \
                 + [ThemeStr("".ljust(widths[i]
                                      - themearray_len(cast(list[ThemeRef | ThemeStr], data))),
@@ -1795,7 +1794,12 @@ def render_markdown(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef
     elif non_table:
         new_data += non_table
 
-    return new_data
+    new_data2 = []
+    for line in new_data:
+        line = themearray_replace(line, "🜂", "|")
+        new_data2.append(line)
+
+    return new_data2
 
 
 # pylint: disable-next=unused-argument
