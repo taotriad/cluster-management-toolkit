@@ -23,3 +23,19 @@
           - matchtype: "empty"
             format_block_end: false
             process_block_end: false
+    - name: "custom_line"
+      options:
+        block_start:
+          - matchtype: "exact"
+            matchkey: "version: {"
+            matchline: "any"
+            format_block_start: true
+        block_end:
+          - matchtype: "exact"
+            matchkey: "}"
+            format_block_end: true
+        loglevel: "info"
+        overrides:
+          - matchtype: "contains"
+            matchkey: "\"version\""
+            loglevel: "notice"

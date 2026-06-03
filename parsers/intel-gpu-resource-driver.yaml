@@ -26,13 +26,26 @@
             matchkey: " >"
         indent: "\t"
     - name: "key_value_with_leading_message"
+    - name: "custom_line"
+      options:
+        block_start:
+          - matchtype: "startswith"
+            matchkey: "Driver Name: "
+            matchline: "any"
+            format_block_start: true
+        block_end:
+          - matchtype: "startswith"
+            matchkey: "Platform: "
+            format_block_end: true
+        loglevel: "info"
+        overrides:
+          - matchtype: "startswith"
+            matchkey: "Driver Version: "
+            loglevel: "notice"
     - name: "override_severity"
       overrides:
         - matchtype: "startswith"
-          matchkey: "DriverVersion:"
-          loglevel: "notice"
-        - matchtype: "startswith"
-          matchkey: "Driver Version:"
+          matchkey: "DriverVersion: "
           loglevel: "notice"
         - matchtype: "startswith"
           matchkey: "\"Warning:"

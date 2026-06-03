@@ -30,6 +30,9 @@
         - matchtype: "startswith"
           matchkey: "Rancher version "
           loglevel: "notice"
+        - matchtype: "startswith"
+          matchkey: "Error from server "
+          loglevel: "error"
 - name: "rancher"
   show_in_selector: false
   matchkeys:

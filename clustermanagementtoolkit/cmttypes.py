@@ -906,12 +906,13 @@ loglevel_mappings: dict[LogLevel, str] = {
 }
 
 
-def name_to_loglevel(severity: str) -> LogLevel:
+def name_to_loglevel(severity: str, default: LogLevel = LogLevel.DEFAULT) -> LogLevel:
     """
     Given a severity string, return its numerical number.
 
         Parameters:
             severity (str): A severity string
+            default (LogLevel): Default loglevel to return if an invalid value is passed
         Returns:
             (LogLevel): The corresponding numerical loglevel
     """
@@ -919,25 +920,21 @@ def name_to_loglevel(severity: str) -> LogLevel:
         if severity_string_.lower() == severity.lower():
             return severity_
 
-    return LogLevel.DEFAULT
+    return default
 
 
-def loglevel_to_name(loglevel: LogLevel) -> str:
+def loglevel_to_name(loglevel: LogLevel, default: str = "info") -> str:
     """
     Given a numerical loglevel, return its severity string.
-    If loglevel is missing or out of range it will be substituted with LogLevel.INFO.
 
         Parameters:
             loglevel (LogLevel): A numerical loglevel
+            default (str): The default value to return if an invalid loglevel is passed
         Returns:
             (str): A severity string
     """
-    if loglevel is None:
-        loglevel = LogLevel.INFO
-    elif loglevel == LogLevel.ALL:
-        loglevel = LogLevel.DEBUG
-    elif loglevel < LogLevel.EMERG or loglevel > LogLevel.DIFFSAME:
-        loglevel = LogLevel.INFO
+    if loglevel is None or loglevel < LogLevel.EMERG or loglevel > LogLevel.DIFFSAME:
+        return default.capitalize()
     return cast(str, loglevel_mappings.get(loglevel))
 
 

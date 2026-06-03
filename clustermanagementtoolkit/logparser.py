@@ -431,14 +431,8 @@ def is_timestamp(message: str) -> bool:
     return re.match(r"^\d{4}[/-]\d\d[/-]\d\d"
                     r"[ T]"
                     r"\d\d[\.:]\d\d[\.:]\d\d"
-                    r"([\.,]\d{9} [+-]\d\d[:\.]\d\d|"
-                    r"[\.,]\d{8} [+-]\d\d[:\.]\d\d|"
-                    r"[\.,]\d{6} [+-]\d\d[:\.]\d\d|"
-                    r"[\.,]\d{3} [+-]\d\d[:\.]\d\d|"
-                    r"[\.,]\d{9}Z?|"
-                    r"[\.,]\d{8}Z?|"
-                    r"[\.,]\d{6}Z?|"
-                    r"[\.,]\d{3}Z?|"
+                    r"([\.,]\d{3,9} [+-]\d\d[:\.]\d\d|"
+                    r"[\.,]\d{3,9}Z?|"
                     r"Z?)$", message) is not None
 
 
@@ -1702,7 +1696,7 @@ def split_bracketed_timestamp_severity_facility(message: str,
     return message, severity, facility
 
 
-# pylint: disable-next=too-many-branches,too-many-locals
+# pylint: disable-next=too-many-branches
 def custom_override_severity(message: str | list,
                              severity: LogLevel,
                              **kwargs: Any) -> tuple[str | list, LogLevel]:
@@ -1713,7 +1707,16 @@ def custom_override_severity(message: str | list,
             message (str|ThemeArray): The string to override severity for
             severity (LogLevel): The log severity
             **kwargs (dict[str, Any]): Keyword arguments
-                overrides ([dict]): The override rules
+                overrides ([dict[str, str]]): A list of severity override match rules
+                    matchtype (str): The type of match; must be one of:
+                                     - "startswith"
+                                     - "endswith"
+                                     - "exact"
+                                     - "contains"
+                                     - "regex"
+                    matchkey (str): The key (either a plain string or a regular expression)
+                                    to use when matching
+                    loglevel (str): The loglevel to return if the condition matches
         Returns:
             (str|ThemeArray, LogLevel):
     """
@@ -1742,9 +1745,11 @@ def custom_override_severity(message: str | list,
         elif override_type == "contains":
             if override_pattern not in tmp_message:
                 continue
+        elif override_type == "exact":
+            if override_pattern != tmp_message:
+                continue
         elif override_type == "regex":
-            tmp = override_pattern.match(tmp_message)
-            if tmp is None:
+            if override_pattern.match(tmp_message) is None:
                 continue
         else:
             msg = [
@@ -2089,6 +2094,7 @@ def key_value(message: str, **kwargs: Any) -> tuple[str, LogLevel, str,
     allow_bare_keys: str = deep_get(options, DictPath("allow_bare_keys"), "none")
     substitute_bullets_: bool = deep_get(options, DictPath("substitute_bullets"), True)
     collector_bullets: bool = deep_get(options, DictPath("collector_bullets"), False)
+    newlines: str = deep_get(options, DictPath("newlines"), "keep")
     is_event: bool = deep_get(options, DictPath("is_event"), False)
 
     # Split all key=value pairs. Make sure not to process "=="
@@ -2123,6 +2129,12 @@ def key_value(message: str, **kwargs: Any) -> tuple[str, LogLevel, str,
                 key = re_tmp[1]
                 value = re_tmp[2].replace("<<<quote>>>", "\\\"")
                 if key not in d:
+                    if (quoted := value.startswith("\"") and value.endswith("\"")):
+                        value = value[1:-1]
+                    if newlines == "strip_trailing":
+                        value = value.rstrip("\\n")
+                    if quoted:
+                        value = f"\"{value}\""
                     d[key] = value
                 else:
                     # Give up; this line cannot be parsed as a set of key=value
@@ -2994,11 +3006,17 @@ def json_line_scanner(message: str, **kwargs: Any) \
         if matchtype == "empty":
             if not message.strip():
                 matched = False
+        elif matchtype == "contains":
+            if matchkey in message:
+                matched = False
         elif matchtype == "exact":
             if message == matchkey:
                 matched = False
         elif matchtype == "startswith":
             if message.startswith(matchkey):
+                matched = False
+        elif matchtype == "endswith":
+            if message.endswith(matchkey):
                 matched = False
         elif matchtype == "regex":
             tmp = matchkey.match(message)
@@ -3071,6 +3089,9 @@ def json_line(message: str,
         if matchline == "any" or matchline == "first" and not line:
             if matchtype == "exact":
                 if message == matchkey:
+                    matched = True
+            elif matchtype == "contains":
+                if matchkey in message:
                     matched = True
             elif matchtype == "startswith":
                 if message.startswith(matchkey):
@@ -3146,11 +3167,17 @@ def yaml_line_scanner(message: str,
         if matchtype == "empty":
             if not message.strip():
                 matched = False
+        elif matchtype == "contains":
+            if matchkey in message:
+                matched = False
         elif matchtype == "exact":
             if message == matchkey:
                 matched = False
         elif matchtype == "startswith":
             if message.startswith(matchkey):
+                matched = False
+        elif matchtype == "endswith":
+            if message.endswith(matchkey):
                 matched = False
         elif matchtype == "regex":
             if matchkey.match(message) is not None:
@@ -3226,6 +3253,9 @@ def yaml_line(message: str, **kwargs: Any) -> \
             if matchtype == "exact":
                 if message == matchkey:
                     matched = True
+            elif matchtype == "contains":
+                if matchkey in message:
+                    matched = True
             elif matchtype == "startswith":
                 if message.startswith(matchkey):
                     matched = True
@@ -3300,11 +3330,17 @@ def diff_line_scanner(message: str,
         if matchtype == "empty":
             if not message.strip():
                 matched = False
+        elif matchtype == "contains":
+            if matchkey in message:
+                matched = False
         elif matchtype == "exact":
             if message == matchkey:
                 matched = False
         elif matchtype == "startswith":
             if message.startswith(matchkey):
+                matched = False
+        elif matchtype == "endswith":
+            if message.endswith(matchkey):
                 matched = False
         elif matchtype == "regex":
             if matchkey.match(message) is not None:
@@ -3382,6 +3418,9 @@ def diff_line(message: str, **kwargs: Any) -> tuple[tuple[str, Callable | None, 
         if matchline == "any" or matchline == "first" and not line:
             if matchtype == "exact":
                 if message == matchkey:
+                    matched = True
+            elif matchtype == "contains":
+                if matchkey in message:
                     matched = True
             elif matchtype == "startswith":
                 if message.startswith(matchkey):
@@ -3556,7 +3595,33 @@ def custom_line_scanner(message: str, **kwargs: Any) \
 
         Parameters:
             message (str): The message to format
-            **kwargs (dict[str, Any]): Keyword arguments [unused]
+            **kwargs (dict[str, Any]): Keyword arguments
+                options (dict[str, Any]):
+                    loglevel (str): The default loglevel to use for processed entries
+                    block_start ([dict[str, str | bool]]): [unused]
+                    block_end ([dict[str, str | bool]]):
+                        matchtype (str): The type of match; must be one of:
+                                         - "empty"
+                                         - "startswith"
+                                         - "endswith"
+                                         - "exact"
+                                         - "contains"
+                                         - "regex"
+                        matchkey (str): The key (either a plain string or a regular expression)
+                                        to use when matching
+                        matchline (str): [unused]
+                        format_block_start (bool): [unused]
+                        format_block_end (bool): Should the last line of the block be formatted?
+                    overrides ([dict[str, str]]): A list of severity override match rules
+                                                  to pass to custom_override_severity()
+                        matchtype (str): The type of match; must be one of:
+                                         - "startswith"
+                                         - "endswith"
+                                         - "exact"
+                                         - "contains"
+                                         - "regex"
+                        loglevel (str): The loglevel to return if the condition matches
+
         Returns:
             (((str, Callable, dict),
               (datetime, str, LogLevel, [(ThemeArray, LogLevel)]))):
@@ -3578,7 +3643,7 @@ def custom_line_scanner(message: str, **kwargs: Any) \
 
     timestamp: datetime = none_timestamp()
     facility: str = ""
-    severity: LogLevel = LogLevel.INFO
+    base_severity: LogLevel = name_to_loglevel(loglevel_name, LogLevel.INFO)
     message, _timestamp = split_iso_timestamp(message, none_timestamp())
     remnants: list[ThemeRef | ThemeStr] = []
     matched = True
@@ -3597,32 +3662,45 @@ def custom_line_scanner(message: str, **kwargs: Any) \
         if matchtype == "empty":
             if not message.strip():
                 matched = False
+        elif matchtype == "contains":
+            if matchkey in message:
+                matched = False
         elif matchtype == "exact":
             if message == matchkey:
                 matched = False
         elif matchtype == "startswith":
             if message.startswith(matchkey):
                 matched = False
+        elif matchtype == "endswith":
+            if message.endswith(matchkey):
+                matched = False
         elif matchtype == "regex":
             tmp = matchkey.match(message)
             if tmp is not None:
                 matched = False
 
+    message, new_severity = \
+        custom_override_severity(message, base_severity,
+                                 options={"overrides": deep_get(options,
+                                                                DictPath("overrides"), {})})
+
     if matched:
-        remnants = [ThemeStr(message, ThemeAttr("logview", f"severity_{loglevel_name}"))]
+        severity_name = f"severity_{loglevel_to_name(new_severity).lower()}"
+        remnants = [ThemeStr(message, ThemeAttr("logview", severity_name))]
         processor: tuple[str, Callable | None, dict] = ("block", custom_line_scanner, options)
     else:
         if process_block_end:
             if format_block_end:
-                remnants = [ThemeStr(message, ThemeAttr("logview", f"severity_{loglevel_name}"))]
+                severity_name = f"severity_{loglevel_to_name(new_severity).lower()}"
+                remnants = [ThemeStr(message, ThemeAttr("logview", severity_name))]
             else:
-                severity_name = f"severity_{loglevel_to_name(severity).lower()}"
+                severity_name = f"severity_{loglevel_to_name(base_severity).lower()}"
                 remnants = [ThemeStr(message, ThemeAttr("logview", severity_name))]
             processor = ("end_block", None, {})
         else:
             processor = ("end_block_not_processed", None, {})
 
-    return processor, (timestamp, facility, severity, remnants)
+    return processor, (timestamp, facility, base_severity, remnants)
 
 
 # pylint: disable-next=too-many-locals,too-many-branches
@@ -3634,7 +3712,33 @@ def custom_line(message: str, **kwargs: Any) -> tuple[tuple[str, Callable | None
 
         Parameters:
             message (str): The message to format
-            **kwargs (dict[str, Any]): Keyword arguments [unused]
+            **kwargs (dict[str, Any]): Keyword arguments
+                options (dict[str, Any]):
+                    loglevel (str): The default loglevel to use for processed entries
+                    eof (str): Should EOF be regarded as a block end?
+                    block_start ([dict[str, str | bool]]):
+                        matchtype (str): The type of match; must be one of:
+                                         - "startswith"
+                                         - "endswith"
+                                         - "exact"
+                                         - "contains"
+                                         - "regex"
+                        matchkey (str): The key (either a plain string or a regular expression)
+                                        to use when matching
+                        matchline (str): Where can a match occur? "any" matches any line,
+                                         first only matches the first line in a log message
+                        format_block_start (bool): Should the first line of the block be formatted?
+                        format_block_end (bool): [unused]
+                    block_end ([dict[str, str | bool]]): [unused]
+                    overrides ([dict[str, str]]): A list of severity override match rules
+                                                  to pass to custom_override_severity()
+                        matchtype (str): The type of match; must be one of:
+                                         - "startswith"
+                                         - "endswith"
+                                         - "exact"
+                                         - "contains"
+                                         - "regex"
+                        loglevel (str): The loglevel to return if the condition matches
         Returns:
             ((str | (str, Callable, dict)), [(ThemeArray, LogLevel)]):
                 ((str | (str, Callable, dict))):
@@ -3650,12 +3754,12 @@ def custom_line(message: str, **kwargs: Any) -> tuple[tuple[str, Callable | None
                     (ThemeArray): The formatted strings of the remnant
                     (LogLevel): The severity of the remnant
     """
-    severity: LogLevel = deep_get(kwargs, DictPath("severity"), LogLevel.INFO)
     options: dict = deep_get(kwargs, DictPath("options"), {})
 
     block_start: list[dict] = deep_get(options, DictPath("block_start"), [])
     loglevel_name: str = deep_get(options, DictPath("loglevel"), "info")
 
+    base_severity: LogLevel = name_to_loglevel(loglevel_name, LogLevel.INFO)
     remnants: list[tuple[list[ThemeRef | ThemeStr], LogLevel]] = []
     matched = False
 
@@ -3672,6 +3776,9 @@ def custom_line(message: str, **kwargs: Any) -> tuple[tuple[str, Callable | None
             if matchtype == "exact":
                 if message == matchkey:
                     matched = True
+            elif matchtype == "contains":
+                if matchkey in message:
+                    matched = True
             elif matchtype == "startswith":
                 if message.startswith(matchkey):
                     matched = True
@@ -3683,11 +3790,17 @@ def custom_line(message: str, **kwargs: Any) -> tuple[tuple[str, Callable | None
                 if tmp is not None:
                     matched = True
 
+    message, new_severity = \
+        custom_override_severity(message, base_severity,
+                                 options={"overrides": deep_get(options,
+                                                                DictPath("overrides"), {})})
+
     if matched:
         if format_block_start:
-            remnants = [ThemeStr(message, ThemeAttr("logview", f"severity_{loglevel_name}"))]
+            severity_name = f"severity_{loglevel_to_name(new_severity).lower()}"
+            remnants = [ThemeStr(message, ThemeAttr("logview", severity_name))]
         else:
-            severity_name = f"severity_{loglevel_to_name(severity).lower()}"
+            severity_name = f"severity_{loglevel_to_name(base_severity).lower()}"
             remnants = [ThemeStr(message, ThemeAttr("logview", severity_name))]
         processor: tuple[str, Callable | None, dict] = \
             ("start_block", custom_line_scanner, options)

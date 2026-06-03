@@ -19,6 +19,7 @@
 					"enum": [
 						"contains",
 						"endswith",
+						"exact",
 						"regex",
 						"startswith"
 					]
@@ -277,6 +278,8 @@
 												"properties": {
 													"matchtype": {
 														"enum": [
+															"contains",
+															"endswith",
 															"exact",
 															"regex",
 															"startswith"
@@ -306,7 +309,9 @@
 												"properties": {
 													"matchtype": {
 														"enum": [
+															"contains",
 															"empty",
+															"endswith",
 															"exact",
 															"regex",
 															"startswith"

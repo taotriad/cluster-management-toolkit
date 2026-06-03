@@ -3,6 +3,7 @@
   show_in_selector: false
   matchkeys:
     - image_name: "/kube-vip/kube-vip-iptables"
+    - image_name: "/rancher/mirrored-kube-vip-kube-vip-iptables"
   parser_rules:
     - name: "ts_8601"
     - name: "glog"

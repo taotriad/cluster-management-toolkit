@@ -1,0 +1,25 @@
+---
+- name: "intel-base-operator"
+  show_in_selector: false
+  matchkeys:
+    - image_name: "/intel/intel-gpu-base-operator"
+  parser_rules:
+    - name: "glog"
+    - name: "json"
+    - name: "key_value_with_leading_message"
+    - name: "custom_line"
+      options:
+        block_start:
+          - matchtype: "startswith"
+            matchkey: "Git Info: "
+            matchline: "any"
+            format_block_start: true
+        block_end:
+          - matchtype: "startswith"
+            matchkey: "Platform: "
+            format_block_end: true
+        loglevel: "info"
+        overrides:
+          - matchtype: "startswith"
+            matchkey: "Git Info: "
+            loglevel: "notice"

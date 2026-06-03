@@ -1521,7 +1521,6 @@ def __str_representer(dumper: yaml.Dumper, data: Any) -> yaml.Node:
     return dumper.represent_scalar("tag:yaml.org,2002:str", data)  # pragma: no cover
 
 
-# pylint: disable-next=too-many-statements
 def format_markdown_table(lines: list[list[ThemeRef | ThemeStr]]) -> list[list[ThemeStr]]:
     """
     Given suitable data create a table from ThemeArray-formatted Markdown.
@@ -1796,7 +1795,7 @@ def render_markdown(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef
 
     new_data2 = []
     for line in new_data:
-        line = themearray_replace(line, "🜂", "|")
+        line = cast(list[ThemeRef | ThemeStr], themearray_replace(line, "🜂", "|"))
         new_data2.append(line)
 
     return new_data2

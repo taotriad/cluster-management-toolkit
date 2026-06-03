@@ -2200,7 +2200,7 @@ def themearray_compact(themearray: list[ThemeRef | ThemeStr]) -> list[ThemeStr]:
     return new_themearray
 
 
-def themearray_replace(themearray: list[ThemeStr],
+def themearray_replace(themearray: Sequence[ThemeRef | ThemeStr],
                        oldvalue: str, newvalue: str, count: int = -1) -> list[ThemeStr]:
     """
     Search and replace for needle in haystack.
@@ -2213,7 +2213,7 @@ def themearray_replace(themearray: list[ThemeStr],
         Returns:
             (ThemeArray): The modified themearray
     """
-    new_themearray: list[ThemeStr] = []
+    new_themearray: list[ThemeRef | ThemeStr] = []
 
     for segment in themearray:
         if isinstance(segment, ThemeRef):
@@ -2227,7 +2227,7 @@ def themearray_replace(themearray: list[ThemeStr],
                 count -= 1
             new_themearray.append(ThemeStr(char, themeattr))
 
-    return themearray_compact(cast(list[ThemeRef | ThemeStr], new_themearray))
+    return themearray_compact(new_themearray)
 
 
 def themearray_split(themearray: list[ThemeStr], separator: str = " ") -> list[list[ThemeStr]]:

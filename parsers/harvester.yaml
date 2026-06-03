@@ -11,7 +11,14 @@
     - image_name: "/rancher/harvester-eventrouter"
     - image_name: "/rancher/harvester-seeder"
   parser_rules:
+    - name: "glog"
     - name: "json"
+    - name: "key_value"
+    - name: "override_severity"
+      overrides:
+        - matchtype: "startswith"
+          matchkey: "Starting harvester-eventrouter version"
+          loglevel: "notice"
 - name: "harvester"
   show_in_selector: false
   matchkeys:
@@ -36,6 +43,8 @@
   parser_rules:
     - name: "glog"
     - name: "key_value"
+      options:
+        newlines: "strip_trailing"
     - name: "override_severity"
       overrides:
         - matchtype: "startswith"
@@ -46,6 +55,9 @@
           loglevel: "warning"
         - matchtype: "startswith"
           matchkey: "error of removing image"
+          loglevel: "warning"
+        - matchtype: "startswith"
+          matchkey: "\"Warning: "
           loglevel: "warning"
         - matchtype: "regex"
           matchkey: "^Starting .+ version "
