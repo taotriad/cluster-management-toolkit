@@ -114,6 +114,10 @@ TBD
 * `Cluster Overview` now handles clusters without a control plane (virtualised clusters).
 * `Cluster Overview` now calculates widths properly; the Event list no longer disappears
   if it becomes too wide.
+* Searches in listpads now supports regular expressions.
+  Additionally, the regex can be prefixed with `?` (negate match;
+  will find any strings _not_ matching the regular expression) or `*` (case-insensitive
+  search). The two options can be combined to do a negative, case-insensitive, search.
 
 ### Changes to other files in v0.8.8
 

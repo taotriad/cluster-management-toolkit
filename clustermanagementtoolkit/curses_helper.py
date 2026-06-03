@@ -2216,6 +2216,10 @@ def themearray_replace(themearray: list[ThemeStr],
     new_themearray: list[ThemeStr] = []
 
     for segment in themearray:
+        if isinstance(segment, ThemeRef):
+            new_themearray.append(segment)
+            continue
+
         themeattr = segment.themeattr
         for char in str(segment):
             if count and char == oldvalue:
@@ -3252,13 +3256,13 @@ class UIProps:
         self.view: tuple[str, str] | str | None = ""
 
     def __del__(self) -> None:
-        if self.infopad is not None:
+        if self.infopad:
             del self.infopad
-        if self.listpad is not None:
+        if self.listpad:
             del self.listpad
-        if self.headerpad is not None:
+        if self.headerpad:
             del self.headerpad
-        if self.logpad is not None:
+        if self.logpad:
             del self.logpad
 
     def reselect_uid(self) -> None:
@@ -3570,7 +3574,7 @@ class UIProps:
         self.draw_winheader()
         self.update_timestamp(update=update)
 
-        if self.headerpad is not None:
+        if self.headerpad:
             self.headerpad.clear()
             # Whether to have one or two hlines depends on if we
             # overlap with the upper border or not
@@ -3591,7 +3595,7 @@ class UIProps:
                 self.addthemearray(self.stdscr,
                                    [ThemeStr(hline, ThemeAttr("main", "default"))],
                                    y=self.headerpadypos + 1, x=self.maxx)
-        elif self.listpad is not None and not CursesConfiguration.borders:
+        elif self.listpad and not CursesConfiguration.borders:
             self.addthemearray(self.stdscr,
                                [ThemeStr(" ", ThemeAttr("main", "default"))],
                                y=self.listpadypos - 1, x=0)
@@ -3599,12 +3603,12 @@ class UIProps:
                                [ThemeStr(" ", ThemeAttr("main", "default"))],
                                y=self.listpadypos - 1, x=self.maxx)
 
-        if self.logpad is not None:
+        if self.logpad:
             if self.logpadypos > 2:
                 window_tee_hline(self.stdscr, self.logpadypos - 1, 0, self.maxx)
             if CursesConfiguration.borders:
                 window_tee_hline(self.stdscr, self.maxy - 2, 0, self.maxx)
-                if self.tspad is not None and self.tspadxpos != self.logpadxpos and self.loglen:
+                if self.tspad and self.tspadxpos != self.logpadxpos and self.loglen:
                     window_tee_vline(self.stdscr, self.logpadxpos - 1,
                                      self.logpadypos - 1, self.maxy - 2)
             else:
@@ -3820,7 +3824,7 @@ class UIProps:
         """
         Refresh the infopad.
         """
-        if self.infopad is not None:
+        if self.infopad:
             height = self.infopadheight
             if CursesConfiguration.borders:
                 if self.logpad is None and self.listpad is None:
@@ -3912,7 +3916,7 @@ class UIProps:
         self.headerpadwidth = self.listpadwidth
         self.maxxoffset = max(0, self.listpadwidth - self.listpadminwidth)
 
-        if self.headerpad is not None and self.headerpadheight > 0:
+        if self.headerpad and self.headerpadheight > 0:
             self.headerpad.resize(self.headerpadheight, self.headerpadwidth)
         if self.listpadheight > 0:
             self.listpad.resize(max(self.listpadheight, self.maxy), self.listpadwidth)
@@ -3929,13 +3933,13 @@ class UIProps:
         if not CursesConfiguration.borders:
             xpos -= 1
             maxx = self.maxx
-        if self.headerpad is not None:
+        if self.headerpad:
             try:
                 self.headerpad.noutrefresh(0, self.xoffset, self.headerpadypos,
                                            xpos, self.headerpadypos, maxx)
             except curses.error:
                 pass
-        if self.listpad is not None:
+        if self.listpad:
             if CursesConfiguration.borders:
                 try:
                     self.listpad.noutrefresh(0, self.xoffset, self.listpadypos,
@@ -4050,9 +4054,9 @@ class UIProps:
             self.logpadwidth = max(width, self.logpadminwidth)
 
         if self.logpadheight > 0:
-            if self.tspad is not None and self.tspadxpos != self.logpadxpos:
+            if self.tspad and self.tspadxpos != self.logpadxpos:
                 self.tspad.resize(self.tspadheight + 1, self.tspadwidth + 1)
-            if self.logpad is not None:
+            if self.logpad:
                 self.logpad.resize(self.logpadheight + 1, self.logpadwidth + 1)
         self.maxyoffset = max(0, self.loglen - self.logpadheight)
         self.maxxoffset = max(0, self.logpadwidth - self.logpadminwidth)
@@ -4073,7 +4077,7 @@ class UIProps:
         if not CursesConfiguration.borders:
             tspadxpos -= 1
             logpadxpos -= 1
-        if self.tspad is not None and self.tspadxpos != self.logpadxpos:
+        if self.tspad and self.tspadxpos != self.logpadxpos:
             hline = deep_get(theme, DictPath("boxdrawing#hline"))
             if CursesConfiguration.borders:
                 for i in range(0, self.tspadwidth):
@@ -4582,6 +4586,7 @@ class UIProps:
         else:
             self.move_cur_with_offset(newpos)
 
+    # pylint: disable-next=too-many-branches
     def find_next_by_sortkey(self, info: list[dict], searchkey: str) -> None:
         """
         Search a list using search key and jump to the next matching entry.
@@ -4598,6 +4603,29 @@ class UIProps:
             sorted_list = natsorted(info, key=itemgetter(self.sortkey1, self.sortkey2),
                                     reverse=self.sortorder_reverse)
         except TypeError:
+            return
+
+        negate_match: bool = False
+        case_insensitive: bool = False
+
+        # Since a regex cannot start with * or ? we use those to toggle behaviour
+        if searchkey.startswith(("*?", "?*")):
+            negate_match = True
+            case_insensitive = True
+            searchkey = searchkey[2:]
+        elif searchkey.startswith("?"):
+            negate_match = True
+            searchkey = searchkey[1:]
+        elif searchkey.startswith("*"):
+            case_insensitive = True
+            searchkey = searchkey[1:]
+
+        try:
+            if case_insensitive:
+                searchkey_regex: re.Pattern[str] = re.compile(searchkey, re.IGNORECASE)
+            else:
+                searchkey_regex = re.compile(searchkey)
+        except re.PatternError:
             return
 
         match = False
@@ -4617,10 +4645,8 @@ class UIProps:
                 else:
                     tmp2 = [str(tmp2)]
             for part in tmp2:
-                part = part[0:len(searchkey)].rstrip().lower()
-                if searchkey.lower() == part:
-                    offset = y - pos
-                    if offset > 0:
+                if part and bool(searchkey_regex.search(part)) != negate_match:
+                    if (offset := y - pos) > 0:
                         match = True
                         break
             if match:
@@ -4629,6 +4655,7 @@ class UIProps:
         # If we do not match we will just end up with the old pos
         self.move_cur_with_offset(offset)
 
+    # pylint: disable-next=too-many-branches
     def find_prev_by_sortkey(self, info: list[dict], searchkey: str) -> None:
         """
         Search a list using search key and jump to the previous matching entry.
@@ -4647,6 +4674,29 @@ class UIProps:
         except TypeError:
             return
 
+        negate_match: bool = False
+        case_insensitive: bool = False
+
+        # Since a regex cannot start with * or ? we use those to toggle behaviour
+        if searchkey.startswith(("*?", "?*")):
+            negate_match = True
+            case_insensitive = True
+            searchkey = searchkey[2:]
+        elif searchkey.startswith("?"):
+            negate_match = True
+            searchkey = searchkey[1:]
+        elif searchkey.startswith("*"):
+            case_insensitive = True
+            searchkey = searchkey[1:]
+
+        try:
+            if case_insensitive:
+                searchkey_regex: re.Pattern[str] = re.compile(searchkey, re.IGNORECASE)
+            else:
+                searchkey_regex = re.compile(searchkey)
+        except re.PatternError:
+            return
+
         match = False
         for y in reversed(range(0, pos)):
             tmp2 = deep_get(sorted_list[y], DictPath(self.sortcolumn))
@@ -4658,10 +4708,8 @@ class UIProps:
                 else:
                     tmp2 = [str(tmp2)]
             for part in tmp2:
-                part = part[0:len(searchkey)].rstrip().lower()
-                if searchkey.lower() == part:
-                    offset = y - pos
-                    if offset < 0:
+                if part and bool(searchkey_regex.search(part)) != negate_match:
+                    if (offset := y - pos) < 0:
                         match = True
                         break
             if match:
@@ -4976,16 +5024,16 @@ class UIProps:
         elif CursesConfiguration.mousescroll_enable \
                 and bstate == CursesConfiguration.mousescroll_up:
             # Scroll wheel up
-            if self.listpad is not None:
+            if self.listpad:
                 self.move_cur_with_offset(-5)
-            elif self.logpad is not None and not self.continuous_log:
+            elif self.logpad and not self.continuous_log:
                 self.move_yoffset_rel(-5)
             return Retval.MATCH
         elif CursesConfiguration.mousescroll_enable \
                 and bstate == CursesConfiguration.mousescroll_down:
-            if self.listpad is not None:
+            if self.listpad:
                 self.move_cur_with_offset(5)
-            elif self.logpad is not None and not self.continuous_log:
+            elif self.logpad and not self.continuous_log:
                 self.move_yoffset_rel(5)
             return Retval.MATCH
 
@@ -5130,7 +5178,7 @@ class UIProps:
         if self.listpad is None and self.logpad is None:
             return Retval.NOMATCH
 
-        if c == ord("r") and self.listpad is not None and self.reversible:
+        if c == ord("r") and self.listpad and self.reversible:
             # Reverse the sort order
             self.sortorder_reverse = not self.sortorder_reverse
             self.sort_triggered = True
@@ -5138,96 +5186,96 @@ class UIProps:
         if c == curses.KEY_SLEFT:
             # For listpads we switch sort column with this;
             # for logpads we move half a page left/right
-            if self.listpad is not None:
+            if self.listpad:
                 self.prev_sortcolumn()
-            elif self.logpad is not None and not self.continuous_log:
+            elif self.logpad and not self.continuous_log:
                 self.move_xoffset_rel(-(self.logpadminwidth // 2))
             return Retval.MATCH
         if c == curses.KEY_SRIGHT:
-            if self.listpad is not None:
+            if self.listpad:
                 self.next_sortcolumn()
-            elif self.logpad is not None and not self.continuous_log:
+            elif self.logpad and not self.continuous_log:
                 self.move_xoffset_rel(self.logpadminwidth // 2)
             return Retval.MATCH
         if c == curses.KEY_UP:
-            if self.listpad is not None:
+            if self.listpad:
                 self.move_cur_with_offset(-1)
-            elif self.logpad is not None and not self.continuous_log:
+            elif self.logpad and not self.continuous_log:
                 self.move_yoffset_rel(-1)
             return Retval.MATCH
         if c == curses.KEY_DOWN:
-            if self.listpad is not None:
+            if self.listpad:
                 self.move_cur_with_offset(1)
-            elif self.logpad is not None and not self.continuous_log:
+            elif self.logpad and not self.continuous_log:
                 self.move_yoffset_rel(1)
             return Retval.MATCH
         if c == curses.KEY_LEFT:
-            if self.logpad is not None and self.continuous_log:
+            if self.logpad and self.continuous_log:
                 return Retval.MATCH
 
             self.move_xoffset_rel(-1)
             return Retval.MATCH
         if c == curses.KEY_RIGHT:
-            if self.logpad is not None and self.continuous_log:
+            if self.logpad and self.continuous_log:
                 return Retval.MATCH
 
             self.move_xoffset_rel(1)
             return Retval.MATCH
         if c == curses.KEY_HOME:
-            if self.logpad is not None and self.continuous_log:
+            if self.logpad and self.continuous_log:
                 return Retval.MATCH
 
             self.move_xoffset_abs(0)
             return Retval.MATCH
         if c == curses.KEY_END:
-            if self.logpad is not None and self.continuous_log:
+            if self.logpad and self.continuous_log:
                 return Retval.MATCH
 
             self.move_xoffset_abs(-1)
             return Retval.MATCH
         if c == curses.KEY_SHOME:
-            if self.logpad is not None:
+            if self.logpad:
                 if self.continuous_log:
                     return Retval.MATCH
                 self.move_yoffset_abs(0)
-            elif self.listpad is not None:
+            elif self.listpad:
                 self.move_cur_abs(0)
             return Retval.MATCH
         if c == curses.KEY_SEND:
-            if self.logpad is not None:
+            if self.logpad:
                 if self.continuous_log:
                     return Retval.MATCH
                 self.move_yoffset_abs(-1)
-            elif self.listpad is not None:
+            elif self.listpad:
                 self.move_cur_abs(-1)
             return Retval.MATCH
         if c == curses.KEY_PPAGE:
-            if self.listpad is not None:
+            if self.listpad:
                 self.move_cur_with_offset(-10)
-            elif self.logpad is not None and not self.continuous_log:
+            elif self.logpad and not self.continuous_log:
                 self.move_yoffset_rel(-(self.logpadheight - 2))
             return Retval.MATCH
         if c == curses.KEY_NPAGE:
-            if self.listpad is not None:
+            if self.listpad:
                 self.move_cur_with_offset(10)
-            elif self.logpad is not None and not self.continuous_log:
+            elif self.logpad and not self.continuous_log:
                 self.move_yoffset_rel(self.logpadheight - 2)
             return Retval.MATCH
         if c == ord("\t"):
-            if self.listpad is not None:
+            if self.listpad:
                 self.next_by_sortkey(self.info)
-            elif self.logpad is not None and not self.continuous_log:
+            elif self.logpad and not self.continuous_log:
                 self.next_line_by_severity(self.severities)
             return Retval.MATCH
         if c == curses.KEY_BTAB:
-            if self.listpad is not None:
+            if self.listpad:
                 self.prev_by_sortkey(self.info)
-            elif self.logpad is not None and not self.continuous_log:
+            elif self.logpad and not self.continuous_log:
                 self.prev_line_by_severity(self.severities)
             return Retval.MATCH
         if c == ord("§"):
             # For listpads this jumps to the next column
-            if self.listpad is not None:
+            if self.listpad:
                 # In case the list empty for some reason
                 tabstop = 0
                 curxoffset = self.xoffset
@@ -5240,7 +5288,7 @@ class UIProps:
             return Retval.MATCH
         if c == ord("½"):
             # For listpads this jumps to the previous column
-            if self.listpad is not None:
+            if self.listpad:
                 # In case the list empty for some reason
                 tabstop = 0
                 curxoffset = self.xoffset
@@ -5251,7 +5299,7 @@ class UIProps:
                         break
             return Retval.MATCH
         if c == ord("") or c == ord("/"):
-            if self.listpad is not None:
+            if self.listpad:
                 if self.listpadheight < 2:
                     return Retval.MATCH
 
@@ -5261,7 +5309,7 @@ class UIProps:
 
                 self.find_next_by_sortkey(self.info, searchkey)
                 self.searchkey = searchkey
-            elif self.logpad is not None:
+            elif self.logpad:
                 if self.maxyoffset == 0 or self.continuous_log:
                     return Retval.MATCH
 
@@ -5278,7 +5326,7 @@ class UIProps:
         if c == ord("?"):
             self.search_matches.clear()
 
-            if self.listpad is not None:
+            if self.listpad:
                 if self.listpadheight < 2:
                     return Retval.MATCH
 
@@ -5288,7 +5336,7 @@ class UIProps:
 
                 self.find_prev_by_sortkey(self.info, searchkey)
                 self.searchkey = searchkey
-            elif self.logpad is not None:
+            elif self.logpad:
                 if self.maxyoffset == 0 or self.continuous_log:
                     return Retval.MATCH
 
@@ -5303,15 +5351,15 @@ class UIProps:
                 self.find_next_match()
             return Retval.MATCH
         if c == ord("n"):
-            if self.listpad is not None:
+            if self.listpad:
                 if self.listpadheight < 2:
                     return Retval.MATCH
 
-                if self.searchkey is None or self.searchkey == "":
+                if not self.searchkey:
                     return Retval.MATCH
 
                 self.find_next_by_sortkey(self.info, self.searchkey)
-            elif self.logpad is not None:
+            elif self.logpad:
                 if self.maxyoffset == 0 or self.continuous_log or not self.search_matches:
                     return Retval.MATCH
 
@@ -5319,15 +5367,15 @@ class UIProps:
                 self.find_next_match()
             return Retval.MATCH
         if c == ord("p"):
-            if self.listpad is not None:
+            if self.listpad:
                 if self.listpadheight < 2:
                     return Retval.MATCH
 
-                if self.searchkey is None or self.searchkey == "":
+                if not self.searchkey:
                     return Retval.MATCH
 
                 self.find_prev_by_sortkey(self.info, self.searchkey)
-            elif self.logpad is not None:
+            elif self.logpad:
                 if not self.maxyoffset or self.continuous_log or not self.search_matches:
                     return Retval.MATCH
 
