@@ -10,7 +10,7 @@ listview:
   group: "Accelerators"
   field_indexes:
     Normal:
-      fields: ["name", "update_method", "device_id", "age"]
+      fields: ["name", "device_id", "update_method", "state", "age"]
   fields:
     device_id:
       header: "Device ID:"
@@ -18,6 +18,39 @@ listview:
       default: "<unset>"
       type: "str"
       formatter: "hex"
+    state:
+      header: "State:"
+      path: "status#state"
+      default: "<unset>"
+      type: "str"
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          mappings:
+            cleanup:
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+            completed:
+              field_colors:
+                - context: "main"
+                  type: "status_done"
+            draining:
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+            error:
+              field_colors:
+                - context: "main"
+                  type: "status_not_ok"
+            updating:
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+            "<unset>":
+              field_colors:
+                - context: "main"
+                  type: "status_ignored"
     update_method:
       header: "Update Method:"
       path: "spec#updateMethod"
@@ -28,10 +61,16 @@ infoview:
   infopad:
     row_indexes:
       Normal:
-        fields: ["node_label_selector", "image_pull_secret",
-                 "update_method", "update_taint",
-                 "container_image"]
+        fields: ["node_label_selector", "amc_credentials", "image_pull_secret",
+                 "update_method", "hold_after_canary", "update_taint",
+                 "container_image", "firmware_images", "messages", "state"]
     rows:
+      amc_credentials:
+        header: [["A", ["main", "infoheader_shortcut"]],
+                 ["MC Credentials Secret:", ["main", "infoheader"]]]
+        path: "spec#amcCredentialsSecret"
+        default: "<none>"
+        type: "str"
       container_image:
         header: [["Container Image:", ["main", "infoheader"]]]
         paths:
@@ -52,24 +91,42 @@ infoview:
         default: "<unset>"
         type: "str"
         formatter: "hex"
+      firmware_images:
+        header: [["F", ["main", "infoheader_shortcut"]],
+                 ["irmware Images:", ["main", "infoheader"]]]
+        paths:
+          - path: "spec#content#files"
+            pathtype: "items"
+            subpaths:
+              - "type"
+              - "filename"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "key"
+            - type: "value"
+          field_separators:
+            - type: "keyvalue"
+      hold_after_canary:
+        header: [["Hold after Canary:", ["main", "infoheader"]]]
+        path: "spec#holdAfterCanary"
+        default: "<unset>"
+        type: "str"
       image_pull_secret:
         header: [["Image ", ["main", "infoheader"]],
                  ["P", ["main", "infoheader_shortcut"]],
                  ["ull Secret:", ["main", "infoheader"]]]
-        paths:
-          - path: ["Secret",
-                   ["spec#imagePullSecret#namespace"],
-                   ["spec#imagePullSecret#name"]]
-            pathtype: "tuple"
+        path: "spec#imagePullSecret"
+        default: "<none>"
+        type: "str"
+      messages:
+        header: [["Status Messa", ["main", "infoheader"]],
+                 ["g", ["main", "infoheader_shortcut"]],
+                 ["es:", ["main", "infoheader"]]]
+        path: "status#messages"
+        default: ["<none>"]
+        type: "raw"
         formatter: "list"
-        formatting:
-          field_colors:
-            - type: "kind"
-            - type: "namespace"
-            - type: "generic"
-          field_separators:
-            - type: "kind"
-            - type: "namespace"
       node_label_selector:
         header: [["Node La", ["main", "infoheader"]],
                  ["b", ["main", "infoheader_shortcut"]],
@@ -85,11 +142,58 @@ infoview:
             - type: "value"
           field_separators:
             - type: "selector"
+      state:
+        header: [["State:", ["main", "infoheader"]]]
+        path: "status#state"
+        default: "<unset>"
+        type: "str"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              cleanup:
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+              completed:
+                field_colors:
+                  - context: "main"
+                    type: "status_done"
+              draining:
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+              error:
+                field_colors:
+                  - context: "main"
+                    type: "status_not_ok"
+              updating:
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+              "<unset>":
+                field_colors:
+                  - context: "main"
+                    type: "status_ignored"
       update_method:
         header: [["Update Method:", ["main", "infoheader"]]]
         path: "spec#updateMethod"
         default: "<unset>"
         type: "str"
+      updater_image:
+        header: [["Updater Image:", ["main", "infoheader"]]]
+        paths:
+          - path: "spec#updaterImage"
+            pathtype: "regex"
+            regex: "^([^:]+):(.*)"
+            default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "generic"
+            - type: "version"
+          field_separators:
+            - type: "version"
       update_taint:
         header: [["Update Taint:", ["main", "infoheader"]]]
         path: "spec#updateTaint"
@@ -98,32 +202,68 @@ infoview:
   listpad:
     listgetter: "listgetter_path"
     listgetter_args:
-      path: "spec#content#containerImage"
+      multipath: "status#nodeInfos"
+      subpaths:
+        - path: "errorNodes"
+          key_name: "status"
+          key_value: "Error"
+          value_name: "node"
+        - path: "pendingNodes"
+          key_name: "status"
+          key_value: "Pending"
+          value_name: "node"
+        - path: "drainingNodes"
+          key_name: "status"
+          key_value: "Draining"
+          value_name: "node"
+        - path: "updatingNodes"
+          key_name: "status"
+          key_value: "Updating"
+          value_name: "node"
+        - path: "completedNodes"
+          key_name: "status"
+          key_value: "Completed"
+          value_name: "node"
     infogetter: "generic_infogetter"
     field_indexes:
       Normal:
-        fields: ["filename", "type", "checksum"]
-        sortcolumn: "filename"
+        fields: ["status", "node"]
+        sortcolumn: "status"
     fields:
-      checksum:
-        header: "Checksum:"
-        path: "checksum"
-        default: "<unset>"
+      node:
+        header: "Node:"
+        path: "node"
+        default: "<none>"
         type: "str"
-        formatter: "hex"
-      filename:
-        header: "Filename:"
-        path: "filename"
-        default: "<unset>"
+      status:
+        header: "Status:"
+        path: "status"
+        default: "<none>"
         type: "str"
+        formatter: "value_mapper"
         formatting:
-          field_colors:
-            - type: "path"
-      type:
-        header: "Type:"
-        path: "type"
-        default: "<unset>"
-        type: "str"
+          mapping:
+            mappings:
+              Completed:
+                field_colors:
+                  - context: "main"
+                    type: "status_done"
+              Draining:
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+              Error:
+                field_colors:
+                  - context: "main"
+                    type: "status_not_ok"
+              Pending:
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+              Updating:
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
   shortcuts:
     "Node Label Selector":
       key: "b"
@@ -135,6 +275,41 @@ infoview:
       itemgetter: "get_key_value"
       itemgetter_args:
         path: "spec#nodeSelector"
+    "List Firmware Images":
+      key: "f"
+      modifier: "shift"
+      read_only: true
+      helptext: "List Firmware Images"
+      widget: "windowwidget"
+      title: "Firmware Images:"
+      headers: ["Type:", "Filename:"]
+      itemgetter: "get_list_fields"
+      itemgetter_args:
+        path: "spec#content#files"
+        fields:
+          - "type"
+          - "filename"
+    "List Status Messages":
+      key: "g"
+      read_only: true
+      helptext: "List status messages"
+      widget: "windowwidget"
+      title: "Status Messages:"
+      itemgetter: "get_list_as_list"
+      itemgetter_args:
+        path: "status#messages"
+    "Open AMC credentials Secret":
+      key: "a"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for image pull Secret"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        namespace: "intel-gpu-operator"
+        name_path: "spec#amcCredentialsSecret"
+        kind: "Secret"
     "Open image pull Secret":
       key: "p"
       modifier: "shift"
@@ -144,6 +319,6 @@ infoview:
       action_call: "resourceinfodispatch_with_lookup"
       action_args:
         _pass_obj: true
-        name_path: "spec#imagePullSecret#name"
-        namespace_path: "spec#imagePullSecret#namespace"
+        namespace: "intel-gpu-operator"
+        name_path: "spec#imagePullSecret"
         kind: "Secret"

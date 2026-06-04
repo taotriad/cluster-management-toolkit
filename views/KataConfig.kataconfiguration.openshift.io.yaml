@@ -90,13 +90,13 @@ infoview:
     listgetter_args:
       multipath: "status#kataNodes"
       subpaths:
-        - "waitingToInstall"
-        - "installing"
-        - "installed"
-        - "failedToInstall"
-        - "failedToUninstall"
-        - "waitingToUninstall"
-        - "uninstalling"
+        - path: "waitingToInstall"
+        - path: "installing"
+        - path: "installed"
+        - path: "failedToInstall"
+        - path: "failedToUninstall"
+        - path: "waitingToUninstall"
+        - path: "uninstalling"
     infogetter: "generic_infogetter"
     field_indexes:
       Normal:

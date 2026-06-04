@@ -179,8 +179,8 @@ infoview:
     listgetter_args:
       multipath: "spec#config"
       subpaths:
-        - "heartbeat.monitors"
-        - "filebeat.inputs"
+        - path: "heartbeat.monitors"
+        - path: "filebeat.inputs"
     infogetter: "generic_infogetter"
     field_indexes:
       Normal:
