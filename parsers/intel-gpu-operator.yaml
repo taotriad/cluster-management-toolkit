@@ -23,3 +23,15 @@
           - matchtype: "startswith"
             matchkey: "Git Info: "
             loglevel: "notice"
+    - name: "diff_line"
+      options:
+        block_start:
+          - matchtype: "startswith"
+            matchkey: "DS differencediff"
+            matchline: "any"
+            format_block_start: true
+        block_end:
+          - matchtype: "exact"
+            matchkey: "  }"
+            format_block_end: true
+        loglevel: "info"

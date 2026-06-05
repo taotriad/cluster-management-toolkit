@@ -92,11 +92,47 @@ infoview:
                  "dra_loglevel",
                  "dra_status",
                  "device_plugin_header",
+                 "device_plugin_plugin",
+                 "device_plugin_level_zero",
+                 "device_plugin_by_path_mode",
                  "device_plugin_status",
                  "loglevel"]
     rows:
+      device_plugin_by_path_mode:
+        header: [["  By Path Mode:", ["main", "infoheader"]]]
+        path: "spec#dp#byPathMode"
+        default: "<unset>"
+        type: "str"
       device_plugin_header:
         header: [["Device Plugin:", ["main", "infoheader"]]]
+      device_plugin_level_zero:
+        header: [["  Level Zero Image:", ["main", "infoheader"]]]
+        paths:
+          - path: "spec#dp#levelzero"
+            pathtype: "regex"
+            regex: "^([^:]+):(.*)"
+            default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "generic"
+            - type: "version"
+          field_separators:
+            - type: "version"
+      device_plugin_plugin:
+        header: [["  Plugin Image:", ["main", "infoheader"]]]
+        paths:
+          - path: "spec#dp#plugin"
+            pathtype: "regex"
+            regex: "^([^:]+):(.*)"
+            default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "generic"
+            - type: "version"
+          field_separators:
+            - type: "version"
       device_plugin_status:
         header: [["  Status:", ["main", "infoheader"]]]
         paths:
