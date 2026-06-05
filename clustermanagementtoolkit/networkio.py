@@ -247,7 +247,7 @@ def get_netrc_token(url: str | None) -> str | None:
         Parameters:
             url (str): The URL to find a bearer token for
         Returns:
-            (str): A bearer token, o None if no token could be found
+            (str): A bearer token, or an empty string if no matching token could be found
     """
     token: str | None = None
 
