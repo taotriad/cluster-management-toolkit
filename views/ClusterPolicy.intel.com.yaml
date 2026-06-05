@@ -73,7 +73,7 @@ infoview:
                  "health_check_interval",
                  "health_check_core_temperature_threshold",
                  "health_check_memory_temperature_threshold",
-                 "health_check_power_threshold",
+#                "health_check_power_threshold",
                  "kueue_enabled",
                  "nfd_labeling",
                  "prometheus_integration",
@@ -87,7 +87,8 @@ infoview:
                  "dra_header",
                  "dra_image",
                  "dra_device_taints",
-                 "dra_health_check_port",
+#                "dra_health_check_port",
+                 "dra_pod_health_check",
                  "dra_loglevel",
                  "dra_status",
                  "device_plugin_header",
@@ -126,20 +127,25 @@ infoview:
             - type: "version"
           field_separators:
             - type: "version"
-      dra_health_check_port:
-        header: [["  Health Check Port:", ["main", "infoheader"]]]
-        path: "spec#dra#healthCheckPort"
-        default: "<unset>"
-        type: "int"
-        formatting:
-          field_colors:
-            - type: "port"
+#     dra_health_check_port:
+#       header: [["  Health Check Port:", ["main", "infoheader"]]]
+#       path: "spec#dra#healthCheckPort"
+#       default: "<unset>"
+#       type: "int"
+#       formatting:
+#         field_colors:
+#           - type: "port"
       dra_loglevel:
         header: [["  Loglevel:", ["main", "infoheader"]]]
         path: "spec#dra#logLevel"
         default: "<unset>"
         type: "int"
         formatter: "numerical"
+      dra_pod_health_check:
+        header: [["  Pod Health Check:", ["main", "infoheader"]]]
+        path: "spec#dra#podHealthCheck"
+        default: "<unset>"
+        type: "bool"
       dra_status:
         header: [["  Status:", ["main", "infoheader"]]]
         paths:
@@ -185,14 +191,14 @@ infoview:
         formatter: "numerical"
         formatting:
           unit: "°C"
-      health_check_power_threshold:
-        header: [["  Power Threshold:", ["main", "infoheader"]]]
-        path: "spec#health#powerThreshold"
-        default: "<unset>"
-        type: "int"
-        formatter: "numerical"
-        formatting:
-          unit: "W"
+#     health_check_power_threshold:
+#       header: [["  Power Threshold:", ["main", "infoheader"]]]
+#       path: "spec#health#powerThreshold"
+#       default: "<unset>"
+#       type: "int"
+#       formatter: "numerical"
+#       formatting:
+#         unit: "W"
       kueue_enabled:
         header: [["Kueue:", ["main", "infoheader"]]]
         paths:
@@ -259,21 +265,9 @@ infoview:
         type: "int"
         formatter: "numerical"
       xpu_i915_monitoring:
-        header: [["  i915 Monitoring:", ["main", "infoheader"]]]
-        paths:
-          - path: "spec#xpu"
-            pathtype: "substitution"
-            when:
-              - key: "monitoringI915"
-                eq: true
-            substitute: "Enabled"
-          - path: "spec"
-            pathtype: "substitution"
-            when:
-              - key: "monitoringI915"
-                eq: false
-            substitute: "Disabled"
-        default: "Disabled"
+        header: [["  Monitoring Resource:", ["main", "infoheader"]]]
+        path: "spec#xpu#monitoringResource"
+        default: "xe_monitoring"
         type: "str"
       xpu_status:
         header: [["  Status:", ["main", "infoheader"]]]
