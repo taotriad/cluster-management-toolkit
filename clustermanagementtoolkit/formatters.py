@@ -1049,7 +1049,7 @@ COLORSCHEME_PYTHON: dict[Any, ColorSchemeEntry] = {
     # """
     Token.Literal.String.Doc: {
         "formatting": ThemeAttr("types", "python_docstring"),
-        "type": "hashbang",
+        "type": "comment",
     },
     # ,
     Token.Punctuation: {
@@ -1206,7 +1206,7 @@ COLORSCHEME_SHELLSCRIPT: dict[Any, ColorSchemeEntry] = {
     },
     # #! /bin/sh
     Token.Comment.Hashbang: {
-        "formatting": ThemeAttr("types", "shellscript_comment"),
+        "formatting": ThemeAttr("types", "shellscript_hashbang"),
         "type": "hashbang",
     },
     # # comment
@@ -1940,7 +1940,6 @@ def format_yaml_line(line: str, **kwargs: Any) -> tuple[list[ThemeRef | ThemeStr
         deep_get(kwargs, DictPath("override_formatting"), {})
     expand_newline_fields: tuple[str] = deep_get(kwargs, DictPath("expand_newline_fields"), ())
     value_strip_ansicodes: bool = deep_get(kwargs, DictPath("value_strip_ansicodes"), True)
-    value_expand_tabs: bool = deep_get(kwargs, DictPath("value_expand_tabs"), False)
     remnants: list[list[ThemeRef | ThemeStr]] = []
 
     if not isinstance(override_formatting, dict):
@@ -2037,16 +2036,6 @@ def format_yaml_line(line: str, **kwargs: Any) -> tuple[list[ThemeRef | ThemeStr
                 value_line_indent = 0
 
                 for i, value_line in enumerate(split_value):
-                    if value_expand_tabs:
-                        tmp_split_value_line = value_line.replace("\\t", "\t").split("\t")
-                        tmp_value_line = ""
-                        for j, split_value_line_segment in enumerate(tmp_split_value_line):
-                            tabsize = 0
-                            if j < len(tmp_split_value_line):
-                                tabsize = 8 - len(tmp_value_line) % 8
-                            tmp_value_line += split_value_line_segment + "".ljust(tabsize)
-                        value_line = tmp_value_line
-
                     if i == 0:
                         tmpline = [
                             ThemeStr(f"{key}", _key_format),
@@ -2065,21 +2054,6 @@ def format_yaml_line(line: str, **kwargs: Any) -> tuple[list[ThemeRef | ThemeStr
                             ThemeStr(f"{value_line}", _value_format),
                         ])
             else:
-                if value_expand_tabs:
-                    tmp_split_value = value.replace("\\t", "\t").split("\t")
-                    tmp_value = ""
-                    first = True
-                    for j, split_value_segment in enumerate(tmp_split_value):
-                        tabsize = 0
-                        if j < len(tmp_split_value):
-                            tabsize = 8 - len(tmp_value) % 8
-                        if not first:
-                            tmp_value += "".ljust(tabsize)
-                        else:
-                            first = False
-                        tmp_value += split_value_segment
-                    value = tmp_value
-
                 tmpline += [
                     ThemeStr(f"{key}", _key_format),
                     ThemeStr(f"{separator}", separator_format),

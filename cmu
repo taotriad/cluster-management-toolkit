@@ -124,17 +124,16 @@ from clustermanagementtoolkit import curses_helper
 from clustermanagementtoolkit.curses_helper import clear_tagged_items, tag_item, untag_item
 from clustermanagementtoolkit.curses_helper import in_tagged_items, get_tagged_items
 from clustermanagementtoolkit.curses_helper import get_tagged_objects
-from clustermanagementtoolkit.curses_helper import themearray_strip, themearray_flatten
-
 from clustermanagementtoolkit.curses_helper import CursesConfiguration, color_log_severity
 from clustermanagementtoolkit.curses_helper import format_helptext, get_mousemask
 from clustermanagementtoolkit.curses_helper import color_status_group, map_key
 from clustermanagementtoolkit.curses_helper import UIProps, WidgetLineAttrs
 from clustermanagementtoolkit.curses_helper import get_theme_ref, read_theme
-from clustermanagementtoolkit.curses_helper import themearray_wrap_line, themearray_to_string
-from clustermanagementtoolkit.curses_helper import themearray_len
-from clustermanagementtoolkit.curses_helper import themearray_truncate
 from clustermanagementtoolkit.curses_helper import ThemeAttr, ThemeRef, ThemeStr
+from clustermanagementtoolkit.curses_helper import themearray_strip, themearray_flatten
+from clustermanagementtoolkit.curses_helper import themearray_wrap_line, themearray_to_string
+from clustermanagementtoolkit.curses_helper import themearray_len, themearray_detab
+from clustermanagementtoolkit.curses_helper import themearray_truncate
 
 from clustermanagementtoolkit import listgetters
 from clustermanagementtoolkit.listgetters import listgetter_allowlist
@@ -5336,7 +5335,24 @@ def log_add_line(timestamps: list[datetime],
     else:
         facilities.append((facility_extended, facility))
     severities.append(severity)
-    messages.append(message)
+    if isinstance(message, str):
+        # We need to replace tabs with spaces; it's not a trivial process and we cannot get it
+        # perfect, but we'll do what we can.
+        tabsplit = message.split("\t")
+        if len(tabsplit) > 1:
+            new_message = ""
+            tab = ""
+            for segment in tabsplit:
+                new_message += tab
+                new_message += segment
+                tabsize = len(new_message + segment) % 8
+                if not tabsize:
+                    tabsize = 8
+                tab = "".ljust(tabsize)
+            message = "".join(new_message)
+        messages.append(message)
+    else:
+        messages.append(themearray_detab(message))
 
     return timestamps, facilities, severities, messages
 
@@ -6340,12 +6356,6 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                     "columns": [[ThemeStr("Expand newlines (WIP)",
                                  ThemeAttr("windowwidget", "default"))]],
                     "retval": "expand_newlines",
-                },
-                {
-                    "lineattrs": WidgetLineAttrs.NORMAL,
-                    "columns": [[ThemeStr("Expand tabs (WIP)",
-                                 ThemeAttr("windowwidget", "default"))]],
-                    "retval": "expand_tabs",
                 },
             ]
             preselection: str | set = set()

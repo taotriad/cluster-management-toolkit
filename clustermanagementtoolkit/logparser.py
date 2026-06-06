@@ -141,7 +141,6 @@ class LogparserConfiguration:
     # msg="Starting foo" version="(version=.*)" => Starting foo (version=.*)
     merge_starting_version: bool = True
     # Replace tabs within values
-    expand_tabs: bool = True
     using_bundles: bool = False
 
 
@@ -1398,8 +1397,7 @@ def split_json_style(message: str, **kwargs: Any) \
 
                 tmp = formatters.format_yaml([dump],
                                              override_formatting=override_formatting,
-                                             expand_newline_fields=expand_newline_fields,
-                                             value_expand_tabs=LogparserConfiguration.expand_tabs)
+                                             expand_newline_fields=expand_newline_fields)
 
                 if severity is None:
                     if structseverity is not None:

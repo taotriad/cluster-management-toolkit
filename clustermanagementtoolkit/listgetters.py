@@ -2435,7 +2435,7 @@ def listgetter_path(obj: dict, **kwargs: Any) -> tuple[dict | list[dict], int]:
             for item in deep_get(obj, DictPath(f"{multipath}#{path}"), []):
                 if isinstance(item, dict):
                     tmp = copy.deepcopy(item)
-                    tmp[value_name] = key_value_
+                    tmp[value_name] = key_value
                 else:
                     tmp = {
                         key_name: key_value,

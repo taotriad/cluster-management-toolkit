@@ -2120,14 +2120,54 @@ def themearray_select(themearray: Sequence[ThemeRef | ThemeStr],
     return themearray_selected
 
 
-def themearray_flatten(themearray: list[ThemeRef | ThemeStr],
-                       selected: bool | None = None) -> list[ThemeStr]:
+def themearray_detab(themearray: list[ThemeRef | ThemeStr],
+                     selected: bool | None = None) -> list[ThemeRef | ThemeStr]:
+    """
+    Replace all tabs in a ThemeArray with spaces.
+
+        Parameters:
+            themearray (ThemeArray): The themearray to detab
+        Returns:
+            (ThemeArray): The detabbed themearray
+        Raises:
+            ProgrammingError: themearray is not a themearray
+    """
+    themearray_detabbed: list[ThemeRef | ThemeStr] = []
+    length = 0
+
+    for segment in themearray:
+        if isinstance(segment, ThemeRef):
+            length += themearray_len([segment])
+            themearray_detabbed.append(segment)
+        elif isinstance(segment, ThemeStr):
+            # We need to replace tabs with spaces; it's not a trivial process and we cannot get it
+            # perfect, but we'll do what we can.
+            tabsplit = str(segment).split("\t")
+            if len(tabsplit) > 1:
+                new_string = ""
+                tab = ""
+                for subsegment in tabsplit:
+                    new_string += tab
+                    new_string += subsegment
+                    tabsize = (length + len(new_string)) % 8
+                    if not tabsize:
+                        tabsize = 8
+                    tab = "".ljust(tabsize)
+            else:
+                new_string = str(segment)
+            # Replace the string component of the ThemeStr()
+            segment.string = new_string
+            themearray_detabbed.append(segment)
+            length += len(new_string)
+    return themearray_detabbed
+
+
+def themearray_flatten(themearray: list[ThemeRef | ThemeStr]) -> list[ThemeStr]:
     """
     Replace all ThemeRefs in a ThemeArray with ThemeStr.
 
         Parameters:
             themearray (ThemeArray): The themearray to flatten
-            selected (bool): [optional] True is selected, False otherwise
         Returns:
             (ThemeArray): The flattened themearray
         Raises:
@@ -2170,7 +2210,6 @@ def themearray_compact(themearray: list[ThemeRef | ThemeStr]) -> list[ThemeStr]:
 
         Parameters:
             themearray (ThemeArray): The themearray to flatten
-            selected (bool): [optional] True is selected, False otherwise
         Returns:
             (ThemeArray): The flattened themearray
         Raises:
@@ -2331,9 +2370,8 @@ def themearray_strip(themearray: list[ThemeStr], characters: str = " ") -> list[
     return themearray_lstrip(themearray_rstrip(themearray, characters), characters)
 
 
-def themearray_wrap_line(themearray: list[ThemeRef | ThemeStr],
-                         maxwidth: int = -1, wrap_marker: bool = True,
-                         selected: bool | None = None) -> list[list[ThemeRef | ThemeStr]]:
+def themearray_wrap_line(themearray: list[ThemeRef | ThemeStr], maxwidth: int = -1,
+                         wrap_marker: bool = True) -> list[list[ThemeRef | ThemeStr]]:
     """
     Given a themearray, split it into multiple lines, each maxwidth long.
 
@@ -2341,14 +2379,13 @@ def themearray_wrap_line(themearray: list[ThemeRef | ThemeStr],
             themearray (ThemeArray): The themearray to wrap
             maxwidth (int): The maximum number of characters before wrapping
             wrap_marker (bool): Should the line end in a wrap marker?
-            selected (bool): Should the line(s) be selected?
         Returns:
             ([ThemeArray]): A list of themearrays
     """
     if maxwidth == -1:
         return [themearray]
 
-    if not (themearray_flat := themearray_flatten(themearray, selected=selected)):
+    if not (themearray_flat := themearray_flatten(themearray)):
         return []
 
     linebreak = ThemeRef("separators", "line_break").to_themearray()
@@ -4031,8 +4068,6 @@ class UIProps:
         self.logpad = curses.newpad(self.logpadheight + 1, self.logpadwidth)
         self.loglen = 0
 
-    # Calling this function directly is not necessary;
-    # the pad never grows down, and self.__addstr() calls this when x grows
     def resize_logpad(self, height: int, width: int) -> None:
         """
         Resize the logpad.
@@ -4051,7 +4086,7 @@ class UIProps:
                 self.logpadheight = height + 1
         if width != -1:
             self.logpadminwidth = self.maxx - self.logpadxpos
-            self.logpadwidth = max(width, self.logpadminwidth)
+            self.logpadwidth = max(width, self.logpadminwidth) + 1
 
         if self.logpadheight > 0:
             if self.tspad and self.tspadxpos != self.logpadxpos:
@@ -4059,7 +4094,7 @@ class UIProps:
             if self.logpad:
                 self.logpad.resize(self.logpadheight + 1, self.logpadwidth + 1)
         self.maxyoffset = max(0, self.loglen - self.logpadheight)
-        self.maxxoffset = max(0, self.logpadwidth - self.logpadminwidth)
+        self.maxxoffset = max(0, self.logpadwidth - self.logpadminwidth - 1)
         self.yoffset = min(self.yoffset, self.maxyoffset)
 
     def refresh_logpad(self) -> None:

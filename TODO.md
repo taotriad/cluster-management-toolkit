@@ -131,8 +131,6 @@
 
 * It might be a good idea to disable `msg_extract`, `msg_first`,
   `merge_starting_version`, and possibly also `expand_newlines` by default.
-* `expand_tabs` doesn't work; most likely it cannot be made to work in a simple manner,
-  but we need to replace tabs somehow, since they screw up line-length calculation.
 * For key_value_with_leading_message when having allow_bare_keys enabled
   we should only allow booleans and integers to be unquoted. Otherwise we
   might end up with regular strings split over multiple lines.
