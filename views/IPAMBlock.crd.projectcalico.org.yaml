@@ -58,13 +58,19 @@ infoview:
   infopad:
     row_indexes:
       Normal:
-        fields: ["cidr", "affinity", "allocations", "strict_affinity",
+        fields: ["cidr", "affinity", "affinity_claim_time",
+                 "strict_affinity", "allocations",
                  "deleted", "sequence_number"]
     rows:
       affinity:
         header: [["Affinity:", ["main", "infoheader"]]]
         path: "spec#affinity"
         type: "str"
+      affinity_claim_time:
+        header: [["Affinity Claim Time:", ["main", "infoheader"]]]
+        path: "spec#affinityClaimTime"
+        type: "timestamp"
+        formatter: "timestamp"
       allocations:
         header: [["Allocations:", ["main", "infoheader"]]]
         paths:
