@@ -32,8 +32,6 @@ listview:
             - filepath: "{HOME}/.cmt/version-cache/cmt_changelog.md"
               filetype: "text"
               pathtype: "raw"
-              substitutions:
-                "changelog": "changelog"
           formatter: "markdown"
           formatter_args:
             # First match in the file is what we want
@@ -150,7 +148,7 @@ listview:
           installed_version:
             fieldgetter: "fieldgetter_executable_version"
             fieldgetter_args:
-              executable: "/usr/bin/calicoctl"
+              executable: ["/usr/bin/calicoctl", "/usr/bin/kubectl-calico"]
               args: ["version"]
               version_regex: '^Client Version:\s+v(\d+)(\.)(\d+)(\.)(\d+)'
           file_not_found_status: "No changelog found"
@@ -404,7 +402,7 @@ listview:
   field_indexes:
     Normal:
       fields: ["name", "installed_version", "latest_version",
-               "release_date", "last_checked", "note"]
+               "release_date", "last_checked"]
       sortcolumn: "name"
   is_taggable: false
   labels: null
@@ -428,10 +426,6 @@ listview:
     name:
       header: "Component:"
       path: "_extra_data#name"
-      type: "str"
-    note:
-      header: "Note:"
-      path: "note"
       type: "str"
     release_date:
       header: "Release Date:"
@@ -480,7 +474,7 @@ infoview:
     row_indexes:
       Normal:
         fields: ["installed_version", "latest_version",
-                 "release_date", "note", "mtime"]
+                 "release_date", "mtime"]
     rows:
       installed_version:
         header: [["Installed Version:", ["main", "infoheader"]]]
@@ -498,10 +492,6 @@ infoview:
         type: "unix_timestamp"
         default: -1
         formatter: "timestamp"
-      note:
-        header: [["Note:", ["main", "infoheader"]]]
-        path: "note"
-        type: "str"
       release_date:
         header: [["Release Date:", ["main", "infoheader"]]]
         paths:

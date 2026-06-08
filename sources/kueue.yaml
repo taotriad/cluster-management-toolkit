@@ -3,7 +3,7 @@ kueuectl:
   description: "kueuectl (Kueue)"
   installed_version:
     function: "get_executable_version"
-    executable: "/usr/bin/kueuectl"
+    executable: ["/usr/bin/kueuectl", "/usr/bin/kubectl-kueue"]
     args: ["version"]
     version_regex: '^Client Version: v(\d+)(\.)(\d+)(\.)(\d+)$'
   candidate_version:

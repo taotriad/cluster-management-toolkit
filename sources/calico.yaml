@@ -3,7 +3,7 @@ calicoctl:
   description: "calicoctl (Calico)"
   installed_version:
     function: "get_executable_version"
-    executable: "/usr/bin/calicoctl"
+    executable: ["/usr/bin/kubectl-calico", "/usr/bin/calicoctl"]
     args: ["version"]
     version_regex: '^Client Version:\s+v(\d+)(\.)(\d+)(\.)(\d+)'
   candidate_version:
