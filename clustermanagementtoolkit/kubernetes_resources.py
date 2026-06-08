@@ -432,6 +432,11 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api": "baselineadminnetworkpolicies",
         "namespaced": False,
     },
+    ("ClusterNetworkPolicy", "policy.networking.k8s.io"): {
+        "api_paths": ["apis/policy.networking.k8s.io/v1alpha2/"],
+        "api": "clusternetworkpolicies",
+        "namespaced": False,
+    },
     # rbac.authorization.k8s.io
     ("ClusterRole", "rbac.authorization.k8s.io"): {
         "api_paths": ["apis/rbac.authorization.k8s.io/v1/"],
