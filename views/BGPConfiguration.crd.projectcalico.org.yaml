@@ -2,9 +2,29 @@
 kind: "BGPConfiguration"
 api_family: "crd.projectcalico.org"
 default_command: "bgpconfigurations"
+command:
+  - "bgpconfs"
+  - "bgpconf"
 listview:
   name: "BGP Configurations"
   group: "Calico"
   field_indexes:
     Normal:
       fields: ["name", "age"]
+infoview:
+  name: "BGP Configuration Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["log_severity_screen", "service_log_balancer_aggregation"]
+    rows:
+      log_severity_screen:
+        header: [["Log Severity Screen:", ["main", "infoheader"]]]
+        path: "spec#logSeverityScreen"
+        default: "<unset>"
+        type: "str"
+      service_log_balancer_aggregation:
+        header: [["Service Load Balancer Aggregation:", ["main", "infoheader"]]]
+        path: "spec#serviceLoadBalancerAggregation"
+        default: "<unset>"
+        type: "bool"
