@@ -933,7 +933,8 @@ def loglevel_to_name(loglevel: LogLevel, default: str = "info") -> str:
         Returns:
             (str): A severity string
     """
-    if loglevel is None or loglevel < LogLevel.EMERG or loglevel > LogLevel.DIFFSAME:
+    if loglevel is None or loglevel != LogLevel.ALL \
+            and (loglevel < LogLevel.EMERG or loglevel > LogLevel.DIFFSAME):
         return default.capitalize()
     return cast(str, loglevel_mappings.get(loglevel))
 
