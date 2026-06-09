@@ -1,0 +1,202 @@
+---
+kind: "ClusterNetworkPolicy"
+api_family: "policy.networking.k8s.io"
+default_command: "networkpolicies"
+command:
+  - "clrnetpols"
+  - "clrnetpol"
+listview:
+  name: "Cluster Network Policies"
+  group: "Network"
+  field_indexes:
+    Normal:
+      fields: ["name", "tier", "priority", "age"]
+      sortcolumn: "priority"
+  fields:
+    priority:
+      header: "Priority:"
+      path: "spec#priority"
+      type: "float"
+      formatter: "numerical"
+      align: "right"
+    tier:
+      header: "Tier:"
+      path: "spec#tier"
+      type: "str"
+infoview:
+  name: "Cluster Network Policy Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["tier", "priority",
+                 "subject_header",
+                 "subject_namespace_header",
+                 "subject_namespace_label_selector",
+                 "subject_namespace_set_based_selector",
+                 "subject_pod_header",
+                 "subject_pod_label_selector",
+                 "subject_pod_set_based_selector",
+                 "subject_pod_namespace_label_selector",
+                 "subject_pod_namespace_set_based_selector",
+                 ]
+    rows:
+      priority:
+        header: [["Priority:", ["main", "infoheader"]]]
+        path: "spec#priority"
+        type: "float"
+        formatter: "numerical"
+      subject_header:
+        header: [["Subject:", ["main", "infoheader"]]]
+      subject_namespace_header:
+        header: [["  Namespace:", ["main", "infoheader"]]]
+      subject_namespace_label_selector:
+        header: [["    Label Selec", ["main", "infoheader"]],
+                 ["t", ["main", "infoheader_shortcut"]],
+                 ["or:", ["main", "infoheader"]]]
+        paths:
+          - path: ["spec#subject#namespaces#matchLabels"]
+            pathtype: "key_value"
+            default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "key"
+            - type: "value"
+          field_separators:
+            - type: "selector"
+      subject_namespace_set_based_selector:
+        header: [["    Set-based Selector:", ["main", "infoheader"]]]
+        paths:
+          - path: "spec#subject#namespaces#matchExpressions"
+            pathtype: "match_expression"
+            default: "<none>"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "key"
+            - type: "operator"
+            - type: "value"
+          field_separators:
+            - type: "space"
+            - type: "no_pad"
+      subject_pod_header:
+        header: [["  Pod:", ["main", "infoheader"]]]
+      subject_pod_label_selector:
+        header: [["    La", ["main", "infoheader"]],
+                 ["b", ["main", "infoheader_shortcut"]],
+                 ["el Selector:", ["main", "infoheader"]]]
+        paths:
+          - path: ["spec#subject#pods#podSelector#matchLabels"]
+            pathtype: "key_value"
+            default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "key"
+            - type: "value"
+          field_separators:
+            - type: "selector"
+      subject_pod_namespace_label_selector:
+        header: [["    Names", ["main", "infoheader"]],
+                 ["p", ["main", "infoheader_shortcut"]],
+                 ["ace Label Selector:", ["main", "infoheader"]]]
+        paths:
+          - path: ["spec#subject#pods#namespaceSelector#matchLabels"]
+            pathtype: "key_value"
+            default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "key"
+            - type: "value"
+          field_separators:
+            - type: "selector"
+      subject_pod_namespace_set_based_selector:
+        header: [["    Namespace Set-based Selector:", ["main", "infoheader"]]]
+        paths:
+          - path: "spec#subject#pods#namespaceSelector#matchExpressions"
+            pathtype: "match_expression"
+            default: "<none>"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "key"
+            - type: "operator"
+            - type: "value"
+          field_separators:
+            - type: "space"
+            - type: "no_pad"
+      subject_pod_set_based_selector:
+        header: [["    Set-based Selector:", ["main", "infoheader"]]]
+        paths:
+          - path: "spec#subject#pods#podSelector#matchExpressions"
+            pathtype: "match_expression"
+            default: "<none>"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "key"
+            - type: "operator"
+            - type: "value"
+          field_separators:
+            - type: "space"
+            - type: "no_pad"
+      tier:
+        header: [["Tier:", ["main", "infoheader"]]]
+        path: "spec#tier"
+        type: "str"
+  shortcuts:
+    "Subject Namespace Label Selector":
+      key: "t"
+      read_only: true
+      helptext: "Show subject Namespace label selector"
+      widget: "windowwidget"
+      title: "Subject Namespace Label Selector:"
+      headers: ["Key:", "Value:"]
+      itemgetter: "get_key_value"
+      itemgetter_args:
+        path: "spec#subject#namespaces#matchLabels"
+    "Subject Pod Label Selector":
+      key: "b"
+      read_only: true
+      helptext: "Show subject Pod label selector"
+      widget: "windowwidget"
+      title: "Subject Pod Label Selector:"
+      headers: ["Key:", "Value:"]
+      itemgetter: "get_key_value"
+      itemgetter_args:
+        path: "spec#subject#pods#podSelector#matchLabels"
+    "Subject Pod Namespace Label Selector":
+      key: "p"
+      read_only: true
+      helptext: "Show subject Pod Namespace label selector"
+      widget: "windowwidget"
+      title: "Subject Pod Namespace Label Selector:"
+      headers: ["Key:", "Value:"]
+      itemgetter: "get_key_value"
+      itemgetter_args:
+        path: "spec#subject#pods#namespaceSelector#matchLabels"
+    "View Ingress rules":
+      key: "i"
+      modifier: "shift"
+      read_only: true
+      helptext: "View ingress rules"
+      action: "call"
+      action_call: "view_yaml"
+      action_args:
+        _pass_obj: true
+        title: "Ingress rules"
+        path: "spec#ingress"
+        include_root: true
+    "View Egress rules":
+      key: "e"
+      modifier: "shift"
+      read_only: true
+      helptext: "View egress rules"
+      action: "call"
+      action_call: "view_yaml"
+      action_args:
+        _pass_obj: true
+        title: "Egress rules"
+        path: "spec#egress"
+        include_root: true

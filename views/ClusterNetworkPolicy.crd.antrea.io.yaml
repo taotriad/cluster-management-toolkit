@@ -3,6 +3,10 @@ kind: "ClusterNetworkPolicy"
 api_family: "crd.antrea.io"
 default_command: "clusternetworkpolicies"
 command:
+  " "clrnetpols.antrea"
+  " "clrnetpol.antrea"
+  - "antreaclrnetpols"
+  - "antreaclrnetpol"
   - "acnp"
 listview:
   name: "Cluster Network Policies"
