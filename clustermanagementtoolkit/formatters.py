@@ -13,6 +13,7 @@ Format text as themearrays
 
 import base64
 import binascii
+from datetime import datetime
 # ujson is much faster than json,
 # but it might not be available
 try:
@@ -58,11 +59,17 @@ from pygments.lexers.python import PythonLexer, PythonTracebackLexer
 from pygments.lexers.shell import BashLexer, PowerShellLexer
 from pygments.token import Token
 
+try:
+    from natsort import natsorted
+except ModuleNotFoundError:  # pragma: no cover
+    sys.exit("ModuleNotFoundError: Could not import natsort; "
+             "you may need to (re-)run `cmt-install` or `pip3 install natsort`; aborting.")
+
 from clustermanagementtoolkit.cmttypes import deep_get, DictPath, FilePath, LogLevel
 from clustermanagementtoolkit.cmttypes import FilePathAuditError, StatusGroup
 
 from clustermanagementtoolkit import cmtlib
-from clustermanagementtoolkit.cmtlib import split_msg, strip_ansicodes
+from clustermanagementtoolkit.cmtlib import get_since, split_msg, strip_ansicodes
 
 from clustermanagementtoolkit.ansithemeprint import ANSIThemeStr
 
@@ -77,6 +84,9 @@ from clustermanagementtoolkit.curses_helper import themearray_to_string, themear
 from clustermanagementtoolkit.curses_helper import themearray_lstrip
 from clustermanagementtoolkit.curses_helper import themearray_compact, themearray_split
 from clustermanagementtoolkit.curses_helper import themearray_flatten, themearray_replace
+
+from clustermanagementtoolkit.generators import format_list, format_numerical_with_units
+from clustermanagementtoolkit.generators import format_timestamp
 
 from clustermanagementtoolkit.github_tags import GITHUB_ALERTS, GITHUB_EMOJIS
 
@@ -2877,6 +2887,91 @@ def format_javascript(lines: str | list[str], **kwargs: Any) -> list[list[ThemeR
                                    colorscheme=COLORSCHEME_JAVASCRIPT)
 
 
+# pylint: disable-next=too-many-locals,too-many-branches
+def format_key_value(lines: dict[str, Any], **kwargs: Any) -> list[list[ThemeRef | ThemeStr]]:
+    """
+    key[:type]:value formatter; returns the text with syntax highlighting for key:value data.
+
+        Parameters:
+            lines (list[str]): A list of strings
+            *or*
+            lines (str): A string with newlines that should be split
+            **kwargs (dict[str, Any]): Keyword arguments
+                typed (bool): Should the data be interpreted as key:type:value?
+                sort (bool): Should the data be sorted?
+                value_type (str): type to use if data isn't typed; default is str
+        Returns:
+            list[themearray]: A list of themearrays
+    """
+    typed = deep_get(kwargs, DictPath("typed"), False)
+    sort = deep_get(kwargs, DictPath("sort"), False)
+    value_type = deep_get(kwargs, DictPath("value_type"), "default")
+    override_types: dict[str, str] = deep_get(kwargs, DictPath("override_types"), {})
+    value_mappings: dict[str, str] = deep_get(kwargs, DictPath("value_mappings"), {})
+    separator_type: str = deep_get(kwargs, DictPath("separator#type"), "keyvalue")
+    selected: bool = False
+
+    dumps: list[list[ThemeRef | ThemeStr]] = []
+
+    if sort:
+        lines = dict(natsorted(lines.items()))
+
+    for key, d in lines.items():
+        if not typed:
+            d = {value_type: d}
+        for vtype, value in d.items():
+            vtype = deep_get(override_types, DictPath(key), vtype)
+            match key, vtype, value:
+                case key, _, _ if key in value_mappings:
+                    context = deep_get(value_mappings, DictPath(f"{key}#{value}#context"), "types")
+                    ftype = deep_get(value_mappings, DictPath(f"{key}#{value}#type"), "generic")
+                    formatted_value: ThemeStr | list[ThemeRef | ThemeStr] = \
+                        ThemeStr(value, ThemeAttr(context, ftype))
+                case _, "age", _:
+                    formatted_value = \
+                        format_numerical_with_units(f"{get_since(value)}", selected, ftype="age")
+                case _, "timestamp", _:
+                    formatted_value = format_timestamp(value, selected)
+                case _, _, value if isinstance(value, datetime):
+                    formatted_value = format_timestamp(value, selected)
+                case _, "bool" | "boolean", _:
+                    formatted_value = ThemeStr(f"{value}", ThemeAttr("types", "generic"))
+                case _, _, _ if isinstance(value, bool):
+                    formatted_value = ThemeStr(f"{value}", ThemeAttr("types", "generic"))
+                case _, "str" | "string", _:
+                    formatted_value = ThemeStr(f"{value}", ThemeAttr("types", "generic"))
+                case _, "hex", _ if isinstance(value, (str, int)):
+                    formatted_value = \
+                        format_numerical_with_units(str(value), selected, ftype="numerical",
+                                                    non_units=set("0123456789abcdefABCDEF"))
+                case _, "int" | "integer" | "float", _:
+                    formatted_value = \
+                        format_numerical_with_units(value, selected, ftype="numerical")
+                case _, _, value if isinstance(value, (float, int)):
+                    formatted_value = \
+                        format_numerical_with_units(str(value), selected, ftype="numerical")
+                case _, "list" | "tuple", _:
+                    formatted_value = format_list(list(value), fieldlen=0, pad=False)
+                case _, _, value if isinstance(value, (list, tuple)):
+                    formatted_value = format_list(list(value), fieldlen=0, pad=False)
+                case _, _, _:
+                    formatted_value = ThemeStr(f"{value}", ThemeAttr("types", "generic"))
+
+            if isinstance(formatted_value, list):
+                dumps.append([
+                    cast(ThemeRef | ThemeStr, ThemeStr(key, ThemeAttr("types", "key"))),
+                    ThemeRef("separators", separator_type),
+                ] + formatted_value)
+            else:
+                dumps.append([
+                    ThemeStr(key, ThemeAttr("types", "key")),
+                    ThemeRef("separators", separator_type),
+                    formatted_value,
+                ])
+
+    return dumps
+
+
 def format_known_hosts(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef | ThemeStr]]:
     """
     known_hosts formatter; returns the text with syntax highlighting for .ssh/known_hosts.
@@ -3118,6 +3213,7 @@ formatter_allowlist: dict[str, Callable] = {
     "format_html": format_html,
     "format_ini": format_ini,
     "format_javascript": format_javascript,
+    "format_key_value": format_key_value,
     "format_known_hosts": format_known_hosts,
     "format_mosquitto": format_mosquitto,
     "format_nginx": format_nginx,
