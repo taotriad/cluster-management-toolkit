@@ -2609,6 +2609,10 @@
 																"selected",
 																"object"
 															]
+														},
+														"value_path": {
+															"description": "Path to a nested value when using get_key_value()",
+															"$ref": "#/definitions/path"
 														}
 													},
 													"oneOf": [
