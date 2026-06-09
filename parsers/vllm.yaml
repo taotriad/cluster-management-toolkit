@@ -1,0 +1,31 @@
+---
+- name: "vllm"
+  show_in_selector: false
+  matchkeys:
+    - image_name: "/intel/vllm"
+  parser_rules:
+    - name: "custom_splitter"
+      options:
+        regex: '^([A-Z]+) \d\d-\d\d \d\d:\d\d:\d\d \[([^]]+)\] (.*)'
+        severity:
+          field: 1
+          transform: "str"
+        facility:
+          fields:
+            - 2
+        message:
+          field: 3
+    - name: "custom_splitter"
+      options:
+        regex: '^(/.+?:\d+:) (.*)'
+        facility:
+          fields:
+            - 1
+        message:
+          field: 2
+    - name: "python_traceback"
+    - name: "override_severity"
+      overrides:
+        - matchtype: "regex"
+          matchkey: "^UserWarning|SyntaxWarning"
+          loglevel: "warning"
