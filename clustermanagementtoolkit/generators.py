@@ -132,6 +132,41 @@ def format_special(string: str, selected: bool) -> ThemeRef | ThemeStr | None:
     return formatted_string
 
 
+def format_timestamp(timestamp: str | datetime, selected: bool) -> list[ThemeRef | ThemeStr]:
+    """
+    Format a timestamp.
+
+        Parameters:
+            timestamp (str | timestamp): The timestamp to format
+            selected (bool): Is the string selected?
+        Returns:
+            ([ThemeRef | ThemeStr]): A ThemeArray
+    """
+    array: list[ThemeRef | ThemeStr] = []
+    string: str = ""
+
+    if isinstance(timestamp, str):
+        if (tmp := format_special(timestamp, selected)) is not None:
+            array = [tmp]
+        string = timestamp
+
+    if not array:
+        if not isinstance(timestamp, str):
+            string = datetime_to_timestamp(timestamp)
+        if timestamp is None:
+            array = [
+                ThemeStr(string, ThemeAttr("types", "generic"), selected)
+            ]
+        elif timestamp == datetime.fromtimestamp(0).astimezone():
+            array = [
+                ThemeStr(string, ThemeAttr("types", "generic"), selected)
+            ]
+        else:
+            array = format_numerical_with_units(string, selected, ftype="numerical")
+
+    return array
+
+
 # pylint: disable-next=too-many-locals,too-many-branches,too-many-statements
 def format_list(items: Any, fieldlen: int, pad: bool,
                 **kwargs: Any) -> list[ThemeRef | ThemeStr]:
@@ -1023,28 +1058,9 @@ def generator_timestamp(obj: dict, field: str, fieldlen: int, pad: bool,
         Returns:
             ([ThemeRef | ThemeStr]): A formatted string
     """
-    array: list[ThemeRef | ThemeStr] = []
-    string: str = ""
-    value = deep_get(obj, DictPath(field))
+    value: str | datetime = deep_get(obj, DictPath(field))
 
-    if isinstance(value, str):
-        if (tmp := format_special(value, selected)) is not None:
-            array = [tmp]
-        string = value
-
-    if not array:
-        if not isinstance(value, str):
-            string = datetime_to_timestamp(value)
-        if value is None:
-            array = [
-                ThemeStr(string, ThemeAttr("types", "generic"), selected)
-            ]
-        elif value == datetime.fromtimestamp(0).astimezone():
-            array = [
-                ThemeStr(string, ThemeAttr("types", "generic"), selected)
-            ]
-        else:
-            array = format_numerical_with_units(string, selected, ftype="numerical")
+    array = format_timestamp(value, selected=selected)
 
     return align_and_pad(array, fieldlen=fieldlen, pad=pad, ralign=ralign, selected=selected)
 
