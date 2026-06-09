@@ -1,0 +1,65 @@
+---
+kind: "__ResourceSliceDevice"
+api_family: "resource.k8s.io"
+default_command: "__"
+infoview:
+  name: "Resource Slice Info"
+  infopad:
+    name_path: "name"
+    row_indexes:
+      Normal:
+        fields: ["capacity"]
+    rows:
+      capacity:
+        header: [["Capacity:", ["main", "infoheader"]]]
+        paths:
+          - path: "capacity"
+            pathtype: "key_value"
+            subpaths:
+              - "value"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "key"
+            - type: "value"
+          field_separators:
+            - type: "keyvalue"
+          field_formatters:
+            - ""
+            - "numerical_with_units"
+  logpad:
+    infogetter: "logpad_formatted"
+    infogetter_args:
+      formatter: "format_key_value"
+      path: "attributes"
+      formatter_args:
+        typed: true
+        sort: true
+        override_types:
+          pciAddress: "hex"
+          pciId: "hex"
+          pciRoot: "hex"
+        value_mappings:
+          health:
+            Healthy:
+              context: "main"
+              type: "status_ok"
+            Unhealthy:
+              context: "main"
+              type: "status_not_ok"
+        separator:
+          type: "id_prefix"
+    timestamps: false
+  shortcuts:
+    "Resource Capacities":
+      key: "c"
+      modifier: "shift"
+      read_only: true
+      helptext: "Show resource capacities"
+      widget: "windowwidget"
+      title: "Capacity:"
+      headers: ["Resource:", "Capacity:"]
+      itemgetter: "get_key_value"
+      itemgetter_args:
+        path: "capacity"
+        value_path: "value"

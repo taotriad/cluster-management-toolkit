@@ -141,6 +141,10 @@ infoview:
     listgetter_args:
       path: "spec#devices"
     infogetter: "generic_infogetter"
+    on_activation:
+      call: "resourceinfodispatch"
+      kind: "__ResourceSliceDevice"
+      api_family: "resource.k8s.io"
     field_indexes:
       Wide:
         fields: ["resource", "capacity", "attributes",
