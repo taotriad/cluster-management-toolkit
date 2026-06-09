@@ -1380,6 +1380,10 @@ listview:
               field_colors:
                 - context: "main"
                   type: "status_done"
+            NetworkPolicyUpdated:
+              field_colors:
+                - context: "main"
+                  type: "status_done"
             NewReplicaSetAvailable:
               field_colors:
                 - context: "main"
@@ -4089,6 +4093,10 @@ infoview:
                   - context: "main"
                     type: "status_not_ok"
               NetworkPolicyCreated:
+                field_colors:
+                  - context: "main"
+                    type: "status_done"
+              NetworkPolicyUpdated:
                 field_colors:
                   - context: "main"
                     type: "status_done"

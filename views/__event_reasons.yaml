@@ -1305,6 +1305,10 @@ NetworkPolicyCreated:
   field_colors:
     - context: "main"
       type: "status_done"
+NetworkPolicyUpdated:
+  field_colors:
+    - context: "main"
+      type: "status_done"
 NewReplicaSetAvailable:
   field_colors:
     - context: "main"
