@@ -1078,20 +1078,24 @@ def explain_playbook(options: list[tuple[str, str]], args: list[str]) -> int:
         Returns:
             (int): 0
     """
-    playbook = args[0]
+    playbook_alias = args[0]
 
-    valid_playbooks = populate_playbooks()
-    if playbook not in valid_playbooks:
+    playbooks = populate_playbooks()
+    playbooks_lookup = populate_playbooks_lookup(playbooks=playbooks)
+
+    if playbook_alias not in playbooks_lookup:
         ansithemeprint([ANSIThemeStr("Error", "error"),
                         ANSIThemeStr(": “", "default"),
-                        ANSIThemeStr(f"{playbook}", "argument"),
+                        ANSIThemeStr(f"{playbook_alias}", "argument"),
                         ANSIThemeStr("“ is not a valid playbook; use “", "default"),
                         ANSIThemeStr(f"{about.INVENTORY_PROGRAM_NAME}", "programname"),
                         ANSIThemeStr(" list-playbooks", "command"),
                         ANSIThemeStr("“ to list valid playbooks.", "default")], stderr=True)
         sys.exit(errno.ENOENT)
 
-    if deep_get(valid_playbooks,
+    playbook = playbooks_lookup[playbook_alias]
+
+    if deep_get(playbooks,
                 DictPath(f"{playbook}#category"), "") in ("__DISABLED__", "__INVALID__"):
         ansithemeprint([ANSIThemeStr("Error", "error"),
                         ANSIThemeStr(": The playbook “", "default"),
@@ -1102,10 +1106,10 @@ def explain_playbook(options: list[tuple[str, str]], args: list[str]) -> int:
                         ANSIThemeStr("“ to list valid playbooks.", "default")], stderr=True)
         sys.exit(errno.EINVAL)
 
-    playbook_path = deep_get(valid_playbooks, DictPath(f"{playbook}#playbook"), "")
+    playbook_path = deep_get(playbooks, DictPath(f"{playbook}#playbook"), "")
     playbook_name = FilePath(playbook_path).basename()
-    playbooks = populate_playbooks_from_filenames(playbooks=[FilePath(playbook_name)])
-    ansible_print_action_summary(playbooks)
+    playbooks_pretty = populate_playbooks_from_filenames(playbooks=[FilePath(playbook_name)])
+    ansible_print_action_summary(playbooks_pretty)
 
     return 0
 

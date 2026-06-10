@@ -80,6 +80,7 @@ TBD
 ### Changes to _cmtinv_ in v0.8.8
 
 * `cmtinv fping` now shows the count of successful/unreachable hosts.
+* `cmtinv explain` now supports playbook aliases.
 
 ### Changes to _cmu_ in v0.8.8
 
