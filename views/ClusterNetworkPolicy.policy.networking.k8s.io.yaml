@@ -37,8 +37,7 @@ infoview:
                  "subject_pod_label_selector",
                  "subject_pod_set_based_selector",
                  "subject_pod_namespace_label_selector",
-                 "subject_pod_namespace_set_based_selector",
-                 ]
+                 "subject_pod_namespace_set_based_selector"]
     rows:
       priority:
         header: [["Priority:", ["main", "infoheader"]]]
