@@ -5,8 +5,6 @@
     - image_name: "/intel/intel-gpu-base-operator"
   parser_rules:
     - name: "glog"
-    - name: "json"
-    - name: "key_value_with_leading_message"
     - name: "custom_line"
       options:
         block_start:
@@ -35,3 +33,5 @@
             matchkey: "  }"
             format_block_end: true
         loglevel: "info"
+    - name: "json"
+    - name: "key_value_with_leading_message"
