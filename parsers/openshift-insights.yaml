@@ -7,8 +7,6 @@
     - pod_name: "insights-runtime-extractor"
   parser_rules:
     - name: "glog"
-    - name: "expand_event"
-    - name: "key_value_with_leading_message"
     - name: "custom_splitter"
       options:
         regex: '^\[\d{4}-\d\d-\d\dT\d\d:\d\d:\d\dZ ([A-Z]+)\s+([^]]+)\] (.+)'
@@ -36,3 +34,5 @@
             format_block_end: false
             process_block_end: false
         loglevel: "info"
+    - name: "expand_event"
+    - name: "key_value_with_leading_message"

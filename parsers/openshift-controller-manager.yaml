@@ -7,9 +7,9 @@
       image_name: "/openshift"
   parser_rules:
     - name: "glog"
+    - name: "tab_separated"
     - name: "expand_event"
     - name: "key_value_with_leading_message"
-    - name: "tab_separated"
     - name: "override_severity"
       overrides:
         - matchtype: "startswith"

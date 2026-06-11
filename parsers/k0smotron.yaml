@@ -14,7 +14,6 @@
       container_name: "controller"
   parser_rules:
     - name: "json"
-    - name: "key_value"
     - name: "custom_line"
       options:
         block_start:
@@ -23,3 +22,4 @@
             matchline: "any"
             format_block_start: true
         loglevel: "critical"
+    - name: "key_value"

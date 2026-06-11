@@ -28,7 +28,6 @@
     - image_name: "/nvidia/cloud-native/gpu-operator-validator"
       container_type: "InitContainer"
   parser_rules:
-    - name: "key_value"
     - name: "override_severity"
       overrides:
         - matchtype: "startswith"
@@ -71,3 +70,4 @@
             format_block_end: false
             process_block_end: false
         loglevel: "info"
+    - name: "key_value"

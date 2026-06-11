@@ -14,8 +14,8 @@
   parser_rules:
     - name: "ts_8601"
     - name: "glog"
-    - name: "key_value"
     - name: "json_line"
+    - name: "key_value"
     - name: "custom_splitter"
       options:
         regex: '^\[([A-Z]+)\]\[\d+\] (\S+) ([^:]+): (.*)'

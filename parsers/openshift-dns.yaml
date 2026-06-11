@@ -22,7 +22,6 @@
       container_name: "dns-operator"
   parser_rules:
     - name: "glog"
-    - name: "key_value"
     - name: "tab_separated"
     - name: "override_severity"
       overrides:
@@ -30,3 +29,4 @@
           matchkey: "Trace["
           loglevel: "debug"
     - name: "expand_event"
+    - name: "key_value"
