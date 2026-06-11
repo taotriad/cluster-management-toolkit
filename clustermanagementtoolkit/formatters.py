@@ -3219,6 +3219,7 @@ formatter_allowlist: dict[str, Callable] = {
     "format_nginx": format_nginx,
     "format_none": format_none,
     "format_powershell": format_powershell,
+    "format_python": format_python,
     "format_python_traceback": format_python_traceback,
     "format_toml": format_toml,
     "format_xml": format_xml,
