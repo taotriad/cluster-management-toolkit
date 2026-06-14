@@ -1397,7 +1397,8 @@ def split_json_style(message: str, **kwargs: Any) \
 
                 tmp = formatters.format_yaml([dump],
                                              override_formatting=override_formatting,
-                                             expand_newline_fields=expand_newline_fields)
+                                             expand_newline_fields=expand_newline_fields,
+                                             json=True)
 
                 if severity is None:
                     if structseverity is not None:
