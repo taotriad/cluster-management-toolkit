@@ -255,6 +255,16 @@ anp:
   - NetworkPolicy
   - crd.antrea.io
   viewfile: NetworkPolicy.crd.antrea.io.yaml
+antreaclrnetpol:
+  kind:
+  - ClusterNetworkPolicy
+  - crd.antrea.io
+  viewfile: ClusterNetworkPolicy.crd.antrea.io.yaml
+antreaclrnetpols:
+  kind:
+  - ClusterNetworkPolicy
+  - crd.antrea.io
+  viewfile: ClusterNetworkPolicy.crd.antrea.io.yaml
 apireqcount:
   kind:
   - APIRequestCount
@@ -1375,6 +1385,26 @@ clrlogs.kwok:
   - ClusterLogs
   - kwok.x-k8s.io
   viewfile: ClusterLogs.kwok.x-k8s.io.yaml
+clrnetpol:
+  kind:
+  - ClusterNetworkPolicy
+  - policy.networking.k8s.io
+  viewfile: ClusterNetworkPolicy.policy.networking.k8s.io.yaml
+clrnetpol.antrea:
+  kind:
+  - ClusterNetworkPolicy
+  - crd.antrea.io
+  viewfile: ClusterNetworkPolicy.crd.antrea.io.yaml
+clrnetpols:
+  kind:
+  - ClusterNetworkPolicy
+  - policy.networking.k8s.io
+  viewfile: ClusterNetworkPolicy.policy.networking.k8s.io.yaml
+clrnetpols.antrea:
+  kind:
+  - ClusterNetworkPolicy
+  - crd.antrea.io
+  viewfile: ClusterNetworkPolicy.crd.antrea.io.yaml
 clroutput:
   kind:
   - ClusterOutput
@@ -5685,7 +5715,7 @@ nlmons:
   - NodeLatencyMonitor
   - crd.antrea.io
   viewfile: NodeLatencyMonitor.crd.antrea.io.yaml
-no:
+'no':
   kind:
   - Node
   - ''
@@ -7189,22 +7219,26 @@ secprofopd:
   kind:
   - SecurityProfilesOperatorDaemon
   - security-profiles-operator.x-k8s.io
-  viewfile: SecurityProfilesOperatorDaemon.security-profiles-operator.x-k8s.io.yaml
+  viewfile: 
+    SecurityProfilesOperatorDaemon.security-profiles-operator.x-k8s.io.yaml
 secprofopdaemon:
   kind:
   - SecurityProfilesOperatorDaemon
   - security-profiles-operator.x-k8s.io
-  viewfile: SecurityProfilesOperatorDaemon.security-profiles-operator.x-k8s.io.yaml
+  viewfile: 
+    SecurityProfilesOperatorDaemon.security-profiles-operator.x-k8s.io.yaml
 secprofopdaemons:
   kind:
   - SecurityProfilesOperatorDaemon
   - security-profiles-operator.x-k8s.io
-  viewfile: SecurityProfilesOperatorDaemon.security-profiles-operator.x-k8s.io.yaml
+  viewfile: 
+    SecurityProfilesOperatorDaemon.security-profiles-operator.x-k8s.io.yaml
 secprofopds:
   kind:
   - SecurityProfilesOperatorDaemon
   - security-profiles-operator.x-k8s.io
-  viewfile: SecurityProfilesOperatorDaemon.security-profiles-operator.x-k8s.io.yaml
+  viewfile: 
+    SecurityProfilesOperatorDaemon.security-profiles-operator.x-k8s.io.yaml
 secprovclass:
   kind:
   - SecretProviderClass
@@ -7624,12 +7658,14 @@ svccertsigneropconf:
   kind:
   - ServiceCertSignerOperatorConfig
   - servicecertsigner.config.openshift.io
-  viewfile: ServiceCertSignerOperatorConfig.servicecertsigner.config.openshift.io.yaml
+  viewfile: 
+    ServiceCertSignerOperatorConfig.servicecertsigner.config.openshift.io.yaml
 svccertsigneropconfs:
   kind:
   - ServiceCertSignerOperatorConfig
   - servicecertsigner.config.openshift.io
-  viewfile: ServiceCertSignerOperatorConfig.servicecertsigner.config.openshift.io.yaml
+  viewfile: 
+    ServiceCertSignerOperatorConfig.servicecertsigner.config.openshift.io.yaml
 svccidr:
   kind:
   - ServiceCIDR

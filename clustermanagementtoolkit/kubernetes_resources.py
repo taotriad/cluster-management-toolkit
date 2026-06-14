@@ -1573,6 +1573,19 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
     },
 
     # Other APIs
+    # agones.dev
+    ("Fleet", "agones.dev"): {
+        "api_paths": ["apis/agones.dev/v1/"],
+        "api": "fleets",
+    },
+    ("GameServer", "agones.dev"): {
+        "api_paths": ["apis/agones.dev/v1/"],
+        "api": "gameservers",
+    },
+    ("GameServerSet", "agones.dev"): {
+        "api_paths": ["apis/agones.dev/v1/"],
+        "api": "gameserversets",
+    },
     # aaq.kubevirt.io
     ("AAQ", "aaq.kubevirt.io"): {
         "api_paths": ["apis/aaq.kubevirt.io/v1alpha1/"],
@@ -1955,6 +1968,11 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api_paths": ["apis/autopilot.k0sproject.io/v1beta2/"],
         "api": "updateconfigs",
         "namespaced": False,
+    },
+    # autoscaling.agones.dev
+    ("FleetAutoscaler", "autoscaling.agones.dev"): {
+        "api_paths": ["apis/autoscaling.agones.dev/v1/"],
+        "api": "fleetautoscalers",
     },
     # autoscaling.k8s.elastic.co
     ("ElasticsearchAutoscaler", "autoscaling.k8s.elastic.co"): {
@@ -5865,6 +5883,11 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api_paths": ["apis/mtq.kubevirt.io/v1alpha1/"],
         "api": "mtqs",
         "namespaced": False,
+    },
+    # multicluster.agones.dev
+    ("GameServerAllocationPolicy", "multicluster.agones.dev"): {
+        "api_paths": ["apis/multicluster.agones.dev/v1/"],
+        "api": "gameserverallocationpolicies",
     },
     # mutations.gatekeeper.sh
     ("ModifySet", "mutations.gatekeeper.sh"): {

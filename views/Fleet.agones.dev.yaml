@@ -1,0 +1,197 @@
+---
+kind: "Fleet"
+api_family: "agones.dev"
+default_command: "fleets"
+listview:
+  name: "Fleets"
+  group: "Agones"
+  field_indexes:
+    Wide:
+      fields: ["namespace", "name", "scheduling",
+               "desired_replicas", "current_replicas",
+               "allocated_replicas", "reserved_replicas",
+               "ready_replicas", "age"]
+    Normal:
+      fields: ["namespace", "name",
+               "desired_replicas", "current_replicas",
+               "allocated_replicas", "reserved_replicas",
+               "ready_replicas", "age"]
+      sortcolumn: "namespace"
+  fields:
+    allocated_replicas:
+      header: "Allocated:"
+      path: "status#allocatedReplicas"
+      default: 0
+      type: "int"
+      formatter: "numerical"
+      align: "right"
+    current_replicas:
+      header: "Current:"
+      paths:
+        - path: ["status#replicas",
+                 "spec#replicas"]
+          pathtype: "comparison"
+          default: [0, 0]
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          ranges:
+            - min: 0
+              max: 1
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+            - default: true
+              field_colors:
+                - context: "main"
+                  type: "status_not_ok"
+      align: "right"
+    desired_replicas:
+      header: "Desired:"
+      path: "spec#replicas"
+      default: 0
+      type: "int"
+      formatter: "numerical"
+      align: "right"
+    ready_replicas:
+      header: "Ready:"
+      paths:
+        - path: ["status#readyReplicas", "status#replicas"]
+          pathtype: "comparison"
+          default: [0, 0]
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          ranges:
+            - min: 0
+              max: 1
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+            - min: -1
+              max: 0
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+            - default: true
+              field_colors:
+                - context: "main"
+                  type: "status_not_ok"
+      align: "right"
+    reserved_replicas:
+      header: "Reserved:"
+      path: "status#reservedReplicas"
+      default: 0
+      type: "int"
+      formatter: "numerical"
+      align: "right"
+    scheduling:
+      header: "Scheduling:"
+      path: "spec#scheduling"
+      default: "<unset>"
+      type: "str"
+infoview:
+  name: "Fleet Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["scheduling", "update_strategy", "replicas"]
+    rows:
+      replicas:
+        header: [["Replicas:", ["main", "infoheader"]]]
+        paths:
+          - path: [["spec#replicas"], " Desired",
+                   ["status#replicas"], " Current",
+                   ["status#allocatedReplicas"], " Allocated",
+                   ["status#reservedReplicas"], " Reserved",
+                   ["status#readyReplicas"], " Ready"]
+            pathtype: "tuple"
+            default: [0, "", 0, "", 0, "", 0, ""]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "numerical"
+            - type: "generic"
+            - type: "numerical"
+            - type: "generic"
+            - type: "numerical"
+            - type: "generic"
+            - type: "numerical"
+            - type: "generic"
+            - type: "numerical"
+            - type: "generic"
+          field_separators:
+            - type: "no_pad"
+            - type: "fraction_spaced"
+            - type: "no_pad"
+            - type: "fraction_spaced"
+            - type: "no_pad"
+            - type: "fraction_spaced"
+            - type: "no_pad"
+            - type: "fraction_spaced"
+            - type: "no_pad"
+      scheduling:
+        header: [["Scheduling:", ["main", "infoheader"]]]
+        path: "spec#scheduling"
+        default: "<unset>"
+        type: "str"
+      update_strategy:
+        header: [["Update Strategy:", ["main", "infoheader"]]]
+        paths:
+          - path: [["spec#strategy#type"],
+                   " (", "Max Unavailable: ",
+                   ["spec#strategy#rollingUpdate#maxUnavailable"],
+                   ", ", "Max Surge: ",
+                   ["spec#strategy#rollingUpdate#maxSurge"],
+                   ")"]
+            pathtype: "tuple"
+            when:
+              - key: "spec#strategy#type"
+                eq: "RollingUpdate"
+            default: ["RollingUpdate", "", "", "1", "", "",
+                      "<unset>", "", "", "<unset>", ""]
+          - path: [["spec#strategy#type"],
+                   " (", "Partition: ",
+                   ["spec#strategy#partition"],
+                   ", ", "Max Unavailable: ",
+                   ["spec#strategy#maxUnavailable"],
+                   ", ", "Max Surge: ",
+                   ["spec#strategy#maxSurge"], ")"]
+            pathtype: "tuple"
+            when:
+              - key: "spec#strategy#type"
+                eq: "ReCreate"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "generic"
+            - type: "generic"
+            - context: "main"
+              type: "infoheader"
+            - type: "numerical"
+            - type: "generic"
+            - context: "main"
+              type: "infoheader"
+            - type: "numerical"
+            - type: "generic"
+            - context: "main"
+              type: "infoheader"
+            - type: "numerical"
+            - type: "generic"
+            - context: "main"
+              type: "infoheader"
+            - type: "generic"
+          field_separators:
+            - type: "no_pad"
+  shortcuts:
+    "Game Server template":
+      key: "g"
+      modifier: "shift"
+      read_only: true
+      helptext: "Show Game Server template"
+      action: "call"
+      action_call: "view_yaml"
+      action_args:
+        title: "Gamee Server template"
+        _pass_obj: true
+        path: "spec#template"

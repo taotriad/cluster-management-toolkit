@@ -1,0 +1,148 @@
+---
+kind: "FleetAutoscaler"
+api_family: "autoscaling.agones.dev"
+default_command: "fleetautoscalers"
+listview:
+  name: "Fleet Autoscalers"
+  group: "Agones"
+  field_indexes:
+    Wide:
+      fields: ["namespace", "name", "fleet",
+               "scaling_limited",
+               "able_to_scale", "last_applied_policy",
+               "current_replicas", "desired_replicas", "age"]
+    Normal:
+      fields: ["namespace", "name", "fleet",
+               "current_replicas", "desired_replicas", "age"]
+      sortcolumn: "namespace"
+  fields:
+    able_to_scale:
+      header: "Able to Scale:"
+      path: "status#ableToScale"
+      default: "<unset>"
+      type: "bool"
+    current_replicas:
+      header: "Current:"
+      paths:
+        - path: ["status#currentReplicas", "status#desiredReplicas"]
+          pathtype: "comparison"
+          default: [0, 0]
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          ranges:
+            - min: 0
+              max: 1
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+            - min: -1
+              max: 0
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+            - default: true
+              field_colors:
+                - context: "main"
+                  type: "status_not_ok"
+      align: "right"
+    desired_replicas:
+      header: "Desired:"
+      path: "status#desiredReplicas"
+      default: 0
+      type: "int"
+      formatter: "numerical"
+      align: "right"
+    fleet:
+      header: "Fleet:"
+      path: "spec#fleetName"
+      default: "<unset>"
+      type: "str"
+    last_applied_policy:
+      header: "Last Applied Policy:"
+      path: "status#lastAppliedPolicy"
+      default: "<unset>"
+      type: "str"
+    scaling_limited:
+      header: "Scaling Limited:"
+      path: "status#scalingLimited"
+      default: "<unset>"
+      type: "bool"
+infoview:
+  name: "Fleet Autoscaler Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["fleet", "policy", "last_applied_policy",
+                 "sync_interval", "able_to_scale", "scaling_limited"]
+    rows:
+      able_to_scale:
+        header: [["Able to Scale:", ["main", "infoheader"]]]
+        path: "status#ableToScale"
+        default: "<unset>"
+        type: "bool"
+      fleet:
+        header: [["F", ["main", "infoheader_shortcut"]],
+                 ["leet:", ["main", "infoheader"]]]
+        path: "spec#fleetName"
+        default: "<unset>"
+        type: "str"
+      last_applied_policy:
+        header: [["Last Applied Policy:", ["main", "infoheader"]]]
+        path: "status#lastAppliedPolicy"
+        default: "<unset>"
+        type: "str"
+      policy:
+        header: [["P", ["main", "infoheader_shortcut"]],
+                 ["olicy:", ["main", "infoheader"]]]
+        path: "spec#policy#type"
+        default: "<unset>"
+        type: "str"
+      scaling_limited:
+        header: [["Scaling Limited:", ["main", "infoheader"]]]
+        path: "status#scalingLimited"
+        default: "<unset>"
+        type: "bool"
+      sync_interval:
+        header: [["Sync Interval:", ["main", "infoheader"]]]
+        path: "spec#sync#fixedInterval#seconds"
+        default: 0
+        type: "int"
+        formatter: "numerical"
+        formatting:
+          unit: "s"
+  shortcuts:
+    "Policy":
+      key: "p"
+      modifier: "shift"
+      read_only: true
+      helptext: "Show Policy"
+      action: "call"
+      action_call: "view_yaml"
+      action_args:
+        title: "Policy"
+        _named_title: true
+        _name_path: "spec#policy#type"
+        _pass_obj: true
+        paths:
+          - "spec#policy#buffer"
+          - "spec#policy#chain"
+          - "spec#policy#counter"
+          - "spec#policy#list"
+          - "spec#policy#schedule"
+          - "spec#policy#type"
+          - "spec#policy#wasm"
+          - "spec#policy#webhook"
+    "Open Fleet":
+      key: "f"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for Fleet"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        namespace_path: "metadata#namespace"
+        name_path: "spec#fleetName"
+        kind: "Fleet"
+        api_family: "agones.dev"

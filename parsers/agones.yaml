@@ -1,0 +1,16 @@
+---
+- name: "agones"
+  show_in_selector: false
+  matchkeys:
+    - image_name: "/agones-images/release/agones-allocator"
+    - image_name: "/agones-images/release/agones-controller"
+    - image_name: "/agones-images/release/agones-extensions"
+    - image_name: "/agones-images/release/agones-ping"
+    - image_name: "/agones-images/release/agones-sdk"
+      container_type: "InitContainer"
+  parser_rules:
+    - name: "glog"
+    - name: "json"
+      options:
+        versions:
+          - "version"

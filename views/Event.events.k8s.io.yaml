@@ -848,7 +848,15 @@ listview:
               field_colors:
                 - context: "main"
                   type: "status_warning"
+            FailedGetExternalMetric:
+              field_colors:
+                - context: "main"
+                  type: "status_warning"
             FailedGetObjectMetric:
+              field_colors:
+                - context: "main"
+                  type: "status_warning"
+            FailedGetPodsMetric:
               field_colors:
                 - context: "main"
                   type: "status_warning"
@@ -1896,6 +1904,10 @@ listview:
               field_colors:
                 - context: "main"
                   type: "status_done"
+            ReplicaSetCreateError:
+              field_colors:
+                - context: "main"
+                  type: "status_not_ok"
             ReplicaSetNotAvailable:
               field_colors:
                 - context: "main"
@@ -3564,7 +3576,15 @@ infoview:
                 field_colors:
                   - context: "main"
                     type: "status_warning"
+              FailedGetExternalMetric:
+                field_colors:
+                  - context: "main"
+                    type: "status_warning"
               FailedGetObjectMetric:
+                field_colors:
+                  - context: "main"
+                    type: "status_warning"
+              FailedGetPodsMetric:
                 field_colors:
                   - context: "main"
                     type: "status_warning"
@@ -4612,6 +4632,10 @@ infoview:
                 field_colors:
                   - context: "main"
                     type: "status_done"
+              ReplicaSetCreateError:
+                field_colors:
+                  - context: "main"
+                    type: "status_not_ok"
               ReplicaSetNotAvailable:
                 field_colors:
                   - context: "main"
