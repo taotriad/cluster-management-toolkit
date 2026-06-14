@@ -5086,6 +5086,7 @@ def genericinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                     action_call = _action_call
                     action_args = deep_get(ref, DictPath("action_args"), {})
                 else:
+                    ref = obj
                     action_call = deep_get(sc_value, DictPath("action_call"))
                     action_args = deep_get(sc_value, DictPath("action_args"), {})
                 if "_pass_obj" in action_args:
