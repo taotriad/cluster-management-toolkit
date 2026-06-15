@@ -113,7 +113,7 @@ from clustermanagementtoolkit.logparser import get_parser_list
 from clustermanagementtoolkit import networkio
 
 from clustermanagementtoolkit import cmtlib
-from clustermanagementtoolkit.cmtlib import decode_value, clamp, get_package_versions
+from clustermanagementtoolkit.cmtlib import decode_value, clamp, get_package_versions, next_option
 from clustermanagementtoolkit.cmtlib import make_label_selector, make_label_selector_set_expression
 from clustermanagementtoolkit.cmtlib import none_timestamp, timestamp_to_datetime
 from clustermanagementtoolkit.cmtlib import split_msg, versiontuple, read_cmtconfig, substitute_list
@@ -2092,6 +2092,12 @@ def genericlistloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                     if var is not None:
                         tmp = deep_get(listview_args, DictPath(var))
                         deep_set(listview_args, DictPath(var), not tmp)
+                if action == "cycle_var":
+                    var = deep_get(action_args, DictPath("var"))
+                    var_options = deep_get(action_args, DictPath("var_options"))
+                    if var is not None:
+                        tmp = deep_get(listview_args, DictPath(var))
+                        deep_set(listview_args, DictPath(var), next_option(tmp, var_options))
                 elif action == "call" and action_call is not None:
                     retval = action_call(uip.stdscr, **action_args)
                     if retval is not None and retval == Retval.RETURNFULL:
@@ -5148,6 +5154,12 @@ def genericinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                     if var is not None:
                         tmp = deep_get(infoview_args, DictPath(var))
                         deep_set(infoview_args, DictPath(var), not tmp)
+                elif action == "cycle_var":
+                    var = deep_get(action_args, DictPath("var"))
+                    var_options = deep_get(action_args, DictPath("var_options"))
+                    if var is not None:
+                        tmp = deep_get(infoview_args, DictPath(var))
+                        deep_set(infoview_args, DictPath(var), next_option(tmp, var_options))
                 elif action == "execute":
                     _command = deep_get(action_args, DictPath("command"), [])
                     newlines = deep_get(action_args, DictPath("newlines"), "keep")

@@ -12,10 +12,30 @@ infoview:
       decoder: "decode_base64"
     formatter_args:
       unfold_msg: false
+      focus_mode: "Disabled"
+      focus_filters:
+        Disabled: []
+        Partial:
+          - ["metadata#annotations", "lastAppliedconfiguration"]
+          - ["metadata", "generation"]
+          - ["metadata", "managedFields"]
+          - ["metadata", "resourceVersion"]
+          - ["metadata", "uid"]
+          - ["status", "observedGeneration"]
+        Full:
+          - ["metadata#annotations", "lastAppliedconfiguration"]
+          - ["metadata", "creationTimestamp"]
+          - ["metadata", "generation"]
+          - ["metadata", "managedFields"]
+          - ["metadata", "ownerReferences"]
+          - ["metadata", "resourceVersion"]
+          - ["metadata", "uid"]
+          - "status"
   statusmsg:
     - ["Decode Base64: ", ["var", "decoder#override_decoder"]]
     - ["Formatter: ", ["var", "formatter"]]
     - ["Unfold Message: ", ["var", "formatter_args#unfold_msg"]]
+    - ["Focus Mode: ", ["var", "formatter_args#focus_mode"]]
   shortcuts:
     # __ResourceView has no last applied configuration or events,
     # and is a YAML-viewer so cannot view itself...
@@ -29,6 +49,7 @@ infoview:
       read_only: false
       widget: "inputbox"
       helptext: "Export to file"
+      inputtitle: "Export to file:"
       confirm: "path_exists"
       confirmtitle: "File already exists; overwrite?:"
       action: "call"
@@ -39,6 +60,18 @@ infoview:
         _extra_args:
           raw_export: true
           base_path: ""
+    "Focus Mode":
+      key: "f"
+      read_only: true
+      helptext: "Cycle Focus Mode (JSON/YAML only)"
+      action: "cycle_var"
+      action_args:
+        var: "formatter_args#focus_mode"
+        var_options:
+          - "Disabled"
+          - "Partial"
+          - "Full"
+      force_update: true
     "Toggle Base64":
       key: "&"
       read_only: true

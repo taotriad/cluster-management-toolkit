@@ -13,6 +13,7 @@ Format text as themearrays
 
 import base64
 import binascii
+import copy
 from datetime import datetime
 # ujson is much faster than json,
 # but it might not be available
@@ -65,7 +66,7 @@ except ModuleNotFoundError:  # pragma: no cover
     sys.exit("ModuleNotFoundError: Could not import natsort; "
              "you may need to (re-)run `cmt-install` or `pip3 install natsort`; aborting.")
 
-from clustermanagementtoolkit.cmttypes import deep_get, DictPath, FilePath, LogLevel
+from clustermanagementtoolkit.cmttypes import deep_get, deep_pop, DictPath, FilePath, LogLevel
 from clustermanagementtoolkit.cmttypes import FilePathAuditError, StatusGroup
 
 from clustermanagementtoolkit import cmtlib
@@ -2387,42 +2388,56 @@ def format_yaml(lines: str | list[str] | dict | list[dict], **kwargs: Any) -> \
     unfold_msg: bool = deep_get(kwargs, DictPath("unfold_msg"), False)
     yaml.add_representer(str, __str_representer)
 
-    if isinstance(lines, list) and len(lines) == 1:
-        lines = lines[0]
+    new_lines = copy.deepcopy(lines)
 
-    if isinstance(lines, str):
+    if isinstance(new_lines, list) and len(new_lines) == 1:
+        new_lines = new_lines[0]
+
+    if isinstance(new_lines, str):
         # If it's one single line and starts and ends with either [] or {} we try to expand it.
-        if is_json or (len(lines.splitlines()) == 1 and lines.startswith(("{", "["))
-                       and lines.rstrip().endswith(("}", "]")) and unfold_msg):
+        if is_json or (len(new_lines.splitnew_lines()) == 1 and new_lines.startswith(("{", "["))
+                       and new_lines.rstrip().endswith(("}", "]")) and unfold_msg):
             try:
                 # Treat json as YAML; in case we misidentify YAML as JSON we might
                 # fail to decode the data. YAML is more forgiving. Note that this
                 # may result in the file being reformatted. This isn't ideal,
                 # but it's the only reliable way to be able to expand a JSON/YAML structure.
-                d = yaml.safe_load(lines)
-                lines = json_dumps(d)
+                d = yaml.safe_load(new_lines)
+                new_lines = json_dumps(d)
             except DecodeException:
                 pass
-    elif isinstance(lines, dict):
+    elif isinstance(new_lines, dict):
+        new_lines = copy.deepcopy(new_lines)
+
+        focus_mode: str = deep_get(kwargs, DictPath("focus_mode"), "Disabled")
+        focus_filters: list[dict[str, list[str]]] = deep_get(kwargs, DictPath("focus_filters"), {})
+
+        for focus_filter in deep_get(focus_filters, DictPath(focus_mode), []):
+            if isinstance(focus_filter, list):
+                path, key = focus_filter
+                deep_pop(new_lines, DictPath(path), key, None)
+            else:
+                new_lines.pop(focus_filter)
+
         if is_json:
-            lines = json_dumps(lines)
+            new_lines = json_dumps(new_lines)
         else:
-            lines = yaml.dump(lines, sort_keys=False)
-    elif isinstance(lines, list) and lines and isinstance(lines[0], dict):
+            new_lines = yaml.dump(new_lines, sort_keys=False)
+    elif isinstance(new_lines, list) and new_lines and isinstance(new_lines[0], dict):
         # When we get multiple objects it's because they're intended to be flattened
         # into the same logpad.
         lline = []
-        for d in lines:
+        for d in new_lines:
             if is_json:
                 lline.append(json_dumps(d))
             else:
                 lline.append(yaml.dump(d, sort_keys=False))
-        lines = "\n".join(lline)
+        new_lines = "\n".join(lline)
     else:
-        lines = "\n".join(cast(list[str], lines))
+        new_lines = "\n".join(cast(list[str], new_lines))
 
     if deep_get(kwargs, DictPath("raw"), False):
-        return format_none(lines)
+        return format_none(new_lines)
 
     override_formatting: dict[str, ThemeAttr] = \
         deep_get(kwargs, DictPath("override_formatting"), {})
@@ -2437,7 +2452,7 @@ def format_yaml(lines: str | list[str] | dict | list[dict], **kwargs: Any) -> \
         formatter = ThemeArrayFormatter(colorscheme=COLORSCHEME_YAML,
                                         override_formatting=override_formatting,
                                         lexer=lexer)
-    pygments.highlight(lines, lexer, formatter)
+    pygments.highlight(new_lines, lexer, formatter)
 
     return formatter.buffer
 
