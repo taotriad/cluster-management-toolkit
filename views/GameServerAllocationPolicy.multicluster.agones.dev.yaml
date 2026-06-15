@@ -1,0 +1,123 @@
+---
+kind: "GameServerAllocationPolicy"
+api_family: "multicluster.agones.dev"
+default_command: "gameserverallocationpolicies"
+command:
+  - "gamesrvallocpols"
+  - "gamesrvallocpol"
+listview:
+  name: "Game Server Allocation Policy"
+  group: "Agones"
+  field_indexes:
+    Normal:
+      fields: ["namespace", "name", "weight", "priority", "age"]
+      sortcolumn: "namespace"
+  fields:
+    priority:
+      header: "Priority:"
+      path: "spec#priority"
+      default: "<unset>"
+      type: "int"
+      formatter: "numerical"
+      align: "right"
+    weight:
+      header: "Weight:"
+      path: "spec#weight"
+      default: "<unset>"
+      type: "int"
+      formatter: "numerical"
+      align: "right"
+infoview:
+  name: "Game Server Allocation Policy Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["connection_header",
+                 "connection_cluster_name",
+                 "connection_allocation_endpoints",
+                 "connection_namespace",
+                 "connection_secret", "connection_server_ca",
+                 "priority", "weight"]
+    rows:
+      connection_header:
+        header: [["Connection:", ["main", "infoheader"]]]
+      connection_allocation_endpoints:
+        header: [["  Allocation ", ["main", "infoheader"]],
+                 ["E", ["main", "infoheader_shortcut"]],
+                 ["ndpoints:", ["main", "infoheader"]]]
+        path: "spec#connectionInfo#allocationEndpoints"
+        default: "<unset>"
+        type: "raw"
+        formatter: "address"
+      connection_cluster_name:
+        header: [["  Cluster Name:", ["main", "infoheader"]]]
+        path: "spec#connectionInfo#clusterName"
+        default: "<unset>"
+        type: "str"
+      connection_namespace:
+        header: [["  Names", ["main", "infoheader"]],
+                 ["p", ["main", "infoheader_shortcut"]],
+                 ["ace:", ["main", "infoheader"]]]
+        path: "spec#connectionInfo#namespace"
+        default: "<unset>"
+        type: "str"
+        formatting:
+          field_colors:
+            - type: "namespace"
+      connection_secret:
+        header: [["  ", ["main", "infoheader"]],
+                 ["S", ["main", "infoheader_shortcut"]],
+                 ["ecret:", ["main", "infoheader"]]]
+        path: "spec#connectionInfo#secretName"
+        default: "<unset>"
+        type: "str"
+      connection_server_ca:
+        header: [["  Server CA:", ["main", "infoheader"]]]
+        path: "spec#connectionInfo#serverCa"
+        default: "<unset>"
+        type: "str"
+      priority:
+        header: [["Priority:", ["main", "infoheader"]]]
+        path: "spec#priority"
+        default: "<unset>"
+        type: "int"
+        formatter: "numerical"
+      weight:
+        header: [["Weight:", ["main", "infoheader"]]]
+        path: "spec#weight"
+        default: "<unset>"
+        type: "int"
+        formatter: "numerical"
+  shortcuts:
+    "Connection Namespace":
+      key: "p"
+      read_only: true
+      helptext: "Open info page for connection Namespace"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind: "Namespace"
+        name_path: "spec#connectionInfo#namespace"
+    "Endpoints":
+      key: "e"
+      modifier: "shift"
+      read_only: true
+      helptext: "List endpoints"
+      widget: "windowwidget"
+      title: "Endpoints:"
+      itemgetter: "get_list_as_list"
+      itemgetter_args:
+        path: "spec#connectionInfo#allocationEndpoints"
+    "Secret":
+      key: "s"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for connection Secret"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind: "Secret"
+        name_path: "spec#connectionInfo#secretName"
+        namespace_path: "metadata#namespace"

@@ -1,0 +1,372 @@
+---
+kind: "GameServer"
+api_family: "agones.dev"
+default_command: "gameservers"
+command:
+  - "gamesrvs"
+  - "gamesrv"
+listview:
+  name: "Game Servers"
+  group: "Agones"
+  field_indexes:
+    Normal:
+      fields: ["namespace", "name", "node_name",
+               "address", "ports", "state", "age"]
+      sortcolumn: "namespace"
+  fields:
+    address:
+      header: "Address:"
+      path: "status#address"
+      default: "<unset>"
+      type: "address"
+      formatter: "address"
+    node_name:
+      header: "Node:"
+      path: "status#nodeName"
+      default: "<unset>"
+      type: "host"
+      formatting:
+        field_colors:
+          - type: "host"
+    ports:
+      header: "Ports"
+      paths:
+        - path: "status#ports"
+          pathtype: "items"
+          subpaths:
+            - "name"
+            - "port"
+          type: "raw"
+      formatter: "list"
+      formatting:
+        field_colors:
+          - type: "service"
+          - type: "port"
+        field_separators:
+          - type: "port"
+    state:
+      header: "State:"
+      path: "status#state"
+      default: "<unset>"
+      type: "str"
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          mappings:
+            Allocated:
+              field_colors:
+                - context: "main"
+                  type: "status_done"
+            Creating:
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+            Error:
+              field_colors:
+                - context: "main"
+                  type: "status_not_ok"
+            PortAllocation:
+              field_colors:
+                - context: "main"
+                  type: "status_done"
+            Ready:
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+            RequestReady:
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+            Reserved:
+              field_colors:
+                - context: "main"
+                  type: "status_done"
+            Scheduled:
+              field_colors:
+                - context: "main"
+                  type: "status_done"
+            Shutdown:
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+            Starting:
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+            Unhealthy:
+              field_colors:
+                - context: "main"
+                  type: "status_warning"
+            "<unset>":
+              field_colors:
+                - context: "types"
+                  type: "unset"
+infoview:
+  name: "Game Server Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["node_name", "hostname",
+                 "container",
+                 "eviction",
+                 "generate_name",
+                 "sdk_server_header",
+                 "sdk_server_grpc_port",
+                 "sdk_server_http_port",
+                 "sdk_server_loglevel",
+                 "health_header",
+                 "health_failure_threshold",
+                 "health_initial_delay",
+                 "health_period",
+                 "internal_ips", "external_ips",
+                 "ports", "scheduling",
+                 "immutable_replicas", "state"]
+    rows:
+      container:
+        header: [["Container:", ["main", "infoheader"]]]
+        path: "spec#container"
+        default: "<unset>"
+        type: "str"
+      eviction:
+        header: [["Eviction:", ["main", "infoheader"]]]
+        path: "spec#eviction#safe"
+        default: "<unset>"
+        type: "str"
+      external_ips:
+        header: [["External IPs:", ["main", "infoheader"]]]
+        paths:
+          - path: "status#addresses"
+            pathtype: "items"
+            subpaths:
+              - "address"
+            when:
+              - key: "type"
+                eq: "ExternalIP"
+            default: ["<none>"]
+        formatter: "address"
+      generate_name:
+        header: [["Generate Name:", ["main", "infoheader"]]]
+        path: "metadata#generateName"
+        default: "<unset>"
+        type: "str"
+      health_header:
+        header: [["Health:", ["main", "infoheader"]]]
+      health_failure_threshold:
+        header: [["  Failure Threshold:", ["main", "infoheader"]]]
+        path: "spec#health#failureThreshold"
+        default: "<unset>"
+        type: "int"
+        formatter: "numerical"
+      health_initial_delay:
+        header: [["  Initial Delay:", ["main", "infoheader"]]]
+        path: "spec#health#initialDelaySeconds"
+        default: "<unset>"
+        type: "int"
+        formatter: "numerical"
+        formatting:
+          unit: "s"
+      health_period:
+        header: [["  Period:", ["main", "infoheader"]]]
+        path: "spec#health#periodSeconds"
+        default: "<unset>"
+        type: "int"
+        formatter: "numerical"
+        formatting:
+          unit: "s"
+      hostname:
+        header: [["Hostname:", ["main", "infoheader"]]]
+        paths:
+          - path: "status#addresses"
+            pathtype: "items"
+            subpaths:
+              - "address"
+            when:
+              - key: "type"
+                eq: "Hostname"
+            default: ["<unset>"]
+        formatter: "address"
+      immutable_replicas:
+        header: [["Immutable Replicas:", ["main", "infoheader"]]]
+        paths:
+          - path: [["spec#replicas"], " Desired",
+                   ["status#replicas"], " Current"]
+            pathtype: "tuple"
+            default: [0, "", 0, ""]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "numerical"
+            - type: "generic"
+            - type: "numerical"
+            - type: "generic"
+          field_separators:
+            - type: "no_pad"
+            - type: "fraction_spaced"
+            - type: "no_pad"
+            - type: "fraction_spaced"
+            - type: "no_pad"
+      internal_ips:
+        header: [["Internal IPs:", ["main", "infoheader"]]]
+        paths:
+          - path: "status#addresses"
+            pathtype: "items"
+            subpaths:
+              - "address"
+            when:
+              - key: "type"
+                eq: "InternalIP"
+            default: ["<unset>"]
+        formatter: "address"
+      node_name:
+        header: [["No", ["main", "infoheader"]],
+                 ["d", ["main", "infoheader_shortcut"]],
+                 ["e Name:", ["main", "infoheader"]]]
+        path: "status#nodeName"
+        type: "str"
+        formatting:
+          field_colors:
+            - type: "host"
+      ports:
+        header: [["P", ["main", "infoheader_shortcut"]],
+                 ["orts:", ["main", "infoheader"]]]
+        paths:
+          - path: "status#ports"
+            pathtype: "items"
+            subpaths:
+              - "name"
+              - "port"
+            type: "raw"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "service"
+            - type: "port"
+          field_separators:
+            - type: "port"
+      scheduling:
+        header: [["Scheduling:", ["main", "infoheader"]]]
+        path: "spec#scheduling"
+        default: "<unset>"
+        type: "str"
+      sdk_server_header:
+        header: [["SDK Server:", ["main", "infoheader"]]]
+      sdk_server_grpc_port:
+        header: [["  GRPC Port:", ["main", "infoheader"]]]
+        path: "spec#sdkServer#grpcPort"
+        default: "<unset>"
+        type: "str"
+        formatting:
+          field_colors:
+            - type: "port"
+      sdk_server_http_port:
+        header: [["  HTTP Port:", ["main", "infoheader"]]]
+        path: "spec#sdkServer#httpPort"
+        default: "<unset>"
+        type: "str"
+        formatting:
+          field_colors:
+            - type: "port"
+      sdk_server_loglevel:
+        header: [["  Loglevel:", ["main", "infoheader"]]]
+        path: "spec#sdkServer#logLevel"
+        default: "<unset>"
+        type: "str"
+      state:
+        header: [["State:", ["main", "infoheader"]]]
+        path: "status#state"
+        default: "<unset>"
+        type: "str"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              Allocated:
+                field_colors:
+                  - context: "main"
+                    type: "status_done"
+              Creating:
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+              Error:
+                field_colors:
+                  - context: "main"
+                    type: "status_not_ok"
+              PortAllocation:
+                field_colors:
+                  - context: "main"
+                    type: "status_done"
+              Ready:
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+              RequestReady:
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+              Reserved:
+                field_colors:
+                  - context: "main"
+                    type: "status_done"
+              Scheduled:
+                field_colors:
+                  - context: "main"
+                    type: "status_done"
+              Shutdown:
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+              Starting:
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+              Unhealthy:
+                field_colors:
+                  - context: "main"
+                    type: "status_warning"
+              "<unset>":
+                field_colors:
+                  - context: "types"
+                    type: "unset"
+  shortcuts:
+    "Open node":
+      key: "d"
+      read_only: true
+      helptext: "Open info page for Node"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind: "Node"
+        name_path: "status#nodeName"
+    "Ports":
+      key: "p"
+      modifier: "shift"
+      read_only: true
+      helptext: "Show port mappings"
+      widget: "windowwidget"
+      headers: ["Name:", "Host Port:", "Container Port:", "Protocol:",
+                "Container:", "Port Policy:"]
+      itemgetter: "get_list_fields"
+      itemgetter_args:
+        path: "spec#ports"
+        fields:
+          - "name"
+          - "hostPort"
+          - "containerPort"
+          - "protocol"
+          - "container"
+          - "portPolicy"
+      # This isn't supported for now
+      sortcolumn: "port"
+    "Pod template":
+      key: "t"
+      modifier: "shift"
+      read_only: true
+      helptext: "Show Pod template"
+      action: "call"
+      action_call: "view_yaml"
+      action_args:
+        title: "Pod template"
+        _pass_obj: true
+        path: "spec#template"

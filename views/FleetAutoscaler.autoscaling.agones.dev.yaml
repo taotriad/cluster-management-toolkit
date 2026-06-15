@@ -11,6 +11,7 @@ listview:
                "scaling_limited",
                "able_to_scale", "last_applied_policy",
                "current_replicas", "desired_replicas", "age"]
+      sortcolumn: "namespace"
     Normal:
       fields: ["namespace", "name", "fleet",
                "current_replicas", "desired_replicas", "age"]

@@ -1,19 +1,22 @@
 ---
-kind: "Fleet"
+kind: "GameServerSet"
 api_family: "agones.dev"
-default_command: "fleets"
+default_command: "gameserversets"
+command:
+  - "gamesrvsets"
+  - "gamesrvset"
 listview:
-  name: "Fleets"
+  name: "Game Server Sets"
   group: "Agones"
   field_indexes:
     Wide:
-      fields: ["namespace", "name", "scheduling",
+      fields: ["namespace", "name", "controller", "scheduling",
                "desired_replicas", "current_replicas",
                "allocated_replicas", "reserved_replicas",
-               "ready_replicas", "age"]
+               "ready_replicas", "shutdown_replicas", "age"]
       sortcolumn: "namespace"
     Normal:
-      fields: ["namespace", "name",
+      fields: ["namespace", "name", "controller",
                "desired_replicas", "current_replicas",
                "allocated_replicas", "reserved_replicas",
                "ready_replicas", "age"]
@@ -26,6 +29,29 @@ listview:
       type: "int"
       formatter: "numerical"
       align: "right"
+    controller:
+      header: "Controller:"
+      paths:
+        - path: "metadata#ownerReferences"
+          pathtype: "items"
+          subpaths:
+            - "kind"
+            - "apiVersion"
+            - "name"
+          when:
+            - key: "controller"
+              eq: true
+          type: ["kind", "api_group", "name"]
+          default: ["<none>"]
+      formatter: "list"
+      formatting:
+        field_colors:
+          - type: "kind"
+          - type: "api_group"
+          - type: "generic"
+        field_separators:
+          - type: "kind_api_group"
+          - type: "kind"
     current_replicas:
       header: "Current:"
       paths:
@@ -86,18 +112,49 @@ listview:
       type: "int"
       formatter: "numerical"
       align: "right"
+    shutdown_replicas:
+      header: "Shutdown:"
+      path: "status#shutdownReplicas"
+      default: 0
+      type: "int"
+      formatter: "numerical"
+      align: "right"
     scheduling:
       header: "Scheduling:"
       path: "spec#scheduling"
       default: "<unset>"
       type: "str"
 infoview:
-  name: "Fleet Info"
+  name: "Game Server Set Info"
   infopad:
     row_indexes:
       Normal:
-        fields: ["scheduling", "update_strategy", "replicas"]
+        fields: ["controller", "scheduling", "replicas"]
     rows:
+      controller:
+        header: [["C", ["main", "infoheader_shortcut"]],
+                 ["ontroller:", ["main", "infoheader"]]]
+        paths:
+          - path: "metadata#ownerReferences"
+            pathtype: "items"
+            subpaths:
+              - "kind"
+              - "apiVersion"
+              - "name"
+            when:
+              - key: "controller"
+                eq: true
+            type: ["kind", "api_group", "name"]
+            default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "kind"
+            - type: "api_group"
+            - type: "generic"
+          field_separators:
+            - type: "kind_api_group"
+            - type: "kind"
       replicas:
         header: [["Replicas:", ["main", "infoheader"]]]
         paths:
@@ -105,9 +162,10 @@ infoview:
                    ["status#replicas"], " Current",
                    ["status#allocatedReplicas"], " Allocated",
                    ["status#reservedReplicas"], " Reserved",
-                   ["status#readyReplicas"], " Ready"]
+                   ["status#readyReplicas"], " Ready",
+                   ["status#shutdownReplicas"], " Shutdown"]
             pathtype: "tuple"
-            default: [0, "", 0, "", 0, "", 0, ""]
+            default: [0, "", 0, "", 0, "", 0, "", 0, ""]
         formatter: "list"
         formatting:
           field_colors:
@@ -121,7 +179,11 @@ infoview:
             - type: "generic"
             - type: "numerical"
             - type: "generic"
+            - type: "numerical"
+            - type: "generic"
           field_separators:
+            - type: "no_pad"
+            - type: "fraction_spaced"
             - type: "no_pad"
             - type: "fraction_spaced"
             - type: "no_pad"
@@ -136,63 +198,26 @@ infoview:
         path: "spec#scheduling"
         default: "<unset>"
         type: "str"
-      update_strategy:
-        header: [["Update Strategy:", ["main", "infoheader"]]]
-        paths:
-          - path: [["spec#strategy#type"],
-                   " (", "Max Unavailable: ",
-                   ["spec#strategy#rollingUpdate#maxUnavailable"],
-                   ", ", "Max Surge: ",
-                   ["spec#strategy#rollingUpdate#maxSurge"],
-                   ")"]
-            pathtype: "tuple"
-            when:
-              - key: "spec#strategy#type"
-                eq: "RollingUpdate"
-            default: ["RollingUpdate", "", "", "1", "", "",
-                      "<unset>", "", "", "<unset>", ""]
-          - path: [["spec#strategy#type"],
-                   " (", "Partition: ",
-                   ["spec#strategy#partition"],
-                   ", ", "Max Unavailable: ",
-                   ["spec#strategy#maxUnavailable"],
-                   ", ", "Max Surge: ",
-                   ["spec#strategy#maxSurge"], ")"]
-            pathtype: "tuple"
-            when:
-              - key: "spec#strategy#type"
-                eq: "ReCreate"
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "generic"
-            - type: "generic"
-            - context: "main"
-              type: "infoheader"
-            - type: "numerical"
-            - type: "generic"
-            - context: "main"
-              type: "infoheader"
-            - type: "numerical"
-            - type: "generic"
-            - context: "main"
-              type: "infoheader"
-            - type: "numerical"
-            - type: "generic"
-            - context: "main"
-              type: "infoheader"
-            - type: "generic"
-          field_separators:
-            - type: "no_pad"
   shortcuts:
-    "Game Server template":
-      key: "g"
+    "Open controller":
+      key: "c"
       modifier: "shift"
       read_only: true
-      helptext: "Show Game Server template"
+      helptext: "Open info page for controller"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        namespace_path: "metadata#namespace"
+        owner_reference_path: "metadata#ownerReferences"
+    "Pod template":
+      key: "t"
+      modifier: "shift"
+      read_only: true
+      helptext: "Show Pod template"
       action: "call"
       action_call: "view_yaml"
       action_args:
-        title: "Gamee Server template"
+        title: "Pod template"
         _pass_obj: true
         path: "spec#template"
