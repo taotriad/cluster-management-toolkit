@@ -23,8 +23,10 @@ infoview:
           - ["metadata", "uid"]
           - ["status", "observedGeneration"]
         Full:
-          - ["metadata#annotations", "lastAppliedconfiguration"]
+          - ["metadata#annotations",
+             "kubectl.kubernetes.io/last-applied-configuration"]
           - ["metadata", "creationTimestamp"]
+          - ["metadata", "finalizers"]
           - ["metadata", "generation"]
           - ["metadata", "managedFields"]
           - ["metadata", "ownerReferences"]

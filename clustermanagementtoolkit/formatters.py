@@ -2417,7 +2417,7 @@ def format_yaml(lines: str | list[str] | dict | list[dict], **kwargs: Any) -> \
                 path, key = focus_filter
                 deep_pop(new_lines, DictPath(path), key, None)
             else:
-                new_lines.pop(focus_filter)
+                new_lines.pop(focus_filter, None)
 
         if is_json:
             new_lines = json_dumps(new_lines)

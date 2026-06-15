@@ -120,6 +120,9 @@ TBD
   will find any strings _not_ matching the regular expression) or `*` (case-insensitive
   search). The two options can be combined to do a negative, case-insensitive, search.
 * Fixed an issue in logpads where embedded tabs could cause miscalculated line lengths.
+* The Resource View now has a new command, *Focus Mode*, when viewing JSON/YAML.
+  It filters out generated fields from Kubernetes resources, to make it easier
+  to see the relevant parts of the resources.
 
 ### Changes to other files in v0.8.8
 
