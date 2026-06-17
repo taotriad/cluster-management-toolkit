@@ -2395,7 +2395,7 @@ def format_yaml(lines: str | list[str] | dict | list[dict], **kwargs: Any) -> \
 
     if isinstance(new_lines, str):
         # If it's one single line and starts and ends with either [] or {} we try to expand it.
-        if is_json or (len(new_lines.splitnew_lines()) == 1 and new_lines.startswith(("{", "["))
+        if is_json or (len(new_lines.splitlines()) == 1 and new_lines.startswith(("{", "["))
                        and new_lines.rstrip().endswith(("}", "]")) and unfold_msg):
             try:
                 # Treat json as YAML; in case we misidentify YAML as JSON we might
