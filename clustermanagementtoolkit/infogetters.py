@@ -2447,7 +2447,7 @@ def get_traceflow(obj: dict, **kwargs: Any) -> \
 # pylint: disable-next=too-many-locals,too-many-branches,too-many-statements
 def get_journalctl_log(obj: dict, **kwargs: Any) -> \
         tuple[list[datetime], list[str | tuple[str, str] | None], list[LogLevel],
-              list[list[ThemeRef | ThemeStr] | str]]:
+              list[str | Sequence[ThemeRef | ThemeStr]]]:
     """
     Extract log entries from journalctl.
 
@@ -2465,7 +2465,7 @@ def get_journalctl_log(obj: dict, **kwargs: Any) -> \
     timestamps: list[datetime] = []
     facilities: list[str | tuple[str, str] | None] = []
     severities: list[LogLevel] = []
-    messages: list[list[ThemeRef | ThemeStr] | str] = []
+    messages: list[str | Sequence[ThemeRef | ThemeStr]] = []
 
     show_raw: bool = deep_get(kwargs, DictPath("_show_raw"), False)
     objlist = deep_get(obj, DictPath("obj"))
@@ -2482,7 +2482,7 @@ def get_journalctl_log(obj: dict, **kwargs: Any) -> \
         severity = LogLevel.DEFAULT
         facility = None
         remnants = None
-        msg = ""
+        msg: str | Sequence[ThemeRef | ThemeStr] = ""
 
         raw_severity: LogLevel = LogLevel(int(deep_get(d, DictPath("PRIORITY"), "6")))
         raw_msg = deep_get(d, DictPath("MESSAGE"), "")
@@ -2508,7 +2508,7 @@ def get_journalctl_log(obj: dict, **kwargs: Any) -> \
             msg = raw_msg
 
         # If this is dmesg we try to extract the facility
-        if deep_get(d, DictPath("SYSLOG_IDENTIFIER")) == "kernel":
+        if isinstance(msg, str) and deep_get(d, DictPath("SYSLOG_IDENTIFIER")) == "kernel":
             facility_msg_split = msg.split(": ", maxsplit=1)
             if len(facility_msg_split) == 2:
                 facility, msg = facility_msg_split
