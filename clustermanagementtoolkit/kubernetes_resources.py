@@ -4060,6 +4060,10 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api_paths": ["apis/hub.traefik.io/v1alpha1/"],
         "api": "apiaccesses",
     },
+    ("APIAuth", "hub.traefik.io"): {
+        "api_paths": ["apis/hub.traefik.io/v1alpha1/"],
+        "api": "apiauths",
+    },
     ("APIBundle", "hub.traefik.io"): {
         "api_paths": ["apis/hub.traefik.io/v1alpha1/"],
         "api": "apibundles",
@@ -4076,6 +4080,10 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api_paths": ["apis/hub.traefik.io/v1alpha1/"],
         "api": "apiportals",
     },
+    ("APIPortalAuth", "hub.traefik.io"): {
+        "api_paths": ["apis/hub.traefik.io/v1alpha1/"],
+        "api": "apiportalauths",
+    },
     ("APIRateLimit", "hub.traefik.io"): {
         "api_paths": ["apis/hub.traefik.io/v1alpha1/"],
         "api": "apiratelimits",
@@ -4088,9 +4096,21 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api_paths": ["apis/hub.traefik.io/v1alpha1/"],
         "api": "apiversions",
     },
+    ("ContentItem", "hub.traefik.io"): {
+        "api_paths": ["apis/hub.traefik.io/v1alpha1/"],
+        "api": "contentitems",
+    },
+    ("ManagedApplication", "hub.traefik.io"): {
+        "api_paths": ["apis/hub.traefik.io/v1alpha1/"],
+        "api": "managedapplications",
+    },
     ("ManagedSubscription", "hub.traefik.io"): {
         "api_paths": ["apis/hub.traefik.io/v1alpha1/"],
         "api": "managedsubscriptions",
+    },
+    ("Uplink", "hub.traefik.io"): {
+        "api_paths": ["apis/hub.traefik.io/v1alpha1/"],
+        "api": "uplinks",
     },
     # image.openshift.io
     ("Image", "image.openshift.io"): {
