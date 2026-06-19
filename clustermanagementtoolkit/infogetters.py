@@ -2500,6 +2500,9 @@ def get_journalctl_log(obj: dict, **kwargs: Any) -> \
         elif "=" in raw_msg and parser == "key_value":
             facility, severity, msg, remnants = \
                 logparsers.key_value(raw_msg, severity=raw_severity, fold_msg=False)
+        elif raw_msg.startswith("{\"") and raw_msg.endswith("\"}"):
+            msg, severity, facility, remnants = \
+                logparsers.split_json_style(raw_msg, severity=raw_severity, fold_msg=False)
         else:
             severity = raw_severity
             msg = raw_msg
@@ -2836,6 +2839,8 @@ def get_log_info(**kwargs: Any) -> list[dict]:
          ["-k", "-b", "--lines", "10000"], "glog"),
         ("Latest 1000 lines", "[kubelet]",
          ["--lines", "1000", "-u", "kubelet"], "glog"),
+        ("Latest 1000 lines", "[rke2-server]",
+         ["--lines", "1000", "-u", "rke2-server"], "key_value"),
         ("Latest 1000 lines", "[containerd]",
          ["--lines", "1000", "-u", "containerd"], "key_value"),
         ("Latest 1000 lines", "[cri-o]",
