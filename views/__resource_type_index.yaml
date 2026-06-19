@@ -3000,6 +3000,36 @@ frrnostates:
   - FRRNodeState
   - frrk8s.metallb.io
   viewfile: FRRNodeState.frrk8s.metallb.io.yaml
+gamesrv:
+  kind:
+  - GameServer
+  - agones.dev
+  viewfile: GameServer.agones.dev.yaml
+gamesrvallocpol:
+  kind:
+  - GameServerAllocationPolicy
+  - multicluster.agones.dev
+  viewfile: GameServerAllocationPolicy.multicluster.agones.dev.yaml
+gamesrvallocpols:
+  kind:
+  - GameServerAllocationPolicy
+  - multicluster.agones.dev
+  viewfile: GameServerAllocationPolicy.multicluster.agones.dev.yaml
+gamesrvs:
+  kind:
+  - GameServer
+  - agones.dev
+  viewfile: GameServer.agones.dev.yaml
+gamesrvset:
+  kind:
+  - GameServerSet
+  - agones.dev
+  viewfile: GameServerSet.agones.dev.yaml
+gamesrvsets:
+  kind:
+  - GameServerSet
+  - agones.dev
+  viewfile: GameServerSet.agones.dev.yaml
 ginclrippool:
   kind:
   - GlobalInClusterIPPool
