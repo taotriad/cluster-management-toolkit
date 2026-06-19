@@ -139,7 +139,10 @@ def next_option(current: str, options: list[str], wraparound: bool = True) -> st
     new_current: str = current
 
     try:
-        new_current = options[(options.index(current) + 1) % len(options)]
+        if wraparound:
+            new_current = options[(options.index(current) + 1) % len(options)]
+        else:
+            new_current = options[min(options.index(current) + 1, len(options) - 1)]
     except ValueError:
         pass
 

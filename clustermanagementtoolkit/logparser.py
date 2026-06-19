@@ -2377,7 +2377,6 @@ def key_value_with_leading_message(message: str, **kwargs: Any) -> \
     # pylint: disable-next=global-variable-not-assigned
     global LogparserConfiguration
     remnants: list[tuple[list[ThemeRef | ThemeStr], LogLevel]] = []
-    is_event: bool = False
 
     if fold_msg:
         return facility, severity, message, remnants
