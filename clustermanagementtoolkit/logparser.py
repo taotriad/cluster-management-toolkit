@@ -2096,6 +2096,9 @@ def key_value(message: str, **kwargs: Any) -> tuple[str, LogLevel, str,
     newlines: str = deep_get(options, DictPath("newlines"), "keep")
     is_event: bool = deep_get(options, DictPath("is_event"), False)
 
+    if is_event not in options and "Event occurred" in message:
+        is_event = True
+
     # Split all key=value pairs. Make sure not to process "=="
     key_value_regex = re.compile(r"^(.*?[^=])=($|[^=].*$)")
     tmp: list[str] | None = re.findall(r"(?:\".*?\"|\S)+", message.replace("\\\"", "<<<quote>>>"))
@@ -2406,12 +2409,6 @@ def key_value_with_leading_message(message: str, **kwargs: Any) -> \
         new_message = tmp[0]
         tmp_msg_extract = LogparserConfiguration.msg_extract
         LogparserConfiguration.msg_extract = False
-
-        if new_message.strip("\"") == "Event occurred":
-            is_event = True
-        if options is None:
-            options = {}
-        options["is_event"] = is_event
 
         facility, severity, first_message, tmp_new_remnants = \
             key_value(rest, fold_msg=fold_msg, severity=severity,
