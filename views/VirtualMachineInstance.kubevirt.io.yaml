@@ -11,7 +11,7 @@ listview:
   field_indexes:
     Wide:
       fields: ["namespace", "name", "controller", "ipaddresses", "node_name",
-               "live_migratable", "paused", "phase", "ready", "age"]
+               "live_migratable", "mem", "paused", "phase", "ready", "age"]
       sortcolumn: "phase"
     Normal:
       fields: ["namespace", "name", "ipaddresses", "node_name",
@@ -58,6 +58,12 @@ listview:
             - key: "type"
               eq: "LiveMigratable"
       type: "str"
+    mem:
+      header: "Mem:"
+      path: "status#memory#guestCurrent"
+      type: "mem_usage"
+      formatter: "numerical"
+      align: "right"
     node_name:
       header: "Node:"
       path: "status#nodeName"
@@ -158,9 +164,24 @@ infoview:
   infopad:
     row_indexes:
       Normal:
-        fields: ["controller", "ipaddresses", "node_name",
+        fields: ["controller", "architecture",
+                 "cpu_topology_header",
+                 "cpu_topology_sockets",
+                 "cpu_topology_cores",
+                 "cpu_topology_threads",
+                 "mem_header",
+                 "mem_at_boot",
+                 "mem_requested",
+                 "mem_current",
+                 "eviction_strategy",
+                 "ipaddresses", "node_name",
                  "live_migratable", "paused", "phase", "ready"]
     rows:
+      architecture:
+        header: [["Architecture:", ["main", "infoheader"]]]
+        path: "spec#architecture"
+        default: "<unset>"
+        type: "str"
       controller:
         header: [["C", ["main", "infoheader_shortcut"]],
                  ["ontroller:", ["main", "infoheader"]]]
@@ -185,6 +206,31 @@ infoview:
           field_separators:
             - type: "kind_api_group"
             - type: "kind"
+      cpu_topology_header:
+        header: [["CPU Topology:", ["main", "infoheader"]]]
+      cpu_topology_cores:
+        header: [["  Cores:", ["main", "infoheader"]]]
+        path: "status#currentCPUTopology#cores"
+        default: "<unset>"
+        type: "int"
+        formatter: "numerical"
+      cpu_topology_sockets:
+        header: [["  Sockets:", ["main", "infoheader"]]]
+        path: "status#currentCPUTopology#sockets"
+        default: "<unset>"
+        type: "int"
+        formatter: "numerical"
+      cpu_topology_threads:
+        header: [["  Threads:", ["main", "infoheader"]]]
+        path: "status#currentCPUTopology#threads"
+        default: "<unset>"
+        type: "int"
+        formatter: "numerical"
+      eviction_strategy:
+        header: [["Eviction Strategy:", ["main", "infoheader"]]]
+        path: "spec#evictionStrategy"
+        default: "<unset>"
+        type: "str"
       ipaddresses:
         header: [["IP-addresses:", ["main", "infoheader"]]]
         paths:
@@ -202,6 +248,23 @@ infoview:
               - key: "type"
                 eq: "LiveMigratable"
         type: "str"
+      mem_header:
+        header: [["Memory:", ["main", "infoheader"]]]
+      mem_at_boot:
+        header: [["  At Boot:", ["main", "infoheader"]]]
+        path: "status#memory#guestAtBoot"
+        type: "str"
+        formatter: "numerical"
+      mem_current:
+        header: [["  Current:", ["main", "infoheader"]]]
+        path: "status#memory#guestCurrent"
+        type: "mem_usage"
+        formatter: "numerical"
+      mem_requested:
+        header: [["  Requested:", ["main", "infoheader"]]]
+        path: "status#memory#guestRequested"
+        type: "str"
+        formatter: "numerical"
       node_name:
         header: [["No", ["main", "infoheader"]],
                  ["d", ["main", "infoheader_shortcut"]],
@@ -419,14 +482,15 @@ infoview:
                   ["metadata#namespace"],
                   {"join": ["vmi/", ["metadata#name"]]}]
         _pass_obj: true
-    "Show interfaces":
+    "Show Interfaces":
       key: "i"
       modifier: "shift"
       read_only: true
       helptext: "Show interfaces"
       widget: "windowwidget"
-      title: "Volume Statuses:"
-      headers: ["Name:", "Info Source:", "IP-Addresses:", "MAC:"]
+      title: "Interfaces:"
+      headers: ["Name:", "Info Source:", "IP-Addresses:", "MAC-Address:",
+                "Interface:", "Link State:"]
       itemgetter: "get_list_fields"
       itemgetter_args:
         path: "status#interfaces"
@@ -435,9 +499,31 @@ infoview:
           - "infoSource"
           - "ipAddresses"
           - "mac"
+          - "podInterfaceName"
+          - "linkState"
       # Not supported for now
       sortcolumn: "name"
-    "Show volume status":
+    "Show Networks":
+      key: "w"
+      read_only: true
+      helptext: "Show networks"
+      widget: "windowwidget"
+      title: "Networks:"
+      headers: ["Name:", "Pod IPv4 CIDR:", "Pod IPv6 CIDR:", "Multus Network:"]
+      itemgetter: "get_list_fields"
+      itemgetter_args:
+        path: "spec#networks"
+        fields:
+          - "name"
+          - path: "pod#vmNetworkCIDR"
+            default: "10.0.2.0/24"
+          - path: "pod#vmIPv6NetworkCIDR"
+            default: "fd10:0:2::/120"
+          - path: "multus#networkName"
+            default: "<none>"
+      # Not supported for now
+      sortcolumn: "name"
+    "Show Volume Status":
       key: "v"
       modifier: "shift"
       read_only: true
@@ -454,3 +540,14 @@ infoview:
           - "target"
       # Not supported for now
       sortcolumn: "name"
+    "Show Domain Configuration":
+      key: "d"
+      modifier: "shift"
+      read_only: true
+      helptext: "Show domain configuration"
+      action: "call"
+      action_call: "view_yaml"
+      action_args:
+        title: "Domain Configuration"
+        _pass_obj: true
+        path: "spec#domain"

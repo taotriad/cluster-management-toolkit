@@ -265,7 +265,7 @@ infoview:
                   - context: "main"
                     type: "status_not_ok"
   shortcuts:
-    "Show volume snapshot status":
+    "Show Volume Snapshot Status":
       key: "v"
       modifier: "shift"
       read_only: true
@@ -282,7 +282,7 @@ infoview:
           - "reason"
       # Not supported for now
       sortcolumn: "name"
-    "VM template":
+    "VM Template":
       key: "t"
       modifier: "shift"
       read_only: true
