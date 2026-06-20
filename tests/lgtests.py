@@ -1,0 +1,2147 @@
+#! /usr/bin/env python3
+
+# Requires: python3 (>= 3.11)
+#
+# Copyright the Cluster Management Toolkit for Kubernetes contributors.
+# SPDX-License-Identifier: MIT
+
+import builtins
+import sys
+from typing import Any, cast
+from collections.abc import Callable
+from unittest import mock
+import yaml
+
+from clustermanagementtoolkit.cluster_actions import get_control_planes
+
+from clustermanagementtoolkit.cmttypes import deep_get, DictPath, ProgrammingError
+
+from clustermanagementtoolkit.ansithemeprint import ANSIThemeStr
+from clustermanagementtoolkit.ansithemeprint import ansithemeprint, init_ansithemeprint
+
+from clustermanagementtoolkit import formatters
+
+from clustermanagementtoolkit import kubernetes_helper
+
+from clustermanagementtoolkit import listgetters
+from clustermanagementtoolkit import listgetters_async
+
+# unit-tests for listgetters.py
+
+
+real_import: Callable | None = None  # pylint: disable=invalid-name
+
+import_override: dict = {}
+
+
+kh: kubernetes_helper.KubernetesHelper = None  # type: ignore
+kh_cache: kubernetes_helper.KubernetesResourceCache = None  # type: ignore
+
+
+def override_import(name: str, *args: list[Any], **kwargs: Any):
+    global real_import
+    retval, exception = import_override.get(name, (None, None))
+    if exception:
+        raise exception
+    if retval:
+        return retval
+    real_import = cast(Callable, real_import)
+    return real_import(name, *args, **kwargs)
+
+
+def yaml_dump(data: Any, base_indent: int = 4) -> str:
+    result = ""
+    dump = yaml.dump(data)
+    for line in dump.splitlines():
+        result += f"{' '.ljust(base_indent)}{line}\n"
+    return result
+
+
+def test_check_matchlists(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = listgetters.check_matchlists
+
+    if result:
+        # Indata format:
+        # (item, exacts, prefixes, suffixes, ins, expected_result, expected_exception)
+        testdata: tuple[Any, ...] = (
+            # Shouldn't match
+            (
+                "/home",
+                ("/boot/efi",),
+                ("/var/lib/origin/", "/run/", "/var/snap"),
+                (),
+                ("@docker",),
+                False,
+                None
+            ),
+            # Should be a prefix match
+            (
+                "/var/snap/firefox/common/foo",
+                ("/boot/efi",),
+                ("/var/lib/origin/", "/run/", "/var/snap"),
+                (),
+                ("@docker",),
+                True,
+                None
+            ),
+            # Should be a suffix match
+            (
+                "/swapfile",
+                ("/boot/efi",),
+                ("/var/lib/origin/", "/run/", "/var/snap"),
+                ("swapfile"),
+                ("@docker",),
+                True,
+                None
+            ),
+            # Should be an exact match
+            (
+                "/boot/efi",
+                ("/boot/efi",),
+                ("/var/lib/origin/", "/run/", "/var/snap"),
+                (),
+                ("@docker",),
+                True,
+                None
+            ),
+            # Should be an in-match
+            (
+                "foo@docker.bar",
+                ("/boot/efi",),
+                ("/var/lib/origin/", "/run/", "/var/snap"),
+                (),
+                ("@docker",),
+                True,
+                None
+            ),
+            # Shouldn't be a match
+            (
+                "/boot/efi1",
+                ("/boot/efi",),
+                ("/var/lib/origin/", "/run/", "/var/snap"),
+                (),
+                ("@docker",),
+                False,
+                None
+            ),
+        )
+
+        for item, exacts, prefixes, suffixes, ins, expected_result, expected_exception in testdata:
+            try:
+                tmp = fun(item, exacts, prefixes, suffixes, ins)
+                if tmp != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"           item: {item}\n" \
+                              f"         exacts: {exacts}\n" \
+                              f"       prefixes: {prefixes}\n" \
+                              f"       suffixes: {suffixes}\n" \
+                              f"            ins: {ins}\n" \
+                              f"         result: {tmp}\n" \
+                              f"       expected: {expected_result}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  f"           item: {item}\n" \
+                                  f"         exacts: {exacts}\n" \
+                                  f"       prefixes: {prefixes}\n" \
+                                  f"       suffixes: {suffixes}\n" \
+                                  f"            ins: {ins}\n" \
+                                  f"      exception: {type(e)}\n" \
+                                  f"       expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"           item: {item}\n" \
+                              f"         exacts: {exacts}\n" \
+                              f"       prefixes: {prefixes}\n" \
+                              f"       suffixes: {suffixes}\n" \
+                              f"            ins: {ins}\n" \
+                              f"      exception: {type(e)}\n" \
+                              f"       expected: {expected_result}"
+                    result = False
+                    break
+    return message, result
+
+
+# This also tests split_matchlist()
+def test_check_matchlist(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = listgetters.check_matchlist
+
+    if result:
+        # Indata format:
+        # (item, matchlist, expected_result, expected_exception)
+        testdata: tuple[Any, ...] = (
+            # Shouldn't match
+            (
+                "/home",
+                ["/boot/efi", "/var/lib/origin/*", "/run/*",
+                 "/var/snap/*", "*swapfile", "*@docker*"],
+                False,
+                None
+            ),
+            # Should be a prefix match
+            (
+                "/var/snap/firefox/common/foo",
+                ["/boot/efi", "/var/lib/origin/*", "/run/*",
+                 "/var/snap/*", "*swapfile", "*@docker*"],
+                True,
+                None
+            ),
+            # Should be a suffix match
+            (
+                "/swapfile",
+                ["/boot/efi", "/var/lib/origin/*", "/run/*",
+                 "/var/snap/*", "*swapfile", "*@docker*"],
+                True,
+                None
+            ),
+            # Should be an exact match
+            (
+                "/boot/efi",
+                ["/boot/efi", "/var/lib/origin/*", "/run/*",
+                 "/var/snap/*", "*swapfile", "*@docker*"],
+                True,
+                None
+            ),
+            # Should be an in-match
+            (
+                "foo@docker.bar",
+                ["/boot/efi", "/var/lib/origin/*", "/run/*",
+                 "/var/snap/*", "*swapfile", "*@docker*"],
+                True,
+                None
+            ),
+            # Shouldn't be a match
+            (
+                "/boot/efi1",
+                ["/boot/efi", "/var/lib/origin/*", "/run/*",
+                 "/var/snap/*", "*swapfile", "*@docker*"],
+                False,
+                None
+            ),
+            # Shouldn't be a match
+            (
+                "/boot/efi1",
+                [],
+                False,
+                None
+            ),
+        )
+
+        for item, matchlist, expected_result, expected_exception in testdata:
+            try:
+                tmp = fun(item, matchlist)
+                if tmp != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"           item: {item}\n" \
+                              f"      matchlist: {matchlist}\n" \
+                              f"         result: {tmp}\n" \
+                              f"       expected: {expected_result}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  f"           item: {item}\n" \
+                                  f"      matchlist: {matchlist}\n" \
+                                  f"      exception: {type(e)}\n" \
+                                  f"       expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"           item: {item}\n" \
+                              f"      matchlist: {matchlist}\n" \
+                              f"      exception: {type(e)}\n" \
+                              f"       expected: {expected_result}"
+                    result = False
+                    break
+    return message, result
+
+
+def test_get_device_model(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = listgetters.get_device_model
+
+    if result:
+        # Indata format:
+        # (obj, device, expected_result, expected_exception)
+        testdata: tuple[Any, ...] = (
+            (
+                # Very trimmed down Ansible facts
+                {
+                    "ansible_devices": {
+                        "nvme0n1": {
+                            'virtual': 1,
+                            'links': {
+                                'ids': ['nvme-INTEL_SSDPEKKW256G7_BTPY64560TH8256D',
+                                        'nvme-INTEL_SSDPEKKW256G7_BTPY64560TH8256D_1',
+                                        'nvme-eui.0000000001000000e4d25c2aa5874d01'],
+                                'uuids': [],
+                                'labels': [],
+                                'masters': []
+                            },
+                            'vendor': None,
+                            'model': 'INTEL SSDPEKKW256G7',
+                            'sas_address': None,
+                            'sas_device_handle': None,
+                            'serial': 'BTPY64560TH8256D',
+                            'removable': '0',
+                            'support_discard': '512',
+                            'partitions': {
+                                'nvme0n1p3': {
+                                    'links': {
+                                        'ids': [
+                                            'nvme-INTEL_SSDPEKKW256G7_BTPY64560TH8256D-part3',
+                                            'nvme-INTEL_SSDPEKKW256G7_BTPY64560TH8256D_1-part3',
+                                            'nvme-eui.0000000001000000e4d25c2aa5874d01-part3'
+                                        ],
+                                        'uuids': [
+                                            '16a09d84-e5a6-4aec-99ab-cb4fee204d05'
+                                        ],
+                                        'labels': [],
+                                        'masters': []
+                                    },
+                                    'start': '498116608',
+                                    'sectors': '2000896',
+                                    'sectorsize': 512,
+                                    'size': '977.00 MB',
+                                    'uuid': '16a09d84-e5a6-4aec-99ab-cb4fee204d05',
+                                    'holders': []
+                                },
+                                'nvme0n1p1': {
+                                    'links': {
+                                        'ids': [
+                                            'nvme-INTEL_SSDPEKKW256G7_BTPY64560TH8256D-part1',
+                                            'nvme-INTEL_SSDPEKKW256G7_BTPY64560TH8256D_1-part1',
+                                            'nvme-eui.0000000001000000e4d25c2aa5874d01-part1'
+                                        ],
+                                        'uuids': ['DB8D-E250'],
+                                        'labels': [],
+                                        'masters': []
+                                    },
+                                    'start': '2048',
+                                    'sectors': '1048576',
+                                    'sectorsize': 512,
+                                    'size': '512.00 MB',
+                                    'uuid': 'DB8D-E250',
+                                    'holders': []
+                                },
+                                'nvme0n1p2': {
+                                    'links': {
+                                        'ids': [
+                                            'nvme-INTEL_SSDPEKKW256G7_BTPY64560TH8256D-part2',
+                                            'nvme-INTEL_SSDPEKKW256G7_BTPY64560TH8256D_1-part2',
+                                            'nvme-eui.0000000001000000e4d25c2aa5874d01-part2'
+                                        ],
+                                        'uuids': [
+                                            '09905813-8a00-4854-b2e9-be3d1fa6b921'
+                                        ],
+                                        'labels': [],
+                                        'masters': []
+                                    },
+                                    'start': '1050624',
+                                    'sectors': '497065984',
+                                    'sectorsize': 512,
+                                    'size': '237.02 GB',
+                                    'uuid': '09905813-8a00-4854-b2e9-be3d1fa6b921',
+                                    'holders': []
+                                }
+                            },
+                            'rotational': '0',
+                            'scheduler_mode': 'none',
+                            'sectors': '500118192',
+                            'sectorsize': '512',
+                            'size': '238.47 GB',
+                            'host': 'Non-Volatile memory controller: '
+                                    'Intel Corporation SSD 600P Series (rev 03)',
+                            'holders': []
+                        }
+                    }
+                },
+                "nvme0n1p2",
+                "INTEL SSDPEKKW256G7",
+                None,
+            ),
+            (
+                # Very trimmed down Ansible facts
+                {
+                    "ansible_devices": {
+                        "nvme0n1": {
+                            'virtual': 1,
+                            'links': {
+                                'ids': ['nvme-INTEL_SSDPEKKW256G7_BTPY64560TH8256D',
+                                        'nvme-INTEL_SSDPEKKW256G7_BTPY64560TH8256D_1',
+                                        'nvme-eui.0000000001000000e4d25c2aa5874d01'],
+                                'uuids': [],
+                                'labels': [],
+                                'masters': []
+                            },
+                            'vendor': None,
+                            'model': 'INTEL SSDPEKKW256G7',
+                            'sas_address': None,
+                            'sas_device_handle': None,
+                            'serial': 'BTPY64560TH8256D',
+                            'removable': '0',
+                            'support_discard': '512',
+                            'partitions': {
+                                'nvme0n1p3': {
+                                    'links': {
+                                        'ids': [
+                                            'nvme-INTEL_SSDPEKKW256G7_BTPY64560TH8256D-part3',
+                                            'nvme-INTEL_SSDPEKKW256G7_BTPY64560TH8256D_1-part3',
+                                            'nvme-eui.0000000001000000e4d25c2aa5874d01-part3'
+                                        ],
+                                        'uuids': [
+                                            '16a09d84-e5a6-4aec-99ab-cb4fee204d05'
+                                        ],
+                                        'labels': [],
+                                        'masters': []
+                                    },
+                                    'start': '498116608',
+                                    'sectors': '2000896',
+                                    'sectorsize': 512,
+                                    'size': '977.00 MB',
+                                    'uuid': '16a09d84-e5a6-4aec-99ab-cb4fee204d05',
+                                    'holders': []
+                                },
+                                'nvme0n1p1': {
+                                    'links': {
+                                        'ids': [
+                                            'nvme-INTEL_SSDPEKKW256G7_BTPY64560TH8256D-part1',
+                                            'nvme-INTEL_SSDPEKKW256G7_BTPY64560TH8256D_1-part1',
+                                            'nvme-eui.0000000001000000e4d25c2aa5874d01-part1'
+                                        ],
+                                        'uuids': ['DB8D-E250'],
+                                        'labels': [],
+                                        'masters': []
+                                    },
+                                    'start': '2048',
+                                    'sectors': '1048576',
+                                    'sectorsize': 512,
+                                    'size': '512.00 MB',
+                                    'uuid': 'DB8D-E250',
+                                    'holders': []
+                                },
+                                'nvme0n1p2': {
+                                    'links': {
+                                        'ids': [
+                                            'nvme-INTEL_SSDPEKKW256G7_BTPY64560TH8256D-part2',
+                                            'nvme-INTEL_SSDPEKKW256G7_BTPY64560TH8256D_1-part2',
+                                            'nvme-eui.0000000001000000e4d25c2aa5874d01-part2'
+                                        ],
+                                        'uuids': [
+                                            '09905813-8a00-4854-b2e9-be3d1fa6b921'
+                                        ],
+                                        'labels': [],
+                                        'masters': []
+                                    },
+                                    'start': '1050624',
+                                    'sectors': '497065984',
+                                    'sectorsize': 512,
+                                    'size': '237.02 GB',
+                                    'uuid': '09905813-8a00-4854-b2e9-be3d1fa6b921',
+                                    'holders': []
+                                }
+                            },
+                            'rotational': '0',
+                            'scheduler_mode': 'none',
+                            'sectors': '500118192',
+                            'sectorsize': '512',
+                            'size': '238.47 GB',
+                            'host': 'Non-Volatile memory controller: '
+                                    'Intel Corporation SSD 600P Series (rev 03)',
+                            'holders': []
+                        }
+                    }
+                },
+                "nonexistingdevice",
+                "",
+                None,
+            ),
+            (
+                # Empty facts
+                {},
+                "nonexistingdevice",
+                "",
+                None,
+            ),
+            (
+                # empty partitions
+                {
+                    "ansible_devices": {
+                        "nvme0n1": {
+                            'virtual': 1,
+                            'links': {
+                                'ids': ['nvme-INTEL_SSDPEKKW256G7_BTPY64560TH8256D',
+                                        'nvme-INTEL_SSDPEKKW256G7_BTPY64560TH8256D_1',
+                                        'nvme-eui.0000000001000000e4d25c2aa5874d01'],
+                                'uuids': [],
+                                'labels': [],
+                                'masters': []
+                            },
+                            'vendor': None,
+                            'model': 'INTEL SSDPEKKW256G7',
+                            'sas_address': None,
+                            'sas_device_handle': None,
+                            'serial': 'BTPY64560TH8256D',
+                            'removable': '0',
+                            'support_discard': '512',
+                            'partitions': {},
+                            'rotational': '0',
+                            'scheduler_mode': 'none',
+                            'sectors': '500118192',
+                            'sectorsize': '512',
+                            'size': '238.47 GB',
+                            'host': 'Non-Volatile memory controller: '
+                                    'Intel Corporation SSD 600P Series (rev 03)',
+                            'holders': []
+                        }
+                    }
+                },
+                "nonexistingdevice",
+                "",
+                None,
+            ),
+        )
+
+        for obj, device, expected_result, expected_exception in testdata:
+            try:
+                tmp = fun(obj, device)
+                if tmp != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              "            obj:\n" \
+                              f"{yaml_dump(obj, base_indent=17)}\n" \
+                              f"         device: {device}\n" \
+                              f"         result: {tmp}\n" \
+                              f"       expected: {expected_result}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  "            obj:\n" \
+                                  f"{yaml_dump(obj, base_indent=17)}\n" \
+                                  f"         device: {device}\n" \
+                                  f"      exception: {type(e)}\n" \
+                                  f"       expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              "            obj:\n" \
+                              f"{yaml_dump(obj, base_indent=17)}\n" \
+                              f"         device: {device}\n" \
+                              f"      exception: {type(e)}\n" \
+                              f"       expected: {expected_result}"
+                    result = False
+                    break
+    return message, result
+
+
+def test_filter_list_entry(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = listgetters.filter_list_entry
+
+    if result:
+        # Indata format:
+        # (obj, caller_obj, filters, expected_result, expected_exception, expected_exception_msg)
+        testdata: tuple[Any, ...] = (
+            # Object as source, substitutions
+            (
+                {
+                    "status": {
+                        "allocatable": {
+                            "cpu": 8,
+                        },
+                    },
+                },
+                {},
+                {
+                    "resource": {
+                        "source": "object",
+                        "enabled": True,
+                        "allow": [
+                            {
+                                "key": "<<<status>>>#allocatable#<<<name>>>",
+                                "substitutions": {
+                                    "<<<name>>>": ["name"],
+                                    "<<<status>>>": "status",
+                                },
+                                "exists": True,
+                            },
+                        ],
+                    },
+                },
+                True,
+                None,
+                "",
+            ),
+            # Object as source,
+            (
+                {
+                    "metadata": {
+                        "name": "system-node-critical",
+                    },
+                },
+                {
+                    "metadata": {
+                        "priorityClassName": "system-node-critical",
+                    },
+                },
+                {
+                    "priority_class": {
+                        "enabled": True,
+                        "allow": [
+                            {
+                                "key": "spec#priorityClassName",
+                                "values": {
+                                    "source": "caller",
+                                    "path": "metadata#name",
+                                },
+                            },
+                        ],
+                    },
+                },
+                True,
+                None,
+                "",
+            ),
+            # Object as source, dictlist
+            (
+                {
+                    "metadata": {
+                        "ownerReferences": [
+                            {
+                                "apiVersion": "kubevirt.io/v1",
+                                "blockOwnerDeletion": True,
+                                "controller": True,
+                                "kind": "VirtualMachine",
+                                "name": "testvm",
+                            },
+                        ],
+                    },
+                },
+                {
+                    "metadata": {
+                        "name": "testvm",
+                    },
+                },
+                {
+                    "controller": {
+                        "enabled": True,
+                        "allow": [
+                            {
+                                "type": "dictlist",
+                                "path": "metadata#ownerReferences",
+                                "fields": {
+                                    "kind": "VirtualMachine",
+                                    "api_family": "kubevirt.io",
+                                    "name": {
+                                        "source": "caller",
+                                        "path": "metadata#name",
+                                    },
+                                    "controller": True,
+                                },
+                            },
+                        ]
+                    },
+                },
+                False,
+                None,
+                "",
+            ),
+            # Object as source; no allow rules
+            (
+                {},
+                {},
+                {
+                    "resource": {
+                        "source": "object",
+                        "enabled": True,
+                        "allow": [],
+                    },
+                },
+                False,
+                None,
+                "",
+            ),
+            # Object as source; filter disabled
+            (
+                {},
+                {},
+                {
+                    "resource": {
+                        "source": "object",
+                        "enabled": False,
+                        "allow": [
+                            {
+                                "key": "status#allocatable#<<<name>>>",
+                                "substitutions": {
+                                    "<<<name>>>": ["name"],
+                                },
+                                "exists": True,
+                            }
+                        ]
+                    },
+                },
+                False,
+                None,
+                "",
+            ),
+            # No filters
+            (
+                {},
+                {},
+                {},
+                False,
+                None,
+                "",
+            ),
+            # Incorrect rule-type
+            (
+                {},
+                {},
+                {
+                    "controller": {
+                        "enabled": True,
+                        "allow": [
+                            {
+                                "type": "foobar",
+                            },
+                        ]
+                    },
+                },
+                False,
+                Exception,
+                "errno.ENOTSUP",
+            ),
+        )
+
+        for obj, caller_obj, filters, \
+                expected_result, expected_exception, expected_exception_msg in testdata:
+            try:
+                with mock.patch("sys.exit", side_effect=Exception("errno.ENOTSUP")):
+                    tmp = fun(obj, caller_obj, filters)
+                if tmp != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"           result: {tmp}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception) \
+                            and expected_exception_msg is None or expected_exception_msg == str(e):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  f"        exception: {type(e)}\n" \
+                                  f"          message: {str(e)}\n" \
+                                  f"         expected: {expected_exception}" \
+                                  f" expected message: {expected_exception_msg}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"        exception: {type(e)}\n" \
+                              f"          message: {str(e)}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+    return message, result
+
+
+def test_listgetter_ansible_volumes(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = listgetters.listgetter_ansible_volumes
+
+    if result:
+        # Indata format:
+        # (obj, kwargs, expected_result, expected_exception)
+        testdata: tuple[Any, ...] = (
+            (
+                {
+                    "ansible_devices": {
+                        "sda": {
+                            "model": "KXG8AZNV512G LA KIOXIA",
+                            "partitions": {
+                                "sda1": {},
+                                "sda2": {},
+                            },
+                        },
+                    },
+                    "ansible_mounts": [
+                        # This entry is just to get coverage
+                        {},
+                        # This entry is just to get coverage
+                        {
+                            "mount": "/boot/efi",
+                            "fstype": "vfat",
+                            "options": "rw,relatime,fmask=0077,dmask=0077,codepage=437,"
+                                       "iocharset=ascii,shortname=mixed,utf8,errors=remount-ro",
+                            "device": "sda1",
+                            "size_available": 1234,
+                        },
+                        # This entry is just to get coverage
+                        {
+                            "mount": "/mnt",
+                            "fstype": "vfat",
+                            "options": "rw,relatime,fmask=0077,dmask=0077,codepage=437,"
+                                       "iocharset=ascii,shortname=mixed,utf8,errors=remount-ro",
+                            "device": "loop0",
+                            "size_available": 1234,
+                            "size_total": 5678,
+                        },
+                        {
+                            "mount": "/boot/efi",
+                            "fstype": "vfat",
+                            "options": "rw,relatime,fmask=0077,dmask=0077,codepage=437,"
+                                       "iocharset=ascii,shortname=mixed,utf8,errors=remount-ro",
+                            "device": "sda1",
+                            "size_available": 1234,
+                            "size_total": 5678,
+                        },
+                        {
+                            "mount": "/",
+                            "fstype": "ext4",
+                            "options": "rw,relatime,errors=remount-ro",
+                            "device": "sda2",
+                            "size_available": 1234,
+                            "size_total": 5678,
+                        },
+                    ],
+                }, {}, [
+                    {
+                        "mountpoint": "/",
+                        "fstype": "ext4",
+                        "options": ["rw", "relatime", "errors=remount-ro"],
+                        "device": "sda2",
+                        "model": "KXG8AZNV512G LA KIOXIA",
+                        "partition_size_used": "4KiB",
+                        "partition_size_total": "5KiB",
+                    },
+                ], None,
+            ),
+            (
+                {
+                    "ansible_devices": {
+                        "sda": {
+                            "partitions": {
+                                "sda1": {},
+                            },
+                        },
+                    },
+                    "ansible_mounts": [
+                        {
+                            "mount": "/mnt",
+                            "fstype": "nfs",
+                            "options": "nfsvers=3,proto=tcp",
+                            "device": "host:/volume1/partition1",
+                            "size_available": 1234,
+                            "size_total": 5678,
+                        },
+                    ],
+                }, {}, [
+                    {
+                        "mountpoint": "/mnt",
+                        "fstype": "nfs",
+                        "options": ["nfsvers=3", "proto=tcp"],
+                        "device": "host:/volume1/partition1",
+                        "model": "",
+                        "partition_size_used": "4KiB",
+                        "partition_size_total": "5KiB",
+                    },
+                ], None,
+            ),
+        )
+
+        for obj, kwargs, expected_result, expected_exception in testdata:
+            try:
+                tmp, _status = fun(obj, **kwargs)
+                if tmp != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              "            obj:\n" \
+                              f"{yaml_dump(obj, base_indent=17)}\n" \
+                              f"         result: {tmp}\n" \
+                              f"       expected: {expected_result}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  "            obj:\n" \
+                                  f"{yaml_dump(obj, base_indent=17)}\n" \
+                                  f"      exception: {type(e)}\n" \
+                                  f"       expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              "            obj:\n" \
+                              f"{yaml_dump(obj, base_indent=17)}\n" \
+                              f"      exception: {type(e)}\n" \
+                              f"       expected: {expected_result}"
+                    result = False
+                    break
+    return message, result
+
+
+def test_listgetter_configmap_data(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = listgetters.listgetter_configmap_data
+
+    if result:
+        # Indata format:
+        # (obj, kwargs, expected_result, expected_exception)
+        testdata: tuple[Any, ...] = (
+            (
+                {
+                    "metadata": {
+                        "namespace": "kube-system",
+                        "name": "bootstrap",
+                    },
+                    "data": {
+                        "status": "complete",
+                    },
+                },
+                {},
+                (
+                    [
+                        {
+                            "cm_name": "bootstrap",
+                            "cm_namespace": "kube-system",
+                            "configmap": "status",
+                            "type": "Text",
+                            "formatter": formatters.format_none,
+                            "data": "complete",
+                        }
+                    ], 200),
+                None,
+            ),
+            (
+                {
+                    "metadata": {
+                        "namespace": "kube-system",
+                        "name": "bootstrap",
+                    },
+                },
+                {},
+                (
+                    [], 200),
+                None,
+            ),
+            (
+                {
+                    "metadata": {
+                        "namespace": "kube-system",
+                        "name": "bootstrap",
+                    },
+                    "binary_data": {
+                        "foo": None,
+                    },
+                },
+                {},
+                (
+                    [
+                        {
+                            "cm_name": "bootstrap",
+                            "cm_namespace": "kube-system",
+                            "configmap": "foo",
+                            "type": "Binary",
+                            "formatter": None,
+                            "data": None,
+                        }
+                    ], 200),
+                None,
+            ),
+        )
+
+        for obj, kwargs, expected_result, expected_exception in testdata:
+            try:
+                tmp = fun(obj, **kwargs)
+                if tmp != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              "            obj:\n" \
+                              f"{yaml_dump(obj, base_indent=17)}\n" \
+                              f"         result: {tmp}\n" \
+                              f"       expected: {expected_result}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  "            obj:\n" \
+                                  f"{yaml_dump(obj, base_indent=17)}\n" \
+                                  f"      exception: {type(e)}\n" \
+                                  f"       expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              "            obj:\n" \
+                              f"{yaml_dump(obj, base_indent=17)}\n" \
+                              f"      exception: {type(e)}\n" \
+                              f"       expected: {expected_result}"
+                    result = False
+                    break
+    return message, result
+
+
+def test_listgetter_dict_list(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = listgetters.listgetter_dict_list
+
+    if result:
+        # Indata format:
+        # (obj, kwargs, expected_result, expected_exception)
+        testdata: tuple[Any, ...] = (
+            (
+                {
+                    "security-labels": {
+                        "k8s:app": "local-path-provisioner",
+                        "k8s:io.cilium.k8s.namespace.labels.kubernetes.io/metadata.name":
+                            "local-path-storage",
+                        "k8s:io.cilium.k8s.policy.cluster": "kind-kind",
+                        "k8s:io.cilium.k8s.policy.serviceaccount":
+                            "local-path-provisioner-service-account",
+                        "k8s:io.kubernetes.pod.namespace": "local-path-storage",
+                    },
+                },
+                {"path": "security-labels"},
+                (
+                    [
+                        {
+                            "key": "k8s:app",
+                            "value": "local-path-provisioner",
+                        },
+                        {
+                            "key": "k8s:io.cilium.k8s.namespace.labels.kubernetes.io/metadata.name",
+                            "value": "local-path-storage",
+                        },
+                        {
+                            "key": "k8s:io.cilium.k8s.policy.cluster",
+                            "value": "kind-kind",
+                        },
+                        {
+                            "key": "k8s:io.cilium.k8s.policy.serviceaccount",
+                            "value": "local-path-provisioner-service-account",
+                        }, {
+                            "key": "k8s:io.kubernetes.pod.namespace",
+                            "value": "local-path-storage",
+                        },
+                    ], 200),
+                None,
+            ),
+            (
+                {
+                    "security-labels": {
+                        "k8s:app": "local-path-provisioner",
+                        "k8s:io.cilium.k8s.namespace.labels.kubernetes.io/metadata.name":
+                            "local-path-storage",
+                        "k8s:io.cilium.k8s.policy.cluster": "kind-kind",
+                        "k8s:io.cilium.k8s.policy.serviceaccount":
+                            "local-path-provisioner-service-account",
+                        "k8s:io.kubernetes.pod.namespace": "local-path-storage",
+                    },
+                },
+                {},
+                (
+                    [], 200),
+                None,
+            ),
+        )
+
+        for obj, kwargs, expected_result, expected_exception in testdata:
+            try:
+                tmp = fun(obj, **kwargs)
+                if tmp != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              "            obj:\n" \
+                              f"{yaml_dump(obj, base_indent=17)}\n" \
+                              f"         result: {tmp}\n" \
+                              f"       expected: {expected_result}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  "            obj:\n" \
+                                  f"{yaml_dump(obj, base_indent=17)}\n" \
+                                  f"      exception: {type(e)}\n" \
+                                  f"       expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              "            obj:\n" \
+                              f"{yaml_dump(obj, base_indent=17)}\n" \
+                              f"      exception: {type(e)}\n" \
+                              f"       expected: {expected_result}"
+                    result = False
+                    break
+    return message, result
+
+
+def test_listgetter_join_dicts_to_list(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = listgetters.listgetter_join_dicts_to_list
+
+    if result:
+        # Indata format:
+        # (obj, kwargs, expected_result, expected_exception)
+        testdata: tuple[Any, ...] = (
+            (
+                {
+                    "spec": {
+                        "resources": {
+                            "limits": {
+                                "storage": "100Gi",
+                            },
+                            "requests": {
+                                "storage": "20Gi",
+                            },
+                        },
+                    },
+                },
+                {
+                    "key_paths": ["spec#resources#limits", "spec#resources#requests"],
+                    "key_name": "resource",
+                    "fields": [
+                        {
+                            "path": "spec#resources#limits",
+                            "name": "limit",
+                            "default": None,
+                        },
+                        {
+                            "path": "spec#resources#requests",
+                            "name": "request",
+                            "default": None,
+                        },
+                    ],
+                },
+                ([{'resource': 'storage', 'limit': '100Gi', 'request': '20Gi'}], 200),
+                None,
+            ),
+            (
+                {
+                    "spec": {
+                        "resources": {
+                            "limits": {
+                                "storage": "100Gi",
+                            },
+                            "requests": {
+                                "storage": "20Gi",
+                            },
+                        },
+                    },
+                },
+                {
+                    "key_paths": ["spec#resources#limits", "spec#resources#requests"],
+                    "key_name": None,
+                    "fields": [
+                        {
+                            "path": "spec#resources#limits",
+                            "name": "limit",
+                            "default": None,
+                        },
+                        {
+                            "path": "spec#resources#requests",
+                            "name": "request",
+                            "default": None,
+                        },
+                    ],
+                },
+                ([{'key': 'storage', 'limit': '100Gi', 'request': '20Gi'}], 200),
+                None,
+            ),
+            (
+                {
+                    "spec": {
+                        "resources": {
+                            "limits": {
+                                "storage": "100Gi",
+                            },
+                            "requests": {
+                                "storage": "20Gi",
+                            },
+                        },
+                    },
+                },
+                {
+                    "key_paths": [],
+                    "key_name": "request",
+                    "fields": [
+                        {
+                            "path": "spec#resources#limits",
+                            "name": "limit",
+                            "default": None,
+                        },
+                        {
+                            "path": "spec#resources#requests",
+                            "name": "request",
+                            "default": None,
+                        },
+                    ],
+                },
+                ([], 200),
+                None,
+            ),
+            (
+                {
+                    "spec": {
+                        "resources": {
+                            "limits": {
+                                "storage": "100Gi",
+                            },
+                            "requests": {
+                                "storage": "20Gi",
+                            },
+                        },
+                    },
+                },
+                {
+                    "key_paths": ["spec#resources#limits", "spec#resources#requests"],
+                    "key_name": "resource",
+                    "fields": [],
+                },
+                ([], 200),
+                None,
+            ),
+            (
+                {
+                    "spec": {
+                        "resources": {
+                            "limits": {
+                                "storage": "100Gi",
+                            },
+                            "requests": {
+                                "storage": "20Gi",
+                            },
+                        },
+                    },
+                },
+                {
+                    "key_paths": ["spec#resources#limits", "spec#resources#requests"],
+                    "key_name": "resource",
+                    "fields": [
+                        {
+                            "path": "spec#resources#limits",
+                            "default": None,
+                        },
+                        {
+                            "path": "spec#resources#requests",
+                            "name": "request",
+                            "default": None,
+                        },
+                    ],
+                },
+                ([{'resource': 'storage', 'request': '20Gi'}], 200),
+                None,
+            ),
+        )
+
+        for obj, kwargs, expected_result, expected_exception in testdata:
+            try:
+                tmp = fun(obj, **kwargs)
+                if tmp != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              "            obj:\n" \
+                              f"{yaml_dump(obj, base_indent=17)}\n" \
+                              f"         result: {tmp}\n" \
+                              f"       expected: {expected_result}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  "            obj:\n" \
+                                  f"{yaml_dump(obj, base_indent=17)}\n" \
+                                  f"      exception: {type(e)}\n" \
+                                  f"       expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              "            obj:\n" \
+                              f"{yaml_dump(obj, base_indent=17)}\n" \
+                              f"      exception: {type(e)}\n" \
+                              f"       expected: {expected_result}"
+                    result = False
+                    break
+    return message, result
+
+
+def test_listgetter_noop(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = listgetters.listgetter_noop
+    indata: Any = None
+
+    if result:
+        # Indata format:
+        # (obj, expected_result, expected_exception)
+        testdata: tuple[Any, ...] = (
+            ({}, ([], "OK"), None),
+            (1, ([], "OK"), None),
+            ("str", ([], "OK"), None),
+            (None, ([], "OK"), None),
+        )
+        for indata, expected_result, expected_exception in testdata:
+            try:
+                if (tmp := fun(indata)) != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"         indata: {indata}\n" \
+                              f"         result: {tmp}\n" \
+                              f"       expected: {expected_result}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  f"         indata: {indata}\n" \
+                                  f"      exception: {type(e)}\n" \
+                                  f"       expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"         indata: {indata}\n" \
+                              f"      exception: {type(e)}\n" \
+                              f"       expected: {expected_result}"
+                    result = False
+                    break
+    return message, result
+
+
+def test_listgetter_feature_gates(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = listgetters.listgetter_feature_gates
+
+    if result:
+        # Indata format:
+        # (obj, kwargs, expected_result, expected_exception)
+        testdata: tuple[Any, ...] = (
+            (
+                {
+                    "status": {
+                        "featureGates": [
+                            {
+                                "disabled": [
+                                    {
+                                        "name": "BootImageSkewEnforcement",
+                                    },
+                                    {
+                                        "name": "ClusterAPIInstall",
+                                    },
+                                ],
+                                "enabled": [
+                                    {
+                                        "name": "AWSClusterHostedDNS",
+                                    },
+                                    {
+                                        "name": "AzureMultiDisk",
+                                    },
+                                ],
+                                "version": "4.20.5",
+                            },
+                            {
+                                "disabled": [
+                                    {
+                                        "name": "MultiArchInstallAzure",
+                                    },
+                                ],
+                                "enabled": [
+                                    {
+                                        "name": "AutomatedEtcdBackup",
+                                    },
+                                ],
+                                "version": "4.20.6",
+                            },
+                        ],
+                    },
+                },
+                {
+                    "path": "status#featureGates",
+                },
+                (
+                    [
+                        {
+                            "enabled": True,
+                            "name": "AWSClusterHostedDNS",
+                            "version": "4.20.5",
+                        },
+                        {
+                            "enabled": True,
+                            "name": "AzureMultiDisk",
+                            "version": "4.20.5",
+                        },
+                        {
+                            "enabled": False,
+                            "name": "BootImageSkewEnforcement",
+                            "version": "4.20.5",
+                        },
+                        {
+                            "enabled": False,
+                            "name": "ClusterAPIInstall",
+                            "version": "4.20.5",
+                        },
+                        {
+                            "enabled": True,
+                            "name": "AutomatedEtcdBackup",
+                            "version": "4.20.6",
+                        },
+                        {
+                            "enabled": False,
+                            "name": "MultiArchInstallAzure",
+                            "version": "4.20.6",
+                        },
+                    ],
+                    200,
+                ),
+                None,
+            ),
+        )
+
+        for obj, kwargs, expected_result, expected_exception in testdata:
+            try:
+                tmp = fun(obj, **kwargs)
+                if tmp != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              "            obj:\n" \
+                              f"{yaml_dump(obj, base_indent=17)}\n" \
+                              f"         result: {tmp}\n" \
+                              f"       expected: {expected_result}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  "            obj:\n" \
+                                  f"{yaml_dump(obj, base_indent=17)}\n" \
+                                  f"      exception: {type(e)}\n" \
+                                  f"       expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              "            obj:\n" \
+                              f"{yaml_dump(obj, base_indent=17)}\n" \
+                              f"      exception: {type(e)}\n" \
+                              f"       expected: {expected_result}"
+                    result = False
+                    break
+    return message, result
+
+
+def test_listgetter_policy_rules(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = listgetters.listgetter_policy_rules
+
+    if result:
+        # Indata format:
+        # (obj, expected_result, expected_exception)
+        testdata: tuple[Any, ...] = (
+            (
+                {
+                    "rules": [
+                        {
+                            "verbs": [
+                                "get",
+                                "list",
+                                "watch",
+                                "update"
+                            ],
+                            "apiGroups": [""],
+                            "resources": [
+                                "secrets"
+                            ],
+                            "resourceNames": [
+                                "cert-manager-webhook-ca"
+                            ]
+                        },
+                        {
+                            "verbs": [
+                                "create"
+                            ],
+                            "apiGroups": [""],
+                            "resources": [
+                                "secrets"
+                            ]
+                        }
+                    ]
+                },
+                ([
+                    {
+                        "resource": "secrets",
+                        "api_group": "",
+                        "non_resource_urls": [],
+                        "resource_names": [
+                            "cert-manager-webhook-ca"
+                        ],
+                        "verbs": [
+                            "get",
+                            "list",
+                            "watch",
+                            "update",
+                            "create"
+                        ],
+                        "verbs_all": False,
+                        "verbs_get": True,
+                        "verbs_list": True,
+                        "verbs_watch": True,
+                        "verbs_create": True,
+                        "verbs_update": True,
+                        "verbs_patch": False,
+                        "verbs_delete": False,
+                        "verbs_misc": []
+                    }
+                ], 200),
+                None,
+            ),
+            (
+                {
+                    "rules": [
+                        {
+                            "verbs": [
+                                "create",
+                                "delete",
+                                "deletecollection",
+                                "patch",
+                                "update"
+                            ],
+                            "apiGroups": [
+                                "cert-manager.io"
+                            ],
+                            "resources": [
+                                "certificates",
+                                "certificaterequests",
+                                "issuers"
+                            ]
+                        },
+                    ]
+                },
+                ([
+                    {
+                        "resource": "certificates",
+                        "api_group": "cert-manager.io",
+                        "non_resource_urls": [],
+                        "resource_names": [],
+                        "verbs": [
+                            "create",
+                            "delete",
+                            "deletecollection",
+                            "patch",
+                            "update"
+                        ],
+                        "verbs_all": False,
+                        "verbs_get": False,
+                        "verbs_list": False,
+                        "verbs_watch": False,
+                        "verbs_create": True,
+                        "verbs_update": True,
+                        "verbs_patch": True,
+                        "verbs_delete": True,
+                        "verbs_misc": [
+                            "deletecollection"
+                        ]
+                    },
+                    {
+                        "resource": "certificaterequests",
+                        "api_group": "cert-manager.io",
+                        "non_resource_urls": [],
+                        "resource_names": [],
+                        "verbs": [
+                            "create",
+                            "delete",
+                            "deletecollection",
+                            "patch",
+                            "update"
+                        ],
+                        "verbs_all": False,
+                        "verbs_get": False,
+                        "verbs_list": False,
+                        "verbs_watch": False,
+                        "verbs_create": True,
+                        "verbs_update": True,
+                        "verbs_patch": True,
+                        "verbs_delete": True,
+                        "verbs_misc": [
+                            "deletecollection"
+                        ]
+                    },
+                    {
+                        "resource": "issuers",
+                        "api_group": "cert-manager.io",
+                        "non_resource_urls": [],
+                        "resource_names": [],
+                        "verbs": [
+                            "create",
+                            "delete",
+                            "deletecollection",
+                            "patch",
+                            "update"
+                        ],
+                        "verbs_all": False,
+                        "verbs_get": False,
+                        "verbs_list": False,
+                        "verbs_watch": False,
+                        "verbs_create": True,
+                        "verbs_update": True,
+                        "verbs_patch": True,
+                        "verbs_delete": True,
+                        "verbs_misc": [
+                            "deletecollection"
+                        ]
+                    }
+                ], 200),
+                None,
+            ),
+            (
+                {
+                    "rules": [
+                        {
+                            "verbs": [
+                                "*"
+                            ],
+                            "apiGroups": [
+                                "gpu.resource.intel.com"
+                            ],
+                            "resources": [
+                                "*"
+                            ]
+                        }
+                    ]
+                },
+                ([
+                    {
+                        "resource": "*",
+                        "api_group": "gpu.resource.intel.com",
+                        "non_resource_urls": [],
+                        "resource_names": [],
+                        "verbs": [
+                            "*"
+                        ],
+                        "verbs_all": True,
+                        "verbs_get": True,
+                        "verbs_list": True,
+                        "verbs_watch": True,
+                        "verbs_create": True,
+                        "verbs_update": True,
+                        "verbs_patch": True,
+                        "verbs_delete": True,
+                        "verbs_misc": [
+                            "*"
+                        ]
+                    }
+                ], 200),
+                None,
+            ),
+            (
+                {
+                    "rules": [
+                        {
+                            "nonResourceURLs": [
+                                "/healthz",
+                            ],
+                        },
+                    ],
+                    "verbs": [
+                        "get",
+                    ],
+                },
+                ([
+                    {
+                        "resource": "",
+                        "api_group": "",
+                        "non_resource_urls": [
+                            "/healthz"
+                        ],
+                        "resource_names": [],
+                        "verbs": [],
+                        "verbs_all": False,
+                        "verbs_get": False,
+                        "verbs_list": False,
+                        "verbs_watch": False,
+                        "verbs_create": False,
+                        "verbs_update": False,
+                        "verbs_patch": False,
+                        "verbs_delete": False,
+                        "verbs_misc": []
+                    },
+                ], 200),
+                None,
+            ),
+            (
+                {},
+                ([], 200),
+                None,
+            ),
+            (
+                None,
+                ([], 200),
+                None,
+            ),
+        )
+
+        for obj, expected_result, expected_exception in testdata:
+            try:
+                tmp = fun(obj)
+                if tmp != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              "            obj:\n" \
+                              f"{yaml_dump(obj, base_indent=17)}\n" \
+                              f"         result: {tmp}\n" \
+                              f"       expected: {expected_result}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  "            obj:\n" \
+                                  f"{yaml_dump(obj, base_indent=17)}\n" \
+                                  f"      exception: {type(e)}\n" \
+                                  f"       expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              "            obj:\n" \
+                              f"{yaml_dump(obj, base_indent=17)}\n" \
+                              f"      exception: {type(e)}\n" \
+                              f"       expected: {expected_result}"
+                    result = False
+                    break
+    return message, result
+
+
+def test_generic_listgetter(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = listgetters.generic_listgetter
+
+    ansithemeprint([ANSIThemeStr("  Note", "note"),
+                    ANSIThemeStr(": These testcases only work correctly when run "
+                                 "on Linux-nodes,", "default")])
+    ansithemeprint([ANSIThemeStr("        running vanilla Kubernetes:\n", "default")])
+
+    if result:
+        # Indata format:
+        # (kh, kh_cache, kind, namespace, label_selector, field_selector,
+        #  expected_result, expected_exception)
+        testdata: tuple[Any, ...] = (
+            # No selector, no Namespace, should find a match
+            (kh, kh_cache, ("Node", ""), "", "", "", ["metadata#name"], None),
+            # No selector, Namespace (but resource isn't namespaced), should find a match
+            (kh, kh_cache, ("Node", ""), "NONAMESPACE", "", "", ["metadata#name"], None),
+            # No selector, namespaced resource, valid namespace, should find a match
+            (kh, kh_cache, ("ConfigMap", ""), "kube-system", "", "", ["metadata#name"], None),
+            # Valid label selector, should find a match
+            (kh, kh_cache, ("Node", ""), "kubernetes.io/os=linux", "", "", ["metadata#name"], None),
+            # Inalid label selector, should NOT find a match
+            (kh, kh_cache, ("Node", ""), "kubernetes.io/os=ASDFDSAFD", "", "", [], None),
+            # Valid field selector, should find a match
+            (kh, kh_cache, ("Namespace", ""), "", "", "status.phase=Active",
+             ["metadata#name", "status#phase"], None),
+            # Invalid field selector, should NOT find a match
+            (kh, kh_cache, ("Namespace", ""), "", "", "status.phase=fDFDSAFDS", [], None),
+            # Invalid kind, should raise
+            (kh, kh_cache, ("Floop", "nonexisting"), "", "", "", [], TypeError),
+            # No kubernetes_helper; should raise
+            (None, kh_cache, ("Node", ""), "", "", "", [], ProgrammingError),
+        )
+        for kh_, kh_cache_, kind, namespace, label_selector, \
+                field_selector, expected_result, expected_exception in testdata:
+            try:
+                tmp, status = fun(kubernetes_helper=kh_, kh_cache=kh_cache_,
+                                  kind=kind, namespace=namespace, label_selector=label_selector,
+                                  field_selector=field_selector)
+                # To be able to test this on any cluster (longer term we should aim to do
+                # this using kind) we cannot rely on a specific answer. Also, even if we
+                # were to use kind we cannot get around the fact that there are fields
+                # such as the timestamp, uid, generation, etc. that cannot be hardcoded.
+                if not len(tmp) and expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              "result lacks content"
+                    result = False
+                    break
+                for path in expected_result:
+                    if not deep_get(tmp[0], DictPath(path)):
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  "            obj:\n" \
+                                  f"{yaml_dump(tmp[0], base_indent=17)}\n" \
+                                  f"path {path} does not exist"
+                        result = False
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  f"      exception: {type(e)}\n" \
+                                  f"       expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"      exception: {type(e)}\n" \
+                              f"       expected: {expected_result}"
+                    result = False
+                    break
+    return message, result
+
+
+def test_get_metrics_list(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = listgetters.get_metrics_list
+
+    if result:
+        # Indata format:
+        # (kh, kh_cache, filter, expected_result, expected_exception)
+        testdata: tuple[Any, ...] = (
+            (kh, kh_cache, ["version_info"], "version_info", None),
+            # Non-existing metric
+            (kh, kh_cache, ["NonExistingMetrics"], None, None),
+            # No kubernetes_helper; should raise
+            (None, kh_cache, [], None, ProgrammingError),
+        )
+        for kh_, kh_cache_, filters, expected_result, expected_exception in testdata:
+            try:
+                tmp2, status = fun(kubernetes_helper=kh_, kh_cache=kh_cache_, filter=filters)
+                if not tmp2 and not expected_result:
+                    continue
+                if (not tmp2 and expected_result) or not isinstance(tmp2, list):
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"         result: {tmp2}\n" \
+                              f"       expected: {expected_result}"
+                    result = False
+                    break
+                tmp = deep_get(tmp2[0], DictPath("name"))
+                if tmp != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"         result: {tmp}\n" \
+                              f"       expected: {expected_result}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  f"      exception: {type(e)}\n" \
+                                  f"       expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"      exception: {type(e)}\n" \
+                              f"       expected: {expected_result}"
+                    result = False
+                    break
+    return message, result
+
+
+def test_get_kubernetes_list(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = listgetters_async.get_kubernetes_list
+    indata: Any = None
+
+    control_plane_list = get_control_planes(kubernetes_helper=kh)
+    if not control_plane_list:
+        message = "get_control_planes() did not return a list of control planes;\n" \
+                  "is your cluster running?"
+        return False
+
+    control_plane_name = control_plane_list[0][0]
+
+    if result:
+        # Indata format:
+        # (kh, kh_cache, kind, namespace, label_selector, field_selector, fetch_args,
+        #  expected_result, expected_exception)
+        #  expected_result: one path and value that should be in the list
+        testdata: tuple[Any, ...] = (
+            # Namespace; should always exist in a standard cluster
+            (kh, kh_cache, ("Namespace", ""), "", "", "", {"sort_key": "metadata#name"},
+             ("metadata#name", "default", False), None),
+            # No kubernetes_helper; should raise
+            (None, kh_cache, ("Namespace", ""), "", "", "", {"sort_key": "metadata#name"},
+             None, ProgrammingError),
+            # kubernetes_helper, no kh_cache; should work normally
+            (kh, None, ("Namespace", ""), "", "", "", {"sort_key": "metadata#name"},
+             ("metadata#name", "default", False), None),
+            # Node; should always exist in a standard cluster
+            (kh, kh_cache, ("Node", ""), "", "", "", {},
+             ("metadata#name", control_plane_name, False), None),
+            # Node; should always exist in a standard cluster
+            (kh, kh_cache, ("Node", ""), "", "", "", {"postprocess": "node"},
+             ("name", control_plane_name, True), None),
+            # Pod; there's no standard name for any pod,
+            # nor is there any reliable namespace (most seem to have kube-system,
+            # but at least openshift wants to be different),
+            # but all pods hopefully have metadata#name itself
+            (kh, kh_cache, ("Pod", ""), "", "", "", {},
+             ("metadata", "name", False), None),
+            # Instead of checking for data we check if there's extra_data
+            (kh, kh_cache, ("Pod", ""), "", "", "", {"postprocess": "pod"},
+             ("", "", True), None),
+        )
+        for kh_, kh_cache_, kind, namespace, label_selector, field_selector, fetch_args, \
+                expected_result, expected_exception in testdata:
+            try:
+                tmp, status = fun(kubernetes_helper=kh_, kh_cache=kh_cache_,
+                                  kind=kind, namespace=namespace, label_selector=label_selector,
+                                  field_selector=field_selector, fetch_args=fetch_args)
+                expected_path, expected_value, extra_data = expected_result
+                found = False
+                for item in tmp:
+                    if isinstance(status, list) and status and extra_data:
+                        found = True
+                        break
+                    value = deep_get(item, DictPath(expected_path), "")
+                    if expected_value in value:
+                        found = True
+                        break
+                if not found:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"           kind: {kind}\n" \
+                              f"      namespace: {namespace}\n" \
+                              f" field_selector: {field_selector}\n" \
+                              f" label_selector: {label_selector}\n" \
+                              f"         result: {tmp}\n" \
+                              f"       expected: {expected_result}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  f"         indata: {indata}\n" \
+                                  f"      exception: {type(e)}\n" \
+                                  f"       expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"         indata: {indata}\n" \
+                              f"      exception: {type(e)}\n" \
+                              f"       expected: {expected_result}"
+                    result = False
+                    break
+    return message, result
+
+
+tests: dict[tuple[str, ...], dict[str, Any]] = {
+    ("check_matchlists()",): {
+        "callable": test_check_matchlists,
+        "result": None,
+    },
+    ("check_matchlist()", "split_matchlist()"): {
+        "callable": test_check_matchlist,
+        "result": None,
+    },
+    ("get_device_model()",): {
+        "callable": test_get_device_model,
+        "result": None,
+    },
+    ("filter_list_entry()",): {
+        "callable": test_filter_list_entry,
+        "result": None,
+    },
+    ("listgetter_ansible_volumes()",): {
+        "callable": test_listgetter_ansible_volumes,
+        "result": None,
+    },
+    ("listgetter_configmap_data()",): {
+        "callable": test_listgetter_configmap_data,
+        "result": None,
+    },
+    ("listgetter_dict_list()",): {
+        "callable": test_listgetter_dict_list,
+        "result": None,
+    },
+    ("listgetter_join_dicts_to_list()",): {
+        "callable": test_listgetter_join_dicts_to_list,
+        "result": None,
+    },
+    ("listgetter_noop()",): {
+        "callable": test_listgetter_noop,
+        "result": None,
+    },
+    ("listgetter_feature_gates()",): {
+        "callable": test_listgetter_feature_gates,
+        "result": None,
+    },
+    ("listgetter_policy_rules()",): {
+        "callable": test_listgetter_policy_rules,
+        "result": None,
+    },
+}
+
+
+tests_with_cluster: dict[tuple[str, ...], dict[str, Any]] = {
+    ("generic_listgetter()",): {
+        "callable": test_generic_listgetter,
+        "result": None,
+    },
+    ("get_metrics_list()",): {
+        "callable": test_get_metrics_list,
+        "result": None,
+    },
+    ("get_kubernetes_list()",): {
+        "callable": test_get_kubernetes_list,
+        "result": None,
+    },
+}
+
+
+def main() -> int:
+    global kh
+    global kh_cache
+    global tests
+
+    global real_import  # pylint: disable=global-statement
+    real_import = builtins.__import__
+
+    fail = 0
+    success = 0
+    verbose = False
+    failed_testcases = []
+
+    init_ansithemeprint(themefile=None)
+
+    if "--include-cluster" in sys.argv:
+        tests = {**tests, **tests_with_cluster}
+        kh = kubernetes_helper.KubernetesHelper("lgtests", "v0.1")
+        kh_cache = kubernetes_helper.KubernetesResourceCache()
+
+    # How many non-prepare testcases do we have?
+    testcount = sum(1 for i in tests if not deep_get(tests[i], DictPath("prepare"), False))
+    start_at_task = 0
+    end_at_task = testcount
+
+    i = 1
+
+    while i < len(sys.argv):
+        opt = sys.argv[i]
+        optarg = None
+        if i + 1 < len(sys.argv):
+            optarg = sys.argv[i + 1]
+        if opt == "--start-at":
+            if not (isinstance(optarg, str) and optarg.isnumeric()):
+                raise ValueError("--start-at TASK requires an integer "
+                                 f"in the range [0,{testcount}]")
+            start_at_task = int(optarg)
+            i += 1
+        elif opt == "--end-at":
+            if not (isinstance(optarg, str) and optarg.isnumeric()):
+                raise ValueError(f"--end-at TASK requires an integer in the range [0,{testcount}]")
+            end_at_task = int(optarg)
+            i += 1
+        elif opt == "--include-cluster":
+            pass
+        else:
+            sys.exit(f"Unknown argument: {opt}")
+        i += 1
+
+    for i, test in enumerate(tests):
+        if i < start_at_task:
+            continue
+        if i > end_at_task:
+            break
+        ansithemeprint([ANSIThemeStr(f"[{i:03}/{testcount - 1:03}]", "emphasis"),
+                        ANSIThemeStr(f" {', '.join(test)}:", "default")])
+        message, result = tests[test]["callable"](verbose=verbose)
+        if message:
+            ansithemeprint([ANSIThemeStr("  FAIL", "error"),
+                            ANSIThemeStr(f": {message}", "default")])
+        else:
+            ansithemeprint([ANSIThemeStr("  PASS", "success")])
+            success += 1
+        tests[test]["result"] = result
+        if not result:
+            fail += 1
+            failed_testcases.append(f"{i}: {', '.join(test)}")
+
+    ansithemeprint([ANSIThemeStr("\nSummary:", "header")])
+    if fail:
+        ansithemeprint([ANSIThemeStr(f"  FAIL: {fail}", "error")])
+    else:
+        ansithemeprint([ANSIThemeStr(f"  FAIL: {fail}", "unknown")])
+    ansithemeprint([ANSIThemeStr(f"  PASS: {success}", "success")])
+
+    if fail:
+        ansithemeprint([ANSIThemeStr("\nFailed testcases:", "header")])
+        for testcase in failed_testcases:
+            ansithemeprint([ANSIThemeStr("  • ", "separator"),
+                            ANSIThemeStr(testcase, "default")], stderr=True)
+        sys.exit(fail)
+
+    return 0
+
+
+if __name__ == "__main__":
+    main()

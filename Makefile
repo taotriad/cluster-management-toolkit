@@ -5,64 +5,69 @@ python_executables = \
 	cmt-install \
 	cmtinv \
 	cmu
+python_executables_py = \
+	cmt.py \
+	cmtadm.py \
+	cmt-install.py \
+	cmtinv.py \
+	cmu.py
 python_test_executables = \
-	tests/ansibletests \
-	tests/async_fetch \
-	tests/atptests \
-	tests/checkstests \
-	tests/check_theme_use \
-	tests/clptests \
-	tests/cmtlibtests \
-	tests/cmtlogtests \
-	tests/cnitests \
-	tests/coverage_stats \
-	tests/cursestests \
-	tests/datatests \
-	tests/dgtests \
-	tests/dump_cluster \
-	tests/dump_logs \
-	tests/fgtests \
-	tests/fmttests \
-	tests/gentests \
-	tests/infogtests \
-	tests/iotests \
-	tests/itemgtests \
-	tests/khtests \
-	tests/lgtests \
-	tests/logtests \
-	tests/networkiotests \
-	tests/ogtests \
-	tests/typetests \
-	tests/validate_yaml \
-	tests/validatortests
+	tests/ansibletests.py \
+	tests/async_fetch.py \
+	tests/atptests.py \
+	tests/checkstests.py \
+	tests/check_theme_use.py \
+	tests/clptests.py \
+	tests/cmtlibtests.py \
+	tests/cmtlogtests.py \
+	tests/cnitests.py \
+	tests/coverage_stats.py \
+	tests/cursestests.py \
+	tests/datatests.py \
+	tests/dgtests.py \
+	tests/dump_cluster.py \
+	tests/dump_logs.py \
+	tests/fgtests.py \
+	tests/fmttests.py \
+	tests/gentests.py \
+	tests/infogtests.py \
+	tests/iotests.py \
+	tests/itemgtests.py \
+	tests/khtests.py \
+	tests/lgtests.py \
+	tests/logtests.py \
+	tests/networkiotests.py \
+	tests/ogtests.py \
+	tests/typetests.py \
+	tests/validate_yaml.py \
+	tests/validatortests.py
 python_unit_tests_ansible = \
-	tests/ansibletests
+	tests/ansibletests.py
 python_unit_tests_cluster = \
-	tests/async_fetch
+	tests/async_fetch.py
 python_unit_tests = \
-	tests/atptests \
-	tests/checkstests \
-	tests/clptests \
-	tests/cmtlibtests \
-	tests/cmtlogtests \
-	tests/cnitests \
-	tests/cursestests \
-	tests/datatests \
-	tests/dgtests \
-	tests/fgtests \
-	tests/fmttests \
-	tests/gentests \
-	tests/infogtests \
-	tests/iotests \
-	tests/itemgtests \
-	tests/khtests \
-	tests/lgtests \
-	tests/logtests \
-	tests/networkiotests \
-	tests/ogtests \
-	tests/typetests \
-	tests/validatortests
-test_libs_symlink = clustermanagementtoolkit
+	tests/atptests.py \
+	tests/checkstests.py \
+	tests/clptests.py \
+	tests/cmtlibtests.py \
+	tests/cmtlogtests.py \
+	tests/cnitests.py \
+	tests/cursestests.py \
+	tests/datatests.py \
+	tests/dgtests.py \
+	tests/fgtests.py \
+	tests/fmttests.py \
+	tests/gentests.py \
+	tests/infogtests.py \
+	tests/iotests.py \
+	tests/itemgtests.py \
+	tests/khtests.py \
+	tests/lgtests.py \
+	tests/logtests.py \
+	tests/networkiotests.py \
+	tests/ogtests.py \
+	tests/typetests.py \
+	tests/validatortests.py
 
 # F841 is the warning about unused assignments.
 # flake8 doesn't recognise "_<variable>" to capture unused return values;
@@ -95,18 +100,19 @@ checks: ruff bandit regexploit semgrep yamllint validate_playbooks validate_yaml
 
 tests: coverage
 
-clean: remove_test_symlinks
+clean:
+	@rm bin/*
 
-generate_helptexts:
+generate_helptexts: bin
 	@for file in $(python_executables); do \
-		./$${file} help --format markdown > docs/$${file}_helptext.md ;\
+		PYTHONPATH=. ./bin/$${file} help --format markdown > docs/$${file}_helptext.md ;\
 	done
 
 check_helptexts:
 	@printf -- "\n\nChecking helptexts\n\n" ;\
 	for file in $(python_executables); do \
 		printf -- "  Checking helptexts for $${file}\n" ;\
-		./$${file} help --debug > /dev/null && printf -- "    OK\n";\
+		./$${file}.py help --debug > /dev/null && printf -- "    OK\n";\
 	done
 
 coverage_stats:
@@ -118,6 +124,7 @@ coverage-clean:
 
 coverage: setup_tests
 	@cmd=python3-coverage ;\
+	export PYTHONPATH=. ;\
 	if command -v python3-coverage > /dev/null 2> /dev/null; then \
 		cmd=python3-coverage ;\
 	elif command -v coverage-3 > /dev/null 2> /dev/null; then \
@@ -126,8 +133,8 @@ coverage: setup_tests
 		printf -- "\n\n$$cmd not installed; skipping.\n\n\n"; \
 		exit 0; \
 	fi; \
-	printf -- "\n\n  Running: tests/atptests --include-clear\n\n" ;\
-	$$cmd run --branch --append tests/atptests --include-clear --end-at 0 || exit 1 ;\
+	printf -- "\n\n  Running: tests/atptests.py --include-clear\n\n" ;\
+	$$cmd run --branch --append tests/atptests.py --include-clear --end-at 0 || exit 1 ;\
 	printf -- "\n\nRunning $$cmd to check test coverage\n" ;\
 	for test in $(python_unit_tests); do \
 		printf -- "\n\n  Running: $$test\n\n" ;\
@@ -203,29 +210,7 @@ coverage-cluster: setup_tests
 	$$cmd html --precision 1 ;\
 	$$cmd json
 
-unhack_sources:
-	@mkdir -p tests/modified_repo ;\
-	git archive main | tar -x -C tests/modified_repo ;\
-	(cd tests/modified_repo ;\
-	 mv cmt cmt.py ;\
-	 mv cmtadm cmtadm.py ;\
-	 mv cmt-install cmt-install.py ;\
-	 mv cmtinv cmtinv.py ;\
-	 mv cmu cmu.py ;\
-	 sed -i -e "s/^''''eval.*$$//;s,#! /bin/sh,#! /usr/bin/env python3,;/^    grep '.*/d;/^    version=\\$$.*/d;/^    \[ \\$$.*/d;/^    exec \/usr\/bin.*/d" build.py ;\
-	 sed -i -e "s/^''''eval.*$$//;s,#! /bin/sh,#! /usr/bin/env python3,;/^    grep '.*/d;/^    version=\\$$.*/d;/^    \[ \\$$.*/d;/^    exec \/usr\/bin.*/d" generate_resource_type_index.py ;\
-	 sed -i -e "s/^''''eval.*$$//;s,#! /bin/sh,#! /usr/bin/env python3,;/^    grep '.*/d;/^    version=\\$$.*/d;/^    \[ \\$$.*/d;/^    exec \/usr\/bin.*/d" genstats.py ;\
-	 sed -i -e "s/^''''eval.*$$//;s,#! /bin/sh,#! /usr/bin/env python3,;/^    grep '.*/d;/^    version=\\$$.*/d;/^    \[ \\$$.*/d;/^    exec \/usr\/bin.*/d" mdtable.py ;\
-	 sed -i -e "s/^''''eval.*$$//;s,#! /bin/sh,#! /usr/bin/env python3,;/^    grep '.*/d;/^    version=\\$$.*/d;/^    \[ \\$$.*/d;/^    exec \/usr\/bin.*/d" cmt.py ;\
-	 sed -i -e "s/^''''eval.*$$//;s,#! /bin/sh,#! /usr/bin/env python3,;/^    grep '.*/d;/^    version=\\$$.*/d;/^    \[ \\$$.*/d;/^    exec \/usr\/bin.*/d" cmtadm.py ;\
-	 sed -i -e "s/^''''eval.*$$//;s,#! /bin/sh,#! /usr/bin/env python3,;/^    grep '.*/d;/^    version=\\$$.*/d;/^    \[ \\$$.*/d;/^    exec \/usr\/bin.*/d" cmt-install.py ;\
-	 sed -i -e "s/^''''eval.*$$//;s,#! /bin/sh,#! /usr/bin/env python3,;/^    grep '.*/d;/^    version=\\$$.*/d;/^    \[ \\$$.*/d;/^    exec \/usr\/bin.*/d" cmtinv.py ;\
-	 sed -i -e "s/^''''eval.*$$//;s,#! /bin/sh,#! /usr/bin/env python3,;/^    grep '.*/d;/^    version=\\$$.*/d;/^    \[ \\$$.*/d;/^    exec \/usr\/bin.*/d" cmu.py)
-
-# Semgrep gets confused by the horrible python hacks in cmt-install/cmt/cmtadm/cmtinv/cmu,
-# and also doesn't understand that python executables aren't necessarily suffixed with .py;
-# export the repository, rename the files, remove the hack, and run semgrep on that checkout.
-# We also need to extend the timeout since validation gives up on cmu otherwise.
+# We need to extend the timeout since validation gives up on cmu otherwise.
 #
 # --exclude-rule python.flask.security.xss.audit.direct-use-of-jinja2.direct-use-of-jinja2
 # is needed since it flags the risk of cross-site scripting in a file that is:
@@ -236,7 +221,7 @@ unhack_sources:
 semgrep_flags :=
 semgrep_flags += --exclude-rule "python.flask.security.xss.audit.direct-use-of-jinja2.direct-use-of-jinja2"
 semgrep_flags += --exclude "*.yaml" --exclude "*.j2" --exclude "*.json"
-semgrep: unhack_sources
+semgrep:
 	@cmd=semgrep ;\
 	if ! command -v $$cmd > /dev/null 2> /dev/null; then \
 		printf -- "\n\n$$cmd not installed; skipping.\n\n\n"; \
@@ -246,22 +231,22 @@ semgrep: unhack_sources
 	printf -- "Note: if this is taking a very long time you might be behind a proxy;\n" ;\
 	printf -- "if that's the case you need to set the environment variable https_proxy\n\n" ;\
 	$$cmd --version ;\
-	(cd tests/modified_repo ;\
-	 $$cmd scan $(semgrep_flags) --timeout=0 --no-git-ignore *.py clustermanagementtoolkit/*.py)
+	$$cmd scan $(semgrep_flags) --timeout=0 --no-git-ignore *.py clustermanagementtoolkit/*.py
 
 # Run this to show code statistics
-statistics: unhack_sources
+statistics:
 	@cmd=cloc ;\
 	if ! command -v $$cmd > /dev/null 2> /dev/null; then \
 		printf -- "\n\n$$cmd not installed; skipping.\n\n\n" ;\
 	else \
-		cloc tests/modified_repo ;\
+		cloc --exclude-dir=.ansible,.github,.mypy_cache,.ruff_cache,htmlcov,__pycache__,bin,tests . tests/*.py ;\
 	fi ;\
+	printf -- "\n" ;\
 	cmd=sloccount ;\
 	if ! command -v $$cmd > /dev/null 2> /dev/null; then \
 		printf -- "\n\n$$cmd not installed; skipping.\n\n\n" ;\
 	else \
-		sloccount tests/modified_repo ;\
+		sloccount *.py clustermanagementtoolkit devtools tests/*.py ;\
 	fi
 
 bandit:
@@ -273,7 +258,7 @@ bandit:
 	printf -- "\n\nRunning $$cmd to check for common security issues in Python code\n\n" ;\
 	$$cmd --version ;\
 	printf -- "\n" ;\
-	$$cmd -c .bandit $(python_executables) $(python_test_executables) clustermanagementtoolkit/*.py
+	$$cmd -c .bandit $(python_executables_py) $(python_test_executables) clustermanagementtoolkit/*.py
 
 ruff:
 	@cmd=ruff ;\
@@ -284,11 +269,7 @@ ruff:
 	printf -- "\n\nRunning $$cmd to check Python code quality\n\n" ;\
 	$$cmd --version ;\
 	printf -- "\n" ;\
-	for file in $(python_executables) clustermanagementtoolkit/*.py; do \
-		case $$file in \
-		'noxfile.py') \
-			continue;; \
-		esac ;\
+	for file in *.py devtools/*.py clustermanagementtoolkit/*.py; do \
 		printf -- "File: $$file\n" ;\
 		$$cmd check --target-version $(RUFF_PYTHON_VERSION) $$file ;\
 	done
@@ -316,11 +297,7 @@ pylint:
 	printf -- "\n\nRunning $$cmd to check Python code quality\n\n" ;\
 	$$cmd --version ;\
 	printf -- "\n" ;\
-	for file in $(python_executables) clustermanagementtoolkit/*.py; do \
-		case $$file in \
-		'noxfile.py') \
-			continue;; \
-		esac ;\
+	for file in $(python_executables_py) devtools/*.py clustermanagementtoolkit/*.py; do \
 		printf -- "File: $$file\n" ;\
 		PYTHONPATH=. $$cmd --py-version $(PYLINT_PYTHON_VERSION) --disable $(PYLINT_DISABLE) --enable $(PYLINT_ENABLE) $$file ;\
 	done
@@ -332,11 +309,7 @@ pylint-markdown:
 		exit 0 ;\
 	fi ;\
 	tmpfile=$$(mktemp); \
-	for file in $(python_executables) clustermanagementtoolkit/*.py; do \
-		case $$file in \
-		'noxfile.py') \
-			continue;; \
-		esac ;\
+	for file in $(python_executables_py) clustermanagementtoolkit/*.py; do \
 		result=$$(PYTHONPATH=. $$cmd --py-version $(PYLINT_PYTHON_VERSION) --disable $(PYLINT_DISABLE) --enable $(PYLINT_ENABLE) $$file | grep "Your code" | sed -e 's/Your code has been rated at //;s/ (previous run.*//') ;\
 		row="$$file | $$result\n" ;\
 		printf -- "$$row" >> $${tmpfile} ;\
@@ -364,7 +337,7 @@ flake8:
 	printf -- "\n\nRunning $$cmd to check Python code quality\n\n" ;\
 	$$cmd --version ;\
 	printf -- "\n" ;\
-	$$cmd --ignore $(FLAKE8_IGNORE) --max-line-length 100 --statistics $(python_executables) clustermanagementtoolkit/*.py && printf -- "OK\n\n" ;\
+	$$cmd --ignore $(FLAKE8_IGNORE) --max-line-length 100 --statistics $(python_executables_py) devtools/*.py clustermanagementtoolkit/*.py && printf -- "OK\n\n" ;\
 	printf -- "\n\nRunning $$cmd to check Python test case code quality\n\n" ;\
 	$$cmd --version ;\
 	printf -- "\n" ;\
@@ -378,7 +351,7 @@ regexploit:
 	fi ;\
 	printf -- "\n\nRunning $$cmd to check for ReDoS attacks\n\n" ;\
 	printf -- "Checking executables\n" ;\
-	$$cmd $(python_executables) $(python_test_executables) &&\
+	$$cmd $(python_executables_py) $(python_test_executables) &&\
 	printf -- "\nChecking libraries\n" ;\
 	$$cmd clustermanagementtoolkit/*.py
 
@@ -415,7 +388,7 @@ mypy:
 	printf -- "\n\nRunning $$cmd to check Python typing\n\n"; \
 	$$cmd --version ;\
 	printf -- "\n" ;\
-	for file in $(python_executables) clustermanagementtoolkit/*.py; do \
+	for file in $(python_executables_py) clustermanagementtoolkit/*.py; do \
 		$$cmd $(MYPY_FLAGS) $$file || true; \
 	done
 
@@ -443,26 +416,12 @@ mypy-markdown:
 		exit 0; \
 	fi; \
 	tmpfile=$$(mktemp); \
-	for file in $(python_executables) clustermanagementtoolkit/*.py; do \
-		case $$file in \
-		'noxfile.py') \
-			continue;; \
-		esac ;\
+	for file in $(python_executables_py) clustermanagementtoolkit/*.py; do \
 		result=$$($$cmd $(MYPY_FLAGS) $$file | grep -E "^Found|^Success") ;\
 		row="$$file | $$result\n" ;\
 		printf -- "$$row" >> $${tmpfile} ;\
 	done && \
 	./mdtable.py --bold-regex "^\s*Found.*errors" $${tmpfile} "=Source file" "=Score" && rm $${tmpfile}
-
-nox: create_test_symlinks
-	@cmd=nox ;\
-	if ! command -v $$cmd > /dev/null 2> /dev/null; then \
-		printf -- "\n\n$$cmd not installed; skipping.\n\n\n"; \
-		exit 0; \
-	fi; \
-	printf -- "Running nox for unit testing\n\n"; \
-	$$cmd --no-reuse-existing-virtualenvs || true; \
-	printf -- "\n-----\n\n"
 
 validate_yaml:
 	@printf -- "\n\nRunning validate_yaml to check that all view-files/parser-files/theme-files are valid\n\n"; \
@@ -489,14 +448,9 @@ parser_bundle:
 		cat $$file >> parsers/BUNDLE.yaml; \
 	done
 
-remove_test_symlinks:
-	@(cd tests; rm -f $(test_libs_symlink))
-
-create_test_symlinks:
-	@(cd tests; test -L $(test_libs_symlink) || ln -s ../$(test_libs_symlink) .)
-
-setup_tests: create_test_symlinks
-	@(cd tests ;\
+setup_tests:
+	@export PYTHONPATH=. ;\
+	(cd tests ;\
 	  test -d testpaths || mkdir testpaths );\
 	(mkdir -p tests/testlogs/2023-05-06_16:02:39.012047_uptime ;\
 	 cp playbooks/uptime.yaml tests/testlogs );\
@@ -538,7 +492,7 @@ check_theme_use: setup_tests
 	for theme in themes/*.yaml; do \
 		printf -- "\nChecking against theme file $$theme:\n" ;\
 		printf -- "---\n" ;\
-		./tests/check_theme_use $$theme $(python_executables) clustermanagementtoolkit/*.py ;\
+		./tests/check_theme_use.py $$theme $(python_executables_py) clustermanagementtoolkit/*.py ;\
 	done
 
 build_templates:
@@ -562,7 +516,14 @@ DIST_PACKAGE_DIR := /usr/lib/python3/dist-packages
 BINDIR := /usr/bin
 COMPLETION_FILES := bash-completion/cmt bash-completion/cmtadm bash-completion/cmtinv bash-completion/cmu
 
-install:
+.PHONY: bin
+bin:
+	@mkdir -p bin &&\
+	for file in $(python_executables); do \
+		devtools/mangle_source.py $${file}.py > bin/$${file} && chmod a+x bin/$${file} ;\
+	done
+
+install: bin
 	@$(INSTALL_DIRECTORY) $(DESTDIR)$(BASH_COMPLETION_DIR) &&\
 	$(INSTALL_DIRECTORY) $(DESTDIR)$(CMT_CONFIGLET_DIR) &&\
 	$(INSTALL_DIRECTORY) $(DESTDIR)$(CMT_DATA_DIR) &&\
@@ -571,7 +532,10 @@ install:
 	$(INSTALL_DIRECTORY) $(DESTDIR)$(BINDIR) &&\
 	$(INSTALL_DATA) cmt.yaml $(DESTDIR)$(CMT_CONFIG_DIR) &&\
 	$(INSTALL_DATA) $(COMPLETION_FILES) $(DESTDIR)$(BASH_COMPLETION_DIR) &&\
-	$(INSTALL) cmt cmtadm cmtinv cmu $(DESTDIR)$(BINDIR) &&\
+	$(INSTALL) bin/cmt $(DESTDIR)$(BINDIR) &&\
+	$(INSTALL) bin/cmtadm $(DESTDIR)$(BINDIR) &&\
+	$(INSTALL) bin/cmtinv $(DESTDIR)$(BINDIR) &&\
+	$(INSTALL) bin/cmu $(DESTDIR)$(BINDIR) &&\
 	tar cf - --exclude-ignore=$$(pwd)/.gitignore clustermanagementtoolkit | (cd $(DESTDIR)$(DIST_PACKAGE_DIR); tar xf -) &&\
 	tar cf - --exclude-ignore=$$(pwd)/.gitignore parsers playbooks sources themes | (cd $(DESTDIR)$(CMT_DATA_DIR); tar xf -) &&\
 	cp views/*.yaml $(DESTDIR)$(CMT_VIEWS_DIR) || printf -- "Installation failed.\n"

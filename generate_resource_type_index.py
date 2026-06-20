@@ -1,17 +1,8 @@
-#! /bin/sh
-# vim: ts=4 filetype=python expandtab shiftwidth=4 softtabstop=4 syntax=python
-''''eval version=$( ls /usr/bin/python3.* | \
-    grep '.*[0-9]$' | sort -nr -k2 -t. | head -n1 ) && \
-    version=${version##/usr/bin/python3.} && [ ${version} ] && \
-    [ ${version} -ge 11 ] && exec /usr/bin/python3.${version} "$0" "$@" || \
-    exec /usr/bin/env python3 "$0" "$@"' #'''
-# The above hack is to handle distros where /usr/bin/python3
-# doesn't point to the latest version of python3 they provide
+#! /usr/bin/env python3
 
 # Requires: python3 (>= 3.11)
 # Requires: python3-jinja2
 import os
-from pathlib import Path, PosixPath
 import re
 import sys
 
@@ -21,12 +12,10 @@ except ModuleNotFoundError:  # pragma: no cover
     sys.exit("ModuleNotFoundError: Could not import natsort; "
              "you may need to (re-)run `cmt-install` or `pip3 install natsort`; aborting.")
 
-from clustermanagementtoolkit.cmttypes import deep_get, DictPath, FilePath, SecurityStatus, LogLevel
+from clustermanagementtoolkit.cmttypes import deep_get, DictPath, FilePath
 
 from clustermanagementtoolkit.cmtio_yaml import secure_read_yaml, secure_write_yaml
-from clustermanagementtoolkit import cmtpaths
-from clustermanagementtoolkit.cmtpaths import CMT_CONFIG_FILE, CMT_CONFIG_FILENAME, HOMEDIR
-from clustermanagementtoolkit.cmtpaths import DEFAULT_THEME_FILE, VIEW_DIR, SYSTEM_VIEWS_DIR
+from clustermanagementtoolkit.cmtpaths import HOMEDIR
 
 from clustermanagementtoolkit.cmtlib import read_cmtconfig
 
@@ -81,7 +70,7 @@ def main() -> None:
 
         try:
             d = dict(secure_read_yaml(path, directory_is_symlink=True, asynchronous=True))
-        except (TypeError) as e:
+        except TypeError:
             print(f"The View-file {filename} is invalid; skipping.")
             continue
 

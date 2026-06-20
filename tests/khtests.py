@@ -1,0 +1,1066 @@
+#! /usr/bin/env python3
+
+# Requires: python3 (>= 3.11)
+#
+# Copyright the Cluster Management Toolkit for Kubernetes contributors.
+# SPDX-License-Identifier: MIT
+
+# pylint: disable=too-many-lines
+
+import sys
+from typing import Any
+from unittest import mock
+import yaml
+
+from clustermanagementtoolkit import cmtlib
+
+from clustermanagementtoolkit.cmttypes import deep_get, deep_set, DictPath, StatusGroup
+
+from clustermanagementtoolkit.ansithemeprint import ANSIThemeStr
+from clustermanagementtoolkit.ansithemeprint import ansithemeprint, init_ansithemeprint
+
+from clustermanagementtoolkit import kubernetes_helper
+
+# unit-tests for kubernetes_helper.py
+
+kh: kubernetes_helper.KubernetesHelper = None  # type: ignore
+kh_cache: kubernetes_helper.KubernetesResourceCache = None  # type: ignore
+
+
+def yaml_dump(data: Any, base_indent: int = 4) -> str:
+    result = ""
+    dump = yaml.dump(data)
+    for line in dump.splitlines():
+        result += f"{' '.ljust(base_indent)}{line}\n"
+    return result
+
+
+def test_kind_tuple_to_name(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = kubernetes_helper.kind_tuple_to_name
+
+    if result:
+        # Indata format:
+        # (kind, expected_result, expected_exception)
+        testdata: tuple[Any, ...] = (
+            (("Pod", ""), "pods", None),
+            (("CronJob", "batch"), "cronjobs.batch", None),
+            (("NonExistingAPI", ""), "", None),
+        )
+        for indata, expected_result, expected_exception in testdata:
+            try:
+                if (tmp := fun(indata)) != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"           input: {indata}\n" \
+                              f"          output: {tmp}\n" \
+                              f"        expected: {expected_result}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  f"           input: {indata}\n" \
+                                  f"       exception: {type(e)}\n" \
+                                  f"        expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"           input: {indata}\n" \
+                              f"       exception: {type(e)}\n" \
+                              f"        expected: {expected_result}"
+                    result = False
+                    break
+    return message, result
+
+
+def test_guess_kind(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = kubernetes_helper.guess_kind
+
+    if result:
+        # Indata format:
+        # (kind, expected_result, expected_exception)
+        testdata: tuple[Any, ...] = (
+            (("Pod", ""), ("Pod", ""), None),
+            (("pods", ""), ("Pod", ""), None),
+            ("pods", ("Pod", ""), None),
+            ("pod", ("Pod", ""), None),
+            (("CronJob", "batch"), ("CronJob", "batch"), None),
+            (("cronjobs", "batch"), ("CronJob", "batch"), None),
+            (("CronJob", ""), ("CronJob", "batch"), None),
+            (("DaemonSet", ""), ("DaemonSet", "apps"), None),
+            (("daemonsets", "apps"), ("DaemonSet", "apps"), None),
+            ("daemonsets.apps", ("DaemonSet", "apps"), None),
+            (("QatDevicePlugin", ""), ("QatDevicePlugin", "deviceplugin.intel.com"), None),
+            # Unknown kinds should also be accepted
+            (("Workflow", ""), ("Workflow", ""), None),
+            (("__Log", ""), ("__Log", ""), None),
+            (None, None, TypeError),
+            (1, None, TypeError),
+            (("a",), None, TypeError),
+            (("a", "b", "c"), None, TypeError),
+        )
+        for indata, expected_result, expected_exception in testdata:
+            try:
+                if (tmp := fun(indata)) != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"           input: {indata}\n" \
+                              f"          output: {tmp}\n" \
+                              f"        expected: {expected_result}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  f"           input: {indata}\n" \
+                                  f"       exception: {type(e)}\n" \
+                                  f"        expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"           input: {indata}\n" \
+                              f"       exception: {type(e)}\n" \
+                              f"        expected: {expected_result}"
+                    result = False
+                    break
+    return message, result
+
+
+def test_update_api_status(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = kubernetes_helper.update_api_status
+
+    if result:
+        # Indata format:
+        # (kind, listview, infoview, local, expected_result, expected_exception)
+        testdata: tuple[Any, ...] = (
+            (("Pod", ""), True, True, False, (True, True, False), None),
+            (("Pod", ""), True, True, True, (True, True, True), None),
+            ("Pod", True, True, True, None, TypeError),
+            (None, True, True, True, None, TypeError),
+            (("Pod", ""), None, None, None, (None, None, None), None),
+            (("Pod", ""), "a", None, None, None, TypeError),
+            (("Pod", ""), 1, None, None, None, TypeError),
+            (("__Inventory", ""), True, True, False, None, KeyError),
+        )
+        for indata, listview, infoview, local, expected_result, expected_exception in testdata:
+            try:
+                fun(indata, listview, infoview, local)
+                listview = deep_get(kubernetes_helper.kubernetes_resources[indata],
+                                    DictPath("list"), None)
+                infoview = deep_get(kubernetes_helper.kubernetes_resources[indata],
+                                    DictPath("info"), None)
+                local = deep_get(kubernetes_helper.kubernetes_resources[indata],
+                                 DictPath("local"), None)
+
+                if (listview, infoview, local) != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"           input: {indata}\n" \
+                              f"        listview: {listview}\n" \
+                              f"        infoview: {infoview}\n" \
+                              f"           local: {local}\n" \
+                              f"          output: {(listview, infoview, local)}\n" \
+                              f"        expected: {expected_result}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  f"           input: {indata}\n" \
+                                  f"        listview: {listview}\n" \
+                                  f"        infoview: {infoview}\n" \
+                                  f"           local: {local}\n" \
+                                  f"       exception: {type(e)}\n" \
+                                  f"        expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"           input: {indata}\n" \
+                              f"        listview: {listview}\n" \
+                              f"        infoview: {infoview}\n" \
+                              f"           local: {local}\n" \
+                              f"       exception: {type(e)}\n" \
+                              f"        expected: {expected_result}"
+                    result = False
+                    break
+    return message, result
+
+
+def test_kubectl_get_version(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = kubernetes_helper.kubectl_get_version
+
+    if result:
+        mock_response = \
+            ('clientVersion:\n'
+             '  buildDate: "2023-08-24T11:23:10Z"\n'
+             '  compiler: gc\n'
+             '  gitCommit: 8dc49c4b984b897d423aab4971090e1879eb4f23\n'
+             '  gitTreeState: clean\n'
+             '  gitVersion: v1.28.1\n'
+             '  goVersion: go1.20.7\n'
+             '  major: "1"\n'
+             '  minor: "28"\n'
+             '  platform: linux/amd64\n'
+             'kustomizeVersion: v5.0.4-0.20230601165947-6ce0bf390ce3\n'
+             'serverVersion:\n'
+             '  buildDate: "2023-08-24T11:16:30Z"\n'
+             '  compiler: gc\n'
+             '  gitCommit: 8dc49c4b984b897d423aab4971090e1879eb4f23\n'
+             '  gitTreeState: clean\n'
+             '  gitVersion: v1.28.1\n'
+             '  goVersion: go1.20.7\n'
+             '  major: "1"\n'
+             '  minor: "28"\n'
+             '  platform: linux/amd64', 0)
+
+        with mock.patch("clustermanagementtoolkit.kubernetes_helper.execute_command_with_response",
+                        return_value=mock_response):
+            tmp = fun()
+        if not (isinstance(tmp, tuple) and len(tmp) == 6
+                and isinstance(tmp[0], int) and isinstance(tmp[1], int)
+                and isinstance(tmp[2], str)
+                and isinstance(tmp[3], int) and isinstance(tmp[4], int)
+                and isinstance(tmp[5], str)):
+            message = f"{fun.__name__}() did not yield expected result:\n" \
+                      f"          output: {tmp} (type: {type(tmp)}, len: {len(tmp)})\n" \
+                      f"        expected: (type: {tuple}, len: 6)"
+            result = False
+        else:
+            ansithemeprint([ANSIThemeStr("  Note", "note"),
+                            ANSIThemeStr(": Manual sanity check necessary:\n", "default")])
+
+            kubectl_major_version, kubectl_minor_version, kubectl_git_version, \
+                server_major_version, server_minor_version, server_git_version = tmp
+            ansithemeprint([ANSIThemeStr("    kubectl major version: ", "emphasis"),
+                            ANSIThemeStr(f"{kubectl_major_version}", "version")])
+            ansithemeprint([ANSIThemeStr("    kubectl minor version: ", "emphasis"),
+                            ANSIThemeStr(f"{kubectl_minor_version}", "version")])
+            ansithemeprint([ANSIThemeStr("      kubectl git version: ", "emphasis"),
+                            ANSIThemeStr(f"{kubectl_git_version}", "version")])
+            ansithemeprint([ANSIThemeStr("     server major version: ", "emphasis"),
+                            ANSIThemeStr(f"{server_major_version}", "version")])
+            ansithemeprint([ANSIThemeStr("     server minor version: ", "emphasis"),
+                            ANSIThemeStr(f"{server_minor_version}", "version")])
+            ansithemeprint([ANSIThemeStr("       server git version: ", "emphasis"),
+                            ANSIThemeStr(f"{server_git_version}", "version")])
+    return message, result
+
+
+def test_get_node_status(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = kubernetes_helper.get_node_status
+
+    if result:
+        # Indata format:
+        # (kind, listview, infoview, local, expected_result, expected_exception)
+        testdata: tuple[Any, ...] = (
+            (
+                {
+                    "metadata": {
+                        "name": "controlplane1",
+                    },
+                    "spec": {
+                        "taints": [
+                            {
+                                "effect": "NoSchedule",
+                                "key": "node-role.kubernetes.io/control-plane",
+                                "value": None,
+                            },
+                        ],
+                    },
+                    "status": {
+                        "conditions": [
+                            {
+                                "lastHeartbeatTime": "2024-02-02T12:05:00Z",
+                                "lastTransitionTime": "2023-10-24T13:42:32Z",
+                                "message": "kubelet is posting ready status",
+                                "reason": "KubeletReady",
+                                "status": "True",
+                                "type": "Ready",
+                            },
+                        ],
+                    },
+                },
+                (
+                    "Ready",
+                    StatusGroup.OK,
+                    [("control-plane", "NoSchedule")],
+                    [
+                        {
+                            "effect": "NoSchedule",
+                            "key": "node-role.kubernetes.io/control-plane",
+                            "value": None,
+                        },
+                    ],
+                ),
+                None,
+            ), (
+                {
+                    "metadata": {
+                        "name": "controlplane2",
+                    },
+                    "spec": {
+                        "taints": [
+                            {
+                                "effect": "NoSchedule",
+                                "key": "node-role.kubernetes.io/master",
+                                "value": None,
+                            },
+                        ],
+                    },
+                    "status": {
+                        "conditions": [
+                            {
+                                "lastHeartbeatTime": "2024-02-02T12:05:00Z",
+                                "lastTransitionTime": "2023-10-24T13:42:32Z",
+                                "message": "kubelet is posting ready status",
+                                "reason": "KubeletReady",
+                                "status": "True",
+                                "type": "Ready",
+                            },
+                        ],
+                    },
+                },
+                (
+                    "Ready",
+                    StatusGroup.OK,
+                    [("control-plane", "NoSchedule")],
+                    [
+                        {
+                            "effect": "NoSchedule",
+                            "key": "node-role.kubernetes.io/master",
+                            "value": None,
+                        },
+                    ],
+                ),
+                None,
+            ), (
+                {
+                    "metadata": {
+                        "name": "worker1",
+                    },
+                    "spec": {
+                        "taints": [
+                            {
+                                "effect": "NoExecute",
+                                "key": "administration",
+                                "value": "shutdown",
+                            },
+                        ],
+                    },
+                    "status": {
+                        "conditions": [
+                            {
+                                "lastHeartbeatTime": "2024-02-02T12:05:00Z",
+                                "lastTransitionTime": "2023-10-24T13:42:32Z",
+                                "message": "kubelet is posting ready status",
+                                "reason": "KubeletReady",
+                                "status": "True",
+                                "type": "Ready",
+                            },
+                        ],
+                    },
+                },
+                (
+                    "Ready",
+                    StatusGroup.OK,
+                    [("administration", "NoExecute")],
+                    [
+                        {
+                            "effect": "NoExecute",
+                            "key": "administration",
+                            "value": "shutdown",
+                        },
+                    ],
+                ),
+                None,
+            ), (
+                {
+                    "metadata": {
+                        "name": "worker2",
+                    },
+                    "spec": {
+                        "taints": [
+                            {
+                                "effect": "NoSchedule",
+                                "key": "node.kubernetes.io/unreachable",
+                            },
+                        ],
+                    },
+                    "status": {
+                        "conditions": [
+                            {
+                                "lastHeartbeatTime": "2024-02-02T12:05:00Z",
+                                "lastTransitionTime": "2023-10-24T13:42:32Z",
+                                "message": "kubelet is unreachable",
+                                "reason": "KubeletReady",
+                                "status": "Unknown",
+                                "type": "Ready",
+                            },
+                        ],
+                    },
+                },
+                (
+                    "Unreachable",
+                    StatusGroup.NOT_OK,
+                    [("unreachable", "NoSchedule")],
+                    [
+                        {
+                            "effect": "NoSchedule",
+                            "key": "node.kubernetes.io/unreachable",
+                        },
+                    ],
+                ),
+                None,
+            ), (
+                {
+                    "metadata": {
+                        "name": "worker3",
+                    },
+                    "spec": {
+                        "taints": [
+                            {
+                                "effect": "NoSchedule",
+                                "key": "unreachable",
+                            },
+                        ],
+                    },
+                    "status": {
+                        "conditions": [
+                            {
+                                "lastHeartbeatTime": "2024-02-02T12:05:00Z",
+                                "lastTransitionTime": "2023-10-24T13:42:32Z",
+                                "message": "kubelet is unreachable",
+                                "reason": "KubeletReady",
+                                "status": "Unknown",
+                                "type": "Ready",
+                            },
+                        ],
+                    },
+                },
+                (
+                    "Unreachable",
+                    StatusGroup.NOT_OK,
+                    [("unreachable", "NoSchedule")],
+                    [
+                        {
+                            "effect": "NoSchedule",
+                            "key": "unreachable",
+                        },
+                    ],
+                ),
+                None,
+            ), (
+                {
+                    "metadata": {
+                        "name": "worker3",
+                    },
+                    "spec": {
+                        "taints": [
+                            {
+                                "effect": "NoSchedule",
+                                "key": "node.kubernetes.io/unschedulable",
+                            },
+                        ],
+                    },
+                    "status": {
+                        "conditions": [
+                            {
+                                "lastHeartbeatTime": "2024-02-02T12:45:43Z",
+                                "lastTransitionTime": "2023-11-07T10:06:11Z",
+                                "message": "kubelet is posting ready status. AppArmor enabled",
+                                "reason": "KubeletReady",
+                                "status": "True",
+                                "type": "Ready",
+                            },
+                        ],
+                    },
+                },
+                (
+                    "Ready",
+                    StatusGroup.ADMIN,
+                    [("unschedulable", "NoSchedule")],
+                    [
+                        {
+                            "effect": "NoSchedule",
+                            "key": "node.kubernetes.io/unschedulable",
+                        },
+                    ],
+                ),
+                None,
+            ), (
+                {
+                    "metadata": {
+                        "name": "worker4",
+                    },
+                    "spec": {
+                        "taints": [
+                            {
+                                "effect": "NoExecute",
+                                "key": "node.kubernetes.io/notexecutable",
+                            },
+                        ],
+                    },
+                    "status": {
+                        "conditions": [
+                            {
+                                "lastHeartbeatTime": "2024-02-02T12:45:43Z",
+                                "lastTransitionTime": "2023-11-07T10:06:11Z",
+                                "message": "kubelet is posting ready status. AppArmor enabled",
+                                "reason": "KubeletReady",
+                                "status": "True",
+                                "type": "Ready",
+                            },
+                        ],
+                    },
+                },
+                (
+                    "Ready",
+                    StatusGroup.OK,
+                    [("notexecutable", "NoExecute")],
+                    [
+                        {
+                            "effect": "NoExecute",
+                            "key": "node.kubernetes.io/notexecutable",
+                        },
+                    ],
+                ),
+                None,
+            ), (
+                {
+                    "metadata": {
+                        "name": "worker5",
+                    },
+                    "spec": {
+                        "taints": [
+                        ],
+                    },
+                    "status": {
+                        "conditions": [
+                            {
+                                "lastHeartbeatTime": "2024-02-02T12:05:00Z",
+                                "lastTransitionTime": "2023-10-24T13:42:32Z",
+                                "message": "kubelet is posting ready status",
+                                "reason": "KubeletReady",
+                                "status": "False",
+                                "type": "Ready",
+                            },
+                        ],
+                    },
+                },
+                (
+                    "NotReady",
+                    StatusGroup.NOT_OK,
+                    [],
+                    [],
+                ),
+                None,
+            ),
+        )
+
+        for node_data, expected_result, expected_exception in testdata:
+            try:
+                tmp = fun(node_data)
+
+                if not isinstance(tmp, tuple):
+                    message = f"{fun.__name__}() returned type: {type(tmp)}, expected {tuple}"
+                    return message, False
+
+                if len(tmp) != 4:
+                    message = f"{fun.__name__}() returned len: {len(tmp)}, expected 4"
+                    return message, False
+
+                if not (isinstance(tmp[0], str)
+                        and isinstance(tmp[1], StatusGroup)
+                        and isinstance(tmp[2], list)
+                        and isinstance(tmp[2], list)):
+                    message = f"{fun.__name__}() returned the wrong type, " \
+                              f"expected ({str}, {StatusGroup}, [{str}, {str}], [{dict}])"
+                    return message, False
+
+                if tmp != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              "           input:\n" \
+                              f"{yaml_dump(node_data, base_indent=17)}\n" \
+                              f"          output: {tmp}\n" \
+                              f"        expected: {expected_result}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  "           input:\n" \
+                                  f"{yaml_dump(node_data, base_indent=17)}\n" \
+                                  f"       exception: {type(e)}\n" \
+                                  f"        expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              "           input:\n" \
+                              f"{yaml_dump(node_data, base_indent=17)}\n" \
+                              f"       exception: {type(e)}\n" \
+                              f"        expected: {expected_result}"
+                    result = False
+                    break
+    return message, result
+
+
+def test_get_image_version(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = kubernetes_helper.get_image_version
+
+    if result:
+        # Indata format:
+        # (indata, default, expected_result, expected_exception)
+        testdata: tuple[Any, ...] = (
+            ("registry.k8s.io/etcd:3.5.9-0", None, "3.5.9-0", None),
+            ("docker.io/intel/gpu-extender:latest", None, "latest", None),
+            ("docker.io/intel/gpu-extender:", None, "", None),
+            ("gpu-extender", "<undefined>", "<undefined>", None),
+            ("gpu-extender", "", "", None),
+        )
+        for indata, default, expected_result, expected_exception in testdata:
+            try:
+                if (tmp := fun(indata, default)) != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"          indata: {indata}\n" \
+                              f"         default: {default}\n" \
+                              f"          output: {tmp}\n" \
+                              f"        expected: {expected_result}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  f"          indata: {indata}\n" \
+                                  f"         default: {default}\n" \
+                                  f"       exception: {type(e)}\n" \
+                                  f"        expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"          indata: {indata}\n" \
+                              f"         default: {default}\n" \
+                              f"       exception: {type(e)}\n" \
+                              f"        expected: {expected_result}"
+                    result = False
+                    break
+    return message, result
+
+
+def test_identify_k8s_distro(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = kh.identify_k8s_distro
+    k8s_distros = ("crc", "k0s", "k3d", "k3s", "kind", "kubeadm", "harvester",
+                   "minikube", "microk8s", "openshift", "rke2", "talos", "vcluster")
+
+    if result:
+        ansithemeprint([ANSIThemeStr("  Note", "note"),
+                        ANSIThemeStr(": Cannot get full coverage without testing "
+                                     "on multiple Kubernetes distros:\n", "default")])
+        try:
+            tmp, status = fun(kubernetes_helper=kh, exit_on_failure=False)
+            if tmp not in k8s_distros:
+                message = f"{fun.__name__}() did not yield expected type:\n" \
+                          f"         output: {tmp}\n" \
+                          f"         status: {status}\n" \
+                          f"       expected: one of {', '.join(k8s_distros)}"
+                result = False
+            else:
+                ansithemeprint([ANSIThemeStr("  Note", "note"),
+                                ANSIThemeStr(": Manual sanity check necessary:\n", "default")])
+                ansithemeprint([ANSIThemeStr("    Identified k8s distro: ", "default"),
+                                ANSIThemeStr(f"{tmp}", "programname")])
+        except Exception as e:
+            message = f"{fun.__name__}() did not yield expected result:\n" \
+                      f"      exception: {type(e)}\n"
+            result = False
+    if result:
+        with mock.patch("clustermanagementtoolkit.kubernetes_helper."
+                        "KubernetesHelper.get_list_by_kind_namespace",
+                        return_value=([], 404)):
+            try:
+                tmp, status = fun(kubernetes_helper=kh, exit_on_failure=False)
+                if status != 404 or tmp != "<unknown>":
+                    message = f"{fun.__name__}() did not yield expected type:\n" \
+                              f"         output: {tmp}\n" \
+                              f"         status: {status}\n" \
+                              f"       expected: <unknown>" \
+                              f"expected status: 404"
+                    result = False
+            except Exception as e:
+                message = f"{fun.__name__}() did not yield expected result:\n" \
+                          f"      exception: {type(e)}\n" \
+                          f"       expected: <unknown>" \
+                          f"expected status: 404"
+                result = False
+    return message, result
+
+
+def test_get_ref_by_kind_name_namespace(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = kh.get_ref_by_kind_name_namespace
+    cmtlib.read_cmtconfig()
+    deep_set(cmtlib.cmtconfig, DictPath("Debug#developer_mode"), True, create_path=True)
+    deep_set(cmtlib.cmtconfig, DictPath("Debug#use_testdata"), True, create_path=True)
+
+    if result:
+        # Indata format:
+        # (indata, kind, name, namespace, **kwargs, expected_result, expected_exception)
+        testdata: tuple[Any, ...] = (
+            (
+                {
+                    "apiVersion": "v1",
+                    "kind": "List",
+                    "items": [{
+                        "apiVersion": "v1",
+                        "kind": "Namespace",
+                        "metadata": {
+                            "creationTimestamp": "2023-10-24T10:05:01Z",
+                            "labels": {
+                                "kubernetes.io/metadata.name": "default",
+                            },
+                            "name": "default",
+                            "resourceVersion": "41",
+                            "uid": "e02e49e5-410d-40e2-91bf-1ff3acbb6158",
+                        },
+                        "spec": {
+                            "finalizers": ["kubernetes"],
+                        },
+                        "status": {
+                            "phase": "Active"
+                        },
+                    }],
+                    "metadata": {
+                        "resourceVersion": "",
+                    },
+                },
+                ("Namespace", ""), "default", "", {},
+                {
+                    "apiVersion": "v1",
+                    "kind": "Namespace",
+                    "metadata": {
+                        "creationTimestamp": "2023-10-24T10:05:01Z",
+                        "labels": {
+                            "kubernetes.io/metadata.name": "default",
+                        },
+                        "name": "default",
+                        "resourceVersion": "41",
+                        "uid": "e02e49e5-410d-40e2-91bf-1ff3acbb6158",
+                    },
+                    "spec": {
+                        "finalizers": ["kubernetes"],
+                    },
+                    "status": {
+                        "phase": "Active"
+                    },
+                },
+                None),
+            (
+                {
+                    "apiVersion": "v1",
+                    "kind": "List",
+                    "items": [{
+                        "apiVersion": "v1",
+                        "kind": "Namespace",
+                        "metadata": {
+                            "creationTimestamp": "2023-10-24T10:05:01Z",
+                            "labels": {
+                                "kubernetes.io/metadata.name": "default",
+                            },
+                            "name": "default",
+                            "resourceVersion": "41",
+                            "uid": "e02e49e5-410d-40e2-91bf-1ff3acbb6158",
+                        },
+                        "spec": {
+                            "finalizers": ["kubernetes"],
+                        },
+                        "status": {
+                            "phase": "Active"
+                        },
+                    }],
+                    "metadata": {
+                        "resourceVersion": "",
+                    },
+                }, ("Namespace", ""), "default", "", {"resource_cache": kh_cache},
+                {
+                    "apiVersion": "v1",
+                    "kind": "Namespace",
+                    "metadata": {
+                        "creationTimestamp": "2023-10-24T10:05:01Z",
+                        "labels": {
+                            "kubernetes.io/metadata.name": "default",
+                        },
+                        "name": "default",
+                        "resourceVersion": "41",
+                        "uid": "e02e49e5-410d-40e2-91bf-1ff3acbb6158",
+                    },
+                    "spec": {
+                        "finalizers": ["kubernetes"],
+                    },
+                    "status": {
+                        "phase": "Active"
+                    },
+                },
+                None),
+            (
+                {
+                    "apiVersion": "v1",
+                    "kind": "List",
+                    "items": [{
+                        "apiVersion": "coordination.k8s.io/v1",
+                        "kind": "Lease",
+                        "metadata": {
+                            "creationTimestamp": "2023-10-24T10:05:03Z",
+                            "name": "controlplane",
+                            "namespace": "kube-node-lease",
+                            "resourceVersion": "1",
+                        },
+                        "spec": {
+                            "holderIdentity": "controlplane",
+                            "leaseDurationSeconds": 40,
+                            "renewTime": "2024-03-04T15:57:15.221500Z",
+                        },
+                    }],
+                    "metadata": {
+                        "resourceVersion": "",
+                    },
+                }, ("Lease", "coordination.k8s.io"), "controlplane", "kube-node-lease", {},
+                {
+                    "apiVersion": "coordination.k8s.io/v1",
+                    "kind": "Lease",
+                    "metadata": {
+                        "creationTimestamp": "2023-10-24T10:05:03Z",
+                        "name": "controlplane",
+                        "namespace": "kube-node-lease",
+                        "resourceVersion": "1",
+                    },
+                    "spec": {
+                        "holderIdentity": "controlplane",
+                        "leaseDurationSeconds": 40,
+                        "renewTime": "2024-03-04T15:57:15.221500Z",
+                    },
+                },
+                None),
+            (
+                {
+                    "apiVersion": "v1",
+                    "kind": "List",
+                    "items": [{
+                        "apiVersion": "coordination.k8s.io/v1",
+                        "kind": "Lease",
+                        "metadata": {
+                            "creationTimestamp": "2023-10-24T10:05:03Z",
+                            "name": "controlplane",
+                            "namespace": "kube-node-lease",
+                            "resourceVersion": "1",
+                        },
+                        "spec": {
+                            "holderIdentity": "controlplane",
+                            "leaseDurationSeconds": 40,
+                            "renewTime": "2024-03-04T15:57:15.221500Z",
+                        },
+                    }],
+                    "metadata": {
+                        "resourceVersion": "",
+                    },
+                }, ("Lease", "coordination.k8s.io"), "worker", "kube-node-lease", {},
+                None,
+                None),
+            (
+                {
+                    "apiVersion": "coordination.k8s.io/v1",
+                    "kind": "Lease",
+                    "metadata": {
+                        "creationTimestamp": "2023-10-24T10:05:03Z",
+                        "name": "controlplane",
+                        "namespace": "kube-node-lease",
+                        "resourceVersion": "1",
+                    },
+                    "spec": {
+                        "holderIdentity": "controlplane",
+                        "leaseDurationSeconds": 40,
+                        "renewTime": "2024-03-04T15:57:15.221500Z",
+                    },
+                }, ("Lease", "coordination.k8s.io"), "controlplane", "kube-node-lease", {},
+                {
+                    "apiVersion": "coordination.k8s.io/v1",
+                    "kind": "Lease",
+                    "metadata": {
+                        "creationTimestamp": "2023-10-24T10:05:03Z",
+                        "name": "controlplane",
+                        "namespace": "kube-node-lease",
+                        "resourceVersion": "1",
+                    },
+                    "spec": {
+                        "holderIdentity": "controlplane",
+                        "leaseDurationSeconds": 40,
+                        "renewTime": "2024-03-04T15:57:15.221500Z",
+                    },
+                },
+                None),
+        )
+        for indata, kind, name, namespace, kwargs, expected_result, expected_exception in testdata:
+            try:
+                with mock.patch("clustermanagementtoolkit.kubernetes_helper.secure_read_yaml",
+                                return_value=indata), \
+                        mock.patch("pathlib.Path.is_file", return_value=True):
+                    if (tmp := fun(kind, name, namespace, **kwargs)) != expected_result:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  f"          indata: {indata}\n" \
+                                  f"          output: {tmp}\n" \
+                                  f"        expected: {expected_result}"
+                        result = False
+                        break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  f"          indata: {indata}\n" \
+                                  f"       exception: {type(e)}\n" \
+                                  f"        expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"          indata: {indata}\n" \
+                              f"       exception: {type(e)}\n" \
+                              f"        expected: {expected_result}"
+                    result = False
+                    break
+    return message, result
+
+
+tests: dict[tuple[str, ...], dict[str, Any]] = {
+    ("kind_tuple_to_name()",): {
+        "callable": test_kind_tuple_to_name,
+        "result": None,
+    },
+    ("guess_kind()",): {
+        "callable": test_guess_kind,
+        "result": None,
+    },
+    ("update_api_status()",): {
+        "callable": test_update_api_status,
+        "result": None,
+    },
+    ("kubectl_get_version()",): {
+        "callable": test_kubectl_get_version,
+        "result": None,
+    },
+    ("get_node_status()",): {
+        "callable": test_get_node_status,
+        "result": None,
+    },
+    ("get_image_version()",): {
+        "callable": test_get_image_version,
+        "result": None,
+    },
+}
+
+tests_with_cluster: dict[tuple[str], dict[str, Any]] = {
+    ("identify_k8s_distro()",): {
+        "callable": test_identify_k8s_distro,
+        "result": None,
+    },
+    ("get_ref_by_kind_name_namespace() (Developer mode)",): {
+        "callable": test_get_ref_by_kind_name_namespace,
+        "result": None,
+    },
+}
+
+
+def main() -> int:
+    global kh
+    global kh_cache
+    global tests
+
+    fail = 0
+    success = 0
+    verbose = False
+    failed_testcases = []
+
+    init_ansithemeprint(themefile=None)
+
+    if "--include-cluster" in sys.argv:
+        tests = {**tests, **tests_with_cluster}
+        kh = kubernetes_helper.KubernetesHelper("khtests", "v0.1")
+        kh_cache = kubernetes_helper.KubernetesResourceCache()
+
+    # How many non-prepare testcases do we have?
+    # pylint: disable-next=consider-using-dict-items
+    testcount = sum(1 for i in tests if not deep_get(tests[i], DictPath("prepare"), False))
+
+    for i, test in enumerate(tests):
+        ansithemeprint([ANSIThemeStr(f"[{i:03}/{testcount - 1:03}]", "emphasis"),
+                        ANSIThemeStr(f" {', '.join(test)}:", "default")])
+        message, result = tests[test]["callable"](verbose=verbose)
+        if message:
+            ansithemeprint([ANSIThemeStr("  FAIL", "error"),
+                            ANSIThemeStr(f": {message}", "default")])
+        else:
+            ansithemeprint([ANSIThemeStr("  PASS", "success")])
+            success += 1
+        tests[test]["result"] = result
+        if not result:
+            fail += 1
+            failed_testcases.append(f"{i}: {', '.join(test)}")
+
+    ansithemeprint([ANSIThemeStr("\nSummary:", "header")])
+    if fail:
+        ansithemeprint([ANSIThemeStr(f"  FAIL: {fail}", "error")])
+    else:
+        ansithemeprint([ANSIThemeStr(f"  FAIL: {fail}", "unknown")])
+    ansithemeprint([ANSIThemeStr(f"  PASS: {success}", "success")])
+
+    if fail:
+        ansithemeprint([ANSIThemeStr("\nFailed testcases:", "header")])
+        for testcase in failed_testcases:
+            ansithemeprint([ANSIThemeStr("  • ", "separator"),
+                            ANSIThemeStr(testcase, "default")], stderr=True)
+            sys.exit(fail)
+
+    return 0
+
+
+if __name__ == "__main__":
+    main()

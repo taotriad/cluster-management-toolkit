@@ -1,0 +1,4251 @@
+#! /usr/bin/env python3
+# [:::MUNGE SHEBANG:::]
+
+# Requires: ansible
+# Requires: python3 (>= 3.11)
+# Requires: python3-natsort
+# Requires: python3-openssl
+#
+# Copyright the Cluster Management Toolkit for Kubernetes contributors.
+# SPDX-License-Identifier: MIT
+
+# pylint: disable=too-many-lines
+
+"""
+Commandline tool for managing Kubernetes clusters.
+"""
+
+import errno
+from getpass import getuser
+import hashlib
+from operator import itemgetter
+import os
+from pathlib import Path, PurePath
+import re
+import sys
+from typing import Any, cast
+from collections.abc import Sequence
+try:
+    import yaml
+except ModuleNotFoundError:  # pragma: no cover
+    sys.exit("ModuleNotFoundError: Could not import yaml; "
+             "you may need to (re-)run `cmt-install` or `pip3 install PyYAML`; aborting.")
+
+from cryptography import x509
+from cryptography.hazmat.primitives import serialization
+
+try:
+    from natsort import natsorted
+except ModuleNotFoundError:  # pragma: no cover
+    sys.exit("ModuleNotFoundError: Could not import natsort; "
+             "you may need to (re-)run `cmt-install` or `pip3 install natsort`; aborting.")
+
+try:
+    import ruyaml
+    ryaml = ruyaml.YAML()
+    sryaml = ruyaml.YAML(typ="safe")
+except ModuleNotFoundError:  # pragma: no cover
+    try:
+        import ruamel.yaml as ruyaml  # type: ignore[no-redef,unused-ignore]
+        ryaml = ruyaml.YAML()
+        sryaml = ruyaml.YAML(typ="safe")
+    except ModuleNotFoundError:  # pragma: no cover
+        sys.exit("ModuleNotFoundError: Could not import ruyaml/ruamel.yaml; "
+                 "you may need to (re-)run `cmt-install` or `pip3 install ruyaml/ruamel.yaml`; "
+                 "aborting.")
+
+# This has to be first, since it checks for the correct Python version
+from clustermanagementtoolkit import about
+
+from clustermanagementtoolkit.cluster_actions import get_crio_version
+
+from clustermanagementtoolkit.cmttypes import deep_get, DictPath, SecurityStatus
+from clustermanagementtoolkit.cmttypes import FilePath, FilePathAuditError, HostNameStatus
+
+from clustermanagementtoolkit import cmtpaths
+from clustermanagementtoolkit.cmtpaths import CMT_CONFIG_FILE, CMT_CONFIG_FILENAME, HOMEDIR
+from clustermanagementtoolkit.cmtpaths import DEFAULT_THEME_FILE, VIEW_DIR, SYSTEM_VIEWS_DIR
+
+from clustermanagementtoolkit.cmtvalidators import validate_fqdn, validator_bool
+
+from clustermanagementtoolkit.commandparser import parse_commandline, CommandType
+
+from clustermanagementtoolkit.ansible_helper import ansible_configuration, get_playbook_path
+from clustermanagementtoolkit.ansible_helper import ansible_run_playbook_on_selection
+from clustermanagementtoolkit.ansible_helper import ansible_get_hosts_by_group, ansible_add_hosts
+from clustermanagementtoolkit.ansible_helper import ansible_remove_hosts
+from clustermanagementtoolkit.ansible_helper import ansible_print_action_summary
+from clustermanagementtoolkit.ansible_helper import ansible_print_play_results
+from clustermanagementtoolkit.ansible_helper import populate_playbooks_from_filenames
+from clustermanagementtoolkit.ansible_helper import ANSIBLE_INVENTORY
+
+from clustermanagementtoolkit import cmtlib
+from clustermanagementtoolkit.cmtlib import chunk_list, identify_distro, read_cmtconfig
+from clustermanagementtoolkit.cmtlib import get_latest_upstream_version
+
+from clustermanagementtoolkit import cmtio
+from clustermanagementtoolkit.cmtio import execute_command, secure_read_string
+
+from clustermanagementtoolkit.cmtio_yaml import secure_read_yaml
+from clustermanagementtoolkit.cmtio_yaml import json_dumps
+
+from clustermanagementtoolkit.networkio import scan_and_add_ssh_keys
+
+from clustermanagementtoolkit import kubernetes_helper
+from clustermanagementtoolkit.kubernetes_helper import list_contexts, get_node_roles
+from clustermanagementtoolkit.kubernetes_helper import get_node_status
+from clustermanagementtoolkit.kubernetes_helper import update_api_status as kh_update_api_status
+from clustermanagementtoolkit.kubernetes_helper import set_context, guess_kind, get_cluster_name
+
+from clustermanagementtoolkit import checks
+
+from clustermanagementtoolkit.ansithemeprint import ANSIThemeStr, ansithemestr_join_list
+from clustermanagementtoolkit.ansithemeprint import ansithemeprint, ansithemeinput
+from clustermanagementtoolkit.ansithemeprint import ansithemeprint_formatted
+from clustermanagementtoolkit.ansithemeprint import ansithemeinput_password
+
+from clustermanagementtoolkit.kubernetes_resources import unknown_kubernetes_resources
+from clustermanagementtoolkit.kubernetes_resources import event_reasons
+
+try:
+    import prctl
+    prctl.set_name(PurePath(sys.argv[0]).name)  # pylint: disable=no-member
+    prctl.set_proctitle(" ".join(sys.argv))
+except ModuleNotFoundError:  # pragma: no cover
+    pass
+
+PROGRAMDESCRIPTION = "Commandline tool for managing Kubernetes clusters."
+PROGRAMAUTHORS = "Written by David Weinehall."
+
+kh: kubernetes_helper.KubernetesHelper = None  # type: ignore # pylint: disable=invalid-name
+
+
+def request_ansible_password() -> None:
+    """
+    Requests the ansible password.
+    """
+    # Check whether ansible_password is defined or not
+    if ansible_configuration["ansible_password"] is None:
+        ansithemeprint([ANSIThemeStr("Attention", "warning"),
+                        ANSIThemeStr(": To be able to run playbooks you need to provide the "
+                                     "ansible/ssh password.", "default")])
+        ansithemeprint([ANSIThemeStr("Since the systems will be reconfigured to use passwordless "
+                                     "sudo and ssh keys this is a one-time thing.", "default")])
+
+        ansible_password = ansithemeinput_password([ANSIThemeStr("\nPassword: ", "default")])
+
+        if ansible_password is None or not ansible_password:
+            ansithemeprint([ANSIThemeStr("\nError", "error"),
+                            ANSIThemeStr(": Empty password; aborting.", "default")], stderr=True)
+            sys.exit(errno.EINVAL)
+
+        ansible_configuration["ansible_password"] = ansible_password
+
+
+# pylint: disable-next=too-many-locals
+def run_playbook(playbookpath: FilePath, hosts: list[str], extra_values: dict | None = None,
+                 quiet: bool = False, verbose: bool = False) -> tuple[int, dict]:
+    """
+    Run an Ansible playbook.
+
+        Parameters:
+            playbookpath (FilePath): A path to the playbook to run
+            hosts ([str]): A list of hosts to run the playbook on
+            extra_values (dict): A dict of values to set before running the playbook
+            quiet (bool): Should the results of the run be printed? [unused]
+            verbose (bool): If the results are printed, should skipped tasks be printed too?
+        Returns:
+            (int): The return value from ansible_run_playbook_on_selection()
+            (dict): A dict with the results from the run
+    """
+    # The first patch revision that isn't available from the new repositories is 1.24.0,
+    # but anything older than 1.32.0 is signed with a key that has expired, so only
+    # include 1.32.0 and newer; the old repository is no longer usable.
+    if (kubernetes_upstream_version := get_latest_upstream_version("kubernetes")) is None:
+        ansithemeprint([ANSIThemeStr("Error", "error"),
+                        ANSIThemeStr(": Could not get the latest upstream Kubernetes version; ",
+                                     "default"),
+                        ANSIThemeStr("this is either a network error or a bug; aborting.",
+                                     "default")], stderr=True)
+        sys.exit(errno.ENOENT)
+
+    # Split the version tuple
+    _upstream_major, upstream_minor, _rest = kubernetes_upstream_version.split(".")
+    minor_versions = []
+    for minor_version in range(32, int(upstream_minor) + 1):
+        minor_versions.append(f"{minor_version}")
+
+    # Set necessary Ansible keys before running playbooks
+    http_proxy = deep_get(cmtlib.cmtconfig, DictPath("Network#http_proxy"), "")
+    if http_proxy is None:
+        http_proxy = ""
+    https_proxy = deep_get(cmtlib.cmtconfig, DictPath("Network#https_proxy"), "")
+    if https_proxy is None:
+        https_proxy = ""
+    no_proxy = deep_get(cmtlib.cmtconfig, DictPath("Network#no_proxy"), "")
+    if no_proxy is None:
+        no_proxy = ""
+    insecure_registries = deep_get(cmtlib.cmtconfig, DictPath("Docker#insecure_registries"), [])
+    registry_mirrors = deep_get(cmtlib.cmtconfig, DictPath("Containerd#registry_mirrors"), [])
+    retval = 0
+
+    use_proxy = "no"
+    if http_proxy or https_proxy:
+        use_proxy = "yes"
+
+    if extra_values is None:
+        extra_values = {}
+
+    values = {
+        "http_proxy": http_proxy,
+        "https_proxy": https_proxy,
+        "no_proxy": no_proxy,
+        "insecure_registries": insecure_registries,
+        "registry_mirrors": registry_mirrors,
+        "use_proxy": use_proxy,
+        "minor_versions": minor_versions,
+    }
+    merged_values = {**values, **extra_values}
+
+    retval, ansible_results = \
+        ansible_run_playbook_on_selection(playbookpath, selection=hosts,
+                                          values=merged_values, quiet=False)
+    if retval == -errno.ENOENT and not ansible_results:
+        ansithemeprint([ANSIThemeStr("Error", "error"),
+                        ANSIThemeStr(": ", "default"),
+                        ANSIThemeStr(f"{ANSIBLE_INVENTORY}", "path"),
+                        ANSIThemeStr(" is either empty or missing; aborting.", "default")],
+                       stderr=True)
+        sys.exit(errno.ENOENT)
+
+    if not quiet:
+        ansible_print_play_results(retval, ansible_results, verbose=verbose)
+        print()
+
+    return retval, ansible_results
+
+
+def __format_none(string: str | None, fmt: str) -> ANSIThemeStr:
+    if string is None or string == "<none>":
+        __string = ANSIThemeStr("<none>", "none")
+    else:
+        __string = ANSIThemeStr(string, fmt)
+    return __string
+
+
+def get_control_planes() -> list[tuple[str, list[str]]]:
+    """
+    Get the list of control planes.
+
+        Returns:
+            [(str, [str])]: The list of control planes
+                (str): The name of the control plane
+                ([str]): A list of IP-addresses for the control plane
+    """
+    global kh  # pylint: disable=global-statement
+
+    controlplanes = []
+
+    if kh is None:
+        kh = kubernetes_helper.KubernetesHelper(about.PROGRAM_SUITE_NAME,
+                                                about.PROGRAM_SUITE_VERSION, None)
+
+    vlist, status = kh.get_list_by_kind_namespace(("Node", ""), "")
+    if status != 200:
+        ansithemeprint([ANSIThemeStr("Error", "error"),
+                        ANSIThemeStr(": API-server returned ", "default"),
+                        ANSIThemeStr(f"{status}", "errorvalue"),
+                        ANSIThemeStr("; aborting.", "default")], stderr=True)
+        sys.exit(errno.EINVAL)
+    if vlist is None:
+        ansithemeprint([ANSIThemeStr("Error", "error"),
+                        ANSIThemeStr(": API-server did not return any data", "default")],
+                       stderr=True)
+        sys.exit(errno.EINVAL)
+
+    for node in vlist:
+        name = deep_get(node, DictPath("metadata#name"))
+        node_roles = get_node_roles(cast(dict, node))
+        if "control-plane" in node_roles or "master" in node_roles:
+            ipaddresses = []
+            for address in deep_get(node, DictPath("status#addresses")):
+                if deep_get(address, DictPath("type"), "") == "InternalIP":
+                    ipaddresses.append(deep_get(address, DictPath("address")))
+            controlplanes.append((name, ipaddresses))
+
+    return controlplanes
+
+
+def show_configuration(hosts: list[str], cri: str | None = None) -> None:
+    """
+    Show cluster configuration.
+
+        Parameters:
+            hosts ([str]): The hosts that will be affected
+    """
+    cluster_name = get_cluster_name()
+    controlplanes = get_control_planes()
+
+    http_proxy = deep_get(cmtlib.cmtconfig, DictPath("Network#http_proxy"), "")
+    if http_proxy is not None and http_proxy == "":
+        http_proxy = None
+    http_proxy_env = os.getenv("http_proxy")
+    if http_proxy_env is not None and http_proxy_env == "":
+        http_proxy_env = None
+    https_proxy = deep_get(cmtlib.cmtconfig, DictPath("Network#https_proxy"), "")
+    if https_proxy is not None and https_proxy == "":
+        https_proxy = None
+    https_proxy_env = os.getenv("https_proxy")
+    if https_proxy_env is not None and https_proxy_env == "":
+        https_proxy_env = None
+    no_proxy = deep_get(cmtlib.cmtconfig, DictPath("Network#no_proxy"), "")
+    if no_proxy is not None and no_proxy == "":
+        no_proxy = None
+    no_proxy_env = os.getenv("no_proxy")
+    if no_proxy_env is not None and no_proxy_env == "":
+        no_proxy_env = None
+
+    ansithemeprint([ANSIThemeStr("\n[Summary]", "phase")])
+    ansithemeprint([ANSIThemeStr("\n• ", "separator"),
+                    ANSIThemeStr("Configuration:", "action")])
+    ansithemeprint([ANSIThemeStr("        Cluster Name: ", "action"),
+                    ANSIThemeStr(f"{cluster_name}", "hostname")])
+    if cri is not None:
+        ansithemeprint([ANSIThemeStr("                 CRI: ", "action"),
+                        ANSIThemeStr(f"{cri}", "programname")])
+    ansithemeprint([ANSIThemeStr("          HTTP Proxy: ", "action"),
+                    __format_none(http_proxy, "url"),
+                    ANSIThemeStr(" (", "default"),
+                    ANSIThemeStr(f"{CMT_CONFIG_FILE}", "path"),
+                    ANSIThemeStr(")", "default")])
+    ansithemeprint([ANSIThemeStr("          HTTP Proxy: ", "action"),
+                    __format_none(http_proxy_env, "url"),
+                    ANSIThemeStr(" (Environment)", "default")])
+    ansithemeprint([ANSIThemeStr("         HTTPS Proxy: ", "action"),
+                    __format_none(https_proxy, "url"),
+                    ANSIThemeStr(" (", "default"),
+                    ANSIThemeStr(f"{CMT_CONFIG_FILE}", "path"),
+                    ANSIThemeStr(")", "default")])
+    ansithemeprint([ANSIThemeStr("         HTTPS Proxy: ", "action"),
+                    __format_none(https_proxy_env, "url"),
+                    ANSIThemeStr(" (Environment)", "default")])
+    ansithemeprint([ANSIThemeStr("            No Proxy: ", "action"),
+                    __format_none(no_proxy, "url"),
+                    ANSIThemeStr(" (", "default"),
+                    ANSIThemeStr(f"{CMT_CONFIG_FILE}", "path"),
+                    ANSIThemeStr(")", "default")])
+    ansithemeprint([ANSIThemeStr("            No Proxy: ", "action"),
+                    __format_none(no_proxy_env, "url"),
+                    ANSIThemeStr(" (Environment)", "default")])
+
+    ansithemeprint([ANSIThemeStr("", "default")])
+    ansithemeprint([ANSIThemeStr("• ", "separator"),
+                    ANSIThemeStr("Control Planes:", "action")])
+
+    for controlplane in controlplanes:
+        ansithemeprint([ANSIThemeStr("  • ", "separator"),
+                        ANSIThemeStr(f"{controlplane[0]} ", "emphasis"),
+                        ANSIThemeStr("(", "default")]
+                       + ansithemestr_join_list(controlplane[1], formatting="hostname",
+                                                separator=ANSIThemeStr(",", "separator"))
+                       + [ANSIThemeStr(")", "default")])
+
+    ansithemeprint([ANSIThemeStr("\n• ", "separator"),
+                    ANSIThemeStr("Target Hosts:", "action")])
+    for host in hosts:
+        ansithemeprint([ANSIThemeStr("  • ", "separator"),
+                        ANSIThemeStr(host, "hostname")])
+
+
+def run_playbooks(playbooks: list[tuple[list[ANSIThemeStr], FilePath]], **kwargs: Any) -> bool:
+    """
+    Run a set of Ansible playbooks.
+
+        Parameters:
+            playbooks ([([ANSIThemeStr], FilePath)]): A list of playbooks
+            **kwargs (dict[str, Any]): Keyword arguments
+                hosts (str): The hosts to run the playbooks on
+                extra_values (dict): Variables to set before running the playbooks
+                verbose (bool): If the results are printed, should skipped tasks be printed too?
+        Returns:
+            (bool): True on success, False on failure
+    """
+    hosts: list[str] | None = deep_get(kwargs, DictPath("hosts"))
+    extra_values: dict | None = deep_get(kwargs, DictPath("extra_values"))
+    verbose: bool = deep_get(kwargs, DictPath("verbose"), False)
+
+    if not playbooks or hosts is None:
+        return True
+
+    for string, playbookpath in playbooks:
+        ansithemeprint(string)
+        retval, _ansible_results = \
+            run_playbook(playbookpath, hosts=hosts,
+                         extra_values=extra_values, verbose=verbose)
+
+        # We do not want to continue executing playbooks if the first one failed
+        if retval != 0:
+            break
+
+    return retval == 0
+
+
+# pylint: disable-next=too-many-branches
+def get_selection(selection: list[str],
+                  kind: tuple[str, str] | None = None) -> tuple[list[str], list[str], list[str]]:
+    """
+    Based on input parameters, split the node list into nodes,
+    non-existing nodes, and control planes.
+
+        Parameters:
+            selection ([str]): A list of nodes, or ALL to select all nodes
+            kind ((str, str)): A Kubernetes kind; only supported for now is ("Node", "")
+        Returns:
+            ([str], [str], [str]):
+                ([str]): The nodes
+                ([str]): The non-existing nodes
+                ([str]): The control planes
+    """
+    global kh  # pylint: disable=global-statement
+
+    all_items = False
+    items1 = []
+    non_existing = []
+    # Only used for controlplanes
+    items2 = []
+
+    if kind is None:
+        raise ValueError("kind is None; this is a programming error")
+
+    if selection is None:
+        raise ValueError("selection is None; this is a programming error")
+
+    if "ALL" in selection:
+        if len(selection) > 1:
+            ansithemeprint([ANSIThemeStr("Error", "error"),
+                            ANSIThemeStr(": “", "default"),
+                            ANSIThemeStr("ALL", "argument"),
+                            ANSIThemeStr("“ cannot be combined with other arguments; "
+                                         "aborting.", "default")], stderr=True)
+            sys.exit(errno.EINVAL)
+        else:
+            all_items = True
+
+    # Kubernetes resources
+    if isinstance(kind, tuple):
+        if kh is None:
+            kh = kubernetes_helper.KubernetesHelper(about.PROGRAM_SUITE_NAME,
+                                                    about.PROGRAM_SUITE_VERSION, None)
+
+        vlist, status = kh.get_list_by_kind_namespace(("Node", ""), "")
+        if status != 200:
+            ansithemeprint([ANSIThemeStr("Error", "error"),
+                            ANSIThemeStr(": API-server returned ", "default"),
+                            ANSIThemeStr(f"{status}", "errorvalue"),
+                            ANSIThemeStr("; aborting.", "default")], stderr=True)
+            sys.exit(errno.EINVAL)
+        if vlist is None:
+            ansithemeprint([ANSIThemeStr("Error", "error"),
+                            ANSIThemeStr(": API-server did not return any data", "default")],
+                           stderr=True)
+            sys.exit(errno.EINVAL)
+
+        for node in vlist:
+            name = deep_get(node, DictPath("metadata#name"))
+            if not all_items and name not in selection:
+                continue
+
+            node_roles = get_node_roles(cast(dict, node))
+            if "control-plane" in node_roles or "master" in node_roles:
+                items2.append(name)
+                continue
+
+            items1.append(name)
+    # str kinds are things such as playbooks; for now cmt does not use them
+
+    # Finally, generate a list of non-existing items
+    if not all_items:
+        for item in selection:
+            if item not in items1 + items2:
+                non_existing.append(item)
+
+    return items1, non_existing, items2
+
+
+# pylint: disable-next=too-many-branches
+def cordon_nodes(options: list[tuple[str, str]], args: list[str]) -> int:
+    """
+    Cordon nodes.
+
+        Parameters:
+            options ([(str, str)]): Options to use when executing this action
+            args ([str]): Arguments to use when executing this action
+        Returns:
+            (int): 0 on success, exits with errno on failure
+    """
+    global kh  # pylint: disable=global-statement
+
+    include_control_planes = False
+    header = True
+
+    for opt, _optarg in options:
+        if opt == "--include-control-planes":
+            include_control_planes = True
+        elif opt == "--no-header":
+            header = False
+
+    selection = args[0].split(",")
+
+    # It is OK to specify control planes individually
+    if "ALL" not in selection:
+        include_control_planes = True
+
+    _nodes, non_existing, controlplanes = get_selection(args[0].split(","), kind=("Node", ""))
+
+    nodes = []
+    nodes += _nodes
+    if include_control_planes:
+        nodes += controlplanes
+
+    if non_existing:
+        ansithemeprint([ANSIThemeStr("Error", "error"),
+                        ANSIThemeStr(": ", "default")]
+                       + ansithemestr_join_list(non_existing, formatting="hostname",
+                                                separator=ANSIThemeStr(",", "separator"))
+                       + [ANSIThemeStr(" are not part of the cluster; aborting.", "default")],
+                       stderr=True)
+        sys.exit(errno.ENOENT)
+
+    if not nodes:
+        ansithemeprint([ANSIThemeStr("Error", "error"),
+                        ANSIThemeStr(": No nodes available; aborting.", "default")], stderr=True)
+        sys.exit(errno.ENOENT)
+
+    if header:
+        ansithemeprint([ANSIThemeStr("\n[Cordoning nodes]", "phase")])
+
+    if kh is None:
+        kh = kubernetes_helper.KubernetesHelper(about.PROGRAM_SUITE_NAME,
+                                                about.PROGRAM_SUITE_VERSION, None)
+
+    for node in nodes:
+        ansithemeprint([ANSIThemeStr(f"{node}:", "hostname")])
+        message, status = kh.cordon_node(node)
+        if status in (200, 204):
+            ansithemeprint([ANSIThemeStr("  Cordoned", "success")])
+            print(message)
+        elif status == 42503:
+            ansithemeprint([ANSIThemeStr("", "default")])
+            ansithemeprint([ANSIThemeStr("Critical", "critical"),
+                            ANSIThemeStr(": Cluster not available; aborting", "default")],
+                           stderr=True)
+            sys.exit(errno.ENOENT)
+        else:
+            ansithemeprint([ANSIThemeStr("\nAPI call returned error:", "error")], stderr=True)
+            ansithemeprint([ANSIThemeStr(f"  {message}", "error")], stderr=True)
+            sys.exit(errno.EINVAL)
+    return 0
+
+
+def drain_nodes(options: Sequence[tuple[str, str | None]], args: list[str]) -> int:
+    """
+    Drain nodes.
+
+        Parameters:
+            options ([(str, str)]): Options to use when executing this action
+            args ([str]): Arguments to use when executing this action
+        Returns:
+            (int): 0 on success, exits with errno on failure
+    """
+    include_control_planes = False
+    header = True
+
+    drain_args = ["/usr/bin/kubectl", "drain"]
+
+    for opt, _optarg in options:
+        if opt in "--delete-emptydir-data":
+            drain_args.append("--delete-emptydir-data")
+        elif opt == "--disable-eviction":
+            drain_args.append(opt)
+        elif opt == "--ignore-daemonsets":
+            drain_args.append(opt)
+        elif opt == "--include-control-planes":
+            include_control_planes = True
+        elif opt == "--no-header":
+            header = False
+
+    selection = args[0].split(",")
+
+    # It is OK to specify control planes individually
+    if "ALL" not in selection:
+        include_control_planes = True
+
+    _nodes, non_existing, controlplanes = get_selection(args[0].split(","), kind=("Node", ""))
+
+    nodes = []
+    nodes += _nodes
+    if include_control_planes:
+        nodes += controlplanes
+
+    if non_existing:
+        ansithemeprint([ANSIThemeStr("Error", "error"),
+                        ANSIThemeStr(": ", "default")]
+                       + ansithemestr_join_list(non_existing, formatting="hostname",
+                                                separator=ANSIThemeStr(",", "separator"))
+                       + [ANSIThemeStr(" are not part of the cluster; aborting.", "default")],
+                       stderr=True)
+        sys.exit(errno.ENOENT)
+
+    if not nodes:
+        ansithemeprint([ANSIThemeStr("Error", "error"),
+                        ANSIThemeStr(": No nodes available; aborting.", "default")], stderr=True)
+        sys.exit(errno.ENOENT)
+
+    if header:
+        ansithemeprint([ANSIThemeStr("\n[Draining nodes]", "phase")])
+    drain_args += nodes
+    execute_command(drain_args)
+    return 0
+
+
+# pylint: disable-next=too-many-branches
+def uncordon_nodes(options: list[tuple[str, str]], args: list[str]) -> int:
+    """
+    Uncordon nodes.
+
+        Parameters:
+            options ([(str, str)]): Options to use when executing this action
+            args ([str]): Arguments to use when executing this action
+        Returns:
+            (int): 0 on success, exits with errno on failure
+    """
+    global kh  # pylint: disable=global-statement
+
+    include_control_planes = False
+    header = True
+
+    for opt, _optarg in options:
+        if opt == "--include-control-planes":
+            include_control_planes = True
+        elif opt == "--no-header":
+            header = False
+
+    selection = args[0].split(",")
+
+    # It is OK to specify control planes individually
+    if "ALL" not in selection:
+        include_control_planes = True
+
+    _nodes, non_existing, controlplanes = get_selection(args[0].split(","), kind=("Node", ""))
+
+    nodes = []
+    nodes += _nodes
+    if include_control_planes:
+        nodes += controlplanes
+
+    if non_existing:
+        ansithemeprint([ANSIThemeStr("Error", "error"),
+                        ANSIThemeStr(": ", "default")]
+                       + ansithemestr_join_list(non_existing, formatting="hostname",
+                                                separator=ANSIThemeStr(",", "separator"))
+                       + [ANSIThemeStr(" are not part of the cluster; aborting.", "default")],
+                       stderr=True)
+        sys.exit(errno.ENOENT)
+
+    if not nodes:
+        ansithemeprint([ANSIThemeStr("Error", "error"),
+                        ANSIThemeStr(": No nodes available; aborting.", "default")], stderr=True)
+        sys.exit(errno.ENOENT)
+
+    if header:
+        ansithemeprint([ANSIThemeStr("\n[Uncordoning nodes]", "phase")])
+
+    if kh is None:
+        kh = kubernetes_helper.KubernetesHelper(about.PROGRAM_SUITE_NAME,
+                                                about.PROGRAM_SUITE_VERSION, None)
+
+    for node in nodes:
+        ansithemeprint([ANSIThemeStr(f"{node}:", "hostname")])
+        message, status = kh.uncordon_node(node)
+        if status in (200, 204):
+            ansithemeprint([ANSIThemeStr("  Uncordoned", "success")])
+            print(message)
+        elif status == 42503:
+            ansithemeprint([ANSIThemeStr("", "default")])
+            ansithemeprint([ANSIThemeStr("Critical", "critical"),
+                            ANSIThemeStr(": Cluster not available; aborting", "default")],
+                           stderr=True)
+            sys.exit(errno.ENOENT)
+        else:
+            ansithemeprint([ANSIThemeStr("\nAPI call returned error:", "error")], stderr=True)
+            ansithemeprint([ANSIThemeStr(f"  {message}", "error")], stderr=True)
+            sys.exit(errno.EINVAL)
+    return 0
+
+
+# pylint: disable-next=too-many-statements,too-many-branches,too-many-locals
+def taint_nodes(options: list[tuple[str, str]], args: list[str]) -> int:
+    """
+    Taint nodes.
+
+        Parameters:
+            options ([(str, str)]): Options to use when executing this action
+            args ([str]): Arguments to use when executing this action
+        Returns:
+            (int): 0 on success, exits with errno on failure
+    """
+    global kh  # pylint: disable=global-statement
+
+    include_control_planes = False
+    overwrite = False
+    header = True
+
+    for opt, _optarg in options:
+        if opt == "--include-control-planes":
+            include_control_planes = True
+        elif opt == "--no-header":
+            header = False
+        elif opt == "--overwrite":
+            overwrite = True
+
+    selection = args[0].split(",")
+    taint = args[1]
+
+    if ":" in taint:
+        taint_key_value, taint_new_effect = taint.split(":")
+    else:
+        taint_key_value = taint
+        taint_new_effect = None
+    if "=" in taint_key_value:
+        taint_key, taint_value = taint_key_value.split("=")
+    else:
+        taint_key = taint_key_value
+        taint_value = None
+
+    # It is OK to specify control planes individually
+    if "ALL" not in selection:
+        include_control_planes = True
+
+    _nodes, non_existing, controlplanes = get_selection(args[0].split(","), kind=("Node", ""))
+
+    nodes = []
+    nodes += _nodes
+    if include_control_planes:
+        nodes += controlplanes
+
+    if non_existing:
+        ansithemeprint([ANSIThemeStr("Error", "error"),
+                        ANSIThemeStr(": ", "default")]
+                       + ansithemestr_join_list(non_existing, formatting="hostname",
+                                                separator=ANSIThemeStr(",", "separator"))
+                       + [ANSIThemeStr(" are not part of the cluster; aborting.", "default")],
+                       stderr=True)
+        sys.exit(errno.ENOENT)
+
+    if not nodes:
+        ansithemeprint([ANSIThemeStr("Error", "error"),
+                        ANSIThemeStr(": No nodes available; aborting.", "default")], stderr=True)
+        sys.exit(errno.ENOENT)
+
+    if header:
+        ansithemeprint([ANSIThemeStr("\n[Tainting nodes]", "phase")])
+
+    if kh is None:
+        kh = kubernetes_helper.KubernetesHelper(about.PROGRAM_SUITE_NAME,
+                                                about.PROGRAM_SUITE_VERSION, None)
+
+    for node in nodes:
+        node_info = kh.get_ref_by_kind_name_namespace(("Node", ""), node, "")
+        if node is None:
+            continue
+        node_status, _status_group, _taints, full_taints = \
+            get_node_status(cast(dict[str, Any], node_info))
+        if node_status == "Unknown":
+            ansithemeprint([ANSIThemeStr("Critical", "critical"),
+                            ANSIThemeStr(": Failed to get node information; do you have a "
+                                         "running cluster? Aborting.", "default")], stderr=True)
+            sys.exit(errno.ENXIO)
+
+        ansithemeprint([ANSIThemeStr(node, "hostname")])
+        _message, status = \
+            kh.taint_node(node, full_taints,
+                          (taint_key, taint_value, None, taint_new_effect), overwrite=overwrite)
+        if status == 304:
+            ansithemeprint([ANSIThemeStr("  Not modified", "none")])
+        elif status == 42304:
+            ansithemeprint([ANSIThemeStr("  Warning", "warning"),
+                            ANSIThemeStr(": Ignoring request; node already has taint(s) with "
+                                         "matching effect; use “", "default"),
+                            ANSIThemeStr("--overwrite", "option"),
+                            ANSIThemeStr("“ to override", "default")])
+        elif status == 200:
+            ansithemeprint([ANSIThemeStr("  Tainted", "success")])
+        else:
+            ansithemeprint([ANSIThemeStr("  Failed to modify taint", "error"),
+                            ANSIThemeStr(f"; HTTP error {status}; aborting.", "default")],
+                           stderr=True)
+            sys.exit(errno.EINVAL)
+    return 0
+
+
+# pylint: disable-next=too-many-statements,too-many-branches,too-many-locals
+def untaint_nodes(options: list[tuple[str, str]], args: list[str]) -> int:
+    """
+    Untaint nodes.
+
+        Parameters:
+            options ([(str, str)]): Options to use when executing this action
+            args ([str]): Arguments to use when executing this action
+        Returns:
+            (int): 0 on success, exits with errno on failure
+    """
+    global kh  # pylint: disable=global-statement
+
+    include_control_planes = False
+    header = True
+
+    for opt, _optarg in options:
+        if opt == "--include-control-planes":
+            include_control_planes = True
+        elif opt == "--no-header":
+            header = False
+
+    selection = args[0].split(",")
+    taint = args[1]
+
+    if ":" in taint:
+        taint_key_value, taint_old_effect = taint.split(":")
+    else:
+        taint_key_value = taint
+        taint_old_effect = None
+    if "=" in taint_key_value:
+        taint_key, taint_value = taint.split("=")
+    else:
+        taint_key = taint
+        taint_value = None
+
+    # It is OK to specify control planes individually
+    if "ALL" not in selection:
+        include_control_planes = True
+
+    _nodes, non_existing, controlplanes = get_selection(args[0].split(","), kind=("Node", ""))
+
+    nodes = []
+    nodes += _nodes
+    if include_control_planes:
+        nodes += controlplanes
+
+    if non_existing:
+        ansithemeprint([ANSIThemeStr("Error", "error"),
+                        ANSIThemeStr(": ", "default")]
+                       + ansithemestr_join_list(non_existing, formatting="hostname",
+                                                separator=ANSIThemeStr(",", "separator"))
+                       + [ANSIThemeStr(" are not part of the cluster; aborting.", "default")],
+                       stderr=True)
+        sys.exit(errno.ENOENT)
+
+    if not nodes:
+        ansithemeprint([ANSIThemeStr("Error", "error"),
+                        ANSIThemeStr(": No nodes available; aborting.", "default")], stderr=True)
+        sys.exit(errno.ENOENT)
+
+    if header:
+        ansithemeprint([ANSIThemeStr("\n[Untainting nodes]", "phase")])
+
+    if kh is None:
+        kh = kubernetes_helper.KubernetesHelper(about.PROGRAM_SUITE_NAME,
+                                                about.PROGRAM_SUITE_VERSION, None)
+
+    for node in nodes:
+        if (node_info := kh.get_ref_by_kind_name_namespace(("Node", ""), node, "")) is None:
+            continue
+        node_status, _status_group, _taints, full_taints = get_node_status(node_info)
+        if node_status == "Unknown":
+            ansithemeprint([ANSIThemeStr("Critical", "critical"),
+                            ANSIThemeStr(": Failed to get node information; do you have a "
+                                         "running cluster? Aborting.", "default")], stderr=True)
+            sys.exit(errno.ENXIO)
+
+        ansithemeprint([ANSIThemeStr(node, "hostname")])
+        _message, status = kh.taint_node(node, full_taints,
+                                         (taint_key, taint_value, taint_old_effect, None))
+        if status == 304:
+            ansithemeprint([ANSIThemeStr("  Not modified", "none")])
+        elif status == 200:
+            ansithemeprint([ANSIThemeStr("  Untainted", "success")])
+        else:
+            ansithemeprint([ANSIThemeStr("  Failed to modify taint", "error"),
+                            ANSIThemeStr(f"; HTTP error {status}; aborting.", "default")],
+                           stderr=True)
+            sys.exit(errno.EINVAL)
+    return 0
+
+
+# pylint: disable-next=too-many-statements,too-many-branches,too-many-locals
+def prepare_hosts(options: list[tuple[str, str]], args: list[str]) -> int:
+    """
+    Install and configure pre-requisites for use as a node.
+
+        Parameters:
+            options ([(str, str)]): Options to use when executing this action
+            args ([str]): Arguments to use when executing this action
+        Returns:
+            (int): 0 on success, exits with errno on failure
+    """
+    ignore_existing = False
+    no_password = False
+    from_file = False
+    confirm = True
+    verbose = False
+
+    for opt, optarg in options:
+        if opt == "--ignore-existing":
+            ignore_existing = True
+        elif opt == "--no-password":
+            no_password = True
+        elif opt == "--save-ansible-logs":
+            ansible_configuration["save_logs"] = True
+        elif opt == "--forks":
+            ansible_configuration["ansible_forks"] = optarg
+        elif opt == "--from-file":
+            from_file = True
+        elif opt == "--verbose":
+            verbose = True
+        elif opt == "-Y":
+            confirm = False
+
+    if from_file:
+        hostfile = args[0]
+        hostfile_path = Path(hostfile)
+        if not hostfile_path.exists():
+            ansithemeprint([ANSIThemeStr("Error", "error"),
+                            ANSIThemeStr(": ", "default"),
+                            ANSIThemeStr(f"{hostfile}", "path"),
+                            ANSIThemeStr(" does not exist; aborting.", "default")], stderr=True)
+            sys.exit(errno.ENOENT)
+        if not hostfile_path.is_file():
+            ansithemeprint([ANSIThemeStr("Error", "error"),
+                            ANSIThemeStr(": ", "default"),
+                            ANSIThemeStr(f"{hostfile}", "path"),
+                            ANSIThemeStr(" is not a file; aborting.", "default")], stderr=True)
+            sys.exit(errno.ENOENT)
+
+        hosts_raw = secure_read_string(FilePath(hostfile))
+        hosts_raw_split = hosts_raw.splitlines()
+
+        if len(hosts_raw_split) == 1 and "," in hosts_raw_split[0]:
+            selection = hosts_raw_split[0].split(",")
+        else:
+            selection = hosts_raw_split
+    else:
+        selection = args[0].split(",")
+        if "ALL" in selection:
+            ansithemeprint([ANSIThemeStr("Error", "error"),
+                            ANSIThemeStr(": ", "default"),
+                            ANSIThemeStr("ALL", "hostname"),
+                            ANSIThemeStr(" cannot be used with ", "default"),
+                            ANSIThemeStr("prepare", "command"),
+                            ANSIThemeStr("; aborting.", "default")], stderr=True)
+            sys.exit(errno.EINVAL)
+
+    # Validate FQDN/hostname list
+    for hostname in selection:
+        if validate_fqdn(hostname, message_on_error=True) != HostNameStatus.OK:
+            sys.exit(errno.EINVAL)
+
+    # Correlate the list of hosts with the nodes in the cluster
+    nodes, non_existing, controlplanes = get_selection(selection, kind=("Node", ""))
+
+    if nodes or controlplanes:
+        if not ignore_existing:
+            ansithemeprint([ANSIThemeStr("Error", "error"),
+                            ANSIThemeStr(": ", "default")]
+                           + ansithemestr_join_list(nodes + controlplanes, formatting="hostname",
+                                                    separator=ANSIThemeStr(",", "separator"))
+                           + [ANSIThemeStr(" are already part of the cluster; aborting.",
+                                           "default")], stderr=True)
+            sys.exit(errno.EEXIST)
+        else:
+            ansithemeprint([ANSIThemeStr("Warning", "warning"),
+                            ANSIThemeStr(": ", "default")]
+                           + ansithemestr_join_list(nodes + controlplanes, formatting="hostname",
+                                                    separator=ANSIThemeStr(",", "separator"))
+                           + [ANSIThemeStr(" are already part of the cluster; "
+                                           "ignoring them since “", "description"),
+                              ANSIThemeStr("--ignore-existing", "option"),
+                              ANSIThemeStr("“ was specified.", "default")])
+
+    if not non_existing:
+        ansithemeprint([ANSIThemeStr("Error", "error"),
+                        ANSIThemeStr(": No valid hosts specified; aborting.", "default")],
+                       stderr=True)
+        sys.exit(errno.ENOENT)
+
+    # Check if the hosts are part of the inventory
+    inventory = ansible_get_hosts_by_group(ANSIBLE_INVENTORY, "all")
+    not_in_inventory = []
+    for host in non_existing:
+        if host not in inventory:
+            not_in_inventory.append(host)
+
+    if not_in_inventory:
+        if confirm:
+            input_retval = \
+                ansithemeinput([ANSIThemeStr("\nWarning", "warning"),
+                               ANSIThemeStr(": ", "default")]
+                               + ansithemestr_join_list(not_in_inventory, formatting="hostname",
+                                                        separator=ANSIThemeStr(",", "separator"))
+                               + [ANSIThemeStr(" are not defined in the inventory; do you want to "
+                                               "add them now? (No will abort the installation) "
+                                               "[y/", "default"),
+                                  ANSIThemeStr("N", "emphasis"), ANSIThemeStr("]: ", "default")])
+            if input_retval.lower() not in ("y", "yes"):
+                ansithemeprint([ANSIThemeStr("\nAborting", "error"),
+                                ANSIThemeStr(": Nodes not added to the inventory.", "default")],
+                               stderr=True)
+                sys.exit(errno.EINTR)
+        else:
+            ansithemeprint([ANSIThemeStr("\nNote", "note"),
+                            ANSIThemeStr(": ", "default")]
+                           + ansithemestr_join_list(not_in_inventory, formatting="hostname",
+                                                    separator=ANSIThemeStr(",", "separator"))
+                           + [ANSIThemeStr(" are not defined in the inventory; adding them now.",
+                                           "default")])
+
+    show_configuration(non_existing)
+
+    prepare_playbooks = [
+        FilePath("prepare_passwordless_ansible.yaml"),
+        FilePath("prepare_node.yaml"),
+    ]
+    playbooks = populate_playbooks_from_filenames(prepare_playbooks)
+    ansible_print_action_summary(playbooks)
+
+    if not_in_inventory:
+        ansible_add_hosts(inventory=ANSIBLE_INVENTORY, hosts=not_in_inventory, skip_all=False)
+
+    if confirm:
+        input_retval = ansithemeinput([ANSIThemeStr("\nStart host preparation? [y/", "default"),
+                                       ANSIThemeStr("N", "emphasis"),
+                                       ANSIThemeStr("]: ", "default")])
+        if input_retval.lower() not in ("y", "yes"):
+            ansithemeprint([ANSIThemeStr("\nAborting", "error"),
+                            ANSIThemeStr(": User stopped host preparation.", "default")],
+                           stderr=True)
+            sys.exit(errno.EINTR)
+
+    ansithemeprint([ANSIThemeStr("\n[Preparing host(s)]", "phase")])
+
+    scan_and_add_ssh_keys(non_existing)
+
+    # We most likely will not be able to connect to the remote host without a password
+    if not no_password:
+        request_ansible_password()
+
+    extra_values = {
+        "ansible_become_pass": deep_get(ansible_configuration, DictPath("ansible_password")),
+        "ansible_ssh_pass": deep_get(ansible_configuration, DictPath("ansible_password")),
+    }
+
+    run_retval = run_playbooks(playbooks=playbooks, hosts=non_existing,
+                               extra_values=extra_values, verbose=verbose)
+    if run_retval:
+        ansithemeprint([ANSIThemeStr("OK", "ok")])
+    else:
+        ansithemeprint([ANSIThemeStr("NOT OK", "notok"),
+                        ANSIThemeStr("; aborting.", "default")], stderr=True)
+        sys.exit(errno.EINVAL)
+
+    ansithemeprint([ANSIThemeStr("\nHosts successfully prepared", "success")])
+    return 0
+
+
+cri_data: dict = {
+    "containerd": {
+        "socket": "unix:///run/containerd/containerd.sock",
+    },
+    "cri-o": {
+        "socket": "unix:///run/crio/crio.sock",
+    },
+}
+
+
+# pylint: disable-next=too-many-statements,too-many-branches,too-many-locals
+def add_nodes(options: list[tuple[str, str]], args: list[str]) -> int:
+    """
+    Add nodes to the cluster.
+
+        Parameters:
+            options ([(str, str)]): Options to use when executing this action
+            args ([str]): Arguments to use when executing this action
+        Returns:
+            (int): 0 on success, exits with errno on failure
+    """
+    global kh  # pylint: disable=global-statement
+
+    os_distro = identify_distro()
+    k8s_distro = "kubeadm"
+
+    ignore_existing = False
+    ignore_non_existing = False
+    from_file = False
+    ca_cert_path = ""
+    cri = None
+    confirm = True
+    verbose = False
+
+    for opt, optarg in options:
+        if opt == "--ignore-existing":
+            ignore_existing = True
+        elif opt == "--ignore-non-existing":
+            ignore_non_existing = True
+        elif opt == "--save-ansible-logs":
+            ansible_configuration["save_logs"] = True
+        elif opt == "--ca-cert-path":
+            ca_cert_path = optarg
+        elif opt == "--forks":
+            ansible_configuration["ansible_forks"] = optarg
+        elif opt == "--cri":
+            if optarg in ("containerd", "cri-o"):
+                cri = optarg
+            else:
+                ansithemeprint([ANSIThemeStr("Error", "error"),
+                                ANSIThemeStr(": Unknown CRI “", "default"),
+                                ANSIThemeStr(optarg, "argument"),
+                                ANSIThemeStr("“ specified; aborting.", "default")], stderr=True)
+                sys.exit(errno.EINVAL)
+        elif opt == "--from-file":
+            from_file = True
+        elif opt == "--verbose":
+            verbose = True
+        elif opt == "-Y":
+            confirm = False
+        elif opt == "--kubernetes-distro":
+            k8s_distro = optarg
+
+    if os_distro == "suse" and k8s_distro != "rke2":
+        ansithemeprint([ANSIThemeStr("Error", "error"),
+                        ANSIThemeStr(": Currently ", "default"),
+                        ANSIThemeStr("RKE2", "argument"),
+                        ANSIThemeStr(" is the only supported Kubernetes distro for SUSE; "
+                                     "aborting.", "default")], stderr=True)
+        sys.exit(errno.ENOTSUP)
+
+    selection = []
+
+    if from_file:
+        hostfile = args[0]
+        if not os.path.exists(hostfile):
+            ansithemeprint([ANSIThemeStr("Error", "error"),
+                            ANSIThemeStr(": ", "default"),
+                            ANSIThemeStr(f"{hostfile}", "path"),
+                            ANSIThemeStr(" does not exist; aborting.", "default")], stderr=True)
+            sys.exit(errno.ENOENT)
+        elif not os.path.isfile(hostfile):
+            ansithemeprint([ANSIThemeStr("Error", "error"),
+                            ANSIThemeStr(": ", "default"),
+                            ANSIThemeStr(f"{hostfile}", "path"),
+                            ANSIThemeStr(" is not a file; aborting.", "default")], stderr=True)
+            sys.exit(errno.ENOENT)
+        else:
+            hosts_raw = None
+            with open(hostfile, "r", encoding="utf-8", errors="replace") as f:
+                hosts_raw = f.readlines()
+
+            if hosts_raw is None:
+                ansithemeprint([ANSIThemeStr("Error", "error"),
+                                ANSIThemeStr(": Failed to read hostnames from ", "default"),
+                                ANSIThemeStr(f"{hostfile}", "path"),
+                                ANSIThemeStr("; aborting.", "default")], stderr=True)
+                sys.exit(errno.EINVAL)
+
+            # strip newlines
+            hosts_raw = [s.strip() for s in hosts_raw]
+
+            if len(hosts_raw) == 1 and "," in hosts_raw[0]:
+                selection = hosts_raw[0].split(",")
+            else:
+                selection = hosts_raw
+    else:
+        selection = args[0].split(",")
+
+    if "ALL" in selection:
+        ansithemeprint([ANSIThemeStr("Error", "error"),
+                        ANSIThemeStr(": ", "default"),
+                        ANSIThemeStr("ALL", "hostname"),
+                        ANSIThemeStr(" cannot be used with ", "default"),
+                        ANSIThemeStr("add-node", "command"),
+                        ANSIThemeStr("; aborting.", "default")], stderr=True)
+        sys.exit(errno.EINVAL)
+
+    # Correlate the list of hosts with the nodes in the cluster
+    nodes, non_existing, controlplanes = get_selection(selection, kind=("Node", ""))
+
+    if nodes or controlplanes:
+        if not ignore_existing:
+            ansithemeprint([ANSIThemeStr("Error", "error"),
+                            ANSIThemeStr(": ", "default")]
+                           + ansithemestr_join_list(nodes + controlplanes, formatting="hostname",
+                                                    separator=ANSIThemeStr(",", "separator"))
+                           + [ANSIThemeStr(" are already part of the cluster; aborting.",
+                                           "default")], stderr=True)
+            sys.exit(errno.EEXIST)
+        else:
+            ansithemeprint([ANSIThemeStr("Warning", "warning"),
+                            ANSIThemeStr(": ", "default")]
+                           + ansithemestr_join_list(nodes + controlplanes, formatting="hostname",
+                                                    separator=ANSIThemeStr(",", "separator"))
+                           + [ANSIThemeStr(" are already part of the cluster; ignoring them "
+                                           "since “", "description"),
+                              ANSIThemeStr("--ignore-existing", "option"),
+                              ANSIThemeStr("“ was specified.", "default")])
+
+    if not non_existing:
+        ansithemeprint([ANSIThemeStr("Error", "error"),
+                        ANSIThemeStr(": No valid hosts specified; aborting.", "default")],
+                       stderr=True)
+        sys.exit(errno.ENOENT)
+
+    # Check if the hosts are part of the inventory
+    inventory = ansible_get_hosts_by_group(ANSIBLE_INVENTORY, "all")
+    inventory_control_planes = ansible_get_hosts_by_group(ANSIBLE_INVENTORY, "controlplane")
+    inventory_nodes = ansible_get_hosts_by_group(ANSIBLE_INVENTORY, "nodes")
+    not_in_inventory = []
+    node_in_inventory = []
+    control_plane_in_inventory = []
+    for host in non_existing:
+        if host not in inventory:
+            not_in_inventory.append(host)
+        if host in inventory_control_planes:
+            control_plane_in_inventory.append(host)
+        if host in inventory_nodes:
+            node_in_inventory.append(host)
+
+    if not_in_inventory:
+        if not ignore_non_existing:
+            ansithemeprint([ANSIThemeStr("Error", "error"),
+                            ANSIThemeStr(": ", "default")]
+                           + ansithemestr_join_list(not_in_inventory, formatting="hostname",
+                                                    separator=ANSIThemeStr(",", "separator"))
+                           + [ANSIThemeStr(" are not defined in the inventory; aborting.",
+                                           "default")], stderr=True)
+            sys.exit(errno.ENOENT)
+        else:
+            ansithemeprint([ANSIThemeStr("Warning", "warning"),
+                            ANSIThemeStr(": ", "default")]
+                           + ansithemestr_join_list(not_in_inventory, formatting="hostname",
+                                                    separator=ANSIThemeStr(",", "separator"))
+                           + [ANSIThemeStr(" are not defined in the invetory; "
+                                           "ignoring them since “", "description"),
+                              ANSIThemeStr("--ignore-non-existing", "option"),
+                              ANSIThemeStr("“ was specified.", "default")])
+
+    if node_in_inventory:
+        if not ignore_existing:
+            ansithemeprint([ANSIThemeStr("Error", "error"),
+                            ANSIThemeStr(": ", "default")]
+                           + ansithemestr_join_list(node_in_inventory, formatting="hostname",
+                                                    separator=ANSIThemeStr(",", "separator"))
+                           + [ANSIThemeStr(" are already listed as nodes in the inventory; "
+                                           "aborting.", "default")], stderr=True)
+            sys.exit(errno.EEXIST)
+        else:
+            ansithemeprint([ANSIThemeStr("Warning", "warning"),
+                            ANSIThemeStr(": ", "default")]
+                           + ansithemestr_join_list(node_in_inventory, formatting="hostname",
+                                                    separator=ANSIThemeStr(",", "separator"))
+                           + [ANSIThemeStr(" are already listed as nodes in the inventory; "
+                                           "ignoring them since “", "description"),
+                              ANSIThemeStr("--ignore-existing", "option"),
+                              ANSIThemeStr("“ was specified.", "default")])
+
+    if control_plane_in_inventory:
+        if not ignore_existing:
+            ansithemeprint([ANSIThemeStr("Error", "error"),
+                            ANSIThemeStr(": ", "default")]
+                           + ansithemestr_join_list(control_plane_in_inventory,
+                                                    formatting="hostname",
+                                                    separator=ANSIThemeStr(",", "separator"))
+                           + [ANSIThemeStr(" are already listed as control planes in the "
+                                           "inventory; aborting.", "default")], stderr=True)
+            sys.exit(errno.EEXIST)
+        else:
+            ansithemeprint([ANSIThemeStr("Warning", "warning"),
+                            ANSIThemeStr(": ", "default")]
+                           + ansithemestr_join_list(control_plane_in_inventory,
+                                                    formatting="hostname",
+                                                    separator=ANSIThemeStr(",", "separator"))
+                           + [ANSIThemeStr(" are already listed as control planes in the "
+                                           "inventory; ignoring them since “", "description"),
+                              ANSIThemeStr("--ignore-existing", "option"),
+                              ANSIThemeStr("“ was specified.", "default")])
+
+    show_configuration(non_existing, cri=cri)
+
+    if confirm:
+        input_retval = ansithemeinput([ANSIThemeStr("\nStart node setup? [y/", "default"),
+                                       ANSIThemeStr("N", "emphasis"),
+                                       ANSIThemeStr("]: ", "default")])
+        if input_retval.lower() not in ("y", "yes"):
+            ansithemeprint([ANSIThemeStr("\nAborting", "error"),
+                            ANSIThemeStr(": User stopped node setup.", "default")], stderr=True)
+            sys.exit(errno.EINTR)
+
+    # Time to setup and add the hosts to the cluster
+    ansithemeprint([ANSIThemeStr("\n[Adding nodes]", "phase")])
+
+    # Get variables that need to be available when setting up nodes
+    if kh is None:
+        kh = kubernetes_helper.KubernetesHelper(about.PROGRAM_SUITE_NAME,
+                                                about.PROGRAM_SUITE_VERSION, None)
+
+    join_token = None
+    ca_cert_hash = None
+
+    if k8s_distro == "kubeadm":
+        join_token = kh.get_join_token()
+        if not join_token:
+            if confirm:
+                input_retval = \
+                    ansithemeinput([ANSIThemeStr("Warning", "warning"),
+                                    ANSIThemeStr(": No join token found; create one now?"
+                                                 " (No will abort the installation) "
+                                                 "[y/", "default"),
+                                    ANSIThemeStr("N", "emphasis"),
+                                    ANSIThemeStr("]: ", "default")])
+                if input_retval.lower() not in ("y", "yes"):
+                    ansithemeprint([ANSIThemeStr("\nAborting", "error"),
+                                    ANSIThemeStr(": No join token available.", "default")],
+                                   stderr=True)
+                    sys.exit(errno.ENOENT)
+            else:
+                ansithemeprint([ANSIThemeStr("Note", "note"),
+                                ANSIThemeStr(": No join token found; "
+                                             "creating one now.", "default")])
+
+            create_join_token_playbooks = [
+                FilePath("kubeadm_create_join_token.yaml"),
+            ]
+            playbooks = populate_playbooks_from_filenames(create_join_token_playbooks)
+            retval = run_playbooks(playbooks=playbooks, hosts=controlplanes, verbose=verbose)
+            join_token = kh.get_join_token()
+            if not join_token:
+                ansithemeprint([ANSIThemeStr("Critical", "critical"),
+                                ANSIThemeStr(": Failed to create join token; aborting", "default")],
+                               stderr=True)
+                sys.exit(errno.EINVAL)
+
+        ca_cert_hash = ""
+        if not ca_cert_path:
+            ca_cert_hash = kh.get_ca_cert_hash()
+        if not ca_cert_path:
+            ca_cert_path = "/etc/kubernetes/pki/ca.crt"
+
+        if not ca_cert_hash:
+            input_retval = ansithemeinput([ANSIThemeStr("Warning", "warning"),
+                                           ANSIThemeStr(": Could not find ", "default"),
+                                           ANSIThemeStr("ca.crt", "path"),
+                                           ANSIThemeStr(" or a certificate-controller-token "
+                                                        "secret; try to use ", "default"),
+                                           ANSIThemeStr(ca_cert_path, "path"),
+                                           ANSIThemeStr("? No will abort the installation) [y/",
+                                                        "default"),
+                                           ANSIThemeStr("N", "emphasis"),
+                                           ANSIThemeStr("]: ", "default")])
+            if input_retval.lower() not in ("y", "yes"):
+                ansithemeprint([ANSIThemeStr("\nAborting", "error"),
+                                ANSIThemeStr(": No CA certificate available.",
+                                             "default")], stderr=True)
+                sys.exit(errno.ENOENT)
+
+            ca_cert = ""
+
+            try:
+                if (ca_cert := secure_read_string(FilePath(ca_cert_path))):
+                    try:
+                        x509obj = x509.load_pem_x509_certificate(ca_cert.encode("utf-8"))
+                    except TypeError as e:
+                        if "load_pem_x509_certificate() missing 1 required positional argument: " \
+                                "'backend'" in str(e):
+                            # This is to handle systems that doesn't have the latest version
+                            # of cryptography
+                            # pylint: disable-next=import-outside-toplevel
+                            from cryptography.hazmat import primitives
+                            x509obj = \
+                                x509.load_pem_x509_certificate(ca_cert.encode("utf-8"), backend=primitives.default_backend)  # type: ignore # noqa: E501 pylint: disable=line-too-long
+                        else:
+                            raise
+                    pubkeybytes_fun = x509obj.public_key().public_bytes
+                    pubkeyder = \
+                        pubkeybytes_fun(encoding=serialization.Encoding.DER,
+                                        format=serialization.PublicFormat.SubjectPublicKeyInfo)
+                    ca_cert_hash = hashlib.sha256(pubkeyder).hexdigest()
+            except FileNotFoundError:
+                pass
+            except FilePathAuditError as e:
+                # This typically means that /etc/kubernetes or /etc/kubernetes/pki doesn't exist
+                if "SecurityStatus.PARENT_DOES_NOT_EXIST" in str(e):
+                    pass
+
+        if not ca_cert_hash:
+            ansithemeprint([ANSIThemeStr("\nAborting", "error"),
+                            ANSIThemeStr(": No CA certificate available.", "default")],
+                           stderr=True)
+            sys.exit(errno.EINTR)
+
+    control_plane_ip, control_plane_port, control_plane_path = kh.get_control_plane_address()
+    if control_plane_ip is None:
+        ansithemeprint([ANSIThemeStr("\nAborting", "error"),
+                        ANSIThemeStr(": Could not get the IP-address for the control plane.",
+                                     "default")], stderr=True)
+        sys.exit(errno.ENOENT)
+
+    # If this is a kubeadm cluster we need the package version for kubeadm;
+    # if it's an RKE2 cluster we try to deduce the channel from the control plane
+    # Kubernetes version
+    if k8s_distro == "kubeadm":
+        get_version_playbook_path = get_playbook_path(FilePath("get_versions.yaml"))
+        _retval, ansible_results = \
+            ansible_run_playbook_on_selection(get_version_playbook_path,
+                                              selection=[control_plane_ip], quiet=False)
+        if not ansible_results:
+            ansithemeprint([ANSIThemeStr("Error", "error"),
+                            ANSIThemeStr(": Failed to get package versions from control plane "
+                                         f"at {control_plane_ip} (retval: {retval}); aborting.",
+                                         "default")], stderr=True)
+            sys.exit(errno.ENOENT)
+
+        tmp = []
+
+        for result in deep_get(ansible_results, DictPath(control_plane_ip), []):
+            if deep_get(result, DictPath("task"), "") == "Package versions":
+                tmp = deep_get(result, DictPath("msg_lines"), [])
+                break
+
+        if not tmp:
+            ansithemeprint([ANSIThemeStr("Error", "error"),
+                            ANSIThemeStr(": Failed to get package versions from control plane "
+                                         f"at {control_plane_ip} (playbook returned no valid "
+                                         "data); aborting.", "default")], stderr=True)
+            sys.exit(errno.EBADMSG)
+
+        kubeadm_version = ""
+        kubeadm_version_regex: re.Pattern[str] = re.compile(r"^(.*?): (.*)")
+
+        for line in tmp:
+            if (re_tmp := kubeadm_version_regex.match(line)) is None:
+                continue
+            if re_tmp[1] == "kubeadm":
+                kubeadm_version = re_tmp[2]
+                break
+
+        if not kubeadm_version:
+            ansithemeprint([ANSIThemeStr("Error", "error"),
+                            ANSIThemeStr(": Failed to get ", "default"),
+                            ANSIThemeStr("kubeadm", "programname"),
+                            ANSIThemeStr(" package version from control plane at "
+                                         f"{control_plane_ip}; aborting.", "default")], stderr=True)
+            sys.exit(errno.ENOENT)
+
+        # First remove the distro revision
+        major_minor_patchrev, _pkgrev = kubeadm_version.split("-")
+        # Now split the version tuple
+        version_major, version_minor, _rest = major_minor_patchrev.split(".")
+    elif k8s_distro == "rke2":
+        vlist = get_control_planes()
+        first_control_plane = vlist[0][0]
+        node_data = kh.get_ref_by_kind_name_namespace(("Node", ""), first_control_plane, "")
+        kubelet_version = deep_get(node_data, DictPath("status#nodeInfo#kubeletVersion"), "")
+        if (re_tmp := re.match(r"^(v\d+)\.(\d+).*", kubelet_version)) is None:
+            ansithemeprint([ANSIThemeStr("Error", "error"),
+                            ANSIThemeStr(": Failed to get kubelet version from control plane; "
+                                         "aborting.", "default")], stderr=True)
+            sys.exit(errno.EBADMSG)
+        rke2_version = f"{re_tmp[1]}.{re_tmp[2]}"
+        version_major = re_tmp[1][1:]
+        version_minor = re_tmp[2]
+
+    if cri is None:
+        cri = "containerd"
+
+    add_playbooks = []
+
+    # Add the CRI to the setup playbooks for the control plane;
+    # the list is short enough that doing prepend isn't a performance issue.
+    if cri == "containerd":
+        add_playbooks += [FilePath("setup_containerd.yaml")]
+    elif cri == "cri-o":
+        add_playbooks += [FilePath("setup_cri-o.yaml")]
+    cri_socket = deep_get(cri_data[cri], DictPath("socket"))
+
+    cluster_name = get_cluster_name()
+    if cluster_name is None:
+        ansithemeprint([ANSIThemeStr("Error", "error"),
+                        ANSIThemeStr(": Could not get the cluster name", "default"),
+                        ANSIThemeStr("; aborting.", "default")], stderr=True)
+        sys.exit(errno.ENOENT)
+
+    extra_values = {}
+
+    if k8s_distro == "kubeadm":
+        add_playbooks += [
+            # cmt does not use run_before/run_after/add_to_groups/remove_from_groups,
+            # so we have to do all of that explicitly.
+            FilePath("add_kubernetes_repo.yaml"),
+            FilePath("kubeadm_setup_node.yaml"),
+            FilePath("kubeadm_join_node.yaml"),
+        ]
+
+        if int(version_minor) < 31:
+            join_configuration_api_version = "kubeadm.k8s.io/v1beta3"
+        else:
+            join_configuration_api_version = "kubeadm.k8s.io/v1beta4"
+
+        tmp_crio_version = get_crio_version((int(version_major), int(version_minor)))
+        if tmp_crio_version is None:
+            ansithemeprint([ANSIThemeStr("Error", "error"),
+                            ANSIThemeStr(": Could not get the cri-o version", "default"),
+                            ANSIThemeStr("; aborting.", "default")], stderr=True)
+            sys.exit(errno.ENOENT)
+        crio_major_version, crio_minor_version = tmp_crio_version
+
+        extra_values = {
+            "control_plane_ip": control_plane_ip,
+            "control_plane_port": control_plane_port,
+            "control_plane_path": control_plane_path,
+            "join_token": join_token,
+            "ca_cert_hash": ca_cert_hash,
+            "configuration_path": FilePath("templates").joinpath("config", "nodeconfig.yaml.j2"),
+            "control_plane_k8s_version": kubeadm_version,
+            "crio_major_version": crio_major_version,
+            "crio_minor_version": crio_minor_version,
+            "cri_socket": cri_socket,
+            "kubernetes_major_minor_version": f"{version_major}.{version_minor}",
+            "join_configuration_api_version": join_configuration_api_version,
+        }
+    elif k8s_distro == "rke2":
+        add_playbooks += [
+            # cmt does not use run_before/run_after/add_to_groups/remove_from_groups,
+            # so we have to do all of that explicitly
+            FilePath("rke2_setup_node.yaml"),
+        ]
+        extra_values = {
+            "control_plane_ip": control_plane_ip,
+            "control_plane_port": control_plane_port,
+            "requested_version": rke2_version,
+            "cri_socket": cri_socket,
+            "cluster_name": cluster_name,
+            "kubernetes_major_minor_version": f"{version_major}.{version_minor}",
+        }
+    playbooks = populate_playbooks_from_filenames(add_playbooks)
+
+    retval = run_playbooks(playbooks=playbooks, hosts=non_existing,
+                           extra_values=extra_values, verbose=verbose)
+    if retval:
+        ansithemeprint([ANSIThemeStr("OK", "ok")])
+    else:
+        ansithemeprint([ANSIThemeStr("NOT OK", "notok"),
+                        ANSIThemeStr("; aborting.", "default")], stderr=True)
+        sys.exit(errno.EINVAL)
+
+    ansible_add_hosts(inventory=ANSIBLE_INVENTORY, hosts=non_existing,
+                      group="nodes", skip_all=True)
+    ansible_add_hosts(inventory=ANSIBLE_INVENTORY, hosts=non_existing,
+                      group=cluster_name, skip_all=True)
+    ansithemeprint([ANSIThemeStr("\nNodes successfully added", "success")])
+    return 0
+
+
+# pylint: disable-next=too-many-statements,too-many-branches,too-many-locals
+def remove_nodes(options: list[tuple[str, str]], args: list[str]) -> int:
+    """
+    Remove nodes from the cluster.
+
+        Parameters:
+            options ([(str, str)]): Options to use when executing this action
+            args ([str]): Arguments to use when executing this action
+        Returns:
+            (int): 0 on success, exits with errno on failure
+    """
+    os_distro = identify_distro()
+    k8s_distro = "kubeadm"
+
+    force = False
+    purge = False
+    confirm = True
+    verbose = False
+
+    for opt, optarg in options:
+        if opt == "--force":
+            force = True
+        elif opt == "--purge":
+            purge = True
+        elif opt == "--save-ansible-logs":
+            ansible_configuration["save_logs"] = True
+        elif opt == "--forks":
+            ansible_configuration["ansible_forks"] = optarg
+        elif opt == "--kubernetes-distro":
+            k8s_distro = optarg
+        elif opt == "--verbose":
+            verbose = True
+        elif opt == "-Y":
+            confirm = False
+
+    if os_distro == "suse" and k8s_distro != "rke2":
+        ansithemeprint([ANSIThemeStr("Error", "error"),
+                        ANSIThemeStr(": Currently ", "default"),
+                        ANSIThemeStr("RKE2", "argument"),
+                        ANSIThemeStr(" is the only supported Kubernetes distro for SUSE; aborting.",
+                                     "default")], stderr=True)
+        sys.exit(errno.ENOTSUP)
+
+    nodes, non_existing, controlplanes = get_selection(args[0].split(","), kind=("Node", ""))
+
+    if controlplanes and args[0] != "ALL":
+        ansithemeprint([ANSIThemeStr("Error", "error"),
+                        ANSIThemeStr(": ", "default")]
+                       + ansithemestr_join_list(controlplanes, formatting="hostname",
+                                                separator=ANSIThemeStr(",", "separator"))
+                       + [ANSIThemeStr(" are control plane(s) and should be removed using ",
+                                       "default"),
+                          ANSIThemeStr(f"{about.ADMIN_PROGRAM_NAME}", "programname"),
+                          ANSIThemeStr("; aborting.", "default")], stderr=True)
+        sys.exit(errno.EINVAL)
+
+    if non_existing:
+        if not force:
+            ansithemeprint([ANSIThemeStr("Error", "error"),
+                            ANSIThemeStr(": ", "default")]
+                           + ansithemestr_join_list(non_existing, formatting="hostname",
+                                                    separator=ANSIThemeStr(",", "separator"))
+                           + [ANSIThemeStr(" are not part of the cluster; aborting.", "default")],
+                           stderr=True)
+            sys.exit(errno.ENOENT)
+        else:
+            ansithemeprint([ANSIThemeStr("Warning", "warning"),
+                            ANSIThemeStr(": ", "default")]
+                           + ansithemestr_join_list(non_existing, formatting="hostname",
+                                                    separator=ANSIThemeStr(",", "separator"))
+                           + [ANSIThemeStr(" are not part of the cluster; attempting to purge "
+                                           "them anyway since “", "description"),
+                              ANSIThemeStr("--force", "option"),
+                              ANSIThemeStr("“ was specified.", "default")])
+            nodes += non_existing
+
+    if not nodes:
+        ansithemeprint([ANSIThemeStr("Error", "error"),
+                        ANSIThemeStr(": No nodes available; aborting.", "default")], stderr=True)
+        sys.exit(errno.ENOENT)
+
+    if verbose:
+        ansithemeprint([ANSIThemeStr("\n[Summary]", "phase")])
+        ansithemeprint([ANSIThemeStr("\n• ", "separator"),
+                        ANSIThemeStr("Target Nodes:", "action")])
+
+        if len(nodes) < 20:
+            chunksize = 1
+        else:
+            chunksize = 8
+
+        # This might potentially be a list of hundreds of nodes; we don't want the list to
+        # scroll off-screen, but we also don't want to join them all to one line unless we have to
+        for node_chunk in chunk_list(nodes, chunksize):
+            ansithemeprint([ANSIThemeStr("  • ", "separator")]
+                           + ansithemestr_join_list(node_chunk, formatting="hostname",
+                                                    separator=ANSIThemeStr(", ", "separator")))
+
+    if confirm:
+        input_retval = ansithemeinput([ANSIThemeStr("\nStart node removal? [y/", "default"),
+                                       ANSIThemeStr("N", "emphasis"),
+                                       ANSIThemeStr("]: ", "default")])
+        if input_retval.lower() not in ("y", "yes"):
+            ansithemeprint([ANSIThemeStr("\nAborting", "error"),
+                            ANSIThemeStr(": User stopped host preparation.", "default")],
+                           stderr=True)
+            sys.exit(errno.EINTR)
+
+    ansithemeprint([ANSIThemeStr("\n[Removing nodes]", "phase")])
+    ansithemeprint([ANSIThemeStr("\n• ", "separator"),
+                    ANSIThemeStr("Deleting nodes from the cluster", "action")])
+    delete_playbooks = [
+        FilePath("delete_node.yaml"),
+    ]
+    playbooks = populate_playbooks_from_filenames(delete_playbooks)
+
+    extra_values: dict = {}
+    retval = run_playbooks(playbooks=playbooks, hosts=nodes,
+                           extra_values=extra_values, verbose=verbose)
+    if retval:
+        ansithemeprint([ANSIThemeStr("OK", "ok")])
+    elif force:
+        ansithemeprint([ANSIThemeStr("NOT OK", "warning"),
+                        ANSIThemeStr("; ignoring since “", "description"),
+                        ANSIThemeStr("--force", "option"),
+                        ANSIThemeStr("“ was specified.", "default")], stderr=True)
+    else:
+        ansithemeprint([ANSIThemeStr("NOT OK", "notok"),
+                        ANSIThemeStr("; aborting.", "default")], stderr=True)
+        sys.exit(errno.EINVAL)
+
+    ansithemeprint([ANSIThemeStr("\n• ", "separator"),
+                    ANSIThemeStr("Tearing down Kubernetes on the nodes", "action")])
+
+    teardown_playbooks = []
+
+    if k8s_distro == "kubeadm":
+        teardown_playbooks += [
+            FilePath("kubeadm_teardown_node.yaml"),
+            FilePath("teardown_cni.yaml"),
+        ]
+    elif k8s_distro == "rke2":
+        teardown_playbooks += [
+            FilePath("rke2_teardown_node.yaml"),
+            FilePath("teardown_cni.yaml"),
+        ]
+
+    playbooks = populate_playbooks_from_filenames(teardown_playbooks)
+
+    extra_values = {}
+    retval = run_playbooks(playbooks=playbooks, hosts=nodes,
+                           extra_values=extra_values, verbose=verbose)
+    if retval:
+        ansithemeprint([ANSIThemeStr("OK", "ok")])
+    else:
+        ansithemeprint([ANSIThemeStr("NOT OK", "notok"),
+                        ANSIThemeStr("; aborting.", "default")], stderr=True)
+        sys.exit(errno.EINVAL)
+
+    ansithemeprint([ANSIThemeStr("\nNodes successfully removed from cluster", "success")])
+
+    if purge:
+        purge_hosts(options=[("--ignore-non-existing", None)], args=[",".join(nodes)])
+
+    cluster_name = get_cluster_name()
+
+    ansithemeprint([ANSIThemeStr("\n• ", "separator"),
+                    ANSIThemeStr("Removing nodes from the inventory", "action")])
+    ansible_remove_hosts(inventory=ANSIBLE_INVENTORY, hosts=nodes, group="nodes")
+    ansible_remove_hosts(inventory=ANSIBLE_INVENTORY, hosts=nodes, group=cluster_name)
+    ansithemeprint([ANSIThemeStr("\nNodes successfully removed", "success")])
+    return 0
+
+
+# pylint: disable-next=too-many-statements,too-many-branches,too-many-locals
+def purge_hosts(options: Sequence[tuple[str, str | None]], args: list[str]) -> int:
+    """
+    Purge nodes from the cluster.
+
+        Parameters:
+            options ([(str, str)]): Options to use when executing this action
+            args ([str]): Arguments to use when executing this action
+        Returns:
+            (int): 0 on success, exits with errno on failure
+    """
+    os_distro = identify_distro()
+    k8s_distro = "kubeadm"
+
+    ignore_non_existing = False
+    verbose = False
+
+    selection = args[0].split(",")
+
+    if "ALL" in selection:
+        ansithemeprint([ANSIThemeStr("Error", "error"),
+                        ANSIThemeStr(": ", "default"),
+                        ANSIThemeStr("ALL", "hostname"),
+                        ANSIThemeStr(" cannot be used with ", "default"),
+                        ANSIThemeStr("purge", "command"),
+                        ANSIThemeStr("; aborting.", "default")], stderr=True)
+        sys.exit(errno.EINVAL)
+
+    for opt, optarg in options:
+        if opt == "--ignore-non-existing":
+            ignore_non_existing = True
+        elif opt == "--save-ansible-logs":
+            ansible_configuration["save_logs"] = True
+        elif opt == "--forks":
+            ansible_configuration["ansible_forks"] = optarg
+        elif opt == "--verbose":
+            verbose = True
+        elif opt == "--kubernetes-distro":
+            k8s_distro = cast(str, optarg)
+
+    if os_distro == "suse" and k8s_distro != "rke2":
+        ansithemeprint([ANSIThemeStr("Error", "error"),
+                        ANSIThemeStr(": Currently ", "default"),
+                        ANSIThemeStr("RKE2", "argument"),
+                        ANSIThemeStr(" is the only supported Kubernetes distro for SUSE; "
+                                     "aborting.", "default")], stderr=True)
+        sys.exit(errno.ENOTSUP)
+
+    nodes, _non_existing, controlplanes = get_selection(args[0].split(","), kind=("Node", ""))
+
+    if controlplanes:
+        ansithemeprint([ANSIThemeStr("Error", "error"),
+                        ANSIThemeStr(": ", "default")]
+                       + ansithemestr_join_list(controlplanes, formatting="hostname",
+                                                separator=ANSIThemeStr(",", "separator"))
+                       + [ANSIThemeStr(" are control plane(s) and should be removed using ",
+                                       "default"),
+                          ANSIThemeStr(f"{about.ADMIN_PROGRAM_NAME}", "programname"),
+                          ANSIThemeStr("; aborting.", "default")], stderr=True)
+        sys.exit(errno.EINVAL)
+
+    if nodes:
+        ansithemeprint([ANSIThemeStr("Error", "error"),
+                        ANSIThemeStr(": ", "default")]
+                       + ansithemestr_join_list(nodes, formatting="hostname",
+                                                separator=ANSIThemeStr(",", "separator"))
+                       + [ANSIThemeStr(" are still node(s) in the cluster; please run ",
+                                       "default"),
+                          ANSIThemeStr(f"{about.TOOL_PROGRAM_NAME}", "programname"),
+                          ANSIThemeStr(" remove-node", "command"),
+                          ANSIThemeStr(" first to remove them from the cluster; aborting.",
+                                       "default")], stderr=True)
+        sys.exit(errno.EBUSY)
+
+    hosts = ansible_get_hosts_by_group(ANSIBLE_INVENTORY, "all")
+
+    not_in_inventory = []
+    for host in selection:
+        if host not in hosts:
+            not_in_inventory.append(host)
+            selection.remove(host)
+
+    if not_in_inventory:
+        if not ignore_non_existing:
+            ansithemeprint([ANSIThemeStr("Error", "error"),
+                            ANSIThemeStr(": ", "default")]
+                           + ansithemestr_join_list(not_in_inventory, formatting="hostname",
+                                                    separator=ANSIThemeStr(",", "separator"))
+                           + [ANSIThemeStr(" are not in the inventory; aborting.", "default")],
+                           stderr=True)
+            sys.exit(errno.ENOENT)
+        else:
+            ansithemeprint([ANSIThemeStr("Warning", "warning"),
+                            ANSIThemeStr(": ", "default")]
+                           + ansithemestr_join_list(not_in_inventory, formatting="hostname",
+                                                    separator=ANSIThemeStr(",", "separator"))
+                           + [ANSIThemeStr(" are not in the inventory; ignoring them since “",
+                                           "description"),
+                              ANSIThemeStr("--ignore-non-existing", "option"),
+                              ANSIThemeStr("“ was specified.", "default")])
+
+    if not selection:
+        ansithemeprint([ANSIThemeStr("Error", "error"),
+                        ANSIThemeStr(": None of the specified hosts are part of the inventory; "
+                                     "aborting.", "default")], stderr=True)
+        sys.exit(errno.ENOENT)
+
+    ansithemeprint([ANSIThemeStr("\n• ", "separator"),
+                    ANSIThemeStr("Purging Kubernetes from the hosts", "action")])
+
+    purge_playbooks = []
+
+    if k8s_distro == "kubeadm":
+        purge_playbooks += [
+            FilePath("kubeadm_purge.yaml"),
+        ]
+    elif k8s_distro == "rke2":
+        purge_playbooks += [
+            FilePath("rke2_purge.yaml"),
+        ]
+    playbooks = populate_playbooks_from_filenames(purge_playbooks)
+
+    hosts = selection
+
+    extra_values = {
+        "packages": [
+            "kubeadm",
+            "kubectl",
+            "kubelet",
+            "kubernetes-cni",
+        ],
+        "held_packages": [
+            "kubeadm",
+            "kubectl",
+            "kubelet",
+        ]
+    }
+    retval = run_playbooks(playbooks=playbooks, hosts=hosts,
+                           extra_values=extra_values, verbose=verbose)
+    if retval:
+        ansithemeprint([ANSIThemeStr("OK", "ok")])
+    else:
+        ansithemeprint([ANSIThemeStr("NOT OK", "notok"),
+                        ANSIThemeStr("; aborting.", "default")], stderr=True)
+        sys.exit(errno.EINVAL)
+
+    ansithemeprint([ANSIThemeStr("\nHosts successfully purged", "success")])
+    return 0
+
+
+def upgrade_nodes(options: list[tuple[str, str]], args: list[str]) -> int:
+    """
+    Upgrade nodes in the cluster.
+
+        Parameters:
+            options ([(str, str)]): Options to use when executing this action
+            args ([str]): Arguments to use when executing this action
+        Returns:
+            (int): 0 on success, exits with errno on failure
+    """
+    verbose = False
+
+    for opt, optarg in options:
+        if opt == "--save-ansible-logs":
+            ansible_configuration["save_logs"] = True
+        elif opt == "--forks":
+            ansible_configuration["ansible_forks"] = optarg
+        elif opt == "--verbose":
+            verbose = True
+
+    nodes, non_existing, controlplanes = get_selection(args[0].split(","), kind=("Node", ""))
+
+    if controlplanes and args[0] != "ALL":
+        ansithemeprint([ANSIThemeStr("Error", "error"),
+                        ANSIThemeStr(": ", "default")]
+                       + ansithemestr_join_list(controlplanes, formatting="hostname",
+                                                separator=ANSIThemeStr(",", "separator"))
+                       + [ANSIThemeStr(" are control plane(s) and should be upgraded using ",
+                                       "default"),
+                          ANSIThemeStr(f"{about.ADMIN_PROGRAM_NAME}", "programname"),
+                          ANSIThemeStr("; aborting.", "default")], stderr=True)
+        sys.exit(errno.EINVAL)
+
+    if non_existing:
+        ansithemeprint([ANSIThemeStr("Error", "error"),
+                        ANSIThemeStr(": ", "default")]
+                       + ansithemestr_join_list(non_existing, formatting="hostname",
+                                                separator=ANSIThemeStr(",", "separator"))
+                       + [ANSIThemeStr(" are not part of the cluster; aborting.", "default")],
+                       stderr=True)
+        sys.exit(errno.ENOENT)
+
+    if not nodes:
+        ansithemeprint([ANSIThemeStr("Error", "error"),
+                        ANSIThemeStr(": No nodes available; aborting.", "default")], stderr=True)
+        sys.exit(errno.ENOENT)
+
+    ansithemeprint([ANSIThemeStr("\n[Upgrading nodes]", "phase")])
+    ansithemeprint([ANSIThemeStr("\n• ", "separator"),
+                    ANSIThemeStr("Drain nodes", "action")])
+    drain_options = [
+        ("--delete-emptydir-data", None),
+        ("--disable-eviction", None),
+        ("--ignore-daemonsets", None),
+        ("--no-header", None),
+    ]
+    drain_nodes(options=drain_options, args=[",".join(nodes)])
+
+    ansithemeprint([ANSIThemeStr("\n• ", "separator"),
+                    ANSIThemeStr("Run upgrade playbooks on nodes", "action")])
+    upgrade_playbooks = [
+        FilePath("add_kubernetes_repo.yaml"),
+        FilePath("kubeadm_upgrade_node.yaml"),
+    ]
+    playbooks = populate_playbooks_from_filenames(upgrade_playbooks)
+
+    extra_values: dict = {}
+    retval = run_playbooks(playbooks=playbooks, hosts=nodes,
+                           extra_values=extra_values, verbose=verbose)
+    if retval:
+        ansithemeprint([ANSIThemeStr("OK", "ok")])
+    else:
+        ansithemeprint([ANSIThemeStr("NOT OK", "notok"),
+                        ANSIThemeStr("; aborting.", "default")], stderr=True)
+        sys.exit(errno.EINVAL)
+
+    ansithemeprint([ANSIThemeStr("\n• ", "separator"),
+                    ANSIThemeStr("Uncordon nodes", "action")])
+    uncordon_nodes(options=[], args=[",".join(nodes)])
+
+    ansithemeprint([ANSIThemeStr("\nNode upgrade successful", "success")])
+    return 0
+
+
+# pylint: disable-next=unused-argument,too-many-locals
+def get_contexts(options: list[tuple[str, str]], args: list[str]) -> int:
+    """
+    Get the list of available contexts.
+
+        Parameters:
+            options ([(str, str)]): Options to use when executing this action
+            args ([str]): Arguments to use when executing this action
+        Returns:
+            (int): 0 on success, exits with errno on failure
+    """
+    contexts = list_contexts()
+
+    if contexts is None:
+        ansithemeprint([ANSIThemeStr("Critical", "critical"),
+                        ANSIThemeStr(": Could not find any contexts", "default")], stderr=True)
+        sys.exit(errno.ENOENT)
+
+    contexts = natsorted(contexts, key=itemgetter(3))
+
+    index_header = "Index:"
+    current_header = "Current:"
+    name_header = "Name:"
+    cluster_header = "Cluster:"
+    authinfo_header = "Authinfo:"
+    namespace_header = "Namespace:"
+    server_header = "Server:"
+
+    index_len = len(index_header)
+    current_len = len(current_header)
+    name_len = len(name_header)
+    cluster_len = len(cluster_header)
+    authinfo_len = len(authinfo_header)
+    namespace_len = len(namespace_header)
+    server_len = len(server_header)
+
+    for _current, name, cluster, authinfo, namespace, server in contexts:
+        name_len = max(name_len, len(name))
+        cluster_len = max(cluster_len, len(cluster))
+        authinfo_len = max(authinfo_len, len(authinfo))
+        namespace_len = max(namespace_len, len(namespace))
+        server_len = max(server_len, len(server))
+
+    ansithemeprint([ANSIThemeStr(index_header, "header"),
+                    ANSIThemeStr("".ljust(2), "default"),
+                    ANSIThemeStr(current_header, "header"),
+                    ANSIThemeStr("".ljust(2), "default"),
+                    ANSIThemeStr(name_header, "header"),
+                    ANSIThemeStr("".ljust(name_len - len(name_header) + 2), "default"),
+                    ANSIThemeStr(cluster_header, "header"),
+                    ANSIThemeStr("".ljust(cluster_len - len(cluster_header) + 2), "default"),
+                    ANSIThemeStr(authinfo_header, "header"),
+                    ANSIThemeStr("".ljust(authinfo_len - len(authinfo_header) + 2), "default"),
+                    ANSIThemeStr(namespace_header, "header"),
+                    ANSIThemeStr("".ljust(namespace_len - len(namespace_header) + 2), "default"),
+                    ANSIThemeStr(server_header, "header")])
+
+    i = 0
+
+    for current, name, cluster, authinfo, namespace, server in contexts:
+        if current:
+            current_str = "✓"
+        else:
+            current_str = " "
+
+        ansithemeprint([ANSIThemeStr(f"{i}".rjust(index_len), "numerical"),
+                        ANSIThemeStr("".ljust(2), "default"),
+                        ANSIThemeStr(current_str.ljust(current_len + 2), "tag"),
+                        ANSIThemeStr(name.ljust(name_len + 2), "default"),
+                        ANSIThemeStr(cluster.ljust(cluster_len + 2), "default"),
+                        ANSIThemeStr(authinfo.ljust(authinfo_len + 2), "default"),
+                        ANSIThemeStr(namespace.ljust(namespace_len + 2), "namespace"),
+                        ANSIThemeStr(server, "default")])
+
+        i += 1
+
+    return 0
+
+
+# pylint: disable-next=unused-argument
+def use_context(options: list[tuple[str, str]], args: list[str]) -> int:
+    """
+    Get the list of available contexts.
+
+        Parameters:
+            options ([(str, str)]): Options to use when executing this action
+            args ([str]): Arguments to use when executing this action
+        Returns:
+            (int): 0 on success, exits with errno on failure
+    """
+    contexts = list_contexts()
+
+    if contexts is None:
+        ansithemeprint([ANSIThemeStr("Critical", "critical"),
+                        ANSIThemeStr(": Could not find any contexts", "default")], stderr=True)
+        sys.exit(errno.ENOENT)
+
+    contexts = natsorted(contexts, key=itemgetter(3))
+
+    context_index = None
+    context_name = ""
+
+    try:
+        context_index = int(args[0])
+    except ValueError:
+        context_name = args[0]
+
+    i = 0
+
+    current_context = None
+
+    for current, name, _cluster, _authinfo, _namespace, _server in contexts:
+        if context_index is not None and context_index == i:
+            context_name = name
+        i += 1
+        if current is True:
+            current_context = name
+
+    if current_context is not None and current_context == context_name:
+        ansithemeprint([ANSIThemeStr("Context not modified", "default")])
+        return 0
+
+    result = set_context(name=context_name)
+
+    if not result:
+        ansithemeprint([ANSIThemeStr("Error", "error"),
+                        ANSIThemeStr(": Could not find a matching context", "default")],
+                       stderr=True)
+        sys.exit(errno.ENOENT)
+    else:
+        ansithemeprint([ANSIThemeStr("Context successfully changed to ", "default"),
+                        ANSIThemeStr(f"{context_name}", "argument")])
+
+    return 0
+
+
+# pylint: disable-next=unused-argument,too-many-branches,too-many-statements,too-many-locals
+def list_api_resources(options: list[tuple[str, str]], args: list[str]) -> int:
+    """
+    List available API-resources.
+
+        Parameters:
+            options ([(str, str)]): Options to use when executing this action
+            args ([str]): Arguments to use when executing this action
+        Returns:
+            (int): 0 on success, exits with errno on failure
+    """
+    global kh  # pylint: disable=global-statement
+
+    namespaced_only = None
+    local_only = None
+    verb_selector = []
+    wide = False
+    sortkey1 = 0
+    sortkey2 = 2
+    header = True
+    api_version_selector = None
+    has_data = False
+    known_filter: dict[str, Any] = {
+        "known": None,
+        "updated": None,
+        "list": None,
+        "info": None,
+    }
+
+    color = "auto"
+
+    # Valid formats:
+    # table = Normal output format (default)
+    # csv = Comma-separated values
+    # ssv = Space-separated values
+    # tsv = Tab-separated values
+    # entry = Used when adding API support to CMT
+    output_format = "table"
+
+    for opt, optarg in options:
+        if opt == "--api-group":
+            api_version_selector = optarg
+        elif opt == "--color":
+            color = optarg
+        elif opt == "--format":
+            output_format = optarg
+        elif opt == "--known":
+            optarg_list = optarg.split(",")
+            for optarg in optarg_list:
+                if optarg == "known":
+                    known_filter["known"] = True
+                elif optarg in ("!known", "not-known", "unknown"):
+                    known_filter["known"] = False
+                elif optarg == "updated":
+                    known_filter["updated"] = True
+                elif optarg == "list":
+                    known_filter["list"] = True
+                elif optarg in ("!list", "not-list"):
+                    known_filter["list"] = False
+                elif optarg == "info":
+                    known_filter["info"] = True
+                elif optarg in ("!info", "not-info"):
+                    known_filter["info"] = False
+        elif opt == "--has-data":
+            has_data = True
+        elif opt == "--local":
+            _result, local_only = validator_bool(optarg)
+        elif opt == "--namespaced":
+            _isbool, namespaced_only = validator_bool(optarg)
+        elif opt == "--no-header":
+            header = False
+        elif opt == "--sort-by":
+            if optarg == "name":
+                sortkey1 = 2
+                sortkey2 = 0
+            elif optarg in ("apiversion", "api_version"):
+                sortkey1 = 4
+                sortkey2 = 2
+            elif optarg == "namespaced":
+                sortkey1 = 3
+                sortkey2 = 3
+            elif optarg == "kind":
+                sortkey1 = 2
+                sortkey2 = 4
+        elif opt == "--verbs":
+            verb_selector = optarg.split(",")
+        elif opt == "--wide":
+            wide = True
+
+    if kh is None:
+        kh = kubernetes_helper.KubernetesHelper(about.PROGRAM_SUITE_NAME,
+                                                about.PROGRAM_SUITE_VERSION, None)
+
+    result, api_resources = kh.get_api_resources()
+    kubernetes_resources = None
+    # Treat unknown,updated == updated
+    if known_filter["updated"] and known_filter["known"] is not None and not known_filter["known"]:
+        known_filter["known"] = None
+    if wide or \
+       known_filter["known"] is not None or \
+       known_filter["updated"] is not None or \
+       known_filter["list"] is not None or \
+       known_filter["info"] is not None:
+        kubernetes_resources, _result2, _modified = kh.get_available_kinds()
+
+    name_header = ""
+    shortnames_header = ""
+    api_version_header = ""
+    namespaced_header = ""
+    kind_header = ""
+    verbs_header = ""
+    cmt_support_header = ""
+    local_view_header = ""
+
+    if header:
+        name_header = "Name:"
+        shortnames_header = "Shortnames:"
+        api_version_header = "API-Version:"
+        namespaced_header = "Namespaced:"
+        kind_header = "Kind:"
+        verbs_header = "Verbs:"
+        cmt_support_header = "CMT-support:"
+        local_view_header = "Local view:"
+
+    name_len = len(name_header)
+    shortnames_len = len(shortnames_header)
+    api_version_len = len(api_version_header)
+    namespaced_len = len(namespaced_header)
+    kind_len = len(kind_header)
+    verbs_len = len(verbs_header)
+    cmt_support_len = len(cmt_support_header)
+    local_view_len = len(local_view_header)
+
+    # Get a full list of views from all view directories
+    # Start by adding files from the views directory
+    view_dirs = []
+    if local_only is None or local_only is not None and local_only:
+        view_dirs += deep_get(cmtlib.cmtconfig, DictPath("General#local_views"), [])
+    if local_only is None or local_only is not None and not local_only:
+        view_dirs.append(VIEW_DIR)
+        view_dirs.append(SYSTEM_VIEWS_DIR)
+
+    filtered_api_resources = []
+
+    sorted_list = sorted(api_resources, key=itemgetter(sortkey1))
+    sorted_list = sorted(sorted_list, key=itemgetter(sortkey2))
+
+    for name, shortnames, api_version, namespaced, kind, verbs in sorted_list:
+        kind_tuple = None
+        updated = False
+        if kubernetes_resources is not None:
+            try:
+                api_group = ""
+                if "/" in api_version:
+                    api_group = api_version.split("/")[0]
+                    api_group_version = f"apis/{api_version}/"
+                else:
+                    api_group_version = f"api/{api_version}/"
+                kind_tuple = guess_kind((name, api_group))
+
+                # OK, this is a kind known by CMT that is available in the cluster;
+                # is this particular API-version known by CMT?
+                if kind_tuple in kubernetes_resources and known_filter["updated"]:
+                    if api_group_version in deep_get(kubernetes_resources[kind_tuple],
+                                                     DictPath("api_paths")):
+                        continue
+                    updated = True
+
+                # Now check whether there's a view file and whether it has list/info views
+                if kind_tuple == ("Event", ""):
+                    filename = "Event.events.k8s.io.yaml"
+                elif not kind_tuple[1]:
+                    filename = f"{kind}.yaml"
+                else:
+                    filename = f"{kind}.{api_group}.yaml"
+                for view_dir in view_dirs:
+                    view_file = FilePath(os.path.join(view_dir, filename))
+                    try:
+                        d = secure_read_yaml(view_file, directory_is_symlink=True)
+                        has_list_view = "listview" in d
+                        has_info_view = "infoview" in d
+                        is_local = view_dir not in (VIEW_DIR, SYSTEM_VIEWS_DIR)
+                        kh_update_api_status(kind_tuple, listview=has_list_view,
+                                             infoview=has_info_view, local=is_local)
+                        # This won't do any updates except get the updated list & info view flags
+                        kubernetes_resources, _result2, _modified = kh.get_available_kinds()
+                    except FilePathAuditError as e:
+                        if "SecurityStatus.DOES_NOT_EXIST" in str(e):
+                            continue
+                    except yaml.parser.ParserError:
+                        sys.exit(f"View-file {view_file} is invalid; aborting.")
+            except NameError:
+                kind_tuple = None
+
+        if namespaced_only is not None and namespaced != namespaced_only:
+            continue
+
+        if "/" in name:
+            continue
+
+        if set(verb_selector) & set(verbs) != set(verb_selector):
+            continue
+
+        cmt_support = []
+        local_view = ""
+
+        if kubernetes_resources is not None:
+            list_support = False
+            info_support = False
+            if kind_tuple is not None and kind_tuple in kubernetes_resources:
+                if known_filter["updated"] and not updated:
+                    continue
+                if "list" in kubernetes_resources[kind_tuple] \
+                        and deep_get(kubernetes_resources[kind_tuple], DictPath("list")):
+                    list_support = True
+                    cmt_support.append("List")
+                if "info" in kubernetes_resources[kind_tuple] \
+                        and deep_get(kubernetes_resources[kind_tuple], DictPath("info")):
+                    info_support = True
+                    cmt_support.append("Info")
+                if "local" in kubernetes_resources[kind_tuple]:
+                    if deep_get(kubernetes_resources[kind_tuple], DictPath("local")):
+                        local_view = "True"
+                    else:
+                        local_view = "False"
+
+                if has_data:
+                    vlist, _status = kh.get_list_by_kind_namespace(kind=kind_tuple, namespace="")
+                    if vlist is None or not vlist:
+                        continue
+
+            if known_filter["known"] is not None or known_filter["updated"] is not None:
+                if "list" not in verbs:
+                    continue
+
+                if not known_filter["known"] and kind_tuple in kubernetes_resources and not updated:
+                    continue
+
+                if known_filter["known"]:
+                    if kind_tuple not in kubernetes_resources:
+                        continue
+
+                    if known_filter["list"] is not None:
+                        if known_filter["list"] and \
+                                ("list" not in kubernetes_resources[kind_tuple]
+                                 or not list_support):
+                            continue
+
+                        if not known_filter["list"] and \
+                                "list" in kubernetes_resources[kind_tuple] and list_support:
+                            continue
+
+                    if known_filter["info"] is not None:
+                        if known_filter["info"] and \
+                                ("info" not in kubernetes_resources[kind_tuple]
+                                 or not info_support):
+                            continue
+
+                        if not known_filter["info"] and \
+                                "info" in kubernetes_resources[kind_tuple] and info_support:
+                            continue
+
+        if api_version_selector is not None:
+            if not api_version_selector:
+                if "/" in api_version:
+                    continue
+            else:
+                if "/" in api_version_selector and api_version_selector != api_version:
+                    continue
+                if api_version_selector != api_version.split("/")[0]:
+                    continue
+
+        filtered_api_resources.append((name, shortnames, api_version, namespaced, kind, verbs))
+
+        if output_format != "table":
+            continue
+
+        name_len = max(name_len, len(name))
+        shortnames_len_tmp = 0
+        shortnames_formatted = \
+            ansithemestr_join_list(shortnames, formatting="default",
+                                   separator=ANSIThemeStr(",", "separator"))
+        for item in shortnames_formatted:
+            shortnames_len_tmp += len(item)
+        shortnames_len = max(shortnames_len, shortnames_len_tmp)
+        api_version_len = max(api_version_len, len(api_version))
+        namespaced_len = max(namespaced_len, len(f"{namespaced}"))
+        kind_len = max(kind_len, len(kind))
+        verbs_len_tmp = 0
+        verbs_formatted = \
+            ansithemestr_join_list(verbs, formatting="default",
+                                   separator=ANSIThemeStr(",", "separator"))
+        for item in verbs_formatted:
+            verbs_len_tmp += len(item)
+        verbs_len = max(verbs_len, verbs_len_tmp)
+        cmt_support_len_tmp = 0
+        cmt_support_formatted = \
+            ansithemestr_join_list(cmt_support, formatting="default",
+                                   separator=ANSIThemeStr(",", "separator"))
+        for item in cmt_support_formatted:
+            cmt_support_len_tmp += len(item)
+        cmt_support_len = max(cmt_support_len, cmt_support_len_tmp)
+        local_view_len = max(local_view_len, len(local_view))
+
+    if not filtered_api_resources:
+        ansithemeprint([ANSIThemeStr("Note", "note"),
+                        ANSIThemeStr(": No matching APIs found.", "default")])
+        return 0
+
+    if output_format != "table":
+        separator = ""
+        if output_format == "csv":
+            separator = ","
+        elif output_format == "ssv":
+            separator = " "
+        elif output_format == "tsv":
+            separator = "\t"
+
+        output = ""
+
+        current_api_group = ""
+        for name, shortnames, api_version, namespaced, kind, verbs in filtered_api_resources:
+            api_group = ""
+            api_path = f"api/{api_version}/"
+            kind_string = kind
+            if "/" in api_version:
+                api_group = api_version.split("/")[0]
+                api_path = f"apis/{api_version}/"
+                kind_string += f".{api_group}"
+
+            if output_format == "entry":
+                entry = ""
+                if current_api_group != api_group:
+                    entry += f"    # {api_group}\n"
+                entry += f"    (\"{kind}\", \"{api_group}\"): "
+                entry += "{\n"
+                entry += f"        \"api_paths\": [\"{api_path}\"],\n"
+                entry += f"        \"api\": \"{name}\",\n"
+                if not namespaced:
+                    entry += "        \"namespaced\": False,\n"
+                entry += "    },"
+                print(entry)
+            else:
+                if output:
+                    output += f"{separator}"
+                output += f"{kind_string}"
+            current_api_group = api_group
+
+        if output:
+            print(output)
+        return 0
+
+    if header:
+        tmp_header = [ANSIThemeStr(name_header, "header"),
+                      ANSIThemeStr("".ljust(name_len - len(name_header) + 2), "default"),
+                      ANSIThemeStr(shortnames_header, "header"),
+                      ANSIThemeStr("".ljust(shortnames_len - len(shortnames_header) + 2),
+                                   "default"),
+                      ANSIThemeStr(api_version_header, "header"),
+                      ANSIThemeStr("".ljust(api_version_len - len(api_version_header) + 2),
+                                   "default"),
+                      ANSIThemeStr(namespaced_header, "header"),
+                      ANSIThemeStr("".ljust(namespaced_len - len(namespaced_header) + 2),
+                                   "default"),
+                      ANSIThemeStr(kind_header, "header"),
+                      ANSIThemeStr("".ljust(kind_len - len(kind_header) + 2), "default")]
+
+        if wide:
+            tmp_header += [ANSIThemeStr(verbs_header, "header"),
+                           ANSIThemeStr("".ljust(verbs_len - len(verbs_header) + 2),
+                                        "default"),
+                           ANSIThemeStr(cmt_support_header, "header"),
+                           ANSIThemeStr("".ljust(cmt_support_len - len(cmt_support_header) + 2),
+                                        "default"),
+                           ANSIThemeStr(local_view_header, "header"),
+                           ANSIThemeStr("".ljust(local_view_len - len(local_view_header) + 2),
+                                        "default")]
+        if color == "never" or color == "auto" and not sys.stdout.isatty():
+            tmp_header = [item.upper() for item in tmp_header]
+        ansithemeprint(tmp_header, color=color)
+
+    # pylint: disable-next=too-many-nested-blocks
+    for name, shortnames, api_version, namespaced, kind, verbs in filtered_api_resources:
+        if kubernetes_resources is not None:
+            try:
+                api_group = ""
+                if "/" in api_version:
+                    api_group = api_version.split("/")[0]
+                kind_tuple = guess_kind((name, api_group))
+            except NameError:
+                kind_tuple = None
+
+        if namespaced_only is not None and namespaced != namespaced_only:
+            continue
+
+        if "/" in name:
+            continue
+
+        if set(verb_selector) & set(verbs) != set(verb_selector):
+            continue
+
+        cmt_support = []
+        local_view = ""
+
+        if kubernetes_resources is not None:
+            list_support = False
+            info_support = False
+
+            if kind_tuple in kubernetes_resources:
+                if "list" in kubernetes_resources[kind_tuple] \
+                        and deep_get(kubernetes_resources[kind_tuple], DictPath("list")):
+                    list_support = True
+                    cmt_support.append("List")
+                if "info" in kubernetes_resources[kind_tuple] \
+                        and deep_get(kubernetes_resources[kind_tuple], DictPath("info")):
+                    info_support = True
+                    cmt_support.append("Info")
+                if "local" in kubernetes_resources[kind_tuple]:
+                    if deep_get(kubernetes_resources[kind_tuple], DictPath("local")):
+                        local_view = "True"
+                    else:
+                        local_view = "False"
+
+            if known_filter["known"] is not None:
+                if "list" not in verbs:
+                    continue
+
+                if not known_filter["known"] and kind_tuple in kubernetes_resources:
+                    continue
+
+                if known_filter["known"]:
+                    if kind_tuple not in kubernetes_resources:
+                        continue
+
+                    if known_filter["list"] is not None:
+                        if known_filter["list"] and \
+                                ("list" not in kubernetes_resources[kind_tuple]
+                                 or not list_support):
+                            continue
+
+                        if not known_filter["list"] and \
+                                "list" in kubernetes_resources[kind_tuple] and list_support:
+                            continue
+
+                    if known_filter["info"] is not None:
+                        if known_filter["info"] and \
+                                ("info" not in kubernetes_resources[kind_tuple]
+                                 or not info_support):
+                            continue
+
+                        if not known_filter["info"] and \
+                                "info" in kubernetes_resources[kind_tuple] and info_support:
+                            continue
+
+        if api_version_selector is not None:
+            if not api_version_selector:
+                if "/" in api_version:
+                    continue
+            else:
+                if "/" in api_version_selector and api_version_selector != api_version:
+                    continue
+                if api_version_selector != api_version.split("/")[0]:
+                    continue
+
+        shortnames_len_tmp = 0
+        shortnames_formatted = \
+            ansithemestr_join_list(shortnames, formatting="default",
+                                   separator=ANSIThemeStr(",", "separator"))
+        for item in shortnames_formatted:
+            shortnames_len_tmp += len(item)
+        if not shortnames_formatted:
+            shortnames_formatted = [ANSIThemeStr("", "default")]
+
+        verbs_len_tmp = 0
+        verbs_formatted = \
+            ansithemestr_join_list(verbs, formatting="default",
+                                   separator=ANSIThemeStr(",", "separator"))
+        for item in verbs_formatted:
+            verbs_len_tmp += len(item)
+        if not verbs_formatted:
+            verbs_formatted = [ANSIThemeStr("", "default")]
+
+        cmt_support_len_tmp = 0
+        cmt_support_formatted = \
+            ansithemestr_join_list(cmt_support, formatting="default",
+                                   separator=ANSIThemeStr(",", "separator"))
+        for item in cmt_support_formatted:
+            cmt_support_len_tmp += len(item)
+        if not cmt_support_formatted:
+            cmt_support_formatted = [ANSIThemeStr("", "default")]
+
+        tmp_str = [ANSIThemeStr(f"{name}".ljust(name_len + 2), "default")] + \
+            shortnames_formatted + \
+            [ANSIThemeStr("".ljust(shortnames_len - shortnames_len_tmp + 2), "default"),
+             ANSIThemeStr(f"{api_version}".ljust(api_version_len + 2), "version"),
+             ANSIThemeStr(f"{namespaced}".ljust(namespaced_len + 2), "default"),
+             ANSIThemeStr(f"{kind}".ljust(kind_len + 2), "default")]
+
+        if wide:
+            tmp_str += verbs_formatted + \
+                [ANSIThemeStr("".ljust(verbs_len - verbs_len_tmp + 2), "default")] + \
+                cmt_support_formatted + \
+                [ANSIThemeStr("".ljust(cmt_support_len - cmt_support_len_tmp + 2), "default"),
+                 ANSIThemeStr(f"{local_view}".ljust(local_view_len + 2), "default")]
+
+        ansithemeprint(tmp_str, color=color)
+
+    return result
+
+
+# pylint: disable-next=too-many-branches
+def lookup_resource_type(resource_type: str) -> tuple[str, str]:
+    """
+    Given a resource type or resource type alias,
+    try to find its (kind, apiVersion) tuple.
+
+    Note: Currently this scans all view-files. This is extremely inefficient;
+    we really need to implement this using a pre-built lookup table.
+    It's OK to fail a live lookup for kinds we know that aren't available from
+    the server, but it's not OK to wait for ages for the lookup to take place.
+    """
+    # Check whether the kind is know right away; if it is we save time not doing a lookup.
+    kind = None
+
+    try:
+        tmp_kind = guess_kind(resource_type)
+        if tmp_kind not in unknown_kubernetes_resources:
+            kind = tmp_kind
+    except NameError:
+        pass
+
+    resource_type_index: dict[str, Any] = {}
+
+    # OK, we'll need to scan the view-files
+    if not kind:
+        view_dirs: list[str] = []
+
+        view_dirs.append(cmtpaths.SYSTEM_VIEWS_DIR)
+        view_dirs.append(cmtpaths.VIEW_DIR)
+        view_dirs += deep_get(cmtlib.cmtconfig, DictPath("General#local_views"), [])
+
+        for view_dir in view_dirs:
+            if view_dir.startswith("{HOME}"):
+                view_dir = view_dir.replace("{HOME}", HOMEDIR, 1)
+
+            if not os.path.isdir(view_dir):
+                continue
+
+            # If the local view-directory doesn't have an index-file, skip it.
+            try:
+                d = dict(secure_read_yaml(FilePath(view_dir).joinpath("__resource_type_index.yaml"),
+                                          directory_is_symlink=True, asynchronous=True))
+                resource_type_index.update(d)
+            except FilePathAuditError:
+                pass
+
+            # If the local view-directory doesn't have an __event_reasons-file, skip it.
+            try:
+                d = dict(secure_read_yaml(FilePath(view_dir).joinpath("__event_reasons.yaml"),
+                                          directory_is_symlink=True, asynchronous=True))
+            except FilePathAuditError:
+                pass
+
+            for reason, data in d.items():
+                # Only try to read the data if it's well-formed
+                if data and deep_get(data, DictPath("field_colors")):
+                    context = deep_get(data["field_colors"][0], DictPath("context"), "main")
+                    ftype = deep_get(data["field_colors"][0], DictPath("type"), "status_ok")
+                    match (context, ftype):
+                        case ("main", "status_critical"):
+                            event_reasons[reason] = ANSIThemeStr(reason, "critical")
+                        case ("main", "status_unknown"):
+                            event_reasons[reason] = ANSIThemeStr(reason, "unknown")
+                        case ("main", "status_not_ok"):
+                            event_reasons[reason] = ANSIThemeStr(reason, "notok")
+                        case ("main", "status_warning"):
+                            event_reasons[reason] = ANSIThemeStr(reason, "warning")
+                        case ("main", "status_pending"):
+                            event_reasons[reason] = ANSIThemeStr(reason, "play")
+                        case ("main", "status_ok"):
+                            event_reasons[reason] = ANSIThemeStr(reason, "note")
+                        case ("main", "status_done"):
+                            event_reasons[reason] = ANSIThemeStr(reason, "success")
+                        case ("types", "unset"):
+                            event_reasons[reason] = ANSIThemeStr(reason, "none")
+                    continue
+
+        kind = tuple(deep_get(resource_type_index, DictPath(f"{resource_type}#kind"), ("", "")))
+
+    if not kind:
+        ansithemeprint([ANSIThemeStr("Error", "error"),
+                        ANSIThemeStr(f": unknown resource type {resource_type}", "default")],
+                                     stderr=True)
+        sys.exit(errno.ENOENT)
+
+    return kind
+
+
+# pylint: disable-next=too-many-branches
+def get_resources(options: list[tuple[str, str]], args: list[str]) -> int:
+    """
+    List resources of type KIND.
+
+        Parameters:
+            options ([(str, str)]): Options to use when executing this action
+            args ([str]): Arguments to use when executing this action
+        Returns:
+            (int): 0 on success, exits with errno on failure
+    """
+    global kh  # pylint: disable=global-statement
+
+    namespace = "default"
+    output_format = "table"
+    color = "auto"
+#   wide = False
+
+    # Valid formats:
+    # table = Normal output format (default)
+    # json = json
+    # yaml = yaml
+    output_format = "table"
+
+    for opt, optarg in options:
+        if opt == "--namespace":
+            namespace = optarg
+        elif opt == "-A":
+            namespace = ""
+        elif opt == "--color":
+            color = optarg
+        elif opt == "--format":
+            output_format = optarg
+    #   elif opt == "--wide":
+    #       wide = True
+
+    if output_format not in ("json", "yaml"):
+        ansithemeprint([ANSIThemeStr(f"Output format {output_format} currently not supported",
+                                     "warning")])
+        sys.exit(errno.EINVAL)
+
+    if kh is None:
+        kh = kubernetes_helper.KubernetesHelper(about.PROGRAM_SUITE_NAME,
+                                                about.PROGRAM_SUITE_VERSION, None)
+
+    resources: list[str] = []
+
+    resource_type = args[0]
+    if len(args) > 1:
+        resources = args[1].split(",")
+
+    if namespace == "ALL":
+        namespace = ""
+
+    kind = lookup_resource_type(resource_type)
+
+    status = 200
+    vlist: list[dict[str, Any]] = []
+
+    if resources:
+        for resource in resources:
+            if (tmp := kh.get_ref_by_kind_name_namespace(kind, resource, namespace)):
+                vlist.append(tmp)
+                status = 200
+            else:
+                # Randomly picked; fix this when get_ref_by_kind_name_namespace()
+                # has been refactored to return status.
+                status = 404
+    else:
+        vlist, status = kh.get_list_by_kind_namespace(kind, namespace=namespace)
+
+    if not vlist:
+        if status == 200:
+            if namespace == "ALL":
+                ansithemeprint([ANSIThemeStr("No resources found", "note")])
+            else:
+                ansithemeprint([ANSIThemeStr(f"No resources found in {namespace} namespace.",
+                                             "note")])
+        # We need error handling here.
+        return 0
+
+    if output_format == "json":
+        ansithemeprint_formatted(json_dumps(vlist),
+                                 input_format=output_format, color=color)
+    elif output_format == "yaml":
+        ansithemeprint_formatted(yaml.dump(vlist),
+                                 input_format=output_format, color=color, background="dark")
+
+    return 0
+
+
+CMT_COMMANDLINE: dict[str, CommandType] = {
+    "List Resources": {
+        "command": ["get"],
+        "values":
+            [ANSIThemeStr("RESOURCE_TYPE", "argument"),
+             ANSIThemeStr(" [", "separator"),
+             ANSIThemeStr("RESOURCE", "argument"),
+             ANSIThemeStr(",", "separator"),
+             ANSIThemeStr("...", "argument"),
+             ANSIThemeStr("]", "separator")],
+        "description":
+            [ANSIThemeStr("List resources of ", "description"),
+             ANSIThemeStr("RESOURCE_TYPE", "argument")],
+        "extended_description": [
+            [ANSIThemeStr("Optionally limited to ", "description"),
+             ANSIThemeStr("RESOURCE", "argument"),
+             ANSIThemeStr(",", "separator"),
+             ANSIThemeStr("...", "argument")],
+        ],
+        "options": {
+            "--namespace": {
+                "values": [
+                    ANSIThemeStr("NAMESPACE", "argument"),
+                    ANSIThemeStr("|", "separator"),
+                    ANSIThemeStr("ALL", "argument")],
+                "description":
+                    [ANSIThemeStr("List resources in ", "description"),
+                     ANSIThemeStr("NAMESPACE", "argument")],
+            },
+            "-A": {
+                "description":
+                    [ANSIThemeStr("Equivalent to ", "description"),
+                     ANSIThemeStr("--namespace ", "option"),
+                     ANSIThemeStr("ALL", "argument")],
+            },
+            "--color": {
+                "values": [
+                    ANSIThemeStr("WHEN", "argument")],
+                "description": [
+                    ANSIThemeStr("WHEN should the output use ANSI-colors", "description")],
+                "extended_description": [
+                    [ANSIThemeStr("Valid arguments are:", "description")],
+                    [ANSIThemeStr("always", "argument"),
+                     ANSIThemeStr(" (always color the output)", "description")],
+                    [ANSIThemeStr("auto", "argument"),
+                     ANSIThemeStr(" (color the output when outputting", "description")],
+                    [ANSIThemeStr("to a terminal)", "description")],
+                    [ANSIThemeStr("never", "argument"),
+                     ANSIThemeStr(" (never color the output)", "description")],
+                ],
+                "requires_arg": True,
+                "validation": {
+                    "validator": "allowlist",
+                    "allowlist": [
+                        "always",
+                        "auto",
+                        "never",
+                    ],
+                },
+            },
+            "--format": {
+                "values": [
+                    ANSIThemeStr("FORMAT", "argument")],
+                "description": [
+                    ANSIThemeStr("Format the output as ", "description"),
+                    ANSIThemeStr("FORMAT", "argument")],
+                "extended_description": [
+                    [ANSIThemeStr("Valid formats are:", "description")],
+                    [ANSIThemeStr("json", "argument"),
+                     ANSIThemeStr(" (JSON)", "description")],
+                    [ANSIThemeStr("yaml", "argument"),
+                     ANSIThemeStr(" (YAML)", "description")],
+                    # [ANSIThemeStr("table", "argument"),
+                    #  ANSIThemeStr(" (table with information)", "description")],
+                ],
+                "requires_arg": True,
+                "validation": {
+                    "validator": "allowlist",
+                    "allowlist": [
+                        "json",
+                        "yaml",
+                        "table"
+                    ],
+                },
+            },
+            "--wide": {
+                "description": [
+                    ANSIThemeStr("Wide output format", "description")],
+            },
+        },
+        "required_args": [
+            {
+                "name": "KIND",
+                "string": [
+                    ANSIThemeStr("KIND", "argument")],
+                "validation": {
+                    "validator": "dns-subdomain",
+                },
+            },
+        ],
+        "optional_args": [
+            {
+                "name": "RESOURCE",
+                "string": [
+                    ANSIThemeStr("RESOURCE", "argument")],
+                "validation": {
+                    "validator": "dns-label",
+                    "list_separator": ",",
+                },
+            },
+        ],
+        "callback": get_resources,
+    },
+    "Cordon Node": {
+        "command": ["cordon"],
+        "values":
+            [ANSIThemeStr("NODE", "argument"),
+             ANSIThemeStr(",", "separator"),
+             ANSIThemeStr("...", "argument"),
+             ANSIThemeStr("|", "separator"),
+             ANSIThemeStr("ALL", "argument")],
+        "description":
+            [ANSIThemeStr("Cordon ", "description"),
+             ANSIThemeStr("NODE", "argument"),
+             ANSIThemeStr(",", "separator"),
+             ANSIThemeStr("...", "argument")],
+        "options": {
+            "--include-control-planes": {
+                "description":
+                    [ANSIThemeStr("Include control planes when ALL is used", "description")],
+            },
+        },
+        "required_args": [
+            {
+                "name": "node",
+                "string": [
+                    ANSIThemeStr("NODE", "argument"),
+                    ANSIThemeStr(",", "separator"),
+                    ANSIThemeStr("...", "argument"),
+                    ANSIThemeStr("|", "separator"),
+                    ANSIThemeStr("ALL", "argument")],
+                "validation": {
+                    "validator": "hostname",
+                    "list_separator": ",",
+                },
+            },
+        ],
+        "optional_args": [],
+        "callback": cordon_nodes,
+    },
+    "Drain Node": {
+        "command": ["drain"],
+        "values": [
+            ANSIThemeStr("NODE", "argument"),
+            ANSIThemeStr(",", "separator"),
+            ANSIThemeStr("...", "argument"),
+            ANSIThemeStr("|", "separator"),
+            ANSIThemeStr("ALL", "argument")],
+        "description": [
+            ANSIThemeStr("Drain ", "description"),
+            ANSIThemeStr("NODE", "argument"),
+            ANSIThemeStr(",", "separator"),
+            ANSIThemeStr("...", "argument")],
+        "options": {
+            "--delete-emptydir-data": {
+                "description": [
+                    ANSIThemeStr("Delete emptydir data", "description")],
+                "extended_description": [
+                    [ANSIThemeStr("Drain nodes even if this would cause ", "description"),
+                     ANSIThemeStr("emptyDir", "emphasis")],
+                    [ANSIThemeStr("data to be deleted", "description")],
+                ],
+            },
+            "--disable-eviction": {
+                "description": [
+                    ANSIThemeStr("Delete pods instead of using evict", "description")],
+                "extended_description": [
+                    [ANSIThemeStr("This bypasses ", "description"),
+                     ANSIThemeStr("PodDisruptionBudget", "emphasis")],
+                ],
+            },
+            "--ignore-daemonsets": {
+                "description": [
+                    ANSIThemeStr("Ignore pods managed by daemonsets", "description")],
+                "extended_description": [
+                    [ANSIThemeStr("By default ", "description"),
+                     ANSIThemeStr("drain ", "command"),
+                     ANSIThemeStr("will abort if there are", "description")],
+                    [ANSIThemeStr("such pods running on the node", "description")],
+                ],
+            },
+            "--include-control-planes": {
+                "description":
+                    [ANSIThemeStr("Include control planes when ALL is used", "description")],
+            },
+        },
+        "required_args": [
+            {
+                "name": "node",
+                "string": [
+                    ANSIThemeStr("NODE", "argument"),
+                    ANSIThemeStr(",", "separator"),
+                    ANSIThemeStr("...", "argument"),
+                    ANSIThemeStr("|", "separator"),
+                    ANSIThemeStr("ALL", "argument")],
+                "validation": {
+                    "validator": "hostname",
+                    "list_separator": ",",
+                },
+            },
+        ],
+        "optional_args": [],
+        "callback": drain_nodes,
+    },
+    "Drain Node (Force)": {
+        "command": ["force-drain"],
+        "values": [
+            ANSIThemeStr("NODE", "argument"),
+            ANSIThemeStr(",", "separator"),
+            ANSIThemeStr("...", "argument"),
+            ANSIThemeStr("|", "separator"),
+            ANSIThemeStr("ALL", "argument")],
+        "description": [
+            ANSIThemeStr("Force-drain ", "description"),
+            ANSIThemeStr("NODE", "argument"),
+            ANSIThemeStr(",", "separator"),
+            ANSIThemeStr("...", "argument")],
+        "extended_description": [
+            [ANSIThemeStr("When a node is force-drained, pods belonging to", "description")],
+            [ANSIThemeStr("daemonsets are ignored, and ", "description"),
+             ANSIThemeStr("emptyDir", "emphasis"),
+             ANSIThemeStr(" data", "description")],
+            [ANSIThemeStr("is deleted", "description")],
+        ],
+        "options": {
+            "--disable-eviction": {
+                "description": [
+                    ANSIThemeStr("Delete pods instead of using evict", "description")],
+                "extended_description": [
+                    [ANSIThemeStr("This bypasses ", "description"),
+                     ANSIThemeStr("PodDisruptionBudget", "emphasis")],
+                ],
+            },
+            "--include-control-planes": {
+                "description": [
+                    ANSIThemeStr("Include control planes when ALL is used", "description")],
+            },
+        },
+        "implicit_options": [
+            ("--delete-emptydir-data", None),
+            ("--ignore-daemonsets", None),
+        ],
+        "required_args": [
+            {
+                "name": "node",
+                "string": [
+                    ANSIThemeStr("NODE", "argument"),
+                    ANSIThemeStr(",", "separator"),
+                    ANSIThemeStr("...", "argument"),
+                    ANSIThemeStr("|", "separator"),
+                    ANSIThemeStr("ALL", "argument")],
+                "validation": {
+                    "validator": "hostname",
+                    "list_separator": ",",
+                },
+            },
+        ],
+        "optional_args": [],
+        "callback": drain_nodes,
+    },
+    "Uncordon Node": {
+        "command": ["uncordon"],
+        "values": [
+            ANSIThemeStr("NODE", "argument"),
+            ANSIThemeStr(",", "separator"),
+            ANSIThemeStr("...", "argument"),
+            ANSIThemeStr("|", "separator"),
+            ANSIThemeStr("ALL", "argument")],
+        "description": [
+            ANSIThemeStr("Uncordon ", "description"),
+            ANSIThemeStr("NODE", "argument"),
+            ANSIThemeStr(",", "separator"),
+            ANSIThemeStr("...", "argument")],
+        "options": {
+            "--include-control-planes": {
+                "description": [
+                    ANSIThemeStr("Include control planes when ALL is used", "description")],
+            },
+        },
+        "required_args": [
+            {
+                "name": "node",
+                "string": [
+                    ANSIThemeStr("NODE", "argument"),
+                    ANSIThemeStr(",", "separator"),
+                    ANSIThemeStr("...", "argument"),
+                    ANSIThemeStr("|", "separator"),
+                    ANSIThemeStr("ALL", "argument")],
+                "validation": {
+                    "validator": "hostname",
+                    "list_separator": ",",
+                },
+            },
+        ],
+        "optional_args": [],
+        "callback": uncordon_nodes,
+    },
+    "Taint Node": {
+        "command": ["taint"],
+        "values": [
+            ANSIThemeStr("NODE", "argument"),
+            ANSIThemeStr(",", "separator"),
+            ANSIThemeStr("...", "argument"),
+            ANSIThemeStr("|", "separator"),
+            ANSIThemeStr("ALL ", "argument"),
+            ANSIThemeStr("KEY", "argument"),
+            ANSIThemeStr("[=", "separator"),
+            ANSIThemeStr("VALUE", "argument"),
+            ANSIThemeStr("]:", "separator"),
+            ANSIThemeStr("EFFECT", "argument")],
+        "description": [
+            ANSIThemeStr("Add taint ", "description"),
+            ANSIThemeStr("KEY", "argument"),
+            ANSIThemeStr("[=", "separator"),
+            ANSIThemeStr("VALUE", "argument"),
+            ANSIThemeStr("]", "separator"),
+            ANSIThemeStr(" with ", "description"),
+            ANSIThemeStr("EFFECT", "argument"),
+            ANSIThemeStr(" to ", "description"),
+            ANSIThemeStr("NODE", "argument"),
+            ANSIThemeStr(",", "separator"),
+            ANSIThemeStr("...", "argument")],
+        "extended_description": [
+            [ANSIThemeStr("Valid values for ", "description"),
+             ANSIThemeStr("EFFECT", "argument"),
+             ANSIThemeStr(" are:", "description")],
+            [ANSIThemeStr("NoSchedule", "argument"),
+             ANSIThemeStr(", ", "separator"),
+             ANSIThemeStr("PreferNoSchedule", "argument"),
+             ANSIThemeStr(",", "separator"),
+             ANSIThemeStr(" and ", "description"),
+             ANSIThemeStr("NoExecute", "argument")],
+        ],
+        "options": {
+            "--include-control-planes": {
+                "description": [
+                    ANSIThemeStr("Include control planes when ALL is used", "description")],
+            },
+            "--overwrite": {
+                "description": [
+                    ANSIThemeStr("Allow taints to be overwritten", "description")],
+                "extended_description": [
+                    [ANSIThemeStr("(by default conflicting taints are ignored)", "description")],
+                ],
+            }
+        },
+        "required_args": [
+            {
+                "name": "node",
+                "string": [
+                    ANSIThemeStr("NODE", "argument"),
+                    ANSIThemeStr(",", "separator"),
+                    ANSIThemeStr("...", "argument"),
+                    ANSIThemeStr("|", "separator"),
+                    ANSIThemeStr("ALL", "argument")],
+                "validation": {
+                    "validator": "hostname",
+                    "list_separator": ",",
+                },
+            }, {
+                "name": "taint",
+                "string": [
+                    ANSIThemeStr("KEY", "argument"),
+                    ANSIThemeStr("[=", "separator"),
+                    ANSIThemeStr("VALUE", "argument"),
+                    ANSIThemeStr("]:", "separator"),
+                    ANSIThemeStr("EFFECT", "argument")],
+                "validation": {
+                    "validator": "taint",
+                },
+            },
+        ],
+        "optional_args": [],
+        "callback": taint_nodes,
+    },
+    "Untaint Node": {
+        "command": ["untaint"],
+        "values": [
+            ANSIThemeStr("NODE", "argument"),
+            ANSIThemeStr(",", "separator"),
+            ANSIThemeStr("...", "argument"),
+            ANSIThemeStr("|", "separator"),
+            ANSIThemeStr("ALL ", "argument"),
+            ANSIThemeStr("KEY", "argument"),
+            ANSIThemeStr("[=", "separator"),
+            ANSIThemeStr("VALUE", "argument"),
+            ANSIThemeStr("][:", "separator"),
+            ANSIThemeStr("EFFECT", "argument"),
+            ANSIThemeStr("]", "separator")],
+        "description": [
+            ANSIThemeStr("Remove taint ", "description"),
+            ANSIThemeStr("KEY", "argument"),
+            ANSIThemeStr("[:", "separator"),
+            ANSIThemeStr("VALUE", "argument"),
+            ANSIThemeStr("]", "separator"),
+            ANSIThemeStr(" with ", "description"),
+            ANSIThemeStr("EFFECT", "argument"),
+            ANSIThemeStr(" from ", "description"),
+            ANSIThemeStr("NODE", "argument"),
+            ANSIThemeStr(",", "separator"),
+            ANSIThemeStr("...", "argument")],
+        "extended_description": [
+            [ANSIThemeStr("If ", "description"),
+             ANSIThemeStr("EFFECT", "argument"),
+             ANSIThemeStr(" is not specified,", "description")],
+            [ANSIThemeStr("all taints matching ", "description"),
+             ANSIThemeStr("KEY", "argument"),
+             ANSIThemeStr("[:", "separator"),
+             ANSIThemeStr("VALUE", "argument"),
+             ANSIThemeStr("]", "separator"),
+             ANSIThemeStr(" will be removed", "description")],
+        ],
+        "options": {
+            "--include-control-planes": {
+                "description":
+                    [ANSIThemeStr("Include control planes when ALL is used", "description")],
+            },
+        },
+        "required_args": [
+            {
+                "name": "node",
+                "string": [
+                    ANSIThemeStr("NODE", "argument"),
+                    ANSIThemeStr(",", "separator"),
+                    ANSIThemeStr("...", "argument"),
+                    ANSIThemeStr("|", "separator"),
+                    ANSIThemeStr("ALL", "argument")],
+                "validation": {
+                    "validator": "hostname",
+                    "list_separator": ",",
+                },
+            }, {
+                "name": "taint",
+                "string": [
+                    ANSIThemeStr("KEY", "argument"),
+                    ANSIThemeStr("[=", "separator"),
+                    ANSIThemeStr("VALUE", "argument"),
+                    ANSIThemeStr("]:[", "separator"),
+                    ANSIThemeStr("EFFECT", "argument"),
+                    ANSIThemeStr("]", "separator")],
+                "validation": {
+                    "validator": "untaint",
+                },
+            },
+        ],
+        "optional_args": [],
+        "callback": untaint_nodes,
+    },
+    "Prepare Host": {
+        "command": ["prepare"],
+        "values": [
+            ANSIThemeStr("HOST", "argument"),
+            ANSIThemeStr(",", "separator"),
+            ANSIThemeStr("...", "argument"),
+            ANSIThemeStr("|", "separator"),
+            ANSIThemeStr("PATH", "argument")],
+        "description": [
+            ANSIThemeStr("Prepare ", "description"),
+            ANSIThemeStr("HOST", "argument"),
+            ANSIThemeStr(",", "separator"),
+            ANSIThemeStr("...", "argument"),
+            ANSIThemeStr(" for use as cluster node(s)", "description")],
+        "extended_description": [
+            [ANSIThemeStr("Note", "note"),
+             ANSIThemeStr(": If possible ", "description"),
+             ANSIThemeStr("HOST", "argument"),
+             ANSIThemeStr(" should be a resolvable", "description")],
+            [ANSIThemeStr("hostname; using an IP-address may cause issues", "description")],
+        ],
+        "options": {
+            "--ignore-existing": {
+                "description": [
+                    ANSIThemeStr("Ignore hosts that are already part of the cluster",
+                                 "description")],
+            },
+            "--forks": {
+                "values": [
+                    ANSIThemeStr("FORKS", "argument")],
+                "description": [
+                    ANSIThemeStr("Max number of parallel Ansible connections", "description")],
+                "extended_description": [
+                    [ANSIThemeStr("This sets the max number of parallel connections",
+                                  "description")],
+                    [ANSIThemeStr("when running Ansible playbooks", "description")],
+                    [ANSIThemeStr("(this overrides ", "description"),
+                     ANSIThemeStr(f"{CMT_CONFIG_FILENAME}", "argument"),
+                     ANSIThemeStr("; default: ", "description"),
+                     ANSIThemeStr("5", "argument"),
+                     ANSIThemeStr(")", "description")],
+                ],
+                "requires_arg": True,
+                "validation": {
+                    "validator": "int",
+                    "valid_range": (5, 256),
+                },
+            },
+            "--from-file": {
+                "description": [
+                    ANSIThemeStr("Treat the argument to ", "description"),
+                    ANSIThemeStr("prepare", "command"),
+                    ANSIThemeStr(" as a path", "description")],
+                "extended_description": [
+                    [ANSIThemeStr("When using this option the HOST", "description")],
+                    [ANSIThemeStr("argument will be treated as a path to a file", "description")],
+                    [ANSIThemeStr("with hostnames instead of a list of hostnames", "description")],
+                ],
+            },
+            "--no-password": {
+                "description": [
+                    ANSIThemeStr("Do not prompt for a password", "description")],
+                "extended_description": [
+                    [ANSIThemeStr("Use this if the hosts you are preparing", "description")],
+                    [ANSIThemeStr("are already configured for login using an SSH key",
+                                  "description")],
+                ],
+            },
+            "--save-ansible-logs": {
+                "description": [
+                    ANSIThemeStr("Save logs from Ansible runs", "description")],
+                "extended_description": [
+                    [ANSIThemeStr("The logs can be viewed using “", "description"),
+                     ANSIThemeStr("cmu", "programname"),
+                     ANSIThemeStr(" logs", "command"),
+                     ANSIThemeStr("“", "description")]
+                ],
+            },
+            "--verbose": {
+                "description": [
+                    ANSIThemeStr("Be more verbose", "description")],
+            },
+            "-Y": {
+                "description": [
+                    ANSIThemeStr("Do not ask for confirmation", "description")],
+            },
+        },
+        "required_args": [
+            {
+                "name": "hosts_or_hostfile_path",
+                "string": [
+                    ANSIThemeStr("HOST", "argument"),
+                    ANSIThemeStr(",", "separator"),
+                    ANSIThemeStr("...", "argument"),
+                    ANSIThemeStr("|", "separator"),
+                    ANSIThemeStr("PATH", "argument")],
+                "validation": {
+                    "validator": "hostname_or_path",
+                    "list_separator": ",",
+                },
+            },
+        ],
+        "optional_args": [],
+        "callback": prepare_hosts,
+    },
+    "Add Node": {
+        "command": ["add-node", "add-nodes"],
+        "values": [
+            ANSIThemeStr("HOST", "argument"),
+            ANSIThemeStr(",", "separator"),
+            ANSIThemeStr("...", "argument"),
+            ANSIThemeStr("|", "separator"),
+            ANSIThemeStr("PATH", "argument")],
+        "description": [
+            ANSIThemeStr("Add ", "description"),
+            ANSIThemeStr("HOST", "argument"),
+            ANSIThemeStr(",", "separator"),
+            ANSIThemeStr("...", "argument"),
+            ANSIThemeStr(" as Kubernetes nodes to a cluster", "description")],
+        "extended_description": [
+            [ANSIThemeStr("Note", "note"),
+             ANSIThemeStr(": If possible ", "description"),
+             ANSIThemeStr("HOST", "argument"),
+             ANSIThemeStr(" should be a resolvable", "description")],
+            [ANSIThemeStr("hostname; using an IP-address may cause issues", "description")],
+        ],
+        "options": {
+            "--ca-cert-file": {
+                "values": [
+                    ANSIThemeStr("PATH", "argument")],
+                "description": [
+                    ANSIThemeStr("Use ", "description"),
+                    ANSIThemeStr("PATH", "argument"),
+                    ANSIThemeStr(" as token CA certificate", "description")],
+                "requires_arg": True,
+                "validation": {
+                    "validator": "path",
+                },
+            },
+            "--cri": {
+                "values": [
+                    ANSIThemeStr("CRI", "argument")],
+                "description": [
+                    ANSIThemeStr("Use ", "description"),
+                    ANSIThemeStr("CRI", "argument"),
+                    ANSIThemeStr(" instead of the default CRI", "description")],
+                "extended_description": [
+                    [ANSIThemeStr("Valid options for CRI", "description")],
+                    [ANSIThemeStr("(Container Runtime Interface) are:", "description")],
+                    [ANSIThemeStr("containerd", "argument"),
+                     ANSIThemeStr(", ", "separator"),
+                     ANSIThemeStr("cri-o", "argument")],
+                    [ANSIThemeStr("Default CRI: ", "description"),
+                     ANSIThemeStr("containerd", "argument")],
+                    [ANSIThemeStr("Note", "note"),
+                     ANSIThemeStr(": ", "description"),
+                     ANSIThemeStr("Kubernetes", "programname"),
+                     ANSIThemeStr(" >= ", "description"),
+                     ANSIThemeStr("1.26", "version"),
+                     ANSIThemeStr(" requires", "description")],
+                    [ANSIThemeStr("containerd", "programname"),
+                     ANSIThemeStr(" >= ", "description"),
+                     ANSIThemeStr("1.6", "version"),
+                     ANSIThemeStr(" or ", "description"),
+                     ANSIThemeStr("cri-o", "programname"),
+                     ANSIThemeStr(".", "description")],
+                    [ANSIThemeStr("If you intend to use DRA you should use ", "description"),
+                     ANSIThemeStr("cri-o", "programname"),
+                     ANSIThemeStr(".", "description")],
+                ],
+                "requires_arg": True,
+                "validation": {
+                    "validator": "allowlist",
+                    "allowlist": ["containerd", "cri-o"],
+                },
+            },
+            "--forks": {
+                "values": [
+                    ANSIThemeStr("FORKS", "argument")],
+                "description": [
+                    ANSIThemeStr("Max number of parallel Ansible connections", "description")],
+                "extended_description": [
+                    [ANSIThemeStr("This sets the max number of parallel connections",
+                                  "description")],
+                    [ANSIThemeStr("when running Ansible playbooks", "description")],
+                    [ANSIThemeStr("(this overrides ", "description"),
+                     ANSIThemeStr(f"{CMT_CONFIG_FILENAME}", "argument"),
+                     ANSIThemeStr("; default: ", "description"),
+                     ANSIThemeStr("5", "argument"),
+                     ANSIThemeStr(")", "description")],
+                ],
+                "requires_arg": True,
+                "validation": {
+                    "validator": "int",
+                    "valid_range": (5, 256),
+                },
+            },
+            "--from-file": {
+                "description": [
+                    ANSIThemeStr("Treat the argument to ", "description"),
+                    ANSIThemeStr("prepare", "command"),
+                    ANSIThemeStr(" as a path", "description")],
+                "extended_description": [
+                    [ANSIThemeStr("When using this option the HOST", "description")],
+                    [ANSIThemeStr("argument will be treated as a path to a file", "description")],
+                    [ANSIThemeStr("with hostnames instead of a list of hostnames", "description")],
+                ],
+            },
+            "--ignore-existing": {
+                "description": [
+                    ANSIThemeStr("Ignore hosts that are already part of the cluster",
+                                 "description")],
+            },
+            "--ignore-non-existing": {
+                "description": [
+                    ANSIThemeStr("Ignore hosts that are not part of the inventory",
+                                 "description")],
+            },
+            "--kubernetes-distro": {
+                "values": [
+                    ANSIThemeStr("DISTRO", "argument")],
+                "description": [
+                    ANSIThemeStr("The Kubernetes distro of the control plane", "description")],
+                "extended_description": [
+                    [ANSIThemeStr("Depending on the Kubernetes distro in use a lot",
+                                  "description")],
+                    [ANSIThemeStr("of things during node setup has to be done", "description")],
+                    [ANSIThemeStr("differently. If this option is not specified", "description")],
+                    [ANSIThemeStr(f"{about.TOOL_PROGRAM_NAME}", "programname"),
+                     ANSIThemeStr(" will assume that ", "description"),
+                     ANSIThemeStr("kubeadm ", "argument"),
+                     ANSIThemeStr("is used.", "description")],
+                    [ANSIThemeStr("Supported options:", "description")],
+                    [ANSIThemeStr("kubeadm", "argument"),
+                     ANSIThemeStr(" (default)", "description")],
+                    [ANSIThemeStr("rke2", "argument"),
+                     ANSIThemeStr(" (default on SUSE)", "description")],
+                    [ANSIThemeStr("Note", "note"),
+                     ANSIThemeStr(": currently ", "description"),
+                     ANSIThemeStr("rke2", "argument"),
+                     ANSIThemeStr(" is the only supported", "description")],
+                    [ANSIThemeStr("option on ", "description"),
+                     ANSIThemeStr("SUSE", "programname")],
+                ],
+                "requires_arg": True,
+                "validation": {
+                    "validator": "regex",
+                    "regex": r"^(kubeadm|rke2)$",
+                },
+            },
+            "--save-ansible-logs": {
+                "description": [
+                    ANSIThemeStr("Save logs from Ansible runs", "description")],
+                "extended_description": [
+                    [ANSIThemeStr("The logs can be viewed using “", "description"),
+                     ANSIThemeStr("cmu", "programname"),
+                     ANSIThemeStr(" logs", "command"),
+                     ANSIThemeStr("“", "description")]
+                ],
+            },
+            "--verbose": {
+                "description": [
+                    ANSIThemeStr("Be more verbose", "description")],
+            },
+            "-Y": {
+                "description": [
+                    ANSIThemeStr("Do not ask for confirmation", "description")],
+            },
+        },
+        "required_args": [
+            {
+                "name": "hosts_or_hostfile_path",
+                "string": [
+                    ANSIThemeStr("HOST", "argument"),
+                    ANSIThemeStr(",", "separator"),
+                    ANSIThemeStr("...", "argument"),
+                    ANSIThemeStr("|", "separator"),
+                    ANSIThemeStr("PATH", "argument")],
+                "validation": {
+                    "validator": "hostname_or_path",
+                    "list_separator": ",",
+                },
+            },
+        ],
+        "optional_args": [],
+        "callback": add_nodes,
+    },
+    "Remove Node": {
+        "command": ["remove-node", "remove-nodes"],
+        "values": [
+            ANSIThemeStr("NODE", "argument"),
+            ANSIThemeStr(",", "separator"),
+            ANSIThemeStr("...", "argument"),
+            ANSIThemeStr("|", "separator"),
+            ANSIThemeStr("ALL", "argument")],
+        "description": [
+            ANSIThemeStr("Remove ", "description"),
+            ANSIThemeStr("NODE", "argument"),
+            ANSIThemeStr(",", "separator"),
+            ANSIThemeStr("...", "argument"),
+            ANSIThemeStr(" from a Kubernetes cluster", "description")],
+        "options": {
+            "--force": {
+                "description": [
+                    ANSIThemeStr("Force teardown of non-nodes", "description")],
+                "extended_description": [
+                    [ANSIThemeStr("Attempt to teardown Kubernetes nodes", "description")],
+                    [ANSIThemeStr("that are no longer part of the cluster", "description")],
+                ],
+            },
+            "--forks": {
+                "values": [
+                    ANSIThemeStr("FORKS", "argument")],
+                "description": [
+                    ANSIThemeStr("Max number of parallel Ansible connections", "description")],
+                "extended_description": [
+                    [ANSIThemeStr("This sets the max number of parallel connections",
+                                  "description")],
+                    [ANSIThemeStr("when running Ansible playbooks", "description")],
+                    [ANSIThemeStr("(this overrides ", "description"),
+                     ANSIThemeStr(f"{CMT_CONFIG_FILENAME}", "argument"),
+                     ANSIThemeStr("; default: ", "description"),
+                     ANSIThemeStr("5", "argument"),
+                     ANSIThemeStr(")", "description")],
+                ],
+                "requires_arg": True,
+                "validation": {
+                    "validator": "int",
+                    "valid_range": (5, 256),
+                },
+            },
+            "--kubernetes-distro": {
+                "values": [
+                    ANSIThemeStr("DISTRO", "argument")],
+                "description": [
+                    ANSIThemeStr("The Kubernetes distro of the control plane", "description")],
+                "extended_description": [
+                    [ANSIThemeStr("Depending on the Kubernetes distro in use a lot",
+                                  "description")],
+                    [ANSIThemeStr("of things during node teardown has to be done", "description")],
+                    [ANSIThemeStr("differently. If this option is not specified", "description")],
+                    [ANSIThemeStr(f"{about.TOOL_PROGRAM_NAME}", "programname"),
+                     ANSIThemeStr(" will assume that ", "description"),
+                     ANSIThemeStr("kubeadm ", "argument"),
+                     ANSIThemeStr("is used.", "description")],
+                    [ANSIThemeStr("Supported options:", "description")],
+                    [ANSIThemeStr("kubeadm", "argument"),
+                     ANSIThemeStr(" (default)", "description")],
+                    [ANSIThemeStr("rke2", "argument"),
+                     ANSIThemeStr(" (default on SUSE)", "description")],
+                    [ANSIThemeStr("Note", "note"),
+                     ANSIThemeStr(": currently ", "description"),
+                     ANSIThemeStr("rke2", "argument"),
+                     ANSIThemeStr(" is the only supported", "description")],
+                    [ANSIThemeStr("option on ", "description"),
+                     ANSIThemeStr("SUSE", "programname")],
+                ],
+                "requires_arg": True,
+                "validation": {
+                    "validator": "regex",
+                    "regex": r"^(kubeadm|rke2)$",
+                },
+            },
+            "--purge": {
+                "description": [
+                    ANSIThemeStr("Purge hosts if teardown completes successfully", "description")],
+            },
+            "--save-ansible-logs": {
+                "description": [
+                    ANSIThemeStr("Save logs from Ansible runs", "description")],
+                "extended_description": [
+                    [ANSIThemeStr("The logs can be viewed using “", "description"),
+                     ANSIThemeStr("cmu", "programname"),
+                     ANSIThemeStr(" logs", "command"),
+                     ANSIThemeStr("“", "description")]
+                ],
+            },
+            "--verbose": {
+                "description": [
+                    ANSIThemeStr("Be more verbose", "description")],
+            },
+            "-Y": {
+                "description": [
+                    ANSIThemeStr("Do not ask for confirmation", "description")],
+            },
+        },
+        "required_args": [
+            {
+                "name": "node",
+                "string": [
+                    ANSIThemeStr("NODE", "argument"),
+                    ANSIThemeStr(",", "separator"),
+                    ANSIThemeStr("...", "argument"),
+                    ANSIThemeStr("|", "separator"),
+                    ANSIThemeStr("ALL", "argument")],
+                "validation": {
+                    "validator": "hostname",
+                    "list_separator": ",",
+                },
+            },
+        ],
+        "optional_args": [],
+        "callback": remove_nodes,
+    },
+    "Purge": {
+        "command": ["purge"],
+        "values": [
+            ANSIThemeStr("HOST", "argument"),
+            ANSIThemeStr(",", "separator"),
+            ANSIThemeStr("...", "argument")],
+        "description": [
+            ANSIThemeStr("Purge configuration and packages from ", "description"),
+            ANSIThemeStr("HOST", "argument")],
+        "extended_description": [
+            [ANSIThemeStr("purge", "command"),
+             ANSIThemeStr(" will run ", "description"),
+             ANSIThemeStr("remove-node", "command"),
+             ANSIThemeStr(" first if necessary", "description")],
+        ],
+        "options": {
+            "--ignore-non-existing": {
+                "description": [
+                    ANSIThemeStr("Ignore non-existing hosts", "description")],
+                "extended_description": [
+                    [ANSIThemeStr("Silently ignore hosts that cannot be found", "description")],
+                    [ANSIThemeStr("in the inventory", "description")],
+                ],
+            },
+            "--forks": {
+                "values": [
+                    ANSIThemeStr("FORKS", "argument")],
+                "description": [
+                    ANSIThemeStr("Max number of parallel Ansible connections", "description")],
+                "extended_description": [
+                    [ANSIThemeStr("This sets the max number of parallel connections",
+                                  "description")],
+                    [ANSIThemeStr("when running Ansible playbooks", "description")],
+                    [ANSIThemeStr("(this overrides ", "description"),
+                     ANSIThemeStr(f"{CMT_CONFIG_FILENAME}", "argument"),
+                     ANSIThemeStr("; default: ", "description"),
+                     ANSIThemeStr("5", "argument"),
+                     ANSIThemeStr(")", "description")],
+                ],
+                "requires_arg": True,
+                "validation": {
+                    "validator": "int",
+                    "valid_range": (5, 256),
+                },
+            },
+            "--kubernetes-distro": {
+                "values": [
+                    ANSIThemeStr("DISTRO", "argument")],
+                "description": [
+                    ANSIThemeStr("The Kubernetes distro of the control plane", "description")],
+                "extended_description": [
+                    [ANSIThemeStr("Depending on the Kubernetes distro in use a lot",
+                                  "description")],
+                    [ANSIThemeStr("of things during node teardown has to be done", "description")],
+                    [ANSIThemeStr("differently. If this option is not specified", "description")],
+                    [ANSIThemeStr(f"{about.TOOL_PROGRAM_NAME}", "programname"),
+                     ANSIThemeStr(" will assume that ", "description"),
+                     ANSIThemeStr("kubeadm ", "argument"),
+                     ANSIThemeStr("is used.", "description")],
+                    [ANSIThemeStr("Supported options:", "description")],
+                    [ANSIThemeStr("kubeadm", "argument"),
+                     ANSIThemeStr(" (default)", "description")],
+                    [ANSIThemeStr("rke2", "argument"),
+                     ANSIThemeStr(" (default on SUSE)", "description")],
+                    [ANSIThemeStr("Note", "note"),
+                     ANSIThemeStr(": currently ", "description"),
+                     ANSIThemeStr("rke2", "argument"),
+                     ANSIThemeStr(" is the only supported", "description")],
+                    [ANSIThemeStr("option on ", "description"),
+                     ANSIThemeStr("SUSE", "programname")],
+                ],
+                "requires_arg": True,
+                "validation": {
+                    "validator": "regex",
+                    "regex": r"^(kubeadm|rke2)$",
+                },
+            },
+            "--save-ansible-logs": {
+                "description": [
+                    ANSIThemeStr("Save logs from Ansible runs", "description")],
+                "extended_description": [
+                    [ANSIThemeStr("The logs can be viewed using “", "description"),
+                     ANSIThemeStr("cmu", "programname"),
+                     ANSIThemeStr(" logs", "command"),
+                     ANSIThemeStr("“", "description")]
+                ],
+            },
+            "--verbose": {
+                "description": [
+                    ANSIThemeStr("Be more verbose", "description")],
+            },
+        },
+        "required_args": [
+            {
+                "name": "hosts",
+                "string": [
+                    ANSIThemeStr("HOST", "argument"),
+                    ANSIThemeStr(",", "separator"),
+                    ANSIThemeStr("...", "argument"),
+                    ANSIThemeStr("|", "separator"),
+                    ANSIThemeStr("ALL", "argument")],
+                "validation": {
+                    "validator": "hostname",
+                    "list_separator": ",",
+                },
+            },
+        ],
+        "optional_args": [],
+        "callback": purge_hosts,
+    },
+    "Upgrade Node": {
+        "command": ["upgrade-node", "upgrade-nodes"],
+        "values": [
+            ANSIThemeStr("NODE", "argument"),
+            ANSIThemeStr(",", "separator"),
+            ANSIThemeStr("...", "argument"),
+            ANSIThemeStr("|", "separator"),
+            ANSIThemeStr("ALL", "argument")],
+        "description": [
+            ANSIThemeStr("Upgrade Kubernetes on ", "description"),
+            ANSIThemeStr("NODE", "argument"),
+            ANSIThemeStr(",", "separator"),
+            ANSIThemeStr("...", "argument")],
+        "extended_description": [
+            [ANSIThemeStr("This command upgrades Kubernetes on ", "description"),
+             ANSIThemeStr("NODE", "argument"),
+             ANSIThemeStr(",", "separator"),
+             ANSIThemeStr("...", "argument")],
+            [ANSIThemeStr("to the version on the control plane(s);", "description")],
+            [ANSIThemeStr("run this on all nodes after running", "description")],
+            [ANSIThemeStr("“", "description"),
+             ANSIThemeStr(f"{about.ADMIN_PROGRAM_NAME}", "programname"),
+             ANSIThemeStr(" upgrade-control-plane", "command"),
+             ANSIThemeStr("“", "description")],
+            [ANSIThemeStr("Note", "note"),
+             ANSIThemeStr(": ", "description"),
+             ANSIThemeStr("upgrade-node", "command"),
+             ANSIThemeStr(" is currently not", "description")],
+            [ANSIThemeStr("implemented for ", "description"),
+             ANSIThemeStr("rke2", "argument")],
+        ],
+        "options": {
+            "--forks": {
+                "values": [
+                    ANSIThemeStr("FORKS", "argument")],
+                "description": [
+                    ANSIThemeStr("Max number of parallel Ansible connections", "description")],
+                "extended_description": [
+                    [ANSIThemeStr("This sets the max number of parallel connections",
+                                  "description")],
+                    [ANSIThemeStr("when running Ansible playbooks", "description")],
+                    [ANSIThemeStr("(this overrides ", "description"),
+                     ANSIThemeStr(f"{CMT_CONFIG_FILENAME}", "argument"),
+                     ANSIThemeStr("; default: ", "description"),
+                     ANSIThemeStr("5", "argument"),
+                     ANSIThemeStr(")", "description")],
+                ],
+                "requires_arg": True,
+                "validation": {
+                    "validator": "int",
+                    "valid_range": (5, 256),
+                },
+            },
+            "--save-ansible-logs": {
+                "description": [
+                    ANSIThemeStr("Save logs from Ansible runs", "description")],
+                "extended_description": [
+                    [ANSIThemeStr("The logs can be viewed using “", "description"),
+                     ANSIThemeStr("cmu", "programname"),
+                     ANSIThemeStr(" logs", "command"),
+                     ANSIThemeStr("“", "description")]
+                ],
+            },
+            "--verbose": {
+                "description": [
+                    ANSIThemeStr("Be more verbose", "description")],
+            },
+        },
+        "required_args": [
+            {
+                "name": "node",
+                "string": [
+                    ANSIThemeStr("NODE", "argument"),
+                    ANSIThemeStr(",", "separator"),
+                    ANSIThemeStr("...", "argument"),
+                    ANSIThemeStr("|", "separator"),
+                    ANSIThemeStr("ALL", "argument")],
+                "validation": {
+                    "validator": "hostname",
+                    "list_separator": ",",
+                },
+            },
+        ],
+        "optional_args": [],
+        "callback": upgrade_nodes,
+    },
+    "Get Contexts": {
+        "command": ["get-contexts", "get-ctx"],
+        "description": [
+            ANSIThemeStr("Get the list of available contexts", "description")],
+        "required_args": [],
+        "optional_args": [],
+        "callback": get_contexts,
+    },
+    "Use Context": {
+        "command": ["use-context", "use-ctx"],
+        "description": [
+            ANSIThemeStr("Set current context", "description")],
+        "values": [
+            ANSIThemeStr("NAME", "argument"),
+            ANSIThemeStr("|", "separator"),
+            ANSIThemeStr("INDEX", "argument")],
+        "extended_description": [
+            [ANSIThemeStr("Set current context, either by specifying", "description")],
+            [ANSIThemeStr("context ", "description"),
+             ANSIThemeStr("NAME", "argument"),
+             ANSIThemeStr(" or by specifying context ", "description"),
+             ANSIThemeStr("INDEX", "argument")],
+        ],
+        "required_args": [
+            {
+                "name": "context",
+                "string": [
+                    ANSIThemeStr("NAME", "argument"),
+                    ANSIThemeStr("|", "separator"),
+                    ANSIThemeStr("INDEX", "argument")],
+                "validation": {
+                    "validator": "regex",
+                    "regex": r"^(\d+|[a-z][a-z+@\d-]*)$",
+                },
+            },
+        ],
+        "optional_args": [],
+        "callback": use_context,
+    },
+    "List API-resources": {
+        "command": ["api-resources"],
+        "description": [
+            ANSIThemeStr("Display available API-resources", "description")],
+        "options": {
+            "--api-group": {
+                "values": [
+                    ANSIThemeStr("API_GROUP", "argument")],
+                "description": [
+                    ANSIThemeStr("Limit output to ", "description"),
+                    ANSIThemeStr("API_GROUP", "argument")],
+                "extended_description": [
+                    [ANSIThemeStr("If the version part of ", "description"),
+                     ANSIThemeStr("API_GROUP", "argument"),
+                     ANSIThemeStr(" is omitted,", "description")],
+                    [ANSIThemeStr("all versions of the API-GROUP are included.", "description")],
+                    [ANSIThemeStr("To only show core APIs, use ", "description"),
+                     ANSIThemeStr("\"\"", "argument"),
+                     ANSIThemeStr(".", "description")],
+                ],
+                "requires_arg": True,
+                "validation": {
+                    "validator": "regex",
+                    "regex": r"^([a-z][a-z0-9.-]*[a-z0-9]?)?",
+                },
+            },
+            "--color": {
+                "values": [
+                    ANSIThemeStr("WHEN", "argument")],
+                "description": [
+                    ANSIThemeStr("WHEN should the output use ANSI-colors", "description")],
+                "extended_description": [
+                    [ANSIThemeStr("Valid arguments are:", "description")],
+                    [ANSIThemeStr("always", "argument"),
+                     ANSIThemeStr(" (always color the output)", "description")],
+                    [ANSIThemeStr("auto", "argument"),
+                     ANSIThemeStr(" (color the output when outputting", "description")],
+                    [ANSIThemeStr("to a terminal)", "description")],
+                    [ANSIThemeStr("never", "argument"),
+                     ANSIThemeStr(" (never color the output)", "description")],
+                ],
+                "requires_arg": True,
+                "validation": {
+                    "validator": "allowlist",
+                    "allowlist": [
+                        "always",
+                        "auto",
+                        "never",
+                    ],
+                },
+            },
+            "--has-data": {
+                "description": [
+                    ANSIThemeStr("Only list APIs that have resources", "description")],
+                "extended_description": [
+                    [ANSIThemeStr("This option will only list APIs that have data.",
+                                  "description")],
+                    [ANSIThemeStr("Note", "note"),
+                     ANSIThemeStr(": this can be very slow.", "description")],
+                ],
+            },
+            "--known": {
+                "values": [ANSIThemeStr("FILTER", "argument")],
+                "description": [
+                    ANSIThemeStr("Limit output to ", "description"),
+                    ANSIThemeStr("FILTER", "argument")],
+                "extended_description": [
+                    [ANSIThemeStr("Valid values are:", "description")],
+                    [ANSIThemeStr("unknown", "argument"),
+                     ANSIThemeStr("/", "separator"),
+                     ANSIThemeStr("not-known", "argument"),
+                     ANSIThemeStr(", ", "separator"),
+                     ANSIThemeStr("updated", "argument")],
+                    [ANSIThemeStr("or a combination of:", "description")],
+                    [ANSIThemeStr("known", "argument"),
+                     ANSIThemeStr(", ", "separator"),
+                     ANSIThemeStr("list", "argument"),
+                     ANSIThemeStr("/", "separator"),
+                     ANSIThemeStr("not-list", "argument"),
+                     ANSIThemeStr(" and ", "description"),
+                     ANSIThemeStr("info", "argument"),
+                     ANSIThemeStr("/", "separator"),
+                     ANSIThemeStr("not-info", "argument"),
+                     ANSIThemeStr(".", "description")],
+                    [ANSIThemeStr("unknown", "argument"),
+                     ANSIThemeStr("/", "separator"),
+                     ANSIThemeStr("not-known", "argument"),
+                     ANSIThemeStr(" limits the output to APIs that", "description")],
+                    [ANSIThemeStr("are unknown to ", "description"),
+                     ANSIThemeStr("CMT", "programname"),
+                     ANSIThemeStr(".", "description")],
+                    [ANSIThemeStr("updated", "argument"),
+                     ANSIThemeStr(" limits the output to APIs that are", "description")],
+                    [ANSIThemeStr("either unknown to ", "description"),
+                     ANSIThemeStr("CMT", "programname"),
+                     ANSIThemeStr(" or have been updated.", "description")],
+                    [ANSIThemeStr("known", "argument"),
+                     ANSIThemeStr(" limits the output to APIs that are", "description")],
+                    [ANSIThemeStr("known by ", "description"),
+                     ANSIThemeStr("CMT", "programname"),
+                     ANSIThemeStr("; augment this with", "description")],
+                    [ANSIThemeStr("list", "argument"),
+                     ANSIThemeStr("/", "separator"),
+                     ANSIThemeStr("not-list", "argument"),
+                     ANSIThemeStr(" and ", "description"),
+                     ANSIThemeStr("info", "argument"),
+                     ANSIThemeStr("/", "separator"),
+                     ANSIThemeStr("not-info", "argument")],
+                    [ANSIThemeStr("to limit the output based on whether ", "description"),
+                     ANSIThemeStr("CMT", "programname")],
+                    [ANSIThemeStr("has ", "description"),
+                     ANSIThemeStr("list", "emphasis"),
+                     ANSIThemeStr(" and ", "description"),
+                     ANSIThemeStr("info", "emphasis"),
+                     ANSIThemeStr(" views available.", "description")],
+                ],
+                "requires_arg": True,
+                "validation": {
+                    "validator": "allowlist",
+                    "allowlist": [
+                        "known",
+                        "!known", "not-known", "unknown",
+                        "updated",
+                        "list",
+                        "!list", "not-list",
+                        "info",
+                        "!info", "not-info"
+                    ],
+                    "list_separator": ",",
+                },
+            },
+            "--local": {
+                "values": [
+                    ANSIThemeStr("true", "argument"),
+                    ANSIThemeStr("|", "separator"),
+                    ANSIThemeStr("false", "argument")],
+                "description": [
+                    ANSIThemeStr("Limit output to only local or upstream view-files",
+                                 "description")],
+                "extended_description": [
+                    [ANSIThemeStr("If ", "description"),
+                     ANSIThemeStr("true", "argument"),
+                     ANSIThemeStr(" only locally added view-files are", "description")],
+                    [ANSIThemeStr("considered when determining API-support level.", "description")],
+                    [ANSIThemeStr("If ", "description"),
+                     ANSIThemeStr("false", "argument"),
+                     ANSIThemeStr(" only upstream view-files are considered", "description")],
+                    [ANSIThemeStr("when determining API-support level.", "description")],
+                    [ANSIThemeStr("By default both local and upstream view-files", "description")],
+                    [ANSIThemeStr("are considered.", "description")],
+                ],
+                "requires_arg": True,
+                "validation": {
+                    "validator": "bool",
+                },
+            },
+            "--namespaced": {
+                "values": [
+                    ANSIThemeStr("true", "argument"),
+                    ANSIThemeStr("|", "separator"),
+                    ANSIThemeStr("false", "argument")],
+                "description": [
+                    ANSIThemeStr("Limit output to namespaced or cluster-wide", "description")],
+                "extended_description": [
+                    [ANSIThemeStr("If ", "description"),
+                     ANSIThemeStr("true", "argument"),
+                     ANSIThemeStr(" only namespaced resources will be listed.", "description")],
+                    [ANSIThemeStr("If ", "description"),
+                     ANSIThemeStr("false", "argument"),
+                     ANSIThemeStr(" only cluster-wide resources will be", "description")],
+                    [ANSIThemeStr("listed. By default all resources are listed.", "description")],
+                ],
+                "requires_arg": True,
+                "validation": {
+                    "validator": "bool",
+                },
+            },
+            "--no-header": {
+                "description": [
+                    ANSIThemeStr("Do not output list headers", "description")],
+            },
+            "--format": {
+                "values": [
+                    ANSIThemeStr("FORMAT", "argument")],
+                "description": [
+                    ANSIThemeStr("Format the output as ", "description"),
+                    ANSIThemeStr("FORMAT", "argument")],
+                "extended_description": [
+                    [ANSIThemeStr("Valid formats are:", "description")],
+                    [ANSIThemeStr("table", "argument"),
+                     ANSIThemeStr(" (table with information)", "description")],
+                    [ANSIThemeStr("csv", "argument"),
+                     ANSIThemeStr(" (comma-separated values)", "description")],
+                    [ANSIThemeStr("ssv", "argument"),
+                     ANSIThemeStr(" (space-separated values)", "description")],
+                    [ANSIThemeStr("tsv", "argument"),
+                     ANSIThemeStr(" (tab-separated values)", "description")],
+                    [ANSIThemeStr("entry", "argument"),
+                     ANSIThemeStr(" (used when adding API support to CMT)", "description")]
+                ],
+                "requires_arg": True,
+                "validation": {
+                    "validator": "allowlist",
+                    "allowlist": [
+                        "table",
+                        "csv",
+                        "ssv",
+                        "tsv",
+                        "entry"
+                    ],
+                },
+            },
+            "--sort-by": {
+                "values": [
+                    ANSIThemeStr("SORTKEY", "argument")],
+                "description": [
+                    ANSIThemeStr("Sort the output by ", "description"),
+                    ANSIThemeStr("SORTKEY", "description")],
+                "extended_description": [
+                    [ANSIThemeStr("Valid sortkeys are:", "description")],
+                    [ANSIThemeStr("name", "argument")],
+                    [ANSIThemeStr("apiversion", "argument")],
+                    [ANSIThemeStr("namespaced", "argument")],
+                    [ANSIThemeStr("kind", "argument")],
+                ],
+                "requires_arg": True,
+                "validation": {
+                    "validator": "regex",
+                    "regex": r"^[a-z]+",
+                    "list_separator": ",",
+                },
+            },
+            "--verbs": {
+                "values": [
+                    ANSIThemeStr("VERB", "argument"),
+                    ANSIThemeStr(",", "separator"),
+                    ANSIThemeStr("...", "argument")],
+                "description": [
+                    ANSIThemeStr("Limit output by supported verbs", "description")],
+                "requires_arg": True,
+                "validation": {
+                    "validator": "regex",
+                    "regex": r"^[a-z]+",
+                    "list_separator": ",",
+                },
+            },
+            "--wide": {
+                "description": [
+                    ANSIThemeStr("Wide output format", "description")],
+            },
+        },
+        "required_args": [],
+        "optional_args": [],
+        "callback": list_api_resources,
+    },
+    "spacer1": {
+        "command": [""],
+        "description": [
+            ANSIThemeStr("", "default")],
+        "required_args": [],
+        "optional_args": [],
+        "callback": None,
+    },
+    "extended_description": [
+        [ANSIThemeStr("You can use “", "description"),
+         ANSIThemeStr("ALL", "emphasis"),
+         ANSIThemeStr("“ as a substitute for all resources in most cases;", "description")],
+        [ANSIThemeStr("for instance “", "description"),
+         ANSIThemeStr(f"{about.TOOL_PROGRAM_NAME}", "programname"),
+         ANSIThemeStr(" upgrade-node ", "command"),
+         ANSIThemeStr("ALL", "emphasis"),
+         ANSIThemeStr("“ will upgrade Kubernetes on all nodes", "description")],
+        [ANSIThemeStr("", "default")],
+        [ANSIThemeStr("Note that “", "description"),
+         ANSIThemeStr("ALL", "emphasis"),
+         ANSIThemeStr("“ excludes control planes; to include", "description")],
+        [ANSIThemeStr("control planes you need to use “", "description"),
+         ANSIThemeStr("--include-control-planes", "option"),
+         ANSIThemeStr("“ (where applicable)", "description")],
+    ],  # type: ignore
+}
+
+
+def get_programname(callname: str) -> tuple[str, dict]:
+    """
+    Return the name that the program was called with;
+    the eventual intention here is that the behaviour can be different
+    depending on by what name the program was invoked.
+
+        Parameters:
+            callname (str): The name that the program was invoked with
+        Returns:
+            ((str, dict)): The commandline for the programname cmt was invoked with
+    """
+    callnames = {
+        "cmt": CMT_COMMANDLINE,         # main name
+        "cmt.py": CMT_COMMANDLINE,      # main name
+        # "cmtdep": DEP_COMMANDLINE,    # deployment shortcut
+        # "cmtds": DS_COMMANDLINE,      # daemon set shortcut
+        # "cmtev": EV_COMMANDLINE,      # event shortcut
+        # "cmtrs": RS_COMMANDLINE,      # replica set shortcut
+        # "cmtsts": STS_COMMANDLINE,    # stateful set shortcut
+        # "cmtjob": JOB_COMMANDLINE,    # job shortcut
+        # "cmtnode": NODE_COMMANDLINE,  # node shortcut
+        # "cmtpod": POD_COMMANDLINE,    # pod shortcut
+    }
+
+    if callname not in callnames:
+        sys.exit(f"{about.TOOL_PROGRAM_NAME} called with unknown name {callname}; aborting.")
+
+    return callname, callnames[callname]
+
+
+def main() -> int:
+    """
+    Main function for the program.
+    """
+    # Before doing anything else, make sure that the user is not running as root
+    if os.geteuid() == 0:
+        sys.exit("CRITICAL: This program should not be run as the root user; aborting.")
+
+    # Now check if all necessary paths exist
+    if (violations := cmtlib.setup_paths()) != [SecurityStatus.OK]:
+        violations_joined = cmtio.join_securitystatus_set(",", set(violations))
+        sys.exit(f"Failed to create necessary directories; violated rules: {violations_joined}")
+
+    # Then initialise the configuration file
+    read_cmtconfig()
+
+    programname, commandline = get_programname(os.path.basename(sys.argv[0]))
+
+    command, options, args = parse_commandline(programname, about.TOOL_PROGRAM_VERSION,
+                                               PROGRAMDESCRIPTION, PROGRAMAUTHORS, sys.argv,
+                                               commandline, theme=DEFAULT_THEME_FILE)
+
+    for key, value in options:
+        if key == "__commandname" and value in ("help", "version"):
+            break
+    else:
+        checks.check_ansible_dir_permissions(verbose=False, exit_on_error=True,
+                                             quiet_on_ok=True, user=getuser())
+        checks.check_netrc_permissions(verbose=False, exit_on_error=True, quiet_on_ok=True)
+
+    # Used by the ansible module
+    ansible_configuration["ansible_forks"] = \
+        deep_get(cmtlib.cmtconfig, DictPath("Ansible#forks"), 10)
+    ansible_user = deep_get(cmtlib.cmtconfig, DictPath("Ansible#ansible_user"))
+    if ansible_user is None or not ansible_user:
+        ansible_user = getuser()
+    ansible_configuration["ansible_user"] = ansible_user
+    ansible_password = deep_get(cmtlib.cmtconfig, DictPath("Ansible#ansible_password"))
+    if ansible_password is not None and ansible_password:
+        ansible_configuration["ansible_password"] = ansible_password
+    ansible_configuration["disable_strict_host_key_checking"] = \
+        deep_get(cmtlib.cmtconfig, DictPath("Nodes#disablestricthostkeychecking"), False)
+    ansible_configuration["save_logs"] = \
+        deep_get(cmtlib.cmtconfig, DictPath("Ansible#save_logs"), False)
+
+    return command(options, args)
+
+
+if __name__ == "__main__":
+    main()

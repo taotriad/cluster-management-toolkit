@@ -1,25 +1,15 @@
-#! /bin/sh
-# vim: ts=4 filetype=python expandtab shiftwidth=4 softtabstop=4 syntax=python
-''''eval version=$( ls /usr/bin/python3.* | \
-    grep '.*[0-9]$' | sort -nr -k2 -t. | head -n1 ) && \
-    version=${version##/usr/bin/python3.} && [ ${version} ] && \
-    [ ${version} -ge 11 ] && exec /usr/bin/python3.${version} "$0" "$@" || \
-    exec /usr/bin/env python3 "$0" "$@"' #'''
-# The above hack is to handle distros where /usr/bin/python3
-# doesn't point to the latest version of python3 they provide
+#! /usr/bin/env python3
 
 # Requires: python3 (>= 3.11)
 # Requires: python3-jinja2
-import os
 import re
 import subprocess  # nosec
 from subprocess import PIPE, STDOUT  # nosec
 import sys
-from typing import Any, NoReturn
-import yaml
+from typing import NoReturn
 
 PROGRAMNAME = "genstats.py"
-PROGRAMVERSION = "v0.0.1"
+PROGRAMVERSION = "v0.0.2"
 
 PROGRAMDESCRIPTION = "Generate statistics that are useful for release notes"
 PROGRAMAUTHORS = "Written by David Weinehall."

@@ -17,7 +17,8 @@ _Note_: some of the listed software may not be relevant to the configuration in 
   __`--no-cache-update`__
   Do not update the package caches  
   Alias for:
-  “__--no-pkg-cache-update --no-upstream-cache-update__“.
+  “__--no-pkg-cache-update__
+   __--no-upstream-cache-update__“.
 
   __`--no-pkg-cache-update`__
   Do not update the distro package cache  

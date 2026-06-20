@@ -1382,6 +1382,7 @@ types:
   toml_key_separator: "type_toml_key_separator"
   toml_key: "type_toml_key"
   toml_punctuation: "type_toml_punctuation"
+  toml_section: "type_toml_section"
   toml_value: "type_toml_value"
   uid: "type_uid"
   undefined: ["type_undefined", "bold"]

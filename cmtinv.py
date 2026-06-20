@@ -1,0 +1,2470 @@
+#! /usr/bin/env python3
+# [:::MUNGE SHEBANG:::]
+
+# Requires: python3 (>= 3.11)
+# Requires: python3-natsort
+#
+# Copyright the Cluster Management Toolkit for Kubernetes contributors.
+# SPDX-License-Identifier: MIT
+
+# pylint: disable=too-many-lines
+
+"""
+Query or modify the host inventory.
+"""
+
+import errno
+from getpass import getuser
+import os
+from pathlib import Path, PurePath
+import re
+import sys
+from typing import Any, cast
+try:
+    import yaml
+except ModuleNotFoundError:  # pragma: no cover
+    sys.exit("ModuleNotFoundError: Could not import yaml; "
+             "you may need to (re-)run `cmt-install` or `pip3 install PyYAML`; aborting.")
+
+try:
+    from natsort import natsorted
+except ModuleNotFoundError:  # pragma: no cover
+    sys.exit("ModuleNotFoundError: Could not import natsort; "
+             "you may need to (re-)run `cmt-install` or `pip3 install natsort`; aborting.")
+
+# This has to be first, since it checks for the correct Python version
+from clustermanagementtoolkit import about
+
+from clustermanagementtoolkit.cmttypes import deep_get, deep_get_with_fallback, DictPath, FilePath
+from clustermanagementtoolkit.cmttypes import FilePathAuditError, ProgrammingError, UnknownError
+from clustermanagementtoolkit.cmttypes import SecurityPolicy, SecurityStatus
+
+from clustermanagementtoolkit.cmtpaths import SYSTEM_ANSIBLE_PLAYBOOK_DIR, ANSIBLE_PLAYBOOK_DIR
+from clustermanagementtoolkit.cmtpaths import HOMEDIR, SSH_DIR, FPING_BIN_PATH
+from clustermanagementtoolkit.cmtpaths import DEFAULT_THEME_FILE
+
+from clustermanagementtoolkit import cmtio
+
+from clustermanagementtoolkit import cmtio_yaml
+
+from clustermanagementtoolkit.commandparser import parse_commandline, CommandType
+
+from clustermanagementtoolkit.ansible_helper import ansible_configuration
+from clustermanagementtoolkit.ansible_helper import ansible_get_inventory_pretty
+from clustermanagementtoolkit.ansible_helper import ansible_get_inventory_dict
+from clustermanagementtoolkit.ansible_helper import ansible_get_groups, ansible_get_groups_by_host
+from clustermanagementtoolkit.ansible_helper import ansible_get_hosts_by_group
+from clustermanagementtoolkit.ansible_helper import ansible_add_hosts, ansible_remove_hosts
+from clustermanagementtoolkit.ansible_helper import ansible_create_groups, ansible_remove_groups
+from clustermanagementtoolkit.ansible_helper import ansible_set_vars
+from clustermanagementtoolkit.ansible_helper import ansible_set_hostvars, ansible_unset_hostvars
+from clustermanagementtoolkit.ansible_helper import ansible_set_groupvars, ansible_unset_groupvars
+from clustermanagementtoolkit.ansible_helper import ansible_ping
+from clustermanagementtoolkit.ansible_helper import ansible_print_action_summary
+from clustermanagementtoolkit.ansible_helper import ansible_print_play_results
+from clustermanagementtoolkit.ansible_helper import ansible_run_playbook_on_selection
+from clustermanagementtoolkit.ansible_helper import populate_playbooks_from_filenames
+from clustermanagementtoolkit.ansible_helper import ANSIBLE_INVENTORY
+
+from clustermanagementtoolkit import cmtlib
+from clustermanagementtoolkit.cmtlib import read_cmtconfig, get_latest_upstream_version
+
+from clustermanagementtoolkit import kubernetes_helper
+from clustermanagementtoolkit.kubernetes_helper import get_cluster_name
+
+from clustermanagementtoolkit import checks
+
+from clustermanagementtoolkit.ansithemeprint import ANSIThemeStr, ansithemeprint
+from clustermanagementtoolkit.ansithemeprint import ansithemestr_join_list, ansithemearray_to_str
+
+try:
+    import prctl
+    prctl.set_name(PurePath(sys.argv[0]).name)  # pylint: disable=no-member
+    prctl.set_proctitle(" ".join(sys.argv))
+except ModuleNotFoundError:  # pragma: no cover
+    pass
+
+PROGRAMDESCRIPTION = "Query or modify the host inventory."
+PROGRAMAUTHORS = "Written by David Weinehall."
+
+
+def get_groups_or_hosts(groups_or_hosts: str = "", error_on_failure: bool = True) -> list[str]:
+    """
+    Given a comma-separated string split it into tokens and expand them into a list
+    of hosts from the Ansible inventory. If the string is empty or None the hosts
+    of the "all" group will be returned.
+
+        Parameters:
+            groups_or_hosts (str): A comma-separated string
+                                   with a list of hosts or groups [optional]
+            error_on_failure (bool): Print an error message f unknown hosts/groups are specified
+        Returns:
+            (list[str]): A list of host names
+    """
+    if groups_or_hosts is not None and groups_or_hosts:
+        groups_or_hosts_list: list[str] = groups_or_hosts.split(",")
+        selection: list[str] = []
+        all_hosts = ansible_get_hosts_by_group(ANSIBLE_INVENTORY, "all")
+        for group_or_host in groups_or_hosts_list:
+            # First check if there's a group by this name
+            hosts = ansible_get_hosts_by_group(ANSIBLE_INVENTORY, group_or_host)
+            # If the group is empty let's try to see if it is a host
+            if not hosts:
+                if group_or_host in all_hosts:
+                    selection.append(group_or_host)
+                elif error_on_failure:
+                    ansithemeprint([ANSIThemeStr("Warning", "warning"),
+                                    ANSIThemeStr(": Skipping unknown or empty ", "default"),
+                                    ANSIThemeStr("host or group “", "default"),
+                                    ANSIThemeStr(group_or_host, "argument"),
+                                    ANSIThemeStr("“", "default")], stderr=True)
+            else:
+                selection += hosts
+        # Eliminate duplicates
+        selection = list(set(selection))
+    else:
+        selection = ansible_get_hosts_by_group(ANSIBLE_INVENTORY, "all")
+
+    if not selection and error_on_failure:
+        ansithemeprint([ANSIThemeStr("Error", "error"),
+                        ANSIThemeStr(": No valid hosts or groups specified; ", "default"),
+                        ANSIThemeStr("aborting.", "default")], stderr=True)
+
+    return selection
+
+
+# pylint: disable-next=unused-argument
+def set_host_vars(options: list[tuple[str, str]], args: list[str]) -> int:
+    """
+    Set host-specific variables.
+
+        Parameters:
+            options ([(str, str)]): [unused]
+            args ([str,str]):
+                (str): Comma-separated list of key:value pairs
+                (str): Comma-separated list of hosts
+        Returns:
+            (int): 0
+    """
+    hostvars: list[tuple[str, str | int]] = []
+    keyvals: list[str] = args[0].split(",")
+    hosts: list[str] = args[1].split(",")
+
+    for keyval in keyvals:
+        try:
+            key, value = keyval.split(":")
+        except ValueError:
+            ansithemeprint([ANSIThemeStr("Error", "error"),
+                            ANSIThemeStr(": Setting a variable requires a ", "default"),
+                            ANSIThemeStr("KEY", "argument"),
+                            ANSIThemeStr(":", "separator"),
+                            ANSIThemeStr("VALUE ", "argument"),
+                            ANSIThemeStr("pair.", "default")], stderr=True)
+            print()
+            ansithemeprint([ANSIThemeStr("Try “", "default"),
+                            ANSIThemeStr(f"{about.INVENTORY_PROGRAM_NAME} ", "programname"),
+                            ANSIThemeStr("help", "command"),
+                            ANSIThemeStr("“ for more information.", "default")], stderr=True)
+            sys.exit(errno.EINVAL)
+        hostvars.append((key, value))
+
+    # Set vars
+    if hostvars:
+        retval = ansible_set_hostvars(inventory=ANSIBLE_INVENTORY,
+                                      hosts=hosts, hostvars=hostvars)
+        if not retval:
+            raise ProgrammingError(f"Failed to set vars for hosts {hosts}")
+
+    return 0
+
+
+# pylint: disable-next=unused-argument
+def set_group_vars(options: list[tuple[str, str]], args: list[str]) -> int:
+    """
+    Set group-specific variables.
+
+        Parameters:
+            options ([(str, str)]): [unused]
+            args ([str,str]):
+                (str): Comma-separated list of key:value pairs
+                (str): Comma-separated list of groups
+        Returns:
+            (int): 0
+    """
+    groupvars = []
+    keyvals = args[0].split(",")
+    groups = args[1].split(",")
+
+    for keyval in keyvals:
+        try:
+            key, value = keyval.split(":")
+        except ValueError:
+            ansithemeprint([ANSIThemeStr("Error", "error"),
+                            ANSIThemeStr(": Setting a variable requires a ", "default"),
+                            ANSIThemeStr("KEY", "argument"),
+                            ANSIThemeStr(":", "separator"),
+                            ANSIThemeStr("VALUE ", "argument"),
+                            ANSIThemeStr("pair.", "default")], stderr=True)
+            print()
+            ansithemeprint([ANSIThemeStr("Try “", "default"),
+                            ANSIThemeStr(f"{about.INVENTORY_PROGRAM_NAME} ", "programname"),
+                            ANSIThemeStr("help", "command"),
+                            ANSIThemeStr("“ for more information.", "default")], stderr=True)
+            sys.exit(errno.EINVAL)
+        groupvars.append((key, value))
+
+    # Set vars
+    if groupvars:
+        retval = ansible_set_groupvars(inventory=ANSIBLE_INVENTORY,
+                                       groups=groups, groupvars=groupvars)
+        if not retval:
+            raise ProgrammingError(f"Failed to set vars for groups {groups}")
+
+    return 0
+
+
+def set_global_vars(options: list[tuple[str, str]], args: list[str]) -> int:
+    """
+    Set global variables.
+
+        Parameters:
+            options ([(str, str)]): [unused]
+            args ([str]): Comma-separated list of key:value pairs
+        Returns:
+            Return value from set_group_vars()
+    """
+    return set_group_vars(options=options, args=[args[0], "all"])
+
+
+# pylint: disable-next=unused-argument
+def unset_host_vars(options: list[tuple[str, str]], args: list[str]) -> int:
+    """
+    Unset host-specific variables.
+
+        Parameters:
+            options ([(str, str)]): [unused]
+            args ([str]):
+                (str): Comma-separated list of keys
+                (str): Comma-separated list of hosts
+        Returns:
+            (int): 0
+    """
+    hostvars = args[0].split(",")
+    hosts = args[1].split(",")
+
+    # Unset vars
+    if hostvars:
+        retval = ansible_unset_hostvars(inventory=ANSIBLE_INVENTORY,
+                                        hosts=hosts, hostvars=hostvars)
+        if not retval:
+            raise ProgrammingError(f"Failed to unset vars for hosts {hosts}")
+
+    return 0
+
+
+# pylint: disable-next=unused-argument
+def unset_group_vars(options: list[tuple[str, str]], args: list[str]) -> int:
+    """
+    Unset group-specific variables.
+
+        Parameters:
+            options ([(str, str)]): [unused]
+            args ([str]):
+                (str): Comma-separated list of keys
+                (str): Comma-separated list of groups
+        Returns:
+            (int): 0
+    """
+    groupvars = args[0].split(",")
+    groups = args[1].split(",")
+
+    # Unset vars
+    if groupvars:
+        retval = ansible_unset_groupvars(inventory=ANSIBLE_INVENTORY,
+                                         groups=groups, groupvars=groupvars)
+        if not retval:
+            raise ProgrammingError(f"Failed to unset vars for groups {groups}")
+
+    return 0
+
+
+def unset_global_vars(options: list[tuple[str, str]], args: list[str]) -> int:
+    """
+    Unset global variables.
+
+        Parameters:
+            options ([(str, str)]): [unused]
+            args ([str]): Comma-separated list of keys
+        Returns:
+            Return value from unset_group_vars()
+    """
+    return unset_group_vars(options=options, args=[args[0], "all"])
+
+
+def add_groups(options: list[tuple[str, str]], args: list[str]) -> int:
+    """
+    Add groups.
+
+        Parameters:
+            options ([(str, str)]): List of opt, optarg
+            args ([str]): Comma-separated list of groups
+        Returns:
+            (int): 0
+    """
+    groupvars = []
+    groups = args[0].split(",")
+
+    # We should not try to add "all" (it may cause unexpected issues with variables)
+    if "all" in groups:
+        ansithemeprint([ANSIThemeStr("Warning", "warning"),
+                        ANSIThemeStr(": Ignoring attempt to add group “", "default"),
+                        ANSIThemeStr("all", "argument"),
+                        ANSIThemeStr("“.", "default")], stderr=True)
+        groups.remove("all")
+        if not groups:
+            return 0
+
+    for opt, optarg in options:
+        if opt == "--vars":
+            tmp = optarg.split(",")
+            for var in tmp:
+                key, value = var.split(":")
+                groupvars.append((key, value))
+
+    # Add the groups
+    retval = ansible_create_groups(inventory=ANSIBLE_INVENTORY, groups=groups)
+
+    if not retval:
+        raise ProgrammingError(f"Failed to add {groups} to inventory")
+
+    # Set vars
+    if groupvars:
+        retval = ansible_set_groupvars(inventory=ANSIBLE_INVENTORY,
+                                       groups=groups, groupvars=groupvars)
+        if not retval:
+            raise ProgrammingError(f"Failed to set vars {groupvars} for groups {groups}")
+
+    return 0
+
+
+# pylint: disable-next=too-many-branches
+def add_hosts(options: list[tuple[str, str]], args: list[str]) -> int:
+    """
+    Add hosts.
+
+        Parameters:
+            options ([(str, str)]): List of opt, optarg
+            args ([str]): Comma-separated list of hosts
+        Returns:
+            (int): 0
+    """
+    groups = []
+    hostvars = []
+    hosts = args[0].split(",")
+
+    if len(args) > 1:
+        groups = args[1].split(",")
+
+    for opt, optarg in options:
+        if opt == "--vars":
+            tmp = optarg.split(",")
+            for var in tmp:
+                key, value = var.split(":")
+                hostvars.append((key, value))
+        elif opt == "--groups":
+            if groups:
+                ansithemeprint([ANSIThemeStr("Error", "error"),
+                                ANSIThemeStr(": Invalid option; “", "default"),
+                                ANSIThemeStr(f"{opt}", "option"),
+                                ANSIThemeStr("“ cannot be used with ", "default"),
+                                ANSIThemeStr("HOST", "argument"),
+                                ANSIThemeStr(",", "separator"),
+                                ANSIThemeStr("... ", "argument"),
+                                ANSIThemeStr("GROUP", "argument"),
+                                ANSIThemeStr(",", "separator"),
+                                ANSIThemeStr("... ", "argument"),
+                                ANSIThemeStr("syntax.", "default")], stderr=True)
+                print()
+                ansithemeprint([ANSIThemeStr("Try “", "default"),
+                                ANSIThemeStr(f"{about.INVENTORY_PROGRAM_NAME} ", "programname"),
+                                ANSIThemeStr("help", "command"),
+                                ANSIThemeStr("“ for more information.", "default")],
+                               stderr=True)
+                sys.exit(errno.EINVAL)
+            groups = optarg.split(",")
+
+    retval = True
+    # Add the host to every specified group
+    if not groups:
+        retval = ansible_add_hosts(inventory=ANSIBLE_INVENTORY, hosts=hosts, skip_all=False)
+        if not retval:
+            raise ProgrammingError(f"Failed to add {hosts}")
+    else:
+        group = ""
+
+        for group in groups:
+            retval = ansible_add_hosts(inventory=ANSIBLE_INVENTORY,
+                                       hosts=hosts, group=group, skip_all=False)
+        if not retval:
+            raise ProgrammingError(f"Failed to add {hosts} to group {group}")
+
+    # Set vars
+    if hostvars:
+        retval = ansible_set_hostvars(inventory=ANSIBLE_INVENTORY, hosts=hosts, hostvars=hostvars)
+        if not retval:
+            raise ProgrammingError(f"Failed to set vars for hosts {hosts}")
+
+    return 0
+
+
+def format_members(group: str, members: list[str]) -> list[ANSIThemeStr]:
+    """
+    Format a list of group members as a themearray.
+
+        Parameters:
+            group (str): The name of the group
+            members ([str]): A list of hostnames
+        Returns:
+            formatted ([ANSIThemeStr]): A themearray
+    """
+    formatted = [ANSIThemeStr(f"{group}: ", "default")]
+    i = 0
+    for i, member in enumerate(members):
+        if i < len(members) - 1:
+            formatted += [ANSIThemeStr(member, "yaml_key"),
+                          ANSIThemeStr(", ", "separator")]
+        else:
+            formatted += [ANSIThemeStr(member, "yaml_key")]
+
+    return formatted
+
+
+def remove_groups(options: list[tuple[str, str]], args: list[str]) -> int:
+    """
+    Remove groups.
+
+        Parameters:
+            options ([(str, str)]): List of opt, optarg
+            args ([str]): Comma-separated list of groups
+        Returns:
+            (int): 0
+    """
+    extrahosts = []
+    forceneeded = False
+    force = False
+
+    groups = args[0].split(",")
+
+    for opt, _optarg in options:
+        if opt == "--force":
+            force = True
+
+    if "all" in groups:
+        ansithemeprint([ANSIThemeStr("Error", "error"),
+                        ANSIThemeStr(": The group “", "default"),
+                        ANSIThemeStr("all", "argument"),
+                        ANSIThemeStr("“ cannot be removed.", "default")], stderr=True)
+        print()
+        ansithemeprint([ANSIThemeStr("Try “", "default"),
+                        ANSIThemeStr(f"{about.INVENTORY_PROGRAM_NAME} ", "programname"),
+                        ANSIThemeStr("help", "command"),
+                        ANSIThemeStr("“ for more information.", "default")], stderr=True)
+        sys.exit(errno.EINVAL)
+
+    for group in groups:
+        grouphosts = ansible_get_hosts_by_group(ANSIBLE_INVENTORY, group)
+        if grouphosts:
+            forceneeded = True
+            extrahosts.append((group, grouphosts))
+
+    if forceneeded and not force:
+        if forceneeded:
+            ansithemeprint([ANSIThemeStr("Error", "error"),
+                            ANSIThemeStr(": The following groups are non-empty:", "default")])
+            for group, hosts in extrahosts:
+                ansithemeprint(format_members(group, hosts))
+        print()
+        ansithemeprint([ANSIThemeStr("Removing groups that still contain hosts “", "default"),
+                        ANSIThemeStr("requires specifying “", "default"),
+                        ANSIThemeStr("--force", "option"),
+                        ANSIThemeStr("“.", "default")], stderr=True)
+        print()
+        ansithemeprint([ANSIThemeStr("Try “", "default"),
+                        ANSIThemeStr(f"{about.INVENTORY_PROGRAM_NAME} ", "programname"),
+                        ANSIThemeStr("help", "command"),
+                        ANSIThemeStr("“ for more information.", "default")], stderr=True)
+        sys.exit(errno.EINVAL)
+
+    retval = ansible_remove_groups(inventory=ANSIBLE_INVENTORY, groups=groups, force=force)
+
+    if not retval:
+        raise ProgrammingError(f"Failed to remove {groups}")
+
+    return 0
+
+
+# pylint: disable-next=unused-argument,too-many-locals,too-many-branches
+def rebuild_inventory(options: list[tuple[str, str]], args: list[str]) -> int:
+    """
+    Build an inventory based on information from Kubernetes.
+
+        Parameters:
+            options ([(opt, optarg)]): A list of opt, optarg
+            args ([str]): [unused]
+        Returns:
+            (int): 0
+    """
+    force = False
+
+    for opt, _optarg in options:
+        if opt == "--force":
+            force = True
+
+    # Is there a pre-existing inventory?
+    if Path(ANSIBLE_INVENTORY).is_file() and not force:
+        ansithemeprint([ANSIThemeStr("Error", "error"),
+                        ANSIThemeStr(": Overwriting an existing ", "default"),
+                        ANSIThemeStr("inventory requires specifying “", "default"),
+                        ANSIThemeStr("--force", "option"),
+                        ANSIThemeStr("“.", "default")], stderr=True)
+        print()
+        ansithemeprint([ANSIThemeStr("Try “", "default"),
+                        ANSIThemeStr(f"{about.INVENTORY_PROGRAM_NAME} ", "programname"),
+                        ANSIThemeStr("help", "command"),
+                        ANSIThemeStr("“ for more information.", "default")], stderr=True)
+        sys.exit(errno.EINVAL)
+
+    # We ideally want to iterate over all clusters here,
+    # but for now we only import the current-context.
+    cluster_name = get_cluster_name()
+    if cluster_name is None:
+        ansithemeprint([ANSIThemeStr("Error", "error"),
+                        ANSIThemeStr(": Could not obtain cluster name; do you ", "default"),
+                        ANSIThemeStr("have a cluster available? Aborting.", "default")],
+                       stderr=True)
+        sys.exit(errno.ENOENT)
+    kh = kubernetes_helper.KubernetesHelper(about.PROGRAM_SUITE_NAME,
+                                            about.PROGRAM_SUITE_VERSION, None)
+
+    vlist, status = kh.get_list_by_kind_namespace(("Node", ""), "")
+    if status != 200:
+        ansithemeprint([ANSIThemeStr("Error", "error"),
+                        ANSIThemeStr(": API-server returned ", "default"),
+                        ANSIThemeStr(f"{status}", "errorvalue"),
+                        ANSIThemeStr("; aborting.", "default")], stderr=True)
+        sys.exit(errno.EINVAL)
+    if vlist is None:
+        ansithemeprint([ANSIThemeStr("Error", "error"),
+                        ANSIThemeStr(": API-server did not return any data", "default")],
+                       stderr=True)
+        sys.exit(errno.EINVAL)
+
+    for node in vlist:
+        roles = kubernetes_helper.get_node_roles(cast(dict, node))
+        if "control-plane" in roles:
+            groups = ["all", "controlplane", cluster_name]
+        else:
+            groups = ["all", "nodes", cluster_name]
+
+        group = ""
+        hosts = [deep_get(node, DictPath("metadata#name"))]
+        retval = True
+        for group in groups:
+            retval = ansible_add_hosts(inventory=ANSIBLE_INVENTORY,
+                                       hosts=hosts, group=group, skip_all=False)
+
+        if not retval:
+            raise ProgrammingError(f"Failed to add {hosts} to group {group}")
+
+    # Finally import the hostkey into authorized_keys
+    # Note: We should add a means of customising what keys to add
+    pubkey = None
+
+    try:
+        tmp = cmtio.secure_read_string(SSH_DIR.joinpath("id_ed25519.pub"))
+    except FilePathAuditError as e:
+        # We cannot import non-existing hostkeys...
+        if "SecurityStatus.DOES_NOT_EXIST" in str(e):
+            tmp = None
+
+    if tmp is not None:
+        tmplines = tmp.splitlines()
+        pubkey = tmplines[0]
+
+    if pubkey is None or not pubkey:
+        ansithemeprint([ANSIThemeStr("Error", "error"),
+                        ANSIThemeStr(": Failed to read ", "default"),
+                        ANSIThemeStr(f"{HOMEDIR}/.ssh/id_ed25519.pub", "path"),
+                        ANSIThemeStr("; aborting.", "default")], stderr=True)
+        sys.exit(errno.ENOENT)
+
+    values = {
+        "authorized_keys": [pubkey],
+    }
+    ansible_set_vars(ANSIBLE_INVENTORY, "all", values)
+
+    return 0
+
+
+def remove_hosts(options: list[tuple[str, str]], args: list[str]) -> int:
+    """
+    Remove hosts.
+
+        Parameters:
+            options ([(str, str)]): List of opt, optarg
+            args ([str]): Comma-separated list of hosts
+        Returns:
+            (int): 0
+    """
+    groups = ["all"]
+    extragroups = []
+    forceneeded = False
+    force = False
+
+    hosts = args[0].split(",")
+
+    if len(args) > 1:
+        groups = args[1].split(",")
+
+        # This returns a YAML tree with the inventory of nodes
+        inventory_dict = ansible_get_inventory_dict()
+
+        # If the hosts are only members of "all"
+        # (or are not in the inventory at all),
+        # it is OK to remove them without --force.
+        #
+        # All hosts are members of the groups "all";
+        # this means that if len(hostgroups) > 1
+        # we have auxilliary groups and --force is needed.
+        for host in hosts:
+            hostgroups = ansible_get_groups_by_host(inventory_dict, host)
+            if len(hostgroups) > 1:
+                forceneeded = True
+                hostgroups.remove("all")
+                extragroups.append((host, hostgroups))
+
+    for opt, _optarg in options:
+        if opt == "--force":
+            force = True
+
+    if "all" in groups and forceneeded and (not force or len(groups) > 1):
+        if forceneeded:
+            ansithemeprint([ANSIThemeStr("Error", "error"),
+                            ANSIThemeStr(": The following hosts are parts of ", "default"),
+                            ANSIThemeStr("other groups than “", "default"),
+                            ANSIThemeStr("all", "argument"),
+                            ANSIThemeStr("“:", "default")])
+            for host, groups in extragroups:
+                ansithemeprint(format_members(host, groups))
+        print()
+        ansithemeprint([ANSIThemeStr("Removing hosts from “", "default"),
+                        ANSIThemeStr("all", "argument"),
+                        ANSIThemeStr("“ requires specifying “", "default"),
+                        ANSIThemeStr("--force", "option"),
+                        ANSIThemeStr("“", "default")], stderr=True)
+        ansithemeprint([ANSIThemeStr("unless “", "default"),
+                        ANSIThemeStr("all", "argument"),
+                        ANSIThemeStr("“ is the only group or the hosts ", "default"),
+                        ANSIThemeStr("are not members of other groups.", "default")],
+                       stderr=True)
+        print()
+        ansithemeprint([ANSIThemeStr("Try “", "default"),
+                        ANSIThemeStr(f"{about.INVENTORY_PROGRAM_NAME} ", "programname"),
+                        ANSIThemeStr("help", "command"),
+                        ANSIThemeStr("“ for more information.", "default")], stderr=True)
+        sys.exit(errno.EINVAL)
+
+    retval = True
+
+    # If groups is ["all"] and "force" is specified
+    # we need to substitute ["all"] for a list of all groups.
+    if groups == ["all"]:
+        groups = ansible_get_groups(inventory=ANSIBLE_INVENTORY)
+
+    for group in groups:
+        retval = ansible_remove_hosts(inventory=ANSIBLE_INVENTORY, hosts=hosts, group=group)
+
+        if not retval:
+            raise ProgrammingError(f"Failed to remove {hosts} to group {group}")
+
+    return 0
+
+
+def inventory(options: list[tuple[str, str]], args: list[str]) -> int:
+    """
+    Show the inventory.
+
+        Parameters:
+            options ([(str, str)]): List of opt, optarg
+            args ([str]): Comma-separated list of groups [optional]
+        Returns:
+            (int): 0
+    """
+    color = "auto"
+
+    include_groupvars = False
+    include_hostvars = False
+
+    for opt, optarg in options:
+        if opt == "--color":
+            color = optarg
+        elif opt == "--include-vars":
+            include_groupvars = True
+            include_hostvars = True
+
+    groups = None
+
+    if args is not None and args:
+        groups = args[0].split(",")
+
+    try:
+        for item in ansible_get_inventory_pretty(groups=groups, highlight=True,
+                                                 include_groupvars=include_groupvars,
+                                                 include_hostvars=include_hostvars):
+            if cmtlib.strip_ansicodes(ansithemearray_to_str(item)).startswith(("%YAML", "---")):
+                continue
+            ansithemeprint(cast(list, item), color=color)
+    except KeyError as e:
+        duplicate_key = str(e).removeprefix("'duplicate key: ").removesuffix("'")
+        ansithemeprint([ANSIThemeStr("Error", "error"),
+                        ANSIThemeStr(": Found duplicate key “", "default"),
+                        ANSIThemeStr(f"{duplicate_key}", "argument"),
+                        ANSIThemeStr("“ in inventory; aborting.", "default")], stderr=True)
+        sys.exit(errno.EINVAL)
+
+    return 0
+
+
+# pylint: disable-next=unused-argument
+def list_groups(options: list[tuple[str, str]], args: list[str]) -> int:
+    """
+    List groups.
+
+        Parameters:
+            options (list[(str, str)]): List of opt, optarg
+            args (list[str]): [unused]
+        Returns:
+            (int): 0
+    """
+    color = "auto"
+
+    # Valid formats:
+    # default = Normal output format (default)
+    # csv = Comma-separated values
+    # ssv = Space-separated values
+    # tsv = Tab-separated values
+    output_format = "default"
+
+    include_groupvars = False
+
+    for opt, optarg in options:
+        if opt == "--color":
+            color = optarg
+        elif opt == "--format":
+            output_format = optarg
+        elif opt == "--include-vars":
+            include_groupvars = True
+
+    if output_format != "default":
+        separator = ""
+        if output_format == "csv":
+            separator = ","
+        elif output_format == "ssv":
+            separator = " "
+        elif output_format == "tsv":
+            separator = "\t"
+
+        d = ansible_get_inventory_dict()
+        sorted_groups = cast(list[str], natsorted(d.keys()))
+        ansithemeprint(ansithemestr_join_list(sorted_groups, formatting="hostname",
+                                              separator=ANSIThemeStr(separator, "separator")),
+                       color=color)
+    else:
+        for item in ansible_get_inventory_pretty(groups=None, highlight=True,
+                                                 include_groupvars=include_groupvars,
+                                                 include_hosts=False):
+            ansithemeprint(cast(list, item), color=color)
+
+    return 0
+
+
+# pylint: disable-next=unused-argument
+def list_hosts(options: list[tuple[str, str]], args: list[str]) -> int:
+    """
+    List hosts.
+
+        Parameters:
+            options (list[(str, str)]): List of opt, optarg
+            args (list[str]): [unused]
+        Returns:
+            (int): 0
+    """
+    color = "auto"
+
+    # Valid formats:
+    # default = Normal output format (default)
+    # csv = Comma-separated values
+    # ssv = Space-separated values
+    # tsv = Tab-separated values
+    output_format = "default"
+
+    include_hostvars = False
+
+    for opt, optarg in options:
+        if opt == "--color":
+            color = optarg
+        elif opt == "--format":
+            output_format = optarg
+        elif opt == "--include-vars":
+            include_hostvars = True
+
+    groups = ["all"]
+
+    if output_format != "default":
+        separator = ""
+        if output_format == "csv":
+            separator = ","
+        elif output_format == "ssv":
+            separator = " "
+        elif output_format == "tsv":
+            separator = "\t"
+
+        d = ansible_get_inventory_dict()
+        hosts = set()
+        for group in groups:
+            for host in deep_get(d, DictPath(f"{group}#hosts"), []):
+                hosts.add(host)
+        sorted_hosts = cast(list[str], natsorted(list(hosts)))
+        ansithemeprint(ansithemestr_join_list(sorted_hosts, formatting="hostname",
+                       separator=ANSIThemeStr(separator, "separator")), color=color)
+    else:
+        for item in ansible_get_inventory_pretty(groups=groups, highlight=True,
+                                                 include_hostvars=include_hostvars):
+            ansithemeprint(cast(list, item), color=color)
+
+    return 0
+
+
+# pylint: disable-next=too-many-branches
+def populate_playbooks() -> dict:
+    """
+    Populate the list of playbooks runnable from the command line.
+
+        Returns:
+            (dict): The dict of playbooks
+    """
+    playbook_dirs: list = []
+    playbooks: dict = {}
+
+    local_playbook_dirs: list = deep_get(cmtlib.cmtconfig, DictPath("Ansible#local_playbooks"), [])
+    for playbook_dir in local_playbook_dirs:
+        # Substitute {HOME}/ for {HOMEDIR}
+        if playbook_dir.startswith(("{HOME}/", "{HOME}\\")):
+            playbook_dir = HOMEDIR.joinpath(playbook_dir[len('{HOME}/'):])
+        # Skip non-existing playbook paths
+        if not os.path.isdir(playbook_dir):
+            continue
+        playbook_dirs.append(playbook_dir)
+    playbook_dirs.append(ANSIBLE_PLAYBOOK_DIR)
+    playbook_dirs.append(SYSTEM_ANSIBLE_PLAYBOOK_DIR)
+
+    yaml_regex: re.Pattern[str] = re.compile(r"^(.*)\.ya?ml$")
+
+    # This should be moved to ansible_helper and generalised to be usable both in cmu and cmtinv
+    for playbook_dir in playbook_dirs:
+        # Skip non-existing playbook paths
+        if not os.path.isdir(playbook_dir):
+            continue
+        for playbook_path in Path(playbook_dir).iterdir():
+            if playbook_path.name.startswith(("~", ".")):
+                continue
+
+            if (re_tmp := yaml_regex.match(playbook_path.name)) is None:
+                continue
+
+            playbookname = str(re_tmp[1])
+
+            if playbookname in playbooks:
+                continue
+
+            description = None
+
+            try:
+                d = cmtio_yaml.secure_read_yaml(FilePath(playbook_path),
+                                                directory_is_symlink=True)
+            except yaml.YAMLError:
+                # This entry could not be parsed; add a dummy entry
+                playbooks[playbookname] = {
+                    "description": playbook_path,
+                    "playbook": str(playbook_path),
+                    "category": "__INVALID__",
+                    "comments": "Failed to parse (Not valid YAML)",
+                }
+                continue
+
+            # Empty files are used to disable playbooks completely
+            if d is None or not d:
+                playbooks[playbookname] = {
+                    "description": playbook_path,
+                    "playbook": str(playbook_path),
+                    "category": "__DISABLED__",
+                }
+                continue
+
+            if not isinstance(d, list):
+                # This entry could not be parsed; add a dummy entry
+                playbooks[playbookname] = {
+                    "description": playbook_path,
+                    "playbook": str(playbook_path),
+                    "category": "__INVALID__",
+                    "comments": "Failed to parse (Not a list of plays)",
+                }
+                continue
+
+            description = deep_get(d[0], DictPath("vars#metadata#description"))
+
+            # Ignore all playbooks that lack a description;
+            # typically they are internal playbooks
+            if description is None:
+                continue
+
+            playbooktypes = deep_get_with_fallback(d[0],
+                                                   [DictPath("vars#metadata#playbook_types"),
+                                                    DictPath("vars#metadata#playbook-types")], [])
+            description = deep_get(d[0], DictPath("vars#metadata#description"))
+            category = deep_get(d[0], DictPath("vars#metadata#category"), "Uncategorized")
+            readonly = deep_get_with_fallback(d[0],
+                                              [DictPath("vars#metadata#read_only"),
+                                               DictPath("vars#metadata#read-only")], False)
+            comments = deep_get(d[0], DictPath("vars#metadata#comments"), "")
+            aliases = deep_get(d[0], DictPath("vars#metadata#aliases"), [])
+
+            if "cmtinv" not in playbooktypes:
+                continue
+
+            playbooks[playbookname] = {
+                "description": description,
+                "playbook": str(playbook_path),
+                "category": category,
+                "comments": comments,
+                "read_only": readonly,
+                "aliases": aliases,
+            }
+
+    return playbooks
+
+
+def populate_playbooks_lookup(**kwargs: Any) -> dict:
+    """
+    Populate a lookup table from playbook aliases to playbook names.
+
+        Parameters:
+            **kwargs (dict[str, Any]): Keyword arguments
+                playbooks (dict): The dict of playbooks to create a lookup dict for
+        Returns:
+            (dict): The lookup table
+    """
+    playbooks: dict[str, Any] = deep_get(kwargs, DictPath("playbooks"), {})
+    d: dict[str, str] = {}
+    for key, data in playbooks.items():
+        d[key] = key
+        for alias in deep_get(data, DictPath("aliases"), []):
+            d[alias] = key
+
+    return d
+
+
+# pylint: disable-next=unused-argument,too-many-locals,too-many-branches
+def list_playbooks(options: list[tuple[str, str]], args: list[str]) -> int:
+    """
+    List playbooks.
+
+        Parameters:
+            options (list[(str, str)]): List of opt, optarg
+            args (list[str]): [unused]
+        Returns:
+            (int): 0
+    """
+    color = "auto"
+
+    # Valid formats:
+    # default = Normal output format (default)
+    # csv = Comma-separated values
+    # ssv = Space-separated values
+    # tsv = Tab-separated values
+    output_format = "default"
+    separator = ""
+
+    for opt, optarg in options:
+        if opt == "--color":
+            color = optarg
+        elif opt == "--format":
+            output_format = optarg
+
+    if output_format != "default":
+        if output_format == "csv":
+            separator = ","
+        elif output_format == "ssv":
+            separator = " "
+        elif output_format == "tsv":
+            separator = "\t"
+
+    playbooks = populate_playbooks()
+
+    if output_format == "default":
+        headers = ["Name:", "Description:", "Category:", "Read Only:", "Aliases:"]
+        rows = []
+
+        maxlengths = []
+        for header in headers:
+            maxlengths.append(len(header))
+
+        for playbook, data in playbooks.items():
+            category = deep_get(data, DictPath("category"), "<unset>")
+            if category in ("__DISABLED__", "__INVALID__"):
+                continue
+
+            name = playbook
+            description = deep_get(data, DictPath("description"), "<unset>")
+            read_only = str(deep_get(data, DictPath("read_only"), False))
+            aliases = deep_get(data, DictPath("aliases"), [])
+            rows.append([name, description, category, read_only, aliases])
+
+        for row in rows:
+            for i, field in enumerate(row):
+                if isinstance(field, (list, tuple)):
+                    fieldlen = len(",".join(field))
+                else:
+                    fieldlen = len(field)
+                maxlengths[i] = max(maxlengths[i], fieldlen)
+
+        header_array = []
+        for i, header in enumerate(headers):
+            header_array.append(ANSIThemeStr(header, "header"))
+            if i < len(headers) - 1:
+                header_array.append(ANSIThemeStr("".ljust(maxlengths[i] - len(header) + 2),
+                                                 "default"))
+        ansithemeprint(header_array)
+        for row in sorted(rows):
+            row_array = []
+            for i, field in enumerate(row):
+                if isinstance(field, (list, tuple)):
+                    row_array += ansithemestr_join_list(field, formatting="default",
+                                                        separator=ANSIThemeStr(", ", "separator"))
+                else:
+                    row_array.append(ANSIThemeStr(field, "default"))
+                if i < len(headers) - 1:
+                    row_array.append(ANSIThemeStr("".ljust(maxlengths[i] - len(field) + 2),
+                                     "default"))
+            ansithemeprint(row_array)
+    else:
+        ansithemeprint(ansithemestr_join_list(list(playbooks), formatting="default",
+                       separator=ANSIThemeStr(separator, "separator")), color=color)
+
+    return 0
+
+
+# pylint: disable-next=unused-argument
+def explain_playbook(options: list[tuple[str, str]], args: list[str]) -> int:
+    """
+    Print a summary of the actions thhat the playbook will perform.
+
+        Parameters:
+            options (list[(str, str)]): List of opt, optarg [unused]
+            args (list[str]): The playbook to explain
+        Returns:
+            (int): 0
+    """
+    playbook_alias = args[0]
+
+    playbooks = populate_playbooks()
+    playbooks_lookup = populate_playbooks_lookup(playbooks=playbooks)
+
+    if playbook_alias not in playbooks_lookup:
+        ansithemeprint([ANSIThemeStr("Error", "error"),
+                        ANSIThemeStr(": “", "default"),
+                        ANSIThemeStr(f"{playbook_alias}", "argument"),
+                        ANSIThemeStr("“ is not a valid playbook; use “", "default"),
+                        ANSIThemeStr(f"{about.INVENTORY_PROGRAM_NAME}", "programname"),
+                        ANSIThemeStr(" list-playbooks", "command"),
+                        ANSIThemeStr("“ to list valid playbooks.", "default")], stderr=True)
+        sys.exit(errno.ENOENT)
+
+    playbook = playbooks_lookup[playbook_alias]
+
+    if deep_get(playbooks,
+                DictPath(f"{playbook}#category"), "") in ("__DISABLED__", "__INVALID__"):
+        ansithemeprint([ANSIThemeStr("Error", "error"),
+                        ANSIThemeStr(": The playbook “", "default"),
+                        ANSIThemeStr(f"{playbook}", "argument"),
+                        ANSIThemeStr("“ is either disabled or invalid; use “", "default"),
+                        ANSIThemeStr(f"{about.INVENTORY_PROGRAM_NAME}", "programname"),
+                        ANSIThemeStr(" list-playbooks", "command"),
+                        ANSIThemeStr("“ to list valid playbooks.", "default")], stderr=True)
+        sys.exit(errno.EINVAL)
+
+    playbook_path = deep_get(playbooks, DictPath(f"{playbook}#playbook"), "")
+    playbook_name = FilePath(playbook_path).basename()
+    playbooks_pretty = populate_playbooks_from_filenames(playbooks=[FilePath(playbook_name)])
+    ansible_print_action_summary(playbooks_pretty)
+
+    return 0
+
+
+# pylint: disable-next=too-many-locals,too-many-branches,too-many-statements
+def run_playbook(options: list[tuple[str, str]], args: list[str]) -> int:
+    """
+    Run playbook on host(s) or group(s).
+    Note: A well-formed inventory should not have groups with the same name as any of the hosts,
+    thus mixing group and host names should be OK; but if there are overlaps the group
+    is prioritised over the hostname.
+
+    TODO: Convert run_playbook to use get_groups_or_hosts()
+
+        Parameters:
+            options (list[(str, str)]): List of opt, optarg
+            args (list[str]):
+                (str): The name or alias of the playbook to run
+                (str): A comma-separated list of groups or hostnames to run
+        Returns:
+            (int): 0
+    """
+    verbose: bool = False
+
+    for opt, _optarg in options:
+        if opt == "--save-ansible-logs":
+            ansible_configuration["save_logs"] = True
+        elif opt == "--verbose":
+            verbose = True
+
+    playbook_alias = args[0]
+    groups_or_hosts = args[1].split(",")
+    selection = []
+    _all = ansible_get_hosts_by_group(ANSIBLE_INVENTORY, "all")
+    for group_or_host in groups_or_hosts:
+        # First check if there's a group by this name
+        hosts = ansible_get_hosts_by_group(ANSIBLE_INVENTORY, group_or_host)
+        # If the group is empty let's try to see if it is a host
+        if not hosts:
+            if group_or_host in _all:
+                selection.append(group_or_host)
+            else:
+                ansithemeprint([ANSIThemeStr("Warning", "warning"),
+                                ANSIThemeStr(": Skipping unknown or empty ", "default"),
+                                ANSIThemeStr("host or group “", "default"),
+                                ANSIThemeStr(group_or_host, "argument"),
+                                ANSIThemeStr("“", "default")], stderr=True)
+        else:
+            selection += hosts
+    # Eliminate duplicates
+    selection = list(set(selection))
+
+    if not selection:
+        ansithemeprint([ANSIThemeStr("Error", "error"),
+                        ANSIThemeStr(": No valid hosts or groups specified; ", "default"),
+                        ANSIThemeStr("aborting.", "default")], stderr=True)
+        sys.exit(errno.ENOENT)
+
+    playbooks = populate_playbooks()
+    playbooks_lookup = populate_playbooks_lookup(playbooks=playbooks)
+
+    if playbook_alias not in playbooks_lookup:
+        ansithemeprint([ANSIThemeStr("Error", "error"),
+                        ANSIThemeStr(": “", "default"),
+                        ANSIThemeStr(f"{playbook_alias}", "argument"),
+                        ANSIThemeStr("“ is not a valid playbook or alias; use “", "default"),
+                        ANSIThemeStr(f"{about.INVENTORY_PROGRAM_NAME}", "programname"),
+                        ANSIThemeStr(" list-playbooks", "command"),
+                        ANSIThemeStr("“ to list valid playbooks.", "default")], stderr=True)
+        sys.exit(errno.ENOENT)
+
+    playbook = playbooks_lookup[playbook_alias]
+
+    if deep_get(playbooks, DictPath(f"{playbook}#category"), "") in ("__DISABLED__", "__INVALID__"):
+        ansithemeprint([ANSIThemeStr("Error", "error"),
+                        ANSIThemeStr(": The playbook “", "default"),
+                        ANSIThemeStr(f"{playbook}", "argument"),
+                        ANSIThemeStr("“ is either disabled or invalid; use “", "default"),
+                        ANSIThemeStr(f"{about.INVENTORY_PROGRAM_NAME}", "programname"),
+                        ANSIThemeStr(" list-playbooks", "command"),
+                        ANSIThemeStr("“ to list valid playbooks.", "default")], stderr=True)
+        sys.exit(errno.EINVAL)
+
+    # The first patch revision that isn't available from the new repositories is 1.24.0,
+    # but anything older than 1.32.0 is signed with a key that has expired, so only
+    # include 1.32.0 and newer; the old repository is no longer usable.
+    if not (kubernetes_upstream_version := get_latest_upstream_version("kubernetes")):
+        ansithemeprint([ANSIThemeStr("Error", "error"),
+                        ANSIThemeStr(": Could not determine the latest upstream Kubernetes "
+                                     "version; ", "default"),
+                        ANSIThemeStr("please run ", "default"),
+                        ANSIThemeStr(f"{about.ADMIN_PROGRAM_NAME} ", "programname"),
+                        ANSIThemeStr("check-versions", "command"),
+                        ANSIThemeStr(" to update the version cache; aborting.",
+                                     "default")], stderr=True)
+        sys.exit(errno.ENOENT)
+
+    # Split the version tuple
+    _upstream_major, upstream_minor, _rest = kubernetes_upstream_version.split(".")
+    minor_versions = []
+    for minor_version in range(32, int(upstream_minor) + 1):
+        minor_versions.append(f"{minor_version}")
+
+    # Set necessary Ansible keys before running playbooks
+    http_proxy = deep_get(cmtlib.cmtconfig, DictPath("Network#http_proxy"), "")
+    if http_proxy is None:
+        http_proxy = ""
+    https_proxy = deep_get(cmtlib.cmtconfig, DictPath("Network#https_proxy"), "")
+    if https_proxy is None:
+        https_proxy = ""
+    no_proxy = deep_get(cmtlib.cmtconfig, DictPath("Network#no_proxy"), "")
+    if no_proxy is None:
+        no_proxy = ""
+
+    use_proxy = "no"
+    if http_proxy or https_proxy:
+        use_proxy = "yes"
+
+    values = {
+        "http_proxy": http_proxy,
+        "https_proxy": https_proxy,
+        "no_proxy": no_proxy,
+        "use_proxy": use_proxy,
+        "minor_versions": minor_versions,
+    }
+
+    playbook_path = deep_get(playbooks, DictPath(f"{playbook}#playbook"), "")
+    retval, ansible_results = ansible_run_playbook_on_selection(playbook_path,
+                                                                selection=selection,
+                                                                values=values,
+                                                                verbose=verbose, quiet=False)
+    if verbose:
+        ansithemeprint([ANSIThemeStr("", "default")])
+
+    ansible_print_play_results(retval, ansible_results, verbose=verbose)
+
+    return 0
+
+
+# pylint: disable-next=too-many-branches,too-many-locals,unused-argument,too-many-statements
+def fping(options: list[tuple[str, str]], args: list[str]) -> int:
+    """
+    Fping hosts or groups of hosts.
+    Default: fping all hosts.
+    Note: A well-formed inventory should not have groups with the same name as any of the hosts,
+    thus mixing group and host names should be OK; but if there are overlaps group names
+    are prioritised over host names.
+
+        Parameters:
+            options (list[(str, str)]): [unused]
+            args (list[str]): list of hosts or groups [optional]
+        Returns:
+            (int): 0 on success, ENOENT if no valid hosts/groups are specified
+    """
+    hoststatuses: list[tuple[str, str, str]] = []
+
+    fallback_allowlist = ["/bin", "/sbin", "/usr/bin", "/usr/sbin",
+                          "/usr/local/bin", "/usr/local/sbin", f"{HOMEDIR}/bin"]
+    security_policy = SecurityPolicy.ALLOWLIST_RELAXED
+
+    try:
+        fping_path = cmtio.secure_which(FilePath(FPING_BIN_PATH),
+                                        fallback_allowlist=fallback_allowlist,
+                                        security_policy=security_policy)
+    except (FileNotFoundError, RuntimeError):
+        ansithemeprint([ANSIThemeStr("Warning", "warning"),
+                        ANSIThemeStr(": ", "default"),
+                        ANSIThemeStr("fping", "programname"),
+                        ANSIThemeStr(" is not installed; cannot complete request", "default")],
+                       stderr=True)
+        sys.exit(errno.ENOENT)
+
+    groups_or_hosts: str = ""
+    if args:
+        groups_or_hosts = args[0]
+
+    selection = get_groups_or_hosts(groups_or_hosts, error_on_failure=True)
+
+    if not selection:
+        sys.exit(errno.ENOENT)
+
+    print("Please stand by, attempting to fping hosts")
+    print()
+
+    stdinput: bytes = "\n".join(selection).encode("utf-8")
+    result, _retval = cmtio.execute_command_with_response([fping_path], stdinput=stdinput)
+
+    maxlen = 0
+
+    failures: int = 0
+    successes: int = 0
+    unreachables: int = 0
+    unresolvables: int = 0
+
+    if result:
+        for hostresult in natsorted(result.splitlines()):
+            if "duplicate for" in hostresult:
+                continue
+
+            if (re_tmp := re.match(r"(.+?): (.+)", hostresult)) is not None:
+                host = re_tmp[1]
+                maxlen = max(len(host), maxlen)
+                if re_tmp[2] == "Name or service not known":
+                    hoststatuses.append((re_tmp[1], "COULD NOT RESOLVE", "critical"))
+                    unresolvables += 1
+                else:
+                    hoststatuses.append((re_tmp[1], f"FAILED ({re_tmp[2]})", "unknown"))
+                    failures += 1
+                continue
+
+            if (re_tmp := re.match(r"(.+?) (is (alive|unreachable))", hostresult)) is not None:
+                host = re_tmp[1]
+                maxlen = max(len(host), maxlen)
+                if re_tmp[2] == "is alive":
+                    hoststatuses.append((re_tmp[1], "SUCCESS", "success"))
+                    successes += 1
+                else:
+                    hoststatuses.append((re_tmp[1], "UNREACHABLE", "error"))
+                    unreachables += 1
+                continue
+
+    header = "Hostname:"
+
+    maxlen = max(maxlen, len(header))
+
+    if hoststatuses:
+        ansithemeprint([ANSIThemeStr(header, "header"),
+                        ANSIThemeStr(f"{''.ljust(maxlen - len(header))}  ", "default"),
+                        ANSIThemeStr("Status:", "header")])
+
+        for hostname, status, status_group in hoststatuses:
+            ansithemeprint([ANSIThemeStr(f"{hostname.ljust(maxlen)}  ", "default"),
+                            ANSIThemeStr(f"{status}", status_group)])
+
+    ansithemeprint([ANSIThemeStr("\n     SUCCESS: ", "success"),
+                    ANSIThemeStr(f"{successes}", "default")])
+    ansithemeprint([ANSIThemeStr("     FAILURE: ", "unknown"),
+                    ANSIThemeStr(f"{failures}", "default")])
+    ansithemeprint([ANSIThemeStr(" UNREACHABLE: ", "error"),
+                    ANSIThemeStr(f"{unreachables}", "default")])
+    ansithemeprint([ANSIThemeStr("UNRESOLVABLE", "critical"),
+                    ANSIThemeStr(": ", "error"),
+                    ANSIThemeStr(f"{unresolvables}", "default")])
+
+    return 0
+
+
+def ping(options: list[tuple[str, str]], args: list[str]) -> int:
+    """
+    Ping hosts or groups of hosts.
+    Default: ping all hosts.
+    Note: A well-formed inventory should not have groups with the same name as any of the hosts,
+    thus mixing group and host names should be OK; but if there are overlaps group names
+    are prioritised over host names.
+
+        Parameters:
+            options (list[(str, str)]): [unused]
+            args (str): A comma-separated string with a list of hosts or groups [optional]
+        Returns:
+            (int): 0 on success, ENOENT if no valid hosts/groups are specified
+    """
+    hoststatuses: list[tuple[str, str, str]] = []
+    verbose: bool = False
+
+    for opt, _optarg in options:
+        if opt == "--verbose":
+            verbose = True
+
+    groups_or_hosts: str = ""
+    if args:
+        groups_or_hosts = args[0]
+
+    selection = get_groups_or_hosts(groups_or_hosts, error_on_failure=True)
+
+    if not selection:
+        sys.exit(errno.ENOENT)
+
+    print("Please stand by, attempting to ping hosts")
+    print()
+
+    output = ansible_ping(selection=selection, verbose=verbose)
+
+    if output is None or not output:
+        raise UnknownError("Internal error; ansible -m ping failed")
+
+    maxlen = 0
+
+    # This needs to be improved; if there's a message we need to tell the difference
+    # between "Permission denied" and "No route to host"
+    for (host, status) in cast(list[tuple[str, str]], natsorted(output)):
+        maxlen = max(len(host), maxlen)
+        status_group = "error"
+
+        if status == "SUCCESS":
+            status_group = "success"
+        elif status == "COULD NOT RESOLVE":
+            status_group = "critical"
+        elif status == "MISSING INTERPRETER?":
+            status_group = "warning"
+        elif status in ("UNKNOWN", "UNKNOWN ERROR"):
+            status_group = "unknown"
+
+        hoststatuses.append((host, status, status_group))
+
+    header = "Hostname:"
+
+    maxlen = max(maxlen, len(header))
+
+    if hoststatuses:
+        ansithemeprint([ANSIThemeStr(header, "header"),
+                        ANSIThemeStr(f"{''.ljust(maxlen - len(header))}  ", "default"),
+                        ANSIThemeStr("Status:", "header")])
+
+        for hostname, status, status_group in hoststatuses:
+            ansithemeprint([ANSIThemeStr(f"{hostname.ljust(maxlen)}  ", "default"),
+                            ANSIThemeStr(f"{status}", status_group)])
+
+    return 0
+
+
+COMMANDLINE: dict[str, CommandType] = {
+    "Add Groups": {
+        "command": ["add-group", "add-groups"],
+        "values": [
+            ANSIThemeStr("GROUP", "argument"),
+            ANSIThemeStr(",", "separator"),
+            ANSIThemeStr("...", "argument")],
+        "description": [
+            ANSIThemeStr("Add ", "description"),
+            ANSIThemeStr("GROUP", "argument"),
+            ANSIThemeStr(",", "separator"),
+            ANSIThemeStr("...", "argument"),
+            ANSIThemeStr(" to inventory", "description")],
+        "options": {
+            "--vars": {
+                "values": [
+                    ANSIThemeStr("KEY", "argument"),
+                    ANSIThemeStr(":", "separator"),
+                    ANSIThemeStr("VALUE", "argument"),
+                    ANSIThemeStr(",", "separator"),
+                    ANSIThemeStr("...", "argument")],
+                "description": [
+                    ANSIThemeStr("Set these group variables", "description")],
+                "requires_arg": True,
+                "validation": {
+                    "validator": "regex",
+                    # The key is limited, the value is free-form
+                    "regex": r"^[a-z_][a-z0-9_]*:.+$",
+                    "list_separator": ",",
+                },
+            },
+        },
+        "required_args": [
+            {
+                "name": "groups",
+                "string": [
+                    ANSIThemeStr("GROUP", "argument"),
+                    ANSIThemeStr(",", "separator"),
+                    ANSIThemeStr("...", "argument")],
+                "validation": {
+                    "validator": "regex",
+                    "regex": r"^[a-z_][a-z0-9_]*$",
+                    "list_separator": ",",
+                },
+            },
+        ],
+        "optional_args": [],
+        "callback": add_groups,
+    },
+    "Add Hosts to Inventory": {
+        "command": ["add-host", "add-hosts"],
+        "values": [
+            ANSIThemeStr("HOST", "argument"),
+            ANSIThemeStr(",", "separator"),
+            ANSIThemeStr("...", "argument")],
+        "description": [
+            ANSIThemeStr("Add ", "description"),
+            ANSIThemeStr("HOST", "argument"),
+            ANSIThemeStr(",", "separator"),
+            ANSIThemeStr("...", "argument"),
+            ANSIThemeStr(" to inventory", "description")],
+        "options": {
+            "--groups": {
+                "values": [
+                    ANSIThemeStr("GROUP", "argument"),
+                    ANSIThemeStr(",", "separator"),
+                    ANSIThemeStr("...", "argument")],
+                "description": [
+                    ANSIThemeStr("Add the hosts to these groups", "description")],
+                "requires_arg": True,
+                "validation": {
+                    "validator": "regex",
+                    # The key is limited, the value is free-form
+                    "regex": r"^[a-z_][a-z0-9_]*$",
+                    "list_separator": ",",
+                },
+            },
+            "--vars": {
+                "values": [
+                    ANSIThemeStr("KEY", "argument"),
+                    ANSIThemeStr(":", "separator"),
+                    ANSIThemeStr("VALUE", "argument"),
+                    ANSIThemeStr(",", "separator"),
+                    ANSIThemeStr("...", "argument")],
+                "description": [
+                    ANSIThemeStr("Set these host variables", "description")],
+                "requires_arg": True,
+                "validation": {
+                    "validator": "regex",
+                    # The key is limited, the value is free-form
+                    "regex": r"^[a-z_][a-z0-9_]*:.+$",
+                    "list_separator": ",",
+                },
+            },
+        },
+        "required_args": [
+            {
+                "name": "hosts",
+                "string": [
+                    ANSIThemeStr("HOST", "argument"),
+                    ANSIThemeStr(",", "separator"),
+                    ANSIThemeStr("...", "argument")],
+                "validation": {
+                    "validator": "hostname_or_ip",
+                    "list_separator": ",",
+                },
+            },
+        ],
+        "optional_args": [
+            {
+                "name": "groups",
+                "string": [
+                    ANSIThemeStr("GROUP", "argument"),
+                    ANSIThemeStr(",", "separator"),
+                    ANSIThemeStr("...", "argument")],
+                "validation": {
+                    "validator": "regex",
+                    "regex": r"^[a-z_][a-z0-9_]*$",
+                    "list_separator": ",",
+                },
+            },
+        ],
+        "callback": add_hosts,
+    },
+    # This is purely for the benefit of the helptext generator
+    "Add Hosts to Groups": {
+        "command": ["add-host", "add-hosts"],
+        "values": [
+            ANSIThemeStr("HOST", "argument"),
+            ANSIThemeStr(",", "separator"),
+            ANSIThemeStr("... ", "argument"),
+            ANSIThemeStr("GROUP", "argument"),
+            ANSIThemeStr(",", "separator"),
+            ANSIThemeStr("...", "argument")],
+        "description": [
+            ANSIThemeStr("Add ", "description"),
+            ANSIThemeStr("HOST", "argument"),
+            ANSIThemeStr(",", "separator"),
+            ANSIThemeStr("...", "argument"),
+            ANSIThemeStr(" to ", "description"),
+            ANSIThemeStr("GROUP", "argument"),
+            ANSIThemeStr(",", "separator"),
+            ANSIThemeStr("...", "argument")],
+        "required_args": [],
+        "optional_args": [],
+        "callback": None,
+    },
+    "Inventory": {
+        "command": ["inventory", "inv"],
+        "values": [
+            ANSIThemeStr("[", "separator"),
+            ANSIThemeStr("GROUP", "argument"),
+            ANSIThemeStr(",", "separator"),
+            ANSIThemeStr("...", "argument"),
+            ANSIThemeStr("]", "separator")],
+        "description": [
+            ANSIThemeStr("Show inventory, optionally limited to ", "description"),
+            ANSIThemeStr("GROUP", "argument"),
+            ANSIThemeStr(",", "separator"),
+            ANSIThemeStr("...", "argument")],
+        "options": {
+            "--color": {
+                "values": [
+                    ANSIThemeStr("WHEN", "argument")],
+                "description": [
+                    ANSIThemeStr("WHEN should the output use ANSI-colors", "description")],
+                "extended_description": [
+                    [ANSIThemeStr("Valid arguments are:", "description")],
+                    [ANSIThemeStr("always", "argument"),
+                     ANSIThemeStr(" (always color the output)", "description")],
+                    [ANSIThemeStr("auto", "argument"),
+                     ANSIThemeStr(" (color the output when outputting", "description")],
+                    [ANSIThemeStr("to a terminal)", "description")],
+                    [ANSIThemeStr("never", "argument"),
+                     ANSIThemeStr(" (never color the output)", "description")],
+                ],
+                "requires_arg": True,
+                "validation": {
+                    "validator": "allowlist",
+                    "allowlist": [
+                        "always",
+                        "auto",
+                        "never",
+                    ],
+                },
+            },
+            "--include-vars": {
+                "description": [
+                    ANSIThemeStr("Show variables", "description")],
+            },
+        },
+        "required_args": [],
+        "optional_args": [
+            {
+                "name": "groups",
+                "string": [
+                    ANSIThemeStr("GROUP", "argument"),
+                    ANSIThemeStr(",", "separator"),
+                    ANSIThemeStr("...", "argument")],
+                "validation": {
+                    "validator": "regex",
+                    "regex": r"^[a-z_][a-z0-9_]*$",
+                    "list_separator": ",",
+                },
+            },
+        ],
+        "callback": inventory,
+    },
+    "List Hosts": {
+        "command": ["list-hosts"],
+        "description": [
+            ANSIThemeStr("List all hosts", "description")],
+        "options": {
+            "--color": {
+                "values": [
+                    ANSIThemeStr("WHEN", "argument")],
+                "description": [
+                    ANSIThemeStr("WHEN should the output use ANSI-colors", "description")],
+                "extended_description": [
+                    [ANSIThemeStr("Valid arguments are:", "description")],
+                    [ANSIThemeStr("always", "argument"),
+                     ANSIThemeStr(" (always color the output)", "description")],
+                    [ANSIThemeStr("auto", "argument"),
+                     ANSIThemeStr(" (color the output when outputting", "description")],
+                    [ANSIThemeStr("to a terminal)", "description")],
+                    [ANSIThemeStr("never", "argument"),
+                     ANSIThemeStr(" (never color the output)", "description")],
+                ],
+                "requires_arg": True,
+                "validation": {
+                    "validator": "allowlist",
+                    "allowlist": [
+                        "always",
+                        "auto",
+                        "never",
+                    ],
+                },
+            },
+            "--format": {
+                "values": [
+                    ANSIThemeStr("FORMAT", "argument")],
+                "description": [
+                    ANSIThemeStr("Format the output as ", "description"),
+                    ANSIThemeStr("FORMAT", "description")],
+                "extended_description": [
+                    [ANSIThemeStr("Valid formats are:", "description")],
+                    [ANSIThemeStr("default", "argument"),
+                     ANSIThemeStr(" (inventory in tree format)", "description")],
+                    [ANSIThemeStr("csv", "argument"),
+                     ANSIThemeStr(" (comma-separated values)", "description")],
+                    [ANSIThemeStr("ssv", "argument"),
+                     ANSIThemeStr(" (space-separated values)", "description")],
+                    [ANSIThemeStr("tsv", "argument"),
+                     ANSIThemeStr(" (tab-separated values)", "description")],
+                ],
+                "requires_arg": True,
+                "validation": {
+                    "validator": "allowlist",
+                    "allowlist": [
+                        "default",
+                        "csv",
+                        "ssv",
+                        "tsv",
+                    ],
+                },
+            },
+            "--include-vars": {
+                "description": [
+                    ANSIThemeStr("Show host variables", "description")],
+            },
+        },
+        "required_args": [],
+        "optional_args": [],
+        "callback": list_hosts,
+    },
+    "List Groups": {
+        "command": ["list-groups"],
+        "description": [
+            ANSIThemeStr("List all groups", "description")],
+        "options": {
+            "--color": {
+                "values": [
+                    ANSIThemeStr("WHEN", "argument")],
+                "description": [
+                    ANSIThemeStr("WHEN should the output use ANSI-colors", "description")],
+                "extended_description": [
+                    [ANSIThemeStr("Valid arguments are:", "description")],
+                    [ANSIThemeStr("always", "argument"),
+                     ANSIThemeStr(" (always color the output)", "description")],
+                    [ANSIThemeStr("auto", "argument"),
+                     ANSIThemeStr(" (color the output when outputting", "description")],
+                    [ANSIThemeStr("to a terminal)", "description")],
+                    [ANSIThemeStr("never", "argument"),
+                     ANSIThemeStr(" (never color the output)", "description")],
+                ],
+                "requires_arg": True,
+                "validation": {
+                    "validator": "allowlist",
+                    "allowlist": [
+                        "always",
+                        "auto",
+                        "never",
+                    ],
+                },
+            },
+            "--format": {
+                "values": [
+                    ANSIThemeStr("FORMAT", "argument")],
+                "description": [
+                    ANSIThemeStr("Format the output as ", "description"),
+                    ANSIThemeStr("FORMAT", "description")],
+                "extended_description": [
+                    [ANSIThemeStr("Valid formats are:", "description")],
+                    [ANSIThemeStr("default", "argument"),
+                     ANSIThemeStr(" (inventory in tree format)", "description")],
+                    [ANSIThemeStr("csv", "argument"),
+                     ANSIThemeStr(" (comma-separated values)", "description")],
+                    [ANSIThemeStr("ssv", "argument"),
+                     ANSIThemeStr(" (space-separated values)", "description")],
+                    [ANSIThemeStr("tsv", "argument"),
+                     ANSIThemeStr(" (tab-separated values)", "description")],
+                ],
+                "requires_arg": True,
+                "validation": {
+                    "validator": "allowlist",
+                    "allowlist": [
+                        "default",
+                        "csv",
+                        "ssv",
+                        "tsv",
+                    ],
+                },
+            },
+            "--include-vars": {
+                "description": [
+                    ANSIThemeStr("Show group variables", "description")],
+            },
+        },
+        "required_args": [],
+        "optional_args": [],
+        "callback": list_groups,
+    },
+    "Fping": {
+        "command": ["fping"],
+        "values": [
+            ANSIThemeStr("[", "separator"),
+            ANSIThemeStr("GROUP/HOST", "argument"),
+            ANSIThemeStr(",", "separator"),
+            ANSIThemeStr("...", "argument"),
+            ANSIThemeStr("]", "separator")],
+        "description": [
+            ANSIThemeStr("Fping ", "description"),
+            ANSIThemeStr("GROUP", "argument"),
+            ANSIThemeStr(",", "separator"),
+            ANSIThemeStr("...", "argument"),
+            ANSIThemeStr(" or ", "description"),
+            ANSIThemeStr("HOST", "argument"),
+            ANSIThemeStr(",", "separator"),
+            ANSIThemeStr("...", "argument"),
+            ANSIThemeStr(" (Default: “", "description"),
+            ANSIThemeStr("all", "argument"),
+            ANSIThemeStr("“)", "description")],
+        "required_args": [],
+        "optional_args": [
+            {
+                "name": "groups_or_hosts",
+                "string": [
+                    ANSIThemeStr("[", "separator"),
+                    ANSIThemeStr("GROUP/HOST", "argument"),
+                    ANSIThemeStr(",", "separator"),
+                    ANSIThemeStr("...", "argument"),
+                    ANSIThemeStr("]", "separator")],
+                "validation": {
+                    "validator": "hostname_ip_or_ansible_group",
+                    "list_separator": ",",
+                },
+            },
+        ],
+        "callback": fping,
+    },
+    "Ping": {
+        "command": ["ping"],
+        "values": [
+            ANSIThemeStr("[", "separator"),
+            ANSIThemeStr("GROUP/HOST", "argument"),
+            ANSIThemeStr(",", "separator"),
+            ANSIThemeStr("...", "argument"),
+            ANSIThemeStr("]", "separator")],
+        "description": [
+            ANSIThemeStr("Ansible ping ", "description"),
+            ANSIThemeStr("GROUP", "argument"),
+            ANSIThemeStr(",", "separator"),
+            ANSIThemeStr("...", "argument"),
+            ANSIThemeStr(" or ", "description"),
+            ANSIThemeStr("HOST", "argument"),
+            ANSIThemeStr(",", "separator"),
+            ANSIThemeStr("...", "argument"),
+            ANSIThemeStr(" (Default: “", "description"),
+            ANSIThemeStr("all", "argument"),
+            ANSIThemeStr("“)", "description")],
+        "options": {
+            "--verbose": {
+                "description": [
+                    ANSIThemeStr("Be more verbose", "description")],
+            },
+        },
+        "required_args": [],
+        "optional_args": [
+            {
+                "name": "groups_or_hosts",
+                "string": [
+                    ANSIThemeStr("[", "separator"),
+                    ANSIThemeStr("GROUP/HOST", "argument"),
+                    ANSIThemeStr(",", "separator"),
+                    ANSIThemeStr("...", "argument"),
+                    ANSIThemeStr("]", "separator")],
+                "validation": {
+                    "validator": "hostname_ip_or_ansible_group",
+                    "list_separator": ",",
+                },
+            },
+        ],
+        "callback": ping,
+    },
+    "Rebuild Inventory": {
+        "command": ["rebuild-inventory"],
+        "description": [
+            ANSIThemeStr("Create inventory for an existing Kubernetes cluster", "description")],
+        "extended_description": [
+            [ANSIThemeStr("In cases where the cluster has not been created", "description")],
+            [ANSIThemeStr("using ", "description"),
+             ANSIThemeStr(f"{about.PROGRAM_SUITE_NAME}", "programname"),
+             ANSIThemeStr(" this command can be used to build", "description")],
+            [ANSIThemeStr("a barebones inventory.", "description")],
+            [ANSIThemeStr("Note", "note"),
+             ANSIThemeStr(": This requires a running cluster.", "description")],
+        ],
+        "options": {
+            "--force": {
+                "description": [
+                    ANSIThemeStr("Allow an ", "description"),
+                    ANSIThemeStr("existing", "emphasis"),
+                    ANSIThemeStr(" inventory to be overwritten", "description")],
+            },
+        },
+        "required_args": [],
+        "optional_args": [],
+        "callback": rebuild_inventory,
+    },
+    "Remove Groups": {
+        "command": ["remove-group", "remove-groups"],
+        "values": [
+            ANSIThemeStr("GROUP", "argument"),
+            ANSIThemeStr(",", "separator"),
+            ANSIThemeStr("...", "argument")],
+        "description": [
+            ANSIThemeStr("Remove ", "description"),
+            ANSIThemeStr("GROUP", "argument"),
+            ANSIThemeStr(",", "separator"),
+            ANSIThemeStr("...", "argument"),
+            ANSIThemeStr(" from inventory", "description")],
+        "extended_description": [
+            [ANSIThemeStr("Note", "note"),
+             ANSIThemeStr(": Removing the group “", "description"),
+             ANSIThemeStr("all", "argument"),
+             ANSIThemeStr("“ is not permitted", "description")],
+        ],
+        "options": {
+            "--force": {
+                "description": [
+                    ANSIThemeStr("Allow removal of ", "description"),
+                    ANSIThemeStr("non-empty", "emphasis"),
+                    ANSIThemeStr(" groups", "description")],
+            },
+        },
+        "required_args": [
+            {
+                "name": "groups",
+                "string": [
+                    ANSIThemeStr("GROUP", "argument"),
+                    ANSIThemeStr(",", "separator"),
+                    ANSIThemeStr("...", "argument")],
+                "validation": {
+                    "validator": "regex",
+                    "regex": r"^[a-z_][a-z0-9_]*$",
+                    "list_separator": ",",
+                },
+            },
+        ],
+        "optional_args": [],
+        "callback": remove_groups,
+    },
+    "Remove Hosts from ALL Groups": {
+        "command": ["remove-host", "remove-hosts"],
+        "values": [
+            ANSIThemeStr("HOST", "argument"),
+            ANSIThemeStr(",", "separator"),
+            ANSIThemeStr("... ", "argument"),
+            ANSIThemeStr("all", "argument")],
+        "description": [
+            ANSIThemeStr("Remove ", "description"),
+            ANSIThemeStr("HOST", "argument"),
+            ANSIThemeStr(",", "separator"),
+            ANSIThemeStr("...", "argument"),
+            ANSIThemeStr(" from inventory", "description")],
+        "options": {
+            "--force": {
+                "description": [
+                    ANSIThemeStr("Allow ", "description"),
+                    ANSIThemeStr("complete", "emphasis"),
+                    ANSIThemeStr(" removal of hosts from inventory", "description")],
+            },
+        },
+        "required_args": [
+            {
+                "name": "hosts",
+                "string": [
+                    ANSIThemeStr("HOST", "argument"),
+                    ANSIThemeStr(",", "separator"),
+                    ANSIThemeStr("...", "argument")],
+                "validation": {
+                    "validator": "hostname_or_ip",
+                    "list_separator": ",",
+                },
+            },
+            {
+                "name": "groups",
+                "string": [
+                    ANSIThemeStr("GROUP", "argument"),
+                    ANSIThemeStr(",", "separator"),
+                    ANSIThemeStr("...", "argument")],
+                "validation": {
+                    "validator": "regex",
+                    "regex": r"^[a-z_][a-z0-9_]*$",
+                    "list_separator": ",",
+                },
+            },
+        ],
+        "optional_args": [],
+        "callback": remove_hosts,
+    },
+    # This is purely for the benefit of the helptext generator
+    "Remove Hosts": {
+        "command": ["remove-host", "remove-hosts"],
+        "values": [
+            ANSIThemeStr("HOST", "argument"),
+            ANSIThemeStr(",", "separator"),
+            ANSIThemeStr("... ", "argument"),
+            ANSIThemeStr("GROUP", "argument"),
+            ANSIThemeStr(",", "separator"),
+            ANSIThemeStr("...", "argument")],
+        "description": [
+            ANSIThemeStr("Remove ", "description"),
+            ANSIThemeStr("HOST", "argument"),
+            ANSIThemeStr(",", "separator"),
+            ANSIThemeStr("...", "argument"),
+            ANSIThemeStr(" from ", "description"),
+            ANSIThemeStr("GROUP", "argument"),
+            ANSIThemeStr(",", "separator"),
+            ANSIThemeStr("...", "argument")],
+        "required_args": [],
+        "optional_args": [],
+        "callback": None,
+    },
+    "List Playbooks": {
+        "command": ["list-playbooks"],
+        "description": [
+            ANSIThemeStr("List available playbooks", "description")],
+        "options": {
+            "--color": {
+                "values": [
+                    ANSIThemeStr("WHEN", "argument")],
+                "description": [
+                    ANSIThemeStr("WHEN should the output use ANSI-colors", "description")],
+                "extended_description": [
+                    [ANSIThemeStr("Valid arguments are:", "description")],
+                    [ANSIThemeStr("always", "argument"),
+                     ANSIThemeStr(" (always color the output)", "description")],
+                    [ANSIThemeStr("auto", "argument"),
+                     ANSIThemeStr(" (color the output when outputting", "description")],
+                    [ANSIThemeStr("to a terminal)", "description")],
+                    [ANSIThemeStr("never", "argument"),
+                     ANSIThemeStr(" (never color the output)", "description")],
+                ],
+                "requires_arg": True,
+                "validation": {
+                    "validator": "allowlist",
+                    "allowlist": [
+                        "always",
+                        "auto",
+                        "never",
+                    ],
+                },
+            },
+            "--format": {
+                "values": [
+                    ANSIThemeStr("FORMAT", "argument")],
+                "description": [
+                    ANSIThemeStr("Format the output as ", "description"),
+                    ANSIThemeStr("FORMAT", "description")],
+                "extended_description": [
+                    [ANSIThemeStr("Valid formats are:", "description")],
+                    [ANSIThemeStr("default", "argument"),
+                     ANSIThemeStr(" (default format)", "description")],
+                    [ANSIThemeStr("csv", "argument"),
+                     ANSIThemeStr(" (comma-separated values)", "description")],
+                    [ANSIThemeStr("ssv", "argument"),
+                     ANSIThemeStr(" (space-separated values)", "description")],
+                    [ANSIThemeStr("tsv", "argument"),
+                     ANSIThemeStr(" (tab-separated values)", "description")],
+                ],
+                "requires_arg": True,
+                "validation": {
+                    "validator": "allowlist",
+                    "allowlist": [
+                        "default",
+                        "csv",
+                        "ssv",
+                        "tsv",
+                    ],
+                },
+            },
+        },
+        "required_args": [],
+        "optional_args": [],
+        "callback": list_playbooks,
+    },
+    "Explain Playbook": {
+        "command": ["explain"],
+        "values": [
+            ANSIThemeStr("PLAYBOOK ", "argument")],
+        "description": [
+            ANSIThemeStr("Explain what actions ", "description"),
+            ANSIThemeStr("PLAYBOOK", "argument"),
+            ANSIThemeStr(" will perform", "description")],
+        "required_args": [
+            {
+                "name": "playbook",
+                "string": [
+                    ANSIThemeStr("PLAYBOOK", "argument")],
+                "validation": {
+                    "validator": "regex",
+                    "regex": r"^[a-z0-9][a-z0-9_-]*[a-z0-9]$",
+                },
+            },
+        ],
+        "optional_args": [],
+        "callback": explain_playbook,
+    },
+    "Run Playbook": {
+        "command": ["run"],
+        "values": [
+            ANSIThemeStr("PLAYBOOK ", "argument"),
+            ANSIThemeStr("HOST", "argument"),
+            ANSIThemeStr(",", "separator"),
+            ANSIThemeStr("...", "argument"),
+            ANSIThemeStr("|", "separator"),
+            ANSIThemeStr("GROUP", "argument"),
+            ANSIThemeStr(",", "separator"),
+            ANSIThemeStr("...", "argument")],
+        "description": [
+            ANSIThemeStr("Run playbook on ", "description"),
+            ANSIThemeStr("HOST", "argument"),
+            ANSIThemeStr(",", "separator"),
+            ANSIThemeStr("...", "argument"),
+            ANSIThemeStr(" or ", "description"),
+            ANSIThemeStr("GROUP", "argument"),
+            ANSIThemeStr(",", "separator"),
+            ANSIThemeStr("...", "argument")],
+        "options": {
+            "--save-ansible-logs": {
+                "description": [
+                    ANSIThemeStr("Save logs from Ansible runs", "description")],
+                "extended_description": [
+                    [ANSIThemeStr("The logs can be viewed using “", "description"),
+                     ANSIThemeStr("cmu", "programname"),
+                     ANSIThemeStr(" logs", "command"),
+                     ANSIThemeStr("“", "description")]
+                ],
+            },
+            "--verbose": {
+                "description": [
+                    ANSIThemeStr("Be more verbose", "description")],
+            },
+        },
+        "required_args": [
+            {
+                "name": "playbook",
+                "string": [
+                    ANSIThemeStr("PLAYBOOK", "argument")],
+                "validation": {
+                    "validator": "regex",
+                    "regex": r"^[a-z0-9][a-z0-9_-]*[a-z0-9]$",
+                },
+            },
+            {
+                "name": "hosts_or_groups",
+                "string": [
+                    ANSIThemeStr("HOST", "argument"),
+                    ANSIThemeStr(",", "separator"),
+                    ANSIThemeStr("...", "argument"),
+                    ANSIThemeStr("|", "argument"),
+                    ANSIThemeStr("GROUP", "argument"),
+                    ANSIThemeStr(",", "separator"),
+                    ANSIThemeStr("...", "argument")],
+                "validation": {
+                    "validator": "hostname_ip_or_ansible_group",
+                    "list_separator": ",",
+                },
+            },
+        ],
+        "optional_args": [],
+        "callback": run_playbook,
+    },
+    "Set Global Variables": {
+        "command": ["set-var", "set-vars"],
+        "values": [
+            ANSIThemeStr("KEY", "argument"),
+            ANSIThemeStr(":", "separator"),
+            ANSIThemeStr("VALUE", "argument"),
+            ANSIThemeStr(",", "separator"),
+            ANSIThemeStr("...", "argument")],
+        "description": [
+            ANSIThemeStr("Set global ", "description"),
+            ANSIThemeStr("KEY", "argument"),
+            ANSIThemeStr(":", "separator"),
+            ANSIThemeStr("VALUE", "argument"),
+            ANSIThemeStr(",", "separator"),
+            ANSIThemeStr("...", "argument")],
+        "extended_description": [
+            [ANSIThemeStr("Setting global variables is equivalent to setting", "description")],
+            [ANSIThemeStr("variables for the group “", "description"),
+             ANSIThemeStr("all", "argument"),
+             ANSIThemeStr("“", "description")],
+        ],
+        "required_args": [
+            {
+                "name": "global_vars",
+                "string": [
+                    ANSIThemeStr("KEY", "argument"),
+                    ANSIThemeStr(":", "separator"),
+                    ANSIThemeStr("VALUE", "argument"),
+                    ANSIThemeStr(",", "separator"),
+                    ANSIThemeStr("...", "argument")],
+                "validation": {
+                    "validator": "regex",
+                    # The key is limited, the value is free-form
+                    "regex": r"^[a-z_][a-z0-9_]*:.+$",
+                    "list_separator": ",",
+                },
+            },
+        ],
+        "optional_args": [],
+        "callback": set_global_vars,
+    },
+    "Set Group Variables": {
+        "command": ["set-group-var", "set-group-vars"],
+        "values": [
+            ANSIThemeStr("KEY", "argument"),
+            ANSIThemeStr(":", "separator"),
+            ANSIThemeStr("VALUE", "argument"),
+            ANSIThemeStr(",", "separator"),
+            ANSIThemeStr("... ", "argument"),
+            ANSIThemeStr("GROUP", "argument"),
+            ANSIThemeStr(",", "separator"),
+            ANSIThemeStr("...", "argument")],
+        "description": [
+            ANSIThemeStr("Set ", "description"),
+            ANSIThemeStr("KEY", "argument"),
+            ANSIThemeStr(":", "separator"),
+            ANSIThemeStr("VALUE", "argument"),
+            ANSIThemeStr(",", "separator"),
+            ANSIThemeStr("...", "argument"),
+            ANSIThemeStr(" for ", "description"),
+            ANSIThemeStr("GROUP", "argument"),
+            ANSIThemeStr(",", "separator"),
+            ANSIThemeStr("...", "argument")],
+        "required_args": [
+            {
+                "name": "group_vars",
+                "string": [
+                    ANSIThemeStr("KEY", "argument"),
+                    ANSIThemeStr(":", "separator"),
+                    ANSIThemeStr("VALUE", "argument"),
+                    ANSIThemeStr(",", "separator"),
+                    ANSIThemeStr("...", "argument")],
+                "validation": {
+                    "validator": "regex",
+                    # The key is limited, the value is free-form
+                    "regex": r"^[a-z_][a-z0-9_]*:.+$",
+                    "list_separator": ",",
+                },
+            },
+            {
+                "name": "groups",
+                "string": [
+                    ANSIThemeStr("GROUP", "argument"),
+                    ANSIThemeStr(",", "separator"),
+                    ANSIThemeStr("...", "argument")],
+                "validation": {
+                    "validator": "regex",
+                    "regex": r"^[a-z_][a-z0-9_]*$",
+                    "list_separator": ",",
+                },
+            },
+        ],
+        "optional_args": [],
+        "callback": set_group_vars,
+    },
+    "Set Host Variables": {
+        "command": ["set-host-var", "set-host-vars"],
+        "values": [
+            ANSIThemeStr("KEY", "argument"),
+            ANSIThemeStr(":", "separator"),
+            ANSIThemeStr("VALUE", "argument"),
+            ANSIThemeStr(",", "separator"),
+            ANSIThemeStr("... ", "argument"),
+            ANSIThemeStr("HOST", "argument"),
+            ANSIThemeStr(",", "separator"),
+            ANSIThemeStr("...", "argument")],
+        "description": [
+            ANSIThemeStr("Set ", "description"),
+            ANSIThemeStr("KEY", "argument"),
+            ANSIThemeStr(":", "separator"),
+            ANSIThemeStr("VALUE", "argument"),
+            ANSIThemeStr(",", "separator"),
+            ANSIThemeStr("...", "argument"),
+            ANSIThemeStr(" for ", "description"),
+            ANSIThemeStr("HOST", "argument"),
+            ANSIThemeStr(",", "separator"),
+            ANSIThemeStr("...", "argument")],
+        "required_args": [
+            {
+                "name": "host_vars",
+                "string": [
+                    ANSIThemeStr("KEY", "argument"),
+                    ANSIThemeStr(":", "separator"),
+                    ANSIThemeStr("VALUE", "argument"),
+                    ANSIThemeStr(",", "separator"),
+                    ANSIThemeStr("...", "argument")],
+                "validation": {
+                    "validator": "regex",
+                    # The key is limited, the value is free-form
+                    "regex": r"^[a-z_][a-z0-9_]*:.+$",
+                    "list_separator": ",",
+                },
+            },
+            {
+                "name": "hosts",
+                "string": [
+                    ANSIThemeStr("HOST", "argument"),
+                    ANSIThemeStr(",", "separator"),
+                    ANSIThemeStr("...", "argument")],
+                "validation": {
+                    "validator": "hostname_or_ip",
+                    "list_separator": ",",
+                },
+            },
+        ],
+        "optional_args": [],
+        "callback": set_host_vars,
+    },
+    "Unset Global Variables": {
+        "command": ["unset-var", "unset-vars"],
+        "values": [
+            ANSIThemeStr("KEY", "argument")],
+        "description": [
+            ANSIThemeStr("Unset global ", "description"),
+            ANSIThemeStr("KEY", "argument")],
+        "extended_description": [
+            [ANSIThemeStr("Unsetting global variables is equivalent to", "description")],
+            [ANSIThemeStr("unsetting variables for the group “", "description"),
+             ANSIThemeStr("all", "argument"),
+             ANSIThemeStr("“", "description")],
+        ],
+        "required_args": [
+            {
+                "name": "global_vars",
+                "string": [
+                    ANSIThemeStr("KEY", "argument"),
+                    ANSIThemeStr(":", "separator"),
+                    ANSIThemeStr("VALUE", "argument"),
+                    ANSIThemeStr(",", "separator"),
+                    ANSIThemeStr("...", "argument")],
+                "validation": {
+                    "validator": "regex",
+                    "regex": r"^[a-z_][a-z0-9_]*$",
+                    "list_separator": ",",
+                },
+            },
+        ],
+        "optional_args": [],
+        "callback": unset_global_vars,
+    },
+    "Unset Group Variables": {
+        "command": ["unset-group-var", "unset-group-vars"],
+        "values": [
+            ANSIThemeStr("KEY ", "argument"),
+            ANSIThemeStr("GROUP", "argument"),
+            ANSIThemeStr(",", "separator"),
+            ANSIThemeStr("...", "argument")],
+        "description": [
+            ANSIThemeStr("Unset ", "description"),
+            ANSIThemeStr("KEY", "argument"),
+            ANSIThemeStr(" for ", "description"),
+            ANSIThemeStr("GROUP", "argument"),
+            ANSIThemeStr(",", "separator"),
+            ANSIThemeStr("...", "argument")],
+        "required_args": [
+            {
+                "name": "group_vars",
+                "string": [
+                    ANSIThemeStr("KEY", "argument"),
+                    ANSIThemeStr(":", "separator"),
+                    ANSIThemeStr("VALUE", "argument"),
+                    ANSIThemeStr(",", "separator"),
+                    ANSIThemeStr("...", "argument")],
+                "validation": {
+                    "validator": "regex",
+                    "regex": r"^[a-z_][a-z0-9_]*$",
+                    "list_separator": ",",
+                },
+            },
+            {
+                "name": "groups",
+                "string": [
+                    ANSIThemeStr("GROUP", "argument"),
+                    ANSIThemeStr(",", "separator"),
+                    ANSIThemeStr("...", "argument")],
+                "validation": {
+                    "validator": "regex",
+                    "regex": r"^[a-z_][a-z0-9_]*$",
+                    "list_separator": ",",
+                },
+            },
+        ],
+        "optional_args": [],
+        "callback": unset_group_vars,
+    },
+    "Unset Host Variables": {
+        "command": ["unset-host-var", "unset-host-vars"],
+        "values": [
+            ANSIThemeStr("KEY ", "argument"),
+            ANSIThemeStr("HOST", "argument"),
+            ANSIThemeStr(",", "separator"),
+            ANSIThemeStr("...", "argument")],
+        "description": [
+            ANSIThemeStr("Unset ", "description"),
+            ANSIThemeStr("KEY", "argument"),
+            ANSIThemeStr(" for ", "description"),
+            ANSIThemeStr("HOST", "argument"),
+            ANSIThemeStr(",", "separator"),
+            ANSIThemeStr("...", "argument")],
+        "required_args": [
+            {
+                "name": "host_vars",
+                "string": [
+                    ANSIThemeStr("KEY", "argument"),
+                    ANSIThemeStr(":", "separator"),
+                    ANSIThemeStr("VALUE", "argument"),
+                    ANSIThemeStr(",", "separator"),
+                    ANSIThemeStr("...", "argument")],
+                "validation": {
+                    "validator": "regex",
+                    "regex": r"^[a-z_][a-z0-9_]*$",
+                    "list_separator": ",",
+                },
+            },
+            {
+                "name": "hosts",
+                "string": [
+                    ANSIThemeStr("HOST", "argument"),
+                    ANSIThemeStr(",", "separator"),
+                    ANSIThemeStr("...", "argument")],
+                "validation": {
+                    "validator": "hostname_or_ip",
+                    "list_separator": ",",
+                },
+            },
+        ],
+        "optional_args": [],
+        "callback": unset_host_vars,
+    },
+    "spacer1": {
+        "command": [""],
+        "description": [
+            ANSIThemeStr("", "default")],
+        "required_args": [],
+        "optional_args": [],
+        "callback": None,
+    },
+}
+
+
+def main() -> int:
+    """
+    Main function for the program.
+    """
+    # Before doing anything else, make sure that the user is not running as root
+    if os.geteuid() == 0:
+        sys.exit("CRITICAL: This program should not be run as the root user; aborting.")
+
+    # Now check if all necessary paths exist
+    if (violations := cmtlib.setup_paths()) != [SecurityStatus.OK]:
+        violations_joined = cmtio.join_securitystatus_set(",", set(violations))
+        sys.exit(f"Failed to create necessary directories; violated rules: {violations_joined}")
+
+    # Then initialise the configuration file
+    read_cmtconfig()
+
+    command, options, args = parse_commandline(about.INVENTORY_PROGRAM_NAME,
+                                               about.INVENTORY_PROGRAM_VERSION,
+                                               PROGRAMDESCRIPTION,
+                                               PROGRAMAUTHORS, sys.argv,
+                                               COMMANDLINE,
+                                               default_command="inventory",
+                                               theme=DEFAULT_THEME_FILE)
+
+    for key, value in options:
+        if key == "__commandname" and value in ("help", "version"):
+            break
+    else:
+        checks.check_ansible_dir_permissions(verbose=False, exit_on_error=True,
+                                             quiet_on_ok=True, user=getuser())
+        checks.check_netrc_permissions(verbose=False, exit_on_error=True, quiet_on_ok=True)
+
+    # Used by the ansible module
+    ansible_configuration["ansible_forks"] = \
+        deep_get(cmtlib.cmtconfig, DictPath("Ansible#forks"), 10)
+    ansible_configuration["ansible_user"] = \
+        deep_get(cmtlib.cmtconfig, DictPath("Ansible#ansible_user"))
+    ansible_configuration["ansible_password"] = \
+        deep_get(cmtlib.cmtconfig, DictPath("Ansible#ansible_password"))
+    ansible_configuration["disable_strict_host_key_checking"] = \
+        deep_get(cmtlib.cmtconfig, DictPath("Nodes#disablestricthostkeychecking"), False)
+
+    return command(options, args)
+
+
+if __name__ == "__main__":
+    main()

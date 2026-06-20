@@ -1,0 +1,3657 @@
+#! /usr/bin/env python3
+
+# Requires: python3 (>= 3.11)
+#
+# Copyright the Cluster Management Toolkit for Kubernetes contributors.
+# SPDX-License-Identifier: MIT
+
+from datetime import datetime, timezone
+import os
+from pathlib import PurePath
+import sys
+import time
+from typing import Any
+from unittest import mock
+import yaml
+
+from clustermanagementtoolkit.cmtpaths import DEFAULT_THEME_FILE
+
+from clustermanagementtoolkit.cmttypes import deep_get, DictPath, FilePath
+from clustermanagementtoolkit.cmttypes import ProgrammingError
+
+from clustermanagementtoolkit.ansithemeprint import ANSIThemeStr
+from clustermanagementtoolkit.ansithemeprint import ansithemeprint, init_ansithemeprint
+
+from clustermanagementtoolkit import itemgetters
+
+from clustermanagementtoolkit import kubernetes_helper
+
+TEST_DIR = FilePath(PurePath(__file__).parent).joinpath("testpaths")
+
+# unit-tests for itemgetters.py
+
+
+kh: kubernetes_helper.KubernetesHelper = None  # type: ignore
+kh_cache: kubernetes_helper.KubernetesResourceCache = None  # type: ignore
+
+
+def yaml_dump(data: Any, base_indent: int = 4) -> str:
+    result = ""
+    dump = yaml.dump(data)
+    for line in dump.splitlines():
+        result += f"{' '.ljust(base_indent)}{line}\n"
+    return result
+
+
+def test_callback(options: list[tuple[str, str]], args: list[str]) -> tuple[str, int]:
+    return ("callback", len(args))
+
+
+def test_get_conditions(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = itemgetters.get_conditions
+
+    if result:
+        now = datetime.now(timezone.utc)
+        now_str = f"{now:%Y-%m-%d %H:%M:%S}Z"
+        now_str_fmt = f"{now.astimezone():%Y-%m-%d %H:%M:%S}"
+        # Indata format:
+        # (obj, path, expected_result, expected_exception)
+        testdata: tuple = (
+            # All fine
+            (
+                {
+                    "status": {
+                        "conditions": [
+                            {
+                                'type': 'PodReadyToStartContainers',
+                                'status': 'True',
+                                'lastProbeTime': None,
+                                'lastTransitionTime': now_str},
+                            {
+                                'type': 'Initialized',
+                                'status': 'True',
+                                'lastProbeTime': None,
+                                'lastTransitionTime': now_str},
+                            {
+                                'type': 'Ready',
+                                'status': 'True',
+                                # Randomly set the readiness probe
+                                'lastProbeTime': now_str,
+                                'lastTransitionTime': now_str},
+                            {
+                                'type': 'ContainersReady',
+                                'status': 'True',
+                                'lastProbeTime': None,
+                                'lastTransitionTime': now_str},
+                            {
+                                'type': 'PodScheduled',
+                                'status': 'True',
+                                'lastProbeTime': None,
+                                'lastTransitionTime': now_str},
+                        ],
+                    },
+                },
+                DictPath("status#conditions"),
+                [
+                    {
+                        "fields": [
+                            'PodReadyToStartContainers', 'True',
+                            '<unset>', now_str_fmt, ''],
+                    },
+                    {
+                        "fields": [
+                            'Initialized', 'True',
+                            '<unset>', now_str_fmt, ''],
+                    },
+                    {
+                        "fields": [
+                            'Ready', 'True',
+                            now_str_fmt, now_str_fmt, ''],
+                    },
+                    {
+                        "fields": [
+                            'ContainersReady', 'True',
+                            '<unset>', now_str_fmt, ''],
+                    },
+                    {
+                        "fields": [
+                            'PodScheduled', 'True',
+                            '<unset>', now_str_fmt, ''],
+                    },
+                ],
+                None,
+            ),
+            # Not ready
+            (
+                {
+                    "status": {
+                        "conditions": [
+                            {
+                                'type': 'PodReadyToStartContainers',
+                                'status': 'True',
+                                'lastProbeTime': None,
+                                'lastTransitionTime': now_str},
+                            {
+                                'type': 'Initialized',
+                                'status': 'True',
+                                'lastProbeTime': None,
+                                'lastTransitionTime': now_str},
+                            {
+                                'type': 'Ready',
+                                'status': 'False',
+                                'lastProbeTime': None,
+                                'lastTransitionTime': now_str},
+                            {
+                                'type': 'ContainersReady',
+                                'status': 'True',
+                                'lastProbeTime': None,
+                                'lastTransitionTime': now_str},
+                            {
+                                'type': 'PodScheduled',
+                                'status': 'True',
+                                'lastProbeTime': None,
+                                'lastTransitionTime': now_str},
+                        ],
+                    },
+                },
+                DictPath("status#conditions"),
+                [
+                    {
+                        'fields': [
+                            'PodReadyToStartContainers', 'True',
+                            '<unset>', now_str_fmt, ''],
+                    },
+                    {
+                        'fields': [
+                            'Initialized', 'True',
+                            '<unset>', now_str_fmt, ''],
+                    },
+                    {
+                        'fields': [
+                            'Ready', 'False',
+                            '<unset>', now_str_fmt, ''],
+                    },
+                    {
+                        'fields': [
+                            'ContainersReady', 'True',
+                            '<unset>', now_str_fmt, ''],
+                    },
+                    {
+                        'fields': [
+                            'PodScheduled', 'True',
+                            '<unset>', now_str_fmt, ''],
+                    },
+                ],
+                None,
+            ),
+            # Not ready, no lastTransitionTime
+            (
+                {
+                    "status": {
+                        "conditions": [
+                            {
+                                'type': 'PodReadyToStartContainers',
+                                'status': 'True',
+                                'lastProbeTime': None,
+                                'lastTransitionTime': now_str},
+                            {
+                                'type': 'Initialized',
+                                'status': 'True',
+                                'lastProbeTime': None,
+                                'lastTransitionTime': now_str},
+                            {
+                                'type': 'Ready',
+                                'status': 'False',
+                                'lastProbeTime': None,
+                                'lastTransitionTime': None},
+                            {
+                                'type': 'ContainersReady',
+                                'status': 'True',
+                                'lastProbeTime': None,
+                                'lastTransitionTime': now_str},
+                            {
+                                'type': 'PodScheduled',
+                                'status': 'True',
+                                'lastProbeTime': None,
+                                'lastTransitionTime': now_str},
+                        ],
+                    },
+                },
+                DictPath("status#conditions"),
+                [
+                    {
+                        'fields': [
+                            'PodReadyToStartContainers', 'True',
+                            '<unset>', now_str_fmt, ''],
+                    },
+                    {
+                        'fields': [
+                            'Initialized', 'True',
+                            '<unset>', now_str_fmt, ''],
+                    },
+                    {
+                        'fields': [
+                            'Ready', 'False',
+                            '<unset>', '<unset>', '']},
+                    {
+                        'fields': [
+                            'ContainersReady', 'True',
+                            '<unset>', now_str_fmt, ''],
+                    },
+                    {
+                        'fields': [
+                            'PodScheduled', 'True',
+                            '<unset>', now_str_fmt, ''],
+                    },
+                ],
+                None,
+            ),
+            # Terminated
+            (
+                {
+                    "status": {
+                        "conditions": [
+                            {
+                                'type': 'PodReadyToStartContainers',
+                                'status': 'True',
+                                'lastProbeTime': None,
+                                'lastTransitionTime': now_str},
+                            {
+                                'type': 'Initialized',
+                                'status': 'True',
+                                'lastProbeTime': None,
+                                'lastTransitionTime': now_str},
+                            {
+                                'type': 'Ready',
+                                'status': 'False',
+                                'lastProbeTime': None,
+                                'lastTransitionTime': now_str},
+                            {
+                                'type': 'ContainersReady',
+                                'status': 'True',
+                                'lastProbeTime': None,
+                                'lastTransitionTime': now_str},
+                            {
+                                'type': 'PodScheduled',
+                                'status': 'True',
+                                'lastProbeTime': None,
+                                'lastTransitionTime': now_str},
+                            {
+                                'type': 'DisruptionTarget',
+                                'status': 'True',
+                                'lastProbeTime': None,
+                                'lastTransitionTime': now_str,
+                                'reason': 'DeletionByTaintManager',
+                                'message': 'Taint manager: deleting due to NoExecute taint'},
+                        ],
+                    },
+                },
+                DictPath("status#conditions"),
+                [
+                    {
+                        'fields': [
+                            'PodReadyToStartContainers', 'True',
+                            '<unset>', now_str_fmt, ''],
+                    },
+                    {
+                        'fields': [
+                            'Initialized', 'True',
+                            '<unset>', now_str_fmt, ''],
+                    },
+                    {
+                        'fields': [
+                            'Ready', 'False',
+                            '<unset>', now_str_fmt, ''],
+                    },
+                    {
+                        'fields': [
+                            'ContainersReady', 'True',
+                            '<unset>', now_str_fmt, ''],
+                    },
+                    {
+                        'fields': [
+                            'PodScheduled', 'True',
+                            '<unset>', now_str_fmt, ''],
+                    },
+                    {
+                        'fields': [
+                            'DisruptionTarget', 'True',
+                            '<unset>', now_str_fmt,
+                            'Taint manager: deleting due to NoExecute taint']},
+                ],
+                None,
+            ),
+        )
+
+        for conditions, path, expected_result, expected_exception in testdata:
+            try:
+                tmp = fun(conditions, path=path)
+                if tmp != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"           result: {tmp}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  f"        exception: {type(e)}\n" \
+                                  f"          message: {str(e)}\n" \
+                                  f"         expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"        exception: {type(e)}\n" \
+                              f"          message: {str(e)}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+    return message, result
+
+
+def test_get_kubernetes_objects(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = itemgetters.get_kubernetes_objects
+
+    if result:
+        # Indata format:
+        # (obj, kwargs, mock_response, expected_result, expected_exception)
+        testdata: tuple = (
+            (
+                {},
+                {
+                    "kubernetes_helper": kh,
+                    "kh_cache": kh_cache,
+                    "kind": "Service",
+                    "name": "cert-manager",
+                    "namespace": "default",
+                    "field_paths": [
+                        "metadata#namespace",
+                        "metadata#name",
+                        "metadata#creationTimestamp",
+                    ],
+                },
+                ([
+                    {
+                        "kind": "Service",
+                        "apiVersion": "v1",
+                        "metadata": {
+                            "name": "cert-manager",
+                            "namespace": "default",
+                            "creationTimestamp": "2024-10-23T20:24:11Z",
+                        },
+                    },
+                ], 200),
+                [
+                    {
+                        "fields": (
+                            "default",
+                            "cert-manager",
+                            "2024-10-23T20:24:11Z",
+                        ),
+                        "ref": {
+                            "kind": "Service",
+                            "apiVersion": "v1",
+                            "metadata": {
+                                "name": "cert-manager",
+                                "namespace": "default",
+                                "creationTimestamp": "2024-10-23T20:24:11Z",
+                            },
+                        },
+                    },
+                ],
+                None,
+            ),
+            (
+                {
+                    "metadata": {
+                        "namespace": "default",
+                        "name": "cert-manager",
+                    }
+                },
+                {
+                    "kubernetes_helper": kh,
+                    "kh_cache": kh_cache,
+                    "kind": "Service",
+                    "name_path": "metadata#name",
+                    "namespace_path": "metadata#namespace",
+                    "field_paths": [
+                        "metadata#namespace",
+                        "metadata#name",
+                        "metadata#creationTimestamp",
+                    ],
+                },
+                ([
+                    {
+                        "kind": "Service",
+                        "apiVersion": "v1",
+                        "metadata": {
+                            "name": "cert-manager",
+                            "namespace": "default",
+                            "creationTimestamp": "2024-10-23T20:24:11Z",
+                        },
+                    },
+                ], 200),
+                [
+                    {
+                        "fields": (
+                            "default",
+                            "cert-manager",
+                            "2024-10-23T20:24:11Z",
+                        ),
+                        "ref": {
+                            "kind": "Service",
+                            "apiVersion": "v1",
+                            "metadata": {
+                                "name": "cert-manager",
+                                "namespace": "default",
+                                "creationTimestamp": "2024-10-23T20:24:11Z",
+                            },
+                        },
+                    },
+                ],
+                None,
+            ),
+            (
+                {
+                    "metadata": {
+                        "namespace": "default",
+                        "name": "cert-manager",
+                    }
+                },
+                {
+                    "kubernetes_helper": kh,
+                    "kh_cache": kh_cache,
+                    "kind": "Service",
+                    "name_path": "metadata#name",
+                    "namespace_path": "metadata#namespace",
+                    "selector": "foo",
+                    "selector_type": "label",
+                    "field_paths": [
+                        "metadata#namespace",
+                        "metadata#name",
+                        "metadata#creationTimestamp",
+                    ],
+                },
+                ([], 200),
+                [],
+                None,
+            ),
+            (
+                {
+                    "metadata": {
+                        "namespace": "default",
+                        "name": "cert-manager",
+                    }
+                },
+                {
+                    "kubernetes_helper": kh,
+                    "kh_cache": kh_cache,
+                    "kind": "Service",
+                    "name_path": "metadata#name",
+                    "namespace_path": "metadata#namespace",
+                    "selector": "metadata.name",
+                    "selector_type": "field",
+                    "field_paths": [
+                        "metadata#namespace",
+                        "metadata#name",
+                        "metadata#creationTimestamp",
+                    ],
+                },
+                ([], 200),
+                [],
+                None,
+            ),
+            (
+                {
+                    "metadata": {
+                        "namespace": "default",
+                        "name": "cert-manager",
+                    }
+                },
+                {
+                    "kubernetes_helper": kh,
+                    "kh_cache": kh_cache,
+                    "kind": "Service",
+                    "namespace_path": "metadata#namespace",
+                    "selector": "foo=bar",
+                    "selector_type": "label",
+                    "field_paths": [
+                        "metadata#namespace",
+                        "metadata#name",
+                        "metadata#creationTimestamp",
+                    ],
+                },
+                ([], 200),
+                [],
+                None,
+            ),
+            (
+                # Everything OK with the request, but fake a HTTP error.
+                {},
+                {
+                    "kubernetes_helper": kh,
+                    "kh_cache": kh_cache,
+                    "kind": "Service",
+                    "name": "cert-manager",
+                    "namespace": "default",
+                    "field_paths": [
+                        "metadata#namespace",
+                        "metadata#name",
+                        "metadata#creationTimestamp",
+                    ],
+                },
+                ([], 503),
+                [],
+                None,
+            ),
+            (
+                # kh missing; exception expected.
+                {},
+                {
+                    "kubernetes_helper": None,
+                },
+                None,
+                None,
+                ProgrammingError,
+            ),
+        )
+
+        for obj, kwargs, mock_response, expected_result, expected_exception in testdata:
+            try:
+                with mock.patch("clustermanagementtoolkit.kubernetes_helper."
+                                "KubernetesHelper.get_list_by_kind_namespace",
+                                return_value=mock_response):
+                    tmp = fun(obj, **kwargs)
+                if tmp != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"           result: {tmp}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  f"        exception: {type(e)}\n" \
+                                  f"          message: {str(e)}\n" \
+                                  f"         expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"        exception: {type(e)}\n" \
+                              f"          message: {str(e)}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+    return message, result
+
+
+def test_get_events(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = itemgetters.get_events
+
+    if result:
+        # Indata format:
+        # (obj, kwargs, mock_response, expected_result, expected_exception)
+        testdata: tuple = (
+            (
+                {
+                    "kind": "PersistentVolumeClaim",
+                    "metadata": {
+                        "name": "data-jaeger-cassandra-0",
+                        "namespace": "default",
+                    },
+                },
+                {
+                    "kubernetes_helper": kh,
+                    "kh_cache": kh_cache,
+                },
+                [
+                    (
+                        "default",
+                        "data-jaeger-cassandra-0.181d83af5b43f262",
+                        "2025-01-24 22:57:08",
+                        "Normal",
+                        "FailedBinding",
+                        "persistentvolume-controller",
+                        "2025-01-24 05:37:00",
+                        "4161",
+                        "no persistent volumes available for this claim",
+                    ),
+                ],
+                [
+                    {
+                        "fields": (
+                            "default",
+                            "data-jaeger-cassandra-0.181d83af5b43f262",
+                            "2025-01-24 22:57:08",
+                            "Normal",
+                            "FailedBinding",
+                            "persistentvolume-controller",
+                            "2025-01-24 05:37:00",
+                            "4161",
+                            "no persistent volumes available for this claim",
+                        ),
+                    },
+                ],
+                None,
+            ),
+            (
+                # kh missing; exception expected.
+                {},
+                {
+                    "kubernetes_helper": None,
+                },
+                None,
+                None,
+                ProgrammingError,
+            ),
+        )
+
+        for obj, kwargs, mock_response, expected_result, expected_exception in testdata:
+            try:
+                with mock.patch("clustermanagementtoolkit.kubernetes_helper."
+                                "KubernetesHelper.get_events_by_kind_name_namespace",
+                                return_value=mock_response):
+                    tmp = fun(obj, **kwargs)
+                if tmp != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"           result: {tmp}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  f"        exception: {type(e)}\n" \
+                                  f"          message: {str(e)}\n" \
+                                  f"         expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"        exception: {type(e)}\n" \
+                              f"          message: {str(e)}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+    return message, result
+
+
+def test_get_image_list(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = itemgetters.get_image_list
+
+    if result:
+        # Indata format:
+        # (obj, expected_result, expected_exception)
+        testdata: tuple = (
+            (
+                {
+                    "status": {
+                        "images": [
+                            {
+                                "names": [
+                                    "registry.k8s.io/pause@sha256:"
+                                    "7031c1b283388d2c2e09b57badb80"
+                                    "3c05ebed362dc88d84b480cc47f72a21097",
+                                    "registry.k8s.io/pause@sha256:"
+                                    "8d4106c88ec0bd28001e34c975d65"
+                                    "175d994072d65341f62a8ab0754b0fafe10",
+                                    "registry.k8s.io/pause:3.9"
+                                ],
+                                "sizeBytes": 750414
+                            },
+                            {
+                                "names": [
+                                    "quay.io/cilium/cilium@sha256:"
+                                    "36e636e4a678dcb1f5ae697e5fc27"
+                                    "554c1f119c40ebc23a93644a80797ff57d6",
+                                    "quay.io/cilium/cilium@sha256:"
+                                    "9cfd6a0a3a964780e73a11159f93c"
+                                    "c363e616f7d9783608f62af6cfdf3759619"
+                                ],
+                                "sizeBytes": 585706036
+                            },
+                            {
+                                "names": [
+                                    "quay.io/sustainable_computing_io/kepler@sha256:"
+                                    "c6cf9587633ce8a96b8f4a3ed8cae30e24370fd4238903d"
+                                    "beed380361c71e2b7",
+                                    "quay.io/sustainable_computing_io/kepler@sha256:"
+                                    "e5ff7514d154a474d306468cff54a1396d4ec3b7637f0af"
+                                    "ad9935f895a9ab155",
+                                    "quay.io/sustainable_computing_io/kepler:release-0.5.5"
+                                ],
+                                "sizeBytes": 1630590712
+                            },
+                        ]
+                    }
+                },
+                [
+                    (
+                        "quay.io/cilium/cilium@sha256:"
+                        "9cfd6a0a3a964780e73a11159f93cc363e616f7d9783608f62af6cfdf3759619",
+                        "558MiB"
+                    ),
+                    (
+                        "quay.io/sustainable_computing_io/kepler:release-0.5.5",
+                        "1GiB"
+                    ),
+                    (
+                        "registry.k8s.io/pause:3.9",
+                        "732KiB"
+                    ),
+                ],
+                None,
+            ),
+            (
+                {
+                    "status": {
+                        "images": [
+                            {
+                                "names": [],
+                                "sizeBytes": 750414
+                            },
+                        ]
+                    }
+                },
+                [],
+                None,
+            ),
+        )
+
+        for obj, expected_result, expected_exception in testdata:
+            try:
+                tmp = fun(obj, path=DictPath("status#images"))
+                if tmp != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"           result: {tmp}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  f"        exception: {type(e)}\n" \
+                                  f"          message: {str(e)}\n" \
+                                  f"         expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"        exception: {type(e)}\n" \
+                              f"          message: {str(e)}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+    return message, result
+
+
+def test_get_key_value(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = itemgetters.get_key_value
+
+    if result:
+        # Indata format:
+        # (path, obj, expected_result, expected_exception)
+        testdata: tuple = (
+            (
+                DictPath("status#external-identifiers"),
+                {
+                    "status": {
+                        "external-identifiers": {
+                            "cni-attachment-id":
+                                "b84c914a6bf232b664f068e22dae9662911"
+                                "c8df66eb4805e587ce60b7e388187:eth0",
+                            "container-id":
+                                "b84c914a6bf232b664f068e22dae9662911c8df66eb4805e587ce60b7e388187",
+                            "k8s-namespace": "kube-system",
+                            "k8s-pod-name": "coredns-76f75df574-jblm6",
+                            "pod-name": "kube-system/coredns-76f75df574-jblm6"
+                        },
+                    },
+                },
+                [
+                    (
+                        "cni-attachment-id",
+                        "b84c914a6bf232b664f068e22dae9662911c8df66eb4805e587ce60b7e388187:eth0"
+                    ),
+                    (
+                        "container-id",
+                        "b84c914a6bf232b664f068e22dae9662911c8df66eb4805e587ce60b7e388187"
+                    ),
+                    (
+                        "k8s-namespace",
+                        "kube-system"
+                    ),
+                    (
+                        "k8s-pod-name",
+                        "coredns-76f75df574-jblm6"
+                    ),
+                    (
+                        "pod-name",
+                        "kube-system/coredns-76f75df574-jblm6"
+                    ),
+                ],
+                None,
+            ),
+            (
+                DictPath("foo"),
+                {
+                    "foo": {
+                        "a": 1,
+                        "b": 0.2,
+                        "c": "string",
+                        "d": ["foo", "bar", "baz"],
+                        "e": ("foo", "bar", "baz"),
+                        "f": {"bla": "blo", "biff": "boff"},
+                    },
+                },
+                [
+                    ("a", "1"),
+                    ("b", "0.2"),
+                    ("c", "string"),
+                    ("d", "foo,bar,baz"),
+                    ("e", "foo,bar,baz"),
+                    ("f", "bla:blo,biff:boff"),
+                ],
+                None,
+            ),
+            (
+                DictPath("foo"),
+                {
+                    "foo": {
+                        "a": Exception,
+                    },
+                },
+                None,
+                TypeError,
+            ),
+            (
+                DictPath(""),
+                {},
+                [],
+                None,
+            ),
+        )
+
+        for path, obj, expected_result, expected_exception in testdata:
+            try:
+                tmp = fun(obj, path=path)
+                if tmp != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"           result: {tmp}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  f"        exception: {type(e)}\n" \
+                                  f"          message: {str(e)}\n" \
+                                  f"         expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"        exception: {type(e)}\n" \
+                              f"          message: {str(e)}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+    return message, result
+
+
+def test_get_list_as_list(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = itemgetters.get_list_as_list
+
+    if result:
+        # Indata format:
+        # (obj, kwargs, expected_result, expected_exception)
+        testdata: tuple = (
+            (
+                # Valid data
+                {
+                    'kind': 'VirtualService',
+                    'apiVersion': 'networking.istio.io/v1',
+                    'spec': {
+                        'gateways': [
+                            'kubeflow/kubeflow-gateway',
+                        ]
+                    },
+                },
+                {
+                    "path": "spec#gateways",
+                    "regex": "^(.*?)/(.*)$|^()(.*)$",
+                },
+                [
+                    ['kubeflow', 'kubeflow-gateway'],
+                ],
+                None,
+            ),
+            (
+                # Valid data
+                {
+                    'kind': 'VirtualService',
+                    'apiVersion': 'networking.istio.io/v1',
+                    'spec': {
+                        'gateways': [
+                            'kubeflow/kubeflow-gateway',
+                        ]
+                    },
+                },
+                {
+                    "path": "spec#gateways",
+                    "regex": "^THIS WILL NOT MATCH$",
+                },
+                [],
+                None,
+            ),
+            (
+                # Valid data; hosts1 has data, so its data will be used
+                {
+                    'kind': 'VirtualService',
+                    'apiVersion': 'networking.istio.io/v1',
+                    'spec': {
+                        'hosts1': [
+                            'a',
+                        ],
+                        'hosts2': [
+                            'b',
+                        ],
+                    },
+                },
+                {
+                    "path": ["spec#hosts1", "spec#hosts2"],
+                },
+                [
+                    ['a'],
+                ],
+                None,
+            ),
+            (
+                # Valid data; hosts1 has no data, so hosts2 data will be used
+                {
+                    'kind': 'VirtualService',
+                    'apiVersion': 'networking.istio.io/v1',
+                    'spec': {
+                        'hosts1': None,
+                        'hosts2': [
+                            'b',
+                        ],
+                    },
+                },
+                {
+                    "path": ["spec#hosts1", "spec#hosts2"],
+                },
+                [
+                    ['b'],
+                ],
+                None,
+            ),
+            (
+                # Valid data
+                {
+                    'kind': 'VirtualService',
+                    'apiVersion': 'networking.istio.io/v1',
+                    'spec': {
+                        'hosts': [
+                            '*',
+                        ]
+                    },
+                },
+                {
+                    "path": "spec#hosts",
+                },
+                [
+                    ['*'],
+                ],
+                None,
+            ),
+            (
+                # Valid data
+                {
+                    'kind': 'VirtualService',
+                    'apiVersion': 'networking.istio.io/v1',
+                    'spec': {
+                        'hosts': [None]
+                    },
+                },
+                {
+                    "path": "spec#hosts",
+                },
+                [],
+                None,
+            ),
+            (
+                # Valid data
+                {
+                    'kind': 'VirtualService',
+                    'apiVersion': 'networking.istio.io/v1',
+                    'spec': {
+                        'hosts': []
+                    },
+                },
+                {
+                    "path": "spec#hosts",
+                },
+                [],
+                None,
+            ),
+            (
+                # Valid data
+                {
+                    'kind': 'VirtualService',
+                    'apiVersion': 'networking.istio.io/v1',
+                    'spec': {
+                        'hosts1': [
+                            'a',
+                        ],
+                        'hosts2': [
+                            'b',
+                        ],
+                    },
+                },
+                {
+                    "paths": ["spec#hosts1", "spec#hosts2"],
+                },
+                [
+                    ['a', 'b'],
+                ],
+                None,
+            ),
+            (
+                # Valid data
+                {
+                    'kind': 'VirtualService',
+                    'apiVersion': 'networking.istio.io/v1',
+                    'spec': {
+                        'hosts1': [
+                            'a', 'c',
+                        ],
+                        'hosts2': [
+                            'b', 'd',
+                        ],
+                    },
+                },
+                {
+                    "paths": ["spec#hosts1", "spec#hosts2"],
+                },
+                [
+                    ['a', 'b'], ['c', 'd'],
+                ],
+                None,
+            ),
+            (
+                # Valid data
+                {
+                    'kind': 'VirtualService',
+                    'apiVersion': 'networking.istio.io/v1',
+                    'spec': {
+                        'hosts1': [
+                            'a',
+                        ],
+                        'hosts2': [
+                            'b', 'd',
+                        ],
+                    },
+                },
+                {
+                    "paths": ["spec#hosts1", "spec#hosts2"],
+                },
+                [
+                    ['a', 'b'], [' ', 'd'],
+                ],
+                None,
+            ),
+            (
+                # Valid data
+                {
+                    'kind': 'VirtualService',
+                    'apiVersion': 'networking.istio.io/v1',
+                    'spec': {
+                        'hosts1': 'a',
+                        'hosts2': [
+                            'b', 'd',
+                        ],
+                    },
+                },
+                {
+                    "paths": ["spec#hosts1", "spec#hosts2"],
+                },
+                [
+                    ['a', 'b'], ['a', 'd'],
+                ],
+                None,
+            ),
+            (
+                # Valid, but neither path nor paths provided
+                {},
+                {},
+                [],
+                None,
+            ),
+        )
+
+        for obj, kwargs, expected_result, expected_exception in testdata:
+            try:
+                tmp = fun(obj, **kwargs)
+                if tmp != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"           result: {tmp}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  f"        exception: {type(e)}\n" \
+                                  f"          message: {str(e)}\n" \
+                                  f"         expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"        exception: {type(e)}\n" \
+                              f"          message: {str(e)}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+    return message, result
+
+
+def test_get_dict_list(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = itemgetters.get_dict_list
+
+    if result:
+        # Indata format:
+        # (obj, kwargs, expected_result, expected_exception)
+        testdata: tuple = (
+            (
+                # Valid data
+                {
+                    "status": {
+                        "nodes": {
+                            "spr-es-2": {
+                                "errors": "",
+                                "generation": 33,
+                                "status": "Success",
+                                "timestamp": "2025-01-16T08:55:00Z"
+                            }
+                        }
+                    }
+                },
+                {
+                    "path": "status#nodes",
+                    "fields": [
+                        "key",
+                        "value#status",
+                        "value#timestamp",
+                        "value#errors",
+                    ],
+                },
+                [
+                    ("spr-es-2", "Success", "2025-01-16T08:55:00Z", ""),
+                ],
+                None,
+            ),
+            (
+                # Valid data
+                {
+                    "status": {
+                        "node1/dev0": "bar",
+                    },
+                },
+                {
+                    "path": "status",
+                    "fields": [
+                        {
+                            "field": "key",
+                            "regex": "^(.+?)/.+",
+                        },
+                        {
+                            "field": "key",
+                            "regex": "^.+?/(.+)",
+                        },
+                        "value",
+                    ],
+                },
+                [
+                    ("node1", "dev0", "bar"),
+                ],
+                None,
+            ),
+            (
+                # Valid data, without regex
+                {
+                    "status": {
+                        "node1/dev0": "bar",
+                    },
+                },
+                {
+                    "path": "status",
+                    "fields": [
+                        {
+                            "field": "key",
+                        },
+                        "value",
+                    ],
+                },
+                [
+                    ("node1/dev0", "bar"),
+                ],
+                None,
+            ),
+            (
+                # Valid data, but non-existing field
+                {
+                    "status": {
+                        "node1/dev0": "bar",
+                    },
+                },
+                {
+                    "path": "status",
+                    "fields": [
+                        {
+                            "field": "INVALID",
+                        },
+                        "value",
+                    ],
+                },
+                [
+                    (" ", "bar"),
+                ],
+                None,
+            ),
+            (
+                # Valid data
+                {
+                    "status": [
+                        {
+                            "node1/dev0": "foo",
+                        },
+                        {
+                            "node2/dev1": "bar",
+                        },
+                    ],
+                },
+                {
+                    "path": "status",
+                    "fields": [
+                        {
+                            "field": "key",
+                            "regex": "^(.+?)/.+",
+                        },
+                        {
+                            "field": "key",
+                            "regex": "^.+?/(.+)",
+                        },
+                        "value",
+                    ],
+                },
+                [
+                    ("node1", "dev0", "foo"),
+                    ("node2", "dev1", "bar"),
+                ],
+                None,
+            ),
+            (
+                # Valid data, but doesn't match the regex
+                {
+                    "status": {
+                        "node1": "bar",
+                    },
+                },
+                {
+                    "path": "status",
+                    "fields": [
+                        {
+                            "field": "key",
+                            "regex": "^(.+?)?(:/.+)?$",
+                        },
+                        {
+                            "field": "key",
+                            "regex": "^.+?/(.+)",
+                        },
+                        "value",
+                    ],
+                },
+                [
+                    ("node1", " ", "bar"),
+                ],
+                None,
+            ),
+            (
+                # Valid data, but data is None
+                {
+                    "status": {
+                        "node1": None,
+                    },
+                },
+                {
+                    "path": "status",
+                    "fields": [
+                        {
+                            "field": "key",
+                            "regex": "^(.+?)?(:/.+)?$",
+                        },
+                        {
+                            "field": "key",
+                            "regex": "^.+?/(.+)",
+                        },
+                        "value",
+                    ],
+                },
+                [
+                    ("node1", " ", " "),
+                ],
+                None,
+            ),
+            (
+                # Missing data
+                {},
+                {
+                    "path": "status",
+                    "fields": [
+                        {
+                            "field": "key",
+                            "regex": "^(.+?)?(:/.+)?$",
+                        },
+                        {
+                            "field": "key",
+                            "regex": "^.+?/(.+)",
+                        },
+                        "value",
+                    ],
+                },
+                [],
+                None,
+            ),
+        )
+
+        for obj, kwargs, expected_result, expected_exception in testdata:
+            try:
+                tmp = fun(obj, **kwargs)
+                if tmp != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"           result: {tmp}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  f"        exception: {type(e)}\n" \
+                                  f"          message: {str(e)}\n" \
+                                  f"         expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"        exception: {type(e)}\n" \
+                              f"          message: {str(e)}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+    return message, result
+
+
+def test_get_list_fields(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = itemgetters.get_list_fields
+
+    if result:
+        # Indata format:
+        # (obj, kwargs, expected_result, expected_exception)
+        testdata: tuple = (
+            (
+                # Valid data
+                {
+                    "spec": {
+                        "descriptor": {
+                            "links": [
+                                {
+                                    "description": "About",
+                                    "url": "https://wordpress.org/"
+                                },
+                                {
+                                    "description": "Web Server Dashboard",
+                                    "url": "https://metrics/internal/wordpress-01/web-app"
+                                },
+                                {
+                                    "description": "Mysql Dashboard",
+                                    "url": "https://metrics/internal/wordpress-01/mysql"
+                                },
+                            ],
+                        },
+                    },
+                },
+                {
+                    "path": "spec#descriptor#links",
+                    "fields": [
+                        "description",
+                        "url",
+                    ],
+                },
+                [
+                    ["About", "https://wordpress.org/"],
+                    ["Web Server Dashboard", "https://metrics/internal/wordpress-01/web-app"],
+                    ["Mysql Dashboard", "https://metrics/internal/wordpress-01/mysql"],
+                ],
+                None,
+            ),
+            (
+                # Valid data
+                {
+                    "spec": {
+                        "containers": [
+                            {
+                                "name": "alertmanager",
+                            },
+                            {
+                                "name": "config-reloader",
+                            },
+                        ],
+                    },
+                },
+                {
+                    "path": "spec#containers",
+                    "pass_ref": True,
+                    "fields": ["name"],
+                },
+                [
+                    {
+                        "fields": ["alertmanager"],
+                        "ref": {
+                            "name": "alertmanager",
+                        },
+                    }, {
+                        "fields": ["config-reloader"],
+                        "ref": {
+                            "name": "config-reloader",
+                        },
+                    },
+                ],
+                None,
+            ),
+            (
+                # Valid data
+                {
+                    "spec": {
+                        "volumes": [
+                            {
+                                "name": "config-volume",
+                                "configMap": {
+                                    "name": "coredns",
+                                    "items": [
+                                        {
+                                            "key": "Corefile",
+                                            "path": "Corefile",
+                                        }
+                                    ],
+                                    "defaultMode": 420,
+                                },
+                            },
+                            {
+                                "name": "kube-api-access-mdwb6",
+                                "projected": {
+                                    "sources": [
+                                        {
+                                            "configMap": {
+                                                "name": "kube-root-ca.crt",
+                                                "items": [
+                                                    {
+                                                        "key": "ca.crt",
+                                                        "path": "ca.crt",
+                                                    },
+                                                ],
+                                            },
+                                        },
+                                        {
+                                            "downwardAPI": {
+                                                "items": [
+                                                    {
+                                                        "path": "namespace",
+                                                        "fieldRef": {
+                                                            "apiVersion": "v1",
+                                                            "fieldPath": "metadata.namespace"
+                                                        },
+                                                    },
+                                                ],
+                                            },
+                                        },
+                                    ],
+                                    "defaultMode": 420,
+                                },
+                            },
+                        ],
+                    },
+                },
+                {
+                    "path": "spec#volumes",
+                    "fields": [
+                        "name",
+                        {
+                            "name": ["configMap", "downwardAPI", "projected"],
+                            "value": "key",
+                        },
+                        {
+                            "name": ["configMap", "downwardAPI", "projected"],
+                        },
+                    ],
+                },
+                [
+                    [
+                        "config-volume",
+                        "configMap",
+                        "name:coredns, "
+                        "items:[{'key': 'Corefile', 'path': 'Corefile'}], "
+                        "defaultMode:420",
+                    ],
+                    [
+                        "kube-api-access-mdwb6",
+                        "projected",
+                        "sources:[{'configMap': {"
+                        "'name': 'kube-root-ca.crt', "
+                        "'items': [{'key': 'ca.crt', 'path': 'ca.crt'}]}}, {"
+                        "'downwardAPI': {"
+                        "'items': [{"
+                        "'path': 'namespace', "
+                        "'fieldRef': {"
+                        "'apiVersion': 'v1', "
+                        "'fieldPath': 'metadata.namespace'"
+                        "}}]}}], defaultMode:420",
+                    ],
+                ],
+                None,
+            ),
+            (
+                # Valid data
+                {
+                    "spec": {
+                        "endpoints": [
+                            {
+                                "path": "/metrics",
+                                "port": "http",
+                            },
+                        ],
+                    },
+                },
+                {
+                    "path": "spec#endpoints",
+                    "fields": [
+                        {
+                            "value": "index",
+                            "index_template": "endpoint-<<<index>>>",
+                        },
+                    ],
+                    "pass_ref": True,
+                },
+                [
+                    {
+                        "fields": [
+                            "endpoint-0",
+                        ],
+                        "ref": {
+                            "path": "/metrics",
+                            "port": "http",
+                        },
+                    },
+                ],
+                None,
+            ),
+            (
+                # Valid data with override types
+                {
+                    "data": [
+                        {
+                            "name": "foo",
+                            "timestamp": "2024-10-23T20:23:25Z",
+                        },
+                        {
+                            "name": "bar",
+                            "timestamp": None,
+                        },
+                    ],
+                },
+                {
+                    "path": "data",
+                    "fields": [
+                        "name",
+                        "timestamp",
+                    ],
+                    "override_types": ["", "timestamp"],
+                },
+                [
+                    [
+                        "foo",
+                        "2024-10-23 23:23:25",
+                    ],
+                    [
+                        "bar",
+                        "<unset>",
+                    ],
+                ],
+                None,
+            ),
+            (
+                # No path
+                {
+                    "data": [
+                        {
+                            "name": "foo",
+                            "timestamp": "2024-10-23T20:23:25Z",
+                        },
+                        {
+                            "name": "bar",
+                            "timestamp": None,
+                        },
+                    ],
+                },
+                {
+                    "fields": [
+                        "name",
+                        "timestamp",
+                    ],
+                    "override_types": ["", "timestamp"],
+                },
+                [],
+                None,
+            ),
+        )
+
+        for obj, kwargs, expected_result, expected_exception in testdata:
+            try:
+                # To ensure that the success/failure of the timestamp related testcases
+                # comes down to the local timezone we need to set a timezone when running
+                # the test.
+                os.environ["TZ"] = "Europe/Helsinki"
+                time.tzset()
+                tmp = fun(obj, **kwargs)
+                if tmp != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"           result: {tmp}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  f"        exception: {type(e)}\n" \
+                                  f"          message: {str(e)}\n" \
+                                  f"         expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"        exception: {type(e)}\n" \
+                              f"          message: {str(e)}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+    return message, result
+
+
+def test_get_package_version_list(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = itemgetters.get_package_version_list
+
+    if result:
+        # Indata format:
+        # (obj, kwargs, mock_response, expected_result, expected_exception)
+        testdata: tuple = (
+            (
+                {
+                    "kind": "Node",
+                    "metadata": {
+                        "name": "mynode",
+                    },
+                },
+                {
+                    "name_path": "metadata#name",
+                },
+                [
+                    (
+                        "ansible",
+                        "11.1.0+dfsg-1"
+                    ),
+                    (
+                        "ansible-core",
+                        "2.18.1-4"
+                    ),
+                    (
+                        "containerd",
+                        "1.7.24~ds1-4"
+                    ),
+                    (
+                        "containerd.io",
+                        "N/A"
+                    ),
+                    (
+                        "cri-o",
+                        "1.31.1-1.1"
+                    ),
+                    (
+                        "cri-tools",
+                        "1.32.0-1.1"
+                    ),
+                    (
+                        "docker-ce",
+                        "N/A"
+                    ),
+                    (
+                        "docker-engine",
+                        "N/A"
+                    ),
+                    (
+                        "docker.io",
+                        "26.1.5+dfsg1-4+b1"
+                    ),
+                    (
+                        "kubeadm",
+                        "1.32.0-1.1"
+                    ),
+                    (
+                        "kubectl",
+                        "1.32.0-1.1"
+                    ),
+                    (
+                        "kubelet",
+                        "1.32.0-1.1"
+                    ),
+                    (
+                        "kubernetes-cni",
+                        "1.6.0-1.1 "
+                    ),
+                    (
+                        "kubernetes-client",
+                        "N/A"
+                    ),
+                    (
+                        "kubernetes-master",
+                        "N/A"
+                    ),
+                    (
+                        "kubernetes-node",
+                        "N/A"
+                    ),
+                    (
+                        "runc",
+                        "1.1.15+ds1-1+b1"
+                    )
+                ],
+                [
+                    (
+                        "ansible",
+                        "11.1.0+dfsg-1"
+                    ),
+                    (
+                        "ansible-core",
+                        "2.18.1-4"
+                    ),
+                    (
+                        "containerd",
+                        "1.7.24~ds1-4"
+                    ),
+                    (
+                        "containerd.io",
+                        "N/A"
+                    ),
+                    (
+                        "cri-o",
+                        "1.31.1-1.1"
+                    ),
+                    (
+                        "cri-tools",
+                        "1.32.0-1.1"
+                    ),
+                    (
+                        "docker-ce",
+                        "N/A"
+                    ),
+                    (
+                        "docker-engine",
+                        "N/A"
+                    ),
+                    (
+                        "docker.io",
+                        "26.1.5+dfsg1-4+b1"
+                    ),
+                    (
+                        "kubeadm",
+                        "1.32.0-1.1"
+                    ),
+                    (
+                        "kubectl",
+                        "1.32.0-1.1"
+                    ),
+                    (
+                        "kubelet",
+                        "1.32.0-1.1"
+                    ),
+                    (
+                        "kubernetes-cni",
+                        "1.6.0-1.1 "
+                    ),
+                    (
+                        "kubernetes-client",
+                        "N/A"
+                    ),
+                    (
+                        "kubernetes-master",
+                        "N/A"
+                    ),
+                    (
+                        "kubernetes-node",
+                        "N/A"
+                    ),
+                    (
+                        "runc",
+                        "1.1.15+ds1-1+b1"
+                    )
+                ],
+                None,
+            ),
+        )
+
+        for obj, kwargs, mock_response, expected_result, expected_exception in testdata:
+            try:
+                with mock.patch("clustermanagementtoolkit.itemgetters."
+                                "get_package_versions",
+                                return_value=mock_response):
+                    tmp = fun(obj, **kwargs)
+                if tmp != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"           result: {tmp}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  f"        exception: {type(e)}\n" \
+                                  f"          message: {str(e)}\n" \
+                                  f"         expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"        exception: {type(e)}\n" \
+                              f"          message: {str(e)}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+    return message, result
+
+
+def test_get_affinity(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = itemgetters.get_affinity
+
+    if result:
+        # Indata format:
+        # (obj, kwargs, expected_result, expected_exception)
+        testdata: tuple = (
+            (
+                # Valid data
+                {
+                    "kind": "Pod",
+                    "apiVersion": "v1",
+                    "spec": {
+                        "affinity": {
+                            "nodeAffinity": {
+                                "requiredDuringSchedulingIgnoredDuringExecution": {
+                                    "nodeSelectorTerms": [
+                                        {
+                                            "matchFields": [
+                                                {
+                                                    "key": "metadata.name",
+                                                    "operator": "In",
+                                                    "values": [
+                                                        "crc",
+                                                    ],
+                                                },
+                                            ],
+                                        },
+                                    ],
+                                },
+                            },
+                        },
+                    },
+                },
+                {
+                    "path": "spec#affinity",
+                },
+                [
+                    (
+                        "nodeAffinity",
+                        "Required",
+                        "Ignored",
+                        "metadata.name In [crc]",
+                        ""
+                    ),
+                ],
+                None,
+            ),
+            (
+                # Valid data
+                {
+                    "kind": "Pod",
+                    "apiVersion": "v1",
+                    "spec": {
+                        "affinity": {
+                            "podAntiAffinity": {
+                                "requiredDuringSchedulingIgnoredDuringExecution": [
+                                    {
+                                        "labelSelector": {
+                                            "matchLabels": {
+                                                "apiserver": "true",
+                                                "app": "openshift-apiserver-a",
+                                                "openshift-apiserver-anti-affinity": "true"
+                                            }
+                                        },
+                                        "topologyKey": "kubernetes.io/hostname"
+                                    }
+                                ]
+                            }
+                        },
+                    },
+                },
+                {
+                    "path": "spec#affinity",
+                },
+                [
+                    (
+                        "podAntiAffinity",
+                        "Required",
+                        "Ignored",
+                        "apiserver=true,app=openshift-apiserver-a,"
+                        "openshift-apiserver-anti-affinity=true",
+                        "kubernetes.io/hostname"
+                    ),
+                ],
+                None,
+            ),
+        )
+
+        for obj, kwargs, expected_result, expected_exception in testdata:
+            try:
+                tmp = fun(obj, **kwargs)
+                if tmp != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"           result: {tmp}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  f"        exception: {type(e)}\n" \
+                                  f"          message: {str(e)}\n" \
+                                  f"         expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"        exception: {type(e)}\n" \
+                              f"          message: {str(e)}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+    return message, result
+
+
+def test_get_pod_configmaps(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = itemgetters.get_pod_configmaps
+
+    if result:
+        # Indata format:
+        # (obj, kwargs, mock_response, expected_result, expected_exception)
+        testdata: tuple = (
+            (
+                # Valid data
+                {
+                    "kind": "ConfigMap",
+                    "apiVersion": "v1",
+                    "metadata": {
+                        "name": "coredns",
+                        "namespace": "kube-system",
+                    },
+                },
+                {
+                    "kubernetes_helper": kh,
+                    "kh_cache": kh_cache,
+                    "cm_namespace": ["metadata#namespace"],
+                    "cm_name": ["metadata#name"],
+                },
+                ([
+                    {
+                        "kind": "Pod",
+                        "apiVersion": "v1",
+                        "metadata": {
+                            "name": "coredns-1",
+                        },
+                        "spec": {
+                            "volumes": [
+                                {
+                                    "configMap": {
+                                        "name": "coredns",
+                                    },
+                                },
+                            ],
+                        },
+                    },
+                    {
+                        "kind": "Pod",
+                        "apiVersion": "v1",
+                        "metadata": {
+                            "name": "coredns-2",
+                        },
+                        "spec": {
+                            "volumes": [],
+                            "containers": [
+                                {
+                                    "env": [
+                                        {
+                                            "ValueFrom": {
+                                                "configMapKeyRef": {
+                                                    "name": "coredns",
+                                                },
+                                            },
+                                        },
+                                    ],
+                                },
+                            ],
+                        },
+                    },
+                    {
+                        "kind": "Pod",
+                        "apiVersion": "v1",
+                        "metadata": {
+                            "name": "coredns-3",
+                        },
+                        "spec": {
+                            "volumes": [
+                                {
+                                    "projected": [
+                                        {
+                                            "sources": [],
+                                        },
+                                    ],
+                                },
+                            ],
+                            "containers": [
+                                {
+                                    "env": [
+                                        {
+                                            "ValueFrom": {
+                                                "configMapKeyRef": {
+                                                    "name": "somethingelse",
+                                                },
+                                            },
+                                        },
+                                    ],
+                                    "envFrom": [
+                                        {
+                                            "configMapKeyRef": {
+                                                "name": "somethingelse",
+                                            },
+                                        },
+                                        {
+                                            "configMapKeyRef": {
+                                                "name": "coredns",
+                                            },
+                                        },
+                                    ],
+                                },
+                            ],
+                        },
+                    },
+                    {
+                        "kind": "Pod",
+                        "apiVersion": "v1",
+                        "metadata": {
+                            "name": "coredns-4",
+                        },
+                        "spec": {
+                            "volumes": [
+                                {
+                                    "projected": {
+                                        "sources": [
+                                            {
+                                                "configMap": {
+                                                    "name": "somethingelse",
+                                                },
+                                            },
+                                            {
+                                                "configMap": {
+                                                    "name": "coredns",
+                                                },
+                                            },
+                                        ],
+                                    },
+                                },
+                            ],
+                        },
+                    },
+                    {
+                        "kind": "Pod",
+                        "apiVersion": "v1",
+                        "metadata": {
+                            "name": "coredns-1",
+                        },
+                        "spec": {
+                            "containers": [
+                                {
+                                    "envFrom": [],
+                                },
+                            ],
+                        },
+                    },
+                ], 200),
+                [
+                    {
+                        "fields": ("kube-system", "coredns-1"),
+                        "ref": {
+                            "kind": "Pod",
+                            "apiVersion": "v1",
+                            "metadata": {
+                                "name": "coredns-1",
+                            },
+                            "spec": {
+                                "volumes": [
+                                    {
+                                        "configMap": {
+                                            "name": "coredns",
+                                        },
+                                    },
+                                ],
+                            },
+                        },
+                    },
+                    {
+                        "fields": ("kube-system", "coredns-2"),
+                        "ref": {
+                            "kind": "Pod",
+                            "apiVersion": "v1",
+                            "metadata": {
+                                "name": "coredns-2",
+                            },
+                            "spec": {
+                                "volumes": [],
+                                "containers": [
+                                    {
+                                        "env": [
+                                            {
+                                                "ValueFrom": {
+                                                    "configMapKeyRef": {
+                                                        "name": "coredns",
+                                                    },
+                                                },
+                                            },
+                                        ],
+                                    },
+                                ],
+                            },
+                        },
+                    },
+                    {
+                        "fields": ("kube-system", "coredns-3"),
+                        "ref": {
+                            "kind": "Pod",
+                            "apiVersion": "v1",
+                            "metadata": {
+                                "name": "coredns-3",
+                            },
+                            "spec": {
+                                "volumes": [
+                                    {
+                                        "projected": [
+                                            {
+                                                "sources": [],
+                                            },
+                                        ],
+                                    },
+                                ],
+                                "containers": [
+                                    {
+                                        "env": [
+                                            {
+                                                "ValueFrom": {
+                                                    "configMapKeyRef": {
+                                                        "name": "somethingelse",
+                                                    },
+                                                },
+                                            },
+                                        ],
+                                        "envFrom": [
+                                            {
+                                                "configMapKeyRef": {
+                                                    "name": "somethingelse",
+                                                },
+                                            },
+                                            {
+                                                "configMapKeyRef": {
+                                                    "name": "coredns",
+                                                },
+                                            },
+                                        ],
+                                    },
+                                ],
+                            },
+                        },
+                    },
+                    {
+                        "fields": ("kube-system", "coredns-4"),
+                        "ref": {
+                            "kind": "Pod",
+                            "apiVersion": "v1",
+                            "metadata": {
+                                "name": "coredns-4",
+                            },
+                            "spec": {
+                                "volumes": [
+                                    {
+                                        "projected": {
+                                            "sources": [
+                                                {
+                                                    "configMap": {
+                                                        "name": "somethingelse",
+                                                    },
+                                                },
+                                                {
+                                                    "configMap": {
+                                                        "name": "coredns",
+                                                    },
+                                                },
+                                            ],
+                                        },
+                                    },
+                                ],
+                            },
+                        },
+                    },
+                ],
+                None,
+            ),
+            (
+                # Valid data
+                {
+                    "kind": "ConfigMap",
+                    "apiVersion": "v1",
+                    "metadata": {
+                        "name": "coredns",
+                        "namespace": "kube-system",
+                    },
+                },
+                {
+                    "kubernetes_helper": kh,
+                    "kh_cache": kh_cache,
+                    "cm_namespace": "kube-system",
+                    "cm_name": "coredns",
+                    "pod_name": ["metadata#name"],
+                },
+                ([
+                    {
+                        "kind": "Pod",
+                        "apiVersion": "v1",
+                        "metadata": {
+                            "name": "coredns",
+                        },
+                        "spec": {
+                            "volumes": [
+                                {
+                                    "configMap": {
+                                        "name": "coredns",
+                                    },
+                                },
+                            ],
+                        },
+                    },
+                ], 200),
+                [
+                    {
+                        "fields": ("kube-system", "coredns"),
+                        "ref": {
+                            "kind": "Pod",
+                            "apiVersion": "v1",
+                            "metadata": {
+                                "name": "coredns",
+                            },
+                            "spec": {
+                                "volumes": [
+                                    {
+                                        "configMap": {
+                                            "name": "coredns",
+                                        },
+                                    },
+                                ],
+                            },
+                        },
+                    },
+                ],
+                None,
+            ),
+            (
+                # Valid data; no Pods using the ConfigMap
+                {
+                    "kind": "ConfigMap",
+                    "apiVersion": "v1",
+                    "metadata": {
+                        "name": "coredns",
+                        "namespace": "kube-system",
+                    },
+                },
+                {
+                    "kubernetes_helper": kh,
+                    "kh_cache": kh_cache,
+                    "cm_namespace": ["metadata#namespace"],
+                    "cm_name": ["metadata#name"],
+                },
+                ([], 200),
+                None,
+                None,
+            ),
+            (
+                # cm_name or cm_namespace is None
+                {
+                    "kind": "ConfigMap",
+                    "apiVersion": "v1",
+                    "metadata": {
+                        "name": "coredns",
+                        "namespace": "kube-system",
+                    },
+                },
+                {
+                    "kubernetes_helper": kh,
+                    "kh_cache": kh_cache,
+                    "cm_namespace": None,
+                    "cm_name": None,
+                },
+                ([], 200),
+                None,
+                None,
+            ),
+        )
+
+        for obj, kwargs, mock_response, expected_result, expected_exception in testdata:
+            try:
+                with mock.patch("clustermanagementtoolkit.kubernetes_helper."
+                                "KubernetesHelper.get_list_by_kind_namespace",
+                                return_value=mock_response):
+                    tmp = fun(obj, **kwargs)
+                if tmp != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"           result: {tmp}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  f"        exception: {type(e)}\n" \
+                                  f"          message: {str(e)}\n" \
+                                  f"         expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"        exception: {type(e)}\n" \
+                              f"          message: {str(e)}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+    return message, result
+
+
+def test_get_prepopulated_list(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = itemgetters.get_prepopulated_list
+
+    if result:
+        # Indata format:
+        # (obj, kwargs, expected_result, expected_exception)
+        testdata: tuple = (
+            (
+                # Valid data
+                {
+                    "metadata": {
+                        "name": "vm1",
+                    }
+                },
+                {
+                    "items": [
+                        {
+                            "columns": ["Pause", "Pause a running VM"],
+                            "action_args": {
+                                "kind": "VirtualMachine",
+                                "api_family": "virt.virtink.smartx.com",
+                            },
+                        },
+                        {
+                            "columns": [["metadata#name"], "Test"],
+                            "action_args": {
+                                "kind": "VirtualMachine",
+                                "api_family": "virt.virtink.smartx.com",
+                            },
+                        },
+                    ],
+                },
+                [
+                    {
+                        "fields": ["Pause", "Pause a running VM"],
+                        "ref": {
+                            "action": None,
+                            "action_call": None,
+                            "action_args": {
+                                "kind": ("VirtualMachine", "virt.virtink.smartx.com"),
+                                "name": None,
+                                "namespace": "",
+                                "args": {},
+                            },
+                        },
+                    },
+                    {
+                        "fields": ["vm1", "Test"],
+                        "ref": {
+                            "action": None,
+                            "action_call": None,
+                            "action_args": {
+                                "kind": ("VirtualMachine", "virt.virtink.smartx.com"),
+                                "name": None,
+                                "namespace": "",
+                                "args": {},
+                            },
+                        },
+                    },
+                ],
+                None,
+            ),
+        )
+
+        for obj, kwargs, expected_result, expected_exception in testdata:
+            try:
+                tmp = fun(obj, **kwargs)
+                if tmp != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"           result: {tmp}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  f"        exception: {type(e)}\n" \
+                                  f"          message: {str(e)}\n" \
+                                  f"         expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"        exception: {type(e)}\n" \
+                              f"          message: {str(e)}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+    return message, result
+
+
+def test_get_tolerations(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = itemgetters.get_tolerations
+
+    if result:
+        # Indata format:
+        # (obj, expected_result, expected_exception)
+        testdata: tuple = (
+            (
+                # Valid data
+                {
+                    "kind": "Pod",
+                    "apiVersion": "v1",
+                    "spec": {
+                        "tolerations": [
+                            {
+                                "key": "node-role.kubernetes.io/master",
+                                "operator": "Exists",
+                                "effect": "NoSchedule"
+                            },
+                            {
+                                "key": "node-role.kubernetes.io/control-plane",
+                                "operator": "Exists",
+                                "effect": "NoExecute"
+                            },
+                            {
+                                "key": "node.kubernetes.io/unreachable",
+                                "operator": "Exists",
+                                "effect": "NoExecute",
+                                "tolerationSeconds": 120
+                            },
+                            {
+                                "key": "node.kubernetes.io/not-ready",
+                                "operator": "Exists",
+                                "effect": "NoExecute",
+                                "tolerationSeconds": -1
+                            },
+                            {
+                                "key": "node.kubernetes.io/memory-pressure",
+                                "operator": "Exists",
+                                "effect": "NoSchedule"
+                            },
+                        ],
+                    },
+                },
+                [
+                    (
+                        "node-role.kubernetes.io/master",
+                        "Exists",
+                        "",
+                        "NoSchedule",
+                        "Never"
+                    ),
+                    (
+                        "node-role.kubernetes.io/control-plane",
+                        "Exists",
+                        "",
+                        "NoExecute",
+                        "Never"
+                    ),
+                    (
+                        "node.kubernetes.io/unreachable",
+                        "Exists",
+                        "",
+                        "NoExecute",
+                        "120"
+                    ),
+                    (
+                        "node.kubernetes.io/not-ready",
+                        "Exists",
+                        "",
+                        "NoExecute",
+                        "Immediately"
+                    ),
+                    (
+                        "node.kubernetes.io/memory-pressure",
+                        "Exists",
+                        "",
+                        "NoSchedule",
+                        "Never"
+                    ),
+                ],
+                None,
+            ),
+        )
+
+        for obj, expected_result, expected_exception in testdata:
+            try:
+                tmp = fun(obj)
+                if tmp != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"           result: {tmp}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  f"        exception: {type(e)}\n" \
+                                  f"          message: {str(e)}\n" \
+                                  f"         expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"        exception: {type(e)}\n" \
+                              f"          message: {str(e)}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+    return message, result
+
+
+def test_get_resource_list(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = itemgetters.get_resource_list
+
+    if result:
+        # Indata format:
+        # (obj, expected_result, expected_exception)
+        testdata: tuple = (
+            (
+                # Valid data
+                {
+                    "kind": "Node",
+                    "apiVersion": "v1",
+                    "status": {
+                        "allocatable": {
+                            "cpu": "3800m",
+                            "ephemeral-storage": "57070512853",
+                            "hugepages-1Gi": "0",
+                            "hugepages-2Mi": "0",
+                            "memory": "15909892Ki",
+                            "pods": "250"
+                        },
+                        "capacity": {
+                            "cpu": "4",
+                            "ephemeral-storage": "62323692Ki",
+                            "hugepages-1Gi": "0",
+                            "hugepages-2Mi": "0",
+                            "memory": "16370692Ki",
+                            "pods": "250"
+                        },
+                    },
+                },
+                [
+                    (
+                        "cpu",
+                        "3800m",
+                        "4"
+                    ),
+                    (
+                        "ephemeral-storage",
+                        "57070512853",
+                        "62323692Ki"
+                    ),
+                    (
+                        "hugepages-1Gi",
+                        "0",
+                        "0"
+                    ),
+                    (
+                        "hugepages-2Mi",
+                        "0",
+                        "0"
+                    ),
+                    (
+                        "memory",
+                        "15909892Ki",
+                        "16370692Ki"
+                    ),
+                    (
+                        "pods",
+                        "250",
+                        "250"
+                    )
+                ],
+                None,
+            ),
+            (
+                # Valid data
+                {
+                    "kind": "Node",
+                    "apiVersion": "v1",
+                    "status": {},
+                },
+                [],
+                None,
+            ),
+        )
+
+        for obj, expected_result, expected_exception in testdata:
+            try:
+                tmp = fun(obj)
+                if tmp != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"           result: {tmp}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  f"        exception: {type(e)}\n" \
+                                  f"          message: {str(e)}\n" \
+                                  f"         expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"        exception: {type(e)}\n" \
+                              f"          message: {str(e)}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+    return message, result
+
+
+def test_get_strings_from_string(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = itemgetters.get_strings_from_string
+
+    if result:
+        # Indata format:
+        # (obj, kwargs, expected_result, expected_exception)
+        testdata: tuple = (
+            (
+                # Valid data
+                {
+                    "data": "line1\nline2",
+                },
+                {
+                    "path": "data",
+                },
+                [
+                    ["line1"],
+                    ["line2"],
+                ],
+                None,
+            ),
+            (
+                # No data
+                {},
+                {
+                    "path": "data",
+                },
+                [],
+                None,
+            ),
+            (
+                # None data
+                {
+                    "data": None,
+                },
+                {
+                    "path": "data",
+                },
+                [],
+                None,
+            ),
+        )
+
+        for obj, kwargs, expected_result, expected_exception in testdata:
+            try:
+                tmp = fun(obj, **kwargs)
+                if tmp != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"           result: {tmp}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  f"        exception: {type(e)}\n" \
+                                  f"          message: {str(e)}\n" \
+                                  f"         expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"        exception: {type(e)}\n" \
+                              f"          message: {str(e)}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+    return message, result
+
+
+def test_get_security_context(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = itemgetters.get_security_context
+
+    if result:
+        # Indata format:
+        # (obj, expected_result, expected_exception)
+        testdata: tuple = (
+            (
+                # Valid data
+                {
+                    'kind': 'Pod',
+                    'apiVersion': 'v1',
+                    'spec': {
+                        'securityContext': {
+                            'runAsNonRoot': True,
+                            'runAsUser': 65534,
+                            'seLinuxOptions': {
+                                'level': 's0:c16,c10',
+                            },
+                            'seccompProfile': {
+                                'type': 'RuntimeDefault',
+                            },
+                        },
+                    },
+                },
+                [
+                    ('Run as User', '65534'),
+                    ('Run as non-Root', 'True'),
+                    ('SELinux Options', "{'level': 's0:c16,c10'}"),
+                    ('Seccomp Profile', "{'type': 'RuntimeDefault'}"),
+                ],
+                None,
+            ),
+        )
+
+        for obj, expected_result, expected_exception in testdata:
+            try:
+                tmp = fun(obj)
+                if tmp != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"           result: {tmp}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  f"        exception: {type(e)}\n" \
+                                  f"          message: {str(e)}\n" \
+                                  f"         expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"        exception: {type(e)}\n" \
+                              f"          message: {str(e)}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+    return message, result
+
+
+def test_get_svc_port_target_endpoints(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = itemgetters.get_svc_port_target_endpoints
+
+    if result:
+        # Indata format:
+        # (obj, kwargs, mock_response_1, expected_result, expected_exception)
+        testdata: tuple = (
+            (
+                # Valid data; endpoints ready
+                {
+                    "kind": "Service",
+                    "apiVersion": "v1",
+                    "metadata": {
+                        "name": "kubernetes",
+                        "namespace": "default",
+                        "creationTimestamp": "2024-10-23T20:24:11Z",
+                    },
+                    "spec": {
+                        "type": "ClusterIP",
+                        "clusterIP": "10.96.0.1",
+                        "ports": [
+                            {
+                                "name": "https",
+                                "port": 443,
+                                "protocol": "TCP",
+                                "targetPort": 6443,
+                            },
+                        ],
+                    },
+                },
+                {
+                    "kubernetes_helper": kh,
+                    "kh_cache": kh_cache,
+                },
+                {
+                    "kind": "Endpoints",
+                    "apiVersion": "v1",
+                    "metadata": {
+                        "name": "kubernetes",
+                        "namespace": "default",
+                    },
+                    "subsets": [
+                        {
+                            "addresses": [
+                                {
+                                    "ip": "192.168.1.42",
+                                },
+                            ],
+                            "ports": [
+                                {
+                                    "name": "https",
+                                    "port": 6443,
+                                    "protocol": "TCP",
+                                },
+                            ],
+                        },
+                    ],
+                },
+                [
+                    (
+                        "https:443/TCP",
+                        "N/A",
+                        "6443/TCP",
+                        "192.168.1.42:6443",
+                    ),
+                ],
+                None,
+            ),
+            (
+                # Valid data; endpoints ready; type=NodePort
+                {
+                    "kind": "Service",
+                    "apiVersion": "v1",
+                    "metadata": {
+                        "name": "kubernetes",
+                        "namespace": "default",
+                        "creationTimestamp": "2024-10-23T20:24:11Z",
+                    },
+                    "spec": {
+                        "type": "NodePort",
+                        "clusterIP": "10.96.0.1",
+                        "ports": [
+                            {
+                                "name": "https",
+                                "port": 443,
+                                "protocol": "TCP",
+                                "targetPort": 6443,
+                            },
+                        ],
+                    },
+                },
+                {
+                    "kubernetes_helper": kh,
+                    "kh_cache": kh_cache,
+                },
+                {
+                    "kind": "Endpoints",
+                    "apiVersion": "v1",
+                    "metadata": {
+                        "name": "kubernetes",
+                        "namespace": "default",
+                    },
+                    "subsets": [
+                        {
+                            "addresses": [
+                                {
+                                    "ip": "192.168.1.42",
+                                },
+                            ],
+                            "ports": [
+                                {
+                                    "name": "https",
+                                    "port": 6443,
+                                    "protocol": "TCP",
+                                },
+                            ],
+                        },
+                    ],
+                },
+                [
+                    (
+                        "https:443/TCP",
+                        "Auto Allocate",
+                        "6443/TCP",
+                        "192.168.1.42:6443",
+                    ),
+                ],
+                None,
+            ),
+            (
+                # Valid data; endpoints ready; type=LoadBalancer, no ClusterIP
+                {
+                    "kind": "Service",
+                    "apiVersion": "v1",
+                    "metadata": {
+                        "name": "kubernetes",
+                        "namespace": "default",
+                        "creationTimestamp": "2024-10-23T20:24:11Z",
+                    },
+                    "spec": {
+                        "type": "LoadBalancer",
+                        "ports": [
+                            {
+                                "name": "https",
+                                "port": 443,
+                                "protocol": "TCP",
+                                "targetPort": 6443,
+                            },
+                        ],
+                    },
+                },
+                {
+                    "kubernetes_helper": kh,
+                    "kh_cache": kh_cache,
+                },
+                {
+                    "kind": "Endpoints",
+                    "apiVersion": "v1",
+                    "metadata": {
+                        "name": "kubernetes",
+                        "namespace": "default",
+                    },
+                    "subsets": [
+                        {
+                            "addresses": [
+                                {
+                                    "ip": "192.168.1.42",
+                                },
+                            ],
+                            "ports": [
+                                {
+                                    "name": "https",
+                                    "port": 6443,
+                                    "protocol": "TCP",
+                                },
+                            ],
+                        },
+                    ],
+                },
+                [
+                    (
+                        "https:443/TCP",
+                        "Auto Allocate",
+                        "<none>/TCP",
+                        "192.168.1.42:<none>",
+                    ),
+                ],
+                None,
+            ),
+            (
+                # Valid data; endpoints not ready
+                {
+                    "kind": "Service",
+                    "apiVersion": "v1",
+                    "metadata": {
+                        "name": "kubernetes",
+                        "namespace": "default",
+                        "creationTimestamp": "2024-10-23T20:24:11Z",
+                    },
+                    "spec": {
+                        "type": "ClusterIP",
+                        "clusterIP": "10.96.0.1",
+                        "ports": [
+                            {
+                                "name": "https",
+                                "port": 443,
+                                "protocol": "TCP",
+                                "targetPort": 6443,
+                            },
+                        ],
+                    },
+                },
+                {
+                    "kubernetes_helper": kh,
+                    "kh_cache": kh_cache,
+                },
+                {
+                    "kind": "Endpoints",
+                    "apiVersion": "v1",
+                    "metadata": {
+                        "name": "kubernetes",
+                        "namespace": "default",
+                    },
+                    "subsets": [
+                        {
+                            "notReadyAddresses": [
+                                {
+                                    "ip": "192.168.1.42",
+                                },
+                            ],
+                            "ports": [
+                                {
+                                    "name": "https",
+                                    "port": 6443,
+                                    "protocol": "TCP",
+                                },
+                            ],
+                        },
+                    ],
+                },
+                [
+                    (
+                        "https:443/TCP",
+                        "N/A",
+                        "6443/TCP",
+                        "<not ready>:6443",
+                    ),
+                ],
+                None,
+            ),
+            (
+                # Has subsets section; but no subsets in it
+                {
+                    "kind": "Service",
+                    "apiVersion": "v1",
+                    "metadata": {
+                        "name": "kubernetes",
+                        "namespace": "default",
+                        "creationTimestamp": "2024-10-23T20:24:11Z",
+                    },
+                    "spec": {
+                        "type": "ClusterIP",
+                        "clusterIP": "10.96.0.1",
+                        "ports": [
+                            {
+                                "name": "https",
+                                "port": 443,
+                                "protocol": "TCP",
+                                "targetPort": 6443,
+                            },
+                        ],
+                    },
+                },
+                {
+                    "kubernetes_helper": kh,
+                    "kh_cache": kh_cache,
+                },
+                {
+                    "kind": "Endpoints",
+                    "apiVersion": "v1",
+                    "metadata": {
+                        "name": "kubernetes",
+                        "namespace": "default",
+                    },
+                    "subsets": [],
+                },
+                [
+                    (
+                        "https:443/TCP",
+                        "N/A",
+                        "6443/TCP",
+                        "<none>:6443",
+                    ),
+                ],
+                None,
+            ),
+            (
+                # No subsets
+                {
+                    "kind": "Service",
+                    "apiVersion": "v1",
+                    "metadata": {
+                        "name": "kubernetes",
+                        "namespace": "default",
+                        "creationTimestamp": "2024-10-23T20:24:11Z",
+                    },
+                    "spec": {
+                        "type": "ClusterIP",
+                        "clusterIP": "10.96.0.1",
+                        "ports": [
+                            {
+                                "name": "https",
+                                "port": 443,
+                                "protocol": "TCP",
+                                "targetPort": 6443,
+                            },
+                        ],
+                    },
+                },
+                {
+                    "kubernetes_helper": kh,
+                    "kh_cache": kh_cache,
+                },
+                {
+                    "kind": "Endpoints",
+                    "apiVersion": "v1",
+                    "metadata": {
+                        "name": "kubernetes",
+                        "namespace": "default",
+                    },
+                    "subsets": None,
+                },
+                [
+                    (
+                        "https:443/TCP",
+                        "N/A",
+                        "6443/TCP",
+                        "<none>:6443",
+                    ),
+                ],
+                None,
+            ),
+        )
+
+        for obj, kwargs, mock_response, expected_result, expected_exception in testdata:
+            try:
+                with mock.patch("clustermanagementtoolkit.kubernetes_helper."
+                                "KubernetesHelper.get_ref_by_kind_name_namespace",
+                                return_value=mock_response):
+                    tmp = fun(obj, **kwargs)
+                if tmp != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"           result: {tmp}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  f"        exception: {type(e)}\n" \
+                                  f"          message: {str(e)}\n" \
+                                  f"         expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"        exception: {type(e)}\n" \
+                              f"          message: {str(e)}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+    return message, result
+
+
+def test_get_volume_properties(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = itemgetters.get_volume_properties
+
+    if result:
+        # Indata format:
+        # (obj, pv_type, expected_result, expected_exception)
+        testdata: tuple = (
+            (
+                # Valid data
+                {
+                    'kind': 'PersistentVolume',
+                    'apiVersion': 'v1',
+                    'spec': {
+                        'csi': {
+                            'driver': 'kubevirt.io.hostpath-provisioner',
+                            'volumeHandle': 'pvc-67e5e2ac-944e-4de6-af4e-032dc22fc010',
+                            'volumeAttributes': {
+                                'csi.storage.k8s.io/pv/name':
+                                    'pvc-67e5e2ac-944e-4de6-af4e-032dc22fc010',
+                                'csi.storage.k8s.io/pvc/name': 'crc-image-registry-storage',
+                                'csi.storage.k8s.io/pvc/namespace': 'openshift-image-registry',
+                                'storage.kubernetes.io/csiProvisionerIdentity':
+                                    '1708097995634-2345-kubevirt.io.'
+                                    'hostpath-provisioner-crc-vlf7c-master-0',
+                                'storagePool': 'local'},
+                        },
+                    },
+                },
+                "csi",
+                [
+                    ('Volume Handle:', 'pvc-67e5e2ac-944e-4de6-af4e-032dc22fc010'),
+                    ('Driver:', 'kubevirt.io.hostpath-provisioner'),
+                    ('Filesystem Type:', '<unset>'),
+                    ('Read Only:', 'False'),
+                    ('Storage Pool', 'local'),
+                ],
+                None,
+            ),
+            (
+                # Valid data
+                {
+                    'kind': 'PersistentVolume',
+                    'apiVersion': 'v1',
+                    'spec': {
+                        'csi': {
+                            'driver': 'kubevirt.io.hostpath-provisioner',
+                            'volumeHandle': 'pvc-67e5e2ac-944e-4de6-af4e-032dc22fc010',
+                            'volumeAttributes': {
+                                'csi.storage.k8s.io/pv/name':
+                                    'pvc-67e5e2ac-944e-4de6-af4e-032dc22fc010',
+                                'csi.storage.k8s.io/pvc/name': 'crc-image-registry-storage',
+                                'csi.storage.k8s.io/pvc/namespace': 'openshift-image-registry',
+                                'storage.kubernetes.io/csiProvisionerIdentity':
+                                    '1708097995634-2345-kubevirt.io.'
+                                    'hostpath-provisioner-crc-vlf7c-master-0',
+                                'storagePool': 'local'},
+                        },
+                    },
+                },
+                "csi",
+                [
+                    ('Volume Handle:', 'pvc-67e5e2ac-944e-4de6-af4e-032dc22fc010'),
+                    ('Driver:', 'kubevirt.io.hostpath-provisioner'),
+                    ('Filesystem Type:', '<unset>'),
+                    ('Read Only:', 'False'),
+                    ('Storage Pool', 'local'),
+                ],
+                None,
+            ),
+            (
+                # Invalid data
+                {
+                    'kind': 'PersistentVolume',
+                    'apiVersion': 'v1',
+                    'spec': {
+                        'csi': {
+                            'driver': 'kubevirt.io.hostpath-provisioner',
+                            'volumeHandle': ANSIThemeStr("foo", "default"),
+                        },
+                    },
+                },
+                "csi",
+                None,
+                TypeError,
+            ),
+            (
+                # list
+                {
+                    'kind': 'PersistentVolume',
+                    'apiVersion': 'v1',
+                    'spec': {
+                        'csi': {
+                            'driver': 'kubevirt.io.hostpath-provisioner',
+                            'volumeHandle': ["foo", "bar", "baz"],
+                        },
+                    },
+                },
+                "csi",
+                [
+                    ('Volume Handle:', 'foo,bar,baz'),
+                    ('Driver:', 'kubevirt.io.hostpath-provisioner'),
+                    ('Filesystem Type:', '<unset>'),
+                    ('Read Only:', 'False'),
+                    ('Storage Pool', ''),
+                ],
+                None,
+            ),
+            (
+                # dict
+                {
+                    'kind': 'PersistentVolume',
+                    'apiVersion': 'v1',
+                    'spec': {
+                        'csi': {
+                            'driver': 'kubevirt.io.hostpath-provisioner',
+                            'volumeHandle': {'foo': 'bar'},
+                        },
+                    },
+                },
+                "csi",
+                [
+                    ('Volume Handle:', 'foo:bar'),
+                    ('Driver:', 'kubevirt.io.hostpath-provisioner'),
+                    ('Filesystem Type:', '<unset>'),
+                    ('Read Only:', 'False'),
+                    ('Storage Pool', ''),
+                ],
+                None,
+            ),
+            (
+                # Lacks a volume spec, so get_pv_type() returns None
+                {
+                    'kind': 'PersistentVolume',
+                    'apiVersion': 'v1',
+                    'spec': {},
+                },
+                "csi",
+                [],
+                None,
+            ),
+        )
+
+        for conditions, path, expected_result, expected_exception in testdata:
+            try:
+                tmp = fun(conditions, path=path)
+                if tmp != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"           result: {tmp}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  f"        exception: {type(e)}\n" \
+                                  f"          message: {str(e)}\n" \
+                                  f"         expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"        exception: {type(e)}\n" \
+                              f"          message: {str(e)}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+    return message, result
+
+
+tests: dict[tuple[str, ...], dict[str, Any]] = {
+    ("get_conditions()",): {
+        "callable": test_get_conditions,
+        "result": None,
+    },
+    ("get_image_list()",): {
+        "callable": test_get_image_list,
+        "result": None,
+    },
+    ("get_key_value()",): {
+        "callable": test_get_key_value,
+        "result": None,
+    },
+    ("get_list_as_list()",): {
+        "callable": test_get_list_as_list,
+        "result": None,
+    },
+    ("get_dict_list()",): {
+        "callable": test_get_dict_list,
+        "result": None,
+    },
+    ("get_list_fields()",): {
+        "callable": test_get_list_fields,
+        "result": None,
+    },
+    ("get_package_version_list()",): {
+        "callable": test_get_package_version_list,
+        "result": None,
+    },
+    ("get_affinity()",): {
+        "callable": test_get_affinity,
+        "result": None,
+    },
+    ("get_prepopulated_list()",): {
+        "callable": test_get_prepopulated_list,
+        "result": None,
+    },
+    ("get_tolerations()",): {
+        "callable": test_get_tolerations,
+        "result": None,
+    },
+    ("get_resource_list()",): {
+        "callable": test_get_resource_list,
+        "result": None,
+    },
+    ("get_strings_from_string()",): {
+        "callable": test_get_strings_from_string,
+        "result": None,
+    },
+    ("get_security_context()",): {
+        "callable": test_get_security_context,
+        "result": None,
+    },
+    ("get_volume_properties()",): {
+        "callable": test_get_volume_properties,
+        "result": None,
+    },
+}
+
+
+tests_with_cluster: dict[tuple[str, ...], dict[str, Any]] = {
+    ("get_kubernetes_objects()",): {
+        "callable": test_get_kubernetes_objects,
+        "result": None,
+    },
+    ("get_events()",): {
+        "callable": test_get_events,
+        "result": None,
+    },
+    ("get_svc_port_target_endpoints()",): {
+        "callable": test_get_svc_port_target_endpoints,
+        "result": None,
+    },
+    ("get_pod_configmaps()",): {
+        "callable": test_get_pod_configmaps,
+        "result": None,
+    },
+}
+
+
+def main() -> int:
+    global kh
+    global kh_cache
+    global tests
+
+    fail = 0
+    success = 0
+    verbose = False
+    failed_testcases = []
+
+    themefile = DEFAULT_THEME_FILE
+    init_ansithemeprint(themefile=themefile)
+
+    if "--include-cluster" in sys.argv:
+        tests = {**tests, **tests_with_cluster}
+        kh = kubernetes_helper.KubernetesHelper("khtests", "v0.1")
+        kh_cache = kubernetes_helper.KubernetesResourceCache()
+
+    # How many non-prepare testcases do we have?
+    testcount = sum(1 for i in tests if not deep_get(tests[i], DictPath("prepare"), False))
+    start_at_task = 0
+    end_at_task = testcount
+
+    i = 1
+
+    while i < len(sys.argv):
+        opt = sys.argv[i]
+        optarg = None
+        if i + 1 < len(sys.argv):
+            optarg = sys.argv[i + 1]
+        if opt == "--start-at":
+            if not (isinstance(optarg, str) and optarg.isnumeric()):
+                raise ValueError("--start-at TASK requires an integer "
+                                 f"in the range [0,{testcount}]")
+            start_at_task = int(optarg)
+            i += 1
+        elif opt == "--end-at":
+            if not (isinstance(optarg, str) and optarg.isnumeric()):
+                raise ValueError(f"--end-at TASK requires an integer in the range [0,{testcount}]")
+            end_at_task = int(optarg)
+            i += 1
+        elif opt == "--include-cluster":
+            pass
+        else:
+            sys.exit(f"Unknown argument: {opt}")
+        i += 1
+
+    for i, test in enumerate(tests):
+        if i < start_at_task:
+            continue
+        if i > end_at_task:
+            break
+        ansithemeprint([ANSIThemeStr(f"[{i:03}/{testcount - 1:03}]", "emphasis"),
+                        ANSIThemeStr(f" {', '.join(test)}:", "default")])
+        message, result = tests[test]["callable"](verbose=verbose)
+        if message:
+            ansithemeprint([ANSIThemeStr("  FAIL", "error"),
+                            ANSIThemeStr(f": {message}", "default")])
+        else:
+            ansithemeprint([ANSIThemeStr("  PASS", "success")])
+            success += 1
+        tests[test]["result"] = result
+        if not result:
+            fail += 1
+            failed_testcases.append(f"{i}: {', '.join(test)}")
+
+    ansithemeprint([ANSIThemeStr("\nSummary:", "header")])
+    if fail:
+        ansithemeprint([ANSIThemeStr(f"  FAIL: {fail}", "error")])
+    else:
+        ansithemeprint([ANSIThemeStr(f"  FAIL: {fail}", "unknown")])
+    ansithemeprint([ANSIThemeStr(f"  PASS: {success}", "success")])
+
+    if fail:
+        ansithemeprint([ANSIThemeStr("\nFailed testcases:", "header")])
+        for testcase in failed_testcases:
+            ansithemeprint([ANSIThemeStr("  • ", "separator"),
+                            ANSIThemeStr(testcase, "default")], stderr=True)
+        sys.exit(fail)
+
+    return 0
+
+
+if __name__ == "__main__":
+    main()

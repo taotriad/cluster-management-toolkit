@@ -1,0 +1,1648 @@
+#! /usr/bin/env python3
+
+# Requires: python3 (>= 3.11)
+#
+# Copyright the Cluster Management Toolkit for Kubernetes contributors.
+# SPDX-License-Identifier: MIT
+
+from datetime import datetime
+from pathlib import PurePath
+import sys
+from typing import Any
+import yaml
+
+from clustermanagementtoolkit.cmtpaths import DEFAULT_THEME_FILE
+
+from clustermanagementtoolkit.cmttypes import deep_get, DictPath
+from clustermanagementtoolkit.cmttypes import FilePath, ProgrammingError, StatusGroup
+
+from clustermanagementtoolkit import curses_helper
+from clustermanagementtoolkit.curses_helper import ThemeAttr, ThemeRef, ThemeStr
+from clustermanagementtoolkit.curses_helper import color_status_group
+
+from clustermanagementtoolkit.ansithemeprint import ANSIThemeStr
+from clustermanagementtoolkit.ansithemeprint import ansithemeprint, init_ansithemeprint
+
+from clustermanagementtoolkit import generators
+
+TEST_DIR = FilePath(PurePath(__file__).parent).joinpath("testpaths")
+
+# unit-tests for generators.py
+
+
+def yaml_dump(data: Any, base_indent: int = 4) -> str:
+    result = ""
+    dump = yaml.dump(data)
+    for line in dump.splitlines():
+        result += f"{' '.ljust(base_indent)}{line}\n"
+    return result
+
+
+def test_callback(options: list[tuple[str, str]], args: list[str]) -> tuple[str, int]:
+    return ("callback", len(args))
+
+
+def test_format_special(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = generators.format_special
+
+    if result:
+        # Indata format:
+        # (string, selected, expected_result, expected_exception)
+        testdata: tuple = (
+            (
+                "<none>",
+                False,
+                ThemeStr("<none>", ThemeAttr("types", "none")),
+                None,
+            ),
+            (
+                "<unknown>",
+                True,
+                ThemeStr("<unknown>", ThemeAttr("types", "none"), True),
+                None,
+            ),
+            (
+                "<undefined>",
+                False,
+                ThemeStr("<undefined>", ThemeAttr("types", "undefined")),
+                None,
+            ),
+            (
+                "<unspecified>",
+                False,
+                ThemeStr("<unspecified>", ThemeAttr("types", "undefined")),
+                None,
+            ),
+            (
+                "<empty>",
+                False,
+                ThemeStr("<empty>", ThemeAttr("types", "unset")),
+                None,
+            ),
+            (
+                "<unset>",
+                False,
+                ThemeStr("<unset>", ThemeAttr("types", "unset")),
+                None,
+            ),
+            (
+                "<not ready>",
+                False,
+                ThemeStr("<not ready>", color_status_group(StatusGroup.NOT_OK)),
+                None,
+            ),
+            (
+                "<not ready>",
+                True,
+                ThemeStr("<not ready>", color_status_group(StatusGroup.NOT_OK), True),
+                None,
+            ),
+            (
+                "<NOTHING SPECIAL>",
+                True,
+                None,
+                None,
+            ),
+        )
+
+        for string, selected, expected_result, expected_exception in testdata:
+            try:
+                tmp = fun(string, selected)
+                if tmp != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"           result: {tmp}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  f"        exception: {type(e)}\n" \
+                                  f"          message: {str(e)}\n" \
+                                  f"         expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"        exception: {type(e)}\n" \
+                              f"          message: {str(e)}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+    return message, result
+
+
+def test_align_and_pad(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = generators.align_and_pad
+
+    if result:
+        # Indata format:
+        # (themearray, pad, fieldlen, ralign, selected, expected_result, expected_exception)
+        testdata: tuple = (
+            (
+                [
+                    ThemeStr("Foo", ThemeAttr("main", "default")),
+                ],
+                True,
+                8,
+                False,
+                False,
+                [
+                    ThemeStr("Foo", ThemeAttr("main", "default"), False),
+                    ThemeStr("     ", ThemeAttr("types", "generic"), False),
+                    ThemeRef("separators", "pad", False)
+                ],
+                None,
+            ),
+            (
+                [
+                    ThemeStr("Foo", ThemeAttr("main", "default")),
+                ],
+                False,
+                0,
+                False,
+                False,
+                [
+                    ThemeStr("Foo", ThemeAttr("main", "default"), False),
+                    ThemeStr("", ThemeAttr("types", "generic"), False),
+                ],
+                None,
+            ),
+            (
+                [
+                    ThemeStr("Foo", ThemeAttr("main", "default")),
+                ],
+                True,
+                4,
+                False,
+                False,
+                [
+                    ThemeStr("Foo", ThemeAttr("main", "default"), False),
+                    ThemeStr(" ", ThemeAttr("types", "generic"), False),
+                    ThemeRef("separators", "pad", False)
+                ],
+                None,
+            ),
+            (
+                [
+                    ThemeStr("Foo", ThemeAttr("main", "default")),
+                ],
+                True,
+                6,
+                True,
+                False,
+                [
+                    ThemeStr("   ", ThemeAttr("types", "generic"), False),
+                    ThemeStr("Foo", ThemeAttr("main", "default"), False),
+                    ThemeRef("separators", "pad", False)
+                ],
+                None,
+            ),
+        )
+
+        for themearray, pad, fieldlen, ralign, \
+                selected, expected_result, expected_exception in testdata:
+            try:
+                tmp = fun(themearray, fieldlen=fieldlen, pad=pad, ralign=ralign, selected=selected)
+                if tmp != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"           result: {tmp}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  f"        exception: {type(e)}\n" \
+                                  f"          message: {str(e)}\n" \
+                                  f"         expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"        exception: {type(e)}\n" \
+                              f"          message: {str(e)}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+    return message, result
+
+
+def test_generator_value_mapper(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = generators.generator_value_mapper
+
+    if result:
+        # Indata format:
+        # (obj, field, expected_result, expected_exception)
+        testdata: tuple = (
+            (
+                {
+                    "state": "Completed",
+                },
+                "state",
+                9,
+                2,
+                False,
+                True,
+                {
+                    "item_separator": ThemeRef("separators", "list", False),
+                    "field_separators": [
+                        ThemeRef("separators", "field", False),
+                    ],
+                    "field_colors": [
+                        ThemeAttr("types", "field")
+                    ],
+                    "ellipsise": -1,
+                    "ellipsis": ThemeRef("separators", "ellipsis", False),
+                    "field_prefixes": [],
+                    "field_suffixes": [],
+                    "mapping": {
+                        "mappings": {
+                            "Active": {
+                                "field_colors": [
+                                    {
+                                        "context": "main",
+                                        "type": "status_pending",
+                                    },
+                                ],
+                            },
+                            "Completed": {
+                                "field_colors": [
+                                    {
+                                        "context": "main",
+                                        "type": "status_done",
+                                    },
+                                ],
+                            },
+                            "Running": {
+                                "field_colors": [
+                                    {
+                                        "context": "main",
+                                        "type": "status_ok",
+                                    },
+                                ],
+                            },
+                            "<unset>": {
+                                "field_colors": [
+                                    {
+                                        "context": "types",
+                                        "type": "unset",
+                                    },
+                                ],
+                            },
+                            "__default": {
+                                "field_colors": [
+                                    {
+                                        "context": "main",
+                                        "type": "status_not_ok",
+                                    },
+                                ],
+                            },
+                        },
+                    },
+                    "field_formatters": [],
+                },
+                [
+                    ThemeStr("Completed", ThemeAttr("main", "status_done"), True),
+                    ThemeStr("", ThemeAttr("types", "generic"), True),
+                    ThemeRef("separators", "pad", True)
+                ],
+                None,
+            ),
+        )
+
+        for obj, field, fieldlen, pad, ralign, selected, formatting, \
+                expected_result, expected_exception in testdata:
+            try:
+                tmp = fun(obj, field, fieldlen, pad, ralign, selected, **formatting)
+                if tmp != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"           result: {tmp}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  f"        exception: {type(e)}\n" \
+                                  f"          message: {str(e)}\n" \
+                                  f"         expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"        exception: {type(e)}\n" \
+                              f"          message: {str(e)}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+    return message, result
+
+
+def test_processor_timestamp(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = generators.processor_timestamp
+
+    if result:
+        # Indata format:
+        # (obj, field, expected_result, expected_exception)
+        testdata: tuple = (
+            (
+                {
+                    "completion_time": "2024-10-23T20:42:31Z",
+                },
+                "completion_time",
+                "2024-10-23T20:42:31Z",
+                None,
+            ),
+            (
+                {
+                    "completion_time": datetime(2024, 3, 17, 2, 23, 32, 342062),
+                },
+                "completion_time",
+                "2024-03-17 02:23:32",
+                None,
+            ),
+            (
+                {
+                    "completion_time": None,
+                },
+                "completion_time",
+                "",
+                None,
+            ),
+            (
+                {
+                    "completion_time": 42,
+                },
+                "completion_time",
+                "42",
+                None,
+            ),
+        )
+
+        for obj, field, expected_result, expected_exception in testdata:
+            try:
+                tmp = fun(obj, field)
+                if tmp != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"           result: {tmp}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  f"        exception: {type(e)}\n" \
+                                  f"          message: {str(e)}\n" \
+                                  f"         expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"        exception: {type(e)}\n" \
+                              f"          message: {str(e)}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+    return message, result
+
+
+def test_processor_timestamp_with_age(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = generators.processor_timestamp_with_age
+
+    if result:
+        # Indata format:
+        # (obj, field, formatting, expected_result, expected_exception)
+        testdata: tuple = (
+            (
+                {
+                    "completion_time_with_age": (
+                        "2024-10-23T20:42:31Z",
+                        " (",
+                        "Duration: ",
+                        1087,
+                        ")",
+                    ),
+                },
+                "completion_time_with_age",
+                {
+                    "item_separator": ThemeRef("separators", "list", False),
+                    "field_separators": [
+                        ThemeRef("separators", "field", False),
+                    ],
+                    "field_colors": [
+                        ThemeAttr("types", "timestamp"),
+                        ThemeAttr("types", "generic"),
+                        ThemeAttr("types", "generic"),
+                        ThemeAttr("types", "age"),
+                        ThemeAttr("types", "generic"),
+                    ],
+                    "ellipsise": -1,
+                    "ellipsis": ThemeRef("separators", "ellipsis", False),
+                    "field_prefixes": [],
+                    "field_suffixes": [],
+                    "mapping": {},
+                    "field_formatters": []
+                },
+                "2024-10-23T20:42:31Z (Duration: 18m7s)",
+                None,
+            ),
+            (
+                {
+                    "completion_time_with_age": (
+                        "2024-10-23T20:42:31Z",
+                        " (",
+                        "Duration: ",
+                        1087,
+                        ")",
+                    ),
+                },
+                "completion_time_with_age",
+                {
+                    "item_separator": ThemeRef("separators", "list", False),
+                    "field_separators": [
+                        ThemeRef("separators", "field", False),
+                    ],
+                    "field_colors": [],
+                    "ellipsise": -1,
+                    "ellipsis": ThemeRef("separators", "ellipsis", False),
+                    "field_prefixes": [],
+                    "field_suffixes": [],
+                    "mapping": {},
+                    "field_formatters": []
+                },
+                None,
+                ValueError,
+            ),
+            (
+                {
+                    "completion_time_with_age": (
+                        datetime(2024, 3, 17, 2, 23, 32, 342062),
+                        "23d",
+                    ),
+                },
+                "completion_time_with_age",
+                {
+                    "item_separator": ThemeRef("separators", "list", False),
+                    "field_separators": [
+                        ThemeRef("separators", "field", False),
+                    ],
+                    "field_colors": [
+                        ThemeAttr("types", "timestamp"),
+                        ThemeAttr("types", "generic"),
+                        ThemeAttr("types", "generic"),
+                        ThemeAttr("types", "age"),
+                        ThemeAttr("types", "generic"),
+                    ],
+                    "ellipsise": -1,
+                    "ellipsis": ThemeRef("separators", "ellipsis", False),
+                    "field_prefixes": [],
+                    "field_suffixes": [],
+                    "mapping": {},
+                    "field_formatters": []
+                },
+                "2024-03-17 02:23:32 (23d)",
+                None,
+            ),
+            (
+                {
+                    "completion_time_with_age": (
+                        None,
+                        None,
+                    ),
+                },
+                "completion_time_with_age",
+                {
+                    "item_separator": ThemeRef("separators", "list", False),
+                    "field_separators": [
+                        ThemeRef("separators", "field", False),
+                    ],
+                    "field_colors": [
+                        ThemeAttr("types", "timestamp"),
+                        ThemeAttr("types", "generic"),
+                        ThemeAttr("types", "generic"),
+                        ThemeAttr("types", "age"),
+                        ThemeAttr("types", "generic"),
+                    ],
+                    "ellipsise": -1,
+                    "ellipsis": ThemeRef("separators", "ellipsis", False),
+                    "field_prefixes": [],
+                    "field_suffixes": [],
+                    "mapping": {},
+                    "field_formatters": []
+                },
+                "<none>",
+                None,
+            ),
+            (
+                {
+                    "completion_time_with_age": (),
+                },
+                "completion_time_with_age",
+                {
+                    "item_separator": ThemeRef("separators", "list", False),
+                    "field_separators": [
+                        ThemeRef("separators", "field", False),
+                    ],
+                    "field_colors": [
+                        ThemeAttr("types", "timestamp"),
+                        ThemeAttr("types", "generic"),
+                        ThemeAttr("types", "generic"),
+                        ThemeAttr("types", "age"),
+                        ThemeAttr("types", "generic"),
+                    ],
+                    "ellipsise": -1,
+                    "ellipsis": ThemeRef("separators", "ellipsis", False),
+                    "field_prefixes": [],
+                    "field_suffixes": [],
+                    "mapping": {},
+                    "field_formatters": []
+                },
+                "",
+                None,
+            ),
+        )
+
+        for obj, field, formatting, expected_result, expected_exception in testdata:
+            try:
+                tmp = fun(obj, field, formatting)
+                if tmp != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"           result: {tmp}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  f"        exception: {type(e)}\n" \
+                                  f"          message: {str(e)}\n" \
+                                  f"         expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"        exception: {type(e)}\n" \
+                              f"          message: {str(e)}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+    return message, result
+
+
+def test_processor_list(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = generators.processor_list
+
+    if result:
+        # Indata format:
+        # (obj, field, expected_result, expected_exception)
+        testdata: tuple = (
+            # api_support not None
+            (
+                {
+                    'name': 'imagecaches.kubefledged.io',
+                    'kind': 'ImageCache',
+                    'api_group_crd': 'kubefledged.io',
+                    'stored_versions': ['v1alpha2'],
+                    'scope': 'Namespaced',
+                    'api_support': ['Known'],
+                },
+                "api_support",
+                ThemeRef("separators", "list"),
+                [ThemeRef("separators", "field")],
+                -1,
+                ThemeRef("separators", "ellipsis"),
+                [],
+                [],
+                "Known",
+                None,
+            ),
+            # api_support has an empty element
+            (
+                {
+                    'name': 'imagecaches.kubefledged.io',
+                    'kind': 'ImageCache',
+                    'api_group_crd': 'kubefledged.io',
+                    'stored_versions': ['v1alpha2'],
+                    'scope': 'Namespaced',
+                    'api_support': [''],
+                },
+                "api_support",
+                ThemeRef("separators", "list"),
+                [ThemeRef("separators", "field")],
+                -1,
+                ThemeRef("separators", "ellipsis"),
+                [],
+                [],
+                "",
+                None,
+            ),
+            # api_support has a tuple element
+            (
+                {
+                    'name': 'imagecaches.kubefledged.io',
+                    'kind': 'ImageCache',
+                    'api_group_crd': 'kubefledged.io',
+                    'stored_versions': ['v1alpha2'],
+                    'scope': 'Namespaced',
+                    'api_support': [('Known', "foo")],
+                },
+                "api_support",
+                ThemeRef("separators", "list"),
+                [ThemeRef("separators", "field")],
+                -1,
+                ThemeRef("separators", "ellipsis"),
+                [],
+                [],
+                f"Known{ThemeRef('separators', 'field')}foo",
+                None,
+            ),
+            # api_support is a tuple
+            (
+                {
+                    'name': 'imagecaches.kubefledged.io',
+                    'kind': 'ImageCache',
+                    'api_group_crd': 'kubefledged.io',
+                    'stored_versions': ['v1alpha2'],
+                    'scope': 'Namespaced',
+                    'api_support': ('Known', "foo"),
+                },
+                "api_support",
+                ThemeRef("separators", "list"),
+                [ThemeRef("separators", "field")],
+                -1,
+                ThemeRef("separators", "ellipsis"),
+                [],
+                [],
+                f"Known{ThemeRef('separators', 'field')}foo",
+                None,
+            ),
+            # api_support has multiple elements
+            (
+                {
+                    'name': 'imagecaches.kubefledged.io',
+                    'kind': 'ImageCache',
+                    'api_group_crd': 'kubefledged.io',
+                    'stored_versions': ['v1alpha2'],
+                    'scope': 'Namespaced',
+                    'api_support': ['Known', 'List', 'Info'],
+                },
+                "api_support",
+                ThemeRef("separators", "list"),
+                [ThemeRef("separators", "field")],
+                -1,
+                ThemeRef("separators", "ellipsis"),
+                [],
+                [],
+                "Known, List, Info",
+                None,
+            ),
+            # api_support has multiple elements, ellipsise at 2
+            (
+                {
+                    'name': 'imagecaches.kubefledged.io',
+                    'kind': 'ImageCache',
+                    'api_group_crd': 'kubefledged.io',
+                    'stored_versions': ['v1alpha2'],
+                    'scope': 'Namespaced',
+                    'api_support': ['Known', 'List', 'Info'],
+                },
+                "api_support",
+                ThemeRef("separators", "list"),
+                [ThemeRef("separators", "field")],
+                2,
+                ThemeRef("separators", "ellipsis"),
+                [],
+                [],
+                f"Known, List, {ThemeRef('separators', 'ellipsis')}",
+                None,
+            ),
+            # api_support has multiple elements, prefix, double-suffix (ThemeRef)
+            (
+                {
+                    'name': 'imagecaches.kubefledged.io',
+                    'kind': 'ImageCache',
+                    'api_group_crd': 'kubefledged.io',
+                    'stored_versions': ['v1alpha2'],
+                    'scope': 'Namespaced',
+                    'api_support': ['Known', 'List'],
+                },
+                "api_support",
+                ThemeRef("separators", "list"),
+                [ThemeRef("separators", "field")],
+                -1,
+                ThemeRef("separators", "ellipsis"),
+                [ThemeRef("separators", "facility_prefix")],
+                [[ThemeRef("separators", "facility_suffix"),
+                  ThemeRef("separators", "facility_suffix")]],
+                f"{ThemeRef('separators', 'facility_prefix')}Known"
+                f"{ThemeRef('separators', 'facility_suffix')}"
+                f"{ThemeRef('separators', 'facility_suffix')}, "
+                f"{ThemeRef('separators', 'facility_prefix')}List"
+                f"{ThemeRef('separators', 'facility_suffix')}"
+                f"{ThemeRef('separators', 'facility_suffix')}",
+                None,
+            ),
+            # api_support has multiple elements, prefix, double-suffix ((str, str))
+            (
+                {
+                    'name': 'imagecaches.kubefledged.io',
+                    'kind': 'ImageCache',
+                    'api_group_crd': 'kubefledged.io',
+                    'stored_versions': ['v1alpha2'],
+                    'scope': 'Namespaced',
+                    'api_support': ['Known', 'List'],
+                },
+                "api_support",
+                ThemeRef("separators", "list"),
+                [ThemeRef("separators", "field")],
+                -1,
+                ("separators", "ellipsis"),
+                [("separators", "facility_prefix")],
+                [[("separators", "facility_suffix"),
+                  ("separators", "facility_suffix")]],
+                f"{ThemeRef('separators', 'facility_prefix')}Known"
+                f"{ThemeRef('separators', 'facility_suffix')}"
+                f"{ThemeRef('separators', 'facility_suffix')}, "
+                f"{ThemeRef('separators', 'facility_prefix')}List"
+                f"{ThemeRef('separators', 'facility_suffix')}"
+                f"{ThemeRef('separators', 'facility_suffix')}",
+                None,
+            ),
+            # api_support is None
+            (
+                {
+                    'name': 'imagecaches.kubefledged.io',
+                    'kind': 'ImageCache',
+                    'api_group_crd': 'kubefledged.io',
+                    'stored_versions': ['v1alpha2'],
+                    'scope': 'Namespaced',
+                    'api_support': None,
+                },
+                "api_support",
+                ThemeRef("separators", "list"),
+                [ThemeRef("separators", "field")],
+                -1,
+                ThemeRef("separators", "ellipsis"),
+                [],
+                [],
+                "",
+                None,
+            ),
+        )
+
+        for obj, field, item_separators, field_separators, ellipsise, ellipsis, \
+                field_prefixes, field_suffixes, expected_result, expected_exception in testdata:
+            try:
+                tmp = fun(obj, field,
+                          item_separator=item_separators,
+                          field_separators=field_separators,
+                          ellipsise=ellipsise, ellipsis=ellipsis,
+                          field_prefixes=field_prefixes, field_suffixes=field_suffixes)
+
+                if tmp != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"           result: {tmp}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  f"        exception: {type(e)}\n" \
+                                  f"          message: {str(e)}\n" \
+                                  f"         expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"        exception: {type(e)}\n" \
+                              f"          message: {str(e)}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+    return message, result
+
+
+def test_processor_list_with_status(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = generators.processor_list_with_status
+
+    if result:
+        # Indata format:
+        # (obj, field, expected_result, expected_exception)
+        testdata: tuple = (
+            # endpoints not None
+            (
+                {
+                    'namespace': 'cert-manager',
+                    'name': 'cert-manager',
+                    'ports': [(None, None, None)],
+                    'endpoints': [
+                        ('10.0.0.97', StatusGroup.OK)],
+                },
+                "endpoints",
+                ThemeRef("separators", "list"),
+                [ThemeRef("separators", "field")],
+                -1,
+                ThemeRef("separators", "ellipsis"),
+                [],
+                [],
+                "10.0.0.97",
+                None,
+            ),
+            # endpoints has an empty element
+            (
+                {
+                    'namespace': 'cert-manager',
+                    'name': 'cert-manager',
+                    'ports': [(None, None, None)],
+                    'endpoints': [
+                        ('', StatusGroup.OK)],
+                },
+                "endpoints",
+                ThemeRef("separators", "list"),
+                [ThemeRef("separators", "field")],
+                -1,
+                ThemeRef("separators", "ellipsis"),
+                [],
+                [],
+                "",
+                None,
+            ),
+            # endpoints is a tuple
+            (
+                {
+                    'namespace': 'cert-manager',
+                    'name': 'cert-manager',
+                    'ports': [(None, None, None)],
+                    'endpoints': [
+                        ('', StatusGroup.OK)],
+                },
+                "endpoints",
+                ThemeRef("separators", "list"),
+                [ThemeRef("separators", "field")],
+                -1,
+                ThemeRef("separators", "ellipsis"),
+                [],
+                [],
+                "",
+                None,
+            ),
+            # endpoints has multiple elements
+            (
+                {
+                    'namespace': 'cert-manager',
+                    'name': 'cert-manager',
+                    'ports': [(None, None, None)],
+                    'endpoints': [
+                        ('10.0.0.97', StatusGroup.OK),
+                        ('10.0.0.98', StatusGroup.OK),
+                        ('10.0.0.99', StatusGroup.OK),
+                        ('10.0.0.100', StatusGroup.OK)],
+                },
+                "endpoints",
+                ThemeRef("separators", "list"),
+                [ThemeRef("separators", "field")],
+                -1,
+                ThemeRef("separators", "ellipsis"),
+                [],
+                [],
+                "10.0.0.97"
+                f"{ThemeRef('separators', 'list')}"
+                "10.0.0.98"
+                f"{ThemeRef('separators', 'list')}"
+                "10.0.0.99"
+                f"{ThemeRef('separators', 'list')}"
+                "10.0.0.100",
+                None,
+            ),
+            # endpoints has multiple elements, ellipsise at 2
+            (
+                {
+                    'namespace': 'cert-manager',
+                    'name': 'cert-manager',
+                    'ports': [(None, None, None)],
+                    'endpoints': [
+                        ('10.0.0.97', StatusGroup.OK),
+                        ('10.0.0.98', StatusGroup.OK),
+                        ('10.0.0.99', StatusGroup.OK),
+                        ('10.0.0.100', StatusGroup.OK)],
+                },
+                "endpoints",
+                ThemeRef("separators", "list"),
+                [ThemeRef("separators", "field")],
+                2,
+                ThemeRef("separators", "ellipsis"),
+                [],
+                [],
+                "10.0.0.97"
+                f"{ThemeRef('separators', 'list')}"
+                "10.0.0.98"
+                f"{ThemeRef('separators', 'list')}"
+                f"{ThemeRef('separators', 'ellipsis')}",
+                None,
+            ),
+            # endpoints has multiple elements, prefix, double-suffix ((str, str))
+            (
+                {
+                    'namespace': 'cert-manager',
+                    'name': 'cert-manager',
+                    'ports': [(None, None, None)],
+                    'endpoints': [
+                        ('10.0.0.97', StatusGroup.OK),
+                        ('10.0.0.98', StatusGroup.OK)],
+                },
+                "endpoints",
+                ThemeRef("separators", "list"),
+                [ThemeRef("separators", "field")],
+                -1,
+                ThemeRef("separators", "ellipsis"),
+                [("separators", "facility_prefix")],
+                [[("separators", "facility_suffix"),
+                  ("separators", "facility_suffix")]],
+                f"{ThemeRef('separators', 'facility_prefix')}10.0.0.97"
+                f"{ThemeRef('separators', 'facility_suffix')}"
+                f"{ThemeRef('separators', 'facility_suffix')}, "
+                f"{ThemeRef('separators', 'facility_prefix')}10.0.0.98"
+                f"{ThemeRef('separators', 'facility_suffix')}"
+                f"{ThemeRef('separators', 'facility_suffix')}",
+                None,
+            ),
+            # endpoints is None
+            (
+                {
+                    'namespace': 'cert-manager',
+                    'name': 'cert-manager',
+                    'ports': [(None, None, None)],
+                    'endpoints': None,
+                },
+                "endpoints",
+                ThemeRef("separators", "list"),
+                [ThemeRef("separators", "field")],
+                -1,
+                ThemeRef("separators", "ellipsis"),
+                [],
+                [],
+                "",
+                None,
+            ),
+        )
+
+        for obj, field, item_separators, field_separators, ellipsise, ellipsis, \
+                field_prefixes, field_suffixes, expected_result, expected_exception in testdata:
+            try:
+                tmp = fun(obj, field,
+                          item_separator=item_separators,
+                          field_separators=field_separators,
+                          ellipsise=ellipsise, ellipsis=ellipsis,
+                          field_prefixes=field_prefixes, field_suffixes=field_suffixes)
+
+                if tmp != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"           result: {tmp}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  f"        exception: {type(e)}\n" \
+                                  f"          message: {str(e)}\n" \
+                                  f"         expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"        exception: {type(e)}\n" \
+                              f"          message: {str(e)}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+    return message, result
+
+
+def test_processor_age(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = generators.processor_age
+
+    if result:
+        # Indata format:
+        # (obj, field, expected_result, expected_exception)
+        testdata: tuple = (
+            (
+                {
+                    "age": 328662,
+                },
+                "age",
+                "3d19h",
+                None,
+            ),
+            (
+                {
+                    "age": -200,
+                },
+                "age",
+                "<clock skew detected>",
+                None,
+            ),
+        )
+
+        for obj, field, expected_result, expected_exception in testdata:
+            try:
+                tmp = fun(obj, field)
+                if tmp != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"           result: {tmp}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  f"        exception: {type(e)}\n" \
+                                  f"          message: {str(e)}\n" \
+                                  f"         expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"        exception: {type(e)}\n" \
+                              f"          message: {str(e)}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+    return message, result
+
+
+def test_processor_mem(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = generators.processor_mem
+
+    if result:
+        # Indata format:
+        # (obj, field, expected_result, expected_exception)
+        testdata: tuple = (
+            (
+                {
+                    "mem": ["15985080Ki", "16087480Ki"],
+                },
+                "mem",
+                "0.6% / 15.3GiB",
+                None,
+            ),
+            (
+                {
+                    "mem": ["Foo", "Bar"],
+                },
+                "mem",
+                None,
+                ValueError,
+            ),
+        )
+
+        for obj, field, expected_result, expected_exception in testdata:
+            try:
+                tmp = fun(obj, field)
+                if tmp != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"           result: {tmp}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  f"        exception: {type(e)}\n" \
+                                  f"          message: {str(e)}\n" \
+                                  f"         expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"        exception: {type(e)}\n" \
+                              f"          message: {str(e)}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+    return message, result
+
+
+def test_get_formatting(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = generators.get_formatting
+
+    if result:
+        # Indata format:
+        # (field, formatting, default, expected_result, expected_exception)
+        testdata: tuple = (
+            (
+                {"formatting": {"foo": {"context": "foo"}}},
+                "foo",
+                {"foo": "bar"},
+                None,
+                ProgrammingError,
+            ),
+            (
+                {},
+                "foo",
+                {"foo": "bar"},
+                "bar",
+                None,
+            ),
+            (
+                {"formatting": {"foo": 42}},
+                "foo",
+                {"foo": "bar"},
+                None,
+                TypeError,
+            ),
+            (
+                {"formatting": {"foo": [ThemeAttr("types", "age")]}},
+                "foo",
+                None,
+                None,
+                ValueError,
+            ),
+            (
+                {"formatting": {"foo": []}},
+                "foo",
+                {"foo": "bar"},
+                None,
+                ValueError,
+            ),
+            (
+                {"formatting": {"foo": [42]}},
+                "foo",
+                {"foo": "bar"},
+                None,
+                TypeError,
+            ),
+            (
+                {"formatting": {"foo": [{"context": "foo"}, 42]}},
+                "foo",
+                {"foo": "bar"},
+                None,
+                TypeError,
+            ),
+            (
+                {"formatting": {"ellipsis": [{"type": "ellipsis"}]}},
+                "ellipsis",
+                {"foo": "bar"},
+                [ThemeRef('separators', 'ellipsis')],
+                None,
+            ),
+            (
+                {"formatting": {"ellipsis": [ThemeRef("separators", "ellipsis")]}},
+                "ellipsis",
+                {"foo": "bar"},
+                [ThemeRef('separators', 'ellipsis')],
+                None,
+            ),
+        )
+
+        for field, formatting, default, expected_result, expected_exception in testdata:
+            try:
+                tmp = fun(field, formatting, default)
+                if tmp != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"           result: {tmp}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  f"        exception: {type(e)}\n" \
+                                  f"          message: {str(e)}\n" \
+                                  f"         expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"        exception: {type(e)}\n" \
+                              f"          message: {str(e)}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+    return message, result
+
+
+def test_get_formatter(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = generators.get_formatter
+
+    if result:
+        # Indata format:
+        # (field, expected_result, expected_exception)
+        testdata: tuple = (
+            (
+                {
+                    "formatting": {
+                        "field_colors": [{"type": "namespace"}],
+                    },
+                },
+                {
+                    "generator": generators.generator_basic,
+                    "processor": None,
+                    "field_colors": [ThemeAttr('types', 'namespace')],
+                    "field_prefixes": [],
+                    "field_suffixes": [],
+                    "field_separators": [ThemeRef('separators', 'field')],
+                    "ellipsise": -1,
+                    "ellipsis": ThemeRef('separators', 'ellipsis'),
+                    'item_separator': ThemeRef('separators', 'list'),
+                    'mapping': {},
+                    'field_formatters': [],
+                    'formatting': {
+                        'item_separator': ThemeRef('separators', 'list'),
+                        'field_separators': [ThemeRef('separators', 'field')],
+                        'field_colors': [ThemeAttr('types', 'namespace')],
+                        'ellipsise': -1,
+                        'ellipsis': ThemeRef('separators', 'ellipsis'),
+                        'field_prefixes': [],
+                        'field_suffixes': [],
+                        'mapping': {},
+                        'field_formatters': [],
+                        'unit': '',
+                    }
+                },
+                None,
+            ),
+            (
+                {
+                    "type": "age",
+                },
+                {
+                    "generator": generators.generator_basic,
+                    "processor": None,
+                    "field_colors": [ThemeAttr('types', 'age')],
+                    "field_prefixes": [],
+                    "field_suffixes": [],
+                    "field_separators": [ThemeRef('separators', 'field')],
+                    "ellipsise": -1,
+                    "ellipsis": ThemeRef('separators', 'ellipsis'),
+                    'item_separator': ThemeRef('separators', 'list'),
+                    'mapping': {},
+                    'field_formatters': [],
+                    'formatting': {
+                        'item_separator': ThemeRef('separators', 'list'),
+                        'field_separators': [ThemeRef('separators', 'field')],
+                        'field_colors': [ThemeAttr('types', 'age')],
+                        'ellipsise': -1,
+                        'ellipsis': ThemeRef('separators', 'ellipsis'),
+                        'field_prefixes': [],
+                        'field_suffixes': [],
+                        'mapping': {},
+                        'field_formatters': [],
+                        'unit': '',
+                    }
+                },
+                None,
+            ),
+            (
+                {
+                    "generator": generators.generator_numerical_with_units,
+                    "align": "right",
+                },
+                {
+                    "generator": generators.generator_numerical_with_units,
+                    "processor": None,
+                    "field_colors": [ThemeAttr('types', 'field')],
+                    "field_prefixes": [],
+                    "field_suffixes": [],
+                    "field_separators": [ThemeRef('separators', 'field')],
+                    "ellipsise": -1,
+                    "ellipsis": ThemeRef('separators', 'ellipsis'),
+                    'item_separator': ThemeRef('separators', 'list'),
+                    'mapping': {},
+                    'field_formatters': [],
+                    'ralign': True,
+                    'formatting': {
+                        'item_separator': ThemeRef('separators', 'list'),
+                        'field_separators': [ThemeRef('separators', 'field')],
+                        'field_colors': [ThemeAttr('types', 'field')],
+                        'ellipsise': -1,
+                        'ellipsis': ThemeRef('separators', 'ellipsis'),
+                        'field_prefixes': [],
+                        'field_suffixes': [],
+                        'mapping': {},
+                        'field_formatters': [],
+                        'unit': '',
+                    }
+                },
+                None,
+            ),
+            (
+                {
+                    "generator": generators.generator_status,
+                },
+                {
+                    "generator": generators.generator_status,
+                    "processor": None,
+                    "field_colors": [ThemeAttr('types', 'field')],
+                    "field_prefixes": [],
+                    "field_suffixes": [],
+                    "field_separators": [ThemeRef('separators', 'field')],
+                    "ellipsise": -1,
+                    "ellipsis": ThemeRef('separators', 'ellipsis'),
+                    'item_separator': ThemeRef('separators', 'list'),
+                    'mapping': {},
+                    'field_formatters': [],
+                    'formatting': {
+                        'item_separator': ThemeRef('separators', 'list'),
+                        'field_separators': [ThemeRef('separators', 'field')],
+                        'field_colors': [ThemeAttr('types', 'field')],
+                        'ellipsise': -1,
+                        'ellipsis': ThemeRef('separators', 'ellipsis'),
+                        'field_prefixes': [],
+                        'field_suffixes': [],
+                        'mapping': {},
+                        'field_formatters': [],
+                        'unit': '',
+                    }
+                },
+                None,
+            ),
+            (
+                {
+                    "generator": "generator_status",
+                },
+                {
+                    "generator": generators.generator_status,
+                    "processor": None,
+                    "field_colors": [ThemeAttr('types', 'field')],
+                    "field_prefixes": [],
+                    "field_suffixes": [],
+                    "field_separators": [ThemeRef('separators', 'field')],
+                    "ellipsise": -1,
+                    "ellipsis": ThemeRef('separators', 'ellipsis'),
+                    'item_separator': ThemeRef('separators', 'list'),
+                    'mapping': {},
+                    'field_formatters': [],
+                    'formatting': {
+                        'item_separator': ThemeRef('separators', 'list'),
+                        'field_separators': [ThemeRef('separators', 'field')],
+                        'field_colors': [ThemeAttr('types', 'field')],
+                        'ellipsise': -1,
+                        'ellipsis': ThemeRef('separators', 'ellipsis'),
+                        'field_prefixes': [],
+                        'field_suffixes': [],
+                        'mapping': {},
+                        'field_formatters': [],
+                        'unit': '',
+                    }
+                },
+                None,
+            ),
+            (
+                {
+                    "formatter": "address",
+                },
+                {
+                    "generator": generators.generator_address,
+                    "processor": generators.processor_list,
+                    "field_colors": [ThemeAttr('types', 'field')],
+                    "field_prefixes": [],
+                    "field_suffixes": [],
+                    "field_separators": [],
+                    "ellipsise": -1,
+                    "ellipsis": ThemeRef('separators', 'ellipsis'),
+                    'item_separator': ThemeRef('separators', 'list'),
+                    'mapping': {},
+                    'field_formatters': [],
+                    'formatting': {
+                        'item_separator': ThemeRef('separators', 'list'),
+                        'field_separators': [],
+                        'field_colors': [ThemeAttr('types', 'field')],
+                        'ellipsise': -1,
+                        'ellipsis': ThemeRef('separators', 'ellipsis'),
+                        'field_prefixes': [],
+                        'field_suffixes': [],
+                        'mapping': {},
+                        'field_formatters': [],
+                        'unit': '',
+                    }
+                },
+                None,
+            ),
+            (
+                {
+                    "formatter": "notavalidformatter",
+                },
+                None,
+                ProgrammingError,
+            ),
+        )
+
+        for field, expected_result, expected_exception in testdata:
+            try:
+                tmp = fun(field)
+                if tmp != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"           result: {tmp}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  f"        exception: {type(e)}\n" \
+                                  f"          message: {str(e)}\n" \
+                                  f"         expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"        exception: {type(e)}\n" \
+                              f"          message: {str(e)}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+    return message, result
+
+
+tests: dict[tuple[str], dict[str, Any]] = {
+    ("format_special()",): {
+        "callable": test_format_special,
+        "result": None,
+    },
+    ("align_and_pad()",): {
+        "callable": test_align_and_pad,
+        "result": None,
+    },
+    ("generator_value_mapper()",): {
+        "callable": test_generator_value_mapper,
+        "result": None,
+    },
+    ("processor_timestamp()",): {
+        "callable": test_processor_timestamp,
+        "result": None,
+    },
+    ("processor_timestamp_with_age()",): {
+        "callable": test_processor_timestamp_with_age,
+        "result": None,
+    },
+    ("processor_list()",): {
+        "callable": test_processor_list,
+        "result": None,
+    },
+    ("processor_list_with_status()",): {
+        "callable": test_processor_list_with_status,
+        "result": None,
+    },
+    ("processor_age()",): {
+        "callable": test_processor_age,
+        "result": None,
+    },
+    ("processor_mem()",): {
+        "callable": test_processor_mem,
+        "result": None,
+    },
+    ("get_formatting()",): {
+        "callable": test_get_formatting,
+        "result": None,
+    },
+    ("get_formatter()",): {
+        "callable": test_get_formatter,
+        "result": None,
+    },
+}
+
+
+def main() -> int:
+    fail = 0
+    success = 0
+    verbose = False
+    failed_testcases = []
+
+    themefile = DEFAULT_THEME_FILE
+    init_ansithemeprint(themefile=themefile)
+    curses_helper.read_theme(themefile, themefile)
+
+    # How many non-prepare testcases do we have?
+    testcount = sum(1 for i in tests if not deep_get(tests[i], DictPath("prepare"), False))
+    start_at_task = 0
+    end_at_task = testcount
+
+    i = 1
+
+    while i < len(sys.argv):
+        opt = sys.argv[i]
+        optarg = None
+        if i + 1 < len(sys.argv):
+            optarg = sys.argv[i + 1]
+        if opt == "--start-at":
+            if not (isinstance(optarg, str) and optarg.isnumeric()):
+                raise ValueError("--start-at TASK requires an integer "
+                                 f"in the range [0,{testcount}]")
+            start_at_task = int(optarg)
+            i += 1
+        elif opt == "--end-at":
+            if not (isinstance(optarg, str) and optarg.isnumeric()):
+                raise ValueError(f"--end-at TASK requires an integer in the range [0,{testcount}]")
+            end_at_task = int(optarg)
+            i += 1
+        else:
+            sys.exit(f"Unknown argument: {opt}")
+        i += 1
+
+    for i, test in enumerate(tests):
+        if i < start_at_task:
+            continue
+        if i > end_at_task:
+            break
+        ansithemeprint([ANSIThemeStr(f"[{i:03}/{testcount - 1:03}]", "emphasis"),
+                        ANSIThemeStr(f" {', '.join(test)}:", "default")])
+        message, result = tests[test]["callable"](verbose=verbose)
+        if message:
+            ansithemeprint([ANSIThemeStr("  FAIL", "error"),
+                            ANSIThemeStr(f": {message}", "default")])
+        else:
+            ansithemeprint([ANSIThemeStr("  PASS", "success")])
+            success += 1
+        tests[test]["result"] = result
+        if not result:
+            fail += 1
+            failed_testcases.append(f"{i}: {', '.join(test)}")
+
+    ansithemeprint([ANSIThemeStr("\nSummary:", "header")])
+    if fail:
+        ansithemeprint([ANSIThemeStr(f"  FAIL: {fail}", "error")])
+    else:
+        ansithemeprint([ANSIThemeStr(f"  FAIL: {fail}", "unknown")])
+    ansithemeprint([ANSIThemeStr(f"  PASS: {success}", "success")])
+
+    if fail:
+        ansithemeprint([ANSIThemeStr("\nFailed testcases:", "header")])
+        for testcase in failed_testcases:
+            ansithemeprint([ANSIThemeStr("  • ", "separator"),
+                            ANSIThemeStr(testcase, "default")], stderr=True)
+        sys.exit(fail)
+
+    return 0
+
+
+if __name__ == "__main__":
+    main()

@@ -1,0 +1,1261 @@
+#! /usr/bin/env python3
+
+# Requires: python3 (>= 3.11)
+#
+# Copyright the Cluster Management Toolkit for Kubernetes contributors.
+# SPDX-License-Identifier: MIT
+
+import builtins
+import importlib
+import sys
+from typing import Any, cast
+from collections.abc import Callable
+from unittest import mock
+import yaml
+
+from clustermanagementtoolkit.cmttypes import deep_get, DictPath
+from clustermanagementtoolkit.cmttypes import ArgumentValidationError
+from clustermanagementtoolkit.cmttypes import ProgrammingError, HostNameStatus
+
+from clustermanagementtoolkit.ansithemeprint import ANSIThemeStr
+from clustermanagementtoolkit.ansithemeprint import ansithemeprint, init_ansithemeprint
+
+from clustermanagementtoolkit import cmtvalidators
+
+# unit-tests for cmtvalidators.py
+
+real_import: Callable | None = None  # pylint: disable=invalid-name
+
+import_override: dict = {}
+
+
+def override_import(name: str, *args: list[Any], **kwargs: Any) -> Any:
+    global real_import
+    retval, exception = import_override.get(name, (None, None))
+    if exception:
+        raise exception
+    if retval:
+        return retval
+    if real_import is None:
+        return None
+    real_import = cast(Callable, real_import)
+    return real_import(name, *args, **kwargs)
+
+
+def yaml_dump(data: Any, base_indent: int = 4) -> str:
+    result = ""
+    dump = yaml.dump(data)
+    for line in dump.splitlines():
+        result += f"{' '.ljust(base_indent)}{line}\n"
+    return result
+
+
+def test_import_validators(verbose: bool = False) -> tuple[str, bool]:
+    global import_override
+
+    message = ""
+    result = True
+
+    if result:
+        import_override = {"validators": (None, ModuleNotFoundError)}
+        try:
+            with mock.patch("builtins.__import__", side_effect=override_import):
+                importlib.reload(cmtvalidators)
+        except Exception as e:
+            message = f"overriding import validators failed; {e}"
+            result = False
+
+    if result:
+        import_override = {"validators": (None, None)}
+        try:
+            with mock.patch("builtins.__import__", side_effect=override_import):
+                importlib.reload(cmtvalidators)
+        except Exception as e:
+            message = f"overriding import validators failed; {e}"
+            result = False
+
+    import_override = {}
+    return message, result
+
+
+def test_validator_bool(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = cmtvalidators.validator_bool
+    indata: Any = None
+
+    if result:
+        valid_indata = (True, 1, "1", "y", "yes", "true")
+        expected_status = True
+        expected_result = True
+        for indata in valid_indata:
+            status, retval = fun(indata, error_on_failure=True)
+            if status != expected_status:
+                message = f"{fun.__name__}() did not yield expected status:\n" \
+                          f"       input: {indata}\n" \
+                          f"      output: {status}\n" \
+                          f"    expected: {expected_status}"
+                result = False
+                break
+            if retval != expected_result:
+                message = f"{fun.__name__}() did not yield expected result:\n" \
+                          f"       input: {indata}\n" \
+                          f"      output: {retval}\n" \
+                          f"    expected: {expected_result}"
+                result = False
+                break
+    if result:
+        valid_indata = (False, 0, "0", "n", "no", "false")
+        expected_status = True
+        expected_result = False
+        for indata in valid_indata:
+            status, retval = fun(indata, error_on_failure=True)
+            if status != expected_status:
+                message = f"{fun.__name__}() did not yield expected status:\n" \
+                          f"       input: {indata}\n" \
+                          f"      output: {status}\n" \
+                          f"    expected: {expected_status}"
+                result = False
+                break
+            if retval != expected_result:
+                message = f"{fun.__name__}() did not yield expected result:\n" \
+                          f"       input: {indata}\n" \
+                          f"      output: {retval}\n" \
+                          f"    expected: {expected_result}"
+                result = False
+                break
+    if result:
+        invalid_indata = (None, 2, "2", "f", "foo")
+        expected_status = False
+        for indata in invalid_indata:
+            status, retval = fun(indata, error_on_failure=False)
+            if status != expected_status:
+                message = f"{fun.__name__}() did not yield expected status:\n" \
+                          f"       input: {indata}\n" \
+                          f"      output: {status}\n" \
+                          f"    expected: {expected_status}"
+                result = False
+                break
+    return message, result
+
+
+def test_validator_int(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = cmtvalidators.validator_int
+
+    if result:
+        # Indata format:
+        # (indata, min, max, error_on_failure, expected_status, expected_exception)
+        testdata: tuple[Any, ...] = (
+            (1, 3, 2, True, True, ProgrammingError),
+            (1, 0, 2, True, True, None),
+            (-1, -2, 2, True, True, None),
+            (3, -2, None, True, True, None),
+            (-3, None, 2, True, True, None),
+            ("a", 0, 2, True, False, None),
+            (3, 0, 2, True, False, None),
+            (-3, -2, 2, True, False, None),
+            (3, None, 2, True, False, None),
+            (-3, -2, None, False, False, None),
+            ("a", -2, None, False, False, None),
+            ("a", -2, None, True, False, None),
+        )
+        for indata, range_min, range_max, \
+                error_on_failure, expected_status, expected_exception in testdata:
+            try:
+                status = fun(range_min, range_max, indata, error_on_failure=error_on_failure, exit_on_failure=False)  # type: ignore # noqa: E501
+                if status != expected_status:
+                    message = f"{fun.__name__}() did not yield expected status:\n" \
+                              f"       input: {indata}\n" \
+                              f"       range: [{range_min}, {range_max}]\n" \
+                              f"      output: {status}\n" \
+                              f"    expected: {expected_status}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected status:\n" \
+                                  f"       input: {indata}\n" \
+                                  f"       range: [{range_min}, {range_max}]\n" \
+                                  f"   exception: {type(e)}\n" \
+                                  f"    expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected status:\n" \
+                              f"       input: {indata}\n" \
+                              f"       range: [{range_min}, {range_max}]\n" \
+                              f"   exception: {type(e)}\n" \
+                              f"    expected: {expected_status}"
+                    result = False
+                    break
+    return message, result
+
+
+def test_validate_argument(verbose: bool = False, **kwargs: Any) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    error_on_failure = deep_get(kwargs, DictPath("error_on_failure"), True)
+
+    fun = cmtvalidators.validate_argument
+
+    if result:
+        # Indata format:
+        # ({arg, arg_string,
+        #   options: {validator, list_separator, valid_range, allowlist, validator_regex}},
+        #  expected_status, expected_exception)
+        testdata: tuple[Any, ...] = (
+            (
+                {
+                    "arg": "ok",
+                    "arg_string": [ANSIThemeStr("ok", "option"),
+                                   ANSIThemeStr("|", "separator"),
+                                   ANSIThemeStr("maybe", "option"),
+                                   ANSIThemeStr("|", "separator"),
+                                   ANSIThemeStr("nope", "option")],
+                    "options": {
+                        "validator": "allowlist",
+                        "list_separator": None,
+                        "valid_range": (None, None),
+                        "allowlist": ["ok", "maybe", "nope"],
+                        "regex": r"",
+                    },
+                },
+                True,
+                None,
+            ),
+            (
+                {
+                    "arg": "not_ok",
+                    "arg_string": [ANSIThemeStr("ok", "option"),
+                                   ANSIThemeStr("|", "separator"),
+                                   ANSIThemeStr("maybe", "option"),
+                                   ANSIThemeStr("|", "separator"),
+                                   ANSIThemeStr("nope", "option")],
+                    "options": {
+                        "validator": "allowlist",
+                        "list_separator": None,
+                        "valid_range": (None, None),
+                        "allowlist": ["ok", "maybe", "nope"],
+                        "regex": r"",
+                    },
+                },
+                False,
+                None,
+            ),
+            (
+                {
+                    "arg": "true",
+                    "arg_string": [ANSIThemeStr("true", "option"),
+                                   ANSIThemeStr("|", "separator"),
+                                   ANSIThemeStr("false", "option")],
+                    "options": {
+                        "validator": "bool",
+                        "list_separator": None,
+                        "valid_range": (None, None),
+                        "allowlist": [],
+                        "regex": r"",
+                    },
+                },
+                True,
+                None,
+            ),
+            (
+                {
+                    "arg": "foo",
+                    "arg_string": [ANSIThemeStr("true", "option"),
+                                   ANSIThemeStr("|", "separator"),
+                                   ANSIThemeStr("false", "option")],
+                    "options": {
+                        "validator": "bool",
+                        "list_separator": None,
+                        "valid_range": (None, None),
+                        "allowlist": [],
+                        "regex": r"",
+                    },
+                },
+                False,
+                None,
+            ),
+            (
+                {
+                    "arg": "1,2,3,4",
+                    "arg_string": [ANSIThemeStr("INTEGER", "option"),
+                                   ANSIThemeStr(",", "separator"),
+                                   ANSIThemeStr("...", "option")],
+                    "options": {
+                        "validator": "int",
+                        "list_separator": ",",
+                        "valid_range": (1, 50),
+                        "allowlist": [],
+                        "regex": r"",
+                    },
+                },
+                True,
+                None,
+            ),
+            (
+                {
+                    "arg": "1,2,4,3",
+                    "arg_string": [ANSIThemeStr("INTEGER", "option"),
+                                   ANSIThemeStr(",", "separator"),
+                                   ANSIThemeStr("...", "option")],
+                    "options": {
+                        "validator": "int",
+                        "list_separator": ",",
+                        "valid_range": (1, 3),
+                        "allowlist": [],
+                        "regex": r"",
+                    },
+                },
+                False,
+                None,
+            ),
+            (
+                {
+                    "arg": "0xdeadbeef",
+                    "arg_string": [ANSIThemeStr("HEX", "option")],
+                    "options": {
+                        "validator": "regex",
+                        "list_separator": None,
+                        "valid_range": (None, None),
+                        "allowlist": [],
+                        "regex": r"^0x[0-9a-f]+$",
+                    },
+                },
+                True,
+                None,
+            ),
+            (
+                {
+                    "arg": "0xdeadbeefg",
+                    "arg_string": [ANSIThemeStr("HEX", "option")],
+                    "options": {
+                        "validator": "regex",
+                        "list_separator": None,
+                        "valid_range": (None, None),
+                        "allowlist": [],
+                        "regex": r"^0x[0-9a-f]+$",
+                    },
+                },
+                False,
+                None,
+            ),
+            (
+                {
+                    "arg": "https://mirrors.edge.kernel.org/pub/",
+                    "arg_string": [ANSIThemeStr("URL", "option")],
+                    "options": {
+                        "validator": "url",
+                        "list_separator": None,
+                        "valid_range": (None, None),
+                        "allowlist": [],
+                        "regex": r"",
+                    },
+                },
+                True,
+                None,
+            ),
+            (
+                {
+                    "arg": "mirrors.edge.kernel.org/pub/",
+                    "arg_string": [ANSIThemeStr("URL", "option")],
+                    "options": {
+                        "validator": "url",
+                        "list_separator": None,
+                        "valid_range": (None, None),
+                        "allowlist": [],
+                        "regex": r"",
+                    },
+                },
+                True,
+                None,
+            ),
+            (
+                {
+                    "arg": "-mirrors.edge.kernel.org/pub/",
+                    "arg_string": [ANSIThemeStr("URL", "option")],
+                    "options": {
+                        "validator": "url",
+                        "list_separator": None,
+                        "valid_range": (None, None),
+                        "allowlist": [],
+                        "regex": r"",
+                    },
+                },
+                False,
+                None,
+            ),
+            (
+                {
+                    "arg": "/bin/sh",
+                    "arg_string": [ANSIThemeStr("PATH", "option")],
+                    "options": {
+                        "validator": "path",
+                        "list_separator": None,
+                        "valid_range": (None, None),
+                        "allowlist": [],
+                        "regex": r"",
+                    },
+                },
+                True,
+                None,
+            ),
+            (
+                {
+                    "arg": "/bin/thiscommanddoesnotexist",
+                    "arg_string": [ANSIThemeStr("CIDR", "option")],
+                    "options": {
+                        "validator": "path",
+                        "list_separator": None,
+                        "valid_range": (None, None),
+                        "allowlist": [],
+                        "regex": r"",
+                    },
+                },
+                False,
+                None,
+            ),
+            (
+                {
+                    "arg": "10.0.0.0/8",
+                    "arg_string": [ANSIThemeStr("CIDR", "option")],
+                    "options": {
+                        "validator": "cidr",
+                        "list_separator": None,
+                        "valid_range": (None, None),
+                        "allowlist": [],
+                        "regex": r"",
+                    },
+                },
+                True,
+                None,
+            ),
+            (
+                {
+                    "arg": "10.0.0.0/33",
+                    "arg_string": [ANSIThemeStr("CIDR", "option")],
+                    "options": {
+                        "validator": "cidr",
+                        "list_separator": None,
+                        "valid_range": (None, None),
+                        "allowlist": [],
+                        "regex": r"",
+                    },
+                },
+                False,
+                None,
+            ),
+            (
+                {
+                    "arg": "10.0.0.0/0",
+                    "arg_string": [ANSIThemeStr("CIDR", "option")],
+                    "options": {
+                        "validator": "cidr",
+                        "list_separator": None,
+                        "valid_range": (None, None),
+                        "allowlist": [],
+                        "regex": r"",
+                    },
+                },
+                False,
+                None,
+            ),
+            (
+                {
+                    "arg": "10.0.0.0/foo",
+                    "arg_string": [ANSIThemeStr("CIDR", "option")],
+                    "options": {
+                        "validator": "cidr",
+                        "list_separator": None,
+                        "valid_range": (None, None),
+                        "allowlist": [],
+                        "regex": r"",
+                    },
+                },
+                False,
+                None,
+            ),
+            (
+                {
+                    "arg": "10.0.0.0",
+                    "arg_string": [ANSIThemeStr("CIDR", "option")],
+                    "options": {
+                        "validator": "cidr",
+                        "list_separator": None,
+                        "valid_range": (None, None),
+                        "allowlist": [],
+                        "regex": r"",
+                    },
+                },
+                False,
+                None,
+            ),
+            (
+                {
+                    "arg": "2001:0db8:85a3:0000:0000:8a2e:0370:7334/24",
+                    "arg_string": [ANSIThemeStr("CIDR", "option")],
+                    "options": {
+                        "validator": "cidr",
+                        "list_separator": None,
+                        "valid_range": (None, None),
+                        "allowlist": [],
+                        "regex": r"",
+                    },
+                },
+                True,
+                None,
+            ),
+            (
+                {
+                    "arg": "2001:0db8:85a3:0000:0000:8a2e:0370:7334/129",
+                    "arg_string": [ANSIThemeStr("CIDR", "option")],
+                    "options": {
+                        "validator": "cidr",
+                        "list_separator": None,
+                        "valid_range": (None, None),
+                        "allowlist": [],
+                        "regex": r"",
+                    },
+                },
+                False,
+                None,
+            ),
+            (
+                {
+                    "arg": "2001:0db8:85a3:0000:0000:8a2e:0370:7334/0",
+                    "arg_string": [ANSIThemeStr("CIDR", "option")],
+                    "options": {
+                        "validator": "cidr",
+                        "list_separator": None,
+                        "valid_range": (None, None),
+                        "allowlist": [],
+                        "regex": r"",
+                    },
+                },
+                False,
+                None,
+            ),
+            (
+                {
+                    "arg": "2001:0db8:85a3:0000:0000:8a2e:0370:7334/foo",
+                    "arg_string": [ANSIThemeStr("CIDR", "option")],
+                    "options": {
+                        "validator": "cidr",
+                        "list_separator": None,
+                        "valid_range": (None, None),
+                        "allowlist": [],
+                        "regex": r"",
+                    },
+                },
+                False,
+                None,
+            ),
+            (
+                {
+                    "arg": "10.0.0.0",
+                    "arg_string": [ANSIThemeStr("IP", "option")],
+                    "options": {
+                        "validator": "ip",
+                        "list_separator": None,
+                        "valid_range": (None, None),
+                        "allowlist": [],
+                        "regex": r"",
+                    },
+                },
+                True,
+                None,
+            ),
+            (
+                {
+                    "arg": "484.0.0.0",
+                    "arg_string": [ANSIThemeStr("IP", "option")],
+                    "options": {
+                        "validator": "ip",
+                        "list_separator": None,
+                        "valid_range": (None, None),
+                        "allowlist": [],
+                        "regex": r"",
+                    },
+                },
+                False,
+                None,
+            ),
+            (
+                {
+                    "arg": "2001:0db8:85a3:0000:0000:8a2e:0370:7334",
+                    "arg_string": [ANSIThemeStr("IP", "option")],
+                    "options": {
+                        "validator": "ip",
+                        "list_separator": None,
+                        "valid_range": (None, None),
+                        "allowlist": [],
+                        "regex": r"",
+                    },
+                },
+                True,
+                None,
+            ),
+            (
+                {
+                    "arg": "20001:0db8:85a3:0000:0000:8a2e:0370:7334",
+                    "arg_string": [ANSIThemeStr("IP", "option")],
+                    "options": {
+                        "validator": "ip",
+                        "list_separator": None,
+                        "valid_range": (None, None),
+                        "allowlist": [],
+                        "regex": r"",
+                    },
+                },
+                False,
+                None,
+            ),
+            (
+                {
+                    "arg": "10.0.0.0",
+                    "arg_string": [ANSIThemeStr("IP", "option")],
+                    "options": {
+                        "validator": "hostname_or_ip",
+                        "list_separator": None,
+                        "valid_range": (None, None),
+                        "allowlist": [],
+                        "regex": r"",
+                    },
+                },
+                True,
+                None,
+            ),
+            (
+                {
+                    "arg": "484.0.0.0",
+                    "arg_string": [ANSIThemeStr("IP", "option")],
+                    "options": {
+                        "validator": "hostname_or_ip",
+                        "list_separator": None,
+                        "valid_range": (None, None),
+                        "allowlist": [],
+                        "regex": r"",
+                    },
+                },
+                False,
+                None,
+            ),
+            (
+                {
+                    "arg": "2001:0db8:85a3:0000:0000:8a2e:0370:7334",
+                    "arg_string": [ANSIThemeStr("IP", "option")],
+                    "options": {
+                        "validator": "hostname_or_ip",
+                        "list_separator": None,
+                        "valid_range": (None, None),
+                        "allowlist": [],
+                        "regex": r"",
+                    },
+                },
+                True,
+                None,
+            ),
+            (
+                {
+                    "arg": "20001:0db8:85a3:0000:0000:8a2e:0370:7334",
+                    "arg_string": [ANSIThemeStr("IP", "option")],
+                    "options": {
+                        "validator": "hostname_or_ip",
+                        "list_separator": None,
+                        "valid_range": (None, None),
+                        "allowlist": [],
+                        "regex": r"",
+                    },
+                },
+                False,
+                None,
+            ),
+            (
+                {
+                    "arg": "/etc/hostname",
+                    "arg_string": [ANSIThemeStr("HOSTNAME", "option")],
+                    "options": {
+                        "validator": "hostname",
+                        "list_separator": None,
+                        "valid_range": (None, None),
+                        "allowlist": [],
+                        "regex": r"",
+                    },
+                },
+                False,
+                None,
+            ),
+            (
+                {
+                    "arg": "/etc/hostname",
+                    "arg_string": [ANSIThemeStr("HOSTNAME", "option")],
+                    "options": {
+                        "validator": "hostname_or_ip",
+                        "list_separator": None,
+                        "valid_range": (None, None),
+                        "allowlist": [],
+                        "regex": r"",
+                    },
+                },
+                False,
+                None,
+            ),
+            (
+                {
+                    "arg": "/etc/hostname",
+                    "arg_string": [ANSIThemeStr("HOSTNAME", "option")],
+                    "options": {
+                        "validator": "hostname_or_path",
+                        "list_separator": None,
+                        "valid_range": (None, None),
+                        "allowlist": [],
+                        "regex": r"",
+                    },
+                },
+                True,
+                None,
+            ),
+            (
+                {
+                    "arg": "/bin/thiscommanddoesnotexist",
+                    "arg_string": [ANSIThemeStr("HOSTNAME", "option")],
+                    "options": {
+                        "validator": "hostname_or_path",
+                        "list_separator": None,
+                        "valid_range": (None, None),
+                        "allowlist": [],
+                        "regex": r"",
+                    },
+                },
+                False,
+                None,
+            ),
+            (
+                {
+                    "arg": "node=True:NoSchedule",
+                    "arg_string": [ANSIThemeStr("KEY", "argument"),
+                                   ANSIThemeStr("[=", "separator"),
+                                   ANSIThemeStr("VALUE", "argument"),
+                                   ANSIThemeStr("]:", "separator"),
+                                   ANSIThemeStr("EFFECT", "argument")],
+                    "options": {
+                        "validator": "taint",
+                        "list_separator": None,
+                        "valid_range": (None, None),
+                        "allowlist": [],
+                        "regex": r"",
+                    },
+                },
+                True,
+                None,
+            ),
+            (
+                {
+                    "arg": ".NotAValidKey:NoSchedule",
+                    "arg_string": [ANSIThemeStr("KEY", "argument"),
+                                   ANSIThemeStr("[=", "separator"),
+                                   ANSIThemeStr("VALUE", "argument"),
+                                   ANSIThemeStr("]:", "separator"),
+                                   ANSIThemeStr("EFFECT", "argument")],
+                    "options": {
+                        "validator": "taint",
+                        "list_separator": None,
+                        "valid_range": (None, None),
+                        "allowlist": [],
+                        "regex": r"",
+                    },
+                },
+                False,
+                None,
+            ),
+            (
+                {
+                    "arg": "node=#:NoSchedule",
+                    "arg_string": [ANSIThemeStr("KEY", "argument"),
+                                   ANSIThemeStr("[=", "separator"),
+                                   ANSIThemeStr("VALUE", "argument"),
+                                   ANSIThemeStr("]:", "separator"),
+                                   ANSIThemeStr("EFFECT", "argument")],
+                    "options": {
+                        "validator": "taint",
+                        "list_separator": None,
+                        "valid_range": (None, None),
+                        "allowlist": [],
+                        "regex": r"",
+                    },
+                },
+                False,
+                None,
+            ),
+            (
+                {
+                    "arg": "node:NoSchedule",
+                    "arg_string": [ANSIThemeStr("KEY", "argument"),
+                                   ANSIThemeStr("[=", "separator"),
+                                   ANSIThemeStr("VALUE", "argument"),
+                                   ANSIThemeStr("]:", "separator"),
+                                   ANSIThemeStr("EFFECT", "argument")],
+                    "options": {
+                        "validator": "taint",
+                        "list_separator": None,
+                        "valid_range": (None, None),
+                        "allowlist": [],
+                        "regex": r"",
+                    },
+                },
+                True,
+                None,
+            ),
+            (
+                {
+                    "arg": "node=True",
+                    "arg_string": [ANSIThemeStr("KEY", "argument"),
+                                   ANSIThemeStr("[=", "separator"),
+                                   ANSIThemeStr("VALUE", "argument"),
+                                   ANSIThemeStr("]:", "separator"),
+                                   ANSIThemeStr("EFFECT", "argument")],
+                    "options": {
+                        "validator": "taint",
+                        "list_separator": None,
+                        "valid_range": (None, None),
+                        "allowlist": [],
+                        "regex": r"",
+                    },
+                },
+                False,
+                None,
+            ),
+            (
+                {
+                    "arg": "node",
+                    "arg_string": [ANSIThemeStr("KEY", "argument"),
+                                   ANSIThemeStr("[=", "separator"),
+                                   ANSIThemeStr("VALUE", "argument"),
+                                   ANSIThemeStr("]:", "separator"),
+                                   ANSIThemeStr("EFFECT", "argument")],
+                    "options": {
+                        "validator": "taint",
+                        "list_separator": None,
+                        "valid_range": (None, None),
+                        "allowlist": [],
+                        "regex": r"",
+                    },
+                },
+                False,
+                None,
+            ),
+            (
+                {
+                    "arg": "node=True:NotAValidEffect",
+                    "arg_string": [ANSIThemeStr("KEY", "argument"),
+                                   ANSIThemeStr("[=", "separator"),
+                                   ANSIThemeStr("VALUE", "argument"),
+                                   ANSIThemeStr("]:", "separator"),
+                                   ANSIThemeStr("EFFECT", "argument")],
+                    "options": {
+                        "validator": "taint",
+                        "list_separator": None,
+                        "valid_range": (None, None),
+                        "allowlist": [],
+                        "regex": r"",
+                    },
+                },
+                False,
+                None,
+            ),
+            (
+                {
+                    "arg": "node=True:NoSchedule",
+                    "arg_string": [ANSIThemeStr("KEY", "argument"),
+                                   ANSIThemeStr("[=", "separator"),
+                                   ANSIThemeStr("VALUE", "argument"),
+                                   ANSIThemeStr("]:", "separator"),
+                                   ANSIThemeStr("[EFFECT]", "argument")],
+                    "options": {
+                        "validator": "untaint",
+                        "list_separator": None,
+                        "valid_range": (None, None),
+                        "allowlist": [],
+                        "regex": r"",
+                    },
+                },
+                True,
+                None,
+            ),
+            (
+                {
+                    "arg": "node:NoSchedule",
+                    "arg_string": [ANSIThemeStr("KEY", "argument"),
+                                   ANSIThemeStr("[=", "separator"),
+                                   ANSIThemeStr("VALUE", "argument"),
+                                   ANSIThemeStr("]:", "separator"),
+                                   ANSIThemeStr("[EFFECT]", "argument")],
+                    "options": {
+                        "validator": "untaint",
+                        "list_separator": None,
+                        "valid_range": (None, None),
+                        "allowlist": [],
+                        "regex": r"",
+                    },
+                },
+                True,
+                None,
+            ),
+            (
+                {
+                    "arg": "node:",
+                    "arg_string": [ANSIThemeStr("KEY", "argument"),
+                                   ANSIThemeStr("[=", "separator"),
+                                   ANSIThemeStr("VALUE", "argument"),
+                                   ANSIThemeStr("]:", "separator"),
+                                   ANSIThemeStr("[EFFECT]", "argument")],
+                    "options": {
+                        "validator": "untaint",
+                        "list_separator": None,
+                        "valid_range": (None, None),
+                        "allowlist": [],
+                        "regex": r"",
+                    },
+                },
+                True,
+                None,
+            ),
+            (
+                {
+                    "arg": "foobar",
+                    "arg_string": [ANSIThemeStr("ARGUMENT", "argument")],
+                    "options": {
+                        "validator": "",
+                        "list_separator": None,
+                        "valid_range": (None, None),
+                        "allowlist": [],
+                        "regex": r"",
+                    },
+                },
+                None,
+                ProgrammingError,
+            ),
+            (
+                {
+                    "arg": "foobar",
+                    "arg_string": [ANSIThemeStr("ARGUMENT", "argument")],
+                    "options": {
+                        "validator": "doesnotexist",
+                        "list_separator": None,
+                        "valid_range": (None, None),
+                        "allowlist": [],
+                        "regex": r"",
+                    },
+                },
+                None,
+                ProgrammingError,
+            ),
+        )
+        for indata, expected_status, expected_exception in testdata:
+            arg = deep_get(indata, DictPath("arg"), {})
+            arg_string = deep_get(indata, DictPath("arg_string"), [])
+            options = deep_get(indata, DictPath("options"), {})
+            options["error_on_failure"] = error_on_failure
+            options["exit_on_failure"] = False
+            try:
+                if (status := fun(arg=arg, arg_string=arg_string,
+                                  options=options)) != expected_status:
+                    message = f"{fun.__name__}() did not yield expected status:\n" \
+                              f"       input: {arg}\n" \
+                              f"     options:\n" \
+                              f"{yaml_dump(options, base_indent=14)}\n" \
+                              f"      output: {status}\n" \
+                              f"    expected: {expected_status}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected status:\n" \
+                                  f"       input: {arg}\n" \
+                                  f"     options:\n" \
+                                  f"{yaml_dump(options, base_indent=14)}\n" \
+                                  f"   exception: {type(e)}\n" \
+                                  f"    expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected status:\n" \
+                              f"       input: {arg}\n" \
+                              f"     options:\n" \
+                              f"{yaml_dump(options, base_indent=14)}\n" \
+                              f"   exception: {type(e)}\n" \
+                              f"    expected: {expected_status}"
+                    result = False
+                    break
+    return message, result
+
+
+def test_validate_name(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = cmtvalidators.validate_name
+    indata: Any = None
+
+    if result:
+        # Indata format:
+        # (rtype, name, expected_status, expected_exception)
+        testdata: tuple[Any, ...] = (
+            ("dns-label", None, False, None),
+            ("dns-label", f"{'1'.ljust(63, 'a')}", True, None),
+            ("dns-label", f"{'2'.ljust(64, 'a')}", False, None),
+            ("dns-label", f"{'3'.ljust(62, 'a')}.", False, None),
+            ("dns-subdomain",
+             f"{'1'.ljust(62, 'a')}.{'2'.ljust(62, 'a')}."
+             f"{'3'.ljust(63, 'a')}.{'4'.ljust(63, 'a')}", True, None),
+            ("dns-subdomain",
+             f"{'1'.ljust(62, 'a')}.{'2'.ljust(63, 'a')}."
+             f"{'3'.ljust(63, 'a')}.{'4'.ljust(63, 'a')}", False, None),
+            ("dns-subdomain",
+             f"{'1'.ljust(62, 'a')}..{'2'.ljust(63, 'a')}."
+             f"{'3'.ljust(63, 'a')}.{'4'.ljust(63, 'a')}", False, None),
+            ("path-segment", "passwd", True, None),
+            ("path-segment", "/etc/passwd", False, None),
+            ("path-segment", ".", False, None),
+            ("path-segment", "..", False, None),
+            ("path-segment", "%foo", False, None),
+            ("port-name", "http", True, None),
+            ("port-name", "dns-tcp", True, None),
+            ("port-name", "dns3", True, None),
+            ("port-name", "-dns3", False, None),
+            ("port-name", "dns3-", False, None),
+            ("port-name", "dns3--foo", False, None),
+            ("port-name", f"{'1'.ljust(63, 'a')}", False, None),
+            ("invalid-rtype", f"{'1'.ljust(63, 'a')}", None, ProgrammingError),
+        )
+        for rtype, indata, expected_status, expected_exception in testdata:
+            try:
+                if (status := fun(rtype=rtype, name=indata)) != expected_status:
+                    message = f"{fun.__name__}() did not yield expected status:\n" \
+                              f"       input: {indata}\n" \
+                              f"       rtype: {rtype}\n" \
+                              f"      output: {status}\n" \
+                              f"    expected: {expected_status}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected status:\n" \
+                                  f"       input: {indata}\n" \
+                                  f"       rtype: {rtype}\n" \
+                                  f"   exception: {type(e)}\n" \
+                                  f"    expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected status:\n" \
+                              f"       input: {indata}\n" \
+                              f"       rtype: {rtype}\n" \
+                              f"   exception: {type(e)}\n" \
+                              f"    expected: {expected_status}"
+                    result = False
+                    break
+    return message, result
+
+
+def test_validate_fqdn(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = cmtvalidators.validate_fqdn
+    indata: Any = None
+
+    if result:
+        # Indata format:
+        # (fqdn, message_on_error, expected_status, expected_exception)
+        testdata: tuple[Any, ...] = (
+            ("intel.com", False, HostNameStatus.OK, None),
+            ("\x00intel.com", False, None, ArgumentValidationError),
+            ("\x00intel.com", True, None, ArgumentValidationError),
+            (f"{''.ljust(63, 'a')}.com", False, HostNameStatus.OK, None),
+            (f"{''.ljust(63, 'a')}.com", True, HostNameStatus.OK, None),
+            (f"{''.ljust(64, 'a')}.com", False, HostNameStatus.DNS_LABEL_TOO_LONG, None),
+            (f"{''.ljust(64, 'a')}.com", True, HostNameStatus.DNS_LABEL_TOO_LONG, None),
+            ("-com", False, HostNameStatus.DNS_LABEL_INVALID_CHARACTERS, None),
+            ("-com", True, HostNameStatus.DNS_LABEL_INVALID_CHARACTERS, None),
+            ("com-", False, HostNameStatus.DNS_LABEL_INVALID_CHARACTERS, None),
+            ("com-", True, HostNameStatus.DNS_LABEL_INVALID_CHARACTERS, None),
+            (f"{''.ljust(63, 'a')}.{''.ljust(63, 'a')}."
+             f"{''.ljust(63, 'a')}.{''.ljust(57, 'a')}.com", False, HostNameStatus.OK, None),
+            (f"{''.ljust(63, 'a')}.{''.ljust(63, 'a')}."
+             f"{''.ljust(63, 'a')}.{''.ljust(58, 'a')}.com", False,
+             HostNameStatus.DNS_SUBDOMAIN_TOO_LONG, None),
+            (f"{''.ljust(63, 'a')}.{''.ljust(63, 'a')}."
+             f"{''.ljust(63, 'a')}.{''.ljust(58, 'a')}.com", True,
+             HostNameStatus.DNS_SUBDOMAIN_TOO_LONG, None),
+            (f"{''.ljust(63, 'A')}.{''.ljust(63, 'a')}."
+             f"{''.ljust(63, 'a')}.{''.ljust(57, 'a')}.com", False,
+             HostNameStatus.DNS_SUBDOMAIN_WRONG_CASE, None),
+            (f"{''.ljust(63, 'A')}.{''.ljust(63, 'a')}."
+             f"{''.ljust(63, 'a')}.{''.ljust(57, 'a')}.com", True,
+             HostNameStatus.DNS_SUBDOMAIN_WRONG_CASE, None),
+            (f".{''.ljust(63, 'a')}.{''.ljust(63, 'a')}."
+             f"{''.ljust(57, 'a')}.com", False, HostNameStatus.DNS_SUBDOMAIN_INVALID_FORMAT, None),
+            (f".{''.ljust(63, 'a')}.{''.ljust(63, 'a')}."
+             f"{''.ljust(57, 'a')}.com", True, HostNameStatus.DNS_SUBDOMAIN_INVALID_FORMAT, None),
+            (f"{''.ljust(63, 'a')}.{''.ljust(63, 'a')}."
+             f"{''.ljust(57, 'a')}.com.", False, HostNameStatus.DNS_SUBDOMAIN_INVALID_FORMAT, None),
+            (f"{''.ljust(63, 'a')}.{''.ljust(63, 'a')}."
+             f"{''.ljust(57, 'a')}.com.", True, HostNameStatus.DNS_SUBDOMAIN_INVALID_FORMAT, None),
+            (f"{''.ljust(63, 'a')}..{''.ljust(63, 'a')}."
+             f"{''.ljust(57, 'a')}.com", False, HostNameStatus.DNS_SUBDOMAIN_INVALID_FORMAT, None),
+            (f"{''.ljust(63, 'a')}..{''.ljust(63, 'a')}."
+             f"{''.ljust(57, 'a')}.com", True, HostNameStatus.DNS_SUBDOMAIN_INVALID_FORMAT, None),
+            ("foo", False, HostNameStatus.OK, None),
+            ("foo.123", False, HostNameStatus.DNS_TLD_INVALID, None),
+            ("foo.123", True, HostNameStatus.DNS_TLD_INVALID, None),
+            ("foo.1", True, HostNameStatus.DNS_TLD_INVALID, None),
+            ("foo.s", True, HostNameStatus.DNS_TLD_INVALID, None),
+            (f"fooåäöpad1{''.ljust(43, 'a')}", False, HostNameStatus.OK, None),
+            # These tests behave differently depending on whether the test is called
+            # directly or by python3-coverage; until this has been unraveled we rather
+            # live with slightly worse coverage than fail completely.
+            # (f"fooåäöpad1{''.ljust(44, 'a')}", False,
+            #  HostNameStatus.DNS_LABEL_TOO_LONG, None),
+            # (f"fooåäöpad1{''.ljust(44, 'a')}", True,
+            #  HostNameStatus.DNS_LABEL_TOO_LONG, None),
+            ("xn--", False, HostNameStatus.DNS_LABEL_STARTS_WITH_IDNA, None),
+            ("xn--", True, HostNameStatus.DNS_LABEL_STARTS_WITH_IDNA, None),
+            ("\x81", False, None, UnicodeError),
+            ("\x81", True, None, UnicodeError),
+            ("", False, HostNameStatus.DNS_SUBDOMAIN_EMPTY, None),
+            ("", True, HostNameStatus.DNS_SUBDOMAIN_EMPTY, None),
+            (None, True, HostNameStatus.DNS_SUBDOMAIN_EMPTY, None),
+        )
+        for indata, message_on_error, expected_status, expected_exception in testdata:
+            try:
+                if (status := fun(fqdn=indata,
+                                  message_on_error=message_on_error)) != expected_status:
+                    message = f"{fun.__name__}() did not yield expected status:\n" \
+                              f"       input: {indata}\n" \
+                              f"      output: {status}\n" \
+                              f"    expected: {expected_status}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected status:\n" \
+                                  f"       input: {indata}\n" \
+                                  f"   exception: {type(e)}\n" \
+                                  f"    expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected status:\n" \
+                              f"       input: {indata}\n" \
+                              f"   exception: {type(e)}\n" \
+                              f"    expected: {expected_status}"
+                    result = False
+                    break
+    return message, result
+
+
+tests: dict[tuple[str, ...], dict[str, Any]] = {
+    ("import_validators",): {
+        "callable": test_import_validators,
+        "result": None,
+    },
+    ("validator_bool()", ): {
+        "callable": test_validator_bool,
+        "result": None,
+    },
+    ("validator_int()", ): {
+        "callable": test_validator_int,
+        "result": None,
+    },
+    ("validate_argument(error_on_failure=True)", ): {
+        "callable": test_validate_argument,
+        "result": None,
+        "kwargs": {
+            "error_on_failure": True,
+        },
+    },
+    ("validate_argument(error_on_failure=False)", ): {
+        "callable": test_validate_argument,
+        "result": None,
+        "kwargs": {
+            "error_on_failure": False,
+        },
+    },
+    ("validate_name()", ): {
+        "callable": test_validate_name,
+        "result": None,
+    },
+    ("validate_fqdn()", ): {
+        "callable": test_validate_fqdn,
+        "result": None,
+    },
+}
+
+
+def main() -> int:
+    global real_import
+    real_import = builtins.__import__
+
+    fail = 0
+    success = 0
+    verbose = False
+    failed_testcases = []
+
+    init_ansithemeprint(themefile=None)
+    cmtvalidators.set_programname("validatortests")
+
+    # How many non-prepare testcases do we have?
+    testcount = sum(1 for i in tests if not deep_get(tests[i], DictPath("prepare"), False))
+
+    for i, test in enumerate(tests):
+        ansithemeprint([ANSIThemeStr(f"[{i:03}/{testcount - 1:03}]", "emphasis"),
+                        ANSIThemeStr(f" {', '.join(test)}:", "default")])
+        message, result = tests[test]["callable"](verbose=verbose, **tests[test].get("kwargs", {}))
+        if message:
+            ansithemeprint([ANSIThemeStr("  FAIL", "error"),
+                            ANSIThemeStr(f": {message}", "default")])
+        else:
+            ansithemeprint([ANSIThemeStr("  PASS", "success")])
+            success += 1
+        tests[test]["result"] = result
+        if not result:
+            fail += 1
+            failed_testcases.append(f"{i}: {', '.join(test)}")
+
+    ansithemeprint([ANSIThemeStr("\nSummary:", "header")])
+    if fail:
+        ansithemeprint([ANSIThemeStr(f"  FAIL: {fail}", "error")])
+    else:
+        ansithemeprint([ANSIThemeStr(f"  FAIL: {fail}", "unknown")])
+    ansithemeprint([ANSIThemeStr(f"  PASS: {success}", "success")])
+
+    if fail:
+        ansithemeprint([ANSIThemeStr("\nFailed testcases:", "header")])
+        for testcase in failed_testcases:
+            ansithemeprint([ANSIThemeStr("  • ", "separator"),
+                            ANSIThemeStr(testcase, "default")], stderr=True)
+        sys.exit(fail)
+
+    return 0
+
+
+if __name__ == "__main__":
+    main()
