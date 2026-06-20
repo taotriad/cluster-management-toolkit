@@ -16,16 +16,7 @@ import copy
 from datetime import datetime
 import errno
 import hashlib
-# ujson is much faster than json,
-# but it might not be available
-try:
-    import ujson as json
-    # The exception raised by ujson when parsing fails is different
-    # from what json raises
-    DecodeException = ValueError
-except ModuleNotFoundError:  # pragma: no cover
-    import json  # type: ignore
-    DecodeException = json.decoder.JSONDecodeError  # type: ignore
+import json
 from pathlib import Path
 import re
 import ssl
@@ -78,6 +69,7 @@ from clustermanagementtoolkit.cmtio import execute_command_with_response, secure
 from clustermanagementtoolkit.cmtio import secure_read
 
 from clustermanagementtoolkit.cmtio_yaml import secure_read_yaml, secure_write_yaml
+from clustermanagementtoolkit.cmtio_yaml import json_dumps, json_loads
 
 from clustermanagementtoolkit.kubernetes_resources import kubernetes_resources
 from clustermanagementtoolkit.kubernetes_resources import unknown_kubernetes_resources
@@ -1221,7 +1213,7 @@ class KubernetesHelper:
 
             if ccac is not None:
                 try:
-                    ca_certs = base64.b64decode(ccac).decode("utf-8")
+                    ca_certs = base64.b64decode(ccac).decode("utf-8", errors="replace")
                 except UnicodeDecodeError as e:
                     e.args += (f"failed to decode certificate-authority-data: {e}",)
                     raise
@@ -1254,7 +1246,7 @@ class KubernetesHelper:
 
                 if ccd is not None:
                     try:
-                        cert = base64.b64decode(ccd).decode("utf-8")
+                        cert = base64.b64decode(ccd).decode("utf-8", errors="replace")
                     except UnicodeDecodeError as e:
                         e.args += (f"failed to decode client-certificate-data: {e}",)
                         raise
@@ -1268,7 +1260,7 @@ class KubernetesHelper:
 
                 if ckd is not None:
                     try:
-                        key = base64.b64decode(ckd).decode("utf-8")
+                        key = base64.b64decode(ckd).decode("utf-8", errors="replace")
                     except UnicodeDecodeError as e:
                         e.args += (f"failed to decode client-key-data: {e}",)
                         raise
@@ -1583,13 +1575,13 @@ class KubernetesHelper:
                 if age == -1 or newage < age:
                     try:
                         token_id = deep_get(secret, DictPath("data#token-id"), "")
-                        tmp1 = base64.b64decode(token_id).decode("utf-8")
+                        tmp1 = base64.b64decode(token_id).decode("utf-8", errors="replace")
                     except UnicodeDecodeError:
                         tmp2 = deep_get(secret, DictPath("data#token-id"), "")
 
                     try:
                         token_secret = deep_get(secret, DictPath("data#token-secret"), "")
-                        tmp2 = base64.b64decode(token_secret).decode("utf-8")
+                        tmp2 = base64.b64decode(token_secret).decode("utf-8", errors="replace")
                     except UnicodeDecodeError:
                         tmp2 = deep_get(secret, DictPath("data#token-secret"), "")
 
@@ -1627,7 +1619,7 @@ class KubernetesHelper:
                 if age == -1 or newage < age:
                     try:
                         undecoded_ca_cert = deep_get(secret, DictPath("data#ca.crt"), "")
-                        tmp1 = base64.b64decode(undecoded_ca_cert).decode("utf-8")
+                        tmp1 = base64.b64decode(undecoded_ca_cert).decode("utf-8", errors="replace")
                     except UnicodeDecodeError:
                         tmp1 = deep_get(secret, DictPath("data#ca.crt"), "")
 
@@ -1871,8 +1863,8 @@ class KubernetesHelper:
 
             # Success
             try:
-                core_apis = json.loads(raw_data)
-            except DecodeException:
+                core_apis = json_loads(raw_data)
+            except (ValueError, json.decoder.JSONDecodeError):
                 # We got a response, but the data is malformed
                 return 42422, []
 
@@ -1915,8 +1907,8 @@ class KubernetesHelper:
                 if status == 200 and raw_data is not None:
                     # Success
                     try:
-                        aggregated_data = json.loads(raw_data)
-                    except DecodeException:
+                        aggregated_data = json_loads(raw_data)
+                    except (ValueError, json.decoder.JSONDecodeError):
                         # We got a response, but the data is malformed
                         pass
                 else:
@@ -1979,8 +1971,8 @@ class KubernetesHelper:
                             # Could not get API info; this is worrying, but ignore it
                             continue
                         try:
-                            data = json.loads(raw_data)
-                        except DecodeException:
+                            data = json_loads(raw_data)
+                        except (ValueError, json.decoder.JSONDecodeError):
                             # We got a response, but the data is malformed
                             continue
 
@@ -2055,8 +2047,8 @@ class KubernetesHelper:
                 return kubernetes_resources, status, modified
             # Success
             try:
-                core_apis = json.loads(raw_data)
-            except DecodeException:
+                core_apis = json_loads(raw_data)
+            except (ValueError, json.decoder.JSONDecodeError):
                 # We got a response, but the data is malformed
                 return kubernetes_resources, 42422, False
 
@@ -2106,8 +2098,8 @@ class KubernetesHelper:
             if status == 200 and raw_data is not None:
                 # Success
                 try:
-                    aggregated_data = json.loads(raw_data)
-                except DecodeException:
+                    aggregated_data = json_loads(raw_data)
+                except (ValueError, json.decoder.JSONDecodeError):
                     # We got a response, but the data is malformed
                     return kubernetes_resources, 42422, False
 
@@ -2172,8 +2164,8 @@ class KubernetesHelper:
                         # Could not get API info; this is worrying, but ignore it
                         continue
                     try:
-                        data = json.loads(raw_data)
-                    except DecodeException:
+                        data = json_loads(raw_data)
+                    except (ValueError, json.decoder.JSONDecodeError):
                         # We got a response, but the data is malformed
                         continue
 
@@ -2337,9 +2329,9 @@ class KubernetesHelper:
             # Bad request
             # The feature might be disabled, or the pod is waiting to start/terminated
             try:
-                d = json.loads(result.data)
+                d = json_loads(result.data)
                 message = "400: Bad Request; " + deep_get(d, DictPath("message"), "")
-            except DecodeException:
+            except (ValueError, json.decoder.JSONDecodeError):
                 # We got a response, but the data is malformed
                 message = "400: Bad Request [return data invalid]"
         elif status == 401:
@@ -2736,8 +2728,8 @@ class KubernetesHelper:
                 if status == 200 and raw_data is not None:
                     # Success
                     try:
-                        d = json.loads(raw_data)
-                    except DecodeException:
+                        d = json_loads(raw_data)
+                    except (ValueError, json.decoder.JSONDecodeError):
                         # We got a response, but the data is malformed; skip the entry
                         continue
 
@@ -2818,7 +2810,7 @@ class KubernetesHelper:
             "status": {},
         }
 
-        body = json.dumps(data).encode("utf-8")
+        body = json_dumps(data).encode("utf-8")
         return self.__rest_helper_post(kind=kind, body=body)
 
     # pylint: disable-next=too-many-locals
@@ -2902,7 +2894,7 @@ class KubernetesHelper:
                 "taints": modified_taints
             }
         }
-        body = json.dumps(data).encode("utf-8")
+        body = json_dumps(data).encode("utf-8")
         return self.__rest_helper_patch(kind=kind, name=node, body=body)
 
     def cordon_node(self, node: str) -> tuple[str, int]:
@@ -2920,7 +2912,7 @@ class KubernetesHelper:
                 "unschedulable": True
             }
         }
-        body = json.dumps(data).encode("utf-8")
+        body = json_dumps(data).encode("utf-8")
         return self.__rest_helper_patch(kind=kind, name=node, body=body)
 
     # pylint: disable-next=too-many-locals
@@ -3003,7 +2995,7 @@ class KubernetesHelper:
                 "unschedulable": None
             }
         }
-        body = json.dumps(data).encode("utf-8")
+        body = json_dumps(data).encode("utf-8")
         return self.__rest_helper_patch(kind, name=node, body=body)
 
     # pylint: disable-next=too-many-arguments,too-many-positional-arguments
@@ -3022,7 +3014,7 @@ class KubernetesHelper:
             Returns:
                 ((str, int)): the return value from __rest_helper_delete
         """
-        body = json.dumps(patch).encode("utf-8")
+        body = json_dumps(patch).encode("utf-8")
         return self.__rest_helper_patch(kind=kind, name=name, namespace=namespace, body=body,
                                         subresource=subresource, strategic_merge=strategic_merge)
 
@@ -3056,7 +3048,7 @@ class KubernetesHelper:
             }
         }
 
-        body = json.dumps(data).encode("utf-8")
+        body = json_dumps(data).encode("utf-8")
         return self.__rest_helper_post(kind=kind, name=name, namespace=namespace,
                                        body=body, subresource=subresource)
 

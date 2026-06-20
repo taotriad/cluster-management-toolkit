@@ -13,16 +13,7 @@ Get information
 
 import base64
 from datetime import datetime, timedelta
-# ujson is much faster than json,
-# but it might not be available
-try:  # pragma: no cover
-    import ujson as json
-# The exception raised by ujson when parsing fails is different
-# from what json raises
-    DecodeException = ValueError
-except ModuleNotFoundError:  # pragma: no cover
-    import json  # type: ignore
-    DecodeException = json.decoder.JSONDecodeError  # type: ignore
+import json
 import os
 import re
 import sys
@@ -55,6 +46,7 @@ from clustermanagementtoolkit.ansible_helper import ansible_get_logs
 
 from clustermanagementtoolkit.cmtio import execute_command_with_response, secure_which
 from clustermanagementtoolkit.cmtio_yaml import secure_read_yaml
+from clustermanagementtoolkit.cmtio_yaml import json_loads
 
 from clustermanagementtoolkit import cmtlib
 from clustermanagementtoolkit.cmtlib import make_label_selector, make_set_expression_list
@@ -1890,7 +1882,8 @@ def get_key_value_info(**kwargs: Any) -> list[dict]:
             vtype = "empty"
 
         if vtype.startswith("base64-utf-8"):
-            fully_decoded_value: str | bytes = base64.b64decode(decoded_value).decode("utf-8")
+            fully_decoded_value: str | bytes = \
+                base64.b64decode(decoded_value).decode("utf-8", errors="replace")
         else:
             fully_decoded_value = decoded_value
 
@@ -2473,8 +2466,8 @@ def get_journalctl_log(obj: dict, **kwargs: Any) -> \
 
     for line in objlist[1:]:
         try:
-            d = json.loads(line)
-        except DecodeException:
+            d = json_loads(line)
+        except (ValueError, json.decoder.JSONDecodeError):
             d = {}
 
         timestamp = \
@@ -2865,7 +2858,7 @@ def get_log_info(**kwargs: Any) -> list[dict]:
             split_response += response.splitlines()
             latestentry: str = cast(str, split_response[1])
 
-            d = json.loads(latestentry)
+            d = json_loads(latestentry)
 
             split_response[0]["name"] = deep_get(d, DictPath("SYSLOG_IDENTIFIER"), "<unknown>")
             hostname = deep_get(d, DictPath("_HOSTNAME"), "<unknown>")

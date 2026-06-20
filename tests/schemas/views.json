@@ -2002,6 +2002,7 @@
 											"description": "Info view shortcut actions",
 											"enum": [
 												"call",
+												"cycle_var",
 												"execute",
 												"from_ref",
 												"toggle_var"
@@ -2317,6 +2318,13 @@
 												"var": {
 													"description": "A path to a variable",
 													"$ref": "#/definitions/simple_path"
+												},
+												"var_options": {
+													"description": "List of possible values for the variable",
+													"type": "array",
+													"items": {
+														"type": "string"
+													}
 												}
 											},
 											"additionalProperties": false

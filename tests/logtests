@@ -58,39 +58,6 @@ def yaml_dump(data: Any, base_indent: int = 4) -> str:
 
 
 # pylint: disable-next=unused-argument
-def test_json_ujson(verbose: bool = False) -> tuple[str, bool]:
-    global import_override  # pylint: disable=global-statement
-
-    message = ""
-    result = True
-    testobj = {"foo": "bar"}
-    fun = logparsers.json_dumps
-
-    if result:
-        import_override = {"ujson": (None, ModuleNotFoundError)}
-        try:
-            with mock.patch("builtins.__import__", side_effect=override_import):
-                importlib.reload(logparsers)
-                _tmp = logparsers.json_dumps(testobj)
-        except Exception as e:  # pylint: disable=broad-except
-            message = f"overriding import ujson or {fun.__name__} failed; exception {e}"
-            result = False
-
-    if result:
-        import_override = {"ujson": (None, None)}
-        try:
-            with mock.patch("builtins.__import__", side_effect=override_import):
-                importlib.reload(logparsers)
-                _tmp = logparsers.json_dumps(testobj)
-        except Exception as e:  # pylint: disable=broad-except
-            message = f"overriding import ujson or {fun.__name__} failed; exception {e}"
-            result = False
-
-    import_override = {}
-    return message, result
-
-
-# pylint: disable-next=unused-argument
 def test_import_validators(verbose: bool = False) -> tuple[str, bool]:
     global import_override  # pylint: disable=global-statement
 
@@ -1207,6 +1174,7 @@ def test_tab_separated(verbose: bool = False) -> tuple[str, bool]:
                     result = False
                     break
             except Exception as e:  # pylint: disable=broad-except
+                raise
                 if expected_exception is not None:
                     if isinstance(e, expected_exception):
                         pass
@@ -1713,10 +1681,6 @@ def test_parser_list(verbose: bool = False) -> tuple[str, bool]:
 
 
 tests: dict[tuple[str, ...], dict[str, Any]] = {
-    ("json_ujson",): {
-        "callable": test_json_ujson,
-        "result": None,
-    },
     ("import_validators",): {
         "callable": test_import_validators,
         "result": None,

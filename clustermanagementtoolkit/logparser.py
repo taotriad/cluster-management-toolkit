@@ -35,18 +35,7 @@ from collections import namedtuple
 from collections.abc import Callable, Sequence
 from datetime import datetime
 import difflib
-# ujson is much faster than json,
-# but it might not be available
-try:
-    import ujson as json
-    json_is_ujson = True  # pylint: disable=invalid-name
-    # The exception raised by ujson when parsing fails is different
-    # from what json raises
-    DecodeException = ValueError
-except ModuleNotFoundError:
-    import json  # type: ignore
-    json_is_ujson = False  # pylint: disable=invalid-name
-    DecodeException = json.decoder.JSONDecodeError  # type: ignore
+import json
 from pathlib import Path
 import re
 import sys
@@ -96,7 +85,7 @@ from clustermanagementtoolkit import cmtlib
 from clustermanagementtoolkit.cmtlib import none_timestamp, strip_ansicodes
 
 from clustermanagementtoolkit import formatters
-from clustermanagementtoolkit.formatters import json_dumps
+from clustermanagementtoolkit.cmtio_yaml import json_dumps, json_loads
 
 from clustermanagementtoolkit.curses_helper import themearray_len, themearray_to_string
 from clustermanagementtoolkit.curses_helper import ThemeAttr, ThemeRef, ThemeStr
@@ -1128,7 +1117,7 @@ def tab_separated(message: str, **kwargs: Any) \
     if fields[-1].strip().startswith("{") and fields[-1].strip().endswith("}"):
         # This is a promising candidate to be JSON.
         try:
-            d = json.loads(fields[-1])
+            d = json_loads(fields[-1])
             json_strs = json_dumps(d)
             for remnant in formatters.format_yaml(json_strs,
                                                   override_formatting=override_formatting,
@@ -1144,7 +1133,7 @@ def tab_separated(message: str, **kwargs: Any) \
                 else:
                     facility = fields[2]
                     message = fields[3]
-        except DecodeException:
+        except (ValueError, json.decoder.JSONDecodeError):
             # If we failed to decode the message, and there are three fields,
             # they (hopefully) are severity, facility, message.
             # If we failed to decode the message, and there are four fields,
@@ -1213,8 +1202,8 @@ def split_json_style(message: str, **kwargs: Any) \
     message = message.replace("\x00", "")
 
     try:
-        logentry = json.loads(message)
-    except DecodeException:
+        logentry = json_loads(message)
+    except (ValueError, json.decoder.JSONDecodeError):
         pass
 
     # Unfold Python dicts
@@ -1228,7 +1217,7 @@ def split_json_style(message: str, **kwargs: Any) \
         if d is not None:
             try:
                 logentry = json_dumps(d)
-            except ValueError:
+            except (ValueError, json.decoder.JSONDecodeError):
                 pass
 
     # pylint: disable-next=too-many-nested-blocks
@@ -1584,8 +1573,8 @@ def json_event(message: str,
         severity_name = f"severity_{loglevel_to_name(severity).lower()}"
         if (re_tmp := re.match(r"^({.*})\s*({.*})", tmp[2])) is not None:
             try:
-                old = json.loads(re_tmp[1])
-            except DecodeException:
+                old = json_loads(re_tmp[1])
+            except (ValueError, json.decoder.JSONDecodeError):
                 new_message = \
                     [ThemeStr(f"{tmp[1]} {event}", ThemeAttr("logview", severity_name)),
                      ThemeStr(" [error: could not parse json]",
@@ -1595,8 +1584,8 @@ def json_event(message: str,
 
             old_str = json_dumps(old)
             try:
-                new = json.loads(re_tmp[2])
-            except DecodeException:
+                new = json_loads(re_tmp[2])
+            except (ValueError, json.decoder.JSONDecodeError):
                 new_message = [ThemeStr(f"{tmp[0]} {event}",
                                         ThemeAttr("logview", severity_name)),
                                ThemeStr(" [error: could not parse json]",

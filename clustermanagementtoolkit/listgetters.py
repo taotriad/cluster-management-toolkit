@@ -16,14 +16,7 @@ import copy
 import csv
 from datetime import datetime
 from itertools import zip_longest
-try:
-    import ujson as json
-    # The exception raised by ujson when parsing fails is different
-    # from what json raises
-    DecodeException = ValueError
-except ModuleNotFoundError:
-    import json  # type: ignore
-    DecodeException = json.decoder.JSONDecodeError  # type: ignore
+import json
 from operator import itemgetter
 import os
 from pathlib import Path
@@ -43,6 +36,7 @@ from clustermanagementtoolkit.cmtpaths import HOMEDIR
 from clustermanagementtoolkit.cmtio import secure_read_string
 
 from clustermanagementtoolkit.cmtio_yaml import secure_read_yaml
+from clustermanagementtoolkit.cmtio_yaml import json_loads
 
 from clustermanagementtoolkit import cmtlib
 from clustermanagementtoolkit.cmtlib import disksize_to_human, get_since
@@ -1868,8 +1862,8 @@ def get_info_by_last_applied_configuration(obj: dict, **kwargs: Any) -> tuple[li
         if last_applied_configuration is None or not last_applied_configuration:
             continue
         try:
-            data = json.loads(last_applied_configuration)
-        except DecodeException:
+            data = json_loads(last_applied_configuration)
+        except (ValueError, json.decoder.JSONDecodeError):
             # The data is malformed; skip the entry
             continue
 

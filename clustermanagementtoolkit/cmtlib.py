@@ -57,7 +57,7 @@ def decode_value(value: str | bytes) -> tuple[str, str | bytes]:
 
     if vtype == "base64":
         try:
-            tmp = decoded.decode("utf-8")
+            tmp = decoded.decode("utf-8", errors="replace")
             if "\n" in tmp:
                 vtype = "base64-utf-8"
             else:

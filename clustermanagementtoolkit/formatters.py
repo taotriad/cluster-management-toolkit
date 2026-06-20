@@ -15,19 +15,8 @@ import base64
 import binascii
 import copy
 from datetime import datetime
-# ujson is much faster than json,
-# but it might not be available
-try:
-    import ujson as json
-    json_is_ujson = True  # pylint: disable=invalid-name
-    # The exception raised by ujson when parsing fails is different
-    # from what json raises
-    DecodeException = ValueError
-except ModuleNotFoundError:
-    import json  # type: ignore
-    json_is_ujson = False  # pylint: disable=invalid-name
-    DecodeException = json.decoder.JSONDecodeError  # type: ignore
 import io
+import json
 from pathlib import Path
 import re
 import sys
@@ -77,6 +66,7 @@ from clustermanagementtoolkit.ansithemeprint import ANSIThemeStr
 from clustermanagementtoolkit import cmtlog
 
 from clustermanagementtoolkit.cmtio_yaml import secure_read_yaml
+from clustermanagementtoolkit.cmtio_yaml import json_dumps
 
 from clustermanagementtoolkit.cmtpaths import HOMEDIR, SYSTEM_PARSERS_DIR, PARSER_DIR
 
@@ -1485,38 +1475,6 @@ COLORSCHEME_YAML: dict[Any, ColorSchemeEntry] = {
 }
 
 
-if json_is_ujson:
-    def json_dumps(obj: dict[str, Any] | list[dict[str, Any]], **kwargs: Any) -> str:
-        """
-        Dump Python object to JSON in text format; ujson version.
-
-            Parameters:
-                obj (dict|[dict]): The JSON object to dump
-                **kwargs (dict[str, Any]): Keyword arguments
-                    indent (int): Indentation (default: 2)
-                    escape_forward_slashes (bool): Escape forward slashes (default: False)
-            Returns:
-                (str): The serialized JSON object
-        """
-        indent = deep_get(kwargs, DictPath("indent"), 2)
-        escape_forward_slashes = deep_get(kwargs, DictPath("escape_forward_slashes"), False)
-        return json.dumps(obj, indent=indent, escape_forward_slashes=escape_forward_slashes)
-else:
-    def json_dumps(obj: dict[str, Any] | list[dict[str, Any]], **kwargs: Any) -> str:
-        """
-        Dump Python object to JSON in text format; json version.
-
-            Parameters:
-                obj (dict|[dict]): The JSON object to dump
-                **kwargs (dict[str, Any]): Keyword arguments
-                    indent (int): Indentation (default: 2)
-            Returns:
-                (str): The serialized JSON object
-        """
-        indent = deep_get(kwargs, DictPath("indent"), 2)
-        return json.dumps(obj, indent=indent)
-
-
 def __str_representer(dumper: yaml.Dumper, data: Any) -> yaml.Node:
     """
     Reformat yaml with |-style str.
@@ -2404,7 +2362,7 @@ def format_yaml(lines: str | list[str] | dict | list[dict], **kwargs: Any) -> \
                 # but it's the only reliable way to be able to expand a JSON/YAML structure.
                 d = yaml.safe_load(new_lines)
                 new_lines = json_dumps(d)
-            except DecodeException:
+            except (ValueError, json.decoder.JSONDecodeError):
                 pass
     elif isinstance(new_lines, dict):
         new_lines = copy.deepcopy(new_lines)
@@ -3422,14 +3380,14 @@ def identify_cmdata(cmdata_name: str, cm_name: str,
     if "\n" not in data:
         try:
             decoded = base64.b64decode(data)
-            if base64.b64encode(decoded) == bytes(data, encoding="utf-8"):
+            if base64.b64encode(decoded) == bytes(data, encoding="utf-8", errors="replace"):
                 uudata = True
         except binascii.Error:
             pass
 
     if uudata:
         try:
-            data = decoded.decode("utf-8")
+            data = decoded.decode("utf-8", errors="replace")
         except UnicodeDecodeError:
             for dataformat, offset, match_bin_infix in cmdata_bin_header:
                 if len(decoded) < len(match_bin_infix) + offset:

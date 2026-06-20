@@ -12,7 +12,6 @@
 # Requires: python3 (>= 3.11)
 # Requires: python3-natsort
 # Requires: python3-openssl
-# Recommends: python3-ujson
 #
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
@@ -29,16 +28,7 @@ from datetime import datetime, timezone
 import errno
 from getpass import getuser
 import http.client
-# ujson is much faster than json,
-# but it might not be available
-try:  # pragma: no cover
-    import ujson as json
-# The exception raised by ujson when parsing fails is different
-# from what json raises
-    DecodeException = ValueError
-except ModuleNotFoundError:  # pragma: no cover
-    import json  # type: ignore
-    DecodeException = json.decoder.JSONDecodeError  # type: ignore
+import json
 from operator import itemgetter
 import os
 from pathlib import Path, PurePath
@@ -97,6 +87,7 @@ from clustermanagementtoolkit.cmtio import execute_command
 from clustermanagementtoolkit.cmtio import expand_path
 from clustermanagementtoolkit.cmtio import secure_read_string, secure_which, secure_write_string
 from clustermanagementtoolkit.cmtio_yaml import secure_read_yaml
+from clustermanagementtoolkit.cmtio_yaml import json_loads
 
 from clustermanagementtoolkit import cmtlog
 
@@ -187,7 +178,7 @@ from clustermanagementtoolkit import reexecutor
 
 try:
     import prctl
-    prctl.set_name(PurePath(sys.argv[0]).name)
+    prctl.set_name(PurePath(sys.argv[0]).name)  # pylint: disable=no-member
     prctl.set_proctitle(" ".join(sys.argv))
 except ModuleNotFoundError:  # pragma: no cover
     pass
@@ -3310,12 +3301,12 @@ def check_cni_updates(cni: str, current_version: str) -> str:
 
         if r1.status == 200:
             try:
-                weavestatus = json.loads(r1.read())
+                weavestatus = json_loads(r1.read())
                 if deep_get(weavestatus, DictPath("VersionCheck#Enabled"), False) \
                         and deep_get(weavestatus, DictPath("VersionCheck#Success"), False):
                     candidate_version = deep_get(weavestatus,
                                                  DictPath("VersionCheck#NewVersion"), None)
-            except DecodeException:
+            except (ValueError, json.decoder.JSONDecodeError):
                 # We got a response, but the data is malformed
                 pass
         conn.close()
@@ -3634,7 +3625,7 @@ def decode_and_view_data(stdscr: curses.window, **kwargs: Any) -> Retval:
     if vtype.startswith("string"):
         obj = value
     elif vtype.startswith("base64-utf-8"):
-        obj = base64.b64decode(value).decode("utf-8")
+        obj = base64.b64decode(value).decode("utf-8", errors="replace")
     else:
         errmsg = [
             [("decode_and_view_data()", "emphasis"),
@@ -3717,7 +3708,7 @@ def decode_and_view_file_templates(stdscr: curses.window, **kwargs: Any) -> Retv
     if vtype.startswith("string"):
         obj = value
     elif vtype.startswith("base64-utf-8"):
-        obj = base64.b64decode(value).decode("utf-8")
+        obj = base64.b64decode(value).decode("utf-8", errors="replace")
     elif vtype.startswith(("base64-binary", "gzip")):
         return Retval.RETURNDONE
     formatter = formatters.map_dataformat(title)
@@ -3804,7 +3795,7 @@ def export_data(stdscr: curses.window, **kwargs: Any) -> Retval:
         secure_write_string(filename, value)
     elif vtype.startswith("base64-utf-8"):
         secure_write_string(filename,
-                            base64.b64decode(value).decode("utf-8"))
+                            base64.b64decode(value).decode("utf-8", errors="replace"))
     elif vtype.startswith(("base64-binary", "gzip")):
         secure_write_string(filename, base64.b64decode(value),
                             write_mode="wb")
@@ -4535,7 +4526,9 @@ def genericinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                     if decoder is not None:
                         try:
                             decoded_obj = \
-                                copy.deepcopy(base64.b64decode(cast(str, obj)).decode("utf-8"))
+                                copy.deepcopy(base64.b64decode(cast(str,
+                                                                    obj)).decode("utf-8",
+                                                                                 errors="replace"))
                         except (binascii.Error, TypeError, UnicodeDecodeError):
                             decoded_obj = cast(str, obj)
                 else:
@@ -7789,8 +7782,8 @@ def view_last_applied_configuration(stdscr: curses.window, **kwargs: Any) -> Ret
         return Retval.RETURNDONE
 
     try:
-        data = json.loads(last_applied_configuration)
-    except DecodeException:
+        data = json_loads(last_applied_configuration)
+    except (ValueError, json.decoder.JSONDecodeError):
         return Retval.RETURNDONE
 
     title = deep_get(kwargs, DictPath("title"), "")

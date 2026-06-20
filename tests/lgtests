@@ -14,7 +14,6 @@
 # SPDX-License-Identifier: MIT
 
 import builtins
-import importlib
 import sys
 from typing import Any, cast
 from collections.abc import Callable
@@ -64,38 +63,6 @@ def yaml_dump(data: Any, base_indent: int = 4) -> str:
     for line in dump.splitlines():
         result += f"{' '.ljust(base_indent)}{line}\n"
     return result
-
-
-# pylint: disable-next=unused-argument
-def test_json_ujson(verbose: bool = False) -> tuple[str, bool]:
-    global import_override  # pylint: disable=global-statement
-
-    message = ""
-    result = True
-
-    if result:
-        import_override = {"ujson": (None, ModuleNotFoundError)}
-        try:
-            with mock.patch("builtins.__import__", side_effect=override_import):
-                importlib.reload(listgetters)
-                import json
-                print(f"{listgetters.DecodeException == json.decoder.JSONDecodeError=}")
-        except Exception as e:  # pylint: disable=broad-except
-            message = f"overriding import ujson failed; exception {e}"
-            result = False
-
-    if result:
-        import_override = {"ujson": (None, None)}
-        try:
-            with mock.patch("builtins.__import__", side_effect=override_import):
-                importlib.reload(listgetters)
-                print(f"{listgetters.DecodeException == ValueError=}")
-        except Exception as e:  # pylint: disable=broad-except
-            message = f"overriding import ujson failed; exception {e}"
-            result = False
-
-    import_override = {}
-    return message, result
 
 
 def test_check_matchlists(verbose: bool = False) -> tuple[str, bool]:
@@ -982,7 +949,7 @@ def test_listgetter_configmap_data(verbose: bool = False) -> tuple[str, bool]:
                             "cm_name": "bootstrap",
                             "cm_namespace": "kube-system",
                             "configmap": "status",
-                            "type": "Text or Base64 encoded binary",
+                            "type": "Text",
                             "formatter": formatters.format_none,
                             "data": "complete",
                         }
@@ -2038,10 +2005,6 @@ def test_get_kubernetes_list(verbose: bool = False) -> tuple[str, bool]:
 
 
 tests: dict[tuple[str, ...], dict[str, Any]] = {
-    ("json_ujson",): {
-        "callable": test_json_ujson,
-        "result": None,
-    },
     ("check_matchlists()",): {
         "callable": test_check_matchlists,
         "result": None,

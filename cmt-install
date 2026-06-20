@@ -369,7 +369,7 @@ def install_software_suse(packages: dict | set, verbose: bool = False) -> None:
         result = subprocess.run(args, stdout=PIPE, stderr=STDOUT, check=False)
         pkg_version = None
         compiled_regex: re.Pattern[str] = re.compile(r"^.*Version: (.+?)")
-        for line in result.stdout.decode("utf-8").splitlines():
+        for line in result.stdout.decode("utf-8", errors="replace").splitlines():
             if (re_tmp := compiled_regex.match(line)) is None:
                 continue
             pkg_version = re_tmp[1]
@@ -377,7 +377,7 @@ def install_software_suse(packages: dict | set, verbose: bool = False) -> None:
         if pkg_version is not None:
             args = [zypper_path, "versioncmp", pkg_version, recommended_minimum]
             result = subprocess.run(args, stdout=PIPE, stderr=STDOUT, check=False)
-            if "older" in result.stdout.decode("utf-8").splitlines():
+            if "older" in result.stdout.decode("utf-8", errors="replace").splitlines():
                 ansithemeprint([ANSIThemeStr("\nWarning:", "warning"),
                                 ANSIThemeStr(" The installed version of package ", "default"),
                                 ANSIThemeStr(f"{pkg}", "path"),
@@ -451,7 +451,7 @@ def install_software_fedora(packages: dict | set, verbose: bool = False) -> None
         result = subprocess.run(args, stdout=PIPE, stderr=STDOUT, check=False)
         pkg_version = None
         compiled_regex: re.Pattern[str] = re.compile(r"^.*Version: (.+?)")
-        for line in result.stdout.decode("utf-8").splitlines():
+        for line in result.stdout.decode("utf-8", errors="replace").splitlines():
             if (re_tmp := compiled_regex.match(line)) is None:
                 continue
             pkg_version = re_tmp[1]
@@ -460,7 +460,7 @@ def install_software_fedora(packages: dict | set, verbose: bool = False) -> None
         if pkg_version is not None and rpmdev_vercmp_path is not None:
             args = [yum_path, "versioncmp", pkg_version, recommended_minimum]
             result = subprocess.run(args, stdout=PIPE, stderr=STDOUT, check=False)
-            if "older" in result.stdout.decode("utf-8").splitlines():
+            if "older" in result.stdout.decode("utf-8", errors="replace").splitlines():
                 ansithemeprint([ANSIThemeStr("\nWarning:", "warning"),
                                 ANSIThemeStr(" The installed version of package ", "default"),
                                 ANSIThemeStr(f"{pkg}", "path"),
@@ -540,7 +540,7 @@ def install_software_deb(packages: dict, verbose: bool = False) -> None:
         result = subprocess.run(args, stdout=PIPE, stderr=STDOUT, check=False)
         pkg_version = None
         compiled_regex: re.Pattern[str] = re.compile(r"^  Installed: (.+)")
-        for line in result.stdout.decode("utf-8").splitlines():
+        for line in result.stdout.decode("utf-8", errors="replace").splitlines():
             if (re_tmp := compiled_regex.match(line)) is None:
                 continue
             pkg_version = re_tmp[1]

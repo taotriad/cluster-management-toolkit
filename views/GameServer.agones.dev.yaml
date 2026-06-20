@@ -29,7 +29,7 @@ listview:
         field_colors:
           - type: "host"
     ports:
-      header: "Ports"
+      header: "Ports:"
       paths:
         - path: "status#ports"
           pathtype: "items"

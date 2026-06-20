@@ -203,7 +203,7 @@ def validate_fqdn(fqdn: str, message_on_error: bool = False) -> HostNameStatus:
         # This indirectly checks non-IDNA labels for max length too
         idna_dnslabel = dnslabel
         try:
-            idna_dnslabel = dnslabel.encode("idna").decode("utf-8")
+            idna_dnslabel = dnslabel.encode("idna").decode("utf-8", errors="replace")
         except UnicodeError as e:
             if "label too long" in str(e):
                 if message_on_error:

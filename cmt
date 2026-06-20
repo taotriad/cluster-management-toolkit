@@ -15,7 +15,6 @@
 # Requires: python3 (>= 3.11)
 # Requires: python3-natsort
 # Requires: python3-openssl
-# Recommends: python3-ujson
 #
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
@@ -92,7 +91,10 @@ from clustermanagementtoolkit.cmtlib import get_latest_upstream_version
 
 from clustermanagementtoolkit import cmtio
 from clustermanagementtoolkit.cmtio import execute_command, secure_read_string
+
 from clustermanagementtoolkit.cmtio_yaml import secure_read_yaml
+from clustermanagementtoolkit.cmtio_yaml import json_dumps
+
 from clustermanagementtoolkit.networkio import scan_and_add_ssh_keys
 
 from clustermanagementtoolkit import kubernetes_helper
@@ -108,14 +110,12 @@ from clustermanagementtoolkit.ansithemeprint import ansithemeprint, ansithemeinp
 from clustermanagementtoolkit.ansithemeprint import ansithemeprint_formatted
 from clustermanagementtoolkit.ansithemeprint import ansithemeinput_password
 
-from clustermanagementtoolkit.formatters import json_dumps
-
 from clustermanagementtoolkit.kubernetes_resources import unknown_kubernetes_resources
 from clustermanagementtoolkit.kubernetes_resources import event_reasons
 
 try:
     import prctl
-    prctl.set_name(PurePath(sys.argv[0]).name)
+    prctl.set_name(PurePath(sys.argv[0]).name)  # pylint: disable=no-member
     prctl.set_proctitle(" ".join(sys.argv))
 except ModuleNotFoundError:  # pragma: no cover
     pass

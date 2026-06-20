@@ -16,12 +16,13 @@
 # unit-tests for formatters.py
 
 import builtins
-import importlib
 import sys
 from typing import Any, cast
 from collections.abc import Callable
-from unittest import mock
+import pygments
 import yaml
+
+from clustermanagementtoolkit import cmtio_yaml
 
 from clustermanagementtoolkit.cmtpaths import DEFAULT_THEME_FILE
 
@@ -34,6 +35,8 @@ from clustermanagementtoolkit import formatters
 
 from clustermanagementtoolkit.curses_helper import ThemeAttr, ThemeRef, ThemeStr
 from clustermanagementtoolkit.curses_helper import read_theme, themearray_to_string
+
+pygments_version: list[str] = pygments.__version__.split(".")
 
 real_import: Callable | None = None  # pylint: disable=invalid-name
 
@@ -59,43 +62,11 @@ def yaml_dump(data: Any, base_indent: int = 4) -> str:
     return result
 
 
-def test_json_ujson(verbose: bool = False) -> tuple[str, bool]:
-    global import_override
-
-    message = ""
-    result = True
-    testobj = {"foo": "bar"}
-    fun = formatters.json_dumps
-
-    if result:
-        import_override = {"ujson": (None, ModuleNotFoundError)}
-        try:
-            with mock.patch("builtins.__import__", side_effect=override_import):
-                importlib.reload(formatters)
-                _tmp = formatters.json_dumps(testobj)
-        except Exception as e:
-            message = f"overriding import ujson or {fun.__name__} failed; {e}"
-            result = False
-
-    if result:
-        import_override = {"ujson": (None, None)}
-        try:
-            with mock.patch("builtins.__import__", side_effect=override_import):
-                importlib.reload(formatters)
-                _tmp = formatters.json_dumps(testobj)
-        except Exception as e:
-            message = f"overriding import ujson or {fun.__name__} failed; {e}"
-            result = False
-
-    import_override = {}
-    return message, result
-
-
 def test_json_dumps(verbose: bool = False) -> tuple[str, bool]:
     message = ""
     result = True
 
-    fun = formatters.json_dumps
+    fun = cmtio_yaml.json_dumps
 
     if result:
         # Indata format:
@@ -1026,66 +997,95 @@ def test_format_cel(verbose: bool = False) -> tuple[str, bool]:
     fun = formatters.format_cel
 
     if result:
-        # Indata format:
-        # (lines, options, expected_result, expected_exception)
-        testdata: tuple[Any, ...] = (
-            ("self.minReplicas <= self.replicas && self.replicas <= self.maxReplicas",
-             {"raw": False},
-             [
-                 [ThemeStr('self', ThemeAttr('types', 'cel_name'), False),
-                  ThemeStr('.', ThemeAttr('types', 'cel_punctuation'), False),
-                  ThemeStr('minReplicas', ThemeAttr('types', 'cel_name'), False),
-                  ThemeStr(' ', ThemeAttr('types', 'generic'), False),
-                  ThemeStr('<=', ThemeAttr('types', 'cel_operator'), False),
-                  ThemeStr(' ', ThemeAttr('types', 'generic'), False),
-                  ThemeStr('self', ThemeAttr('types', 'cel_name'), False),
-                  ThemeStr('.', ThemeAttr('types', 'cel_punctuation'), False),
-                  ThemeStr('replicas', ThemeAttr('types', 'cel_name'), False),
-                  ThemeStr(' ', ThemeAttr('types', 'generic'), False),
-                  ThemeStr('&&', ThemeAttr('types', 'cel_operator'), False),
-                  ThemeStr(' ', ThemeAttr('types', 'generic'), False),
-                  ThemeStr('self', ThemeAttr('types', 'cel_name'), False),
-                  ThemeStr('.', ThemeAttr('types', 'cel_punctuation'), False),
-                  ThemeStr('replicas', ThemeAttr('types', 'cel_name'), False),
-                  ThemeStr(' ', ThemeAttr('types', 'generic'), False),
-                  ThemeStr('<=', ThemeAttr('types', 'cel_operator'), False),
-                  ThemeStr(' ', ThemeAttr('types', 'generic'), False),
-                  ThemeStr('self', ThemeAttr('types', 'cel_name'), False),
-                  ThemeStr('.', ThemeAttr('types', 'cel_punctuation'), False),
-                  ThemeStr('maxReplicas', ThemeAttr('types', 'cel_name'), False)]],
-             None),
-            (["self.minReplicas <= self.replicas && self.replicas <= self.maxReplicas"],
-             {"raw": False},
-             [
-                 [ThemeStr('self', ThemeAttr('types', 'cel_name'), False),
-                  ThemeStr('.', ThemeAttr('types', 'cel_punctuation'), False),
-                  ThemeStr('minReplicas', ThemeAttr('types', 'cel_name'), False),
-                  ThemeStr(' ', ThemeAttr('types', 'generic'), False),
-                  ThemeStr('<=', ThemeAttr('types', 'cel_operator'), False),
-                  ThemeStr(' ', ThemeAttr('types', 'generic'), False),
-                  ThemeStr('self', ThemeAttr('types', 'cel_name'), False),
-                  ThemeStr('.', ThemeAttr('types', 'cel_punctuation'), False),
-                  ThemeStr('replicas', ThemeAttr('types', 'cel_name'), False),
-                  ThemeStr(' ', ThemeAttr('types', 'generic'), False),
-                  ThemeStr('&&', ThemeAttr('types', 'cel_operator'), False),
-                  ThemeStr(' ', ThemeAttr('types', 'generic'), False),
-                  ThemeStr('self', ThemeAttr('types', 'cel_name'), False),
-                  ThemeStr('.', ThemeAttr('types', 'cel_punctuation'), False),
-                  ThemeStr('replicas', ThemeAttr('types', 'cel_name'), False),
-                  ThemeStr(' ', ThemeAttr('types', 'generic'), False),
-                  ThemeStr('<=', ThemeAttr('types', 'cel_operator'), False),
-                  ThemeStr(' ', ThemeAttr('types', 'generic'), False),
-                  ThemeStr('self', ThemeAttr('types', 'cel_name'), False),
-                  ThemeStr('.', ThemeAttr('types', 'cel_punctuation'), False),
-                  ThemeStr('maxReplicas', ThemeAttr('types', 'cel_name'), False)]],
-             None),
-            ("self.minReplicas <= self.replicas && self.replicas <= self.maxReplicas",
-             {"raw": True},
-             [
-                 [ThemeStr("self.minReplicas <= self.replicas && self.replicas <= self.maxReplicas",
-                           ThemeAttr("types", "generic"))]],
-             None),
-        )
+        if len(pygments_version) == 3 \
+                and int(pygments_version[0]) >= 2 and int(pygments_version[1]) >= 21:
+            # Indata format:
+            # (lines, options, expected_result, expected_exception)
+            testdata: tuple[Any, ...] = (
+                ("self.minReplicas <= self.replicas && self.replicas <= self.maxReplicas",
+                 {"raw": False},
+                 [
+                     [ThemeStr('self', ThemeAttr('types', 'cel_name'), False),
+                      ThemeStr('.', ThemeAttr('types', 'cel_punctuation'), False),
+                      ThemeStr('minReplicas', ThemeAttr('types', 'cel_name'), False),
+                      ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                      ThemeStr('<=', ThemeAttr('types', 'cel_operator'), False),
+                      ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                      ThemeStr('self', ThemeAttr('types', 'cel_name'), False),
+                      ThemeStr('.', ThemeAttr('types', 'cel_punctuation'), False),
+                      ThemeStr('replicas', ThemeAttr('types', 'cel_name'), False),
+                      ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                      ThemeStr('&&', ThemeAttr('types', 'cel_operator'), False),
+                      ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                      ThemeStr('self', ThemeAttr('types', 'cel_name'), False),
+                      ThemeStr('.', ThemeAttr('types', 'cel_punctuation'), False),
+                      ThemeStr('replicas', ThemeAttr('types', 'cel_name'), False),
+                      ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                      ThemeStr('<=', ThemeAttr('types', 'cel_operator'), False),
+                      ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                      ThemeStr('self', ThemeAttr('types', 'cel_name'), False),
+                      ThemeStr('.', ThemeAttr('types', 'cel_punctuation'), False),
+                      ThemeStr('maxReplicas', ThemeAttr('types', 'cel_name'), False)]],
+                 None),
+                (["self.minReplicas <= self.replicas && self.replicas <= self.maxReplicas"],
+                 {"raw": False},
+                 [
+                     [ThemeStr('self', ThemeAttr('types', 'cel_name'), False),
+                      ThemeStr('.', ThemeAttr('types', 'cel_punctuation'), False),
+                      ThemeStr('minReplicas', ThemeAttr('types', 'cel_name'), False),
+                      ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                      ThemeStr('<=', ThemeAttr('types', 'cel_operator'), False),
+                      ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                      ThemeStr('self', ThemeAttr('types', 'cel_name'), False),
+                      ThemeStr('.', ThemeAttr('types', 'cel_punctuation'), False),
+                      ThemeStr('replicas', ThemeAttr('types', 'cel_name'), False),
+                      ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                      ThemeStr('&&', ThemeAttr('types', 'cel_operator'), False),
+                      ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                      ThemeStr('self', ThemeAttr('types', 'cel_name'), False),
+                      ThemeStr('.', ThemeAttr('types', 'cel_punctuation'), False),
+                      ThemeStr('replicas', ThemeAttr('types', 'cel_name'), False),
+                      ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                      ThemeStr('<=', ThemeAttr('types', 'cel_operator'), False),
+                      ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                      ThemeStr('self', ThemeAttr('types', 'cel_name'), False),
+                      ThemeStr('.', ThemeAttr('types', 'cel_punctuation'), False),
+                      ThemeStr('maxReplicas', ThemeAttr('types', 'cel_name'), False)]],
+                 None),
+                ("self.minReplicas <= self.replicas && self.replicas <= self.maxReplicas",
+                 {"raw": True},
+                 [
+                     [ThemeStr("self.minReplicas <= self.replicas && "
+                               "self.replicas <= self.maxReplicas",
+                               ThemeAttr("types", "generic"))]],
+                 None),
+            )
+        else:
+            # Indata format:
+            # (lines, options, expected_result, expected_exception)
+            testdata = (
+                ("self.minReplicas <= self.replicas && self.replicas <= self.maxReplicas",
+                 {"raw": False},
+                 [
+                     [ThemeStr("self.minReplicas <= self.replicas && "
+                               "self.replicas <= self.maxReplicas",
+                               ThemeAttr("types", "generic"))]],
+                 None),
+                (["self.minReplicas <= self.replicas && self.replicas <= self.maxReplicas"],
+                 {"raw": False},
+                 [
+                     [ThemeStr("self.minReplicas <= self.replicas && "
+                               "self.replicas <= self.maxReplicas",
+                               ThemeAttr("types", "generic"))]],
+                 None),
+                ("self.minReplicas <= self.replicas && self.replicas <= self.maxReplicas",
+                 {"raw": True},
+                 [
+                     [ThemeStr("self.minReplicas <= self.replicas && "
+                               "self.replicas <= self.maxReplicas",
+                               ThemeAttr("types", "generic"))]],
+                 None),
+            )
 
         for indata, options, expected_result, expected_exception in testdata:
             try:
@@ -2883,10 +2883,6 @@ def test_identify_formatter(verbose: bool = False) -> tuple[str, bool]:
 
 
 tests: dict[tuple[str, ...], dict[str, Any]] = {
-    ("json_ujson",): {
-        "callable": test_json_ujson,
-        "result": None,
-    },
     ("format_json_dumps",): {
         "callable": test_json_dumps,
         "result": None,

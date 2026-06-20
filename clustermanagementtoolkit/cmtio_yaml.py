@@ -10,9 +10,16 @@ YAML I/O helpers
 """
 
 import io
+import json
 import sys
 from typing import Any
 from collections.abc import Generator
+# ujson is much faster than json, but it might not be available
+try:
+    import ujson
+    has_ujson = True  # pylint: disable=invalid-name
+except ModuleNotFoundError:
+    has_ujson = False  # pylint: disable=invalid-name
 try:
     import yaml
 except ModuleNotFoundError:  # pragma: no cover
@@ -35,6 +42,53 @@ except ModuleNotFoundError:  # pragma: no cover
 from clustermanagementtoolkit import cmtio
 
 from clustermanagementtoolkit.cmttypes import deep_get, DictPath, FilePath, SecurityChecks
+
+
+def json_loads(string: str | bytes) -> dict | list[dict]:
+    """
+    Load a string of JSON data.
+
+        Parameters:
+            string (str | bytes): The string representation of JSON.
+        Returns:
+            (dict | list[dict]): The JSON data
+    """
+    if isinstance(string, bytes):
+        string = string.decode("utf-8", errors="replace")
+    if has_ujson:
+        return ujson.loads(string)  # pylint: disable=c-extension-no-member
+    return json.loads(string)
+
+
+def json_dumps(obj: dict[str, Any] | list[dict[str, Any]], **kwargs: Any) -> str:
+    """
+    Dump Python object to JSON in text format; will try to dump using ujson if available;
+    will fallback to json  if ujson isn't available or if ujson fails with TypeError.
+
+        Parameters:
+            obj (dict|[dict]): The JSON object to dump
+            **kwargs (dict[str, Any]): Keyword arguments
+                indent (int): Indentation (default: 2)
+                escape_forward_slashes (bool): Escape forward slashes (default: False);
+                                               only used by ujson.
+        Returns:
+            (str): The serialized JSON object
+        Raises:
+            ValueError: If parsing fails when using ujson
+            json.decoder.JSONDecodeError: If parsing fails when using json
+    """
+    indent = deep_get(kwargs, DictPath("indent"), 2)
+    escape_forward_slashes = deep_get(kwargs, DictPath("escape_forward_slashes"), False)
+    if has_ujson:
+        try:
+            # pylint: disable-next=c-extension-no-member
+            return ujson.dumps(obj, indent=indent, escape_forward_slashes=escape_forward_slashes,
+                               reject_bytes=True)
+        except TypeError:
+            pass
+
+    # We'll end up here either if ujson isn't installed, or if the dumped data contains bytes.
+    return json.dumps(obj, indent=indent)
 
 
 # pylint: disable=unused-argument
