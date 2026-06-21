@@ -1,0 +1,1106 @@
+#! /usr/bin/env python3
+
+# Requires: python3 (>= 3.11)
+#
+# Copyright the Cluster Management Toolkit for Kubernetes contributors.
+# SPDX-License-Identifier: MIT
+
+import sys
+from typing import Any
+from unittest import mock
+import yaml
+
+from clustermanagementtoolkit.cmttypes import deep_get, DictPath, StatusGroup, ProgrammingError
+from clustermanagementtoolkit.ansithemeprint import ANSIThemeStr
+from clustermanagementtoolkit.ansithemeprint import ansithemeprint, init_ansithemeprint
+from clustermanagementtoolkit import datagetters
+from clustermanagementtoolkit import kubernetes_helper
+
+# unit-tests for datagetters.py
+
+kh: kubernetes_helper.KubernetesHelper = None  # type: ignore
+kh_cache: kubernetes_helper.KubernetesResourceCache = None  # type: ignore
+
+
+def yaml_dump(data: Any, base_indent: int = 4) -> str:
+    result = ""
+    dump = yaml.dump(data)
+    for line in dump.splitlines():
+        result += f"{' '.ljust(base_indent)}{line}\n"
+    return result
+
+
+def test_get_container_status(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = datagetters.get_container_status
+
+    if result:
+        # Indata format:
+        # (src_statuses, container_name, expected_result, expected_exception)
+        testdata: tuple[Any, ...] = (
+            (
+                [
+                    {
+                        "lastState": {},
+                        "name": "etcd",
+                        "ready": True,
+                        "restartCount": 185,
+                        "started": True,
+                        "state": {
+                            "running": {
+                                "startedAt": "2024-02-16T09:13:55Z"
+                            }
+                        }
+                    }
+                ],
+                "etcd",
+                ("Running", StatusGroup.OK, 185, ""),
+                None,
+            ),
+            (
+                [
+                    {
+                        "lastState": {
+                            "terminated": {
+                                "exitCode": 0,
+                                "finishedAt": "2024-03-20T15:00:13Z",
+                                "reason": "Completed",
+                                "startedAt": "2024-03-20T15:00:06Z"
+                            }
+                        },
+                        "name": "cilium-agent",
+                        "ready": False,
+                        "restartCount": 18,
+                        "started": False,
+                        "state": {
+                            "waiting": {
+                                "message":
+                                    "back-off 5m0s restarting failed "
+                                    "container=cilium-agent pod=cilium-sp4nd_kube-system"
+                                    "(8aa4bed4-df9e-462c-a64b-fd9164bf831d)",
+                                "reason": "CrashLoopBackOff"
+                            }
+                        }
+                    }
+                ],
+                "cilium-agent",
+                ('CrashLoopBackOff', StatusGroup.NOT_OK, 18,
+                 'back-off 5m0s restarting failed container=cilium-agent '
+                 'pod=cilium-sp4nd_kube-system(8aa4bed4-df9e-462c-a64b-fd9164bf831d)'),
+                None,
+            ),
+            (
+                [
+                    {
+                        "lastState": {
+                            "terminated": {
+                                "containerID":
+                                    "containerd://f2002b1b44a275a5f3c34280f7bf554f29c"
+                                    "10ee36e56c6efc8c567a98ab47cce",
+                                "exitCode": 0,
+                                "finishedAt": "2024-03-20T15:06:45Z",
+                                "reason": "Completed",
+                                "startedAt": "2024-03-20T15:05:45Z"
+                            }
+                        },
+                        "name": "hello-world",
+                        "ready": False,
+                        "restartCount": 18,
+                        "started": False,
+                        "state": {
+                            "terminated": {
+                                "containerID":
+                                    "containerd://2c8c6ea6f35aece7222045e89b1"
+                                    "c7d52b84cc39a2f18cc63e07803912315f54b",
+                                "exitCode": 0,
+                                "finishedAt": "2024-03-20T15:12:55Z",
+                                "reason": "Completed",
+                                "startedAt": "2024-03-20T15:11:55Z"
+                            }
+                        }
+                    }
+                ],
+                "hello-world",
+                ('Completed', StatusGroup.DONE, 18, ''),
+                None,
+            ),
+            (
+                [
+                    {
+                        "image": "ghcr.io/weaveworks/launcher/weave-kube:2.8.1",
+                        "imageID": "",
+                        "lastState": {
+                            "terminated": {
+                                "containerID":
+                                    "containerd://ecd99e803e9a91c4f985ed65cd6480"
+                                    "a8985e99c5899a6b6c9a29993d5985c861",
+                                "exitCode": 0,
+                                "finishedAt": "2023-08-15T14:32:30Z",
+                                "reason": "Completed",
+                                "startedAt": "2023-08-15T14:32:28Z"
+                            }
+                        },
+                        "name": "weave-init",
+                        "ready": False,
+                        "restartCount": 1,
+                        "started": False,
+                        "state": {
+                            "waiting": {
+                                "message":
+                                    "services have not yet been read at least once, "
+                                    "cannot construct envvars",
+                                "reason": "CreateContainerConfigError"
+                            }
+                        }
+                    }
+                ],
+                "weave-init",
+                ('CreateContainerConfigError', StatusGroup.NOT_OK, 1,
+                 'services have not yet been read at least once, cannot construct envvars'),
+                None,
+            ),
+            (
+                [
+                    {
+                        "name": "collect-profiles",
+                        "state": {
+                            "terminated": {
+                                "exitCode": 0,
+                                "reason": "Completed",
+                                "startedAt": "2024-04-07T15:15:02Z",
+                                "finishedAt": "2024-04-07T15:15:02Z",
+                                "containerID": "cri-o://425f159499b4d860e68484706e8886f"
+                                               "0854df10b79e72b92e4ec2a66bd808b20"
+                            }
+                        },
+                        "lastState": {},
+                        "ready": False,
+                        "restartCount": 0,
+                        "image": "quay.io/openshift-release-dev/ocp-v4.0-art-dev@sha256:842a29cf5"
+                                 "bb75b5be4ae83a3f36a68d07fd1c593170c19ff739fc9f3a5cbc3f0",
+                        "imageID": "quay.io/openshift-release-dev/ocp-v4.0-art-dev@sha256:842a29c"
+                                   "f5bb75b5be4ae83a3f36a68d07fd1c593170c19ff739fc9f3a5cbc3f0",
+                        "containerID": "cri-o://425f159499b4d860e68484706e8886f0854df10b79"
+                                       "e72b92e4ec2a66bd808b20",
+                        "started": False
+                    }
+                ],
+                "collect-profiles",
+                ("Completed", StatusGroup.DONE, 0, ""),
+                None,
+            ),
+            (
+                [
+                    {
+                        "lastState": {},
+                        "name": "etcd",
+                        "ready": True,
+                        "restartCount": 185,
+                        "started": True,
+                        "state": {
+                            "running": {
+                                "startedAt": "2024-02-16T09:13:55Z"
+                            }
+                        }
+                    }
+                ],
+                "NotInTheList",
+                ("UNKNOWN", StatusGroup.UNKNOWN, 0, ""),
+                None,
+            ),
+            (
+                [],
+                "",
+                ("UNKNOWN", StatusGroup.UNKNOWN, -1, ""),
+                None,
+            )
+        )
+
+        for src_statuses, container_name, expected_result, expected_exception in testdata:
+            try:
+                tmp = fun(src_statuses, container_name)
+                reason, status_group, restarts, status_msg, _age = tmp
+                if (reason, status_group, restarts, status_msg) != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"           result: ({repr(reason)}, {repr(status_group)}, " \
+                              f"{restarts}, {repr(status_msg)})\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  f"        exception: {type(e)}\n" \
+                                  f"          message: {str(e)}\n" \
+                                  f"         expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"        exception: {type(e)}\n" \
+                              f"          message: {str(e)}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+    return message, result
+
+
+def test_datagetter_container_status(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = datagetters.datagetter_container_status
+
+    if result:
+        # Indata format:
+        # (obj, expected_result, expected_exception)
+        testdata: tuple[Any, ...] = (
+            (
+                {
+                    "namespace": "cert-manager",
+                    "name": "cert-manager-7bfbbd5f46-l9cjb",
+                    "container": "cert-manager-controller",
+                    "status": "Running",
+                    "status_group": 6,
+                    "node_name": "capablanca",
+                    "image_id": "quay.io/jetstack/cert-manager-controller@sha256:"
+                                "6bbd9b96d8288219c3be720fdf83a2d045b9becd4999b0455599978ae5450777"
+                },
+                ("Running", {"status_group": StatusGroup.OK}),
+                None,
+            ),
+            (
+                None,
+                ("UNKNOWN", {"status_group": StatusGroup.UNKNOWN}),
+                None,
+            ),
+        )
+
+        for obj, expected_result, expected_exception in testdata:
+            try:
+                tmp = fun(obj)
+                if tmp != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"           result:\n" \
+                              f"{yaml_dump(tmp, base_indent=17)}\n" \
+                              f"  expected result:\n" \
+                              f"{yaml_dump(expected_result, base_indent=17)}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  f"        exception: {type(e)}\n" \
+                                  f"          message: {str(e)}\n" \
+                                  f"         expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"        exception: {type(e)}\n" \
+                              f"          message: {str(e)}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+    return message, result
+
+
+def test_get_endpointslices_endpoints(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = datagetters.get_endpointslices_endpoints
+
+    if result:
+        # Indata format:
+        # (obj, expected_result, expected_exception)
+        testdata: tuple[Any, ...] = (
+            (
+                {
+                    "endpoints": [
+                        {
+                            "addresses": [
+                                "10.0.1.156",
+                            ],
+                            "conditions": {
+                                "ready": True,
+                                "serving": True,
+                                "terminating": False,
+                            },
+                        }
+                    ],
+                },
+                [
+                    (
+                        "10.0.1.156",
+                        StatusGroup.OK,
+                    ),
+                ],
+                None,
+            ),
+            (
+                {
+                    "endpoints": [
+                        {
+                            "addresses": [
+                                "192.168.32.119",
+                            ],
+                            "conditions": {
+                                "ready": False,
+                                "serving": False,
+                                "terminating": False,
+                            },
+                        },
+                        {
+                            "addresses": [
+                                "192.168.32.50",
+                            ],
+                            "conditions": {
+                                "ready": True,
+                                "serving": True,
+                                "terminating": True,
+                            },
+                        }
+                    ],
+                },
+                [
+                    (
+                        "192.168.32.119",
+                        StatusGroup.NOT_OK,
+                    ),
+                    (
+                        "192.168.32.50",
+                        StatusGroup.OK,
+                    ),
+                ],
+                None,
+            ),
+            (
+                {
+                    "endpoints": [],
+                },
+                [("<none>", StatusGroup.UNKNOWN)],
+                None,
+            ),
+            (
+                {},
+                [("<none>", StatusGroup.UNKNOWN)],
+                None,
+            ),
+            (
+                None,
+                [("<none>", StatusGroup.UNKNOWN)],
+                None,
+            ),
+        )
+
+        for obj, expected_result, expected_exception in testdata:
+            try:
+                tmp = fun(obj)
+                if tmp != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"           result:\n" \
+                              f"{yaml_dump(tmp, base_indent=17)}\n" \
+                              f"  expected result:\n" \
+                              f"{yaml_dump(expected_result, base_indent=17)}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  f"        exception: {type(e)}\n" \
+                                  f"          message: {str(e)}\n" \
+                                  f"         expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"        exception: {type(e)}\n" \
+                              f"          message: {str(e)}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+    return message, result
+
+
+def test_datagetter_metrics(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = datagetters.datagetter_metrics
+
+    if result:
+        # Indata format:
+        # (obj, default, expected_result, expected_exception)
+        testdata: tuple[Any, ...] = (
+            (
+                {
+                    "name": "apiserver_requested_deprecated_apis",
+                    "fields": {
+                        "group": "",
+                        "removed_release": "",
+                        "resource": "componentstatuses",
+                        "subresource": "",
+                        "version": "v1"
+                    },
+                },
+                ["resource", "group", "version"],
+                [],
+                (["componentstatuses", "", "v1"], {}),
+                None,
+            ),
+            (
+                {},
+                "foo",
+                ["bar"],
+                (["bar"], {}),
+                None,
+            ),
+            (
+                None,
+                "foo",
+                ["bar"],
+                (["bar"], {}),
+                None,
+            ),
+        )
+
+        for obj, path, default, expected_result, expected_exception in testdata:
+            try:
+                tmp = fun(obj, path=path, default=default)
+                if tmp != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"           result:\n" \
+                              f"{yaml_dump(tmp, base_indent=17)}\n" \
+                              f"  expected result:\n" \
+                              f"{yaml_dump(expected_result, base_indent=17)}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  f"        exception: {type(e)}\n" \
+                                  f"          message: {str(e)}\n" \
+                                  f"         expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"        exception: {type(e)}\n" \
+                              f"          message: {str(e)}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+    return message, result
+
+
+def test_datagetter_deprecated_api(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = datagetters.datagetter_deprecated_api
+
+    if result:
+        # Indata format:
+        # (obj, path, default, expected_result, expected_exception)
+        testdata: tuple[Any, ...] = (
+            (
+                {
+                    "name": "apiserver_requested_deprecated_apis",
+                    "fields": {
+                        "group": "",
+                        "removed_release": "",
+                        "resource": "componentstatuses",
+                        "subresource": "",
+                        "version": "v1"
+                    },
+                },
+                ["resource", "group", "version"],
+                [],
+                (("ComponentStatus", "", "v1"), {}),
+                None,
+            ),
+        )
+
+        for obj, path, default, expected_result, expected_exception in testdata:
+            try:
+                tmp = fun(obj, path=path, default=default)
+                if tmp != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"           result:\n" \
+                              f"{yaml_dump(tmp, base_indent=17)}\n" \
+                              f"  expected result:\n" \
+                              f"{yaml_dump(expected_result, base_indent=17)}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  f"        exception: {type(e)}\n" \
+                                  f"          message: {str(e)}\n" \
+                                  f"         expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"        exception: {type(e)}\n" \
+                              f"          message: {str(e)}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+    return message, result
+
+
+def test_datagetter_endpoint_ips(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = datagetters.datagetter_endpoint_ips
+
+    if result:
+        # Indata format:
+        # (obj, path, expected_result, expected_exception)
+        testdata: tuple[Any, ...] = (
+            (
+                {
+                    "subsets": [
+                        {
+                            "addresses": [
+                                {
+                                    "ip": "10.0.1.156",
+                                    "nodeName": "capablanca",
+                                    "targetRef": {
+                                        "kind": "Pod",
+                                        "namespace": "cert-manager",
+                                        "name": "cert-manager-7bfbbd5f46-l9cjb",
+                                        "uid": "1a9fa1aa-0fb6-4e0b-9129-06d07cf5b03a"
+                                    }
+                                }
+                            ],
+                            "ports": [
+                                {
+                                    "name": "tcp-prometheus-servicemonitor",
+                                    "port": 9402,
+                                    "protocol": "TCP"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                "subsets",
+                ([("10.0.1.156", StatusGroup.OK)], {}),
+                None,
+            ),
+            (
+                {
+                    "metadata": {
+                        "name": "hubble-peer",
+                        "namespace": "kube-system",
+                        "uid": "c84f5545-aab3-42e0-ae4a-c81dae11375c",
+                        "resourceVersion": "14994661",
+                        "creationTimestamp": "2024-02-22T22:44:24Z",
+                        "labels": {
+                            "app.kubernetes.io/managed-by": "Helm",
+                            "app.kubernetes.io/name": "hubble-peer",
+                            "app.kubernetes.io/part-of": "cilium",
+                            "k8s-app": "cilium"
+                        },
+                        "annotations": {
+                            "endpoints.kubernetes.io/"
+                            "last-change-trigger-time": "2024-03-24T02:23:17Z"
+                        },
+                        "managedFields": [
+                            {
+                                "manager": "kube-controller-manager",
+                                "operation": "Update",
+                                "apiVersion": "v1",
+                                "time": "2024-03-24T02:23:17Z",
+                                "fieldsType": "FieldsV1",
+                                "fieldsV1": {
+                                    "f:metadata": {
+                                        "f:annotations": {
+                                            ".": {},
+                                            "f:endpoints.kubernetes.io/last-change-trigger-time": {}
+                                        },
+                                        "f:labels": {
+                                            ".": {},
+                                            "f:app.kubernetes.io/managed-by": {},
+                                            "f:app.kubernetes.io/name": {},
+                                            "f:app.kubernetes.io/part-of": {},
+                                            "f:k8s-app": {}
+                                        }
+                                    },
+                                    "f:subsets": {}
+                                }
+                            }
+                        ]
+                    },
+                    "subsets": [
+                        {
+                            "addresses": [
+                                {
+                                    "ip": "192.168.32.50",
+                                    "nodeName": "capablanca",
+                                    "targetRef": {
+                                        "kind": "Pod",
+                                        "namespace": "kube-system",
+                                        "name": "cilium-vf6p2",
+                                        "uid": "63f77b10-ee09-448b-9a7b-41ee04783d97"
+                                    }
+                                }
+                            ],
+                            "notReadyAddresses": [
+                                {
+                                    "ip": "192.168.32.119",
+                                    "nodeName": "anand",
+                                    "targetRef": {
+                                        "kind": "Pod",
+                                        "namespace": "kube-system",
+                                        "name": "cilium-r9kqr",
+                                        "uid": "4d9b3c6f-a06d-4c5f-a93b-a08188db585c"
+                                    }
+                                }
+                            ],
+                            "ports": [
+                                {
+                                    "name": "peer-service",
+                                    "port": 4244,
+                                    "protocol": "TCP"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                "subsets",
+                ([('192.168.32.50', StatusGroup.OK), ('192.168.32.119', StatusGroup.NOT_OK)], {}),
+                None,
+            ),
+            (
+                {
+                    "endpoints": [
+                        {
+                            "addresses": [
+                                "10.0.1.156",
+                            ],
+                            "conditions": {
+                                "ready": True,
+                                "serving": True,
+                                "terminating": False,
+                            }
+                        }
+                    ]
+                },
+                None,
+                ([("<none>", StatusGroup.UNKNOWN)], {}),
+                None,
+            ),
+        )
+
+        for obj, path, expected_result, expected_exception in testdata:
+            try:
+                tmp = fun(obj, path=path)
+                if tmp != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"           result:\n" \
+                              f"{yaml_dump(tmp, base_indent=17)}\n" \
+                              f"  expected result:\n" \
+                              f"{yaml_dump(expected_result, base_indent=17)}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  f"        exception: {type(e)}\n" \
+                                  f"          message: {str(e)}\n" \
+                                  f"         expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"        exception: {type(e)}\n" \
+                              f"          message: {str(e)}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+    return message, result
+
+
+def test_datagetter_eps_endpoints(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = datagetters.datagetter_eps_endpoints
+
+    if result:
+        # Indata format:
+        # (obj, expected_result, expected_exception)
+        testdata: tuple[Any, ...] = (
+            (
+                {
+                    "endpoints": [
+                        {
+                            "addresses": [
+                                "10.0.1.156",
+                            ],
+                            "conditions": {
+                                "ready": True,
+                                "serving": True,
+                                "terminating": False,
+                            },
+                        }
+                    ],
+                },
+                (
+                    [
+                        (
+                            "10.0.1.156",
+                            StatusGroup.OK,
+                        ),
+                    ],
+                    {},
+                ),
+                None,
+            ),
+            (
+                None,
+                ([("<none>", StatusGroup.UNKNOWN)], {}),
+                None,
+            ),
+        )
+
+        for obj, expected_result, expected_exception in testdata:
+            try:
+                tmp = fun(obj)
+                if tmp != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"           result:\n" \
+                              f"{yaml_dump(tmp, base_indent=17)}\n" \
+                              f"  expected result:\n" \
+                              f"{yaml_dump(expected_result, base_indent=17)}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  f"        exception: {type(e)}\n" \
+                                  f"          message: {str(e)}\n" \
+                                  f"         expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"        exception: {type(e)}\n" \
+                              f"          message: {str(e)}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+    return message, result
+
+
+def test_datagetter_api_support(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = datagetters.datagetter_api_support
+
+    if result:
+        # Indata format:
+        # (obj, mock_response, expected_result, expected_exception)
+        testdata: tuple[Any, ...] = (
+            (
+                kh,
+                {
+                    "spec": {
+                        "group": "cilium.io",
+                        "names": {
+                            "plural": "ciliumnodeconfigs",
+                            "singular": "ciliumnodeconfig",
+                            "kind": "CiliumNodeConfig",
+                            "listKind": "CiliumNodeConfigList"
+                        },
+                    },
+                },
+                ({
+                    ("CiliumNodeConfig", "cilium.io"): {
+                        "api_paths": ["apis/cilium.io/v2alpha1/"],
+                        "api": "ciliumnodeconfigs",
+                        "known": True,
+                    },
+                }, 200, True),
+                (["Known"], {}),
+                None,
+            ),
+            (
+                kh,
+                {
+                    "spec": {
+                        "group": "acme.cert-manager.io",
+                        "names": {
+                            "plural": "challenges",
+                            "singular": "challenge",
+                            "kind": "Challenge",
+                            "listKind": "ChallengeList",
+                            "categories": [
+                                "cert-manager",
+                                "cert-manager-acme"
+                            ]
+                        },
+                    },
+                },
+                ({
+                    ("Challenge", "acme.cert-manager.io"): {
+                        "api_paths": ["apis/acme.cert-manager.io/v1/",
+                                      "apis/acme.cert-manager.k8s.io/v1alpha2/",
+                                      "certmanager.k8s.io/v1alpha1/"],
+                        "api": "challenges",
+                        "known": True,
+                        "list": True,
+                    },
+                }, 200, True),
+                (["Known", "List"], {}),
+                None,
+            ),
+            (
+                kh,
+                {
+                    "spec": {
+                        "group": "nfd.k8s-sigs.io",
+                        "names": {
+                            "plural": "nodefeatures",
+                            "singular": "nodefeature",
+                            "kind": "NodeFeature",
+                            "listKind": "NodeFeatureList"
+                        },
+                    },
+                },
+                ({
+                    ("NodeFeature", "nfd.k8s-sigs.io"): {
+                        "api_paths": ["apis/nfd.k8s-sigs.io/v1alpha1/"],
+                        "api": "nodefeatures",
+                        "known": True,
+                        "list": True,
+                        "info": True,
+                    },
+                }, 200, True),
+                (["Known", "List", "Info"], {}),
+                None,
+            ),
+            (
+                kh,
+                {
+                    "spec": {
+                        "group": "nonexistingapi.io",
+                        "names": {
+                            "plural": "random",
+                            "singular": "random",
+                            "kind": "Random",
+                            "listKind": "RandomList"
+                        },
+                    },
+                },
+                ({}, 200, True),
+                ([], {}),
+                None,
+            ),
+            (
+                kh,
+                None,
+                ({}, 200, True),
+                (None, {}),
+                None,
+            ),
+            (
+                None,
+                None,
+                ({}, 200, True),
+                None,
+                ProgrammingError,
+            ),
+        )
+
+        for khelper, obj, mock_response, expected_result, expected_exception in testdata:
+            try:
+                with mock.patch("clustermanagementtoolkit.kubernetes_helper."
+                                "KubernetesHelper.get_available_kinds",
+                                return_value=mock_response):
+                    tmp = fun(obj, kubernetes_helper=khelper)
+                if tmp != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"             kind: {deep_get(obj, DictPath('spec#names#kind'))}\n" \
+                              f"            group: {deep_get(obj, DictPath('spec#group'))}\n" \
+                              f"           result: {tmp}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  "             kind: " \
+                                  f"{deep_get(obj, DictPath('spec#names#kind'))}\n" \
+                                  f"            group: {deep_get(obj, DictPath('spec#group'))}\n" \
+                                  f"        exception: {type(e)}\n" \
+                                  f"          message: {str(e)}\n" \
+                                  f"         expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"             kind: {deep_get(obj, DictPath('spec#names#kind'))}\n" \
+                              f"            group: {deep_get(obj, DictPath('spec#group'))}\n" \
+                              f"        exception: {type(e)}\n" \
+                              f"          message: {str(e)}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+    return message, result
+
+
+tests: dict[tuple[str, ...], dict[str, Any]] = {
+    ("get_container_status()",): {
+        "callable": test_get_container_status,
+        "result": None,
+    },
+    ("datagetter_container_status()",): {
+        "callable": test_datagetter_container_status,
+        "result": None,
+    },
+    ("get_endpointslices_endpoints()",): {
+        "callable": test_get_endpointslices_endpoints,
+        "result": None,
+    },
+    ("datagetter_metrics()",): {
+        "callable": test_datagetter_metrics,
+        "result": None,
+    },
+    ("datagetter_deprecated_api()",): {
+        "callable": test_datagetter_deprecated_api,
+        "result": None,
+    },
+    ("datagetter_endpoint_ips()",): {
+        "callable": test_datagetter_endpoint_ips,
+        "result": None,
+    },
+    ("datagetter_eps_endpoints()",): {
+        "callable": test_datagetter_eps_endpoints,
+        "result": None,
+    },
+}
+
+tests_with_cluster: dict[tuple[str, ...], dict[str, Any]] = {
+    ("datagetter_api_support()",): {
+        "callable": test_datagetter_api_support,
+        "result": None,
+    },
+}
+
+
+def main() -> int:
+    global kh
+    global kh_cache
+    global tests
+
+    fail = 0
+    success = 0
+    verbose = False
+    failed_testcases = []
+
+    init_ansithemeprint(themefile=None)
+
+    if "--include-cluster" in sys.argv:
+        tests = {**tests, **tests_with_cluster}
+        kh = kubernetes_helper.KubernetesHelper("khtests", "v0.1")
+        kh_cache = kubernetes_helper.KubernetesResourceCache()
+
+    # How many non-prepare testcases do we have?
+    testcount = sum(1 for i in tests if not deep_get(tests[i], DictPath("prepare"), False))
+    start_at_task = 0
+    end_at_task = testcount
+
+    i = 1
+
+    while i < len(sys.argv):
+        opt = sys.argv[i]
+        optarg = None
+        if i + 1 < len(sys.argv):
+            optarg = sys.argv[i + 1]
+        if opt == "--start-at":
+            if not (isinstance(optarg, str) and optarg.isnumeric()):
+                raise ValueError("--start-at TASK requires an integer "
+                                 f"in the range [0,{testcount}]")
+            start_at_task = int(optarg)
+            i += 1
+        elif opt == "--end-at":
+            if not (isinstance(optarg, str) and optarg.isnumeric()):
+                raise ValueError(f"--end-at TASK requires an integer in the range [0,{testcount}]")
+            end_at_task = int(optarg)
+            i += 1
+        elif opt == "--include-cluster":
+            pass
+        else:
+            sys.exit(f"Unknown argument: {opt}")
+        i += 1
+
+    for i, test in enumerate(tests):
+        if i < start_at_task:
+            continue
+        if i > end_at_task:
+            break
+        ansithemeprint([ANSIThemeStr(f"[{i:03}/{testcount - 1:03}]", "emphasis"),
+                        ANSIThemeStr(f" {', '.join(test)}:", "default")])
+        message, result = tests[test]["callable"](verbose=verbose)
+        if message:
+            ansithemeprint([ANSIThemeStr("  FAIL", "error"),
+                            ANSIThemeStr(f": {message}", "default")])
+        else:
+            ansithemeprint([ANSIThemeStr("  PASS", "success")])
+            success += 1
+        tests[test]["result"] = result
+        if not result:
+            fail += 1
+            failed_testcases.append(f"{i}: {', '.join(test)}")
+
+    ansithemeprint([ANSIThemeStr("\nSummary:", "header")])
+    if fail:
+        ansithemeprint([ANSIThemeStr(f"  FAIL: {fail}", "error")])
+    else:
+        ansithemeprint([ANSIThemeStr(f"  FAIL: {fail}", "unknown")])
+    ansithemeprint([ANSIThemeStr(f"  PASS: {success}", "success")])
+
+    if fail:
+        ansithemeprint([ANSIThemeStr("\nFailed testcases:", "header")])
+        for testcase in failed_testcases:
+            ansithemeprint([ANSIThemeStr("  • ", "separator"),
+                            ANSIThemeStr(testcase, "default")], stderr=True)
+        sys.exit(fail)
+
+    return 0
+
+
+if __name__ == "__main__":
+    main()

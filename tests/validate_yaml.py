@@ -1,0 +1,767 @@
+#! /usr/bin/env python3
+
+# Requires: python3 (>= 3.11)
+#
+# Copyright the Cluster Management Toolkit for Kubernetes contributors.
+# SPDX-License-Identifier: MIT
+
+from functools import reduce
+import json
+from multiprocessing import Pool
+import os
+import sys
+from typing import Any, cast, NewType
+from collections.abc import Iterable
+import yaml
+
+try:
+    import jsonschema
+except ModuleNotFoundError:
+    sys.exit("ModuleNotFoundError: you probably need to install python3-jsonschema")
+
+try:
+    from natsort import natsorted
+except ModuleNotFoundError:
+    sys.exit("ModuleNotFoundError: you probably need to install python3-natsort")
+
+__version__ = "0.5"
+
+failed_files = []
+
+
+def usage() -> None:
+    """
+    Display usage information for the program.
+    """
+    print("validate_yaml [OPTION]... TYPE")
+    print("validate_yaml [OPTION]... TYPE PATH...")
+    print("validate_yaml [OPTION]... SCHEMA PATH...")
+    print("")
+    print("Validate YAML files used by CMT")
+    print("Additionally, view-files are checked for duplicate shortcuts")
+    print("")
+    print("themes|views|parsers                 Validate all YAML-files in the default")
+    print("                                       directory for the specified type")
+    print("themes|views|parsers|SCHEMA PATH...  Validate all YAML-files at PATH")
+    print("                                       for the specified type if PATH")
+    print("                                       is a directory, or the specified")
+    print("                                       file if PATH is a file")
+    print("")
+    print("If no arguments are specified all YAML-files will be validated")
+    print("If SCHEMA isn't one of themes|views|parsers it's be expected")
+    print("to be a path to a valid JSON schema file")
+    print("")
+    print("Built-in paths are relative to the base directory of the CMT source code")
+    print("")
+    print("Note: Validating Ansible playbooks is out of scope for this program;")
+    print("use ansible-lint")
+    print("")
+    print("Global Options:")
+    print("-A,--abort-on-failure  Stop validation immediately if one file fails;")
+    print("                         normally all files are validated")
+    print("-S,--summary           Show a summary even when using --quiet")
+    print("-N,--no-summary        Don't show a summary even when using --verbose")
+    print("-R,--resume-from PATH  After a failed validation run resume validation")
+    print("                         from this file")
+    print("-x,--exclude PATH,...  Exclude PATH,... from being scanned")
+    print("                         Note: Globbing is not supported")
+    print("-q,--quiet             Be less verbose")
+    print("-v,--verbose           Be more verbose")
+    print("")
+    print("help|--help            Display this help and exit")
+    print("version|--version      Output version information and exit")
+
+
+def version() -> None:
+    """
+    Display version information for the program.
+    """
+    print(f"validate_yaml {__version__}")
+
+
+DictPath = NewType("DictPath", str)
+
+
+def deep_get(dictionary: Any | None, path: DictPath, default: Any = None) -> Any:
+    """
+    Given a dictionary and a path into that dictionary, get the value.
+
+        Parameters:
+            dictionary (dict|CommentedMap): The dict to get the value from
+            path (DictPath): A dict path
+            default (Any): The value to return if the dictionary, path, or result is None
+        Returns:
+            (Any): The value from the path
+    """
+    if dictionary is None:
+        return default
+    if path is None or not path or not isinstance(path, str):
+        return default
+    result = reduce(lambda d,
+                    key: d.get(key, default) if isinstance(d, dict) else default,
+                    path.split("#"), dictionary)
+    if result is None:
+        result = default
+    return result
+
+
+# pylint: disable-next=too-many-branches
+def map_key(shortcut: str, activatedfun: bool, key: str, modifier: str) -> tuple[str, str]:
+    """
+    Setup a shortcut mapping and return the key-code(s) + helptext.
+
+        Parameters:
+            shortcut (str): The shortcut description (used for error messages)
+            activatedfun (bool): Is there an activatedfun defined?
+                                 Used to double-check whether the default shortcut
+                                 for "enter" has been disabled.
+            key (str): They base key
+            modifier (str): The modifier (""/"shift"/"ctrl")
+        Returns:
+            ((int | [int], str)):
+                (str): The helptext
+                (str): The error message, if any
+    """
+    msg: str = ""
+    help_key: str = ""
+
+    if modifier and modifier not in ("ctrl", "shift"):
+        msg = f"Unknown modifier {modifier}; valid modifiers are shift, ctrl"
+    elif key in ("f1", "f2", "f3", "f4", "f5", "f6",
+                 "f7", "f8", "f9", "f10", "f11", "f12") and modifier in ("", "shift"):
+        if not modifier:
+            help_key: str = f"[{key.upper()}]"
+        elif modifier == "shift":
+            num = int(key[1:]) + 12
+            help_key = f"[Shift] + [{key.upper()}] / [{key[0].upper()}{num}]"
+        else:
+            msg = f"The modifier {modifier}; cannot be combined with {key}"
+    elif key in ("f13", "f14", "f15", "f16", "f17", "f18",
+                 "f19", "f20", "f21", "f22", "f23", "f24") and not modifier:
+        num = int(key[1:]) - 12
+        help_key = f"[Shift] + [{key[0].upper()}{num}] / [{key.upper()}]"
+    elif key in ("enter", "return"):
+        if modifier or not activatedfun:
+            help_key = "[Enter]"
+        else:
+            msg = f"The shortcut “{shortcut}“" \
+                   " uses “enter“ as key; this conflicts with " \
+                   "built-in shortcut for “on_activation“"
+    elif modifier:
+        if modifier == "shift":
+            help_key = f"[Shift] + {key.upper()}"
+        elif modifier == "ctrl":
+            help_key = f"[Ctrl] + {key.upper()}"
+        else:
+            # This shouldn't be necessary since we check this at the beginning of the function,
+            # but pylint complains otherwise.
+            msg = f"Unknown modifier {modifier}; valid modifiers are shift, ctrl"
+    elif len(key) == 1:
+        help_key = f"{key.upper()}"
+    else:
+        msg = f"Unknown {key}"
+
+    return help_key, msg
+
+
+listview_reserved_shortcuts: dict[str, dict[str, str]] = {
+    "[Shift] + B": {
+        "description": "Toggle borders",
+    },
+    "[Shift] + W": {
+        "description": "Toggle custom/narrow/normal/wide fields (when available)",
+    },
+    "[Ctrl] + X": {
+        "description": "Exit program",
+    },
+    "[Shift] + M": {
+        "description": "Toggle mouse on/off",
+    },
+    "[F1] / [Shift] + H": {
+        "description": "Show this helptext",
+    },
+    "[F2]": {
+        "description": "Switch main view",
+    },
+    "[F3]": {
+        "description": "Switch main view (recheck available API resources)",
+    },
+    "[F5]": {
+        "description": "Refresh list",
+    },
+    "[F7]": {
+        "description": "Perform Cluster-wide actions",
+    },
+    "[F12]": {
+        "description": "Show information about the program",
+    },
+    "[Shift] + A": {
+        "description": "Show all Namespaces",
+        "exception_list": [("__Inventory", "")],
+    },
+    "[Shift] + N": {
+        "description": "Filter by Namespace from list",
+    },
+    "w": {
+        "description": "Filter by Namespace of selected resource",
+    },
+    "T": {
+        "description": "Tag / Untag item",
+    },
+    "[Shift] + T": {
+        "description": "Tag item by pattern",
+    },
+    "[Ctrl] + T": {
+        "description": "Untag item by pattern",
+    },
+    "[Shift] + L": {
+        "description": "List tagged items",
+    },
+    ";": {
+        "description": "Perform action on tagged items",
+    },
+    "L": {
+        "description": "Show labels for all tagged items",
+    },
+    "F": {
+        "description": "Select labels and filter by label selector",
+    },
+    "[Shift] + F": {
+        "description": "Clear label selector",
+    },
+    "[Left]": {
+        "description": "Scroll left",
+    },
+    "[Right]": {
+        "description": "Scroll right",
+    },
+    "[Down]": {
+        "description": "Move to next row",
+    },
+    "[Up]": {
+        "description": "Move to previous row",
+    },
+    "[Shift] + [Left]": {
+        "description": "Change sortcolumn",
+    },
+    "[Shift] + [Right]": {
+        "description": "Change sortcolumn",
+    },
+    "[Tab]": {
+        "description": "Jump to next group in sortcolumn",
+    },
+    "[Shift] + [Tab]": {
+        "description": "Jump to previous group in sortcolumn",
+    },
+    "§": {
+        "description": "Jump to next sortcolumn",
+    },
+    "½": {
+        "description": "Jump to previous sortcolumn",
+    },
+    "/": {
+        "description": "Search forwards within column",
+    },
+    "N": {
+        "description": "Search forwards for next match within column",
+    },
+    "?": {
+        "description": "Search backwards within column",
+    },
+    "P": {
+        "description": "Search backwards for previous match within column",
+    },
+    "[Page Up]": {
+        "description": "Scroll 10 lines up",
+    },
+    "[Page Down]": {
+        "description": "Scroll 10 lines down",
+    },
+    "[Shift] + [Home]": {
+        "description": "Jump to beginning",
+    },
+    "[Shift] + [End]": {
+        "description": "Jump to end",
+    },
+    "R": {
+        "description": "Reverse sortorder",
+    },
+    "J": {
+        # Note: this is not a typo;
+        # the same override is used for both JSON and YAML
+        "override": "View YAML dump",
+        "description": "View JSON dump of resource",
+    },
+    "Y": {
+        "override": "View YAML dump",
+        "description": "View YAML dump of resource",
+    },
+    "E": {
+        "override": "Edit resource",
+        "description": "Edit resource",
+    },
+}
+
+
+infoview_reserved_shortcuts: dict[str, dict[str, str]] = {
+    "[Shift] + M": {
+        "description": "Toggle mouse on/off",
+    },
+    "[F1] / [Shift] + H": {
+        "description": "Show this helptext",
+    },
+    "[F2]": {
+        "description": "Switch main view",
+    },
+    "[F3]": {
+        "description": "Switch main view (recheck available API resources)",
+    },
+    "[F5]": {
+        "description": "Refresh list",
+    },
+    "[F12]": {
+        "description": "Show information about the program",
+    },
+    "^": {
+        "description": "Go to parent view",
+    },
+    "J": {
+        # Note: this is not a typo;
+        # the same override is used for both JSON and YAML
+        "override": "View YAML dump",
+        "description": "View JSON dump of resource",
+    },
+    "Y": {
+        "override": "View YAML dump",
+        "description": "View YAML dump of resource",
+    },
+}
+
+
+listpad_reserved_shortcuts: dict[str, dict[str, str]] = {
+    "[Left]": {
+        "description": "Scroll left",
+    },
+    "[Right]": {
+        "description": "Scroll right",
+    },
+    "[Down]": {
+        "description": "Move to next row",
+    },
+    "[Up]": {
+        "description": "Move to previous row",
+    },
+    "[Shift] + [Left]": {
+        "description": "Change sortcolumn",
+    },
+    "[Shift] + [Right]": {
+        "description": "Change sortcolumn",
+    },
+    "[Tab]": {
+        "description": "Jump to next group in sortcolumn",
+    },
+    "[Shift] + [Tab]": {
+        "description": "Jump to previous group in sortcolumn",
+    },
+    "§": {
+        "description": "Jump to next sortcolumn",
+    },
+    "½": {
+        "description": "Jump to previous sortcolumn",
+    },
+    "/": {
+        "description": "Search forwards within column",
+    },
+    "N": {
+        "description": "Search forwards for next match within column",
+    },
+    "?": {
+        "description": "Search backwards within column",
+    },
+    "P": {
+        "description": "Search backwards for previous match within column",
+    },
+    "R": {
+        "description": "Reverse sortorder",
+    },
+    "[Page Up]": {
+        "description": "Scroll 10 lines up",
+    },
+    "[Page Down]": {
+        "description": "Scroll 10 lines down",
+    },
+    "[Shift] + [Home]": {
+        "description": "Jump to beginning",
+    },
+    "[Shift] + [End]": {
+        "description": "Jump to end",
+    },
+}
+
+
+logpad_reserved_shortcuts: dict[str, dict[str, str]] = {
+    "[Shift] + W": {
+        "description": "Toggle line wrapping",
+    },
+    "[Shift] + R": {
+        "description": "Toggle highlighting / formatting (default: On)",
+    },
+    "[Cursor keys]": {
+        "description": "Scroll log up / down / left / right",
+    },
+    "/": {
+        "description": "Search forwards",
+    },
+    "N": {
+        "description": "Search forwards for next match",
+    },
+    "?": {
+        "description": "Search backwards",
+    },
+    "P": {
+        "description": "Search backwards for previous match",
+    },
+    "[Page Up]": {
+        "description": "Scroll one page up",
+    },
+    "[Page Down]": {
+        "description": "Scroll one page down",
+    },
+    "[Shift] + [Home]": {
+        "description": "Jump to beginning",
+    },
+    "[Shift] + [End]": {
+        "description": "Jump to end",
+    },
+    "[Home]": {
+        "description": "Jump to beginning of currently visible lines",
+    },
+    "[End]": {
+        "description": "Jump to end of currently visible lines",
+    },
+    "[Shift] + [Left]": {
+        "description": "Scroll a half page left",
+    },
+    "[Shift] + [Right]": {
+        "description": "Scroll a half page right",
+    },
+}
+
+
+def validate_shortcuts(obj: dict) -> tuple[int, str]:
+    retval: int = 0
+    msg: str = ""
+
+    activatedfun: bool = deep_get(obj, DictPath("listview#on_activation#call")) is not None
+    kind = deep_get(obj, DictPath("kind"), "")
+    api_family = deep_get(obj, DictPath("api_family"), "")
+    listview_shortcuts: dict[str, str] = {}
+
+    for shortcut, d in deep_get(obj, DictPath("listview#shortcuts"), {}).items():
+        if d is None:
+            continue
+        key = deep_get(d, DictPath("key"), "")
+        modifier = deep_get(d, DictPath("modifier"), "")
+        helpkey, msg = map_key(shortcut, activatedfun, key, modifier)
+        if msg:
+            retval = 1
+            msg = f"Listview: {msg}"
+            break
+
+        if helpkey in listview_reserved_shortcuts:
+            description = deep_get(listview_reserved_shortcuts,
+                                   DictPath(f"{helpkey}#description"), "")
+            override = deep_get(listview_reserved_shortcuts,
+                                DictPath(f"{helpkey}#override"), "")
+            exception_list = deep_get(listview_reserved_shortcuts,
+                                      DictPath(f"{helpkey}#exception_list"), [])
+            if override != shortcut and (kind, api_family) not in exception_list:
+                msg = f"Listview: The shortcut “{helpkey}“ used by “{shortcut}“ is " \
+                      f"reserved for “{description}“"
+                retval = 1
+                break
+
+        if helpkey in listview_shortcuts:
+            msg = f"Listview: The shortcut “{helpkey}“ for “{shortcut}“ is already in use for " \
+                  f"“{deep_get(listview_shortcuts, DictPath(helpkey))}“"
+            retval = 1
+            break
+
+        listview_shortcuts[helpkey] = shortcut
+
+    if retval:
+        return retval, msg
+
+    activatedfun = deep_get(obj, DictPath("infoview#listpad#on_activation#call")) is not None
+    has_listpad = deep_get(obj, DictPath("infoview#listpad")) is not None
+    has_logpad = deep_get(obj, DictPath("infoview#logpad")) is not None
+    infoview_shortcuts: dict[str, str] = {}
+
+    for shortcut, d in deep_get(obj, DictPath("infoview#shortcuts"), {}).items():
+        if d is None:
+            continue
+        key = deep_get(d, DictPath("key"), "")
+        modifier = deep_get(d, DictPath("modifier"), "")
+        helpkey, msg = map_key(shortcut, activatedfun, key, modifier)
+        if msg:
+            retval = 1
+            msg = f"Infoview: {msg}"
+            break
+
+        infoview_conditional_reserved_shortcuts = {**infoview_reserved_shortcuts}
+        if has_listpad:
+            infoview_conditional_reserved_shortcuts = {**infoview_conditional_reserved_shortcuts,
+                                                       **listpad_reserved_shortcuts}
+        if has_logpad:
+            infoview_conditional_reserved_shortcuts = {**infoview_conditional_reserved_shortcuts,
+                                                       **logpad_reserved_shortcuts}
+
+        if helpkey in infoview_conditional_reserved_shortcuts:
+            description = deep_get(infoview_conditional_reserved_shortcuts,
+                                   DictPath(f"{helpkey}#description"), "")
+            override = deep_get(infoview_conditional_reserved_shortcuts,
+                                DictPath(f"{helpkey}#override"), "")
+            if override != shortcut:
+                msg = f"Infoview: The shortcut “{helpkey}“ used by “{shortcut}“ is " \
+                      f"reserved for “{description}“"
+                retval = 1
+                break
+
+        if helpkey in infoview_shortcuts:
+            msg = f"Infoview: The shortcut “{helpkey}“ for “{shortcut}“ is already in use for " \
+                  f"“{deep_get(infoview_shortcuts, DictPath(helpkey))}“"
+            retval = 1
+            break
+
+        infoview_shortcuts[helpkey] = shortcut
+
+    return retval, msg
+
+
+# pylint: disable-next=too-many-branches
+def validate_file(yaml_path: str, schema_path: str,
+                  verbose: int, abort_on_fail: bool,
+                  exclude_paths: list[str]) -> tuple[str | None, int, str]:
+    """
+    Validate a YAML file against a JSON schema
+
+        Parameters:
+            (yaml_path, schema_path, verbose, abort_on_fail):
+                yaml_path (str): A path to a YAML file
+                schema_path (str): A path to the JSON schema to validate the YAML file against
+                verbose (int): The verbosity for output
+                abort_on_fail (bool): If true abort on first failure
+                exclude_paths ([str]): Exclude these paths
+        Returns:
+            (file, retval, msg):
+                file (str): The processed file
+                retval (int): -1 for skipped files, 0 on success, 1 on failure
+                msg (str): The debug message
+    """
+
+    retval = 0
+    msg = ""
+    file = None
+
+    if not yaml_path.endswith((".yaml", ".yml")):
+        if verbose > 2:
+            msg = f"\n{yaml_path} does not end in .yaml or .yml; skipping.\n"
+        retval = -1
+    elif yaml_path in exclude_paths:
+        if verbose > 2:
+            msg = f"\n{yaml_path} is excluded; skipping.\n"
+        retval = -1
+    elif not os.path.isfile(yaml_path):
+        if verbose > 2:
+            msg = f"\n{yaml_path} is not a file; skipping.\n"
+        retval = -1
+    else:
+        yaml_data = {}
+
+        with open(schema_path, "r", encoding="utf-8") as f:
+            try:
+                schema = json.load(f)
+            except json.decoder.JSONDecodeError as e:
+                sys.exit(f"\nThe schema file {schema_path} is not valid JSON:"
+                         f"\njson.decoder.JSONDecodeError: {e}")
+
+        try:
+            with open(yaml_path, "r", encoding="utf-8") as f:
+                yaml_data = yaml.safe_load(f)
+        except yaml.scanner.ScannerError as e:
+            sys.exit(f"ScannerError: {str(e)}\n\ninvalid YAML; aborting.")
+        except yaml.parser.ParserError as e:
+            sys.exit(f"ParserError: {str(e)}\n\ninvalid YAML; aborting.")
+
+        if verbose > 2:
+            msg = f"Validating {yaml_path} with {schema_path}"
+
+        try:
+            jsonschema.validate(schema=schema, instance=yaml_data)
+            if schema_path.endswith("views.json"):
+                retval, msg = validate_shortcuts(yaml_data)
+                if retval:
+                    msg = f"{yaml_path}: {msg}"
+                    file = yaml_path
+        except jsonschema.exceptions.SchemaError as e:
+            msg += f"\nFailed to validate schema {schema_path}"
+            msg += f"\njsonschema.exceptions.SchemaError: {e}"
+            sys.exit(msg)
+        except jsonschema.exceptions.ValidationError as e:
+            tmp_msg = f"\n  Failed to validate {yaml_path} using {schema_path}\n" \
+                      + f"\njsonschema.exceptions.ValidationError: {e}\n"
+            if abort_on_fail:
+                sys.exit(msg + tmp_msg)
+            elif verbose > 1:
+                msg += tmp_msg
+            file = yaml_path
+            retval = 1
+
+    return file, retval, msg
+
+
+# pylint: disable-next=too-many-locals,too-many-branches,too-many-statements
+def main() -> int:
+    """
+    Main function for the program
+    """
+    abort_on_fail = False
+    verbose = 1
+    no_summary = None
+
+    i = 1
+    schema = ""
+    schema_path = ""
+    yaml_paths: list[tuple[str, str]] = []
+    resume_from = None
+    exclude_paths: list[str] = []
+
+    while i < len(sys.argv):
+        if sys.argv[i] in ("help", "--help"):
+            usage()
+            sys.exit(0)
+        if sys.argv[i] in ("version", "--version"):
+            version()
+            sys.exit(0)
+        elif sys.argv[i] in ("-q", "--quiet"):
+            if verbose > 0:
+                verbose -= 1
+        elif sys.argv[i] in ("-v", "--verbose"):
+            if verbose < 3:
+                verbose += 1
+        elif sys.argv[i] in ("-A", "--abort-on-failure"):
+            abort_on_fail = True
+        elif sys.argv[i] in ("-S", "--summary"):
+            no_summary = False
+        elif sys.argv[i] in ("-N", "--no-summary"):
+            no_summary = True
+        elif sys.argv[i] in ("-x", "--exclude"):
+            i += 1
+            if i < len(sys.argv):
+                exclude_paths = sys.argv[i].split(",")
+        elif sys.argv[i] in ("-R", "--resume-from"):
+            i += 1
+            if i < len(sys.argv):
+                resume_from = sys.argv[i]
+                if not os.path.isfile(resume_from):
+                    sys.exit("The --resume-from PATH has to be a file")
+            else:
+                sys.exit("Too few arguments; --resume-from requires a PATH")
+        else:
+            # If schema hasn't been set this is the schema to use;
+            # either an alias {views,themes,parsers} or a full path
+            if not schema:
+                schema = sys.argv[i]
+                if schema in ["themes", "views", "parsers"]:
+                    schema_path = f"tests/schemas/{schema}.json"
+                else:
+                    schema_path = schema
+                    if not os.path.isfile(schema_path) or not schema_path.lower().endswith(".json"):
+                        sys.exit("SCHEMA has to be a path to a JSON schema file"
+                                 " or one of {parsers,themes,views}")
+            else:
+                # This is a path to validate
+                yaml_paths.append((sys.argv[i], schema_path))
+        i += 1
+
+    # This way it's possible to disable the summary even when verbose
+    if no_summary is None:
+        if verbose > 0:
+            no_summary = False
+        else:
+            no_summary = True
+
+    if not yaml_paths:
+        if schema in ["parsers", "themes", "views"]:
+            yaml_paths += [(schema, schema_path)]
+        else:
+            yaml_paths = [
+                ("themes", "tests/schemas/themes.json"),
+                ("views", "tests/schemas/views.json"),
+                ("parsers", "tests/schemas/parsers.json"),
+            ]
+
+    count = 0
+    fail = 0
+    skip = 0
+
+    args = []
+
+    for yaml_path, schema_path in yaml_paths:
+        if not os.path.isfile(schema_path):
+            sys.exit(f"schema {schema_path} does not exist or is not a file; aborting.")
+
+        if os.path.isfile(yaml_path):
+            if resume_from is not None:
+                if yaml_path == resume_from:
+                    args.append((yaml_path, schema_path, verbose, abort_on_fail, exclude_paths))
+                    resume_from = None
+            else:
+                args.append((yaml_path, schema_path, verbose, abort_on_fail, exclude_paths))
+        elif os.path.isdir(yaml_path):
+            for path in os.listdir(yaml_path):
+                if resume_from is not None:
+                    if f"{yaml_path}/{path}" == resume_from:
+                        args.append((f"{yaml_path}/{path}", schema_path, verbose, abort_on_fail,
+                                     exclude_paths))
+                        resume_from = None
+                else:
+                    args.append((f"{yaml_path}/{path}", schema_path, verbose, abort_on_fail,
+                                 exclude_paths))
+
+    with Pool() as pool:
+        result = pool.starmap(validate_file, cast(Iterable, natsorted(args)))
+
+        for file, retval, msg in result:
+            if msg:
+                print(msg)
+
+            if retval == -1:
+                skip += 1
+            else:
+                fail += retval
+            count += 1
+            if file is not None:
+                failed_files.append(file)
+
+    if not no_summary:
+        print("\nSummary:")
+        if not abort_on_fail:
+            print(f"     fail: {fail}")
+        print(f"     skip: {skip}")
+        print(f"  success: {count - fail - skip}")
+        print(f"    total: {count}")
+
+        if fail:
+            print("\n\nThe following files failed validation:")
+            print("---")
+            for file in failed_files:
+                print(f"  {file}")
+
+    if fail:
+        sys.exit(fail)
+    return 0
+
+
+if __name__ == "__main__":
+    main()
