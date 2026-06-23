@@ -69,6 +69,8 @@ def fieldgetter_executable_version(**kwargs: Any) -> list[str]:
                     for field in tmp.groups():
                         version.append(field)
                     break
+        if version:
+            break
 
     return ["".join(version)]
 

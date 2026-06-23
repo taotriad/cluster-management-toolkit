@@ -9,11 +9,10 @@ calicoctl:
   candidate_version:
     function: "get_github_version"
     args:
-      # yamllint disable rule:line-length
+      # yamllint disable-line rule:line-length
       url: "https://api.github.com/repos/projectcalico/calico/releases?per_page=100"
       version_regex: 'v(\d+)(\.)(\d+)(\.)(\d+)$'
   changelog:
-    # yamllint disable rule:line-length
+    # yamllint disable-line rule:line-length
     url: "https://raw.githubusercontent.com/projectcalico/calico/v<<<version.0>>>.<<<version.2>>>.<<<version.4>>>/release-notes/v<<<version.0>>>.<<<version.2>>>.<<<version.4>>>-release-notes.md"
-    # yamllint enable rule:line-length
     dest: "calico_changelog.md"

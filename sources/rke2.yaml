@@ -1,6 +1,12 @@
 ---
 rke2:
   description: "RKE2"
+  installed_version:
+    function: "get_executable_version"
+    executable: ["/opt/rke2/bin/rke2", "/usr/local/bin/rke2"]
+    args: ["--version"]
+    # yamllint disable-line rule:line-length
+    version_regex: '^rke2 version v(\d+)(\.)(\d+)(\.)(\d+)(-rc\d+|)(\+)([a-z0-9]+).*'
   candidate_version:
     function: "get_github_version"
     args:

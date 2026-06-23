@@ -1,6 +1,11 @@
 ---
 rancher:
   description: "Rancher"
+  installed_version:
+    function: "get_executable_version"
+    executable: "/usr/bin/helm"
+    args: ["list", "-A"]
+    version_regex: '^rancher\s.+\s(\S+)$'
   candidate_version:
     function: "get_github_version"
     args:
