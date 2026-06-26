@@ -70,6 +70,8 @@
       image_name: "/fury/calico/cni"
     - container_name: "mount-bpffs"
       container_type: "InitContainer"
+    - image_name: "/calico/node"
+      container_type: "InitContainer"
   parser_rules:
     - name: "glog"
     - name: "ts_8601"
