@@ -22,6 +22,8 @@
     - image_name: "/capk/capk-manager"
     - image_name: "/capi-operator/cluster-api-operator"
     - image_name: "/lxc/cluster-api-provider-incus"
+    - image_name: "/kubesphere/kk-controller-manager"
+    - image_name: "/kubesphere/capkk-controller-manager"
   parser_rules:
     - name: "glog"
     - name: "key_value_with_leading_message"

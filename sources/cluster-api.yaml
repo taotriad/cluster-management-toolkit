@@ -5,7 +5,7 @@ cluster-api:
     function: "get_executable_version"
     executable: "/usr/bin/clusterctl"
     args: ["version", "-oyaml"]
-    version_regex: '^.*gitVersion: v(\d+)(\.)(\d+)(\.)(\d+).*$'
+    version_regex: '^.*gitVersion: v(\d+)(\.)(\d+)(\.)(\d+)(-[a-z]+\.\d+|).*$'
   candidate_version:
     function: "get_github_version"
     args:

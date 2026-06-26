@@ -314,7 +314,8 @@ listview:
             fieldgetter_args:
               executable: "/usr/bin/clusterctl"
               args: ["version", "-oyaml"]
-              version_regex: '^.*gitVersion: v(\d+)(\.)(\d+)(\.)(\d+).*$'
+              # yamllint disable-line rule:line-length
+              version_regex: '^.*gitVersion: v(\d+)(\.)(\d+)(\.)(\d+)(-[a-z]+\.\d+|).*$'
           file_not_found_status: "No changelog found"
           paths:
             - filepath: "{HOME}/.cmt/version-cache/cluster-api_changelog.md"

@@ -1046,6 +1046,18 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api_paths": ["apis/infrastructure.cluster.x-k8s.io/v1beta2/"],
         "api": "ibmvpcmachinetemplates",
     },
+    ("KKCluster", "infrastructure.cluster.x-k8s.io"): {
+        "api_paths": ["apis/infrastructure.cluster.x-k8s.io/v1beta1/"],
+        "api": "kkclusters",
+    },
+    ("KKMachine", "infrastructure.cluster.x-k8s.io"): {
+        "api_paths": ["apis/infrastructure.cluster.x-k8s.io/v1beta1/"],
+        "api": "kkmachines",
+    },
+    ("KKMachineTemplate", "infrastructure.cluster.x-k8s.io"): {
+        "api_paths": ["apis/infrastructure.cluster.x-k8s.io/v1beta1/"],
+        "api": "kkmachinetemplates",
+    },
     ("KubevirtCluster", "infrastructure.cluster.x-k8s.io"): {
         "api_paths": ["apis/infrastructure.cluster.x-k8s.io/v1alpha1/"],
         "api": "kubevirtclusters",
@@ -1535,39 +1547,47 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
     },
     # security-profiles-operator.x-k8s.io
     ("AppArmorProfile", "security-profiles-operator.x-k8s.io"): {
-        "api_paths": ["apis/security-profiles-operator.x-k8s.io/v1alpha1/"],
+        "api_paths": ["apis/security-profiles-operator.x-k8s.io/v1/",
+                      "apis/security-profiles-operator.x-k8s.io/v1alpha1/"],
         "api": "apparmorprofiles",
         "namespaced": False,
     },
     ("ProfileBinding", "security-profiles-operator.x-k8s.io"): {
-        "api_paths": ["apis/security-profiles-operator.x-k8s.io/v1alpha1/"],
+        "api_paths": ["apis/security-profiles-operator.x-k8s.io/v1/",
+                      "apis/security-profiles-operator.x-k8s.io/v1alpha1/"],
         "api": "profilebindings",
     },
     ("ProfileRecording", "security-profiles-operator.x-k8s.io"): {
-        "api_paths": ["apis/security-profiles-operator.x-k8s.io/v1alpha1/"],
+        "api_paths": ["apis/security-profiles-operator.x-k8s.io/v1/",
+                      "apis/security-profiles-operator.x-k8s.io/v1alpha1/"],
         "api": "profilerecordings",
     },
+    ("RawSelinuxProfile", "security-profiles-operator.x-k8s.io"): {
+        "api_paths": ["apis/security-profiles-operator.x-k8s.io/v1/",
+                      "apis/security-profiles-operator.x-k8s.io/v1alpha1/"],
+        "api": "rawselinuxprofiles",
+        "namespaced": False,
+    },
     ("SecurityProfileNodeStatus", "security-profiles-operator.x-k8s.io"): {
-        "api_paths": ["apis/security-profiles-operator.x-k8s.io/v1alpha1/"],
+        "api_paths": ["apis/security-profiles-operator.x-k8s.io/v1/",
+                      "apis/security-profiles-operator.x-k8s.io/v1alpha1/"],
         "api": "securityprofilenodestatuses",
         "namespaced": False,
     },
     ("SecurityProfilesOperatorDaemon", "security-profiles-operator.x-k8s.io"): {
-        "api_paths": ["apis/security-profiles-operator.x-k8s.io/v1alpha1/"],
+        "api_paths": ["apis/security-profiles-operator.x-k8s.io/v1/",
+                      "apis/security-profiles-operator.x-k8s.io/v1alpha1/"],
         "api": "securityprofilesoperatordaemons",
     },
-    ("RawSelinuxProfile", "security-profiles-operator.x-k8s.io"): {
-        "api_paths": ["apis/security-profiles-operator.x-k8s.io/v1alpha2/"],
-        "api": "rawselinuxprofiles",
-        "namespaced": False,
-    },
     ("SelinuxProfile", "security-profiles-operator.x-k8s.io"): {
-        "api_paths": ["apis/security-profiles-operator.x-k8s.io/v1alpha2/"],
+        "api_paths": ["apis/security-profiles-operator.x-k8s.io/v1/",
+                      "apis/security-profiles-operator.x-k8s.io/v1alpha2/"],
         "api": "selinuxprofiles",
         "namespaced": False,
     },
     ("SeccompProfile", "security-profiles-operator.x-k8s.io"): {
-        "api_paths": ["apis/security-profiles-operator.x-k8s.io/v1beta1/"],
+        "api_paths": ["apis/security-profiles-operator.x-k8s.io/v1/",
+                      "apis/security-profiles-operator.x-k8s.io/v1beta1/"],
         "api": "seccompprofiles",
         "namespaced": False,
     },
@@ -4674,6 +4694,15 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api_paths": ["apis/kubeflow.org/v1beta1/",
                       "apis/kubeflow.org/v1alpha3/"],
         "api": "viewers",
+    },
+    # kubekey.kubesphere.io
+    ("Inventory", "kubekey.kubesphere.io"): {
+        "api_paths": ["apis/kubekey.kubesphere.io/v1/"],
+        "api": "inventories",
+    },
+    ("Playbook", "kubekey.kubesphere.io"): {
+        "api_paths": ["apis/kubekey.kubesphere.io/v1/"],
+        "api": "playbooks",
     },
     # kubeovn.io
     ("Configuration", "kubeovn.io"): {
