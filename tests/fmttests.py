@@ -987,8 +987,14 @@ def test_format_cel(verbose: bool = False) -> tuple[str, bool]:
     fun = formatters.format_cel
 
     if result:
-        if len(pygments_version) == 3 \
-                and int(pygments_version[0]) >= 2 and int(pygments_version[1]) >= 21:
+        try:
+            from pygments.lexers.cel import CELLexer
+            cellexer_available: bool = True
+        except ModuleNotFoundError:
+            # CELLexer is available from Pygments 2.22
+            cellexer_available = False
+
+        if cellexer_available:
             # Indata format:
             # (lines, options, expected_result, expected_exception)
             testdata: tuple[Any, ...] = (
