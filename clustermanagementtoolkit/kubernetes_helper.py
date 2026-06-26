@@ -1844,7 +1844,7 @@ class KubernetesHelper:
             return 42503, []
 
         api_resources: list[tuple] = []
-        core_apis = {}
+        core_apis: dict[str, Any] = {}
 
         # First get all core APIs
         method = "GET"
@@ -1863,7 +1863,8 @@ class KubernetesHelper:
 
             # Success
             try:
-                core_apis = json_loads(raw_data)
+                # core_apis is always a dict, not a list of dicts.
+                core_apis = cast(dict[str, Any], json_loads(raw_data))
             except (ValueError, json.decoder.JSONDecodeError):
                 # We got a response, but the data is malformed
                 return 42422, []
@@ -1892,7 +1893,7 @@ class KubernetesHelper:
                 "Content-Type": "application/json",
                 "User-Agent": f"{self.programname} v{self.programversion}",
             }
-            aggregated_data = {}
+            aggregated_data: dict[str, Any] = {}
 
             url = f"https://{self.control_plane_ip}:{self.control_plane_port}" \
                   f"{self.control_plane_path}/apis"
@@ -1907,7 +1908,8 @@ class KubernetesHelper:
                 if status == 200 and raw_data is not None:
                     # Success
                     try:
-                        aggregated_data = json_loads(raw_data)
+                        # aggregated_data is always a dict, not a list of dicts.
+                        aggregated_data = cast(dict[str, Any], json_loads(raw_data))
                     except (ValueError, json.decoder.JSONDecodeError):
                         # We got a response, but the data is malformed
                         pass
@@ -2027,11 +2029,10 @@ class KubernetesHelper:
                                           DictPath("available"), False):
             return kubernetes_resources, 200, modified
 
-        method = "GET"
+        core_apis: dict[str, Any] = {}
 
         # First get all core APIs
-        core_apis = {}
-
+        method = "GET"
         url = f"https://{self.control_plane_ip}:{self.control_plane_port}" \
               f"{self.control_plane_path}/api/v1"
         with PoolManagerContext(cert_file=self.cert_file, key_file=self.key_file,
@@ -2047,7 +2048,8 @@ class KubernetesHelper:
                 return kubernetes_resources, status, modified
             # Success
             try:
-                core_apis = json_loads(raw_data)
+                # core_apis is always a dict, not a list of dicts.
+                core_apis = cast(dict[str, Any], json_loads(raw_data))
             except (ValueError, json.decoder.JSONDecodeError):
                 # We got a response, but the data is malformed
                 return kubernetes_resources, 42422, False
@@ -2088,7 +2090,7 @@ class KubernetesHelper:
                 "Content-Type": "application/json",
                 "User-Agent": f"{self.programname} v{self.programversion}",
             }
-            aggregated_data = {}
+            aggregated_data: dict[str, Any] = {}
 
             url = f"https://{self.control_plane_ip}:{self.control_plane_port}" \
                   f"{self.control_plane_path}/apis"
@@ -2098,7 +2100,8 @@ class KubernetesHelper:
             if status == 200 and raw_data is not None:
                 # Success
                 try:
-                    aggregated_data = json_loads(raw_data)
+                    # aggregated_data is always a dict, not a list of dicts.
+                    aggregated_data = cast(dict[str, Any], json_loads(raw_data))
                 except (ValueError, json.decoder.JSONDecodeError):
                     # We got a response, but the data is malformed
                     return kubernetes_resources, 42422, False
@@ -2652,7 +2655,7 @@ class KubernetesHelper:
 
     # noqa: E501 pylint: disable-next=too-many-locals,too-many-branches,too-many-statements,too-many-return-statements
     def __rest_helper_get(self, **kwargs: Any) -> \
-            tuple[dict | list[dict | None] | None, int]:
+            tuple[dict[str, Any] | list[dict[str, Any]] | None, int]:
         kind: tuple[str, str] | None = deep_get(kwargs, DictPath("kind"))
         raw_path: str | None = deep_get(kwargs, DictPath("raw_path"))
         name: str = deep_get(kwargs, DictPath("name"), "")

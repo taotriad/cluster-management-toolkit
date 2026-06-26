@@ -1862,7 +1862,8 @@ def get_info_by_last_applied_configuration(obj: dict, **kwargs: Any) -> tuple[li
         if last_applied_configuration is None or not last_applied_configuration:
             continue
         try:
-            data = json_loads(last_applied_configuration)
+            # last-applied-configuration is always a dict, not a list.
+            data: dict[str, Any] = cast(dict[str, Any], json_loads(last_applied_configuration))
         except (ValueError, json.decoder.JSONDecodeError):
             # The data is malformed; skip the entry
             continue

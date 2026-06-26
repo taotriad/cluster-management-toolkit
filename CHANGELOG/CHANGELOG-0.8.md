@@ -124,6 +124,15 @@ TBD
 * The Resource View now has a new command, *Focus Mode*, when viewing JSON/YAML.
   It filters out generated fields from Kubernetes resources, to make it easier
   to see the relevant parts of the resources.
+* The `key_value` and `key_value_with_leading_message` logparser rules now formats
+  the messages even if they're not unfolded.
+* A special hack was introduced in the `key_value_with_leading_message` logparser
+  rule that unfolds key-value messages starting with `FLAG:`.
+* A special hack was introduced in the `key_value` and `key_value_with_leading_message`
+  logparser rules that disables the rule on lines that end with a full stop.
+  This rule was introduced because several informational log messages were found
+  that happened to contain a "=" without being key-value messages.
+* Mouse-support is now disabled by default.
 
 ### Changes to other files in v0.8.8
 

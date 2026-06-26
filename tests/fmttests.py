@@ -988,7 +988,7 @@ def test_format_cel(verbose: bool = False) -> tuple[str, bool]:
 
     if result:
         try:
-            from pygments.lexers.cel import CELLexer
+            from pygments.lexers.cel import CELLexer  # noqa: F401
             cellexer_available: bool = True
         except ModuleNotFoundError:
             # CELLexer is available from Pygments 2.22
