@@ -10699,7 +10699,7 @@ def setupui(stdscr: curses.window) -> None:
     # Disable CTRL+C, CTRL+Z, etc.
     curses.raw()
     # Enable mouse support
-    enable_mouse = deep_get(cmtlib.cmtconfig, DictPath("Mouse#enable"), True)
+    enable_mouse = deep_get(cmtlib.cmtconfig, DictPath("Mouse#enable"), False)
     if enable_mouse:
         curses_helper.set_mousemask(-1)
     else:
