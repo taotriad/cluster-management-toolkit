@@ -33,9 +33,26 @@
           loglevel: "notice"
     - name: "custom_splitter"
       options:
-        regex: '^(\[\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d.\d\d:\d\d\] )?(.*)'
+        regex: '^(\[\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d.\d\d:\d\d\] |\[\d{4}-\d\d-\d\dT\d\d:\d\d:\d\dZ\] )?(.*)'
         message:
           field: 2
+    - name: "custom_line"
+      options:
+        block_start:
+          - matchtype: "startswith"
+            matchkey: "--------"
+            matchline: "any"
+            format_block_start: true
+        block_end:
+          - matchtype: "startswith"
+            matchkey: "--------"
+            matchline: "any"
+            format_block_end: true
+        loglevel: "info"
+        overrides:
+          - matchtype: "startswith"
+            matchkey: "  Version: "
+            loglevel: "notice"
 - name: "kube-ovn"
   show_in_selector: false
   matchkeys:
