@@ -97,6 +97,21 @@
             - 1
         message:
           field: 2
+    - name: "custom_line"
+      options:
+        block_start:
+          - matchtype: "startswith"
+            matchkey: "+---------------------------"
+            matchline: "any"
+            format_block_start: true
+        block_end:
+          - matchtype: "regex"
+            # yamllint disable-line rule:line-length
+            matchkey: '^[^|+]'
+            matchline: "any"
+            format_block_end: false
+            process_block_end: false
+        loglevel: "notice"
     - name: "override_severity"
       overrides:
         - matchtype: "regex"
