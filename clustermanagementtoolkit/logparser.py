@@ -1024,6 +1024,8 @@ def split_glog(message: str, **kwargs: Any) \
         message = f"{re_tmp[1]}{re_tmp[2]}"
 
     re_tmp = re.match(r"^([A-Z])\d\d\d\d \d\d:\d\d:\d\d\.\d+\s+(\d+)\s(.+?:\d+)\](.*)", message)
+    re_tmp2 = re.match(r"^(\[[A-Z])\d{3,4} \d\d:\d\d:\d\d\.\d+\s+(.+?:\d+)\](.*)", message)
+
     if re_tmp is not None:
         severity = letter_to_severity(re_tmp[1])
 
@@ -1032,6 +1034,15 @@ def split_glog(message: str, **kwargs: Any) \
 
         facility = f"{(re_tmp[3])}"
         message = f"{(re_tmp[4])}"
+        # The first character is always whitespace unless this is an empty line
+        if message:
+            message = message[1:]
+        matched = True
+    elif re_tmp2 is not None:
+        severity = letter_to_severity(re_tmp2[1])
+
+        facility = f"{(re_tmp2[2])}"
+        message = f"{(re_tmp2[3])}"
         # The first character is always whitespace unless this is an empty line
         if message:
             message = message[1:]
