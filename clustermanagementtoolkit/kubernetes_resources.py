@@ -4027,7 +4027,8 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
     },
     # hco.kubevirt.io
     ("HyperConverged", "hco.kubevirt.io"): {
-        "api_paths": ["apis/hco.kubevirt.io/v1beta1/"],
+        "api_paths": ["apis/hco.kubevirt.io/v1/",
+                      "apis/hco.kubevirt.io/v1beta1/"],
         "api": "hyperconvergeds",
     },
     # helm.cattle.io
