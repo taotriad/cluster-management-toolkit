@@ -295,6 +295,10 @@ listview:
               field_colors:
                 - context: "main"
                   type: "status_not_ok"
+            ClusterRoleBindingUpdated:
+              field_colors:
+                - context: "main"
+                  type: "status_done"
             ClusterRoleCreated:
               field_colors:
                 - context: "main"
@@ -580,6 +584,15 @@ listview:
               field_colors:
                 - context: "main"
                   type: "status_done"
+            # XXX: Probably a typo; report upstream.
+            "DaemonSet Updated":
+              field_colors:
+                - context: "main"
+                  type: "status_done"
+            DaemonSetUpdateFailed:
+              field_colors:
+                - context: "main"
+                  type: "status_warning"
             DeadlineExceeded:
               field_colors:
                 - context: "main"
@@ -1636,6 +1649,10 @@ listview:
               field_colors:
                 - context: "main"
                   type: "status_ok"
+            OperatorVersionUpdated:
+              field_colors:
+                - context: "main"
+                  type: "status_done"
             Orphaned:
               field_colors:
                 - context: "main"
@@ -1761,6 +1778,10 @@ listview:
                 - context: "main"
                   type: "status_done"
             PrometheusRuleCreated:
+              field_colors:
+                - context: "main"
+                  type: "status_done"
+            PrometheusRuleUpdated:
               field_colors:
                 - context: "main"
                   type: "status_done"
@@ -1992,6 +2013,10 @@ listview:
               field_colors:
                 - context: "main"
                   type: "status_warning"
+            RoleBindingUpdated:
+              field_colors:
+                - context: "main"
+                  type: "status_done"
             "RoleBinding is exist":
               field_colors:
                 - context: "main"
@@ -2140,11 +2165,19 @@ listview:
               field_colors:
                 - context: "main"
                   type: "status_ok"
+            ServiceAccountUpdated:
+              field_colors:
+                - context: "main"
+                  type: "status_done"
             ServiceCreated:
               field_colors:
                 - context: "main"
                   type: "status_done"
             ServiceMonitorCreated:
+              field_colors:
+                - context: "main"
+                  type: "status_done"
+            ServiceMonitorUpdated:
               field_colors:
                 - context: "main"
                   type: "status_done"
@@ -2497,6 +2530,10 @@ listview:
                 - context: "main"
                   type: "status_ok"
             UnexpectedAdmissionError:
+              field_colors:
+                - context: "main"
+                  type: "status_warning"
+            UnexpectedError:
               field_colors:
                 - context: "main"
                   type: "status_warning"
@@ -3027,6 +3064,10 @@ infoview:
                 field_colors:
                   - context: "main"
                     type: "status_not_ok"
+              ClusterRoleBindingUpdated:
+                field_colors:
+                  - context: "main"
+                    type: "status_done"
               ClusterRoleCreated:
                 field_colors:
                   - context: "main"
@@ -3312,6 +3353,15 @@ infoview:
                 field_colors:
                   - context: "main"
                     type: "status_done"
+              # XXX: Probably a typo; report upstream.
+              "DaemonSet Updated":
+                field_colors:
+                  - context: "main"
+                    type: "status_done"
+              DaemonSetUpdateFailed:
+                field_colors:
+                  - context: "main"
+                    type: "status_warning"
               DeadlineExceeded:
                 field_colors:
                   - context: "main"
@@ -4368,6 +4418,10 @@ infoview:
                 field_colors:
                   - context: "main"
                     type: "status_ok"
+              OperatorVersionUpdated:
+                field_colors:
+                  - context: "main"
+                    type: "status_done"
               Orphaned:
                 field_colors:
                   - context: "main"
@@ -4493,6 +4547,10 @@ infoview:
                   - context: "main"
                     type: "status_done"
               PrometheusRuleCreated:
+                field_colors:
+                  - context: "main"
+                    type: "status_done"
+              PrometheusRuleUpdated:
                 field_colors:
                   - context: "main"
                     type: "status_done"
@@ -4724,6 +4782,10 @@ infoview:
                 field_colors:
                   - context: "main"
                     type: "status_warning"
+              RoleBindingUpdated:
+                field_colors:
+                  - context: "main"
+                    type: "status_done"
               "RoleBinding is exist":
                 field_colors:
                   - context: "main"
@@ -4872,11 +4934,19 @@ infoview:
                 field_colors:
                   - context: "main"
                     type: "status_ok"
+              ServiceAccountUpdated:
+                field_colors:
+                  - context: "main"
+                    type: "status_done"
               ServiceCreated:
                 field_colors:
                   - context: "main"
                     type: "status_done"
               ServiceMonitorCreated:
+                field_colors:
+                  - context: "main"
+                    type: "status_done"
+              ServiceMonitorUpdated:
                 field_colors:
                   - context: "main"
                     type: "status_done"
@@ -5229,6 +5299,10 @@ infoview:
                   - context: "main"
                     type: "status_ok"
               UnexpectedAdmissionError:
+                field_colors:
+                  - context: "main"
+                    type: "status_warning"
+              UnexpectedError:
                 field_colors:
                   - context: "main"
                     type: "status_warning"
