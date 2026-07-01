@@ -2189,6 +2189,10 @@ listview:
               field_colors:
                 - context: "main"
                   type: "status_warning"
+            ServiceReload:
+              field_colors:
+                - context: "main"
+                  type: "status_done"
             ServiceUnhealthy:
               field_colors:
                 - context: "main"
@@ -4958,6 +4962,10 @@ infoview:
                 field_colors:
                   - context: "main"
                     type: "status_warning"
+              ServiceReload:
+                field_colors:
+                  - context: "main"
+                    type: "status_done"
               ServiceUnhealthy:
                 field_colors:
                   - context: "main"

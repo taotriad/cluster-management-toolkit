@@ -2113,6 +2113,10 @@ ServiceReferenceError:
   field_colors:
     - context: "main"
       type: "status_warning"
+ServiceReload:
+  field_colors:
+    - context: "main"
+      type: "status_done"
 ServiceUnhealthy:
   field_colors:
     - context: "main"
