@@ -2301,6 +2301,10 @@ SyncError:
   field_colors:
     - context: "main"
       type: "status_warning"
+SyncFailed:
+  field_colors:
+    - context: "main"
+      type: "status_warning"
 SyncJob:
   field_colors:
     - context: "main"
