@@ -7,7 +7,7 @@ command:
   - "pclqset"
 listview:
   name: "Pod Clique Sets"
-  group: "Scheduling"
+  group: "Scheduling & Scaling"
   field_indexes:
     Normal:
       fields: ["namespace", "name",

@@ -4,7 +4,7 @@ api_family: "scheduler.grove.io"
 default_command: "podgangs"
 listview:
   name: "Pod Gangs"
-  group: "Scheduling"
+  group: "Scheduling & Scaling"
   field_indexes:
     Normal:
       fields: ["namespace", "name", "age"]

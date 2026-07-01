@@ -7,7 +7,7 @@ command:
   - "pcsg"
 listview:
   name: "Pod Clique Scaling Groups"
-  group: "Scheduling"
+  group: "Scheduling & Scaling"
   field_indexes:
     Wide:
       fields: ["namespace", "name", "cliques",

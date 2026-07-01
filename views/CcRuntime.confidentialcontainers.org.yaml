@@ -4,7 +4,7 @@ api_family: "confidentialcontainers.org"
 default_command: "ccruntimes"
 listview:
   name: "Confidential Compute Runtimes"
-  group: "Policy"
+  group: "Confidential Compute"
   field_indexes:
     Normal:
       fields: ["name", "installed_nodes", "total_nodes", "runtime", "age"]
