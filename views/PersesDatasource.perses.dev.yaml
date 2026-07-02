@@ -1,0 +1,175 @@
+---
+kind: "PersesDatasource"
+api_family: "perses.dev"
+default_command: "persesdatasources"
+command:
+  - "persesdatasrcs"
+  - "persesdatasrc"
+listview:
+  name: "Perses Datasources"
+  group: "Observability"
+  field_indexes:
+    Wide:
+      fields: ["namespace", "name", "degraded", "available", "age", "status"]
+      sortcolumn: "namespace"
+    Normal:
+      fields: ["namespace", "name", "degraded", "available", "age"]
+      sortcolumn: "namespace"
+  fields:
+    available:
+      header: "Available:"
+      paths:
+        - path: "status#conditions"
+          pathtype: "items"
+          subpath: "status"
+          when:
+            - key: "type"
+              eq: "Available"
+          default: ["False"]
+      type: "str"
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          mappings:
+            "False":
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+            "True":
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+    degraded:
+      header: "Degraded:"
+      paths:
+        - path: "status#conditions"
+          pathtype: "items"
+          subpath: "status"
+          when:
+            - key: "type"
+              eq: "Degraded"
+          default: ["False"]
+      type: "str"
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          mappings:
+            "False":
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+            "True":
+              field_colors:
+                - context: "main"
+                  type: "status_not_ok"
+    status:
+      header: "Status:"
+      paths:
+        - path: "status#conditions"
+          pathtype: "items"
+          subpath: "message"
+          when:
+            - key: "type"
+              eq: "Available"
+          default: ["<unset>"]
+      type: "str"
+infoview:
+  name: "Perses Datasource Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["client_header",
+                 "client_tls_header",
+                 "client_tls_enabled",
+                 "client_tls_ca_cert_header",
+                 "client_tls_ca_cert_path",
+                 "client_tls_ca_cert_type",
+                 "degraded", "status", "available"]
+    rows:
+      client_header:
+        header: [["Client:", ["main", "infoheader"]]]
+      client_tls_enabled:
+        header: [["    Enabled:", ["main", "infoheader"]]]
+        path: "spec#client#tls#enable"
+        default: "<unset>"
+        type: "bool"
+      client_tls_ca_cert_header:
+        header: [["    CA Certificate:", ["main", "infoheader"]]]
+      client_tls_ca_cert_path:
+        header: [["      Path:", ["main", "infoheader"]]]
+        path: "spec#client#tls#caCert#certPath"
+        default: "<unset>"
+        type: "str"
+        formatting:
+          field_colors:
+            - type: "path"
+      client_tls_ca_cert_type:
+        header: [["      Type:", ["main", "infoheader"]]]
+        path: "spec#client#tls#caCert#type"
+        default: "<unset>"
+        type: "str"
+      client_tls_header:
+        header: [["  TLS:", ["main", "infoheader"]]]
+      available:
+        header: [["Available:", ["main", "infoheader"]]]
+        paths:
+          - path: "status#conditions"
+            pathtype: "items"
+            subpath: "status"
+            when:
+              - key: "type"
+                eq: "Available"
+            default: ["False"]
+        type: "str"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              "False":
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+              "True":
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+      degraded:
+        header: [["Degraded:", ["main", "infoheader"]]]
+        paths:
+          - path: "status#conditions"
+            pathtype: "items"
+            subpath: "status"
+            when:
+              - key: "type"
+                eq: "Degraded"
+            default: ["False"]
+        type: "str"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              "False":
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+              "True":
+                field_colors:
+                  - context: "main"
+                    type: "status_not_ok"
+      status:
+        header: [["Status:", ["main", "infoheader"]]]
+        paths:
+          - path: "status#conditions"
+            pathtype: "items"
+            subpath: "message"
+            when:
+              - key: "type"
+                eq: "Available"
+            default: ["<unset>"]
+        type: "str"
+  logpad:
+    infogetter: "logpad_formatted"
+    infogetter_args:
+      formatter: "format_yaml"
+      path: "spec#config"
+    timestamps: false

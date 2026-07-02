@@ -18,3 +18,4 @@
     - name: "glog"
     - name: "tab_separated"
     - name: "expand_event"
+    - name: "key_value"
