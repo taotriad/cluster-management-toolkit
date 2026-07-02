@@ -26,7 +26,7 @@ try:
     import yaml
 except ModuleNotFoundError:  # pragma: no cover
     sys.exit("ModuleNotFoundError: Could not import yaml; "
-             "you may need to (re-)run `cmt-install` or `pip3 install PyYAML`; aborting.")
+             "you may need to (re-)run `cmt-install.py` or `pip3 install PyYAML`; aborting.")
 
 import pygments
 from pygments.formatter import Formatter
@@ -54,7 +54,7 @@ try:
     from natsort import natsorted
 except ModuleNotFoundError:  # pragma: no cover
     sys.exit("ModuleNotFoundError: Could not import natsort; "
-             "you may need to (re-)run `cmt-install` or `pip3 install natsort`; aborting.")
+             "you may need to (re-)run `cmt-install.py` or `pip3 install natsort`; aborting.")
 
 from clustermanagementtoolkit.cmttypes import deep_get, deep_pop, DictPath, FilePath, LogLevel
 from clustermanagementtoolkit.cmttypes import FilePathAuditError, StatusGroup
@@ -3108,7 +3108,7 @@ def format_promql(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef |
             list[themearray]: A list of themearrays
     """
     return format_pygments_generic(lines, **kwargs,
-                                   lexer=PythonLexer(),
+                                   lexer=PromQLLexer(),
                                    colorscheme=COLORSCHEME_PROMQL)
 
 
