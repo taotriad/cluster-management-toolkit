@@ -85,8 +85,10 @@ TBD
 
 ### Changes to _cmu_ in v0.8.8
 
+* There's now syntax highlighting for Prometheus Query Language (PromQL).
+  It's a bit limited since the Pygments lexer for PromQL is very limited.
 * There's now a built-in file-viewer. Currently supported formats:
-  * `Common Expression Language (CEL)` (Note: Syntax highlighting requires Pygments 2.22+)
+  * `CEL (Common Expression Language)` (Note: Syntax highlighting requires Pygments 2.22+)
   * `Context and Unified Diff`
   * `CRT`
   * `CSS`
@@ -94,11 +96,13 @@ TBD
   * `INI`
   * `JavaScript`
   * `JSON`
+  * `known_hosts`
   * `Markdown`
   * `NDJSON`
   * `PowerShell`
+  * `PromQL (Prometheus Query Language)`
   * `Python`
-  * `Shell Script`
+  * `SH/BASH/ZSH (Shell Script)`
   * `Text`
   * `TOML`
   * `XHTML`

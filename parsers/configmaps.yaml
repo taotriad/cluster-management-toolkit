@@ -337,6 +337,11 @@ configmap_signatures:
     signatures:
       - data_suffix: ".ps1"
 
+  promql:
+    format_name: "PromQL"
+    signatures:
+      - data_suffix: ".promql"
+
   python:
     format_name: "Python"
     signatures:

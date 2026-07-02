@@ -45,6 +45,7 @@ from pygments.lexers.diff import DiffLexer
 from pygments.lexers.html import HtmlLexer, XmlLexer
 from pygments.lexers.javascript import JavascriptLexer
 from pygments.lexers.markup import MarkdownLexer
+from pygments.lexers.promql import PromQLLexer
 from pygments.lexers.python import PythonLexer, PythonTracebackLexer
 from pygments.lexers.shell import BashLexer, PowerShellLexer
 from pygments.token import Token
@@ -952,6 +953,70 @@ COLORSCHEME_POWERSHELL: dict[Any, ColorSchemeEntry] = {
     Token.Operator: {
         "formatting": ThemeAttr("types", "powershell_operator"),
         "type": "operator",
+    },
+}
+
+
+COLORSCHEME_PROMQL: dict[Any, ColorSchemeEntry] = {
+    # <whitespace>
+    Token.Text.Whitespace: {
+        "formatting": ThemeAttr("types", "generic"),
+        "type": "whitespace",
+    },
+    # text
+    Token.Text: {
+        "formatting": ThemeAttr("types", "generic"),
+        "type": "generic",
+    },
+    # # comment
+    Token.Comment.Single: {
+        "formatting": ThemeAttr("types", "promql_comment"),
+        "type": "comment",
+    },
+    # 0.05
+    Token.Literal.Number.Float: {
+        "formatting": ThemeAttr("types", "promql_value"),
+        "type": "value",
+    },
+    # 50
+    Token.Literal.Number.Integer: {
+        "formatting": ThemeAttr("types", "promql_value"),
+        "type": "value",
+    },
+    # "
+    Token.Literal.String.Double: {
+        "formatting": ThemeAttr("types", "promql_string"),
+        "type": "value",
+    },
+    # '
+    Token.Literal.String.Single: {
+        "formatting": ThemeAttr("types", "promql_string"),
+        "type": "value",
+    },
+    # cco_credentials_requests_conditions
+    Token.Name: {
+        "formatting": ThemeAttr("types", "promql_name"),
+        "type": "name",
+    },
+    # sum
+    Token.Name.Builtin: {
+        "formatting": ThemeAttr("types", "promql_builtin"),
+        "type": "builtin",
+    },
+    # is
+    Token.Operator.Word: {
+        "formatting": ThemeAttr("types", "promql_keyword"),
+        "type": "keyword",
+    },
+    # {}
+    Token.Punctuation: {
+        "formatting": ThemeAttr("types", "promql_punctuation"),
+        "type": "punctuation",
+    },
+    # >
+    Token.Operator: {
+        "formatting": ThemeAttr("types", "promql_operator"),
+        "type": "keyword",
     },
 }
 
@@ -3030,6 +3095,23 @@ def format_powershell(lines: str | list[str], **kwargs: Any) -> list[list[ThemeR
                                    colorscheme=COLORSCHEME_POWERSHELL)
 
 
+def format_promql(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef | ThemeStr]]:
+    """
+    Prometheus Query Language formatter; returns the text with syntax highlighting for PromQL.
+
+        Parameters:
+            lines (list[str]): A list of strings
+            *or*
+            lines (str): A string with newlines that should be split
+            **kwargs (dict[str, Any]): Keyword arguments
+        Returns:
+            list[themearray]: A list of themearrays
+    """
+    return format_pygments_generic(lines, **kwargs,
+                                   lexer=PythonLexer(),
+                                   colorscheme=COLORSCHEME_PROMQL)
+
+
 def format_python(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef | ThemeStr]]:
     """
     Python formatter; returns the text with syntax highlighting for Python.
@@ -3151,6 +3233,8 @@ formatter_mapping: tuple[tuple[tuple[str, ...], tuple[str, ...], Callable], ...]
     (("ps1",), ("ps1",), format_powershell),
     (("",), (".ps1",), format_powershell),
     (("powershell",), ("powershell",), format_powershell),
+    (("",), (".promql",), format_promql),
+    (("promql",), ("promql",), format_promql),
     (("python",), ("",), format_python),
     (("py",), ("py",), format_python),
     (("",), (".py",), format_python),
@@ -3192,6 +3276,7 @@ formatter_allowlist: dict[str, Callable] = {
     "format_nginx": format_nginx,
     "format_none": format_none,
     "format_powershell": format_powershell,
+    "format_promql": format_promql,
     "format_python": format_python,
     "format_python_traceback": format_python_traceback,
     "format_toml": format_toml,

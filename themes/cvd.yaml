@@ -748,6 +748,30 @@ color_pairs_curses:
   type_powershell_variable:
     unselected: [["cyan", "bright"], ["black", "normal"]]
     selected: [["cyan", "bright"], ["white", "normal"]]
+  type_promql_builtin:
+    unselected: [["cyan", "bright"], ["black", "normal"]]
+    selected: [["cyan", "bright"], ["white", "normal"]]
+  type_promql_comment:
+    unselected: [["black", "bright"], ["black", "normal"]]
+    selected: [["black", "normal"], ["white", "normal"]]
+  type_promql_keyword:
+    unselected: [["yellow", "bright"], ["black", "normal"]]
+    selected: [["yellow", "bright"], ["white", "normal"]]
+  type_promql_name:
+    unselected: [["white", "normal"], ["black", "normal"]]
+    selected: [["black", "normal"], ["white", "normal"]]
+  type_promql_operator:
+    unselected: [["white", "bright"], ["black", "normal"]]
+    selected: [["white", "bright"], ["white", "normal"]]
+  type_promql_punctuation:
+    unselected: [["white", "normal"], ["black", "normal"]]
+    selected: [["black", "normal"], ["white", "normal"]]
+  type_promql_string:
+    unselected: [["magenta", "bright"], ["black", "normal"]]
+    selected: [["magenta", "bright"], ["white", "normal"]]
+  type_promql_value:
+    unselected: [["magenta", "bright"], ["black", "normal"]]
+    selected: [["magenta", "bright"], ["white", "normal"]]
   type_python_builtin:
     unselected: [["cyan", "bright"], ["black", "normal"]]
     selected: [["cyan", "bright"], ["white", "normal"]]
@@ -1289,6 +1313,14 @@ types:
   powershell_variable: "type_powershell_variable"
   powershell_value: "type_powershell_value"
   programname: ["programname", "bold"]
+  promql_builtin: "type_promql_builtin"
+  promql_comment: "type_promql_comment"
+  promql_keyword: "type_promql_keyword"
+  promql_name: "type_promql_name"
+  promql_operator: "type_promql_operator"
+  promql_punctuation: "type_promql_punctuation"
+  promql_string: "type_promql_string"
+  promql_value: "type_promql_value"
   protocol: ["type_protocol", "bold"]
   python_builtin: "type_python_builtin"
   python_comment: "type_python_comment"
