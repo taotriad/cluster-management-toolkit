@@ -963,60 +963,60 @@ COLORSCHEME_PROMQL: dict[Any, ColorSchemeEntry] = {
         "formatting": ThemeAttr("types", "generic"),
         "type": "whitespace",
     },
-    # text
-    Token.Text: {
-        "formatting": ThemeAttr("types", "generic"),
-        "type": "generic",
-    },
     # # comment
     Token.Comment.Single: {
         "formatting": ThemeAttr("types", "promql_comment"),
         "type": "comment",
+    },
+    # count
+    Token.Keyword: {
+        "formatting": ThemeAttr("types", "promql_keyword"),
+        "type": "keyword",
+    },
+    # rate
+    Token.Keyword.Reserved: {
+        "formatting": ThemeAttr("types", "promql_builtin"),
+        "type": "keyword",
     },
     # 0.05
     Token.Literal.Number.Float: {
         "formatting": ThemeAttr("types", "promql_value"),
         "type": "value",
     },
-    # 50
+    # 0
     Token.Literal.Number.Integer: {
         "formatting": ThemeAttr("types", "promql_value"),
         "type": "value",
     },
-    # "
-    Token.Literal.String.Double: {
+    # MissingTargetNamespace
+    Token.Literal.String: {
         "formatting": ThemeAttr("types", "promql_string"),
         "type": "value",
     },
-    # '
-    Token.Literal.String.Single: {
-        "formatting": ThemeAttr("types", "promql_string"),
-        "type": "value",
+    # condition
+    Token.Name.Label: {
+        "formatting": ThemeAttr("types", "promql_label"),
+        "type": "label",
     },
     # cco_credentials_requests_conditions
-    Token.Name: {
-        "formatting": ThemeAttr("types", "promql_name"),
-        "type": "name",
+    Token.Name.Variable: {
+        "formatting": ThemeAttr("types", "promql_variable"),
+        "type": "variable",
     },
-    # sum
-    Token.Name.Builtin: {
-        "formatting": ThemeAttr("types", "promql_builtin"),
-        "type": "builtin",
+    # =
+    Token.Operator: {
+        "formatting": ThemeAttr("types", "promql_operator"),
+        "type": "operator",
     },
-    # is
+    # and
     Token.Operator.Word: {
         "formatting": ThemeAttr("types", "promql_keyword"),
-        "type": "keyword",
+        "type": "operator",
     },
     # {}
     Token.Punctuation: {
         "formatting": ThemeAttr("types", "promql_punctuation"),
         "type": "punctuation",
-    },
-    # >
-    Token.Operator: {
-        "formatting": ThemeAttr("types", "promql_operator"),
-        "type": "keyword",
     },
 }
 
