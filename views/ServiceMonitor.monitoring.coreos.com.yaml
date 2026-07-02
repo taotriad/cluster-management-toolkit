@@ -212,12 +212,16 @@ infoview:
       helptext: "List Service Monitor endpoints"
       widget: "windowwidget"
       title: "Service Monitor Endpoints:"
+      headers: ["Port:", "Target Port:", "Scheme:", "Path:", "Interval:"]
       itemgetter: "get_list_fields"
       itemgetter_args:
         path: "spec#endpoints"
         fields:
-          - value: "index"
-            index_template: "endpoint-<<<index>>>"
+          - "port"
+          - "targetPort"
+          - "scheme"
+          - "path"
+          - "interval"
         pass_ref: true
       # This isn't supported for now
       sortcolumn: "namespace"

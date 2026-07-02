@@ -11,8 +11,14 @@ infoview:
     creation_timestamp_path: ""
     row_indexes:
       Normal:
-        fields: ["name", "group", "rule_type", "duration"]
+        fields: ["name", "group", "labels", "rule_type", "duration",
+                 "description", "message"]
     rows:
+      description:
+        header: [["D", ["main", "infoheader_shortcut"]],
+                 ["escription:", ["main", "infoheader"]]]
+        path: "annotations#description"
+        type: "str"
       duration:
         header: [["Duration:", ["main", "infoheader"]]]
         path: "for"
@@ -23,6 +29,26 @@ infoview:
         header: [["Group:", ["main", "infoheader"]]]
         path: "_extra_data#group"
         type: "raw"
+      labels:
+        header: [["Labe", ["main", "infoheader"]],
+                 ["l", ["main", "infoheader_shortcut"]],
+                 ["s:", ["main", "infoheader"]]]
+        paths:
+          - path: ["labels"]
+            pathtype: "key_value"
+            default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "key"
+            - type: "value"
+          field_separators:
+            - type: "selector"
+      message:
+        header: [["Message:", ["main", "infoheader"]]]
+        path: "annotations#message"
+        default: "<unset>"
+        type: "str"
       name:
         header: [["Name:", ["main", "infoheader"]]]
         path: "_extra_data#name"
@@ -32,8 +58,9 @@ infoview:
         path: "_extra_data#rtype"
         type: "raw"
   logpad:
-    infogetter: "logpad_msg_getter"
+    infogetter: "logpad_formatted"
     infogetter_args:
+      formatter: "format_promql"
       path: "expr"
     timestamps: false
   shortcuts:
@@ -42,3 +69,23 @@ infoview:
     "Last Applied Configuration": null
     "Show Events": null
     "View YAML dump": null
+    "Description":
+      key: "d"
+      modifier: "shift"
+      read_only: true
+      helptext: "Show description"
+      widget: "windowwidget"
+      title: "Description:"
+      itemgetter: "get_strings_from_string"
+      itemgetter_args:
+        path: "annotations#description"
+    "Labels":
+      key: "l"
+      read_only: true
+      helptext: "Show labels"
+      widget: "windowwidget"
+      title: "Labels:"
+      headers: ["Key:", "Value:"]
+      itemgetter: "get_key_value"
+      itemgetter_args:
+        path: "labels"

@@ -108,8 +108,21 @@ infoview:
             - type: "selector"
       paused:
         header: [["Paused:", ["main", "infoheader"]]]
-        path: "spec#paused"
+        path: "status#paused"
+        default: false
         type: "bool"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              "True":
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+              "False":
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
       port_name:
         header: [["Port Name:", ["main", "infoheader"]]]
         path: "spec#portName"

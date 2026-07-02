@@ -9,7 +9,23 @@ infoview:
     row_indexes:
       Normal:
         fields: ["enable_http2", "honor_labels", "honor_timestamps",
-                 "bearer_token_file", "path", "port", "scheme",
+                 "authorization_header",
+                 "authorization_authorization_header_credentials_header",
+                 "authorization_authorization_header_credentials_type",
+                 "authorization_authorization_header_credentials_key",
+                 "authorization_authorization_header_credentials_name",
+                 "authorization_authorization_header_credentials_optional",
+                 "authorization_basic_auth_header",
+                 "authorization_basic_auth_password_header",
+                 "authorization_basic_auth_password_key",
+                 "authorization_basic_auth_password_name",
+                 "authorization_basic_auth_password_optional",
+                 "authorization_basic_auth_username_header",
+                 "authorization_basic_auth_username_key",
+                 "authorization_basic_auth_username_name",
+                 "authorization_basic_auth_username_optional",
+                 "authorization_bearer_token_file",
+                 "path", "port", "scheme",
                  "scrape_timeout", "interval", "tls_config_header",
                  "tls_config_insecure_skip_verify",
                  "tls_config_server_name", "tls_config_ca_header",
@@ -17,13 +33,97 @@ infoview:
                  "tls_config_ca_secret_name", "tls_config_ca_secret_key",
                  "tls_config_ca_secret_optional"]
     rows:
-      bearer_token_file:
-        header: [["Bearer Token File:", ["main", "infoheader"]]]
+      authorization_authorization_header_credentials_header:
+        header: [["  Authorization Header Credentials:",
+                  ["main", "infoheader"]]]
+      authorization_authorization_header_credentials_key:
+        header: [["      Key:", ["main", "infoheader"]]]
+        # TODO: Add shortcut to secret
+        path: "authorization#credentials#key"
+        default: "<unset>"
+        type: "str"
+      authorization_authorization_header_credentials_name:
+        header: [["      Name:", ["main", "infoheader"]]]
+        path: "authorization#credentials#name"
+        default: "<unset>"
+        type: "str"
+      authorization_authorization_header_credentials_optional:
+        header: [["      Optional:", ["main", "infoheader"]]]
+        path: "authorization#credentials#optional"
+        default: "<unset>"
+        type: "bool"
+      authorization_authorization_header_credentials_type:
+        header: [["    Type:",
+                  ["main", "infoheader"]]]
+        path: "authorization#type"
+        default: "<unset>"
+        type: "str"
+      authorization_basic_auth_header:
+        header: [["  Basic Authentication:", ["main", "infoheader"]]]
+      authorization_basic_auth_password_header:
+        header: [["    Password:", ["main", "infoheader"]]]
+      authorization_basic_auth_password_key:
+        header: [["      Key:", ["main", "infoheader"]]]
+        # TODO: Add shortcut to secret
+        path: "basicAuth#password#key"
+        default: "<unset>"
+        type: "str"
+      authorization_basic_auth_password_name:
+        header: [["      Name:", ["main", "infoheader"]]]
+        path: "basicAuth#password#name"
+        default: "<unset>"
+        type: "str"
+      authorization_basic_auth_password_optional:
+        header: [["      Optional:", ["main", "infoheader"]]]
+        path: "basicAuth#password#optional"
+        default: "<unset>"
+        type: "bool"
+      authorization_basic_auth_username_header:
+        header: [["    Username:", ["main", "infoheader"]]]
+      authorization_basic_auth_username_key:
+        header: [["      Key:", ["main", "infoheader"]]]
+        # TODO: Add shortcut to secret
+        path: "basicAuth#username#key"
+        default: "<unset>"
+        type: "str"
+      authorization_basic_auth_username_name:
+        header: [["      Name:", ["main", "infoheader"]]]
+        path: "basicAuth#username#name"
+        default: "<unset>"
+        type: "str"
+      authorization_basic_auth_username_optional:
+        header: [["      Optional:", ["main", "infoheader"]]]
+        path: "basicAuth#username#optional"
+        default: "<unset>"
+        type: "bool"
+      authorization_header:
+        header: [["Authorization:", ["main", "infoheader"]]]
+      authorization_bearer_token_file:
+        header: [["  Bearer Token File (Deprecated):", ["main", "infoheader"]]]
         path: "bearerTokenFile"
+        default: "<unset>"
         type: "str"
         formatting:
           field_colors:
             - type: "path"
+      authorization_bearer_token_secret_header:
+        header: [["    Username:", ["main", "infoheader"]]]
+      authorization_bearer_token_secret_key:
+        header: [["      Key:", ["main", "infoheader"]]]
+        # TODO: Add shortcut to secret
+        path: "bearerTokenSecret#key"
+        default: "<unset>"
+        type: "str"
+      authorization_bearer_token_secret_name:
+        header: [["      Name:", ["main", "infoheader"]]]
+        path: "bearerTokenSecret#name"
+        default: "<unset>"
+        type: "str"
+      authorization_bearer_token_secret_optional:
+        header: [["      Optional:", ["main", "infoheader"]]]
+        path: "bearerTokenSecret#optional"
+        default: "<unset>"
+        type: "bool"
       enable_http2:
         header: [["Enable HTTP2:", ["main", "infoheader"]]]
         path: "enableHttp2"
@@ -50,6 +150,9 @@ infoview:
         path: "path"
         default: "<unset>"
         type: "str"
+        formatting:
+          field_colors:
+            - type: "path"
       port:
         header: [["Port:", ["main", "infoheader"]]]
         path: "port"
