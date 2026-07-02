@@ -12,12 +12,13 @@ infoview:
     row_indexes:
       Normal:
         fields: ["name", "group", "labels", "rule_type", "duration",
-                 "description", "message"]
+                 "runbook_url", "description", "summary", "message"]
     rows:
       description:
         header: [["D", ["main", "infoheader_shortcut"]],
                  ["escription:", ["main", "infoheader"]]]
         path: "annotations#description"
+        default: "<none>"
         type: "str"
       duration:
         header: [["Duration:", ["main", "infoheader"]]]
@@ -28,7 +29,8 @@ infoview:
       group:
         header: [["Group:", ["main", "infoheader"]]]
         path: "_extra_data#group"
-        type: "raw"
+        default: "<unset>"
+        type: "str"
       labels:
         header: [["Labe", ["main", "infoheader"]],
                  ["l", ["main", "infoheader_shortcut"]],
@@ -47,16 +49,34 @@ infoview:
       message:
         header: [["Message:", ["main", "infoheader"]]]
         path: "annotations#message"
-        default: "<unset>"
+        default: "<none>"
         type: "str"
       name:
         header: [["Name:", ["main", "infoheader"]]]
         path: "_extra_data#name"
-        type: "raw"
+        default: "<unset>"
+        type: "str"
       rule_type:
         header: [["Rule Type:", ["main", "infoheader"]]]
         path: "_extra_data#rtype"
-        type: "raw"
+        default: "<unset>"
+        type: "str"
+      runbook_url:
+        header: [["Runbook ", ["main", "infoheader"]],
+                 ["U", ["main", "infoheader_shortcut"]],
+                 ["RL:", ["main", "infoheader"]]]
+        path: "annotations#runbook_url"
+        default: "<none>"
+        type: "str"
+        formatting:
+          field_colors:
+            - type: "url"
+      summary:
+        header: [["S", ["main", "infoheader_shortcut"]],
+                 ["ummary:", ["main", "infoheader"]]]
+        path: "annotations#summary"
+        default: "<none>"
+        type: "str"
   logpad:
     infogetter: "logpad_formatted"
     infogetter_args:
@@ -79,6 +99,20 @@ infoview:
       itemgetter: "get_strings_from_string"
       itemgetter_args:
         path: "annotations#description"
+        # If the data is one single line we reformat it.
+        wrap_lines: true
+    "Summary":
+      key: "s"
+      modifier: "shift"
+      read_only: true
+      helptext: "Show summary"
+      widget: "windowwidget"
+      title: "Summary:"
+      itemgetter: "get_strings_from_string"
+      itemgetter_args:
+        path: "annotations#summary"
+        # If the data is one single line we reformat it.
+        wrap_lines: true
     "Labels":
       key: "l"
       read_only: true
@@ -89,3 +123,12 @@ infoview:
       itemgetter: "get_key_value"
       itemgetter_args:
         path: "labels"
+    "Open Runbook URL":
+      key: "u"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open Runbook URI in browser"
+      action: "execute"
+      action_args:
+        command: ["xdg-open",
+                  ["annotations#runbook_url"]]

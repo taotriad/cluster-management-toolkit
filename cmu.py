@@ -4905,6 +4905,7 @@ def genericinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                 w_itemgetter_args = deep_get(sc_value, DictPath("itemgetter_args"), {})
                 w_itemgetter_args["kubernetes_helper"] = kh
                 w_itemgetter_args["kh_cache"] = kh_cache
+                w_wrap_lines = deep_get(w_itemgetter_args, DictPath("wrap_lines"), False)
                 w_itemgetter_src = deep_get(w_itemgetter_args, DictPath("source"), "object")
                 w_selectable = deep_get(sc_value, DictPath("selectable"), False)
                 # w_kind = deep_get(sc_value, DictPath("kind"), view)
@@ -4937,6 +4938,27 @@ def genericinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                     w_formatting = deep_get(sc_value, DictPath("formatting"),
                                             [ThemeAttr("windowwidget", "default")])
                     lineattrs = WidgetLineAttrs.NORMAL
+
+                    # Wrap the line if it's a single long line and wrap_lines is enabled.
+                    if len(w_items) == 1 and w_items[0] and w_wrap_lines:
+                        if (uip.maxx - uip.minx) // 2 < 120:
+                            wrap_width: int = uip.maxx - uip.minx
+                        else:
+                            wrap_width = (uip.maxx - uip.minx) // 2
+                        new_w_items: list[list[str]] = []
+                        words: str = w_items[0][0].split(" ")
+                        line: str = ""
+                        for word in words:
+                            if not line:
+                                line = word
+                            elif len(line) + 1 + len(word) < wrap_width:
+                                line += f" {word}"
+                            else:
+                                new_w_items.append([line])
+                                line = word
+                        if line:
+                            new_w_items.append([line])
+                        w_items = new_w_items
                     # w_item is a line
                     for w_item in w_items:
                         ref = None
