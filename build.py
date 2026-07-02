@@ -10,7 +10,7 @@ try:  # pragma: no cover
     from jinja2 import Environment, FileSystemLoader, select_autoescape
 except ModuleNotFoundError:  # pragma: no cover
     sys.exit("ModuleNotFoundError: Could not import jinja2; "
-             "you may need to (re-)run `cmt-install` or `pip3 install jinja2`; aborting.")
+             "you may need to (re-)run `cmt-install.py` or `pip3 install jinja2`; aborting.")
 
 
 def main() -> None:

@@ -53,7 +53,7 @@
   resize the window or toggle borders.
 * Scrollbars need their own windows.
 
-## cmt-install
+## cmt-install.py
 
 * Ensure that we install from a recent version of python when installing python
   dependencies on OpenSUSE/SLES.

@@ -698,7 +698,7 @@ def ansithemeprint(themearray: list[ANSIThemeStr], **kwargs: Any) -> None:
         print(string)
 
 
-# ansithemeprint is used by cmt-install,
+# ansithemeprint is used by cmt-install.py,
 # so definitions from it cannot be be used unconditionally.
 if SYNTAX_HIGHLIGHTING:
     COLORSCHEME_JSON: dict[Any, tuple[str, str]] = {
@@ -907,7 +907,7 @@ def init_ansithemeprint(themefile: FilePath | None = None) -> None:
         themepath = FilePath("<built-in default>")
         return
 
-    # This is to allow use of ansithemeprint from cmt-install.
+    # This is to allow use of ansithemeprint from cmt-install.py.
     # pylint: disable-next=import-outside-toplevel
     from clustermanagementtoolkit.cmtio_yaml import secure_read_yaml
 

@@ -51,20 +51,20 @@ except ModuleNotFoundError:  # pragma: no cover
         sryaml = ruyaml.YAML(typ="safe")
     except ModuleNotFoundError:  # pragma: no cover
         sys.exit("ModuleNotFoundError: Could not import ruyaml/ruamel.yaml; "
-                 "you may need to (re-)run `cmt-install` or `pip3 install ruyaml/ruamel.yaml`; "
+                 "you may need to (re-)run `cmt-install.py` or `pip3 install ruyaml/ruamel.yaml`; "
                  "aborting.")
 
 try:
     from natsort import natsorted
 except ModuleNotFoundError:  # pragma: no cover
     sys.exit("ModuleNotFoundError: Could not import natsort; "
-             "you may need to (re-)run `cmt-install` or `pip3 install natsort`; aborting.")
+             "you may need to (re-)run `cmt-install.py` or `pip3 install natsort`; aborting.")
 
 try:
     import validators
 except ModuleNotFoundError:
     print("ModuleNotFoundError: Could not import validators; "
-          "you may need to (re-)run `cmt-install` or `pip3 install validators`; "
+          "you may need to (re-)run `cmt-install.py` or `pip3 install validators`; "
           "disabling IP-address validation.\n", file=sys.stderr)
     # pylint: disable-next=invalid-name
     validators = None

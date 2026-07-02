@@ -1,4 +1,4 @@
-# ___`cmt-install`___ _`[OPTION]`_...
+# ___`cmt-install.py`___ _`[OPTION]`_...
 
 Setup Cluster Management Toolkit for Kubernetes.
 
@@ -9,7 +9,7 @@ Do not install dependencies
   __`--no-fallback`__
 Do not fallback to Python packages from PIP  
 If a distribution package cannot be found
-cmt-install will, by default, install packages
+cmt-install.py will, by default, install packages
 using PIP.
 This option can be used to disable that behaviour.
 

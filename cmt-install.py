@@ -1010,7 +1010,7 @@ COMMANDLINE: dict[str, CommandType] = {
                     ANSIThemeStr("Do not fallback to Python packages from PIP", "description")],
                 "extended_description": [
                     [ANSIThemeStr("If a distribution package cannot be found", "description")],
-                    [ANSIThemeStr("cmt-install", "programname"),
+                    [ANSIThemeStr("cmt-install.py", "programname"),
                      ANSIThemeStr(" will, by default, install packages", "description")],
                     [ANSIThemeStr("using PIP.", "description")],
                     [ANSIThemeStr("This option can be used to disable that behaviour.",

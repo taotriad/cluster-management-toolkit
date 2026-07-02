@@ -466,13 +466,13 @@ def read_cmtconfig() -> dict:
         from natsort import natsorted
     except ModuleNotFoundError:  # pragma: no cover
         sys.exit("ModuleNotFoundError: Could not import natsort; "
-                 "you may need to (re-)run `cmt-install` or `pip3 install natsort`; aborting.")
+                 "you may need to (re-)run `cmt-install.py` or `pip3 install natsort`; aborting.")
 
     global cmtconfig  # pylint: disable=global-statement
     # Start with an empty base configuration
     cmtconfig = {}
 
-    # This is to allow use of ansithemeprint from cmt-install.
+    # This is to allow use of ansithemeprint from cmt-install.py.
     # pylint: disable-next=import-outside-toplevel
     from clustermanagementtoolkit.cmtio_yaml import secure_read_yaml
 
@@ -1151,7 +1151,7 @@ def check_versions_apt(packages: list[str]) -> list[tuple[str, str, str, list[st
         from natsort import natsorted
     except ModuleNotFoundError:  # pragma: no cover
         sys.exit("ModuleNotFoundError: Could not import natsort; "
-                 "you may need to (re-)run `cmt-install` or `pip3 install natsort`; aborting.")
+                 "you may need to (re-)run `cmt-install.py` or `pip3 install natsort`; aborting.")
 
     versions = []
 
@@ -1469,7 +1469,7 @@ def get_latest_upstream_version(component: str) -> str:
     if not component:
         return ""
 
-    # This is to allow use of ansithemeprint from cmt-install.
+    # This is to allow use of ansithemeprint from cmt-install.py.
     # pylint: disable-next=import-outside-toplevel
     from clustermanagementtoolkit.cmtio_yaml import secure_read_yaml
 
@@ -1511,12 +1511,12 @@ def get_latest_upstream_version(component: str) -> str:
 #     │   ├── pre-purge.d (hooks run before the purge step)
 #     │   └── post-purge.d (hooks run after the purge step)
 #     ├── logs (debug logs)
-#     ├── parsers (parser files; symlink if cmt-install, dir when system path)
-#     ├── playbooks (Ansible playbooks; symlink if cmt-install, dir when system path)
-#     ├── sources (data sources; symlink if cmt-install, dir when system path)
-#     ├── themes (theme files; symlink if cmt-install, dir when system path)
+#     ├── parsers (parser files; symlink if cmt-install.py, dir when system path)
+#     ├── playbooks (Ansible playbooks; symlink if cmt-install.py, dir when system path)
+#     ├── sources (data sources; symlink if cmt-install.py, dir when system path)
+#     ├── themes (theme files; symlink if cmt-install.py, dir when system path)
 #     ├── version-cache (version data cache)
-#     └── views (view files; symlink if cmt-install, dir when system path)
+#     └── views (view files; symlink if cmt-install.py, dir when system path)
 #
 required_dir_paths: list[tuple[FilePath, int]] = [
     (cmtpaths.CMTDIR, 0o755),
@@ -1551,7 +1551,7 @@ required_dir_or_symlink_paths: list[tuple[FilePath, int]] = [
 def setup_paths() -> list[SecurityStatus]:
     """
     Create all directories & files that need to be present
-    for CMT to work properly; this should've been handled by .cmt-install
+    for CMT to work properly; this should've been handled by ./cmt-install.py
     if we're running directly from git + ${HOMEDIR}/bin.
 
     If /usr/share/cluster-management-toolkit doesn't exist we assume local installation;
@@ -1570,7 +1570,7 @@ def setup_paths() -> list[SecurityStatus]:
         if not Path(path).is_dir():
             if not system_path_installation:
                 sys.exit(f"The directory {path} is missing; "
-                         "you may need to (re-)run `cmt-install`; aborting.")
+                         "you may need to (re-)run `cmt-install.py`; aborting.")
             result = cmtio.secure_mkdir(directory=path, permissions=permissions, exist_ok=False)
             if result != [SecurityStatus.OK]:
                 return result
@@ -1580,7 +1580,7 @@ def setup_paths() -> list[SecurityStatus]:
             if not system_path_installation:
                 if not Path(path).is_symlink():
                     sys.exit(f"The symlink {path} is missing; "
-                             "you may need to (re-)run `cmt-install`; aborting.")
+                             "you may need to (re-)run `cmt-install.py`; aborting.")
             result = cmtio.secure_mkdir(directory=path, permissions=permissions, exist_ok=False)
             if result != [SecurityStatus.OK]:
                 return result

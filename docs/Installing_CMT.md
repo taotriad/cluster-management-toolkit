@@ -20,18 +20,18 @@ See instructions here: [Using a GitHub PAT](https://docs.github.com/en/authentic
 
 ```
 $ cd cluster-management-toolkit
-$ ./cmt-install
+$ ./cmt-install.py
 ```
 
 ## With proxy
 
 ```
 $ cd cluster-management-toolkit
-$ ./cmt-install --pip-proxy PROXY
+$ ./cmt-install.py --pip-proxy PROXY
 ```
 
-Running `cmt-install` creates necessary symlinks, directories, etc.,
-and installs the packages necessary to run __CMT__. Note that `cmt-install`
+Running `cmt-install.py` creates necessary symlinks, directories, etc.,
+and installs the packages necessary to run __CMT__. Note that `cmt-install.py`
 does not perform any cluster setup; all changes take place on your
 local computer.
 

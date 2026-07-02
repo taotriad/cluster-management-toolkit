@@ -20,7 +20,7 @@ try:
     import validators
 except ModuleNotFoundError:
     print("ModuleNotFoundError: Could not import validators; "
-          "you may need to (re-)run `cmt-install` "
+          "you may need to (re-)run `cmt-install.py` "
           "or `pip3 install validators`; disabling IP-address validation.\n", file=sys.stderr)
     validators = None  # pylint: disable=invalid-name
 

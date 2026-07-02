@@ -63,7 +63,7 @@ secrets, etc.
 
 ## Urgent Upgrade Notes for v0.8.8
 
-* The repository has been restructured; you will need to re-run `./cmt-install`.
+* The repository has been restructured; you will need to re-run `./cmt-install.py`.
 * New commands and options were added to CMT v0.8.8; after installation
   you'll need to either reboot, open a new terminal, or logout/login to
   benefit from bash completion for those.
@@ -86,7 +86,6 @@ TBD
 ### Changes to _cmu_ in v0.8.8
 
 * There's now syntax highlighting for Prometheus Query Language (PromQL).
-  It's a bit limited since the Pygments lexer for PromQL is very limited.
 * There's now a built-in file-viewer. Currently supported formats:
   * `CEL (Common Expression Language)` (Note: Syntax highlighting requires Pygments 2.22+)
   * `Context and Unified Diff`
@@ -194,7 +193,7 @@ TBD
 
 > [!NOTE]
 > In most/all cases there are suitable distro packages for these dependencies in SUSE,
-> but the package have the Python-version included in their names, so `cmt-install`
+> but the package have the Python-version included in their names, so `cmt-install.py`
 > currently does not handle these dependencies properly. Once we switch to providing
 > proper distro packages instead this problem should go away.
 
@@ -363,11 +362,11 @@ Version: 1.20.2
 
 | Source file                                         | Score                                                 |
 | :-------------------------------------------------- | :---------------------------------------------------- |
-| cmt                                                 | Success: no issues found in 1 source file             |
-| cmtadm                                              | Success: no issues found in 1 source file             |
-| cmt-install                                         | Success: no issues found in 1 source file             |
-| cmtinv                                              | Success: no issues found in 1 source file             |
-| cmu                                                 | Success: no issues found in 1 source file             |
+| cmt.py                                              | Success: no issues found in 1 source file             |
+| cmtadm.py                                           | Success: no issues found in 1 source file             |
+| cmt-install.py                                      | Success: no issues found in 1 source file             |
+| cmtinv.py                                           | Success: no issues found in 1 source file             |
+| cmu.py                                              | Success: no issues found in 1 source file             |
 | clustermanagementtoolkit/about.py                   | Success: no issues found in 1 source file             |
 | clustermanagementtoolkit/ansible_helper.py          | Success: no issues found in 1 source file             |
 | clustermanagementtoolkit/ansithemeprint.py          | Success: no issues found in 1 source file             |
@@ -411,11 +410,11 @@ Version: 4.0.5
 
 | Source file                                         | Score    |
 | :-------------------------------------------------- | -------: |
-| cmt                                                 | 10.00/10 |
-| cmtadm                                              | 10.00/10 |
-| cmt-install                                         | 10.00/10 |
-| cmtinv                                              | 10.00/10 |
-| cmu                                                 | 10.00/10 |
+| cmt.py                                              | 10.00/10 |
+| cmtadm.py                                           | 10.00/10 |
+| cmt-install.py                                      | 10.00/10 |
+| cmtinv.py                                           | 10.00/10 |
+| cmu.py                                              | 10.00/10 |
 | clustermanagementtoolkit/about.py                   | 10.00/10 |
 | clustermanagementtoolkit/ansible_helper.py          | 10.00/10 |
 | clustermanagementtoolkit/ansithemeprint.py          | 10.00/10 |

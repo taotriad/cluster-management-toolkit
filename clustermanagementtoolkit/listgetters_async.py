@@ -18,7 +18,7 @@ try:
     from natsort import natsorted
 except ModuleNotFoundError:  # pragma: no cover
     sys.exit("ModuleNotFoundError: Could not import natsort; "
-             "you may need to (re-)run `cmt-install` or `pip3 install natsort`; aborting.")
+             "you may need to (re-)run `cmt-install.py` or `pip3 install natsort`; aborting.")
 
 from clustermanagementtoolkit import cmtlib
 from clustermanagementtoolkit.cmttypes import deep_get, DictPath, StatusGroup, ProgrammingError

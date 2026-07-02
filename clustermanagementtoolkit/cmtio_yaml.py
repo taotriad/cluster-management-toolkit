@@ -24,7 +24,7 @@ try:
     import yaml
 except ModuleNotFoundError:  # pragma: no cover
     sys.exit("ModuleNotFoundError: Could not import yaml; "
-             "you may need to (re-)run `cmt-install` or `pip3 install PyYAML`; aborting.")
+             "you may need to (re-)run `cmt-install.py` or `pip3 install PyYAML`; aborting.")
 try:
     import ruyaml
     ryaml = ruyaml.YAML()
@@ -36,7 +36,7 @@ except ModuleNotFoundError:  # pragma: no cover
         sryaml = ruyaml.YAML(typ="safe")
     except ModuleNotFoundError:  # pragma: no cover
         sys.exit("ModuleNotFoundError: Could not import ruyaml/ruamel.yaml; "
-                 "you may need to (re-)run `cmt-install` or `pip3 install ruyaml/ruamel.yaml`; "
+                 "you may need to (re-)run `cmt-install.py` or `pip3 install ruyaml/ruamel.yaml`; "
                  "aborting.")
 
 from clustermanagementtoolkit import cmtio

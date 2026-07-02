@@ -49,7 +49,7 @@ except ModuleNotFoundError:  # pragma: no cover
         sryaml = ruyaml.YAML(typ="safe")
     except ModuleNotFoundError:  # pragma: no cover
         sys.exit("ModuleNotFoundError: Could not import ruyaml/ruamel.yaml; "
-                 "you may need to (re-)run `cmt-install` or `pip3 install ruyaml/ruamel.yaml`; "
+                 "you may need to (re-)run `cmt-install.py` or `pip3 install ruyaml/ruamel.yaml`; "
                  "aborting.")
 
 ansible_configuration: dict = {
@@ -66,7 +66,8 @@ try:
 except ModuleNotFoundError:  # pragma: no cover
     # This is acceptable; we don't benefit from a backtrace or log message
     sys.exit("ModuleNotFoundError: Could not import ansible_runner; "
-             "you may need to (re-)run `cmt-install` or `pip3 install ansible-runner`; aborting.")
+             "you may need to (re-)run `cmt-install.py` or `pip3 install ansible-runner`; "
+             "aborting.")
 
 
 def get_playbook_path(playbook: FilePath | str) -> FilePath:

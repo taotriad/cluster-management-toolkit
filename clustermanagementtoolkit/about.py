@@ -28,8 +28,8 @@ UI_PROGRAM_VERSION: str = "0.5.5"
 TOOL_PROGRAM_NAME: str = "cmt"
 TOOL_PROGRAM_VERSION: str = "0.6.8"
 
-INSTALL_PROGRAM_NAME: str = "cmt-install"
-INSTALL_PROGRAM_VERSION: str = "0.13.9"
+INSTALL_PROGRAM_NAME: str = "cmt-install.py"
+INSTALL_PROGRAM_VERSION: str = "0.14.0"
 
 ADMIN_PROGRAM_NAME: str = "cmtadm"
 ADMIN_PROGRAM_VERSION: str = "0.9.6"

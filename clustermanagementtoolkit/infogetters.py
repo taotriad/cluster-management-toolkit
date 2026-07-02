@@ -24,7 +24,7 @@ try:
     from natsort import natsorted
 except ModuleNotFoundError:  # pragma: no cover
     sys.exit("ModuleNotFoundError: Could not import natsort; "
-             "you may need to (re-)run `cmt-install` or `pip3 install natsort`; aborting.")
+             "you may need to (re-)run `cmt-install.py` or `pip3 install natsort`; aborting.")
 
 try:
     import ruyaml
@@ -37,7 +37,7 @@ except ModuleNotFoundError:  # pragma: no cover
         sryaml = ruyaml.YAML(typ="safe")
     except ModuleNotFoundError:  # pragma: no cover
         sys.exit("ModuleNotFoundError: Could not import ruyaml/ruamel.yaml; "
-                 "you may need to (re-)run `cmt-install` or `pip3 install ruyaml/ruamel.yaml`; "
+                 "you may need to (re-)run `cmt-install.py` or `pip3 install ruyaml/ruamel.yaml`; "
                  "aborting.")
 
 from clustermanagementtoolkit import about

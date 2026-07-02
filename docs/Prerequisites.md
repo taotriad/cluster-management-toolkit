@@ -1,6 +1,6 @@
 # Pre-requisites / tested platforms for the toolkit
 
-The installer, `cmt-install` has only been tested on Debian, Ubuntu, Raspberry Pi OS,
+The installer, `cmt-install.py` has only been tested on Debian, Ubuntu, Raspberry Pi OS,
 openSUSE/SLES, and Red Hat Enterprise Linux.
 
 If the dependencies are installed manually, any distro or self-compiled
@@ -53,7 +53,7 @@ are available there are no reasons for it not to work. Feel free to report succe
 
 # Other pre-requisites
 
-`cmt-install`, `cmtadm`, `cmt`, and `cmu` require the user to have _sudo_ access.
+`cmt-install.py`, `cmtadm`, `cmt`, and `cmu` require the user to have _sudo_ access.
 For security reasons none of the programs can be run directly as root.
 The user also needs _sudo_ access on any remote system intended for use as control planes or worker nodes in a cluster.
 

@@ -8,7 +8,7 @@ by pressing `F1` or `[Shift] + H`.
 
 ## Programs
 
-* [cmt-install](cmt-install_helptext.md)
+* [cmt-install.py](cmt-install_helptext.md)
 * [cmt](cmt_helptext.md)
 * [cmtadm](cmtadm_helptext.md)
 * [cmtinv](cmtinv_helptext.md)

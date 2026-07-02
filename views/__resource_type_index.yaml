@@ -6380,6 +6380,26 @@ perfprofiles:
   - PerformanceProfile
   - performance.openshift.io
   viewfile: PerformanceProfile.performance.openshift.io.yaml
+persesdatasrc:
+  kind:
+  - PersesDatasource
+  - perses.dev
+  viewfile: PersesDatasource.perses.dev.yaml
+persesdatasrcs:
+  kind:
+  - PersesDatasource
+  - perses.dev
+  viewfile: PersesDatasource.perses.dev.yaml
+persesdb:
+  kind:
+  - PersesDashboard
+  - perses.dev
+  viewfile: PersesDashboard.perses.dev.yaml
+persesdbs:
+  kind:
+  - PersesDashboard
+  - perses.dev
+  viewfile: PersesDashboard.perses.dev.yaml
 pf.kwok:
   kind:
   - PortForward

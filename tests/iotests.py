@@ -23,7 +23,7 @@ except ModuleNotFoundError:  # pragma: no cover
         CustomParserError = ruyaml.parser.ParserError
     except ModuleNotFoundError:  # pragma: no cover
         sys.exit("ModuleNotFoundError: Could not import ruyaml/ruamel.yaml; "
-                 "you may need to (re-)run `cmt-install` or `pip3 install ruyaml/ruamel.yaml`; "
+                 "you may need to (re-)run `cmt-install.py` or `pip3 install ruyaml/ruamel.yaml`; "
                  "aborting.")
 
 from clustermanagementtoolkit.cmtio import check_path, expand_path, join_securitystatus_set
