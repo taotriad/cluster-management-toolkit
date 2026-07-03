@@ -7,8 +7,14 @@ listview:
   group: "Rancher"
   field_indexes:
     Normal:
-      fields: ["namespace", "name", "age"]
+      fields: ["namespace", "name", "failure_policy", "age"]
       sortcolumn: "namespace"
+  fields:
+    failure_policy:
+      header: "Failure Policy:"
+      path: "spec#failurePolicy"
+      default: "<unset>"
+      type: "str"
 infoview:
   name: "Helm Chart Config Info"
   infopad:

@@ -34,8 +34,8 @@ listview:
                   type: "status_ok"
             "<unset>":
               field_colors:
-                - context: "main"
-                  type: "status_ignored"
+                - context: "types"
+                  type: "unset"
 infoview:
   name: "Cluster Info"
   infopad:
@@ -141,8 +141,8 @@ infoview:
                     type: "status_ok"
               "<unset>":
                 field_colors:
-                  - context: "main"
-                    type: "status_ignored"
+                  - context: "types"
+                    type: "unset"
       token:
         header: [["Token:", ["main", "infoheader"]]]
         path: "status#clusterToken"

@@ -30,8 +30,8 @@ listview:
                   type: "status_pending"
             "<unset>":
               field_colors:
-                - context: "main"
-                  type: "status_ignored"
+                - context: "types"
+                  type: "unset"
 infoview:
   name: "Classifier Report Info"
   infopad:
@@ -92,8 +92,8 @@ infoview:
                     type: "status_pending"
               "<unset>":
                 field_colors:
-                  - context: "main"
-                    type: "status_ignored"
+                  - context: "types"
+                    type: "unset"
   shortcuts:
     "Open cluster":
       key: "u"

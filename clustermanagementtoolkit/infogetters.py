@@ -1044,13 +1044,18 @@ def get_obj(obj: dict, field_dict: dict, field_names: list[str],
                     # Input is two paths; output is the value of the first path
                     # and -2/-1/0/1 (for type mismatch, lt, eq, gt)
                     if isinstance(default, list) and len(default) == 2:
-                        _default1 = default[0]
-                        _default2 = default[1]
+                        _default1, _default2 = default
                     else:
-                        _default1 = default
-                        _default2 = default
-                    val1 = deep_get(obj, DictPath(path[0]), _default1)
-                    val2 = deep_get(obj, DictPath(path[1]), _default2)
+                        _default1 = _default2 = default
+                    if len(path) == 1:
+                        tmp_val = deep_get_with_fallback(obj, path, default)
+                        try:
+                            val1, val2 = tmp_val.split("/")
+                        except ValueError:
+                            val1, val2 = default
+                    else:
+                        val1 = deep_get(obj, DictPath(path[0]), _default1)
+                        val2 = deep_get(obj, DictPath(path[1]), _default2)
                     if type(val1) != type(val2):  # noqa: E721
                         res = -2
                     elif val1 == val2:

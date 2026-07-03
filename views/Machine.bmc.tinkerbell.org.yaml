@@ -22,14 +22,14 @@ listview:
       formatting:
         mapping:
           mappings:
-            "unknown":
+            unknown:
               field_colors:
                 - context: "main"
                   type: "status_unknown"
             "<unset>":
               field_colors:
-                - context: "main"
-                  type: "status_ignored"
+                - context: "types"
+                  type: "unset"
 infoview:
   name: "Machine Info"
   infopad:
@@ -89,14 +89,14 @@ infoview:
         formatting:
           mapping:
             mappings:
-              "unknown":
+              unknown:
                 field_colors:
                   - context: "main"
                     type: "status_unknown"
               "<unset>":
                 field_colors:
-                  - context: "main"
-                    type: "status_ignored"
+                  - context: "types"
+                    type: "unset"
   shortcuts:
     "Open Authentication Secret":
       key: "a"

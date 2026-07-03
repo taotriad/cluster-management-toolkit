@@ -150,8 +150,8 @@ infoview:
                     type: "status_ok"
               "<unset>":
                 field_colors:
-                  - context: "main"
-                    type: "status_ignored"
+                  - context: "types"
+                    type: "unset"
       bootstrap_secret:
         header: [["Bootstrap ", ["main", "infoheader"]],
                  ["S", ["main", "infoheader_shortcut"]],
@@ -228,8 +228,8 @@ infoview:
                     type: "status_ok"
               "<unset>":
                 field_colors:
-                  - context: "main"
-                    type: "status_ignored"
+                  - context: "types"
+                    type: "unset"
       node_deletion_timeout:
         header: [["Node Deletion Timeout:", ["main", "infoheader"]]]
         path: "spec#deletion#nodeDeletionTimeoutSeconds"

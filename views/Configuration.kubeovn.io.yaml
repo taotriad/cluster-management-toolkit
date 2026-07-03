@@ -28,8 +28,8 @@ listview:
                   type: "status_done"
             "<unset>":
               field_colors:
-                - context: "main"
-                  type: "status_ignored"
+                - context: "types"
+                  type: "unset"
 infoview:
   name: "Configuration Info"
   infopad:
@@ -60,8 +60,8 @@ infoview:
                     type: "status_done"
               "<unset>":
                 field_colors:
-                  - context: "main"
-                    type: "status_ignored"
+                  - context: "types"
+                    type: "unset"
   logpad:
     infogetter: "logpad_formatted"
     infogetter_args:

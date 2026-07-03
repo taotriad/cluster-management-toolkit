@@ -12,7 +12,8 @@ listview:
   field_indexes:
     Normal:
       fields: ["namespace", "name", "upgrade", "age"]
-      sortcolumn: "namespace"
+      sortcolumn: "age"
+      reversed: true
   fields:
     upgrade:
       header: "Upgrade:"

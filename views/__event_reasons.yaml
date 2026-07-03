@@ -534,6 +534,10 @@ Delayed:
   field_colors:
     - context: "main"
       type: "status_warning"
+Delete:
+  field_colors:
+    - context: "main"
+      type: "status_done"
 Deleted:
   field_colors:
     - context: "main"

@@ -10,15 +10,40 @@ listview:
   group: "Rancher"
   field_indexes:
     Normal:
-      fields: ["namespace", "name", "age"]
+      fields: ["namespace", "name", "ready_clusters", "state", "age"]
       sortcolumn: "namespace"
+  fields:
+    ready_clusters:
+      header: "Ready Clusters:"
+      path: "status#display#readyClusters"
+      default: "<unset>"
+      type: "str"
+      formatter: "numerical"
+    state:
+      header: "State:"
+      path: "status#display#state"
+      default: "<unset>"
+      type: "str"
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          mappings:
+            NotReady:
+              field_colors:
+                - context: "main"
+                  type: "status_not_ok"
+            "<unset>":
+              field_colors:
+                - context: "types"
+                  type: "unset"
 infoview:
   name: "Managed Chart Info"
   infopad:
     row_indexes:
       Normal:
         fields: ["chart", "release_name", "repo_name",
-                 "default_namespace", "timeout", "ready_clusters", "version"]
+                 "default_namespace", "timeout", "version",
+                 "ready_clusters", "state"]
     rows:
       chart:
         header: [["Chart:", ["main", "infoheader"]]]
@@ -34,14 +59,6 @@ infoview:
         formatting:
           field_colors:
             - type: "namespace"
-      timeout:
-        header: [["Timeout:", ["main", "infoheader"]]]
-        path: "spec#timeoutSeconds"
-        default: "<unset>"
-        type: "int"
-        formatter: "numerical"
-        formatting:
-          unit: "s"
       release_name:
         header: [["Release Name:", ["main", "infoheader"]]]
         path: "spec#releaseName"
@@ -58,6 +75,31 @@ infoview:
         path: "spec#repoName"
         default: "<unset>"
         type: "str"
+      state:
+        header: [["State:", ["main", "infoheader"]]]
+        path: "status#display#state"
+        default: "<unset>"
+        type: "str"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              NotReady:
+                field_colors:
+                  - context: "main"
+                    type: "status_not_ok"
+              "<unset>":
+                field_colors:
+                  - context: "types"
+                    type: "unset"
+      timeout:
+        header: [["Timeout:", ["main", "infoheader"]]]
+        path: "spec#timeoutSeconds"
+        default: "<unset>"
+        type: "int"
+        formatter: "numerical"
+        formatting:
+          unit: "s"
       version:
         header: [["Version:", ["main", "infoheader"]]]
         path: "spec#version"

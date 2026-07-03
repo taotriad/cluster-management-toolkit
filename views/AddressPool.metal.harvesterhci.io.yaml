@@ -56,8 +56,8 @@ listview:
                   type: "status_ok"
             "<unset>":
               field_colors:
-                - context: "main"
-                  type: "status_ignored"
+                - context: "types"
+                  type: "unset"
 infoview:
   name: "Address Pool Info"
   infopad:
@@ -143,5 +143,5 @@ infoview:
                     type: "status_warning"
               "<unset>":
                 field_colors:
-                  - context: "main"
-                    type: "status_ignored"
+                  - context: "types"
+                    type: "unset"
