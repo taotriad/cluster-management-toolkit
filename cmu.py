@@ -8939,6 +8939,9 @@ def list_configuration_files(**kwargs: Any) -> list[tuple[str, str, str]]:
                 continue
             if filename.is_dir():
                 files.append((str(filename), filename.name, "<dir>"))
+            elif filename.name in filetypes:
+                files.append((str(filename), filename.name,
+                             deep_get(filetypes, DictPath(filename.name), "")))
             elif filename.suffix in filetypes:
                 files.append((str(filename), filename.name,
                              deep_get(filetypes, DictPath(filename.suffix), "")))
@@ -9516,6 +9519,9 @@ listviewactions: dict[str, dict[str, Any]] = {
                     ".crt": "CRT",
                     ".css": "CSS",
                     ".diff": "Diff",
+                    "Dockerfile": "Docker",
+                    ".Dockerfile": "Docker",
+                    ".docker": "Docker",
                     ".html": "HTML",
                     ".ini": "INI",
                     ".js": "JavaScript",
@@ -11147,6 +11153,8 @@ COMMANDLINE: dict[str, CommandType] = {
                      ANSIThemeStr(", ", "separator"),
                      ANSIThemeStr("css", "argument"),
                      ANSIThemeStr(", ", "separator"),
+                     ANSIThemeStr("docker", "argument"),
+                     ANSIThemeStr(", ", "separator"),
                      ANSIThemeStr("diff", "argument"),
                      ANSIThemeStr("|", "separator"),
                      ANSIThemeStr("patch", "argument"),
@@ -11200,6 +11208,7 @@ COMMANDLINE: dict[str, CommandType] = {
                         "crt",
                         "css",
                         "diff",
+                        "docker",
                         "html",
                         "ini",
                         "javascript",

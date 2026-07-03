@@ -32,13 +32,13 @@ import pygments
 from pygments.formatter import Formatter
 from pygments.lexer import RegexLexer, Lexer, bygroups
 from pygments.lexers.asc import AscLexer
-from pygments.lexers.configs import IniLexer, NginxConfLexer, TOMLLexer
 try:
     from pygments.lexers.cel import CELLexer
     CELLEXER_AVAILABLE = True
 except ModuleNotFoundError:
     # CELLexer is available from Pygments 2.22
     CELLEXER_AVAILABLE = False
+from pygments.lexers.configs import DockerLexer, IniLexer, NginxConfLexer, TOMLLexer
 from pygments.lexers.css import CssLexer
 from pygments.lexers.data import JsonLexer, YamlLexer
 from pygments.lexers.diff import DiffLexer
@@ -298,6 +298,80 @@ COLORSCHEME_CSS: dict[Any, ColorSchemeEntry] = {
     Token.Text: {
         "formatting": ThemeAttr("types", "default"),
         "type": "string",
+    },
+}
+
+
+COLORSCHEME_DOCKER: dict[Any, ColorSchemeEntry] = {
+    # <whitespace>
+    Token.Text.Whitespace: {
+        "formatting": ThemeAttr("types", "generic"),
+        "type": "whitespace",
+    },
+    # string
+    Token.Text: {
+        "formatting": ThemeAttr("types", "docker_string"),
+        "type": "string",
+    },
+    # # comment
+    Token.Comment: {
+        "formatting": ThemeAttr("types", "docker_comment"),
+        "type": "comment",
+    },
+    # ARG
+    Token.Keyword: {
+        "formatting": ThemeAttr("types", "docker_keyword"),
+        "type": "keyword",
+    },
+    # 0
+    Token.Literal.Number: {
+        "formatting": ThemeAttr("types", "docker_value"),
+        "type": "value",
+    },
+    # ${GOLANG_BASE}
+    Token.Literal.String: {
+        "formatting": ThemeAttr("types", "docker_interpol"),
+        "type": "string",
+    },
+    # "all=-w -s"
+    Token.Literal.String.Double: {
+        "formatting": ThemeAttr("types", "docker_value"),
+        "type": "value",
+    },
+    # Escaped values
+    Token.Literal.String.Escape: {
+        "formatting": ThemeAttr("types", "docker_escape"),
+        "type": "escaped_value",
+    },
+    # ${}
+    Token.Literal.String.Interpol: {
+        "formatting": ThemeAttr("types", "docker_interpol"),
+        "type": "keyword",
+    },
+    # 'Intel®'
+    Token.Literal.String.Single: {
+        "formatting": ThemeAttr("types", "docker_value"),
+        "type": "value",
+    },
+    # cd
+    Token.Name.Builtin: {
+        "formatting": ThemeAttr("types", "docker_builtin"),
+        "type": "builtin",
+    },
+    # FINAL_BASE
+    Token.Name.Variable: {
+        "formatting": ThemeAttr("types", "docker_variable"),
+        "type": "variable",
+    },
+    # =
+    Token.Operator: {
+        "formatting": ThemeAttr("types", "docker_operator"),
+        "type": "operator",
+    },
+    # ;
+    Token.Punctuation: {
+        "formatting": ThemeAttr("types", "docker_punctuation"),
+        "type": "punctuation",
     },
 }
 
@@ -2732,6 +2806,23 @@ def format_css(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef | Th
                                    colorscheme=COLORSCHEME_CSS)
 
 
+def format_docker(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef | ThemeStr]]:
+    """
+    Docker formatter; returns the text with syntax highlighting for Dockerfile/.docker.
+
+        Parameters:
+            lines (list[str]): A list of strings
+            *or*
+            lines (str): A string with newlines that should be split
+            **kwargs (dict[str, Any]): Keyword arguments
+        Returns:
+            list[themearray]: A list of themearrays
+    """
+    return format_pygments_generic(lines, **kwargs,
+                                   lexer=DockerLexer(),
+                                   colorscheme=COLORSCHEME_DOCKER)
+
+
 def format_diff(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef | ThemeStr]]:
     """
     Diff formatter; returns the text with syntax highlighting for unified and context diffs.
@@ -3191,6 +3282,9 @@ formatter_mapping: tuple[tuple[tuple[str, ...], tuple[str, ...], Callable], ...]
     (("",), (".diff",), format_diff),
     (("",), (".patch",), format_diff),
     (("diff",), ("diff",), format_diff),
+    (("",), (".docker",), format_docker),
+    (("",), ("dockerfile",), format_docker),
+    (("docker",), ("docker",), format_docker),
     (("",), (".zsh",), format_shellscript),
     (("zsh",), ("zsh",), format_shellscript),
     (("",), (".html",), format_html),
@@ -3265,6 +3359,7 @@ formatter_allowlist: dict[str, Callable] = {
     "format_cel": format_cel,
     "format_crt": format_crt,
     "format_css": format_css,
+    "format_docker": format_docker,
     "format_fluentbit": format_fluentbit,
     "format_haproxy": format_haproxy,
     "format_html": format_html,

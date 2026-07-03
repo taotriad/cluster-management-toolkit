@@ -624,6 +624,36 @@ color_pairs_curses:
   type_dir_symlink_name: [["cyan", "bright"], ["black", "normal"]]
   type_dir_pipe: [["yellow", "normal"], ["black", "bright"]]
   type_dir_socket: [["magenta", "normal"], ["black", "normal"]]
+  type_docker_builtin:
+    unselected: [["yellow", "bright"], ["black", "normal"]]
+    selected: [["yellow", "bright"], ["white", "normal"]]
+  type_docker_comment:
+    unselected: [["cyan", "normal"], ["black", "normal"]]
+    selected: [["cyan", "normal"], ["white", "normal"]]
+  type_docker_escape:
+    unselected: [["white", "bright"], ["black", "normal"]]
+    selected: [["black", "normal"], ["white", "normal"]]
+  type_docker_interpol:
+    unselected: [["blue", "bright"], ["black", "normal"]]
+    selected: [["blue", "bright"], ["white", "normal"]]
+  type_docker_keyword:
+    unselected: [["yellow", "bright"], ["black", "normal"]]
+    selected: [["yellow", "bright"], ["white", "normal"]]
+  type_docker_operator:
+    unselected: [["white", "normal"], ["black", "normal"]]
+    selected: [["black", "normal"], ["white", "normal"]]
+  type_docker_punctuation:
+    unselected: [["yellow", "bright"], ["black", "normal"]]
+    selected: [["yellow", "bright"], ["white", "normal"]]
+  type_docker_string:
+    unselected: [["white", "normal"], ["black", "normal"]]
+    selected: [["black", "normal"], ["white", "normal"]]
+  type_docker_value:
+    unselected: [["magenta", "normal"], ["black", "normal"]]
+    selected: [["magenta", "normal"], ["white", "normal"]]
+  type_docker_variable:
+    unselected: [["white", "normal"], ["black", "normal"]]
+    selected: [["black", "normal"], ["white", "normal"]]
   type_generic_comment:
     unselected: [["black", "bright"], ["black", "normal"]]
     selected: [["black", "normal"], ["white", "normal"]]
@@ -1211,6 +1241,16 @@ types:
   dir_symlink_name: ["type_dir_symlink_name", "bold"]
   dir_type: "type_generic"
   dir_unknown: "type_generic"
+  docker_builtin: "type_docker_builtin"
+  docker_comment: "type_docker_comment"
+  docker_escape: "type_docker_escape"
+  docker_interpol: "type_docker_interpol"
+  docker_keyword: "type_docker_keyword"
+  docker_operator: "type_docker_operator"
+  docker_punctuation: "type_docker_punctuation"
+  docker_string: "type_docker_string"
+  docker_value: "type_docker_value"
+  docker_variable: "type_docker_variable"
   effect: "type_effect"
   facility_extended: "type_facility_extended"
   fixme: ["type_fixme", "bold"]
