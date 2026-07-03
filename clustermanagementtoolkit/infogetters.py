@@ -2699,7 +2699,8 @@ def get_cmt_log(obj: dict, **kwargs: Any) -> \
     d = []
 
     try:
-        d = list(secure_read_yaml(filepath))
+        if (tmp := secure_read_yaml(filepath)) is not None:
+            d = list(tmp)
     except FileNotFoundError:
         pass
     except (TypeError, ruyaml.scanner.ScannerError) as e:
