@@ -38,6 +38,7 @@
         - matchtype: "startswith"
           matchkey: "WARN: "
           loglevel: "warning"
+    - name: "key_value_with_leading_message"
 - name: "openshift-multus"
   show_in_selector: false
   matchkeys:
