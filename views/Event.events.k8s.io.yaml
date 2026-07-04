@@ -749,6 +749,10 @@ listview:
               field_colors:
                 - context: "main"
                   type: "status_warning"
+            ErrorReconcilingNode:
+              field_colors:
+                - context: "main"
+                  type: "status_warning"
             ErrorUpdatingResource:
               field_colors:
                 - context: "main"
@@ -3523,6 +3527,10 @@ infoview:
                   - context: "main"
                     type: "status_warning"
               ErrorDeletingResource:
+                field_colors:
+                  - context: "main"
+                    type: "status_warning"
+              ErrorReconcilingNode:
                 field_colors:
                   - context: "main"
                     type: "status_warning"
