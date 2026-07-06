@@ -11,7 +11,7 @@ listview:
   group: "OpenShift"
   field_indexes:
     Normal:
-      fields: ["name", "version", "available", "progressing", "age", "status"]
+      fields: ["name", "versions", "available", "progressing", "age", "status"]
   fields:
     available:
       header: "Available:"
@@ -75,8 +75,8 @@ listview:
           when:
             - key: "type"
               eq: "Progressing"
-    version:
-      header: "Version:"
+    versions:
+      header: "Versions:"
       paths:
         - path: "status#history"
           pathtype: "items"
@@ -85,7 +85,8 @@ listview:
           when:
             - key: "state"
               eq: "Completed"
-      type: "str"
+      type: "raw"
+      formatter: "list"
       formatting:
         field_colors:
           - type: "version"

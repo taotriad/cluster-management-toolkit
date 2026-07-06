@@ -14,6 +14,8 @@ listview:
       paths:
         - path: "users"
           pathtype: "list"
+          fallback_on_empty: true
+          default: ["<none>"]
       formatter: "list"
 infoview:
   name: "Group Info"
@@ -27,4 +29,6 @@ infoview:
         paths:
           - path: "users"
             pathtype: "list"
+            fallback_on_empty: true
+            default: ["<none>"]
         formatter: "list"

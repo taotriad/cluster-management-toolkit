@@ -15,6 +15,7 @@ listview:
     ready_replicas:
       header: "Ready Replicas:"
       path: "status#readyReplicas"
+      default: "<unset>"
       type: "int"
       formatter: "numerical"
       align: "right"
@@ -30,8 +31,6 @@ infoview:
           - "loglevel"
           - "operator_loglevel"
           - "management_state"
-          - "ready_replicas"
-          - "version"
           - "disable_network_diagnostics"
           - "default_network_header"
           - "default_network_type"
@@ -43,40 +42,9 @@ infoview:
           - "default_network_openshift_sdn_vxlan_port"
           - "cluster_network"
           - "service_network"
+          - "version"
+          - "ready_replicas"
     rows:
-      deploy_kube_proxy:
-        header: [["Deploy kube-proxy:", ["main", "infoheader"]]]
-        path: "spec#deployKubeProxy"
-        default: "<unset>"
-        type: "bool"
-      disable_multi_network:
-        header: [["Disable Multiple Pod Network Support:",
-                  ["main", "infoheader"]]]
-        path: "spec#disableNetworkDiagnostics"
-        default: false
-        type: "bool"
-      disable_network_diagnostics:
-        header: [["Disable Network Diagnostics:", ["main", "infoheader"]]]
-        path: "spec#disableNetworkDiagnostics"
-        default: "<unset>"
-        type: "bool"
-      loglevel:
-        header: [["Loglevel:", ["main", "infoheader"]]]
-        path: "spec#logLevel"
-        type: "str"
-      management_state:
-        header: [["Management State:", ["main", "infoheader"]]]
-        path: "spec#managementState"
-        type: "str"
-      operator_loglevel:
-        header: [["Operator Loglevel:", ["main", "infoheader"]]]
-        path: "spec#operatorLogLevel"
-        type: "str"
-      ready_replicas:
-        header: [["Ready Replicas:", ["main", "infoheader"]]]
-        path: "status#readyReplicas"
-        type: "int"
-        formatter: "numerical"
       cluster_network:
         header: [["Cluster Network:", ["main", "infoheader"]]]
         paths:
@@ -101,6 +69,9 @@ infoview:
             - type: "no_pad"
             - type: "no_pad"
             - type: "no_pad"
+          field_formatters:
+            - "address"
+            - ""
       default_network_header:
         header: [["Default Network:", ["main", "infoheader"]]]
       default_network_header_note:
@@ -122,6 +93,7 @@ infoview:
       default_network_openshift_sdn_mtu:
         header: [["    MTU:", ["main", "infoheader"]]]
         path: "spec#defaultNetwork#openshiftSDNConfig#mtu"
+        default: "<unset>"
         type: "int"
         formatter: "numerical"
       default_network_openshift_sdn_vxlan_port:
@@ -134,6 +106,43 @@ infoview:
         header: [["  Type:", ["main", "infoheader"]]]
         path: "spec#defaultNetwork#type"
         type: "str"
+      deploy_kube_proxy:
+        header: [["Deploy kube-proxy:", ["main", "infoheader"]]]
+        path: "spec#deployKubeProxy"
+        default: "<unset>"
+        type: "bool"
+      disable_multi_network:
+        header: [["Disable Multiple Pod Network Support:",
+                  ["main", "infoheader"]]]
+        path: "spec#disableNetworkDiagnostics"
+        default: false
+        type: "bool"
+      disable_network_diagnostics:
+        header: [["Disable Network Diagnostics:", ["main", "infoheader"]]]
+        path: "spec#disableNetworkDiagnostics"
+        default: "<unset>"
+        type: "bool"
+      loglevel:
+        header: [["Loglevel:", ["main", "infoheader"]]]
+        path: "spec#logLevel"
+        default: "<unset>"
+        type: "str"
+      management_state:
+        header: [["Management State:", ["main", "infoheader"]]]
+        path: "spec#managementState"
+        default: "<unset>"
+        type: "str"
+      operator_loglevel:
+        header: [["Operator Loglevel:", ["main", "infoheader"]]]
+        path: "spec#operatorLogLevel"
+        default: "<unset>"
+        type: "str"
+      ready_replicas:
+        header: [["Ready Replicas:", ["main", "infoheader"]]]
+        path: "status#readyReplicas"
+        default: "<unset>"
+        type: "int"
+        formatter: "numerical"
       service_network:
         header: [["Service Network:", ["main", "infoheader"]]]
         path: "spec#serviceNetwork"
@@ -151,6 +160,12 @@ infoview:
         formatting:
           field_colors:
             - type: "version"
+  logpad:
+    infogetter: "logpad_formatted"
+    infogetter_args:
+      path: "spec#observedConfig"
+      formatter: "format_yaml"
+    timestamps: false
   shortcuts:
     "Additional networks":
       key: "a"

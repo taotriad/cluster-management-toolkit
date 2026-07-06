@@ -16,7 +16,7 @@ listview:
       formatter: "numerical"
       align: "right"
 infoview:
-  name: "API Server Info"
+  name: "Kube Scheduler Info"
   infopad:
     row_indexes:
       Wide:
@@ -108,3 +108,13 @@ infoview:
           paths: ["spec#observedConfig#servingInfo#cipherSuites"]
         # Not supported for now
         sortcolumn: "cipher"
+    "View observed configuration":
+      key: "o"
+      read_only: true
+      helptext: "Show observed configuration"
+      action: "call"
+      action_call: "view_yaml"
+      action_args:
+        title: "Observed Configuration"
+        _pass_obj: true
+        path: "spec#observedConfig"

@@ -44,6 +44,7 @@ infoview:
         paths:
           - path: [["tag#from#kind"], ["tag#from#name"]]
             pathtype: "tuple"
+            default: ["<unset>"]
         formatter: "list"
         formatting:
           field_separators:
@@ -68,14 +69,17 @@ infoview:
       import_policy:
         header: [["Import Policy:", ["main", "infoheader"]]]
         path: "tag#importPolicy#importMode"
+        default: "<unset>"
         type: "str"
       manifest_media_type:
         header: [["Manifest Media Type:", ["main", "infoheader"]]]
         path: "image#dockerImageManifestMediaType"
+        default: "<unset>"
         type: "str"
       metadata_version:
         header: [["Metadata Version:", ["main", "infoheader"]]]
         path: "image#dockerImageMetadataVersion"
+        default: "<unset>"
         type: "str"
         formatting:
           field_colors:
@@ -83,8 +87,8 @@ infoview:
       reference_policy:
         header: [["Reference Policy:", ["main", "infoheader"]]]
         path: "tag#referencePolicy#type"
-        type: "str"
         default: "<unset>"
+        type: "str"
       version:
         header: [["Version:", ["main", "infoheader"]]]
         path: "spec#annotations#version"

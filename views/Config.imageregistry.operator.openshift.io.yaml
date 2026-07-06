@@ -56,6 +56,7 @@ infoview:
       default_route:
         header: [["Default Route:", ["main", "infoheader"]]]
         path: "spec#defaultRoute"
+        default: "<unset>"
         type: "str"
       desired_replicas:
         header: [["Desired Replicas:", ["main", "infoheader"]]]
@@ -65,14 +66,17 @@ infoview:
       http_secret:
         header: [["HTTP Secret:", ["main", "infoheader"]]]
         path: "spec#httpSecret"
+        default: "<unset>"
         type: "str"
       loglevel:
         header: [["Loglevel:", ["main", "infoheader"]]]
         path: "spec#logLevel"
+        default: "<unset>"
         type: "str"
       management_state:
         header: [["Management State:", ["main", "infoheader"]]]
         path: "spec#managementState"
+        default: "<unset>"
         type: "str"
       node_label_selector:
         header: [["Node La", ["main", "infoheader"]],
@@ -94,21 +98,22 @@ infoview:
       proxy_http_proxy:
         header: [["  HTTP Proxy:", ["main", "infoheader"]]]
         path: "spec#proxy#httpProxy"
-        type: "str"
         default: "<none>"
+        type: "str"
       proxy_https_proxy:
         header: [["  HTTPS Proxy:", ["main", "infoheader"]]]
         path: "spec#proxy#httpsProxy"
-        type: "str"
         default: "<none>"
+        type: "str"
       proxy_no_proxy:
         header: [["  No Proxy:", ["main", "infoheader"]]]
         path: "spec#proxy#noProxy"
-        type: "str"
         default: "<none>"
+        type: "str"
       operator_loglevel:
         header: [["Operator Loglevel:", ["main", "infoheader"]]]
         path: "spec#operatorLogLevel"
+        default: "<unset>"
         type: "str"
       ready_replicas:
         header: [["Ready Replicas:", ["main", "infoheader"]]]
@@ -118,22 +123,26 @@ infoview:
       rollout_strategy:
         header: [["Rollout Strategy:", ["main", "infoheader"]]]
         path: "spec#rolloutStrategy"
+        default: "<unset>"
         type: "str"
       storage_header:
         header: [["Storage:", ["main", "infoheader"]]]
       storage_managed:
         header: [["  Managed:", ["main", "infoheader"]]]
         path: "status#storageManaged"
+        default: "<unset>"
         type: "str"
       storage_management_state:
         header: [["  Management State:", ["main", "infoheader"]]]
         path: "status#storage#managementState"
+        default: "<unset>"
         type: "str"
       storage_pvc_claim:
         header: [["  ", ["main", "infoheader"]],
                  ["P", ["main", "infoheader_shortcut"]],
                  ["ersistent Volume Claim:", ["main", "infoheader"]]]
         path: "status#storage#pvc#claim"
+        default: "<unset>"
         type: "str"
   shortcuts:
     "List generations":

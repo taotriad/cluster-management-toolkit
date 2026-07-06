@@ -11,3 +11,9 @@ listview:
 infoview:
   name: "Insights Data Gather Info"
   infopad:
+  logpad:
+    infogetter: "logpad_formatted"
+    infogetter_args:
+      path: "spec#gatherConfig"
+      formatter: "format_yaml"
+    timestamps: false

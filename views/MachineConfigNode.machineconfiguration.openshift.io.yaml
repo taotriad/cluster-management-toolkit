@@ -41,6 +41,10 @@ listview:
               field_colors:
                 - context: "main"
                   type: "status_not_ok"
+            "<unset>":
+              field_colors:
+                - context: "types"
+                  type: "unset"
     drained:
       header: "Drained:"
       paths:
@@ -91,6 +95,10 @@ listview:
               field_colors:
                 - context: "main"
                   type: "status_not_ok"
+            "<unset>":
+              field_colors:
+                - context: "types"
+                  type: "unset"
     reloaded_crio:
       header: "Reloaded CRI-O:"
       paths:
@@ -145,6 +153,10 @@ listview:
               field_colors:
                 - context: "main"
                   type: "status_pending"
+            "<unset>":
+              field_colors:
+                - context: "types"
+                  type: "unset"
     update_compatible:
       header: "Update Compatible:"
       paths:
@@ -199,6 +211,10 @@ listview:
               field_colors:
                 - context: "main"
                   type: "status_not_ok"
+            "<unset>":
+              field_colors:
+                - context: "types"
+                  type: "unset"
     update_executed:
       header: "Update Executed:"
       paths:
@@ -249,6 +265,10 @@ listview:
               field_colors:
                 - context: "main"
                   type: "status_not_ok"
+            "<unset>":
+              field_colors:
+                - context: "types"
+                  type: "unset"
     updated_files_and_os:
       header: "Updated Files and OS:"
       paths:
@@ -299,6 +319,10 @@ listview:
               field_colors:
                 - context: "main"
                   type: "status_not_ok"
+            "<unset>":
+              field_colors:
+                - context: "types"
+                  type: "unset"
     update_prepared:
       header: "Update Prepared:"
       paths:
@@ -324,6 +348,10 @@ listview:
               field_colors:
                 - context: "main"
                   type: "status_not_ok"
+            "<unset>":
+              field_colors:
+                - context: "types"
+                  type: "unset"
 infoview:
   name: "Machine Config Node Info"
   infopad:
@@ -378,6 +406,10 @@ infoview:
                 field_colors:
                   - context: "main"
                     type: "status_not_ok"
+              "<unset>":
+                field_colors:
+                  - context: "types"
+                    type: "unset"
       drained:
         header: [["Drained:", ["main", "infoheader"]]]
         paths:
@@ -450,6 +482,10 @@ infoview:
                 field_colors:
                   - context: "main"
                     type: "status_not_ok"
+              "<unset>":
+                field_colors:
+                  - context: "types"
+                    type: "unset"
       reloaded_crio:
         header: [["Reloaded CRI-O:", ["main", "infoheader"]]]
         paths:
@@ -475,6 +511,10 @@ infoview:
                 field_colors:
                   - context: "main"
                     type: "status_not_ok"
+              "<unset>":
+                field_colors:
+                  - context: "types"
+                    type: "unset"
       resumed:
         header: [["Resumed:", ["main", "infoheader"]]]
         paths:
@@ -500,6 +540,10 @@ infoview:
                 field_colors:
                   - context: "main"
                     type: "status_pending"
+              "<unset>":
+                field_colors:
+                  - context: "types"
+                    type: "unset"
       update_compatible:
         header: [["Update Compatible:", ["main", "infoheader"]]]
         paths:
@@ -525,6 +569,10 @@ infoview:
                 field_colors:
                   - context: "main"
                     type: "status_not_ok"
+              "<unset>":
+                field_colors:
+                  - context: "types"
+                    type: "unset"
       update_complete:
         header: [["Update Complete:", ["main", "infoheader"]]]
         paths:
@@ -550,6 +598,10 @@ infoview:
                 field_colors:
                   - context: "main"
                     type: "status_not_ok"
+              "<unset>":
+                field_colors:
+                  - context: "types"
+                    type: "unset"
       update_executed:
         header: [["Update Executed:", ["main", "infoheader"]]]
         paths:
@@ -575,6 +627,10 @@ infoview:
                 field_colors:
                   - context: "main"
                     type: "status_not_ok"
+              "<unset>":
+                field_colors:
+                  - context: "types"
+                    type: "unset"
       updated:
         header: [["Updated:", ["main", "infoheader"]]]
         paths:
@@ -600,6 +656,10 @@ infoview:
                 field_colors:
                   - context: "main"
                     type: "status_not_ok"
+              "<unset>":
+                field_colors:
+                  - context: "types"
+                    type: "unset"
       updated_files_and_os:
         header: [["Updated Files and OS:", ["main", "infoheader"]]]
         paths:
@@ -625,6 +685,10 @@ infoview:
                 field_colors:
                   - context: "main"
                     type: "status_not_ok"
+              "<unset>":
+                field_colors:
+                  - context: "types"
+                    type: "unset"
       update_postaction_complete:
         header: [["Update Postaction Complete:", ["main", "infoheader"]]]
         paths:
@@ -650,6 +714,10 @@ infoview:
                 field_colors:
                   - context: "main"
                     type: "status_not_ok"
+              "<unset>":
+                field_colors:
+                  - context: "types"
+                    type: "unset"
       update_prepared:
         header: [["Update Prepared:", ["main", "infoheader"]]]
         paths:
@@ -675,6 +743,10 @@ infoview:
                 field_colors:
                   - context: "main"
                     type: "status_not_ok"
+              "<unset>":
+                field_colors:
+                  - context: "types"
+                    type: "unset"
   shortcuts:
     "Open Machine Config Pool":
       key: "p"

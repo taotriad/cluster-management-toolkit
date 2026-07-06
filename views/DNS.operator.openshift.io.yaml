@@ -43,10 +43,12 @@ infoview:
       loglevel:
         header: [["Loglevel:", ["main", "infoheader"]]]
         path: "spec#logLevel"
+        default: "<unset>"
         type: "str"
       operator_loglevel:
         header: [["Operator Loglevel:", ["main", "infoheader"]]]
         path: "spec#operatorLogLevel"
+        default: "<unset>"
         type: "str"
       upstream_resolvers_header:
         header: [["Upstream Resolvers:", ["main", "infoheader"]]]

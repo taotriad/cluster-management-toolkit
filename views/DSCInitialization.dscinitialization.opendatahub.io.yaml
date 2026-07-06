@@ -180,17 +180,17 @@ infoview:
         default: "<unset>"
         type: "str"
   shortcuts:
-    "Open control plane Namespace":
+    "Open Service Mesh Control Plane Namespace":
       key: "n"
       modifier: "shift"
       read_only: true
-      helptext: "Open info page for control plane Namespace"
+      helptext: "Open info page for service mesh control plane Namespace"
       action: "call"
       action_call: "resourceinfodispatch_with_lookup"
       action_args:
         _pass_obj: true
         kind: "Namespace"
-        name_path: "spec#controlPlane#namespace"
+        name_path: "spec#serviceMesh#controlPlane#namespace"
     "Open applications Namespace":
       key: "p"
       read_only: true

@@ -51,6 +51,7 @@ listview:
     expected_machines:
       header: "Expected Machines:"
       path: "status#expectedMachines"
+      default: "<unset>"
       type: "int"
       formatter: "numerical"
       align: "right"
@@ -103,6 +104,7 @@ infoview:
       expected_machines:
         header: [["Expected Machines:", ["main", "infoheader"]]]
         path: "status#expectedMachines"
+        default: "<unset>"
         type: "int"
         formatter: "numerical"
       label_selector:

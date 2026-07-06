@@ -7,14 +7,7 @@ listview:
   group: "OpenShift"
   field_indexes:
     Normal:
-      fields: ["name", "ready_replicas", "age"]
-  fields:
-    ready_replicas:
-      header: "Ready Replicas:"
-      path: "status#readyReplicas"
-      type: "int"
-      formatter: "numerical"
-      align: "right"
+      fields: ["name", "age"]
 infoview:
   name: "Machine Configuration Info"
   infopad:

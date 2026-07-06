@@ -14,6 +14,34 @@ listview:
 infoview:
   name: "OLM Info"
   infopad:
+    row_indexes:
+      Normal:
+        fields:
+          - "loglevel"
+          - "operator_loglevel"
+          - "management_state"
+    rows:
+      loglevel:
+        header: [["Loglevel:", ["main", "infoheader"]]]
+        path: "spec#logLevel"
+        default: "<unset>"
+        type: "str"
+      management_state:
+        header: [["Management State:", ["main", "infoheader"]]]
+        path: "spec#managementState"
+        default: "<unset>"
+        type: "str"
+      operator_loglevel:
+        header: [["Operator Loglevel:", ["main", "infoheader"]]]
+        path: "spec#operatorLogLevel"
+        default: "<unset>"
+        type: "str"
+  logpad:
+    infogetter: "logpad_formatted"
+    infogetter_args:
+      path: "spec#observedConfig"
+      formatter: "format_yaml"
+    timestamps: false
   shortcuts:
     "List generations":
       key: "g"
@@ -41,3 +69,13 @@ infoview:
         api_group_path: 1
         namespace_path: 2
         name_path: 3
+    "View observed configuration":
+      key: "o"
+      read_only: true
+      helptext: "Show observed configuration"
+      action: "call"
+      action_call: "view_yaml"
+      action_args:
+        title: "Observed Configuration"
+        _pass_obj: true
+        path: "spec#observedConfig"

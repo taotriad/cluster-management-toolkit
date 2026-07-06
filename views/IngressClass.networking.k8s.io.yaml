@@ -103,3 +103,5 @@ infoview:
         namespace_path: "spec#parameters#namespace"
         kind_path: "spec#parameters#kind"
         api_group_path: "spec#parameters#apiGroup"
+        # There doesn't seem to be a better way to get this
+        _parent_namespace: "openshift-ingress-operator"

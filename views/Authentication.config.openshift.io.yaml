@@ -18,7 +18,7 @@ infoview:
       Normal:
         fields: ["oauth_metadata",
                  "integrated_oauth_metadata", "service_account_issuer",
-                 "webhook_token_authenticator_config", "type"]
+                 "webhook_token_authenticator_config", "oidc_clients", "type"]
     rows:
       integrated_oauth_metadata:
         header: [["I", ["main", "infoheader_shortcut"]],
@@ -31,7 +31,20 @@ infoview:
                  ["uth Metadata:", ["main", "infoheader"]]]
         path: "spec#oauthMetadata#name"
         default: "<unset>"
+        fallback_on_empty: true
         type: "str"
+      oidc_clients:
+        header: [["OIDC ", ["main", "infoheader"]],
+                 ["C", ["main", "infoheader_shortcut"]],
+                 ["lients:", ["main", "infoheader"]]]
+        paths:
+          - path: "status#oidcClients"
+            pathtype: "items"
+            subpaths:
+              - "componentNamespace"
+              - "componentName"
+            default: ["<none>"]
+        formatter: "list"
       service_account_issuer:
         header: [["Service Account Issuer:", ["main", "infoheader"]]]
         path: "spec#serviceAccountIssuer"
@@ -87,3 +100,20 @@ infoview:
         name_path: "spec#webhookTokenAuthenticator#kubeConfig#name"
         namespace: "openshift-config"
         kind: "Secret"
+    "List OIDC Clients":
+      key: "c"
+      modifier: "shift"
+      read_only: true
+      helptext: "List OIDC Clients"
+      widget: "windowwidget"
+      widget_args:
+        title: "OIDC Clients:"
+        headers: ["Namespace:", "Name:"]
+        itemgetter: "get_list_fields"
+        itemgetter_args:
+          path: "status#oidcClients"
+          fields:
+            - "componentNamespace"
+            - "componentName"
+        # This isn't supported for now
+        sortcolumn: "namespace"

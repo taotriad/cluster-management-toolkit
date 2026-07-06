@@ -46,6 +46,12 @@ infoview:
         default: "<unset>"
         type: "int"
         formatter: "numerical"
+  logpad:
+    infogetter: "logpad_formatted"
+    infogetter_args:
+      path: "spec#observedConfig"
+      formatter: "format_yaml"
+    timestamps: false
   shortcuts:
     "List generations":
       key: "g"

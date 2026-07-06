@@ -153,8 +153,7 @@ infoview:
       widget: "windowwidget"
       widget_args:
         title: "Affinities:"
-        headers: ["Type:", "Scheduling:",
-                  "Execution:", "Selector:", "Topology:"]
+        headers: ["Type:", "Scheduling:", "Execution:", "Selector:", "Topology:"]
         itemgetter: "get_affinity"
         itemgetter_args:
           path: "spec#metadataServer#placement"

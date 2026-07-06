@@ -83,7 +83,7 @@ infoview:
   infopad:
     row_indexes:
       Normal:
-        fields: ["controller", "tuned", "commandline", "debug",
+        fields: ["controller", "tuned", "debug",
                  "stalld", "applied", "degraded"]
     rows:
       applied:
@@ -96,11 +96,8 @@ infoview:
             when:
               - key: "type"
                 eq: "Applied"
+            default: "<unset>"
         type: "str"
-      commandline:
-        header: [["Boot Commandline:", ["main", "infoheader"]]]
-        path: "status#bootcmdline"
-        type: "bool"
       controller:
         header: [["C", ["main", "infoheader_shortcut"]],
                  ["ontroller:", ["main", "infoheader"]]]
@@ -128,6 +125,7 @@ infoview:
       debug:
         header: [["Debug:", ["main", "infoheader"]]]
         path: "spec#config#debug"
+        default: "<unset>"
         type: "bool"
       degraded:
         header: [["Degraded:", ["main", "infoheader"]]]
@@ -155,10 +153,12 @@ infoview:
       stalld:
         header: [["stalld:", ["main", "infoheader"]]]
         path: "status#stalld"
+        default: "<unset>"
         type: "bool"
       tuned:
         header: [["Tuned:", ["main", "infoheader"]]]
         path: "spec#config#tunedProfile"
+        default: "<unset>"
         type: "str"
   shortcuts:
     "Open controller":
@@ -172,3 +172,26 @@ infoview:
         _pass_obj: true
         namespace_path: "metadata#namespace"
         owner_reference_path: "metadata#ownerReferences"
+    "Show Profile list":
+      key: "p"
+      modifier: "shift"
+      read_only: true
+      helptext: "List Tuned profiles"
+      widget: "windowwidget"
+      widget_args:
+        title: "Profiles:"
+        selectable: true
+        itemgetter: "get_list_fields"
+        itemgetter_args:
+          path: "spec#profile"
+          fields:
+            - "name"
+          pass_ref: true
+        # Not supported for now
+        sortcolumn: "name"
+      action: "call"
+      action_call: "view_obj"
+      action_args:
+        path: "data"
+        title_path: "name"
+        formatter: "format_ini"

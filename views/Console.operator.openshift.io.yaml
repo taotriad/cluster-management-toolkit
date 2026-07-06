@@ -26,14 +26,17 @@ infoview:
       loglevel:
         header: [["Loglevel:", ["main", "infoheader"]]]
         path: "spec#logLevel"
+        default: "<unset>"
         type: "str"
       management_state:
         header: [["Management State:", ["main", "infoheader"]]]
         path: "spec#managementState"
+        default: "<unset>"
         type: "str"
       operator_loglevel:
         header: [["Operator Loglevel:", ["main", "infoheader"]]]
         path: "spec#operatorLogLevel"
+        default: "<unset>"
         type: "str"
       plugins:
         header: [["P", ["main", "infoheader_shortcut"]],
@@ -45,8 +48,15 @@ infoview:
       ready_replicas:
         header: [["Ready Replicas:", ["main", "infoheader"]]]
         path: "status#readyReplicas"
+        default: "<unset>"
         type: "int"
         formatter: "numerical"
+  logpad:
+    infogetter: "logpad_formatted"
+    infogetter_args:
+      path: "spec#observedConfig"
+      formatter: "format_yaml"
+    timestamps: false
   shortcuts:
     "List plugins":
       key: "p"
@@ -85,3 +95,23 @@ infoview:
         api_group_path: 1
         namespace_path: 2
         name_path: 3
+    "View customization":
+      key: "z"
+      read_only: true
+      helptext: "Show customization"
+      action: "call"
+      action_call: "view_yaml"
+      action_args:
+        title: "Customization"
+        _pass_obj: true
+        path: "spec#customization"
+    "View observed configuration":
+      key: "o"
+      read_only: true
+      helptext: "Show observed configuration"
+      action: "call"
+      action_call: "view_yaml"
+      action_args:
+        title: "Observed Configuration"
+        _pass_obj: true
+        path: "spec#observedConfig"

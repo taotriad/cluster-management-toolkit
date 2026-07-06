@@ -64,8 +64,7 @@ infoview:
         fallback_on_empty: true
         type: "str"
       infrastructure_name:
-        header: [["I", ["main", "infoheader_shortcut"]],
-                 ["nfrastructure Name:", ["main", "infoheader"]]]
+        header: [["Infrastructure Name:", ["main", "infoheader"]]]
         path: "status#infrastructureName"
         default: "<unset>"
         type: "str"

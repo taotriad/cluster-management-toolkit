@@ -25,7 +25,7 @@ infoview:
     row_indexes:
       Normal:
         fields: ["loglevel", "operator_loglevel",
-                 "management_state", "ready_replicas", "version"]
+                 "management_state", "version", "ready_replicas"]
     rows:
       loglevel:
         header: [["Loglevel:", ["main", "infoheader"]]]

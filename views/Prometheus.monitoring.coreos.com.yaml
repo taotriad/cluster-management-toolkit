@@ -455,6 +455,8 @@ infoview:
       widget_args:
         title: "Resources:"
         headers: ["Request Type:", "Limits:"]
+        formatting: [["windowwidget", "default"],
+                     ["windowwidget", "highlight"]]
         itemgetter: "get_key_value"
         itemgetter_args:
           path: "spec#resources"
