@@ -790,12 +790,22 @@ bundledep.cattle:
   - BundleDeployment
   - fleet.cattle.io
   viewfile: BundleDeployment.fleet.cattle.io.yaml
+bundledeploy.cattle:
+  kind:
+  - BundleDeployment
+  - fleet.cattle.io
+  viewfile: BundleDeployment.fleet.cattle.io.yaml
 bundledeployment.cattle:
   kind:
   - BundleDeployment
   - fleet.cattle.io
   viewfile: BundleDeployment.fleet.cattle.io.yaml
 bundledeployments.cattle:
+  kind:
+  - BundleDeployment
+  - fleet.cattle.io
+  viewfile: BundleDeployment.fleet.cattle.io.yaml
+bundledeploys.cattle:
   kind:
   - BundleDeployment
   - fleet.cattle.io
@@ -7826,6 +7836,16 @@ tas:
   - TASPolicy
   - telemetry.intel.com
   viewfile: TASPolicy.telemetry.intel.com.yaml
+tdxquotegensvc:
+  kind:
+  - TdxQuoteGenerationService
+  - trustedservices.intel.com
+  viewfile: TdxQuoteGenerationService.trustedservices.intel.com.yaml
+tdxquotegensvcs:
+  kind:
+  - TdxQuoteGenerationService
+  - trustedservices.intel.com
+  viewfile: TdxQuoteGenerationService.trustedservices.intel.com.yaml
 team.management:
   kind:
   - Team

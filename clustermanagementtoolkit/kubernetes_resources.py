@@ -7753,6 +7753,12 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api": "bundles",
         "namespaced": False,
     },
+    # trustedservices.intel.com
+    ("TdxQuoteGenerationService", "trustedservices.intel.com"): {
+        "api_paths": ["apis/trustedservices.intel.com/v1/"],
+        "api": "tdxquotegenerationservices",
+        "namespaced": False,
+    },
     # tuned.openshift.io
     ("Profile", "tuned.openshift.io"): {
         "api_paths": ["apis/tuned.openshift.io/v1/"],

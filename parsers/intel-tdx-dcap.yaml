@@ -1,0 +1,21 @@
+---
+- name: "intel-tdx-dcap"
+  show_in_selector: false
+  matchkeys:
+    - image_name: "/intel/intel-tdx-qgs"
+    - image_name: "/intel/intel-tdx-qgs"
+      container_type: "InitContainer"
+    - image_name: "/intel/intel-tdx-dcap-operator"
+  parser_rules:
+    - name: "strip_ansicodes"
+    - name: "ts_8601"
+    - name: "glog"
+    - name: "custom_splitter"
+      options:
+        # yamllint disable-line rule:line-length
+        regex: '^\s*([A-Z]+) (.*)'
+        severity:
+          field: 1
+          transform: "str"
+        message:
+          field: 2
