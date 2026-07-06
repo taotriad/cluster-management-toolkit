@@ -123,13 +123,14 @@ infoview:
       read_only: true
       helptext: "Show mounts"
       widget: "windowwidget"
-      title: "Certificate Secrets:"
-      selectable: true
-      itemgetter: "get_list_as_list"
-      itemgetter_args:
-        path: "spec#certificatesSecrets"
-      # This isn't supported for now
-      sortcolumn: "name"
+      widget_args:
+        title: "Certificate Secrets:"
+        selectable: true
+        itemgetter: "get_list_as_list"
+        itemgetter_args:
+          path: "spec#certificatesSecrets"
+        # This isn't supported for now
+        sortcolumn: "name"
       action: "call"
       action_call: "resourceinfodispatch_with_lookup"
       action_args:
@@ -144,13 +145,14 @@ infoview:
       read_only: true
       helptext: "Show mounts"
       widget: "windowwidget"
-      title: "Root CAs Secrets:"
-      selectable: true
-      itemgetter: "get_list_as_list"
-      itemgetter_args:
-        path: "spec#rootCAsSecrets"
-      # This isn't supported for now
-      sortcolumn: "name"
+      widget_args:
+        title: "Root CAs Secrets:"
+        selectable: true
+        itemgetter: "get_list_as_list"
+        itemgetter_args:
+          path: "spec#rootCAsSecrets"
+        # This isn't supported for now
+        sortcolumn: "name"
       action: "call"
       action_call: "resourceinfodispatch_with_lookup"
       action_args:

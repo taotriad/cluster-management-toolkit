@@ -234,19 +234,20 @@ infoview:
       read_only: true
       helptext: "Show Channels"
       widget: "windowwidget"
-      headers: ["Kind:", "API-version:", "Namespace:", "Name:", "Ready:"]
-      selectable: true
-      itemgetter: "get_list_fields"
-      itemgetter_args:
-        path: "status#channelStatuses"
-        fields:
-          - "channel#kind"
-          - "channel#apiVersion"
-          - "channel#namespace"
-          - "channel#name"
-          - "ready#status"
-      # This isn't supported for now
-      sortcolumn: "namespace"
+      widget_args:
+        headers: ["Kind:", "API-version:", "Namespace:", "Name:", "Ready:"]
+        selectable: true
+        itemgetter: "get_list_fields"
+        itemgetter_args:
+          path: "status#channelStatuses"
+          fields:
+            - "channel#kind"
+            - "channel#apiVersion"
+            - "channel#namespace"
+            - "channel#name"
+            - "ready#status"
+        # This isn't supported for now
+        sortcolumn: "namespace"
       action: "call"
       action_call: "resourceinfodispatch_with_lookup"
       action_args:
@@ -260,17 +261,18 @@ infoview:
       read_only: true
       helptext: "Show Subscriptions"
       widget: "windowwidget"
-      headers: ["Namespace:", "Name:", "Ready:"]
-      selectable: true
-      itemgetter: "get_list_fields"
-      itemgetter_args:
-        path: "status#subscriptionStatuses"
-        fields:
-          - "subscription#namespace"
-          - "subscription#name"
-          - "ready#status"
-      # This isn't supported for now
-      sortcolumn: "namespace"
+      widget_args:
+        headers: ["Namespace:", "Name:", "Ready:"]
+        selectable: true
+        itemgetter: "get_list_fields"
+        itemgetter_args:
+          path: "status#subscriptionStatuses"
+          fields:
+            - "subscription#namespace"
+            - "subscription#name"
+            - "ready#status"
+        # This isn't supported for now
+        sortcolumn: "namespace"
       action: "call"
       action_call: "resourceinfodispatch_with_lookup"
       action_args:

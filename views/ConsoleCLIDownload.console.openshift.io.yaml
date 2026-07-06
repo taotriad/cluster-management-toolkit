@@ -96,14 +96,15 @@ infoview:
       read_only: true
       helptext: "Show download links"
       widget: "windowwidget"
-      title: "Download links:"
-      headers: ["Description:", "URL:"]
-      selectable: false
-      itemgetter: "get_list_fields"
-      itemgetter_args:
-        path: "spec#links"
-        fields:
-          - "text"
-          - "href"
-      # Not supported for now
-      sortcolumn: "text"
+      widget_args:
+        title: "Download links:"
+        headers: ["Description:", "URL:"]
+        selectable: false
+        itemgetter: "get_list_fields"
+        itemgetter_args:
+          path: "spec#links"
+          fields:
+            - "text"
+            - "href"
+        # Not supported for now
+        sortcolumn: "text"

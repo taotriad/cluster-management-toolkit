@@ -36,26 +36,28 @@ infoview:
       read_only: true
       helptext: "Show cluster network"
       widget: "windowwidget"
-      title: "Cluster Network:"
-      headers: ["CIDR:", "Host Prefix:"]
-      itemgetter: "get_list_fields"
-      itemgetter_args:
-        path: ["status#clusterNetwork", "spec#clusterNetwork"]
-        fields:
-          - "cidr"
-          - "hostPrefix"
-      # This isn't supported for now
-      sortcolumn: "cidr"
+      widget_args:
+        title: "Cluster Network:"
+        headers: ["CIDR:", "Host Prefix:"]
+        itemgetter: "get_list_fields"
+        itemgetter_args:
+          path: ["status#clusterNetwork", "spec#clusterNetwork"]
+          fields:
+            - "cidr"
+            - "hostPrefix"
+        # This isn't supported for now
+        sortcolumn: "cidr"
     "Show Service Network":
       key: "s"
       modifier: "shift"
       read_only: true
       helptext: "Show service network"
       widget: "windowwidget"
-      title: "Service Network:"
-      headers: ["CIDR:"]
-      itemgetter: "get_list_as_list"
-      itemgetter_args:
-        path: ["status#serviceNetwork", "spec#serviceNetwork"]
-      # This isn't supported for now
-      sortcolumn: "cidr"
+      widget_args:
+        title: "Service Network:"
+        headers: ["CIDR:"]
+        itemgetter: "get_list_as_list"
+        itemgetter_args:
+          path: ["status#serviceNetwork", "spec#serviceNetwork"]
+        # This isn't supported for now
+        sortcolumn: "cidr"

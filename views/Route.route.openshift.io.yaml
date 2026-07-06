@@ -180,16 +180,17 @@ infoview:
       read_only: true
       helptext: "List ingress points"
       widget: "windowwidget"
-      title: "Ingress Points:"
-      headers: ["Host:", "Router Canonical Hostname:",
-                "Router Name:", "Wildcard Policy:"]
-      itemgetter: "get_list_fields"
-      itemgetter_args:
-        path: "status#ingress"
-        fields:
-          - "host"
-          - "routerCanonicalHostname"
-          - "routerName"
-          - "wildcardPolicy"
-      # Not supported for now
-      sortcolumn: "host"
+      widget_args:
+        title: "Ingress Points:"
+        headers: ["Host:", "Router Canonical Hostname:",
+                  "Router Name:", "Wildcard Policy:"]
+        itemgetter: "get_list_fields"
+        itemgetter_args:
+          path: "status#ingress"
+          fields:
+            - "host"
+            - "routerCanonicalHostname"
+            - "routerName"
+            - "wildcardPolicy"
+        # Not supported for now
+        sortcolumn: "host"

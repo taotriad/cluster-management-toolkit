@@ -215,57 +215,60 @@ infoview:
       read_only: true
       helptext: "Show node annotations"
       widget: "windowwidget"
-      title: "Node Annotations:"
-      headers: ["Annotation:", "Value:"]
-      itemgetter: "get_key_value"
-      itemgetter_args:
-        path: "status#nodeAnnotations"
-      # This isn't supported for now
-      sortcolumn: "annotation"
+      widget_args:
+        title: "Node Annotations:"
+        headers: ["Annotation:", "Value:"]
+        itemgetter: "get_key_value"
+        itemgetter_args:
+          path: "status#nodeAnnotations"
+        # This isn't supported for now
+        sortcolumn: "annotation"
     "Show Node Labels":
       key: "o"
       read_only: true
       helptext: "Show node labels"
       widget: "windowwidget"
-      title: "Node Labels:"
-      headers: ["Label:", "Value:"]
-      itemgetter: "get_key_value"
-      itemgetter_args:
-        path: "status#nodeLabels"
-      # This isn't supported for now
-      sortcolumn: "label"
+      widget_args:
+        title: "Node Labels:"
+        headers: ["Label:", "Value:"]
+        itemgetter: "get_key_value"
+        itemgetter_args:
+          path: "status#nodeLabels"
+        # This isn't supported for now
+        sortcolumn: "label"
     "Show Requests":
       key: "e"
       modifier: "shift"
       read_only: true
       helptext: "Show requests"
-      title: "Requests:"
       widget: "windowwidget"
-      headers: ["Resource:", "Request:", "Limit:"]
-      itemgetter: "get_resource_list"
-      itemgetter_args:
-        capacity_path: "status#requested"
-        allocatable_path: "status#limits"
-      formatting: [["windowwidget", "default"],
-                   ["windowwidget", "highlight"],
-                   ["windowwidget", "highlight"]]
-      # Not supported for now
-      # This isn't supported for now
-      sortcolumn: "requests"
+      widget_args:
+        title: "Requests:"
+        headers: ["Resource:", "Request:", "Limit:"]
+        formatting: [["windowwidget", "default"],
+                     ["windowwidget", "highlight"],
+                     ["windowwidget", "highlight"]]
+        itemgetter: "get_resource_list"
+        itemgetter_args:
+          capacity_path: "status#requested"
+          allocatable_path: "status#limits"
+        # This isn't supported for now
+        sortcolumn: "requests"
     "Show Resources":
       key: "r"
       modifier: "shift"
       read_only: true
       helptext: "Show resources"
       widget: "windowwidget"
-      title: "Resources:"
-      itemgetter: "get_resource_list"
-      itemgetter_args:
-        capacity_path: "status#internalNodeStatus#capacity"
-        allocatable_path: "status#internalNodeStatus#allocatable"
-      headers: ["Resource:", "Allocatable:", "Capacity:"]
-      formatting: [["windowwidget", "default"],
-                   ["windowwidget", "highlight"],
-                   ["windowwidget", "highlight"]]
-      # Not supported for now
-      sortcolumn: "resource"
+      widget_args:
+        title: "Resources:"
+        headers: ["Resource:", "Allocatable:", "Capacity:"]
+        formatting: [["windowwidget", "default"],
+                     ["windowwidget", "highlight"],
+                     ["windowwidget", "highlight"]]
+        itemgetter: "get_resource_list"
+        itemgetter_args:
+          capacity_path: "status#internalNodeStatus#capacity"
+          allocatable_path: "status#internalNodeStatus#allocatable"
+        # This isn't supported for now
+        sortcolumn: "resource"

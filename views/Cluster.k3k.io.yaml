@@ -225,7 +225,8 @@ infoview:
       read_only: true
       helptext: "List TLS SANs"
       widget: "windowwidget"
-      title: "TLS SANs:"
-      itemgetter: "get_list_as_list"
-      itemgetter_args:
-        path: "status#tlsSANs"
+      widget_args:
+        title: "TLS SANs:"
+        itemgetter: "get_list_as_list"
+        itemgetter_args:
+          path: "status#tlsSANs"

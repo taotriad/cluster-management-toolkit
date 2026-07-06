@@ -27,7 +27,9 @@ infoview:
           - "configuration_node_controller_header"
           - "configuration_node_controller_enabled"
           - "configuration_node_controller_reconciler_period"
-          - "configuration_node_controller_host_endpoint_enabled"
+          - "configuration_node_controller_host_endpoint_header"
+          # yamllint disable-line rule:line-length
+          - "configuration_node_controller_host_endpoint_create_default_host_endpoint"
           - "configuration_node_controller_host_endpoint_auto_create"
           - "configuration_node_controller_sync_labels"
           - "configuration_policy_controller_header"
@@ -49,7 +51,8 @@ infoview:
           - "running_node_controller_header"
           - "running_node_controller_enabled"
           - "running_node_controller_reconciler_period"
-          - "running_node_controller_host_endpoint_enabled"
+          - "running_node_controller_host_endpoint_header"
+          - "running_node_controller_host_endpoint_create_default_host_endpoint"
           - "running_node_controller_host_endpoint_auto_create"
           - "running_node_controller_sync_labels"
           - "running_policy_controller_header"
@@ -115,11 +118,14 @@ infoview:
         default: "5m"
         type: "raw"
         formatter: "age"
-      configuration_node_controller_host_endpoint_enabled:
+      configuration_node_controller_host_endpoint_header:
         header: [["    Node to Host Endpoint Synchronisation:",
                   ["main", "infoheader"]]]
+      configuration_node_controller_host_endpoint_create_default_host_endpoint:
+        header: [["      Create Default Host Endpoint:",
+                  ["main", "infoheader"]]]
         paths:
-          - path: "spec#controllers#node#hostEndpoint"
+          - path: "spec#controllers#node#hostEndpoint#createDefaultHostEndpoint"
             pathtype: "str"
             default: "Disabled"
       configuration_node_controller_host_endpoint_auto_create:
@@ -253,31 +259,22 @@ infoview:
         path: "status#runningConfig#controllers#node#reconcilerPeriod"
         type: "raw"
         formatter: "age"
-      running_node_controller_host_endpoint_enabled:
+      running_node_controller_host_endpoint_header:
         header: [["    Node to Host Endpoint Synchronisation:",
                   ["main", "infoheader"]]]
+      running_node_controller_host_endpoint_create_default_host_endpoint:
+        header: [["      Create Default Host Endpoint:",
+                  ["main", "infoheader"]]]
         paths:
-          - path: "status#runningConfig#controllers#node"
-            pathtype: "substitution"
-            when:
-              - key: "hostEndpoint"
-                notnone: true
-            substitute: "True"
-          - path: "status#runningConfig#controllers#node"
-            pathtype: "substitution"
-            when:
-              - key: "hostEndpoint"
-                notmissing: true
-              - key: "hostEndpoint"
-                none: true
-            substitute: "False"
-      # yamllint disable rule:line-length
+          # yamllint disable-line rule:line-length
+          - path: "status#runningConfig#controllers#node#hostEndpoint#createDefaultHostEndpoint"
+            pathtype: "str"
       running_node_controller_host_endpoint_auto_create:
         header: [["      Endpoint Autocreate:", ["main", "infoheader"]]]
         paths:
+          # yamllint disable-line rule:line-length
           - path: "status#runningConfig#controllers#node#hostEndpoint#autoCreate"
             pathtype: "str"
-      # yamllint enable rule:line-length
       running_node_controller_sync_labels:
         header: [["    Sync Labels:", ["main", "infoheader"]]]
         path: "status#runningConfig#controllers#node#syncLabels"
@@ -363,10 +360,11 @@ infoview:
       read_only: true
       helptext: "List environment variables"
       widget: "windowwidget"
-      title: "Environment Variables:"
-      headers: ["Key:", "Value:"]
-      itemgetter: "get_key_value"
-      itemgetter_args:
-        path: "status#environmentVars"
-      # Not supported for now
-      sortcolumn: "key"
+      widget_args:
+        title: "Environment Variables:"
+        headers: ["Key:", "Value:"]
+        itemgetter: "get_key_value"
+        itemgetter_args:
+          path: "status#environmentVars"
+        # Not supported for now
+        sortcolumn: "key"

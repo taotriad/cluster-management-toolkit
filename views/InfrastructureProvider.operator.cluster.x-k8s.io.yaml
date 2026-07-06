@@ -155,22 +155,24 @@ infoview:
       read_only: true
       helptext: "List feature gates"
       widget: "windowwidget"
-      title: "Feature Gates:"
-      headers: ["Key:", "Value:"]
-      itemgetter: "get_key_value"
-      itemgetter_args:
-        path: "spec#manager#featureGates"
+      widget_args:
+        title: "Feature Gates:"
+        headers: ["Key:", "Value:"]
+        itemgetter: "get_key_value"
+        itemgetter_args:
+          path: "spec#manager#featureGates"
     "Show Manifest Patches":
       key: "m"
       read_only: true
       helptext: "Show manifest patches"
       widget: "windowwidget"
-      title: "Manifest Patches:"
-      selectable: true
-      itemgetter: "get_list_as_list"
-      itemgetter_args:
-        path: "spec#manifestPatches"
-        index_template: "Patch <<<index>>>"
+      widget_args:
+        title: "Manifest Patches:"
+        selectable: true
+        itemgetter: "get_list_as_list"
+        itemgetter_args:
+          path: "spec#manifestPatches"
+          index_template: "Patch <<<index>>>"
       action: "call"
       action_call: "view_yaml"
       action_args:

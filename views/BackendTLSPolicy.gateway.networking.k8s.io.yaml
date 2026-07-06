@@ -77,36 +77,36 @@ infoview:
       read_only: true
       helptext: "Show TLS options"
       widget: "windowwidget"
-      title: "TLS Options:"
-      headers: ["Option:", "Value:"]
-      # Not supported for now
-      sortcolumn: "option"
-      itemgetter: "get_key_value"
-      # This isn't supported for now
-      itemgetter_args:
-        path: "spec#options"
-        fields:
-          - "key"
-          - "value"
+      widget_args:
+        title: "TLS Options:"
+        headers: ["Option:", "Value:"]
+        itemgetter: "get_key_value"
+        itemgetter_args:
+          path: "spec#options"
+          fields:
+            - "key"
+            - "value"
+        # This isn't supported for now
+        sortcolumn: "option"
     "CA Certificate References":
       key: "c"
       modifier: "shift"
       read_only: true
       helptext: "Show CA certificate references"
       widget: "windowwidget"
-      title: "CA Certificate References:"
-      selectable: true
-      headers: ["Kind:", "Group:", "Name:"]
-      # Not supported for now
-      sortcolumn: "kind"
-      itemgetter: "get_list_fields"
-      # This isn't supported for now
-      itemgetter_args:
-        path: "spec#validation#caCertificateRefs"
-        fields:
-          - "kind"
-          - "group"
-          - "name"
+      widget_args:
+        title: "CA Certificate References:"
+        headers: ["Kind:", "Group:", "Name:"]
+        selectable: true
+        itemgetter: "get_list_fields"
+        itemgetter_args:
+          path: "spec#validation#caCertificateRefs"
+          fields:
+            - "kind"
+            - "group"
+            - "name"
+        # This isn't supported for now
+        sortcolumn: "kind"
       action: "call"
       action_call: "resourceinfodispatch_with_lookup"
       action_args:
@@ -120,18 +120,19 @@ infoview:
       read_only: true
       helptext: "Show target references"
       widget: "windowwidget"
-      title: "Target References:"
-      selectable: true
-      headers: ["Kind:", "Group:", "Name:"]
-      # This isn't supported for now
-      sortcolumn: "kind"
-      itemgetter: "get_list_fields"
-      itemgetter_args:
-        path: "spec#targetRefs"
-        fields:
-          - "kind"
-          - "group"
-          - "name"
+      widget_args:
+        title: "Target References:"
+        headers: ["Kind:", "Group:", "Name:"]
+        selectable: true
+        itemgetter: "get_list_fields"
+        itemgetter_args:
+          path: "spec#targetRefs"
+          fields:
+            - "kind"
+            - "group"
+            - "name"
+        # This isn't supported for now
+        sortcolumn: "kind"
       action: "call"
       action_call: "resourceinfodispatch_with_lookup"
       action_args:

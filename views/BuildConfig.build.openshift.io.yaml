@@ -126,21 +126,23 @@ infoview:
       read_only: true
       helptext: "Show Node label selector"
       widget: "windowwidget"
-      title: "Node Label Selector:"
-      headers: ["Key:", "Value:"]
-      itemgetter: "get_key_value"
-      itemgetter_args:
-        path: "spec#nodeSelector"
+      widget_args:
+        title: "Node Label Selector:"
+        headers: ["Key:", "Value:"]
+        itemgetter: "get_key_value"
+        itemgetter_args:
+          path: "spec#nodeSelector"
     "Image Labels":
       key: "g"
       read_only: true
       helptext: "List image labels"
       widget: "windowwidget"
-      title: "Image Labels:"
-      headers: ["Key:", "Value:"]
-      itemgetter: "get_key_value"
-      itemgetter_args:
-        path: "spec#output#imageLabels"
+      widget_args:
+        title: "Image Labels:"
+        headers: ["Key:", "Value:"]
+        itemgetter: "get_key_value"
+        itemgetter_args:
+          path: "spec#output#imageLabels"
     "Open output":
       key: "u"
       read_only: true
@@ -158,7 +160,6 @@ infoview:
       key: "t"
       read_only: true
       helptext: "View triggers"
-      title: "Triggers:"
       action: "call"
       action_call: "view_yaml"
       action_args:

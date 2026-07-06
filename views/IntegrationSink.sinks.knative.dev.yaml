@@ -215,9 +215,10 @@ infoview:
       read_only: true
       helptext: "List addresses"
       widget: "windowwidget"
-      title: "Addresses:"
-      itemgetter: "get_list_fields"
-      itemgetter_args:
-        path: "status#addresses"
-        fields:
-          - "url"
+      widget_args:
+        title: "Addresses:"
+        itemgetter: "get_list_fields"
+        itemgetter_args:
+          path: "status#addresses"
+          fields:
+            - "url"

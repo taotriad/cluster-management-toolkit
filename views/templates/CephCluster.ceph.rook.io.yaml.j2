@@ -235,9 +235,10 @@ infoview:
       read_only: true
       helptext: "Storage devices"
       widget: "windowwidget"
-      title: "Storage Devices:"
-      itemgetter: "get_list_fields"
-      itemgetter_args:
-        path: "spec#storage#devices"
-        fields:
-          - "name"
+      widget_args:
+        title: "Storage Devices:"
+        itemgetter: "get_list_fields"
+        itemgetter_args:
+          path: "spec#storage#devices"
+          fields:
+            - "name"

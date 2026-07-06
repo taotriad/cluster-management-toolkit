@@ -76,11 +76,12 @@ infoview:
       read_only: true
       helptext: "Show label selector"
       widget: "windowwidget"
-      title: "Label Selector:"
-      headers: ["Key:", "Value:"]
-      itemgetter: "get_key_value"
-      itemgetter_args:
-        path: "spec#selector"
+      widget_args:
+        title: "Label Selector:"
+        headers: ["Key:", "Value:"]
+        itemgetter: "get_key_value"
+        itemgetter_args:
+          path: "spec#selector"
     "Open extension reference":
       key: "r"
       modifier: "shift"

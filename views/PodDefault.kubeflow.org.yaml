@@ -45,16 +45,17 @@ infoview:
       read_only: true
       helptext: "List environment variables"
       widget: "windowwidget"
-      title: "Environment Variables:"
-      headers: ["Key:", "Value:"]
-      itemgetter: "get_list_fields"
-      itemgetter_args:
-        path: "spec#env"
-        fields:
-          - "name"
-          - "value"
-      # Not supported for now
-      sortcolumn: "name"
+      widget_args:
+        title: "Environment Variables:"
+        headers: ["Key:", "Value:"]
+        itemgetter: "get_list_fields"
+        itemgetter_args:
+          path: "spec#env"
+          fields:
+            - "name"
+            - "value"
+        # Not supported for now
+        sortcolumn: "name"
     "Service Account":
       key: "s"
       modifier: "shift"

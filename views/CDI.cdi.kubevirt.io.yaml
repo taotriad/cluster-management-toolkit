@@ -225,30 +225,33 @@ infoview:
       read_only: true
       helptext: "Show Infrastructure Node label selector"
       widget: "windowwidget"
-      title: "Node Label Selector:"
-      headers: ["Key:", "Value:"]
-      itemgetter: "get_key_value"
-      itemgetter_args:
-        path: "spec#infra#nodeSelector"
+      widget_args:
+        title: "Node Label Selector:"
+        headers: ["Key:", "Value:"]
+        itemgetter: "get_key_value"
+        itemgetter_args:
+          path: "spec#infra#nodeSelector"
     "Workload Node Label Selector":
       key: "d"
       read_only: true
       helptext: "Show Workload Node label selector"
       widget: "windowwidget"
-      title: "Workload Node Label Selector:"
-      headers: ["Key:", "Value:"]
-      itemgetter: "get_key_value"
-      itemgetter_args:
-        path: "spec#workload#nodeSelector"
+      widget_args:
+        title: "Workload Node Label Selector:"
+        headers: ["Key:", "Value:"]
+        itemgetter: "get_key_value"
+        itemgetter_args:
+          path: "spec#workload#nodeSelector"
     "Show Infrastructure tolerations":
       key: "t"
       read_only: true
       helptext: "Show Infrastructure tolerations"
-      title: "Infrastructure Tolerations:"
       widget: "windowwidget"
-      headers: ["Key:", "Operator:", "Value:", "Effect:", "Timeout:"]
-      itemgetter: "get_tolerations"
-      itemgetter_args:
-        path: ["spec#infra#tolerations"]
-      # This isn't supported for now
-      sortcolumn: "key"
+      widget_args:
+        title: "Infrastructure Tolerations:"
+        headers: ["Key:", "Operator:", "Value:", "Effect:", "Timeout:"]
+        itemgetter: "get_tolerations"
+        itemgetter_args:
+          path: ["spec#infra#tolerations"]
+        # This isn't supported for now
+        sortcolumn: "key"

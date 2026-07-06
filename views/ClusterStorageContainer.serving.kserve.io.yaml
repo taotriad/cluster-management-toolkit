@@ -63,10 +63,11 @@ infoview:
       read_only: false
       helptext: "Show container resources"
       widget: "windowwidget"
-      title: "Resources:"
-      headers: ["Requests:", "Limits:"]
-      itemgetter: "get_key_value"
-      itemgetter_args:
-        path: "spec#container#resources"
-      # This isn't supported for now
-      sortcolumn: "requests"
+      widget_args:
+        title: "Resources:"
+        headers: ["Requests:", "Limits:"]
+        itemgetter: "get_key_value"
+        itemgetter_args:
+          path: "spec#container#resources"
+        # This isn't supported for now
+        sortcolumn: "requests"

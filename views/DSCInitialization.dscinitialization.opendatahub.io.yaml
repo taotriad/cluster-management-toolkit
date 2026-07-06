@@ -217,7 +217,8 @@ infoview:
       read_only: true
       helptext: "List Service Mesh audiences"
       widget: "windowwidget"
-      title: "Service Mesh Audiences:"
-      itemgetter: "get_list_as_list"
-      itemgetter_args:
-        path: "spec#serviceMesh#auth#audiences"
+      widget_args:
+        title: "Service Mesh Audiences:"
+        itemgetter: "get_list_as_list"
+        itemgetter_args:
+          path: "spec#serviceMesh#auth#audiences"

@@ -924,6 +924,7 @@ def test_listgetter_configmap_data(verbose: bool = False) -> tuple[str, bool]:
         # Indata format:
         # (obj, kwargs, expected_result, expected_exception)
         testdata: tuple[Any, ...] = (
+            # Extremely short data cannot be determined between text or base64
             (
                 {
                     "metadata": {
@@ -941,9 +942,33 @@ def test_listgetter_configmap_data(verbose: bool = False) -> tuple[str, bool]:
                             "cm_name": "bootstrap",
                             "cm_namespace": "kube-system",
                             "configmap": "status",
-                            "type": "Text",
+                            "type": "Text or Base64 encoded binary",
                             "formatter": formatters.format_none,
                             "data": "complete",
+                        }
+                    ], 200),
+                None,
+            ),
+            (
+                {
+                    "metadata": {
+                        "namespace": "kube-system",
+                        "name": "bootstrap",
+                    },
+                    "data": {
+                        "status": "complete or not",
+                    },
+                },
+                {},
+                (
+                    [
+                        {
+                            "cm_name": "bootstrap",
+                            "cm_namespace": "kube-system",
+                            "configmap": "status",
+                            "type": "Text",
+                            "formatter": formatters.format_none,
+                            "data": "complete or not",
                         }
                     ], 200),
                 None,

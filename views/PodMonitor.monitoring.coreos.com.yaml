@@ -67,19 +67,20 @@ infoview:
       read_only: true
       helptext: "List Pod Monitor endpoints"
       widget: "windowwidget"
-      title: "Pod Monitor Endpoints:"
-      headers: ["Endpoint:", "Port:"]
-      itemgetter: "get_list_fields"
-      itemgetter_args:
-        path: "spec#podMetricsEndpoints"
-        fields:
-          - value: "index"
-            index_template: "endpoint-<<<index>>>"
-          - "port"
-        pass_ref: true
-      # This isn't supported for now
-      sortcolumn: "namespace"
-      selectable: true
+      widget_args:
+        title: "Pod Monitor Endpoints:"
+        headers: ["Endpoint:", "Port:"]
+        selectable: true
+        itemgetter: "get_list_fields"
+        itemgetter_args:
+          path: "spec#podMetricsEndpoints"
+          fields:
+            - value: "index"
+              index_template: "endpoint-<<<index>>>"
+            - "port"
+          pass_ref: true
+        # This isn't supported for now
+        sortcolumn: "namespace"
       action: "call"
       action_call: "resourceinfodispatch_from_selection"
       action_args:

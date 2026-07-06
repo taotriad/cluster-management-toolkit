@@ -9,6 +9,9 @@ listview:
   name: "Features"
   group: "Rancher"
   field_indexes:
+    Wide:
+      fields: ["name", "custom_value", "default",
+               "dynamic", "locked", "prime", "age", "description"]
     Normal:
       fields: ["name", "custom_value", "default",
                "dynamic", "locked", "age", "description"]
@@ -37,6 +40,11 @@ listview:
       header: "Locked:"
       path: "status#locked"
       default: false
+      type: "bool"
+    prime:
+      header: "Prime:"
+      path: "status#prime"
+      default: "<unset>"
       type: "bool"
   actions:
     actionlist:

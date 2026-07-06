@@ -96,15 +96,16 @@ infoview:
       read_only: true
       helptext: "List Cluster Resource Sets"
       widget: "windowwidget"
-      title: "Cluster Resource Sets:"
-      itemgetter: "get_list_fields"
-      itemgetter_args:
-        path: "spec#bindings"
-        fields:
-          - "clusterResourceSetName"
-      # This isn't supported for now
-      sortcolumn: "name"
-      selectable: true
+      widget_args:
+        title: "Cluster Resource Sets:"
+        selectable: true
+        itemgetter: "get_list_fields"
+        itemgetter_args:
+          path: "spec#bindings"
+          fields:
+            - "clusterResourceSetName"
+        # This isn't supported for now
+        sortcolumn: "name"
       action: "call"
       action_call: "resourceinfodispatch_with_lookup"
       action_args:

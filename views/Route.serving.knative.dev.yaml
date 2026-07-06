@@ -161,13 +161,14 @@ infoview:
       read_only: true
       helptext: "Show traffic info"
       widget: "windowwidget"
-      headers: ["Revision Name:", "Percent:", "Latest:"]
-      itemgetter: "get_list_fields"
-      itemgetter_args:
-        path: "status#traffic"
-        fields:
-          - "revisionName"
-          - "percent"
-          - "latestRevision"
-      # This isn't supported for now
-      sortcolumn: "revision_name"
+      widget_args:
+        headers: ["Revision Name:", "Percent:", "Latest:"]
+        itemgetter: "get_list_fields"
+        itemgetter_args:
+          path: "status#traffic"
+          fields:
+            - "revisionName"
+            - "percent"
+            - "latestRevision"
+        # This isn't supported for now
+        sortcolumn: "revision_name"

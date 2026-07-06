@@ -117,23 +117,25 @@ infoview:
       read_only: true
       helptext: "Show description"
       widget: "windowwidget"
-      title: "Description:"
-      itemgetter: "get_strings_from_string"
-      itemgetter_args:
-        path: "metadata#annotations#instancetype.kubevirt.io/description"
+      widget_args:
+        title: "Description:"
+        itemgetter: "get_strings_from_string"
+        itemgetter_args:
+          path: "metadata#annotations#instancetype.kubevirt.io/description"
     "Show GPUs":
       key: "g"
       modifier: "shift"
       read_only: true
       helptext: "List GPUs"
       widget: "windowwidget"
-      title: "GPUs:"
-      headers: ["Name:", "Device Name:"]
-      itemgetter: "get_list_fields"
-      itemgetter_args:
-        path: "spec#gpus"
-        fields:
-          - "name"
-          - "deviceName"
-      # Not supported for now
-      sortcolumn: "name"
+      widget_args:
+        title: "GPUs:"
+        headers: ["Name:", "Device Name:"]
+        itemgetter: "get_list_fields"
+        itemgetter_args:
+          path: "spec#gpus"
+          fields:
+            - "name"
+            - "deviceName"
+        # Not supported for now
+        sortcolumn: "name"

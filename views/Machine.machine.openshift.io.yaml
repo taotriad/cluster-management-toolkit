@@ -164,16 +164,17 @@ infoview:
       read_only: true
       helptext: "List addresses"
       widget: "windowwidget"
-      title: "Addresses:"
-      headers: ["Address:", "Type:"]
-      itemgetter: "get_list_fields"
-      itemgetter_args:
-        path: "status#addresses"
-        fields:
-          - "address"
-          - "type"
-      # Not supported for now
-      sortcolumn: "type"
+      widget_args:
+        title: "Addresses:"
+        headers: ["Address:", "Type:"]
+        itemgetter: "get_list_fields"
+        itemgetter_args:
+          path: "status#addresses"
+          fields:
+            - "address"
+            - "type"
+        # Not supported for now
+        sortcolumn: "type"
     "Node":
       key: "r"
       modifier: "shift"

@@ -13,6 +13,7 @@ Format text as themearrays
 
 import base64
 import binascii
+from collections.abc import Callable, Generator
 import copy
 from datetime import datetime
 import io
@@ -21,7 +22,6 @@ from pathlib import Path
 import re
 import sys
 from typing import Any, cast, TypedDict
-from collections.abc import Callable, Generator
 try:
     import yaml
 except ModuleNotFoundError:  # pragma: no cover
@@ -30,7 +30,7 @@ except ModuleNotFoundError:  # pragma: no cover
 
 import pygments
 from pygments.formatter import Formatter
-from pygments.lexer import RegexLexer, Lexer, bygroups
+from pygments.lexer import bygroups, Lexer, RegexLexer
 from pygments.lexers.asc import AscLexer
 try:
     from pygments.lexers.cel import CELLexer
@@ -56,20 +56,20 @@ except ModuleNotFoundError:  # pragma: no cover
     sys.exit("ModuleNotFoundError: Could not import natsort; "
              "you may need to (re-)run `cmt-install.py` or `pip3 install natsort`; aborting.")
 
-from clustermanagementtoolkit.cmttypes import deep_get, deep_pop, DictPath, FilePath, LogLevel
-from clustermanagementtoolkit.cmttypes import FilePathAuditError, StatusGroup
+from clustermanagementtoolkit.ansithemeprint import ANSIThemeStr
 
 from clustermanagementtoolkit import cmtlib
 from clustermanagementtoolkit.cmtlib import get_since, split_msg, strip_ansicodes
 
-from clustermanagementtoolkit.ansithemeprint import ANSIThemeStr
-
 from clustermanagementtoolkit import cmtlog
 
-from clustermanagementtoolkit.cmtio_yaml import secure_read_yaml
-from clustermanagementtoolkit.cmtio_yaml import json_dumps
-
 from clustermanagementtoolkit.cmtpaths import HOMEDIR, SYSTEM_PARSERS_DIR, PARSER_DIR
+
+from clustermanagementtoolkit.cmttypes import deep_get, deep_pop, DictPath, FilePath, LogLevel
+from clustermanagementtoolkit.cmttypes import FilePathAuditError, StatusGroup
+
+from clustermanagementtoolkit.cmtio_yaml import json_dumps
+from clustermanagementtoolkit.cmtio_yaml import secure_read_yaml
 
 from clustermanagementtoolkit.curses_helper import ThemeAttr, ThemeRef, ThemeStr, themearray_len
 from clustermanagementtoolkit.curses_helper import themearray_to_string, themearray_strip
@@ -1759,9 +1759,6 @@ def render_markdown(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef
     if use_github_tags:
         for tag, subst in GITHUB_EMOJIS:
             lines = lines.replace(tag, subst)
-
-    # TODO: we might want to add a hack to make tables look better
-    # when we replace dim/bold in tables we lose the width.
 
     lexer: Lexer = MarkdownLexer()  # type: ignore
     formatter = ThemeArrayFormatter(colorscheme=COLORSCHEME_MARKDOWN,
@@ -3567,7 +3564,7 @@ def identify_cmdata(cmdata_name: str, cm_name: str,
 
     if uudata:
         try:
-            data = decoded.decode("utf-8", errors="replace")
+            data = decoded.decode("utf-8", errors="strict")
         except UnicodeDecodeError:
             for dataformat, offset, match_bin_infix in cmdata_bin_header:
                 if len(decoded) < len(match_bin_infix) + offset:
@@ -3581,7 +3578,7 @@ def identify_cmdata(cmdata_name: str, cm_name: str,
     dataformat = ""
 
     # We are in luck; there is an interpreter signature
-    # or other type of signature to help
+    # or other type of signature to help.
     if splitmsg and splitmsg[0].startswith(("#!", "-----")):
         for tmp in cmdata_header:
             tmp_dataformat, match_infix = tmp

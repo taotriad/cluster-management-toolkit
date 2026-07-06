@@ -233,12 +233,13 @@ infoview:
       read_only: true
       helptext: "Show Group Names"
       widget: "windowwidget"
-      headers: ["Name:"]
-      itemgetter: "get_list_as_list"
-      itemgetter_args:
-        path: "groupNames"
-      # This isn't supported for now
-      sortcolumn: "name"
+      widget_args:
+        headers: ["Name:"]
+        itemgetter: "get_list_as_list"
+        itemgetter_args:
+          path: "groupNames"
+        # This isn't supported for now
+        sortcolumn: "name"
     "Role Reference":
       key: "r"
       modifier: "shift"
@@ -258,9 +259,10 @@ infoview:
       read_only: true
       helptext: "Show User Names"
       widget: "windowwidget"
-      headers: ["Name:"]
-      itemgetter: "get_list_as_list"
-      itemgetter_args:
-        path: "userNames"
-      # This isn't supported for now
-      sortcolumn: "name"
+      widget_args:
+        headers: ["Name:"]
+        itemgetter: "get_list_as_list"
+        itemgetter_args:
+          path: "userNames"
+        # This isn't supported for now
+        sortcolumn: "name"

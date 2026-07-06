@@ -93,16 +93,17 @@ infoview:
       modifier: "shift"
       read_only: true
       helptext: "List Pod References"
-      title: "Arguments:"
       widget: "windowwidget"
-      itemgetter: "get_list_fields"
-      itemgetter_args:
-        source: "selected"
-        path: "podReferences"
-        fields:
-          - "namespace"
-          - "name"
-      selectable: true
+      widget_args:
+        title: "Arguments:"
+        selectable: true
+        itemgetter: "get_list_fields"
+        itemgetter_args:
+          source: "selected"
+          path: "podReferences"
+          fields:
+            - "namespace"
+            - "name"
       action: "call"
       action_call: "resourceinfodispatch_with_lookup"
       action_args:

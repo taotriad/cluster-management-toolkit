@@ -62,14 +62,14 @@ infoview:
       Normal:
         fields: ["controller",
                  "aggregation_rule_header",
-                 "aggregation_rule_cluster_role_label_selector"]
+                 "aggregation_rule_cluster_role_selectors"]
     rows:
       aggregation_rule_header:
         header: [["Aggregation Rule:", ["main", "infoheader"]]]
-      aggregation_rule_cluster_role_label_selector:
-        header: [["  Cluster Role La", ["main", "infoheader"]],
-                 ["b", ["main", "infoheader_shortcut"]],
-                 ["el Selector:", ["main", "infoheader"]]]
+      aggregation_rule_cluster_role_selectors:
+        header: [["  Cluster Role ", ["main", "infoheader"]],
+                 ["S", ["main", "infoheader_shortcut"]],
+                 ["electors:", ["main", "infoheader"]]]
         paths:
           - path: ["aggregationRule#clusterRoleSelectors"]
             pathtype: "selectors"
@@ -267,3 +267,14 @@ infoview:
         _pass_obj: true
         namespace_path: "metadata#namespace"
         owner_reference_path: "metadata#ownerReferences"
+    "Cluster Role Selectors":
+      key: "s"
+      modifier: "shift"
+      read_only: true
+      helptext: "Show Cluster Role selectors"
+      widget: "windowwidget"
+      widget_args:
+        title: "Cluster Role Selectors:"
+        itemgetter: "get_selector_list"
+        itemgetter_args:
+          path: "aggregationRule#clusterRoleSelectors"

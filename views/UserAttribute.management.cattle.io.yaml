@@ -17,6 +17,7 @@ listview:
     last_refresh:
       header: "Last Refresh:"
       path: "LastRefresh"
+      fallback_on_empty: true
       default: "<unset>"
       type: "str"
       formatter: "timestamp"
@@ -51,6 +52,8 @@ infoview:
       last_refresh:
         header: [["Last Refresh:", ["main", "infoheader"]]]
         path: "LastRefresh"
+        fallback_on_empty: true
+        default: "<unset>"
         type: "str"
         formatter: "timestamp"
       needs_refresh:
@@ -125,20 +128,22 @@ infoview:
       read_only: true
       helptext: "List provider principal IDs"
       widget: "windowwidget"
-      title: "Provider Principal IDs:"
-      itemgetter: "get_list_as_list"
-      itemgetter_args:
-        path: "ExtraByProvider#local#principalid"
-      # Not supported for now
-      sortcolumn: "id"
+      widget_args:
+        title: "Provider Principal IDs:"
+        itemgetter: "get_list_as_list"
+        itemgetter_args:
+          path: "ExtraByProvider#local#principalid"
+        # Not supported for now
+        sortcolumn: "id"
     "List provider Usernames":
       key: "s"
       read_only: true
       helptext: "List provider usernames"
       widget: "windowwidget"
-      title: "Provider Usernames:"
-      itemgetter: "get_list_as_list"
-      itemgetter_args:
-        path: "ExtraByProvider#local#username"
-      # Not supported for now
-      sortcolumn: "name"
+      widget_args:
+        title: "Provider Usernames:"
+        itemgetter: "get_list_as_list"
+        itemgetter_args:
+          path: "ExtraByProvider#local#username"
+        # Not supported for now
+        sortcolumn: "name"

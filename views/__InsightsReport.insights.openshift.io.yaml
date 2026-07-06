@@ -39,10 +39,11 @@ infoview:
       read_only: true
       helptext: "Show description"
       widget: "windowwidget"
-      title: "Description"
-      itemgetter: "get_strings_from_string"
-      itemgetter_args:
-        path: "description"
+      widget_args:
+        title: "Description"
+        itemgetter: "get_strings_from_string"
+        itemgetter_args:
+          path: "description"
     "Open Advisor URI":
       key: "u"
       modifier: "shift"

@@ -258,9 +258,10 @@ infoview:
       read_only: true
       helptext: "List dependencies"
       widget: "windowwidget"
-      title: "Dependencies:"
-      itemgetter: "get_list_fields"
-      itemgetter_args:
-        path: "spec#dependsOn"
-        fields:
-          - "name"
+      widget_args:
+        title: "Dependencies:"
+        itemgetter: "get_list_fields"
+        itemgetter_args:
+          path: "spec#dependsOn"
+          fields:
+            - "name"

@@ -6,8 +6,8 @@
 # SPDX-License-Identifier: MIT
 
 from datetime import datetime
-import sys
 from pathlib import PurePath
+import sys
 from typing import Any
 from unittest import mock
 import yaml

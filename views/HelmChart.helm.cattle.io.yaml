@@ -127,8 +127,11 @@ infoview:
       read_only: true
       helptext: "Show set values"
       widget: "windowwidget"
-      title: "Set values:"
-      headers: ["Key:", "Value:"]
-      itemgetter: "get_key_value"
-      itemgetter_args:
-        path: "spec#set"
+      widget_args:
+        title: "Set values:"
+        headers: ["Key:", "Value:"]
+        formatting: [["windowwidget", "default"],
+                     ["windowwidget", "highlight"]]
+        itemgetter: "get_key_value"
+        itemgetter_args:
+          path: "spec#set"

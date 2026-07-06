@@ -29,33 +29,36 @@ infoview:
       helptext: "Show cluster resource whitelist"
       read_only: true
       widget: "windowwidget"
-      title: "Cluster Resource Whitelist:"
-      headers: ["Group:", "Kind:"]
-      itemgetter: "get_list_fields"
-      itemgetter_args:
-        path: "spec#clusterResourceWhitelist"
-        fields:
-          - "group"
-          - "kind"
+      widget_args:
+        title: "Cluster Resource Whitelist:"
+        headers: ["Group:", "Kind:"]
+        itemgetter: "get_list_fields"
+        itemgetter_args:
+          path: "spec#clusterResourceWhitelist"
+          fields:
+            - "group"
+            - "kind"
     "Destinations":
       key: "d"
       helptext: "Show destinations"
       read_only: true
       widget: "windowwidget"
-      title: "Destinations:"
-      headers: ["Namespace:", "Server:"]
-      itemgetter: "get_list_fields"
-      itemgetter_args:
-        path: "spec#destinations"
-        fields:
-          - "namespace"
-          - "server"
+      widget_args:
+        title: "Destinations:"
+        headers: ["Namespace:", "Server:"]
+        itemgetter: "get_list_fields"
+        itemgetter_args:
+          path: "spec#destinations"
+          fields:
+            - "namespace"
+            - "server"
     "Source Repos":
       key: "s"
       helptext: "Show source repos"
       read_only: true
       widget: "windowwidget"
-      title: "Source Repos:"
-      itemgetter: "get_list_as_list"
-      itemgetter_args:
-        path: "spec#sourceRepos"
+      widget_args:
+        title: "Source Repos:"
+        itemgetter: "get_list_as_list"
+        itemgetter_args:
+          path: "spec#sourceRepos"

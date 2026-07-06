@@ -35,47 +35,48 @@ except ModuleNotFoundError:  # pragma: no cover
 # This has to be first, since it checks for the correct Python version
 from clustermanagementtoolkit import about
 
-from clustermanagementtoolkit.cmttypes import deep_get, deep_get_with_fallback, DictPath, FilePath
-from clustermanagementtoolkit.cmttypes import FilePathAuditError, ProgrammingError, UnknownError
-from clustermanagementtoolkit.cmttypes import SecurityPolicy, SecurityStatus
-
-from clustermanagementtoolkit.cmtpaths import SYSTEM_ANSIBLE_PLAYBOOK_DIR, ANSIBLE_PLAYBOOK_DIR
-from clustermanagementtoolkit.cmtpaths import HOMEDIR, SSH_DIR, FPING_BIN_PATH
-from clustermanagementtoolkit.cmtpaths import DEFAULT_THEME_FILE
+from clustermanagementtoolkit import checks
 
 from clustermanagementtoolkit import cmtio
 
 from clustermanagementtoolkit import cmtio_yaml
 
-from clustermanagementtoolkit.commandparser import parse_commandline, CommandType
+from clustermanagementtoolkit.ansible_helper import ANSIBLE_INVENTORY
 
 from clustermanagementtoolkit.ansible_helper import ansible_configuration
-from clustermanagementtoolkit.ansible_helper import ansible_get_inventory_pretty
-from clustermanagementtoolkit.ansible_helper import ansible_get_inventory_dict
+from clustermanagementtoolkit.ansible_helper import ansible_create_groups, ansible_remove_groups
 from clustermanagementtoolkit.ansible_helper import ansible_get_groups, ansible_get_groups_by_host
 from clustermanagementtoolkit.ansible_helper import ansible_get_hosts_by_group
 from clustermanagementtoolkit.ansible_helper import ansible_add_hosts, ansible_remove_hosts
-from clustermanagementtoolkit.ansible_helper import ansible_create_groups, ansible_remove_groups
-from clustermanagementtoolkit.ansible_helper import ansible_set_vars
-from clustermanagementtoolkit.ansible_helper import ansible_set_hostvars, ansible_unset_hostvars
-from clustermanagementtoolkit.ansible_helper import ansible_set_groupvars, ansible_unset_groupvars
+from clustermanagementtoolkit.ansible_helper import ansible_get_inventory_dict
+from clustermanagementtoolkit.ansible_helper import ansible_get_inventory_pretty
 from clustermanagementtoolkit.ansible_helper import ansible_ping
 from clustermanagementtoolkit.ansible_helper import ansible_print_action_summary
 from clustermanagementtoolkit.ansible_helper import ansible_print_play_results
 from clustermanagementtoolkit.ansible_helper import ansible_run_playbook_on_selection
+from clustermanagementtoolkit.ansible_helper import ansible_set_vars
+from clustermanagementtoolkit.ansible_helper import ansible_set_hostvars, ansible_unset_hostvars
+from clustermanagementtoolkit.ansible_helper import ansible_set_groupvars, ansible_unset_groupvars
 from clustermanagementtoolkit.ansible_helper import populate_playbooks_from_filenames
-from clustermanagementtoolkit.ansible_helper import ANSIBLE_INVENTORY
+
+from clustermanagementtoolkit.ansithemeprint import ANSIThemeStr, ansithemeprint
+from clustermanagementtoolkit.ansithemeprint import ansithemestr_join_list, ansithemearray_to_str
 
 from clustermanagementtoolkit import cmtlib
 from clustermanagementtoolkit.cmtlib import read_cmtconfig, get_latest_upstream_version
 
+from clustermanagementtoolkit.cmtpaths import SYSTEM_ANSIBLE_PLAYBOOK_DIR, ANSIBLE_PLAYBOOK_DIR
+from clustermanagementtoolkit.cmtpaths import HOMEDIR, SSH_DIR, FPING_BIN_PATH
+from clustermanagementtoolkit.cmtpaths import DEFAULT_THEME_FILE
+
+from clustermanagementtoolkit.cmttypes import deep_get, deep_get_with_fallback, DictPath, FilePath
+from clustermanagementtoolkit.cmttypes import FilePathAuditError, ProgrammingError, UnknownError
+from clustermanagementtoolkit.cmttypes import SecurityPolicy, SecurityStatus
+
+from clustermanagementtoolkit.commandparser import parse_commandline, CommandType
+
 from clustermanagementtoolkit import kubernetes_helper
 from clustermanagementtoolkit.kubernetes_helper import get_cluster_name
-
-from clustermanagementtoolkit import checks
-
-from clustermanagementtoolkit.ansithemeprint import ANSIThemeStr, ansithemeprint
-from clustermanagementtoolkit.ansithemeprint import ansithemestr_join_list, ansithemearray_to_str
 
 try:
     import prctl

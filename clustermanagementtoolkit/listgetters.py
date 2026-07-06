@@ -11,6 +11,7 @@
 Get list data synchronously.
 """
 
+from collections.abc import Callable
 import concurrent.futures
 import copy
 import csv
@@ -23,7 +24,6 @@ from pathlib import Path
 import re
 import sys
 from typing import Any, cast
-from collections.abc import Callable
 
 try:
     from natsort import natsorted
@@ -31,17 +31,17 @@ except ModuleNotFoundError:  # pragma: no cover
     sys.exit("ModuleNotFoundError: Could not import natsort; "
              "you may need to (re-)run `cmt-install.py` or `pip3 install natsort`; aborting.")
 
-from clustermanagementtoolkit.cmtpaths import HOMEDIR
-
 from clustermanagementtoolkit.cmtio import secure_read_string
 
-from clustermanagementtoolkit.cmtio_yaml import secure_read_yaml
 from clustermanagementtoolkit.cmtio_yaml import json_loads
+from clustermanagementtoolkit.cmtio_yaml import secure_read_yaml
 
 from clustermanagementtoolkit import cmtlib
 from clustermanagementtoolkit.cmtlib import disksize_to_human, get_since
 from clustermanagementtoolkit.cmtlib import timestamp_to_datetime
 from clustermanagementtoolkit.cmtlib import make_label_selector, make_set_expression_list
+
+from clustermanagementtoolkit.cmtpaths import HOMEDIR
 
 from clustermanagementtoolkit.cmttypes import deep_get, deep_get_with_fallback, deep_set, DictPath
 from clustermanagementtoolkit.cmttypes import FilePath, FilePathAuditError

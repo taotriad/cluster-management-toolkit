@@ -200,32 +200,34 @@ infoview:
       read_only: true
       helptext: "Show label selector"
       widget: "windowwidget"
-      title: "Label Selector:"
-      headers: ["Key:", "Value:"]
-      itemgetter: "get_key_value"
-      itemgetter_args:
-        path: "spec#selector#matchLabels"
+      widget_args:
+        title: "Label Selector:"
+        headers: ["Key:", "Value:"]
+        itemgetter: "get_key_value"
+        itemgetter_args:
+          path: "spec#selector#matchLabels"
     "Service Monitor Endpoints":
       key: "s"
       modifier: "shift"
       read_only: true
       helptext: "List Service Monitor endpoints"
       widget: "windowwidget"
-      title: "Service Monitor Endpoints:"
-      headers: ["Port:", "Target Port:", "Scheme:", "Path:", "Interval:"]
-      itemgetter: "get_list_fields"
-      itemgetter_args:
-        path: "spec#endpoints"
-        fields:
-          - "port"
-          - "targetPort"
-          - "scheme"
-          - "path"
-          - "interval"
-        pass_ref: true
-      # This isn't supported for now
-      sortcolumn: "namespace"
-      selectable: true
+      widget_args:
+        title: "Service Monitor Endpoints:"
+        headers: ["Port:", "Target Port:", "Scheme:", "Path:", "Interval:"]
+        selectable: true
+        itemgetter: "get_list_fields"
+        itemgetter_args:
+          path: "spec#endpoints"
+          fields:
+            - "port"
+            - "targetPort"
+            - "scheme"
+            - "path"
+            - "interval"
+          pass_ref: true
+        # This isn't supported for now
+        sortcolumn: "namespace"
       action: "call"
       action_call: "resourceinfodispatch_from_selection"
       action_args:

@@ -54,28 +54,30 @@ infoview:
       read_only: true
       helptext: "List plugins"
       widget: "windowwidget"
-      title: "Plugins:"
-      itemgetter: "get_list_as_list"
-      itemgetter_args:
-        path: "spec#plugins"
+      widget_args:
+        title: "Plugins:"
+        itemgetter: "get_list_as_list"
+        itemgetter_args:
+          path: "spec#plugins"
     "List generations":
       key: "g"
       read_only: true
       helptext: "List generations"
       widget: "windowwidget"
-      title: "Generations:"
-      selectable: true
-      headers: ["Resource:", "Group:", "Namespace:", "Name:"]
-      itemgetter: "get_list_fields"
-      itemgetter_args:
-        path: "status#generations"
-        fields:
-          - "resource"
-          - "group"
-          - "namespace"
-          - "name"
-      # Not supported for now
-      sortcolumn: "resource"
+      widget_args:
+        title: "Generations:"
+        headers: ["Resource:", "Group:", "Namespace:", "Name:"]
+        selectable: true
+        itemgetter: "get_list_fields"
+        itemgetter_args:
+          path: "status#generations"
+          fields:
+            - "resource"
+            - "group"
+            - "namespace"
+            - "name"
+        # Not supported for now
+        sortcolumn: "resource"
       action: "call"
       action_call: "resourceinfodispatch_with_lookup"
       action_args:

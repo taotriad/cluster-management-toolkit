@@ -167,19 +167,20 @@ infoview:
       read_only: true
       helptext: "List partitions"
       widget: "windowwidget"
-      title: "Partitions:"
-      headers: ["Name:", "Count:", "Max Unavailable:",
-                "Desired Ready:", "Ready:"]
-      itemgetter: "get_list_fields"
-      itemgetter_args:
-        path: "status#partitions"
-        # pass_ref: true
-        fields:
-          - "name"
-          - "count"
-          - "maxUnavailable"
-          - "summary#desiredReady"
-          - "summary#ready"
+      widget_args:
+        title: "Partitions:"
+        headers: ["Name:", "Count:", "Max Unavailable:",
+                  "Desired Ready:", "Ready:"]
+        itemgetter: "get_list_fields"
+        itemgetter_args:
+          path: "status#partitions"
+          # pass_ref: true
+          fields:
+            - "name"
+            - "count"
+            - "maxUnavailable"
+            - "summary#desiredReady"
+            - "summary#ready"
     "Open default Namespace":
       key: "d"
       modifier: "shift"

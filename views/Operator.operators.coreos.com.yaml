@@ -58,30 +58,32 @@ infoview:
       read_only: true
       helptext: "Show label selector"
       widget: "windowwidget"
-      title: "Label Selector:"
-      headers: ["Key:", "Value:"]
-      itemgetter: "get_key_value"
-      itemgetter_args:
-        path: "status#components#labelSelector#matchLabels"
+      widget_args:
+        title: "Label Selector:"
+        headers: ["Key:", "Value:"]
+        itemgetter: "get_key_value"
+        itemgetter_args:
+          path: "status#components#labelSelector#matchLabels"
     "List References":
       key: "r"
       modifier: "shift"
       read_only: true
       helptext: "List references"
-      title: "References:"
       widget: "windowwidget"
-      headers: ["Kind:", "API-version:", "Namespace:", "Name:"]
-      selectable: true
-      itemgetter: "get_list_fields"
-      itemgetter_args:
-        path: "status#components#refs"
-        fields:
-          - "kind"
-          - "apiVersion"
-          - "namespace"
-          - "name"
-      # This isn't supported for now
-      sortcolumn: "name"
+      widget_args:
+        title: "References:"
+        headers: ["Kind:", "API-version:", "Namespace:", "Name:"]
+        selectable: true
+        itemgetter: "get_list_fields"
+        itemgetter_args:
+          path: "status#components#refs"
+          fields:
+            - "kind"
+            - "apiVersion"
+            - "namespace"
+            - "name"
+        # This isn't supported for now
+        sortcolumn: "name"
       action: "call"
       action_call: "resourceinfodispatch_with_lookup"
       action_args:

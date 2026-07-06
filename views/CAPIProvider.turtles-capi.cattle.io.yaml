@@ -175,11 +175,12 @@ infoview:
       read_only: true
       helptext: "Show fetch config label selector"
       widget: "windowwidget"
-      title: "Fetch Config Label Selector:"
-      headers: ["Key:", "Value:"]
-      itemgetter: "get_key_value"
-      itemgetter_args:
-        path: "spec#fetchConfig#selector#matchLabels"
+      widget_args:
+        title: "Fetch Config Label Selector:"
+        headers: ["Key:", "Value:"]
+        itemgetter: "get_key_value"
+        itemgetter_args:
+          path: "spec#fetchConfig#selector#matchLabels"
     "Additional Manifests":
       key: "a"
       modifier: "shift"
@@ -209,8 +210,11 @@ infoview:
       read_only: true
       helptext: "List variables"
       widget: "windowwidget"
-      title: "Variables:"
-      headers: ["Key:", "Value:"]
-      itemgetter: "get_key_value"
-      itemgetter_args:
-        path: "status#variables"
+      widget_args:
+        title: "Variables:"
+        headers: ["Key:", "Value:"]
+        formatting: [["windowwidget", "default"],
+                     ["windowwidget", "highlight"]]
+        itemgetter: "get_key_value"
+        itemgetter_args:
+          path: "status#variables"

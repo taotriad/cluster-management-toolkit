@@ -114,46 +114,50 @@ infoview:
       read_only: true
       helptext: "Show Node label selector"
       widget: "windowwidget"
-      title: "Node Label Selector:"
-      headers: ["Key:", "Value:"]
-      itemgetter: "get_key_value"
-      itemgetter_args:
-        path: "spec#nodeSelector"
+      widget_args:
+        title: "Node Label Selector:"
+        headers: ["Key:", "Value:"]
+        itemgetter: "get_key_value"
+        itemgetter_args:
+          path: "spec#nodeSelector"
     "Resources":
       key: "r"
       modifier: "shift"
       read_only: true
       helptext: "Show resources"
       widget: "windowwidget"
-      title: "Resources:"
-      headers: ["Request Type:", "Limits:"]
-      itemgetter: "get_key_value"
-      itemgetter_args:
-        path: "spec#resources"
+      widget_args:
+        title: "Resources:"
+        headers: ["Request Type:", "Limits:"]
+        itemgetter: "get_key_value"
+        itemgetter_args:
+          path: "spec#resources"
     "Show tolerations":
       key: "t"
       read_only: true
       helptext: "Show tolerations"
-      title: "Tolerations:"
       widget: "windowwidget"
-      headers: ["Key:", "Operator:", "Value:", "Effect:", "Timeout:"]
-      itemgetter: "get_tolerations"
-      # This isn't supported for now
-      sortcolumn: "key"
+      widget_args:
+        title: "Tolerations:"
+        headers: ["Key:", "Operator:", "Value:", "Effect:", "Timeout:"]
+        itemgetter: "get_tolerations"
+        # This isn't supported for now
+        sortcolumn: "key"
     "List Volume Mounts":
       key: "v"
       modifier: "shift"
       read_only: true
       helptext: "List volume mounts"
       widget: "windowwidget"
-      title: "Volume Mounts:"
-      headers: ["Source:", "Destination:", "Read Only:"]
-      itemgetter: "get_list_fields"
-      itemgetter_args:
-        path: "spec#extraVolumeMounts"
-        fields:
-          - "source"
-          - "destination"
-          - "readOnly"
-      # This isn't supported for now
-      sortcolumn: "source"
+      widget_args:
+        title: "Volume Mounts:"
+        headers: ["Source:", "Destination:", "Read Only:"]
+        itemgetter: "get_list_fields"
+        itemgetter_args:
+          path: "spec#extraVolumeMounts"
+          fields:
+            - "source"
+            - "destination"
+            - "readOnly"
+        # This isn't supported for now
+        sortcolumn: "source"

@@ -169,10 +169,11 @@ infoview:
       read_only: true
       helptext: "Show notes"
       widget: "windowwidget"
-      title: "Notes:"
-      itemgetter: "get_strings_from_string"
-      itemgetter_args:
-        path: "spec#info#notes"
+      widget_args:
+        title: "Notes:"
+        itemgetter: "get_strings_from_string"
+        itemgetter_args:
+          path: "spec#info#notes"
     "Open controller":
       key: "c"
       modifier: "shift"

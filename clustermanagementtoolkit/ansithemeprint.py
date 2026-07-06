@@ -9,9 +9,9 @@
 Print themed strings to the console
 """
 
+import copy
 import errno
 import getpass
-import copy
 from pathlib import Path, PurePath
 import subprocess  # nosec
 import sys
@@ -20,21 +20,21 @@ from collections.abc import Sequence
 
 try:
     import pygments
-    import pygments.lexers
     import pygments.formatters
-    from pygments.token import Keyword, Name, Comment, String, Error
-    from pygments.token import Number, Operator, Generic, Token, Whitespace
+    import pygments.lexers
+    from pygments.token import Comment, Error, Generic, Keyword, Name, Number, Operator
+    from pygments.token import String, Token, Whitespace
     SYNTAX_HIGHLIGHTING: bool = True
 except ModuleNotFoundError:  # pragman: no cover
     SYNTAX_HIGHLIGHTING = False
 
 from clustermanagementtoolkit.cmtpaths import SYSTEM_DEFAULT_THEME_FILE
 
-from clustermanagementtoolkit.cmttypes import deep_get, DictPath, FilePath
-from clustermanagementtoolkit.cmttypes import FilePathAuditError, ProgrammingError, LogLevel
-from clustermanagementtoolkit.cmttypes import SecurityChecks, SecurityPolicy, SecurityStatus
-
 from clustermanagementtoolkit import cmtio
+
+from clustermanagementtoolkit.cmttypes import deep_get, DictPath, FilePath
+from clustermanagementtoolkit.cmttypes import FilePathAuditError, LogLevel, ProgrammingError
+from clustermanagementtoolkit.cmttypes import SecurityChecks, SecurityPolicy, SecurityStatus
 
 
 class ANSIThemeStr:

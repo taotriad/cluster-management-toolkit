@@ -10,12 +10,12 @@ A wrapper for using for executing callables asynchronously
 using the concurrent.futures ThreadPoolExecutor
 """
 
+from collections.abc import Callable
 import concurrent.futures
 from datetime import datetime
 import sys
 import threading
 from typing import Any
-from collections.abc import Callable
 
 
 class ReExecutor:

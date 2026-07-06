@@ -149,13 +149,14 @@ infoview:
       read_only: true
       helptext: "List Nodes"
       widget: "windowwidget"
-      title: "Nodes:"
-      selectable: true
-      itemgetter: "get_list_as_list"
-      itemgetter_args:
-        paths: ["spec#nodes#nodeNames"]
-      # Not supported for now
-      sortcolumn: "name"
+      widget_args:
+        title: "Nodes:"
+        selectable: true
+        itemgetter: "get_list_as_list"
+        itemgetter_args:
+          paths: ["spec#nodes#nodeNames"]
+        # Not supported for now
+        sortcolumn: "name"
       action: "call"
       action_call: "resourceinfodispatch_with_lookup"
       action_args:
@@ -166,13 +167,14 @@ infoview:
       read_only: true
       helptext: "List External Nodes"
       widget: "windowwidget"
-      title: "Nodes:"
-      selectable: true
-      itemgetter: "get_list_as_list"
-      itemgetter_args:
-        paths: ["spec#externalNodes#nodeNames"]
-      # Not supported for now
-      sortcolumn: "name"
+      widget_args:
+        title: "Nodes:"
+        selectable: true
+        itemgetter: "get_list_as_list"
+        itemgetter_args:
+          paths: ["spec#externalNodes#nodeNames"]
+        # Not supported for now
+        sortcolumn: "name"
       action: "call"
       action_call: "resourceinfodispatch_with_lookup"
       action_args:

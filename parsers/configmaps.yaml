@@ -498,6 +498,8 @@ configmap_signatures:
       - namespace: "openshift-kube-apiserver"
         prefix: "kube-apiserver-cert-syncer-kubeconfig"
         data_prefix: "kubeconfig"
+      - prefix: "node-cpu-model-configuration"
+        data_prefix: "cpuModels"
 
   zip:
     format_name: "zip"

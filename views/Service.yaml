@@ -393,20 +393,21 @@ infoview:
       read_only: true
       helptext: "List Endpoint Slices"
       widget: "windowwidget"
-      title: "Endpoint Slices:"
-      headers: ["Namespace:", "Name:"]
-      itemgetter: "get_kubernetes_objects"
-      itemgetter_args:
-        kind: "EndpointSlice"
-        api_family: "discovery.k8s.io"
-        selector: "kubernetes.io/service-name"
-        selector_type: "label"
-        name_path: "metadata#name"
-        namespace_path: "metadata#namespace"
-        field_paths: ["metadata#namespace", "metadata#name"]
-      # This isn't supported for now
-      sortcolumn: "namespace"
-      selectable: true
+      widget_args:
+        title: "Endpoint Slices:"
+        headers: ["Namespace:", "Name:"]
+        selectable: true
+        itemgetter: "get_kubernetes_objects"
+        itemgetter_args:
+          kind: "EndpointSlice"
+          api_family: "discovery.k8s.io"
+          selector: "kubernetes.io/service-name"
+          selector_type: "label"
+          name_path: "metadata#name"
+          namespace_path: "metadata#namespace"
+          field_paths: ["metadata#namespace", "metadata#name"]
+        # This isn't supported for now
+        sortcolumn: "namespace"
       action: "call"
       action_call: "resourceinfodispatch_with_lookup"
       action_args:
@@ -419,11 +420,12 @@ infoview:
       read_only: true
       helptext: "Show label selector"
       widget: "windowwidget"
-      title: "Label Selector:"
-      headers: ["Key:", "Value:"]
-      itemgetter: "get_key_value"
-      itemgetter_args:
-        path: "spec#selector"
+      widget_args:
+        title: "Label Selector:"
+        headers: ["Key:", "Value:"]
+        itemgetter: "get_key_value"
+        itemgetter_args:
+          path: "spec#selector"
     "Open controller":
       key: "c"
       modifier: "shift"
@@ -441,7 +443,8 @@ infoview:
       read_only: true
       helptext: "Show port mappings"
       widget: "windowwidget"
-      headers: ["Port:", "Node-Port:", "Target-Port:", "Endpoints:"]
-      itemgetter: "get_svc_port_target_endpoints"
-      # This isn't supported for now
-      sortcolumn: "port"
+      widget_args:
+        headers: ["Port:", "Node-Port:", "Target-Port:", "Endpoints:"]
+        itemgetter: "get_svc_port_target_endpoints"
+        # This isn't supported for now
+        sortcolumn: "port"

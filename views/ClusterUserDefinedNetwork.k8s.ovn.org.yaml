@@ -80,8 +80,9 @@ infoview:
       read_only: true
       helptext: "Show namespace label selector"
       widget: "windowwidget"
-      title: "Namespace Label Selector:"
-      headers: ["Key:", "Value:"]
-      itemgetter: "get_key_value"
-      itemgetter_args:
-        path: "spec#namespaceSelector#matchLabels"
+      widget_args:
+        title: "Namespace Label Selector:"
+        headers: ["Key:", "Value:"]
+        itemgetter: "get_key_value"
+        itemgetter_args:
+          path: "spec#namespaceSelector#matchLabels"

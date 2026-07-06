@@ -86,11 +86,12 @@ infoview:
       read_only: true
       helptext: "List Secrets"
       widget: "windowwidget"
-      title: "Secrets:"
-      selectable: true
-      itemgetter: "get_list_as_list"
-      itemgetter_args:
-        path: "spec#clientAuth#secretNames"
+      widget_args:
+        title: "Secrets:"
+        selectable: true
+        itemgetter: "get_list_as_list"
+        itemgetter_args:
+          path: "spec#clientAuth#secretNames"
       action: "call"
       action_call: "resourceinfodispatch_with_lookup"
       action_args:

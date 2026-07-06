@@ -308,19 +308,21 @@ infoview:
       read_only: true
       helptext: "Show commit message"
       widget: "windowwidget"
-      itemgetter: "get_strings_from_string"
-      itemgetter_args:
-        path: "spec#revision#git#message"
+      widget_args:
+        itemgetter: "get_strings_from_string"
+        itemgetter_args:
+          path: "spec#revision#git#message"
     "Node Label Selector":
       key: "b"
       read_only: true
       helptext: "Show Node label selector"
       widget: "windowwidget"
-      title: "Node Label Selector:"
-      headers: ["Key:", "Value:"]
-      itemgetter: "get_key_value"
-      itemgetter_args:
-        path: "spec#nodeSelector"
+      widget_args:
+        title: "Node Label Selector:"
+        headers: ["Key:", "Value:"]
+        itemgetter: "get_key_value"
+        itemgetter_args:
+          path: "spec#nodeSelector"
     "Push Secret":
       key: "p"
       modifier: "shift"

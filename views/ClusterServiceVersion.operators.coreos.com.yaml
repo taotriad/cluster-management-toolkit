@@ -169,23 +169,25 @@ infoview:
       read_only: true
       helptext: "Show description"
       widget: "windowwidget"
-      title: "Description:"
-      itemgetter: "get_strings_from_string"
-      itemgetter_args:
-        path: "spec#description"
+      widget_args:
+        title: "Description:"
+        itemgetter: "get_strings_from_string"
+        itemgetter_args:
+          path: "spec#description"
     "Maintainers":
       key: "m"
       read_only: true
       helptext: "Show maintainers"
       widget: "windowwidget"
-      title: "Maintainers:"
-      headers: ["Name:", "E-mail:"]
-      itemgetter: "get_list_fields"
-      itemgetter_args:
-        path: "spec#maintainers"
-        fields:
-          - "name"
-          - "email"
+      widget_args:
+        title: "Maintainers:"
+        headers: ["Name:", "E-mail:"]
+        itemgetter: "get_list_fields"
+        itemgetter_args:
+          path: "spec#maintainers"
+          fields:
+            - "name"
+            - "email"
     "Installation Spec":
       key: "i"
       read_only: true
@@ -203,17 +205,18 @@ infoview:
       read_only: true
       helptext: "Show supported installation modes"
       widget: "windowwidget"
-      title: "Supported installation modes:"
-      headers: ["Mode:", "Supported:"]
-      itemgetter: "get_list_fields"
-      itemgetter_args:
-        path: "spec#installModes"
-        fields:
-          - "type"
-          - "supported"
-      formatting: [["windowwidget", "default"], ["windowwidget", "highlight"]]
-      # This isn't supported for now
-      "sortcolumn": "type"
+      widget_args:
+        title: "Supported installation modes:"
+        headers: ["Mode:", "Supported:"]
+        itemgetter: "get_list_fields"
+        itemgetter_args:
+          path: "spec#installModes"
+          fields:
+            - "type"
+            - "supported"
+        formatting: [["windowwidget", "default"], ["windowwidget", "highlight"]]
+        # This isn't supported for now
+        sortcolumn: "type"
     "Custom Resource Definitions":
       key: "c"
       modifier: "shift"

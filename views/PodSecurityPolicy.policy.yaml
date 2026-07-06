@@ -399,11 +399,12 @@ infoview:
       read_only: true
       helptext: "List allowed Runtime Classes"
       widget: "windowwidget"
-      title: "Allowed Runtime Classes:"
-      itemgetter: "get_list_as_list"
-      itemgetter_args:
-        path: "spec#runtimeClass#allowedRuntimeClassNames"
-      selectable: true
+      widget_args:
+        title: "Allowed Runtime Classes:"
+        itemgetter: "get_list_as_list"
+        itemgetter_args:
+          path: "spec#runtimeClass#allowedRuntimeClassNames"
+        selectable: true
       action: "call"
       action_call: "resourceinfodispatch_with_lookup"
       action_args:

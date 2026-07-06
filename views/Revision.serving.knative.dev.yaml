@@ -167,16 +167,17 @@ infoview:
       read_only: true
       helptext: "List container statuses"
       widget: "windowwidget"
-      title: "Container statuses:"
-      headers: ["Name:", "Image Digest:"]
-      itemgetter: "get_list_fields"
-      itemgetter_args:
-        path: "status#containerStatuses"
-        fields:
-          - "name"
-          - "imageDigest"
-      # Not supported for now
-      sortcolumn: "name"
+      widget_args:
+        title: "Container statuses:"
+        headers: ["Name:", "Image Digest:"]
+        itemgetter: "get_list_fields"
+        itemgetter_args:
+          path: "status#containerStatuses"
+          fields:
+            - "name"
+            - "imageDigest"
+        # Not supported for now
+        sortcolumn: "name"
     "View containers":
       key: "t"
       modifier: "shift"

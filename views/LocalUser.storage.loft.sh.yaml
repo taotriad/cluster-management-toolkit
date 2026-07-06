@@ -59,25 +59,27 @@ infoview:
       read_only: true
       helptext: "List Groups that the user has access to"
       widget: "windowwidget"
-      title: "Groups:"
-      itemgetter: "get_list_as_list"
-      itemgetter_args:
-        paths: ["status#groups"]
-      # Not supported for now
-      sortcolumn: "groups"
+      widget_args:
+        title: "Groups:"
+        itemgetter: "get_list_as_list"
+        itemgetter_args:
+          paths: ["status#groups"]
+        # Not supported for now
+        sortcolumn: "groups"
     "List Teams":
       key: "t"
       modifier: "shift"
       read_only: true
       helptext: "List Teams that the user belongs to"
       widget: "windowwidget"
-      title: "Teams:"
-      selectable: true
-      itemgetter: "get_list_as_list"
-      itemgetter_args:
-        paths: ["status#teams"]
-      # Not supported for now
-      sortcolumn: "teams"
+      widget_args:
+        title: "Teams:"
+        selectable: true
+        itemgetter: "get_list_as_list"
+        itemgetter_args:
+          paths: ["status#teams"]
+        # Not supported for now
+        sortcolumn: "teams"
       action: "call"
       action_call: "resourceinfodispatch_with_lookup"
       action_args:

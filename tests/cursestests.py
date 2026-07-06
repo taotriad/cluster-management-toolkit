@@ -7,8 +7,8 @@
 
 import copy
 import curses
-from pathlib import PurePath
 import os
+from pathlib import PurePath
 import sys
 from typing import Any
 from unittest import mock
@@ -1599,9 +1599,9 @@ def test_get_labels(verbose: bool = False) -> tuple[str, bool]:
                 [
                     {
                         "lineattrs": WidgetLineAttrs.NORMAL,
-                        "columns": [[ThemeStr("k8s-app", ThemeAttr("windowwidget", "highlight"))],
+                        "columns": [[ThemeStr("k8s-app", ThemeAttr("windowwidget", "default"))],
                                     [ThemeStr("kube-dns",
-                                              ThemeAttr("windowwidget", "default"))]],
+                                              ThemeAttr("windowwidget", "highlight"))]],
                         "retval": None,
                     },
                 ],

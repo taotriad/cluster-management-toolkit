@@ -105,11 +105,12 @@ infoview:
       read_only: true
       helptext: "List installed Nodes"
       widget: "windowwidget"
-      title: "Installed Nodes:"
-      itemgetter: "get_list_as_list"
-      itemgetter_args:
-        path: "status#installationStatus#completed#completedNodesList"
-      selectable: true
+      widget_args:
+        title: "Installed Nodes:"
+        selectable: true
+        itemgetter: "get_list_as_list"
+        itemgetter_args:
+          path: "status#installationStatus#completed#completedNodesList"
       action: "call"
       action_call: "resourceinfodispatch_with_lookup"
       action_args:
@@ -121,11 +122,12 @@ infoview:
       read_only: true
       helptext: "Show node label selector"
       widget: "windowwidget"
-      title: "Node Label Selector:"
-      headers: ["Key:", "Value:"]
-      itemgetter: "get_key_value"
-      itemgetter_args:
-        path: "spec#ccNodeSelector#matchLabels"
+      widget_args:
+        title: "Node Label Selector:"
+        headers: ["Key:", "Value:"]
+        itemgetter: "get_key_value"
+        itemgetter_args:
+          path: "spec#ccNodeSelector#matchLabels"
     "Open Default runtime":
       key: "d"
       modifier: "shift"
@@ -144,16 +146,17 @@ infoview:
       read_only: true
       helptext: "List Runtime Classes"
       widget: "windowwidget"
-      title: "Runtime Classes:"
-      headers: ["Name:", "Pulltype:", "Snapshotter:"]
-      itemgetter: "get_list_fields"
-      itemgetter_args:
-        path: "spec#config#runtimeClasses"
-        fields:
-          - "name"
-          - "pulltype"
-          - "snapshotter"
-      selectable: true
+      widget_args:
+        title: "Runtime Classes:"
+        headers: ["Name:", "Pulltype:", "Snapshotter:"]
+        selectable: true
+        itemgetter: "get_list_fields"
+        itemgetter_args:
+          path: "spec#config#runtimeClasses"
+          fields:
+            - "name"
+            - "pulltype"
+            - "snapshotter"
       action: "call"
       action_call: "resourceinfodispatch_with_lookup"
       action_args:
@@ -177,11 +180,12 @@ infoview:
       read_only: true
       helptext: "List uninstalled Nodes"
       widget: "windowwidget"
-      title: "Uninstalled Nodes:"
-      itemgetter: "get_list_as_list"
-      itemgetter_args:
-        path: "status#unInstallationStatus#completed#completedNodesList"
-      selectable: true
+      widget_args:
+        title: "Uninstalled Nodes:"
+        selectable: true
+        itemgetter: "get_list_as_list"
+        itemgetter_args:
+          path: "status#unInstallationStatus#completed#completedNodesList"
       action: "call"
       action_call: "resourceinfodispatch_with_lookup"
       action_args:

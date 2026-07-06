@@ -271,17 +271,18 @@ infoview:
       read_only: true
       helptext: "Show volume snapshot statuses"
       widget: "windowwidget"
-      title: "Volume Snapshot Statuses:"
-      headers: ["Name:", "Enabled:", "Reason:"]
-      itemgetter: "get_list_fields"
-      itemgetter_args:
-        path: "status#volumeSnapshotStatuses"
-        fields:
-          - "name"
-          - "enabled"
-          - "reason"
-      # Not supported for now
-      sortcolumn: "name"
+      widget_args:
+        title: "Volume Snapshot Statuses:"
+        headers: ["Name:", "Enabled:", "Reason:"]
+        itemgetter: "get_list_fields"
+        itemgetter_args:
+          path: "status#volumeSnapshotStatuses"
+          fields:
+            - "name"
+            - "enabled"
+            - "reason"
+        # Not supported for now
+        sortcolumn: "name"
     "VM Template":
       key: "t"
       modifier: "shift"

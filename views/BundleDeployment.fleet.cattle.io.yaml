@@ -5,12 +5,17 @@ default_command: "bundledeployments.fleet.cattle.io"
 command:
   - "bundledeployments.cattle"
   - "bundledeployment.cattle"
+  - "bundledeploys.cattle"
+  - "bundledeploy.cattle"
   - "bundledeps.cattle"
   - "bundledep.cattle"
 listview:
   name: "Bundle Deployments"
   group: "Rancher"
   field_indexes:
+    Wide:
+      fields: ["namespace", "name", "default_namespace",
+               "deployed", "monitored", "desired", "ready", "state", "age"]
     Normal:
       fields: ["namespace", "name", "default_namespace",
                "deployed", "monitored", "state", "age"]
@@ -26,10 +31,38 @@ listview:
       header: "Deployed:"
       path: "status#display#deployed"
       type: "bool"
+    desired:
+      header: "Desired:"
+      path: "status#resourceCounts#desiredReady"
+      default: 0
+      type: "int"
+      formatter: "numerical"
+      align: "right"
     monitored:
       header: "Monitored:"
       path: "status#display#monitored"
       type: "bool"
+    ready:
+      header: "Ready:"
+      paths:
+        - path: ["status#resourceCounts#ready",
+                 "status#resourceCounts#desiredReady"]
+          pathtype: "comparison"
+          default: [0, 0]
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          ranges:
+            - min: 0
+              max: 1
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+            - default: true
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+      align: "right"
     state:
       header: "State:"
       path: "status#display#state"
@@ -52,7 +85,12 @@ infoview:
     row_indexes:
       Normal:
         fields: ["release", "default_namespace",
-                 "deployed", "monitored", "state"]
+                 "deployment_id",
+                 "deployed", "monitored",
+                 "resources_header",
+                 "resources_desired",
+                 "resources_ready",
+                 "state"]
     rows:
       default_namespace:
         header: [["D", ["main", "infoheader_shortcut"]],
@@ -66,6 +104,13 @@ infoview:
         header: [["Deployed:", ["main", "infoheader"]]]
         path: "status#display#deployed"
         type: "bool"
+      deployment_id:
+        header: [["Deployment ID:", ["main", "infoheader"]]]
+        paths:
+          - path: ["status#appliedDeploymentID", "spec#deploymentID"]
+            pathtype: "value"
+        default: "<unset>"
+        type: "str"
       monitored:
         header: [["Monitored:", ["main", "infoheader"]]]
         path: "status#display#monitored"
@@ -74,6 +119,34 @@ infoview:
         header: [["Release:", ["main", "infoheader"]]]
         path: "status#release"
         type: "str"
+      resources_desired:
+        header: [["  Desired:", ["main", "infoheader"]]]
+        path: "status#resourceCounts#desiredReady"
+        default: 0
+        type: "int"
+        formatter: "numerical"
+      resources_header:
+        header: [["Resources:", ["main", "infoheader"]]]
+      resources_ready:
+        header: [["  Ready:", ["main", "infoheader"]]]
+        paths:
+          - path: ["status#resourceCounts#ready",
+                   "status#resourceCounts#desiredReady"]
+            pathtype: "comparison"
+            default: [0, 0]
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            ranges:
+              - min: 0
+                max: 1
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+              - default: true
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
       state:
         header: [["State:", ["main", "infoheader"]]]
         path: "status#display#state"

@@ -57,9 +57,10 @@ infoview:
       read_only: true
       helptext: "Show resource capacities"
       widget: "windowwidget"
-      title: "Capacity:"
-      headers: ["Resource:", "Capacity:"]
-      itemgetter: "get_key_value"
-      itemgetter_args:
-        path: "capacity"
-        value_path: "value"
+      widget_args:
+        title: "Capacity:"
+        headers: ["Resource:", "Capacity:"]
+        itemgetter: "get_key_value"
+        itemgetter_args:
+          path: "capacity"
+          value_path: "value"

@@ -150,31 +150,34 @@ infoview:
       read_only: true
       helptext: "Show subject Namespace label selector"
       widget: "windowwidget"
-      title: "Subject Namespace Label Selector:"
-      headers: ["Key:", "Value:"]
-      itemgetter: "get_key_value"
-      itemgetter_args:
-        path: "spec#subject#namespaces#matchLabels"
+      widget_args:
+        title: "Subject Namespace Label Selector:"
+        headers: ["Key:", "Value:"]
+        itemgetter: "get_key_value"
+        itemgetter_args:
+          path: "spec#subject#namespaces#matchLabels"
     "Subject Pod Label Selector":
       key: "b"
       read_only: true
       helptext: "Show subject Pod label selector"
       widget: "windowwidget"
-      title: "Subject Pod Label Selector:"
-      headers: ["Key:", "Value:"]
-      itemgetter: "get_key_value"
-      itemgetter_args:
-        path: "spec#subject#pods#podSelector#matchLabels"
+      widget_args:
+        title: "Subject Pod Label Selector:"
+        headers: ["Key:", "Value:"]
+        itemgetter: "get_key_value"
+        itemgetter_args:
+          path: "spec#subject#pods#podSelector#matchLabels"
     "Subject Pod Namespace Label Selector":
       key: "p"
       read_only: true
       helptext: "Show subject Pod Namespace label selector"
       widget: "windowwidget"
-      title: "Subject Pod Namespace Label Selector:"
-      headers: ["Key:", "Value:"]
-      itemgetter: "get_key_value"
-      itemgetter_args:
-        path: "spec#subject#pods#namespaceSelector#matchLabels"
+      widget_args:
+        title: "Subject Pod Namespace Label Selector:"
+        headers: ["Key:", "Value:"]
+        itemgetter: "get_key_value"
+        itemgetter_args:
+          path: "spec#subject#pods#namespaceSelector#matchLabels"
     "View Ingress rules":
       key: "i"
       modifier: "shift"

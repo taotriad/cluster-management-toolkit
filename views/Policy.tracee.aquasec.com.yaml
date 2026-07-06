@@ -59,9 +59,10 @@ infoview:
       read_only: false
       helptext: "Show scopes"
       widget: "windowwidget"
-      title: "Scopes:"
-      itemgetter: "get_list_as_list"
-      itemgetter_args:
-        path: "spec#scope"
-      # This isn't supported for now
-      sortcolumn: "name"
+      widget_args:
+        title: "Scopes:"
+        itemgetter: "get_list_as_list"
+        itemgetter_args:
+          path: "spec#scope"
+        # This isn't supported for now
+        sortcolumn: "name"

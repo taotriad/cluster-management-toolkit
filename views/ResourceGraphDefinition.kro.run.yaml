@@ -130,21 +130,22 @@ infoview:
       read_only: true
       helptext: "Show instances"
       widget: "windowwidget"
-      title: "Instances:"
-      selectable: true
-      headers: ["Namespace:", "Name:", "State:", "Age:"]
-      itemgetter: "get_kubernetes_objects"
-      itemgetter_args:
-        field_paths:
-          - "metadata#namespace"
-          - "metadata#name"
-          - "status#state"
-          - "metadata#creationTimestamp"
-        kind_path: "spec#schema#kind"
-        api_family_path: "spec#schema#group"
-        api_version_path: "spec#schema#apiVersion"
-        namespaced_resource: true
-        guess_kind: false
+      widget_args:
+        title: "Instances:"
+        headers: ["Namespace:", "Name:", "State:", "Age:"]
+        selectable: true
+        itemgetter: "get_kubernetes_objects"
+        itemgetter_args:
+          field_paths:
+            - "metadata#namespace"
+            - "metadata#name"
+            - "status#state"
+            - "metadata#creationTimestamp"
+          kind_path: "spec#schema#kind"
+          api_family_path: "spec#schema#group"
+          api_version_path: "spec#schema#apiVersion"
+          namespaced_resource: true
+          guess_kind: false
       action: "call"
       action_call: "resourceinfodispatch_from_selection"
       action_args:

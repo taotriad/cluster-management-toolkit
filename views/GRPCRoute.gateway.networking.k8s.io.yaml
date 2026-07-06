@@ -29,30 +29,32 @@ infoview:
       read_only: true
       helptext: "Show hostnames"
       widget: "windowwidget"
-      headers: ["Hostname:"]
-      itemgetter: "get_list_as_list"
-      itemgetter_args:
-        path: "spec#hostnames"
-      # This isn't supported for now
-      sortcolumn: "hostname"
+      widget_args:
+        headers: ["Hostname:"]
+        itemgetter: "get_list_as_list"
+        itemgetter_args:
+          path: "spec#hostnames"
+        # This isn't supported for now
+        sortcolumn: "hostname"
     "Parent References":
       key: "p"
       modifier: "shift"
       read_only: true
       helptext: "Show target references"
       widget: "windowwidget"
-      headers: ["Kind:", "Group:", "Name:", "Port:"]
-      itemgetter: "get_list_fields"
-      itemgetter_args:
-        path: "spec#parentRefs"
-        fields:
-          - "kind"
-          - "group"
-          - "name"
-          - "port"
-      # This isn't supported for now
-      sortcolumn: "group"
-      selectable: true
+      widget_args:
+        headers: ["Kind:", "Group:", "Name:", "Port:"]
+        selectable: true
+        itemgetter: "get_list_fields"
+        itemgetter_args:
+          path: "spec#parentRefs"
+          fields:
+            - "kind"
+            - "group"
+            - "name"
+            - "port"
+        # This isn't supported for now
+        sortcolumn: "group"
       action: "call"
       action_call: "resourceinfodispatch_with_lookup"
       action_args:

@@ -345,20 +345,21 @@ infoview:
       read_only: true
       helptext: "Show port mappings"
       widget: "windowwidget"
-      headers: ["Name:", "Host Port:", "Container Port:", "Protocol:",
-                "Container:", "Port Policy:"]
-      itemgetter: "get_list_fields"
-      itemgetter_args:
-        path: "spec#ports"
-        fields:
-          - "name"
-          - "hostPort"
-          - "containerPort"
-          - "protocol"
-          - "container"
-          - "portPolicy"
-      # This isn't supported for now
-      sortcolumn: "port"
+      widget_args:
+        headers: ["Name:", "Host Port:", "Container Port:", "Protocol:",
+                  "Container:", "Port Policy:"]
+        itemgetter: "get_list_fields"
+        itemgetter_args:
+          path: "spec#ports"
+          fields:
+            - "name"
+            - "hostPort"
+            - "containerPort"
+            - "protocol"
+            - "container"
+            - "portPolicy"
+        # This isn't supported for now
+        sortcolumn: "port"
     "Pod template":
       key: "t"
       modifier: "shift"

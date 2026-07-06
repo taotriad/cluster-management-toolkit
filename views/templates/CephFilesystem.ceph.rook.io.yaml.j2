@@ -84,14 +84,15 @@ infoview:
       modifier: "shift"
       read_only: true
       helptext: "Show affinities"
-      title: "Affinities:"
       widget: "windowwidget"
-      headers: ["Type:", "Scheduling:", "Execution:", "Selector:", "Topology:"]
-      itemgetter: "get_affinity"
-      itemgetter_args:
-        path: "spec#metadataServer#placement"
-      # This isn't supported for now
-      sortcolumn: "type"
+      widget_args:
+        title: "Affinities:"
+        headers: ["Type:", "Scheduling:", "Execution:", "Selector:", "Topology:"]
+        itemgetter: "get_affinity"
+        itemgetter_args:
+          path: "spec#metadataServer#placement"
+        # This isn't supported for now
+        sortcolumn: "type"
     "Priority Class":
       key: "p"
       modifier: "shift"

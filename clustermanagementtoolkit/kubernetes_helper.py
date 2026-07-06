@@ -29,6 +29,10 @@ try:
 except ModuleNotFoundError:  # pragma: no cover
     sys.exit("ModuleNotFoundError: Could not import yaml; "
              "you may need to (re-)run `cmt-install.py` or `pip3 install PyYAML`; aborting.")
+
+from cryptography.hazmat.primitives import serialization
+from cryptography import x509
+
 try:
     import ruyaml
     ryaml = ruyaml.YAML()
@@ -42,26 +46,11 @@ except ModuleNotFoundError:  # pragma: no cover
         sys.exit("ModuleNotFoundError: Could not import ruyaml/ruamel.yaml; "
                  "you may need to (re-)run `cmt-install.py` or `pip3 install ruyaml/ruamel.yaml`; "
                  "aborting.")
-
-from cryptography import x509
-from cryptography.hazmat.primitives import serialization
-
 try:
     import urllib3
 except ModuleNotFoundError:  # pragma: no cover
     sys.exit("ModuleNotFoundError: Could not import urllib3; "
              "you may need to (re-)run `cmt-install.py` or `pip3 install urllib3`; aborting.")
-
-from clustermanagementtoolkit.cmtpaths import HOMEDIR, KUBE_CONFIG_FILE, KUBE_CREDENTIALS_FILE
-
-from clustermanagementtoolkit import cmtlib
-
-from clustermanagementtoolkit import cmtlog
-
-from clustermanagementtoolkit.cmttypes import LogLevel
-from clustermanagementtoolkit.cmttypes import deep_get, deep_get_with_fallback, DictPath
-from clustermanagementtoolkit.cmttypes import FilePath, FilePathAuditError, ProgrammingError
-from clustermanagementtoolkit.cmttypes import SecurityChecks, SecurityPolicy, StatusGroup
 
 from clustermanagementtoolkit.ansithemeprint import ANSIThemeStr
 
@@ -71,9 +60,20 @@ from clustermanagementtoolkit.cmtio import secure_read
 from clustermanagementtoolkit.cmtio_yaml import secure_read_yaml, secure_write_yaml
 from clustermanagementtoolkit.cmtio_yaml import json_dumps, json_loads
 
+from clustermanagementtoolkit import cmtlib
+
+from clustermanagementtoolkit import cmtlog
+
+from clustermanagementtoolkit.cmtpaths import HOMEDIR, KUBE_CONFIG_FILE, KUBE_CREDENTIALS_FILE
+
+from clustermanagementtoolkit.cmttypes import LogLevel
+from clustermanagementtoolkit.cmttypes import deep_get, deep_get_with_fallback, DictPath
+from clustermanagementtoolkit.cmttypes import FilePath, FilePathAuditError, ProgrammingError
+from clustermanagementtoolkit.cmttypes import SecurityChecks, SecurityPolicy, StatusGroup
+
+from clustermanagementtoolkit.kubernetes_resources import kubernetes_resource_types
 from clustermanagementtoolkit.kubernetes_resources import kubernetes_resources
 from clustermanagementtoolkit.kubernetes_resources import unknown_kubernetes_resources
-from clustermanagementtoolkit.kubernetes_resources import kubernetes_resource_types
 
 # Acceptable ciphers
 CIPHERS: list[str] = [
@@ -407,7 +407,6 @@ class PoolManagerContext:
     A class for wrapping PoolManager/ProxyManager
     """
 
-    # pylint: disable-next=too-many-arguments,too-many-positional-arguments
     def __init__(self, cert_file: str | None = None, key_file: str | None = None,
                  ca_certs_file: str | None = None, token: str | None = None,
                  insecuretlsskipverify: bool = False) -> None:
@@ -2000,7 +1999,7 @@ class KubernetesHelper:
 
         return status, api_resources
 
-    # TODO: This should ideally be modified to use get_api_resources()
+    # TODO(This should ideally be modified to use get_api_resources())
     # pylint: disable-next=too-many-locals,too-many-return-statements,too-many-branches,too-many-statements  # noqa: E501
     def get_available_kinds(self, force_refresh: bool = False) -> tuple[dict, int, bool]:
         """

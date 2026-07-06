@@ -185,11 +185,12 @@ infoview:
       read_only: true
       helptext: "List enabled capabilities"
       widget: "windowwidget"
-      title: "Enabled Capabilities:"
-      # headers: ["Key:", "Value:"]
-      itemgetter: "get_list_as_list"
-      itemgetter_args:
-        path: "status#capabilities#enabledCapabilities"
+      widget_args:
+        title: "Enabled Capabilities:"
+        # headers: ["Key:", "Value:"]
+        itemgetter: "get_list_as_list"
+        itemgetter_args:
+          path: "status#capabilities#enabledCapabilities"
     "Open URL":
       key: "u"
       modifier: "shift"

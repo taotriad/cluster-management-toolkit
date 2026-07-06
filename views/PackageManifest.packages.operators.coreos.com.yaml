@@ -125,19 +125,20 @@ infoview:
       read_only: true
       helptext: "List channels"
       widget: "windowwidget"
-      title: "Channels:"
-      selectable: true
-      headers: ["Name:", "Display Name:", "Version:"]
-      itemgetter: "get_list_fields"
-      itemgetter_args:
-        path: "status#channels"
-        fields:
-          - "name"
-          - "currentCSVDesc#displayName"
-          - "currentCSVDesc#version"
-        pass_ref: true
-      # Not supported for now
-      sortcolumn: "displayname"
+      widget_args:
+        title: "Channels:"
+        headers: ["Name:", "Display Name:", "Version:"]
+        selectable: true
+        itemgetter: "get_list_fields"
+        itemgetter_args:
+          path: "status#channels"
+          fields:
+            - "name"
+            - "currentCSVDesc#displayName"
+            - "currentCSVDesc#version"
+          pass_ref: true
+        # Not supported for now
+        sortcolumn: "displayname"
       action: "call"
       action_call: "view_yaml"
       action_args:

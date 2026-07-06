@@ -88,11 +88,12 @@ infoview:
       read_only: true
       helptext: "List classifier labels"
       widget: "windowwidget"
-      title: "Classifier Labels:"
-      headers: ["Key:", "Value:"]
-      itemgetter: "get_list_fields"
-      itemgetter_args:
-        path: "spec#classifierLabels"
-        fields:
-          - "key"
-          - "value"
+      widget_args:
+        title: "Classifier Labels:"
+        headers: ["Key:", "Value:"]
+        itemgetter: "get_list_fields"
+        itemgetter_args:
+          path: "spec#classifierLabels"
+          fields:
+            - "key"
+            - "value"

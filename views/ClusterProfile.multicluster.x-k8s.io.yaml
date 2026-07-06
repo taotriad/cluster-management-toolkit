@@ -87,15 +87,16 @@ infoview:
       read_only: true
       helptext: "List properties"
       widget: "windowwidget"
-      title: "Properties:"
-      headers: ["Name:", "Value:"]
-      itemgetter: "get_list_fields"
-      itemgetter_args:
-        path: "spec#properties"
-        fields:
-          - "name"
-          - "value"
-      formatting: [["windowwidget", "default"],
-                   ["windowwidget", "highlight"]]
-      # Not supported for now
-      sortcolumn: "name"
+      widget_args:
+        title: "Properties:"
+        headers: ["Name:", "Value:"]
+        itemgetter: "get_list_fields"
+        itemgetter_args:
+          path: "spec#properties"
+          fields:
+            - "name"
+            - "value"
+        formatting: [["windowwidget", "default"],
+                     ["windowwidget", "highlight"]]
+        # Not supported for now
+        sortcolumn: "name"

@@ -5,8 +5,8 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
-from pathlib import PurePath
 from getpass import getuser
+from pathlib import PurePath
 import sys
 from typing import Any
 from unittest import mock

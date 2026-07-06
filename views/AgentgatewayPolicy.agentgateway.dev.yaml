@@ -56,18 +56,19 @@ infoview:
       read_only: true
       helptext: "List targets"
       widget: "windowwidget"
-      title: "Targets:"
-      selectable: true
-      headers: ["Kind:", "API-Group:", "Name:"]
-      itemgetter: "get_list_fields"
-      itemgetter_args:
-        path: "spec#targetRefs"
-        fields:
-          - "kind"
-          - "group"
-          - "name"
-      # Not supported for now
-      sortcolumn: "kind"
+      widget_args:
+        title: "Targets:"
+        selectable: true
+        headers: ["Kind:", "API-Group:", "Name:"]
+        itemgetter: "get_list_fields"
+        itemgetter_args:
+          path: "spec#targetRefs"
+          fields:
+            - "kind"
+            - "group"
+            - "name"
+        # Not supported for now
+        sortcolumn: "kind"
       action: "call"
       action_call: "resourceinfodispatch_with_lookup"
       action_args:

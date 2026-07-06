@@ -190,8 +190,10 @@ infoview:
       modifier: "shift"
       read_only: false
       helptext: "Approve signing request"
-      confirm: true
-      confirmtitle: "Approve certificate signing request"
+      widget: "inputbox"
+      widget_args:
+        confirm: true
+        confirmtitle: "Approve certificate signing request"
       action: "execute"
       action_args:
         command: ["kubectl", "certificate", "approve", ["metadata#name"]]
@@ -200,8 +202,10 @@ infoview:
       modifier: "shift"
       read_only: false
       helptext: "Deny signing request"
-      confirm: true
-      confirmtitle: "Deny certificate signing request"
+      widget: "inputbox"
+      widget_args:
+        confirm: true
+        confirmtitle: "Deny certificate signing request"
       action: "execute"
       action_args:
         command: ["kubectl", "certificate", "deny", ["metadata#name"]]

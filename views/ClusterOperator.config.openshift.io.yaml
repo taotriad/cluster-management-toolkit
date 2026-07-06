@@ -191,14 +191,15 @@ infoview:
       read_only: true
       helptext: "List versions"
       widget: "windowwidget"
-      title: "Versions:"
-      selectable: true
-      headers: ["Name:", "Version:"]
-      itemgetter: "get_list_fields"
-      itemgetter_args:
-        path: "status#versions"
-        fields:
-          - "name"
-          - "version"
-      # Not supported for now
-      sortcolumn: "resource"
+      widget_args:
+        title: "Versions:"
+        headers: ["Name:", "Version:"]
+        selectable: true
+        itemgetter: "get_list_fields"
+        itemgetter_args:
+          path: "status#versions"
+          fields:
+            - "name"
+            - "version"
+        # Not supported for now
+        sortcolumn: "resource"

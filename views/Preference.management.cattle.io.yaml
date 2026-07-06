@@ -29,9 +29,10 @@ infoview:
       read_only: false
       helptext: "Export value to a file"
       widget: "inputbox"
-      inputtitle: "Export to file:"
-      confirm: "path_exists"
-      confirmtitle: "File already exists; overwrite?:"
+      widget_args:
+        title: "Export to file:"
+        confirm: "path_exists"
+        confirmtitle: "File already exists; overwrite?:"
       action: "call"
       action_call: "export_data"
       action_args:

@@ -93,16 +93,17 @@ infoview:
       read_only: true
       helptext: "List policies"
       widget: "windowwidget"
-      title: "Policies:"
-      headers: ["Event:", "Action:"]
-      itemgetter: "get_list_fields"
-      itemgetter_args:
-        path: "spec#policies"
-        fields:
-          - "event"
-          - "action"
-      # Not supported for now
-      sortcolumn: "event"
+      widget_args:
+        title: "Policies:"
+        headers: ["Event:", "Action:"]
+        itemgetter: "get_list_fields"
+        itemgetter_args:
+          path: "spec#policies"
+          fields:
+            - "event"
+            - "action"
+        # Not supported for now
+        sortcolumn: "event"
     "Tasks":
       key: "t"
       modifier: "shift"

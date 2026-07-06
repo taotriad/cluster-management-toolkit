@@ -75,12 +75,12 @@ from clustermanagementtoolkit.cmtpaths import KUBE_CONFIG_DIR, KUBE_CONFIG_FILE
 
 from clustermanagementtoolkit.commandparser import parse_commandline, CommandType
 
-from clustermanagementtoolkit.ansible_helper import ansible_configuration
-from clustermanagementtoolkit.ansible_helper import ansible_get_inventory_dict, ansible_set_vars
-from clustermanagementtoolkit.ansible_helper import ansible_run_playbook_on_selection
 from clustermanagementtoolkit.ansible_helper import ansible_add_hosts
+from clustermanagementtoolkit.ansible_helper import ansible_configuration
 from clustermanagementtoolkit.ansible_helper import ansible_get_hosts_by_group, get_playbook_path
+from clustermanagementtoolkit.ansible_helper import ansible_get_inventory_dict, ansible_set_vars
 from clustermanagementtoolkit.ansible_helper import ansible_print_play_results
+from clustermanagementtoolkit.ansible_helper import ansible_run_playbook_on_selection
 from clustermanagementtoolkit.ansible_helper import populate_playbooks_from_filenames
 
 from clustermanagementtoolkit import cmtio
@@ -1446,7 +1446,7 @@ def check_for_ssh_key() -> bool:
             retval (bool): True if a key exists, False if no key exists
     """
     retval = False
-    # TODO: Rewrite using pathlib
+    # TODO(Rewrite using pathlib)
     files = [file for file in glob(os.path.join(HOMEDIR, ".ssh", "*.pub")) if os.path.isfile(file)]
     for file in files:
         if os.path.isfile(file) and os.path.isfile(file.removesuffix(".pub")):
@@ -1581,7 +1581,7 @@ def __task_add_ssh_keys_to_inventory(installation_info: dict, **kwargs: Any) -> 
     __authorized_keys = deep_get(__vars, DictPath("authorized_keys"), [])
     found_key = False
 
-    # TODO: Rewrite using glob()
+    # TODO(Rewrite using glob())
     for path in Path(SSH_DIR).iterdir():
         if not str(path).endswith(".pub"):
             continue
@@ -6898,7 +6898,7 @@ def audit(options: list[tuple[str, str]], args: list[str]) -> None:
     groupname = grp.getgrgid(gid).gr_name
 
     if len(usergroup) == 0 and usergroup_autodetect:
-        # TODO: login.defs might be a config-dir (/etc/login.defs.d);
+        # TODO(login.defs might be a config-dir (/etc/login.defs.d))
         try:
             logindefs = secure_read_string(FilePath("/etc/login.defs"))
             usergroups_regex: re.Pattern[str] = re.compile(r"^USERGROUPS_ENAB\s+yes")

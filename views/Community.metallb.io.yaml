@@ -39,13 +39,14 @@ infoview:
       read_only: true
       helptext: "List communities"
       widget: "windowwidget"
-      title: "Communities:"
-      headers: ["Name:", "Value:"]
-      itemgetter: "get_list_fields"
-      itemgetter_args:
-        path: "spec#communities"
-        fields:
-          - "name"
-          - "value"
-      # Not supported for now
-      sortcolumn: "name"
+      widget_args:
+        title: "Communities:"
+        headers: ["Name:", "Value:"]
+        itemgetter: "get_list_fields"
+        itemgetter_args:
+          path: "spec#communities"
+          fields:
+            - "name"
+            - "value"
+        # Not supported for now
+        sortcolumn: "name"

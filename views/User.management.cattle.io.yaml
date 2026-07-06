@@ -50,6 +50,7 @@ infoview:
         header: [["P", ["main", "infoheader_shortcut"]],
                  ["rincipal IDs:", ["main", "infoheader"]]]
         path: "principalIds"
+        default: ["<none>"]
         type: "raw"
         formatter: "list"
       username:
@@ -64,9 +65,10 @@ infoview:
       read_only: true
       helptext: "List principal IDs"
       widget: "windowwidget"
-      title: "Principal IDs:"
-      itemgetter: "get_list_as_list"
-      itemgetter_args:
-        paths: ["principalIds"]
-      # Not supported for now
-      sortcolumn: "id"
+      widget_args:
+        title: "Principal IDs:"
+        itemgetter: "get_list_as_list"
+        itemgetter_args:
+          paths: ["principalIds"]
+        # Not supported for now
+        sortcolumn: "id"

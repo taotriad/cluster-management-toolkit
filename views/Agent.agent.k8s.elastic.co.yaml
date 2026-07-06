@@ -298,20 +298,21 @@ infoview:
       read_only: true
       helptext: "List Elasticsearch statuses"
       widget: "windowwidget"
-      title: "Elasticsearch Statuses:"
-      headers: ["Namespace:", "Name:", "Status:"]
-      itemgetter: "get_dict_list"
-      itemgetter_args:
-        path: "status#elasticsearchAssociationsStatus"
-        fields:
-          - field: "key"
-            regex: "^([^/]+)/.+"
-          - field: "key"
-            regex: "^[^/]+/(.+)"
-          - "value"
-      # This isn't supported for now
-      sortcolumn: "namespace"
-      selectable: true
+      widget_args:
+        title: "Elasticsearch Statuses:"
+        selectable: true
+        headers: ["Namespace:", "Name:", "Status:"]
+        itemgetter: "get_dict_list"
+        itemgetter_args:
+          path: "status#elasticsearchAssociationsStatus"
+          fields:
+            - field: "key"
+              regex: "^([^/]+)/.+"
+            - field: "key"
+              regex: "^[^/]+/(.+)"
+            - "value"
+        # This isn't supported for now
+        sortcolumn: "namespace"
       action: "call"
       action_call: "resourceinfodispatch_with_lookup"
       action_args:

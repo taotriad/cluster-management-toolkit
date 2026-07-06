@@ -89,15 +89,16 @@ infoview:
       read_only: true
       helptext: "List args"
       widget: "windowwidget"
-      title: "Args:"
-      headers: ["Name:", "Value:"]
-      itemgetter: "get_list_fields"
-      itemgetter_args:
-        path: "spec#args"
-        fields:
-          - "name"
-          - "value"
-      formatting: [["windowwidget", "default"],
-                   ["windowwidget", "highlight"]]
-      # Not supported for now
-      sortcolumn: "name"
+      widget_args:
+        title: "Args:"
+        headers: ["Name:", "Value:"]
+        itemgetter: "get_list_fields"
+        itemgetter_args:
+          path: "spec#args"
+          fields:
+            - "name"
+            - "value"
+        formatting: [["windowwidget", "default"],
+                     ["windowwidget", "highlight"]]
+        # Not supported for now
+        sortcolumn: "name"

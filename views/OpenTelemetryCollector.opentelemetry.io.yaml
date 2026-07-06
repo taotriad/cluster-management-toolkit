@@ -352,33 +352,35 @@ infoview:
       read_only: true
       helptext: "Show label selector"
       widget: "windowwidget"
-      title: "Label Selector:"
-      headers: ["Key:", "Value:"]
-      itemgetter: "get_key_value"
-      itemgetter_args:
-        path: "status#scale#selector"
+      widget_args:
+        title: "Label Selector:"
+        headers: ["Key:", "Value:"]
+        itemgetter: "get_key_value"
+        itemgetter_args:
+          path: "status#scale#selector"
     "Pod Monitors":
       key: "p"
       modifier: "shift"
       read_only: true
       helptext: "List Pod Monitors"
       widget: "windowwidget"
-      title: "Pod Monitors:"
-      headers: ["Namespace:", "Name:"]
-      itemgetter: "get_kubernetes_objects"
-      itemgetter_args:
-        kind: "PodMonitor"
-        api_family: "monitoring.coreos.com"
-        # yamllint disable-line rule:line-length
-        selector_path: "spec#targetAllocator#prometheusCR#podMonitorSelector#matchLabels"
-        selector_type: "label"
-        selector_none_on_empty: true
-        name_path: "metadata#name"
-        namespace_path: "metadata#namespace"
-        field_paths: ["metadata#namespace", "metadata#name"]
-      # This isn't supported for now
-      sortcolumn: "namespace"
-      selectable: true
+      widget_args:
+        title: "Pod Monitors:"
+        headers: ["Namespace:", "Name:"]
+        selectable: true
+        itemgetter: "get_kubernetes_objects"
+        itemgetter_args:
+          kind: "PodMonitor"
+          api_family: "monitoring.coreos.com"
+          # yamllint disable-line rule:line-length
+          selector_path: "spec#targetAllocator#prometheusCR#podMonitorSelector#matchLabels"
+          selector_type: "label"
+          selector_none_on_empty: true
+          name_path: "metadata#name"
+          namespace_path: "metadata#namespace"
+          field_paths: ["metadata#namespace", "metadata#name"]
+        # This isn't supported for now
+        sortcolumn: "namespace"
       action: "call"
       action_call: "resourceinfodispatch_with_lookup"
       action_args:
@@ -391,22 +393,23 @@ infoview:
       read_only: true
       helptext: "List Service Monitors"
       widget: "windowwidget"
-      title: "Service Monitors:"
-      headers: ["Namespace:", "Name:"]
-      itemgetter: "get_kubernetes_objects"
-      itemgetter_args:
-        kind: "ServiceMonitor"
-        api_family: "monitoring.coreos.com"
-        # yamllint disable-line rule:line-length
-        selector_path: "spec#targetAllocator#prometheusCR#serviceMonitorSelector#matchLabels"
-        selector_type: "label"
-        selector_none_on_empty: true
-        name_path: "metadata#name"
-        namespace_path: "metadata#namespace"
-        field_paths: ["metadata#namespace", "metadata#name"]
-      # This isn't supported for now
-      sortcolumn: "namespace"
-      selectable: true
+      widget_args:
+        title: "Service Monitors:"
+        headers: ["Namespace:", "Name:"]
+        selectable: true
+        itemgetter: "get_kubernetes_objects"
+        itemgetter_args:
+          kind: "ServiceMonitor"
+          api_family: "monitoring.coreos.com"
+          # yamllint disable-line rule:line-length
+          selector_path: "spec#targetAllocator#prometheusCR#serviceMonitorSelector#matchLabels"
+          selector_type: "label"
+          selector_none_on_empty: true
+          name_path: "metadata#name"
+          namespace_path: "metadata#namespace"
+          field_paths: ["metadata#namespace", "metadata#name"]
+        # This isn't supported for now
+        sortcolumn: "namespace"
       action: "call"
       action_call: "resourceinfodispatch_with_lookup"
       action_args:

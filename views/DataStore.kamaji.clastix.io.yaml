@@ -158,10 +158,11 @@ infoview:
       read_only: true
       helptext: "List endpoints"
       widget: "windowwidget"
-      title: "Endpoints:"
-      itemgetter: "get_list_as_list"
-      itemgetter_args:
-        path: "spec#endpoints"
+      widget_args:
+        title: "Endpoints:"
+        itemgetter: "get_list_as_list"
+        itemgetter_args:
+          path: "spec#endpoints"
     "Open Certificate Authority Certificate":
       key: "a"
       modifier: "shift"
@@ -196,13 +197,16 @@ infoview:
       read_only: true
       helptext: "List Tenant Control Planes using this Data Store"
       widget: "windowwidget"
-      title: "Tenant Control Planes:"
-      headers: ["Namespace:", "Name:"]
-      itemgetter: "get_list_as_list"
-      itemgetter_args:
-        path: "status#usedBy"
-        regex: "^(.*?)/(.*)$"
-      selectable: true
+      widget_args:
+        title: "Tenant Control Planes:"
+        headers: ["Namespace:", "Name:"]
+        selectable: true
+        itemgetter: "get_list_as_list"
+        itemgetter_args:
+          path: "status#usedBy"
+          regex: "^(.*?)/(.*)$"
+        # This isn't supported for now
+        sortcolumn: "namespace"
       action: "call"
       action_call: "resourceinfodispatch_with_lookup"
       action_args:
@@ -210,5 +214,3 @@ infoview:
         api_family: "kamaji.clastix.io"
         name_path: 1
         namespace_path: 0
-      # This isn't supported for now
-      sortcolumn: "namespace"

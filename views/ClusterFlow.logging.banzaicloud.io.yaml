@@ -128,11 +128,12 @@ infoview:
       read_only: true
       helptext: "List Cluster Outputs"
       widget: "windowwidget"
-      title: "Cluster Outputs:"
-      selectable: true
-      itemgetter: "get_list_as_list"
-      itemgetter_args:
-        path: "spec#globalOutputRefs"
+      widget_args:
+        title: "Cluster Outputs:"
+        selectable: true
+        itemgetter: "get_list_as_list"
+        itemgetter_args:
+          path: "spec#globalOutputRefs"
       action: "call"
       action_call: "resourceinfodispatch_with_lookup"
       action_args:

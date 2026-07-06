@@ -266,18 +266,19 @@ infoview:
       read_only: true
       helptext: "List Machine Configs"
       widget: "windowwidget"
-      title: "Machine Configs:"
-      headers: ["Name:", "Kind:", "API-version:"]
-      selectable: true
-      itemgetter: "get_list_fields"
-      itemgetter_args:
-        path: "spec#configuration#source"
-        fields:
-          - "name"
-          - "kind"
-          - "apiVersion"
-      # Not supported for now
-      sortcolumn: "name"
+      widget_args:
+        title: "Machine Configs:"
+        headers: ["Name:", "Kind:", "API-version:"]
+        selectable: true
+        itemgetter: "get_list_fields"
+        itemgetter_args:
+          path: "spec#configuration#source"
+          fields:
+            - "name"
+            - "kind"
+            - "apiVersion"
+        # Not supported for now
+        sortcolumn: "name"
       action: "call"
       action_call: "resourceinfodispatch_with_lookup"
       action_args:

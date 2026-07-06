@@ -38,11 +38,12 @@ infoview:
       read_only: true
       helptext: "List labels to apply"
       widget: "windowwidget"
-      title: "Labels to apply:"
-      headers: ["Key:", "Value:"]
-      itemgetter: "get_key_value"
-      itemgetter_args:
-        path: "spec#labelsToApply"
-      formatting: [["windowwidget", "default"], ["windowwidget", "highlight"]]
-      # Not supported for now
-      sortcolumn: "key"
+      widget_args:
+        title: "Labels to apply:"
+        headers: ["Key:", "Value:"]
+        itemgetter: "get_key_value"
+        itemgetter_args:
+          path: "spec#labelsToApply"
+        formatting: [["windowwidget", "default"], ["windowwidget", "highlight"]]
+        # Not supported for now
+        sortcolumn: "key"

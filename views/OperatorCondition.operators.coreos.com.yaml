@@ -85,14 +85,15 @@ infoview:
       read_only: true
       helptext: "List Deployments"
       widget: "windowwidget"
-      title: "Deployments:"
-      headers: ["Namespace:", "Name:"]
-      selectable: true
-      itemgetter: "get_list_as_list"
-      itemgetter_args:
-        paths: ["metadata#namespace", "spec#deployments"]
-      # Not supported for now
-      sortcolumn: "namespace"
+      widget_args:
+        title: "Deployments:"
+        headers: ["Namespace:", "Name:"]
+        selectable: true
+        itemgetter: "get_list_as_list"
+        itemgetter_args:
+          paths: ["metadata#namespace", "spec#deployments"]
+        # Not supported for now
+        sortcolumn: "namespace"
       action: "call"
       action_call: "resourceinfodispatch_with_lookup"
       action_args:
@@ -106,14 +107,15 @@ infoview:
       read_only: true
       helptext: "List Service Accounts"
       widget: "windowwidget"
-      title: "Service Accounts:"
-      headers: ["Namespace:", "Name:"]
-      selectable: true
-      itemgetter: "get_list_as_list"
-      itemgetter_args:
-        paths: ["metadata#namespace", "spec#serviceAccounts"]
-      # Not supported for now
-      sortcolumn: "namespace"
+      widget_args:
+        title: "Service Accounts:"
+        headers: ["Namespace:", "Name:"]
+        selectable: true
+        itemgetter: "get_list_as_list"
+        itemgetter_args:
+          paths: ["metadata#namespace", "spec#serviceAccounts"]
+        # Not supported for now
+        sortcolumn: "namespace"
       action: "call"
       action_call: "resourceinfodispatch_with_lookup"
       action_args:

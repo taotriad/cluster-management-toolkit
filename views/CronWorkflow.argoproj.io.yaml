@@ -284,13 +284,14 @@ infoview:
       key: "h"
       read_only: true
       helptext: "List schedules"
-      title: "Schedules:"
       widget: "windowwidget"
-      itemgetter: "get_list_as_list"
-      itemgetter_args:
-        path: "spec#schedules"
-      # This isn't supported for now
-      sortcolumn: "name"
+      widget_args:
+        title: "Schedules:"
+        itemgetter: "get_list_as_list"
+        itemgetter_args:
+          path: "spec#schedules"
+        # This isn't supported for now
+        sortcolumn: "name"
     "Workflow Spec":
       key: "s"
       modifier: "shift"

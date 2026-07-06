@@ -59,8 +59,9 @@ infoview:
       read_only: true
       helptext: "Show Machine Config Pool label selector"
       widget: "windowwidget"
-      title: "Machine Config Pool Label Selector:"
-      headers: ["Key:", "Value:"]
-      itemgetter: "get_key_value"
-      itemgetter_args:
-        path: "spec#machineConfigPoolSelector#matchLabels"
+      widget_args:
+        title: "Machine Config Pool Label Selector:"
+        headers: ["Key:", "Value:"]
+        itemgetter: "get_key_value"
+        itemgetter_args:
+          path: "spec#machineConfigPoolSelector#matchLabels"

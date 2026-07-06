@@ -196,25 +196,26 @@ infoview:
       read_only: true
       helptext: "List container recommendations"
       widget: "windowwidget"
-      title: "Container Recommendations:"
-      headers: ["Name:", "Mem Low:", "Mem High:", "Mem Target:",
-                "Mem Uncapped:", "CPU Low:", "CPU High:",
-                "CPU Target:", "CPU Uncapped:"]
-      itemgetter: "get_list_fields"
-      itemgetter_args:
-        path: "status#recommendation#containerRecommendations"
-        fields:
-          - "containerName"
-          - "lowerBound#memory"
-          - "upperBound#memory"
-          - "target#memory"
-          - "uncappedTarget#memory"
-          - "lowerBound#cpu"
-          - "upperBound#cpu"
-          - "target#cpu"
-          - "uncappedTarget#cpu"
-      # Not supported for now
-      sortcolumn: "cidr"
+      widget_args:
+        title: "Container Recommendations:"
+        headers: ["Name:", "Mem Low:", "Mem High:", "Mem Target:",
+                  "Mem Uncapped:", "CPU Low:", "CPU High:",
+                  "CPU Target:", "CPU Uncapped:"]
+        itemgetter: "get_list_fields"
+        itemgetter_args:
+          path: "status#recommendation#containerRecommendations"
+          fields:
+            - "containerName"
+            - "lowerBound#memory"
+            - "upperBound#memory"
+            - "target#memory"
+            - "uncappedTarget#memory"
+            - "lowerBound#cpu"
+            - "upperBound#cpu"
+            - "target#cpu"
+            - "uncappedTarget#cpu"
+        # Not supported for now
+        sortcolumn: "cidr"
     "Open target reference":
       key: "r"
       modifier: "shift"

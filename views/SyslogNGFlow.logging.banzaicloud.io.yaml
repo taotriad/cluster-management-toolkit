@@ -89,10 +89,10 @@ infoview:
       read_only: true
       helptext: "Show local output references"
       widget: "windowwidget"
-      title: "Local Output References:"
-      # Not supported for now
-      sortcolumn: "reference"
-      # This isn't supported for now
-      itemgetter: "get_list_as_list"
-      itemgetter_args:
-        path: "spec#localOutputRefs"
+      widget_args:
+        title: "Local Output References:"
+        itemgetter: "get_list_as_list"
+        itemgetter_args:
+          path: "spec#localOutputRefs"
+        # This isn't supported for now
+        sortcolumn: "reference"

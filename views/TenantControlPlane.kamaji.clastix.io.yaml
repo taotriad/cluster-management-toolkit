@@ -422,23 +422,25 @@ infoview:
       read_only: true
       helptext: "List admission controllers"
       widget: "windowwidget"
-      title: "Admission Controllers:"
-      itemgetter: "get_list_as_list"
-      itemgetter_args:
-        path: "spec#kubernetes#admissionControllers"
+      widget_args:
+        title: "Admission Controllers:"
+        itemgetter: "get_list_as_list"
+        itemgetter_args:
+          path: "spec#kubernetes#admissionControllers"
     "List Certificates":
       key: "f"
       read_only: true
       helptext: "List certificates"
       widget: "windowwidget"
-      title: "Certificates:"
-      itemgetter: "get_dict_list"
-      itemgetter_args:
-        path: "status#certificates"
-        fields:
-          - "key"
-          - "value#secretName"
-      selectable: true
+      widget_args:
+        title: "Certificates:"
+        selectable: true
+        itemgetter: "get_dict_list"
+        itemgetter_args:
+          path: "status#certificates"
+          fields:
+            - "key"
+            - "value#secretName"
       action: "call"
       action_call: "resourceinfodispatch_with_lookup"
       action_args:

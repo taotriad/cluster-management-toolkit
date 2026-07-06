@@ -468,17 +468,18 @@ infoview:
       read_only: true
       helptext: "Show Middleware chain"
       widget: "windowwidget"
-      title: "Middlewares:"
-      selectable: true
-      headers: ["Namespace:", "Name:"]
-      itemgetter: "get_list_fields"
-      itemgetter_args:
-        path: "spec#chain#middlewares"
-        fields:
-          - "namespace"
-          - "name"
-      # This isn't supported for now
-      sortcolumn: "namespace"
+      widget_args:
+        title: "Middlewares:"
+        headers: ["Namespace:", "Name:"]
+        selectable: true
+        itemgetter: "get_list_fields"
+        itemgetter_args:
+          path: "spec#chain#middlewares"
+          fields:
+            - "namespace"
+            - "name"
+        # This isn't supported for now
+        sortcolumn: "namespace"
       action: "call"
       action_call: "resourceinfodispatch_with_lookup"
       action_args:
@@ -516,10 +517,10 @@ infoview:
       key: "h"
       read_only: true
       helptext: "Display headers"
-      title: "Headers:"
       action: "call"
       action_call: "view_yaml"
       action_args:
+        title: "Headers:"
         _pass_obj: true
         path: "spec#headers"
     "Show Pass TLS Client Cert":
@@ -527,10 +528,10 @@ infoview:
       modifier: "shift"
       read_only: true
       helptext: "Display pass TLS client cert information"
-      title: "Pass TLS Client Cert Information:"
       action: "call"
       action_call: "view_yaml"
       action_args:
+        title: "Pass TLS Client Cert Information:"
         _pass_obj: true
         path: "spec#passTLSClientCert"
     "TLS Secrets":
@@ -539,24 +540,25 @@ infoview:
       read_only: true
       helptext: "List TLS Secrets"
       widget: "windowwidget"
-      title: "TLS Secrets:"
-      headers: ["Type:", "Name:"]
-      selectable: true
+      widget_args:
+        title: "TLS Secrets:"
+        headers: ["Type:", "Name:"]
+        selectable: true
+        itemgetter: "get_prepopulated_list"
+        itemgetter_args:
+          items:
+            - columns: ["CA Secret", ["spec#forwardAuth#tls#caSecret"]]
+              action: "call"
+              action_call: "resourceinfodispatch_with_lookup"
+              action_args:
+                name_path: "spec#forwardAuth#tls#caSecret"
+                namespace_path: "metadata#namespace"
+                kind: "Secret"
+            - columns: ["Cert Secret", ["spec#forwardAuth#tls#certSecret"]]
+              action: "call"
+              action_call: "resourceinfodispatch_with_lookup"
+              action_args:
+                name_path: "spec#forwardAuth#tls#certSecret"
+                namespace_path: "metadata#namespace"
+                kind: "Secret"
       action: "from_ref"
-      itemgetter: "get_prepopulated_list"
-      itemgetter_args:
-        items:
-          - columns: ["CA Secret", ["spec#forwardAuth#tls#caSecret"]]
-            action: "call"
-            action_call: "resourceinfodispatch_with_lookup"
-            action_args:
-              name_path: "spec#forwardAuth#tls#caSecret"
-              namespace_path: "metadata#namespace"
-              kind: "Secret"
-          - columns: ["Cert Secret", ["spec#forwardAuth#tls#certSecret"]]
-            action: "call"
-            action_call: "resourceinfodispatch_with_lookup"
-            action_args:
-              name_path: "spec#forwardAuth#tls#certSecret"
-              namespace_path: "metadata#namespace"
-              kind: "Secret"

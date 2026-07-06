@@ -106,19 +106,21 @@ infoview:
       read_only: true
       helptext: "Show Service label selector"
       widget: "windowwidget"
-      title: "Service Label Selector:"
-      headers: ["Key:", "Value:"]
-      itemgetter: "get_key_value"
-      itemgetter_args:
-        path: "spec#serviceSelector#matchLabels"
+      widget_args:
+        title: "Service Label Selector:"
+        headers: ["Key:", "Value:"]
+        itemgetter: "get_key_value"
+        itemgetter_args:
+          path: "spec#serviceSelector#matchLabels"
     "Node Label Selector":
       key: "s"
       modifier: "shift"
       read_only: true
       helptext: "Show Node label selector"
       widget: "windowwidget"
-      title: "Node Label Selector:"
-      headers: ["Key:", "Value:"]
-      itemgetter: "get_key_value"
-      itemgetter_args:
-        path: "spec#nodeSelector#matchLabels"
+      widget_args:
+        title: "Node Label Selector:"
+        headers: ["Key:", "Value:"]
+        itemgetter: "get_key_value"
+        itemgetter_args:
+          path: "spec#nodeSelector#matchLabels"

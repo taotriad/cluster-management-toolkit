@@ -86,10 +86,11 @@ infoview:
       read_only: true
       helptext: "List whitelist domains"
       widget: "windowwidget"
-      title: "Whitelist Domains:"
-      selectable: true
-      itemgetter: "get_list_as_list"
-      itemgetter_args:
-        path: "spec#whitelistDomains"
-      # Not supported for now
-      sortcolumn: "domain"
+      widget_args:
+        title: "Whitelist Domains:"
+        selectable: true
+        itemgetter: "get_list_as_list"
+        itemgetter_args:
+          path: "spec#whitelistDomains"
+        # Not supported for now
+        sortcolumn: "domain"

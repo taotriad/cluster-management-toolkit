@@ -251,14 +251,15 @@ infoview:
       key: "s"
       read_only: true
       helptext: "Show Catalog Sources"
-      title: "Catalog Sources:"
       widget: "windowwidget"
-      selectable: true
-      itemgetter: "get_list_as_list"
-      itemgetter_args:
-        path: "status#catalogSources"
-      # This isn't supported for now
-      sortcolumn: "name"
+      widget_args:
+        title: "Catalog Sources:"
+        selectable: true
+        itemgetter: "get_list_as_list"
+        itemgetter_args:
+          path: "status#catalogSources"
+        # This isn't supported for now
+        sortcolumn: "name"
       action: "call"
       action_call: "resourceinfodispatch_with_lookup"
       action_args:
@@ -271,14 +272,15 @@ infoview:
       modifier: "shift"
       read_only: true
       helptext: "Show Cluster Service Versions"
-      title: "Cluster Service Versions:"
       widget: "windowwidget"
-      selectable: true
-      itemgetter: "get_list_as_list"
-      itemgetter_args:
-        path: "spec#clusterServiceVersionNames"
-      # This isn't supported for now
-      sortcolumn: "name"
+      widget_args:
+        title: "Cluster Service Versions:"
+        selectable: true
+        itemgetter: "get_list_as_list"
+        itemgetter_args:
+          path: "spec#clusterServiceVersionNames"
+        # This isn't supported for now
+        sortcolumn: "name"
       action: "call"
       action_call: "resourceinfodispatch_with_lookup"
       action_args:

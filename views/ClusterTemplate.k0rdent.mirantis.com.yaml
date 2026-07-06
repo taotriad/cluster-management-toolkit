@@ -252,7 +252,8 @@ infoview:
       read_only: true
       helptext: "List providers"
       widget: "windowwidget"
-      title: "Providers:"
-      itemgetter: "get_list_as_list"
-      itemgetter_args:
-        path: "status#providers"
+      widget_args:
+        title: "Providers:"
+        itemgetter: "get_list_as_list"
+        itemgetter_args:
+          path: "status#providers"

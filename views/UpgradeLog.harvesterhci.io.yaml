@@ -13,7 +13,7 @@ listview:
     Normal:
       fields: ["namespace", "name", "upgrade", "age"]
       sortcolumn: "age"
-      reversed: true
+      sortorder_reverse: true
   fields:
     upgrade:
       header: "Upgrade:"

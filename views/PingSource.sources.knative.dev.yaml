@@ -184,11 +184,12 @@ infoview:
       read_only: true
       helptext: "List CE Attributes"
       widget: "windowwidget"
-      title: "CE Attributes:"
-      headers: ["Type:", "Source:"]
-      itemgetter: "get_list_fields"
-      itemgetter_args:
-        path: "status#ceAttributes"
-        fields:
-          - "type"
-          - "source"
+      widget_args:
+        title: "CE Attributes:"
+        headers: ["Type:", "Source:"]
+        itemgetter: "get_list_fields"
+        itemgetter_args:
+          path: "status#ceAttributes"
+          fields:
+            - "type"
+            - "source"

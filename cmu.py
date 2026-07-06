@@ -18,6 +18,7 @@ UI for managing Kubernetes clusters.
 import ast
 import base64
 import binascii
+from collections.abc import Callable
 import copy
 import curses
 from curses import wrapper
@@ -37,7 +38,6 @@ from subprocess import PIPE, STDOUT  # nosec
 import sys
 from types import FrameType
 from typing import Any, cast, Sequence
-from collections.abc import Callable
 
 try:
     import ruyaml
@@ -59,8 +59,57 @@ except ModuleNotFoundError:  # pragma: no cover
     sys.exit("ModuleNotFoundError: Could not import natsort; "
              "you may need to (re-)run `cmt-install.py` or `pip3 install natsort`; aborting.")
 
+try:
+    import prctl
+    prctl.set_name(PurePath(sys.argv[0]).name)  # pylint: disable=no-member,useless-suppression
+    prctl.set_proctitle(" ".join(sys.argv))
+except ModuleNotFoundError:  # pragma: no cover
+    pass
+
 # This has to be first, since it checks for the correct Python version
 from clustermanagementtoolkit import about
+
+from clustermanagementtoolkit.ansible_helper import ANSIBLE_INVENTORY
+
+from clustermanagementtoolkit.ansible_helper import ansible_add_hosts, ansible_remove_hosts
+from clustermanagementtoolkit.ansible_helper import ansible_configuration
+from clustermanagementtoolkit.ansible_helper import ansible_delete_log
+from clustermanagementtoolkit.ansible_helper import ansible_get_groups, ansible_get_groups_by_host
+from clustermanagementtoolkit.ansible_helper import ansible_get_inventory_dict
+from clustermanagementtoolkit.ansible_helper import ansible_print_play_results, get_playbook_path
+from clustermanagementtoolkit.ansible_helper import ansible_run_playbook_on_selection
+from clustermanagementtoolkit.ansible_helper import ansible_set_vars
+
+from clustermanagementtoolkit.ansithemeprint import ANSIThemeStr, ansithemestr_join_list
+from clustermanagementtoolkit.ansithemeprint import clear_screen, ansithemeinput, ansithemeprint
+
+from clustermanagementtoolkit import checks
+
+from clustermanagementtoolkit import cmtio
+from clustermanagementtoolkit.cmtio import execute_command
+from clustermanagementtoolkit.cmtio import expand_path
+from clustermanagementtoolkit.cmtio import secure_read_string, secure_which, secure_write_string
+
+from clustermanagementtoolkit.cmtio_yaml import json_loads
+from clustermanagementtoolkit.cmtio_yaml import secure_read_yaml
+
+from clustermanagementtoolkit import cmtlib
+from clustermanagementtoolkit.cmtlib import check_allowlist
+from clustermanagementtoolkit.cmtlib import decode_value, clamp, get_package_versions, next_option
+from clustermanagementtoolkit.cmtlib import make_label_selector, make_label_selector_set_expression
+from clustermanagementtoolkit.cmtlib import none_timestamp, timestamp_to_datetime
+from clustermanagementtoolkit.cmtlib import split_msg, versiontuple, read_cmtconfig, substitute_list
+
+from clustermanagementtoolkit import cmtlog
+
+from clustermanagementtoolkit import cmtpaths
+from clustermanagementtoolkit.cmtpaths import ANSIBLE_PLAYBOOK_DIR, SYSTEM_ANSIBLE_PLAYBOOK_DIR
+from clustermanagementtoolkit.cmtpaths import BINDIR, KUBE_CONFIG_FILE, HOMEDIR, DEPLOYMENT_DIR
+from clustermanagementtoolkit.cmtpaths import CMT_CONFIG_FILE_DIR, THEME_DIR
+from clustermanagementtoolkit.cmtpaths import CMT_CONFIG_FILE_DIRNAME, CMT_CONFIG_FILE
+from clustermanagementtoolkit.cmtpaths import CMT_CONFIG_FILENAME
+from clustermanagementtoolkit.cmtpaths import DEFAULT_THEME_FILE
+from clustermanagementtoolkit.cmtpaths import SSH_ARGS_RELAXED, SSH_ARGS_STRICT, SSH_BIN_PATH
 
 from clustermanagementtoolkit.cmttypes import deep_get, deep_get_with_fallback
 from clustermanagementtoolkit.cmttypes import deep_get_str_tuple_paths, deep_set, DictPath
@@ -70,45 +119,11 @@ from clustermanagementtoolkit.cmttypes import ProgrammingError, FilePathAuditErr
 from clustermanagementtoolkit.cmttypes import name_to_loglevel, loglevel_to_name
 from clustermanagementtoolkit.cmttypes import get_loglevel_names
 
-from clustermanagementtoolkit import cmtpaths
-from clustermanagementtoolkit.cmtpaths import BINDIR, KUBE_CONFIG_FILE, HOMEDIR, DEPLOYMENT_DIR
-from clustermanagementtoolkit.cmtpaths import CMT_CONFIG_FILE_DIR, THEME_DIR
-from clustermanagementtoolkit.cmtpaths import DEFAULT_THEME_FILE
-from clustermanagementtoolkit.cmtpaths import ANSIBLE_PLAYBOOK_DIR, SYSTEM_ANSIBLE_PLAYBOOK_DIR
-from clustermanagementtoolkit.cmtpaths import CMT_CONFIG_FILE_DIRNAME, CMT_CONFIG_FILE
-from clustermanagementtoolkit.cmtpaths import CMT_CONFIG_FILENAME
-from clustermanagementtoolkit.cmtpaths import SSH_ARGS_RELAXED, SSH_ARGS_STRICT, SSH_BIN_PATH
-
-from clustermanagementtoolkit import cmtio
-from clustermanagementtoolkit.cmtio import execute_command
-from clustermanagementtoolkit.cmtio import expand_path
-from clustermanagementtoolkit.cmtio import secure_read_string, secure_which, secure_write_string
-from clustermanagementtoolkit.cmtio_yaml import secure_read_yaml
-from clustermanagementtoolkit.cmtio_yaml import json_loads
-
-from clustermanagementtoolkit import cmtlog
-
 from clustermanagementtoolkit.cmtvalidators import validate_name
 
 from clustermanagementtoolkit.commandparser import parse_commandline, CommandType
 
-from clustermanagementtoolkit.logparser import logparser, logparser_initialised, init_parser_list
-from clustermanagementtoolkit.logparser import LogparserConfiguration
-from clustermanagementtoolkit.logparser import lvl_to_letter_severity, lvl_to_4letter_severity
-from clustermanagementtoolkit.logparser import lvl_to_word_severity
-from clustermanagementtoolkit.logparser import get_parser_list
-
-from clustermanagementtoolkit import networkio
-
-from clustermanagementtoolkit import cmtlib
-from clustermanagementtoolkit.cmtlib import decode_value, clamp, get_package_versions, next_option
-from clustermanagementtoolkit.cmtlib import make_label_selector, make_label_selector_set_expression
-from clustermanagementtoolkit.cmtlib import none_timestamp, timestamp_to_datetime
-from clustermanagementtoolkit.cmtlib import split_msg, versiontuple, read_cmtconfig, substitute_list
-from clustermanagementtoolkit.cmtlib import check_allowlist
-
 from clustermanagementtoolkit import curses_helper
-
 from clustermanagementtoolkit.curses_helper import clear_tagged_items, tag_item, untag_item
 from clustermanagementtoolkit.curses_helper import in_tagged_items, get_tagged_items
 from clustermanagementtoolkit.curses_helper import get_tagged_objects
@@ -123,17 +138,16 @@ from clustermanagementtoolkit.curses_helper import themearray_wrap_line, themear
 from clustermanagementtoolkit.curses_helper import themearray_len, themearray_detab
 from clustermanagementtoolkit.curses_helper import themearray_truncate
 
-from clustermanagementtoolkit import listgetters
-from clustermanagementtoolkit.listgetters import listgetter_allowlist
-
-from clustermanagementtoolkit import listgetters_async
-from clustermanagementtoolkit.listgetters_async import listgetter_async_allowlist
-
 from clustermanagementtoolkit import datagetters
+
+from clustermanagementtoolkit import formatters
+from clustermanagementtoolkit.formatters import formatter_allowlist
 
 from clustermanagementtoolkit import generators
 from clustermanagementtoolkit.generators import generator_allowlist, default_processor
 from clustermanagementtoolkit.generators import FormattingType
+
+from clustermanagementtoolkit import helptexts
 
 from clustermanagementtoolkit import infogetters
 from clustermanagementtoolkit.infogetters import infogetter_allowlist
@@ -141,44 +155,32 @@ from clustermanagementtoolkit.infogetters import infogetter_allowlist
 from clustermanagementtoolkit import itemgetters
 from clustermanagementtoolkit.itemgetters import itemgetter_allowlist
 
-from clustermanagementtoolkit.objgetters import objgetter_allowlist
-
-from clustermanagementtoolkit import formatters
-from clustermanagementtoolkit.formatters import formatter_allowlist
-
-from clustermanagementtoolkit.ansible_helper import ansible_configuration
-from clustermanagementtoolkit.ansible_helper import ansible_get_inventory_dict
-from clustermanagementtoolkit.ansible_helper import ansible_get_groups, ansible_get_groups_by_host
-from clustermanagementtoolkit.ansible_helper import ansible_add_hosts, ansible_remove_hosts
-from clustermanagementtoolkit.ansible_helper import ansible_set_vars
-from clustermanagementtoolkit.ansible_helper import ansible_run_playbook_on_selection
-from clustermanagementtoolkit.ansible_helper import ansible_delete_log
-from clustermanagementtoolkit.ansible_helper import ansible_print_play_results, get_playbook_path
-from clustermanagementtoolkit.ansible_helper import ANSIBLE_INVENTORY
-
-from clustermanagementtoolkit import helptexts
-
 from clustermanagementtoolkit.kubernetes_helper import KubernetesHelper, KubernetesResourceCache
 from clustermanagementtoolkit.kubernetes_helper import get_controller_from_owner_references
+from clustermanagementtoolkit.kubernetes_helper import guess_kind
 from clustermanagementtoolkit.kubernetes_helper import kubectl_get_version
 from clustermanagementtoolkit.kubernetes_helper import update_api_status as kh_update_api_status
-from clustermanagementtoolkit.kubernetes_helper import guess_kind
 
 from clustermanagementtoolkit.kubernetes_resources import event_reasons
 
-from clustermanagementtoolkit import checks
+from clustermanagementtoolkit import listgetters
+from clustermanagementtoolkit.listgetters import listgetter_allowlist
 
-from clustermanagementtoolkit.ansithemeprint import ANSIThemeStr, ansithemestr_join_list
-from clustermanagementtoolkit.ansithemeprint import clear_screen, ansithemeinput, ansithemeprint
+from clustermanagementtoolkit import listgetters_async
+from clustermanagementtoolkit.listgetters_async import listgetter_async_allowlist
+
+from clustermanagementtoolkit.logparser import LogparserConfiguration
+
+from clustermanagementtoolkit.logparser import get_parser_list
+from clustermanagementtoolkit.logparser import logparser, logparser_initialised, init_parser_list
+from clustermanagementtoolkit.logparser import lvl_to_letter_severity, lvl_to_4letter_severity
+from clustermanagementtoolkit.logparser import lvl_to_word_severity
+
+from clustermanagementtoolkit import networkio
+
+from clustermanagementtoolkit.objgetters import objgetter_allowlist
 
 from clustermanagementtoolkit import reexecutor
-
-try:
-    import prctl
-    prctl.set_name(PurePath(sys.argv[0]).name)  # pylint: disable=no-member,useless-suppression
-    prctl.set_proctitle(" ".join(sys.argv))
-except ModuleNotFoundError:  # pragma: no cover
-    pass
 
 
 def signal_handler(sig: int, frame: FrameType | None) -> None:
@@ -4127,11 +4129,13 @@ def genericinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
             "read_only": True,
             "helptext": ("X", "Show security context information"),
             "widget": "windowwidget",
-            "title": "Security Context Policies:",
-            "headers": ["Policy:", "Value:"],
-            "itemgetter": itemgetters.get_security_context,
-            "formatting": [ThemeAttr("windowwidget", "default"),
-                           ThemeAttr("windowwidget", "highlight")],
+            "widget_args": {
+                "title": "Security Context Policies:",
+                "headers": ["Policy:", "Value:"],
+                "itemgetter": itemgetters.get_security_context,
+                "formatting": [ThemeAttr("windowwidget", "default"),
+                               ThemeAttr("windowwidget", "highlight")],
+            },
             "force_update": False,
         }
 
@@ -4143,11 +4147,13 @@ def genericinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
             "read_only": True,
             "helptext": ("C", "Show resource conditions"),
             "widget": "windowwidget",
-            "title": "Conditions:",
-            "headers": ["Type:", "Status:", "Last Probe:", "Last Transition:", "Message:"],
-            "itemgetter": itemgetters.get_conditions,
-            "itemgetter_args": {
-                "path": f"{conditions_path}",
+            "widget_args": {
+                "title": "Conditions:",
+                "headers": ["Type:", "Status:", "Last Probe:", "Last Transition:", "Message:"],
+                "itemgetter": itemgetters.get_conditions,
+                "itemgetter_args": {
+                    "path": f"{conditions_path}",
+                },
             },
             "force_update": False,
         }
@@ -4898,17 +4904,21 @@ def genericinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
             force_update: bool | None = deep_get(sc_value, DictPath("force_update"))
             tmpselection = None
             if widget == "windowwidget":
-                w_title = deep_get(sc_value, DictPath("title"), "")
-                w_headers = deep_get(sc_value, DictPath("headers"))
-                if (w_itemgetter := deep_get(sc_value, DictPath("itemgetter"))) is None:
+                widget_args = deep_get(sc_value, DictPath("widget_args"), {})
+                # If we don't have an itemgetter we cannot populate the windowwidget,
+                # so check this first.
+                if (w_itemgetter := check_allowlist(itemgetter_allowlist, "itemgetter_allowlist",
+                                                    deep_get(widget_args, DictPath("itemgetter")),
+                                                    allow_none=True)) is None:
                     continue
-                w_itemgetter_args = deep_get(sc_value, DictPath("itemgetter_args"), {})
+                w_title = deep_get(widget_args, DictPath("title"), "")
+                w_headers = deep_get(widget_args, DictPath("headers"))
+                w_wrap_lines = deep_get(widget_args, DictPath("wrap_lines"), False)
+                w_selectable = deep_get(widget_args, DictPath("selectable"), False)
+                w_itemgetter_args = deep_get(widget_args, DictPath("itemgetter_args"), {})
                 w_itemgetter_args["kubernetes_helper"] = kh
                 w_itemgetter_args["kh_cache"] = kh_cache
-                w_wrap_lines = deep_get(w_itemgetter_args, DictPath("wrap_lines"), False)
                 w_itemgetter_src = deep_get(w_itemgetter_args, DictPath("source"), "object")
-                w_selectable = deep_get(sc_value, DictPath("selectable"), False)
-                # w_kind = deep_get(sc_value, DictPath("kind"), view)
                 if "_slow_task_msg" in w_itemgetter_args:
                     _w_win = curses_helper.notice(uip.stdscr,
                                                   message=deep_get(w_itemgetter_args,
@@ -4935,7 +4945,7 @@ def genericinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                                  # pylint: disable-next=unidiomatic-typecheck
                                  and type(w_items[0][0]) != int)):  # noqa: E721
                     tmp_items = []
-                    w_formatting = deep_get(sc_value, DictPath("formatting"),
+                    w_formatting = deep_get(widget_args, DictPath("formatting"),
                                             [ThemeAttr("windowwidget", "default")])
                     lineattrs = WidgetLineAttrs.NORMAL
 
@@ -4983,7 +4993,7 @@ def genericinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                     w_items = tmp_items
 
                 if w_items is not None and w_items:
-                    w_sortcolumn = deep_get(sc_value, DictPath("sortcolumn"))
+                    w_sortcolumn = deep_get(widget_args, DictPath("sortcolumn"))
                     tmpselection = \
                         curses_helper.windowwidget(uip.stdscr, uip.maxy, uip.maxx,
                                                    uip.maxy // 2, uip.maxx // 2,
@@ -4995,7 +5005,8 @@ def genericinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                         continue
             elif widget == "inputbox":
                 selected = uip.get_selected()
-                w_title = deep_get(sc_value, DictPath("inputtitle"), "")
+                widget_args = deep_get(sc_value, DictPath("widget_args"), {})
+                w_title = deep_get(widget_args, DictPath("title"), "")
                 if not (w_result := curses_helper.inputbox(uip.stdscr, title=w_title)):
                     continue
                 # This is necessary because we never go through
@@ -5008,7 +5019,7 @@ def genericinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                 # Check this condition before confirming
                 # FIXME: This should probably be moved to populate_views()
                 w_confirm: str | bool | Callable = \
-                    deep_get(sc_value, DictPath("confirm"), False)
+                    deep_get(widget_args, DictPath("confirm"), False)
                 if isinstance(w_confirm, str):
                     if w_confirm == "path_exists":
                         w_confirm = os.path.exists(w_result)
@@ -5017,26 +5028,25 @@ def genericinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                                  "must be either boolean or path_exists")
                 if w_confirm:
                     curses.doupdate()
-                    w_confirmtitle = deep_get(sc_value, DictPath("confirmtitle"))
+                    w_confirmtitle = deep_get(widget_args, DictPath("confirmtitle"))
                     if not curses_helper.confirmationbox(uip.stdscr,
                                                          title=w_confirmtitle, default=False):
                         continue
             elif widget == "command":
                 if force_update is None:
                     force_update = True
-                w_args = deep_get(sc_value, DictPath("widget_args"), {})
-                if "_pass_obj" in w_args:
-                    w_args["obj"] = obj
-                elif "_pass_selected_obj" in w_args:
+                widget_args = deep_get(sc_value, DictPath("widget_args"), {})
+                if "_pass_obj" in widget_args:
+                    widget_args["obj"] = obj
+                elif "_pass_selected_obj" in widget_args:
                     selected = uip.get_selected()
                     if selected is not None:
-                        w_args["obj"] = deep_get(selected, DictPath("ref"))
-                do_command(uip.stdscr, **w_args)
+                        widget_args["obj"] = deep_get(selected, DictPath("ref"))
+                do_command(uip.stdscr, **widget_args)
             elif widget == "executecommand":
+                widget_args = deep_get(sc_value, DictPath("widget_args"), {})
                 selected = uip.get_selected()
-                if (w_kinds := deep_get_with_fallback(sc_value,
-                                                      [DictPath("widget_args#kinds"),
-                                                       DictPath("kinds")])) is None:
+                if (w_kinds := deep_get(widget_args, DictPath("kinds"))) is None:
                     continue
                 w_ref = None
                 if selected is not None:
@@ -5047,22 +5057,17 @@ def genericinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                         and w_kinds != [("", "")]:
                     continue
 
-                w_inputtitle = deep_get_with_fallback(sc_value,
-                                                      [DictPath("widget_args#inputtitle"),
-                                                       DictPath("inputtitle")])
+                w_inputtitle = deep_get(widget_args, DictPath("inputtitle"))
                 if w_inputtitle is not None:
                     if not (w_input := curses_helper.inputbox(uip.stdscr, title=w_inputtitle)):
                         continue
                     w_command = w_input.split()
                 else:
-                    w_command = deep_get_with_fallback(sc_value,
-                                                       [DictPath("widget_args#command"),
-                                                        DictPath("command")], [])
+                    w_command = deep_get(widget_args, DictPath("command"), [])
                 if not w_command:
                     continue
 
-                w_waitforkeypress = deep_get(sc_value,
-                                             DictPath("widget_args#wait_for_keypress"), False)
+                w_waitforkeypress = deep_get(widget_args, DictPath("wait_for_keypress"), False)
                 containername: str = ""
                 if not (w_kinds == ["<native>"] and w_command == ["<dnsutils>"]):
                     containername = deep_get(w_ref, DictPath("name"), "")
@@ -5086,6 +5091,7 @@ def genericinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                            ANSIThemeStr(containername, "path")]
                 executecommand(uip.stdscr, obj, containername, msg,
                                command=w_command, waitforkeypress=w_waitforkeypress)
+
             if "action" in sc_value:
                 selected = uip.get_selected()
                 action = deep_get(sc_value, DictPath("action"), "<missing>")
@@ -10547,7 +10553,13 @@ def populate_views(refresh_apis: str = "none") -> None:
                     "read_only": True,
                     "helptext": "Show events",
                     "widget": "windowwidget",
-                    "selectable": True,
+                    "widget_args": {
+                        "selectable": True,
+                        "title": "Events:",
+                        "headers": ["Namespace:", "Name:", "Last Seen:", "Status:",
+                                    "Reason:", "Source:", "First Seen:", "Count:", "Message:"],
+                        "itemgetter": "get_events",
+                    },
                     "action": "call",
                     "action_call": "resourceinfodispatch_with_lookup",
                     "action_args": {
@@ -10555,10 +10567,6 @@ def populate_views(refresh_apis: str = "none") -> None:
                         "namespace_path": 0,
                         "name_path": 1,
                     },
-                    "title": "Events:",
-                    "headers": ["Namespace:", "Name:", "Last Seen:", "Status:",
-                                "Reason:", "Source:", "First Seen:", "Count:", "Message:"],
-                    "itemgetter": "get_events",
                 }
 
             # Always include the shortcut for edit resource, unless overridden
@@ -10569,24 +10577,26 @@ def populate_views(refresh_apis: str = "none") -> None:
                     "read_only": True,
                     "helptext": "List Owner References",
                     "widget": "windowwidget",
-                    "title": "Owner References:",
-                    "selectable": True,
-                    "headers": ["Kind:", "API-Version:", "Name:", "Controller:"],
-                    "itemgetter": "get_list_fields",
-                    "itemgetter_args": {
-                        "path": "metadata#ownerReferences",
-                        "fields": [
-                            "kind",
-                            "apiVersion",
-                            "name",
-                            {
-                                "name": "controller",
-                                "default": False,
-                            }
-                        ]
+                    "widget_args": {
+                        "title": "Owner References:",
+                        "selectable": True,
+                        "headers": ["Kind:", "API-Version:", "Name:", "Controller:"],
+                        "itemgetter": "get_list_fields",
+                        "itemgetter_args": {
+                            "path": "metadata#ownerReferences",
+                            "fields": [
+                                "kind",
+                                "apiVersion",
+                                "name",
+                                {
+                                    "name": "controller",
+                                    "default": False,
+                                },
+                            ],
+                        },
+                        # This isn't supported for now
+                        "sortcolumn": "kind",
                     },
-                    # This isn't supported for now
-                    "sortcolumn": "kind",
                     "action": "call",
                     "action_call": "resourceinfodispatch_with_lookup",
                     "action_args": {
@@ -11160,10 +11170,10 @@ COMMANDLINE: dict[str, CommandType] = {
                      ANSIThemeStr("patch", "argument"),
                      ANSIThemeStr(", ", "separator"),
                      ANSIThemeStr("html", "argument"),
-                     ANSIThemeStr(", ", "separator"),
-                     ANSIThemeStr("ini", "argument"),
                      ANSIThemeStr(",", "separator")],
-                    [ANSIThemeStr("javascript", "argument"),
+                    [ANSIThemeStr("ini", "argument"),
+                     ANSIThemeStr(", ", "separator"),
+                     ANSIThemeStr("javascript", "argument"),
                      ANSIThemeStr("|", "separator"),
                      ANSIThemeStr("js", "argument"),
                      ANSIThemeStr(", ", "separator"),

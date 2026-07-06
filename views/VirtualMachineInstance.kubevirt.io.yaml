@@ -488,58 +488,62 @@ infoview:
       read_only: true
       helptext: "Show interfaces"
       widget: "windowwidget"
-      title: "Interfaces:"
-      headers: ["Name:", "Info Source:", "IP-Addresses:", "MAC-Address:",
-                "Interface:", "Link State:"]
-      itemgetter: "get_list_fields"
-      itemgetter_args:
-        path: "status#interfaces"
-        fields:
-          - "name"
-          - "infoSource"
-          - "ipAddresses"
-          - "mac"
-          - "podInterfaceName"
-          - "linkState"
-      # Not supported for now
-      sortcolumn: "name"
+      widget_args:
+        title: "Interfaces:"
+        headers: ["Name:", "Info Source:", "IP-Addresses:", "MAC-Address:",
+                  "Interface:", "Link State:"]
+        itemgetter: "get_list_fields"
+        itemgetter_args:
+          path: "status#interfaces"
+          fields:
+            - "name"
+            - "infoSource"
+            - "ipAddresses"
+            - "mac"
+            - "podInterfaceName"
+            - "linkState"
+        # Not supported for now
+        sortcolumn: "name"
     "Show Networks":
       key: "w"
       read_only: true
       helptext: "Show networks"
       widget: "windowwidget"
-      title: "Networks:"
-      headers: ["Name:", "Pod IPv4 CIDR:", "Pod IPv6 CIDR:", "Multus Network:"]
-      itemgetter: "get_list_fields"
-      itemgetter_args:
-        path: "spec#networks"
-        fields:
-          - "name"
-          - path: "pod#vmNetworkCIDR"
-            default: "10.0.2.0/24"
-          - path: "pod#vmIPv6NetworkCIDR"
-            default: "fd10:0:2::/120"
-          - path: "multus#networkName"
-            default: "<none>"
-      # Not supported for now
-      sortcolumn: "name"
+      widget_args:
+        title: "Networks:"
+        headers: ["Name:", "Pod IPv4 CIDR:",
+                  "Pod IPv6 CIDR:", "Multus Network:"]
+        itemgetter: "get_list_fields"
+        itemgetter_args:
+          path: "spec#networks"
+          fields:
+            - "name"
+            - path: "pod#vmNetworkCIDR"
+              default: "10.0.2.0/24"
+            - path: "pod#vmIPv6NetworkCIDR"
+              default: "fd10:0:2::/120"
+            - path: "multus#networkName"
+              default: "<none>"
+        # Not supported for now
+        sortcolumn: "name"
     "Show Volume Status":
       key: "v"
       modifier: "shift"
       read_only: true
       helptext: "Show volume statuses"
       widget: "windowwidget"
-      title: "Volume Statuses:"
-      headers: ["Name:", "Size:", "Target:"]
-      itemgetter: "get_list_fields"
-      itemgetter_args:
-        path: "status#volumeStatus"
-        fields:
-          - "name"
-          - "size"
-          - "target"
-      # Not supported for now
-      sortcolumn: "name"
+      widget_args:
+        title: "Volume Statuses:"
+        headers: ["Name:", "Size:", "Target:"]
+        itemgetter: "get_list_fields"
+        itemgetter_args:
+          path: "status#volumeStatus"
+          fields:
+            - "name"
+            - "size"
+            - "target"
+        # Not supported for now
+        sortcolumn: "name"
     "Show Domain Configuration":
       key: "d"
       modifier: "shift"

@@ -158,20 +158,21 @@ infoview:
       read_only: true
       helptext: "List additional networks"
       widget: "windowwidget"
-      title: "Additional networks:"
-      headers: ["Namespace:", "Name:", "Type:",
-                "RAW CNI Config:", "Simple MAC VLAN Configuration:"]
-      itemgetter: "get_list_fields"
-      itemgetter_args:
-        path: "spec#additionalNetworks"
-        fields:
-          - "namespace"
-          - "name"
-          - "type"
-          - "rawCNIConfig"
-          - "simpleMacvlanConfig"
-      # Not supported for now
-      sortcolumn: "namespace"
+      widget_args:
+        title: "Additional networks:"
+        headers: ["Namespace:", "Name:", "Type:",
+                  "RAW CNI Config:", "Simple MAC VLAN Configuration:"]
+        itemgetter: "get_list_fields"
+        itemgetter_args:
+          path: "spec#additionalNetworks"
+          fields:
+            - "namespace"
+            - "name"
+            - "type"
+            - "rawCNIConfig"
+            - "simpleMacvlanConfig"
+        # Not supported for now
+        sortcolumn: "namespace"
     "View observed configuration":
       key: "o"
       read_only: true

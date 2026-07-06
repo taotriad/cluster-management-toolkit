@@ -93,6 +93,7 @@ listview:
     version:
       header: "Version:"
       path: "spec#version"
+      default: "<unset>"
       type: "str"
       formatting:
         field_colors:
@@ -350,6 +351,7 @@ infoview:
       version:
         header: [["Version:", ["main", "infoheader"]]]
         path: "spec#version"
+        default: "<unset>"
         type: "str"
         formatting:
           field_colors:
@@ -364,9 +366,10 @@ infoview:
       action_args:
         _pass_obj: true
         kind_path: "spec#bootstrap#configRef#kind"
-        api_version_path: "spec#bootstrap#configRef#apiVersion"
+        api_version_path: "spec#bootstrap#configRef#apiGroup"
         name_path: "spec#bootstrap#configRef#name"
         namespace_path: "spec#bootstrap#configRef#namespace"
+        _parent_namespace_path: "metadata#namespace"
     "Open Bootstrap Secret":
       key: "s"
       modifier: "shift"
@@ -413,9 +416,10 @@ infoview:
       action_args:
         _pass_obj: true
         kind_path: "spec#infrastructureRef#kind"
-        api_version_path: "spec#infrastructureRef#apiVersion"
+        api_version_path: "spec#infrastructureRef#apiGroup"
         name_path: "spec#infrastructureRef#name"
         namespace_path: "spec#infrastructureRef#namespace"
+        _parent_namespace_path: "metadata#namespace"
     "Open Node":
       key: "d"
       read_only: true
@@ -432,12 +436,13 @@ infoview:
       read_only: true
       helptext: "Show readiness gates"
       widget: "windowwidget"
-      title: "Readiness Gates:"
-      headers: ["Readiness Gate:", "Polarity:"]
-      itemgetter: "get_list_fields"
-      itemgetter_args:
-        path: "spec#readinessGates"
-        fields:
-          - name: "conditionType"
-          - name: "polarity"
-            default: "Positive"
+      widget_args:
+        title: "Readiness Gates:"
+        headers: ["Readiness Gate:", "Polarity:"]
+        itemgetter: "get_list_fields"
+        itemgetter_args:
+          path: "spec#readinessGates"
+          fields:
+            - name: "conditionType"
+            - name: "polarity"
+              default: "Positive"

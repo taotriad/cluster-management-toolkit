@@ -130,46 +130,49 @@ infoview:
       read_only: true
       helptext: "List allowed Clusters"
       widget: "windowwidget"
-      title: "Allowed Clusters:"
-      headers: ["Name:"]
-      itemgetter: "get_list_fields"
-      itemgetter_args:
-        path: "spec#allowedClusters"
-        fields:
-          - "name"
-      # Not supported for now
-      sortcolumn: "name"
+      widget_args:
+        title: "Allowed Clusters:"
+        headers: ["Name:"]
+        itemgetter: "get_list_fields"
+        itemgetter_args:
+          path: "spec#allowedClusters"
+          fields:
+            - "name"
+        # Not supported for now
+        sortcolumn: "name"
     "List Allowed Templates":
       key: "t"
       modifier: "shift"
       read_only: true
       helptext: "List allowed Templates"
       widget: "windowwidget"
-      title: "Allowed Templates:"
-      headers: ["Kind:", "API-group:", "Name:"]
-      itemgetter: "get_list_fields"
-      itemgetter_args:
-        path: "spec#allowedTemplates"
-        fields:
-          - "kind"
-          - "group"
-          - "name"
-      # Not supported for now
-      sortcolumn: "name"
+      widget_args:
+        title: "Allowed Templates:"
+        headers: ["Kind:", "API-group:", "Name:"]
+        itemgetter: "get_list_fields"
+        itemgetter_args:
+          path: "spec#allowedTemplates"
+          fields:
+            - "kind"
+            - "group"
+            - "name"
+        # Not supported for now
+        sortcolumn: "name"
     "List Members":
       key: "m"
       read_only: true
       helptext: "List members"
       widget: "windowwidget"
-      title: "Members:"
-      headers: ["Kind:", "API-group:", "Cluster Role:", "Name:"]
-      itemgetter: "get_list_fields"
-      itemgetter_args:
-        path: "spec#members"
-        fields:
-          - "kind"
-          - "group"
-          - "clusterRole"
-          - "name"
-      # Not supported for now
-      sortcolumn: "cluster_role"
+      widget_args:
+        title: "Members:"
+        headers: ["Kind:", "API-group:", "Cluster Role:", "Name:"]
+        itemgetter: "get_list_fields"
+        itemgetter_args:
+          path: "spec#members"
+          fields:
+            - "kind"
+            - "group"
+            - "clusterRole"
+            - "name"
+        # Not supported for now
+        sortcolumn: "cluster_role"

@@ -9,10 +9,10 @@
 Get data for fields in a list; typically used to populate _extra_data
 """
 
+from collections.abc import Callable
 import copy
 import re
 from typing import Any
-from collections.abc import Callable
 
 from clustermanagementtoolkit.cmtio import execute_command_with_response, secure_which
 

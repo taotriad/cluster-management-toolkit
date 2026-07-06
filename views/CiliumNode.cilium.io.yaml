@@ -96,8 +96,9 @@ infoview:
         path: "status#ipam#operator-status"
         type: "raw"
       node:
-        header: [["N", ["main", "infoheader_shortcut"]],
-                 ["ode:", ["main", "infoheader"]]]
+        header: [["No", ["main", "infoheader"]],
+                 ["d", ["main", "infoheader_shortcut"]],
+                 ["e:", ["main", "infoheader"]]]
         paths:
           - path: "metadata#ownerReferences"
             pathtype: "items"
@@ -126,17 +127,18 @@ infoview:
       read_only: true
       helptext: "Show addresses"
       widget: "windowwidget"
-      title: "Addresses:"
-      headers: ["IP:", "Type:"]
-      itemgetter: "get_list_fields"
-      itemgetter_args:
-        path: "spec#addresses"
-        fields:
-          - "ip"
-          - "type"
-      formatting: [["windowwidget", "default"], ["windowwidget", "highlight"]]
-      # This isn't supported for now
-      sortcolumn: "ip"
+      widget_args:
+        title: "Addresses:"
+        headers: ["IP:", "Type:"]
+        itemgetter: "get_list_fields"
+        itemgetter_args:
+          path: "spec#addresses"
+          fields:
+            - "ip"
+            - "type"
+        formatting: [["windowwidget", "default"], ["windowwidget", "highlight"]]
+        # This isn't supported for now
+        sortcolumn: "ip"
     "Cilium Identity":
       key: "c"
       modifier: "shift"
@@ -150,8 +152,7 @@ infoview:
         api_family: "cilium.io"
         name_path: "spec#nodeidentity"
     "Node":
-      key: "n"
-      modifier: "shift"
+      key: "d"
       read_only: true
       helptext: "Open info page for Node"
       action: "call"
@@ -165,61 +166,67 @@ infoview:
       read_only: true
       helptext: "Show Alibaba Cloud configuration"
       widget: "windowwidget"
-      title: "Alibaba Cloud configuration:"
-      headers: ["Parameter:", "Value:"]
-      itemgetter: "get_key_value"
-      itemgetter_args:
-        path: "spec#alibaba-cloud"
+      widget_args:
+        title: "Alibaba Cloud configuration:"
+        headers: ["Parameter:", "Value:"]
+        itemgetter: "get_key_value"
+        itemgetter_args:
+          path: "spec#alibaba-cloud"
     "Alibaba Cloud Status":
       key: "i"
       modifier: "shift"
       read_only: true
       helptext: "Show Alibaba Cloud status"
       widget: "windowwidget"
-      title: "Alibaba Cloud status:"
-      headers: ["Parameter:", "Value:"]
-      itemgetter: "get_key_value"
-      itemgetter_args:
-        path: "status#alibaba-cloud#enis"
+      widget_args:
+        title: "Alibaba Cloud status:"
+        headers: ["Parameter:", "Value:"]
+        itemgetter: "get_key_value"
+        itemgetter_args:
+          path: "status#alibaba-cloud#enis"
     "Azure Configuration":
       key: "z"
       read_only: true
       helptext: "Show Azure configuration"
       widget: "windowwidget"
-      title: "Azure configuration:"
-      headers: ["Parameter:", "Value:"]
-      itemgetter: "get_key_value"
-      itemgetter_args:
-        path: "spec#azure"
+      widget_args:
+        title: "Azure configuration:"
+        headers: ["Parameter:", "Value:"]
+        itemgetter: "get_key_value"
+        itemgetter_args:
+          path: "spec#azure"
     "Azure Status":
       key: "z"
       modifier: "shift"
       read_only: true
       helptext: "Show Azure status"
       widget: "windowwidget"
-      title: "Azure status:"
-      headers: ["Parameter:", "Value:"]
-      itemgetter: "get_key_value"
-      itemgetter_args:
-        path: "status#azure#nterfaces"
+      widget_args:
+        title: "Azure status:"
+        headers: ["Parameter:", "Value:"]
+        itemgetter: "get_key_value"
+        itemgetter_args:
+          path: "status#azure#nterfaces"
     "AWS Configuration":
       key: "s"
       read_only: true
       helptext: "Show AWS configuration"
       widget: "windowwidget"
-      title: "AWS configuration:"
-      headers: ["Parameter:", "Value:"]
-      itemgetter: "get_key_value"
-      itemgetter_args:
-        path: "spec#eni"
+      widget_args:
+        title: "AWS configuration:"
+        headers: ["Parameter:", "Value:"]
+        itemgetter: "get_key_value"
+        itemgetter_args:
+          path: "spec#eni"
     "AWS Status":
       key: "s"
       modifier: "shift"
       read_only: true
       helptext: "Show AWS status"
       widget: "windowwidget"
-      title: "AWS status:"
-      headers: ["Parameter:", "Value:"]
-      itemgetter: "get_key_value"
-      itemgetter_args:
-        path: "status#eni#enis"
+      widget_args:
+        title: "AWS status:"
+        headers: ["Parameter:", "Value:"]
+        itemgetter: "get_key_value"
+        itemgetter_args:
+          path: "status#eni#enis"

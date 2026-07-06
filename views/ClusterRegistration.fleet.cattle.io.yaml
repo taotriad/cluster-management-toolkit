@@ -44,8 +44,22 @@ infoview:
   infopad:
     row_indexes:
       Normal:
-        fields: ["cluster_name", "granted", "cluster_labels"]
+        fields: ["cluster_name",
+                 "client_header", "client_id", "client_random",
+                 "granted", "cluster_labels"]
     rows:
+      client_header:
+        header: [["Client:", ["main", "infoheader"]]]
+      client_id:
+        header: [["  ID:", ["main", "infoheader"]]]
+        path: "spec#clientID"
+        default: "<unset>"
+        type: "str"
+      client_random:
+        header: [["  Random:", ["main", "infoheader"]]]
+        path: "spec#clientRandom"
+        default: "<unset>"
+        type: "str"
       cluster_labels:
         header: [["C", ["main", "infoheader_shortcut"]],
                  ["luster Labels:", ["main", "infoheader"]]]
@@ -89,10 +103,13 @@ infoview:
       read_only: true
       helptext: "List cluster labels"
       widget: "windowwidget"
-      title: "Cluster Labels:"
-      headers: ["Key:", "Value:"]
-      itemgetter: "get_key_value"
-      itemgetter_args:
-        path: "spec#clusterLabels"
-      # Not supported for now
-      sortcolumn: "label"
+      widget_args:
+        title: "Cluster Labels:"
+        headers: ["Key:", "Value:"]
+        formatting: [["windowwidget", "default"],
+                     ["windowwidget", "highlight"]]
+        itemgetter: "get_key_value"
+        itemgetter_args:
+          path: "spec#clusterLabels"
+        # Not supported for now
+        sortcolumn: "label"

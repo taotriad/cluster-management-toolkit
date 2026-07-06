@@ -67,9 +67,10 @@ infoview:
       read_only: true
       helptext: "Show command"
       widget: "windowwidget"
-      title: "Command:"
-      itemgetter: "get_list_as_string"
-      itemgetter_args:
-        path: "status#command"
-        separators:
-          - " "
+      widget_args:
+        title: "Command:"
+        itemgetter: "get_list_as_string"
+        itemgetter_args:
+          path: "status#command"
+          separators:
+            - " "

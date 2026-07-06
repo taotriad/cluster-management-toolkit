@@ -15,6 +15,7 @@
 Commandline tool for managing Kubernetes clusters.
 """
 
+from collections.abc import Sequence
 import errno
 from getpass import getuser
 import hashlib
@@ -24,15 +25,14 @@ from pathlib import Path, PurePath
 import re
 import sys
 from typing import Any, cast
-from collections.abc import Sequence
 try:
     import yaml
 except ModuleNotFoundError:  # pragma: no cover
     sys.exit("ModuleNotFoundError: Could not import yaml; "
              "you may need to (re-)run `cmt-install.py` or `pip3 install PyYAML`; aborting.")
 
-from cryptography import x509
 from cryptography.hazmat.primitives import serialization
+from cryptography import x509
 
 try:
     from natsort import natsorted
@@ -57,27 +57,35 @@ except ModuleNotFoundError:  # pragma: no cover
 # This has to be first, since it checks for the correct Python version
 from clustermanagementtoolkit import about
 
+from clustermanagementtoolkit.ansible_helper import ANSIBLE_INVENTORY
+
+from clustermanagementtoolkit.ansible_helper import ansible_configuration, get_playbook_path
+from clustermanagementtoolkit.ansible_helper import ansible_get_hosts_by_group, ansible_add_hosts
+from clustermanagementtoolkit.ansible_helper import ansible_print_action_summary
+from clustermanagementtoolkit.ansible_helper import ansible_print_play_results
+from clustermanagementtoolkit.ansible_helper import ansible_remove_hosts
+from clustermanagementtoolkit.ansible_helper import ansible_run_playbook_on_selection
+from clustermanagementtoolkit.ansible_helper import populate_playbooks_from_filenames
+
+from clustermanagementtoolkit.ansithemeprint import ansithemeinput_password
+from clustermanagementtoolkit.ansithemeprint import ansithemeprint, ansithemeinput
+from clustermanagementtoolkit.ansithemeprint import ansithemeprint_formatted
+from clustermanagementtoolkit.ansithemeprint import ANSIThemeStr, ansithemestr_join_list
+
+from clustermanagementtoolkit import checks
+
 from clustermanagementtoolkit.cluster_actions import get_crio_version
 
-from clustermanagementtoolkit.cmttypes import deep_get, DictPath, SecurityStatus
-from clustermanagementtoolkit.cmttypes import FilePath, FilePathAuditError, HostNameStatus
+from clustermanagementtoolkit.commandparser import parse_commandline, CommandType
 
 from clustermanagementtoolkit import cmtpaths
 from clustermanagementtoolkit.cmtpaths import CMT_CONFIG_FILE, CMT_CONFIG_FILENAME, HOMEDIR
 from clustermanagementtoolkit.cmtpaths import DEFAULT_THEME_FILE, VIEW_DIR, SYSTEM_VIEWS_DIR
 
+from clustermanagementtoolkit.cmttypes import deep_get, DictPath, SecurityStatus
+from clustermanagementtoolkit.cmttypes import FilePath, FilePathAuditError, HostNameStatus
+
 from clustermanagementtoolkit.cmtvalidators import validate_fqdn, validator_bool
-
-from clustermanagementtoolkit.commandparser import parse_commandline, CommandType
-
-from clustermanagementtoolkit.ansible_helper import ansible_configuration, get_playbook_path
-from clustermanagementtoolkit.ansible_helper import ansible_run_playbook_on_selection
-from clustermanagementtoolkit.ansible_helper import ansible_get_hosts_by_group, ansible_add_hosts
-from clustermanagementtoolkit.ansible_helper import ansible_remove_hosts
-from clustermanagementtoolkit.ansible_helper import ansible_print_action_summary
-from clustermanagementtoolkit.ansible_helper import ansible_print_play_results
-from clustermanagementtoolkit.ansible_helper import populate_playbooks_from_filenames
-from clustermanagementtoolkit.ansible_helper import ANSIBLE_INVENTORY
 
 from clustermanagementtoolkit import cmtlib
 from clustermanagementtoolkit.cmtlib import chunk_list, identify_distro, read_cmtconfig
@@ -86,26 +94,19 @@ from clustermanagementtoolkit.cmtlib import get_latest_upstream_version
 from clustermanagementtoolkit import cmtio
 from clustermanagementtoolkit.cmtio import execute_command, secure_read_string
 
-from clustermanagementtoolkit.cmtio_yaml import secure_read_yaml
 from clustermanagementtoolkit.cmtio_yaml import json_dumps
+from clustermanagementtoolkit.cmtio_yaml import secure_read_yaml
+
+from clustermanagementtoolkit import kubernetes_helper
+from clustermanagementtoolkit.kubernetes_helper import get_node_status
+from clustermanagementtoolkit.kubernetes_helper import list_contexts, get_node_roles
+from clustermanagementtoolkit.kubernetes_helper import set_context, guess_kind, get_cluster_name
+from clustermanagementtoolkit.kubernetes_helper import update_api_status as kh_update_api_status
 
 from clustermanagementtoolkit.networkio import scan_and_add_ssh_keys
 
-from clustermanagementtoolkit import kubernetes_helper
-from clustermanagementtoolkit.kubernetes_helper import list_contexts, get_node_roles
-from clustermanagementtoolkit.kubernetes_helper import get_node_status
-from clustermanagementtoolkit.kubernetes_helper import update_api_status as kh_update_api_status
-from clustermanagementtoolkit.kubernetes_helper import set_context, guess_kind, get_cluster_name
-
-from clustermanagementtoolkit import checks
-
-from clustermanagementtoolkit.ansithemeprint import ANSIThemeStr, ansithemestr_join_list
-from clustermanagementtoolkit.ansithemeprint import ansithemeprint, ansithemeinput
-from clustermanagementtoolkit.ansithemeprint import ansithemeprint_formatted
-from clustermanagementtoolkit.ansithemeprint import ansithemeinput_password
-
-from clustermanagementtoolkit.kubernetes_resources import unknown_kubernetes_resources
 from clustermanagementtoolkit.kubernetes_resources import event_reasons
+from clustermanagementtoolkit.kubernetes_resources import unknown_kubernetes_resources
 
 try:
     import prctl

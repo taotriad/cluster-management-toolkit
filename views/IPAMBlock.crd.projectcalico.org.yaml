@@ -168,10 +168,11 @@ infoview:
       read_only: true
       helptext: "List sequence numbers for allocations"
       widget: "windowwidget"
-      title: "Sequence Numbers:"
-      headers: ["Allocation:", "Sequence #:"]
-      itemgetter: "get_key_value"
-      itemgetter_args:
-        path: "spec#sequenceNumberForAllocation"
-      # Not supported for now
-      sortcolumn: "allocation"
+      widget_args:
+        title: "Sequence Numbers:"
+        headers: ["Allocation:", "Sequence #:"]
+        itemgetter: "get_key_value"
+        itemgetter_args:
+          path: "spec#sequenceNumberForAllocation"
+        # Not supported for now
+        sortcolumn: "allocation"

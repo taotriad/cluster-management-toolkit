@@ -121,32 +121,35 @@ infoview:
       read_only: true
       helptext: "List CAPI contracts"
       widget: "windowwidget"
-      title: "CAPI Contracts:"
-      itemgetter: "get_dict_list"
-      itemgetter_args:
-        path: "status#capiContracts"
-        fields:
-          - "key"
-          - "value"
+      widget_args:
+        title: "CAPI Contracts:"
+        itemgetter: "get_dict_list"
+        itemgetter_args:
+          path: "status#capiContracts"
+          fields:
+            - "key"
+            - "value"
     "List available providers":
       key: "a"
       modifier: "shift"
       read_only: true
       helptext: "List available providers"
       widget: "windowwidget"
-      title: "Providers:"
-      itemgetter: "get_list_as_list"
-      itemgetter_args:
-        path: "status#availableProviders"
+      widget_args:
+        title: "Providers:"
+        itemgetter: "get_list_as_list"
+        itemgetter_args:
+          path: "status#availableProviders"
     "List providers":
       key: "p"
       modifier: "shift"
       read_only: true
       helptext: "List providers"
       widget: "windowwidget"
-      title: "Providers:"
-      itemgetter: "get_list_fields"
-      itemgetter_args:
-        path: "spec#providers"
-        fields:
-          - "name"
+      widget_args:
+        title: "Providers:"
+        itemgetter: "get_list_fields"
+        itemgetter_args:
+          path: "spec#providers"
+          fields:
+            - "name"

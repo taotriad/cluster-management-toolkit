@@ -168,25 +168,27 @@ infoview:
       read_only: true
       helptext: "Show label selector"
       widget: "windowwidget"
-      title: "Label Selector:"
-      headers: ["Key:", "Value:"]
-      itemgetter: "get_key_value"
-      itemgetter_args:
-        path: "spec#selector#matchLabels"
+      widget_args:
+        title: "Label Selector:"
+        headers: ["Key:", "Value:"]
+        itemgetter: "get_key_value"
+        itemgetter_args:
+          path: "spec#selector#matchLabels"
     "Unhealthy Conditions":
       key: "u"
       modifier: "shift"
       read_only: true
       helptext: "List unhealthy conditions"
       widget: "windowwidget"
-      title: "Unhealthy Conditions:"
-      headers: ["Type:", "Status:", "Timeout:"]
-      itemgetter: "get_list_fields"
-      itemgetter_args:
-        path: "spec#unhealthyConditions"
-        fields:
-          - "type"
-          - "status"
-          - "timeout"
-      # Not supported for now
-      sortcolumn: "type"
+      widget_args:
+        title: "Unhealthy Conditions:"
+        headers: ["Type:", "Status:", "Timeout:"]
+        itemgetter: "get_list_fields"
+        itemgetter_args:
+          path: "spec#unhealthyConditions"
+          fields:
+            - "type"
+            - "status"
+            - "timeout"
+        # Not supported for now
+        sortcolumn: "type"

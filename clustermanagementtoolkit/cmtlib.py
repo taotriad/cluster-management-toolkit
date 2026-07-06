@@ -57,7 +57,7 @@ def decode_value(value: str | bytes) -> tuple[str, str | bytes]:
 
     if vtype == "base64":
         try:
-            tmp = decoded.decode("utf-8", errors="replace")
+            tmp = decoded.decode("utf-8", errors="strict")
             if "\n" in tmp:
                 vtype = "base64-utf-8"
             else:
@@ -1607,10 +1607,15 @@ def check_allowlist(allowlist: dict, allowlist_name: str, value: Any | None,
     """
     if value is None and allow_none:
         return None
+
+    if callable(value) and value.__name__ in allowlist.keys():
+        return value
+
     if value not in allowlist.keys() and exit_on_fail:
         allowed_values = ""
         if allowlist.keys():
             allowed_values = "\n- " + "\n- ".join(allowlist.keys())
         sys.exit(f"“{value}“ is not in “{allowlist_name}“; "
                  f"allowed values:{allowed_values}\nAborting.")
+
     return allowlist.get(value, default)

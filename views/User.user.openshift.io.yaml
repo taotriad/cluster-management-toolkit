@@ -56,13 +56,14 @@ infoview:
       read_only: true
       helptext: "List Identitites"
       widget: "windowwidget"
-      title: "Identities:"
-      selectable: true
-      itemgetter: "get_list_as_list"
-      itemgetter_args:
-        paths: ["identities"]
-      # Not supported for now
-      sortcolumn: "identities"
+      widget_args:
+        title: "Identities:"
+        selectable: true
+        itemgetter: "get_list_as_list"
+        itemgetter_args:
+          paths: ["identities"]
+        # Not supported for now
+        sortcolumn: "identities"
       action: "call"
       action_call: "resourceinfodispatch_with_lookup"
       action_args:

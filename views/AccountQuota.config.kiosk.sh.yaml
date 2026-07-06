@@ -72,16 +72,17 @@ infoview:
       read_only: true
       helptext: "List Spaces"
       widget: "windowwidget"
-      title: "Spaces:"
-      headers: ["Name:"]
-      selectable: true
-      itemgetter: "get_list_fields"
-      itemgetter_args:
-        path: "status#namespaces"
-        fields:
-          - "name"
-      # Not supported for now
-      sortcolumn: "name"
+      widget_args:
+        title: "Spaces:"
+        headers: ["Name:"]
+        selectable: true
+        itemgetter: "get_list_fields"
+        itemgetter_args:
+          path: "status#namespaces"
+          fields:
+            - "name"
+        # Not supported for now
+        sortcolumn: "name"
       action: "call"
       action_call: "resourceinfodispatch_with_lookup"
       action_args:

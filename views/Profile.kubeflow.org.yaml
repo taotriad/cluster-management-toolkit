@@ -66,8 +66,9 @@ infoview:
       read_only: true
       helptext: "Show Resource Quotas"
       widget: "windowwidget"
-      title: "Resource Quotas:"
-      itemgetter: "get_key_value"
-      itemgetter_args:
-        path: "spec#resourceQuotaSpec#hard"
-      formatting: [["windowwidget", "default"], ["windowwidget", "highlight"]]
+      widget_args:
+        title: "Resource Quotas:"
+        itemgetter: "get_key_value"
+        itemgetter_args:
+          path: "spec#resourceQuotaSpec#hard"
+        formatting: [["windowwidget", "default"], ["windowwidget", "highlight"]]

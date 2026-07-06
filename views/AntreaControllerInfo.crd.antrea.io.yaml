@@ -156,13 +156,14 @@ infoview:
       helptext: "Show resource conditions"
       read_only: true
       widget: "windowwidget"
-      title: "Conditions:"
-      headers: ["Type:", "Status:", "Last Heartbeat:"]
-      itemgetter: "get_list_fields"
-      itemgetter_args:
-        path: "controllerConditions"
-        fields:
-          - "type"
-          - "status"
-          - "lastHeartbeatTime"
-        override_types: ["", "", "timestamp"]
+      widget_args:
+        title: "Conditions:"
+        headers: ["Type:", "Status:", "Last Heartbeat:"]
+        itemgetter: "get_list_fields"
+        itemgetter_args:
+          path: "controllerConditions"
+          fields:
+            - "type"
+            - "status"
+            - "lastHeartbeatTime"
+          override_types: ["", "", "timestamp"]

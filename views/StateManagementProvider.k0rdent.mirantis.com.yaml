@@ -485,11 +485,12 @@ infoview:
       read_only: true
       helptext: "Show label selector"
       widget: "windowwidget"
-      title: "Label Selector:"
-      headers: ["Key:", "Value:"]
-      itemgetter: "get_key_value"
-      itemgetter_args:
-        path: "spec#selector#matchLabels"
+      widget_args:
+        title: "Label Selector:"
+        headers: ["Key:", "Value:"]
+        itemgetter: "get_key_value"
+        itemgetter_args:
+          path: "spec#selector#matchLabels"
     "Open Adapter Reference":
       key: "r"
       modifier: "shift"
@@ -509,12 +510,13 @@ infoview:
       read_only: true
       helptext: "List provisioner CRDs"
       widget: "windowwidget"
-      title: "Provisioner CRDs:"
-      headers: ["Group:", "Version:", "Resources:"]
-      itemgetter: "get_list_fields"
-      itemgetter_args:
-        path: "spec#provisionerCRDs"
-        fields:
-          - "group"
-          - "version"
-          - "resources"
+      widget_args:
+        title: "Provisioner CRDs:"
+        headers: ["Group:", "Version:", "Resources:"]
+        itemgetter: "get_list_fields"
+        itemgetter_args:
+          path: "spec#provisionerCRDs"
+          fields:
+            - "group"
+            - "version"
+            - "resources"

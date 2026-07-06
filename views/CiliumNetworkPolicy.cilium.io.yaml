@@ -163,22 +163,24 @@ infoview:
       read_only: true
       helptext: "Show Endpoint label selector"
       widget: "windowwidget"
-      title: "Endpoint Label Selector:"
-      headers: ["Key:", "Value:"]
-      itemgetter: "get_key_value"
-      itemgetter_args:
-        path: "spec#endpointSelector#matchLabels"
+      widget_args:
+        title: "Endpoint Label Selector:"
+        headers: ["Key:", "Value:"]
+        itemgetter: "get_key_value"
+        itemgetter_args:
+          path: "spec#endpointSelector#matchLabels"
     "Node Label Selector":
       key: "s"
       modifier: "shift"
       read_only: true
       helptext: "Show node label selector"
       widget: "windowwidget"
-      title: "Node Label Selector:"
-      headers: ["Key:", "Value:"]
-      itemgetter: "get_key_value"
-      itemgetter_args:
-        path: "spec#nodeSelectors#matchLabels"
+      widget_args:
+        title: "Node Label Selector:"
+        headers: ["Key:", "Value:"]
+        itemgetter: "get_key_value"
+        itemgetter_args:
+          path: "spec#nodeSelectors#matchLabels"
     "View Egress Rules":
       key: "e"
       modifier: "shift"

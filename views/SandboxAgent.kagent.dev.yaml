@@ -145,34 +145,37 @@ infoview:
       read_only: true
       helptext: "Show allowed Namespaces label selector"
       widget: "windowwidget"
-      title: "Allowed Namespaces Label Selector:"
-      headers: ["Key:", "Value:"]
-      itemgetter: "get_key_value"
-      itemgetter_args:
-        path: "spec#allowedNamespaces#selector#matchLabels"
+      widget_args:
+        title: "Allowed Namespaces Label Selector:"
+        headers: ["Key:", "Value:"]
+        itemgetter: "get_key_value"
+        itemgetter_args:
+          path: "spec#allowedNamespaces#selector#matchLabels"
     "List Allowed Domains":
       key: "d"
       modifier: "shift"
       read_only: true
       helptext: "List allowed domains"
       widget: "windowwidget"
-      title: "Allowed Domains:"
-      itemgetter: "get_list_as_list"
-      itemgetter_args:
-        path: "spec#sandbox#network#allowedDomains"
-      # Not supported for now
-      sortcolumn: "domains"
+      widget_args:
+        title: "Allowed Domains:"
+        itemgetter: "get_list_as_list"
+        itemgetter_args:
+          path: "spec#sandbox#network#allowedDomains"
+        # Not supported for now
+        sortcolumn: "domains"
     "List References":
       key: "f"
       read_only: true
       helptext: "List references"
       widget: "windowwidget"
-      title: "References:"
-      itemgetter: "get_list_as_list"
-      itemgetter_args:
-        path: "spec#skills#refs"
-      # Not supported for now
-      sortcolumn: "reference"
+      widget_args:
+        title: "References:"
+        itemgetter: "get_list_as_list"
+        itemgetter_args:
+          path: "spec#skills#refs"
+        # Not supported for now
+        sortcolumn: "reference"
     "Open Model Config":
       key: "c"
       modifier: "shift"
@@ -183,5 +186,6 @@ infoview:
       action_args:
         _pass_obj: true
         kind: "ModelConfig"
+        api_family: "kagent.dev"
         name_path: "spec#declarative#modelConfig"
         namespace_path: "metadata#namespace"

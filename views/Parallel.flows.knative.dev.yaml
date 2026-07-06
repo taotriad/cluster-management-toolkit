@@ -294,30 +294,31 @@ infoview:
       read_only: true
       helptext: "Show branch statuses"
       widget: "windowwidget"
-      title: "Branch Statuses:"
-      selectable: true
-      headers: ["Kind:", "API-Version:", "Namespace:", "Name:", "Ready:"]
-      itemgetter: "get_list_fields"
-      itemgetter_args:
-        path: "status#branchStatuses"
-        nested_fields:
-          - ["filterChannelStatus#channel#kind",
-             "filterChannelStatus#channel#apiVersion",
-             "filterChannelStatus#channel#namespace",
-             "filterChannelStatus#channel#name",
-             "filterChannelStatus#ready#status"]
-          - ["filterSubscriptionStatus#subscription#kind",
-             "filterSubscriptionStatus#subscription#apiVersion",
-             "filterSubscriptionStatus#subscription#namespace",
-             "filterSubscriptionStatus#subscription#name",
-             "filterSubscriptionStatus#ready#status"]
-          - ["subscriberSubscriptionStatus#subscription#kind",
-             "subscriberSubscriptionStatus#subscription#apiVersion",
-             "subscriberSubscriptionStatus#subscription#namespace",
-             "subscriberSubscriptionStatus#subscription#name",
-             "subscriberSubscriptionStatus#ready#status"]
-      # This isn't supported for now
-      sortcolumn: "namespace"
+      widget_args:
+        title: "Branch Statuses:"
+        headers: ["Kind:", "API-Version:", "Namespace:", "Name:", "Ready:"]
+        selectable: true
+        itemgetter: "get_list_fields"
+        itemgetter_args:
+          path: "status#branchStatuses"
+          nested_fields:
+            - ["filterChannelStatus#channel#kind",
+               "filterChannelStatus#channel#apiVersion",
+               "filterChannelStatus#channel#namespace",
+               "filterChannelStatus#channel#name",
+               "filterChannelStatus#ready#status"]
+            - ["filterSubscriptionStatus#subscription#kind",
+               "filterSubscriptionStatus#subscription#apiVersion",
+               "filterSubscriptionStatus#subscription#namespace",
+               "filterSubscriptionStatus#subscription#name",
+               "filterSubscriptionStatus#ready#status"]
+            - ["subscriberSubscriptionStatus#subscription#kind",
+               "subscriberSubscriptionStatus#subscription#apiVersion",
+               "subscriberSubscriptionStatus#subscription#namespace",
+               "subscriberSubscriptionStatus#subscription#name",
+               "subscriberSubscriptionStatus#ready#status"]
+        # This isn't supported for now
+        sortcolumn: "namespace"
       action: "call"
       action_call: "resourceinfodispatch_with_lookup"
       action_args:

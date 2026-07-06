@@ -203,32 +203,35 @@ infoview:
       helptext: "Show resource conditions"
       read_only: true
       widget: "windowwidget"
-      title: "Conditions:"
-      headers: ["Type:", "Status:", "Last Heartbeat:"]
-      itemgetter: "get_list_fields"
-      itemgetter_args:
-        path: "agentConditions"
-        fields:
-          - "type"
-          - "status"
-          - "lastHeartbeatTime"
-        override_types: ["", "", "timestamp"]
+      widget_args:
+        title: "Conditions:"
+        headers: ["Type:", "Status:", "Last Heartbeat:"]
+        itemgetter: "get_list_fields"
+        itemgetter_args:
+          path: "agentConditions"
+          fields:
+            - "type"
+            - "status"
+            - "lastHeartbeatTime"
+          override_types: ["", "", "timestamp"]
     "Show Node subnets":
       key: "s"
       read_only: true
       helptext: "List Node subnets"
       widget: "windowwidget"
-      title: "Node subnets:"
-      itemgetter: "get_list_as_list"
-      itemgetter_args:
-        path: "nodeSubnets"
+      widget_args:
+        title: "Node subnets:"
+        itemgetter: "get_list_as_list"
+        itemgetter_args:
+          path: "nodeSubnets"
     "Show Transport Interface IPs":
       key: "t"
       modifier: "shift"
       read_only: true
       helptext: "List transport interface IPS"
       widget: "windowwidget"
-      title: "Transport Interface IPs:"
-      itemgetter: "get_list_as_list"
-      itemgetter_args:
-        path: "networkInfo#transportInterfaceIPs"
+      widget_args:
+        title: "Transport Interface IPs:"
+        itemgetter: "get_list_as_list"
+        itemgetter_args:
+          path: "networkInfo#transportInterfaceIPs"

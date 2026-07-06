@@ -149,11 +149,12 @@ infoview:
       read_only: true
       helptext: "Show namespace label selector"
       widget: "windowwidget"
-      title: "Namespace Label Selector:"
-      headers: ["Key:", "Value:"]
-      itemgetter: "get_key_value"
-      itemgetter_args:
-        path: "spec#selector#matchLabels"
+      widget_args:
+        title: "Namespace Label Selector:"
+        headers: ["Key:", "Value:"]
+        itemgetter: "get_key_value"
+        itemgetter_args:
+          path: "spec#selector#matchLabels"
     "Service Account":
       key: "s"
       modifier: "shift"
@@ -171,13 +172,14 @@ infoview:
       read_only: true
       helptext: "List Namespaces"
       widget: "windowwidget"
-      title: "Namespaces:"
-      selectable: true
-      itemgetter: "get_list_as_list"
-      itemgetter_args:
-        paths: ["status#namespaces"]
-      # Not supported for now
-      sortcolumn: "namespace"
+      widget_args:
+        title: "Namespaces:"
+        selectable: true
+        itemgetter: "get_list_as_list"
+        itemgetter_args:
+          paths: ["status#namespaces"]
+        # Not supported for now
+        sortcolumn: "namespace"
       action: "call"
       action_call: "resourceinfodispatch_with_lookup"
       action_args:
@@ -189,13 +191,14 @@ infoview:
       read_only: true
       helptext: "List target Namespaces"
       widget: "windowwidget"
-      title: "Target Namespaces:"
-      selectable: true
-      itemgetter: "get_list_as_list"
-      itemgetter_args:
-        paths: ["spec#targetNamespaces"]
-      # Not supported for now
-      sortcolumn: "namespace"
+      widget_args:
+        title: "Target Namespaces:"
+        selectable: true
+        itemgetter: "get_list_as_list"
+        itemgetter_args:
+          paths: ["spec#targetNamespaces"]
+        # Not supported for now
+        sortcolumn: "namespace"
       action: "call"
       action_call: "resourceinfodispatch_with_lookup"
       action_args:

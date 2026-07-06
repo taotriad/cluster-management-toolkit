@@ -477,14 +477,15 @@ infoview:
       read_only: true
       helptext: "List container images on Node"
       widget: "windowwidget"
-      title: "Container images:"
-      headers: ["Name:", "Size:"]
-      itemgetter: "get_image_list"
-      itemgetter_args:
-        path: "status#images"
-      formatting: [["windowwidget", "default"], ["windowwidget", "highlight"]]
-      # Not supported for now
-      sortcolumn: "name"
+      widget_args:
+        title: "Container images:"
+        headers: ["Name:", "Size:"]
+        formatting: [["windowwidget", "default"], ["windowwidget", "highlight"]]
+        itemgetter: "get_image_list"
+        itemgetter_args:
+          path: "status#images"
+        # Not supported for now
+        sortcolumn: "name"
     "Open dnsutils Pod on Node":
       key: "n"
       modifier: "ctrl"
@@ -500,26 +501,28 @@ infoview:
       read_only: true
       helptext: "Show package versions"
       widget: "windowwidget"
-      title: "Package versions:"
-      itemgetter: "get_package_version_list"
-      itemgetter_args:
-        _slow_task_msg: "Fetching package versions..."
-        name_path: "metadata#name"
-      headers: ["Package:", "Version:"]
-      formatting: [["windowwidget", "default"], ["windowwidget", "highlight"]]
-      # Not supported for now
-      sortcolumn: "package"
+      widget_args:
+        title: "Package versions:"
+        headers: ["Package:", "Version:"]
+        formatting: [["windowwidget", "default"], ["windowwidget", "highlight"]]
+        itemgetter: "get_package_version_list"
+        itemgetter_args:
+          _slow_task_msg: "Fetching package versions..."
+          name_path: "metadata#name"
+        # Not supported for now
+        sortcolumn: "package"
     "Show Resources":
       key: "r"
       modifier: "shift"
       read_only: true
       helptext: "Show resources"
       widget: "windowwidget"
-      title: "Resources:"
-      itemgetter: "get_resource_list"
-      headers: ["Resource:", "Allocatable:", "Capacity:"]
-      formatting: [["windowwidget", "default"],
-                   ["windowwidget", "highlight"],
-                   ["windowwidget", "highlight"]]
-      # Not supported for now
-      sortcolumn: "resource"
+      widget_args:
+        title: "Resources:"
+        headers: ["Resource:", "Allocatable:", "Capacity:"]
+        formatting: [["windowwidget", "default"],
+                     ["windowwidget", "highlight"],
+                     ["windowwidget", "highlight"]]
+        itemgetter: "get_resource_list"
+        # Not supported for now
+        sortcolumn: "resource"

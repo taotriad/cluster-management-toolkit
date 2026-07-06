@@ -54,17 +54,20 @@ infoview:
       read_only: true
       helptext: "List required authentication references"
       widget: "windowwidget"
-      title: "Required Authentication References:"
-      headers: ["Kind:", "API-Family:", "Namespace:", "Name:"]
-      itemgetter: "get_list_fields"
-      itemgetter_args:
-        path: "spec#requiredAuthenticationRefs"
-        fields:
-          - "kind"
-          - "group"
-          - "namespace"
-          - "name"
-      selectable: true
+      widget_args:
+        title: "Required Authentication References:"
+        headers: ["Kind:", "API-Family:", "Namespace:", "Name:"]
+        selectable: true
+        itemgetter: "get_list_fields"
+        itemgetter_args:
+          path: "spec#requiredAuthenticationRefs"
+          fields:
+            - "kind"
+            - "group"
+            - "namespace"
+            - "name"
+        # This isn't supported for now
+        sortcolumn: "kind"
       action: "call"
       action_call: "resourceinfodispatch_with_lookup"
       action_args:
@@ -73,8 +76,6 @@ infoview:
         namespace_path: 2
         _parent_namespace_path: "metadata#namespace"
         name_path: 3
-      # This isn't supported for now
-      sortcolumn: "kind"
     "Open Target Reference":
       key: "t"
       modifier: "shift"

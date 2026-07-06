@@ -9,22 +9,17 @@
 YAML I/O helpers
 """
 
+from collections.abc import Generator
 import io
 import json
 import sys
 from typing import Any
-from collections.abc import Generator
-# ujson is much faster than json, but it might not be available
-try:
-    import ujson
-    has_ujson = True  # pylint: disable=invalid-name
-except ModuleNotFoundError:
-    has_ujson = False  # pylint: disable=invalid-name
 try:
     import yaml
 except ModuleNotFoundError:  # pragma: no cover
     sys.exit("ModuleNotFoundError: Could not import yaml; "
              "you may need to (re-)run `cmt-install.py` or `pip3 install PyYAML`; aborting.")
+
 try:
     import ruyaml
     ryaml = ruyaml.YAML()
@@ -38,6 +33,13 @@ except ModuleNotFoundError:  # pragma: no cover
         sys.exit("ModuleNotFoundError: Could not import ruyaml/ruamel.yaml; "
                  "you may need to (re-)run `cmt-install.py` or `pip3 install ruyaml/ruamel.yaml`; "
                  "aborting.")
+
+# ujson is much faster than json, but it might not be available
+try:
+    import ujson
+    has_ujson = True  # pylint: disable=invalid-name
+except ModuleNotFoundError:
+    has_ujson = False  # pylint: disable=invalid-name
 
 from clustermanagementtoolkit import cmtio
 

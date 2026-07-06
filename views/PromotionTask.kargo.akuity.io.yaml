@@ -104,15 +104,16 @@ infoview:
       read_only: true
       helptext: "List vars"
       widget: "windowwidget"
-      title: "Vars:"
-      headers: ["Name:", "Value:"]
-      itemgetter: "get_list_fields"
-      itemgetter_args:
-        path: "spec#vars"
-        fields:
-          - "name"
-          - "value"
-      formatting: [["windowwidget", "default"],
-                   ["windowwidget", "highlight"]]
-      # Not supported for now
-      sortcolumn: "value"
+      widget_args:
+        title: "Vars:"
+        headers: ["Name:", "Value:"]
+        itemgetter: "get_list_fields"
+        itemgetter_args:
+          path: "spec#vars"
+          fields:
+            - "name"
+            - "value"
+        formatting: [["windowwidget", "default"],
+                     ["windowwidget", "highlight"]]
+        # Not supported for now
+        sortcolumn: "value"

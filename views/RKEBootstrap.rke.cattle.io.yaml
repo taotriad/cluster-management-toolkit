@@ -18,7 +18,8 @@ listview:
       formatter: "address"
     ready:
       header: "Ready:"
-      path: "status#ready"
+      path: "status#initialization#dataSecretCreated"
+      default: "<unset>"
       type: "str"
       formatter: "value_mapper"
       formatting:
@@ -61,7 +62,8 @@ infoview:
         formatter: "address"
       ready:
         header: [["Ready:", ["main", "infoheader"]]]
-        path: "status#ready"
+        path: "status#initialization#dataSecretCreated"
+        default: "<unset>"
         type: "str"
         formatter: "value_mapper"
         formatting:

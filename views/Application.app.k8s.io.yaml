@@ -149,46 +149,50 @@ infoview:
       read_only: true
       helptext: "Show description"
       widget: "windowwidget"
-      title: "Description:"
-      itemgetter: "get_strings_from_string"
-      itemgetter_args:
-        path: "spec#descriptor#description"
+      widget_args:
+        title: "Description:"
+        itemgetter: "get_strings_from_string"
+        itemgetter_args:
+          path: "spec#descriptor#description"
     "Links":
       key: "k"
       helptext: "Show links"
       read_only: true
       widget: "windowwidget"
-      title: "Links:"
-      headers: ["Description:", "URL:"]
-      itemgetter: "get_list_fields"
-      itemgetter_args:
-        path: "spec#descriptor#links"
-        fields:
-          - "description"
-          - "url"
+      widget_args:
+        title: "Links:"
+        headers: ["Description:", "URL:"]
+        itemgetter: "get_list_fields"
+        itemgetter_args:
+          path: "spec#descriptor#links"
+          fields:
+            - "description"
+            - "url"
     "Maintainers":
       key: "m"
       helptext: "Show maintainers"
       read_only: true
       widget: "windowwidget"
-      title: "Maintainers:"
-      headers: ["Name:", "E-mail:"]
-      itemgetter: "get_list_fields"
-      itemgetter_args:
-        path: "spec#descriptor#maintainers"
-        fields:
-          - "name"
-          - "email"
+      widget_args:
+        title: "Maintainers:"
+        headers: ["Name:", "E-mail:"]
+        itemgetter: "get_list_fields"
+        itemgetter_args:
+          path: "spec#descriptor#maintainers"
+          fields:
+            - "name"
+            - "email"
     "Owners":
       key: "o"
       helptext: "Show owners"
       read_only: true
       widget: "windowwidget"
-      title: "Owners:"
-      headers: ["Name:", "E-mail:"]
-      itemgetter: "get_list_fields"
-      itemgetter_args:
-        path: "spec#descriptor#owners"
-        fields:
-          - "name"
-          - "email"
+      widget_args:
+        title: "Owners:"
+        headers: ["Name:", "E-mail:"]
+        itemgetter: "get_list_fields"
+        itemgetter_args:
+          path: "spec#descriptor#owners"
+          fields:
+            - "name"
+            - "email"

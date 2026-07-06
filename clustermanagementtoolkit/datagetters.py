@@ -10,9 +10,9 @@ Datagetters are used for data extraction that is too complex
 to be expressed through parameters to generic_infogetter()
 """
 
+from collections.abc import Callable
 import re
 from typing import Any
-from collections.abc import Callable
 
 from clustermanagementtoolkit.cmtlib import get_since, timestamp_to_datetime
 

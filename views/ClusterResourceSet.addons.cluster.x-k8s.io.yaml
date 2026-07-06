@@ -63,27 +63,29 @@ infoview:
       read_only: true
       helptext: "Show cluster label selector"
       widget: "windowwidget"
-      title: "Cluster Label Selector:"
-      headers: ["Key:", "Value:"]
-      itemgetter: "get_key_value"
-      itemgetter_args:
-        path: "spec#clusterSelector#matchLabels"
+      widget_args:
+        title: "Cluster Label Selector:"
+        headers: ["Key:", "Value:"]
+        itemgetter: "get_key_value"
+        itemgetter_args:
+          path: "spec#clusterSelector#matchLabels"
     "List Resources":
       key: "r"
       modifier: "shift"
       read_only: true
       helptext: "List sesources"
       widget: "windowwidget"
-      title: "Resources:"
-      itemgetter: "get_list_fields"
-      itemgetter_args:
-        path: "spec#resources"
-        fields:
-          - "kind"
-          - "name"
-      # This isn't supported for now
-      sortcolumn: "kind"
-      selectable: true
+      widget_args:
+        title: "Resources:"
+        selectable: true
+        itemgetter: "get_list_fields"
+        itemgetter_args:
+          path: "spec#resources"
+          fields:
+            - "kind"
+            - "name"
+        # This isn't supported for now
+        sortcolumn: "kind"
       action: "call"
       action_call: "resourceinfodispatch_with_lookup"
       action_args:

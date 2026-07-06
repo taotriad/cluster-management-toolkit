@@ -270,20 +270,22 @@ infoview:
       read_only: true
       helptext: "Show external identifiers"
       widget: "windowwidget"
-      title: "External identifiers:"
-      itemgetter: "get_key_value"
-      itemgetter_args:
-        path: "status#external-identifiers"
+      widget_args:
+        title: "External identifiers:"
+        itemgetter: "get_key_value"
+        itemgetter_args:
+          path: "status#external-identifiers"
     "Show Cilium Identity Labels":
       key: "i"
       modifier: "shift"
       read_only: true
       helptext: "Show Cilium Identity labels"
       widget: "windowwidget"
-      title: "Identity Labels:"
-      itemgetter: "get_list_as_list"
-      itemgetter_args:
-        path: "status#identity#labels"
+      widget_args:
+        title: "Identity Labels:"
+        itemgetter: "get_list_as_list"
+        itemgetter_args:
+          path: "status#identity#labels"
     "Pod":
       key: "p"
       modifier: "shift"
@@ -302,12 +304,13 @@ infoview:
       read_only: true
       helptext: "Show named ports"
       widget: "windowwidget"
-      title: "Named Ports:"
-      headers: ["Name:", "Port:", "Protocol:"]
-      itemgetter: "get_list_fields"
-      itemgetter_args:
-        path: "status#named-ports"
-        fields:
-          - "name"
-          - "port"
-          - "protocol"
+      widget_args:
+        title: "Named Ports:"
+        headers: ["Name:", "Port:", "Protocol:"]
+        itemgetter: "get_list_fields"
+        itemgetter_args:
+          path: "status#named-ports"
+          fields:
+            - "name"
+            - "port"
+            - "protocol"

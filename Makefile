@@ -77,8 +77,10 @@ python_unit_tests = \
 # Hence we we need to ignore one of those warnings.
 # flake8 doesn't give sensible suggestions when using modern style union
 # type annotations, so disable E126 and E127.
+# H301 is about multiple imports per line, which is a stupid warning.
+# H404 and H405 is about docstring formatting that we'll ignore.
 # Finally it seems flake8 doesn't seem to recognise when globals are used.
-FLAKE8_IGNORE := F841,W503,F824,E126,E127
+FLAKE8_IGNORE := F841,W503,F824,E126,E127,H301,H404,H405
 
 # Used by ruff to check for future and/or deprecated features
 RUFF_PYTHON_VERSION := py311
@@ -174,10 +176,10 @@ coverage-ansible: setup_tests
 		exit 0; \
 	fi; \
 	printf -- "\n\nRunning $$cmd to check test coverage\n" ;\
-	printf -- "\n\n  Running: tests/cmtlibtests --include-ansible\n\n" ;\
-	$$cmd run --branch --append tests/cmtlibtests --include-ansible || exit 1 ;\
-	printf -- "\n\n  Running: tests/ansibletests\n\n" ;\
-	$$cmd run --branch --append tests/ansibletests || exit 1 ;\
+	printf -- "\n\n  Running: tests/cmtlibtests.py --include-ansible\n\n" ;\
+	$$cmd run --branch --append tests/cmtlibtests.py --include-ansible || exit 1 ;\
+	printf -- "\n\n  Running: tests/ansibletests.py\n\n" ;\
+	$$cmd run --branch --append tests/ansibletests.py || exit 1 ;\
 	$$cmd report --sort cover --precision 1 ;\
 	$$cmd html --precision 1 ;\
 	$$cmd json
@@ -194,18 +196,18 @@ coverage-cluster: setup_tests
 		exit 0; \
 	fi; \
 	printf -- "\n\nRunning $$cmd to check test coverage\n" ;\
-	printf -- "\n\n  Running: tests/async_fetch\n\n" ;\
-	$$cmd run --branch --append tests/async_fetch || exit 1 ;\
-	printf -- "\n\n  Running: tests/dgtests --include-cluster\n\n" ;\
-	$$cmd run --branch --append tests/dgtests --include-cluster || exit 1 ;\
-	printf -- "\n\n  Running: tests/fgtests --include-cluster\n\n" ;\
-	$$cmd run --branch --append tests/fgtests --include-cluster || exit 1 ;\
-	printf -- "\n\n  Running: tests/lgtests --include-cluster\n\n" ;\
-	$$cmd run --branch --append tests/lgtests --include-cluster || exit 1 ;\
-	printf -- "\n\n  Running: tests/khtests --include-cluster\n\n" ;\
-	$$cmd run --branch --append tests/khtests --include-cluster || exit 1 ;\
-	printf -- "\n\n  Running: tests/itemgtests --include-cluster\n\n" ;\
-	$$cmd run --branch --append tests/itemgtests --include-cluster || exit 1 ;\
+	printf -- "\n\n  Running: tests/async_fetch.py\n\n" ;\
+	$$cmd run --branch --append tests/async_fetch.py || exit 1 ;\
+	printf -- "\n\n  Running: tests/dgtests.py --include-cluster\n\n" ;\
+	$$cmd run --branch --append tests/dgtests.py --include-cluster || exit 1 ;\
+	printf -- "\n\n  Running: tests/fgtests.py --include-cluster\n\n" ;\
+	$$cmd run --branch --append tests/fgtests.py --include-cluster || exit 1 ;\
+	printf -- "\n\n  Running: tests/lgtests.py --include-cluster\n\n" ;\
+	$$cmd run --branch --append tests/lgtests.py --include-cluster || exit 1 ;\
+	printf -- "\n\n  Running: tests/khtests.py --include-cluster\n\n" ;\
+	$$cmd run --branch --append tests/khtests.py --include-cluster || exit 1 ;\
+	printf -- "\n\n  Running: tests/itemgtests.py --include-cluster\n\n" ;\
+	$$cmd run --branch --append tests/itemgtests.py --include-cluster || exit 1 ;\
 	$$cmd report --sort cover --precision 1 ;\
 	$$cmd html --precision 1 ;\
 	$$cmd json

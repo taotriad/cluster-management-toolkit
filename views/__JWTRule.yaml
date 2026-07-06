@@ -136,53 +136,57 @@ infoview:
       read_only: true
       helptext: "List audiences"
       widget: "windowwidget"
-      title: "Audiences:"
-      itemgetter: "get_list_as_list"
-      itemgetter_args:
-        path: "audiences"
-      # This isn't supported for now
-      sortcolumn: "audiences"
+      widget_args:
+        title: "Audiences:"
+        itemgetter: "get_list_as_list"
+        itemgetter_args:
+          path: "audiences"
+        # This isn't supported for now
+        sortcolumn: "audiences"
     "From Cookies":
       key: "c"
       modifier: "shift"
       read_only: true
       helptext: "List From cookies"
       widget: "windowwidget"
-      title: "From Cookies:"
-      itemgetter: "get_list_as_list"
-      itemgetter_args:
-        path: "fromCookies"
-      # This isn't supported for now
-      sortcolumn: "from_cookies"
+      widget_args:
+        title: "From Cookies:"
+        itemgetter: "get_list_as_list"
+        itemgetter_args:
+          path: "fromCookies"
+        # This isn't supported for now
+        sortcolumn: "from_cookies"
     "From Headers":
       key: "f"
       modifier: "shift"
       read_only: true
       helptext: "List From headers"
       widget: "windowwidget"
-      title: "From Headers:"
-      headers: ["Name:", "Prefix:"]
-      itemgetter: "get_list_fields"
-      itemgetter_args:
-        path: "fromHeaders"
-        fields:
-          - "name"
-          - name: "prefix"
-            quote: true
-      # This isn't supported for now
-      sortcolumn: "name"
+      widget_args:
+        title: "From Headers:"
+        headers: ["Name:", "Prefix:"]
+        itemgetter: "get_list_fields"
+        itemgetter_args:
+          path: "fromHeaders"
+          fields:
+            - "name"
+            - name: "prefix"
+              quote: true
+        # This isn't supported for now
+        sortcolumn: "name"
     "From Params":
       key: "p"
       modifier: "shift"
       read_only: true
       helptext: "List From params"
       widget: "windowwidget"
-      title: "From Params:"
-      itemgetter: "get_list_as_list"
-      itemgetter_args:
-        path: "fromParams"
-      # This isn't supported for now
-      sortcolumn: "from_params"
+      widget_args:
+        title: "From Params:"
+        itemgetter: "get_list_as_list"
+        itemgetter_args:
+          path: "fromParams"
+        # This isn't supported for now
+        sortcolumn: "from_params"
     "View JSON Web Key Set":
       key: "j"
       modifier: "shift"
@@ -200,14 +204,15 @@ infoview:
       read_only: true
       helptext: "List output claim to headers"
       widget: "windowwidget"
-      title: "Output Claim to Headers:"
-      headers: ["Header:", "Claim:"]
-      itemgetter: "get_list_fields"
-      itemgetter_args:
-        path: "outputClaimToHeaders"
-        fields:
-          - "header"
-          - name: "claim"
-            quote: true
-      # This isn't supported for now
-      sortcolumn: "header"
+      widget_args:
+        title: "Output Claim to Headers:"
+        headers: ["Header:", "Claim:"]
+        itemgetter: "get_list_fields"
+        itemgetter_args:
+          path: "outputClaimToHeaders"
+          fields:
+            - "header"
+            - name: "claim"
+              quote: true
+        # This isn't supported for now
+        sortcolumn: "header"

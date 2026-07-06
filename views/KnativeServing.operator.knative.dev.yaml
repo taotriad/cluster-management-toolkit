@@ -12,7 +12,7 @@ listview:
   group: "Knative"
   field_indexes:
     Normal:
-      fields: ["namespace", "name", "version", "age", "ready", "reason"]
+      fields: ["namespace", "name", "version", "age", "ready"]
       sortcolumn: "namespace"
   fields:
     ready:
@@ -42,28 +42,6 @@ listview:
               field_colors:
                 - context: "types"
                   type: "unset"
-    reason:
-      header: "Reason:"
-      paths:
-        - path: "status#conditions"
-          pathtype: "items"
-          subpath: "message"
-          when:
-            - key: "type"
-              eq: "Ready"
-      type: "str"
-      formatter: "value_mapper"
-      formatting:
-        mapping:
-          mappings:
-            "True":
-              field_colors:
-                - context: "main"
-                  type: "status_ok"
-            "False":
-              field_colors:
-                - context: "main"
-                  type: "status_not_ok"
     version:
       header: "Version:"
       path: "status#version"
@@ -77,7 +55,7 @@ infoview:
   infopad:
     row_indexes:
       Normal:
-        fields: ["version", "ready", "reason"]
+        fields: ["version", "ready"]
     rows:
       ready:
         header: [["Ready:", ["main", "infoheader"]]]
@@ -106,17 +84,6 @@ infoview:
                 field_colors:
                   - context: "types"
                     type: "unset"
-      reason:
-        header: [["Reason:", ["main", "infoheader"]]]
-        paths:
-          - path: "status#conditions"
-            pathtype: "items"
-            subpath: "message"
-            when:
-              - key: "type"
-                eq: "Ready"
-        type: "list"
-        formatter: "list"
       version:
         header: [["Version:", ["main", "infoheader"]]]
         path: "status#version"
@@ -131,9 +98,10 @@ infoview:
       read_only: true
       helptext: "List manifests"
       widget: "windowwidget"
-      headers: ["Path:"]
-      itemgetter: "get_list_as_list"
-      itemgetter_args:
-        path: "status#manifests"
-      # This isn't supported for now
-      sortcolumn: "path"
+      widget_args:
+        title: "Manifests:"
+        itemgetter: "get_list_as_list"
+        itemgetter_args:
+          path: "status#manifests"
+        # This isn't supported for now
+        sortcolumn: "path"

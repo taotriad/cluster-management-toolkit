@@ -175,28 +175,30 @@ infoview:
       read_only: true
       helptext: "Show proxy settings"
       widget: "windowwidget"
-      title: "Proxy settings:"
-      headers: ["Protocol:", "URL:"]
-      itemgetter: "get_key_value"
-      itemgetter_args:
-        path: "status#importProxy"
-      # Not supported for now
-      sortcolumn: "protocol"
+      widget_args:
+        title: "Proxy settings:"
+        headers: ["Protocol:", "URL:"]
+        itemgetter: "get_key_value"
+        itemgetter_args:
+          path: "status#importProxy"
+        # Not supported for now
+        sortcolumn: "protocol"
     "Show Requests":
       key: "e"
       modifier: "shift"
       read_only: true
       helptext: "Show requests"
-      title: "Requests:"
       widget: "windowwidget"
-      headers: ["Resource:", "Request:", "Limit:"]
-      itemgetter: "get_resource_list"
-      itemgetter_args:
-        allocatable_path: "status#defaultPodResourceRequirements#requests"
-        capacity_path: "status#defaultPodResourceRequirements#limits"
-      formatting: [["windowwidget", "default"],
-                   ["windowwidget", "highlight"],
-                   ["windowwidget", "highlight"]]
-      # Not supported for now
-      # This isn't supported for now
-      sortcolumn: "requests"
+      widget_args:
+        title: "Requests:"
+        headers: ["Resource:", "Request:", "Limit:"]
+        itemgetter: "get_resource_list"
+        itemgetter_args:
+          allocatable_path: "status#defaultPodResourceRequirements#requests"
+          capacity_path: "status#defaultPodResourceRequirements#limits"
+        formatting: [["windowwidget", "default"],
+                     ["windowwidget", "highlight"],
+                     ["windowwidget", "highlight"]]
+        # Not supported for now
+        # This isn't supported for now
+        sortcolumn: "requests"

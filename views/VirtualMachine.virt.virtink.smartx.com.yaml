@@ -131,11 +131,12 @@ infoview:
       read_only: true
       helptext: "Show affinities"
       widget: "windowwidget"
-      headers: ["Type:", "Scheduling:", "Execution:",
-                "Selector:", "Topology:"]
-      itemgetter: "get_affinity"
-      # This isn't supported for now
-      sortcolumn: "type"
+      widget_args:
+        headers: ["Type:", "Scheduling:", "Execution:",
+                  "Selector:", "Topology:"]
+        itemgetter: "get_affinity"
+        # This isn't supported for now
+        sortcolumn: "type"
     "Open Node":
       key: "d"
       read_only: true
@@ -163,103 +164,104 @@ infoview:
       read_only: false
       helptext: "Power actions"
       widget: "windowwidget"
-      title: "Power Actions:"
-      headers: ["Action:", "Description:"]
-      selectable: true
+      widget_args:
+        title: "Power Actions:"
+        headers: ["Action:", "Description:"]
+        selectable: true
+        itemgetter: "get_prepopulated_list"
+        itemgetter_args:
+          items:
+            - columns: ["Pause", "Pause a running VM"]
+              action: "call"
+              action_call: "patch_object"
+              action_args:
+                args:
+                  patch:
+                    status:
+                      powerAction: "Pause"
+                  subresource: "status"
+                name_path: "metadata#name"
+                namespace_path: "metadata#namespace"
+                kind: "VirtualMachine"
+                api_family: "virt.virtink.smartx.com"
+            - columns: ["Power Off", "Power off a running VM"]
+              action: "call"
+              action_call: "patch_object"
+              action_args:
+                args:
+                  patch:
+                    status:
+                      powerAction: "PowerOff"
+                  subresource: "status"
+                name_path: "metadata#name"
+                namespace_path: "metadata#namespace"
+                kind: "VirtualMachine"
+                api_family: "virt.virtink.smartx.com"
+            - columns: ["Power On", "Power on a powered off VM"]
+              action: "call"
+              action_call: "patch_object"
+              action_args:
+                args:
+                  patch:
+                    status:
+                      powerAction: "PowerOn"
+                  subresource: "status"
+                name_path: "metadata#name"
+                namespace_path: "metadata#namespace"
+                kind: "VirtualMachine"
+                api_family: "virt.virtink.smartx.com"
+            - columns: ["Reboot", "Reboot VM a running VM"]
+              action: "call"
+              action_call: "patch_object"
+              action_args:
+                args:
+                  patch:
+                    status:
+                      powerAction: "Reboot"
+                  subresource: "status"
+                name_path: "metadata#name"
+                namespace_path: "metadata#namespace"
+                kind: "VirtualMachine"
+                api_family: "virt.virtink.smartx.com"
+            - columns: ["Reset", "Reset a running VM"]
+              action: "call"
+              action_call: "patch_object"
+              action_args:
+                args:
+                  patch:
+                    status:
+                      powerAction: "Reset"
+                  subresource: "status"
+                name_path: "metadata#name"
+                namespace_path: "metadata#namespace"
+                kind: "VirtualMachine"
+                api_family: "virt.virtink.smartx.com"
+            - columns: ["Resume", "Resume a paused VM"]
+              action: "call"
+              action_call: "patch_object"
+              action_args:
+                args:
+                  patch:
+                    status:
+                      powerAction: "Resume"
+                  subresource: "status"
+                name_path: "metadata#name"
+                namespace_path: "metadata#namespace"
+                kind: "VirtualMachine"
+                api_family: "virt.virtink.smartx.com"
+            - columns: ["Shutdown", "Shutdown a running VM"]
+              action: "call"
+              action_call: "patch_object"
+              action_args:
+                args:
+                  patch:
+                    status:
+                      powerAction: "Shutdown"
+                  subresource: "status"
+                name_path: "metadata#name"
+                namespace_path: "metadata#namespace"
+                kind: "VirtualMachine"
+                api_family: "virt.virtink.smartx.com"
+        # Not supported for now
+        sortcolumn: "action"
       action: "from_ref"
-      itemgetter: "get_prepopulated_list"
-      itemgetter_args:
-        items:
-          - columns: ["Pause", "Pause a running VM"]
-            action: "call"
-            action_call: "patch_object"
-            action_args:
-              args:
-                patch:
-                  status:
-                    powerAction: "Pause"
-                subresource: "status"
-              name_path: "metadata#name"
-              namespace_path: "metadata#namespace"
-              kind: "VirtualMachine"
-              api_family: "virt.virtink.smartx.com"
-          - columns: ["Power Off", "Power off a running VM"]
-            action: "call"
-            action_call: "patch_object"
-            action_args:
-              args:
-                patch:
-                  status:
-                    powerAction: "PowerOff"
-                subresource: "status"
-              name_path: "metadata#name"
-              namespace_path: "metadata#namespace"
-              kind: "VirtualMachine"
-              api_family: "virt.virtink.smartx.com"
-          - columns: ["Power On", "Power on a powered off VM"]
-            action: "call"
-            action_call: "patch_object"
-            action_args:
-              args:
-                patch:
-                  status:
-                    powerAction: "PowerOn"
-                subresource: "status"
-              name_path: "metadata#name"
-              namespace_path: "metadata#namespace"
-              kind: "VirtualMachine"
-              api_family: "virt.virtink.smartx.com"
-          - columns: ["Reboot", "Reboot VM a running VM"]
-            action: "call"
-            action_call: "patch_object"
-            action_args:
-              args:
-                patch:
-                  status:
-                    powerAction: "Reboot"
-                subresource: "status"
-              name_path: "metadata#name"
-              namespace_path: "metadata#namespace"
-              kind: "VirtualMachine"
-              api_family: "virt.virtink.smartx.com"
-          - columns: ["Reset", "Reset a running VM"]
-            action: "call"
-            action_call: "patch_object"
-            action_args:
-              args:
-                patch:
-                  status:
-                    powerAction: "Reset"
-                subresource: "status"
-              name_path: "metadata#name"
-              namespace_path: "metadata#namespace"
-              kind: "VirtualMachine"
-              api_family: "virt.virtink.smartx.com"
-          - columns: ["Resume", "Resume a paused VM"]
-            action: "call"
-            action_call: "patch_object"
-            action_args:
-              args:
-                patch:
-                  status:
-                    powerAction: "Resume"
-                subresource: "status"
-              name_path: "metadata#name"
-              namespace_path: "metadata#namespace"
-              kind: "VirtualMachine"
-              api_family: "virt.virtink.smartx.com"
-          - columns: ["Shutdown", "Shutdown a running VM"]
-            action: "call"
-            action_call: "patch_object"
-            action_args:
-              args:
-                patch:
-                  status:
-                    powerAction: "Shutdown"
-                subresource: "status"
-              name_path: "metadata#name"
-              namespace_path: "metadata#namespace"
-              kind: "VirtualMachine"
-              api_family: "virt.virtink.smartx.com"
-      # Not supported for now
-      sortcolumn: "action"

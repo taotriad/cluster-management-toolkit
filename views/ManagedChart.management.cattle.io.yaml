@@ -19,6 +19,7 @@ listview:
       default: "<unset>"
       type: "str"
       formatter: "numerical"
+      align: "right"
     state:
       header: "State:"
       path: "status#display#state"
@@ -155,19 +156,20 @@ infoview:
       read_only: true
       helptext: "List compare patches"
       widget: "windowwidget"
-      title: "Compare Patches:"
-      selectable: true
-      headers: ["Kind:", "API-Version:", "Name:", "JSON Pointers:"]
-      itemgetter: "get_list_fields"
-      itemgetter_args:
-        path: "spec#diff#comparePatches"
-        fields:
-          - "kind"
-          - "apiVersion"
-          - "name"
-          - "jsonPointers"
-      # This isn't supported for now
-      sortcolumn: "kind"
+      widget_args:
+        title: "Compare Patches:"
+        headers: ["Kind:", "API-Version:", "Name:", "JSON Pointers:"]
+        selectable: true
+        itemgetter: "get_list_fields"
+        itemgetter_args:
+          path: "spec#diff#comparePatches"
+          fields:
+            - "kind"
+            - "apiVersion"
+            - "name"
+            - "jsonPointers"
+        # This isn't supported for now
+        sortcolumn: "kind"
       action: "call"
       action_call: "resourceinfodispatch_with_lookup"
       action_args:
@@ -182,18 +184,18 @@ infoview:
       read_only: true
       helptext: "List partitions"
       widget: "windowwidget"
-      title: "Partitions:"
-      selectable: true
-      headers: ["Name:", "Count:", "Max Unavailable:",
-                "Desired:", "Ready:"]
-      itemgetter: "get_list_fields"
-      itemgetter_args:
-        path: "status#partitions"
-        fields:
-          - "name"
-          - "count"
-          - "maxUnavailable"
-          - "summary#ready"
-          - "summary#desiredReady"
-      # This isn't supported for now
-      sortcolumn: "name"
+      widget_args:
+        title: "Partitions:"
+        headers: ["Name:", "Count:", "Max Unavailable:",
+                  "Desired:", "Ready:"]
+        itemgetter: "get_list_fields"
+        itemgetter_args:
+          path: "status#partitions"
+          fields:
+            - "name"
+            - "count"
+            - "maxUnavailable"
+            - "summary#ready"
+            - "summary#desiredReady"
+        # This isn't supported for now
+        sortcolumn: "name"

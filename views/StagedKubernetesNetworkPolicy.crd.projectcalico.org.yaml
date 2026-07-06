@@ -167,8 +167,9 @@ infoview:
       read_only: true
       helptext: "Show Pod label selector"
       widget: "windowwidget"
-      title: "Pod Label Selector:"
-      headers: ["Key:", "Value:"]
-      itemgetter: "get_key_value"
-      itemgetter_args:
-        path: "spec#podSelector#matchLabels"
+      widget_args:
+        title: "Pod Label Selector:"
+        headers: ["Key:", "Value:"]
+        itemgetter: "get_key_value"
+        itemgetter_args:
+          path: "spec#podSelector#matchLabels"

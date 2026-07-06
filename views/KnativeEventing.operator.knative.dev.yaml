@@ -98,9 +98,10 @@ infoview:
       read_only: true
       helptext: "List manifests"
       widget: "windowwidget"
-      headers: ["Path:"]
-      itemgetter: "get_list_as_list"
-      itemgetter_args:
-        path: "status#manifests"
-      # This isn't supported for now
-      sortcolumn: "path"
+      widget_args:
+        title: "Manifests:"
+        itemgetter: "get_list_as_list"
+        itemgetter_args:
+          path: "status#manifests"
+        # This isn't supported for now
+        sortcolumn: "path"

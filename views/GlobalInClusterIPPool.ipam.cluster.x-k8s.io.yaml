@@ -138,10 +138,11 @@ infoview:
       modifier: "shift"
       read_only: true
       helptext: "List Addreses"
-      title: "Addresses:"
       widget: "windowwidget"
-      itemgetter: "get_list_as_list"
-      itemgetter_args:
-        path: "spec#addresses"
-      # This isn't supported for now
-      sortcolumn: "name"
+      widget_args:
+        title: "Addresses:"
+        itemgetter: "get_list_as_list"
+        itemgetter_args:
+          path: "spec#addresses"
+        # This isn't supported for now
+        sortcolumn: "name"

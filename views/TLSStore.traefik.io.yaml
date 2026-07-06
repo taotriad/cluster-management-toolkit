@@ -44,14 +44,15 @@ infoview:
       read_only: true
       helptext: "List certificates"
       widget: "windowwidget"
-      title: "Certificates:"
-      selectable: true
+      widget_args:
+        title: "Certificates:"
+        selectable: true
+        itemgetter: "get_list_fields"
+        itemgetter_args:
+          path: "spec#certificates"
+          fields:
+            - "secretName"
       action: "call"
-      itemgetter: "get_list_fields"
-      itemgetter_args:
-        path: "spec#certificates"
-        fields:
-          - "secretName"
       action_call: "resourceinfodispatch_with_lookup"
       action_args:
         _pass_obj: true

@@ -14,7 +14,7 @@ listview:
       fields: ["namespace", "name", "version", "previous_version",
                "completed", "age"]
       sortcolumn: "age"
-      reversed: true
+      sortorder_reverse: true
   fields:
     completed:
       header: "Completed:"

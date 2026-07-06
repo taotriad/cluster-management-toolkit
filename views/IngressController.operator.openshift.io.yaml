@@ -134,9 +134,10 @@ infoview:
       read_only: true
       helptext: "List TLS ciphers"
       widget: "windowwidget"
-      title: "TLS Ciphers:"
-      itemgetter: "get_list_as_list"
-      itemgetter_args:
-        paths: ["status#tlsProfile#ciphers"]
-      # Not supported for now
-      sortcolumn: "cipher"
+      widget_args:
+        title: "TLS Ciphers:"
+        itemgetter: "get_list_as_list"
+        itemgetter_args:
+          paths: ["status#tlsProfile#ciphers"]
+        # Not supported for now
+        sortcolumn: "cipher"

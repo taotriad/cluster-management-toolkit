@@ -81,13 +81,14 @@ infoview:
       read_only: true
       helptext: "List extra label Namespaces"
       widget: "windowwidget"
-      title: "Extra Label Namespaces:"
-      selectable: true
-      itemgetter: "get_list_as_list"
-      itemgetter_args:
-        path: "spec#extraLabelNs"
-      # Not supported for now
-      sortcolumn: "name"
+      widget_args:
+        title: "Extra Label Namespaces:"
+        selectable: true
+        itemgetter: "get_list_as_list"
+        itemgetter_args:
+          path: "spec#extraLabelNs"
+        # Not supported for now
+        sortcolumn: "name"
       action: "call"
       action_call: "resourceinfodispatch_with_lookup"
       action_args:

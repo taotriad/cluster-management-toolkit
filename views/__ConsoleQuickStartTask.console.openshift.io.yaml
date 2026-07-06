@@ -55,17 +55,19 @@ infoview:
       read_only: true
       helptext: "Show instructions"
       widget: "windowwidget"
-      title: "Instructions:"
-      itemgetter: "get_strings_from_string"
-      itemgetter_args:
-        path: "review#instructions"
+      widget_args:
+        title: "Instructions:"
+        itemgetter: "get_strings_from_string"
+        itemgetter_args:
+          path: "review#instructions"
     "Show Failed Task Help":
       key: "f"
       modifier: "shift"
       read_only: true
       helptext: "Show failed task help"
       widget: "windowwidget"
-      title: "Failed Task Help:"
-      itemgetter: "get_strings_from_string"
-      itemgetter_args:
-        path: "review#failedTaskHelp"
+      widget_args:
+        title: "Failed Task Help:"
+        itemgetter: "get_strings_from_string"
+        itemgetter_args:
+          path: "review#failedTaskHelp"

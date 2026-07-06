@@ -133,17 +133,18 @@ infoview:
       read_only: true
       helptext: "Show Middlewares"
       widget: "windowwidget"
-      title: "Middlewares:"
-      selectable: true
-      headers: ["Namespace:", "Name:"]
-      itemgetter: "get_list_fields"
-      itemgetter_args:
-        path: "middlewares"
-        fields:
-          - "namespace"
-          - "name"
-      # This isn't supported for now
-      sortcolumn: "namespace"
+      widget_args:
+        title: "Middlewares:"
+        selectable: true
+        headers: ["Namespace:", "Name:"]
+        itemgetter: "get_list_fields"
+        itemgetter_args:
+          path: "middlewares"
+          fields:
+            - "namespace"
+            - "name"
+        # This isn't supported for now
+        sortcolumn: "namespace"
       action: "call"
       action_call: "resourceinfodispatch_with_lookup"
       action_args:

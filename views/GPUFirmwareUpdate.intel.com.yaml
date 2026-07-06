@@ -300,34 +300,37 @@ infoview:
       read_only: true
       helptext: "Show Node label selector"
       widget: "windowwidget"
-      title: "Node Label Selector:"
-      headers: ["Key:", "Value:"]
-      itemgetter: "get_key_value"
-      itemgetter_args:
-        path: "spec#nodeSelector"
+      widget_args:
+        title: "Node Label Selector:"
+        headers: ["Key:", "Value:"]
+        itemgetter: "get_key_value"
+        itemgetter_args:
+          path: "spec#nodeSelector"
     "List Firmware Images":
       key: "f"
       modifier: "shift"
       read_only: true
       helptext: "List Firmware Images"
       widget: "windowwidget"
-      title: "Firmware Images:"
-      headers: ["Type:", "Filename:"]
-      itemgetter: "get_list_fields"
-      itemgetter_args:
-        path: "spec#content#files"
-        fields:
-          - "type"
-          - "filename"
+      widget_args:
+        title: "Firmware Images:"
+        headers: ["Type:", "Filename:"]
+        itemgetter: "get_list_fields"
+        itemgetter_args:
+          path: "spec#content#files"
+          fields:
+            - "type"
+            - "filename"
     "List Status Messages":
       key: "g"
       read_only: true
       helptext: "List status messages"
       widget: "windowwidget"
-      title: "Status Messages:"
-      itemgetter: "get_list_as_list"
-      itemgetter_args:
-        path: "status#messages"
+      widget_args:
+        title: "Status Messages:"
+        itemgetter: "get_list_as_list"
+        itemgetter_args:
+          path: "status#messages"
     "Open AMC credentials Secret":
       key: "a"
       modifier: "shift"
@@ -356,9 +359,10 @@ infoview:
       key: "t"
       read_only: true
       helptext: "Show tolerations"
-      title: "Tolerations:"
       widget: "windowwidget"
-      headers: ["Key:", "Operator:", "Value:", "Effect:", "Timeout:"]
-      itemgetter: "get_tolerations"
-      # This isn't supported for now
-      sortcolumn: "key"
+      widget_args:
+        title: "Tolerations:"
+        headers: ["Key:", "Operator:", "Value:", "Effect:", "Timeout:"]
+        itemgetter: "get_tolerations"
+        # This isn't supported for now
+        sortcolumn: "key"

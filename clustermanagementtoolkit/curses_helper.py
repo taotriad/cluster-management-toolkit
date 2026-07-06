@@ -3047,9 +3047,9 @@ def get_labels(labels: dict[str, str]) -> list[dict]:
     for key, value in labels.items():
         rlabels.append({
             "lineattrs": WidgetLineAttrs.NORMAL,
-            "columns": [[ThemeStr(key, ThemeAttr("windowwidget", "highlight"))],
+            "columns": [[ThemeStr(key, ThemeAttr("windowwidget", "default"))],
                         [ThemeStr(value.replace("\n", "\\n"),
-                                  ThemeAttr("windowwidget", "default"))]],
+                                  ThemeAttr("windowwidget", "highlight"))]],
             "retval": None,
         })
     return rlabels

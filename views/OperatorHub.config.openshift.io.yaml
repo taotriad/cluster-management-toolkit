@@ -21,14 +21,15 @@ infoview:
       read_only: true
       helptext: "Show sources"
       widget: "windowwidget"
-      title: "Sources:"
-      itemgetter: "get_list_fields"
-      itemgetter_args:
-        path: "status#sources"
-        fields:
-          - "name"
-          - "status"
-          - "disabled"
-      headers: ["Name:", "Status:", "Disabled:"]
-      # Not supported for now
-      sortcolumn: "status"
+      widget_args:
+        title: "Sources:"
+        itemgetter: "get_list_fields"
+        itemgetter_args:
+          path: "status#sources"
+          fields:
+            - "name"
+            - "status"
+            - "disabled"
+        headers: ["Name:", "Status:", "Disabled:"]
+        # Not supported for now
+        sortcolumn: "status"

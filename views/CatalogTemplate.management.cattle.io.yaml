@@ -111,21 +111,22 @@ infoview:
       read_only: true
       helptext: "List versions"
       widget: "windowwidget"
-      title: "Versions:"
-      headers: ["Name:", "Version:", "Max Rancher Version:",
-                "Dir:", "External ID:", "Digest:"]
-      itemgetter: "get_list_fields"
-      itemgetter_args:
-        path: "spec#versions"
-        fields:
-          - "versionName"
-          - "version"
-          - "rancherMaxVersion"
-          - "versionDir"
-          - "externalId"
-          - "digest"
-      # Not supported for now
-      sortcolumn: "version_name"
+      widget_args:
+        title: "Versions:"
+        headers: ["Name:", "Version:", "Max Rancher Version:",
+                  "Dir:", "External ID:", "Digest:"]
+        itemgetter: "get_list_fields"
+        itemgetter_args:
+          path: "spec#versions"
+          fields:
+            - "versionName"
+            - "version"
+            - "rancherMaxVersion"
+            - "versionDir"
+            - "externalId"
+            - "digest"
+        # Not supported for now
+        sortcolumn: "version_name"
     "Open project URL":
       key: "u"
       modifier: "shift"

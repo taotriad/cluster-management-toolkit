@@ -44,14 +44,15 @@ infoview:
       read_only: true
       helptext: "List identity providers"
       widget: "windowwidget"
-      title: "Identity Providers:"
-      headers: ["Type:", "Name:", "Mapping Method:"]
-      itemgetter: "get_list_fields"
-      itemgetter_args:
-        path: "spec#identityProviders"
-        fields:
-          - "type"
-          - "name"
-          - "mappingMethod"
-      # This isn't supported for now
-      sortcolumn: "type"
+      widget_args:
+        title: "Identity Providers:"
+        headers: ["Type:", "Name:", "Mapping Method:"]
+        itemgetter: "get_list_fields"
+        itemgetter_args:
+          path: "spec#identityProviders"
+          fields:
+            - "type"
+            - "name"
+            - "mappingMethod"
+        # This isn't supported for now
+        sortcolumn: "type"

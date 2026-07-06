@@ -93,17 +93,18 @@ infoview:
       read_only: true
       helptext: "List GVKs"
       widget: "windowwidget"
-      title: "GVKs:"
-      selectable: true
-      itemgetter: "get_list_fields"
-      itemgetter_args:
-        path: "spec#clusterGVKs"
-        fields:
-          - "kind"
-          - "group"
-          - "version"
-      # Not supported for now
-      sortcolumn: "kind"
+      widget_args:
+        title: "GVKs:"
+        selectable: true
+        itemgetter: "get_list_fields"
+        itemgetter_args:
+          path: "spec#clusterGVKs"
+          fields:
+            - "kind"
+            - "group"
+            - "version"
+        # Not supported for now
+        sortcolumn: "kind"
       action: "call"
       action_call: "listviewdispatch"
       action_args:

@@ -7,12 +7,10 @@ listview:
   group: "Rancher"
   field_indexes:
     Wide:
-      fields: ["namespace", "name", "cluster_name", "initialized",
-               "version", "ready", "age"]
+      fields: ["namespace", "name", "cluster_name", "version", "ready", "age"]
       sortcolumn: "namespace"
     Normal:
-      fields: ["namespace", "name", "cluster_name", "initialized",
-               "ready", "age"]
+      fields: ["namespace", "name", "cluster_name", "ready", "age"]
       sortcolumn: "namespace"
   fields:
     cluster_name:
@@ -21,29 +19,10 @@ listview:
       default: "<unset>"
       type: "str"
       formatter: "address"
-    initialized:
-      header: "Initialized:"
-      path: "status#initialized"
-      type: "str"
-      formatter: "value_mapper"
-      formatting:
-        mapping:
-          mappings:
-            "True":
-              field_colors:
-                - context: "main"
-                  type: "status_ok"
-            "False":
-              field_colors:
-                - context: "main"
-                  type: "status_not_ok"
-            "<unset>":
-              field_colors:
-                - context: "types"
-                  type: "unset"
     ready:
       header: "Ready:"
-      path: "status#ready"
+      path: "status#initialization#controlPlaneInitialized"
+      default: "<unset>"
       type: "str"
       formatter: "value_mapper"
       formatting:
@@ -74,8 +53,7 @@ infoview:
   infopad:
     row_indexes:
       Normal:
-        fields: ["cluster_name", "version",
-                 "agent_connected", "initialized", "ready"]
+        fields: ["cluster_name", "version", "agent_connected", "ready"]
     rows:
       agent_connected:
         header: [["Agent Connected:", ["main", "infoheader"]]]
@@ -105,29 +83,10 @@ infoview:
         default: "<unset>"
         type: "str"
         formatter: "address"
-      initialized:
-        header: [["Initialized:", ["main", "infoheader"]]]
-        path: "status#initialized"
-        type: "str"
-        formatter: "value_mapper"
-        formatting:
-          mapping:
-            mappings:
-              "True":
-                field_colors:
-                  - context: "main"
-                    type: "status_ok"
-              "False":
-                field_colors:
-                  - context: "main"
-                    type: "status_not_ok"
-              "<unset>":
-                field_colors:
-                  - context: "types"
-                    type: "unset"
       ready:
         header: [["Ready:", ["main", "infoheader"]]]
-        path: "status#ready"
+        path: "status#initialization#controlPlaneInitialized"
+        default: "<unset>"
         type: "str"
         formatter: "value_mapper"
         formatting:

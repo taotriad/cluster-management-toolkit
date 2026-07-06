@@ -90,13 +90,14 @@ infoview:
       read_only: true
       helptext: "List running Trials"
       widget: "windowwidget"
-      title: "Running Trials:"
-      itemgetter: "get_list_as_list"
-      itemgetter_args:
-        path: "status#runningTrialList"
-      # This isn't supported for now
-      sortcolumn: "name"
-      selectable: true
+      widget_args:
+        title: "Running Trials:"
+        selectable: true
+        itemgetter: "get_list_as_list"
+        itemgetter_args:
+          path: "status#runningTrialList"
+        # This isn't supported for now
+        sortcolumn: "name"
       action: "call"
       action_call: "resourceinfodispatch_with_lookup"
       action_args:

@@ -172,14 +172,16 @@ infoview:
       read_only: true
       helptext: "Show Balloon Policy Status"
       widget: "windowwidget"
-      title: "Balloon Policy Status:"
-      headers: ["Node:", "Status:", "Timestamp:", "Errors:"]
-      itemgetter: "get_dict_list"
-      itemgetter_args:
-        path: "status#nodes"
-        fields:
-          - "key"
-          - "value#status"
-          - "value#timestamp"
-          - "value#errors"
-      sortcolumn: "status"
+      widget_args:
+        title: "Balloon Policy Status:"
+        headers: ["Node:", "Status:", "Timestamp:", "Errors:"]
+        itemgetter: "get_dict_list"
+        itemgetter_args:
+          path: "status#nodes"
+          fields:
+            - "key"
+            - "value#status"
+            - "value#timestamp"
+            - "value#errors"
+        # This isn't supported for now
+        sortcolumn: "status"

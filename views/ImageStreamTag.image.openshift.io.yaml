@@ -100,16 +100,17 @@ infoview:
       read_only: true
       helptext: "List Docker Image Layers"
       widget: "windowwidget"
-      title: "Docker Image Layers:"
-      headers: ["Name:", "Size:", "Media Type:"]
-      itemgetter: "get_list_fields"
-      itemgetter_args:
-        path: "image#dockerImageLayers"
-        # pass_ref: true
-        fields:
-          - "name"
-          - "size"
-          - "mediaType"
+      widget_args:
+        title: "Docker Image Layers:"
+        headers: ["Name:", "Size:", "Media Type:"]
+        itemgetter: "get_list_fields"
+        itemgetter_args:
+          path: "image#dockerImageLayers"
+          # pass_ref: true
+          fields:
+            - "name"
+            - "size"
+            - "mediaType"
     "Docker Image Metadata":
       key: "d"
       read_only: true

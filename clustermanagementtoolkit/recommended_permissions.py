@@ -25,8 +25,7 @@ from clustermanagementtoolkit.cmtpaths import CMT_CONFIG_FILE, KUBE_CONFIG_FILE
 from clustermanagementtoolkit.cmtpaths import KUBE_CREDENTIALS_FILE
 
 
-# TODO:
-# Check file permissions:
+# TODO(Check file permissions):
 # .ssh should be 700
 # .ssh/authorized_keys should be 644, 640, or 600
 # .ssh/known_hosts should be 600

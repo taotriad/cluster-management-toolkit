@@ -49,9 +49,10 @@ infoview:
       read_only: true
       helptext: "Show Message Expression"
       widget: "windowwidget"
-      title: "Message Expression:"
-      itemgetter: "get_strings_from_string"
-      itemgetter_args:
-        path: "messageExpression"
-      # Not supported for now
-      sortcolumn: "name"
+      widget_args:
+        title: "Message Expression:"
+        itemgetter: "get_strings_from_string"
+        itemgetter_args:
+          path: "messageExpression"
+        # Not supported for now
+        sortcolumn: "name"

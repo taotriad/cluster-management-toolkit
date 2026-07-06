@@ -95,34 +95,39 @@ infoview:
       read_only: true
       helptext: "Show description"
       widget: "windowwidget"
-      title: "Description:"
-      itemgetter: "get_strings_from_string"
-      itemgetter_args:
-        path: "annotations#description"
+      widget_args:
+        title: "Description:"
         # If the data is one single line we reformat it.
         wrap_lines: true
+        itemgetter: "get_strings_from_string"
+        itemgetter_args:
+          path: "annotations#description"
     "Summary":
       key: "s"
       modifier: "shift"
       read_only: true
       helptext: "Show summary"
       widget: "windowwidget"
-      title: "Summary:"
-      itemgetter: "get_strings_from_string"
-      itemgetter_args:
-        path: "annotations#summary"
+      widget_args:
+        title: "Summary:"
         # If the data is one single line we reformat it.
         wrap_lines: true
+        itemgetter: "get_strings_from_string"
+        itemgetter_args:
+          path: "annotations#summary"
     "Labels":
       key: "l"
       read_only: true
       helptext: "Show labels"
       widget: "windowwidget"
-      title: "Labels:"
-      headers: ["Key:", "Value:"]
-      itemgetter: "get_key_value"
-      itemgetter_args:
-        path: "labels"
+      widget_args:
+        title: "Labels:"
+        headers: ["Key:", "Value:"]
+        formatting: [["windowwidget", "default"],
+                     ["windowwidget", "highlight"]]
+        itemgetter: "get_key_value"
+        itemgetter_args:
+          path: "labels"
     "Open Runbook URL":
       key: "u"
       modifier: "shift"

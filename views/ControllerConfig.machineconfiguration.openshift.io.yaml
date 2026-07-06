@@ -118,18 +118,19 @@ infoview:
       read_only: true
       helptext: "List controller certificates"
       widget: "windowwidget"
-      title: "Controller certificates:"
-      headers: ["Bundle File:", "Signer:", "Subject:"]
-      selectable: false
-      itemgetter: "get_list_fields"
-      itemgetter_args:
-        path: "status#controllerCertificates"
-        fields:
-          - "bundleFile"
-          - "signer"
-          - "subject"
-      # Not supported for now
-      sortcolumn: "bundle_file"
+      widget_args:
+        title: "Controller certificates:"
+        headers: ["Bundle File:", "Signer:", "Subject:"]
+        selectable: false
+        itemgetter: "get_list_fields"
+        itemgetter_args:
+          path: "status#controllerCertificates"
+          fields:
+            - "bundleFile"
+            - "signer"
+            - "subject"
+        # Not supported for now
+        sortcolumn: "bundle_file"
     "Open pull Secret":
       key: "p"
       modifier: "shift"

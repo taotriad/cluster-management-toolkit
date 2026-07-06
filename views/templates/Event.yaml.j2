@@ -272,10 +272,11 @@ infoview:
       read_only: true
       helptext: "Show Event description"
       widget: "windowwidget"
-      title: "Event Description:"
-      itemgetter: "get_strings_from_string"
-      itemgetter_args:
-        path: "message"
+      widget_args:
+        title: "Event Description:"
+        itemgetter: "get_strings_from_string"
+        itemgetter_args:
+          path: "message"
     "Open involved object":
       key: "i"
       modifier: "shift"

@@ -89,10 +89,11 @@ infoview:
       read_only: true
       helptext: "List redirect URIs"
       widget: "windowwidget"
-      title: "Redirect URI:"
-      selectable: true
-      itemgetter: "get_list_as_list"
-      itemgetter_args:
-        paths: ["redirectURIs"]
-      # Not supported for now
-      sortcolumn: "uri"
+      widget_args:
+        title: "Redirect URI:"
+        selectable: true
+        itemgetter: "get_list_as_list"
+        itemgetter_args:
+          paths: ["redirectURIs"]
+        # Not supported for now
+        sortcolumn: "uri"

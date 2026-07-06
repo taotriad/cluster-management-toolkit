@@ -103,13 +103,14 @@ infoview:
       read_only: true
       helptext: "List exempted Namespaces"
       widget: "windowwidget"
-      title: "Exempted Namespaces:"
-      selectable: true
-      itemgetter: "get_list_as_list"
-      itemgetter_args:
-        paths: ["configuration#exemptions#namespaces"]
-      # Not supported for now
-      sortcolumn: "namespace"
+      widget_args:
+        title: "Exempted Namespaces:"
+        selectable: true
+        itemgetter: "get_list_as_list"
+        itemgetter_args:
+          paths: ["configuration#exemptions#namespaces"]
+        # Not supported for now
+        sortcolumn: "namespace"
       action: "call"
       action_call: "resourceinfodispatch_with_lookup"
       action_args:
@@ -121,13 +122,14 @@ infoview:
       read_only: true
       helptext: "List exempted Runtime Classes"
       widget: "windowwidget"
-      title: "Exempted Runtime Classes:"
-      selectable: true
-      itemgetter: "get_list_as_list"
-      itemgetter_args:
-        paths: ["configuration#exemptions#runtimeClasses"]
-      # Not supported for now
-      sortcolumn: "name"
+      widget_args:
+        title: "Exempted Runtime Classes:"
+        selectable: true
+        itemgetter: "get_list_as_list"
+        itemgetter_args:
+          paths: ["configuration#exemptions#runtimeClasses"]
+        # Not supported for now
+        sortcolumn: "name"
       action: "call"
       action_call: "resourceinfodispatch_with_lookup"
       action_args:
@@ -140,13 +142,14 @@ infoview:
       read_only: true
       helptext: "List exempted Users"
       widget: "windowwidget"
-      title: "Exempted Users:"
-      selectable: true
-      itemgetter: "get_list_as_list"
-      itemgetter_args:
-        paths: ["configuration#exemptions#usernames"]
-      # Not supported for now
-      sortcolumn: "name"
+      widget_args:
+        title: "Exempted Users:"
+        selectable: true
+        itemgetter: "get_list_as_list"
+        itemgetter_args:
+          paths: ["configuration#exemptions#usernames"]
+        # Not supported for now
+        sortcolumn: "name"
       action: "call"
       action_call: "resourceinfodispatch_with_lookup"
       action_args:

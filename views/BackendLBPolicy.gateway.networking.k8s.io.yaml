@@ -57,19 +57,20 @@ infoview:
       read_only: true
       helptext: "Show target references"
       widget: "windowwidget"
-      title: "Target References:"
-      selectable: true
-      headers: ["Kind:", "Group:", "Name:"]
-      # Not supported for now
-      sortcolumn: "kind"
-      itemgetter: "get_list_fields"
-      # This isn't supported for now
-      itemgetter_args:
-        path: "spec#targetRefs"
-        fields:
-          - "kind"
-          - "group"
-          - "name"
+      widget_args:
+        title: "Target References:"
+        headers: ["Kind:", "Group:", "Name:"]
+        selectable: true
+        itemgetter: "get_list_fields"
+        # This isn't supported for now
+        itemgetter_args:
+          path: "spec#targetRefs"
+          fields:
+            - "kind"
+            - "group"
+            - "name"
+        # Not supported for now
+        sortcolumn: "kind"
       action: "call"
       action_call: "resourceinfodispatch_with_lookup"
       action_args:

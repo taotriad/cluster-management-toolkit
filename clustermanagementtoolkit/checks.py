@@ -16,39 +16,39 @@ This module requires init_ansithemeprint() to have been executed first
 
 # pylint: disable=too-many-lines
 
+from collections.abc import Generator
 import errno
 import os
 from pathlib import Path
 import re
 import sys
 from typing import Any, cast, Sequence, TypedDict
-from collections.abc import Generator
+
+from clustermanagementtoolkit import about
 
 from clustermanagementtoolkit.ansible_helper import ansible_configuration
-from clustermanagementtoolkit.ansible_helper import ansible_run_playbook_on_selection
 from clustermanagementtoolkit.ansible_helper import ansible_print_play_results
+from clustermanagementtoolkit.ansible_helper import ansible_run_playbook_on_selection
 from clustermanagementtoolkit.ansible_helper import get_playbook_path
-
-from clustermanagementtoolkit.recommended_permissions import recommended_directory_permissions
-from clustermanagementtoolkit.recommended_permissions import recommended_file_permissions
-from clustermanagementtoolkit.recommended_permissions import DirectoryPermissions
-from clustermanagementtoolkit.recommended_permissions import FilePermissions
-
-from clustermanagementtoolkit.cmtio import execute_command_with_response
-
-from clustermanagementtoolkit.cmttypes import deep_get, DictPath, FilePath, ProgrammingError
-
-from clustermanagementtoolkit.cmtpaths import CMT_CONFIG_FILE, KUBE_CONFIG_FILE
-from clustermanagementtoolkit.cmtpaths import SSH_BIN_PATH, NETRC_PATH, DOT_ANSIBLE_PATH
-
-from clustermanagementtoolkit import cmtlib
 
 from clustermanagementtoolkit.ansithemeprint import ANSIThemeStr, ansithemestr_join_list
 from clustermanagementtoolkit.ansithemeprint import ansithemeprint
 
+from clustermanagementtoolkit import cmtlib
+
+from clustermanagementtoolkit.cmtio import execute_command_with_response
+
+from clustermanagementtoolkit.cmtpaths import CMT_CONFIG_FILE, KUBE_CONFIG_FILE
+from clustermanagementtoolkit.cmtpaths import SSH_BIN_PATH, NETRC_PATH, DOT_ANSIBLE_PATH
+
+from clustermanagementtoolkit.cmttypes import deep_get, DictPath, FilePath, ProgrammingError
+
 from clustermanagementtoolkit.kubernetes_helper import kubectl_get_version
 
-from clustermanagementtoolkit import about
+from clustermanagementtoolkit.recommended_permissions import DirectoryPermissions
+from clustermanagementtoolkit.recommended_permissions import FilePermissions
+from clustermanagementtoolkit.recommended_permissions import recommended_directory_permissions
+from clustermanagementtoolkit.recommended_permissions import recommended_file_permissions
 
 
 def check_disable_strict_host_key_checking(**kwargs: Any) -> tuple[bool, int, int, int, int]:
@@ -1290,6 +1290,8 @@ def __check_permissions(recommended_permissions: Sequence[DirectoryPermissions |
                         continue
 
                 try:
+                    # Not sure why pylint flags this; Path.owner() definitely returns a value.
+                    # pylint: disable-next=assignment-from-no-return
                     path_owner = entry.owner()
                 except KeyError:
                     ansithemeprint([ANSIThemeStr("  ", "default"),
@@ -1301,7 +1303,10 @@ def __check_permissions(recommended_permissions: Sequence[DirectoryPermissions |
                                     ANSIThemeStr(" does not exist in the system database; "
                                                  "aborting.", "default")], stderr=True)
                     sys.exit(errno.ENOENT)
+
                 try:
+                    # Not sure why pylint flags this; Path.group() definitely returns a value.
+                    # pylint: disable-next=assignment-from-no-return
                     path_group = entry.group()
                 except KeyError:
                     ansithemeprint([ANSIThemeStr("  ", "default"),
@@ -1312,6 +1317,7 @@ def __check_permissions(recommended_permissions: Sequence[DirectoryPermissions |
                                     ANSIThemeStr(" does not exist in the system database; "
                                                  "aborting.", "default")], stderr=True)
                     sys.exit(errno.ENOENT)
+
                 path_stat = entry.stat()
                 path_permissions = path_stat.st_mode & 0o777
                 recommended_permissions = 0o777 & ~(alertmask | notemask)

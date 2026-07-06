@@ -619,30 +619,33 @@ infoview:
       read_only: true
       helptext: "Show Node label selector"
       widget: "windowwidget"
-      title: "Node Label Selector:"
-      headers: ["Key:", "Value:"]
-      itemgetter: "get_key_value"
-      itemgetter_args:
-        path: "spec#nodeSelector"
+      widget_args:
+        title: "Node Label Selector:"
+        headers: ["Key:", "Value:"]
+        itemgetter: "get_key_value"
+        itemgetter_args:
+          path: "spec#nodeSelector"
     "Show affinities":
       key: "a"
       modifier: "shift"
       read_only: true
       helptext: "Show affinities"
-      title: "Affinities:"
       widget: "windowwidget"
-      headers: ["Type:", "Scheduling:", "Execution:", "Selector:", "Topology:"]
-      itemgetter: "get_affinity"
-      # This isn't supported for now
-      sortcolumn: "type"
+      widget_args:
+        title: "Affinities:"
+        headers: ["Type:", "Scheduling:", "Execution:",
+                  "Selector:", "Topology:"]
+        itemgetter: "get_affinity"
+        # This isn't supported for now
+        sortcolumn: "type"
     "Execute command in container":
       key: "e"
       modifier: "ctrl"
       read_only: false
       helptext: "Execute command inside container"
       widget: "executecommand"
-      inputtitle: "Command to execute:"
       widget_args:
+        title: "Command to execute:"
         kinds: [["Container", ""],
                 ["InitContainer", ""],
                 ["EphemeralContainer", ""]]
@@ -672,12 +675,13 @@ infoview:
       key: "t"
       read_only: true
       helptext: "Show tolerations"
-      title: "Tolerations:"
       widget: "windowwidget"
-      headers: ["Key:", "Operator:", "Value:", "Effect:", "Timeout:"]
-      itemgetter: "get_tolerations"
-      # This isn't supported for now
-      sortcolumn: "key"
+      widget_args:
+        title: "Tolerations:"
+        headers: ["Key:", "Operator:", "Value:", "Effect:", "Timeout:"]
+        itemgetter: "get_tolerations"
+        # This isn't supported for now
+        sortcolumn: "key"
     "Priority Class":
       key: "p"
       modifier: "shift"
@@ -695,17 +699,18 @@ infoview:
       modifier: "shift"
       read_only: true
       helptext: "Show container resources"
-      title: "Resources:"
       widget: "windowwidget"
-      headers: ["Request Type:", "Resource:"]
-      itemgetter: "get_key_value"
-      itemgetter_args:
-        source: "selected"
-        path: "resources"
-        ignored_keys:
-          - "claims"
-      # This isn't supported for now
-      sortcolumn: "requests"
+      widget_args:
+        title: "Resources:"
+        headers: ["Request Type:", "Resource:"]
+        itemgetter: "get_key_value"
+        itemgetter_args:
+          source: "selected"
+          path: "resources"
+          ignored_keys:
+            - "claims"
+        # This isn't supported for now
+        sortcolumn: "requests"
     "SSH to Node":
       key: "s"
       modifier: "shift"
@@ -721,67 +726,71 @@ infoview:
       key: "g"
       read_only: true
       helptext: "Show container arguments"
-      title: "Arguments:"
       widget: "windowwidget"
-      itemgetter: "get_list_as_list"
-      itemgetter_args:
-        source: "selected"
-        path: "args"
-      # This isn't supported for now
-      sortcolumn: "name"
+      widget_args:
+        title: "Arguments:"
+        itemgetter: "get_list_as_list"
+        itemgetter_args:
+          source: "selected"
+          path: "args"
+        # This isn't supported for now
+        sortcolumn: "name"
     "Show container volume mounts":
       key: "m"
       read_only: true
       helptext: "Show container volume mounts"
-      title: "Volume Mounts:"
       widget: "windowwidget"
-      headers: ["Name:", "Mount Point:", "Read Only:"]
-      itemgetter: "get_list_fields"
-      itemgetter_args:
-        source: "selected"
-        path: "volumeMounts"
-        fields:
-          - "name"
-          - "mountPath"
-          - "readOnly"
-      # This isn't supported for now
-      sortcolumn: "name"
+      widget_args:
+        title: "Volume Mounts:"
+        headers: ["Name:", "Mount Point:", "Read Only:"]
+        itemgetter: "get_list_fields"
+        itemgetter_args:
+          source: "selected"
+          path: "volumeMounts"
+          fields:
+            - "name"
+            - "mountPath"
+            - "readOnly"
+        # This isn't supported for now
+        sortcolumn: "name"
     "Show container security context information":
       key: "x"
       modifier: "shift"
       read_only: true
       helptext: "Show container security context information"
-      title: "Container Security Context Policies:"
       widget: "windowwidget"
-      headers: ["Policy:", "Value:"]
-      itemgetter: "get_security_context"
-      itemgetter_args:
-        source: "selected"
-        path: "securityContext"
-      formatting: [["windowwidget", "default"],
-                   ["windowwidget", "highlight"]]
-      # This isn't supported for now
-      sortcolumn: "policy"
+      widget_args:
+        title: "Container Security Context Policies:"
+        headers: ["Policy:", "Value:"]
+        itemgetter: "get_security_context"
+        itemgetter_args:
+          source: "selected"
+          path: "securityContext"
+        formatting: [["windowwidget", "default"],
+                     ["windowwidget", "highlight"]]
+        # This isn't supported for now
+        sortcolumn: "policy"
     "Show volumes":
       key: "v"
       modifier: "shift"
       read_only: true
       helptext: "Show volumes"
       widget: "windowwidget"
-      title: "Volumes:"
-      headers: ["Name:", "Type:", "Configuration:"]
-      itemgetter: "get_list_fields"
-      itemgetter_args:
-        path: "spec#volumes"
-        fields:
-          - "name"
-          - name: ["configMap", "downwardAPI", "emptyDir",
-                   "fc", "hostPath", "image", "nfs", "projected", "secret"]
-            value: "key"
-          - name: ["configMap", "downwardAPI", "emptyDir",
-                   "fc", "hostPath", "image", "nfs", "projected", "secret"]
-      # This isn't supported for now
-      sortcolumn: "name"
+      widget_args:
+        title: "Volumes:"
+        headers: ["Name:", "Type:", "Configuration:"]
+        itemgetter: "get_list_fields"
+        itemgetter_args:
+          path: "spec#volumes"
+          fields:
+            - "name"
+            - name: ["configMap", "downwardAPI", "emptyDir",
+                     "fc", "hostPath", "image", "nfs", "projected", "secret"]
+              value: "key"
+            - name: ["configMap", "downwardAPI", "emptyDir",
+                     "fc", "hostPath", "image", "nfs", "projected", "secret"]
+        # This isn't supported for now
+        sortcolumn: "name"
     "Topology spread constraints":
       key: "t"
       modifier: "shift"

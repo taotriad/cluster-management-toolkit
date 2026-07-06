@@ -151,24 +151,26 @@ infoview:
       read_only: true
       helptext: "Show label selector"
       widget: "windowwidget"
-      title: "Label Selector:"
-      headers: ["Key:", "Value:"]
-      itemgetter: "get_key_value"
-      itemgetter_args:
-        path: "spec#selector#matchLabels"
+      widget_args:
+        title: "Label Selector:"
+        headers: ["Key:", "Value:"]
+        itemgetter: "get_key_value"
+        itemgetter_args:
+          path: "spec#selector#matchLabels"
     "List Target Machines":
       key: "t"
       modifier: "shift"
       read_only: true
       helptext: "List target Machines"
       widget: "windowwidget"
-      title: "Machines:"
-      selectable: true
-      itemgetter: "get_list_as_list"
-      itemgetter_args:
-        path: "status#targets"
-      # Not supported for now
-      sortcolumn: "name"
+      widget_args:
+        title: "Machines:"
+        selectable: true
+        itemgetter: "get_list_as_list"
+        itemgetter_args:
+          path: "status#targets"
+        # Not supported for now
+        sortcolumn: "name"
       action: "call"
       action_call: "resourceinfodispatch_with_lookup"
       action_args:
@@ -182,15 +184,16 @@ infoview:
       read_only: true
       helptext: "List unhealthy node conditions"
       widget: "windowwidget"
-      title: "Unhealthy Node Conditions:"
-      headers: ["Type:", "Status:", "Timeout (Seconds):"]
-      itemgetter: "get_list_fields"
-      itemgetter_args:
-        path: "spec#checks#unhealthyNodeConditions"
-        fields:
-          - "type"
-          - "status"
-          - "timeoutSeconds"
+      widget_args:
+        title: "Unhealthy Node Conditions:"
+        headers: ["Type:", "Status:", "Timeout (Seconds):"]
+        itemgetter: "get_list_fields"
+        itemgetter_args:
+          path: "spec#checks#unhealthyNodeConditions"
+          fields:
+            - "type"
+            - "status"
+            - "timeoutSeconds"
     "Open Cluster":
       key: "u"
       read_only: true

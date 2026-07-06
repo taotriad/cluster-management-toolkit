@@ -34,19 +34,20 @@ infoview:
       read_only: true
       helptext: "List objects"
       widget: "windowwidget"
-      title: "Objects:"
-      selectable: true
-      headers: ["Kind:", "API-Version:", "Name:"]
-      itemgetter: "get_list_fields"
-      itemgetter_args:
-        path: "objects"
-        fields:
-          - "kind"
-          - "apiVersion"
-          - "metadata#name"
-        pass_ref: true
-      # Not supported for now
-      sortcolumn: "kind"
+      widget_args:
+        title: "Objects:"
+        headers: ["Kind:", "API-Version:", "Name:"]
+        selectable: true
+        itemgetter: "get_list_fields"
+        itemgetter_args:
+          path: "objects"
+          fields:
+            - "kind"
+            - "apiVersion"
+            - "metadata#name"
+          pass_ref: true
+        # Not supported for now
+        sortcolumn: "kind"
       action: "call"
       action_call: "view_yaml"
       action_args:
@@ -59,15 +60,16 @@ infoview:
       read_only: true
       helptext: "List parameters"
       widget: "windowwidget"
-      title: "Parameters:"
-      headers: ["Name:", "Required:", "Value:", "Description:"]
-      itemgetter: "get_list_fields"
-      itemgetter_args:
-        path: "parameters"
-        fields:
-          - "name"
-          - "required"
-          - "value"
-          - "description"
-      # Not supported for now
-      sortcolumn: "name"
+      widget_args:
+        title: "Parameters:"
+        headers: ["Name:", "Required:", "Value:", "Description:"]
+        itemgetter: "get_list_fields"
+        itemgetter_args:
+          path: "parameters"
+          fields:
+            - "name"
+            - "required"
+            - "value"
+            - "description"
+        # Not supported for now
+        sortcolumn: "name"

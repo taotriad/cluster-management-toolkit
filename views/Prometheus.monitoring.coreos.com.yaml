@@ -426,19 +426,20 @@ infoview:
       read_only: true
       helptext: "Show Alertmanager Endpoints information"
       widget: "windowwidget"
-      title: "Alertmanager Endpoints:"
-      selectable: true
-      itemgetter: "get_list_fields"
-      itemgetter_args:
-        path: "spec#alerting#alertmanagers"
-        fields:
-          - "namespace"
-          - "name"
-          - "port"
-          - "pathPrefix"
-      headers: ["Namespace:", "Name:", "Port:", "Path prefix:"]
-      # Not supported for now
-      sortcolumn: "namespace"
+      widget_args:
+        title: "Alertmanager Endpoints:"
+        headers: ["Namespace:", "Name:", "Port:", "Path prefix:"]
+        selectable: true
+        itemgetter: "get_list_fields"
+        itemgetter_args:
+          path: "spec#alerting#alertmanagers"
+          fields:
+            - "namespace"
+            - "name"
+            - "port"
+            - "pathPrefix"
+        # Not supported for now
+        sortcolumn: "namespace"
       action: "call"
       action_call: "resourceinfodispatch_with_lookup"
       action_args:
@@ -451,25 +452,27 @@ infoview:
       read_only: true
       helptext: "Show resources"
       widget: "windowwidget"
-      title: "Resources:"
-      headers: ["Request Type:", "Limits:"]
-      itemgetter: "get_key_value"
-      itemgetter_args:
-        path: "spec#resources"
+      widget_args:
+        title: "Resources:"
+        headers: ["Request Type:", "Limits:"]
+        itemgetter: "get_key_value"
+        itemgetter_args:
+          path: "spec#resources"
     "Containers":
       key: "c"
       modifier: "shift"
       read_only: true
       helptext: "List containers"
       widget: "windowwidget"
-      title: "Containers:"
-      selectable: true
-      itemgetter: "get_list_fields"
-      itemgetter_args:
-        path: "spec#containers"
-        fields:
-          - "name"
-        pass_ref: true
+      widget_args:
+        title: "Containers:"
+        selectable: true
+        itemgetter: "get_list_fields"
+        itemgetter_args:
+          path: "spec#containers"
+          fields:
+            - "name"
+          pass_ref: true
       action: "call"
       action_call: "view_yaml"
       action_args:
@@ -482,8 +485,10 @@ infoview:
       read_only: true
       helptext: "Show affinities"
       widget: "windowwidget"
-      title: "Affinities:"
-      headers: ["Type:", "Scheduling:", "Execution:", "Selector:", "Topology:"]
-      itemgetter: "get_affinity"
-      # This isn't supported for now
-      sortcolumn: "type"
+      widget_args:
+        title: "Affinities:"
+        headers: ["Type:", "Scheduling:",
+                  "Execution:", "Selector:", "Topology:"]
+        itemgetter: "get_affinity"
+        # This isn't supported for now
+        sortcolumn: "type"

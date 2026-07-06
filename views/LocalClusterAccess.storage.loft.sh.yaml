@@ -68,15 +68,16 @@ infoview:
       read_only: true
       helptext: "List Cluster Roles that the team has access to"
       widget: "windowwidget"
-      title: "Cluster Roles:"
-      selectable: true
-      itemgetter: "get_list_fields"
-      itemgetter_args:
-        path: "spec#clusterRoles"
-        fields:
-          - "name"
-      # Not supported for now
-      sortcolumn: "clusterroles"
+      widget_args:
+        title: "Cluster Roles:"
+        selectable: true
+        itemgetter: "get_list_fields"
+        itemgetter_args:
+          path: "spec#clusterRoles"
+          fields:
+            - "name"
+        # Not supported for now
+        sortcolumn: "clusterroles"
       action: "call"
       action_call: "resourceinfodispatch_with_lookup"
       action_args:
@@ -89,15 +90,16 @@ infoview:
       read_only: true
       helptext: "List Teams affected by this cluster access object"
       widget: "windowwidget"
-      title: "Teams:"
-      selectable: true
-      itemgetter: "get_list_fields"
-      itemgetter_args:
-        path: "spec#teams"
-        fields:
-          - "name"
-      # Not supported for now
-      sortcolumn: "clusterroles"
+      widget_args:
+        title: "Teams:"
+        selectable: true
+        itemgetter: "get_list_fields"
+        itemgetter_args:
+          path: "spec#teams"
+          fields:
+            - "name"
+        # Not supported for now
+        sortcolumn: "clusterroles"
       action: "call"
       action_call: "resourceinfodispatch_with_lookup"
       action_args:
@@ -110,17 +112,18 @@ infoview:
       read_only: true
       helptext: "List Users affected by this cluster access object"
       widget: "windowwidget"
-      title: "Cluster Roles:"
-      headers: ["User Type:", "Name:"]
-      selectable: true
-      itemgetter: "get_dict_list"
-      itemgetter_args:
-        path: "spec#users"
-        fields:
-          - "key"
-          - "value"
-      # Not supported for now
-      sortcolumn: "name"
+      widget_args:
+        title: "Cluster Roles:"
+        headers: ["User Type:", "Name:"]
+        selectable: true
+        itemgetter: "get_dict_list"
+        itemgetter_args:
+          path: "spec#users"
+          fields:
+            - "key"
+            - "value"
+        # Not supported for now
+        sortcolumn: "name"
       action: "call"
       action_call: "resourceinfodispatch_with_lookup"
       action_args:

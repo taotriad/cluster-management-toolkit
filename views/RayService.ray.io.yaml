@@ -253,15 +253,16 @@ infoview:
       read_only: true
       helptext: "List Ray Cluster endpoints"
       widget: "windowwidget"
-      title: "Ray Cluster endpoints:"
-      headers: ["Service:", "Port:"]
-      itemgetter: "get_key_value"
-      itemgetter_args:
-        path: "status#activeServiceStatus#rayClusterStatus#endpoints"
-      formatting: [["windowwidget", "default"],
-                   ["windowwidget", "highlight"]]
-      # This isn't supported for now
-      sortcolumn: "service"
+      widget_args:
+        title: "Ray Cluster endpoints:"
+        headers: ["Service:", "Port:"]
+        itemgetter: "get_key_value"
+        itemgetter_args:
+          path: "status#activeServiceStatus#rayClusterStatus#endpoints"
+        formatting: [["windowwidget", "default"],
+                     ["windowwidget", "highlight"]]
+        # This isn't supported for now
+        sortcolumn: "service"
     "Ray Cluster":
       key: "r"
       modifier: "shift"

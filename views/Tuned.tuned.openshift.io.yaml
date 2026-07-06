@@ -130,16 +130,17 @@ infoview:
       read_only: true
       helptext: "List Tuned profiles"
       widget: "windowwidget"
-      title: "Profiles:"
-      selectable: true
-      itemgetter: "get_list_fields"
-      itemgetter_args:
-        path: "spec#profile"
-        fields:
-          - "name"
-        pass_ref: true
-      # Not supported for now
-      sortcolumn: "name"
+      widget_args:
+        title: "Profiles:"
+        selectable: true
+        itemgetter: "get_list_fields"
+        itemgetter_args:
+          path: "spec#profile"
+          fields:
+            - "name"
+          pass_ref: true
+        # Not supported for now
+        sortcolumn: "name"
       action: "call"
       action_call: "view_obj"
       action_args:

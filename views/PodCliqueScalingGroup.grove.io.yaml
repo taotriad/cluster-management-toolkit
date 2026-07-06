@@ -133,10 +133,11 @@ infoview:
       key: "q"
       read_only: true
       helptext: "Show cliques"
-      title: "Cliques:"
       widget: "windowwidget"
-      itemgetter: "get_list_as_list"
-      itemgetter_args:
-        path: "spec#cliqueNames"
-      # This isn't supported for now
-      sortcolumn: "name"
+      widget_args:
+        title: "Cliques:"
+        itemgetter: "get_list_as_list"
+        itemgetter_args:
+          path: "spec#cliqueNames"
+        # This isn't supported for now
+        sortcolumn: "name"

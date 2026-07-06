@@ -26,14 +26,15 @@ infoview:
       read_only: true
       helptext: "List flows"
       widget: "windowwidget"
-      title: "Flows:"
-      selectable: true
-      itemgetter: "get_list_fields"
-      itemgetter_args:
-        path: "spec#flows"
-        fields:
-          - "name"
-        pass_ref: true
+      widget_args:
+        title: "Flows:"
+        selectable: true
+        itemgetter: "get_list_fields"
+        itemgetter_args:
+          path: "spec#flows"
+          fields:
+            - "name"
+          pass_ref: true
       action: "call"
       action_call: "view_yaml"
       action_args:

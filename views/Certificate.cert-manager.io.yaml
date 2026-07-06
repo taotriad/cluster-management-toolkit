@@ -294,12 +294,13 @@ infoview:
       read_only: true
       helptext: "List IP-Addresses"
       widget: "windowwidget"
-      title: "IP-Addresses:"
-      itemgetter: "get_list_as_list"
-      itemgetter_args:
-        path: "spec#ipAddresses"
-      # Not supported for now
-      sortcolumn: "name"
+      widget_args:
+        title: "IP-Addresses:"
+        itemgetter: "get_list_as_list"
+        itemgetter_args:
+          path: "spec#ipAddresses"
+        # Not supported for now
+        sortcolumn: "name"
     "Open controller":
       key: "c"
       modifier: "shift"

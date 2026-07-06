@@ -187,27 +187,29 @@ infoview:
       read_only: true
       helptext: "List nameservers"
       widget: "windowwidget"
-      title: "Nameservers:"
-      itemgetter: "get_list_as_list"
-      itemgetter_args:
-        path: "spec#clusterConfig#nameservers"
+      widget_args:
+        title: "Nameservers:"
+        itemgetter: "get_list_as_list"
+        itemgetter_args:
+          path: "spec#clusterConfig#nameservers"
     "List Nodes":
       key: "d"
       read_only: true
       helptext: "List Nodes"
       widget: "windowwidget"
-      title: "Nodes:"
-      selectable: true
-      headers: ["Address Pool Namespace:", "Address Pool Name:",
-                "Inventory Namespace:", "Inventory Name:"]
-      itemgetter: "get_list_fields"
-      itemgetter_args:
-        path: "spec#nodes"
-        fields:
-          - "addressPoolReference#namespace"
-          - "addressPoolReference#name"
-          - "inventoryReference#namespace"
-          - "inventoryReference#name"
+      widget_args:
+        title: "Nodes:"
+        headers: ["Address Pool Namespace:", "Address Pool Name:",
+                  "Inventory Namespace:", "Inventory Name:"]
+        selectable: true
+        itemgetter: "get_list_fields"
+        itemgetter_args:
+          path: "spec#nodes"
+          fields:
+            - "addressPoolReference#namespace"
+            - "addressPoolReference#name"
+            - "inventoryReference#namespace"
+            - "inventoryReference#name"
       action: "call"
       action_call: "resourceinfodispatch_with_lookup"
       action_args:
@@ -221,10 +223,11 @@ infoview:
       read_only: true
       helptext: "List SSH keys"
       widget: "windowwidget"
-      title: "SSH keys:"
-      itemgetter: "get_list_as_list"
-      itemgetter_args:
-        path: "spec#clusterConfig#sshKeys"
+      widget_args:
+        title: "SSH keys:"
+        itemgetter: "get_list_as_list"
+        itemgetter_args:
+          path: "spec#clusterConfig#sshKeys"
     "Open Address Pool":
       key: "a"
       modifier: "shift"

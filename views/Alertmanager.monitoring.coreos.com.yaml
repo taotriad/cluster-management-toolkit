@@ -183,11 +183,12 @@ infoview:
       read_only: true
       helptext: "Show Node label selector"
       widget: "windowwidget"
-      title: "Node Label Selector:"
-      headers: ["Key:", "Value:"]
-      itemgetter: "get_key_value"
-      itemgetter_args:
-        path: "spec#nodeSelector"
+      widget_args:
+        title: "Node Label Selector:"
+        headers: ["Key:", "Value:"]
+        itemgetter: "get_key_value"
+        itemgetter_args:
+          path: "spec#nodeSelector"
     "Service Account":
       key: "s"
       modifier: "shift"
@@ -206,14 +207,15 @@ infoview:
       read_only: true
       helptext: "List containers"
       widget: "windowwidget"
-      title: "Containers:"
-      selectable: true
-      itemgetter: "get_list_fields"
-      itemgetter_args:
-        path: "spec#containers"
-        fields:
-          - "name"
-        pass_ref: true
+      widget_args:
+        title: "Containers:"
+        selectable: true
+        itemgetter: "get_list_fields"
+        itemgetter_args:
+          path: "spec#containers"
+          fields:
+            - "name"
+          pass_ref: true
       action: "call"
       action_call: "view_yaml"
       action_args:
@@ -226,7 +228,9 @@ infoview:
       read_only: true
       helptext: "Show affinities"
       widget: "windowwidget"
-      headers: ["Type:", "Scheduling:", "Execution:", "Selector:", "Topology:"]
-      itemgetter: "get_affinity"
-      # This isn't supported for now
-      sortcolumn: "type"
+      widget_args:
+        headers: ["Type:", "Scheduling:", "Execution:",
+                  "Selector:", "Topology:"]
+        itemgetter: "get_affinity"
+        # This isn't supported for now
+        sortcolumn: "type"

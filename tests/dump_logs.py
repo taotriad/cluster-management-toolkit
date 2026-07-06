@@ -10,7 +10,9 @@ import os
 import sys
 
 from clustermanagementtoolkit import kubernetes_helper
+
 from clustermanagementtoolkit.cmtio import secure_write_string
+
 from clustermanagementtoolkit.cmttypes import deep_get, DictPath
 
 """

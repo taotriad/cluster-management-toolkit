@@ -12,13 +12,13 @@ Get information
 """
 
 import base64
+from collections.abc import Callable, Sequence
 from datetime import datetime, timedelta
 import json
 import os
 import re
 import sys
 from typing import Any, cast
-from collections.abc import Callable, Sequence
 
 try:
     from natsort import natsorted
@@ -44,9 +44,12 @@ from clustermanagementtoolkit import about
 
 from clustermanagementtoolkit.ansible_helper import ansible_get_logs
 
+from clustermanagementtoolkit.ansithemeprint import ANSIThemeStr
+
 from clustermanagementtoolkit.cmtio import execute_command_with_response, secure_which
-from clustermanagementtoolkit.cmtio_yaml import secure_read_yaml
+
 from clustermanagementtoolkit.cmtio_yaml import json_loads
+from clustermanagementtoolkit.cmtio_yaml import secure_read_yaml
 
 from clustermanagementtoolkit import cmtlib
 from clustermanagementtoolkit.cmtlib import make_label_selector, make_set_expression_list
@@ -79,18 +82,17 @@ from clustermanagementtoolkit.formatters import formatter_allowlist
 
 from clustermanagementtoolkit import itemgetters
 
-from clustermanagementtoolkit.kubernetes_helper import get_node_roles, get_node_status
+from clustermanagementtoolkit.kubernetes_helper import KubernetesResourceCache
+
 from clustermanagementtoolkit.kubernetes_helper import get_containers
 from clustermanagementtoolkit.kubernetes_helper import get_controller_from_owner_references
-from clustermanagementtoolkit.kubernetes_helper import get_pod_restarts_total
 from clustermanagementtoolkit.kubernetes_helper import get_image_version
-from clustermanagementtoolkit.kubernetes_helper import KubernetesResourceCache
+from clustermanagementtoolkit.kubernetes_helper import get_node_roles, get_node_status
+from clustermanagementtoolkit.kubernetes_helper import get_pod_restarts_total
 
 from clustermanagementtoolkit import listgetters
 
 import clustermanagementtoolkit.logparser as logparsers
-
-from clustermanagementtoolkit.ansithemeprint import ANSIThemeStr
 
 
 def __process_string(value: str, quotes: str, newlines: str = "escape") -> str:
@@ -2890,7 +2892,7 @@ def get_log_info(**kwargs: Any) -> list[dict]:
     # Get the list of available Ansible logs
     ansible_logs = ansible_get_logs()
 
-    # TODO: Here we might possibly want to insert other logs?
+    # TODO(Here we might possibly want to insert other logs?)
 
     for name, action, ref, created_at in ansible_logs:
         log_type = "Ansible Play"

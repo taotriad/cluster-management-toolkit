@@ -137,19 +137,20 @@ infoview:
       read_only: true
       helptext: "List Mirrors"
       widget: "windowwidget"
-      title: "Mirrors:"
-      headers: ["Kind:", "Namespace:", "Name:", "Port:", "Percent:"]
-      selectable: true
+      widget_args:
+        title: "Mirrors:"
+        headers: ["Kind:", "Namespace:", "Name:", "Port:", "Percent:"]
+        selectable: true
+        itemgetter: "get_list_fields"
+        itemgetter_args:
+          path: "spec#mirroring#mirrors"
+          fields:
+            - "kind"
+            - "namespace"
+            - "name"
+            - "port"
+            - "percent"
       action: "call"
-      itemgetter: "get_list_fields"
-      itemgetter_args:
-        path: "spec#mirroring#mirrors"
-        fields:
-          - "kind"
-          - "namespace"
-          - "name"
-          - "port"
-          - "percent"
       action_call: "resourceinfodispatch_with_lookup"
       action_args:
         _pass_obj: true
@@ -173,18 +174,19 @@ infoview:
       read_only: true
       helptext: "List weighted load-balancers"
       widget: "windowwidget"
-      title: "Weighted Load-balancers:"
-      headers: ["Kind:", "Namespace:", "Name:", "Weight:"]
-      selectable: true
+      widget_args:
+        title: "Weighted Load-balancers:"
+        headers: ["Kind:", "Namespace:", "Name:", "Weight:"]
+        selectable: true
+        itemgetter: "get_list_fields"
+        itemgetter_args:
+          path: "spec#weighted#services"
+          fields:
+            - "kind"
+            - "namespace"
+            - "name"
+            - "weight"
       action: "call"
-      itemgetter: "get_list_fields"
-      itemgetter_args:
-        path: "spec#weighted#services"
-        fields:
-          - "kind"
-          - "namespace"
-          - "name"
-          - "weight"
       action_call: "resourceinfodispatch_with_lookup"
       action_args:
         _pass_obj: true

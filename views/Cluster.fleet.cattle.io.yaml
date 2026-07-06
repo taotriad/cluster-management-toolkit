@@ -39,6 +39,7 @@ infoview:
     row_indexes:
       Normal:
         fields: ["cluster_namespace", "kubeconfig",
+                 "client_id",
                  "agent_header", "agent_last_seen",
                  "agent_tls_mode", "agent_migrated",
                  "agent_namespace", "agent_namespace_migrated",
@@ -83,6 +84,11 @@ infoview:
         default: "<unset>"
         type: "str"
         formatter: "address"
+      client_id:
+        header: [["Client ID:", ["main", "infoheader"]]]
+        path: "spec#clientID"
+        default: "<unset>"
+        type: "str"
       cluster_namespace:
         header: [["C", ["main", "infoheader_shortcut"]],
                  ["luster Namespace:", ["main", "infoheader"]]]
@@ -141,12 +147,14 @@ infoview:
       read_only: true
       helptext: "Show affinities"
       widget: "windowwidget"
-      headers: ["Type:", "Scheduling:", "Execution:", "Selector:", "Topology:"]
-      itemgetter: "get_affinity"
-      itemgetter_args:
-        path: "spec#agentAffinity"
-      # This isn't supported for now
-      sortcolumn: "type"
+      widget_args:
+        headers: ["Type:", "Scheduling:",
+                  "Execution:", "Selector:", "Topology:"]
+        itemgetter: "get_affinity"
+        itemgetter_args:
+          path: "spec#agentAffinity"
+        # This isn't supported for now
+        sortcolumn: "type"
     "Cluster Namespace":
       key: "c"
       modifier: "shift"
