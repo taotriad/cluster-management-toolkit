@@ -2256,6 +2256,7 @@ def listgetter_matchrules(obj: dict, **kwargs: Any) -> tuple[list[dict], str]:
             })
 
     for match_feature in deep_get(obj, DictPath("matchFeatures"), []):
+        match_expressions = []
         feature = deep_get(match_feature, DictPath("feature"), "")
         match_expressions_dict = deep_get(match_feature, DictPath("matchExpressions"), {})
         match_name_dict = deep_get(match_feature, DictPath("matchName"), {})
