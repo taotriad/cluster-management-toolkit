@@ -2246,6 +2246,10 @@
                                                     "description": "Path to get the namee of the parent obj",
                                                     "$ref": "#/definitions/simple_path"
                                                 },
+                                                "_parent_namespace": {
+                                                    "description": "Hardcoded fallback namespace",
+                                                    "$ref": "#/definitions/simple_path"
+                                                },
                                                 "_parent_namespace_path": {
                                                     "description": "Path to get the namespace of the parent obj",
                                                     "$ref": "#/definitions/simple_path"
