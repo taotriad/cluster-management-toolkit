@@ -4992,17 +4992,19 @@ def genericinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                         })
                     w_items = tmp_items
 
-                if w_items is not None and w_items:
-                    w_sortcolumn = deep_get(widget_args, DictPath("sortcolumn"))
-                    tmpselection = \
-                        curses_helper.windowwidget(uip.stdscr, uip.maxy, uip.maxx,
-                                                   uip.maxy // 2, uip.maxx // 2,
-                                                   items=w_items, headers=w_headers,
-                                                   title=w_title, cursor=w_selectable,
-                                                   sortcolumn=w_sortcolumn)
-                    uip.refresh_all()
-                    if not tmpselection:
-                        continue
+                if not w_items:
+                    continue
+
+                w_sortcolumn = deep_get(widget_args, DictPath("sortcolumn"))
+                tmpselection = \
+                    curses_helper.windowwidget(uip.stdscr, uip.maxy, uip.maxx,
+                                               uip.maxy // 2, uip.maxx // 2,
+                                               items=w_items, headers=w_headers,
+                                               title=w_title, cursor=w_selectable,
+                                               sortcolumn=w_sortcolumn)
+                uip.refresh_all()
+                if not tmpselection:
+                    continue
             elif widget == "inputbox":
                 selected = uip.get_selected()
                 widget_args = deep_get(sc_value, DictPath("widget_args"), {})
@@ -10554,8 +10556,8 @@ def populate_views(refresh_apis: str = "none") -> None:
                     "helptext": "Show events",
                     "widget": "windowwidget",
                     "widget_args": {
-                        "selectable": True,
                         "title": "Events:",
+                        "selectable": True,
                         "headers": ["Namespace:", "Name:", "Last Seen:", "Status:",
                                     "Reason:", "Source:", "First Seen:", "Count:", "Message:"],
                         "itemgetter": "get_events",
@@ -11168,10 +11170,10 @@ COMMANDLINE: dict[str, CommandType] = {
                      ANSIThemeStr("diff", "argument"),
                      ANSIThemeStr("|", "separator"),
                      ANSIThemeStr("patch", "argument"),
-                     ANSIThemeStr(", ", "separator"),
-                     ANSIThemeStr("html", "argument"),
                      ANSIThemeStr(",", "separator")],
-                    [ANSIThemeStr("ini", "argument"),
+                    [ANSIThemeStr("html", "argument"),
+                     ANSIThemeStr(", ", "separator"),
+                     ANSIThemeStr("ini", "argument"),
                      ANSIThemeStr(", ", "separator"),
                      ANSIThemeStr("javascript", "argument"),
                      ANSIThemeStr("|", "separator"),
