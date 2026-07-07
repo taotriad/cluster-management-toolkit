@@ -13,7 +13,7 @@ macOS support will be added when a suitable development system is availble.
 With today's memory prices even a Mac Mini is too expensive to buy for the singular
 purpose of just adding macOS support.
 
-## Dependencies for the toolkit (from `requirements.txt`)
+## Dependencies for the toolkit (from requirements.txt)
 
 * `python3-ansible-runner` (>= 2.1.4)
 * `setuptools` (>= 78.1.1; this is not a direct dependency, this is to ensure that a security issue in ansible-runner is fixed)
@@ -25,6 +25,37 @@ purpose of just adding macOS support.
 * `python3-urllib3` (>= 2.6.3)
 * `python3-validators` (>= 0.22.0)
 * `python3-yaml` (>= 6.0)
+
+## Dependencies for development
+
+* `ansible-lint` (To verify that Ansible playbooks are correct)
+* `bandit` (Security checker)
+* `cloc` (To create statistics)
+* `flake8` (Code QA)
+* `git` (For any interactions with the repository)
+* `mypy` (Type checker)
+* `pylint` (Code QA)
+* `python3-coverage` (Check test coverage)
+* `python3-jsonschema` (To validate view-, parser-, and theme-files)
+* `regexploit` (Check for regular expression DoS)
+* `ruff` (Code QA)
+* `semgrep` (Security checker)
+* `sloccount` (To create statistics)
+* `yamllint` (YAML QA)
+
+## Optional helpers
+
+The following tools improve the functionality of `cmtadm` and `cmu`.
+
+* `cmctl` (Used by the `Secret` view to show information about certificates)
+* `git` (Used by `cmtadm` to deploy workloads from local clones of git repositories)
+* `helm` (Used by `cmtadm` to deploying workloads using the `helm` target type when creating a cluster)
+* `openssl` (Used by the `ConfigMap` and `Secret` views to show information about certificates)
+* `ssh` (Used by several views to ssh to nodes, including `Node`, `Pod`, `Inventory`, and `CSINode`)
+* `sshpass` (Used by Ansible for the initial ssh to nodes if host keys aren't installed yet)
+* `vcctl` (Used to control jobs by the `Volcano Job` view)
+* `virtctl` (Used by the VirtualMachineInstance and VirtualMachineInstanceReplicaSet views to open consoles / ssh to virtual machines)
+* `xdg-open` (Used by a lot of views to open URLs)
 
 # Pre-requisites / tested platforms for setting up Kubernetes clusters
 
@@ -57,7 +88,7 @@ are available there are no reasons for it not to work. Feel free to report succe
 For security reasons none of the programs can be run directly as root.
 The user also needs _sudo_ access on any remote system intended for use as control planes or worker nodes in a cluster.
 
-# TERM setting support for `cmu`
+# TERM setting support for cmu
 
 `cmu` is implemented using the terminal UI toolkit `curses`
 and requires support for at least 8 colors (preferably 16) and UTF-8 character support,

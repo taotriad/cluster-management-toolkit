@@ -126,11 +126,11 @@ infoview:
         _pass_obj: true
         namespace_path: "metadata#namespace"
         owner_reference_path: "metadata#ownerReferences"
-    "Attempt to display Certificate info":
+    "Display Certificate info using openssl":
       key: "d"
       modifier: "shift"
       read_only: true
-      helptext: "Attempt to display certificate information"
+      helptext: "Display certificate information using openssl (if installed)"
       widget: "command"
       widget_args:
         command: ["openssl", "x509", "-text", "-noout"]
