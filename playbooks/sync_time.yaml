@@ -5,7 +5,7 @@
     metadata:
       aliases:
         - "sync-time"
-      description: "Synchronising time between localhost and hosts"
+      description: "Synchronise time between localhost and hosts"
       playbook_types:
         - "cmtinv"
         - "inventory"
