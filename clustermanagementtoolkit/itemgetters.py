@@ -338,13 +338,16 @@ def get_list_as_string(obj: dict, **kwargs: Any) -> list[tuple[str]]:
 def get_list_as_list(obj: dict, **kwargs: Any) -> list[Any]:
     """
     Get data in list format; if multiple lists are provided
-    each list will be treated as a separate column
+    each list will be treated as a separate column;
+    unless named_lists=True, in which case they'll be iteratively added.
 
         Parameters:
             obj (dict): The object to get data from
             **kwargs (dict[str, Any]): Keyword arguments
                 path (str): The path to the list
                 paths (str): The path to the list
+                named_lists (bool): If multiple paths are provided, should they be columns
+                                    or named elements in one single column?
         Returns:
             ([dict]): A list of data
     """
@@ -378,9 +381,17 @@ def get_list_as_list(obj: dict, **kwargs: Any) -> list[Any]:
                 else:
                     vlist.append([item])
     elif "paths" in kwargs:
-        # lists that run out of elements will return ""
-        # strings will be treated as constants and thus returned for every row
         paths = deep_get(kwargs, DictPath("paths"), [])
+        if deep_get(kwargs, DictPath("named_lists")):
+            for d in paths:
+                path = deep_get(d, DictPath("path"))
+                name = deep_get(d, DictPath("name"))
+                for item in deep_get(obj, DictPath(path), []):
+                    vlist.append({"fields": [name, item]})
+            return vlist
+
+        # Lists that run out of elements will return ""
+        # strings will be treated as constants and thus returned for every row
         maxlen = 0
         for column in paths:
             tmp = deep_get(obj, DictPath(column))

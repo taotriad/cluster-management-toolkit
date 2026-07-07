@@ -703,6 +703,8 @@ infoview:
       widget_args:
         title: "Resources:"
         headers: ["Request Type:", "Resource:"]
+        formatting: [["windowwidget", "default"],
+                     ["windowwidget", "highlight"]]
         itemgetter: "get_key_value"
         itemgetter_args:
           source: "selected"
@@ -729,10 +731,39 @@ infoview:
       widget: "windowwidget"
       widget_args:
         title: "Arguments:"
+        headers: ["Type:", "Argument:"]
+        formatting: [["windowwidget", "default"],
+                     ["windowwidget", "highlight"]]
         itemgetter: "get_list_as_list"
         itemgetter_args:
           source: "selected"
-          path: "args"
+          paths:
+            - path: "command"
+              name: "Command"
+            - path: "args"
+              name: "Argument"
+          named_lists: true
+        # This isn't supported for now
+        sortcolumn: "type"
+    "Show container environment variables":
+      key: "v"
+      read_only: true
+      helptext: "Show environment variables"
+      widget: "windowwidget"
+      widget_args:
+        title: "Environment Variables:"
+        headers: ["Variable:", "Value:", "Value From:"]
+        formatting: [["windowwidget", "default"],
+                     ["windowwidget", "highlight"],
+                     ["windowwidget", "highlight"]]
+        itemgetter: "get_list_fields"
+        itemgetter_args:
+          source: "selected"
+          path: "env"
+          fields:
+            - "name"
+            - "value"
+            - "valueFrom"
         # This isn't supported for now
         sortcolumn: "name"
     "Show container volume mounts":
@@ -762,12 +793,12 @@ infoview:
       widget_args:
         title: "Container Security Context Policies:"
         headers: ["Policy:", "Value:"]
+        formatting: [["windowwidget", "default"],
+                     ["windowwidget", "highlight"]]
         itemgetter: "get_security_context"
         itemgetter_args:
           source: "selected"
           path: "securityContext"
-        formatting: [["windowwidget", "default"],
-                     ["windowwidget", "highlight"]]
         # This isn't supported for now
         sortcolumn: "policy"
     "Show volumes":
