@@ -625,6 +625,21 @@ color_pairs_curses:
   type_dir_symlink_name: [["cyan", "bright"], ["black", "normal"]]
   type_dir_pipe: [["yellow", "normal"], ["black", "bright"]]
   type_dir_socket: [["magenta", "normal"], ["black", "normal"]]
+  type_dmesg_bold:
+    unselected: [["white", "bright"], ["black", "normal"]]
+    selected: [["white", "bright"], ["white", "normal"]]
+  type_dmesg_error:
+    unselected: [["red", "normal"], ["black", "normal"]]
+    selected: [["red", "normal"], ["white", "normal"]]
+  type_dmesg_keyword:
+    unselected: [["yellow", "normal"], ["black", "normal"]]
+    selected: [["yellow", "normal"], ["white", "normal"]]
+  type_dmesg_string:
+    unselected: [["white", "normal"], ["black", "normal"]]
+    selected: [["black", "normal"], ["white", "normal"]]
+  type_dmesg_timestamp:
+    unselected: [["green", "normal"], ["black", "normal"]]
+    selected: [["green", "normal"], ["white", "normal"]]
   type_docker_builtin:
     unselected: [["yellow", "bright"], ["black", "normal"]]
     selected: [["yellow", "bright"], ["white", "normal"]]
@@ -1242,6 +1257,11 @@ types:
   dir_symlink_name: ["type_dir_symlink_name", "bold"]
   dir_type: "type_generic"
   dir_unknown: "type_generic"
+  dmesg_bold: ["type_dmesg_bold", "bold"]
+  dmesg_error: "type_dmesg_error"
+  dmesg_keyword: "type_dmesg_keyword"
+  dmesg_string: "type_dmesg_string"
+  dmesg_timestamp: "type_dmesg_timestamp"
   docker_builtin: "type_docker_builtin"
   docker_comment: "type_docker_comment"
   docker_escape: "type_docker_escape"

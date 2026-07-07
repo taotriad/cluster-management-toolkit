@@ -85,7 +85,7 @@ TBD
 
 ### Changes to _cmu_ in v0.8.8
 
-* Syntax highlighting for Prometheus Query Language (PromQL), Dockerfile,
+* Syntax highlighting for Prometheus Query Language (PromQL), dmesg, Dockerfile,
   Common Expression Language (CEL), CSS, HTML, JavaScript, key/value, and Python
   has been added.
 * There's now a built-in file-viewer. Currently supported formats:
@@ -93,6 +93,7 @@ TBD
   * `Context and Unified Diff`
   * `CRT`
   * `CSS`
+  * `dmesg`
   * `Dockerfile`
   * `HTML`
   * `INI`

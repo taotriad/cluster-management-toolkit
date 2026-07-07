@@ -48,6 +48,7 @@ from pygments.lexers.markup import MarkdownLexer
 from pygments.lexers.promql import PromQLLexer
 from pygments.lexers.python import PythonLexer, PythonTracebackLexer
 from pygments.lexers.shell import BashLexer, PowerShellLexer
+from pygments.lexers.textfmts import KernelLogLexer
 from pygments.token import Token
 
 try:
@@ -302,6 +303,74 @@ COLORSCHEME_CSS: dict[Any, ColorSchemeEntry] = {
 }
 
 
+COLORSCHEME_DIFF: dict[Any, ColorSchemeEntry] = {
+    # <whitespace>
+    Token.Text.Whitespace: {
+        "formatting": ThemeAttr("types", "generic"),
+        "type": "whitespace",
+    },
+    # diff --git
+    Token.Generic.Heading: {
+        "formatting": ThemeAttr("logview", "severity_diffheader"),
+        "type": "header",
+    },
+    # +++
+    Token.Generic.Inserted: {
+        "formatting": ThemeAttr("logview", "severity_diffplus"),
+        "type": "header",
+    },
+    # ---
+    Token.Generic.Deleted: {
+        "formatting": ThemeAttr("logview", "severity_diffminus"),
+        "type": "header",
+    },
+    # @@
+    Token.Generic.Subheading: {
+        "formatting": ThemeAttr("logview", "severity_diffatat"),
+        "type": "header",
+    },
+    # text
+    Token.Text: {
+        "formatting": ThemeAttr("logview", "severity_diffsame"),
+        "type": "string",
+    },
+}
+
+
+COLORSCHEME_DMESG: dict[Any, ColorSchemeEntry] = {
+    # <whitespace>
+    Token.Text.Whitespace: {
+        "formatting": ThemeAttr("types", "generic"),
+        "type": "whitespace",
+    },
+    # string
+    Token.Text: {
+        "formatting": ThemeAttr("types", "dmesg_string"),
+        "type": "string",
+    },
+    # 00:14.3: firmware: failed to load iwl-debug-yoyo.bin (-2)
+    Token.Generic.Error: {
+        "formatting": ThemeAttr("types", "dmesg_error"),
+        "type": "error",
+    },
+    # #AC: crashing the kernel on kernel split_locks and warning on user-space split_locks
+    Token.Generic.Strong: {
+        "formatting": ThemeAttr("types", "dmesg_bold"),
+        "type": "bold",
+    },
+    # Command line:
+    Token.Keyword: {
+        "formatting": ThemeAttr("types", "dmesg_keyword"),
+        "type": "keyword",
+    },
+    # [    0.000000]
+    Token.Literal.Number: {
+        "formatting": ThemeAttr("types", "dmesg_timestamp"),
+        "type": "timestamp",
+    },
+}
+
+
 COLORSCHEME_DOCKER: dict[Any, ColorSchemeEntry] = {
     # <whitespace>
     Token.Text.Whitespace: {
@@ -372,40 +441,6 @@ COLORSCHEME_DOCKER: dict[Any, ColorSchemeEntry] = {
     Token.Punctuation: {
         "formatting": ThemeAttr("types", "docker_punctuation"),
         "type": "punctuation",
-    },
-}
-
-
-COLORSCHEME_DIFF: dict[Any, ColorSchemeEntry] = {
-    # <whitespace>
-    Token.Text.Whitespace: {
-        "formatting": ThemeAttr("types", "generic"),
-        "type": "whitespace",
-    },
-    # diff --git
-    Token.Generic.Heading: {
-        "formatting": ThemeAttr("logview", "severity_diffheader"),
-        "type": "header",
-    },
-    # +++
-    Token.Generic.Inserted: {
-        "formatting": ThemeAttr("logview", "severity_diffplus"),
-        "type": "header",
-    },
-    # ---
-    Token.Generic.Deleted: {
-        "formatting": ThemeAttr("logview", "severity_diffminus"),
-        "type": "header",
-    },
-    # @@
-    Token.Generic.Subheading: {
-        "formatting": ThemeAttr("logview", "severity_diffatat"),
-        "type": "header",
-    },
-    # text
-    Token.Text: {
-        "formatting": ThemeAttr("logview", "severity_diffsame"),
-        "type": "string",
     },
 }
 
@@ -2803,23 +2838,6 @@ def format_css(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef | Th
                                    colorscheme=COLORSCHEME_CSS)
 
 
-def format_docker(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef | ThemeStr]]:
-    """
-    Docker formatter; returns the text with syntax highlighting for Dockerfile/.docker.
-
-        Parameters:
-            lines (list[str]): A list of strings
-            *or*
-            lines (str): A string with newlines that should be split
-            **kwargs (dict[str, Any]): Keyword arguments
-        Returns:
-            list[themearray]: A list of themearrays
-    """
-    return format_pygments_generic(lines, **kwargs,
-                                   lexer=DockerLexer(),
-                                   colorscheme=COLORSCHEME_DOCKER)
-
-
 def format_diff(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef | ThemeStr]]:
     """
     Diff formatter; returns the text with syntax highlighting for unified and context diffs.
@@ -2835,6 +2853,40 @@ def format_diff(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef | T
     return format_pygments_generic(lines, **kwargs,
                                    lexer=DiffLexer(),
                                    colorscheme=COLORSCHEME_DIFF)
+
+
+def format_dmesg(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef | ThemeStr]]:
+    """
+    Kernel log formatter; returns the text with syntax highlighting for dmesg/.kmsg.
+
+        Parameters:
+            lines (list[str]): A list of strings
+            *or*
+            lines (str): A string with newlines that should be split
+            **kwargs (dict[str, Any]): Keyword arguments
+        Returns:
+            list[themearray]: A list of themearrays
+    """
+    return format_pygments_generic(lines, **kwargs,
+                                   lexer=KernelLogLexer(),
+                                   colorscheme=COLORSCHEME_DMESG)
+
+
+def format_docker(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef | ThemeStr]]:
+    """
+    Docker formatter; returns the text with syntax highlighting for Dockerfile/.docker.
+
+        Parameters:
+            lines (list[str]): A list of strings
+            *or*
+            lines (str): A string with newlines that should be split
+            **kwargs (dict[str, Any]): Keyword arguments
+        Returns:
+            list[themearray]: A list of themearrays
+    """
+    return format_pygments_generic(lines, **kwargs,
+                                   lexer=DockerLexer(),
+                                   colorscheme=COLORSCHEME_DOCKER)
 
 
 def format_fluentbit(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef | ThemeStr]]:
@@ -3279,6 +3331,9 @@ formatter_mapping: tuple[tuple[tuple[str, ...], tuple[str, ...], Callable], ...]
     (("",), (".diff",), format_diff),
     (("",), (".patch",), format_diff),
     (("diff",), ("diff",), format_diff),
+    (("",), (".dmesg",), format_dmesg),
+    (("",), (".kmsg",), format_dmesg),
+    (("dmesg",), ("dmesg",), format_dmesg),
     (("",), (".docker",), format_docker),
     (("",), ("dockerfile",), format_docker),
     (("docker",), ("docker",), format_docker),
