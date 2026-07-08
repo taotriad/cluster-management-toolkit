@@ -237,6 +237,7 @@ infoview:
       action_args:
         title: "CA bundle"
         _pass_obj: true
+        path: "spec#caBundle"
     "Open controller":
       key: "c"
       modifier: "shift"
@@ -248,4 +249,3 @@ infoview:
         _pass_obj: true
         namespace_path: "metadata#namespace"
         owner_reference_path: "metadata#ownerReferences"
-        path: "spec#caBundle"
