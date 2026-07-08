@@ -7,12 +7,35 @@ listview:
   group: "Knative"
   field_indexes:
     Wide:
-      fields: ["namespace", "name", "type", "source", "ready", "age",
-               "description", "reason"]
+      fields: ["namespace", "name", "controller", "type",
+               "source", "ready", "age", "description", "reason"]
     Normal:
-      fields: ["namespace", "name", "type", "ready", "age",
-               "description", "reason"]
+      fields: ["namespace", "name", "type",
+               "ready", "age", "description", "reason"]
   fields:
+    controller:
+      header: "Controller:"
+      paths:
+        - path: "metadata#ownerReferences"
+          pathtype: "items"
+          subpaths:
+            - "kind"
+            - "apiVersion"
+            - "name"
+          when:
+            - key: "controller"
+              eq: true
+          type: ["kind", "api_group", "name"]
+          default: ["<none>"]
+      formatter: "list"
+      formatting:
+        field_colors:
+          - type: "kind"
+          - type: "api_group"
+          - type: "generic"
+        field_separators:
+          - type: "kind_api_group"
+          - type: "kind"
     description:
       header: "Description:"
       path: "spec#description"

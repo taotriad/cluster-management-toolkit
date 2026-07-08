@@ -13,11 +13,38 @@ listview:
   name: "Promotions"
   group: "CI / CD"
   field_indexes:
+    Wide:
+      fields: ["namespace", "name", "controller", "stage", "freight", "phase",
+               "age", "message"]
+      sortcolumn: "namespace"
     Normal:
       fields: ["namespace", "name", "stage", "freight", "phase",
                "age", "message"]
       sortcolumn: "namespace"
   fields:
+    controller:
+      header: "Controller:"
+      paths:
+        - path: "metadata#ownerReferences"
+          pathtype: "items"
+          subpaths:
+            - "kind"
+            - "apiVersion"
+            - "name"
+          when:
+            - key: "controller"
+              eq: true
+          type: ["kind", "api_group", "name"]
+          default: ["<none>"]
+      formatter: "list"
+      formatting:
+        field_colors:
+          - type: "kind"
+          - type: "api_group"
+          - type: "generic"
+        field_separators:
+          - type: "kind_api_group"
+          - type: "kind"
     freight:
       header: "Freight:"
       path: "spec#freight"

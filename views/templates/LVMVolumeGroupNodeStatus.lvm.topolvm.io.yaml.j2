@@ -1,0 +1,33 @@
+---
+kind: "LVMVolumeGroupNodeStatus"
+api_family: "lvm.topolvm.io"
+default_command: "lvmvolumegroupnodestatuses"
+command:
+  - "lvmvolgroupnodestats"
+  - "lvmvolgroupnodestat"
+  - "lvmvolgrpnodestats"
+  - "lvmvolgrpnodestat"
+listview:
+  name: "LVM Volume Group Node Statuses"
+  group: "Storage & Backups"
+  field_indexes:
+    Normal:
+      fields: ["namespace", "name", "controller", "age"]
+  fields:
+    {%- for line in field_controller.split("\n") %}
+    {{ line }}
+    {%- endfor %}
+infoview:
+  name: "LVM Volume Group Node Status Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["controller"]
+    rows:
+      {%- for line in row_controller.split("\n") %}
+      {{ line }}
+      {%- endfor %}
+  shortcuts:
+    {%- for line in shortcut_controller.split("\n") %}
+    {{ line }}
+    {%- endfor %}

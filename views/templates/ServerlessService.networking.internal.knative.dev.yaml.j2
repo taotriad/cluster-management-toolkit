@@ -1,0 +1,201 @@
+---
+kind: "ServerlessService"
+api_family: "networking.internal.knative.dev"
+default_command: "serverlessservices.networking.internal.knative.dev"
+command:
+  - "serverlessservices.knative"
+  - "serverlessservice.knative"
+  - "serverlesssvcs.knative"
+  - "serverlesssvc.knative"
+  - "srvlsvcs.knative"
+  - "srvlsvc.knative"
+  - "knserverlesssvcs"
+  - "knserverlesssvc"
+listview:
+  name: "Serverless Services"
+  group: "Knative"
+  field_indexes:
+    Normal:
+      fields: ["namespace", "name", "controller", "age", "ready", "reason"]
+      sortcolumn: "namespace"
+  fields:
+    {%- for line in field_controller.split("\n") %}
+    {{ line }}
+    {%- endfor %}
+    ready:
+      header: "Ready:"
+      paths:
+        - path: "status#conditions"
+          pathtype: "items"
+          subpath: "status"
+          when:
+            - key: "type"
+              eq: "Ready"
+          default: ["<unset>"]
+      type: "str"
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          mappings:
+            "True":
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+            "False":
+              field_colors:
+                - context: "main"
+                  type: "status_not_ok"
+    reason:
+      header: "Reason:"
+      paths:
+        - path: "status#conditions"
+          pathtype: "items"
+          subpath: "message"
+          when:
+            - key: "type"
+              eq: "Ready"
+      type: "str"
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          mappings:
+            "True":
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+            "False":
+              field_colors:
+                - context: "main"
+                  type: "status_not_ok"
+infoview:
+  name: "Serverless Service Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["controller", "object_ref", "service",
+                 "private_service", "protocol_type", "mode",
+                 "number_of_activators", "ready", "reason"]
+    rows:
+      {%- for line in row_controller.split("\n") %}
+      {{ line }}
+      {%- endfor %}
+      mode:
+        header: [["Mode:", ["main", "infoheader"]]]
+        path: "spec#mode"
+        type: "str"
+      number_of_activators:
+        header: [["Number of Activators:", ["main", "infoheader"]]]
+        path: "spec#numActivators"
+        type: "int"
+        formatter: "numerical"
+      object_ref:
+        header: [["O", ["main", "infoheader"]],
+                 ["b", ["main", "infoheader_shortcut"]],
+                 ["ject Reference:", ["main", "infoheader"]]]
+        paths:
+          - path: [["spec#objectRef#kind"],
+                   ["spec#objectRef#apiVersion"],
+                   ["spec#objectRef#name"]]
+            pathtype: "tuple"
+            type: ["kind", "api_group", "name"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "kind"
+            - type: "api_group"
+            - type: "generic"
+          field_separators:
+            - type: "kind_api_group"
+            - type: "kind"
+      private_service:
+        header: [["P", ["main", "infoheader_shortcut"]],
+                 ["rivate Service:", ["main", "infoheader"]]]
+        path: "status#privateServiceName"
+        type: "str"
+      protocol_type:
+        header: [["Protocol Type:", ["main", "infoheader"]]]
+        path: "spec#protocolType"
+        type: "str"
+      ready:
+        header: [["Ready:", ["main", "infoheader"]]]
+        paths:
+          - path: "status#conditions"
+            pathtype: "items"
+            subpath: "status"
+            when:
+              - key: "type"
+                eq: "Ready"
+            default: ["<unset>"]
+        type: "str"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              "True":
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+              "False":
+                field_colors:
+                  - context: "main"
+                    type: "status_not_ok"
+              "<unset>":
+                field_colors:
+                  - context: "types"
+                    type: "unset"
+      reason:
+        header: [["Reason:", ["main", "infoheader"]]]
+        paths:
+          - path: "status#conditions"
+            pathtype: "items"
+            subpath: "message"
+            when:
+              - key: "type"
+                eq: "Ready"
+        type: "list"
+        formatter: "list"
+      service:
+        header: [["S", ["main", "infoheader_shortcut"]],
+                 ["ervice:", ["main", "infoheader"]]]
+        path: "status#serviceName"
+        type: "str"
+  shortcuts:
+    {%- for line in shortcut_controller.split("\n") %}
+    {{ line }}
+    {%- endfor %}
+    "Open object reference":
+      key: "b"
+      read_only: true
+      helptext: "Open info page for object reference"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind_path: "spec#objectRef#kind"
+        api_version_path: "spec#objectRef#apiVersion"
+        name_path: "spec#objectRef#name"
+        namespace_path: "metadata#namespace"
+    "Open service":
+      key: "s"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for Service"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind: "Service"
+        name_path: "status#serviceName"
+        namespace_path: "metadata#namespace"
+    "Open private service":
+      key: "p"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for private Service"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind: "Service"
+        name_path: "status#privateServiceName"
+        namespace_path: "metadata#namespace"

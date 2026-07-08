@@ -1,0 +1,87 @@
+---
+kind: "PodGang"
+api_family: "scheduler.grove.io"
+default_command: "podgangs"
+listview:
+  name: "Pod Gangs"
+  group: "Scheduling & Scaling"
+  field_indexes:
+    Normal:
+      fields: ["namespace", "name", "age"]
+      sortcolumn: "namespace"
+  fields:
+    {%- for line in field_controller.split("\n") %}
+    {{ line }}
+    {%- endfor %}
+infoview:
+  name: "Pod Gang Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["controller"]
+    rows:
+      {%- for line in row_controller.split("\n") %}
+      {{ line }}
+      {%- endfor %}
+  listpad:
+    listgetter: "listgetter_path"
+    listgetter_args:
+      path: "spec#podgroups"
+    infogetter: "generic_infogetter"
+    field_indexes:
+      Normal:
+        fields: ["name", "min_replicas", "pod_references"]
+    fields:
+      min_replicas:
+        header: "Min Replicas:"
+        path: "minReplicas"
+        default: 0
+        type: "int"
+        formatter: "numerical"
+        align: "right"
+      name:
+        header: "Name:"
+        path: "name"
+        default: "<unset>"
+        type: "str"
+      pod_references:
+        header: "Pod References:"
+        paths:
+          - path: "podReferences"
+            pathtype: "items"
+            subpaths:
+              - "namespace"
+              - "name"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "namespace"
+            - type: "name"
+          field_separators:
+            - type: "namespace"
+  shortcuts:
+    {%- for line in shortcut_controller.split("\n") %}
+    {{ line }}
+    {%- endfor %}
+    "Pod References":
+      key: "p"
+      modifier: "shift"
+      read_only: true
+      helptext: "List Pod References"
+      widget: "windowwidget"
+      widget_args:
+        title: "Arguments:"
+        selectable: true
+        itemgetter: "get_list_fields"
+        itemgetter_args:
+          source: "selected"
+          path: "podReferences"
+          fields:
+            - "namespace"
+            - "name"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        kind: "Pod"
+        name_path: 1
+        namespace_path: 0

@@ -10,8 +10,31 @@ listview:
   group: "Cluster Configuration"
   field_indexes:
     Normal:
-      fields: ["namespace", "name", "provider_id", "age"]
+      fields: ["namespace", "name", "controller", "provider_id", "age"]
   fields:
+    controller:
+      header: "Controller:"
+      paths:
+        - path: "metadata#ownerReferences"
+          pathtype: "items"
+          subpaths:
+            - "kind"
+            - "apiVersion"
+            - "name"
+          when:
+            - key: "controller"
+              eq: true
+          type: ["kind", "api_group", "name"]
+          default: ["<none>"]
+      formatter: "list"
+      formatting:
+        field_colors:
+          - type: "kind"
+          - type: "api_group"
+          - type: "generic"
+        field_separators:
+          - type: "kind_api_group"
+          - type: "kind"
     provider_id:
       header: "Provider ID:"
       path: "spec#providerID"
@@ -61,8 +84,8 @@ infoview:
       action_call: "resourceinfodispatch_with_lookup"
       action_args:
         _pass_obj: true
-        owner_reference_path: "metadata#ownerReferences"
         namespace_path: "metadata#namespace"
+        owner_reference_path: "metadata#ownerReferences"
     "Virtual Cluster Template":
       key: "t"
       modifier: "shift"

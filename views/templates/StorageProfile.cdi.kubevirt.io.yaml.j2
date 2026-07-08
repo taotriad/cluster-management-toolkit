@@ -1,0 +1,70 @@
+---
+kind: "StorageProfile"
+api_family: "cdi.kubevirt.io"
+default_command: "storageprofiles"
+listview:
+  name: "Storage Profiles"
+  group: "Storage & Backups"
+  field_indexes:
+    Normal:
+      fields: ["name", "controller", "age"]
+  fields:
+    {%- for line in field_controller.split("\n") %}
+    {{ line }}
+    {%- endfor %}
+infoview:
+  name: "Storage Profile Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["controller", "provisioner", "storage_class",
+                 "clone_strategy", "data_import_cron_source_format"]
+    rows:
+      clone_strategy:
+        header: [["Clone Strategy:", ["main", "infoheader"]]]
+        path: "status#cloneStrategy"
+        type: "str"
+      {%- for line in row_controller.split("\n") %}
+      {{ line }}
+      {%- endfor %}
+      data_import_cron_source_format:
+        header: [["Data Import Cron Source Format:", ["main", "infoheader"]]]
+        path: "status#dataImportCronSourceFormat"
+        type: "str"
+      provisioner:
+        header: [["Provisioner:", ["main", "infoheader"]]]
+        path: "status#provisioner"
+        type: "str"
+      storage_class:
+        header: [["S", ["main", "infoheader_shortcut"]],
+                 ["torage Class:", ["main", "infoheader"]]]
+        path: "status#storageClass"
+        type: "str"
+  shortcuts:
+    {%- for line in shortcut_controller.split("\n") %}
+    {{ line }}
+    {%- endfor %}
+    "Open Storage Class":
+      key: "s"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for Storage Class"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        name_path: "status#storageClass"
+        kind: "StorageClass"
+        api_family: "storage.k8s.io"
+    "View Claim Property Sets":
+      key: "p"
+      modifier: "shift"
+      read_only: true
+      helptext: "Show claim property sets"
+      action: "call"
+      action_call: "view_yaml"
+      action_args:
+        title: "Claim Property Sets"
+        _pass_obj: true
+        path: "status#claimPropertySets"
+        include_root: true

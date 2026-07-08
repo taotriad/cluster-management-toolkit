@@ -1,0 +1,188 @@
+---
+kind: "EndpointSlice"
+api_family: "discovery.k8s.io"
+default_command: "endpointslices"
+command:
+  - "eps"
+listview:
+  name: "Endpoint Slices"
+  group: "Core"
+  field_indexes:
+    Wide:
+      fields: ["namespace", "name", "controller", "ports", "endpoints",
+               "addresstype", "age"]
+      sortcolumn: "namespace"
+    Normal:
+      fields: ["namespace", "name", "ports_compact",
+               "endpoints_ellipsise", "addresstype", "age"]
+      sortcolumn: "namespace"
+  fields:
+    addresstype:
+      header: "Type:"
+      path: "addressType"
+      type: "str"
+    {%- for line in field_controller.split("\n") %}
+    {{ line }}
+    {%- endfor %}
+    endpoints:
+      header: "Endpoints:"
+      path: "subsets"
+      datagetter: "datagetter_eps_endpoints"
+      formatter: "list_with_status"
+    endpoints_ellipsise:
+      header: "Endpoints:"
+      path: "subsets"
+      datagetter: "datagetter_eps_endpoints"
+      formatter: "list_with_status"
+      formatting:
+        ellipsise: 3
+    ports:
+      header: "Ports:"
+      paths:
+        - path: "ports"
+          pathtype: "items"
+          subpaths:
+            - "name"
+            - "port"
+            - "protocol"
+          type: "raw"
+      formatter: "list"
+      formatting:
+        field_colors:
+          - type: "service"
+          - type: "port"
+          - type: "protocol"
+        field_separators:
+          - type: "port"
+          - type: "service"
+    ports_compact:
+      header: "Ports:"
+      paths:
+        - path: "ports"
+          pathtype: "items"
+          subpaths:
+            - "port"
+            - "protocol"
+          type: "raw"
+      formatter: "list"
+      formatting:
+        field_colors:
+          - type: "port"
+          - type: "protocol"
+        field_separators:
+          - type: "service"
+        ellipsise: 3
+  actions:
+    actionlist:
+      "Delete resource":
+        description: "Delete resource"
+        category: "Resource Level"
+        confirm: true
+        actionfunc: "delete_resource"
+infoview:
+  name: "Endpoint Slice Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["controller"]
+    rows:
+      {%- for line in row_controller.split("\n") %}
+      {{ line }}
+      {%- endfor %}
+  listpad:
+    listgetter: "listgetter_path"
+    listgetter_args:
+      path: ""
+    infogetter: "get_eps_subsets_info"
+    field_indexes:
+      Wide:
+        fields: ["addresstype", "addresses", "ports_eps", "status",
+                 "target_ref", "topology", "ready", "serving", "terminating"]
+      Normal:
+        fields: ["addresstype", "addresses", "ports_eps", "status",
+                 "target_ref"]
+    fields:
+      addresses:
+        header: "Addresses:"
+        path: "addresses"
+        type: "raw"
+        formatter: "address"
+      addresstype:
+        header: "Type:"
+        path: "addresstype"
+        type: "str"
+      ports_eps:
+        header: "Ports:"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "service"
+            - type: "port"
+            - type: "protocol"
+          field_separators:
+            - type: "port"
+            - type: "service"
+      ready:
+        header: "Ready:"
+        path: "ready"
+        default: "<unset>"
+        type: "bool"
+      serving:
+        header: "Serving:"
+        path: "serving"
+        default: "<unset>"
+        type: "bool"
+      status:
+        header: "Status:"
+      target_ref:
+        header: "Target Reference:"
+        path: "target_ref"
+        type: "raw"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "kind"
+            - type: "api_group"
+            - type: "namespace"
+            - type: "generic"
+          field_separators:
+            - type: "kind_api_group"
+            - type: "kind"
+            - type: "namespace"
+      terminating:
+        header: "Terminating:"
+        path: "terminating"
+        default: "<unset>"
+        type: "bool"
+      topology:
+        header: "Topology:"
+        path: "topology"
+        type: "raw"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "key"
+            - type: "value"
+          field_separators:
+            - type: "selector"
+  shortcuts:
+    {%- for line in shortcut_controller.split("\n") %}
+    {{ line }}
+    {%- endfor %}
+    "Open target reference":
+      key: "enter"
+      helptext: "Open info page for selected resource"
+      read_only: true
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_selected: true
+        _selected_objs:
+          target_ref_kind: ["target_ref", 0]
+          target_ref_api_version: ["target_ref", 1]
+          target_ref_name: ["target_ref", 3]
+          target_ref_namespace: ["target_ref", 2]
+        kind_path: "target_ref_kind"
+        api_family_path: "target_ref_api_version"
+        name_path: "target_ref_name"
+        namespace_path: "target_ref_namespace"

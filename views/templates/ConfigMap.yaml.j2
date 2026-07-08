@@ -1,0 +1,152 @@
+---
+kind: "ConfigMap"
+default_command: "configmaps"
+command:
+  - "cm"
+listview:
+  name: "Config Maps"
+  group: "Core"
+  field_indexes:
+    Normal:
+      fields: ["namespace", "name", "controller", "data", "immutable", "age"]
+      sortcolumn: "namespace"
+  fields:
+    {%- for line in field_controller.split("\n") %}
+    {{ line }}
+    {%- endfor %}
+    data:
+      header: "# of Data:"
+      path: "data"
+      type: "len"
+      formatter: "numerical"
+      align: "right"
+    immutable:
+      header: "Immutable:"
+      paths:
+        - path: "immutable"
+          pathtype: "value"
+          type: "bool"
+          default: ""
+  actions:
+    actionlist:
+      "Delete resource":
+        description: "Delete resource"
+        category: "Resource Level"
+        confirm: true
+        actionfunc: "delete_resource"
+infoview:
+  name: "Config Map Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["controller", "immutable"]
+    rows:
+      {%- for line in row_controller.split("\n") %}
+      {{ line }}
+      {%- endfor %}
+      immutable:
+        header: [["Immutable:", ["main", "infoheader"]]]
+        paths:
+          - path: "immutable"
+            pathtype: "value"
+            type: "bool"
+            default: "False"
+  listpad:
+    on_activation:
+      call: "resourceinfodispatch"
+      kind: "__ResourceView"
+      formatter_path: "formatter"
+      obj_path: "data"
+      title_path: "configmap"
+    listgetter: "listgetter_configmap_data"
+    infogetter: "generic_infogetter"
+    field_indexes:
+      Normal:
+        fields: ["data", "type"]
+        sortcolumn: "data"
+    fields:
+      data:
+        header: "Data:"
+        path: "configmap"
+        type: "str"
+      type:
+        header: "Type:"
+        path: "type"
+        type: "str"
+  shortcuts:
+    {%- for line in shortcut_controller.split("\n") %}
+    {{ line }}
+    {%- endfor %}
+    "Display Certificate info using openssl":
+      key: "d"
+      modifier: "shift"
+      read_only: true
+      helptext: "Display certificate information using openssl (if installed)"
+      widget: "command"
+      widget_args:
+        command: ["openssl", "x509", "-text", "-noout"]
+        _pass_selected_obj: true
+        input_path: "data"
+        wait_for_keypress: true
+    "Export":
+      key: "e"
+      modifier: "shift"
+      read_only: false
+      helptext: "Export selected configmap to a file"
+      widget: "inputbox"
+      widget_args:
+        title: "Export to file:"
+        confirm: "path_exists"
+        confirmtitle: "File already exists; overwrite?:"
+      action: "call"
+      action_call: "export_data"
+      action_args:
+        _pass_result: true
+        _pass_selected: true
+        _pass_obj: true
+        _extra_args:
+          base_path: "data"
+          name_attr: "data"
+          raw_export: true
+    "Decode and Export":
+      key: "x"
+      modifier: "shift"
+      read_only: false
+      helptext: "Decode and export selected configmap to a file"
+      widget: "inputbox"
+      widget_args:
+        title: "Decode and Export to file:"
+        confirm: "path_exists"
+        confirmtitle: "File already exists; overwrite?:"
+      action: "call"
+      action_call: "export_data"
+      action_args:
+        _pass_result: true
+        _pass_selected: true
+        _pass_obj: true
+        _extra_args:
+          base_path: "data"
+          name_attr: "data"
+    "List Pods using this ConfigMap":
+      key: "p"
+      modifier: "shift"
+      read_only: true
+      helptext: "List Pods using this ConfigMap (if any)"
+      widget: "windowwidget"
+      widget_args:
+        title: "Pods:"
+        headers: ["Namespace:", "Name:"]
+        selectable: true
+        itemgetter: "get_pod_configmaps"
+        itemgetter_args:
+          cm_namespace: ["metadata#namespace"]
+          cm_name: ["metadata#name"]
+          pod_name: ""
+        # This isn't supported for now
+        sortcolumn: "name"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        kind: "Pod"
+        name_path: "metadata#name"
+        namespace_path: "metadata#namespace"

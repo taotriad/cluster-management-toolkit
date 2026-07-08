@@ -10,14 +10,37 @@ listview:
   group: "Cluster Configuration"
   field_indexes:
     Normal:
-      fields: ["namespace", "name", "cluster", "ready", "phase", "age",
-               "reason"]
+      fields: ["namespace", "name", "controller", "cluster",
+               "ready", "phase", "age", "reason"]
       sortcolumn: "namespace"
   fields:
     cluster:
       header: "Cluster:"
       path: "metadata#labels#cluster.x-k8s.io/cluster-name"
       type: "str"
+    controller:
+      header: "Controller:"
+      paths:
+        - path: "metadata#ownerReferences"
+          pathtype: "items"
+          subpaths:
+            - "kind"
+            - "apiVersion"
+            - "name"
+          when:
+            - key: "controller"
+              eq: true
+          type: ["kind", "api_group", "name"]
+          default: ["<none>"]
+      formatter: "list"
+      formatting:
+        field_colors:
+          - type: "kind"
+          - type: "api_group"
+          - type: "generic"
+        field_separators:
+          - type: "kind_api_group"
+          - type: "kind"
     phase:
       header: "Phase:"
       path: "status#phase"

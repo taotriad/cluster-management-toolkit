@@ -1,0 +1,167 @@
+---
+kind: "PriorityClass"
+api_family: "scheduling.k8s.io"
+default_command: "priorityclasses"
+command:
+  - "pc"
+  - "prioclasses"
+  - "prioclass"
+listview:
+  name: "Priority Classes"
+  group: "Scheduling & Scaling"
+  field_indexes:
+    Wide:
+      fields: ["name", "controller", "priority", "global_default", "age"]
+    Normal:
+      fields: ["name", "priority", "global_default", "age"]
+  fields:
+    {%- for line in field_controller.split("\n") %}
+    {{ line }}
+    {%- endfor %}
+    global_default:
+      header: "Global Default:"
+      path: "globalDefault"
+      default: false
+      type: "bool"
+    priority:
+      header: "Value:"
+      path: "value"
+      type: "int"
+      formatter: "numerical"
+      align: "right"
+  actions:
+    actionlist:
+      "Delete resource":
+        description: "Delete resource"
+        category: "Resource Level"
+        confirm: true
+        actionfunc: "delete_resource"
+infoview:
+  name: "Priority Class Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["controller", "value", "global_default",
+                 "preemption_policy", "description", "description2"]
+    rows:
+      {%- for line in row_controller.split("\n") %}
+      {{ line }}
+      {%- endfor %}
+      global_default:
+        header: [["Global Default:", ["main", "infoheader"]]]
+        path: "globalDefault"
+        default: false
+        type: "bool"
+      preemption_policy:
+        header: [["Preemption Policy:", ["main", "infoheader"]]]
+        path: "preemptionPolicy"
+        type: "str"
+      value:
+        header: [["Value:", ["main", "infoheader"]]]
+        path: "value"
+        type: "int"
+        formatter: "numerical"
+      description:
+        header: [["Description:", ["main", "infoheader"]]]
+      description2:
+        header: [[" ", ["main", "infoheader"]]]
+        path: "description"
+        type: "str"
+  listpad:
+    listgetter: "generic_listgetter"
+    listgetter_args:
+      _kind: "Pod"
+      _pass_obj: true
+      filters:
+        priority_class:
+          enabled: true
+          allow:
+            - key: "spec#priorityClassName"
+              values:
+                source: "caller"
+                path: "metadata#name"
+    infogetter: "generic_infogetter"
+    on_activation:
+      call: "resourceinfodispatch"
+      kind: "Pod"
+    field_indexes:
+      Wide:
+        fields: ["namespace", "name", "controller", "pod_status",
+                 "node_name", "pod_ip", "age", "restarts",
+                 "last_restart", "containers"]
+        sortcolumn: "pod_status"
+      Normal:
+        fields: ["namespace", "name", "controller", "pod_status",
+                 "node_name", "age", "restarts", "last_restart"]
+        sortcolumn: "pod_status"
+      Compact:
+        fields: ["namespace", "name", "pod_status", "age",
+                 "restarts", "last_restart"]
+        sortcolumn: "pod_status"
+    fields:
+      containers:
+        header: "Containers:"
+        paths:
+          - paths:
+              - "spec#initContainers"
+              - "spec#containers"
+            pathtype: "items"
+            subpaths:
+              - "name"
+              - subpath: "image"
+                regex: ["^.+/[^:^/]+:(.+?)@.*", "^.+/[^:^/]+:(.+)"]
+            type: "raw"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "generic"
+            - type: "version"
+          field_separators:
+            - type: "version"
+      {%- for line in field_controller.split("\n") %}
+      {{ line }}
+      {%- endfor %}
+      last_restart:
+        header: "Latest Restart:"
+        paths:
+          - path: "status#containerStatuses"
+            pathtype: "items"
+            subpath: ["state#running#startedAt",
+                      "lastState#terminated#finishedAt"]
+            when:
+              - key: "restartCount"
+                gt: 0
+            action: "latest"
+            type: "timestamp"
+        default: -1
+        formatter: "age"
+        align: "right"
+      node_name:
+        header: "Node:"
+        path: "spec#nodeName"
+        type: "host"
+        default: "<none>"
+        formatting:
+          field_colors:
+            - type: "host"
+      pod_ip:
+        header: "Pod IP:"
+        path: "status#podIP"
+        default: "<unset>"
+        type: "address"
+        formatter: "address"
+      restarts:
+        header: "Restarts:"
+        paths:
+          - path: "status#containerStatuses"
+            pathtype: "items"
+            subpath: "restartCount"
+            action: "sum"
+            type: "int"
+        default: 0
+        formatter: "numerical"
+        align: "right"
+  shortcuts:
+    {%- for line in shortcut_controller.split("\n") %}
+    {{ line }}
+    {%- endfor %}

@@ -1,0 +1,254 @@
+---
+kind: "Workload"
+api_family: "kueue.x-k8s.io"
+default_command: "workloads.kueue.x-k8s.io"
+command:
+  - "kueueworkloads"
+  - "kueueworkload"
+  - "workloads.kueue"
+  - "workload.kueue"
+  - "kueuewls"
+  - "kueuewl"
+listview:
+  name: "Workloads"
+  group: "Batch Scheduling"
+  field_indexes:
+    Wide:
+      fields: ["namespace", "name", "controller", "queue", "priority",
+               "admitted_by", "active", "age"]
+    Normal:
+      fields: ["namespace", "name", "queue", "priority",
+               "admitted_by", "active", "age"]
+  fields:
+    active:
+      header: "Active:"
+      path: "spec#active"
+      default: "<unset>"
+      type: "bool"
+    admitted_by:
+      header: "Admitted By:"
+      path: "status#admittedBy"
+      default: "<unset>"
+      type: "str"
+    {%- for line in field_controller.split("\n") %}
+    {{ line }}
+    {%- endfor %}
+    priority:
+      header: "Priority:"
+      path: "spec#priority"
+      default: "<unset>"
+      type: "int"
+      formatter: "numerical"
+      align: "right"
+    queue:
+      header: "Queue:"
+      path: "spec#queueName"
+      type: "str"
+  actions:
+    actionlist:
+      "Delete resource (and controller)":
+        description: "Delete resource (and controller)"
+        category: "Resource Level"
+        confirm: true
+        actionfunc: "delete_resource"
+        actionfunc_args:
+          delete_owner: true
+          owner_reference_path: "metadata#ownerReferences"
+      "Requeue resource":
+        description: "Requeue resource"
+        category: "Resource Level"
+        confirm: true
+        actionfunc: "delete_resource"
+      "Resume resource":
+        # Requires Kubernetes 1.22+
+        description: "Resume resource"
+        category: "Resource Level"
+        actionfunc: "patch_resource"
+        extravars:
+          action_str: "Resuming"
+          args:
+            patch:
+              spec:
+                active: true
+            strategic_merge: false
+      "Suspend resource":
+        # Requires Kubernetes 1.22+
+        description: "Suspend resource"
+        category: "Resource Level"
+        actionfunc: "patch_resource"
+        extravars:
+          action_str: "Suspending"
+          args:
+            patch:
+              spec:
+                active: false
+            strategic_merge: false
+infoview:
+  name: "Workload Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["controller", "cluster_queue", "queue", "priority",
+                 "admitted_by", "active", "admission_check_state"]
+    rows:
+      active:
+        header: [["Active:", ["main", "infoheader"]]]
+        path: "spec#active"
+        default: "<unset>"
+        type: "bool"
+      admission_check_state:
+        header: [["Admission Check State:", ["main", "infoheader"]]]
+        paths:
+          - path: "status#admissionCheckStates"
+            pathtype: "items"
+            subpath: "type"
+            index: -1
+            default: ["<unset>"]
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              Pending:
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+              Ready:
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+              Rejected:
+                field_colors:
+                  - context: "main"
+                    type: "status_warning"
+              Retry:
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+              "<unset>":
+                field_colors:
+                  - context: "types"
+                    type: "unset"
+      admitted_by:
+        header: [["Admitted By:", ["main", "infoheader"]]]
+        path: "status#admittedBy"
+        default: "<unset>"
+        type: "str"
+      cluster_queue:
+        header: [["Cluster Q", ["main", "infoheader"]],
+                 ["u", ["main", "infoheader_shortcut"]],
+                 ["eue:", ["main", "infoheader"]]]
+        path: "status#admission#clusterQueue"
+        default: "<unset>"
+        type: "str"
+      {%- for line in row_controller.split("\n") %}
+      {{ line }}
+      {%- endfor %}
+      priority:
+        header: [["Priority:", ["main", "infoheader"]]]
+        path: "spec#priority"
+        default: "<unset>"
+        type: "int"
+        formatter: "numerical"
+      queue:
+        header: [["Q", ["main", "infoheader_shortcut"]],
+                 ["ueue:", ["main", "infoheader"]]]
+        path: "spec#queueName"
+        type: "str"
+  listpad:
+    listgetter: "listgetter_path"
+    listgetter_args:
+      paths:
+        - path: "spec#podSets"
+          type: "list"
+        - path: "status#admission#podSetAssignments"
+          type: "list"
+      join_key: "name"
+    infogetter: "generic_infogetter"
+    on_activation:
+      call: "resourceinfodispatch"
+      kind: "__ResourceView"
+      formatter: "format_yaml"
+      obj_path: ""
+      title: "PodSet: "
+      title_path: "name"
+    field_indexes:
+      Normal:
+        fields: ["name", "count", "flavors", "resource_usage"]
+        sortcolumn: "name"
+    fields:
+      count:
+        header: "Count:"
+        path: "count"
+        type: "int"
+        formatter: "numerical"
+        align: "right"
+      flavors:
+        header: "Flavors:"
+        paths:
+          - path: "flavors"
+            pathtype: "key_value"
+            default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "key"
+            - type: "value"
+          field_separators:
+            - type: "keyvalue"
+      name:
+        header: "Name:"
+        path: "name"
+        type: "str"
+      resource_usage:
+        header: "Resource Usage:"
+        paths:
+          - path: "resourceUsage"
+            pathtype: "key_value"
+            default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "key"
+            - type: "value"
+          field_separators:
+            - type: "keyvalue"
+  shortcuts:
+    {%- for line in shortcut_controller.split("\n") %}
+    {{ line }}
+    {%- endfor %}
+    "Open Cluster Queue":
+      key: "u"
+      read_only: true
+      helptext: "Open info page for Cluster Queue"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        name_path: "status#admission#clusterQueue"
+        kind: "ClusterQueue"
+        api_family: "kueue.x-k8s.io"
+    "Open Queue":
+      key: "q"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for queue"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        name_path: "spec#queueName"
+        namespace_path: "metadata#namespace"
+        kind: "LocalQueue"
+        api_family: "kueue.x-k8s.io"
+    "Podsets":
+      key: "p"
+      modifier: "shift"
+      read_only: true
+      helptext: "Show pod sets"
+      action: "call"
+      action_call: "view_yaml"
+      action_args:
+        title: "Pod Sets"
+        _pass_obj: true
+        path: "spec#podSets"
+        include_root: true

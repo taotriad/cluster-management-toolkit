@@ -1,0 +1,212 @@
+---
+kind: "AuthorizationPolicy"
+api_family: "security.istio.io"
+default_command: "istioauthorizationpolicies"
+command:
+  - "istioauthorizationpolicy"
+  - "istioauthpolicies"
+  - "istioauthpolicy"
+  - "istioauthpols"
+  - "istioauthpol"
+  - "authorizationpolicies.istio"
+  - "authorizationpolicy.istio"
+  - "authpolicies.istio"
+  - "authpolicy.istio"
+  - "authpols.istio"
+  - "authpol.istio"
+listview:
+  name: "Authorization Policies"
+  group: "Istio"
+  field_indexes:
+    Normal:
+      fields: ["namespace", "name", "controller", "age"]
+      sortcolumn: "namespace"
+  fields:
+    {%- for line in field_controller.split("\n") %}
+    {{ line }}
+    {%- endfor %}
+infoview:
+  name: "Authorization Policy Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["controller", "workload_selector", "action"]
+    rows:
+      action:
+        header: [["Action:", ["main", "infoheader"]]]
+        path: "spec#action"
+        type: "str"
+        default: "ALLOW"
+      {%- for line in row_controller.split("\n") %}
+      {{ line }}
+      {%- endfor %}
+      workload_selector:
+        header: [["Selector:", ["main", "infoheader"]]]
+        paths:
+          - path: ["spec#selector#matchLabels"]
+            pathtype: "key_value"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "key"
+            - type: "value"
+          field_separators:
+            - type: "selector"
+  listpad:
+    listgetter: "listgetter_path"
+    listgetter_args:
+      path: ""
+    infogetter: "get_auth_rule_info"
+    field_indexes:
+      Normal:
+        fields: ["sources", "operations", "conditions"]
+        sortcolumn: "sources"
+    fields:
+      conditions:
+        header: "Condition:"
+        path: "conditions"
+        type: "raw"
+        formatter: "list"
+        formatting:
+          # equals, logical and, not equals
+          # key=[...] ∧ key≠[...], ...
+          field_separators:
+            - type: "equals"
+            - type: "logical_and"
+            - type: "not_equals"
+          item_separator:
+            type: "logical_or"
+          field_prefixes:
+            -
+              - type: "no_pad"
+            -
+              - type: "set_start"
+            -
+              - type: "no_pad"
+            -
+              - type: "set_start"
+          field_suffixes:
+            -
+              - type: "no_pad"
+            -
+              - type: "set_end"
+            -
+              - type: "no_pad"
+            -
+              - type: "set_end"
+      operations:
+        header: "Operation:"
+        path: "operations"
+        type: "raw"
+        formatter: "list"
+        formatting:
+          field_separators:
+            - type: "logical_and"
+          item_separator:
+            type: "logical_or"
+          field_prefixes:
+            -
+              - type: "hosts"
+              - type: "list_start"
+            -
+              - type: "not"
+              - type: "hosts"
+              - type: "list_start"
+            -
+              - type: "ports"
+              - type: "list_start"
+            -
+              - type: "not"
+              - type: "ports"
+              - type: "list_start"
+            -
+              - type: "methods"
+              - type: "list_start"
+            -
+              - type: "not"
+              - type: "methods"
+              - type: "list_start"
+            -
+              - type: "paths"
+              - type: "list_start"
+            -
+              - type: "not"
+              - type: "paths"
+              - type: "list_start"
+          field_suffixes:
+            -
+              - type: "list_end"
+            -
+              - type: "list_end"
+            -
+              - type: "list_end"
+            -
+              - type: "list_end"
+            -
+              - type: "list_end"
+            -
+              - type: "list_end"
+            -
+              - type: "list_end"
+            -
+              - type: "list_end"
+      sources:
+        header: "Source:"
+        path: "sources"
+        type: "raw"
+        formatter: "list"
+        formatting:
+          field_separators:
+            - type: "logical_and"
+          item_separator:
+            type: "logical_or"
+          field_prefixes:
+            -
+              - type: "principals"
+              - type: "list_start"
+            -
+              - type: "not"
+              - type: "principals"
+              - type: "list_start"
+            -
+              - type: "request_principals"
+              - type: "list_start"
+            -
+              - type: "not"
+              - type: "request_principals"
+              - type: "list_start"
+            -
+              - type: "namespaces"
+              - type: "list_start"
+            -
+              - type: "not"
+              - type: "namespaces"
+              - type: "list_start"
+            -
+              - type: "ip_blocks"
+              - type: "list_start"
+            -
+              - type: "not"
+              - type: "ip_blocks"
+              - type: "list_start"
+          field_suffixes:
+            -
+              - type: "list_end"
+            -
+              - type: "list_end"
+            -
+              - type: "list_end"
+            -
+              - type: "list_end"
+            -
+              - type: "list_end"
+            -
+              - type: "list_end"
+            -
+              - type: "list_end"
+            -
+              - type: "list_end"
+  shortcuts:
+    {%- for line in shortcut_controller.split("\n") %}
+    {{ line }}
+    {%- endfor %}

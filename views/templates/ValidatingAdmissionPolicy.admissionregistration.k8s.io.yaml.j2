@@ -1,0 +1,248 @@
+---
+kind: "ValidatingAdmissionPolicy"
+api_family: "admissionregistration.k8s.io"
+default_command: "validatingadmissionpolicies"
+command:
+  - "vapols"
+  - "vapol"
+listview:
+  name: "Validating Admission Policies"
+  group: "API & Extendability"
+  field_indexes:
+    Wide:
+      fields: ["name", "controller", "param_kind", "validations", "age"]
+    Normal:
+      fields: ["name", "param_kind", "validations", "age"]
+  fields:
+    {%- for line in field_controller.split("\n") %}
+    {{ line }}
+    {%- endfor %}
+    param_kind:
+      header: "Parameter Kind:"
+      paths:
+        - path: [["spec#paramKind#kind"], ["spec#paramKind#apiVersion"]]
+          pathtype: "tuple"
+          type: ["kind", "api_group"]
+          default: "<unset>"
+      formatter: "list"
+      formatting:
+        field_colors:
+          - type: "kind"
+          - type: "api_group"
+        field_separators:
+          - type: "kind_api_group"
+    validations:
+      header: "Validations:"
+      path: "spec#validations"
+      type: "len"
+      formatter: "numerical"
+      align: "right"
+  actions:
+    actionlist:
+      "Delete resource":
+        description: "Delete resource"
+        category: "Resource Level"
+        confirm: true
+        actionfunc: "delete_resource"
+infoview:
+  name: "Validating Admission Policy Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["controller", "param_kind", "failure_policy",
+                 "match_constraints_header", "match_constraints_match_policy",
+                 "match_constraints_namespace_label_selector",
+                 "match_constraints_namespace_set_based_selector",
+                 "match_constraints_object_label_selector",
+                 "match_constraints_object_set_based_selector"]
+    rows:
+      {%- for line in row_controller.split("\n") %}
+      {{ line }}
+      {%- endfor %}
+      failure_policy:
+        header: [["Failure Policy:", ["main", "infoheader"]]]
+        path: "spec#failurePolicy"
+        default: "<unset>"
+        type: "str"
+      match_constraints_header:
+        header: [["Match Constraints:", ["main", "infoheader"]]]
+      match_constraints_match_policy:
+        header: [["  Match Policy:", ["main", "infoheader"]]]
+        path: "spec#matchConstraints#matchPolicy"
+        type: "str"
+      match_constraints_namespace_label_selector:
+        header: [["  Namespace La", ["main", "infoheader"]],
+                 ["b", ["main", "infoheader_shortcut"]],
+                 ["el Selector:", ["main", "infoheader"]]]
+        paths:
+          - path: ["spec#matchConstraints#namespaceSelector#matchLabels"]
+            pathtype: "key_value"
+            default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "key"
+            - type: "value"
+          field_separators:
+            - type: "selector"
+      match_constraints_object_label_selector:
+        header: [["  Objec", ["main", "infoheader"]],
+                 ["t", ["main", "infoheader_shortcut"]],
+                 [" Label Selector:", ["main", "infoheader"]]]
+        paths:
+          - path: ["spec#matchConstraints#objectSelector#matchLabels"]
+            pathtype: "key_value"
+            default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "key"
+            - type: "value"
+          field_separators:
+            - type: "selector"
+      match_constraints_namespace_set_based_selector:
+        header: [["  Set-based Namespace Selector:", ["main", "infoheader"]]]
+        paths:
+          - path: "spec#matchConstraints#namespaceSelector#matchExpressions"
+            pathtype: "match_expression"
+            default: "<none>"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "key"
+            - type: "operator"
+            - type: "value"
+          field_separators:
+            - type: "space"
+            - type: "no_pad"
+      match_constraints_object_set_based_selector:
+        header: [["  Set-based Object Selector:", ["main", "infoheader"]]]
+        paths:
+          - path: "spec#matchConstraints#objectSelector#matchExpressions"
+            pathtype: "match_expression"
+            default: "<none>"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "key"
+            - type: "operator"
+            - type: "value"
+          field_separators:
+            - type: "space"
+            - type: "no_pad"
+      param_kind:
+        header: [["P", ["main", "infoheader_shortcut"]],
+                 ["arameter Kind:", ["main", "infoheader"]]]
+        paths:
+          - path: [["spec#paramKind#kind"], ["spec#paramKind#apiVersion"]]
+            pathtype: "tuple"
+            type: ["kind", "api_group"]
+            default: "<unset>"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "kind"
+            - type: "api_group"
+          field_separators:
+            - type: "kind_api_group"
+  listpad:
+    on_activation:
+      call: "resourceinfodispatch"
+      kind: "__ValidatingAdmissionPolicyRule"
+      api_family: "admissionregistration.k8s.io"
+    listgetter: "listgetter_path"
+    listgetter_args:
+      paths:
+        - path: "spec#auditAnnotations"
+          type: "list"
+          key_name: "type"
+          key_value: "Audit Annotations"
+        - path: "spec#matchConditions"
+          type: "list"
+          key_name: "type"
+          key_value: "Match Condition"
+        - path: "spec#validations"
+          type: "list"
+          key_name: "type"
+          key_value: "Validation"
+        - path: "spec#variables"
+          type: "list"
+          key_name: "type"
+          key_value: "Variable"
+    infogetter: "generic_infogetter"
+    field_indexes:
+      Normal:
+        fields: ["type", "name", "key", "message", "reason",
+                 "expression", "value_expression"]
+        sortcolumn: "message"
+    fields:
+      expression:
+        header: "Expression:"
+        path: "expression"
+        default: "<unset>"
+        type: "str"
+      key:
+        header: "Key:"
+        path: "key"
+        default: "<unset>"
+        type: "str"
+      message:
+        header: "Message:"
+        path: "message"
+        default: "<unset>"
+        type: "str"
+      name:
+        header: "Name:"
+        path: "name"
+        default: "<unset>"
+        type: "str"
+      reason:
+        header: "Reason:"
+        path: "reason"
+        default: "<unset>"
+        type: "str"
+      type:
+        header: "Type:"
+        path: "type"
+        type: "str"
+      value_expression:
+        header: "Value Expression:"
+        path: "valueExpression"
+        type: "str"
+  shortcuts:
+    {%- for line in shortcut_controller.split("\n") %}
+    {{ line }}
+    {%- endfor %}
+    "Namespace Label Selector":
+      key: "b"
+      read_only: true
+      helptext: "Show namespace label selector"
+      widget: "windowwidget"
+      widget_args:
+        title: "Namespace Label Selector:"
+        headers: ["Key:", "Value:"]
+        itemgetter: "get_key_value"
+        itemgetter_args:
+          path: "spec#matchConstraints#namespaceSelector#matchLabels"
+    "Object Label Selector":
+      key: "t"
+      read_only: true
+      helptext: "Show object label selector"
+      widget: "windowwidget"
+      widget_args:
+        title: "Object Label Selector:"
+        headers: ["Key:", "Value:"]
+        itemgetter: "get_key_value"
+        itemgetter_args:
+          path: "spec#matchConstraints#objectSelector#matchLabels"
+    "List Parameter Kind":
+      key: "p"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open list page for parameter kind"
+      action: "call"
+      action_call: "listviewdispatch"
+      action_args:
+        _pass_obj: true
+        kind_path: "spec#paramKind#kind"
+        api_family_path: "spec#paramKind#apiVersion"

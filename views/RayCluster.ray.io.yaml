@@ -10,7 +10,8 @@ listview:
   group: "KubeRay"
   field_indexes:
     Normal:
-      fields: ["namespace", "name", "ready_workers", "available_workers",
+      fields: ["namespace", "name", "controller",
+               "ready_workers", "available_workers",
                "desired_workers", "state", "age"]
       sortcolumn: "namespace"
   fields:
@@ -21,6 +22,29 @@ listview:
       type: "int"
       formatter: "numerical"
       align: "right"
+    controller:
+      header: "Controller:"
+      paths:
+        - path: "metadata#ownerReferences"
+          pathtype: "items"
+          subpaths:
+            - "kind"
+            - "apiVersion"
+            - "name"
+          when:
+            - key: "controller"
+              eq: true
+          type: ["kind", "api_group", "name"]
+          default: ["<none>"]
+      formatter: "list"
+      formatting:
+        field_colors:
+          - type: "kind"
+          - type: "api_group"
+          - type: "generic"
+        field_separators:
+          - type: "kind_api_group"
+          - type: "kind"
     desired_workers:
       header: "Desired:"
       path: "status#desiredWorkerReplicas"

@@ -1,0 +1,174 @@
+---
+kind: "GameServerSet"
+api_family: "agones.dev"
+default_command: "gameserversets"
+command:
+  - "gamesrvsets"
+  - "gamesrvset"
+listview:
+  name: "Game Server Sets"
+  group: "Agones"
+  field_indexes:
+    Wide:
+      fields: ["namespace", "name", "controller", "scheduling",
+               "desired_replicas", "current_replicas",
+               "allocated_replicas", "reserved_replicas",
+               "ready_replicas", "shutdown_replicas", "age"]
+      sortcolumn: "namespace"
+    Normal:
+      fields: ["namespace", "name", "controller",
+               "desired_replicas", "current_replicas",
+               "allocated_replicas", "reserved_replicas",
+               "ready_replicas", "age"]
+      sortcolumn: "namespace"
+  fields:
+    allocated_replicas:
+      header: "Allocated:"
+      path: "status#allocatedReplicas"
+      default: 0
+      type: "int"
+      formatter: "numerical"
+      align: "right"
+    {%- for line in field_controller.split("\n") %}
+    {{ line }}
+    {%- endfor %}
+    current_replicas:
+      header: "Current:"
+      paths:
+        - path: ["status#replicas",
+                 "spec#replicas"]
+          pathtype: "comparison"
+          default: [0, 0]
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          ranges:
+            - min: 0
+              max: 1
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+            - default: true
+              field_colors:
+                - context: "main"
+                  type: "status_not_ok"
+      align: "right"
+    desired_replicas:
+      header: "Desired:"
+      path: "spec#replicas"
+      default: 0
+      type: "int"
+      formatter: "numerical"
+      align: "right"
+    ready_replicas:
+      header: "Ready:"
+      paths:
+        - path: ["status#readyReplicas", "status#replicas"]
+          pathtype: "comparison"
+          default: [0, 0]
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          ranges:
+            - min: 0
+              max: 1
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+            - min: -1
+              max: 0
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+            - default: true
+              field_colors:
+                - context: "main"
+                  type: "status_not_ok"
+      align: "right"
+    reserved_replicas:
+      header: "Reserved:"
+      path: "status#reservedReplicas"
+      default: 0
+      type: "int"
+      formatter: "numerical"
+      align: "right"
+    shutdown_replicas:
+      header: "Shutdown:"
+      path: "status#shutdownReplicas"
+      default: 0
+      type: "int"
+      formatter: "numerical"
+      align: "right"
+    scheduling:
+      header: "Scheduling:"
+      path: "spec#scheduling"
+      default: "<unset>"
+      type: "str"
+infoview:
+  name: "Game Server Set Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["controller", "scheduling", "replicas"]
+    rows:
+      {%- for line in row_controller.split("\n") %}
+      {{ line }}
+      {%- endfor %}
+      replicas:
+        header: [["Replicas:", ["main", "infoheader"]]]
+        paths:
+          - path: [["spec#replicas"], " Desired",
+                   ["status#replicas"], " Current",
+                   ["status#allocatedReplicas"], " Allocated",
+                   ["status#reservedReplicas"], " Reserved",
+                   ["status#readyReplicas"], " Ready",
+                   ["status#shutdownReplicas"], " Shutdown"]
+            pathtype: "tuple"
+            default: [0, "", 0, "", 0, "", 0, "", 0, ""]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "numerical"
+            - type: "generic"
+            - type: "numerical"
+            - type: "generic"
+            - type: "numerical"
+            - type: "generic"
+            - type: "numerical"
+            - type: "generic"
+            - type: "numerical"
+            - type: "generic"
+            - type: "numerical"
+            - type: "generic"
+          field_separators:
+            - type: "no_pad"
+            - type: "fraction_spaced"
+            - type: "no_pad"
+            - type: "fraction_spaced"
+            - type: "no_pad"
+            - type: "fraction_spaced"
+            - type: "no_pad"
+            - type: "fraction_spaced"
+            - type: "no_pad"
+            - type: "fraction_spaced"
+            - type: "no_pad"
+      scheduling:
+        header: [["Scheduling:", ["main", "infoheader"]]]
+        path: "spec#scheduling"
+        default: "<unset>"
+        type: "str"
+  shortcuts:
+    {%- for line in shortcut_controller.split("\n") %}
+    {{ line }}
+    {%- endfor %}
+    "Pod template":
+      key: "t"
+      modifier: "shift"
+      read_only: true
+      helptext: "Show Pod template"
+      action: "call"
+      action_call: "view_yaml"
+      action_args:
+        title: "Pod template"
+        _pass_obj: true
+        path: "spec#template"

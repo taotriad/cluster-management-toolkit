@@ -1,0 +1,117 @@
+---
+kind: "PodCliqueScalingGroup"
+api_family: "grove.io"
+default_command: "podcliquescalinggroups"
+command:
+  - "pcsgs"
+  - "pcsg"
+listview:
+  name: "Pod Clique Scaling Groups"
+  group: "Scheduling & Scaling"
+  field_indexes:
+    Wide:
+      fields: ["namespace", "name", "controller", "cliques",
+               "desired_replicas", "scheduled_replicas",
+               "uptodate_replicas", "available_replicas", "age"]
+      sortcolumn: "namespace"
+    Normal:
+      fields: ["namespace", "name", "age"]
+      sortcolumn: "namespace"
+  fields:
+    available_replicas:
+      header: "Available:"
+      paths:
+        - path: ["status#availableReplicas", "status#replicas"]
+          pathtype: "comparison"
+          default: [0, 0]
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          ranges:
+            - min: 0
+              max: 1
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+            - default: true
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+      align: "right"
+    cliques:
+      header: "Cliques:"
+      path: "spec#cliqueNames"
+      default: ["<none>"]
+      type: "raw"
+      formatter: "list"
+    {%- for line in field_controller.split("\n") %}
+    {{ line }}
+    {%- endfor %}
+    desired_replicas:
+      header: "Desired:"
+      path: "spec#replicas"
+      default: 0
+      type: "int"
+      formatter: "numerical"
+      align: "right"
+    scheduled_replicas:
+      header: "Scheduled:"
+      path: "spec#scheduledReplicas"
+      default: 0
+      type: "int"
+      formatter: "numerical"
+      align: "right"
+    uptodate_replicas:
+      header: "Up to Date:"
+      paths:
+        - path: ["status#updatedReplicas", "status#replicas"]
+          pathtype: "comparison"
+          default: [0, 0]
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          ranges:
+            - min: 0
+              max: 1
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+            - default: true
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+      align: "right"
+infoview:
+  name: "Pod Clique Scaling Group Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["controller", "cliques"]
+    rows:
+      cliques:
+        header: [["Cli", ["main", "infoheader"]],
+                 ["q", ["main", "infoheader_shortcut"]],
+                 ["ues:", ["main", "infoheader"]]]
+        path: "spec#cliqueNames"
+        default: ["<none>"]
+        type: "raw"
+        formatter: "list"
+      {%- for line in row_controller.split("\n") %}
+      {{ line }}
+      {%- endfor %}
+  shortcuts:
+    {%- for line in shortcut_controller.split("\n") %}
+    {{ line }}
+    {%- endfor %}
+    "Show cliques":
+      key: "q"
+      read_only: true
+      helptext: "Show cliques"
+      widget: "windowwidget"
+      widget_args:
+        title: "Cliques:"
+        itemgetter: "get_list_as_list"
+        itemgetter_args:
+          path: "spec#cliqueNames"
+        # This isn't supported for now
+        sortcolumn: "name"

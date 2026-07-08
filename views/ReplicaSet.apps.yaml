@@ -222,12 +222,12 @@ infoview:
                  "pod_ip", "age", "restarts", "last_restart", "containers"]
         sortcolumn: "pod_status"
       Normal:
-        fields: ["namespace", "name", "pod_status", "node_name",
-                 "age", "restarts", "last_restart"]
+        fields: ["namespace", "name", "pod_status", "node_name", "age",
+                 "restarts", "last_restart"]
         sortcolumn: "pod_status"
       Compact:
-        fields: ["namespace", "name", "pod_status", "age",
-                 "restarts", "last_restart"]
+        fields: ["namespace", "name", "pod_status", "age", "restarts",
+                 "last_restart"]
         sortcolumn: "pod_status"
     fields:
       containers:

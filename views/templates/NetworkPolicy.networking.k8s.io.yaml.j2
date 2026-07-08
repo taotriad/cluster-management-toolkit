@@ -1,0 +1,184 @@
+---
+kind: "NetworkPolicy"
+api_family: "networking.k8s.io"
+default_command: "networkpolicies"
+command:
+  - "netpols"
+  - "netpol"
+listview:
+  name: "Network Policies"
+  group: "Network"
+  field_indexes:
+    Wide:
+      fields: ["namespace", "name", "controller",
+               "pod_label_selector", "pod_set_based_selector",
+               "policy_types", "age"]
+      sortcolumn: "namespace"
+    Normal:
+      fields: ["namespace", "name", "controller", "age"]
+      sortcolumn: "namespace"
+  fields:
+    {%- for line in field_controller.split("\n") %}
+    {{ line }}
+    {%- endfor %}
+    pod_label_selector:
+      header: "Pod Label Selector:"
+      paths:
+        - path: ["spec#podSelector#matchLabels"]
+          pathtype: "key_value"
+          default: ["<none>"]
+      formatter: "list"
+      formatting:
+        field_colors:
+          - type: "key"
+          - type: "value"
+        field_separators:
+          - type: "selector"
+    pod_set_based_selector:
+      header: "Pod Set-based Selector:"
+      paths:
+        - path: "spec#podSelector#matchExpressions"
+          pathtype: "match_expression"
+          default: "<none>"
+      formatter: "list"
+      formatting:
+        field_colors:
+          - type: "key"
+          - type: "operator"
+          - type: "value"
+        field_separators:
+          - type: "space"
+          - type: "no_pad"
+    policy_types:
+      header: "Policy Types:"
+      path: "spec#policyTypes"
+      type: "raw"
+      formatter: "list"
+infoview:
+  name: "Network Policy Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["controller", "pod_label_selector",
+                 "pod_set_based_selector", "policy_types"]
+    rows:
+      {%- for line in row_controller.split("\n") %}
+      {{ line }}
+      {%- endfor %}
+      pod_label_selector:
+        header: [["P", ["main", "infoheader_shortcut"]],
+                 ["od Label Selector:", ["main", "infoheader"]]]
+        paths:
+          - path: ["spec#podSelector#matchLabels"]
+            pathtype: "key_value"
+            default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "key"
+            - type: "value"
+          field_separators:
+            - type: "selector"
+      pod_set_based_selector:
+        header: [["Set-based Selector:", ["main", "infoheader"]]]
+        paths:
+          - path: "spec#podSelector#matchExpressions"
+            pathtype: "match_expression"
+            default: "<none>"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "key"
+            - type: "operator"
+            - type: "value"
+          field_separators:
+            - type: "space"
+            - type: "no_pad"
+      policy_types:
+        header: [["Policy Types:", ["main", "infoheader"]]]
+        path: "spec#policyTypes"
+        type: "raw"
+        formatter: "list"
+  listpad:
+    listgetter: "listgetter_path"
+    listgetter_args:
+      paths:
+        - path: "spec#egress"
+          type: "list"
+          key_name: "__policy"
+          key_value: "Egress"
+        - path: "spec#ingress"
+          type: "list"
+          key_name: "__policy"
+          key_value: "Ingress"
+    infogetter: "generic_infogetter"
+    field_indexes:
+      Normal:
+        fields: ["policy", "ports", "to", "from"]
+        sortcolumn: "policy"
+    fields:
+      from:
+        header: "From:"
+        paths:
+          - path: "from"
+            pathtype: "key_value"
+            default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "key"
+            - type: "value"
+          field_separators:
+            - type: "selector"
+      policy:
+        header: "Policy:"
+        path: "__policy"
+        type: "str"
+      ports:
+        header: "Ports:"
+        paths:
+          - path: "spec#ports"
+            pathtype: "items"
+            subpaths:
+              - "port"
+              - "endPort"
+              - "protocol"
+            type: "raw"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "port"
+            - type: "port"
+            - type: "protocol"
+          field_separators:
+            - type: "range"
+            - type: "service"
+      to:
+        header: "To:"
+        paths:
+          - path: "to"
+            pathtype: "key_value"
+            default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "key"
+            - type: "value"
+          field_separators:
+            - type: "selector"
+  shortcuts:
+    {%- for line in shortcut_controller.split("\n") %}
+    {{ line }}
+    {%- endfor %}
+    "Pod Label Selector":
+      key: "p"
+      modifier: "shift"
+      read_only: true
+      helptext: "Show Pod label selector"
+      widget: "windowwidget"
+      widget_args:
+        title: "Pod Label Selector:"
+        headers: ["Key:", "Value:"]
+        itemgetter: "get_key_value"
+        itemgetter_args:
+          path: "spec#podSelector#matchLabels"

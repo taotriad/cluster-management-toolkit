@@ -1,0 +1,148 @@
+---
+kind: "Profile"
+api_family: "tuned.openshift.io"
+default_command: "profiles.tuned.openshift.io"
+command:
+  - "profiles.tuned"
+  - "profile.tuned"
+listview:
+  name: "Profiles"
+  group: "OpenShift"
+  field_indexes:
+    Wide:
+      fields: ["namespace", "name", "controller",
+               "tuned", "applied", "degraded", "age"]
+      sortcolumn: "namespace"
+    Normal:
+      fields: ["namespace", "name", "tuned", "applied", "degraded", "age"]
+      sortcolumn: "namespace"
+  fields:
+    applied:
+      header: "Applied:"
+      paths:
+        - path: "status#conditions"
+          pathtype: "items"
+          subpaths:
+            - "status"
+          when:
+            - key: "type"
+              eq: "Applied"
+      type: "str"
+    {%- for line in field_controller.split("\n") %}
+    {{ line }}
+    {%- endfor %}
+    degraded:
+      header: "Degraded:"
+      paths:
+        - path: "status#conditions"
+          pathtype: "items"
+          subpaths:
+            - "status"
+          when:
+            - key: "type"
+              eq: "Degraded"
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          mappings:
+            "True":
+              field_colors:
+                - context: "main"
+                  type: "status_not_ok"
+            "False":
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+      type: "str"
+    tuned:
+      header: "Tuned:"
+      path: "spec#config#tunedProfile"
+      type: "str"
+infoview:
+  name: "Profile Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["controller", "tuned", "debug",
+                 "stalld", "applied", "degraded"]
+    rows:
+      applied:
+        header: [["Applied:", ["main", "infoheader"]]]
+        paths:
+          - path: "status#conditions"
+            pathtype: "items"
+            subpaths:
+              - "status"
+            when:
+              - key: "type"
+                eq: "Applied"
+            default: "<unset>"
+        type: "str"
+      {%- for line in row_controller.split("\n") %}
+      {{ line }}
+      {%- endfor %}
+      debug:
+        header: [["Debug:", ["main", "infoheader"]]]
+        path: "spec#config#debug"
+        default: "<unset>"
+        type: "bool"
+      degraded:
+        header: [["Degraded:", ["main", "infoheader"]]]
+        paths:
+          - path: "status#conditions"
+            pathtype: "items"
+            subpaths:
+              - "status"
+            when:
+              - key: "type"
+                eq: "Degraded"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              "True":
+                field_colors:
+                  - context: "main"
+                    type: "status_not_ok"
+              "False":
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+        type: "str"
+      stalld:
+        header: [["stalld:", ["main", "infoheader"]]]
+        path: "status#stalld"
+        default: "<unset>"
+        type: "bool"
+      tuned:
+        header: [["Tuned:", ["main", "infoheader"]]]
+        path: "spec#config#tunedProfile"
+        default: "<unset>"
+        type: "str"
+  shortcuts:
+    {%- for line in shortcut_controller.split("\n") %}
+    {{ line }}
+    {%- endfor %}
+    "Show Profile list":
+      key: "p"
+      modifier: "shift"
+      read_only: true
+      helptext: "List Tuned profiles"
+      widget: "windowwidget"
+      widget_args:
+        title: "Profiles:"
+        selectable: true
+        itemgetter: "get_list_fields"
+        itemgetter_args:
+          path: "spec#profile"
+          fields:
+            - "name"
+          pass_ref: true
+        # Not supported for now
+        sortcolumn: "name"
+      action: "call"
+      action_call: "view_obj"
+      action_args:
+        path: "data"
+        title_path: "name"
+        formatter: "format_ini"

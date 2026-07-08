@@ -1,0 +1,237 @@
+---
+kind: "KubeVirt"
+api_family: "kubevirt.io"
+default_command: "kubevirts"
+listview:
+  name: "KubeVirts"
+  group: "Virtualization"
+  field_indexes:
+    Wide:
+      fields: ["namespace", "name", "controller",
+               "outdated_virtual_machine_instance_workloads",
+               "replicas", "phase", "age"]
+      sortcolumn: "namespace"
+    Normal:
+      fields: ["namespace", "name",
+               "outdated_virtual_machine_instance_workloads",
+               "replicas", "phase", "age"]
+      sortcolumn: "namespace"
+  fields:
+    {%- for line in field_controller.split("\n") %}
+    {{ line }}
+    {%- endfor %}
+    outdated_virtual_machine_instance_workloads:
+      header: "Outdated VMI Workloads:"
+      path: "status#outdatedVirtualMachineInstanceWorkloads"
+      type: "int"
+      formatter: "numerical"
+      align: "right"
+    phase:
+      header: "Phase:"
+      path: "status#phase"
+      type: "str"
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          mappings:
+            "Deploying":
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+            "Deployed":
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+            "Deleting":
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+            "Deleted":
+              field_colors:
+                - context: "main"
+                  type: "status_done"
+    replicas:
+      header: "Replicas:"
+      path: "spec#infra#replicas"
+      default: "<unset>"
+      type: "int"
+      formatter: "numerical"
+      align: "right"
+infoview:
+  name: "KubeVirt Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["controller", "image_pull_policy",
+                 "observed_kubevirt_registry", "observed_kubevirt_version",
+                 "target_kubevirt_registry", "target_kubevirt_version",
+                 "operator_version",
+                 "default_architecture",
+                 "configuration_header",
+                 "configuration_vm_state_storage_class",
+                 "configuration_vm_rollout_strategy",
+                 "configuration_additional_guest_memory_overhead_ratio",
+                 "outdated_virtual_machine_instance_workloads",
+                 "replicas", "phase"]
+    rows:
+      configuration_additional_guest_memory_overhead_ratio:
+        header: [["  Additional Guest Memory Overhead Ratio:",
+                  ["main", "infoheader"]]]
+        path: "spec#configuration#additionalGuestMemoryOverheadRatio"
+        default: "<unset>"
+        type: "str"
+        formatter: "numerical"
+      configuration_header:
+        header: [["Configuration:", ["main", "infoheader"]]]
+      configuration_vm_rollout_strategy:
+        header: [["  VM Rollout Strategy:", ["main", "infoheader"]]]
+        path: "spec#configuration#vmRolloutStrategy"
+        default: "<none>"
+        type: "str"
+      configuration_vm_state_storage_class:
+        header: [["  VM-State ", ["main", "infoheader"]],
+                 ["S", ["main", "infoheader_shortcut"]],
+                 ["torage Class:", ["main", "infoheader"]]]
+        path: "spec#configuration#vmStateStorageClass"
+        default: "<none>"
+        type: "str"
+      {%- for line in row_controller.split("\n") %}
+      {{ line }}
+      {%- endfor %}
+      default_architecture:
+        header: [["Default Architecture:", ["main", "infoheader"]]]
+        path: "status#defaultArchitecture"
+        default: "<unset>"
+        type: "str"
+      image_pull_policy:
+        header: [["Image Pull Registry:", ["main", "infoheader"]]]
+        path: "spec#imagePullPolicy"
+        default: "<unset>"
+        type: "str"
+      observed_kubevirt_registry:
+        header: [["Observed KubVirt Policy:", ["main", "infoheader"]]]
+        path: "status#observedKubeVirtRegistry"
+        type: "str"
+      observed_kubevirt_version:
+        header: [["Observed KubVirt Version:", ["main", "infoheader"]]]
+        path: "status#observedKubeVirtVersion"
+        type: "str"
+        formatting:
+          field_colors:
+            - type: "version"
+      operator_version:
+        header: [["Operator Version:", ["main", "infoheader"]]]
+        path: "status#operatorVersion"
+        type: "str"
+        formatting:
+          field_colors:
+            - type: "version"
+      outdated_virtual_machine_instance_workloads:
+        header: [["Outdated VMI Workloads:", ["main", "infoheader"]]]
+        path: "status#outdatedVirtualMachineInstanceWorkloads"
+        type: "int"
+        formatter: "numerical"
+      phase:
+        header: [["Phase:", ["main", "infoheader"]]]
+        path: "status#phase"
+        type: "str"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              "Deploying":
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+              "Deployed":
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+              "Deleting":
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+              "Deleted":
+                field_colors:
+                  - context: "main"
+                    type: "status_done"
+      replicas:
+        header: [["Replicas:", ["main", "infoheader"]]]
+        path: "spec#infra#replicas"
+        default: "<unset>"
+        type: "int"
+        formatter: "numerical"
+      target_kubevirt_registry:
+        header: [["Target KubVirt Registry:", ["main", "infoheader"]]]
+        path: "status#targetKubeVirtRegistry"
+        type: "str"
+      target_kubevirt_version:
+        header: [["Target KubVirt Version:", ["main", "infoheader"]]]
+        path: "status#targetKubeVirtVersion"
+        type: "str"
+        formatting:
+          field_colors:
+            - type: "version"
+  shortcuts:
+    {%- for line in shortcut_controller.split("\n") %}
+    {{ line }}
+    {%- endfor %}
+    "Open Storage Class":
+      key: "s"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for Storage Class"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind: "StorageClass"
+        api_family: "storage.k8s.io"
+        name_path: "spec#configuration#vmStateStorageClass"
+    "View observed deployment config":
+      key: "o"
+      read_only: true
+      helptext: "View observed deployment config"
+      action: "call"
+      action_call: "view_json"
+      action_args:
+        title: "Observed Deployment Config"
+        _pass_obj: true
+        path: "status#observedDeploymentConfig"
+    "View target deployment config":
+      key: "t"
+      read_only: true
+      helptext: "View target deployment config"
+      action: "call"
+      action_call: "view_json"
+      action_args:
+        title: "Observed Target Config"
+        _pass_obj: true
+        path: "status#targetDeploymentConfig"
+    "List Generations":
+      key: "g"
+      read_only: true
+      helptext: "List generations"
+      widget: "windowwidget"
+      widget_args:
+        title: "Generations:"
+        headers: ["Resource:", "Group:", "Namespace:", "Name:", "Generation:"]
+        selectable: true
+        itemgetter: "get_list_fields"
+        itemgetter_args:
+          path: "status#generations"
+          fields:
+            - "resource"
+            - "group"
+            - "namespace"
+            - "name"
+            - "lastGeneration"
+        # Not supported for now
+        sortcolumn: "resource"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        kind_path: 0
+        api_group_path: 1
+        namespace_path: 2
+        name_path: 3

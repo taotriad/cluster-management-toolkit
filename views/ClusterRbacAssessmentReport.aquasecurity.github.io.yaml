@@ -9,10 +9,38 @@ listview:
   name: "Cluster RBAC Assessment Reports"
   group: "Security"
   field_indexes:
+    Wide:
+      fields: ["name", "controller", "scanner",
+               "severity_critical", "severity_high",
+               "severity_medium", "severity_low", "age"]
     Normal:
-      fields: ["name", "scanner", "severity_critical", "severity_high",
+      fields: ["name", "scanner",
+               "severity_critical", "severity_high",
                "severity_medium", "severity_low", "age"]
   fields:
+    controller:
+      header: "Controller:"
+      paths:
+        - path: "metadata#ownerReferences"
+          pathtype: "items"
+          subpaths:
+            - "kind"
+            - "apiVersion"
+            - "name"
+          when:
+            - key: "controller"
+              eq: true
+          type: ["kind", "api_group", "name"]
+          default: ["<none>"]
+      formatter: "list"
+      formatting:
+        field_colors:
+          - type: "kind"
+          - type: "api_group"
+          - type: "generic"
+        field_separators:
+          - type: "kind_api_group"
+          - type: "kind"
     scanner:
       header: "Scanner:"
       paths:

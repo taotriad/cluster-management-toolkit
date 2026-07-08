@@ -11,11 +11,38 @@ listview:
   name: "Pod Groups"
   group: "Batch Scheduling"
   field_indexes:
+    Wide:
+      fields: ["namespace", "name", "controller", "min_members", "running",
+               "queue", "phase", "age"]
+      sortcolumn: "phase"
     Normal:
       fields: ["namespace", "name", "min_members", "running",
                "queue", "phase", "age"]
       sortcolumn: "phase"
   fields:
+    controller:
+      header: "Controller:"
+      paths:
+        - path: "metadata#ownerReferences"
+          pathtype: "items"
+          subpaths:
+            - "kind"
+            - "apiVersion"
+            - "name"
+          when:
+            - key: "controller"
+              eq: true
+          type: ["kind", "api_group", "name"]
+          default: ["<none>"]
+      formatter: "list"
+      formatting:
+        field_colors:
+          - type: "kind"
+          - type: "api_group"
+          - type: "generic"
+        field_separators:
+          - type: "kind_api_group"
+          - type: "kind"
     min_members:
       header: "Min Members:"
       path: "spec#minMember"

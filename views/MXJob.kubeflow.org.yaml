@@ -7,7 +7,7 @@ listview:
   group: "Kubeflow"
   field_indexes:
     Normal:
-      fields: ["namespace", "name", "age", "state",
+      fields: ["namespace", "name", "controller", "age", "state",
                "completion_time_with_age"]
       sortcolumn: "state"
   fields:
@@ -28,6 +28,29 @@ listview:
           # This is a meta-type, indicating where the age goes
           - type: "age"
           - type: "generic"
+    controller:
+      header: "Controller:"
+      paths:
+        - path: "metadata#ownerReferences"
+          pathtype: "items"
+          subpaths:
+            - "kind"
+            - "apiVersion"
+            - "name"
+          when:
+            - key: "controller"
+              eq: true
+          type: ["kind", "api_group", "name"]
+          default: ["<none>"]
+      formatter: "list"
+      formatting:
+        field_colors:
+          - type: "kind"
+          - type: "api_group"
+          - type: "generic"
+        field_separators:
+          - type: "kind_api_group"
+          - type: "kind"
     state:
       header: "State:"
       paths:

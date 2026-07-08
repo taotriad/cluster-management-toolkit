@@ -1,0 +1,67 @@
+---
+kind: "PrometheusRule"
+api_family: "monitoring.coreos.com"
+default_command: "prometheusrules"
+command:
+  - "promrules"
+  - "promrule"
+listview:
+  name: "Prometheus Rules"
+  group: "Observability"
+  field_indexes:
+    Normal:
+      fields: ["namespace", "name", "controller", "age"]
+      sortcolumn: "namespace"
+  fields:
+    {%- for line in field_controller.split("\n") %}
+    {{ line }}
+    {%- endfor %}
+infoview:
+  name: "Prometheus Rule Info"
+  # PrometheusRule annotations contains the entire rule set;
+  # this is way too much to handle for the annotations widget
+  annotations: "null"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["controller"]
+    rows:
+      {%- for line in row_controller.split("\n") %}
+      {{ line }}
+      {%- endfor %}
+  listpad:
+    listgetter: "listgetter_path"
+    listgetter_args:
+      path: ""
+    infogetter: "get_promrules_info"
+    on_activation:
+      call: "resourceinfodispatch"
+      kind: "__PrometheusRuleData"
+      api_family: "monitoring.coreos.com"
+    field_indexes:
+      Normal:
+        fields: ["group", "rtype", "alertrecord", "duration"]
+        sortcolumn: "rtype"
+    fields:
+      alertrecord:
+        header: "Name:"
+        path: "alertheader"
+        type: "str"
+      duration:
+        header: "Duration:"
+        path: "duration"
+        type: "raw"
+        formatter: "age"
+        align: "right"
+      group:
+        header: "Group:"
+        path: "group"
+        type: "str"
+      rtype:
+        header: "Type:"
+        path: "rtype"
+        type: "str"
+  shortcuts:
+    {%- for line in shortcut_controller.split("\n") %}
+    {{ line }}
+    {%- endfor %}

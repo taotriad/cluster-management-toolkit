@@ -1,0 +1,96 @@
+---
+kind: "ValidatingWebhookConfiguration"
+api_family: "admissionregistration.k8s.io"
+default_command: "validatingwebhookconfigurations"
+command:
+  - "vwhcs"
+  - "vwhc"
+listview:
+  name: "Validating Webhook Configurations"
+  group: "API & Extendability"
+  field_indexes:
+    Normal:
+      fields: ["name", "controller", "webhook_count", "age"]
+  fields:
+    {%- for line in field_controller.split("\n") %}
+    {{ line }}
+    {%- endfor %}
+    webhook_count:
+      header: "Webhooks:"
+      path: "webhooks"
+      type: "len"
+      formatter: "numerical"
+      align: "right"
+  actions:
+    actionlist:
+      "Delete resource":
+        description: "Delete resource"
+        category: "Resource Level"
+        confirm: true
+        actionfunc: "delete_resource"
+      "Force delete resource":
+        description: "Delete resource (No grace period)"
+        category: "Resource Level"
+        confirm: true
+        actionfunc: "force_delete_resource"
+infoview:
+  name: "Validating Webhook Configuration Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["controller"]
+    rows:
+      {%- for line in row_controller.split("\n") %}
+      {{ line }}
+      {%- endfor %}
+  listpad:
+    on_activation:
+      call: "resourceinfodispatch"
+      kind: "__ValidatingWebhook"
+      api_family: "admissionregistration.k8s.io"
+    listgetter: "listgetter_path"
+    listgetter_args:
+      path: "webhooks"
+    infogetter: "generic_infogetter"
+    field_indexes:
+      Normal:
+        fields: ["name", "admission_review_versions", "timeout",
+                 "failure_policy", "match_policy"]
+    fields:
+      admission_review_versions:
+        header: "Admission Review Versions:"
+        path: "admissionReviewVersions"
+        default: ["<unset>"]
+        type: "raw"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "version"
+      failure_policy:
+        header: "Failure Policy:"
+        path: "failurePolicy"
+        default: "<unset>"
+        type: "str"
+      match_policy:
+        header: "Match Policy:"
+        path: "matchPolicy"
+        default: "<unset>"
+        type: "str"
+      name:
+        header: "Name:"
+        path: "name"
+        default: "<unset>"
+        type: "str"
+      timeout:
+        header: "Timeout:"
+        path: "timeoutSeconds"
+        default: "<unset>"
+        type: "int"
+        formatter: "numerical"
+        formatting:
+          unit: "s"
+        align: "right"
+  shortcuts:
+    {%- for line in shortcut_controller.split("\n") %}
+    {{ line }}
+    {%- endfor %}

@@ -124,16 +124,15 @@ infoview:
     listgetter: "generic_listgetter"
     listgetter_args:
       _kind: "Pod"
-      _label_selector_path: "spec#podMetadata#labels"
-      _none_on_empty_selector: true
+      _label_selector_path: "spec#selector#matchLabels"
     infogetter: "generic_infogetter"
     on_activation:
       call: "resourceinfodispatch"
       kind: "Pod"
     field_indexes:
       Wide:
-        fields: ["namespace", "name", "pod_status", "node_name", "pod_ip",
-                 "age", "restarts", "last_restart", "containers"]
+        fields: ["namespace", "name", "pod_status", "node_name",
+                 "pod_ip", "age", "restarts", "last_restart", "containers"]
         sortcolumn: "pod_status"
       Normal:
         fields: ["namespace", "name", "pod_status", "node_name", "age",
@@ -163,29 +162,6 @@ infoview:
             - type: "version"
           field_separators:
             - type: "version"
-      controller:
-        header: "Controller:"
-        paths:
-          - path: "metadata#ownerReferences"
-            pathtype: "items"
-            subpaths:
-              - "kind"
-              - "apiVersion"
-              - "name"
-            when:
-              - key: "controller"
-                eq: true
-            type: ["kind", "api_group", "name"]
-            default: ["<none>"]
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "kind"
-            - type: "api_group"
-            - type: "generic"
-          field_separators:
-            - type: "kind_api_group"
-            - type: "kind"
       last_restart:
         header: "Latest Restart:"
         paths:

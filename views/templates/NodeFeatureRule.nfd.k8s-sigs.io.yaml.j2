@@ -1,0 +1,94 @@
+---
+kind: "NodeFeatureRule"
+api_family: "nfd.k8s-sigs.io"
+default_command: "nodefeaturerules"
+command:
+  - "nfrules"
+  - "nfrule"
+listview:
+  name: "Node Feature Rules"
+  group: "Cluster Configuration"
+  field_indexes:
+    Normal:
+      fields: ["name", "controller", "rules", "age"]
+  fields:
+    {%- for line in field_controller.split("\n") %}
+    {{ line }}
+    {%- endfor %}
+    rules:
+      header: "Rules:"
+      path: "spec#rules"
+      default: 0
+      type: "len"
+      formatter: "numerical"
+      align: "right"
+infoview:
+  name: "Node Feature Rule Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["controller"]
+    rows:
+      {%- for line in row_controller.split("\n") %}
+      {{ line }}
+      {%- endfor %}
+  listpad:
+    listgetter: "listgetter_path"
+    listgetter_args:
+      path: "spec#rules"
+    infogetter: "generic_infogetter"
+    on_activation:
+      call: "resourceinfodispatch"
+      kind: "__NodeFeatureRuleMatch"
+      api_family: "nfd.k8s-sigs.io"
+    field_indexes:
+      Normal:
+        fields: ["name", "labels", "match_features", "extended_resources"]
+        sortcolumn: "name"
+    fields:
+      extended_resources:
+        header: "Extended Resources:"
+        paths:
+          - path: "extendedResources"
+            pathtype: "key_value"
+            default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "key"
+            - type: "value"
+          field_separators:
+            - type: "keyvalue"
+      match_features:
+        header: "Match Features:"
+        paths:
+          - path: ["matchFeatures"]
+            pathtype: "key_value"
+            default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "key"
+            - type: "value"
+          field_separators:
+            - type: "keyvalue"
+      name:
+        header: "Name:"
+        path: "name"
+        type: "str"
+      labels:
+        header: "Labels:"
+        paths:
+          - path: "labels"
+            pathtype: "key_value"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "key"
+            - type: "value"
+          field_separators:
+            - type: "keyvalue"
+  shortcuts:
+    {%- for line in shortcut_controller.split("\n") %}
+    {{ line }}
+    {%- endfor %}

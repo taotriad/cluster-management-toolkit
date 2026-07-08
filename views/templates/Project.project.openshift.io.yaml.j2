@@ -1,0 +1,94 @@
+---
+kind: "Project"
+api_family: "project.openshift.io"
+default_command: "projects"
+command:
+  - "projects.project.openshift.io"
+  - "project.project.openshift.io"
+  - "projects.project"
+  - "project.project"
+  - "projects"
+  - "project"
+listview:
+  name: "Projects"
+  group: "OpenShift"
+  field_indexes:
+    Wide:
+      fields: ["name", "display_name", "controller", "phase", "age",
+               "description"]
+    Normal:
+      fields: ["name", "display_name", "controller", "phase", "age"]
+  fields:
+    {%- for line in field_controller.split("\n") %}
+    {{ line }}
+    {%- endfor %}
+    description:
+      header: "Description:"
+      paths:
+        - path: ["metadata#annotations#openshift.io/description",
+                 "metadata#annotations#kubernetes.io/description"]
+      default: "<none>"
+      type: "str"
+    display_name:
+      header: "Display Name:"
+      path: "metadata#annotations#openshift.io/display-name"
+      default: "<none>"
+      type: "str"
+    phase:
+      header: "Status:"
+      path: "status#phase"
+      type: "str"
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          mappings:
+            Active:
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+            Terminating:
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+infoview:
+  name: "Project Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["display_name", "description", "controller", "phase"]
+    rows:
+      {%- for line in row_controller.split("\n") %}
+      {{ line }}
+      {%- endfor %}
+      description:
+        header: [["Description:", ["main", "infoheader"]]]
+        paths:
+          - path: ["metadata#annotations#openshift.io/description",
+                   "metadata#annotations#kubernetes.io/description"]
+        default: "<none>"
+        type: "str"
+      display_name:
+        header: [["Display Name:", ["main", "infoheader"]]]
+        path: "metadata#annotations#openshift.io/display-name"
+        default: "<none>"
+        type: "str"
+      phase:
+        header: [["Status:", ["main", "infoheader"]]]
+        path: "status#phase"
+        type: "str"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              Active:
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+              Terminating:
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+  shortcuts:
+    {%- for line in shortcut_controller.split("\n") %}
+    {{ line }}
+    {%- endfor %}

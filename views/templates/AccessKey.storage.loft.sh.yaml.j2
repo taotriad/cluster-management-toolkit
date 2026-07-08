@@ -1,0 +1,83 @@
+---
+kind: "AccessKey"
+api_family: "storage.loft.sh"
+default_command: "accesskeys.storage"
+command:
+  - "accesskey.storage"
+listview:
+  name: "Access Keys"
+  group: "Lôft"
+  field_indexes:
+    Normal:
+      fields: ["name", "display_name", "controller", "age"]
+  fields:
+    {%- for line in field_controller.split("\n") %}
+    {{ line }}
+    {%- endfor %}
+    display_name:
+      header: "Display Name:"
+      path: "spec#displayName"
+      type: "str"
+infoview:
+  name: "Access Key Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["display_name", "user", "controller", "type", "key",
+                 "ttl", "ttl_after_last_activity", "last_activity"]
+    rows:
+      {%- for line in row_controller.split("\n") %}
+      {{ line }}
+      {%- endfor %}
+      display_name:
+        header: [["Display Name:", ["main", "infoheader"]]]
+        path: "spec#displayName"
+        default: "<unset>"
+        type: "str"
+      key:
+        header: [["Key:", ["main", "infoheader"]]]
+        path: "spec#key"
+        type: "str"
+      last_activity:
+        header: [["Last Activity:", ["main", "infoheader"]]]
+        path: "status#lastActivity"
+        type: "timestamp"
+      ttl:
+        header: [["TTL:", ["main", "infoheader"]]]
+        path: "spec#ttl"
+        default: "<unset>"
+        type: "int"
+        formatting:
+          field_colors:
+            - type: "numerical"
+      ttl_after_last_activity:
+        header: [["TTL After Last Activity:", ["main", "infoheader"]]]
+        path: "spec#ttlAfterLastActivity"
+        default: "<unset>"
+        type: "bool"
+      type:
+        header: [["Type:", ["main", "infoheader"]]]
+        path: "spec#type"
+        type: "str"
+      user:
+        header: [["U", ["main", "infoheader_shortcut"]],
+                 ["ser:", ["main", "infoheader"]]]
+        path: "spec#user"
+        default: "<unset>"
+        type: "bool"
+  shortcuts:
+    {%- for line in shortcut_controller.split("\n") %}
+    {{ line }}
+    {%- endfor %}
+    "Open User":
+      key: "u"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for User"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind: "User"
+        api_family: "management.loft.sh"
+        name_path: "spec#user"

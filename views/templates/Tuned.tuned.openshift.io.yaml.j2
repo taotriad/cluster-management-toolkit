@@ -1,0 +1,100 @@
+---
+kind: "Tuned"
+api_family: "tuned.openshift.io"
+default_command: "tuneds"
+listview:
+  name: "Tuneds"
+  group: "OpenShift"
+  field_indexes:
+    Normal:
+      fields: ["namespace", "name", "controller", "age"]
+      sortcolumn: "namespace"
+  fields:
+    {%- for line in field_controller.split("\n") %}
+    {{ line }}
+    {%- endfor %}
+infoview:
+  name: "Tuned Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["controller"]
+    rows:
+      {%- for line in row_controller.split("\n") %}
+      {{ line }}
+      {%- endfor %}
+  listpad:
+    listgetter: "listgetter_path"
+    listgetter_args:
+      path: "spec#recommend"
+    infogetter: "generic_infogetter"
+    on_activation:
+      call: "resourceinfodispatch"
+      kind: "__TunedProfile"
+      api_family: "tuned.openshift.io"
+    field_indexes:
+      Normal:
+        fields: ["profile", "priority", "operand", "machine_config_labels"]
+        sortcolumn: "priority"
+    fields:
+      machine_config_labels:
+        header: "Machine Config Labels:"
+        paths:
+          - path: "machineConfigLabels"
+            pathtype: "key_value"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "key"
+            - type: "value"
+          field_separators:
+            - type: "selector"
+      operand:
+        header: "Operand:"
+        paths:
+          - path: "operand"
+            pathtype: "key_value"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "key"
+            - type: "value"
+          field_separators:
+            - type: "keyvalue"
+      priority:
+        header: "Priority:"
+        path: "priority"
+        type: "int"
+        formatter: "numerical"
+        align: "right"
+      profile:
+        header: "Profile:"
+        path: "profile"
+        type: "str"
+  shortcuts:
+    {%- for line in shortcut_controller.split("\n") %}
+    {{ line }}
+    {%- endfor %}
+    "Show Profile list":
+      key: "p"
+      modifier: "shift"
+      read_only: true
+      helptext: "List Tuned profiles"
+      widget: "windowwidget"
+      widget_args:
+        title: "Profiles:"
+        selectable: true
+        itemgetter: "get_list_fields"
+        itemgetter_args:
+          path: "spec#profile"
+          fields:
+            - "name"
+          pass_ref: true
+        # Not supported for now
+        sortcolumn: "name"
+      action: "call"
+      action_call: "view_obj"
+      action_args:
+        path: "data"
+        title_path: "name"
+        formatter: "format_ini"

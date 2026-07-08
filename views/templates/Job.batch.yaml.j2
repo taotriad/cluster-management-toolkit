@@ -1,0 +1,400 @@
+---
+kind: "Job"
+api_family: "batch"
+default_command: "jobs"
+listview:
+  name: "Jobs"
+  group: "Workloads"
+  field_indexes:
+    Wide:
+      fields: ["namespace", "name", "controller", "completions", "duration",
+               "state", "age", "completion_time_with_age", "completion_mode",
+               "suspended", "containers_template", "images_template"]
+      sortcolumn: "state"
+    Normal:
+      fields: ["namespace", "name", "controller", "completions", "duration",
+               "state", "age"]
+      sortcolumn: "state"
+  fields:
+    completion_mode:
+      header: "Completion Mode:"
+      path: "spec#completionMode"
+      type: "str"
+      default: "NonIndexed"
+    completions:
+      header: "Completions:"
+      paths:
+        - path: [["status#succeeded"], ["spec#completions"]]
+          pathtype: "tuple"
+          default: [0, 0]
+      formatter: "list"
+      formatting:
+        field_colors:
+          - type: "numerical"
+          - type: "numerical"
+        field_separators:
+          - type: "fraction"
+      align: "right"
+    completion_time:
+      header: "Completion Time:"
+      path: "status#completionTime"
+      type: "timestamp"
+      formatter: "timestamp"
+    completion_time_with_age:
+      header: "Completion Time:"
+      paths:
+        - paths: [["status#startTime"], " (", "Duration: ",
+                  ["status#completionTime"], ")"]
+          pathtype: "timestamp_with_age"
+      formatter: "timestamp_with_age"
+      formatting:
+        field_colors:
+          # This is a meta-type, indicating where the timestamp goes
+          - type: "timestamp"
+          - type: "generic"
+          - type: "generic"
+          # This is a meta-type, indicating where the age goes
+          - type: "age"
+          - type: "generic"
+    containers_template:
+      header: "Containers:"
+      paths:
+        - paths:
+            - "spec#template#spec#initContainers"
+            - "spec#template#spec#containers"
+          pathtype: "items"
+          subpaths:
+            - "name"
+          type: "raw"
+      formatter: "list"
+    {%- for line in field_controller.split("\n") %}
+    {{ line }}
+    {%- endfor %}
+    duration:
+      header: "Duration:"
+      paths:
+        - paths: [["status#startTime"], ["status#completionTime"]]
+          pathtype: "timediff"
+      default: 0
+      formatter: "age"
+      align: "right"
+    images_template:
+      header: "Images:"
+      paths:
+        - paths:
+            - "spec#template#spec#initContainers"
+            - "spec#template#spec#containers"
+          pathtype: "items"
+          subpaths:
+            - subpath: "image"
+              regex: ["^.+/(.+?):.+", "^(.+):.+"]
+            - subpath: "image"
+              regex: ["^.+:(.+)"]
+          type: "raw"
+      formatter: "list"
+      formatting:
+        field_colors:
+          - type: "generic"
+          - type: "version"
+        field_separators:
+          - type: "version"
+    state:
+      header: "State:"
+      paths:
+        - path: "status"
+          pathtype: "substitution"
+          subpath: "active"
+          when:
+            - key: "active"
+              notnone: true
+            - key: "active"
+              gt: 0
+          substitute: "Running"
+        - path: "status#conditions"
+          pathtype: "items"
+          subpath: "reason"
+          when:
+            - key: "type"
+              eq: "Failed"
+            - key: "status"
+              eq: "True"
+        - path: "status#conditions"
+          pathtype: "substitution"
+          subpath: "type"
+          when:
+            - key: "status"
+              eq: "True"
+            - key: "type"
+              eq: "Complete"
+          substitute: "Completed"
+      default: "<unset>"
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          mappings:
+            Active:
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+            Completed:
+              field_colors:
+                - context: "main"
+                  type: "status_done"
+            Running:
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+            "<unset>":
+              field_colors:
+                - context: "types"
+                  type: "unset"
+            __default:
+              field_colors:
+                - context: "main"
+                  type: "status_not_ok"
+    suspended:
+      header: "Suspended:"
+      path: "spec#suspend"
+      default: "<unset>"
+      type: "bool"
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          mappings:
+            "False":
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+            "True":
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+  actions:
+    actionlist:
+      "Delete resource":
+        description: "Delete resource"
+        category: "Resource Level"
+        confirm: true
+        actionfunc: "delete_resource"
+      "Resume resource":
+        # Requires Kubernetes 1.22+
+        description: "Resume resource"
+        category: "Resource Level"
+        actionfunc: "patch_resource"
+        extravars:
+          action_str: "Resuming"
+          args:
+            patch:
+              spec:
+                suspend: false
+            strategic_merge: true
+      "Suspend resource":
+        # Requires Kubernetes 1.22+
+        description: "Suspend resource"
+        category: "Resource Level"
+        actionfunc: "patch_resource"
+        extravars:
+          action_str: "Suspending"
+          args:
+            patch:
+              spec:
+                suspend: true
+            strategic_merge: true
+infoview:
+  name: "Job Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["controller", "label_selector", "label_selector_is_manual",
+                 "completions", "completion_time_with_age", "completion_mode",
+                 "suspended", "parallelism", "backoff_limit",
+                 "pod_failure_policy", "pod_replacement_policy", "state"]
+    rows:
+      backoff_limit:
+        header: [["Backoff Limit:", ["main", "infoheader"]]]
+        path: "spec#backoffLimit"
+        default: "<unset>"
+        type: "int"
+        formatter: "numerical"
+      {%- for line in row_controller.split("\n") %}
+      {{ line }}
+      {%- endfor %}
+      completions:
+        header: [["Completions:", ["main", "infoheader"]]]
+        paths:
+          - path: [["status#succeeded"], ["spec#completions"]]
+            pathtype: "tuple"
+            default: [0, 0]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "numerical"
+            - type: "numerical"
+          field_separators:
+            - type: "fraction"
+      completion_mode:
+        header: [["Completion Mode:", ["main", "infoheader"]]]
+        path: "spec#completionMode"
+        type: "str"
+        default: "NonIndexed"
+      completion_time_with_age:
+        header: [["Completion Time:", ["main", "infoheader"]]]
+        paths:
+          - paths: [["status#startTime"], " (", "Duration: ",
+                    ["status#completionTime"], ")"]
+            pathtype: "timestamp_with_age"
+        formatter: "timestamp_with_age"
+        formatting:
+          field_colors:
+            # This is a meta-type, indicating where the timestamp goes
+            - type: "timestamp"
+            - type: "generic"
+            - context: "main"
+              type: "infoheader"
+            # This is a meta-type, indicating where the age goes
+            - type: "age"
+            - type: "generic"
+      label_selector_is_manual:
+        header: [["Manual Selector:", ["main", "infoheader"]]]
+        path: "spec#manualSelector"
+        default: false
+        type: "bool"
+      label_selector:
+        header: [["La", ["main", "infoheader"]],
+                 ["b", ["main", "infoheader_shortcut"]],
+                 ["el Selector:", ["main", "infoheader"]]]
+        paths:
+          - path: ["spec#selector#matchLabels"]
+            pathtype: "key_value"
+            default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "key"
+            - type: "value"
+          field_separators:
+            - type: "selector"
+      parallelism:
+        header: [["Parallelism:", ["main", "infoheader"]]]
+        path: "spec#parallelism"
+        default: 1
+        type: "int"
+        formatter: "numerical"
+      pod_failure_policy:
+        header: [["Pod Failure Policy:", ["main", "infoheader"]]]
+        path: "spec#podFailurePolicy"
+        default: "<unset>"
+        type: "str"
+      pod_replacement_policy:
+        header: [["Pod Replacement Policy:", ["main", "infoheader"]]]
+        path: "spec#podReplacementPolicy"
+        default: "<unset>"
+        type: "str"
+      state:
+        header: [["State:", ["main", "infoheader"]]]
+        paths:
+          - path: "status"
+            pathtype: "substitution"
+            subpath: "active"
+            when:
+              - key: "active"
+                notnone: true
+              - key: "active"
+                gt: 0
+            substitute: "Running"
+          - path: "status#conditions"
+            pathtype: "items"
+            subpath: "reason"
+            when:
+              - key: "type"
+                eq: "Failed"
+              - key: "status"
+                eq: "True"
+          - path: "status#conditions"
+            pathtype: "substitution"
+            subpath: "type"
+            when:
+              - key: "status"
+                eq: "True"
+              - key: "type"
+                eq: "Complete"
+            substitute: "Completed"
+        default: "<unset>"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              Active:
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+              Completed:
+                field_colors:
+                  - context: "main"
+                    type: "status_done"
+              Running:
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+              "<unset>":
+                field_colors:
+                  - context: "types"
+                    type: "unset"
+              __default:
+                field_colors:
+                  - context: "main"
+                    type: "status_not_ok"
+      suspended:
+        header: [["Suspended:", ["main", "infoheader"]]]
+        path: "spec#suspend"
+        default: "<unset>"
+        type: "bool"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              "False":
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+              "True":
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+  {%- for line in listpad_pod_spec_selector_matchlabels.split("\n") %}
+  {{ line }}
+  {%- endfor %}
+  shortcuts:
+    "Label Selector":
+      key: "b"
+      read_only: true
+      helptext: "Show label selector"
+      widget: "windowwidget"
+      widget_args:
+        title: "Label Selector:"
+        headers: ["Key:", "Value:"]
+        itemgetter: "get_key_value"
+        itemgetter_args:
+          path: "spec#selector#matchLabels"
+    "Open controller":
+      key: "c"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for controller"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        namespace_path: "metadata#namespace"
+        owner_reference_path: "metadata#ownerReferences"
+    "Pod template":
+      key: "t"
+      modifier: "shift"
+      read_only: true
+      helptext: "Show Pod template"
+      action: "call"
+      action_call: "view_yaml"
+      action_args:
+        title: "Pod template"
+        _pass_obj: true
+        path: "spec#template"

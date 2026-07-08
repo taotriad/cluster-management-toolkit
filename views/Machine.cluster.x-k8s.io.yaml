@@ -175,17 +175,21 @@ infoview:
             pathtype: "items"
             subpaths:
               - "kind"
+              - "apiVersion"
               - "name"
             when:
               - key: "controller"
                 eq: true
+            type: ["kind", "api_group", "name"]
             default: ["<none>"]
         formatter: "list"
         formatting:
           field_colors:
             - type: "kind"
+            - type: "api_group"
             - type: "generic"
           field_separators:
+            - type: "kind_api_group"
             - type: "kind"
       failure_domain:
         header: [["Failure Domain:", ["main", "infoheader"]]]
@@ -394,7 +398,7 @@ infoview:
         api_family: "cluster.x-k8s.io"
         name_path: "spec#clusterName"
         namespace_path: "metadata#namespace"
-    "Open Controller":
+    "Open controller":
       key: "c"
       modifier: "shift"
       read_only: true
@@ -403,7 +407,6 @@ infoview:
       action_call: "resourceinfodispatch_with_lookup"
       action_args:
         _pass_obj: true
-        name_path: "spec#clusterName"
         namespace_path: "metadata#namespace"
         owner_reference_path: "metadata#ownerReferences"
     "Open Infrastructure":

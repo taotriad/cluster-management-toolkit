@@ -9,10 +9,36 @@ listview:
   name: "Virtual Services"
   group: "Istio"
   field_indexes:
+    Wide:
+      fields: ["namespace", "name", "controller", "gateways", "hosts", "age"]
+      sortcolumn: "namespace"
     Normal:
       fields: ["namespace", "name", "gateways", "hosts", "age"]
       sortcolumn: "namespace"
   fields:
+    controller:
+      header: "Controller:"
+      paths:
+        - path: "metadata#ownerReferences"
+          pathtype: "items"
+          subpaths:
+            - "kind"
+            - "apiVersion"
+            - "name"
+          when:
+            - key: "controller"
+              eq: true
+          type: ["kind", "api_group", "name"]
+          default: ["<none>"]
+      formatter: "list"
+      formatting:
+        field_colors:
+          - type: "kind"
+          - type: "api_group"
+          - type: "generic"
+        field_separators:
+          - type: "kind_api_group"
+          - type: "kind"
     gateways:
       header: "Gateways:"
       path: "spec#gateways"

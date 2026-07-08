@@ -1,0 +1,375 @@
+---
+kind: "ApmServer"
+api_family: "apm.k8s.elastic.co"
+default_command: "apmservers"
+command:
+  - "apmsrvs"
+  - "apmsrv"
+listview:
+  name: "APM Servers"
+  group: "Logging"
+  field_indexes:
+    Normal:
+      fields: ["namespace", "name", "version", "count", "available_nodes",
+               "kibana_status", "elasticsearch_status", "health", "age"]
+      sortcolumn: "namespace"
+  fields:
+    available_nodes:
+      header: "Available Nodes:"
+      path: "status#availableNodes"
+      type: "str"
+      formatter: "numerical"
+      align: "right"
+    count:
+      header: "Count:"
+      paths:
+        - path: [["status#count"], ["spec#count"]]
+          pathtype: "tuple"
+      formatter: "list"
+      formatting:
+        field_colors:
+          - type: "numerical"
+          - type: "numerical"
+        item_separator:
+          type: "fraction"
+      align: "right"
+    elasticsearch_status:
+      header: "Elasticsearch Status:"
+      path: "status#elasticsearchAssociationStatus"
+      default: "<unset>"
+      type: "str"
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          mappings:
+            Established:
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+            Pending:
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+            "<unset>":
+              field_colors:
+                - context: "types"
+                  type: "unset"
+    health:
+      header: "Health:"
+      path: "status#health"
+      default: "<unset>"
+      type: "str"
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          mappings:
+            green:
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+            red:
+              field_colors:
+                - context: "main"
+                  type: "status_not_ok"
+            unknown:
+              field_colors:
+                - context: "main"
+                  type: "status_unknown"
+            yellow:
+              field_colors:
+                - context: "main"
+                  type: "status_degraded"
+            "<unset>":
+              field_colors:
+                - context: "types"
+                  type: "unset"
+    kibana_status:
+      header: "Kibana Status:"
+      path: "status#kibanaAssociationStatus"
+      default: "<unset>"
+      type: "str"
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          mappings:
+            Established:
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+            Pending:
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+            "<unset>":
+              field_colors:
+                - context: "types"
+                  type: "unset"
+    version:
+      header: "Version:"
+      path: "spec#version"
+      type: "str"
+      formatting:
+        field_colors:
+          - type: "version"
+  actions:
+    actionlist:
+      "Delete resource":
+        description: "Delete resource"
+        category: "Resource Level"
+        confirm: true
+        actionfunc: "delete_resource"
+infoview:
+  name: "APM Server Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["elasticsearch_ref", "kibana_ref", "label_selector", "secret",
+                 "version", "count", "service", "http_header",
+                 "http_service_header", "http_service_type", "http_tls_header",
+                 "http_tls_self_signed_header", "http_tls_self_signed_enabled",
+                 "http_tls_self_signed_alt_names", "available_nodes",
+                 "kibana_status", "elasticsearch_status", "health"]
+    rows:
+      available_nodes:
+        header: [["Available Nodes:", ["main", "infoheader"]]]
+        paths:
+          - path: [["status#availableNodes"], ["status#expectedNodes"]]
+            pathtype: "tuple"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "numerical"
+            - type: "numerical"
+          item_separator:
+            type: "fraction"
+      count:
+        header: [["Count:", ["main", "infoheader"]]]
+        paths:
+          - path: [["status#count"], ["spec#count"]]
+            pathtype: "tuple"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "numerical"
+            - type: "numerical"
+          item_separator:
+            type: "fraction"
+      elasticsearch_ref:
+        header: [["E", ["main", "infoheader_shortcut"]],
+                 ["lasticsearch Reference:", ["main", "infoheader"]]]
+        paths:
+          - path: [["spec#elasticsearchRef#namespace", "metadata#namespace"],
+                   ["spec#elasticsearchRef#name"]]
+            pathtype: "tuple"
+            default: ["<unset>", "<unset>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "namespace"
+            - type: "generic"
+          field_separators:
+            - type: "namespace"
+      elasticsearch_status:
+        header: [["Elasticsearch Status:", ["main", "infoheader"]]]
+        path: "status#elasticsearchAssociationStatus"
+        default: "<unset>"
+        type: "str"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              Established:
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+              Pending:
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+              "<unset>":
+                field_colors:
+                  - context: "types"
+                    type: "unset"
+      health:
+        header: [["Health:", ["main", "infoheader"]]]
+        path: "status#health"
+        default: "<unset>"
+        type: "str"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              green:
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+              red:
+                field_colors:
+                  - context: "main"
+                    type: "status_not_ok"
+              unknown:
+                field_colors:
+                  - context: "main"
+                    type: "status_unknown"
+              yellow:
+                field_colors:
+                  - context: "main"
+                    type: "status_degraded"
+              "<unset>":
+                field_colors:
+                  - context: "types"
+                    type: "unset"
+      http_header:
+        header: [["HTTP:", ["main", "infoheader"]]]
+      http_service_header:
+        header: [["  Service:", ["main", "infoheader"]]]
+      http_service_type:
+        header: [["    Type:", ["main", "infoheader"]]]
+        path: "spec#http#service#spec#type"
+        default: "<unset>"
+        type: "str"
+      http_tls_header:
+        header: [["  TLS:", ["main", "infoheader"]]]
+      http_tls_self_signed_alt_names:
+        header: [["      Alt Names:", ["main", "infoheader"]]]
+        paths:
+          - path: "spec#http#tls#selfSignedCertificate#subjectAltNames"
+            pathtype: "key_value"
+            default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "key"
+            - type: "value"
+          field_separators:
+            - type: "keyvalue"
+      http_tls_self_signed_enabled:
+        header: [["      Disabled:", ["main", "infoheader"]]]
+        path: "spec#http#tls#selfSignedCertificate#disabled"
+        default: "<unset>"
+        type: "str"
+      http_tls_self_signed_header:
+        header: [["    Self-Signed Certificate:", ["main", "infoheader"]]]
+      kibana_ref:
+        header: [["K", ["main", "infoheader_shortcut"]],
+                 ["ibana Reference:", ["main", "infoheader"]]]
+        paths:
+          - path: [["spec#kibanaRef#namespace", "metadata#namespace"],
+                   ["spec#kibanaRef#name"]]
+            pathtype: "tuple"
+            default: ["<unset>", "<unset>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "namespace"
+            - type: "generic"
+          field_separators:
+            - type: "namespace"
+      kibana_status:
+        header: [["Kibana Status:", ["main", "infoheader"]]]
+        path: "status#kibanaAssociationStatus"
+        default: "<unset>"
+        type: "str"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              Established:
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+              Pending:
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+              "<unset>":
+                field_colors:
+                  - context: "types"
+                    type: "unset"
+      label_selector:
+        header: [["Label Selector:", ["main", "infoheader"]]]
+        path: "status#selector"
+        type: "str"
+      secret:
+        header: [["S", ["main", "infoheader_shortcut"]],
+                 ["ecret:", ["main", "infoheader"]]]
+        path: "status#secretTokenSecret"
+        type: "str"
+      service:
+        header: [["Ser", ["main", "infoheader"]],
+                 ["v", ["main", "infoheader_shortcut"]],
+                 ["ice:", ["main", "infoheader"]]]
+        path: "status#service"
+        type: "str"
+      version:
+        header: [["Version:", ["main", "infoheader"]]]
+        path: "spec#version"
+        type: "str"
+        formatting:
+          field_colors:
+            - type: "version"
+  {%- for line in listpad_pod_status_selector.split("\n") %}
+  {{ line }}
+  {%- endfor %}
+  shortcuts:
+    "Open Elasticsearch":
+      key: "e"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for Elasticsearch"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind: "Elasticsearch"
+        api_family: "elasticsearch.k8s.elastic.co"
+        namespace_path: ["spec#elasticsearchRef#namespace",
+                         "metadata#namespace"]
+        name_path: "spec#elasticsearchRef#name"
+    "Open Kibana":
+      key: "k"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for Kibana"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind: "Kibana"
+        api_family: "kibana.k8s.elastic.co"
+        namespace_path: ["spec#kibanaRef#namespace", "metadata#namespace"]
+        name_path: "spec#kibanaRef#name"
+    "Open Secret":
+      key: "s"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for Secret"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind: "Secret"
+        namespace_path: "metadata#namespace"
+        name_path: "status#secretTokenSecret"
+    "Open Service":
+      key: "v"
+      read_only: true
+      helptext: "Open info page for Service"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind: "Service"
+        namespace_path: "metadata#namespace"
+        name_path: "status#service"
+    "Pod template":
+      key: "t"
+      modifier: "shift"
+      read_only: true
+      helptext: "Show Pod template"
+      action: "call"
+      action_call: "view_yaml"
+      action_args:
+        title: "Pod template"
+        _pass_obj: true
+        path: "spec#podTemplate"

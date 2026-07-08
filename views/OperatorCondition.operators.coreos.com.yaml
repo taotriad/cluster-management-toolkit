@@ -77,8 +77,8 @@ infoview:
       action_call: "resourceinfodispatch_with_lookup"
       action_args:
         _pass_obj: true
-        owner_reference_path: "metadata#ownerReferences"
         namespace_path: "metadata#namespace"
+        owner_reference_path: "metadata#ownerReferences"
     "Show Deployment list":
       key: "d"
       modifier: "shift"

@@ -1,0 +1,402 @@
+---
+kind: "Machine"
+api_family: "cluster.x-k8s.io"
+default_command: "machines.cluster.x-k8s.io"
+command:
+  - "x-machines"
+  - "x-machine"
+listview:
+  name: "Machines"
+  group: "Cluster Configuration"
+  field_indexes:
+    Wide:
+      fields: ["namespace", "name", "controller",
+               "cluster", "node", "provider_id",
+               "phase", "age", "version"]
+      sortcolumn: "namespace"
+    Normal:
+      fields: ["namespace", "name", "cluster", "phase", "age", "version"]
+      sortcolumn: "namespace"
+  fields:
+    cluster:
+      header: "Cluster:"
+      path: "spec#clusterName"
+      type: "str"
+    {%- for line in field_controller.split("\n") %}
+    {{ line }}
+    {%- endfor %}
+    node:
+      header: "Node:"
+      path: "status#nodeRef#name"
+      default: "<none>"
+      type: "host"
+      formatting:
+        field_colors:
+          - type: "host"
+    phase:
+      header: "Phase:"
+      path: "status#phase"
+      type: "str"
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          mappings:
+            Pending:
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+            Provisioned:
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+            Provisioning:
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+            Running:
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+            Terminating:
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+            Failed:
+              field_colors:
+                - context: "main"
+                  type: "status_not_ok"
+    provider_id:
+      header: "Provider ID:"
+      path: "spec#providerID"
+      default: "<unset>"
+      type: "str"
+    version:
+      header: "Version:"
+      path: "spec#version"
+      default: "<unset>"
+      type: "str"
+      formatting:
+        field_colors:
+          - type: "version"
+infoview:
+  name: "Machine Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["controller", "cluster",
+                 "node_name",
+                 "node_deletion_timeout",
+                 "node_drain_timeout",
+                 "node_volume_detach_timeout",
+                 "taints", "failure_domain",
+                 "bootstrap", "bootstrap_ready", "bootstrap_secret",
+                 "infrastructure", "infrastructure_ready",
+                 "provider_id", "readiness_gates", "phase", "version"]
+    rows:
+      bootstrap:
+        header: [["B", ["main", "infoheader"]],
+                 ["o", ["main", "infoheader_shortcut"]],
+                 ["otstrap:", ["main", "infoheader"]]]
+        paths:
+          - path: [["spec#bootstrap#configRef#kind"],
+                   ["spec#bootstrap#configRef#namespace"],
+                   ["spec#bootstrap#configRef#name"]]
+            pathtype: "tuple"
+            type: ["kind", "name", "name"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "kind"
+            - type: "namespace"
+            - type: "generic"
+          field_separators:
+            - type: "kind"
+            - type: "namespace"
+      bootstrap_ready:
+        header: [["Bootstrap Ready:", ["main", "infoheader"]]]
+        path: "status#bootstrapReady"
+        default: "<unset>"
+        type: "bool"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              "False":
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+              "True":
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+              "<unset>":
+                field_colors:
+                  - context: "types"
+                    type: "unset"
+      bootstrap_secret:
+        header: [["Bootstrap ", ["main", "infoheader"]],
+                 ["S", ["main", "infoheader_shortcut"]],
+                 ["ecret:", ["main", "infoheader"]]]
+        path: "spec#bootstrap#dataSecretName"
+        default: "<unset>"
+        type: "str"
+      cluster:
+        header: [["Cl", ["main", "infoheader"]],
+                 ["u", ["main", "infoheader_shortcut"]],
+                 ["ster:", ["main", "infoheader"]]]
+        path: "spec#clusterName"
+        default: "<unset>"
+        type: "str"
+      {%- for line in row_controller.split("\n") %}
+      {{ line }}
+      {%- endfor %}
+      failure_domain:
+        header: [["Failure Domain:", ["main", "infoheader"]]]
+        path: "spec#failureDomain"
+        default: "<unset>"
+        type: "str"
+      infrastructure:
+        header: [["I", ["main", "infoheader_shortcut"]],
+                 ["nfrastructure:", ["main", "infoheader"]]]
+        paths:
+          - path: [["spec#infrastructureRef#kind"],
+                   ["spec#infrastructureRef#namespace"],
+                   ["spec#infrastructureRef#name"]]
+            pathtype: "tuple"
+            type: ["kind", "name", "name"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "kind"
+            - type: "namespace"
+            - type: "generic"
+          field_separators:
+            - type: "kind"
+            - type: "namespace"
+      infrastructure_ready:
+        header: [["Infrastructure Ready:", ["main", "infoheader"]]]
+        path: "status#infrastructureReady"
+        default: "<unset>"
+        type: "bool"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              "False":
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+              "True":
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+              "<unset>":
+                field_colors:
+                  - context: "types"
+                    type: "unset"
+      node_deletion_timeout:
+        header: [["Node Deletion Timeout:", ["main", "infoheader"]]]
+        path: "spec#deletion#nodeDeletionTimeoutSeconds"
+        default: 10
+        type: "int"
+        formatter: "numerical"
+        formatting:
+          unit: "s"
+      node_drain_timeout:
+        header: [["Node Drain Timeout:", ["main", "infoheader"]]]
+        path: "spec#deletion#nodeDrainTimeoutSeconds"
+        default: 10
+        type: "int"
+        formatter: "numerical"
+        formatting:
+          unit: "s"
+      node_name:
+        header: [["No", ["main", "infoheader"]],
+                 ["d", ["main", "infoheader_shortcut"]],
+                 ["e:", ["main", "infoheader"]]]
+        path: "status#nodeRef#name"
+        default: "<none>"
+        type: "host"
+        formatting:
+          field_colors:
+            - type: "host"
+      node_volume_detach_timeout:
+        header: [["Node Volume Detach Timeout:", ["main", "infoheader"]]]
+        path: "spec#deletion#nodeVolumeDetachTimeoutSeconds"
+        default: 10
+        type: "int"
+        formatter: "numerical"
+        formatting:
+          unit: "s"
+      phase:
+        header: [["Phase:", ["main", "infoheader"]]]
+        path: "status#phase"
+        type: "str"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              Pending:
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+              Provisioned:
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+              Provisioning:
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+              Running:
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+              Terminating:
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+              Failed:
+                field_colors:
+                  - context: "main"
+                    type: "status_not_ok"
+      provider_id:
+        header: [["Provider ID:", ["main", "infoheader"]]]
+        path: "spec#providerID"
+        default: "<unset>"
+        type: "str"
+      readiness_gates:
+        header: [["Readiness ", ["main", "infoheader"]],
+                 ["G", ["main", "infoheader_shortcut"]],
+                 ["ates:", ["main", "infoheader"]]]
+        paths:
+          - path: "spec#readinessGates"
+            pathtype: "items"
+            subpaths:
+              - "conditionType"
+              - subpath: "polarity"
+                default: "Positive"
+            default: ["<none>"]
+        formatter: "list"
+      taints:
+        header: [["Taints:", ["main", "infoheader"]]]
+        paths:
+          - path: "spec#taints"
+            pathtype: "items"
+            subpaths:
+              - "key"
+              - "value"
+              - "effect"
+        default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "key"
+            - type: "value"
+            - type: "effect"
+          field_separators:
+            - type: "equals"
+            - type: "keyvalue"
+          mapping:
+            mappings:
+              NoSchedule:
+                field_colors:
+                  - context: "main"
+                    type: "status_not_ok"
+              PreferNoSchedule:
+                field_colors:
+                  - context: "main"
+                    type: "status_warning"
+              NoExecute:
+                field_colors:
+                  - context: "main"
+                    type: "status_not_ok"
+      version:
+        header: [["Version:", ["main", "infoheader"]]]
+        path: "spec#version"
+        default: "<unset>"
+        type: "str"
+        formatting:
+          field_colors:
+            - type: "version"
+  shortcuts:
+    "Open Bootstrap":
+      key: "o"
+      read_only: true
+      helptext: "Open info page for bootstrap"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind_path: "spec#bootstrap#configRef#kind"
+        api_version_path: "spec#bootstrap#configRef#apiGroup"
+        name_path: "spec#bootstrap#configRef#name"
+        namespace_path: "spec#bootstrap#configRef#namespace"
+        _parent_namespace_path: "metadata#namespace"
+    "Open Bootstrap Secret":
+      key: "s"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for bootstrap Secret"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind: "Secret"
+        namespace_path: "metadata#namespace"
+        name_path: "spec#bootstrap#dataSecretName"
+    "Open Cluster":
+      key: "u"
+      read_only: true
+      helptext: "Open info page for Cluster"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind: "Cluster"
+        api_family: "cluster.x-k8s.io"
+        name_path: "spec#clusterName"
+        namespace_path: "metadata#namespace"
+    {%- for line in shortcut_controller.split("\n") %}
+    {{ line }}
+    {%- endfor %}
+    "Open Infrastructure":
+      key: "i"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for infrastructure"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind_path: "spec#infrastructureRef#kind"
+        api_version_path: "spec#infrastructureRef#apiGroup"
+        name_path: "spec#infrastructureRef#name"
+        namespace_path: "spec#infrastructureRef#namespace"
+        _parent_namespace_path: "metadata#namespace"
+    "Open Node":
+      key: "d"
+      read_only: true
+      helptext: "Open info page for Node"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind: "Node"
+        name_path: "status#nodeRef#name"
+    "Show Readiness Gates":
+      key: "g"
+      modifier: "shift"
+      read_only: true
+      helptext: "Show readiness gates"
+      widget: "windowwidget"
+      widget_args:
+        title: "Readiness Gates:"
+        headers: ["Readiness Gate:", "Polarity:"]
+        itemgetter: "get_list_fields"
+        itemgetter_args:
+          path: "spec#readinessGates"
+          fields:
+            - name: "conditionType"
+            - name: "polarity"
+              default: "Positive"

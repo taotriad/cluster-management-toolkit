@@ -9,6 +9,10 @@ listview:
   name: "Module Releases"
   group: "Deckhouse"
   field_indexes:
+    Wide:
+      fields: ["name", "controller", "weight", "version", "update_policy",
+               "approved", "phase", "transition_time",
+               "pull_duration", "age", "message"]
     Normal:
       fields: ["name", "weight", "version", "update_policy",
                "approved", "phase", "transition_time",
@@ -19,6 +23,29 @@ listview:
       path: "status#approved"
       default: "<unset>"
       type: "bool"
+    controller:
+      header: "Controller:"
+      paths:
+        - path: "metadata#ownerReferences"
+          pathtype: "items"
+          subpaths:
+            - "kind"
+            - "apiVersion"
+            - "name"
+          when:
+            - key: "controller"
+              eq: true
+          type: ["kind", "api_group", "name"]
+          default: ["<none>"]
+      formatter: "list"
+      formatting:
+        field_colors:
+          - type: "kind"
+          - type: "api_group"
+          - type: "generic"
+        field_separators:
+          - type: "kind_api_group"
+          - type: "kind"
     message:
       header: "Message:"
       path: "status#message"

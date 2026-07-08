@@ -13,9 +13,12 @@ listview:
   name: "Workloads"
   group: "Batch Scheduling"
   field_indexes:
+    Wide:
+      fields: ["namespace", "name", "controller", "queue", "priority",
+               "admitted_by", "active", "age"]
     Normal:
-      fields: ["namespace", "name", "queue", "priority", "admitted_by",
-               "active", "age"]
+      fields: ["namespace", "name", "queue", "priority",
+               "admitted_by", "active", "age"]
   fields:
     active:
       header: "Active:"
@@ -27,6 +30,29 @@ listview:
       path: "status#admittedBy"
       default: "<unset>"
       type: "str"
+    controller:
+      header: "Controller:"
+      paths:
+        - path: "metadata#ownerReferences"
+          pathtype: "items"
+          subpaths:
+            - "kind"
+            - "apiVersion"
+            - "name"
+          when:
+            - key: "controller"
+              eq: true
+          type: ["kind", "api_group", "name"]
+          default: ["<none>"]
+      formatter: "list"
+      formatting:
+        field_colors:
+          - type: "kind"
+          - type: "api_group"
+          - type: "generic"
+        field_separators:
+          - type: "kind_api_group"
+          - type: "kind"
     priority:
       header: "Priority:"
       path: "spec#priority"

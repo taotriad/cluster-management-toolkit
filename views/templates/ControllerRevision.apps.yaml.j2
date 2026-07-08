@@ -1,0 +1,49 @@
+---
+kind: "ControllerRevision"
+api_family: "apps"
+default_command: "controllerrevisions"
+command:
+  - "crevs"
+  - "crev"
+listview:
+  name: "Controller Revisions"
+  group: "API & Extendability"
+  field_indexes:
+    Normal:
+      fields: ["namespace", "name", "controller", "revision", "age"]
+      sortcolumn: "namespace"
+  fields:
+    {%- for line in field_controller.split("\n") %}
+    {{ line }}
+    {%- endfor %}
+    revision:
+      header: "Revision:"
+      path: "revision"
+      type: "int"
+      formatter: "numerical"
+      align: "right"
+infoview:
+  name: "Controller Revision Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["controller", "revision"]
+    rows:
+      {%- for line in row_controller.split("\n") %}
+      {{ line }}
+      {%- endfor %}
+      revision:
+        header: [["Revision:", ["main", "infoheader"]]]
+        path: "revision"
+        type: "int"
+        formatter: "numerical"
+  logpad:
+    infogetter: "logpad_formatted"
+    infogetter_args:
+      formatter: "format_yaml"
+      path: "data#spec#template"
+    timestamps: false
+  shortcuts:
+    {%- for line in shortcut_controller.split("\n") %}
+    {{ line }}
+    {%- endfor %}

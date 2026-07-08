@@ -1,0 +1,112 @@
+---
+kind: "Namespace"
+default_command: "namespaces"
+command:
+  - "ns"
+listview:
+  name: "Namespaces"
+  group: "Core"
+  field_indexes:
+    Normal:
+      fields: ["name", "controller", "phase", "age"]
+  fields:
+    {%- for line in field_controller.split("\n") %}
+    {{ line }}
+    {%- endfor %}
+    phase:
+      header: "Status:"
+      path: "status#phase"
+      type: "str"
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          mappings:
+            Active:
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+            Terminating:
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+  actions:
+    actionlist:
+      "Delete resource":
+        description: "Delete resource"
+        category: "Resource Level"
+        confirm: true
+        actionfunc: "delete_resource"
+  shortcuts:
+    "Create namespace":
+      key: "c"
+      modifier: "shift"
+      read_only: false
+      helptext: "Create a new namespace"
+      action: "call"
+      action_call: "create_namespace"
+      action_args:
+        _pass_selection_vars: true
+      query: "New namespace"
+      queryval: "namespace"
+      queryfunc: "string"
+infoview:
+  name: "Namespace Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["controller", "status"]
+    rows:
+      {%- for line in row_controller.split("\n") %}
+      {{ line }}
+      {%- endfor %}
+      status:
+        header: [["Status:", ["main", "infoheader"]]]
+        path: "status#phase"
+        type: "str"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              Active:
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+              Terminating:
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+  listpad:
+    listgetter: "listgetter_namespaced_resources"
+    listgetter_args:
+      message: "Fetching all resources for Namespace"
+      namespace_path: "metadata#name"
+    infogetter: "generic_infogetter"
+    on_activation:
+      call: "resourceinfodispatch_with_lookup"
+      kind_path: "__kind_tuple"
+      name_path: "metadata#name"
+      namespace_path: "metadata#namespace"
+    field_indexes:
+      Normal:
+        fields: ["resource", "kind"]
+        sortcolumn: "kind"
+    fields:
+      kind:
+        header: "Kind:"
+        path: "__kind_tuple"
+        type: "raw"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "kind"
+            - type: "api_group"
+          field_separators:
+            - type: "kind_api_group"
+      resource:
+        header: "Resource:"
+        path: "metadata#name"
+        type: "raw"
+  shortcuts:
+    {%- for line in shortcut_controller.split("\n") %}
+    {{ line }}
+    {%- endfor %}

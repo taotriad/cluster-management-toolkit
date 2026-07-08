@@ -1,0 +1,167 @@
+---
+kind: "Revision"
+api_family: "serving.knative.dev"
+default_command: "revisions.serving.knative.dev"
+command:
+  - "revisions.knative"
+  - "revision.knative"
+  - "knrevisions"
+  - "knrevision"
+listview:
+  name: "Revisions"
+  group: "Knative"
+  field_indexes:
+    Normal:
+      fields: ["namespace", "name", "controller", "age", "ready", "reason"]
+      sortcolumn: "namespace"
+  fields:
+    {%- for line in field_controller.split("\n") %}
+    {{ line }}
+    {%- endfor %}
+    ready:
+      header: "Ready:"
+      paths:
+        - path: "status#conditions"
+          pathtype: "items"
+          subpath: "status"
+          when:
+            - key: "type"
+              eq: "Ready"
+          default: ["<unset>"]
+      type: "str"
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          mappings:
+            "True":
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+            "False":
+              field_colors:
+                - context: "main"
+                  type: "status_not_ok"
+            "<unset>":
+              field_colors:
+                - context: "types"
+                  type: "unset"
+    reason:
+      header: "Reason:"
+      paths:
+        - path: "status#conditions"
+          pathtype: "items"
+          subpath: "message"
+          when:
+            - key: "type"
+              eq: "Ready"
+      type: "str"
+infoview:
+  name: "Revision Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["controller", "container_concurrency",
+                 "actual_replicas", "enable_service_links", "timeout",
+                 "ready", "reason"]
+    rows:
+      actual_replicas:
+        header: [["Actual Replicas:", ["main", "infoheader"]]]
+        path: "status#actualReplicas"
+        type: "int"
+        formatter: "numerical"
+      container_concurrency:
+        header: [["Container Concurrency:", ["main", "infoheader"]]]
+        path: "spec#containerConcurrency"
+        type: "int"
+        formatter: "numerical"
+      {%- for line in row_controller.split("\n") %}
+      {{ line }}
+      {%- endfor %}
+      enable_service_links:
+        header: [["Enable ServiceLinks:", ["main", "infoheader"]]]
+        path: "spec#enableServiceLinks"
+        type: "str"
+      timeout:
+        header: [["Timeout:", ["main", "infoheader"]]]
+        paths:
+          - path: [["spec#timeoutSeconds"], "s"]
+            pathtype: "tuple"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "numerical"
+            - type: "unit"
+          field_separators:
+            - type: "no_pad"
+      ready:
+        header: [["Ready:", ["main", "infoheader"]]]
+        paths:
+          - path: "status#conditions"
+            pathtype: "items"
+            subpath: "status"
+            when:
+              - key: "type"
+                eq: "Ready"
+            default: ["<unset>"]
+        type: "str"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              "True":
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+              "False":
+                field_colors:
+                  - context: "main"
+                    type: "status_not_ok"
+              "<unset>":
+                field_colors:
+                  - context: "types"
+                    type: "unset"
+      reason:
+        header: [["Reason:", ["main", "infoheader"]]]
+        paths:
+          - path: "status#conditions"
+            pathtype: "items"
+            subpath: "message"
+            when:
+              - key: "type"
+                eq: "Ready"
+        type: "list"
+        formatter: "list"
+  shortcuts:
+    {%- for line in shortcut_controller.split("\n") %}
+    {{ line }}
+    {%- endfor %}
+    "List container statuses":
+      key: "s"
+      modifier: "shift"
+      read_only: true
+      helptext: "List container statuses"
+      widget: "windowwidget"
+      widget_args:
+        title: "Container statuses:"
+        headers: ["Name:", "Image Digest:"]
+        itemgetter: "get_list_fields"
+        itemgetter_args:
+          path: "status#containerStatuses"
+          fields:
+            - "name"
+            - "imageDigest"
+        # Not supported for now
+        sortcolumn: "name"
+    "View containers":
+      key: "t"
+      modifier: "shift"
+      read_only: true
+      helptext: "View containers configuration"
+      action: "call"
+      action_call: "view_yaml"
+      action_args:
+        title: "Containers configuration"
+        _named_title: true
+        _pass_obj: true
+        include_root: true
+        path: "spec#containers"

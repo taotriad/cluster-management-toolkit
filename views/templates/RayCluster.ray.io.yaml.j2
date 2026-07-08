@@ -1,0 +1,342 @@
+---
+kind: "RayCluster"
+api_family: "ray.io"
+default_command: "rayclusters"
+command:
+  - "rayclrs"
+  - "rayclr"
+listview:
+  name: "Ray Clusters"
+  group: "KubeRay"
+  field_indexes:
+    Normal:
+      fields: ["namespace", "name", "controller",
+               "ready_workers", "available_workers",
+               "desired_workers", "state", "age"]
+      sortcolumn: "namespace"
+  fields:
+    available_workers:
+      header: "Available:"
+      path: "status#availableWorkerReplicas"
+      default: 0
+      type: "int"
+      formatter: "numerical"
+      align: "right"
+    {%- for line in field_controller.split("\n") %}
+    {{ line }}
+    {%- endfor %}
+    desired_workers:
+      header: "Desired:"
+      path: "status#desiredWorkerReplicas"
+      default: 0
+      type: "int"
+      formatter: "numerical"
+      align: "right"
+    ready_workers:
+      header: "Ready:"
+      path: "status#readyWorkerReplicas"
+      default: 0
+      type: "int"
+      formatter: "numerical"
+      align: "right"
+    state:
+      header: "State:"
+      path: "status#state"
+      default: "<unset>"
+      type: "str"
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          mappings:
+            failed:
+              field_colors:
+                - context: "main"
+                  type: "status_not_ok"
+            ready:
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+            suspended:
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+            "<unset>":
+              field_colors:
+                - context: "types"
+                  type: "unset"
+infoview:
+  name: "Ray Cluster Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["controller", "scheduler",
+                 "kueue_queue",
+                 "volcano_queue",
+                 "ray_version", "ready_workers",
+                 "available_workers",
+                 "desired_workers", "desired_resources_header",
+                 "desired_cpus", "desired_gpus", "desired_tpus",
+                 "desired_mem", "endpoints_header", "endpoint_client",
+                 "endpoint_dashboard", "endpoint_gcs_server",
+                 "endpoint_metrics", "endpoint_serve",
+                 "head_header", "head_pod_name", "head_pod_ip",
+                 "head_service_name", "head_service_ip", "state"]
+    rows:
+      available_workers:
+        header: [["Available Workers:", ["main", "infoheader"]]]
+        path: "status#availableWorkerReplicas"
+        default: 0
+        type: "int"
+        formatter: "numerical"
+      {%- for line in row_controller.split("\n") %}
+      {{ line }}
+      {%- endfor %}
+      desired_cpus:
+        header: [["  CPUs:", ["main", "infoheader"]]]
+        path: "status#desiredCPU"
+        default: "<unset>"
+        type: "int"
+        formatter: "numerical"
+      desired_gpus:
+        header: [["  GPUs:", ["main", "infoheader"]]]
+        path: "status#desiredGPU"
+        default: 0
+        type: "int"
+        formatter: "numerical"
+      desired_mem:
+        header: [["  Memory:", ["main", "infoheader"]]]
+        path: "status#desiredMemory"
+        default: "<unset>"
+        type: "str"
+        formatter: "numerical"
+      desired_resources_header:
+        header: [["Desired Resources:", ["main", "infoheader"]]]
+      desired_tpus:
+        header: [["  TPUs:", ["main", "infoheader"]]]
+        path: "status#desiredTPU"
+        default: 0
+        type: "int"
+        formatter: "numerical"
+      desired_workers:
+        header: [["Desired Workers:", ["main", "infoheader"]]]
+        path: "status#desiredWorkerReplicas"
+        default: 0
+        type: "int"
+        formatter: "numerical"
+      endpoint_client:
+        header: [["  Client:", ["main", "infoheader"]]]
+        path: "status#endpoints#client"
+        type: "str"
+        formatting:
+          field_colors:
+            - type: "port"
+      endpoint_dashboard:
+        header: [["  Dashboard:", ["main", "infoheader"]]]
+        path: "status#endpoints#dashboard"
+        type: "str"
+        formatting:
+          field_colors:
+            - type: "port"
+      endpoint_gcs_server:
+        header: [["  GCS Server:", ["main", "infoheader"]]]
+        path: "status#endpoints#gcs-server"
+        type: "str"
+        formatting:
+          field_colors:
+            - type: "port"
+      endpoint_metrics:
+        header: [["  Metrics:", ["main", "infoheader"]]]
+        path: "status#endpoints#metrics"
+        type: "str"
+        formatting:
+          field_colors:
+            - type: "port"
+      endpoint_serve:
+        header: [["  Serve:", ["main", "infoheader"]]]
+        path: "status#endpoints#serve"
+        type: "str"
+        formatting:
+          field_colors:
+            - type: "port"
+      endpoints_header:
+        header: [["Endpoints:", ["main", "infoheader"]]]
+      head_header:
+        header: [["Head:", ["main", "infoheader"]]]
+      head_pod_ip:
+        header: [["  Pod IP:", ["main", "infoheader"]]]
+        path: "status#head#podIP"
+        default: "<unset>"
+        type: "str"
+        formatter: "address"
+      head_pod_name:
+        header: [["  ", ["main", "infoheader"]],
+                 ["P", ["main", "infoheader_shortcut"]],
+                 ["od Name:", ["main", "infoheader"]]]
+        path: "status#head#podName"
+        default: "<unset>"
+        type: "str"
+      head_service_ip:
+        header: [["  Service IP:", ["main", "infoheader"]]]
+        path: "status#head#serviceIP"
+        default: "<unset>"
+        type: "str"
+        formatter: "address"
+      head_service_name:
+        header: [["  ", ["main", "infoheader"]],
+                 ["S", ["main", "infoheader_shortcut"]],
+                 ["ervice Name:", ["main", "infoheader"]]]
+        path: "status#head#serviceName"
+        default: "<unset>"
+        type: "str"
+      kueue_queue:
+        header: [["K", ["main", "infoheader_shortcut"]],
+                 ["ueue Queue:", ["main", "infoheader"]]]
+        path: "metadata#labels#kueue.x-k8s.io/queue-name"
+        default: "N/A"
+        type: "str"
+      ray_version:
+        header: [["Ray Version:", ["main", "infoheader"]]]
+        path: "spec#rayVersion"
+        default: "<unset>"
+        type: "str"
+        formatting:
+          field_colors:
+            - type: "version"
+      ready_workers:
+        header: [["Ready Workers:", ["main", "infoheader"]]]
+        path: "status#readyWorkerReplicas"
+        default: 0
+        type: "int"
+        formatter: "numerical"
+      scheduler:
+        header: [["Scheduler:", ["main", "infoheader"]]]
+        paths:
+          - path: "metadata#labels"
+            pathtype: "substitution"
+            subpath: "ray.io/scheduler-name"
+            when:
+              - key: "ray.io/scheduler-name"
+                notnone: true
+            substitute: "volcano"
+          - path: "metadata#labels"
+            pathtype: "substitution"
+            subpath: "kueue.x-k8s.io/queue-name"
+            when:
+              - key: "kueue.x-k8s.io/queue-name"
+                notnone: true
+            substitute: "kueue"
+          - path: "metadata#labels"
+            pathtype: "substitution"
+            subpath: "yunikorn.apache.org/app-id"
+            when:
+              - key: "yunikorn.apache.org/app-id"
+                notnone: true
+            substitute: "yunikorn"
+        default: "default-scheduler"
+        type: "str"
+      volcano_queue:
+        header: [["V", ["main", "infoheader_shortcut"]],
+                 ["olcano Queue:", ["main", "infoheader"]]]
+        path: "metadata#labels#volcano.sh/queue-name"
+        default: "N/A"
+        type: "str"
+      state:
+        header: [["State:", ["main", "infoheader"]]]
+        path: "status#state"
+        default: "<unset>"
+        type: "str"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              failed:
+                field_colors:
+                  - context: "main"
+                    type: "status_not_ok"
+              ready:
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+              suspended:
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+              "<unset>":
+                field_colors:
+                  - context: "types"
+                    type: "unset"
+  shortcuts:
+    {%- for line in shortcut_controller.split("\n") %}
+    {{ line }}
+    {%- endfor %}
+    "Open head pod":
+      key: "p"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for head pod"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        namespace_path: "metadata#namespace"
+        name_path: "status#head#podName"
+        kind: "Pod"
+    "Open head service":
+      key: "s"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for head service"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        namespace_path: "metadata#namespace"
+        name_path: "status#head#serviceName"
+        kind: "Service"
+    "Open Kueue Queue":
+      key: "k"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for Kueue Queue"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        namespace_path: "metadata#namespace"
+        name_path: "metadata#labels#kueue.x-k8s.io/queue-name"
+        kind: "LocalQueue"
+        api_family: "kueue.x-k8s.io"
+    "Open Volcano Queue":
+      key: "v"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for Volcano Queue"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        namespace_path: "metadata#namespace"
+        name_path: "metadata#labels#volcano.sh/queue-name"
+        kind: "Queue"
+        api_family: "scheduling.volcano.sh"
+    "View Head Group Specs":
+      key: "h"
+      read_only: true
+      helptext: "Show head group specs"
+      action: "call"
+      action_call: "view_yaml"
+      action_args:
+        title: "Head Group Specs"
+        _pass_obj: true
+        path: "spec#headGroupSpec"
+    "View Worker Group Specs":
+      key: "w"
+      read_only: true
+      helptext: "Show worker group specs"
+      action: "call"
+      action_call: "view_yaml"
+      action_args:
+        title: "Worker Group Specs"
+        _pass_obj: true
+        path: "spec#workerGroupSpecs"
+        include_root: true

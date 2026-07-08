@@ -1,0 +1,203 @@
+---
+kind: "ResourceSlice"
+api_family: "resource.k8s.io"
+default_command: "resourceslices"
+command:
+  - "resslices"
+  - "resslice"
+listview:
+  name: "Resource Slices"
+  group: "Dynamic Resource Allocation"
+  field_indexes:
+    Wide:
+      fields: ["name", "controller", "driver", "pool", "resource_slice_count",
+               "device_count", "age"]
+    Normal:
+      fields: ["name", "driver", "resource_slice_count", "device_count", "age"]
+  fields:
+    {%- for line in field_controller.split("\n") %}
+    {{ line }}
+    {%- endfor %}
+    device_count:
+      header: "Devices:"
+      path: "spec#devices"
+      type: "len"
+      formatter: "numerical"
+      align: "right"
+    driver:
+      header: "Driver:"
+      path: "spec#driver"
+      default: "<unset>"
+      type: "str"
+    pool:
+      header: "Pool:"
+      path: "spec#pool#name"
+      default: "<unset>"
+      type: "str"
+    resource_slice_count:
+      header: "Slices:"
+      path: "spec#pool#resourceSliceCount"
+      default: "<unset>"
+      type: "int"
+      formatter: "numerical"
+      align: "right"
+infoview:
+  name: "Resource Slice Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["controller",
+                 "node_name", "node_selector",
+                 "pool", "all_nodes", "resource_slice_count", "driver"]
+    rows:
+      all_nodes:
+        header: [["All Nodes:", ["main", "infoheader"]]]
+        path: "spec#allNodes"
+        default: false
+        type: "bool"
+      {%- for line in row_controller.split("\n") %}
+      {{ line }}
+      {%- endfor %}
+      driver:
+        header: [["Driver:", ["main", "infoheader"]]]
+        paths:
+          - path: ["spec#driver", "driverName"]
+            pathtype: "str"
+            default: "<unset>"
+        type: "str"
+      node_name:
+        header: [["No", ["main", "infoheader"]],
+                 ["d", ["main", "infoheader_shortcut"]],
+                 ["e Name:", ["main", "infoheader"]]]
+        paths:
+          - path: "spec#nodeName"
+            pathtype: "str"
+            default: "<unset>"
+        type: "str"
+        formatting:
+          field_colors:
+            - type: "host"
+      node_selector:
+        header: [["Node Selector:", ["main", "infoheader"]]]
+        paths:
+          - path: "spec#nodeSelector#nodeSelectorTerms"
+            pathtype: "selectors"
+            default: ["<none>"]
+        formatter: "list"
+      pool:
+        header: [["Pool:", ["main", "infoheader"]]]
+        path: "spec#pool#name"
+        default: "<unset>"
+        type: "str"
+      resource_slice_count:
+        header: [["Resource Slice Count:", ["main", "infoheader"]]]
+        path: "spec#pool#resourceSliceCount"
+        default: "<unset>"
+        type: "int"
+        formatter: "numerical"
+  listpad:
+    listgetter: "listgetter_path"
+    listgetter_args:
+      path: "spec#devices"
+    infogetter: "generic_infogetter"
+    on_activation:
+      call: "resourceinfodispatch"
+      kind: "__ResourceSliceDevice"
+      api_family: "resource.k8s.io"
+    field_indexes:
+      Wide:
+        fields: ["resource", "capacity", "attributes",
+                 "binds_to_node", "all_nodes", "allow_multiple_allocations",
+                 "binding_conditions", "binding_failure_conditions"]
+      Normal:
+        fields: ["resource", "capacity", "attributes"]
+    fields:
+      all_nodes:
+        header: "All Nodes:"
+        path: "allNodes"
+        default: false
+        type: "bool"
+      allow_multiple_allocations:
+        header: "Allow Multiple Allocations:"
+        path: "allowMultipleAllocations"
+        default: false
+        type: "bool"
+      attributes:
+        header: "Attributes:"
+        paths:
+          - path: "attributes"
+            pathtype: "key_value"
+            subpaths:
+              - "bool"
+              - "int"
+              - "string"
+              - "version"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "key"
+            - type: "value"
+          field_separators:
+            - type: "keyvalue"
+      capacity:
+        header: "Capacity:"
+        paths:
+          - path: "capacity"
+            pathtype: "key_value"
+            subpaths:
+              - "value"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "key"
+            - type: "value"
+          field_separators:
+            - type: "keyvalue"
+          field_formatters:
+            - ""
+            - "numerical_with_units"
+      node_name:
+        header: "Node Name:"
+        paths:
+          - path: "nodeName"
+            pathtype: "str"
+            default: "<unset>"
+        type: "str"
+        formatting:
+          field_colors:
+            - type: "host"
+      binding_conditions:
+        header: "Binding Conditions:"
+        path: "bindingConditions"
+        default: ["<none>"]
+        type: "raw"
+        formatter: "list"
+      binding_failure_conditions:
+        header: "Binding Failure Conditions:"
+        path: "bindingFailureConditions"
+        default: ["<none>"]
+        type: "raw"
+        formatter: "list"
+      binds_to_node:
+        header: "Binds to Node:"
+        path: "bindsToNode"
+        default: false
+        type: "bool"
+      resource:
+        header: "Resource:"
+        path: "name"
+        type: "str"
+  shortcuts:
+    {%- for line in shortcut_controller.split("\n") %}
+    {{ line }}
+    {%- endfor %}
+    "Open Node":
+      key: "d"
+      read_only: true
+      helptext: "Open info page for Node"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind: "Node"
+        name_path: ["spec#nodeName", "nodeName"]

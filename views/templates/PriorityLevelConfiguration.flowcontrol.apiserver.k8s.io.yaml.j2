@@ -1,0 +1,104 @@
+---
+kind: "PriorityLevelConfiguration"
+api_family: "flowcontrol.apiserver.k8s.io"
+default_command: "prioritylevelconfigurations"
+command:
+  - "priolevelconfs"
+  - "priolevelconf"
+listview:
+  name: "Priority Level Configurations"
+  group: "Scheduling & Scaling"
+  field_indexes:
+    Wide:
+      fields: ["name", "controller", "priority_type",
+               "nominal_concurrency_shares",
+               "queues", "hand_size", "queue_length_limit", "age"]
+    Normal:
+      fields: ["name", "priority_type", "nominal_concurrency_shares",
+               "queues", "hand_size", "queue_length_limit", "age"]
+  fields:
+    {%- for line in field_controller.split("\n") %}
+    {{ line }}
+    {%- endfor %}
+    hand_size:
+      header: "Hand Size:"
+      path: "spec#limited#limitResponse#queuing#handSize"
+      type: "raw"
+      formatter: "numerical"
+      align: "right"
+    nominal_concurrency_shares:
+      header: "Nominal Concurrency Shares:"
+      paths:
+        - path: ["spec#limited#nominalConcurrencyShares",
+                 "spec#limited#assuredConcurrencyShares"]
+          pathtype: "value"
+      formatter: "numerical"
+      align: "right"
+    priority_type:
+      header: "Priority Type:"
+      path: "spec#type"
+      type: "str"
+    queue_length_limit:
+      header: "Queue Length List:"
+      path: "spec#limited#limitResponse#queuing#queueLengthLimit"
+      type: "raw"
+      formatter: "numerical"
+      align: "right"
+    queues:
+      header: "Queues:"
+      path: "spec#limited#limitResponse#queuing#queues"
+      type: "raw"
+      formatter: "numerical"
+      align: "right"
+  actions:
+    actionlist:
+      "Delete resource":
+        description: "Delete resource"
+        category: "Resource Level"
+        confirm: true
+        actionfunc: "delete_resource"
+infoview:
+  name: "Priority Level Configuration Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["controller", "priority_type",
+                 "nominal_concurrency_shares", "queues",
+                 "hand_size", "queue_length_limit", "queues"]
+    rows:
+      {%- for line in row_controller.split("\n") %}
+      {{ line }}
+      {%- endfor %}
+      hand_size:
+        header: [["Hand Size:", ["main", "infoheader"]]]
+        path: "spec#limited#limitResponse#queuing#handSize"
+        default: "<unset>"
+        type: "raw"
+        formatter: "numerical"
+      nominal_concurrency_shares:
+        header: [["Nominal Concurrency Shares:", ["main", "infoheader"]]]
+        paths:
+          - path: "spec#limited#assuredConcurrencyShares"
+            pathtype: "value"
+            default: "<unset>"
+        formatter: "numerical"
+      priority_type:
+        header: [["Priority Type:", ["main", "infoheader"]]]
+        path: "spec#type"
+        type: "str"
+      queue_length_limit:
+        header: [["Queue Length List:", ["main", "infoheader"]]]
+        path: "spec#limited#limitResponse#queuing#queueLengthLimit"
+        default: "<unset>"
+        type: "raw"
+        formatter: "numerical"
+      queues:
+        header: [["Queues:", ["main", "infoheader"]]]
+        path: "spec#limited#limitResponse#queuing#queues"
+        default: "<unset>"
+        type: "raw"
+        formatter: "numerical"
+  shortcuts:
+    {%- for line in shortcut_controller.split("\n") %}
+    {{ line }}
+    {%- endfor %}

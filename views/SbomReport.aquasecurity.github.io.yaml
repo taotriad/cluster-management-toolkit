@@ -9,6 +9,10 @@ listview:
   name: "SBOM Reports"
   group: "Security"
   field_indexes:
+    Wide:
+      fields: ["namespace", "name", "controller", "scanner", "repository",
+               "tag", "components_count", "dependencies_count", "age"]
+      sortcolumn: "namespace"
     Normal:
       fields: ["namespace", "name", "scanner", "repository",
                "tag", "components_count", "dependencies_count", "age"]
@@ -20,6 +24,29 @@ listview:
       type: "int"
       formatter: "numerical"
       align: "right"
+    controller:
+      header: "Controller:"
+      paths:
+        - path: "metadata#ownerReferences"
+          pathtype: "items"
+          subpaths:
+            - "kind"
+            - "apiVersion"
+            - "name"
+          when:
+            - key: "controller"
+              eq: true
+          type: ["kind", "api_group", "name"]
+          default: ["<none>"]
+      formatter: "list"
+      formatting:
+        field_colors:
+          - type: "kind"
+          - type: "api_group"
+          - type: "generic"
+        field_separators:
+          - type: "kind_api_group"
+          - type: "kind"
     dependencies_count:
       header: "Dependencies:"
       path: "report#summary#dependenciesCount"
@@ -57,6 +84,19 @@ infoview:
         fields: ["controller", "scanner", "vendor", "bom_format",
                  "digest", "repository", "tag"]
     rows:
+      bom_format:
+        header: [["BOM Format:", ["main", "infoheader"]]]
+        paths:
+          - path: [["report#components#bomFormat"],
+                   ["report#components#specVersion"]]
+            pathtype: "tuple"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "generic"
+            - type: "version"
+          field_separators:
+            - type: "version"
       controller:
         header: [["C", ["main", "infoheader_shortcut"]],
                  ["ontroller:", ["main", "infoheader"]]]
@@ -81,19 +121,6 @@ infoview:
           field_separators:
             - type: "kind_api_group"
             - type: "kind"
-      bom_format:
-        header: [["BOM Format:", ["main", "infoheader"]]]
-        paths:
-          - path: [["report#components#bomFormat"],
-                   ["report#components#specVersion"]]
-            pathtype: "tuple"
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "generic"
-            - type: "version"
-          field_separators:
-            - type: "version"
       digest:
         header: [["Digest:", ["main", "infoheader"]]]
         path: "report#artifact#digest"

@@ -9,6 +9,10 @@ listview:
   name: "LXC Clusters"
   group: "Cluster Configuration"
   field_indexes:
+    Wide:
+      fields: ["namespace", "name", "controller", "cluster",
+               "control_plane_endpoint", "ready", "age"]
+      sortcolumn: "namespace"
     Normal:
       fields: ["namespace", "name", "cluster",
                "control_plane_endpoint", "ready", "age"]
@@ -19,6 +23,29 @@ listview:
       path: "metadata#labels#cluster.x-k8s.io/cluster-name"
       default: "<unset>"
       type: "str"
+    controller:
+      header: "Controller:"
+      paths:
+        - path: "metadata#ownerReferences"
+          pathtype: "items"
+          subpaths:
+            - "kind"
+            - "apiVersion"
+            - "name"
+          when:
+            - key: "controller"
+              eq: true
+          type: ["kind", "api_group", "name"]
+          default: ["<none>"]
+      formatter: "list"
+      formatting:
+        field_colors:
+          - type: "kind"
+          - type: "api_group"
+          - type: "generic"
+        field_separators:
+          - type: "kind_api_group"
+          - type: "kind"
     control_plane_endpoint:
       header: "Control Plane Endpoint:"
       paths:

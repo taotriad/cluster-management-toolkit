@@ -1,0 +1,359 @@
+---
+kind: "PersistentVolume"
+default_command: "persistentvolumes"
+command:
+  - "pv"
+listview:
+  name: "Persistent Volumes"
+  group: "Storage & Backups"
+  field_indexes:
+    Wide:
+      fields: ["name", "storage_class", "access_modes", "reclaim_policy",
+               "volume_mode", "capacity", "status", "age", "claim", "reason"]
+    Normal:
+      fields: ["name", "storage_class", "access_modes", "capacity", "status",
+               "age"]
+  fields:
+    access_modes:
+      header: "Access Modes:"
+      paths:
+        - path: "spec#accessModes"
+          pathtype: "remap"
+          substitutions:
+            "ReadWriteOnce": "RWO"
+            "ReadWriteOncePod": "RWOP"
+            "ReadWriteMany": "RWM"
+            "ReadOnlyMany": "ROX"
+      type: "raw"
+      formatter: "list"
+    capacity:
+      header: "Capacity:"
+      path: "spec#capacity#storage"
+      type: "raw"
+      formatter: "numerical"
+      align: "right"
+    claim:
+      header: "Claim:"
+      paths:
+        - path: [["spec#claimRef#namespace"], ["spec#claimRef#name"]]
+          pathtype: "tuple"
+          default: ["", "<none>"]
+          type: ["name", "name"]
+      formatter: "list"
+      formatting:
+        field_colors:
+          - type: "namespace"
+          - type: "generic"
+        field_separators:
+          - type: "namespace"
+    reason:
+      header: "Reason:"
+      path: "status#reason"
+      type: "str"
+    reclaim_policy:
+      header: "Reclaim Policy:"
+      path: "spec#persistentVolumeReclaimPolicy"
+      type: "str"
+    status:
+      header: "Status:"
+      path: "status#phase"
+      type: "str"
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          mappings:
+            Available:
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+            Bound:
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+            Pending:
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+            Released:
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+            __default:
+              field_colors:
+                - context: "main"
+                  type: "status_not_ok"
+    storage_class:
+      header: "Storage Class:"
+      path: "spec#storageClassName"
+      default: "<none>"
+      type: "str"
+    volume_mode:
+      header: "Volume Mode:"
+      path: "spec#volumeMode"
+      type: "str"
+infoview:
+  name: "Persistent Volume Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["status", "reason", "capacity",
+                 "persistent_volume_claim", "access_modes",
+                 "csi_driver", "storage_class", "reclaim_policy",
+                 "volume_mode"]
+    rows:
+      access_modes:
+        header: [["Access Modes:", ["main", "infoheader"]]]
+        paths:
+          - path: "spec#accessModes"
+            pathtype: "remap"
+            substitutions:
+              "ReadWriteOnce": "RWO"
+              "ReadWriteOncePod": "RWOP"
+              "ReadWriteMany": "RWM"
+              "ReadOnlyMany": "ROX"
+        type: "raw"
+        formatter: "list"
+      capacity:
+        header: [["Capacity:", ["main", "infoheader"]]]
+        path: "spec#capacity#storage"
+        type: "raw"
+        formatter: "numerical"
+      csi_driver:
+        header: [["CSI ", ["main", "infoheader"]],
+                 ["D", ["main", "infoheader_shortcut"]],
+                 ["river:", ["main", "infoheader"]]]
+        path: "spec#csi#driver"
+        default: "<unset>"
+        type: "str"
+      persistent_volume_claim:
+        header: [["P", ["main", "infoheader_shortcut"]],
+                 ["ersistent Volume Claim:", ["main", "infoheader"]]]
+        paths:
+          - path: [["spec#claimRef#namespace"], ["spec#claimRef#name"]]
+            pathtype: "tuple"
+            default: ["", "<none>"]
+            type: ["name", "name"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "namespace"
+            - type: "generic"
+          field_separators:
+            - type: "namespace"
+      reason:
+        header: [["Reason:", ["main", "infoheader"]]]
+        path: "status#reason"
+        default: "<unset>"
+        type: "str"
+      reclaim_policy:
+        header: [["Reclaim Policy:", ["main", "infoheader"]]]
+        path: "spec#persistentVolumeReclaimPolicy"
+        type: "str"
+      status:
+        header: [["Status:", ["main", "infoheader"]]]
+        path: "status#phase"
+        type: "str"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              Available:
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+              Bound:
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+              Pending:
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+              Released:
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+              __default:
+                field_colors:
+                  - context: "main"
+                    type: "status_not_ok"
+      storage_class:
+        header: [["S", ["main", "infoheader_shortcut"]],
+                 ["torage Class:", ["main", "infoheader"]]]
+        path: "spec#storageClassName"
+        default: "<none>"
+        type: "str"
+      volume_mode:
+        header: [["Volume Mode:", ["main", "infoheader"]]]
+        path: "spec#volumeMode"
+        default: "<unset>"
+        type: "str"
+  listpad:
+    listgetter: "generic_listgetter"
+    listgetter_args:
+      _kind: "Pod"
+      _pass_obj: true
+      filters:
+        pvc:
+          enabled: true
+          allow:
+            - list: "spec#volumes"
+              key: "persistentVolumeClaim#claimName"
+              values:
+                source: "caller"
+                path: "spec#claimRef#name"
+            - key: "metadata#namespace"
+              values:
+                source: "caller"
+                path: "spec#claimRef#namespace"
+    infogetter: "generic_infogetter"
+    on_activation:
+      call: "resourceinfodispatch"
+      kind: "Pod"
+    field_indexes:
+      Wide:
+        fields: ["namespace", "name", "controller", "pod_status",
+                 "node_name", "pod_ip", "age", "restarts",
+                 "last_restart", "containers"]
+        sortcolumn: "pod_status"
+      Normal:
+        fields: ["namespace", "name", "controller", "pod_status",
+                 "node_name", "age", "restarts", "last_restart"]
+        sortcolumn: "pod_status"
+      Compact:
+        fields: ["namespace", "name", "pod_status", "age",
+                 "restarts", "last_restart"]
+        sortcolumn: "pod_status"
+    fields:
+      containers:
+        header: "Containers:"
+        paths:
+          - paths:
+              - "spec#initContainers"
+              - "spec#containers"
+            pathtype: "items"
+            subpaths:
+              - "name"
+              - subpath: "image"
+                regex: ["^.+/[^:^/]+:(.+?)@.*", "^.+/[^:^/]+:(.+)"]
+            type: "raw"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "generic"
+            - type: "version"
+          field_separators:
+            - type: "version"
+      {%- for line in field_controller.split("\n") %}
+      {{ line }}
+      {%- endfor %}
+      last_restart:
+        header: "Latest Restart:"
+        paths:
+          - path: "status#containerStatuses"
+            pathtype: "items"
+            subpath: ["state#running#startedAt",
+                      "lastState#terminated#finishedAt"]
+            when:
+              - key: "restartCount"
+                gt: 0
+            action: "latest"
+            type: "timestamp"
+        default: -1
+        formatter: "age"
+        align: "right"
+      node_name:
+        header: "Node:"
+        path: "spec#nodeName"
+        type: "host"
+        default: "<none>"
+        formatting:
+          field_colors:
+            - type: "host"
+      pod_ip:
+        header: "Pod IP:"
+        path: "status#podIP"
+        default: "<unset>"
+        type: "address"
+        formatter: "address"
+      restarts:
+        header: "Restarts:"
+        paths:
+          - path: "status#containerStatuses"
+            pathtype: "items"
+            subpath: "restartCount"
+            action: "sum"
+            type: "int"
+        default: 0
+        formatter: "numerical"
+        align: "right"
+  shortcuts:
+    "Open CSI Driver":
+      key: "d"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for CSI Driver"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind: "CSIDriver"
+        api_family: "storage.k8s.io"
+        name_path: "spec#csi#driver"
+    "Open Storage Class":
+      key: "s"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for Storage Class"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind: "StorageClass"
+        api_family: "storage.k8s.io"
+        name_path: "spec#storageClassName"
+    "Mount Options":
+      key: "m"
+      read_only: true
+      helptext: "Show mount options"
+      widget: "windowwidget"
+      widget_args:
+        title: "Mount Options:"
+        itemgetter: "get_list_as_list"
+        itemgetter_args:
+          path: "spec#mountOptions"
+    "Volume Node Affinity":
+      key: "a"
+      modifier: "shift"
+      read_only: true
+      helptext: "Show volume node affinity selector"
+      action: "call"
+      action_call: "view_yaml"
+      action_args:
+        title: "Volume Node Affinity Selectors"
+        _pass_obj: true
+        path: "spec#nodeAffinity#required#nodeSelectorTerms"
+        include_root: true
+    "Persistent Volume Claim":
+      key: "p"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for Persistent Volume Claim"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind: "PersistentVolumeClaim"
+        name_path: "spec#claimRef#name"
+        namespace_path: "spec#claimRef#namespace"
+    "Source properties":
+      key: "s"
+      read_only: true
+      helptext: "Show properties for volume source"
+      widget: "windowwidget"
+      widget_args:
+        title: "Source properties:"
+        itemgetter: "get_volume_properties"
+        formatting: [["windowwidget", "default"], ["windowwidget", "highlight"]]
+        # This isn't supported for now
+        sortcolumn: "key"
