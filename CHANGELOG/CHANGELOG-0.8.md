@@ -652,7 +652,7 @@ to reinstall the cluster from scratch.
 * View-files can now be individually reloaded. This is great during development,
   since reloading all view-files is potentially a very slow operation.
 * Parser-files can now be reloaded.
-* Shortcuttingg directly into Secret data is now possible.
+* Shortcutting directly into Secret data is now possible.
 
 ### Changes to other files in v0.8.7
 
