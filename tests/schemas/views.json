@@ -2277,7 +2277,7 @@
                                                     "items": {
                                                         "$ref": "#/$defs/simple_path"
                                                     },
-                                                    "minitems": 2,
+                                                    "maxitems": 2,
                                                     "minitems": 2
                                                 },
                                                 "_parent_name_path": {

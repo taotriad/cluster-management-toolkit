@@ -98,7 +98,7 @@ PYLINT_ENABLE := useless-suppression
 MYPY_FLAGS := --follow-imports silent --explicit-package-bases --ignore-missing --disallow-untyped-calls --disallow-untyped-defs --disallow-incomplete-defs --check-untyped-defs --disallow-untyped-decorators --warn-redundant-casts --warn-unused-ignores
 
 code-checks: ruff flake8 mypy pylint
-checks: ruff bandit regexploit semgrep yamllint validate_playbooks validate_yaml check_helptexts
+checks: ruff bandit regexploit jsonlint yamllint validate_playbooks validate_yaml check_helptexts semgrep
 
 tests: coverage
 
@@ -356,6 +356,16 @@ regexploit:
 	$$cmd $(python_executables_py) $(python_test_executables) &&\
 	printf -- "\nChecking libraries\n" ;\
 	$$cmd clustermanagementtoolkit/*.py
+
+jsonlint:
+	@cmd=jsonlint-php ;\
+	if ! command -v $$cmd > /dev/null 2> /dev/null; then \
+		printf -- "\n\n$$cmd not installed; skipping.\n\n\n"; \
+		exit 0; \
+	fi; \
+	printf -- "\n\nRunning $$cmd to check that all JSON is valid\n\n"; \
+	printf -- "\n" ;\
+	$$cmd tests/schemas/*.json
 
 yamllint:
 	@cmd=yamllint ;\
