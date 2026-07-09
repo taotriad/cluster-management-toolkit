@@ -46,7 +46,7 @@ def get_conditions(obj: dict, **kwargs: Any) -> list[dict]:
         Parameters:
             obj (dict): The object to get data from
             **kwargs (dict[str, Any]): Keyword arguments
-              path (str): The path to the conditions list
+                path (str): The path to the conditions list
         Returns:
             ([dict]): A list of conditions
     """
@@ -243,7 +243,7 @@ def get_image_list(obj: dict, **kwargs: Any) -> list[tuple[str, str]]:
             ([dict]): A list of container images
     """
     vlist = []
-    path = deep_get(kwargs, DictPath("path"), "")
+    path = deep_get(kwargs, DictPath("path"))
 
     for image in deep_get(obj, DictPath(path), []):
         name = ""
@@ -267,6 +267,8 @@ def get_key_value(obj: dict, **kwargs: Any) -> list[tuple[str, Any]]:
             obj (dict): The object to get data from
             **kwargs (dict[str, Any]): Keyword arguments
                 path (str): The path to the key/value-pairs to get
+                value_path (str): Get the value from a nested path instead of the direct value
+                ignored_keys (list[str]): Keys to skip when processing the data
         Returns:
             ([dict]): A list of key/value data
         Raises:
@@ -465,7 +467,8 @@ def get_dict_list(obj: dict, **kwargs: Any) -> list[Any]:
                 else:
                     tmp = " "
             newobj.append(tmp)
-        vlist.append(tuple(newobj))
+        if newobj:
+            vlist.append(tuple(newobj))
     return vlist
 
 
@@ -507,8 +510,9 @@ def get_list_fields(obj: dict, **kwargs: Any) -> list[Any]:
         Parameters:
             obj (dict): The object to get data from
             **kwargs (dict[str, Any]): Keyword arguments
-                path (str): The path to the dict
+                path (str|[str]): The path to the dict (optionally with fallback)
                 fields ([str]): The fields to return data from
+                nested_fields ([[str]]): A list of field lists
                 pass_ref (bool): Pass a reference to the object?
                 override_types ([str]): List of override-types for the list fields
         Returns:
@@ -622,6 +626,7 @@ def get_package_version_list(obj: dict, **kwargs: Any) -> list[tuple[str, str]] 
         Parameters:
             obj (dict): The object to get data from
             **kwargs (dict[str, Any]): Keyword arguments
+                name (str): The name of the node
                 name_path (str): The path to the name of the node
         Returns:
             ([(str, str)]): A list of package versions
@@ -644,6 +649,7 @@ def get_affinity(obj: dict, **kwargs: Any) -> list[tuple[str, str, str, str, str
         Parameters:
             obj (dict): The object to get data from
             **kwargs (dict[str, Any]): Keyword arguments
+                path (str): The path to the affinity data
         Returns:
             ([dict]): A list of conditions
     """
@@ -862,7 +868,8 @@ def get_tolerations(obj: dict, **kwargs: Any) -> list[tuple[str, str, str, str, 
 
         Parameters:
             obj (dict): The object to get data from
-            **kwargs (dict[str, Any]): Keyword arguments [unused]
+            **kwargs (dict[str, Any]): Keyword arguments
+                path ([str]): A list of paths (a path followed by its fallbacks) to get data from
         Returns:
             ([(str, str, str, str, str)]): A list of pod tolerations
                 (str): key
@@ -888,7 +895,9 @@ def get_resource_list(obj: dict, **kwargs: Any) -> list[tuple[str, str, str]]:
 
         Parameters:
             obj (dict): The object to get data from
-            **kwargs (dict[str, Any]): Keyword arguments [unused]
+            **kwargs (dict[str, Any]): Keyword arguments
+                capacity_path (str): The path to get capacity from
+                allocatable_path (str): The path to get allocatable from
         Returns:
             ([(str, str)]): A list of resources
                 (str): Resource

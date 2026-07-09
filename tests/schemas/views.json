@@ -1,7 +1,7 @@
 {
     "description": "A definition of a list and/or info view",
     "type": "object",
-    "definitions": {
+    "$defs": {
         "action_call_allowlist": {
             "description": "The permitted values for action_call",
             "enum": [
@@ -112,7 +112,7 @@
             "type": "object",
             "patternProperties": {
                 "^[A-Z][A-Za-z0-9_]*[A-Za-z0-9]$": {
-                    "$ref": "#/definitions/field_index"
+                    "$ref": "#/$defs/field_index"
                 }
             },
             "additionalProperties": false,
@@ -126,13 +126,13 @@
                     "description": "A list of fields to display",
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/field"
+                        "$ref": "#/$defs/field"
                     },
                     "minItems": 1
                 },
                 "sortcolumn": {
                     "description": "The field to use as sort key",
-                    "$ref": "#/definitions/field"
+                    "$ref": "#/$defs/field"
                 },
                 "sortorder_reverse": {
                     "description": "Should the list default to reversed sort order",
@@ -158,39 +158,39 @@
                         },
                         "datagetter":  {
                             "description": "Custom function to use to get data from an object",
-                            "$ref": "#/definitions/datagetter_allowlist"
+                            "$ref": "#/$defs/datagetter_allowlist"
                         },
                         "default": {
-                            "$ref": "#/definitions/default"
+                            "$ref": "#/$defs/default"
                         },
                         "fallback_on_empty": {
                             "description": "Normally an existing, but empty, field is treated as valid; this option allows for using the fallback path if the field is empty",
                             "type": "boolean"
                         },
                         "formatter": {
-                            "$ref": "#/definitions/formatter"
+                            "$ref": "#/$defs/formatter"
                         },
                         "formatting": {
-                            "$ref": "#/definitions/formatting"
+                            "$ref": "#/$defs/formatting"
                         },
                         "generator": {
                             "description": "Custom generator to use when formatting the data",
-                            "$ref": "#/definitions/generator_allowlist"
+                            "$ref": "#/$defs/generator_allowlist"
                         },
                         "header": {
-                            "$ref": "#/definitions/header"
+                            "$ref": "#/$defs/header"
                         },
                         "path": {
-                            "$ref": "#/definitions/path"
+                            "$ref": "#/$defs/path"
                         },
                         "path_substitutions": {
                             "description": "Substitutions to perform on path before fetching data"
                         },
                         "paths": {
-                            "$ref": "#/definitions/paths"
+                            "$ref": "#/$defs/paths"
                         },
                         "type": {
-                            "$ref": "#/definitions/processed_data_type"
+                            "$ref": "#/$defs/processed_data_type"
                         }
                     },
                     "required": [ "header" ],
@@ -247,10 +247,10 @@
                     "type": "integer"
                 },
                 "field_colors": {
-                    "$ref": "#/definitions/field_colors"
+                    "$ref": "#/$defs/field_colors"
                 },
                 "field_separators": {
-                    "$ref": "#/definitions/field_separators"
+                    "$ref": "#/$defs/field_separators"
                 },
                 "mapping": {
                     "description": "Remap values",
@@ -262,7 +262,7 @@
                                     "type": "object",
                                     "properties": {
                                         "field_colors": {
-                                            "$ref": "#/definitions/field_colors_mandatory_context"
+                                            "$ref": "#/$defs/field_colors_mandatory_context"
                                         },
                                         "index": {
                                             "type": "integer"
@@ -273,7 +273,7 @@
                                 "^__default$": {
                                     "properties": {
                                         "field_colors": {
-                                            "$ref": "#/definitions/field_colors_mandatory_context"
+                                            "$ref": "#/$defs/field_colors_mandatory_context"
                                         },
                                         "index": {
                                             "description": "Sort index",
@@ -296,7 +296,7 @@
                                         "type": "boolean"
                                     },
                                     "field_colors": {
-                                        "$ref": "#/definitions/field_colors_mandatory_context"
+                                        "$ref": "#/$defs/field_colors_mandatory_context"
                                     },
                                     "max": {
                                         "description": "Upper value in the range",
@@ -396,7 +396,7 @@
                             "type": "string",
                             "maxLength": 0
                         }, {
-                            "$ref": "#/definitions/simple_path"
+                            "$ref": "#/$defs/simple_path"
                         }
                     ]
                 },
@@ -415,7 +415,7 @@
                             "type": "string",
                             "maxLength": 0
                         }, {
-                            "$ref": "#/definitions/simple_path"
+                            "$ref": "#/$defs/simple_path"
                         }
                     ]
                 },
@@ -430,12 +430,19 @@
                             "type": "string",
                             "maxLength": 0
                         }, {
-                            "$ref": "#/definitions/simple_path"
+                            "$ref": "#/$defs/simple_path"
                         }
                     ]
                 }
             },
             "additionalProperties": false
+        },
+        "itemgetter_source": {
+            "description": "Is the data source the selected object or the parent object; default: object",
+            "enum": [
+                "selected",
+                "object"
+            ]
         },
         "kind": {
             "description": "A Kubernetes or meta kind",
@@ -462,11 +469,11 @@
             "properties": {
                 "api_family": {
                     "description": "The API family of the object (used with resourceinfodispatch and its variants)",
-                    "$ref": "#/definitions/api_family"
+                    "$ref": "#/$defs/api_family"
                 },
                 "api_family_path": {
                     "description": "Path to get the API family of the object from (used with resourceinfodispatch and its variants)",
-                    "$ref": "#/definitions/path"
+                    "$ref": "#/$defs/path"
                 },
                 "call": {
                     "oneOf": [
@@ -482,7 +489,7 @@
                 "kind": {
                     "oneOf": [
                         {
-                            "$ref": "#/definitions/kind"
+                            "$ref": "#/$defs/kind"
                         }, {
                             "description": "Get the kind from the source object",
                             "type": "string",
@@ -492,27 +499,27 @@
                 },
                 "kind_path": {
                     "description": "Path to get the kind of the object from (used with resourceinfodispatch and its variants)",
-                    "$ref": "#/definitions/path"
+                    "$ref": "#/$defs/path"
                 },
                 "name_path": {
                     "description": "Path to get the name of the object from (used with resourceinfodispatch and its variants)",
-                    "$ref": "#/definitions/path"
+                    "$ref": "#/$defs/path"
                 },
                 "namespace_path": {
                     "description": "Path to get the namespace of the object from (used with resourceinfodispatch and its variants)",
-                    "$ref": "#/definitions/path"
+                    "$ref": "#/$defs/path"
                 }
             }
         },
         "path": {
             "oneOf": [
                 {
-                    "$ref": "#/definitions/simple_path"
+                    "$ref": "#/$defs/simple_path"
                 }, {
                     "description": "A list of paths",
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/path"
+                        "$ref": "#/$defs/path"
                     }
                 }
             ]
@@ -599,10 +606,10 @@
                         "type": "object",
                         "properties": {
                             "api_family": {
-                                "$ref": "#/definitions/api_family"
+                                "$ref": "#/$defs/api_family"
                             },
                             "kind": {
-                                "$ref": "#/definitions/kind"
+                                "$ref": "#/$defs/kind"
                             },
                             "messages": {
                                 "type": "object",
@@ -630,14 +637,14 @@
                         }
                     },
                     "newlines": {
-                        "$ref": "#/definitions/newlines"
+                        "$ref": "#/$defs/newlines"
                     },
                     "none_str_as_none": {
                         "description": "By default the string None is treated as any other string; if this is true it's instead treated as null",
                         "type": "boolean"
                     },
                     "path": {
-                        "$ref": "#/definitions/tuple_paths"
+                        "$ref": "#/$defs/tuple_paths"
                     },
                     "paths": {
                         "type": "array",
@@ -646,7 +653,7 @@
                                 {
                                     "type": "array",
                                     "items": {
-                                        "$ref": "#/definitions/path"
+                                        "$ref": "#/$defs/path"
                                     }
                                 }, {
                                     "description": "Literal string to return as if it were the result from a lookup",
@@ -656,7 +663,7 @@
                         }
                     },
                     "pathtype": {
-                        "$ref": "#/definitions/postprocessor"
+                        "$ref": "#/$defs/postprocessor"
                     },
                     "prefix": {
                         "description": "A prefix or list of prefixes to add before the output",
@@ -676,10 +683,10 @@
                         "type": "string"
                     },
                     "replace_quotes": {
-                        "$ref": "#/definitions/replace_quotes"
+                        "$ref": "#/$defs/replace_quotes"
                     },
                     "subpath": {
-                        "$ref": "#/definitions/path"
+                        "$ref": "#/$defs/path"
                     },
                     "subpaths": {
                         "description": "Fields to fetch within a dict path",
@@ -768,7 +775,7 @@
                                     "default": {
                                         "type": "array",
                                         "items": {
-                                            "$ref": "#/definitions/default"
+                                            "$ref": "#/$defs/default"
                                         },
                                         "minItems": 1
                                     },
@@ -809,7 +816,7 @@
                                     "default": {
                                         "type": "array",
                                         "items": {
-                                            "$ref": "#/definitions/default"
+                                            "$ref": "#/$defs/default"
                                         },
                                         "minItems": 1
                                     },
@@ -843,7 +850,7 @@
                                 "description": "What should the output field(s) be named",
                                 "type": "array",
                                 "items": {
-                                    "$ref": "#/definitions/field"
+                                    "$ref": "#/$defs/field"
                                 },
                                 "minItems": 1
                             },
@@ -856,12 +863,12 @@
                     "type": {
                         "anyOf": [
                             {
-                                "$ref": "#/definitions/path_data_type"
+                                "$ref": "#/$defs/path_data_type"
                             }, {
                                 "description": "An array of data types",
                                 "type": "array",
                                 "items": {
-                                    "$ref": "#/definitions/path_data_type"
+                                    "$ref": "#/$defs/path_data_type"
                                 }
                             }
                         ]
@@ -895,11 +902,27 @@
                         }
                     },
                     "when": {
-                        "$ref": "#/definitions/when"
+                        "$ref": "#/$defs/when"
                     }
                 },
                 "additionalProperties": false
             }
+        },
+        "path_with_fallback": {
+            "description": "The path to get the information from, optionally with fallback",
+            "oneOf": [
+                {
+                    "type": "string",
+                    "maxLength": 0
+                }, {
+                    "$ref": "#/$defs/simple_path"
+                }, {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/$defs/simple_path"
+                    }
+                }
+            ]
         },
         "postprocessor": {
             "description": "The postprocessor to use for the data",
@@ -999,6 +1022,21 @@
             },
             "minItems": 1
         },
+        "selector": {
+            "description": "The selector or selector component (used with get_kubernetes_objects)",
+            "type": "string"
+        },
+        "selector_none_on_empty": {
+            "description": "If this is true and the selector is empty, return none",
+            "type": "boolean"
+        },
+        "selector_type": {
+            "description": "The selector type; label or field",
+            "enum": [
+                "field",
+                "label"
+            ]
+        },
         "simple_path": {
             "description": "A path to use with deep_get()/deep_set()",
             "type": "string",
@@ -1008,7 +1046,7 @@
             "description": "A tuple of paths and literal strings to use with deep_get()/deep_set()",
             "anyOf": [
                 {
-                    "$ref": "#/definitions/path"
+                    "$ref": "#/$defs/path"
                 }, {
                     "type": "array",
                     "items": {
@@ -1016,7 +1054,7 @@
                             {
                                 "type": "array",
                                 "items": {
-                                    "$ref": "#/definitions/path"
+                                    "$ref": "#/$defs/path"
                                 }
                             }, {
                                 "description": "Literal string to return as if it were the result from a lookup",
@@ -1149,20 +1187,20 @@
     "properties": {
         "kind": {
             "description": "The Kubernetes or meta kind the view is associated with",
-            "$ref": "#/definitions/kind"
+            "$ref": "#/$defs/kind"
         },
         "api_family": {
             "description": "The Kubernetes API family the view is associated with",
-            "$ref": "#/definitions/api_family"
+            "$ref": "#/$defs/api_family"
         },
         "default_command": {
-            "$ref": "#/definitions/view_name"
+            "$ref": "#/$defs/view_name"
         },
         "command": {
             "description": "Alternate names for the view",
             "type": "array",
             "items": {
-                "$ref": "#/definitions/view_name"
+                "$ref": "#/$defs/view_name"
             },
             "minitems": 1,
             "uniqueItems": true
@@ -1323,10 +1361,10 @@
                     ]
                 },
                 "field_indexes": {
-                    "$ref": "#/definitions/field_indexes"
+                    "$ref": "#/$defs/field_indexes"
                 },
                 "fields": {
-                    "$ref": "#/definitions/fields"
+                    "$ref": "#/$defs/fields"
                 },
                 "group": {
                     "description": "The name of the group to sort the view into",
@@ -1341,7 +1379,7 @@
                     ]
                 },
                 "infogetter_args": {
-                    "$ref": "#/definitions/infogetter_args"
+                    "$ref": "#/$defs/infogetter_args"
                 },
                 "is_taggable": {
                     "description": "Can items in the list be tagged",
@@ -1351,7 +1389,7 @@
                     "description": "Do the list entries support labels",
                     "oneOf": [
                         {
-                            "$ref": "#/definitions/simple_path"
+                            "$ref": "#/$defs/simple_path"
                         }, {
                             "type": "null"
                         }
@@ -1375,7 +1413,7 @@
                     ]
                 },
                 "listgetter_args": {
-                    "$ref": "#/definitions/listgetter_args"
+                    "$ref": "#/$defs/listgetter_args"
                 },
                 "listgetter_async": {
                     "description": "Function to use to get list entries asynchronously",
@@ -1423,7 +1461,7 @@
                                                         "properties": {
                                                             "key": {
                                                                 "description": "A path to get data from",
-                                                                "$ref": "#/definitions/simple_path"
+                                                                "$ref": "#/$defs/simple_path"
                                                             },
                                                             "values": {
                                                                 "description": "A list of values to allow",
@@ -1463,7 +1501,7 @@
                                                         "properties": {
                                                             "key": {
                                                                 "description": "A path to get data from",
-                                                                "$ref": "#/definitions/simple_path"
+                                                                "$ref": "#/$defs/simple_path"
                                                             },
                                                             "values": {
                                                                 "description": "A list of blocked values (all non-matches are permitted)",
@@ -1496,7 +1534,7 @@
                     "type": "string"
                 },
                 "on_activation": {
-                    "$ref": "#/definitions/on_activation"
+                    "$ref": "#/$defs/on_activation"
                 },
                 "shortcuts": {
                     "description": "Shortcuts for the list view",
@@ -1516,15 +1554,15 @@
                                             "properties": {
                                                 "api_family": {
                                                     "description": "The API family of the object",
-                                                    "$ref": "#/definitions/api_family"
+                                                    "$ref": "#/$defs/api_family"
                                                 },
                                                 "api_family_path": {
                                                     "description": "Path to get the API family of the object from, optionally with fallback(s)",
-                                                    "$ref": "#/definitions/path"
+                                                    "$ref": "#/$defs/path"
                                                 },
                                                 "api_version_path": {
                                                     "description": "Path to get the API version of the object from, optionally with fallback(s)",
-                                                    "$ref": "#/definitions/path"
+                                                    "$ref": "#/$defs/path"
                                                 },
                                                 "command": {
                                                     "description": "Command to execute; only valid if widget is 'command'; use nested arrays to denote paths",
@@ -1547,7 +1585,7 @@
                                                                 "description": "A path to fetch the option or argument to pass to the command from",
                                                                 "type": "array",
                                                                 "items": {
-                                                                    "$ref": "#/definitions/simple_path"
+                                                                    "$ref": "#/$defs/simple_path"
                                                                 },
                                                                 "minItems": 1,
                                                                 "maxItems": 1
@@ -1557,19 +1595,19 @@
                                                     "minItems": 1
                                                 },
                                                 "kind": {
-                                                    "$ref": "#/definitions/kind"
+                                                    "$ref": "#/$defs/kind"
                                                 },
                                                 "kind_path": {
                                                     "description": "Path to get the kind of the object from, optionally with fallback(s)",
-                                                    "$ref": "#/definitions/path"
+                                                    "$ref": "#/$defs/path"
                                                 },
                                                 "name_path": {
                                                     "description": "Path to get the name of the object from, optionally with fallback(s)",
-                                                    "$ref": "#/definitions/path"
+                                                    "$ref": "#/$defs/path"
                                                 },
                                                 "namespace_path": {
                                                     "description": "Path to get the namespace of the object from, optionally with fallback(s)",
-                                                    "$ref": "#/definitions/path"
+                                                    "$ref": "#/$defs/path"
                                                 },
                                                 "title": {
                                                     "description": "Window title for widget",
@@ -1577,7 +1615,7 @@
                                                 },
                                                 "var": {
                                                     "description": "A variable associated with the shortcut that can be toggled using the toggle_var action",
-                                                    "$ref": "#/definitions/path"
+                                                    "$ref": "#/$defs/path"
                                                 },
                                                 "verbose": {
                                                     "description": "Should output be verbose",
@@ -1589,11 +1627,11 @@
                                                 },
                                                 "_name_path": {
                                                     "description": "Alternate path to use when getting the name for _named_title",
-                                                    "$ref": "#/definitions/simple_path"
+                                                    "$ref": "#/$defs/simple_path"
                                                 },
                                                 "_name_tuple_paths": {
                                                     "description": "Alternate path to use when getting a multi-component name for _named_title",
-                                                    "$ref": "#/definitions/tuple_paths"
+                                                    "$ref": "#/$defs/tuple_paths"
                                                 },
                                                 "_pass_obj": {
                                                     "description": "Pass obj to callback",
@@ -1610,7 +1648,7 @@
                                         },
                                         "action_call": {
                                             "description": "The function to call from a shortcut",
-                                            "$ref": "#/definitions/action_call_allowlist"
+                                            "$ref": "#/$defs/action_call_allowlist"
                                         },
                                         "confirm": {
                                             "description": "Should the program ask for confirmation before performing the action",
@@ -1696,7 +1734,7 @@
                                         ]
                                     }, {
                                         "description": "The path to get the value from",
-                                        "$ref": "#/definitions/simple_path"
+                                        "$ref": "#/$defs/simple_path"
                                     }
                                 ],
                                 "items": false,
@@ -1723,7 +1761,7 @@
                 "annotations": {
                     "oneOf": [
                         {
-                            "$ref": "#/definitions/simple_path"
+                            "$ref": "#/$defs/simple_path"
                         }, {
                             "description": "Annotations disabled",
                             "type": "null"
@@ -1733,7 +1771,7 @@
                 "labels": {
                     "oneOf": [
                         {
-                            "$ref": "#/definitions/simple_path"
+                            "$ref": "#/$defs/simple_path"
                         }, {
                             "type": "string",
                             "maxLength": 0
@@ -1758,13 +1796,13 @@
                             "properties": {
                                 "conditions_path": {
                                     "description": "By default the conditions are found under status; use this path to override",
-                                    "$ref": "#/definitions/simple_path"
+                                    "$ref": "#/$defs/simple_path"
                                 },
                                 "creation_timestamp_path": {
                                     "description": "By default the timestamp for the object is read from metadata#creationTimestamp; use this path to override",
                                     "oneOf": [
                                         {
-                                            "$ref": "#/definitions/simple_path"
+                                            "$ref": "#/$defs/simple_path"
                                         }, {
                                             "type": "string",
                                             "maxLength": 0
@@ -1798,7 +1836,7 @@
                                     "description": "By default the name of the object is read from metadata#name; use this path to override",
                                     "oneOf": [
                                         {
-                                            "$ref": "#/definitions/simple_path"
+                                            "$ref": "#/$defs/simple_path"
                                         }, {
                                             "type": "string",
                                             "maxLength": 0
@@ -1812,7 +1850,7 @@
                                     "description": "By default the namespace of the object is read from metadata#namespace; use this path to override",
                                     "oneOf": [
                                         {
-                                            "$ref": "#/definitions/simple_path"
+                                            "$ref": "#/$defs/simple_path"
                                         }, {
                                             "type": "string",
                                             "maxLength": 0
@@ -1844,22 +1882,22 @@
                                                     "type": "boolean"
                                                 },
                                                 "formatter": {
-                                                    "$ref": "#/definitions/formatter"
+                                                    "$ref": "#/$defs/formatter"
                                                 },
                                                 "formatting": {
-                                                    "$ref": "#/definitions/formatting"
+                                                    "$ref": "#/$defs/formatting"
                                                 },
                                                 "header": {
-                                                    "$ref": "#/definitions/row_header"
+                                                    "$ref": "#/$defs/row_header"
                                                 },
                                                 "path": {
-                                                    "$ref": "#/definitions/path"
+                                                    "$ref": "#/$defs/path"
                                                 },
                                                 "paths": {
-                                                    "$ref": "#/definitions/paths"
+                                                    "$ref": "#/$defs/paths"
                                                 },
                                                 "type": {
-                                                    "$ref": "#/definitions/processed_data_type"
+                                                    "$ref": "#/$defs/processed_data_type"
                                                 },
                                                 "unique": {
                                                     "description": "Should items in the list of data be unique",
@@ -1877,7 +1915,7 @@
                                     "type": "object",
                                     "properties": {
                                         "Normal": {
-                                            "$ref": "#/definitions/field_index"
+                                            "$ref": "#/$defs/field_index"
                                         }
                                     },
                                     "required": [ "Normal" ]
@@ -1902,10 +1940,10 @@
                     "type": "object",
                     "properties": {
                         "field_indexes": {
-                            "$ref": "#/definitions/field_indexes"
+                            "$ref": "#/$defs/field_indexes"
                         },
                         "fields": {
-                            "$ref": "#/definitions/fields"
+                            "$ref": "#/$defs/fields"
                         },
                         "infogetter": {
                             "description": "The function to use to get the content for whe listpad",
@@ -1923,7 +1961,7 @@
                             ]
                         },
                         "infogetter_args": {
-                            "$ref": "#/definitions/infogetter_args"
+                            "$ref": "#/$defs/infogetter_args"
                         },
                         "listgetter": {
                             "description": "Function to use to get list entries",
@@ -1949,10 +1987,10 @@
                             ]
                         },
                         "listgetter_args": {
-                            "$ref": "#/definitions/listgetter_args"
+                            "$ref": "#/$defs/listgetter_args"
                         },
                         "on_activation": {
-                            "$ref": "#/definitions/on_activation"
+                            "$ref": "#/$defs/on_activation"
                         },
                         "reversible": {
                             "description": "Is the list reversible",
@@ -1980,7 +2018,7 @@
                             ]
                         },
                         "infogetter_args": {
-                            "$ref": "#/definitions/infogetter_args"
+                            "$ref": "#/$defs/infogetter_args"
                         },
                         "timestamps": {
                             "description": "Should the timestamp column be displayed",
@@ -2017,13 +2055,13 @@
                                                     "type": "boolean"
                                                 },
                                                 "api_family": {
-                                                    "$ref": "#/definitions/api_family"
+                                                    "$ref": "#/$defs/api_family"
                                                 },
                                                 "api_family_path": {
                                                     "description": "Path to get the API family of the object from",
                                                     "anyof": [
                                                         {
-                                                            "$ref": "#/definitions/simple_path"
+                                                            "$ref": "#/$defs/simple_path"
                                                         }, {
                                                             "description": "a field index to the field in the data returned by the itemgetter to get the data from",
                                                             "type": "integer",
@@ -2032,13 +2070,13 @@
                                                     ]
                                                 },
                                                 "api_group": {
-                                                    "$ref": "#/definitions/api_family"
+                                                    "$ref": "#/$defs/api_family"
                                                 },
                                                 "api_group_path": {
                                                     "description": "Path to get the API group of the object from",
                                                     "anyof": [
                                                         {
-                                                            "$ref": "#/definitions/simple_path"
+                                                            "$ref": "#/$defs/simple_path"
                                                         }, {
                                                             "description": "a field index to the field in the data returned by the itemgetter to get the data from",
                                                             "type": "integer",
@@ -2050,7 +2088,7 @@
                                                     "description": "Path to get the API version of the object from, optionally with fallback(s)",
                                                     "anyof": [
                                                         {
-                                                            "$ref": "#/definitions/simple_path"
+                                                            "$ref": "#/$defs/simple_path"
                                                         }, {
                                                             "description": "a field index to the field in the data returned by the itemgetter to get the data from",
                                                             "type": "integer",
@@ -2083,7 +2121,7 @@
                                                                 "description": "A path to fetch the option or argument to pass to the command from",
                                                                 "type": "array",
                                                                 "items": {
-                                                                    "$ref": "#/definitions/simple_path"
+                                                                    "$ref": "#/$defs/simple_path"
                                                                 },
                                                                 "minItems": 1,
                                                                 "maxItems": 1
@@ -2102,14 +2140,14 @@
                                                 },
                                                 "file_path": {
                                                     "description": "Path to a file template",
-                                                    "$ref": "#/definitions/simple_path"
+                                                    "$ref": "#/$defs/simple_path"
                                                 },
                                                 "formatter": {
                                                     "type": "string"
                                                 },
                                                 "holder_identity_path": {
                                                     "description": "Path to get the name and namespace of the object from if there's a holder identity",
-                                                    "$ref": "#/definitions/simple_path"
+                                                    "$ref": "#/$defs/simple_path"
                                                 },
                                                 "include_root": {
                                                     "description": "When processing a YAML path, should the root of the path be included",
@@ -2118,11 +2156,11 @@
                                                 "kind": {
                                                     "anyof": [
                                                         {
-                                                            "$ref": "#/definitions/kind"
+                                                            "$ref": "#/$defs/kind"
                                                         }, {
                                                             "type": "object",
                                                             "path": {
-                                                                "$ref": "#/definitions/simple_path"
+                                                                "$ref": "#/$defs/simple_path"
                                                             },
                                                             "substitutions": {
                                                                 "description": "A dict of substitutions",
@@ -2135,7 +2173,7 @@
                                                     "description": "Path to get the kind of the object from, optionally with fallback(s)",
                                                     "anyof": [
                                                         {
-                                                            "$ref": "#/definitions/simple_path"
+                                                            "$ref": "#/$defs/simple_path"
                                                         }, {
                                                             "description": "a field index to the field in the data returned by the itemgetter to get the data from",
                                                             "type": "integer",
@@ -2151,7 +2189,7 @@
                                                     "description": "Path to get the name of the object from, optionally with fallback(s)",
                                                     "oneOf": [
                                                         {
-                                                            "$ref": "#/definitions/path"
+                                                            "$ref": "#/$defs/path"
                                                         }, {
                                                             "description": "A field index to the field in the data returned by the itemgetter to get the data from",
                                                             "type": "integer",
@@ -2168,10 +2206,10 @@
                                                     "type": "string"
                                                 },
                                                 "namespaced_name_enabled_path": {
-                                                    "$ref": "#/definitions/simple_path"
+                                                    "$ref": "#/$defs/simple_path"
                                                 },
                                                 "namespaced_name_path": {
-                                                    "$ref": "#/definitions/simple_path"
+                                                    "$ref": "#/$defs/simple_path"
                                                 },
                                                 "namespaced_name_separator": {
                                                     "type": "string"
@@ -2180,7 +2218,7 @@
                                                     "description": "path to get the namespace of the object from",
                                                     "anyof": [
                                                         {
-                                                            "$ref": "#/definitions/simple_path"
+                                                            "$ref": "#/$defs/simple_path"
                                                         }, {
                                                             "description": "a field index to the field in the data returned by the itemgetter to get the data from",
                                                             "type": "integer",
@@ -2189,21 +2227,21 @@
                                                     ]
                                                 },
                                                 "newlines": {
-                                                    "$ref": "#/definitions/newlines"
+                                                    "$ref": "#/$defs/newlines"
                                                 },
                                                 "owner_reference_path": {
                                                     "description": "Path to get the name and namespace of the object from if there's an owner reference",
-                                                    "$ref": "#/definitions/simple_path"
+                                                    "$ref": "#/$defs/simple_path"
                                                 },
                                                 "path": {
                                                     "description": "Some actions take a path as argument",
-                                                    "$ref": "#/definitions/simple_path"
+                                                    "$ref": "#/$defs/simple_path"
                                                 },
                                                 "paths": {
                                                     "description": "Some actions take multiple paths as argument",
                                                     "type": "array",
                                                     "items": {
-                                                        "$ref": "#/definitions/path"
+                                                        "$ref": "#/$defs/path"
                                                     },
                                                     "minItems": 1
                                                 },
@@ -2212,14 +2250,14 @@
                                                     "type": "object"
                                                 },
                                                 "replace_quotes": {
-                                                    "$ref": "#/definitions/replace_quotes"
+                                                    "$ref": "#/$defs/replace_quotes"
                                                 },
                                                 "title": {
                                                     "type": "string"
                                                 },
                                                 "title_path": {
                                                     "description": "Path to get the title to use for the widget from",
-                                                    "$ref": "#/definitions/simple_path"
+                                                    "$ref": "#/$defs/simple_path"
                                                 },
                                                 "_named_title": {
                                                     "description": "Should the name of the selected object be appended to the title",
@@ -2227,32 +2265,32 @@
                                                 },
                                                 "_name_path": {
                                                     "description": "Alternate path to use when getting the name for _named_title",
-                                                    "$ref": "#/definitions/simple_path"
+                                                    "$ref": "#/$defs/simple_path"
                                                 },
                                                 "_name_tuple_paths": {
                                                     "description": "Alternate path to use when getting a multi-component name for _named_title",
-                                                    "$ref": "#/definitions/tuple_paths"
+                                                    "$ref": "#/$defs/tuple_paths"
                                                 },
                                                 "_parent_kind_tuple_paths": {
                                                     "description": "Paths to get kind and apiVersion from the parent obj",
                                                     "type": "array",
                                                     "items": {
-                                                        "$ref": "#/definitions/simple_path"
+                                                        "$ref": "#/$defs/simple_path"
                                                     },
                                                     "minitems": 2,
                                                     "minitems": 2
                                                 },
                                                 "_parent_name_path": {
                                                     "description": "Path to get the namee of the parent obj",
-                                                    "$ref": "#/definitions/simple_path"
+                                                    "$ref": "#/$defs/simple_path"
                                                 },
                                                 "_parent_namespace": {
                                                     "description": "Hardcoded fallback namespace",
-                                                    "$ref": "#/definitions/simple_path"
+                                                    "$ref": "#/$defs/simple_path"
                                                 },
                                                 "_parent_namespace_path": {
                                                     "description": "Path to get the namespace of the parent obj",
-                                                    "$ref": "#/definitions/simple_path"
+                                                    "$ref": "#/$defs/simple_path"
                                                 },
                                                 "_pass_obj": {
                                                     "type": "boolean"
@@ -2321,7 +2359,7 @@
                                                 },
                                                 "var": {
                                                     "description": "A path to a variable",
-                                                    "$ref": "#/definitions/simple_path"
+                                                    "$ref": "#/$defs/simple_path"
                                                 },
                                                 "var_options": {
                                                     "description": "List of possible values for the variable",
@@ -2335,7 +2373,7 @@
                                         },
                                         "action_call": {
                                             "description": "The function to call from a shortcut",
-                                            "$ref": "#/definitions/action_call_allowlist"
+                                            "$ref": "#/$defs/action_call_allowlist"
                                         },
                                         "force_refresh": {
                                             "type": "boolean"
@@ -2422,7 +2460,7 @@
                                                                 "description": "A path to fetch the option or argument to pass to the command from",
                                                                 "type": "array",
                                                                 "items": {
-                                                                    "$ref": "#/definitions/simple_path"
+                                                                    "$ref": "#/$defs/simple_path"
                                                                 },
                                                                 "minItems": 1,
                                                                 "maxItems": 1
@@ -2449,18 +2487,18 @@
                                                         "description": "Formatting for each column in a windowwidget",
                                                         "type": "array",
                                                         "items": {
-                                                                "type": "array",
-                                                                "prefixItems": [
+                                                            "type": "array",
+                                                            "prefixItems": [
                                                                 {
-                                                                        "description": "The context of the formatting",
-                                                                        "type": "string"
+                                                                    "description": "The context of the formatting",
+                                                                    "type": "string"
                                                                 }, {
-                                                                        "description": "The name of the formatting",
-                                                                        "type": "string"
+                                                                    "description": "The name of the formatting",
+                                                                    "type": "string"
                                                                 }
-                                                                ],
-                                                                        "items": false,
-                                                                        "minItems": 1
+                                                            ],
+                                                            "items": false,
+                                                            "minItems": 1
                                                         },
                                                         "minItems": 1
                                                 },
@@ -2473,17 +2511,17 @@
                                                 },
                                                 "input_path": {
                                                     "description": "Path to data to pass to stdin",
-                                                    "$ref": "#/definitions/simple_path"
+                                                    "$ref": "#/$defs/simple_path"
                                                 },
                                                 "itemgetter": {
                                                     "description": "Function to use to get items",
                                                     "enum": [
                                                         "get_affinity",
+                                                        "get_conditions",
                                                         "get_dict_list",
                                                         "get_image_list",
                                                         "get_key_value",
                                                         "get_kubernetes_objects",
-                                                        "get_selector_list",
                                                         "get_list_as_list",
                                                         "get_list_as_string",
                                                         "get_list_fields",
@@ -2492,278 +2530,17 @@
                                                         "get_prepopulated_list",
                                                         "get_resource_list",
                                                         "get_security_context",
-                                                        "get_strings_from_string",
+                                                        "get_selector_list",
                                                         "get_svc_port_target_endpoints",
+                                                        "get_strings_from_string",
                                                         "get_tolerations",
                                                         "get_volume_properties"
                                                     ],
                                                     "additionalProperties": false
                                                 },
                                                 "itemgetter_args": {
-                                                        "description": "Arguments to pass to the itemgetter",
-                                                        "oneOf": [
-                                                        {
-                                                                "type": "object",
-                                                                "properties": {
-                                                                        "api_family": {
-                                                                                "description": "The API family of the object (used with get_kubernetes_objects)",
-                                                                                "$ref": "#/definitions/api_family"
-                                                                        },
-                                                                        "api_family_path": {
-                                                                                "description": "Path to get the API family of the object from (used with get_kubernetes_objects)",
-                                                                                "$ref": "#/definitions/path"
-                                                                        },
-                                                                        "api_version_path": {
-                                                                                "description": "Path to get the API version of the object from, optionally with fallback(s)",
-                                                                                "$ref": "#/definitions/path"
-                                                                        },
-                                                                        "cm_name": {
-                                                                                "description": "Name or name paths for the ConfigMap",
-                                                                                "oneOf": [
-                                                                                {
-                                                                                        "$ref": "#/definitions/path"
-                                                                                }, {
-                                                                                        "type": "string"
-                                                                                }
-                                                                                ]
-                                                                        },
-                                                                        "cm_namespace": {
-                                                                                "description": "Namespace or namespace paths for the ConfigMap",
-                                                                                "oneOf": [
-                                                                                {
-                                                                                        "$ref": "#/definitions/path"
-                                                                                }, {
-                                                                                        "type": "string"
-                                                                                }
-                                                                                ]
-                                                                        },
-                                                                        "field_paths": {
-                                                                                "type": "array"
-                                                                        },
-                                                                        "fields": {
-                                                                                "type": "array"
-                                                                        },
-                                                                        "guess_kind": {
-                                                                                "description": "If set to False a temporary resource type will be created instead of trying to match known types",
-                                                                                "type": "boolean"
-                                                                        },
-                                                                        "ignored_keys": {
-                                                                                "description": "A list of keys that get_key_value should ignore",
-                                                                                "type": "array",
-                                                                                "items": {
-                                                                                        "type": "string"
-                                                                                }
-                                                                        },
-                                                                        "index_template": {
-                                                                                "description": "A template for the index added; should be on the form '<<<index>>> description'",
-                                                                                "type": "string"
-                                                                        },
-                                                                        "items": {
-                                                                                "type": "array",
-                                                                                "properties": {
-                                                                                        "columns": {
-                                                                                                "type": "array"
-                                                                                        },
-                                                                                        "action": {
-                                                                                                "type": "string"
-                                                                                        },
-                                                                                        "action_call": {
-                                                                                                "description": "The function to call from a shortcut",
-                                                                                                "$ref": "#/definitions/action_call_allowlist"
-                                                                                        },
-                                                                                        "action_args": {
-                                                                                                "args": {
-                                                                                                        "type": "object"
-                                                                                                },
-                                                                                                "name_path":  {
-                                                                                                        "description": "Path to get the name of the object from",
-                                                                                                        "$ref": "#/definitions/path"
-                                                                                                },
-                                                                                                "namespace_path": {
-                                                                                                        "description": "Path to get the namespace of the object from",
-                                                                                                        "$ref": "#/definitions/path"
-                                                                                                },
-                                                                                                "kind": {
-                                                                                                        "$ref": "#/definitions/kind"
-                                                                                                },
-                                                                                                "api_family": {
-                                                                                                        "$ref": "#/definitions/api_family"
-                                                                                                }
-                                                                                        }
-                                                                                }
-                                                                        },
-                                                                        "kind": {
-                                                                                "$ref": "#/definitions/kind"
-                                                                        },
-                                                                        "kind_path": {
-                                                                                "description": "Path to get the kind of the object from (used with get_kubernetes_objects)",
-                                                                                "$ref": "#/definitions/path"
-                                                                        },
-                                                                        "name": {
-                                                                                "description": "The name of the object (used for selectors with get_kubernetes_objects)",
-                                                                                "$ref": "#/definitions/path"
-                                                                        },
-                                                                        "name_path": {
-                                                                                "description": "Path to get the name of the object from (used for selectors with get_kubernetes_objects)",
-                                                                                "$ref": "#/definitions/path"
-                                                                        },
-                                                                        "namespace": {
-                                                                                "description": "The namespace of the objects (used with get_kubernetes_objects)",
-                                                                                "$ref": "#/definitions/path"
-                                                                        },
-                                                                        "namespaced_resource": {
-                                                                                "description": "When guess_kind is set to False this property is used to indicate whether the temporary resource type is namespaced or not",
-                                                                                "type": "boolean"
-                                                                        },
-                                                                        "namespace_path": {
-                                                                                "description": "Path to get the namespace of the objects from (used with get_kubernetes_objects)",
-                                                                                "$ref": "#/definitions/path"
-                                                                        },
-                                                                        "nested_fields": {
-                                                                                "description": "A list of lists with paths",
-                                                                                "type": "array",
-                                                                                "items": {
-                                                                                        "type": "array",
-                                                                                        "items": {
-                                                                                                "$ref": "#/definitions/path"
-                                                                                        }
-                                                                                }
-                                                                        },
-                                                                        "override_types": {
-                                                                                "description": "Override the type of the object",
-                                                                                "type": "array",
-                                                                                "items": {
-                                                                                        "enum": [
-                                                                                                "list",
-                                                                                        "dict",
-                                                                                        "str",
-                                                                                        "timestamp",
-                                                                                        "age",
-                                                                                        ""
-                                                                                        ]
-                                                                                },
-                                                                                "minItems": 1
-                                                                        },
-                                                                        "pass_ref": {
-                                                                                "description": "Pass a reference to the list entry along with its elements",
-                                                                                "type": "boolean"
-                                                                        },
-                                                                        "path": {
-                                                                                "description": "Some actions take a path as argument",
-                                                                                "$ref": "#/definitions/path"
-                                                                        },
-                                                                        "paths": {
-                                                                                "description": "Some actions take multiple paths as argument",
-                                                                                "type": "array",
-                                                                                "items": {
-                                                                                        "$ref": "#/definitions/path"
-                                                                                },
-                                                                                "minItems": 1
-                                                                        },
-                                                                        "pod_name": {
-                                                                                "description": "Pod name or pod name paths for the ConfigMap",
-                                                                                "oneOf": [
-                                                                                {
-                                                                                        "$ref": "#/definitions/path"
-                                                                                }, {
-                                                                                        "type": "string"
-                                                                                }
-                                                                                ]
-                                                                        },
-                                                                        "regex": {
-                                                                                "description": "A regular expression used to split elements into capture groups",
-                                                                                "type": "string"
-                                                                        },
-                                                                        "selector": {
-                                                                                "description": "The selector or selector component (used with get_kubernetes_objects)",
-                                                                                "type": "string"
-                                                                        },
-                                                                        "selector_none_on_empty": {
-                                                                                "description": "If this is true and the selector is empty, return none",
-                                                                                "type": "boolean"
-                                                                        },
-                                                                        "selector_path": {
-                                                                                "description": "The path to get the selector from (used with get_kubernetes_objects)",
-                                                                                "type": "string"
-                                                                        },
-                                                                        "selector_type": {
-                                                                                "description": "The selector type; label or field",
-                                                                                "enum": [
-                                                                                        "field",
-                                                                                "label"
-                                                                                ]
-                                                                        },
-                                                                        "separators": {
-                                                                                "description": "Separators for lists or concatenated strings",
-                                                                                "type": "array",
-                                                                                "items": {
-                                                                                        "type": "string"
-                                                                                }
-                                                                        },
-                                                                        "source": {
-                                                                                "description": "Is the data source the selected object or the parent object",
-                                                                                "enum": [
-                                                                                        "selected",
-                                                                                "object"
-                                                                                ]
-                                                                        },
-                                                                        "value_path": {
-                                                                                "description": "Path to a nested value when using get_key_value()",
-                                                                                "$ref": "#/definitions/path"
-                                                                        }
-                                                                },
-                                                                "oneOf": [
-                                                                {
-                                                                        "required": [ "field_paths", "kind" ]
-                                                                }, {
-                                                                        "required": [ "field_paths", "kind_path" ]
-                                                                }, {
-                                                                        "required": [ "items" ]
-                                                                }, {
-                                                                        "required": [ "path" ]
-                                                                }, {
-                                                                        "required": [ "cm_namespace", "cm_name", "pod_name" ]
-                                                                }
-                                                                ],
-                                                                        "additionalProperties": false
-                                                        }, {
-                                                                "type": "object",
-                                                                        "properties": {
-                                                                                "allocatable_path": {
-                                                                                        "$ref": "#/definitions/simple_path"
-                                                                                },
-                                                                                "capacity_path": {
-                                                                                        "$ref": "#/definitions/simple_path"
-                                                                                }
-                                                                        },
-                                                                        "additionalProperties": false
-                                                        }, {
-                                                                "type": "object",
-                                                                        "properties": {
-                                                                                "paths": {
-                                                                                        "type": "array",
-                                                                                        "items": {
-                                                                                                "$ref": "#/definitions/simple_path"
-                                                                                        }
-                                                                                }
-                                                                        },
-                                                                        "required": [ "paths" ],
-                                                                        "additionalProperties": false
-                                                        }, {
-                                                                "type": "object",
-                                                                        "properties": {
-                                                                                "_slow_task_msg": {
-                                                                                        "type": "string"
-                                                                                },
-                                                                                "name_path": {
-                                                                                        "description": "Path to get the name of the object from, optionally with fallback(s)",
-                                                                                        "$ref": "#/definitions/path"
-                                                                                }
-                                                                        },
-                                                                        "required": [ "name_path" ],
-                                                                        "additionalProperties": false
-                                                        }
-                                                        ]
+                                                    "description": "Arguments to pass to the itemgetter; the arguments is validated further down",
+                                                    "type": "object"
                                                 },
                                                 "kinds": {
                                                     "description": "A list of kinds that the action can be executed on",
@@ -2804,7 +2581,7 @@
                                                 },
                                                 "sortcolumn": {
                                                         "description": "The field to use as sort key for the list; currently not supported",
-                                                        "$ref": "#/definitions/field"
+                                                        "$ref": "#/$defs/field"
                                                 },
                                                 "title": {
                                                     "description": "A title to use for the widget",
@@ -2819,6 +2596,676 @@
                                                     "type": "boolean"
                                                 }
                                             },
+                                            "allOf": [
+                                                {
+                                                    "if": {
+                                                        "properties": {
+                                                            "itemgetter": { "const": "get_affinity" }
+                                                        }
+                                                    }, "then": {
+                                                        "properties": {
+                                                            "itemgetter_args": {
+                                                                "description": "Arguments to pass to get_affinity()",
+                                                                "type": "object",
+                                                                "properties": {
+                                                                    "path": {
+                                                                        "$ref": "#/$defs/simple_path"
+                                                                    }
+                                                                },
+                                                                "additionalProperties": false
+                                                            }
+                                                        }
+                                                    }
+                                                }, {
+                                                    "if": {
+                                                        "properties": {
+                                                            "itemgetter": { "const": "get_conditions" }
+                                                        }
+                                                    }, "then": {
+                                                        "properties": {
+                                                            "itemgetter_args": {
+                                                                "description": "Arguments to pass to get_conditions()",
+                                                                "type": "object",
+                                                                "properties": {
+                                                                    "path": {
+                                                                        "$ref": "#/$defs/simple_path"
+                                                                    }
+                                                                },
+                                                                "additionalProperties": false
+                                                            }
+                                                        }
+                                                    }
+                                                }, {
+                                                    "if": {
+                                                        "properties": {
+                                                            "itemgetter": { "const": "get_dict_list" }
+                                                        }
+                                                    }, "then": {
+                                                        "properties": {
+                                                            "itemgetter_args": {
+                                                                "description": "Arguments to pass to get_dict_list()",
+                                                                "type": "object",
+                                                                "properties": {
+                                                                    "fields": {
+                                                                        "type": "array",
+                                                                        "items": {
+                                                                            "oneOf": [
+                                                                                {
+                                                                                    "$ref": "#/$defs/path"
+                                                                                }, {
+                                                                                    "type": "object",
+                                                                                    "properties": {
+                                                                                        "field": {
+                                                                                            "$ref": "#/$defs/path"
+                                                                                        },
+                                                                                        "regex": {
+                                                                                            "type": "string"
+                                                                                        }
+                                                                                    },
+                                                                                    "required": [ "field" ],
+                                                                                    "additionalProperties": false
+                                                                                }
+                                                                            ]
+                                                                        }
+                                                                    },
+                                                                    "path": {
+                                                                        "$ref": "#/$defs/simple_path"
+                                                                    }
+                                                                },
+                                                                "required": [ "fields", "path" ],
+                                                                "additionalProperties": false
+                                                            }
+                                                        }
+                                                    }
+                                                }, {
+                                                    "if": {
+                                                        "properties": {
+                                                            "itemgetter": { "const": "get_image_list" }
+                                                        }
+                                                    }, "then": {
+                                                        "properties": {
+                                                            "itemgetter_args": {
+                                                                "description": "Arguments to pass to get_image_list()",
+                                                                "type": "object",
+                                                                "properties": {
+                                                                    "path": {
+                                                                        "$ref": "#/$defs/simple_path"
+                                                                    }
+                                                                },
+                                                                "required": [ "path" ],
+                                                                "additionalProperties": false
+                                                            }
+                                                        }
+                                                    }
+                                                }, {
+                                                    "if": {
+                                                        "properties": {
+                                                            "itemgetter": { "const": "get_key_value" }
+                                                        }
+                                                    }, "then": {
+                                                        "properties": {
+                                                            "itemgetter_args": {
+                                                                "description": "Arguments to pass to get_key_value()",
+                                                                "type": "object",
+                                                                "properties": {
+                                                                    "ignored_keys": {
+                                                                        "description": "A list of keys to skip when processing the data",
+                                                                        "type": "array",
+                                                                        "items": {
+                                                                            "type": "string"
+                                                                        }
+                                                                    },
+                                                                    "path": {
+                                                                        "$ref": "#/$defs/simple_path"
+                                                                    },
+                                                                    "source": {
+                                                                        "$ref": "#/$defs/itemgetter_source"
+                                                                    },
+                                                                    "value_path": {
+                                                                        "$ref": "#/$defs/simple_path"
+                                                                    }
+                                                                },
+                                                                "required": [ "path" ],
+                                                                "additionalProperties": false
+                                                            }
+                                                        }
+                                                    }
+                                                }, {
+                                                    "if": {
+                                                        "properties": {
+                                                            "itemgetter": { "const": "get_kubernetes_objects" }
+                                                        }
+                                                    }, "then": {
+                                                        "properties": {
+                                                            "itemgetter_args": {
+                                                                "description": "Arguments to pass to get_kubernetes_objects()",
+                                                                "type": "object",
+                                                                "properties": {
+                                                                    "api_family": {
+                                                                        "$ref": "#/$defs/api_family"
+                                                                    },
+                                                                    "api_family_path": {
+                                                                        "description": "Path to get the API family of the object from (used with get_kubernetes_objects)",
+                                                                        "$ref": "#/$defs/path"
+                                                                    },
+                                                                    "api_version_path": {
+                                                                        "description": "Path to get the API version of the object from, optionally with fallback(s)",
+                                                                        "$ref": "#/$defs/path"
+                                                                    },
+                                                                    "field_paths": {
+                                                                        "description": "Paths to the fields to fetch data from",
+                                                                        "type": "array",
+                                                                        "items": {
+                                                                            "$ref": "#/$defs/simple_path"
+                                                                        }
+                                                                    },
+                                                                    "guess_kind": {
+                                                                        "description": "Should an attempt be made to infer API-family from the kind?",
+                                                                        "type": "boolean"
+                                                                    },
+                                                                    "kind": {
+                                                                        "$ref": "#/$defs/kind"
+                                                                    },
+                                                                    "kind_path": {
+                                                                        "$ref": "#/$defs/simple_path"
+                                                                    },
+                                                                    "name_path": {
+                                                                        "$ref": "#/$defs/simple_path"
+                                                                    },
+                                                                    "namespace_path": {
+                                                                        "$ref": "#/$defs/simple_path"
+                                                                    },
+                                                                    "namespaced_resource": {
+                                                                        "description": "When guess_kind is set to False this property is used to indicate whether the temporary resource type is namespaced or not",
+                                                                        "type": "boolean"
+                                                                    },
+                                                                    "selector": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "selector_path": {
+                                                                        "$ref": "#/$defs/simple_path"
+                                                                    },
+                                                                    "selector_none_on_empty": {
+                                                                        "$ref": "#/$defs/selector_none_on_empty"
+                                                                    },
+                                                                    "selector_type": {
+                                                                        "$ref": "#/$defs/selector_type"
+                                                                    }
+                                                                },
+                                                                "oneOf": [
+                                                                    {
+                                                                        "required": [ "kind" ]
+                                                                    }, {
+                                                                        "required": [ "kind_path" ]
+                                                                    }
+                                                                ],
+                                                                "additionalProperties": false
+                                                            }
+                                                        }
+                                                    }
+                                                }, {
+                                                    "if": {
+                                                        "properties": {
+                                                            "itemgetter": { "const": "get_list_as_list" }
+                                                        }
+                                                    }, "then": {
+                                                        "properties": {
+                                                            "itemgetter_args": {
+                                                                "description": "Arguments to pass to get_list_as_list()",
+                                                                "type": "object",
+                                                                "properties": {
+                                                                    "index_template": {
+                                                                        "description": "A template for the index added; should be on the form '<<<index>>> description'",
+                                                                        "type": "string"
+                                                                    },
+                                                                    "named_lists": {
+                                                                        "description": "If multiple paths are provided, Should each list be treated as its own column, or should all data be treated the same with a separate column for the name of the list?",
+                                                                        "type": "boolean"
+                                                                    },
+                                                                    "path": {
+                                                                        "oneOf": [
+                                                                            {
+                                                                                "$ref": "#/$defs/simple_path"
+                                                                            }, {
+                                                                                "type": "array",
+                                                                                "items": {
+                                                                                    "$ref": "#/$defs/simple_path"
+                                                                                }
+                                                                            }
+                                                                        ]
+                                                                    },
+                                                                    "paths": {
+                                                                        "description": "A list of paths to merge into one column, with a separate column that identifies which list the elements come from",
+                                                                        "type": "array",
+                                                                        "oneOf": [
+                                                                            {
+                                                                                "type": "array",
+                                                                                "items": {
+                                                                                    "$ref": "#/$defs/simple_path"
+                                                                                }
+                                                                            },
+                                                                            {
+                                                                                "items": {
+                                                                                    "description": "Named paths to lists",
+                                                                                    "type": "object",
+                                                                                    "properties": {
+                                                                                        "name": {
+                                                                                            "description": "The name of the list",
+                                                                                            "type": "string"
+                                                                                        },
+                                                                                        "path": {
+                                                                                            "$ref": "#/$defs/simple_path"
+                                                                                        }
+                                                                                    }
+                                                                                },
+                                                                                "required": [ "name", "path" ],
+                                                                                "additionalProperties": false
+                                                                            }
+                                                                        ]
+                                                                    },
+                                                                    "regex": {
+                                                                        "description": "A regular expression used to split elements into capture groups",
+                                                                        "type": "string"
+                                                                    },
+                                                                    "source": {
+                                                                        "$ref": "#/$defs/itemgetter_source"
+                                                                    }
+                                                                },
+                                                                "oneOf": [
+                                                                    {
+                                                                        "required": [ "path" ],
+                                                                        "not": {
+                                                                            "required": [ "paths" ]
+                                                                        }
+                                                                    }, {
+                                                                        "required": [ "paths" ],
+                                                                        "not": {
+                                                                            "required": [ "path" ]
+                                                                        }
+                                                                    }
+                                                                ],
+                                                                "additionalProperties": false
+                                                            }
+                                                        }
+                                                    }
+                                                }, {
+                                                    "if": {
+                                                        "properties": {
+                                                            "itemgetter": { "const": "get_list_as_string" }
+                                                        }
+                                                    }, "then": {
+                                                        "properties": {
+                                                            "itemgetter_args": {
+                                                                "description": "Arguments to pass to get_list_as_string()",
+                                                                "type": "object",
+                                                                "properties": {
+                                                                    "path": {
+                                                                        "$ref": "#/$defs/simple_path"
+                                                                    },
+                                                                    "separators": {
+                                                                        "description": "Separators for lists or concatenated strings",
+                                                                        "type": "array",
+                                                                        "items": {
+                                                                            "type": "string"
+                                                                        }
+                                                                    }
+                                                                },
+                                                                "required": [ "path" ],
+                                                                "additionalProperties": false
+                                                            }
+                                                        }
+                                                    }
+                                                }, {
+                                                    "if": {
+                                                        "properties": {
+                                                            "itemgetter": { "const": "get_list_fields" }
+                                                        }
+                                                    }, "then": {
+                                                        "properties": {
+                                                            "itemgetter_args": {
+                                                                "description": "Arguments to pass to get_list_fields()",
+                                                                "type": "object",
+                                                                "properties": {
+                                                                    "fields": {
+                                                                        "description": "The fields to return data from",
+                                                                        "type": "array",
+                                                                        "items": {
+                                                                            "description": "The fields to return data from",
+                                                                            "oneOf": [
+                                                                                {
+                                                                                    "description": "A path to return data from",
+                                                                                    "$ref": "#/$defs/simple_path"
+                                                                                }, {
+                                                                                    "description": "Information about the field to return data from",
+                                                                                    "type": "object",
+                                                                                    "properties": {
+                                                                                        "default": {
+                                                                                            "description": "The default to return if the field is empty",
+                                                                                            "type": "string"
+                                                                                        },
+                                                                                        "index_template": {
+                                                                                            "description": "A template for the index added; should be on the form '<<<index>>> description'",
+                                                                                            "type": "string"
+                                                                                        },
+                                                                                        "name": {
+                                                                                            "description": "A path to return data from",
+                                                                                            "$ref": "#/$defs/path_with_fallback"
+                                                                                        },
+                                                                                        "quote": {
+                                                                                            "description": "Should the output be quoted?",
+                                                                                            "type": "boolean"
+                                                                                        },
+                                                                                        "value": {
+                                                                                            "description": "The type of value",
+                                                                                            "enum": [
+                                                                                                "cel",
+                                                                                                "index",
+                                                                                                "key",
+                                                                                                "label_selector",
+                                                                                                "match_expression",
+                                                                                                "value"
+                                                                                            ]
+                                                                                       }
+                                                                                    },
+                                                                                    "additionalProperties": false
+                                                                                }
+                                                                            ]
+                                                                        }
+                                                                    },
+                                                                    "nested_fields": {
+                                                                        "description": "A list of field lists; must all be the same length",
+                                                                        "type": "array",
+                                                                        "items": {
+                                                                            "description": "The fields to return data from",
+                                                                            "type": "array",
+                                                                            "items": {
+                                                                                "$ref": "#/$defs/simple_path"
+                                                                            }
+                                                                        }
+                                                                    },
+                                                                    "override_types": {
+                                                                        "description": "Override the type of the object",
+                                                                        "type": "array",
+                                                                        "items": {
+                                                                            "enum": [
+                                                                                "list",
+                                                                                "dict",
+                                                                                "str",
+                                                                                "timestamp",
+                                                                                "age",
+                                                                                ""
+                                                                            ]
+                                                                        },
+                                                                        "minItems": 1
+                                                                    },
+                                                                    "pass_ref": {
+                                                                        "description": "Should a reference to the object be included?",
+                                                                        "type": "boolean"
+                                                                    },
+                                                                    "path": {
+                                                                        "$ref": "#/$defs/path"
+                                                                    },
+                                                                    "source": {
+                                                                        "$ref": "#/$defs/itemgetter_source"
+                                                                    }
+                                                                },
+                                                                "oneOf": [
+                                                                    {
+                                                                        "required": [ "fields", "path" ]
+                                                                    }, {
+                                                                        "required": [ "nested_fields", "path" ]
+                                                                    }
+                                                                ],
+                                                                "additionalProperties": false
+                                                            }
+                                                        }
+                                                    }
+                                                }, {
+                                                    "if": {
+                                                        "properties": {
+                                                            "itemgetter": { "const": "get_package_version_list" }
+                                                        }
+                                                    }, "then": {
+                                                        "properties": {
+                                                            "itemgetter_args": {
+                                                                "description": "Arguments to pass to get_package_version_list()",
+                                                                "type": "object",
+                                                                "properties": {
+                                                                    "name_path": {
+                                                                        "description": "The path to get the host name from",
+                                                                        "$ref": "#/$defs/simple_path"
+                                                                    },
+                                                                    "_slow_task_msg": {
+                                                                        "description": "Message to show when an itemgetter is expected to take a long time to complete",
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "additionalProperties": false
+                                                            }
+                                                        }
+                                                    }
+                                                }, {
+                                                    "if": {
+                                                        "properties": {
+                                                            "itemgetter": { "const": "get_prepopulated_list" }
+                                                        }
+                                                    }, "then": {
+                                                        "properties": {
+                                                            "itemgetter_args": {
+                                                                "description": "Arguments to pass to get_prepopulated_list()",
+                                                                "type": "object",
+                                                                "properties": {
+                                                                    "items": {
+                                                                        "description": "The items to pre-populate the list with",
+                                                                        "type": "array",
+                                                                        "items": {
+                                                                            "description": "Data to prepulate a list entry",
+                                                                            "type": "object",
+                                                                            "properties": {
+                                                                                "action": {
+                                                                                    "description": "The action to perform if the list entry is activated",
+                                                                                    "enum": [
+                                                                                        "call"
+                                                                                    ]
+                                                                                },
+                                                                                "action_args": {
+                                                                                    "description": "Arguments to pass to the action",
+                                                                                    "type": "object",
+                                                                                    "properties": {
+                                                                                        "api_family": {
+                                                                                            "$ref": "#/$defs/api_family"
+                                                                                        },
+                                                                                        "args": {
+                                                                                            "description": "Arguments to pass to patch_object",
+                                                                                            "type": "object"
+                                                                                        },
+                                                                                        "kind": {
+                                                                                            "$ref": "#/$defs/kind"
+                                                                                        },
+                                                                                        "name_path": {
+                                                                                            "$ref": "#/$defs/simple_path"
+                                                                                        },
+                                                                                        "namespace_path": {
+                                                                                            "$ref": "#/$defs/simple_path"
+                                                                                        }
+                                                                                    },
+                                                                                    "additionalProperties": false
+                                                                                },
+                                                                                "action_call": {
+                                                                                    "$ref": "#/$defs/action_call_allowlist"
+                                                                                },
+                                                                                "columns": {
+                                                                                    "description": "Prepulated row of data",
+                                                                                    "type": "array",
+                                                                                    "items": {
+                                                                                        "description": "An individual cell as part of a row of data",
+                                                                                        "anyOf": [
+                                                                                            {
+                                                                                                "type": "string"
+                                                                                            }, {
+                                                                                                "$ref": "#/$defs/path_with_fallback"
+                                                                                            }
+                                                                                        ]
+                                                                                    }
+                                                                                }
+                                                                            },
+                                                                            "additionalProperties": false
+                                                                        }
+                                                                    }
+                                                                },
+                                                                "required": [ "items" ],
+                                                                "additionalProperties": false
+                                                            }
+                                                        }
+                                                    }
+                                                }, {
+                                                    "if": {
+                                                        "properties": {
+                                                            "itemgetter": { "const": "get_pod_configmaps" }
+                                                        }
+                                                    }, "then": {
+                                                        "properties": {
+                                                            "itemgetter_args": {
+                                                                "description": "Arguments to pass to get_pod_configmaps()",
+                                                                "type": "object",
+                                                                "properties": {
+                                                                    "cm_name": {
+                                                                        "description": "Name or name paths for the ConfigMap",
+                                                                        "oneOf": [
+                                                                            {
+                                                                                "$ref": "#/$defs/path"
+                                                                            }, {
+                                                                                "type": "string"
+                                                                            }
+                                                                        ]
+                                                                    },
+                                                                    "cm_namespace": {
+                                                                        "description": "Namespace or namespace paths for the ConfigMap",
+                                                                        "oneOf": [
+                                                                            {
+                                                                                "$ref": "#/$defs/path_with_fallback"
+                                                                            },
+                                                                            {
+                                                                                "type": "string"
+                                                                            }
+                                                                        ]
+                                                                    },
+                                                                    "pod_name": {
+                                                                        "description": "Pod name or pod name paths for the ConfigMap",
+                                                                        "oneOf": [
+                                                                            {
+                                                                                "$ref": "#/$defs/path"
+                                                                            }, {
+                                                                                "type": "string"
+                                                                            }
+                                                                        ]
+                                                                    }
+                                                                },
+                                                                "required": [ "cm_name", "cm_namespace", "pod_name" ],
+                                                                "additionalProperties": false
+                                                            }
+                                                        }
+                                                    }
+                                                }, {
+                                                    "if": {
+                                                        "properties": {
+                                                            "itemgetter": { "const": "get_resource_list" }
+                                                        }
+                                                    }, "then": {
+                                                        "properties": {
+                                                            "itemgetter_args": {
+                                                                "description": "Arguments to pass to get_resource_list()",
+                                                                "type": "object",
+                                                                "properties": {
+                                                                    "allocatable_path": {
+                                                                        "$ref": "#/$defs/simple_path"
+                                                                    },
+                                                                    "capacity_path": {
+                                                                        "$ref": "#/$defs/simple_path"
+                                                                    }
+                                                                },
+                                                                "additionalProperties": false
+                                                            }
+                                                        }
+                                                    }
+                                                }, {
+                                                    "if": {
+                                                        "properties": {
+                                                            "itemgetter": { "const": "get_security_context" }
+                                                        }
+                                                    }, "then": {
+                                                        "properties": {
+                                                            "itemgetter_args": {
+                                                                "description": "Arguments to pass to get_security_context()",
+                                                                "type": "object",
+                                                                "properties": {
+                                                                    "source": {
+                                                                        "$ref": "#/$defs/itemgetter_source"
+                                                                    }
+                                                                },
+                                                                "additionalProperties": false
+                                                            }
+                                                        }
+                                                    }
+                                                }, {
+                                                    "if": {
+                                                        "properties": {
+                                                            "itemgetter": { "const": "get_selector_list" }
+                                                        }
+                                                    }, "then": {
+                                                        "properties": {
+                                                            "itemgetter_args": {
+                                                                "description": "Arguments to pass to get_selector_list()",
+                                                                "type": "object",
+                                                                "properties": {
+                                                                    "path": {
+                                                                        "$ref": "#/$defs/simple_path"
+                                                                    }
+                                                                },
+                                                                "additionalProperties": false
+                                                            }
+                                                        }
+                                                    }
+                                                }, {
+                                                    "if": {
+                                                        "properties": {
+                                                            "itemgetter": { "const": "get_strings_from_string" }
+                                                        }
+                                                    }, "then": {
+                                                        "properties": {
+                                                            "itemgetter_args": {
+                                                                "description": "Arguments to pass to get_strings_from_string()",
+                                                                "type": "object",
+                                                                "properties": {
+                                                                    "path": {
+                                                                        "$ref": "#/$defs/simple_path"
+                                                                    }
+                                                                },
+                                                                "additionalProperties": false
+                                                            }
+                                                        }
+                                                    }
+                                                }, {
+                                                    "if": {
+                                                        "properties": {
+                                                            "itemgetter": { "const": "get_tolerations" }
+                                                        }
+                                                    }, "then": {
+                                                        "properties": {
+                                                            "itemgetter_args": {
+                                                                "description": "Arguments to pass to get_tolerations()",
+                                                                "type": "object",
+                                                                "properties": {
+                                                                    "path": {
+                                                                        "$ref": "#/$defs/path_with_fallback"
+                                                                    }
+                                                                },
+                                                                "additionalProperties": false
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            ],
                                             "additionalProperties": false
                                         }
                                     },
@@ -2854,7 +3301,7 @@
                                         ]
                                     }, {
                                         "description": "The path to get the value from",
-                                        "$ref": "#/definitions/simple_path"
+                                        "$ref": "#/$defs/simple_path"
                                     }
                                 ],
                                 "items": false,

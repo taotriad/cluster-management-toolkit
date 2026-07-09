@@ -83,9 +83,6 @@ infoview:
         itemgetter: "get_key_value"
         itemgetter_args:
           path: "spec#options"
-          fields:
-            - "key"
-            - "value"
         # This isn't supported for now
         sortcolumn: "option"
     "CA Certificate References":
