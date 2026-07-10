@@ -11725,7 +11725,7 @@ def main() -> None:
     for opt, optarg in options:
         # Currently we only support --kube-config, but in case
         # we add option aliases (which we probably should) this
-        # is a good thing to have
+        # is a good thing to have.
         if opt in ("--kubeconfig", "--kube-config"):
             global kube_config_file  # pylint: disable=global-statement
             kube_config_file = optarg

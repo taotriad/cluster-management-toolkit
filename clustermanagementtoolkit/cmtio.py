@@ -136,7 +136,7 @@ def check_path(path: FilePath, **kwargs: Any) -> list[SecurityStatus]:
     exit_on_critical: bool = deep_get(kwargs, DictPath("exit_on_critical"), False)
     message_on_error: bool = deep_get(kwargs, DictPath("message_on_error"), False)
 
-    # This is most likely a security violation; treat it as such
+    # This is most likely a security violation; treat it as such.
     if "\x00" in path:
         stripped_path = path.replace("\x00", "<NUL>")
         raise ValueError(f"Critical: the path {stripped_path} contains NUL-bytes:\n"
@@ -147,7 +147,7 @@ def check_path(path: FilePath, **kwargs: Any) -> list[SecurityStatus]:
     violations = []
 
     if checks is None:
-        # These are the default checks for a file
+        # These are the default checks for a file.
         checks = [
             SecurityChecks.PARENT_RESOLVES_TO_SELF,
             SecurityChecks.OWNER_IN_ALLOWLIST,
@@ -360,7 +360,7 @@ def secure_rm(path: FilePath, ignore_non_existing: bool = False) -> None:
             cmttypes.FilePathAuditError
             FileNotFoundError
     """
-    checks = [
+    checks: list[SecurityChecks] = [
         SecurityChecks.PARENT_RESOLVES_TO_SELF,
         SecurityChecks.RESOLVES_TO_SELF,
         SecurityChecks.PARENT_OWNER_IN_ALLOWLIST,
@@ -405,7 +405,7 @@ def secure_rmdir(path: FilePath, ignore_non_existing: bool = False) -> None:
             cmttypes.FilePathAuditError
             FileNotFoundError
     """
-    checks = [
+    checks: list[SecurityChecks] = [
         SecurityChecks.PARENT_RESOLVES_TO_SELF,
         SecurityChecks.RESOLVES_TO_SELF,
         SecurityChecks.PARENT_OWNER_IN_ALLOWLIST,
@@ -475,7 +475,7 @@ def secure_write_string(path: FilePath, string: str | bytes, **kwargs: Any) -> N
                          "permitted modes: “a(b)“ (append (binary)), "
                          "“w(b)“ (write (binary)) and “x(b)“ (exclusive write (binary))")
 
-    checks = [
+    checks: list[SecurityChecks] = [
         SecurityChecks.PARENT_OWNER_IN_ALLOWLIST,
         SecurityChecks.OWNER_IN_ALLOWLIST,
         SecurityChecks.PERMISSIONS,
@@ -499,20 +499,20 @@ def secure_write_string(path: FilePath, string: str | bytes, **kwargs: Any) -> N
         raise FilePathAuditError(f"Violated rules: {violations_joined}", path=path)
 
     if "b" in write_mode:
-        # We have no default recourse if this write fails, so if the caller can handle the failure
-        # they have to capture the exception
+        # We have no default recourse if this write fails, so if the caller
+        # can handle the failure they have to capture the exception.
         try:
             if permissions is None:
                 # This code path will only be used for binary writes,
                 # but pylint seems to stupid to realise this, so it complains
-                # about missing encoding, hence we have to override that warning
+                # about missing encoding, hence we have to override that warning.
                 # pylint: disable-next=unspecified-encoding
                 with open(path, write_mode) as f:
                     f.write(string)
             else:
                 # This code path will only be used for binary writes,
                 # but pylint seems to stupid to realise this, so it complains
-                # about missing encoding, hence we have to override that warning
+                # about missing encoding, hence we have to override that warning.
                 # pylint: disable-next=unspecified-encoding
                 with open(path, write_mode, opener=partial(os.open, mode=permissions)) as f:
                     f.write(string)
@@ -521,8 +521,8 @@ def secure_write_string(path: FilePath, string: str | bytes, **kwargs: Any) -> N
                 raise FilePathAuditError(f"Violated rules: {repr(SecurityStatus.EXISTS)}",
                                          path=path) from e
     else:
-        # We have no default recourse if this write fails, so if the caller can handle the failure
-        # they have to capture the exception
+        # We have no default recourse if this write fails, so if the caller
+        # can handle the failure they have to capture the exception.
         try:
             if permissions is None:
                 with open(path, write_mode, encoding="utf-8") as f:
@@ -586,7 +586,7 @@ def secure_read(path: FilePath,
 
             # We do not want to check that parent resolves to itself,
             # because when we have an installation with links directly to the git repo
-            # the parsers directory will be a symlink
+            # the parsers directory will be a symlink.
             checks = [
                 SecurityChecks.RESOLVES_TO_SELF,
                 SecurityChecks.PARENT_OWNER_IN_ALLOWLIST,
@@ -620,8 +620,8 @@ def secure_read(path: FilePath,
         violations_joined = join_securitystatus_set(",", set(violations))
         raise FilePathAuditError(f"Violated rules: {violations_joined}", path=path)
 
-    # We have no default recourse if this write fails, so if the caller can handle the failure
-    # they have to capture the exception
+    # We have no default recourse if this read fails, so if the caller
+    # can handle the failure they have to capture the exception.
     if read_mode == "r":
         with open(path, "r", encoding="utf-8", errors="replace") as f:
             string: str | bytes = f.read()
@@ -690,7 +690,7 @@ def secure_which(path: FilePath, fallback_allowlist: list[str],
         if Path(allowed_path).resolve() == Path(allowed_path):
             fully_resolved_paths.append(allowed_path)
 
-    checks = [
+    checks: list[SecurityChecks] = [
         SecurityChecks.PARENT_RESOLVES_TO_SELF,
         SecurityChecks.RESOLVES_TO_SELF,
         SecurityChecks.PARENT_OWNER_IN_ALLOWLIST,
@@ -846,7 +846,7 @@ def secure_copy(src: FilePath, dst: FilePath, verbose: bool = False,
         print(f"Copying file {src} to {dst}")
 
     # Are there any path shenanigans going on?
-    checks = [
+    checks: list[SecurityChecks] = [
         SecurityChecks.PARENT_RESOLVES_TO_SELF,
         SecurityChecks.RESOLVES_TO_SELF,
         SecurityChecks.OWNER_IN_ALLOWLIST,
@@ -1011,7 +1011,7 @@ def secure_symlink(src: FilePath, dst: FilePath, verbose: bool = False,
 
     # Verify that the source path exists and that the owner and permissions are reliable;
     # we do not make further assumptions.
-    checks = [
+    checks: list[SecurityChecks] = [
         SecurityChecks.PARENT_RESOLVES_TO_SELF,
         SecurityChecks.RESOLVES_TO_SELF,
         SecurityChecks.OWNER_IN_ALLOWLIST,
