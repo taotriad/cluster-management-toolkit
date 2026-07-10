@@ -19,8 +19,8 @@ It tries to provide a highlevel view of what is planned for the upcoming year or
 * [ ] `pipx upgrade-all` *(Ensures that regexploit and semgrep are the most recent version)*
 * [ ] `make build` *(Generate views from templates and rebuild the resource type index)*
 * [ ] `generate_helptexts` *(Regenerate the helptexts for for all command line tools)*
-* [ ] `make checks` *(Runs mypy, pylint, flake8, ruff)*
-* [ ] `make code-checks` *(Runs bandit, regexploit, semgrep, yamllint, validate_playbooks, validate_yaml)*
+* [ ] `make checks` *(Runs ruff, flake8, mypy, pylint)*
+* [ ] `make code-checks` *(Runs ruff, bandit, regexploit, jsonlint, yamllint, validate_playbooks, validate_yaml, check_helptexts, semgrep)*
 
 Release exceptions must be granted for any new warnings from `make mypy` (the existing
 warnings are acceptable for the time being). No new warnings from any other
