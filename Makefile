@@ -507,6 +507,13 @@ check_theme_use: setup_tests
 		./tests/check_theme_use.py $$theme $(python_executables_py) clustermanagementtoolkit/*.py ;\
 	done
 
+# This target removes all files that are built from templates, to ensure they don't get committed to the repo by mistake.
+clean_templates:
+	@for path in views/templates/*.j2; do \
+		file=$$(basename $$path)	;\
+		rm -f views/$${file%.j2}	;\
+	done
+
 build_templates:
 	./build.py views/templates views/variables views
 
