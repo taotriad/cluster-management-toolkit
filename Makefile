@@ -102,8 +102,8 @@ checks: ruff bandit regexploit jsonlint yamllint validate_playbooks validate_yam
 
 tests: coverage
 
-clean:
-	@rm bin/*
+clean: clean_templates clean_index
+	@rm -f bin/*
 
 generate_helptexts: bin
 	@for file in $(python_executables); do \
@@ -435,7 +435,7 @@ mypy-markdown:
 	done && \
 	./mdtable.py --bold-regex "^\s*Found.*errors" $${tmpfile} "=Source file" "=Score" && rm $${tmpfile}
 
-validate_yaml:
+validate_yaml: build_templates
 	@printf -- "\n\nRunning validate_yaml to check that all view-files/parser-files/theme-files are valid\n\n"; \
 	./tests/validate_yaml.py --exclude views/__event_reasons.yaml,views/__resource_type_index.yaml,parsers/configmaps.yaml,parsers/BUNDLE.yaml
 
@@ -516,6 +516,9 @@ clean_templates:
 
 build_templates:
 	./build.py views/templates views/variables views
+
+clean_index:
+	@rm -f views/__resource_type_index.yaml
 
 build_index:
 	./generate_resource_type_index.py views views/__resource_type_index.yaml

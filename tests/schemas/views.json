@@ -2,6 +2,91 @@
     "description": "A definition of a list and/or info view",
     "type": "object",
     "$defs": {
+        "_listpad_listgetter_args_api_family": {
+            "description": "Resource API-family; a meta argument processed before the listgetter",
+            "$ref": "#/$defs/api_family"
+        },
+        "_listpad_listgetter_args_api_family_path": {
+            "description": "The path to get the API-family from; a meta argument processed before the listgetter",
+            "$ref": "#/$defs/simple_path"
+        },
+        "_listpad_listgetter_args_api_version_path": {
+            "description": "The path to get the API-version from; a meta argument processed before the listgetter",
+            "$ref": "#/$defs/simple_path"
+        },
+        "_listpad_listgetter_args_field_selector": {
+            "description": "A field selector; a meta argument processed before the listgetter",
+            "type": "object",
+            "patternProperties": {
+                "^[A-Za-z][A-Za-z0-9_.]*[A-Za-z0-9]$": {
+                    "AnyOf": [
+                        {
+                            "type": "string"
+                        }, {
+                            "$ref": "#/$defs/simple_path"
+                        }
+                    ]
+                }
+            },
+            "additionalProperties": false
+        },
+        "_listpad_listgetter_args_kind": {
+            "description": "Resource kind; a meta argument processed before the listgetter",
+            "$ref": "#/$defs/kind"
+        },
+        "_listpad_listgetter_args_kind_path": {
+            "description": "The path to get the resource kind from; a meta argument processed before the listgetter",
+            "$ref": "#/$defs/simple_path"
+        },
+        "_listpad_listgetter_args_label_selector_key": {
+            "description": "The path to get the label selector key from; a meta argument processed before the listgetter",
+            "$ref": "#/$defs/simple_path"
+        },
+        "_listpad_listgetter_args_label_selector_key_values": {
+            "description": "A list of [key, value-path] to create label selectors; a meta argument processed before the listgetter",
+            "type": "array",
+            "items": {
+                "type": "array",
+                "items": {
+                    "anyOf": [
+                        {
+                            "type": "string"
+                        }, {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/$defs/simple_path"
+                            }
+                        }
+                    ]
+                }
+            }
+        },
+        "_listpad_listgetter_args_label_selector_path": {
+            "description": "The path to get the label selector data from; a meta argument processed before the listgetter",
+            "anyOf": [
+                {
+                    "$ref": "#/$defs/simple_path"
+                }, {
+                    "$ref": "#/$defs/path_with_fallback"
+                }
+            ]
+        },
+        "_listpad_listgetter_args_message": {
+            "description": "A message to show while fetching data; a meta argument processed before the listgetter",
+            "type": "string"
+        },
+        "_listpad_listgetter_args_namespace_path": {
+            "description": "Path to get the namespce name from; a meta argument processed before the listgetter",
+            "type": "string"
+        },
+        "_listpad_listgetter_args_none_on_empty_selector": {
+            "description": "If this is true and the selector is empty, return none; a meta argument processed before the listgetter",
+            "type": "boolean"
+        },
+        "_listpad_listgetter_args_set_based_selector_path": {
+            "description": "The path to get the set-based selector data from; a meta argument processed before the listgetter",
+            "$ref": "#/$defs/simple_path"
+        },
         "action_call_allowlist": {
             "description": "The permitted values for action_call",
             "enum": [
@@ -411,11 +496,6 @@
             "type": "string",
             "pattern": "^[_A-Z][_A-Za-z0-9]*$",
             "minLength": 1
-        },
-        "listgetter_args": {
-            "description": "Arguments to pass to the listgetter",
-            "type": "object",
-            "default": {}
         },
         "newlines": {
             "description": "How to handle newlines",
@@ -2105,16 +2185,17 @@
                         },
                         "infogetter_args": {
                             "description": "Arguments to pass to the infogetter; the arguments is validated further down",
-                            "type": "object"
+                            "type": "object",
+                            "default": {}
                         },
                         "listgetter": {
                             "description": "Function to use to get list entries",
                             "enum": [
                                 "generic_listgetter",
+                                "get_info_by_last_applied_configuration",
                                 "get_ingress_rule_list",
                                 "get_netpol_rule_list",
                                 "get_pod_resource_list",
-                                "get_info_by_last_applied_configuration",
                                 "get_sidecar_rule_list",
                                 "get_virtsvc_rule_list",
                                 "listgetter_ansible_volumes",
@@ -2131,7 +2212,9 @@
                             ]
                         },
                         "listgetter_args": {
-                            "$ref": "#/$defs/listgetter_args"
+                            "description": "Arguments to pass to the listgetter; the arguments is validated further down",
+                            "type": "object",
+                            "default": {}
                         },
                         "on_activation": {
                             "$ref": "#/$defs/on_activation"
@@ -2143,6 +2226,521 @@
                     },
                     "allOf": [
                         {
+                            "if": {
+                                "properties": {
+                                    "listgetter": { "const": "generic_listgetter" }
+                                }
+                            }, "then": {
+                                "properties": {
+                                    "listgetter_args": {
+                                        "description": "Arguments to pass to generic_listgetter()",
+                                        "type": "object",
+                                        "properties": {
+                                            "_api_family": {
+                                                "$ref": "#/$defs/_listpad_listgetter_args_api_family"
+                                            },
+                                            "_api_version_path": {
+                                                "$ref": "#/$defs/_listpad_listgetter_args_api_version_path"
+                                            },
+                                            "_kind": {
+                                                "$ref": "#/$defs/_listpad_listgetter_args_kind"
+                                            },
+                                            "_kind_path": {
+                                                "$ref": "#/$defs/_listpad_listgetter_args_kind_path"
+                                            },
+                                            "_field_selector": {
+                                                "$ref": "#/$defs/_listpad_listgetter_args_field_selector"
+                                            },
+                                            "_label_selector_key_values": {
+                                                "$ref": "#/$defs/_listpad_listgetter_args_label_selector_key_values"
+                                            },
+                                            "_label_selector_path": {
+                                                "$ref": "#/$defs/_listpad_listgetter_args_label_selector_path"
+                                            },
+                                            "_namespace_path": {
+                                                "$ref": "#/$defs/_listpad_listgetter_args_namespace_path"
+                                            },
+                                            "_none_on_empty_selector": {
+                                                "$ref": "#/$defs/_listpad_listgetter_args_none_on_empty_selector"
+                                            },
+                                            "_pass_obj": {
+                                                "description": "Pass obj to callback; a meta argument processed before the listgetter",
+                                                "type": "boolean"
+                                            },
+                                            "_set_based_selector_path": {
+                                                "$ref": "#/$defs/_listpad_listgetter_args_set_based_selector_path"
+                                            },
+                                            "filters": {
+                                                "type": "object"
+                                            }
+                                        },
+                                        "additionalProperties": false
+                                    }
+                                }
+                            }
+                        }, {
+                            "if": {
+                                "properties": {
+                                    "listgetter": { "const": "get_info_by_last_applied_configuration" }
+                                }
+                            }, "then": {
+                                "properties": {
+                                    "listgetter_args": {
+                                        "description": "Arguments to pass to get_info_by_last_applied_configuration()",
+                                        "type": "object",
+                                        "properties": {
+                                            "_api_family_path": {
+                                                "$ref": "#/$defs/_listpad_listgetter_args_api_family_path"
+                                            },
+                                            "_kind_path": {
+                                                "$ref": "#/$defs/_listpad_listgetter_args_kind_path"
+                                            },
+                                            "group_path": {
+                                                "description": "Path to get group name from",
+                                                "$ref": "#/$defs/simple_path"
+                                            },
+                                            "match_api_version": {
+                                                "description": "Should the information be filtered by API-version?",
+                                                "type": "boolean"
+                                            },
+                                            "version_path": {
+                                                "description": "Path to get version name from",
+                                                "$ref": "#/$defs/simple_path"
+                                            }
+                                        },
+                                        "additionalProperties": false
+                                    }
+                                }
+                            }
+                        }, {
+                            "if": {
+                                "properties": {
+                                    "listgetter": { "const": "get_ingress_rule_list" }
+                                }
+                            }, "then": {
+                                "properties": {
+                                    "listgetter_args": {
+                                        "description": "Arguments to pass to get_ingress_rule_list()",
+                                        "type": "object",
+                                        "properties": {},
+                                        "additionalProperties": false
+                                    }
+                                }
+                            }
+                        }, {
+                            "if": {
+                                "properties": {
+                                    "listgetter": { "const": "get_netpol_rule_list" }
+                                }
+                            }, "then": {
+                                "properties": {
+                                    "listgetter_args": {
+                                        "description": "Arguments to pass to get_netpol_rule_list()",
+                                        "type": "object",
+                                        "properties": {},
+                                        "additionalProperties": false
+                                    }
+                                }
+                            }
+                        }, {
+                            "if": {
+                                "properties": {
+                                    "listgetter": { "const": "get_pod_resource_list" }
+                                }
+                            }, "then": {
+                                "properties": {
+                                    "listgetter_args": {
+                                        "description": "Arguments to pass to get_pod_resource_list()",
+                                        "type": "object",
+                                        "properties": {
+                                            "_message": {
+                                                "$ref": "#/$defs/_listpad_listgetter_args_message"
+                                            }
+                                        },
+                                        "additionalProperties": false
+                                    }
+                                }
+                            }
+                        }, {
+                            "if": {
+                                "properties": {
+                                    "listgetter": { "const": "get_sidecar_rule_list" }
+                                }
+                            }, "then": {
+                                "properties": {
+                                    "listgetter_args": {
+                                        "description": "Arguments to pass to get_sidecar_rule_list()",
+                                        "type": "object",
+                                        "properties": {},
+                                        "additionalProperties": false
+                                    }
+                                }
+                            }
+                        }, {
+                            "if": {
+                                "properties": {
+                                    "listgetter": { "const": "get_virtsvc_rule_list" }
+                                }
+                            }, "then": {
+                                "properties": {
+                                    "listgetter_args": {
+                                        "description": "Arguments to pass to get_virtsvc_rule_list()",
+                                        "type": "object",
+                                        "properties": {},
+                                        "additionalProperties": false
+                                    }
+                                }
+                            }
+                        }, {
+                            "if": {
+                                "properties": {
+                                    "listgetter": { "const": "listgetter_ansible_volumes" }
+                                }
+                            }, "then": {
+                                "properties": {
+                                    "listgetter_args": {
+                                        "description": "Arguments to pass to listgetter_ansible_volumes()",
+                                        "type": "object",
+                                        "properties": {},
+                                        "additionalProperties": false
+                                    }
+                                }
+                            }
+                        }, {
+                            "if": {
+                                "properties": {
+                                    "listgetter": { "const": "listgetter_configmap_data" }
+                                }
+                            }, "then": {
+                                "properties": {
+                                    "listgetter_args": {
+                                        "description": "Arguments to pass to listgetter_configmap_data()",
+                                        "type": "object",
+                                        "properties": {},
+                                        "additionalProperties": false
+                                    }
+                                }
+                            }
+                        }, {
+                            "if": {
+                                "properties": {
+                                    "listgetter": { "const": "listgetter_dict_list" }
+                                }
+                            }, "then": {
+                                "properties": {
+                                    "listgetter_args": {
+                                        "description": "Arguments to pass to listgetter_dict_list()",
+                                        "type": "object",
+                                        "properties": {
+                                            "join_paths": {
+                                                "description": "Merge multiple data sources into one",
+                                                "type": "boolean",
+                                                "default": false
+                                            },
+                                            "path": {
+                                                "$ref": "#/$defs/simple_path"
+                                            },
+                                            "paths": {
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "key_name": {
+                                                            "description": "The key to use when naming this path",
+                                                            "type": "string"
+                                                        },
+                                                        "key_value": {
+                                                            "description": "The name to use when naming this path",
+                                                            "type": "string"
+                                                        },
+                                                        "path": {
+                                                            "$ref": "#/$defs/simple_or_empty_path"
+                                                        }
+                                                    },
+                                                    "required": [ "path" ],
+                                                    "additionalProperties": false
+                                                }
+                                            }
+                                        },
+                                        "additionalProperties": false
+                                    }
+                                }
+                            }
+                        }, {
+                            "if": {
+                                "properties": {
+                                    "listgetter": { "const": "listgetter_feature_gates" }
+                                }
+                            }, "then": {
+                                "properties": {
+                                    "listgetter_args": {
+                                        "description": "Arguments to pass to listgetter_feature_gates()",
+                                        "type": "object",
+                                        "properties": {
+                                            "path": {
+                                                "$ref": "#/$defs/simple_path"
+                                            }
+                                        },
+                                        "additionalProperties": false
+                                    }
+                                }
+                            }
+                        }, {
+                            "if": {
+                                "properties": {
+                                    "listgetter": { "const": "listgetter_join_dicts_to_list" }
+                                }
+                            }, "then": {
+                                "properties": {
+                                    "listgetter_args": {
+                                        "description": "Arguments to pass to listgetter_join_dicts_to_list()",
+                                        "type": "object",
+                                        "properties": {
+                                            "fields": {
+                                                "description": "",
+                                                "type": "array",
+                                                "items": {
+                                                },
+                                                "default": []
+                                            },
+                                            "key_name": {
+                                                "description": "",
+                                                "type": "string",
+                                                "default": "key"
+                                            },
+                                            "key_paths": {
+                                                "description": "",
+                                                "items": {
+                                                    "$ref": "#/$defs/simple_path"
+                                                },
+                                                "default": []
+                                            }
+                                        },
+                                        "additionalProperties": false
+                                    }
+                                }
+                            }
+                        }, {
+                            "if": {
+                                "properties": {
+                                    "listgetter": { "const": "listgetter_join_lists" }
+                                }
+                            }, "then": {
+                                "properties": {
+                                    "listgetter_args": {
+                                        "description": "Arguments to pass to listgetter_join_lists()",
+                                        "type": "object",
+                                        "properties": {
+                                            "paths": {
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "name_key": {
+                                                            "description": "The key to use when naming this path",
+                                                            "type": "string"
+                                                        },
+                                                        "name_value": {
+                                                            "description": "The name to use when naming this path",
+                                                            "type": "string"
+                                                        },
+                                                        "path": {
+                                                            "$ref": "#/$defs/path_with_fallback"
+                                                        }
+                                                    },
+                                                    "required": [ "path" ],
+                                                    "additionalProperties": false
+                                                }
+                                            }
+                                        },
+                                        "additionalProperties": false
+                                    }
+                                }
+                            }
+                        }, {
+                            "if": {
+                                "properties": {
+                                    "listgetter": { "const": "listgetter_matchrules" }
+                                }
+                            }, "then": {
+                                "properties": {
+                                    "listgetter_args": {
+                                        "description": "Arguments to pass to listgetter_matchrules()",
+                                        "type": "object",
+                                        "properties": {},
+                                        "additionalProperties": false
+                                    }
+                                }
+                            }
+                        }, {
+                            "if": {
+                                "properties": {
+                                    "listgetter": { "const": "listgetter_namespaced_resources" }
+                                }
+                            }, "then": {
+                                "properties": {
+                                    "listgetter_args": {
+                                        "description": "Arguments to pass to listgetter_namespaced_resources()",
+                                        "type": "object",
+                                        "properties": {
+                                            "_label_selector_key": {
+                                                "$ref": "#/$defs/_listpad_listgetter_args_label_selector_key"
+                                            },
+                                            "_label_selector_path": {
+                                                "$ref": "#/$defs/_listpad_listgetter_args_label_selector_path"
+                                            },
+                                            "_message": {
+                                                "$ref": "#/$defs/_listpad_listgetter_args_message"
+                                            },
+                                            "_namespace_path": {
+                                                "$ref": "#/$defs/_listpad_listgetter_args_namespace_path"
+                                            },
+                                            "_none_on_empty_selector": {
+                                                "$ref": "#/$defs/_listpad_listgetter_args_none_on_empty_selector"
+                                            }
+                                        },
+                                        "additionalProperties": false
+                                    }
+                                }
+                            }
+                        }, {
+                            "if": {
+                                "properties": {
+                                    "listgetter": { "const": "listgetter_noop" }
+                                }
+                            }, "then": {
+                                "properties": {
+                                    "listgetter_args": {
+                                        "description": "Arguments to pass to listgetter_noop()",
+                                        "type": "object",
+                                        "properties": {},
+                                        "additionalProperties": false
+                                    }
+                                }
+                            }
+                        }, {
+                            "if": {
+                                "properties": {
+                                    "listgetter": { "const": "listgetter_path" }
+                                }
+                            }, "then": {
+                                "properties": {
+                                    "listgetter_args": {
+                                        "description": "Arguments to pass to listgetter_path()",
+                                        "type": "object",
+                                        "properties": {
+                                            "enumeration": {
+                                                "description": "How to enumerate items",
+                                                "enum": [
+                                                    "standard",
+                                                    "reverse",
+                                                    ""
+                                                ]
+                                            },
+                                            "flatten_dicts": {
+                                                "description": "Should dicts be flattened?",
+                                                "type": "boolean"
+                                            },
+                                            "join_key": {
+                                                "description": "Key to join on when joining multiple dict lists",
+                                                "type": "string"
+                                            },
+                                            "multipath": {
+                                                "description": "A path to a dict containing multiple lists",
+                                                "$ref": "#/$defs/simple_path"
+                                            },
+                                            "path": {
+                                                "$ref": "#/$defs/simple_or_empty_path"
+                                            },
+                                            "path_fields": {
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "paths": {
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "key_name": {
+                                                            "description": "The key to use when naming this path",
+                                                            "type": "string"
+                                                        },
+                                                        "key_value": {
+                                                            "description": "The name to use when naming this path",
+                                                            "type": "string"
+                                                        },
+                                                        "path": {
+                                                            "$ref": "#/$defs/simple_or_empty_path"
+                                                        },
+                                                        "type": {
+                                                            "enum": [
+                                                                "list",
+                                                                "value"
+                                                            ],
+                                                            "default": "value"
+                                                        }
+                                                    },
+                                                    "required": [ "path" ],
+                                                    "additionalProperties": false
+                                                }
+                                            },
+                                            "rename_bare": {
+                                                "description": "Name to use for the key when renaming bare lists",
+                                                "type": "string"
+                                            },
+                                            "subpath": {
+                                                "$ref": "#/$defs/simple_path"
+                                            },
+                                            "subpaths": {
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "key_name": {
+                                                            "description": "The key to use when naming this path",
+                                                            "type": "string",
+                                                            "default": "_key"
+                                                        },
+                                                        "key_value": {
+                                                            "description": "The name to use when naming this path",
+                                                            "type": "string"
+                                                        },
+                                                        "path": {
+                                                            "$ref": "#/$defs/simple_or_empty_path"
+                                                        },
+                                                        "value_name": {
+                                                            "description": "The name of the value to use when naming this path",
+                                                            "type": "string",
+                                                            "default": "_value"
+                                                        }
+                                                    },
+                                                    "required": [ "path" ],
+                                                    "additionalProperties": false
+                                                }
+                                            }
+                                        },
+                                        "additionalProperties": false
+                                    }
+                                }
+                            }
+                        }, {
+                            "if": {
+                                "properties": {
+                                    "listgetter": { "const": "listgetter_policy_rules" }
+                                }
+                            }, "then": {
+                                "properties": {
+                                    "listgetter_args": {
+                                        "description": "Arguments to pass to listgetter_policy_rules()",
+                                        "type": "object",
+                                        "properties": {},
+                                        "additionalProperties": false
+                                    }
+                                }
+                            }
+                        }, {
                             "if": {
                                 "properties": {
                                     "infogetter": { "const": "generic_infogetter" }
@@ -2169,6 +2767,81 @@
                         }, {
                             "if": {
                                 "properties": {
+                                    "infogetter": { "const": "get_auth_rule_info" }
+                                }
+                            }, "then": {
+                                "properties": {
+                                    "infogetter_args": {
+                                        "description": "Arguments to pass to get_auth_rule_info()",
+                                        "type": "object",
+                                        "properties": {},
+                                        "additionalProperties": false
+                                    }
+                                }
+                            }
+                        }, {
+                            "if": {
+                                "properties": {
+                                    "infogetter": { "const": "get_eps_subsets_info" }
+                                }
+                            }, "then": {
+                                "properties": {
+                                    "infogetter_args": {
+                                        "description": "Arguments to pass to get_eps_subsets_info()",
+                                        "type": "object",
+                                        "properties": {},
+                                        "additionalProperties": false
+                                    }
+                                }
+                            }
+                        }, {
+                            "if": {
+                                "properties": {
+                                    "infogetter": { "const": "get_key_value_info" }
+                                }
+                            }, "then": {
+                                "properties": {
+                                    "infogetter_args": {
+                                        "description": "Arguments to pass to get_key_value_info()",
+                                        "type": "object",
+                                        "properties": {},
+                                        "additionalProperties": false
+                                    }
+                                }
+                            }
+                        }, {
+                            "if": {
+                                "properties": {
+                                    "infogetter": { "const": "get_limit_info" }
+                                }
+                            }, "then": {
+                                "properties": {
+                                    "infogetter_args": {
+                                        "description": "Arguments to pass to get_limit_info()",
+                                        "type": "object",
+                                        "properties": {},
+                                        "additionalProperties": false
+                                    }
+                                }
+                            }
+                        }, {
+                            "if": {
+                                "properties": {
+                                    "infogetter": { "const": "get_promrules_info" }
+                                }
+                            }, "then": {
+                                "properties": {
+                                    "infogetter_args": {
+                                        "description": "Arguments to pass to get_promrules_info()",
+                                        "type": "object",
+                                        "properties": {},
+                                        "additionalProperties": false
+                                    }
+                                }
+                            }
+                        }, {
+                            "if": {
+                                "properties": {
                                     "infogetter": { "const": "get_rq_item_info" }
                                 }
                             }, "then": {
@@ -2186,6 +2859,51 @@
                                                 "$ref": "#/$defs/simple_path"
                                             }
                                         },
+                                        "additionalProperties": false
+                                    }
+                                }
+                            }
+                        }, {
+                            "if": {
+                                "properties": {
+                                    "infogetter": { "const": "get_sas_info" }
+                                }
+                            }, "then": {
+                                "properties": {
+                                    "infogetter_args": {
+                                        "description": "Arguments to pass to get_sas_info()",
+                                        "type": "object",
+                                        "properties": {},
+                                        "additionalProperties": false
+                                    }
+                                }
+                            }
+                        }, {
+                            "if": {
+                                "properties": {
+                                    "infogetter": { "const": "get_strategy_info" }
+                                }
+                            }, "then": {
+                                "properties": {
+                                    "infogetter_args": {
+                                        "description": "Arguments to pass to get_strategy_info()",
+                                        "type": "object",
+                                        "properties": {},
+                                        "additionalProperties": false
+                                    }
+                                }
+                            }
+                        }, {
+                            "if": {
+                                "properties": {
+                                    "infogetter": { "const": "get_subsets_info" }
+                                }
+                            }, "then": {
+                                "properties": {
+                                    "infogetter_args": {
+                                        "description": "Arguments to pass to get_subsets_info()",
+                                        "type": "object",
+                                        "properties": {},
                                         "additionalProperties": false
                                     }
                                 }

@@ -4457,7 +4457,7 @@ def genericinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                 uip.refresh_window()
                 uip.refresh_statusbar()
                 if first_fetch or uip.update_forced:
-                    fetch_message = deep_get(listgetter_args, DictPath("message"), "Fetching data")
+                    fetch_message = deep_get(listgetter_args, DictPath("_message"), "Fetching data")
                     _win = curses_helper.notice(uip.listpad, message=fetch_message)
                     curses.doupdate()
                     if "kubernetes_helper" not in listgetter_args:

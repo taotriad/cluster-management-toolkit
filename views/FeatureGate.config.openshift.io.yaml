@@ -33,19 +33,6 @@ infoview:
     listgetter: "listgetter_feature_gates"
     listgetter_args:
       path: "status#featureGates"
-      subpaths:
-        - path: "enabled"
-          type: "list"
-          key: "name"
-          extras:
-            key: "enabled"
-            value: true
-        - path: "disabled"
-          type: "list"
-          key: "name"
-          extras:
-            key: "enabled"
-            value: false
     infogetter: "generic_infogetter"
     field_indexes:
       Normal:

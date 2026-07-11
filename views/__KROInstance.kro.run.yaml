@@ -66,7 +66,7 @@ infoview:
   listpad:
     listgetter: "listgetter_namespaced_resources"
     listgetter_args:
-      message: "Fetching all objects belong to instance"
+      _message: "Fetching all objects belong to instance"
       _namespace_path: "metadata#namespace"
       # yamllint disable-line rule:line-length
       _label_selector_path: "metadata#labels#kro.run/resource-graph-definition-id"

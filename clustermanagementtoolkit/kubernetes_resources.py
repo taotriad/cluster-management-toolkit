@@ -4227,6 +4227,12 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api": "gpufirmwareupdates",
         "namespaced": False,
     },
+    # internal.kro.run
+    ("GraphRevision", "internal.kro.run"): {
+        "api_paths": ["apis/internal.kro.run/v1alpha1/"],
+        "api": "graphrevisions",
+        "namespaced": False,
+    },
     # ipam.metal3.io
     ("IPAddress", "ipam.metal3.io"): {
         "api_paths": ["apis/ipam.metal3.io/v1alpha1/"],

@@ -60,7 +60,6 @@ infoview:
     listgetter: "listgetter_dict_list"
     listgetter_args:
       path: "fields"
-      flatten_dicts: true
     infogetter: "generic_infogetter"
     field_indexes:
       Normal:

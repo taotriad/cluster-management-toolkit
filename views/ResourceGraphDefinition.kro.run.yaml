@@ -11,6 +11,8 @@ listview:
   name: "Resource Graph Definitions"
   group: "Workloads"
   field_indexes:
+    Wide:
+      fields: ["name", "kind", "state", "age", "topological_order"]
     Normal:
       fields: ["name", "kind", "state", "age"]
   fields:
@@ -47,6 +49,7 @@ listview:
     topological_order:
       header: "Topological Order:"
       path: "status#topologicalOrder"
+      default: ["<none>"]
       type: "raw"
       formatter: "list"
 infoview:
@@ -54,7 +57,7 @@ infoview:
   infopad:
     row_indexes:
       Normal:
-        fields: ["kind", "state"]
+        fields: ["kind", "topological_order", "state"]
     rows:
       kind:
         header: [["K", ["main", "infoheader_shortcut"]],
@@ -87,6 +90,13 @@ infoview:
                 field_colors:
                   - context: "main"
                     type: "status_pending"
+      topological_order:
+        header: [["T", ["main", "infoheader_shortcut"]],
+                 ["opological Order:", ["main", "infoheader"]]]
+        path: "status#topologicalOrder"
+        default: ["<none>"]
+        type: "raw"
+        formatter: "list"
   listpad:
     listgetter: "listgetter_path"
     listgetter_args:
@@ -162,3 +172,14 @@ infoview:
         title: "Schema"
         _pass_obj: true
         path: "spec#schema"
+    "Show Topological Order":
+      key: "t"
+      modifier: "shift"
+      read_only: true
+      helptext: "Show topological order"
+      widget: "windowwidget"
+      widget_args:
+        title: "Topological Order:"
+        itemgetter: "get_list_as_list"
+        itemgetter_args:
+          path: "status#topologicalOrder"

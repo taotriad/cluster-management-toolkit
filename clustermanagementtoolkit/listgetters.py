@@ -285,6 +285,7 @@ def generic_listgetter(kind: tuple[str, str], namespace: str,
                 kh_cache (KubernetesResourceCache): A reference to a KubernetesResourceCache object
                 label_selector (str): A comma-separated string with a list of label selectors
                 field_selector (str): A comma-separated string with a list of field selectors
+                filters (dict[str, Any]): Filters to apply to the list of objects
         Returns:
             (([dict[str, Any]], int)):
                 ([dict[str, Any]]): The list of Kubernetes objects
@@ -1823,6 +1824,8 @@ def get_info_by_last_applied_configuration(obj: dict, **kwargs: Any) -> tuple[li
                 kubernetes_helper (KubernetesHelper): A reference to a KubernetesHelper object
                 kh_cache (KubernetesResourceCache): A reference to a KubernetesResourceCache object
                 kind ((str, str)): The kind tuple to get resources for
+                group_path (str): The path to get the group from
+                version_path (str): The path to get the version from
                 match_api_version (bool): Should the information be filtered by API-version?
         Returns:
             (([dict[str, Any]], int)):
@@ -2205,6 +2208,7 @@ def listgetter_join_lists(obj: dict[str, Any], **kwargs: Any) -> tuple[list[dict
         Parameters:
             obj (dict): The object to extract data from
             **kwargs (dict[str, Any]): Keyword arguments
+                paths ([str]): A list of paths to the lists to join.
         Returns:
             (([dict[str, Any]], int)):
                 ([dict[str, Any]]): The list of objects
@@ -2402,6 +2406,14 @@ def listgetter_path(obj: dict, **kwargs: Any) -> tuple[dict | list[dict], int]:
         Parameters:
             obj (Dict): The object to extract a list of data from
             **kwargs (dict[str, Any]): Keyword arguments
+                enumeration (str): How to enumerate items ("standard", "reverse", "")
+                flatten_dicts (bool): Should dicts be flattened?
+                join_key (str): Key to use when joining multiple dict lists;
+                                note that currently at least the actual value is unused;
+                                but if this is set it joins.
+                multipath (str): A path to a dict containing multiple lists
+                paths ([str]): A list of paths to get data from
+                rename_bare (str): Name to use for the key when renaming bare lists
         Returns:
             (vlist, retval):
                 vlist (list[dict]): The list of data
@@ -2411,11 +2423,11 @@ def listgetter_path(obj: dict, **kwargs: Any) -> tuple[dict | list[dict], int]:
     vlist = []
     tmp: Any = None
 
-    rename_bare = deep_get(kwargs, DictPath("rename_bare"), None)
-    flatten_dicts = deep_get(kwargs, DictPath("flatten_dicts"), False)
-    paths = deep_get(kwargs, DictPath("paths"))
-    multipath = deep_get(kwargs, DictPath("multipath"))
-    join_key = deep_get(kwargs, DictPath("join_key"))
+    rename_bare: str = deep_get(kwargs, DictPath("rename_bare"), None)
+    flatten_dicts: bool = deep_get(kwargs, DictPath("flatten_dicts"), False)
+    paths: list[str] = deep_get(kwargs, DictPath("paths"))
+    multipath: str = deep_get(kwargs, DictPath("multipath"))
+    join_key: str = deep_get(kwargs, DictPath("join_key"))
     # "standard", "reverse", ""
     enumeration: str = deep_get(kwargs, DictPath("enumeration"), "")
 
@@ -2444,7 +2456,7 @@ def listgetter_path(obj: dict, **kwargs: Any) -> tuple[dict | list[dict], int]:
     if paths is not None:
         for path in paths:
             ppath = deep_get(path, DictPath("path"))
-            ptype = deep_get(path, DictPath("type"))
+            ptype = deep_get(path, DictPath("type"), "value")
             key_name = deep_get(path, DictPath("key_name"))
             key_value = deep_get(path, DictPath("key_value"))
 
