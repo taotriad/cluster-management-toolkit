@@ -176,7 +176,7 @@ infoview:
         itemgetter_args:
           path: "spec#tls"
           fields:
-            - name: "secretName"
+            - path: "secretName"
               default: "<none>"
             - "hosts"
         # Not supported for now

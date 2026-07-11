@@ -6,8 +6,6 @@ command:
   - "ctx"
 listview:
   listgetter_async: "get_context_list"
-  listgetter_args:
-    key: "server_address"
   check_availability: "is_kubernetes_supported"
   on_activation:
     call: null

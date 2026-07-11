@@ -7898,22 +7898,6 @@ def delete_resource(**kwargs: Any) -> Retval:
     return Retval.RETURNDONE
 
 
-def force_delete_resource(**kwargs: Any) -> Retval:
-    """
-    Force delete resources.
-
-        Parameters:
-            **kwargs (dict[str, Any]): Keyword arguments
-                uip (UIProps): A reference to the UI Properties object
-                kind (str): The kind of the resource to delete
-                items ([str]): The list of resources to delete
-        Returns:
-            (Retval): The return value
-    """
-    kwargs["force"] = True
-    return delete_resource(**kwargs)
-
-
 def create_namespace(stdscr: curses.window, **kwargs: Any) -> Retval:
     """
     Create a namespace.
@@ -8783,20 +8767,6 @@ def drain_node(**kwargs: Any) -> Retval:
     for node in items:
         kh.drain_node(node, force=force)
     return Retval.RETURNDONE
-
-
-def force_drain_node(**kwargs: Any) -> Retval:
-    """
-    Force drain node(s).
-
-        Parameters:
-            **kwargs (dict[str, Any]): Keyword arguments
-                items ([str]): The list of nodes to drain
-        Returns:
-            (Retval): The return value
-    """
-    kwargs["force"] = True
-    return drain_node(**kwargs)
 
 
 def uncordon_node(**kwargs: Any) -> Retval:
@@ -9781,8 +9751,6 @@ actionfunc_allowlist: dict[str, Callable] = {
     "delete_logs": delete_logs,
     "delete_resource": delete_resource,
     "drain_node": drain_node,
-    "force_delete_resource": force_delete_resource,
-    "force_drain_node": force_drain_node,
     "patch_resource": patch_resource,
     "rescale_resource": rescale_resource,
     "restart_resource_rescale": restart_resource_rescale,

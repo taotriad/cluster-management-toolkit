@@ -130,7 +130,9 @@ listview:
         description: "Delete resource (No grace period)"
         category: "Resource Level"
         confirm: true
-        actionfunc: "force_delete_resource"
+        actionfunc: "delete_resource"
+        actionfunc_args:
+          force: true
   shortcuts:
     "Show Evicted Pods":
       key: "e"
@@ -814,10 +816,10 @@ infoview:
           path: "spec#volumes"
           fields:
             - "name"
-            - name: ["configMap", "downwardAPI", "emptyDir",
+            - path: ["configMap", "downwardAPI", "emptyDir",
                      "fc", "hostPath", "image", "nfs", "projected", "secret"]
               value: "key"
-            - name: ["configMap", "downwardAPI", "emptyDir",
+            - path: ["configMap", "downwardAPI", "emptyDir",
                      "fc", "hostPath", "image", "nfs", "projected", "secret"]
         # This isn't supported for now
         sortcolumn: "name"

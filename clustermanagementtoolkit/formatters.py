@@ -3075,9 +3075,12 @@ def format_key_value(lines: dict[str, Any], **kwargs: Any) -> list[list[ThemeRef
             *or*
             lines (str): A string with newlines that should be split
             **kwargs (dict[str, Any]): Keyword arguments
-                typed (bool): Should the data be interpreted as key:type:value?
+                separator (dict[str, str]): The type of separator to use
                 sort (bool): Should the data be sorted?
+                typed (bool): Should the data be interpreted as key:type:value?
+                value_mappings (dict[dict[str, str]]): Map formatting
                 value_type (str): type to use if data isn't typed; default is str
+                override_types (dict[str, str]): Override type for specified keys
         Returns:
             list[themearray]: A list of themearrays
     """

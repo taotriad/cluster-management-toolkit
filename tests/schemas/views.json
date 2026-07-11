@@ -116,6 +116,7 @@
                 }
             },
             "additionalProperties": false,
+            "uniqueItems": true,
             "minProperties": 1
         },
         "field_index": {
@@ -219,6 +220,10 @@
                 }
             }
         },
+        "file_not_found_status": {
+            "description": "The status to show for FileNotFound",
+            "type": "string"
+        },
         "formatter": {
             "description": "Function to use to format the text before viewing it",
             "enum": [
@@ -236,6 +241,35 @@
                 "timestamp",
                 "timestamp_with_age",
                 "value_mapper"
+            ]
+        },
+        "formatter_allowlist": {
+            "enum": [
+                "format_autodetect",
+                "format_caddyfile",
+                "format_cel",
+                "format_crt",
+                "format_css",
+                "format_docker",
+                "format_fluentbit",
+                "format_haproxy",
+                "format_html",
+                "format_ini",
+                "format_javascript",
+                "format_key_value",
+                "format_known_hosts",
+                "format_mosquitto",
+                "format_nginx",
+                "format_none",
+                "format_powershell",
+                "format_promql",
+                "format_python",
+                "format_python_traceback",
+                "format_toml",
+                "format_xml",
+                "format_yaml",
+                "reformat_json",
+                "render_markdown"
             ]
         },
         "formatting": {
@@ -365,78 +399,6 @@
             "type": "string",
             "pattern": "^[A-Za-z0-9%#!][A-Za-z0-9()%#./! -]*:$"
         },
-        "infogetter_args": {
-            "description": "Arguments to pass to the infogetter",
-            "type": "object",
-            "properties": {
-                "_extra_data": {
-                    "description": "Extra data to pass to the infogetter",
-                    "type": "object"
-                },
-                "extra_values_lookup": {
-                    "description": "Extra values to lookup",
-                    "type": "object"
-                },
-                "file_not_found_status": {
-                    "description": "The status to show for FileNotFound",
-                    "type": "string"
-                },
-                "formatter": {
-                    "description": "If the infogetter is logpad_formatted() or logpad_files() this is used to decide what formatter to use",
-                    "type": "string"
-                },
-                "formatter_args": {
-                    "description": "Arguments to pass to the formatter",
-                    "type": "object"
-                },
-                "hard_path": {
-                    "description": "The path to get hard quota information from",
-                    "oneOf": [
-                        {
-                            "type": "string",
-                            "maxLength": 0
-                        }, {
-                            "$ref": "#/$defs/simple_path"
-                        }
-                    ]
-                },
-                "_pass_caller_obj": {
-                    "description": "Pass caller obj to the infogetter",
-                    "type": "boolean"
-                },
-                "_pass_obj": {
-                    "description": "Pass obj to callback",
-                    "type": "boolean"
-                },
-                "path": {
-                    "description": "The path to get the information from",
-                    "oneOf": [
-                        {
-                            "type": "string",
-                            "maxLength": 0
-                        }, {
-                            "$ref": "#/$defs/simple_path"
-                        }
-                    ]
-                },
-                "paths": {
-                    "description": "Paths to load files from",
-                    "type": "array"
-                },
-                "used_path": {
-                    "description": "The path to get used quota information from",
-                    "oneOf": [
-                        {
-                            "type": "string",
-                            "maxLength": 0
-                        }, {
-                            "$ref": "#/$defs/simple_path"
-                        }
-                    ]
-                }
-            },
-            "additionalProperties": false
-        },
         "itemgetter_source": {
             "description": "Is the data source the selected object or the parent object; default: object",
             "enum": [
@@ -452,7 +414,8 @@
         },
         "listgetter_args": {
             "description": "Arguments to pass to the listgetter",
-            "type": "object"
+            "type": "object",
+            "default": {}
         },
         "newlines": {
             "description": "How to handle newlines",
@@ -1042,6 +1005,18 @@
             "type": "string",
             "pattern": "^[_A-Za-z][A-Za-z0-9#_/.=<>-]*[A-Za-z0-9>=]$"
         },
+        "simple_or_empty_path": {
+            "description": "A path to use with deep_get()/deep_set()",
+            "anyOf": [
+                {
+                    "type": "string",
+                    "pattern": "^[_A-Za-z][A-Za-z0-9#_/.=<>-]*[A-Za-z0-9>=]$"
+                }, {
+                    "type": "string",
+                    "maxLength": 0
+                }
+            ]
+        },
         "tuple_paths": {
             "description": "A tuple of paths and literal strings to use with deep_get()/deep_set()",
             "anyOf": [
@@ -1250,8 +1225,6 @@
                                                 "delete_logs",
                                                 "delete_resource",
                                                 "drain_node",
-                                                "force_delete_resource",
-                                                "force_drain_node",
                                                 "patch_resource",
                                                 "rescale_resource",
                                                 "restart_resource_rescale",
@@ -1371,15 +1344,12 @@
                     "type": "string"
                 },
                 "infogetter": {
-                    "description": "The function to use to get the content for the infopad",
+                    "description": "The function to use to get the content for the listpad",
                     "enum": [
                         "generic_infogetter",
                         "get_container_info",
                         "get_log_info"
                     ]
-                },
-                "infogetter_args": {
-                    "$ref": "#/$defs/infogetter_args"
                 },
                 "is_taggable": {
                     "description": "Can items in the list be tagged",
@@ -1410,10 +1380,12 @@
                         }, {
                             "type": "null"
                         }
-                    ]
+                    ],
+                    "default": null
                 },
                 "listgetter_args": {
-                    "$ref": "#/$defs/listgetter_args"
+                    "description": "Arguments to pass to listgetter or listgetter_async; the arguments is validated further down",
+                    "type": "object"
                 },
                 "listgetter_async": {
                     "description": "Function to use to get list entries asynchronously",
@@ -1427,7 +1399,8 @@
                         }, {
                             "type": "null"
                         }
-                    ]
+                    ],
+                    "default": "get_kubernetes_list"
                 },
                 "listview_args": {
                     "description": "Arguments to pass to the listview",
@@ -1752,6 +1725,124 @@
                     "minItems": 1
                 }
             },
+            "allOf": [
+                {
+                    "if": {
+                        "properties": {
+                            "listgetter": { "const": "listgetter_dir" },
+                            "listgetter_args": { "const": "get_kubernetes_list" }
+                        }
+                    }, "then": {
+                        "properties": {
+                            "listgetter_args": {
+                                "description": "Arguments to pass to listgetter_dir()",
+                                "type": "object",
+                                "properties": {
+                                    "dirpath": {
+                                        "description": "The path to get directory entries from",
+                                        "type": "string"
+                                    },
+                                    "kind": {
+                                        "$ref": "#/$defs/kind"
+                                    },
+                                    "suffixes": {
+                                        "type": "array",
+                                        "items": {
+                                            "description": "File suffixes",
+                                            "type": "string"
+                                        }
+                                    }
+                                },
+                                "additionalProperties": false
+                            }
+                        }
+                    }
+                }, {
+                    "if": {
+                        "properties": {
+                            "listgetter": { "const": "listgetter_files" },
+                            "listgetter_args": { "const": "get_kubernetes_list" }
+                        }
+                    }, "then": {
+                        "properties": {
+                            "listgetter_args": {
+                                "description": "Arguments to pass to listgetter_files()",
+                                "type": "object",
+                                "properties": {
+                                    "file_not_found_status": {
+                                        "$ref": "#/$defs/file_not_found_status"
+                                    },
+                                    "paths": {
+                                        "description": "The list of paths to read files from",
+                                        "type": "array"
+                                    },
+                                    "skip_empty_paths": {
+                                        "description": "Should empty paths be skipped?",
+                                        "type": "boolean"
+                                    }
+                                },
+                                "additionalProperties": false
+                            }
+                        }
+                    }
+                }, {
+                    "if": {
+                        "properties": {
+                            "listgetter": { "const": "get_metrics_list" },
+                            "listgetter_async": { "const": null }
+                        }
+                    }, "then": {
+                        "properties": {
+                            "listgetter_args": {
+                                "description": "Arguments to pass to get_metrics_list()",
+                                "type": "object",
+                                "properties": {
+                                    "filter": {
+                                        "description": "The metric keys to return data for",
+                                        "type": "array",
+                                        "items": {
+                                            "description": "The name of a single Kubernetes metric",
+                                            "type": "string"
+                                        }
+                                    }
+                                },
+                                "additionalProperties": false
+                            }
+                        }
+                    }
+                }, {
+                    "if": {
+                        "properties": {
+                            "listgetter": { "const": null },
+                            "listgetter_async": { "const": "get_kubernetes_list" }
+                        }
+                    }, "then": {
+                        "properties": {
+                            "listgetter_args": {
+                                "description": "Arguments to pass to get_kubernetes_list(); Note: this is the default callback if listgetter and listgetter_async are both unset",
+                                "type": "object",
+                                "properties": {
+                                    "kind": {
+                                        "description": "The kind to get Kubernetes resources for",
+                                        "$ref": "#/$defs/kind"
+                                    },
+                                    "postprocessor": {
+                                        "description": "The postprocessor to pass the data to",
+                                        "enum": [
+                                            "postprocessor_node_resources"
+                                        ]
+                                    },
+                                    "units": {
+                                        "description": "Units passed to postprocessor_node_resources",
+                                        "type": "object"
+                                    }
+                                },
+                                "additionalProperties": false
+                            }
+                        }
+                    }
+                }
+            ],
             "required": [ "name", "group", "field_indexes" ],
             "additionalProperties": false
         },
@@ -1933,7 +2024,59 @@
                     ]
                 },
                 "infoview_args": {
-                    "type": "object"
+                    "description": "These arguments are passed to the infoview",
+                    "type": "object",
+                    "properties": {
+                        "decoder": {
+                            "decoder": {
+                                "description": "The decoder to use",
+                                "enum": [
+                                    "decode_base64"
+                                ]
+                            },
+                            "override_decoder": {
+                                "description": "Should the default decoder be overriden?",
+                                "type": "boolean"
+                            }
+                        },
+                        "formatter_args": {
+                            "description": "Arguments to pass to the formatter",
+                            "type": "object",
+                            "properties": {
+                                "focus_mode": {
+                                    "description": "Should YAML/JSON data from Kubernetes be trimmed, and if so, how?",
+                                    "type": "string"
+                                },
+                                "focus_filters": {
+                                    "type": "object",
+                                    "patternProperties": {
+                                        "^[A-Za-z0-9 ()-]*[A-Za-z0-9)]$": {
+                                            "description": "Path followed by the key to prune in that path",
+                                            "type": "array",
+                                            "items": {
+                                                "anyOf": [
+                                                    {
+                                                        "type": "array",
+                                                        "items": {
+                                                            "$ref": "#/$defs/simple_path"
+                                                        }
+                                                    }, {
+                                                        "description": "An entire path to prune",
+                                                        "$ref": "#/$defs/simple_path"
+                                                    }
+                                                ]
+                                            }
+                                        }
+                                    }
+                                },
+                                "unfold_msg": {
+                                    "description": "Unfold messages where this applies",
+                                    "type": "boolean"
+                                }
+                            }
+                        }
+                    },
+                    "additionalProperties": false
                 },
                 "listpad": {
                     "description": "A screen area used to display objects related to the info view",
@@ -1961,7 +2104,8 @@
                             ]
                         },
                         "infogetter_args": {
-                            "$ref": "#/$defs/infogetter_args"
+                            "description": "Arguments to pass to the infogetter; the arguments is validated further down",
+                            "type": "object"
                         },
                         "listgetter": {
                             "description": "Function to use to get list entries",
@@ -1997,6 +2141,57 @@
                             "type": "boolean"
                         }
                     },
+                    "allOf": [
+                        {
+                            "if": {
+                                "properties": {
+                                    "infogetter": { "const": "generic_infogetter" }
+                                }
+                            }, "then": {
+                                "properties": {
+                                    "infogetter_args": {
+                                        "description": "Arguments to pass to generic_infogetter()",
+                                        "type": "object",
+                                        "properties": {
+                                            "_extra_data": {
+                                                "description": "Extra data to pass to the infogetter",
+                                                "type": "object"
+                                            },
+                                            "_pass_caller_obj": {
+                                                "description": "Pass caller obj to the infogetter",
+                                                "type": "boolean"
+                                            }
+                                        },
+                                        "additionalProperties": false
+                                    }
+                                }
+                            }
+                        }, {
+                            "if": {
+                                "properties": {
+                                    "infogetter": { "const": "get_rq_item_info" }
+                                }
+                            }, "then": {
+                                "properties": {
+                                    "infogetter_args": {
+                                        "description": "Arguments to pass to get_rq_item_info()",
+                                        "type": "object",
+                                        "properties": {
+                                            "hard_path": {
+                                                "description": "Path to the hard quota",
+                                                "$ref": "#/$defs/simple_path"
+                                            },
+                                            "used_path": {
+                                                "description": "Path to the used hard quota",
+                                                "$ref": "#/$defs/simple_path"
+                                            }
+                                        },
+                                        "additionalProperties": false
+                                    }
+                                }
+                            }
+                        }
+                    ],
                     "required": [ "field_indexes", "infogetter", "listgetter" ],
                     "additionalProperties": false
                 },
@@ -2018,13 +2213,224 @@
                             ]
                         },
                         "infogetter_args": {
-                            "$ref": "#/$defs/infogetter_args"
+                            "description": "Arguments to pass to the infogetter; the arguments is validated further down",
+                            "type": "object",
+                            "default": {}
                         },
                         "timestamps": {
                             "description": "Should the timestamp column be displayed",
                             "type": "boolean"
                         }
                     },
+                    "allOf": [
+                        {
+                            "if": {
+                                "properties": {
+                                    "infogetter": { "const": "logpad_files" }
+                                }
+                            }, "then": {
+                                "properties": {
+                                    "infogetter_args": {
+                                        "description": "Arguments to pass to logpad_files()",
+                                        "type": "object",
+                                        "properties": {
+                                            "_pass_obj": {
+                                                "description": "Pass obj to callback",
+                                                "type": "boolean"
+                                            },
+                                            "extra_values_lookup": {
+                                                "description": "Extra values to lookup",
+                                                "type": "object"
+                                            }
+                                        },
+                                        "additionalProperties": false
+                                    }
+                                }
+                            }
+                        }, {
+                            "if": {
+                                "properties": {
+                                    "infogetter": { "const": "logpad_formatted" }
+                                }
+                            }, "then": {
+                                "properties": {
+                                    "infogetter_args": {
+                                        "description": "Arguments to pass to logpad_formatted()",
+                                        "type": "object",
+                                        "properties": {
+                                            "formatter": {
+                                                "$ref": "#/$defs/formatter_allowlist"
+                                            },
+                                            "formatter_args": {
+                                                "description": "Arguments to pass to the formatter; the arguments is validated further down",
+                                                "type": "object",
+                                                "default": {}
+                                            },
+                                            "path": {
+                                                "$ref": "#/$defs/simple_or_empty_path"
+                                            },
+                                            "paths": {
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "path": {
+                                                            "$ref": "#/$defs/simple_path"
+                                                        }
+                                                    },
+                                                    "additionalProperties": false
+                                                }
+                                            }
+                                        },
+                                        "allOf": [
+                                            {
+                                                "if": {
+                                                    "properties": {
+                                                        "formatter": { "const": "format_key_value" }
+                                                    }
+                                                }, "then": {
+                                                    "properties": {
+                                                        "formatter_args": {
+                                                            "properties": {
+                                                                "override_types": {
+                                                                    "description": "Override type for the specified keys",
+                                                                    "type": "object",
+                                                                    "patternProperties": {
+                                                                        "^[A-Za-z0-9 ()-]*[A-Za-z0-9)]$": {
+                                                                            "enum": [
+                                                                                "age",
+                                                                                "bool",
+                                                                                "boolean",
+                                                                                "float",
+                                                                                "hex",
+                                                                                "int",
+                                                                                "integer",
+                                                                                "list",
+                                                                                "str",
+                                                                                "string",
+                                                                                "tuple",
+                                                                                "timestamp"
+                                                                            ]
+                                                                        }
+                                                                    }
+                                                                },
+                                                                "separator": {
+                                                                    "description": "A reference to the separator to use",
+                                                                    "type": "object"
+                                                                },
+                                                                "sort": {
+                                                                    "description": "Should the output be sorted?",
+                                                                    "type": "boolean"
+                                                                },
+                                                                "typed": {
+                                                                    "description": "Should the data be interpreted as key:type:value?",
+                                                                    "type": "boolean"
+                                                                },
+                                                                "value_mappings": {
+                                                                    "description": "Value-map formatting for the value for the specified keys",
+                                                                    "type": "object",
+                                                                    "patternProperties": {
+                                                                        "^[A-Za-z0-9 ()-]*[A-Za-z0-9)]$": {
+                                                                            "description": "A lookup table for values to remap for the specified key",
+                                                                            "type": "object"
+                                                                        }
+                                                                    }
+                                                                },
+                                                                "value_type": {
+                                                                    "description": "Type to use if the data isn't typed; default is str",
+                                                                    "type": "string"
+                                                                }
+                                                            },
+                                                            "additionalProperties": false
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        ],
+                                        "additionalProperties": false
+                                    }
+                                }
+                            }
+                        }, {
+                            "if": {
+                                "properties": {
+                                    "infogetter": { "const": "logpad_msg_getter" }
+                                }
+                            }, "then": {
+                                "properties": {
+                                    "infogetter_args": {
+                                        "description": "Arguments to pass to logpad_files()",
+                                        "type": "object",
+                                        "properties": {
+                                            "path": {
+                                                "$ref": "#/$defs/simple_path"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }, {
+                            "if": {
+                                "properties": {
+                                    "infogetter": { "const": "get_cmt_log" }
+                                }
+                            }, "then": {
+                                "properties": {
+                                    "infogetter_args": {
+                                        "additionalProperties": false
+                                    }
+                                }
+                            }
+                        }, {
+                            "if": {
+                                "properties": {
+                                    "infogetter": { "const": "get_journalctl_log" }
+                                }
+                            }, "then": {
+                                "properties": {
+                                    "infogetter_args": {
+                                        "additionalProperties": false
+                                    }
+                                }
+                            }
+                        }, {
+                            "if": {
+                                "properties": {
+                                    "infogetter": { "const": "get_task_log" }
+                                }
+                            }, "then": {
+                                "properties": {
+                                    "infogetter_args": {
+                                        "additionalProperties": false
+                                    }
+                                }
+                            }
+                        }, {
+                            "if": {
+                                "properties": {
+                                    "infogetter": { "const": "get_themearrays" }
+                                }
+                            }, "then": {
+                                "properties": {
+                                    "infogetter_args": {
+                                        "additionalProperties": false
+                                    }
+                                }
+                            }
+                        }, {
+                            "if": {
+                                "properties": {
+                                    "infogetter": { "const": "get_traceflow" }
+                                }
+                            }, "then": {
+                                "properties": {
+                                    "infogetter_args": {
+                                        "additionalProperties": false
+                                    }
+                                }
+                            }
+                        }
+                    ],
                     "additionalProperties": false
                 },
                 "shortcuts": {
@@ -2947,7 +3353,7 @@
                                                                                             "description": "A template for the index added; should be on the form '<<<index>>> description'",
                                                                                             "type": "string"
                                                                                         },
-                                                                                        "name": {
+                                                                                        "path": {
                                                                                             "description": "A path to return data from",
                                                                                             "$ref": "#/$defs/path_with_fallback"
                                                                                         },
@@ -3323,5 +3729,6 @@
             "additionalProperties": false
         }
     },
-    "required": [ "kind" ]
+    "required": [ "kind" ],
+    "additionalProperties": false
 }

@@ -157,6 +157,8 @@ TBD
   within a normal 80-character wide terminal window.
 * `help | --help` now has an additional format option, short, that only shows
   the commands, not the arguments. This can be useful to quickly find the name of a command.
+* `validate_yaml.py` now supports default values in schema-files.
+* The schema-files have been made stricter.
 
 ### view-file changes
 

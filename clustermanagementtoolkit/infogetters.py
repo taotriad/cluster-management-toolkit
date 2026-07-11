@@ -2029,6 +2029,8 @@ def get_rq_item_info(**kwargs: Any) -> list[dict]:
         Parameters:
             **kwargs (dict[str, Any]): Keyword arguments
                 _obj (dict): The dict to extract data from
+                hard_path (str): Path to the hard quota
+                used_path (str): Path to the used hard quota
         Returns:
             info ([dict]): A list with info
     """

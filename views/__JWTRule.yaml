@@ -170,7 +170,7 @@ infoview:
           path: "fromHeaders"
           fields:
             - "name"
-            - name: "prefix"
+            - path: "prefix"
               quote: true
         # This isn't supported for now
         sortcolumn: "name"
@@ -212,7 +212,7 @@ infoview:
           path: "outputClaimToHeaders"
           fields:
             - "header"
-            - name: "claim"
+            - path: "claim"
               quote: true
         # This isn't supported for now
         sortcolumn: "header"

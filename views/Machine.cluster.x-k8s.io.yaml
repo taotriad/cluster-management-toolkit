@@ -446,6 +446,6 @@ infoview:
         itemgetter_args:
           path: "spec#readinessGates"
           fields:
-            - name: "conditionType"
-            - name: "polarity"
+            - path: "conditionType"
+            - path: "polarity"
               default: "Positive"

@@ -32,7 +32,9 @@ listview:
         description: "Delete resource (No grace period)"
         category: "Resource Level"
         confirm: true
-        actionfunc: "force_delete_resource"
+        actionfunc: "delete_resource"
+        actionfunc_args:
+          force: true
 infoview:
   name: "Mutating Webhook Configuration Info"
   infopad:

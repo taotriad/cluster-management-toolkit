@@ -549,7 +549,7 @@ def get_list_fields(obj: dict, **kwargs: Any) -> list[Any]:
                         value_type = deep_get(field, DictPath("value"), "value")
                         quote = deep_get(field, DictPath("quote"), False)
                         # Needs to be last here, since it overwrites field
-                        field = deep_get(field, DictPath("name"), "")
+                        field = deep_get(field, DictPath("path"), "")
 
                     # Instead of inserting a field here we insert a field containing list index
                     if value_type == "index":

@@ -518,11 +518,11 @@ infoview:
           path: "spec#networks"
           fields:
             - "name"
-            - name: "pod#vmNetworkCIDR"
+            - path: "pod#vmNetworkCIDR"
               default: "10.0.2.0/24"
-            - name: "pod#vmIPv6NetworkCIDR"
+            - path: "pod#vmIPv6NetworkCIDR"
               default: "fd10:0:2::/120"
-            - name: "multus#networkName"
+            - path: "multus#networkName"
               default: "<none>"
         # Not supported for now
         sortcolumn: "name"

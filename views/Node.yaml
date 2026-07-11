@@ -155,7 +155,9 @@ listview:
         single_on_control_plane: true
       "Force drain node":
         description: "Force drain node (No grace period)"
-        actionfunc: "force_drain_node"
+        actionfunc: "drain_node"
+        actionfunc_args:
+          force: true
         category: "Scheduling"
         single_on_control_plane: true
       "Uncordon node":

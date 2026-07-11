@@ -3,6 +3,7 @@
 # Requires: python3 (>= 3.11)
 #
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
+# Copyright © 2013-2026 Julian Berman (extend_with_default, taken from json-schema documentation).
 # SPDX-License-Identifier: MIT
 
 from functools import reduce
@@ -15,7 +16,7 @@ from collections.abc import Iterable
 import yaml
 
 try:
-    import jsonschema
+    from jsonschema import Draft202012Validator, exceptions, validators
 except ModuleNotFoundError:
     sys.exit("ModuleNotFoundError: you probably need to install python3-jsonschema")
 
@@ -24,7 +25,7 @@ try:
 except ModuleNotFoundError:
     sys.exit("ModuleNotFoundError: you probably need to install python3-natsort")
 
-__version__ = "0.5"
+__version__ = "0.6"
 
 failed_files = []
 
@@ -538,6 +539,25 @@ def validate_shortcuts(obj: dict) -> tuple[int, str]:
     return retval, msg
 
 
+def extend_with_default(validator_class):
+    validate_properties = validator_class.VALIDATORS["properties"]
+
+    def set_defaults(validator, properties, instance, schema):
+        for property, subschema in properties.items():
+            if "default" in subschema:
+                instance.setdefault(property, subschema["default"])
+
+        for error in validate_properties(
+            validator, properties, instance, schema,
+        ):
+            yield error
+
+    return validators.extend(validator_class, {"properties": set_defaults})
+
+
+DefaultValidatingValidator = extend_with_default(Draft202012Validator)
+
+
 # pylint: disable-next=too-many-branches
 def validate_file(yaml_path: str, schema_path: str,
                   verbose: int, abort_on_fail: bool,
@@ -597,19 +617,19 @@ def validate_file(yaml_path: str, schema_path: str,
             msg = f"Validating {yaml_path} with {schema_path}"
 
         try:
-            jsonschema.validate(schema=schema, instance=yaml_data)
+            DefaultValidatingValidator(schema).validate(instance=yaml_data)
             if schema_path.endswith("views.json"):
                 retval, msg = validate_shortcuts(yaml_data)
                 if retval:
                     msg = f"{yaml_path}: {msg}"
                     file = yaml_path
-        except jsonschema.exceptions.SchemaError as e:
+        except exceptions.SchemaError as e:
             msg += f"\nFailed to validate schema {schema_path}"
-            msg += f"\njsonschema.exceptions.SchemaError: {e}"
+            msg += f"\nSchemaError: {e}"
             sys.exit(msg)
-        except jsonschema.exceptions.ValidationError as e:
+        except exceptions.ValidationError as e:
             tmp_msg = f"\n  Failed to validate {yaml_path} using {schema_path}\n" \
-                      + f"\njsonschema.exceptions.ValidationError: {e}\n"
+                      + f"\nValidationError: {e}\n"
             if abort_on_fail:
                 sys.exit(msg + tmp_msg)
             elif verbose > 1:
