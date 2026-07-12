@@ -11,7 +11,7 @@ import sys
 from typing import Any, NoReturn
 
 PROGRAMNAME = "mdtable.py"
-PROGRAMVERSION = "v0.0.5"
+PROGRAMVERSION = "v0.0.6"
 
 PROGRAMDESCRIPTION = "Reformat tabulated data to Markdown"
 PROGRAMAUTHORS = "Written by David Weinehall."
@@ -20,6 +20,43 @@ COPYRIGHT = "Copyright © 2024-2026 David Weinehall"
 
 LICENSE = "This is free software; see the source for copying conditions.  There is NO\n"
 LICENSE += "warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE."
+
+
+def usage() -> NoReturn:
+    """
+    Display usage information.
+    """
+    print(f"{PROGRAMNAME} [OPTIONS] FILE [=]HEADER[=]...")
+    print()
+    print(PROGRAMDESCRIPTION)
+    print()
+    print("=HEADER  will left-align column (default behaviour)")
+    print(" HEADER= will right-align column")
+    print("=HEADER= will center-align column")
+    print()
+    print("Options:")
+    print("  --separator SEPARATOR    The separator used in FILE; default \"|\"")
+    print("  --bold-regex REGEX       A regular expression to apply bold formatting to")
+    print("  --italics-regex REGEX    A regular expression to apply italics formatting to")
+    print()
+    print("help|--help         Display this help and exit")
+    print("version|--version   Output version information and exit")
+
+    sys.exit(0)
+
+
+def version() -> NoReturn:
+    """
+    Display version information.
+    """
+    print(f"{PROGRAMNAME} {PROGRAMVERSION}")
+    print()
+    print(COPYRIGHT)
+    print(LICENSE)
+    print()
+    print(PROGRAMAUTHORS)
+
+    sys.exit(0)
 
 
 # pylint: disable-next=too-many-branches
@@ -141,39 +178,6 @@ def format_table(file: str, separator: str, headers: list[str], **kwargs: Any) -
     print(table)
 
 
-def usage() -> NoReturn:
-    """
-    Display usage information.
-    """
-    print(f"{PROGRAMNAME} [OPTIONS] FILE [=]HEADER[=]...")
-    print()
-    print(PROGRAMDESCRIPTION)
-    print()
-    print("=HEADER  will left-align column (default behaviour)")
-    print(" HEADER= will right-align column")
-    print("=HEADER= will center-align column")
-    print()
-    print("Options:")
-    print("  --separator SEPARATOR    The separator used in FILE; default \"|\"")
-    print("  --bold-regex REGEX       A regular expression to apply bold formatting to")
-    print("  --italics-regex REGEX    A regular expression to apply italics formatting to")
-    sys.exit(0)
-
-
-def version() -> NoReturn:
-    """
-    Display version information.
-    """
-    print(f"{PROGRAMNAME} {PROGRAMVERSION}")
-    print()
-    print(COPYRIGHT)
-    print(LICENSE)
-    print()
-    print(PROGRAMAUTHORS)
-
-    sys.exit(0)
-
-
 def main() -> None:
     """
     Main function for the program.
@@ -195,9 +199,9 @@ def main() -> None:
         if not opt.startswith("--"):
             break
         i += 1
-        if opt == "--help":
+        if opt in ("help", "--help"):
             usage()
-        elif opt == "--version":
+        elif opt in ("version", "--version"):
             version()
         elif opt == "--bold-regex":
             if len(sys.argv) < i + 1:
