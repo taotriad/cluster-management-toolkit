@@ -41,40 +41,43 @@ tests have been added for the moved code.
 ## Q2 roadmap
 
 * _General_:
-    * [ ] Refactor libraries in a way that makes a __CMT__ release possible. This includes:
-        * [ ] Rewrite all logging to use Python's builtin logging and register a MemoryHandler;
-          this way we get flushing whenever the severity is high enough.
-    * [ ] Register KeyboardInterrupt handlers in all executables to do proper shutdown
-      and print helpful messages.
+    * Continue work on moving from custom lexers to Pygments.
+    * [x] Convert formatters that can use Pygments' built-in lexers.
+      * [x] CEL (Note: CEL support is pending new upstream release)
+      * [x] NDJSON
+      * [x] Python
+    * [x] Check whether it's possible to unify listgetters and itemgetters.
+          Conclusion: this would be a huge load of work. To make it feasible
+          would take cutting down on calling conventions for the various getters.
+
+## Q3.1 roadmap
+
+* _General_:
+    * [ ] Release __CMT__ v0.8.8.
     * [ ] Distribute as:
         * [ ] Source code.
         * [ ] Debian package.
-        * [ ] Possibly via PIP?
-    * Continue work on moving from custom lexers to Pygments.
-    * [ ] Convert formatters that can use Pygments' built-in lexers.
-      * [ ] NDJSON (just needs to be verified to work)
-      * [ ] Perl
-      * [ ] Python
-      * [ ] Ruby
-    * [ ] Convert formatters that needs custom lexers.
-      * [ ] CEL
-      * [ ] HAProxy
-      * [ ] CaddyFile
-      * [ ] FluentBit
-    * Check whether it's possible to unify listgetters and infogetters.
 
+## Q3.2 roadmap
+
+* _General_:
+    * [ ] Release __CMT__ v0.8.9.
+    * [ ] Distribute as:
+        * [ ] Source code.
+        * [ ] Debian package.
+        * [ ] PIP?
 * _Accessibility_:
     * [ ] Ensure that the Colour Vision Deficiency theme covers all relevant data.
       Using colour coding in conjunction with CVD is acceptable, but only when important
       information (severity, etc.) is conveyed through other means.
     * [ ] Provide a high-contrast theme.
-* _cmu_:
-    * [ ] UI refactoring: Use the generic input handler from curses helper for all input.
-    * [ ] UI refactoring: Unified helptext generation.
 
-## Q3 roadmap
+## Q4 roadmap
 
 * _General_:
+    * [ ] Refactor libraries in a way that makes a __CMT__ release possible. This includes:
+        * [ ] Rewrite all logging to use Python's builtin logging and register a MemoryHandler;
+          this way we get flushing whenever the severity is high enough.
     * [ ] Go through all input helpers, formatters, etc., to see which, if any, we can merge.
     * [ ] tests: Achieve 55% test coverage for `*.py`.
 * _cmu_:
@@ -83,13 +86,11 @@ tests have been added for the moved code.
       This would let users test what themes they like the most, but more importantly it would
       enable using different themes for different contexts, as a useful reminder about what
       context you're operating in.
+    * [ ] UI refactoring: Use the generic input handler from curses helper for all input.
+    * [ ] UI refactoring: Unified helptext generation.
 * _cmt_:
     * [ ] Once the _cmu_ refactoring has taken place we should be in a good place to
       reuse most of the helpers to implement `cmt get OBJECT`, `cmt describe OBJECT`, etc.
-
-## Q4 roadmap
-
-* TBD
 
 ## Backlog
 
@@ -107,6 +108,14 @@ tests have been added for the moved code.
       helpers to use to process that data, a list of actions that can be performed
       on that data, as well as information about what, if any, relationships the data
       has with data in other info views.
+    * Continue work on moving from custom lexers to Pygments.
+    * [ ] Add formatters that can use Pygments' built-in lexers.
+      * [ ] Perl
+      * [ ] Ruby
+    * [ ] Convert formatters that uses custom lexers once they get support in Pygments.
+      * [ ] HAProxy
+      * [ ] CaddyFile
+      * [ ] FluentBit
 * _cmtadm_:
     * [ ] Support for clusters with virtualised control planes.
     * [ ] Support for having multiple different VM-hosts in the same cluster.

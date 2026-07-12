@@ -1,11 +1,5 @@
 # TODO
 
-## Implementation
-
-* In v0.8.7 we switched to requiring Python 3.11. This allows
-  us to use the structural pattern matching. Since we do a lot of string
-  parsing with many different variants we should really make use of this.
-
 ## General
 
 * When running either cmt or cmu, check whether `.ssh/id_*.pub` is in authorized_keys.
@@ -152,3 +146,5 @@
   we should keep example resources and logs for app resources we add support for.
   This would also enable us to release-test all view-files and thus gain much better test coverage.
 * For testability of cmu we need to implement input injection support.
+* Add a test that checks the Table of Content (ToC) for the Markdown documentation to make sure that all
+  files and sections are represented in the ToC; it might even be an idea to make it generate the ToC.

@@ -16,11 +16,13 @@ It tries to provide a highlevel view of what is planned for the upcoming year or
 
 ### Verify that everything passes release criteria
 
+* [ ] `make build` *(Build all templated data)*
 * [ ] `pipx upgrade-all` *(Ensures that regexploit and semgrep are the most recent version)*
 * [ ] `make build` *(Generate views from templates and rebuild the resource type index)*
 * [ ] `generate_helptexts` *(Regenerate the helptexts for for all command line tools)*
 * [ ] `make checks` *(Runs ruff, flake8, mypy, pylint)*
 * [ ] `make code-checks` *(Runs ruff, bandit, regexploit, jsonlint, yamllint, validate_playbooks, validate_yaml, check_helptexts, semgrep)*
+* [ ] Make sure that all commands work on the platforms listed in [Supported platforms](Supported_platforms.md).
 
 Release exceptions must be granted for any new warnings from `make mypy` (the existing
 warnings are acceptable for the time being). No new warnings from any other
@@ -57,6 +59,7 @@ components are accepted.
 * [ ] Insert the output from `make validate_playbooks`.
 * [ ] Insert the output from `make validate_yaml`.
 * [ ] Insert the output from `make yamllint`.
+* [ ] Insert the output from `git diff --stat PREVIOUS_RELEASE_TAG | tail -n 1`
 
 ### Releasing
 
@@ -124,7 +127,7 @@ or ask for help.
 
 _Note_:
 
-* Optional manual tests mean that there are optional testcases that require manual input
+* Optional manual tests mean that there are optional testcases that require manual input.
 * Ansible setup optional means that there are optional testcases that require cmt to
   be installed and configured with an inventory.
 * Ansible setup required means that all or almost all testcases require cmt to
@@ -178,13 +181,11 @@ If you modify any of the files listed in the unit-test table, you _must_ run `ma
 You _should_ also check for code quality issues using:
 
 ```
-make flake8 (should not report any issues)
-make mypy (will report a lot of issues; but should not report more issues after your changes than before)
+make checks
+make code-checks
 ```
 
-Note: some files will generate a __lot__ of errors from mypy, due to missing type-annotations.
-You are not responsible for errors in other files, unless your changes introduce them,
-but new or changed code should not introduce more errors.
+`logparser.py` will report issues from the mypy tests, but no other errors should be reported.
 
 ### Testing _Parser-files_, _Themes_, _View-files_
 
@@ -192,6 +193,7 @@ If you add or modify _parser-files_, _themes_, or _view-files_ you need to use
 
 ```
 make validate_yaml (should not report any issues)
+make yamllint (should not report any issues)
 ```
 
 ### Testing Ansible Playbooks
@@ -207,6 +209,11 @@ make validate_playbooks (should not report any issues)
 Make sure, within your own branch, to test all Markdown files you modify/add.
 This has to be done manually. All new text should be in English. It is RECOMMENDED
 that you check the spelling and grammar.
+
+Recommended tools for testing Markdown are, for instance:
+
+* `Apostrophe` (GNOME's Markdown viewer; note that HTML-style comments will be visible as text).
+* `cmu view` (Being a console tool does limit its functionality a bit, but it's a good way to dogfood our Markdown renderer).
 
 ### Testing Other YAML-files
 
@@ -233,12 +240,18 @@ at the end of the change description in every commit. If the submission fixes an
 you SHOULD add a comment to the issue tracker that references the Pull Request. You MUST NOT resolve the issue
 as fixed until the Pull Request has been merged.  If possible mention the resolved issue in the commit message.
 
+If you submit a partial fix to an issue you may create a sub issue instead, to document the progress towards
+a complete solution.
+
 ## Coding Standard
 
-The coding style for __CMT__ is PEP8 with 100 character lines. `pylint --disable W0511` (do not warn
-about FIXME/XXX/TODO) and and `flake8 --max-line-length 100 --ignore F841,W503` (line breaks should be before
-binary operators, don't warn about unused variables since Flake8 doesn't understand the ignoring
-results with `_ignore`).
+The coding style for __CMT__ is PEP8 with 100 character lines:
+
+* `pylint --py-version 3.11 --disable W0511` (do not warn about FIXME/XXX/TODO)
+* `flake8 --max-line-length 100 --ignore F841,W503,F824,E126,E127,H301,H404,H405` (line breaks should be before
+   binary operators, don't warn about unused variables since Flake8 doesn't understand the ignoring
+   results with `_ignore`, don't warn about multiple imports per line, disable rules that gets
+   confused by modern type annotations, don't let flake8 dictate our docstrings, and disable mistaken complaints about globals).
 
 ### Type Annotations and Documentation
 
@@ -249,8 +262,9 @@ parameters, returns). Code SHOULD be documented if it's not immediately obvious 
 
 __CMT__ uses Python 3.11 to allow for compatibility with some (not all) older distros.
 This means that type annotations and the features used MUST NOT require newer versions of Python.
-In some corner cases this means using Any for type hints, and being very generic about the definitions
-for dicts.
+In some corner cases this means using Any for type hints.
+
+Any non-trivial dict format should be typed using `TypedDict`.
 
 ## Documentation
 
@@ -265,4 +279,5 @@ you need to update docs/_COMMAND_\_helptext.md accordingly.  This can be done us
 
 ```
 make generate_helptexts
+make check_helptexts (should not report any issues)
 ```
