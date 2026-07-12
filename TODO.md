@@ -149,5 +149,3 @@
   we should keep example resources and logs for app resources we add support for.
   This would also enable us to release-test all view-files and thus gain much better test coverage.
 * For testability of cmu we need to implement input injection support.
-* Add a test that checks the Table of Content (ToC) for the Markdown documentation to make sure that all
-  files and sections are represented in the ToC; it might even be an idea to make it generate the ToC.
