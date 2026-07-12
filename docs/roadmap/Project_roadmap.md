@@ -41,7 +41,6 @@ tests have been added for the moved code.
 ## Q2 roadmap
 
 * _General_:
-    * Continue work on moving from custom lexers to Pygments.
     * [x] Convert formatters that can use Pygments' built-in lexers.
       * [x] CEL (Note: CEL support is pending new upstream release)
       * [x] NDJSON

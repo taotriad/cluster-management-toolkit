@@ -187,7 +187,7 @@ make code-checks
 
 `logparser.py` will report issues from the mypy tests, but no other errors should be reported.
 
-### Testing _Parser-files_, _Themes_, _View-files_
+### Testing Parser-files, Themes, and View-files
 
 If you add or modify _parser-files_, _themes_, or _view-files_ you need to use
 
@@ -213,6 +213,7 @@ that you check the spelling and grammar.
 Recommended tools for testing Markdown are, for instance:
 
 * `Apostrophe` (GNOME's Markdown viewer; note that HTML-style comments will be visible as text).
+* `Okular` (KDE's Markdown viewer; note that the handling of table is a bit insufficient).
 * `cmu view` (Being a console tool does limit its functionality a bit, but it's a good way to dogfood our Markdown renderer).
 
 ### Testing Other YAML-files

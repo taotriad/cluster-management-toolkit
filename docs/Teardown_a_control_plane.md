@@ -1,4 +1,4 @@
-## Tearing down a control plane
+# Tearing down a control plane
 
 ## Preparation
 

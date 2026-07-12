@@ -69,6 +69,22 @@ python_unit_tests = \
 	tests/typetests.py \
 	tests/validatortests.py
 
+# The Documents to include in the Markdown Table of Contents (toc)
+markdown_toc = \
+	Introduction.md \
+	Installing_CMT.md \
+	Creating_a_cluster_using_a_template_file.md \
+	Setup_a_control_plane.md \
+	Setup_worker_nodes.md \
+	Remove_worker_nodes.md \
+	Teardown_a_control_plane.md \
+	Helptexts.md \
+	Useful_commands.md \
+	CMU.md \
+	Supported_platforms.md \
+	Development.md \
+	roadmap/Project_roadmap.md
+
 # F841 is the warning about unused assignments.
 # flake8 doesn't recognise "_<variable>" to capture unused return values;
 # pylint does, so we rely on that one to handle it instead.
@@ -109,6 +125,9 @@ generate_helptexts: bin
 	@for file in $(python_executables); do \
 		PYTHONPATH=. ./bin/$${file} help --format markdown > docs/$${file}_helptext.md ;\
 	done
+
+generate_mdtoc:
+	@(cd docs; ../devtools/mdtoc.py --split-sections $(markdown_toc)) > docs/Table_of_contents.md
 
 check_helptexts:
 	@printf -- "\n\nChecking helptexts\n\n" ;\

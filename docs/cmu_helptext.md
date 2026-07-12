@@ -11,9 +11,9 @@ UI for managing Kubernetes clusters.
   If the file format cannot be deduced from
   the name this option can be used to specify
   the file format. Valid formats are:
-  _bash_, _cel_, _crt_, _css_, _diff_|_patch_, _html_, _ini_,
-  _javascript_|_js_, _json_,_markdown_|_md_,
-  _ndjson_, _powershell_|_ps1_, _python_|_py_,
+  _bash_, _cel_, _crt_, _css_, _docker_, _dmesg_, _diff_|_patch_,
+  _html_, _ini_, _javascript_|_js_, _json_,_markdown_|_md_,
+  _ndjson_, _powershell_|_ps1_, _promql_, _python_|_py_,
   _shell_|_sh_, _svg_, _toml_, _xhtml_, _xml_, _yaml_
 
 ### `VIEW` _[_NAMESPACE/_]_OBJECT_[_:_[_MEMBER_]]_

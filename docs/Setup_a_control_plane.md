@@ -12,7 +12,7 @@
 
 3. _[Wait until cmtadm prepare completes]_
 
-# Create the cluster
+## Create the cluster
 
 1. `cmtadm setup-control-plane [CNI] [POD_NETWORK_CIDR]`
 2. _[Wait until cmtadm setup-control-plane completes]_

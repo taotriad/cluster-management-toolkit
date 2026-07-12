@@ -17,7 +17,7 @@ All main development takes place on Debian Unstable. Some testing
 is also performed on RHEL 9 (mainly using Code Ready Containers),
 openSUSE 16 (RKE2 + Rancher), and Ubuntu 24.04 LTS.
 
-## What prevents __CMT__ from being support on other Distributions / Older versions
+## What prevents CMT from being supported on other Distributions and Older versions
 
 In most cases it's simply because it hasn't been tested on those distributions or versions,
 or because the required version of Python is too old.

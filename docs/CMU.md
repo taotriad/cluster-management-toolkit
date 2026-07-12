@@ -6,7 +6,7 @@ It provides information in a way that is similar to the output from `kubectl get
 It also provides logs with formatting, and the ability to run Ansible playbooks
 on cluster nodes as well as hosts that are part of the Ansible inventory but not the cluster.
 
-## Starting `cmu`
+## Starting cmu
 
 ![View list](images/View_list.png)
 

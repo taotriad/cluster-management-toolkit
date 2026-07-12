@@ -1,6 +1,6 @@
 # Creating a cluster using a template file
 
-## Introduction to `cmtadm create-cluster`
+## Introduction to cmtadm create-cluster
 
 The easiest way to create a cluster using `cmtadm` is by using a template file.
 This has several benefits; it means that you'll have a complete blueprint for recreating
