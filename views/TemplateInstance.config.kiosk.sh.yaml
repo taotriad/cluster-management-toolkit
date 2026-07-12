@@ -8,7 +8,7 @@ command:
   - "ktemplateinstance"
 listview:
   name: "Template Instances"
-  group: "Kiosk"
+  group: "Kiosk (Deprecated)"
   field_indexes:
     Normal:
       fields: ["namespace", "name", "sync", "status", "age"]

@@ -17,6 +17,9 @@
   the latter. Currently we have no itemgetter that can join lists of dicts.
   Since we currently don't support multiple listpads we'd really benefit from this,
   to handle things such as volume + volumeStatus, containers + containerStatus, etc.
+* It's about time we come up with a good way to group views in terms
+  of what's enabled. For instance it's highly unlikely that we'll have OpenShift
+  deployed at the same time as Harvester / Rancher / Longhorn.
 
 ## commandparser.py and cmtvalidators.py
 

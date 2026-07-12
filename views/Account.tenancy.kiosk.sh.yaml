@@ -8,7 +8,7 @@ command:
   - "kaccount"
 listview:
   name: "Accounts"
-  group: "Kiosk"
+  group: "Kiosk (Deprecated)"
   field_indexes:
     Normal:
       fields: ["name", "spaces", "subjects", "age"]

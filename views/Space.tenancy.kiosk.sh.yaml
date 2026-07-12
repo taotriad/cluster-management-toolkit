@@ -8,7 +8,7 @@ command:
   - "kspace"
 listview:
   name: "Spaces"
-  group: "Kiosk"
+  group: "Kiosk (Deprecated)"
   field_indexes:
     Normal:
       fields: ["name", "owner", "phase", "age"]

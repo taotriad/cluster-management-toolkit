@@ -68,6 +68,11 @@ secrets, etc.
   you'll need to either reboot, open a new terminal, or logout/login to
   benefit from bash completion for those.
 
+## Deprecations in v0.8.8
+
+* The `kiosk.sh` Kubernetes API is now deprecated (the upstream project was archived 2 years ago),
+  and will be removed in v0.9.0.
+
 ## Changes by Component in v0.8.8
 
 ### Changes to _cmt_ in v0.8.8

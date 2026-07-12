@@ -2522,20 +2522,24 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api_paths": ["apis/config.kiosk.sh/v1alpha1/"],
         "api": "accountquotas",
         "namespaced": False,
+        "deprecated": "config.kiosk.sh/v1alpha1",
     },
     ("Account", "config.kiosk.sh"): {
         "api_paths": ["apis/config.kiosk.sh/v1alpha1/"],
         "api": "accounts",
         "namespaced": False,
+        "deprecated": "config.kiosk.sh/v1alpha1",
     },
     ("TemplateInstance", "config.kiosk.sh"): {
         "api_paths": ["apis/config.kiosk.sh/v1alpha1/"],
         "api": "templateinstances",
+        "deprecated": "config.kiosk.sh/v1alpha1",
     },
     ("Template", "config.kiosk.sh"): {
         "api_paths": ["apis/config.kiosk.sh/v1alpha1/"],
         "api": "templates",
         "namespaced": False,
+        "deprecated": "config.kiosk.sh/v1alpha1",
     },
     # config.koordinator.sh
     ("ClusterColocationProfile", "config.koordinator.sh"): {
@@ -7627,11 +7631,13 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api_paths": ["apis/tenancy.kiosk.sh/v1alpha1/"],
         "api": "accounts",
         "namespaced": False,
+        "deprecated": "tenancy.kiosk.sh/v1alpha1",
     },
     ("Space", "tenancy.kiosk.sh"): {
         "api_paths": ["apis/tenancy.kiosk.sh/v1alpha1/"],
         "api": "spaces",
         "namespaced": False,
+        "deprecated": "tenancy.kiosk.sh/v1alpha1",
     },
     # tensorboard.kubeflow.org
     ("Tensorboard", "tensorboard.kubeflow.org"): {
