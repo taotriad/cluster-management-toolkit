@@ -2,6 +2,11 @@
 
 # Requires: python3 (>= 3.11)
 # Requires: python3-jinja2
+
+"""
+Generate the resource type index for view-files.
+"""
+
 import os
 import re
 import sys
@@ -18,6 +23,7 @@ from clustermanagementtoolkit.cmtio_yaml import secure_read_yaml, secure_write_y
 from clustermanagementtoolkit.cmtpaths import HOMEDIR
 
 from clustermanagementtoolkit.cmtlib import read_cmtconfig
+
 
 def main() -> None:
     """
@@ -95,8 +101,7 @@ def main() -> None:
 
     # Sort the dict; note: this only sorts the dict on a first-level basis,
     # but that's all we really need.
-    sorted_dict = {key: value for key, value in sorted(resource_type_index.items(),
-                                                       key=lambda item: item[0])}
+    sorted_dict = dict(sorted(resource_type_index.items(), key=lambda item: item[0]))
     secure_write_yaml(index_file, sorted_dict, sort_keys=True, yaml_version=(1, 1))
 
 

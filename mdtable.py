@@ -5,6 +5,10 @@
 # Copyright David Weinehall
 # SPDX-License-Identifier: MIT
 
+"""
+Reformat tabulated data to Markdown.
+"""
+
 import errno
 import re
 import sys
@@ -13,13 +17,13 @@ from typing import Any, NoReturn
 PROGRAMNAME = "mdtable.py"
 PROGRAMVERSION = "v0.0.6"
 
-PROGRAMDESCRIPTION = "Reformat tabulated data to Markdown"
-PROGRAMAUTHORS = "Written by David Weinehall."
+PROGRAMDESCRIPTION: str = "Reformat tabulated data to Markdown"
+PROGRAMAUTHORS: str = "Written by David Weinehall."
 
-COPYRIGHT = "Copyright © 2024-2026 David Weinehall"
+COPYRIGHT: str = "Copyright © 2024-2026 David Weinehall"
 
-LICENSE = "This is free software; see the source for copying conditions.  There is NO\n"
-LICENSE += "warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE."
+LICENSE: str = "This is free software; see the source for copying conditions.  There is NO\n" \
+               "warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE."
 
 
 def usage() -> NoReturn:
@@ -59,7 +63,7 @@ def version() -> NoReturn:
     sys.exit(0)
 
 
-# pylint: disable-next=too-many-branches
+# pylint: disable-next=too-many-branches,too-many-locals,too-many-statements
 def format_table(file: str, separator: str, headers: list[str], **kwargs: Any) -> None:
     """
     Format field-separated data as a Markdown table.
@@ -76,9 +80,9 @@ def format_table(file: str, separator: str, headers: list[str], **kwargs: Any) -
     bold_regex: str = ""
     italics_regex: str = ""
     if "bold_regex" in kwargs:
-        bold_regex = kwargs["bold_regex"]
+        bold_regex = kwargs.get("bold_regex")
     if "italics_regex" in kwargs:
-        italics_regex = kwargs["italics_regex"]
+        italics_regex = kwargs.get("italics_regex")
 
     try:
         with open(file, "r", encoding="utf-8") as f:
@@ -178,6 +182,7 @@ def format_table(file: str, separator: str, headers: list[str], **kwargs: Any) -
     print(table)
 
 
+# pylint: disable-next=too-many-branches
 def main() -> None:
     """
     Main function for the program.

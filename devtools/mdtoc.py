@@ -5,20 +5,24 @@
 # Copyright David Weinehall
 # SPDX-License-Identifier: MIT
 
+"""
+This program creates a table of content for Markdown documents.
+"""
+
 import errno
 import sys
 from typing import NoReturn
 
-PROGRAMNAME = "mdtoc.py"
-PROGRAMVERSION = "v0.0.1"
+PROGRAMNAME: str = "mdtoc.py"
+PROGRAMVERSION: str = "v0.0.1"
 
-PROGRAMDESCRIPTION = "Generate a table of contents from a list of Markdown files"
-PROGRAMAUTHORS = "Written by David Weinehall."
+PROGRAMDESCRIPTION: str = "Generate a table of contents from a list of Markdown files"
+PROGRAMAUTHORS: str = "Written by David Weinehall."
 
-COPYRIGHT = "Copyright © 2026 David Weinehall"
+COPYRIGHT: str = "Copyright © 2026 David Weinehall"
 
-LICENSE = "This is free software; see the source for copying conditions.  There is NO\n"
-LICENSE += "warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE."
+LICENSE: str = "This is free software; see the source for copying conditions.  There is NO\n" \
+               "warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE."
 
 DEFAULT_DEPTH: int = 3
 
@@ -56,6 +60,7 @@ def version() -> NoReturn:
     sys.exit(0)
 
 
+# pylint: disable-next=too-many-branches,too-many-statements
 def main() -> None:
     """
     Main function for the program.
@@ -115,8 +120,12 @@ def main() -> None:
         print("# Table of Contents\n")
 
     for filename in sys.argv[i:]:
-        with open(f"{filename}", "r") as f:
+        with open(f"{filename}", "r", encoding="utf-8") as f:
             tmp = f.read()
+
+        prefix: str = ""
+        indent: str = ""
+        index: str = ""
 
         # Note: We only index the first three levels
         for line in tmp.splitlines():
@@ -165,6 +174,7 @@ def main() -> None:
                 continue
 
             print(f"{indent}{index}. [{section}]({filename}#{anchor})")
+
 
 if __name__ == "__main__":
     main()

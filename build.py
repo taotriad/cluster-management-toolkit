@@ -2,6 +2,11 @@
 
 # Requires: python3 (>= 3.11)
 # Requires: python3-jinja2
+
+"""
+Build Jinja templates.
+"""
+
 import os
 from pathlib import Path, PosixPath
 import sys

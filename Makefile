@@ -318,7 +318,7 @@ pylint:
 	printf -- "\n\nRunning $$cmd to check Python code quality\n\n" ;\
 	$$cmd --version ;\
 	printf -- "\n" ;\
-	for file in $(python_executables_py) devtools/*.py clustermanagementtoolkit/*.py; do \
+	for file in *.py devtools/*.py clustermanagementtoolkit/*.py; do \
 		printf -- "File: $$file\n" ;\
 		PYTHONPATH=. $$cmd --py-version $(PYLINT_PYTHON_VERSION) --disable $(PYLINT_DISABLE) --enable $(PYLINT_ENABLE) $$file ;\
 	done
@@ -358,7 +358,7 @@ flake8:
 	printf -- "\n\nRunning $$cmd to check Python code quality\n\n" ;\
 	$$cmd --version ;\
 	printf -- "\n" ;\
-	$$cmd --ignore $(FLAKE8_IGNORE) --max-line-length 100 --statistics $(python_executables_py) devtools/*.py clustermanagementtoolkit/*.py && printf -- "OK\n\n" ;\
+	$$cmd --ignore $(FLAKE8_IGNORE) --max-line-length 100 --statistics *.py  devtools/*.py clustermanagementtoolkit/*.py && printf -- "OK\n\n" ;\
 	printf -- "\n\nRunning $$cmd to check Python test case code quality\n\n" ;\
 	$$cmd --version ;\
 	printf -- "\n" ;\

@@ -2,23 +2,27 @@
 
 # Requires: python3 (>= 3.11)
 # Requires: python3-jinja2
+
+"""
+Generate statistics that are useful for release notes.
+"""
+
 import re
 import subprocess  # nosec
 from subprocess import PIPE, STDOUT  # nosec
 import sys
 from typing import NoReturn
 
-PROGRAMNAME = "genstats.py"
-PROGRAMVERSION = "v0.0.2"
+PROGRAMNAME: str = "genstats.py"
+PROGRAMVERSION: str = "v0.0.2"
 
-PROGRAMDESCRIPTION = "Generate statistics that are useful for release notes"
-PROGRAMAUTHORS = "Written by David Weinehall."
+PROGRAMDESCRIPTION: str = "Generate statistics that are useful for release notes"
+PROGRAMAUTHORS: str = "Written by David Weinehall."
 
-COPYRIGHT = "Copyright © 2025-2026 David Weinehall"
+COPYRIGHT: str = "Copyright © 2025-2026 David Weinehall"
 
-LICENSE = "This is free software; see the source for copying conditions.  There is NO\n"
-LICENSE += "warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE."
-
+LICENSE: str = "This is free software; see the source for copying conditions.  There is NO\n" \
+               "warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE."
 
 
 def usage() -> NoReturn:
@@ -45,6 +49,7 @@ def version() -> NoReturn:
     sys.exit(0)
 
 
+# pylint: disable-next=too-many-locals,too-many-branches,too-many-statements
 def main() -> None:
     """
     Main function for the program.
