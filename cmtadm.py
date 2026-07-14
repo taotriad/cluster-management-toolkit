@@ -1035,6 +1035,8 @@ def setup_cni(options: list[tuple[str, str]], args: list[str]) -> None:
             args ([str]): The CNI to install and configure
                           (optional; if not specified the default CNI will be used)
     """
+    global kh  # pylint: disable=global-statement
+
     # default options
     confirm: bool = True
     reinstall: bool = False
@@ -1048,18 +1050,47 @@ def setup_cni(options: list[tuple[str, str]], args: list[str]) -> None:
         elif opt == "--verbose":
             verbose = True
 
-    if not Path(CMT_INSTALLATION_INFO_FILE).is_file():
-        ansithemeprint([ANSIThemeStr("Error", "error"),
-                        ANSIThemeStr(": Could not find reliable installation information. "
-                                     "Aborting.", "default")], stderr=True)
-        sys.exit(errno.EINVAL)
+    if kh is None:
+        kh = kubernetes_helper.KubernetesHelper(about.PROGRAM_SUITE_NAME,
+                                                about.PROGRAM_SUITE_VERSION, None)
 
-    installation_info = get_installation_info()
+    context_name = kh.get_current_context()
+
+    # This is the cluster name according to .kube/config; this is what we care about when upgrading,
+    # not whatever is currently set as the target in installation info.
+    cluster_name = get_cluster_name()
+    installation_info = get_installation_info(ignore_non_existing=False)
+    if installation_info is None:
+        ansithemeprint([ANSIThemeStr("Error", "error"),
+                        ANSIThemeStr(": ", "default"),
+                        ANSIThemeStr(f"{CMT_INSTALLATION_INFO_FILE}", "path"),
+                        ANSIThemeStr(" does not exist; ", "default"),
+                        ANSIThemeStr("most likely ", "default")], stderr=True)
+        ansithemeprint([ANSIThemeStr("the cluster was not ", "default"),
+                        ANSIThemeStr("installed using ", "default"),
+                        ANSIThemeStr(f"{about.PROGRAM_SUITE_NAME}", "programname"),
+                        ANSIThemeStr("; aborting.", "default")], stderr=True)
+        sys.exit(errno.ENOENT)
+    installation_info = update_installation_info(installation_target=cluster_name)
+
     cluster_name = deep_get(installation_info, DictPath("installation_target"))
+
+    if cluster_name not in installation_info:
+        ansithemeprint([ANSIThemeStr("Error", "error"),
+                        ANSIThemeStr(": Installation target ", "default"),
+                        ANSIThemeStr(f"{cluster_name}", "hostname"),
+                        ANSIThemeStr(" could not be", "default")], stderr=True)
+        ansithemeprint([ANSIThemeStr("found in ", "default"),
+                        ANSIThemeStr(f"{CMT_INSTALLATION_INFO_FILE}", "path"),
+                        ANSIThemeStr(".", "default")], stderr=True)
+        ansithemeprint([ANSIThemeStr("Most likely the cluster was not ", "default"),
+                        ANSIThemeStr("installed using ", "default"),
+                        ANSIThemeStr(f"{about.PROGRAM_SUITE_NAME}", "programname"),
+                        ANSIThemeStr("; aborting.", "default")], stderr=True)
+        sys.exit(errno.ENOENT)
+
+    installation_info = update_installation_info(installation_target=cluster_name)
     cni = deep_get(installation_info, DictPath(f"{cluster_name}#cni"))
-    admin_name = deep_get(installation_info, DictPath(f"{cluster_name}#admin_name"),
-                          f"kubernetes-admin+{cluster_name}")
-    context_name = f"{admin_name}@{cluster_name}"
 
     if cni not in ("", "none", "<none>", "<unknown>") and not reinstall:
         ansithemeprint([ANSIThemeStr("Error", "error"),
@@ -1113,10 +1144,13 @@ def teardown_cni(options: list[tuple[str, str]], args: list[str]) -> None:
 
     confirm = True
     cni_version = None
+    cluster_name: str = ""
 
     for opt, optarg in options:
         if opt == "--cni-version":
             cni_version = optarg
+        elif opt == "--cluster-name":
+            cluster_name = optarg
         elif opt == "-Y":
             confirm = False
 
@@ -1126,7 +1160,26 @@ def teardown_cni(options: list[tuple[str, str]], args: list[str]) -> None:
                                      "Aborting.", "default")], stderr=True)
         sys.exit(errno.EINVAL)
 
+    if kh is None:
+        kh = kubernetes_helper.KubernetesHelper(about.PROGRAM_SUITE_NAME,
+                                                about.PROGRAM_SUITE_VERSION, None)
+
     installation_info = get_installation_info()
+    context_name = kh.get_current_context()
+
+    if not cluster_name:
+        cluster_name = get_cluster_name()
+
+    if not deep_get(installation_info, DictPath(cluster_name)):
+        ansithemeprint([ANSIThemeStr("Error", "error"),
+                        ANSIThemeStr(": Could not find cluster ", "default"),
+                        ANSIThemeStr(f"{cluster_name}", "hostname"),
+                        ANSIThemeStr(" in ", "default"),
+                        ANSIThemeStr(f"{CMT_INSTALLATION_INFO_FILE}", "path"),
+                        ANSIThemeStr("; aborting.", "default")], stderr=True)
+        sys.exit(errno.ENOENT)
+
+    installation_info = update_installation_info(installation_target=cluster_name)
     cluster_name = deep_get(installation_info, DictPath("installation_target"))
     cni = installation_info[cluster_name]["cni"]
     pod_network_cidr = deep_get(installation_info, DictPath(f"{cluster_name}#pod_network_cidr"), "")
@@ -1287,11 +1340,48 @@ def upgrade_cni(options: list[tuple[str, str]], args: list[str]) -> None:
     cni_version: str | None = None
     cni_executable_version: str | None = None
 
+    if kh is None:
+        kh = kubernetes_helper.KubernetesHelper(about.PROGRAM_SUITE_NAME,
+                                                about.PROGRAM_SUITE_VERSION, None)
+
+    context_name = kh.get_current_context()
+
+    # This is the cluster name according to .kube/config; this is what we care about when upgrading,
+    # not whatever is currently set as the target in installation info.
+    cluster_name: str = get_cluster_name()
+    installation_info = get_installation_info(ignore_non_existing=False)
+    if installation_info is None:
+        ansithemeprint([ANSIThemeStr("Error", "error"),
+                        ANSIThemeStr(": ", "default"),
+                        ANSIThemeStr(f"{CMT_INSTALLATION_INFO_FILE}", "path"),
+                        ANSIThemeStr(" does not exist; ", "default"),
+                        ANSIThemeStr("most likely ", "default")], stderr=True)
+        ansithemeprint([ANSIThemeStr("the cluster was not ", "default"),
+                        ANSIThemeStr("installed using ", "default"),
+                        ANSIThemeStr(f"{about.PROGRAM_SUITE_NAME}", "programname"),
+                        ANSIThemeStr("; aborting.", "default")], stderr=True)
+        sys.exit(errno.ENOENT)
+    installation_info = update_installation_info(installation_target=cluster_name)
+
+    cluster_name = deep_get(installation_info, DictPath("installation_target"))
+
+    if cluster_name not in installation_info:
+        ansithemeprint([ANSIThemeStr("Error", "error"),
+                        ANSIThemeStr(": Installation target ", "default"),
+                        ANSIThemeStr(f"{cluster_name}", "hostname"),
+                        ANSIThemeStr(" could not be", "default")], stderr=True)
+        ansithemeprint([ANSIThemeStr("found in ", "default"),
+                        ANSIThemeStr(f"{CMT_INSTALLATION_INFO_FILE}", "path"),
+                        ANSIThemeStr(".", "default")], stderr=True)
+        ansithemeprint([ANSIThemeStr("Most likely the cluster was not ", "default"),
+                        ANSIThemeStr("installed using ", "default"),
+                        ANSIThemeStr(f"{about.PROGRAM_SUITE_NAME}", "programname"),
+                        ANSIThemeStr("; aborting.", "default")], stderr=True)
+        sys.exit(errno.ENOENT)
+
     if args:
         cni = args[0]
     else:
-        installation_info = get_installation_info()
-        cluster_name = deep_get(installation_info, DictPath("installation_target"))
         cni = deep_get(installation_info, DictPath(f"{cluster_name}#cni"))
         pod_network_cidr = deep_get(installation_info, DictPath(f"{cluster_name}#pod_network_cidr"))
 
@@ -1299,13 +1389,9 @@ def upgrade_cni(options: list[tuple[str, str]], args: list[str]) -> None:
         # If we have a running cluster and we are upgrading by CNI rather than through
         # installation info we need to get the Pod CIDR
         # by some other means; try this. If this fails we give up.
-        if kh is None:
-            kh = kubernetes_helper.KubernetesHelper(about.PROGRAM_SUITE_NAME,
-                                                    about.PROGRAM_SUITE_VERSION, None)
         pod_network_cidr = kh.get_pod_network_cidr()
         if pod_network_cidr is None:
             installation_info = get_installation_info()
-            cluster_name = deep_get(installation_info, DictPath("installation_target"))
             pod_network_cidr = \
                 deep_get(installation_info, DictPath(f"{cluster_name}#pod_network_cidr"))
         if pod_network_cidr is None:
@@ -1313,11 +1399,6 @@ def upgrade_cni(options: list[tuple[str, str]], args: list[str]) -> None:
                             ANSIThemeStr(": Could not identify Pod network CIDR; aborting.",
                                          "default")], stderr=True)
             sys.exit(errno.ENOTSUP)
-
-    if kh is None:
-        kh = kubernetes_helper.KubernetesHelper(about.PROGRAM_SUITE_NAME,
-                                                about.PROGRAM_SUITE_VERSION, None)
-    context_name = kh.get_current_context()
 
     if cni in ("", "<none>", "<unknown>"):
         if not (tmp_cni := kh.identify_cni()):
@@ -3951,12 +4032,12 @@ def check_for_updates(options: list[tuple[str, str]], args: list[str]) -> None:
     for opt, _optarg in options:
         if opt == "--force":
             force = True
-        if opt == "--no-cache-update":
+        elif opt == "--no-cache-update":
             update_pkg_cache = False
             update_upstream_cache = False
-        if opt == "--no-pkg-cache-update":
+        elif opt == "--no-pkg-cache-update":
             update_pkg_cache = False
-        if opt == "--no-upstream-cache-update":
+        elif opt == "--no-upstream-cache-update":
             update_upstream_cache = False
         elif opt == "--verbose":
             verbose = True
@@ -6017,11 +6098,15 @@ def teardown_control_plane(options: list[tuple[str, str]], args: list[str]) -> N
             args ([str]): Arguments to use when executing this action
     """
     confirm: bool = True
+    verbose: bool = False
+    ignore_errors: bool = False
 
-    # We do not need a cluster name for --list-tasks, so check this first of all
-    if "--list-tasks" in (tmp[0] for tmp in options):
-        __list_phases(teardown_control_plane_tasks)
-        sys.exit(0)
+    for opt, optarg in options:
+        if opt == "--cluster-name":
+            cluster_name = optarg
+        if opt == "list-tasks":
+            __list_phases(teardown_control_plane_tasks)
+            sys.exit(0)
 
     if not Path(CMT_INSTALLATION_INFO_FILE).is_file():
         ansithemeprint([ANSIThemeStr("Error", "error"),
@@ -6029,14 +6114,43 @@ def teardown_control_plane(options: list[tuple[str, str]], args: list[str]) -> N
                                      "Aborting.", "default")], stderr=True)
         sys.exit(errno.EINVAL)
 
-    installation_info = get_installation_info()
+    # This is the cluster name according to .kube/config; this is what we care about when upgrading,
+    # not whatever is currently set as the target in installation info.
+    cluster_name: str = get_cluster_name()
+    installation_info = get_installation_info(ignore_non_existing=False)
+    if installation_info is None:
+        ansithemeprint([ANSIThemeStr("Error", "error"),
+                        ANSIThemeStr(": ", "default"),
+                        ANSIThemeStr(f"{CMT_INSTALLATION_INFO_FILE}", "path"),
+                        ANSIThemeStr(" does not exist; ", "default"),
+                        ANSIThemeStr("most likely ", "default")], stderr=True)
+        ansithemeprint([ANSIThemeStr("the cluster was not ", "default"),
+                        ANSIThemeStr("installed using ", "default"),
+                        ANSIThemeStr(f"{about.PROGRAM_SUITE_NAME}", "programname"),
+                        ANSIThemeStr("; aborting.", "default")], stderr=True)
+        sys.exit(errno.ENOENT)
+    installation_info = update_installation_info(installation_target=cluster_name)
+
     cluster_name = deep_get(installation_info, DictPath("installation_target"))
+
+    if cluster_name not in installation_info:
+        ansithemeprint([ANSIThemeStr("Error", "error"),
+                        ANSIThemeStr(": Installation target ", "default"),
+                        ANSIThemeStr(f"{cluster_name}", "hostname"),
+                        ANSIThemeStr(" could not be", "default")], stderr=True)
+        ansithemeprint([ANSIThemeStr("found in ", "default"),
+                        ANSIThemeStr(f"{CMT_INSTALLATION_INFO_FILE}", "path"),
+                        ANSIThemeStr(".", "default")], stderr=True)
+        ansithemeprint([ANSIThemeStr("Most likely the cluster was not ", "default"),
+                        ANSIThemeStr("installed using ", "default"),
+                        ANSIThemeStr(f"{about.PROGRAM_SUITE_NAME}", "programname"),
+                        ANSIThemeStr("; aborting.", "default")], stderr=True)
+        sys.exit(errno.ENOENT)
+
     k8s_distro = deep_get(installation_info, DictPath(f"{cluster_name}#distro"))
     state = deep_get(installation_info, DictPath(f"{cluster_name}#state"))
     phase: str | int = deep_get(installation_info, DictPath(f"{cluster_name}#phase"))
     phase_skiplist = set(deep_get(installation_info, DictPath(f"{cluster_name}#phase_skiplist")))
-    verbose: bool = False
-    ignore_errors: bool = False
 
     if k8s_distro is None or k8s_distro == "<none>":
         ansithemeprint([ANSIThemeStr("Error", "error"),
@@ -6230,33 +6344,34 @@ def upgrade_control_plane(options: list[tuple[str, str]], args: list[str]) -> No
     """
     global kh  # pylint: disable=global-statement
 
-    confirm = True
+    confirm: bool = True
 
     # default options
     update_cache = True
     allow_reinstall = False
     requested_version = None
 
-    # We do not need a cluster name for --list-tasks or --override, so check this first of all
-    if "--list-tasks" in (tmp[0] for tmp in options):
-        __list_phases(upgrade_control_plane_tasks)
-        sys.exit(0)
-    elif "--override" in (tmp[0] for tmp in options):
-        if Path(CMT_INSTALLATION_INFO_FILE).is_file():
-            ansithemeprint([ANSIThemeStr("Warning", "warning"),
-                            ANSIThemeStr(": Overriding ", "default"),
-                            ANSIThemeStr(f"{CMT_INSTALLATION_INFO_FILE}", "path"),
-                            ANSIThemeStr("; this may cause issues.", "default")], stderr=True)
-        else:
-            ansithemeprint([ANSIThemeStr("Note", "note"),
-                            ANSIThemeStr(": ", "default"),
-                            ANSIThemeStr(f"{CMT_INSTALLATION_INFO_FILE}", "path"),
-                            ANSIThemeStr(" does not exist; rebuilding.", "default")])
-        rebuild_installation_info(state="upgrading")
+    for opt, optarg in options:
+        # We do not need a cluster name for --list-tasks or --override, so check this first of all
+        if opt == "--list-tasks":
+            __list_phases(upgrade_control_plane_tasks)
+            sys.exit(0)
+        elif opt == "--override":
+            if Path(CMT_INSTALLATION_INFO_FILE).is_file():
+                ansithemeprint([ANSIThemeStr("Warning", "warning"),
+                                ANSIThemeStr(": Overriding ", "default"),
+                                ANSIThemeStr(f"{CMT_INSTALLATION_INFO_FILE}", "path"),
+                                ANSIThemeStr("; this may cause issues.", "default")], stderr=True)
+            else:
+                ansithemeprint([ANSIThemeStr("Note", "note"),
+                                ANSIThemeStr(": ", "default"),
+                                ANSIThemeStr(f"{CMT_INSTALLATION_INFO_FILE}", "path"),
+                                ANSIThemeStr(" does not exist; rebuilding.", "default")])
+                rebuild_installation_info(state="upgrading")
 
     # This is the cluster name according to .kube/config; this is what we care about when upgrading,
-    # not whatever is currently set as the target in installation info
-    cluster_name = get_cluster_name()
+    # not whatever is currently set as the target in installation info.
+    cluster_name: str = get_cluster_name()
     installation_info = get_installation_info(ignore_non_existing=False)
     if installation_info is None:
         ansithemeprint([ANSIThemeStr("Error", "error"),
