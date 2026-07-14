@@ -8,6 +8,7 @@
 # unit-tests for formatters.py
 
 import builtins
+from datetime import datetime
 import sys
 from typing import Any, cast
 from collections.abc import Callable
@@ -243,6 +244,17 @@ def test_render_markdown(verbose: bool = False) -> tuple[str, bool]:
                 [ThemeStr("└─────────────┴──────────────────┘",
                           ThemeAttr("types", "generic"))]],
              None),
+            # Table with pre-formatted data containing | characters; raw
+            (["|Table With|Preformatted Data|",
+              "|--------|-----|",
+              "|No formatting| `cat foo | grep bar` |"],
+             {"raw": True},
+             [
+                [ThemeStr("|Table With|Preformatted Data|", ThemeAttr("types", "generic"))],
+                [ThemeStr("|--------|-----|", ThemeAttr("types", "generic"))],
+                [ThemeStr("|No formatting| `cat foo | grep bar` |",
+                          ThemeAttr("types", "generic"))]],
+             None),
             # A table header without separator
             ("|Col1|Col2|\n"
              "Not a table",
@@ -314,6 +326,93 @@ def test_render_markdown(verbose: bool = False) -> tuple[str, bool]:
                 [ThemeStr("│data 1  │data 2│", ThemeAttr("types", "generic"))],
                 [ThemeStr("│data 3  │data 4│", ThemeAttr("types", "generic"))],
                 [ThemeStr("└────────┴──────┘", ThemeAttr("types", "generic"))]],
+              None),
+            # Markdown bullets, lists, and checklists
+            (["*Foo",
+              "",
+              "* Foo",
+              "* Bar",
+              "* Baz",
+              "",
+              "* [ ] Unselected",
+              "* [x] Selected"],
+             {},
+             [
+                [ThemeStr("*Foo", ThemeAttr("types", "generic"))],
+                [],
+                [ThemeStr("•", ThemeAttr("types", "genericbullet"), False),
+                 ThemeStr(" Foo", ThemeAttr("types", "generic"), False)],
+                [ThemeStr("•", ThemeAttr("types", "genericbullet"), False),
+                 ThemeStr(" Bar", ThemeAttr("types", "generic"), False)],
+                [ThemeStr("•", ThemeAttr("types", "genericbullet"), False),
+                 ThemeStr(" Baz", ThemeAttr("types", "generic"), False)],
+                [],
+                [ThemeStr("•", ThemeAttr("types", "genericbullet"), False),
+                 ThemeStr(" ", ThemeAttr("types", "generic"), False),
+                 ThemeStr("⬜", ThemeAttr("main", "highlight"), False),
+                 ThemeStr(" Unselected", ThemeAttr("types", "generic"), False)],
+                [ThemeStr("•", ThemeAttr("types", "genericbullet"), False),
+                 ThemeStr(" ", ThemeAttr("types", "generic"), False),
+                 ThemeStr("✅", ThemeAttr("main", "highlight"), False),
+                 ThemeStr(" Selected", ThemeAttr("types", "generic"), False)]],
+             None),
+            # Headers and subheaders
+            (["# H0",
+              "",
+              "## H1",
+              "",
+              "### H2",
+              "",
+              "#### H3"],
+             {},
+             [
+                [ThemeStr("H0", ThemeAttr("types", "markdown_header_1"), False)],
+                [],
+                [ThemeStr("H1", ThemeAttr("types", "markdown_header_2"), False)],
+                [],
+                [ThemeStr("H2", ThemeAttr("types", "markdown_header_3"), False)],
+                [],
+                [ThemeStr("H3", ThemeAttr("types", "markdown_bold"), False)]],
+             None),
+            # ```block quote```
+            (["Something else first",
+              "",
+              "```",
+              "code",
+              "more code",
+              "```"],
+             {},
+             [
+                [ThemeStr("Something else first", ThemeAttr("types", "generic"), False)],
+                [],
+                [ThemeStr("code", ThemeAttr("types", "markdown_code"), False)],
+                [ThemeStr("more code", ThemeAttr("types", "markdown_code"), False)]],
+             None),
+            # block
+            (["> Foo",
+              "> Bar",
+              "> Baz"],
+             {},
+             [
+                [ThemeStr("┃ ", ThemeAttr("main", "highlight"), False),
+                 ThemeStr("Foo", ThemeAttr("types", "markdown_italics"), False)],
+                [ThemeStr("┃ ", ThemeAttr("main", "highlight"), False),
+                 ThemeStr("Bar", ThemeAttr("types", "markdown_italics"), False)],
+                [ThemeStr("┃ ", ThemeAttr("main", "highlight"), False),
+                 ThemeStr("Baz", ThemeAttr("types", "markdown_italics"), False)]],
+             None),
+            # #reference and @mention
+            (["Issue #0123 (fixed by @foo)",
+              "#0124: Another issue"],
+             {},
+             [
+                [ThemeStr("Issue ", ThemeAttr("types", "generic"), False),
+                 ThemeStr("#0123", ThemeAttr("types", "markdown_italics"), False),
+                 ThemeStr(" (fixed by ", ThemeAttr("types", "generic"), False),
+                 ThemeStr("@foo", ThemeAttr("types", "markdown_italics"), False),
+                 ThemeStr(")", ThemeAttr("types", "generic"), False)],
+                [ThemeStr("#0124:", ThemeAttr("types", "markdown_italics"), False),
+                 ThemeStr(" Another issue", ThemeAttr("types", "generic"), False)]],
              None),
         )
 
@@ -322,6 +421,7 @@ def test_render_markdown(verbose: bool = False) -> tuple[str, bool]:
                 indata_quoted = "\n".join(indata)
             else:
                 indata_quoted = indata
+            # This is only used for the output; do not pass it as indata
             indata_quoted = indata_quoted.replace("\n", "\\n")
             try:
                 if (tmp := fun(indata, **options)) != expected_result:
@@ -1194,6 +1294,231 @@ def test_format_crt(verbose: bool = False) -> tuple[str, bool]:
     return message, result
 
 
+def test_format_css(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = formatters.format_css
+
+    if result:
+        # Indata format:
+        # (lines, options, expected_result, expected_exception)
+        testdata: tuple[Any, ...] = (
+            ([
+                "/* Comment */",
+                "selector {",
+                "  property: value",
+                "}"],
+             {},
+             [
+                 [ThemeStr("/* Comment */", ThemeAttr("types", "css_comment"))],
+                 [ThemeStr("selector", ThemeAttr("types", "css_tag")),
+                  ThemeStr(" ", ThemeAttr("types", "generic")),
+                  ThemeStr("{", ThemeAttr("types", "css_punctuation"))],
+                 [ThemeStr("  ", ThemeAttr("types", "generic")),
+                  ThemeStr("property", ThemeAttr("types", "css_value")),
+                  ThemeStr(":", ThemeAttr("types", "css_punctuation")),
+                  ThemeStr(" ", ThemeAttr("types", "generic")),
+                  ThemeStr("value", ThemeAttr("types", "css_value"))],
+                 [ThemeStr("}", ThemeAttr("types", "css_punctuation"))]],
+             None),
+        )
+
+        for indata, options, expected_result, expected_exception in testdata:
+            try:
+                if (tmp := fun(indata, **options)) != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"           input: \"{indata}\"\n" \
+                              "         options:\n" \
+                              f"{yaml_dump(options, base_indent=17)}\n" \
+                              f"          output: {tmp}\n" \
+                              f"        expected: {expected_result}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  f"           input: \"{indata}\"\n" \
+                                  "         options:\n" \
+                                  f"{yaml_dump(options, base_indent=17)}\n" \
+                                  f"       exception: {type(e)}\n" \
+                                  f"        expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"           input: \"{indata}\"\n" \
+                              "         options:\n" \
+                              f"{yaml_dump(options, base_indent=17)}\n" \
+                              f"       exception: {type(e)}\n" \
+                              f"        expected: {expected_result}"
+                    result = False
+                    break
+    return message, result
+
+
+def test_format_diff(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = formatters.format_diff
+
+    if result:
+        # Indata format:
+        # (lines, options, expected_result, expected_exception)
+        testdata: tuple[Any, ...] = (
+            ([
+                "diff --git a/views/Pod.yaml b/views/Pod.yaml",
+                "index f25df4175d43..67c040f46db1 100644",
+                "--- a/views/Pod.yaml",
+                "+++ b/views/Pod.yaml",
+                "@@ -661,11 +661,13 @@ infoview:",
+                "       helptext: \"Show container resources\"",
+                "       title: \"Resources:\"",
+                "       widget: \"windowwidget\"",
+                "-      headers: [\"Request Type:\", \"Limits:\"]",
+                "+      headers: [\"Request Type:\", \"Resource:\"]"],
+             {},
+             [
+                [ThemeStr('diff --git a/views/Pod.yaml b/views/Pod.yaml',
+                          ThemeAttr('logview', 'severity_diffheader'), False)],
+                [ThemeStr('index f25df4175d43..67c040f46db1 100644',
+                          ThemeAttr('logview', 'severity_diffheader'), False)],
+                [ThemeStr('--- a/views/Pod.yaml',
+                          ThemeAttr('logview', 'severity_diffminus'), False)],
+                [ThemeStr('+++ b/views/Pod.yaml',
+                          ThemeAttr('logview', 'severity_diffplus'), False)],
+                [ThemeStr('@@ -661,11 +661,13 @@ infoview:',
+                          ThemeAttr('logview', 'severity_diffatat'), False)],
+                [ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                 ThemeStr('      helptext: "Show container resources"',
+                          ThemeAttr('logview', 'severity_diffsame'), False)],
+                [ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                 ThemeStr('      title: "Resources:"',
+                          ThemeAttr('logview', 'severity_diffsame'), False)],
+                [ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                 ThemeStr('      widget: "windowwidget"',
+                          ThemeAttr('logview', 'severity_diffsame'), False)],
+                [ThemeStr('-      headers: ["Request Type:", "Limits:"]',
+                          ThemeAttr('logview', 'severity_diffminus'), False)],
+                [ThemeStr('+      headers: ["Request Type:", "Resource:"]',
+                          ThemeAttr('logview', 'severity_diffplus'), False)]],
+             None),
+        )
+
+        for indata, options, expected_result, expected_exception in testdata:
+            try:
+                if (tmp := fun(indata, **options)) != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"           input: \"{indata}\"\n" \
+                              "         options:\n" \
+                              f"{yaml_dump(options, base_indent=17)}\n" \
+                              f"          output: {tmp}\n" \
+                              f"        expected: {expected_result}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  f"           input: \"{indata}\"\n" \
+                                  "         options:\n" \
+                                  f"{yaml_dump(options, base_indent=17)}\n" \
+                                  f"       exception: {type(e)}\n" \
+                                  f"        expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"           input: \"{indata}\"\n" \
+                              "         options:\n" \
+                              f"{yaml_dump(options, base_indent=17)}\n" \
+                              f"       exception: {type(e)}\n" \
+                              f"        expected: {expected_result}"
+                    result = False
+                    break
+    return message, result
+
+
+def test_format_dmesg(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = formatters.format_dmesg
+
+    if result:
+        # Indata format:
+        # (lines, options, expected_result, expected_exception)
+        testdata: tuple[Any, ...] = (
+            # pylint: disable-next=line-length
+            (["[    0.000000] Command line: BOOT_IMAGE=/boot/vmlinuz-7.1.3+deb14-amd64 root=/dev/sda2 ro",  # noqa: E501
+              # pylint: disable-next=line-length
+              "[    0.000000] x86/split lock detection: #AC: crashing the kernel on kernel split_locks and warning on user-space split_locks",  # noqa: E501
+              "[145440.611453] usb 3-3.3.2.1: device not accepting address 25, error -71"],
+             {},
+             [
+                [ThemeStr('[    0.000000] ', ThemeAttr('types', 'dmesg_timestamp'), False),
+                 ThemeStr('Command line:', ThemeAttr('types', 'dmesg_keyword'), False),
+                 ThemeStr(' BOOT_IMAGE=/boot/vmlinuz-7.1.3+deb14-amd64 root=/dev/sda2 ro',
+                          ThemeAttr('types', 'dmesg_string'), False)],
+                [ThemeStr('[    0.000000] ', ThemeAttr('types', 'dmesg_timestamp'), False),
+                 ThemeStr('x86/split lock detection:', ThemeAttr('types', 'dmesg_keyword'), False),
+                 # pylint: disable-next=line-length
+                 ThemeStr(' #AC: crashing the kernel on kernel split_locks and warning on user-space split_locks',  # noqa: E501
+                          ThemeAttr('types', 'dmesg_bold'), False)],
+                [ThemeStr('[145440.611453] ', ThemeAttr('types', 'dmesg_timestamp'), False),
+                 ThemeStr('usb 3-3.3.2.1:', ThemeAttr('types', 'dmesg_keyword'), False),
+                 ThemeStr(' device not accepting address 25, error -71',
+                          ThemeAttr('types', 'dmesg_error'), False)]],
+             None),
+        )
+
+        for indata, options, expected_result, expected_exception in testdata:
+            if isinstance(indata, list):
+                indata_quoted = "\n".join(indata)
+            else:
+                indata_quoted = indata
+            indata_quoted = indata_quoted.replace('\n', '\\n')
+            try:
+                if (tmp := fun(indata, **options)) != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"           input: \"{indata_quoted}\"\n" \
+                              "         options:\n" \
+                              f"{yaml_dump(options, base_indent=17)}\n" \
+                              f"          output: {tmp}\n" \
+                              f"        expected: {expected_result}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  f"           input: \"{indata_quoted}\"\n" \
+                                  "         options:\n" \
+                                  f"{yaml_dump(options, base_indent=17)}\n" \
+                                  f"       exception: {type(e)}\n" \
+                                  f"        expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"           input: \"{indata_quoted}\"\n" \
+                              "         options:\n" \
+                              f"{yaml_dump(options, base_indent=17)}\n" \
+                              f"       exception: {type(e)}\n" \
+                              f"        expected: {expected_result}"
+                    result = False
+                    break
+    return message, result
+
+
 def test_format_ini(verbose: bool = False) -> tuple[str, bool]:
     message = ""
     result = True
@@ -1260,6 +1585,352 @@ def test_format_ini(verbose: bool = False) -> tuple[str, bool]:
             else:
                 indata_quoted = indata
             indata_quoted = indata_quoted.replace('\n', '\\n')
+            try:
+                if (tmp := fun(indata, **options)) != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"           input: \"{indata_quoted}\"\n" \
+                              "         options:\n" \
+                              f"{yaml_dump(options, base_indent=17)}\n" \
+                              f"          output: {tmp}\n" \
+                              f"        expected: {expected_result}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  f"           input: \"{indata_quoted}\"\n" \
+                                  "         options:\n" \
+                                  f"{yaml_dump(options, base_indent=17)}\n" \
+                                  f"       exception: {type(e)}\n" \
+                                  f"        expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"           input: \"{indata_quoted}\"\n" \
+                              "         options:\n" \
+                              f"{yaml_dump(options, base_indent=17)}\n" \
+                              f"       exception: {type(e)}\n" \
+                              f"        expected: {expected_result}"
+                    result = False
+                    break
+    return message, result
+
+
+def test_format_key_value(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = formatters.format_key_value
+
+    if result:
+        # Indata format:
+        # (lines, options, expected_result, expected_exception)
+        testdata: tuple[Any, ...] = (
+            (["driver:",
+              "  string: xe",
+              "family:",
+              "  string: Arc Pro B-Series",
+              "health:",
+              "  string: Healthy",
+              "model:",
+              "  string: B50",
+              "pciAddress:",
+              "  string: '0000:03:00.0'",
+              "pciId:",
+              "  string: '0xe212'",
+              "pciRoot:",
+              "  string: '00'",
+              "resource.kubernetes.io/pciBusID:",
+              "  string: '0000:03:00.0'",
+              "resource.kubernetes.io/pcieRoot:",
+              "  string: pci0000:00",
+              "sriov:",
+              "  bool: true",
+              "type:",
+              "  string: gpu"],
+             {
+                "typed": True,
+                "sort": True,
+                "override_types": {
+                    "pciAddress": "hex",
+                    "pciId": "hex",
+                    "pciRoot": "hex",
+                },
+                "value_mappings": {
+                    "health": {
+                        "Healthy": {
+                            "context": "main",
+                            "type": "status_ok"
+                        },
+                        "Unhealthy": {
+                            "context": "main",
+                            "type": "status_not_ok"
+                        }
+                    }
+                },
+                "separator": {
+                  "type": "id_prefix"
+                }
+             },
+             [
+                [ThemeStr('driver', ThemeAttr('types', 'key'), False),
+                 ThemeRef('separators', 'id_prefix', False),
+                 ThemeStr('xe', ThemeAttr('types', 'generic'), False)],
+                [ThemeStr('family', ThemeAttr('types', 'key'), False),
+                 ThemeRef('separators', 'id_prefix', False),
+                 ThemeStr('Arc Pro B-Series', ThemeAttr('types', 'generic'), False)],
+                [ThemeStr('health', ThemeAttr('types', 'key'), False),
+                 ThemeRef('separators', 'id_prefix', False),
+                 ThemeStr('Healthy', ThemeAttr('main', 'status_ok'), False)],
+                [ThemeStr('model', ThemeAttr('types', 'key'), False),
+                 ThemeRef('separators', 'id_prefix', False),
+                 ThemeStr('B50', ThemeAttr('types', 'generic'), False)],
+                [ThemeStr('pciAddress', ThemeAttr('types', 'key'), False),
+                 ThemeRef('separators', 'id_prefix', False),
+                 ThemeStr('0000', ThemeAttr('types', 'numerical'), False),
+                 ThemeStr(':', ThemeAttr('types', 'unit'), False),
+                 ThemeStr('03', ThemeAttr('types', 'numerical'), False),
+                 ThemeStr(':', ThemeAttr('types', 'unit'), False),
+                 ThemeStr('00', ThemeAttr('types', 'numerical'), False),
+                 ThemeStr('.', ThemeAttr('types', 'unit'), False),
+                 ThemeStr('0', ThemeAttr('types', 'numerical'), False)],
+                [ThemeStr('pciId', ThemeAttr('types', 'key'), False),
+                 ThemeRef('separators', 'id_prefix', False),
+                 ThemeStr('0', ThemeAttr('types', 'numerical'), False),
+                 ThemeStr('x', ThemeAttr('types', 'unit'), False),
+                 ThemeStr('e212', ThemeAttr('types', 'numerical'), False)],
+                [ThemeStr('pciRoot', ThemeAttr('types', 'key'), False),
+                 ThemeRef('separators', 'id_prefix', False),
+                 ThemeStr('00', ThemeAttr('types', 'numerical'), False)],
+                [ThemeStr('resource.kubernetes.io/pciBusID', ThemeAttr('types', 'key'), False),
+                 ThemeRef('separators', 'id_prefix', False),
+                 ThemeStr('0000:03:00.0', ThemeAttr('types', 'generic'), False)],
+                [ThemeStr('resource.kubernetes.io/pcieRoot', ThemeAttr('types', 'key'), False),
+                 ThemeRef('separators', 'id_prefix', False),
+                 ThemeStr('pci0000:00', ThemeAttr('types', 'generic'), False)],
+                [ThemeStr('sriov', ThemeAttr('types', 'key'), False),
+                 ThemeRef('separators', 'id_prefix', False),
+                 ThemeStr('True', ThemeAttr('types', 'generic'), False)],
+                [ThemeStr('type', ThemeAttr('types', 'key'), False),
+                 ThemeRef('separators', 'id_prefix', False),
+                 ThemeStr('gpu', ThemeAttr('types', 'generic'), False)]],
+             None),
+            ("driver:\n"
+             "  string: xe\n"
+             "family:\n"
+             "  string: Arc Pro B-Series\n"
+             "health:\n"
+             "  string: Healthy\n"
+             "model:\n"
+             "  string: B50\n"
+             "pciAddress:\n"
+             "  string: '0000:03:00.0'\n"
+             "pciId:\n"
+             "  string: '0xe212'\n"
+             "pciRoot:\n"
+             "  string: '00'\n"
+             "resource.kubernetes.io/pciBusID:\n"
+             "  string: '0000:03:00.0'\n"
+             "resource.kubernetes.io/pcieRoot:\n"
+             "  string: pci0000:00\n"
+             "sriov:\n"
+             "  bool: true\n"
+             "type:\n"
+             "  string: gpu",
+             {
+                "typed": True,
+                "sort": True,
+                "override_types": {
+                    "pciAddress": "hex",
+                    "pciId": "hex",
+                    "pciRoot": "hex",
+                },
+                "value_mappings": {
+                    "health": {
+                        "Healthy": {
+                            "context": "main",
+                            "type": "status_ok"
+                        },
+                        "Unhealthy": {
+                            "context": "main",
+                            "type": "status_not_ok"
+                        }
+                    }
+                },
+                "separator": {
+                  "type": "id_prefix"
+                }
+             },
+             [
+                [ThemeStr('driver', ThemeAttr('types', 'key'), False),
+                 ThemeRef('separators', 'id_prefix', False),
+                 ThemeStr('xe', ThemeAttr('types', 'generic'), False)],
+                [ThemeStr('family', ThemeAttr('types', 'key'), False),
+                 ThemeRef('separators', 'id_prefix', False),
+                 ThemeStr('Arc Pro B-Series', ThemeAttr('types', 'generic'), False)],
+                [ThemeStr('health', ThemeAttr('types', 'key'), False),
+                 ThemeRef('separators', 'id_prefix', False),
+                 ThemeStr('Healthy', ThemeAttr('main', 'status_ok'), False)],
+                [ThemeStr('model', ThemeAttr('types', 'key'), False),
+                 ThemeRef('separators', 'id_prefix', False),
+                 ThemeStr('B50', ThemeAttr('types', 'generic'), False)],
+                [ThemeStr('pciAddress', ThemeAttr('types', 'key'), False),
+                 ThemeRef('separators', 'id_prefix', False),
+                 ThemeStr('0000', ThemeAttr('types', 'numerical'), False),
+                 ThemeStr(':', ThemeAttr('types', 'unit'), False),
+                 ThemeStr('03', ThemeAttr('types', 'numerical'), False),
+                 ThemeStr(':', ThemeAttr('types', 'unit'), False),
+                 ThemeStr('00', ThemeAttr('types', 'numerical'), False),
+                 ThemeStr('.', ThemeAttr('types', 'unit'), False),
+                 ThemeStr('0', ThemeAttr('types', 'numerical'), False)],
+                [ThemeStr('pciId', ThemeAttr('types', 'key'), False),
+                 ThemeRef('separators', 'id_prefix', False),
+                 ThemeStr('0', ThemeAttr('types', 'numerical'), False),
+                 ThemeStr('x', ThemeAttr('types', 'unit'), False),
+                 ThemeStr('e212', ThemeAttr('types', 'numerical'), False)],
+                [ThemeStr('pciRoot', ThemeAttr('types', 'key'), False),
+                 ThemeRef('separators', 'id_prefix', False),
+                 ThemeStr('00', ThemeAttr('types', 'numerical'), False)],
+                [ThemeStr('resource.kubernetes.io/pciBusID', ThemeAttr('types', 'key'), False),
+                 ThemeRef('separators', 'id_prefix', False),
+                 ThemeStr('0000:03:00.0', ThemeAttr('types', 'generic'), False)],
+                [ThemeStr('resource.kubernetes.io/pcieRoot', ThemeAttr('types', 'key'), False),
+                 ThemeRef('separators', 'id_prefix', False),
+                 ThemeStr('pci0000:00', ThemeAttr('types', 'generic'), False)],
+                [ThemeStr('sriov', ThemeAttr('types', 'key'), False),
+                 ThemeRef('separators', 'id_prefix', False),
+                 ThemeStr('True', ThemeAttr('types', 'generic'), False)],
+                [ThemeStr('type', ThemeAttr('types', 'key'), False),
+                 ThemeRef('separators', 'id_prefix', False),
+                 ThemeStr('gpu', ThemeAttr('types', 'generic'), False)]],
+             None),
+            ({
+                "family": {
+                    "string": "Arc Pro B-Series",
+                },
+                "driver": {
+                    "string": "xe",
+                }
+             },
+             {
+                "typed": True,
+                "sort": False,
+                "separator": {
+                  "type": "id_prefix"
+                }
+             },
+             [
+                [ThemeStr('family', ThemeAttr('types', 'key'), False),
+                 ThemeRef('separators', 'id_prefix', False),
+                 ThemeStr('Arc Pro B-Series', ThemeAttr('types', 'generic'), False)],
+                [ThemeStr('driver', ThemeAttr('types', 'key'), False),
+                 ThemeRef('separators', 'id_prefix', False),
+                 ThemeStr('xe', ThemeAttr('types', 'generic'), False)]],
+             None),
+            ({
+                "family": {
+                    "string": "Arc Pro B-Series",
+                },
+                "driver": {
+                    "string": "xe",
+                }
+             },
+             {
+                "typed": True,
+                "sort": True,
+                "separator": {
+                  "type": "id_prefix"
+                }
+             },
+             [
+                [ThemeStr('driver', ThemeAttr('types', 'key'), False),
+                 ThemeRef('separators', 'id_prefix', False),
+                 ThemeStr('xe', ThemeAttr('types', 'generic'), False)],
+                [ThemeStr('family', ThemeAttr('types', 'key'), False),
+                 ThemeRef('separators', 'id_prefix', False),
+                 ThemeStr('Arc Pro B-Series', ThemeAttr('types', 'generic'), False)]],
+             None),
+            ({
+                "age": {
+                    "age": 12,
+                },
+                "bool": {
+                    "bool": True,
+                },
+                "bool": {
+                    "boolean": False,
+                },
+                "size": {
+                    "int": "400k",
+                },
+                "timestamp": {
+                    "timestamp": datetime(2023, 5, 6, 16, 2, 39, 12047),
+                },
+             },
+             {
+                "typed": True,
+                "sort": True,
+                "separator": {
+                  "type": "id_prefix"
+                }
+             },
+             [
+                [ThemeStr('age', ThemeAttr('types', 'key'), False),
+                 ThemeRef('separators', 'id_prefix', False),
+                 ThemeStr('12', ThemeAttr('types', 'age'), False)],
+                [ThemeStr('bool', ThemeAttr('types', 'key'), False),
+                 ThemeRef('separators', 'id_prefix', False),
+                 ThemeStr('False', ThemeAttr('types', 'generic'), False)],
+                [ThemeStr('size', ThemeAttr('types', 'key'), False),
+                 ThemeRef('separators', 'id_prefix', False),
+                 ThemeStr('400', ThemeAttr('types', 'numerical'), False),
+                 ThemeStr('k', ThemeAttr('types', 'unit'), False)],
+                [ThemeStr('timestamp', ThemeAttr('types', 'key'), False),
+                 ThemeRef('separators', 'id_prefix', False),
+                 ThemeStr('2023', ThemeAttr('types', 'numerical'), False),
+                 ThemeStr('-', ThemeAttr('types', 'unit'), False),
+                 ThemeStr('05', ThemeAttr('types', 'numerical'), False),
+                 ThemeStr('-', ThemeAttr('types', 'unit'), False),
+                 ThemeStr('06', ThemeAttr('types', 'numerical'), False),
+                 ThemeStr(' ', ThemeAttr('types', 'unit'), False),
+                 ThemeStr('16', ThemeAttr('types', 'numerical'), False),
+                 ThemeStr(':', ThemeAttr('types', 'unit'), False),
+                 ThemeStr('02', ThemeAttr('types', 'numerical'), False),
+                 ThemeStr(':', ThemeAttr('types', 'unit'), False),
+                 ThemeStr('39', ThemeAttr('types', 'numerical'), False)]],
+             None),
+            ({
+                "family": "Arc Pro B-Series",
+                "driver": "xe",
+             },
+             {
+                "typed": False,
+                "sort": True,
+                "separator": {
+                  "type": "id_prefix"
+                }
+             },
+             [
+                [ThemeStr('driver', ThemeAttr('types', 'key'), False),
+                 ThemeRef('separators', 'id_prefix', False),
+                 ThemeStr('xe', ThemeAttr('types', 'generic'), False)],
+                [ThemeStr('family', ThemeAttr('types', 'key'), False),
+                 ThemeRef('separators', 'id_prefix', False),
+                 ThemeStr('Arc Pro B-Series', ThemeAttr('types', 'generic'), False)]],
+             None),
+        )
+
+        for indata, options, expected_result, expected_exception in testdata:
+            if isinstance(indata, list):
+                indata_quoted = "\n".join(indata)
+            else:
+                indata_quoted = indata
+            if isinstance(indata_quoted, str):
+                indata_quoted = indata_quoted.replace('\n', '\\n')
             try:
                 if (tmp := fun(indata, **options)) != expected_result:
                     message = f"{fun.__name__}() did not yield expected result:\n" \
@@ -2919,8 +3590,24 @@ tests: dict[tuple[str, ...], dict[str, Any]] = {
         "callable": test_format_crt,
         "result": None,
     },
+    ("format_css",): {
+        "callable": test_format_css,
+        "result": None,
+    },
+    ("format_diff",): {
+        "callable": test_format_diff,
+        "result": None,
+    },
+    ("format_dmesg",): {
+        "callable": test_format_dmesg,
+        "result": None,
+    },
     ("format_ini",): {
         "callable": test_format_ini,
+        "result": None,
+    },
+    ("format_key_value",): {
+        "callable": test_format_key_value,
         "result": None,
     },
     ("format_known_hosts",): {

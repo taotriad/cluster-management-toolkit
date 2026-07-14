@@ -2357,8 +2357,7 @@ def markdown_renderer(ttype: Any, value: str, **kwargs: Any) \
                     new_value = f"┃{x[1:]}"
             elif x == "\n> ":
                 # Markdown alert or Quote
-                if x.startswith("\n>"):
-                    new_value = f"\n┃{x[2:]}"
+                new_value = f"\n┃{x[2:]}"
             elif x == "[ ]":
                 new_value = x.replace("[ ]", "⬜")
             elif x == "[x]":
@@ -3071,9 +3070,11 @@ def format_key_value(lines: dict[str, Any], **kwargs: Any) -> list[list[ThemeRef
     key[:type]:value formatter; returns the text with syntax highlighting for key:value data.
 
         Parameters:
-            lines (list[str]): A list of strings
+            lines (list[str]): A list of strings representing a YAML-dump
             *or*
-            lines (str): A string with newlines that should be split
+            lines (str): A string with newlines that should be split representing a YAML-dump
+            *or*
+            lines (dict[str, Any]): A dict
             **kwargs (dict[str, Any]): Keyword arguments
                 separator (dict[str, str]): The type of separator to use
                 sort (bool): Should the data be sorted?
@@ -3093,6 +3094,11 @@ def format_key_value(lines: dict[str, Any], **kwargs: Any) -> list[list[ThemeRef
     selected: bool = False
 
     dumps: list[list[ThemeRef | ThemeStr]] = []
+
+    if isinstance(lines, list):
+        lines = "\n".join(lines)
+    if isinstance(lines, str):
+        lines = yaml.safe_load(lines)
 
     if sort:
         lines = dict(natsorted(lines.items()))
