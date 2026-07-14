@@ -1575,11 +1575,11 @@ def test_get_list_fields(verbose: bool = False) -> tuple[str, bool]:
                     "fields": [
                         "name",
                         {
-                            "name": ["configMap", "downwardAPI", "projected"],
+                            "path": ["configMap", "downwardAPI", "projected"],
                             "value": "key",
                         },
                         {
-                            "name": ["configMap", "downwardAPI", "projected"],
+                            "path": ["configMap", "downwardAPI", "projected"],
                         },
                     ],
                 },
