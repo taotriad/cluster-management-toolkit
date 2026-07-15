@@ -414,6 +414,19 @@ def test_render_markdown(verbose: bool = False) -> tuple[str, bool]:
                 [ThemeStr("#0124:", ThemeAttr("types", "markdown_italics"), False),
                  ThemeStr(" Another issue", ThemeAttr("types", "generic"), False)]],
              None),
+            # Numbered list
+            (["1. Foo",
+              "1. Bar",
+              "1. Baz"],
+             {},
+             [
+                [ThemeStr('1.', ThemeAttr('main', 'numbered_index'), False),
+                 ThemeStr(' Foo', ThemeAttr('types', 'generic'), False)],
+                [ThemeStr('2.', ThemeAttr('main', 'numbered_index'), False),
+                 ThemeStr(' Bar', ThemeAttr('types', 'generic'), False)],
+                [ThemeStr('3.', ThemeAttr('main', 'numbered_index'), False),
+                 ThemeStr(' Baz', ThemeAttr('types', 'generic'), False)]],
+             None),
         )
 
         for indata, options, expected_result, expected_exception in testdata:
@@ -477,6 +490,65 @@ def test_format_binary(verbose: bool = False) -> tuple[str, bool]:
                   f"           input: <binary>\n" \
                   f"       exception: {type(e)}"
         result = False
+    return message, result
+
+
+def test_format_none(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = formatters.format_none
+
+    if result:
+        # Indata format:
+        # (lines, options, expected_result, expected_exception)
+        testdata: tuple[Any, ...] = (
+            ("Not reformatted",
+             {},
+             [
+                [ThemeStr("Not reformatted", ThemeAttr("types", "generic"))]],
+             None),
+            (["Not reformatted"],
+             {},
+             [
+                [ThemeStr("Not reformatted", ThemeAttr("types", "generic"))]],
+             None),
+        )
+
+        for indata, options, expected_result, expected_exception in testdata:
+            try:
+                if (tmp := fun(indata, **options)) != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"           input: \"{indata}\"\n" \
+                              "         options:\n" \
+                              f"{yaml_dump(options, base_indent=17)}\n" \
+                              "          output:\n" \
+                              f"{themearray_to_string(tmp)}\n" \
+                              f"        expected: {expected_result}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  f"           input: \"{indata}\"\n" \
+                                  "         options:\n" \
+                                  f"{yaml_dump(options, base_indent=17)}\n" \
+                                  f"       exception: {type(e)}\n" \
+                                  f"        expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"           input: \"{indata}\"\n" \
+                              "         options:\n" \
+                              f"{yaml_dump(options, base_indent=17)}\n" \
+                              f"       exception: {type(e)}\n" \
+                              f"        expected: {expected_result}"
+                    result = False
+                    break
     return message, result
 
 
@@ -1519,6 +1591,639 @@ def test_format_dmesg(verbose: bool = False) -> tuple[str, bool]:
     return message, result
 
 
+def test_format_docker(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = formatters.format_docker
+
+    if result:
+        # Indata format:
+        # (lines, options, expected_result, expected_exception)
+        testdata: tuple[Any, ...] = (
+            # pylint: disable-next=line-length
+            (["# A comment",
+              "ARG GOLANG_VERSION=1.21",
+              "FROM golang:${GOLANG_VERSION} as build",
+              "ARG LOCAL_LICENSES",
+              "WORKDIR /build",
+              "COPY . .",
+              "RUN make build && \\",
+              "mkdir -p /install_root && \\",
+              "if [ -z \"$LOCAL_LICENSES\" ]; then \\",
+              "    make licenses; \\",
+              "fi && \\",
+              "cp -r licenses /install_root/ && \\",
+              "cp bin/* /install_root",
+              "LABEL description='A Dockerfile example'"],
+             {},
+             [
+                [ThemeStr('# A comment', ThemeAttr('types', 'docker_comment'), False)],
+                [ThemeStr('ARG', ThemeAttr('types', 'docker_keyword'), False),
+                 ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                 ThemeStr('GOLANG_VERSION', ThemeAttr('types', 'docker_variable'), False),
+                 ThemeStr('=', ThemeAttr('types', 'docker_operator'), False),
+                 ThemeStr('1', ThemeAttr('types', 'docker_value'), False),
+                 ThemeStr('.21', ThemeAttr('types', 'docker_string'), False)],
+                [ThemeStr('FROM', ThemeAttr('types', 'docker_keyword'), False),
+                 ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                 ThemeStr('golang:${GOLANG_VERSION}', ThemeAttr('types', 'docker_interpol'), False),
+                 ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                 ThemeStr('as', ThemeAttr('types', 'docker_keyword'), False),
+                 ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                 ThemeStr('build', ThemeAttr('types', 'docker_interpol'), False)],
+                [ThemeStr('ARG', ThemeAttr('types', 'docker_keyword'), False),
+                 ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                 ThemeStr('LOCAL_LICENSES', ThemeAttr('types', 'docker_string'), False)],
+                [ThemeStr('WORKDIR', ThemeAttr('types', 'docker_keyword'), False),
+                 ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                 ThemeStr('/build', ThemeAttr('types', 'docker_interpol'), False)],
+                [ThemeStr('COPY', ThemeAttr('types', 'docker_keyword'), False),
+                 ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                 ThemeStr('.', ThemeAttr('types', 'docker_string'), False),
+                 ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                 ThemeStr('.', ThemeAttr('types', 'docker_string'), False)],
+                [ThemeStr('RUN', ThemeAttr('types', 'docker_keyword'), False),
+                 ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                 ThemeStr('make', ThemeAttr('types', 'docker_string'), False),
+                 ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                 ThemeStr('build', ThemeAttr('types', 'docker_string'), False),
+                 ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                 ThemeStr('&&', ThemeAttr('types', 'docker_operator'), False),
+                 ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                 ThemeStr('\\', ThemeAttr('types', 'docker_escape'), False)],
+                [ThemeStr('mkdir', ThemeAttr('types', 'docker_string'), False),
+                 ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                 ThemeStr('-p', ThemeAttr('types', 'docker_string'), False),
+                 ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                 ThemeStr('/install_root', ThemeAttr('types', 'docker_string'), False),
+                 ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                 ThemeStr('&&', ThemeAttr('types', 'docker_operator'), False),
+                 ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                 ThemeStr('\\', ThemeAttr('types', 'docker_escape'), False)],
+                [ThemeStr('if', ThemeAttr('types', 'docker_keyword'), False),
+                 ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                 ThemeStr('[', ThemeAttr('types', 'docker_operator'), False),
+                 ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                 ThemeStr('-z', ThemeAttr('types', 'docker_string'), False),
+                 ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                 ThemeStr('"', ThemeAttr('types', 'docker_value'), False),
+                 ThemeStr('$LOCAL_LICENSES', ThemeAttr('types', 'docker_variable'), False),
+                 ThemeStr('"', ThemeAttr('types', 'docker_value'), False),
+                 ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                 ThemeStr(']', ThemeAttr('types', 'docker_operator'), False),
+                 ThemeStr(';', ThemeAttr('types', 'docker_punctuation'), False),
+                 ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                 ThemeStr('then', ThemeAttr('types', 'docker_keyword'), False),
+                 ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                 ThemeStr('\\', ThemeAttr('types', 'docker_escape'), False)],
+                [ThemeStr('    ', ThemeAttr('types', 'generic'), False),
+                 ThemeStr('make', ThemeAttr('types', 'docker_string'), False),
+                 ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                 ThemeStr('licenses', ThemeAttr('types', 'docker_string'), False),
+                 ThemeStr(';', ThemeAttr('types', 'docker_punctuation'), False),
+                 ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                 ThemeStr('\\', ThemeAttr('types', 'docker_escape'), False)],
+                [ThemeStr('fi', ThemeAttr('types', 'docker_keyword'), False),
+                 ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                 ThemeStr('&&', ThemeAttr('types', 'docker_operator'), False),
+                 ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                 ThemeStr('\\', ThemeAttr('types', 'docker_escape'), False)],
+                [ThemeStr('cp', ThemeAttr('types', 'docker_string'), False),
+                 ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                 ThemeStr('-r', ThemeAttr('types', 'docker_string'), False),
+                 ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                 ThemeStr('licenses', ThemeAttr('types', 'docker_string'), False),
+                 ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                 ThemeStr('/install_root/', ThemeAttr('types', 'docker_string'), False),
+                 ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                 ThemeStr('&&', ThemeAttr('types', 'docker_operator'), False),
+                 ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                 ThemeStr('\\', ThemeAttr('types', 'docker_escape'), False)],
+                [ThemeStr('cp', ThemeAttr('types', 'docker_string'), False),
+                 ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                 ThemeStr('bin/*', ThemeAttr('types', 'docker_string'), False),
+                 ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                 ThemeStr('/install_root', ThemeAttr('types', 'docker_string'), False)],
+                [ThemeStr('LABEL', ThemeAttr('types', 'docker_keyword'), False),
+                 ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                 ThemeStr('description', ThemeAttr('types', 'docker_variable'), False),
+                 ThemeStr('=', ThemeAttr('types', 'docker_operator'), False),
+                 ThemeStr("'A Dockerfile example'", ThemeAttr('types', 'docker_value'), False)]],
+             None),
+        )
+
+        for indata, options, expected_result, expected_exception in testdata:
+            if isinstance(indata, list):
+                indata_quoted = "\n".join(indata)
+            else:
+                indata_quoted = indata
+            indata_quoted = indata_quoted.replace('\n', '\\n')
+            try:
+                if (tmp := fun(indata, **options)) != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"           input: \"{indata_quoted}\"\n" \
+                              "         options:\n" \
+                              f"{yaml_dump(options, base_indent=17)}\n" \
+                              f"          output: {tmp}\n" \
+                              f"        expected: {expected_result}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  f"           input: \"{indata_quoted}\"\n" \
+                                  "         options:\n" \
+                                  f"{yaml_dump(options, base_indent=17)}\n" \
+                                  f"       exception: {type(e)}\n" \
+                                  f"        expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"           input: \"{indata_quoted}\"\n" \
+                              "         options:\n" \
+                              f"{yaml_dump(options, base_indent=17)}\n" \
+                              f"       exception: {type(e)}\n" \
+                              f"        expected: {expected_result}"
+                    result = False
+                    break
+    return message, result
+
+
+def test_format_fluentbit(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = formatters.format_fluentbit
+
+    if result:
+        # Indata format:
+        # (lines, options, expected_result, expected_exception)
+        testdata: tuple[Any, ...] = (
+            (["@INCLUDE somefile.conf",
+              "[SERVICE]",
+              "Flush     5",
+              "Daemon    off",
+              "Log_Level debug",
+              "",
+              "[INPUT]",
+              "Name  cpu",
+              "     Tag   my_cpu",
+              "",
+              "     [OUTPUT]",
+              "     Name  stdout",
+              "     Match my*cpu"],
+             {},
+             [
+                [ThemeStr('', ThemeAttr('types', 'generic'), False),
+                 ThemeStr('@INCLUDE', ThemeAttr('types', 'ini_key'), False),
+                 ThemeStr(' ', ThemeAttr('types', 'ini_separator'), False),
+                 ThemeStr('somefile.conf', ThemeAttr('types', 'ini_value'), False)],
+                [ThemeStr('[SERVICE]', ThemeAttr('types', 'ini_section'), False)],
+                [ThemeStr('', ThemeAttr('types', 'generic'), False),
+                 ThemeStr('Flush', ThemeAttr('types', 'ini_key'), False),
+                 ThemeStr('     ', ThemeAttr('types', 'ini_separator'), False),
+                 ThemeStr('5', ThemeAttr('types', 'ini_value'), False)],
+                [ThemeStr('', ThemeAttr('types', 'generic'), False),
+                 ThemeStr('Daemon', ThemeAttr('types', 'ini_key'), False),
+                 ThemeStr('    ', ThemeAttr('types', 'ini_separator'), False),
+                 ThemeStr('off', ThemeAttr('types', 'ini_value'), False)],
+                [ThemeStr('', ThemeAttr('types', 'generic'), False),
+                 ThemeStr('Log_Level', ThemeAttr('types', 'ini_key'), False),
+                 ThemeStr(' ', ThemeAttr('types', 'ini_separator'), False),
+                 ThemeStr('debug', ThemeAttr('types', 'ini_value'), False)],
+                [ThemeStr('', ThemeAttr('types', 'generic'), False)],
+                [ThemeStr('[INPUT]', ThemeAttr('types', 'ini_section'), False)],
+                [ThemeStr('', ThemeAttr('types', 'generic'), False),
+                 ThemeStr('Name', ThemeAttr('types', 'ini_key'), False),
+                 ThemeStr('  ', ThemeAttr('types', 'ini_separator'), False),
+                 ThemeStr('cpu', ThemeAttr('types', 'ini_value'), False)],
+                [ThemeStr('     ', ThemeAttr('types', 'generic'), False),
+                 ThemeStr('Tag', ThemeAttr('types', 'ini_key'), False),
+                 ThemeStr('   ', ThemeAttr('types', 'ini_separator'), False),
+                 ThemeStr('my_cpu', ThemeAttr('types', 'ini_value'), False)],
+                [ThemeStr('', ThemeAttr('types', 'generic'), False)],
+                [ThemeStr('     [OUTPUT]', ThemeAttr('types', 'ini_section'), False)],
+                [ThemeStr('     ', ThemeAttr('types', 'generic'), False),
+                 ThemeStr('Name', ThemeAttr('types', 'ini_key'), False),
+                 ThemeStr('  ', ThemeAttr('types', 'ini_separator'), False),
+                 ThemeStr('stdout', ThemeAttr('types', 'ini_value'), False)],
+                [ThemeStr('     ', ThemeAttr('types', 'generic'), False),
+                 ThemeStr('Match', ThemeAttr('types', 'ini_key'), False),
+                 ThemeStr(' ', ThemeAttr('types', 'ini_separator'), False),
+                 ThemeStr('my*cpu', ThemeAttr('types', 'ini_value'), False)]],
+             None),
+            (["@INCLUDE somefile.conf",
+              "[SERVICE]",
+              "Flush     5",
+              "Daemon    off",
+              "Log_Level debug",
+              "",
+              "[INPUT]",
+              "Name  cpu",
+              "     Tag   my_cpu",
+              "",
+              "     [OUTPUT]",
+              "     Name  stdout",
+              "     Match my*cpu"],
+             {"raw": True},
+             [
+                [ThemeStr('@INCLUDE somefile.conf', ThemeAttr('types', 'generic'), False)],
+                [ThemeStr('[SERVICE]', ThemeAttr('types', 'generic'), False)],
+                [ThemeStr('Flush     5', ThemeAttr('types', 'generic'), False)],
+                [ThemeStr('Daemon    off', ThemeAttr('types', 'generic'), False)],
+                [ThemeStr('Log_Level debug', ThemeAttr('types', 'generic'), False)],
+                [ThemeStr('', ThemeAttr('types', 'generic'), False)],
+                [ThemeStr('[INPUT]', ThemeAttr('types', 'generic'), False)],
+                [ThemeStr('Name  cpu', ThemeAttr('types', 'generic'), False)],
+                [ThemeStr('     Tag   my_cpu', ThemeAttr('types', 'generic'), False)],
+                [ThemeStr('', ThemeAttr('types', 'generic'), False)],
+                [ThemeStr('     [OUTPUT]', ThemeAttr('types', 'generic'), False)],
+                [ThemeStr('     Name  stdout', ThemeAttr('types', 'generic'), False)],
+                [ThemeStr('     Match my*cpu', ThemeAttr('types', 'generic'), False)]],
+             None),
+            ("# A comment\n"
+             "@INCLUDE somefile.conf\n"
+             "[SERVICE]\n"
+             "Flush     5\n"
+             "Daemon    off\n"
+             "Log_Level debug\n"
+             "\n"
+             "[INPUT]\n"
+             "Name  cpu\n"
+             "     Tag   my_cpu\n"
+             "\n"
+             "     [OUTPUT]\n"
+             "     Name  stdout\n"
+             "     Match my*cpu\n",
+             {},
+             [
+                [ThemeStr('# A comment', ThemeAttr('types', 'ini_comment'), False)],
+                [ThemeStr('', ThemeAttr('types', 'generic'), False),
+                 ThemeStr('@INCLUDE', ThemeAttr('types', 'ini_key'), False),
+                 ThemeStr(' ', ThemeAttr('types', 'ini_separator'), False),
+                 ThemeStr('somefile.conf', ThemeAttr('types', 'ini_value'), False)],
+                [ThemeStr('[SERVICE]', ThemeAttr('types', 'ini_section'), False)],
+                [ThemeStr('', ThemeAttr('types', 'generic'), False),
+                 ThemeStr('Flush', ThemeAttr('types', 'ini_key'), False),
+                 ThemeStr('     ', ThemeAttr('types', 'ini_separator'), False),
+                 ThemeStr('5', ThemeAttr('types', 'ini_value'), False)],
+                [ThemeStr('', ThemeAttr('types', 'generic'), False),
+                 ThemeStr('Daemon', ThemeAttr('types', 'ini_key'), False),
+                 ThemeStr('    ', ThemeAttr('types', 'ini_separator'), False),
+                 ThemeStr('off', ThemeAttr('types', 'ini_value'), False)],
+                [ThemeStr('', ThemeAttr('types', 'generic'), False),
+                 ThemeStr('Log_Level', ThemeAttr('types', 'ini_key'), False),
+                 ThemeStr(' ', ThemeAttr('types', 'ini_separator'), False),
+                 ThemeStr('debug', ThemeAttr('types', 'ini_value'), False)],
+                [ThemeStr('', ThemeAttr('types', 'generic'), False)],
+                [ThemeStr('[INPUT]', ThemeAttr('types', 'ini_section'), False)],
+                [ThemeStr('', ThemeAttr('types', 'generic'), False),
+                 ThemeStr('Name', ThemeAttr('types', 'ini_key'), False),
+                 ThemeStr('  ', ThemeAttr('types', 'ini_separator'), False),
+                 ThemeStr('cpu', ThemeAttr('types', 'ini_value'), False)],
+                [ThemeStr('     ', ThemeAttr('types', 'generic'), False),
+                 ThemeStr('Tag', ThemeAttr('types', 'ini_key'), False),
+                 ThemeStr('   ', ThemeAttr('types', 'ini_separator'), False),
+                 ThemeStr('my_cpu', ThemeAttr('types', 'ini_value'), False)],
+                [ThemeStr('', ThemeAttr('types', 'generic'), False)],
+                [ThemeStr('     [OUTPUT]', ThemeAttr('types', 'ini_section'), False)],
+                [ThemeStr('     ', ThemeAttr('types', 'generic'), False),
+                 ThemeStr('Name', ThemeAttr('types', 'ini_key'), False),
+                 ThemeStr('  ', ThemeAttr('types', 'ini_separator'), False),
+                 ThemeStr('stdout', ThemeAttr('types', 'ini_value'), False)],
+                [ThemeStr('     ', ThemeAttr('types', 'generic'), False),
+                 ThemeStr('Match', ThemeAttr('types', 'ini_key'), False),
+                 ThemeStr(' ', ThemeAttr('types', 'ini_separator'), False),
+                 ThemeStr('my*cpu', ThemeAttr('types', 'ini_value'), False)]],
+             None),
+        )
+
+        for indata, options, expected_result, expected_exception in testdata:
+            if isinstance(indata, list):
+                indata_quoted = "\n".join(indata)
+            else:
+                indata_quoted = indata
+            indata_quoted = indata_quoted.replace('\n', '\\n')
+            try:
+                if (tmp := fun(indata, **options)) != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"           input: \"{indata_quoted}\"\n" \
+                              "         options:\n" \
+                              f"{yaml_dump(options, base_indent=17)}\n" \
+                              f"          output: {tmp}\n" \
+                              f"        expected: {expected_result}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  f"           input: \"{indata_quoted}\"\n" \
+                                  "         options:\n" \
+                                  f"{yaml_dump(options, base_indent=17)}\n" \
+                                  f"       exception: {type(e)}\n" \
+                                  f"        expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"           input: \"{indata_quoted}\"\n" \
+                              "         options:\n" \
+                              f"{yaml_dump(options, base_indent=17)}\n" \
+                              f"       exception: {type(e)}\n" \
+                              f"        expected: {expected_result}"
+                    result = False
+                    break
+    return message, result
+
+
+def test_format_haproxy(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = formatters.format_haproxy
+
+    if result:
+        # Indata format:
+        # (lines, options, expected_result, expected_exception)
+        testdata: tuple[Any, ...] = (
+            (["global",
+              "    log /dev/log local0",
+              "    log /dev/log local1 notice",
+              "defaults",
+              "    timeout server  50s",
+              "frontend http_front",
+              "    bind *:80",
+              "    server app1 10.0.0.10:8080 check"],
+             {},
+             [
+                [ThemeStr('', ThemeAttr('types', 'generic'), False),
+                 ThemeStr('global', ThemeAttr('types', 'haproxy_section'), False),
+                 ThemeStr('', ThemeAttr('types', 'generic'), False),
+                 ThemeStr('', ThemeAttr('types', 'haproxy_label'), False)],
+                [ThemeStr('    ', ThemeAttr('types', 'generic'), False),
+                 ThemeStr('log', ThemeAttr('types', 'haproxy_setting'), False),
+                 ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                 ThemeStr('/dev/log local0', ThemeAttr('types', 'generic'), False)],
+                [ThemeStr('    ', ThemeAttr('types', 'generic'), False),
+                 ThemeStr('log', ThemeAttr('types', 'haproxy_setting'), False),
+                 ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                 ThemeStr('/dev/log local1 notice', ThemeAttr('types', 'generic'), False)],
+                [ThemeStr('', ThemeAttr('types', 'generic'), False),
+                 ThemeStr('defaults', ThemeAttr('types', 'haproxy_section'), False),
+                 ThemeStr('', ThemeAttr('types', 'generic'), False),
+                 ThemeStr('', ThemeAttr('types', 'haproxy_label'), False)],
+                [ThemeStr('    ', ThemeAttr('types', 'generic'), False),
+                 ThemeStr('timeout', ThemeAttr('types', 'haproxy_setting'), False),
+                 ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                 ThemeStr('server  50s', ThemeAttr('types', 'generic'), False)],
+                [ThemeStr('', ThemeAttr('types', 'generic'), False),
+                 ThemeStr('frontend', ThemeAttr('types', 'haproxy_section'), False),
+                 ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                 ThemeStr('http_front', ThemeAttr('types', 'haproxy_label'), False)],
+                [ThemeStr('    ', ThemeAttr('types', 'generic'), False),
+                 ThemeStr('bind', ThemeAttr('types', 'haproxy_setting'), False),
+                 ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                 ThemeStr('*:80', ThemeAttr('types', 'generic'), False)],
+                [ThemeStr('    ', ThemeAttr('types', 'generic'), False),
+                 ThemeStr('server', ThemeAttr('types', 'haproxy_setting'), False),
+                 ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                 ThemeStr('app1 10.0.0.10:8080 check', ThemeAttr('types', 'generic'), False)]],
+             None),
+            ("global\n"
+             "    log /dev/log local0\n"
+             "    log /dev/log local1 notice\n"
+             "defaults\n"
+             "    timeout server  50s\n"
+             "frontend http_front\n"
+             "    bind *:80\n"
+             "    server app1 10.0.0.10:8080 check",
+             {},
+             [
+                [ThemeStr('', ThemeAttr('types', 'generic'), False),
+                 ThemeStr('global', ThemeAttr('types', 'haproxy_section'), False),
+                 ThemeStr('', ThemeAttr('types', 'generic'), False),
+                 ThemeStr('', ThemeAttr('types', 'haproxy_label'), False)],
+                [ThemeStr('    ', ThemeAttr('types', 'generic'), False),
+                 ThemeStr('log', ThemeAttr('types', 'haproxy_setting'), False),
+                 ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                 ThemeStr('/dev/log local0', ThemeAttr('types', 'generic'), False)],
+                [ThemeStr('    ', ThemeAttr('types', 'generic'), False),
+                 ThemeStr('log', ThemeAttr('types', 'haproxy_setting'), False),
+                 ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                 ThemeStr('/dev/log local1 notice', ThemeAttr('types', 'generic'), False)],
+                [ThemeStr('', ThemeAttr('types', 'generic'), False),
+                 ThemeStr('defaults', ThemeAttr('types', 'haproxy_section'), False),
+                 ThemeStr('', ThemeAttr('types', 'generic'), False),
+                 ThemeStr('', ThemeAttr('types', 'haproxy_label'), False)],
+                [ThemeStr('    ', ThemeAttr('types', 'generic'), False),
+                 ThemeStr('timeout', ThemeAttr('types', 'haproxy_setting'), False),
+                 ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                 ThemeStr('server  50s', ThemeAttr('types', 'generic'), False)],
+                [ThemeStr('', ThemeAttr('types', 'generic'), False),
+                 ThemeStr('frontend', ThemeAttr('types', 'haproxy_section'), False),
+                 ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                 ThemeStr('http_front', ThemeAttr('types', 'haproxy_label'), False)],
+                [ThemeStr('    ', ThemeAttr('types', 'generic'), False),
+                 ThemeStr('bind', ThemeAttr('types', 'haproxy_setting'), False),
+                 ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                 ThemeStr('*:80', ThemeAttr('types', 'generic'), False)],
+                [ThemeStr('    ', ThemeAttr('types', 'generic'), False),
+                 ThemeStr('server', ThemeAttr('types', 'haproxy_setting'), False),
+                 ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                 ThemeStr('app1 10.0.0.10:8080 check', ThemeAttr('types', 'generic'), False)]],
+             None),
+            ("global\n"
+             "    log /dev/log local0\n"
+             "    log /dev/log local1 notice\n"
+             "defaults\n"
+             "    timeout server  50s\n"
+             "frontend http_front\n"
+             "    bind *:80\n"
+             "    server app1 10.0.0.10:8080 check",
+             {"raw": True},
+             [
+                [ThemeStr('global', ThemeAttr('types', 'generic'), False)],
+                [ThemeStr('    log /dev/log local0', ThemeAttr('types', 'generic'), False)],
+                [ThemeStr('    log /dev/log local1 notice', ThemeAttr('types', 'generic'), False)],
+                [ThemeStr('defaults', ThemeAttr('types', 'generic'), False)],
+                [ThemeStr('    timeout server  50s', ThemeAttr('types', 'generic'), False)],
+                [ThemeStr('frontend http_front', ThemeAttr('types', 'generic'), False)],
+                [ThemeStr('    bind *:80', ThemeAttr('types', 'generic'), False)],
+                [ThemeStr('    server app1 10.0.0.10:8080 check',
+                          ThemeAttr('types', 'generic'), False)]],
+             None),
+        )
+
+        for indata, options, expected_result, expected_exception in testdata:
+            if isinstance(indata, list):
+                indata_quoted = "\n".join(indata)
+            else:
+                indata_quoted = indata
+            indata_quoted = indata_quoted.replace('\n', '\\n')
+            try:
+                if (tmp := fun(indata, **options)) != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"           input: \"{indata_quoted}\"\n" \
+                              "         options:\n" \
+                              f"{yaml_dump(options, base_indent=17)}\n" \
+                              f"          output: {tmp}\n" \
+                              f"        expected: {expected_result}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  f"           input: \"{indata_quoted}\"\n" \
+                                  "         options:\n" \
+                                  f"{yaml_dump(options, base_indent=17)}\n" \
+                                  f"       exception: {type(e)}\n" \
+                                  f"        expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"           input: \"{indata_quoted}\"\n" \
+                              "         options:\n" \
+                              f"{yaml_dump(options, base_indent=17)}\n" \
+                              f"       exception: {type(e)}\n" \
+                              f"        expected: {expected_result}"
+                    result = False
+                    break
+    return message, result
+
+
+def test_format_html(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = formatters.format_html
+
+    if result:
+        # Indata format:
+        # (lines, options, expected_result, expected_exception)
+        testdata: tuple[Any, ...] = (
+            # pylint: disable-next=line-length
+            (["<!-- A comment -->",
+              "<!DOCTYPE html>",
+              "<html>",
+              "<body>",
+              "<h1>My First Heading</h1>",
+              "<img src='w3schools.jpg' alt='W3Schools.com' width='104' height='142'>",
+              "   <p>My first paragraph.</p>",
+              "   </body>",
+              "   </html>"],
+             {},
+             [
+                [ThemeStr('<!-- A comment -->', ThemeAttr('types', 'xml_comment'), False)],
+                [ThemeStr('<!DOCTYPE html>',
+                 ThemeAttr('types', 'html_comment_preprocessor'), False)],
+                [ThemeStr('<', ThemeAttr('types', 'html_punctuation'), False),
+                 ThemeStr('html', ThemeAttr('types', 'html_tag'), False),
+                 ThemeStr('>', ThemeAttr('types', 'html_punctuation'), False)],
+                [ThemeStr('<', ThemeAttr('types', 'html_punctuation'), False),
+                 ThemeStr('body', ThemeAttr('types', 'html_tag'), False),
+                 ThemeStr('>', ThemeAttr('types', 'html_punctuation'), False)],
+                [ThemeStr('<', ThemeAttr('types', 'html_punctuation'), False),
+                 ThemeStr('h1', ThemeAttr('types', 'html_tag'), False),
+                 ThemeStr('>', ThemeAttr('types', 'html_punctuation'), False),
+                 ThemeStr('My First Heading', ThemeAttr('types', 'generic'), False),
+                 ThemeStr('<', ThemeAttr('types', 'html_punctuation'), False),
+                 ThemeStr('/', ThemeAttr('types', 'html_punctuation'), False),
+                 ThemeStr('h1', ThemeAttr('types', 'html_tag'), False),
+                 ThemeStr('>', ThemeAttr('types', 'html_punctuation'), False)],
+                [ThemeStr('<', ThemeAttr('types', 'html_punctuation'), False),
+                 ThemeStr('img', ThemeAttr('types', 'html_tag'), False),
+                 ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                 ThemeStr('src', ThemeAttr('types', 'html_attribute'), False),
+                 ThemeStr('=', ThemeAttr('types', 'html_operator'), False),
+                 ThemeStr("'w3schools.jpg'", ThemeAttr('types', 'html_value'), False),
+                 ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                 ThemeStr('alt', ThemeAttr('types', 'html_attribute'), False),
+                 ThemeStr('=', ThemeAttr('types', 'html_operator'), False),
+                 ThemeStr("'W3Schools.com'", ThemeAttr('types', 'html_value'), False),
+                 ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                 ThemeStr('width', ThemeAttr('types', 'html_attribute'), False),
+                 ThemeStr('=', ThemeAttr('types', 'html_operator'), False),
+                 ThemeStr("'104'", ThemeAttr('types', 'html_value'), False),
+                 ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                 ThemeStr('height', ThemeAttr('types', 'html_attribute'), False),
+                 ThemeStr('=', ThemeAttr('types', 'html_operator'), False),
+                 ThemeStr("'142'", ThemeAttr('types', 'html_value'), False),
+                 ThemeStr('>', ThemeAttr('types', 'html_punctuation'), False)],
+                [ThemeStr('   ', ThemeAttr('types', 'generic'), False),
+                 ThemeStr('<', ThemeAttr('types', 'html_punctuation'), False),
+                 ThemeStr('p', ThemeAttr('types', 'html_tag'), False),
+                 ThemeStr('>', ThemeAttr('types', 'html_punctuation'), False),
+                 ThemeStr('My first paragraph.', ThemeAttr('types', 'generic'), False),
+                 ThemeStr('<', ThemeAttr('types', 'html_punctuation'), False),
+                 ThemeStr('/', ThemeAttr('types', 'html_punctuation'), False),
+                 ThemeStr('p', ThemeAttr('types', 'html_tag'), False),
+                 ThemeStr('>', ThemeAttr('types', 'html_punctuation'), False)],
+                [ThemeStr('   ', ThemeAttr('types', 'generic'), False),
+                 ThemeStr('<', ThemeAttr('types', 'html_punctuation'), False),
+                 ThemeStr('/', ThemeAttr('types', 'html_punctuation'), False),
+                 ThemeStr('body', ThemeAttr('types', 'html_tag'), False),
+                 ThemeStr('>', ThemeAttr('types', 'html_punctuation'), False)],
+                [ThemeStr('   ', ThemeAttr('types', 'generic'), False),
+                 ThemeStr('<', ThemeAttr('types', 'html_punctuation'), False),
+                 ThemeStr('/', ThemeAttr('types', 'html_punctuation'), False),
+                 ThemeStr('html', ThemeAttr('types', 'html_tag'), False),
+                 ThemeStr('>', ThemeAttr('types', 'html_punctuation'), False)]],
+             None),
+        )
+
+        for indata, options, expected_result, expected_exception in testdata:
+            if isinstance(indata, list):
+                indata_quoted = "\n".join(indata)
+            else:
+                indata_quoted = indata
+            indata_quoted = indata_quoted.replace('\n', '\\n')
+            try:
+                if (tmp := fun(indata, **options)) != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"           input: \"{indata_quoted}\"\n" \
+                              "         options:\n" \
+                              f"{yaml_dump(options, base_indent=17)}\n" \
+                              f"          output: {tmp}\n" \
+                              f"        expected: {expected_result}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  f"           input: \"{indata_quoted}\"\n" \
+                                  "         options:\n" \
+                                  f"{yaml_dump(options, base_indent=17)}\n" \
+                                  f"       exception: {type(e)}\n" \
+                                  f"        expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"           input: \"{indata_quoted}\"\n" \
+                              "         options:\n" \
+                              f"{yaml_dump(options, base_indent=17)}\n" \
+                              f"       exception: {type(e)}\n" \
+                              f"        expected: {expected_result}"
+                    result = False
+                    break
+    return message, result
+
+
 def test_format_ini(verbose: bool = False) -> tuple[str, bool]:
     message = ""
     result = True
@@ -1576,6 +2281,81 @@ def test_format_ini(verbose: bool = False) -> tuple[str, bool]:
                   [ThemeStr("[main]", ThemeAttr("types", "generic"))],
                   [ThemeStr("setting1 = foo", ThemeAttr("types", "generic"))],
                   [ThemeStr("setting2 = bar", ThemeAttr("types", "generic"))]],
+             None),
+        )
+
+        for indata, options, expected_result, expected_exception in testdata:
+            if isinstance(indata, list):
+                indata_quoted = "\n".join(indata)
+            else:
+                indata_quoted = indata
+            indata_quoted = indata_quoted.replace('\n', '\\n')
+            try:
+                if (tmp := fun(indata, **options)) != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"           input: \"{indata_quoted}\"\n" \
+                              "         options:\n" \
+                              f"{yaml_dump(options, base_indent=17)}\n" \
+                              f"          output: {tmp}\n" \
+                              f"        expected: {expected_result}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  f"           input: \"{indata_quoted}\"\n" \
+                                  "         options:\n" \
+                                  f"{yaml_dump(options, base_indent=17)}\n" \
+                                  f"       exception: {type(e)}\n" \
+                                  f"        expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"           input: \"{indata_quoted}\"\n" \
+                              "         options:\n" \
+                              f"{yaml_dump(options, base_indent=17)}\n" \
+                              f"       exception: {type(e)}\n" \
+                              f"        expected: {expected_result}"
+                    result = False
+                    break
+    return message, result
+
+
+def test_format_javascript(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = formatters.format_javascript
+
+    if result:
+        # Indata format:
+        # (lines, options, expected_result, expected_exception)
+        testdata: tuple[Any, ...] = (
+            (["// A comment",
+              "console.log('log message');",
+              "let value1 = 'foo';"],
+             {},
+              [
+                [ThemeStr('// A comment', ThemeAttr('types', 'javascript_comment'), False)],
+                [ThemeStr('console', ThemeAttr('types', 'generic'), False),
+                 ThemeStr('.', ThemeAttr('types', 'javascript_punctuation'), False),
+                 ThemeStr('log', ThemeAttr('types', 'generic'), False),
+                 ThemeStr('(', ThemeAttr('types', 'javascript_punctuation'), False),
+                 ThemeStr("'log message'", ThemeAttr('types', 'javascript_value'), False),
+                 ThemeStr(')', ThemeAttr('types', 'javascript_punctuation'), False),
+                 ThemeStr(';', ThemeAttr('types', 'javascript_punctuation'), False)],
+                [ThemeStr('let', ThemeAttr('types', 'javascript_builtin'), False),
+                 ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                 ThemeStr('value1', ThemeAttr('types', 'generic'), False),
+                 ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                 ThemeStr('=', ThemeAttr('types', 'javascript_operator'), False),
+                 ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                 ThemeStr("'foo'", ThemeAttr('types', 'javascript_value'), False),
+                 ThemeStr(';', ThemeAttr('types', 'javascript_punctuation'), False)]],
              None),
         )
 
@@ -2287,6 +3067,244 @@ def test_format_nginx(verbose: bool = False) -> tuple[str, bool]:
                   ThemeStr("break", ThemeAttr("types", "nginx_value")),
                   ThemeStr(";", ThemeAttr("types", "nginx_punctuation"))]],
                 None),
+        )
+
+        for indata, options, expected_result, expected_exception in testdata:
+            if isinstance(indata, list):
+                indata_quoted = "\n".join(indata)
+            else:
+                indata_quoted = indata
+            indata_quoted = indata_quoted.replace('\n', '\\n')
+            try:
+                if (tmp := fun(indata, **options)) != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"           input: \"{indata_quoted}\"\n" \
+                              "         options:\n" \
+                              f"{yaml_dump(options, base_indent=17)}\n" \
+                              f"          output: {tmp}\n" \
+                              f"        expected: {expected_result}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  f"           input: \"{indata_quoted}\"\n" \
+                                  "         options:\n" \
+                                  f"{yaml_dump(options, base_indent=17)}\n" \
+                                  f"       exception: {type(e)}\n" \
+                                  f"        expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"           input: \"{indata_quoted}\"\n" \
+                              "         options:\n" \
+                              f"{yaml_dump(options, base_indent=17)}\n" \
+                              f"       exception: {type(e)}\n" \
+                              f"        expected: {expected_result}"
+                    result = False
+                    break
+    return message, result
+
+
+def test_format_promql(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = formatters.format_promql
+
+    if result:
+        # Indata format:
+        # (lines, options, expected_result, expected_exception)
+        testdata: tuple[Any, ...] = (
+            (["(",
+              "  sum by(gateway_class_type) (",
+              "    label_replace(",
+              "      (",
+              "        kube_customresource_gateway_info{programmed='True'}",
+              # pylint: disable-next=comparison-with-callable
+              "        and on(gateway_class) kube_customresource_gateway_class_info{accepted='True', controller='openshift.io/gateway-controller/v1'}",
+              "      ),",
+              "      'gateway_class_type', 'openshift', '', ''",
+              "    )",
+              "  )",
+              ")"],
+             {},
+             [
+                [ThemeStr('(', ThemeAttr('types', 'promql_operator'), False)],
+                [ThemeStr('  ', ThemeAttr('types', 'generic'), False),
+                 ThemeStr('sum', ThemeAttr('types', 'promql_keyword'), False),
+                 ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                 ThemeStr('by', ThemeAttr('types', 'promql_keyword'), False),
+                 ThemeStr('(', ThemeAttr('types', 'promql_operator'), False),
+                 ThemeStr('gateway_class_type', ThemeAttr('types', 'promql_variable'), False),
+                 ThemeStr(')', ThemeAttr('types', 'promql_operator'), False),
+                 ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                 ThemeStr('(', ThemeAttr('types', 'promql_operator'), False)],
+                [ThemeStr('    ', ThemeAttr('types', 'generic'), False),
+                 ThemeStr('label_replace', ThemeAttr('types', 'promql_builtin'), False),
+                 ThemeStr('(', ThemeAttr('types', 'promql_operator'), False)],
+                [ThemeStr('      ', ThemeAttr('types', 'generic'), False),
+                 ThemeStr('(', ThemeAttr('types', 'promql_operator'), False)],
+                [ThemeStr('        ', ThemeAttr('types', 'generic'), False),
+                 ThemeStr('kube_customresource_gateway_info', ThemeAttr('types', 'promql_variable'), False),
+                 ThemeStr('{', ThemeAttr('types', 'promql_punctuation'), False),
+                 ThemeStr('programmed', ThemeAttr('types', 'promql_label'), False),
+                 ThemeStr('=', ThemeAttr('types', 'promql_operator'), False),
+                 ThemeStr("'", ThemeAttr('types', 'promql_punctuation'), False),
+                 ThemeStr('True', ThemeAttr('types', 'promql_string'), False),
+                 ThemeStr("'", ThemeAttr('types', 'promql_punctuation'), False),
+                 ThemeStr('}', ThemeAttr('types', 'promql_punctuation'), False)],
+                [ThemeStr('        ', ThemeAttr('types', 'generic'), False),
+                 ThemeStr('and', ThemeAttr('types', 'promql_keyword'), False),
+                 ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                 ThemeStr('on', ThemeAttr('types', 'promql_keyword'), False),
+                 ThemeStr('(', ThemeAttr('types', 'promql_operator'), False),
+                 ThemeStr('gateway_class', ThemeAttr('types', 'promql_variable'), False),
+                 ThemeStr(')', ThemeAttr('types', 'promql_operator'), False),
+                 ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                 ThemeStr('kube_customresource_gateway_class_info', ThemeAttr('types', 'promql_variable'), False),
+                 ThemeStr('{', ThemeAttr('types', 'promql_punctuation'), False),
+                 ThemeStr('accepted', ThemeAttr('types', 'promql_label'), False),
+                 ThemeStr('=', ThemeAttr('types', 'promql_operator'), False),
+                 ThemeStr("'", ThemeAttr('types', 'promql_punctuation'), False),
+                 ThemeStr('True', ThemeAttr('types', 'promql_string'), False),
+                 ThemeStr("'", ThemeAttr('types', 'promql_punctuation'), False),
+                 ThemeStr(',', ThemeAttr('types', 'promql_punctuation'), False),
+                 ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                 ThemeStr('controller', ThemeAttr('types', 'promql_label'), False),
+                 ThemeStr('=', ThemeAttr('types', 'promql_operator'), False),
+                 ThemeStr("'", ThemeAttr('types', 'promql_punctuation'), False),
+                 ThemeStr('openshift.io/gateway-controller/v1', ThemeAttr('types', 'promql_string'), False),
+                 ThemeStr("'", ThemeAttr('types', 'promql_punctuation'), False),
+                 ThemeStr('}', ThemeAttr('types', 'promql_punctuation'), False)],
+                [ThemeStr('      ', ThemeAttr('types', 'generic'), False),
+                 ThemeStr(')', ThemeAttr('types', 'promql_operator'), False),
+                 ThemeStr(',', ThemeAttr('types', 'promql_punctuation'), False)],
+                [ThemeStr('      ', ThemeAttr('types', 'generic'), False),
+                 ThemeStr("'", ThemeAttr('types', 'promql_punctuation'), False),
+                 ThemeStr('gateway_class_type', ThemeAttr('types', 'promql_string'), False),
+                 ThemeStr("'", ThemeAttr('types', 'promql_punctuation'), False),
+                 ThemeStr(',', ThemeAttr('types', 'promql_punctuation'), False),
+                 ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                 ThemeStr("'", ThemeAttr('types', 'promql_punctuation'), False),
+                 ThemeStr('openshift', ThemeAttr('types', 'promql_string'), False),
+                 ThemeStr("'", ThemeAttr('types', 'promql_punctuation'), False),
+                 ThemeStr(',', ThemeAttr('types', 'promql_punctuation'), False),
+                 ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                 ThemeStr("'", ThemeAttr('types', 'promql_punctuation'), False),
+                 ThemeStr("'", ThemeAttr('types', 'promql_punctuation'), False),
+                 ThemeStr(',', ThemeAttr('types', 'promql_punctuation'), False),
+                 ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                 ThemeStr("'", ThemeAttr('types', 'promql_punctuation'), False),
+                 ThemeStr("'", ThemeAttr('types', 'promql_punctuation'), False)],
+                [ThemeStr('    ', ThemeAttr('types', 'generic'), False),
+                 ThemeStr(')', ThemeAttr('types', 'promql_operator'), False)],
+                [ThemeStr('  ', ThemeAttr('types', 'generic'), False),
+                 ThemeStr(')', ThemeAttr('types', 'promql_operator'), False)],
+                [ThemeStr(')', ThemeAttr('types', 'promql_operator'), False)]],
+             None),
+        )
+
+        for indata, options, expected_result, expected_exception in testdata:
+            if isinstance(indata, list):
+                indata_quoted = "\n".join(indata)
+            else:
+                indata_quoted = indata
+            indata_quoted = indata_quoted.replace('\n', '\\n')
+            try:
+                if (tmp := fun(indata, **options)) != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"           input: \"{indata_quoted}\"\n" \
+                              "         options:\n" \
+                              f"{yaml_dump(options, base_indent=17)}\n" \
+                              f"          output: {tmp}\n" \
+                              f"        expected: {expected_result}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  f"           input: \"{indata_quoted}\"\n" \
+                                  "         options:\n" \
+                                  f"{yaml_dump(options, base_indent=17)}\n" \
+                                  f"       exception: {type(e)}\n" \
+                                  f"        expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"           input: \"{indata_quoted}\"\n" \
+                              "         options:\n" \
+                              f"{yaml_dump(options, base_indent=17)}\n" \
+                              f"       exception: {type(e)}\n" \
+                              f"        expected: {expected_result}"
+                    result = False
+                    break
+    return message, result
+
+
+def test_format_python(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = formatters.format_python
+
+    if result:
+        # Indata format:
+        # (lines, options, expected_result, expected_exception)
+        testdata: tuple[Any, ...] = (
+            (["#! /usr/bin/env python3",
+              "",
+              "def main() -> None:",
+              "    print('hello world')",
+              "",
+              "if __name__ == '__main__':",
+              "    main()"],
+             {},
+             [
+                [ThemeStr('#! /usr/bin/env python3', ThemeAttr('types', 'python_comment'), False)],
+                [],
+                [ThemeStr('def', ThemeAttr('types', 'python_keyword'), False),
+                 ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                 ThemeStr('main', ThemeAttr('types', 'python_function'), False),
+                 ThemeStr('(', ThemeAttr('types', 'python_punctuation'), False),
+                 ThemeStr(')', ThemeAttr('types', 'python_punctuation'), False),
+                 ThemeStr(' ', ThemeAttr('types', 'python_text'), False),
+                 ThemeStr('-', ThemeAttr('types', 'python_operator'), False),
+                 ThemeStr('>', ThemeAttr('types', 'python_operator'), False),
+                 ThemeStr(' ', ThemeAttr('types', 'python_text'), False),
+                 ThemeStr('None', ThemeAttr('types', 'python_builtin'), False),
+                 ThemeStr(':', ThemeAttr('types', 'python_punctuation'), False)],
+                [ThemeStr('    ', ThemeAttr('types', 'python_text'), False),
+                 ThemeStr('print', ThemeAttr('types', 'python_builtin'), False),
+                 ThemeStr('(', ThemeAttr('types', 'python_punctuation'), False),
+                 ThemeStr("'", ThemeAttr('types', 'python_value'), False),
+                 ThemeStr('hello world', ThemeAttr('types', 'python_value'), False),
+                 ThemeStr("'", ThemeAttr('types', 'python_value'), False),
+                 ThemeStr(')', ThemeAttr('types', 'python_punctuation'), False)],
+                [],
+                [ThemeStr('if', ThemeAttr('types', 'python_keyword'), False),
+                 ThemeStr(' ', ThemeAttr('types', 'python_text'), False),
+                 ThemeStr('__name__', ThemeAttr('types', 'python_variable'), False),
+                 ThemeStr(' ', ThemeAttr('types', 'python_text'), False),
+                 ThemeStr('==', ThemeAttr('types', 'python_operator'), False),
+                 ThemeStr(' ', ThemeAttr('types', 'python_text'), False),
+                 ThemeStr("'", ThemeAttr('types', 'python_value'), False),
+                 ThemeStr('__main__', ThemeAttr('types', 'python_value'), False),
+                 ThemeStr("'", ThemeAttr('types', 'python_value'), False),
+                 ThemeStr(':', ThemeAttr('types', 'python_punctuation'), False)],
+                [ThemeStr('    ', ThemeAttr('types', 'python_text'), False),
+                 ThemeStr('main', ThemeAttr('types', 'python_name'), False),
+                 ThemeStr('(', ThemeAttr('types', 'python_punctuation'), False),
+                 ThemeStr(')', ThemeAttr('types', 'python_punctuation'), False)]],
+             None),
         )
 
         for indata, options, expected_result, expected_exception in testdata:
@@ -3562,6 +4580,10 @@ tests: dict[tuple[str, ...], dict[str, Any]] = {
         "callable": test_format_binary,
         "result": None,
     },
+    ("format_none",): {
+        "callable": test_format_none,
+        "result": None,
+    },
     ("format_ansible_line",): {
         "callable": test_format_ansible_line,
         "result": None,
@@ -3602,8 +4624,28 @@ tests: dict[tuple[str, ...], dict[str, Any]] = {
         "callable": test_format_dmesg,
         "result": None,
     },
+    ("format_docker",): {
+        "callable": test_format_docker,
+        "result": None,
+    },
+    ("format_fluentbit",): {
+        "callable": test_format_fluentbit,
+        "result": None,
+    },
+    ("format_haproxy",): {
+        "callable": test_format_haproxy,
+        "result": None,
+    },
+    ("format_html",): {
+        "callable": test_format_html,
+        "result": None,
+    },
     ("format_ini",): {
         "callable": test_format_ini,
+        "result": None,
+    },
+    ("format_javascript",): {
+        "callable": test_format_javascript,
         "result": None,
     },
     ("format_key_value",): {
@@ -3632,6 +4674,14 @@ tests: dict[tuple[str, ...], dict[str, Any]] = {
     },
     ("format_powershell",): {
         "callable": test_format_powershell,
+        "result": None,
+    },
+    ("format_promql",): {
+        "callable": test_format_promql,
+        "result": None,
+    },
+    ("format_python",): {
+        "callable": test_format_python,
         "result": None,
     },
     ("format_python_traceback",): {
