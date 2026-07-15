@@ -8,6 +8,10 @@ listview:
   name: "Vertical Pod Autoscalers"
   group: "Scheduling & Scaling"
   field_indexes:
+    Wide:
+      fields: ["namespace", "name", "target_reference",
+               "update_mode", "provided", "age"]
+      sortcolumn: "namespace"
     Normal:
       fields: ["namespace", "name", "update_mode", "provided", "age"]
       sortcolumn: "namespace"
@@ -21,8 +25,41 @@ listview:
           when:
             - key: "type"
               eq: "RecommendationProvided"
-          default: ["<unknown>"]
+          default: ["<unset>"]
       type: "str"
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          mappings:
+            "True":
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+            "False":
+              field_colors:
+                - context: "main"
+                  type: "status_not_ok"
+            "<unset>":
+              field_colors:
+                - context: "main"
+                  type: "status_unset"
+    target_reference:
+      header: "Target:"
+      paths:
+        - path: [["spec#targetRef#kind"],
+                 ["spec#targetRef#apiVersion"],
+                 ["spec#targetRef#name"]]
+          pathtype: "tuple"
+          type: ["kind", "api_group", "name"]
+      formatter: "list"
+      formatting:
+        field_colors:
+          - type: "kind"
+          - type: "api_group"
+          - type: "generic"
+        field_separators:
+          - type: "kind_api_group"
+          - type: "kind"
     update_mode:
       header: "Update Mode:"
       path: "spec#updatePolicy#updateMode"
@@ -35,6 +72,54 @@ listview:
         category: "Resource Level"
         confirm: true
         actionfunc: "delete_resource"
+      "Set Update Mode to Off":
+        description: "Set update mode to Off"
+        category: "Resource Level"
+        actionfunc: "patch_resource"
+        extravars:
+          action_str: "Setting update mode to Off"
+          args:
+            patch:
+              spec:
+                updatePolicy:
+                  updateMode: "Off"
+            strategic_merge: false
+      "Set Update Mode to Initial":
+        description: "Set update mode to Initial"
+        category: "Resource Level"
+        actionfunc: "patch_resource"
+        extravars:
+          action_str: "Setting update mode to Initial"
+          args:
+            patch:
+              spec:
+                updatePolicy:
+                  updateMode: "Initial"
+            strategic_merge: false
+      "Set Update Mode to Recreate":
+        description: "Set update mode to Recreate"
+        category: "Resource Level"
+        actionfunc: "patch_resource"
+        extravars:
+          action_str: "Setting update mode to Recreate"
+          args:
+            patch:
+              spec:
+                updatePolicy:
+                  updateMode: "Recreate"
+            strategic_merge: false
+      "Set Update Mode to Auto":
+        description: "Set update mode to Auto"
+        category: "Resource Level"
+        actionfunc: "patch_resource"
+        extravars:
+          action_str: "Setting update mode to Auto"
+          args:
+            patch:
+              spec:
+                updatePolicy:
+                  updateMode: "Auto"
+            strategic_merge: false
 infoview:
   name: "Vertical Pod Autoscaler Info"
   infopad:
@@ -51,8 +136,24 @@ infoview:
             when:
               - key: "type"
                 eq: "RecommendationProvided"
-            default: ["<unknown>"]
+            default: ["<unset>"]
         type: "str"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              "True":
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+              "False":
+                field_colors:
+                  - context: "main"
+                    type: "status_not_ok"
+              "<unset>":
+                field_colors:
+                  - context: "main"
+                    type: "status_unset"
       target_reference:
         header: [["Target ", ["main", "infoheader"]],
                  ["R", ["main", "infoheader_shortcut"]],

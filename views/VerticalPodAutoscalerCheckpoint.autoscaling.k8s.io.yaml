@@ -10,8 +10,22 @@ listview:
   group: "Scheduling & Scaling"
   field_indexes:
     Normal:
-      fields: ["namespace", "name", "age"]
+      fields: ["namespace", "name", "vpa_object_name",
+               "total_samples_count", "age"]
       sortcolumn: "namespace"
+  fields:
+    total_samples_count:
+      header: "Total Samples Count:"
+      path: "status#totalSamplesCount"
+      default: 0
+      type: "int"
+      formatter: "numerical"
+      align: "right"
+    vpa_object_name:
+      header: "VPA Object:"
+      path: "spec#vpaObjectName"
+      default: "<unset>"
+      type: "str"
 infoview:
   name: "Vertical Pod Autoscaler Checkpoint Info"
   infopad:
@@ -47,7 +61,7 @@ infoview:
             default: "<unset>"
         formatter: "timestamp"
       total_samples_count:
-        header: [["Total Sample Count:", ["main", "infoheader"]]]
+        header: [["Total Samples Count:", ["main", "infoheader"]]]
         path: "status#totalSamplesCount"
         default: 0
         type: "int"
@@ -63,6 +77,7 @@ infoview:
         header: [["V", ["main", "infoheader_shortcut"]],
                  ["PA Object:", ["main", "infoheader"]]]
         path: "spec#vpaObjectName"
+        default: "<unset>"
         type: "str"
   listpad:
     listgetter: "listgetter_join_lists"
