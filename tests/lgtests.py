@@ -1339,6 +1339,111 @@ def test_listgetter_join_dicts_to_list(verbose: bool = False) -> tuple[str, bool
     return message, result
 
 
+def test_listgetter_join_lists(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = listgetters.listgetter_join_lists
+    indata: Any = None
+
+    if result:
+        # Indata format:
+        # (obj, expected_result, expected_exception)
+        testdata: tuple[Any, ...] = (
+            (
+                {
+                    "status": {
+                        "cpuHistogram": {
+                            "bucketWeights": {
+                                "25": 10000,
+                                "26": 3332,
+                            },
+                        },
+                        "memoryHistogram": {
+                            "bucketWeights": {
+                                "0": 10000,
+                            },
+                        },
+                    },
+                },
+                {
+                    "paths": [
+                        {
+                            "path": ["status#cpuHistogram"],
+                            "name_key": "name",
+                            "name_value": "cpu",
+                        },
+                        {
+                            "path": ["status#memoryHistogram"],
+                            "name_key": "name",
+                            "name_value": "memory",
+                        },
+                    ],
+                },
+                ([
+                    {'name': 'cpu', 'bucketWeights': {'25': 10000, '26': 3332}},
+                    {'name': 'memory', 'bucketWeights': {'0': 10000}}], 200),
+                None),
+            (
+                {
+                    "status": {
+                        "cpuHistogram": {
+                            "bucketWeights": {
+                                "25": 10000,
+                                "26": 3332,
+                            },
+                        },
+                        "memoryHistogram": {
+                            "bucketWeights": {
+                                "0": 10000,
+                            },
+                        },
+                    },
+                },
+                {
+                    "paths": [
+                        {
+                            "path": ["status#cpuHistogram"],
+                        },
+                        {
+                            "path": ["status#memoryHistogram"],
+                        },
+                    ],
+                },
+                ([{'bucketWeights': {'25': 10000, '26': 3332}},
+                  {'bucketWeights': {'0': 10000}}], 200),
+                None),
+        )
+        for indata, options, expected_result, expected_exception in testdata:
+            try:
+                if (tmp := fun(indata, **options)) != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"         indata: {indata}\n" \
+                              f"         result: {tmp}\n" \
+                              f"       expected: {expected_result}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  f"         indata: {indata}\n" \
+                                  f"      exception: {type(e)}\n" \
+                                  f"       expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"         indata: {indata}\n" \
+                              f"      exception: {type(e)}\n" \
+                              f"       expected: {expected_result}"
+                    result = False
+                    break
+    return message, result
+
+
 def test_listgetter_noop(verbose: bool = False) -> tuple[str, bool]:
     message = ""
     result = True
@@ -2050,6 +2155,10 @@ tests: dict[tuple[str, ...], dict[str, Any]] = {
     },
     ("listgetter_join_dicts_to_list()",): {
         "callable": test_listgetter_join_dicts_to_list,
+        "result": None,
+    },
+    ("listgetter_join_lists()",): {
+        "callable": test_listgetter_join_lists,
         "result": None,
     },
     ("listgetter_noop()",): {

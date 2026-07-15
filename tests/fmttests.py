@@ -2641,7 +2641,7 @@ def test_format_key_value(verbose: bool = False) -> tuple[str, bool]:
                 "bool": {
                     "bool": True,
                 },
-                "bool": {
+                "boolean": {
                     "boolean": False,
                 },
                 "size": {
@@ -2663,6 +2663,9 @@ def test_format_key_value(verbose: bool = False) -> tuple[str, bool]:
                  ThemeRef('separators', 'id_prefix', False),
                  ThemeStr('12', ThemeAttr('types', 'age'), False)],
                 [ThemeStr('bool', ThemeAttr('types', 'key'), False),
+                 ThemeRef('separators', 'id_prefix', False),
+                 ThemeStr('True', ThemeAttr('types', 'generic'), False)],
+                [ThemeStr('boolean', ThemeAttr('types', 'key'), False),
                  ThemeRef('separators', 'id_prefix', False),
                  ThemeStr('False', ThemeAttr('types', 'generic'), False)],
                 [ThemeStr('size', ThemeAttr('types', 'key'), False),
@@ -3126,7 +3129,7 @@ def test_format_promql(verbose: bool = False) -> tuple[str, bool]:
               "      (",
               "        kube_customresource_gateway_info{programmed='True'}",
               # pylint: disable-next=comparison-with-callable
-              "        and on(gateway_class) kube_customresource_gateway_class_info{accepted='True', controller='openshift.io/gateway-controller/v1'}",
+              "        and on(gateway_class) kube_customresource_gateway_class_info{accepted='True', controller='openshift.io/gateway-controller/v1'}",  # noqa: E501
               "      ),",
               "      'gateway_class_type', 'openshift', '', ''",
               "    )",
@@ -3150,7 +3153,8 @@ def test_format_promql(verbose: bool = False) -> tuple[str, bool]:
                 [ThemeStr('      ', ThemeAttr('types', 'generic'), False),
                  ThemeStr('(', ThemeAttr('types', 'promql_operator'), False)],
                 [ThemeStr('        ', ThemeAttr('types', 'generic'), False),
-                 ThemeStr('kube_customresource_gateway_info', ThemeAttr('types', 'promql_variable'), False),
+                 ThemeStr('kube_customresource_gateway_info',
+                          ThemeAttr('types', 'promql_variable'), False),
                  ThemeStr('{', ThemeAttr('types', 'promql_punctuation'), False),
                  ThemeStr('programmed', ThemeAttr('types', 'promql_label'), False),
                  ThemeStr('=', ThemeAttr('types', 'promql_operator'), False),
@@ -3166,7 +3170,8 @@ def test_format_promql(verbose: bool = False) -> tuple[str, bool]:
                  ThemeStr('gateway_class', ThemeAttr('types', 'promql_variable'), False),
                  ThemeStr(')', ThemeAttr('types', 'promql_operator'), False),
                  ThemeStr(' ', ThemeAttr('types', 'generic'), False),
-                 ThemeStr('kube_customresource_gateway_class_info', ThemeAttr('types', 'promql_variable'), False),
+                 ThemeStr('kube_customresource_gateway_class_info',
+                          ThemeAttr('types', 'promql_variable'), False),
                  ThemeStr('{', ThemeAttr('types', 'promql_punctuation'), False),
                  ThemeStr('accepted', ThemeAttr('types', 'promql_label'), False),
                  ThemeStr('=', ThemeAttr('types', 'promql_operator'), False),
@@ -3178,7 +3183,8 @@ def test_format_promql(verbose: bool = False) -> tuple[str, bool]:
                  ThemeStr('controller', ThemeAttr('types', 'promql_label'), False),
                  ThemeStr('=', ThemeAttr('types', 'promql_operator'), False),
                  ThemeStr("'", ThemeAttr('types', 'promql_punctuation'), False),
-                 ThemeStr('openshift.io/gateway-controller/v1', ThemeAttr('types', 'promql_string'), False),
+                 ThemeStr('openshift.io/gateway-controller/v1',
+                          ThemeAttr('types', 'promql_string'), False),
                  ThemeStr("'", ThemeAttr('types', 'promql_punctuation'), False),
                  ThemeStr('}', ThemeAttr('types', 'promql_punctuation'), False)],
                 [ThemeStr('      ', ThemeAttr('types', 'generic'), False),
