@@ -9,7 +9,7 @@ command:
   - "rgdef"
 listview:
   name: "Resource Graph Definitions"
-  group: "Workloads"
+  group: "API & Extendability"
   field_indexes:
     Wide:
       fields: ["name", "kind", "state", "age", "topological_order"]

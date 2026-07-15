@@ -2422,6 +2422,27 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api_paths": ["apis/cluster.loft.sh/v1/"],
         "api": "virtualclusters",
     },
+    # compliance.cattle.io
+    ("ClusterScanBenchmark", "compliance.cattle.io"): {
+        "api_paths": ["apis/compliance.cattle.io/v1/"],
+        "api": "clusterscanbenchmarks",
+        "namespaced": False,
+    },
+    ("ClusterScanProfile", "compliance.cattle.io"): {
+        "api_paths": ["apis/compliance.cattle.io/v1/"],
+        "api": "clusterscanprofiles",
+        "namespaced": False,
+    },
+    ("ClusterScanReport", "compliance.cattle.io"): {
+        "api_paths": ["apis/compliance.cattle.io/v1/"],
+        "api": "clusterscanreports",
+        "namespaced": False,
+    },
+    ("ClusterScan", "compliance.cattle.io"): {
+        "api_paths": ["apis/compliance.cattle.io/v1/"],
+        "api": "clusterscans",
+        "namespaced": False,
+    },
     # components.platform.opendatahub.io
     ("CodeFlare", "components.platform.opendatahub.io"): {
         "api_paths": ["apis/components.platform.opendatahub.io/v1alpha1/"],
