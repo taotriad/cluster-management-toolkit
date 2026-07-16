@@ -53,6 +53,9 @@
   matchkeys:
     - pod_name: "capch-controller-manager"
       container_name: "manager"
+    - image_name: "/vmware-cloud-director/cluster-api-provider-cloud-director"
+    - image_name: "/scaleway/cluster-api-provider-scaleway"
+    - image_name: "/opennebula/cluster-api-provider-opennebula"
     - image_name: "/rancher-sandbox/cluster-api-provider-harvester"
   parser_rules:
     - name: "glog"

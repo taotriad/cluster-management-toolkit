@@ -935,6 +935,14 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
                       "apis/infrastructure.cluster.x-k8s.io/v1beta1/"],
         "api": "devmachines",
     },
+    ("DevMachinePool", "infrastructure.cluster.x-k8s.io"): {
+        "api_paths": ["apis/infrastructure.cluster.x-k8s.io/v1beta2/"],
+        "api": "devmachinepools",
+    },
+    ("DevMachinePoolTemplate", "infrastructure.cluster.x-k8s.io"): {
+        "api_paths": ["apis/infrastructure.cluster.x-k8s.io/v1beta2/"],
+        "api": "devmachinepooltemplates",
+    },
     ("DevMachineTemplate", "infrastructure.cluster.x-k8s.io"): {
         "api_paths": ["apis/infrastructure.cluster.x-k8s.io/v1beta2/",
                       "apis/infrastructure.cluster.x-k8s.io/v1beta1/"],
@@ -1126,6 +1134,18 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api_paths": ["apis/infrastructure.cluster.x-k8s.io/v1beta1/"],
         "api": "metal3remediationtemplates",
     },
+    ("ONECluster", "infrastructure.cluster.x-k8s.io"): {
+        "api_paths": ["apis/infrastructure.cluster.x-k8s.io/v1beta1/"],
+        "api": "oneclusters",
+    },
+    ("ONEMachine", "infrastructure.cluster.x-k8s.io"): {
+        "api_paths": ["apis/infrastructure.cluster.x-k8s.io/v1beta1/"],
+        "api": "onemachines",
+    },
+    ("ONEMachineTemplate", "infrastructure.cluster.x-k8s.io"): {
+        "api_paths": ["apis/infrastructure.cluster.x-k8s.io/v1beta1/"],
+        "api": "onemachinetemplates",
+    },
     ("OpenStackCluster", "infrastructure.cluster.x-k8s.io"): {
         "api_paths": ["apis/infrastructure.cluster.x-k8s.io/v1beta1/",
                       "apis/infrastructure.cluster.x-k8s.io/v1alpha4/"],
@@ -1160,7 +1180,8 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api": "openstackservers",
     },
     ("PooledRemoteMachine", "infrastructure.cluster.x-k8s.io"): {
-        "api_paths": ["apis/infrastructure.cluster.x-k8s.io/v1beta1/"],
+        "api_paths": ["apis/infrastructure.cluster.x-k8s.io/v1beta2/",
+                      "apis/infrastructure.cluster.x-k8s.io/v1beta1/"],
         "api": "pooledremotemachines",
     },
     ("ProxmoxCluster", "infrastructure.cluster.x-k8s.io"): {
@@ -1180,19 +1201,23 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api": "proxmoxmachinetemplates",
     },
     ("RemoteCluster", "infrastructure.cluster.x-k8s.io"): {
-        "api_paths": ["apis/infrastructure.cluster.x-k8s.io/v1beta1/"],
+        "api_paths": ["apis/infrastructure.cluster.x-k8s.io/v1beta2/",
+                      "apis/infrastructure.cluster.x-k8s.io/v1beta1/"],
         "api": "remoteclusters",
     },
     ("RemoteClusterTemplate", "infrastructure.cluster.x-k8s.io"): {
-        "api_paths": ["apis/infrastructure.cluster.x-k8s.io/v1beta1/"],
+        "api_paths": ["apis/infrastructure.cluster.x-k8s.io/v1beta2/",
+                      "apis/infrastructure.cluster.x-k8s.io/v1beta1/"],
         "api": "remoteclustertemplates",
     },
     ("RemoteMachine", "infrastructure.cluster.x-k8s.io"): {
-        "api_paths": ["apis/infrastructure.cluster.x-k8s.io/v1beta1/"],
+        "api_paths": ["apis/infrastructure.cluster.x-k8s.io/v1beta2/",
+                      "apis/infrastructure.cluster.x-k8s.io/v1beta1/"],
         "api": "remotemachines",
     },
     ("RemoteMachineTemplate", "infrastructure.cluster.x-k8s.io"): {
-        "api_paths": ["apis/infrastructure.cluster.x-k8s.io/v1beta1/"],
+        "api_paths": ["apis/infrastructure.cluster.x-k8s.io/v1beta2/",
+                      "apis/infrastructure.cluster.x-k8s.io/v1beta1/"],
         "api": "remotemachinetemplates",
     },
     ("ROSACluster", "infrastructure.cluster.x-k8s.io"): {
@@ -1211,6 +1236,34 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api_paths": ["apis/infrastructure.cluster.x-k8s.io/v1beta2/"],
         "api": "rosaroleconfigs",
     },
+    ("ScalewayCluster", "infrastructure.cluster.x-k8s.io"): {
+        "api_paths": ["apis/infrastructure.cluster.x-k8s.io/v1alpha2/"],
+        "api": "scalewayclusters",
+    },
+    ("ScalewayClusterTemplate", "infrastructure.cluster.x-k8s.io"): {
+        "api_paths": ["apis/infrastructure.cluster.x-k8s.io/v1alpha2/"],
+        "api": "scalewayclustertemplates",
+    },
+    ("ScalewayMachine", "infrastructure.cluster.x-k8s.io"): {
+        "api_paths": ["apis/infrastructure.cluster.x-k8s.io/v1alpha2/"],
+        "api": "scalewaymachines",
+    },
+    ("ScalewayMachineTemplate", "infrastructure.cluster.x-k8s.io"): {
+        "api_paths": ["apis/infrastructure.cluster.x-k8s.io/v1alpha2/"],
+        "api": "scalewaymachinetemplates",
+    },
+    ("ScalewayManagedCluster", "infrastructure.cluster.x-k8s.io"): {
+        "api_paths": ["apis/infrastructure.cluster.x-k8s.io/v1alpha2/"],
+        "api": "scalewaymanagedclusters",
+    },
+    ("ScalewayManagedControlPlane", "infrastructure.cluster.x-k8s.io"): {
+        "api_paths": ["apis/infrastructure.cluster.x-k8s.io/v1alpha2/"],
+        "api": "scalewaymanagedcontrolplanes",
+    },
+    ("ScalewayManagedMachinePool", "infrastructure.cluster.x-k8s.io"): {
+        "api_paths": ["apis/infrastructure.cluster.x-k8s.io/v1alpha2/"],
+        "api": "scalewaymanagedmachinepools",
+    },
     ("StaticCluster", "infrastructure.cluster.x-k8s.io"): {
         "api_paths": ["apis/infrastructure.cluster.x-k8s.io/v1alpha1/"],
         "api": "staticclusters",
@@ -1222,6 +1275,22 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
     ("StaticMachineTemplate", "infrastructure.cluster.x-k8s.io"): {
         "api_paths": ["apis/infrastructure.cluster.x-k8s.io/v1alpha1/"],
         "api": "staticmachinetemplates",
+    },
+    ("VCDCluster", "infrastructure.cluster.x-k8s.io"): {
+        "api_paths": ["apis/infrastructure.cluster.x-k8s.io/v1beta2/"],
+        "api": "vcdclusters",
+    },
+    ("VCDClusterTemplate", "infrastructure.cluster.x-k8s.io"): {
+        "api_paths": ["apis/infrastructure.cluster.x-k8s.io/v1beta2/"],
+        "api": "vcdclustertemplates",
+    },
+    ("VCDMachine", "infrastructure.cluster.x-k8s.io"): {
+        "api_paths": ["apis/infrastructure.cluster.x-k8s.io/v1beta2/"],
+        "api": "vcdmachines",
+    },
+    ("VCDMachineTemplate", "infrastructure.cluster.x-k8s.io"): {
+        "api_paths": ["apis/infrastructure.cluster.x-k8s.io/v1beta2/"],
+        "api": "vcdmachinetemplates",
     },
     ("VCluster", "infrastructure.cluster.x-k8s.io"): {
         "api_paths": ["apis/infrastructure.cluster.x-k8s.io/v1alpha1/"],
@@ -6378,13 +6447,41 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "namespaced": False,
     },
     # openstack.k-orc.cloud
+    ("AddressScope", "openstack.k-orc.cloud"): {
+        "api_paths": ["apis/openstack.k-orc.cloud/v1alpha1/"],
+        "api": "addressscopes",
+    },
+    ("ApplicationCredential", "openstack.k-orc.cloud"): {
+        "api_paths": ["apis/openstack.k-orc.cloud/v1alpha1/"],
+        "api": "applicationcredentials",
+    },
+    ("Domain", "openstack.k-orc.cloud"): {
+        "api_paths": ["apis/openstack.k-orc.cloud/v1alpha1/"],
+        "api": "domains",
+    },
+    ("Endpoint", "openstack.k-orc.cloud"): {
+        "api_paths": ["apis/openstack.k-orc.cloud/v1alpha1/"],
+        "api": "endpoints",
+    },
     ("Flavor", "openstack.k-orc.cloud"): {
         "api_paths": ["apis/openstack.k-orc.cloud/v1alpha1/"],
         "api": "flavors",
     },
+    ("FloatingIP", "openstack.k-orc.cloud"): {
+        "api_paths": ["apis/openstack.k-orc.cloud/v1alpha1/"],
+        "api": "floatingips",
+    },
+    ("Group", "openstack.k-orc.cloud"): {
+        "api_paths": ["apis/openstack.k-orc.cloud/v1alpha1/"],
+        "api": "groups",
+    },
     ("Image", "openstack.k-orc.cloud"): {
         "api_paths": ["apis/openstack.k-orc.cloud/v1alpha1/"],
         "api": "images",
+    },
+    ("KeyPair", "openstack.k-orc.cloud"): {
+        "api_paths": ["apis/openstack.k-orc.cloud/v1alpha1/"],
+        "api": "keypairs",
     },
     ("Network", "openstack.k-orc.cloud"): {
         "api_paths": ["apis/openstack.k-orc.cloud/v1alpha1/"],
@@ -6397,6 +6494,10 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
     ("Project", "openstack.k-orc.cloud"): {
         "api_paths": ["apis/openstack.k-orc.cloud/v1alpha1/"],
         "api": "projects",
+    },
+    ("Role", "openstack.k-orc.cloud"): {
+        "api_paths": ["apis/openstack.k-orc.cloud/v1alpha1/"],
+        "api": "roles",
     },
     ("RouterInterface", "openstack.k-orc.cloud"): {
         "api_paths": ["apis/openstack.k-orc.cloud/v1alpha1/"],
@@ -6414,9 +6515,33 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api_paths": ["apis/openstack.k-orc.cloud/v1alpha1/"],
         "api": "servers",
     },
+    ("ServerGroup", "openstack.k-orc.cloud"): {
+        "api_paths": ["apis/openstack.k-orc.cloud/v1alpha1/"],
+        "api": "servergroups",
+    },
+    ("Service", "openstack.k-orc.cloud"): {
+        "api_paths": ["apis/openstack.k-orc.cloud/v1alpha1/"],
+        "api": "services",
+    },
     ("Subnet", "openstack.k-orc.cloud"): {
         "api_paths": ["apis/openstack.k-orc.cloud/v1alpha1/"],
         "api": "subnets",
+    },
+    ("Trunk", "openstack.k-orc.cloud"): {
+        "api_paths": ["apis/openstack.k-orc.cloud/v1alpha1/"],
+        "api": "trunks",
+    },
+    ("User", "openstack.k-orc.cloud"): {
+        "api_paths": ["apis/openstack.k-orc.cloud/v1alpha1/"],
+        "api": "users",
+    },
+    ("Volume", "openstack.k-orc.cloud"): {
+        "api_paths": ["apis/openstack.k-orc.cloud/v1alpha1/"],
+        "api": "volumes",
+    },
+    ("VolumeType", "openstack.k-orc.cloud"): {
+        "api_paths": ["apis/openstack.k-orc.cloud/v1alpha1/"],
+        "api": "volumetypes",
     },
     # opentelemetry.io
     ("Instrumentation", "opentelemetry.io"): {
