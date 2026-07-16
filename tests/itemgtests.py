@@ -931,6 +931,83 @@ def test_get_key_value(verbose: bool = False) -> tuple[str, bool]:
     return message, result
 
 
+def test_get_list_as_string(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = itemgetters.get_list_as_string
+
+    if result:
+        # Indata format:
+        # (obj, kwargs, expected_result, expected_exception)
+        testdata: tuple = (
+            (
+                # Enough separators for the entire list.
+                {
+                    "string": ["foo", "bar", "baz"],
+                },
+                {
+                    "path": "string",
+                    "separators": [":", ","]
+                },
+                [("foo:bar,baz",)],
+                None,
+            ),
+            (
+                # Fewer separators than list entries.
+                {
+                    "string": ["foo", "bar", "baz"],
+                },
+                {
+                    "path": "string",
+                    "separators": [":"]
+                },
+                [("foo:bar:baz",)],
+                None,
+            ),
+            (
+                # No separators.
+                {
+                    "string": ["foo", "bar", "baz"],
+                },
+                {
+                    "path": "string",
+                },
+                [("foobarbaz",)],
+                None,
+            ),
+        )
+
+        for obj, kwargs, expected_result, expected_exception in testdata:
+            try:
+                tmp = fun(obj, **kwargs)
+                if tmp != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"           result: {tmp}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  f"        exception: {type(e)}\n" \
+                                  f"          message: {str(e)}\n" \
+                                  f"         expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"        exception: {type(e)}\n" \
+                              f"          message: {str(e)}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+    return message, result
+
+
 def test_get_list_as_list(verbose: bool = False) -> tuple[str, bool]:
     message = ""
     result = True
@@ -2025,6 +2102,26 @@ def test_get_affinity(verbose: bool = False) -> tuple[str, bool]:
                 ],
                 None,
             ),
+            (
+                # No matching policy
+                {
+                    "kind": "Pod",
+                    "apiVersion": "v1",
+                    "spec": {
+                        "affinity": {
+                            "podAntiAffinity": {
+                                "NotRequiredDuringSchedulingIgnoredDuringExecution": [],
+                            }
+                        },
+                    },
+                },
+                {
+                    # Not a proper policy
+                    "path": "spec#affinity",
+                },
+                [],
+                None,
+            ),
         )
 
         for obj, kwargs, expected_result, expected_exception in testdata:
@@ -2431,6 +2528,16 @@ def test_get_pod_configmaps(verbose: bool = False) -> tuple[str, bool]:
                 None,
                 None,
             ),
+            (
+                # No kh
+                {},
+                {
+                    "kubernetes_helper": None,
+                },
+                {},
+                None,
+                ProgrammingError,
+            ),
         )
 
         for obj, kwargs, mock_response, expected_result, expected_exception in testdata:
@@ -2833,6 +2940,83 @@ def test_get_strings_from_string(verbose: bool = False) -> tuple[str, bool]:
                     "path": "data",
                 },
                 [],
+                None,
+            ),
+        )
+
+        for obj, kwargs, expected_result, expected_exception in testdata:
+            try:
+                tmp = fun(obj, **kwargs)
+                if tmp != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"           result: {tmp}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  f"        exception: {type(e)}\n" \
+                                  f"          message: {str(e)}\n" \
+                                  f"         expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"        exception: {type(e)}\n" \
+                              f"          message: {str(e)}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+    return message, result
+
+
+def test_get_endpoint_ips(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = itemgetters.get_endpoint_ips
+
+    if result:
+        # Indata format:
+        # (obj, kwargs, expected_result, expected_exception)
+        testdata: tuple = (
+            (
+                # Valid data
+                [
+                    {
+                        "addresses": [
+                            {
+                                "ip": "10.52.0.77",
+                                "nodeName": "harvester",
+                                "targetRef": {
+                                    "kind": "Pod",
+                                    "namespace": "cattle-capi-system",
+                                    "name": "capi-controller-manager-674956678b-wrtn6",
+                                    "uid": "600462cb-1f2a-4445-a10c-e4251f5506d2"
+                                }
+                            }
+                        ],
+                        "ports": [
+                            {
+                                "port": 9443,
+                                "protocol": "TCP"
+                            }
+                        ]
+                    }
+                ],
+                {},
+                ["10.52.0.77"],
+                None,
+            ),
+            (
+                # No data
+                [],
+                {},
+                ["<none>"],
                 None,
             ),
         )
@@ -3280,6 +3464,16 @@ def test_get_svc_port_target_endpoints(verbose: bool = False) -> tuple[str, bool
                 ],
                 None,
             ),
+            (
+                # No kh
+                {},
+                {
+                    "kubernetes_helper": None,
+                },
+                {},
+                None,
+                ProgrammingError,
+            ),
         )
 
         for obj, kwargs, mock_response, expected_result, expected_exception in testdata:
@@ -3503,6 +3697,10 @@ tests: dict[tuple[str, ...], dict[str, Any]] = {
         "callable": test_get_key_value,
         "result": None,
     },
+    ("get_list_as_string()",): {
+        "callable": test_get_list_as_string,
+        "result": None,
+    },
     ("get_list_as_list()",): {
         "callable": test_get_list_as_list,
         "result": None,
@@ -3537,6 +3735,10 @@ tests: dict[tuple[str, ...], dict[str, Any]] = {
     },
     ("get_strings_from_string()",): {
         "callable": test_get_strings_from_string,
+        "result": None,
+    },
+    ("get_endpoint_ips()",): {
+        "callable": test_get_endpoint_ips,
         "result": None,
     },
     ("get_security_context()",): {
