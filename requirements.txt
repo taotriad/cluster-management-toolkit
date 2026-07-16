@@ -1,4 +1,4 @@
-setuptools==78.1.1
+setuptools==83.0.0
 ansible_runner==2.1.4
 natsort==8.0.2
 PyYAML==6.0
