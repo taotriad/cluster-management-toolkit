@@ -7,9 +7,13 @@
 Generate the resource type index for view-files.
 """
 
+from functools import reduce
 import os
+from pathlib import Path, PosixPath
 import re
 import sys
+from typing import Any
+import yaml
 
 try:
     from natsort import natsorted
@@ -17,12 +21,29 @@ except ModuleNotFoundError:  # pragma: no cover
     sys.exit("ModuleNotFoundError: Could not import natsort; "
              "you may need to (re-)run `cmt-install.py` or `pip3 install natsort`; aborting.")
 
-from clustermanagementtoolkit.cmttypes import deep_get, DictPath, FilePath
 
-from clustermanagementtoolkit.cmtio_yaml import secure_read_yaml, secure_write_yaml
-from clustermanagementtoolkit.cmtpaths import HOMEDIR
+# Keep this first so we can use it in the exceptions
+def deep_get(dictionary: Any, path: str, default: Any = None) -> Any:
+    """
+    Given a dictionary and a path into that dictionary, get the value.
 
-from clustermanagementtoolkit.cmtlib import read_cmtconfig
+        Parameters:
+            dictionary (dict): The dict to get the value from
+            path (str): A dict path
+            default (Any): The value to return if the dictionary, path, or result is None
+        Returns:
+            (Any): The value from the path
+    """
+    if dictionary is None:
+        return default
+    if path is None or not path or not isinstance(path, str):
+        return default
+    result = reduce(lambda d,
+                    key: d.get(key, default) if isinstance(d, dict) else default,
+                    path.split("#"), dictionary)
+    if result is None:
+        result = default
+    return result
 
 
 def main() -> None:
@@ -33,9 +54,6 @@ def main() -> None:
     if os.geteuid() == 0:
         sys.exit("CRITICAL: This program should not be run as the root user; aborting.")
 
-    # Then initialise the configuration file
-    read_cmtconfig()
-
     # This program should be called with the path to the directory to process index-files
     # in, as well as a path to the output file.
     if len(sys.argv) != 3:
@@ -45,7 +63,7 @@ def main() -> None:
     index_file = sys.argv[2]
 
     if view_dir.startswith("{HOME}"):
-        view_dir = view_dir.replace("{HOME}", HOMEDIR, 1)
+        view_dir = view_dir.replace("{HOME}", Path.home(), 1)
     view_dir = os.path.abspath(view_dir)
 
     index_file = os.path.abspath(index_file)
@@ -72,20 +90,22 @@ def main() -> None:
         if yaml_regex.match(filename) is None:
             continue
 
-        path = FilePath(view_dir).joinpath(filename)
+        path = PosixPath(view_dir).joinpath(filename)
 
         try:
-            d = dict(secure_read_yaml(path, directory_is_symlink=True, asynchronous=True))
+            with open(path, "r", encoding="utf-8") as f:
+                tmp = f.read()
+                d = yaml.safe_load(tmp)
         except TypeError:
             print(f"The View-file {filename} is invalid; skipping.")
             continue
 
-        kind = deep_get(d, DictPath("kind"), "")
-        api_family = deep_get(d, DictPath("api_family"), "")
+        kind = deep_get(d, "kind", "")
+        api_family = deep_get(d, "api_family", "")
 
         resource_type = (kind, api_family)
 
-        aliases = set(deep_get(d, DictPath("command"), []))
+        aliases = set(deep_get(d, "command", []))
 
         if not global_aliases.isdisjoint(aliases):
             sys.exit(f"Error: overlapping aliases found; {global_aliases.intersection(aliases)} "
@@ -102,7 +122,12 @@ def main() -> None:
     # Sort the dict; note: this only sorts the dict on a first-level basis,
     # but that's all we really need.
     sorted_dict = dict(sorted(resource_type_index.items(), key=lambda item: item[0]))
-    secure_write_yaml(index_file, sorted_dict, sort_keys=True, yaml_version=(1, 1))
+
+    tmp = yaml.dump(sorted_dict, indent=2, sort_keys=True)
+    with open(index_file, "w", encoding="utf-8") as f:
+        # Start by writing the YAML header
+        f.write("%YAML 1.1\n---\n")
+        f.write(tmp)
 
 
 if __name__ == "__main__":

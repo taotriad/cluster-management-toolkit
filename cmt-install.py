@@ -44,7 +44,8 @@ from clustermanagementtoolkit.cmtpaths import PARSER_DIRNAME, THEME_DIRNAME, VIE
 from clustermanagementtoolkit.cmtpaths import SOFTWARE_SOURCES_DIRNAME, SOFTWARE_SOURCES_DIR
 
 from clustermanagementtoolkit.cmtio import execute_command_with_response
-from clustermanagementtoolkit.cmtio import secure_copy, secure_mkdir, secure_symlink, secure_which
+from clustermanagementtoolkit.cmtio import secure_copy, secure_mkdir, secure_symlink
+from clustermanagementtoolkit.cmtio import secure_rm, secure_which, secure_write_string
 
 from clustermanagementtoolkit.commandparser import parse_commandline, CommandType
 
@@ -75,6 +76,16 @@ DIRECTORIES = [
     (CMT_POST_PURGE_DIR, 0o755),
     (BASH_COMPLETION_BASE_DIR, 0o755),
     (BASH_COMPLETION_DIR, 0o755),
+]
+
+MANGLED_EXECUTABLE_SYMLINKS = [
+    # These are Python scripts
+    (FilePath(os.path.join(os.getcwd(), "bin", "cmtadm")),
+     FilePath(os.path.join(BINDIR, "cmtadm"))),
+    (FilePath(os.path.join(os.getcwd(), "bin", "cmtinv")),
+     FilePath(os.path.join(BINDIR, "cmtinv"))),
+    (FilePath(os.path.join(os.getcwd(), "bin", "cmt")), FilePath(os.path.join(BINDIR, "cmt"))),
+    (FilePath(os.path.join(os.getcwd(), "bin", "cmu")), FilePath(os.path.join(BINDIR, "cmu"))),
 ]
 
 EXECUTABLE_SYMLINKS = [
@@ -279,6 +290,53 @@ def create_directories(directories: list[tuple[FilePath, int]], verbose: bool = 
     """
     for directory, permissions in directories:
         secure_mkdir(directory, permissions=permissions, verbose=verbose)
+
+
+def remove_wrappers(wrappers: list[tuple[FilePath, FilePath]], verbose: bool = False) -> None:
+    """
+    Remove wrappers for executables.
+
+        Parameters:
+            symlinks ([(FilePath, FilePath)]): A list of wrappers (full path) to create;
+                                               (src, dst)
+            verbose (bool): Be more verbose
+    """
+    for src, dst in wrappers:
+        # Remove old wrapper or symlink
+        if verbose:
+            print(f"Deleting old wrapper or symlink {dst}")
+
+        secure_rm(dst, ignore_non_existing=True)
+
+
+def create_wrappers(wrappers: list[tuple[FilePath, FilePath]], verbose: bool = False) -> None:
+    """
+    Create wrappers for executables, to allow passing PYTHONPATH.
+
+        Parameters:
+            symlinks ([(FilePath, FilePath)]): A list of wrappers (full path) to create;
+                                               (src, dst)
+            verbose (bool): Be more verbose
+    """
+    remove_wrappers(wrappers=wrappers, verbose=verbose)
+
+    for src, dst in wrappers:
+        wrapper: str = \
+            "#! /bin/sh\n" \
+            f"PYTHONPATH={os.getcwd()} {src} $*\n"
+
+        try:
+            if verbose:
+                print(f"Creating a wrapper for {src} in {dst}")
+            secure_write_string(dst, wrapper, permissions=0o755)
+        except PermissionError:
+            print()
+            ansithemeprint([ANSIThemeStr("Critical", "critical"),
+                            ANSIThemeStr(": Could not write to ", "default"),
+                            ANSIThemeStr(f"{dst}", "path"),
+                            ANSIThemeStr("; permissions or ownership are incorrect; aborting.",
+                                         "default")], stderr=True)
+            sys.exit(errno.EPERM)
 
 
 def create_symlinks(symlinks: list[tuple[FilePath, FilePath]], verbose: bool = False) -> None:
@@ -791,13 +849,16 @@ def install(options: list[tuple[str, str]], args: list[str]) -> int:
     install_dependencies: bool = True
     confirm: bool = True
     allow_fallback: bool = True
-    pip_proxy = ""
+    pip_proxy: str = ""
+    mangle: bool = False
 
     bindir_exists = Path(BINDIR).is_dir()
 
     for opt, optarg in options:
         if opt == "--verbose":
             verbose = True
+        elif opt == "--mangle":
+            mangle = True
         elif opt == "--no-dependencies":
             install_dependencies = False
         elif opt == "--no-fallback":
@@ -806,6 +867,11 @@ def install(options: list[tuple[str, str]], args: list[str]) -> int:
             pip_proxy = optarg
         elif opt == "-Y":
             confirm = False
+
+    if mangle:
+        executable_symlinks = MANGLED_EXECUTABLE_SYMLINKS
+    else:
+        executable_symlinks = EXECUTABLE_SYMLINKS
 
     # Find out what distro this is run on
     try:
@@ -948,7 +1014,9 @@ def install(options: list[tuple[str, str]], args: list[str]) -> int:
             ansithemeprint([ANSIThemeStr(f"    {src}", "path"),
                             ANSIThemeStr(" ⇨ ", "emphasis"),
                             ANSIThemeStr(f"{dst}", "path")])
-        for src, dst in EXECUTABLE_SYMLINKS:
+        ansithemeprint([ANSIThemeStr("\n• ", "separator"),
+                        ANSIThemeStr("Create the following wrappers:", "action")])
+        for src, dst in executable_symlinks:
             ansithemeprint([ANSIThemeStr(f"    {src}", "path"),
                             ANSIThemeStr(" ⇨ ", "emphasis"),
                             ANSIThemeStr(f"{dst}", "path")])
@@ -979,7 +1047,12 @@ def install(options: list[tuple[str, str]], args: list[str]) -> int:
 
     create_directories(directories=DIRECTORIES, verbose=verbose)
     copy_files(files=CONFIGURATION_FILES, verbose=verbose)
-    create_symlinks(symlinks=MISC_SYMLINKS + EXECUTABLE_SYMLINKS, verbose=verbose)
+    create_symlinks(symlinks=MISC_SYMLINKS, verbose=verbose)
+    if mangle:
+        create_wrappers(executable_symlinks, verbose=verbose)
+    else:
+        remove_wrappers(executable_symlinks, verbose=verbose)
+        create_symlinks(symlinks=executable_symlinks, verbose=verbose)
 
     if not bindir_exists:
         ansithemeprint([ANSIThemeStr("\nWarning", "warning"),
@@ -1002,6 +1075,9 @@ COMMANDLINE: dict[str, CommandType] = {
         "description": [
             ANSIThemeStr("", "")],
         "options": {
+            "--mangle": {
+                "description": [ANSIThemeStr("Mangle Python headers", "description")],
+            },
             "--no-dependencies": {
                 "description": [ANSIThemeStr("Do not install dependencies", "description")],
             },

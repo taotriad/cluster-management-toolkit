@@ -362,7 +362,6 @@ def secure_rm(path: FilePath, ignore_non_existing: bool = False) -> None:
     """
     checks: list[SecurityChecks] = [
         SecurityChecks.PARENT_RESOLVES_TO_SELF,
-        SecurityChecks.RESOLVES_TO_SELF,
         SecurityChecks.PARENT_OWNER_IN_ALLOWLIST,
         SecurityChecks.OWNER_IN_ALLOWLIST,
         SecurityChecks.PARENT_PERMISSIONS,
