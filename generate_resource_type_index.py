@@ -46,6 +46,7 @@ def deep_get(dictionary: Any, path: str, default: Any = None) -> Any:
     return result
 
 
+# pylint: disable-next=too-many-locals
 def main() -> None:
     """
     Main function for the program.
