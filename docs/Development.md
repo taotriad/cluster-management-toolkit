@@ -16,7 +16,6 @@ It tries to provide a highlevel view of what is planned for the upcoming year or
 
 ### Verify that everything passes release criteria
 
-* [ ] `make build` *(Build all templated data)*
 * [ ] `pipx upgrade-all` *(Ensures that regexploit and semgrep are the most recent version)*
 * [ ] `make build` *(Generate views from templates and rebuild the resource type index)*
 * [ ] `generate_helptexts` *(Regenerate the helptexts for for all command line tools)*

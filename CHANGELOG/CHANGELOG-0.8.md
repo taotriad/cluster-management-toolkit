@@ -77,11 +77,12 @@ secrets, etc.
 
 ### Changes to _cmt_ in v0.8.8
 
-TBD
+* The `--delete-local-data` option has been removed.
 
 ### Changes to _cmtadm_ in v0.8.8
 
-TBD
+* `cmtadm` now ensures that it's performing actions on the selected context.
+* Improved error handling.
 
 ### Changes to _cmtinv_ in v0.8.8
 
@@ -139,7 +140,7 @@ TBD
 * The `key_value` and `key_value_with_leading_message` logparser rules now formats
   the messages even if they're not unfolded.
 * A special hack was introduced in the `key_value_with_leading_message` logparser
-  rule that unfolds key-value messages starting with `FLAG:`.
+  rule to prevent unfolding of key-value messages starting with `FLAG:`.
 * A special hack was introduced in the `key_value` and `key_value_with_leading_message`
   logparser rules that disables the rule on lines that end with a full stop.
   This rule was introduced because several informational log messages were found
@@ -152,7 +153,6 @@ TBD
 * `sntrup761x25519-sha512@openssh.com` (post-quantum version of ed25519) is now part of the permitted
   SSH KEX-algorithms.
 * `identify_k8s_distro()` now supports more distros, and is hopefully slightly more reliable.
-* Lots of type-hint complaints from `mypy` have been fixed.
 * The old Markdown formatter has now been removed.
 * `get_api_resources` now uses `apidiscovery.k8s.io` v2 instead of v2beta1; newer clusters have dropped
   support for v2beta1 and `cmu` / `cmt` would thus experience a massive slowdown;
@@ -167,25 +167,17 @@ TBD
 
 ### view-file changes
 
-TBD
+* Roughly 70 new view-files have been added.
+* A lot of the view-files are now generated from templates;
+  this means that some duplicated shortcuts have been eliminated.
 
 ### parser-file changes
 
-TBD
+* Roughly 20 new view-files have been added.
 
 ## Known Regressions in v0.8.8
 
-> [!WARNING]
-> While technically not a known regression,
-> all internal data handling has gone through a major overhaul
-> in this version of CMT, to make it easier to share data handling
-> between cmu and cmt.
->
-> The custom class used for data has been removed in favor of standard
-> dicts; this way we also benefit from easier debugging and better consistency.
-> It does, however, change code in many places in subtle ways,
-> and thus it might cause regressions, especially since we no longer
-> have a hashable data-type.
+No known regressions.
 
 ## Known Issues in v0.8.8
 
@@ -215,12 +207,12 @@ TBD
 | jinja2         | 3.1.6           | openSUSE/SLES/RHEL, unsupported distros |
 | natsort        | 8.0.2           | openSUSE/SLES/RHEL, unsupported distros |
 | paramiko       |                 | openSUSE/SLES/RHEL, unsupported distros |
-| pygments       |                 | OpenSUSE/SLES/RHEL, unsupported distros |
+| pygments       | 2.20.0          | OpenSUSE/SLES/RHEL, unsupported distros |
 | PyYAML         | 6.0             | Unsupported distros                     |
 | ruamel.yaml    | 0.17.21         | Unsupported distros [1]                 |
 | ruyaml         | 0.91.0          | Unsupported distros [1]                 |
-| setuptools     | 78.1.1          | openSUSE/SLES/RHEL, unsupported distros |
-| ujson          | 5.12.1          | openSUSE/SLES/RHEL, unsupported distros |
+| setuptools     | 83.0.0          | openSUSE/SLES/RHEL, unsupported distros |
+| ujson          | 5.13.0          | openSUSE/SLES/RHEL, unsupported distros |
 | urllib3        | 2.7.0           | openSUSE/SLES, unsupported distros      |
 | validators     | 0.22.0          | openSUSE/SLES/RHEL, unsupported distros |
 
@@ -281,7 +273,7 @@ Test results:
 	No issues identified.
 
 Code scanned:
-	Total lines of code: 96840
+	Total lines of code: 100850
 	Total lines skipped (#nosec): 8
 
 Run metrics:
@@ -317,40 +309,40 @@ Output:
 Name                                                  Stmts   Miss Branch BrPart  Cover
 ---------------------------------------------------------------------------------------
 clustermanagementtoolkit/cluster_actions.py             226    178     74      3  19.0%
-clustermanagementtoolkit/listgetters.py                1242    924    676     16  23.9%
-clustermanagementtoolkit/curses_helper.py              2639   1904   1192     23  24.7%
-clustermanagementtoolkit/infogetters.py                1737   1287   1058     22  24.9%
+clustermanagementtoolkit/logparser.py                  2120   1523   1202     37  24.0%
+clustermanagementtoolkit/curses_helper.py              2696   1957   1222     22  24.4%
+clustermanagementtoolkit/listgetters.py                1243    916    676     17  24.6%
+clustermanagementtoolkit/infogetters.py                1746   1294   1064     22  24.8%
 clustermanagementtoolkit/networkio.py                   395    289    188      3  25.2%
-clustermanagementtoolkit/logparser.py                  2040   1437   1122     36  25.4%
-clustermanagementtoolkit/kubernetes_helper.py          1624   1107    786     78  27.9%
+clustermanagementtoolkit/kubernetes_helper.py          1623   1103    786     74  28.2%
 clustermanagementtoolkit/listgetters_async.py           118     75     52      2  31.2%
-clustermanagementtoolkit/checks.py                      624    326    246      1  45.2%
-clustermanagementtoolkit/datagetters.py                 275    143    144     12  45.8%
-clustermanagementtoolkit/generators.py                  775    388    392     30  46.7%
-clustermanagementtoolkit/cmtlib.py                      653    171    364     18  71.8%
+clustermanagementtoolkit/checks.py                      620    326    246      1  44.9%
+clustermanagementtoolkit/generators.py                  761    379    392     34  47.4%
+clustermanagementtoolkit/datagetters.py                 272     84    142     12  67.6%
+clustermanagementtoolkit/cmtlib.py                      664    181    368     18  70.8%
 clustermanagementtoolkit/ansible_helper.py              818    219    486     27  72.1%
-clustermanagementtoolkit/ansithemeprint.py              289     56    122      6  78.6%
-clustermanagementtoolkit/formatters.py                  893    113    414     41  84.4%
-clustermanagementtoolkit/itemgetters.py                 545     70    304     23  85.3%
+clustermanagementtoolkit/ansithemeprint.py              289     54    122      6  79.1%
+clustermanagementtoolkit/itemgetters.py                 556     62    314     23  86.8%
 clustermanagementtoolkit/cmtio.py                       426     45    226     20  88.2%
-clustermanagementtoolkit/cni_data.py                     97      1     40     10  92.0%
+clustermanagementtoolkit/cni_data.py                     80      1     40     10  90.8%
+clustermanagementtoolkit/cmtio_yaml.py                   89      7     22      3  91.0%
+clustermanagementtoolkit/cmtvalidators.py               336     18    212      8  93.4%
+clustermanagementtoolkit/formatters.py                  899     33    396     48  93.7%
 clustermanagementtoolkit/reexecutor.py                   72      2     28      3  95.0%
-clustermanagementtoolkit/cmtvalidators.py               325     13    202      6  95.3%
-clustermanagementtoolkit/cmtio_yaml.py                   68      1     16      1  97.6%
-clustermanagementtoolkit/commandparser.py               448      1    254      2  99.6%
-clustermanagementtoolkit/cmttypes.py                    494      1    192      0  99.9%
+clustermanagementtoolkit/commandparser.py               434      8    262      5  98.1%
+clustermanagementtoolkit/objgetters.py                   56      0     12      1  98.5%
+clustermanagementtoolkit/cmttypes.py                    490      1    188      0  99.9%
 clustermanagementtoolkit/about.py                        17      0      0      0 100.0%
 clustermanagementtoolkit/cmtlog.py                       80      0     40      0 100.0%
 clustermanagementtoolkit/cmtpaths.py                     90      0      0      0 100.0%
-clustermanagementtoolkit/fieldgetters.py                 65      0     28      0 100.0%
+clustermanagementtoolkit/fieldgetters.py                 67      0     30      0 100.0%
 clustermanagementtoolkit/github_tags.py                   3      0      0      0 100.0%
 clustermanagementtoolkit/helptexts.py                    23      0      0      0 100.0%
 clustermanagementtoolkit/kubernetes_resources.py          5      0      0      0 100.0%
-clustermanagementtoolkit/objgetters.py                   56      0     12      0 100.0%
-clustermanagementtoolkit/pvtypes.py                       6      0      0      0 100.0%
-clustermanagementtoolkit/recommended_permissions.py      28      0      0      0 100.0%
+clustermanagementtoolkit/pvtypes.py                       3      0      0      0 100.0%
+clustermanagementtoolkit/recommended_permissions.py      15      0      0      0 100.0%
 ---------------------------------------------------------------------------------------
-TOTAL                                                 17196   8751   8658    383  46.4%
+TOTAL                                                 17332   8755   8790    399  46.8%
 ```
 
 ### Flake8 Results for v0.8.8
@@ -369,7 +361,7 @@ No output.
 Commandline: `mypy --follow-imports silent --explicit-package-bases --ignore-missing --disallow-untyped-calls --disallow-untyped-defs --disallow-incomplete-defs --check-untyped-defs --disallow-untyped-decorators --warn-redundant-casts --warn-unused-ignores`.
 Execute with `make mypy-markdown`.
 
-Version: 1.20.2
+Version: 2.1.0
 
 | Source file                                         | Score                                                 |
 | :-------------------------------------------------- | :---------------------------------------------------- |
@@ -405,7 +397,7 @@ Version: 1.20.2
 | clustermanagementtoolkit/kubernetes_resources.py    | Success: no issues found in 1 source file             |
 | clustermanagementtoolkit/listgetters.py             | Success: no issues found in 1 source file             |
 | clustermanagementtoolkit/listgetters_async.py       | Success: no issues found in 1 source file             |
-| clustermanagementtoolkit/logparser.py               | **Found 48 errors in 1 file (checked 1 source file)** |
+| clustermanagementtoolkit/logparser.py               | **Found 63 errors in 1 file (checked 1 source file)** |
 | clustermanagementtoolkit/networkio.py               | Success: no issues found in 1 source file             |
 | clustermanagementtoolkit/objgetters.py              | Success: no issues found in 1 source file             |
 | clustermanagementtoolkit/pvtypes.py                 | Success: no issues found in 1 source file             |
@@ -417,7 +409,7 @@ Version: 1.20.2
 Commandline: `pylint --py-version 3.11 --disable W0511, similarities --enable useless-suppression`.
 Table generated with `make pylint-markdown`.
 
-Version: 4.0.5
+Version: 4.0.6
 
 | Source file                                         | Score    |
 | :-------------------------------------------------- | -------: |
@@ -471,7 +463,7 @@ Output:
 
 ```
 Checking executables
-Processed 80 regexes
+Processed 82 regexes
 
 Checking libraries
 Processed 149 regexes
@@ -493,7 +485,7 @@ No Output.
 Commandline: `semgrep scan --exclude-rule "generic.secrets.security.detected-generic-secret.detected-generic-secret.semgrep-legacy.30980" --exclude-rule "python.flask.security.xss.audit.direct-use-of-jinja2.direct-use-of-jinja2" --exclude "*.yaml" --exclude "*.j2" --exclude "*.json" --timeout=0 --no-git-ignore`.
 Execute with `make semgrep`.
 
-Version: 1.161.0
+Version: 1.170.0
 
 Output:
 
@@ -504,15 +496,15 @@ Output:
 ✅ Scan completed successfully.
  • Findings: 0 (0 blocking)
  • Rules run: 1197
- • Targets scanned: 43
+ • Targets scanned: 42
  • Parsed lines: ~100.0%
  • No ignore information available
-Ran 1197 rules on 43 files: 0 findings.
+Ran 1197 rules on 42 files: 0 findings.
 ```
 
 ### validate_playbooks Results for v0.8.8
 
-Version: 26.1.1
+Version: 26.4.0
 
 Commandline: `ansible-lint`.
 Execute with: `make validate_playbooks`.
@@ -531,9 +523,9 @@ Output:
 ```
 Summary:
      fail: 0
-     skip: 6
-  success: 1157
-    total: 1163
+     skip: 5
+  success: 1177
+    total: 1182
 ```
 
 ### YAMLlint Results for v0.8.8

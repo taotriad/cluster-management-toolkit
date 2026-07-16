@@ -391,6 +391,8 @@ def get_pod_status(obj: dict[str, Any], **kwargs: Any) -> tuple[str, StatusGroup
             **kwargs (dict[str, Any]): Keyword arguments
                 kubernetes_helper (KubernetesHelper): A reference to a KubernetesHelper object
                 kh_cache (KubernetesResourceCache): A reference to a KubernetesResourceCache object
+                in_depth_node_status (bool): Return more detailed node status? Will check whether
+                                             the associate node is available
         Returns:
             (str, StatusGroup):
                 (str): The phase of the pod
@@ -432,7 +434,8 @@ def get_pod_status(obj: dict[str, Any], **kwargs: Any) -> tuple[str, StatusGroup
                     reason = deep_get(container, DictPath("state#waiting#reason"), "").rstrip()
                     if reason is None or not reason:
                         continue
-                    if reason in ("CrashLoopBackOff", "ImagePullBackOff"):
+                    if reason in ("CrashLoopBackOff", "ImagePullBackOff",
+                                  "ErrImageNeverPull", "ErrImagePull"):
                         status_group = StatusGroup.NOT_OK
                     status = f"Init:{reason}"
                     break
@@ -442,7 +445,8 @@ def get_pod_status(obj: dict[str, Any], **kwargs: Any) -> tuple[str, StatusGroup
                     reason = deep_get(container, DictPath("state#waiting#reason"), "").rstrip()
                     if reason is None or not reason:
                         continue
-                    if reason in ("CrashLoopBackOff", "ErrImageNeverPull", "ErrImagePull"):
+                    if reason in ("CrashLoopBackOff", "ImagePullBackOff",
+                                  "ErrImageNeverPull", "ErrImagePull"):
                         status_group = StatusGroup.NOT_OK
                     status = reason
                     break
@@ -516,20 +520,21 @@ def datagetter_pod_status(obj: dict[str, Any], **kwargs: Any) -> tuple[str, dict
             **kwargs (dict[str, Any]): Keyword arguments
                 kh (KubernetesHelper): A reference to a KubernetesHelper object
                 kh_cache (KubernetesResourceCache): A reference to a KubernetesResourceCache object
-                default (Any): [unused]
+                default (Any): Data to return if the object is None
+                in_depth_node_status (bool): Return more detailed node status? Will check whether
+                                             the associate Node is available
         Returns:
-            The return value from get_endpointslices_endpoints and an empty dict
+            (str, StatusGroup):
+                (str): The phase of the pod
+                    (dict["status_group", StatusGroup]):
+                        (StatusGroup): The StatusGroup of the pod
     """
-    if (kh := deep_get(kwargs, DictPath("kubernetes_helper"))) is None:
-        raise ProgrammingError(f"{__name__}() called without kubernetes_helper")
-    kh_cache = deep_get(kwargs, DictPath("kh_cache"))
-
     default = deep_get(kwargs, DictPath("default"))
 
     if obj is None:
-        return default, {}
+        return default, {"status_group": StatusGroup.UNKNOWN}
 
-    status, status_group = get_pod_status(obj, kubernetes_helper=kh, kh_cache=kh_cache)
+    status, status_group = get_pod_status(obj, **kwargs)
 
     return status, {"status_group": status_group}
 
@@ -546,7 +551,7 @@ def datagetter_api_support(obj: dict[str, Any], **kwargs: Any) -> tuple[list[str
             obj (dict): The object to get the API-name from
             kwargs (dict):
                 kubernetes_helper (KubernetesHelper): A reference to a KubernetesHelper object
-                default (Any): [unused]
+                default (Any): Data to return if the object is None
         Returns:
             ([str], dict):
                 ([str]): A list with zero or more of "Known", "List", "Info"

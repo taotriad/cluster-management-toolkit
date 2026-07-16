@@ -65,7 +65,11 @@ def test_json_dumps(verbose: bool = False) -> tuple[str, bool]:
         # Indata format:
         # (dict, expected_result, expected_exception)
         testdata: tuple[Any, ...] = (
-            ({"foo": "bar", "bar": 1}, "{\n  \"foo\": \"bar\",\n  \"bar\": 1\n}", None),
+            (
+                {"foo": "bar", "bar": 1},
+                "{\n  \"foo\": \"bar\",\n  \"bar\": 1\n}",
+                None
+            ),
         )
 
         for indata, expected_result, expected_exception in testdata:
@@ -110,323 +114,365 @@ def test_render_markdown(verbose: bool = False) -> tuple[str, bool]:
         # (lines, options, expected_result, expected_exception)
         testdata: tuple[Any, ...] = (
             # GitHub header, bold, italics, and emoji tag; tag NOT replaced.
-            (["# Header 1",
-              "A **bold** message.",
-              "",
-              "## Header 2",
-              "An *italicized* message with a recycling emoji :recycle:"],
-             {"use_github_tags": False},
-             [
-                 [ThemeStr("Header 1", ThemeAttr("types", "markdown_header_1"), False)],
-                 [ThemeStr("A ", ThemeAttr("types", "generic"), False),
-                  ThemeStr("bold", ThemeAttr("types", "markdown_bold"), False),
-                  ThemeStr(" message.", ThemeAttr("types", "generic"), False)],
-                 [],
-                 [ThemeStr("Header 2", ThemeAttr("types", "markdown_header_2"), False)],
-                 [ThemeStr("An ", ThemeAttr("types", "generic"), False),
-                  ThemeStr("italicized", ThemeAttr("types", "markdown_italics"), False),
-                  ThemeStr(" message with a recycling emoji :recycle:",
-                           ThemeAttr("types", "generic"), False)]],
-             None),
+            (
+                ["# Header 1",
+                 "A **bold** message.",
+                 "",
+                 "## Header 2",
+                 "An *italicized* message with a recycling emoji :recycle:"],
+                {"use_github_tags": False},
+                [
+                    [ThemeStr("Header 1", ThemeAttr("types", "markdown_header_1"), False)],
+                    [ThemeStr("A ", ThemeAttr("types", "generic"), False),
+                     ThemeStr("bold", ThemeAttr("types", "markdown_bold"), False),
+                     ThemeStr(" message.", ThemeAttr("types", "generic"), False)],
+                    [],
+                    [ThemeStr("Header 2", ThemeAttr("types", "markdown_header_2"), False)],
+                    [ThemeStr("An ", ThemeAttr("types", "generic"), False),
+                     ThemeStr("italicized", ThemeAttr("types", "markdown_italics"), False),
+                     ThemeStr(" message with a recycling emoji :recycle:",
+                              ThemeAttr("types", "generic"), False)]],
+                None
+            ),
             # GitHub header, bold, italics, and emoji tag; tag replaced.
-            (["# Header 1",
-              "A **bold** message.",
-              "",
-              "## Header 2",
-              "An *italicized* message with a recycling emoji :recycle:."],
-             {},
-             [
-                 [ThemeStr("Header 1", ThemeAttr("types", "markdown_header_1"), False)],
-                 [ThemeStr("A ", ThemeAttr("types", "generic"), False),
-                  ThemeStr("bold", ThemeAttr("types", "markdown_bold"), False),
-                  ThemeStr(" message.", ThemeAttr("types", "generic"), False)],
-                 [],
-                 [ThemeStr("Header 2", ThemeAttr("types", "markdown_header_2"), False)],
-                 [ThemeStr("An ", ThemeAttr("types", "generic"), False),
-                  ThemeStr("italicized", ThemeAttr("types", "markdown_italics"), False),
-                  ThemeStr(" message with a recycling emoji ♻️.",
-                           ThemeAttr("types", "generic"), False)]],
-             None),
+            (
+                ["# Header 1",
+                 "A **bold** message.",
+                 "",
+                 "## Header 2",
+                 "An *italicized* message with a recycling emoji :recycle:."],
+                {},
+                [
+                    [ThemeStr("Header 1", ThemeAttr("types", "markdown_header_1"), False)],
+                    [ThemeStr("A ", ThemeAttr("types", "generic"), False),
+                     ThemeStr("bold", ThemeAttr("types", "markdown_bold"), False),
+                     ThemeStr(" message.", ThemeAttr("types", "generic"), False)],
+                    [],
+                    [ThemeStr("Header 2", ThemeAttr("types", "markdown_header_2"), False)],
+                    [ThemeStr("An ", ThemeAttr("types", "generic"), False),
+                     ThemeStr("italicized", ThemeAttr("types", "markdown_italics"), False),
+                     ThemeStr(" message with a recycling emoji ♻️.",
+                              ThemeAttr("types", "generic"), False)]],
+                None
+            ),
             # GitHub alert
-            (["> [!WARNING]",
-              "> This is a test warning."],
-             {},
-             [
-                [ThemeStr("┃ ", ThemeAttr("main", "highlight"), False),
-                 ThemeStr("⚠️ ", ThemeAttr("types", "generic"), False),
-                 ThemeStr(" Warning", ThemeAttr("types", "markdown_warning"), False)],
-                [ThemeStr("┃ ", ThemeAttr("main", "highlight"), False),
-                 ThemeStr("This is a test warning.",
-                          ThemeAttr("types", "markdown_italics"), False)]],
-             None),
+            (
+                ["> [!WARNING]",
+                 "> This is a test warning."],
+                {},
+                [
+                    [ThemeStr("┃ ", ThemeAttr("main", "highlight"), False),
+                     ThemeStr("⚠️ ", ThemeAttr("types", "generic"), False),
+                     ThemeStr(" Warning", ThemeAttr("types", "markdown_warning"), False)],
+                    [ThemeStr("┃ ", ThemeAttr("main", "highlight"), False),
+                     ThemeStr("This is a test warning.",
+                              ThemeAttr("types", "markdown_italics"), False)]],
+                None
+            ),
             # GitHub alert, tags not replaced
-            (["> [!WARNING]",
-              "> This is a test warning."],
-             {"use_github_tags": False},
-             [
-                [ThemeStr("┃ ", ThemeAttr("main", "highlight"), False),
-                 ThemeStr("[!WARNING]", ThemeAttr("types", "markdown_italics"), False)],
-                [ThemeStr("┃ ", ThemeAttr("main", "highlight"), False),
-                 ThemeStr("This is a test warning.",
-                          ThemeAttr("types", "markdown_italics"), False)]],
-             None),
+            (
+                ["> [!WARNING]",
+                 "> This is a test warning."],
+                {"use_github_tags": False},
+                [
+                    [ThemeStr("┃ ", ThemeAttr("main", "highlight"), False),
+                     ThemeStr("[!WARNING]", ThemeAttr("types", "markdown_italics"), False)],
+                    [ThemeStr("┃ ", ThemeAttr("main", "highlight"), False),
+                     ThemeStr("This is a test warning.",
+                              ThemeAttr("types", "markdown_italics"), False)]],
+                None
+            ),
             # Table with delimiters on the outside
-            (["|A simple|Table  |",
-              "|--------|-----|",
-              "|some data !!|foo|"],
-             {},
-             [
-                [ThemeStr("┌────────────┬─────┐", ThemeAttr("types", "generic"))],
-                [ThemeStr("│", ThemeAttr("types", "generic")),
-                 ThemeStr("A simple", ThemeAttr("types", "markdown_table_header")),
-                 ThemeStr("    │", ThemeAttr("types", "generic")),
-                 ThemeStr("Table", ThemeAttr("types", "markdown_table_header")),
-                 ThemeStr("│", ThemeAttr("types", "generic"))],
-                [ThemeStr("├────────────┼─────┤", ThemeAttr("types", "generic"))],
-                [ThemeStr("│some data !!│foo  │", ThemeAttr("types", "generic"))],
-                [ThemeStr("└────────────┴─────┘", ThemeAttr("types", "generic"))]],
-             None),
+            (
+                ["|A simple|Table  |",
+                 "|--------|-----|",
+                 "|some data !!|foo|"],
+                {},
+                [
+                    [ThemeStr("┌────────────┬─────┐", ThemeAttr("types", "generic"))],
+                    [ThemeStr("│", ThemeAttr("types", "generic")),
+                     ThemeStr("A simple", ThemeAttr("types", "markdown_table_header")),
+                     ThemeStr("    │", ThemeAttr("types", "generic")),
+                     ThemeStr("Table", ThemeAttr("types", "markdown_table_header")),
+                     ThemeStr("│", ThemeAttr("types", "generic"))],
+                    [ThemeStr("├────────────┼─────┤", ThemeAttr("types", "generic"))],
+                    [ThemeStr("│some data !!│foo  │", ThemeAttr("types", "generic"))],
+                    [ThemeStr("└────────────┴─────┘", ThemeAttr("types", "generic"))]],
+                None
+            ),
             # Table without delimiters on the outside
-            (["A simple|Table",
-              "--------|-----",
-              "some data !!|foo"],
-             {},
-             [
-                [ThemeStr("┌────────────┬─────┐", ThemeAttr("types", "generic"))],
-                [ThemeStr("│", ThemeAttr("types", "generic")),
-                 ThemeStr("A simple", ThemeAttr("types", "markdown_table_header")),
-                 ThemeStr("    │", ThemeAttr("types", "generic")),
-                 ThemeStr("Table", ThemeAttr("types", "markdown_table_header")),
-                 ThemeStr("│", ThemeAttr("types", "generic"))],
-                [ThemeStr("├────────────┼─────┤", ThemeAttr("types", "generic"))],
-                [ThemeStr("│some data !!│foo  │", ThemeAttr("types", "generic"))],
-                [ThemeStr("└────────────┴─────┘", ThemeAttr("types", "generic"))]],
-             None),
+            (
+                ["A simple|Table",
+                 "--------|-----",
+                 "some data !!|foo"],
+                {},
+                [
+                    [ThemeStr("┌────────────┬─────┐", ThemeAttr("types", "generic"))],
+                    [ThemeStr("│", ThemeAttr("types", "generic")),
+                     ThemeStr("A simple", ThemeAttr("types", "markdown_table_header")),
+                     ThemeStr("    │", ThemeAttr("types", "generic")),
+                     ThemeStr("Table", ThemeAttr("types", "markdown_table_header")),
+                     ThemeStr("│", ThemeAttr("types", "generic"))],
+                    [ThemeStr("├────────────┼─────┤", ThemeAttr("types", "generic"))],
+                    [ThemeStr("│some data !!│foo  │", ThemeAttr("types", "generic"))],
+                    [ThemeStr("└────────────┴─────┘", ThemeAttr("types", "generic"))]],
+                None
+            ),
             # Table with formatting
-            (["|Table With|Formatted Fields|",
-              "|--------|-----|",
-              "|No formatting| **formatting** no formatting|"],
-             {},
-             [
-                [ThemeStr("┌─────────────┬────────────────────────┐",
-                          ThemeAttr("types", "generic"))],
-                [ThemeStr("│", ThemeAttr("types", "generic")),
-                 ThemeStr("Table With", ThemeAttr("types", "markdown_table_header")),
-                 ThemeStr("   │", ThemeAttr("types", "generic")),
-                 ThemeStr("Formatted Fields", ThemeAttr("types", "markdown_table_header")),
-                 ThemeStr("        │", ThemeAttr("types", "generic"))],
-                [ThemeStr("├─────────────┼────────────────────────┤",
-                          ThemeAttr("types", "generic"))],
-                [ThemeStr("│No formatting│", ThemeAttr("types", "generic")),
-                 ThemeStr("formatting", ThemeAttr("types", "markdown_bold")),
-                 ThemeStr(" no formatting│", ThemeAttr("types", "generic"))],
-                [ThemeStr("└─────────────┴────────────────────────┘",
-                          ThemeAttr("types", "generic"))]],
-             None),
+            (
+                ["|Table With|Formatted Fields|",
+                 "|--------|-----|",
+                 "|No formatting| **formatting** no formatting|"],
+                {},
+                [
+                    [ThemeStr("┌─────────────┬────────────────────────┐",
+                              ThemeAttr("types", "generic"))],
+                    [ThemeStr("│", ThemeAttr("types", "generic")),
+                     ThemeStr("Table With", ThemeAttr("types", "markdown_table_header")),
+                     ThemeStr("   │", ThemeAttr("types", "generic")),
+                     ThemeStr("Formatted Fields", ThemeAttr("types", "markdown_table_header")),
+                     ThemeStr("        │", ThemeAttr("types", "generic"))],
+                    [ThemeStr("├─────────────┼────────────────────────┤",
+                              ThemeAttr("types", "generic"))],
+                    [ThemeStr("│No formatting│", ThemeAttr("types", "generic")),
+                     ThemeStr("formatting", ThemeAttr("types", "markdown_bold")),
+                     ThemeStr(" no formatting│", ThemeAttr("types", "generic"))],
+                    [ThemeStr("└─────────────┴────────────────────────┘",
+                              ThemeAttr("types", "generic"))]],
+                None
+            ),
             # Table with pre-formatted data containing | characters
-            (["|Table With|Preformatted Data|",
-              "|--------|-----|",
-              "|No formatting| `cat foo | grep bar` |"],
-             {},
-             [
-                [ThemeStr("┌─────────────┬──────────────────┐",
-                          ThemeAttr("types", "generic"))],
-                [ThemeStr("│", ThemeAttr("types", "generic")),
-                 ThemeStr("Table With", ThemeAttr("types", "markdown_table_header")),
-                 ThemeStr("   │", ThemeAttr("types", "generic")),
-                 ThemeStr("Preformatted Data", ThemeAttr("types", "markdown_table_header")),
-                 ThemeStr(" │", ThemeAttr("types", "generic"))],
-                [ThemeStr("├─────────────┼──────────────────┤",
-                          ThemeAttr("types", "generic"))],
-                [ThemeStr("│No formatting│", ThemeAttr("types", "generic")),
-                 ThemeStr("cat foo | grep bar", ThemeAttr("types", "markdown_code")),
-                 ThemeStr("│", ThemeAttr("types", "generic"))],
-                [ThemeStr("└─────────────┴──────────────────┘",
-                          ThemeAttr("types", "generic"))]],
-             None),
+            (
+                ["|Table With|Preformatted Data|",
+                 "|--------|-----|",
+                 "|No formatting| `cat foo | grep bar` |"],
+                {},
+                [
+                    [ThemeStr("┌─────────────┬──────────────────┐",
+                              ThemeAttr("types", "generic"))],
+                    [ThemeStr("│", ThemeAttr("types", "generic")),
+                     ThemeStr("Table With", ThemeAttr("types", "markdown_table_header")),
+                     ThemeStr("   │", ThemeAttr("types", "generic")),
+                     ThemeStr("Preformatted Data", ThemeAttr("types", "markdown_table_header")),
+                     ThemeStr(" │", ThemeAttr("types", "generic"))],
+                    [ThemeStr("├─────────────┼──────────────────┤",
+                              ThemeAttr("types", "generic"))],
+                    [ThemeStr("│No formatting│", ThemeAttr("types", "generic")),
+                     ThemeStr("cat foo | grep bar", ThemeAttr("types", "markdown_code")),
+                     ThemeStr("│", ThemeAttr("types", "generic"))],
+                    [ThemeStr("└─────────────┴──────────────────┘",
+                              ThemeAttr("types", "generic"))]],
+                None
+            ),
             # Table with pre-formatted data containing | characters; raw
-            (["|Table With|Preformatted Data|",
-              "|--------|-----|",
-              "|No formatting| `cat foo | grep bar` |"],
-             {"raw": True},
-             [
-                [ThemeStr("|Table With|Preformatted Data|", ThemeAttr("types", "generic"))],
-                [ThemeStr("|--------|-----|", ThemeAttr("types", "generic"))],
-                [ThemeStr("|No formatting| `cat foo | grep bar` |",
-                          ThemeAttr("types", "generic"))]],
-             None),
+            (
+                ["|Table With|Preformatted Data|",
+                 "|--------|-----|",
+                 "|No formatting| `cat foo | grep bar` |"],
+                {"raw": True},
+                [
+                    [ThemeStr("|Table With|Preformatted Data|", ThemeAttr("types", "generic"))],
+                    [ThemeStr("|--------|-----|", ThemeAttr("types", "generic"))],
+                    [ThemeStr("|No formatting| `cat foo | grep bar` |",
+                              ThemeAttr("types", "generic"))]],
+                None
+            ),
             # A table header without separator
-            ("|Col1|Col2|\n"
-             "Not a table",
-             {},
-             [
-                 [ThemeStr("|Col1|Col2|", ThemeAttr("types", "generic"))],
-                 [ThemeStr("Not a table", ThemeAttr("types", "generic"))]],
-             None),
+            (
+                "|Col1|Col2|\n"
+                "Not a table",
+                {},
+                [
+                    [ThemeStr("|Col1|Col2|", ThemeAttr("types", "generic"))],
+                    [ThemeStr("Not a table", ThemeAttr("types", "generic"))]],
+                None
+            ),
             # A table without data
-            (["|Table without data|Col 2|",
-              "|--------|-----|"],
-             {},
-             [
-                [ThemeStr("|Table without data|Col 2|", ThemeAttr("types", "generic"))],
-                [ThemeStr("|--------|-----|", ThemeAttr("types", "generic"))]],
-             None),
+            (
+                ["|Table without data|Col 2|",
+                 "|--------|-----|"],
+                {},
+                [
+                    [ThemeStr("|Table without data|Col 2|", ThemeAttr("types", "generic"))],
+                    [ThemeStr("|--------|-----|", ThemeAttr("types", "generic"))]],
+                None
+            ),
             # A table without data, v2
-            (["|Table without data|Col 2|",
-              "|--------|-----|",
-              "Not a table"],
-             {},
-             [
-                [ThemeStr("|Table without data|Col 2|", ThemeAttr("types", "generic"))],
-                [ThemeStr("|--------|-----|", ThemeAttr("types", "generic"))],
-                [ThemeStr("Not a table", ThemeAttr("types", "generic"))]],
-             None),
+            (
+                ["|Table without data|Col 2|",
+                 "|--------|-----|",
+                 "Not a table"],
+                {},
+                [
+                    [ThemeStr("|Table without data|Col 2|", ThemeAttr("types", "generic"))],
+                    [ThemeStr("|--------|-----|", ThemeAttr("types", "generic"))],
+                    [ThemeStr("Not a table", ThemeAttr("types", "generic"))]],
+                None
+            ),
             # A table with one line of data
-            (["|Table without data|Col 2|",
-              "|--------|-----|",
-              "|data 1|data 2|",
-              "Not a part of the table"],
-             {},
-             [
-                [ThemeStr("┌──────────────────┬──────┐", ThemeAttr("types", "generic"))],
-                [ThemeStr("│", ThemeAttr("types", "generic")),
-                 ThemeStr("Table without data", ThemeAttr("types", "markdown_table_header")),
-                 ThemeStr("│", ThemeAttr("types", "generic")),
-                 ThemeStr("Col 2", ThemeAttr("types", "markdown_table_header")),
-                 ThemeStr(" │", ThemeAttr("types", "generic"))],
-                [ThemeStr("├──────────────────┼──────┤", ThemeAttr("types", "generic"))],
-                [ThemeStr("│data 1            │data 2│", ThemeAttr("types", "generic"))],
-                [ThemeStr("└──────────────────┴──────┘", ThemeAttr("types", "generic"))],
-                [ThemeStr("Not a part of the table", ThemeAttr("types", "generic"))]],
-             None),
+            (
+                ["|Table without data|Col 2|",
+                 "|--------|-----|",
+                 "|data 1|data 2|",
+                 "Not a part of the table"],
+                {},
+                [
+                    [ThemeStr("┌──────────────────┬──────┐", ThemeAttr("types", "generic"))],
+                    [ThemeStr("│", ThemeAttr("types", "generic")),
+                     ThemeStr("Table without data", ThemeAttr("types", "markdown_table_header")),
+                     ThemeStr("│", ThemeAttr("types", "generic")),
+                     ThemeStr("Col 2", ThemeAttr("types", "markdown_table_header")),
+                     ThemeStr(" │", ThemeAttr("types", "generic"))],
+                    [ThemeStr("├──────────────────┼──────┤", ThemeAttr("types", "generic"))],
+                    [ThemeStr("│data 1            │data 2│", ThemeAttr("types", "generic"))],
+                    [ThemeStr("└──────────────────┴──────┘", ThemeAttr("types", "generic"))],
+                    [ThemeStr("Not a part of the table", ThemeAttr("types", "generic"))]],
+                None
+            ),
             # A table with mismatching column count
-            (["|Broken table|Col 2|",
-              "|--------|-----|",
-              "|data 1|data 2|data 3|"],
-             {},
-             [
-                [ThemeStr("|Broken table|Col 2|", ThemeAttr("types", "generic"))],
-                [ThemeStr("|--------|-----|", ThemeAttr("types", "generic"))],
-                [ThemeStr("|data 1|data 2|data 3|", ThemeAttr("types", "generic"))]],
-             None),
+            (
+                ["|Broken table|Col 2|",
+                 "|--------|-----|",
+                 "|data 1|data 2|data 3|"],
+                {},
+                [
+                    [ThemeStr("|Broken table|Col 2|", ThemeAttr("types", "generic"))],
+                    [ThemeStr("|--------|-----|", ThemeAttr("types", "generic"))],
+                    [ThemeStr("|data 1|data 2|data 3|", ThemeAttr("types", "generic"))]],
+                None
+            ),
             # A table with mismatching deliminators
-            (["|A simple|Table|",
-              "|--------|-----|",
-              "|data 1|data 2",
-              "data 3|data 4|"],
-             {},
-             [
-                [ThemeStr("┌────────┬──────┐", ThemeAttr("types", "generic"))],
-                [ThemeStr("│", ThemeAttr("types", "generic")),
-                 ThemeStr("A simple", ThemeAttr("types", "markdown_table_header")),
-                 ThemeStr("│", ThemeAttr("types", "generic")),
-                 ThemeStr("Table", ThemeAttr("types", "markdown_table_header")),
-                 ThemeStr(" │", ThemeAttr("types", "generic"))],
-                [ThemeStr("├────────┼──────┤", ThemeAttr("types", "generic"))],
-                [ThemeStr("│data 1  │data 2│", ThemeAttr("types", "generic"))],
-                [ThemeStr("│data 3  │data 4│", ThemeAttr("types", "generic"))],
-                [ThemeStr("└────────┴──────┘", ThemeAttr("types", "generic"))]],
-              None),
+            (
+                ["|A simple|Table|",
+                 "|--------|-----|",
+                 "|data 1|data 2",
+                 "data 3|data 4|"],
+                {},
+                [
+                    [ThemeStr("┌────────┬──────┐", ThemeAttr("types", "generic"))],
+                    [ThemeStr("│", ThemeAttr("types", "generic")),
+                     ThemeStr("A simple", ThemeAttr("types", "markdown_table_header")),
+                     ThemeStr("│", ThemeAttr("types", "generic")),
+                     ThemeStr("Table", ThemeAttr("types", "markdown_table_header")),
+                     ThemeStr(" │", ThemeAttr("types", "generic"))],
+                    [ThemeStr("├────────┼──────┤", ThemeAttr("types", "generic"))],
+                    [ThemeStr("│data 1  │data 2│", ThemeAttr("types", "generic"))],
+                    [ThemeStr("│data 3  │data 4│", ThemeAttr("types", "generic"))],
+                    [ThemeStr("└────────┴──────┘", ThemeAttr("types", "generic"))]],
+                None
+            ),
             # Markdown bullets, lists, and checklists
-            (["*Foo",
-              "",
-              "* Foo",
-              "* Bar",
-              "* Baz",
-              "",
-              "* [ ] Unselected",
-              "* [x] Selected"],
-             {},
-             [
-                [ThemeStr("*Foo", ThemeAttr("types", "generic"))],
-                [],
-                [ThemeStr("•", ThemeAttr("types", "genericbullet"), False),
-                 ThemeStr(" Foo", ThemeAttr("types", "generic"), False)],
-                [ThemeStr("•", ThemeAttr("types", "genericbullet"), False),
-                 ThemeStr(" Bar", ThemeAttr("types", "generic"), False)],
-                [ThemeStr("•", ThemeAttr("types", "genericbullet"), False),
-                 ThemeStr(" Baz", ThemeAttr("types", "generic"), False)],
-                [],
-                [ThemeStr("•", ThemeAttr("types", "genericbullet"), False),
-                 ThemeStr(" ", ThemeAttr("types", "generic"), False),
-                 ThemeStr("⬜", ThemeAttr("main", "highlight"), False),
-                 ThemeStr(" Unselected", ThemeAttr("types", "generic"), False)],
-                [ThemeStr("•", ThemeAttr("types", "genericbullet"), False),
-                 ThemeStr(" ", ThemeAttr("types", "generic"), False),
-                 ThemeStr("✅", ThemeAttr("main", "highlight"), False),
-                 ThemeStr(" Selected", ThemeAttr("types", "generic"), False)]],
-             None),
+            (
+                ["*Foo",
+                 "",
+                 "* Foo",
+                 "* Bar",
+                 "* Baz",
+                 "",
+                 "* [ ] Unselected",
+                 "* [x] Selected"],
+                {},
+                [
+                    [ThemeStr("*Foo", ThemeAttr("types", "generic"))],
+                    [],
+                    [ThemeStr("•", ThemeAttr("types", "genericbullet"), False),
+                     ThemeStr(" Foo", ThemeAttr("types", "generic"), False)],
+                    [ThemeStr("•", ThemeAttr("types", "genericbullet"), False),
+                     ThemeStr(" Bar", ThemeAttr("types", "generic"), False)],
+                    [ThemeStr("•", ThemeAttr("types", "genericbullet"), False),
+                     ThemeStr(" Baz", ThemeAttr("types", "generic"), False)],
+                    [],
+                    [ThemeStr("•", ThemeAttr("types", "genericbullet"), False),
+                     ThemeStr(" ", ThemeAttr("types", "generic"), False),
+                     ThemeStr("⬜", ThemeAttr("main", "highlight"), False),
+                     ThemeStr(" Unselected", ThemeAttr("types", "generic"), False)],
+                    [ThemeStr("•", ThemeAttr("types", "genericbullet"), False),
+                     ThemeStr(" ", ThemeAttr("types", "generic"), False),
+                     ThemeStr("✅", ThemeAttr("main", "highlight"), False),
+                     ThemeStr(" Selected", ThemeAttr("types", "generic"), False)]],
+                None
+            ),
             # Headers and subheaders
-            (["# H0",
-              "",
-              "## H1",
-              "",
-              "### H2",
-              "",
-              "#### H3"],
-             {},
-             [
-                [ThemeStr("H0", ThemeAttr("types", "markdown_header_1"), False)],
-                [],
-                [ThemeStr("H1", ThemeAttr("types", "markdown_header_2"), False)],
-                [],
-                [ThemeStr("H2", ThemeAttr("types", "markdown_header_3"), False)],
-                [],
-                [ThemeStr("H3", ThemeAttr("types", "markdown_bold"), False)]],
-             None),
+            (
+                ["# H0",
+                 "",
+                 "## H1",
+                 "",
+                 "### H2",
+                 "",
+                 "#### H3"],
+                {},
+                [
+                    [ThemeStr("H0", ThemeAttr("types", "markdown_header_1"), False)],
+                    [],
+                    [ThemeStr("H1", ThemeAttr("types", "markdown_header_2"), False)],
+                    [],
+                    [ThemeStr("H2", ThemeAttr("types", "markdown_header_3"), False)],
+                    [],
+                    [ThemeStr("H3", ThemeAttr("types", "markdown_bold"), False)]],
+                None
+            ),
             # ```block quote```
-            (["Something else first",
-              "",
-              "```",
-              "code",
-              "more code",
-              "```"],
-             {},
-             [
-                [ThemeStr("Something else first", ThemeAttr("types", "generic"), False)],
-                [],
-                [ThemeStr("code", ThemeAttr("types", "markdown_code"), False)],
-                [ThemeStr("more code", ThemeAttr("types", "markdown_code"), False)]],
-             None),
+            (
+                ["Something else first",
+                 "",
+                 "```",
+                 "code",
+                 "more code",
+                 "```"],
+                {},
+                [
+                    [ThemeStr("Something else first", ThemeAttr("types", "generic"), False)],
+                    [],
+                    [ThemeStr("code", ThemeAttr("types", "markdown_code"), False)],
+                    [ThemeStr("more code", ThemeAttr("types", "markdown_code"), False)]],
+                None
+            ),
             # block
-            (["> Foo",
-              "> Bar",
-              "> Baz"],
-             {},
-             [
-                [ThemeStr("┃ ", ThemeAttr("main", "highlight"), False),
-                 ThemeStr("Foo", ThemeAttr("types", "markdown_italics"), False)],
-                [ThemeStr("┃ ", ThemeAttr("main", "highlight"), False),
-                 ThemeStr("Bar", ThemeAttr("types", "markdown_italics"), False)],
-                [ThemeStr("┃ ", ThemeAttr("main", "highlight"), False),
-                 ThemeStr("Baz", ThemeAttr("types", "markdown_italics"), False)]],
-             None),
+            (
+                ["> Foo",
+                 "> Bar",
+                 "> Baz"],
+                {},
+                [
+                    [ThemeStr("┃ ", ThemeAttr("main", "highlight"), False),
+                     ThemeStr("Foo", ThemeAttr("types", "markdown_italics"), False)],
+                    [ThemeStr("┃ ", ThemeAttr("main", "highlight"), False),
+                     ThemeStr("Bar", ThemeAttr("types", "markdown_italics"), False)],
+                    [ThemeStr("┃ ", ThemeAttr("main", "highlight"), False),
+                     ThemeStr("Baz", ThemeAttr("types", "markdown_italics"), False)]],
+                None
+            ),
             # #reference and @mention
-            (["Issue #0123 (fixed by @foo)",
-              "#0124: Another issue"],
-             {},
-             [
-                [ThemeStr("Issue ", ThemeAttr("types", "generic"), False),
-                 ThemeStr("#0123", ThemeAttr("types", "markdown_italics"), False),
-                 ThemeStr(" (fixed by ", ThemeAttr("types", "generic"), False),
-                 ThemeStr("@foo", ThemeAttr("types", "markdown_italics"), False),
-                 ThemeStr(")", ThemeAttr("types", "generic"), False)],
-                [ThemeStr("#0124:", ThemeAttr("types", "markdown_italics"), False),
-                 ThemeStr(" Another issue", ThemeAttr("types", "generic"), False)]],
-             None),
+            (
+                ["Issue #0123 (fixed by @foo)",
+                 "#0124: Another issue"],
+                {},
+                [
+                    [ThemeStr("Issue ", ThemeAttr("types", "generic"), False),
+                     ThemeStr("#0123", ThemeAttr("types", "markdown_italics"), False),
+                     ThemeStr(" (fixed by ", ThemeAttr("types", "generic"), False),
+                     ThemeStr("@foo", ThemeAttr("types", "markdown_italics"), False),
+                     ThemeStr(")", ThemeAttr("types", "generic"), False)],
+                    [ThemeStr("#0124:", ThemeAttr("types", "markdown_italics"), False),
+                     ThemeStr(" Another issue", ThemeAttr("types", "generic"), False)]],
+                None
+            ),
             # Numbered list
-            (["1. Foo",
-              "1. Bar",
-              "1. Baz"],
-             {},
-             [
-                [ThemeStr('1.', ThemeAttr('main', 'numbered_index'), False),
-                 ThemeStr(' Foo', ThemeAttr('types', 'generic'), False)],
-                [ThemeStr('2.', ThemeAttr('main', 'numbered_index'), False),
-                 ThemeStr(' Bar', ThemeAttr('types', 'generic'), False)],
-                [ThemeStr('3.', ThemeAttr('main', 'numbered_index'), False),
-                 ThemeStr(' Baz', ThemeAttr('types', 'generic'), False)]],
-             None),
+            (
+                ["1. Foo",
+                 "1. Bar",
+                 "1. Baz"],
+                {},
+                [
+                    [ThemeStr('1.', ThemeAttr('main', 'numbered_index'), False),
+                     ThemeStr(' Foo', ThemeAttr('types', 'generic'), False)],
+                    [ThemeStr('2.', ThemeAttr('main', 'numbered_index'), False),
+                     ThemeStr(' Bar', ThemeAttr('types', 'generic'), False)],
+                    [ThemeStr('3.', ThemeAttr('main', 'numbered_index'), False),
+                     ThemeStr(' Baz', ThemeAttr('types', 'generic'), False)]],
+                None
+            ),
         )
 
         for indata, options, expected_result, expected_exception in testdata:
@@ -503,16 +549,18 @@ def test_format_none(verbose: bool = False) -> tuple[str, bool]:
         # Indata format:
         # (lines, options, expected_result, expected_exception)
         testdata: tuple[Any, ...] = (
-            ("Not reformatted",
-             {},
-             [
-                [ThemeStr("Not reformatted", ThemeAttr("types", "generic"))]],
-             None),
-            (["Not reformatted"],
-             {},
-             [
-                [ThemeStr("Not reformatted", ThemeAttr("types", "generic"))]],
-             None),
+            (
+                "Not reformatted",
+                {},
+                [[ThemeStr("Not reformatted", ThemeAttr("types", "generic"))]],
+                None
+            ),
+            (
+                ["Not reformatted"],
+                {},
+                [[ThemeStr("Not reformatted", ThemeAttr("types", "generic"))]],
+                None
+            ),
         )
 
         for indata, options, expected_result, expected_exception in testdata:
@@ -562,15 +610,17 @@ def test_format_ansible_line(verbose: bool = False) -> tuple[str, bool]:
         # Indata format:
         # (lines, options, expected_result, expected_exception)
         testdata: tuple[Any, ...] = (
-            ("Some random output from Ansible", {},
-             [
-                 ThemeStr("Some random output from Ansible", ThemeAttr("types", "generic"))],
-             None),
-            ("Another random output from Ansible",
-             {"override_formatting": {"__all": ThemeAttr("types", "value")}},
-             [
-                 ThemeStr("Another random output from Ansible", ThemeAttr("types", "value"))],
-             None),
+            (
+                "Some random output from Ansible", {},
+                [ThemeStr("Some random output from Ansible", ThemeAttr("types", "generic"))],
+                None
+            ),
+            (
+                "Another random output from Ansible",
+                {"override_formatting": {"__all": ThemeAttr("types", "value")}},
+                [ThemeStr("Another random output from Ansible", ThemeAttr("types", "value"))],
+                None
+            ),
         )
 
         for indata, options, expected_result, expected_exception in testdata:
@@ -620,35 +670,47 @@ def test_format_diff_line(verbose: bool = False) -> tuple[str, bool]:
         # Indata format:
         # (lines, options, expected_result, expected_exception)
         testdata: tuple[Any, ...] = (
-            ("+++ a", {}, [
-                ThemeStr("+++ a",
-                         ThemeAttr("logview", "severity_diffheader"))],
-             None),
-            ("--- b", {}, [
-                ThemeStr("--- b",
-                         ThemeAttr("logview", "severity_diffheader"))],
-             None),
-            ("@@ -16,7 +16,7 @@ import errno", {}, [
-                ThemeStr("@@ -16,7 +16,7 @@ import errno",
-                         ThemeAttr("logview", "severity_diffatat"))],
-             None),
-            ("+ formatter_mapping = (", {}, [
-                ThemeStr("+ formatter_mapping = (",
-                         ThemeAttr("logview", "severity_diffplus"))],
-             None),
-            ("- formatter_mapping = (", {}, [
-                ThemeStr("- formatter_mapping = (",
-                         ThemeAttr("logview", "severity_diffminus"))],
-             None),
-            ("  formatter_mapping = (", {}, [
-                ThemeStr("  formatter_mapping = (",
-                         ThemeAttr("logview", "severity_diffsame"))],
-             None),
-            ("  overridden formatting", {
-                "override_formatting": {"__all": ThemeAttr("types", "generic")}}, [
-                ThemeStr("  overridden formatting",
-                         ThemeAttr("types", "generic"))],
-             None),
+            (
+                "+++ a",
+                {},
+                [ThemeStr("+++ a", ThemeAttr("logview", "severity_diffheader"))],
+                None
+            ),
+            (
+                "--- b",
+                {},
+                [ThemeStr("--- b", ThemeAttr("logview", "severity_diffheader"))],
+                None
+            ),
+            (
+                "@@ -16,7 +16,7 @@ import errno",
+                {},
+                [ThemeStr("@@ -16,7 +16,7 @@ import errno",
+                          ThemeAttr("logview", "severity_diffatat"))],
+                None
+            ),
+            ("+ formatter_mapping = (",
+                {},
+                [ThemeStr("+ formatter_mapping = (", ThemeAttr("logview", "severity_diffplus"))],
+                None),
+            (
+                "- formatter_mapping = (",
+                {},
+                [ThemeStr("- formatter_mapping = (", ThemeAttr("logview", "severity_diffminus"))],
+                None
+            ),
+            (
+                "  formatter_mapping = (",
+                {},
+                [ThemeStr("  formatter_mapping = (", ThemeAttr("logview", "severity_diffsame"))],
+                None
+            ),
+            (
+                "  overridden formatting",
+                {"override_formatting": {"__all": ThemeAttr("types", "generic")}},
+                [ThemeStr("  overridden formatting", ThemeAttr("types", "generic"))],
+                None
+            ),
         )
 
         for indata, options, expected_result, expected_exception in testdata:
@@ -697,124 +759,235 @@ def test_format_yaml_line(verbose: bool = False) -> tuple[str, bool]:
         # Indata format:
         # (lines, options, expected_result, expected_exception)
         testdata: tuple[Any, ...] = (
-            ("# A comment", {}, ([
-                ThemeStr("# A comment", ThemeAttr("types", "yaml_comment"))],
-             []), None),
-            ("# A comment", {"override_formatting": {"__all": ThemeAttr("types", "generic")}}, ([
-                ThemeStr("# A comment", ThemeAttr("types", "generic"))],
-             []), None),
-            ("    # Indented comment", {}, ([
-                ThemeStr("    # Indented comment", ThemeAttr("types", "yaml_comment"))],
-             []), None),
-            ("key: value", {}, ([
-                ThemeStr("key", ThemeAttr("types", "yaml_key")),
-                ThemeStr(": ", ThemeAttr("types", "yaml_key_separator")),
-                ThemeStr("value", ThemeAttr("types", "yaml_value"))],
-             []), None),
-            ("\"key\": \"value\"", {}, ([
-                ThemeStr("\"key\"", ThemeAttr("types", "yaml_key")),
-                ThemeStr(": ", ThemeAttr("types", "yaml_key_separator")),
-                ThemeStr("\"value\"", ThemeAttr("types", "yaml_value"))],
-             []), None),
-            ("\"config\": \"value1\"\\n\"value2\"\\n\"value3\"",
-             {"expand_newline_fields": ("config",)}, ([
-                 ThemeStr("\"config\"", ThemeAttr("types", "yaml_key")),
-                 ThemeStr(": ", ThemeAttr("types", "yaml_key_separator")),
-                 ThemeStr("\"value1\"", ThemeAttr("types", "yaml_value")),
-             ], [
-                [ThemeStr("           ", ThemeAttr("types", "yaml_key"), False),
-                 ThemeStr("\"value2\"", ThemeAttr("types", "yaml_value"), False)],
-                [ThemeStr("           ", ThemeAttr("types", "yaml_key"), False),
-                 ThemeStr("\"value3\"", ThemeAttr("types", "yaml_value"), False)],
-             ]), None),
-            ("\"key\": \"\033[0;4;37mvalue\"", {"value_strip_ansicodes": True}, ([
-                ThemeStr("\"key\"", ThemeAttr("types", "yaml_key")),
-                ThemeStr(": ", ThemeAttr("types", "yaml_key_separator")),
-                ThemeStr("\"value\"", ThemeAttr("types", "yaml_value"))],
-             []), None),
-            ("\"key\": \"value\"", {}, ([
-                ThemeStr("\"key\"", ThemeAttr("types", "yaml_key")),
-                ThemeStr(": ", ThemeAttr("types", "yaml_key_separator")),
-                ThemeStr("\"value\"", ThemeAttr("types", "yaml_value"))],
-             []), None),
-            ("key: &define", {}, ([
-                ThemeStr("key", ThemeAttr("types", "yaml_key")),
-                ThemeStr(": ", ThemeAttr("types", "yaml_key_separator")),
-                ThemeStr("&", ThemeAttr("types", "yaml_reference")),
-                ThemeStr("define", ThemeAttr("types", "yaml_anchor"))],
-             []), None),
-            ("key: &define '#112233'", {}, ([
-                ThemeStr("key", ThemeAttr("types", "yaml_key")),
-                ThemeStr(": ", ThemeAttr("types", "yaml_key_separator")),
-                ThemeStr("&", ThemeAttr("types", "yaml_reference")),
-                ThemeStr("define", ThemeAttr("types", "yaml_anchor")),
-                ThemeStr(" '#112233'", ThemeAttr("types", "yaml_value"))],
-             []), None),
-            ("key: *define", {}, ([
-                ThemeStr("key", ThemeAttr("types", "yaml_key")),
-                ThemeStr(": ", ThemeAttr("types", "yaml_key_separator")),
-                ThemeStr("*", ThemeAttr("types", "yaml_reference")),
-                ThemeStr("define", ThemeAttr("types", "yaml_anchor"))],
-             []), None),
-            ("key:", {"override_formatting": {"key": {"key": ThemeAttr("types", "generic")}}}, ([
-                ThemeStr("key", ThemeAttr("types", "generic")),
-                ThemeStr(":", ThemeAttr("types", "yaml_key_separator"))],
-             []), None),
-            ("key: {", {}, ([
-                ThemeStr("key", ThemeAttr("types", "yaml_key")),
-                ThemeStr(": ", ThemeAttr("types", "yaml_key_separator")),
-                ThemeStr("{", ThemeAttr("types", "yaml_value"))],
-             []), None),
-            ("key: {", {}, ([
-                ThemeStr("key", ThemeAttr("types", "yaml_key")),
-                ThemeStr(": ", ThemeAttr("types", "yaml_key_separator")),
-                ThemeStr("{", ThemeAttr("types", "yaml_value"))],
-             []), None),
-            ("}", {}, ([
-                ThemeStr("}", ThemeAttr("types", "yaml_value"))],
-             []), None),
-            ("- value", {}, ([
-                ThemeStr("", ThemeAttr("types", "generic")),
-                ThemeRef("separators", "yaml_list"),
-                ThemeStr("value", ThemeAttr("types", "yaml_value"))],
-             []), None),
-            ("- key:", {}, ([
-                ThemeStr("", ThemeAttr("types", "generic")),
-                ThemeRef("separators", "yaml_list"),
-                ThemeStr("key", ThemeAttr("types", "yaml_key")),
-                ThemeStr(':', ThemeAttr('types', 'yaml_key_separator'), False)],
-             []), None),
-            ("- key:", {"override_formatting": "a"}, None, TypeError),
-            ('  "error": "please install istio or disable the istio ingress plugin: '
-             'no matches for kind \\"Gateway\\" in version \\"networking.istio.io/v1beta1\\"",',
-             {
-                 "override_formatting": {
-                     '"msg"': {
-                         'key': ThemeAttr('types', 'yaml_key'),
-                         'value': ThemeAttr('logview', 'severity_info')
-                     },
-                     '"message"': {
-                         'key': ThemeAttr('types', 'yaml_key'),
-                         'value': ThemeAttr('logview', 'severity_info')
-                     },
-                     '"err"': {
-                         'key': ThemeAttr('types', 'yaml_key_error'),
-                         'value': ThemeAttr('logview', 'severity_error')
-                     },
-                     '"error"': {
-                         'key': ThemeAttr('types', 'yaml_key_error'),
-                         'value': ThemeAttr('logview', 'severity_error')
-                     }
-                 },
-                 'expand_newline_fields': ('config', 'errorVerbose',
-                                           'stacktrace', 'status.message'),
-             }, ([
-                 ThemeStr('  "error"', ThemeAttr('types', 'yaml_key_error'), False),
-                 ThemeStr(': ', ThemeAttr('types', 'yaml_key_separator'), False),
-                 ThemeStr('"please install istio or disable the istio ingress plugin: '
-                          'no matches for kind \\"Gateway\\" in version '
-                          '\\"networking.istio.io/v1beta1\\"",',
-                          ThemeAttr('logview', 'severity_error'), False)], []), None),
+            (
+                "# A comment",
+                {},
+                (
+                    [ThemeStr("# A comment", ThemeAttr("types", "yaml_comment"))],
+                    []
+                ),
+                None
+            ),
+            (
+                "# A comment",
+                {"override_formatting": {"__all": ThemeAttr("types", "generic")}},
+                (
+                    [ThemeStr("# A comment", ThemeAttr("types", "generic"))],
+                    []
+                ),
+                None
+            ),
+            (
+                "    # Indented comment",
+                {},
+                (
+                    [ThemeStr("    # Indented comment", ThemeAttr("types", "yaml_comment"))],
+                    []
+                ),
+                None
+            ),
+            (
+                "key: value",
+                {},
+                (
+                    [ThemeStr("key", ThemeAttr("types", "yaml_key")),
+                     ThemeStr(": ", ThemeAttr("types", "yaml_key_separator")),
+                     ThemeStr("value", ThemeAttr("types", "yaml_value"))],
+                    []
+                ),
+                None
+            ),
+            (
+                "\"key\": \"value\"",
+                {},
+                (
+                    [ThemeStr("\"key\"", ThemeAttr("types", "yaml_key")),
+                     ThemeStr(": ", ThemeAttr("types", "yaml_key_separator")),
+                     ThemeStr("\"value\"", ThemeAttr("types", "yaml_value"))],
+                    []
+                ),
+                None
+            ),
+            (
+                "\"config\": \"value1\"\\n\"value2\"\\n\"value3\"",
+                {"expand_newline_fields": ("config",)},
+                # XXX: This looks very wrong
+                (
+                    [ThemeStr("\"config\"", ThemeAttr("types", "yaml_key")),
+                     ThemeStr(": ", ThemeAttr("types", "yaml_key_separator")),
+                     ThemeStr("\"value1\"", ThemeAttr("types", "yaml_value"))],
+                    [
+                        [ThemeStr("           ", ThemeAttr("types", "yaml_key"), False),
+                         ThemeStr("\"value2\"", ThemeAttr("types", "yaml_value"), False)],
+                        [ThemeStr("           ", ThemeAttr("types", "yaml_key"), False),
+                         ThemeStr("\"value3\"", ThemeAttr("types", "yaml_value"), False)],
+                    ]
+                ),
+                None
+            ),
+            (
+                "\"key\": \"\033[0;4;37mvalue\"",
+                {"value_strip_ansicodes": True},
+                (
+                    [ThemeStr("\"key\"", ThemeAttr("types", "yaml_key")),
+                     ThemeStr(": ", ThemeAttr("types", "yaml_key_separator")),
+                     ThemeStr("\"value\"", ThemeAttr("types", "yaml_value"))],
+                    []
+                ),
+                None
+            ),
+            (
+                "\"key\": \"value\"",
+                {},
+                (
+                    [ThemeStr("\"key\"", ThemeAttr("types", "yaml_key")),
+                     ThemeStr(": ", ThemeAttr("types", "yaml_key_separator")),
+                     ThemeStr("\"value\"", ThemeAttr("types", "yaml_value"))],
+                    []
+                ),
+                None
+            ),
+            (
+                "key: &define",
+                {},
+                (
+                    [ThemeStr("key", ThemeAttr("types", "yaml_key")),
+                     ThemeStr(": ", ThemeAttr("types", "yaml_key_separator")),
+                     ThemeStr("&", ThemeAttr("types", "yaml_reference")),
+                     ThemeStr("define", ThemeAttr("types", "yaml_anchor"))],
+                    []
+                ),
+                None
+            ),
+            (
+                "key: &define '#112233'",
+                {},
+                (
+                    [ThemeStr("key", ThemeAttr("types", "yaml_key")),
+                     ThemeStr(": ", ThemeAttr("types", "yaml_key_separator")),
+                     ThemeStr("&", ThemeAttr("types", "yaml_reference")),
+                     ThemeStr("define", ThemeAttr("types", "yaml_anchor")),
+                     ThemeStr(" '#112233'", ThemeAttr("types", "yaml_value"))],
+                    []
+                ),
+                None
+            ),
+            (
+                "key: *define",
+                {},
+                (
+                    [ThemeStr("key", ThemeAttr("types", "yaml_key")),
+                     ThemeStr(": ", ThemeAttr("types", "yaml_key_separator")),
+                     ThemeStr("*", ThemeAttr("types", "yaml_reference")),
+                     ThemeStr("define", ThemeAttr("types", "yaml_anchor"))],
+                    []
+                ),
+                None
+            ),
+            (
+                "key:",
+                {"override_formatting": {"key": {"key": ThemeAttr("types", "generic")}}},
+                (
+                    [ThemeStr("key", ThemeAttr("types", "generic")),
+                     ThemeStr(":", ThemeAttr("types", "yaml_key_separator"))],
+                    []
+                ),
+                None
+            ),
+            (
+                "key: {",
+                {},
+                (
+                    [ThemeStr("key", ThemeAttr("types", "yaml_key")),
+                     ThemeStr(": ", ThemeAttr("types", "yaml_key_separator")),
+                     ThemeStr("{", ThemeAttr("types", "yaml_value"))],
+                    []
+                ),
+                None
+            ),
+            (
+                "key: {",
+                {},
+                (
+                    [ThemeStr("key", ThemeAttr("types", "yaml_key")),
+                     ThemeStr(": ", ThemeAttr("types", "yaml_key_separator")),
+                     ThemeStr("{", ThemeAttr("types", "yaml_value"))],
+                    []
+                ),
+                None
+            ),
+            (
+                "}",
+                {},
+                (
+                    [ThemeStr("}", ThemeAttr("types", "yaml_value"))],
+                    []
+                ),
+                None
+            ),
+            (
+                "- value",
+                {},
+                (
+                    [ThemeStr("", ThemeAttr("types", "generic")),
+                     ThemeRef("separators", "yaml_list"),
+                     ThemeStr("value", ThemeAttr("types", "yaml_value"))],
+                    []
+                ),
+                None
+            ),
+            (
+                "- key:",
+                {},
+                (
+                    [ThemeStr("", ThemeAttr("types", "generic")),
+                     ThemeRef("separators", "yaml_list"),
+                     ThemeStr("key", ThemeAttr("types", "yaml_key")),
+                     ThemeStr(':', ThemeAttr('types', 'yaml_key_separator'), False)],
+                    []
+                ),
+                None
+            ),
+            (
+                "- key:",
+                {"override_formatting": "a"},
+                None,
+                TypeError
+            ),
+            (
+                '  "error": "please install istio or disable the istio ingress plugin: '
+                'no matches for kind \\"Gateway\\" in version \\"networking.istio.io/v1beta1\\"",',
+                {
+                    "override_formatting": {
+                        '"msg"': {
+                            'key': ThemeAttr('types', 'yaml_key'),
+                            'value': ThemeAttr('logview', 'severity_info')
+                        },
+                        '"message"': {
+                            'key': ThemeAttr('types', 'yaml_key'),
+                            'value': ThemeAttr('logview', 'severity_info')
+                        },
+                        '"err"': {
+                            'key': ThemeAttr('types', 'yaml_key_error'),
+                            'value': ThemeAttr('logview', 'severity_error')
+                        },
+                        '"error"': {
+                            'key': ThemeAttr('types', 'yaml_key_error'),
+                            'value': ThemeAttr('logview', 'severity_error')
+                        }
+                    },
+                    'expand_newline_fields': ('config', 'errorVerbose',
+                                              'stacktrace', 'status.message'),
+                },
+                (
+                    [ThemeStr('  "error"', ThemeAttr('types', 'yaml_key_error'), False),
+                     ThemeStr(': ', ThemeAttr('types', 'yaml_key_separator'), False),
+                     ThemeStr('"please install istio or disable the istio ingress plugin: '
+                              'no matches for kind \\"Gateway\\" in version '
+                              '\\"networking.istio.io/v1beta1\\"",',
+                              ThemeAttr('logview', 'severity_error'), False)], []),
+                None
+            ),
         )
 
         for indata, options, expected_result, expected_exception in testdata:
@@ -866,25 +1039,27 @@ def test_format_yaml(verbose: bool = False) -> tuple[str, bool]:
         # Indata format:
         # (lines, options, expected_result, expected_exception)
         testdata: tuple[Any, ...] = (
-            ("spec:\n"
-             "  foo: 1\n"
-             "  bar: 'baz'",
-             {},
-             [[ThemeStr("spec", ThemeAttr("types", "yaml_key")),
-               ThemeStr(":", ThemeAttr("types", "yaml_key_separator"))],
-              [ThemeStr("  ", ThemeAttr("types", "generic")),
-               ThemeStr("foo", ThemeAttr("types", "yaml_key")),
-               ThemeStr(":", ThemeAttr("types", "yaml_key_separator")),
-               ThemeStr(" ", ThemeAttr("types", "generic")),
-               ThemeStr("1", ThemeAttr("types", "yaml_value"))],
-              [ThemeStr("  ", ThemeAttr("types", "generic")),
-               ThemeStr("bar", ThemeAttr("types", "yaml_key")),
-               ThemeStr(":", ThemeAttr("types", "yaml_key_separator")),
-               ThemeStr(" ", ThemeAttr("types", "generic")),
-               ThemeStr("'", ThemeAttr("types", "yaml_value")),
-               ThemeStr("baz", ThemeAttr("types", "yaml_value")),
-               ThemeStr("'", ThemeAttr("types", "yaml_value"))]],
-             None),
+            (
+                "spec:\n"
+                "  foo: 1\n"
+                "  bar: 'baz'",
+                {},
+                [[ThemeStr("spec", ThemeAttr("types", "yaml_key")),
+                  ThemeStr(":", ThemeAttr("types", "yaml_key_separator"))],
+                 [ThemeStr("  ", ThemeAttr("types", "generic")),
+                  ThemeStr("foo", ThemeAttr("types", "yaml_key")),
+                  ThemeStr(":", ThemeAttr("types", "yaml_key_separator")),
+                  ThemeStr(" ", ThemeAttr("types", "generic")),
+                  ThemeStr("1", ThemeAttr("types", "yaml_value"))],
+                 [ThemeStr("  ", ThemeAttr("types", "generic")),
+                  ThemeStr("bar", ThemeAttr("types", "yaml_key")),
+                  ThemeStr(":", ThemeAttr("types", "yaml_key_separator")),
+                  ThemeStr(" ", ThemeAttr("types", "generic")),
+                  ThemeStr("'", ThemeAttr("types", "yaml_value")),
+                  ThemeStr("baz", ThemeAttr("types", "yaml_value")),
+                  ThemeStr("'", ThemeAttr("types", "yaml_value"))]],
+                None
+            ),
             (
                 ["spec:",
                  "  foo: 1",
@@ -913,7 +1088,8 @@ def test_format_yaml(verbose: bool = False) -> tuple[str, bool]:
                   ThemeStr(":", ThemeAttr("types", "yaml_key_separator")),
                   ThemeStr(" ", ThemeAttr("types", "generic")),
                   ThemeStr("data", ThemeAttr("types", "yaml_value"))]],
-                None),
+                None
+            ),
             (
                 ["spec:",
                  "  foo: 1",
@@ -933,7 +1109,8 @@ def test_format_yaml(verbose: bool = False) -> tuple[str, bool]:
                   ThemeStr("'", ThemeAttr("types", "yaml_value")),
                   ThemeStr("baz", ThemeAttr("types", "yaml_value")),
                   ThemeStr("'", ThemeAttr("types", "yaml_value"))]],
-                None),
+                None
+            ),
             (
                 {
                     "spec": {
@@ -955,7 +1132,8 @@ def test_format_yaml(verbose: bool = False) -> tuple[str, bool]:
                      ThemeStr(":", ThemeAttr("types", "yaml_key_separator")),
                      ThemeStr(" ", ThemeAttr("types", "generic")),
                      ThemeStr("baz", ThemeAttr("types", "yaml_value"))]],
-                None),
+                None
+            ),
             (
                 [
                     {
@@ -977,7 +1155,8 @@ def test_format_yaml(verbose: bool = False) -> tuple[str, bool]:
                       ThemeStr(":", ThemeAttr("types", "yaml_key_separator")),
                       ThemeStr(" ", ThemeAttr("types", "generic")),
                       ThemeStr("baz", ThemeAttr("types", "yaml_value"))]],
-                None),
+                None
+            ),
             (
                 [
                     {
@@ -1013,7 +1192,8 @@ def test_format_yaml(verbose: bool = False) -> tuple[str, bool]:
                   ThemeStr(":", ThemeAttr("types", "yaml_key_separator")),
                   ThemeStr(" ", ThemeAttr("types", "generic")),
                   ThemeStr("data", ThemeAttr("types", "yaml_value"))]],
-                None),
+                None
+            ),
         )
 
         for indata, options, expected_result, expected_exception in testdata:
@@ -1862,44 +2042,44 @@ def test_format_fluentbit(verbose: bool = False) -> tuple[str, bool]:
              "     Match my*cpu\n",
              {},
              [
-                [ThemeStr('# A comment', ThemeAttr('types', 'ini_comment'), False)],
-                [ThemeStr('', ThemeAttr('types', 'generic'), False),
-                 ThemeStr('@INCLUDE', ThemeAttr('types', 'ini_key'), False),
-                 ThemeStr(' ', ThemeAttr('types', 'ini_separator'), False),
-                 ThemeStr('somefile.conf', ThemeAttr('types', 'ini_value'), False)],
-                [ThemeStr('[SERVICE]', ThemeAttr('types', 'ini_section'), False)],
-                [ThemeStr('', ThemeAttr('types', 'generic'), False),
-                 ThemeStr('Flush', ThemeAttr('types', 'ini_key'), False),
-                 ThemeStr('     ', ThemeAttr('types', 'ini_separator'), False),
-                 ThemeStr('5', ThemeAttr('types', 'ini_value'), False)],
-                [ThemeStr('', ThemeAttr('types', 'generic'), False),
-                 ThemeStr('Daemon', ThemeAttr('types', 'ini_key'), False),
-                 ThemeStr('    ', ThemeAttr('types', 'ini_separator'), False),
-                 ThemeStr('off', ThemeAttr('types', 'ini_value'), False)],
-                [ThemeStr('', ThemeAttr('types', 'generic'), False),
-                 ThemeStr('Log_Level', ThemeAttr('types', 'ini_key'), False),
-                 ThemeStr(' ', ThemeAttr('types', 'ini_separator'), False),
-                 ThemeStr('debug', ThemeAttr('types', 'ini_value'), False)],
-                [ThemeStr('', ThemeAttr('types', 'generic'), False)],
-                [ThemeStr('[INPUT]', ThemeAttr('types', 'ini_section'), False)],
-                [ThemeStr('', ThemeAttr('types', 'generic'), False),
-                 ThemeStr('Name', ThemeAttr('types', 'ini_key'), False),
-                 ThemeStr('  ', ThemeAttr('types', 'ini_separator'), False),
-                 ThemeStr('cpu', ThemeAttr('types', 'ini_value'), False)],
-                [ThemeStr('     ', ThemeAttr('types', 'generic'), False),
-                 ThemeStr('Tag', ThemeAttr('types', 'ini_key'), False),
-                 ThemeStr('   ', ThemeAttr('types', 'ini_separator'), False),
-                 ThemeStr('my_cpu', ThemeAttr('types', 'ini_value'), False)],
-                [ThemeStr('', ThemeAttr('types', 'generic'), False)],
-                [ThemeStr('     [OUTPUT]', ThemeAttr('types', 'ini_section'), False)],
-                [ThemeStr('     ', ThemeAttr('types', 'generic'), False),
-                 ThemeStr('Name', ThemeAttr('types', 'ini_key'), False),
-                 ThemeStr('  ', ThemeAttr('types', 'ini_separator'), False),
-                 ThemeStr('stdout', ThemeAttr('types', 'ini_value'), False)],
-                [ThemeStr('     ', ThemeAttr('types', 'generic'), False),
-                 ThemeStr('Match', ThemeAttr('types', 'ini_key'), False),
-                 ThemeStr(' ', ThemeAttr('types', 'ini_separator'), False),
-                 ThemeStr('my*cpu', ThemeAttr('types', 'ini_value'), False)]],
+                 [ThemeStr('# A comment', ThemeAttr('types', 'ini_comment'), False)],
+                 [ThemeStr('', ThemeAttr('types', 'generic'), False),
+                  ThemeStr('@INCLUDE', ThemeAttr('types', 'ini_key'), False),
+                  ThemeStr(' ', ThemeAttr('types', 'ini_separator'), False),
+                  ThemeStr('somefile.conf', ThemeAttr('types', 'ini_value'), False)],
+                 [ThemeStr('[SERVICE]', ThemeAttr('types', 'ini_section'), False)],
+                 [ThemeStr('', ThemeAttr('types', 'generic'), False),
+                  ThemeStr('Flush', ThemeAttr('types', 'ini_key'), False),
+                  ThemeStr('     ', ThemeAttr('types', 'ini_separator'), False),
+                  ThemeStr('5', ThemeAttr('types', 'ini_value'), False)],
+                 [ThemeStr('', ThemeAttr('types', 'generic'), False),
+                  ThemeStr('Daemon', ThemeAttr('types', 'ini_key'), False),
+                  ThemeStr('    ', ThemeAttr('types', 'ini_separator'), False),
+                  ThemeStr('off', ThemeAttr('types', 'ini_value'), False)],
+                 [ThemeStr('', ThemeAttr('types', 'generic'), False),
+                  ThemeStr('Log_Level', ThemeAttr('types', 'ini_key'), False),
+                  ThemeStr(' ', ThemeAttr('types', 'ini_separator'), False),
+                  ThemeStr('debug', ThemeAttr('types', 'ini_value'), False)],
+                 [ThemeStr('', ThemeAttr('types', 'generic'), False)],
+                 [ThemeStr('[INPUT]', ThemeAttr('types', 'ini_section'), False)],
+                 [ThemeStr('', ThemeAttr('types', 'generic'), False),
+                  ThemeStr('Name', ThemeAttr('types', 'ini_key'), False),
+                  ThemeStr('  ', ThemeAttr('types', 'ini_separator'), False),
+                  ThemeStr('cpu', ThemeAttr('types', 'ini_value'), False)],
+                 [ThemeStr('     ', ThemeAttr('types', 'generic'), False),
+                  ThemeStr('Tag', ThemeAttr('types', 'ini_key'), False),
+                  ThemeStr('   ', ThemeAttr('types', 'ini_separator'), False),
+                  ThemeStr('my_cpu', ThemeAttr('types', 'ini_value'), False)],
+                 [ThemeStr('', ThemeAttr('types', 'generic'), False)],
+                 [ThemeStr('     [OUTPUT]', ThemeAttr('types', 'ini_section'), False)],
+                 [ThemeStr('     ', ThemeAttr('types', 'generic'), False),
+                  ThemeStr('Name', ThemeAttr('types', 'ini_key'), False),
+                  ThemeStr('  ', ThemeAttr('types', 'ini_separator'), False),
+                  ThemeStr('stdout', ThemeAttr('types', 'ini_value'), False)],
+                 [ThemeStr('     ', ThemeAttr('types', 'generic'), False),
+                  ThemeStr('Match', ThemeAttr('types', 'ini_key'), False),
+                  ThemeStr(' ', ThemeAttr('types', 'ini_separator'), False),
+                  ThemeStr('my*cpu', ThemeAttr('types', 'ini_value'), False)]],
              None),
         )
 
@@ -2007,38 +2187,38 @@ def test_format_haproxy(verbose: bool = False) -> tuple[str, bool]:
              "    server app1 10.0.0.10:8080 check",
              {},
              [
-                [ThemeStr('', ThemeAttr('types', 'generic'), False),
-                 ThemeStr('global', ThemeAttr('types', 'haproxy_section'), False),
-                 ThemeStr('', ThemeAttr('types', 'generic'), False),
-                 ThemeStr('', ThemeAttr('types', 'haproxy_label'), False)],
-                [ThemeStr('    ', ThemeAttr('types', 'generic'), False),
-                 ThemeStr('log', ThemeAttr('types', 'haproxy_setting'), False),
-                 ThemeStr(' ', ThemeAttr('types', 'generic'), False),
-                 ThemeStr('/dev/log local0', ThemeAttr('types', 'generic'), False)],
-                [ThemeStr('    ', ThemeAttr('types', 'generic'), False),
-                 ThemeStr('log', ThemeAttr('types', 'haproxy_setting'), False),
-                 ThemeStr(' ', ThemeAttr('types', 'generic'), False),
-                 ThemeStr('/dev/log local1 notice', ThemeAttr('types', 'generic'), False)],
-                [ThemeStr('', ThemeAttr('types', 'generic'), False),
-                 ThemeStr('defaults', ThemeAttr('types', 'haproxy_section'), False),
-                 ThemeStr('', ThemeAttr('types', 'generic'), False),
-                 ThemeStr('', ThemeAttr('types', 'haproxy_label'), False)],
-                [ThemeStr('    ', ThemeAttr('types', 'generic'), False),
-                 ThemeStr('timeout', ThemeAttr('types', 'haproxy_setting'), False),
-                 ThemeStr(' ', ThemeAttr('types', 'generic'), False),
-                 ThemeStr('server  50s', ThemeAttr('types', 'generic'), False)],
-                [ThemeStr('', ThemeAttr('types', 'generic'), False),
-                 ThemeStr('frontend', ThemeAttr('types', 'haproxy_section'), False),
-                 ThemeStr(' ', ThemeAttr('types', 'generic'), False),
-                 ThemeStr('http_front', ThemeAttr('types', 'haproxy_label'), False)],
-                [ThemeStr('    ', ThemeAttr('types', 'generic'), False),
-                 ThemeStr('bind', ThemeAttr('types', 'haproxy_setting'), False),
-                 ThemeStr(' ', ThemeAttr('types', 'generic'), False),
-                 ThemeStr('*:80', ThemeAttr('types', 'generic'), False)],
-                [ThemeStr('    ', ThemeAttr('types', 'generic'), False),
-                 ThemeStr('server', ThemeAttr('types', 'haproxy_setting'), False),
-                 ThemeStr(' ', ThemeAttr('types', 'generic'), False),
-                 ThemeStr('app1 10.0.0.10:8080 check', ThemeAttr('types', 'generic'), False)]],
+                 [ThemeStr('', ThemeAttr('types', 'generic'), False),
+                  ThemeStr('global', ThemeAttr('types', 'haproxy_section'), False),
+                  ThemeStr('', ThemeAttr('types', 'generic'), False),
+                  ThemeStr('', ThemeAttr('types', 'haproxy_label'), False)],
+                 [ThemeStr('    ', ThemeAttr('types', 'generic'), False),
+                  ThemeStr('log', ThemeAttr('types', 'haproxy_setting'), False),
+                  ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                  ThemeStr('/dev/log local0', ThemeAttr('types', 'generic'), False)],
+                 [ThemeStr('    ', ThemeAttr('types', 'generic'), False),
+                  ThemeStr('log', ThemeAttr('types', 'haproxy_setting'), False),
+                  ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                  ThemeStr('/dev/log local1 notice', ThemeAttr('types', 'generic'), False)],
+                 [ThemeStr('', ThemeAttr('types', 'generic'), False),
+                  ThemeStr('defaults', ThemeAttr('types', 'haproxy_section'), False),
+                  ThemeStr('', ThemeAttr('types', 'generic'), False),
+                  ThemeStr('', ThemeAttr('types', 'haproxy_label'), False)],
+                 [ThemeStr('    ', ThemeAttr('types', 'generic'), False),
+                  ThemeStr('timeout', ThemeAttr('types', 'haproxy_setting'), False),
+                  ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                  ThemeStr('server  50s', ThemeAttr('types', 'generic'), False)],
+                 [ThemeStr('', ThemeAttr('types', 'generic'), False),
+                  ThemeStr('frontend', ThemeAttr('types', 'haproxy_section'), False),
+                  ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                  ThemeStr('http_front', ThemeAttr('types', 'haproxy_label'), False)],
+                 [ThemeStr('    ', ThemeAttr('types', 'generic'), False),
+                  ThemeStr('bind', ThemeAttr('types', 'haproxy_setting'), False),
+                  ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                  ThemeStr('*:80', ThemeAttr('types', 'generic'), False)],
+                 [ThemeStr('    ', ThemeAttr('types', 'generic'), False),
+                  ThemeStr('server', ThemeAttr('types', 'haproxy_setting'), False),
+                  ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                  ThemeStr('app1 10.0.0.10:8080 check', ThemeAttr('types', 'generic'), False)]],
              None),
             ("global\n"
              "    log /dev/log local0\n"
@@ -2050,15 +2230,15 @@ def test_format_haproxy(verbose: bool = False) -> tuple[str, bool]:
              "    server app1 10.0.0.10:8080 check",
              {"raw": True},
              [
-                [ThemeStr('global', ThemeAttr('types', 'generic'), False)],
-                [ThemeStr('    log /dev/log local0', ThemeAttr('types', 'generic'), False)],
-                [ThemeStr('    log /dev/log local1 notice', ThemeAttr('types', 'generic'), False)],
-                [ThemeStr('defaults', ThemeAttr('types', 'generic'), False)],
-                [ThemeStr('    timeout server  50s', ThemeAttr('types', 'generic'), False)],
-                [ThemeStr('frontend http_front', ThemeAttr('types', 'generic'), False)],
-                [ThemeStr('    bind *:80', ThemeAttr('types', 'generic'), False)],
-                [ThemeStr('    server app1 10.0.0.10:8080 check',
-                          ThemeAttr('types', 'generic'), False)]],
+                 [ThemeStr('global', ThemeAttr('types', 'generic'), False)],
+                 [ThemeStr('    log /dev/log local0', ThemeAttr('types', 'generic'), False)],
+                 [ThemeStr('    log /dev/log local1 notice', ThemeAttr('types', 'generic'), False)],
+                 [ThemeStr('defaults', ThemeAttr('types', 'generic'), False)],
+                 [ThemeStr('    timeout server  50s', ThemeAttr('types', 'generic'), False)],
+                 [ThemeStr('frontend http_front', ThemeAttr('types', 'generic'), False)],
+                 [ThemeStr('    bind *:80', ThemeAttr('types', 'generic'), False)],
+                 [ThemeStr('    server app1 10.0.0.10:8080 check',
+                           ThemeAttr('types', 'generic'), False)]],
              None),
         )
 
@@ -2410,301 +2590,307 @@ def test_format_key_value(verbose: bool = False) -> tuple[str, bool]:
         # Indata format:
         # (lines, options, expected_result, expected_exception)
         testdata: tuple[Any, ...] = (
-            (["driver:",
-              "  string: xe",
-              "family:",
-              "  string: Arc Pro B-Series",
-              "health:",
-              "  string: Healthy",
-              "model:",
-              "  string: B50",
-              "pciAddress:",
-              "  string: '0000:03:00.0'",
-              "pciId:",
-              "  string: '0xe212'",
-              "pciRoot:",
-              "  string: '00'",
-              "resource.kubernetes.io/pciBusID:",
-              "  string: '0000:03:00.0'",
-              "resource.kubernetes.io/pcieRoot:",
-              "  string: pci0000:00",
-              "sriov:",
-              "  bool: true",
-              "type:",
-              "  string: gpu"],
-             {
-                "typed": True,
-                "sort": True,
-                "override_types": {
-                    "pciAddress": "hex",
-                    "pciId": "hex",
-                    "pciRoot": "hex",
-                },
-                "value_mappings": {
-                    "health": {
-                        "Healthy": {
-                            "context": "main",
-                            "type": "status_ok"
-                        },
-                        "Unhealthy": {
-                            "context": "main",
-                            "type": "status_not_ok"
+            (
+                ["driver:",
+                 "  string: xe",
+                 "family:",
+                 "  string: Arc Pro B-Series",
+                 "health:",
+                 "  string: Healthy",
+                 "model:",
+                 "  string: B50",
+                 "pciAddress:",
+                 "  string: '0000:03:00.0'",
+                 "pciId:",
+                 "  string: '0xe212'",
+                 "pciRoot:",
+                 "  string: '00'",
+                 "resource.kubernetes.io/pciBusID:",
+                 "  string: '0000:03:00.0'",
+                 "resource.kubernetes.io/pcieRoot:",
+                 "  string: pci0000:00",
+                 "sriov:",
+                 "  bool: true",
+                 "type:",
+                 "  string: gpu"],
+                {
+                    "typed": True,
+                    "sort": True,
+                    "override_types": {
+                        "pciAddress": "hex",
+                        "pciId": "hex",
+                        "pciRoot": "hex",
+                    },
+                    "value_mappings": {
+                        "health": {
+                            "Healthy": {
+                                "context": "main",
+                                "type": "status_ok"
+                            },
+                            "Unhealthy": {
+                                "context": "main",
+                                "type": "status_not_ok"
+                            }
                         }
+                    },
+                    "separator": {
+                        "type": "id_prefix"
                     }
                 },
-                "separator": {
-                  "type": "id_prefix"
-                }
-             },
-             [
-                [ThemeStr('driver', ThemeAttr('types', 'key'), False),
-                 ThemeRef('separators', 'id_prefix', False),
-                 ThemeStr('xe', ThemeAttr('types', 'generic'), False)],
-                [ThemeStr('family', ThemeAttr('types', 'key'), False),
-                 ThemeRef('separators', 'id_prefix', False),
-                 ThemeStr('Arc Pro B-Series', ThemeAttr('types', 'generic'), False)],
-                [ThemeStr('health', ThemeAttr('types', 'key'), False),
-                 ThemeRef('separators', 'id_prefix', False),
-                 ThemeStr('Healthy', ThemeAttr('main', 'status_ok'), False)],
-                [ThemeStr('model', ThemeAttr('types', 'key'), False),
-                 ThemeRef('separators', 'id_prefix', False),
-                 ThemeStr('B50', ThemeAttr('types', 'generic'), False)],
-                [ThemeStr('pciAddress', ThemeAttr('types', 'key'), False),
-                 ThemeRef('separators', 'id_prefix', False),
-                 ThemeStr('0000', ThemeAttr('types', 'numerical'), False),
-                 ThemeStr(':', ThemeAttr('types', 'unit'), False),
-                 ThemeStr('03', ThemeAttr('types', 'numerical'), False),
-                 ThemeStr(':', ThemeAttr('types', 'unit'), False),
-                 ThemeStr('00', ThemeAttr('types', 'numerical'), False),
-                 ThemeStr('.', ThemeAttr('types', 'unit'), False),
-                 ThemeStr('0', ThemeAttr('types', 'numerical'), False)],
-                [ThemeStr('pciId', ThemeAttr('types', 'key'), False),
-                 ThemeRef('separators', 'id_prefix', False),
-                 ThemeStr('0', ThemeAttr('types', 'numerical'), False),
-                 ThemeStr('x', ThemeAttr('types', 'unit'), False),
-                 ThemeStr('e212', ThemeAttr('types', 'numerical'), False)],
-                [ThemeStr('pciRoot', ThemeAttr('types', 'key'), False),
-                 ThemeRef('separators', 'id_prefix', False),
-                 ThemeStr('00', ThemeAttr('types', 'numerical'), False)],
-                [ThemeStr('resource.kubernetes.io/pciBusID', ThemeAttr('types', 'key'), False),
-                 ThemeRef('separators', 'id_prefix', False),
-                 ThemeStr('0000:03:00.0', ThemeAttr('types', 'generic'), False)],
-                [ThemeStr('resource.kubernetes.io/pcieRoot', ThemeAttr('types', 'key'), False),
-                 ThemeRef('separators', 'id_prefix', False),
-                 ThemeStr('pci0000:00', ThemeAttr('types', 'generic'), False)],
-                [ThemeStr('sriov', ThemeAttr('types', 'key'), False),
-                 ThemeRef('separators', 'id_prefix', False),
-                 ThemeStr('True', ThemeAttr('types', 'generic'), False)],
-                [ThemeStr('type', ThemeAttr('types', 'key'), False),
-                 ThemeRef('separators', 'id_prefix', False),
-                 ThemeStr('gpu', ThemeAttr('types', 'generic'), False)]],
-             None),
-            ("driver:\n"
-             "  string: xe\n"
-             "family:\n"
-             "  string: Arc Pro B-Series\n"
-             "health:\n"
-             "  string: Healthy\n"
-             "model:\n"
-             "  string: B50\n"
-             "pciAddress:\n"
-             "  string: '0000:03:00.0'\n"
-             "pciId:\n"
-             "  string: '0xe212'\n"
-             "pciRoot:\n"
-             "  string: '00'\n"
-             "resource.kubernetes.io/pciBusID:\n"
-             "  string: '0000:03:00.0'\n"
-             "resource.kubernetes.io/pcieRoot:\n"
-             "  string: pci0000:00\n"
-             "sriov:\n"
-             "  bool: true\n"
-             "type:\n"
-             "  string: gpu",
-             {
-                "typed": True,
-                "sort": True,
-                "override_types": {
-                    "pciAddress": "hex",
-                    "pciId": "hex",
-                    "pciRoot": "hex",
-                },
-                "value_mappings": {
-                    "health": {
-                        "Healthy": {
-                            "context": "main",
-                            "type": "status_ok"
-                        },
-                        "Unhealthy": {
-                            "context": "main",
-                            "type": "status_not_ok"
+                [[ThemeStr('driver', ThemeAttr('types', 'key'), False),
+                  ThemeRef('separators', 'id_prefix', False),
+                  ThemeStr('xe', ThemeAttr('types', 'generic'), False)],
+                 [ThemeStr('family', ThemeAttr('types', 'key'), False),
+                  ThemeRef('separators', 'id_prefix', False),
+                  ThemeStr('Arc Pro B-Series', ThemeAttr('types', 'generic'), False)],
+                 [ThemeStr('health', ThemeAttr('types', 'key'), False),
+                  ThemeRef('separators', 'id_prefix', False),
+                  ThemeStr('Healthy', ThemeAttr('main', 'status_ok'), False)],
+                 [ThemeStr('model', ThemeAttr('types', 'key'), False),
+                  ThemeRef('separators', 'id_prefix', False),
+                  ThemeStr('B50', ThemeAttr('types', 'generic'), False)],
+                 [ThemeStr('pciAddress', ThemeAttr('types', 'key'), False),
+                  ThemeRef('separators', 'id_prefix', False),
+                  ThemeStr('0000', ThemeAttr('types', 'numerical'), False),
+                  ThemeStr(':', ThemeAttr('types', 'unit'), False),
+                  ThemeStr('03', ThemeAttr('types', 'numerical'), False),
+                  ThemeStr(':', ThemeAttr('types', 'unit'), False),
+                  ThemeStr('00', ThemeAttr('types', 'numerical'), False),
+                  ThemeStr('.', ThemeAttr('types', 'unit'), False),
+                  ThemeStr('0', ThemeAttr('types', 'numerical'), False)],
+                 [ThemeStr('pciId', ThemeAttr('types', 'key'), False),
+                  ThemeRef('separators', 'id_prefix', False),
+                  ThemeStr('0', ThemeAttr('types', 'numerical'), False),
+                  ThemeStr('x', ThemeAttr('types', 'unit'), False),
+                  ThemeStr('e212', ThemeAttr('types', 'numerical'), False)],
+                 [ThemeStr('pciRoot', ThemeAttr('types', 'key'), False),
+                  ThemeRef('separators', 'id_prefix', False),
+                  ThemeStr('00', ThemeAttr('types', 'numerical'), False)],
+                 [ThemeStr('resource.kubernetes.io/pciBusID', ThemeAttr('types', 'key'), False),
+                  ThemeRef('separators', 'id_prefix', False),
+                  ThemeStr('0000:03:00.0', ThemeAttr('types', 'generic'), False)],
+                 [ThemeStr('resource.kubernetes.io/pcieRoot', ThemeAttr('types', 'key'), False),
+                  ThemeRef('separators', 'id_prefix', False),
+                  ThemeStr('pci0000:00', ThemeAttr('types', 'generic'), False)],
+                 [ThemeStr('sriov', ThemeAttr('types', 'key'), False),
+                  ThemeRef('separators', 'id_prefix', False),
+                  ThemeStr('True', ThemeAttr('types', 'generic'), False)],
+                 [ThemeStr('type', ThemeAttr('types', 'key'), False),
+                  ThemeRef('separators', 'id_prefix', False),
+                  ThemeStr('gpu', ThemeAttr('types', 'generic'), False)]],
+                None
+            ),
+            (
+                "driver:\n"
+                "  string: xe\n"
+                "family:\n"
+                "  string: Arc Pro B-Series\n"
+                "health:\n"
+                "  string: Healthy\n"
+                "model:\n"
+                "  string: B50\n"
+                "pciAddress:\n"
+                "  string: '0000:03:00.0'\n"
+                "pciId:\n"
+                "  string: '0xe212'\n"
+                "pciRoot:\n"
+                "  string: '00'\n"
+                "resource.kubernetes.io/pciBusID:\n"
+                "  string: '0000:03:00.0'\n"
+                "resource.kubernetes.io/pcieRoot:\n"
+                "  string: pci0000:00\n"
+                "sriov:\n"
+                "  bool: true\n"
+                "type:\n"
+                "  string: gpu",
+                {
+                    "typed": True,
+                    "sort": True,
+                    "override_types": {
+                        "pciAddress": "hex",
+                        "pciId": "hex",
+                        "pciRoot": "hex",
+                    },
+                    "value_mappings": {
+                        "health": {
+                            "Healthy": {
+                                "context": "main",
+                                "type": "status_ok"
+                            },
+                            "Unhealthy": {
+                                "context": "main",
+                                "type": "status_not_ok"
+                            }
                         }
+                    },
+                    "separator": {
+                        "type": "id_prefix"
                     }
                 },
-                "separator": {
-                  "type": "id_prefix"
-                }
-             },
-             [
-                [ThemeStr('driver', ThemeAttr('types', 'key'), False),
-                 ThemeRef('separators', 'id_prefix', False),
-                 ThemeStr('xe', ThemeAttr('types', 'generic'), False)],
-                [ThemeStr('family', ThemeAttr('types', 'key'), False),
-                 ThemeRef('separators', 'id_prefix', False),
-                 ThemeStr('Arc Pro B-Series', ThemeAttr('types', 'generic'), False)],
-                [ThemeStr('health', ThemeAttr('types', 'key'), False),
-                 ThemeRef('separators', 'id_prefix', False),
-                 ThemeStr('Healthy', ThemeAttr('main', 'status_ok'), False)],
-                [ThemeStr('model', ThemeAttr('types', 'key'), False),
-                 ThemeRef('separators', 'id_prefix', False),
-                 ThemeStr('B50', ThemeAttr('types', 'generic'), False)],
-                [ThemeStr('pciAddress', ThemeAttr('types', 'key'), False),
-                 ThemeRef('separators', 'id_prefix', False),
-                 ThemeStr('0000', ThemeAttr('types', 'numerical'), False),
-                 ThemeStr(':', ThemeAttr('types', 'unit'), False),
-                 ThemeStr('03', ThemeAttr('types', 'numerical'), False),
-                 ThemeStr(':', ThemeAttr('types', 'unit'), False),
-                 ThemeStr('00', ThemeAttr('types', 'numerical'), False),
-                 ThemeStr('.', ThemeAttr('types', 'unit'), False),
-                 ThemeStr('0', ThemeAttr('types', 'numerical'), False)],
-                [ThemeStr('pciId', ThemeAttr('types', 'key'), False),
-                 ThemeRef('separators', 'id_prefix', False),
-                 ThemeStr('0', ThemeAttr('types', 'numerical'), False),
-                 ThemeStr('x', ThemeAttr('types', 'unit'), False),
-                 ThemeStr('e212', ThemeAttr('types', 'numerical'), False)],
-                [ThemeStr('pciRoot', ThemeAttr('types', 'key'), False),
-                 ThemeRef('separators', 'id_prefix', False),
-                 ThemeStr('00', ThemeAttr('types', 'numerical'), False)],
-                [ThemeStr('resource.kubernetes.io/pciBusID', ThemeAttr('types', 'key'), False),
-                 ThemeRef('separators', 'id_prefix', False),
-                 ThemeStr('0000:03:00.0', ThemeAttr('types', 'generic'), False)],
-                [ThemeStr('resource.kubernetes.io/pcieRoot', ThemeAttr('types', 'key'), False),
-                 ThemeRef('separators', 'id_prefix', False),
-                 ThemeStr('pci0000:00', ThemeAttr('types', 'generic'), False)],
-                [ThemeStr('sriov', ThemeAttr('types', 'key'), False),
-                 ThemeRef('separators', 'id_prefix', False),
-                 ThemeStr('True', ThemeAttr('types', 'generic'), False)],
-                [ThemeStr('type', ThemeAttr('types', 'key'), False),
-                 ThemeRef('separators', 'id_prefix', False),
-                 ThemeStr('gpu', ThemeAttr('types', 'generic'), False)]],
-             None),
-            ({
-                "family": {
-                    "string": "Arc Pro B-Series",
+                [[ThemeStr('driver', ThemeAttr('types', 'key'), False),
+                  ThemeRef('separators', 'id_prefix', False),
+                  ThemeStr('xe', ThemeAttr('types', 'generic'), False)],
+                 [ThemeStr('family', ThemeAttr('types', 'key'), False),
+                  ThemeRef('separators', 'id_prefix', False),
+                  ThemeStr('Arc Pro B-Series', ThemeAttr('types', 'generic'), False)],
+                 [ThemeStr('health', ThemeAttr('types', 'key'), False),
+                  ThemeRef('separators', 'id_prefix', False),
+                  ThemeStr('Healthy', ThemeAttr('main', 'status_ok'), False)],
+                 [ThemeStr('model', ThemeAttr('types', 'key'), False),
+                  ThemeRef('separators', 'id_prefix', False),
+                  ThemeStr('B50', ThemeAttr('types', 'generic'), False)],
+                 [ThemeStr('pciAddress', ThemeAttr('types', 'key'), False),
+                  ThemeRef('separators', 'id_prefix', False),
+                  ThemeStr('0000', ThemeAttr('types', 'numerical'), False),
+                  ThemeStr(':', ThemeAttr('types', 'unit'), False),
+                  ThemeStr('03', ThemeAttr('types', 'numerical'), False),
+                  ThemeStr(':', ThemeAttr('types', 'unit'), False),
+                  ThemeStr('00', ThemeAttr('types', 'numerical'), False),
+                  ThemeStr('.', ThemeAttr('types', 'unit'), False),
+                  ThemeStr('0', ThemeAttr('types', 'numerical'), False)],
+                 [ThemeStr('pciId', ThemeAttr('types', 'key'), False),
+                  ThemeRef('separators', 'id_prefix', False),
+                  ThemeStr('0', ThemeAttr('types', 'numerical'), False),
+                  ThemeStr('x', ThemeAttr('types', 'unit'), False),
+                  ThemeStr('e212', ThemeAttr('types', 'numerical'), False)],
+                 [ThemeStr('pciRoot', ThemeAttr('types', 'key'), False),
+                  ThemeRef('separators', 'id_prefix', False),
+                  ThemeStr('00', ThemeAttr('types', 'numerical'), False)],
+                 [ThemeStr('resource.kubernetes.io/pciBusID', ThemeAttr('types', 'key'), False),
+                  ThemeRef('separators', 'id_prefix', False),
+                  ThemeStr('0000:03:00.0', ThemeAttr('types', 'generic'), False)],
+                 [ThemeStr('resource.kubernetes.io/pcieRoot', ThemeAttr('types', 'key'), False),
+                  ThemeRef('separators', 'id_prefix', False),
+                  ThemeStr('pci0000:00', ThemeAttr('types', 'generic'), False)],
+                 [ThemeStr('sriov', ThemeAttr('types', 'key'), False),
+                  ThemeRef('separators', 'id_prefix', False),
+                  ThemeStr('True', ThemeAttr('types', 'generic'), False)],
+                 [ThemeStr('type', ThemeAttr('types', 'key'), False),
+                  ThemeRef('separators', 'id_prefix', False),
+                  ThemeStr('gpu', ThemeAttr('types', 'generic'), False)]],
+                None
+            ),
+            (
+                {
+                    "family": {
+                        "string": "Arc Pro B-Series",
+                    },
+                    "driver": {
+                        "string": "xe",
+                    }
                 },
-                "driver": {
-                    "string": "xe",
-                }
-             },
-             {
-                "typed": True,
-                "sort": False,
-                "separator": {
-                  "type": "id_prefix"
-                }
-             },
-             [
-                [ThemeStr('family', ThemeAttr('types', 'key'), False),
-                 ThemeRef('separators', 'id_prefix', False),
-                 ThemeStr('Arc Pro B-Series', ThemeAttr('types', 'generic'), False)],
-                [ThemeStr('driver', ThemeAttr('types', 'key'), False),
-                 ThemeRef('separators', 'id_prefix', False),
-                 ThemeStr('xe', ThemeAttr('types', 'generic'), False)]],
-             None),
-            ({
-                "family": {
-                    "string": "Arc Pro B-Series",
+                {
+                    "typed": True,
+                    "sort": False,
+                    "separator": {
+                        "type": "id_prefix"
+                    }
                 },
-                "driver": {
-                    "string": "xe",
-                }
-             },
-             {
-                "typed": True,
-                "sort": True,
-                "separator": {
-                  "type": "id_prefix"
-                }
-             },
-             [
-                [ThemeStr('driver', ThemeAttr('types', 'key'), False),
-                 ThemeRef('separators', 'id_prefix', False),
-                 ThemeStr('xe', ThemeAttr('types', 'generic'), False)],
-                [ThemeStr('family', ThemeAttr('types', 'key'), False),
-                 ThemeRef('separators', 'id_prefix', False),
-                 ThemeStr('Arc Pro B-Series', ThemeAttr('types', 'generic'), False)]],
-             None),
-            ({
-                "age": {
-                    "age": 12,
+                [[ThemeStr('family', ThemeAttr('types', 'key'), False),
+                  ThemeRef('separators', 'id_prefix', False),
+                  ThemeStr('Arc Pro B-Series', ThemeAttr('types', 'generic'), False)],
+                 [ThemeStr('driver', ThemeAttr('types', 'key'), False),
+                  ThemeRef('separators', 'id_prefix', False),
+                  ThemeStr('xe', ThemeAttr('types', 'generic'), False)]],
+                None
+            ),
+            (
+                {
+                    "family": {
+                        "string": "Arc Pro B-Series",
+                    },
+                    "driver": {
+                        "string": "xe",
+                    }
                 },
-                "bool": {
-                    "bool": True,
+                {
+                    "typed": True,
+                    "sort": True,
+                    "separator": {
+                        "type": "id_prefix"
+                    }
                 },
-                "boolean": {
-                    "boolean": False,
+                [[ThemeStr('driver', ThemeAttr('types', 'key'), False),
+                  ThemeRef('separators', 'id_prefix', False),
+                  ThemeStr('xe', ThemeAttr('types', 'generic'), False)],
+                 [ThemeStr('family', ThemeAttr('types', 'key'), False),
+                  ThemeRef('separators', 'id_prefix', False),
+                  ThemeStr('Arc Pro B-Series', ThemeAttr('types', 'generic'), False)]],
+                None
+            ),
+            (
+                {
+                    "age": {
+                        "age": 12,
+                    },
+                    "bool": {
+                        "bool": True,
+                    },
+                    "boolean": {
+                        "boolean": False,
+                    },
+                    "size": {
+                        "int": "400k",
+                    },
+                    "timestamp": {
+                        "timestamp": datetime(2023, 5, 6, 16, 2, 39, 12047),
+                    },
                 },
-                "size": {
-                    "int": "400k",
+                {
+                    "typed": True,
+                    "sort": True,
+                    "separator": {
+                        "type": "id_prefix"
+                    }
                 },
-                "timestamp": {
-                    "timestamp": datetime(2023, 5, 6, 16, 2, 39, 12047),
+                [[ThemeStr('age', ThemeAttr('types', 'key'), False),
+                  ThemeRef('separators', 'id_prefix', False),
+                  ThemeStr('12', ThemeAttr('types', 'age'), False)],
+                 [ThemeStr('bool', ThemeAttr('types', 'key'), False),
+                  ThemeRef('separators', 'id_prefix', False),
+                  ThemeStr('True', ThemeAttr('types', 'generic'), False)],
+                 [ThemeStr('boolean', ThemeAttr('types', 'key'), False),
+                  ThemeRef('separators', 'id_prefix', False),
+                  ThemeStr('False', ThemeAttr('types', 'generic'), False)],
+                 [ThemeStr('size', ThemeAttr('types', 'key'), False),
+                  ThemeRef('separators', 'id_prefix', False),
+                  ThemeStr('400', ThemeAttr('types', 'numerical'), False),
+                  ThemeStr('k', ThemeAttr('types', 'unit'), False)],
+                 [ThemeStr('timestamp', ThemeAttr('types', 'key'), False),
+                  ThemeRef('separators', 'id_prefix', False),
+                  ThemeStr('2023', ThemeAttr('types', 'numerical'), False),
+                  ThemeStr('-', ThemeAttr('types', 'unit'), False),
+                  ThemeStr('05', ThemeAttr('types', 'numerical'), False),
+                  ThemeStr('-', ThemeAttr('types', 'unit'), False),
+                  ThemeStr('06', ThemeAttr('types', 'numerical'), False),
+                  ThemeStr(' ', ThemeAttr('types', 'unit'), False),
+                  ThemeStr('16', ThemeAttr('types', 'numerical'), False),
+                  ThemeStr(':', ThemeAttr('types', 'unit'), False),
+                  ThemeStr('02', ThemeAttr('types', 'numerical'), False),
+                  ThemeStr(':', ThemeAttr('types', 'unit'), False),
+                  ThemeStr('39', ThemeAttr('types', 'numerical'), False)]],
+                None
+            ),
+            (
+                {
+                    "family": "Arc Pro B-Series",
+                    "driver": "xe",
                 },
-             },
-             {
-                "typed": True,
-                "sort": True,
-                "separator": {
-                  "type": "id_prefix"
-                }
-             },
-             [
-                [ThemeStr('age', ThemeAttr('types', 'key'), False),
-                 ThemeRef('separators', 'id_prefix', False),
-                 ThemeStr('12', ThemeAttr('types', 'age'), False)],
-                [ThemeStr('bool', ThemeAttr('types', 'key'), False),
-                 ThemeRef('separators', 'id_prefix', False),
-                 ThemeStr('True', ThemeAttr('types', 'generic'), False)],
-                [ThemeStr('boolean', ThemeAttr('types', 'key'), False),
-                 ThemeRef('separators', 'id_prefix', False),
-                 ThemeStr('False', ThemeAttr('types', 'generic'), False)],
-                [ThemeStr('size', ThemeAttr('types', 'key'), False),
-                 ThemeRef('separators', 'id_prefix', False),
-                 ThemeStr('400', ThemeAttr('types', 'numerical'), False),
-                 ThemeStr('k', ThemeAttr('types', 'unit'), False)],
-                [ThemeStr('timestamp', ThemeAttr('types', 'key'), False),
-                 ThemeRef('separators', 'id_prefix', False),
-                 ThemeStr('2023', ThemeAttr('types', 'numerical'), False),
-                 ThemeStr('-', ThemeAttr('types', 'unit'), False),
-                 ThemeStr('05', ThemeAttr('types', 'numerical'), False),
-                 ThemeStr('-', ThemeAttr('types', 'unit'), False),
-                 ThemeStr('06', ThemeAttr('types', 'numerical'), False),
-                 ThemeStr(' ', ThemeAttr('types', 'unit'), False),
-                 ThemeStr('16', ThemeAttr('types', 'numerical'), False),
-                 ThemeStr(':', ThemeAttr('types', 'unit'), False),
-                 ThemeStr('02', ThemeAttr('types', 'numerical'), False),
-                 ThemeStr(':', ThemeAttr('types', 'unit'), False),
-                 ThemeStr('39', ThemeAttr('types', 'numerical'), False)]],
-             None),
-            ({
-                "family": "Arc Pro B-Series",
-                "driver": "xe",
-             },
-             {
-                "typed": False,
-                "sort": True,
-                "separator": {
-                  "type": "id_prefix"
-                }
-             },
-             [
-                [ThemeStr('driver', ThemeAttr('types', 'key'), False),
-                 ThemeRef('separators', 'id_prefix', False),
-                 ThemeStr('xe', ThemeAttr('types', 'generic'), False)],
-                [ThemeStr('family', ThemeAttr('types', 'key'), False),
-                 ThemeRef('separators', 'id_prefix', False),
-                 ThemeStr('Arc Pro B-Series', ThemeAttr('types', 'generic'), False)]],
-             None),
+                {
+                    "typed": False,
+                    "sort": True,
+                    "separator": {
+                        "type": "id_prefix"
+                    }
+                },
+                [[ThemeStr('driver', ThemeAttr('types', 'key'), False),
+                  ThemeRef('separators', 'id_prefix', False),
+                  ThemeStr('xe', ThemeAttr('types', 'generic'), False)],
+                 [ThemeStr('family', ThemeAttr('types', 'key'), False),
+                  ThemeRef('separators', 'id_prefix', False),
+                  ThemeStr('Arc Pro B-Series', ThemeAttr('types', 'generic'), False)]],
+                None
+            ),
         )
 
         for indata, options, expected_result, expected_exception in testdata:

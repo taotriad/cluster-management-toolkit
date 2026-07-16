@@ -820,6 +820,742 @@ def test_datagetter_eps_endpoints(verbose: bool = False) -> tuple[str, bool]:
     return message, result
 
 
+def test_datagetter_pod_status(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = datagetters.datagetter_pod_status
+
+    if result:
+        # Indata format:
+        # (obj, mock_response, expected_result, expected_exception)
+        testdata: tuple[Any, ...] = (
+            # No kubernetes_helper
+            (
+                # kubernetes_helper
+                None,
+                # options
+                {},
+                # Fake container information
+                None,
+                # Mock response from
+                # kh.get_ref_by_kind_name_namespace(("Node", ""), node_name, ...)
+                None,
+                # Expected result
+                None,
+                # Expected exception
+                ProgrammingError,
+            ),
+            # obj is None
+            (
+                # kubernetes_helper
+                kh,
+                # Fake container information
+                None,
+                # options
+                {},
+                # Mock response from
+                # kh.get_ref_by_kind_name_namespace(("Node", ""), node_name, ...)
+                None,
+                # Expected result
+                (None, {"status_group": StatusGroup.UNKNOWN}),
+                # Expected exception
+                None,
+            ),
+            # Phase: Pending, Pod unschedulable
+            (
+                # kubernetes_helper
+                kh,
+                # Fake container information; Pod is unschedulable.
+                {
+                    "kind": "Pod",
+                    "apiVersion": "v1",
+                    "metadata": {
+                        "name": "coredns-589f44dc88-9242m",
+                        "namespace": "kube-system",
+                    },
+                    "status": {
+                        "phase": "Pending",
+                        "conditions": [
+                            {
+                                "type": "PodScheduled",
+                                "status": "False",
+                                "reason": "Unschedulable",
+                            },
+                        ],
+                    },
+                },
+                # options
+                {},
+                # Mock response from
+                # kh.get_ref_by_kind_name_namespace(("Node", ""), node_name, ...)
+                None,
+                # Expected result
+                ("Unschedulable", {"status_group": StatusGroup.NOT_OK}),
+                # Expected exception
+                None,
+            ),
+            # Phase: Pending, Pod CrashLoopBackOff
+            (
+                # kubernetes_helper
+                kh,
+                # Fake container information; Pod is unschedulable.
+                {
+                    "kind": "Pod",
+                    "apiVersion": "v1",
+                    "metadata": {
+                        "name": "coredns-589f44dc88-9242m",
+                        "namespace": "kube-system",
+                    },
+                    "status": {
+                        "phase": "Pending",
+                        "conditions": [
+                            {
+                                "type": "ContainersReady",
+                                "status": "False",
+                            },
+                        ],
+                        "containerStatuses": [
+                            {
+                                "name": "coredns",
+                                "ready": False,
+                                "state": {
+                                    "waiting": {
+                                        "reason": "ImagePullBackOff",
+                                    },
+                                },
+                            },
+                        ],
+                    },
+                },
+                # options
+                {},
+                # Mock response from
+                # kh.get_ref_by_kind_name_namespace(("Node", ""), node_name, ...)
+                None,
+                # Expected result
+                ("ImagePullBackOff", {"status_group": StatusGroup.NOT_OK}),
+                # Expected exception
+                None,
+            ),
+            # Phase: Pending, Pod CrashLoopBackOff
+            (
+                # kubernetes_helper
+                kh,
+                # Fake container information; Pod is unschedulable.
+                {
+                    "kind": "Pod",
+                    "apiVersion": "v1",
+                    "metadata": {
+                        "name": "coredns-589f44dc88-9242m",
+                        "namespace": "kube-system",
+                    },
+                    "status": {
+                        "phase": "Pending",
+                        "conditions": [
+                            {
+                                "type": "ContainersReady",
+                                "status": "False",
+                            },
+                        ],
+                        "containerStatuses": [
+                            {
+                                "name": "coredns",
+                                "ready": False,
+                                "state": {
+                                    "waiting": {
+                                        "reason": "CrashLoopBackOff",
+                                    },
+                                },
+                            },
+                        ],
+                    },
+                },
+                # options
+                {},
+                # Mock response from
+                # kh.get_ref_by_kind_name_namespace(("Node", ""), node_name, ...)
+                None,
+                # Expected result
+                ("CrashLoopBackOff", {"status_group": StatusGroup.NOT_OK}),
+                # Expected exception
+                None,
+            ),
+            # Phase: Pending, Pod ErrImagePull
+            (
+                # kubernetes_helper
+                kh,
+                # Fake container information; Pod is unschedulable.
+                {
+                    "kind": "Pod",
+                    "apiVersion": "v1",
+                    "metadata": {
+                        "name": "coredns-589f44dc88-9242m",
+                        "namespace": "kube-system",
+                    },
+                    "status": {
+                        "phase": "Pending",
+                        "conditions": [
+                            {
+                                "type": "ContainersReady",
+                                "status": "False",
+                            },
+                        ],
+                        "containerStatuses": [
+                            {
+                                "name": "coredns",
+                                "ready": False,
+                                "state": {
+                                    "waiting": {
+                                        "reason": "ErrImagePull",
+                                    },
+                                },
+                            },
+                        ],
+                    },
+                },
+                # options
+                {},
+                # Mock response from
+                # kh.get_ref_by_kind_name_namespace(("Node", ""), node_name, ...)
+                None,
+                # Expected result
+                ("ErrImagePull", {"status_group": StatusGroup.NOT_OK}),
+                # Expected exception
+                None,
+            ),
+            # Phase: Pending, Pod ErrImageNeverPull
+            (
+                # kubernetes_helper
+                kh,
+                # Fake container information; Pod is unschedulable.
+                {
+                    "kind": "Pod",
+                    "apiVersion": "v1",
+                    "metadata": {
+                        "name": "coredns-589f44dc88-9242m",
+                        "namespace": "kube-system",
+                    },
+                    "status": {
+                        "phase": "Pending",
+                        "conditions": [
+                            {
+                                "type": "ContainersReady",
+                                "status": "False",
+                            },
+                        ],
+                        "containerStatuses": [
+                            {
+                                "name": "coredns",
+                                "ready": False,
+                                "state": {
+                                    "waiting": {
+                                        "reason": "ErrImageNeverPull",
+                                    },
+                                },
+                            },
+                        ],
+                    },
+                },
+                # options
+                {},
+                # Mock response from
+                # kh.get_ref_by_kind_name_namespace(("Node", ""), node_name, ...)
+                None,
+                # Expected result
+                ("ErrImageNeverPull", {"status_group": StatusGroup.NOT_OK}),
+                # Expected exception
+                None,
+            ),
+            # Phase: Pending, Pod ErrImagePull (Init Container)
+            (
+                # kubernetes_helper
+                kh,
+                # Fake container information; Pod is unschedulable.
+                {
+                    "kind": "Pod",
+                    "apiVersion": "v1",
+                    "metadata": {
+                        "name": "coredns-589f44dc88-9242m",
+                        "namespace": "kube-system",
+                    },
+                    "status": {
+                        "phase": "Pending",
+                        "conditions": [
+                            {
+                                "type": "ContainersReady",
+                                "status": "False",
+                            },
+                        ],
+                        "initContainerStatuses": [
+                            {
+                                "name": "coredns",
+                                "ready": False,
+                                "state": {
+                                    "waiting": {
+                                        "reason": "ErrImagePull",
+                                    },
+                                },
+                            },
+                        ],
+                    },
+                },
+                # options
+                {},
+                # Mock response from
+                # kh.get_ref_by_kind_name_namespace(("Node", ""), node_name, ...)
+                None,
+                # Expected result
+                ("Init:ErrImagePull", {"status_group": StatusGroup.NOT_OK}),
+                # Expected exception
+                None,
+            ),
+            # Phase: Pending, ready: true
+            (
+                # kubernetes_helper
+                kh,
+                # Fake container information; Pod is unschedulable.
+                {
+                    "kind": "Pod",
+                    "apiVersion": "v1",
+                    "metadata": {
+                        "name": "coredns-589f44dc88-9242m",
+                        "namespace": "kube-system",
+                    },
+                    "status": {
+                        "phase": "Pending",
+                        "conditions": [
+                            {
+                                "type": "ContainersReady",
+                                "status": "False",
+                            },
+                        ],
+                        "containerStatuses": [
+                            {
+                                "name": "coredns",
+                                "ready": True,
+                            },
+                        ],
+                    },
+                },
+                # options
+                {},
+                # Mock response from
+                # kh.get_ref_by_kind_name_namespace(("Node", ""), node_name, ...)
+                None,
+                # Expected result
+                ("Pending", {"status_group": StatusGroup.PENDING}),
+                # Expected exception
+                None,
+            ),
+            # Phase: Pending, ready: true, InitContainer
+            (
+                # kubernetes_helper
+                kh,
+                # Fake container information; Pod is unschedulable.
+                {
+                    "kind": "Pod",
+                    "apiVersion": "v1",
+                    "metadata": {
+                        "name": "coredns-589f44dc88-9242m",
+                        "namespace": "kube-system",
+                    },
+                    "status": {
+                        "phase": "Pending",
+                        "conditions": [
+                            {
+                                "type": "ContainersReady",
+                                "status": "False",
+                            },
+                        ],
+                        "initContainerStatuses": [
+                            {
+                                "name": "coredns",
+                                "ready": True,
+                            },
+                        ],
+                    },
+                },
+                # options
+                {},
+                # Mock response from
+                # kh.get_ref_by_kind_name_namespace(("Node", ""), node_name, ...)
+                None,
+                # Expected result
+                ("Pending", {"status_group": StatusGroup.PENDING}),
+                # Expected exception
+                None,
+            ),
+            # Phase: Pending, ready: false, reason: None
+            (
+                # kubernetes_helper
+                kh,
+                # Fake container information; Pod is unschedulable.
+                {
+                    "kind": "Pod",
+                    "apiVersion": "v1",
+                    "metadata": {
+                        "name": "coredns-589f44dc88-9242m",
+                        "namespace": "kube-system",
+                    },
+                    "status": {
+                        "phase": "Pending",
+                        "conditions": [
+                            {
+                                "type": "ContainersReady",
+                                "status": "False",
+                            },
+                        ],
+                        "containerStatuses": [
+                            {
+                                "name": "coredns",
+                                "ready": False,
+                            },
+                        ],
+                    },
+                },
+                # options
+                {},
+                # Mock response from
+                # kh.get_ref_by_kind_name_namespace(("Node", ""), node_name, ...)
+                None,
+                # Expected result
+                ("Pending", {"status_group": StatusGroup.PENDING}),
+                # Expected exception
+                None,
+            ),
+            # Phase: Pending, ready: true, reason: None, InitContainer
+            (
+                # kubernetes_helper
+                kh,
+                # Fake container information; Pod is unschedulable.
+                {
+                    "kind": "Pod",
+                    "apiVersion": "v1",
+                    "metadata": {
+                        "name": "coredns-589f44dc88-9242m",
+                        "namespace": "kube-system",
+                    },
+                    "status": {
+                        "phase": "Pending",
+                        "conditions": [
+                            {
+                                "type": "ContainersReady",
+                                "status": "False",
+                            },
+                        ],
+                        "initContainerStatuses": [
+                            {
+                                "name": "coredns",
+                                "ready": False,
+                            },
+                        ],
+                    },
+                },
+                # options
+                {},
+                # Mock response from
+                # kh.get_ref_by_kind_name_namespace(("Node", ""), node_name, ...)
+                None,
+                # Expected result
+                ("Pending", {"status_group": StatusGroup.PENDING}),
+                # Expected exception
+                None,
+            ),
+            # Phase: Running, deletionTimestamp set.
+            (
+                # kubernetes_helper
+                kh,
+                # Fake container information; Pod is terminating.
+                {
+                    "kind": "Pod",
+                    "apiVersion": "v1",
+                    "metadata": {
+                        "name": "coredns-589f44dc88-9242m",
+                        "namespace": "kube-system",
+                        # Set if the object is being terminated.
+                        "deletionTimestamp": "2026-07-10T18:43:44Z",
+                    },
+                    "status": {
+                        "phase": "Running",
+                    },
+                },
+                # options
+                {},
+                # Mock response from
+                # kh.get_ref_by_kind_name_namespace(("Node", ""), node_name, ...)
+                None,
+                # Expected result
+                ("Terminating", {"status_group": StatusGroup.PENDING}),
+                # Expected exception
+                None,
+            ),
+            # Phase: Running, all containers happy.
+            (
+                # kubernetes_helper
+                kh,
+                # Fake container information; Pod is terminating.
+                {
+                    "kind": "Pod",
+                    "apiVersion": "v1",
+                    "metadata": {
+                        "name": "coredns-589f44dc88-9242m",
+                        "namespace": "kube-system",
+                    },
+                    "status": {
+                        # Conditions
+                        "conditions": [
+                            {
+                                "type": "Ready",
+                                "status": "True",
+                            },
+                        ],
+                        "phase": "Running",
+                    },
+                },
+                # options
+                {},
+                # Mock response from
+                # kh.get_ref_by_kind_name_namespace(("Node", ""), node_name, ...)
+                None,
+                # Expected result
+                ("Running", {"status_group": StatusGroup.OK}),
+                # Expected exception
+                None,
+            ),
+            # Phase: Running, Ready: True; node Unreachable; in_depth_node_status: True
+            (
+                # kubernetes_helper
+                kh,
+                # Fake container information; Pod is terminating.
+                {
+                    "kind": "Pod",
+                    "apiVersion": "v1",
+                    "metadata": {
+                        "name": "coredns-589f44dc88-9242m",
+                        "namespace": "kube-system",
+                    },
+                    "status": {
+                        # Conditions
+                        "conditions": [
+                            {
+                                "type": "Ready",
+                                "status": "False",
+                            },
+                        ],
+                        # Pending / Running / Failed
+                        "phase": "Running",
+                        # The reason that the pod is in this state.
+                        "reason": "",
+                    },
+                },
+                # options
+                {"in_depth_node_status": True},
+                # Mock response from get_node_status()
+                ("Unreachable", StatusGroup.NOT_OK, [], []),
+                # Expected result
+                ("NotReady", {"status_group": StatusGroup.NOT_OK}),
+                # Expected exception
+                None,
+            ),
+            # Phase: Running, Ready: True; node Unreachable; in_depth_node_status: False
+            (
+                # kubernetes_helper
+                kh,
+                # Fake container information; Pod is terminating.
+                {
+                    "kind": "Pod",
+                    "apiVersion": "v1",
+                    "metadata": {
+                        "name": "coredns-589f44dc88-9242m",
+                        "namespace": "kube-system",
+                    },
+                    "status": {
+                        # Conditions
+                        "conditions": [
+                            {
+                                "type": "Ready",
+                                "status": "False",
+                            },
+                        ],
+                        # Pending / Running / Failed
+                        "phase": "Running",
+                        # The reason that the pod is in this state.
+                        "reason": "",
+                    },
+                },
+                # options
+                {"in_depth_node_status": False},
+                # Mock response from get_node_status()
+                ("Unreachable", StatusGroup.NOT_OK, [], []),
+                # Expected result
+                ("NotReady", {"status_group": StatusGroup.NOT_OK}),
+                # Expected exception
+                None,
+            ),
+            # Phase: Running, Ready: False; in_depth_node_status: False
+            (
+                # kubernetes_helper
+                kh,
+                # Fake container information; Pod is terminating.
+                {
+                    "kind": "Pod",
+                    "apiVersion": "v1",
+                    "metadata": {
+                        "name": "coredns-589f44dc88-9242m",
+                        "namespace": "kube-system",
+                    },
+                    "status": {
+                        # Conditions
+                        "conditions": [
+                            {
+                                "type": "Ready",
+                                "status": "False",
+                            },
+                        ],
+                        # Pending / Running / Failed
+                        "phase": "Running",
+                    },
+                },
+                # options
+                {"in_depth_node_status": False},
+                # Mock response from get_node_status()
+                None,
+                # Expected result
+                ("NotReady", {"status_group": StatusGroup.NOT_OK}),
+                # Expected exception
+                None,
+            ),
+            # Phase: Running, Ready: True, ContainersReady: False.
+            (
+                # kubernetes_helper
+                kh,
+                # Fake container information; Pod is terminating.
+                {
+                    "kind": "Pod",
+                    "apiVersion": "v1",
+                    "metadata": {
+                        "name": "coredns-589f44dc88-9242m",
+                        "namespace": "kube-system",
+                    },
+                    "status": {
+                        # Conditions
+                        "conditions": [
+                            {
+                                "type": "Ready",
+                                "status": "True",
+                            },
+                            {
+                                "type": "ContainersReady",
+                                "status": "False",
+                            },
+                        ],
+                        "initContainerStatuses": [],
+                        "containerStatuses": [],
+                        "phase": "Running",
+                    },
+                },
+                # options
+                {},
+                # Mock response from get_node_status()
+                None,
+                # Expected result
+                ("Running", {"status_group": StatusGroup.NOT_OK}),
+                # Expected exception
+                None,
+            ),
+            # Phase: Failed
+            (
+                # kubernetes_helper
+                kh,
+                # Fake container information; Pod is terminating.
+                {
+                    "kind": "Pod",
+                    "apiVersion": "v1",
+                    "metadata": {
+                        "name": "coredns-589f44dc88-9242m",
+                        "namespace": "kube-system",
+                    },
+                    "status": {
+                        "phase": "Failed",
+                    },
+                },
+                # options
+                {},
+                # Mock response from get_node_status()
+                None,
+                # Expected result
+                ("Failed", {"status_group": StatusGroup.NOT_OK}),
+                # Expected exception
+                None,
+            ),
+            # Phase: Succeeded
+            (
+                # kubernetes_helper
+                kh,
+                # Fake container information; Pod is terminating.
+                {
+                    "kind": "Pod",
+                    "apiVersion": "v1",
+                    "metadata": {
+                        "name": "coredns-589f44dc88-9242m",
+                        "namespace": "kube-system",
+                    },
+                    "status": {
+                        "phase": "Succeeded",
+                    },
+                },
+                # options
+                {},
+                # Mock response from get_node_status()
+                None,
+                # Expected result
+                ("Succeeded", {"status_group": StatusGroup.DONE}),
+                # Expected exception
+                None,
+            ),
+        )
+
+        for khelper, obj, options, mock_response, expected_result, expected_exception in testdata:
+            try:
+                with mock.patch("clustermanagementtoolkit.kubernetes_helper."
+                                "get_node_status",
+                                return_value=mock_response):
+                    tmp = fun(obj, kubernetes_helper=khelper)
+                if tmp != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"             kind: {deep_get(obj, DictPath('spec#names#kind'))}\n" \
+                              f"            group: {deep_get(obj, DictPath('spec#group'))}\n" \
+                              f"           result: {tmp}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  "             kind: " \
+                                  f"{deep_get(obj, DictPath('spec#names#kind'))}\n" \
+                                  f"            group: {deep_get(obj, DictPath('spec#group'))}\n" \
+                                  f"        exception: {type(e)}\n" \
+                                  f"          message: {str(e)}\n" \
+                                  f"         expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"             kind: {deep_get(obj, DictPath('spec#names#kind'))}\n" \
+                              f"            group: {deep_get(obj, DictPath('spec#group'))}\n" \
+                              f"        exception: {type(e)}\n" \
+                              f"          message: {str(e)}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+    return message, result
+
+
 def test_datagetter_api_support(verbose: bool = False) -> tuple[str, bool]:
     message = ""
     result = True
@@ -1013,6 +1749,10 @@ tests: dict[tuple[str, ...], dict[str, Any]] = {
 }
 
 tests_with_cluster: dict[tuple[str, ...], dict[str, Any]] = {
+    ("datagetter_pod_status()",): {
+        "callable": test_datagetter_pod_status,
+        "result": None,
+    },
     ("datagetter_api_support()",): {
         "callable": test_datagetter_api_support,
         "result": None,

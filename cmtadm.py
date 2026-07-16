@@ -1144,7 +1144,7 @@ def teardown_cni(options: list[tuple[str, str]], args: list[str]) -> None:
 
     confirm = True
     cni_version = None
-    cluster_name: str = ""
+    cluster_name: str | None = ""
 
     for opt, optarg in options:
         if opt == "--cni-version":
@@ -1169,6 +1169,12 @@ def teardown_cni(options: list[tuple[str, str]], args: list[str]) -> None:
 
     if not cluster_name:
         cluster_name = get_cluster_name()
+
+    if not cluster_name:
+        ansithemeprint([ANSIThemeStr("Error", "error"),
+                        ANSIThemeStr(": Could not get cluster name. "
+                                     "Aborting.", "default")], stderr=True)
+        sys.exit(errno.ENOENT)
 
     if not deep_get(installation_info, DictPath(cluster_name)):
         ansithemeprint([ANSIThemeStr("Error", "error"),
@@ -1348,7 +1354,14 @@ def upgrade_cni(options: list[tuple[str, str]], args: list[str]) -> None:
 
     # This is the cluster name according to .kube/config; this is what we care about when upgrading,
     # not whatever is currently set as the target in installation info.
-    cluster_name: str = get_cluster_name()
+    cluster_name: str | None = get_cluster_name()
+
+    if not cluster_name:
+        ansithemeprint([ANSIThemeStr("Error", "error"),
+                        ANSIThemeStr(": Could not get cluster name. "
+                                     "Aborting.", "default")], stderr=True)
+        sys.exit(errno.ENOENT)
+
     installation_info = get_installation_info(ignore_non_existing=False)
     if installation_info is None:
         ansithemeprint([ANSIThemeStr("Error", "error"),
@@ -6103,7 +6116,7 @@ def teardown_control_plane(options: list[tuple[str, str]], args: list[str]) -> N
 
     for opt, optarg in options:
         if opt == "--cluster-name":
-            cluster_name = optarg
+            cluster_name: str | None = optarg
         if opt == "list-tasks":
             __list_phases(teardown_control_plane_tasks)
             sys.exit(0)
@@ -6116,7 +6129,14 @@ def teardown_control_plane(options: list[tuple[str, str]], args: list[str]) -> N
 
     # This is the cluster name according to .kube/config; this is what we care about when upgrading,
     # not whatever is currently set as the target in installation info.
-    cluster_name: str = get_cluster_name()
+    cluster_name = get_cluster_name()
+
+    if not cluster_name:
+        ansithemeprint([ANSIThemeStr("Error", "error"),
+                        ANSIThemeStr(": Could not get cluster name. "
+                                     "Aborting.", "default")], stderr=True)
+        sys.exit(errno.ENOENT)
+
     installation_info = get_installation_info(ignore_non_existing=False)
     if installation_info is None:
         ansithemeprint([ANSIThemeStr("Error", "error"),
@@ -6371,7 +6391,14 @@ def upgrade_control_plane(options: list[tuple[str, str]], args: list[str]) -> No
 
     # This is the cluster name according to .kube/config; this is what we care about when upgrading,
     # not whatever is currently set as the target in installation info.
-    cluster_name: str = get_cluster_name()
+    cluster_name: str | None = get_cluster_name()
+
+    if not cluster_name:
+        ansithemeprint([ANSIThemeStr("Error", "error"),
+                        ANSIThemeStr(": Could not get cluster name. "
+                                     "Aborting.", "default")], stderr=True)
+        sys.exit(errno.ENOENT)
+
     installation_info = get_installation_info(ignore_non_existing=False)
     if installation_info is None:
         ansithemeprint([ANSIThemeStr("Error", "error"),
