@@ -164,6 +164,7 @@ secrets, etc.
   the commands, not the arguments. This can be useful to quickly find the name of a command.
 * `validate_yaml.py` now supports default values in schema-files.
 * The schema-files have been made stricter.
+* In total `780 files changed, 47657 insertions(+), 39618 deletions(-)`.
 
 ### view-file changes
 
