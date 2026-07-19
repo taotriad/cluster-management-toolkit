@@ -62,6 +62,7 @@ components are accepted.
 
 ### Releasing
 
+* [ ] Make sure that `PROGRAM_SUITE_VERSION` has been updated in `clustermanagementtoolkit/about.py`.
 * [ ] Create a GPG-signed tag: `git tag -s vX.Y.Z`.
 * [ ] Push the tag: `git push origin tag vX.Y.Z` **(Do NOT push all tags)**.
 * [ ] Go to GitHub and and do the following:

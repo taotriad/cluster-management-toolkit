@@ -1,3 +1,310 @@
+* [v0.8.9](#v089)
+    * [Downloads](#downloads-for-v089)
+        * [Source Code](#source-code-for-v089)
+        * [Distro Packages](#distro-packages-for-v089)
+    * [General Release Notes](#general-release-notes-for-v089)
+    * [Urgent Upgrade Notes](#urgent-upgrade-notes-for-v089)
+    * [Changes by Component](#changes-by-component-in-v089)
+        * [Changes to _cmt_](#changes-to-cmt-in-v089)
+        * [Changes to _cmtadm_](#changes-to-cmtadm-in-v089)
+        * [Changes to _cmtinv_](#changes-to-cmtinv-in-v089)
+        * [Changes to _cmu_](#changes-to-cmu-in-v089)
+        * [Changes to other files](#changes-to-other-files-in-v089)
+    * [Known Regressions](#known-regressions-in-v089)
+    * [Dependencies](#dependencies-for-v089)
+    * [Test Results](#test-results-for-v089)
+        * [Bandit](#bandit-results-for-v089)
+        * [Coverage](#coverage-results-for-v089)
+        * [Flake8](#flake8-results-for-v089)
+        * [Mypy](#mypy-results-for-v089)
+        * [Pylint](#pylint-results-for-v089)
+        * [Regexploit](#regexploit-results-for-v089)
+        * [Ruff](#ruff-results-for-v089)
+        * [Semgrep](#semgrep-results-for-v089)
+        * [validate_playbooks](#validate_playbooks-results-for-v089)
+        * [validate_yaml](#validate_yaml-results-for-v089)
+        * [YAMLlint](#yamllint-results-for-v089)
+
+# v0.8.9
+
+## Downloads for v0.8.9
+
+### Source Code for v0.8.9
+
+Source code tarballs are created by GitHub. The source code is also
+available by checking out the git repository.
+
+### Distro packages for v0.8.9
+
+CMT v0.8.9 does not include distro packages. It is just a git tag.
+We aim for CMT v0.9.0 to be the first release with distro packages.
+
+<!--
+| Filename | sha512 hash |
+| :------- | :---------- |
+| [fixme](https://fixme) (Debian 12+ all / Ubuntu 24.04+ all / Raspberry Pi OS arm64) | `fixme` |
+| [fixme](https://fixme) (RHEL 8+ amd64) | `fixme` |
+| [fixme](https://fixme) (SLES/openSUSE 15.6+ amd64) | `fixme` |
+-->
+
+## General Release Notes for v0.8.9
+
+This is a tagged release of __Cluster Management Toolkit for Kubernetes__ (CMT).
+It provides support for setting up Kubernetes clusters either using templates (recommended)
+or step by step.
+
+It also provides tools for managing the underlying hosts (and, optionally, hosts
+that are not part of the cluster) using Ansible.
+
+Finally it contains a Curses-based user interface (_cmu_) that provides an overview
+of the cluster objects and their relations; for instance the user interface provides
+links from the Pod view directly to its controller, config maps, logs, namespace,
+secrets, etc.
+
+## Urgent Upgrade Notes for v0.8.9
+
+TBD
+
+## Deprecations in v0.8.9
+
+* The `kiosk.sh` Kubernetes API was deprecated in CMT v0.8.8, and will be removed in v0.9.0.
+
+## Changes by Component in v0.8.9
+
+### Changes to _cmt_ in v0.8.9
+
+TBD
+
+### Changes to _cmtadm_ in v0.8.9
+
+TBD
+
+### Changes to _cmtinv_ in v0.8.9
+
+TBD
+
+### Changes to _cmu_ in v0.8.9
+
+TBD
+
+### Changes to other files in v0.8.9
+
+TBD
+
+### view-file changes
+
+TBD
+
+### parser-file changes
+
+TBD
+
+## Known Regressions in v0.8.9
+
+No known regressions.
+
+## Known Issues in v0.8.9
+
+* The Markdown formatter doesn't handle dashes in `@mentions`; this is an upstream
+  issue in Pygments and has been reported as [Pygments Issue #3135](https://github.com/pygments/pygments/issues/3135).
+* The Markdown formatter currently doesn't handle Bold Italics `***example***`; this is an upstream
+  issue in Pygments and has been reported as [Pygments Issue #3067](https://github.com/pygments/pygments/issues/3067).
+* Due to the way `cmu` works the file-viewer needs a backing listview,
+  so `Debug Logs` was picked for the purpose (since it's always available
+  even when the cluster is unavailable (or `--disable-kubernetes` is used).
+* Nested lists and lists with checkboxes in Markdown have some formatting issues.
+
+## Dependencies for v0.8.9
+
+### Python
+
+> [!NOTE]
+> In most/all cases there are suitable distro packages for these dependencies in SUSE,
+> but the package have the Python-version included in their names, so `cmt-install.py`
+> currently does not handle these dependencies properly. Once we switch to providing
+> proper distro packages instead this problem should go away.
+
+| PIP Name       | Minimum Version | Note                                    |
+| :------------- | :-------------- | :-------------------------------------- |
+| ansible-runner | 2.1.4           | openSUSE/SLES/RHEL, unsupported distros |
+| cryptography   |                 | openSUSE, unsupported distros           |
+| jinja2         | 3.1.6           | openSUSE/SLES/RHEL, unsupported distros |
+| natsort        | 8.0.2           | openSUSE/SLES/RHEL, unsupported distros |
+| paramiko       |                 | openSUSE/SLES/RHEL, unsupported distros |
+| pygments       | 2.20.0          | OpenSUSE/SLES/RHEL, unsupported distros |
+| PyYAML         | 6.0             | Unsupported distros                     |
+| ruamel.yaml    | 0.17.21         | Unsupported distros [1]                 |
+| ruyaml         | 0.91.0          | Unsupported distros [1]                 |
+| setuptools     | 83.0.0          | openSUSE/SLES/RHEL, unsupported distros |
+| ujson          | 5.13.0          | openSUSE/SLES/RHEL, unsupported distros |
+| urllib3        | 2.7.0           | openSUSE/SLES, unsupported distros      |
+| validators     | 0.22.0          | openSUSE/SLES/RHEL, unsupported distros |
+
+**[1]**: Only one of `ruamel.yaml` and `ruyaml` is necessary.
+
+### Distro Packages
+
+| Package Name                  | Distro             |
+| :---------------------------- | :----------------- |
+| ansible                       | Debian/Ubuntu/SUSE |
+| python3-ansible-runner        | Debian/Ubuntu      |
+| python3-cryptography          | Debian/RHEL/Ubuntu |
+| python3-jinja2                | Debian/Ubuntu      |
+| python3-natsort               | Debian/Ubuntu      |
+| python3-paramiko              | Debian/Ubuntu      |
+| python3-pip                   | Debian/Ubuntu      |
+| python3-pygments              | Debian/Ubuntu      |
+| python3-pyyaml                | RHEL               |
+| python3-ruyaml                | Debian/Ubuntu [2]  |
+| python3-ruamel.yaml           | Debian/Ubuntu [2]  |
+| python3-ruamel-yaml           | RHEL/SUSE          |
+| python3-ujson                 | Debian/Ubuntu      |
+| python3-urllib3               | Debian/Ubuntu/RHEL |
+| python3-validators            | Debian/Ubuntu      |
+| python3-yaml                  | Debian/Ubuntu      |
+| sshpass                       | All                |
+
+**[2]**: Only one of `ruamel.yaml` and `ruyaml` is necessary.
+
+### Manual Installation or Unknown Distro Packages
+
+| Software | Distro              |
+| :------- | :------------------ |
+| ansible  | Unsupported distros |
+| sshpass  | Unsupported distros |
+
+## Test Results for v0.8.9
+
+Before release the code quality has been checked with _pylint_, _flake8_, _mypy_, and _ruff_.
+The code has been checked for security issues using _bandit_, _regexploit_, and _semgrep_.
+The _Ansible_ playbooks have been checked using _ansible-lint_.
+YAML-files have been checked using _yamllint_ and validated against predefined schemas.
+Unit-test coverage has been measured using _python3-coverage_.
+
+The results of these tests are as follows:
+
+### Bandit Results for v0.8.9
+
+Commandline: `bandit -c .bandit`.
+Execute with `make bandit`.
+
+Version: TBD
+
+Output:
+
+```
+TBD
+```
+
+### Coverage Results for v0.8.9
+
+Commandline: `python3-coverage run --branch --append <file> && python3-coverage report --sort cover --precision 1`.
+
+Execute with:
+
+```
+make coverage-clean
+make coverage
+make coverage-ansible
+make coverage-cluster
+```
+
+Version: TBD
+
+Output:
+
+```
+TBD
+```
+
+### Flake8 Results for v0.8.9
+
+Commandline: `flake8 --max-line-length 100 --ignore F841,W503 --statistics`.
+Execute with `make flake8`.
+
+Version: TBD
+
+Output:
+
+TBD
+
+### mypy Results for v0.8.9
+
+Commandline: `mypy --follow-imports silent --explicit-package-bases --ignore-missing --disallow-untyped-calls --disallow-untyped-defs --disallow-incomplete-defs --check-untyped-defs --disallow-untyped-decorators --warn-redundant-casts --warn-unused-ignores`.
+Execute with `make mypy-markdown`.
+
+Version: TBD
+
+TBD
+
+### Pylint Results for v0.8.9
+
+Commandline: `pylint --py-version 3.11 --disable W0511, similarities --enable useless-suppression`.
+Table generated with `make pylint-markdown`.
+
+Version: TBD
+
+TBD
+
+### Regexploit Results for v0.8.9
+
+Commandline: `regexploit`.
+Execute with `make regexploit`.
+
+Version: TBD
+
+Output:
+
+```
+TBD
+```
+
+### Ruff Results for v0.8.9
+
+Commandline: `ruff check --target-version py39`.
+Execute with `make ruff`.
+
+Version: TBD
+
+Output:
+
+TBD
+
+### Semgrep Results for v0.8.9
+
+Commandline: `semgrep scan --exclude-rule "generic.secrets.security.detected-generic-secret.detected-generic-secret.semgrep-legacy.30980" --exclude-rule "python.flask.security.xss.audit.direct-use-of-jinja2.direct-use-of-jinja2" --exclude "*.yaml" --exclude "*.j2" --exclude "*.json" --timeout=0 --no-git-ignore`.
+Execute with `make semgrep`.
+
+Version: TBD
+
+Output:
+
+```
+TBD
+```
+
+### validate_playbooks Results for v0.8.9
+
+Version: TBD
+
+Commandline: `ansible-lint`.
+Execute with: `make validate_playbooks`.
+
+```
+TBD
+```
+
+### validate_yaml Results for v0.8.9
+
+Commandline: `tests/validate_yaml`.
+Execute with: `make validate_yaml`.
+
+Output:
+
+```
+TBD
+```
+
 * [v0.8.8](#v088)
     * [Downloads](#downloads-for-v088)
         * [Source Code](#source-code-for-v088)

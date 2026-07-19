@@ -20,7 +20,7 @@ LICENSE: str = "This is free software; see the source for copying conditions.  T
 
 PROGRAM_SUITE_NAME: str = "CMT"
 PROGRAM_SUITE_FULL_NAME: str = "Cluster Management Toolkit for Kubernetes"
-PROGRAM_SUITE_VERSION: str = "0.8.7"
+PROGRAM_SUITE_VERSION: str = "0.8.8"
 
 UI_PROGRAM_NAME: str = "cmu"
 UI_PROGRAM_VERSION: str = "0.5.5"
