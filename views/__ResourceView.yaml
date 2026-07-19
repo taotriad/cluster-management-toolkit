@@ -16,18 +16,50 @@ infoview:
       focus_filters:
         Disabled: []
         Partial:
+          # Annotations
+          # Note: Remember to add these filter rules to Full too.
+          - ["metadata#annotations", "deployment.kubernetes.io/revision"]
           - ["metadata#annotations", "lastAppliedconfiguration"]
+          # Other metadata
+          # Note: Remember to add these filter rules to Full too.
           - ["metadata", "generation"]
           - ["metadata", "managedFields"]
           - ["metadata", "resourceVersion"]
           - ["metadata", "uid"]
+          # Status fields
+          # Note: adding these to Full is not necessary since
+          # Full drops all status fields.
           - ["status", "observedGeneration"]
         Full:
+          # Annotations
+          - ["metadata#annotations",
+             "cni.projectcalico.org/containerID"]
+          - ["metadata#annotations",
+             "cni.projectcalico.org/podIP"]
+          - ["metadata#annotations",
+             "cni.projectcalico.org/podIPs"]
+          - ["metadata#annotations", "deployment.kubernetes.io/revision"]
+          - ["metadata#annotations", "deprecated.daemonset.template.generation"]
           - ["metadata#annotations",
              "kubectl.kubernetes.io/last-applied-configuration"]
+          - ["metadata#annotations",
+             "kubernetes.io/config.hash"]
+          - ["metadata#annotations",
+             "kubernetes.io/config.mirror"]
+          - ["metadata#annotations",
+             "kubernetes.io/config.seen"]
+          - ["metadata#annotations",
+             "kubernetes.io/config.source"]
+          - ["metadata#annotations",
+             "kubectl.kubernetes.io/default-container"]
+          - ["metadata#annotations",
+             "projectcalico.org/metadata"]
+          # Labels
           - ["metadata#labels", "batch.kubernetes.io/controller-uid"]
+          - ["metadata#labels", "controller-revision-hash"]
           - ["metadata#labels", "controller-uid"]
           - ["metadata#labels", "pod-template-hash"]
+          # Other metadata
           - ["metadata", "creationTimestamp"]
           - ["metadata", "finalizers"]
           - ["metadata", "generation"]
@@ -35,6 +67,7 @@ infoview:
           - ["metadata", "ownerReferences"]
           - ["metadata", "resourceVersion"]
           - ["metadata", "uid"]
+          # Status fields
           - "status"
   statusmsg:
     - ["Decode Base64: ", ["var", "decoder#override_decoder"]]
