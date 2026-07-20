@@ -112,6 +112,86 @@ infoview:
           field_separators:
             - type: "space"
             - type: "no_pad"
+  listpad:
+    listgetter: "generic_listgetter"
+    listgetter_args:
+      _kind: "Machine"
+      _label_selector_path: "spec#nodeSelector#matchLabels"
+      # MachineHealthCheck applies to all nodes by default.
+      _none_on_empty_selector: false
+    infogetter: "generic_infogetter"
+    on_activation:
+      call: "resourceinfodispatch"
+      kind: "Node"
+    field_indexes:
+      Normal:
+        fields: ["namespace", "name", "provider_id", "phase", "age", "taints"]
+        sortcolumn: "namespace"
+    fields:
+      phase:
+        header: "Phase:"
+        path: "status#phase"
+        type: "str"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              Deleting:
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+              Failed:
+                field_colors:
+                  - context: "main"
+                    type: "status_not_ok"
+              Provisioned:
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+              Provisioning:
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+              Running:
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+      provider_id:
+        header: "Provider ID:"
+        path: "spec#providerID"
+        type: "str"
+      taints:
+        header: "Taints:"
+        paths:
+          - path: "spec#taints"
+            pathtype: "items"
+            subpaths:
+              - "key"
+              - "value"
+              - "effect"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "key"
+            - type: "value"
+            - type: "effect"
+          field_separators:
+            - type: "equals"
+            - type: "keyvalue"
+          mapping:
+            mappings:
+              NoSchedule:
+                field_colors:
+                  - context: "main"
+                    type: "status_not_ok"
+              PreferNoSchedule:
+                field_colors:
+                  - context: "main"
+                    type: "status_warning"
+              NoExecute:
+                field_colors:
+                  - context: "main"
+                    type: "status_not_ok"
   shortcuts:
     {%- for line in shortcut_controller.split("\n") %}
     {{ line }}

@@ -145,7 +145,11 @@ infoview:
   infopad:
     row_indexes:
       Normal:
-        fields: ["config", "machine_config_selector", "node_selector",
+        fields: ["config",
+                 "machine_config_label_selector",
+                 "machine_config_set_based_selector",
+                 "node_label_selector",
+                 "node_set_based_selector",
                  "paused", "updated", "updating", "degraded",
                  "machine_count", "ready_machine_count",
                  "updated_machine_count", "degraded_machine_count"]
@@ -194,8 +198,8 @@ infoview:
                 field_colors:
                   - context: "types"
                     type: "watermark_high"
-      machine_config_selector:
-        header: [["Machine Config Selector:", ["main", "infoheader"]]]
+      machine_config_label_selector:
+        header: [["Machine Config Label Selector:", ["main", "infoheader"]]]
         paths:
           - path: ["spec#machineConfigSelector#matchLabels"]
             pathtype: "key_value"
@@ -207,13 +211,31 @@ infoview:
             - type: "value"
           field_separators:
             - type: "selector"
+      machine_config_set_based_selector:
+        header: [["Machine Config Set-based Selector:", ["main", "infoheader"]]]
+        paths:
+          - path: "spec#selector#matchExpressions"
+          - path: "spec#machineConfigSelector#matchExpressions"
+            pathtype: "match_expression"
+            default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "key"
+            - type: "operator"
+            - type: "value"
+          field_separators:
+            - type: "space"
+            - type: "no_pad"
       machine_count:
         header: [["Machine Count:", ["main", "infoheader"]]]
         path: "status#machineCount"
         type: "int"
         formatter: "numerical"
-      node_selector:
-        header: [["Node Selector:", ["main", "infoheader"]]]
+      node_label_selector:
+        header: [["Node La", ["main", "infoheader"]],
+                 ["b", ["main", "infoheader_shortcut"]],
+                 ["el Selector:", ["main", "infoheader"]]]
         paths:
           - path: ["spec#nodeSelector#matchLabels"]
             pathtype: "key_value"
@@ -225,6 +247,21 @@ infoview:
             - type: "value"
           field_separators:
             - type: "selector"
+      node_set_based_selector:
+        header: [["Node Set-based Selector:", ["main", "infoheader"]]]
+        paths:
+          - path: "spec#nodeSelector#matchExpressions"
+            pathtype: "match_expression"
+            default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "key"
+            - type: "operator"
+            - type: "value"
+          field_separators:
+            - type: "space"
+            - type: "no_pad"
       paused:
         header: [["Paused:", ["main", "infoheader"]]]
         path: "spec#paused"
@@ -259,7 +296,165 @@ infoview:
               - key: "type"
                 eq: "Updating"
         type: "str"
+  listpad:
+    listgetter: "generic_listgetter"
+    listgetter_args:
+      _kind: "Node"
+      _label_selector_path: "spec#nodeSelector#matchLabels"
+      _none_on_empty_selector: true
+    infogetter: "generic_infogetter"
+    on_activation:
+      call: "resourceinfodispatch"
+      kind: "Node"
+    field_indexes:
+      Wide:
+        fields: ["name", "status", "roles", "age", "kubelet_version",
+                 "internal_ips", "os_image", "kernel_version",
+                 "container_runtime", "cpu", "mem", "taints"]
+        sortcolumn: "name"
+      Normal:
+        fields: ["name", "status", "roles", "age", "kubelet_version",
+                 "internal_ips", "cpu", "mem", "taints"]
+        sortcolumn: "name"
+    fields:
+      container_runtime:
+        header: "Container Runtime:"
+        path: "status#nodeInfo#containerRuntimeVersion"
+        type: "str"
+      cpu:
+        header: "CPUs:"
+        paths:
+          - path: "status#allocatable#cpu"
+            type: "cpu_usage_round"
+          - path: "status#capacity#cpu"
+            type: "cpu_usage_round"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "numerical"
+          item_separator:
+            type: "fraction"
+        align: "right"
+      internal_ips:
+        header: "Internal IPs:"
+        paths:
+          - path: "status#addresses"
+            pathtype: "items"
+            subpath: "address"
+            when:
+              - key: "type"
+                eq: "InternalIP"
+            default: ["<unset>"]
+        formatter: "address"
+        formatting:
+          ellipsise: 3
+      kernel_version:
+        header: "Kernel Version:"
+        path: "status#nodeInfo#kernelVersion"
+        type: "str"
+        formatting:
+          field_colors:
+            - type: "version"
+      kubelet_version:
+        header: "Version:"
+        path: "status#nodeInfo#kubeletVersion"
+        type: "str"
+        formatting:
+          field_colors:
+            - type: "version"
+      os_image:
+        header: "OS Image:"
+        path: "status#nodeInfo#osImage"
+        fallback_on_empty: true
+        default: "<unset>"
+        type: "str"
+      roles:
+        header: "Roles:"
+        paths:
+          - path: ["metadata#labels"]
+            pathtype: "key_value"
+            when:
+              - key_startswith: "node-role.kubernetes.io"
+            key:
+              transform:
+                # yamllint disable-line rule:line-length
+                "node-role.kubernetes.io/master": "node-role.kubernetes.io/control-plane"
+              regex: ["^[^/]*/(.*)"]
+            value:
+              transform:
+                "true": ""
+        formatter: "list"
+      status:
+        header: "Status:"
+        paths:
+          - path: "status#conditions"
+            pathtype: "substitution"
+            subpath: "status"
+            when:
+              - key: "type"
+                eq: "Ready"
+              - key: "status"
+                eq: "True"
+            substitute: "Ready"
+        default: "Not Ready"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              Ready:
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+              Not Ready:
+                field_colors:
+                  - context: "main"
+                    type: "status_not_ok"
+      taints:
+        header: "Taints:"
+        paths:
+          - path: ["spec#taints"]
+            pathtype: "items"
+            subpaths:
+              - subpath: "key"
+                transform:
+                  # yamllint disable-line rule:line-length
+                  "node-role.kubernetes.io/master": "node-role.kubernetes.io/control-plane"
+                regex: ["^[^/]*/(.*)", "(.*)"]
+              - "effect"
+        default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "key"
+            - type: "value"
+          field_separators:
+            - type: "keyvalue"
+          mapping:
+            mappings:
+              NoSchedule:
+                field_colors:
+                  - context: "main"
+                    type: "status_not_ok"
+              PreferNoSchedule:
+                field_colors:
+                  - context: "main"
+                    type: "status_warning"
+              NoExecute:
+                field_colors:
+                  - context: "main"
+                    type: "status_not_ok"
   shortcuts:
+    "Node Label Selector":
+      key: "b"
+      read_only: true
+      helptext: "Show Node label selector"
+      widget: "windowwidget"
+      widget_args:
+        title: "Node Label Selector:"
+        headers: ["Key:", "Value:"]
+        itemgetter: "get_key_value"
+        itemgetter_args:
+          path: "spec#nodeSelector#matchLabels"
     "Show Machine Config list":
       key: "c"
       modifier: "shift"
