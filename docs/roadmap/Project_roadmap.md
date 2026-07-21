@@ -118,3 +118,11 @@ tests have been added for the moved code.
 * _cmtadm_:
     * [ ] Support for clusters with virtualised control planes.
     * [ ] Support for having multiple different VM-hosts in the same cluster.
+
+## Long term plans
+
+* _Supported Platforms_:
+  * [ ] Once Debian 14 (Forky) is released (expected in 2027),
+    we will bump the required minimum version of Python 3 to Python 3.13.
+    Note that this will also bump the required version of OpenSUSE/SLES to 16
+    and RHEL to 9.

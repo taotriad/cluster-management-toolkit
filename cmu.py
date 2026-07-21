@@ -9032,7 +9032,8 @@ def __populate_playbooklist(path: FilePath, action_list: dict) -> dict:
         description = None
 
         try:
-            d = list(secure_read_yaml(FilePath(playbookpath), directory_is_symlink=True))
+            d = list(secure_read_yaml(FilePath(playbookpath),
+                                      directory_is_symlink=True, asynchronous=True))
         except (ruyaml.composer.ComposerError,
                 ruyaml.constructor.DuplicateKeyError,
                 ruyaml.parser.ParserError,
@@ -9878,7 +9879,7 @@ def populate_views(refresh_apis: str = "none") -> None:
 
             if filename == "__event_reasons.yaml":
                 d = dict(secure_read_yaml(FilePath(view_dir).joinpath(filename),
-                                          directory_is_symlink=True))
+                                          directory_is_symlink=True, asynchronous=True))
                 for reason, data in d.items():
                     # Only try to read the data if it's well-formed
                     if data and deep_get(data, DictPath("field_colors")):
@@ -9912,7 +9913,8 @@ def populate_views(refresh_apis: str = "none") -> None:
         has_infoview: bool = False
 
         try:
-            d = dict(secure_read_yaml(FilePath(view_file), directory_is_symlink=True))
+            d = dict(secure_read_yaml(FilePath(view_file),
+                                      directory_is_symlink=True, asynchronous=True))
         except (ruyaml.composer.ComposerError,
                 ruyaml.constructor.DuplicateKeyError,
                 ruyaml.parser.ParserError,

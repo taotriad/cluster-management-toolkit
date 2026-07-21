@@ -934,7 +934,7 @@ def read_theme(configthemefile: FilePath, defaultthemefile: FilePath) -> None:
         SecurityChecks.IS_FILE,
     ]
 
-    theme = dict(secure_read_yaml(FilePath(themefile), checks=checks))
+    theme = dict(secure_read_yaml(FilePath(themefile), checks=checks, asynchronous=True))
 
 
 def init_curses() -> None:

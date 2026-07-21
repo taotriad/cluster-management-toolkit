@@ -4245,7 +4245,8 @@ def init_parser_list(force_reinit: bool = False) -> None:
 
     for parser_file in parser_files:
         if parser_file.endswith("BUNDLE.yaml"):
-            temp_dl = secure_read_yaml_all(parser_file, directory_is_symlink=True)
+            temp_dl = secure_read_yaml_all(parser_file,
+                                           directory_is_symlink=True, asynchronous=True)
             try:
                 dl = [list(d) for d in temp_dl]
             except (ruyaml.composer.ComposerError,
@@ -4273,7 +4274,8 @@ def init_parser_list(force_reinit: bool = False) -> None:
             LogparserConfiguration.using_bundles = True
         else:
             try:
-                d = list(secure_read_yaml(parser_file, directory_is_symlink=True))
+                d = list(secure_read_yaml(parser_file,
+                                          directory_is_symlink=True, asynchronous=True))
             except (ruyaml.composer.ComposerError,
                     ruyaml.constructor.DuplicateKeyError,
                     ruyaml.parser.ParserError,

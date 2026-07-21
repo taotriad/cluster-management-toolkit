@@ -59,6 +59,19 @@ make build
 ```
 
 Keep in mind that if you install CMT this way you'll need to re-run `make bin` every time you modify
-the executables. If you intend to participate in development it's better to reconfigure your system
+the executables. It also does not help with build- and development tools that require newer versions
+of Python.
+
+If you intend to participate in development it's better to reconfigure your system
 to use a recent version of Python 3 by default, or to do development on an Operating System that
 has such a version by default.
+
+One way of making your system use a newer version of Python 3 without causing trouble for system binaries
+is to make /usr/local/bin/python3 a symlink to whichever python-version is the latest on your system.
+
+For instance on a RHEL 9 system, where Python 3.11 is available, but Python 3.6 is the default,
+you could do:
+
+```
+ln -s /usr/bin/python3.11 /usr/local/bin/python3
+```

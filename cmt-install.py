@@ -301,7 +301,7 @@ def remove_wrappers(wrappers: list[tuple[FilePath, FilePath]], verbose: bool = F
                                                (src, dst)
             verbose (bool): Be more verbose
     """
-    for src, dst in wrappers:
+    for _src, dst in wrappers:
         # Remove old wrapper or symlink
         if verbose:
             print(f"Deleting old wrapper or symlink {dst}")

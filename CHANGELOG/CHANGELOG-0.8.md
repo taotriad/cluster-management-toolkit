@@ -89,7 +89,10 @@ TBD
 
 ### Changes to other files in v0.8.9
 
-TBD
+* When populating view-files, themes, and parser-files, we now use PyYAML instead of ruyaml / ruamel.yaml;
+  PyYAML is *much* faster. Populating view-files is still very slow on complex setups (OpenShift, Rancher, etc.),
+  but the speed-up is still very noticeable.
+* secure_read_yaml_all() now supports the asynchronous flag.
 
 ### view-file changes
 

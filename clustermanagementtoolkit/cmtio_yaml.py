@@ -9,7 +9,7 @@
 YAML I/O helpers
 """
 
-from collections.abc import Generator
+from collections.abc import Generator, Iterator
 import io
 import json
 import sys
@@ -195,7 +195,7 @@ def secure_read_yaml(path: FilePath, **kwargs: Any) -> dict | \
                 directory_is_symlink (bool): The dir that the path points to is a symlink
                 temporary (bool): Is the file a tempfile?
                                   If so we need to disable the check for parent permissions
-                asynchronous (bool): The data should be read asynchronous; use PyYAML
+                asynchronous (bool): The data should be read asynchronously; use PyYAML
         Returns:
             yaml_data
                 (dict|ruyaml.comments.CommentedMap|ruyaml.comments.CommentedSeq): The read YAML-data
@@ -227,7 +227,7 @@ def secure_read_yaml(path: FilePath, **kwargs: Any) -> dict | \
     return tmp
 
 
-def secure_read_yaml_all(path: FilePath, **kwargs: Any) -> Generator:
+def secure_read_yaml_all(path: FilePath, **kwargs: Any) -> Generator | Iterator:
     """
     Read all dicts in YAML-format from a file in a safe manner
     Note: since the return type from safe_load_all() is an iterator
@@ -241,8 +241,9 @@ def secure_read_yaml_all(path: FilePath, **kwargs: Any) -> Generator:
                 directory_is_symlink (bool): The dir that the path points to is a symlink
                 temporary (bool): Is the file a tempfile?
                                   If so we need to disable the check for parent permissions
+                asynchronous (bool): The data should be read asynchronously; use PyYAML
         Returns:
-            Generator: An iterator of data
+            Generator | Iterator: An generator or iterator of data
         Raises:
             FileNotFoundError
             cmttypes.FilePathAuditError
@@ -254,8 +255,11 @@ def secure_read_yaml_all(path: FilePath, **kwargs: Any) -> Generator:
     checks: list[SecurityChecks] | None = deep_get(kwargs, DictPath("checks"), None)
     directory_is_symlink: bool = deep_get(kwargs, DictPath("directory_is_symlink"), False)
     temporary: bool = deep_get(kwargs, DictPath("temporary"), False)
+    asynchronous: bool = deep_get(kwargs, DictPath("asynchronous"), False)
 
     string = cmtio.secure_read_string(path, checks=checks,
                                       directory_is_symlink=directory_is_symlink,
                                       temporary=temporary)
+    if asynchronous:
+        return yaml.safe_load_all(string)
     return ryaml.load_all(string)

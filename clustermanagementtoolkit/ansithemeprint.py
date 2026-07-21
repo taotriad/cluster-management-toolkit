@@ -951,7 +951,7 @@ def init_ansithemeprint(themefile: FilePath | None = None) -> None:
     ]
 
     try:
-        theme = dict(secure_read_yaml(themefile, checks=checks))
+        theme = dict(secure_read_yaml(themefile, checks=checks, asynchronous=True))
     except TypeError:
         theme = FALLBACK_THEME
         ansithemeprint([ANSIThemeStr("Warning", "warning"),

@@ -23,7 +23,7 @@ PROGRAM_SUITE_FULL_NAME: str = "Cluster Management Toolkit for Kubernetes"
 PROGRAM_SUITE_VERSION: str = "0.8.8"
 
 UI_PROGRAM_NAME: str = "cmu"
-UI_PROGRAM_VERSION: str = "0.5.5"
+UI_PROGRAM_VERSION: str = "0.5.6"
 
 TOOL_PROGRAM_NAME: str = "cmt"
 TOOL_PROGRAM_VERSION: str = "0.6.8"
