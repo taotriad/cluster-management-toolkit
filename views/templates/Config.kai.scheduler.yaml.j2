@@ -1,0 +1,33 @@
+---
+kind: "Config"
+api_family: "kai.scheduler"
+default_command: "configs.kai.scheduler"
+command:
+  - "configs.kai"
+  - "config.kai"
+listview:
+  name: "Configs"
+  group: "Scheduling & Scaling"
+  field_indexes:
+    Normal:
+      fields: ["name", "condition_ready", "age"]
+  fields:
+    {%- for line in field_condition_ready.split("\n") %}
+    {{ line }}
+    {%- endfor %}
+infoview:
+  name: "Config Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["condition_ready"]
+    rows:
+      {%- for line in row_condition_ready.split("\n") %}
+      {{ line }}
+      {%- endfor %}
+  logpad:
+    infogetter: "logpad_formatted"
+    infogetter_args:
+      formatter: "format_yaml"
+      path: "spec"
+    timestamps: false

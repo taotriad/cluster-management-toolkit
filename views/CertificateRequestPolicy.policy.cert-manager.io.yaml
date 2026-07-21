@@ -22,7 +22,7 @@ listview:
           when:
             - key: "type"
               eq: "Ready"
-          default: "<unknown>"
+          default: ["<unknown>"]
       formatter: "value_mapper"
       formatting:
         mapping:
@@ -86,7 +86,7 @@ infoview:
             when:
               - key: "type"
                 eq: "Ready"
-            default: "<unknown>"
+            default: ["<unknown>"]
         formatter: "value_mapper"
         formatting:
           mapping:

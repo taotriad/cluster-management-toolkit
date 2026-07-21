@@ -11,13 +11,18 @@ listview:
   field_indexes:
     Wide:
       fields: ["namespace", "name", "controller", "ipaddresses", "node_name",
-               "live_migratable", "mem", "paused", "phase", "ready", "age"]
+               "live_migratable", "mem", "paused", "phase",
+               "condition_ready", "age"]
       sortcolumn: "phase"
     Normal:
       fields: ["namespace", "name", "ipaddresses", "node_name",
-               "live_migratable", "paused", "phase", "ready", "age"]
+               "live_migratable", "paused", "phase",
+               "condition_ready", "age"]
       sortcolumn: "phase"
   fields:
+    {%- for line in field_condition_ready.split("\n") %}
+    {{ line }}
+    {%- endfor %}
     {%- for line in field_controller.split("\n") %}
     {{ line }}
     {%- endfor %}
@@ -98,28 +103,6 @@ listview:
               eq: "Paused"
           default: ["False"]
       type: "str"
-    ready:
-      header: "Ready:"
-      paths:
-        - path: "status#conditions"
-          pathtype: "items"
-          subpath: "status"
-          when:
-            - key: "type"
-              eq: "Ready"
-      type: "str"
-      formatter: "value_mapper"
-      formatting:
-        mapping:
-          mappings:
-            "True":
-              field_colors:
-                - context: "main"
-                  type: "status_ok"
-            "False":
-              field_colors:
-                - context: "main"
-                  type: "status_not_ok"
   actions:
     actionlist:
       "Delete resource":
@@ -155,13 +138,16 @@ infoview:
                  "mem_current",
                  "eviction_strategy",
                  "ipaddresses", "node_name",
-                 "live_migratable", "paused", "phase", "ready"]
+                 "live_migratable", "paused", "phase", "condition_ready"]
     rows:
       architecture:
         header: [["Architecture:", ["main", "infoheader"]]]
         path: "spec#architecture"
         default: "<unset>"
         type: "str"
+      {%- for line in row_condition_ready.split("\n") %}
+      {{ line }}
+      {%- endfor %}
       {%- for line in row_controller.split("\n") %}
       {{ line }}
       {%- endfor %}
@@ -280,28 +266,6 @@ infoview:
                 eq: "Paused"
             default: ["False"]
         type: "str"
-      ready:
-        header: [["Ready:", ["main", "infoheader"]]]
-        paths:
-          - path: "status#conditions"
-            pathtype: "items"
-            subpath: "status"
-            when:
-              - key: "type"
-                eq: "Ready"
-        type: "str"
-        formatter: "value_mapper"
-        formatting:
-          mapping:
-            mappings:
-              "True":
-                field_colors:
-                  - context: "main"
-                    type: "status_ok"
-              "False":
-                field_colors:
-                  - context: "main"
-                    type: "status_not_ok"
   listpad:
     listgetter: "generic_listgetter"
     listgetter_args:

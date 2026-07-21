@@ -12,38 +12,15 @@ listview:
   group: "Knative"
   field_indexes:
     Normal:
-      fields: ["namespace", "name", "controller", "age", "ready", "reason"]
+      fields: ["namespace", "name", "controller",
+               "condition_ready", "age", "reason"]
   fields:
+    {%- for line in field_condition_ready.split("\n") %}
+    {{ line }}
+    {%- endfor %}
     {%- for line in field_controller.split("\n") %}
     {{ line }}
     {%- endfor %}
-    ready:
-      header: "Ready:"
-      paths:
-        - path: "status#conditions"
-          pathtype: "items"
-          subpath: "status"
-          when:
-            - key: "type"
-              eq: "Ready"
-          default: ["<unset>"]
-      type: "str"
-      formatter: "value_mapper"
-      formatting:
-        mapping:
-          mappings:
-            "True":
-              field_colors:
-                - context: "main"
-                  type: "status_ok"
-            "False":
-              field_colors:
-                - context: "main"
-                  type: "status_not_ok"
-            "<unset>":
-              field_colors:
-                - context: "types"
-                  type: "unset"
     reason:
       header: "Reason:"
       paths:
@@ -54,18 +31,6 @@ listview:
             - key: "type"
               eq: "Ready"
       type: "str"
-      formatter: "value_mapper"
-      formatting:
-        mapping:
-          mappings:
-            "True":
-              field_colors:
-                - context: "main"
-                  type: "status_ok"
-            "False":
-              field_colors:
-                - context: "main"
-                  type: "status_not_ok"
   actions:
     actionlist:
       "Delete resource":
@@ -78,38 +43,14 @@ infoview:
   infopad:
     row_indexes:
       Normal:
-        fields: ["controller", "url", "ready", "reason"]
+        fields: ["controller", "url", "condition_ready", "reason"]
     rows:
+      {%- for line in row_condition_ready.split("\n") %}
+      {{ line }}
+      {%- endfor %}
       {%- for line in row_controller.split("\n") %}
       {{ line }}
       {%- endfor %}
-      ready:
-        header: [["Ready:", ["main", "infoheader"]]]
-        paths:
-          - path: "status#conditions"
-            pathtype: "items"
-            subpath: "status"
-            when:
-              - key: "type"
-                eq: "Ready"
-            default: ["<unset>"]
-        type: "str"
-        formatter: "value_mapper"
-        formatting:
-          mapping:
-            mappings:
-              "True":
-                field_colors:
-                  - context: "main"
-                    type: "status_ok"
-              "False":
-                field_colors:
-                  - context: "main"
-                    type: "status_not_ok"
-              "<unset>":
-                field_colors:
-                  - context: "types"
-                    type: "unset"
       reason:
         header: [["Reason:", ["main", "infoheader"]]]
         paths:

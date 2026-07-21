@@ -10,12 +10,17 @@ listview:
   group: "Cluster Configuration"
   field_indexes:
     Wide:
-      fields: ["namespace", "name", "controller", "provider_id", "age"]
+      fields: ["namespace", "name", "controller", "provider_id",
+               "condition_ready", "age"]
       sortcolumn: "namespace"
     Normal:
-      fields: ["namespace", "name", "provider_id", "age"]
+      fields: ["namespace", "name", "provider_id",
+               "condition_ready", "age"]
       sortcolumn: "namespace"
   fields:
+    {%- for line in field_condition_ready.split("\n") %}
+    {{ line }}
+    {%- endfor %}
     {%- for line in field_controller.split("\n") %}
     {{ line }}
     {%- endfor %}
@@ -30,8 +35,11 @@ infoview:
       Normal:
         fields: ["controller", "provider_id",
                  "vm_bootstrap_check_strategy",
-                 "node_updated", "ready"]
+                 "node_updated", "condition_ready"]
     rows:
+      {%- for line in row_condition_ready.split("\n") %}
+      {{ line }}
+      {%- endfor %}
       {%- for line in row_controller.split("\n") %}
       {{ line }}
       {%- endfor %}
@@ -56,29 +64,6 @@ infoview:
         header: [["Provider ID:", ["main", "infoheader"]]]
         path: "spec#providerID"
         type: "str"
-      ready:
-        header: [["Ready:", ["main", "infoheader"]]]
-        paths:
-          - path: "status#conditions"
-            pathtype: "items"
-            subpath: "status"
-            when:
-              - key: "type"
-                eq: "Ready"
-            default: ["False"]
-        type: "str"
-        formatter: "value_mapper"
-        formatting:
-          mapping:
-            mappings:
-              "True":
-                field_colors:
-                  - context: "main"
-                    type: "status_ok"
-              "False":
-                field_colors:
-                  - context: "main"
-                    type: "status_pending"
       vm_bootstrap_check_strategy:
         header: [["Virtual Machine Bootstrap Check Strategy:",
                   ["main", "infoheader"]]]

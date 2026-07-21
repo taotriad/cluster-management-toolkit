@@ -19,7 +19,7 @@ listview:
           when:
             - key: "type"
               eq: "Synced"
-          default: "<unknown>"
+          default: ["<unknown>"]
       formatter: "value_mapper"
       formatting:
         mapping:
@@ -45,7 +45,7 @@ listview:
           when:
             - key: "type"
               eq: "Synced"
-          default: "<unknown>"
+          default: ["<unknown>"]
       formatter: "value_mapper"
       formatting:
         mapping:
@@ -71,7 +71,7 @@ listview:
           when:
             - key: "type"
               eq: "Synced"
-          default: "<unknown>"
+          default: ["<unknown>"]
       formatter: "value_mapper"
       formatting:
         mapping:
@@ -128,7 +128,7 @@ infoview:
             when:
               - key: "type"
                 eq: "Synced"
-            default: "<unknown>"
+            default: ["<unknown>"]
         formatter: "value_mapper"
         formatting:
           mapping:
@@ -154,7 +154,7 @@ infoview:
             when:
               - key: "type"
                 eq: "Synced"
-            default: "<unknown>"
+            default: ["<unknown>"]
         formatter: "value_mapper"
         formatting:
           mapping:

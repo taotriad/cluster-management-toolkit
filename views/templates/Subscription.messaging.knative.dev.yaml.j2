@@ -7,38 +7,15 @@ listview:
   group: "Knative"
   field_indexes:
     Normal:
-      fields: ["namespace", "name", "controller", "ready", "age", "reason"]
+      fields: ["namespace", "name", "controller",
+               "condition_ready", "age", "reason"]
   fields:
+    {%- for line in field_condition_ready.split("\n") %}
+    {{ line }}
+    {%- endfor %}
     {%- for line in field_controller.split("\n") %}
     {{ line }}
     {%- endfor %}
-    ready:
-      header: "Ready:"
-      paths:
-        - path: "status#conditions"
-          pathtype: "items"
-          subpath: "status"
-          when:
-            - key: "type"
-              eq: "Ready"
-          default: ["<unset>"]
-      type: "str"
-      formatter: "value_mapper"
-      formatting:
-        mapping:
-          mappings:
-            "True":
-              field_colors:
-                - context: "main"
-                  type: "status_ok"
-            "False":
-              field_colors:
-                - context: "main"
-                  type: "status_not_ok"
-            "<unset>":
-              field_colors:
-                - context: "types"
-                  type: "unset"
     reason:
       header: "Reason:"
       paths:
@@ -74,7 +51,7 @@ infoview:
                  "reply_reply",
                  "reply_uri",
                  "subscriber_uri",
-                 "ready", "reason"]
+                 "condition_ready", "reason"]
     rows:
       channel:
         header: [["C", ["main", "infoheader"]],
@@ -99,6 +76,9 @@ infoview:
             - type: "kind_api_group"
             - type: "kind"
             - type: "namespace"
+      {%- for line in row_condition_ready.split("\n") %}
+      {{ line }}
+      {%- endfor %}
       {%- for line in row_controller.split("\n") %}
       {{ line }}
       {%- endfor %}
@@ -174,33 +154,6 @@ infoview:
             - type: "kind_api_group"
             - type: "kind"
             - type: "namespace"
-      ready:
-        header: [["Ready:", ["main", "infoheader"]]]
-        paths:
-          - path: "status#conditions"
-            pathtype: "items"
-            subpath: "status"
-            when:
-              - key: "type"
-                eq: "Ready"
-            default: ["<unset>"]
-        type: "str"
-        formatter: "value_mapper"
-        formatting:
-          mapping:
-            mappings:
-              "True":
-                field_colors:
-                  - context: "main"
-                    type: "status_ok"
-              "False":
-                field_colors:
-                  - context: "main"
-                    type: "status_not_ok"
-              "<unset>":
-                field_colors:
-                  - context: "types"
-                    type: "unset"
       reason:
         header: [["Reason:", ["main", "infoheader"]]]
         paths:

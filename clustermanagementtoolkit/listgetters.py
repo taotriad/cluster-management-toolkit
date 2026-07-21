@@ -2530,6 +2530,10 @@ def listgetter_path(obj: dict, **kwargs: Any) -> tuple[dict | list[dict], int]:
                     elif enumeration == "reverse":
                         deep_set(item, DictPath("_extra_data#enumeration"), len(tmp2) - i,
                                  create_path=True)
+                    elif enumeration == "hierarchy":
+                        hierarchy_str: str = "".rjust(3 * i) + "└──"
+                        deep_set(item, DictPath("_extra_data#enumeration"),
+                                 hierarchy_str, create_path=True)
                     vlist.append(item)
         else:
             vlist = tmp2

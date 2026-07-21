@@ -1,0 +1,143 @@
+---
+kind: "Queue"
+api_family: "scheduling.run.ai"
+default_command: "queues.scheduling.run.ai"
+command:
+  - "queues.scheduling"
+  - "queue.scheduling"
+  - "queues.sched"
+  - "queue.sched"
+listview:
+  name: "Queues"
+  group: "Scheduling & Scaling"
+  field_indexes:
+    Wide:
+      fields: ["name", "display_name", "priority", "parent", "children", "age"]
+    Normal:
+      fields: ["name", "display_name", "priority", "age"]
+  fields:
+    children:
+      header: "Children:"
+      path: "status#childQueues"
+      default: ["<none>"]
+      type: "raw"
+      formatter: "list"
+    display_name:
+      header: "Display Name:"
+      path: "spec#displayName"
+      default: "<unset>"
+      type: "str"
+    parent:
+      header: "Parent:"
+      path: "spec#parentQueue"
+      default: "<none>"
+      type: "str"
+    priority:
+      header: "Priority:"
+      path: "spec#priority"
+      default: 100
+      type: "int"
+      formatter: "numerical"
+      align: "right"
+infoview:
+  name: "Queue Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["display_name", "priority", "parent", "children"]
+    rows:
+      children:
+        header: [["C", ["main", "infoheader_shortcut"]],
+                 ["hild Queues:", ["main", "infoheader"]]]
+        path: "status#childQueues"
+        default: ["<none>"]
+        type: "raw"
+        formatter: "list"
+      display_name:
+        header: [["Display Name:", ["main", "infoheader"]]]
+        path: "spec#displayName"
+        default: "<unset>"
+        type: "str"
+      parent:
+        header: [["P", ["main", "infoheader_shortcut"]],
+                 ["arent Queue:", ["main", "infoheader"]]]
+        path: "spec#parentQueue"
+        default: "<none>"
+        type: "str"
+      priority:
+        header: [["Priority:", ["main", "infoheader"]]]
+        path: "spec#priority"
+        default: 100
+        type: "int"
+        formatter: "numerical"
+  listpad:
+    listgetter: "listgetter_path"
+    listgetter_args:
+      path: "spec#resources"
+      rename_bare: "resource"
+      flatten_dicts: true
+    infogetter: "generic_infogetter"
+    field_indexes:
+      Normal:
+        fields: ["resource", "limit", "quota", "over_quota_weight"]
+    fields:
+      limit:
+        header: "Limit:"
+        path: "limit"
+        default: "<unset>"
+        type: "int"
+        formatter: "numerical"
+        align: "right"
+      over_quota_weight:
+        header: "Over Quota Weight:"
+        path: "overQuotaWeight"
+        default: "<unset>"
+        type: "int"
+        formatter: "numerical"
+        align: "right"
+      quota:
+        header: "Quota:"
+        path: "quota"
+        default: "<unset>"
+        type: "int"
+        formatter: "numerical"
+        align: "right"
+      resource:
+        header: "Resource:"
+        path: "resource"
+        default: "<unset>"
+        type: "str"
+  shortcuts:
+    "Open Parent Queue":
+      key: "p"
+      modifier: "shift"
+      read_only: false
+      helptext: "Open parent Queue"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind: "Queue"
+        api_family: "scheduling.run.ai"
+        name_path: "spec#parentQueue"
+    "List Child Queues":
+      key: "c"
+      modifier: "shift"
+      read_only: false
+      helptext: "List child Queues"
+      widget: "windowwidget"
+      widget_args:
+        title: "Child Queues:"
+        selectable: true
+        itemgetter: "get_list_as_list"
+        itemgetter_args:
+          path: "status#childQueues"
+        # This isn't supported for now
+        sortcolumn: "name"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind: "Queue"
+        api_family: "scheduling.run.ai"
+        name_path: 0

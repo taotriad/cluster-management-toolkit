@@ -1,0 +1,51 @@
+---
+kind: "SchedulingShard"
+api_family: "kai.scheduler"
+default_command: "schedulingshards.kai.scheduler"
+command:
+  - "schedulingshards.kai"
+  - "schedulingshard.kai"
+  - "schedshards.kai"
+  - "schedshard.kai"
+listview:
+  name: "Scheduling Shards"
+  group: "Scheduling & Scaling"
+  field_indexes:
+    Normal:
+      fields: ["name", "condition_ready", "age"]
+  fields:
+    {%- for line in field_condition_ready.split("\n") %}
+    {{ line }}
+    {%- endfor %}
+infoview:
+  name: "Scheduling Shard Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["partition_label",
+                 "placement_strategy_header",
+                 "placement_strategy_cpu",
+                 "placement_strategy_gpu",
+                 "condition_ready"]
+    rows:
+      {%- for line in row_condition_ready.split("\n") %}
+      {{ line }}
+      {%- endfor %}
+      partition_label:
+        header: [["Partition Label:", ["main", "infoheader"]]]
+        path: "spec#partitionLabelValue"
+        fallback_on_empty: true
+        default: "<none>"
+        type: "str"
+      placement_strategy_header:
+        header: [["Placement Strategy:", ["main", "infoheader"]]]
+      placement_strategy_cpu:
+        header: [["  CPU:", ["main", "infoheader"]]]
+        path: "spec#placementStrategy#cpu"
+        default: "<unset>"
+        type: "str"
+      placement_strategy_gpu:
+        header: [["  GPU:", ["main", "infoheader"]]]
+        path: "spec#placementStrategy#gpu"
+        default: "<unset>"
+        type: "str"

@@ -12,39 +12,16 @@ listview:
   group: "Knative"
   field_indexes:
     Normal:
-      fields: ["namespace", "name", "controller", "age", "ready", "reason"]
+      fields: ["namespace", "name", "controller",
+               "condition_ready", "age", "reason"]
       sortcolumn: "namespace"
   fields:
+    {%- for line in field_condition_ready.split("\n") %}
+    {{ line }}
+    {%- endfor %}
     {%- for line in field_controller.split("\n") %}
     {{ line }}
     {%- endfor %}
-    ready:
-      header: "Ready:"
-      paths:
-        - path: "status#conditions"
-          pathtype: "items"
-          subpath: "status"
-          when:
-            - key: "type"
-              eq: "Ready"
-          default: ["<unset>"]
-      type: "str"
-      formatter: "value_mapper"
-      formatting:
-        mapping:
-          mappings:
-            "True":
-              field_colors:
-                - context: "main"
-                  type: "status_ok"
-            "False":
-              field_colors:
-                - context: "main"
-                  type: "status_not_ok"
-            "<unset>":
-              field_colors:
-                - context: "types"
-                  type: "unset"
     reason:
       header: "Reason:"
       paths:
@@ -62,13 +39,16 @@ infoview:
       Normal:
         fields: ["controller", "container_concurrency",
                  "actual_replicas", "enable_service_links", "timeout",
-                 "ready", "reason"]
+                 "condition_ready", "reason"]
     rows:
       actual_replicas:
         header: [["Actual Replicas:", ["main", "infoheader"]]]
         path: "status#actualReplicas"
         type: "int"
         formatter: "numerical"
+      {%- for line in row_condition_ready.split("\n") %}
+      {{ line }}
+      {%- endfor %}
       container_concurrency:
         header: [["Container Concurrency:", ["main", "infoheader"]]]
         path: "spec#containerConcurrency"
@@ -81,6 +61,17 @@ infoview:
         header: [["Enable ServiceLinks:", ["main", "infoheader"]]]
         path: "spec#enableServiceLinks"
         type: "str"
+      reason:
+        header: [["Reason:", ["main", "infoheader"]]]
+        paths:
+          - path: "status#conditions"
+            pathtype: "items"
+            subpath: "message"
+            when:
+              - key: "type"
+                eq: "Ready"
+        type: "list"
+        formatter: "list"
       timeout:
         header: [["Timeout:", ["main", "infoheader"]]]
         paths:
@@ -93,44 +84,6 @@ infoview:
             - type: "unit"
           field_separators:
             - type: "no_pad"
-      ready:
-        header: [["Ready:", ["main", "infoheader"]]]
-        paths:
-          - path: "status#conditions"
-            pathtype: "items"
-            subpath: "status"
-            when:
-              - key: "type"
-                eq: "Ready"
-            default: ["<unset>"]
-        type: "str"
-        formatter: "value_mapper"
-        formatting:
-          mapping:
-            mappings:
-              "True":
-                field_colors:
-                  - context: "main"
-                    type: "status_ok"
-              "False":
-                field_colors:
-                  - context: "main"
-                    type: "status_not_ok"
-              "<unset>":
-                field_colors:
-                  - context: "types"
-                    type: "unset"
-      reason:
-        header: [["Reason:", ["main", "infoheader"]]]
-        paths:
-          - path: "status#conditions"
-            pathtype: "items"
-            subpath: "message"
-            when:
-              - key: "type"
-                eq: "Ready"
-        type: "list"
-        formatter: "list"
   shortcuts:
     {%- for line in shortcut_controller.split("\n") %}
     {{ line }}

@@ -13,10 +13,10 @@ listview:
   field_indexes:
     Wide:
       fields: ["namespace", "name", "controller", "address",
-               "ready", "age", "reason"]
+               "condition_ready", "age", "reason"]
     Normal:
       fields: ["namespace", "name",
-               "ready", "age", "reason"]
+               "condition_ready", "age", "reason"]
   fields:
     address:
       header: "Address:"
@@ -24,36 +24,12 @@ listview:
       default: "<unset>"
       type: "str"
       formatter: "address"
+    {%- for line in field_condition_ready.split("\n") %}
+    {{ line }}
+    {%- endfor %}
     {%- for line in field_controller.split("\n") %}
     {{ line }}
     {%- endfor %}
-    ready:
-      header: "Ready:"
-      paths:
-        - path: "status#conditions"
-          pathtype: "items"
-          subpath: "status"
-          when:
-            - key: "type"
-              eq: "Ready"
-          default: ["<unset>"]
-      type: "str"
-      formatter: "value_mapper"
-      formatting:
-        mapping:
-          mappings:
-            "True":
-              field_colors:
-                - context: "main"
-                  type: "status_ok"
-            "False":
-              field_colors:
-                - context: "main"
-                  type: "status_not_ok"
-            "<unset>":
-              field_colors:
-                - context: "types"
-                  type: "unset"
     reason:
       header: "Reason:"
       paths:
@@ -77,7 +53,7 @@ infoview:
                  "delivery_dead_letter_sink",
                  "delivery_dead_letter_sink_uri",
                  "delivery_retry",
-                 "ready", "reason"]
+                 "condition_ready", "reason"]
     rows:
       address:
         header: [["Address:", ["main", "infoheader"]]]
@@ -85,6 +61,9 @@ infoview:
         default: "<unset>"
         type: "str"
         formatter: "address"
+      {%- for line in row_condition_ready.split("\n") %}
+      {{ line }}
+      {%- endfor %}
       {%- for line in row_controller.split("\n") %}
       {{ line }}
       {%- endfor %}
@@ -135,33 +114,6 @@ infoview:
         default: "<unset>"
         type: "int"
         formatter: "numerical"
-      ready:
-        header: [["Ready:", ["main", "infoheader"]]]
-        paths:
-          - path: "status#conditions"
-            pathtype: "items"
-            subpath: "status"
-            when:
-              - key: "type"
-                eq: "Ready"
-            default: ["<unset>"]
-        type: "str"
-        formatter: "value_mapper"
-        formatting:
-          mapping:
-            mappings:
-              "True":
-                field_colors:
-                  - context: "main"
-                    type: "status_ok"
-              "False":
-                field_colors:
-                  - context: "main"
-                    type: "status_not_ok"
-              "<unset>":
-                field_colors:
-                  - context: "types"
-                    type: "unset"
       reason:
         header: [["Reason:", ["main", "infoheader"]]]
         paths:

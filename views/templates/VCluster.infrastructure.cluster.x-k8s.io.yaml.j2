@@ -11,13 +11,16 @@ listview:
   field_indexes:
     Normal:
       fields: ["namespace", "name", "controller", "cluster",
-               "ready", "phase", "age", "reason"]
+               "condition_ready", "phase", "age", "reason"]
       sortcolumn: "namespace"
   fields:
     cluster:
       header: "Cluster:"
       path: "metadata#labels#cluster.x-k8s.io/cluster-name"
       type: "str"
+    {%- for line in field_condition_ready.split("\n") %}
+    {{ line }}
+    {%- endfor %}
     {%- for line in field_controller.split("\n") %}
     {{ line }}
     {%- endfor %}
@@ -42,29 +45,6 @@ listview:
               field_colors:
                 - context: "main"
                   type: "status_pending"
-    ready:
-      header: "Ready:"
-      paths:
-        - path: "status#conditions"
-          pathtype: "items"
-          subpath: "status"
-          when:
-            - key: "type"
-              eq: "Ready"
-          default: ["False"]
-      type: "str"
-      formatter: "value_mapper"
-      formatting:
-        mapping:
-          mappings:
-            "True":
-              field_colors:
-                - context: "main"
-                  type: "status_ok"
-            "False":
-              field_colors:
-                - context: "main"
-                  type: "status_pending"
     reason:
       header: "Reason:"
       path: "status#reason"
@@ -81,12 +61,15 @@ infoview:
                  "helm_release_chart_repo",
                  "helm_release_chart_version",
                  "helm_release_values",
-                 "phase", "reason", "ready"]
+                 "phase", "reason", "condition_ready"]
     rows:
       cluster:
         header: [["Cluster:", ["main", "infoheader"]]]
         path: "metadata#labels#cluster.x-k8s.io/cluster-name"
         type: "str"
+      {%- for line in row_condition_ready.split("\n") %}
+      {{ line }}
+      {%- endfor %}
       {%- for line in row_controller.split("\n") %}
       {{ line }}
       {%- endfor %}
@@ -158,29 +141,6 @@ infoview:
                   - context: "main"
                     type: "status_not_ok"
               Pending:
-                field_colors:
-                  - context: "main"
-                    type: "status_pending"
-      ready:
-        header: [["Ready:", ["main", "infoheader"]]]
-        paths:
-          - path: "status#conditions"
-            pathtype: "items"
-            subpath: "status"
-            when:
-              - key: "type"
-                eq: "Ready"
-            default: ["False"]
-        type: "str"
-        formatter: "value_mapper"
-        formatting:
-          mapping:
-            mappings:
-              "True":
-                field_colors:
-                  - context: "main"
-                    type: "status_ok"
-              "False":
                 field_colors:
                   - context: "main"
                     type: "status_pending"

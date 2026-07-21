@@ -4617,6 +4617,22 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api_paths": ["apis/kagent.dev/v1alpha1/"],
         "api": "toolservers",
     },
+    # kai.scheduler
+    ("Config", "kai.scheduler"): {
+        "api_paths": ["apis/kai.scheduler/v1/"],
+        "api": "configs",
+        "namespaced": False,
+    },
+    ("SchedulingShard", "kai.scheduler"): {
+        "api_paths": ["apis/kai.scheduler/v1/"],
+        "api": "schedulingshards",
+        "namespaced": False,
+    },
+    ("Topology", "kai.scheduler"): {
+        "api_paths": ["apis/kai.scheduler/v1alpha1/"],
+        "api": "topologies",
+        "namespaced": False,
+    },
     # kamaji.clastix.io
     ("DataStore", "kamaji.clastix.io"): {
         "api_paths": ["apis/kamaji.clastix.io/v1alpha1/"],
@@ -7240,6 +7256,20 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api_paths": ["apis/scheduling.koordinator.sh/v1alpha1/"],
         "api": "reservations",
         "namespaced": False,
+    },
+    # scheduling.run.ai
+    ("BindRequest", "scheduling.run.ai"): {
+        "api_paths": ["apis/scheduling.run.ai/v1alpha2/"],
+        "api": "bindrequests",
+    },
+    ("Queue", "scheduling.run.ai"): {
+        "api_paths": ["apis/scheduling.run.ai/v2/"],
+        "api": "queues",
+        "namespaced": False,
+    },
+    ("PodGroup", "scheduling.run.ai"): {
+        "api_paths": ["apis/scheduling.run.ai/v2alpha2/"],
+        "api": "podgroups",
     },
     # scheduling.volcano.sh
     ("PodGroup", "scheduling.volcano.sh"): {

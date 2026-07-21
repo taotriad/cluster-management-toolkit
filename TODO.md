@@ -98,6 +98,8 @@
 * Views should define dependent subviews; this way `[ctrl] + R` can be made to work
   even in subviews; additionally toplevel artificial views, such as ResourceView,
   should always be reloaded.
+* We need a sortable: true|false field to go along with reversible: true|false.
+* sortorder_reverse: true|false might be a higher level property?
 
 ## cmtinv
 

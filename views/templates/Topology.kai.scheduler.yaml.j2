@@ -1,0 +1,40 @@
+---
+kind: "Topology"
+api_family: "kai.scheduler"
+default_command: "topologies.kai.scheduler"
+command:
+  - "topologies.kai"
+  - "topology.kai"
+listview:
+  name: "Topologies"
+  group: "Scheduling & Scaling"
+  field_indexes:
+    Normal:
+      fields: ["name", "age"]
+infoview:
+  name: "Topology Info"
+  infopad:
+  listpad:
+    listgetter: "listgetter_path"
+    listgetter_args:
+      path: "spec#levels"
+      # XXX: Once it works we want
+      # enumeration: "hierarchy"
+      enumeration: "standard"
+    infogetter: "generic_infogetter"
+    field_indexes:
+      Normal:
+        fields: ["topology", "node_label"]
+        sortcolumn: "topology"
+    fields:
+      node_label:
+        header: "Node Label:"
+        path: "nodeLabel"
+        default: "<unset>"
+        type: "str"
+      topology:
+        header: "Topology:"
+        path: "_extra_data#enumeration"
+        type: "int"
+        formatter: "numerical"
+        align: "right"
