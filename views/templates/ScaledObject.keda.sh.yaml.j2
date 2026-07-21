@@ -1,18 +1,19 @@
 ---
-kind: "ScaledJob"
+kind: "ScaledObject"
 api_family: "keda.sh"
-default_command: "scaledjobs"
+default_command: "scaledobjects"
 command:
-  - "sj"
+  - "so"
 listview:
-  name: "Scaled Jobs"
+  name: "Scaled Objects"
   group: "Scheduling & Scaling"
   field_indexes:
     Normal:
-      fields: ["namespace", "name", "max_replica_count", "triggers",
-               "authentication", "condition_ready",
-               "condition_ready_reason", "active", "age",
-               "condition_ready_message"]
+      fields: ["namespace", "name", "scale_target_kind",
+               "scale_target_name", "min_replica_count",
+               "max_replica_count", "triggers", "authentication",
+               "condition_ready", "condition_ready_reason",
+               "active", "fallback", "age", "condition_ready_message"]
       sortcolumn: "namespace"
   fields:
     active:
@@ -45,29 +46,9 @@ listview:
           pathtype: "items"
           subpath: "authenticationRef#name"
       formatter: "list"
-    condition_ready:
-      header: "Ready:"
-      paths:
-        - path: "status#conditions"
-          pathtype: "items"
-          subpath: "status"
-          when:
-            - key: "type"
-              eq: "Ready"
-          default: ["<unknown>"]
-      type: "str"
-      formatter: "value_mapper"
-      formatting:
-        mapping:
-          mappings:
-            "True":
-              field_colors:
-                - context: "main"
-                  type: "status_ok"
-            "False":
-              field_colors:
-                - context: "main"
-                  type: "status_not_ok"
+    {%- for line in field_condition_ready.split("\n") %}
+    {{ line }}
+    {%- endfor %}
     condition_ready_message:
       header: "Message:"
       paths:
@@ -120,6 +101,17 @@ listview:
               field_colors:
                 - context: "main"
                   type: "status_unknown"
+    fallback:
+      header: "Fallback:"
+      paths:
+        - path: "status#conditions"
+          pathtype: "items"
+          subpath: "status"
+          when:
+            - key: "type"
+              eq: "Fallback"
+          default: ["<unknown>"]
+      type: "str"
     max_replica_count:
       header: "Max Replica Count:"
       path: "spec#maxReplicaCount"
@@ -127,6 +119,24 @@ listview:
       type: "int"
       formatter: "numerical"
       align: "right"
+    min_replica_count:
+      header: "Min Replica Count:"
+      path: "spec#minReplicaCount"
+      default: "<unset>"
+      type: "int"
+      formatter: "numerical"
+      align: "right"
+    scale_target_kind:
+      header: "Scale Target Kind:"
+      path: "status#scaleTargetKind"
+      type: "str"
+      formatting:
+        field_colors:
+          - type: "kind"
+    scale_target_name:
+      header: "Scale Target Name:"
+      path: "spec#scaleTargetRef#name"
+      type: "str"
     triggers:
       header: "Triggers:"
       paths:
@@ -135,40 +145,16 @@ listview:
           subpath: "type"
       formatter: "list"
 infoview:
-  name: "Scaled Job Info"
+  name: "Scaled Object Info"
   infopad:
     row_indexes:
       Normal:
-        fields: ["failed_jobs_history_limit", "max_replica_count",
-                 "polling_interval", "scaling_strategy_header",
-                 "scaling_strategy_queue_length_deduction",
-                 "scaling_strategy_running_job_percentage",
-                 "scaling_strategy_strategy", "condition_ready",
+        fields: ["max_replica_count", "condition_ready",
                  "condition_ready_reason", "condition_ready_message"]
     rows:
-      condition_ready:
-        header: [["Ready:", ["main", "infoheader"]]]
-        paths:
-          - path: "status#conditions"
-            pathtype: "items"
-            subpath: "status"
-            when:
-              - key: "type"
-                eq: "Ready"
-            default: ["<unknown>"]
-        type: "str"
-        formatter: "value_mapper"
-        formatting:
-          mapping:
-            mappings:
-              "True":
-                field_colors:
-                  - context: "main"
-                    type: "status_ok"
-              "False":
-                field_colors:
-                  - context: "main"
-                    type: "status_not_ok"
+      {%- for line in row_condition_ready.split("\n") %}
+      {{ line }}
+      {%- endfor %}
       condition_ready_message:
         header: [["Message:", ["main", "infoheader"]]]
         paths:
@@ -221,79 +207,38 @@ infoview:
                 field_colors:
                   - context: "main"
                     type: "status_unknown"
-      failed_jobs_history_limit:
-        header: [["Failed Jobs History Limit:", ["main", "infoheader"]]]
-        path: "spec#failedJobsHistoryLimit"
-        type: "int"
-        formatter: "numerical"
       max_replica_count:
         header: [["Max Replica Count:", ["main", "infoheader"]]]
         path: "spec#maxReplicaCount"
         default: "<unset>"
         type: "int"
         formatter: "numerical"
-      polling_interval:
-        header: [["Polling Interval:", ["main", "infoheader"]]]
-        path: "spec#pollingInterval"
-        default: "<unset>"
-        type: "int"
-        formatter: "numerical"
-      scaling_strategy_header:
-        header: [["Scheduling Strategy:", ["main", "infoheader"]]]
-      scaling_strategy_queue_length_deduction:
-        header: [["  Queue Length Deduction:", ["main", "infoheader"]]]
-        path: "spec#scalingStrategy#customScalingQueueLengthDeduction"
-        default: "<unset>"
-        type: "raw"
-        formatter: "numerical"
-      scaling_strategy_running_job_percentage:
-        header: [["  Running Job Percentage:", ["main", "infoheader"]]]
-        path: "spec#scalingStrategy#customScalingRunningJobPercentage"
-        default: "<unset>"
-        type: "raw"
-        formatter: "numerical"
-      scaling_strategy_strategy:
-        header: [["  Strategy:", ["main", "infoheader"]]]
-        path: "spec#scalingStrategy#strategy"
-        default: "<unset>"
-        type: "str"
   listpad:
+    on_activation:
+      call: "resourceinfodispatch_with_lookup"
+      kind_path: ["_extra_data#kind"]
+      kind: "TriggerAuthentication"
+      api_family: "keda.sh"
+      name_path: "authenticationRef#name"
+      namespace_path: "_extra_data#namespace"
     listgetter: "listgetter_path"
     listgetter_args:
       path: "spec#triggers"
     infogetter: "generic_infogetter"
+    infogetter_args:
+      _extra_data:
+        kind: ["authenticationRef#kind"]
+        namespace: ["metadata#namespace"]
     field_indexes:
       Normal:
-        fields: ["type", "host", "queue_name", "queue_length"]
+        fields: ["type", "authentication_ref"]
         sortcolumn: "type"
     fields:
-      host:
-        header: "Host:"
-        path: "metadata#host"
-        type: "str"
-      queue_length:
-        header: "Queue Length:"
-        path: "metadata#queueLength"
-        type: "int"
-        formatter: "numerical"
-        align: "right"
-      queue_name:
-        header: "Queue Name:"
-        path: "metadata#queueName"
+      authentication_ref:
+        header: "Authentication Reference:"
+        path: "authenticationRef#name"
         type: "str"
       type:
         header: "Type:"
         path: "type"
         type: "str"
-  shortcuts:
-    "Job template":
-      key: "t"
-      modifier: "shift"
-      read_only: true
-      helptext: "Show Job template"
-      action: "call"
-      action_call: "view_yaml"
-      action_args:
-        title: "Job template"
-        _pass_obj: true
-        path: "spec#jobTargetRef#template"

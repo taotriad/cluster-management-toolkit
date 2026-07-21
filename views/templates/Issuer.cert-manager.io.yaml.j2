@@ -1,43 +1,25 @@
 ---
-kind: "ClusterIssuer"
+kind: "Issuer"
 api_family: "cert-manager.io"
-default_command: "clusterissuers"
+default_command: "issuers"
 listview:
-  name: "Cluster Issuers"
+  name: "Issuers"
   group: "Certificate Management"
   field_indexes:
     Normal:
-      fields: ["name", "condition_ready", "age"]
+      fields: ["namespace", "name", "condition_ready", "age"]
+      sortcolumn: "namespace"
   fields:
-    condition_ready:
-      header: "Ready:"
-      paths:
-        - path: "status#conditions"
-          pathtype: "items"
-          subpath: "status"
-          when:
-            - key: "type"
-              eq: "Ready"
-          default: ["<unknown>"]
-      formatter: "value_mapper"
-      formatting:
-        mapping:
-          mappings:
-            "True":
-              field_colors:
-                - context: "main"
-                  type: "status_ok"
-            "False":
-              field_colors:
-                - context: "main"
-                  type: "status_not_ok"
+    {%- for line in field_condition_ready.split("\n") %}
+    {{ line }}
+    {%- endfor %}
 infoview:
-  name: "Cluster Issuer Info"
+  name: "Issuer Info"
   infopad:
     row_indexes:
       Normal:
-        fields: ["condition_ready", "type",
-                 "crl_distribution_points", "ca_secret_name"]
+        fields: ["condition_ready", "type", "crl_distribution_points",
+                 "ca_secret_name"]
     rows:
       ca_secret_name:
         header: [["C", ["main", "infoheader_shortcut"]],
@@ -45,32 +27,10 @@ infoview:
         paths:
           - path: ["spec#ca#secretName"]
             pathtype: "str"
-      condition_ready:
-        header: [["Ready:", ["main", "infoheader"]]]
-        paths:
-          - path: "status#conditions"
-            pathtype: "items"
-            subpath: "status"
-            when:
-              - key: "type"
-                eq: "Ready"
-            default: ["<unknown>"]
-        formatter: "value_mapper"
-        formatting:
-          mapping:
-            mappings:
-              "True":
-                field_colors:
-                  - context: "main"
-                    type: "status_ok"
-              "False":
-                field_colors:
-                  - context: "main"
-                    type: "status_not_ok"
-              "<unknown>":
-                field_colors:
-                  - context: "main"
-                    type: "status_unknown"
+        default: "<none>"
+      {%- for line in row_condition_ready.split("\n") %}
+      {{ line }}
+      {%- endfor %}
       crl_distribution_points:
         header: [["CRL Distribution Points:", ["main", "infoheader"]]]
         paths:
@@ -141,13 +101,14 @@ infoview:
     listgetter_args:
       _kind: "Certificate"
       _api_family: "cert-manager.io"
+      _namespace_path: "metadata#namespace"
       _pass_obj: true
       filters:
         issuer:
           enabled: true
           allow:
             - key: "spec#issuerRef#kind"
-              values: ["ClusterIssuer"]
+              values: ["Issuer"]
             - key: "spec#issuerRef#name"
               values:
                 source: "caller"
@@ -209,4 +170,4 @@ infoview:
         _pass_obj: true
         kind: "Secret"
         name_path: "spec#ca#secretName"
-        namespace: "cert-manager"
+        namespace_path: "metadata#namespace"
