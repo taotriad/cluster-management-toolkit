@@ -9,7 +9,7 @@
 Helper for installing and upgrading CNI
 """
 
-from collections.abc import Callable, Generator
+from collections.abc import Callable, Generator, Iterator
 from typing import Any, TypedDict
 
 from clustermanagementtoolkit.cmtio import check_path, join_securitystatus_set
@@ -40,7 +40,7 @@ def __patch_cni_calico(cni_path: FilePath, pod_network_cidr: str) -> bool:
         violations_joined = join_securitystatus_set(",", set(violations))
         raise FilePathAuditError(f"Violated rules: {violations_joined}", path=cni_path)
 
-    dl: Generator = secure_read_yaml_all(cni_path)
+    dl: Generator | Iterator = secure_read_yaml_all(cni_path)
     dl_mod: list[Any] = []
 
     # pylint: disable=too-many-nested-blocks
@@ -78,7 +78,7 @@ def __patch_cni_canal(cni_path: FilePath, pod_network_cidr: str) -> bool:
         violations_joined = join_securitystatus_set(",", set(violations))
         raise FilePathAuditError(f"Violated rules: {violations_joined}", path=cni_path)
 
-    dl: Generator = secure_read_yaml_all(cni_path)
+    dl: Generator | Iterator = secure_read_yaml_all(cni_path)
     dl_mod: list[Any] = []
 
     for d in dl:
@@ -110,7 +110,7 @@ def __patch_cni_flannel(cni_path: FilePath, pod_network_cidr: str) -> bool:
         violations_joined = join_securitystatus_set(",", set(violations))
         raise FilePathAuditError(f"Violated rules: {violations_joined}", path=cni_path)
 
-    dl: Generator = secure_read_yaml_all(cni_path)
+    dl: Generator | Iterator = secure_read_yaml_all(cni_path)
     dl_mod: list[Any] = []
 
     for d in dl:
