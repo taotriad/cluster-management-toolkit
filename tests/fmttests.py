@@ -3094,7 +3094,7 @@ def test_format_mosquitto(verbose: bool = False) -> tuple[str, bool]:
              "persistent_client_expiration 2d\n"
              "accept_protocol_versions 3, 4\n"
              "accept_protocol_versions 3,4,5\n"
-             "listener 0 /tmp/mosquitto.sock\n"
+             "listener 0 /etc/mosquitto.sock\n"
              "pattern write sensor/%u/data\n"
              "bridge_tcp_keepalive 0 1 42\n"
              "",
@@ -3136,7 +3136,7 @@ def test_format_mosquitto(verbose: bool = False) -> tuple[str, bool]:
                   ThemeStr(" ", ThemeAttr("types", "generic")),
                   ThemeStr("0", ThemeAttr("types", "mosquitto_number")),
                   ThemeStr(" ", ThemeAttr("types", "generic")),
-                  ThemeStr("/tmp/mosquitto.sock", ThemeAttr("types", "mosquitto_value"))],
+                  ThemeStr("/etc/mosquitto.sock", ThemeAttr("types", "mosquitto_value"))],
                  [ThemeStr("pattern", ThemeAttr("types", "mosquitto_keyword")),
                   ThemeStr(" ", ThemeAttr("types", "generic")),
                   ThemeStr("write", ThemeAttr("types", "mosquitto_unit")),

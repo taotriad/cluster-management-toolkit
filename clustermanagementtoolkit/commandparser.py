@@ -198,8 +198,6 @@ def __sub_usage(command: str) -> int:
         Returns:
             (int): 0
     """
-    assert commandline is not None
-
     commandinfo = {}
     headerstring: list[ANSIThemeStr] = []
     command_found = False
@@ -290,8 +288,6 @@ def __usage(options: list[tuple[str, str]], args: list[str]) -> int:
         Returns:
             (int): 0
     """
-    assert commandline is not None
-
     has_commands: bool = False
     has_options: bool = False
     has_args: bool = False
@@ -580,8 +576,6 @@ def __command_usage(options: list[tuple[str, str]], args: list[str]) -> int:
         Returns:
             (int): The return value from __usage()/__sub_usage()
     """
-    assert commandline is not None
-
     if not args:
         return __usage(options, args)
     return __sub_usage(args[0])
