@@ -3253,6 +3253,7 @@ class UIProps:
         self.listpad: curses.window | None = None
         self.listpadminwidth: int = 0
         self.reversible: bool = True
+        self.sortable: bool = True
         # For logs with a timestamp column
         self.tspadypos: int = 0
         self.tspadxpos: int = 0
@@ -3551,6 +3552,7 @@ class UIProps:
         self.sortcolumn = deep_get(kwargs, DictPath("sortcolumn"), "status")
         self.sortorder_reverse = deep_get(kwargs, DictPath("sortorder_reverse"), False)
         self.reversible = deep_get(kwargs, DictPath("reversible"), True)
+        self.sortable = deep_get(kwargs, DictPath("sortable"), True)
         self.sortkey1, self.sortkey2 = self.get_sortkeys()
         update_delay: int = deep_get(kwargs, DictPath("update_delay"), -1)
         self.set_update_delay(update_delay)
@@ -5221,13 +5223,13 @@ class UIProps:
         if c == curses.KEY_SLEFT:
             # For listpads we switch sort column with this;
             # for logpads we move half a page left/right
-            if self.listpad:
+            if self.listpad and self.sortable:
                 self.prev_sortcolumn()
             elif self.logpad and not self.continuous_log:
                 self.move_xoffset_rel(-(self.logpadminwidth // 2))
             return Retval.MATCH
         if c == curses.KEY_SRIGHT:
-            if self.listpad:
+            if self.listpad and self.sortable:
                 self.next_sortcolumn()
             elif self.logpad and not self.continuous_log:
                 self.move_xoffset_rel(self.logpadminwidth // 2)

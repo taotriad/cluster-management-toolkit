@@ -231,6 +231,8 @@ coverage-cluster: setup_tests
 	$$cmd html --precision 1 ;\
 	$$cmd json
 
+coverage-all: coverage coverage-ansible coverage-cluster
+
 # We need to extend the timeout since validation gives up on cmu otherwise.
 #
 # --exclude-rule python.flask.security.xss.audit.direct-use-of-jinja2.direct-use-of-jinja2

@@ -2430,6 +2430,7 @@ def listgetter_path(obj: dict, **kwargs: Any) -> tuple[dict | list[dict], int]:
     join_key: str = deep_get(kwargs, DictPath("join_key"))
     # "standard", "reverse", ""
     enumeration: str = deep_get(kwargs, DictPath("enumeration"), "")
+    hierarchical: bool = deep_get(kwargs, DictPath("hierarchical"), False)
 
     # A multipath is a path to a dict that in turn contains lists, where you'd want the name
     # of the path containing the lists as a newly created key
@@ -2530,10 +2531,11 @@ def listgetter_path(obj: dict, **kwargs: Any) -> tuple[dict | list[dict], int]:
                     elif enumeration == "reverse":
                         deep_set(item, DictPath("_extra_data#enumeration"), len(tmp2) - i,
                                  create_path=True)
-                    elif enumeration == "hierarchy":
-                        hierarchy_str: str = "".rjust(3 * i) + "└──"
-                        deep_set(item, DictPath("_extra_data#enumeration"),
-                                 hierarchy_str, create_path=True)
+                    hierarchy_prefix: str = ""
+                    if hierarchical and i > 0:
+                        hierarchy_prefix = "".rjust(4 * (i - 1)) + "└── "
+                    deep_set(item, DictPath("_extra_data#prefix"),
+                             hierarchy_prefix, create_path=True)
                     vlist.append(item)
         else:
             vlist = tmp2

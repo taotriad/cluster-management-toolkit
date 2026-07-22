@@ -106,13 +106,11 @@ infoviewheader_part2: list[tuple[str, str]] = [
     ("^", "Go to parent view"),
 ]
 
-irreversiblelistmovement: list[tuple[str, str]] = [
+listmovement: list[tuple[str, str]] = [
     ("[Left]", "Scroll left"),
     ("[Right]", "Scroll right"),
     ("[Down]", "Move to next row"),
     ("[Up]", "Move to previous row"),
-    ("[Shift] + [Left]", "Change sortcolumn"),
-    ("[Shift] + [Right]", "Change sortcolumn"),
     ("[Tab]", "Jump to next group in sortcolumn"),
     ("[Shift] + [Tab]", "Jump to previous group in sortcolumn"),
     ("§", "Jump to next sortcolumn"),
@@ -127,9 +125,14 @@ irreversiblelistmovement: list[tuple[str, str]] = [
     ("[Shift] + [End]", "Jump to end"),
 ]
 
-listmovement: list[tuple[str, str]] = [
+reversible_listmovement: list[tuple[str, str]] = [
     ("R", "Reverse sortorder"),
-] + irreversiblelistmovement
+]
+
+sortable_listmovement: list[tuple[str, str]] = [
+    ("[Shift] + [Left]", "Change sortcolumn"),
+    ("[Shift] + [Right]", "Change sortcolumn"),
+]
 
 linewrap: list[tuple[str, str]] = [
     ("[Shift] + W", "Toggle line wrapping"),

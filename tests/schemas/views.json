@@ -2222,6 +2222,10 @@
                         "reversible": {
                             "description": "Is the list reversible",
                             "type": "boolean"
+                        },
+                        "sortable": {
+                            "description": "Is the list sortable",
+                            "type": "boolean"
                         }
                     },
                     "allOf": [
@@ -2639,6 +2643,10 @@
                                             },
                                             "flatten_dicts": {
                                                 "description": "Should dicts be flattened?",
+                                                "type": "boolean"
+                                            },
+                                            "hierarchical": {
+                                                "description": "Should enumerated lists be formatted as a tree?",
                                                 "type": "boolean"
                                             },
                                             "join_key": {

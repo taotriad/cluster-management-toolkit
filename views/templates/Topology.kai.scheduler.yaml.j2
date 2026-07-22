@@ -18,20 +18,26 @@ infoview:
     listgetter: "listgetter_path"
     listgetter_args:
       path: "spec#levels"
-      # XXX: Once it works we want
-      # enumeration: "hierarchy"
       enumeration: "standard"
+      hierarchical: true
     infogetter: "generic_infogetter"
     field_indexes:
       Normal:
         fields: ["topology", "node_label"]
         sortcolumn: "topology"
+    reversible: false
+    sortable: false
     fields:
       node_label:
         header: "Node Label:"
-        path: "nodeLabel"
-        default: "<unset>"
-        type: "str"
+        paths:
+          - path: [["_extra_data#prefix"], ["nodeLabel"]]
+            pathtype: "tuple"
+            default: ["<unset>"]
+        formatter: "list"
+        formatting:
+          field_separators:
+            - type: "no_pad"
       topology:
         header: "Topology:"
         path: "_extra_data#enumeration"

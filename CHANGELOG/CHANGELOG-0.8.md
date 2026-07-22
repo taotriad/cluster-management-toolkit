@@ -93,6 +93,10 @@ TBD
   PyYAML is *much* faster. Populating view-files is still very slow on complex setups (OpenShift, Rancher, etc.),
   but the speed-up is still very noticeable.
 * secure_read_yaml_all() now supports the asynchronous flag.
+* listgetter_path() can now create hierarchical lists,
+  but for now only if the list is enumerated.
+* Lists can now be defined as non-sortable; this means that the initial order cannot be changed;
+  this combines nicely with hierarchical lists.
 
 ### view-file changes
 

@@ -633,7 +633,7 @@ def generate_list_header(uip: UIProps, field_dict: dict, is_taggable: bool = Fal
 
         theme = get_theme_ref()
         if uip.get_sortcolumn() == field:
-            if not uip.reversible:
+            if not uip.reversible or not uip.sortable:
                 sort_direction_char = theme["boxdrawing"]["arrownone"]
             elif uip.sortorder_reverse:
                 sort_direction_char = theme["boxdrawing"]["arrowup"]
@@ -3873,10 +3873,11 @@ def generate_helptext(view: str | tuple[str, str], viewtype: str, **kwargs: Any)
         if "listpad" in viewref:
             helptext += helptexts.spacer
 
-            if not deep_get(viewref, DictPath("reversible"), True):
-                helptext += helptexts.irreversiblelistmovement
-            else:
-                helptext += helptexts.listmovement
+            if deep_get(viewref, DictPath("reversible"), True):
+                helptext += helptexts.reversible_listmovement
+            if deep_get(viewref, DictPath("sortable"), True):
+                helptext += helptexts.sortable_listmovement
+            helptext += helptexts.listmovement
         elif "logpad" in viewref:
             helptext += helptexts.linewrap
             helptext += helptexts.toggleformatter
@@ -3910,6 +3911,10 @@ def generate_helptext(view: str | tuple[str, str], viewtype: str, **kwargs: Any)
                 helptext += helptexts.selectoractions
                 helptext += helptexts.spacer
 
+        if deep_get(viewref, DictPath("reversible"), True):
+            helptext += helptexts.reversible_listmovement
+        if deep_get(viewref, DictPath("sortable"), True):
+            helptext += helptexts.sortable_listmovement
         helptext += helptexts.listmovement
 
     return format_helptext(helptext)
@@ -4056,6 +4061,7 @@ def genericinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
 
     sortorder_reverse = deep_get(viewref, DictPath("sortorder_reverse"), False)
     reversible = deep_get(viewref, DictPath("reversible"), True)
+    sortable = deep_get(viewref, DictPath("sortable"), True)
     activatedfun = deep_get(viewref, DictPath("activatedfun"))
     on_activation = deep_get(viewref, DictPath("listpad#on_activation"), {})
     labels = deep_get(viewref, DictPath("labels"))
@@ -4199,7 +4205,7 @@ def genericinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
     uip.init_window(field_dict=field_dict, windowheader=windowheader, helptext=helptext,
                     view=viewoverride, sortcolumn=sortcolumn, sortorder_reverse=sortorder_reverse,
                     reversible=reversible, activatedfun=activatedfun, on_activation=on_activation,
-                    extraref=extraref, data=obj)
+                    sortable=sortable, extraref=extraref, data=obj)
 
     # For generic information
     if infopadheight:
@@ -10021,6 +10027,7 @@ def populate_views(refresh_apis: str = "none") -> None:
 
             sortcolumn = deep_get(d, DictPath("listview#sortcolumn"))
             reversible = deep_get(d, DictPath("listview#reversible"), True)
+            sortable = deep_get(d, DictPath("listview#sortable"), True)
             sortorder_reverse = deep_get(d, DictPath("listview#sortorder_reverse"), False)
             fields = deep_get(d, DictPath("listview#fields"), {})
 
@@ -10173,6 +10180,7 @@ def populate_views(refresh_apis: str = "none") -> None:
                 "listgetter_async": listgetter_async,
                 "listgetter_args": listgetter_args,
                 "reversible": reversible,
+                "sortable": sortable,
                 "infogetter": infogetter,
                 "infogetter_args": deep_get(d, DictPath("listview#infogetter_args"), {}),
                 "actions": deep_get(d, DictPath("listview#actions"), {}),
@@ -10386,6 +10394,7 @@ def populate_views(refresh_apis: str = "none") -> None:
 
             sortcolumn = deep_get(listpad, DictPath("sortcolumn"))
             reversible = deep_get(listpad, DictPath("reversible"), True)
+            sortable = deep_get(listpad, DictPath("sortable"), True)
             sortorder_reverse = deep_get(listpad, DictPath("sortorder_reverse"), False)
 
             listpad_fields = deep_get(listpad, DictPath("fields"), {})
@@ -10424,6 +10433,7 @@ def populate_views(refresh_apis: str = "none") -> None:
                 "infopad": row_fields,
                 "listpad": {},
                 "reversible": reversible,
+                "sortable": sortable,
                 "labels": labels,
                 "annotations": annotations,
                 "shortcuts": {},
