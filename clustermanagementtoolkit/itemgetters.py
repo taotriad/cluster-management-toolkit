@@ -57,12 +57,7 @@ def get_conditions(obj: dict, **kwargs: Any) -> list[dict]:
     for condition in deep_get(obj, DictPath(path), []):
         ctype = deep_get(condition, DictPath("type"), "")
         status = deep_get_with_fallback(condition, [DictPath("status"), DictPath("phase")], "")
-        last_probe = deep_get(condition, DictPath("lastProbeTime"))
-        if last_probe is None:
-            last_probe = "<unset>"
-        else:
-            timestamp = timestamp_to_datetime(last_probe)
-            last_probe = f"{timestamp.astimezone():%Y-%m-%d %H:%M:%S}"
+        reason = deep_get(condition, DictPath("reason"), "<unset>")
         last_transition = deep_get(condition, DictPath("lastTransitionTime"))
         if last_transition is None:
             last_transition = "<unset>"
@@ -71,7 +66,7 @@ def get_conditions(obj: dict, **kwargs: Any) -> list[dict]:
             last_transition = f"{timestamp.astimezone():%Y-%m-%d %H:%M:%S}"
         message = deep_get(condition, DictPath("message"), "")
         condition_list.append({
-            "fields": [ctype, status, last_probe, last_transition, message],
+            "fields": [ctype, status, reason, last_transition, message],
         })
     return condition_list
 
@@ -388,7 +383,10 @@ def get_list_as_list(obj: dict, **kwargs: Any) -> list[Any]:
             for d in paths:
                 path = deep_get(d, DictPath("path"))
                 name = deep_get(d, DictPath("name"))
-                for item in deep_get(obj, DictPath(path), []):
+                tmp = deep_get(obj, DictPath(path), [])
+                if not isinstance(tmp, list):
+                    tmp = [tmp]
+                for item in tmp:
                     vlist.append({"fields": [name, item]})
             return vlist
 

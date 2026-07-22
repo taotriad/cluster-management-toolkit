@@ -6964,6 +6964,14 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api_paths": ["apis/postgresql.cnpg.io/v1/"],
         "api": "databases",
     },
+    ("DatabaseRole", "postgresql.cnpg.io"): {
+        "api_paths": ["apis/postgresql.cnpg.io/v1/"],
+        "api": "databaseroles",
+    },
+    ("FailoverQuorum", "postgresql.cnpg.io"): {
+        "api_paths": ["apis/postgresql.cnpg.io/v1/"],
+        "api": "failoverquorums",
+    },
     ("ImageCatalog", "postgresql.cnpg.io"): {
         "api_paths": ["apis/postgresql.cnpg.io/v1/"],
         "api": "imagecatalogs",

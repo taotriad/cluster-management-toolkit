@@ -3,6 +3,9 @@
   show_in_selector: false
   matchkeys:
     - image_name: "/cloudnative-pg/cloudnative-pg"
+    - image_name: "/cloudnative-pg/cloudnative-pg"
+      container_type: "InitContainer"
+    - image_name: "/cloudnative-pg/postgresql"
   parser_rules:
     - name: "json"
       options:

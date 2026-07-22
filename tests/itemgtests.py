@@ -68,28 +68,23 @@ def test_get_conditions(verbose: bool = False) -> tuple[str, bool]:
                             {
                                 'type': 'PodReadyToStartContainers',
                                 'status': 'True',
-                                'lastProbeTime': None,
                                 'lastTransitionTime': now_str},
                             {
                                 'type': 'Initialized',
                                 'status': 'True',
-                                'lastProbeTime': None,
                                 'lastTransitionTime': now_str},
                             {
                                 'type': 'Ready',
                                 'status': 'True',
-                                # Randomly set the readiness probe
-                                'lastProbeTime': now_str,
+                                'reason': 'ThePodIsReady',
                                 'lastTransitionTime': now_str},
                             {
                                 'type': 'ContainersReady',
                                 'status': 'True',
-                                'lastProbeTime': None,
                                 'lastTransitionTime': now_str},
                             {
                                 'type': 'PodScheduled',
                                 'status': 'True',
-                                'lastProbeTime': None,
                                 'lastTransitionTime': now_str},
                         ],
                     },
@@ -109,7 +104,7 @@ def test_get_conditions(verbose: bool = False) -> tuple[str, bool]:
                     {
                         "fields": [
                             'Ready', 'True',
-                            now_str_fmt, now_str_fmt, ''],
+                            'ThePodIsReady', now_str_fmt, ''],
                     },
                     {
                         "fields": [
@@ -132,27 +127,22 @@ def test_get_conditions(verbose: bool = False) -> tuple[str, bool]:
                             {
                                 'type': 'PodReadyToStartContainers',
                                 'status': 'True',
-                                'lastProbeTime': None,
                                 'lastTransitionTime': now_str},
                             {
                                 'type': 'Initialized',
                                 'status': 'True',
-                                'lastProbeTime': None,
                                 'lastTransitionTime': now_str},
                             {
                                 'type': 'Ready',
                                 'status': 'False',
-                                'lastProbeTime': None,
                                 'lastTransitionTime': now_str},
                             {
                                 'type': 'ContainersReady',
                                 'status': 'True',
-                                'lastProbeTime': None,
                                 'lastTransitionTime': now_str},
                             {
                                 'type': 'PodScheduled',
                                 'status': 'True',
-                                'lastProbeTime': None,
                                 'lastTransitionTime': now_str},
                         ],
                     },
@@ -195,27 +185,22 @@ def test_get_conditions(verbose: bool = False) -> tuple[str, bool]:
                             {
                                 'type': 'PodReadyToStartContainers',
                                 'status': 'True',
-                                'lastProbeTime': None,
                                 'lastTransitionTime': now_str},
                             {
                                 'type': 'Initialized',
                                 'status': 'True',
-                                'lastProbeTime': None,
                                 'lastTransitionTime': now_str},
                             {
                                 'type': 'Ready',
                                 'status': 'False',
-                                'lastProbeTime': None,
                                 'lastTransitionTime': None},
                             {
                                 'type': 'ContainersReady',
                                 'status': 'True',
-                                'lastProbeTime': None,
                                 'lastTransitionTime': now_str},
                             {
                                 'type': 'PodScheduled',
                                 'status': 'True',
-                                'lastProbeTime': None,
                                 'lastTransitionTime': now_str},
                         ],
                     },
@@ -257,32 +242,26 @@ def test_get_conditions(verbose: bool = False) -> tuple[str, bool]:
                             {
                                 'type': 'PodReadyToStartContainers',
                                 'status': 'True',
-                                'lastProbeTime': None,
                                 'lastTransitionTime': now_str},
                             {
                                 'type': 'Initialized',
                                 'status': 'True',
-                                'lastProbeTime': None,
                                 'lastTransitionTime': now_str},
                             {
                                 'type': 'Ready',
                                 'status': 'False',
-                                'lastProbeTime': None,
                                 'lastTransitionTime': now_str},
                             {
                                 'type': 'ContainersReady',
                                 'status': 'True',
-                                'lastProbeTime': None,
                                 'lastTransitionTime': now_str},
                             {
                                 'type': 'PodScheduled',
                                 'status': 'True',
-                                'lastProbeTime': None,
                                 'lastTransitionTime': now_str},
                             {
                                 'type': 'DisruptionTarget',
                                 'status': 'True',
-                                'lastProbeTime': None,
                                 'lastTransitionTime': now_str,
                                 'reason': 'DeletionByTaintManager',
                                 'message': 'Taint manager: deleting due to NoExecute taint'},
@@ -319,7 +298,7 @@ def test_get_conditions(verbose: bool = False) -> tuple[str, bool]:
                     {
                         'fields': [
                             'DisruptionTarget', 'True',
-                            '<unset>', now_str_fmt,
+                            'DeletionByTaintManager', now_str_fmt,
                             'Taint manager: deleting due to NoExecute taint']},
                 ],
                 None,

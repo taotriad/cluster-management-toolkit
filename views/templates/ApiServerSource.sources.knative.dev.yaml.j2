@@ -13,42 +13,19 @@ listview:
   field_indexes:
     Wide:
       fields: ["namespace", "name", "sink_uri", "mode",
-               "ready", "age", "reason"]
+               "condition_ready", "age", "reason"]
     Normal:
-      fields: ["namespace", "name", "ready", "mode", "age", "reason"]
+      fields: ["namespace", "name", "mode",
+               "condition_ready", "age", "reason"]
   fields:
+    {%- for line in field_condition_ready.split("\n") %}
+    {{ line }}
+    {%- endfor %}
     mode:
       header: "Mode:"
       path: "spec#mode"
       default: "<unset>"
       type: "str"
-    ready:
-      header: "Ready:"
-      paths:
-        - path: "status#conditions"
-          pathtype: "items"
-          subpath: "status"
-          when:
-            - key: "type"
-              eq: "Ready"
-          default: ["<unset>"]
-      type: "str"
-      formatter: "value_mapper"
-      formatting:
-        mapping:
-          mappings:
-            "True":
-              field_colors:
-                - context: "main"
-                  type: "status_ok"
-            "False":
-              field_colors:
-                - context: "main"
-                  type: "status_not_ok"
-            "<unset>":
-              field_colors:
-                - context: "types"
-                  type: "unset"
     reason:
       header: "Reason:"
       paths:
@@ -77,40 +54,16 @@ infoview:
                  "sink_sink",
                  "sink_uri",
                  "mode",
-                 "ready", "reason"]
+                 "condition_ready", "reason"]
     rows:
+      {%- for line in row_condition_ready.split("\n") %}
+      {{ line }}
+      {%- endfor %}
       mode:
         header: [["Mode:", ["main", "infoheader"]]]
         path: "spec#mode"
         default: "<unset>"
         type: "str"
-      ready:
-        header: [["Ready:", ["main", "infoheader"]]]
-        paths:
-          - path: "status#conditions"
-            pathtype: "items"
-            subpath: "status"
-            when:
-              - key: "type"
-                eq: "Ready"
-            default: ["<unset>"]
-        type: "str"
-        formatter: "value_mapper"
-        formatting:
-          mapping:
-            mappings:
-              "True":
-                field_colors:
-                  - context: "main"
-                    type: "status_ok"
-              "False":
-                field_colors:
-                  - context: "main"
-                    type: "status_not_ok"
-              "<unset>":
-                field_colors:
-                  - context: "types"
-                    type: "unset"
       reason:
         header: [["Reason:", ["main", "infoheader"]]]
         paths:

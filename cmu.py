@@ -4155,7 +4155,7 @@ def genericinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
             "widget": "windowwidget",
             "widget_args": {
                 "title": "Conditions:",
-                "headers": ["Type:", "Status:", "Last Probe:", "Last Transition:", "Message:"],
+                "headers": ["Type:", "Status:", "Reason:", "Last Transition:", "Message:"],
                 "itemgetter": itemgetters.get_conditions,
                 "itemgetter_args": {
                     "path": f"{conditions_path}",

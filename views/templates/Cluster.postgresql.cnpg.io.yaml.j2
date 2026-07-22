@@ -1,0 +1,353 @@
+---
+kind: "Cluster"
+api_family: "postgresql.cnpg.io"
+default_command: "clusters.postgresql.cnpg.io"
+command:
+  - "cnpgclrs"
+  - "cnpgclr"
+listview:
+  name: "Cluster"
+  group: "Databases"
+  field_indexes:
+    Normal:
+      fields: ["namespace", "name", "instances",
+               "condition_ready", "status", "age"]
+  fields:
+    {%- for line in field_condition_ready.split("\n") %}
+    {{ line }}
+    {%- endfor %}
+    instances:
+      header: "Instances:"
+      path: "spec#instances"
+      default: "<unset>"
+      type: "int"
+      formatter: "numerical"
+      align: "right"
+    status:
+      header: "Status:"
+      path: "status#phase"
+      default: "<unset>"
+      type: "str"
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          mappings:
+            "Setting up primary":
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+    storage:
+      header: "Size:"
+      path: "spec#storage#size"
+      default: "<unset>"
+      type: "int"
+      formatter: "numerical"
+infoview:
+  name: "Cluster Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["instances", "selector",
+                 "storage_header", "storage_size",
+                 "storage_pvc_header",
+                 "storage_pvc_healthy",
+                 "storage_pvc_dangling",
+                 "storage_pvc_initializing",
+                 "storage_pvc_resizing",
+                 "storage_pvc_unusable",
+                 "services_header",
+                 "services_read",
+                 "services_write",
+                 "postgresql_header",
+                 "postgresql_image",
+                 "postgresql_data_image",
+                 "postgresql_major_version",
+                 "condition_ready", "status"]
+    rows:
+      {%- for line in row_condition_ready.split("\n") %}
+      {{ line }}
+      {%- endfor %}
+      instances:
+        header: [["I", ["main", "infoheader_shortcut"]],
+                 ["nstances:", ["main", "infoheader"]]]
+        path: "spec#instances"
+        default: "<unset>"
+        type: "int"
+        formatter: "numerical"
+      postgresql_data_image:
+        header: [["  Data Image:", ["main", "infoheader"]]]
+        paths:
+          - path: "status#pgDataImageInfo#image"
+            pathtype: "regex"
+            regex: "^([^:]+):(.*)"
+            default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "generic"
+            - type: "version"
+          field_separators:
+            - type: "version"
+      postgresql_header:
+        header: [["PostgreSQL:", ["main", "infoheader"]]]
+      postgresql_image:
+        header: [["  Image:", ["main", "infoheader"]]]
+        paths:
+          - path: "status#image"
+            pathtype: "regex"
+            regex: "^([^:]+):(.*)"
+            default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "generic"
+            - type: "version"
+          field_separators:
+            - type: "version"
+      postgresql_major_version:
+        header: [["  Major Version:", ["main", "infoheader"]]]
+        path: "status#pgDataImageInfo#majorVersion"
+        type: "str"
+        formatting:
+          field_colors:
+            - type: "version"
+      selector:
+        header: [["Selector:", ["main", "infoheader"]]]
+        path: "status#selector"
+        default: "<none>"
+        type: "str"
+      services_header:
+        header: [["S", ["main", "infoheader_shortcut"]],
+                 ["ervices:", ["main", "infoheader"]]]
+      services_read:
+        header: [["  Read:", ["main", "infoheader"]]]
+        path: "status#readService"
+        default: "<none>"
+        type: "str"
+      services_write:
+        header: [["  Write:", ["main", "infoheader"]]]
+        path: "status#writeService"
+        default: "<none>"
+        type: "str"
+      status:
+        header: [["Status:", ["main", "infoheader"]]]
+        path: "status#phase"
+        default: "<unset>"
+        type: "str"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              "Setting up primary":
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+      storage_header:
+        header: [["Storage:", ["main", "infoheader"]]]
+      storage_pvc_dangling:
+        header: [["    Dangling:", ["main", "infoheader"]]]
+        path: "status#danglingPVC"
+        default: ["<none>"]
+        type: "raw"
+        formatter: "list"
+      storage_pvc_header:
+        header: [["  ", ["main", "infoheader"]],
+                 ["P", ["main", "infoheader_shortcut"]],
+                 ["VCs:", ["main", "infoheader"]]]
+      storage_pvc_healthy:
+        header: [["    Healthy:", ["main", "infoheader"]]]
+        path: "status#healthyPVC"
+        default: ["<none>"]
+        type: "raw"
+        formatter: "list"
+      storage_pvc_initializing:
+        header: [["    Initializing:", ["main", "infoheader"]]]
+        path: "status#initializingPVC"
+        default: ["<none>"]
+        type: "raw"
+        formatter: "list"
+      storage_pvc_resizing:
+        header: [["    Resizing:", ["main", "infoheader"]]]
+        path: "status#resizingPVC"
+        default: ["<none>"]
+        type: "raw"
+        formatter: "list"
+      storage_pvc_unusable:
+        header: [["    Unusable:", ["main", "infoheader"]]]
+        path: "status#unusablePVC"
+        default: ["<none>"]
+        type: "raw"
+        formatter: "list"
+      storage_size:
+        header: [["  Size:", ["main", "infoheader"]]]
+        path: "spec#storage#size"
+        default: "<unset>"
+        type: "int"
+        formatter: "numerical"
+  listpad:
+    listgetter: "generic_listgetter"
+    listgetter_args:
+      _kind: "Pod"
+      _label_selector_path: "status#selector"
+      _none_on_empty_selector: true
+    infogetter: "generic_infogetter"
+    on_activation:
+      call: "resourceinfodispatch"
+      kind: "Pod"
+    field_indexes:
+      Wide:
+        fields: ["namespace", "name", "pod_status", "node_name",
+                 "pod_ip", "age", "restarts", "last_restart", "containers"]
+        sortcolumn: "pod_status"
+      Normal:
+        fields: ["namespace", "name", "pod_status", "node_name",
+                 "age", "restarts", "last_restart"]
+        sortcolumn: "pod_status"
+      Compact:
+        fields: ["namespace", "name", "pod_status", "age",
+                 "restarts", "last_restart"]
+        sortcolumn: "pod_status"
+    fields:
+      containers:
+        header: "Containers:"
+        paths:
+          - paths:
+              - "spec#initContainers"
+              - "spec#containers"
+            pathtype: "items"
+            subpaths:
+              - "name"
+              - subpath: "image"
+                regex: ["^.+/[^:^/]+:(.+?)@.*", "^.+/[^:^/]+:(.+)"]
+            type: "raw"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "generic"
+            - type: "version"
+          field_separators:
+            - type: "version"
+      last_restart:
+        header: "Latest Restart:"
+        paths:
+          - path: "status#containerStatuses"
+            pathtype: "items"
+            subpath: ["state#running#startedAt",
+                      "lastState#terminated#finishedAt"]
+            when:
+              - key: "restartCount"
+                gt: 0
+            action: "latest"
+            type: "timestamp"
+        default: -1
+        formatter: "age"
+        align: "right"
+      node_name:
+        header: "Node:"
+        path: "spec#nodeName"
+        type: "host"
+        default: "<none>"
+        formatting:
+          field_colors:
+            - type: "host"
+      pod_ip:
+        header: "Pod IP:"
+        path: "status#podIP"
+        default: "<unset>"
+        type: "address"
+        formatter: "address"
+      restarts:
+        header: "Restarts:"
+        paths:
+          - path: "status#containerStatuses"
+            pathtype: "items"
+            subpath: "restartCount"
+            action: "sum"
+            type: "int"
+        default: 0
+        formatter: "numerical"
+        align: "right"
+  shortcuts:
+    "List Instances":
+      key: "i"
+      modifier: "shift"
+      read_only: true
+      helptext: "List instances"
+      widget: "windowwidget"
+      widget_args:
+        title: "Instances:"
+        headers: ["Instance:", "IP:", "Primary:", "Timeline ID:"]
+        selectable: true
+        itemgetter: "get_dict_list"
+        itemgetter_args:
+          path: "status#instancesReportedState"
+          fields:
+            - "key"
+            - "value#ip"
+            - "value#isPrimary"
+            - "value#timeLineID"
+        # This isn't supported for now
+        sortcolumn: "name"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        kind: "Pod"
+        name_path: 0
+        _parent_namespace_path: "metadata#namespace"
+    "List PVCs":
+      key: "p"
+      modifier: "shift"
+      read_only: true
+      helptext: "List PVCs"
+      widget: "windowwidget"
+      widget_args:
+        title: "PVCs:"
+        headers: ["Status:", "Name:"]
+        selectable: true
+        itemgetter: "get_list_as_list"
+        itemgetter_args:
+          paths:
+            - path: "status#danglingPVC"
+              name: "Dangling"
+            - path: "status#healthyPVC"
+              name: "Healthy"
+            - path: "status#initializingPVC"
+              name: "Initializing"
+            - path: "status#resizingPVC"
+              name: "Resizing"
+            - path: "status#unusablePVC"
+              name: "Unusable"
+          named_lists: true
+        # This isn't supported for now
+        sortcolumn: "name"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        kind: "PersistentVolumeClaim"
+        name_path: 1
+        _parent_namespace_path: "metadata#namespace"
+    "List Services":
+      key: "s"
+      modifier: "shift"
+      read_only: true
+      helptext: "List Services"
+      widget: "windowwidget"
+      widget_args:
+        title: "Services:"
+        selectable: true
+        itemgetter: "get_list_as_list"
+        itemgetter_args:
+          paths:
+            - path: "status#readService"
+              name: "Read Service"
+            - path: "status#writeService"
+              name: "Write Service"
+          named_lists: true
+        # This isn't supported for now
+        sortcolumn: "name"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        kind: "Service"
+        name_path: 1
+        _parent_namespace_path: "metadata#namespace"

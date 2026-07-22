@@ -1,18 +1,17 @@
 ---
-kind: "Channel"
-api_family: "messaging.knative.dev"
-default_command: "channels"
-command:
-  - "channels"
-  - "channel"
+kind: "Broker"
+api_family: "eventing.knative.dev"
+default_command: "brokers"
 listview:
-  name: "Channels"
+  name: "Brokers"
   group: "Knative"
   field_indexes:
     Wide:
-      fields: ["namespace", "name", "address", "ready", "age", "reason"]
+      fields: ["namespace", "name", "address", "class",
+               "condition_ready", "age", "reason"]
     Normal:
-      fields: ["namespace", "name", "ready", "age", "reason"]
+      fields: ["namespace", "name",
+               "condition_ready", "age", "reason"]
   fields:
     address:
       header: "Address:"
@@ -20,33 +19,14 @@ listview:
       default: "<unset>"
       type: "str"
       formatter: "address"
-    ready:
-      header: "Ready:"
-      paths:
-        - path: "status#conditions"
-          pathtype: "items"
-          subpath: "status"
-          when:
-            - key: "type"
-              eq: "Ready"
-          default: ["<unset>"]
+    class:
+      header: "Class:"
+      path: "metadata#annotations#eventing.knative.dev/broker.class"
+      default: "<unset>"
       type: "str"
-      formatter: "value_mapper"
-      formatting:
-        mapping:
-          mappings:
-            "True":
-              field_colors:
-                - context: "main"
-                  type: "status_ok"
-            "False":
-              field_colors:
-                - context: "main"
-                  type: "status_not_ok"
-            "<unset>":
-              field_colors:
-                - context: "types"
-                  type: "unset"
+    {%- for line in field_condition_ready.split("\n") %}
+    {{ line }}
+    {%- endfor %}
     reason:
       header: "Reason:"
       paths:
@@ -59,25 +39,31 @@ listview:
       type: "list"
       formatter: "list"
 infoview:
-  name: "Channel Info"
+  name: "Broker Info"
   infopad:
     row_indexes:
       Normal:
-        fields: ["address",
+        fields: ["configuration", "address",
                  "channel_header",
-                 "channel_template",
                  "channel_channel",
+                 "channel_address",
                  "delivery_header",
                  "delivery_backoff_delay",
                  "delivery_backoff_policy",
                  "delivery_dead_letter_sink",
                  "delivery_dead_letter_sink_uri",
                  "delivery_reset",
-                 "ready", "reason"]
+                 "condition_ready", "reason"]
     rows:
       address:
         header: [["Address:", ["main", "infoheader"]]]
         path: "status#address#url"
+        default: "<unset>"
+        type: "str"
+        formatter: "address"
+      channel_address:
+        header: [["  Address:", ["main", "infoheader"]]]
+        path: "status#annotations#knative.dev/channelAddress"
         default: "<unset>"
         type: "str"
         formatter: "address"
@@ -88,10 +74,10 @@ infoview:
                  ["h", ["main", "infoheader_shortcut"]],
                  ["annel:", ["main", "infoheader"]]]
         paths:
-          - path: [["status#channel#kind"],
-                   ["status#channel#apiVersion"],
-                   ["status#channel#namespace"],
-                   ["status#channel#name"]]
+          - path: [["status#annotations#knative.dev/channelKind"],
+                   ["status#annotations#knative.dev/channelApiVersion"],
+                   ["metadata#namespace"],
+                   ["status#annotations#knative.dev/channelName"]]
             pathtype: "tuple"
             type: ["kind", "api_group", "name", "name"]
         default: "<none>"
@@ -106,32 +92,31 @@ infoview:
             - type: "kind_api_group"
             - type: "kind"
             - type: "namespace"
-      channel_template:
-        header: [["  ", ["main", "infoheader"]],
-                 ["T", ["main", "infoheader_shortcut"]],
-                 ["emplate:", ["main", "infoheader"]]]
+      {%- for line in row_condition_ready.split("\n") %}
+      {{ line }}
+      {%- endfor %}
+      configuration:
+        header: [["C", ["main", "infoheader_shortcut"]],
+                 ["onfiguration:", ["main", "infoheader"]]]
         paths:
-          - path: [["spec#channelTemplate#kind"],
-                   ["spec#channelTemplate#apiVersion"]]
+          - path: [["spec#config#namespace"], ["spec#config#name"]]
             pathtype: "tuple"
-            default: ["<none>"]
-            type: ["kind", "api_group"]
         formatter: "list"
         formatting:
           field_colors:
-            - type: "kind"
-            - type: "api_group"
+            - type: "namespace"
+            - type: "generic"
           field_separators:
-            - type: "kind_api_group"
+            - type: "namespace"
       delivery_dead_letter_sink:
         header: [["  ", ["main", "infoheader"]],
                  ["D", ["main", "infoheader_shortcut"]],
                  ["ead Letter Sink:", ["main", "infoheader"]]]
         paths:
-          - path: [["spec#channel#kind"],
-                   ["spec#channel#apiVersion"],
-                   ["metadata#namespace"],
-                   ["spec#channel#name"]]
+          - path: [["spec#delivery#deadLetterSink#ref#kind"],
+                   ["spec#delivery#deadLetterSink#ref#apiVersion"],
+                   ["spec#delivery#deadLetterSink#ref#namespace"],
+                   ["spec#delivery#deadLetterSink#ref#name"]]
             pathtype: "tuple"
             type: ["kind", "api_group", "name", "name"]
         default: "<none>"
@@ -148,7 +133,7 @@ infoview:
             - type: "namespace"
       delivery_dead_letter_sink_uri:
         header: [["  Dead Letter Sink URI:", ["main", "infoheader"]]]
-        path: "status#physicalSubscription#deadLetterSinkUri"
+        path: "status#deadLetterSinkUri"
         default: "<unset>"
         type: "str"
         formatter: "address"
@@ -170,33 +155,6 @@ infoview:
         default: "<unset>"
         type: "int"
         formatter: "numerical"
-      ready:
-        header: [["Ready:", ["main", "infoheader"]]]
-        paths:
-          - path: "status#conditions"
-            pathtype: "items"
-            subpath: "status"
-            when:
-              - key: "type"
-                eq: "Ready"
-            default: ["<unset>"]
-        type: "str"
-        formatter: "value_mapper"
-        formatting:
-          mapping:
-            mappings:
-              "True":
-                field_colors:
-                  - context: "main"
-                    type: "status_ok"
-              "False":
-                field_colors:
-                  - context: "main"
-                    type: "status_not_ok"
-              "<unset>":
-                field_colors:
-                  - context: "types"
-                    type: "unset"
       reason:
         header: [["Reason:", ["main", "infoheader"]]]
         paths:
@@ -208,47 +166,6 @@ infoview:
                 eq: "Ready"
         type: "list"
         formatter: "list"
-  listpad:
-    on_activation:
-      call: "resourceinfodispatch"
-      kind: "__SubscriberData"
-      api_family: "messaging.knative.dev"
-    listgetter: "listgetter_path"
-    listgetter_args:
-      join_key: "uid"
-      paths:
-        - path: "spec#subscribers"
-          type: "list"
-        - path: "status#subscribers"
-          type: "list"
-    infogetter: "generic_infogetter"
-    field_indexes:
-      Normal:
-        fields: ["name", "ready"]
-        sortcolumn: "name"
-    fields:
-      name:
-        header: "Name:"
-        path: "name"
-        default: "<unset>"
-        type: "str"
-      ready:
-        header: "Ready:"
-        path: "ready"
-        default: "<unset>"
-        type: "str"
-        formatter: "value_mapper"
-        formatting:
-          mapping:
-            mappings:
-              "True":
-                field_colors:
-                  - context: "main"
-                    type: "status_ok"
-              "False":
-                field_colors:
-                  - context: "main"
-                    type: "status_pending"
   shortcuts:
     "Open channel":
       key: "h"
@@ -258,10 +175,23 @@ infoview:
       action_call: "resourceinfodispatch_with_lookup"
       action_args:
         _pass_obj: true
-        kind_path: "status#channel#kind"
-        api_version_path: "status#channel#apiVersion"
-        namespace_path: "status#channel#namespace"
-        name_path: "status#channel#name"
+        kind_path: "status#annotations#knative.dev/channelKind"
+        api_version_path: "status#annotations#knative.dev/channelApiVersion"
+        namespace_path: "metadata#namespace"
+        name_path: "status#annotations#knative.dev/channelName"
+    "Open Configuration":
+      key: "c"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open ConfigMap for configuration"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind: "ConfigMap"
+        api_family: ""
+        namespace_path: "spec#config#namespace"
+        name_path: "spec#config#name"
     "Open dead letter Sink":
       key: "d"
       modifier: "shift"
@@ -275,16 +205,3 @@ infoview:
         api_version_path: "spec#delivery#deadLetterSink#ref#apiVersion"
         namespace_path: "spec#delivery#deadLetterSink#ref#namespace"
         name_path: "spec#delivery#deadLetterSink#ref#name"
-    "View Channel Template":
-      key: "t"
-      modifier: "shift"
-      read_only: true
-      helptext: "Show Channel Template"
-      action: "call"
-      action_call: "view_yaml"
-      action_args:
-        title: "Channel Template"
-        _named_title: true
-        _pass_obj: true
-        path: "spec#channelTemplate#spec"
-        include_root: true

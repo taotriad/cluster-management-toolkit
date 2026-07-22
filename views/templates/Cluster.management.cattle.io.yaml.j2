@@ -13,8 +13,11 @@ listview:
   field_indexes:
     Normal:
       fields: ["name", "display_name", "provider", "version", "platform",
-               "node_count", "ready", "age"]
+               "node_count", "condition_ready", "age"]
   fields:
+    {%- for line in field_condition_ready.split("\n") %}
+    {{ line }}
+    {%- endfor %}
     display_name:
       header: "Display Name:"
       path: "spec#displayName"
@@ -37,28 +40,6 @@ listview:
       path: "status#provider"
       default: "<unset>"
       type: "str"
-    ready:
-      header: "Ready:"
-      paths:
-        - path: "status#conditions"
-          pathtype: "items"
-          subpath: "status"
-          when:
-            - key: "type"
-              eq: "Ready"
-      type: "str"
-      formatter: "value_mapper"
-      formatting:
-        mapping:
-          mappings:
-            "True":
-              field_colors:
-                - context: "main"
-                  type: "status_ok"
-            "False":
-              field_colors:
-                - context: "main"
-                  type: "status_pending"
     version:
       header: "Version:"
       path: "status#version#gitVersion"
@@ -68,21 +49,45 @@ listview:
         field_colors:
           - type: "version"
 infoview:
-  name: "Clusters Info"
+  name: "Cluster Info"
   infopad:
     row_indexes:
       Normal:
-        fields: ["display_name", "provider", "version", "platform",
+        fields: ["display_name", "fleet_workspace",
+                 "provider", "platform",
                  "node_count", "resources_header",
                  "resources_capacity_header", "resources_capacity_cpu",
                  "resources_capacity_memory", "resources_capacity_pods",
                  "resources_requested_header", "resources_requested_cpu",
                  "resources_requested_memory", "resources_requested_pods",
-                 "ready"]
+                 "version", "driver",
+                 "condition_ready"]
     rows:
+      {%- for line in row_condition_ready.split("\n") %}
+      {{ line }}
+      {%- endfor %}
       display_name:
         header: [["Display Name:", ["main", "infoheader"]]]
         path: "spec#displayName"
+        default: "<unset>"
+        type: "str"
+      docker_root_dir:
+        header: [["Docker Root Directory:", ["main", "infoheader"]]]
+        path: "spec#dockerRootDir"
+        default: "<unset>"
+        type: "str"
+        formatting:
+          field_colors:
+            - type: "path"
+      driver:
+        header: [["Driver:", ["main", "infoheader"]]]
+        path: "status#driver"
+        default: "<unset>"
+        type: "bool"
+      fleet_workspace:
+        header: [["F", ["main", "infoheader_shortcut"]],
+                 ["leet Workspace:", ["main", "infoheader"]]]
+        path: "spec#fleetWorkspaceName"
         default: "<unset>"
         type: "str"
       node_count:
@@ -101,28 +106,6 @@ infoview:
         path: "status#provider"
         default: "<unset>"
         type: "str"
-      ready:
-        header: [["Ready:", ["main", "infoheader"]]]
-        paths:
-          - path: "status#conditions"
-            pathtype: "items"
-            subpath: "status"
-            when:
-              - key: "type"
-                eq: "Ready"
-        type: "str"
-        formatter: "value_mapper"
-        formatting:
-          mapping:
-            mappings:
-              "True":
-                field_colors:
-                  - context: "main"
-                    type: "status_ok"
-              "False":
-                field_colors:
-                  - context: "main"
-                    type: "status_pending"
       resources_capacity_cpu:
         header: [["    CPU:", ["main", "infoheader"]]]
         paths:
@@ -197,3 +180,16 @@ infoview:
         formatting:
           field_colors:
             - type: "version"
+  shortcuts:
+    "Open Fleet Workspace":
+      key: "f"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for Fleet Workspace"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind: "FleetWorkspace"
+        api_family: "management.cattle.io"
+        name_path: "spec#fleetWorkspaceName"
