@@ -154,6 +154,16 @@ PACKAGES_WITH_PIP_FALLBACK = {
             "debian",
         ],
     },
+    "python3-orjson": {
+        "fallback": "orjson",
+        "always-fallback-distros": [
+            "suse",
+            "rhel",
+        ],
+        "never-fallback-distros": [
+            "debian",
+        ],
+    },
     "python3-paramiko": {
         "fallback": "paramiko",
         "always-fallback-distros": [

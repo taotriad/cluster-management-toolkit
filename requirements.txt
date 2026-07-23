@@ -2,6 +2,7 @@ setuptools==83.0.0
 ansible_runner==2.1.4
 natsort==8.0.2
 PyYAML==6.0
+orjson==3.11.7
 ujson==5.13.0
 urllib3==2.7.0
 validators==0.22.0

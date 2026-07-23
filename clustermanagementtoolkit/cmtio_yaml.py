@@ -34,6 +34,13 @@ except ModuleNotFoundError:  # pragma: no cover
                  "you may need to (re-)run `cmt-install.py` or `pip3 install ruyaml/ruamel.yaml`; "
                  "aborting.")
 
+# orjson is faster than both ujson and json, but might not be available
+try:
+    import orjson
+    has_orjson = True  # pylint: disable=invalid-name
+except ModuleNotFoundError:
+    has_orjson = False  # pylint: disable=invalid-name
+
 # ujson is much faster than json, but it might not be available
 try:
     import ujson
@@ -57,6 +64,8 @@ def json_loads(string: str | bytes) -> dict | list[dict]:
     """
     if isinstance(string, bytes):
         string = string.decode("utf-8", errors="replace")
+    if has_orjson:
+        return orjson.loads(string)  # pylint: disable=no-member
     if has_ujson:
         return ujson.loads(string)  # pylint: disable=c-extension-no-member
     return json.loads(string)

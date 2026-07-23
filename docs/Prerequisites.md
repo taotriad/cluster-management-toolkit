@@ -21,7 +21,7 @@ purpose of just adding macOS support.
 * `python3-natsort` (>= 8.0.2)
 * `python3-prctl` (not a strict necessity, recommended for cleaner ps output)
 * `python3-ruyaml` _or_ `python3-ruamel.yaml` (ruyaml seems to be more actively maintained, but either is fine)
-* `python3-ujson` (>= 5.4.0; not a strict necessity, just a nice performance improvement)
+* `python3-orjson` (>= 3.11.0; not a strict necessity, just a nice performance improvement)
 * `python3-urllib3` (>= 2.6.3)
 * `python3-validators` (>= 0.22.0)
 * `python3-yaml` (>= 6.0)
