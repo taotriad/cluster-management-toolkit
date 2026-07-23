@@ -10,30 +10,11 @@ listview:
   group: "K0rdent"
   field_indexes:
     Normal:
-      fields: ["name", "release", "ready", "age"]
+      fields: ["name", "release", "condition_ready", "age"]
   fields:
-    ready:
-      header: "Ready:"
-      paths:
-        - path: "status#conditions"
-          pathtype: "items"
-          subpath: "status"
-          when:
-            - key: "type"
-              eq: "Ready"
-      type: "str"
-      formatter: "value_mapper"
-      formatting:
-        mapping:
-          mappings:
-            "True":
-              field_colors:
-                - context: "main"
-                  type: "status_ok"
-            "False":
-              field_colors:
-                - context: "main"
-                  type: "status_not_ok"
+    {%- for line in field_condition_ready.split("\n") %}
+    {{ line }}
+    {%- endfor %}
     release:
       header: "Release:"
       paths:
@@ -46,7 +27,8 @@ infoview:
   infopad:
     row_indexes:
       Normal:
-        fields: ["providers", "available_providers", "release", "ready"]
+        fields: ["providers", "available_providers", "release",
+                 "condition_ready"]
     rows:
       available_providers:
         header: [["A", ["main", "infoheader_shortcut"]],
@@ -54,6 +36,9 @@ infoview:
         path: "status#availableProviders"
         type: "raw"
         formatter: "list"
+      {%- for line in row_condition_ready.split("\n") %}
+      {{ line }}
+      {%- endfor %}
       providers:
         header: [["P", ["main", "infoheader_shortcut"]],
                  ["roviders:", ["main", "infoheader"]]]
@@ -63,28 +48,6 @@ infoview:
             subpaths:
               - "name"
         formatter: "list"
-      ready:
-        header: [["Ready:", ["main", "infoheader"]]]
-        paths:
-          - path: "status#conditions"
-            pathtype: "items"
-            subpath: "status"
-            when:
-              - key: "type"
-                eq: "Ready"
-        type: "str"
-        formatter: "value_mapper"
-        formatting:
-          mapping:
-            mappings:
-              "True":
-                field_colors:
-                  - context: "main"
-                    type: "status_ok"
-              "False":
-                field_colors:
-                  - context: "main"
-                    type: "status_not_ok"
       release:
         header: [["Release:", ["main", "infoheader"]]]
         paths:

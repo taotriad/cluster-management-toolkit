@@ -1,0 +1,59 @@
+---
+kind: "KnativeServing"
+api_family: "operator.knative.dev"
+default_command: "knativeserving"
+command:
+  - "servings.knative"
+  - "serving.knative"
+  - "knservings"
+  - "knserving"
+listview:
+  name: "Knative Servings"
+  group: "Knative"
+  field_indexes:
+    Normal:
+      fields: ["namespace", "name", "version", "age", "condition_ready"]
+      sortcolumn: "namespace"
+  fields:
+    {%- for line in field_condition_ready.split("\n") %}
+    {{ line }}
+    {%- endfor %}
+    version:
+      header: "Version:"
+      path: "status#version"
+      default: "<unset>"
+      type: "str"
+      formatting:
+        field_colors:
+          - type: "version"
+infoview:
+  name: "Knative Serving Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["version", "condition_ready"]
+    rows:
+      {%- for line in row_condition_ready.split("\n") %}
+      {{ line }}
+      {%- endfor %}
+      version:
+        header: [["Version:", ["main", "infoheader"]]]
+        path: "status#version"
+        default: "<unset>"
+        type: "str"
+        formatting:
+          field_colors:
+            - type: "version"
+  shortcuts:
+    "List manifests":
+      key: "m"
+      read_only: true
+      helptext: "List manifests"
+      widget: "windowwidget"
+      widget_args:
+        title: "Manifests:"
+        itemgetter: "get_list_as_list"
+        itemgetter_args:
+          path: "status#manifests"
+        # This isn't supported for now
+        sortcolumn: "path"

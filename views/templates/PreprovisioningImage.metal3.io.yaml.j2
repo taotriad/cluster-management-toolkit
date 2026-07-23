@@ -1,0 +1,25 @@
+---
+kind: "PreprovisioningImage"
+api_family: "metal3.io"
+default_command: "preprovisioningimages"
+listview:
+  name: "Preprovisioning Images"
+  group: "Provisioning"
+  field_indexes:
+    Normal:
+      fields: ["namespace", "name", "condition_ready", "age", "reason"]
+      sortcolumn: "namespace"
+  fields:
+    {%- for line in field_condition_ready.split("\n") %}
+    {{ line }}
+    {%- endfor %}
+    reason:
+      header: "Reason:"
+      paths:
+        - path: "status#conditions"
+          pathtype: "items"
+          subpath: "reason"
+          when:
+            - key: "type"
+              eq: "Ready"
+      type: "str"

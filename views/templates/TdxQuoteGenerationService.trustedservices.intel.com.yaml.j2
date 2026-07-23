@@ -10,31 +10,11 @@ listview:
   group: "Confidential Compute"
   field_indexes:
     Normal:
-      fields: ["name", "ready", "age"]
+      fields: ["name", "condition_ready", "age"]
   fields:
-    ready:
-      header: "Ready:"
-      paths:
-        - path: "status#conditions"
-          pathtype: "items"
-          subpath: "status"
-          when:
-            - key: "type"
-              eq: "Ready"
-          default: ["False"]
-      type: "str"
-      formatter: "value_mapper"
-      formatting:
-        mapping:
-          mappings:
-            "False":
-              field_colors:
-                - context: "main"
-                  type: "status_pending"
-            "True":
-              field_colors:
-                - context: "main"
-                  type: "status_ok"
+    {%- for line in field_condition_ready.split("\n") %}
+    {{ line }}
+    {%- endfor %}
 infoview:
   name: "TDX Quote Generation Service Info"
   infopad:
@@ -47,8 +27,11 @@ infoview:
                  "platform_registration_deployment_ready",
                  "platform_registration_online_header",
                  "platform_registration_online_api_key_secret",
-                 "replicas", "ready"]
+                 "replicas", "condition_ready"]
     rows:
+      {%- for line in row_condition_ready.split("\n") %}
+      {{ line }}
+      {%- endfor %}
       daemon_set:
         header: [["D", ["main", "infoheader_shortcut"]],
                  ["aemon Set:", ["main", "infoheader"]]]
@@ -128,29 +111,6 @@ infoview:
             - type: "no_pad"
             - type: "fraction_spaced"
             - type: "no_pad"
-      ready:
-        header: [["Ready:", ["main", "infoheader"]]]
-        paths:
-          - path: "status#conditions"
-            pathtype: "items"
-            subpath: "status"
-            when:
-              - key: "type"
-                eq: "Ready"
-            default: ["False"]
-        type: "str"
-        formatter: "value_mapper"
-        formatting:
-          mapping:
-            mappings:
-              "False":
-                field_colors:
-                  - context: "main"
-                    type: "status_pending"
-              "True":
-                field_colors:
-                  - context: "main"
-                    type: "status_ok"
   shortcuts:
     "Node Label Selector":
       key: "b"

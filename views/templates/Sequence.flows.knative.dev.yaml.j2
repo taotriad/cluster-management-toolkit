@@ -7,9 +7,10 @@ listview:
   group: "Knative"
   field_indexes:
     Wide:
-      fields: ["namespace", "name", "address", "ready", "age", "reason"]
+      fields: ["namespace", "name", "address",
+               "condition_ready", "age", "reason"]
     Normal:
-      fields: ["namespace", "name", "ready", "age", "reason"]
+      fields: ["namespace", "name", "condition_ready", "age", "reason"]
   fields:
     address:
       header: "Address:"
@@ -17,33 +18,9 @@ listview:
       default: "<unset>"
       type: "str"
       formatter: "address"
-    ready:
-      header: "Ready:"
-      paths:
-        - path: "status#conditions"
-          pathtype: "items"
-          subpath: "status"
-          when:
-            - key: "type"
-              eq: "Ready"
-          default: ["<unset>"]
-      type: "str"
-      formatter: "value_mapper"
-      formatting:
-        mapping:
-          mappings:
-            "True":
-              field_colors:
-                - context: "main"
-                  type: "status_ok"
-            "False":
-              field_colors:
-                - context: "main"
-                  type: "status_not_ok"
-            "<unset>":
-              field_colors:
-                - context: "types"
-                  type: "unset"
+    {%- for line in field_condition_ready.split("\n") %}
+    {{ line }}
+    {%- endfor %}
     reason:
       header: "Reason:"
       paths:
@@ -60,7 +37,8 @@ infoview:
   infopad:
     row_indexes:
       Normal:
-        fields: ["address", "channel_template", "reply", "ready", "reason"]
+        fields: ["address", "channel_template", "reply",
+                 "condition_ready", "reason"]
     rows:
       address:
         header: [["Address:", ["main", "infoheader"]]]
@@ -85,6 +63,9 @@ infoview:
             - type: "api_group"
           field_separators:
             - type: "kind_api_group"
+      {%- for line in row_condition_ready.split("\n") %}
+      {{ line }}
+      {%- endfor %}
       delivery_dead_letter_sink:
         header: [["  ", ["main", "infoheader"]],
                  ["D", ["main", "infoheader_shortcut"]],
@@ -108,37 +89,6 @@ infoview:
             - type: "kind_api_group"
             - type: "kind"
             - type: "namespace"
-      ready:
-        header: [["Ready:", ["main", "infoheader"]]]
-        paths:
-          - path: "status#conditions"
-            pathtype: "items"
-            subpath: "status"
-            when:
-              - key: "type"
-                eq: "Ready"
-            default: ["<unset>"]
-        type: "str"
-        formatter: "value_mapper"
-        formatting:
-          mapping:
-            mappings:
-              "True":
-                field_colors:
-                  - context: "main"
-                    type: "status_ok"
-              "False":
-                field_colors:
-                  - context: "main"
-                    type: "status_not_ok"
-              Unknown:
-                field_colors:
-                  - context: "main"
-                    type: "status_unknown"
-              "<unset>":
-                field_colors:
-                  - context: "types"
-                    type: "unset"
       reason:
         header: [["Reason:", ["main", "infoheader"]]]
         paths:

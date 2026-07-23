@@ -7,49 +7,20 @@ listview:
   group: "Knative"
   field_indexes:
     Wide:
-      fields: ["namespace", "name", "broker", "subscriber_uri", "ready",
-               "age", "reason"]
+      fields: ["namespace", "name", "broker", "subscriber_uri",
+               "condition_ready", "age", "reason"]
     Normal:
-      fields: ["namespace", "name", "broker", "ready", "age", "reason"]
+      fields: ["namespace", "name", "broker",
+               "condition_ready", "age", "reason"]
   fields:
-    subscriber_uri:
-      header: "Subscriber URI:"
-      path: "status#subscriberUri"
-      default: "<unset>"
-      type: "str"
-      formatter: "address"
     broker:
       header: "Broker:"
       path: "spec#broker"
       default: "<unset>"
       type: "str"
-    ready:
-      header: "Ready:"
-      paths:
-        - path: "status#conditions"
-          pathtype: "items"
-          subpath: "status"
-          when:
-            - key: "type"
-              eq: "Ready"
-          default: ["<unset>"]
-      type: "str"
-      formatter: "value_mapper"
-      formatting:
-        mapping:
-          mappings:
-            "True":
-              field_colors:
-                - context: "main"
-                  type: "status_ok"
-            "False":
-              field_colors:
-                - context: "main"
-                  type: "status_not_ok"
-            "<unset>":
-              field_colors:
-                - context: "types"
-                  type: "unset"
+    {%- for line in field_condition_ready.split("\n") %}
+    {{ line }}
+    {%- endfor %}
     reason:
       header: "Reason:"
       paths:
@@ -61,6 +32,12 @@ listview:
               eq: "Ready"
       type: "list"
       formatter: "list"
+    subscriber_uri:
+      header: "Subscriber URI:"
+      path: "status#subscriberUri"
+      default: "<unset>"
+      type: "str"
+      formatter: "address"
 infoview:
   name: "Trigger Info"
   infopad:
@@ -71,7 +48,7 @@ infoview:
                  "subscriber_header",
                  "subscriber_subscriber",
                  "subscriber_uri",
-                 "ready", "reason"]
+                 "condition_ready", "reason"]
     rows:
       broker:
         header: [["Br", ["main", "infoheader"]],
@@ -80,39 +57,15 @@ infoview:
         path: "spec#broker"
         default: "<unset>"
         type: "str"
+      {%- for line in row_condition_ready.split("\n") %}
+      {{ line }}
+      {%- endfor %}
       dead_letter_sink_uri:
         header: [["Dead Letter Sink URI:", ["main", "infoheader"]]]
         path: "status#deadLetterSinkUri"
         default: "<unset>"
         type: "str"
         formatter: "address"
-      ready:
-        header: [["Ready:", ["main", "infoheader"]]]
-        paths:
-          - path: "status#conditions"
-            pathtype: "items"
-            subpath: "status"
-            when:
-              - key: "type"
-                eq: "Ready"
-            default: ["<unset>"]
-        type: "str"
-        formatter: "value_mapper"
-        formatting:
-          mapping:
-            mappings:
-              "True":
-                field_colors:
-                  - context: "main"
-                    type: "status_ok"
-              "False":
-                field_colors:
-                  - context: "main"
-                    type: "status_not_ok"
-              "<unset>":
-                field_colors:
-                  - context: "types"
-                    type: "unset"
       reason:
         header: [["Reason:", ["main", "infoheader"]]]
         paths:

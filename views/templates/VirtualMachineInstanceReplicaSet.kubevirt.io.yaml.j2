@@ -148,9 +148,12 @@ infoview:
     field_indexes:
       Normal:
         fields: ["namespace", "name", "ipaddresses", "node_name",
-                 "ready", "paused", "phase", "age"]
+                 "condition_ready", "paused", "phase", "age"]
         sortcolumn: "phase"
     fields:
+      {%- for line in field_condition_ready.split("\n") %}
+      {{ line }}
+      {%- endfor %}
       ipaddresses:
         header: "IP-addresses:"
         paths:
@@ -211,28 +214,6 @@ infoview:
               - key: "type"
                 eq: "Paused"
         type: "str"
-      ready:
-        header: "Ready:"
-        paths:
-          - path: "status#conditions"
-            pathtype: "items"
-            subpath: "status"
-            when:
-              - key: "type"
-                eq: "Ready"
-        type: "str"
-        formatter: "value_mapper"
-        formatting:
-          mapping:
-            mappings:
-              "True":
-                field_colors:
-                  - context: "main"
-                    type: "status_ok"
-              "False":
-                field_colors:
-                  - context: "main"
-                    type: "status_not_ok"
   shortcuts:
     "SSH to VM":
       key: "s"

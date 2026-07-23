@@ -10,26 +10,13 @@ listview:
   group: "Virtualization"
   field_indexes:
     Normal:
-      fields: ["namespace", "name", "vm_created", "status", "ready", "age"]
+      fields: ["namespace", "name", "vm_created",
+               "status", "condition_ready", "age"]
       sortcolumn: "status"
   fields:
-    ready:
-      header: "Ready:"
-      path: "status#ready"
-      default: "<unset>"
-      type: "str"
-      formatter: "value_mapper"
-      formatting:
-        mapping:
-          mappings:
-            "False":
-              field_colors:
-                - context: "main"
-                  type: "status_not_ok"
-            "True":
-              field_colors:
-                - context: "main"
-                  type: "status_ok"
+    {%- for line in field_condition_ready.split("\n") %}
+    {{ line }}
+    {%- endfor %}
     status:
       header: "Status:"
       path: "status#printableStatus"
@@ -91,24 +78,11 @@ infoview:
   infopad:
     row_indexes:
       Normal:
-        fields: ["run_strategy", "vm_created", "status", "ready"]
+        fields: ["run_strategy", "vm_created", "status", "condition_ready"]
     rows:
-      ready:
-        header: [["Ready:", ["main", "infoheader"]]]
-        path: "status#ready"
-        type: "str"
-        formatter: "value_mapper"
-        formatting:
-          mapping:
-            mappings:
-              "True":
-                field_colors:
-                  - context: "main"
-                    type: "status_ok"
-              "False":
-                field_colors:
-                  - context: "main"
-                    type: "status_not_ok"
+      {%- for line in row_condition_ready.split("\n") %}
+      {{ line }}
+      {%- endfor %}
       run_strategy:
         header: [["Run Strategy:", ["main", "infoheader"]]]
         path: "spec#runStrategy"

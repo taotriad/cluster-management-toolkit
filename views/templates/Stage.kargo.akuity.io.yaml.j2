@@ -11,12 +11,16 @@ listview:
   field_indexes:
     Wide:
       fields: ["namespace", "name", "current_freight",
-               "health", "ready", "phase", "age", "message"]
+               "health", "condition_ready", "phase", "age", "message"]
       sortcolumn: "namespace"
     Normal:
-      fields: ["namespace", "name", "current_freight", "health", "phase", "age"]
+      fields: ["namespace", "name", "current_freight",
+               "health", "condition_ready", "phase", "age"]
       sortcolumn: "namespace"
   fields:
+    {%- for line in field_condition_ready.split("\n") %}
+    {{ line }}
+    {%- endfor %}
     current_freight:
       header: "Current Freight:"
       path: "status#freightSummary"
@@ -116,40 +120,16 @@ listview:
               field_colors:
                 - context: "types"
                   type: "unset"
-    ready:
-      header: "Ready:"
-      paths:
-        - path: "status#conditions"
-          pathtype: "items"
-          subpath: "status"
-          when:
-            - key: "type"
-              eq: "Ready"
-          default: ["<unset>"]
-      type: "str"
-      formatter: "value_mapper"
-      formatting:
-        mapping:
-          mappings:
-            "True":
-              field_colors:
-                - context: "main"
-                  type: "status_ok"
-            "False":
-              field_colors:
-                - context: "main"
-                  type: "status_not_ok"
-            "<unset>":
-              field_colors:
-                - context: "types"
-                  type: "unset"
 infoview:
   name: "Stage Info"
   infopad:
     row_indexes:
       Normal:
-        fields: ["health", "phase", "message", "ready"]
+        fields: ["health", "phase", "message", "condition_ready"]
     rows:
+      {%- for line in row_condition_ready.split("\n") %}
+      {{ line }}
+      {%- endfor %}
       current_freight:
         header: [["Current Freight:", ["main", "infoheader"]]]
         path: "status#freightSummary"
@@ -245,33 +225,6 @@ infoview:
                 field_colors:
                   - context: "main"
                     type: "status_pending"
-              "<unset>":
-                field_colors:
-                  - context: "types"
-                    type: "unset"
-      ready:
-        header: [["Ready:", ["main", "infoheader"]]]
-        paths:
-          - path: "status#conditions"
-            pathtype: "items"
-            subpath: "status"
-            when:
-              - key: "type"
-                eq: "Ready"
-            default: ["<unset>"]
-        type: "str"
-        formatter: "value_mapper"
-        formatting:
-          mapping:
-            mappings:
-              "True":
-                field_colors:
-                  - context: "main"
-                    type: "status_ok"
-              "False":
-                field_colors:
-                  - context: "main"
-                    type: "status_not_ok"
               "<unset>":
                 field_colors:
                   - context: "types"
