@@ -3614,6 +3614,7 @@ class UIProps:
         self.update_timestamp(update=update)
 
         if self.headerpad:
+            self.headerpad.erase()
             # Whether to have one or two hlines depends on if we
             # overlap with the upper border or not
             if self.headerpadypos > 1:
