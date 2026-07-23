@@ -619,7 +619,8 @@ def validate_references(obj: dict, verbose: int = 0) -> tuple[int, str]:
             retval = 1
 
         if listfields - used_listfields:
-            msg += f"\n  Warning: fields {sorted(listfields - used_listfields)} in listpad are unused"
+            msg += f"\n  Warning: fields {sorted(listfields - used_listfields)} " \
+                    "in listpad are unused"
             retval = 1
 
     return retval, msg
