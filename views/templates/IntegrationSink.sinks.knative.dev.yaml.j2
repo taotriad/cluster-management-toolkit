@@ -10,37 +10,20 @@ listview:
   group: "Knative"
   field_indexes:
     Wide:
-      fields: ["namespace", "name", "address", "ready", "age", "reason"]
+      fields: ["namespace", "name", "condition_address",
+               "ready", "age", "reason"]
     Normal:
-      fields: ["namespace", "name", "ready", "age", "reason"]
+      fields: ["namespace", "name", "condition_ready", "age", "reason"]
   fields:
-    ready:
-      header: "Ready:"
-      paths:
-        - path: "status#conditions"
-          pathtype: "items"
-          subpath: "status"
-          when:
-            - key: "type"
-              eq: "Ready"
-          default: ["<unset>"]
+    address:
+      header: "Address:"
+      path: "status#address#url"
+      default: "<unset>"
       type: "str"
-      formatter: "value_mapper"
-      formatting:
-        mapping:
-          mappings:
-            "True":
-              field_colors:
-                - context: "main"
-                  type: "status_ok"
-            "False":
-              field_colors:
-                - context: "main"
-                  type: "status_not_ok"
-            "<unset>":
-              field_colors:
-                - context: "types"
-                  type: "unset"
+      formatter: "address"
+    {%- for line in field_condition_ready.split("\n") %}
+    {{ line }}
+    {%- endfor %}
     reason:
       header: "Reason:"
       paths:
@@ -52,12 +35,6 @@ listview:
               eq: "Ready"
       type: "list"
       formatter: "list"
-    address:
-      header: "Address:"
-      path: "status#address#url"
-      default: "<unset>"
-      type: "str"
-      formatter: "address"
 infoview:
   name: "Integration Sink Info"
   infopad:
@@ -77,7 +54,7 @@ infoview:
                  "log_show_properties",
                  "log_show_streams",
                  "addresses",
-                 "ready", "reason"]
+                 "condition_ready", "reason"]
     rows:
       addresses:
         header: [["A", ["main", "infoheader_shortcut"]],
@@ -92,6 +69,9 @@ infoview:
         formatter: "address"
         formatting:
           ellipsise: 3
+      {%- for line in row_condition_ready.split("\n") %}
+      {{ line }}
+      {%- endfor %}
       log_header:
         header: [["Log:", ["main", "infoheader"]]]
       log_level:
@@ -170,33 +150,6 @@ infoview:
         header: [["  Show Streams:", ["main", "infoheader"]]]
         path: "spec#log#showStreams"
         type: "bool"
-      ready:
-        header: [["Ready:", ["main", "infoheader"]]]
-        paths:
-          - path: "status#conditions"
-            pathtype: "items"
-            subpath: "status"
-            when:
-              - key: "type"
-                eq: "Ready"
-            default: ["<unset>"]
-        type: "str"
-        formatter: "value_mapper"
-        formatting:
-          mapping:
-            mappings:
-              "True":
-                field_colors:
-                  - context: "main"
-                    type: "status_ok"
-              "False":
-                field_colors:
-                  - context: "main"
-                    type: "status_not_ok"
-              "<unset>":
-                field_colors:
-                  - context: "types"
-                    type: "unset"
       reason:
         header: [["Reason:", ["main", "infoheader"]]]
         paths:

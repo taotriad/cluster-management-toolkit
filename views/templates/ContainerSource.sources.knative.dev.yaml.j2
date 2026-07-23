@@ -1,46 +1,24 @@
 ---
-kind: "IntegrationSource"
+kind: "ContainerSource"
 api_family: "sources.knative.dev"
-default_command: "integrationsources"
+default_command: "containersources"
 command:
-  - "integrationsrcs"
-  - "integrationsrc"
+  - "containersrcs"
+  - "containersrc"
 listview:
-  name: "Integration Sources"
+  name: "Container Sources"
   group: "Knative"
   field_indexes:
     Wide:
-      fields: ["namespace", "name", "sink_uri", "ready", "age", "reason"]
+      fields: ["namespace", "name", "sink_uri",
+               "condition_ready", "age", "reason"]
     Normal:
-      fields: ["namespace", "name", "ready", "age", "reason"]
+      fields: ["namespace", "name",
+               "condition_ready", "age", "reason"]
   fields:
-    ready:
-      header: "Ready:"
-      paths:
-        - path: "status#conditions"
-          pathtype: "items"
-          subpath: "status"
-          when:
-            - key: "type"
-              eq: "Ready"
-          default: ["<unset>"]
-      type: "str"
-      formatter: "value_mapper"
-      formatting:
-        mapping:
-          mappings:
-            "True":
-              field_colors:
-                - context: "main"
-                  type: "status_ok"
-            "False":
-              field_colors:
-                - context: "main"
-                  type: "status_not_ok"
-            "<unset>":
-              field_colors:
-                - context: "types"
-                  type: "unset"
+    {%- for line in field_condition_ready.split("\n") %}
+    {{ line }}
+    {%- endfor %}
     reason:
       header: "Reason:"
       paths:
@@ -61,46 +39,18 @@ listview:
       type: "str"
       formatter: "address"
 infoview:
-  name: "Integration Source Info"
+  name: "Container Source Info"
   infopad:
     row_indexes:
       Normal:
         fields: ["sink_header",
                  "sink_sink",
                  "sink_uri",
-                 "timer_header",
-                 "timer_message",
-                 "timer_content_type",
-                 "timer_period",
-                 "ready", "reason"]
+                 "condition_ready", "reason"]
     rows:
-      ready:
-        header: [["Ready:", ["main", "infoheader"]]]
-        paths:
-          - path: "status#conditions"
-            pathtype: "items"
-            subpath: "status"
-            when:
-              - key: "type"
-                eq: "Ready"
-            default: ["<unset>"]
-        type: "str"
-        formatter: "value_mapper"
-        formatting:
-          mapping:
-            mappings:
-              "True":
-                field_colors:
-                  - context: "main"
-                    type: "status_ok"
-              "False":
-                field_colors:
-                  - context: "main"
-                    type: "status_not_ok"
-              "<unset>":
-                field_colors:
-                  - context: "types"
-                    type: "unset"
+      {%- for line in row_condition_ready.split("\n") %}
+      {{ line }}
+      {%- endfor %}
       reason:
         header: [["Reason:", ["main", "infoheader"]]]
         paths:
@@ -145,22 +95,6 @@ infoview:
         default: "<unset>"
         type: "str"
         formatter: "address"
-      timer_header:
-        header: [["Timer:", ["main", "infoheader"]]]
-      timer_content_type:
-        header: [["  Content Type:", ["main", "infoheader"]]]
-        path: "spec#timer#contentType"
-        default: "<unset>"
-        type: "str"
-      timer_message:
-        header: [["  Message:", ["main", "infoheader"]]]
-        path: "spec#timer#message"
-        type: "str"
-      timer_period:
-        header: [["  Period:", ["main", "infoheader"]]]
-        path: "spec#timer#period"
-        type: "int"
-        formatter: "numerical"
   shortcuts:
     "Open Sink":
       key: "s"
@@ -175,3 +109,26 @@ infoview:
         api_version_path: "spec#sink#ref#apiVersion"
         namespace_path: "metadata#namespace"
         name_path: "spec#sink#ref#name"
+    "View CloudEvent Overrides":
+      key: "o"
+      read_only: true
+      helptext: "Show CloudEvent Overrides"
+      action: "call"
+      action_call: "view_yaml"
+      action_args:
+        title: "CloudEvent Overrides"
+        _named_title: true
+        _pass_obj: true
+        path: "spec#ceOverrides"
+    "View Container Template":
+      key: "t"
+      modifier: "shift"
+      read_only: true
+      helptext: "Show Container Template"
+      action: "call"
+      action_call: "view_yaml"
+      action_args:
+        title: "Container Template"
+        _named_title: true
+        _pass_obj: true
+        path: "spec#template"

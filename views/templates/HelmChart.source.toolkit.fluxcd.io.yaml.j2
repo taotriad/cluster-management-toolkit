@@ -13,10 +13,10 @@ listview:
   field_indexes:
     Wide:
       fields: ["namespace", "name", "chart", "version", "source",
-               "status", "ready", "age"]
+               "status", "condition_ready", "age"]
       sortcolumn: "namespace"
     Normal:
-      fields: ["namespace", "name", "version", "ready", "age"]
+      fields: ["namespace", "name", "version", "condition_ready", "age"]
       sortcolumn: "namespace"
   fields:
     chart:
@@ -26,17 +26,9 @@ listview:
           pathtype: "value"
       default: "<unset>"
       type: "str"
-    ready:
-      header: "Ready:"
-      paths:
-        - path: "status#conditions"
-          pathtype: "items"
-          subpath: "status"
-          when:
-            - key: "type"
-              eq: "Ready"
-      default: "<unset>"
-      type: "str"
+    {%- for line in field_condition_ready.split("\n") %}
+    {{ line }}
+    {%- endfor %}
     source:
       header: "Source:"
       paths:
@@ -85,7 +77,8 @@ infoview:
                  "chart_digest",
                  "chart_size",
                  "chart_version",
-                 "interval", "reconcile_strategy", "url"]
+                 "interval", "reconcile_strategy", "url",
+                 "status", "condition_ready"]
     rows:
       chart_digest:
         header: [["  Digest:", ["main", "infoheader"]]]
@@ -134,6 +127,9 @@ infoview:
         formatting:
           field_colors:
             - type: "version"
+      {%- for line in row_condition_ready.split("\n") %}
+      {{ line }}
+      {%- endfor %}
       interval:
         header: [["Interval:", ["main", "infoheader"]]]
         path: "spec#interval"
@@ -142,6 +138,17 @@ infoview:
       reconcile_strategy:
         header: [["Reconcile Strategy:", ["main", "infoheader"]]]
         path: "spec#reconcileStrategy"
+        type: "str"
+      status:
+        header: [["Status:", ["main", "infoheader"]]]
+        paths:
+          - path: "status#conditions"
+            pathtype: "items"
+            subpath: "reason"
+            when:
+              - key: "type"
+                eq: "Ready"
+        default: "<unset>"
         type: "str"
       url:
         header: [["URL:", ["main", "infoheader"]]]

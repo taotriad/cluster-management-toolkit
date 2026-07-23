@@ -12,23 +12,15 @@ listview:
   group: "CI / CD"
   field_indexes:
     Wide:
-      fields: ["namespace", "name", "url", "status", "ready", "age"]
+      fields: ["namespace", "name", "url", "status", "condition_ready", "age"]
       sortcolumn: "namespace"
     Normal:
-      fields: ["namespace", "name", "status", "ready", "age"]
+      fields: ["namespace", "name", "status", "condition_ready", "age"]
       sortcolumn: "namespace"
   fields:
-    ready:
-      header: "Ready:"
-      paths:
-        - path: "status#conditions"
-          pathtype: "items"
-          subpath: "status"
-          when:
-            - key: "type"
-              eq: "Ready"
-      default: "<unset>"
-      type: "str"
+    {%- for line in field_condition_ready.split("\n") %}
+    {{ line }}
+    {%- endfor %}
     status:
       header: "Status:"
       paths:
@@ -51,8 +43,12 @@ infoview:
   infopad:
     row_indexes:
       Normal:
-        fields: ["provider", "type", "interval", "url"]
+        fields: ["provider", "type", "interval", "url",
+                 "status", "condition_ready"]
     rows:
+      {%- for line in row_condition_ready.split("\n") %}
+      {{ line }}
+      {%- endfor %}
       interval:
         header: [["Interval:", ["main", "infoheader"]]]
         path: "spec#interval"
@@ -61,6 +57,17 @@ infoview:
       provider:
         header: [["Provider:", ["main", "infoheader"]]]
         path: "spec#provider"
+        default: "<unset>"
+        type: "str"
+      status:
+        header: [["Status:", ["main", "infoheader"]]]
+        paths:
+          - path: "status#conditions"
+            pathtype: "items"
+            subpath: "reason"
+            when:
+              - key: "type"
+                eq: "Ready"
         default: "<unset>"
         type: "str"
       type:

@@ -17,10 +17,10 @@ listview:
   field_indexes:
     Wide:
       fields: ["namespace", "name", "chart_source_reference",
-               "ready", "status", "age", "message"]
+               "condition_ready", "status", "age", "message"]
       sortcolumn: "namespace"
     Normal:
-      fields: ["namespace", "name", "ready", "status", "age"]
+      fields: ["namespace", "name", "condition_ready", "status", "age"]
       sortcolumn: "namespace"
   fields:
     chart_source_reference:
@@ -42,23 +42,15 @@ listview:
         field_separators:
           - type: "kind"
           - type: "namespace"
+    {%- for line in field_condition_ready.split("\n") %}
+    {{ line }}
+    {%- endfor %}
     message:
       header: "Status:"
       paths:
         - path: "status#conditions"
           pathtype: "items"
           subpath: "message"
-          when:
-            - key: "type"
-              eq: "Ready"
-      default: "<unset>"
-      type: "str"
-    ready:
-      header: "Ready:"
-      paths:
-        - path: "status#conditions"
-          pathtype: "items"
-          subpath: "status"
           when:
             - key: "type"
               eq: "Ready"
@@ -86,7 +78,7 @@ infoview:
                  "install_remediation_header",
                  "install_remediation_remediate_last_failure",
                  "install_remediation_retries",
-                 "storage_namespace"]
+                 "storage_namespace", "status", "condition_ready"]
     rows:
       chart_source_reference:
         header: [["Chart ", ["main", "infoheader"]],
@@ -109,6 +101,9 @@ infoview:
           field_separators:
             - type: "kind"
             - type: "namespace"
+      {%- for line in row_condition_ready.split("\n") %}
+      {{ line }}
+      {%- endfor %}
       depends_on:
         header: [["D", ["main", "infoheader_shortcut"]],
                  ["epends On:", ["main", "infoheader"]]]
@@ -142,6 +137,17 @@ infoview:
       release_name:
         header: [["Release Name:", ["main", "infoheader"]]]
         path: "spec#releaseName"
+        default: "<unset>"
+        type: "str"
+      status:
+        header: [["Status:", ["main", "infoheader"]]]
+        paths:
+          - path: "status#conditions"
+            pathtype: "items"
+            subpath: "reason"
+            when:
+              - key: "type"
+                eq: "Ready"
         default: "<unset>"
         type: "str"
       storage_namespace:

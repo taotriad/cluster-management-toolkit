@@ -10,43 +10,20 @@ listview:
   group: "API & Extendability"
   field_indexes:
     Wide:
-      fields: ["name", "rgd", "revision", "hash", "ready", "age",
+      fields: ["name", "rgd", "revision", "hash", "condition_ready", "age",
                "topological_order"]
     Normal:
-      fields: ["name", "rgd", "revision", "ready", "age"]
+      fields: ["name", "rgd", "revision", "condition_ready", "age"]
   fields:
+    {%- for line in field_condition_ready.split("\n") %}
+    {{ line }}
+    {%- endfor %}
     hash:
       header: "Hash:"
       path: "metadata#labels#kro.run/graph-revision-hash"
       default: "<unset>"
       type: "str"
       formatter: "hex"
-    ready:
-      header: "Ready:"
-      paths:
-        - path: "status#conditions"
-          pathtype: "items"
-          subpath: "status"
-          when:
-            - key: "type"
-              eq: "Ready"
-          default: "<unknown>"
-      formatter: "value_mapper"
-      formatting:
-        mapping:
-          mappings:
-            "True":
-              field_colors:
-                - context: "main"
-                  type: "status_ok"
-            "False":
-              field_colors:
-                - context: "main"
-                  type: "status_not_ok"
-            "<unknown>":
-              field_colors:
-                - context: "main"
-                  type: "status_unknown"
     revision:
       header: "Revision:"
       path: "spec#revision"
@@ -70,40 +47,18 @@ infoview:
   infopad:
     row_indexes:
       Normal:
-        fields: ["rgd", "hash", "topological_order", "revision", "ready"]
+        fields: ["rgd", "hash", "topological_order", "revision",
+                 "condition_ready"]
     rows:
+      {%- for line in row_condition_ready.split("\n") %}
+      {{ line }}
+      {%- endfor %}
       hash:
         header: [["Hash:", ["main", "infoheader"]]]
         path: "metadata#labels#kro.run/graph-revision-hash"
         default: "<unset>"
         type: "str"
         formatter: "hex"
-      ready:
-        header: [["Ready:", ["main", "infoheader"]]]
-        paths:
-          - path: "status#conditions"
-            pathtype: "items"
-            subpath: "status"
-            when:
-              - key: "type"
-                eq: "Ready"
-            default: "<unknown>"
-        formatter: "value_mapper"
-        formatting:
-          mapping:
-            mappings:
-              "True":
-                field_colors:
-                  - context: "main"
-                    type: "status_ok"
-              "False":
-                field_colors:
-                  - context: "main"
-                    type: "status_not_ok"
-              "<unknown>":
-                field_colors:
-                  - context: "main"
-                    type: "status_unknown"
       revision:
         header: [["Revision:", ["main", "infoheader"]]]
         path: "spec#revision"

@@ -1,0 +1,57 @@
+---
+kind: "IPAMProvider"
+api_family: "operator.cluster.x-k8s.io"
+default_command: "ipamproviders"
+command:
+  - "ipamprovs"
+  - "ipamprov"
+listview:
+  name: "IPAM Providers"
+  group: "Cluster Configuration"
+  field_indexes:
+    Normal:
+      fields: ["namespace", "name", "installed_version",
+               "condition_ready", "age"]
+      sortcolumn: "namespace"
+  fields:
+    {%- for line in field_condition_ready.split("\n") %}
+    {{ line }}
+    {%- endfor %}
+    installed_version:
+      header: "Installed Version:"
+      path: "status#installedVersion"
+      type: "str"
+      formatting:
+        field_colors:
+          - type: "version"
+infoview:
+  name: "IPAM Provider Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["fetch_config", "installed_version", "contract",
+                 "condition_ready"]
+    rows:
+      {%- for line in row_condition_ready.split("\n") %}
+      {{ line }}
+      {%- endfor %}
+      contract:
+        header: [["Contract:", ["main", "infoheader"]]]
+        path: "status#contract"
+        type: "str"
+        formatting:
+          field_colors:
+            - type: "version"
+      fetch_config:
+        header: [["Fetch Config:", ["main", "infoheader"]]]
+        path: "spec#fetchConfig#url"
+        default: "<unset>"
+        type: "str"
+        formatter: "address"
+      installed_version:
+        header: [["Installed Version:", ["main", "infoheader"]]]
+        path: "status#installedVersion"
+        type: "str"
+        formatting:
+          field_colors:
+            - type: "version"
