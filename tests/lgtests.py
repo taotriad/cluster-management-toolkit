@@ -14,7 +14,7 @@ import yaml
 
 from clustermanagementtoolkit.cluster_actions import get_control_planes
 
-from clustermanagementtoolkit.cmttypes import deep_get, DictPath, ProgrammingError
+from clustermanagementtoolkit.cmttypes import deep_get, DictPath, ProgrammingError, StatusGroup
 
 from clustermanagementtoolkit.ansithemeprint import ANSIThemeStr
 from clustermanagementtoolkit.ansithemeprint import ansithemeprint, init_ansithemeprint
@@ -769,6 +769,107 @@ def test_filter_list_entry(verbose: bool = False) -> tuple[str, bool]:
                               f"        exception: {type(e)}\n" \
                               f"          message: {str(e)}\n" \
                               f"  expected result: {expected_result}"
+                    result = False
+                    break
+    return message, result
+
+
+def test_get_pv_status(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = listgetters.get_pv_status
+
+    if result:
+        # Indata format:
+        # (obj, expected_result, expected_exception)
+        testdata: tuple[Any, ...] = (
+            (
+                {
+                    "status": {
+                        "phase": "Bound",
+                        "reason": "",
+                    },
+
+                },
+                ("Bound", StatusGroup.OK),
+                None,
+            ),
+            (
+                {
+                    "status": {
+                        "phase": "Available",
+                        "reason": "",
+                    },
+
+                },
+                ("Available", StatusGroup.OK),
+                None,
+            ),
+            (
+                {
+                    "status": {
+                        "phase": "Released",
+                        "reason": "",
+                    },
+
+                },
+                ("Released", StatusGroup.DONE),
+                None,
+            ),
+            (
+                {
+                    "status": {
+                        "phase": "Pending",
+                        "reason": "",
+                    },
+
+                },
+                ("Pending", StatusGroup.PENDING),
+                None,
+            ),
+            (
+                {
+                    "status": {
+                        "phase": "",
+                        "reason": "RandomError",
+                    },
+
+                },
+                ("RandomError", StatusGroup.NOT_OK),
+                None,
+            ),
+        )
+
+        for obj, expected_result, expected_exception in testdata:
+            try:
+                tmp = fun(obj)
+                if tmp != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              "            obj:\n" \
+                              f"{yaml_dump(obj, base_indent=17)}\n" \
+                              f"         result: {tmp}\n" \
+                              f"       expected: {expected_result}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  "            obj:\n" \
+                                  f"{yaml_dump(obj, base_indent=17)}\n" \
+                                  f"      exception: {type(e)}\n" \
+                                  f"       expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              "            obj:\n" \
+                              f"{yaml_dump(obj, base_indent=17)}\n" \
+                              f"      exception: {type(e)}\n" \
+                              f"       expected: {expected_result}"
                     result = False
                     break
     return message, result
@@ -2139,6 +2240,10 @@ tests: dict[tuple[str, ...], dict[str, Any]] = {
     },
     ("filter_list_entry()",): {
         "callable": test_filter_list_entry,
+        "result": None,
+    },
+    ("get_pv_status()",): {
+        "callable": test_get_pv_status,
         "result": None,
     },
     ("listgetter_ansible_volumes()",): {

@@ -924,10 +924,14 @@ def get_pv_status(obj: dict[str, Any]) -> tuple[str, StatusGroup]:
     if phase in ("Bound", "Available"):
         reason = phase
         status_group = StatusGroup.OK
-    elif phase in ("Released", "Pending"):
+    elif phase == "Released":
+        reason = phase
+        status_group = StatusGroup.DONE
+    elif phase == "Pending":
         reason = phase
         status_group = StatusGroup.PENDING
     else:
+        # phase == "Failed"
         reason = deep_get(obj, DictPath("status#reason"), "").strip()
         status_group = StatusGroup.NOT_OK
     return reason, status_group

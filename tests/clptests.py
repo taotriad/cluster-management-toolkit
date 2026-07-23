@@ -105,6 +105,117 @@ def test___sub_usage(verbose: bool = False) -> tuple[str, bool]:
     return message, result
 
 
+def test___usage(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = commandparser.__usage
+
+    if result:
+        # Indata format:
+        # (commandline, options, args, mock_exit, expected_result,
+        #  expected_exception, expected_exception_msg)
+        testdata: tuple = (
+            (
+                {
+                    "Hello World": {
+                        "command": ["hello"],
+                        "description": [ANSIThemeStr("A command with an option",
+                                                     "description")],
+                        "callback": test_callback,
+                        "options": {
+                            "--happiness": {
+                                "description": [
+                                    ANSIThemeStr("Be happier", "description")],
+                            },
+                        },
+                    },
+                },
+                [("--format", "short"), ("__commandname", "help")],
+                [],
+                None,
+                0,
+                None,
+                None,
+            ),
+            (
+                # This description is far too long, but we're not passing --debug,
+                # so it should pass.
+                {
+                    "Hello World": {
+                        "command": ["hello"],
+                        "description": [ANSIThemeStr("A far too long description that should "
+                                                     "definitely cause an error if the --debug "
+                                                     "argument is passed on the commandline",
+                                                     "description")],
+                        "callback": test_callback,
+                    },
+                },
+                [("__commandname", "help")],
+                [],
+                None,
+                0,
+                None,
+                None,
+            ),
+            (
+                # This description is far too long, and we're passing --debug,
+                # so it should fail.
+                {
+                    "Hello World": {
+                        "command": ["hello"],
+                        "description": [ANSIThemeStr("A far too long description that should "
+                                                     "definitely cause an error if the --debug "
+                                                     "argument is passed on the commandline",
+                                                     "description")],
+                        "callback": test_callback,
+                    },
+                },
+                [("--debug", ""), ("__commandname", "help")],
+                [],
+                "errno.ENOENT",
+                None,
+                Exception,
+                "errno.ENOENT",
+            ),
+        )
+
+        for commandline, options, args, mock_exit, \
+                expected_result, expected_exception, expected_exception_msg in testdata:
+            try:
+                with mock.patch("sys.exit", side_effect=Exception(mock_exit)):
+                    commandparser.commandline = commandline
+                    tmp = fun(options, args)
+
+                if tmp != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"           result: {tmp}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception) \
+                            and expected_exception_msg is None or expected_exception_msg == str(e):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  f"        exception: {type(e)}\n" \
+                                  f"          message: {str(e)}\n" \
+                                  f"         expected: {expected_exception}" \
+                                  f" expected message: {expected_exception_msg}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"        exception: {type(e)}\n" \
+                              f"          message: {str(e)}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+    return message, result
+
+
 def test_parse_commandline(verbose: bool = False) -> tuple[str, bool]:
     message = ""
     result = True
@@ -1409,6 +1520,10 @@ def test___find_command(verbose: bool = False) -> tuple[str, bool]:
 tests: dict[tuple[str, ...], dict[str, Any]] = {
     ("__sub_usage()",): {
         "callable": test___sub_usage,
+        "result": None,
+    },
+    ("__usage()",): {
+        "callable": test___usage,
         "result": None,
     },
     ("parse_commandline()",): {

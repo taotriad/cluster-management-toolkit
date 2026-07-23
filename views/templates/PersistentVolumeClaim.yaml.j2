@@ -64,7 +64,7 @@ listview:
             Released:
               field_colors:
                 - context: "main"
-                  type: "status_pending"
+                  type: "status_done"
             __default:
               field_colors:
                 - context: "main"
@@ -89,8 +89,8 @@ infoview:
   infopad:
     row_indexes:
       Normal:
-        fields: ["controller", "status", "volume", "capacity", "access_modes",
-                 "storage_class", "volume_mode"]
+        fields: ["controller", "volume", "capacity", "access_modes",
+                 "storage_class", "volume_mode", "status"]
     rows:
       access_modes:
         header: [["Access Modes:", ["main", "infoheader"]]]
@@ -134,7 +134,7 @@ infoview:
               Released:
                 field_colors:
                   - context: "main"
-                    type: "status_pending"
+                    type: "status_done"
               __default:
                 field_colors:
                   - context: "main"
