@@ -3614,7 +3614,6 @@ class UIProps:
         self.update_timestamp(update=update)
 
         if self.headerpad:
-            self.headerpad.clear()
             # Whether to have one or two hlines depends on if we
             # overlap with the upper border or not
             if self.headerpadypos > 1:
@@ -3798,6 +3797,7 @@ class UIProps:
         self.maxxoffset = 0
 
         self.resize_statusbar()
+        self.update_window()
         self.force_update()
         self.reselect_uid()
 

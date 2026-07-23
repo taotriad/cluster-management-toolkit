@@ -85,7 +85,7 @@ TBD
 
 ### Changes to _cmu_ in v0.8.9
 
-TBD
+* (Hopefully) fix the rather annoying flickering in the list view.
 
 ### Changes to other files in v0.8.9
 
@@ -97,6 +97,9 @@ TBD
   but for now only if the list is enumerated.
 * Lists can now be defined as non-sortable; this means that the initial order cannot be changed;
   this combines nicely with hierarchical lists.
+* orjson is now used (if available) when deserializing JSON;
+  it performs better than ujson and json. ujson (if available) is still used
+  for serialization though, since orjson lacks some formatting options.
 
 ### view-file changes
 
@@ -143,6 +146,7 @@ No known regressions.
 | ruamel.yaml    | 0.17.21         | Unsupported distros [1]                 |
 | ruyaml         | 0.91.0          | Unsupported distros [1]                 |
 | setuptools     | 83.0.0          | openSUSE/SLES/RHEL, unsupported distros |
+| orjson         | 3.11.0          | openSUSE/SLES/RHEL, unsupported distros |
 | ujson          | 5.13.0          | openSUSE/SLES/RHEL, unsupported distros |
 | urllib3        | 2.7.0           | openSUSE/SLES, unsupported distros      |
 | validators     | 0.22.0          | openSUSE/SLES/RHEL, unsupported distros |
@@ -165,6 +169,7 @@ No known regressions.
 | python3-ruyaml                | Debian/Ubuntu [2]  |
 | python3-ruamel.yaml           | Debian/Ubuntu [2]  |
 | python3-ruamel-yaml           | RHEL/SUSE          |
+| python3-orjson                | Debian/Ubuntu      |
 | python3-ujson                 | Debian/Ubuntu      |
 | python3-urllib3               | Debian/Ubuntu/RHEL |
 | python3-validators            | Debian/Ubuntu      |
