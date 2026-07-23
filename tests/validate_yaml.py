@@ -25,7 +25,7 @@ try:
 except ModuleNotFoundError:
     sys.exit("ModuleNotFoundError: you probably need to install python3-natsort")
 
-__version__ = "0.6"
+__version__ = "0.7"
 
 failed_files = []
 
@@ -558,6 +558,73 @@ def extend_with_default(validator_class):
 DefaultValidatingValidator = extend_with_default(Draft202012Validator)
 
 
+def validate_references(obj: dict, verbose: int = 0) -> tuple[int, str]:
+    """
+    Ensure that all referenced fields/rows exist in the view-file,
+    and, if --verbose is passed, that no unused fields/rows exist.
+
+        Parameters:
+            obj (dict): The object to validate
+            verbose (int): Check for unused fields/rows
+        Returns:
+            ((int, str)):
+                (int): 1 on failure, 0 on success
+                (str): Error message on failure, empty string on success
+    """
+    retval: int = 0
+    msg: str = ""
+
+    extra_fields: set[str] = {"age", "api_support", "mem", "name", "namespace", "pod_status"}
+
+    fields: set[str] = set(deep_get(obj, DictPath("listview#fields"), {}).keys())
+    used_fields: set[str] = set()
+
+    for key, data in deep_get(obj, DictPath("listview#field_indexes"), {}).items():
+        for field in deep_get(data, DictPath("fields"), []):
+            if field not in fields | extra_fields:
+                msg += f"\n  Error: field {field} in field_index {key} does not exist"
+                retval = 1
+                continue
+            used_fields.add(field)
+
+    rows: set[str] = set(deep_get(obj, DictPath("infoview#infopad#rows"), {}).keys())
+    used_rows: set[str] = set()
+
+    for key, data in deep_get(obj, DictPath("infoview#infopad#row_indexes"), {}).items():
+        for row in deep_get(data, DictPath("fields"), []):
+            if row not in rows:
+                msg += f"\n  Error: row {row} in row_index {key} does not exist"
+                retval = 1
+                continue
+            used_rows.add(row)
+
+    listfields: set[str] = set(deep_get(obj, DictPath("infoview#listpad#fields"), {}).keys())
+    used_listfields: set[str] = set()
+
+    for key, data in deep_get(obj, DictPath("infoview#listpad#field_indexes"), {}).items():
+        for field in deep_get(data, DictPath("fields"), []):
+            if field not in listfields | extra_fields:
+                msg += f"\n  Error: field {field} in listpad field_index {key} does not exist"
+                retval = 1
+                continue
+            used_listfields.add(field)
+
+    if verbose > 1:
+        if fields - used_fields:
+            msg += f"\n  Warning: fields {sorted(fields - used_fields)} are unused"
+            retval = 1
+
+        if rows - used_rows:
+            msg += f"\n  Warning: rows {sorted(rows - used_rows)} in infoview are unused"
+            retval = 1
+
+        if listfields - used_listfields:
+            msg += f"\n  Warning: fields {sorted(listfields - used_listfields)} in listpad are unused"
+            retval = 1
+
+    return retval, msg
+
+
 # pylint: disable-next=too-many-branches
 def validate_file(yaml_path: str, schema_path: str,
                   verbose: int, abort_on_fail: bool,
@@ -620,6 +687,10 @@ def validate_file(yaml_path: str, schema_path: str,
             DefaultValidatingValidator(schema).validate(instance=yaml_data)
             if schema_path.endswith("views.json"):
                 retval, msg = validate_shortcuts(yaml_data)
+                if retval:
+                    msg = f"{yaml_path}: {msg}"
+                    file = yaml_path
+                retval, msg = validate_references(yaml_data, verbose=verbose)
                 if retval:
                     msg = f"{yaml_path}: {msg}"
                     file = yaml_path
