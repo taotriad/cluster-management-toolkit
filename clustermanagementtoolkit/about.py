@@ -26,7 +26,7 @@ UI_PROGRAM_NAME: str = "cmu"
 UI_PROGRAM_VERSION: str = "0.5.6"
 
 TOOL_PROGRAM_NAME: str = "cmt"
-TOOL_PROGRAM_VERSION: str = "0.6.8"
+TOOL_PROGRAM_VERSION: str = "0.6.9"
 
 INSTALL_PROGRAM_NAME: str = "cmt-install.py"
 INSTALL_PROGRAM_VERSION: str = "0.14.0"

@@ -3,6 +3,9 @@
 Setup Cluster Management Toolkit for Kubernetes.
 
 ## Global Options:
+  __`--mangle`__
+Mangle Python headers  
+
   __`--no-dependencies`__
 Do not install dependencies  
 

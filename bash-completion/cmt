@@ -59,7 +59,7 @@ _cmt() {
 				COMPREPLY=( $(compgen -W "" -- "$2") )
 				return
 				;;
-			--delete-emptydir-data|--disable-eviction|--force|--from-file|--ignore-daemonsets|--ignore-existing|--ignore-non-existing|--include-control-planes|--no-data|--no-header|--no-password|--overwrite|--purge|--save-ansible-logs|--verbose|--wide|-Y)
+			--delete-emptydir-data|--disable-eviction|--force|--from-file|--ignore-daemonsets|--ignore-existing|--ignore-non-existing|--include-control-planes|--no-data|--no-shortnames|--no-header|--no-password|--overwrite|--purge|--save-ansible-logs|--verbose|--wide|-Y)
 				# These options don't take any arguments
 				;;
 			--api-group|--ca-cert-file|--color|--cri|--forks|--format|--known|--kubernetes-distro|--local|--namespaced|--sort-by|--verbs)
@@ -256,6 +256,7 @@ _cmt() {
 		commands=$(add_option_if_not_in_list "--local" ${commands})
 		commands=$(add_option_if_not_in_list "--namespaced" ${commands})
 		commands=$(add_option_if_not_in_list "--no-header" ${commands})
+		commands=$(add_option_if_not_in_list "--no-shortnames" ${commands})
 		commands=$(add_option_if_not_in_list "--sort-key" ${commands})
 		commands=$(add_option_if_not_in_list "--verbs" ${commands})
 		commands=$(add_option_if_not_in_list "--wide" ${commands})

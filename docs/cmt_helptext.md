@@ -344,6 +344,9 @@ Set current context, either by specifying context _NAME_ or by specifying contex
   __`--no-header`__
   Do not output list headers  
 
+  __`--no-shortnames`__
+  Do not include the shortnames column  
+
   __`--format`__ __FORMAT__
   Format the output as _FORMAT_  
   Valid formats are:

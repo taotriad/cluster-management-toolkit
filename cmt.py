@@ -2116,6 +2116,7 @@ def list_api_resources(options: list[tuple[str, str]], args: list[str]) -> int:
 
     namespaced_only = None
     local_only = None
+    show_shortnames = True
     verb_selector = []
     wide = False
     sortkey1 = 0
@@ -2172,6 +2173,8 @@ def list_api_resources(options: list[tuple[str, str]], args: list[str]) -> int:
             _isbool, namespaced_only = validator_bool(optarg)
         elif opt == "--no-header":
             header = False
+        elif opt == "--no-shortnames":
+            show_shortnames = False
         elif opt == "--sort-by":
             if optarg == "name":
                 sortkey1 = 2
@@ -2455,18 +2458,19 @@ def list_api_resources(options: list[tuple[str, str]], args: list[str]) -> int:
 
     if header:
         tmp_header = [ANSIThemeStr(name_header, "header"),
-                      ANSIThemeStr("".ljust(name_len - len(name_header) + 2), "default"),
-                      ANSIThemeStr(shortnames_header, "header"),
-                      ANSIThemeStr("".ljust(shortnames_len - len(shortnames_header) + 2),
-                                   "default"),
-                      ANSIThemeStr(api_version_header, "header"),
-                      ANSIThemeStr("".ljust(api_version_len - len(api_version_header) + 2),
-                                   "default"),
-                      ANSIThemeStr(namespaced_header, "header"),
-                      ANSIThemeStr("".ljust(namespaced_len - len(namespaced_header) + 2),
-                                   "default"),
-                      ANSIThemeStr(kind_header, "header"),
-                      ANSIThemeStr("".ljust(kind_len - len(kind_header) + 2), "default")]
+                      ANSIThemeStr("".ljust(name_len - len(name_header) + 2), "default")]
+        if show_shortnames:
+            tmp_header += [ANSIThemeStr(shortnames_header, "header"),
+                           ANSIThemeStr("".ljust(shortnames_len - len(shortnames_header) + 2),
+                                        "default")]
+        tmp_header += [ANSIThemeStr(api_version_header, "header"),
+                       ANSIThemeStr("".ljust(api_version_len - len(api_version_header) + 2),
+                                    "default"),
+                       ANSIThemeStr(namespaced_header, "header"),
+                       ANSIThemeStr("".ljust(namespaced_len - len(namespaced_header) + 2),
+                                    "default"),
+                       ANSIThemeStr(kind_header, "header"),
+                       ANSIThemeStr("".ljust(kind_len - len(kind_header) + 2), "default")]
 
         if wide:
             tmp_header += [ANSIThemeStr(verbs_header, "header"),
@@ -2592,15 +2596,19 @@ def list_api_resources(options: list[tuple[str, str]], args: list[str]) -> int:
         if not cmt_support_formatted:
             cmt_support_formatted = [ANSIThemeStr("", "default")]
 
-        tmp_str = [ANSIThemeStr(f"{name}".ljust(name_len + 2), "default")] + \
-            shortnames_formatted + \
-            [ANSIThemeStr("".ljust(shortnames_len - shortnames_len_tmp + 2), "default"),
-             ANSIThemeStr(f"{api_version}".ljust(api_version_len + 2), "version"),
+        tmp_str = [ANSIThemeStr(f"{name}".ljust(name_len + 2), "default")]
+        if show_shortnames:
+            tmp_str += \
+                shortnames_formatted + \
+                [ANSIThemeStr("".ljust(shortnames_len - shortnames_len_tmp + 2), "default")]
+        tmp_str += \
+            [ANSIThemeStr(f"{api_version}".ljust(api_version_len + 2), "version"),
              ANSIThemeStr(f"{namespaced}".ljust(namespaced_len + 2), "default"),
              ANSIThemeStr(f"{kind}".ljust(kind_len + 2), "default")]
 
         if wide:
-            tmp_str += verbs_formatted + \
+            tmp_str += \
+                verbs_formatted + \
                 [ANSIThemeStr("".ljust(verbs_len - verbs_len_tmp + 2), "default")] + \
                 cmt_support_formatted + \
                 [ANSIThemeStr("".ljust(cmt_support_len - cmt_support_len_tmp + 2), "default"),
@@ -4067,6 +4075,10 @@ CMT_COMMANDLINE: dict[str, CommandType] = {
             "--no-header": {
                 "description": [
                     ANSIThemeStr("Do not output list headers", "description")],
+            },
+            "--no-shortnames": {
+                "description": [
+                    ANSIThemeStr("Do not include the shortnames column", "description")],
             },
             "--format": {
                 "values": [

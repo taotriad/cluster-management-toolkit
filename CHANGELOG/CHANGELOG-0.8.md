@@ -73,7 +73,9 @@ TBD
 
 ### Changes to _cmt_ in v0.8.9
 
-TBD
+* `api-resources` now has a `--no-shortnames` flag that hides the shortnames when
+  listing API-resources. This is useful since some resources have an interesting definition
+  of what "short" means (yes, I'm looking at you, `Metal3RemediationTemplate`).
 
 ### Changes to _cmtadm_ in v0.8.9
 
