@@ -1,0 +1,14 @@
+---
+- name: "kai-scheduler"
+  show_in_selector: false
+  matchkeys:
+    - image_name: "/kai-scheduler/kai-scheduler/admission"
+    - image_name: "/kai-scheduler/kai-scheduler/binder"
+    - image_name: "/kai-scheduler/kai-scheduler/operator"
+    - image_name: "/kai-scheduler/kai-scheduler/podgroupcontroller"
+    - image_name: "/kai-scheduler/kai-scheduler/podgrouper"
+    - image_name: "/kai-scheduler/kai-scheduler/queuecontroller"
+    - image_name: "/kai-scheduler/kai-scheduler/scheduler"
+  parser_rules:
+    - name: "strip_ansicodes"
+    - name: "tab_separated"
