@@ -3194,11 +3194,11 @@ class UIProps:
         # Used for annotation list
         self.annotations: list[dict[str, Any]] = []
 
-        # Reference to the external color class
         self.miny: int = 0
         self.maxy: int = 0
         self.minx: int = 0
         self.maxx: int = 0
+        self.linelen: int = -1
         self.mincurypos: int = 0
         self.maxcurypos: int = 0
         self.curypos: int = 0
@@ -3409,7 +3409,7 @@ class UIProps:
 
     def force_refresh(self) -> None:
         """
-        Force trigger a a refresh.
+        Force trigger a refresh.
         """
         self.list_needs_regeneration(True)
         self.refresh_all()
@@ -3602,10 +3602,13 @@ class UIProps:
             self.resize_window()
         self.stdscr.erase()
         self.stdscr.border()
-        # If we do not have sideborders we need to clear the right border we just painted,
+        # If we do not have sideborders we need to clear the sideborders we just painted,
         # just in case the content of the logpad is not wide enough to cover it
         if not CursesConfiguration.borders:
             for y in range(self.logpadypos, self.maxy - 1):
+                self.addthemearray(self.stdscr,
+                                   [ThemeStr(" ", ThemeAttr("main", "default"))],
+                                   y=y, x=0)
                 self.addthemearray(self.stdscr,
                                    [ThemeStr(" ", ThemeAttr("main", "default"))],
                                    y=y, x=self.maxx)
@@ -3782,7 +3785,7 @@ class UIProps:
         """
         Resize the main window; this should be called whenever a resize event is detected.
         """
-        self.stdscr.clear()
+        self.stdscr.erase()
         maxyx = self.stdscr.getmaxyx()
         self.miny = 0
         self.maxy = maxyx[0] - 1
@@ -3798,8 +3801,9 @@ class UIProps:
         self.maxxoffset = 0
 
         self.resize_statusbar()
+        self.resize_listpad(width=self.linelen)
         self.update_window()
-        self.force_update()
+        self.force_refresh()
         self.reselect_uid()
 
     def refresh_all(self) -> None:

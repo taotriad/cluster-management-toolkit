@@ -52,24 +52,17 @@ tests have been added for the moved code.
 ## Q3.1 roadmap
 
 * _General_:
-    * [ ] Release __CMT__ v0.8.8.
-    * [ ] Distribute as:
-        * [ ] Source code.
-        * [ ] Debian package.
+    * [x] Release __CMT__ v0.8.8.
 
 ## Q3.2 roadmap
 
 * _General_:
     * [ ] Release __CMT__ v0.8.9.
+          v0.8.9 is released early to make up for the fact that v0.8.8 wasn't
+          was not versioned properly. Also it finally fixes the flickering.
     * [ ] Distribute as:
         * [ ] Source code.
         * [ ] Debian package.
-        * [ ] PIP?
-* _Accessibility_:
-    * [ ] Ensure that the Colour Vision Deficiency theme covers all relevant data.
-      Using colour coding in conjunction with CVD is acceptable, but only when important
-      information (severity, etc.) is conveyed through other means.
-    * [ ] Provide a high-contrast theme.
 
 ## Q4 roadmap
 
@@ -79,6 +72,8 @@ tests have been added for the moved code.
           this way we get flushing whenever the severity is high enough.
     * [ ] Go through all input helpers, formatters, etc., to see which, if any, we can merge.
     * [ ] tests: Achieve 55% test coverage for `*.py`.
+    * [ ] views: Templetise as much as possible, both to decrease future workloads,
+          but also to standardise look and feel.
 * _cmu_:
     * [ ] Continue, hopefully conclude, the general refactoring, enabling new _cmt_ functionality.
     * [ ] If possible it should be possible to reinitialise the UI and thus change themes.
@@ -90,6 +85,11 @@ tests have been added for the moved code.
 * _cmt_:
     * [ ] Once the _cmu_ refactoring has taken place we should be in a good place to
       reuse most of the helpers to implement `cmt get OBJECT`, `cmt describe OBJECT`, etc.
+* _Accessibility_:
+    * [ ] Ensure that the Colour Vision Deficiency theme covers all relevant data.
+      Using colour coding in conjunction with CVD is acceptable, but only when important
+      information (severity, etc.) is conveyed through other means.
+    * [ ] Provide a high-contrast theme.
 
 ## Backlog
 

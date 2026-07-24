@@ -705,7 +705,7 @@ def generate_list_row(uip: UIProps, data: dict, field_dict: dict,
                       ypos: int, is_selected: bool, is_taggable: bool = False,
                       is_tagged: bool = False, is_deleted: bool = False) -> None:
     """
-    Generate a list for the listpad.
+    Generate a list row for the listpad.
 
         Parameters:
             uip (UIProps): A reference to the UI Properties object
@@ -1224,14 +1224,16 @@ def genericlistloop(stdscr: curses.window, **kwargs: Any) -> Retval:
             linelen = update_field_widths(field_dict, field_names, uip.info)
             if is_taggable:
                 linelen += len("✓ ")
-            uip.resize_listpad(linelen)
+            uip.linelen = linelen
+            uip.resize_listpad(width=linelen)
             uip.list_needs_regeneration(True)
             uip.update_window(update=new_data)
             if new_data == "true":
                 new_data = "false"
 
+        # These might need refreshing even if we don't update the data.
         if uip.refresh:
-            # The data in some fields might become shorter, so we need to trigger a clear
+            # The data in some fields might become shorter, so we need to trigger an erase.
             if uip.statusbar is not None:
                 uip.statusbar.erase()
 
@@ -1408,9 +1410,11 @@ def genericlistloop(stdscr: curses.window, **kwargs: Any) -> Retval:
             infogetter_extra_args["_field_dict"] = field_dict
             vinfo = infogetter(**infogetter_extra_args)
             uip.update_info(vinfo)
-            update_field_widths(field_dict, field_names, uip.info)
+            linelen = update_field_widths(field_dict, field_names, uip.info)
+            if is_taggable:
+                linelen += len("✓ ")
+            uip.linelen = linelen
             uip.reinit_window(field_dict=field_dict, sortcolumn=sortcolumn)
-            uip.resize_listpad(width=-1)
             uip.refresh_all()
             uip.force_update()
             uip.update_window(update="false")
@@ -1575,7 +1579,6 @@ def genericlistloop(stdscr: curses.window, **kwargs: Any) -> Retval:
             update_field_widths(field_dict, field_names, uip.info)
             clear_tagged_items()
             uip.reinit_window(field_dict=field_dict, sortcolumn=sortcolumn)
-            uip.resize_listpad(width=-1)
             uip.refresh_all()
             uip.force_update()
             if ".".join(kind) in executor:
@@ -2102,8 +2105,9 @@ def genericlistloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                 uip.force_refresh()
 
             if force_update:
-                uip.update_forced = True
                 uip.force_update()
+                uip.update_forced = True
+                uip.force_idle()
 
 
 def __switch_resource_map(**kwargs: Any) -> tuple[Retval, dict]:
@@ -2683,6 +2687,8 @@ def clusteroverviewloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                      fetch_args={"sort_key": "lastTimestamp", "sort_reverse": True, "limit": 5},
                      kubernetes_helper=kh, kh_cache=kh_cache)
 
+    uip.force_update()
+
     # pylint: disable-next=too-many-nested-blocks
     while True:
         if (result := executor.get("sysinfo")) != ([], []):
@@ -3180,7 +3186,7 @@ def clusteroverviewloop(stdscr: curses.window, **kwargs: Any) -> Retval:
             podarrays += pod_heatmap
 
             # Resize the list pad
-            uip.resize_listpad(max(len(node_heatmap), len(pod_heatmap)))
+            uip.resize_listpad(width=max(len(node_heatmap), len(pod_heatmap)))
 
             for y, row in enumerate(nodearrays):
                 uip.addthemearray(uip.listpad, row, y=y, x=node_heatmap_xpos)
@@ -3470,6 +3476,8 @@ def cniloop(stdscr: curses.window, **kwargs: Any) -> Retval:
     candidate_version = ""
 
     cni = None
+
+    uip.force_update()
 
     while True:
         if uip.is_update_triggered():
@@ -4241,21 +4249,23 @@ def genericinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
     raw_output: bool = False
 
     first_fetch: bool = True
+    uip.force_update()
 
     # pylint: disable-next=too-many-nested-blocks
     while True:
-        # Output infopad and listpad if we have one
-        if uip.is_update_triggered():
-            # The data in some fields might become shorter, so we need to trigger a clear
-            if uip.infopad is not None:
-                uip.infopad.erase()
+        # These might need refreshing even if we don't update the data.
+        if uip.refresh:
+            # The data in some fields might become shorter, so we need to trigger an erase.
             if uip.statusbar is not None:
                 uip.statusbar.erase()
 
-            statusarray1: list[ThemeRef | ThemeStr] = [
-                ThemeStr("Fields: ", ThemeAttr("statusbar", "infoheader")),
-                ThemeStr(field_index, ThemeAttr("statusbar", "highlight"))
-            ]
+            if uip.listpad is not None:
+                statusarray1: list[ThemeRef | ThemeStr] = [
+                    ThemeStr("Fields: ", ThemeAttr("statusbar", "infoheader")),
+                    ThemeStr(field_index, ThemeAttr("statusbar", "highlight"))
+                ]
+            else:
+                statusarray1 = []
             statusarray2: list[ThemeRef | ThemeStr] = []
 
             for status_data in deep_get(viewref, DictPath("statusmsg"), []):
@@ -4290,6 +4300,11 @@ def genericinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
             uip.addthemearray(uip.statusbar, statusarray1, y=0, x=0)
             uip.addthemearray(uip.statusbar, statusarray2, y=1, x=0)
 
+        # Output infopad and listpad if we have one
+        if uip.is_update_triggered():
+            # The data in some fields might become shorter, so we need to trigger a clear
+            if uip.infopad is not None:
+                uip.infopad.erase()
             # Refresh obj whenever we reload,
             # unless this is a special view or "no_reload_on_refresh" is true
             if not view[0].startswith("__") \
@@ -4526,7 +4541,8 @@ def genericinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
 
                 uip.update_info(info)
                 linelen = update_field_widths(field_dict, field_names, uip.info)
-                uip.resize_listpad(linelen)
+                uip.linelen = linelen
+                uip.resize_listpad(width=linelen)
             elif uip.logpad is not None:
                 decoded_obj: str = ""
 
@@ -4872,11 +4888,10 @@ def genericinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                                           selected_namespace=selected_namespace,
                                           **fieldgenerator_args)
 
+            linelen = update_field_widths(field_dict, field_names, uip.info)
+            uip.linelen = linelen
             uip.reinit_window(field_dict=field_dict, sortcolumn=sortcolumn)
-            uip.resize_listpad(width=-1)
             uip.refresh_all()
-            uip.update_forced = True
-            uip.force_update()
             continue
         if c == ord("R") and uip.logpad is not None:
             raw_output = not raw_output

@@ -88,6 +88,13 @@ TBD
 ### Changes to _cmu_ in v0.8.9
 
 * (Hopefully) fix the rather annoying flickering in the list view.
+* An issue was fixed that caused line-lengths to be incorrect in the list-view when resizing.
+* Resizing in info-view no longer causes the listpad to become empty until reloaded.
+* Switching field configuration (Wide/Normal/Narrow/Custom) no longer triggers force update,
+  and should thus not flicker.
+* The left border is no longer briefly visible when borders are disabled.
+* resize_window() always calls resize_listpad() now, hopefully solving some corner-cases.
+* Fields is now no longer visible in the status bar if there's no listpad.
 
 ### Changes to other files in v0.8.9
 
@@ -102,6 +109,7 @@ TBD
 * orjson is now used (if available) when deserializing JSON;
   it performs better than ujson and json. ujson (if available) is still used
   for serialization though, since orjson lacks some formatting options.
+* Don't force an update on a resize event; just refresh the window instead.
 
 ### view-file changes
 
