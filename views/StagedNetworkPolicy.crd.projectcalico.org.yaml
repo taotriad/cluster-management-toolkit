@@ -6,6 +6,8 @@ command:
   - "stagednetworkpolicy.crd.projectcalico.org"
   - "stagednetworkpolicies.calico"
   - "stagednetworkpolicy.calico"
+  - "stagednetpols"
+  - "stagednetpol"
   - "snetpols"
   - "snetpol"
 listview:
@@ -57,7 +59,17 @@ infoview:
         type: "raw"
         formatter: "list"
   listpad:
-    listgetter: "get_netpol_rule_list"
+    listgetter: "listgetter_path"
+    listgetter_args:
+      paths:
+        - path: "spec#egress"
+          type: "list"
+          key_name: "policy_type"
+          key_value: "Egress"
+        - path: "spec#ingress"
+          type: "list"
+          key_name: "policy_type"
+          key_value: "Ingress"
     infogetter: "generic_infogetter"
     field_indexes:
       Wide:
@@ -90,7 +102,7 @@ infoview:
         type: "str"
       destination_not_ports:
         header: "Destination Not-Ports:"
-        path: "destination_not_ports"
+        path: "destination#notPorts"
         default: ["<unset>"]
         type: "raw"
         formatter: "list"
@@ -99,7 +111,7 @@ infoview:
             - type: "port"
       destination_not_ports_narrow:
         header: "Dst !Ports:"
-        path: "destination_not_ports"
+        path: "destination#notPorts"
         default: ["<unset>"]
         type: "raw"
         formatter: "list"
@@ -108,7 +120,7 @@ infoview:
             - type: "port"
       destination_ports:
         header: "Destination Ports:"
-        path: "destination_ports"
+        path: "destination#ports"
         default: ["<unset>"]
         type: "raw"
         formatter: "list"
@@ -117,7 +129,7 @@ infoview:
             - type: "port"
       destination_ports_narrow:
         header: "Dst Ports:"
-        path: "destination_ports"
+        path: "destination#ports"
         default: ["<unset>"]
         type: "raw"
         formatter: "list"
@@ -126,31 +138,31 @@ infoview:
             - type: "port"
       destination_not_selector:
         header: "Destination Not-Selector:"
-        path: "destination_not_selector"
+        path: "destination#notSelector"
         fallback_on_empty: true
         default: "<unset>"
         type: "str"
       destination_not_selector_narrow:
         header: "Dst !Selector:"
-        path: "destination_not_selector"
+        path: "destination#notSelector"
         fallback_on_empty: true
         default: "<unset>"
         type: "str"
       destination_selector:
         header: "Destination Selector:"
-        path: "destination_selector"
+        path: "destination#selector"
         fallback_on_empty: true
         default: "<unset>"
         type: "str"
       destination_selector_narrow:
         header: "Dst Selector:"
-        path: "destination_selector"
+        path: "destination#selector"
         fallback_on_empty: true
         default: "<unset>"
         type: "str"
       not_protocol:
         header: "Not-Protocol:"
-        path: "not_protocol"
+        path: "notProtocol"
         fallback_on_empty: true
         default: "<unset>"
         type: "str"
@@ -159,7 +171,7 @@ infoview:
             - type: "protocol"
       not_protocol_narrow:
         header: "!Protocol:"
-        path: "not_protocol"
+        path: "notProtocol"
         default: "<unset>"
         type: "str"
         formatting:
@@ -180,25 +192,25 @@ infoview:
             - type: "protocol"
       source_not_selector:
         header: "Source Not-Selector:"
-        path: "source_not_selector"
+        path: "source#notSelector"
         fallback_on_empty: true
         default: "<unset>"
         type: "str"
       source_not_selector_narrow:
         header: "Src !Selector:"
-        path: "source_not_selector"
+        path: "source#notSelector"
         fallback_on_empty: true
         default: "<unset>"
         type: "str"
       source_selector:
         header: "Source Selector:"
-        path: "source_selector"
+        path: "source#selector"
         fallback_on_empty: true
         default: "<unset>"
         type: "str"
       source_selector_narrow:
         header: "Src Selector:"
-        path: "source_selector"
+        path: "source#selector"
         fallback_on_empty: true
         default: "<unset>"
         type: "str"

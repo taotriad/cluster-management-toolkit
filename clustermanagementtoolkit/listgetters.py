@@ -697,7 +697,7 @@ def get_ingress_rule_list(obj: dict, **kwargs: Any) -> tuple[list[dict[str, Any]
                 path_type: str = deep_get(path, DictPath("pathType"), "")
                 backend_kind: tuple[str, str] | None = None
                 name: str = ""
-                port: tuple[str, str] = ""
+                port: tuple[str, str] = ("", "")
 
                 if "service" in deep_get(path, DictPath("backend"), {}):
                     backend_kind = ("Service", "")
@@ -708,7 +708,6 @@ def get_ingress_rule_list(obj: dict, **kwargs: Any) -> tuple[list[dict[str, Any]
                     backend_kind = (deep_get(path, DictPath("backend#resource#kind"), ""),
                                     deep_get(path, DictPath("backend#resource#apiGroup"), ""))
                     name = deep_get(path, DictPath("backend#resource#name"), "")
-                    port = ("", "")
 
                 if backend_kind:
                     vlist.append({
@@ -723,7 +722,7 @@ def get_ingress_rule_list(obj: dict, **kwargs: Any) -> tuple[list[dict[str, Any]
     return vlist, status
 
 
-# pylint: disable-next=unused-argument,too-many-locals
+# pylint: disable-next=unused-argument,too-many-locals,too-many-branches
 def get_netpol_rule_list(obj: dict, **kwargs: Any) -> tuple[list[dict[str, Any]], int]:
     """
     Get a list of network policy rules.
@@ -740,129 +739,92 @@ def get_netpol_rule_list(obj: dict, **kwargs: Any) -> tuple[list[dict[str, Any]]
     status: int = 200
 
     for item in deep_get(obj, DictPath("spec#ingress"), []):
-        policy_type = "ingress"
-        ports = []
-        for port in deep_get(item, DictPath("ports"), []):
-            ports.append((deep_get(port, DictPath("port"), ""),
-                          deep_get(port, DictPath("protocol"), "")))
-        pod_label_selector = deep_get(item, DictPath("podSelector#matchLabels"), {})
-        namespace_label_selector = deep_get(item, DictPath("namespaceSelector#matchLabels"), {})
-        # Specific to AdminNetworkPolicy
         action: str = deep_get(item, DictPath("action"), "")
         name: str = deep_get(item, DictPath("name"), "")
-        # Specific to StagedNetworkPolicy
-        protocol: str = deep_get(item, DictPath("protocol"), "")
-        not_protocol: str = deep_get(item, DictPath("not_protocol"), "")
-        destination_ports: list[str] = deep_get(item, DictPath("destination#ports"), [])
-        destination_not_ports: list[str] = deep_get(item, DictPath("destination#notPorts"), [])
-        source_selector: list[str] = deep_get(item, DictPath("source#selector"), "")
-        source_not_selector: list[str] = deep_get(item, DictPath("source#notSelector"), "")
-        destination_selector: list[str] = deep_get(item, DictPath("destination#selector"), "")
-        destination_not_selector: list[str] = \
-            deep_get(item, DictPath("destination#notSelector"), "")
+        policy_type = "Ingress"
+
+        ports = []
+        for port in deep_get(item, DictPath("ports"), []):
+            ports.append({
+                "name": deep_get(port, DictPath("namedPort"), ""),
+                "port": deep_get(port, DictPath("portNumber#port"), ""),
+                "protocol": deep_get(port, DictPath("portNumber#protocol"), ""),
+            })
+
+        pod_selectors = []
+        pod_namespace_selectors = []
+        namespace_selectors = []
 
         from_rules = deep_get(item, DictPath("from"), [])
 
         for source in from_rules:
-            ipblock = deep_get(source, DictPath("cidr"))
-            ipblock_exceptions = deep_get(source, DictPath("except"))
-            pods_pod_label_selector = \
-                deep_get(source, DictPath("pods#podSelector#matchLabels"), pod_label_selector)
-            pods_namespace_label_selector = \
-                deep_get(source, DictPath("pods#namespaceSelector#matchLabels"),
-                         namespace_label_selector)
-            vlist.append({
-                "policy_type": policy_type,
-                "ipblock": ipblock,
-                "ipblock_exceptions": ipblock_exceptions,
-                "ports": ports,
-                "pod_label_selector": pods_pod_label_selector,
-                "namespace_label_selector": pods_namespace_label_selector,
-                "action": action,
-                "name": name,
-            })
+            if (tmp := deep_get(source, DictPath("namespaces"), {})):
+                namespace_selectors.append(tmp)
+            if (tmp := deep_get(source, DictPath("pods#namespaceSelector"), {})):
+                pod_namespace_selectors.append(tmp)
+            if (tmp := deep_get(source, DictPath("pods#podSelector"), {})):
+                pod_selectors.append(tmp)
 
-        if not from_rules:
             vlist.append({
-                "policy_type": policy_type,
-                "ipblock": "",
-                "ipblock_exceptions": [],
-                "ports": ports,
-                "pod_label_selector": pod_label_selector,
-                "namespace_label_selector": namespace_label_selector,
-                "action": action,
                 "name": name,
-                "destination_ports": destination_ports,
-                "destination_not_ports": destination_not_ports,
-                "destination_selector": destination_selector,
-                "destination_not_selector": destination_not_selector,
-                "source_selector": source_selector,
-                "source_not_selector": source_not_selector,
-                "protocol": protocol,
-                "not_protocol": not_protocol,
+                "action": action,
+                "policy_type": policy_type,
+                "ports": ports,
+                "pod_selectors": pod_selectors,
+                "pod_namespace_selectors": pod_namespace_selectors,
+                "namespace_selectors": namespace_selectors,
+                # Only used by egress rules
+                "nodes": [],
+                "networks": [],
+                "domains": [],
             })
 
     for item in deep_get(obj, DictPath("spec#egress"), []):
-        policy_type = "egress"
-        ports = []
-        for port in deep_get(item, DictPath("ports"), []):
-            ports.append((deep_get(port, DictPath("port"), ""),
-                          deep_get(port, DictPath("protocol"), "")))
-        pod_label_selector = deep_get(item, DictPath("podSelector#matchLabels"), {})
-        namespace_label_selector = deep_get(item, DictPath("namespaceSelector#matchLabels"), {})
-        # Specific to AdminNetworkPolicy
         action = deep_get(item, DictPath("action"), "")
         name = deep_get(item, DictPath("name"), "")
-        # Specific to StagedNetworkPolicy
-        protocol = deep_get(item, DictPath("protocol"), "")
-        not_protocol = deep_get(item, DictPath("not_protocol"), "")
-        destination_ports = deep_get(item, DictPath("destination#ports"), [])
-        destination_not_ports = deep_get(item, DictPath("destination#notPorts"), [])
-        source_selector = deep_get(item, DictPath("source#selector"), "")
-        source_not_selector = deep_get(item, DictPath("source#notSelector"), "")
-        destination_selector = deep_get(item, DictPath("destination#selector"), "")
-        destination_not_selector = deep_get(item, DictPath("destination#notSelector"), "")
+        policy_type = "Egress"
+
+        ports = []
+        for port in deep_get(item, DictPath("ports"), []):
+            ports.append({
+                "name": deep_get(port, DictPath("namedPort"), ""),
+                "port": deep_get(port, DictPath("portNumber#port"), ""),
+                "protocol": deep_get(port, DictPath("portNumber#protocol"), ""),
+            })
+
+        domains = []
+        namespace_selectors = []
+        networks = []
+        node_selectors = []
+        pod_namespace_selectors = []
+        pod_selectors = []
 
         to_rules = deep_get(item, DictPath("to"), [])
 
         for source in to_rules:
-            ipblock = deep_get(source, DictPath("cidr"))
-            ipblock_exceptions = deep_get(source, DictPath("except"))
-            pods_pod_label_selector = \
-                deep_get(source, DictPath("pods#podSelector#matchLabels"), pod_label_selector)
-            pods_namespace_label_selector = \
-                deep_get(source, DictPath("pods#namespaceSelector#matchLabels"),
-                         namespace_label_selector)
-            vlist.append({
-                "policy_type": policy_type,
-                "ipblock": ipblock,
-                "ipblock_exceptions": ipblock_exceptions,
-                "ports": ports,
-                "pod_label_selector": pods_pod_label_selector,
-                "namespace_label_selector": pods_namespace_label_selector,
-                "action": action,
-                "name": name,
-            })
+            domains += deep_get(source, DictPath("domainNames"), [])
+            if (tmp := deep_get(source, DictPath("namespaces"), {})):
+                namespace_selectors.append(tmp)
+            networks += deep_get(source, DictPath("networks"), [])
+            if (tmp := deep_get(source, DictPath("nodes"), {})):
+                node_selectors.append(tmp)
+            if (tmp := deep_get(source, DictPath("pods#namespaceSelector"), {})):
+                pod_namespace_selectors.append(tmp)
+            if (tmp := deep_get(source, DictPath("pods#podSelector"), {})):
+                pod_selectors.append(tmp)
 
-        if not to_rules:
-            vlist.append({
-                "policy_type": policy_type,
-                "ipblock": "",
-                "ipblock_exceptions": [],
-                "ports": ports,
-                "pod_label_selector": pod_label_selector,
-                "namespace_label_selector": namespace_label_selector,
-                "action": action,
-                "name": name,
-                "destination_ports": destination_ports,
-                "destination_not_ports": destination_not_ports,
-                "destination_selector": destination_selector,
-                "destination_not_selector": destination_not_selector,
-                "source_selector": source_selector,
-                "source_not_selector": source_not_selector,
-                "protocol": protocol,
-                "not_protocol": not_protocol,
-            })
+        vlist.append({
+            "name": name,
+            "action": action,
+            "policy_type": policy_type,
+            "ports": ports,
+            "pod_selectors": pod_selectors,
+            "pod_namespace_selectors": pod_namespace_selectors,
+            "namespace_selectors": namespace_selectors,
+            "node_selectors": node_selectors,
+            "networks": networks,
+            "domains": domains,
+        })
 
     return vlist, status
 

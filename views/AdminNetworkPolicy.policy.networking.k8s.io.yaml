@@ -3,6 +3,8 @@ kind: "AdminNetworkPolicy"
 api_family: "policy.networking.k8s.io"
 default_command: "adminnetworkpolicies"
 command:
+  - "adminnetpols"
+  - "adminnetpol"
   - "admnetpols"
   - "admnetpol"
 listview:
@@ -10,14 +12,45 @@ listview:
   group: "Network"
   field_indexes:
     Normal:
-      fields: ["name", "priority", "namespace_selector", "age"]
+      fields: ["name", "priority", "pod_selector", "pod_namespace_selector",
+               "namespace_selector", "age"]
       sortcolumn: "priority"
   fields:
     namespace_selector:
       header: "Namespace Selector:"
       paths:
-        - path: ["spec#subject#namespaces#matchLabels"]
-          pathtype: "key_value"
+        - path: ["spec#subject#namespaces"]
+          pathtype: "selectors"
+          fallback_on_empty: true
+          default: ["<none>"]
+      formatter: "list"
+      formatting:
+        field_colors:
+          - type: "key"
+          - type: "value"
+        field_separators:
+          - type: "selector"
+    pod_selector:
+      header: "Pod Selector:"
+      paths:
+        - path: ["spec#subject#pods#podSelector"]
+          pathtype: "selectors"
+          fallback_on_empty: true
+          default: ["<none>"]
+      formatter: "list"
+      formatting:
+        field_colors:
+          - type: "key"
+          - type: "value"
+        field_separators:
+          - type: "selector"
+    pod_namespace_selector:
+      header: "Pod Namespace Selector:"
+      paths:
+        - path: ["spec#subject#pods#namespaceSelector"]
+          pathtype: "selectors"
+          fallback_on_empty: true
+          default: ["<none>"]
       formatter: "list"
       formatting:
         field_colors:
@@ -37,13 +70,43 @@ infoview:
   infopad:
     row_indexes:
       Normal:
-        fields: ["namespace_selector", "priority"]
+        fields: ["pod_selector", "pod_namespace_selector",
+                 "namespace_selector", "priority"]
     rows:
       namespace_selector:
         header: [["Namespace Selector:", ["main", "infoheader"]]]
         paths:
-          - path: ["spec#subject#namespaces#matchLabels"]
-            pathtype: "key_value"
+          - path: ["spec#subject#namespaces"]
+            pathtype: "selectors"
+            fallback_on_empty: true
+            default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "key"
+            - type: "value"
+          field_separators:
+            - type: "selector"
+      pod_selector:
+        header: [["Pod Selector:", ["main", "infoheader"]]]
+        paths:
+          - path: ["spec#subject#pods#podSelector"]
+            pathtype: "selectors"
+            fallback_on_empty: true
+            default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "key"
+            - type: "value"
+          field_separators:
+            - type: "selector"
+      pod_namespace_selector:
+        header: [["Pod Namespace Selector:", ["main", "infoheader"]]]
+        paths:
+          - path: ["spec#subject#pods#namespaceSelector"]
+            pathtype: "selectors"
+            fallback_on_empty: true
             default: ["<none>"]
         formatter: "list"
         formatting:
@@ -60,24 +123,47 @@ infoview:
   listpad:
     listgetter: "get_netpol_rule_list"
     infogetter: "generic_infogetter"
+    on_activation:
+      call: "resourceinfodispatch"
+      kind: "__ResourceView"
+      formatter: "format_yaml"
+      obj_path: ""
+      title: "Network Policy"
     field_indexes:
+      Wide:
+        fields: ["policy_type", "name", "action", "ports",
+                 "pod_selectors",
+                 "pod_namespace_selectors",
+                 "namespace_selectors",
+                 "node_selectors",
+                 "networks",
+                 "domains"]
+        sortcolumn: "policy_type"
       Normal:
-        fields: ["policy_type", "name", "action",
-                 "pod_label_selector", "namespace_label_selector"]
+        fields: ["policy_type", "name", "action", "ports"]
+        sortcolumn: "policy_type"
     fields:
       action:
         header: "Action:"
         path: "action"
         type: "str"
+      domains:
+        header: "Domains:"
+        path: "domains"
+        type: "raw"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "host"
       name:
         header: "Name:"
         path: "name"
         type: "str"
-      namespace_label_selector:
-        header: "Namespace Label Selector:"
+      namespace_selectors:
+        header: "Namespace Selector:"
         paths:
-          - path: ["namespace_label_selector"]
-            pathtype: "key_value"
+          - path: ["namespace_selectors"]
+            pathtype: "selectors"
             default: ["<none>"]
         formatter: "list"
         formatting:
@@ -86,11 +172,16 @@ infoview:
             - type: "value"
           field_separators:
             - type: "selector"
-      pod_label_selector:
-        header: "Pod Label Selector:"
+      networks:
+        header: "Networks:"
+        path: "networks"
+        type: "raw"
+        formatter: "address"
+      node_selectors:
+        header: "Node Selector:"
         paths:
-          - path: ["pod_label_selector"]
-            pathtype: "key_value"
+          - path: ["node_selectors"]
+            pathtype: "selectors"
             default: ["<none>"]
         formatter: "list"
         formatting:
@@ -99,6 +190,50 @@ infoview:
             - type: "value"
           field_separators:
             - type: "selector"
+      pod_selectors:
+        header: "Pod Selector:"
+        paths:
+          - path: ["pod_selectors"]
+            pathtype: "selectors"
+            default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "key"
+            - type: "value"
+          field_separators:
+            - type: "selector"
+      pod_namespace_selectors:
+        header: "Pod Namespace Selectors:"
+        paths:
+          - path: ["pod_namespace_selectors"]
+            pathtype: "selectors"
+            default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "key"
+            - type: "value"
+          field_separators:
+            - type: "selector"
+      ports:
+        header: "Ports:"
+        paths:
+          - path: "ports"
+            pathtype: "items"
+            subpaths:
+              - "name"
+              - "port"
+              - "protocol"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "service"
+            - type: "port"
+            - type: "protocol"
+          field_separators:
+            - type: "port"
+            - type: "service"
       policy_type:
         header: "Policy Type:"
         path: "policy_type"
