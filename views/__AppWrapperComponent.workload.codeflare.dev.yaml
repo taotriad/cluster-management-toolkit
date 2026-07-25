@@ -1,0 +1,41 @@
+---
+kind: "__AppWrapperComponent"
+api_family: "workload.codeflare.dev"
+default_command: "__"
+infoview:
+  name: "App Wrapper Component"
+  infopad:
+    name_path: "template#metadata#name"
+    creation_timestamp_path: null
+    row_indexes:
+      Normal:
+        fields: ["pod_sets", "replicas"]
+    rows:
+      replicas:
+        header: [["Replicas:", ["main", "infoheader"]]]
+        path: "template#spec#replicas"
+        default: "<unset>"
+        type: "int"
+        formatter: "numerical"
+      pod_sets:
+        header: [["Pod Sets:", ["main", "infoheader"]]]
+        paths:
+          - path: ["podSets"]
+            pathtype: "items"
+            subpaths:
+              - "path"
+              - "replicas"
+        default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "key"
+            - type: "numerical"
+          field_separators:
+            - type: "selector"
+  logpad:
+    infogetter: "logpad_formatted"
+    infogetter_args:
+      formatter: "format_yaml"
+      path: "template"
+    timestamps: false
