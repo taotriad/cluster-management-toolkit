@@ -1,0 +1,8 @@
+---
+- name: "appwrapper"
+  show_in_selector: false
+  matchkeys:
+    - image_name: "/ibm/appwrapper"
+  parser_rules:
+    - name: "glog"
+    - name: "tab_separated"

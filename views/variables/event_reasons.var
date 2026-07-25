@@ -661,6 +661,10 @@ ErrInitIssuer:
   field_colors:
     - context: "main"
       type: "status_warning"
+ErrWorkloadCompose:
+  field_colors:
+    - context: "main"
+      type: "status_warning"
 Error:
   field_colors:
     - context: "main"
@@ -706,6 +710,10 @@ ETCDSnapshotDeleted:
     - context: "main"
       type: "status_done"
 Evicted:
+  field_colors:
+    - context: "main"
+      type: "status_warning"
+EvictedDueToPodsReadyTimeout:
   field_colors:
     - context: "main"
       type: "status_warning"
@@ -1613,6 +1621,10 @@ Overwritten:
   field_colors:
     - context: "main"
       type: "status_warning"
+OwnerReferencesAdded:
+  field_colors:
+    - context: "main"
+      type: "status_done"
 OwnerRefInvalidNamespace:
   field_colors:
     - context: "main"
@@ -1972,7 +1984,7 @@ RolloutAborted:
 RolloutAddedToInformer:
   field_colors:
     - context: "main"
-      type: "status_ok"
+      type: "status_done"
 RolloutCompleted:
   field_colors:
     - context: "main"
@@ -2456,7 +2468,7 @@ TrafficWeightUpdated:
 TriggerAuthenticationAdded:
   field_colors:
     - context: "main"
-      type: "status_ok"
+      type: "status_done"
 UnAvailableLoadBalancer:
   field_colors:
     - context: "main"

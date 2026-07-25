@@ -1896,84 +1896,6 @@ def get_info_by_last_applied_configuration(obj: dict, **kwargs: Any) -> tuple[li
 
 
 # pylint: disable-next=unused-argument
-def get_sidecar_rule_list(obj: dict, **kwargs: Any) -> tuple[list[dict[str, Any]], int]:
-    """
-    Return a list of Istio sidecar rules.
-
-        Parameters:
-            obj (dict): The pod object.
-            **kwargs (dict[str, Any]): Keyword arguments [unused]
-        Returns:
-            (([dict[str, Any]], int)):
-                ([dict[str, Any]]): The list of sidecar rules.
-                (int): The status for the request
-    """
-    vlist: list[dict[str, Any]] = []
-
-    for traffic_type, items in (("Ingress", deep_get(obj, DictPath("spec#ingress"), [])),
-                                ("Egress", deep_get(obj, DictPath("spec#egress"), []))):
-        for item in items:
-            pport: str = deep_get(item, DictPath("port#number"), "")
-            name: str = deep_get(item, DictPath("port#name"), "")
-            protocol: str = deep_get(item, DictPath("port#protocol"), "")
-            port: tuple[str, str, str] = (name, pport, protocol)
-            ref = item
-            bind: str = deep_get(item, DictPath("bind"), "")
-            capture_mode: str = deep_get(item, DictPath("captureMode"), "NONE")
-            # Required
-            default_endpoint: str = deep_get(item, DictPath("defaultEndpoint"), "")
-            # N/A
-            hosts: list[str] = deep_get(item, DictPath("hosts"), [])
-            vlist.append({
-                "traffic_type": traffic_type,
-                "port": port,
-                "ref": ref,
-                "bind": bind,
-                "capture_mode": capture_mode,
-                "default_endpoint": default_endpoint,
-                "hosts": hosts,
-            })
-
-    return vlist, 200
-
-
-# pylint: disable-next=unused-argument
-def get_virtsvc_rule_list(obj: dict, **kwargs: Any) -> tuple[list[dict[str, Any]], int]:
-    """
-    Extracts data from an Istio Virtual Service.
-
-        Parameters:
-            obj (dict): The object to extract data from
-            **kwargs (dict[str, Any]): Keyword arguments [unused]
-        Returns:
-            (([dict[str, Any]], int)):
-                ([dict[str, Any]]): A list of virtual service rules
-                (int): The status for the request
-    """
-    vlist: list[dict[str, Any]] = []
-
-    for rule_path, rule_type in [("spec#http", "HTTP"), ("spec#tls", "TLS"), ("spec#tcp", "TCP")]:
-        destinations: list[tuple[str, str, str]] = []
-
-        for rule in deep_get(obj, DictPath(rule_path), []):
-            for item in deep_get(rule, DictPath("route"), []):
-                host = deep_get(item, DictPath("destination#host"), "")
-                subset = deep_get(item, DictPath("destination#subset"))
-                if subset is None:
-                    subset = "*"
-                port = deep_get(item, DictPath("destination#port#number"), "")
-                destinations.append((host, subset, port))
-
-        if destinations:
-            vlist.append({
-                "rule_type": rule_type,
-                "destinations": destinations,
-            })
-
-    return vlist, 200
-
-
-# pylint: disable-next=unused-argument
 def listgetter_ansible_volumes(obj: dict, **kwargs: Any) -> tuple[list[dict[str, Any]], str]:
     """
     Given an Ansible facts dict for a host, return information about its volumes.
@@ -2661,8 +2583,6 @@ listgetter_allowlist: dict[str, Callable] = {
     "get_netpol_rule_list": get_netpol_rule_list,
     "get_pod_resource_list": get_pod_resource_list,
     "get_info_by_last_applied_configuration": get_info_by_last_applied_configuration,
-    "get_sidecar_rule_list": get_sidecar_rule_list,
-    "get_virtsvc_rule_list": get_virtsvc_rule_list,
     "listgetter_ansible_volumes": listgetter_ansible_volumes,
     "listgetter_configmap_data": listgetter_configmap_data,
     "listgetter_dict_list": listgetter_dict_list,

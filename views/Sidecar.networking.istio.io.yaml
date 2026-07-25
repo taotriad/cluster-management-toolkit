@@ -14,15 +14,17 @@ infoview:
   infopad:
     row_indexes:
       Normal:
-        fields: ["workload_selector", "outbound_traffic_policy"]
+        fields: ["workload_label_selector", "outbound_traffic_policy"]
     rows:
       outbound_traffic_policy:
         header: [["Outbound Traffic Policy:", ["main", "infoheader"]]]
         path: "spec#outboundTrafficPolicy"
         default: "Default"
         type: "str"
-      workload_selector:
-        header: [["Workload Selector:", ["main", "infoheader"]]]
+      workload_label_selector:
+        header: [["Workload La", ["main", "infoheader"]],
+                 ["b", ["main", "infoheader_shortcut"]],
+                 ["el Selector:", ["main", "infoheader"]]]
         paths:
           - path: ["spec#workloadSelector#labels"]
             pathtype: "key_value"
@@ -35,8 +37,24 @@ infoview:
           field_separators:
             - type: "selector"
   listpad:
-    listgetter: "get_sidecar_rule_list"
+    listgetter: "listgetter_path"
+    listgetter_args:
+      paths:
+        - path: "spec#ingress"
+          type: "list"
+          key_name: "traffic_type"
+          key_value: "Ingress"
+        - path: "spec#egress"
+          type: "list"
+          key_name: "traffic_type"
+          key_value: "Egress"
     infogetter: "generic_infogetter"
+    on_activation:
+      call: "resourceinfodispatch"
+      kind: "__ResourceView"
+      formatter: "format_yaml"
+      obj_path: ""
+      title: "Traffic Policy"
     field_indexes:
       Normal:
         fields: ["traffic_type", "port", "bind", "capture_mode",
@@ -46,15 +64,18 @@ infoview:
       bind:
         header: "Bind:"
         path: "bind"
+        default: "<none>"
         type: "str"
         formatter: "address"
       capture_mode:
         header: "Capture Mode:"
-        path: "capture_mode"
+        path: "captureMode"
+        default: "DEFAULT"
         type: "str"
       default_endpoint:
         header: "Default Endpoint:"
-        path: "default_endpoint"
+        path: "defaultEndpoint"
+        default: "<none>"
         type: "str"
       hosts:
         header: "Hosts:"
@@ -63,8 +84,10 @@ infoview:
         formatter: "list"
       port:
         header: "Port:"
-        path: "port"
-        type: "raw"
+        paths:
+          - path: [["port#name"], ["port#number"], ["port#protocol"]]
+            pathtype: "tuple"
+            default: ["<none>"]
         formatter: "list"
         formatting:
           field_colors:
@@ -78,3 +101,15 @@ infoview:
         header: "Traffic Type:"
         path: "traffic_type"
         type: "str"
+  shortcuts:
+    "Workload Label Selector":
+      key: "b"
+      read_only: true
+      helptext: "Show workload label selector"
+      widget: "windowwidget"
+      widget_args:
+        title: "Workload Label Selector:"
+        headers: ["Key:", "Value:"]
+        itemgetter: "get_key_value"
+        itemgetter_args:
+          path: "spec#workloadSelector#labels"

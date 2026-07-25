@@ -19,6 +19,8 @@ infoview:
     row_indexes:
       Normal:
         fields: ["provisioning_class_name", "managed_resources",
+                 "parameters",
+                 "pod_set_merge_policy",
                  "retry_strategy_header",
                  "retry_strategy_backoff_limit_header",
                  "retry_strategy_backoff_limit_count",
@@ -30,9 +32,28 @@ infoview:
                  ["R", ["main", "infoheader_shortcut"]],
                  ["esources:", ["main", "infoheader"]]]
         path: "spec#managedResources"
-        default: ["<none>"]
+        default: ["ALL"]
         type: "raw"
         formatter: "list"
+      parameters:
+        header: [["P", ["main", "infoheader_shortcut"]],
+                 ["arameters:", ["main", "infoheader"]]]
+        paths:
+          - path: ["spec#parameters"]
+            pathtype: "key_value"
+            default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "key"
+            - type: "value"
+          field_separators:
+            - type: "selector"
+      pod_set_merge_policy:
+        header: [["Pod Set Merge Policy:", ["main", "infoheader"]]]
+        path: "spec#podSetMergePolicy"
+        default: "<unset>"
+        type: "str"
       provisioning_class_name:
         header: [["Provisioning Class Name:", ["main", "infoheader"]]]
         path: "spec#provisioningClassName"
@@ -78,3 +99,15 @@ infoview:
           path: "spec#managedResources"
         # This isn't supported for now
         sortcolumn: "resource"
+    "List Parameters":
+      key: "p"
+      modifier: "shift"
+      read_only: true
+      helptext: "List parameters"
+      widget: "windowwidget"
+      widget_args:
+        title: "Parameters:"
+        headers: ["Key:", "Value:"]
+        itemgetter: "get_key_value"
+        itemgetter_args:
+          path: "spec#parameters"

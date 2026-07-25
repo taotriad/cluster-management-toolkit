@@ -1,0 +1,161 @@
+---
+kind: "AppWrapper"
+api_family: "workload.codeflare.dev"
+default_command: "appwrappers"
+listview:
+  name: "App Wrappers"
+  group: "Batch Scheduling"
+  field_indexes:
+    Normal:
+      fields: ["namespace", "name", "phase", "age"]
+  fields:
+    phase:
+      header: "Phase:"
+      path: "status#phase"
+      default: "<unset>"
+      type: "str"
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          mappings:
+            "Failed":
+              field_colors:
+                - context: "main"
+                  type: "status_not_ok"
+            "Resuming":
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+            "Resetting":
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+            "Running":
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+            "Succeeded":
+              field_colors:
+                - context: "main"
+                  type: "status_done"
+            "Suspended":
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+            "Suspending":
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+            "Terminating":
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+infoview:
+  name: "App Wrapper Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["phase"]
+    rows:
+      phase:
+        header: [["Phase:", ["main", "infoheader"]]]
+        path: "status#phase"
+        default: "<unset>"
+        type: "str"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              "Failed":
+                field_colors:
+                  - context: "main"
+                    type: "status_not_ok"
+              "Resuming":
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+              "Resetting":
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+              "Running":
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+              "Succeeded":
+                field_colors:
+                  - context: "main"
+                    type: "status_done"
+              "Suspended":
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+              "Suspending":
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+              "Terminating":
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+  listpad:
+    listgetter: "listgetter_path"
+    listgetter_args:
+      path: "spec#components"
+    infogetter: "generic_infogetter"
+    on_activation:
+      call: "resourceinfodispatch"
+      kind: "__AppWrapperComponent"
+      api_family: "workload.codeflare.dev"
+    field_indexes:
+      Normal:
+        fields: ["kind", "name", "pod_sets", "labels"]
+        sortcolumn: "kind"
+    fields:
+      pod_sets:
+        header: "Pod Sets:"
+        paths:
+          - path: ["podSets"]
+            pathtype: "items"
+            subpaths:
+              - "path"
+              - "replicas"
+        default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "key"
+            - type: "numerical"
+          field_separators:
+            - type: "selector"
+      kind:
+        header: "Kind:"
+        paths:
+          - path: [["template#kind"], ["template#apiVersion"]]
+            pathtype: "tuple"
+            type: ["kind", "api_group"]
+            default: ["<unset>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "kind"
+            - type: "api_group"
+          field_separators:
+            - type: "kind_api_group"
+      labels:
+        header: "Labels:"
+        paths:
+          - path: ["template#metadata#labels"]
+            pathtype: "key_value"
+            default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "key"
+            - type: "value"
+          field_separators:
+            - type: "selector"
+      name:
+        header: "Name:"
+        path: "template#metadata#name"
+        type: "str"

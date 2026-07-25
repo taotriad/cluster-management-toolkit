@@ -6,6 +6,7 @@
       container_type: "InitContainer"
     - image_name: "/istio-release/proxyv2"
       container_type: "InitContainer"
+    - image_name: "/release/proxyv2"
   parser_rules:
     - name: "ts_8601"
     - name: "custom_splitter"

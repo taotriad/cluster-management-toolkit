@@ -3,5 +3,6 @@
   show_in_selector: false
   matchkeys:
     - image_name: "/metacontrollerio/metacontroller"
+    - image_name: "/metacontroller/metacontroller"
   parser_rules:
     - name: "json"

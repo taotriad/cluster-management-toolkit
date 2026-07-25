@@ -3672,6 +3672,10 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "namespaced": False,
     },
     # extensions.istio.io
+    ("TrafficExtension", "extensions.istio.io"): {
+        "api_paths": ["apis/extensions.istio.io/v1alpha1/"],
+        "api": "trafficextensions",
+    },
     ("WasmPlugin", "extensions.istio.io"): {
         "api_paths": ["apis/extensions.istio.io/v1alpha1/",
                       "apis/install.istio.io/v1alpha1/"],
@@ -7394,10 +7398,22 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api_paths": ["apis/serving.kserve.io/v1beta1/"],
         "api": "inferenceservices",
     },
+    ("LLMInferenceServiceConfig", "serving.kserve.io"): {
+        "api_paths": ["apis/serving.kserve.io/v1alpha2/"],
+        "api": "llminferenceserviceconfigs",
+    },
+    ("LLMInferenceService", "serving.kserve.io"): {
+        "api_paths": ["apis/serving.kserve.io/v1alpha2/"],
+        "api": "llminferenceservices",
+    },
     ("LocalModelCache", "serving.kserve.io"): {
         "api_paths": ["apis/serving.kserve.io/v1alpha1/"],
         "api": "localmodelcaches",
         "namespaced": False,
+    },
+    ("LocalModelNamespaceCache", "serving.kserve.io"): {
+        "api_paths": ["apis/serving.kserve.io/v1alpha1/"],
+        "api": "localmodelnamespacecaches",
     },
     ("LocalModelNode", "serving.kserve.io"): {
         "api_paths": ["apis/serving.kserve.io/v1alpha1/"],
@@ -8095,6 +8111,11 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
     ("OverlappingRangeIPReservation", "whereabouts.cni.cncf.io"): {
         "api_paths": ["apis/whereabouts.cni.cncf.io/v1alpha1/"],
         "api": "overlappingrangeipreservations",
+    },
+    # workload.codeflare.dev
+    ("AppWrapper", "workload.codeflare.dev"): {
+        "api_paths": ["apis/workload.codeflare.dev/v1beta2/"],
+        "api": "appwrappers",
     },
     # xgboostjob.kubeflow.org
     ("XGBoostJob", "kubeflow.org"): {

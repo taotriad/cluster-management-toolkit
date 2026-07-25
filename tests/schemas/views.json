@@ -2196,8 +2196,6 @@
                                 "get_ingress_rule_list",
                                 "get_netpol_rule_list",
                                 "get_pod_resource_list",
-                                "get_sidecar_rule_list",
-                                "get_virtsvc_rule_list",
                                 "listgetter_ansible_volumes",
                                 "listgetter_configmap_data",
                                 "listgetter_dict_list",
@@ -2361,36 +2359,6 @@
                                                 "$ref": "#/$defs/_listpad_listgetter_args_message"
                                             }
                                         },
-                                        "additionalProperties": false
-                                    }
-                                }
-                            }
-                        }, {
-                            "if": {
-                                "properties": {
-                                    "listgetter": { "const": "get_sidecar_rule_list" }
-                                }
-                            }, "then": {
-                                "properties": {
-                                    "listgetter_args": {
-                                        "description": "Arguments to pass to get_sidecar_rule_list()",
-                                        "type": "object",
-                                        "properties": {},
-                                        "additionalProperties": false
-                                    }
-                                }
-                            }
-                        }, {
-                            "if": {
-                                "properties": {
-                                    "listgetter": { "const": "get_virtsvc_rule_list" }
-                                }
-                            }, "then": {
-                                "properties": {
-                                    "listgetter_args": {
-                                        "description": "Arguments to pass to get_virtsvc_rule_list()",
-                                        "type": "object",
-                                        "properties": {},
                                         "additionalProperties": false
                                     }
                                 }
@@ -2991,6 +2959,11 @@
                                                 "description": "Arguments to pass to the formatter; the arguments is validated further down",
                                                 "type": "object",
                                                 "default": {}
+                                            },
+                                            "merge_paths": {
+                                                "description": "Should paths be treated as fallbacks, or merged into one object",
+                                                "type": "boolean",
+                                                "default": false
                                             },
                                             "path": {
                                                 "$ref": "#/$defs/simple_or_empty_path"

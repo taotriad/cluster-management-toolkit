@@ -33,6 +33,16 @@ infoview:
         type: "timestamp"
         formatter: "timestamp"
         default: -1
+  logpad:
+    infogetter: "logpad_formatted"
+    infogetter_args:
+      paths:
+        - path: "signingKeyPub"
+        - path: "signingKey"
+        - path: "verificationKeys"
+      merge_paths: true
+      formatter: "format_yaml"
+    timestamps: false
   shortcuts:
     "Show Private Signing Key":
       key: "p"

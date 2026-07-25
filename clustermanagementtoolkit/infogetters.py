@@ -2648,12 +2648,17 @@ def logpad_formatted(obj: dict, **kwargs: Any) -> list[list[ThemeRef | ThemeStr]
             obj (dict): The dict to dump
             **kwargs (dict[str, Any]): Keyword arguments
                 path (str): The path to get the data from
+                paths ([str]): Paths in order of preference; first non-empty path will be used;
+                               if merge_paths is passed the data will instead be used to form
+                               a new object that contains the data from all paths
+                merge_paths (bool):  True to merge multiple paths into one object
                 formatter (str): The formatter to use for formatting the message
         Returns:
             ([[ThemeRef|ThemeStr]]): A list of messages
     """
     paths: list[DictPath] = deep_get(kwargs, DictPath("paths"), [])
     path: DictPath = DictPath(deep_get(kwargs, DictPath("path"), ""))
+    merge_paths: bool = deep_get(kwargs, DictPath("merge_paths"), False)
     dump_formatter_tmp = deep_get(kwargs, DictPath("formatter"), "format_none")
     formatter_args = deep_get(kwargs, DictPath("formatter_args"), {})
     dump_formatter = deep_get(formatter_allowlist, DictPath(dump_formatter_tmp))
@@ -2661,15 +2666,23 @@ def logpad_formatted(obj: dict, **kwargs: Any) -> list[list[ThemeRef | ThemeStr]
         raise ValueError(f"{dump_formatter_tmp} is not a valid formatter; "
                          "the view-file is probably incorrect.")
 
+    newobj = {}
+
     if paths:
         for tmp in paths:
             tmppath = deep_get(tmp, DictPath("path"))
-            if deep_get(obj, DictPath(tmppath)):
-                path = tmppath
-                break
+            tmpname = deep_get(tmp, DictPath("name"), tmppath)
+            if (tmpdata := deep_get(obj, DictPath(tmppath))):
+                if merge_paths:
+                    newobj[tmpname] = tmpdata
+                else:
+                    path = tmppath
+                    break
 
     if path:
         data = deep_get(obj, DictPath(path), "")
+    elif merge_paths:
+        data = newobj
     else:
         data = obj
 

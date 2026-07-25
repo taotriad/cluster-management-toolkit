@@ -30,7 +30,6 @@ infoview:
                  "traffic_policy_load_balancer_name",
                  "traffic_policy_load_balancer_path",
                  "traffic_policy_load_balancer_ttl",
-                 "traffic_policy_load_balancer_minimum_ring_size",
                  "traffic_policy_tcp_header",
                  "traffic_policy_tcp_max_connections",
                  "traffic_policy_tcp_max_connection_timeout",
@@ -114,25 +113,26 @@ infoview:
             when:
               - key: "consistentHash"
                 dicthaskey: "httpQueryParameterName"
+        default: "<none>"
         formatter: "list"
       traffic_policy_load_balancer_name:
         header: [["    Name:", ["main", "infoheader"]]]
         path: "spec#trafficPolicy#loadBalancer#consistentHash#httpCookie#name"
+        default: "<unset>"
         type: "str"
       traffic_policy_load_balancer_path:
         header: [["    Path:", ["main", "infoheader"]]]
         path: "spec#trafficPolicy#loadBalancer#consistentHash#httpCookie#path"
+        default: "<unset>"
         type: "str"
       traffic_policy_load_balancer_ttl:
         header: [["    TTL:", ["main", "infoheader"]]]
         path: "spec#trafficPolicy#loadBalancer#consistentHash#httpCookie#ttl"
-        type: "raw"
+        default: "<unset>"
+        type: "int"
         formatter: "numerical"
-      traffic_policy_load_balancer_minimum_ring_size:
-        header: [["    Minimum Ring Size:", ["main", "infoheader"]]]
-        path: "spec#trafficPolicy#loadBalancer#consistentHash#minimumRingSize"
-        type: "raw"
-        formatter: "numerical"
+        formatting:
+          unit: "s"
       traffic_policy_tcp_header:
         header: [["  TCP:", ["main", "infoheader"]]]
       traffic_policy_tcp_max_connections:
@@ -155,16 +155,19 @@ infoview:
       traffic_policy_tcp_keepalive_time:
         header: [["      Time:", ["main", "infoheader"]]]
         path: "spec#trafficPolicy#connectionPool#tcp#tcpKeepalive#time"
+        default: "<unset>"
         type: "str"
         formatter: "numerical"
       traffic_policy_tcp_keepalive_interval:
         header: [["      Interval:", ["main", "infoheader"]]]
         path: "spec#trafficPolicy#connectionPool#tcp#tcpKeepalive#interval"
+        default: "<unset>"
         type: "str"
         formatter: "numerical"
       traffic_policy_tcp_keepalive_probes:
         header: [["      Probes:", ["main", "infoheader"]]]
         path: "spec#trafficPolicy#connectionPool#tcp#tcpKeepalive#probes"
+        default: "<unset>"
         type: "int"
         formatter: "numerical"
       traffic_policy_http_header:
@@ -196,33 +199,21 @@ infoview:
       traffic_policy_http_idle_timeout:
         header: [["    Idle Timeout:", ["main", "infoheader"]]]
         path: "spec#trafficPolicy#connectionPool#http#idleTimeout"
-        type: "raw"
         default: "1h"
+        type: "raw"
         formatter: "numerical"
       traffic_policy_http_upgrade_http1_1_to_http2:
         header: [["    Upgrade HTTP1.1 to HTTP2:", ["main", "infoheader"]]]
         path: "spec#trafficPolicy#connectionPool#http#h2UpgradePolicy"
-        type: "str"
         default: "DEFAULT"
+        type: "str"
       traffic_policy_outlier_detection_header:
         header: [["  Outlier Detection:", ["main", "infoheader"]]]
       traffic_policy_outlier_detection_consecutive_gateway_errors:
         header: [["    Consecutive Gateway Errors:", ["main", "infoheader"]]]
         path: "spec#trafficPolicy#outlierDetection#consecutiveGatewayErrors"
-        default: "Disabled"
-        type: "raw"
-        formatter: "value_mapper"
-        formatting:
-          mapping:
-            mappings:
-              Disabled:
-                field_colors:
-                  - context: "types"
-                    type: "none"
-              __default:
-                field_colors:
-                  - context: "types"
-                    type: "numerical"
+        default: "<unset>"
+        type: "int"
       traffic_policy_outlier_detection_consecutive_5xx_errors:
         header: [["    Consecutive 5xx Errors:", ["main", "infoheader"]]]
         path: "spec#trafficPolicy#outlierDetection#consecutive5xxErrors"
@@ -244,45 +235,56 @@ infoview:
       traffic_policy_outlier_max_ejection_percent:
         header: [["    Max Ejection Percent", ["main", "infoheader"]]]
         path: "spec#trafficPolicy#outlierDetection#maxEjectionPercent"
-        default: "10%"
-        type: "str"
+        default: 10
+        type: "int"
         formatter: "numerical"
+        formatting:
+          unit: "%"
       traffic_policy_outlier_min_health_percent:
         header: [["    Min Health Percent", ["main", "infoheader"]]]
         path: "spec#trafficPolicy#outlierDetection#minHealthPercent"
-        default: "0%"
-        type: "str"
+        default: 0
+        type: "int"
         formatter: "numerical"
+        formatting:
+          unit: "%"
       traffic_policy_tls_header:
         header: [["  TLS:", ["main", "infoheader"]]]
       traffic_policy_tls_mode:
         header: [["    Mode:", ["main", "infoheader"]]]
         path: "spec#trafficPolicy#tls#mode"
+        default: "<unset>"
         type: "str"
       traffic_policy_tls_client_certificate:
         header: [["    Client Certificate:", ["main", "infoheader"]]]
         path: "spec#trafficPolicy#tls#clientCertificate"
+        default: "<unset>"
         type: "str"
       traffic_policy_tls_private_key:
         header: [["    Private Key:", ["main", "infoheader"]]]
         path: "spec#trafficPolicy#tls#privateKey"
+        default: "<unset>"
         type: "str"
       traffic_policy_tls_ca_certificates:
         header: [["    CA Certificates:", ["main", "infoheader"]]]
         path: "spec#trafficPolicy#tls#caCertificates"
+        default: "<unset>"
         type: "str"
       traffic_policy_tls_credential_name:
         header: [["    Credential Name:", ["main", "infoheader"]]]
         path: "spec#trafficPolicy#tls#credentialName"
+        default: "<unset>"
         type: "str"
       traffic_policy_tls_subject_alt_names:
         header: [["    Alternate Subject Names:", ["main", "infoheader"]]]
         path: "spec#trafficPolicy#tls#subjectAltNames"
+        default: ["<none>"]
         type: "raw"
         formatter: "list"
       traffic_policy_tls_sni:
         header: [["    SNI:", ["main", "infoheader"]]]
         path: "spec#trafficPolicy#tls#sni"
+        default: "<unset>"
         type: "str"
       traffic_policy_tls_insecure_skip_verify:
         header: [["    Insecure Skip Verify:", ["main", "infoheader"]]]

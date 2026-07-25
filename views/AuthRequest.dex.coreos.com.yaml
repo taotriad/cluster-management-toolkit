@@ -12,3 +12,75 @@ listview:
     Normal:
       fields: ["namespace", "name", "age"]
       sortcolumn: "namespace"
+infoview:
+  name: "Auth Request Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["client_id", "hmac_key",
+                 "expiration_date", "logged_in", "redirect_uri",
+                 "claims_header",
+                 "claims_email",
+                 "claims_email_verified",
+                 "claims_user_id",
+                 "claims_username",
+                 "claims_preferred_username"]
+    rows:
+      claims_email:
+        header: [["  E-mail:", ["main", "infoheader"]]]
+        path: "claims#email"
+        fallback_on_empty: true
+        default: "<unset>"
+        type: "str"
+      claims_email_verified:
+        header: [["  E-mail Verified:", ["main", "infoheader"]]]
+        path: "claims#emailVerified"
+        default: "<unset>"
+        type: "bool"
+      claims_preferred_username:
+        header: [["  Preferred Username:", ["main", "infoheader"]]]
+        path: "claims#preferredUsername"
+        fallback_on_empty: true
+        default: "<unset>"
+        type: "str"
+      claims_user_id:
+        header: [["  User ID:", ["main", "infoheader"]]]
+        path: "claims#userID"
+        fallback_on_empty: true
+        default: "<unset>"
+        type: "str"
+      claims_username:
+        header: [["  Username:", ["main", "infoheader"]]]
+        path: "claims#username"
+        fallback_on_empty: true
+        default: "<unset>"
+        type: "str"
+      claims_header:
+        header: [["Claims:", ["main", "infoheader"]]]
+      client_id:
+        header: [["Client ID:", ["main", "infoheader"]]]
+        path: "clientID"
+        default: "<unset>"
+        type: "str"
+      expiration_date:
+        header: [["Expiration Date:", ["main", "infoheader"]]]
+        path: "expiry"
+        default: "<unset>"
+        type: "timestamp"
+        formatter: "timestamp"
+      hmac_key:
+        header: [["HMAC Key:", ["main", "infoheader"]]]
+        path: "hmac_key"
+        default: "<unset>"
+        type: "str"
+      logged_in:
+        header: [["Logged IN:", ["main", "infoheader"]]]
+        path: "loggedIn"
+        default: "<unset>"
+        type: "bool"
+      redirect_uri:
+        header: [["Redirect URI:", ["main", "infoheader"]]]
+        path: "redirectURI"
+        fallback_on_empty: true
+        default: "<unset>"
+        type: "str"

@@ -5,6 +5,9 @@
     - pod_name: "dex"
   parser_rules:
     - name: "key_value"
+      options:
+        versions:
+          - "dex_version"
     - name: "override_severity"
       overrides:
         - matchtype: "startswith"

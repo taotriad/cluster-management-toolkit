@@ -62,8 +62,28 @@ infoview:
         type: "raw"
         formatter: "list"
   listpad:
-    listgetter: "get_virtsvc_rule_list"
+    listgetter: "listgetter_path"
+    listgetter_args:
+      paths:
+        - path: "spec#http"
+          type: "list"
+          key_name: "rule_type"
+          key_value: "HTTP"
+        - path: "spec#tls"
+          type: "list"
+          key_name: "rule_type"
+          key_value: "TLS"
+        - path: "spec#tcp"
+          type: "list"
+          key_name: "rule_type"
+          key_value: "TCP"
     infogetter: "generic_infogetter"
+    on_activation:
+      call: "resourceinfodispatch"
+      kind: "__ResourceView"
+      formatter: "format_yaml"
+      obj_path: ""
+      title: "Route Rules"
     field_indexes:
       Normal:
         fields: ["rule_type", "destinations"]
@@ -71,8 +91,16 @@ infoview:
     fields:
       destinations:
         header: "Destinations:"
-        path: "destinations"
-        type: "raw"
+        paths:
+          - path: "route"
+            pathtype: "items"
+            subpaths:
+              - subpath: "destination#host"
+                default: ""
+              - subpath: "destination#subset"
+                default: "*"
+              - subpath: "destination#port#number"
+                default: ""
         formatter: "list"
         formatting:
           field_colors:
