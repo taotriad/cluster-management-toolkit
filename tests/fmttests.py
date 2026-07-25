@@ -2829,6 +2829,18 @@ def test_format_key_value(verbose: bool = False) -> tuple[str, bool]:
                     "boolean": {
                         "boolean": False,
                     },
+                    "boollike": {
+                        "boollike": False,
+                    },
+                    "intlike": {
+                        "intlike": 400,
+                    },
+                    "list": {
+                        "list": [1, 2, 3],
+                    },
+                    "listlike": {
+                        "listlike": [1, 2, 3],
+                    },
                     "size": {
                         "int": "400k",
                     },
@@ -2852,6 +2864,28 @@ def test_format_key_value(verbose: bool = False) -> tuple[str, bool]:
                  [ThemeStr('boolean', ThemeAttr('types', 'key'), False),
                   ThemeRef('separators', 'id_prefix', False),
                   ThemeStr('False', ThemeAttr('types', 'generic'), False)],
+                 [ThemeStr('boollike', ThemeAttr('types', 'key'), False),
+                  ThemeRef('separators', 'id_prefix', False),
+                  ThemeStr('False', ThemeAttr('types', 'generic'), False)],
+                 [ThemeStr('intlike', ThemeAttr('types', 'key'), False),
+                  ThemeRef('separators', 'id_prefix', False),
+                  ThemeStr('400', ThemeAttr('types', 'numerical'), False)],
+                 [ThemeStr('list', ThemeAttr('types', 'key'), False),
+                  ThemeRef('separators', 'id_prefix', False),
+                  ThemeStr('1', ThemeAttr('types', 'generic'), False),
+                  ThemeRef('separators', 'list', False),
+                  ThemeStr('2', ThemeAttr('types', 'generic'), False),
+                  ThemeRef('separators', 'list', False),
+                  ThemeStr('3', ThemeAttr('types', 'generic'), False),
+                  ThemeStr('', ThemeAttr('types', 'generic'), False)],
+                 [ThemeStr('listlike', ThemeAttr('types', 'key'), False),
+                  ThemeRef('separators', 'id_prefix', False),
+                  ThemeStr('1', ThemeAttr('types', 'generic'), False),
+                  ThemeRef('separators', 'list', False),
+                  ThemeStr('2', ThemeAttr('types', 'generic'), False),
+                  ThemeRef('separators', 'list', False),
+                  ThemeStr('3', ThemeAttr('types', 'generic'), False),
+                  ThemeStr('', ThemeAttr('types', 'generic'), False)],
                  [ThemeStr('size', ThemeAttr('types', 'key'), False),
                   ThemeRef('separators', 'id_prefix', False),
                   ThemeStr('400', ThemeAttr('types', 'numerical'), False),
@@ -4699,9 +4733,32 @@ def test_identify_formatter(verbose: bool = False) -> tuple[str, bool]:
                      "namespace": "bar",
                  },
                  "data": {
+                     "testdata": "disabled",
+                 },
+             }, "testdata", formatters.format_none, None),
+            (None,
+             ("ConfigMap", ""),
+             {
+                 "metadata": {
+                     "name": "foo",
+                     "namespace": "bar",
+                 },
+                 "data": {
                      "script": "#! /bin/bash",
                  },
              }, "script", formatters.format_shellscript, None),
+            (None,
+             ("ConfigMap", ""),
+             {
+                 "metadata": {
+                     "name": "foo",
+                     "namespace": "bar",
+                 },
+                 "data": {
+                     "testdata": "H4sICFYeZGoAA3Rlc3R3b3JkLnR4dAA"
+                                 "rycgsVgCiRIWS1OISheKSosy8dC4ARscgiRYAAAA=",
+                 },
+             }, "testdata", formatters.format_binary, None),
             (None,
              ("Secret", ""),
              {

@@ -774,6 +774,211 @@ def test_filter_list_entry(verbose: bool = False) -> tuple[str, bool]:
     return message, result
 
 
+def test_get_ingress_rule_list(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = listgetters.get_ingress_rule_list
+
+    if result:
+        # Indata format:
+        # (obj, expected_result, expected_exception, expected_exception_msg)
+        testdata: tuple[Any, ...] = (
+            # object with service
+            (
+                {
+                    "spec": {
+                        "rules": [
+                            {
+                                "host": "foo.bar.com",
+                                "http": {
+                                    "paths": [
+                                        {
+                                            "path": "/bar",
+                                            "pathType": "Prefix",
+                                            "backend": {
+                                                "service": {
+                                                    "name": "service1",
+                                                    "port": {
+                                                        "number": 80
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        {
+                                            "path": "/baz",
+                                            "pathType": "Prefix",
+                                            "backend": {
+                                                "service": {
+                                                    "name": "service3",
+                                                    "port": {
+                                                        "name": "https"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "host": "*.foo.com",
+                                "http": {
+                                    "paths": [
+                                        {
+                                            "path": "/foo",
+                                            "pathType": "Prefix",
+                                            "backend": {
+                                                "service": {
+                                                    "name": "service2",
+                                                    "port": {
+                                                        "number": 80
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    ]
+                                }
+                            }
+                        ]
+                    },
+                },
+                (
+                    [
+                        {
+                            'host': 'foo.bar.com',
+                            'path': '/bar',
+                            'path_type': 'Prefix',
+                            'backend_kind': ('Service', ''),
+                            'name': 'service1',
+                            'port': (80, '')
+                        }, {
+                            'host': 'foo.bar.com',
+                            'path': '/baz',
+                            'path_type': 'Prefix',
+                            'backend_kind': ('Service', ''),
+                            'name': 'service3',
+                            'port': ('', 'https')
+                        }, {
+                            'host': '*.foo.com',
+                            'path': '/foo',
+                            'path_type': 'Prefix',
+                            'backend_kind': ('Service', ''),
+                            'name': 'service2',
+                            'port': (80, '')
+                        }
+                    ], 200),
+                None,
+                "",
+            ),
+            # object with resource
+            (
+                {
+                    "spec": {
+                        "rules": [
+                            {
+                                "http": {
+                                    "paths": [
+                                        {
+                                            "path": "/icons",
+                                            "pathType": "ImplementationSpecific",
+                                            "backend": {
+                                                "resource": {
+                                                    "apiGroup": "k8s.example.com",
+                                                    "kind": "StorageBucket",
+                                                    "name": "icon-assets"
+                                                }
+                                            }
+                                        }
+                                    ]
+                                }
+                            }
+                        ]
+                    },
+                },
+                (
+                    [
+                        {
+                            'host': '*',
+                            'path': '/icons',
+                            'path_type': 'ImplementationSpecific',
+                            'backend_kind': ('StorageBucket', 'k8s.example.com'),
+                            'name': 'icon-assets',
+                            'port': ('', '')
+                        }
+                    ], 200),
+                None,
+                "",
+            ),
+            # object with no http section
+            (
+                {
+                    "spec": {
+                        "rules": [
+                            {}
+                        ]
+                    },
+                },
+                ([], 200),
+                None,
+                "",
+            ),
+            # object with neither service nor resource section
+            (
+                {
+                    "spec": {
+                        "rules": [
+                            {
+                                "http": {
+                                    "paths": [
+                                        {
+                                            "path": "/icons",
+                                            "pathType": "ImplementationSpecific",
+                                            "backend": {}
+                                        }
+                                    ]
+                                }
+                            }
+                        ]
+                    },
+                },
+                ([], 200),
+                None,
+                "",
+            ),
+        )
+
+        for obj, expected_result, expected_exception, expected_exception_msg in testdata:
+            try:
+                tmp = fun(obj)
+                if tmp != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"           result: {tmp}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception) \
+                            and expected_exception_msg is None or expected_exception_msg == str(e):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  f"        exception: {type(e)}\n" \
+                                  f"          message: {str(e)}\n" \
+                                  f"         expected: {expected_exception}" \
+                                  f" expected message: {expected_exception_msg}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"        exception: {type(e)}\n" \
+                              f"          message: {str(e)}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+    return message, result
+
+
 def test_get_pv_status(verbose: bool = False) -> tuple[str, bool]:
     message = ""
     result = True
@@ -2240,6 +2445,10 @@ tests: dict[tuple[str, ...], dict[str, Any]] = {
     },
     ("filter_list_entry()",): {
         "callable": test_filter_list_entry,
+        "result": None,
+    },
+    ("get_ingress_rule_list()",): {
+        "callable": test_get_ingress_rule_list,
         "result": None,
     },
     ("get_pv_status()",): {

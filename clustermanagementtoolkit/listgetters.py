@@ -689,15 +689,19 @@ def get_ingress_rule_list(obj: dict, **kwargs: Any) -> tuple[list[dict[str, Any]
     status: int = 200
 
     for item in deep_get(obj, DictPath("spec#rules"), []):
-        host = deep_get(item, DictPath("host"), "*")
+        host: str = deep_get(item, DictPath("host"), "*")
 
         if deep_get(item, DictPath("http")) is not None:
             for path in deep_get(item, DictPath("http#paths")):
-                rpath = deep_get(path, DictPath("path"), "")
-                path_type = deep_get(path, DictPath("pathType"), "")
+                rpath: str = deep_get(path, DictPath("path"), "")
+                path_type: str = deep_get(path, DictPath("pathType"), "")
+                backend_kind: tuple[str, str] | None = None
+                name: str = ""
+                port: tuple[str, str] = ""
+
                 if "service" in deep_get(path, DictPath("backend"), {}):
                     backend_kind = ("Service", "")
-                    name = deep_get(path, DictPath("backend#service#name"))
+                    name = deep_get(path, DictPath("backend#service#name"), "")
                     port = (deep_get(path, DictPath("backend#service#port#number"), ""),
                             deep_get(path, DictPath("backend#service#port#name"), ""))
                 elif "resource" in deep_get(path, DictPath("backend"), {}):
@@ -705,20 +709,16 @@ def get_ingress_rule_list(obj: dict, **kwargs: Any) -> tuple[list[dict[str, Any]
                                     deep_get(path, DictPath("backend#resource#apiGroup"), ""))
                     name = deep_get(path, DictPath("backend#resource#name"), "")
                     port = ("", "")
-                # Old-style ingress rule
-                else:
-                    backend_kind = ("Service", "")
-                    name = deep_get(path, DictPath("backend#serviceName"))
-                    port = (deep_get(path, DictPath("backend#servicePort"), ""), "")
 
-                vlist.append({
-                    "host": host,
-                    "path": rpath,
-                    "path_type": path_type,
-                    "backend_kind": backend_kind,
-                    "name": name,
-                    "port": port,
-                })
+                if backend_kind:
+                    vlist.append({
+                        "host": host,
+                        "path": rpath,
+                        "path_type": path_type,
+                        "backend_kind": backend_kind,
+                        "name": name,
+                        "port": port,
+                    })
 
     return vlist, status
 
