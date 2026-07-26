@@ -1,0 +1,70 @@
+---
+kind: "EgressQoS"
+api_family: "k8s.ovn.org"
+default_command: "egressqoses"
+listview:
+  name: "Egress Quality of Services"
+  group: "Network"
+  field_indexes:
+    Normal:
+      fields: ["namespace", "name", "status", "age"]
+  fields:
+    status:
+      header: "Status:"
+      path: "status#status"
+      default: "<unset>"
+      type: "str"
+infoview:
+  name: "Egress Quality of Service Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["status"]
+    rows:
+      status:
+        header: [["Status:", ["main", "infoheader"]]]
+        path: "status#status"
+        default: "<unset>"
+        type: "str"
+  listpad:
+    listgetter: "listgetter_path"
+    listgetter_args:
+      path: "spec#egress"
+    infogetter: "generic_infogetter"
+    on_activation:
+      call: "resourceinfodispatch"
+      kind: "__ResourceView"
+      formatter: "format_yaml"
+      obj_path: ""
+      title: "Egress QoS Policy"
+    field_indexes:
+      Normal:
+        fields: ["dscp", "pod_selector", "destination_cidr"]
+        sortcolumn: "type"
+    fields:
+      destination_cidr:
+        header: "Destination CIDR:"
+        path: "dstCIDR"
+        default: "<unset>"
+        type: "str"
+        formatter: "address"
+      dscp:
+        header: "DSCP:"
+        path: "dscp"
+        default: "<unset>"
+        type: "int"
+        formatter: "numerical"
+        align: "right"
+      pod_selector:
+        header: "Pod Selector:"
+        paths:
+          - path: ["podSelector"]
+            pathtype: "selectors"
+            default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "key"
+            - type: "value"
+          field_separators:
+            - type: "selector"

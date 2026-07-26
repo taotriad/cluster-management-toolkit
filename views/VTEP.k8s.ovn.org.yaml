@@ -1,0 +1,129 @@
+---
+kind: "VTEP"
+api_family: "k8s.ovn.org"
+default_command: "vteps"
+listview:
+  name: "VTEPs"
+  group: "Network"
+  field_indexes:
+    Wide:
+      fields: ["name", "mode", "cidrs", "accepted", "age", "reason"]
+    Normal:
+      fields: ["name", "mode", "accepted", "age", "reason"]
+  fields:
+    accepted:
+      header: "Accepted:"
+      paths:
+        - path: "status#conditions"
+          pathtype: "items"
+          subpath: "status"
+          when:
+            - key: "type"
+              eq: "Accepted"
+          default: ["<unknown>"]
+      type: "str"
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          mappings:
+            "True":
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+            "False":
+              field_colors:
+                - context: "main"
+                  type: "status_not_ok"
+            "<unknown>":
+              field_colors:
+                - context: "types"
+                  type: "unset"
+    cidrs:
+      header: "CIDRs:"
+      path: "spec#cidrs"
+      type: "raw"
+      formatter: "address"
+    mode:
+      header: "Mode:"
+      path: "spec#mode"
+      default: "<unset>"
+      type: "str"
+    reason:
+      header: "Reason:"
+      paths:
+        - path: "status#conditions"
+          pathtype: "items"
+          subpath: "reason"
+          when:
+            - key: "type"
+              eq: "Accepted"
+          default: ""
+infoview:
+  name: "VTEP Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["cidrs", "mode", "reason", "accepted"]
+    rows:
+      accepted:
+        header: [["Accepted:", ["main", "infoheader"]]]
+        paths:
+          - path: "status#conditions"
+            pathtype: "items"
+            subpath: "status"
+            when:
+              - key: "type"
+                eq: "Accepted"
+            default: ["<unknown>"]
+        type: "str"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              "True":
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+              "False":
+                field_colors:
+                  - context: "main"
+                    type: "status_not_ok"
+              "<unknown>":
+                field_colors:
+                  - context: "types"
+                    type: "unset"
+      cidrs:
+        header: [["C", ["main", "infoheader_shortcut"]],
+                 ["IDRs:", ["main", "infoheader"]]]
+        path: "spec#cidrs"
+        type: "raw"
+        formatter: "address"
+      mode:
+        header: [["Mode:", ["main", "infoheader"]]]
+        path: "spec#mode"
+        default: "<unset>"
+        type: "str"
+      reason:
+        header: [["Reason:", ["main", "infoheader"]]]
+        paths:
+          - path: "status#conditions"
+            pathtype: "items"
+            subpath: "reason"
+            when:
+              - key: "type"
+                eq: "Accepted"
+            default: ""
+  shortcuts:
+    "CIDRs":
+      key: "c"
+      modifier: "shift"
+      read_only: true
+      helptext: "Show CIDRs"
+      widget: "windowwidget"
+      widget_args:
+        title: "CIDRs:"
+        itemgetter: "get_list_as_list"
+        itemgetter_args:
+          path: "spec#cidrs"
+        # This isn't supported for now
+        sortcolumn: "name"

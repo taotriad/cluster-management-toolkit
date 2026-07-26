@@ -1,0 +1,109 @@
+---
+kind: "EgressIP"
+api_family: "k8s.ovn.org"
+default_command: "egressips"
+listview:
+  name: "Egress IPs"
+  group: "Network"
+  field_indexes:
+    Normal:
+      fields: ["name", "egress_ips",
+               "assigned_egress_ips", "assigned_node", "age"]
+  fields:
+    assigned_egress_ips:
+      header: "Assigned Egress IPs:"
+      paths:
+        - path: "status#items"
+          pathtype: "items"
+          subpaths:
+            - "egressIP"
+      default: ["<none>"]
+      formatter: "list"
+    assigned_node:
+      header: "Assigned Node:"
+      paths:
+        - path: "status#items"
+          pathtype: "items"
+          subpaths:
+            - "node"
+      default: ["<none>"]
+      formatter: "list"
+    egress_ips:
+      header: "Egress IPs:"
+      path: "spec#egressIPs"
+      default: ["<none>"]
+      type: "raw"
+      formatter: "address"
+infoview:
+  name: "Egress IP Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["pod_selector", "namespace_selector", "egress_ips",
+                 "assigned_egress_ips", "assigned_node"]
+    rows:
+      assigned_egress_ips:
+        header: [["Assigned Egress IPs:", ["main", "infoheader"]]]
+        paths:
+          - path: "status#items"
+            pathtype: "items"
+            subpaths:
+              - "egressIP"
+        default: ["<none>"]
+        formatter: "list"
+      assigned_node:
+        header: [["Assigned Node:", ["main", "infoheader"]]]
+        paths:
+          - path: "status#items"
+            pathtype: "items"
+            subpaths:
+              - "node"
+        default: ["<none>"]
+        formatter: "list"
+      egress_ips:
+        header: [["E", ["main", "infoheader_shortcut"]],
+                 ["gress IPs:", ["main", "infoheader"]]]
+        path: "spec#egressIPs"
+        default: ["<none>"]
+        type: "raw"
+        formatter: "address"
+      namespace_selector:
+        header: [["Namespace Selector:", ["main", "infoheader"]]]
+        paths:
+          - path: ["spec#namespaceSelector"]
+            pathtype: "selectors"
+            default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "key"
+            - type: "value"
+          field_separators:
+            - type: "selector"
+      pod_selector:
+        header: [["Pod Selector:", ["main", "infoheader"]]]
+        paths:
+          - path: ["spec#podSelector"]
+            pathtype: "selectors"
+            default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "key"
+            - type: "value"
+          field_separators:
+            - type: "selector"
+  shortcuts:
+    "Egress IPs":
+      key: "e"
+      modifier: "shift"
+      read_only: true
+      helptext: "List egress IPs"
+      widget: "windowwidget"
+      widget_args:
+        title: "Egress IPs:"
+        itemgetter: "get_list_as_list"
+        itemgetter_args:
+          path: "spec#egressIPs"
+        # This isn't supported for now
+        sortcolumn: "name"

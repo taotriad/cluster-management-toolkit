@@ -8,8 +8,21 @@
       container_name: "ovnkube-cluster-manager"
     - pod_name: "ovnkube"
       container_name: "ovnkube-master"
+    - pod_name: "ovnkube"
+      container_name: "ovs-metrics-exporter"
+    - pod_name: "ovnkube"
+      container_name: "ovs-metrics-exporter"
+    - pod_name: "ovnkube"
+      container_name: "ovnkube-identity"
   parser_rules:
     - name: "glog"
+    - name: "expand_event"
+    - name: "key_value_with_leading_message"
+    - name: "override_severity"
+      overrides:
+        - matchtype: "startswith"
+          matchkey: "================== ovnkube.sh --- version: "
+          loglevel: "notice"
 - name: "openshift-ovnkube"
   show_in_selector: false
   matchkeys:
@@ -18,9 +31,17 @@
     - pod_name: "ovnkube"
       container_name: "northd"
     - pod_name: "ovnkube"
+      container_name: "ovn-northd"
+    - pod_name: "ovnkube"
       container_name: "nbdb"
     - pod_name: "ovnkube"
+      container_name: "nb-ovsdb"
+    - pod_name: "ovnkube"
       container_name: "sbdb"
+    - pod_name: "ovnkube"
+      container_name: "sb-ovsdb"
+    - pod_name: "ovs-node"
+      container_name: "ovs-daemons"
   parser_rules:
     - name: "ts_8601"
     - name: "custom_splitter"
@@ -34,3 +55,8 @@
           transform: "4letter"
         message:
           field: 3
+    - name: "override_severity"
+      overrides:
+        - matchtype: "startswith"
+          matchkey: "================== ovnkube.sh --- version: "
+          loglevel: "notice"

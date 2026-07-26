@@ -1,0 +1,106 @@
+---
+kind: "EgressFirewall"
+api_family: "k8s.ovn.org"
+default_command: "egressfirewalls"
+command:
+  - "egressfws"
+  - "egressfw"
+listview:
+  name: "Egress Firewalls"
+  group: "Network"
+  field_indexes:
+    Normal:
+      fields: ["namespace", "name", "status", "age"]
+  fields:
+    status:
+      header: "Status:"
+      path: "status#status"
+      default: "<unset>"
+      type: "str"
+infoview:
+  name: "Egress Firewall Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["status"]
+    rows:
+      status:
+        header: [["Status:", ["main", "infoheader"]]]
+        path: "status#status"
+        default: "<unset>"
+        type: "str"
+  listpad:
+    listgetter: "listgetter_path"
+    listgetter_args:
+      path: "spec#egress"
+    infogetter: "generic_infogetter"
+    on_activation:
+      call: "resourceinfodispatch"
+      kind: "__ResourceView"
+      formatter: "format_yaml"
+      obj_path: ""
+      title: "Egress Firewall Policy"
+    field_indexes:
+      Normal:
+        fields: ["type", "ports", "cidrs", "dns_name", "node_selector"]
+        sortcolumn: "type"
+    fields:
+      cidrs:
+        header: "CIDRs:"
+        path: "to#cidrSelector"
+        default: "<unset>"
+        type: "str"
+        formatter: "address"
+      dns_name:
+        header: "DNS Name:"
+        path: "to#dnsName"
+        default: "<unset>"
+        type: "str"
+        formatter: "address"
+      node_selector:
+        header: "Node Selector:"
+        paths:
+          - path: ["to#nodeSelector"]
+            pathtype: "selectors"
+            default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "key"
+            - type: "value"
+          field_separators:
+            - type: "selector"
+      ports:
+        header: "Ports:"
+        paths:
+          - path: "ports"
+            pathtype: "items"
+            subpaths:
+              - "port"
+              - "protocol"
+            default: ["<unset>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "port"
+            - type: "protocol"
+          field_separators:
+            - type: "service"
+      type:
+        header: "Type:"
+        path: "type"
+        default: "<unset>"
+        type: "str"
+  shortcuts:
+    "Status Messages":
+      key: "m"
+      read_only: true
+      helptext: "Show status messages"
+      widget: "windowwidget"
+      widget_args:
+        title: "Status Messages:"
+        itemgetter: "get_list_as_list"
+        itemgetter_args:
+          path: "status#messages"
+        # This isn't supported for now
+        sortcolumn: "name"

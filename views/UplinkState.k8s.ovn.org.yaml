@@ -1,0 +1,179 @@
+---
+kind: "UplinkState"
+api_family: "k8s.ovn.org"
+default_command: "uplinkstates"
+listview:
+  name: "Uplink States"
+  group: "Network"
+  field_indexes:
+    Normal:
+      fields: ["name", "uplink", "node", "condition_resolved", "age"]
+  fields:
+    condition_resolved:
+      header: "Resolved:"
+      paths:
+        - path: "status#conditions"
+          pathtype: "items"
+          subpath: "status"
+          when:
+            - key: "type"
+              eq: "Resolved"
+          default: ["<unknown>"]
+      type: "str"
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          mappings:
+            "True":
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+            "False":
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+            "<unknown>":
+              field_colors:
+                - context: "types"
+                  type: "unset"
+    node:
+      header: "Node:"
+      path: "spec#nodeName"
+      default: "<unset>"
+      type: "str"
+    uplink:
+      header: "Uplink:"
+      path: "spec#uplinkName"
+      default: "<unset>"
+      type: "str"
+infoview:
+  name: "Uplink State Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["node", "interface", "ip_addresses", "mac", "uplink", "type",
+                 "default_gateways",
+                 "condition_resolved"]
+    rows:
+      condition_resolved:
+        header: [["Resolved:", ["main", "infoheader"]]]
+        paths:
+          - path: "status#conditions"
+            pathtype: "items"
+            subpath: "status"
+            when:
+              - key: "type"
+                eq: "Resolved"
+            default: ["<unknown>"]
+        type: "str"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              "True":
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+              "False":
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+              "<unknown>":
+                field_colors:
+                  - context: "types"
+                    type: "unset"
+      default_gateways:
+        header: [["D", ["main", "infoheader_shortcut"]],
+                 ["efault Gateways:", ["main", "infoheader"]]]
+        path: "status#defaultGateways"
+        default: "<unset>"
+        type: "raw"
+        formatter: "list"
+      interface:
+        header: [["Interface:", ["main", "infoheader"]]]
+        path: "status#hostInterfaceName"
+        default: "<unset>"
+        type: "str"
+      ip_addresses:
+        header: [["I", ["main", "infoheader_shortcut"]],
+                 ["P-addresses:", ["main", "infoheader"]]]
+        paths:
+          - path: ["status#ipAddresses", "spec#ipAddress"]
+        default: "<unset>"
+        fallback_on_empty: true
+        type: "str"
+        formatter: "address"
+      mac:
+        header: [["MAC:", ["main", "infoheader"]]]
+        path: "status#macAddress"
+        default: "<unset>"
+        fallback_on_empty: true
+        type: "str"
+        formatter: "address"
+      node:
+        header: [["No", ["main", "infoheader"]],
+                 ["d", ["main", "infoheader_shortcut"]],
+                 ["e:", ["main", "infoheader"]]]
+        path: "spec#nodeName"
+        default: "<unset>"
+        type: "str"
+      type:
+        header: [["Type:", ["main", "infoheader"]]]
+        path: "status#type"
+        default: "<unset>"
+        type: "str"
+      uplink:
+        header: [["U", ["main", "infoheader_shortcut"]],
+                 ["plink:", ["main", "infoheader"]]]
+        path: "spec#uplinkName"
+        default: "<unset>"
+        type: "str"
+  shortcuts:
+    "List Default Gateways":
+      key: "d"
+      modifier: "shift"
+      read_only: false
+      helptext: "List default gateways"
+      widget: "windowwidget"
+      widget_args:
+        title: "Default Gateways:"
+        itemgetter: "get_list_as_list"
+        itemgetter_args:
+          path: "status#defaultGateways"
+        # This isn't supported for now
+        sortcolumn: "name"
+    "List IP-addresses":
+      key: "i"
+      modifier: "shift"
+      read_only: false
+      helptext: "List IP-addresses"
+      widget: "windowwidget"
+      widget_args:
+        title: "IP-addresses:"
+        itemgetter: "get_list_as_list"
+        itemgetter_args:
+          path: "status#ipAddresses"
+        # This isn't supported for now
+        sortcolumn: "name"
+    "Open Node":
+      key: "d"
+      read_only: true
+      helptext: "Open info page for Node"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind: "Node"
+        name_path: "spec#nodeName"
+    "Open Uplink":
+      key: "u"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for Uplink"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind: "Uplink"
+        api_family: "k8s.ovn.org"
+        name_path: "spec#uplinkName"

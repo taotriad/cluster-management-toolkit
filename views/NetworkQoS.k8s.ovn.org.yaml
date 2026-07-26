@@ -1,0 +1,97 @@
+---
+kind: "NetworkQoS"
+api_family: "k8s.ovn.org"
+default_command: "networkqoses"
+command:
+  - "netqoses"
+  - "netqos"
+  - "nwoses"
+  - "nwqos"
+listview:
+  name: "Network Quality of Services"
+  group: "Network"
+  field_indexes:
+    Normal:
+      fields: ["namespace", "name", "priority", "status", "age"]
+  fields:
+    priority:
+      header: "Priority:"
+      path: "spec#priority"
+      default: "<unset>"
+      type: "int"
+      formatter: "numerical"
+      align: "right"
+    status:
+      header: "Status:"
+      path: "status#status"
+      default: "<unset>"
+      type: "str"
+infoview:
+  name: "Network Quality of Service Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["pod_selector", "priority", "status"]
+    rows:
+      pod_selector:
+        header: [["Pod Selector:", ["main", "infoheader"]]]
+        paths:
+          - path: ["spec#podSelector"]
+            pathtype: "selectors"
+            default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "key"
+            - type: "value"
+          field_separators:
+            - type: "selector"
+      priority:
+        header: [["Priority:", ["main", "infoheader"]]]
+        path: "spec#priority"
+        default: "<unset>"
+        type: "int"
+        formatter: "numerical"
+        align: "right"
+      status:
+        header: [["Status:", ["main", "infoheader"]]]
+        path: "status#status"
+        default: "<unset>"
+        type: "str"
+  listpad:
+    listgetter: "listgetter_path"
+    listgetter_args:
+      path: "spec#egress"
+    infogetter: "generic_infogetter"
+    on_activation:
+      call: "resourceinfodispatch"
+      kind: "__ResourceView"
+      formatter: "format_yaml"
+      obj_path: ""
+      title: "Network QoS Policy"
+    field_indexes:
+      Normal:
+        fields: ["dscp", "bandwidth_rate", "bandwidth_burst"]
+        sortcolumn: "dscp"
+    fields:
+      bandwidth_burst:
+        header: "Bandwidth Burst:"
+        path: "bandwidth#burst"
+        default: "<unset>"
+        type: "int"
+        formatter: "numerical"
+        align: "right"
+      bandwidth_rate:
+        header: "Bandwidth Rate:"
+        path: "bandwidth#rate"
+        default: "<unset>"
+        type: "int"
+        formatter: "numerical"
+        align: "right"
+      dscp:
+        header: "DSCP:"
+        path: "dscp"
+        default: "<unset>"
+        type: "int"
+        formatter: "numerical"
+        align: "right"

@@ -1,0 +1,57 @@
+---
+kind: "Uplink"
+api_family: "k8s.ovn.org"
+default_command: "uplinks"
+listview:
+  name: "Uplinks"
+  group: "Network"
+  field_indexes:
+    Normal:
+      fields: ["name", "condition_ready", "age"]
+  fields:
+    {%- for line in field_condition_ready.split("\n") %}
+    {{ line }}
+    {%- endfor %}
+infoview:
+  name: "Uplink Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["condition_ready"]
+    rows:
+      {%- for line in row_condition_ready.split("\n") %}
+      {{ line }}
+      {%- endfor %}
+  listpad:
+    listgetter: "listgetter_path"
+    listgetter_args:
+      path: "spec#nodeConfigs"
+    infogetter: "generic_infogetter"
+    field_indexes:
+      Normal:
+        fields: ["type", "interface", "node_selector"]
+        sortcolumn: "type"
+    fields:
+      interface:
+        header: "Interface:"
+        path: "hostInterfaceName"
+        default: "<unset>"
+        type: "str"
+      node_selector:
+        header: "Node Selector:"
+        paths:
+          - path: ["nodeSelector"]
+            pathtype: "selectors"
+            default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "key"
+            - type: "value"
+          field_separators:
+            - type: "selector"
+      type:
+        header: "Type:"
+        path: "type"
+        default: "<unset>"
+        type: "str"
