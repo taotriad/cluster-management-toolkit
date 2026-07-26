@@ -52,7 +52,6 @@ infoview:
         default: "<unset>"
         type: "int"
         formatter: "numerical"
-        align: "right"
       status:
         header: [["Status:", ["main", "infoheader"]]]
         path: "status#status"
