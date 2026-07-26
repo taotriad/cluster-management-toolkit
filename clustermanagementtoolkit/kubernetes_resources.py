@@ -4538,6 +4538,11 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api": "adminpolicybasedexternalroutes",
         "namespaced": False,
     },
+    ("ClusterNetworkConnect", "k8s.ovn.org"): {
+        "api_paths": ["apis/k8s.ovn.org/v1/"],
+        "api": "clusternetworkconnects",
+        "namespaced": False,
+    },
     ("ClusterUserDefinedNetwork", "k8s.ovn.org"): {
         "api_paths": ["apis/k8s.ovn.org/v1/"],
         "api": "clusteruserdefinednetworks",
@@ -4567,6 +4572,16 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
     ("RouteAdvertisements", "k8s.ovn.org"): {
         "api_paths": ["apis/k8s.ovn.org/v1/"],
         "api": "routeadvertisements",
+        "namespaced": False,
+    },
+    ("Uplink", "k8s.ovn.org"): {
+        "api_paths": ["apis/k8s.ovn.org/v1alpha1/"],
+        "api": "uplinks",
+        "namespaced": False,
+    },
+    ("UplinkState", "k8s.ovn.org"): {
+        "api_paths": ["apis/k8s.ovn.org/v1alpha1/"],
+        "api": "uplinkstates",
         "namespaced": False,
     },
     ("UserDefinedNetwork", "k8s.ovn.org"): {
