@@ -979,6 +979,529 @@ def test_get_ingress_rule_list(verbose: bool = False) -> tuple[str, bool]:
     return message, result
 
 
+def test_get_netpol_rule_list(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = listgetters.get_netpol_rule_list
+
+    if result:
+        # Indata format:
+        # (obj, expected_result, expected_exception, expected_exception_msg)
+        testdata: tuple[Any, ...] = (
+            (
+                {
+                    "spec": {
+                        "egress": [
+                            {
+                                "action": "Allow",
+                                "name": "allow-to-dns",
+                                "ports": [
+                                    {
+                                        "portNumber": {
+                                            "port": 5353,
+                                            "protocol": "UDP"
+                                        }
+                                    }
+                                ],
+                                "to": [
+                                    {
+                                        "pods": {
+                                            "namespaceSelector": {
+                                                "matchLabels": {
+                                                    "kubernetes.io/metadata.name": "kube-system"
+                                                }
+                                            },
+                                            "podSelector": {
+                                                "matchLabels": {
+                                                    "app": "dns"
+                                                }
+                                            }
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                "action": "Allow",
+                                "name": "allow-to-kapi-server",
+                                "ports": [
+                                    {
+                                        "portNumber": {
+                                            "port": 6443,
+                                            "protocol": "TCP"
+                                        }
+                                    }
+                                ],
+                                "to": [
+                                    {
+                                        "nodes": {
+                                            "matchExpressions": [
+                                                {
+                                                    "key": "node-role.kubernetes.io/control-plane",
+                                                    "operator": "Exists"
+                                                }
+                                            ]
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                "action": "Allow",
+                                "name": "allow-to-splunk",
+                                "ports": [
+                                    {
+                                        "portNumber": {
+                                            "port": 8991,
+                                            "protocol": "TCP"
+                                        }
+                                    },
+                                    {
+                                        "portNumber": {
+                                            "port": 8992,
+                                            "protocol": "TCP"
+                                        }
+                                    }
+                                ],
+                                "to": [
+                                    {
+                                        "namespaces": {
+                                            "matchLabels": {
+                                                "tenant": "splunk"
+                                            }
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                "action": "Allow",
+                                "name": "allow-to-open-tenants-and-intranet-and-worker-nodes",
+                                "to": [
+                                    {
+                                        "nodes": {
+                                            "matchExpressions": [
+                                                {
+                                                    "key": "node-role.kubernetes.io/worker",
+                                                    "operator": "Exists"
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    {
+                                        "networks": [
+                                            "172.30.0.0/30",
+                                            "10.0.54.0/19",
+                                            "10.0.56.38/32",
+                                            "10.0.69.0/24"
+                                        ]
+                                    },
+                                    {
+                                        "namespaces": {
+                                            "matchLabels": {
+                                                "tenant": "open"
+                                            }
+                                        }
+                                    },
+                                    {
+                                        "domainNames": [
+                                            "foo.bar.se",
+                                            "bar.bar.com"
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "action": "Pass",
+                                "name": "pass-to-restricted-tenants",
+                                "to": [
+                                    {
+                                        "namespaces": {
+                                            "matchLabels": {
+                                                "tenant": "restricted"
+                                            }
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                "action": "Deny",
+                                "name": "default-deny",
+                                "to": [
+                                    {
+                                        "networks": [
+                                            "0.0.0.0/0"
+                                        ]
+                                    }
+                                ]
+                            }
+                        ],
+                        "ingress": [
+                            {
+                                "action": "Allow",
+                                "from": [
+                                    {
+                                        "namespaces": {
+                                            "matchLabels": {
+                                                "kubernetes.io/metadata.name": "ingress-nginx"
+                                            }
+                                        }
+                                    }
+                                ],
+                                "name": "allow-from-ingress-nginx"
+                            },
+                            {
+                                "action": "Allow",
+                                "from": [
+                                    {
+                                        "namespaces": {
+                                            "matchLabels": {
+                                                "kubernetes.io/metadata.name": "monitoring"
+                                            }
+                                        }
+                                    }
+                                ],
+                                "name": "allow-from-monitoring",
+                                "ports": [
+                                    {
+                                        "portNumber": {
+                                            "port": 7564,
+                                            "protocol": "TCP"
+                                        }
+                                    },
+                                    {
+                                        "namedPort": "scrape"
+                                    }
+                                ]
+                            },
+                            {
+                                "action": "Allow",
+                                "from": [
+                                    {
+                                        "pods": {
+                                            "podSelector": {
+                                                "matchLabels": {
+                                                    "tenant": "open"
+                                                }
+                                            }
+                                        }
+                                    }
+                                ],
+                                "name": "allow-from-open-tenants"
+                            },
+                            {
+                                "action": "Pass",
+                                "from": [
+                                    {
+                                        "pods": {
+                                            "namespaceSelector": {
+                                                "matchLabels": {
+                                                    "tenant": "restricted"
+                                                }
+                                            }
+                                        }
+                                    }
+                                ],
+                                "name": "pass-from-restricted-tenants"
+                            },
+                            {
+                                "action": "Deny",
+                                "from": [
+                                    {
+                                        "namespaces": {}
+                                    }
+                                ],
+                                "name": "default-deny"
+                            }
+                        ],
+                    }
+                },
+                (
+                    [
+                        {
+                            "name": "allow-from-ingress-nginx",
+                            "action": "Allow",
+                            "policy_type": "Ingress",
+                            "ports": [],
+                            "pod_selectors": [],
+                            "pod_namespace_selectors": [],
+                            "namespace_selectors": [
+                                {
+                                    "matchLabels": {
+                                        "kubernetes.io/metadata.name": "ingress-nginx"
+                                    }
+                                }
+                            ],
+                            "nodes": [],
+                            "networks": [],
+                            "domains": []
+                        },
+                        {
+                            "name": "allow-from-monitoring",
+                            "action": "Allow",
+                            "policy_type": "Ingress",
+                            "ports": [
+                                {
+                                    "name": "",
+                                    "port": 7564,
+                                    "protocol": "TCP"
+                                },
+                                {
+                                    "name": "scrape",
+                                    "port": "",
+                                    "protocol": ""
+                                }
+                            ],
+                            "pod_selectors": [],
+                            "pod_namespace_selectors": [],
+                            "namespace_selectors": [
+                                {
+                                    "matchLabels": {
+                                        "kubernetes.io/metadata.name": "monitoring"
+                                    }
+                                }
+                            ],
+                            "nodes": [],
+                            "networks": [],
+                            "domains": []
+                        },
+                        {
+                            "name": "allow-from-open-tenants",
+                            "action": "Allow",
+                            "policy_type": "Ingress",
+                            "ports": [],
+                            "pod_selectors": [
+                                {
+                                    "matchLabels": {
+                                        "tenant": "open"
+                                    }
+                                }
+                            ],
+                            "pod_namespace_selectors": [],
+                            "namespace_selectors": [],
+                            "nodes": [],
+                            "networks": [],
+                            "domains": []
+                        },
+                        {
+                            "name": "pass-from-restricted-tenants",
+                            "action": "Pass",
+                            "policy_type": "Ingress",
+                            "ports": [],
+                            "pod_selectors": [],
+                            "pod_namespace_selectors": [
+                                {
+                                    "matchLabels": {
+                                        "tenant": "restricted"
+                                    }
+                                }
+                            ],
+                            "namespace_selectors": [],
+                            "nodes": [],
+                            "networks": [],
+                            "domains": []
+                        },
+                        {
+                            "name": "default-deny",
+                            "action": "Deny",
+                            "policy_type": "Ingress",
+                            "ports": [],
+                            "pod_selectors": [],
+                            "pod_namespace_selectors": [],
+                            "namespace_selectors": [],
+                            "nodes": [],
+                            "networks": [],
+                            "domains": []
+                        },
+                        {
+                            "name": "allow-to-dns",
+                            "action": "Allow",
+                            "policy_type": "Egress",
+                            "ports": [
+                                {
+                                    "name": "",
+                                    "port": 5353,
+                                    "protocol": "UDP"
+                                }
+                            ],
+                            "pod_selectors": [
+                                {
+                                    "matchLabels": {
+                                        "app": "dns"
+                                    }
+                                }
+                            ],
+                            "pod_namespace_selectors": [
+                                {
+                                    "matchLabels": {
+                                        "kubernetes.io/metadata.name": "kube-system"
+                                    }
+                                }
+                            ],
+                            "namespace_selectors": [],
+                            "node_selectors": [],
+                            "networks": [],
+                            "domains": []
+                        },
+                        {
+                            "name": "allow-to-kapi-server",
+                            "action": "Allow",
+                            "policy_type": "Egress",
+                            "ports": [
+                                {
+                                    "name": "",
+                                    "port": 6443,
+                                    "protocol": "TCP"
+                                }
+                            ],
+                            "pod_selectors": [],
+                            "pod_namespace_selectors": [],
+                            "namespace_selectors": [],
+                            "node_selectors": [
+                                {
+                                    "matchExpressions": [
+                                        {
+                                            "key": "node-role.kubernetes.io/control-plane",
+                                            "operator": "Exists"
+                                        }
+                                    ]
+                                }
+                            ],
+                            "networks": [],
+                            "domains": []
+                        },
+                        {
+                            "name": "allow-to-splunk",
+                            "action": "Allow",
+                            "policy_type": "Egress",
+                            "ports": [
+                                {
+                                    "name": "",
+                                    "port": 8991,
+                                    "protocol": "TCP"
+                                },
+                                {
+                                    "name": "",
+                                    "port": 8992,
+                                    "protocol": "TCP"
+                                }
+                            ],
+                            "pod_selectors": [],
+                            "pod_namespace_selectors": [],
+                            "namespace_selectors": [
+                                {
+                                    "matchLabels": {
+                                        "tenant": "splunk"
+                                    }
+                                }
+                            ],
+                            "node_selectors": [],
+                            "networks": [],
+                            "domains": []
+                        },
+                        {
+                            "name": "allow-to-open-tenants-and-intranet-and-worker-nodes",
+                            "action": "Allow",
+                            "policy_type": "Egress",
+                            "ports": [],
+                            "pod_selectors": [],
+                            "pod_namespace_selectors": [],
+                            "namespace_selectors": [
+                                {
+                                    "matchLabels": {
+                                        "tenant": "open"
+                                    }
+                                }
+                            ],
+                            "node_selectors": [
+                                {
+                                    "matchExpressions": [
+                                        {
+                                            "key": "node-role.kubernetes.io/worker",
+                                            "operator": "Exists"
+                                        }
+                                    ]
+                                }
+                            ],
+                            "networks": [
+                                "172.30.0.0/30",
+                                "10.0.54.0/19",
+                                "10.0.56.38/32",
+                                "10.0.69.0/24"
+                            ],
+                            "domains": [
+                                "foo.bar.se",
+                                "bar.bar.com"
+                            ]
+                        },
+                        {
+                            "name": "pass-to-restricted-tenants",
+                            "action": "Pass",
+                            "policy_type": "Egress",
+                            "ports": [],
+                            "pod_selectors": [],
+                            "pod_namespace_selectors": [],
+                            "namespace_selectors": [
+                                {
+                                    "matchLabels": {
+                                        "tenant": "restricted"
+                                    }
+                                }
+                            ],
+                            "node_selectors": [],
+                            "networks": [],
+                            "domains": []
+                        },
+                        {
+                            "name": "default-deny",
+                            "action": "Deny",
+                            "policy_type": "Egress",
+                            "ports": [],
+                            "pod_selectors": [],
+                            "pod_namespace_selectors": [],
+                            "namespace_selectors": [],
+                            "node_selectors": [],
+                            "networks": [
+                                "0.0.0.0/0"
+                            ],
+                            "domains": []
+                        }
+                    ], 200),
+                None,
+                "",
+            ),
+        )
+
+        for obj, expected_result, expected_exception, expected_exception_msg in testdata:
+            try:
+                tmp = fun(obj)
+                if tmp != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"           result: {tmp}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception) \
+                            and expected_exception_msg is None or expected_exception_msg == str(e):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  f"        exception: {type(e)}\n" \
+                                  f"          message: {str(e)}\n" \
+                                  f"         expected: {expected_exception}" \
+                                  f" expected message: {expected_exception_msg}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"        exception: {type(e)}\n" \
+                              f"          message: {str(e)}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+    return message, result
+
+
 def test_get_pv_status(verbose: bool = False) -> tuple[str, bool]:
     message = ""
     result = True
@@ -1413,6 +1936,297 @@ def test_listgetter_dict_list(verbose: bool = False) -> tuple[str, bool]:
                 {},
                 (
                     [], 200),
+                None,
+            ),
+            (
+                {
+                    "spec": {
+                        "allowScheduling": True,
+                        "disks": {
+                            "default-disk-2fd068ce7dde742a": {
+                                "allowScheduling": True,
+                                "diskDriver": "",
+                                "diskType": "filesystem",
+                                "evictionRequested": False,
+                                "path": "/var/lib/harvester/defaultdisk",
+                                "storageReserved": 0,
+                                "tags": []
+                            }
+                        },
+                        "evictionRequested": False,
+                        "instanceManagerCPURequest": 0,
+                        "name": "harvester",
+                        "tags": []
+                    },
+                    "status": {
+                        "diskStatus": {
+                            "default-disk-2fd068ce7dde742a": {
+                                "conditions": [
+                                    {
+                                        "lastProbeTime": "",
+                                        "lastTransitionTime": "2026-07-04T13:41:10Z",
+                                        "message":
+                                            "Disk default-disk-2fd068ce7dde742a("
+                                            "/var/lib/harvester/defaultdisk) "
+                                            "on node harvester is ready",
+                                        "reason": "",
+                                        "status": "True",
+                                        "type": "Ready"
+                                    },
+                                    {
+                                        "lastProbeTime": "",
+                                        "lastTransitionTime": "2026-07-04T13:41:10Z",
+                                        "message":
+                                            "Disk default-disk-2fd068ce7dde742a("
+                                            "/var/lib/harvester/defaultdisk) "
+                                            "on node harvester is schedulable",
+                                        "reason": "",
+                                        "status": "True",
+                                        "type": "Schedulable"
+                                    }
+                                ],
+                                "diskDriver": "",
+                                "diskName": "default-disk-2fd068ce7dde742a",
+                                "diskPath": "/var/lib/harvester/defaultdisk",
+                                "diskType": "filesystem",
+                                "diskUUID": "a5e8b9b5-3b68-4fc9-9b7c-89ef040dd78c",
+                                "filesystemType": "ext2/ext3",
+                                "healthData": {
+                                    "default-disk-2fd068ce7dde742a": {
+                                        "attributes": [
+                                            {
+                                                "name": "CriticalWarning",
+                                                "rawValue": 4
+                                            },
+                                            {
+                                                "name": "Temperature",
+                                                "rawValue": 29
+                                            },
+                                            {
+                                                "name": "AvailableSpare",
+                                                "rawValue": 100
+                                            },
+                                            {
+                                                "name": "AvailableSpareThreshold",
+                                                "rawValue": 10
+                                            },
+                                            {
+                                                "name": "PercentageUsed",
+                                                "rawValue": 171
+                                            },
+                                            {
+                                                "name": "DataUnitsRead",
+                                                "rawValue": 7417674
+                                            },
+                                            {
+                                                "name": "DataUnitsWritten",
+                                                "rawValue": 273405697
+                                            },
+                                            {
+                                                "name": "HostReads",
+                                                "rawValue": 83386023
+                                            },
+                                            {
+                                                "name": "HostWrites",
+                                                "rawValue": 2221442067
+                                            },
+                                            {
+                                                "name": "ControllerBusyTime",
+                                                "rawValue": 55774
+                                            },
+                                            {
+                                                "name": "PowerCycles",
+                                                "rawValue": 737
+                                            },
+                                            {
+                                                "name": "PowerOnHours",
+                                                "rawValue": 48626
+                                            },
+                                            {
+                                                "name": "UnsafeShutdowns",
+                                                "rawValue": 205
+                                            },
+                                            {
+                                                "name": "MediaErrors",
+                                                "rawValue": 0
+                                            },
+                                            {
+                                                "name": "NumErrLogEntries",
+                                                "rawValue": 0
+                                            },
+                                            {
+                                                "name": "WarningTempTime",
+                                                "rawValue": 0
+                                            },
+                                            {
+                                                "name": "CriticalCompTime",
+                                                "rawValue": 0
+                                            }
+                                        ],
+                                        "capacity": 512110190592,
+                                        "diskName": "/dev/nvme1",
+                                        "diskType": "nvme",
+                                        "firmwareVersion": "G001",
+                                        "healthStatus": "FAILED",
+                                        "modelName": "INTEL HBRPEKNX0202A",
+                                        "serialNumber": "PHTE901202HE512B-1",
+                                        "source": "SMART",
+                                        "temperature": 29
+                                    }
+                                },
+                                "healthDataLastCollectedAt": "2026-07-26T07:01:10Z",
+                                "instanceManagerName":
+                                    "instance-manager-34ba97a614ce880846ce9147d3455c88",
+                                "scheduledBackingImage": {},
+                                "scheduledReplica": {},
+                                "storageAvailable": 319920537600,
+                                "storageMaximum": 319966064640,
+                                "storageScheduled": 0
+                            },
+                        },
+                    },
+                },
+                {
+                    "paths": [
+                        {"path": "spec#disks"},
+                        {"path": "status#diskStatus"},
+                    ],
+                    "join_paths": True,
+                },
+                (
+                    [
+                        {
+                            "key": "default-disk-2fd068ce7dde742a",
+                            "value": {
+                                "allowScheduling": True,
+                                "diskDriver": "",
+                                "diskType": "filesystem",
+                                "evictionRequested": False,
+                                "path": "/var/lib/harvester/defaultdisk",
+                                "storageReserved": 0,
+                                "tags": [],
+                                "conditions": [
+                                    {
+                                        "lastProbeTime": "",
+                                        "lastTransitionTime": "2026-07-04T13:41:10Z",
+                                        "message":
+                                            "Disk default-disk-2fd068ce7dde742a("
+                                            "/var/lib/harvester/defaultdisk) "
+                                            "on node harvester is ready",
+                                        "reason": "",
+                                        "status": "True",
+                                        "type": "Ready"
+                                    },
+                                    {
+                                        "lastProbeTime": "",
+                                        "lastTransitionTime": "2026-07-04T13:41:10Z",
+                                        "message":
+                                            "Disk default-disk-2fd068ce7dde742a("
+                                            "/var/lib/harvester/defaultdisk) "
+                                            "on node harvester is schedulable",
+                                        "reason": "",
+                                        "status": "True",
+                                        "type": "Schedulable"
+                                    }
+                                ],
+                                "diskName": "default-disk-2fd068ce7dde742a",
+                                "diskPath": "/var/lib/harvester/defaultdisk",
+                                "diskUUID": "a5e8b9b5-3b68-4fc9-9b7c-89ef040dd78c",
+                                "filesystemType": "ext2/ext3",
+                                "healthData": {
+                                    "default-disk-2fd068ce7dde742a": {
+                                        "attributes": [
+                                            {
+                                                "name": "CriticalWarning",
+                                                "rawValue": 4
+                                            },
+                                            {
+                                                "name": "Temperature",
+                                                "rawValue": 29
+                                            },
+                                            {
+                                                "name": "AvailableSpare",
+                                                "rawValue": 100
+                                            },
+                                            {
+                                                "name": "AvailableSpareThreshold",
+                                                "rawValue": 10
+                                            },
+                                            {
+                                                "name": "PercentageUsed",
+                                                "rawValue": 171
+                                            },
+                                            {
+                                                "name": "DataUnitsRead",
+                                                "rawValue": 7417674
+                                            },
+                                            {
+                                                "name": "DataUnitsWritten",
+                                                "rawValue": 273405697
+                                            },
+                                            {
+                                                "name": "HostReads",
+                                                "rawValue": 83386023
+                                            },
+                                            {
+                                                "name": "HostWrites",
+                                                "rawValue": 2221442067
+                                            },
+                                            {
+                                                "name": "ControllerBusyTime",
+                                                "rawValue": 55774
+                                            },
+                                            {
+                                                "name": "PowerCycles",
+                                                "rawValue": 737
+                                            },
+                                            {
+                                                "name": "PowerOnHours",
+                                                "rawValue": 48626
+                                            },
+                                            {
+                                                "name": "UnsafeShutdowns",
+                                                "rawValue": 205
+                                            },
+                                            {
+                                                "name": "MediaErrors",
+                                                "rawValue": 0
+                                            },
+                                            {
+                                                "name": "NumErrLogEntries",
+                                                "rawValue": 0
+                                            },
+                                            {
+                                                "name": "WarningTempTime",
+                                                "rawValue": 0
+                                            },
+                                            {
+                                                "name": "CriticalCompTime",
+                                                "rawValue": 0
+                                            }
+                                        ],
+                                        "capacity": 512110190592,
+                                        "diskName": "/dev/nvme1",
+                                        "diskType": "nvme",
+                                        "firmwareVersion": "G001",
+                                        "healthStatus": "FAILED",
+                                        "modelName": "INTEL HBRPEKNX0202A",
+                                        "serialNumber": "PHTE901202HE512B-1",
+                                        "source": "SMART",
+                                        "temperature": 29
+                                    }
+                                },
+                                "healthDataLastCollectedAt": "2026-07-26T07:01:10Z",
+                                "instanceManagerName":
+                                    "instance-manager-34ba97a614ce880846ce9147d3455c88",
+                                "scheduledBackingImage": {},
+                                "scheduledReplica": {},
+                                "storageAvailable": 319920537600,
+                                "storageMaximum": 319966064640,
+                                "storageScheduled": 0
+                            }
+                        }
+                    ], 200),
                 None,
             ),
         )
@@ -2449,6 +3263,10 @@ tests: dict[tuple[str, ...], dict[str, Any]] = {
     },
     ("get_ingress_rule_list()",): {
         "callable": test_get_ingress_rule_list,
+        "result": None,
+    },
+    ("get_netpol_rule_list()",): {
+        "callable": test_get_netpol_rule_list,
         "result": None,
     },
     ("get_pv_status()",): {
