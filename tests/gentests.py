@@ -138,6 +138,518 @@ def test_format_special(verbose: bool = False) -> tuple[str, bool]:
     return message, result
 
 
+def test_map_value(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = generators.map_value
+
+    if result:
+        # Indata format:
+        # (value, selected, default_field_color, kwargs, expected_result, expected_exception)
+        testdata: tuple = (
+            (
+                "1",
+                False,
+                ThemeAttr("types", "numerical"),
+                {},
+                (ThemeStr("1", ThemeAttr("types", "numerical"), False), "1"),
+                None,
+            ),
+            (
+                "Foo",
+                False,
+                ThemeAttr("types", "numerical"),
+                {
+                    "mapping": {
+                        "substitutions": {
+                            "Foo": {
+                                "context": "main",
+                                "type": "status_ok",
+                                "string": "yay",
+                            },
+                        },
+                    },
+                },
+                (ThemeStr("yay", ThemeAttr("main", "status_ok"), False), "yay"),
+                None,
+            ),
+            (
+                "Foo",
+                False,
+                ThemeAttr("types", "numerical"),
+                {
+                    "mapping": {
+                        "substitutions": {
+                            "Foo": ThemeRef("strings", "positive_check", False),
+                        },
+                    },
+                },
+                (ThemeRef("strings", "positive_check", False), "✓"),
+                None,
+            ),
+            (
+                "True",
+                False,
+                ThemeAttr("types", "numerical"),
+                {
+                    "mapping": {
+                        "substitutions": {
+                            "True": {
+                                "context": "strings",
+                                "type": "positive_check",
+                            },
+                            "False": {
+                                "context": "strings",
+                                "type": "negative_ballot",
+                            }
+                        },
+                    },
+                },
+                (ThemeRef("strings", "positive_check", False), "✓"),
+                None,
+            ),
+            (
+                "False",
+                False,
+                ThemeAttr("types", "numerical"),
+                {
+                    "mapping": {
+                        "substitutions": {
+                            "True": {
+                                "context": "strings",
+                                "type": "positive_check",
+                            },
+                            "False": {
+                                "context": "strings",
+                                "type": "negative_ballot",
+                            }
+                        },
+                    },
+                },
+                (ThemeRef("strings", "negative_ballot", False), "✗"),
+                None,
+            ),
+            (
+                0,
+                False,
+                ThemeAttr("types", "numerical"),
+                {
+                    "mapping": {
+                        "substitutions": {
+                            "__0": {
+                                "context": "strings",
+                                "type": "positive_check",
+                            },
+                            "__1": {
+                                "context": "strings",
+                                "type": "negative_ballot",
+                            }
+                        },
+                    },
+                },
+                (ThemeRef("strings", "positive_check", False), "✓"),
+                None,
+            ),
+            (
+                1,
+                False,
+                ThemeAttr("types", "numerical"),
+                {
+                    "mapping": {
+                        "substitutions": {
+                            "__0": {
+                                "context": "strings",
+                                "type": "positive_check",
+                            },
+                            "__1": {
+                                "context": "strings",
+                                "type": "negative_ballot",
+                            }
+                        },
+                    },
+                },
+                (ThemeRef("strings", "negative_ballot", False), "✗"),
+                None,
+            ),
+            (
+                "Foo",
+                False,
+                ThemeAttr("types", "numerical"),
+                {
+                    "mapping": {
+                        "mappings": {
+                            "Foo": {
+                                "field_colors": [
+                                    {
+                                        "context": "types",
+                                        "type": "generic",
+                                    },
+                                ]
+                            },
+                            "foo": {
+                                "field_colors": [
+                                    {
+                                        "context": "types",
+                                        "type": "numerical",
+                                    },
+                                ]
+                            }
+                        },
+                    },
+                },
+                (ThemeStr("Foo", ThemeAttr("types", "generic"), False), "Foo"),
+                None,
+            ),
+            (
+                "foo",
+                False,
+                ThemeAttr("types", "numerical"),
+                {
+                    "mapping": {
+                        "mappings": {
+                            "Foo": {
+                                "field_colors": [
+                                    {
+                                        "context": "types",
+                                        "type": "generic",
+                                    },
+                                ]
+                            },
+                            "foo": {
+                                "field_colors": [
+                                    {
+                                        "context": "types",
+                                        "type": "numerical",
+                                    },
+                                ]
+                            }
+                        },
+                    },
+                },
+                (ThemeStr("foo", ThemeAttr("types", "numerical"), False), "foo"),
+                None,
+            ),
+            (
+                "Foo",
+                False,
+                ThemeAttr("types", "numerical"),
+                {
+                    "mapping": {
+                        "match_case": False,
+                        "mappings": {
+                            "foo": {
+                                "field_colors": [
+                                    {
+                                        "context": "types",
+                                        "type": "numerical",
+                                    },
+                                ]
+                            }
+                        },
+                    },
+                },
+                (ThemeStr("Foo", ThemeAttr("types", "numerical"), False), "Foo"),
+                None,
+            ),
+            (
+                "Foo",
+                False,
+                ThemeAttr("types", "numerical"),
+                {
+                    "mapping": {
+                        "match_case": False,
+                        "mappings": {
+                            "Foo": {
+                                "field_colors": [
+                                    {
+                                        "context": "types",
+                                        "type": "generic",
+                                    },
+                                ]
+                            },
+                            "foo": {
+                                "field_colors": [
+                                    {
+                                        "context": "types",
+                                        "type": "numerical",
+                                    },
+                                ]
+                            }
+                        },
+                    },
+                },
+                None,
+                ValueError,
+            ),
+            # Unsupported type
+            (
+                {"foo", "bar"},
+                False,
+                ThemeAttr("types", "numerical"),
+                {
+                    "mapping": {
+                        "match_case": False,
+                        "mappings": {
+                            "Foo": {
+                                "field_colors": [
+                                    {
+                                        "context": "types",
+                                        "type": "generic",
+                                    },
+                                ]
+                            },
+                            "foo": {
+                                "field_colors": [
+                                    {
+                                        "context": "types",
+                                        "type": "numerical",
+                                    },
+                                ]
+                            }
+                        },
+                    },
+                },
+                None,
+                TypeError,
+            ),
+            (
+                "1",
+                False,
+                ThemeAttr("types", "numerical"),
+                {
+                    "mapping": {
+                        "mappings": {
+                            "1": {
+                                "field_colors": [
+                                    {
+                                        "context": "types",
+                                        "type": "numerical",
+                                    },
+                                ]
+                            }
+                        },
+                    },
+                },
+                (ThemeStr("1", ThemeAttr("types", "numerical"), False), "1"),
+                None,
+            ),
+            (
+                1,
+                False,
+                ThemeAttr("types", "numerical"),
+                {
+                    "mapping": {
+                        "mappings": {
+                            "1": {
+                                "field_colors": [
+                                    {
+                                        "context": "types",
+                                        "type": "numerical",
+                                    },
+                                ]
+                            }
+                        },
+                    },
+                },
+                (ThemeStr("1", ThemeAttr("types", "numerical"), False), "1"),
+                None,
+            ),
+            (
+                0,
+                False,
+                ThemeAttr("types", "numerical"),
+                {
+                    "mapping": {
+                        "ranges": [
+                            {
+                                "min": 0,
+                                "max": 1,
+                                "field_colors": [
+                                    {
+                                        "context": "main",
+                                        "type": "status_ok",
+                                    },
+                                ]
+                            },
+                            {
+                                "default": True,
+                                "field_colors": [
+                                    {
+                                        "context": "main",
+                                        "type": "status_not_ok",
+                                    },
+                                ]
+                            },
+                        ],
+                    },
+                },
+                (ThemeStr("0", ThemeAttr("main", "status_ok"), False), "0"),
+                None,
+            ),
+            (
+                0,
+                False,
+                ThemeAttr("types", "numerical"),
+                {
+                    "mapping": {
+                        "ranges": [
+                            {
+                                "default": True,
+                                "min": 0,
+                                "max": 1,
+                                "field_colors": [
+                                    {
+                                        "context": "main",
+                                        "type": "status_ok",
+                                    },
+                                ]
+                            },
+                            {
+                                "default": True,
+                                "field_colors": [
+                                    {
+                                        "context": "main",
+                                        "type": "status_not_ok",
+                                    },
+                                ]
+                            },
+                        ],
+                    },
+                },
+                None,
+                ValueError,
+            ),
+            (
+                1,
+                False,
+                ThemeAttr("types", "numerical"),
+                {
+                    "mapping": {
+                        "ranges": [
+                            {
+                                "min": 0,
+                                "max": 1,
+                                "field_colors": [
+                                    {
+                                        "context": "main",
+                                        "type": "status_ok",
+                                    },
+                                ]
+                            },
+                            {
+                                "default": True,
+                                "field_colors": [
+                                    {
+                                        "context": "main",
+                                        "type": "status_not_ok",
+                                    },
+                                ]
+                            },
+                        ],
+                    },
+                },
+                (ThemeStr("1", ThemeAttr("main", "status_not_ok"), False), "1"),
+                None,
+            ),
+            (
+                (0, 1),
+                False,
+                ThemeAttr("types", "numerical"),
+                {
+                    "mapping": {
+                        "ranges": [
+                            {
+                                "min": 0,
+                                "max": 1,
+                                "field_colors": [
+                                    {
+                                        "context": "main",
+                                        "type": "status_ok",
+                                    },
+                                ]
+                            },
+                            {
+                                "default": True,
+                                "field_colors": [
+                                    {
+                                        "context": "main",
+                                        "type": "status_not_ok",
+                                    },
+                                ]
+                            },
+                        ],
+                    },
+                },
+                (ThemeStr("0", ThemeAttr("main", "status_not_ok"), False), "0"),
+                None,
+            ),
+            (
+                (1, 0),
+                False,
+                ThemeAttr("types", "numerical"),
+                {
+                    "mapping": {
+                        "ranges": [
+                            {
+                                "min": 0,
+                                "max": 1,
+                                "field_colors": [
+                                    {
+                                        "context": "main",
+                                        "type": "status_ok",
+                                    },
+                                ]
+                            },
+                            {
+                                "default": True,
+                                "field_colors": [
+                                    {
+                                        "context": "main",
+                                        "type": "status_not_ok",
+                                    },
+                                ]
+                            },
+                        ],
+                    },
+                },
+                (ThemeStr("1", ThemeAttr("main", "status_ok"), False), "1"),
+                None,
+            ),
+        )
+
+        for value, selected, default_field_color, kwargs, \
+                expected_result, expected_exception in testdata:
+            try:
+                tmp = fun(value=value, selected=selected,
+                          default_field_color=default_field_color, **kwargs)
+                if tmp != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"           result: {tmp}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  f"        exception: {type(e)}\n" \
+                                  f"          message: {str(e)}\n" \
+                                  f"         expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"        exception: {type(e)}\n" \
+                              f"          message: {str(e)}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+    return message, result
+
+
 def test_align_and_pad(verbose: bool = False) -> tuple[str, bool]:
     message = ""
     result = True
@@ -1526,6 +2038,10 @@ def test_get_formatter(verbose: bool = False) -> tuple[str, bool]:
 tests: dict[tuple[str], dict[str, Any]] = {
     ("format_special()",): {
         "callable": test_format_special,
+        "result": None,
+    },
+    ("map_value()",): {
+        "callable": test_map_value,
         "result": None,
     },
     ("align_and_pad()",): {

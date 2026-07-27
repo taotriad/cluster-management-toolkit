@@ -334,10 +334,10 @@ def map_value(value: Any, selected: bool = False,
 
     field_colors = None
 
-    if value in substitutions:
+    if value in substitutions or isinstance(value, int) and f"__{value}" in substitutions:
         # We do not need to check for bool, since it is a subclass of int
         if isinstance(value, int):
-            value = substitutions[f"__{str(value)}"]
+            value = substitutions[f"__{value}"]
         else:
             value = substitutions[value]
 
