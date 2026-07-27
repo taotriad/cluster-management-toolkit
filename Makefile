@@ -542,7 +542,7 @@ clean_templates:
 	done
 
 build_templates:
-	./build.py views/templates views/variables views
+	devtools/build.py views/templates views/variables views
 
 clean_index:
 	@rm -f views/__resource_type_index.yaml
