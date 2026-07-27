@@ -1196,7 +1196,7 @@ def test_make_set_expression_list(verbose: bool = False) -> tuple[str, bool]:
             ([{"operator": "In",
                "key": "node-role.kubernetes.io/control-plane",
                "values": ["foo", "bar", "baz"]}], False,
-             [("node-role.kubernetes.io/control-plane", "In ", "[foo,bar,baz]")], None),
+             [("node-role.kubernetes.io/control-plane", "In ", "[foo, bar, baz]")], None),
             # Too few values
             ([{"operator": "In",
                "key": "node-role.kubernetes.io/control-plane",
@@ -1206,7 +1206,7 @@ def test_make_set_expression_list(verbose: bool = False) -> tuple[str, bool]:
             ([{"operator": "NotIn",
                "key": "node-role.kubernetes.io/control-plane",
                "values": ["foo", "bar", "baz"]}], False,
-             [("node-role.kubernetes.io/control-plane", "Not In ", "[foo,bar,baz]")], None),
+             [("node-role.kubernetes.io/control-plane", "Not In ", "[foo, bar, baz]")], None),
             # Too few values
             ([{"operator": "NotIn",
                "key": "node-role.kubernetes.io/control-plane",
@@ -1240,7 +1240,7 @@ def test_make_set_expression_list(verbose: bool = False) -> tuple[str, bool]:
                "key": "node-role.kubernetes.io/control-plane",
                "values": ["foo", "bar", "baz"]}], False,
              [("node-role.kubernetes.io/control-plane", "Does Not Exist", ""),
-              ("node-role.kubernetes.io/control-plane", "In ", "[foo,bar,baz]")], None),
+              ("node-role.kubernetes.io/control-plane", "In ", "[foo, bar, baz]")], None),
             # Invalid type for operator
             ([{"operator": 1,
                "key": "node-role.kubernetes.io/control-plane",
@@ -1372,7 +1372,7 @@ def test_make_set_expression(verbose: bool = False) -> tuple[str, bool]:
             ([{"operator": "In",
                "key": "node-role.kubernetes.io/control-plane",
                "values": ["foo", "bar", "baz"]}],
-             "node-role.kubernetes.io/control-plane In [foo,bar,baz]", None),
+             "node-role.kubernetes.io/control-plane In [foo, bar, baz]", None),
             # Too few values
             ([{"operator": "In",
                "key": "node-role.kubernetes.io/control-plane",
@@ -1382,7 +1382,7 @@ def test_make_set_expression(verbose: bool = False) -> tuple[str, bool]:
             ([{"operator": "NotIn",
                "key": "node-role.kubernetes.io/control-plane",
                "values": ["foo", "bar", "baz"]}],
-             "node-role.kubernetes.io/control-plane Not In [foo,bar,baz]", None),
+             "node-role.kubernetes.io/control-plane Not In [foo, bar, baz]", None),
             # Too few values
             ([{"operator": "NotIn",
                "key": "node-role.kubernetes.io/control-plane",
@@ -1416,7 +1416,7 @@ def test_make_set_expression(verbose: bool = False) -> tuple[str, bool]:
                "key": "node-role.kubernetes.io/control-plane",
                "values": ["foo", "bar", "baz"]}],
              "node-role.kubernetes.io/control-plane Does Not Exist, "
-             "node-role.kubernetes.io/control-plane In [foo,bar,baz]", None),
+             "node-role.kubernetes.io/control-plane In [foo, bar, baz]", None),
             # Invalid type for operator
             ([{"operator": 1,
                "key": "node-role.kubernetes.io/control-plane",

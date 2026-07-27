@@ -985,7 +985,7 @@ def make_set_expression_list(expression_list: list[dict[str, Any]], **kwargs: An
             if required_values == "1+" and len(tmp_values) < 1:
                 raise ValueError(f"operator {operator} requires at least 1 value; "
                                  f"values {tmp_values}")
-            values = ",".join(tmp_values)
+            values = ", ".join(tmp_values)
             if required_values != "0" and operator not in ("Equal", "Gt", "Lt"):
                 values = f"[{values}]"
 

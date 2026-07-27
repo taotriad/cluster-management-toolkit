@@ -2564,6 +2564,283 @@ def test_listgetter_join_lists(verbose: bool = False) -> tuple[str, bool]:
     return message, result
 
 
+def test_listgetter_matchrules(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = listgetters.listgetter_matchrules
+    indata: Any = None
+
+    if result:
+        # Indata format:
+        # (obj, expected_result, expected_exception)
+        testdata: tuple[Any, ...] = (
+            # matchFeature with matchExpressions
+            (
+                {
+                    "extendedResources": {
+                        "tdx.intel.com/keys": "@cpu.security.tdx.total_keys"
+                    },
+                    "labels": {
+                        "intel.feature.node.kubernetes.io/tdx": "true"
+                    },
+                    "labelsTemplate": "",
+                    "matchFeatures": [
+                        {
+                            "feature": "cpu.cpuid",
+                            "matchExpressions": {
+                                "VMX": {
+                                    "op": "Exists"
+                                }
+                            }
+                        },
+                        {
+                            "feature": "cpu.security",
+                            "matchExpressions": {
+                                "tdx.enabled": {
+                                    "op": "Exists"
+                                }
+                            }
+                        }
+                    ],
+                    "name": "intel.tdx",
+                    "varsTemplate": ""
+                },
+                ([
+                    {
+                        "feature": "cpu.cpuid",
+                        "match_expressions": [
+                            (
+                                "VMX",
+                                "Exists",
+                                ""
+                            )
+                        ]
+                    },
+                    {
+                        "feature": "cpu.security",
+                        "match_expressions": [
+                            (
+                                "tdx.enabled",
+                                "Exists",
+                                ""
+                            )
+                        ]
+                    }
+                ], "OK"),
+                None),
+            # matchFeature with matchName
+            (
+                {
+                    "extendedResources": {
+                        "tdx.intel.com/keys": "@cpu.security.tdx.total_keys"
+                    },
+                    "labels": {
+                        "intel.feature.node.kubernetes.io/tdx": "true"
+                    },
+                    "labelsTemplate": "",
+                    "matchFeatures": [
+                        {
+                            "feature": "cpu.cpuid",
+                            "matchName": {
+                                "key": "VMX",
+                                "operator": "Exists",
+                            }
+                        },
+                        {
+                            "feature": "cpu.security",
+                            "matchName": {
+                                "key": "tdx.enabled",
+                                "operator": "In",
+                                "values": ["True", "False"],
+                            }
+                        },
+                    ],
+                    "name": "intel.tdx",
+                    "varsTemplate": ""
+                },
+                ([
+                    {
+                        "feature": "cpu.cpuid",
+                        "match_expressions": [
+                            (
+                                "VMX",
+                                "Exists",
+                                ""
+                            ),
+                        ]
+                    },
+                    {
+                        "feature": "cpu.security",
+                        "match_expressions": [
+                            (
+                                "tdx.enabled",
+                                "In ",
+                                "[True, False]"
+                            )
+                        ]
+                    },
+                ], "OK"),
+                None),
+            # matchAny with matchExpressions
+            (
+                {
+                    "labels": {
+                        "feature.node.kubernetes.io/runtime.kata": "true"
+                    },
+                    "labelsTemplate": "",
+                    "matchAny": [
+                        {
+                            "matchFeatures": [
+                                {
+                                    "feature": "cpu.cpuid",
+                                    "matchExpressions": {
+                                        "SSE42": {
+                                            "op": "Exists"
+                                        },
+                                        "VMX": {
+                                            "op": "Exists"
+                                        }
+                                    }
+                                },
+                                {
+                                    "feature": "kernel.loadedmodule",
+                                    "matchExpressions": {
+                                        "kvm": {
+                                            "op": "Exists"
+                                        },
+                                        "kvm_intel": {
+                                            "op": "Exists"
+                                        }
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            "matchFeatures": [
+                                {
+                                    "feature": "cpu.cpuid",
+                                    "matchExpressions": {
+                                        "SSE42": {
+                                            "op": "Exists"
+                                        },
+                                        "SVM": {
+                                            "op": "Exists"
+                                        }
+                                    }
+                                },
+                                {
+                                    "feature": "kernel.loadedmodule",
+                                    "matchExpressions": {
+                                        "kvm": {
+                                            "op": "Exists"
+                                        },
+                                        "kvm_amd": {
+                                            "op": "Exists"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    ],
+                    "name": "runtime.kata",
+                    "varsTemplate": ""
+                },
+                ([
+                    {
+                        "feature": "Any:cpu.cpuid",
+                        "match_expressions": [
+                            (
+                                "SSE42",
+                                "Exists",
+                                ""
+                            ),
+                            (
+                                "VMX",
+                                "Exists",
+                                ""
+                            )
+                        ]
+                    },
+                    {
+                        "feature": "Any:kernel.loadedmodule",
+                        "match_expressions": [
+                            (
+                                "kvm",
+                                "Exists",
+                                ""
+                            ),
+                            (
+                                "kvm_intel",
+                                "Exists",
+                                ""
+                            )
+                        ]
+                    },
+                    {
+                        "feature": "Any:cpu.cpuid",
+                        "match_expressions": [
+                            (
+                                "SSE42",
+                                "Exists",
+                                ""
+                            ),
+                            (
+                                "SVM",
+                                "Exists",
+                                ""
+                            )
+                        ]
+                    },
+                    {
+                        "feature": "Any:kernel.loadedmodule",
+                        "match_expressions": [
+                            (
+                                "kvm",
+                                "Exists",
+                                ""
+                            ),
+                            (
+                                "kvm_amd",
+                                "Exists",
+                                ""
+                            )
+                        ]
+                    }
+                ], "OK"),
+                None),
+        )
+
+        for indata, expected_result, expected_exception in testdata:
+            try:
+                if (tmp := fun(indata)) != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"         indata: {indata}\n" \
+                              f"         result: {tmp}\n" \
+                              f"       expected: {expected_result}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  f"         indata: {indata}\n" \
+                                  f"      exception: {type(e)}\n" \
+                                  f"       expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"         indata: {indata}\n" \
+                              f"      exception: {type(e)}\n" \
+                              f"       expected: {expected_result}"
+                    result = False
+                    break
+    return message, result
+
+
 def test_listgetter_noop(verbose: bool = False) -> tuple[str, bool]:
     message = ""
     result = True
@@ -3291,6 +3568,10 @@ tests: dict[tuple[str, ...], dict[str, Any]] = {
     },
     ("listgetter_join_lists()",): {
         "callable": test_listgetter_join_lists,
+        "result": None,
+    },
+    ("listgetter_matchrules()",): {
+        "callable": test_listgetter_matchrules,
         "result": None,
     },
     ("listgetter_noop()",): {
