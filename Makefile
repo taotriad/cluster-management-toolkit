@@ -256,6 +256,12 @@ semgrep:
 	$$cmd --version ;\
 	$$cmd scan $(semgrep_flags) --timeout=0 --no-git-ignore *.py clustermanagementtoolkit/*.py
 
+# Generate as much of the changelog as possible;
+# the output is intended for insertion directly as the last line of the
+# Changes to other files section of the changelog.
+changelog:
+	@devtools/genstats.py $$(git describe --tags --abbrev=0)
+
 # Run this to show code statistics
 statistics:
 	@cmd=cloc ;\
@@ -337,7 +343,7 @@ pylint-markdown:
 		row="$$file | $$result\n" ;\
 		printf -- "$$row" >> $${tmpfile} ;\
 	done && \
-	./mdtable.py --bold-regex "^\s*\d\.\d\d/10" $${tmpfile} "=Source file" "Score=" && rm $${tmpfile}
+	devtools/mdtable.py --bold-regex "^\s*\d\.\d\d/10" $${tmpfile} "=Source file" "Score=" && rm $${tmpfile}
 
 pylint-tests:
 	@cmd=pylint ;\
@@ -454,7 +460,7 @@ mypy-markdown:
 		row="$$file | $$result\n" ;\
 		printf -- "$$row" >> $${tmpfile} ;\
 	done && \
-	./mdtable.py --bold-regex "^\s*Found.*errors" $${tmpfile} "=Source file" "=Score" && rm $${tmpfile}
+	devtools/mdtable.py --bold-regex "^\s*Found.*errors" $${tmpfile} "=Source file" "=Score" && rm $${tmpfile}
 
 validate_yaml: build_templates
 	@printf -- "\n\nRunning validate_yaml to check that all view-files/parser-files/theme-files are valid\n\n"; \
@@ -542,7 +548,7 @@ clean_index:
 	@rm -f views/__resource_type_index.yaml
 
 build_index:
-	./generate_resource_type_index.py views views/__resource_type_index.yaml
+	devtools/generate_resource_type_index.py views views/__resource_type_index.yaml
 
 build: build_templates build_index
 

@@ -39,10 +39,13 @@ components are accepted.
 
 * [ ] Double-check that all dependencies in the *Dependencies* chapter
       matches the dependencies in `requirements.txt`.
+* [ ] Insert the output from `make changelog`.
+      *Note:* Despite the name this target does not generate everything
+      needed for the changelog; at least not yet...
 * [ ] Insert the output from `make bandit`.
-* [ ] `make coverage`, `make coverage-ansible` *(with working Ansible)*,
-      `make coverage-cluster` *(with a working cluster)*
-* [ ] Insert the output from `make coverage-cluster` in the changelog.
+* [ ] `make coverage-clean`.
+* [ ] Insert the output from `make coverage-all`.
+      *(this requires a working cluster and Ansible installation)*.
 * [ ] Insert the output from `make flake8`.
 * [ ] `make mypy-markdown` *(Note: mypy is likely to account the issues in __logparser.py__
       to several files; if any file ends up with the exact same number of errors
@@ -58,7 +61,7 @@ components are accepted.
 * [ ] Insert the output from `make validate_playbooks`.
 * [ ] Insert the output from `make validate_yaml`.
 * [ ] Insert the output from `make yamllint`.
-* [ ] Insert the output from `git diff --stat PREVIOUS_RELEASE_TAG | tail -n 1`
+* [ ] Insert the output from `git diff --stat PREVIOUS_RELEASE_TAG | tail -n 1`.
 
 ### Releasing
 

@@ -142,11 +142,13 @@ def main() -> None:
     sorted_api_stats = sorted(api_stats.items(), key=lambda x: x[1], reverse=True)
     sorted_lines_stats = sorted(file_stats.items(), key=lambda x: x[1], reverse=True)
 
+    print(f"diffstat: {stats}\n")
+
     header = False
     for api, count in sorted_api_stats:
         if count >= 5:
             if not header:
-                print("Notable view-file changes (changed API-files) include:\n")
+                print("### Notable view-file changes (changed API-files)\n")
                 header = True
             print(f"* {api} ({count} changed files)")
 
@@ -163,14 +165,13 @@ def main() -> None:
             continue
         if count >= 50:
             if not header:
-                print("\nNotable view-file changes (changed line count) include:\n")
+                print("\n### Notable view-file changes (changed line count)\n")
                 header = True
             print(f"* {path} ({count} changed lines)")
 
     if parser_files_added:
+        print("\n### parser-file changes")
         print(f"\n{parser_files_added} parserfiles were added.")
-
-    print(f"\ndiffstat: {stats}")
 
 
 if __name__ == "__main__":

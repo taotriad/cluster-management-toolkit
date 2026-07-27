@@ -201,7 +201,9 @@ Before release the code quality has been checked with _pylint_, _flake8_, _mypy_
 The code has been checked for security issues using _bandit_, _regexploit_, and _semgrep_.
 The _Ansible_ playbooks have been checked using _ansible-lint_.
 YAML-files have been checked using _yamllint_ and validated against predefined schemas.
+JSON-files have been checked using _jsonlint-php_.
 Unit-test coverage has been measured using _python3-coverage_.
+Additionally the repository is checked by _snyk_, _codeql_, and _dependabot_.
 
 The results of these tests are as follows:
 
