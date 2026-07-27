@@ -77,7 +77,7 @@ def main() -> int:
         sys.exit(errno.ENOENT)
 
     if not apis:
-        apis = list(kubernetes_helper.kubernetes_resources.keys())
+        apis = list(kubernetes_helper.kubernetes_resources)
 
     kh = kubernetes_helper.KubernetesHelper(programname, programversion)
 

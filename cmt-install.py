@@ -419,7 +419,7 @@ def install_software_suse(packages: dict | set, verbose: bool = False) -> None:
 
     if isinstance(packages, set):
         packages = dict.fromkeys(packages, {})
-    args = [sudo_path, zypper_path, "-n", "install", "-y"] + list(packages.keys())
+    args = [sudo_path, zypper_path, "-n", "install", "-y"] + list(packages)
 
     _retval = subprocess.run(args, check=False).returncode
 
@@ -501,7 +501,7 @@ def install_software_fedora(packages: dict | set, verbose: bool = False) -> None
 
     if isinstance(packages, set):
         packages = dict.fromkeys(packages, {})
-    args = [sudo_path, yum_path, "-y", "install"] + list(packages.keys())
+    args = [sudo_path, yum_path, "-y", "install"] + list(packages)
 
     _retval = subprocess.run(args, check=False).returncode
 
@@ -569,7 +569,7 @@ def install_software_deb(packages: dict, verbose: bool = False) -> None:
                         ANSIThemeStr("; aborting.", "default")], stderr=True)
         sys.exit(errno.ENOENT)
 
-    args = [sudo_path, apt_get_path, "install"] + list(packages.keys())
+    args = [sudo_path, apt_get_path, "install"] + list(packages)
 
     _retval = subprocess.run(args, check=False).returncode
 
@@ -749,7 +749,7 @@ def install_software_with_pip_fallback(packages: dict, pip_proxy: str = "",
                             ANSIThemeStr("; aborting.", "default")], stderr=True)
             sys.exit(errno.ENOENT)
 
-        args = [apt_cache_path, "madison"] + list(packages.keys())
+        args = [apt_cache_path, "madison"] + list(packages)
         response, _retval = execute_command_with_response(args)
         split_response = response.splitlines()
 
@@ -761,7 +761,7 @@ def install_software_with_pip_fallback(packages: dict, pip_proxy: str = "",
                     distro not in deep_get(packages, DictPath(f"{_pkg[0]}#distros"), []):
                 continue
             if distro not in deep_get(packages, DictPath(f"{_pkg[0]}#always-fallback-distros"), []):
-                if _pkg[0] in packages.keys() and _pkg[0] not in pkgs:
+                if _pkg[0] in packages and _pkg[0] not in pkgs:
                     pkgs[_pkg[0]] = packages[_pkg[0]]
 
         for pkg in packages:
@@ -779,7 +779,7 @@ def install_software_with_pip_fallback(packages: dict, pip_proxy: str = "",
                             ANSIThemeStr("; aborting.", "default")], stderr=True)
             sys.exit(errno.ENOENT)
 
-        args = [zypper_path, "info"] + list(packages.keys())
+        args = [zypper_path, "info"] + list(packages)
         response, _retval = execute_command_with_response(args)
         split_response = response.splitlines()
 
@@ -790,7 +790,7 @@ def install_software_with_pip_fallback(packages: dict, pip_proxy: str = "",
             if (re_tmp := information_for_regex.match(line)) is not None:
                 if distro not in deep_get(packages,
                                           DictPath(f"{re_tmp[1]}#always-fallback-distros"), []):
-                    if re_tmp[1] in packages.keys() and re_tmp[1] not in pkgs:
+                    if re_tmp[1] in packages and re_tmp[1] not in pkgs:
                         pkgs[re_tmp[1]] = packages[re_tmp[1]]
                     continue
                 fallbacks.add(deep_get(packages, DictPath(f"{re_tmp[1]}#fallback")))
@@ -809,13 +809,13 @@ def install_software_with_pip_fallback(packages: dict, pip_proxy: str = "",
                             ANSIThemeStr("; aborting.", "default")], stderr=True)
             sys.exit(errno.ENOENT)
 
-        args = [yum_path, "list", "-q"] + list(packages.keys())
+        args = [yum_path, "list", "-q"] + list(packages)
         response, _retval = execute_command_with_response(args)
         split_response = response.splitlines()
 
         information_for_regex = re.compile(r"^([^.]+).+$")
 
-        all_packages = set(packages.keys())
+        all_packages = set(packages)
         found_packages = set()
 
         if split_response[0] != "Error: No matching Packages to list":
@@ -828,7 +828,7 @@ def install_software_with_pip_fallback(packages: dict, pip_proxy: str = "",
                                           DictPath(f"{re_tmp[1]}#always-fallback-distros"), []):
                         fallbacks.add(deep_get(packages, DictPath(f"{re_tmp[1]}#fallback")))
                         continue
-                    if re_tmp[1] in packages.keys() and re_tmp[1] not in pkgs:
+                    if re_tmp[1] in packages and re_tmp[1] not in pkgs:
                         pkgs[re_tmp[1]] = packages[re_tmp[1]]
                     continue
         for missing in all_packages.difference(found_packages):

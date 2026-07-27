@@ -1325,7 +1325,7 @@ def get_obj(obj: dict, field_dict: dict, field_names: list[str],
                     _values.append((value, "raw"))
                 elif ptype == "dictkeys":
                     for mpath in mpaths:
-                        tmp = list(deep_get_with_fallback(obj, mpath, {}).keys())
+                        tmp = list(deep_get_with_fallback(obj, mpath, {}))
                         if tmp:
                             _values.append((tmp, "raw"))
                 elif ptype == "dictfields":

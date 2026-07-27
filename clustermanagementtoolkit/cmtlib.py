@@ -1608,13 +1608,13 @@ def check_allowlist(allowlist: dict, allowlist_name: str, value: Any | None,
     if value is None and allow_none:
         return None
 
-    if callable(value) and value.__name__ in allowlist.keys():
+    if callable(value) and value.__name__ in allowlist:
         return value
 
-    if value not in allowlist.keys() and exit_on_fail:
+    if value not in allowlist and exit_on_fail:
         allowed_values = ""
-        if allowlist.keys():
-            allowed_values = "\n- " + "\n- ".join(allowlist.keys())
+        if allowlist:
+            allowed_values = "\n- " + "\n- ".join(allowlist)
         sys.exit(f"“{value}“ is not in “{allowlist_name}“; "
                  f"allowed values:{allowed_values}\nAborting.")
 

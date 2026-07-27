@@ -6,7 +6,7 @@
 # SPDX-License-Identifier: MIT
 
 """
-Kubernetes helpers used by CMT
+Kubernetes helpers used by CMT.
 """
 
 # pylint: disable=too-many-lines
@@ -253,19 +253,19 @@ def resource_kind_to_rtype(resource: tuple[str, str]) -> str:
 
 class KubernetesResourceCache:
     """
-    A class for caching Kubernetes resources
+    A class for caching Kubernetes resources.
     """
     updated = False
 
     def __init__(self) -> None:
         """
-        Initialize the resource cache
+        Initialize the resource cache.
         """
         self.resource_cache: dict = {}
 
     def update_resource(self, kind: tuple[str, str], resource: dict) -> None:
         """
-        Add or update the cache entry for a resource
+        Add or update the cache entry for a resource.
 
             Parameters:
                 kind ((str, str)): The kind tuple for the resource
@@ -304,7 +304,7 @@ class KubernetesResourceCache:
 
     def update_resources(self, kind: tuple[str, str], resources: list[dict]) -> None:
         """
-        Add or update the cache entries for a resource kind
+        Add or update the cache entries for a resource kind.
 
             Parameters:
                 kind ((str, str)): The kind tuple for the resources
@@ -320,7 +320,7 @@ class KubernetesResourceCache:
     def get_resources(self, kind: tuple[str, str], namespace: str = "",
                       label_selector: str = "", field_selector: str = "") -> list[dict[str, Any]]:
         """
-        Return a list with all resources of the specified kind
+        Return a list with all resources of the specified kind.
 
             Parameters:
                 kind ((str, str)): The kind tuple for the resources
@@ -367,18 +367,18 @@ class KubernetesResourceCache:
 
     def index(self) -> list[str]:
         """
-        Return a list of all cached kinds
+        Return a list of all cached kinds.
 
             Returns:
                 ([(str, str]): A list of kind tuples of all cached kinds
         """
         if self.resource_cache is None:
             return []
-        return list(self.resource_cache.keys())
+        return list(self.resource_cache)
 
     def __len__(self) -> int:
         """
-        Return the number of cached kinds
+        Return the number of cached kinds.
 
             Returns:
                 (int): The number of cached kinds
@@ -389,7 +389,7 @@ class KubernetesResourceCache:
 
     def len(self, kind: tuple[str, str]) -> int:
         """
-        Return the number of resources of the specified kind
+        Return the number of resources of the specified kind.
 
             Parameters:
                 kind ((str, str)): The kind tuple for the resources
@@ -404,7 +404,7 @@ class KubernetesResourceCache:
 
 class PoolManagerContext:
     """
-    A class for wrapping PoolManager/ProxyManager
+    A class for wrapping PoolManager/ProxyManager.
     """
 
     def __init__(self, cert_file: str | None = None, key_file: str | None = None,
@@ -900,7 +900,7 @@ def set_context(config_path: FilePath | None = None, name: str = "") -> str:
 # pylint: disable-next=too-many-instance-attributes,too-many-public-methods
 class KubernetesHelper:
     """
-    A class used for interacting with a Kubernetes cluster
+    A class used for interacting with a Kubernetes cluster.
     """
 
     # There doesn't seem to be any better type-hint than Any
@@ -932,7 +932,7 @@ class KubernetesHelper:
     def list_contexts(self, config_path: FilePath | None = None) \
             -> list[tuple[bool, str, str, str, str, str]]:
         """
-        Given the path to a kubeconfig file, returns the available contexts
+        Given the path to a kubeconfig file, returns the available contexts.
 
             Parameters:
                 config_path (FilePath): The path to the kubeconfig file
@@ -957,8 +957,8 @@ class KubernetesHelper:
 
     def list_clusters(self, config_path: FilePath | None = None) -> list[tuple[str, str]]:
         """
-        Returns a list of (cluster, context)
-        with only one context per cluster, priority given to contexts with admin in the username
+        Returns a list of (cluster, context) with only one context per cluster,
+        priority given to contexts with admin in the username.
 
             Parameters:
                 config_path (FilePath): The path to the kubeconfig file
@@ -1006,7 +1006,7 @@ class KubernetesHelper:
     # pylint: disable-next=too-many-locals
     def renew_token(self, cluster_name: str, context_name: str) -> None:
         """
-        Renew the authentication token, if applicable
+        Renew the authentication token, if applicable.
 
             Parameters:
                 cluster_name (str): The name of the cluster
@@ -1090,7 +1090,7 @@ class KubernetesHelper:
 
     def get_current_context(self, config_path: FilePath | None = None) -> str:
         """
-        Get current context
+        Get current context.
 
             Parameters:
                 config_path (FilePath): The path to the kubeconfig file
@@ -1113,7 +1113,7 @@ class KubernetesHelper:
     def set_context(self, config_path: FilePath | None = None,
                     name: str | None = None, unchanged_is_success: bool = False) -> bool:
         """
-        Change context
+        Change context.
 
             Parameters:
                 config_path (FilePath): The path to the kubeconfig file
@@ -1326,7 +1326,7 @@ class KubernetesHelper:
 
     def get_pod_network_cidr(self) -> str | None:
         """
-        Returns the Pod network CIDR for the cluster
+        Returns the Pod network CIDR for the cluster.
 
             Returns:
                 pod_network_cidr (str): The Pod network CIDR
@@ -1436,7 +1436,7 @@ class KubernetesHelper:
     def identify_cni(self) -> list[tuple[str, str, tuple[str, StatusGroup, str]]]:
         """
         Attempt to identify what CNI the cluster is using;
-        if there are multiple possible matches all are returned
+        if there are multiple possible matches all are returned.
 
             Returns:
                 ([(str, str, (str, StatusGroup, str)])): A list of possible CNI candidates
@@ -1528,7 +1528,7 @@ class KubernetesHelper:
 
     def is_cluster_reachable(self) -> bool:
         """
-        Checks if the cluster is reachable
+        Checks if the cluster is reachable.
 
             Returns:
                 (bool): True if cluster is reachable,
@@ -1538,7 +1538,7 @@ class KubernetesHelper:
 
     def get_control_plane_address(self) -> tuple[str | None, str | None, str | None]:
         """
-        Returns the IP-address and port of the control plane
+        Returns the IP-address and port of the control plane.
 
             Returns:
                 (str, str, str): The IP-address, port, and path of the control plane
@@ -1550,7 +1550,7 @@ class KubernetesHelper:
 
     def get_join_token(self) -> str:
         """
-        Returns the cluster join token
+        Returns the cluster join token.
 
             Returns:
                 join_token (str): The cluster join token
@@ -1593,7 +1593,7 @@ class KubernetesHelper:
     # pylint: disable-next=too-many-locals
     def get_ca_cert_hash(self) -> str:
         """
-        Returns the CA certificate hash
+        Returns the CA certificate hash.
 
             Returns:
                 ca_cert_hash (str): The CA certificate hash
@@ -1787,7 +1787,7 @@ class KubernetesHelper:
 
     def kind_api_version_to_kind(self, kind: str, api_version: str) -> tuple[str, str]:
         """
-        Given a Kubernetes API as (kind, api_version) return (kind, api_group)
+        Given a Kubernetes API as (kind, api_version) return (kind, api_group).
 
             Parameters:
                 kind (str): A Kubernetes kind
@@ -1807,7 +1807,7 @@ class KubernetesHelper:
 
     def get_latest_api(self, kind: tuple[str, str]) -> str:
         """
-        Given a Kubernetes API as (kind, api_group), returns the latest API-version
+        Given a Kubernetes API as (kind, api_group), returns the latest API-version.
 
             Parameters:
                 kind ((str, str)): A (kind, api_group) tuple
@@ -1831,7 +1831,7 @@ class KubernetesHelper:
     # pylint: disable-next=too-many-locals,too-many-branches,too-many-statements
     def get_api_resources(self) -> tuple[int, list[tuple]]:
         """
-        Return information about all API-resources available in the cluster
+        Return information about all API-resources available in the cluster.
 
             Returns:
                 ((status, api_resources)):
@@ -2003,7 +2003,7 @@ class KubernetesHelper:
     # pylint: disable-next=too-many-locals,too-many-return-statements,too-many-branches,too-many-statements  # noqa: E501
     def get_available_kinds(self, force_refresh: bool = False) -> tuple[dict, int, bool]:
         """
-        Return a dict of Kinds known by both kubernetes_helper and the API-server
+        Return a dict of Kinds known by both kubernetes_helper and the API-server.
 
             Parameters:
                 force_refresh (bool): Flush the list (if existing) and create a new one
@@ -2188,7 +2188,7 @@ class KubernetesHelper:
 
     def is_kind_available(self, kind: tuple[str, str]) -> bool:
         """
-        Checks whether a kind tuple is available or not
+        Checks whether a kind tuple is available or not.
 
             Parameters:
                 kind ((str, str)): The kind tuple
@@ -2203,7 +2203,7 @@ class KubernetesHelper:
 
     def get_list_of_namespaced_resources(self) -> list[tuple[str, str]]:
         """
-        Returns a list of all namespaced resources that are available in the cluster
+        Returns a list of all namespaced resources that are available in the cluster.
 
             Returns:
                 vlist ([(kind, api_group)]): A list of namespaced kinds
@@ -2767,7 +2767,7 @@ class KubernetesHelper:
 
     def get_api_server_version(self) -> tuple[int, int, str]:
         """
-        Get API-server version
+        Get API-server version.
 
             Returns:
                 (int, int, str):
@@ -2787,7 +2787,7 @@ class KubernetesHelper:
 
     def create_namespace(self, name: str) -> tuple[str, int]:
         """
-        Create a new namespace
+        Create a new namespace.
 
             Parameters:
                 name (str): The name of the new namespace
@@ -2820,7 +2820,7 @@ class KubernetesHelper:
                    new_taint: tuple[str, str | None, str | None, str | None],
                    overwrite: bool = False) -> tuple[str, int]:
         """
-        Apply a new taint, replace an existing taint, or remove a taint for a node
+        Apply a new taint, replace an existing taint, or remove a taint for a node.
 
             Parameters:
                 node (str): The node to taint
@@ -2901,7 +2901,7 @@ class KubernetesHelper:
 
     def cordon_node(self, node: str) -> tuple[str, int]:
         """
-        Cordon a Node
+        Cordon a Node.
 
             Parameters:
                 node (str): The node to cordon
@@ -2920,7 +2920,7 @@ class KubernetesHelper:
     # pylint: disable-next=too-many-locals
     def drain_node(self, node: str, **kwargs: Any) -> tuple[str, int]:
         """
-        Drain a Node
+        Drain a Node.
 
             Parameters:
                 node (str): The node to drain
@@ -3023,7 +3023,7 @@ class KubernetesHelper:
     def evict_pod_by_name_namespace(self, name: str, namespace: str,
                                     **kwargs: Any) -> tuple[str, int]:
         """
-        Evict a pod
+        Evict a pod.
 
             Parameters:
                 name (str): The name of the object
@@ -3057,7 +3057,7 @@ class KubernetesHelper:
     def delete_obj_by_kind_name_namespace(self, kind: tuple[str, str], name: str,
                                           namespace: str, force: bool = False) -> tuple[str, int]:
         """
-        Delete an object
+        Delete an object.
 
             Parameters:
                 kind ((kind, api_group)): Kind of object to delete
@@ -3077,7 +3077,7 @@ class KubernetesHelper:
 
     def get_metrics(self) -> tuple[list[str], int]:
         """
-        Get cluster metrics
+        Get cluster metrics.
 
             Returns:
                 (metrics, status):
@@ -3116,7 +3116,7 @@ class KubernetesHelper:
                                    **kwargs: Any) -> tuple[list[dict[str, Any]], int]:
         """
         Given kind, namespace and optionally label and/or field selectors,
-        return all matching resources
+        return all matching resources.
 
             Parameters:
                 kind (str, str): A kind, API-group tuple
@@ -3177,7 +3177,7 @@ class KubernetesHelper:
     def get_ref_by_kind_name_namespace(self, kind: tuple[str, str], name: str,
                                        namespace: str, **kwargs: Any) -> dict[str, Any] | None:
         """
-        Given kind, name, namespace return a resource
+        Given kind, name, namespace return a resource.
 
             Parameters:
                 kind (str, str): A kind, API-group tuple
@@ -3226,7 +3226,7 @@ class KubernetesHelper:
                                 container: str | None = None,
                                 tail_lines: int = 0) -> tuple[str, int]:
         """
-        Read a pod log
+        Read a pod log.
 
             Parameters:
                 name (str): The name of the pod
@@ -3275,7 +3275,7 @@ class KubernetesHelper:
     # since owners have to reside in the same namespace as their owned resources
     def get_ref_from_owr(self, owr: dict, namespace: str) -> dict:
         """
-        Given an Owner Reference (OWR), returns resource of the owner
+        Given an Owner Reference (OWR), returns resource of the owner.
 
             Parameters:
                 owr (dict): A reference to the owner of the resource
@@ -3294,7 +3294,7 @@ class KubernetesHelper:
                                           namespace: str, **kwargs: Any) \
             -> list[tuple[str, str, str, str, str, str, str, str, str]]:
         """
-        Given kind, name, and namespace, returns all matching events
+        Given kind, name, and namespace, returns all matching events.
 
             Parameters:
                 kind ((str, str)): A (kind, api_group) tuple

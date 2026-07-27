@@ -576,7 +576,7 @@ def validate_references(obj: dict, verbose: int = 0) -> tuple[int, str]:
 
     extra_fields: set[str] = {"age", "api_support", "mem", "name", "namespace", "pod_status"}
 
-    fields: set[str] = set(deep_get(obj, DictPath("listview#fields"), {}).keys())
+    fields: set[str] = set(deep_get(obj, DictPath("listview#fields"), {}))
     used_fields: set[str] = set()
 
     for key, data in deep_get(obj, DictPath("listview#field_indexes"), {}).items():
@@ -587,7 +587,7 @@ def validate_references(obj: dict, verbose: int = 0) -> tuple[int, str]:
                 continue
             used_fields.add(field)
 
-    rows: set[str] = set(deep_get(obj, DictPath("infoview#infopad#rows"), {}).keys())
+    rows: set[str] = set(deep_get(obj, DictPath("infoview#infopad#rows"), {}))
     used_rows: set[str] = set()
 
     for key, data in deep_get(obj, DictPath("infoview#infopad#row_indexes"), {}).items():
@@ -598,7 +598,7 @@ def validate_references(obj: dict, verbose: int = 0) -> tuple[int, str]:
                 continue
             used_rows.add(row)
 
-    listfields: set[str] = set(deep_get(obj, DictPath("infoview#listpad#fields"), {}).keys())
+    listfields: set[str] = set(deep_get(obj, DictPath("infoview#listpad#fields"), {}))
     used_listfields: set[str] = set()
 
     for key, data in deep_get(obj, DictPath("infoview#listpad#field_indexes"), {}).items():

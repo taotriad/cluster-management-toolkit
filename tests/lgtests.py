@@ -2229,6 +2229,78 @@ def test_listgetter_dict_list(verbose: bool = False) -> tuple[str, bool]:
                     ], 200),
                 None,
             ),
+            (
+                {
+                    "spec": {
+                        "bmc_monitoring": {
+                            "resources": {
+                                "limits": {
+                                    "cpu": "250m",
+                                    "memory": "250Mi",
+                                },
+                                "requests": {
+                                    "cpu": "150m",
+                                    "memory": "100Mi",
+                                },
+                            },
+                        },
+                        "device_plugin": {
+                            "resources": {
+                                "limits": {
+                                    "cpu": "20m",
+                                    "memory": "64Mi",
+                                },
+                                "requests": {
+                                    "cpu": "10m",
+                                    "memory": "32Mi",
+                                },
+                            },
+                        },
+                    },
+                },
+                {
+                    "paths": [
+                        {
+                            "path": "spec#bmc_monitoring#resources",
+                            "key_name": "container",
+                            "key_value": "bmc_monitoring",
+                        }, {
+                            "path": "spec#device_plugin#resources",
+                            "key_name": "container",
+                            "key_value": "device_plugin",
+                        },
+                    ],
+                },
+                (
+                    [
+                        {
+                            'container': 'bmc_monitoring',
+                            'value': {
+                                'limits': {
+                                    'cpu': '250m',
+                                    'memory': '250Mi'
+                                },
+                                'requests': {
+                                    'cpu': '150m',
+                                    'memory': '100Mi'
+                                }
+                            }
+                        }, {
+                            'container': 'device_plugin',
+                            'value': {
+                                'limits': {
+                                    'cpu': '20m',
+                                    'memory': '64Mi'
+                                },
+                                'requests': {
+                                    'cpu': '10m',
+                                    'memory': '32Mi'
+                                }
+                            }
+                        }
+                    ], 200),
+                None,
+            ),
         )
 
         for obj, kwargs, expected_result, expected_exception in testdata:

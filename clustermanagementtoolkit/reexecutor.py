@@ -13,7 +13,6 @@ using the concurrent.futures ThreadPoolExecutor
 from collections.abc import Callable
 import concurrent.futures
 from datetime import datetime
-import sys
 import threading
 from typing import Any
 
@@ -77,7 +76,7 @@ class ReExecutor:
 
     def retrigger(self, key: str) -> None:
         """
-        Retrigger a callable
+        Retrigger a callable.
 
             Parameter:
                 key (str): The identifier for the callable to (re-)trigger
@@ -156,7 +155,7 @@ class ReExecutor:
         """
         Flush the list of callables.
         """
-        for key in list(self.futures.keys()):
+        for key in list(self.futures):
             self.delete(key)
 
     def shutdown(self) -> None:

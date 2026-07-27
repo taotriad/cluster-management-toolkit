@@ -11,7 +11,6 @@ This program takes the output from kubectl get events -A -oyaml and finds unknow
 
 import errno
 import sys
-from typing import Any
 import yaml
 
 from clustermanagementtoolkit.cmttypes import deep_get, DictPath
@@ -38,6 +37,7 @@ def main() -> None:
     kh_cache = KubernetesResourceCache()
 
     events, status = kh.get_list_by_kind_namespace(("Event", ""), "", resource_cache=kh_cache)
+
     if status in (42503, 42504):
         ansithemeprint([ANSIThemeStr("Error", "error"),
                         ANSIThemeStr(": API-server unavailable", "default")], stderr=True)
@@ -58,16 +58,13 @@ def main() -> None:
 
     known_reasons = set()
 
-    d: dict[str, Any] = {}
     tmp: str = ""
 
     # Get the list of known reasons
     with open("views/variables/event_reasons.var", encoding="utf-8") as f:
         tmp = f.read()
 
-    d = yaml.safe_load(tmp)
-
-    for key in d.keys():
+    for key in yaml.safe_load(tmp):
         if key:
             known_reasons.add(key)
 

@@ -700,7 +700,7 @@ def __color_name_to_curses_color(color: tuple[str, str], color_type: str) -> int
         col = col.lower()
 
     if not isinstance(col, str) or col not in color_map:
-        tmp_color_list = ansithemestr_join_list(list(color_map.keys()),
+        tmp_color_list = ansithemestr_join_list(list(color_map),
                                                 formatting="argument",
                                                 separator=ANSIThemeStr(", ", "separator"))
         color_list = ANSIThemeStr.ansithemearray_to_tuplelist(tmp_color_list)

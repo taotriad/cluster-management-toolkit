@@ -969,7 +969,7 @@ def genericlistloop(stdscr: curses.window, **kwargs: Any) -> Retval:
     elif "Wide" in field_indexes:
         field_index = "Wide"
     else:
-        field_index = list(field_indexes.keys())[0]
+        field_index = list(field_indexes)[0]
 
     fieldgenerator_args = {
         "field_index": field_index,
@@ -1042,7 +1042,7 @@ def genericlistloop(stdscr: curses.window, **kwargs: Any) -> Retval:
             # Temporary workaround
             # pylint: disable-next=comparison-with-callable
             if listgetter_async == listgetters_async.get_inventory_list and "hosts" not in executor:
-                hosts = list(deep_get(ansible_get_inventory_dict(), DictPath("all#hosts")).keys())
+                hosts = list(deep_get(ansible_get_inventory_dict(), DictPath("all#hosts")))
                 # The inventory doesn't change all that often,
                 # but reading it every 10 seconds should be OK
                 executor.trigger("hosts", 10, read_file_async, path=ANSIBLE_INVENTORY,
@@ -1116,7 +1116,7 @@ def genericlistloop(stdscr: curses.window, **kwargs: Any) -> Retval:
         if executor:
             if (execution_result_dict := executor.get("hosts")) != ([], []):
                 data, _host_statuses = execution_result_dict
-                hosts = deep_get(cast(dict, data), DictPath("all#hosts"), {}).keys()
+                hosts = deep_get(cast(dict, data), DictPath("all#hosts"), {})
                 hosts_set = set(hosts)
                 async_data["hosts"] = list(hosts)
                 if vlist := deep_get(infogetter_extra_args, DictPath("_vlist"), []):
@@ -1391,7 +1391,7 @@ def genericlistloop(stdscr: curses.window, **kwargs: Any) -> Retval:
             if not field_indexes:
                 continue
 
-            _list = list(field_indexes.keys())
+            _list = list(field_indexes)
             _index = _list.index(field_index)
             field_index = _list[(_index + 1) % len(field_indexes)]
 
@@ -4873,7 +4873,7 @@ def genericinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
             if not field_indexes:
                 continue
 
-            _list = list(field_indexes.keys())
+            _list = list(field_indexes)
             _index = _list.index(field_index)
             field_index = _list[(_index + 1) % len(field_indexes)]
 
@@ -10868,7 +10868,7 @@ def list_views(options: list[tuple[str, str]], args: list[str]) -> None:
             fieldset.update(deep_get(values, DictPath("fields"), []))
             if not sortcolumn:
                 sortcolumn = deep_get(values, DictPath("sortcolumn"), "")
-        fieldset.union(set(deep_get(viewref, DictPath("fields"), {}).keys()))
+        fieldset.union(set(deep_get(viewref, DictPath("fields"), {})))
 
         for fieldname in fieldset:
             if sortcolumn == "" and fieldname == "name":

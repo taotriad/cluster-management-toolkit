@@ -776,7 +776,7 @@ def list_groups(options: list[tuple[str, str]], args: list[str]) -> int:
             separator = "\t"
 
         d = ansible_get_inventory_dict()
-        sorted_groups = cast(list[str], natsorted(d.keys()))
+        sorted_groups = list(natsorted(d))
         ansithemeprint(ansithemestr_join_list(sorted_groups, formatting="hostname",
                                               separator=ANSIThemeStr(separator, "separator")),
                        color=color)

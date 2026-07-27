@@ -451,7 +451,7 @@ def ansible_get_groups(inventory: FilePath) -> list[str]:
         d = dict(secure_read_yaml(inventory))
     except TypeError:
         d = {}
-    return list(d.keys())
+    return list(d)
 
 
 def ansible_get_groups_by_host(inventory_dict: dict, host: str) -> list[str]:
