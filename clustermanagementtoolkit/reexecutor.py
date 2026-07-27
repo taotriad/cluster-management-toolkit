@@ -164,11 +164,7 @@ class ReExecutor:
         Shutdown the executor.
         """
         self.flush()
-        # If cancel_futures is supported we should use it
-        if sys.version_info[0:2] >= (3, 9):
-            self.executor.shutdown(wait=False, cancel_futures=True)
-        else:
-            self.executor.shutdown(wait=False)
+        self.executor.shutdown(wait=False, cancel_futures=True)
 
     def __len__(self) -> int:
         """

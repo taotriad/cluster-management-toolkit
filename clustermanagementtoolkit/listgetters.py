@@ -2225,11 +2225,8 @@ def listgetter_namespaced_resources(obj: dict, **kwargs: Any) -> \
         for obj_ in vlist_:
             obj_["__kind_tuple"] = kind
         vlist += vlist_
-    # If cancel_futures is supported we should use it
-    if sys.version_info[0:2] >= (3, 9):
-        executor_.shutdown(wait=False, cancel_futures=True)
-    else:
-        executor_.shutdown(wait=False)
+    executor_.shutdown(wait=False, cancel_futures=True)
+
     return vlist, status
 
 
