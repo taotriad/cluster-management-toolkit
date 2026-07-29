@@ -64,7 +64,7 @@ def main() -> None:
     index_file = sys.argv[2]
 
     if view_dir.startswith("{HOME}"):
-        view_dir = view_dir.replace("{HOME}", Path.home(), 1)
+        view_dir = view_dir.replace("{HOME}", str(Path.home()), 1)
     view_dir = os.path.abspath(view_dir)
 
     index_file = os.path.abspath(index_file)

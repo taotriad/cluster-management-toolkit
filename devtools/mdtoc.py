@@ -125,7 +125,7 @@ def main() -> None:
 
         prefix: str = ""
         indent: str = ""
-        index: str = ""
+        index: int = 0
 
         # Note: We only index the first three levels
         for line in tmp.splitlines():

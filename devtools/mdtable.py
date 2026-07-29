@@ -80,9 +80,9 @@ def format_table(file: str, separator: str, headers: list[str], **kwargs: Any) -
     bold_regex: str = ""
     italics_regex: str = ""
     if "bold_regex" in kwargs:
-        bold_regex = kwargs.get("bold_regex")
+        bold_regex = kwargs.get("bold_regex", "")
     if "italics_regex" in kwargs:
-        italics_regex = kwargs.get("italics_regex")
+        italics_regex = kwargs.get("italics_regex", "")
 
     try:
         with open(file, "r", encoding="utf-8") as f:

@@ -78,8 +78,6 @@ def main() -> None:
     for line in lines:
         print(line)
 
-    return 0
-
 
 if __name__ == "__main__":
     main()
