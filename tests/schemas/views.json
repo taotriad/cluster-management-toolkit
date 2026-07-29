@@ -4344,6 +4344,10 @@
                                                                 "properties": {
                                                                     "path": {
                                                                         "$ref": "#/$defs/simple_path"
+                                                                    },
+                                                                    "unescape_newlines": {
+                                                                        "description": "Should escaped embedded newlines be unescaped before splitting the string?",
+                                                                        "type": "boolean"
                                                                     }
                                                                 },
                                                                 "additionalProperties": false

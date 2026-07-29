@@ -923,13 +923,18 @@ def get_strings_from_string(obj: dict, **kwargs: Any) -> list[list[str]]:
             obj (dict): The object to get data from
             **kwargs (dict[str, Any]): Keyword arguments
                 path (str): The path to the string
+                unescape_newlines (bool): If the message contains escaped newlines,
+                                          unescape them before splitting the string
         Returns:
             ([[str]]): A list of lists of strings
     """
     vlist = []
     path: DictPath = DictPath(deep_get(kwargs, DictPath("path"), ""))
+    unescape_newlines: bool = deep_get(kwargs, DictPath("unescape_newlines"), False)
     tmp = deep_get(obj, DictPath(path), "")
     if tmp is not None and tmp:
+        if unescape_newlines:
+            tmp = tmp.replace("\\n", "\n")
         for line in split_msg(tmp):
             vlist.append([line])
     return vlist
