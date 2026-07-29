@@ -4212,7 +4212,7 @@ def get_programname(callname: str) -> tuple[str, dict]:
     return callname, callnames[callname]
 
 
-def main() -> int:
+def main() -> None:
     """
     Main function for the program.
     """
@@ -4257,7 +4257,7 @@ def main() -> int:
     ansible_configuration["save_logs"] = \
         deep_get(cmtlib.cmtconfig, DictPath("Ansible#save_logs"), False)
 
-    return command(options, args)
+    command(options, args)
 
 
 if __name__ == "__main__":

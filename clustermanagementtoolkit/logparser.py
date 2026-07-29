@@ -62,12 +62,12 @@ except ModuleNotFoundError:  # pragma: no cover
 
 try:
     import validators
+    has_validators: bool = True  # pylint: disable=invalid-name
 except ModuleNotFoundError:
+    has_validators = False  # pylint: disable=invalid-name
     print("ModuleNotFoundError: Could not import validators; "
           "you may need to (re-)run `cmt-install.py` or `pip3 install validators`; "
           "disabling IP-address validation.\n", file=sys.stderr)
-    # pylint: disable-next=invalid-name
-    validators = None
 
 from clustermanagementtoolkit import cmtlog
 
@@ -701,7 +701,7 @@ def http(message: str,
             # Just pass-through if validators isn't installed;
             # this might lead to false positives, but it's better than
             # not working at all
-            if validators is None or validators.ipv4(re_tmp[1]) or validators.ipv6(re_tmp[1]):
+            if not has_validators or validators.ipv4(re_tmp[1]) or validators.ipv6(re_tmp[1]):
                 ipaddress = re_tmp[1]
                 message = re_tmp[2]
 

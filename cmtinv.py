@@ -2422,7 +2422,7 @@ COMMANDLINE: dict[str, CommandType] = {
 }
 
 
-def main() -> int:
+def main() -> None:
     """
     Main function for the program.
     """
@@ -2464,7 +2464,7 @@ def main() -> int:
     ansible_configuration["disable_strict_host_key_checking"] = \
         deep_get(cmtlib.cmtconfig, DictPath("Nodes#disablestricthostkeychecking"), False)
 
-    return command(options, args)
+    command(options, args)
 
 
 if __name__ == "__main__":

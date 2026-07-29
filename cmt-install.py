@@ -1150,12 +1150,9 @@ COMMANDLINE: dict[str, CommandType] = {
 }
 
 
-def main() -> int:
+def main() -> None:
     """
     Main function for the program.
-
-        Returns:
-           (int): 0 on success, non-zero on failure
     """
     # Before doing anything else, make sure that the user is not running as root
     if os.geteuid() == 0:
@@ -1173,7 +1170,7 @@ def main() -> int:
                           PROGRAMDESCRIPTION, PROGRAMAUTHORS, sys.argv, COMMANDLINE,
                           default_command="__default", theme=FilePath(""))
 
-    return command(options, args)
+    command(options, args)
 
 
 if __name__ == "__main__":

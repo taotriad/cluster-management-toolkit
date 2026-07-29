@@ -6,7 +6,7 @@
 # SPDX-License-Identifier: MIT
 
 """
-This module contains data validators, mainly for validating user input
+This module contains data validators, mainly for validating user input.
 """
 
 import errno
@@ -18,11 +18,12 @@ from typing import Any
 
 try:
     import validators
+    has_validators: bool = True  # pylint: disable=invalid-name
 except ModuleNotFoundError:
+    has_validators = False  # pylint: disable=invalid-name
     print("ModuleNotFoundError: Could not import validators; "
           "you may need to (re-)run `cmt-install.py` "
           "or `pip3 install validators`; disabling IP-address validation.\n", file=sys.stderr)
-    validators = None  # pylint: disable=invalid-name
 
 from clustermanagementtoolkit.ansithemeprint import ANSIThemeStr, ansithemeprint
 from clustermanagementtoolkit.ansithemeprint import ansithemestr_join_list, ansithemearray_to_str
@@ -368,7 +369,7 @@ def validator_cidr(value: str, **kwargs: Any) -> bool:
 
     if "/" in value:
         ip, netmask = value.split("/")
-        if validators is not None:
+        if has_validators:
             valid_ipv4_address = validators.ipv4(ip)
             valid_ipv6_address = validators.ipv6(ip)
         else:  # pragma: no cover
@@ -541,7 +542,7 @@ def validate_argument(arg: str, arg_string: list[ANSIThemeStr], options: dict) -
                            "hostname_or_ip", "ip"):
             valid_dns_label = validate_name("dns-subdomain", subarg)
             valid_ansible_group = validate_name("ansible-group", subarg)
-            if validators is not None:
+            if has_validators:
                 valid_ipv4_address = validators.ipv4(subarg)
                 valid_ipv6_address = validators.ipv6(subarg)
             else:  # pragma: no cover
@@ -646,7 +647,7 @@ def validate_argument(arg: str, arg_string: list[ANSIThemeStr], options: dict) -
                 tmp_arg = f"https://{arg}"
 
             # Workaround; it seems validators.url accepts usernames that start with "-"
-            if subarg.startswith("-") or validators is not None and not validators.url(tmp_arg):
+            if subarg.startswith("-") or has_validators and not validators.url(tmp_arg):
                 if error_on_failure:
                     ansithemeprint([ANSIThemeStr(f"{programname}", "programname"),
                                     ANSIThemeStr(": “", "default"),

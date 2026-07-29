@@ -36,12 +36,9 @@ hack = [
 ]
 
 
-def main() -> int:
+def main() -> None:
     """
     Main function for the program.
-
-        Returns:
-            0 on success, errno on failure
     """
     lines = []
     filename: str = ""

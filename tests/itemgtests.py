@@ -798,10 +798,9 @@ def test_get_key_value(verbose: bool = False) -> tuple[str, bool]:
 
     if result:
         # Indata format:
-        # (path, obj, expected_result, expected_exception)
+        # (obj, args, expected_result, expected_exception)
         testdata: tuple = (
             (
-                DictPath("status#external-identifiers"),
                 {
                     "status": {
                         "external-identifiers": {
@@ -815,6 +814,9 @@ def test_get_key_value(verbose: bool = False) -> tuple[str, bool]:
                             "pod-name": "kube-system/coredns-76f75df574-jblm6"
                         },
                     },
+                },
+                {
+                    "path": "status#external-identifiers",
                 },
                 [
                     (
@@ -841,7 +843,6 @@ def test_get_key_value(verbose: bool = False) -> tuple[str, bool]:
                 None,
             ),
             (
-                DictPath("foo"),
                 {
                     "foo": {
                         "a": 1,
@@ -851,6 +852,9 @@ def test_get_key_value(verbose: bool = False) -> tuple[str, bool]:
                         "e": ("foo", "bar", "baz"),
                         "f": {"bla": "blo", "biff": "boff"},
                     },
+                },
+                {
+                    "path": "foo",
                 },
                 [
                     ("a", "1"),
@@ -862,27 +866,80 @@ def test_get_key_value(verbose: bool = False) -> tuple[str, bool]:
                 ],
                 None,
             ),
+            # ignored keys
             (
-                DictPath("foo"),
                 {
                     "foo": {
-                        "a": Exception,
+                        "a": 1,
+                        "b": 0.2,
+                        "c": "string",
+                        "d": ["foo", "bar", "baz"],
+                        "e": ("foo", "bar", "baz"),
+                        "f": {"bla": "blo", "biff": "boff"},
                     },
+                },
+                {
+                    "path": "foo",
+                    "ignored_keys": ["d", "e", "f"],
+                },
+                [
+                    ("a", "1"),
+                    ("b", "0.2"),
+                    ("c", "string"),
+                ],
+                None,
+            ),
+            # Data from a string
+            (
+                {
+                    "foo": "a=1,b=0.2,c=string,d=foo",
+                },
+                {
+                    "path": "foo",
+                },
+                [
+                    ("a", "1"),
+                    ("b", "0.2"),
+                    ("c", "string"),
+                    ("d", "foo"),
+                ],
+                None,
+            ),
+            (
+                {
+                    "foo": "bar",
+                },
+                {
+                    "path": "foo",
                 },
                 None,
                 TypeError,
             ),
             (
-                DictPath(""),
+                {
+                    "foo": {
+                        "a": Exception,
+                    },
+                },
+                {
+                    "path": "foo",
+                },
+                None,
+                TypeError,
+            ),
+            (
                 {},
+                {
+                    "path": "",
+                },
                 [],
                 None,
             ),
         )
 
-        for path, obj, expected_result, expected_exception in testdata:
+        for obj, args, expected_result, expected_exception in testdata:
             try:
-                tmp = fun(obj, path=path)
+                tmp = fun(obj, **args)
                 if tmp != expected_result:
                     message = f"{fun.__name__}() did not yield expected result:\n" \
                               f"           result: {tmp}\n" \
@@ -953,6 +1010,17 @@ def test_get_list_as_string(verbose: bool = False) -> tuple[str, bool]:
                     "path": "string",
                 },
                 [("foobarbaz",)],
+                None,
+            ),
+            (
+                # empty.
+                {
+                    "string": ["", "", ""],
+                },
+                {
+                    "path": "string",
+                },
+                [],
                 None,
             ),
         )
@@ -1209,6 +1277,56 @@ def test_get_list_as_list(verbose: bool = False) -> tuple[str, bool]:
                 },
                 [
                     ['a', 'b'], ['a', 'd'],
+                ],
+                None,
+            ),
+            (
+                # Valid data
+                {
+                    "args": [
+                        "--leader-elect",
+                        "--diagnostics-address=:8443",
+                        "--insecure-diagnostics=false",
+                        "--feature-gates=MachinePool=true,"
+                        "ClusterTopology=true,"
+                        "PriorityQueue=true,"
+                        "ReconcilerRateLimiting=true",
+                        "--bootstrap-token-ttl=15m",
+                    ],
+                    "command": [
+                        "/manager",
+                    ],
+                },
+                {
+                    "paths": [
+                        {
+                            "path": "command",
+                            "name": "Command",
+                        }, {
+                            "path": "args",
+                            "name": "Argument",
+                        },
+                    ],
+                    "named_lists": True,
+                },
+                [
+                    {
+                        "fields": ["Command", "/manager"],
+                    }, {
+                        "fields": ["Argument", "--leader-elect"],
+                    }, {
+                        "fields": ["Argument", "--diagnostics-address=:8443"],
+                    }, {
+                        "fields": ["Argument", "--insecure-diagnostics=false"],
+                    }, {
+                        "fields": ["Argument",
+                                   "--feature-gates=MachinePool=true,"
+                                   "ClusterTopology=true,"
+                                   "PriorityQueue=true,"
+                                   "ReconcilerRateLimiting=true"],
+                    }, {
+                        "fields": ["Argument", "--bootstrap-token-ttl=15m"],
+                    },
                 ],
                 None,
             ),
@@ -2894,6 +3012,34 @@ def test_get_strings_from_string(verbose: bool = False) -> tuple[str, bool]:
                 },
                 {
                     "path": "data",
+                },
+                [
+                    ["line1"],
+                    ["line2"],
+                ],
+                None,
+            ),
+            (
+                # Valid data
+                {
+                    "data": "line1\\nline2",
+                },
+                {
+                    "path": "data",
+                },
+                [
+                    ["line1\\nline2"],
+                ],
+                None,
+            ),
+            (
+                # Valid data
+                {
+                    "data": "line1\\nline2",
+                },
+                {
+                    "path": "data",
+                    "unescape_newlines": True,
                 },
                 [
                     ["line1"],

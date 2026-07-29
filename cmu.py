@@ -11733,7 +11733,7 @@ def main() -> None:
                         ANSIThemeStr(f"{defaultthemefile}", "path"),
                         ANSIThemeStr("“ instead.\n", "default")])
 
-    return command(options, args)
+    command(options, args)
 
 
 if __name__ == "__main__":
