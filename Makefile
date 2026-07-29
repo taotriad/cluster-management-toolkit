@@ -427,7 +427,7 @@ mypy:
 	printf -- "\n\nRunning $$cmd to check Python typing\n\n"; \
 	$$cmd --version ;\
 	printf -- "\n" ;\
-	for file in $(python_executables_py) clustermanagementtoolkit/*.py; do \
+	for file in $(python_executables_py) devtools/*.py clustermanagementtoolkit/*.py; do \
 		$$cmd $(MYPY_FLAGS) $$file || true; \
 	done
 
