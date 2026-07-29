@@ -8,6 +8,7 @@
       container_name: "tuned"
   parser_rules:
     - name: "glog"
+    - name: "expand_event"
     - name: "custom_splitter"
       options:
         # yamllint disable-line rule:line-length

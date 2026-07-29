@@ -5,4 +5,8 @@
     - pod_name: "csi-snapshot-controller"
   parser_rules:
     - name: "glog"
+    - name: "expand_event"
     - name: "key_value_with_leading_message"
+      options:
+        versions:
+          - "version"

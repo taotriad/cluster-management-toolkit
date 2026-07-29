@@ -6,6 +6,7 @@
       container_name: "cluster-version-operator"
   parser_rules:
     - name: "glog"
+    - name: "expand_event"
     - name: "diff_line"
       options:
         block_start:
@@ -20,3 +21,4 @@
         - matchtype: "startswith"
           matchkey: "ClusterVersionOperator "
           loglevel: "notice"
+    - name: "key_value_with_leading_message"

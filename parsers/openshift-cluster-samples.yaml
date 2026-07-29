@@ -6,6 +6,19 @@
       container_name: "cluster-samples-operator-watch"
   parser_rules:
     - name: "glog"
+    - name: "custom_line"
+      options:
+        block_start:
+          - matchtype: "regex"
+            matchkey: "^Watching for changes in.*{$"
+            matchline: "any"
+            format_block_start: true
+        block_end:
+          - matchtype: "exact"
+            matchkey: "}"
+            matchline: "any"
+            format_block_end: true
+        loglevel: "info"
 - name: "openshift-cluster-samples"
   show_in_selector: false
   matchkeys:
@@ -13,7 +26,7 @@
       container_name: "cluster-samples-operator"
   parser_rules:
     - name: "glog"
-    - name: "key_value"
+    - name: "key_value_with_leading_message"
     - name: "override_severity"
       overrides:
         - matchtype: "startswith"

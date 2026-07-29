@@ -14,7 +14,6 @@
         - matchtype: "startswith"
           matchkey: "CoreDNS"
           loglevel: "notice"
-    - name: "http"
 - name: "openshift-dns"
   show_in_selector: false
   matchkeys:
