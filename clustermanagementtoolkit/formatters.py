@@ -1776,6 +1776,7 @@ def render_markdown(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef
                 include_start (bool): Include the start line
                 end ((str)): End indicator(s)
                 use_github_tags (bool): Should GitHub tags be used (includes GitHub alerts)?
+                raw (bool): Show raw document instead of rendering the document
         Returns:
             ([themearray]): A list of themearrays
     """
@@ -1948,7 +1949,7 @@ def format_binary(lines: bytes, **kwargs: Any) -> list[list[ThemeRef | ThemeStr]
 
         Parameters:
             lines (bytes): [unused]
-            **kwargs (dict[str, Any]): Keyword arguments
+            **kwargs (dict[str, Any]): Keyword arguments [unused]
         Returns:
             ([themearray]): A list of themearrays
     """
@@ -1964,7 +1965,7 @@ def format_none(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef | T
             lines ([str]): A list of strings
             *or*
             lines (str): a string with newlines that should be split
-            **kwargs (dict[str, Any]): Keyword arguments
+            **kwargs (dict[str, Any]): Keyword arguments [unused]
         Returns:
             ([themearray]): A list of themearrays
     """
@@ -2010,6 +2011,8 @@ def format_diff_line(line: str, **kwargs: Any) -> list[ThemeRef | ThemeStr]:
             line (str): a string
             **kwargs (dict[str, Any]): Keyword arguments
                 override_formatting (dict): Overrides instead of default formatting
+                indent (str): Indentation to insert
+                diffspace (str): The indentation to insert after the diff characters
         Returns:
             (themearray): A themearray
     """
@@ -2070,6 +2073,7 @@ def format_yaml_line(line: str, **kwargs: Any) -> tuple[list[ThemeRef | ThemeStr
             line (str): a string
             **kwargs (dict[str, Any]): Keyword arguments
                 override_formatting (dict): Overrides instead of default formatting
+                value_strip_ansicodes (bool): Strip ansicodes from the value
         Returns:
             (themearray): A themearray
             ([themearray]): A list of themearrays,
@@ -2509,6 +2513,8 @@ def format_yaml(lines: str | list[str] | dict | list[dict], **kwargs: Any) -> \
                                a string with newlines that should be split,
                                *or* a dict to dump as yaml
             **kwargs (dict[str, Any]): Keyword arguments
+                is_json (bool): Is this json or yaml?
+                unfold_msg (bool): Unfold the message
         Returns:
             ([themearray]): A list of themearrays
     """
@@ -2592,7 +2598,7 @@ def reformat_json(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef |
         Parameters:
             lines (str|[str]): A list of strings *or*
                                a string with newlines that should be split
-            **kwargs (dict[str, Any]): Keyword arguments
+            **kwargs (dict[str, Any]): Keyword arguments [passthrough to format_yaml]
         Returns:
             ([themearray]): A list of themearrays
     """
@@ -2610,6 +2616,11 @@ def format_pygments_generic(lines: str | list[str], **kwargs: Any) -> \
                                a string with newlines that should be split,
                                *or* a dict to dump as yaml
             **kwargs (dict[str, Any]): Keyword arguments
+                raw (bool): Show raw document instead of formatting it
+                lexer (pygments.lexer): A pygments lexer
+                colorscheme (dict[Any, ColorSchemeEntry]): A mapping from a token
+                                                           to a formatting dict
+                formatter (callable): The formatter to use when outputting the data
         Returns:
             ([themearray]): A list of themearrays
     """
@@ -2637,6 +2648,7 @@ def format_caddyfile(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRe
             *or*
             lines (str): A string with newlines that should be split
             **kwargs (dict[str, Any]): Keyword arguments
+                raw (bool): Show raw document instead of rendering the document
         Returns:
             list[themearray]: A list of themearrays
     """
@@ -2792,7 +2804,7 @@ def format_cel(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef | Th
             lines ([str]): A list of strings
             *or*
             lines (str): a string with newlines that should be split
-            **kwargs (dict[str, Any]): Keyword arguments
+            **kwargs (dict[str, Any]): Keyword arguments [passthrough to format_pygments_generic]
         Returns:
             ([themearray]): A list of themearrays
     """
@@ -2811,7 +2823,7 @@ def format_crt(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef | Th
             lines (list[str]): A list of strings
             *or*
             lines (str): A string with newlines that should be split
-            **kwargs (dict[str, Any]): Keyword arguments
+            **kwargs (dict[str, Any]): Keyword arguments [passthrough to format_pygments_generic]
         Returns:
             list[themearray]: A list of themearrays
     """
@@ -2828,7 +2840,7 @@ def format_css(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef | Th
             lines (list[str]): A list of strings
             *or*
             lines (str): A string with newlines that should be split
-            **kwargs (dict[str, Any]): Keyword arguments
+            **kwargs (dict[str, Any]): Keyword arguments [passthrough to format_pygments_generic]
         Returns:
             list[themearray]: A list of themearrays
     """
@@ -2845,7 +2857,7 @@ def format_diff(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef | T
             lines (list[str]): A list of strings
             *or*
             lines (str): A string with newlines that should be split
-            **kwargs (dict[str, Any]): Keyword arguments
+            **kwargs (dict[str, Any]): Keyword arguments [passthrough to format_pygments_generic]
         Returns:
             list[themearray]: A list of themearrays
     """
@@ -2862,7 +2874,7 @@ def format_dmesg(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef | 
             lines (list[str]): A list of strings
             *or*
             lines (str): A string with newlines that should be split
-            **kwargs (dict[str, Any]): Keyword arguments
+            **kwargs (dict[str, Any]): Keyword arguments [passthrough to format_pygments_generic]
         Returns:
             list[themearray]: A list of themearrays
     """
@@ -2879,7 +2891,7 @@ def format_docker(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef |
             lines (list[str]): A list of strings
             *or*
             lines (str): A string with newlines that should be split
-            **kwargs (dict[str, Any]): Keyword arguments
+            **kwargs (dict[str, Any]): Keyword arguments [passthrough to format_pygments_generic]
         Returns:
             list[themearray]: A list of themearrays
     """
@@ -3021,7 +3033,7 @@ def format_html(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef | T
             lines (list[str]): A list of strings
             *or*
             lines (str): A string with newlines that should be split
-            **kwargs (dict[str, Any]): Keyword arguments
+            **kwargs (dict[str, Any]): Keyword arguments [passthrough to format_pygments_generic]
         Returns:
             list[themearray]: A list of themearrays
     """
@@ -3038,7 +3050,7 @@ def format_ini(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef | Th
             lines (list[str]): A list of strings
             *or*
             lines (str): A string with newlines that should be split
-            **kwargs (dict[str, Any]): Keyword arguments
+            **kwargs (dict[str, Any]): Keyword arguments [passthrough to format_pygments_generic]
         Returns:
             list[themearray]: A list of themearrays
     """
@@ -3055,7 +3067,7 @@ def format_javascript(lines: str | list[str], **kwargs: Any) -> list[list[ThemeR
             lines (list[str]): A list of strings
             *or*
             lines (str): A string with newlines that should be split
-            **kwargs (dict[str, Any]): Keyword arguments
+            **kwargs (dict[str, Any]): Keyword arguments [passthrough to format_pygments_generic]
         Returns:
             list[themearray]: A list of themearrays
     """
@@ -3167,7 +3179,7 @@ def format_known_hosts(lines: str | list[str], **kwargs: Any) -> list[list[Theme
             lines (list[str]): A list of strings
             *or*
             lines (str): A string with newlines that should be split
-            **kwargs (dict[str, Any]): Keyword arguments
+            **kwargs (dict[str, Any]): Keyword arguments [passthrough to format_pygments_generic]
         Returns:
             list[themearray]: A list of themearrays
     """
@@ -3184,7 +3196,7 @@ def format_mosquitto(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRe
             lines (list[str]): A list of strings
             *or*
             lines (str): A string with newlines that should be split
-            **kwargs (dict[str, Any]): Keyword arguments
+            **kwargs (dict[str, Any]): Keyword arguments [passthrough to format_pygments_generic]
         Returns:
             list[themearray]: A list of themearrays
     """
@@ -3201,7 +3213,7 @@ def format_nginx(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef | 
             lines (list[str]): A list of strings
             *or*
             lines (str): A string with newlines that should be split
-            **kwargs (dict[str, Any]): Keyword arguments
+            **kwargs (dict[str, Any]): Keyword arguments [passthrough to format_pygments_generic]
         Returns:
             list[themearray]: A list of themearrays
     """
@@ -3218,7 +3230,7 @@ def format_xml(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef | Th
             lines (list[str]): A list of strings
             *or*
             lines (str): A string with newlines that should be split
-            **kwargs (dict[str, Any]): Keyword arguments
+            **kwargs (dict[str, Any]): Keyword arguments [passthrough to format_pygments_generic]
         Returns:
             list[themearray]: A list of themearrays
     """
@@ -3235,7 +3247,7 @@ def format_powershell(lines: str | list[str], **kwargs: Any) -> list[list[ThemeR
             lines (list[str]): A list of strings
             *or*
             lines (str): A string with newlines that should be split
-            **kwargs (dict[str, Any]): Keyword arguments
+            **kwargs (dict[str, Any]): Keyword arguments [passthrough to format_pygments_generic]
         Returns:
             list[themearray]: A list of themearrays
     """
@@ -3252,7 +3264,7 @@ def format_promql(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef |
             lines (list[str]): A list of strings
             *or*
             lines (str): A string with newlines that should be split
-            **kwargs (dict[str, Any]): Keyword arguments
+            **kwargs (dict[str, Any]): Keyword arguments [passthrough to format_pygments_generic]
         Returns:
             list[themearray]: A list of themearrays
     """
@@ -3269,7 +3281,7 @@ def format_python(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef |
             lines (list[str]): A list of strings
             *or*
             lines (str): A string with newlines that should be split
-            **kwargs (dict[str, Any]): Keyword arguments
+            **kwargs (dict[str, Any]): Keyword arguments [passthrough to format_pygments_generic]
         Returns:
             list[themearray]: A list of themearrays
     """
@@ -3287,7 +3299,7 @@ def format_python_traceback(lines: str | list[str],
             lines (list[str]): A list of strings
             *or*
             lines (str): A string with newlines that should be split
-            **kwargs (dict[str, Any]): Keyword arguments
+            **kwargs (dict[str, Any]): Keyword arguments [passthrough to format_pygments_generic]
         Returns:
             list[themearray]: A list of themearrays
     """
@@ -3304,7 +3316,7 @@ def format_shellscript(lines: str | list[str], **kwargs: Any) -> list[list[Theme
             lines (list[str]): A list of strings
             *or*
             lines (str): A string with newlines that should be split
-            **kwargs (dict[str, Any]): Keyword arguments
+            **kwargs (dict[str, Any]): Keyword arguments [passthrough to format_pygments_generic]
         Returns:
             list[themearray]: A list of themearrays
     """
@@ -3321,7 +3333,7 @@ def format_toml(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef | T
             lines (list[str]): A list of strings
             *or*
             lines (str): A string with newlines that should be split
-            **kwargs (dict[str, Any]): Keyword arguments
+            **kwargs (dict[str, Any]): Keyword arguments [passthrough to format_pygments_generic]
         Returns:
             list[themearray]: A list of themearrays
     """
