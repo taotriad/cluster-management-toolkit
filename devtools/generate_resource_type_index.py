@@ -74,7 +74,7 @@ def main() -> None:
 
     yaml_regex: re.Pattern[str] = re.compile(r"^(.*)\.ya?ml$")
 
-    resource_type_index: dict[str, dict[str, str]] = {}
+    resource_type_index: dict[str, Any] = {}
 
     global_aliases: set[str] = set()
 
