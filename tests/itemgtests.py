@@ -1807,6 +1807,137 @@ def test_get_dict_list(verbose: bool = False) -> tuple[str, bool]:
     return message, result
 
 
+def test_get_selector_list(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = itemgetters.get_selector_list
+
+    if result:
+        # Indata format:
+        # (obj, kwargs, expected_result, expected_exception)
+        testdata: tuple = (
+            (
+                # Label & Expression selectors
+                {
+                    "selectors": [
+                        {
+                            "matchLabels": {
+                                "rbac.authorization.k8s.io/aggregate-to-admin": "true"
+                            },
+                        },
+                        {
+                            "matchExpressions": [
+                                {
+                                    "key": "node-role.kubernetes.io/worker",
+                                    "operator": "Exists"
+                                },
+                            ],
+                        },
+                    ],
+                },
+                {
+                    "path": "selectors",
+                },
+                [
+                    ["rbac.authorization.k8s.io/aggregate-to-admin=true"],
+                    ["node-role.kubernetes.io/worker Exists"]
+                ],
+                None,
+            ),
+            (
+                # CEL selector
+                {
+                    "selectors": [
+                        {
+                            "cel": {
+                                "expression": "device.driver == 'qat.intel.com'",
+                            },
+                        },
+                    ],
+                },
+                {
+                    "path": "selectors",
+                },
+                [
+                    ["device.driver == 'qat.intel.com'"],
+                ],
+                None,
+            ),
+            (
+                # Label selector; dict
+                {
+                    "selector": {
+                        "matchLabels": {
+                            "rbac.authorization.k8s.io/aggregate-to-admin": "true"
+                        },
+                    },
+                },
+                {
+                    "path": "selector",
+                },
+                [
+                    ["rbac.authorization.k8s.io/aggregate-to-admin=true"],
+                ],
+                None,
+            ),
+            (
+                # Field selector
+                {
+                    "selectors": [
+                        {
+                            "matchFields": [
+                                {
+                                    "key": "metadata.name",
+                                    "operator": "NotIn",
+                                    "values": [
+                                        "worker-1",
+                                    ],
+                                },
+                            ],
+                        },
+                    ],
+                },
+                {
+                    "path": "selectors",
+                },
+                [
+                    ["metadata.name Not In [worker-1]"],
+                ],
+                None,
+            ),
+        )
+
+        for obj, kwargs, expected_result, expected_exception in testdata:
+            try:
+                tmp = fun(obj, **kwargs)
+                if tmp != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"           result: {tmp}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  f"        exception: {type(e)}\n" \
+                                  f"          message: {str(e)}\n" \
+                                  f"         expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"        exception: {type(e)}\n" \
+                              f"          message: {str(e)}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+    return message, result
+
+
 def test_get_list_fields(verbose: bool = False) -> tuple[str, bool]:
     message = ""
     result = True
@@ -4028,6 +4159,10 @@ tests: dict[tuple[str, ...], dict[str, Any]] = {
     },
     ("get_dict_list()",): {
         "callable": test_get_dict_list,
+        "result": None,
+    },
+    ("get_selector_list()",): {
+        "callable": test_get_selector_list,
         "result": None,
     },
     ("get_list_fields()",): {

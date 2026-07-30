@@ -410,6 +410,35 @@ def test___patch_cni_weave(verbose: bool = False) -> tuple[str, bool]:
                 "            value: 10.246.0.0/16\n",
                 None,
             ),
+            # No IPALLOC_RANGE entry
+            (
+                "items:\n"
+                "- kind: DaemonSet\n"
+                "  metadata:\n"
+                "    name: weave-net\n"
+                "  spec:\n"
+                "    template:\n"
+                "      spec:\n"
+                "        containers:\n"
+                "        - name: weave\n"
+                "          env: []\n",
+                "10.246.0.0/16",
+                [SecurityStatus.OK],
+                True,
+                "items:\n"
+                "- kind: DaemonSet\n"
+                "  metadata:\n"
+                "    name: weave-net\n"
+                "  spec:\n"
+                "    template:\n"
+                "      spec:\n"
+                "        containers:\n"
+                "        - name: weave\n"
+                "          env:\n"
+                "          - name: IPALLOC_RANGE\n"
+                "            value: 10.246.0.0/16\n",
+                None,
+            ),
             (
                 "items:\n"
                 "- kind: DaemonSet\n"
