@@ -440,6 +440,112 @@ def test_get_kubernetes_objects(verbose: bool = False) -> tuple[str, bool]:
                 ],
                 None,
             ),
+            # Not guess kind
+            (
+                {
+                    "metadata": {
+                        "namespace": "default",
+                        "name": "cert-manager",
+                    }
+                },
+                {
+                    "kubernetes_helper": kh,
+                    "kh_cache": kh_cache,
+                    "kind": "Service",
+                    "guess_kind": False,
+                    "name_path": "metadata#name",
+                    "namespace_path": "metadata#namespace",
+                    "field_paths": [
+                        "metadata#namespace",
+                        "metadata#name",
+                        "metadata#creationTimestamp",
+                    ],
+                },
+                ([
+                    {
+                        "kind": "Service",
+                        "apiVersion": "v1",
+                        "metadata": {
+                            "name": "cert-manager",
+                            "namespace": "default",
+                            "creationTimestamp": "2024-10-23T20:24:11Z",
+                        },
+                    },
+                ], 200),
+                [
+                    {
+                        "fields": (
+                            "default",
+                            "cert-manager",
+                            "2024-10-23T20:24:11Z",
+                        ),
+                        "ref": {
+                            "kind": "Service",
+                            "apiVersion": "v1",
+                            "metadata": {
+                                "name": "cert-manager",
+                                "namespace": "default",
+                                "creationTimestamp": "2024-10-23T20:24:11Z",
+                            },
+                        },
+                    },
+                ],
+                None,
+            ),
+            # Not guess kind
+            (
+                {
+                    "metadata": {
+                        "namespace": "default",
+                        "name": "cert-manager",
+                    }
+                },
+                {
+                    "kubernetes_helper": kh,
+                    "kh_cache": kh_cache,
+                    "kind": "services",
+                    "api_version": "v1",
+                    "guess_kind": False,
+                    "name_path": "metadata#name",
+                    "namespace_path": "metadata#namespace",
+                    "field_paths": [
+                        "metadata#namespace",
+                        "metadata#name",
+                        "metadata#creationTimestamp",
+                    ],
+                },
+                ([
+                    {
+                        "kind": "Service",
+                        "apiVersion": "v1",
+                        "metadata": {
+                            "name": "cert-manager",
+                            "namespace": "default",
+                            "creationTimestamp": "2024-10-23T20:24:11Z",
+                        },
+                    },
+                ], 200),
+                [
+                    {
+                        "fields": (
+                            "default",
+                            "cert-manager",
+                            "2024-10-23T20:24:11Z",
+                        ),
+                        "ref": {
+                            "kind": "Service",
+                            "apiVersion": "v1",
+                            "metadata": {
+                                "name": "cert-manager",
+                                "namespace": "default",
+                                "creationTimestamp": "2024-10-23T20:24:11Z",
+                            },
+                        },
+                    },
+                ],
+                None,
+            ),
+            # Direct selector
             (
                 {
                     "metadata": {
@@ -455,6 +561,96 @@ def test_get_kubernetes_objects(verbose: bool = False) -> tuple[str, bool]:
                     "namespace_path": "metadata#namespace",
                     "selector": "foo",
                     "selector_type": "label",
+                    "field_paths": [
+                        "metadata#namespace",
+                        "metadata#name",
+                        "metadata#creationTimestamp",
+                    ],
+                },
+                ([], 200),
+                [],
+                None,
+            ),
+            # Selector from path
+            (
+                {
+                    "metadata": {
+                        "namespace": "default",
+                        "name": "cert-manager",
+                    },
+                    "spec": {
+                        "selector": "foo",
+                    },
+                },
+                {
+                    "kubernetes_helper": kh,
+                    "kh_cache": kh_cache,
+                    "kind": "Service",
+                    "name_path": "metadata#name",
+                    "namespace_path": "metadata#namespace",
+                    "selector_path": "spec#selector",
+                    "selector_type": "label",
+                    "field_paths": [
+                        "metadata#namespace",
+                        "metadata#name",
+                        "metadata#creationTimestamp",
+                    ],
+                },
+                ([], 200),
+                [],
+                None,
+            ),
+            # Selector dict from path
+            (
+                {
+                    "metadata": {
+                        "namespace": "default",
+                        "name": "cert-manager",
+                    },
+                    "spec": {
+                        "selector": {
+                            "metadata.namespace": "default",
+                        }
+                    },
+                },
+                {
+                    "kubernetes_helper": kh,
+                    "kh_cache": kh_cache,
+                    "kind": "Service",
+                    "name_path": "metadata#name",
+                    "namespace_path": "metadata#namespace",
+                    "selector_path": "spec#selector",
+                    "selector_type": "field",
+                    "field_paths": [
+                        "metadata#namespace",
+                        "metadata#name",
+                        "metadata#creationTimestamp",
+                    ],
+                },
+                ([], 200),
+                [],
+                None,
+            ),
+            # Selector empty and selector_none_on_empty
+            (
+                {
+                    "metadata": {
+                        "namespace": "default",
+                        "name": "cert-manager",
+                    },
+                    "spec": {
+                        "selector": "",
+                    },
+                },
+                {
+                    "kubernetes_helper": kh,
+                    "kh_cache": kh_cache,
+                    "kind": "Service",
+                    "name_path": "metadata#name",
+                    "namespace_path": "metadata#namespace",
+                    "selector_path": "spec#selector",
+                    "selector_type": "field",
+                    "selector_none_on_empty": True,
                     "field_paths": [
                         "metadata#namespace",
                         "metadata#name",
