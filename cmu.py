@@ -1003,8 +1003,9 @@ def genericlistloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                     sortorder_reverse=sortorder_reverse, helptext=helptext,
                     activatedfun=activatedfun, on_activation=on_activation)
 
-    # The statusbar is always located at the bottom of the screen and fills the entire width
-    uip.init_statusbar()
+    # The statusbars are always located at the top
+    # and bottom of the screen and fill the entire width.
+    uip.init_statusbars()
 
     # For the list
     uip.init_listpad(listheight=1, width=-1, ypos=1, xpos=1)
@@ -1234,8 +1235,8 @@ def genericlistloop(stdscr: curses.window, **kwargs: Any) -> Retval:
         # These might need refreshing even if we don't update the data.
         if uip.refresh:
             # The data in some fields might become shorter, so we need to trigger an erase.
-            if uip.statusbar is not None:
-                uip.statusbar.erase()
+            if uip.bottom_statusbar is not None:
+                uip.bottom_statusbar.erase()
 
             statusarray1: list[ThemeRef | ThemeStr] = []
 
@@ -1302,8 +1303,8 @@ def genericlistloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                     ThemeStr(value_, ThemeAttr("statusbar", "default")),
                 ]
 
-            uip.addthemearray(uip.statusbar, statusarray1, y=0, x=0)
-            uip.addthemearray(uip.statusbar, statusarray2, y=1, x=0)
+            uip.addthemearray(uip.bottom_statusbar, statusarray1, y=0, x=0)
+            uip.addthemearray(uip.bottom_statusbar, statusarray2, y=1, x=0)
 
         uip.update_sorted_list()
 
@@ -1337,7 +1338,7 @@ def genericlistloop(stdscr: curses.window, **kwargs: Any) -> Retval:
 
         uip.refresh_window()
         uip.refresh_listpad()
-        uip.refresh_statusbar()
+        uip.refresh_statusbars()
         if first_fetch:
             __win = curses_helper.notice(uip.listpad, message="Checking for data")
         curses.doupdate()
@@ -2313,7 +2314,7 @@ def __fetch_package_versions(**kwargs: Any) -> tuple[Retval, dict]:
     uip.refresh_window()
     uip.refresh_infopad()
     uip.refresh_listpad()
-    uip.refresh_statusbar()
+    uip.refresh_statusbars()
     curses.doupdate()
     if not package_versions:
         return Retval.MATCH, {}
@@ -2569,8 +2570,6 @@ def clusteroverviewloop(stdscr: curses.window, **kwargs: Any) -> Retval:
 
     view: str = deep_get(kwargs, DictPath("kind"))
 
-    field_dict: dict[str, Any] = {}
-    sortcolumn: str = ""
     uip = UIProps(stdscr)
 
     windowheader = view
@@ -2578,10 +2577,7 @@ def clusteroverviewloop(stdscr: curses.window, **kwargs: Any) -> Retval:
     on_activation = deep_get(views[view], DictPath("on_activation"), {})
     update_delay = views[view].get("update_delay", -1)
 
-    sortorder_reverse = views[view].get("sortorder_reverse", False)
-
-    uip.init_window(field_dict=field_dict, windowheader=windowheader, update_delay=update_delay,
-                    sortcolumn=sortcolumn, sortorder_reverse=sortorder_reverse,
+    uip.init_window(windowheader=windowheader, update_delay=update_delay,
                     activatedfun=activatedfun, on_activation=on_activation)
 
     infopadheight = 10
@@ -2595,9 +2591,9 @@ def clusteroverviewloop(stdscr: curses.window, **kwargs: Any) -> Retval:
     uip.init_listpad(listheight=1, width=-1,
                      ypos=infopadypos + infopadheight + eventpadheight + 1, xpos=1, header=False)
 
-    # For the status bar; position is always at the bottom of the screen
-    # and the entire width of the screen
-    uip.init_statusbar()
+    # The statusbars are always located at the top
+    # and bottom of the screen and fill the entire width.
+    uip.init_statusbars()
 
     selected_heatmap: str = "Node"
     selected_node: int = 0
@@ -2714,8 +2710,8 @@ def clusteroverviewloop(stdscr: curses.window, **kwargs: Any) -> Retval:
             # The data in some fields might become shorter, so we need to trigger a clear
             if uip.infopad is not None:
                 uip.infopad.erase()
-            if uip.statusbar is not None:
-                uip.statusbar.erase()
+            if uip.bottom_statusbar is not None:
+                uip.bottom_statusbar.erase()
 
             uip.update_window()
 
@@ -3208,7 +3204,7 @@ def clusteroverviewloop(stdscr: curses.window, **kwargs: Any) -> Retval:
         uip.refresh_window()
         uip.refresh_infopad()
         uip.refresh_listpad()
-        uip.refresh_statusbar()
+        uip.refresh_statusbars()
         curses.doupdate()
 
         if podinfo and selected_heatmap == "Pod":
@@ -3470,8 +3466,9 @@ def cniloop(stdscr: curses.window, **kwargs: Any) -> Retval:
     # For generic information
     uip.init_infopad(height=9, width=-1, ypos=1, xpos=1)
 
-    # The statusbar is always located at the bottom of the screen and fills the entire width
-    uip.init_statusbar()
+    # The statusbars are always located at the top
+    # and bottom of the screen and fill the entire width.
+    uip.init_statusbars()
 
     candidate_version = ""
 
@@ -3484,8 +3481,8 @@ def cniloop(stdscr: curses.window, **kwargs: Any) -> Retval:
             # The data in some fields might become shorter, so we need to trigger a clear
             if uip.infopad is not None:
                 uip.infopad.erase()
-            if uip.statusbar is not None:
-                uip.statusbar.erase()
+            if uip.bottom_statusbar is not None:
+                uip.bottom_statusbar.erase()
 
             uip.update_window()
 
@@ -3565,7 +3562,7 @@ def cniloop(stdscr: curses.window, **kwargs: Any) -> Retval:
 
         uip.refresh_window()
         uip.refresh_infopad()
-        uip.refresh_statusbar()
+        uip.refresh_statusbars()
         curses.doupdate()
 
         # These are arguments that *might* be needed by the callbacks
@@ -4221,8 +4218,9 @@ def genericinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                          labels=deep_get(obj, DictPath(labels)),
                          annotations=deep_get(obj, DictPath(annotations)))
 
-    # The statusbar is always located at the bottom of the screen and fills the entire width
-    uip.init_statusbar()
+    # The statusbars are always located at the top
+    # and bottom of the screen and fill the entire width.
+    uip.init_statusbars()
 
     # For lists
     if deep_get(viewref, DictPath("listpad"), {}):
@@ -4256,8 +4254,8 @@ def genericinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
         # These might need refreshing even if we don't update the data.
         if uip.refresh:
             # The data in some fields might become shorter, so we need to trigger an erase.
-            if uip.statusbar is not None:
-                uip.statusbar.erase()
+            if uip.bottom_statusbar is not None:
+                uip.bottom_statusbar.erase()
 
             if uip.listpad is not None:
                 statusarray1: list[ThemeRef | ThemeStr] = [
@@ -4297,8 +4295,8 @@ def genericinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                     ThemeStr(value, ThemeAttr("statusbar", "default")),
                 ]
 
-            uip.addthemearray(uip.statusbar, statusarray1, y=0, x=0)
-            uip.addthemearray(uip.statusbar, statusarray2, y=1, x=0)
+            uip.addthemearray(uip.bottom_statusbar, statusarray1, y=0, x=0)
+            uip.addthemearray(uip.bottom_statusbar, statusarray2, y=1, x=0)
 
         # Output infopad and listpad if we have one
         if uip.is_update_triggered():
@@ -4476,7 +4474,7 @@ def genericinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                     listgetter_args["_obj"] = obj
 
                 uip.refresh_window()
-                uip.refresh_statusbar()
+                uip.refresh_statusbars()
                 if first_fetch or uip.update_forced:
                     fetch_message = deep_get(listgetter_args, DictPath("_message"), "Fetching data")
                     _win = curses_helper.notice(uip.listpad, message=fetch_message)
@@ -4731,7 +4729,7 @@ def genericinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
         uip.refresh_infopad()
         uip.refresh_listpad()
         uip.refresh_logpad()
-        uip.refresh_statusbar()
+        uip.refresh_statusbars()
         curses.doupdate()
         uip.refresh = False
 
@@ -5037,7 +5035,7 @@ def genericinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                 uip.refresh_infopad()
                 uip.refresh_listpad()
                 uip.refresh_logpad()
-                uip.refresh_statusbar()
+                uip.refresh_statusbars()
                 curses.doupdate()
                 # Check this condition before confirming
                 # FIXME: This should probably be moved to populate_views()
@@ -5455,9 +5453,9 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
     # For the pod log
     uip.init_logpad(width=-1, ypos=9, xpos=1)
 
-    # For the status bar; position is always at the bottom of the screen
-    # and the entire width of the screen
-    uip.init_statusbar()
+    # The statusbars are always located at the top
+    # and bottom of the screen and fill the entire width.
+    uip.init_statusbars()
 
     # Number of lines of log to show by default
     if override_tail_lines is None:
@@ -5501,7 +5499,7 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
     uip.update_window()
     uip.force_update()
     uip.refresh_window()
-    uip.refresh_statusbar()
+    uip.refresh_statusbars()
     curses.doupdate()
 
     facility_regex: re.Pattern[str] = re.compile(r"^.*/(.*)")
@@ -5635,7 +5633,7 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
             uip.refresh_window()
             uip.refresh_infopad()
             uip.refresh_logpad()
-            uip.refresh_statusbar()
+            uip.refresh_statusbars()
             curses.doupdate()
 
             timestamps: list[datetime] = []
@@ -5861,8 +5859,8 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
             # The data in some fields might become shorter, so we need to trigger a clear
             if uip.infopad is not None:
                 uip.infopad.erase()
-            if uip.statusbar is not None:
-                uip.statusbar.erase()
+            if uip.bottom_statusbar is not None:
+                uip.bottom_statusbar.erase()
 
             del progressbar
 
@@ -5998,8 +5996,8 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
 
         if uip.refresh:
             # FIXME: the status stuff should be done by curses_helper
-            if uip.statusbar is not None:
-                uip.statusbar.erase()
+            if uip.bottom_statusbar is not None:
+                uip.bottom_statusbar.erase()
 
             if uip.continuous_log:
                 interval = "Follow"
@@ -6125,8 +6123,8 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                         ThemeStr(" (Bundle)", ThemeAttr("statusbar", "dim")),
                     ]
 
-            uip.addthemearray(uip.statusbar, statusarray1, y=0, x=0)
-            uip.addthemearray(uip.statusbar, statusarray2, y=1, x=0)
+            uip.addthemearray(uip.bottom_statusbar, statusarray1, y=0, x=0)
+            uip.addthemearray(uip.bottom_statusbar, statusarray2, y=1, x=0)
 
             maxlen = 0
             latest_facility_len = -1
@@ -6257,7 +6255,7 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
             uip.refresh_window()
             uip.refresh_infopad()
             uip.refresh_logpad()
-            uip.refresh_statusbar()
+            uip.refresh_statusbars()
             curses.doupdate()
             uip.refresh = False
 
@@ -6321,7 +6319,7 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
 
             uip.refresh_infopad()
             uip.refresh_logpad()
-            uip.refresh_statusbar()
+            uip.refresh_statusbars()
             curses.doupdate()
             uip.force_update()
         elif c == ord("C"):
@@ -9486,13 +9484,11 @@ def selectorloop(stdscr: curses.window, **kwargs: Any) -> Retval:
 
     view: tuple[str, str] = deep_get(kwargs, DictPath("kind"))
 
-    field_dict: dict = {}
-    sortcolumn: str = ""
     uip = UIProps(stdscr)
 
     windowheader = deep_get(views, DictPath(f"{view}#windowheader"), view)
 
-    uip.init_window(field_dict=field_dict, windowheader=windowheader, sortcolumn=sortcolumn)
+    uip.init_window(windowheader=windowheader)
 
     while True:
         retval = selectwindow(uip)

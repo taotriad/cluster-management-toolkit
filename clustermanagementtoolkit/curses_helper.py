@@ -3267,8 +3267,10 @@ class UIProps:
         self.logpad: curses.window | None = None
         self.loglen: int = 0
         self.logpadminwidth: int = 0
-        self.statusbar: curses.window | None = None
-        self.statusbarypos: int = 0
+        self.top_statusbar: curses.window | None = None
+        self.bottom_statusbar: curses.window | None = None
+        self.top_statusbarypos: int = 0
+        self.bottom_statusbarypos: int = 0
         self.continuous_log: bool = False
         self.match_index: int | None = None
         self.search_matches: set[int] = set()
@@ -3558,8 +3560,6 @@ class UIProps:
         self.set_update_delay(update_delay)
         self.view = deep_get(kwargs, DictPath("view"))
 
-        self.resize_window()
-
         self.windowheader = deep_get(kwargs, DictPath("windowheader"), "")
         self.headerpad = None
         self.listpad = None
@@ -3572,6 +3572,8 @@ class UIProps:
         self.on_activation = deep_get(kwargs, DictPath("on_activation"), {})
         self.extraref = deep_get(kwargs, DictPath("extraref"))
         self.data = deep_get(kwargs, DictPath("data"))
+
+        self.resize_window()
 
     def reinit_window(self, field_dict: dict, sortcolumn: str) -> None:
         """
@@ -3679,15 +3681,9 @@ class UIProps:
         if update == "true" or self.last_timestamp_update is None:
             # Elsewhere we use now(timezone.utc), but here we want the local timezone
             self.last_timestamp_update = f"{datetime.now():%Y-%m-%d %H:%M:%S}"
-        rtee = deep_get(theme, DictPath("boxdrawing#rtee"))
-        ltee = deep_get(theme, DictPath("boxdrawing#ltee"))
+        urcorner = deep_get(theme, DictPath("boxdrawing#urcorner"))
 
         timestamparray: list[ThemeRef | ThemeStr] = []
-
-        if CursesConfiguration.borders:
-            timestamparray += [
-                ThemeStr(rtee, ThemeAttr("main", "default")),
-            ]
 
         if self.helpstring:
             timestamparray += [
@@ -3704,27 +3700,24 @@ class UIProps:
 
         if CursesConfiguration.borders:
             timestamparray += [
-                ThemeStr(ltee, ThemeAttr("main", "default")),
+                ThemeStr(urcorner, ThemeAttr("main", "default")),
             ]
 
-        xpos -= themearray_len(timestamparray)
-        if not CursesConfiguration.borders:
-            xpos += 1
-        self.addthemearray(self.stdscr, timestamparray, y=0, x=xpos)
+        xpos -= themearray_len(timestamparray) - 1
+        self.addthemearray(self.top_statusbar, timestamparray, y=0, x=xpos)
 
     def draw_winheader(self) -> None:
         """
         Draw the main window header.
         """
         if self.windowheader != "":
-            ltee = deep_get(theme, DictPath("boxdrawing#ltee"))
-            rtee = deep_get(theme, DictPath("boxdrawing#rtee"))
+            ulcorner = deep_get(theme, DictPath("boxdrawing#ulcorner"))
 
             winheaderarray: list[ThemeRef | ThemeStr] = []
 
             if CursesConfiguration.borders:
                 winheaderarray += [
-                    ThemeStr(rtee, ThemeAttr("main", "default")),
+                    ThemeStr(ulcorner, ThemeAttr("main", "default")),
                 ]
 
             winheaderarray += [
@@ -3732,13 +3725,7 @@ class UIProps:
                 ThemeStr(f"{self.windowheader}", ThemeAttr("main", "header")),
                 ThemeRef("separators", "mainheader_suffix"),
             ]
-            if CursesConfiguration.borders:
-                winheaderarray += [
-                    ThemeStr(ltee, ThemeAttr("main", "default")),
-                ]
-                self.addthemearray(self.stdscr, winheaderarray, y=0, x=1)
-            else:
-                self.addthemearray(self.stdscr, winheaderarray, y=0, x=0)
+            self.addthemearray(self.top_statusbar, winheaderarray, y=0, x=0)
 
     def refresh_window(self) -> None:
         """
@@ -3764,8 +3751,8 @@ class UIProps:
             ThemeStr(f"{mousestatus}", ThemeAttr("statusbar", "highlight"))
         ]
         xpos = self.maxx - themearray_len(mousearray) + 1
-        if self.statusbar is not None:
-            self.addthemearray(self.statusbar, mousearray, y=0, x=xpos)
+        if self.bottom_statusbar is not None:
+            self.addthemearray(self.bottom_statusbar, mousearray, y=0, x=xpos)
         ycurpos = self.curypos + self.yoffset
         maxypos = self.maxcurypos + self.maxyoffset
         if ycurpos >= 0 and maxypos >= 0:
@@ -3777,8 +3764,8 @@ class UIProps:
                 ThemeStr(f"{maxypos + 1}", ThemeAttr("statusbar", "highlight"))
             ]
             xpos = self.maxx - themearray_len(curposarray) + 1
-            if self.statusbar is not None:
-                self.addthemearray(self.statusbar, curposarray, y=1, x=xpos)
+            if self.bottom_statusbar is not None:
+                self.addthemearray(self.bottom_statusbar, curposarray, y=1, x=xpos)
         self.stdscr.noutrefresh()
 
     def resize_window(self) -> None:
@@ -3800,7 +3787,7 @@ class UIProps:
         self.xoffset = 0
         self.maxxoffset = 0
 
-        self.resize_statusbar()
+        self.resize_statusbars()
         self.resize_listpad(width=self.linelen)
         self.update_window()
         self.force_refresh()
@@ -3818,8 +3805,8 @@ class UIProps:
             self.refresh_listpad()
         if self.logpad:
             self.refresh_logpad()
-        if self.statusbar:
-            self.refresh_statusbar()
+        if self.top_statusbar or self.bottom_statusbar:
+            self.refresh_statusbars()
         self.refresh = True
 
     # For generic information
@@ -4191,34 +4178,55 @@ class UIProps:
         self.recalculate_logpad_xpos(tspadxpos=self.tspadxpos)
         self.resize_listpad(-1)
 
-    def init_statusbar(self) -> None:
+    def init_statusbars(self) -> None:
         """
-        Initialise the statusbar.
+        Initialise the statusbars.
         """
-        self.resize_statusbar()
+        self.resize_statusbars()
 
-    def refresh_statusbar(self) -> None:
+    def refresh_statusbars(self) -> None:
         """
-        Refresh the statusbar.
+        Refresh the statusbars.
         """
-        if self.statusbar is not None:
-            col, __discard = themeattr_to_curses(ThemeAttr("statusbar", "default"))
-            self.statusbar.bkgd(" ", col)
+        if self.top_statusbar is not None:
+            window_tee_hline(self.top_statusbar, self.top_statusbarypos, 0, self.maxx, tee=False)
+            self.update_timestamp(update="false")
+            self.draw_winheader()
             try:
-                self.statusbar.noutrefresh(0, 0, self.statusbarypos, 0, self.maxy, self.maxx)
+                self.top_statusbar.noutrefresh(0, 0,
+                                               self.top_statusbarypos, 0,
+                                               self.maxy, self.maxx)
             except curses.error:
                 pass
 
-    def resize_statusbar(self) -> None:
+        if self.bottom_statusbar is not None:
+            col, __discard = themeattr_to_curses(ThemeAttr("statusbar", "default"))
+            self.bottom_statusbar.bkgd(" ", col)
+            try:
+                self.bottom_statusbar.noutrefresh(0, 0,
+                                                  self.bottom_statusbarypos, 0,
+                                                  self.maxy, self.maxx)
+            except curses.error:
+                pass
+
+    def resize_statusbars(self) -> None:
         """
         Trigger the statusbar to be resized.
         """
-        self.statusbarypos = self.maxy - 1
-        if self.statusbar is not None:
-            self.statusbar.erase()
-            self.statusbar.resize(2, self.maxx + 1)
+        self.top_statusbarypos = 0
+        self.bottom_statusbarypos = self.maxy - 1
+
+        if self.top_statusbar is not None:
+            self.top_statusbar.erase()
+            self.top_statusbar.resize(1, self.maxx + 1)
         else:
-            self.statusbar = curses.newpad(2, self.maxx + 1)
+            self.top_statusbar = curses.newpad(1, self.maxx + 1)
+
+        if self.bottom_statusbar is not None:
+            self.bottom_statusbar.erase()
+            self.bottom_statusbar.resize(2, self.maxx + 1)
+        else:
+            self.bottom_statusbar = curses.newpad(2, self.maxx + 1)
 
     # pylint: disable-next=too-many-locals
     def addthemearray(self, win: curses.window | None,
@@ -5165,8 +5173,8 @@ class UIProps:
                 set_mousemask(-1)
             else:
                 set_mousemask(0)
-            if self.statusbar is not None:
-                self.statusbar.erase()
+            if self.bottom_statusbar is not None:
+                self.bottom_statusbar.erase()
             self.refresh_all()
             return Retval.MATCH
         if c == ord("") or c == ord(""):
@@ -5478,8 +5486,8 @@ class UIProps:
             set_mousemask(-1)
         else:
             set_mousemask(0)
-        if self.statusbar is not None:
-            self.statusbar.erase()
+        if self.bottom_statusbar is not None:
+            self.bottom_statusbar.erase()
         self.refresh_all()
         return Retval.MATCH, {}
 

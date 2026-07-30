@@ -45,8 +45,7 @@
   canvas. This solves all the rescaling issues, as well as limitations with what characters
   can go where, etc.
 * Borders should be drawn by curses_helper, not by win.border().
-* The timestamp needs to be its own window.
-  The border should be part of the bottom-most canvas and only needs redrawing if we
+* The border should be part of the bottom-most canvas and only needs redrawing if we
   resize the window or toggle borders.
 * Scrollbars need their own windows.
 
