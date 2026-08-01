@@ -368,17 +368,17 @@ def download_files(directory: str,
         spm = urllib3.PoolManager()  # type: ignore
 
     for url, filename, checksum_url, checksum_type in fetch_urls:
-        # In case we're downloading heaps of files it's good manners to rate-limit our requests
-        time.sleep(1)
-
         header_params: dict[str, str] = {}
 
         # If the URL has a token in .netrc, use it for the download; this can help alleviate
         # rate-limiting for api.github.com, possibly also other sites.
         if token := get_netrc_token(checksum_url):
             header_params["Authorization"] = f"Bearer {token}"
+        else:
+            # If we do not have a token we rate limit.
+            time.sleep(1)
 
-        # If there's a checksum file, download it first
+        # If there's a checksum file, download it first.
         checksum = None
 
         if checksum_url is not None:
