@@ -50,16 +50,12 @@ listview:
       header: "Kernel Version:"
       path: "status#nodeInfo#kernelVersion"
       type: "str"
-      formatting:
-        field_colors:
-          - type: "version"
+      formatter: "version"
     kubelet_version:
       header: "Version:"
       path: "status#nodeInfo#kubeletVersion"
       type: "str"
-      formatting:
-        field_colors:
-          - type: "version"
+      formatter: "version"
     os_image:
       header: "OS Image:"
       path: "status#nodeInfo#osImage"
@@ -250,9 +246,7 @@ infoview:
         header: [["Kernel Version:", ["main", "infoheader"]]]
         path: "status#nodeInfo#kernelVersion"
         type: "str"
-        formatting:
-          field_colors:
-            - type: "version"
+        formatter: "version"
       kubelet_endpoint:
         header: [["kubelet Endpoint:", ["main", "infoheader"]]]
         path: "status#daemonEndpoints#kubeletEndpoint#Port"
@@ -264,9 +258,7 @@ infoview:
         header: [["kubelet Version:", ["main", "infoheader"]]]
         path: "status#nodeInfo#kubeletVersion"
         type: "str"
-        formatting:
-          field_colors:
-            - type: "version"
+        formatter: "version"
       os:
         header: [["Operating System:", ["main", "infoheader"]]]
         path: "status#nodeInfo#operatingSystem"

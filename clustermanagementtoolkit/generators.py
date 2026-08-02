@@ -22,7 +22,7 @@ from clustermanagementtoolkit.ansithemeprint import ANSIThemeStr
 
 from clustermanagementtoolkit.curses_helper import color_status_group
 from clustermanagementtoolkit.curses_helper import themearray_len, themearray_to_string
-from clustermanagementtoolkit.curses_helper import themearray_select
+from clustermanagementtoolkit.curses_helper import themearray_compact, themearray_select
 from clustermanagementtoolkit.curses_helper import ThemeAttr, ThemeRef, ThemeStr, get_theme_ref
 
 from clustermanagementtoolkit import cmtlib
@@ -731,6 +731,48 @@ def generator_basic(obj: dict, field: str, fieldlen: int, pad: bool,
     array = [
         ThemeStr(string, fmt, selected)
     ]
+
+    return align_and_pad(array, fieldlen=fieldlen, pad=pad, ralign=ralign, selected=selected)
+
+
+# pylint: disable-next=unused-argument,too-many-arguments,too-many-positional-arguments
+def generator_version(obj: dict, field: str, fieldlen: int, pad: bool,
+                      ralign: bool, selected: bool,
+                      **formatting: FormattingType) -> list[ThemeRef | ThemeStr]:
+    """
+    A generator for version numbers.
+    TODO: handle lists.
+    TODO: split into format_version.
+
+        Parameters:
+            obj (dict): The object to get data from
+            field (str): The field in the object to get data from
+            fieldlen (int): The length of the field
+            pad (bool): Pad the string?
+            ralign (bool): Should the text be right-aligned?
+            selected (bool): Should the generated field be selected?
+            **formatting (dict): Formatting for the data
+        Returns:
+            ([ThemeRef | ThemeStr]): A formatted string
+    """
+    array: list[ThemeRef | ThemeStr] = []
+    value = deep_get(obj, DictPath(field))
+    string = str(value)
+    tmp: Any = None
+
+    if (tmp := format_special(string, selected)) is not None:
+        array = [tmp]
+    else:
+        if string.startswith("v"):
+            array += [ThemeStr("v", ThemeAttr("types", "version"), selected=selected)]
+            string = string[1:]
+        separators = set("+-~.,")
+        for char in string:
+            if char in separators:
+                array += [ThemeStr(char, ThemeAttr("types", "unit"), selected=selected)]
+            else:
+                array += [ThemeStr(char, ThemeAttr("types", "numerical"), selected=selected)]
+        array = themearray_select(themearray_compact(array), selected=selected, force=True)
 
     return align_and_pad(array, fieldlen=fieldlen, pad=pad, ralign=ralign, selected=selected)
 
@@ -1595,6 +1637,10 @@ formatter_to_generator_and_processor: dict[str, dict[str, Any]] = {
     },
     "numerical": {
         "generator": generator_numerical_with_units,
+        "processor": None,
+    },
+    "version": {
+        "generator": generator_version,
         "processor": None,
     },
     "address": {

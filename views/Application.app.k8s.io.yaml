@@ -21,9 +21,7 @@ listview:
       header: "Version:"
       path: "spec#descriptor#version"
       type: "str"
-      formatting:
-        field_colors:
-          - type: "version"
+      formatter: "version"
 infoview:
   name: "Application Info"
   infopad:
@@ -79,9 +77,7 @@ infoview:
         header: [["Version:", ["main", "infoheader"]]]
         path: "spec#descriptor#version"
         type: "str"
-        formatting:
-          field_colors:
-            - type: "version"
+        formatter: "version"
   listpad:
     on_activation:
       call: "resourceinfodispatch_with_lookup"
