@@ -325,7 +325,8 @@
                 "reformat_json",
                 "timestamp",
                 "timestamp_with_age",
-                "value_mapper"
+                "value_mapper",
+                "version"
             ]
         },
         "formatter_allowlist": {
