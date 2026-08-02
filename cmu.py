@@ -15,17 +15,14 @@
 UI for managing Kubernetes clusters.
 """
 
-import ast
 import base64
 import binascii
 from collections.abc import Callable
 import copy
 import curses
-from curses import wrapper
 from datetime import datetime, timezone
 import errno
 from getpass import getuser
-import http.client
 import json
 from operator import itemgetter
 import os
@@ -34,7 +31,6 @@ import re
 import signal
 import socket
 import subprocess  # nosec
-from subprocess import PIPE, STDOUT  # nosec
 import sys
 from types import FrameType
 from typing import Any, cast, Sequence
@@ -70,7 +66,6 @@ except ModuleNotFoundError:  # pragma: no cover
 from clustermanagementtoolkit import about
 
 from clustermanagementtoolkit.ansible_helper import ANSIBLE_INVENTORY
-
 from clustermanagementtoolkit.ansible_helper import ansible_add_hosts, ansible_remove_hosts
 from clustermanagementtoolkit.ansible_helper import ansible_configuration
 from clustermanagementtoolkit.ansible_helper import ansible_delete_log
@@ -86,7 +81,6 @@ from clustermanagementtoolkit.ansithemeprint import clear_screen, ansithemeinput
 from clustermanagementtoolkit import checks
 
 from clustermanagementtoolkit import cmtio
-from clustermanagementtoolkit.cmtio import execute_command
 from clustermanagementtoolkit.cmtio import expand_path
 from clustermanagementtoolkit.cmtio import secure_read_string, secure_which, secure_write_string
 
@@ -98,13 +92,13 @@ from clustermanagementtoolkit.cmtlib import check_allowlist
 from clustermanagementtoolkit.cmtlib import decode_value, clamp, get_package_versions, next_option
 from clustermanagementtoolkit.cmtlib import make_label_selector, make_label_selector_set_expression
 from clustermanagementtoolkit.cmtlib import none_timestamp, timestamp_to_datetime
-from clustermanagementtoolkit.cmtlib import split_msg, versiontuple, read_cmtconfig, substitute_list
+from clustermanagementtoolkit.cmtlib import split_msg, read_cmtconfig, substitute_list
 
 from clustermanagementtoolkit import cmtlog
 
 from clustermanagementtoolkit import cmtpaths
 from clustermanagementtoolkit.cmtpaths import ANSIBLE_PLAYBOOK_DIR, SYSTEM_ANSIBLE_PLAYBOOK_DIR
-from clustermanagementtoolkit.cmtpaths import BINDIR, KUBE_CONFIG_FILE, HOMEDIR, DEPLOYMENT_DIR
+from clustermanagementtoolkit.cmtpaths import KUBE_CONFIG_FILE, HOMEDIR, DEPLOYMENT_DIR
 from clustermanagementtoolkit.cmtpaths import CMT_CONFIG_FILE_DIR, THEME_DIR
 from clustermanagementtoolkit.cmtpaths import CMT_CONFIG_FILE_DIRNAME, CMT_CONFIG_FILE
 from clustermanagementtoolkit.cmtpaths import CMT_CONFIG_FILENAME
@@ -141,19 +135,14 @@ from clustermanagementtoolkit.curses_helper import themearray_truncate
 from clustermanagementtoolkit import datagetters
 
 from clustermanagementtoolkit import formatters
-from clustermanagementtoolkit.formatters import formatter_allowlist
 
 from clustermanagementtoolkit import generators
-from clustermanagementtoolkit.generators import generator_allowlist, default_processor
-from clustermanagementtoolkit.generators import FormattingType
 
 from clustermanagementtoolkit import helptexts
 
 from clustermanagementtoolkit import infogetters
-from clustermanagementtoolkit.infogetters import infogetter_allowlist
 
 from clustermanagementtoolkit import itemgetters
-from clustermanagementtoolkit.itemgetters import itemgetter_allowlist
 
 from clustermanagementtoolkit.kubernetes_helper import KubernetesHelper, KubernetesResourceCache
 from clustermanagementtoolkit.kubernetes_helper import get_controller_from_owner_references
@@ -164,17 +153,13 @@ from clustermanagementtoolkit.kubernetes_helper import update_api_status as kh_u
 from clustermanagementtoolkit.kubernetes_resources import event_reasons
 
 from clustermanagementtoolkit import listgetters
-from clustermanagementtoolkit.listgetters import listgetter_allowlist
 
 from clustermanagementtoolkit import listgetters_async
-from clustermanagementtoolkit.listgetters_async import listgetter_async_allowlist
 
 from clustermanagementtoolkit.logparser import LogparserConfiguration
-
 from clustermanagementtoolkit.logparser import get_parser_list
 from clustermanagementtoolkit.logparser import logparser, logparser_initialised, init_parser_list
-from clustermanagementtoolkit.logparser import lvl_to_letter_severity, lvl_to_4letter_severity
-from clustermanagementtoolkit.logparser import lvl_to_word_severity
+from clustermanagementtoolkit.logparser import severity_to_string
 
 from clustermanagementtoolkit import networkio
 
@@ -375,7 +360,8 @@ def update_field_widths(field_dict: dict, field_names: list[str], objects: list[
         field_prefixes = field_dict[field_name].get("field_prefixes", [])
         field_suffixes = field_dict[field_name].get("field_suffixes", [])
         field_formatters = field_dict[field_name].get("field_formatters", [])
-        formatting: FormattingType = deep_get(field_dict, DictPath(f"{field_name}#formatting"), {})
+        formatting: generators.FormattingType = \
+            deep_get(field_dict, DictPath(f"{field_name}#formatting"), {})
 
         tmplen = 0
 
@@ -384,7 +370,7 @@ def update_field_widths(field_dict: dict, field_names: list[str], objects: list[
             processor = field_dict[field_name].get("processor")
 
             if processor is None:
-                processor = default_processor.get(generator)
+                processor = generators.default_processor.get(generator)
 
             if processor is not None:
                 if processor in (generators.processor_list,
@@ -739,14 +725,15 @@ def generate_list_row(uip: UIProps, data: dict, field_dict: dict,
             continue
         if isinstance(generator, str):
             generator = \
-                deep_get(generator_allowlist, DictPath(generator), generators.generator_basic)
+                deep_get(generators.generator_allowlist,
+                         DictPath(generator), generators.generator_basic)
 
         fieldlen = field_dict[field]["fieldlen"]
         fpad = i < len(field_dict)
 
         ralign = field_dict[field].get("ralign", False)
 
-        formatting: FormattingType = {
+        formatting: generators.FormattingType = {
             "item_separator":
                 field_dict[field].get("item_separator", ThemeRef("separators", "list")),
             "field_separators":
@@ -2580,7 +2567,7 @@ def clusteroverviewloop(stdscr: curses.window, **kwargs: Any) -> Retval:
     uip.init_window(windowheader=windowheader, update_delay=update_delay,
                     activatedfun=activatedfun, on_activation=on_activation)
 
-    infopadheight = 10
+    infopadheight = 11
     infopadypos = 1
     eventpadheight = 7
 
@@ -2825,6 +2812,35 @@ def clusteroverviewloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                 ThemeStr(" (Version data unavailable)", ThemeAttr("main", "status_warning")),
             ]
 
+        cnis = kh.identify_cni()
+        if not cnis:
+            cni_status_array: list[ThemeRef | ThemeStr] = [
+                ThemeStr("<unknown>", color_status_group(StatusGroup.UNKNOWN)),
+            ]
+        elif len(cnis) == 1:
+            cni_name = cnis[0][0]
+            cni_version = cnis[0][1]
+            cni_status_array = [
+                ThemeStr(f"{cni_name} (", ThemeAttr("types", "generic")),
+                ThemeStr(f"{cni_version}", ThemeAttr("types", "version")),
+                ThemeStr("); (Status: ", ThemeAttr("types", "generic")),
+                ThemeStr(f"{cnis[0][2][0]}", color_status_group(cnis[0][2][1])),
+                ThemeStr(")", ThemeAttr("types", "generic")),
+            ]
+        else:
+            cni_status_array = [
+                ThemeStr("Could not uniquely identify CNI", ThemeAttr("main", "status_admin")),
+                ThemeStr(" (Candidates: ", ThemeAttr("types", "generic")),
+            ]
+            for i, cni in enumerate(cnis):
+                cni_status_array += [
+                    ThemeStr(f"{cni[0]}", ThemeAttr("types", "generic")),
+                    ThemeRef("separators", "version"),
+                    ThemeStr(f"{cni[1]}", ThemeAttr("types", "version"))]
+                if i < len(cnis) - 1:
+                    cni_status_array.append(ThemeRef("separators", "list"))
+            cni_status_array.append(ThemeStr(")", ThemeAttr("types", "generic")))
+
         if iips == ["<none>"]:
             internal_ips_array: list[ThemeRef | ThemeStr] = \
                 [ThemeStr("<none>", ThemeAttr("types", "none"))]
@@ -2859,6 +2875,8 @@ def clusteroverviewloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                 ThemeStr("Kubernetes Distro: ", ThemeAttr("main", "infoheader")),
                 k8s_distro_string,
             ] + k8s_server_version, [
+                ThemeStr("CNI: ", ThemeAttr("main", "infoheader")),
+            ] + cni_status_array, [
                 ThemeStr("Internal IP-address(es): ", ThemeAttr("main", "infoheader")),
             ] + internal_ips_array, [
                 ThemeStr("External IP-address(es): ", ThemeAttr("main", "infoheader")),
@@ -3256,326 +3274,6 @@ def clusteroverviewloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                 node_curypos = deep_get(return_args, DictPath("ypos"), node_curypos)
         if "selected_heatmap" in return_args:
             selected_heatmap = deep_get(return_args, DictPath("selected_heatmap"))
-
-        if retval == Retval.MATCH:
-            continue
-        if retval == Retval.RETURNONE:
-            return Retval.RETURNDONE
-        if retval == Retval.RETURNFULL:
-            return retval
-
-
-# pylint: disable-next=too-many-locals,too-many-branches
-def check_cni_updates(cni: str, current_version: str) -> str:
-    """
-    Check whether there are newer versions of the CNI available.
-
-        Parameters:
-            cni (str): The CNI
-            current_version (str): The current version
-        Returns:
-            (str): The newest available version
-    """
-    candidate_version = None
-
-    security_policy = SecurityPolicy.ALLOWLIST_RELAXED
-    fallback_allowlist = ["/bin", "/sbin", "/usr/bin", "/usr/sbin",
-                          "/usr/local/bin", "/usr/local/sbin", f"{HOMEDIR}/bin"]
-
-    if cni == "weave":
-        # GET /report -H 'Accept: application/json'
-        # This should be the IP address of the control plane
-        # XXX: We probably need to do this locally on the control plane (via ansible)
-        # rather than remotely connecting to the control plane
-        weaveaddr = "127.0.0.1"
-
-        conn = http.client.HTTPConnection(weaveaddr, 6784)
-        headers = {
-            "Accept": "application/json"
-        }
-
-        try:
-            conn.request("GET", "/report", headers=headers)
-            r1 = conn.getresponse()
-        except ConnectionRefusedError:
-            return "<Version check failed>"
-
-        if r1.status == 200:
-            try:
-                weavestatus = json_loads(r1.read())
-                if deep_get(weavestatus, DictPath("VersionCheck#Enabled"), False) \
-                        and deep_get(weavestatus, DictPath("VersionCheck#Success"), False):
-                    candidate_version = deep_get(weavestatus,
-                                                 DictPath("VersionCheck#NewVersion"), None)
-            except (ValueError, json.decoder.JSONDecodeError):
-                # We got a response, but the data is malformed
-                pass
-        conn.close()
-    elif cni == "cilium":
-        try:
-            cpath = secure_which(FilePath(os.path.join(BINDIR, "cilium")),
-                                 fallback_allowlist=fallback_allowlist,
-                                 security_policy=security_policy)
-        except FileNotFoundError:
-            cpath = None
-
-        if cpath is not None:
-            args = [cpath, "version"]
-            result = subprocess.run(args, stdout=PIPE, stderr=PIPE,
-                                    universal_newlines=True, check=False)
-            if result is not None:
-                versionoutput = result.stdout.splitlines()
-                version_regex: re.Pattern[str] = re.compile(r"^cilium image \(default\): (.*)")
-                for line in versionoutput:
-                    match_tmp = version_regex.match(line)
-                    if match_tmp is not None:
-                        candidate_version = match_tmp[1]
-                        break
-    else:
-        candidate_version = "<Update check not implemented>"
-
-    if candidate_version:
-        if versiontuple(current_version) < versiontuple(candidate_version):
-            candidate_version = ""
-    if not candidate_version:
-        candidate_version = "No newer version found"
-
-    return candidate_version
-
-
-# pylint: disable-next=unused-argument
-def update_cni(stdscr: curses.window, cni: str, current_version: str, candidate_version: str,
-               dry_run: bool = False) -> bool:
-    """
-    Update the CNI.
-
-        Parameters:
-            stdscr (opaque): A curses stdscr reference
-            cni (str): The CNI
-            current_version (str): The current version
-            candidate_version (str): The candidate version
-            dry_run (bool): If True just verify that the update method is valid
-        Returns:
-            (bool): True on success, False on failure
-    """
-    security_policy = SecurityPolicy.ALLOWLIST_RELAXED
-    fallback_allowlist = ["/bin", "/sbin", "/usr/bin", "/usr/sbin",
-                          "/usr/local/bin", "/usr/local/sbin", f"{HOMEDIR}/bin"]
-
-    retval = True
-
-    if cni == "Unknown":
-        retval = False
-    elif cni == "weave":
-        # XXX: Currently we do not have any reliable update method for weave
-        retval = False
-    elif cni == "cilium":
-        try:
-            cpath = secure_which(FilePath(os.path.join(BINDIR, "cilium")),
-                                 fallback_allowlist=fallback_allowlist,
-                                 security_policy=security_policy)
-        except FileNotFoundError:
-            cpath = None
-
-        if dry_run or cpath is None:
-            return cpath is not None
-
-        args = [cpath, "upgrade"]
-        curses.endwin()
-        _retval = clear_screen()
-
-        ansithemeprint([ANSIThemeStr("Updating Cilium:", "phase")])
-        print()
-        retval = execute_command(args)
-        ansithemeinput([ANSIThemeStr("\nPress Enter to continue...", "default")])
-
-    return retval
-
-
-def __update_cni(uip: UIProps, **kwargs: Any) -> tuple[Retval, dict]:
-    cni = deep_get(kwargs, DictPath("cni"))
-    cni_version = deep_get(kwargs, DictPath("cni_version"))
-    candidate_version = deep_get(kwargs, DictPath("candidate_version"))
-
-    # If we do not recognise the CNI or we do not support updates we cannot update it
-    if not update_cni(uip.stdscr, cni, cni_version, candidate_version, dry_run=True):
-        return Retval.MATCH, {}
-
-    # Try to download and install an update
-    query_title = f"Update {cni} to version {candidate_version}:"
-    if curses_helper.confirmationbox(uip.stdscr, title=query_title, default=False):
-        update_cni(uip.stdscr, cni, cni_version, candidate_version)
-    uip.refresh_all()
-
-    return Retval.MATCH, {}
-
-
-cniloop_shortcuts = {
-    "__common_shortcuts": [
-        "Toggle mouse on/off",
-        "Toggle borders",
-        "Show this helptext",
-        "Switch main view",
-        "Switch main view (recheck available API resources)",
-        "Refresh information",
-        "Show information about the program",
-    ],
-    "Update Cluster Network Interface": {
-        "shortcut": [ord("U")],
-        "helptext": ("[Shift] + U",
-                     "Update Cluster Network Interface (if a newer candidate is available)"),
-        "helpgroup": 3,
-        "action": "key_callback",
-        "action_call": __update_cni,
-    },
-}
-
-
-# pylint: disable-next=too-many-locals,too-many-statements
-def cniloop(stdscr: curses.window, **kwargs: Any) -> Retval:
-    """
-    Main loop for the Container Network Interface view.
-
-        Parameters:
-            stdscr (curses.window): The curses window to operate on
-            **kwargs (dict[str, Any]): Keyword arguments
-                kind ((str, str)): The view to show [unused]
-        Returns:
-            (Retval): The return value
-        Raises:
-            ProgrammingError (view is invalid)
-    """
-    global executor  # pylint: disable=global-statement
-
-    # Just in case there are leftover futures from other views
-    executor.shutdown()
-    executor = reexecutor.ReExecutor()
-
-    view: str = deep_get(kwargs, DictPath("kind"))
-
-    uip = UIProps(stdscr)
-
-    windowheader = view
-    activatedfun = views[view]["activatedfun"]
-    on_activation = deep_get(views[view], DictPath("on_activation"), {})
-    update_delay = views[view].get("update_delay", -1)
-
-    uip.init_window(windowheader=windowheader, update_delay=update_delay,
-                    sortcolumn="", activatedfun=activatedfun, on_activation=on_activation)
-
-    # For generic information
-    uip.init_infopad(height=9, width=-1, ypos=1, xpos=1)
-
-    # The statusbars are always located at the top
-    # and bottom of the screen and fill the entire width.
-    uip.init_statusbars()
-
-    candidate_version = ""
-
-    cni = None
-
-    uip.force_update()
-
-    while True:
-        if uip.is_update_triggered():
-            # The data in some fields might become shorter, so we need to trigger a clear
-            if uip.infopad is not None:
-                uip.infopad.erase()
-            if uip.bottom_statusbar is not None:
-                uip.bottom_statusbar.erase()
-
-            uip.update_window()
-
-            # Try to figure out which CNI we are using, if any
-            _cnis = kh.identify_cni()
-
-            if not _cnis:
-                cni = "<unknown>"
-                cnistr: list[ThemeRef | ThemeStr] = [
-                    ThemeStr(f"{cni}", color_status_group(StatusGroup.UNKNOWN))
-                ]
-                cni_version = "N/A"
-                cni_version_str = [
-                    ThemeStr(f"{cni_version}", color_status_group(StatusGroup.UNKNOWN))
-                ]
-                cni_status: tuple[str, StatusGroup, str] = ("N/A", StatusGroup.UNKNOWN, "")
-            elif len(_cnis) == 1:
-                cni = _cnis[0][0]
-                cnistr = [
-                    ThemeStr(f"{cni}", ThemeAttr("types", "generic"))
-                ]
-                cni_version = _cnis[0][1]
-                cni_version_str = [
-                    ThemeStr(f"{cni_version}", ThemeAttr("types", "version"))
-                ]
-                cni_status = _cnis[0][2]
-            else:
-                cni = "<unknown>"
-                cnistr = [
-                    ThemeStr("Could not uniquely identify CNI ",
-                             ThemeAttr("main", "status_not_ok")),
-                    ThemeStr("(", ThemeAttr("types", "generic")),
-                    ThemeStr("Candidates: ", ThemeAttr("main", "infoheader"))]
-                for i, _cni in enumerate(_cnis):
-                    cnistr += [
-                        ThemeStr(f"{_cni[0]}", ThemeAttr("types", "generic")),
-                        ThemeRef("separators", "version"),
-                        ThemeStr(f"{_cni[1]}", ThemeAttr("types", "version"))]
-                    if i < len(_cnis) - 1:
-                        cnistr.append(ThemeRef("separators", "list"))
-                cnistr.append(ThemeStr(")", ThemeAttr("types", "generic")))
-                cni_version = "N/A"
-                cni_version_str = [
-                    ThemeStr(f"{cni_version}", color_status_group(StatusGroup.UNKNOWN))
-                ]
-                cni_status = ("N/A", StatusGroup.UNKNOWN, "")
-
-            cni_status_str = [
-                ThemeStr(f"{cni_status[0]}", color_status_group(cni_status[1]))
-            ]
-
-            versionarray: list[ThemeRef | ThemeStr] = [
-                ThemeStr("Version: ", ThemeAttr("main", "infoheader")),
-            ]
-            versionarray += cni_version_str
-            candidateversionarray: list[ThemeRef | ThemeStr] = [
-                ThemeStr("Candidate version: ", ThemeAttr("main", "infoheader")),
-            ]
-
-            candidate_version = check_cni_updates(cni, cni_version)
-            candidateversionarray.append(ThemeStr(f"{candidate_version}",
-                                                  ThemeAttr("types", "version")))
-
-            namearray: list[ThemeRef | ThemeStr] = [
-                ThemeStr("Container Network Interface: ", ThemeAttr("main", "infoheader")),
-            ]
-            namearray += cnistr
-            statusarray: list[ThemeRef | ThemeStr] = [
-                ThemeStr("Status: ", ThemeAttr("main", "infoheader")),
-            ]
-            statusarray += cni_status_str
-
-            uip.addthemearray(uip.infopad, namearray, y=0, x=0)
-            uip.addthemearray(uip.infopad, versionarray, y=1, x=0)
-            uip.addthemearray(uip.infopad, candidateversionarray, y=2, x=0)
-            uip.addthemearray(uip.infopad, statusarray, y=3, x=0)
-
-        uip.refresh_window()
-        uip.refresh_infopad()
-        uip.refresh_statusbars()
-        curses.doupdate()
-
-        # These are arguments that *might* be needed by the callbacks
-        input_args = {
-            "uip": uip,
-            "selectwindow": selectwindow,
-            "read_only": read_only_mode,
-            "cni": cni,
-            "cni_version": cni_version,
-            "candidate_version": candidate_version,
-        }
-
-        retval, _return_args = uip.generic_inputhandler(cniloop_shortcuts, **input_args)
 
         if retval == Retval.MATCH:
             continue
@@ -3996,7 +3694,8 @@ def genericinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                                                                 cm_namespace="", data=obj)
         if callable(formatter):
             formatter = formatter.__name__
-        formatter = check_allowlist(formatter_allowlist, "formatter_allowlist", formatter)
+        formatter = check_allowlist(formatters.formatter_allowlist,
+                                    "formatter_allowlist", formatter)
 
     uip = UIProps(stdscr)
 
@@ -4365,7 +4064,7 @@ def genericinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                             data = infogetters.get_obj(obj, field_dict={key: value},
                                                        field_names=[key],
                                                        field_index="Normal",
-                                                       view="", filters={},
+                                                       view="",
                                                        kubernetes_helper=kh,
                                                        kh_cache=kh_cache)
                             _formatter = {key: generators.get_formatter(value)}
@@ -4492,15 +4191,7 @@ def genericinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                     uip.refresh_all()
 
                 infogetter = deep_get(viewref, DictPath("listpad#infogetter"))
-                infogetter_filters = deep_get(viewref, DictPath("listpad#infogetter_filters"), None)
                 infogetter_args = deep_get(viewref, DictPath("listpad#infogetter_args"), {})
-
-                filters = None
-                if infogetter_filters is not None:
-                    filters = []
-                    if infogetter_filters is not None:
-                        for key, value in infogetter_filters:
-                            filters.append((ast.literal_eval(key), ast.literal_eval(value)))
 
                 infogetter_args.pop("_vlist", None)
                 infogetter_args["_vlist"] = vlist
@@ -4513,9 +4204,6 @@ def genericinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
 
                 infogetter_args.pop("_field_dict", None)
                 infogetter_args["_field_dict"] = field_dict
-
-                infogetter_args.pop("_filters", None)
-                infogetter_args["_filters"] = filters
 
                 infogetter_args.pop("_obj", None)
                 infogetter_args["_obj"] = obj
@@ -4926,7 +4614,8 @@ def genericinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                 widget_args = deep_get(sc_value, DictPath("widget_args"), {})
                 # If we don't have an itemgetter we cannot populate the windowwidget,
                 # so check this first.
-                if (w_itemgetter := check_allowlist(itemgetter_allowlist, "itemgetter_allowlist",
+                if (w_itemgetter := check_allowlist(itemgetters.itemgetter_allowlist,
+                                                    "itemgetter_allowlist",
                                                     deep_get(widget_args, DictPath("itemgetter")),
                                                     allow_none=True)) is None:
                     continue
@@ -6188,19 +5877,8 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
 
                 if severity_prefix:
                     _prefix, _severity_type, _suffix = severity_prefix
-                    if _severity_type.lower() == "letter":
-                        _severity_str = lvl_to_letter_severity(severity)
-                    elif _severity_type.lower() == "4letter":
-                        _severity_str = lvl_to_4letter_severity(severity)
-                    elif _severity_type.lower() == "full":
-                        _severity_str = lvl_to_word_severity(severity)
-
-                    if _severity_type.startswith(("LE", "4LE", "FU")):
-                        _severity_str = f"{_prefix}{_severity_str.upper()}{_suffix}"
-                    elif _severity_type.startswith(("Le", "4Le", "Fu")):
-                        _severity_str = f"{_prefix}{_severity_str.capitalize()}{_suffix}"
-                    else:
-                        _severity_str = f"{_prefix}{_severity_str.lower()}{_suffix}"
+                    _severity_str = \
+                        f"{_prefix}{severity_to_string(severity, _severity_type)}{_suffix}"
 
                     if timestamp.strip() or y >= len(timestamps):
                         msgstrarray.append(ThemeStr(f"{_severity_str}",
@@ -6629,9 +6307,9 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                         facility = f"<{tmp_facility_raw}> "
 
                 if y >= len(severities):
-                    severity_str = f"{lvl_to_4letter_severity(LogLevel.INFO)}: "
+                    severity_str = f"{severity_to_string(LogLevel.INFO, '4LETTER')}: "
                 else:
-                    severity_str = f"{lvl_to_4letter_severity(severities[y])}: "
+                    severity_str = f"{severity_to_string(severities[y], '4LETTER')}: "
 
                 tmp_message = messages[y]
                 if isinstance(tmp_message, list):
@@ -6787,7 +6465,8 @@ def executecommand(stdscr: curses.window,
                                       "registry.k8s.io/e2e-test-images/jessie-dnsutils:1.7")
             args = [kubectl_path, "debug", f"node/{obj_name}", "-n", "default", "-i", "-t",
                     "--profile", "netadmin", "--image", dnsutils_image, "--attach=false"]
-            result = subprocess.run(args, stdout=PIPE, stderr=STDOUT, check=False)
+            result = subprocess.run(args, stdout=subprocess.PIPE,
+                                    stderr=subprocess.STDOUT, check=False)
             if result.returncode != 0:
                 ansithemeprint([ANSIThemeStr("Error", "error"),
                                 ANSIThemeStr(": Failed to create debug image", "default")],
@@ -6806,7 +6485,8 @@ def executecommand(stdscr: curses.window,
                                                  "(timeout: 60s).", "default")])
                     args = [kubectl_path, "wait", "--for=condition=ready",
                             "--timeout=60s", "-n", "default", "pod", pod_name]
-                    result = subprocess.run(args, stdout=PIPE, stderr=STDOUT, check=False)
+                    result = subprocess.run(args, stdout=subprocess.PIPE,
+                                            stderr=subprocess.STDOUT, check=False)
                     if result.returncode != 0:
                         ansithemeprint([ANSIThemeStr("Error", "error"),
                                         ANSIThemeStr(": The pod failed to become ready before "
@@ -7598,7 +7278,7 @@ def view_obj(stdscr: curses.window, **kwargs: Any) -> Retval:
     else:
         obj = [obj]
     if isinstance(formatter, str):
-        _formatter = deep_get(formatter_allowlist, DictPath(formatter))
+        _formatter = deep_get(formatters.formatter_allowlist, DictPath(formatter))
         if _formatter is None:
             raise ValueError(f"{formatter} is not in formatter_allowlist")
         formatter = _formatter
@@ -7768,7 +7448,9 @@ def action_view_file(**kwargs: Any) -> Retval:
     values: dict = deep_get(kwargs, DictPath("values"))
     formatter_str: str = deep_get(kwargs, DictPath("action#actionfunc_args#formatter"))
     formatter: Callable | None = \
-        check_allowlist(formatter_allowlist, "action#formatter_allowlist", formatter_str)
+        check_allowlist(formatters.formatter_allowlist,
+                        "action#formatter_allowlist",
+                        formatter_str)
     formatter_args: dict[str, Any] = \
         deep_get(kwargs, DictPath("action#actionfunc_args#formatter_args"), {})
 
@@ -7983,7 +7665,8 @@ def __restart_resource(kind: tuple[str, str], namespace: str, name: str) -> int:
 
     args = [kubectl_path, "rollout", "restart",
             f"{kind[0]}.{kind[1]}/{name}", f"--namespace={namespace}"]
-    result = subprocess.run(args, stdout=PIPE, stderr=PIPE, universal_newlines=True, check=False)
+    result = subprocess.run(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                            universal_newlines=True, check=False)
     return result.returncode
 
 
@@ -8041,7 +7724,8 @@ def __scale_replicas(**kwargs: Any) -> int:
 
     args = [kubectl_path, "scale", f"{kind[0]}.{kind[1]}/{name}",
             f"--namespace={namespace}", f"--replicas={scale}"]
-    result = subprocess.run(args, stdout=PIPE, stderr=PIPE, universal_newlines=True, check=False)
+    result = subprocess.run(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                            universal_newlines=True, check=False)
     return result.returncode
 
 
@@ -8203,7 +7887,8 @@ def diff_resource_configuration(uip: UIProps, **kwargs: Any) -> Retval:
     else:
         raise TypeError(f"Unknown resource type {rtype}; this is a programming error.")
 
-    result = subprocess.run(args, stdout=PIPE, stderr=PIPE, universal_newlines=True, check=False)
+    result = subprocess.run(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                            universal_newlines=True, check=False)
     indent = deep_get(cmtlib.cmtconfig, DictPath("Global#indent"), 2)
     diff = []
 
@@ -9817,20 +9502,6 @@ views_special: dict[str, dict[str, Any]] = {
         "check_availability": is_cluster_reachable,
         "view_file_path": "<builtin>",
     },
-    "Container Network Interface Info": {
-        "windowheader": "Container Network Interface Info",
-        "kind": ("__ContainerNetworkInterface", ""),
-        "commandline": ["cni"],
-        "group": "Administration",
-        "viewfunc": cniloop,
-        "fields": None,
-        "sortcolumn": "",
-        "activatedfun": None,
-        "listgetter": None,
-        "infogetter": None,
-        "check_availability": is_cluster_reachable,
-        "view_file_path": "<builtin>",
-    },
 }
 
 
@@ -10137,18 +9808,20 @@ def populate_views(refresh_apis: str = "none") -> None:
             # This complexity is required because if the key is missing we want to use the default,
             # but if the key is explicitly None we do not want any fallback
             if "infogetter" in deep_get(d, DictPath("listview")):
-                infogetter = check_allowlist(infogetter_allowlist, "infogetter_allowlist",
+                infogetter = check_allowlist(infogetters.infogetter_allowlist,
+                                             "infogetter_allowlist",
                                              deep_get(d, DictPath("listview#infogetter")),
                                              allow_none=True)
             else:
                 infogetter = infogetters.generic_infogetter
 
-            listgetter_async = check_allowlist(listgetter_async_allowlist,
+            listgetter_async = check_allowlist(listgetters_async.listgetter_async_allowlist,
                                                "listgetter_async_allowlist",
                                                deep_get(d, DictPath("listview#listgetter_async")),
                                                allow_none=True)
 
-            listgetter = check_allowlist(listgetter_allowlist, "listgetter_allowlist",
+            listgetter = check_allowlist(listgetters.listgetter_allowlist,
+                                         "listgetter_allowlist",
                                          deep_get(d, DictPath("listview#listgetter")),
                                          allow_none=True)
 
@@ -10483,8 +10156,8 @@ def populate_views(refresh_apis: str = "none") -> None:
                                      "listpad specified, but no infogetter is provided")
             else:
                 infoview_entry["listpad"]["infogetter"] = \
-                    check_allowlist(infogetter_allowlist, "infogetter_allowlist",
-                                    list_infogetter)
+                    check_allowlist(infogetters.infogetter_allowlist,
+                                    "infogetter_allowlist", list_infogetter)
                 infoview_entry["listpad"]["infogetter_args"] = list_infogetter_args
             if list_listgetter is None:
                 if listpad:
@@ -10492,7 +10165,8 @@ def populate_views(refresh_apis: str = "none") -> None:
                                      "listpad specified, but no listgetter is provided")
             else:
                 infoview_entry["listpad"]["listgetter"] = \
-                    check_allowlist(listgetter_allowlist, "listgetter_allowlist",
+                    check_allowlist(listgetters.listgetter_allowlist,
+                                    "listgetter_allowlist",
                                     list_listgetter)
                 infoview_entry["listpad"]["listgetter_args"] = list_listgetter_args
 
@@ -10626,7 +10300,8 @@ def populate_views(refresh_apis: str = "none") -> None:
                 w_title = deep_get(_shortcuts[shortcut], DictPath("title"))
                 w_headers = deep_get(_shortcuts[shortcut], DictPath("headers"))
                 w_selectable = deep_get(_shortcuts[shortcut], DictPath("selectable"))
-                w_itemgetter = check_allowlist(itemgetter_allowlist, "itemgetter_allowlist",
+                w_itemgetter = check_allowlist(itemgetters.itemgetter_allowlist,
+                                               "itemgetter_allowlist",
                                                deep_get(_shortcuts[shortcut],
                                                         DictPath("itemgetter")),
                                                allow_none=True)
@@ -10681,7 +10356,8 @@ def populate_views(refresh_apis: str = "none") -> None:
                 }
                 if action == "call":
                     shortcuts[shortcut]["action_call"] = \
-                        check_allowlist(action_call_allowlist, "action_call_allowlist",
+                        check_allowlist(action_call_allowlist,
+                                        "action_call_allowlist",
                                         deep_get(_shortcuts[shortcut], DictPath("action_call")),
                                         allow_none=True)
 
@@ -10694,7 +10370,8 @@ def populate_views(refresh_apis: str = "none") -> None:
                 if log_infogetter is None:
                     raise ValueError("View-file {view_file} is invalid: "
                                      "logpad specified, but no infogetter is provided")
-                logpad["infogetter"] = deep_get(infogetter_allowlist, DictPath(log_infogetter))
+                logpad["infogetter"] = deep_get(infogetters.infogetter_allowlist,
+                                                DictPath(log_infogetter))
                 infoview_entry["logpad"] = copy.deepcopy(logpad)
 
             if not infoview_entry["listpad"]:
@@ -11117,7 +10794,7 @@ def open_view(options: list[tuple[str, str]], args: list[str]) -> None:
     os.environ.setdefault("ESCDELAY", "25")
 
     try:
-        wrapper(setupui)
+        curses.wrapper(setupui)
     except curses.error as e:
         # We don't really know *why* it failed to close the window,
         # but we don't really care, since we're about to close down anyway.

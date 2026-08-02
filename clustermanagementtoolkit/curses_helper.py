@@ -2612,7 +2612,7 @@ def windowwidget(stdscr: curses.window, maxy: int, maxx: int, y: int, x: int,
     padwidth = 2
     listpadheight = len(items)
 
-    if items is None or not isinstance(items, list) or not items:
+    if not isinstance(items, list) or not items:
         errmsg = [
             [("windowwidget()", "emphasis"),
              (" called with invalid argument(s):", "error")],

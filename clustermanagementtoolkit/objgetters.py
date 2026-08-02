@@ -7,7 +7,7 @@
 
 """
 This file contains helpers that provide an obj for use in info views,
-for cases where the obj provided from the list view is not sufficient
+for cases where the obj provided from the list view is not sufficient.
 """
 
 from pathlib import Path, PurePath

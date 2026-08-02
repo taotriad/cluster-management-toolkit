@@ -320,6 +320,42 @@ def lvl_to_word_severity(lvl: LogLevel) -> str:
     return severities.get(lvl, "!ERROR IN LOGPARSER!")
 
 
+def severity_to_string(lvl: LogLevel, severity_format: str = "full",
+                       default: str = "") -> str:
+    """
+    Convert a LogLevel to a string representation.
+
+        Parameters:
+            lvl (LogLevel): A LogLevel
+            severity_format (str): The desired format; one of:
+                                   letter
+                                   4letter
+                                   full
+            default (str): Default value to return if the severity_format is invalid,
+                           or the LogLevel lacks representation.
+        Returns:
+            (str): The corresponding severity string
+    """
+    tmp_severity_string: str = ""
+
+    match severity_format.lower():
+        case "letter":
+            tmp_severity_string = lvl_to_letter_severity(lvl)
+        case "4letter":
+            tmp_severity_string = lvl_to_4letter_severity(lvl)
+        case "full":
+            tmp_severity_string = lvl_to_word_severity(lvl)
+
+    if severity_format.startswith(("LE", "4LE", "FU")):
+        return tmp_severity_string.upper()
+    if severity_format.startswith(("Le", "4Le", "Fu")):
+        return tmp_severity_string.capitalize()
+    if severity_format.startswith(("le", "4le", "fu")):
+        return tmp_severity_string.lower()
+
+    return default
+
+
 def split_bracketed_severity(message: str, **kwargs: Any) -> tuple[str, LogLevel]:
     """
     Remove a bracketed severity prefix from a string.
