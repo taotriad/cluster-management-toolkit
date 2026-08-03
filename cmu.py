@@ -157,6 +157,7 @@ from clustermanagementtoolkit import listgetters
 from clustermanagementtoolkit import listgetters_async
 
 from clustermanagementtoolkit.logparser import LogparserConfiguration
+
 from clustermanagementtoolkit.logparser import get_parser_list
 from clustermanagementtoolkit.logparser import logparser, logparser_initialised, init_parser_list
 from clustermanagementtoolkit.logparser import severity_to_string
@@ -4601,10 +4602,7 @@ def genericinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
             continue
 
         for _key, sc_value in shortcuts.items():
-            if (shortcut_keys := deep_get(sc_value, DictPath("shortcut"))) is None:
-                continue
-
-            if c not in shortcut_keys:
+            if c not in deep_get(sc_value, DictPath("shortcut"), []):
                 continue
 
             widget: str = deep_get(sc_value, DictPath("widget"), "")
@@ -4663,20 +4661,8 @@ def genericinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                             wrap_width: int = uip.maxx - uip.minx
                         else:
                             wrap_width = (uip.maxx - uip.minx) // 2
-                        new_w_items: list[list[str]] = []
-                        words: str = w_items[0][0].split(" ")
-                        line: str = ""
-                        for word in words:
-                            if not line:
-                                line = word
-                            elif len(line) + 1 + len(word) < wrap_width:
-                                line += f" {word}"
-                            else:
-                                new_w_items.append([line])
-                                line = word
-                        if line:
-                            new_w_items.append([line])
-                        w_items = new_w_items
+                        w_items = cmtlib.wrap_line(w_items, wrap_width=wrap_width)
+
                     # w_item is a line
                     for w_item in w_items:
                         ref = None
