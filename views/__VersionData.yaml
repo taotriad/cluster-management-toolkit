@@ -413,12 +413,12 @@ listview:
       paths:
         - path: "_extra_data#installed_version"
           pathtype: "fieldgetter"
-      type: "version"
+      type: "str"
       formatter: "version"
     latest_version:
       header: "Latest Version:"
       path: "release"
-      type: "version"
+      type: "str"
       formatter: "version"
     last_checked:
       header: "Last Checked:"
@@ -484,12 +484,12 @@ infoview:
         paths:
           - path: "_extra_data#installed_version"
             pathtype: "fieldgetter"
-        type: "version"
+        type: "str"
         formatter: "version"
       latest_version:
         header: [["Latest Version:", ["main", "infoheader"]]]
         path: "release"
-        type: "version"
+        type: "str"
         formatter: "version"
       mtime:
         header: [["Last Checked:", ["main", "infoheader"]]]

@@ -132,6 +132,34 @@ def format_special(string: str, selected: bool) -> ThemeRef | ThemeStr | None:
     return formatted_string
 
 
+# pylint: disable-next=unused-argument
+def format_version(string: str, selected: bool, **kwargs: Any) -> list[ThemeRef | ThemeStr]:
+    """
+    Given a string, format it as a version.
+
+        Parameters:
+            string (str): The string to format
+            selected (bool): Is the string selected?
+            **kwargs (dict[str, Any]): Keyword arguments
+        Returns:
+            ([ThemeRef | ThemeStr]): A ThemeArray
+    """
+    array: list[ThemeRef | ThemeStr] = []
+
+    if string.startswith("v"):
+        array += [ThemeStr("v", ThemeAttr("types", "version"), selected=selected)]
+        string = string[1:]
+    separators = set("+-~.,")
+    for char in string:
+        if char in separators:
+            array += [ThemeStr(char, ThemeAttr("types", "unit"), selected=selected)]
+        else:
+            array += [ThemeStr(char, ThemeAttr("types", "numerical"), selected=selected)]
+    array = themearray_select(themearray_compact(array), selected=selected, force=True)
+
+    return array
+
+
 def format_timestamp(timestamp: str | datetime, selected: bool) -> list[ThemeRef | ThemeStr]:
     """
     Format a timestamp.
@@ -741,8 +769,6 @@ def generator_version(obj: dict, field: str, fieldlen: int, pad: bool,
                       **formatting: FormattingType) -> list[ThemeRef | ThemeStr]:
     """
     A generator for version numbers.
-    TODO: handle lists.
-    TODO: split into format_version.
 
         Parameters:
             obj (dict): The object to get data from
@@ -763,16 +789,7 @@ def generator_version(obj: dict, field: str, fieldlen: int, pad: bool,
     if (tmp := format_special(string, selected)) is not None:
         array = [tmp]
     else:
-        if string.startswith("v"):
-            array += [ThemeStr("v", ThemeAttr("types", "version"), selected=selected)]
-            string = string[1:]
-        separators = set("+-~.,")
-        for char in string:
-            if char in separators:
-                array += [ThemeStr(char, ThemeAttr("types", "unit"), selected=selected)]
-            else:
-                array += [ThemeStr(char, ThemeAttr("types", "numerical"), selected=selected)]
-        array = themearray_select(themearray_compact(array), selected=selected, force=True)
+        array = format_version(string, selected)
 
     return align_and_pad(array, fieldlen=fieldlen, pad=pad, ralign=ralign, selected=selected)
 
@@ -1938,6 +1955,7 @@ def fieldgenerator(view: str | tuple[str, str], selected_namespace: str = "",
 field_formatter_allowlist: dict[str, Callable] = {
     "address": format_address,
     "numerical_with_units": format_numerical_with_units,
+    "version": format_version,
 }
 
 
