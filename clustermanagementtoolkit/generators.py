@@ -155,7 +155,7 @@ def format_version(string: str, selected: bool, **kwargs: Any) -> list[ThemeRef 
             array += [ThemeStr(char, ThemeAttr("types", "unit"), selected=selected)]
         else:
             array += [ThemeStr(char, ThemeAttr("types", "numerical"), selected=selected)]
-    array = themearray_select(themearray_compact(array), selected=selected, force=True)
+    array = list(themearray_select(themearray_compact(array), selected=selected, force=True))
 
     return array
 
