@@ -1498,12 +1498,12 @@ def identify_distro(**kwargs: Any) -> str:
 
 def get_latest_upstream_version(component: str) -> str:
     """
-    Fetch the upstream version for Kubernetes.
+    Fetch the upstream version for an upstream component.
 
         Parameters:
             component (str): The component to return the latest version for
         Returns:
-            (str): The latest upstream Kubernetes version;
+            (str): The latest upstream component version;
                    or an empty string if the version could not be determined
     """
     if not component:
