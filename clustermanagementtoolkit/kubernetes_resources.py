@@ -6933,8 +6933,16 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api_paths": ["apis/policy.linkerd.io/v1alpha1/"],
         "api": "authorizationpolicies",
     },
-    ("HTTPRoute", "policy.linkerd.io"): {
+    ("EgressNetwork", "policy.linkerd.io"): {
         "api_paths": ["apis/policy.linkerd.io/v1alpha1/"],
+        "api": "egressnetworks",
+    },
+    ("HTTPLocalRateLimitPolicy", "policy.linkerd.io"): {
+        "api_paths": ["apis/policy.linkerd.io/v1alpha1/"],
+        "api": "httplocalratelimitpolicies",
+    },
+    ("HTTPRoute", "policy.linkerd.io"): {
+        "api_paths": ["apis/policy.linkerd.io/v1beta3/"],
         "api": "httproutes",
     },
     ("MeshTLSAuthentication", "policy.linkerd.io"): {
@@ -6950,7 +6958,7 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api": "serverauthorizations",
     },
     ("Server", "policy.linkerd.io"): {
-        "api_paths": ["apis/policy.linkerd.io/v1beta1/"],
+        "api_paths": ["apis/policy.linkerd.io/v1beta3/"],
         "api": "servers",
     },
     # pool.kubevirt.io
@@ -8131,6 +8139,11 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
     ("AppWrapper", "workload.codeflare.dev"): {
         "api_paths": ["apis/workload.codeflare.dev/v1beta2/"],
         "api": "appwrappers",
+    },
+    # workload.linkerd.io
+    ("ExternalWorkload", "workload.linkerd.io"): {
+        "api_paths": ["apis/workload.linkerd.io/v1beta1/"],
+        "api": "externalworkloads",
     },
     # xgboostjob.kubeflow.org
     ("XGBoostJob", "kubeflow.org"): {
