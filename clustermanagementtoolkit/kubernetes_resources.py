@@ -3656,8 +3656,8 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
     },
     # export.kubevirt.io
     ("VirtualMachineExport", "export.kubevirt.io"): {
-        "api_paths": ["apis/export.kubevirt.io/v1beta1/",
-                      "apis/export.kubevirt.io/v1alpha1/"],
+        "api_paths": ["apis/export.kubevirt.io/v1/",
+                      "apis/export.kubevirt.io/v1beta1/"],
         "api": "virtualmachineexports",
     },
     # ext.cattle.io
@@ -6862,6 +6862,12 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api": "platformoperators",
         "namespaced": False,
     },
+   # plugin.kubevirt.io
+    ("Plugin", "plugin.kubevirt.io"): {
+        "api_paths": ["apis/plugin.kubevirt.io/v1alpha1/"],
+        "api": "plugins",
+        "namespaced": False,
+    },
     # policies.kyverno.io
     ("DeletingPolicy", "policies.kyverno.io"): {
         "api_paths": ["apis/policies.kyverno.io/v1/"],
@@ -7819,6 +7825,15 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api_paths": ["apis/telemetry.istio.io/v1/",
                       "apis/telemetry.istio.io/v1alpha1/"],
         "api": "telemetries",
+    },
+    # template.kubevirt.io
+    ("VirtualMachineTemplateRequest", "template.kubevirt.io"): {
+        "api_paths": ["apis/template.kubevirt.io/v1beta1/"],
+        "api": "virtualmachinetemplaterequests",
+    },
+    ("VirtualMachineTemplate", "template.kubevirt.io"): {
+        "api_paths": ["apis/template.kubevirt.io/v1beta1/"],
+        "api": "virtualmachinetemplates",
     },
     # template.openshift.io
     ("BrokerTemplateInstance", "template.openshift.io"): {
