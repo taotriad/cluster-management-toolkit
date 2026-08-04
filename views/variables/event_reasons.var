@@ -1089,6 +1089,14 @@ Init:
   field_colors:
     - context: "main"
       type: "status_ok"
+Injected:
+  field_colors:
+    - context: "main"
+      type: "status_done"
+InjectionSkipped:
+  field_colors:
+    - context: "main"
+      type: "status_done"
 InspectFailed:
   field_colors:
     - context: "main"
@@ -1157,10 +1165,10 @@ IPTablesUsageObserved:
   field_colors:
     - context: "main"
       type: "status_warning"
-Issuing:
+IssuedLeafCertificate:
   field_colors:
     - context: "main"
-      type: "status_pending"
+      type: "status_done"
 IssuerNotFound:
   field_colors:
     - context: "main"
@@ -1169,6 +1177,10 @@ IssuerNotReady:
   field_colors:
     - context: "main"
       type: "status_warning"
+Issuing:
+  field_colors:
+    - context: "main"
+      type: "status_pending"
 JAXJobSucceeded:
   field_colors:
     - context: "main"
