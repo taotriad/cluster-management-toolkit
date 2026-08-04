@@ -610,6 +610,16 @@ def test_ansithemearray_to_str(verbose: bool = False) -> tuple[str, bool]:
         except KeyError:
             pass
 
+    if result:
+        indata = "foo"
+        tmp = fun(indata, color=True)
+        if tmp != indata:
+            message = f"{fun.__name__}:\n" \
+                      f"       input: {indata}\n" \
+                      f"      output: {tmp}\n" \
+                      f"    expected: {indata}"
+            result = False
+
     # This is for coverage only
     if result:
         indata = [ANSIThemeStr("", "ok")]
