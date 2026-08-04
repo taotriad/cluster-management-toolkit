@@ -16,8 +16,10 @@ listview:
     {%- endfor %}
     data:
       header: "# of Data:"
-      path: "data"
-      type: "len"
+      paths:
+        - path: ["data", "binaryData"]
+          pathtype: "count"
+          default: 0
       formatter: "numerical"
       align: "right"
     immutable:
@@ -25,8 +27,8 @@ listview:
       paths:
         - path: "immutable"
           pathtype: "value"
-          type: "bool"
           default: ""
+          type: "bool"
   actions:
     actionlist:
       "Delete resource":
