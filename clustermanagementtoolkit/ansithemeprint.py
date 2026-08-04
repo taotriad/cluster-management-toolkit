@@ -25,7 +25,7 @@ try:
     from pygments.token import Comment, Error, Generic, Keyword, Name, Number, Operator
     from pygments.token import String, Token, Whitespace
     SYNTAX_HIGHLIGHTING: bool = True
-except ModuleNotFoundError:  # pragman: no cover
+except ModuleNotFoundError:  # pragma: no cover
     SYNTAX_HIGHLIGHTING = False
 
 from clustermanagementtoolkit.cmtpaths import SYSTEM_DEFAULT_THEME_FILE
