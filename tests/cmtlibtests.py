@@ -2003,6 +2003,118 @@ def test_check_versions(verbose: bool = False) -> tuple[str, bool]:
     return message, result
 
 
+def test_check_allowlist(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = cmtlib.check_allowlist
+
+    if result:
+        # Indata format:
+        # (allowlist, allowlist_name, value, default, exit_on_fail, allow_none,
+        #  expected_result, expected_exception)
+        testdata: tuple[Any, ...] = (
+            # Valid; item exists in allowlist
+            (
+                {
+                    "test_check_allowlist": test_check_allowlist,
+                },
+                "allowlist",
+                "test_check_allowlist",
+                main,
+                False,
+                False,
+                test_check_allowlist, None),
+            # Valid callable; item exists in allowlist
+            (
+                {
+                    "test_check_allowlist": test_check_allowlist,
+                },
+                "allowlist",
+                test_check_allowlist,
+                main,
+                False,
+                False,
+                test_check_allowlist, None),
+            # Item does not exist in allowlist; fallback to default
+            (
+                {
+                    "test_check_allowlist": test_check_allowlist,
+                },
+                "allowlist",
+                "foobar",
+                main,
+                False,
+                False,
+                main, None),
+            # None passed; allow_none; fallback to default
+            (
+                {
+                    "test_check_allowlist": test_check_allowlist,
+                },
+                "allowlist",
+                None,
+                main,
+                False,
+                True,
+                None, None),
+            # None passed; allow_none; fallback to default
+            (
+                {
+                    "test_check_allowlist": test_check_allowlist,
+                },
+                "allowlist",
+                None,
+                main,
+                False,
+                False,
+                main, None),
+            # Item does not exist in allowlist; exit_on_fail
+            (
+                {
+                    "test_check_allowlist": test_check_allowlist,
+                },
+                "allowlist",
+                "foobar",
+                main,
+                True,
+                False,
+                None, Exception),
+        )
+        for allowlist, allowlist_name, value, default, exit_on_fail, allow_none, \
+                expected_result, expected_exception in testdata:
+            try:
+                with mock.patch("sys.exit", side_effect=Exception("errno.EINVAL")):
+                    tmp = fun(allowlist, allowlist_name, value, default,
+                              exit_on_fail, allow_none)
+                if tmp != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"          value: {value}\n" \
+                              f"         output: {tmp}\n" \
+                              f"       expected: {expected_result}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  f"          value: {value}\n" \
+                                  f"      exception: {type(e)}\n" \
+                                  f"       expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"          value: {value}\n" \
+                              f"      exception: {type(e)}\n" \
+                              f"       expected: {expected_result}"
+                    result = False
+                    break
+    return message, result
+
+
 tests: dict[tuple[str, ...], dict[str, Any]] = {
     ("test_wrap_line()",): {
         "callable": test_wrap_line,
@@ -2135,6 +2247,10 @@ tests: dict[tuple[str, ...], dict[str, Any]] = {
     # the negative code paths for the other two.
     ("check_versions_apt()", "check_versions_yum", "check_versions_zypper",): {
         "callable": test_check_versions,
+        "result": None,
+    },
+    ("check_allowlist()",): {
+        "callable": test_check_allowlist,
         "result": None,
     },
 }
