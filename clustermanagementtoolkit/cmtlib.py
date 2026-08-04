@@ -69,6 +69,11 @@ def wrap_line(string: str | list[str], wrap_width: int) -> list[str | list[str]]
             else:
                 wrapped_line.append(line)
             line = word
+    if line:
+        if listlist:
+            wrapped_line.append([line])
+        else:
+            wrapped_line.append(line)
     return wrapped_line
 
 
