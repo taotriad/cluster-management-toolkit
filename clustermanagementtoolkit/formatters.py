@@ -3640,6 +3640,12 @@ def identify_cmdata(cmdata_name: str, cm_name: str,
 
     if uudata:
         try:
+            int(data)
+            return "Text", format_none
+        except ValueError:
+            pass
+
+        try:
             data = decoded.decode("utf-8", errors="strict")
         except UnicodeDecodeError:
             for dataformat, offset, match_bin_infix in cmdata_bin_header:
