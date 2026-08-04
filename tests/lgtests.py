@@ -1820,7 +1820,7 @@ def test_listgetter_configmap_data(verbose: bool = False) -> tuple[str, bool]:
                         "namespace": "kube-system",
                         "name": "bootstrap",
                     },
-                    "binary_data": {
+                    "binaryData": {
                         "foo": None,
                     },
                 },
@@ -1831,9 +1831,33 @@ def test_listgetter_configmap_data(verbose: bool = False) -> tuple[str, bool]:
                             "cm_name": "bootstrap",
                             "cm_namespace": "kube-system",
                             "configmap": "foo",
-                            "type": "Binary",
-                            "formatter": None,
+                            "type": "Empty",
+                            "formatter": formatters.format_binary,
                             "data": None,
+                        }
+                    ], 200),
+                None,
+            ),
+            (
+                {
+                    "metadata": {
+                        "namespace": "kube-system",
+                        "name": "bootstrap",
+                    },
+                    "binaryData": {
+                        "foo": "foo",
+                    },
+                },
+                {},
+                (
+                    [
+                        {
+                            "cm_name": "bootstrap",
+                            "cm_namespace": "kube-system",
+                            "configmap": "foo",
+                            "type": "Binary",
+                            "formatter": formatters.format_binary,
+                            "data": "foo",
                         }
                     ], 200),
                 None,

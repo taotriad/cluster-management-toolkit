@@ -1950,13 +1950,19 @@ def listgetter_configmap_data(obj: dict, **kwargs: Any) -> tuple[list[dict[str, 
     cm_name = deep_get(obj, DictPath("metadata#name"))
     cm_namespace = deep_get(obj, DictPath("metadata#namespace"), "")
 
-    for key, value in deep_get(obj, DictPath("binary_data"), {}).items():
+    for key, value in deep_get(obj, DictPath("binaryData"), {}).items():
+        data_type, formatter = formatters.identify_cmdata(key, cm_name, cm_namespace, value)
+        # This is from a data section, but it was identified as Text... Hmmm.
+        # Assume it's Binary just in case.
+        if data_type == "Text":
+            data_type = "Binary"
+
         vlist.append({
             "cm_name": cm_name,
             "cm_namespace": cm_namespace,
             "configmap": key,
-            "type": "Binary",
-            "formatter": None,
+            "type": data_type,
+            "formatter": formatters.format_binary,
             "data": value,
         })
 
