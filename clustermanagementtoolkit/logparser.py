@@ -328,9 +328,12 @@ def severity_to_string(lvl: LogLevel, severity_format: str = "full",
         Parameters:
             lvl (LogLevel): A LogLevel
             severity_format (str): The desired format; one of:
-                                   letter
-                                   4letter
-                                   full
+                                   letter|Letter|LETTER
+                                   4letter|4Letter|4LETTER
+                                   full|Full|FULL
+                                   If the string is in lowercase the output will be in lowercase.
+                                   If the string is capitalized the output will be capitalized.
+                                   If the string is all caps the output will be all caps.
             default (str): Default value to return if the severity_format is invalid,
                            or the LogLevel lacks representation.
         Returns:
@@ -1194,16 +1197,6 @@ def tab_separated(message: str, **kwargs: Any) \
         message = " ".join(fields[3:])
 
     return message, severity, facility, remnants
-
-
-def __split_severity_facility_style(message: str, **kwargs: Any) -> tuple[str, LogLevel, str]:
-    severity: LogLevel = deep_get(kwargs, DictPath("severity"), LogLevel.INFO)
-    facility: str = deep_get(kwargs, DictPath("facility"), "")
-    if (re_tmp := re.match(r"^\s*([A-Z]+)\s+([a-zA-Z-\.]+)\s+(.*)", message)) is not None:
-        severity = str_to_severity(re_tmp[1], default=severity)
-        facility = re_tmp[2]
-        message = re_tmp[3]
-    return message, severity, facility
 
 
 # pylint: disable-next=too-many-locals,too-many-branches,too-many-statements
@@ -4052,10 +4045,6 @@ def parsing_multiplexer(message: str | list[ThemeRef | ThemeStr],
             if _filter == "glog":
                 message, severity, facility, remnants, _match = \
                     split_glog(message, severity=severity, facility=facility)
-            elif _filter == "spaced_severity_facility":
-                message, severity, facility = \
-                    __split_severity_facility_style(message,
-                                                    severity=severity, facility=facility)
             elif _filter == "directory":
                 facility, severity, message, remnants = \
                     directory(message, fold_msg=fold_msg, severity=severity, facility=facility)
@@ -4393,7 +4382,6 @@ def init_parser_list(force_reinit: bool = False) -> None:
                                      "modinfo",
                                      "python_traceback",
                                      "seconds_severity_facility",
-                                     "spaced_severity_facility",
                                      "substitute_bullets",
                                      "strip_ansicodes",
                                      "sysctl",

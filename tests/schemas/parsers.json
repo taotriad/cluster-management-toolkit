@@ -140,7 +140,6 @@
                                         "modinfo",
                                         "python_traceback",
                                         "seconds_severity_facility",
-                                        "spaced_severity_facility",
                                         "strip_ansicodes",
                                         "sysctl",
                                         "tab_separated",

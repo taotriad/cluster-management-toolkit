@@ -182,7 +182,9 @@ def test_str_4letter_to_severity(verbose: bool = False) -> tuple[str, bool]:
 # pylint: disable-next=unused-argument
 def test_str_to_severity(verbose: bool = False) -> tuple[str, bool]:
     return generic_str_to_severity(valid_indata=("fatal", "error", "eror", "warning", "warn",
-                                                 "notice", "noti", "info", "debug", "debu"),
+                                                 "notice", "noti", "info", "debug", "debu",
+                                                 "debug+foo", "debug+1", "level0", "level-2",
+                                                 "LEVEL(-1)", "LEVEL(-2)"),
                                    fun=logparsers.str_to_severity)
 
 
@@ -239,6 +241,61 @@ def test_lvl_to_word_severity(verbose: bool = False) -> tuple[str, bool]:
     return generic_lvl_to_severity(valid_indata=(LogLevel.CRIT, LogLevel.ERR, LogLevel.WARNING,
                                                  LogLevel.NOTICE, LogLevel.INFO, LogLevel.DEBUG),
                                    fun=logparsers.lvl_to_word_severity)
+
+
+def test_severity_to_string(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = logparsers.severity_to_string
+
+    if result:
+        # Indata format:
+        # (lvl, severity_format, default, expected_result, expected_exception)
+        testdata: tuple[Any, ...] = (
+            (LogLevel.CRIT, "full", LogLevel.INFO, "critical", None),
+            (LogLevel.CRIT, "Full", LogLevel.INFO, "Critical", None),
+            (LogLevel.CRIT, "FULL", LogLevel.INFO, "CRITICAL", None),
+            (LogLevel.CRIT, "4letter", LogLevel.INFO, "crit", None),
+            (LogLevel.CRIT, "4Letter", LogLevel.INFO, "Crit", None),
+            (LogLevel.CRIT, "4LETTER", LogLevel.INFO, "CRIT", None),
+            (LogLevel.CRIT, "letter", LogLevel.INFO, "c", None),
+            (LogLevel.CRIT, "Letter", LogLevel.INFO, "C", None),
+            (LogLevel.CRIT, "LETTER", LogLevel.INFO, "C", None),
+        )
+        for lvl, severity_format, default, expected_result, expected_exception in testdata:
+            try:
+                if (tmp := fun(lvl, severity_format, default)) != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"            lvl: {lvl}\n" \
+                              f"severity_format: {severity_format}\n" \
+                              f"        default: {default}\n" \
+                              f"       expected: {expected_result}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  f"            lvl: {lvl}\n" \
+                                  f"severity_format: {severity_format}\n" \
+                                  f"        default: {default}\n" \
+                                  f"      exception: {type(e)}\n" \
+                                  f"       expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"            lvl: {lvl}\n" \
+                              f"severity_format: {severity_format}\n" \
+                              f"        default: {default}\n" \
+                              f"      exception: {type(e)}\n" \
+                              f"       expected: {expected_result}"
+                    result = False
+                    break
+    return message, result
 
 
 # pylint: disable-next=unused-argument
@@ -313,6 +370,74 @@ def test_split_colon_severity(verbose: bool = False) -> tuple[str, bool]:
     return generic_split_severity(valid_indata=("CRITICAL:", "ERROR:", "WARNING:", "NOTICE:",
                                                 "NOTE:", "INFO:", "DEBUG:", "NOTAVALIDSEVERITY:"),
                                   fun=logparsers.split_colon_severity, verbose=verbose)
+
+
+# pylint: disable-next=unused-argument
+def test_seconds_severity_facility(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = logparsers.seconds_severity_facility
+
+    if result:
+        testdata: tuple[Any, ...] = (
+            # Indata format:
+            # (message, options, expected_result, expected_exception)
+            ("[     0.000111s]  INFO ThreadId(01) linkerd2_proxy: "
+             "release 2.364.0 (e5de317) by linkerd on 2026-07-29T06:18:25Z", {},
+             ("ThreadId(01)", LogLevel.INFO,
+              [ThemeStr('[     0.000111s] ', ThemeAttr('logview', 'timestamp'), False),
+               ThemeStr('linkerd2_proxy: release 2.364.0 (e5de317) by linkerd '
+                        'on 2026-07-29T06:18:25Z',
+                        ThemeAttr('logview', 'severity_info'), False)], []),
+             None),
+            ("[     0.004117s]  WARN ThreadId(01) "
+             "dst:controller{addr=localhost:8086}:endpoint{addr=127.0.0.1:8086}: "
+             "linkerd_reconnect: Failed to connect error=endpoint 127.0.0.1:8086: "
+             "Connection refused (os error 111) error.sources=[Connection refused "
+             "(os error 111)]", {},
+             ("ThreadId(01)", LogLevel.WARNING,
+              [ThemeStr('[     0.004117s] ', ThemeAttr('logview', 'timestamp'), False),
+               ThemeStr('dst:controller{addr=localhost:8086}:endpoint{addr=127.0.0.1:8086}: '
+                        'linkerd_reconnect: Failed to connect error=endpoint 127.0.0.1:8086: '
+                        'Connection refused (os error 111) error.sources=[Connection refused '
+                        '(os error 111)]',
+                        ThemeAttr('logview', 'severity_warning'), False)], []),
+             None),
+        )
+
+        for message, kwargs, expected_result, expected_exception in testdata:
+            try:
+                if (tmp := fun(message, **kwargs)) != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"        message: {message}\n" \
+                              f"        options: {kwargs}\n" \
+                              f"         output: {tmp}\n" \
+                              f"       expected: {expected_result}"
+                    result = False
+                    break
+            except Exception as e:  # pylint: disable=broad-except
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  f"        message: {message}\n" \
+                                  f"        options: {kwargs}\n" \
+                                  f"      exception: {type(e)}\n" \
+                                  f"       expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"        message: {message}\n" \
+                              f"        options: {kwargs}\n" \
+                              f"      exception: {type(e)}\n" \
+                              f"       expected: {expected_result}"
+                    result = False
+                    break
+
+    return message, result
 
 
 # pylint: disable-next=unused-argument
@@ -1189,19 +1314,6 @@ def test_tab_separated(verbose: bool = False) -> tuple[str, bool]:
 
 
 # pylint: disable-next=unused-argument
-def test___split_severity_facility_style(verbose: bool = False) -> tuple[str, bool]:
-    message = ""
-    result = True
-
-    # fun = logparsers.__split_severity_facility_style
-    # \tINFO\tcontrollers.Reaper\tstarting reconciliation\t{"reaper": "default/k8ssandra-cluster-a-reaper-k8ssandra"}  # noqa: E501
-
-    message = "[TEST NOT IMPLEMENTED]"
-
-    return message, result
-
-
-# pylint: disable-next=unused-argument
 def test_split_json_style(verbose: bool = False) -> tuple[str, bool]:
     message = ""
     result = True
@@ -1709,12 +1821,20 @@ tests: dict[tuple[str, ...], dict[str, Any]] = {
         "callable": test_lvl_to_word_severity,
         "result": None,
     },
+    ("severity_to_string",): {
+        "callable": test_severity_to_string,
+        "result": None,
+    },
     ("split_bracketed_severity",): {
         "callable": test_split_bracketed_severity,
         "result": None,
     },
     ("split_colon_severity",): {
         "callable": test_split_colon_severity,
+        "result": None,
+    },
+    ("seconds_severity_facility",): {
+        "callable": test_seconds_severity_facility,
         "result": None,
     },
     ("substitute_bullets",): {
@@ -1751,10 +1871,6 @@ tests: dict[tuple[str, ...], dict[str, Any]] = {
     },
     ("tab_separated",): {
         "callable": test_tab_separated,
-        "result": None,
-    },
-    ("__split_severity_facility_style",): {
-        "callable": test___split_severity_facility_style,
         "result": None,
     },
     ("split_json_style",): {
