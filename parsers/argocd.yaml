@@ -27,6 +27,7 @@
         - matchtype: "startswith"
           matchkey: "Trace["
           loglevel: "debug"
+    - name: "json"
 - name: "argocd"
   show_in_selector: false
   matchkeys:
