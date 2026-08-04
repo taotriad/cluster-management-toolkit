@@ -3,9 +3,11 @@
   show_in_selector: false
   matchkeys:
     - container_name: "linkerd-proxy"
+    - container_name: "linkerd-proxy"
+      image_name: "/linkerd/proxy"
+      container_type: "InitContainer"
   parser_rules:
     - name: "seconds_severity_facility"
-    - name: "key_value"
 - name: "linkerd"
   matchkeys:
     - pod_name: "linkerd-destination"
