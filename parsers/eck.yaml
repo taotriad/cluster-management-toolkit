@@ -8,6 +8,7 @@
     - image_name: "/beats/elastic-agent"
     - image_name: "/beats/filebeat"
   parser_rules:
+    - name: "ts_8601"
     - name: "glog"
     - name: "json"
     - name: "override_severity"

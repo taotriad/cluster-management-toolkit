@@ -10,6 +10,7 @@
 import builtins
 from datetime import datetime
 import importlib
+import re
 import sys
 from typing import Any, cast
 from collections.abc import Callable
@@ -373,6 +374,248 @@ def test_split_colon_severity(verbose: bool = False) -> tuple[str, bool]:
 
 
 # pylint: disable-next=unused-argument
+def test_custom_override_severity(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = logparsers.custom_override_severity
+
+    if result:
+        testdata: tuple[Any, ...] = (
+            # Indata format:
+            # (message, severity, options, expected_result, expected_exception)
+            (
+                '"Warning: cluster.x-k8s.io/v1beta1 Machine is deprecated; '
+                'use cluster.x-k8s.io/v1beta2 Machine', LogLevel.INFO,
+                {
+                    "options": {
+                        "overrides": [
+                            {
+                                "matchtype": "startswith",
+                                "matchkey": "\"Warning: ",
+                                "loglevel": "warning",
+                            },
+                        ],
+                    },
+                },
+                ('"Warning: cluster.x-k8s.io/v1beta1 Machine is deprecated; '
+                 'use cluster.x-k8s.io/v1beta2 Machine', LogLevel.WARNING),
+                None,
+            ),
+            (
+                '"Warning: cluster.x-k8s.io/v1beta1 Machine is deprecated; '
+                'use cluster.x-k8s.io/v1beta2 Machine', LogLevel.INFO,
+                {
+                    "options": {
+                        "overrides": [
+                            {
+                                "matchtype": "startswith",
+                                "matchkey": "\"arning: ",
+                                "loglevel": "warning",
+                            },
+                        ],
+                    },
+                },
+                ('"Warning: cluster.x-k8s.io/v1beta1 Machine is deprecated; '
+                 'use cluster.x-k8s.io/v1beta2 Machine', LogLevel.INFO),
+                None,
+            ),
+            (
+                [ThemeStr('"Warning: cluster.x-k8s.io/v1beta1 Machine is deprecated; '
+                          'use cluster.x-k8s.io/v1beta2 Machine',
+                          ThemeAttr("main", "default"))], LogLevel.INFO,
+                {
+                    "options": {
+                        "overrides": [
+                            {
+                                "matchtype": "startswith",
+                                "matchkey": "\"Warning: ",
+                                "loglevel": "warning",
+                            },
+                        ],
+                    },
+                },
+                ([ThemeStr('"Warning: cluster.x-k8s.io/v1beta1 Machine is deprecated; '
+                           'use cluster.x-k8s.io/v1beta2 Machine',
+                           ThemeAttr("logview", "severity_warning"))], LogLevel.WARNING),
+                None,
+            ),
+            (
+                '"Warning: cluster.x-k8s.io/v1beta1 Machine is deprecated; '
+                'use cluster.x-k8s.io/v1beta2 Machine', LogLevel.INFO,
+                {
+                    "options": {
+                        "overrides": [
+                            {
+                                "matchtype": "endswith",
+                                "matchkey": "Machine",
+                                "loglevel": "debug",
+                            },
+                        ],
+                    },
+                },
+                ('"Warning: cluster.x-k8s.io/v1beta1 Machine is deprecated; '
+                 'use cluster.x-k8s.io/v1beta2 Machine', LogLevel.DEBUG),
+                None,
+            ),
+            (
+                '"Warning: cluster.x-k8s.io/v1beta1 Machine is deprecated; '
+                'use cluster.x-k8s.io/v1beta2 Machine', LogLevel.INFO,
+                {
+                    "options": {
+                        "overrides": [
+                            {
+                                "matchtype": "endswith",
+                                "matchkey": "Machin",
+                                "loglevel": "debug",
+                            },
+                        ],
+                    },
+                },
+                ('"Warning: cluster.x-k8s.io/v1beta1 Machine is deprecated; '
+                 'use cluster.x-k8s.io/v1beta2 Machine', LogLevel.INFO),
+                None,
+            ),
+            (
+                '"Warning: cluster.x-k8s.io/v1beta1 Machine is deprecated; '
+                'use cluster.x-k8s.io/v1beta2 Machine', LogLevel.INFO,
+                {
+                    "options": {
+                        "overrides": [
+                            {
+                                "matchtype": "contains",
+                                "matchkey": "deprecated",
+                                "loglevel": "notice",
+                            },
+                        ],
+                    },
+                },
+                ('"Warning: cluster.x-k8s.io/v1beta1 Machine is deprecated; '
+                 'use cluster.x-k8s.io/v1beta2 Machine', LogLevel.NOTICE),
+                None,
+            ),
+            (
+                '"Warning: cluster.x-k8s.io/v1beta1 Machine is deprecated; '
+                'use cluster.x-k8s.io/v1beta2 Machine', LogLevel.INFO,
+                {
+                    "options": {
+                        "overrides": [
+                            {
+                                "matchtype": "contains",
+                                "matchkey": "dprecated",
+                                "loglevel": "notice",
+                            },
+                        ],
+                    },
+                },
+                ('"Warning: cluster.x-k8s.io/v1beta1 Machine is deprecated; '
+                 'use cluster.x-k8s.io/v1beta2 Machine', LogLevel.INFO),
+                None,
+            ),
+            (
+                'warning', LogLevel.INFO,
+                {
+                    "options": {
+                        "overrides": [
+                            {
+                                "matchtype": "exact",
+                                "matchkey": "Warning",
+                                "loglevel": "warning",
+                            },
+                        ],
+                    },
+                },
+                ('warning', LogLevel.INFO),
+                None,
+            ),
+            (
+                'Warning', LogLevel.INFO,
+                {
+                    "options": {
+                        "overrides": [
+                            {
+                                "matchtype": "exact",
+                                "matchkey": "Warning",
+                                "loglevel": "warning",
+                            },
+                        ],
+                    },
+                },
+                ('Warning', LogLevel.WARNING),
+                None,
+            ),
+            (
+                'Warning', LogLevel.INFO,
+                {
+                    "options": {
+                        "overrides": [
+                            {
+                                "matchtype": "regex",
+                                "matchkey": re.compile("rn"),
+                                "loglevel": "warning",
+                            },
+                        ],
+                    },
+                },
+                ('Warning', LogLevel.INFO),
+                None,
+            ),
+            (
+                'Warning', LogLevel.INFO,
+                {
+                    "options": {
+                        "overrides": [
+                            {
+                                "matchtype": "regex",
+                                "matchkey": re.compile(".*rn"),
+                                "loglevel": "warning",
+                            },
+                        ],
+                    },
+                },
+                ('Warning', LogLevel.WARNING),
+                None,
+            ),
+        )
+
+        for message, severity, kwargs, expected_result, expected_exception in testdata:
+            try:
+                if (tmp := fun(message, severity, **kwargs)) != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"        message: {message}\n" \
+                              f"       severity: {severity}\n" \
+                              f"        options: {kwargs}\n" \
+                              f"         output: {tmp}\n" \
+                              f"       expected: {expected_result}"
+                    result = False
+                    break
+            except Exception as e:  # pylint: disable=broad-except
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  f"        message: {message}\n" \
+                                  f"       severity: {severity}\n" \
+                                  f"        options: {kwargs}\n" \
+                                  f"      exception: {type(e)}\n" \
+                                  f"       expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"        message: {message}\n" \
+                              f"       severity: {severity}\n" \
+                              f"        options: {kwargs}\n" \
+                              f"      exception: {type(e)}\n" \
+                              f"       expected: {expected_result}"
+                    result = False
+                    break
+
+    return message, result
+
+
+# pylint: disable-next=unused-argument
 def test_seconds_severity_facility(verbose: bool = False) -> tuple[str, bool]:
     message = ""
     result = True
@@ -432,59 +675,6 @@ def test_seconds_severity_facility(verbose: bool = False) -> tuple[str, bool]:
                     message = f"{fun.__name__}() did not yield expected result:\n" \
                               f"        message: {message}\n" \
                               f"        options: {kwargs}\n" \
-                              f"      exception: {type(e)}\n" \
-                              f"       expected: {expected_result}"
-                    result = False
-                    break
-
-    return message, result
-
-
-# pylint: disable-next=unused-argument
-def test_substitute_bullets(verbose: bool = False) -> tuple[str, bool]:
-    message = ""
-    result = True
-
-    fun = logparsers.substitute_bullets
-
-    if result:
-        testdata: tuple[Any, ...] = (
-            # Indata format:
-            # (string, options, expected_result, expected_exception)
-            ("*Bulleted message", {"prefix": "* "}, "*Bulleted message", None),
-            ("*Bulleted message", {"prefix": "*"}, "•Bulleted message", None),
-            ("* Bulleted message", {"prefix": "* "}, "• Bulleted message", None),
-            ("* * Bulleted message", {"prefix": "* "}, "• * Bulleted message", None),
-            ("Non-Bulleted message", {"prefix": "* "}, "Non-Bulleted message", None),
-            ("Bullet * inside * message", {"prefix": "* "}, "Bullet * inside * message", None),
-        )
-
-        for indata, options, expected_result, expected_exception in testdata:
-            try:
-                if (tmp := fun(indata, options=options)) != expected_result:
-                    message = f"{fun.__name__}() did not yield expected result:\n" \
-                              f"          input: {indata}\n" \
-                              f"        options: {options}\n" \
-                              f"         output: {tmp}\n" \
-                              f"       expected: {expected_result}"
-                    result = False
-                    break
-            except Exception as e:  # pylint: disable=broad-except
-                if expected_exception is not None:
-                    if isinstance(e, expected_exception):
-                        pass
-                    else:
-                        message = f"{fun.__name__}() did not yield expected result:\n" \
-                                  f"          input: {indata}\n" \
-                                  f"        options: {options}\n" \
-                                  f"      exception: {type(e)}\n" \
-                                  f"       expected: {expected_exception}"
-                        result = False
-                        break
-                else:
-                    message = f"{fun.__name__}() did not yield expected result:\n" \
-                              f"          input: {indata}\n" \
-                              f"        options: {options}\n" \
                               f"      exception: {type(e)}\n" \
                               f"       expected: {expected_result}"
                     result = False
@@ -1750,6 +1940,219 @@ def test_directory(verbose: bool = False) -> tuple[str, bool]:
 
 
 # pylint: disable-next=unused-argument
+def test_custom_splitter(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = logparsers.custom_splitter
+
+    if result:
+        testdata: tuple[Any, ...] = (
+            (
+                "[2026-08-05T18:11:52Z INFO antrea-ovs]: Starting ovsdb-server",
+                {
+                    "options": {
+                        "regex": re.compile(r"^\[\d{4}-\d\d-\d\dT\d\d:\d\d:\d\dZ ([A-Z]+?) ([^]]+)\]: (.*)"),  # noqa: E501 pylint: disable=line-too-long
+                        "severity": {
+                            "field": 1,
+                            "transform": "str",
+                        },
+                        "facility": {
+                            "fields": [
+                                2,
+                            ],
+                        },
+                        "message": {
+                            "field": 3,
+                        },
+                    },
+                },
+                ("Starting ovsdb-server", LogLevel.INFO, "antrea-ovs"), None),
+            (
+                "[2026-08-05T18:11:52Z INFO antrea-ovs]: Starting ovsdb-server",
+                {
+                    "options": {
+                        "regex": re.compile(r"^\[\d{4}-\d\d-\d\dT\d\d:\d\d:\d\dZ ([A-Z]+?) ([^]]+)\]: (.*)"),  # noqa: E501 pylint: disable=line-too-long
+                        "severity": {
+                            "field": 1,
+                            "transform": "4letter",
+                        },
+                        "facility": {
+                            "fields": [
+                                2,
+                            ],
+                        },
+                        "message": {
+                            "field": 3,
+                        },
+                    },
+                },
+                ("Starting ovsdb-server", LogLevel.INFO, "antrea-ovs"), None),
+            (
+                "[2026-08-05T18:11:52Z ERR antrea-ovs]: Starting ovsdb-server",
+                {
+                    "options": {
+                        "regex": re.compile(r"^\[\d{4}-\d\d-\d\dT\d\d:\d\d:\d\dZ ([A-Z]+?) ([^]]+)\]: (.*)"),  # noqa: E501 pylint: disable=line-too-long
+                        "severity": {
+                            "field": 1,
+                            "transform": "3letter",
+                        },
+                        "facility": {
+                            "fields": [
+                                2,
+                            ],
+                        },
+                        "message": {
+                            "field": 3,
+                        },
+                    },
+                },
+                ("Starting ovsdb-server", LogLevel.ERR, "antrea-ovs"), None),
+            (
+                "[2026-08-05T18:11:52Z F antrea-ovs]: Starting ovsdb-server",
+                {
+                    "options": {
+                        "regex": re.compile(r"^\[\d{4}-\d\d-\d\dT\d\d:\d\d:\d\dZ ([A-Z]) ([^]]+)\]: (.*)"),  # noqa: E501 pylint: disable=line-too-long
+                        "severity": {
+                            "field": 1,
+                            "transform": "letter",
+                        },
+                        "facility": {
+                            "fields": [
+                                2,
+                            ],
+                        },
+                        "message": {
+                            "field": 3,
+                        },
+                    },
+                },
+                ("Starting ovsdb-server", LogLevel.EMERG, "antrea-ovs"), None),
+            (
+                "[2026-08-05T18:11:52Z 2 antrea-ovs]: Starting ovsdb-server",
+                {
+                    "options": {
+                        "regex": re.compile(r"^\[\d{4}-\d\d-\d\dT\d\d:\d\d:\d\dZ ([0-9]) ([^]]+)\]: (.*)"),  # noqa: E501 pylint: disable=line-too-long
+                        "severity": {
+                            "field": 1,
+                            "transform": "int",
+                        },
+                        "facility": {
+                            "fields": [
+                                2,
+                            ],
+                        },
+                        "message": {
+                            "field": 3,
+                        },
+                    },
+                },
+                ("Starting ovsdb-server", LogLevel.CRIT, "antrea-ovs"), None),
+            (
+                "[2026-08-05T18:11:52Z INFO antrea-ovs]: Starting ovsdb-server",
+                {
+                    "options": {
+                        "regex": re.compile(r"^\[\d{4}-\d\d-\d\dT\d\d:\d\d:\d\dZ ([A-Z]+?) ([^]]+)\]: (.*)"),  # noqa: E501 pylint: disable=line-too-long
+                        "severity": {
+                            "field": 4,
+                            "transform": "str",
+                        },
+                        "facility": {
+                            "fields": [
+                                2,
+                            ],
+                        },
+                        "message": {
+                            "field": 3,
+                        },
+                    },
+                },
+                ("Starting ovsdb-server", LogLevel.DEFAULT, "antrea-ovs"), None),
+            (
+                "[2026-08-05T18:11:52Z INFO antrea-ovs]: Starting ovsdb-server",
+                {
+                    "options": {
+                        "regex": re.compile(r"^\[\d{4}-\d\d-\d\dT\d\d:\d\d:\d\dZ ([A-Z]+?) ([^]]+)\]: (.*)"),  # noqa: E501 pylint: disable=line-too-long
+                        "severity": {
+                            "field": 1,
+                            "transform": "str",
+                        },
+                        "facility": {
+                            "fields": [
+                                4,
+                            ],
+                        },
+                        "message": {
+                            "field": 3,
+                        },
+                    },
+                },
+                ("Starting ovsdb-server", LogLevel.INFO, ""), None),
+            (
+                "[2026-08-05T18:11:52Z INFO antrea-ovs]: Starting ovsdb-server",
+                {
+                    "options": {
+                        "regex": re.compile(r"^\[\d{4}-\d\d-\d\dT\d\d:\d\d:\d\dZ ([A-Z]+?) ([^]]+)\]: (.*)"),  # noqa: E501 pylint: disable=line-too-long
+                        "severity": {
+                            "field": 1,
+                            "transform": "str",
+                        },
+                        "facility": {
+                            "fields": [
+                                2,
+                            ],
+                        },
+                        "message": {
+                            "field": 4,
+                        },
+                    },
+                },
+                ("[2026-08-05T18:11:52Z INFO antrea-ovs]: Starting ovsdb-server",
+                 LogLevel.DEFAULT, ""), None),
+            (
+                [ThemeStr("Starting ovsdb-server", ThemeAttr("types", "generic"))],
+                {
+                    "severity": LogLevel.INFO,
+                    "facility": "antrea-ovs",
+                },
+                ([ThemeStr("Starting ovsdb-server", ThemeAttr("types", "generic"))],
+                 LogLevel.INFO, "antrea-ovs"), None),
+        )
+
+        for indata, kwargs, expected_result, expected_exception in testdata:
+            try:
+                tmp = fun(indata, **kwargs)
+                if tmp != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"          input: {indata}\n" \
+                              f"         output: {tmp}\n" \
+                              f"       expected: {expected_result}"
+                    result = False
+            except Exception as e:  # pylint: disable=broad-except
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  f"          input:\n" \
+                                  f"{indata}" \
+                                  f"      exception: {type(e)}\n" \
+                                  f"         output: {tmp}\n" \
+                                  f"       expected: {expected_result}"
+                        result = False
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"          input:\n" \
+                              f"{indata}" \
+                              f"      exception: {type(e)}\n" \
+                              f"         output: {tmp}\n" \
+                              f"       expected: {expected_result}"
+                    result = False
+
+    return message, result
+
+
+# pylint: disable-next=unused-argument
 def test_parser_list(verbose: bool = False) -> tuple[str, bool]:
     message = ""
     result = True
@@ -1837,8 +2240,8 @@ tests: dict[tuple[str, ...], dict[str, Any]] = {
         "callable": test_seconds_severity_facility,
         "result": None,
     },
-    ("substitute_bullets",): {
-        "callable": test_substitute_bullets,
+    ("custom_override_severity",): {
+        "callable": test_custom_override_severity,
         "result": None,
     },
     ("is_timestamp",): {
@@ -1895,6 +2298,10 @@ tests: dict[tuple[str, ...], dict[str, Any]] = {
     },
     ("directory",): {
         "callable": test_directory,
+        "result": None,
+    },
+    ("custom_splitter",): {
+        "callable": test_custom_splitter,
         "result": None,
     },
     ("init_parser_list", "get_parser_list"): {

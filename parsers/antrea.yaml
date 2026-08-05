@@ -6,12 +6,17 @@
       container_name: "antrea-ovs"
   parser_rules:
     - name: "strip_ansicodes"
-    - name: "substitute_bullets"
+    - name: "custom_splitter"
       options:
-        prefix: " * "
-    - name: "bracketed_timestamp_severity_facility"
-      options:
-        default_loglevel: "info"
+        regex: '^\[\d{4}-\d\d-\d\dT\d\d:\d\d:\d\dZ ([A-Z]+?) ([^]]+)\]: (.*)'
+        severity:
+          field: 1
+          transform: "str"
+        facility:
+          fields:
+            - 2
+        message:
+          field: 3
 - name: "antrea-agent"
   show_in_selector: false
   matchkeys:

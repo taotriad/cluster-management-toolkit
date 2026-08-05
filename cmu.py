@@ -6051,18 +6051,6 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                 },
                 {
                     "lineattrs": WidgetLineAttrs.NORMAL,
-                    "columns": [[ThemeStr("Replace bullets",
-                                 ThemeAttr("windowwidget", "default"))]],
-                    "retval": "msg_realbullets",
-                },
-                {
-                    "lineattrs": WidgetLineAttrs.NORMAL,
-                    "columns": [[ThemeStr("Collector bullets",
-                                 ThemeAttr("windowwidget", "default"))]],
-                    "retval": "bullet_collectors",
-                },
-                {
-                    "lineattrs": WidgetLineAttrs.NORMAL,
                     "columns": [[ThemeStr("Merge starting version",
                                  ThemeAttr("windowwidget", "default"))]],
                     "retval": "merge_starting_version",

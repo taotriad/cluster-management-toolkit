@@ -154,8 +154,7 @@
                             "properties": {
                                 "name": {
                                     "enum": [
-                                        "bracketed_severity",
-                                        "bracketed_timestamp_severity_facility"
+                                        "bracketed_severity"
                                     ]
                                 },
                                 "default_loglevel": {
@@ -559,21 +558,6 @@
                                 }
                             },
                             "required": [ "name", "overrides" ],
-                            "additionalProperties": false
-                        }, {
-                            "type": "object",
-                            "properties": {
-                                "name": {
-                                    "enum": [
-                                        "substitute_bullets"
-                                    ]
-                                },
-                                "prefix": {
-                                    "description": "The prefix to substitute",
-                                    "type": "string"
-                                }
-                            },
-                            "requiredProperties": [ "name" ],
                             "additionalProperties": false
                         }, {
                             "type": "object",

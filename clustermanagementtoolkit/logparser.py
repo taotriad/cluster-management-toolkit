@@ -119,8 +119,6 @@ class LogparserConfiguration:
     # Currently this only work with JSON & key_value on a subset of keys
     # and does not affect "err=" and "error="
     expand_newlines: bool = True
-    # Should "* " be replaced with real bullets?
-    msg_realbullets: bool = True
     # Should override severity rules be applied?
     override_severity: bool = True
     # collector=foo => • foo
@@ -1699,31 +1697,6 @@ def split_colon_facility(message: str, facility: str = "") -> tuple[str, str]:
     return message, facility
 
 
-def split_bracketed_timestamp_severity_facility(message: str,
-                                                **kwargs: Any) -> tuple[str, LogLevel, str]:
-    """
-    Split a message in "[timestamp severity facility] message" format into message, facility.
-
-        Parameters:
-            message (str): The message part of the msg to format
-            **kwargs (dict[str, Any]): Keyword arguments
-                default: The default severity to return if the message coouldn't be split
-        Returns:
-            (str, LogLevel, str):
-                (str): The message part
-                (LogLevel): The extracted LogLevel
-                (str): The facility
-    """
-    severity: LogLevel = deep_get(kwargs, DictPath("default_loglevel"), LogLevel.INFO)
-    facility: str = ""
-
-    if (re_tmp := re.match(r"^\[([^ ]+) ([^ ]+) (.+?)\]: (.+)", message)) is not None:
-        severity = str_to_severity(re_tmp[2])
-        facility = re_tmp[3]
-        message = re_tmp[4]
-    return message, severity, facility
-
-
 # pylint: disable-next=too-many-branches
 def custom_override_severity(message: str | list,
                              severity: LogLevel,
@@ -2123,8 +2096,6 @@ def key_value(message: str, **kwargs: Any) -> tuple[str, LogLevel, str,
                           ["source", "subsys", "caller", "logger", "Topic"])
     versions = deep_get(options, DictPath("versions"), [])
     allow_bare_keys: str = deep_get(options, DictPath("allow_bare_keys"), "none")
-    substitute_bullets_: bool = deep_get(options, DictPath("substitute_bullets"), True)
-    collector_bullets: bool = deep_get(options, DictPath("collector_bullets"), False)
     newlines: str = deep_get(options, DictPath("newlines"), "keep")
     is_event: bool = deep_get(options, DictPath("is_event"), False)
 
@@ -2251,18 +2222,8 @@ def key_value(message: str, **kwargs: Any) -> tuple[str, LogLevel, str,
                 s = re_tmp[2].replace("\\t", "").split("\\n")
                 for line in s:
                     if line:
-                        # Real bullets look so much nicer
-                        if line.startswith("* ") \
-                                and substitute_bullets_ \
-                                and LogparserConfiguration.msg_realbullets:
-                            remnants.append(([ThemeRef("separators", "logbullet"),
-                                              ThemeStr(f"{line[2:]}",
-                                                       ThemeAttr("logview", severity_name))],
-                                             severity))
-                        else:
-                            remnants.append(([ThemeStr(f"{line}",
-                                                       ThemeAttr("logview", severity_name))],
-                                             severity))
+                        remnants.append(([ThemeStr(f"{line}",
+                                                   ThemeAttr("logview", severity_name))], severity))
         else:
             msg_tmp = []
             # If we are extracting msg we always want msg first
@@ -2305,11 +2266,7 @@ def key_value(message: str, **kwargs: Any) -> tuple[str, LogLevel, str,
 
             for d_key, d_value in d.items():
                 if not fold_msg:
-                    if d_key == "collector" \
-                            and collector_bullets \
-                            and LogparserConfiguration.bullet_collectors:
-                        msg_tmp.append(f"• {d_value}")
-                    elif d_key in versions:
+                    if d_key in versions:
                         msg_tmp.append(format_key_value(d_key, d_value,
                                                         LogLevel.NOTICE, force_severity=True))
                     else:
@@ -2753,27 +2710,6 @@ def seconds_severity_facility(message: str, **kwargs: Any) \
         return facility, severity, new_message, remnants
 
     return facility, severity, message, remnants
-
-
-def substitute_bullets(message: str, **kwargs: Any) -> str:
-    """
-    Replace a prefix (by default "* ") with actual bullet characters.
-
-        Parameters:
-            message (str): The message to process
-            **kwargs (dict[str, Any]): Keyword arguments
-                options (dict[str, Any]): options
-                    prefix (str): The prefix to use to substitute for "proper" bullets
-        Returns:
-            message (str): The message with bullets substituted
-    """
-    options: dict = deep_get(kwargs, DictPath("options"), {})
-    prefix: str = deep_get(options, DictPath("prefix"), "* ")
-
-    if message.startswith(prefix) and LogparserConfiguration.msg_realbullets:
-        # We do not want to replace all "*" in the message with bullet, just prefixes
-        message = message[0:len(prefix)].replace("*", "•", 1) + message.removeprefix(prefix)
-    return message
 
 
 # pylint: disable-next=unused-argument
@@ -3907,6 +3843,7 @@ def custom_splitter(message: str, **kwargs: Any) -> \
 
     # The bare minimum for these rules is
     if compiled_regex is None or message_field is None:
+        # TODO: Log an error instead of an exception
         raise ValueError("parser rule is missing regex or message field")
 
     tmp = compiled_regex.match(message)
@@ -3951,7 +3888,16 @@ def custom_splitter(message: str, **kwargs: Any) -> \
             elif severity_transform == "str":
                 severity = str_to_severity(tmp[severity_field], default=severity)
             elif severity_transform == "int":
-                severity = cast(LogLevel, int(tmp[severity_field]))
+                try:
+                    severity = LogLevel(int(tmp[severity_field]))
+                except TypeError:
+                    # Needs an integer
+                    # TODO: Log an error
+                    pass
+                except ValueError:
+                    # Needs a value that fits as a LogLevel
+                    # TODO: Log an error
+                    pass
             else:
                 errmsg = [
                     [("Unknown severity transform rule ", "default"),
@@ -4065,9 +4011,6 @@ def parsing_multiplexer(message: str | list[ThemeRef | ThemeStr],
             elif _filter == "sysctl":
                 facility, severity, message, remnants = \
                     sysctl(message, severity=severity, facility=facility, fold_msg=fold_msg)
-            elif _filter == "bracketed_timestamp_severity_facility":
-                message, severity, facility = \
-                    split_bracketed_timestamp_severity_facility(message, default=filter_options)
             elif _filter == "custom_splitter":
                 message, severity, facility = \
                     custom_splitter(message, severity=severity, facility=facility,
@@ -4164,8 +4107,6 @@ def parsing_multiplexer(message: str | list[ThemeRef | ThemeStr],
             elif _filter == "bracketed_severity":
                 message, severity = split_bracketed_severity(message, default=filter_options)
             # Filters
-            elif _filter == "substitute_bullets":
-                message = substitute_bullets(message, options=filter_options)
             elif _filter == "strip_ansicodes":
                 message = strip_ansicodes(message)
             # Block starters
@@ -4362,7 +4303,6 @@ def init_parser_list(force_reinit: bool = False) -> None:
                     if rule_name in ("angle_bracketed_facility",
                                      "ansible_line",
                                      "bracketed_severity",
-                                     "bracketed_timestamp_severity_facility",
                                      "colon_facility",
                                      "colon_severity",
                                      "custom_line",
@@ -4382,7 +4322,6 @@ def init_parser_list(force_reinit: bool = False) -> None:
                                      "modinfo",
                                      "python_traceback",
                                      "seconds_severity_facility",
-                                     "substitute_bullets",
                                      "strip_ansicodes",
                                      "sysctl",
                                      "tab_separated",

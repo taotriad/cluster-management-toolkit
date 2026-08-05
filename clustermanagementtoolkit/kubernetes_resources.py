@@ -6862,7 +6862,7 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api": "platformoperators",
         "namespaced": False,
     },
-   # plugin.kubevirt.io
+    # plugin.kubevirt.io
     ("Plugin", "plugin.kubevirt.io"): {
         "api_paths": ["apis/plugin.kubevirt.io/v1alpha1/"],
         "api": "plugins",

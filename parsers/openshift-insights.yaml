@@ -12,7 +12,7 @@
         regex: '^\[\d{4}-\d\d-\d\dT\d\d:\d\d:\d\dZ ([A-Z]+)\s+([^]]+)\] (.+)'
         severity:
           field: 1
-          transform: "string"
+          transform: "str"
         facility:
           fields:
             - 2
