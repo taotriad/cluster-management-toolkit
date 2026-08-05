@@ -78,7 +78,8 @@ infoview:
       {{ line }}
       {%- endfor %}
       groups:
-        header: [["Groups:", ["main", "infoheader"]]]
+        header: [["G", ["main", "infoheader_shortcut"]],
+                 ["roups:", ["main", "infoheader"]]]
         paths:
           - path: ["spec#groups"]
             pathtype: "list"
@@ -150,3 +151,16 @@ infoview:
         api_family: "cert-manager.io"
         name_path: "spec#issuerRef#name"
         namespace_path: "metadata#namespace"
+    "List Groups":
+      key: "g"
+      modifier: "shift"
+      read_only: false
+      helptext: "List groups"
+      widget: "windowwidget"
+      widget_args:
+        title: "Groups:"
+        itemgetter: "get_list_as_list"
+        itemgetter_args:
+          path: "spec#groups"
+        # This isn't supported for now
+        sortcolumn: "name"

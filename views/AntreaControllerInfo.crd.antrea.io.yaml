@@ -67,8 +67,16 @@ infoview:
   infopad:
     row_indexes:
       Normal:
-        fields: ["node_name", "pod", "service", "version"]
+        fields: ["node_name", "pod", "service", "api_port", "version"]
     rows:
+      api_port:
+        header: [["API Port:", ["main", "infoheader"]]]
+        path: "apiPort"
+        type: "int"
+        formatter: "numerical"
+        formatting:
+          field_colors:
+            - type: "port"
       node_name:
         header: [["No", ["main", "infoheader"]],
                  ["d", ["main", "infoheader_shortcut"]],
