@@ -150,16 +150,16 @@ No known regressions.
 | cryptography   |                 | openSUSE, unsupported distros           |
 | jinja2         | 3.1.6           | openSUSE/SLES/RHEL, unsupported distros |
 | natsort        | 8.0.2           | openSUSE/SLES/RHEL, unsupported distros |
+| orjson         | 3.11.7          | openSUSE/SLES/RHEL, unsupported distros |
 | paramiko       |                 | openSUSE/SLES/RHEL, unsupported distros |
 | pygments       | 2.20.0          | OpenSUSE/SLES/RHEL, unsupported distros |
 | PyYAML         | 6.0             | Unsupported distros                     |
 | ruamel.yaml    | 0.17.21         | Unsupported distros [1]                 |
 | ruyaml         | 0.91.0          | Unsupported distros [1]                 |
 | setuptools     | 83.0.0          | openSUSE/SLES/RHEL, unsupported distros |
-| orjson         | 3.11.0          | openSUSE/SLES/RHEL, unsupported distros |
 | ujson          | 5.13.0          | openSUSE/SLES/RHEL, unsupported distros |
 | urllib3        | 2.7.0           | openSUSE/SLES, unsupported distros      |
-| validators     | 0.22.0          | openSUSE/SLES/RHEL, unsupported distros |
+| validators     | 0.28.3          | openSUSE/SLES/RHEL, unsupported distros |
 
 **[1]**: Only one of `ruamel.yaml` and `ruyaml` is necessary.
 

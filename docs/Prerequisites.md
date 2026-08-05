@@ -16,15 +16,20 @@ purpose of just adding macOS support.
 ## Dependencies for the toolkit (from requirements.txt)
 
 * `python3-ansible-runner` (>= 2.1.4)
-* `setuptools` (>= 78.1.1; this is not a direct dependency, this is to ensure that a security issue in ansible-runner is fixed)
 * `python3-jinja2` (>= 3.1.6)
 * `python3-natsort` (>= 8.0.2)
+* `python3-orjson` (>= 3.11.7; not a strict necessity, just a nice performance improvement when reading JSON data)
 * `python3-prctl` (not a strict necessity, recommended for cleaner ps output)
 * `python3-ruyaml` _or_ `python3-ruamel.yaml` (ruyaml seems to be more actively maintained, but either is fine)
-* `python3-orjson` (>= 3.11.0; not a strict necessity, just a nice performance improvement)
-* `python3-urllib3` (>= 2.6.3)
-* `python3-validators` (>= 0.22.0)
+* `python3-setuptools` (>= 83.0.0; this is not a direct dependency, this is to ensure that a security issue in ansible-runner is fixed)
+* `python3-ujson` (>= 5.13.0; not a strict necessity, just a nice performance improvement when dumping JSON data)
+* `python3-urllib3` (>= 2.7.0)
+* `python3-validators` (>= 0.28.3)
 * `python3-yaml` (>= 6.0)
+
+> [!NOTE]
+> The versions given are either the latest confirmed to work,
+> *or* the latest recommended by security checkers.
 
 ## Dependencies for development
 
