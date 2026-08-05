@@ -1,0 +1,16 @@
+---
+linkerd:
+  description: "Linkerd"
+  installed_version:
+    function: "get_executable_version"
+    executable: "/usr/bin/linkerd"
+    args: ["version", "--client", "--short"]
+    version_regex: '^(.*)$'
+  candidate_version:
+    function: "get_github_version"
+    args:
+      url: "https://api.github.com/repos/linkerd/linkerd2/releases?per_page=100"
+      version_regex: '(.*)$'
+  changelog:
+    from_body: true
+    dest: "linkerd_changelog.md"
