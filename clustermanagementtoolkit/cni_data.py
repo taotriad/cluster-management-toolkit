@@ -57,7 +57,7 @@ def __patch_cni_calico(cni_path: FilePath, pod_network_cidr: str) -> bool:
                     })
                     break
         dl_mod.append(d)
-    secure_write_yaml(cni_path, dl_mod, sort_keys=False, permissions=0o644)
+    secure_write_yaml(cni_path, dl_mod, sort_keys=False, permissions=0o644, yaml_version=(0, 0))
     return True
 
 
@@ -89,7 +89,7 @@ def __patch_cni_canal(cni_path: FilePath, pod_network_cidr: str) -> bool:
             deep_set(d, DictPath("data#net-conf.json"), data)
         dl_mod.append(d)
 
-    secure_write_yaml(cni_path, dl_mod, sort_keys=False, permissions=0o644)
+    secure_write_yaml(cni_path, dl_mod, sort_keys=False, permissions=0o644, yaml_version=(0, 0))
     return True
 
 
@@ -121,7 +121,7 @@ def __patch_cni_flannel(cni_path: FilePath, pod_network_cidr: str) -> bool:
             deep_set(d, DictPath("data#net-conf.json"), data)
         dl_mod.append(d)
 
-    secure_write_yaml(cni_path, dl_mod, sort_keys=False, permissions=0o644)
+    secure_write_yaml(cni_path, dl_mod, sort_keys=False, permissions=0o644, yaml_version=(0, 0))
     return True
 
 
@@ -162,7 +162,7 @@ def __patch_cni_weave(cni_path: FilePath, pod_network_cidr: str) -> bool:
                                        "name": "IPALLOC_RANGE",
                                        "value": pod_network_cidr,
                                    })
-    secure_write_yaml(cni_path, d, sort_keys=False, permissions=0o644)
+    secure_write_yaml(cni_path, d, sort_keys=False, permissions=0o644, yaml_version=(0, 0))
     return True
 
 

@@ -107,6 +107,15 @@ def __representer_none(self: Any, data: None) -> Any:
     return self.represent_scalar("tag:yaml.org,2002:null", "null")  # pragma: no cover
 
 
+def __strip_yaml_version(string: str) -> str:
+    tmp: list[str] = []
+    for line in string.splitlines(True):
+        if line.startswith("%YAML"):
+            continue
+        tmp.append(line)
+    return "".join(tmp)
+
+
 def ruyaml_dump_to_string(obj: Any, **kwargs: Any) -> str:
     """
     Dump a dict to a YAML-string
@@ -127,10 +136,14 @@ def ruyaml_dump_to_string(obj: Any, **kwargs: Any) -> str:
     f = io.StringIO()
 
     tmp_yaml_version = ryaml.version
-    if yaml_version:
+    if yaml_version and yaml_version != (0, 0):
         ryaml.version = yaml_version
     if isinstance(obj, (dict, ruyaml.comments.CommentedMap, ruyaml.comments.CommentedSeq)):
-        ryaml.dump(obj, f)
+        # Do not output a version prefix
+        if yaml_version == (0, 0):
+            ryaml.dump(obj, f, transform=__strip_yaml_version)
+        else:
+            ryaml.dump(obj, f)
     else:
         for d in obj:
             f.write("---\n")
