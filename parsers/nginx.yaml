@@ -11,3 +11,17 @@
     - name: "http"
       options:
         reformat_timestamps: true
+- name: "nginx"
+  show_in_selector: false
+  matchkeys:
+    - image_name: "/nginx/nginx-gateway-fabric"
+  parser_rules:
+    - name: "json"
+      options:
+        versions:
+          - "version"
+    - name: "override_severity"
+      overrides:
+        - matchtype: "startswith"
+          matchkey: "Starting the NGINX Gateway Fabric"
+          loglevel: "notice"

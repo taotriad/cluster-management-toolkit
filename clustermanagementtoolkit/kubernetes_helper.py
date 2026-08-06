@@ -526,6 +526,10 @@ def guess_kind(kind: str | tuple[str, str]) -> tuple[str, str]:
         else:
             kind = (kind, "")
 
+    # If the API-group is "core", replace it with the empty string.
+    if kind[1] == "core":
+        kind = (kind[0], "")
+
     # If we already have a tuple, do not guess
     if kind in kubernetes_resources or kind in unknown_kubernetes_resources:
         return cast(tuple, kind)

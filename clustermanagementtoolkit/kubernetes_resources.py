@@ -3892,6 +3892,51 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api_paths": ["apis/gateway.kgateway.dev/v1alpha1/"],
         "api": "trafficpolicies",
     },
+    # gateway.nginx.org
+    ("AuthenticationFilter", "gateway.nginx.org"): {
+        "api_paths": ["apis/gateway.nginx.org/v1alpha1/"],
+        "api": "authenticationfilters",
+    },
+    ("ClientSettingsPolicy", "gateway.nginx.org"): {
+        "api_paths": ["apis/gateway.nginx.org/v1alpha1/"],
+        "api": "clientsettingspolicies",
+    },
+    ("NginxGateway", "gateway.nginx.org"): {
+        "api_paths": ["apis/gateway.nginx.org/v1alpha1/"],
+        "api": "nginxgateways",
+    },
+    ("ProxySettingsPolicy", "gateway.nginx.org"): {
+        "api_paths": ["apis/gateway.nginx.org/v1alpha1/"],
+        "api": "proxysettingspolicies",
+    },
+    ("RateLimitPolicy", "gateway.nginx.org"): {
+        "api_paths": ["apis/gateway.nginx.org/v1alpha1/"],
+        "api": "ratelimitpolicies",
+    },
+    ("SnippetsFilter", "gateway.nginx.org"): {
+        "api_paths": ["apis/gateway.nginx.org/v1alpha1/"],
+        "api": "snippetsfilters",
+    },
+    ("SnippetsPolicy", "gateway.nginx.org"): {
+        "api_paths": ["apis/gateway.nginx.org/v1alpha1/"],
+        "api": "snippetspolicies",
+    },
+    ("UpstreamSettingsPolicy", "gateway.nginx.org"): {
+        "api_paths": ["apis/gateway.nginx.org/v1alpha1/"],
+        "api": "upstreamsettingspolicies",
+    },
+    ("WAFPolicy", "gateway.nginx.org"): {
+        "api_paths": ["apis/gateway.nginx.org/v1alpha1/"],
+        "api": "wafpolicies",
+    },
+    ("NginxProxy", "gateway.nginx.org"): {
+        "api_paths": ["apis/gateway.nginx.org/v1alpha2/"],
+        "api": "nginxproxies",
+    },
+    ("ObservabilityPolicy", "gateway.nginx.org"): {
+        "api_paths": ["apis/gateway.nginx.org/v1alpha2/"],
+        "api": "observabilitypolicies",
+    },
     # gaudi.resource.intel.com
     ("GaudiAllocationState", "gaudi.resource.intel.com"): {
         "api_paths": ["apis/gaudi.resource.intel.com/v1alpha1/"],

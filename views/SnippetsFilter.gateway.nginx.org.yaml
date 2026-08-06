@@ -1,0 +1,34 @@
+---
+kind: "SnippetsFilter"
+api_family: "gateway.nginx.org"
+default_command: "snippetsfilters"
+listview:
+  name: "Snippets Filters"
+  group: "Network"
+  field_indexes:
+    Normal:
+      fields: ["namespace", "name", "age"]
+      sortcolumn: "namespace"
+infoview:
+  name: "Snippets Filter Info"
+  infopad:
+  listpad:
+    listgetter: "listgetter_path"
+    listgetter_args:
+      path: "spec#snippets"
+    infogetter: "generic_infogetter"
+    field_indexes:
+      Normal:
+        fields: ["context", "value"]
+        sortcolumn: "context"
+    fields:
+      context:
+        header: "Context:"
+        path: "context"
+        default: "<unset>"
+        type: "str"
+      value:
+        header: "Value:"
+        path: "value"
+        default: "<unset>"
+        type: "str"

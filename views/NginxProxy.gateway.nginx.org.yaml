@@ -1,0 +1,29 @@
+---
+kind: "NginxProxy"
+api_family: "gateway.nginx.org"
+default_command: "nginxproxies"
+listview:
+  name: "NGINX Proxies"
+  group: "Network"
+  field_indexes:
+    Normal:
+      fields: ["namespace", "name", "age"]
+      sortcolumn: "namespace"
+infoview:
+  name: "NGINX Proxy Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["ip_family"]
+    rows:
+      ip_family:
+        header: [["IP-Family:", ["main", "infoheader"]]]
+        path: "spec#ipFamily"
+        default: "<unset>"
+        type: "str"
+  logpad:
+    infogetter: "logpad_formatted"
+    infogetter_args:
+      formatter: "format_yaml"
+      path: "spec#kubernetes"
+    timestamps: false

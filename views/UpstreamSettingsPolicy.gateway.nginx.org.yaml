@@ -1,0 +1,137 @@
+---
+kind: "UpstreamSettingsPolicy"
+api_family: "gateway.nginx.org"
+default_command: "upstreamsettingspolicies"
+command:
+  - "uspolicies"
+  - "uspolicy"
+  - "uspols"
+  - "uspol"
+listview:
+  name: "Upstream Settings Policies"
+  group: "Network"
+  field_indexes:
+    Normal:
+      fields: ["namespace", "name", "age"]
+      sortcolumn: "namespace"
+infoview:
+  name: "Upstream Settings Policy Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["load_balancing_header", "load_balancing_method",
+                 "load_balancing_hash_method_key",
+                 "keepalive_header", "keepalive_connections",
+                 "keepalive_requests", "keepalive_time",
+                 "keepalive_timeout", "zone_size", "targets"]
+    rows:
+      keepalive_connections:
+        header: [["  Connections:", ["main", "infoheader"]]]
+        path: "spec#keepAlive#connections"
+        default: "<unset>"
+        type: "int"
+        formatter: "numerical"
+      keepalive_requests:
+        header: [["  Requests:", ["main", "infoheader"]]]
+        path: "spec#keepAlive#requests"
+        default: "<unset>"
+        type: "int"
+        formatter: "numerical"
+      keepalive_time:
+        header: [["  Time:", ["main", "infoheader"]]]
+        path: "spec#keepAlive#time"
+        default: "<unset>"
+        type: "int"
+        formatter: "numerical"
+      keepalive_timeout:
+        header: [["  Timeout:", ["main", "infoheader"]]]
+        path: "spec#keepAlive#timeout"
+        default: "<unset>"
+        type: "int"
+        formatter: "numerical"
+      keepalive_header:
+        header: [["Keepalive:", ["main", "infoheader"]]]
+      load_balancing_header:
+        header: [["Load Balancing:", ["main", "infoheader"]]]
+      load_balancing_method:
+        header: [["  Method:", ["main", "infoheader"]]]
+        path: "spec#loadBalancingMethod"
+        default: "<unset>"
+        type: "str"
+      load_balancing_hash_method_key:
+        header: [["  Key:", ["main", "infoheader"]]]
+        path: "spec#hashMethodKey"
+        default: "<unset>"
+        type: "str"
+      targets:
+        header: [["T", ["main", "infoheader_shortcut"]],
+                 ["argets:", ["main", "infoheader"]]]
+        paths:
+          - path: "spec#targetRefs"
+            pathtype: "items"
+            subpaths:
+              - "kind"
+              - "group"
+              - "name"
+            type: ["kind", "api_group", "name"]
+            default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "kind"
+            - type: "api_group"
+            - type: "generic"
+          field_separators:
+            - type: "kind_api_group"
+            - type: "kind"
+      zone_size:
+        header: [["Zone Size:", ["main", "infoheader"]]]
+        path: "spec#zoneSize"
+        default: "<unset>"
+        type: "str"
+        formatter: "numerical"
+  listpad:
+    listgetter: "listgetter_path"
+    listgetter_args:
+      path: "spec#snippets"
+    infogetter: "generic_infogetter"
+    field_indexes:
+      Normal:
+        fields: ["context", "value"]
+        sortcolumn: "context"
+    fields:
+      context:
+        header: "Context:"
+        path: "context"
+        type: "str"
+      value:
+        header: "Value:"
+        path: "value"
+        type: "str"
+  shortcuts:
+    "List Targets":
+      key: "t"
+      modifier: "shift"
+      read_only: true
+      helptext: "List targets"
+      widget: "windowwidget"
+      widget_args:
+        title: "Targets:"
+        selectable: true
+        headers: ["Kind:", "API-Group:", "Name:"]
+        itemgetter: "get_list_fields"
+        itemgetter_args:
+          path: "spec#targetRefs"
+          fields:
+            - "kind"
+            - "group"
+            - "name"
+        # Not supported for now
+        sortcolumn: "kind"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        kind_path: 0
+        api_group_path: 1
+        name_path: 2
+        _parent_namespace_path: "metadata#namespace"

@@ -102,7 +102,7 @@ listview:
                 - context: "main"
                   type: "status_not_ok"
   shortcuts:
-    "Toggle Ansible groups for hosts":
+    "Toggle Ansible groups for hosts [For Helptext]":
       key: "a"
       modifier: "shift"
       read_only: false

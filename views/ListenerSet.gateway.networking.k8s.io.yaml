@@ -1,34 +1,39 @@
 ---
-kind: "Gateway"
+kind: "ListenerSet"
 api_family: "gateway.networking.k8s.io"
-default_command: "gateways"
-command:
-  - "gws"
-  - "gw"
+default_command: "listenersets"
 listview:
-  name: "Gateways"
+  name: "Listener Sets"
   group: "Network"
   field_indexes:
     Normal:
-      fields: ["namespace", "name", "gateway_class", "age"]
+      fields: ["namespace", "name", "age"]
       sortcolumn: "namespace"
-  fields:
-    gateway_class:
-      header: "Gateway Class:"
-      path: "spec#gatewayClassName"
-      type: "str"
 infoview:
-  name: "Gateway Info"
+  name: "Listener Set Info"
   infopad:
     row_indexes:
       Normal:
-        fields: ["gateway_class"]
+        fields: ["parent"]
     rows:
-      gateway_class:
-        header: [["G", ["main", "infoheader_shortcut"]],
-                 ["ateway Class:", ["main", "infoheader"]]]
-        path: "spec#gatewayClassName"
-        type: "str"
+      parent:
+        header: [["P", ["main", "infoheader_shortcut"]],
+                 ["arent:", ["main", "infoheader"]]]
+        paths:
+          - path: [["spec#parentRef#kind"], ["spec#parentRef#group"],
+                   ["spec#parentRef#name"]]
+            pathtype: "tuple"
+            type: ["kind", "api_group", "name"]
+            default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "kind"
+            - type: "api_group"
+            - type: "generic"
+          field_separators:
+            - type: "kind_api_group"
+            - type: "kind"
   listpad:
     listgetter: "listgetter_path"
     listgetter_args:
@@ -39,6 +44,7 @@ infoview:
         fields: ["name", "hostname", "port",
                  "allowed_namespaces_source",
                  "allowed_namespaces_selector", "allowed_kinds"]
+        sortcolumn: "name"
     fields:
       allowed_kinds:
         header: "Allowed Kinds:"
@@ -79,11 +85,15 @@ infoview:
       hostname:
         header: "Hostname:"
         path: "hostname"
-        type: "str"
         default: "<unset>"
+        type: "str"
+        formatting:
+          field_colors:
+            - type: "hostname"
       name:
         header: "Name:"
         path: "name"
+        default: "<unset>"
         type: "str"
       port:
         header: "Port:"
@@ -98,15 +108,16 @@ infoview:
           field_separators:
             - type: "service"
   shortcuts:
-    "Open Gateway Class":
-      key: "g"
+    "Open Parent":
+      key: "p"
       modifier: "shift"
       read_only: true
-      helptext: "Open info page for GatewayClass"
+      helptext: "Open parent"
       action: "call"
       action_call: "resourceinfodispatch_with_lookup"
       action_args:
         _pass_obj: true
-        name_path: "spec#gatewayClassName"
-        kind: "GatewayClass"
-        api_family: "gateway.networking.k8s.io"
+        kind_path: "spec#parentRef#kind"
+        api_group_path: "spec#parentRef#group"
+        name_path: "spec#parentRef#name"
+        namespace_path: "metadata#namespace"

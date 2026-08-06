@@ -1,0 +1,164 @@
+---
+kind: "RateLimitPolicy"
+api_family: "gateway.nginx.org"
+default_command: "ratelimitpolicies"
+command:
+  - "rlpolicies"
+  - "rlpolicy"
+  - "rlpols"
+  - "rlpol"
+listview:
+  name: "Rate Limit Policies"
+  group: "Network"
+  field_indexes:
+    Normal:
+      fields: ["namespace", "name", "age"]
+      sortcolumn: "namespace"
+infoview:
+  name: "Rate Limit Policy Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["rate_limit_header",
+                 "rate_limit_local_header",
+                 "rate_limit_local_rules",
+                 "rate_limit_loglevel", "rate_limit_reject_code",
+                 "targets"]
+    rows:
+      rate_limit_header:
+        header: [["Rate Limit:", ["main", "infoheader"]]]
+      rate_limit_local_header:
+        header: [["  Local:", ["main", "infoheader"]]]
+      rate_limit_local_rules:
+        header: [["    ", ["main", "infoheader"]],
+                 ["R", ["main", "infoheader_shortcut"]],
+                 ["ules:", ["main", "infoheader"]]]
+        paths:
+          - path: "spec#rateLimit#local#rules"
+            pathtype: "items"
+            subpaths:
+              - "key"
+              - "rate"
+            default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "key"
+          field_separators:
+            - type: "selector"
+          field_formatters:
+            - ""
+            - "numerical_with_units"
+      rate_limit_loglevel:
+        header: [["  Loglevel:", ["main", "infoheader"]]]
+        path: "spec#rateLimit#logLevel"
+        default: "<unset>"
+        type: "str"
+      rate_limit_reject_code:
+        header: [["  Reject Code:", ["main", "infoheader"]]]
+        path: "spec#rateLimit#rejectCode"
+        default: "<unset>"
+        type: "int"
+        formatter: "numerical"
+      targets:
+        header: [["T", ["main", "infoheader_shortcut"]],
+                 ["argets:", ["main", "infoheader"]]]
+        paths:
+          - path: "spec#targetRefs"
+            pathtype: "items"
+            subpaths:
+              - "kind"
+              - "group"
+              - "name"
+            type: ["kind", "api_group", "name"]
+            default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "kind"
+            - type: "api_group"
+            - type: "generic"
+          field_separators:
+            - type: "kind_api_group"
+            - type: "kind"
+  listpad:
+    listgetter: "listgetter_path"
+    listgetter_args:
+      path: "status#ancestors"
+    infogetter: "generic_infogetter"
+    field_indexes:
+      Normal:
+        fields: ["ancestor", "controller"]
+        sortcolumn: "ancestor"
+    fields:
+      ancestor:
+        header: "Ancestor:"
+        paths:
+          - path: [["ancestorRef#kind"],
+                   ["ancestorRef#group"],
+                   ["ancestorRef#namespace"],
+                   ["ancestorRef#name"]]
+            pathtype: "tuple"
+            type: ["kind", "api_group", "name", "name"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "kind"
+            - type: "api_group"
+            - type: "namespace"
+            - type: "generic"
+          field_separators:
+            - type: "kind_api_group"
+            - type: "kind"
+            - type: "namespace"
+      controller:
+        header: "Controller:"
+        path: "controllerName"
+        default: "<unset>"
+        type: "str"
+  shortcuts:
+    "List Local Rate Limit Rules":
+      key: "r"
+      modifier: "shift"
+      read_only: true
+      helptext: "List local rate limit rules"
+      widget: "windowwidget"
+      widget_args:
+        title: "Local Rate Limit Rules:"
+        headers: ["Key:", "Rate:", "Zone Size:", "Burst:"]
+        itemgetter: "get_list_fields"
+        itemgetter_args:
+          path: "spec#rateLimit#local#rules"
+          fields:
+            - "key"
+            - "rate"
+            - "zoneSize"
+            - "burst"
+        # Not supported for now
+        sortcolumn: "key"
+    "List Targets":
+      key: "t"
+      modifier: "shift"
+      read_only: true
+      helptext: "List targets"
+      widget: "windowwidget"
+      widget_args:
+        title: "Targets:"
+        selectable: true
+        headers: ["Kind:", "API-Group:", "Name:"]
+        itemgetter: "get_list_fields"
+        itemgetter_args:
+          path: "spec#targetRefs"
+          fields:
+            - "kind"
+            - "group"
+            - "name"
+        # Not supported for now
+        sortcolumn: "kind"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        kind_path: 0
+        api_group_path: 1
+        name_path: 2
+        _parent_namespace_path: "metadata#namespace"

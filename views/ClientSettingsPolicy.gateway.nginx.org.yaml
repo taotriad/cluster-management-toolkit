@@ -1,0 +1,104 @@
+---
+kind: "ClientSettingsPolicy"
+api_family: "gateway.nginx.org"
+default_command: "clientsettingspolicies"
+command:
+  - "cspolicies"
+  - "cspolicy"
+  - "cspols"
+  - "cspol"
+listview:
+  name: "Client Settings Policies"
+  group: "Network"
+  field_indexes:
+    Normal:
+      fields: ["namespace", "name", "age"]
+      sortcolumn: "namespace"
+infoview:
+  name: "Client Settings Policy Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["body_header", "body_max_size", "target"]
+    rows:
+      body_header:
+        header: [["Body:", ["main", "infoheader"]]]
+      body_max_size:
+        header: [["  Max Size:", ["main", "infoheader"]]]
+        path: "spec#body#maxSize"
+        default: "<unset>"
+        type: "int"
+        formatter: "numerical"
+      target:
+        header: [["T", ["main", "infoheader_shortcut"]],
+                 ["arget:", ["main", "infoheader"]]]
+        paths:
+          - path: [["spec#targetRef#kind"], ["spec#targetRef#group"],
+                   ["spec#targetRef#name"]]
+            pathtype: "tuple"
+            type: ["kind", "api_group", "name"]
+            default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "kind"
+            - type: "api_group"
+            - type: "generic"
+          field_separators:
+            - type: "kind_api_group"
+            - type: "kind"
+  listpad:
+    listgetter: "listgetter_path"
+    listgetter_args:
+      path: "status#ancestors"
+    infogetter: "generic_infogetter"
+    on_activation:
+      call: "resourceinfodispatch_with_lookup"
+      kind_path: "ancestorRef#kind"
+      api_group_path: "ancestorRef#group"
+      name_path: "ancestorRef#name"
+      namespace_path: "ancestorRef#namespace"
+    field_indexes:
+      Normal:
+        fields: ["ancestor", "controller"]
+        sortcolumn: "ancestor"
+    fields:
+      ancestor:
+        header: "Ancestor:"
+        paths:
+          - path: [["ancestorRef#kind"],
+                   ["ancestorRef#group"],
+                   ["ancestorRef#namespace"],
+                   ["ancestorRef#name"]]
+            pathtype: "tuple"
+            type: ["kind", "api_group", "name", "name"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "kind"
+            - type: "api_group"
+            - type: "namespace"
+            - type: "generic"
+          field_separators:
+            - type: "kind_api_group"
+            - type: "kind"
+            - type: "namespace"
+      controller:
+        header: "Controller:"
+        path: "controllerName"
+        default: "<unset>"
+        type: "str"
+  shortcuts:
+    "Open Target":
+      key: "t"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open target"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind_path: "spec#targetRef#kind"
+        api_group_path: "spec#targetRef#group"
+        name_path: "spec#targetRef#name"
+        namespace_path: "metadata#namespace"

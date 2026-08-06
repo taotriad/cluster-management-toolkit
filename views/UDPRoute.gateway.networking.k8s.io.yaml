@@ -1,52 +1,33 @@
 ---
-kind: "ReferenceGrant"
+kind: "UDPRoute"
 api_family: "gateway.networking.k8s.io"
-default_command: "referencegrants"
-command:
-  - "refgrants"
-  - "refgrant"
+default_command: "udproutes"
 listview:
-  name: "Reference Grants"
+  name: "UDP Routes"
   group: "Network"
   field_indexes:
     Normal:
       fields: ["namespace", "name", "age"]
       sortcolumn: "namespace"
 infoview:
-  name: "Reference Grant Info"
+  name: "UDP Route Info"
   infopad:
     row_indexes:
       Normal:
-        fields: ["from", "to"]
+        fields: ["parent_refs"]
     rows:
-      from:
-        header: [["From:", ["main", "infoheader"]]]
+      parent_refs:
+        header: [["P", ["main", "infoheader_shortcut"]],
+                 ["arent References:", ["main", "infoheader"]]]
         paths:
-          - path: "spec#from"
-            pathtype: "items"
-            subpaths:
-              - "kind"
-              - "group"
-              - "namespace"
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "kind"
-            - type: "api_group"
-            - type: "namespace"
-          field_separators:
-            - type: "kind_api_group"
-            - type: "kind"
-      to:
-        header: [["T", ["main", "infoheader_shortcut"]],
-                 ["o:", ["main", "infoheader"]]]
-        paths:
-          - path: "spec#to"
+          - path: "spec#parentRefs"
             pathtype: "items"
             subpaths:
               - "kind"
               - "group"
               - "name"
+            type: ["kind", "api_group", "name"]
+            default: ["<none>"]
         formatter: "list"
         formatting:
           field_colors:
@@ -57,23 +38,24 @@ infoview:
             - type: "kind_api_group"
             - type: "kind"
   shortcuts:
-    "List Destinations":
-      key: "t"
+    "List Parents":
+      key: "p"
       modifier: "shift"
       read_only: true
-      helptext: "List destinations"
+      helptext: "List parents"
       widget: "windowwidget"
       widget_args:
-        title: "Destinations:"
+        title: "Parents:"
         selectable: true
-        headers: ["Kind:", "API-Group:", "Name:"]
+        headers: ["Kind:", "API-Group:", "Name:", "Section:"]
         itemgetter: "get_list_fields"
         itemgetter_args:
-          path: "spec#to"
+          path: "spec#parentRefs"
           fields:
             - "kind"
             - "group"
             - "name"
+            - "sectionName"
         # Not supported for now
         sortcolumn: "kind"
       action: "call"
@@ -83,3 +65,15 @@ infoview:
         api_group_path: 1
         name_path: 2
         _parent_namespace_path: "metadata#namespace"
+    "Rules":
+      key: "r"
+      modifier: "shift"
+      read_only: true
+      helptext: "Show rules"
+      action: "call"
+      action_call: "view_yaml"
+      action_args:
+        title: "Rules"
+        _pass_obj: true
+        path: "spec#rules"
+        include_root: true

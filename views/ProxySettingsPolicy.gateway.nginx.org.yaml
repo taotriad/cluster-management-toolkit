@@ -1,0 +1,168 @@
+---
+kind: "ProxySettingsPolicy"
+api_family: "gateway.nginx.org"
+default_command: "proxysettingspolicies"
+command:
+  - "pspolicies"
+  - "pspolicy"
+  - "pspols"
+  - "pspol"
+listview:
+  name: "Proxy Settings Policies"
+  group: "Network"
+  field_indexes:
+    Normal:
+      fields: ["namespace", "name", "age"]
+      sortcolumn: "namespace"
+infoview:
+  name: "Proxy Settings Policy Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["timeout_header", "timeout_connect",
+                 "timeout_read", "timeout_send",
+                 "buffering_header",
+                 "buffering_disabled",
+                 "buffering_size",
+                 "buffering_busy_buffers_size",
+                 "buffering_buffers_header",
+                 "buffering_buffers_number",
+                 "buffering_buffers_size",
+                 "targets"]
+    rows:
+      buffering_buffers_header:
+        header: [["  Buffers:", ["main", "infoheader"]]]
+      buffering_buffers_number:
+        header: [["    Number:", ["main", "infoheader"]]]
+        path: "spec#buffering#buffers#number"
+        default: "<unset>"
+        type: "int"
+        formatter: "numerical"
+      buffering_buffers_size:
+        header: [["    Size:", ["main", "infoheader"]]]
+        path: "spec#buffering#buffers#size"
+        default: "<unset>"
+        type: "str"
+        formatter: "numerical"
+      buffering_busy_buffers_size:
+        header: [["  Busy Buffers Size:", ["main", "infoheader"]]]
+        path: "spec#buffering#busyBuffersSize"
+        default: "<unset>"
+        type: "str"
+        formatter: "numerical"
+      buffering_disabled:
+        header: [["  Disabled:", ["main", "infoheader"]]]
+        path: "spec#buffering#disable"
+        default: false
+        type: "bool"
+      buffering_header:
+        header: [["Buffering:", ["main", "infoheader"]]]
+      buffering_size:
+        header: [["  Size:", ["main", "infoheader"]]]
+        path: "spec#buffering#bufferSize"
+        default: "<unset>"
+        type: "str"
+        formatter: "numerical"
+      targets:
+        header: [["T", ["main", "infoheader_shortcut"]],
+                 ["argets:", ["main", "infoheader"]]]
+        paths:
+          - path: "spec#targetRefs"
+            pathtype: "items"
+            subpaths:
+              - "kind"
+              - "group"
+              - "name"
+            type: ["kind", "api_group", "name"]
+            default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "kind"
+            - type: "api_group"
+            - type: "generic"
+          field_separators:
+            - type: "kind_api_group"
+            - type: "kind"
+      timeout_connect:
+        header: [["  Connect:", ["main", "infoheader"]]]
+        path: "spec#timeout#connect"
+        default: "<unset>"
+        type: "str"
+        formatter: "numerical"
+      timeout_header:
+        header: [["Timeout:", ["main", "infoheader"]]]
+      timeout_read:
+        header: [["  Read:", ["main", "infoheader"]]]
+        path: "spec#timeout#read"
+        default: "<unset>"
+        type: "str"
+        formatter: "numerical"
+      timeout_send:
+        header: [["  Send:", ["main", "infoheader"]]]
+        path: "spec#timeout#send"
+        default: "<unset>"
+        type: "str"
+        formatter: "numerical"
+  listpad:
+    listgetter: "listgetter_path"
+    listgetter_args:
+      path: "status#ancestors"
+    infogetter: "generic_infogetter"
+    field_indexes:
+      Normal:
+        fields: ["ancestor", "controller"]
+        sortcolumn: "ancestor"
+    fields:
+      ancestor:
+        header: "Ancestor:"
+        paths:
+          - path: [["ancestorRef#kind"],
+                   ["ancestorRef#group"],
+                   ["ancestorRef#namespace"],
+                   ["ancestorRef#name"]]
+            pathtype: "tuple"
+            type: ["kind", "api_group", "name", "name"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "kind"
+            - type: "api_group"
+            - type: "namespace"
+            - type: "generic"
+          field_separators:
+            - type: "kind_api_group"
+            - type: "kind"
+            - type: "namespace"
+      controller:
+        header: "Controller:"
+        path: "controllerName"
+        default: "<unset>"
+        type: "str"
+  shortcuts:
+    "List Targets":
+      key: "t"
+      modifier: "shift"
+      read_only: true
+      helptext: "List targets"
+      widget: "windowwidget"
+      widget_args:
+        title: "Targets:"
+        selectable: true
+        headers: ["Kind:", "API-Group:", "Name:"]
+        itemgetter: "get_list_fields"
+        itemgetter_args:
+          path: "spec#targetRefs"
+          fields:
+            - "kind"
+            - "group"
+            - "name"
+        # Not supported for now
+        sortcolumn: "kind"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        kind_path: 0
+        api_group_path: 1
+        name_path: 2
+        _parent_namespace_path: "metadata#namespace"

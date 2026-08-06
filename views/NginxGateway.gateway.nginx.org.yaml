@@ -1,0 +1,26 @@
+---
+kind: "NginxGateway"
+api_family: "gateway.nginx.org"
+default_command: "nginxgateways"
+command:
+  - "nginxgws"
+  - "nginxgw"
+listview:
+  name: "NGINX Gateways"
+  group: "Network"
+  field_indexes:
+    Normal:
+      fields: ["namespace", "name", "age"]
+      sortcolumn: "namespace"
+infoview:
+  name: "NGINX Gateway Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["loglevel"]
+    rows:
+      loglevel:
+        header: [["Loglevel:", ["main", "infoheader"]]]
+        path: "spec#logging#level"
+        default: "<unset>"
+        type: "str"

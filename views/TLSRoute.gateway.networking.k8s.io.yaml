@@ -1,16 +1,16 @@
 ---
-kind: "HTTPRoute"
+kind: "TLSRoute"
 api_family: "gateway.networking.k8s.io"
-default_command: "httproutes"
+default_command: "tlsroutes"
 listview:
-  name: "HTTP Routes"
+  name: "TLS Routes"
   group: "Network"
   field_indexes:
     Normal:
       fields: ["namespace", "name", "age"]
       sortcolumn: "namespace"
 infoview:
-  name: "HTTP Route Info"
+  name: "TLS Route Info"
   infopad:
     row_indexes:
       Normal:
