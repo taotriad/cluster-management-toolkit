@@ -880,8 +880,11 @@ class LogLevel(IntEnum):
     ERR = 3
     WARNING = 4
     NOTICE = 5
+    NOTE = 5
     INFO = 6
+    SYSTEM = 6
     DEBUG = 7
+    VERBOSE = 7
     DIFFPLUS = 8
     DIFFMINUS = 9
     DIFFSAME = 10
@@ -896,9 +899,12 @@ loglevel_mappings: dict[LogLevel, str] = {
     LogLevel.ERR: "Error",
     LogLevel.WARNING: "Warning",
     LogLevel.NOTICE: "Notice",
+    LogLevel.NOTE: "Notice",
     LogLevel.INFO: "Info",
+    LogLevel.SYSTEM: "Info",
     LogLevel.DEFAULT: "Info",
     LogLevel.DEBUG: "Debug",
+    LogLevel.VERBOSE: "Debug",
     LogLevel.DIFFPLUS: "Diffplus",
     LogLevel.DIFFMINUS: "Diffminus",
     LogLevel.DIFFSAME: "Diffsame",
