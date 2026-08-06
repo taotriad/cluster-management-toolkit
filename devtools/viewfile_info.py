@@ -20,10 +20,10 @@ PROGRAMVERSION: str = "0.0.1"
 WHITE = "\033[1;37m"
 DIM_RED = "\033[0;31m"
 BRIGHT_RED = "\033[1;31m"
-BRIGHT_GREEN= "\033[1;32m"
+BRIGHT_GREEN = "\033[1;32m"
 RESET = "\033[0m"
 
-rule_statistics: dict[str, list[str]] = {
+rule_statistics: dict[str, Any] = {
     "listview": {
         "datagetter": {"FIXME": None},
         "listgetter": {},
@@ -57,6 +57,7 @@ rule_statistics: dict[str, list[str]] = {
 }
 
 
+# pylint: disable-next=too-many-branches,too-many-statements
 def generate_statistics(file: str, parser_rules: list[dict[str, Any]]) -> None:
     """
     Generate statistics about a view-file.
@@ -79,7 +80,7 @@ def generate_statistics(file: str, parser_rules: list[dict[str, Any]]) -> None:
                 rule_statistics["listview"]["infogetter"][tmp] = []
             rule_statistics["listview"]["infogetter"][tmp].append(file)
         if (tmp := parser_rules.get("listview", {}).get("shortcuts", {})):
-            for key, d in tmp.items():
+            for _key, d in tmp.items():
                 if not d:
                     continue
                 if (tmp2 := d.get("action")):
@@ -122,7 +123,7 @@ def generate_statistics(file: str, parser_rules: list[dict[str, Any]]) -> None:
                 rule_statistics["infoview"]["logpad"]["formatter"][tmp].append(file)
 
         if (tmp := parser_rules.get("infoview", {}).get("shortcuts", {})):
-            for key, d in tmp.items():
+            for _key, d in tmp.items():
                 if not d:
                     continue
                 if (action := d.get("action")):
@@ -132,7 +133,7 @@ def generate_statistics(file: str, parser_rules: list[dict[str, Any]]) -> None:
                 if (action_call := d.get("action_call")):
                     if action_call not in rule_statistics["infoview"]["shortcuts"]["action_call"]:
                         rule_statistics["infoview"]["shortcuts"]["action_call"][action_call] = []
-                    rule_statistics["infoview"]["shortcuts"]["action_call"][action_call].append(file)
+                    rule_statistics["infoview"]["shortcuts"]["action_call"][action_call].append(file)  # noqa: E501 pylint: disable=line-too-long
                 if (widget := d.get("widget")):
                     if widget not in rule_statistics["infoview"]["shortcuts"]["widget"]:
                         rule_statistics["infoview"]["shortcuts"]["widget"][widget] = []
@@ -156,12 +157,12 @@ def main() -> None:
     for file in sys.argv[1:]:
         try:
             with open(file, "r", encoding="utf-8") as f:
-               try:
-                   d = yaml.safe_load(f.read())
-                   generate_statistics(file, d)
-               except AttributeError:
-                   print(f"Filename: {file}")
-                   raise
+                try:
+                    d = yaml.safe_load(f.read())
+                    generate_statistics(file, d)
+                except AttributeError:
+                    print(f"Filename: {file}")
+                    raise
         except FileNotFoundError:
             print(f"{DIM_RED}WARNING{RESET}: File {file} does not exist; skipping.\n")
             continue

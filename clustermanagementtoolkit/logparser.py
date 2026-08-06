@@ -3843,7 +3843,7 @@ def custom_splitter(message: str, **kwargs: Any) -> \
 
     # The bare minimum for these rules is
     if compiled_regex is None or message_field is None:
-        # TODO: Log an error instead of an exception
+        # TODO(Log an error instead of an exception)
         raise ValueError("parser rule is missing regex or message field")
 
     tmp = compiled_regex.match(message)
@@ -3892,11 +3892,11 @@ def custom_splitter(message: str, **kwargs: Any) -> \
                     severity = LogLevel(int(tmp[severity_field]))
                 except TypeError:
                     # Needs an integer
-                    # TODO: Log an error
+                    # TODO(Log an error)
                     pass
                 except ValueError:
                     # Needs a value that fits as a LogLevel
-                    # TODO: Log an error
+                    # TODO(Log an error)
                     pass
             else:
                 errmsg = [
