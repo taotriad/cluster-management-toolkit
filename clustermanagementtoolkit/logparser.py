@@ -1661,24 +1661,6 @@ def json_event(message: str,
     return new_message, severity, facility, remnants
 
 
-def split_angle_bracketed_facility(message: str, facility: str = "") -> tuple[str, str]:
-    """
-    Split a message in "<facility> message" format into message, facility.
-
-        Parameters:
-            message (str): The message part of the msg to format
-            facility (str): The current facility (typically empty)
-        Returns:
-            (str, str):
-                (str): The message part
-                (str): The facility
-    """
-    if (re_tmp := re.match(r"^<(.+?)>\s?(.*)", message)) is not None:
-        facility = re_tmp[1]
-        message = re_tmp[2]
-    return message, facility
-
-
 def split_colon_facility(message: str, facility: str = "") -> tuple[str, str]:
     """
     Split a message in "facility: message" format into message, facility.
@@ -4099,8 +4081,6 @@ def parsing_multiplexer(message: str | list[ThemeRef | ThemeStr],
             # Facility formats
             elif _filter == "colon_facility":
                 message, facility = split_colon_facility(message, facility)
-            elif _filter == "angle_bracketed_facility":
-                message, facility = split_angle_bracketed_facility(message, facility)
             # Severity formats
             elif _filter == "colon_severity":
                 message, severity = split_colon_severity(message, default=severity)
@@ -4300,8 +4280,7 @@ def init_parser_list(force_reinit: bool = False) -> None:
                 rules = []
                 for rule in parser_rules:
                     rule_name = deep_get(rule, DictPath("name"))
-                    if rule_name in ("angle_bracketed_facility",
-                                     "ansible_line",
+                    if rule_name in ("ansible_line",
                                      "bracketed_severity",
                                      "colon_facility",
                                      "colon_severity",

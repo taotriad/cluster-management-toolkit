@@ -57,6 +57,7 @@ def main() -> None:
     Main function for the program.
     """
     verbose: bool = True
+    threshold: int = 0
 
     if len(sys.argv) < 2:
         print(f"{PROGRAMNAME}: Missing argument.")
@@ -80,7 +81,10 @@ def main() -> None:
 
     print("Summary:")
     for rule, data in rule_statistics.items():
-        print(f"{WHITE}{rule:>30}{RESET}: {len(data)}")
+        datalen = len(data)
+        if 0 < threshold < datalen:
+            continue
+        print(f"{WHITE}{rule:>30}{RESET}: {datalen}")
 
 
 if __name__ == "__main__":

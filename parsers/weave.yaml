@@ -7,7 +7,6 @@
     - pod_name: "weave-scope-cluster-agent"
   parser_rules:
     - name: "key_value"
-    - name: "angle_bracketed_facility"
     - name: "custom_splitter"
       options:
         # yamllint disable-line rule:line-length

@@ -130,7 +130,6 @@
                             "properties": {
                                 "name": {
                                     "enum": [
-                                        "angle_bracketed_facility",
                                         "colon_facility",
                                         "colon_severity",
                                         "directory",
