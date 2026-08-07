@@ -45,6 +45,10 @@ listview:
               field_colors:
                 - context: "main"
                   type: "status_pending"
+            "<unset>":
+              field_colors:
+                - context: "types"
+                  type: "unset"
     reason:
       header: "Reason:"
       path: "status#reason"
@@ -116,7 +120,9 @@ infoview:
           field_colors:
             - type: "version"
       helm_release_values:
-        header: [["  Values:", ["main", "infoheader"]]]
+        header: [["  ", ["main", "infoheader"]],
+                 ["V", ["main", "infoheader_shortcut"]],
+                 ["alues:", ["main", "infoheader"]]]
         path: "spec#helmRelease#values"
         default: "<unset>"
         type: "str"
@@ -144,6 +150,10 @@ infoview:
                 field_colors:
                   - context: "main"
                     type: "status_pending"
+              "<unset>":
+                field_colors:
+                  - context: "types"
+                    type: "unset"
       reason:
         header: [["Reason:", ["main", "infoheader"]]]
         path: "status#reason"
@@ -152,3 +162,14 @@ infoview:
     {%- for line in shortcut_controller.split("\n") %}
     {{ line }}
     {%- endfor %}
+    "Show Values":
+      key: "v"
+      modifier: "shift"
+      read_only: true
+      helptext: "Show values"
+      action: "call"
+      action_call: "view_yaml"
+      action_args:
+        title: "Values"
+        _pass_obj: true
+        path: "spec#helmRelease#values"
