@@ -367,13 +367,6 @@ def test_split_bracketed_severity(verbose: bool = False) -> tuple[str, bool]:
 
 
 # pylint: disable-next=unused-argument
-def test_split_colon_severity(verbose: bool = False) -> tuple[str, bool]:
-    return generic_split_severity(valid_indata=("CRITICAL:", "ERROR:", "WARNING:", "NOTICE:",
-                                                "NOTE:", "INFO:", "DEBUG:", "NOTAVALIDSEVERITY:"),
-                                  fun=logparsers.split_colon_severity, verbose=verbose)
-
-
-# pylint: disable-next=unused-argument
 def test_custom_override_severity(verbose: bool = False) -> tuple[str, bool]:
     message = ""
     result = True
@@ -1540,18 +1533,6 @@ def test_split_json_style_raw(verbose: bool = False) -> tuple[str, bool]:
 
 
 # pylint: disable-next=unused-argument
-def test_json_event(verbose: bool = False) -> tuple[str, bool]:
-    message = ""
-    result = True
-
-    # fun = logparsers.json_event
-
-    message = "[TEST NOT IMPLEMENTED]"
-
-    return message, result
-
-
-# pylint: disable-next=unused-argument
 def test_modinfo(verbose: bool = False) -> tuple[str, bool]:
     message = ""
     result = True
@@ -1968,6 +1949,31 @@ def test_custom_splitter(verbose: bool = False) -> tuple[str, bool]:
                     },
                 },
                 ("Starting ovsdb-server", LogLevel.INFO, "antrea-ovs"), None),
+            # Multi-facility
+            (
+                "[2026-08-05T18:11:52Z INFO antrea-ovs]: <kernel> Starting ovsdb-server",
+                {
+                    "options": {
+                        "regex": re.compile(r"^\[\d{4}-\d\d-\d\dT\d\d:\d\d:\d\dZ ([A-Z]+?) ([^]]+)\]: <([^>]+)> (.*)"),  # noqa: E501 pylint: disable=line-too-long
+                        "severity": {
+                            "field": 1,
+                            "transform": "str",
+                        },
+                        "facility": {
+                            "fields": [
+                                2,
+                                3,
+                            ],
+                            "separators": [
+                                "|",
+                            ],
+                        },
+                        "message": {
+                            "field": 4,
+                        },
+                    },
+                },
+                ("Starting ovsdb-server", LogLevel.INFO, "antrea-ovs|kernel"), None),
             (
                 "[2026-08-05T18:11:52Z INFO antrea-ovs]: Starting ovsdb-server",
                 {
@@ -2048,6 +2054,69 @@ def test_custom_splitter(verbose: bool = False) -> tuple[str, bool]:
                     },
                 },
                 ("Starting ovsdb-server", LogLevel.CRIT, "antrea-ovs"), None),
+            # Trying to transform int with non-int
+            (
+                "[2026-08-05T18:11:52Z a antrea-ovs]: Starting ovsdb-server",
+                {
+                    "options": {
+                        "regex": re.compile(r"^\[\d{4}-\d\d-\d\dT\d\d:\d\d:\d\dZ ([a-z]) ([^]]+)\]: (.*)"),  # noqa: E501 pylint: disable=line-too-long
+                        "severity": {
+                            "field": 1,
+                            "transform": "int",
+                        },
+                        "facility": {
+                            "fields": [
+                                2,
+                            ],
+                        },
+                        "message": {
+                            "field": 3,
+                        },
+                    },
+                },
+                ("Starting ovsdb-server", LogLevel.DEFAULT, "antrea-ovs"), None),
+            # Trying to transform int with out of range int
+            (
+                "[2026-08-05T18:11:52Z 4096 antrea-ovs]: Starting ovsdb-server",
+                {
+                    "options": {
+                        "regex": re.compile(r"^\[\d{4}-\d\d-\d\dT\d\d:\d\d:\d\dZ (\d+) ([^]]+)\]: (.*)"),  # noqa: E501 pylint: disable=line-too-long
+                        "severity": {
+                            "field": 1,
+                            "transform": "int",
+                        },
+                        "facility": {
+                            "fields": [
+                                2,
+                            ],
+                        },
+                        "message": {
+                            "field": 3,
+                        },
+                    },
+                },
+                ("Starting ovsdb-server", LogLevel.DEFAULT, "antrea-ovs"), None),
+            # Invalid severity transform
+            (
+                "[2026-08-05T18:11:52Z INFO antrea-ovs]: Starting ovsdb-server",
+                {
+                    "options": {
+                        "regex": re.compile(r"^\[\d{4}-\d\d-\d\dT\d\d:\d\d:\d\dZ ([A-Z]+?) ([^]]+)\]: (.*)"),  # noqa: E501 pylint: disable=line-too-long
+                        "severity": {
+                            "field": 1,
+                            "transform": "foobar",
+                        },
+                        "facility": {
+                            "fields": [
+                                2,
+                            ],
+                        },
+                        "message": {
+                            "field": 3,
+                        },
+                    },
+                },
+                ("Starting ovsdb-server", LogLevel.DEFAULT, "antrea-ovs"), None),
             (
                 "[2026-08-05T18:11:52Z INFO antrea-ovs]: Starting ovsdb-server",
                 {
@@ -2109,6 +2178,72 @@ def test_custom_splitter(verbose: bool = False) -> tuple[str, bool]:
                 },
                 ("[2026-08-05T18:11:52Z INFO antrea-ovs]: Starting ovsdb-server",
                  LogLevel.DEFAULT, ""), None),
+            # No match.
+            (
+                "Foobar",
+                {
+                    "options": {
+                        "regex": re.compile(r"^\[\d{4}-\d\d-\d\dT\d\d:\d\d:\d\dZ ([A-Z]+?) ([^]]+)\]: (.*)"),  # noqa: E501 pylint: disable=line-too-long
+                        "severity": {
+                            "field": 1,
+                            "transform": "str",
+                        },
+                        "facility": {
+                            "fields": [
+                                2,
+                            ],
+                        },
+                        "message": {
+                            "field": 3,
+                        },
+                    },
+                },
+                ("Foobar", LogLevel.DEFAULT, ""), None),
+            # No regex
+            (
+                "[2026-08-05T18:11:52Z INFO antrea-ovs]: Starting ovsdb-server",
+                {
+                    "severity": LogLevel.INFO,
+                    "facility": "foo",
+                    "options": {
+                        "regex": None,
+                        "severity": {
+                            "field": 1,
+                            "transform": "str",
+                        },
+                        "facility": {
+                            "fields": [
+                                2,
+                            ],
+                        },
+                        "message": {
+                            "field": 3,
+                        },
+                    },
+                },
+                ("[2026-08-05T18:11:52Z INFO antrea-ovs]: Starting ovsdb-server", LogLevel.INFO,
+                 "foo"), None),
+            # No message field
+            (
+                "[2026-08-05T18:11:52Z INFO antrea-ovs]: Starting ovsdb-server",
+                {
+                    "severity": LogLevel.INFO,
+                    "facility": "foo",
+                    "options": {
+                        "regex": re.compile(r"^\[\d{4}-\d\d-\d\dT\d\d:\d\d:\d\dZ (\d+) ([^]]+)\]: (.*)"),  # noqa: E501 pylint: disable=line-too-long
+                        "severity": {
+                            "field": 1,
+                            "transform": "str",
+                        },
+                        "facility": {
+                            "fields": [
+                                2,
+                            ],
+                        },
+                    },
+                },
+                ("[2026-08-05T18:11:52Z INFO antrea-ovs]: Starting ovsdb-server", LogLevel.INFO,
+                 "foo"), None),
             (
                 [ThemeStr("Starting ovsdb-server", ThemeAttr("types", "generic"))],
                 {
@@ -2153,6 +2288,24 @@ def test_custom_splitter(verbose: bool = False) -> tuple[str, bool]:
 
 
 # pylint: disable-next=unused-argument
+def test_init_logparser_configuration(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = logparsers.init_logparser_configuration
+
+    if result:
+        try:
+            fun()
+        except Exception as e:  # pylint: disable=broad-except
+            message = f"{fun.__name__}() did not yield expected result:\n" \
+                      f"      exception: {type(e)}\n"
+            result = False
+
+    return message, result
+
+
+# pylint: disable-next=unused-argument
 def test_parser_list(verbose: bool = False) -> tuple[str, bool]:
     message = ""
     result = True
@@ -2162,6 +2315,14 @@ def test_parser_list(verbose: bool = False) -> tuple[str, bool]:
     if result:
         try:
             fun()
+        except Exception as e:  # pylint: disable=broad-except
+            message = f"{fun.__name__}() did not yield expected result:\n" \
+                      f"      exception: {type(e)}\n"
+            result = False
+
+    if result:
+        try:
+            fun(force_reinit=True)
         except Exception as e:  # pylint: disable=broad-except
             message = f"{fun.__name__}() did not yield expected result:\n" \
                       f"      exception: {type(e)}\n"
@@ -2232,10 +2393,6 @@ tests: dict[tuple[str, ...], dict[str, Any]] = {
         "callable": test_split_bracketed_severity,
         "result": None,
     },
-    ("split_colon_severity",): {
-        "callable": test_split_colon_severity,
-        "result": None,
-    },
     ("seconds_severity_facility",): {
         "callable": test_seconds_severity_facility,
         "result": None,
@@ -2288,10 +2445,6 @@ tests: dict[tuple[str, ...], dict[str, Any]] = {
         "callable": test_split_json_style_raw,
         "result": None,
     },
-    ("json_event",): {
-        "callable": test_json_event,
-        "result": None,
-    },
     ("modinfo",): {
         "callable": test_modinfo,
         "result": None,
@@ -2302,6 +2455,10 @@ tests: dict[tuple[str, ...], dict[str, Any]] = {
     },
     ("custom_splitter",): {
         "callable": test_custom_splitter,
+        "result": None,
+    },
+    ("init_logparser_configuration",): {
+        "callable": test_init_logparser_configuration,
         "result": None,
     },
     ("init_parser_list", "get_parser_list"): {

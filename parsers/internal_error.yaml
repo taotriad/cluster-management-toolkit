@@ -4,4 +4,4 @@
   matchkeys:
     - pod_name: "internal_error"
   parser_rules:
-    - name: "colon_severity"
+    - name: "ts_8601"

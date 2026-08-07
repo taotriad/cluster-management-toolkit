@@ -15,6 +15,7 @@
       container_type: "InitContainer"
   parser_rules:
     - name: "glog"
+    - name: "json"
     - name: "key_value"
       options:
         versions:
@@ -27,7 +28,6 @@
         - matchtype: "startswith"
           matchkey: "Trace["
           loglevel: "debug"
-    - name: "json"
 - name: "argocd"
   show_in_selector: false
   matchkeys:
@@ -40,3 +40,15 @@
         - matchtype: "startswith"
           matchkey: "Version of argocd-operator:"
           loglevel: "notice"
+- name: "argocd"
+  show_in_selector: false
+  matchkeys:
+    - image_name: "/argoproj/argocd"
+      container_name: "copyutil"
+      container_type: "InitContainer"
+  parser_rules:
+    - name: "override_severity"
+      overrides:
+        - matchtype: "startswith"
+          matchkey: "cp: warning:"
+          loglevel: "warning"

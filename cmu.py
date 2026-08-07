@@ -156,7 +156,7 @@ from clustermanagementtoolkit import listgetters
 
 from clustermanagementtoolkit import listgetters_async
 
-from clustermanagementtoolkit.logparser import LogparserConfiguration
+from clustermanagementtoolkit.logparser import LogparserConfiguration, init_logparser_configuration
 
 from clustermanagementtoolkit.logparser import get_parser_list
 from clustermanagementtoolkit.logparser import logparser, logparser_initialised, init_parser_list
@@ -11247,6 +11247,9 @@ def main() -> None:
 
     # Then initialise the configuration file
     read_cmtconfig()
+
+    # Set the logparser defaults
+    init_logparser_configuration()
 
     defaultthemefile = DEFAULT_THEME_FILE
     tmpthemefile: str = defaultthemefile

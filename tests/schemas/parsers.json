@@ -131,7 +131,6 @@
                                 "name": {
                                     "enum": [
                                         "colon_facility",
-                                        "colon_severity",
                                         "directory",
                                         "expand_event",
                                         "glog",

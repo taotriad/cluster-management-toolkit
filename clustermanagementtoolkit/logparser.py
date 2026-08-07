@@ -101,33 +101,31 @@ class LogparserConfiguration:
     Various configuration options used by the logparsers
     """
     # Keep or strip timestamps in structured logs
-    pop_ts: bool = True
+    pop_ts: bool = False
     # Keep or strip severity in structured logs
-    pop_severity: bool = True
+    pop_severity: bool = False
     # Keep or strip facility in structured logs
-    pop_facility: bool = True
+    pop_facility: bool = False
     # msg="foo" or msg=foo => foo
-    msg_extract: bool = True
+    msg_extract: bool = False
     # If msg_extract is False,
     # this decides whether or not to put msg="foo" first or not
     # this also affects err="foo" and error="foo"
-    msg_first: bool = True
+    msg_first: bool = False
     # if msg_extract is True,
     # this decides whether msg="foo\nbar" should be converted to:
     # foo
     # bar
     # Currently this only work with JSON & key_value on a subset of keys
     # and does not affect "err=" and "error="
-    expand_newlines: bool = True
+    expand_newlines: bool = False
     # Should override severity rules be applied?
     override_severity: bool = True
-    # collector=foo => • foo
-    bullet_collectors: bool = True
     # if msg_extract is True,
     # this decides whether should be converted to:
     # msg="Starting foo" version="(version=.*)" => Starting foo (version=.*)
-    merge_starting_version: bool = True
-    # Replace tabs within values
+    merge_starting_version: bool = False
+    # Are parser-files read from BUNDLE.yaml?
     using_bundles: bool = False
 
 
@@ -3812,21 +3810,29 @@ def custom_splitter(message: str, **kwargs: Any) -> \
     severity_field = deep_get(options, DictPath("severity#field"))
     severity_transform = deep_get(options, DictPath("severity#transform"))
     severity_overrides = deep_get(options, DictPath("severity#overrides"), [])
-    facility_fields = \
-        deep_get_with_fallback(options, [DictPath("facility#fields"), DictPath("facility#field")])
-    facility_separators = \
-        deep_get_with_fallback(options, [DictPath("facility#separators"),
-                                         DictPath("facility#separator")], "")
+    facility_fields: list[int] | None = deep_get(options, DictPath("facility#fields"))
+    facility_separators: list[str] = deep_get(options, DictPath("facility#separators"), [""])
     message_field = deep_get(options, DictPath("message#field"))
 
-    # This message is already formatted
+    # This message is already formatted.
     if isinstance(message, list):
         return message, severity, facility
 
-    # The bare minimum for these rules is
-    if compiled_regex is None or message_field is None:
-        # TODO(Log an error instead of an exception)
-        raise ValueError("parser rule is missing regex or message field")
+    # The bare minimum for these rules:
+    if not compiled_regex:
+        errmsg = [
+            [("The parser rule lacks a regular expression.", "default")],
+        ]
+        unformatted_msg, formatted_msg = ANSIThemeStr.format_error_msg(errmsg)
+        cmtlog.log(LogLevel.ERR, msg=unformatted_msg, messages=formatted_msg)
+        return message, severity, facility
+    if message_field is None:
+        errmsg = [
+            [("The parser rule lacks a message field.", "default")],
+        ]
+        unformatted_msg, formatted_msg = ANSIThemeStr.format_error_msg(errmsg)
+        cmtlog.log(LogLevel.ERR, msg=unformatted_msg, messages=formatted_msg)
+        return message, severity, facility
 
     tmp = compiled_regex.match(message)
 
@@ -3870,16 +3876,27 @@ def custom_splitter(message: str, **kwargs: Any) -> \
             elif severity_transform == "str":
                 severity = str_to_severity(tmp[severity_field], default=severity)
             elif severity_transform == "int":
+                intseverity: int | None = None
                 try:
-                    severity = LogLevel(int(tmp[severity_field]))
-                except TypeError:
-                    # Needs an integer
-                    # TODO(Log an error)
-                    pass
+                    intseverity = int(tmp[severity_field])
                 except ValueError:
-                    # Needs a value that fits as a LogLevel
-                    # TODO(Log an error)
-                    pass
+                    errmsg = [
+                        [("The parser rule matched a non-integer as severity, but ", "default"),
+                         ("uses int as severity transform rule.", "default")],
+                    ]
+                    unformatted_msg, formatted_msg = ANSIThemeStr.format_error_msg(errmsg)
+                    cmtlog.log(LogLevel.ERR, msg=unformatted_msg, messages=formatted_msg)
+                if intseverity:
+                    try:
+                        severity = LogLevel(intseverity)
+                    except ValueError:
+                        errmsg = [
+                            [("The parser rule matched an integer as severity, but ", "default"),
+                             (f"the value {tmp[severity_field]} is out of range.", "default")],
+                        ]
+                        unformatted_msg, formatted_msg = ANSIThemeStr.format_error_msg(errmsg)
+                        cmtlog.log(LogLevel.ERR, msg=unformatted_msg, messages=formatted_msg)
+                        pass
             else:
                 errmsg = [
                     [("Unknown severity transform rule ", "default"),
@@ -3897,11 +3914,7 @@ def custom_splitter(message: str, **kwargs: Any) -> \
                                              }})
         else:
             message = tmp[message_field]
-        if facility_fields is not None and not facility:
-            if isinstance(facility_fields, str):
-                facility_fields = [facility_fields]
-            if isinstance(facility_separators, str):
-                facility_separators = [facility_separators]
+        if facility_fields and not facility:
             i = 0
             facility = ""
             for field in facility_fields:
@@ -4143,10 +4156,63 @@ Parser = namedtuple("Parser", "name show_in_selector match rules")
 parsers: list[Parser] = []
 
 
+logparser_configkeys: dict[str, dict[str, str | bool]] = {
+    "pop_ts": {
+        "key": "Pod#pop_timestamps",
+        "default": False
+    },
+    "pop_severity": {
+        "key": "Pod#pop_severity",
+        "default": False,
+    },
+    "pop_facility": {
+        "key": "Pod#pop_facility",
+        "default": False,
+    },
+    "msg_extract": {
+        "key": "Pod#extract_message",
+        "default": False,
+    },
+    "msg_first": {
+        "key": "Pod#message_first",
+        "default": False,
+    },
+    "expand_newlines": {
+        "key": "Pod#expand_newlines",
+        "default": False,
+    },
+    "override_severity": {
+        "key": "Pod#override_severity",
+        "default": True,
+    },
+    "merge_starting_version": {
+        "key": "Pod#merge_starting_version",
+        "default": False,
+    },
+}
+
+
+def init_logparser_configuration() -> None:
+    """
+    Read logparser configurations from cmtconfig.
+    """
+    # This warning seems incorrect
+    # pylint: disable-next=global-variable-not-assigned
+    global LogparserConfiguration
+
+    for key, data in logparser_configkeys.items():
+        default = deep_get(data, DictPath("default"))
+        configkey = deep_get(data, DictPath("key"))
+        setattr(LogparserConfiguration, key, deep_get(cmtlib.cmtconfig, configkey, default))
+
+
 # pylint: disable-next=too-many-locals,too-many-branches,too-many-statements
 def init_parser_list(force_reinit: bool = False) -> None:
     """
     Initialise the list of parsers.
+
+        Parameters:
+            force_reinit (bool): Force the parser-list to be re-read.
     """
     # pylint: disable-next=global-statement
     global parsers

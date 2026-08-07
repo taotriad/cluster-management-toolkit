@@ -379,6 +379,31 @@ Pod:
   #   - "/opt/cmt/parsers"
   #   - ...
 
+  # For structured log entries, pop the timestamp
+  # pop_timestamps: false
+
+  # For structured log entries, pop the severity
+  # pop_severity: false
+
+  # For structured log entries, pop the facility
+  # pop_facility: false
+
+  # For structured log entries, extract the message
+  # extract_message: false
+
+  # For structured log entries, reorder the entries to put the message first
+  # message_first: false
+
+  # Expand newlines embedded in messages; this is WIP
+  # expand_newlines: false
+
+  # Enable severity override rules specified in parser-files
+  # override_severity: true
+
+  # Merge messages of the kind "Starting COMPONENT" version="version"
+  # into "Starting COMPONENT version"
+  # merge_starting_version: false
+
 __ResourceView:
   # Should the viewer unfold lines? Choosing true here will
   # (try) to expand lines (such as JSON) that can be unfolded.
