@@ -28,7 +28,6 @@
           - matchtype: "startswith"
             # yamllint disable-line rule:line-length
             matchkey: "         Please use MINIO_ROOT_USER and MINIO_ROOT_PASSWORD"
-            matchline: "any"
             format_block_end: true
         loglevel: "warning"
     - name: "override_severity"

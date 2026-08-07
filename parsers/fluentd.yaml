@@ -68,7 +68,6 @@
           - matchtype: "startswith"
             # yamllint disable-line rule:line-length
             matchkey: "["
-            matchline: "any"
             format_block_end: false
             process_block_end: false
         loglevel: "notice"
@@ -107,7 +106,6 @@
         block_end:
           - matchtype: "exact"
             matchkey: "</ROOT>"
-            matchline: "any"
             format_block_end: true
         loglevel: "info"
     - name: "override_severity"

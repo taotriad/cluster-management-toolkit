@@ -35,7 +35,6 @@
         block_end:
           - matchtype: "startswith"
             matchkey: "--\\___\\"
-            matchline: "any"
             format_block_end: true
         loglevel: "notice"
     - name: "override_severity"

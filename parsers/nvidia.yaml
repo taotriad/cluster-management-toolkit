@@ -17,7 +17,6 @@
         block_end:
           - matchtype: "exact"
             matchkey: "}"
-            matchline: "any"
             format_block_end: true
         loglevel: "info"
 - name: "nvidia"
@@ -52,7 +51,6 @@
         block_end:
           - matchtype: "startswith"
             matchkey: "time"
-            matchline: "any"
             format_block_end: false
             process_block_end: false
         loglevel: "info"
@@ -66,7 +64,6 @@
         block_end:
           - matchtype: "regex"
             matchkey: "^(?![+|]|^$)"
-            matchline: "any"
             format_block_end: false
             process_block_end: false
         loglevel: "info"

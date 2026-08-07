@@ -16,7 +16,6 @@
         block_end:
           - matchtype: "exact"
             matchkey: "}"
-            matchline: "any"
             format_block_end: true
         loglevel: "info"
 - name: "openshift-cluster-samples"

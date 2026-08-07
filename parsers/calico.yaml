@@ -108,7 +108,6 @@
           - matchtype: "regex"
             # yamllint disable-line rule:line-length
             matchkey: '^[^|+]'
-            matchline: "any"
             format_block_end: false
             process_block_end: false
         loglevel: "notice"

@@ -49,6 +49,7 @@
         regex: '^([A-Z]+):\s+(.*)'
         severity:
           field: 1
+          transform: "str"
         message:
           field: 2
     - name: "override_severity"

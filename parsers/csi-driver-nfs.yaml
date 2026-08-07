@@ -24,6 +24,5 @@
         block_end:
           - matchtype: "empty"
             matchkey: ""
-            matchline: "any"
             format_block_end: true
         loglevel: "notice"

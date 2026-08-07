@@ -1690,11 +1690,11 @@ def custom_override_severity(message: str | list,
             **kwargs (dict[str, Any]): Keyword arguments
                 overrides ([dict[str, str]]): A list of severity override match rules
                     matchtype (str): The type of match; must be one of:
-                                     - "startswith"
+                                     - "contains"
                                      - "endswith"
                                      - "exact"
-                                     - "contains"
                                      - "regex"
+                                     - "startswith"
                     matchkey (str): The key (either a plain string or a regular expression)
                                     to use when matching
                     loglevel (str): The loglevel to return if the condition matches
@@ -1970,7 +1970,12 @@ def format_key_value(key: str, value: str,
             **kwargs (dict[str, Any]): Keyword arguments
                 force_severity (bool): Override default formatting; use severity instead
                 error_keys ((str, ...)): A tuple of keys that should be formatted as errors
-                allow_bare_keys (bool): Should keys without a value be accepted?
+                allow_bare_keys (str): Should keys without a value be accepted?
+                                       all
+                                       lowercase
+                                       uppercase
+                                       capitalize
+                                       ""
         Returns:
             (ThemeArray): The formatted message
     """
@@ -2075,7 +2080,7 @@ def key_value(message: str, **kwargs: Any) -> tuple[str, LogLevel, str,
     facilities = deep_get(options, DictPath("facilities"),
                           ["source", "subsys", "caller", "logger", "Topic"])
     versions = deep_get(options, DictPath("versions"), [])
-    allow_bare_keys: str = deep_get(options, DictPath("allow_bare_keys"), "none")
+    allow_bare_keys: str = deep_get(options, DictPath("allow_bare_keys"), "")
     newlines: str = deep_get(options, DictPath("newlines"), "keep")
     is_event: bool = deep_get(options, DictPath("is_event"), False)
 
@@ -2342,7 +2347,7 @@ def key_value_with_leading_message(message: str, **kwargs: Any) -> \
     facility: str = deep_get(kwargs, DictPath("facility"), "")
     fold_msg: bool = deep_get(kwargs, DictPath("fold_msg"), True)
     options: dict = deep_get(kwargs, DictPath("options"), {})
-    allow_bare_keys: bool = deep_get(options, DictPath("allow_bare_keys"), False)
+    allow_bare_keys: bool = deep_get(options, DictPath("allow_bare_keys"), "")
 
     # This warning seems incorrect
     # pylint: disable-next=global-variable-not-assigned
@@ -3561,25 +3566,23 @@ def custom_line_scanner(message: str, **kwargs: Any) \
                     block_start ([dict[str, str | bool]]): [unused]
                     block_end ([dict[str, str | bool]]):
                         matchtype (str): The type of match; must be one of:
+                                         - "contains"
                                          - "empty"
-                                         - "startswith"
                                          - "endswith"
                                          - "exact"
-                                         - "contains"
                                          - "regex"
+                                         - "startswith"
                         matchkey (str): The key (either a plain string or a regular expression)
                                         to use when matching
-                        matchline (str): [unused]
-                        format_block_start (bool): [unused]
                         format_block_end (bool): Should the last line of the block be formatted?
                     overrides ([dict[str, str]]): A list of severity override match rules
                                                   to pass to custom_override_severity()
                         matchtype (str): The type of match; must be one of:
-                                         - "startswith"
+                                         - "contains"
                                          - "endswith"
                                          - "exact"
-                                         - "contains"
                                          - "regex"
+                                         - "startswith"
                         loglevel (str): The loglevel to return if the condition matches
 
         Returns:
@@ -3678,26 +3681,27 @@ def custom_line(message: str, **kwargs: Any) -> tuple[tuple[str, Callable | None
                     eof (str): Should EOF be regarded as a block end?
                     block_start ([dict[str, str | bool]]):
                         matchtype (str): The type of match; must be one of:
-                                         - "startswith"
+                                         - "contains"
                                          - "endswith"
                                          - "exact"
-                                         - "contains"
                                          - "regex"
+                                         - "startswith"
                         matchkey (str): The key (either a plain string or a regular expression)
                                         to use when matching
                         matchline (str): Where can a match occur? "any" matches any line,
-                                         first only matches the first line in a log message
+                                         "first" only matches the first line in a log message
                         format_block_start (bool): Should the first line of the block be formatted?
-                        format_block_end (bool): [unused]
                     block_end ([dict[str, str | bool]]): [unused]
                     overrides ([dict[str, str]]): A list of severity override match rules
                                                   to pass to custom_override_severity()
                         matchtype (str): The type of match; must be one of:
-                                         - "startswith"
+                                         - "contains"
                                          - "endswith"
                                          - "exact"
-                                         - "contains"
                                          - "regex"
+                                         - "startswith"
+                        matchkey (str): The key (either a plain string or a regular expression)
+                                        to use when matching
                         loglevel (str): The loglevel to return if the condition matches
         Returns:
             ((str | (str, Callable, dict)), [(ThemeArray, LogLevel)]):
@@ -3896,7 +3900,6 @@ def custom_splitter(message: str, **kwargs: Any) -> \
                         ]
                         unformatted_msg, formatted_msg = ANSIThemeStr.format_error_msg(errmsg)
                         cmtlog.log(LogLevel.ERR, msg=unformatted_msg, messages=formatted_msg)
-                        pass
             else:
                 errmsg = [
                     [("Unknown severity transform rule ", "default"),

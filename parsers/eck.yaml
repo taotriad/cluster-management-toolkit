@@ -92,7 +92,6 @@
           - matchtype: "startswith"
             # yamllint disable-line rule:line-length
             matchkey: "#########################################################"
-            matchline: "any"
             format_block_end: true
         loglevel: "notice"
     - name: "override_severity"
