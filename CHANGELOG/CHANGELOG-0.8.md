@@ -291,13 +291,13 @@ clustermanagementtoolkit/cluster_actions.py             226    178     74      3
 clustermanagementtoolkit/curses_helper.py              2708   1962   1220     24  24.6%
 clustermanagementtoolkit/infogetters.py                1753   1301   1068     22  24.7%
 clustermanagementtoolkit/networkio.py                   395    289    188      3  25.2%
-clustermanagementtoolkit/kubernetes_helper.py          1625   1105    788     78  28.1%
+clustermanagementtoolkit/kubernetes_helper.py          1625   1104    788     75  28.3%
 clustermanagementtoolkit/listgetters_async.py           118     75     52      2  31.2%
-clustermanagementtoolkit/logparser.py                  2097   1347   1184     38  31.6%
+clustermanagementtoolkit/logparser.py                  2095   1345   1182     38  31.7%
 clustermanagementtoolkit/listgetters.py                1215    765    678     17  35.2%
 clustermanagementtoolkit/checks.py                      620    326    246      1  44.9%
 clustermanagementtoolkit/generators.py                  782    262    400     52  64.6%
-clustermanagementtoolkit/datagetters.py                 272     85    142     13  67.1%
+clustermanagementtoolkit/datagetters.py                 272     85    142     12  67.4%
 clustermanagementtoolkit/ansible_helper.py              818    219    486     27  72.1%
 clustermanagementtoolkit/cmtlib.py                      686    133    382     20  78.9%
 clustermanagementtoolkit/ansithemeprint.py              287     53    122      5  79.5%
@@ -321,7 +321,7 @@ clustermanagementtoolkit/kubernetes_resources.py          5      0      0      0
 clustermanagementtoolkit/pvtypes.py                       3      0      0      0 100.0%
 clustermanagementtoolkit/recommended_permissions.py      15      0      0      0 100.0%
 ---------------------------------------------------------------------------------------
-TOTAL                                                 17368   8246   8810    410  50.0%
+TOTAL                                                 17366   8243   8808    406  50.1%
 ```
 
 ### Flake8 Results for v0.8.9
