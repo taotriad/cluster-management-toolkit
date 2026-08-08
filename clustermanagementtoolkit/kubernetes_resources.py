@@ -6526,6 +6526,11 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api": "clusterextensions",
         "namespaced": False,
     },
+    ("ClusterObjectSet", "olm.operatorframework.io"): {
+        "api_paths": ["apis/olm.operatorframework.io/v1/"],
+        "api": "clusterobjectsets",
+        "namespaced": False,
+    },
     # openstack.k-orc.cloud
     ("AddressScope", "openstack.k-orc.cloud"): {
         "api_paths": ["apis/openstack.k-orc.cloud/v1alpha1/"],

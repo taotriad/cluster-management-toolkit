@@ -91,7 +91,9 @@ infoview:
         path: "status#provider#name"
         type: "str"
       provider_url:
-        header: [["  URL:", ["main", "infoheader"]]]
+        header: [["  ", ["main", "infoheader"]],
+                 ["U", ["main", "infoheader_shortcut"]],
+                 ["RL:", ["main", "infoheader"]]]
         path: "status#provider#url"
         type: "str"
         default: "<unset>"
@@ -143,3 +145,11 @@ infoview:
       action_call: "view_yaml"
       action_args:
         _pass_selected_obj: true
+    "Open provider URL":
+      key: "u"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open provider URL in browser"
+      action: "execute"
+      action_args:
+        command: ["xdg-open", ["status#provider#url"]]
