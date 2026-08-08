@@ -7299,6 +7299,7 @@ def view_yaml(stdscr: curses.window, **kwargs: Any) -> Retval:
         if not _obj:
             return Retval.RETURNDONE
         obj = _obj
+    obj = [obj]
     title = deep_get_with_fallback(kwargs, [DictPath("named_title"), DictPath("title")])
     formatter = formatters.format_yaml
     return resourceinfodispatch(stdscr, obj=obj, kind=("__ResourceView", ""),
