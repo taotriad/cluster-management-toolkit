@@ -10,6 +10,7 @@ Generate statistics about view-files.
 """
 
 import errno
+from functools import reduce
 import sys
 from typing import Any
 import yaml
@@ -57,6 +58,29 @@ rule_statistics: dict[str, Any] = {
 }
 
 
+def deep_get(dictionary: Any, path: str, default: Any = None) -> Any:
+    """
+    Given a dictionary and a path into that dictionary, get the value.
+
+        Parameters:
+            dictionary (dict): The dict to get the value from
+            path (str): A dict path
+            default (Any): The value to return if the dictionary, path, or result is None
+        Returns:
+            (Any): The value from the path
+    """
+    if dictionary is None:
+        return default
+    if path is None or not path or not isinstance(path, str):
+        return default
+    result = reduce(lambda d,
+                    key: d.get(key, default) if isinstance(d, dict) else default,
+                    path.split("#"), dictionary)
+    if result is None:
+        result = default
+    return result
+
+
 # pylint: disable-next=too-many-branches,too-many-statements
 def generate_statistics(file: str, parser_rules: list[dict[str, Any]]) -> None:
     """
@@ -67,79 +91,76 @@ def generate_statistics(file: str, parser_rules: list[dict[str, Any]]) -> None:
             parser_rules ([dict[str, Any]]): The rules of a parser-file
     """
     if "listview" in parser_rules:
-        if (tmp := parser_rules.get("listview", {}).get("listgetter")):
-            if tmp not in rule_statistics["listview"]["listgetter"]:
+        if (tmp := deep_get(parser_rules, "listview#listgetter")):
+            if tmp not in deep_get(rule_statistics, "listview#listgetter"):
                 rule_statistics["listview"]["listgetter"][tmp] = []
             rule_statistics["listview"]["listgetter"][tmp].append(file)
-        if (tmp := parser_rules.get("listview", {}).get("listgetter_async")):
-            if tmp not in rule_statistics["listview"]["listgetter_async"]:
+        if (tmp := deep_get(parser_rules, "listview#listgetter_async")):
+            if tmp not in deep_get(rule_statistics, "listview#listgetter_async"):
                 rule_statistics["listview"]["listgetter_async"][tmp] = []
             rule_statistics["listview"]["listgetter_async"][tmp].append(file)
-        if (tmp := parser_rules.get("listview", {}).get("infogetter")):
-            if tmp not in rule_statistics["listview"]["infogetter"]:
+        if (tmp := deep_get(parser_rules, "listview#infogetter")):
+            if tmp not in deep_get(rule_statistics, "listview#infogetter"):
                 rule_statistics["listview"]["infogetter"][tmp] = []
             rule_statistics["listview"]["infogetter"][tmp].append(file)
-        if (tmp := parser_rules.get("listview", {}).get("shortcuts", {})):
+        if (tmp := deep_get(parser_rules, "listview#shortcuts", {})):
             for _key, d in tmp.items():
                 if not d:
                     continue
-                if (tmp2 := d.get("action")):
-                    if tmp2 not in rule_statistics["listview"]["shortcuts"]["action"]:
+                if (tmp2 := deep_get(d, "action")):
+                    if tmp2 not in deep_get(rule_statistics, "listview#shortcuts#action"):
                         rule_statistics["listview"]["shortcuts"]["action"][tmp2] = []
                     rule_statistics["listview"]["shortcuts"]["action"][tmp2].append(file)
 
     if "infoview" in parser_rules:
-        infopad = parser_rules.get("infoview", {}).get("infopad")
-        if infopad:
-            if (tmp := infopad.get("infogetter")):
-                if tmp not in rule_statistics["infoview"]["infopad"]["infogetter"]:
+        if (infopad := deep_get(parser_rules, "infoview#infopad")):
+            if (tmp := deep_get(infopad, "infogetter")):
+                if tmp not in deep_get(rule_statistics, "infoview#infopad#infogetter"):
                     rule_statistics["infoview"]["infopad"]["infogetter"][tmp] = []
                 rule_statistics["infoview"]["infopad"]["infogetter"][tmp].append(file)
             if (tmp := infopad.get("objgetter")):
-                if tmp not in rule_statistics["infoview"]["infopad"]["objgetter"]:
+                if tmp not in deep_get(rule_statistics, "infoview#infopad#objgetter"):
                     rule_statistics["infoview"]["infopad"]["objgetter"][tmp] = []
                 rule_statistics["infoview"]["infopad"]["objgetter"][tmp].append(file)
 
-        listpad = parser_rules.get("infoview", {}).get("listpad")
-        if listpad:
-            if (tmp := listpad.get("listgetter")):
-                if tmp not in rule_statistics["infoview"]["listpad"]["listgetter"]:
+        if (listpad := deep_get(parser_rules, "infoview#listpad")):
+            if (tmp := deep_get(listpad, "listgetter")):
+                if tmp not in deep_get(rule_statistics, "infoview#listpad#listgetter"):
                     rule_statistics["infoview"]["listpad"]["listgetter"][tmp] = []
                 rule_statistics["infoview"]["listpad"]["listgetter"][tmp].append(file)
-            if (tmp := listpad.get("infogetter")):
-                if tmp not in rule_statistics["infoview"]["listpad"]["infogetter"]:
+            if (tmp := deep_get(listpad, "infogetter")):
+                if tmp not in deep_get(rule_statistics, "infoview#listpad#infogetter"):
                     rule_statistics["infoview"]["listpad"]["infogetter"][tmp] = []
                 rule_statistics["infoview"]["listpad"]["infogetter"][tmp].append(file)
 
-        logpad = parser_rules.get("infoview", {}).get("logpad")
-        if logpad:
+        if (logpad := deep_get(parser_rules, "infoview#logpad")):
             if (tmp := logpad.get("infogetter")):
-                if tmp not in rule_statistics["infoview"]["logpad"]["infogetter"]:
+                if tmp not in deep_get(rule_statistics, "infoview#logpad#infogetter"):
                     rule_statistics["infoview"]["logpad"]["infogetter"][tmp] = []
                 rule_statistics["infoview"]["logpad"]["infogetter"][tmp].append(file)
             if (tmp := logpad.get("infogetter_args", {}).get("formatter")):
-                if tmp not in rule_statistics["infoview"]["logpad"]["formatter"]:
+                if tmp not in deep_get(rule_statistics, "infoview#logpad#formatter"):
                     rule_statistics["infoview"]["logpad"]["formatter"][tmp] = []
                 rule_statistics["infoview"]["logpad"]["formatter"][tmp].append(file)
 
-        if (tmp := parser_rules.get("infoview", {}).get("shortcuts", {})):
+        if (tmp := deep_get(parser_rules, "infoview#shortcuts", {})):
             for _key, d in tmp.items():
                 if not d:
                     continue
-                if (action := d.get("action")):
-                    if action not in rule_statistics["infoview"]["shortcuts"]["action"]:
+                if (action := deep_get(d, "action")):
+                    if action not in deep_get(rule_statistics, "infoview#shortcuts#action"):
                         rule_statistics["infoview"]["shortcuts"]["action"][action] = []
                     rule_statistics["infoview"]["shortcuts"]["action"][action].append(file)
-                if (action_call := d.get("action_call")):
-                    if action_call not in rule_statistics["infoview"]["shortcuts"]["action_call"]:
+                if (action_call := deep_get(d, "action_call")):
+                    if action not in deep_get(rule_statistics, "infoview#shortcuts#action_call"):
                         rule_statistics["infoview"]["shortcuts"]["action_call"][action_call] = []
                     rule_statistics["infoview"]["shortcuts"]["action_call"][action_call].append(file)  # noqa: E501 pylint: disable=line-too-long
-                if (widget := d.get("widget")):
-                    if widget not in rule_statistics["infoview"]["shortcuts"]["widget"]:
+                if (widget := deep_get(d, "widget")):
+                    if action not in deep_get(rule_statistics, "infoview#shortcuts#widget"):
                         rule_statistics["infoview"]["shortcuts"]["widget"][widget] = []
                     rule_statistics["infoview"]["shortcuts"]["widget"][widget].append(file)
-                if (itemgetter := d.get("widget_args", {}).get("itemgetter", {})):
-                    if itemgetter not in rule_statistics["infoview"]["shortcuts"]["itemgetter"]:
+                if (itemgetter := deep_get(d, "widget_args#itemgetter")):
+                    if action not in deep_get(rule_statistics, "infoview#shortcuts#itemgetter"):
                         rule_statistics["infoview"]["shortcuts"]["itemgetter"][itemgetter] = []
                     rule_statistics["infoview"]["shortcuts"]["itemgetter"][itemgetter].append(file)
 

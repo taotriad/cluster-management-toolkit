@@ -5,7 +5,6 @@
     - image_name: "/library/nginx"
     - image_name: "/nginxinc/nginx-unprivileged"
   parser_rules:
-    - name: "colon_facility"
     - name: "ts_8601"
     - name: "bracketed_severity"
     - name: "http"

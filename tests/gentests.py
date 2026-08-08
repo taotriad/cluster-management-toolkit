@@ -138,6 +138,71 @@ def test_format_special(verbose: bool = False) -> tuple[str, bool]:
     return message, result
 
 
+def test_format_version(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = generators.format_version
+
+    if result:
+        # Indata format:
+        # (string, selected, expected_result, expected_exception)
+        testdata: tuple = (
+            (
+                "v3.14.159",
+                False,
+                [ThemeStr("v", ThemeAttr("types", "version")),
+                 ThemeStr("3", ThemeAttr("types", "numerical")),
+                 ThemeStr(".", ThemeAttr("types", "unit")),
+                 ThemeStr("14", ThemeAttr("types", "numerical")),
+                 ThemeStr(".", ThemeAttr("types", "unit")),
+                 ThemeStr("159", ThemeAttr("types", "numerical"))],
+                None,
+            ),
+            (
+                "3.14.159~beta1",
+                False,
+                [ThemeStr("3", ThemeAttr("types", "numerical")),
+                 ThemeStr(".", ThemeAttr("types", "unit")),
+                 ThemeStr("14", ThemeAttr("types", "numerical")),
+                 ThemeStr(".", ThemeAttr("types", "unit")),
+                 ThemeStr("159", ThemeAttr("types", "numerical")),
+                 ThemeStr("~", ThemeAttr("types", "unit")),
+                 ThemeStr("beta1", ThemeAttr("types", "numerical"))],
+                None,
+            ),
+        )
+
+        for string, selected, expected_result, expected_exception in testdata:
+            try:
+                tmp = fun(string, selected)
+                if tmp != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"           result: {tmp}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  f"        exception: {type(e)}\n" \
+                                  f"          message: {str(e)}\n" \
+                                  f"         expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"        exception: {type(e)}\n" \
+                              f"          message: {str(e)}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+    return message, result
+
+
 def test_map_value(verbose: bool = False) -> tuple[str, bool]:
     message = ""
     result = True
@@ -725,6 +790,130 @@ def test_align_and_pad(verbose: bool = False) -> tuple[str, bool]:
                 selected, expected_result, expected_exception in testdata:
             try:
                 tmp = fun(themearray, fieldlen=fieldlen, pad=pad, ralign=ralign, selected=selected)
+                if tmp != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"           result: {tmp}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  f"        exception: {type(e)}\n" \
+                                  f"          message: {str(e)}\n" \
+                                  f"         expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"        exception: {type(e)}\n" \
+                              f"          message: {str(e)}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+    return message, result
+
+
+def test_format_address(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = generators.format_address
+
+    if result:
+        # Indata format:
+        # ([str], selected, expected_result, expected_exception)
+        testdata: tuple = (
+            # IPv4
+            (
+                ["127.0.0.1"],
+                False,
+                [ThemeStr("127", ThemeAttr("types", "address")),
+                 ThemeRef("separators", "ipv4address"),
+                 ThemeStr("0", ThemeAttr("types", "address")),
+                 ThemeRef("separators", "ipv4address"),
+                 ThemeStr("0", ThemeAttr("types", "address")),
+                 ThemeRef("separators", "ipv4address"),
+                 ThemeStr("1", ThemeAttr("types", "address"))],
+                None,
+            ),
+            # IPv4, IPv4
+            (
+                ["127.0.0.1", "192.168.0.1"],
+                False,
+                [ThemeStr("127", ThemeAttr("types", "address")),
+                 ThemeRef("separators", "ipv4address"),
+                 ThemeStr("0", ThemeAttr("types", "address")),
+                 ThemeRef("separators", "ipv4address"),
+                 ThemeStr("0", ThemeAttr("types", "address")),
+                 ThemeRef("separators", "ipv4address"),
+                 ThemeStr("1", ThemeAttr("types", "address")),
+                 ThemeRef("separators", "list"),
+                 ThemeStr("192", ThemeAttr("types", "address")),
+                 ThemeRef("separators", "ipv4address"),
+                 ThemeStr("168", ThemeAttr("types", "address")),
+                 ThemeRef("separators", "ipv4address"),
+                 ThemeStr("0", ThemeAttr("types", "address")),
+                 ThemeRef("separators", "ipv4address"),
+                 ThemeStr("1", ThemeAttr("types", "address"))],
+                None,
+            ),
+            # IPv4, string
+            (
+                "127.0.0.1",
+                False,
+                [ThemeStr("127", ThemeAttr("types", "address")),
+                 ThemeRef("separators", "ipv4address"),
+                 ThemeStr("0", ThemeAttr("types", "address")),
+                 ThemeRef("separators", "ipv4address"),
+                 ThemeStr("0", ThemeAttr("types", "address")),
+                 ThemeRef("separators", "ipv4address"),
+                 ThemeStr("1", ThemeAttr("types", "address"))],
+                None,
+            ),
+            # IPv4 with mask
+            (
+                ["127.0.0.0/24"],
+                False,
+                [ThemeStr("127", ThemeAttr("types", "address")),
+                 ThemeRef("separators", "ipv4address"),
+                 ThemeStr("0", ThemeAttr("types", "address")),
+                 ThemeRef("separators", "ipv4address"),
+                 ThemeStr("0", ThemeAttr("types", "address")),
+                 ThemeRef("separators", "ipv4address"),
+                 ThemeStr("0", ThemeAttr("types", "address")),
+                 ThemeRef("separators", "ipmask"),
+                 ThemeStr("24", ThemeAttr("types", "ipmask"))],
+                None,
+            ),
+            # IPv6 with mask
+            (
+                ["64:ff9b::127.0.0.1/128"],
+                False,
+                [ThemeStr("64", ThemeAttr("types", "address")),
+                 ThemeRef("separators", "ipv6address"),
+                 ThemeStr("ff9b", ThemeAttr("types", "address")),
+                 ThemeRef("separators", "ipv6address"),
+                 ThemeRef("separators", "ipv6address"),
+                 ThemeStr("127", ThemeAttr("types", "address")),
+                 ThemeRef("separators", "ipv4address"),
+                 ThemeStr("0", ThemeAttr("types", "address")),
+                 ThemeRef("separators", "ipv4address"),
+                 ThemeStr("0", ThemeAttr("types", "address")),
+                 ThemeRef("separators", "ipv4address"),
+                 ThemeStr("1", ThemeAttr("types", "address")),
+                 ThemeRef("separators", "ipmask"),
+                 ThemeStr("128", ThemeAttr("types", "ipmask"))],
+                None,
+            ),
+        )
+
+        for string, selected, expected_result, expected_exception in testdata:
+            try:
+                tmp = fun(string, selected)
                 if tmp != expected_result:
                     message = f"{fun.__name__}() did not yield expected result:\n" \
                               f"           result: {tmp}\n" \
@@ -2040,12 +2229,20 @@ tests: dict[tuple[str], dict[str, Any]] = {
         "callable": test_format_special,
         "result": None,
     },
+    ("format_version()",): {
+        "callable": test_format_version,
+        "result": None,
+    },
     ("map_value()",): {
         "callable": test_map_value,
         "result": None,
     },
     ("align_and_pad()",): {
         "callable": test_align_and_pad,
+        "result": None,
+    },
+    ("format_address()",): {
+        "callable": test_format_address,
         "result": None,
     },
     ("generator_value_mapper()",): {

@@ -57,12 +57,11 @@ tests have been added for the moved code.
 ## Q3.2 roadmap
 
 * _General_:
-    * [ ] Release __CMT__ v0.8.9.
+    * [x] Release __CMT__ v0.8.9.
           v0.8.9 is released early to make up for the fact that v0.8.8 wasn't
           was not versioned properly. Also it finally fixes the flickering.
-    * [ ] Distribute as:
-        * [ ] Source code.
-        * [ ] Debian package.
+    * [x] Distribute as:
+        * [x] Source code.
 
 ## Q4 roadmap
 
@@ -70,10 +69,14 @@ tests have been added for the moved code.
     * [ ] Refactor libraries in a way that makes a __CMT__ release possible. This includes:
         * [ ] Rewrite all logging to use Python's builtin logging and register a MemoryHandler;
           this way we get flushing whenever the severity is high enough.
+    * [ ] Turn all non-fatal errors into log messages.
     * [ ] Go through all input helpers, formatters, etc., to see which, if any, we can merge.
     * [ ] tests: Achieve 55% test coverage for `*.py`.
     * [ ] views: Templetise as much as possible, both to decrease future workloads,
           but also to standardise look and feel.
+    * [ ] Distribute as:
+        * [ ] Source code.
+        * [ ] Debian package.
 * _cmu_:
     * [ ] Continue, hopefully conclude, the general refactoring, enabling new _cmt_ functionality.
     * [ ] If possible it should be possible to reinitialise the UI and thus change themes.
@@ -111,6 +114,7 @@ tests have been added for the moved code.
     * [ ] Add formatters that can use Pygments' built-in lexers.
       * [ ] Perl
       * [ ] Ruby
+      * [ ] reStructuredText
     * [ ] Convert formatters that uses custom lexers once they get support in Pygments.
       * [ ] HAProxy
       * [ ] CaddyFile

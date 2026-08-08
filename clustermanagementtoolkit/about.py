@@ -20,7 +20,7 @@ LICENSE: str = "This is free software; see the source for copying conditions.  T
 
 PROGRAM_SUITE_NAME: str = "CMT"
 PROGRAM_SUITE_FULL_NAME: str = "Cluster Management Toolkit for Kubernetes"
-PROGRAM_SUITE_VERSION: str = "0.8.8"
+PROGRAM_SUITE_VERSION: str = "0.8.9"
 
 UI_PROGRAM_NAME: str = "cmu"
 UI_PROGRAM_VERSION: str = "0.5.6"
@@ -29,7 +29,7 @@ TOOL_PROGRAM_NAME: str = "cmt"
 TOOL_PROGRAM_VERSION: str = "0.6.9"
 
 INSTALL_PROGRAM_NAME: str = "cmt-install.py"
-INSTALL_PROGRAM_VERSION: str = "0.14.0"
+INSTALL_PROGRAM_VERSION: str = "0.14.1"
 
 ADMIN_PROGRAM_NAME: str = "cmtadm"
 ADMIN_PROGRAM_VERSION: str = "0.9.6"

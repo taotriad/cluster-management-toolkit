@@ -77,7 +77,6 @@ from clustermanagementtoolkit.cmttypes import deep_get, deep_get_with_fallback, 
 from clustermanagementtoolkit.cmttypes import FilePath
 from clustermanagementtoolkit.cmttypes import LogLevel
 from clustermanagementtoolkit.cmttypes import loglevel_to_name, name_to_loglevel
-from clustermanagementtoolkit.cmttypes import ProgrammingError
 
 from clustermanagementtoolkit.cmtio_yaml import secure_read_yaml, secure_read_yaml_all
 
@@ -363,7 +362,8 @@ def split_bracketed_severity(message: str, **kwargs: Any) -> tuple[str, LogLevel
             message: A string to strip a severity prefix from
             **kwargs (dict[str, Any]): Keyword arguments
                 options:
-                    default: The default severity to use if no LogLevel prefix can be found
+                    default (LogLevel): The default severity to use if no
+                                        LogLevel prefix can be found
         Returns:
             (str, LogLevel):
                 (str): The input string with the severity prefix removed
@@ -402,40 +402,6 @@ def split_bracketed_severity(message: str, **kwargs: Any) -> tuple[str, LogLevel
     else:
         severity = default
 
-    return message, severity
-
-
-def split_colon_severity(message: str, **kwargs: Any) -> tuple[str, LogLevel]:
-    """
-    Remove a colon severity prefix from a string.
-
-        Parameters:
-            message (str): A string to strip a severity prefix from
-            **kwargs (dict[str, Any]): Keyword arguments
-                default: The default severity to use if no LogLevel prefix can be found
-        Returns:
-            (str, LogLevel):
-                (str): The input string with the severity prefix removed
-                (LogLevel): The extracted LogLevel
-    """
-    default: LogLevel = deep_get(kwargs, DictPath("default"), LogLevel.INFO)
-    severities = {
-        "CRITICAL:": LogLevel.CRIT,
-        "ERROR:": LogLevel.ERR,
-        "WARNING:": LogLevel.WARNING,
-        "NOTICE:": LogLevel.NOTICE,
-        "NOTE:": LogLevel.NOTICE,
-        "INFO:": LogLevel.INFO,
-        "DEBUG:": LogLevel.DEBUG,
-    }
-
-    if (re_tmp := re.match(r"^([A-Za-z]+?:) ?(.*)", message)) is not None:
-        if (severity := deep_get(severities, DictPath(re_tmp[1].upper()))) is not None:
-            message = re_tmp[2]
-        else:
-            severity = default
-    else:
-        severity = default
     return message, severity
 
 
@@ -1659,24 +1625,6 @@ def json_event(message: str,
     return new_message, severity, facility, remnants
 
 
-def split_colon_facility(message: str, facility: str = "") -> tuple[str, str]:
-    """
-    Split a message in "facility: message" format into message, facility.
-
-        Parameters:
-            message (str): The message part of the msg to format
-            facility (str): The current facility (typically empty)
-        Returns:
-            (str, str):
-                (str): The message part
-                (str): The facility
-    """
-    if (re_tmp := re.match(r"^(\S+?):\s?(.*)", message)) is not None:
-        facility = re_tmp[1]
-        message = re_tmp[2]
-    return message, facility
-
-
 # pylint: disable-next=too-many-branches
 def custom_override_severity(message: str | list,
                              severity: LogLevel,
@@ -1733,16 +1681,14 @@ def custom_override_severity(message: str | list,
             if override_pattern.match(tmp_message) is None:
                 continue
         else:
-            msg = [
+            errmsg = [
                 [("Unknown override_type “", "error"),
                  (f"{override_type}", "argument"),
                  ("“", "error")]
             ]
-
-            unformatted_msg, formatted_msg = ANSIThemeStr.format_error_msg(msg)
-
-            raise ProgrammingError(unformatted_msg,
-                                   severity=LogLevel.ERR, formatted_msg=formatted_msg)
+            unformatted_msg, formatted_msg = ANSIThemeStr.format_error_msg(errmsg)
+            cmtlog.log(LogLevel.ERR, msg=unformatted_msg, messages=formatted_msg)
+            continue
 
         severity = override_loglevel
 
@@ -1854,7 +1800,7 @@ def expand_event_objectmeta(message: str, severity: LogLevel, **kwargs: Any) \
 
 # pylint: disable-next=too-many-locals,too-many-branches,too-many-statements
 def expand_event(message: str, severity: LogLevel, **kwargs: Any) \
-        -> tuple[LogLevel, str, list[tuple[list[ThemeRef | ThemeStr], LogLevel]]]:
+        -> tuple[LogLevel, str, list[tuple[list[ThemeRef | ThemeStr], LogLevel]] | None]:
     """
     Given a log message, expand and format event messages.
 
@@ -1899,7 +1845,7 @@ def expand_event(message: str, severity: LogLevel, **kwargs: Any) \
             if curlydepth < 0:
                 # Abort parsing; assume that this message is either malformed
                 # or that the parser is flawed
-                return message, remnants
+                return severity, message, remnants
             refend = i
         elif message[i] == ")":
             parendepth -= 1
@@ -1907,7 +1853,7 @@ def expand_event(message: str, severity: LogLevel, **kwargs: Any) \
                 if curlydepth:
                     # Abort parsing; assume that this message is either malformed
                     # or that the parser is flawed
-                    return message, remnants
+                    return severity, message, remnants
 
                 eventend = i
                 break
@@ -2002,7 +1948,7 @@ def format_key_value(key: str, value: str,
     return tmp
 
 
-def sysctl(message: str, **kwargs: Any) -> tuple[str, LogLevel, list[ThemeRef | ThemeStr],
+def sysctl(message: str, **kwargs: Any) -> tuple[str, LogLevel, str | list[ThemeRef | ThemeStr],
                                                  list[tuple[list[ThemeRef | ThemeStr],
                                                             LogLevel]]]:
     """
@@ -2029,15 +1975,16 @@ def sysctl(message: str, **kwargs: Any) -> tuple[str, LogLevel, list[ThemeRef | 
     new_message: list[ThemeRef | ThemeStr] = []
 
     kv = message.split(" = ")
-    if len(kv) == 2:
-        key, value = kv
-        keyparts = key.split(".")
-        for i, part in enumerate(keyparts):
-            new_message.append(ThemeStr(part, ThemeAttr("types", "key")))
-            if i < len(keyparts) - 1:
-                new_message.append(ThemeRef("separators", "sysctl_key_components"))
-        new_message.append(ThemeRef("separators", "sysctl_keyvalue"))
-        new_message.append(ThemeStr(value, ThemeAttr("types", "value")))
+    if len(kv) != 2:
+        return facility, severity, message, remnants
+    key, value = kv
+    keyparts = key.split(".")
+    for i, part in enumerate(keyparts):
+        new_message.append(ThemeStr(part, ThemeAttr("types", "key")))
+        if i < len(keyparts) - 1:
+            new_message.append(ThemeRef("separators", "sysctl_key_components"))
+    new_message.append(ThemeRef("separators", "sysctl_keyvalue"))
+    new_message.append(ThemeStr(value, ThemeAttr("types", "value")))
     return facility, severity, new_message, remnants
 
 
@@ -2187,11 +2134,12 @@ def key_value(message: str, **kwargs: Any) -> tuple[str, LogLevel, str,
                 and "version" in d \
                 and version.startswith("(version="):
             message, severity = \
-                custom_override_severity(msg, severity,
-                                         overrides={
-                                             "options": {
-                                                 "overrides": severity_overrides,
-                                             }})
+                cast(tuple[str, LogLevel],
+                     custom_override_severity(msg, severity,
+                                              overrides={
+                                                  "options": {
+                                                      "overrides": severity_overrides,
+                                                  }}))
             message = f"{msg} {version}"
         elif "err" in d \
                 and ("errors occurred:" in d["err"] or "error occurred:" in d["err"]) \
@@ -2452,35 +2400,6 @@ def modinfo(message: str, **kwargs: Any) \
     return facility, severity, message, remnants
 
 
-# pylint: disable-next=unused-argument
-def bracketed_timestamp_severity(message: str, **kwargs: Any) \
-        -> tuple[str, LogLevel, str, list[tuple[list[ThemeRef | ThemeStr], LogLevel]]]:
-    """
-    Split a message of the type [timestamp] [severity] message.
-
-        Parameters:
-            message (str): The log message
-            **kwargs (dict[str, Any]): Keyword arguments
-        Returns:
-            (str, LogLevel, str, [(ThemeArray, LogLevel)]):
-                (str): The extracted facility [unused]
-                (str): The processed message
-                remnants (list[(themearray, LogLevel)]): Remnants with message preprended [unused]
-    """
-    facility: str = ""
-    severity: LogLevel = LogLevel.INFO
-    remnants: list[tuple[list[ThemeRef | ThemeStr], LogLevel]] = []
-
-    # Some messages have double timestamps...
-    message, _timestamp = split_iso_timestamp(message, none_timestamp())
-    message, severity = split_bracketed_severity(message, default=LogLevel.WARNING)
-
-    if message.startswith(("XPU Manager:", "Build:", "Level Zero:")):
-        severity = LogLevel.NOTICE
-
-    return facility, severity, message, remnants
-
-
 # pylint: disable-next=too-many-locals,too-many-branches,too-many-statements
 def directory(message: str,
               **kwargs: Any) -> tuple[str, LogLevel,
@@ -2636,7 +2555,17 @@ def directory(message: str,
                     ThemeStr(f"{re_tmp[3]}", ThemeAttr("types", "dir_dir")),
                 ]
             else:
-                raise ValueError(f"Unhandled suffix {suffix} in line {message}")
+                errmsg = [
+                    [("Unhandled suffix ", "default"),
+                     (f"{suffix}", "argument"),
+                     (f" in line {message}.", "default")],
+                ]
+                unformatted_msg, formatted_msg = ANSIThemeStr.format_error_msg(errmsg)
+                cmtlog.log(LogLevel.ERR, msg=unformatted_msg, messages=formatted_msg)
+
+                _message += [
+                    ThemeStr(f"{re_tmp[3]}", ThemeAttr("types", "dir_file")),
+                ]
     # pipe
     elif etype == "p":
         _message += [
@@ -4094,12 +4023,7 @@ def parsing_multiplexer(message: str | list[ThemeRef | ThemeStr],
             # Timestamp formats
             elif _filter == "ts_8601":  # Anything that resembles ISO-8601 / RFC 3339
                 message = strip_iso_timestamp(message)
-            # Facility formats
-            elif _filter == "colon_facility":
-                message, facility = split_colon_facility(message, facility)
             # Severity formats
-            elif _filter == "colon_severity":
-                message, severity = split_colon_severity(message, default=severity)
             elif _filter == "bracketed_severity":
                 message, severity = split_bracketed_severity(message, default=filter_options)
             # Filters
@@ -4351,8 +4275,6 @@ def init_parser_list(force_reinit: bool = False) -> None:
                     rule_name = deep_get(rule, DictPath("name"))
                     if rule_name in ("ansible_line",
                                      "bracketed_severity",
-                                     "colon_facility",
-                                     "colon_severity",
                                      "custom_line",
                                      "custom_splitter",
                                      "diff_line",
@@ -4405,9 +4327,17 @@ def init_parser_list(force_reinit: bool = False) -> None:
                             _loglevel = deep_get(override, DictPath("loglevel"))
 
                             if matchtype is None or matchkey is None or _loglevel is None:
-                                raise ValueError("Incorrect override rule in Parser "
-                                                 f"{parser_file}; every override must define "
-                                                 "matchtype, matchkey, and loglevel")
+                                errmsg = [
+                                    [("Incorrect override rule in Parser ", "default"),
+                                     (f"{parser_file}", "argument"),
+                                     ("; every override must define ", "default"),
+                                     ("matchtype, matchkey, and loglevel", "default")],
+                                ]
+                                unformatted_msg, formatted_msg = \
+                                    ANSIThemeStr.format_error_msg(errmsg)
+                                cmtlog.log(LogLevel.ERR,
+                                           msg=unformatted_msg, messages=formatted_msg)
+                                continue
 
                             if matchtype == "regex":
                                 regex = deep_get(override, DictPath("matchkey"), "")

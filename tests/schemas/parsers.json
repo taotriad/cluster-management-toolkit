@@ -139,7 +139,6 @@
                             "properties": {
                                 "name": {
                                     "enum": [
-                                        "colon_facility",
                                         "directory",
                                         "expand_event",
                                         "glog",

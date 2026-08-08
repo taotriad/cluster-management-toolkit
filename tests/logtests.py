@@ -254,15 +254,16 @@ def test_severity_to_string(verbose: bool = False) -> tuple[str, bool]:
         # Indata format:
         # (lvl, severity_format, default, expected_result, expected_exception)
         testdata: tuple[Any, ...] = (
-            (LogLevel.CRIT, "full", LogLevel.INFO, "critical", None),
-            (LogLevel.CRIT, "Full", LogLevel.INFO, "Critical", None),
-            (LogLevel.CRIT, "FULL", LogLevel.INFO, "CRITICAL", None),
-            (LogLevel.CRIT, "4letter", LogLevel.INFO, "crit", None),
-            (LogLevel.CRIT, "4Letter", LogLevel.INFO, "Crit", None),
-            (LogLevel.CRIT, "4LETTER", LogLevel.INFO, "CRIT", None),
-            (LogLevel.CRIT, "letter", LogLevel.INFO, "c", None),
-            (LogLevel.CRIT, "Letter", LogLevel.INFO, "C", None),
-            (LogLevel.CRIT, "LETTER", LogLevel.INFO, "C", None),
+            (LogLevel.CRIT, "full", "info", "critical", None),
+            (LogLevel.CRIT, "Full", "Info", "Critical", None),
+            (LogLevel.CRIT, "FULL", "INFO", "CRITICAL", None),
+            (LogLevel.CRIT, "4letter", "info", "crit", None),
+            (LogLevel.CRIT, "4Letter", "Info", "Crit", None),
+            (LogLevel.CRIT, "4LETTER", "INFO", "CRIT", None),
+            (LogLevel.CRIT, "letter", "info", "c", None),
+            (LogLevel.CRIT, "Letter", "Info", "C", None),
+            (LogLevel.CRIT, "LETTER", "INFO", "C", None),
+            (LogLevel.CRIT, "foobar", "info", "info", None),
         )
         for lvl, severity_format, default, expected_result, expected_exception in testdata:
             try:
@@ -567,6 +568,22 @@ def test_custom_override_severity(verbose: bool = False) -> tuple[str, bool]:
                     },
                 },
                 ('Warning', LogLevel.WARNING),
+                None,
+            ),
+            (
+                'Warning', LogLevel.INFO,
+                {
+                    "options": {
+                        "overrides": [
+                            {
+                                "matchtype": "foobar",
+                                "matchkey": re.compile(".*rn"),
+                                "loglevel": "warning",
+                            },
+                        ],
+                    },
+                },
+                ('Warning', LogLevel.INFO),
                 None,
             ),
         )
@@ -1533,6 +1550,67 @@ def test_split_json_style_raw(verbose: bool = False) -> tuple[str, bool]:
 
 
 # pylint: disable-next=unused-argument
+def test_sysctl(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = logparsers.sysctl
+
+    if result:
+        # (message, options, expected_result, expected_exception)
+        testdata: tuple[Any, ...] = (
+            (
+                "user.max_cgroup_namespaces = 125778",
+                {},
+                ("", LogLevel.INFO,
+                 [ThemeStr("user", ThemeAttr("types", "key")),
+                  ThemeRef("separators", "sysctl_key_components"),
+                  ThemeStr("max_cgroup_namespaces", ThemeAttr("types", "key")),
+                  ThemeRef("separators", "sysctl_keyvalue"),
+                  ThemeStr("125778", ThemeAttr("types", "value"))], []), None),
+            (
+                "foo = bar = baz",
+                {
+                    "facility": "testfac",
+                    "severity": LogLevel.WARNING,
+                },
+                ("testfac", LogLevel.WARNING, "foo = bar = baz", []), None),
+        )
+
+        for indata, kwargs, expected_result, expected_exception in testdata:
+            try:
+                tmp = fun(indata, **kwargs)
+                if tmp != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"          input: {indata}\n" \
+                              f"         kwargs: {kwargs}\n" \
+                              f"         output: {tmp}\n" \
+                              f"       expected: {expected_result}\n"
+                    result = False
+            except Exception as e:  # pylint: disable=broad-except
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  f"          input: {indata}\n" \
+                                  f"         kwargs: {kwargs}\n" \
+                                  f"      exception: {type(e)}\n" \
+                                  f"       expected: {expected_exception}"
+                        result = False
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"          input:\n" \
+                              f"         kwargs: {kwargs}\n" \
+                              f"{indata}" \
+                              f"      exception: {type(e)}\n" \
+                              f"       expected: {expected_result}\n"
+                    result = False
+
+    return message, result
+
+
+# pylint: disable-next=unused-argument
 def test_modinfo(verbose: bool = False) -> tuple[str, bool]:
     message = ""
     result = True
@@ -1612,6 +1690,12 @@ def test_directory(verbose: bool = False) -> tuple[str, bool]:
 
     if result:
         testdata: tuple[Any, ...] = (
+            ("./testdir:",
+             LogLevel.INFO, "",
+             ("", LogLevel.INFO, "./testdir:", []), None),
+            ("total 8",
+             LogLevel.INFO, "",
+             ("", LogLevel.INFO, "total 8", []), None),
             ('drwx------  13 root root        4096 Mar 13 02:22 ./',
              LogLevel.INFO, "",
              ("", LogLevel.INFO,
@@ -2443,6 +2527,10 @@ tests: dict[tuple[str, ...], dict[str, Any]] = {
     },
     ("split_json_style_raw",): {
         "callable": test_split_json_style_raw,
+        "result": None,
+    },
+    ("sysctl",): {
+        "callable": test_sysctl,
         "result": None,
     },
     ("modinfo",): {
