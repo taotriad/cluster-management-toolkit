@@ -2319,8 +2319,6 @@ def key_value_with_leading_message(message: str, **kwargs: Any) -> \
             facility, severity, new_message, remnants = \
                 key_value(message, fold_msg=fold_msg, severity=severity,
                           facility=facility, options=options)
-            if not isinstance(new_message, str):
-                new_message = themearray_to_string(new_message)
             return facility, severity, new_message, remnants
 
         for item in tmp[1:]:
