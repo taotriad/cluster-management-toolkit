@@ -595,7 +595,7 @@ def format_uri(items: str | list[str],
             # Split the server address from the rest.
             urisplit = rest.split("/", maxsplit=1)
             authority = urisplit[0]
-            uripath = []
+            uripath: list[ThemeRef | ThemeStr] = []
             if len(urisplit) == 2:
                 # We have a path too; split and rejoin it with formatting.
                 uripathsplit = urisplit[1].split("/")
