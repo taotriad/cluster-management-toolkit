@@ -78,9 +78,7 @@ listview:
       header: "Version:"
       path: "spec#version"
       type: "str"
-      formatting:
-        field_colors:
-          - type: "version"
+      formatter: "version"
 infoview:
   name: "Enterprise Search Info"
   infopad:
@@ -199,9 +197,7 @@ infoview:
         header: [["Version:", ["main", "infoheader"]]]
         path: "spec#version"
         type: "str"
-        formatting:
-          field_colors:
-            - type: "version"
+        formatter: "version"
   {%- for line in listpad_pod_status_selector.split("\n") %}
   {{ line }}
   {%- endfor %}

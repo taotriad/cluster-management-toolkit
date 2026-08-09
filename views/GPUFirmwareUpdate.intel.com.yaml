@@ -107,6 +107,9 @@ infoview:
             - type: "version"
           field_separators:
             - type: "version"
+          field_formatters:
+            - ""
+            - "version"
       device_id:
         header: [["PCI Device ID:", ["main", "infoheader"]]]
         path: "spec#pciDeviceID"
@@ -224,6 +227,9 @@ infoview:
             - type: "version"
           field_separators:
             - type: "version"
+          field_formatters:
+            - ""
+            - "version"
       update_taint:
         header: [["Update Taint:", ["main", "infoheader"]]]
         path: "spec#updateTaint"

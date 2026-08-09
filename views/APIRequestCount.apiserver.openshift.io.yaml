@@ -17,9 +17,7 @@ listview:
       header: "Planned Removal:"
       path: "status#removedInRelease"
       type: "str"
-      formatting:
-        field_colors:
-          - type: "version"
+      formatter: "version"
     requests_last_hour:
       header: "Requests (Last Hour):"
       path: "status#currentHour#requestCount"
@@ -45,9 +43,7 @@ infoview:
         header: [["Planned Removal:", ["main", "infoheader"]]]
         path: "status#removedInRelease"
         type: "str"
-        formatting:
-          field_colors:
-            - type: "version"
+        formatter: "version"
       requests_last_hour:
         header: [["Requests (Last Hour):", ["main", "infoheader"]]]
         path: "status#currentHour#requestCount"

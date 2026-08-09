@@ -293,48 +293,9 @@ infoview:
                  "last_restart"]
         sortcolumn: "pod_status"
     fields:
-      containers:
-        header: "Containers:"
-        paths:
-          - paths:
-              - "spec#initContainers"
-              - "spec#containers"
-            pathtype: "items"
-            subpaths:
-              - "name"
-              - subpath: "image"
-                regex: ["^.+/[^:^/]+:(.+?)@.*", "^.+/[^:^/]+:(.+)"]
-            type: "raw"
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "generic"
-            - type: "version"
-          field_separators:
-            - type: "version"
-      controller:
-        header: "Controller:"
-        paths:
-          - path: "metadata#ownerReferences"
-            pathtype: "items"
-            subpaths:
-              - "kind"
-              - "apiVersion"
-              - "name"
-            when:
-              - key: "controller"
-                eq: true
-            type: ["kind", "api_group", "name"]
-            default: ["<none>"]
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "kind"
-            - type: "api_group"
-            - type: "generic"
-          field_separators:
-            - type: "kind_api_group"
-            - type: "kind"
+      {%- for line in containers.split("\n") %}
+      {{ line }}
+      {%- endfor %}
       last_restart:
         header: "Latest Restart:"
         paths:

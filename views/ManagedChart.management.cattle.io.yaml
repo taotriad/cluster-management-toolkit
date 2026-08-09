@@ -105,9 +105,7 @@ infoview:
         header: [["Version:", ["main", "infoheader"]]]
         path: "spec#version"
         type: "str"
-        formatting:
-          field_colors:
-            - type: "version"
+        formatter: "version"
   listpad:
     listgetter: "listgetter_path"
     listgetter_args:

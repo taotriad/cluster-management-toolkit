@@ -86,10 +86,7 @@ listview:
             - key: "state"
               eq: "Completed"
       type: "raw"
-      formatter: "list"
-      formatting:
-        field_colors:
-          - type: "version"
+      formatter: "version"
 infoview:
   name: "Cluster Version Info"
   infopad:
@@ -133,9 +130,7 @@ infoview:
         header: [["  Version:", ["main", "infoheader"]]]
         path: "status#desired#version"
         type: "str"
-        formatting:
-          field_colors:
-            - type: "version"
+        formatter: "version"
   listpad:
     on_activation:
       call: "resourceinfodispatch_with_lookup"

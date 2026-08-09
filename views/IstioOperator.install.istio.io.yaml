@@ -17,9 +17,7 @@ listview:
       header: "Revision:"
       path: "spec#revision"
       type: "str"
-      formatting:
-        field_colors:
-          - type: "version"
+      formatter: "version"
     status:
       header: "Status:"
       path: "status#status"
@@ -230,9 +228,7 @@ infoview:
         header: [["Tag:", ["main", "infoheader"]]]
         path: "spec#tag"
         type: "str"
-        formatting:
-          field_colors:
-            - type: "version"
+        formatter: "version"
   shortcuts:
     "Show egress gateways":
       key: "e"

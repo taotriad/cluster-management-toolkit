@@ -37,6 +37,9 @@ infoview:
             - type: "version"
           field_separators:
             - type: "version"
+          field_formatters:
+            - ""
+            - "version"
   listpad:
     listgetter: "listgetter_path"
     listgetter_args:

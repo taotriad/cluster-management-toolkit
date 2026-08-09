@@ -46,9 +46,7 @@ infoview:
         header: [["Data Engine:", ["main", "infoheader"]]]
         path: "spec#dataEngine"
         type: "str"
-        formatting:
-          field_colors:
-            - type: "version"
+        formatter: "version"
       image:
         header: [["Image:", ["main", "infoheader"]]]
         paths:
@@ -62,6 +60,9 @@ infoview:
             - type: "version"
           field_separators:
             - type: "version"
+          field_formatters:
+            - ""
+            - "version"
       ip_address:
         header: [["IP-address:", ["main", "infoheader"]]]
         path: "status#ip"

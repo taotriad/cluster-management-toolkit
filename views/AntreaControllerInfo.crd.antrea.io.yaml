@@ -59,9 +59,7 @@ listview:
       header: "Version:"
       path: "version"
       type: "str"
-      formatting:
-        field_colors:
-          - type: "version"
+      formatter: "version"
 infoview:
   name: "Antrea Controller Info"
   infopad:
@@ -108,9 +106,7 @@ infoview:
         header: [["Version:", ["main", "infoheader"]]]
         path: "version"
         type: "str"
-        formatting:
-          field_colors:
-            - type: "version"
+        formatter: "version"
   shortcuts:
     "Network Policy Controller":
       key: "c"

@@ -87,6 +87,9 @@ infoview:
             - type: "version"
           field_separators:
             - type: "version"
+          field_formatters:
+            - ""
+            - "version"
       status_available_upstream:
         header: [["  Available Upstream:", ["main", "infoheader"]]]
         path: "status#availableUpstream"

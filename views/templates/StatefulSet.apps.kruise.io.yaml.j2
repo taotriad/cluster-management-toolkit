@@ -18,23 +18,9 @@ listview:
                "ready_replicas", "uptodate_replicas", "age"]
       sortcolumn: "namespace"
   fields:
-    containers:
-      header: "Containers:"
-      paths:
-        - paths:
-            - "spec#template#spec#initContainers"
-            - "spec#template#spec#containers"
-          pathtype: "items"
-          subpaths:
-            - "name"
-          type: "raw"
-      formatter: "list"
-      formatting:
-        field_colors:
-          - type: "generic"
-          - type: "version"
-        field_separators:
-          - type: "version"
+    {%- for line in containers.split("\n") %}
+    {{ line }}
+    {%- endfor %}
     current_replicas:
       header: "Current:"
       paths:
@@ -108,6 +94,10 @@ listview:
           - type: "field"
           - type: "field"
           - type: "version"
+        field_formatters:
+          - ""
+          - ""
+          - "version"
     uptodate_replicas:
       header: "Up to Date:"
       paths:

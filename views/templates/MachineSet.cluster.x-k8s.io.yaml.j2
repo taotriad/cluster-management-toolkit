@@ -48,9 +48,7 @@ listview:
       header: "Version:"
       path: "spec#template#spec#version"
       type: "str"
-      formatting:
-        field_colors:
-          - type: "version"
+      formatter: "version"
 infoview:
   name: "Machine Set Info"
   infopad:
@@ -162,9 +160,7 @@ infoview:
         header: [["  Version:", ["main", "infoheader"]]]
         path: "spec#template#spec#version"
         type: "str"
-        formatting:
-          field_colors:
-            - type: "version"
+        formatter: "version"
   listpad:
     listgetter: "generic_listgetter"
     listgetter_args:

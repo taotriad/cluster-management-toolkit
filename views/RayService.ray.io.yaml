@@ -160,9 +160,7 @@ infoview:
         header: [["    Ray Version:", ["main", "infoheader"]]]
         path: "spec#rayClusterConfig#rayVersion"
         type: "str"
-        formatting:
-          field_colors:
-            - type: "version"
+        formatter: "version"
   listpad:
     on_activation:
       call: "resourceinfodispatch"

@@ -16,9 +16,7 @@ listview:
       header: "Benchmark Version:"
       path: "spec#benchmarkVersion"
       type: "str"
-      formatting:
-        field_colors:
-          - type: "version"
+      formatter: "version"
     last_run:
       header: "Last Run:"
       paths:

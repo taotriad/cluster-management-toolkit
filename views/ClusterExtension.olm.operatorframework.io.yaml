@@ -57,9 +57,7 @@ listview:
       header: "Version:"
       path: "status#install#bundle#version"
       type: "str"
-      formatting:
-        field_colors:
-          - type: "version"
+      formatter: "version"
 infoview:
   name: "Cluster Extension Info"
   infopad:
@@ -128,9 +126,7 @@ infoview:
         header: [["Version:", ["main", "infoheader"]]]
         path: "status#install#bundle#version"
         type: "str"
-        formatting:
-          field_colors:
-            - type: "version"
+        formatter: "version"
   shortcuts:
     "Open install namespace":
       key: "n"

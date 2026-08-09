@@ -88,6 +88,9 @@ infoview:
             - type: "version"
           field_separators:
             - type: "version"
+          field_formatters:
+            - ""
+            - "version"
       init_image:
         header: [["Init Image:", ["main", "infoheader"]]]
         paths:
@@ -102,6 +105,9 @@ infoview:
             - type: "version"
           field_separators:
             - type: "version"
+          field_formatters:
+            - ""
+            - "version"
       loglevel:
         header: [["Loglevel:", ["main", "infoheader"]]]
         path: "spec#logLevel"

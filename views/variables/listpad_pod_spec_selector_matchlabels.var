@@ -3,6 +3,7 @@ listpad:
   listgetter_args:
     _kind: "Pod"
     _label_selector_path: "spec#selector#matchLabels"
+    _none_on_empty_selector: true
   infogetter: "generic_infogetter"
   on_activation:
     call: "resourceinfodispatch"
@@ -40,6 +41,9 @@ listpad:
           - type: "version"
         field_separators:
           - type: "version"
+        field_formatters:
+          - ""
+          - "version"
     last_restart:
       header: "Latest Restart:"
       paths:

@@ -42,13 +42,14 @@ listview:
           - type: "version"
         field_separators:
           - type: "version"
+        field_formatters:
+          - ""
+          - "version"
     tag:
       header: "Tag:"
       path: "report#artifact#tag"
       type: "str"
-      formatting:
-        field_colors:
-          - type: "version"
+      formatter: "version"
 infoview:
   name: "Cluster SBOM Report Info"
   infopad:
@@ -70,6 +71,9 @@ infoview:
             - type: "version"
           field_separators:
             - type: "version"
+          field_formatters:
+            - ""
+            - "version"
       digest:
         header: [["Digest:", ["main", "infoheader"]]]
         path: "report#artifact#digest"
@@ -90,13 +94,14 @@ infoview:
             - type: "version"
           field_separators:
             - type: "version"
+          field_formatters:
+            - ""
+            - "version"
       tag:
         header: [["Tag:", ["main", "infoheader"]]]
         path: "report#artifact#tag"
         type: "str"
-        formatting:
-          field_colors:
-            - type: "version"
+        formatter: "version"
       vendor:
         header: [["Vendor:", ["main", "infoheader"]]]
         path: "report#scanner#vendor"
@@ -146,6 +151,4 @@ infoview:
         header: "Version:"
         path: "version"
         type: "str"
-        formatting:
-          field_colors:
-            - type: "version"
+        formatter: "version"

@@ -51,10 +51,7 @@ listview:
       header: "Versions:"
       path: "status#storedVersions"
       type: "raw"
-      formatter: "list"
-      formatting:
-        field_colors:
-          - type: "version"
+      formatter: "version"
   actions:
     actionlist:
       "Delete resource":
@@ -129,10 +126,7 @@ infoview:
         header: [["Stored Versions:", ["main", "infoheader"]]]
         path: "status#storedVersions"
         type: "raw"
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "version"
+        formatter: "version"
   shortcuts:
     {%- for line in shortcut_controller.split("\n") %}
     {{ line }}

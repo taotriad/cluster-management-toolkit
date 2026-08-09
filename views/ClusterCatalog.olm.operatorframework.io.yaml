@@ -97,6 +97,9 @@ infoview:
             - type: "version"
           field_separators:
             - type: "version"
+          field_formatters:
+            - ""
+            - "version"
       source_image_poll_interval:
         header: [["  Image Poll Interval:", ["main", "infoheader"]]]
         path: "spec#source#image#pollIntervalMinutes"
@@ -118,6 +121,9 @@ infoview:
             - type: "version"
           field_separators:
             - type: "version"
+          field_formatters:
+            - ""
+            - "version"
       source_resolved_type:
         header: [["  Resolved Type:", ["main", "infoheader"]]]
         path: "status#resolvedSource#type"

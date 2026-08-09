@@ -118,14 +118,15 @@ infoview:
             - type: "version"
           field_separators:
             - type: "version"
+          field_formatters:
+            - ""
+            - "version"
       ceph_version_version:
         header: [["  Version:", ["main", "infoheader"]]]
         path: "status#version#version"
         default: "<unset>"
         type: "str"
-        formatting:
-          field_colors:
-            - type: "version"
+        formatter: "version"
       datadir_hostpath:
         header: [["Datadir Hostpath:", ["main", "infoheader"]]]
         path: "spec#dataDirHostPath"

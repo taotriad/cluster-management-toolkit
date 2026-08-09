@@ -127,6 +127,9 @@ infoview:
             - type: "version"
           field_separators:
             - type: "version"
+          field_formatters:
+            - ""
+            - "version"
       manager_ip:
         header: [["Manager IP:", ["main", "infoheader"]]]
         path: "status#managerIP"

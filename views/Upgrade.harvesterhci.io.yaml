@@ -52,17 +52,13 @@ listview:
       path: "status#previousVersion"
       default: "<unset>"
       type: "str"
-      formatting:
-        field_colors:
-          - type: "version"
+      formatter: "version"
     version:
       header: "Version:"
       path: "spec#version"
       default: "<unset>"
       type: "str"
-      formatting:
-        field_colors:
-          - type: "version"
+      formatter: "version"
 infoview:
   name: "Upgrade Info"
   infopad:
@@ -102,17 +98,13 @@ infoview:
         path: "status#previousVersion"
         default: "<unset>"
         type: "str"
-        formatting:
-          field_colors:
-            - type: "version"
+        formatter: "version"
       version:
         header: [["Version:", ["main", "infoheader"]]]
         path: "spec#version"
         default: "<unset>"
         type: "str"
-        formatting:
-          field_colors:
-            - type: "version"
+        formatter: "version"
   logpad:
     infogetter: "logpad_formatted"
     infogetter_args:

@@ -187,9 +187,7 @@ infoview:
         path: "appVersion"
         default: "<unset>"
         type: "str"
-        formatting:
-          field_colors:
-            - type: "version"
+        formatter: "version"
       chart:
         header: "Chart:"
         path: "chartName"
@@ -200,9 +198,7 @@ infoview:
         path: "chartVersion"
         default: "<unset>"
         type: "str"
-        formatting:
-          field_colors:
-            - type: "version"
+        formatter: "version"
       name:
         header: "Name:"
         path: "name"

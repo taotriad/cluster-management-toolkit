@@ -27,6 +27,9 @@ listview:
           - type: "version"
         field_separators:
           - type: "version"
+        field_formatters:
+          - ""
+          - "version"
     restarts:
       header: "Restarts:"
       path: "status#restarts"

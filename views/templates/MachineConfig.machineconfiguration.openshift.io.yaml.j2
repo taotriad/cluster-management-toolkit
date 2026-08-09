@@ -24,9 +24,7 @@ listview:
       header: "Ignition Version:"
       path: "spec#config#ignition#version"
       type: "str"
-      formatting:
-        field_colors:
-          - type: "version"
+      formatter: "version"
 infoview:
   name: "Machine Config Info"
   infopad:
@@ -80,9 +78,7 @@ infoview:
         header: [["Ignition Version:", ["main", "infoheader"]]]
         path: "spec#config#ignition#version"
         type: "str"
-        formatting:
-          field_colors:
-            - type: "version"
+        formatter: "version"
       kernel_arguments:
         header: [["Kernel Arguments:", ["main", "infoheader"]]]
         path: "spec#kernelArguments"

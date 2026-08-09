@@ -36,9 +36,7 @@ listview:
       header: "Release Version:"
       path: "spec#version"
       type: "str"
-      formatting:
-        field_colors:
-          - type: "version"
+      formatter: "version"
     status:
       header: "Status:"
       path: "spec#info#status"
@@ -60,9 +58,7 @@ listview:
       header: "Version:"
       path: "spec#chart#metadata#version"
       type: "str"
-      formatting:
-        field_colors:
-          - type: "version"
+      formatter: "version"
 infoview:
   name: "App Info"
   infopad:
@@ -90,9 +86,7 @@ infoview:
         header: [["Release Version:", ["main", "infoheader"]]]
         path: "spec#version"
         type: "str"
-        formatting:
-          field_colors:
-            - type: "version"
+        formatter: "version"
       status:
         header: [["Status:", ["main", "infoheader"]]]
         path: "spec#info#status"
@@ -113,9 +107,7 @@ infoview:
         header: [["Version:", ["main", "infoheader"]]]
         path: "spec#chart#metadata#version"
         type: "str"
-        formatting:
-          field_colors:
-            - type: "version"
+        formatter: "version"
   logpad:
     infogetter: "logpad_formatted"
     infogetter_args:

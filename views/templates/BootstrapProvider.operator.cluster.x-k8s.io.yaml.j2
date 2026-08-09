@@ -21,9 +21,7 @@ listview:
       header: "Installed Version:"
       path: "status#installedVersion"
       type: "str"
-      formatting:
-        field_colors:
-          - type: "version"
+      formatter: "version"
 infoview:
   name: "Bootstrap Provider Info"
   infopad:
@@ -38,13 +36,9 @@ infoview:
         header: [["Contract:", ["main", "infoheader"]]]
         path: "status#contract"
         type: "str"
-        formatting:
-          field_colors:
-            - type: "version"
+        formatter: "version"
       installed_version:
         header: [["Installed Version:", ["main", "infoheader"]]]
         path: "status#installedVersion"
         type: "str"
-        formatting:
-          field_colors:
-            - type: "version"
+        formatter: "version"

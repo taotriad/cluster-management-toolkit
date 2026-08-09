@@ -65,6 +65,9 @@ infoview:
             - type: "version"
           field_separators:
             - type: "version"
+          field_formatters:
+            - ""
+            - "version"
       dotnet:
         header: [["  ", ["main", "infoheader"]],
                  ["D", ["main", "infoheader_shortcut"]],
@@ -80,6 +83,9 @@ infoview:
             - type: "version"
           field_separators:
             - type: "version"
+          field_formatters:
+            - ""
+            - "version"
       endpoint:
         header: [["Endpoint:", ["main", "infoheader"]]]
         paths:
@@ -109,6 +115,9 @@ infoview:
             - type: "version"
           field_separators:
             - type: "version"
+          field_formatters:
+            - ""
+            - "version"
       instrumentation_libraries_header:
         header: [["Instrumentation Libraries:", ["main", "infoheader"]]]
       java:
@@ -126,6 +135,9 @@ infoview:
             - type: "version"
           field_separators:
             - type: "version"
+          field_formatters:
+            - ""
+            - "version"
       nginx:
         header: [["  Ngin", ["main", "infoheader"]],
                  ["x", ["main", "infoheader_shortcut"]],
@@ -141,6 +153,9 @@ infoview:
             - type: "version"
           field_separators:
             - type: "version"
+          field_formatters:
+            - ""
+            - "version"
       nodejs:
         header: [["  NodeJ", ["main", "infoheader"]],
                  ["S", ["main", "infoheader_shortcut"]],
@@ -156,6 +171,9 @@ infoview:
             - type: "version"
           field_separators:
             - type: "version"
+          field_formatters:
+            - ""
+            - "version"
       propagators:
         header: [["P", ["main", "infoheader_shortcut"]],
                  ["ropagators:", ["main", "infoheader"]]]
@@ -178,6 +196,9 @@ infoview:
             - type: "version"
           field_separators:
             - type: "version"
+          field_formatters:
+            - ""
+            - "version"
       sampler_argument:
         header: [["  Argument:", ["main", "infoheader"]]]
         path: "spec#sampler#argument"

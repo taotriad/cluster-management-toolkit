@@ -48,6 +48,9 @@ infoview:
             - type: "version"
           field_separators:
             - type: "version"
+          field_formatters:
+            - ""
+            - "version"
       operand_pull_policy:
         header: [["  Image Pull Policy:", ["main", "infoheader"]]]
         path: "spec#operand#imagePullPolicy"

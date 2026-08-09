@@ -42,7 +42,7 @@ infoview:
     row_indexes:
       Normal:
         fields: ["controller", "value", "global_default",
-                 "preemption_policy", "description", "description2"]
+                 "preemption_policy", "description"]
     rows:
       {%- for line in row_controller.split("\n") %}
       {{ line }}
@@ -62,10 +62,10 @@ infoview:
         type: "int"
         formatter: "numerical"
       description:
-        header: [["Description:", ["main", "infoheader"]]]
-      description2:
-        header: [[" ", ["main", "infoheader"]]]
+        header: [["D", ["main", "infoheader_shortcut"]],
+                 ["escription:", ["main", "infoheader"]]]
         path: "description"
+        default: "<none>"
         type: "str"
   listpad:
     listgetter: "generic_listgetter"
@@ -99,25 +99,9 @@ infoview:
                  "restarts", "last_restart"]
         sortcolumn: "pod_status"
     fields:
-      containers:
-        header: "Containers:"
-        paths:
-          - paths:
-              - "spec#initContainers"
-              - "spec#containers"
-            pathtype: "items"
-            subpaths:
-              - "name"
-              - subpath: "image"
-                regex: ["^.+/[^:^/]+:(.+?)@.*", "^.+/[^:^/]+:(.+)"]
-            type: "raw"
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "generic"
-            - type: "version"
-          field_separators:
-            - type: "version"
+      {%- for line in containers.split("\n") %}
+      {{ line }}
+      {%- endfor %}
       {%- for line in field_controller.split("\n") %}
       {{ line }}
       {%- endfor %}
@@ -165,3 +149,14 @@ infoview:
     {%- for line in shortcut_controller.split("\n") %}
     {{ line }}
     {%- endfor %}
+    "Show Description":
+      key: "d"
+      modifier: "shift"
+      read_only: true
+      helptext: "Show description"
+      widget: "windowwidget"
+      widget_args:
+        title: "Description"
+        itemgetter: "get_strings_from_string"
+        itemgetter_args:
+          path: "description"

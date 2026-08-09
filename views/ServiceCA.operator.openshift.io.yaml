@@ -50,9 +50,7 @@ infoview:
         path: "status#version"
         default: "<unset>"
         type: "raw"
-        formatting:
-          field_colors:
-            - type: "version"
+        formatter: "version"
   shortcuts:
     "List generations":
       key: "g"

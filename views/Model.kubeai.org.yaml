@@ -62,6 +62,9 @@ listview:
           - type: "version"
         field_separators:
           - type: "version"
+        field_formatters:
+          - ""
+          - "version"
     ready_replicas:
       header: "Ready:"
       paths:
@@ -186,6 +189,9 @@ infoview:
             - type: "version"
           field_separators:
             - type: "version"
+          field_formatters:
+            - ""
+            - "version"
       replicas:
         header: [["Replicas:", ["main", "infoheader"]]]
         paths:

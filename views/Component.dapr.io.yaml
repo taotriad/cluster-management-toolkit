@@ -23,8 +23,7 @@ listview:
       header: "Version:"
       path: "spec#version"
       type: "int"
-      formatter: "numerical"
-      align: "right"
+      formatter: "version"
 infoview:
   name: "Component Info"
   infopad:
@@ -40,7 +39,7 @@ infoview:
         header: [["Version:", ["main", "infoheader"]]]
         path: "spec#version"
         type: "int"
-        formatter: "numerical"
+        formatter: "version"
   listpad:
     listgetter: "listgetter_path"
     listgetter_args:

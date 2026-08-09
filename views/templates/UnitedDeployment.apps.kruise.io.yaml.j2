@@ -1,0 +1,205 @@
+---
+kind: "UnitedDeployment"
+api_family: "apps.kruise.io"
+default_command: "uniteddeployments"
+command:
+  - "kruiseunideps"
+  - "kruiseunidep"
+listview:
+  name: "United Deployments"
+  group: "Kruise"
+  field_indexes:
+    Normal:
+      fields: ["namespace", "name", "desired_replicas", "current_replicas",
+               "ready_replicas", "uptodate_replicas", "age"]
+      sortcolumn: "namespace"
+  fields:
+    current_replicas:
+      header: "Current:"
+      paths:
+        - path: ["status#replicas", "spec#replicas"]
+          pathtype: "comparison"
+          default: [0, 0]
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          ranges:
+            - min: 0
+              max: 1
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+            - default: true
+              field_colors:
+                - context: "main"
+                  type: "status_not_ok"
+      align: "right"
+    desired_replicas:
+      header: "Desired:"
+      path: "spec#replicas"
+      default: 0
+      type: "int"
+      formatter: "numerical"
+      align: "right"
+    ready_replicas:
+      header: "Ready:"
+      paths:
+        - path: ["status#readyReplicas", "spec#replicas"]
+          pathtype: "comparison"
+          default: [0, 0]
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          ranges:
+            - min: 0
+              max: 1
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+            - min: -1
+              max: 0
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+            - default: true
+              field_colors:
+                - context: "main"
+                  type: "status_not_ok"
+      align: "right"
+    uptodate_replicas:
+      header: "Up to Date:"
+      paths:
+        - path: ["status#updatedReplicas", "spec#replicas"]
+          pathtype: "comparison"
+          default: [0, 0]
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          ranges:
+            - min: 0
+              max: 1
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+            - min: -1
+              max: 0
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+            - default: true
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+      align: "right"
+  actions:
+    actionlist:
+      "Delete resource":
+        description: "Delete resource"
+        category: "Resource Level"
+        confirm: true
+        actionfunc: "delete_resource"
+infoview:
+  name: "United Deployment Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["label_selector", "replicas", "update_strategy",
+                 "update_strategy_manual_update_partition"]
+    rows:
+      label_selector:
+        header: [["La", ["main", "infoheader"]],
+                 ["b", ["main", "infoheader_shortcut"]],
+                 ["el Selector:", ["main", "infoheader"]]]
+        paths:
+          - path: ["spec#selector#matchLabels"]
+            pathtype: "key_value"
+            default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "key"
+            - type: "value"
+          field_separators:
+            - type: "selector"
+      replicas:
+        header: [["Replicas:", ["main", "infoheader"]]]
+        paths:
+          - path: [["spec#replicas"], " Desired",
+                   ["status#replicas"], " Current",
+                   ["status#readyReplicas"], " Ready",
+                   ["status#updatedReplicas"], " Up to Date"]
+            pathtype: "tuple"
+            default: [0, "", 0, "", 0, "", 0, ""]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "numerical"
+            - type: "generic"
+            - type: "numerical"
+            - type: "generic"
+            - type: "numerical"
+            - type: "generic"
+            - type: "numerical"
+            - type: "generic"
+          field_separators:
+            - type: "no_pad"
+            - type: "fraction_spaced"
+            - type: "no_pad"
+            - type: "fraction_spaced"
+            - type: "no_pad"
+            - type: "fraction_spaced"
+            - type: "no_pad"
+      update_strategy:
+        header: [["Update Strategy:", ["main", "infoheader"]]]
+        path: "spec#updateStrategy#type"
+        type: "str"
+      update_strategy_manual_update_partition:
+        header: [["  Manual Update Partitions:", ["main", "infoheader"]]]
+        type: "raw"
+        paths:
+          - path: "spec#updateStrategy#manualUpdate#partitions"
+            pathtype: "key_value"
+            default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "key"
+            - type: "value"
+          field_separators:
+            - type: "keyvalue"
+  {%- for line in listpad_pod_spec_selector_matchlabels.split("\n") %}
+  {{ line }}
+  {%- endfor %}
+  shortcuts:
+    "Label Selector":
+      key: "b"
+      read_only: true
+      helptext: "Show label selector"
+      widget: "windowwidget"
+      widget_args:
+        title: "Label Selector:"
+        headers: ["Key:", "Value:"]
+        itemgetter: "get_key_value"
+        itemgetter_args:
+          path: "spec#selector#matchLabels"
+    "Pod template":
+      key: "t"
+      modifier: "shift"
+      read_only: true
+      helptext: "Show Pod template"
+      action: "call"
+      action_call: "view_yaml"
+      action_args:
+        title: "Pod template"
+        _pass_obj: true
+        path: "spec#template"
+    "Topology":
+      key: "t"
+      read_only: true
+      helptext: "Show topology"
+      action: "call"
+      action_call: "view_yaml"
+      action_args:
+        title: "Topolgy"
+        _pass_obj: true
+        path: "spec#topology"

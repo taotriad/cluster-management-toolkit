@@ -81,9 +81,7 @@ infoview:
         path: "image#dockerImageMetadataVersion"
         default: "<unset>"
         type: "str"
-        formatting:
-          field_colors:
-            - type: "version"
+        formatter: "version"
       reference_policy:
         header: [["Reference Policy:", ["main", "infoheader"]]]
         path: "tag#referencePolicy#type"
@@ -94,9 +92,7 @@ infoview:
         path: "spec#annotations#version"
         default: "<unset>"
         type: "str"
-        formatting:
-          field_colors:
-            - type: "version"
+        formatter: "version"
   shortcuts:
     "Docker Image Layers":
       key: "d"

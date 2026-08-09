@@ -63,6 +63,9 @@ listview:
           - type: "version"
         field_separators:
           - type: "version"
+        field_formatters:
+          - ""
+          - "version"
     message:
       header: "Message:"
       path: "status#message"
@@ -179,6 +182,9 @@ infoview:
             - type: "version"
           field_separators:
             - type: "version"
+          field_formatters:
+            - ""
+            - "version"
       message:
         header: [["Message:", ["main", "infoheader"]]]
         path: "status#message"

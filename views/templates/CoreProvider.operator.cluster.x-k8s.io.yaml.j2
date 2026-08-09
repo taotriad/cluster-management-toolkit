@@ -21,9 +21,7 @@ listview:
       header: "Installed Version:"
       path: "status#installedVersion"
       type: "str"
-      formatting:
-        field_colors:
-          - type: "version"
+      formatter: "version"
 infoview:
   name: "Core Provider Info"
   infopad:
@@ -39,9 +37,7 @@ infoview:
         header: [["Contract:", ["main", "infoheader"]]]
         path: "status#contract"
         type: "str"
-        formatting:
-          field_colors:
-            - type: "version"
+        formatter: "version"
       fetch_config:
         header: [["Fetch Config:", ["main", "infoheader"]]]
         paths:
@@ -59,9 +55,7 @@ infoview:
         header: [["Installed Version:", ["main", "infoheader"]]]
         path: "status#installedVersion"
         type: "str"
-        formatting:
-          field_colors:
-            - type: "version"
+        formatter: "version"
   shortcuts:
     "Podsets":
       key: "d"

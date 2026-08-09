@@ -46,6 +46,9 @@ infoview:
             - type: "version"
           field_separators:
             - type: "version"
+          field_formatters:
+            - ""
+            - "version"
       etcd_persistence_header:
         header: [["  Persistence:", ["main", "infoheader"]]]
       etcd_persistence_size:

@@ -88,6 +88,9 @@ infoview:
             - type: "version"
           field_separators:
             - type: "version"
+          field_formatters:
+            - ""
+            - "version"
       postgresql_header:
         header: [["PostgreSQL:", ["main", "infoheader"]]]
       postgresql_image:
@@ -104,13 +107,14 @@ infoview:
             - type: "version"
           field_separators:
             - type: "version"
+          field_formatters:
+            - ""
+            - "version"
       postgresql_major_version:
         header: [["  Major Version:", ["main", "infoheader"]]]
         path: "status#pgDataImageInfo#majorVersion"
         type: "str"
-        formatting:
-          field_colors:
-            - type: "version"
+        formatter: "version"
       selector:
         header: [["Selector:", ["main", "infoheader"]]]
         path: "status#selector"
@@ -208,25 +212,9 @@ infoview:
                  "restarts", "last_restart"]
         sortcolumn: "pod_status"
     fields:
-      containers:
-        header: "Containers:"
-        paths:
-          - paths:
-              - "spec#initContainers"
-              - "spec#containers"
-            pathtype: "items"
-            subpaths:
-              - "name"
-              - subpath: "image"
-                regex: ["^.+/[^:^/]+:(.+?)@.*", "^.+/[^:^/]+:(.+)"]
-            type: "raw"
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "generic"
-            - type: "version"
-          field_separators:
-            - type: "version"
+      {%- for line in containers.split("\n") %}
+      {{ line }}
+      {%- endfor %}
       last_restart:
         header: "Latest Restart:"
         paths:

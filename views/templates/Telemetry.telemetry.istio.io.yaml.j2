@@ -1,0 +1,70 @@
+---
+kind: "Telemetry"
+api_family: "telemetry.istio.io"
+default_command: "telemetries"
+listview:
+  name: "Telemetries"
+  group: "Istio"
+  field_indexes:
+    Normal:
+      fields: ["namespace", "name", "age"]
+      sortcolumn: "namespace"
+infoview:
+  name: "Telemetry Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["label_selector"]
+    rows:
+      label_selector:
+        header: [["Label Selector:", ["main", "infoheader"]]]
+        paths:
+          - path: ["spec#selector#matchLabels"]
+            pathtype: "key_value"
+            default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "key"
+            - type: "value"
+          field_separators:
+            - type: "selector"
+  {%- for line in listpad_pod_spec_selector_matchlabels.split("\n") %}
+  {{ line }}
+  {%- endfor %}
+  shortcuts:
+    "Show access logging rules":
+      key: "a"
+      modifier: "shift"
+      read_only: true
+      helptext: "Show access logging rules"
+      action: "call"
+      action_call: "view_yaml"
+      action_args:
+        title: "Access Logging Rules"
+        _pass_obj: true
+        path: "spec#accessLogging"
+        include_root: true
+    "Show metrics rules":
+      key: "m"
+      read_only: true
+      helptext: "Show metrics rules"
+      action: "call"
+      action_call: "view_yaml"
+      action_args:
+        title: "Metrics Rules"
+        _pass_obj: true
+        path: "spec#metrics"
+        include_root: true
+    "Show tracing rules":
+      key: "t"
+      modifier: "shift"
+      read_only: true
+      helptext: "Show tracing rules"
+      action: "call"
+      action_call: "view_yaml"
+      action_args:
+        title: "Tracing Rules"
+        _pass_obj: true
+        path: "spec#tracing"
+        include_root: true

@@ -75,9 +75,7 @@ listview:
       path: "spec#version"
       default: "<unset>"
       type: "str"
-      formatting:
-        field_colors:
-          - type: "version"
+      formatter: "version"
 infoview:
   name: "Machine Info"
   infopad:
@@ -316,9 +314,7 @@ infoview:
         path: "spec#version"
         default: "<unset>"
         type: "str"
-        formatting:
-          field_colors:
-            - type: "version"
+        formatter: "version"
   shortcuts:
     "Open Bootstrap":
       key: "o"

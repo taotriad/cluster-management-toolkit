@@ -67,9 +67,7 @@ listview:
       path: "status#kubernetesResources#version#version"
       default: "<unset>"
       type: "str"
-      formatting:
-        field_colors:
-          - type: "version"
+      formatter: "version"
     ready:
       header: "Ready:"
       path: "status#kubernetesResources#deployment#readyReplicas"
@@ -109,9 +107,7 @@ listview:
       path: "spec#kubernetes#version"
       default: "<unset>"
       type: "str"
-      formatting:
-        field_colors:
-          - type: "version"
+      formatter: "version"
 infoview:
   name: "Tenant Control Plane Info"
   infopad:
@@ -182,9 +178,7 @@ infoview:
         path: "status#kubernetesResources#version#version"
         default: "<unset>"
         type: "str"
-        formatting:
-          field_colors:
-            - type: "version"
+        formatter: "version"
       kubelet_header:
         header: [["Kubelet:", ["main", "infoheader"]]]
       kubelet_cgroupfs:
@@ -288,9 +282,7 @@ infoview:
         path: "spec#kubernetes#version"
         default: "<unset>"
         type: "str"
-        formatting:
-          field_colors:
-            - type: "version"
+        formatter: "version"
   listpad:
     listgetter: "generic_listgetter"
     listgetter_args:
@@ -315,25 +307,9 @@ infoview:
                  "restarts", "last_restart"]
         sortcolumn: "pod_status"
     fields:
-      containers:
-        header: "Containers:"
-        paths:
-          - paths:
-              - "spec#initContainers"
-              - "spec#containers"
-            pathtype: "items"
-            subpaths:
-              - "name"
-              - subpath: "image"
-                regex: ["^.+/[^:^/]+:(.+?)@.*", "^.+/[^:^/]+:(.+)"]
-            type: "raw"
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "generic"
-            - type: "version"
-          field_separators:
-            - type: "version"
+      {%- for line in containers.split("\n") %}
+      {{ line }}
+      {%- endfor %}
       last_restart:
         header: "Latest Restart:"
         paths:

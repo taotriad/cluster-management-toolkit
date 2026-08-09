@@ -116,16 +116,12 @@ infoview:
         header: [["Observed KubVirt Version:", ["main", "infoheader"]]]
         path: "status#observedKubeVirtVersion"
         type: "str"
-        formatting:
-          field_colors:
-            - type: "version"
+        formatter: "version"
       operator_version:
         header: [["Operator Version:", ["main", "infoheader"]]]
         path: "status#operatorVersion"
         type: "str"
-        formatting:
-          field_colors:
-            - type: "version"
+        formatter: "version"
       outdated_virtual_machine_instance_workloads:
         header: [["Outdated VMI Workloads:", ["main", "infoheader"]]]
         path: "status#outdatedVirtualMachineInstanceWorkloads"
@@ -169,9 +165,7 @@ infoview:
         header: [["Target KubVirt Version:", ["main", "infoheader"]]]
         path: "status#targetKubeVirtVersion"
         type: "str"
-        formatting:
-          field_colors:
-            - type: "version"
+        formatter: "version"
   shortcuts:
     {%- for line in shortcut_controller.split("\n") %}
     {{ line }}

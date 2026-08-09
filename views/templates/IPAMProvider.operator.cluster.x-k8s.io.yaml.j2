@@ -21,9 +21,7 @@ listview:
       header: "Installed Version:"
       path: "status#installedVersion"
       type: "str"
-      formatting:
-        field_colors:
-          - type: "version"
+      formatter: "version"
 infoview:
   name: "IPAM Provider Info"
   infopad:
@@ -52,6 +50,4 @@ infoview:
         header: [["Installed Version:", ["main", "infoheader"]]]
         path: "status#installedVersion"
         type: "str"
-        formatting:
-          field_colors:
-            - type: "version"
+        formatter: "version"

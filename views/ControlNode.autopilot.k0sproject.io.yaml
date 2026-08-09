@@ -35,9 +35,7 @@ listview:
       header: "k0s Version:"
       path: "status#k0sVersion"
       type: "str"
-      formatting:
-        field_colors:
-          - type: "version"
+      formatter: "version"
   shortcuts:
     "SSH to host":
       key: "s"
@@ -96,6 +94,4 @@ infoview:
         header: [["k0s Version:", ["main", "infoheader"]]]
         path: "status#k0sVersion"
         type: "str"
-        formatting:
-          field_colors:
-            - type: "version"
+        formatter: "version"

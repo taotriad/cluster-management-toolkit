@@ -146,25 +146,19 @@ infoview:
         path: "status#observedVersion"
         default: "<unset>"
         type: "str"
-        formatting:
-          field_colors:
-            - type: "version"
+        formatter: "version"
       version_operator:
         header: [["  Operator:", ["main", "infoheader"]]]
         path: "status#operatorVersion"
         default: "<unset>"
         type: "str"
-        formatting:
-          field_colors:
-            - type: "version"
+        formatter: "version"
       version_target:
         header: [["  Target:", ["main", "infoheader"]]]
         path: "status#targetVersion"
         default: "<unset>"
         type: "str"
-        formatting:
-          field_colors:
-            - type: "version"
+        formatter: "version"
       workload_header:
         header: [["Workload:", ["main", "infoheader"]]]
       workload_node_label_selector:

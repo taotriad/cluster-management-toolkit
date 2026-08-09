@@ -41,8 +41,20 @@ listview:
           subpaths:
             - "name"
             - subpath: "image"
+              regex: ["^.+/(.+?):.+", "^(.+):.+"]
+            - subpath: "image"
+              regex: ["^.+:(.+)"]
           type: "raw"
       formatter: "list"
+      formatting:
+        field_colors:
+          - type: "generic"
+          - type: "version"
+        field_separators:
+          - type: "version"
+        field_formatters:
+          - ""
+          - "version"
     {%- for line in field_controller.split("\n") %}
     {{ line }}
     {%- endfor %}

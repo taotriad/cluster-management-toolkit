@@ -1503,8 +1503,10 @@ def genericlistloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                 continue
         elif c in (ord("w"), ord("A"), ord("N")) and is_namespaced:
             if c == ord("w"):
+                if selected_namespace != "":
+                    continue
                 if (selected := uip.get_selected()):
-                    selected_namespace = deep_get(selected, DictPath("namespace"))
+                    tmp_selected_namespace = deep_get(selected, DictPath("namespace"))
             elif c in (ord("A"), ord("N")):
                 all_ns = "<All>"
 
@@ -1544,9 +1546,15 @@ def genericlistloop(stdscr: curses.window, **kwargs: Any) -> Retval:
 
                 if selection:
                     if selection == all_ns:
-                        selected_namespace = ""
+                        tmp_selected_namespace = ""
                     else:
-                        selected_namespace = selection
+                        tmp_selected_namespace = selection
+
+            # This is a no-op
+            if tmp_selected_namespace == selected_namespace:
+                continue
+
+            selected_namespace = tmp_selected_namespace
 
             fieldgenerator_args = {
                 "field_index": field_index,
@@ -2805,7 +2813,7 @@ def clusteroverviewloop(stdscr: curses.window, **kwargs: Any) -> Retval:
         if server_git_version:
             k8s_server_version: list[ThemeStr | ThemeRef] = [
                 ThemeStr(" (", ThemeAttr("types", "generic")),
-                ThemeStr(f"{server_git_version}", ThemeAttr("types", "version")),
+            ] + generators.format_version(server_git_version, selected=False) + [
                 ThemeStr(")", ThemeAttr("types", "generic")),
             ]
         else:
@@ -2823,7 +2831,7 @@ def clusteroverviewloop(stdscr: curses.window, **kwargs: Any) -> Retval:
             cni_version = cnis[0][1]
             cni_status_array = [
                 ThemeStr(f"{cni_name} (", ThemeAttr("types", "generic")),
-                ThemeStr(f"{cni_version}", ThemeAttr("types", "version")),
+            ] + generators.format_version(cni_version, selected=False) + [
                 ThemeStr("); (Status: ", ThemeAttr("types", "generic")),
                 ThemeStr(f"{cnis[0][2][0]}", color_status_group(cnis[0][2][1])),
                 ThemeStr(")", ThemeAttr("types", "generic")),
@@ -5602,8 +5610,7 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                     ThemeStr("Image: ", ThemeAttr("main", "infoheader")),
                     ThemeStr(f"{image_name}", ThemeAttr("types", "generic")),
                     ThemeRef("separators", "version"),
-                    ThemeStr(f"{image_version}", ThemeAttr("types", "version")),
-                ]
+                ] + generators.format_version(image_version, selected=False)
                 image_id = deep_get(container_status, DictPath("imageID"))
                 imageidarray: list[ThemeRef | ThemeStr] = [
                     ThemeStr("Image ID: ", ThemeAttr("main", "infoheader")),

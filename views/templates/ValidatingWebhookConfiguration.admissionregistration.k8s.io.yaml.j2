@@ -64,10 +64,7 @@ infoview:
         path: "admissionReviewVersions"
         default: ["<unset>"]
         type: "raw"
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "version"
+        formatter: "version"
       failure_policy:
         header: "Failure Policy:"
         path: "failurePolicy"

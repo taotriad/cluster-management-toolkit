@@ -26,6 +26,7 @@ infoview:
         header: [["D", ["main", "infoheader_shortcut"]],
                  ["escription:", ["main", "infoheader"]]]
         path: "description"
+        default: "<none>"
         type: "str"
       total_risk:
         header: [["Total Risk:", ["main", "infoheader"]]]

@@ -24,6 +24,9 @@ listview:
           - type: "version"
         field_separators:
           - type: "version"
+        field_formatters:
+          - ""
+          - "version"
     severity_high:
       header: "High:"
       path: "report#summary#highCount"
@@ -116,6 +119,9 @@ infoview:
             - type: "version"
           field_separators:
             - type: "version"
+          field_formatters:
+            - ""
+            - "version"
       severity_header:
         header: [["Severity:", ["main", "infoheader"]]]
       severity_high:

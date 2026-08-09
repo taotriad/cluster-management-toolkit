@@ -64,9 +64,7 @@ listview:
       header: "Version:"
       path: "version"
       type: "str"
-      formatting:
-        field_colors:
-          - type: "version"
+      formatter: "version"
 infoview:
   name: "Antrea Agent Info"
   infopad:
@@ -155,9 +153,7 @@ infoview:
         header: [["Version:", ["main", "infoheader"]]]
         path: "version"
         type: "str"
-        formatting:
-          field_colors:
-            - type: "version"
+        formatter: "version"
   logpad:
     infogetter: "logpad_formatted"
     infogetter_args:

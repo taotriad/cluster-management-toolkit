@@ -133,29 +133,48 @@ def format_special(string: str, selected: bool) -> ThemeRef | ThemeStr | None:
 
 
 # pylint: disable-next=unused-argument
-def format_version(string: str, selected: bool, **kwargs: Any) -> list[ThemeRef | ThemeStr]:
+def format_version(items: str | list[str],
+                   selected: bool, **kwargs: Any) -> list[ThemeRef | ThemeStr]:
     """
     Given a string, format it as a version.
 
         Parameters:
-            string (str): The string to format
-            selected (bool): Is the string selected?
+            items (str|[str]): The strings to format
+            selected (bool): Should the strings be treated as selected?
             **kwargs (dict[str, Any]): Keyword arguments
+                formatting (FormattingType): Formatting for the data
         Returns:
-            ([ThemeRef | ThemeStr]): A ThemeArray
+            ([ThemeRef | ThemeStr]): A formatted string
     """
+    formatting: FormattingType = deep_get(kwargs, DictPath("formatting"), {})
     array: list[ThemeRef | ThemeStr] = []
 
-    if string.startswith("v"):
-        array += [ThemeStr("v", ThemeAttr("types", "version"), selected=selected)]
-        string = string[1:]
-    separators = set("+-~.,")
-    for char in string:
-        if char in separators:
-            array += [ThemeStr(char, ThemeAttr("types", "unit"), selected=selected)]
-        else:
-            array += [ThemeStr(char, ThemeAttr("types", "numerical"), selected=selected)]
-    array = list(themearray_select(themearray_compact(array), selected=selected, force=True))
+    if isinstance(items, (str, tuple)):
+        items = [items]
+
+    item_separator = deep_get(formatting, DictPath("item_separator"),
+                              ThemeRef("separators", "list", selected))
+
+    separators: set = set("+-~.,")
+
+    for item in items:
+        if not item:
+            continue
+        tmparray: list[ThemeRef | ThemeStr] = []
+        if item.startswith("v"):
+            tmparray += [ThemeStr("v", ThemeAttr("types", "version"), selected=selected)]
+            item = item[1:]
+        for char in item:
+            if char in separators:
+                tmparray += [ThemeStr(char, ThemeAttr("types", "unit"), selected=selected)]
+            else:
+                tmparray += [ThemeStr(char, ThemeAttr("types", "numerical"), selected=selected)]
+        tmparray = list(themearray_select(themearray_compact(tmparray),
+                                          selected=selected, force=True))
+        if array:
+            item_separator.selected = selected
+            array.append(item_separator)
+        array += tmparray
 
     return array
 
@@ -706,8 +725,6 @@ def generator_address(obj: dict, field: str, fieldlen: int, pad: bool,
             ([ThemeRef | ThemeStr]): A formatted string
     """
     items = deep_get(obj, DictPath(field), [])
-    if items is None:
-        items = []
 
     if isinstance(items, str) and items in ("<unset>", "<none>"):
         return format_list([items], fieldlen, pad, ralign=ralign, selected=selected)
@@ -782,14 +799,12 @@ def generator_version(obj: dict, field: str, fieldlen: int, pad: bool,
             ([ThemeRef | ThemeStr]): A formatted string
     """
     array: list[ThemeRef | ThemeStr] = []
-    value = deep_get(obj, DictPath(field))
-    string = str(value)
-    tmp: Any = None
+    items = deep_get(obj, DictPath(field), [])
 
-    if (tmp := format_special(string, selected)) is not None:
+    if isinstance(items, str) and (tmp := format_special(items, selected)) is not None:
         array = [tmp]
     else:
-        array = format_version(string, selected)
+        array = format_version(items, selected)
 
     return align_and_pad(array, fieldlen=fieldlen, pad=pad, ralign=ralign, selected=selected)
 

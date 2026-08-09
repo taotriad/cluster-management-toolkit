@@ -48,9 +48,7 @@ infoview:
         header: [["Version:", ["main", "infoheader"]]]
         path: "version"
         type: "str"
-        formatting:
-          field_colors:
-            - type: "version"
+        formatter: "version"
   listpad:
     on_activation:
       call: null

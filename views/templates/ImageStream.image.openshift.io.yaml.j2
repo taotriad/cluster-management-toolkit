@@ -38,10 +38,7 @@ listview:
             - "tag"
           default: ["<none>"]
       type: "raw"
-      formatter: "list"
-      formatting:
-        field_colors:
-          - type: "version"
+      formatter: "version"
 infoview:
   name: "Image Stream Info"
   infopad:
@@ -77,10 +74,7 @@ infoview:
               - "tag"
             default: ["<none>"]
         type: "raw"
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "version"
+        formatter: "version"
   listpad:
     listgetter: "listgetter_path"
     listgetter_args:
@@ -130,9 +124,7 @@ infoview:
         header: "Tag:"
         path: "name"
         type: "str"
-        formatting:
-          field_colors:
-            - type: "version"
+        formatter: "version"
   shortcuts:
     {%- for line in shortcut_controller.split("\n") %}
     {{ line }}

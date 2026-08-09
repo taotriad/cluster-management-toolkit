@@ -145,9 +145,7 @@ infoview:
         header: [["BIOS version:", ["main", "infoheader"]]]
         path: "ansible_bios_version"
         type: "str"
-        formatting:
-          field_colors:
-            - type: "version"
+        formatter: "version"
       cores:
         header: [["Cores:", ["main", "infoheader"]]]
         path: "ansible_processor_cores"
@@ -177,6 +175,9 @@ infoview:
             - type: "version"
           field_separators:
             - type: "space"
+          field_formaters:
+            - "version"
+            - "version"
       processors:
         header: [["Processors:", ["main", "infoheader"]]]
         path: "ansible_processor_count"

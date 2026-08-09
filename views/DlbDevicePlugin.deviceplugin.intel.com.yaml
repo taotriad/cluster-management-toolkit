@@ -80,6 +80,9 @@ infoview:
             - type: "version"
           field_separators:
             - type: "version"
+          field_formatters:
+            - ""
+            - "version"
       init_image:
         header: [["Init Image:", ["main", "infoheader"]]]
         paths:
@@ -94,6 +97,9 @@ infoview:
             - type: "version"
           field_separators:
             - type: "version"
+          field_formatters:
+            - ""
+            - "version"
       kernel_vf_drivers:
         header: [["Kernel VF Drivers:", ["main", "infoheader"]]]
         path: "spec#kernelVfDrivers"

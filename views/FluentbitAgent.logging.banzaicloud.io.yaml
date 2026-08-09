@@ -39,6 +39,9 @@ infoview:
             - type: "version"
           field_separators:
             - type: "version"
+          field_formatters:
+            - ""
+            - "version"
       input_tail_header:
         header: [["Input Tail:", ["main", "infoheader"]]]
       input_tail_parser:

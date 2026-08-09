@@ -108,9 +108,7 @@ listview:
       header: "Version:"
       path: "spec#version"
       type: "str"
-      formatting:
-        field_colors:
-          - type: "version"
+      formatter: "version"
   actions:
     actionlist:
       "Delete resource":
@@ -305,9 +303,7 @@ infoview:
         header: [["Version:", ["main", "infoheader"]]]
         path: "spec#version"
         type: "str"
-        formatting:
-          field_colors:
-            - type: "version"
+        formatter: "version"
   {%- for line in listpad_pod_status_selector.split("\n") %}
   {{ line }}
   {%- endfor %}

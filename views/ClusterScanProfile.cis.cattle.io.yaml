@@ -18,9 +18,7 @@ listview:
       header: "Benchmark Version:"
       path: "spec#benchmarkVersion"
       type: "str"
-      formatting:
-        field_colors:
-          - type: "version"
+      formatter: "version"
 infoview:
   name: "Cluster Scan Profile Info"
   infopad:
@@ -32,6 +30,4 @@ infoview:
         header: [["Benchmark Version:", ["main", "infoheader"]]]
         path: "spec#benchmarkVersion"
         type: "str"
-        formatting:
-          field_colors:
-            - type: "version"
+        formatter: "version"

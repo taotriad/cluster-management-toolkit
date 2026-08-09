@@ -38,6 +38,9 @@ listview:
           - type: "version"
         field_separators:
           - type: "version"
+        field_formatters:
+          - ""
+          - "version"
     management_state:
       header: "Management State:"
       path: "spec#managementState"
@@ -81,9 +84,7 @@ listview:
       path: "status#version"
       default: "<unset>"
       type: "str"
-      formatting:
-        field_colors:
-          - type: "version"
+      formatter: "version"
 infoview:
   name: "Open Telemetry Collector Info"
   infopad:
@@ -249,9 +250,7 @@ infoview:
         header: [["Version:", ["main", "infoheader"]]]
         path: "status#version"
         type: "str"
-        formatting:
-          field_colors:
-            - type: "version"
+        formatter: "version"
   listpad:
     listgetter: "generic_listgetter"
     listgetter_args:
@@ -276,25 +275,9 @@ infoview:
                  "restarts", "last_restart"]
         sortcolumn: "pod_status"
     fields:
-      containers:
-        header: "Containers:"
-        paths:
-          - paths:
-              - "spec#initContainers"
-              - "spec#containers"
-            pathtype: "items"
-            subpaths:
-              - "name"
-              - subpath: "image"
-                regex: ["^.+/[^:^/]+:(.+?)@.*", "^.+/[^:^/]+:(.+)"]
-            type: "raw"
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "generic"
-            - type: "version"
-          field_separators:
-            - type: "version"
+      {%- for line in containers.split("\n") %}
+      {{ line }}
+      {%- endfor %}
       last_restart:
         header: "Latest Restart:"
         paths:

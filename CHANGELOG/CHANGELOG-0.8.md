@@ -88,6 +88,7 @@ N/A
 ### Changes to _cmu_ in v0.8.9
 
 * (Hopefully) fix the rather annoying flickering in the list view.
+* Doing a non-change of namespace will no an update.
 * An issue was fixed that caused line-lengths to be incorrect in the list-view when resizing.
 * Resizing an info-view no longer causes the listpad to become empty until reloaded.
 * Switching field configuration (Wide/Normal/Narrow/Custom) no longer triggers force update,

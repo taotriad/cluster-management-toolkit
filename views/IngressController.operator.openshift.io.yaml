@@ -74,9 +74,7 @@ infoview:
         path: "status#tlsProfile#minTLSVersion"
         default: "<unset>"
         type: "str"
-        formatting:
-          field_colors:
-            - type: "version"
+        formatter: "version"
       namespace_selector:
         header: [["Namespace Selector:", ["main", "infoheader"]]]
         path: "spec#namespaceSelector#matchNames"

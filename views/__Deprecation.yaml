@@ -29,16 +29,15 @@ listview:
         field_separators:
           - type: "kind_api_group"
           - type: "kind"
+        field_formatters:
+          - ""
+          - ""
+          - "version"
     deprecated_removed_release:
       header: "Planned Removal:"
       path: ["removed_release"]
       datagetter: "datagetter_metrics"
-      formatter: "list"
-      formatting:
-        field_colors:
-          - type: "version"
-        field_formatters:
-          - "version"
+      formatter: "version"
   shortcuts:
     # Deprecations have no JSON/YAML and cannot be edited
     "Edit resource": null
@@ -78,6 +77,9 @@ infoview:
             - type: "version"
           field_separators:
             - type: "kind"
+          field_formatters:
+            - ""
+            - "version"
       latest_version:
         header: [["Latest Version:", ["main", "infoheader"]]]
         path: ["fields#resource", "fields#group", "fields#version"]
@@ -92,6 +94,10 @@ infoview:
           field_separators:
             - type: "kind"
             - type: "space"
+          field_formatters:
+            - ""
+            - "version"
+            - ""
       planned_removal:
         header: [["Planned Removal:", ["main", "infoheader"]]]
         path: "fields#removed_release"

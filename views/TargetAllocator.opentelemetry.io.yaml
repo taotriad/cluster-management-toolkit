@@ -23,9 +23,7 @@ listview:
       path: "status#version"
       default: "<unset>"
       type: "str"
-      formatting:
-        field_colors:
-          - type: "version"
+      formatter: "version"
 infoview:
   name: "Target Allocator Info"
   infopad:
@@ -65,9 +63,7 @@ infoview:
         header: [["Version:", ["main", "infoheader"]]]
         path: "status#version"
         type: "str"
-        formatting:
-          field_colors:
-            - type: "version"
+        formatter: "version"
   shortcuts:
     "Service Account":
       key: "s"

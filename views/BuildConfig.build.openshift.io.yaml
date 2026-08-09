@@ -19,8 +19,7 @@ listview:
       path: "status#lastVersion"
       default: "<unset>"
       type: "int"
-      formatter: "numerical"
-      align: "right"
+      formatter: "version"
 infoview:
   name: "Build Config Info"
   infopad:
@@ -45,7 +44,7 @@ infoview:
         path: "status#lastVersion"
         default: "<unset>"
         type: "int"
-        formatter: "numerical"
+        formatter: "version"
       image_labels:
         header: [["Ima", ["main", "infoheader"]],
                  ["g", ["main", "infoheader_shortcut"]],

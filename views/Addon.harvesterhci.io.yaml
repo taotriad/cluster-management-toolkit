@@ -11,7 +11,7 @@ listview:
   field_indexes:
     Wide:
       fields: ["namespace", "name", "display_name",
-               "enabled", "experimental", "status", "age"]
+               "enabled", "experimental", "version", "status", "age"]
       sortcolumn: "namespace"
     Normal:
       fields: ["namespace", "name",
@@ -67,6 +67,12 @@ listview:
               field_colors:
                 - context: "main"
                   type: "status_pending"
+    version:
+      header: "Version:"
+      path: "spec#version"
+      default: "<unset>"
+      type: "str"
+      formatter: "version"
   actions:
     actionlist:
       "Disable Addon":
@@ -164,9 +170,7 @@ infoview:
         path: "spec#version"
         default: "<unset>"
         type: "str"
-        formatting:
-          field_colors:
-            - type: "version"
+        formatter: "version"
   logpad:
     infogetter: "logpad_formatted"
     infogetter_args:

@@ -199,9 +199,7 @@ infoview:
         path: "spec#rayVersion"
         default: "<unset>"
         type: "str"
-        formatting:
-          field_colors:
-            - type: "version"
+        formatter: "version"
       ready_workers:
         header: [["Ready Workers:", ["main", "infoheader"]]]
         path: "status#readyWorkerReplicas"

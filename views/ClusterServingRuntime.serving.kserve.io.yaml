@@ -25,7 +25,7 @@ infoview:
         path: "spec#protocolVersions"
         default: ["<unset>"]
         type: "raw"
-        formatter: "list"
+        formatter: "version"
   listpad:
     listgetter: "listgetter_path"
     listgetter_args:
@@ -55,9 +55,7 @@ infoview:
         header: "Version:"
         path: "name"
         type: "str"
-        formatting:
-          field_colors:
-            - type: "version"
+        formatter: "version"
   shortcuts:
     "Applied annotations":
       key: "a"

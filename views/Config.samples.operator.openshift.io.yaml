@@ -78,6 +78,4 @@ infoview:
         header: [["  Version:", ["main", "infoheader"]]]
         path: "status#version"
         type: "str"
-        formatting:
-          field_colors:
-            - type: "version"
+        formatter: "version"

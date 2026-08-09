@@ -18,31 +18,38 @@ listview:
     channel:
       header: "Channel:"
       path: "spec#channel"
-      type: "str"
       default: "<unset>"
-      formatting:
-        field_colors:
-          - type: "version"
+      type: "str"
+      formatter: "version"
     image:
       header: "Image:"
-      path: "spec#upgrade#image"
-      type: "str"
+      paths:
+        - path: "spec#upgrade#image"
+          pathtype: "regex"
+          regex: "^([^:]+):(.*)|^(.+)"
+          default: ["<none>"]
+      formatter: "list"
+      formatting:
+        field_colors:
+          - type: "generic"
+          - type: "version"
+        field_separators:
+          - type: "version"
+        field_formatters:
+          - ""
+          - "version"
     latest_version:
       header: "Latest Version:"
       path: "status#latestVersion"
-      type: "str"
       default: "<unset>"
-      formatting:
-        field_colors:
-          - type: "version"
+      type: "str"
+      formatter: "version"
     version:
       header: "Version:"
       path: "spec#version"
-      type: "str"
       default: "<unset>"
-      formatting:
-        field_colors:
-          - type: "version"
+      type: "str"
+      formatter: "version"
 infoview:
   name: "Plan Info"
   infopad:
@@ -61,11 +68,9 @@ infoview:
       channel:
         header: [["Channel:", ["main", "infoheader"]]]
         path: "spec#channel"
-        type: "str"
         default: "<unset>"
-        formatting:
-          field_colors:
-            - type: "version"
+        type: "str"
+        formatter: "version"
       concurrency:
         header: [["Concurrency:", ["main", "infoheader"]]]
         path: "spec#concurrency"
@@ -75,8 +80,8 @@ infoview:
       cordon:
         header: [["Cordon:", ["main", "infoheader"]]]
         path: "spec#cordon"
-        type: "bool"
         default: "<unset>"
+        type: "bool"
       drain_header:
         header: [["Drain:", ["main", "infoheader"]]]
       drain_delete_local_data:
@@ -123,11 +128,9 @@ infoview:
       latest_version:
         header: [["Latest Version:", ["main", "infoheader"]]]
         path: "status#latestVersion"
-        type: "str"
         default: "<unset>"
-        formatting:
-          field_colors:
-            - type: "version"
+        type: "str"
+        formatter: "version"
       node_set_based_selector:
         header: [["Node Set-based Selector:", ["main", "infoheader"]]]
         paths:
@@ -158,6 +161,9 @@ infoview:
             - type: "version"
           field_separators:
             - type: "version"
+          field_formatters:
+            - ""
+            - "version"
       service_account:
         header: [["S", ["main", "infoheader_shortcut"]],
                  ["ervice Account:", ["main", "infoheader"]]]
@@ -178,14 +184,15 @@ infoview:
             - type: "version"
           field_separators:
             - type: "version"
+          field_formatters:
+            - ""
+            - "version"
       version:
         header: [["Version:", ["main", "infoheader"]]]
         path: "spec#version"
-        type: "str"
         default: "<unset>"
-        formatting:
-          field_colors:
-            - type: "version"
+        type: "str"
+        formatter: "version"
   shortcuts:
     "Node Label Selector":
       key: "b"

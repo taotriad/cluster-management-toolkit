@@ -1,17 +1,16 @@
 ---
-kind: "UnitedDeployment"
-api_family: "apps.kruise.io"
-default_command: "uniteddeployments"
+kind: "ReplicationController"
+default_command: "replicationcontrollers"
 command:
-  - "kruiseunideps"
-  - "kruiseunidep"
+  - "rcs"
+  - "rc"
 listview:
-  name: "United Deployments"
-  group: "Kruise"
+  name: "Replication Controllers"
+  group: "Workloads"
   field_indexes:
     Normal:
-      fields: ["namespace", "name", "desired_replicas", "current_replicas",
-               "ready_replicas", "uptodate_replicas", "age"]
+      fields: ["namespace", "name", "ready_replicas",
+               "current_replicas", "desired_replicas", "age"]
       sortcolumn: "namespace"
   fields:
     current_replicas:
@@ -20,6 +19,7 @@ listview:
         - path: ["status#replicas", "spec#replicas"]
           pathtype: "comparison"
           default: [0, 0]
+      align: "right"
       formatter: "value_mapper"
       formatting:
         mapping:
@@ -33,20 +33,19 @@ listview:
               field_colors:
                 - context: "main"
                   type: "status_not_ok"
-      align: "right"
     desired_replicas:
       header: "Desired:"
       path: "spec#replicas"
       default: 0
       type: "int"
-      formatter: "numerical"
       align: "right"
     ready_replicas:
       header: "Ready:"
       paths:
-        - path: ["status#readyReplicas", "spec#replicas"]
+        - path: ["status#readyReplicas", "status#replicas"]
           pathtype: "comparison"
           default: [0, 0]
+      align: "right"
       formatter: "value_mapper"
       formatting:
         mapping:
@@ -65,53 +64,28 @@ listview:
               field_colors:
                 - context: "main"
                   type: "status_not_ok"
-      align: "right"
-    uptodate_replicas:
-      header: "Up to Date:"
-      paths:
-        - path: ["status#updatedReplicas", "spec#replicas"]
-          pathtype: "comparison"
-          default: [0, 0]
-      formatter: "value_mapper"
-      formatting:
-        mapping:
-          ranges:
-            - min: 0
-              max: 1
-              field_colors:
-                - context: "main"
-                  type: "status_ok"
-            - min: -1
-              max: 0
-              field_colors:
-                - context: "main"
-                  type: "status_pending"
-            - default: true
-              field_colors:
-                - context: "main"
-                  type: "status_pending"
-      align: "right"
   actions:
     actionlist:
-      "Delete resource":
-        description: "Delete resource"
-        category: "Resource Level"
+      "Rescale resource":
+        description: "Rescale resource"
         confirm: true
-        actionfunc: "delete_resource"
+        actionfunc: "rescale_resource"
+        query: "New scale"
+        queryval: "scale"
+        queryfunc: "string"
 infoview:
-  name: "United Deployment Info"
+  name: "Replication Controller Info"
   infopad:
     row_indexes:
       Normal:
-        fields: ["label_selector", "replicas", "update_strategy",
-                 "update_strategy_manual_update_partition"]
+        fields: ["label_selector", "replicas"]
     rows:
       label_selector:
         header: [["La", ["main", "infoheader"]],
                  ["b", ["main", "infoheader_shortcut"]],
                  ["el Selector:", ["main", "infoheader"]]]
         paths:
-          - path: ["spec#selector#matchLabels"]
+          - path: ["spec#selector"]
             pathtype: "key_value"
             default: ["<none>"]
         formatter: "list"
@@ -124,10 +98,12 @@ infoview:
       replicas:
         header: [["Replicas:", ["main", "infoheader"]]]
         paths:
-          - path: [["spec#replicas"], " Desired",
-                   ["status#replicas"], " Current",
-                   ["status#readyReplicas"], " Ready",
-                   ["status#updatedReplicas"], " Up to Date"]
+          - path: [["spec#replicas"],
+                   " Desired",
+                   ["status#replicas"],
+                   " Current",
+                   ["status#readyReplicas"],
+                   " Ready"]
             pathtype: "tuple"
             default: [0, "", 0, "", 0, "", 0, ""]
         formatter: "list"
@@ -149,66 +125,32 @@ infoview:
             - type: "no_pad"
             - type: "fraction_spaced"
             - type: "no_pad"
-      update_strategy:
-        header: [["Update Strategy:", ["main", "infoheader"]]]
-        path: "spec#updateStrategy#type"
-        type: "str"
-      update_strategy_manual_update_partition:
-        header: [["  Manual Update Partitions:", ["main", "infoheader"]]]
-        type: "raw"
-        paths:
-          - path: "spec#updateStrategy#manualUpdate#partitions"
-            pathtype: "key_value"
-            default: ["<none>"]
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "key"
-            - type: "value"
-          field_separators:
-            - type: "keyvalue"
   listpad:
     listgetter: "generic_listgetter"
     listgetter_args:
       _kind: "Pod"
-      _label_selector_path: "spec#selector#matchLabels"
+      _label_selector_path: "spec#selector"
     infogetter: "generic_infogetter"
     on_activation:
       call: "resourceinfodispatch"
       kind: "Pod"
     field_indexes:
       Wide:
-        fields: ["namespace", "name", "pod_status", "node_name", "pod_ip",
-                 "age", "restarts", "last_restart", "containers"]
+        fields: ["namespace", "name", "pod_status", "node_name",
+                 "pod_ip", "age", "restarts", "last_restart", "containers"]
         sortcolumn: "pod_status"
       Normal:
-        fields: ["namespace", "name", "pod_status", "node_name", "age",
-                 "restarts", "last_restart"]
+        fields: ["namespace", "name", "pod_status", "node_name",
+                 "age", "restarts", "last_restart"]
         sortcolumn: "pod_status"
       Compact:
-        fields: ["namespace", "name", "pod_status", "age", "restarts",
-                 "last_restart"]
+        fields: ["namespace", "name", "pod_status", "age",
+                 "restarts", "last_restart"]
         sortcolumn: "pod_status"
     fields:
-      containers:
-        header: "Containers:"
-        paths:
-          - paths:
-              - "spec#initContainers"
-              - "spec#containers"
-            pathtype: "items"
-            subpaths:
-              - "name"
-              - subpath: "image"
-                regex: ["^.+/[^:^/]+:(.+?)@.*", "^.+/[^:^/]+:(.+)"]
-            type: "raw"
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "generic"
-            - type: "version"
-          field_separators:
-            - type: "version"
+      {%- for line in containers.split("\n") %}
+      {{ line }}
+      {%- endfor %}
       last_restart:
         header: "Latest Restart:"
         paths:
@@ -260,25 +202,4 @@ infoview:
         headers: ["Key:", "Value:"]
         itemgetter: "get_key_value"
         itemgetter_args:
-          path: "spec#selector#matchLabels"
-    "Pod template":
-      key: "t"
-      modifier: "shift"
-      read_only: true
-      helptext: "Show Pod template"
-      action: "call"
-      action_call: "view_yaml"
-      action_args:
-        title: "Pod template"
-        _pass_obj: true
-        path: "spec#template"
-    "Topology":
-      key: "t"
-      read_only: true
-      helptext: "Show topology"
-      action: "call"
-      action_call: "view_yaml"
-      action_args:
-        title: "Topolgy"
-        _pass_obj: true
-        path: "spec#topology"
+          path: "spec#selector"

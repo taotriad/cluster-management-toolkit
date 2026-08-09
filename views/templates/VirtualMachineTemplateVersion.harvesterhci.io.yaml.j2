@@ -38,8 +38,7 @@ listview:
       path: "status#version"
       default: "<unset>"
       type: "int"
-      formatter: "numerical"
-      align: "right"
+      formatter: "version"
 infoview:
   name: "Virtual Machine Template Version Info"
   infopad:
@@ -65,7 +64,7 @@ infoview:
         path: "status#version"
         default: "<unset>"
         type: "int"
-        formatter: "numerical"
+        formatter: "version"
   logpad:
     infogetter: "logpad_formatted"
     infogetter_args:

@@ -57,9 +57,7 @@ infoview:
         path: "spec#protocol"
         default: "v1"
         type: "str"
-        formatting:
-          field_colors:
-            - type: "version"
+        formatter: "version"
       replicas:
         header: [["Replicas:", ["main", "infoheader"]]]
         path: "status#replicas"

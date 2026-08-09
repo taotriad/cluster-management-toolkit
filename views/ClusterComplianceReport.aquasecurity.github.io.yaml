@@ -49,9 +49,7 @@ listview:
       header: "Version:"
       path: "spec#compliance#version"
       type: "str"
-      formatting:
-        field_colors:
-          - type: "version"
+      formatter: "version"
 infoview:
   name: "Cluster Compliance Report Info"
   infopad:
@@ -100,9 +98,7 @@ infoview:
         header: [["Version:", ["main", "infoheader"]]]
         path: "spec#compliance#version"
         type: "str"
-        formatting:
-          field_colors:
-            - type: "version"
+        formatter: "version"
   listpad:
     on_activation:
       call: "resourceinfodispatch"

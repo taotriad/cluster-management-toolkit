@@ -55,9 +55,7 @@ infoview:
         header: [["Min TLS Version:", ["main", "infoheader"]]]
         path: "spec#observedConfig#servingInfo#minTLSVersion"
         type: "str"
-        formatting:
-          field_colors:
-            - type: "version"
+        formatter: "version"
       operator_loglevel:
         header: [["Operator Loglevel:", ["main", "infoheader"]]]
         path: "spec#operatorLogLevel"

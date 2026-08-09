@@ -124,9 +124,7 @@ infoview:
         path: "status#release#version"
         default: "<unset>"
         type: "str"
-        formatting:
-          field_colors:
-            - type: "version"
+        formatter: "version"
       service_mesh_auth_audiences:
         header: [["    ", ["main", "infoheader"]],
                  ["A", ["main", "infoheader_shortcut"]],

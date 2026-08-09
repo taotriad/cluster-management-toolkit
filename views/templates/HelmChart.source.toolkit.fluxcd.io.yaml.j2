@@ -63,9 +63,7 @@ listview:
       path: "spec#version"
       default: "<unset>"
       type: "str"
-      formatting:
-        field_colors:
-          - type: "version"
+      formatter: "version"
 infoview:
   name: "Helm Chart Info"
   infopad:
@@ -124,9 +122,7 @@ infoview:
         path: "spec#version"
         default: "<unset>"
         type: "str"
-        formatting:
-          field_colors:
-            - type: "version"
+        formatter: "version"
       {%- for line in row_condition_ready.split("\n") %}
       {{ line }}
       {%- endfor %}

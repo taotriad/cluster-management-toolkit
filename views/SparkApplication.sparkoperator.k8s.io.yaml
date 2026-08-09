@@ -277,6 +277,9 @@ infoview:
             - type: "version"
           field_separators:
             - type: "version"
+          field_formatters:
+            - ""
+            - "version"
       image_pull_policy:
         header: [["Image Pull Policy:", ["main", "infoheader"]]]
         path: "spec#imagePullPolicy"
@@ -362,9 +365,7 @@ infoview:
         header: [["Spark Version:", ["main", "infoheader"]]]
         path: "spec#sparkVersion"
         type: "str"
-        formatting:
-          field_colors:
-            - type: "version"
+        formatter: "version"
   shortcuts:
     "Open Scheduled Spark Application":
       key: "a"

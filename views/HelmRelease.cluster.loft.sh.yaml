@@ -25,9 +25,7 @@ listview:
       path: "status#metadata#version"
       default: "<unset>"
       type: "str"
-      formatting:
-        field_colors:
-          - type: "version"
+      formatter: "version"
 infoview:
   name: "Helm Release Info"
   infopad:
@@ -50,9 +48,7 @@ infoview:
         path: "status#metadata#version"
         default: "<unset>"
         type: "str"
-        formatting:
-          field_colors:
-            - type: "version"
+        formatter: "version"
   shortcuts:
     "View Values":
       key: "v"

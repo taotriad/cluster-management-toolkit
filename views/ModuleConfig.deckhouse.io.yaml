@@ -44,10 +44,7 @@ listview:
       path: "status#version"
       default: "<unset>"
       type: "str"
-      formatting:
-        field_colors:
-          - type: "version"
-      align: "right"
+      formatter: "version"
 infoview:
   name: "Module Config Info"
   infopad:
@@ -81,9 +78,7 @@ infoview:
         path: "status#version"
         default: "<unset>"
         type: "str"
-        formatting:
-          field_colors:
-            - type: "version"
+        formatter: "version"
   shortcuts:
     "Settings":
       key: "s"

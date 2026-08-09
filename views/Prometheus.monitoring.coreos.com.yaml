@@ -41,9 +41,7 @@ listview:
       path: "spec#version"
       default: "<unset>"
       type: "str"
-      formatting:
-        field_colors:
-          - type: "version"
+      formatter: "version"
 infoview:
   name: "Prometheus Info"
   infopad:
@@ -114,6 +112,9 @@ infoview:
             - type: "version"
           field_separators:
             - type: "version"
+          field_formatters:
+            - ""
+            - "version"
       listen_local:
         header: [["Listen Local:", ["main", "infoheader"]]]
         path: "spec#listenLocal"

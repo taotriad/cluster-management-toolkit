@@ -243,7 +243,7 @@ listview:
               version_regex: '^Version: v(.*)$'
           file_not_found_status: "No changelog found"
           paths:
-            - filepath: "{HOME}/.cmt/version-cache/kn_changelog.md"
+            - filepath: "{HOME}/.cmt/version-cache/knative_changelog.md"
               filetype: "text"
               pathtype: "raw"
           formatter: "markdown"

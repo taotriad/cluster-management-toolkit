@@ -119,6 +119,9 @@ infoview:
             - type: "version"
           field_separators:
             - type: "version"
+          field_formatters:
+            - ""
+            - "version"
       device_plugin_plugin:
         header: [["  Plugin Image:", ["main", "infoheader"]]]
         paths:
@@ -133,6 +136,9 @@ infoview:
             - type: "version"
           field_separators:
             - type: "version"
+          field_formatters:
+            - ""
+            - "version"
       device_plugin_status:
         header: [["  Status:", ["main", "infoheader"]]]
         paths:
@@ -163,6 +169,9 @@ infoview:
             - type: "version"
           field_separators:
             - type: "version"
+          field_formatters:
+            - ""
+            - "version"
       # dra_health_check_port:
       #   header: [["  Health Check Port:", ["main", "infoheader"]]]
       #   path: "spec#dra#healthCheckPort"
@@ -294,6 +303,9 @@ infoview:
             - type: "version"
           field_separators:
             - type: "version"
+          field_formatters:
+            - ""
+            - "version"
       xpu_loglevel:
         header: [["  Loglevel:", ["main", "infoheader"]]]
         path: "spec#xpu#logLevel"

@@ -23,9 +23,7 @@ listview:
       header: "Installed Version:"
       path: "status#installedVersion"
       type: "str"
-      formatting:
-        field_colors:
-          - type: "version"
+      formatter: "version"
 infoview:
   name: "Infrastructure Provider Info"
   infopad:
@@ -60,9 +58,7 @@ infoview:
         header: [["Contract:", ["main", "infoheader"]]]
         path: "status#contract"
         type: "str"
-        formatting:
-          field_colors:
-            - type: "version"
+        formatter: "version"
       fetch_config:
         header: [["Fetch Config:", ["main", "infoheader"]]]
         path: "spec#fetchConfig#url"
@@ -73,9 +69,7 @@ infoview:
         header: [["Installed Version:", ["main", "infoheader"]]]
         path: "status#installedVersion"
         type: "str"
-        formatting:
-          field_colors:
-            - type: "version"
+        formatter: "version"
       manager_feature_gates:
         header: [["  ", ["main", "infoheader"]],
                  ["F", ["main", "infoheader_shortcut"]],

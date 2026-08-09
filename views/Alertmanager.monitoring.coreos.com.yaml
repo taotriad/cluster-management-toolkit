@@ -38,9 +38,7 @@ listview:
       header: "Version:"
       path: "spec#version"
       type: "str"
-      formatting:
-        field_colors:
-          - type: "version"
+      formatter: "version"
 infoview:
   name: "Alertmanager Info"
   infopad:
@@ -79,6 +77,9 @@ infoview:
             - type: "version"
           field_separators:
             - type: "version"
+          field_formatters:
+            - ""
+            - "version"
       listen_local:
         header: [["Listen Local:", ["main", "infoheader"]]]
         path: "spec#listenLocal"

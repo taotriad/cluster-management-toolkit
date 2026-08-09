@@ -85,8 +85,6 @@ infoview:
             default: ["<unset>"]
             pathtype: "tuple"
             type: ["name", "name"]
-        # FIXME: The formatter needs to be improved to handle lists
-        # that contain addresses, etc.
         formatter: "list"
         formatting:
           field_colors:
@@ -94,6 +92,9 @@ infoview:
             - type: "port"
           field_separators:
             - type: "port"
+          field_formatters:
+            - "address"
+            - ""
       helm_release_header:
         header: [["Helm Release:", ["main", "infoheader"]]]
       helm_release_chart_header:
@@ -116,9 +117,7 @@ infoview:
         path: "spec#helmRelease#chart#version"
         default: "<unset>"
         type: "str"
-        formatting:
-          field_colors:
-            - type: "version"
+        formatter: "version"
       helm_release_values:
         header: [["  ", ["main", "infoheader"]],
                  ["V", ["main", "infoheader_shortcut"]],

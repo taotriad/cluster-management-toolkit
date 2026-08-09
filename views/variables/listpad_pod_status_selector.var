@@ -41,6 +41,9 @@ listpad:
           - type: "version"
         field_separators:
           - type: "version"
+        field_formatters:
+          - ""
+          - "version"
     last_restart:
       header: "Latest Restart:"
       paths:

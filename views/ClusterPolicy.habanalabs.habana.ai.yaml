@@ -105,6 +105,9 @@ infoview:
             - type: "version"
           field_separators:
             - type: "version"
+          field_formatters:
+            - ""
+            - "version"
       device_plugin_image:
         header: [["Device Plugin Image:", ["main", "infoheader"]]]
         paths:
@@ -119,6 +122,9 @@ infoview:
             - type: "version"
           field_separators:
             - type: "version"
+          field_formatters:
+            - ""
+            - "version"
       dra_resource_driver_image:
         header: [["DRA Resource Driver Image:", ["main", "infoheader"]]]
         paths:
@@ -133,6 +139,9 @@ infoview:
             - type: "version"
           field_separators:
             - type: "version"
+          field_formatters:
+            - ""
+            - "version"
       driver_header:
         header: [["Driver:", ["main", "infoheader"]]]
       driver_loader_header:
@@ -167,9 +176,7 @@ infoview:
         path: "spec#driver#driver_loader#mlnx_ofed_version"
         default: "<unset>"
         type: "str"
-        formatting:
-          field_colors:
-            - type: "version"
+        formatter: "version"
       driver_loader_repo_path:
         header: [["    Repo Path:", ["main", "infoheader"]]]
         path: "spec#driver#driver_loader#repo_path"
@@ -194,6 +201,9 @@ infoview:
             - type: "version"
           field_separators:
             - type: "version"
+          field_formatters:
+            - ""
+            - "version"
       feature_discovery_header:
         header: [["Feature Discovery:", ["main", "infoheader"]]]
       feature_discovery_nfd_plugin:
@@ -215,6 +225,9 @@ infoview:
             - type: "version"
           field_separators:
             - type: "version"
+          field_formatters:
+            - ""
+            - "version"
       image_registry:
         header: [["Image Registry:", ["main", "infoheader"]]]
         path: "spec#image_registry"
@@ -252,6 +265,9 @@ infoview:
             - type: "version"
           field_separators:
             - type: "version"
+          field_formatters:
+            - ""
+            - "version"
       runtime_configuration_header:
         header: [["  Configuration:", ["main", "infoheader"]]]
       runtime_configuration_container_engine:
@@ -291,6 +307,9 @@ infoview:
             - type: "version"
           field_separators:
             - type: "version"
+          field_formatters:
+            - ""
+            - "version"
   listpad:
     listgetter: "listgetter_dict_list"
     listgetter_args:
