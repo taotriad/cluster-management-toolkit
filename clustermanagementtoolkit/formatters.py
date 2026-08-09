@@ -617,7 +617,7 @@ COLORSCHEME_MARKDOWN: dict[Any, ColorSchemeEntry] = {
     },
     # URL
     Token.Name.Attribute: {
-        "formatting": ThemeAttr("types", "url"),
+        "formatting": ThemeAttr("types", "uri"),
         "type": "text",
     },
     # Not sure what this is

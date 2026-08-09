@@ -390,7 +390,7 @@ def download_files(directory: str,
                 ansithemeprint([ANSIThemeStr("Error", "error"),
                                 ANSIThemeStr(": Unknown or missing protocol; "
                                              "Checksum URL ", "default"),
-                                ANSIThemeStr(f"{checksum_url}", "url")], stderr=True)
+                                ANSIThemeStr(f"{checksum_url}", "uri")], stderr=True)
                 retval = False
                 break
 
@@ -415,14 +415,14 @@ def download_files(directory: str,
             else:
                 ansithemeprint([ANSIThemeStr("Error", "error"),
                                 ANSIThemeStr(": Unknown or missing protocol; URL ", "default"),
-                                ANSIThemeStr(f"{url}", "url")], stderr=True)
+                                ANSIThemeStr(f"{url}", "uri")], stderr=True)
                 retval = False
                 continue
         except urllib3.exceptions.MaxRetryError as e:
             if "No route to host" in str(e):
                 ansithemeprint([ANSIThemeStr("Error", "error"),
                                 ANSIThemeStr(": No route to host; URL ", "default"),
-                                ANSIThemeStr(f"{url}", "url")], stderr=True)
+                                ANSIThemeStr(f"{url}", "uri")], stderr=True)
                 retval = False
                 continue
             if "Name or service not known" in str(e):
@@ -435,7 +435,7 @@ def download_files(directory: str,
                         ansithemeprint([ANSIThemeStr("Error", "error"),
                                         ANSIThemeStr(": Could not connect to ", "default"),
                                         ANSIThemeStr("https_proxy=", "default"),
-                                        ANSIThemeStr(f"{https_proxy}", "url"),
+                                        ANSIThemeStr(f"{https_proxy}", "uri"),
                                         ANSIThemeStr("; retry later or modify your ", "default"),
                                         ANSIThemeStr("configuration; aborting.", "default")],
                                        stderr=True)
@@ -444,11 +444,11 @@ def download_files(directory: str,
                         ansithemeprint([ANSIThemeStr("Error", "error"),
                                         ANSIThemeStr(": Name or service not known; ", "default"),
                                         ANSIThemeStr("URL ", "default"),
-                                        ANSIThemeStr(f"{re_tmp[1]}", "url")], stderr=True)
+                                        ANSIThemeStr(f"{re_tmp[1]}", "uri")], stderr=True)
                 else:
                     ansithemeprint([ANSIThemeStr("Error", "error"),
                                     ANSIThemeStr(": Name or service not known; URL ", "default"),
-                                    ANSIThemeStr(f"{url}", "url")], stderr=True)
+                                    ANSIThemeStr(f"{url}", "uri")], stderr=True)
                 retval = False
                 continue
             raise
@@ -458,7 +458,7 @@ def download_files(directory: str,
             if not r1.data:
                 ansithemeprint([ANSIThemeStr("Critical", "error"),
                                 ANSIThemeStr(": File downloaded from ", "default"),
-                                ANSIThemeStr(f"{url}", "url"),
+                                ANSIThemeStr(f"{url}", "uri"),
                                 ANSIThemeStr(" is empty; aborting.", "default")], stderr=True)
                 retval = False
                 break
@@ -469,7 +469,7 @@ def download_files(directory: str,
                     not verify_checksum(checksum, checksum_type, r1.data, os.path.basename(url)):
                 ansithemeprint([ANSIThemeStr("Critical", "error"),
                                 ANSIThemeStr(": File downloaded from ", "default"),
-                                ANSIThemeStr(f"{url}", "url"),
+                                ANSIThemeStr(f"{url}", "uri"),
                                 ANSIThemeStr(" did not match its expected checksum; "
                                              "aborting.", "default")], stderr=True)
                 retval = False
@@ -509,7 +509,7 @@ def download_files(directory: str,
                           ANSIThemeStr(")", "default")]
             ansithemeprint([ANSIThemeStr("Error ", "error"),
                             ANSIThemeStr(": Failed to fetch URL ", "default"),
-                            ANSIThemeStr(f"{url}", "url"),
+                            ANSIThemeStr(f"{url}", "uri"),
                             ANSIThemeStr("; HTTP code: ", "default"),
                             ANSIThemeStr(f"{r1.status}", "errorvalue")] + reason, stderr=True)
             retval = False
@@ -758,7 +758,7 @@ def update_version_cache(**kwargs: Any) -> None:
             if not download_files(VERSION_CACHE_DIR, fetch_url):
                 ansithemeprint([ANSIThemeStr("Error", "error"),
                                 ANSIThemeStr(": Failed to fetch ", "default"),
-                                ANSIThemeStr(f"{changelog_url}", "url"),
+                                ANSIThemeStr(f"{changelog_url}", "uri"),
                                 ANSIThemeStr("; skipping.", "default")], stderr=True)
                 continue
         if key not in last_update_data:

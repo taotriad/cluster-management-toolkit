@@ -2811,7 +2811,7 @@ def clusteroverviewloop(stdscr: curses.window, **kwargs: Any) -> Retval:
             k8s_distro_string = ThemeStr("<unknown>", ThemeAttr("types", "unset"))
 
         if server_git_version:
-            k8s_server_version: list[ThemeStr | ThemeRef] = [
+            k8s_server_version: list[ThemeRef | ThemeStr] = [
                 ThemeStr(" (", ThemeAttr("types", "generic")),
             ] + generators.format_version(server_git_version, selected=False) + [
                 ThemeStr(")", ThemeAttr("types", "generic")),
@@ -5610,7 +5610,9 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                     ThemeStr("Image: ", ThemeAttr("main", "infoheader")),
                     ThemeStr(f"{image_name}", ThemeAttr("types", "generic")),
                     ThemeRef("separators", "version"),
-                ] + generators.format_version(image_version, selected=False)
+                ]
+                imagearray += generators.format_version(image_version, selected=False)
+
                 image_id = deep_get(container_status, DictPath("imageID"))
                 imageidarray: list[ThemeRef | ThemeStr] = [
                     ThemeStr("Image ID: ", ThemeAttr("main", "infoheader")),

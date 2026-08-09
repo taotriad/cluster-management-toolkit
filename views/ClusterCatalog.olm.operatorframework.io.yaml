@@ -142,9 +142,7 @@ infoview:
                  ["e:", ["main", "infoheader"]]]
         path: "status#urls#base"
         type: "str"
-        formatting:
-          field_colors:
-            - type: "url"
+        formatter: "uri"
   shortcuts:
     "Open base image URL":
       key: "s"

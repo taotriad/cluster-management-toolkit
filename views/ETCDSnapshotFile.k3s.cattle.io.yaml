@@ -19,9 +19,7 @@ listview:
       header: "Location:"
       path: "spec#location"
       type: "str"
-      formatting:
-        field_colors:
-          - type: "url"
+      formatter: "uri"
     node:
       header: "Node:"
       path: "spec#nodeName"
@@ -66,9 +64,7 @@ infoview:
         header: [["Location:", ["main", "infoheader"]]]
         path: "spec#location"
         type: "str"
-        formatting:
-          field_colors:
-            - type: "url"
+        formatter: "uri"
       node:
         header: [["No", ["main", "infoheader"]],
                  ["d", ["main", "infoheader_shortcut"]],

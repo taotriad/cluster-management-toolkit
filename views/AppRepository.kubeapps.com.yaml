@@ -21,6 +21,7 @@ listview:
       header: "URL:"
       path: "spec#url"
       type: "str"
+      formatter: "uri"
 infoview:
   name: "App Repository Info"
   infopad:
@@ -36,3 +37,4 @@ infoview:
         header: [["URL:", ["main", "infoheader"]]]
         path: "spec#url"
         type: "str"
+        formatter: "uri"

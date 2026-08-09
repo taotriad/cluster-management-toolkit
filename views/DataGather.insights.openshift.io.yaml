@@ -45,9 +45,7 @@ infoview:
         fallback_on_empty: true
         default: "<unset>"
         type: "str"
-        formatting:
-          field_colors:
-            - type: "url"
+        formatter: "uri"
   listpad:
     on_activation:
       call: "resourceinfodispatch"

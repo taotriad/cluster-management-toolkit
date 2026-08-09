@@ -59,9 +59,7 @@ infoview:
         header: [["  Peer Cert URI:", ["main", "infoheader"]]]
         path: "spec#tls#peerCertURI"
         type: "str"
-        formatting:
-          field_colors:
-            - type: "url"
+        formatter: "uri"
       tls_root_cas_secrets:
         header: [["  ", ["main", "infoheader"]],
                  ["R", ["main", "infoheader_shortcut"]],
@@ -83,18 +81,13 @@ infoview:
         header: [["    Trust Domain:", ["main", "infoheader"]]]
         path: "spec#tls#spiffe#trustDomain"
         type: "str"
-        formatting:
-          field_colors:
-            - type: "url"
+        formatter: "uri"
       tls_spiffe_ids:
         header: [["    IDs:", ["main", "infoheader"]]]
         path: "spec#tls#spiffe#ids"
         default: ["<none>"]
         type: "raw"
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "url"
+        formatter: "uri"
   shortcuts:
     "Certificate Secrets":
       key: "c"

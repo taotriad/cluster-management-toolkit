@@ -109,9 +109,7 @@ infoview:
         path: "spec#helmRelease#chart#repo"
         default: "<unset>"
         type: "str"
-        formatting:
-          field_colors:
-            - type: "url"
+        formatter: "uri"
       helm_release_chart_version:
         header: [["    Version:", ["main", "infoheader"]]]
         path: "spec#helmRelease#chart#version"

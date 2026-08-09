@@ -41,7 +41,7 @@ term:
   description: "\033[0m"                        # reset
   hostname: "\033[1;37m"                        # white + bright
   path: "\033[0;36m"                            # cyan
-  url: "\033[1;4;37m"                           # white + bright + underline
+  uri: "\033[1;4;37m"                           # white + bright + underline
   header: "\033[0;4;37m"                        # white + underline
   underline: "\033[0;4;37m"                     # white + underline
   emphasis: "\033[1;37m"                        # white + bright
@@ -173,7 +173,7 @@ color_pairs_curses:
     unselected: [["cyan", "bright"], ["black", "normal"]]
     selected: [["cyan", "bright"], ["white", "normal"]]
   http_protocol: [["green", "normal"], ["black", "normal"]]
-  url:
+  uri:
     unselected: [["cyan", "normal"], ["black", "normal"]]
     selected: [["cyan", "normal"], ["white", "normal"]]
   timestamp: [["cyan", "normal"], ["black", "normal"]]
@@ -376,8 +376,8 @@ color_pairs_curses:
     unselected: [["cyan", "normal"], ["black", "normal"]]
     selected: [["cyan", "normal"], ["white", "normal"]]
   type_port:
-    unselected: [["white", "normal"], ["black", "normal"]]
-    selected: [["black", "normal"], ["white", "normal"]]
+    unselected: [["magenta", "bright"], ["black", "normal"]]
+    selected: [["magenta", "normal"], ["white", "normal"]]
   type_uid:
     unselected: [["white", "normal"], ["black", "normal"]]
     selected: [["black", "normal"], ["white", "normal"]]
@@ -435,7 +435,7 @@ color_pairs_curses:
   separator_version:
     unselected: [["black", "bright"], ["black", "normal"]]
     selected: [["black", "bright"], ["white", "normal"]]
-  separator_url:
+  separator_uri:
     unselected: [["black", "bright"], ["black", "normal"]]
     selected: [["black", "bright"], ["white", "normal"]]
   separator_kind:
@@ -1157,7 +1157,7 @@ windowwidget:
 
 logview:
   hostname: "hostname"
-  url: ["url", "underline"]
+  uri: ["uri", "underline"]
   protocol: "http_protocol"
   timestamp: "timestamp"
   timestamp_newdate: ["timestamp", "bold"]
@@ -1454,7 +1454,7 @@ types:
   separator_set_start: ["separator_set_start", "bold"]
   separator_space: "separator_pad"
   separator_sysctl_key_components: ["separator_sysctl_key_components", "bold"]
-  separator_url: "separator_url"
+  separator_uri: "separator_uri"
   separator_user_uid: "separator_user_uid"
   separator_version: "separator_version"
   service: "type_service"
@@ -1485,7 +1485,7 @@ types:
   undefined: ["type_undefined", "bold"]
   unit: "type_unit"
   unset: ["type_unset", "bold"]
-  url: ["url", "underline"]
+  uri: ["uri", "underline"]
   user: "type_user"
   version: "type_version"
   watermark_high: "type_watermark_high"
@@ -1571,7 +1571,8 @@ separators:
   id_prefix: [[": ", ["types", "separator_version"]]]
   version: [[":", ["types", "separator_version"]]]
   user_uid: [[":", ["types", "separator_user_uid"]]]
-  url_separator: [["://", ["types", "separator_url"]]]
+  uri_separator: [["://", ["types", "separator_uri"]]]
+  uri_path: [["/", ["types", "separator_uri"]]]
   kind: [["/", ["types", "separator_kind"]]]
   kind_api_group: [[".", ["types", "separator_kind_api_group"]]]
   port: [[":", ["types", "separator_port"]]]

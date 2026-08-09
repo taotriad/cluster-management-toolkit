@@ -38,13 +38,9 @@ infoview:
         header: [["  URI:", ["main", "infoheader"]]]
         path: "spec#predictor#model#storageUri"
         type: "str"
-        formatting:
-          field_colors:
-            - type: "url"
+        formatter: "uri"
       url:
         header: [["URL:", ["main", "infoheader"]]]
         path: "status#address#url"
         type: "str"
-        formatting:
-          field_colors:
-            - type: "url"
+        formatter: "uri"

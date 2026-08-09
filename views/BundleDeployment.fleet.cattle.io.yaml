@@ -117,8 +117,21 @@ infoview:
         type: "bool"
       release:
         header: [["Release:", ["main", "infoheader"]]]
-        path: "status#release"
-        type: "str"
+        paths:
+          - path: "status#release"
+            pathtype: "regex"
+            regex: "^([^:]+):(.*)"
+            default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "generic"
+            - type: "version"
+          field_separators:
+            - type: "version"
+          field_formatters:
+            - ""
+            - "version"
       resources_desired:
         header: [["  Desired:", ["main", "infoheader"]]]
         path: "status#resourceCounts#desiredReady"

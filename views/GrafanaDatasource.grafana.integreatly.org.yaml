@@ -69,7 +69,7 @@ infoview:
         path: "spec#datasource#url"
         default: "<unset>"
         type: "str"
-        formatter: "address"
+        formatter: "uri"
       instance_label_selector:
         header: [["Instance La", ["main", "infoheader"]],
                  ["b", ["main", "infoheader_shortcut"]],

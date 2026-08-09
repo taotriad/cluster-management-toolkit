@@ -132,7 +132,6 @@ def format_special(string: str, selected: bool) -> ThemeRef | ThemeStr | None:
     return formatted_string
 
 
-# pylint: disable-next=unused-argument
 def format_version(items: str | list[str],
                    selected: bool, **kwargs: Any) -> list[ThemeRef | ThemeStr]:
     """
@@ -556,6 +555,75 @@ def format_address(items: str | list[str],
     return array
 
 
+def format_uri(items: str | list[str],
+               selected: bool, **kwargs: Any) -> list[ThemeRef | ThemeStr]:
+    """
+    Given a list of strings, return them formatted as URIs.
+
+        Parameters:
+            items (str|[str]): The strings to format
+            selected (bool): Should the strings be treated as selected?
+            **kwargs (dict[str, Any]): Keyword arguments
+                formatting (FormattingType): Formatting for the data
+        Returns:
+            ([ThemeRef | ThemeStr]): A formatted string
+    """
+    formatting: FormattingType = deep_get(kwargs, DictPath("formatting"), {})
+
+    if isinstance(items, (str, tuple)):
+        items = [items]
+
+    item_separator = deep_get(formatting, DictPath("item_separator"),
+                              ThemeRef("separators", "list", selected))
+
+    array: list[ThemeRef | ThemeStr] = []
+
+    for item in items:
+        _vlist: list[ThemeRef | ThemeStr] = []
+        urisplit = item.split("://", maxsplit=1)
+        if len(urisplit) != 2:
+            # This isn't a properly formatted URI, just add it unformatted.
+            _vlist = [ThemeStr(item, ThemeAttr("types", "generic"), selected)]
+        else:
+            scheme = urisplit[0]
+            rest = urisplit[1]
+
+            # Split the server address from the rest.
+            urisplit = rest.split("/", maxsplit=1)
+            authority = urisplit[0]
+            uripath = []
+            if len(urisplit) == 2:
+                # We have a path too; split and rejoin it with formatting.
+                uripathsplit = urisplit[1].split("/")
+                uripath = []
+                for segment in uripathsplit:
+                    if uripath:
+                        uripath += [ThemeRef("separators", "uri_path")]
+                    uripath += [ThemeStr(segment, ThemeAttr("types", "address"), selected=False)]
+            urisplit = authority.split(":")
+            if len(urisplit) > 2:
+                # This URI is malformed.
+                _vlist = [ThemeStr(item, ThemeAttr("types", "generic"), selected)]
+            else:
+                _vlist = [ThemeStr(scheme, ThemeAttr("types", "protocol"), selected)]
+                _vlist += [ThemeRef("separators", "uri_separator", selected)]
+                _vlist += format_address(authority, selected, formatting=formatting)
+                _vlist += [ThemeRef("separators", "uri_path", selected)]
+                _vlist += uripath
+
+        if array:
+            item_separator.selected = selected
+            array.append(item_separator)
+        array += _vlist
+
+    if not array:
+        array = [
+            ThemeStr("", ThemeAttr("types", "generic"), selected)
+        ]
+
+    return array
+
+
 # pylint: disable-next=too-many-branches,too-many-statements
 def format_numerical_with_units(string: str,
                                 selected: bool, **kwargs: Any) -> list[ThemeRef | ThemeStr]:
@@ -730,6 +798,34 @@ def generator_address(obj: dict, field: str, fieldlen: int, pad: bool,
         return format_list([items], fieldlen, pad, ralign=ralign, selected=selected)
 
     array = format_address(items, selected, formatting=formatting)
+
+    return align_and_pad(array, fieldlen=fieldlen, pad=pad, ralign=ralign, selected=selected)
+
+
+# pylint: disable-next=too-many-arguments,too-many-positional-arguments
+def generator_uri(obj: dict, field: str, fieldlen: int, pad: bool,
+                  ralign: bool, selected: bool,
+                  **formatting: FormattingType) -> list[ThemeRef | ThemeStr]:
+    """
+    A generator for URIs.
+
+        Parameters:
+            obj (dict): The object to get data from
+            field (str): The field in the object to get data from
+            fieldlen (int): The length of the field
+            pad (bool): Pad the string?
+            ralign (bool): Should the text be right-aligned?
+            selected (bool): Should the generated field be selected?
+            **formatting (dict): Formatting for the data
+        Returns:
+            ([ThemeRef | ThemeStr]): A formatted string
+    """
+    items = deep_get(obj, DictPath(field), [])
+
+    if isinstance(items, str) and items in ("<unset>", "<none>"):
+        return format_list([items], fieldlen, pad, ralign=ralign, selected=selected)
+
+    array = format_uri(items, selected, formatting=formatting)
 
     return align_and_pad(array, fieldlen=fieldlen, pad=pad, ralign=ralign, selected=selected)
 
@@ -1655,6 +1751,19 @@ def get_formatting(field: dict[str, Any],
 
 
 formatter_to_generator_and_processor: dict[str, dict[str, Any]] = {
+    "address": {
+        "generator": generator_address,
+        "processor": processor_list,
+        "field_separators_default": [],
+    },
+    "age": {
+        "generator": generator_age,
+        "processor": processor_age,
+    },
+    "hex": {
+        "generator": generator_hex,
+        "processor": None,
+    },
     "list": {
         "generator": generator_list,
         "processor": processor_list,
@@ -1663,22 +1772,9 @@ formatter_to_generator_and_processor: dict[str, dict[str, Any]] = {
         "generator": generator_list_with_status,
         "processor": processor_list_with_status,
     },
-    "hex": {
-        "generator": generator_hex,
-        "processor": None,
-    },
     "numerical": {
         "generator": generator_numerical_with_units,
         "processor": None,
-    },
-    "version": {
-        "generator": generator_version,
-        "processor": None,
-    },
-    "address": {
-        "generator": generator_address,
-        "processor": processor_list,
-        "field_separators_default": [],
     },
     "timestamp": {
         "generator": generator_timestamp,
@@ -1688,12 +1784,17 @@ formatter_to_generator_and_processor: dict[str, dict[str, Any]] = {
         "generator": generator_timestamp_with_age,
         "processor": processor_timestamp_with_age,
     },
-    "age": {
-        "generator": generator_age,
-        "processor": processor_age,
+    "uri": {
+        "generator": generator_uri,
+        "processor": processor_list,
+        "field_separators_default": [],
     },
     "value_mapper": {
         "generator": generator_value_mapper,
+        "processor": None,
+    },
+    "version": {
+        "generator": generator_version,
         "processor": None,
     },
 }
@@ -1970,6 +2071,7 @@ def fieldgenerator(view: str | tuple[str, str], selected_namespace: str = "",
 field_formatter_allowlist: dict[str, Callable] = {
     "address": format_address,
     "numerical_with_units": format_numerical_with_units,
+    "uri": format_uri,
     "version": format_version,
 }
 

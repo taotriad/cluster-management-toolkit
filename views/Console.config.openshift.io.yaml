@@ -24,9 +24,7 @@ infoview:
                  ["RL:", ["main", "infoheader"]]]
         path: "status#consoleURL"
         type: "str"
-        formatting:
-          field_colors:
-            - type: "url"
+        formatter: "uri"
   shortcuts:
     "Open Console":
       key: "u"

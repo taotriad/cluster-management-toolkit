@@ -32,9 +32,7 @@ infoview:
         header: [["Address:", ["main", "infoheader"]]]
         path: "status#address#url"
         type: "str"
-        formatting:
-          field_colors:
-            - type: "url"
+        formatter: "uri"
       reference:
         header: [["R", ["main", "infoheader_shortcut"]],
                  ["eference:", ["main", "infoheader"]]]
@@ -60,9 +58,7 @@ infoview:
         header: [["URL:", ["main", "infoheader"]]]
         path: "status#url"
         type: "str"
-        formatting:
-          field_colors:
-            - type: "url"
+        formatter: "uri"
   shortcuts:
     "Open reference":
       key: "r"

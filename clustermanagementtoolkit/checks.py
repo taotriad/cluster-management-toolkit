@@ -600,10 +600,10 @@ def check_client_server_version_match(**kwargs: Any) -> tuple[bool, int, int, in
         no_proxy_env = os.getenv("no_proxy")
         ansithemeprint([ANSIThemeStr("      https_proxy", "argument"),
                         ANSIThemeStr(" (env): ", "default"),
-                        ANSIThemeStr(f"{https_proxy_env}", "url")], stderr=True)
+                        ANSIThemeStr(f"{https_proxy_env}", "uri")], stderr=True)
         ansithemeprint([ANSIThemeStr("      no_proxy", "argument"),
                         ANSIThemeStr(" (env): ", "default"),
-                        ANSIThemeStr(f"{no_proxy_env}\n", "url")], stderr=True)
+                        ANSIThemeStr(f"{no_proxy_env}\n", "uri")], stderr=True)
         abort = True
         critical += 1
     elif verbose:

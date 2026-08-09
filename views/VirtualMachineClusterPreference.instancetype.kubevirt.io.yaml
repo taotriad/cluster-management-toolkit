@@ -154,9 +154,7 @@ infoview:
             newlines: "strip"
             default: "<none>"
             type: "str"
-        formatting:
-          field_colors:
-            - type: "url"
+        formatter: "uri"
       firmware_header:
         header: [["Firmware:", ["main", "infoheader"]]]
       firmware_efi_header:
@@ -197,9 +195,7 @@ infoview:
             newlines: "strip"
             default: "<none>"
             type: "str"
-        formatting:
-          field_colors:
-            - type: "url"
+        formatter: "uri"
       tags:
         header: [["Tags:", ["main", "infoheader"]]]
         paths:

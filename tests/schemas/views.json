@@ -240,7 +240,8 @@
                             "enum": [
                                 "left",
                                 "right"
-                            ]
+                            ],
+                            "default": "left"
                         },
                         "datagetter":  {
                             "description": "Custom function to use to get data from an object",
@@ -251,7 +252,8 @@
                         },
                         "fallback_on_empty": {
                             "description": "Normally an existing, but empty, field is treated as valid; this option allows for using the fallback path if the field is empty",
-                            "type": "boolean"
+                            "type": "boolean",
+                            "default": false
                         },
                         "formatter": {
                             "$ref": "#/$defs/formatter"
@@ -284,6 +286,19 @@
                 }
             },
             "additionalProperties": false
+        },
+        "field_formatters": {
+            "description": "The valid field formatters",
+            "type": "array",
+            "items": {
+                "enum": [
+                    "",
+                    "address",
+                    "numerical_with_units",
+                    "uri",
+                    "version"
+                ]
+            }
         },
         "field_separators": {
             "description": "Separators to use between items in a field",
@@ -325,6 +340,7 @@
                 "reformat_json",
                 "timestamp",
                 "timestamp_with_age",
+                "uri",
                 "value_mapper",
                 "version"
             ]
@@ -368,6 +384,9 @@
                 },
                 "field_colors": {
                     "$ref": "#/$defs/field_colors"
+                },
+                "field_formatters": {
+                    "$ref": "#/$defs/field_formatters"
                 },
                 "field_separators": {
                     "$ref": "#/$defs/field_separators"
@@ -2039,15 +2058,14 @@
                                         "^[a-z][a-z0-9_]*[a-z0-9]$": {
                                             "type": "object",
                                             "properties": {
-                                                "datagetter":  {
+                                                "datagetter": {
                                                     "description": "Custom function to use to get data from an object",
                                                     "enum": [
                                                         "datagetter_latest_version"
                                                     ]
                                                 },
                                                 "default": {
-                                                    "description": "The fallback value to use if no data is available",
-                                                    "type": [ "number", "string", "boolean", "object", "array", "null" ]
+                                                    "$ref": "#/$defs/default"
                                                 },
                                                 "fallback_on_empty": {
                                                     "description": "Normally an existing, but empty, field is treated as valid; this option allows for using the fallback path if the field is empty",

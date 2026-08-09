@@ -83,7 +83,7 @@ infoview:
         path: "status#apiServerURL"
         default: "<unset>"
         type: "str"
-        formatter: "address"
+        formatter: "uri"
       client_id:
         header: [["Client ID:", ["main", "infoheader"]]]
         path: "spec#clientID"

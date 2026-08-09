@@ -94,15 +94,14 @@ infoview:
         fallback_on_empty: true
         default: "<unset>"
         type: "str"
-        formatting:
-          field_colors:
-            - type: "url"
+        formatter: "uri"
       url:
         header: [["URL:", ["main", "infoheader"]]]
         path: "spec#url"
-        type: "str"
         fallback_on_empty: true
         default: "<unset>"
+        type: "str"
+        formatter: "uri"
       whitelist_domains:
         header: [["Whitelist Domains:", ["main", "infoheader"]]]
         path: "spec#whitelistDomains"

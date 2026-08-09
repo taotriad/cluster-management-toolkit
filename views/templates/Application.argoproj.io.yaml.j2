@@ -157,9 +157,7 @@ infoview:
           - path: ["status#sync#comparedTo#source#repoURL",
                    "spec#destination#repoURL"]
         type: "str"
-        formatting:
-          field_colors:
-            - type: "url"
+        formatter: "uri"
       sync_compared_to_source_target_revision:
         header: [["      Target Revision:", ["main", "infoheader"]]]
         paths:

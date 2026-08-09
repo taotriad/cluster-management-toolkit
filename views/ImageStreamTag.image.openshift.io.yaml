@@ -48,7 +48,7 @@ infoview:
         formatter: "list"
         formatting:
           field_separators:
-            - type: "url_separator"
+            - type: "uri_separator"
       lookup_policy:
         header: [["Lookup Policy:", ["main", "infoheader"]]]
         paths:

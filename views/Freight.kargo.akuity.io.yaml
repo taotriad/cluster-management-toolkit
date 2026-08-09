@@ -85,9 +85,7 @@ infoview:
         header: "Repo URL:"
         path: "repoURL"
         type: "str"
-        formatting:
-          field_colors:
-            - type: "url"
+        formatter: "uri"
       tag:
         header: "tag:"
         path: "tag"

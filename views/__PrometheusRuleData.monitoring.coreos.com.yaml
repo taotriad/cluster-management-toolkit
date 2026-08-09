@@ -68,9 +68,7 @@ infoview:
         path: "annotations#runbook_url"
         default: "<none>"
         type: "str"
-        formatting:
-          field_colors:
-            - type: "url"
+        formatter: "uri"
       summary:
         header: [["S", ["main", "infoheader_shortcut"]],
                  ["ummary:", ["main", "infoheader"]]]

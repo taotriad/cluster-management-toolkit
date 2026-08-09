@@ -4231,28 +4231,28 @@ def show_configuration(action: str,
         ansithemeprint([ANSIThemeStr("                 CRI: ", "action"),
                         ANSIThemeStr(f"{cri}", "programname")])
     ansithemeprint([ANSIThemeStr("          HTTP Proxy: ", "action"),
-                    __format_none(http_proxy, "url"),
+                    __format_none(http_proxy, "uri"),
                     ANSIThemeStr(" (", "default"),
                     ANSIThemeStr(f"{CMT_CONFIG_FILE}", "path"),
                     ANSIThemeStr(")", "default")])
     ansithemeprint([ANSIThemeStr("          HTTP Proxy: ", "action"),
-                    __format_none(http_proxy_env, "url"),
+                    __format_none(http_proxy_env, "uri"),
                     ANSIThemeStr(" (Environment)", "default")])
     ansithemeprint([ANSIThemeStr("         HTTPS Proxy: ", "action"),
-                    __format_none(https_proxy, "url"),
+                    __format_none(https_proxy, "uri"),
                     ANSIThemeStr(" (", "default"),
                     ANSIThemeStr(f"{CMT_CONFIG_FILE}", "path"),
                     ANSIThemeStr(")", "default")])
     ansithemeprint([ANSIThemeStr("         HTTPS Proxy: ", "action"),
-                    __format_none(https_proxy_env, "url"),
+                    __format_none(https_proxy_env, "uri"),
                     ANSIThemeStr(" (Environment)", "default")])
     ansithemeprint([ANSIThemeStr("            No Proxy: ", "action"),
-                    __format_none(no_proxy, "url"),
+                    __format_none(no_proxy, "uri"),
                     ANSIThemeStr(" (", "default"),
                     ANSIThemeStr(f"{CMT_CONFIG_FILE}", "path"),
                     ANSIThemeStr(")", "default")])
     ansithemeprint([ANSIThemeStr("            No Proxy: ", "action"),
-                    __format_none(no_proxy_env, "url"),
+                    __format_none(no_proxy_env, "uri"),
                     ANSIThemeStr(" (Environment)", "default")])
     if control_plane_info:
         ansithemeprint([ANSIThemeStr("\n• ", "separator"),
@@ -6713,7 +6713,7 @@ def upgrade_control_plane(options: list[tuple[str, str]], args: list[str]) -> No
                                 ANSIThemeStr("drain ", "command"),
                                 ANSIThemeStr("--ignore-daemonsets --delete-emptydir-data ",
                                              "option"),
-                                ANSIThemeStr(f"{' '.join(nodes_to_drain)}", "url"),
+                                ANSIThemeStr(f"{' '.join(nodes_to_drain)}", "uri"),
                                 ANSIThemeStr("“", "default")])
                 sys.exit(errno.EBUSY)
 

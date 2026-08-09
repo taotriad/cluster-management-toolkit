@@ -44,9 +44,7 @@ infoview:
         default: "<unset>"
         fallback_on_empty: true
         type: "str"
-        formatting:
-          field_colors:
-            - type: "url"
+        formatter: "uri"
       credential_secret:
         header: [["Credential Secret:", ["main", "infoheader"]]]
         path: "spec#credentialSecret"

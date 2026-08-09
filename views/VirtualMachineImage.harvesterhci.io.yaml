@@ -125,7 +125,7 @@ infoview:
         paths:
           - path: ["status#appliedUrl", "spec#url"]
             pathtype: "value"
-        formatter: "address"
+        formatter: "uri"
       virtual_size:
         header: [["Virtual Size:", ["main", "infoheader"]]]
         paths:
