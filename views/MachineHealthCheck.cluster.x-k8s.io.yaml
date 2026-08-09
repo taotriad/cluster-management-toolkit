@@ -145,6 +145,106 @@ infoview:
             - type: "generic"
           field_separators:
             - type: "keyvalue"
+  listpad:
+    listgetter: "generic_listgetter"
+    listgetter_args:
+      _kind: "Machine"
+      _api_family: "cluster.x-k8s.io"
+      _label_selector_path: "spec#selector#matchLabels"
+      _none_on_empty_selector: true
+    infogetter: "generic_infogetter"
+    on_activation:
+      call: "resourceinfodispatch"
+      kind: "Machine"
+      api_family: "cluster.x-k8s.io"
+    field_indexes:
+      Wide:
+        fields: ["namespace", "name", "controller",
+                 "cluster", "node", "provider_id",
+                 "phase", "age", "version"]
+        sortcolumn: "namespace"
+      Normal:
+        fields: ["namespace", "name", "cluster", "phase", "age", "version"]
+        sortcolumn: "namespace"
+    fields:
+      cluster:
+        header: "Cluster:"
+        path: "spec#clusterName"
+        type: "str"
+      controller:
+        header: "Controller:"
+        paths:
+          - path: "metadata#ownerReferences"
+            pathtype: "items"
+            subpaths:
+              - "kind"
+              - "apiVersion"
+              - "name"
+            when:
+              - key: "controller"
+                eq: true
+            type: ["kind", "api_group", "name"]
+            default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "kind"
+            - type: "api_group"
+            - type: "generic"
+          field_separators:
+            - type: "kind_api_group"
+            - type: "kind"
+      node:
+        header: "Node:"
+        path: "status#nodeRef#name"
+        default: "<none>"
+        type: "host"
+        formatting:
+          field_colors:
+            - type: "host"
+      phase:
+        header: "Phase:"
+        path: "status#phase"
+        type: "str"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              Pending:
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+              Provisioned:
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+              Provisioning:
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+              Running:
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+              Terminating:
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+              Failed:
+                field_colors:
+                  - context: "main"
+                    type: "status_not_ok"
+      provider_id:
+        header: "Provider ID:"
+        path: "spec#providerID"
+        default: "<unset>"
+        type: "str"
+      version:
+        header: "Version:"
+        path: "spec#version"
+        default: "<unset>"
+        type: "str"
+        formatter: "version"
   shortcuts:
     "Label Selector":
       key: "b"

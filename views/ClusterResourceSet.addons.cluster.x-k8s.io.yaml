@@ -57,6 +57,86 @@ infoview:
         path: "spec#strategy"
         default: "<unset>"
         type: "str"
+  listpad:
+    listgetter: "generic_listgetter"
+    listgetter_args:
+      _kind: "Cluster"
+      _api_family: "cluster.x-k8s.io"
+      _label_selector_path: "spec#clusterSelector#matchLabels"
+      _none_on_empty_selector: true
+    infogetter: "generic_infogetter"
+    on_activation:
+      call: "resourceinfodispatch"
+      kind: "Cluster"
+      api_family: "cluster.x-k8s.io"
+    field_indexes:
+      Normal:
+        fields: ["namespace", "name", "controller",
+                 "cluster_class", "version", "phase", "age"]
+        sortcolumn: "namespace"
+    fields:
+      cluster_class:
+        header: "Cluster Class:"
+        path: "spec#topology#class"
+        default: "<unset>"
+        type: "str"
+      controller:
+        header: "Controller:"
+        paths:
+          - path: "metadata#ownerReferences"
+            pathtype: "items"
+            subpaths:
+              - "kind"
+              - "apiVersion"
+              - "name"
+            when:
+              - key: "controller"
+                eq: true
+            type: ["kind", "api_group", "name"]
+            default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "kind"
+            - type: "api_group"
+            - type: "generic"
+          field_separators:
+            - type: "kind_api_group"
+            - type: "kind"
+      phase:
+        header: "Phase:"
+        path: "status#phase"
+        type: "str"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              Pending:
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+              Provisioning:
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+              Provisioned:
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+              Deleting:
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+              Failed:
+                field_colors:
+                  - context: "main"
+                    type: "status_not_ok"
+      version:
+        header: "Version:"
+        path: "spec#topology#version"
+        default: "<unset>"
+        type: "str"
+        formatter: "version"
   shortcuts:
     "Cluster Label Selector":
       key: "b"
