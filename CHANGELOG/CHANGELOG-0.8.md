@@ -120,21 +120,29 @@ N/A
 * It seems that *kubectl* has issues with YAML-files that have a version prefix (`%YAML 1.1`,
   for instance). Add an option to `secure_write_yaml()` that allows for stripping the prefix.
   This is useful when we patch files and then apply them using *kubectl*.
-* diffstat: 240 files changed, 11762 insertions(+), 5188 deletions(-)
+* diffstat: 450 files changed, 13026 insertions(+), 7331 deletions(-)
 
 ### Notable view-file changes (changed API-files)
 
+* aquasecurity.github.io.yaml (11 changed files)
 * gateway.nginx.org (8 changed files)
 * gateway.networking.k8s.io (8 changed files)
+* kubeflow.org.yaml (7 changed files)
 * k8s.ovn.org (6 changed files)
 * infrastructure.cluster.x-k8s.io.yaml (6 changed files)
+* management.cattle.io (5 changed files)
+* deviceplugin.intel.com (5 changed files)
 
 ### Notable view-file changes (changed line count)
 
-* views/MachineConfigPool.machineconfiguration.openshift.io.yaml (195 changed lines)
+* views/MachineConfigPool.machineconfiguration.openshift.io.yaml (191 changed lines)
 * views/AdminNetworkPolicy.policy.networking.k8s.io.yaml (135 changed lines)
 * views/templates/MachineHealthCheck.machine.openshift.io.yaml.j2 (80 changed lines)
-* views/templates/MachineSet.cluster.x-k8s.io.yaml.j2 (79 changed lines)
+* views/templates/DaemonSet.apps.kruise.io.yaml.j2 (79 changed lines)
+* views/templates/DaemonSet.apps.yaml.j2 (79 changed lines)
+* views/templates/ServiceMonitor.monitoring.coreos.com.yaml.j2 (79 changed lines)
+* views/templates/StatefulSet.apps.yaml.j2 (79 changed lines)
+* views/templates/MachineSet.cluster.x-k8s.io.yaml.j2 (75 changed lines)
 * views/AuthRequest.dex.coreos.com.yaml (72 changed lines)
 * views/GatewayClass.gateway.networking.k8s.io.yaml (61 changed lines)
 * views/templates/Ingress.networking.internal.knative.dev.yaml.j2 (59 changed lines)
@@ -144,6 +152,7 @@ N/A
 * views/templates/Configuration.serving.knative.dev.yaml.j2 (55 changed lines)
 * views/templates/ServerlessService.networking.internal.knative.dev.yaml.j2 (55 changed lines)
 * views/templates/EventType.eventing.knative.dev.yaml.j2 (52 changed lines)
+* views/templates/VirtualMachineInstance.kubevirt.io.yaml.j2 (52 changed lines)
 
 ### parser-file changes
 
@@ -253,7 +262,7 @@ Test results:
 	No issues identified.
 
 Code scanned:
-	Total lines of code: 104796
+	Total lines of code: 104909
 	Total lines skipped (#nosec): 7
 
 Run metrics:
@@ -297,8 +306,8 @@ clustermanagementtoolkit/listgetters_async.py           118     75     52      2
 clustermanagementtoolkit/logparser.py                  2095   1345   1182     38  31.7%
 clustermanagementtoolkit/listgetters.py                1215    765    678     17  35.2%
 clustermanagementtoolkit/checks.py                      620    326    246      1  44.9%
-clustermanagementtoolkit/generators.py                  782    262    400     52  64.6%
-clustermanagementtoolkit/datagetters.py                 272     85    142     12  67.4%
+clustermanagementtoolkit/generators.py                  836    305    428     55  61.7%
+clustermanagementtoolkit/datagetters.py                 272     85    142     13  67.1%
 clustermanagementtoolkit/ansible_helper.py              818    219    486     27  72.1%
 clustermanagementtoolkit/cmtlib.py                      686    133    382     20  78.9%
 clustermanagementtoolkit/ansithemeprint.py              287     53    122      5  79.5%
@@ -307,7 +316,7 @@ clustermanagementtoolkit/cmtio.py                       426     45    226     20
 clustermanagementtoolkit/cni_data.py                     80      0     40      9  92.5%
 clustermanagementtoolkit/formatters.py                  904     44    396     40  92.9%
 clustermanagementtoolkit/cmtvalidators.py               337     18    212      8  93.4%
-clustermanagementtoolkit/itemgetters.py                 558     22    316     18  95.0%
+clustermanagementtoolkit/itemgetters.py                 565     25    320     20  94.5%
 clustermanagementtoolkit/reexecutor.py                   69      1     26      2  96.8%
 clustermanagementtoolkit/objgetters.py                   56      0     12      1  98.5%
 clustermanagementtoolkit/commandparser.py               431      2    262      2  99.4%
@@ -322,7 +331,7 @@ clustermanagementtoolkit/kubernetes_resources.py          5      0      0      0
 clustermanagementtoolkit/pvtypes.py                       3      0      0      0 100.0%
 clustermanagementtoolkit/recommended_permissions.py      15      0      0      0 100.0%
 ---------------------------------------------------------------------------------------
-TOTAL                                                 17366   8243   8808    406  50.1%
+TOTAL                                                 17427   8289   8840    412  50.0%
 ```
 
 ### Flake8 Results for v0.8.9
@@ -503,9 +512,9 @@ Output:
 ```
 Summary:
      fail: 0
-     skip: 7
+     skip: 6
   success: 1204
-    total: 1211
+    total: 1210
 ```
 
 * [v0.8.8](#v088)

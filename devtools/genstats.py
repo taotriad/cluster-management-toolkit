@@ -142,7 +142,7 @@ def main() -> None:
     sorted_api_stats = sorted(api_stats.items(), key=lambda x: x[1], reverse=True)
     sorted_lines_stats = sorted(file_stats.items(), key=lambda x: x[1], reverse=True)
 
-    print(f"diffstat: {stats}\n")
+    print(f"* diffstat: {stats}\n")
 
     header = False
     for api, count in sorted_api_stats:
