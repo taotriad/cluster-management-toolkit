@@ -15,6 +15,7 @@ import re
 import sys
 from typing import Any, cast
 from collections.abc import Callable
+import yaml
 
 try:
     from natsort import natsorted
@@ -925,17 +926,27 @@ def get_strings_from_string(obj: dict, **kwargs: Any) -> list[list[str]]:
                 path (str): The path to the string
                 unescape_newlines (bool): If the message contains escaped newlines,
                                           unescape them before splitting the string
+                yaml_dump (bool): Should the string be formatted using yaml.dump()
         Returns:
             ([[str]]): A list of lists of strings
     """
     vlist = []
     path: DictPath = DictPath(deep_get(kwargs, DictPath("path"), ""))
     unescape_newlines: bool = deep_get(kwargs, DictPath("unescape_newlines"), False)
+    yaml_dump: bool = deep_get(kwargs, DictPath("yaml_dump"), False)
     tmp = deep_get(obj, DictPath(path), "")
+
+    if yaml_dump:
+        tmp = yaml.dump(tmp, indent=0, default_style=">")
+        # Now we need to strip the scalar.
+        tmp = tmp.removeprefix(">-\n")
+
     if tmp is not None and tmp:
         if unescape_newlines:
             tmp = tmp.replace("\\n", "\n")
         for line in split_msg(tmp):
+            if yaml_dump and line.startswith("  "):
+                line = line[2:]
             vlist.append([line])
     return vlist
 

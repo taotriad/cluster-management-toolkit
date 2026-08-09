@@ -4367,6 +4367,10 @@
                                                                     "unescape_newlines": {
                                                                         "description": "Should escaped embedded newlines be unescaped before splitting the string?",
                                                                         "type": "boolean"
+                                                                    },
+                                                                    "yaml_dump": {
+                                                                        "description": "Format the string using yaml.dump()?",
+                                                                        "type": "boolean"
                                                                     }
                                                                 },
                                                                 "additionalProperties": false

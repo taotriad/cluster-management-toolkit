@@ -1,9 +1,10 @@
 ---
 kind: "ImageTag"
 api_family: "image.openshift.io"
-default_command: "imagetags.image.openshift.io"
+default_command: "imagetags"
 command:
-  - "imagetag.image.openshift.io"
+  - "imgtags"
+  - "imgtag"
   - "imagetags.openshift"
   - "imagetag.openshift"
   - "osimagetags"
@@ -16,16 +17,20 @@ listview:
   field_indexes:
     Wide:
       fields: ["namespace", "name", "controller",
-               "spec", "import_policy", "tag", "version", "age"]
+               "spec", "import_policy", "tag", "version", "age", "display_name"]
       sortcolumn: "namespace"
     Normal:
-      fields: ["namespace", "name", "spec", "import_policy", "tag",
-               "version", "age"]
+      fields: ["namespace", "name", "spec", "import_policy", "tag", "age"]
       sortcolumn: "namespace"
   fields:
     {%- for line in field_controller.split("\n") %}
     {{ line }}
     {%- endfor %}
+    display_name:
+      header: "Display Name:"
+      path: "spec#annotations#openshift.io/display-name"
+      default: "<unset>"
+      type: "str"
     import_policy:
       header: "Import Policy:"
       path: "spec#importPolicy#importMode"
@@ -79,24 +84,22 @@ infoview:
       {{ line }}
       {%- endfor %}
       description:
-        header: [["Description:", ["main", "infoheader"]]]
+        header: [["D", ["main", "infoheader_shortcut"]],
+                 ["escription:", ["main", "infoheader"]]]
         path: "spec#annotations#description"
-        type: "str"
         default: "<unset>"
+        type: "str"
       display_name:
         header: [["Display Name:", ["main", "infoheader"]]]
         path: "spec#annotations#openshift.io/display-name"
-        type: "str"
         default: "<unset>"
+        type: "str"
       from:
         header: [["From:", ["main", "infoheader"]]]
         paths:
-          - path: [["spec#from#kind"], ["spec#from#name"]]
+          - path: [["spec#from#kind"], "://", ["spec#from#name"]]
             pathtype: "tuple"
-        formatter: "list"
-        formatting:
-          field_separators:
-            - type: "uri_separator"
+        formatter: "uri"
       import_policy:
         header: [["Import Policy:", ["main", "infoheader"]]]
         path: "spec#importPolicy#importMode"
@@ -104,13 +107,13 @@ infoview:
       provider_display_name:
         header: [["Provider Display Name:", ["main", "infoheader"]]]
         path: "spec#annotations#openshift.io/provider-display-name"
-        type: "str"
         default: "<unset>"
+        type: "str"
       reference_policy:
         header: [["Reference Policy:", ["main", "infoheader"]]]
         path: "spec#referencePolicy#type"
-        type: "str"
         default: "<unset>"
+        type: "str"
       spec:
         header: [["Spec:", ["main", "infoheader"]]]
         paths:
@@ -151,3 +154,42 @@ infoview:
     {%- for line in shortcut_controller.split("\n") %}
     {{ line }}
     {%- endfor %}
+    "Show Description":
+      key: "d"
+      modifier: "shift"
+      read_only: true
+      helptext: "Show description"
+      widget: "windowwidget"
+      widget_args:
+        title: "Description:"
+        itemgetter: "get_strings_from_string"
+        itemgetter_args:
+          path: "spec#annotations#description"
+          unescape_newlines: true
+    "Docker Image Layers":
+      key: "i"
+      modifier: "shift"
+      read_only: true
+      helptext: "List Docker Image Layers"
+      widget: "windowwidget"
+      widget_args:
+        title: "Docker Image Layers:"
+        headers: ["Name:", "Size:", "Media Type:"]
+        itemgetter: "get_list_fields"
+        itemgetter_args:
+          path: "image#dockerImageLayers"
+          # pass_ref: true
+          fields:
+            - "name"
+            - "size"
+            - "mediaType"
+    "Docker Image Metadata":
+      key: "d"
+      read_only: true
+      helptext: "Show Docker Image Metadata"
+      action: "call"
+      action_call: "view_yaml"
+      action_args:
+        title: "Docker Image Metadata"
+        _pass_obj: true
+        path: "image#dockerImageMetadata"

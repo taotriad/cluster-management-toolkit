@@ -1,8 +1,10 @@
 ---
 kind: "ImageStreamTag"
 api_family: "image.openshift.io"
-default_command: "imagestreamtags.image.openshift.io"
+default_command: "imagestreamtags"
 command:
+  - "imgstreamtags"
+  - "imgstreamtag"
   - "imagestreamtag.image.openshift.io"
   - "imagestreamtags.openshift"
   - "imagestreamtag.openshift"
@@ -15,12 +17,17 @@ listview:
   group: "OpenShift"
   field_indexes:
     Wide:
-      fields: ["namespace", "name", "image_reference", "age"]
+      fields: ["namespace", "name", "image_reference", "age", "display_name"]
       sortcolumn: "namespace"
     Normal:
       fields: ["namespace", "name", "age"]
       sortcolumn: "namespace"
   fields:
+    display_name:
+      header: "Display Name:"
+      path: "tag#annotations#openshift.io/display-name"
+      default: "<unset>"
+      type: "str"
     image_reference:
       header: "Image Reference:"
       path: "image#dockerImageReference"
@@ -30,25 +37,28 @@ infoview:
   infopad:
     row_indexes:
       Normal:
-        fields: ["description", "from", "manifest_media_type",
+        fields: ["display_name", "description", "from", "manifest_media_type",
                  "metadata_version", "lookup_policy", "import_policy",
                  "reference_policy", "version"]
     rows:
       description:
-        header: [["Description:", ["main", "infoheader"]]]
+        header: [["D", ["main", "infoheader_shortcut"]],
+                 ["escription:", ["main", "infoheader"]]]
         path: "tag#annotations#description"
-        type: "str"
         default: "<unset>"
+        type: "str"
+      display_name:
+        header: [["Display Name:", ["main", "infoheader"]]]
+        path: "tag#annotations#openshift.io/display-name"
+        default: "<unset>"
+        type: "str"
       from:
         header: [["From:", ["main", "infoheader"]]]
         paths:
-          - path: [["tag#from#kind"], ["tag#from#name"]]
+          - path: [["tag#from#kind"], "://", ["tag#from#name"]]
             pathtype: "tuple"
             default: ["<unset>"]
-        formatter: "list"
-        formatting:
-          field_separators:
-            - type: "uri_separator"
+        formatter: "uri"
       lookup_policy:
         header: [["Lookup Policy:", ["main", "infoheader"]]]
         paths:
@@ -94,8 +104,20 @@ infoview:
         type: "str"
         formatter: "version"
   shortcuts:
-    "Docker Image Layers":
+    "Show Description":
       key: "d"
+      modifier: "shift"
+      read_only: true
+      helptext: "Show description"
+      widget: "windowwidget"
+      widget_args:
+        title: "Description:"
+        itemgetter: "get_strings_from_string"
+        itemgetter_args:
+          path: "tag#annotations#description"
+          unescape_newlines: true
+    "Docker Image Layers":
+      key: "i"
       modifier: "shift"
       read_only: true
       helptext: "List Docker Image Layers"

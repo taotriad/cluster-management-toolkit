@@ -80,29 +80,30 @@ infoview:
             type: "disk_usage"
         formatter: "numerical"
   shortcuts:
-    "Docker Image Configuration":
-      key: "c"
-      read_only: true
-      helptext: "Show Docker Image Configuration"
-      action: "call"
-      action_call: "view_yaml"
-      action_args:
-        title: "Docker Image Configuration"
-        _pass_obj: true
-        path: "dockerImageMetadata#Config"
-    "Container Configuration":
-      key: "c"
+    "Show Description":
+      key: "d"
       modifier: "shift"
       read_only: true
-      helptext: "Show Container Configuration"
+      helptext: "Show description"
+      widget: "windowwidget"
+      widget_args:
+        title: "Description:"
+        itemgetter: "get_strings_from_string"
+        itemgetter_args:
+          path: "dockerImageMetadata#Config#Labels#description"
+          yaml_dump: true
+    "Docker Image Metadata":
+      key: "d"
+      read_only: true
+      helptext: "Show Docker Image Metadata"
       action: "call"
       action_call: "view_yaml"
       action_args:
-        title: "Container Configuration"
+        title: "Docker Image Metadata"
         _pass_obj: true
-        path: "dockerImageMetadata#ContainerConfig"
+        path: "dockerImageMetadata"
     "Docker Image Layers":
-      key: "d"
+      key: "i"
       modifier: "shift"
       read_only: true
       helptext: "List Docker Image Layers"

@@ -159,6 +159,7 @@ def format_version(items: str | list[str],
     for item in items:
         if not item:
             continue
+
         tmparray: list[ThemeRef | ThemeStr] = []
         if item.startswith("v"):
             tmparray += [ThemeStr("v", ThemeAttr("types", "version"), selected=selected)]
@@ -579,6 +580,9 @@ def format_uri(items: str | list[str],
     array: list[ThemeRef | ThemeStr] = []
 
     for item in items:
+        # If the object is a tuple we assume it's an URI made up of parts that should be joined.
+        if isinstance(item, tuple):
+            item = "".join(item)
         _vlist: list[ThemeRef | ThemeStr] = []
         urisplit = item.split("://", maxsplit=1)
         if len(urisplit) != 2:
@@ -900,7 +904,7 @@ def generator_version(obj: dict, field: str, fieldlen: int, pad: bool,
     if isinstance(items, str) and (tmp := format_special(items, selected)) is not None:
         array = [tmp]
     else:
-        array = format_version(items, selected)
+        array = format_version(items, selected, formatting=formatting)
 
     return align_and_pad(array, fieldlen=fieldlen, pad=pad, ralign=ralign, selected=selected)
 
@@ -1795,7 +1799,8 @@ formatter_to_generator_and_processor: dict[str, dict[str, Any]] = {
     },
     "version": {
         "generator": generator_version,
-        "processor": None,
+        "processor": processor_list,
+        "field_separators_default": [],
     },
 }
 
