@@ -880,7 +880,7 @@ def generator_basic(obj: dict, field: str, fieldlen: int, pad: bool,
     return align_and_pad(array, fieldlen=fieldlen, pad=pad, ralign=ralign, selected=selected)
 
 
-# pylint: disable-next=unused-argument,too-many-arguments,too-many-positional-arguments
+# pylint: disable-next=too-many-arguments,too-many-positional-arguments
 def generator_version(obj: dict, field: str, fieldlen: int, pad: bool,
                       ralign: bool, selected: bool,
                       **formatting: FormattingType) -> list[ThemeRef | ThemeStr]:

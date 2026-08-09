@@ -354,7 +354,7 @@ FALLBACK_THEME = {
         "description": "\033[0m",                       # reset
         "hostname": "\033[1;37m",                       # white + bright
         "path": "\033[0;36m",                           # cyan
-        "url": "\033[1;4;37m",                          # white + bright + underline
+        "uri": "\033[1;4;37m",                          # white + bright + underline
         "header": "\033[0;4;37m",                       # white + underline
         "underline": "\033[0;4;37m",                    # white + underline
         "emphasis": "\033[1;37m",                       # white + bright
