@@ -6,12 +6,12 @@
 # SPDX-License-Identifier: MIT
 
 """
-This module provides modules for troubleshooting malfunctioning clusters,
+This module provides functionality for troubleshooting malfunctioning clusters,
 auditing configuration and cluster for potential security issues,
 pre-flight checks to run before preparing or installing new systems,
 and pre-upgrade checks to run before upgrading a system to a newer version.
 
-This module requires init_ansithemeprint() to have been executed first
+This module requires init_ansithemeprint() to have been executed first.
 """
 
 # pylint: disable=too-many-lines
