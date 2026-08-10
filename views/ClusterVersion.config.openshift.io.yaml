@@ -6,6 +6,8 @@ command:
   - "clusterversions.config.openshift.io"
   - "clusterversions.config"
   - "clusterversion.config"
+  - "clrversions"
+  - "clrversion"
 listview:
   name: "Cluster Versions"
   group: "OpenShift"
@@ -95,7 +97,8 @@ infoview:
         fields: ["channel", "cluster_id",
                  "desired_header",
                  "desired_channels", "desired_image",
-                 "desired_url", "desired_version"]
+                 "desired_url", "desired_version",
+                 "version"]
     rows:
       channel:
         header: [["Channel:", ["main", "infoheader"]]]
@@ -109,24 +112,55 @@ infoview:
       desired_channels:
         header: [["  Channel:", ["main", "infoheader"]]]
         path: "status#desired#channels"
+        default: ["<unset>"]
         type: "raw"
         formatter: "list"
       desired_header:
         header: [["Desired:", ["main", "infoheader"]]]
       desired_image:
         header: [["  Image:", ["main", "infoheader"]]]
-        path: "status#desired#image"
-        type: "str"
+        paths:
+          - path: "status#desired#image"
+            pathtype: "regex"
+            regex: "^([^:]+):(.*)"
+            default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "generic"
+            - type: "version"
+          field_separators:
+            - type: "version"
+          field_formatters:
+            - ""
+            - "version"
       desired_url:
         header: [["  ", ["main", "infoheader"]],
                  ["U", ["main", "infoheader_shortcut"]],
                  ["RL:", ["main", "infoheader"]]]
         path: "status#desired#url"
+        default: "<unset>"
         type: "str"
         formatter: "uri"
       desired_version:
         header: [["  Version:", ["main", "infoheader"]]]
         path: "status#desired#version"
+        type: "str"
+        formatter: "version"
+      version:
+        header: [["Version:", ["main", "infoheader"]]]
+        paths:
+          - path: "status#conditions"
+            pathtype: "items"
+            subpath: "message"
+            when:
+              - key: "type"
+                eq: "Available"
+              - key: "status"
+                eq: true
+            default: ["<unknown>"]
+            fallback_on_empty: true
+            regex: "^Done applying (.*)"
         type: "str"
         formatter: "version"
   listpad:

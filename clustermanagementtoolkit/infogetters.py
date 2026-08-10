@@ -1193,12 +1193,24 @@ def get_obj(obj: dict, field_dict: dict, field_names: list[str],
                             else:
                                 prefix = deep_get(_path, DictPath("prefix"), [])
                                 suffix = deep_get(_path, DictPath("suffix"), [])
+                                regex_ = deep_get(_path, DictPath("regex"))
                                 _subpath = subpath
                                 if isinstance(_subpath, str):
                                     _subpath = [_subpath]
                                 tmp_ = deep_get_with_fallback(item, _subpath, _default)
                                 if isinstance(tmp_, str):
-                                    tmp_ = __process_string(tmp_, quotes="same")
+                                    if regex_:
+                                        if (re_tmp := re.match(regex_, tmp_)) is not None:
+                                            tmp_ = []
+                                            for group in re_tmp.groups():
+                                                if group is not None:
+                                                    tmp_.append(group)
+                                            if len(tmp_) > 1:
+                                                tmp_ = tuple(_tmp)
+                                        elif fallback_on_empty:
+                                            tmp_ = _default
+                                    else:
+                                        tmp_ = __process_string(tmp_, quotes="same")
                                 if isinstance(prefix, str):
                                     if isinstance(tmp_, str):
                                         tmp_ = prefix + tmp_
