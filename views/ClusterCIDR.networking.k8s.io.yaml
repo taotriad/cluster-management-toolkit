@@ -25,7 +25,7 @@ listview:
     per_node_host_bits:
       header: "Host Bits / Node:"
       path: "spec#perNodeHostBits"
-      type: "numerical"
+      type: "int"
       formatter: "numerical"
       align: "right"
 infoview:
@@ -52,5 +52,5 @@ infoview:
       per_node_host_bits:
         header: [["Host Bits / Node:", ["main", "infoheader"]]]
         path: "spec#perNodeHostBits"
-        type: "numerical"
+        type: "int"
         formatter: "numerical"

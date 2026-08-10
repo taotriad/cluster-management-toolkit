@@ -25,7 +25,7 @@ infoview:
                  ["A Secret Name:", ["main", "infoheader"]]]
         paths:
           - path: ["spec#ca#secretName"]
-            pathtype: "str"
+            pathtype: "value"
       {%- for line in row_condition_ready.split("\n") %}
       {{ line }}
       {%- endfor %}
@@ -34,7 +34,7 @@ infoview:
         paths:
           - path: ["spec#selfSigned#crlDistributionPoints",
                    "spec#ca#crlDistributionPoints"]
-            pathtype: "str"
+            pathtype: "value"
         default: ["<none>"]
       type:
         header: [["Type:", ["main", "infoheader"]]]

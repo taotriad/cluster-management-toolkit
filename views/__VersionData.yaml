@@ -470,7 +470,7 @@ listview:
       header: "Release Date:"
       paths:
         - path: "release_date"
-          pathtype: "str"
+          pathtype: "value"
       type: "str"
       formatter: "timestamp"
   listview_args:
@@ -537,7 +537,7 @@ infoview:
         header: [["Release Date:", ["main", "infoheader"]]]
         paths:
           - path: ["targetDate", "release_date"]
-            pathtype: "str"
+            pathtype: "value"
         type: "str"
         formatter: "timestamp"
   logpad:

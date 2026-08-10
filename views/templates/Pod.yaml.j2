@@ -259,7 +259,7 @@ infoview:
         header: [["Host IPs:", ["main", "infoheader"]]]
         paths:
           - path: "status#hostIP"
-            pathtype: "str"
+            pathtype: "value"
           - path: "status#hostIPs"
             pathtype: "items"
             subpath: "ip"
@@ -324,7 +324,7 @@ infoview:
         header: [["Pod IPs:", ["main", "infoheader"]]]
         paths:
           - path: "status#podIP"
-            pathtype: "str"
+            pathtype: "value"
           - path: "status#podIPs"
             pathtype: "items"
             subpath: "ip"

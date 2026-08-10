@@ -20,7 +20,6 @@ infoview:
             subpaths:
               - "id"
             default: ["<unspecified>"]
-        type: "list"
         formatter: "list"
       description:
         header: [["Description:", ["main", "infoheader"]]]

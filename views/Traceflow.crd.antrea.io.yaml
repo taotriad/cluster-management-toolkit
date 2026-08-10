@@ -170,7 +170,7 @@ infoview:
         header: [["    Destination Port:", ["main", "infoheader"]]]
         path: "spec#packet#ipHeader#tcp#dstPort"
         default: "<unset>"
-        type: "numerical"
+        type: "int"
         formatting:
           field_colors:
             - type: "port"
@@ -178,7 +178,7 @@ infoview:
         header: [["    Source Port:", ["main", "infoheader"]]]
         path: "spec#packet#ipHeader#tcp#srcPort"
         default: "<unset>"
-        type: "numerical"
+        type: "int"
         formatting:
           field_colors:
             - type: "port"
@@ -188,7 +188,7 @@ infoview:
         header: [["    Destination Port:", ["main", "infoheader"]]]
         path: "spec#packet#ipHeader#udp#dstPort"
         default: "<unset>"
-        type: "numerical"
+        type: "int"
         formatting:
           field_colors:
             - type: "port"
@@ -196,7 +196,7 @@ infoview:
         header: [["    Source Port:", ["main", "infoheader"]]]
         path: "spec#packet#ipHeader#udp#srcPort"
         default: "<unset>"
-        type: "numerical"
+        type: "int"
         formatting:
           field_colors:
             - type: "port"
@@ -222,7 +222,7 @@ infoview:
         header: [["    Destination Port:", ["main", "infoheader"]]]
         path: "spec#packet#ipv6Header#tcp#dstPort"
         default: "<unset>"
-        type: "numerical"
+        type: "int"
         formatting:
           field_colors:
             - type: "port"
@@ -230,7 +230,7 @@ infoview:
         header: [["    Source Port:", ["main", "infoheader"]]]
         path: "spec#packet#ipv6Header#tcp#srcPort"
         default: "<unset>"
-        type: "numerical"
+        type: "int"
         formatting:
           field_colors:
             - type: "port"
@@ -240,7 +240,7 @@ infoview:
         header: [["    Destination Port:", ["main", "infoheader"]]]
         path: "spec#packet#ipv6Header#udp#dstPort"
         default: "<unset>"
-        type: "numerical"
+        type: "int"
         formatting:
           field_colors:
             - type: "port"
@@ -248,7 +248,7 @@ infoview:
         header: [["    Source Port:", ["main", "infoheader"]]]
         path: "spec#packet#ipv6Header#udp#srcPort"
         default: "<unset>"
-        type: "numerical"
+        type: "int"
         formatting:
           field_colors:
             - type: "port"

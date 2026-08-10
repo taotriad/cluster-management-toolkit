@@ -37,7 +37,7 @@ infoview:
       cluster_guid:
         header: [["Cluster GUID:", ["main", "infoheader"]]]
         path: "spec#clusterGUID"
-        type: "numerical"
+        type: "str"
         formatter: "hex"
       cluster_type:
         header: [["Cluster Type:", ["main", "infoheader"]]]

@@ -126,13 +126,13 @@ infoview:
                   ["main", "infoheader"]]]
         paths:
           - path: "spec#controllers#node#hostEndpoint#createDefaultHostEndpoint"
-            pathtype: "str"
+            pathtype: "value"
             default: "Disabled"
       configuration_node_controller_host_endpoint_auto_create:
         header: [["      Endpoint Autocreate:", ["main", "infoheader"]]]
         paths:
           - path: "spec#controllers#node#hostEndpoint#autoCreate"
-            pathtype: "str"
+            pathtype: "value"
             default: "Disabled"
       configuration_node_controller_sync_labels:
         header: [["    Sync Labels:", ["main", "infoheader"]]]
@@ -268,13 +268,13 @@ infoview:
         paths:
           # yamllint disable-line rule:line-length
           - path: "status#runningConfig#controllers#node#hostEndpoint#createDefaultHostEndpoint"
-            pathtype: "str"
+            pathtype: "value"
       running_node_controller_host_endpoint_auto_create:
         header: [["      Endpoint Autocreate:", ["main", "infoheader"]]]
         paths:
           # yamllint disable-line rule:line-length
           - path: "status#runningConfig#controllers#node#hostEndpoint#autoCreate"
-            pathtype: "str"
+            pathtype: "value"
       running_node_controller_sync_labels:
         header: [["    Sync Labels:", ["main", "infoheader"]]]
         path: "status#runningConfig#controllers#node#syncLabels"

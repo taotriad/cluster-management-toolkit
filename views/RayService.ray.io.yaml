@@ -139,7 +139,7 @@ infoview:
         paths:
           - path: ["status#activeServiceStatus#rayClusterName",
                    "status#pendingServiceStatus#rayClusterName"]
-            pathtype: "str"
+            pathtype: "value"
         type: "str"
       status_raycluster_last_update:
         header: [["    Last Update:", ["main", "infoheader"]]]

@@ -23,7 +23,10 @@ from clustermanagementtoolkit.curses_helper import color_status_group
 from clustermanagementtoolkit.ansithemeprint import ANSIThemeStr
 from clustermanagementtoolkit.ansithemeprint import ansithemeprint, init_ansithemeprint
 
+from clustermanagementtoolkit.cmtlib import none_timestamp
+
 from clustermanagementtoolkit import generators
+
 
 TEST_DIR = FilePath(PurePath(__file__).parent).joinpath("testpaths")
 
@@ -149,26 +152,130 @@ def test_format_version(verbose: bool = False) -> tuple[str, bool]:
         # (string, selected, expected_result, expected_exception)
         testdata: tuple = (
             (
-                "v3.14.159",
+                ["v3.14159", "v2.718"],
                 False,
                 [ThemeStr("v", ThemeAttr("types", "version")),
                  ThemeStr("3", ThemeAttr("types", "numerical")),
                  ThemeStr(".", ThemeAttr("types", "unit")),
-                 ThemeStr("14", ThemeAttr("types", "numerical")),
+                 ThemeStr("14159", ThemeAttr("types", "numerical")),
+                 ThemeRef('separators', 'list', False),
+                 ThemeStr("v", ThemeAttr("types", "version")),
+                 ThemeStr("2", ThemeAttr("types", "numerical")),
                  ThemeStr(".", ThemeAttr("types", "unit")),
-                 ThemeStr("159", ThemeAttr("types", "numerical"))],
+                 ThemeStr("718", ThemeAttr("types", "numerical"))],
                 None,
             ),
             (
-                "3.14.159~beta1",
+                "3.14159~beta1",
                 False,
                 [ThemeStr("3", ThemeAttr("types", "numerical")),
                  ThemeStr(".", ThemeAttr("types", "unit")),
-                 ThemeStr("14", ThemeAttr("types", "numerical")),
-                 ThemeStr(".", ThemeAttr("types", "unit")),
-                 ThemeStr("159", ThemeAttr("types", "numerical")),
+                 ThemeStr("14159", ThemeAttr("types", "numerical")),
                  ThemeStr("~", ThemeAttr("types", "unit")),
                  ThemeStr("beta1", ThemeAttr("types", "numerical"))],
+                None,
+            ),
+            (
+                [""],
+                False,
+                [], None,
+            ),
+        )
+
+        for string, selected, expected_result, expected_exception in testdata:
+            try:
+                tmp = fun(string, selected)
+                if tmp != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"           result: {tmp}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  f"        exception: {type(e)}\n" \
+                                  f"          message: {str(e)}\n" \
+                                  f"         expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"        exception: {type(e)}\n" \
+                              f"          message: {str(e)}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+    return message, result
+
+
+def test_format_timestamp(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = generators.format_timestamp
+
+    if result:
+        # Indata format:
+        # (string, selected, expected_result, expected_exception)
+        testdata: tuple = (
+            (
+                "<none>",
+                False,
+                [ThemeStr("<none>", ThemeAttr("types", "none"))],
+                None,
+            ),
+            (
+                "2026-01-01 12:13:14",
+                False,
+                [ThemeStr('2026', ThemeAttr('types', 'numerical'), False),
+                 ThemeStr('-', ThemeAttr('types', 'unit'), False),
+                 ThemeStr('01', ThemeAttr('types', 'numerical'), False),
+                 ThemeStr('-', ThemeAttr('types', 'unit'), False),
+                 ThemeStr('01', ThemeAttr('types', 'numerical'), False),
+                 ThemeStr(' ', ThemeAttr('types', 'unit'), False),
+                 ThemeStr('12', ThemeAttr('types', 'numerical'), False),
+                 ThemeStr(':', ThemeAttr('types', 'unit'), False),
+                 ThemeStr('13', ThemeAttr('types', 'numerical'), False),
+                 ThemeStr(':', ThemeAttr('types', 'unit'), False),
+                 ThemeStr('14', ThemeAttr('types', 'numerical'), False)],
+                None,
+            ),
+            (
+                datetime(2026, 1, 1, 12, 13, 14, 0),
+                False,
+                [ThemeStr('2026', ThemeAttr('types', 'numerical'), False),
+                 ThemeStr('-', ThemeAttr('types', 'unit'), False),
+                 ThemeStr('01', ThemeAttr('types', 'numerical'), False),
+                 ThemeStr('-', ThemeAttr('types', 'unit'), False),
+                 ThemeStr('01', ThemeAttr('types', 'numerical'), False),
+                 ThemeStr(' ', ThemeAttr('types', 'unit'), False),
+                 ThemeStr('12', ThemeAttr('types', 'numerical'), False),
+                 ThemeStr(':', ThemeAttr('types', 'unit'), False),
+                 ThemeStr('13', ThemeAttr('types', 'numerical'), False),
+                 ThemeStr(':', ThemeAttr('types', 'unit'), False),
+                 ThemeStr('14', ThemeAttr('types', 'numerical'), False)],
+                None,
+            ),
+            (
+                none_timestamp(),
+                False,
+                [ThemeStr('', ThemeAttr('types', 'generic'), False)],
+                None,
+            ),
+            (
+                "",
+                False,
+                [ThemeStr('', ThemeAttr('types', 'generic'), False)],
+                None,
+            ),
+            (
+                None,
+                False,
+                [ThemeStr('', ThemeAttr('types', 'generic'), False)],
                 None,
             ),
         )
@@ -2231,6 +2338,10 @@ tests: dict[tuple[str], dict[str, Any]] = {
     },
     ("format_version()",): {
         "callable": test_format_version,
+        "result": None,
+    },
+    ("format_timestamp()",): {
+        "callable": test_format_timestamp,
         "result": None,
     },
     ("map_value()",): {

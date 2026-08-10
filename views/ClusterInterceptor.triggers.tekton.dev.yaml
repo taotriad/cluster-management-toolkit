@@ -34,7 +34,7 @@ infoview:
         header: [["  Port:", ["main", "infoheader"]]]
         path: "spec#clientConfig#service#port"
         default: "<unset>"
-        type: "numerical"
+        type: "int"
         formatting:
           field_colors:
             - type: "port"

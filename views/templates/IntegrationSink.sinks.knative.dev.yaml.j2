@@ -33,7 +33,6 @@ listview:
           when:
             - key: "type"
               eq: "Ready"
-      type: "list"
       formatter: "list"
 infoview:
   name: "Integration Sink Info"
@@ -65,7 +64,6 @@ infoview:
             subpaths:
               - "url"
             default: ["<unset>"]
-        type: "list"
         formatter: "address"
         formatting:
           ellipsise: 3
@@ -159,7 +157,6 @@ infoview:
             when:
               - key: "type"
                 eq: "Ready"
-        type: "list"
         formatter: "list"
   shortcuts:
     "Addresses":

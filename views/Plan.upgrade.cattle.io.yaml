@@ -108,7 +108,7 @@ infoview:
         header: [["  Skip Wait for Delete Timeout:", ["main", "infoheader"]]]
         path: "spec#drain#skipWaitForDeleteTimeout"
         default: "<unset>"
-        type: "numerical"
+        type: "int"
         formatter: "numerical"
       node_label_selector:
         header: [["Node La", ["main", "infoheader"]],

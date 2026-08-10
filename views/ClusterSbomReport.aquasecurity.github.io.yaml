@@ -132,7 +132,6 @@ infoview:
             subpaths:
               - "license#name"
             default: ["<unspecified>"]
-        type: "list"
         formatter: "list"
       name:
         header: "Name:"

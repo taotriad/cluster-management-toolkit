@@ -25,7 +25,6 @@ listview:
           when:
             - key: "type"
               eq: "Ready"
-      type: "list"
       formatter: "list"
   actions:
     actionlist:
@@ -163,7 +162,6 @@ infoview:
             when:
               - key: "type"
                 eq: "Ready"
-        type: "list"
         formatter: "list"
       reply_uri:
         header: [["  Reply URI:", ["main", "infoheader"]]]
@@ -178,7 +176,6 @@ infoview:
                    "spec#subscriber#uri"]
             pathtype: "value"
             default: ["<unset>"]
-        type: "list"
         formatter: "address"
   shortcuts:
     "Open channel":

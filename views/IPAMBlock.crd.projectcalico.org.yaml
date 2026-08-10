@@ -109,7 +109,8 @@ infoview:
       sequence_number:
         header: [["Sequence Number:", ["main", "infoheader"]]]
         path: "spec#sequenceNumber"
-        type: "numerical"
+        type: "str"
+        formatter: "numerical"
       strict_affinity:
         header: [["Strict Affinity:", ["main", "infoheader"]]]
         path: "spec#strictAffinity"
@@ -137,6 +138,7 @@ infoview:
       namespace:
         header: "Namespace:"
         path: "secondary#namespace"
+        default: "<none>"
         type: "str"
         formatting:
           field_colors:
@@ -151,14 +153,17 @@ infoview:
       pod:
         header: "Pod:"
         path: "secondary#pod"
+        default: "<none>"
         type: "str"
       type:
         header: "Type:"
         path: "secondary#type"
+        default: "Pod"
         type: "str"
       timestamp:
         header: "Timestamp:"
         path: "secondary#timestamp"
+        default: "<none>"
         type: "timestamp"
         formatter: "timestamp"
   shortcuts:

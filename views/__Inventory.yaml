@@ -204,7 +204,8 @@ infoview:
       threads_per_core:
         header: [["Threads per Core:", ["main", "infoheader"]]]
         path: "ansible_processor_threads_per_core"
-        type: "numerical"
+        type: "int"
+        formatter: "numerical"
   listpad:
     listgetter: "listgetter_ansible_volumes"
     infogetter: "generic_infogetter"
