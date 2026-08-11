@@ -558,6 +558,7 @@ def format_address(items: str | list[str],
     return array
 
 
+# pylint: disable-next=too-many-branches
 def format_uri(items: str | list[str],
                selected: bool, **kwargs: Any) -> list[ThemeRef | ThemeStr]:
     """
