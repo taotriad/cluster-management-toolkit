@@ -1,0 +1,74 @@
+---
+kind: "Beacon"
+api_family: "plan.cattle.io"
+default_command: "beacons"
+listview:
+  name: "Beacons"
+  group: "Rancher"
+  field_indexes:
+    Wide:
+      fields: ["namespace", "name", "active", "age", "registration_endpoint"]
+      sortcolumn: "namespace"
+    Normal:
+      fields: ["namespace", "name", "active", "age"]
+      sortcolumn: "namespace"
+  fields:
+    active:
+      header: "Active:"
+      path: "status#active"
+      default: "<unset>"
+      type: "str"
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          mappings:
+            "True":
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+            "False":
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+            "<unset>":
+              field_colors:
+                - context: "types"
+                  type: "unset"
+    registration_endpoint:
+      header: "Registration Endpoint:"
+      path: "status#registrationEndpoint"
+      default: "<unset>"
+      type: "str"
+infoview:
+  name: "Beacon Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["registration_endpoint", "active"]
+    rows:
+      active:
+        header: [["Active:", ["main", "infoheader"]]]
+        path: "status#active"
+        default: "<unset>"
+        type: "str"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              "True":
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+              "False":
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+              "<unset>":
+                field_colors:
+                  - context: "types"
+                    type: "unset"
+      registration_endpoint:
+        header: [["Registration Endpoint:", ["main", "infoheader"]]]
+        path: "status#registrationEndpoint"
+        default: "<unset>"
+        type: "str"

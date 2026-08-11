@@ -10,7 +10,18 @@ listview:
   group: "Harvester"
   field_indexes:
     Normal:
-      fields: ["name", "age"]
+      fields: ["name", "condition_ready", "age"]
+  fields:
+    {%- for line in field_condition_ready.split("\n") %}
+    {{ line }}
+    {%- endfor %}
 infoview:
   name: "Cluster Network Info"
   infopad:
+    row_indexes:
+      Normal:
+        fields: ["condition_ready"]
+    rows:
+      {%- for line in row_condition_ready.split("\n") %}
+      {{ line }}
+      {%- endfor %}

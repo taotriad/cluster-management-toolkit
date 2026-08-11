@@ -1,0 +1,98 @@
+---
+kind: "VlanConfig"
+api_family: "network.harvesterhci.io"
+default_command: "vlanconfigs"
+listview:
+  name: "VLAN Configs"
+  group: "Harvester"
+  field_indexes:
+    Wide:
+      fields: ["name", "clusternetwork", "age", "description"]
+    Normal:
+      fields: ["name", "clusternetwork", "age"]
+  fields:
+    clusternetwork:
+      header: "Cluster Network:"
+      path: "spec#clusterNetwork"
+      default: "<none>"
+      type: "str"
+    description:
+      header: "Description:"
+      path: "spec#description"
+      default: "<none>"
+      type: "str"
+infoview:
+  name: "VLAN Config Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["description", "clusternetwork",
+                 "uplink_header",
+                 "uplink_bond_options_header",
+                 "uplink_bond_options_mii_monitor",
+                 "uplink_bond_options_mode",
+                 "uplink_link_attributes",
+                 "uplink_link_attributes_mtu",
+                 "uplink_link_attributes_tx_queue_length",
+                 "uplink_nics"]
+    rows:
+      uplink_header:
+        header: [["Uplink:", ["main", "infoheader"]]]
+      uplink_bond_options_header:
+        header: [["  Bond Options:", ["main", "infoheader"]]]
+      uplink_bond_options_mii_monitor:
+        header: [["    MII Monitor:", ["main", "infoheader"]]]
+        path: "spec#uplink#bondOptions#miimon"
+        default: -1
+        type: "int"
+        formatter: "numerical"
+      uplink_bond_options_mode:
+        header: [["    Mode:", ["main", "infoheader"]]]
+        path: "spec#uplink#bondOptions#mode"
+        default: "<unset>"
+        type: "str"
+      uplink_link_attributes:
+        header: [["  Link Attributes:", ["main", "infoheader"]]]
+      uplink_link_attributes_mtu:
+        header: [["    MTU:", ["main", "infoheader"]]]
+        path: "spec#uplink#linkAttributes#mtu"
+        default: -1
+        type: "int"
+        formatter: "numerical"
+      uplink_link_attributes_tx_queue_length:
+        header: [["    TX Queue Length:", ["main", "infoheader"]]]
+        path: "spec#uplink#linkAttributes#txQLen"
+        default: -1
+        type: "int"
+        formatter: "numerical"
+      uplink_nics:
+        header: [["  NICs:", ["main", "infoheader"]]]
+        path: "spec#uplink#nics"
+        default: ["<none>"]
+        type: "raw"
+        formatter: "list"
+      clusternetwork:
+        header: [["Cluster ", ["main", "infoheader"]],
+                 ["N", ["main", "infoheader_shortcut"]],
+                 ["etwork:", ["main", "infoheader"]]]
+        path: "spec#clusterNetwork"
+        default: "<none>"
+        type: "str"
+      description:
+        header: [["Description:", ["main", "infoheader"]]]
+        path: "spec#description"
+        default: "<none>"
+        type: "str"
+  shortcuts:
+    "Open Cluster Network":
+      key: "n"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for Cluster Network"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind: "ClusterNetwork"
+        api_family: "network.harvesterhci.io"
+        name_path: "spec#clusterNetwork"
