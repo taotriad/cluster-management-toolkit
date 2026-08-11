@@ -187,6 +187,10 @@ CIDRAssignmentFailed:
   field_colors:
     - context: "main"
       type: "status_warning"
+ClaimMisbound:
+  field_colors:
+    - context: "main"
+      type: "status_warning"
 ClientCertificateCreated:
   field_colors:
     - context: "main"
@@ -573,6 +577,10 @@ DeletingManifest:
   field_colors:
     - context: "main"
       type: "status_pending"
+DeployCompleted:
+  field_colors:
+    - context: "main"
+      type: "status_done"
 DeploymentCreated:
   field_colors:
     - context: "main"
@@ -1050,6 +1058,10 @@ ImportInProgress:
     - context: "main"
       type: "status_pending"
 ImportScheduled:
+  field_colors:
+    - context: "main"
+      type: "status_done"
+importSucceeded:
   field_colors:
     - context: "main"
       type: "status_done"
@@ -1641,6 +1653,10 @@ OwnerRefInvalidNamespace:
   field_colors:
     - context: "main"
       type: "status_warning"
+PassedUpgradeCheck:
+  field_colors:
+    - context: "main"
+      type: "status_ok"
 PatchPodDeletionCostFailed:
   field_colors:
     - context: "main"
@@ -1933,7 +1949,15 @@ ResourceUpdated:
   field_colors:
     - context: "main"
       type: "status_done"
+RestoreVMConfigMapCreated:
+  field_colors:
+    - context: "main"
+      type: "status_done"
 Resumed:
+  field_colors:
+    - context: "main"
+      type: "status_ok"
+ResumeJob:
   field_colors:
     - context: "main"
       type: "status_ok"
@@ -2357,6 +2381,10 @@ Suspended:
   field_colors:
     - context: "main"
       type: "status_pending"
+SuspendJob:
+  field_colors:
+    - context: "main"
+      type: "status_pending"
 Sync:
   field_colors:
     - context: "main"
@@ -2561,6 +2589,10 @@ Updating:
   field_colors:
     - context: "main"
       type: "status_pending"
+UpgradeStarted:
+  field_colors:
+    - context: "main"
+      type: "status_ok"
 UpgradeSucceeded:
   field_colors:
     - context: "main"
@@ -2598,6 +2630,10 @@ ValidatingWebhookConfigurationCreated:
     - context: "main"
       type: "status_done"
 ValidatingWebhookConfigurationUpdated:
+  field_colors:
+    - context: "main"
+      type: "status_done"
+VMShutdownCompleted:
   field_colors:
     - context: "main"
       type: "status_done"
