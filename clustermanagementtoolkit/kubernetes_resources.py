@@ -4903,9 +4903,24 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api": "playbooks",
     },
     # kubeovn.io
+    ("BgpConf", "kubeovn.io"): {
+        "api_paths": ["apis/kubeovn.io/v1/"],
+        "api": "bgp-confs",
+        "namespaced": False,
+    },
     ("Configuration", "kubeovn.io"): {
         "api_paths": ["apis/kubeovn.io/v1/"],
         "api": "configurations",
+    },
+    ("DNSNameResolver", "kubeovn.io"): {
+        "api_paths": ["apis/kubeovn.io/v1/"],
+        "api": "dnsnameresolvers",
+        "namespaced": False,
+    },
+    ("EvpnConf", "kubeovn.io"): {
+        "api_paths": ["apis/kubeovn.io/v1/"],
+        "api": "evpn-confs",
+        "namespaced": False,
     },
     ("HtbQos", "kubeovn.io"): {
         "api_paths": ["apis/kubeovn.io/v1/"],
@@ -5370,13 +5385,17 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api_paths": ["apis/longhorn.io/v1beta2/"],
         "api": "backupvolumes",
     },
-    ("EngineImage", "longhorn.io"): {
-        "api_paths": ["apis/longhorn.io/v1beta2/"],
-        "api": "engineimages",
-    },
     ("Engine", "longhorn.io"): {
         "api_paths": ["apis/longhorn.io/v1beta2/"],
         "api": "engines",
+    },
+    ("EngineFrontend", "longhorn.io"): {
+        "api_paths": ["apis/longhorn.io/v1beta2/"],
+        "api": "enginefrontends",
+    },
+    ("EngineImage", "longhorn.io"): {
+        "api_paths": ["apis/longhorn.io/v1beta2/"],
+        "api": "engineimages",
     },
     ("InstanceManager", "longhorn.io"): {
         "api_paths": ["apis/longhorn.io/v1beta2/"],
@@ -5405,6 +5424,14 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
     ("Setting", "longhorn.io"): {
         "api_paths": ["apis/longhorn.io/v1beta2/"],
         "api": "settings",
+    },
+    ("Shard", "longhorn.io"): {
+        "api_paths": ["apis/longhorn.io/v1beta2/"],
+        "api": "shards",
+    },
+    ("ShardGroup", "longhorn.io"): {
+        "api_paths": ["apis/longhorn.io/v1beta2/"],
+        "api": "shardgroups",
     },
     ("ShareManager", "longhorn.io"): {
         "api_paths": ["apis/longhorn.io/v1beta2/"],
@@ -5913,6 +5940,14 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
     ("Inventory", "metal.harvesterhci.io"): {
         "api_paths": ["apis/metal.harvesterhci.io/v1alpha1/"],
         "api": "inventories",
+    },
+    ("InventoryTemplate", "metal.harvesterhci.io"): {
+        "api_paths": ["apis/metal.harvesterhci.io/v1alpha1/"],
+        "api": "inventorytemplates",
+    },
+    ("NestedCluster", "metal.harvesterhci.io"): {
+        "api_paths": ["apis/metal.harvesterhci.io/v1alpha1/"],
+        "api": "nestedclusters",
     },
     # metal3.io
     ("BareMetalHost", "metal3.io"): {
