@@ -6,7 +6,7 @@ condition_ready:
       subpath: "status"
       when:
         - key: "type"
-          eq: "Ready"
+          in: ["ready", "Ready"]
       default: ["<unknown>"]
   type: "str"
   formatter: "value_mapper"
