@@ -148,7 +148,7 @@ def format_version(items: str | list[str],
     formatting: FormattingType = deep_get(kwargs, DictPath("formatting"), {})
     array: list[ThemeRef | ThemeStr] = []
 
-    if isinstance(items, (str, tuple)):
+    if isinstance(items, (int, str, tuple)):
         items = [items]
 
     item_separator = deep_get(formatting, DictPath("item_separator"),
@@ -159,6 +159,8 @@ def format_version(items: str | list[str],
     for item in items:
         if not item:
             continue
+
+        item = str(item)
 
         tmparray: list[ThemeRef | ThemeStr] = []
         if item.startswith("v"):
