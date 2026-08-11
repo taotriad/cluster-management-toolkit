@@ -102,6 +102,10 @@ Attached:
   field_colors:
     - context: "main"
       type: "status_ok"
+AutoSalvaged:
+  field_colors:
+    - context: "main"
+      type: "status_ok"
 Available:
   field_colors:
     - context: "main"
@@ -721,7 +725,15 @@ Evicted:
   field_colors:
     - context: "main"
       type: "status_warning"
+EvictedByVPA:
+  field_colors:
+    - context: "main"
+      type: "status_warning"
 EvictedDueToPodsReadyTimeout:
+  field_colors:
+    - context: "main"
+      type: "status_warning"
+EvictedPod:
   field_colors:
     - context: "main"
       type: "status_warning"
@@ -1213,6 +1225,10 @@ JobCreationFailed:
   field_colors:
     - context: "main"
       type: "status_not_ok"
+JobFailed:
+  field_colors:
+    - context: "main"
+      type: "status_warning"
 JobRunning:
   field_colors:
     - context: "main"
@@ -2589,6 +2605,10 @@ Updating:
   field_colors:
     - context: "main"
       type: "status_pending"
+Upgrade:
+  field_colors:
+    - context: "main"
+      type: "status_ok"
 UpgradeStarted:
   field_colors:
     - context: "main"
