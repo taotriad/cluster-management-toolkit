@@ -1559,6 +1559,19 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api_paths": ["apis/multicluster.x-k8s.io/v1alpha1/"],
         "api": "works",
     },
+    # operation.cattle.io
+    ("EncryptionKeyRotation", "operation.cattle.io"): {
+        "api_paths": ["apis/operation.cattle.io/v1alpha1/"],
+        "api": "encryptionkeyrotations",
+    },
+    ("ETCDSnapshotRestore", "operation.cattle.io"): {
+        "api_paths": ["apis/operation.cattle.io/v1alpha1/"],
+        "api": "etcdsnapshotrestores",
+    },
+    ("ETCDSnapshotSave", "operation.cattle.io"): {
+        "api_paths": ["apis/operation.cattle.io/v1alpha1/"],
+        "api": "etcdsnapshotsaves",
+    },
     # operator.cluster.x-k8s.io
     ("AddonProvider", "operator.cluster.x-k8s.io"): {
         "api_paths": ["apis/operator.cluster.x-k8s.io/v1alpha2/"],
@@ -6905,6 +6918,11 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api_paths": ["apis/perses.dev/v1alpha2/"],
         "api": "persesglobaldatasources",
         "namespaced": False,
+    },
+    # plan.cattle.io
+    ("Beacon", "plan.cattle.io"): {
+        "api_paths": ["apis/plan.cattle.io/v1alpha1/"],
+        "api": "beacons",
     },
     # platform.openshift.io
     ("PlatformOperator", "platform.openshift.io"): {
