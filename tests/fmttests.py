@@ -480,6 +480,7 @@ def test_render_markdown(verbose: bool = False) -> tuple[str, bool]:
                 indata_quoted = "\n".join(indata)
             else:
                 indata_quoted = indata
+            indata = indata_quoted
             # This is only used for the output; do not pass it as indata
             indata_quoted = indata_quoted.replace("\n", "\\n")
             try:

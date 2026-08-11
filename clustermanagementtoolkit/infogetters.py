@@ -2648,7 +2648,11 @@ def logpad_files(obj: dict, **kwargs: Any) -> list[list[ThemeRef | ThemeStr]]:
         formatter_args = deep_get(kwargs, DictPath("formatter_args"), {})
 
     if not show_raw and formatter == "markdown":
-        return formatters.render_markdown(cast(str, vlist[0]), **formatter_args)
+        if isinstance(vlist[0], list):
+            tmp = "\n".join(vlist[0])
+        else:
+            tmp = str(vlist[0])
+        return formatters.render_markdown(tmp, **formatter_args)
     return formatters.format_none(cast(str, vlist[0]), **formatter_args)
 
 

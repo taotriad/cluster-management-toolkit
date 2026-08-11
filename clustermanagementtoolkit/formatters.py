@@ -1764,15 +1764,14 @@ def format_markdown_table(lines: list[list[ThemeRef | ThemeStr]]) -> list[list[T
 
 @functools.lru_cache(maxsize=32)
 # pylint: disable-next=too-many-statements,too-many-branches,too-many-locals
-def render_markdown(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef | ThemeStr]]:
+def render_markdown(lines: str, **kwargs: Any) -> list[list[ThemeRef | ThemeStr]]:
     """
     Markdown renderer; renders a Markdown document to ThemeArrays.
     Note; unlike format_markdown() this renders the target document;
     it is not syntax highlighting for the source code.
 
         Parameters:
-            lines (str|[str]): A list of strings *or*
-                               A string with newlines that should be split
+            lines (str): A string with newlines that should be split
             **kwargs (dict[str, Any]): Keyword arguments
                 use_github_tags (bool): Should GitHub tags be used (includes GitHub alerts)?
                 raw (bool): Show raw document instead of rendering the document
@@ -1783,9 +1782,6 @@ def render_markdown(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef
 
     if deep_get(kwargs, DictPath("raw"), False):
         return format_none(lines)
-
-    if isinstance(lines, list):
-        lines = "\n".join(lines)
 
     # Remove all commented-out blocks
     lines = re.sub(r"<!--.*?-->\n", r"", lines, flags=re.DOTALL)
