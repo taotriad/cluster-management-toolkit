@@ -614,8 +614,9 @@ def format_uri(items: str | list[str],
                 _vlist = [ThemeStr(scheme, ThemeAttr("types", "protocol"), selected)]
                 _vlist += [ThemeRef("separators", "uri_separator", selected)]
                 _vlist += format_address(authority, selected, formatting=formatting)
-                _vlist += [ThemeRef("separators", "uri_path", selected)]
-                _vlist += uripath
+                if uripath:
+                    _vlist += [ThemeRef("separators", "uri_path", selected)]
+                    _vlist += uripath
 
         if array:
             item_separator.selected = selected

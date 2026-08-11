@@ -1048,6 +1048,140 @@ def test_format_address(verbose: bool = False) -> tuple[str, bool]:
     return message, result
 
 
+def test_format_uri(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = generators.format_uri
+
+    if result:
+        # Indata format:
+        # ([str], selected, expected_result, expected_exception)
+        testdata: tuple = (
+            # Valid URI
+            (
+                "http://example.org/foobar.html",
+                False,
+                [ThemeStr("http", ThemeAttr("types", "protocol")),
+                 ThemeRef("separators", "uri_separator"),
+                 ThemeStr("example", ThemeAttr("types", "address")),
+                 ThemeRef("separators", "ipv4address"),
+                 ThemeStr("org", ThemeAttr("types", "address")),
+                 ThemeRef("separators", "uri_path"),
+                 ThemeStr("foobar.html", ThemeAttr("types", "address"))],
+                None,
+            ),
+            # Valid URI with port
+            (
+                "http://example.org:6581",
+                False,
+                [ThemeStr("http", ThemeAttr("types", "protocol")),
+                 ThemeRef("separators", "uri_separator"),
+                 ThemeStr("example", ThemeAttr("types", "address")),
+                 ThemeRef("separators", "ipv4address"),
+                 ThemeStr("org", ThemeAttr("types", "address")),
+                 ThemeRef("separators", "ipv6address"),
+                 ThemeStr("6581", ThemeAttr("types", "address"))],
+                None,
+            ),
+            # Valid URI with multiple segments
+            (
+                "http://example.org/foo/bar.html",
+                False,
+                [ThemeStr("http", ThemeAttr("types", "protocol")),
+                 ThemeRef("separators", "uri_separator"),
+                 ThemeStr("example", ThemeAttr("types", "address")),
+                 ThemeRef("separators", "ipv4address"),
+                 ThemeStr("org", ThemeAttr("types", "address")),
+                 ThemeRef("separators", "uri_path"),
+                 ThemeStr("foo", ThemeAttr("types", "address")),
+                 ThemeRef("separators", "uri_path"),
+                 ThemeStr("bar.html", ThemeAttr("types", "address"))],
+                None,
+            ),
+            # Valid URI, split
+            (
+                ("http", "://", "example.org/foobar.html"),
+                False,
+                [ThemeStr("http", ThemeAttr("types", "protocol")),
+                 ThemeRef("separators", "uri_separator"),
+                 ThemeStr("example", ThemeAttr("types", "address")),
+                 ThemeRef("separators", "ipv4address"),
+                 ThemeStr("org", ThemeAttr("types", "address")),
+                 ThemeRef("separators", "uri_path"),
+                 ThemeStr("foobar.html", ThemeAttr("types", "address"))],
+                None,
+            ),
+            # Multiple valid URIs
+            (
+                ["http://example1.org", "https://example2.net"],
+                False,
+                [ThemeStr("http", ThemeAttr("types", "protocol")),
+                 ThemeRef("separators", "uri_separator"),
+                 ThemeStr("example1", ThemeAttr("types", "address")),
+                 ThemeRef("separators", "ipv4address"),
+                 ThemeStr("org", ThemeAttr("types", "address")),
+                 ThemeRef("separators", "list"),
+                 ThemeStr("https", ThemeAttr("types", "protocol")),
+                 ThemeRef("separators", "uri_separator"),
+                 ThemeStr("example2", ThemeAttr("types", "address")),
+                 ThemeRef("separators", "ipv4address"),
+                 ThemeStr("net", ThemeAttr("types", "address"))],
+                None,
+            ),
+            # Invalid URI
+            (
+                ["foobar"],
+                False,
+                [ThemeStr("foobar", ThemeAttr("types", "generic"))],
+                None,
+            ),
+            # Invalid URI
+            (
+                "http://example.org:6581:",
+                False,
+                [ThemeStr("http://example.org:6581:", ThemeAttr("types", "generic"))],
+                None,
+            ),
+            # empty data
+            (
+                [],
+                False,
+                [ThemeStr("", ThemeAttr("types", "generic"))],
+                None,
+            ),
+        )
+
+        for string, selected, expected_result, expected_exception in testdata:
+            try:
+                tmp = fun(string, selected)
+                if tmp != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"           result: {tmp}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  f"        exception: {type(e)}\n" \
+                                  f"          message: {str(e)}\n" \
+                                  f"         expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"        exception: {type(e)}\n" \
+                              f"          message: {str(e)}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+    return message, result
+
+
 def test_generator_value_mapper(verbose: bool = False) -> tuple[str, bool]:
     message = ""
     result = True
@@ -2354,6 +2488,10 @@ tests: dict[tuple[str], dict[str, Any]] = {
     },
     ("format_address()",): {
         "callable": test_format_address,
+        "result": None,
+    },
+    ("format_uri()",): {
+        "callable": test_format_uri,
         "result": None,
     },
     ("generator_value_mapper()",): {
