@@ -98,7 +98,7 @@
   show_in_selector: false
   matchkeys:
     - container_name: "thanos-sidecar"
-    - container_name: "prometheus"
+    - container_name: "^prometheus$"
   parser_rules:
     - name: "glog"
     - name: "key_value"
