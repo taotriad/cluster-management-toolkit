@@ -2605,7 +2605,6 @@ def reformat_json(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef |
     return format_yaml(lines, **kwargs)
 
 
-@functools.lru_cache(maxsize=32)
 def format_pygments_generic(lines: str | list[str], **kwargs: Any) -> \
         list[list[ThemeRef | ThemeStr]]:
     """
