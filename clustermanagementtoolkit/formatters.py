@@ -16,6 +16,7 @@ import binascii
 from collections.abc import Callable, Generator
 import copy
 from datetime import datetime
+import functools
 import io
 import json
 from pathlib import Path
@@ -1761,6 +1762,7 @@ def format_markdown_table(lines: list[list[ThemeRef | ThemeStr]]) -> list[list[T
     return rows
 
 
+@functools.lru_cache(maxsize=32)
 # pylint: disable-next=too-many-statements,too-many-branches,too-many-locals
 def render_markdown(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef | ThemeStr]]:
     """
@@ -1772,9 +1774,6 @@ def render_markdown(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef
             lines (str|[str]): A list of strings *or*
                                A string with newlines that should be split
             **kwargs (dict[str, Any]): Keyword arguments
-                start ((str)): Start indicator(s)
-                include_start (bool): Include the start line
-                end ((str)): End indicator(s)
                 use_github_tags (bool): Should GitHub tags be used (includes GitHub alerts)?
                 raw (bool): Show raw document instead of rendering the document
         Returns:
@@ -2606,6 +2605,7 @@ def reformat_json(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef |
     return format_yaml(lines, **kwargs)
 
 
+@functools.lru_cache(maxsize=32)
 def format_pygments_generic(lines: str | list[str], **kwargs: Any) -> \
         list[list[ThemeRef | ThemeStr]]:
     """

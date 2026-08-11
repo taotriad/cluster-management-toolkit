@@ -33,12 +33,6 @@ listview:
               filetype: "text"
               pathtype: "raw"
           formatter: "markdown"
-          formatter_args:
-            # First match in the file is what we want
-            include_start: true
-            include_end: true
-            strip_empty_start: true
-            strip_empty_end: true
       - filepath: "{HOME}/.cmt/version-cache/candidate_versions.yaml"
         filetype: "yaml"
         path: "crc"
@@ -74,14 +68,6 @@ listview:
               filetype: "text"
               pathtype: "raw"
           formatter: "markdown"
-          formatter_args:
-            # First match in the file is what we want
-            start: "## Changelog since "
-            include_start: true
-            end: "# v"
-            include_end: false
-            strip_empty_start: false
-            strip_empty_end: true
       - filepath: "{HOME}/.cmt/version-cache/candidate_versions.yaml"
         filetype: "yaml"
         path: "kubevirt"
@@ -100,8 +86,6 @@ listview:
               filetype: "text"
               pathtype: "raw"
           formatter: "markdown"
-          formatter_args:
-            strip_empty_end: true
       - filepath: "{HOME}/.cmt/version-cache/candidate_versions.yaml"
         filetype: "yaml"
         path: "helm"
@@ -376,8 +360,6 @@ listview:
               filetype: "text"
               pathtype: "raw"
           formatter: "markdown"
-          formatter_args:
-            strip_empty_end: true
       - filepath: "{HOME}/.cmt/version-cache/candidate_versions.yaml"
         filetype: "yaml"
         path: "harvester"
