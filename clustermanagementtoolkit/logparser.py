@@ -4461,6 +4461,39 @@ def logparser_initialised(**kwargs: Any) \
     return timestamp, facility, severity, rmessage, remnants
 
 
+def match_name(matchrule: str, name: str) -> bool:
+    """
+    Match a matchrule against a name. Rules starting with ^ will be matched
+    with startswith(), rules ending with "$" will be matched with "endwith(),
+    rules starting with "^" and ending with "$" will be matched with ==.
+    Default behaviour is startswith.
+
+        Parameters:
+            matchrule (str): The rule to use for matching
+            name (str): The name to match against the rule
+        Return:_
+            (bool): True if the name matches the rule, False if not
+    """
+    matchtype: str = "startswith"
+
+    # Empty rules always matches
+    if not matchrule:
+        return True
+
+    if matchrule.startswith("^") and matchrule.endswith("$"):
+        matchrule = matchrule[1:-1]
+        matchtype = "equals"
+    elif matchrule.endswith("$"):
+        matchrule = matchrule[:-1]
+        matchtype = "endswith"
+
+    if matchtype == "startswith":
+        return name.startswith(matchrule)
+    if matchtype == "endswith":
+        return name.endswith(matchrule)
+    return matchrule == name
+
+
 # pylint: disable-next=too-many-locals,too-many-branches,too-many-statements
 def logparser(**kwargs: Any) \
         -> tuple[datetime, str, LogLevel,
@@ -4547,24 +4580,24 @@ def logparser(**kwargs: Any) \
         uparser = None
         lparser = None
 
-        for pod_prefix, container_prefix, image_prefix, \
-                _container_type, image_regex in parser.match:
+        for matchrule_pod_name, matchrule_container_name, matchrule_image_prefix, \
+                matchrule_container_type, matchrule_image_regex in parser.match:
             _image_name = image_name
-            if image_prefix.startswith("/"):
+            if matchrule_image_prefix.startswith("/"):
                 tmp = image_name.split("/", 1)
                 if len(tmp) == 2:
                     _image_name = f"/{tmp[1]}"
 
-            if image_regex is None:
+            if matchrule_image_regex is None:
                 regex_match = True
             else:
-                tmp = image_regex.match(_image_name)
+                tmp = matchrule_image_regex.match(_image_name)
                 regex_match = tmp is not None
 
-            if pod_name.startswith(pod_prefix) \
-                    and container_name.startswith(container_prefix) \
-                    and _image_name.startswith(image_prefix) \
-                    and container_type == _container_type and regex_match:
+            if match_name(matchrule_pod_name, pod_name) \
+                    and match_name(matchrule_container_name, container_name) \
+                    and _image_name.startswith(matchrule_image_prefix) \
+                    and container_type == matchrule_container_type and regex_match:
                 uparser = parser.name
                 options = {
                     "__line": line,
@@ -4574,12 +4607,12 @@ def logparser(**kwargs: Any) \
                                         fold_msg=fold_msg, options=options)
 
                 _lparser = []
-                if pod_prefix:
-                    _lparser.append(pod_prefix)
-                if container_prefix:
-                    _lparser.append(container_prefix)
-                if image_prefix:
-                    _lparser.append(image_prefix)
+                if matchrule_pod_name:
+                    _lparser.append(matchrule_pod_name)
+                if matchrule_container_name:
+                    _lparser.append(matchrule_container_name)
+                if matchrule_image_prefix:
+                    _lparser.append(matchrule_image_prefix)
                 lparser = "|".join(_lparser)
                 break
 
