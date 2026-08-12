@@ -56,7 +56,7 @@ except ModuleNotFoundError:  # pragma: no cover
              "you may need to (re-)run `cmt-install.py` or `pip3 install natsort`; aborting.")
 
 try:
-    import prctl
+    import prctl  # type: ignore[import-not-found]
     prctl.set_name(PurePath(sys.argv[0]).name)  # pylint: disable=no-member,useless-suppression
     prctl.set_proctitle(" ".join(sys.argv))
 except ModuleNotFoundError:  # pragma: no cover
@@ -763,7 +763,7 @@ def generate_list_row(uip: UIProps, data: dict, field_dict: dict,
 # noqa: E501 pylint: disable-next=too-many-arguments,too-many-positional-arguments,too-many-locals,too-many-return-statements,too-many-branches,too-many-statements
 def input_query(uip: UIProps, queryfunc: str | None,
                 queryval: str | None, query: str | None,
-                selection_vars: dict[str, Any] | None, confirm: bool,
+                selection_vars: dict[str, Any], confirm: bool,
                 extravars: dict[str, Any], description: str) -> bool:
     """
     Query the user for input.
@@ -1476,7 +1476,7 @@ def genericlistloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                 if actionfunc is None:
                     continue
 
-                selection_vars = extravars
+                selection_vars: dict[str, Any] = extravars
 
                 if os.path.isdir(defaultpath[0]):
                     selection_vars["basedir"] = defaultpath[0]
@@ -1527,7 +1527,7 @@ def genericlistloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                     }]
 
                     if status == 200:
-                        for ns in (deep_get(item, DictPath("metadata#name")) for item in tmp):
+                        for ns in [deep_get(item, DictPath("metadata#name")) for item in tmp]:
                             namespace_list.append({
                                 "lineattrs": WidgetLineAttrs.NORMAL,
                                 "columns": [[ThemeStr(f"{ns}",
@@ -2031,7 +2031,7 @@ def genericlistloop(stdscr: curses.window, **kwargs: Any) -> Retval:
             # Force update UI
             force_refresh = deep_get(value, DictPath("force_refresh"), False)
 
-            selection_vars = None
+            selection_vars = {}
 
             if not input_query(uip, queryfunc=queryfunc, queryval=queryval, query=query,
                                selection_vars=selection_vars, confirm=confirm,
@@ -4446,7 +4446,7 @@ def genericinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                     if ikind in ("[container]", "[init_container]", "[configmap]"):
                         name = deep_get(item, DictPath("ref#name"))
                     elif view == ("ConfigMap", "") \
-                            and ikind in (rtype[0] for rtype in formatters.cmdata_format):
+                            and ikind in [rtype[0] for rtype in formatters.cmdata_format]:
                         name = deep_get(item, DictPath("data"))
                         ikind = deep_get(viewref, DictPath("listpad#on_activation#kind"), "")
                         if isinstance(ikind, str):

@@ -62,7 +62,7 @@ ansible_configuration: dict = {
 
 # Used by Ansible
 try:
-    import ansible_runner
+    import ansible_runner  # type: ignore[import-untyped]
 except ModuleNotFoundError:  # pragma: no cover
     # This is acceptable; we don't benefit from a backtrace or log message
     sys.exit("ModuleNotFoundError: Could not import ansible_runner; "

@@ -111,7 +111,7 @@ PYLINT_DISABLE := W0511,similarities
 # Warn about useless disable
 PYLINT_ENABLE := useless-suppression
 
-MYPY_FLAGS := --follow-imports silent --explicit-package-bases --ignore-missing --disallow-untyped-calls --disallow-untyped-defs --disallow-incomplete-defs --check-untyped-defs --disallow-untyped-decorators --warn-redundant-casts --warn-unused-ignores
+MYPY_FLAGS := --follow-imports silent --explicit-package-bases --disallow-untyped-calls --disallow-untyped-defs --disallow-incomplete-defs --check-untyped-defs --disallow-untyped-decorators --warn-redundant-casts --warn-unused-ignores
 
 code-checks: ruff flake8 mypy pylint
 checks: ruff bandit regexploit jsonlint yamllint validate_playbooks validate_yaml check_helptexts semgrep

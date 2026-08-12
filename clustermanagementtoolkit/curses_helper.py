@@ -24,7 +24,7 @@ import os
 from pathlib import Path, PurePath
 import re
 import sys
-from typing import Any, cast, NamedTuple, NoReturn, Union
+from typing import Any, cast, ClassVar, NamedTuple, NoReturn, Union
 from collections.abc import Callable, Sequence
 
 try:
@@ -551,11 +551,11 @@ class CursesConfiguration:
     """
     Configuration options for the curses UI.
     """
-    abouttext: list[list[ThemeRef | ThemeStr]] = []
-    borders: bool = True
-    mousescroll_enable: bool = False
-    mousescroll_up: int = 0b10000000000000000
-    mousescroll_down: int = 0b1000000000000000000000000000
+    abouttext: ClassVar[list[list[ThemeRef | ThemeStr]]] = []
+    borders: ClassVar[bool] = True
+    mousescroll_enable: ClassVar[bool] = False
+    mousescroll_up: ClassVar[int] = 0b10000000000000000
+    mousescroll_down: ClassVar[int] = 0b1000000000000000000000000000
 
 
 class WidgetLineAttrs(IntFlag):

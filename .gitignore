@@ -11,3 +11,4 @@ tests/clustermanagementtoolkit
 coverage.json
 htmlcov
 bin
+build

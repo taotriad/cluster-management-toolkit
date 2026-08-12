@@ -109,7 +109,7 @@ from clustermanagementtoolkit.kubernetes_resources import event_reasons
 from clustermanagementtoolkit.kubernetes_resources import unknown_kubernetes_resources
 
 try:
-    import prctl
+    import prctl  # type: ignore[import-not-found]
     prctl.set_name(PurePath(sys.argv[0]).name)  # pylint: disable=no-member,useless-suppression
     prctl.set_proctitle(" ".join(sys.argv))
 except ModuleNotFoundError:  # pragma: no cover
