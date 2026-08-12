@@ -125,12 +125,12 @@ from clustermanagementtoolkit.curses_helper import CursesConfiguration, color_lo
 from clustermanagementtoolkit.curses_helper import format_helptext, get_mousemask
 from clustermanagementtoolkit.curses_helper import color_status_group, map_key
 from clustermanagementtoolkit.curses_helper import UIProps, WidgetLineAttrs
-from clustermanagementtoolkit.curses_helper import get_theme_ref, read_theme
-from clustermanagementtoolkit.curses_helper import ThemeAttr, ThemeRef, ThemeStr
-from clustermanagementtoolkit.curses_helper import themearray_strip, themearray_flatten
-from clustermanagementtoolkit.curses_helper import themearray_wrap_line, themearray_to_string
-from clustermanagementtoolkit.curses_helper import themearray_len, themearray_detab
-from clustermanagementtoolkit.curses_helper import themearray_truncate
+
+from clustermanagementtoolkit.themearray import ThemeArray, ThemeAttr, ThemeRef, ThemeStr
+from clustermanagementtoolkit.themearray import get_theme_ref, read_theme
+from clustermanagementtoolkit.themearray import themearray_detab
+from clustermanagementtoolkit.themearray import themearray_strip
+from clustermanagementtoolkit.themearray import themearray_wrap_line
 
 from clustermanagementtoolkit import datagetters
 
@@ -609,7 +609,7 @@ def generate_list_header(uip: UIProps, field_dict: dict, is_taggable: bool = Fal
     if is_taggable:
         tabstops.append(tabstop)
         headerarray.append(ThemeRef("separators", "tag"))
-        tabstop = themearray_len(headerarray)
+        tabstop = len(ThemeArray(headerarray))
 
     for field in field_dict:
         generator = field_dict[field].get("generator")
@@ -640,7 +640,7 @@ def generate_list_header(uip: UIProps, field_dict: dict, is_taggable: bool = Fal
             headerarray.append(ThemeStr("".ljust(separator_len - direction_char_len),
                                         ThemeAttr("types", "generic")))
 
-        tabstop = themearray_len(headerarray)
+        tabstop = len(ThemeArray(headerarray))
 
         # This tells the length of the alignment of the header
         fieldlen = deep_get(field_dict, DictPath(f"{field}#fieldlen"))
@@ -3011,7 +3011,7 @@ def clusteroverviewloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                 if ptype == "timestamp":
                     timestamp = timestamp_to_datetime(cast(str, val))
                     formatted_timestamp = format_timestamp(timestamp)
-                    evlens[i] = max(evlens[i], themearray_len(formatted_timestamp))
+                    evlens[i] = max(evlens[i], len(ThemeArray(formatted_timestamp)))
                 else:
                     evlens[i] = max(evlens[i], len(val))
 
@@ -3037,7 +3037,7 @@ def clusteroverviewloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                         timestamp = timestamp_to_datetime(cast(str, val))
                         formatted_timestamp = format_timestamp(timestamp)
                         tmp2 += formatted_timestamp
-                        ft_len = evlens[i] - themearray_len(formatted_timestamp)
+                        ft_len = evlens[i] - len(ThemeArray(formatted_timestamp))
                         if ft_len:
                             tmp2.append(ThemeStr("".ljust(ft_len), ThemeAttr("main", "default")))
                     elif ptype == "namespace":
@@ -3645,7 +3645,7 @@ def process_selection(**kwargs: Any) -> dict[str, Any]:
         deep_get(kwargs, DictPath("process_selection"), {})
 
     for i, selection in enumerate(deep_get(kwargs, DictPath("selection"), [])):
-        string: str = themearray_to_string(selection)
+        string: str = str(ThemeArray(selection))
         values: dict[str, Any] = {}
         if i in process_selection_dict:
             default = deep_get(process_selection_dict[i], DictPath("__default"), {})
@@ -4339,7 +4339,7 @@ def genericinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                                          ThemeRef("separators", "facility_suffix")]
 
                         if fac_extended:
-                            if not themearray_strip(themearray_flatten(fac_extended)):
+                            if not themearray_strip(ThemeArray(fac_extended).flatten()):
                                 facility += \
                                     [ThemeStr("".ljust(facility_ext_prefix_len),
                                               ThemeAttr("logview", "facility"))] \
@@ -4385,7 +4385,7 @@ def genericinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                         [ThemeRef("separators", "matchbullet")]
                     if not line_match:
                         match_prefix = \
-                            [ThemeStr("".ljust(len(themearray_to_string(match_prefix))),
+                            [ThemeStr("".ljust(len(ThemeArray(match_prefix))),
                                       ThemeAttr("types", "generic"))]
                     message = match_prefix + message
                 if wrap_lines:
@@ -4397,14 +4397,14 @@ def genericinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                     maxwidth = -1
                 if facility is not None:
                     message = facility + message
-                untruncated_len = themearray_len(message)
+                untruncated_len = len(ThemeArray(message))
                 max_untruncated_len = 16384
                 if wrap_lines or untruncated_len < max_untruncated_len:
                     lines_ = themearray_wrap_line(message, maxwidth,
                                                   wrap_marker=(CursesConfiguration.borders
                                                                or get_mousemask() != 0))
                 else:
-                    lines_ = [themearray_truncate(message, max_untruncated_len - 1)]
+                    lines_ = [ThemeArray(message)[:max_untruncated_len - 1]]
                     severity_name = f"severity_{loglevel_to_name(LogLevel.ERR).lower()}"
                     lines_.append([ThemeStr(f"Line too long ({untruncated_len} bytes); "
                                             f"truncated to {max_untruncated_len} bytes "
@@ -5475,11 +5475,12 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                     hidden_msgs += 1
                     continue
 
+                # XXX: It might be enough to just do ThemeArray(prev_message) here without len?
                 # pylint: disable-next=too-many-boolean-expressions
                 if prev_message == message \
                         and prev_facility == facility \
                         and prev_severity == severity \
-                        and (themearray_len(prev_message) or not prev_remnants) \
+                        and (len(ThemeArray(prev_message)) or not prev_remnants) \
                         and prev_remnants == remnants:
                     repeat_count += 1
                     prev_timestamp = timestamp_
@@ -5895,7 +5896,7 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                     # We do not actually want any prefix,
                     # but we want empty padding of the same length
                     if facility.rstrip() == "":
-                        facilitystr = [ThemeStr("".ljust(themearray_len(facilitystr)),
+                        facilitystr = [ThemeStr("".ljust(len(ThemeArray(facilitystr))),
                                                 ThemeAttr("logview", "severity_debug"))]
                     msgstrarray += facilitystr
 
@@ -5921,7 +5922,7 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                     if i == 0 and uip.tspad is not None and tscount:
                         uip.addthemearray(uip.tspad, tsthemearray, y=y + yadd, x=0)
                     _cury, _curx = uip.addthemearray(uip.logpad, msgstrarray, y=y + yadd + i, x=0)
-                    maxlen = max(maxlen, themearray_len(msgstrarray))
+                    maxlen = max(maxlen, len(ThemeArray(msgstrarray)))
                 yadd += i
             uip.resize_logpad(-1, maxlen)
 
@@ -6280,7 +6281,7 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                         # only be a tuple here
                         tmp_facility_extended, tmp_facility = tmp_facility_raw
                         if isinstance(tmp_facility_extended, list):
-                            facility = themearray_to_string(tmp_facility_extended) + tmp_facility
+                            facility = str(ThemeArray(tmp_facility_extended)) + tmp_facility
                         else:
                             facility = tmp_facility_extended + tmp_facility
                     # If the facility is just padding we don't add brackets
@@ -6296,7 +6297,7 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
 
                 tmp_message = messages[y]
                 if isinstance(tmp_message, list):
-                    tmp_message = themearray_to_string(tmp_message)
+                    tmp_message = str(ThemeArray(tmp_message))
 
                 if raw_logs:
                     data += f"{timestamp}  {tmp_message}\n"
@@ -6556,7 +6557,7 @@ def listviewdispatch(stdscr: curses.window, **kwargs: Any) -> Retval:
         elif isinstance(kind_path, int) and selection is not None and selection:
             tmp = selection[kind_path]
             if tmp is not None:
-                kind = themearray_to_string(tmp)
+                kind = str(ThemeArray(tmp))
     api_family = deep_get_with_fallback(kwargs, [DictPath("api_family"), DictPath("api_group")])
     api_group_path = \
         deep_get_with_fallback(kwargs, [DictPath("api_family_path"), DictPath("api_group_path")])
@@ -6567,7 +6568,7 @@ def listviewdispatch(stdscr: curses.window, **kwargs: Any) -> Retval:
         else:
             tmp = selection[api_group_path]
             if tmp is not None:
-                api_family = themearray_to_string(tmp)
+                api_family = str(ThemeArray(tmp))
 
     if kind is None:
         return Retval.RETURNDONE
@@ -6893,7 +6894,7 @@ def resourceinfodispatch_with_lookup(stdscr: curses.window, **kwargs: Any) -> Re
                 return Retval.NOMATCH
             tmp = fields[kind_path]
             if tmp is not None:
-                kind = themearray_to_string(tmp)
+                kind = str(ThemeArray(tmp))
 
     api_group = deep_get_with_fallback(kwargs, [DictPath("api_family"),
                                                 DictPath("api_group")], api_family)
@@ -6932,7 +6933,7 @@ def resourceinfodispatch_with_lookup(stdscr: curses.window, **kwargs: Any) -> Re
                 return Retval.NOMATCH
             tmp = fields[api_group_path]
             if tmp is not None:
-                api_group = themearray_to_string(tmp)
+                api_group = str(ThemeArray(tmp))
 
     api_version_path = deep_get(kwargs, DictPath("api_version_path"))
     if api_version_path is not None:
@@ -6968,7 +6969,7 @@ def resourceinfodispatch_with_lookup(stdscr: curses.window, **kwargs: Any) -> Re
                 return Retval.NOMATCH
             tmp = fields[api_version_path]
             if tmp is not None:
-                api_version = themearray_to_string(tmp)
+                api_version = str(ThemeArray(tmp))
                 if api_version is not None:
                     if "/" in api_version:
                         api_group = api_version.split('/', maxsplit=1)[0]
@@ -7009,7 +7010,7 @@ def resourceinfodispatch_with_lookup(stdscr: curses.window, **kwargs: Any) -> Re
             return Retval.NOMATCH
         tmp = fields[name_path]
         if tmp is not None:
-            name = themearray_to_string(tmp)
+            name = str(ThemeArray(tmp))
     if isinstance(namespace_path, int) and selection is not None and selection:
         if not isinstance(selection, (list, tuple)) \
                 and not isinstance(deep_get(selection, DictPath("fields")), (list, tuple)):
@@ -7040,7 +7041,7 @@ def resourceinfodispatch_with_lookup(stdscr: curses.window, **kwargs: Any) -> Re
             return Retval.NOMATCH
         tmp = fields[namespace_path]
         if tmp is not None:
-            namespace = themearray_to_string(tmp)
+            namespace = str(ThemeArray(tmp))
 
         # If an integer namespace is empty, the namespace is (most likely)
         # the same namespace as the parent. This should not interfere with non-namespaced

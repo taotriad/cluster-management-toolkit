@@ -21,11 +21,10 @@ from enum import IntFlag
 import errno
 from operator import itemgetter
 import os
-from pathlib import Path, PurePath
 import re
 import sys
-from typing import Any, cast, ClassVar, NamedTuple, NoReturn, Union
-from collections.abc import Callable, Sequence
+from typing import Any, cast, ClassVar, NoReturn
+from collections.abc import Callable
 
 try:
     from natsort import natsorted
@@ -33,17 +32,10 @@ except ModuleNotFoundError:  # pragma: no cover
     sys.exit("ModuleNotFoundError: Could not import natsort; "
              "you may need to (re-)run `cmt-install.py` or `pip3 install natsort`; aborting.")
 
-from clustermanagementtoolkit.cmtio import check_path, join_securitystatus_set
-
-from clustermanagementtoolkit.cmtio_yaml import secure_read_yaml
-
 from clustermanagementtoolkit import cmtlog
 
-from clustermanagementtoolkit.cmtpaths import SYSTEM_DEFAULT_THEME_FILE
-
-from clustermanagementtoolkit.cmttypes import DictPath, FilePath, LogLevel, StatusGroup, Retval
-from clustermanagementtoolkit.cmttypes import FilePathAuditError, ProgrammingError
-from clustermanagementtoolkit.cmttypes import SecurityChecks, SecurityStatus
+from clustermanagementtoolkit.cmttypes import DictPath, LogLevel, StatusGroup, Retval
+from clustermanagementtoolkit.cmttypes import ProgrammingError
 from clustermanagementtoolkit.cmttypes import deep_get, loglevel_to_name, stgroup_mapping
 
 from clustermanagementtoolkit.ansithemeprint import ANSIThemeStr, ansithemeprint
@@ -51,8 +43,11 @@ from clustermanagementtoolkit.ansithemeprint import ansithemestr_join_list
 
 from clustermanagementtoolkit import cmtlib
 
-theme: dict = {}
-themefile: FilePath | None = None  # pylint: disable=invalid-name
+from clustermanagementtoolkit.themearray import ThemeArray, ThemeAttr, ThemeRef, ThemeStr
+from clustermanagementtoolkit.themearray import theme, themefile, color_map, theme_colors
+from clustermanagementtoolkit.themearray import themestr_to_cursestuple, themearray_wrap_line
+from clustermanagementtoolkit.themearray import themeattr_to_curses, themeattr_to_curses_merged
+
 mousemask: int = 0  # pylint: disable=invalid-name
 
 
@@ -120,438 +115,12 @@ def get_tagged_objects(items: list[dict]) -> list[dict]:
     return [d for d in items if deep_get(d, DictPath("__uid")) in tagged_items]
 
 
-# A reference to text formatting
-class ThemeAttr(NamedTuple):
-    """
-    A reference to formatting for a themed string.
-
-        Parameters:
-            context: The context to use when doing a looking in themes
-            key: The key to use when doing a looking in themes
-    """
-    context: str
-    key: str
-
-    def __repr__(self) -> str:
-        return f"ThemeAttr('{self.context}', '{self.key}')"
-
-
-class ThemeStr:
-    """
-    A themed string for use with curses.
-
-        Parameters:
-            string: A string
-            themeattr: The themeattr used to format the string
-            selected (bool | None): Selected or unselected formatting
-    """
-    def __init__(self, string: str, themeattr: ThemeAttr, selected: bool | None = False) -> None:
-        if not (isinstance(string, str)
-                and isinstance(themeattr, ThemeAttr)
-                and (selected is None or isinstance(selected, bool))):
-            errmsg = [
-                [("ThemeStr()", "emphasis"),
-                 (" initialised with invalid argument(s):", "error")],
-                [("themefile = ", "default"),
-                 (f"{themefile}", "path")],
-                [("string = ", "default"),
-                 (f"{string}", "argument"),
-                 (" (type: ", "default"),
-                 (f"{type(string)}", "argument"),
-                 (", expected: ", "default"),
-                 ("str", "argument"),
-                 (")", "default")],
-                [("themeattr = ", "default"),
-                 (f"{themeattr}", "argument"),
-                 (" (type: ", "default"),
-                 (f"{type(themeattr)}", "argument"),
-                 (", expected: ", "default"),
-                 ("ThemeAttr", "argument"),
-                 (")", "default")],
-                [("selected = ", "default"),
-                 (f"{selected}", "argument"),
-                 (" (type: ", "default"),
-                 (f"{type(selected)}", "argument"),
-                 (", expected: ", "default"),
-                 ("bool", "argument"),
-                 (")", "default")],
-            ]
-            unformatted_msg, formatted_msg = ANSIThemeStr.format_error_msg(errmsg)
-            cmtlog.log(LogLevel.ERR, msg=unformatted_msg, messages=formatted_msg)
-            raise ProgrammingError(unformatted_msg,
-                                   subexception=TypeError,
-                                   severity=LogLevel.ERR,
-                                   facility=str(themefile),
-                                   formatted_msg=formatted_msg)
-        self.string = string
-        self.themeattr = themeattr
-        self.selected = selected
-
-    def __str__(self) -> str:
-        return self.string
-
-    def __len__(self) -> int:
-        return len(self.string)
-
-    def __repr__(self) -> str:
-        return f"ThemeStr('{self.string}', {repr(self.themeattr)}, {self.selected})"
-
-    def get_themeattr(self) -> ThemeAttr:
-        """
-        Return the ThemeAttr attribute of the ThemeStr.
-
-            Returns:
-                (ThemeAttr): The ThemeAttr attribute of the ThemeStr
-        """
-        return self.themeattr
-
-    def set_themeattr(self, themeattr: ThemeAttr) -> None:
-        """
-        Replace the ThemeAttr attribute of the ThemeStr.
-
-            Parameters:
-                themeattr (ThemeAttr): The new ThemeAttr attribute to use
-        """
-        self.themeattr = themeattr
-
-    def get_selected(self) -> bool | None:
-        """
-        Return the selected attribute of the ThemeStr.
-
-            Returns:
-                (bool): The selected attribute of the ThemeStr
-        """
-        return self.selected
-
-    def __eq__(self, obj: Any) -> bool:
-        if not isinstance(obj, ThemeStr):
-            return False
-
-        return repr(obj) == repr(self)
-
-
-class ThemeRef:
-    """
-    A reference to a themed string;
-    while the type definition is the same as ThemeAttr its use is different.
-
-        Parameters:
-            context: The context to use when doing a looking in themes
-            key: The key to use when doing a looking in themes
-            selected (bool | None): Should the selected or unselected formatting be used
-    """
-    def __init__(self, context: str, key: str, selected: bool | None = False) -> None:
-        if not (isinstance(context, str)
-                and isinstance(key, str)
-                and (selected is None or isinstance(selected, bool))):
-            errmsg = [
-                [("ThemeRef()", "emphasis"),
-                 (" initialised with invalid argument(s):", "error")],
-                [("themefile = ", "default"),
-                 (f"{themefile}", "path")],
-                [("context = ", "default"),
-                 (f"{context}", "argument"),
-                 (" (type: ", "default"),
-                 (f"{type(context)}", "argument"),
-                 (", expected: ", "default"),
-                 ("str", "argument"),
-                 (")", "default")],
-                [("key = ", "default"),
-                 (f"{key}", "argument"),
-                 (" (type: ", "default"),
-                 (f"{type(key)}", "argument"),
-                 (", expected: ", "default"),
-                 ("str", "argument"),
-                 (")", "default")],
-                [("selected = ", "default"),
-                 (f"{selected}", "argument"),
-                 (" (type: ", "default"),
-                 (f"{type(selected)}", "argument"),
-                 (", expected: ", "default"),
-                 ("bool", "argument"),
-                 (")", "default")],
-            ]
-            unformatted_msg, formatted_msg = ANSIThemeStr.format_error_msg(errmsg)
-            cmtlog.log(LogLevel.ERR, msg=unformatted_msg, messages=formatted_msg)
-            raise ProgrammingError(unformatted_msg,
-                                   severity=LogLevel.ERR,
-                                   facility=str(themefile),
-                                   formatted_msg=formatted_msg)
-        self.context = context
-        self.key = key
-        self.selected = selected
-
-    def __str__(self) -> str:
-        string = ""
-        data = deep_get(theme, DictPath(f"{self.context}#{self.key}"))
-        if data is None:
-            errmsg = [
-                [("The ThemeRef(", "error"),
-                 (f"'{self.context}'", "argument"),
-                 (", ", "error"),
-                 (f"'{self.key}'", "argument"),
-                 (") does not exist.", "error")],
-            ]
-            unformatted_msg, formatted_msg = ANSIThemeStr.format_error_msg(errmsg)
-            cmtlog.log(LogLevel.ERR, msg=unformatted_msg, messages=formatted_msg)
-            self.context = "strings"
-            self.key = "themeref_missing"
-            data = deep_get(theme, DictPath(f"{self.context}#{self.key}"))
-
-        if isinstance(data, dict):
-            if self.selected:
-                selected = "selected"
-            else:
-                selected = "unselected"
-            array = deep_get(data, DictPath(selected))
-        else:
-            array = data
-        for string_fragment, _attr in array:
-            string += string_fragment
-        return string
-
-    def __len__(self) -> int:
-        return len(str(self))
-
-    def __repr__(self) -> str:
-        return f"ThemeRef('{self.context}', '{self.key}', {self.selected})"
-
-    def to_themearray(self) -> list[ThemeStr]:
-        """
-        Return the themearray representation of the ThemeRef.
-
-            Returns:
-                (ThemeArray): The themearray representation
-        """
-        themearray = []
-        data = deep_get(theme, DictPath(f"{self.context}#{self.key}"))
-        if isinstance(data, dict):
-            if self.selected:
-                selected = "selected"
-            else:
-                selected = "unselected"
-            array = deep_get(data, DictPath(selected))
-        else:
-            array = data
-        if array is None:
-            errmsg = [
-                [("The ThemeRef(", "error"),
-                 (f"'{self.context}'", "argument"),
-                 (", ", "error"),
-                 (f"'{self.key}'", "argument"),
-                 (") does not exist.", "error")],
-            ]
-            unformatted_msg, formatted_msg = ANSIThemeStr.format_error_msg(errmsg)
-            cmtlog.log(LogLevel.ERR, msg=unformatted_msg, messages=formatted_msg)
-            raise ProgrammingError(unformatted_msg,
-                                   severity=LogLevel.ERR,
-                                   facility=str(themefile),
-                                   formatted_msg=formatted_msg)
-        for string, themeattr in array:
-            themearray.append(ThemeStr(string,
-                                       ThemeAttr(themeattr[0], themeattr[1]),
-                                       self.selected))
-        return themearray
-
-    def get_selected(self) -> bool | None:
-        """
-        Return the selected attribute of the ThemeRef.
-
-            Returns:
-                (bool): The selected attribute of the ThemeRef, None if unset
-        """
-        return self.selected
-
-    def __eq__(self, obj: Any) -> bool:
-        if not isinstance(obj, ThemeRef):
-            return False
-
-        return repr(obj) == repr(self)
-
-
-class ThemeArray:
-    """
-    An array of themed strings and references to themed strings.
-
-        Parameters:
-            [ThemeStr|ThemeRef]: The themearray
-            selected (bool): Selected or unselected formatting;
-                             passing this parameter overrides
-                             individual members of the ThemeArray
-    """
-    def __init__(self, array: list[ThemeRef | ThemeStr],
-                 selected: bool | None = None) -> None:
-        if array is None:
-            errmsg = [
-                [("ThemeArray()", "emphasis"),
-                 (" initialised with an empty array", "error")],
-            ]
-            unformatted_msg, formatted_msg = ANSIThemeStr.format_error_msg(errmsg)
-            cmtlog.log(LogLevel.ERR, msg=unformatted_msg, messages=formatted_msg)
-            raise ProgrammingError(unformatted_msg,
-                                   severity=LogLevel.ERR,
-                                   facility=str(themefile),
-                                   formatted_msg=formatted_msg)
-
-        if not isinstance(array, list):
-            errmsg = [
-                [("ThemeArray()", "emphasis"),
-                 (" initialised with invalid argument(s):", "error")],
-                [("array = ", "default"),
-                 (f"{array}", "argument"),
-                 (" (type: ", "default"),
-                 (f"{type(array)}", "argument"),
-                 (", expected: ", "default"),
-                 ("list", "argument"),
-                 (")", "default")],
-                [("selected = ", "default"),
-                 (f"{selected}", "argument"),
-                 (" (type: ", "default"),
-                 (f"{type(selected)}", "argument"),
-                 (", expected: ", "default"),
-                 ("bool", "argument"),
-                 (")", "default")],
-            ]
-            unformatted_msg, formatted_msg = ANSIThemeStr.format_error_msg(errmsg)
-            cmtlog.log(LogLevel.ERR, msg=unformatted_msg, messages=formatted_msg)
-            raise ProgrammingError(unformatted_msg,
-                                   severity=LogLevel.ERR,
-                                   facility=str(themefile),
-                                   formatted_msg=formatted_msg)
-
-        newarray: list[ThemeRef | ThemeStr] = []
-        for item in array:
-            if not isinstance(item, (ThemeRef, ThemeStr)):
-                errmsg = [
-                    [("ThemeArray()", "emphasis"),
-                     (" initialised with invalid argument(s):", "error")],
-                    [("array element = ", "default"),
-                     (f"{item}", "argument"),
-                     (" (type: ", "default"),
-                     (f"{type(item)}", "argument"),
-                     (", expected: ", "default"),
-                     ("ThemeRef", "argument"),
-                     (" or ", "default"),
-                     ("ThemeStr", "argument"),
-                     (")", "default")],
-                ]
-                unformatted_msg, formatted_msg = ANSIThemeStr.format_error_msg(errmsg)
-                cmtlog.log(LogLevel.ERR, msg=unformatted_msg, messages=formatted_msg)
-                raise ProgrammingError(unformatted_msg,
-                                       severity=LogLevel.ERR,
-                                       facility=str(themefile),
-                                       formatted_msg=formatted_msg)
-            if selected is None:
-                newarray.append(item)
-            elif isinstance(item, ThemeStr):
-                newarray.append(ThemeStr(item.string, item.themeattr, selected=selected))
-            elif isinstance(item, ThemeRef):
-                newarray.append(ThemeRef(item.context, item.key, selected=selected))
-
-        self.array = newarray
-
-    def append(self, item: ThemeRef | ThemeStr) -> None:
-        """
-        Append a ThemeRef or ThemeStr to the ThemeArray.
-
-            Parameters:
-                item (union(ThemeRef, ThemeStr)): The item to append
-        """
-        if not isinstance(item, (ThemeRef, ThemeStr)):
-            errmsg = [
-                [("ThemeArray.append()", "emphasis"),
-                 (" called with invalid argument(s):", "error")],
-                [("item = ", "default"),
-                 (f"{item}", "argument"),
-                 (" (type: ", "default"),
-                 (f"{type(item)}", "argument"),
-                 (", expected: ", "default"),
-                 ("ThemeRef", "argument"),
-                 (" or ", "default"),
-                 ("ThemeStr", "argument"),
-                 (")", "default")],
-            ]
-            unformatted_msg, formatted_msg = ANSIThemeStr.format_error_msg(errmsg)
-            cmtlog.log(LogLevel.ERR, msg=unformatted_msg, messages=formatted_msg)
-            raise ProgrammingError(unformatted_msg,
-                                   severity=LogLevel.ERR,
-                                   facility=str(themefile),
-                                   formatted_msg=formatted_msg)
-        self.array.append(item)
-
-    # We need to use Union here since we have a forward declaration.
-    def __add__(self, array: Union["ThemeArray", list[Union[ThemeRef, ThemeStr]]]) -> "ThemeArray":
-        if isinstance(array, ThemeArray):
-            return ThemeArray(self.to_list() + array.to_list())
-
-        if not isinstance(array, list):
-            errmsg = [
-                [("ThemeArray.__add__()", "emphasis"),
-                 (" called with invalid argument(s):", "error")],
-                [("array = ", "default"),
-                 (f"{array}", "argument"),
-                 (" (type: ", "default"),
-                 (f"{type(array)}", "argument"),
-                 (", expected: ", "default"),
-                 ("ThemeArray", "argument"),
-                 (" or ", "default"),
-                 ("[ThemeRef|ThemeStr]", "argument"),
-                 (")", "default")],
-            ]
-            unformatted_msg, formatted_msg = ANSIThemeStr.format_error_msg(errmsg)
-            cmtlog.log(LogLevel.ERR, msg=unformatted_msg, messages=formatted_msg)
-            raise ProgrammingError(unformatted_msg,
-                                   severity=LogLevel.ERR,
-                                   facility=str(themefile),
-                                   formatted_msg=formatted_msg)
-
-        return ThemeArray(self.to_list() + array)
-
-    def __str__(self) -> str:
-        string = ""
-        for item in self.array:
-            string += str(item)
-        return string
-
-    def __len__(self) -> int:
-        arraylen = 0
-        for item in self.array:
-            arraylen += len(item)
-        return arraylen
-
-    def __repr__(self) -> str:
-        references = ""
-        first = True
-        for item in self.array:
-            if first:
-                references += f"{repr(item)}"
-            else:
-                references += f", {repr(item)}"
-            first = False
-        return f"ThemeArray([{references}])"
-
-    def __eq__(self, obj: Any) -> bool:
-        if not isinstance(obj, ThemeArray):
-            return False
-
-        return repr(obj) == repr(self)
-
-    def to_list(self) -> list[ThemeRef | ThemeStr]:
-        """
-        Return the ThemeArray as a list of ThemeRef | ThemeStr.
-
-            Returns:
-                ([ThemeRef|ThemeArray]): The list of ThemeRef | ThemeStr
-        """
-        return self.array
-
-
 # pylint: disable-next=too-few-public-methods
 class CursesConfiguration:
     """
     Configuration options for the curses UI.
     """
-    abouttext: ClassVar[list[list[ThemeRef | ThemeStr]]] = []
+    abouttext: ClassVar[list[ThemeArray]] = []
     borders: ClassVar[bool] = True
     mousescroll_enable: ClassVar[bool] = False
     mousescroll_up: ClassVar[int] = 0b10000000000000000
@@ -589,8 +158,8 @@ def format_helptext(helptext: list[tuple[str, str]]) -> list[dict]:
     for key, description in helptext:
         formatted_helptext.append({
             "lineattrs": WidgetLineAttrs.NORMAL,
-            "columns": [[ThemeStr(key, ThemeAttr("windowwidget", "highlight"))],
-                        [ThemeStr(description, ThemeAttr("windowwidget", "default"))]],
+            "columns": [ThemeArray([ThemeStr(key, ThemeAttr("windowwidget", "highlight"))]),
+                        ThemeArray([ThemeStr(description, ThemeAttr("windowwidget", "default"))])],
             "retval": None,
         })
 
@@ -617,34 +186,6 @@ def get_mousemask() -> int:
             (int): The mouse mask
     """
     return mousemask
-
-
-__color: dict[str, tuple[int, int]] = {}
-
-
-__pairs: dict[tuple[int, int], int] = {}
-
-
-color_map: dict[str, int] = {
-    "black": curses.COLOR_BLACK,
-    "red": curses.COLOR_RED,
-    "green": curses.COLOR_GREEN,
-    "yellow": curses.COLOR_YELLOW,
-    "blue": curses.COLOR_BLUE,
-    "magenta": curses.COLOR_MAGENTA,
-    "cyan": curses.COLOR_CYAN,
-    "white": curses.COLOR_WHITE,
-}
-
-
-def get_theme_ref() -> dict:
-    """
-    Get a reference to the theme.
-
-        Returns:
-            (str): A reference to the theme
-    """
-    return theme
 
 
 def __color_name_to_curses_color(color: tuple[str, str], color_type: str) -> int:
@@ -851,90 +392,7 @@ def __init_pair(pair: str, color_pair: tuple[int, int], color_nr: int) -> None:
             raise
 
 
-def read_theme(configthemefile: FilePath, defaultthemefile: FilePath) -> None:
-    """
-    Read the theme file and initialise the theme dict.
-
-        Parameters:
-            configthemefile (FilePath): The theme to read
-            defaultthemefile (FilePath): The fallback if the other theme is not available
-    """
-    global theme  # pylint: disable=global-statement
-    global themefile  # pylint: disable=global-statement
-
-    for item in (configthemefile, f"{configthemefile}.yaml",
-                 defaultthemefile, SYSTEM_DEFAULT_THEME_FILE):
-        if item is not None and Path(item).is_file():
-            themefile = cast(FilePath, item)
-            break
-
-    if themefile is None:
-        if configthemefile:
-            errmsg = [
-                [("Failed to load themefile ", "error"),
-                 (f"{configthemefile}", "path"),
-                 ("; file not found.", "error")],
-            ]
-        elif defaultthemefile:
-            errmsg = [
-                [("Failed to load default themefile ", "error"),
-                 (f"{defaultthemefile}", "path"),
-                 ("; file not found.", "error")],
-            ]
-        else:
-            errmsg = [
-                [("Failed to load themefile; both the configthemefile "
-                  "and the defaultthemefile paths are empty", "error")],
-            ]
-        unformatted_msg, formatted_msg = ANSIThemeStr.format_error_msg(errmsg)
-        cmtlog.log(LogLevel.ERR, msg=unformatted_msg, messages=formatted_msg)
-        raise ProgrammingError(unformatted_msg,
-                               subexception=FileNotFoundError,
-                               severity=LogLevel.ERR,
-                               formatted_msg=formatted_msg)
-
-    # The parsers directory itself may be a symlink.
-    # This is expected behaviour when installing from a git repo,
-    # but we only allow it if the rest of the path components are secure.
-    checks = [
-        SecurityChecks.PARENT_RESOLVES_TO_SELF,
-        SecurityChecks.PARENT_OWNER_IN_ALLOWLIST,
-        SecurityChecks.OWNER_IN_ALLOWLIST,
-        SecurityChecks.PARENT_PERMISSIONS,
-        SecurityChecks.PERMISSIONS,
-        SecurityChecks.EXISTS,
-        SecurityChecks.IS_DIR,
-    ]
-
-    theme_dir = FilePath(PurePath(themefile).parent)
-
-    violations = check_path(theme_dir, checks=checks)
-    if violations != [SecurityStatus.OK]:
-        violations_joined = join_securitystatus_set(",", set(violations))
-        errmsg = [
-            [("FilePathAuditError: ", "emphasis")],
-            [(f"Violated rules: {violations_joined}", "error")],
-            [("Path: ", "error"),
-             (f"{theme_dir}", "path")],
-        ]
-        unformatted_msg, formatted_msg = ANSIThemeStr.format_error_msg(errmsg)
-        cmtlog.log(LogLevel.ERR, msg=unformatted_msg, messages=formatted_msg)
-        raise FilePathAuditError(f"Violated rules: {violations_joined}", path=theme_dir)
-
-    # We do not want to check that parent resolves to itself,
-    # because when we have an installation with links directly to the git repo
-    # the themes directory will be a symlink
-    checks = [
-        SecurityChecks.RESOLVES_TO_SELF,
-        SecurityChecks.PARENT_OWNER_IN_ALLOWLIST,
-        SecurityChecks.OWNER_IN_ALLOWLIST,
-        SecurityChecks.PARENT_PERMISSIONS,
-        SecurityChecks.PERMISSIONS,
-        SecurityChecks.EXISTS,
-        SecurityChecks.IS_FILE,
-    ]
-
-    theme = dict(secure_read_yaml(FilePath(themefile), checks=checks, asynchronous=True))
+__pairs: dict[tuple[int, int], int] = {}
 
 
 def init_curses() -> None:
@@ -980,36 +438,7 @@ def init_curses() -> None:
             __pairs[selected] = curses.color_pair(color_last)
             color_last += 1
         selected_index = __pairs[selected]
-        __color[pair] = (unselected_index, selected_index)
-
-
-def dump_themearray(themearray: list[Any]) -> NoReturn:
-    """
-    Dump all individual parts of a ThemeArray;
-    used for debug purposes.
-
-        Parameters:
-            themearray (list): A themearray
-    """
-    tmp = ""
-    invalid = False
-    for substr in themearray:
-        if isinstance(substr, ThemeStr):
-            tmp += f"-    ThemeStr: {repr(substr)}; (len: {len(substr)})\n"
-        elif isinstance(substr, ThemeRef):
-            tmp += f"-    ThemeRef: {repr(substr)} (“{str(substr)}“); (len: {len(substr)})\n"
-        elif isinstance(substr, tuple):
-            tmp += f"-     tuple: {substr} [invalid]\n"
-            invalid = True
-        elif isinstance(substr, list):
-            tmp += f"-      list: {substr} [invalid]\n"
-            invalid = True
-        else:
-            tmp += f"- {type(substr)}: {repr(substr)} [invalid]\n"
-            invalid = True
-    if invalid:
-        raise TypeError(f"themearray contains invalid substring(s):\n{tmp}")
-    sys.exit(tmp)
+        theme_colors[pair] = (unselected_index, selected_index)
 
 
 def color_log_severity(severity: LogLevel) -> ThemeAttr:
@@ -1079,11 +508,11 @@ def window_tee_hline(win: curses.window, y: int, start: int, end: int,
     if formatting is None:
         formatting = ThemeAttr("main", "default")
 
-    hlinearray: list[ThemeRef | ThemeStr] = [
+    hlinearray: ThemeArray = ThemeArray([
         ThemeStr(ltee, formatting),
         ThemeStr("".rjust(end - start - 1, hline), formatting),
         ThemeStr(rtee, formatting),
-    ]
+    ])
 
     addthemearray(win, hlinearray, y=y, x=start)
 
@@ -1218,7 +647,7 @@ def scrollbar_horizontal(win: curses.window, y: int, minx: int, maxx: int,
 
     maxoffset = width - (maxx - minx) - 1
 
-    scrollbararray: list[ThemeRef | ThemeStr] = []
+    scrollbararray: ThemeArray = None
 
     # We only need a scrollbar if we can actually scroll
     if maxoffset > 0:
@@ -1240,14 +669,14 @@ def scrollbar_horizontal(win: curses.window, y: int, minx: int, maxx: int,
 
         addthemearray(win, scrollbararray, y=y, x=minx)
 
-        draggerarray: list[ThemeRef | ThemeStr] = [
+        draggerarray: ThemeArray = ThemeArray([
             ThemeStr(f"{horizontaldragger_left}{horizontaldragger_left}",
                      ThemeAttr("main", "dragger")),
             ThemeStr(f"{horizontaldragger_midpoint}",
                      ThemeAttr("main", "dragger_midpoint")),
             ThemeStr(f"{horizontaldragger_right}{horizontaldragger_right}",
                      ThemeAttr("main", "dragger")),
-        ]
+        ])
 
         addthemearray(win, draggerarray, y=y, x=curpos)
         hdragger = (y, curpos, 5)
@@ -1263,7 +692,7 @@ def scrollbar_horizontal(win: curses.window, y: int, minx: int, maxx: int,
 
 
 def generate_heatmap(maxwidth: int, stgroups: list[StatusGroup],
-                     selected: int) -> list[list[ThemeRef | ThemeStr]]:
+                     selected: int) -> list[ThemeArray]:
     """
     Given [StatusGroup] and an index to the selected item and the max width,
     generate an array of themearrays.
@@ -1275,7 +704,7 @@ def generate_heatmap(maxwidth: int, stgroups: list[StatusGroup],
         Returns:
             ([ThemeArray]): A list of themearrays
     """
-    heatmap: list[ThemeRef | ThemeStr] = []
+    heatmap: ThemeArray = None
 
     if not stgroups:
         return []
@@ -1314,7 +743,7 @@ def generate_heatmap(maxwidth: int, stgroups: list[StatusGroup],
 
 # pylint: disable-next=too-many-locals
 def percentagebar(minx: int, maxx: int, total: int,
-                  subsets: list[tuple[int, ThemeRef]]) -> list[ThemeRef | ThemeStr]:
+                  subsets: list[tuple[int, ThemeRef]]) -> ThemeArray:
     """
     Draw a bar of multiple subsets that sum up to a total.
 
@@ -1330,7 +759,7 @@ def percentagebar(minx: int, maxx: int, total: int,
         Returns:
             (ThemeArray): The themearray with the percentage bar
     """
-    themearray: list[ThemeRef | ThemeStr] = []
+    themearray: ThemeArray = None
 
     bar_width: int = maxx - minx + 1
     subset_total: int = 0
@@ -1808,14 +1237,13 @@ def move_cur_with_offset(curypos: int, yoffset: int,
     return newcurypos, newyoffset
 
 
-def addthemearray(win: curses.window,
-                  array: list[ThemeRef | ThemeStr], **kwargs: Any) -> tuple[int, int]:
+def addthemearray(win: curses.window, array: ThemeArray, **kwargs: Any) -> tuple[int, int]:
     """
     Add a ThemeArray to a curses window.
 
         Parameters:
             win (curses.window): The curses window to operate on
-            array ([ThemeRef|ThemeStr]): The themearray to add to the curses window
+            array (ThemeArray): The themearray to add to the curses window
             **kwargs (dict[str, Any]): Keyword arguments
                 y (int): The y-coordinate (-1 to start from current cursor position)
                 x (int): The x-coordinate (-1 to start from current cursor position)
@@ -1829,10 +1257,10 @@ def addthemearray(win: curses.window,
     x: int = deep_get(kwargs, DictPath("x"), -1)
     deleted: bool = deep_get(kwargs, DictPath("deleted"), False)
 
-    for item in themearray_flatten(array):
+    for item in array.flatten():
         if deleted:
             item.set_themeattr(ThemeAttr("types", "deleted"))
-        string, attr = themestring_to_cursestuple(item)
+        string, attr = themestr_to_cursestuple(item)
         # If there still are remaining <NUL> occurences, replace them
         string = string.replace("\x00", "<NUL>")
         try:
@@ -1841,590 +1269,6 @@ def addthemearray(win: curses.window,
             pass
         y, x = win.getyx()
     return y, x
-
-
-# This extracts the string without formatting;
-# once everything uses proper ThemeArray this wo not be necessary anymore
-def themearray_to_string(themearray: Sequence[ThemeRef | ThemeStr]) -> str:
-    """
-    Given a themearray return an unformatted string.
-
-        Parameters:
-            themearray (ThemeArray): A themearray
-        Returns:
-            (str): The unformatted string
-    """
-    string = ""
-
-    if isinstance(themearray, ThemeArray):
-        return str(themearray)
-
-    for fragment in themearray:
-        string += str(fragment)
-
-    return string
-
-
-def themearray_truncate(themearray: list[ThemeRef | ThemeStr],
-                        max_len: int) -> list[ThemeRef | ThemeStr]:
-    """
-    Given a themearray, truncate it to max_len.
-
-        Parameters:
-            themearray ([ThemeRef | ThemeStr]): A themearray
-            max_len (int): The max length to truncate to
-        Returns:
-            ([ThemeRef | ThemeStr]): The truncated themearray
-    """
-    truncated_themearray: list[ThemeRef | ThemeStr] = []
-
-    # For the time being (until we implement proper iteration
-    # over ThemeArray elements) this is needed.
-    if isinstance(themearray, ThemeArray):
-        themearray = themearray.to_list()
-
-    # To be able to truncate a themearray that can contain themerefs we need to flatten the array
-    # (replace the themerefs with the corresponding themearray) first
-    themearray_flattened = themearray_flatten(themearray)
-
-    for element in themearray_flattened:
-        max_element_len = max_len - themearray_len(truncated_themearray)
-        if len(element) > max_element_len:
-            string = str(element)
-            attr = element.get_themeattr()
-            selected = element.get_selected()
-            truncated_themearray.append(ThemeStr(string[0:max_element_len],
-                                                 attr, selected=selected))
-            break
-        truncated_themearray.append(element)
-
-    return truncated_themearray
-
-
-def themearray_len(themearray: Sequence[ThemeRef | ThemeStr]) -> int:
-    """
-    Given a themearray return its length.
-
-        Parameters:
-            themearray (ThemeArray): A themearray
-        Returns:
-            (int): The length of the unformatted string
-    """
-    return len(themearray_to_string(themearray))
-
-
-# pylint: disable-next=too-many-branches
-def themeattr_to_curses(themeattr: ThemeAttr, selected: bool = False) -> tuple[int, int]:
-    """
-    Given a themeattr returns a tuple with curses color + curses attributes.
-
-        Parameters:
-            themeattr (ThemeAttr): The ThemeAttr to convert
-            selected (bool): [optional] True is selected, False otherwise
-        Returns:
-            (int, int):
-                (int): A curses color
-                (int): Curses attributes
-    """
-    context, key = themeattr
-    tmp_attr = deep_get(theme, DictPath(f"{context}#{key}"))
-
-    if tmp_attr is None:
-        errmsg = [
-            [("Could not find the tuple (", "default"),
-             (f"{context}", "argument"),
-             (", ", "default"),
-             (f"{key}", "argument"),
-             (") in themefile ", "default"),
-             (f"{themefile}", "path")],
-            [("Using (", "default"),
-             ("main", "argument"),
-             (", ", "default"),
-             ("default", "argument"),
-             (") as fallback.", "default")],
-        ]
-        unformatted_msg, formatted_msg = ANSIThemeStr.format_error_msg(errmsg)
-        cmtlog.log(LogLevel.ERR, msg=unformatted_msg, messages=formatted_msg)
-        tmp_attr = deep_get(theme, DictPath("main#default"))
-
-    if isinstance(tmp_attr, dict):
-        if selected:
-            attr = tmp_attr["selected"]
-        else:
-            attr = tmp_attr["unselected"]
-    else:
-        attr = tmp_attr
-
-    if isinstance(attr, list):
-        col, attr = attr
-    else:
-        col = attr
-        attr = "normal"
-
-    if isinstance(attr, str):
-        attr = [attr]
-    else:
-        attr = list(attr)
-
-    tmp = 0
-
-    for item in attr:
-        if not isinstance(item, str):
-            errmsg = [
-                [("Invalid text attribute used in themefile ", "default"),
-                 (f"{themefile}", "path"),
-                 ("; attribute has to be a string and one of:", "default")],
-                [("“", "default"),
-                 ("dim", "argument"),
-                 ("“, “", "default"),
-                 ("normal", "argument"),
-                 ("“, “", "default"),
-                 ("bold", "argument"),
-                 ("“, “", "default"),
-                 ("underline", "argument"),
-                 ("“.", "default")],
-                [("Using “", "default"),
-                 ("normal", "argument"),
-                 ("“ as fallback.", "default")],
-            ]
-            unformatted_msg, formatted_msg = ANSIThemeStr.format_error_msg(errmsg)
-            cmtlog.log(LogLevel.ERR, msg=unformatted_msg, messages=formatted_msg)
-            item = "normal"
-        if item == "dim":
-            tmp |= curses.A_DIM
-        elif item == "normal":
-            tmp |= curses.A_NORMAL
-        elif item == "bold":
-            tmp |= curses.A_BOLD
-        elif item == "italics":
-            tmp |= curses.A_ITALIC
-        elif item == "underline":
-            tmp |= curses.A_UNDERLINE
-        else:
-            errmsg = [
-                [("Invalid text attribute “", "default"),
-                 (f"{item}", "emphasis"),
-                 ("“ used in themefile ", "default"),
-                 (f"{themefile}", "path"),
-                 ("; attribute has to be one of:", "default")],
-                [("“", "default"),
-                 ("dim", "argument"),
-                 ("“, “", "default"),
-                 ("normal", "argument"),
-                 ("“, “", "default"),
-                 ("bold", "argument"),
-                 ("“, “", "default"),
-                 ("underline", "argument"),
-                 ("“.", "default")],
-                [("Using “", "default"),
-                 ("normal", "argument"),
-                 ("“ as fallback.", "default")],
-            ]
-            unformatted_msg, formatted_msg = ANSIThemeStr.format_error_msg(errmsg)
-            cmtlog.log(LogLevel.ERR, msg=unformatted_msg, messages=formatted_msg)
-            tmp |= curses.A_NORMAL
-    curses_attrs = tmp
-
-    curses_col = __color[col][selected]
-    if curses_col is None:
-        errmsg = [
-            [("Non-existing (color, selected) tuple ", "default")],
-            [(f"{col}", "argument")],
-            [(", ", "default")],
-            [(f"{selected}", "argument")],
-            [(").", "default")],
-            [("Using first defined tuple as fallback.", "default")],
-        ]
-        curses_col = __color[0][selected]
-    return curses_col, curses_attrs
-
-
-def themeattr_to_curses_merged(themeattr: ThemeAttr, selected: bool = False) -> int:
-    """
-    Given a themeattr returns merged curses color + curses attributes.
-
-        Parameters:
-            themeattr (ThemeAttr): The ThemeAttr to convert
-            selected (bool): [optional] True is selected, False otherwise
-        Returns:
-            (int): Curses color | attrs
-    """
-    curses_col, curses_attrs = themeattr_to_curses(themeattr, selected)
-    return curses_col | curses_attrs
-
-
-def themestring_to_cursestuple(themestring: ThemeStr,
-                               selected: bool | None = None) -> tuple[str, int]:
-    """
-    Given a themestring returns a cursestuple.
-
-        Parameters:
-            themestring (ThemeStr): The ThemeStr to convert
-            selected (bool): [optional] True is selected, False otherwise
-        Returns:
-            (str, int): A curses tuple for use with addformattedarray()
-    """
-    string = str(themestring)
-    themeattr = themestring.get_themeattr()
-
-    if selected is None:
-        selected = themestring.get_selected()
-        if selected is None:
-            selected = False
-
-    return (string, themeattr_to_curses_merged(themeattr, selected))
-
-
-def themearray_select(themearray: Sequence[ThemeRef | ThemeStr],
-                      selected: bool = False,
-                      force: bool = False) -> Sequence[ThemeRef | ThemeStr]:
-    """
-    Iterate through the themearray and set all selected fields that are currently None.
-
-        Parameters:
-            themearray (ThemeArray): The themearray to select/unselect
-            selected (bool): True is selected, False otherwise
-            force (bool): True to set selected=selected even if item.seleected isn't None
-        Returns:
-            (ThemeArray): The (un)seleected themearray
-        Raises:
-            ProgrammingError: themearray is not a themearray
-    """
-    themearray_selected: list[ThemeRef | ThemeStr] = []
-
-    for item in themearray:
-        if not isinstance(item, (ThemeRef, ThemeStr)):
-            errmsg = [
-                [("themearray_select_none()", "emphasis"),
-                 (" called with invalid argument(s):", "error")],
-                [("item = ", "default"),
-                 (f"{item}", "argument"),
-                 (" (type: ", "default"),
-                 (f"{type(item)}", "argument"),
-                 (", expected: ", "default"),
-                 ("ThemeRef", "argument"),
-                 (" or ", "default"),
-                 ("ThemeStr", "argument"),
-                 (")", "default")],
-            ]
-            unformatted_msg, formatted_msg = ANSIThemeStr.format_error_msg(errmsg)
-            raise ProgrammingError(unformatted_msg,
-                                   severity=LogLevel.ERR,
-                                   facility=str(themefile),
-                                   formatted_msg=formatted_msg)
-
-        if item.selected is None or force:
-            item.selected = selected
-        themearray_selected.append(item)
-
-    return themearray_selected
-
-
-def themearray_detab(themearray: list[ThemeRef | ThemeStr],
-                     selected: bool | None = None) -> list[ThemeRef | ThemeStr]:
-    """
-    Replace all tabs in a ThemeArray with spaces.
-
-        Parameters:
-            themearray (ThemeArray): The themearray to detab
-        Returns:
-            (ThemeArray): The detabbed themearray
-        Raises:
-            ProgrammingError: themearray is not a themearray
-    """
-    themearray_detabbed: list[ThemeRef | ThemeStr] = []
-    length = 0
-
-    for segment in themearray:
-        if isinstance(segment, ThemeRef):
-            length += themearray_len([segment])
-            themearray_detabbed.append(segment)
-        elif isinstance(segment, ThemeStr):
-            # We need to replace tabs with spaces; it's not a trivial process and we cannot get it
-            # perfect, but we'll do what we can.
-            tabsplit = str(segment).split("\t")
-            if len(tabsplit) > 1:
-                new_string = ""
-                tab = ""
-                for subsegment in tabsplit:
-                    new_string += tab
-                    new_string += subsegment
-                    tabsize = (length + len(new_string)) % 8
-                    if not tabsize:
-                        tabsize = 8
-                    tab = "".ljust(tabsize)
-            else:
-                new_string = str(segment)
-            # Replace the string component of the ThemeStr()
-            segment.string = new_string
-            themearray_detabbed.append(segment)
-            length += len(new_string)
-    return themearray_detabbed
-
-
-def themearray_flatten(themearray: list[ThemeRef | ThemeStr]) -> list[ThemeStr]:
-    """
-    Replace all ThemeRefs in a ThemeArray with ThemeStr.
-
-        Parameters:
-            themearray (ThemeArray): The themearray to flatten
-        Returns:
-            (ThemeArray): The flattened themearray
-        Raises:
-            ProgrammingError: themearray is not a themearray
-    """
-    themearray_flattened = []
-
-    for item in themearray:
-        if isinstance(item, ThemeStr):
-            themearray_flattened.append(item)
-        elif isinstance(item, ThemeRef):
-            themearray_flattened += item.to_themearray()
-        else:
-            errmsg = [
-                [("themearray_flatten()", "emphasis"),
-                 (" called with invalid argument(s):", "error")],
-                [("item = ", "default"),
-                 (f"{item}", "argument"),
-                 (" (type: ", "default"),
-                 (f"{type(item)}", "argument"),
-                 (", expected: ", "default"),
-                 ("ThemeRef", "argument"),
-                 (" or ", "default"),
-                 ("ThemeStr", "argument"),
-                 (")", "default")],
-            ]
-            unformatted_msg, formatted_msg = ANSIThemeStr.format_error_msg(errmsg)
-            raise ProgrammingError(unformatted_msg,
-                                   severity=LogLevel.ERR,
-                                   facility=str(themefile),
-                                   formatted_msg=formatted_msg)
-
-    return themearray_flattened
-
-
-def themearray_compact(themearray: list[ThemeRef | ThemeStr]) -> list[ThemeStr]:
-    """
-    Replace all ThemeRefs in a ThemeArray with ThemeStr,
-    then merge all strings with the same formatting.
-
-        Parameters:
-            themearray (ThemeArray): The themearray to flatten
-        Returns:
-            (ThemeArray): The flattened themearray
-        Raises:
-            ProgrammingError: themearray is not a themearray
-    """
-    themearray_flattened: list[ThemeStr] = themearray_flatten(themearray)
-    new_themearray = []
-    latest_str = ""
-    latest_attr = None
-
-    for segment in themearray_flattened:
-        string = str(segment)
-        themeattr = segment.get_themeattr()
-        if latest_attr == themeattr:
-            latest_str += string
-            continue
-
-        if latest_str and latest_attr:
-            new_themearray.append(ThemeStr(latest_str, latest_attr))
-
-        latest_str = string
-        latest_attr = themeattr
-
-    if latest_str and latest_attr:
-        new_themearray.append(ThemeStr(latest_str, latest_attr))
-
-    return new_themearray
-
-
-def themearray_replace(themearray: Sequence[ThemeRef | ThemeStr],
-                       oldvalue: str, newvalue: str, count: int = -1) -> list[ThemeStr]:
-    """
-    Search and replace for needle in haystack.
-    Note: Currently only single character replace is supported.
-
-        Parameters:
-            themearray (ThemeArray): The themearray to substitute characters in
-            oldvalue (str): The character search for
-            newvalue (str): The character to replace with
-        Returns:
-            (ThemeArray): The modified themearray
-    """
-    new_themearray: list[ThemeRef | ThemeStr] = []
-
-    for segment in themearray:
-        if isinstance(segment, ThemeRef):
-            new_themearray.append(segment)
-            continue
-
-        themeattr = segment.themeattr
-        for char in str(segment):
-            if count and char == oldvalue:
-                char = newvalue
-                count -= 1
-            new_themearray.append(ThemeStr(char, themeattr))
-
-    return themearray_compact(new_themearray)
-
-
-def themearray_split(themearray: list[ThemeStr], separator: str = " ") -> list[list[ThemeStr]]:
-    """
-    Perform split() on a ThemeArray.
-
-        Parameters:
-            themearray (ThemeArray): The themearray to split
-            separator (str): The character to split on
-        Returns:
-            ([ThemeArray]): An splitted themearray
-    """
-    themearrays: list[list[ThemeStr]] = []
-    tmp_themearray: list[ThemeStr] = []
-
-    # The only easy way to split a themearray string is to iterate over every single segment,
-    # then over every single character in the segment and reconstruct the constituent parts
-    # until we encounter the separator and then flush.
-    for segment in themearray:
-        themeattr = segment.get_themeattr()
-
-        for char in str(segment):
-            if char == separator:
-                themearrays.append(tmp_themearray)
-                tmp_themearray = []
-                continue
-            tmp_themearray.append(ThemeStr(char, themeattr))
-    if tmp_themearray:
-        themearrays.append(tmp_themearray)
-
-    return themearrays
-
-
-def themearray_lstrip(themearray: list[ThemeStr], characters: str = " ") -> list[ThemeStr]:
-    """
-    Perform lstrip() on a ThemeArray.
-
-        Parameters:
-            themearray (ThemeArray): The themearray to lstrip
-            characters (str): The characters to strip
-        Returns:
-            (ThemeArray): An lstripped themearray
-        Raises:
-            AttributeError: [Propagated from ThemeRef] The ThemeArray has not been flattened;
-                            it contains ThemeRefs.
-    """
-    new_themearray: list[ThemeStr] = []
-
-    for segment in themearray:
-        # Skip completely empty leading elements
-        if not new_themearray:
-            if not str(segment).strip(characters):
-                continue
-            new_themearray.append(ThemeStr(str(segment).lstrip(characters),
-                                           segment.get_themeattr()))
-            continue
-        new_themearray.append(segment)
-    return new_themearray
-
-
-def themearray_rstrip(themearray: list[ThemeStr], characters: str = " ") -> list[ThemeStr]:
-    """
-    Perform rstrip() on a ThemeArray.
-
-        Parameters:
-            themearray (ThemeArray): The themearray to rstrip
-            characters (str): The characters to strip
-        Returns:
-            (ThemeArray): An rstripped themearray
-        Raises:
-            AttributeError: [Propagated from ThemeRef] The ThemeArray has not been flattened;
-                            it contains ThemeRefs.
-    """
-    new_themearray: list[ThemeStr] = []
-
-    for segment in reversed(themearray):
-        # Skip completely empty leading elements
-        if not new_themearray:
-            if not str(segment).strip(characters):
-                continue
-            new_themearray.append(ThemeStr(str(segment).rstrip(characters),
-                                           segment.get_themeattr()))
-            continue
-        new_themearray.append(segment)
-    return list(reversed(new_themearray))
-
-
-def themearray_strip(themearray: list[ThemeStr], characters: str = " ") -> list[ThemeStr]:
-    """
-    Perform strip() on a ThemeArray.
-
-        Parameters:
-            themearray (ThemeArray): The themearray to strip
-            characters (str): The characters to strip
-        Returns:
-            (ThemeArray): An stripped themearray
-        Raises:
-            AttributeError: [Propagated from ThemeRef] The ThemeArray has not been flattened;
-                            it contains ThemeRefs.
-    """
-    return themearray_lstrip(themearray_rstrip(themearray, characters), characters)
-
-
-def themearray_wrap_line(themearray: list[ThemeRef | ThemeStr], maxwidth: int = -1,
-                         wrap_marker: bool = True) -> list[list[ThemeRef | ThemeStr]]:
-    """
-    Given a themearray, split it into multiple lines, each maxwidth long.
-
-        Parameters:
-            themearray (ThemeArray): The themearray to wrap
-            maxwidth (int): The maximum number of characters before wrapping
-            wrap_marker (bool): Should the line end in a wrap marker?
-        Returns:
-            ([ThemeArray]): A list of themearrays
-    """
-    if maxwidth == -1:
-        return [themearray]
-
-    if not (themearray_flat := themearray_flatten(themearray)):
-        return []
-
-    linebreak = ThemeRef("separators", "line_break").to_themearray()
-
-    if wrap_marker:
-        linebreaklen = len(linebreak)
-    else:
-        linebreaklen = 0
-
-    themearrays: list[list[ThemeRef | ThemeStr]] = []
-    tmp_themearray: list[ThemeRef | ThemeStr] = []
-    tmplen = 0
-    i = 0
-
-    while True:
-        # Does the fragment fit?
-        tfilen = len(themearray_flat[i])
-        if tmplen + tfilen < maxwidth:
-            tmp_themearray.append(themearray_flat[i])
-            tmplen += tfilen
-            i += 1
-        # Nope
-        else:
-            string = str(themearray_flat[i])
-            themeattr = themearray_flat[i].get_themeattr()
-
-            tmp_themearray.append(ThemeStr(string[:maxwidth - linebreaklen - tmplen], themeattr))
-            if wrap_marker:
-                tmp_themearray += linebreak
-            themearray_flat[i] = ThemeStr(string[maxwidth - linebreaklen - tmplen:], themeattr)
-            themearrays.append(tmp_themearray)
-            tmp_themearray = []
-            tmplen = 0
-            continue
-        if i == len(themearray_flat):
-            themearrays.append(tmp_themearray)
-            break
-
-    return themearrays
 
 
 ignoreinput: bool = False  # pylint: disable=invalid-name
@@ -2666,7 +1510,7 @@ def windowwidget(stdscr: curses.window, maxy: int, maxx: int, y: int, x: int,
     # Every item is a line
     for item in items:
         for i in range(0, columns):
-            length = themearray_len(item["columns"][i])
+            length = len(item["columns"][i])
             lengths[i] = max(lengths[i], length)
 
     listpadwidth = 0
@@ -2842,7 +1686,7 @@ def windowwidget(stdscr: curses.window, maxy: int, maxx: int, y: int, x: int,
                                  ThemeAttr("windowwidget", "boxdrawing"))
 
         if headers is not None:
-            addthemearray(headerpad, headerarray, y=0, x=0)
+            addthemearray(headerpad, ThemeArray(headerarray), y=0, x=0)
             headerxoffset = 0
             if headers:
                 headerxoffset = xoffset
@@ -3703,7 +2547,7 @@ class UIProps:
                 ThemeStr(urcorner, ThemeAttr("main", "default")),
             ]
 
-        xpos -= themearray_len(timestamparray) - 1
+        xpos -= len(timestamparray) - 1
         self.addthemearray(self.top_statusbar, timestamparray, y=0, x=xpos)
 
     def draw_winheader(self) -> None:
@@ -3725,7 +2569,7 @@ class UIProps:
                 ThemeStr(f"{self.windowheader}", ThemeAttr("main", "header")),
                 ThemeRef("separators", "mainheader_suffix"),
             ]
-            self.addthemearray(self.top_statusbar, winheaderarray, y=0, x=0)
+            self.addthemearray(self.top_statusbar, ThemeArray(winheaderarray), y=0, x=0)
 
     def refresh_window(self) -> None:
         """
@@ -3750,7 +2594,7 @@ class UIProps:
             ThemeStr("Mouse: ", ThemeAttr("statusbar", "infoheader")),
             ThemeStr(f"{mousestatus}", ThemeAttr("statusbar", "highlight"))
         ]
-        xpos = self.maxx - themearray_len(mousearray) + 1
+        xpos = self.maxx - len(mousearray) + 1
         if self.bottom_statusbar is not None:
             self.addthemearray(self.bottom_statusbar, mousearray, y=0, x=xpos)
         ycurpos = self.curypos + self.yoffset
@@ -3763,7 +2607,7 @@ class UIProps:
                 ThemeRef("separators", "statusbar_fraction"),
                 ThemeStr(f"{maxypos + 1}", ThemeAttr("statusbar", "highlight"))
             ]
-            xpos = self.maxx - themearray_len(curposarray) + 1
+            xpos = self.maxx - len(curposarray) + 1
             if self.bottom_statusbar is not None:
                 self.addthemearray(self.bottom_statusbar, curposarray, y=1, x=xpos)
         self.stdscr.noutrefresh()
@@ -4251,10 +3095,10 @@ class UIProps:
         if win is None:
             return y, x
 
-        for item in themearray_flatten(array):
+        for item in array.flatten():
             if deleted:
                 item.set_themeattr(ThemeAttr("types", "deleted"))
-            string, attr = themestring_to_cursestuple(item)
+            string, attr = themestr_to_cursestuple(item)
             # If there still are remaining <NUL> occurences, replace them
             string = string.replace("\x00", "<NUL>")
 
@@ -4414,7 +3258,7 @@ class UIProps:
         and update the search_matches list with their indices.
 
             Parameters:
-                messages ([[ThemeRef | ThemeStr] | str]): The messages to search through
+                messages ([ThemeArray | str]): The messages to search through
                 searchkey (str): The search key
         """
         self.match_index = None
@@ -4424,14 +3268,8 @@ class UIProps:
             return
 
         for y, msg in enumerate(messages):
-            # The messages can either be raw strings,
-            # or themearrays, so we need to flatten them first
-            if isinstance(msg, str):
-                message = msg
-            else:
-                message = themearray_to_string(msg)
             # Case-insensitive search
-            if searchkey.lower() in message.lower():
+            if searchkey.lower() in str(msg).lower():
                 self.search_matches.add(y)
 
     def find_next_match(self) -> None:

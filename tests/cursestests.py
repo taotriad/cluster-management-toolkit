@@ -962,79 +962,6 @@ def test_init_curses(verbose: bool = False) -> tuple[str, bool]:
     return message, result
 
 
-def test_dump_themearray(verbose: bool = False) -> tuple[str, bool]:
-    message = ""
-    result = True
-
-    fun = curses_helper.dump_themearray
-
-    if result:
-        # Indata format:
-        # (obj, expected_result, expected_exception)
-        testdata: tuple[Any, ...] = (
-            # Valid
-            (
-                [ThemeStr("This is valid", ThemeAttr("types", "generic")),
-                 ThemeRef("strings", "none")],
-                "-    ThemeStr: ThemeStr('This is valid', "
-                "ThemeAttr('types', 'generic'), False); (len: 13)\n"
-                "-    ThemeRef: ThemeRef('strings', 'none', False) "
-                "(“<none>“); (len: 6)\n",
-                None
-            ),
-            # Invalid
-            (
-                [["These are invalid", ("types", "generic")],
-                 ("string components", "none"),
-                 42],
-                "themearray contains invalid substring(s):\n"
-                "-      list: ['These are invalid', ('types', 'generic')] [invalid]\n"
-                "-     tuple: ('string components', 'none') [invalid]\n"
-                f"- {type(42)}: 42 [invalid]\n",
-                TypeError,
-            ),
-        )
-
-        for obj, expected_result, expected_exception in testdata:
-            try:
-                try:
-                    tmp = fun(obj)
-                except SystemExit as e:
-                    tmp = str(e)
-                if tmp != expected_result:
-                    message = f"{fun.__name__}() did not yield expected result:\n" \
-                              f"           result: {tmp}\n" \
-                              f"  expected result: {expected_result}"
-                    result = False
-                    break
-            except Exception as e:
-                tmp = str(e)
-                if expected_exception is not None:
-                    if isinstance(e, expected_exception):
-                        if not expected_result or expected_result == tmp:
-                            continue
-                        message = f"{fun.__name__}() did not yield expected result:\n" \
-                                  f"           result: {tmp}\n" \
-                                  f"  expected result: {expected_result}"
-                        result = False
-                        break
-                    else:
-                        message = f"{fun.__name__}() did not yield expected result:\n" \
-                                  f"        exception: {type(e)}\n" \
-                                  f"          message: {tmp}\n" \
-                                  f"         expected: {expected_exception}"
-                        result = False
-                        break
-                else:
-                    message = f"{fun.__name__}() did not yield expected result:\n" \
-                              f"        exception: {type(e)}\n" \
-                              f"          message: {tmp}\n" \
-                              f"  expected result: {expected_result}"
-                    result = False
-                    break
-    return message, result
-
-
 def test_color_log_severity(verbose: bool = False) -> tuple[str, bool]:
     message = ""
     result = True
@@ -1765,10 +1692,6 @@ tests: dict[tuple[str, ...], dict[str, Any]] = {
     },
     ("init_curses()",): {
         "callable": test_init_curses,
-        "result": None,
-    },
-    ("dump_themearray()",): {
-        "callable": test_dump_themearray,
         "result": None,
     },
     ("color_log_severity()",): {

@@ -8,7 +8,7 @@
 # pylint: disable=too-many-lines
 
 """
-Get information
+Get information.
 """
 
 import base64
@@ -68,9 +68,8 @@ from clustermanagementtoolkit.cmttypes import deep_set, DictPath, FilePath, Secu
 from clustermanagementtoolkit.cmttypes import LogLevel
 from clustermanagementtoolkit.cmttypes import ProgrammingError, StatusGroup, name_to_loglevel
 
-from clustermanagementtoolkit.curses_helper import color_status_group
-from clustermanagementtoolkit.curses_helper import get_theme_ref, themearray_len
-from clustermanagementtoolkit.curses_helper import ThemeAttr, ThemeRef, ThemeStr
+from clustermanagementtoolkit.themearray import ThemeArray, ThemeAttr, ThemeRef, ThemeStr
+from clustermanagementtoolkit.themearray import color_status_group, get_theme_ref
 
 from clustermanagementtoolkit import datagetters
 from clustermanagementtoolkit.datagetters import datagetter_allowlist
@@ -2427,9 +2426,9 @@ def get_traceflow(obj: dict, **kwargs: Any) -> \
 
     for result in deep_get(obj, DictPath("status#results"), []):
         node = deep_get(result, DictPath("node"), "<unset>")
-        nodestr_len = len(node) + themearray_len([ThemeRef("separators", "facility_prefix"),
+        nodestr_len = len(node) + len(ThemeArray([ThemeRef("separators", "facility_prefix"),
                                                   ThemeRef("separators", "facility_suffix"),
-                                                  ThemeRef("separators", "facility_padding")])
+                                                  ThemeRef("separators", "facility_padding")]))
         tmp_timestamp = deep_get(result, DictPath("timestamp"), -1)
         if tmp_timestamp >= 0:
             saved_timestamp = datetime.fromtimestamp(tmp_timestamp)

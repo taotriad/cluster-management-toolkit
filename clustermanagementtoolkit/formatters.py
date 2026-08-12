@@ -73,11 +73,11 @@ from clustermanagementtoolkit.cmttypes import FilePathAuditError, StatusGroup
 from clustermanagementtoolkit.cmtio_yaml import json_dumps
 from clustermanagementtoolkit.cmtio_yaml import secure_read_yaml
 
-from clustermanagementtoolkit.curses_helper import ThemeAttr, ThemeRef, ThemeStr, themearray_len
-from clustermanagementtoolkit.curses_helper import themearray_to_string, themearray_strip
-from clustermanagementtoolkit.curses_helper import themearray_lstrip
-from clustermanagementtoolkit.curses_helper import themearray_compact, themearray_split
-from clustermanagementtoolkit.curses_helper import themearray_flatten, themearray_replace
+from clustermanagementtoolkit.themearray import ThemeArray, ThemeAttr, ThemeRef, ThemeStr
+from clustermanagementtoolkit.themearray import themearray_lstrip
+from clustermanagementtoolkit.themearray import themearray_replace
+from clustermanagementtoolkit.themearray import themearray_split
+from clustermanagementtoolkit.themearray import themearray_strip
 
 from clustermanagementtoolkit.generators import format_list, format_numerical_with_units
 from clustermanagementtoolkit.generators import format_timestamp
@@ -1665,99 +1665,95 @@ def __str_representer(dumper: yaml.Dumper, data: Any) -> yaml.Node:
     return dumper.represent_scalar("tag:yaml.org,2002:str", data)  # pragma: no cover
 
 
-def format_markdown_table(lines: list[list[ThemeRef | ThemeStr]]) -> list[list[ThemeStr]]:
+def format_markdown_table(lines: list[ThemeArray]) -> list[ThemeArray]:
     """
     Given suitable data create a table from ThemeArray-formatted Markdown.
 
         Parameters:
-            lines ([[ThemeRef | ThemeStr]]): A list of themearrays
+            lines ([ThemeArray]): A list of themearrays
         Returns:
-            ([[ThemeStr]])): A reformatted list of themearrays
+            ([ThemeArray])): A reformatted list of themearrays
     """
-    headers: list[list[ThemeStr]] = []
+    headers: list[ThemeArray] = []
 
-    headers = themearray_split(themearray_compact(lines[0]), separator="|")
-    headers = [themearray_compact(cast(list[ThemeRef | ThemeStr], header)) for header in headers]
+    headers = themearray_split(lines[0].compact(), separator="|")
+    headers = [header.compact() for header in headers]
     headers = [themearray_strip(header) for header in headers]
 
     column_count: int = len(headers) * 2 + 1
-    widths: list[int] = \
-        [themearray_len(cast(list[ThemeRef | ThemeStr], header)) for header in headers]
+    widths: list[int] = [len(header) for header in headers]
     i: int = 0
 
-    rows: list[list[ThemeStr]] = []
+    rows: list[ThemeArray] = []
 
     # Calculate the widths; skip the headers
     for line in lines[2:]:
-        row = themearray_split(themearray_compact(line), separator="|")
-        row = [themearray_compact(cast(list[ThemeRef | ThemeStr], segment)) for segment in row]
+        row = themearray_split(ThemeArray(line).compact(), separator="|")
+        row = [ThemeArray(segment).compact() for segment in row]
         row = [themearray_strip(segment) for segment in row]
         for i, field in enumerate(row):
             try:
-                widths[i] = max(themearray_len(cast(list[ThemeRef | ThemeStr], row[i])), widths[i])
+                widths[i] = max(len(ThemeArray(row[i])), widths[i])
             except IndexError:
                 pass
 
     # We've got the widths, time to construct the table:
 
     # First the top line
-    columns: list[list[ThemeStr]] = [[] for n in range(column_count)]
+    columns: list[ThemeArray] = [ThemeArray([]) for n in range(column_count)]
     for i in range(len(headers)):
         columns[i * 2] = [ThemeStr("┬", ThemeAttr("types", "generic"))]
         columns[i * 2 + 1] = [ThemeStr("".ljust(widths[i], "─"), ThemeAttr("types", "generic"))]
     columns[0] = [ThemeStr("┌", ThemeAttr("types", "generic"))]
     columns.append([ThemeStr("┐", ThemeAttr("types", "generic"))])
-    rows.append(themearray_compact([x for xx in columns for x in xx]))
+    rows.append(ThemeArray([x for xx in columns for x in xx]).compact())
 
     # Now the header
     columns = [[] for n in range(column_count)]
     for i, header in enumerate(headers):
         # reformatted header (unless explicitly formatted)
         if len(header) == 1:
-            header = [ThemeStr(themearray_to_string(cast(list[ThemeRef | ThemeStr], header)),
-                               ThemeAttr("types", "markdown_table_header"))]
+            header.set_themeattr(ThemeAttr("types", "markdown_table_header"))
         columns[i * 2] = [ThemeStr("│", ThemeAttr("types", "generic"))]
         columns[i * 2 + 1] = themearray_strip(header) \
-                         + [ThemeStr("".ljust(widths[i]
-                                              - themearray_len(cast(list[ThemeRef | ThemeStr],
-                                                                    header))),
-                                     ThemeAttr("types", "generic"))]
-    columns.append([ThemeStr("│", ThemeAttr("types", "generic"))])
-    rows.append(themearray_compact([x for xx in columns for x in xx]))
+                         + ThemeArray([ThemeStr("".ljust(widths[i] - len(header)),
+                                                ThemeAttr("types", "generic"))])
+    columns.append(ThemeArray([ThemeStr("│", ThemeAttr("types", "generic"))]))
+    rows.append(columns.compact())
 
     # Separator between header and data
     columns = [[] for n in range(column_count)]
     for i in range(len(headers)):
-        columns[i * 2] = [ThemeStr("┼", ThemeAttr("types", "generic"))]
-        columns[i * 2 + 1] = [ThemeStr("".ljust(widths[i], "─"), ThemeAttr("types", "generic"))]
-    columns[0] = [ThemeStr("├", ThemeAttr("types", "generic"))]
-    columns.append([ThemeStr("┤", ThemeAttr("types", "generic"))])
-    rows.append(themearray_compact([x for xx in columns for x in xx]))
+        columns[i * 2] = ThemeArray([ThemeStr("┼", ThemeAttr("types", "generic"))])
+        columns[i * 2 + 1] = ThemeArray([ThemeStr("".ljust(widths[i], "─"),
+                                                  ThemeAttr("types", "generic"))])
+    columns[0] = ThemeArray([ThemeStr("├", ThemeAttr("types", "generic"))])
+    columns.append(ThemeArray([ThemeStr("┤", ThemeAttr("types", "generic"))]))
+    rows.append(columns.compact())
 
     # Data
     for line in lines[2:]:
         columns = [[] for n in range(column_count)]
-        row = themearray_split(themearray_compact(line), separator="|")
-        row = [themearray_compact(cast(list[ThemeRef | ThemeStr], segment)) for segment in row]
+        row = themearray_split(line.compact(), separator="|").compact()
         row = [themearray_strip(segment) for segment in row]
         for i, field in enumerate(row):
-            columns[i * 2] = [ThemeStr("│", ThemeAttr("types", "generic"))]
-            data = field
+            columns[i * 2] = ThemeArray([ThemeStr("│", ThemeAttr("types", "generic"))])
+            data = ThemeArray(field)
             columns[i * 2 + 1] = data \
-                + [ThemeStr("".ljust(widths[i]
-                                     - themearray_len(cast(list[ThemeRef | ThemeStr], data))),
-                            ThemeAttr("types", "generic"))]
-        columns.append([ThemeStr("│", ThemeAttr("types", "generic"))])
-        rows.append(themearray_compact([x for xx in columns for x in xx]))
+                + ThemeArray([ThemeStr("".ljust(widths[i] - len(data)),
+                                       ThemeAttr("types", "generic"))])
+        columns.append(ThemeArray([ThemeStr("│", ThemeAttr("types", "generic"))]))
+        rows.append(columns.compact())
 
     # Finally the bottom line
     columns = [[] for n in range(column_count)]
     for i in range(len(headers)):
-        columns[i * 2] = [ThemeStr("┴", ThemeAttr("types", "generic"))]
-        columns[i * 2 + 1] = [ThemeStr("".ljust(widths[i], "─"), ThemeAttr("types", "generic"))]
-    columns[0] = [ThemeStr("└", ThemeAttr("types", "generic"))]
-    columns.append([ThemeStr("┘", ThemeAttr("types", "generic"))])
-    rows.append(themearray_compact([x for xx in columns for x in xx]))
+        columns[i * 2] = ThemeArray([ThemeStr("┴", ThemeAttr("types", "generic"))])
+        columns[i * 2 + 1] = ThemeArray([ThemeStr("".ljust(widths[i], "─"),
+                                         ThemeAttr("types", "generic"))])
+    columns[0] = ThemeArray([ThemeStr("└", ThemeAttr("types", "generic"))])
+    columns.append(ThemeArray([ThemeStr("┘", ThemeAttr("types", "generic"))]))
+    rows.append(columns.compact())
 
     return rows
 
@@ -1802,14 +1798,14 @@ def render_markdown(lines: str, **kwargs: Any) -> list[list[ThemeRef | ThemeStr]
     list_indices: dict = {}
 
     # Reindex lists if necessary.
-    new_data: list[list[ThemeRef | ThemeStr]] = []
+    new_data: list[ThemeArray] = []
 
     for line in formatted_data:
         # Skip indentation
         newline: list[ThemeRef | ThemeStr] = []
         indent_level = 0
 
-        if not themearray_len(themearray_strip(themearray_flatten(line))):
+        if not themearray_strip(line.flatten()):
             list_indices = {}
             new_data.append(line)
             continue
@@ -1818,8 +1814,8 @@ def render_markdown(lines: str, **kwargs: Any) -> list[list[ThemeRef | ThemeStr]
             for i, segment in enumerate(line):
                 if not isinstance(segment, ThemeStr):
                     break
-                segment_len = themearray_len([segment])
-                stripped_len = themearray_len(themearray_lstrip([segment]))
+                segment_len = len(ThemeArray([segment]))
+                stripped_len = len(themearray_lstrip(ThemeArray([segment])))
                 if not stripped_len:
                     indent_level = segment_len
 
@@ -1856,12 +1852,12 @@ def render_markdown(lines: str, **kwargs: Any) -> list[list[ThemeRef | ThemeStr]
 
     # Support non-surrounded tables.
     for line in formatted_data:
-        strline = themearray_to_string(line)
+        strline = str(line)
         if table_state == "none":
             if "|" in strline:
                 # This is possibly the starting headers of a table;
                 # strip any left- and right-side lines to simplify the parsing.
-                table.append(themearray_strip(themearray_strip(themearray_flatten(line)), "|"))
+                table.append(themearray_strip(line.flatten()), "|")
                 non_table.append(line)
                 table_state = "header"
                 continue
@@ -1872,7 +1868,7 @@ def render_markdown(lines: str, **kwargs: Any) -> list[list[ThemeRef | ThemeStr]
         if table_state == "header":
             # Now we want a separator
             if "|" in strline and "---" in strline:
-                table.append(themearray_strip(themearray_strip(themearray_flatten(line)), "|"))
+                table.append(themearray_strip(line.flatten()), "|")
                 non_table.append(line)
                 table_state = "separator"
                 continue
@@ -1886,7 +1882,7 @@ def render_markdown(lines: str, **kwargs: Any) -> list[list[ThemeRef | ThemeStr]
 
         if table_state == "separator":
             if "|" in strline:
-                table.append(themearray_strip(themearray_strip(themearray_flatten(line)), "|"))
+                table.append(themearray_strip(line.flatten()), "|")
                 non_table.append(line)
                 table_state = "data"
                 continue
@@ -1899,7 +1895,7 @@ def render_markdown(lines: str, **kwargs: Any) -> list[list[ThemeRef | ThemeStr]
             continue
 
         if "|" in strline:
-            table.append(themearray_strip(themearray_strip(themearray_flatten(line)), "|"))
+            table.append(themearray_strip(line.flatten()), "|")
             non_table.append(line)
             continue
 
