@@ -12,3 +12,4 @@ coverage.json
 htmlcov
 bin
 build
+*.so

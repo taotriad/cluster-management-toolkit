@@ -3506,7 +3506,7 @@ def prepare_installation(options: list[tuple[str, Any]], args: list[str]) -> Non
     confirm = True
 
     # We do not need a cluster name for --list-tasks, so check this first of all
-    if "--list-tasks" in (tmp[0] for tmp in options):
+    if "--list-tasks" in [tmp[0] for tmp in options]:
         __list_phases(prepare_tasks)
         sys.exit(0)
     elif len(args) == 0:
@@ -3560,7 +3560,7 @@ def prepare_installation(options: list[tuple[str, Any]], args: list[str]) -> Non
 
     controlplanes_ = get_control_planes(fail_on_empty=False)
     controlplanes = [controlplane[0] for controlplane in controlplanes_]
-    if not controlplanes and "--control-plane" not in (tmp[0] for tmp in options):
+    if not controlplanes and "--control-plane" not in [tmp[0] for tmp in options]:
         input_retval = \
             ansithemeinput([ANSIThemeStr("\nWarning", "warning"),
                             ANSIThemeStr(": No control plane defined in the inventory; "
@@ -5592,7 +5592,7 @@ def setup_control_planes(options: list[tuple[str, Any]], args: list[str]) -> Non
             FilePath("templates").joinpath("etc", "rancher", "rke2", "config.yaml.j2"),
         ]
 
-    if "--list-tasks" in (tmp[0] for tmp in options):
+    if "--list-tasks" in [tmp[0] for tmp in options]:
         __list_phases(setup_control_plane_tasks)
         sys.exit(0)
 
@@ -6262,7 +6262,7 @@ def purge_control_plane(options: list[tuple[str, str]], args: list[str]) -> None
     confirm = True
 
     # We do not need a cluster name for --list-tasks, so check this first of all
-    if "--list-tasks" in (tmp[0] for tmp in options):
+    if "--list-tasks" in [tmp[0] for tmp in options]:
         __list_phases(purge_control_plane_tasks)
         sys.exit(0)
 

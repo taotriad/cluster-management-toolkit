@@ -121,6 +121,11 @@ tests: coverage
 clean: clean_templates clean_index
 	@rm -f bin/*
 
+distclean: clean clean_binaries
+
+clean_binaries:
+	@rm -rf *.so build/*
+
 generate_helptexts: bin
 	@for file in $(python_executables); do \
 		PYTHONPATH=. ./bin/$${file} help --format markdown > docs/$${file}_helptext.md ;\
@@ -131,7 +136,7 @@ generate_mdtoc:
 
 check_helptexts:
 	@printf -- "\n\nChecking helptexts\n\n" ;\
-	for file in $(python_executables); do \
+	for file in cmt cmtadm cmtinv cmu; do \
 		printf -- "  Checking helptexts for $${file}\n" ;\
 		./$${file}.py help --debug > /dev/null && printf -- "    OK\n";\
 	done
@@ -550,6 +555,7 @@ clean_index:
 build_index:
 	devtools/generate_resource_type_index.py views views/__resource_type_index.yaml
 
+.PHONY: build
 build: build_templates build_index
 
 # This rule is used when making a system-wide install
@@ -570,6 +576,14 @@ bin:
 	@mkdir -p bin &&\
 	for file in $(python_executables); do \
 		devtools/mangle_source.py $${file}.py > bin/$${file} && chmod a+x bin/$${file} ;\
+	done
+
+compile:
+	for file in $(python_executables_py); do \
+		mypyc $(MYPY_FLAGS) -- $${file};\
+	done &&\
+	for file in $(clustermanagementtoolkit/*.py); do \
+		mypyc $(MYPY_FLAGS) -- $${file}.py;\
 	done
 
 install: bin

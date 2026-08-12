@@ -120,6 +120,8 @@ N/A
 * It seems that *kubectl* has issues with YAML-files that have a version prefix (`%YAML 1.1`,
   for instance). Add an option to `secure_write_yaml()` that allows for stripping the prefix.
   This is useful when we patch files and then apply them using *kubectl*.
+* There is now an *extremely* experimental build-target that compiles CMT using **mypyc**.
+  The result has *not* been tested properly, and is likely to be unstable.
 * diffstat: 450 files changed, 13026 insertions(+), 7331 deletions(-)
 
 ### Notable view-file changes (changed API-files)
