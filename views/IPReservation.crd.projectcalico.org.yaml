@@ -8,3 +8,23 @@ listview:
   field_indexes:
     Normal:
       fields: ["name", "age"]
+infoview:
+  name: "IP Reservation Info"
+  infopad:
+  listpad:
+    listgetter: "listgetter_path"
+    listgetter_args:
+      path: "spec#reservedCIDRs"
+      rename_bare: "reserved_cidr"
+    infogetter: "generic_infogetter"
+    field_indexes:
+      Wide:
+        fields: ["reserved_cidr"]
+        sortcolumn: "reserved_cidr"
+    fields:
+      reserved_cidr:
+        header: "Reserved CIDR:"
+        path: "reserved_cidr"
+        default: "<unset>"
+        type: "str"
+        formatter: "address"

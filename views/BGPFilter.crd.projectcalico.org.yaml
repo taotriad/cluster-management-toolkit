@@ -8,3 +8,100 @@ listview:
   field_indexes:
     Normal:
       fields: ["name", "age"]
+infoview:
+  name: "BGP Filter Info"
+  infopad:
+  listpad:
+    listgetter: "listgetter_path"
+    listgetter_args:
+      paths:
+        - path: "spec#importV4"
+          key_name: "type"
+          key_value: "Import IPv4"
+          type: "list"
+        - path: "spec#importV6"
+          key_name: "type"
+          key_value: "Import IPv6"
+          type: "list"
+        - path: "spec#exportV4"
+          key_name: "type"
+          key_value: "Export IPv4"
+          type: "list"
+        - path: "spec#exportV6"
+          key_name: "type"
+          key_value: "Export IPv6"
+          type: "list"
+    infogetter: "generic_infogetter"
+    field_indexes:
+      Normal:
+        fields: ["type", "protocol", "action", "cidr", "prefix_length",
+                 "matchoperator", "source", "interface"]
+        sortcolumn: "type"
+    fields:
+      action:
+        header: "Action:"
+        path: "action"
+        default: "<unset>"
+        type: "str"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              Accept:
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+              Reject:
+                field_colors:
+                  - context: "main"
+                    type: "status_not_ok"
+      cidr:
+        header: "CIDR:"
+        path: "cidr"
+        default: "<unset>"
+        type: "str"
+        formatter: "address"
+      interface:
+        header: "Interface:"
+        path: "interface"
+        default: "<unset>"
+        type: "str"
+      matchoperator:
+        header: "Match Operator:"
+        path: "matchOperator"
+        default: "<unset>"
+        type: "str"
+      prefix_length:
+        header: "Prefix Length:"
+        paths:
+          - path: ["prefixLength"]
+            pathtype: "key_value"
+        default: ["<unset>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "key"
+            - type: "value"
+          field_separators:
+            - type: "selector"
+      source:
+        header: "Source:"
+        path: "source"
+        default: "<unset>"
+        type: "str"
+      protocol:
+        header: "Protocol:"
+        paths:
+          - path: "type"
+            pathtype: "regex"
+            regex: ".*(IPv.)"
+            default: ["<unset>"]
+        formatter: "list"
+      type:
+        header: "Type:"
+        paths:
+          - path: "type"
+            pathtype: "regex"
+            regex: "(.+) IPv."
+            default: ["<unset>"]
+        formatter: "list"

@@ -7,4 +7,182 @@ listview:
   group: "Calico"
   field_indexes:
     Normal:
-      fields: ["name", "age"]
+      fields: ["name", "scope", "peer_ip", "age"]
+  fields:
+    peer_ip:
+      header: "Peer:"
+      paths:
+        - path: "spec#peerIP"
+          pathtype: "regex"
+          regex: "^(.+):([0-9]+)$|^(.+)()$"
+      default: "<unset>"
+      formatter: "list"
+      formatting:
+        field_colors:
+          - type: "address"
+          - type: "port"
+        field_separators:
+          - type: "port"
+        field_formatters:
+          - "address"
+          - ""
+    scope:
+      header: "Scope:"
+      path: "spec#node"
+      default: "Global"
+      type: "str"
+      formatting:
+        field_colors:
+          - type: "host"
+infoview:
+  name: "BGP Peer Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["scope", "peer_ip", "autonomous_system_number",
+                 "node_selector", "peer_selector", "local_workload_selector",
+                 "keep_original_next_hop", "source_address",
+                 "failure_detection_mode", "restart_mode", "max_restart_time",
+                 "bird_gateway_mode", "num_allowed_local_as_numbers",
+                 "ttl_security", "filters", "external_network",
+                 "reachable_by", "next_hop_mode", "reverse_peering"]
+    rows:
+      autonomous_system_number:
+        header: [["Autonomous System Number:", ["main", "infoheader"]]]
+        path: "spec#asNumber"
+        default: "<unset>"
+        type: "str"
+        formatter: "numerical"
+      bird_gateway_mode:
+        header: [["Bird Gateway Mode:", ["main", "infoheader"]]]
+        path: "spec#birdGatewayMode"
+        default: "Recursive"
+        type: "str"
+      external_network:
+        header: [["External Network:", ["main", "infoheader"]]]
+        path: "spec#externalNetwork"
+        default: "<unset>"
+        type: "str"
+      failure_detection_mode:
+        header: [["Failure Detection Mode:", ["main", "infoheader"]]]
+        path: "spec#failureDetectionMode"
+        default: "None"
+        type: "str"
+      filters:
+        header: [["F", ["main", "infoheader_shortcut"]],
+                 ["ilters:", ["main", "infoheader"]]]
+        path: "spec#filters"
+        default: ["<none>"]
+        type: "raw"
+        formatter: "list"
+      keep_original_next_hop:
+        header: [["Keep Original Next Hop:", ["main", "infoheader"]]]
+        path: "spec#keepOriginalNextHop"
+        default: "<unset>"
+        type: "bool"
+      local_workload_selector:
+        header: [["Local Workload Selector:", ["main", "infoheader"]]]
+        path: "speclocalWorkloadSelector"
+        default: "<unset>"
+        type: "str"
+      max_restart_time:
+        header: [["maxRestartTime:", ["main", "infoheader"]]]
+        path: "spec#maxRestartTime"
+        default: "<unset>"
+        type: "str"
+        formatter: "numerical"
+      next_hop_mode:
+        header: [["Next Hop Mode:", ["main", "infoheader"]]]
+        path: "spec#nextHopMode"
+        default: "Auto"
+        type: "str"
+      node_selector:
+        header: [["Node Selector:", ["main", "infoheader"]]]
+        path: "spec#nodeSelector"
+        default: "<unset>"
+        type: "str"
+      num_allowed_local_as_numbers:
+        header: [["Number of Allowed Local Autonomous System Numbers:",
+                  ["main", "infoheader"]]]
+        path: "spec#numAllowedLocalASNumbers"
+        default: 0
+        type: "int"
+        formatter: "numerical"
+      peer_ip:
+        header: [["Peer:", ["main", "infoheader"]]]
+        paths:
+          - path: "spec#peerIP"
+            pathtype: "regex"
+            regex: "^(.+):([0-9]+)$|^(.+)()$"
+        default: "<unset>"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "address"
+            - type: "port"
+          field_separators:
+            - type: "port"
+          field_formatters:
+            - "address"
+            - ""
+      peer_selector:
+        header: [["Peer Selector:", ["main", "infoheader"]]]
+        path: "spec#peerSelector"
+        default: "<unset>"
+        type: "str"
+      reachable_by:
+        header: [["Reachable By:", ["main", "infoheader"]]]
+        path: "spec#reachableBy"
+        default: "<unset>"
+        type: "str"
+        formatter: "address"
+      restart_mode:
+        header: [["Restart Mode:", ["main", "infoheader"]]]
+        path: "spec#restartMode"
+        default: "GracefulRestart"
+        type: "str"
+      reverse_peering:
+        header: [["Reverse Peering:", ["main", "infoheader"]]]
+        path: "spec#reversePeering"
+        default: "Auto"
+        type: "str"
+      scope:
+        header: [["Scope:", ["main", "infoheader"]]]
+        path: "spec#node"
+        default: "Global"
+        type: "str"
+        formatting:
+          field_colors:
+            - type: "host"
+      source_address:
+        header: [["Source Address:", ["main", "infoheader"]]]
+        path: "spec#sourceAddress"
+        default: "UseNodeIP"
+        type: "str"
+      ttl_security:
+        header: [["TTL Security:", ["main", "infoheader"]]]
+        path: "spec#ttlSecurity"
+        default: "<none>"
+        type: "int"
+        formatter: "numerical"
+  shortcuts:
+    "BGP Filters":
+      key: "f"
+      modifier: "shift"
+      read_only: true
+      helptext: "List BGP Filters"
+      widget: "windowwidget"
+      widget_args:
+        title: "BGP Filters:"
+        selectable: true
+        itemgetter: "get_list_as_list"
+        itemgetter_args:
+          path: "spec#filters"
+        # This isn't supported for now
+        sortcolumn: "name"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        kind: "BGPFilter"
+        api_family: "crd.projectcalico.org"
+        name_path: 0
