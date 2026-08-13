@@ -605,8 +605,8 @@ def format_uri(items: str | list[str],
                 uripath = []
                 for segment in uripathsplit:
                     if uripath:
-                        uripath += [ThemeRef("separators", "uri_path")]
-                    uripath += [ThemeStr(segment, ThemeAttr("types", "address"), selected=False)]
+                        uripath += [ThemeRef("separators", "uri_path", selected)]
+                    uripath += [ThemeStr(segment, ThemeAttr("types", "address"), selected)]
             urisplit = authority.split(":")
             if len(urisplit) > 2:
                 # This URI is malformed.
