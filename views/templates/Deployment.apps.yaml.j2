@@ -13,13 +13,12 @@ listview:
       fields: ["namespace", "name", "controller", "desired_replicas",
                "current_replicas", "ready_replicas",
                "uptodate_replicas", "available_replicas",
-               "unavailable_replicas", "paused", "age"]
+               "unavailable_replicas", "terminating_replicas", "paused", "age"]
       sortcolumn: "namespace"
     Normal:
       fields: ["namespace", "name", "desired_replicas",
                "current_replicas", "ready_replicas",
-               "uptodate_replicas", "available_replicas",
-               "unavailable_replicas", "paused", "age"]
+               "available_replicas", "unavailable_replicas", "paused", "age"]
       sortcolumn: "namespace"
   fields:
     available_replicas:
@@ -109,6 +108,25 @@ listview:
               field_colors:
                 - context: "main"
                   type: "status_pending"
+            - default: true
+              field_colors:
+                - context: "main"
+                  type: "status_not_ok"
+      align: "right"
+    terminating_replicas:
+      header: "Terminating:"
+      path: "status#terminatingReplicas"
+      default: 0
+      type: "raw"
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          ranges:
+            - min: 0
+              max: 1
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
             - default: true
               field_colors:
                 - context: "main"
@@ -281,11 +299,13 @@ infoview:
         paths:
           - path: [["spec#replicas"], " Desired",
                    ["status#replicas"], " Current",
+                   ["status#availableReplicas"], " available",
                    ["status#readyReplicas"], " Ready",
                    ["status#updatedReplicas"], " Up to Date",
-                   ["status#unavailableReplicas"], " Unavailable"]
+                   ["status#unavailableReplicas"], " Unavailable",
+                   ["status#terminatingReplicas"], " Terminating"]
             pathtype: "tuple"
-            default: [0, "", 0, "", 0, "", 0, "", 0, ""]
+            default: [0, "", 0, "", 0, "", 0, "", 0, "", 0, ""]
         formatter: "list"
         formatting:
           field_colors:
@@ -301,7 +321,13 @@ infoview:
             - type: "generic"
             - type: "numerical"
             - type: "generic"
+            - type: "numerical"
+            - type: "generic"
           field_separators:
+            - type: "no_pad"
+            - type: "fraction_spaced"
+            - type: "no_pad"
+            - type: "fraction_spaced"
             - type: "no_pad"
             - type: "fraction_spaced"
             - type: "no_pad"

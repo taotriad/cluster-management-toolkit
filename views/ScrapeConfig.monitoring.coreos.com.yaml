@@ -1,0 +1,102 @@
+---
+kind: "ScrapeConfig"
+api_family: "monitoring.coreos.com"
+default_command: "scrapeconfigs"
+command:
+  - "scrapeconfs"
+  - "scrapeconf"
+listview:
+  name: "Scrape Configs"
+  group: "Observability"
+  field_indexes:
+    Normal:
+      fields: ["namespace", "name", "age"]
+      sortcolumn: "namespace"
+infoview:
+  name: "Scrape Config Info"
+  infopad:
+  listpad:
+    listgetter: "listgetter_path"
+    listgetter_args:
+      paths:
+        - path: "spec#kubernetesSDConfigs"
+          key_name: "type"
+          key_value: "Kubernetes"
+          type: "list"
+        - path: "spec#staticConfigs"
+          key_name: "type"
+          key_value: "Static"
+          type: "list"
+        - path: "spec#fileSDConfigs"
+          key_name: "type"
+          key_value: "File"
+          type: "list"
+        - path: "spec#httpSDConfigs"
+          key_name: "type"
+          key_value: "HTTP"
+          type: "list"
+    infogetter: "generic_infogetter"
+    field_indexes:
+      Normal:
+        fields: ["type", "role", "namespaces", "labels", "targets", "url",
+                 "refresh_interval", "files"]
+        sortcolumn: "type"
+    fields:
+      files:
+        header: "Files:"
+        path: "files"
+        default: ["<unset>"]
+        type: "raw"
+        formatter: "list"
+        formatting:
+          - type: "path"
+      namespaces:
+        header: "Namespaces:"
+        path: "namespaces#names"
+        default: ["<unset>"]
+        type: "raw"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "namespace"
+      labels:
+        header: "Labels:"
+        paths:
+          - path: ["labels"]
+            pathtype: "key_value"
+        default: ["<unset>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "key"
+            - type: "value"
+          field_separators:
+            - type: "selector"
+      refresh_interval:
+        header: "Refresh Interval:"
+        path: "refreshInterval"
+        default: "<unset>"
+        type: "str"
+        formatter: "numerical"
+      role:
+        header: "Role:"
+        path: "role"
+        default: "<unset>"
+        type: "str"
+      targets:
+        header: "Targets:"
+        path: "targets"
+        default: ["<unset>"]
+        type: "raw"
+        formatter: "list"
+      type:
+        header: "Type:"
+        path: "type"
+        default: "<unset>"
+        type: "str"
+      url:
+        header: "URL:"
+        path: "url"
+        default: "<unset>"
+        type: "raw"
+        formatter: "uri"

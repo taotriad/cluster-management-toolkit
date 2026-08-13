@@ -8,10 +8,98 @@ listview:
   name: "Alertmanagers"
   group: "Observability"
   field_indexes:
+    Wide:
+      fields: ["namespace", "name", "version",
+               "current_replicas", "uptodate_replicas",
+               "available_replicas", "unavailable_replicas",
+               "condition_reconciled", "condition_available", "paused", "age"]
+      sortcolumn: "namespace"
     Normal:
-      fields: ["namespace", "name", "version", "replicas", "paused", "age"]
+      fields: ["namespace", "name", "version",
+               "current_replicas",
+               "condition_reconciled", "condition_available", "paused", "age"]
       sortcolumn: "namespace"
   fields:
+    available_replicas:
+      header: "Available:"
+      paths:
+        - path: ["status#availableReplicas", "status#replicas"]
+          pathtype: "comparison"
+          default: [0, 0]
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          ranges:
+            - min: 0
+              max: 1
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+            - default: true
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+      align: "right"
+    condition_available:
+      header: "Available:"
+      paths:
+        - path: "status#conditions"
+          pathtype: "items"
+          subpath: "status"
+          when:
+            - key: "type"
+              in: "Available"
+          default: ["<unknown>"]
+      type: "str"
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          mappings:
+            "True":
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+            "False":
+              field_colors:
+                - context: "main"
+                  type: "status_not_ok"
+            "<unknown>":
+              field_colors:
+                - context: "types"
+                  type: "unset"
+    condition_reconciled:
+      header: "Reconciled:"
+      paths:
+        - path: "status#conditions"
+          pathtype: "items"
+          subpath: "status"
+          when:
+            - key: "type"
+              in: "Reconciled"
+          default: ["<unknown>"]
+      type: "str"
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          mappings:
+            "True":
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+            "False":
+              field_colors:
+                - context: "main"
+                  type: "status_not_ok"
+            "<unknown>":
+              field_colors:
+                - context: "types"
+                  type: "unset"
+    current_replicas:
+      header: "Current:"
+      path: "status#replicas"
+      type: "int"
+      formatter: "numerical"
+      align: "right"
     paused:
       header: "Paused:"
       path: "status#paused"
@@ -28,15 +116,49 @@ listview:
               field_colors:
                 - context: "main"
                   type: "status_ok"
-    replicas:
-      header: "Replicas:"
-      path: "spec#replicas"
-      type: "int"
-      formatter: "numerical"
+    unavailable_replicas:
+      header: "Unavailable:"
+      path: "status#unavailableReplicas"
+      default: 0
+      type: "raw"
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          ranges:
+            - min: 0
+              max: 1
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+            - default: true
+              field_colors:
+                - context: "main"
+                  type: "status_not_ok"
+      align: "right"
+    uptodate_replicas:
+      header: "Up to Date:"
+      paths:
+        - path: ["status#updatedReplicas", "status#replicas"]
+          pathtype: "comparison"
+          default: [0, 0]
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          ranges:
+            - min: 0
+              max: 1
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+            - default: true
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
       align: "right"
     version:
       header: "Version:"
       path: "spec#version"
+      default: "<unset>"
       type: "str"
       formatter: "version"
 infoview:
@@ -54,10 +176,81 @@ infoview:
           - "port_name"
           - "route_prefix"
           - "node_selector"
-          - "paused"
-          - "replicas"
+          - "alertmanager_config_selector"
           - "service_account"
+          - "version"
+          - "replicas"
+          - "paused"
+          - "condition_reconciled"
+          - "condition_available"
     rows:
+      alertmanager_config_selector:
+        header: [["AlertManagerConfig Selector:", ["main", "infoheader"]]]
+        paths:
+          - path: ["spec#alertmanagerConfigSelector#matchLabels"]
+            pathtype: "key_value"
+            default: ["<unset>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "key"
+            - type: "value"
+          field_separators:
+            - type: "selector"
+      condition_available:
+        header: [["Available:", ["main", "infoheader"]]]
+        paths:
+          - path: "status#conditions"
+            pathtype: "items"
+            subpath: "status"
+            when:
+              - key: "type"
+                in: "Available"
+            default: ["<unknown>"]
+        type: "str"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              "True":
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+              "False":
+                field_colors:
+                  - context: "main"
+                    type: "status_not_ok"
+              "<unknown>":
+                field_colors:
+                  - context: "types"
+                    type: "unset"
+      condition_reconciled:
+        header: [["Reconciled:", ["main", "infoheader"]]]
+        paths:
+          - path: "status#conditions"
+            pathtype: "items"
+            subpath: "status"
+            when:
+              - key: "type"
+                in: "Reconciled"
+            default: ["<unknown>"]
+        type: "str"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              "True":
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+              "False":
+                field_colors:
+                  - context: "main"
+                    type: "status_not_ok"
+              "<unknown>":
+                field_colors:
+                  - context: "types"
+                    type: "unset"
       external_url:
         header: [["External URL:", ["main", "infoheader"]]]
         path: "spec#externalUrl"
@@ -70,6 +263,7 @@ infoview:
           - path: "spec#image"
             pathtype: "regex"
             regex: "^([^:]+):(.*)"
+            default: ["<none>"]
         formatter: "list"
         formatting:
           field_colors:
@@ -83,14 +277,17 @@ infoview:
       listen_local:
         header: [["Listen Local:", ["main", "infoheader"]]]
         path: "spec#listenLocal"
+        default: "<unset>"
         type: "bool"
       log_format:
         header: [["Log Format:", ["main", "infoheader"]]]
         path: "spec#logFormat"
+        default: "<unset>"
         type: "str"
       loglevel:
         header: [["Loglevel:", ["main", "infoheader"]]]
         path: "spec#logLevel"
+        default: "<unset>"
         type: "str"
       node_selector:
         header: [["Node La", ["main", "infoheader"]],
@@ -128,11 +325,37 @@ infoview:
         header: [["Port Name:", ["main", "infoheader"]]]
         path: "spec#portName"
         type: "str"
+        formatting:
+          field_colors:
+            - type: "service"
       replicas:
         header: [["Replicas:", ["main", "infoheader"]]]
-        path: "spec#replicas"
-        type: "int"
-        formatter: "numerical"
+        paths:
+          - path: [["status#replicas"], " Current",
+                   ["status#availableReplicas"], " Available",
+                   ["status#updatedReplicas"], " Up to Date",
+                   ["status#unavailableReplicas"], " Unavailable"]
+            pathtype: "tuple"
+            default: [0, "", 0, "", 0, ""]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "numerical"
+            - type: "generic"
+            - type: "numerical"
+            - type: "generic"
+            - type: "numerical"
+            - type: "generic"
+            - type: "numerical"
+            - type: "generic"
+          field_separators:
+            - type: "no_pad"
+            - type: "fraction_spaced"
+            - type: "no_pad"
+            - type: "fraction_spaced"
+            - type: "no_pad"
+            - type: "fraction_spaced"
+            - type: "no_pad"
       retention:
         header: [["Retention:", ["main", "infoheader"]]]
         path: "spec#retention"
@@ -141,6 +364,7 @@ infoview:
       route_prefix:
         header: [["Route Prefix:", ["main", "infoheader"]]]
         path: "spec#routePrefix"
+        default: "<unset>"
         type: "str"
       service_account:
         header: [["S", ["main", "infoheader_shortcut"]],
@@ -148,36 +372,98 @@ infoview:
         path: "spec#serviceAccountName"
         default: "<unset>"
         type: "str"
-  listpad:
-    listgetter: "listgetter_join_dicts_to_list"
-    listgetter_args:
-      key_paths: ["spec#resources#limits", "spec#resources#requests"]
-      key_name: "resource"
-      fields:
-        - path: "spec#resources#limits"
-          name: "limit"
-          default:
-        - path: "spec#resources#requests"
-          name: "request"
-          default:
-    infogetter: "generic_infogetter"
-    field_indexes:
-      Normal:
-        fields: ["resource", "request", "limit"]
-        sortcolumn: "resource"
-    fields:
-      limit:
-        header: "Limit:"
-        path: "limit"
-        type: "raw"
-      resource:
-        header: "Resource:"
-        path: "resource"
+      version:
+        header: [["Version:", ["main", "infoheader"]]]
+        path: "spec#version"
+        default: "<unset>"
         type: "str"
-      request:
-        header: "Request:"
-        path: "request"
-        type: "raw"
+        formatter: "version"
+  listpad:
+    listgetter: "generic_listgetter"
+    listgetter_args:
+      _kind: "Pod"
+      _label_selector_path: "spec#selector"
+      _none_on_empty_selector: true
+    infogetter: "generic_infogetter"
+    on_activation:
+      call: "resourceinfodispatch"
+      kind: "Pod"
+    field_indexes:
+      Wide:
+        fields: ["namespace", "name", "pod_status", "node_name",
+                 "pod_ip", "age", "restarts", "last_restart", "containers"]
+        sortcolumn: "pod_status"
+      Normal:
+        fields: ["namespace", "name", "pod_status", "node_name", "age",
+                 "restarts", "last_restart"]
+        sortcolumn: "pod_status"
+      Compact:
+        fields: ["namespace", "name", "pod_status", "age", "restarts",
+                 "last_restart"]
+        sortcolumn: "pod_status"
+    fields:
+      containers:
+        header: "Containers:"
+        paths:
+          - paths:
+              - "spec#initContainers"
+              - "spec#containers"
+            pathtype: "items"
+            subpaths:
+              - "name"
+              - subpath: "image"
+                regex: ["^.+/[^:^/]+:(.+?)@.*", "^.+/[^:^/]+:(.+)"]
+            type: "raw"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "generic"
+            - type: "version"
+          field_separators:
+            - type: "version"
+          field_formatters:
+            - ""
+            - "version"
+      last_restart:
+        header: "Latest Restart:"
+        paths:
+          - path: "status#containerStatuses"
+            pathtype: "items"
+            subpath: ["state#running#startedAt",
+                      "lastState#terminated#finishedAt"]
+            when:
+              - key: "restartCount"
+                gt: 0
+            action: "latest"
+            type: "timestamp"
+        default: -1
+        formatter: "age"
+        align: "right"
+      node_name:
+        header: "Node:"
+        path: "spec#nodeName"
+        type: "host"
+        default: "<none>"
+        formatting:
+          field_colors:
+            - type: "host"
+      pod_ip:
+        header: "Pod IP:"
+        path: "status#podIP"
+        default: "<unset>"
+        type: "address"
+        formatter: "address"
+      restarts:
+        header: "Restarts:"
+        paths:
+          - path: "status#containerStatuses"
+            pathtype: "items"
+            subpath: "restartCount"
+            action: "sum"
+            type: "int"
+        default: 0
+        formatter: "numerical"
+        align: "right"
   shortcuts:
     "Node Label Selector":
       key: "b"

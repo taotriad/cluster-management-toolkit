@@ -7206,6 +7206,10 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
                       "apis/ray.io/v1alpha1/"],
         "api": "rayclusters",
     },
+    ("RayCronJob", "ray.io"): {
+        "api_paths": ["apis/ray.io/v1/"],
+        "api": "raycronjobs",
+    },
     ("RayJob", "ray.io"): {
         "api_paths": ["apis/ray.io/v1/",
                       "apis/ray.io/v1alpha1/"],
