@@ -117,29 +117,6 @@ infoview:
                  "listen_local", "log_format", "loglevel",
                  "port_name", "service_account", "replicas", "paused"]
     rows:
-      endpoints:
-        header: [["Alertmanager ", ["main", "infoheader"]],
-                 ["E", ["main", "infoheader_shortcut"]],
-                 ["ndpoints:", ["main", "infoheader"]]]
-        paths:
-          - path: "spec#alerting#alertmanagers"
-            pathtype: "items"
-            subpaths:
-              - "namespace"
-              - "name"
-              - "port"
-              - "pathPrefix"
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "namespace"
-            - type: "generic"
-            - type: "port"
-            - type: "address"
-          field_separators:
-            - type: "namespace"
-            - type: "port"
-            - type: "uri_path"
       external_url:
         header: [["External URL:", ["main", "infoheader"]]]
         path: "spec#externalUrl"

@@ -49,7 +49,8 @@ infoview:
         type: "raw"
         formatter: "list"
         formatting:
-          - type: "path"
+          field_colors:
+            - type: "path"
       namespaces:
         header: "Namespaces:"
         path: "namespaces#names"

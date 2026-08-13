@@ -124,7 +124,8 @@ infoview:
   infopad:
     row_indexes:
       Normal:
-        fields: ["hostname", "scheduler", "node_label_selector",
+        fields: ["hostname", "scheduler", "scheduling_group",
+                 "node_label_selector",
                  "priority", "priority_class", "preemption_policy",
                  "qos_class", "host_ips", "pod_ips",
                  "termination_grace_period", "enable_service_links",
@@ -356,6 +357,11 @@ infoview:
       scheduler:
         header: [["Scheduler:", ["main", "infoheader"]]]
         path: "spec#schedulerName"
+        type: "str"
+      scheduling_group:
+        header: [["Scheduling Group:", ["main", "infoheader"]]]
+        path: "spec#schedulingGroup"
+        default: "<unset>"
         type: "str"
       termination_grace_period:
         header: [["Termination Grace Period:", ["main", "infoheader"]]]

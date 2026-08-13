@@ -48,7 +48,7 @@ listview:
           subpath: "status"
           when:
             - key: "type"
-              in: "Available"
+              eq: "Available"
           default: ["<unknown>"]
       type: "str"
       formatter: "value_mapper"
@@ -75,7 +75,7 @@ listview:
           subpath: "status"
           when:
             - key: "type"
-              in: "Reconciled"
+              eq: "Reconciled"
           default: ["<unknown>"]
       type: "str"
       formatter: "value_mapper"
@@ -205,7 +205,7 @@ infoview:
             subpath: "status"
             when:
               - key: "type"
-                in: "Available"
+                eq: "Available"
             default: ["<unknown>"]
         type: "str"
         formatter: "value_mapper"
@@ -232,7 +232,7 @@ infoview:
             subpath: "status"
             when:
               - key: "type"
-                in: "Reconciled"
+                eq: "Reconciled"
             default: ["<unknown>"]
         type: "str"
         formatter: "value_mapper"
