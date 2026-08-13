@@ -88,7 +88,7 @@ N/A
 ### Changes to _cmu_ in v0.8.9
 
 * (Hopefully) fix the rather annoying flickering in the list view.
-* Doing a non-change of namespace will no an update.
+* Doing a non-change of namespace will no longer do an update.
 * An issue was fixed that caused line-lengths to be incorrect in the list-view when resizing.
 * Resizing an info-view no longer causes the listpad to become empty until reloaded.
 * Switching field configuration (Wide/Normal/Narrow/Custom) no longer triggers force update,
@@ -122,7 +122,7 @@ N/A
   This is useful when we patch files and then apply them using *kubectl*.
 * There is now an *extremely* experimental build-target that compiles CMT using **mypyc**.
   The result has *not* been tested properly, and is likely to be unstable.
-* diffstat: 450 files changed, 13026 insertions(+), 7331 deletions(-)
+* diffstat: 477 files changed, 15180 insertions(+), 7880 deletions(-)
 
 ### Notable view-file changes (changed API-files)
 
@@ -130,6 +130,7 @@ N/A
 * gateway.nginx.org (8 changed files)
 * gateway.networking.k8s.io (8 changed files)
 * kubeflow.org.yaml (7 changed files)
+* crd.projectcalico.org (6 changed files)
 * k8s.ovn.org (6 changed files)
 * infrastructure.cluster.x-k8s.io.yaml (6 changed files)
 * management.cattle.io (5 changed files)
@@ -137,9 +138,17 @@ N/A
 
 ### Notable view-file changes (changed line count)
 
+* views/Alertmanager.monitoring.coreos.com.yaml (287 changed lines)
 * views/MachineConfigPool.machineconfiguration.openshift.io.yaml (191 changed lines)
+* views/Prometheus.monitoring.coreos.com.yaml (188 changed lines)
+* views/BGPPeer.crd.projectcalico.org.yaml (178 changed lines)
 * views/AdminNetworkPolicy.policy.networking.k8s.io.yaml (135 changed lines)
+* views/MachineDeployment.cluster.x-k8s.io.yaml (105 changed lines)
+* views/MachineHealthCheck.cluster.x-k8s.io.yaml (100 changed lines)
+* views/BGPFilter.crd.projectcalico.org.yaml (97 changed lines)
+* views/ClusterResourceSet.addons.cluster.x-k8s.io.yaml (80 changed lines)
 * views/templates/MachineHealthCheck.machine.openshift.io.yaml.j2 (80 changed lines)
+* views/variables/event_reasons.var (80 changed lines)
 * views/templates/DaemonSet.apps.kruise.io.yaml.j2 (79 changed lines)
 * views/templates/DaemonSet.apps.yaml.j2 (79 changed lines)
 * views/templates/ServiceMonitor.monitoring.coreos.com.yaml.j2 (79 changed lines)
@@ -147,18 +156,21 @@ N/A
 * views/templates/MachineSet.cluster.x-k8s.io.yaml.j2 (75 changed lines)
 * views/AuthRequest.dex.coreos.com.yaml (72 changed lines)
 * views/GatewayClass.gateway.networking.k8s.io.yaml (61 changed lines)
-* views/templates/Ingress.networking.internal.knative.dev.yaml.j2 (59 changed lines)
-* views/templates/Metric.autoscaling.internal.knative.dev.yaml.j2 (59 changed lines)
-* views/templates/PodAutoscaler.autoscaling.internal.knative.dev.yaml.j2 (59 changed lines)
-* views/templates/Route.serving.knative.dev.yaml.j2 (59 changed lines)
-* views/templates/Configuration.serving.knative.dev.yaml.j2 (55 changed lines)
-* views/templates/ServerlessService.networking.internal.knative.dev.yaml.j2 (55 changed lines)
-* views/templates/EventType.eventing.knative.dev.yaml.j2 (52 changed lines)
+* views/templates/Ingress.networking.internal.knative.dev.yaml.j2 (60 changed lines)
+* views/templates/Metric.autoscaling.internal.knative.dev.yaml.j2 (60 changed lines)
+* views/templates/PodAutoscaler.autoscaling.internal.knative.dev.yaml.j2 (60 changed lines)
+* views/templates/Route.serving.knative.dev.yaml.j2 (60 changed lines)
+* views/templates/Configuration.serving.knative.dev.yaml.j2 (56 changed lines)
+* views/templates/ServerlessService.networking.internal.knative.dev.yaml.j2 (56 changed lines)
+* views/templates/EventType.eventing.knative.dev.yaml.j2 (54 changed lines)
 * views/templates/VirtualMachineInstance.kubevirt.io.yaml.j2 (52 changed lines)
+* views/templates/InMemoryChannel.messaging.knative.dev.yaml.j2 (50 changed lines)
+* views/templates/SinkBinding.sources.knative.dev.yaml.j2 (50 changed lines)
+* views/templates/Subscription.messaging.knative.dev.yaml.j2 (50 changed lines)
 
 ### parser-file changes
 
-2 parserfiles were added.
+3 parserfiles were added.
 
 ## Known Regressions in v0.8.9
 
@@ -264,7 +276,7 @@ Test results:
 	No issues identified.
 
 Code scanned:
-	Total lines of code: 104909
+	Total lines of code: 105230
 	Total lines skipped (#nosec): 7
 
 Run metrics:
@@ -300,23 +312,23 @@ Output:
 Name                                                  Stmts   Miss Branch BrPart  Cover
 ---------------------------------------------------------------------------------------
 clustermanagementtoolkit/cluster_actions.py             226    178     74      3  19.0%
+clustermanagementtoolkit/infogetters.py                1767   1315   1082     22  24.5%
 clustermanagementtoolkit/curses_helper.py              2708   1962   1220     24  24.6%
-clustermanagementtoolkit/infogetters.py                1753   1301   1068     22  24.7%
 clustermanagementtoolkit/networkio.py                   395    289    188      3  25.2%
 clustermanagementtoolkit/kubernetes_helper.py          1625   1104    788     75  28.3%
 clustermanagementtoolkit/listgetters_async.py           118     75     52      2  31.2%
-clustermanagementtoolkit/logparser.py                  2095   1345   1182     38  31.7%
+clustermanagementtoolkit/logparser.py                  2110   1359   1192     38  31.5%
 clustermanagementtoolkit/listgetters.py                1215    765    678     17  35.2%
 clustermanagementtoolkit/checks.py                      620    326    246      1  44.9%
-clustermanagementtoolkit/generators.py                  836    305    428     55  61.7%
 clustermanagementtoolkit/datagetters.py                 272     85    142     13  67.1%
+clustermanagementtoolkit/generators.py                  838    258    430     47  67.9%
 clustermanagementtoolkit/ansible_helper.py              818    219    486     27  72.1%
 clustermanagementtoolkit/cmtlib.py                      686    133    382     20  78.9%
 clustermanagementtoolkit/ansithemeprint.py              287     53    122      5  79.5%
 clustermanagementtoolkit/cmtio_yaml.py                  108     13     32      5  85.7%
 clustermanagementtoolkit/cmtio.py                       426     45    226     20  88.2%
 clustermanagementtoolkit/cni_data.py                     80      0     40      9  92.5%
-clustermanagementtoolkit/formatters.py                  904     44    396     40  92.9%
+clustermanagementtoolkit/formatters.py                  904     44    394     40  92.9%
 clustermanagementtoolkit/cmtvalidators.py               337     18    212      8  93.4%
 clustermanagementtoolkit/itemgetters.py                 565     25    320     20  94.5%
 clustermanagementtoolkit/reexecutor.py                   69      1     26      2  96.8%
@@ -333,7 +345,7 @@ clustermanagementtoolkit/kubernetes_resources.py          5      0      0      0
 clustermanagementtoolkit/pvtypes.py                       3      0      0      0 100.0%
 clustermanagementtoolkit/recommended_permissions.py      15      0      0      0 100.0%
 ---------------------------------------------------------------------------------------
-TOTAL                                                 17427   8289   8840    412  50.0%
+TOTAL                                                 17458   8270   8864    404  50.2%
 ```
 
 ### Flake8 Results for v0.8.9
@@ -352,7 +364,7 @@ No output.
 Commandline: `mypy --follow-imports silent --explicit-package-bases --ignore-missing --disallow-untyped-calls --disallow-untyped-defs --disallow-incomplete-defs --check-untyped-defs --disallow-untyped-decorators --warn-redundant-casts --warn-unused-ignores`.
 Execute with `make mypy-markdown`.
 
-Version: TBD
+Version: 2.1.0
 
 | Source file                                         | Score                                                 |
 | :-------------------------------------------------- | :---------------------------------------------------- |
@@ -476,7 +488,7 @@ No Output.
 Commandline: `semgrep scan --exclude-rule "generic.secrets.security.detected-generic-secret.detected-generic-secret.semgrep-legacy.30980" --exclude-rule "python.flask.security.xss.audit.direct-use-of-jinja2.direct-use-of-jinja2" --exclude "*.yaml" --exclude "*.j2" --exclude "*.json" --timeout=0 --no-git-ignore`.
 Execute with `make semgrep`.
 
-Version: 1.171.0
+Version: 1.173.0
 
 Output:
 
@@ -514,9 +526,9 @@ Output:
 ```
 Summary:
      fail: 0
-     skip: 6
-  success: 1204
-    total: 1210
+     skip: 8
+  success: 1209
+    total: 1217
 ```
 
 * [v0.8.8](#v088)
