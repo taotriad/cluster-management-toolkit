@@ -580,7 +580,7 @@ def guess_kind(kind: str | tuple[str, str]) -> tuple[str, str]:
     errmsg: list[list[tuple[str, str]]] = [
         [("Unknown kind (", "default"),
          (f"{kind[0]}.{kind[1]}", "argument"),
-         (" encountered; adding to temporary dict.", "default")],
+         (") encountered; adding to temporary dict.", "default")],
     ]
     unformatted_msg, formatted_msg = ANSIThemeStr.format_error_msg(errmsg)
     cmtlog.log(LogLevel.INFO, msg=unformatted_msg, messages=formatted_msg)
