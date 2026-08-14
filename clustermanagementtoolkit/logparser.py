@@ -228,6 +228,7 @@ def str_to_severity(string: str, **kwargs: Any) -> LogLevel:
     """
     default: LogLevel = deep_get(kwargs, DictPath("default"), LogLevel.DEFAULT)
     severities = {
+        "critical": LogLevel.CRIT,
         "fatal": LogLevel.CRIT,
         "error": LogLevel.ERR,
         "eror": LogLevel.ERR,
