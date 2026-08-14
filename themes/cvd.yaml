@@ -862,6 +862,30 @@ color_pairs_curses:
   type_python_variable:
     unselected: [["white", "normal"], ["black", "normal"]]
     selected: [["black", "normal"], ["white", "normal"]]
+  type_rego_builtin:
+    unselected: [["white", "normal"], ["black", "normal"]]
+    selected: [["black", "normal"], ["white", "normal"]]
+  type_rego_comment:
+    unselected: [["black", "bright"], ["black", "normal"]]
+    selected: [["black", "normal"], ["white", "normal"]]
+  type_rego_keyword:
+    unselected: [["yellow", "bright"], ["black", "normal"]]
+    selected: [["yellow", "bright"], ["white", "normal"]]
+  type_rego_name:
+    unselected: [["white", "normal"], ["black", "normal"]]
+    selected: [["black", "normal"], ["white", "normal"]]
+  type_rego_number:
+    unselected: [["magenta", "bright"], ["black", "normal"]]
+    selected: [["magenta", "bright"], ["white", "normal"]]
+  type_rego_operator:
+    unselected: [["white", "normal"], ["black", "normal"]]
+    selected: [["black", "normal"], ["white", "normal"]]
+  type_rego_punctuation:
+    unselected: [["white", "normal"], ["black", "normal"]]
+    selected: [["black", "normal"], ["white", "normal"]]
+  type_rego_string:
+    unselected: [["magenta", "normal"], ["black", "normal"]]
+    selected: [["magenta", "normal"], ["white", "normal"]]
   type_shellscript_builtin:
     unselected: [["yellow", "bright"], ["black", "normal"]]
     selected: [["yellow", "bright"], ["white", "normal"]]
@@ -1474,6 +1498,14 @@ types:
   tag: ["tag", "bold"]
   timeout: "type_numerical"
   timestamp: "type_timestamp"
+  rego_builtin: "type_rego_builtin"
+  rego_comment: "type_rego_comment"
+  rego_keyword: "type_rego_keyword"
+  rego_name: "type_rego_name"
+  rego_number: "type_rego_number"
+  rego_operator: "type_rego_operator"
+  rego_punctuation: "type_rego_punctuation"
+  rego_string: "type_rego_string"
   toml_comment: "type_toml_comment"
   toml_escape: "type_toml_escape"
   toml_key_separator: "type_toml_key_separator"

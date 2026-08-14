@@ -4275,6 +4275,268 @@ def test_format_python_traceback(verbose: bool = False) -> tuple[str, bool]:
     return message, result
 
 
+def test_format_rego(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = formatters.format_rego
+
+    if result:
+        # Indata format:
+        # (lines, options, expected_result, expected_exception)
+        testdata: tuple[Any, ...] = (
+            (
+                '# A comment\n'
+                'package k8srequiredlabels\n'
+                '\n'
+                'violation[{"msg": msg, "details": {"missing_labels": missing}}] {\n'
+                '  provided := {label | input.review.object.metadata.labels[label]}\n'
+                '  required := {label | label := input.parameters.labels[_]}\n'
+                '  missing := required - provided\n'
+                '  count(missing) > 0\n'
+                '  msg := sprintf("you must provide labels: %v", [missing])',
+                {},
+                [
+                    [ThemeStr('# A comment', ThemeAttr('types', 'rego_comment'), False)],
+                    [ThemeStr('package', ThemeAttr('types', 'rego_keyword'), False),
+                     ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                     ThemeStr('k8srequiredlabels', ThemeAttr('types', 'rego_name'), False)],
+                    [],
+                    [ThemeStr('violation', ThemeAttr('types', 'rego_name'), False),
+                     ThemeStr('[', ThemeAttr('types', 'rego_punctuation'), False),
+                     ThemeStr('{', ThemeAttr('types', 'rego_punctuation'), False),
+                     ThemeStr('"msg"', ThemeAttr('types', 'rego_string'), False),
+                     ThemeStr(':', ThemeAttr('types', 'rego_punctuation'), False),
+                     ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                     ThemeStr('msg', ThemeAttr('types', 'rego_name'), False),
+                     ThemeStr(',', ThemeAttr('types', 'rego_punctuation'), False),
+                     ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                     ThemeStr('"details"', ThemeAttr('types', 'rego_string'), False),
+                     ThemeStr(':', ThemeAttr('types', 'rego_punctuation'), False),
+                     ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                     ThemeStr('{', ThemeAttr('types', 'rego_punctuation'), False),
+                     ThemeStr('"missing_labels"', ThemeAttr('types', 'rego_string'), False),
+                     ThemeStr(':', ThemeAttr('types', 'rego_punctuation'), False),
+                     ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                     ThemeStr('missing', ThemeAttr('types', 'rego_name'), False),
+                     ThemeStr('}', ThemeAttr('types', 'rego_punctuation'), False),
+                     ThemeStr('}', ThemeAttr('types', 'rego_punctuation'), False),
+                     ThemeStr(']', ThemeAttr('types', 'rego_punctuation'), False),
+                     ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                     ThemeStr('{', ThemeAttr('types', 'rego_punctuation'), False)],
+                    [ThemeStr('  ', ThemeAttr('types', 'generic'), False),
+                     ThemeStr('provided', ThemeAttr('types', 'rego_name'), False),
+                     ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                     ThemeStr(':=', ThemeAttr('types', 'rego_operator'), False),
+                     ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                     ThemeStr('{', ThemeAttr('types', 'rego_punctuation'), False),
+                     ThemeStr('label', ThemeAttr('types', 'rego_name'), False),
+                     ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                     ThemeStr('|', ThemeAttr('types', 'rego_operator'), False),
+                     ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                     ThemeStr('input', ThemeAttr('types', 'rego_builtin'), False),
+                     ThemeStr('.', ThemeAttr('types', 'rego_punctuation'), False),
+                     ThemeStr('review', ThemeAttr('types', 'rego_name'), False),
+                     ThemeStr('.', ThemeAttr('types', 'rego_punctuation'), False),
+                     ThemeStr('object', ThemeAttr('types', 'rego_name'), False),
+                     ThemeStr('.', ThemeAttr('types', 'rego_punctuation'), False),
+                     ThemeStr('metadata', ThemeAttr('types', 'rego_name'), False),
+                     ThemeStr('.', ThemeAttr('types', 'rego_punctuation'), False),
+                     ThemeStr('labels', ThemeAttr('types', 'rego_name'), False),
+                     ThemeStr('[', ThemeAttr('types', 'rego_punctuation'), False),
+                     ThemeStr('label', ThemeAttr('types', 'rego_name'), False),
+                     ThemeStr(']', ThemeAttr('types', 'rego_punctuation'), False),
+                     ThemeStr('}', ThemeAttr('types', 'rego_punctuation'), False)],
+                    [ThemeStr('  ', ThemeAttr('types', 'generic'), False),
+                     ThemeStr('required', ThemeAttr('types', 'rego_name'), False),
+                     ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                     ThemeStr(':=', ThemeAttr('types', 'rego_operator'), False),
+                     ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                     ThemeStr('{', ThemeAttr('types', 'rego_punctuation'), False),
+                     ThemeStr('label', ThemeAttr('types', 'rego_name'), False),
+                     ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                     ThemeStr('|', ThemeAttr('types', 'rego_operator'), False),
+                     ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                     ThemeStr('label', ThemeAttr('types', 'rego_name'), False),
+                     ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                     ThemeStr(':=', ThemeAttr('types', 'rego_operator'), False),
+                     ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                     ThemeStr('input', ThemeAttr('types', 'rego_builtin'), False),
+                     ThemeStr('.', ThemeAttr('types', 'rego_punctuation'), False),
+                     ThemeStr('parameters', ThemeAttr('types', 'rego_name'), False),
+                     ThemeStr('.', ThemeAttr('types', 'rego_punctuation'), False),
+                     ThemeStr('labels', ThemeAttr('types', 'rego_name'), False),
+                     ThemeStr('[', ThemeAttr('types', 'rego_punctuation'), False),
+                     ThemeStr('_', ThemeAttr('types', 'rego_name'), False),
+                     ThemeStr(']', ThemeAttr('types', 'rego_punctuation'), False),
+                     ThemeStr('}', ThemeAttr('types', 'rego_punctuation'), False)],
+                    [ThemeStr('  ', ThemeAttr('types', 'generic'), False),
+                     ThemeStr('missing', ThemeAttr('types', 'rego_name'), False),
+                     ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                     ThemeStr(':=', ThemeAttr('types', 'rego_operator'), False),
+                     ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                     ThemeStr('required', ThemeAttr('types', 'rego_name'), False),
+                     ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                     ThemeStr('-', ThemeAttr('types', 'rego_operator'), False),
+                     ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                     ThemeStr('provided', ThemeAttr('types', 'rego_name'), False)],
+                    [ThemeStr('  ', ThemeAttr('types', 'generic'), False),
+                     ThemeStr('count', ThemeAttr('types', 'rego_name'), False),
+                     ThemeStr('(', ThemeAttr('types', 'rego_punctuation'), False),
+                     ThemeStr('missing', ThemeAttr('types', 'rego_name'), False),
+                     ThemeStr(')', ThemeAttr('types', 'rego_punctuation'), False),
+                     ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                     ThemeStr('>', ThemeAttr('types', 'rego_operator'), False),
+                     ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                     ThemeStr('0', ThemeAttr('types', 'rego_number'), False)],
+                    [ThemeStr('  ', ThemeAttr('types', 'generic'), False),
+                     ThemeStr('msg', ThemeAttr('types', 'rego_name'), False),
+                     ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                     ThemeStr(':=', ThemeAttr('types', 'rego_operator'), False),
+                     ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                     ThemeStr('sprintf', ThemeAttr('types', 'rego_name'), False),
+                     ThemeStr('(', ThemeAttr('types', 'rego_punctuation'), False),
+                     ThemeStr('"you must provide labels: %v"',
+                              ThemeAttr('types', 'rego_string'), False),
+                     ThemeStr(',', ThemeAttr('types', 'rego_punctuation'), False),
+                     ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                     ThemeStr('[', ThemeAttr('types', 'rego_punctuation'), False),
+                     ThemeStr('missing', ThemeAttr('types', 'rego_name'), False),
+                     ThemeStr(']', ThemeAttr('types', 'rego_punctuation'), False),
+                     ThemeStr(')', ThemeAttr('types', 'rego_punctuation'), False)]],
+                None),
+        )
+
+        for indata, options, expected_result, expected_exception in testdata:
+            if isinstance(indata, list):
+                indata_quoted = "\n".join(indata)
+            else:
+                indata_quoted = indata
+            indata_quoted = indata_quoted.replace('\n', '\\n')
+            try:
+                if (tmp := fun(indata, **options)) != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"           input: \"{indata_quoted}\"\n" \
+                              "         options:\n" \
+                              f"{yaml_dump(options, base_indent=17)}\n" \
+                              f"          output: {tmp}\n" \
+                              f"        expected: {expected_result}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  f"           input: \"{indata_quoted}\"\n" \
+                                  "         options:\n" \
+                                  f"{yaml_dump(options, base_indent=17)}\n" \
+                                  f"       exception: {type(e)}\n" \
+                                  f"        expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"           input: \"{indata_quoted}\"\n" \
+                              "         options:\n" \
+                              f"{yaml_dump(options, base_indent=17)}\n" \
+                              f"       exception: {type(e)}\n" \
+                              f"        expected: {expected_result}"
+                    result = False
+                    break
+    return message, result
+
+
+def test_format_shellscript(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = formatters.format_shellscript
+
+    if result:
+        # Indata format:
+        # (lines, options, expected_result, expected_exception)
+        testdata: tuple[Any, ...] = (
+            (
+                ["#! /bin/sh",
+                 "for file in $( ls ); do",
+                 "    printf -- \"Hello World ${file}\\n\"",
+                 "done"],
+                {},
+                [
+                    [ThemeStr("#! /bin/sh", ThemeAttr("types", "shellscript_hashbang"))],
+                    [ThemeStr("for", ThemeAttr("types", "shellscript_keyword")),
+                     ThemeStr(" ", ThemeAttr("types", "generic")),
+                     ThemeStr("file", ThemeAttr("types", "shellscript_text")),
+                     ThemeStr(" ", ThemeAttr("types", "generic")),
+                     ThemeStr("in", ThemeAttr("types", "shellscript_keyword")),
+                     ThemeStr(" ", ThemeAttr("types", "generic")),
+                     ThemeStr("$(", ThemeAttr("types", "shellscript_keyword")),
+                     ThemeStr(" ", ThemeAttr("types", "generic")),
+                     ThemeStr("ls", ThemeAttr("types", "shellscript_text")),
+                     ThemeStr(" ", ThemeAttr("types", "generic")),
+                     ThemeStr(")", ThemeAttr("types", "shellscript_keyword")),
+                     ThemeStr(";", ThemeAttr("types", "shellscript_punctuation")),
+                     ThemeStr(" ", ThemeAttr("types", "generic")),
+                     ThemeStr("do", ThemeAttr("types", "shellscript_keyword"))],
+                    [ThemeStr("    ", ThemeAttr("types", "generic")),
+                     ThemeStr("printf", ThemeAttr("types", "shellscript_builtin")),
+                     ThemeStr(" ", ThemeAttr("types", "generic")),
+                     ThemeStr("--", ThemeAttr("types", "shellscript_text")),
+                     ThemeStr(" ", ThemeAttr("types", "generic")),
+                     ThemeStr("\"", ThemeAttr("types", "shellscript_string")),
+                     ThemeStr("Hello World ", ThemeAttr("types", "shellscript_string")),
+                     ThemeStr("${", ThemeAttr("types", "shellscript_keyword")),
+                     ThemeStr("file", ThemeAttr("types", "shellscript_variable")),
+                     ThemeStr("}", ThemeAttr("types", "shellscript_keyword")),
+                     ThemeStr("\\n", ThemeAttr("types", "shellscript_string")),
+                     ThemeStr("\"", ThemeAttr("types", "shellscript_string"))],
+                    [ThemeStr("done", ThemeAttr("types", "shellscript_keyword"))]],
+                None),
+        )
+
+        for indata, options, expected_result, expected_exception in testdata:
+            if isinstance(indata, list):
+                indata_quoted = "\n".join(indata)
+            else:
+                indata_quoted = indata
+            indata_quoted = indata_quoted.replace('\n', '\\n')
+            try:
+                if (tmp := fun(indata, **options)) != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"           input: \"{indata_quoted}\"\n" \
+                              "         options:\n" \
+                              f"{yaml_dump(options, base_indent=17)}\n" \
+                              f"          output: {tmp}\n" \
+                              f"        expected: {expected_result}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  f"           input: \"{indata_quoted}\"\n" \
+                                  "         options:\n" \
+                                  f"{yaml_dump(options, base_indent=17)}\n" \
+                                  f"       exception: {type(e)}\n" \
+                                  f"        expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"           input: \"{indata_quoted}\"\n" \
+                              "         options:\n" \
+                              f"{yaml_dump(options, base_indent=17)}\n" \
+                              f"       exception: {type(e)}\n" \
+                              f"        expected: {expected_result}"
+                    result = False
+                    break
+    return message, result
+
+
 def test_format_toml(verbose: bool = False) -> tuple[str, bool]:
     message = ""
     result = True
@@ -4524,95 +4786,6 @@ def test_format_toml(verbose: bool = False) -> tuple[str, bool]:
                  [ThemeStr("Roses are red", ThemeAttr("types", "toml_value"))],
                  [ThemeStr("Violets are blue", ThemeAttr("types", "toml_value")),
                   ThemeStr("\"\"\"", ThemeAttr("types", "toml_value"))]],
-                None),
-        )
-
-        for indata, options, expected_result, expected_exception in testdata:
-            if isinstance(indata, list):
-                indata_quoted = "\n".join(indata)
-            else:
-                indata_quoted = indata
-            indata_quoted = indata_quoted.replace('\n', '\\n')
-            try:
-                if (tmp := fun(indata, **options)) != expected_result:
-                    message = f"{fun.__name__}() did not yield expected result:\n" \
-                              f"           input: \"{indata_quoted}\"\n" \
-                              "         options:\n" \
-                              f"{yaml_dump(options, base_indent=17)}\n" \
-                              f"          output: {tmp}\n" \
-                              f"        expected: {expected_result}"
-                    result = False
-                    break
-            except Exception as e:
-                if expected_exception is not None:
-                    if isinstance(e, expected_exception):
-                        pass
-                    else:
-                        message = f"{fun.__name__}() did not yield expected result:\n" \
-                                  f"           input: \"{indata_quoted}\"\n" \
-                                  "         options:\n" \
-                                  f"{yaml_dump(options, base_indent=17)}\n" \
-                                  f"       exception: {type(e)}\n" \
-                                  f"        expected: {expected_exception}"
-                        result = False
-                        break
-                else:
-                    message = f"{fun.__name__}() did not yield expected result:\n" \
-                              f"           input: \"{indata_quoted}\"\n" \
-                              "         options:\n" \
-                              f"{yaml_dump(options, base_indent=17)}\n" \
-                              f"       exception: {type(e)}\n" \
-                              f"        expected: {expected_result}"
-                    result = False
-                    break
-    return message, result
-
-
-def test_format_shellscript(verbose: bool = False) -> tuple[str, bool]:
-    message = ""
-    result = True
-
-    fun = formatters.format_shellscript
-
-    if result:
-        # Indata format:
-        # (lines, options, expected_result, expected_exception)
-        testdata: tuple[Any, ...] = (
-            (
-                ["#! /bin/sh",
-                 "for file in $( ls ); do",
-                 "    printf -- \"Hello World ${file}\\n\"",
-                 "done"],
-                {},
-                [
-                    [ThemeStr("#! /bin/sh", ThemeAttr("types", "shellscript_hashbang"))],
-                    [ThemeStr("for", ThemeAttr("types", "shellscript_keyword")),
-                     ThemeStr(" ", ThemeAttr("types", "generic")),
-                     ThemeStr("file", ThemeAttr("types", "shellscript_text")),
-                     ThemeStr(" ", ThemeAttr("types", "generic")),
-                     ThemeStr("in", ThemeAttr("types", "shellscript_keyword")),
-                     ThemeStr(" ", ThemeAttr("types", "generic")),
-                     ThemeStr("$(", ThemeAttr("types", "shellscript_keyword")),
-                     ThemeStr(" ", ThemeAttr("types", "generic")),
-                     ThemeStr("ls", ThemeAttr("types", "shellscript_text")),
-                     ThemeStr(" ", ThemeAttr("types", "generic")),
-                     ThemeStr(")", ThemeAttr("types", "shellscript_keyword")),
-                     ThemeStr(";", ThemeAttr("types", "shellscript_punctuation")),
-                     ThemeStr(" ", ThemeAttr("types", "generic")),
-                     ThemeStr("do", ThemeAttr("types", "shellscript_keyword"))],
-                    [ThemeStr("    ", ThemeAttr("types", "generic")),
-                     ThemeStr("printf", ThemeAttr("types", "shellscript_builtin")),
-                     ThemeStr(" ", ThemeAttr("types", "generic")),
-                     ThemeStr("--", ThemeAttr("types", "shellscript_text")),
-                     ThemeStr(" ", ThemeAttr("types", "generic")),
-                     ThemeStr("\"", ThemeAttr("types", "shellscript_string")),
-                     ThemeStr("Hello World ", ThemeAttr("types", "shellscript_string")),
-                     ThemeStr("${", ThemeAttr("types", "shellscript_keyword")),
-                     ThemeStr("file", ThemeAttr("types", "shellscript_variable")),
-                     ThemeStr("}", ThemeAttr("types", "shellscript_keyword")),
-                     ThemeStr("\\n", ThemeAttr("types", "shellscript_string")),
-                     ThemeStr("\"", ThemeAttr("types", "shellscript_string"))],
-                    [ThemeStr("done", ThemeAttr("types", "shellscript_keyword"))]],
                 None),
         )
 
@@ -4938,12 +5111,16 @@ tests: dict[tuple[str, ...], dict[str, Any]] = {
         "callable": test_format_python_traceback,
         "result": None,
     },
-    ("format_toml",): {
-        "callable": test_format_toml,
+    ("format_rego",): {
+        "callable": test_format_rego,
         "result": None,
     },
     ("format_shellscript",): {
         "callable": test_format_shellscript,
+        "result": None,
+    },
+    ("format_toml",): {
+        "callable": test_format_toml,
         "result": None,
     },
     ("map_dataformat",): {

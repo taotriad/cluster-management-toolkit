@@ -37,7 +37,7 @@ try:
     from pygments.lexers.cel import CELLexer
     CELLEXER_AVAILABLE = True
 except ModuleNotFoundError:
-    # CELLexer is available from Pygments 2.22
+    # CELLexer is available from Pygments 2.21
     CELLEXER_AVAILABLE = False
 from pygments.lexers.configs import DockerLexer, IniLexer, NginxConfLexer, TOMLLexer
 from pygments.lexers.css import CssLexer
@@ -48,6 +48,7 @@ from pygments.lexers.javascript import JavascriptLexer
 from pygments.lexers.markup import MarkdownLexer
 from pygments.lexers.promql import PromQLLexer
 from pygments.lexers.python import PythonLexer, PythonTracebackLexer
+from pygments.lexers.rego import RegoLexer
 from pygments.lexers.shell import BashLexer, PowerShellLexer
 from pygments.lexers.textfmts import KernelLogLexer
 from pygments.token import Token
@@ -1370,6 +1371,55 @@ COLORSCHEME_PYTHON_TRACEBACK: dict[Any, ColorSchemeEntry] = {
     Token.Text: {
         "formatting": ThemeAttr("types", "generic"),
         "type": "generic",
+    },
+}
+
+
+COLORSCHEME_REGO: dict[Any, ColorSchemeEntry] = {
+    # <whitespace>
+    Token.Text.Whitespace: {
+        "formatting": ThemeAttr("types", "generic"),
+        "type": "whitespace",
+    },
+    # # comment
+    Token.Comment.Single: {
+        "formatting": ThemeAttr("types", "rego_comment"),
+        "type": "comment",
+    },
+    # package
+    Token.Keyword: {
+        "formatting": ThemeAttr("types", "rego_keyword"),
+        "type": "keyword",
+    },
+    # "msg"
+    Token.Literal.String.Double: {
+        "formatting": ThemeAttr("types", "rego_string"),
+        "type": "value",
+    },
+    # :=
+    Token.Literal.Number: {
+        "formatting": ThemeAttr("types", "rego_number"),
+        "type": "value",
+    },
+    # k8srequiredlabels
+    Token.Name: {
+        "formatting": ThemeAttr("types", "rego_name"),
+        "type": "variable",
+    },
+    # input
+    Token.Name.Builtin: {
+        "formatting": ThemeAttr("types", "rego_builtin"),
+        "type": "builtin",
+    },
+    # :=
+    Token.Operator: {
+        "formatting": ThemeAttr("types", "rego_operator"),
+        "type": "operator",
+    },
+    # [
+    Token.Punctuation: {
+        "formatting": ThemeAttr("types", "rego_punctuation"),
+        "type": "punctuation",
     },
 }
 
@@ -3303,6 +3353,23 @@ def format_python_traceback(lines: str | list[str],
                                    colorscheme=COLORSCHEME_PYTHON_TRACEBACK)
 
 
+def format_rego(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef | ThemeStr]]:
+    """
+    Rego formatter; returns the text with syntax highlighting for the Rego policy language.
+
+        Parameters:
+            lines (list[str]): A list of strings
+            *or*
+            lines (str): A string with newlines that should be split
+            **kwargs (dict[str, Any]): Keyword arguments [passthrough to format_pygments_generic]
+        Returns:
+            list[themearray]: A list of themearrays
+    """
+    return format_pygments_generic(lines, **kwargs,
+                                   lexer=RegoLexer(),
+                                   colorscheme=COLORSCHEME_REGO)
+
+
 def format_shellscript(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef | ThemeStr]]:
     """
     Shell script formatter; returns the text with syntax highlighting for shell scripts.
@@ -3361,6 +3428,8 @@ formatter_mapping: tuple[tuple[tuple[str, ...], tuple[str, ...], Callable], ...]
     (("ndjson",), ("ndjson",), format_yaml),
     (("yaml",), ("yaml",), format_yaml),
     (("",), (".yml", ".yaml", ".json", ".ndjson"), format_yaml),
+    (("",), (".rego",), format_rego),
+    (("rego",), ("rego",), format_rego),
     (("toml",), ("toml",), format_toml),
     (("",), (".toml",), format_toml),
     (("cel",), ("cel",), format_cel),
@@ -3442,6 +3511,7 @@ formatter_allowlist: dict[str, Callable] = {
     "format_promql": format_promql,
     "format_python": format_python,
     "format_python_traceback": format_python_traceback,
+    "format_rego": format_rego,
     "format_toml": format_toml,
     "format_xml": format_xml,
     "format_yaml": format_yaml,

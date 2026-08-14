@@ -367,6 +367,7 @@
                 "format_promql",
                 "format_python",
                 "format_python_traceback",
+                "format_rego",
                 "format_toml",
                 "format_xml",
                 "format_yaml",
