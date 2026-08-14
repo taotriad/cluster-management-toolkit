@@ -24,7 +24,7 @@ infoview:
     fields:
       priority:
         header: "Priority:"
-        path: "_extra_data#enumeration"
+        path: "priority"
         type: "int"
         formatter: "numerical"
         align: "right"

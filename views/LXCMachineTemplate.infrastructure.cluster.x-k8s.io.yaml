@@ -3,8 +3,8 @@ kind: "LXCMachineTemplate"
 api_family: "infrastructure.cluster.x-k8s.io"
 default_command: "lxcmachinetemplates"
 command:
-  - "lxcmachtempls"
-  - "lxcmachtempl"
+  - "lxcmachtmpls"
+  - "lxcmachtmpl"
 listview:
   name: "LXC Machine Templates"
   group: "Cluster Configuration"

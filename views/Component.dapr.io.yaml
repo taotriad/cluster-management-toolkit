@@ -34,10 +34,12 @@ infoview:
       type:
         header: [["Type:", ["main", "infoheader"]]]
         path: "spec#type"
+        default: "<unset>"
         type: "str"
       version:
         header: [["Version:", ["main", "infoheader"]]]
         path: "spec#version"
+        default: "<unset>"
         type: "int"
         formatter: "version"
   listpad:
@@ -53,12 +55,14 @@ infoview:
       name:
         header: "Name:"
         path: "name"
+        default: "<unset>"
         type: "str"
       secretkeyref:
         header: "Secret Key Reference:"
         paths:
           - path: [["secretKeyRef#name"], ["secretKeyRef#key"]]
             pathtype: "tuple"
+            default: ["<none>"]
         formatter: "list"
         formatting:
           field_separators:
@@ -66,8 +70,8 @@ infoview:
       value:
         header: "Value:"
         path: "value"
-        type: "str"
         default: "<unset>"
+        type: "str"
   shortcuts:
     "Open Secret key reference":
       key: "k"

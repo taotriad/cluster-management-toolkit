@@ -5,8 +5,8 @@ default_command: "clusteranalysistemplates"
 command:
   - "argoclusteranalysistemplates"
   - "argoclusteranalysistemplate"
-  - "argoclranalysistempls"
-  - "argoclranalysistempl"
+  - "argoclranalysistmpls"
+  - "argoclranalysistmpl"
 listview:
   name: "Cluster Analysis Templates"
   group: "CI / CD"

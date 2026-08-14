@@ -5,8 +5,8 @@ default_command: "providertemplates.k0rdent.mirantis.com"
 command:
   - "providertemplates.k0rdent"
   - "providertemplate.k0rdent"
-  - "provtempls.k0rdent"
-  - "provtempl.k0rdent"
+  - "provtmpls.k0rdent"
+  - "provtmpl.k0rdent"
 listview:
   name: "Provider Templates"
   group: "K0rdent"

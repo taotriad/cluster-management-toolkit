@@ -5,8 +5,6 @@ default_command: "buildconfigs.openshift.io"
 command:
   - "buildconfs"
   - "buildconf"
-  - "buildcfgs"
-  - "buildcfg"
 listview:
   name: "Build Configs"
   group: "OpenShift"

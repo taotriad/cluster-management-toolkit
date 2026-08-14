@@ -5,8 +5,8 @@ default_command: "modelconfig.kagent.dev"
 command:
   - "kmodelconfigs"
   - "kmodelconfig"
-  - "kmodelcfgs"
-  - "kmodelcfg"
+  - "kmodelconfs"
+  - "kmodelconf"
 listview:
   name: "Model Configs"
   group: "API & Extendability"
