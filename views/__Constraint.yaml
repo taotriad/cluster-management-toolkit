@@ -1,0 +1,32 @@
+---
+kind: "__Constraint"
+default_command: "__"
+infoview:
+  name: "Constraint Info"
+  infopad:
+    name_path: null
+    row_indexes:
+      Normal:
+        fields: ["target", "engine", "version"]
+    rows:
+      engine:
+        header: [["Engine:", ["main", "infoheader"]]]
+        path: "engine"
+        default: "Rego"
+        type: "str"
+      target:
+        header: [["Target:", ["main", "infoheader"]]]
+        path: "target"
+        default: "<unset>"
+        type: "str"
+      version:
+        header: [["Version:", ["main", "infoheader"]]]
+        path: "engine"
+        default: "v0"
+        type: "str"
+  logpad:
+    infogetter: "logpad_formatted"
+    infogetter_args:
+      formatter: "format_rego"
+      path: "rego"
+    timestamps: false

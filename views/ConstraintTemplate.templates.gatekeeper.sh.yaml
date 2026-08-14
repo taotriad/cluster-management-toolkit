@@ -1,0 +1,124 @@
+---
+kind: "ConstraintTemplate"
+api_family: "templates.gatekeeper.sh"
+default_command: "constrainttemplates"
+command:
+  - "constrainttmpls"
+  - "constrainttmpl"
+listview:
+  name: "Constraint Templates"
+  group: "Policy"
+  field_indexes:
+    Normal:
+      fields: ["name", "constraint_created", "age"]
+  fields:
+    constraint_created:
+      header: "Constraint Created:"
+      path: "spec#created"
+      default: false
+      type: "bool"
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          mappings:
+            "True":
+              field_colors:
+                - context: "main"
+                  type: "status_done"
+            "False":
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+            "<unset>":
+              field_colors:
+                - context: "types"
+                  type: "unset"
+infoview:
+  name: "Constraint Template Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["targets", "constraint_created"]
+    rows:
+      constraint_created:
+        header: [["Constraint Created:", ["main", "infoheader"]]]
+        path: "spec#created"
+        default: false
+        type: "bool"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              "True":
+                field_colors:
+                  - context: "main"
+                    type: "status_done"
+              "False":
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+              "<unset>":
+                field_colors:
+                  - context: "types"
+                    type: "unset"
+      targets:
+        header: [["T", ["main", "infoheader_shortcut"]],
+                 ["argets:", ["main", "infoheader"]]]
+        paths:
+          - path: "spec#targets"
+            pathtype: "items"
+            subpaths:
+              - "target"
+        formatter: "list"
+  logpad:
+    infogetter: "logpad_formatted"
+    infogetter_args:
+      formatter: "format_yaml"
+      path: "spec#crd"
+    timestamps: false
+  shortcuts:
+    "Show Targets":
+      key: "t"
+      modifier: "shift"
+      read_only: true
+      helptext: "List Targts"
+      widget: "windowwidget"
+      widget_args:
+        title: "Targets:"
+        # XXX: Currently we only support Rego v0
+        # headers: ["Index:", "Target:", "Engine:", "Version:"]
+        headers: ["Index:", "Target:"]
+        selectable: true
+        itemgetter: "get_list_fields"
+        itemgetter_args:
+          path: "spec#targets"
+          fields:
+            - value: "index"
+              index_template: "<<<index>>>"
+            - "target"
+          # - path: "engine"
+          #   default: "Rego"
+          # - path: "source#version"
+          #   default: "v0"
+          pass_ref: true
+        # Not supported for now
+        sortcolumn: "index"
+      action: "call"
+      action_call: "resourceinfodispatch_from_selection"
+      action_args:
+        kind: "__Constraint"
+    "Show Pod Statuses":
+      key: "s"
+      modifier: "shift"
+      read_only: true
+      helptext: "Show Pod statuses"
+      widget: "windowwidget"
+      widget_args:
+        title: "Pod Status:"
+        headers: ["Pod:", "Operations:"]
+        itemgetter: "get_list_fields"
+        itemgetter_args:
+          path: "status#byPod"
+          fields:
+            - "id"
+            - "operations"

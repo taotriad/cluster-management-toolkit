@@ -1,0 +1,74 @@
+---
+kind: "ConstraintPodStatus"
+api_family: "status.gatekeeper.sh"
+default_command: "constraintpodstatuses"
+command:
+  - "constraintpodstats"
+  - "constraintpodstat"
+  - "constpodstats"
+  - "constpodstat"
+listview:
+  name: "Constraint Pod Statuses"
+  group: "Policy"
+  field_indexes:
+    Wide:
+      fields: ["namespace", "name", "enforced", "age", "operations"]
+    Normal:
+      fields: ["namespace", "name", "enforced", "age"]
+  fields:
+    enforced:
+      header: "Enforced:"
+      path: "status#enforced"
+      default: false
+      type: "bool"
+    operations:
+      header: "Operations:"
+      path: "status#operations"
+      default: ["<none>"]
+      type: "raw"
+      formatter: "list"
+infoview:
+  name: "Constraint Pod Status Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["id", "operations",
+                 "enforcement_point_header",
+                 "enforcement_point_enforcement_point",
+                 "enforcement_point_message",
+                 "enforcement_point_state",
+                 "enforced"]
+    rows:
+      enforced:
+        header: [["Enforced:", ["main", "infoheader"]]]
+        path: "status#enforced"
+        default: false
+        type: "bool"
+      enforcement_point_enforcement_point:
+        header: [["  Enforcement Point:", ["main", "infoheader"]]]
+        path: "spec#enforcementPointsStatus#enforcementPoint"
+        default: "<unset>"
+        type: "str"
+      enforcement_point_header:
+        header: [["Enforcement Point:", ["main", "infoheader"]]]
+      enforcement_point_message:
+        header: [["  Message:", ["main", "infoheader"]]]
+        path: "spec#enforcementPointsStatus#message"
+        default: "<unset>"
+        type: "str"
+      enforcement_point_state:
+        header: [["  State:", ["main", "infoheader"]]]
+        path: "spec#enforcementPointsStatus#state"
+        default: "<unset>"
+        type: "str"
+      id:
+        header: [["ID:", ["main", "infoheader"]]]
+        path: "status#id"
+        default: "<unset>"
+        type: "str"
+      operations:
+        header: [["Operations:", ["main", "infoheader"]]]
+        path: "status#operations"
+        default: ["<none>"]
+        type: "raw"
+        formatter: "list"

@@ -1,0 +1,99 @@
+---
+kind: "ExpansionTemplate"
+api_family: "expansion.gatekeeper.sh"
+default_command: "expansiontemplates"
+command:
+  - "expansiontmpls"
+  - "expansiontmpl"
+listview:
+  name: "Expansion Templates"
+  group: "Policy"
+  field_indexes:
+    Normal:
+      fields: ["name", "age"]
+infoview:
+  name: "Expansion Template Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["generated_gvk",
+                 "apply_to_header", "apply_to_kinds",
+                 "apply_to_groups", "apply_to_versions",
+                 "enforcement_action", "template_source"]
+    rows:
+      apply_to_groups:
+        header: [["  Groups:", ["main", "infoheader"]]]
+        paths:
+          - path: "spec#applyTo"
+            pathtype: "items"
+            subpath: "groups"
+            default: ["<unset>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "api_group"
+      apply_to_header:
+        header: [["Apply To:", ["main", "infoheader"]]]
+      apply_to_kinds:
+        header: [["  Kinds:", ["main", "infoheader"]]]
+        paths:
+          - path: "spec#applyTo"
+            pathtype: "items"
+            subpath: "kinds"
+            default: ["<unset>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "kind"
+      apply_to_versions:
+        header: [["  Versions:", ["main", "infoheader"]]]
+        paths:
+          - path: "spec#applyTo"
+            pathtype: "items"
+            subpath: "versions"
+            default: ["<unset>"]
+        formatter: "version"
+      enforcement_action:
+        header: [["Enforcement Action:", ["main", "infoheader"]]]
+        path: "spec#enforcementAction"
+        default: "<unset>"
+        type: "str"
+      generated_gvk:
+        header: [["Generated GVK:", ["main", "infoheader"]]]
+        paths:
+          - path: [["spec#generatedGVK#kind"],
+                   ["spec#generatedGVK#group"],
+                   ["spec#generatedGVK#version"]]
+            pathtype: "tuple"
+            type: ["kind", "api_group", "name"]
+            default: ["<unset>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "kind"
+            - type: "api_group"
+            - type: "generic"
+          field_separators:
+            - type: "kind_api_group"
+            - type: "kind"
+      template_source:
+        header: [["Template Source:", ["main", "infoheader"]]]
+        path: "spec#templateSource"
+        default: "<unset>"
+        type: "str"
+  shortcuts:
+    "Show Pod Statuses":
+      key: "s"
+      modifier: "shift"
+      read_only: true
+      helptext: "Show Pod statuses"
+      widget: "windowwidget"
+      widget_args:
+        title: "Pod Status:"
+        headers: ["Pod:", "Operations:"]
+        itemgetter: "get_list_fields"
+        itemgetter_args:
+          path: "status#byPod"
+          fields:
+            - "id"
+            - "operations"

@@ -1,0 +1,112 @@
+---
+kind: "Config"
+api_family: "config.gatekeeper.sh"
+default_command: "configs.gatekeeper.sh"
+command:
+  - "gkconfigs"
+  - "gkconfig"
+  - "gkconfs"
+  - "gkconf"
+listview:
+  name: "Configs"
+  group: "Policy"
+  field_indexes:
+    Normal:
+      fields: ["name", "age"]
+infoview:
+  name: "Config Info"
+  infopad:
+  listpad:
+    listgetter: "listgetter_path"
+    listgetter_args:
+      paths:
+        - path: "spec#sync#syncOnly"
+          type: "list"
+          key_name: "type"
+          key_value: "SyncOnly"
+        - path: "spec#match"
+          type: "list"
+          key_name: "type"
+          key_value: "Match"
+        - path: "spec#validation#traces"
+          type: "list"
+          key_name: "type"
+          key_value: "Validation"
+    infogetter: "generic_infogetter"
+    field_indexes:
+      Normal:
+        fields: ["type", "kind", "group", "version",
+                 "processes", "excluded_namespaces", "dump", "user"]
+        sortcolumn: "kind"
+    fields:
+      dump:
+        header: "Dump:"
+        path: "dump"
+        default: "<unset>"
+        type: "str"
+      excluded_namespaces:
+        header: "Excluded Namespaces:"
+        path: "excludedNamespaces"
+        default: ["<none>"]
+        type: "raw"
+        formatter: "list"
+      group:
+        header: "Group:"
+        paths:
+          - path: ["kind#group", "group"]
+            pathtype: "value"
+        default: "<unset>"
+        type: "str"
+        formatting:
+          field_colors:
+            - type: "api_group"
+      kind:
+        header: "Kind:"
+        paths:
+          - path: ["kind#kind", "kind"]
+            pathtype: "value"
+        default: "<unset>"
+        type: "str"
+        formatting:
+          field_colors:
+            - type: "kind"
+      processes:
+        header: "Processes:"
+        path: "processes"
+        default: ["<none>"]
+        type: "raw"
+        formatter: "list"
+      type:
+        header: "Type:"
+        path: "type"
+        default: "<unset>"
+        type: "str"
+      user:
+        header: "User:"
+        path: "user"
+        default: "<unset>"
+        type: "str"
+      version:
+        header: "Version:"
+        paths:
+          - path: ["kind#version", "version"]
+            pathtype: "value"
+        default: "<unset>"
+        type: "str"
+        formatter: "version"
+  shortcuts:
+    "Show Pod Statuses":
+      key: "s"
+      modifier: "shift"
+      read_only: true
+      helptext: "Show Pod statuses"
+      widget: "windowwidget"
+      widget_args:
+        title: "Pod Status:"
+        headers: ["Pod:", "Operations:"]
+        itemgetter: "get_list_fields"
+        itemgetter_args:
+          path: "status#byPod"
+          fields:
+            - "id"
+            - "operations"

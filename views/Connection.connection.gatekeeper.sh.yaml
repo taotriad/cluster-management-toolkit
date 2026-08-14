@@ -1,0 +1,50 @@
+---
+kind: "Connection"
+api_family: "connection.gatekeeper.sh"
+default_command: "connections"
+listview:
+  name: "Connections"
+  group: "Policy"
+  field_indexes:
+    Normal:
+      fields: ["namespace", "name", "driver", "age"]
+  fields:
+    driver:
+      header: "Driver:"
+      path: "spec#driver"
+      default: "<unset>"
+      type: "str"
+infoview:
+  name: "Connection Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["driver"]
+    rows:
+      driver:
+        header: [["Driver:", ["main", "infoheader"]]]
+        path: "spec#driver"
+        default: "<unset>"
+        type: "str"
+  logpad:
+    infogetter: "logpad_formatted"
+    infogetter_args:
+      formatter: "format_yaml"
+      path: "spec#config"
+    timestamps: false
+  shortcuts:
+    "Show Pod Statuses":
+      key: "s"
+      modifier: "shift"
+      read_only: true
+      helptext: "Show Pod statuses"
+      widget: "windowwidget"
+      widget_args:
+        title: "Pod Status:"
+        headers: ["Pod:", "Enforced:", "Operations:"]
+        itemgetter: "get_list_fields"
+        itemgetter_args:
+          path: "status#byPod"
+          fields:
+            - "id"
+            - "active"

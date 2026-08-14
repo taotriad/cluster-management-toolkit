@@ -1,0 +1,52 @@
+---
+kind: "MutatorPodStatus"
+api_family: "status.gatekeeper.sh"
+default_command: "expansiontemplatepodstatuses"
+command:
+  - "mutatorpodstats"
+  - "mutatorpodstat"
+  - "mutpodstats"
+  - "mutpodstat"
+listview:
+  name: "Mutator Pod Statuses"
+  group: "Policy"
+  field_indexes:
+    Wide:
+      fields: ["namespace", "name", "enforced", "age", "operations"]
+    Normal:
+      fields: ["namespace", "name", "enforced", "age"]
+  fields:
+    enforced:
+      header: "Enforced:"
+      path: "status#enforced"
+      default: false
+      type: "bool"
+    operations:
+      header: "Operations:"
+      path: "status#operations"
+      default: ["<none>"]
+      type: "raw"
+      formatter: "list"
+infoview:
+  name: "Mutator Pod Status Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["id", "operations", "enforced"]
+    rows:
+      enforced:
+        header: [["Enforced:", ["main", "infoheader"]]]
+        path: "status#enforced"
+        default: false
+        type: "bool"
+      id:
+        header: [["ID:", ["main", "infoheader"]]]
+        path: "status#id"
+        default: "<unset>"
+        type: "str"
+      operations:
+        header: [["Operations:", ["main", "infoheader"]]]
+        path: "status#operations"
+        default: ["<none>"]
+        type: "raw"
+        formatter: "list"

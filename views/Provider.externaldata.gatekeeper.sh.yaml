@@ -1,0 +1,65 @@
+---
+kind: "Provider"
+api_family: "externaldata.gatekeeper.sh"
+default_command: "providers"
+listview:
+  name: "Providers"
+  group: "Policy"
+  field_indexes:
+    Normal:
+      fields: ["name", "url", "timeout", "age"]
+  fields:
+    timeout:
+      header: "Timeout:"
+      path: "spec#timeout"
+      default: "<unset>"
+      type: "int"
+      formatter: "numerical"
+      formatting:
+        unit: "s"
+      align: "right"
+    url:
+      header: "URL:"
+      path: "spec#url"
+      default: "<unset>"
+      type: "str"
+      formatter: "uri"
+infoview:
+  name: "Provider Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["timeout", "url"]
+    rows:
+      timeout:
+        header: [["Timeout:", ["main", "infoheader"]]]
+        path: "spec#timeout"
+        default: "<unset>"
+        type: "int"
+        formatter: "numerical"
+        formatting:
+          unit: "s"
+      url:
+        header: [["URL:", ["main", "infoheader"]]]
+        path: "spec#url"
+        default: "<unset>"
+        type: "str"
+        formatter: "uri"
+  shortcuts:
+    "Show Pod Statuses":
+      key: "s"
+      modifier: "shift"
+      read_only: true
+      helptext: "Show Pod statuses"
+      widget: "windowwidget"
+      widget_args:
+        title: "Pod Status:"
+        headers: ["Pod:", "Active:", "Operations:", "Last Cache Update Time:"]
+        itemgetter: "get_list_fields"
+        itemgetter_args:
+          path: "status#byPod"
+          fields:
+            - "id"
+            - "active"
+            - "operations"
+            - "lastCacheUpdateTime"

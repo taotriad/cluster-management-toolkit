@@ -1,0 +1,42 @@
+---
+kind: "SyncSet"
+api_family: "syncset.gatekeeper.sh"
+default_command: "syncsets"
+listview:
+  name: "Sync Sets"
+  group: "Policy"
+  field_indexes:
+    Normal:
+      fields: ["name", "age"]
+infoview:
+  name: "Sync Set Info"
+  infopad:
+  listpad:
+    listgetter: "listgetter_path"
+    listgetter_args:
+      path: "spec#gvks"
+    infogetter: "generic_infogetter"
+    field_indexes:
+      Normal:
+        fields: ["kind", "group", "version"]
+        sortcolumn: "kind"
+    fields:
+      group:
+        header: "Group:"
+        path: "group"
+        type: "str"
+        formatting:
+          field_colors:
+            - type: "api_group"
+      kind:
+        header: "Kind:"
+        path: "kind"
+        type: "str"
+        formatting:
+          field_colors:
+            - type: "kind"
+      version:
+        header: "Version:"
+        path: "version"
+        type: "str"
+        formatter: "version"

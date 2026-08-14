@@ -1,0 +1,220 @@
+---
+kind: "ModifySet"
+api_family: "mutations.gatekeeper.sh"
+default_command: "modifyset"
+listview:
+  name: "Modify Sets"
+  group: "Policy"
+  field_indexes:
+    Normal:
+      fields: ["name", "age"]
+infoview:
+  name: "Modify Set Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["apply_to_header", "apply_to_kinds",
+                 "apply_to_groups", "apply_to_versions",
+                 "match_header", "match_kinds_header",
+                 "match_kinds_kinds", "match_kinds_groups",
+                 "match_name",
+                 "match_namespaces",
+                 "match_namespace_label_selector",
+                 "match_namespace_set_based_selector",
+                 "match_excluded_namespaces",
+                 "match_label_selector",
+                 "match_set_based_selector",
+                 "match_scope", "match_source",
+                 "location"]
+    rows:
+      apply_to_groups:
+        header: [["  Groups:", ["main", "infoheader"]]]
+        paths:
+          - path: "spec#applyTo"
+            pathtype: "items"
+            subpath: "groups"
+            default: ["<unset>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "api_group"
+      apply_to_header:
+        header: [["Apply To:", ["main", "infoheader"]]]
+      apply_to_kinds:
+        header: [["  Kinds:", ["main", "infoheader"]]]
+        paths:
+          - path: "spec#applyTo"
+            pathtype: "items"
+            subpath: "kinds"
+            default: ["<unset>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "kind"
+      apply_to_versions:
+        header: [["  Versions:", ["main", "infoheader"]]]
+        paths:
+          - path: "spec#applyTo"
+            pathtype: "items"
+            subpath: "versions"
+            default: ["<unset>"]
+        formatter: "version"
+      location:
+        header: [["Location:", ["main", "infoheader"]]]
+        path: "spec#location"
+        default: "<unset>"
+        type: "str"
+      match_excluded_namespaces:
+        header: [["  Excludeed Namespaces:", ["main", "infoheader"]]]
+        path: "spec#match#excludedNamespaces"
+        default: ["<none>"]
+        type: "raw"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "namespace"
+      match_header:
+        header: [["Match:", ["main", "infoheader"]]]
+      match_kinds_groups:
+        header: [["    Groups:", ["main", "infoheader"]]]
+        paths:
+          - path: "spec#match#kinds#groups"
+            pathtype: "items"
+            subpath: "groups"
+            default: ["<unset>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "api_group"
+      match_kinds_header:
+        header: [["  Kinds:", ["main", "infoheader"]]]
+      match_kinds_kinds:
+        header: [["    Kinds:", ["main", "infoheader"]]]
+        paths:
+          - path: "spec#match#kinds#kinds"
+            pathtype: "items"
+            subpath: "kinds"
+            default: ["<unset>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "kind"
+      match_label_selector:
+        header: [["  Objec", ["main", "infoheader"]],
+                 ["t", ["main", "infoheader_shortcut"]],
+                 [" Label Selector:", ["main", "infoheader"]]]
+        paths:
+          - path: ["spec#match#labelSelector#matchLabels"]
+            pathtype: "key_value"
+            default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "key"
+            - type: "value"
+          field_separators:
+            - type: "selector"
+      match_name:
+        header: [["  Name:", ["main", "infoheader"]]]
+        path: "spec#match#name"
+        default: "<unset>"
+        type: "str"
+      match_namespaces:
+        header: [["  Namespaces:", ["main", "infoheader"]]]
+        path: "spec#match#namespaces"
+        default: ["*"]
+        type: "raw"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "namespace"
+      match_namespace_label_selector:
+        header: [["  Namespace La", ["main", "infoheader"]],
+                 ["b", ["main", "infoheader_shortcut"]],
+                 ["el Selector:", ["main", "infoheader"]]]
+        paths:
+          - path: ["spec#match#namespaceSelector#matchLabels"]
+            pathtype: "key_value"
+            default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "key"
+            - type: "value"
+          field_separators:
+            - type: "selector"
+      match_namespace_set_based_selector:
+        header: [["  Set-based Namespace Selector:", ["main", "infoheader"]]]
+        paths:
+          - path: "spec#match#namespaceSelector#matchExpressions"
+            pathtype: "match_expression"
+            default: "<none>"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "key"
+            - type: "operator"
+            - type: "value"
+          field_separators:
+            - type: "space"
+            - type: "no_pad"
+      match_set_based_selector:
+        header: [["  Set-based Object Selector:", ["main", "infoheader"]]]
+        paths:
+          - path: "spec#match#labelSelector#matchExpressions"
+            pathtype: "match_expression"
+            default: "<none>"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "key"
+            - type: "operator"
+            - type: "value"
+          field_separators:
+            - type: "space"
+            - type: "no_pad"
+      match_scope:
+        header: [["  Scope:", ["main", "infoheader"]]]
+        path: "spec#match#scope"
+        default: "*"
+        type: "str"
+      match_source:
+        header: [["  Source:", ["main", "infoheader"]]]
+        path: "spec#match#source"
+        default: "All"
+        type: "str"
+  logpad:
+    infogetter: "logpad_formatted"
+    infogetter_args:
+      formatter: "format_yaml"
+      path: "spec#parameters"
+    timestamps: false
+  shortcuts:
+    "Show Pod Statuses":
+      key: "s"
+      modifier: "shift"
+      read_only: true
+      helptext: "Show Pod statuses"
+      widget: "windowwidget"
+      widget_args:
+        title: "Pod Status:"
+        headers: ["Pod:", "Enforced:", "Operations:"]
+        itemgetter: "get_list_fields"
+        itemgetter_args:
+          path: "status#byPod"
+          fields:
+            - "id"
+            - "enforced"
+            - "operations"
+    "List Values":
+      key: "v"
+      modifier: "shift"
+      read_only: true
+      helptext: "List values"
+      widget: "windowwidget"
+      widget_args:
+        title: "Values:"
+        headers: ["Key:", "Value:"]
+        itemgetter: "get_key_value"
+        itemgetter_args:
+          path: "spec#parameters#values"
