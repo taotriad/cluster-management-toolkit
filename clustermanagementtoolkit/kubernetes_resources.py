@@ -3187,6 +3187,14 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api_paths": ["apis/dapr.io/v1alpha1/"],
         "api": "configurations",
     },
+    ("HTTPEndpoint", "dapr.io"): {
+        "api_paths": ["apis/dapr.io/v1alpha1/"],
+        "api": "httpendpoints",
+    },
+    ("MCPServer", "dapr.io"): {
+        "api_paths": ["apis/dapr.io/v1alpha1/"],
+        "api": "mcpservers",
+    },
     ("Resiliency", "dapr.io"): {
         "api_paths": ["apis/dapr.io/v1alpha1/"],
         "api": "resiliencies",
@@ -3194,6 +3202,10 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
     ("Subscription", "dapr.io"): {
         "api_paths": ["apis/dapr.io/v2alpha1/"],
         "api": "subscriptions",
+    },
+    ("WorkflowAccessPolicy", "dapr.io"): {
+        "api_paths": ["apis/dapr.io/v1alpha1/"],
+        "api": "workflowaccesspolicies",
     },
     # datasciencecluster.opendatahub.io
     ("DataScienceCluster", "datasciencecluster.opendatahub.io"): {
@@ -7763,6 +7775,10 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
     ("MutatorPodStatus", "status.gatekeeper.sh"): {
         "api_paths": ["apis/status.gatekeeper.sh/v1beta1/"],
         "api": "mutatorpodstatuses",
+    },
+    ("ProviderPodStatus", "status.gatekeeper.sh"): {
+        "api_paths": ["apis/status.gatekeeper.sh/v1beta1/"],
+        "api": "providerpodstatuses",
     },
     # storage.loft.sh
     ("AccessKey", "storage.loft.sh"): {
