@@ -12,6 +12,11 @@
         - matchtype: "startswith"
           matchkey: "CSI Driver: driver.longhorn.io version:"
           loglevel: "notice"
+    - name: "custom_splitter"
+      options:
+        regex: '^\d\d/\d\d/\d{4} \d\d:\d\d:\d\d : (.*)'
+        message:
+          field: 1
 - name: "longhorn"
   show_in_selector: false
   matchkeys:

@@ -5,7 +5,6 @@
     - pod_name: "cdi-apiserver"
     - pod_name: "cdi-deployment"
     - pod_name: "cdi-operator"
-    - pod_name: "cdi-uploadproxy"
     - image_name: "/suse/sles/15.7/cdi-importer"
   parser_rules:
     - name: "ts_8601"
@@ -22,3 +21,10 @@
         - matchtype: "startswith"
           matchkey: "Trace["
           loglevel: "debug"
+- name: "kubevirt-cdi"
+  show_in_selector: false
+  matchkeys:
+    - pod_name: "cdi-uploadproxy"
+  parser_rules:
+    - name: "glog"
+    - name: "key_value_with_leading_message"
