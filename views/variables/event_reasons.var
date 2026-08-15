@@ -1481,6 +1481,10 @@ NotEnoughCapacity:
   field_colors:
     - context: "main"
       type: "status_warning"
+NotFound:
+  field_colors:
+    - context: "main"
+      type: "status_warning"
 NoValidCertificateFound:
   field_colors:
     - context: "main"
