@@ -2981,6 +2981,11 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api": "antreacontrollerinfos",
         "namespaced": False,
     },
+    ("AntreaNodeConfig", "crd.antrea.io"): {
+        "api_paths": ["apis/crd.antrea.io/v1alpha1/"],
+        "api": "antreanodeconfigs",
+        "namespaced": False,
+    },
     ("BGPPolicy", "crd.antrea.io"): {
         "api_paths": ["apis/crd.antrea.io/v1alpha1/"],
         "api": "bgppolicies",
