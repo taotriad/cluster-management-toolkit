@@ -1652,10 +1652,14 @@ def check_allowlist(allowlist: dict, allowlist_name: str, value: Any | None,
         return value
 
     if value not in allowlist and exit_on_fail:
-        allowed_values = ""
-        if allowlist:
-            allowed_values = "\n- " + "\n- ".join(allowlist)
-        sys.exit(f"“{value}“ is not in “{allowlist_name}“; "
-                 f"allowed values:{allowed_values}\nAborting.")
+        errmsg = [
+            [(f"{value}", "argument"),
+             (" is not in allowlist ", "default"),
+             (f"{allowlist_name}", "argument"),
+             ("; aborting.", "default")],
+        ]
+        unformatted_msg, formatted_msg = ANSIThemeStr.format_error_msg(errmsg)
+        cmtlog.log(LogLevel.ERR, msg=unformatted_msg, messages=formatted_msg)
+        sys.exit(unformatted_msg)
 
     return allowlist.get(value, default)
