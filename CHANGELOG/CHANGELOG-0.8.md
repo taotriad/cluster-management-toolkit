@@ -129,13 +129,14 @@ N/A
   This is useful when we patch files and then apply them using *kubectl*.
 * There is now an *extremely* experimental build-target that compiles CMT using **mypyc**.
   The result has *not* been tested properly, and is likely to be unstable.
-* diffstat: 477 files changed, 15180 insertions(+), 7880 deletions(-)
+* diffstat: 502 files changed, 17499 insertions(+), 8042 deletions(-)
 
 ### Notable view-file changes (changed API-files)
 
 * aquasecurity.github.io.yaml (11 changed files)
 * gateway.nginx.org (8 changed files)
 * gateway.networking.k8s.io (8 changed files)
+* status.gatekeeper.sh (7 changed files)
 * kubeflow.org.yaml (7 changed files)
 * crd.projectcalico.org (6 changed files)
 * k8s.ovn.org (6 changed files)
@@ -283,7 +284,7 @@ Test results:
 	No issues identified.
 
 Code scanned:
-	Total lines of code: 105230
+	Total lines of code: 105529
 	Total lines skipped (#nosec): 7
 
 Run metrics:
@@ -322,20 +323,20 @@ clustermanagementtoolkit/cluster_actions.py             226    178     74      3
 clustermanagementtoolkit/infogetters.py                1767   1315   1082     22  24.5%
 clustermanagementtoolkit/curses_helper.py              2708   1962   1220     24  24.6%
 clustermanagementtoolkit/networkio.py                   395    289    188      3  25.2%
-clustermanagementtoolkit/kubernetes_helper.py          1625   1104    788     75  28.3%
+clustermanagementtoolkit/kubernetes_helper.py          1625   1104    788     77  28.2%
 clustermanagementtoolkit/listgetters_async.py           118     75     52      2  31.2%
-clustermanagementtoolkit/logparser.py                  2110   1359   1192     38  31.5%
-clustermanagementtoolkit/listgetters.py                1215    765    678     17  35.2%
+clustermanagementtoolkit/logparser.py                  2110   1360   1192     38  31.4%
+clustermanagementtoolkit/listgetters.py                1230    780    686     17  34.8%
 clustermanagementtoolkit/checks.py                      620    326    246      1  44.9%
 clustermanagementtoolkit/datagetters.py                 272     85    142     13  67.1%
 clustermanagementtoolkit/generators.py                  838    258    430     47  67.9%
 clustermanagementtoolkit/ansible_helper.py              818    219    486     27  72.1%
-clustermanagementtoolkit/cmtlib.py                      686    133    382     20  78.9%
-clustermanagementtoolkit/ansithemeprint.py              287     53    122      5  79.5%
+clustermanagementtoolkit/cmtlib.py                      686    133    380     19  79.0%
+clustermanagementtoolkit/ansithemeprint.py              294     53    126      5  80.0%
 clustermanagementtoolkit/cmtio_yaml.py                  108     13     32      5  85.7%
 clustermanagementtoolkit/cmtio.py                       426     45    226     20  88.2%
 clustermanagementtoolkit/cni_data.py                     80      0     40      9  92.5%
-clustermanagementtoolkit/formatters.py                  904     44    394     40  92.9%
+clustermanagementtoolkit/formatters.py                  910     46    396     40  92.6%
 clustermanagementtoolkit/cmtvalidators.py               337     18    212      8  93.4%
 clustermanagementtoolkit/itemgetters.py                 565     25    320     20  94.5%
 clustermanagementtoolkit/reexecutor.py                   69      1     26      2  96.8%
@@ -352,7 +353,7 @@ clustermanagementtoolkit/kubernetes_resources.py          5      0      0      0
 clustermanagementtoolkit/pvtypes.py                       3      0      0      0 100.0%
 clustermanagementtoolkit/recommended_permissions.py      15      0      0      0 100.0%
 ---------------------------------------------------------------------------------------
-TOTAL                                                 17458   8270   8864    404  50.2%
+TOTAL                                                 17486   8288   8876    405  50.1%
 ```
 
 ### Flake8 Results for v0.8.9
@@ -533,9 +534,9 @@ Output:
 ```
 Summary:
      fail: 0
-     skip: 8
-  success: 1209
-    total: 1217
+     skip: 6
+  success: 1227
+    total: 1233
 ```
 
 * [v0.8.8](#v088)

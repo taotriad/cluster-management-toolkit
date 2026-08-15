@@ -55,14 +55,13 @@ components are accepted.
       that's also `logparser.py` being accounted for twice)*.
 * [ ] Insert the output from `make mypy-markdown` in the changelog,
       and if necessary, adjust it.
-* [ ] Insert the output from `make pylint`.
+* [ ] Insert the output from `make pylint-markdown`.
 * [ ] Insert the output from `make regexploit`.
 * [ ] Insert the output from `make ruff`.
 * [ ] Insert the output from `make semgrep`.
 * [ ] Insert the output from `make validate_playbooks`.
 * [ ] Insert the output from `make validate_yaml`.
 * [ ] Insert the output from `make yamllint`.
-* [ ] Insert the output from `git diff --stat PREVIOUS_RELEASE_TAG | tail -n 1`.
 
 ### Releasing
 
