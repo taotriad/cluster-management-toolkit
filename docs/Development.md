@@ -21,6 +21,7 @@ It tries to provide a highlevel view of what is planned for the upcoming year or
 * [ ] `generate_helptexts` *(Regenerate the helptexts for for all command line tools)*
 * [ ] `make checks` *(Runs ruff, flake8, mypy, pylint)*
 * [ ] `make code-checks` *(Runs ruff, bandit, regexploit, jsonlint, yamllint, validate_playbooks, validate_yaml, check_helptexts, semgrep)*
+* [ ] `make generate_mdtoc` *(If paragraphs have been added or removed in the documentation)*
 * [ ] Make sure that all commands work on the platforms listed in [Supported platforms](Supported_platforms.md).
 
 Release exceptions must be granted for any new warnings from `make mypy` (the existing
@@ -34,8 +35,8 @@ components are accepted.
 > changes have been made. This covers only the final steps.
 
 > [!TIP]
-> To verify that the changelog looks good it can be helpful to copy it
-> .cmt/version-cache/cmt_changelog.md, and check it using `cmu cv`.
+> To verify that the changelog looks good it can be helpful to copy it to
+> `.cmt/version-cache/cmt_changelog.md`, and check it using `cmu cv`.
 
 * [ ] Double-check that all dependencies in the *Dependencies* chapter
       matches the dependencies in `requirements.txt`.
