@@ -4255,7 +4255,13 @@ def genericinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                     decoded_obj = cast(str, obj)
 
                 if formatter is not None and decoded_obj is not None:
-                    formatted_obj = formatter(decoded_obj, raw=raw_output, **formatter_args)
+                    # We cannot pass non-hashable data to a cache-wrapper;
+                    # for now just tmp the arguments we know are bad if the formatter
+                    # is cached.
+                    tmp_formatter_args = copy.deepcopy(formatter_args)
+                    if hasattr(formatter, "__wrapped__"):
+                        tmp_formatter_args.pop("focus_filters", None)
+                    formatted_obj = formatter(decoded_obj, raw=raw_output, **tmp_formatter_args)
                 else:
                     formatted_obj = decoded_obj
 
@@ -8541,12 +8547,15 @@ def ssh_to_host(stdscr: curses.window, **kwargs: Any) -> Retval:
     except FileNotFoundError:
         # Once we have support for logging we should probably just log an error
         # and return here instead
-        curses.endwin()
-        ansithemeprint([ANSIThemeStr("Critical", "critical"),
-                        ANSIThemeStr(": Could not find ", "default"),
-                        ANSIThemeStr("ssh", "path"),
-                        ANSIThemeStr("; aborting.", "default")], stderr=True)
-        sys.exit(errno.ENOENT)
+        errmsg = [
+            [("Could not find ", "default"),
+             ("ssh", "path"),
+             (".", "default")],
+        ]
+        unformatted_msg, formatted_msg = ANSIThemeStr.format_error_msg(errmsg)
+        cmtlog.log(LogLevel.ERR, msg=unformatted_msg, messages=formatted_msg)
+        stdscr.refresh()
+        return Retval.RETURNDONE
 
     if sshuser is not None:
         host = f"{sshuser}@{host}"
@@ -8971,7 +8980,16 @@ def format_selection_list(uip: UIProps, refresh_apis: str = "none") -> list[dict
             sortkey1 = 0
             sortkey2 = 2
     else:
-        sys.exit(f"Invalid sortcolumn {sortcolumn} for Selector; aborting.")
+        errmsg = [
+            [("Invalid sortcolumn ", "default"),
+             (f"{sortcolumn}", "argument"),
+             (" for Selector; defaulting to ", "default"),
+             ("family", "argument")],
+        ]
+        unformatted_msg, formatted_msg = ANSIThemeStr.format_error_msg(errmsg)
+        cmtlog.log(LogLevel.WARNING, msg=unformatted_msg, messages=formatted_msg)
+        sortkey1 = 1
+        sortkey2 = 2
 
     if refresh_apis != "none":
         if refresh_apis == "all":
