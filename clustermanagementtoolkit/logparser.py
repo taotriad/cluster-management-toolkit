@@ -4269,7 +4269,7 @@ def init_parser_list(force_reinit: bool = False) -> None:
                 if not parser_rules:
                     continue
 
-                rules = []
+                rules: list[tuple[str, dict]] = []
                 for rule in parser_rules:
                     rule_name = deep_get(rule, DictPath("name"))
                     if rule_name in ("ansible_line",
@@ -4311,11 +4311,7 @@ def init_parser_list(force_reinit: bool = False) -> None:
                                 regex = deep_get(rule, DictPath("options#regex"), "")
                                 value = re.compile(regex)
                             elif key == "default_loglevel":
-                                try:
-                                    value = name_to_loglevel(value)
-                                except ValueError:
-                                    sys.exit(f"Parser {parser_file} contains an invalid loglevel "
-                                             f"{value}; aborting.")
+                                value = name_to_loglevel(value)
                             options[key] = value
                         rules.append((rule_name, options))
                     elif rule_name == "override_severity":
@@ -4348,8 +4344,16 @@ def init_parser_list(force_reinit: bool = False) -> None:
                             })
                         rules.append((rule_name, {"overrides": overrides}))
                     else:
-                        sys.exit(f"Parser {parser_file} has an unknown rule-type "
-                                 f"{rule}; aborting.")
+                        errmsg = [
+                            [("Parser-file ", "default"),
+                             (f"{parser_file}", "path"),
+                             (" has an unknown rule-type ", "default"),
+                             (f"{rule_name}", "argument"),
+                             ("; ignoring parser-file.", "default")],
+                        ]
+                        unformatted_msg, formatted_msg = ANSIThemeStr.format_error_msg(errmsg)
+                        cmtlog.log(LogLevel.ERR, msg=unformatted_msg, messages=formatted_msg)
+                        continue
 
                 parsers.append(Parser(name=parser_name, show_in_selector=show_in_selector,
                                       match=matchrules, rules=rules))
