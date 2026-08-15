@@ -15,7 +15,7 @@ import getpass
 from pathlib import Path, PurePath
 import subprocess  # nosec
 import sys
-from typing import Any, Self
+from typing import Any, cast, Self
 from collections.abc import Sequence
 
 try:
@@ -419,13 +419,14 @@ def __themearray_to_raw_string(themearray: list[ANSIThemeStr]) -> str:
     return string
 
 
-def ansithemearray_to_str(themearray: str | list[ANSIThemeStr], **kwargs: Any) -> str:
+def ansithemearray_to_str(themearray: str | list[ANSIThemeStr] | list[list[ANSIThemeStr]],
+                          **kwargs: Any) -> str:
     """
-    Convert an ANSIThemeArray (list[ANSIThemeStr]) to a string,
+    Convert an ANSIThemeArray ([ANSIThemeStr]) or [ANSIThemeArray] ([[ANSIThemeStr]]) to a string,
     conditionally with ANSI-formatting.
 
         Parameters:
-            themearray ([ANSIThemeStr]): The array to strip formatting from
+            themearray ([ANSIThemeStr]|[[ANSIThemeStr]]): The array to strip formatting from
             **kwargs (dict[str, Any]): Keyword arguments
                 color (bool): True to emit ANSI-formatting, False to output a plain string
         Returns:
@@ -443,29 +444,38 @@ def ansithemearray_to_str(themearray: str | list[ANSIThemeStr], **kwargs: Any) -
     if isinstance(themearray, str):
         return themearray
 
-    for themestring in themearray:
-        if not isinstance(themestring, ANSIThemeStr):
-            raise TypeError("ansithemearray_to_str() only accepts arrays of ANSIThemeStr; "
-                            f"this themearray consists of:\n{themearray}")
+    if themearray and isinstance(themearray[0], ANSIThemeStr):
+        themearray = [themearray]
+    themearray = cast(list[list[ANSIThemeStr]], themearray)
 
-        theme_attr_ref = themestring.themeref
-        theme_string = str(themestring)
+    strings: list[str] = []
 
-        if theme is not None and color:
-            if theme_attr_ref in theme["term"]:
-                attr = theme["term"][theme_attr_ref]
-                reset = theme["term"]["reset"]
-                string += f"{attr}{theme_string}{reset}"
+    for themerow in themearray:
+        string = ""
+        for themestring in themerow:
+            if not isinstance(themestring, ANSIThemeStr):
+                raise TypeError("ansithemearray_to_str() only accepts arrays of ANSIThemeStr; "
+                                f"this themearray consists of:\n{themearray}")
+
+            theme_attr_ref = themestring.themeref
+            theme_string = str(themestring)
+
+            if theme is not None and color:
+                if theme_attr_ref in theme["term"]:
+                    attr = theme["term"][theme_attr_ref]
+                    reset = theme["term"]["reset"]
+                    string += f"{attr}{theme_string}{reset}"
+                else:
+                    raise KeyError(f"attribute (\"term\", \"{theme_attr_ref}\") "
+                                   f"does not exist in {themepath}")
             else:
-                raise KeyError(f"attribute (\"term\", \"{theme_attr_ref}\") "
-                               f"does not exist in {themepath}")
-        else:
-            string += theme_string
+                string += theme_string
 
-    if string:
-        string = string.replace("\x0033", "\033")
+        if string:
+            string = string.replace("\x0033", "\033")
+        strings.append(string)
 
-    return string
+    return "\n".join(strings)
 
 
 def themearray_override_formatting(themearray: list[ANSIThemeStr],
