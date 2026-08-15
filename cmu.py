@@ -10872,7 +10872,7 @@ COMMANDLINE: dict[str, CommandType] = {
                      ANSIThemeStr("python", "argument"),
                      ANSIThemeStr("|", "separator"),
                      ANSIThemeStr("py", "argument"),
-                     ANSIThemeStr(",", "separator"),
+                     ANSIThemeStr(", ", "separator"),
                      ANSIThemeStr("rego", "argument"),
                      ANSIThemeStr(",", "separator")],
                     [ANSIThemeStr("shell", "argument"),
