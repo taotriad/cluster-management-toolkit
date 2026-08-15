@@ -2404,6 +2404,8 @@ def markdown_renderer(ttype: Any, value: str, **kwargs: Any) \
                 x = x.replace("\t", "")
                 if x.startswith(">"):
                     new_value = f"┃{x[1:]}"
+                elif x.startswith("\n>"):
+                    new_value = f"\n┃{x[2:]}"
             elif x == "\n> ":
                 # Markdown alert or Quote
                 new_value = f"\n┃{x[2:]}"
@@ -2505,7 +2507,7 @@ class ThemeArrayFormatter(Formatter):
             # Use this when adding new formatters; we can ignore empty strings.
             if ttype not in self.colorscheme \
                     and ttype not in self.unknown_ttypes and value:  # pragma: nocover
-                tmpvalue = value.replace("\"", "\\\"")
+                tmpvalue = value.replace("\"", "\\\\\"")
                 errmsg = [
                     [("Encountered unknown token type ", "default"),
                      (f"{ttype}", "argument"),
