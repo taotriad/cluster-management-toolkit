@@ -1828,7 +1828,7 @@
                     "if": {
                         "properties": {
                             "listgetter": { "const": "listgetter_dir" },
-                            "listgetter_args": { "const": "get_kubernetes_list" }
+                            "listgetter_async": { "const": "get_kubernetes_list" }
                         }
                     }, "then": {
                         "properties": {
@@ -1843,14 +1843,33 @@
                                     "kind": {
                                         "$ref": "#/$defs/kind"
                                     },
+                                    "prefixes": {
+                                        "type": "array",
+                                        "items": {
+                                            "description": "File prefixes",
+                                            "type": "string"
+                                        }
+                                    },
+                                    "rotation_separator": {
+                                        "description": "When set, this character is used to indicate that files that have been rotated for backup purposes should also be included",
+                                        "type": "string"
+                                    },
                                     "suffixes": {
                                         "type": "array",
                                         "items": {
                                             "description": "File suffixes",
                                             "type": "string"
                                         }
+                                    },
+                                    "types": {
+                                        "description": "Entry types to include; currently supported: [file, dir]",
+                                        "enum": [
+                                            "dir",
+                                            "file"
+                                        ]
                                     }
                                 },
+                                "required": [ "dirpath" ],
                                 "additionalProperties": false
                             }
                         }
@@ -1859,7 +1878,7 @@
                     "if": {
                         "properties": {
                             "listgetter": { "const": "listgetter_files" },
-                            "listgetter_args": { "const": "get_kubernetes_list" }
+                            "listgetter_async": { "const": "get_kubernetes_list" }
                         }
                     }, "then": {
                         "properties": {

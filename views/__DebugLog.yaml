@@ -14,6 +14,7 @@ listview:
     kind: "__CMTLogView"
     suffixes:
       - ".yaml"
+    rotation_separator: "."
   on_activation:
     call: null
   field_indexes:

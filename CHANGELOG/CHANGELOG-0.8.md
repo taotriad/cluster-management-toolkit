@@ -88,6 +88,10 @@ N/A
 ### Changes to _cmu_ in v0.8.9
 
 * (Hopefully) fix the rather annoying flickering in the list view.
+* An issue that could misrender block quotes and notices in Markdown has been fixed.
+* Syntax highlighting for Rego has been added; support for it
+  has also been added to the file-viewer.
+* `dmesg` logs now show facility where possible.
 * Doing a non-change of namespace will no longer do an update.
 * An issue was fixed that caused line-lengths to be incorrect in the list-view when resizing.
 * Resizing an info-view no longer causes the listpad to become empty until reloaded.
@@ -105,6 +109,8 @@ N/A
   PyYAML is *much* faster. Populating view-files is still very slow on complex setups (OpenShift, Rancher, etc.),
   but the speed-up is still very noticeable.
 * secure_read_yaml_all() now supports the asynchronous flag.
+* listgetter_dir() now supports logrotation patterns; i.e. even if you're filtering
+  by suffix (yaml, for instance) it'll pick up `foo.yaml.0`, `foo.yaml.1`, etc.
 * listgetter_path() can now create hierarchical lists,
   but for now only if the list is enumerated.
 * Lists can now be defined as non-sortable; this means that the initial order cannot be changed;
@@ -115,6 +121,7 @@ N/A
 * Don't force an update on a resize event; just refresh the window instead.
 * The schema for parser-files has been made a lot stricter. This uncovered some issues,
   which have been fixed.
+* The schema for view-files has also been fine-tuned a bit.
 * A few listgetters and parser-rules have been eliminated.
 * All data is now counted for ConfigMaps; binaryData was previously missing in the count.
 * It seems that *kubectl* has issues with YAML-files that have a version prefix (`%YAML 1.1`,
@@ -651,7 +658,6 @@ secrets, etc.
   * `XML`
   * `YAML`
 * The Markdown viewer now renumbers lists when necessary.
-* `dmesg` logs now show facility where possible.
 * Dynamic logs (from systemctl) are no longer limited to 1 hour;
   the only limit is number of lines.
 * It's now possible to quickly switch between All Namespaces ([Shift] + A),

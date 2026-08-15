@@ -596,6 +596,7 @@ def listgetter_files(**kwargs: Any) -> tuple[list[str | dict[str, Any]], int | s
     return vlist, status
 
 
+# pylint: disable-next=too-many-locals,too-many-branches
 def listgetter_dir(**kwargs: Any) -> tuple[list[dict[str, Any]], int]:
     """
     Get a list of directory entries. If prefixes and/or suffixes are set,
@@ -603,8 +604,13 @@ def listgetter_dir(**kwargs: Any) -> tuple[list[dict[str, Any]], int]:
 
         Parameters:
             dirpath (str): The path to get the directory entries from
+            kind (str): The kind to set for the imported entries
             prefixes ([str]): A list of accepted prefixes
             suffixes ([str]): A list of accepted suffixes
+            rotation_separator (str): If set, log rotation is assumed;
+                                      the filename is then either
+                                      [prefix]file[suffix] or
+                                      [prefix]file[suffix][rotation_separator][count]
             types ([str]): A list of entry types to include; if empty all types will
                            be included; currently supported filters are [file, dir]
         Returns:
@@ -621,16 +627,32 @@ def listgetter_dir(**kwargs: Any) -> tuple[list[dict[str, Any]], int]:
         dirpath = dirpath.replace("{HOME}", HOMEDIR, 1)
     prefixes: list[str] = deep_get(kwargs, DictPath("prefixes"), [])
     suffixes: list[str] = deep_get(kwargs, DictPath("suffixes"), [])
+    rotation_separator: str = deep_get(kwargs, DictPath("rotation_separator"), "")
     kind = deep_get(kwargs, DictPath("kind"))
 
     vlist: list[dict[str, Any]] = []
 
+    # pylint: disable-next=too-many-nested-blocks
     if os.path.isdir(dirpath):
         for filename in os.listdir(dirpath):
             if prefixes and not filename.startswith(tuple(prefixes)):
                 continue
             if suffixes and not filename.endswith(tuple(suffixes)):
-                continue
+                if not rotation_separator:
+                    continue
+                rotationfile = False
+                for suffix in suffixes:
+                    tmpsplit = filename.rsplit(suffix, maxsplit=1)
+                    if len(tmpsplit) == 2 and tmpsplit[1] and tmpsplit[1][0] == rotation_separator:
+                        try:
+                            rotationindex = tmpsplit[1][1:]
+                            int(rotationindex)
+                            rotationfile = True
+                        except ValueError:
+                            continue
+                        break
+                if not rotationfile:
+                    continue
             if types:
                 if os.path.isfile(filename):
                     if "file" not in types:
