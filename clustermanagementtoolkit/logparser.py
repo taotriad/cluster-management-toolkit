@@ -3991,24 +3991,17 @@ def parsing_multiplexer(message: str | list[ThemeRef | ThemeStr],
                     remnants_strs, remnants_severity = remnants
                     severity_name = \
                         f"severity_{loglevel_to_name(remnants_severity).lower()}"
-                    remnants_2 = []
+                    if isinstance(message, str):
+                        message = [ThemeStr(f"{message}", ThemeAttr("logview", "severity_name"))]
                     for row in remnants_strs:
-                        if not remnants_2:
+                        if not message:
                             if isinstance(row, str):
                                 row = [ThemeStr(row, ThemeAttr("logview", severity_name))]
-                            if isinstance(message, str):
-                                remnants_2 += \
-                                    [ThemeStr(f"{message} ",
-                                              ThemeAttr("logview", severity_name))] + row
-                            else:
-                                remnants_2 += message
-                            message = None
                         else:
                             if isinstance(row, str):
                                 row = [ThemeStr(row, ThemeAttr("logview", severity_name))]
                             row = [ThemeStr(" ", ThemeAttr("logview", severity_name))] + row
-                            remnants_2 += row
-                    message = remnants_2
+                        message += row
                     remnants = []
             elif _filter == "key_value_with_leading_message" and "=" in message:
                 facility, severity, message, remnants = \
