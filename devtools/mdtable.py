@@ -15,7 +15,7 @@ import sys
 from typing import Any, NoReturn
 
 PROGRAMNAME = "mdtable.py"
-PROGRAMVERSION = "v0.0.6"
+PROGRAMVERSION = "v0.0.7"
 
 PROGRAMDESCRIPTION: str = "Reformat tabulated data to Markdown"
 PROGRAMAUTHORS: str = "Written by David Weinehall."
@@ -40,11 +40,15 @@ def usage() -> NoReturn:
     print()
     print("Options:")
     print("  --separator SEPARATOR    The separator used in FILE; default \"|\"")
+    print("  --bold-footer            Make all entries in the last row of the table bold")
     print("  --bold-regex REGEX       A regular expression to apply bold formatting to")
     print("  --italics-regex REGEX    A regular expression to apply italics formatting to")
     print()
     print("help|--help         Display this help and exit")
     print("version|--version   Output version information and exit")
+    print()
+    print("Since Markdown tables have no concept of footers we implement this by making every")
+    print("entry on the matching line(s) bold instead.")
 
     sys.exit(0)
 
@@ -73,16 +77,14 @@ def format_table(file: str, separator: str, headers: list[str], **kwargs: Any) -
             separator (str): The separator that separates the fields
             headers ([str]): The field headers
             **kwargs (dict[str, Any]): Keyword arguments
+                bold_footer (bool): Make all entries in the last row bold
                 bold_regex (str): A regular expression to check for matches to apply bold to
                 italics_regex (str): A regular expression to check for matches to apply italics to
     """
     lines: str = ""
-    bold_regex: str = ""
-    italics_regex: str = ""
-    if "bold_regex" in kwargs:
-        bold_regex = kwargs.get("bold_regex", "")
-    if "italics_regex" in kwargs:
-        italics_regex = kwargs.get("italics_regex", "")
+    bold_footer: bool = kwargs.get("bold_footer", False)
+    bold_regex: str = kwargs.get("bold_regex", "")
+    italics_regex: str = kwargs.get("italics_regex", "")
 
     try:
         with open(file, "r", encoding="utf-8") as f:
@@ -96,12 +98,13 @@ def format_table(file: str, separator: str, headers: list[str], **kwargs: Any) -
     adjusts: list[int] = [0 for header in headers]
     i: int = 0
 
+    # Remove trailing empty lines
+    lines = lines.rstrip("\n")
+
+    tablelen = len(lines.split("\n"))
+
     # First check for consistency and tabulate column widths
     for i, line in enumerate(lines.split("\n")):
-        # End when we encounter an empty line
-        if not line:
-            break
-
         columns: list[str] = line.split(separator)
         if column_count != len(columns):
             if i == 0:
@@ -116,7 +119,7 @@ def format_table(file: str, separator: str, headers: list[str], **kwargs: Any) -
 
         for j, column in enumerate(columns):
             adjust = 0
-            if bold_regex:
+            if bold_regex or (bold_footer and tablelen - 1 == i):
                 if re.match(bold_regex, column) is not None:
                     adjust = 2
             if italics_regex and not adjust:
@@ -153,19 +156,16 @@ def format_table(file: str, separator: str, headers: list[str], **kwargs: Any) -
         table += " |"
 
     # Now format the data
-    for line in lines.split("\n"):
-        if not line:
-            break
-
+    for i, line in enumerate(lines.split("\n")):
         columns = line.split(separator)
         table += "\n|"
-        for i, column in enumerate(columns):
-            if widths[i] == 2:
+        for j, column in enumerate(columns):
+            if widths[j] == 2:
                 continue
 
             before = ""
             after = ""
-            if bold_regex:
+            if bold_regex or (bold_footer and tablelen - 1 == i):
                 if re.match(bold_regex, column) is not None:
                     before = "**"
                     after = "**"
@@ -176,13 +176,13 @@ def format_table(file: str, separator: str, headers: list[str], **kwargs: Any) -
 
             column = column.strip()
             column = f"{before}{column}{after}"
-            table += " " + column.ljust(widths[i] + adjusts[i])
+            table += " " + column.ljust(widths[j] + adjusts[j])
             table += " |"
 
     print(table)
 
 
-# pylint: disable-next=too-many-branches
+# pylint: disable-next=too-many-branches,too-many-statements
 def main() -> None:
     """
     Main function for the program.
@@ -194,6 +194,7 @@ def main() -> None:
         sys.exit(errno.EINVAL)
 
     separator: str = "|"
+    bold_footer: bool = False
     bold_regex: str = ""
     italics_regex: str = ""
 
@@ -208,6 +209,8 @@ def main() -> None:
             usage()
         elif opt in ("version", "--version"):
             version()
+        elif opt == "--bold-footer":
+            bold_footer = True
         elif opt == "--bold-regex":
             if len(sys.argv) < i + 1:
                 print(f"{PROGRAMNAME}: \"--bold-regex\" missing argument.")
@@ -244,7 +247,8 @@ def main() -> None:
 
     headers = sys.argv[i + 1:]
 
-    format_table(file, separator, headers, bold_regex=bold_regex, italics_regex=italics_regex)
+    format_table(file, separator, headers, bold_footer=bold_footer,
+                 bold_regex=bold_regex, italics_regex=italics_regex)
 
 
 if __name__ == "__main__":

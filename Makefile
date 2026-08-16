@@ -234,11 +234,25 @@ coverage-cluster: setup_tests
 	$$cmd run --branch --append tests/itemgtests.py --include-cluster || exit 1 ;\
 	$$cmd report --sort cover --precision 1 ;\
 	$$cmd html --precision 1 ;\
-	$$cmd json
 
 coverage-all: coverage coverage-ansible coverage-cluster
 
-# We need to extend the timeout since validation gives up on cmu otherwise.
+coverage-markdown:
+	@cmd=python3-coverage ;\
+	if command -v python3-coverage > /dev/null 2> /dev/null; then \
+		cmd=python3-coverage ;\
+	elif command -v coverage-3 > /dev/null 2> /dev/null; then \
+		cmd=coverage-3 ;\
+	else \
+		printf -- "\n\n$$cmd not installed; skipping.\n\n\n"; \
+		exit 0; \
+	fi; \
+	printf -- "\n\nSummarising results from $$cmd\n\n" ;\
+	tmpfile=$$(mktemp) ;\
+	$$cmd report --sort cover --precision 1 | tr -s ' ' | tr -s ' ' '|' | grep -v "^--------" | tail -n +2 > $${tmpfile} ;\
+	devtools/mdtable.py --bold-footer $${tmpfile} "File" "Statements" "Missing" "Branches" "Partial" "Coverage=" && rm $${tmpfile}
+
+# We need to extend the timeout since validation gives up on cmu.py otherwise.
 #
 # --exclude-rule python.flask.security.xss.audit.direct-use-of-jinja2.direct-use-of-jinja2
 # is needed since it flags the risk of cross-site scripting in a file that is:
@@ -580,6 +594,9 @@ bin:
 
 compile:
 	for file in $(python_executables_py); do \
+		if [ x"$${file}" = x"cmt-install.py" ]; then \
+			continue ;\
+		fi ;\
 		mypyc $(MYPY_FLAGS) -- $${file};\
 	done &&\
 	for file in $(clustermanagementtoolkit/*.py); do \
