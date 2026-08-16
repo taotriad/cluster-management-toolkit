@@ -91,6 +91,8 @@ N/A
 
 ### Changes to other files in v0.8.10
 
+* Fixed a bug in `logparser.py` that would lose parts of the message when folding key/value messages
+  using the `key_value()` parser-rule.
 * `mdtable.py` now has an option to turn the bottom row bold, for use as a makeshift footer,
   since Markdown tables do not have footer support.
 * Some formatter corner-cases have been fixed.
