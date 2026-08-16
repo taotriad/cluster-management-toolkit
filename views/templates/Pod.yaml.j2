@@ -117,8 +117,12 @@ listview:
         var: "filters#successful#enabled"
       force_update: true
   statusmsg:
-    - ["Hide evicted pods: ", ["var", "filters#evicted#enabled"]]
-    - ["Hide successful pods: ", ["var", "filters#successful#enabled"]]
+    - key: "Hide evicted pods: "
+      source: "var"
+      path: "filters#evicted#enabled"
+    - key: "Hide successful pods: "
+      source: "var"
+      path: "filters#successful#enabled"
 infoview:
   name: "Pod Info"
   infopad:

@@ -4228,6 +4228,89 @@ class UIProps:
         else:
             self.bottom_statusbar = curses.newpad(2, self.maxx + 1)
 
+    # pylint: disable-next=too-many-locals,too-many-branches
+    def populate_custom_statusmsgs(self, status_fields: list[dict],
+                                   src_vars: dict[str, Any], src_obj: dict[str, Any]) -> None:
+        """
+        Populate the status array.
+
+            Parameters:
+                status_fields ([dict]): The status fields to add to the status array
+                src_vars (dict): The data from view variables
+                src_obj (dict): The data from the object being processed
+        """
+        statusarray1: list[ThemeRef | ThemeStr] = []
+        statusarray2: list[ThemeRef | ThemeStr] = []
+
+        # If we don't have a statusbar configured we we be able to add anything to it.
+        if self.bottom_statusbar is None:
+            return
+
+        # The data in some fields might become shorter, so we need to trigger an erase.
+        self.bottom_statusbar.erase()
+
+        for status_data in status_fields:
+            key = deep_get(status_data, DictPath("key"), "<unset>")
+            source = deep_get(status_data, DictPath("source"), "var")
+            obj = src_vars
+            value_path = deep_get(status_data, DictPath("path"))
+            default_status = deep_get(status_data, DictPath("default"))
+            transform = deep_get(status_data, DictPath("transform"), {})
+            row = deep_get(status_data, DictPath("row"), 2)
+
+            if source == "config":
+                obj = cmtlib.cmtconfig
+            elif source == "var":
+                obj = src_vars
+            elif source == "obj":
+                obj = src_obj
+            elif source == "constant":
+                # This will just be ignored, so the default source is just fine.
+                pass
+
+            value = deep_get(obj, value_path, default_status)
+
+            if transform and deep_get(transform, DictPath("rule")) == "map":
+                tmp_value = deep_get(transform, DictPath(f"map#{value}"))
+                if "value" in tmp_value:
+                    value = tmp_value["value"]
+                if "lookup" in tmp_value:
+                    source = deep_get(tmp_value, DictPath("lookup#source"), "var")
+                    path = deep_get(tmp_value, DictPath("lookup#path"))
+                    if source == "config":
+                        obj = cmtlib.cmtconfig
+                    elif source == "var":
+                        obj = src_vars
+                    elif source == "obj":
+                        obj = src_obj
+                    value = deep_get(obj, DictPath(path), value)
+
+            value = str(value)
+
+            if row == 1:
+                if statusarray1:
+                    statusarray1 += [ThemeRef("separators", "statusbar")]
+                statusarray1 += [
+                    ThemeStr(key, ThemeAttr("statusbar", "infoheader")),
+                ]
+                if source != "constant":
+                    statusarray1 += [
+                        ThemeStr(value, ThemeAttr("statusbar", "highlight")),
+                    ]
+            else:
+                if statusarray2:
+                    statusarray2 += [ThemeRef("separators", "statusbar")]
+                statusarray2 += [
+                    ThemeStr(key, ThemeAttr("statusbar", "infoheader")),
+                ]
+                if source != "constant":
+                    statusarray2 += [
+                        ThemeStr(value, ThemeAttr("statusbar", "highlight")),
+                    ]
+
+        addthemearray(self.bottom_statusbar, statusarray1, y=0, x=0)
+        addthemearray(self.bottom_statusbar, statusarray2, y=1, x=0)
+
     # pylint: disable-next=too-many-locals
     def addthemearray(self, win: curses.window | None,
                       array: list[ThemeRef | ThemeStr], **kwargs: Any) -> tuple[int, int]:

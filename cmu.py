@@ -383,8 +383,7 @@ def update_field_widths(field_dict: dict, field_names: list[str], objects: list[
                                     field_prefixes=field_prefixes,
                                     field_suffixes=field_suffixes,
                                     field_formatters=field_formatters)
-                # pylint: disable-next=comparison-with-callable
-                elif processor == generators.processor_timestamp_with_age:
+                elif processor.__name__ == generators.processor_timestamp_with_age.__name__:
                     tmp = processor(obj, field_name, formatting)
                 else:
                     tmp = processor(obj, field_name)
@@ -1029,8 +1028,8 @@ def genericlistloop(stdscr: curses.window, **kwargs: Any) -> Retval:
     while True:
         if listgetter_async is not None:
             # Temporary workaround
-            # pylint: disable-next=comparison-with-callable
-            if listgetter_async == listgetters_async.get_inventory_list and "hosts" not in executor:
+            if listgetter_async.__name__ == listgetters_async.get_inventory_list.__name__ \
+                    and "hosts" not in executor:
                 hosts = list(deep_get(ansible_get_inventory_dict(), DictPath("all#hosts")))
                 # The inventory doesn't change all that often,
                 # but reading it every 10 seconds should be OK
@@ -1040,8 +1039,7 @@ def genericlistloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                 infogetter_extra_args["_match_key"] = "name"
                 new_data = "pending"
                 first_fetch = False
-            # pylint: disable-next=comparison-with-callable
-            elif listgetter_async == listgetters_async.get_context_list \
+            elif listgetter_async.__name__ == listgetters_async.get_context_list.__name__ \
                     and (first_fetch or uip.update_forced):
                 vlist, hosts = listgetters_async.get_context_list(kubernetes_helper=kh)
                 async_data["hosts"] = copy.deepcopy(hosts)
@@ -1049,8 +1047,7 @@ def genericlistloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                 infogetter_extra_args["_match_key"] = "server_address"
                 new_data = "pending"
                 first_fetch = False
-            # pylint: disable-next=comparison-with-callable
-            elif listgetter_async == listgetters_async.get_kubernetes_list \
+            elif listgetter_async.__name__ == listgetters_async.get_kubernetes_list.__name__ \
                     and ".".join(kind) not in executor:
                 if "kubernetes_helper" not in listgetter_args:
                     listgetter_args["kubernetes_helper"] = kh
@@ -1222,77 +1219,56 @@ def genericlistloop(stdscr: curses.window, **kwargs: Any) -> Retval:
 
         # These might need refreshing even if we don't update the data.
         if uip.refresh:
-            # The data in some fields might become shorter, so we need to trigger an erase.
-            if uip.bottom_statusbar is not None:
-                uip.bottom_statusbar.erase()
+            # Needed by the statusbar
+            listview_args["selected_namespace"] = selected_namespace
+            listview_args["field_index"] = field_index
+            listview_args["serverstatus"] = serverstatus
 
-            statusarray1: list[ThemeRef | ThemeStr] = []
+            status_fields: list[dict] = []
 
             if view != "Contexts" and selected_namespace:
-                statusarray1 += \
-                    [ThemeStr("Namespace: ", ThemeAttr("statusbar", "infoheader")),
-                     ThemeStr(f"{selected_namespace if selected_namespace else '<All>'}",
-                              ThemeAttr("statusbar", "highlight"))]
+                status_fields.append({
+                    "key": "Namespace: ",
+                    "source": "var",
+                    "path": "selected_namespace",
+                    "default": "<All>",
+                    "row": 1,
+                })
 
-            if statusarray1:
-                statusarray1 += [ThemeRef("separators", "statusbar")]
+            status_fields.append({
+                "key": "Fields: ",
+                "source": "var",
+                "path": "field_index",
+                "default": "Normal",
+            })
 
-            statusarray1 += [
-                ThemeStr("Fields: ", ThemeAttr("statusbar", "infoheader")),
-                ThemeStr(field_index, ThemeAttr("statusbar", "highlight"))
-            ]
             if label_selector:
-                if statusarray1:
-                    statusarray1 += [ThemeRef("separators", "statusbar")]
-                statusarray1 += [
-                    ThemeStr("Label selector: ", ThemeAttr("statusbar", "infoheader")),
-                    ThemeStr(f"{label_selector}", ThemeAttr("statusbar", "highlight"))
-                ]
-            statusarray2: list[ThemeRef | ThemeStr] = []
+                status_fields.append({
+                    "key": "Label Selector: ",
+                    "source": "var",
+                    "path": "label_selector",
+                    "default": "<All>",
+                    "row": 1,
+                })
+
             if read_only_mode:
-                statusarray2 += [ThemeStr("Read Only Mode", ThemeAttr("statusbar", "highlight"))]
+                status_fields.append({
+                    "key": "Read Only Mode",
+                    "source": "constant",
+                    "path": "",
+                    "row": 2,
+                })
 
-            if statusarray2:
-                statusarray2 += [ThemeRef("separators", "statusbar")]
-            statusarray2 += [
-                ThemeStr("API Status: ", ThemeAttr("statusbar", "infoheader")),
-                # Here we should probably highlight when something is bad
-                ThemeStr(f"{serverstatus}", ThemeAttr("statusbar", "default")),
-            ]
+            status_fields.append({
+                "key": "API Status: ",
+                "source": "var",
+                "path": "serverstatus",
+                "row": 2,
+            })
 
-            for status_data in deep_get(viewref, DictPath("statusmsg"), []):
-                if len(status_data) == 2:
-                    key_, path = status_data
-                    default_status = "<unset>"
-                else:
-                    key_, path, default_status = status_data
+            status_fields += deep_get(viewref, DictPath("statusmsg"), [])
 
-                src_obj = listview_args
-
-                # If path is a list the first item tells what source to use and the second
-                # what path to fetch the value from
-                if isinstance(path, list):
-                    if path[0] == "config":
-                        src_obj = cmtlib.cmtconfig
-                    # elif path[0] == "obj":
-                    #     value_path = obj
-                    elif path[0] == "var":
-                        src_obj = listview_args
-                    value_path = DictPath(path[1])
-                else:
-                    src_obj = listview_args
-                    value_path = DictPath(path)
-
-                value_ = str(deep_get(src_obj, value_path, default_status))
-                if statusarray2:
-                    statusarray2 += [ThemeRef("separators", "statusbar")]
-                statusarray2 += [
-                    ThemeStr(key_, ThemeAttr("statusbar", "infoheader")),
-                    ThemeStr(value_, ThemeAttr("statusbar", "default")),
-                ]
-
-            uip.addthemearray(uip.bottom_statusbar, statusarray1, y=0, x=0)
-            uip.addthemearray(uip.bottom_statusbar, statusarray2, y=1, x=0)
+            uip.populate_custom_statusmsgs(status_fields, src_vars=listview_args, src_obj={})
 
         uip.update_sorted_list()
 
@@ -3740,10 +3716,10 @@ def genericinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
 
     windowheader = deep_get(viewref, DictPath("windowheader"), f"{view[0]} Info")
 
-    # These values can be toggled, so we need to read them first
+    # These values can be toggled, so we need to read them first.
     infoview_args = copy.deepcopy(viewref.get("infoview_args", {}))
 
-    # These are used for anything that uses ResourceViewer
+    # These are used for anything that uses ResourceViewer.
     if title:
         windowheader = title
     elif title_path:
@@ -3758,7 +3734,7 @@ def genericinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
     # Hence we cannot apply the overrides in the input loop;
     # we need to apply it beforehand.
 
-    # Populate useful variables that can be used in the statusbar
+    # Populate useful variables that can be used in the statusbar.
     if formatter:
         deep_set(infoview_args, DictPath("formatter"), formatter.__name__)
         formatter_args = deep_get(infoview_args, DictPath("formatter_args"), {})
@@ -3959,52 +3935,26 @@ def genericinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
 
     # pylint: disable-next=too-many-nested-blocks
     while True:
+        # Needed by the statusbar
+        infoview_args["wrap_lines"] = wrap_lines
+        infoview_args["raw"] = raw_output
+        # Needed by the formatter
+        formatter_args["raw"] = raw_output
+
         # These might need refreshing even if we don't update the data.
         if uip.refresh:
-            # The data in some fields might become shorter, so we need to trigger an erase.
-            if uip.bottom_statusbar is not None:
-                uip.bottom_statusbar.erase()
+            status_fields: list[dict] = []
 
             if uip.listpad is not None:
-                statusarray1: list[ThemeRef | ThemeStr] = [
-                    ThemeStr("Fields: ", ThemeAttr("statusbar", "infoheader")),
-                    ThemeStr(field_index, ThemeAttr("statusbar", "highlight"))
-                ]
-            else:
-                statusarray1 = []
-            statusarray2: list[ThemeRef | ThemeStr] = []
+                status_fields.append({
+                    "key": "Fields: ",
+                    "source": "vars",
+                    "path": "field_index",
+                })
 
-            for status_data in deep_get(viewref, DictPath("statusmsg"), []):
-                if len(status_data) == 2:
-                    key, path = status_data
-                    default_status = "<unset>"
-                else:
-                    key, path, default_status = status_data
+            status_fields += deep_get(viewref, DictPath("statusmsg"), [])
 
-                # If path is a list the first item tells what source to use and the second
-                # what path to fetch the value from
-                src_obj: dict[str, Any] = infoview_args
-                if isinstance(path, list):
-                    if path[0] == "config":
-                        src_obj = cmtlib.cmtconfig
-                    # elif path[0] == "obj":
-                    #     value_path = obj
-                    elif path[0] == "var":
-                        src_obj = infoview_args
-                    value_path = DictPath(path[1])
-                else:
-                    value_path = DictPath(path)
-
-                value = str(deep_get(src_obj, value_path, default_status))
-                if statusarray2:
-                    statusarray2 += [ThemeRef("separators", "statusbar")]
-                statusarray2 += [
-                    ThemeStr(key, ThemeAttr("statusbar", "infoheader")),
-                    ThemeStr(value, ThemeAttr("statusbar", "default")),
-                ]
-
-            uip.addthemearray(uip.bottom_statusbar, statusarray1, y=0, x=0)
-            uip.addthemearray(uip.bottom_statusbar, statusarray2, y=1, x=0)
+            uip.populate_custom_statusmsgs(status_fields, src_vars=infoview_args, src_obj=obj)
 
         # Output infopad and listpad if we have one
         if uip.is_update_triggered():
@@ -4190,8 +4140,7 @@ def genericinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                     if "kubernetes_helper" not in listgetter_args:
                         listgetter_args["kubernetes_helper"] = kh
                         listgetter_args["kh_cache"] = kh_cache
-                    # pylint: disable-next=comparison-with-callable
-                    if listgetter == listgetters.generic_listgetter:
+                    if listgetter.__name__ == listgetters.generic_listgetter.__name__:
                         vlist, _status = listgetter(**listgetter_args)
                     else:
                         vlist, _status = listgetter(obj, **listgetter_args)
@@ -4249,7 +4198,7 @@ def genericinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                                 copy.deepcopy(base64.b64decode(cast(str,
                                                                     obj)).decode("utf-8",
                                                                                  errors="replace"))
-                        except (binascii.Error, TypeError, UnicodeDecodeError):
+                        except (binascii.Error, TypeError, UnicodeDecodeError, ValueError):
                             decoded_obj = cast(str, obj)
                 else:
                     decoded_obj = cast(str, obj)
@@ -4261,7 +4210,7 @@ def genericinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                     tmp_formatter_args = copy.deepcopy(formatter_args)
                     if hasattr(formatter, "__wrapped__"):
                         tmp_formatter_args.pop("focus_filters", None)
-                    formatted_obj = formatter(decoded_obj, raw=raw_output, **tmp_formatter_args)
+                    formatted_obj = formatter(decoded_obj, **tmp_formatter_args)
                 else:
                     formatted_obj = decoded_obj
 
@@ -5797,7 +5746,7 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                 ]
             elif raw_logs:
                 statusarray2 += [
-                    ThemeStr("Raw", ThemeAttr("main", "format_raw")),
+                    ThemeStr("Raw", ThemeAttr("statusbar", "highlight")),
                 ]
             else:
                 if uip.maxx - uip.minx > 118:
@@ -7254,8 +7203,7 @@ def view_obj(stdscr: curses.window, **kwargs: Any) -> Retval:
     path = deep_get(kwargs, DictPath("path"))
     formatter = deep_get(kwargs, DictPath("formatter"), formatters.format_yaml)
     formatter_args = deep_get(kwargs, DictPath("formatter_args"), {})
-    # pylint: disable-next=comparison-with-callable
-    if formatter == formatters.map_dataformat:
+    if formatter.__name__ == formatters.map_dataformat.__name__:
         formatter = formatters.map_dataformat(deep_get(formatter_args, DictPath("filetype"), ""))
     if path is not None:
         if deep_get(kwargs, DictPath("include_root"), False):

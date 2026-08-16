@@ -272,6 +272,7 @@ def test_severity_to_string(verbose: bool = False) -> tuple[str, bool]:
                               f"            lvl: {lvl}\n" \
                               f"severity_format: {severity_format}\n" \
                               f"        default: {default}\n" \
+                              f"         output: {tmp}\n" \
                               f"       expected: {expected_result}"
                     result = False
                     break

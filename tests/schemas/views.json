@@ -1776,7 +1776,7 @@
                                     "required": [ "key", "helptext", "action", "read_only" ],
                                     "additionalProperties": false
                                 }, {
-                                    "description": "Shortcuts disabled",
+                                    "description": "Shortcut disabled",
                                     "type": "null"
                                 }
                             ]
@@ -4434,36 +4434,75 @@
                     "type": "array",
                     "items": {
                         "description": "An item to add to the status bar",
-                        "type": "array",
-                        "prefixItems": [
-                            {
+                        "type": "object",
+                        "properties": {
+                            "key": {
                                 "description": "The header for the entry",
                                 "type": "string"
-                            }, {
-                                "type": "array",
-                                "prefixItems": [
-                                    {
-                                        "description": "The source to get the value from",
-                                        "enum": [
-                                            "config",
-                                            "var"
-                                        ]
-                                    }, {
-                                        "description": "The path to get the value from",
-                                        "$ref": "#/$defs/simple_path"
-                                    }
-                                ],
-                                "items": false,
-                                "minItems": 2,
-                                "maxItems": 2
-                            }, {
-                                "description": "The default value to use if the path is empty",
+                            },
+                            "source": {
+                                "description": "The source to get the value from",
+                                "enum": [
+                                    "config",
+                                    "var",
+                                    "formatter_args"
+                                ]
+                            },
+                            "path": {
+                                "description": "The path to get the value from",
+                                "$ref": "#/$defs/simple_path"
+                            },
+                            "default": {
+                                "description": "The default value to use",
                                 "type": "string"
+                            },
+                            "transform": {
+                                "description": "Additional transformations for the value",
+                                "type": "object",
+                                "properties": {
+                                    "rule": {
+                                        "description": "The type of transformation to perform; currently the only valid transformation is map",
+                                        "enum": [
+                                            "map"
+                                        ]
+                                    },
+                                    "map": {
+                                        "description": "The mappings for a transformation",
+                                        "type": "object",
+                                        "patternProperties": {
+                                            "^[A-Za-z0-9 ()-]*[A-Za-z0-9)]$": {
+                                                "description": "A lookup table for values to remap",
+                                                "type": "object",
+                                                "properties": {
+                                                    "value": {
+                                                        "description": "A substitution",
+                                                        "type": "string"
+                                                    },
+                                                    "lookup": {
+                                                        "description": "Lookup a new value to replace the value",
+                                                        "source": {
+                                                            "description": "The source to get the value from",
+                                                            "enum": [
+                                                                "config",
+                                                                "var",
+                                                                "formatter_args",
+                                                                "obj"
+                                                            ]
+                                                        },
+                                                        "path": {
+                                                            "description": "The path to get the value from",
+                                                            "$ref": "#/$defs/simple_path"
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
                             }
-                        ],
-                        "items": false,
-                        "minItems": 2,
-                        "maxItems": 3
+                        },
+                        "required": [ "key", "path" ],
+                        "additionalProperties": false
                     },
                     "minItems": 1
                 }

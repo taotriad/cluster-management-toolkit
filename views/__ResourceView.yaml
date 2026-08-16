@@ -70,10 +70,30 @@ infoview:
           # Status fields
           - "status"
   statusmsg:
-    - ["Decode Base64: ", ["var", "decoder#override_decoder"]]
-    - ["Formatter: ", ["var", "formatter"]]
-    - ["Unfold Message: ", ["var", "formatter_args#unfold_msg"]]
-    - ["Focus Mode: ", ["var", "formatter_args#focus_mode"]]
+    - key: "Formatter: "
+      source: "formatter_args"
+      path: "raw"
+      transform:
+        rule: "map"
+        map:
+          "True":
+            value: "Raw"
+          "False":
+            lookup:
+              source: "var"
+              path: "formatter"
+    - key: "Decode Base64: "
+      source: "var"
+      path: "decoder#override_decoder"
+    - key: "Unfold Message: "
+      source: "var"
+      path: "formatter_args#unfold_msg"
+    - key: "Wrap Lines: "
+      source: "formatter_args"
+      path: "wrap_lines"
+    - key: "Focus Mode: "
+      source: "var"
+      path: "formatter_args#focus_mode"
   shortcuts:
     # __ResourceView has no last applied configuration or events,
     # and is a YAML-viewer so cannot view itself...

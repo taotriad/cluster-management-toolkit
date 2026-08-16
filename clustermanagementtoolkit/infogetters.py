@@ -2629,6 +2629,7 @@ def logpad_files(obj: dict, **kwargs: Any) -> list[list[ThemeRef | ThemeStr]]:
     extra_values_lookup = deep_get(kwargs, DictPath("extra_values_lookup"), {})
     if (formatter := deep_get(obj, DictPath("_extra_data#formatter"))) is None:
         formatter = deep_get(kwargs, DictPath("formatter"), "none")
+    formatter = deep_get(formatter_allowlist, DictPath(formatter), formatters.format_none)
 
     for key, path in extra_values_lookup.items():
         if "extra_values" not in kwargs:
@@ -2647,13 +2648,17 @@ def logpad_files(obj: dict, **kwargs: Any) -> list[list[ThemeRef | ThemeStr]]:
     if (formatter_args := deep_get(obj, DictPath("_extra_data#formatter_args"))) is None:
         formatter_args = deep_get(kwargs, DictPath("formatter_args"), {})
 
-    if not show_raw and formatter == "markdown":
+    if "raw" not in formatter_args:
+        formatter_args["raw"] = show_raw
+
+    tmp = cast(str, vlist[0])
+
+    if not show_raw and formatter.__name__ == formatters.render_markdown.__name__:
         if isinstance(vlist[0], list):
             tmp = "\n".join(vlist[0])
         else:
             tmp = str(vlist[0])
-        return formatters.render_markdown(tmp, **formatter_args)
-    return formatters.format_none(cast(str, vlist[0]), **formatter_args)
+    return formatter(tmp, **formatter_args)
 
 
 def logpad_formatted(obj: dict, **kwargs: Any) -> list[list[ThemeRef | ThemeStr]]:

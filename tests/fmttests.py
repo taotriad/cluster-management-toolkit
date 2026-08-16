@@ -1208,6 +1208,7 @@ def test_format_yaml(verbose: bool = False) -> tuple[str, bool]:
                     result = False
                     break
             except Exception as e:
+                raise Exception(f"{e}\n\n{indata}")
                 if expected_exception is not None:
                     if isinstance(e, expected_exception):
                         pass
@@ -3349,7 +3350,6 @@ def test_format_promql(verbose: bool = False) -> tuple[str, bool]:
               "    label_replace(",
               "      (",
               "        kube_customresource_gateway_info{programmed='True'}",
-              # pylint: disable-next=comparison-with-callable
               "        and on(gateway_class) kube_customresource_gateway_class_info{accepted='True', controller='openshift.io/gateway-controller/v1'}",  # noqa: E501
               "      ),",
               "      'gateway_class_type', 'openshift', '', ''",
@@ -4840,15 +4840,16 @@ def test_map_dataformat(verbose: bool = False) -> tuple[str, bool]:
         # Indata format:
         # (kind, expected_result, expected_exception)
         testdata: tuple[Any, ...] = (
-            ("YAML", formatters.format_yaml, None),
-            ("file.yaml", formatters.format_yaml, None),
-            ("foo.notarecognisedformat", formatters.format_none, None),
+            ("YAML", formatters.format_yaml.__name__, None),
+            ("file.yaml", formatters.format_yaml.__name__, None),
+            ("foo.notarecognisedformat", formatters.format_none.__name__, None),
         )
 
         for indata, expected_result, expected_exception in testdata:
             try:
-                # pylint: disable-next=comparison-with-callable
-                if (tmp := fun(indata)) != expected_result:
+                if (tmp := fun(indata)):
+                    tmp = tmp.__name__
+                if tmp != expected_result:
                     message = f"{fun.__name__}() did not yield expected result:\n" \
                               f"           input: {indata}\n" \
                               f"          output: {tmp}\n" \
@@ -4886,8 +4887,8 @@ def test_identify_formatter(verbose: bool = False) -> tuple[str, bool]:
         # Indata format:
         # (dataformat, kind, obj, path, expected_result, expected_exception)
         testdata: tuple[Any, ...] = (
-            ("foobar", None, None, None, formatters.format_none, None),
-            (None, ("ConfigMap", ""), {}, "data", formatters.format_none, None),
+            ("foobar", None, None, None, formatters.format_none.__name__, None),
+            (None, ("ConfigMap", ""), {}, "data", formatters.format_none.__name__, None),
             (None,
              ("ConfigMap", ""),
              {
@@ -4898,7 +4899,7 @@ def test_identify_formatter(verbose: bool = False) -> tuple[str, bool]:
                  "data": {
                      "markdown.md": "# Header",
                  },
-             }, "markdown.md", formatters.render_markdown, None),
+             }, "markdown.md", formatters.render_markdown.__name__, None),
             (None,
              ("ConfigMap", ""),
              {
@@ -4909,7 +4910,7 @@ def test_identify_formatter(verbose: bool = False) -> tuple[str, bool]:
                  "data": {
                      "testdata": "disabled",
                  },
-             }, "testdata", formatters.format_none, None),
+             }, "testdata", formatters.format_none.__name__, None),
             (None,
              ("ConfigMap", ""),
              {
@@ -4920,7 +4921,7 @@ def test_identify_formatter(verbose: bool = False) -> tuple[str, bool]:
                  "data": {
                      "script": "#! /bin/bash",
                  },
-             }, "script", formatters.format_shellscript, None),
+             }, "script", formatters.format_shellscript.__name__, None),
             (None,
              ("ConfigMap", ""),
              {
@@ -4932,7 +4933,7 @@ def test_identify_formatter(verbose: bool = False) -> tuple[str, bool]:
                      "testdata": "H4sICFYeZGoAA3Rlc3R3b3JkLnR4dAA"
                                  "rycgsVgCiRIWS1OISheKSosy8dC4ARscgiRYAAAA=",
                  },
-             }, "testdata", formatters.format_binary, None),
+             }, "testdata", formatters.format_binary.__name__, None),
             (None,
              ("Secret", ""),
              {
@@ -4952,8 +4953,10 @@ def test_identify_formatter(verbose: bool = False) -> tuple[str, bool]:
 
         for dataformat, kind, obj, path, expected_result, expected_exception in testdata:
             try:
-                # pylint: disable-next=comparison-with-callable
-                if (tmp := fun(dataformat, kind, obj, path)) != expected_result:
+                if (tmp := fun(dataformat, kind, obj, path)):
+                    tmp = tmp.__name__
+
+                if tmp != expected_result:
                     message = f"{fun.__name__}() did not yield expected result:\n" \
                               f"      dataformat: {dataformat}\n" \
                               f"            kind: {kind}\n" \

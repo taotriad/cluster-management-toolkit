@@ -2571,8 +2571,8 @@ def format_yaml(lines: str | list[str] | dict | list[dict], **kwargs: Any) -> \
 
     new_lines = copy.deepcopy(lines)
 
-    if isinstance(new_lines, list) and len(new_lines) == 1:
-        new_lines = new_lines[0]
+    if isinstance(new_lines, list) and new_lines and isinstance(new_lines[0], str):
+        new_lines = "\n".join(new_lines)
 
     if isinstance(new_lines, str):
         # If it's one single line and starts and ends with either [] or {} we try to expand it.
@@ -2604,16 +2604,19 @@ def format_yaml(lines: str | list[str] | dict | list[dict], **kwargs: Any) -> \
             new_lines = json_dumps(new_lines)
         else:
             new_lines = yaml.dump(new_lines, sort_keys=False)
-    elif isinstance(new_lines, list) and new_lines and isinstance(new_lines[0], dict):
-        # When we get multiple objects it's because they're intended to be flattened
-        # into the same logpad.
-        lline = []
-        for d in new_lines:
-            if is_json:
-                lline.append(json_dumps(d))
-            else:
-                lline.append(yaml.dump(d, sort_keys=False))
-        new_lines = "\n".join(lline)
+    elif isinstance(new_lines, list) and new_lines:
+        if isinstance(new_lines[0], dict):
+            # When we get multiple objects it's because they're intended to be flattened
+            # into the same logpad.
+            lline = []
+            for d in new_lines:
+                if is_json:
+                    lline.append(json_dumps(d))
+                else:
+                    lline.append(yaml.dump(d, sort_keys=False))
+            new_lines = "\n".join(lline)
+        elif isinstance(new_lines[0], str) and "\n" in new_lines[0]:
+            new_lines = "\n".join(new_lines)
     else:
         new_lines = "\n".join(cast(list[str], new_lines))
 

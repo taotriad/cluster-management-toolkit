@@ -95,7 +95,10 @@ listview:
                   type: "status_unknown"
   statusmsg:
     # This should be fixed as soon as we handle defaults better
-    - ["Ping Hosts: ", ["config", "Context#ping_hosts"], "Always"]
+    - key: "Ping Hosts: "
+      source: "config"
+      path: "__Context#ping_hosts"
+      default: "Always"
   shortcuts:
     "Switch Context":
       key: "enter"

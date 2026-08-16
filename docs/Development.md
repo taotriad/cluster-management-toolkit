@@ -56,6 +56,7 @@ components are accepted.
 * [ ] Insert the output from `make mypy-markdown` in the changelog,
       and if necessary, adjust it.
 * [ ] Insert the output from `make pylint-markdown`.
+* [ ] Insert the output from `make coverage-markdown`.
 * [ ] Insert the output from `make regexploit`.
 * [ ] Insert the output from `make ruff`.
 * [ ] Insert the output from `make semgrep`.

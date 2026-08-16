@@ -123,7 +123,10 @@ listview:
     "View YAML dump": null
   statusmsg:
     # This should be fixed as soon as we handle defaults better
-    - ["Ping Hosts: ", ["config", "__Inventory#ping_hosts"], "Always"]
+    - key: "Ping Hosts: "
+      source: "config"
+      path: "__Inventory#ping_hosts"
+      default: "Always"
 infoview:
   name: "Inventory Info"
   infopad:
