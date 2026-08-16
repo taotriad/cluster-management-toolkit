@@ -1115,6 +1115,90 @@
                 }
             ]
         },
+        "statusmsg": {
+            "description": "A list of entries to add to the status bar",
+            "type": "array",
+            "items": {
+                "description": "An item to add to the status bar",
+                "type": "object",
+                "properties": {
+                    "default": {
+                        "description": "The default value to use",
+                        "type": "string"
+                    },
+                    "key": {
+                        "description": "The header for the entry",
+                        "type": "string"
+                    },
+                    "path": {
+                        "description": "The path to get the value from",
+                        "$ref": "#/$defs/simple_path"
+                    },
+                    "row": {
+                        "description": "The row to put the status field in (default: 2)",
+                        "enum": [
+                            1,
+                            2
+                        ]
+                    },
+                    "source": {
+                        "description": "The source to get the value from",
+                        "enum": [
+                            "config",
+                            "obj",
+                            "var"
+                        ]
+                    },
+                    "transform": {
+                        "description": "Additional transformations for the value",
+                        "type": "object",
+                        "properties": {
+                            "rule": {
+                                "description": "The type of transformation to perform; currently the only valid transformation is map",
+                                "enum": [
+                                    "map"
+                                ]
+                            },
+                            "map": {
+                                "description": "The mappings for a transformation",
+                                "type": "object",
+                                "patternProperties": {
+                                    "^[A-Za-z0-9 ()-]*[A-Za-z0-9)]$": {
+                                        "description": "A lookup table for values to remap",
+                                        "type": "object",
+                                        "properties": {
+                                            "value": {
+                                                "description": "A substitution",
+                                                "type": "string"
+                                            },
+                                            "lookup": {
+                                                "description": "Lookup a new value to replace the value",
+                                                "source": {
+                                                    "description": "The source to get the value from",
+                                                    "enum": [
+                                                        "config",
+                                                        "var",
+                                                        "formatter_args",
+                                                        "obj"
+                                                    ]
+                                                },
+                                                "path": {
+                                                    "description": "The path to get the value from",
+                                                    "$ref": "#/$defs/simple_path"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "required": [ "key", "path" ],
+                "additionalProperties": false
+            },
+            "minItems": 1
+        },
         "tuple_paths": {
             "description": "A tuple of paths and literal strings to use with deep_get()/deep_set()",
             "anyOf": [
@@ -1785,42 +1869,7 @@
                     "additionalProperties": false
                 },
                 "statusmsg": {
-                    "description": "A list of entries to add to the status bar",
-                    "type": "array",
-                    "items": {
-                        "description": "An item to add to the status bar",
-                        "type": "array",
-                        "prefixItems": [
-                            {
-                                "description": "The header for the entry",
-                                "type": "string"
-                            }, {
-                                "type": "array",
-                                "prefixItems": [
-                                    {
-                                        "description": "The source to get the value from",
-                                        "enum": [
-                                            "config",
-                                            "var"
-                                        ]
-                                    }, {
-                                        "description": "The path to get the value from",
-                                        "$ref": "#/$defs/simple_path"
-                                    }
-                                ],
-                                "items": false,
-                                "minItems": 2,
-                                "maxItems": 2
-                            }, {
-                                "description": "The default value to use if the path is empty",
-                                "type": "string"
-                            }
-                        ],
-                        "items": false,
-                        "minItems": 2,
-                        "maxItems": 3
-                    },
-                    "minItems": 1
+                    "$ref": "#/$defs/statusmsg"
                 }
             },
             "allOf": [
@@ -4430,81 +4479,7 @@
                     "additionalProperties": false
                 },
                 "statusmsg": {
-                    "description": "A list of entries to add to the status bar",
-                    "type": "array",
-                    "items": {
-                        "description": "An item to add to the status bar",
-                        "type": "object",
-                        "properties": {
-                            "key": {
-                                "description": "The header for the entry",
-                                "type": "string"
-                            },
-                            "source": {
-                                "description": "The source to get the value from",
-                                "enum": [
-                                    "config",
-                                    "var",
-                                    "formatter_args"
-                                ]
-                            },
-                            "path": {
-                                "description": "The path to get the value from",
-                                "$ref": "#/$defs/simple_path"
-                            },
-                            "default": {
-                                "description": "The default value to use",
-                                "type": "string"
-                            },
-                            "transform": {
-                                "description": "Additional transformations for the value",
-                                "type": "object",
-                                "properties": {
-                                    "rule": {
-                                        "description": "The type of transformation to perform; currently the only valid transformation is map",
-                                        "enum": [
-                                            "map"
-                                        ]
-                                    },
-                                    "map": {
-                                        "description": "The mappings for a transformation",
-                                        "type": "object",
-                                        "patternProperties": {
-                                            "^[A-Za-z0-9 ()-]*[A-Za-z0-9)]$": {
-                                                "description": "A lookup table for values to remap",
-                                                "type": "object",
-                                                "properties": {
-                                                    "value": {
-                                                        "description": "A substitution",
-                                                        "type": "string"
-                                                    },
-                                                    "lookup": {
-                                                        "description": "Lookup a new value to replace the value",
-                                                        "source": {
-                                                            "description": "The source to get the value from",
-                                                            "enum": [
-                                                                "config",
-                                                                "var",
-                                                                "formatter_args",
-                                                                "obj"
-                                                            ]
-                                                        },
-                                                        "path": {
-                                                            "description": "The path to get the value from",
-                                                            "$ref": "#/$defs/simple_path"
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        "required": [ "key", "path" ],
-                        "additionalProperties": false
-                    },
-                    "minItems": 1
+                    "$ref": "#/$defs/statusmsg"
                 }
             },
             "required": [ "name" ],

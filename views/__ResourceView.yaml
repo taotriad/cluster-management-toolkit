@@ -71,7 +71,7 @@ infoview:
           - "status"
   statusmsg:
     - key: "Formatter: "
-      source: "formatter_args"
+      source: "var"
       path: "raw"
       transform:
         rule: "map"
@@ -89,7 +89,7 @@ infoview:
       source: "var"
       path: "formatter_args#unfold_msg"
     - key: "Wrap Lines: "
-      source: "formatter_args"
+      source: "var"
       path: "wrap_lines"
     - key: "Focus Mode: "
       source: "var"
