@@ -93,17 +93,15 @@ N/A
 
 * Fixed a bug in `logparser.py` that would lose parts of the message when folding key/value messages
   using the `key_value()` parser-rule.
+* Some formatter corner-cases have been fixed.
 * `mdtable.py` now has an option to turn the bottom row bold, for use as a makeshift footer,
   since Markdown tables do not have footer support.
-* Some formatter corner-cases have been fixed.
+* `mdtable.py` now has an option to reformat Markdown tables; it will format it in a legible manner,
+  remove superfluous padding, and align the columns.
 * There's now a target that converts the output from make coverage to a Markdown table,
-  to make it suitable for use in the changelog. We do this using the new `--bold-footer` option in `mdtable.py`.
-  In essence we could achieve this using `python3-coverage report --format markdown`,
-  but it seems to miscount the column widths, which would make the changelog look bad in raw format.
-  Better solutions for the future would be to:
-  1. File an upstream bug report about this to `python3-coverage` (together with a request for reverse sort order).
-  2. Add target to mdtable that simply reformats existing tables instead of building them from scratch.
-* **FIXME** Insert output from make changelog*
+  to make it suitable for use in the changelog. We do this using the output
+  from `python3-coverage report --format markdown` combined with `mdtable.py --reformat`.
+* **FIXME** Insert output from `make changelog`
 
 ## Known Regressions in v0.8.10
 
@@ -241,42 +239,42 @@ Version: 7.8.2
 
 Output:
 
-| File                                                  | Statements     | Missing     | Branches     | Partial     | Coverage      |
-| :---------------------------------------------------- | :------------- | :---------- | :----------- | :---------- | ------------: |
-| clustermanagementtoolkit/cluster_actions.py           | 226            | 178         | 74           | 3           | 19.0%         |
-| clustermanagementtoolkit/curses_helper.py             | 2756           | 2009        | 1252         | 24          | 24.1%         |
-| clustermanagementtoolkit/infogetters.py               | 1770           | 1318        | 1084         | 22          | 24.5%         |
-| clustermanagementtoolkit/networkio.py                 | 395            | 289         | 188          | 3           | 25.2%         |
-| clustermanagementtoolkit/kubernetes_helper.py         | 1625           | 1104        | 788          | 77          | 28.2%         |
-| clustermanagementtoolkit/listgetters_async.py         | 118            | 75          | 52           | 2           | 31.2%         |
-| clustermanagementtoolkit/logparser.py                 | 2110           | 1360        | 1192         | 38          | 31.4%         |
-| clustermanagementtoolkit/listgetters.py               | 1230           | 780         | 686          | 17          | 34.8%         |
-| clustermanagementtoolkit/checks.py                    | 620            | 326         | 246          | 1           | 44.9%         |
-| clustermanagementtoolkit/datagetters.py               | 272            | 85          | 142          | 13          | 67.1%         |
-| clustermanagementtoolkit/generators.py                | 838            | 258         | 430          | 47          | 67.9%         |
-| clustermanagementtoolkit/ansible_helper.py            | 818            | 219         | 486          | 27          | 72.1%         |
-| clustermanagementtoolkit/cmtlib.py                    | 686            | 133         | 380          | 19          | 79.0%         |
-| clustermanagementtoolkit/ansithemeprint.py            | 294            | 53          | 126          | 5           | 80.0%         |
-| clustermanagementtoolkit/cmtio_yaml.py                | 108            | 13          | 32           | 5           | 85.7%         |
-| clustermanagementtoolkit/cmtio.py                     | 426            | 45          | 226          | 20          | 88.2%         |
-| clustermanagementtoolkit/formatters.py                | 913            | 49          | 400          | 42          | 92.2%         |
-| clustermanagementtoolkit/cni_data.py                  | 80             | 0           | 40           | 9           | 92.5%         |
-| clustermanagementtoolkit/cmtvalidators.py             | 337            | 18          | 212          | 8           | 93.4%         |
-| clustermanagementtoolkit/itemgetters.py               | 565            | 25          | 320          | 20          | 94.5%         |
-| clustermanagementtoolkit/reexecutor.py                | 69             | 1           | 26           | 2           | 96.8%         |
-| clustermanagementtoolkit/objgetters.py                | 56             | 0           | 12           | 1           | 98.5%         |
-| clustermanagementtoolkit/commandparser.py             | 431            | 2           | 262          | 2           | 99.4%         |
-| clustermanagementtoolkit/cmttypes.py                  | 493            | 1           | 188          | 0           | 99.9%         |
-| clustermanagementtoolkit/about.py                     | 17             | 0           | 0            | 0           | 100.0%        |
-| clustermanagementtoolkit/cmtlog.py                    | 80             | 0           | 40           | 0           | 100.0%        |
-| clustermanagementtoolkit/cmtpaths.py                  | 90             | 0           | 0            | 0           | 100.0%        |
-| clustermanagementtoolkit/fieldgetters.py              | 67             | 0           | 30           | 0           | 100.0%        |
-| clustermanagementtoolkit/github_tags.py               | 3              | 0           | 0            | 0           | 100.0%        |
-| clustermanagementtoolkit/helptexts.py                 | 24             | 0           | 0            | 0           | 100.0%        |
-| clustermanagementtoolkit/kubernetes_resources.py      | 5              | 0           | 0            | 0           | 100.0%        |
-| clustermanagementtoolkit/pvtypes.py                   | 3              | 0           | 0            | 0           | 100.0%        |
-| clustermanagementtoolkit/recommended_permissions.py   | 15             | 0           | 0            | 0           | 100.0%        |
-| **TOTAL**                                             | **17540**      | **8341**    | **8914**     | **407**     | **50.0%**     |
+| File                                                 | Statements |  Missing | Branches | Partial |  Coverage |
+| :--------------------------------------------------- | ---------: | -------: | -------: | ------: | --------: |
+| clustermanagementtoolkit/cluster\_actions.py         |        226 |      178 |       74 |       3 |     19.0% |
+| clustermanagementtoolkit/curses\_helper.py           |       2759 |     2012 |     1254 |      24 |     24.1% |
+| clustermanagementtoolkit/infogetters.py              |       1770 |     1318 |     1084 |      22 |     24.5% |
+| clustermanagementtoolkit/networkio.py                |        395 |      289 |      188 |       3 |     25.2% |
+| clustermanagementtoolkit/kubernetes\_helper.py       |       1625 |     1104 |      788 |      77 |     28.2% |
+| clustermanagementtoolkit/listgetters\_async.py       |        118 |       75 |       52 |       2 |     31.2% |
+| clustermanagementtoolkit/logparser.py                |       2106 |     1356 |     1192 |      38 |     31.5% |
+| clustermanagementtoolkit/listgetters.py              |       1230 |      780 |      686 |      17 |     34.8% |
+| clustermanagementtoolkit/checks.py                   |        620 |      326 |      246 |       1 |     44.9% |
+| clustermanagementtoolkit/datagetters.py              |        272 |       85 |      142 |      13 |     67.1% |
+| clustermanagementtoolkit/generators.py               |        838 |      258 |      430 |      47 |     67.9% |
+| clustermanagementtoolkit/ansible\_helper.py          |        818 |      219 |      486 |      27 |     72.1% |
+| clustermanagementtoolkit/cmtlib.py                   |        686 |      133 |      380 |      19 |     79.0% |
+| clustermanagementtoolkit/ansithemeprint.py           |        294 |       53 |      126 |       5 |     80.0% |
+| clustermanagementtoolkit/cmtio\_yaml.py              |        108 |       13 |       32 |       5 |     85.7% |
+| clustermanagementtoolkit/cmtio.py                    |        426 |       45 |      226 |      20 |     88.2% |
+| clustermanagementtoolkit/formatters.py               |        913 |       49 |      400 |      42 |     92.2% |
+| clustermanagementtoolkit/cni\_data.py                |         80 |        0 |       40 |       9 |     92.5% |
+| clustermanagementtoolkit/cmtvalidators.py            |        337 |       18 |      212 |       8 |     93.4% |
+| clustermanagementtoolkit/itemgetters.py              |        565 |       25 |      320 |      20 |     94.5% |
+| clustermanagementtoolkit/reexecutor.py               |         69 |        1 |       26 |       2 |     96.8% |
+| clustermanagementtoolkit/objgetters.py               |         56 |        0 |       12 |       1 |     98.5% |
+| clustermanagementtoolkit/commandparser.py            |        431 |        2 |      262 |       2 |     99.4% |
+| clustermanagementtoolkit/cmttypes.py                 |        493 |        1 |      188 |       0 |     99.9% |
+| clustermanagementtoolkit/about.py                    |         17 |        0 |        0 |       0 |    100.0% |
+| clustermanagementtoolkit/cmtlog.py                   |         80 |        0 |       40 |       0 |    100.0% |
+| clustermanagementtoolkit/cmtpaths.py                 |         90 |        0 |        0 |       0 |    100.0% |
+| clustermanagementtoolkit/fieldgetters.py             |         67 |        0 |       30 |       0 |    100.0% |
+| clustermanagementtoolkit/github\_tags.py             |          3 |        0 |        0 |       0 |    100.0% |
+| clustermanagementtoolkit/helptexts.py                |         24 |        0 |        0 |       0 |    100.0% |
+| clustermanagementtoolkit/kubernetes\_resources.py    |          5 |        0 |        0 |       0 |    100.0% |
+| clustermanagementtoolkit/pvtypes.py                  |          3 |        0 |        0 |       0 |    100.0% |
+| clustermanagementtoolkit/recommended\_permissions.py |         15 |        0 |        0 |       0 |    100.0% |
+| **TOTAL**                                            |  **17539** | **8340** | **8916** | **407** | **50.0%** |
 
 ### Flake8 Results for v0.8.10
 

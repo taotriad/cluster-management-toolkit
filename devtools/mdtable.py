@@ -15,7 +15,7 @@ import sys
 from typing import Any, NoReturn
 
 PROGRAMNAME = "mdtable.py"
-PROGRAMVERSION = "v0.0.7"
+PROGRAMVERSION = "v0.0.8"
 
 PROGRAMDESCRIPTION: str = "Reformat tabulated data to Markdown"
 PROGRAMAUTHORS: str = "Written by David Weinehall."
@@ -34,11 +34,17 @@ def usage() -> NoReturn:
     print()
     print(PROGRAMDESCRIPTION)
     print()
-    print("=HEADER  will left-align column (default behaviour)")
-    print(" HEADER= will right-align column")
-    print("=HEADER= will center-align column")
+    print("Given a file with columnised data, split it using SEPARATOR")
+    print("and format it as a Markdown table using HEADER...")
+    print()
+    print("The program can also reformat existing Markdown tables.")
+    print()
+    print("=HEADER  will left-align the column (default behaviour)")
+    print(" HEADER= will right-align the column")
+    print("=HEADER= will center-align the column")
     print()
     print("Options:")
+    print("  --reformat               Take a pre-formatted Markdown table as indata")
     print("  --separator SEPARATOR    The separator used in FILE; default \"|\"")
     print("  --bold-footer            Make all entries in the last row of the table bold")
     print("  --bold-regex REGEX       A regular expression to apply bold formatting to")
@@ -80,11 +86,13 @@ def format_table(file: str, separator: str, headers: list[str], **kwargs: Any) -
                 bold_footer (bool): Make all entries in the last row bold
                 bold_regex (str): A regular expression to check for matches to apply bold to
                 italics_regex (str): A regular expression to check for matches to apply italics to
+                reformat (bool): Take an existing Markdown table as input and reforamt it
     """
     lines: str = ""
     bold_footer: bool = kwargs.get("bold_footer", False)
     bold_regex: str = kwargs.get("bold_regex", "")
     italics_regex: str = kwargs.get("italics_regex", "")
+    reformat: bool = kwargs.get("reformat", False)
 
     try:
         with open(file, "r", encoding="utf-8") as f:
@@ -93,18 +101,70 @@ def format_table(file: str, separator: str, headers: list[str], **kwargs: Any) -
         print(f"{PROGRAMNAME}: \"{file}\": File not found.")
         sys.exit(errno.ENOENT)
 
-    column_count: int = len(headers)
-    widths: list[int] = [len(header.strip()) + 2 for header in headers]
-    adjusts: list[int] = [0 for header in headers]
-    i: int = 0
-
     # Remove trailing empty lines
     lines = lines.rstrip("\n")
+    splitlines = lines.split("\n")
 
-    tablelen = len(lines.split("\n"))
+    if not splitlines:
+        print(f"{PROGRAMNAME}: \"{file}\": is empty.")
+        sys.exit(errno.EINVAL)
+
+    if reformat:
+        new_splitlines = []
+
+        # Remove surrounding whitespace and table edges
+        for line in splitlines:
+            new_splitlines.append(line.strip().strip("|"))
+
+        splitlines = new_splitlines
+
+        if not splitlines[0]:
+            print(f"{PROGRAMNAME}: Inconsistent input data.")
+            print("The first line is empty.")
+            sys.exit(errno.EINVAL)
+
+        if headers:
+            tmpheaders = headers
+        else:
+            tmpheaders = splitlines[0].split("|")
+        headers = [header.strip() for header in tmpheaders]
+
+        if len(splitlines) > 1 and not splitlines[1]:
+            print(f"{PROGRAMNAME}: Inconsistent input data.")
+            print("The second line is empty.")
+            sys.exit(errno.EINVAL)
+
+        tmpalignments = splitlines[1].split("|")
+
+        if len(tmpalignments) != len(headers):
+            print(f"{PROGRAMNAME}: Inconsistent input data.")
+            print(f"{len(headers)} headers were provided, "
+                  f"but the table has {len(tmpalignments)} header dividers.")
+            sys.exit(errno.EINVAL)
+
+        for i, alignment in enumerate(tmpalignments):
+            alignment = alignment.strip()
+
+            # User-supplied alignment overrides that from the document.
+            if headers[i].startswith("=") or headers[i].endswith("="):
+                continue
+
+            if alignment.startswith(":") and not alignment.endswith(":"):
+                headers[i] = f"={headers[i].strip('=')}"
+            elif alignment.endswith(":") and not alignment.startswith(":"):
+                headers[i] = f"{headers[i].strip('=')}="
+            elif alignment.endswith(":") and alignment.startswith(":"):
+                headers[i] = f"={headers[i].strip('=')}="
+        splitlines = splitlines[2:]
+
+    column_count: int = len(headers)
+    widths: list[int] = [len(header.strip().strip("=")) for header in headers]
+    adjusts: list[int] = [0 for header in headers]
+
+    tablelen = len(splitlines)
 
     # First check for consistency and tabulate column widths
-    for i, line in enumerate(lines.split("\n")):
+    for i, line in enumerate(splitlines):
         columns: list[str] = line.split(separator)
         if column_count != len(columns):
             if i == 0:
@@ -130,11 +190,29 @@ def format_table(file: str, separator: str, headers: list[str], **kwargs: Any) -
 
     table: str = "|"
 
+    alignments = []
+
     for i, header in enumerate(headers):
         if widths[i] == 2:
             continue
-        table += " " + header.strip().strip("=").ljust(widths[i] + adjusts[i])
-        table += " |"
+        if header.startswith("="):
+            if header.endswith("="):
+                # Center align
+                alignments.append("^")
+            else:
+                # Left align
+                alignments.append("<")
+        elif header.endswith("="):
+            # Right align
+            alignments.append(">")
+        else:
+            # Default: left align
+            alignments.append("<")
+
+        alignwidth = widths[i] + adjusts[i]
+        formatstr = f":{alignments[i]}{alignwidth}"
+        formatstr2 = " {" + formatstr + "} |"
+        table += formatstr2.format(header.strip("="))
 
     table += "\n|"
 
@@ -142,21 +220,21 @@ def format_table(file: str, separator: str, headers: list[str], **kwargs: Any) -
         if widths[i] == 2:
             continue
         table += " "
-        if header.startswith("="):
-            if header.endswith("="):
-                table += ":".ljust(widths[i] + adjusts[i] - 1, "-")
-                table += ":"
-            else:
-                table += ":".ljust(widths[i] + adjusts[i], "-")
-        elif header.endswith("="):
+        if alignments[i] == "^":
+            # Center align
+            table += ":".ljust(widths[i] + adjusts[i] - 1, "-")
+            table += ":"
+        elif alignments[i] == ">":
+            # Right align
             table += "".ljust(widths[i] + adjusts[i] - 1, "-")
             table += ":"
         else:
+            # Left align
             table += ":".ljust(widths[i] + adjusts[i], "-")
         table += " |"
 
     # Now format the data
-    for i, line in enumerate(lines.split("\n")):
+    for i, line in enumerate(splitlines):
         columns = line.split(separator)
         table += "\n|"
         for j, column in enumerate(columns):
@@ -169,15 +247,27 @@ def format_table(file: str, separator: str, headers: list[str], **kwargs: Any) -
                 if re.match(bold_regex, column) is not None:
                     before = "**"
                     after = "**"
-            if italics_regex and before == "":
+            if italics_regex and before == "" and not (bold_footer and tablelen - 1 == i):
+                print(f"{bold_footer=}\n{tablelen - 1=}\n{i=}")
                 if re.match(italics_regex, column) is not None:
                     before = "*"
                     after = "*"
 
             column = column.strip()
+
+            # Just to make sure we don't add extra italics/bold.
+            if before == "**" and after == "**" \
+                    and column.startswith("**") and column.endswith("**"):
+                column = column.strip("**")
+            elif before == "*" and after == "*" \
+                    and column.startswith("*") and column.endswith("*"):
+                column = column.strip("*")
+
             column = f"{before}{column}{after}"
-            table += " " + column.ljust(widths[j] + adjusts[j])
-            table += " |"
+            alignwidth = widths[j] + adjusts[j]
+            formatstr = f":{alignments[j]}{alignwidth}"
+            formatstr2 = " {" + formatstr + "} |"
+            table += formatstr2.format(column)
 
     print(table)
 
@@ -197,18 +287,22 @@ def main() -> None:
     bold_footer: bool = False
     bold_regex: str = ""
     italics_regex: str = ""
+    reformat: bool = False
 
     i = 1
 
     while i < len(sys.argv):
         opt = sys.argv[i]
-        if not opt.startswith("--"):
-            break
         i += 1
         if opt in ("help", "--help"):
             usage()
         elif opt in ("version", "--version"):
             version()
+        elif not opt.startswith("--"):
+            i -= 1
+            break
+        elif opt == "--reformat":
+            reformat = True
         elif opt == "--bold-footer":
             bold_footer = True
         elif opt == "--bold-regex":
@@ -248,7 +342,7 @@ def main() -> None:
     headers = sys.argv[i + 1:]
 
     format_table(file, separator, headers, bold_footer=bold_footer,
-                 bold_regex=bold_regex, italics_regex=italics_regex)
+                 bold_regex=bold_regex, italics_regex=italics_regex, reformat=reformat)
 
 
 if __name__ == "__main__":

@@ -249,8 +249,8 @@ coverage-markdown:
 	fi; \
 	printf -- "\n\nSummarising results from $$cmd\n\n" ;\
 	tmpfile=$$(mktemp) ;\
-	$$cmd report --sort cover --precision 1 | tr -s ' ' | tr -s ' ' '|' | grep -v "^--------" | tail -n +2 > $${tmpfile} ;\
-	devtools/mdtable.py --bold-footer $${tmpfile} "File" "Statements" "Missing" "Branches" "Partial" "Coverage=" && rm $${tmpfile}
+	$$cmd report --sort cover --precision 1 --format markdown > $${tmpfile} ;\
+	devtools/mdtable.py --reformat $${tmpfile} "File" "Statements" "Missing" "Branches" "Partial" "Coverage" && rm $${tmpfile}
 
 # We need to extend the timeout since validation gives up on cmu.py otherwise.
 #
