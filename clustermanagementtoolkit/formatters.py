@@ -2127,7 +2127,6 @@ def format_yaml_line(line: str, **kwargs: Any) -> tuple[list[ThemeRef | ThemeStr
     """
     override_formatting: dict[str, ThemeAttr] = \
         deep_get(kwargs, DictPath("override_formatting"), {})
-    expand_newline_fields: tuple[str] = deep_get(kwargs, DictPath("expand_newline_fields"), ())
     value_strip_ansicodes: bool = deep_get(kwargs, DictPath("value_strip_ansicodes"), True)
     remnants: list[list[ThemeRef | ThemeStr]] = []
 
@@ -2219,40 +2218,17 @@ def format_yaml_line(line: str, **kwargs: Any) -> tuple[list[ThemeRef | ThemeStr
             if value_strip_ansicodes:
                 value = strip_ansicodes(value)
 
-            key_stripped = key.strip(" \"")
-            if key_stripped in expand_newline_fields:
-                split_value = split_msg(value.replace("\\n", "\n"))
-                value_line_indent = 0
+            tmpline += [
+                ThemeStr(f"{key}", _key_format),
+                ThemeStr(f"{separator}", separator_format),
+            ]
 
-                for i, value_line in enumerate(split_value):
-                    if i == 0:
-                        tmpline = [
-                            ThemeStr(f"{key}", _key_format),
-                            ThemeStr(f"{separator}", separator_format),
-                        ]
-                        if reference:
-                            tmpline.append(ThemeStr(f"{reference}", reference_format))
-                        if anchor:
-                            tmpline.append(ThemeStr(f"{anchor}", anchor_format))
-                        tmpline.append(ThemeStr(f"{value_line}", _value_format))
-                        value_line_indent = len(value_line) - len(value_line.lstrip(" \""))
-                    else:
-                        remnants.append([
-                            ThemeStr("".ljust(value_line_indent
-                                        + len(key + separator + reference)), _key_format),
-                            ThemeStr(f"{value_line}", _value_format),
-                        ])
-            else:
-                tmpline += [
-                    ThemeStr(f"{key}", _key_format),
-                    ThemeStr(f"{separator}", separator_format),
-                ]
-                if reference:
-                    tmpline.append(ThemeStr(f"{reference}", reference_format))
-                if anchor:
-                    tmpline.append(ThemeStr(f"{anchor}", anchor_format))
-                if value:
-                    tmpline.append(ThemeStr(f"{value}", _value_format))
+            if reference:
+                tmpline.append(ThemeStr(f"{reference}", reference_format))
+            if anchor:
+                tmpline.append(ThemeStr(f"{anchor}", anchor_format))
+            if value:
+                tmpline.append(ThemeStr(f"{value}", _value_format))
         else:
             _value_format = deep_get(override_formatting, DictPath(f"{line}#value"), value_format)
             tmpline += [

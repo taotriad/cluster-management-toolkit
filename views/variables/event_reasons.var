@@ -1276,7 +1276,7 @@ LatestReadyUpdate:
 LeaderElection:
   field_colors:
     - context: "main"
-      type: "status_ok"
+      type: "status_done"
 LoadBalancerNotFound:
   field_colors:
     - context: "main"

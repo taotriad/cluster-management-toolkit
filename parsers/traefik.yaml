@@ -20,6 +20,12 @@
 - name: "traefik"
   show_in_selector: false
   matchkeys:
+    - image_name: "/rancher/hardened-traefi"
+  parser_rules:
+    - name: "http"
+- name: "traefik"
+  show_in_selector: false
+  matchkeys:
     - pod_name: "traefik"
   parser_rules:
     - name: "strip_ansicodes"

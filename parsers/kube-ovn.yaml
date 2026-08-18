@@ -6,6 +6,18 @@
   parser_rules:
     - name: "ts_8601"
     - name: "glog"
+    - name: "json_line"
+      options:
+        block_start:
+          - matchtype: "endswith"
+            matchkey: "with content:"
+            matchline: "any"
+            format_block_start: false
+    - name: "override_severity"
+      overrides:
+        - matchtype: "startswith"
+          matchkey: "WARNING"
+          loglevel: "warning"
     - name: "custom_splitter"
       options:
         regex: '^\|\d+?\|([^|]+?)\|([A-Z]{4})\|(.*)'
@@ -26,6 +38,7 @@
     - pod_name: "kube-ovn-pinger"
   parser_rules:
     - name: "glog"
+    - name: "json"
     - name: "override_severity"
       overrides:
         - matchtype: "startswith"
@@ -58,6 +71,7 @@
   matchkeys:
     - image_name: "/rancher/harvester-kubeovn-operator"
   parser_rules:
+    - name: "glog"
     - name: "json"
 - name: "kube-ovn"
   show_in_selector: false

@@ -394,15 +394,8 @@ Pod:
   # For structured log entries, reorder the entries to put the message first
   # message_first: false
 
-  # Expand newlines embedded in messages; this is WIP
-  # expand_newlines: false
-
   # Enable severity override rules specified in parser-files
   # override_severity: true
-
-  # Merge messages of the kind "Starting COMPONENT" version="version"
-  # into "Starting COMPONENT version"
-  # merge_starting_version: false
 
 __ResourceView:
   # Should the viewer unfold lines? Choosing true here will

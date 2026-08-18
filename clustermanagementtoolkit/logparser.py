@@ -86,10 +86,13 @@ from clustermanagementtoolkit.cmtlib import none_timestamp, strip_ansicodes
 from clustermanagementtoolkit import formatters
 from clustermanagementtoolkit.cmtio_yaml import json_dumps, json_loads
 
-from clustermanagementtoolkit.curses_helper import themearray_len, themearray_to_string
+from clustermanagementtoolkit.curses_helper import themearray_flatten, themearray_len
+from clustermanagementtoolkit.curses_helper import themearray_to_string
 from clustermanagementtoolkit.curses_helper import ThemeAttr, ThemeRef, ThemeStr
 
 from clustermanagementtoolkit.ansithemeprint import ANSIThemeStr
+
+from clustermanagementtoolkit.generators import format_address
 
 from clustermanagementtoolkit.kubernetes_resources import event_reasons
 
@@ -111,19 +114,8 @@ class LogparserConfiguration:
     # this decides whether or not to put msg="foo" first or not
     # this also affects err="foo" and error="foo"
     msg_first: bool = False
-    # if msg_extract is True,
-    # this decides whether msg="foo\nbar" should be converted to:
-    # foo
-    # bar
-    # Currently this only work with JSON & key_value on a subset of keys
-    # and does not affect "err=" and "error="
-    expand_newlines: bool = False
     # Should override severity rules be applied?
     override_severity: bool = True
-    # if msg_extract is True,
-    # this decides whether should be converted to:
-    # msg="Starting foo" version="(version=.*)" => Starting foo (version=.*)
-    merge_starting_version: bool = False
     # Are parser-files read from BUNDLE.yaml?
     using_bundles: bool = False
 
@@ -729,6 +721,7 @@ def http(message: str,
 
         if re_tmp is not None:
             address1 = ipaddress
+            fmt_address1 = format_address(ipaddress, selected=False)
             separator1 = re_tmp[1]
             separator2 = re_tmp[2]
             day = re_tmp[3]
@@ -755,8 +748,7 @@ def http(message: str,
             else:
                 severity = LogLevel.ERR
             separator6 = re_tmp[14]
-            new_message: Sequence[ThemeRef | ThemeStr] = [
-                ThemeStr(address1, ThemeAttr("logview", "hostname")),
+            new_message: Sequence[ThemeRef | ThemeStr] = fmt_address1 + [
                 ThemeStr(separator1, ThemeAttr("logview", "severity_info")),
                 ThemeStr(f"{separator2}{ts}{separator3}", ThemeAttr("logview", "timestamp")),
                 ThemeStr(separator4, ThemeAttr("logview", "severity_info")),
@@ -800,6 +792,7 @@ def http(message: str,
 
         if re_tmp is not None:
             address1 = ipaddress
+            fmt_address1 = format_address(ipaddress, selected=False)
             separator1 = re_tmp[1]
             separator2 = re_tmp[2]
             day = re_tmp[3]
@@ -834,8 +827,7 @@ def http(message: str,
             remainder = re_tmp[22]
 
             severity_name = f"severity_{loglevel_to_name(severity).lower()}"
-            new_message = [
-                ThemeStr(address1, ThemeAttr("logview", "hostname")),
+            new_message = fmt_address1 + [
                 ThemeStr(separator1, ThemeAttr("logview", "severity_info")),
                 ThemeStr(f"{separator2}{ts}{separator3}", ThemeAttr("logview", "timestamp")),
                 ThemeStr(separator4, ThemeAttr("logview", "severity_info")),
@@ -892,8 +884,7 @@ def http(message: str,
             ThemeStr(" | ", ThemeAttr("logview", "severity_info")),
             ThemeStr(duration, ThemeAttr("logview", "severity_info")),
             ThemeStr(unit, ThemeAttr("types", "unit")),
-            ThemeStr(" | ", ThemeAttr("logview", "severity_info")),
-            ThemeStr(hostname, ThemeAttr("logview", "hostname")),
+            ThemeStr(" | ", ThemeAttr("logview", "severity_info"))] + format_address(hostname) + [
             ThemeRef("separators", "port"),
             ThemeStr(port, ThemeAttr("types", "port")),
             ThemeStr(" | ", ThemeAttr("logview", "severity_info")),
@@ -988,8 +979,8 @@ def http(message: str,
     if severity is None:
         severity = LogLevel.INFO
     severity_name = f"severity_{loglevel_to_name(severity).lower()}"
-    return [ThemeStr(f"{ipaddress}", ThemeAttr("logview", "hostname")),
-            ThemeStr(f"{message}", ThemeAttr("logview", severity_name))], severity, facility
+    return format_address(ipaddress, selected=False) \
+           + [ThemeStr(f"{message}", ThemeAttr("logview", severity_name))], severity, facility
 
 
 def split_glog(message: str, **kwargs: Any) \
@@ -1285,136 +1276,141 @@ def split_json_style(message: str, **kwargs: Any) \
         if level is not None:
             severity = str_to_severity(level)
 
-        # If the message is folded, append the rest
-        if fold_msg:
+        if severity is not None and severity == LogLevel.DEBUG:
+            structseverity: LogLevel = severity
+        else:
+            structseverity = LogLevel.INFO
+
+        if "err" not in logentry and "error" not in logentry:
             if severity is not None:
                 msgseverity = severity
             else:
                 msgseverity = LogLevel.INFO
-            # Append all remaining fields to message
-            if msg == "":
-                message = str(logentry)
-            else:
-                if LogparserConfiguration.msg_extract:
-                    # pop the first matching _msg
-                    for _msg in messages:
-                        if _msg in logentry:
-                            logentry.pop(_msg, None)
-                            break
-                    if logentry:
-                        message = f"{msg} {logentry}"
-                    else:
-                        message = msg
-                else:
-                    message = str(logentry)
-        # else return an expanded representation
         else:
-            if severity is not None and severity == LogLevel.DEBUG:
-                structseverity: LogLevel = severity
-            else:
-                structseverity = LogLevel.INFO
+            msgseverity = structseverity
+        if severity is not None:
+            errorseverity = severity
+        else:
+            errorseverity = LogLevel.ERR
 
-            if "err" not in logentry and "error" not in logentry:
-                if severity is not None:
-                    msgseverity = severity
-                else:
-                    msgseverity = LogLevel.INFO
-            else:
-                msgseverity = structseverity
-            if severity is not None:
-                errorseverity = severity
-            else:
-                errorseverity = LogLevel.ERR
+        if LogparserConfiguration.msg_extract:
+            message = msg
+            # Pop the first matching _msg
+            for _msg in messages:
+                if _msg in logentry:
+                    logentry.pop(_msg, None)
+                    break
+        else:
+            message = ""
 
-            if LogparserConfiguration.msg_extract:
-                message = msg
-                # Pop the first matching _msg
-                for _msg in messages:
-                    if _msg in logentry:
-                        logentry.pop(_msg, None)
-                        break
+        override_formatting: dict[str, Any] = {}
+        formatted_message = None
+        remnants: list[tuple[list[ThemeRef | ThemeStr], LogLevel]] = []
+
+        if logentry:
+            tagseverity = None
+            if structseverity == LogLevel.DEBUG:
+                override_formatting = {"__all": ThemeAttr("logview", "severity_debug")}
             else:
-                message = ""
-
-            override_formatting: dict[str, Any] = {}
-            formatted_message = None
-            remnants: list[tuple[list[ThemeRef | ThemeStr], LogLevel]] = []
-
-            if logentry:
-                tagseverity = None
-                if structseverity == LogLevel.DEBUG:
-                    override_formatting = {"__all": ThemeAttr("logview", "severity_debug")}
-                else:
-                    for _msg in versions:
-                        override_formatting[f"\"{_msg}\""] = {
-                            "key": ThemeAttr("types", "yaml_key"),
-                            "value": ThemeAttr("logview", "severity_notice")
-                        }
-                    msg_severity_name = f"severity_{loglevel_to_name(msgseverity).lower()}"
-                    error_severity_name = f"severity_{loglevel_to_name(errorseverity).lower()}"
-                    for _msg in messages:
-                        override_formatting[f"\"{_msg}\""] = {
-                            "key": ThemeAttr("types", "yaml_key"),
-                            "value": ThemeAttr("logview", msg_severity_name)
-                        }
-                    for _err in errors:
-                        override_formatting[f"\"{_err}\""] = {
-                            "key": ThemeAttr("types", "yaml_key_error"),
-                            "value": ThemeAttr("logview", error_severity_name),
-                        }
-                    for tag, tag_values in error_tags.items():
-                        for tag_key, tag_severity in tag_values.items():
-                            if tag_key in deep_get(logentry, DictPath(tag), []):
-                                tagseverity = str_to_severity(tag_severity, default=msgseverity)
-                                break
-                        if tagseverity is not None:
-                            break
-                if tagseverity is not None:
-                    tag_severity_name = f"severity_{loglevel_to_name(tagseverity).lower()}"
+                for _msg in versions:
                     override_formatting[f"\"{_msg}\""] = {
                         "key": ThemeAttr("types", "yaml_key"),
-                        "value": ThemeAttr("logview", tag_severity_name)
+                        "value": ThemeAttr("logview", "severity_notice")
                     }
-                    severity = tagseverity
+                msg_severity_name = f"severity_{loglevel_to_name(msgseverity).lower()}"
+                error_severity_name = f"severity_{loglevel_to_name(errorseverity).lower()}"
+                for _msg in messages:
+                    override_formatting[f"\"{_msg}\""] = {
+                        "key": ThemeAttr("types", "yaml_key"),
+                        "value": ThemeAttr("logview", msg_severity_name)
+                    }
+                for _err in errors:
+                    override_formatting[f"\"{_err}\""] = {
+                        "key": ThemeAttr("types", "yaml_key_error"),
+                        "value": ThemeAttr("logview", error_severity_name),
+                    }
+                for tag, tag_values in error_tags.items():
+                    for tag_key, tag_severity in tag_values.items():
+                        if tag_key in deep_get(logentry, DictPath(tag), []):
+                            tagseverity = str_to_severity(tag_severity, default=msgseverity)
+                            break
+                    if tagseverity is not None:
+                        break
+            if tagseverity is not None:
+                tag_severity_name = f"severity_{loglevel_to_name(tagseverity).lower()}"
+                override_formatting[f"\"{_msg}\""] = {
+                    "key": ThemeAttr("types", "yaml_key"),
+                    "value": ThemeAttr("logview", tag_severity_name)
+                }
+                severity = tagseverity
 
-                dump = json_dumps(logentry)
+            dump = json_dumps(logentry)
 
-                expand_newline_fields: tuple = ()
-                if LogparserConfiguration.expand_newlines:
-                    expand_newline_fields = (
-                        "config",
-                        "errorVerbose",
-                        "stacktrace",
-                        "status.message")
+            tmp = formatters.format_yaml([dump], override_formatting=override_formatting, json=True)
 
-                tmp = formatters.format_yaml([dump],
-                                             override_formatting=override_formatting,
-                                             expand_newline_fields=expand_newline_fields,
-                                             json=True)
+            if severity is None:
+                if structseverity is not None:
+                    severity = structseverity
+                else:
+                    severity = LogLevel.INFO
+            if not message:
+                formatted_message = tmp[0]
+                tmp.pop(0)
+                msgseverity = structseverity
+            for line in tmp:
+                remnants.append((line, severity))
 
-                if severity is None:
-                    if structseverity is not None:
-                        severity = structseverity
+        if formatted_message is not None:
+            if fold_msg:
+                new_message = formatted_message
+                for line, severity in remnants:
+                    new_message += line
+
+                # OK, we've joined everything into one line; now time for reformatting it.
+                formatted_message = []
+                prevstr: str = ""
+                prevfmt: ThemeAttr = None
+
+                # Reformatting won't work unless we substitute ThemeRefs.
+                for segment in themearray_flatten(new_message):
+                    string = str(segment)
+                    fmt = segment.get_themeattr()
+
+                    if prevstr in ("{", "["):
+                        # Strip all spaces after "{" / "[".
+                        string = string.lstrip()
+                        formatted_message.append(ThemeStr(string, fmt))
+                    elif prevstr.endswith(",") and string.startswith(" "):
+                        # Only one space after ",".
+                        string = f" {string.lstrip()}"
+                        formatted_message.append(ThemeStr(string, fmt))
+                    elif prevstr.endswith(" ") and string.lstrip().startswith(("}", "]")):
+                        # Strip all spaces before "}" / "]".
+                        if prevstr.endswith(" "):
+                            new_prevstr = prevstr.rstrip()
+                            formatted_message = formatted_message[:-1]
+                            formatted_message.append(ThemeStr(new_prevstr, prevfmt))
+
+                        # Strip all leading spaces.
+                        string = string.lstrip()
+                        formatted_message.append(ThemeStr(string, fmt))
                     else:
-                        severity = LogLevel.INFO
-                if not message:
-                    formatted_message = tmp[0]
-                    tmp.pop(0)
-                    msgseverity = structseverity
-                for line in tmp:
-                    remnants.append((line, severity))
+                        # Just append the segment unmodified.
+                        formatted_message.append(ThemeStr(string, fmt))
 
-            if formatted_message is not None:
-                return formatted_message, severity, facility, remnants
+                    prevstr = string
+                    prevfmt = fmt
+                remnants = []
 
-            if isinstance(message, str):
-                _message, severity = \
-                    custom_override_severity(message, severity,
-                                             overrides={
-                                                 "options": {
-                                                     "overrides": severity_overrides,
-                                                 }})
-            return message, severity, facility, remnants
+            return formatted_message, severity, facility, remnants
+
+        if isinstance(message, str):
+            _message, severity = \
+                custom_override_severity(message, severity,
+                                         overrides={
+                                             "options": {
+                                                 "overrides": severity_overrides,
+                                             }})
 
     return message, severity, facility, []
 
@@ -1650,7 +1646,9 @@ def custom_override_severity(message: str | list,
         Returns:
             (str|ThemeArray, LogLevel):
     """
-    overrides: list[dict] = deep_get(kwargs, DictPath("options#overrides"), [])
+    overrides: list[dict] = \
+        deep_get_with_fallback(kwargs, [DictPath("options#overrides"),
+                                        DictPath("options#severity#overrides")], [])
 
     if not LogparserConfiguration.override_severity:
         return message, severity
@@ -2022,6 +2020,7 @@ def key_value(message: str, **kwargs: Any) -> tuple[str, LogLevel, str,
 
     messages = deep_get(options, DictPath("messages"), ["msg"])
     errors = deep_get(options, DictPath("errors"), ["err", "error"])
+    highlight_reason = deep_get(options, DictPath("highlight_reason"), False)
     timestamps = deep_get(options, DictPath("timestamps"), ["t", "ts", "time"])
     severities = deep_get(options, DictPath("severities"), ["level", "lvl"])
     severity_overrides = deep_get(options, DictPath("severity#overrides"), [])
@@ -2038,6 +2037,7 @@ def key_value(message: str, **kwargs: Any) -> tuple[str, LogLevel, str,
     # Split all key=value pairs. Make sure not to process "=="
     key_value_regex = re.compile(r"^(.*?[^=])=($|[^=].*$)")
     tmp: list[str] | None = re.findall(r"(?:\".*?\"|\S)+", message.replace("\\\"", "<<<quote>>>"))
+
     # pylint: disable-next=too-many-nested-blocks
     if tmp:
         # First go through the list of matches and check that there is at least one
@@ -2118,8 +2118,8 @@ def key_value(message: str, **kwargs: Any) -> tuple[str, LogLevel, str,
                 if isinstance(_fac, str):
                     d.pop(_fac, None)
                 elif isinstance(_fac, dict):
-                    # This is a list, since the order of the facilities matter when outputting
-                    # it does not matter when popping though
+                    # This is a list, since the order of the facilities matter when outputting;
+                    # it does not matter when popping though.
                     for __fac in deep_get(_fac, DictPath("keys"), []):
                         if __fac == "":
                             continue
@@ -2127,146 +2127,101 @@ def key_value(message: str, **kwargs: Any) -> tuple[str, LogLevel, str,
                         d.pop(__fac)
 
         # pylint: disable-next=too-many-boolean-expressions
-        if not fold_msg \
-                and len(d) == 2 \
-                and LogparserConfiguration.merge_starting_version \
-                and "msg" in d \
-                and msg.startswith("Starting") \
-                and "version" in d \
-                and version.startswith("(version="):
-            message, severity = \
-                cast(tuple[str, LogLevel],
-                     custom_override_severity(msg, severity,
-                                              overrides={
-                                                  "options": {
-                                                      "overrides": severity_overrides,
-                                                  }}))
-            message = f"{msg} {version}"
-        elif "err" in d \
-                and ("errors occurred:" in d["err"] or "error occurred:" in d["err"]) \
-                and not fold_msg:
-            err = d["err"]
-            if err.startswith("\"") and err.endswith("\""):
-                err = err[1:-1]
-            message = f"{msg}"
-            if (re_tmp := re.match(r"^(\d+ errors? occurred:)(.*)", err)) is not None:
-                severity_name = f"severity_{loglevel_to_name(severity).lower()}"
-                remnants.append(([ThemeStr(re_tmp[1], ThemeAttr("logview", severity_name))],
-                                 severity))
-                s = re_tmp[2].replace("\\t", "").split("\\n")
-                for line in s:
-                    if line:
-                        remnants.append(([ThemeStr(f"{line}",
-                                                   ThemeAttr("logview", severity_name))], severity))
+        msg_tmp = []
+
+        # If we are extracting msg we always want msg first
+        if LogparserConfiguration.msg_extract and msg:
+            msg_tmp.append(msg)
+            # Pop the first matching _msg
+            for _msg in messages:
+                if _msg in d:
+                    d.pop(_msg, "")
+                    break
+            for key in errors:
+                if (value := d.pop(key, "")):
+                    msg_tmp.append(format_key_value(key, value, severity, error_keys=errors))
         else:
-            msg_tmp = []
-            # If we are extracting msg we always want msg first
-            if LogparserConfiguration.msg_extract and not fold_msg and msg:
-                msg_tmp.append(msg)
-                # Pop the first matching _msg
-                for _msg in messages:
-                    if _msg in d:
-                        d.pop(_msg, "")
-                        break
-                for key in errors:
-                    if (value := d.pop(key, "")):
-                        msg_tmp.append(format_key_value(key, value, severity, error_keys=errors))
+            if LogparserConfiguration.msg_first:
+               if (msg := deep_get_with_fallback(d, messages, "")):
+                   force_severity = False
+                   if not any(key in errors for key in d):
+                       force_severity = True
+                   msg_tmp.append(format_key_value("msg", msg, severity,
+                                                   force_severity=force_severity))
+               # Pop the first matching _msg
+               for _msg in messages:
+                   if _msg in d:
+                       d.pop(_msg, "")
+                       break
+               for key in errors:
+                   if (value := d.pop(key, "")):
+                       msg_tmp.append(format_key_value(key, value, severity))
+
+        for d_key, d_value in d.items():
+            if highlight_reason and d_key == "type":
+                if d_value.strip("\"") == "Normal":
+                    severity_ = LogLevel.NOTICE
+                elif d_value.strip("\"") == "Warning":
+                    severity_ = LogLevel.WARNING
+                msg_tmp.append(format_key_value(d_key, d_value,
+                                                severity_, force_severity=True))
+            elif highlight_reason and d_key == "reason":
+                severity_name = f"severity_{loglevel_to_name(severity).lower()}"
+                reason_format = deep_get(event_reasons, DictPath(d_value.strip("\"")),
+                                         ThemeAttr("logview", severity_name))
+                reasonarray = []
+                reasonarray.append(ThemeStr(d_key, ThemeAttr("types", "key")))
+                reasonarray += [ThemeRef("separators", "keyvalue_log")]
+                reasonarray.append(ThemeStr(d_value, reason_format))
+                msg_tmp.append(reasonarray)
+            elif d_key in versions:
+                msg_tmp.append(format_key_value(d_key, d_value,
+                                                LogLevel.NOTICE, force_severity=True))
             else:
-                if LogparserConfiguration.msg_first:
-                    if fold_msg:
-                        for key in messages + errors:
-                            value = d.pop(key, "")
-                            if value:
-                                if LogparserConfiguration.msg_extract and key in messages:
-                                    # We already have the message extracted
-                                    msg_tmp.append(msg)
-                                else:
-                                    msg_tmp.append(f"{key}={value}")
-                    else:
-                        if (msg := deep_get_with_fallback(d, messages, "")):
-                            force_severity = False
-                            if not any(key in errors for key in d):
-                                force_severity = True
-                            msg_tmp.append(format_key_value("msg", msg, severity,
-                                                            force_severity=force_severity))
-                        # Pop the first matching _msg
-                        for _msg in messages:
-                            if _msg in d:
-                                d.pop(_msg, "")
-                                break
-                        for key in errors:
-                            if (value := d.pop(key, "")):
-                                msg_tmp.append(format_key_value(key, value, severity))
-
-            for d_key, d_value in d.items():
-                if not fold_msg:
-                    if d_key in versions:
-                        msg_tmp.append(format_key_value(d_key, d_value,
-                                                        LogLevel.NOTICE, force_severity=True))
-                    else:
-                        if is_event and d_key == "type":
-                            severity_ = severity
-                            if d_value.strip("\"") == "Normal":
-                                severity_ = LogLevel.NOTICE
-                            elif d_value.strip("\"") == "Warning":
-                                severity_ = LogLevel.WARNING
-                            msg_tmp.append(format_key_value(d_key, d_value,
-                                                            severity_, force_severity=True))
-                            severity = min(severity, severity_)
-                        elif is_event and d_key == "reason":
-                            reason_format = deep_get(event_reasons, DictPath(d_value.strip("\"")))
-                            msg_tmp.append(format_key_value(d_key, d_value, severity_,
-                                                            force_severity=True,
-                                                            value_format=reason_format))
-                        else:
-                            d_value, severity_ = \
-                                custom_override_severity(d_value, severity,
-                                                         overrides={
-                                                             "options": {
-                                                                 "overrides": severity_overrides,
-                                                             }})
-                            force_severity = severity_ != severity
-                            msg_tmp.append(format_key_value(d_key, cast(str, d_value), severity_,
-                                                            force_severity=force_severity,
-                                                            allow_bare_keys=allow_bare_keys))
+                if is_event and d_key == "type":
+                    severity_ = severity
+                    if d_value.strip("\"") == "Normal":
+                        severity_ = LogLevel.NOTICE
+                    elif d_value.strip("\"") == "Warning":
+                        severity_ = LogLevel.WARNING
+                    msg_tmp.append(format_key_value(d_key, d_value,
+                                                    severity_, force_severity=True))
+                    severity = min(severity, severity_)
+                elif is_event and d_key == "reason":
+                    reason_format = deep_get(event_reasons, DictPath(d_value.strip("\"")))
+                    msg_tmp.append(format_key_value(d_key, d_value, severity_,
+                                                    force_severity=True,
+                                                    value_format=reason_format))
                 else:
-                    if d_value:
-                        msg_tmp.append(f"{d_key}={d_value}")
-                    else:
-                        msg_tmp.append(f"{d_key}")
+                    d_value, severity_ = \
+                        custom_override_severity(d_value, severity, options=options)
+                    force_severity = severity_ != severity
+                    msg_tmp.append(format_key_value(d_key, cast(str, d_value), severity_,
+                                                    force_severity=force_severity,
+                                                    allow_bare_keys=allow_bare_keys))
 
-            if fold_msg:
-                message = " ".join(msg_tmp)
-            else:
-                if msg_tmp:
-                    message = msg_tmp.pop(0)
-                else:
-                    message = ""
-                if msg_tmp:
-                    remnants = (msg_tmp, severity)
-
-    if LogparserConfiguration.expand_newlines \
-            and "\\n" in message \
-            and isinstance(message, str) \
-            and not fold_msg:
-        lines = message.split("\\n")
-        message = lines[0]
-        _remnants = []
-        if len(lines) > 1:
-            severity_name = f"severity_{loglevel_to_name(severity).lower()}"
-            for line in lines[1:]:
-                _remnants.append(([ThemeStr(f"{line}", ThemeAttr("logview", severity_name))],
-                                  severity))
-            if isinstance(remnants, tuple):
-                severity_name = f"severity_{loglevel_to_name(remnants[1]).lower()}"
-                for remnant in remnants[0]:
-                    _remnants.append((remnant, remnants[1]))
-                remnants = _remnants
-            elif isinstance(remnants, list):
-                remnants = _remnants + remnants
+        if msg_tmp:
+            message = msg_tmp.pop(0)
+        else:
+            message = ""
+        if msg_tmp:
+            remnants = (msg_tmp, severity)
 
     if facility.startswith("\"") and facility.endswith("\""):
         facility = facility[1:-1]
+
+    severity_str = f"severity_{loglevel_to_name(severity).lower()}"
+
+    if isinstance(message, str):
+        message = [ThemeStr(message, ThemeAttr("logview", severity_str))]
+
+    if fold_msg and remnants:
+        remnant_lines, _severity = remnants
+        for line in remnant_lines:
+            message += [ThemeStr(" ", ThemeAttr("logview", severity_str))]
+            message += line
+        remnants = []
+
     return facility, severity, message, remnants
 
 
@@ -2331,6 +2286,8 @@ def key_value_with_leading_message(message: str, **kwargs: Any) -> \
         tmp_msg_extract = LogparserConfiguration.msg_extract
         LogparserConfiguration.msg_extract = False
 
+        if "Event" in new_message:
+            options["highlight_reason"] = True
         facility, severity, first_message, tmp_new_remnants = \
             key_value(rest, fold_msg=False, severity=severity, facility=facility, options=options)
         LogparserConfiguration.msg_extract = tmp_msg_extract
@@ -3910,7 +3867,7 @@ def parsing_multiplexer(message: str | list[ThemeRef | ThemeStr],
         try:
             filter_options = {**filter_options, **options}
         except TypeError:
-            sys.exit(f"{_filter=}\n{filter_options=}")
+            sys.exit(f"Incompatible filter-options:\n{_filter=}\n{filter_options=}")
         # These parsers CANNOT handle ThemeArrays
         if isinstance(message, str):
             # Multiparsers
@@ -4096,10 +4053,6 @@ logparser_configkeys: dict[str, dict[str, str | bool]] = {
         "key": "Pod#message_first",
         "default": False,
     },
-    "expand_newlines": {
-        "key": "Pod#expand_newlines",
-        "default": False,
-    },
     "override_severity": {
         "key": "Pod#override_severity",
         "default": True,
@@ -4123,6 +4076,49 @@ def init_logparser_configuration() -> None:
         default = deep_get(data, DictPath("default"))
         configkey = deep_get(data, DictPath("key"))
         setattr(LogparserConfiguration, key, deep_get(cmtlib.cmtconfig, configkey, default))
+
+
+def compile_override_rules(parser_file: str,
+                           override_rules: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """
+    Given a list of override-rules, format it for use in parser-rules.
+
+        Parameters:
+            parser_file (str): The parser-file that the rule originated from
+            override_rules ([dict[str, Any]]): The override-rules to format
+        Returns:
+            ([dict[str, Any]]): The formatted override-rules
+    """
+    overrides = []
+
+    for override in override_rules:
+        matchtype = deep_get(override, DictPath("matchtype"))
+        matchkey = deep_get(override, DictPath("matchkey"))
+        _loglevel = deep_get(override, DictPath("loglevel"))
+
+        if matchtype is None or matchkey is None or _loglevel is None:
+            errmsg = [
+                [("Incorrect override rule in Parser ", "default"),
+                 (f"{parser_file}", "argument"),
+                 ("; every override must define ", "default"),
+                 ("matchtype, matchkey, and loglevel", "default")],
+            ]
+            unformatted_msg, formatted_msg = \
+                ANSIThemeStr.format_error_msg(errmsg)
+            cmtlog.log(LogLevel.ERR,
+                       msg=unformatted_msg, messages=formatted_msg)
+            continue
+
+        if matchtype == "regex":
+            regex = deep_get(override, DictPath("matchkey"), "")
+            matchkey = re.compile(regex)
+        overrides.append({
+            "matchtype": matchtype,
+            "matchkey": matchkey,
+            "loglevel": _loglevel,
+        })
+
+    return overrides
 
 
 # pylint: disable-next=too-many-locals,too-many-branches,too-many-statements
@@ -4263,7 +4259,10 @@ def init_parser_list(force_reinit: bool = False) -> None:
                     continue
 
                 rules: list[tuple[str, dict]] = []
+
                 for rule in parser_rules:
+                    overrides: list[dict[str, Any]] = {}
+
                     rule_name = deep_get(rule, DictPath("name"))
                     if rule_name in ("ansible_line",
                                      "bracketed_severity",
@@ -4305,37 +4304,20 @@ def init_parser_list(force_reinit: bool = False) -> None:
                                 value = re.compile(regex)
                             elif key == "default_loglevel":
                                 value = name_to_loglevel(value)
+                            elif key == "severity":
+                                value = deep_get(rule, DictPath("options#severity"), {})
+                                overrides = deep_get(value, DictPath("overrides"), [])
+                                if overrides:
+                                    value["overrides"] = \
+                                        compile_override_rules(parser_file, overrides)
                             options[key] = value
                         rules.append((rule_name, options))
                     elif rule_name == "override_severity":
-                        overrides = []
-                        for override in deep_get(rule, DictPath("overrides"), []):
-                            matchtype = deep_get(override, DictPath("matchtype"))
-                            matchkey = deep_get(override, DictPath("matchkey"))
-                            _loglevel = deep_get(override, DictPath("loglevel"))
-
-                            if matchtype is None or matchkey is None or _loglevel is None:
-                                errmsg = [
-                                    [("Incorrect override rule in Parser ", "default"),
-                                     (f"{parser_file}", "argument"),
-                                     ("; every override must define ", "default"),
-                                     ("matchtype, matchkey, and loglevel", "default")],
-                                ]
-                                unformatted_msg, formatted_msg = \
-                                    ANSIThemeStr.format_error_msg(errmsg)
-                                cmtlog.log(LogLevel.ERR,
-                                           msg=unformatted_msg, messages=formatted_msg)
-                                continue
-
-                            if matchtype == "regex":
-                                regex = deep_get(override, DictPath("matchkey"), "")
-                                matchkey = re.compile(regex)
-                            overrides.append({
-                                "matchtype": matchtype,
-                                "matchkey": matchkey,
-                                "loglevel": _loglevel,
-                            })
-                        rules.append((rule_name, {"overrides": overrides}))
+                        # FIXME: use options for override_severity too;
+                        # this would allow all rules to be unified.
+                        overrides = deep_get(rule, DictPath("overrides"), [])
+                        new_options = {"overrides": compile_override_rules(parser_file, overrides)}
+                        rules.append((rule_name, new_options))
                     else:
                         errmsg = [
                             [("Parser-file ", "default"),

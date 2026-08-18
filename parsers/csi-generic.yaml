@@ -23,5 +23,5 @@
           matchkey: "Version:"
           loglevel: "notice"
         - matchtype: "startswith"
-          matchkey: "\"Version\" version="
-          loglevel: "notice"
+          matchkey: "\"Warning: setting"
+          loglevel: "warning"

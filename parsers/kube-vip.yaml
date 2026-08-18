@@ -15,8 +15,7 @@
           transform: "str"
         message:
           field: 2
-    - name: "override_severity"
-      overrides:
-        - matchtype: "startswith"
-          matchkey: "kube-vip.io version="
-          loglevel: "notice"
+    - name: "key_value_with_leading_message"
+      options:
+        versions:
+          - "version"

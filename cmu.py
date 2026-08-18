@@ -5379,7 +5379,12 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                             _logentries.append(_logentry)
 
                         if _block_state in ("end_block", "end_block_not_processed"):
-                            # OK, we've got a block; start by appending the first line
+                            if _logentries[0][2] > log_level:
+                                hidden_msgs += 1
+                                break
+
+                            # OK, we've got a block and it's a severity we want to add;
+                            # start by appending the first line.
                             if _logentries:
                                 timestamps, facilities, severities, messages = \
                                     log_add_line(timestamps, facilities, severities, messages,
@@ -6012,18 +6017,6 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                     "columns": [[ThemeStr("Override severity",
                                  ThemeAttr("windowwidget", "default"))]],
                     "retval": "override_severity",
-                },
-                {
-                    "lineattrs": WidgetLineAttrs.NORMAL,
-                    "columns": [[ThemeStr("Merge starting version",
-                                 ThemeAttr("windowwidget", "default"))]],
-                    "retval": "merge_starting_version",
-                },
-                {
-                    "lineattrs": WidgetLineAttrs.NORMAL,
-                    "columns": [[ThemeStr("Expand newlines (WIP)",
-                                 ThemeAttr("windowwidget", "default"))]],
-                    "retval": "expand_newlines",
                 },
             ]
             preselection: str | set = set()

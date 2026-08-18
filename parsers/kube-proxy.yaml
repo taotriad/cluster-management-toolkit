@@ -22,8 +22,5 @@
           matchkey: "Version: v"
           loglevel: "notice"
         - matchtype: "startswith"
-          matchkey: "\"Version info\""
-          loglevel: "notice"
-        - matchtype: "startswith"
           matchkey: "Trace["
           loglevel: "debug"

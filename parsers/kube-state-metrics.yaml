@@ -7,6 +7,7 @@
     - pod_name: "prometheus-kube-state-metrics"
     - image_name: "/kube-state-metrics/kube-state-metrics"
     - image_name: "/rancher/mirrored-kube-state-metrics-kube-state-metrics"
+    - image_name: "/rancher/appco-kube-state-metrics"
   parser_rules:
     - name: "glog"
     - name: "override_severity"

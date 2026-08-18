@@ -14,11 +14,12 @@
     - name: "glog"
     - name: "json"
     - name: "key_value"
-    - name: "override_severity"
-      overrides:
-        - matchtype: "startswith"
-          matchkey: "Starting harvester-eventrouter version"
-          loglevel: "notice"
+      options:
+        severity:
+          overrides:
+            - matchtype: "regex"
+              matchkey: ".*Starting .+ version"
+              loglevel: "notice"
 - name: "harvester"
   show_in_selector: false
   matchkeys:
@@ -41,10 +42,34 @@
     - image_name: "/rancher/harvester-webhook"
     - image_name: "/rancher/harvester-upgrade"
   parser_rules:
+    - name: "strip_ansicodes"
     - name: "glog"
     - name: "key_value"
       options:
         newlines: "strip_trailing"
+        severity:
+          overrides:
+            - matchtype: "regex"
+              matchkey: ".*Starting .+ version"
+              loglevel: "notice"
+            - matchtype: "regex"
+              matchkey: ".*manager .+ starting"
+              loglevel: "notice"
+            - matchtype: "regex"
+              matchkey: ".*controller .+ starting"
+              loglevel: "notice"
+    - name: "yaml_line"
+      options:
+        block_start:
+          - matchtype: "regex"
+            matchkey: "The final content of .* patch file"
+            matchline: "any"
+            format_block_start: false
+        block_end:
+          - matchtype: "regex"
+            matchkey: "Upgrad|Patch"
+            format_block_end: false
+            process_block_end: false
     - name: "override_severity"
       overrides:
         - matchtype: "startswith"
@@ -59,9 +84,6 @@
         - matchtype: "startswith"
           matchkey: "\"Warning: "
           loglevel: "warning"
-        - matchtype: "regex"
-          matchkey: "^Starting .+ version "
-          loglevel: "notice"
-        - matchtype: "regex"
-          matchkey: ".+(ontroller|anager) v.+ is starting$"
-          loglevel: "notice"
+        - matchtype: "startswith"
+          matchkey: "Error: "
+          loglevel: "error"

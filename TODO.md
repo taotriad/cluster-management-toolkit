@@ -126,8 +126,6 @@
 
 ## logparser
 
-* It might be a good idea to disable `msg_extract`, `msg_first`,
-  `merge_starting_version`, and possibly also `expand_newlines` by default.
 * For key_value_with_leading_message when having allow_bare_keys enabled
   we should only allow booleans and integers to be unquoted. Otherwise we
   might end up with regular strings split over multiple lines.

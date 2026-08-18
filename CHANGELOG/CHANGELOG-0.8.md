@@ -91,8 +91,17 @@ N/A
 
 ### Changes to other files in v0.8.10
 
+* Parser-rules that are block-based no longer bypass the severity filter.
+* `key_value_with_message()` now retains highlighting even when the message is folded.
+* json() now keeps formatting even when the message is folded.
 * Fixed a bug in `logparser.py` that would lose parts of the message when folding key/value messages
   using the `key_value()` parser-rule.
+* The "Expand Newlines" option has been removed from the logparser;
+  it was Work in Progress that never progressed, was rarely used,
+  and caused a lot of special-cases in the code.
+* The "Merge Starting Version" option has been removed from the logparser;
+  while it was used in several places it caused more code complexity than benefits.
+* Some progress has been made towards overriding severity on a per-key basis rather than per-message.
 * Some formatter corner-cases have been fixed.
 * `mdtable.py` now has an option to turn the bottom row bold, for use as a makeshift footer,
   since Markdown tables do not have footer support.

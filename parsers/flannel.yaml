@@ -11,3 +11,4 @@
     - image_name: "/flannel-io/flannel"
   parser_rules:
     - name: "glog"
+    - name: "key_value_with_leading_message"
