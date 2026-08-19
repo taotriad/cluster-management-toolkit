@@ -8,11 +8,10 @@
     - name: "glog"
     - name: "json"
     - name: "key_value"
-      options:
-        versions:
-          - "version"
     - name: "override_severity"
-      overrides:
-        - matchtype: "startswith"
-          matchkey: "http: TLS handshake error"
-          loglevel: "error"
+      options:
+        severity:
+          overrides:
+            - matchtype: "startswith"
+              matchkey: "http: TLS handshake error"
+              loglevel: "error"

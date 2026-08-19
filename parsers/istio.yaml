@@ -42,10 +42,12 @@
             format_block_end: false
             process_block_end: false
     - name: "override_severity"
-      overrides:
-        - matchtype: "startswith"
-          matchkey: "Version "
-          loglevel: "notice"
+      options:
+        severity:
+          overrides:
+            - matchtype: "startswith"
+              matchkey: "Version "
+              loglevel: "notice"
 - name: "istio"
   show_in_selector: false
   matchkeys:
@@ -80,10 +82,12 @@
         message:
           field: 2
     - name: "override_severity"
-      overrides:
-        - matchtype: "startswith"
-          matchkey: "http: \"TLS\" handshake error"
-          loglevel: "error"
+      options:
+        severity:
+          overrides:
+            - matchtype: "startswith"
+              matchkey: "http: \"TLS\" handshake error"
+              loglevel: "error"
     - name: "json_line"
       options:
         allow_empty_lines: true

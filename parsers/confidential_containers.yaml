@@ -22,9 +22,12 @@
           - matchtype: "regex"
             matchkey: "[^\\s]"
             format_block_end: false
-        loglevel: "notice"
+        severity:
+          default: "notice"
     - name: "override_severity"
-      overrides:
-        - matchtype: "startswith"
-          matchkey: "INFO:"
-          loglevel: "notice"
+      options:
+        severity:
+          overrides:
+            - matchtype: "startswith"
+              matchkey: "INFO:"
+              loglevel: "notice"

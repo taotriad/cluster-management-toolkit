@@ -3009,6 +3009,7 @@
                                 }
                             }, "then": {
                                 "properties": {
+                                    "infogetter": { "const": "logpad_files" },
                                     "infogetter_args": {
                                         "description": "Arguments to pass to logpad_files()",
                                         "type": "object",
@@ -3023,8 +3024,13 @@
                                             }
                                         },
                                         "additionalProperties": false
+                                    },
+                                    "timestamps": {
+                                        "description": "Should the timestamp column be displayed",
+                                        "type": "boolean"
                                     }
-                                }
+                                },
+                                "additionalProperties": false
                             }
                         }, {
                             "if": {
@@ -3033,6 +3039,7 @@
                                 }
                             }, "then": {
                                 "properties": {
+                                    "infogetter": { "const": "logpad_formatted" },
                                     "infogetter_args": {
                                         "description": "Arguments to pass to logpad_formatted()",
                                         "type": "object",
@@ -3132,8 +3139,13 @@
                                             }
                                         ],
                                         "additionalProperties": false
+                                    },
+                                    "timestamps": {
+                                        "description": "Should the timestamp column be displayed",
+                                        "type": "boolean"
                                     }
-                                }
+                                },
+                                "additionalProperties": false
                             }
                         }, {
                             "if": {
@@ -3142,6 +3154,7 @@
                                 }
                             }, "then": {
                                 "properties": {
+                                    "infogetter": { "const": "logpad_msg_getter" },
                                     "infogetter_args": {
                                         "description": "Arguments to pass to logpad_files()",
                                         "type": "object",
@@ -3150,8 +3163,13 @@
                                                 "$ref": "#/$defs/simple_path"
                                             }
                                         }
+                                    },
+                                    "timestamps": {
+                                        "description": "Should the timestamp column be displayed",
+                                        "type": "boolean"
                                     }
-                                }
+                                },
+                                "additionalProperties": false
                             }
                         }, {
                             "if": {
@@ -3160,10 +3178,16 @@
                                 }
                             }, "then": {
                                 "properties": {
+                                    "infogetter": { "const": "get_cmt_log" },
                                     "infogetter_args": {
                                         "additionalProperties": false
+                                    },
+                                    "timestamps": {
+                                        "description": "Should the timestamp column be displayed",
+                                        "type": "boolean"
                                     }
-                                }
+                                },
+                                "additionalProperties": false
                             }
                         }, {
                             "if": {
@@ -3172,10 +3196,12 @@
                                 }
                             }, "then": {
                                 "properties": {
+                                    "infogetter": { "const": "get_journalctl_log" },
                                     "infogetter_args": {
                                         "additionalProperties": false
                                     }
-                                }
+                                },
+                                "additionalProperties": false
                             }
                         }, {
                             "if": {
@@ -3184,10 +3210,16 @@
                                 }
                             }, "then": {
                                 "properties": {
+                                    "infogetter": { "const": "get_task_log" },
                                     "infogetter_args": {
                                         "additionalProperties": false
+                                    },
+                                    "timestamps": {
+                                        "description": "Should the timestamp column be displayed",
+                                        "type": "boolean"
                                     }
-                                }
+                                },
+                                "additionalProperties": false
                             }
                         }, {
                             "if": {
@@ -3196,10 +3228,16 @@
                                 }
                             }, "then": {
                                 "properties": {
+                                    "infogetter": { "const": "get_themearrays" },
                                     "infogetter_args": {
                                         "additionalProperties": false
+                                    },
+                                    "timestamps": {
+                                        "description": "Should the timestamp column be displayed",
+                                        "type": "boolean"
                                     }
-                                }
+                                },
+                                "additionalProperties": false
                             }
                         }, {
                             "if": {
@@ -3208,10 +3246,16 @@
                                 }
                             }, "then": {
                                 "properties": {
+                                    "infogetter": { "const": "get_traceflow" },
                                     "infogetter_args": {
                                         "additionalProperties": false
+                                    },
+                                    "timestamps": {
+                                        "description": "Should the timestamp column be displayed",
+                                        "type": "boolean"
                                     }
-                                }
+                                },
+                                "additionalProperties": false
                             }
                         }
                     ],

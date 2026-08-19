@@ -27,23 +27,27 @@
           field: 2
     - name: "json"
       options:
-        facilities:
-          - "component"
-        overrides:
-          - matchtype: "contains"
-            matchkey: " was deprecated "
-            loglevel: "warning"
-          - matchtype: "contains"
-            matchkey: " are deprecated"
-            loglevel: "warning"
+        facility:
+          keys:
+            - "component"
+        severity:
+          overrides:
+            - matchtype: "contains"
+              matchkey: " was deprecated "
+              loglevel: "warning"
+            - matchtype: "contains"
+              matchkey: " are deprecated"
+              loglevel: "warning"
     - name: "override_severity"
-      overrides:
-        - matchtype: "startswith"
-          matchkey: "warning:"
-          loglevel: "warning"
-        - matchtype: "startswith"
-          matchkey: "OpenJDK 64-Bit Server VM warning:"
-          loglevel: "warning"
+      options:
+        severity:
+          overrides:
+            - matchtype: "startswith"
+              matchkey: "warning:"
+              loglevel: "warning"
+            - matchtype: "startswith"
+              matchkey: "OpenJDK 64-Bit Server VM warning:"
+              loglevel: "warning"
     - name: "custom_splitter"
       options:
         # yamllint disable-line rule:line-length

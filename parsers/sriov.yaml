@@ -12,7 +12,9 @@
             matchkey: "raw ResourceList: {"
             matchline: "any"
     - name: "override_severity"
-      overrides:
-        - matchtype: "startswith"
-          matchkey: "WARNING"
-          loglevel: "warning"
+      options:
+        severity:
+          overrides:
+            - matchtype: "startswith"
+              matchkey: "WARNING"
+              loglevel: "warning"

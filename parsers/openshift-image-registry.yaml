@@ -10,13 +10,15 @@
     - name: "glog"
     - name: "expand_event"
     - name: "override_severity"
-      overrides:
-        - matchtype: "startswith"
-          matchkey: "Cluster Image Registry Operator Version"
-          loglevel: "notice"
-        - matchtype: "startswith"
-          matchkey: "Trace["
-          loglevel: "debug"
+      options:
+        severity:
+          overrides:
+            - matchtype: "startswith"
+              matchkey: "Cluster Image Registry Operator Version"
+              loglevel: "notice"
+            - matchtype: "startswith"
+              matchkey: "Trace["
+              loglevel: "debug"
 - name: "openshift-image-registry"
   show_in_selector: false
   matchkeys:
@@ -25,5 +27,6 @@
   parser_rules:
     - name: "key_value"
       options:
-        versions:
-          - "distribution_version"
+        version:
+          keys:
+            - "distribution_version"

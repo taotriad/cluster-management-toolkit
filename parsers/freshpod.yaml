@@ -8,10 +8,12 @@
     - name: "ts_8601"
     - name: "glog"
     - name: "override_severity"
-      overrides:
-        - matchtype: "startswith"
-          matchkey: "connected kubernetes apiserver"
-          loglevel: "notice"
-        - matchtype: "startswith"
-          matchkey: "connected docker api"
-          loglevel: "notice"
+      options:
+        severity:
+          overrides:
+            - matchtype: "startswith"
+              matchkey: "connected kubernetes apiserver"
+              loglevel: "notice"
+            - matchtype: "startswith"
+              matchkey: "connected docker api"
+              loglevel: "notice"

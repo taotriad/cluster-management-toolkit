@@ -8,13 +8,15 @@
     - name: "glog"
     - name: "key_value_with_leading_message"
     - name: "override_severity"
-      overrides:
-        - matchtype: "startswith"
-          matchkey: "http2: server: error"
-          loglevel: "error"
-        - matchtype: "startswith"
-          matchkey: "http2: \"server\": error"
-          loglevel: "error"
-        - matchtype: "startswith"
-          matchkey: "Trace["
-          loglevel: "debug"
+      options:
+        severity:
+          overrides:
+            - matchtype: "startswith"
+              matchkey: "http2: server: error"
+              loglevel: "error"
+            - matchtype: "startswith"
+              matchkey: "http2: \"server\": error"
+              loglevel: "error"
+            - matchtype: "startswith"
+              matchkey: "Trace["
+              loglevel: "debug"

@@ -14,10 +14,12 @@
         message:
           field: 2
     - name: "override_severity"
-      overrides:
-        - matchtype: "startswith"
-          matchkey: "ERROR:"
-          loglevel: "error"
+      options:
+        severity:
+          overrides:
+            - matchtype: "startswith"
+              matchkey: "ERROR:"
+              loglevel: "error"
     - name: "python_traceback"
 - name: "opea"
   show_in_selector: false

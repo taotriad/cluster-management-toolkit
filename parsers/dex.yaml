@@ -6,13 +6,16 @@
   parser_rules:
     - name: "key_value"
       options:
-        versions:
-          - "dex_version"
+        version:
+          keys:
+            - "dex_version"
     - name: "override_severity"
-      overrides:
-        - matchtype: "startswith"
-          matchkey: "Dex Version:"
-          loglevel: "notice"
-        - matchtype: "startswith"
-          matchkey: "failed to list custom resource"
-          loglevel: "error"
+      options:
+        severity:
+          overrides:
+            - matchtype: "startswith"
+              matchkey: "Dex Version:"
+              loglevel: "notice"
+            - matchtype: "startswith"
+              matchkey: "failed to list custom resource"
+              loglevel: "error"

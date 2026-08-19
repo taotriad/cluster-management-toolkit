@@ -24,16 +24,19 @@
     - name: "ts_8601"
     - name: "json"
       options:
-        severities:
-          - "severity"
+        severity:
+          keys:
+            - "severity"
     - name: "override_severity"
-      overrides:
-        - matchtype: "startswith"
-          matchkey: "\"Warning:"
-          loglevel: "warning"
-        - matchtype: "startswith"
-          matchkey: "http2: server: error"
-          loglevel: "warning"
-        - matchtype: "startswith"
-          matchkey: "Trace["
-          loglevel: "debug"
+      options:
+        severity:
+          overrides:
+            - matchtype: "startswith"
+              matchkey: "\"Warning:"
+              loglevel: "warning"
+            - matchtype: "startswith"
+              matchkey: "http2: server: error"
+              loglevel: "warning"
+            - matchtype: "startswith"
+              matchkey: "Trace["
+              loglevel: "debug"

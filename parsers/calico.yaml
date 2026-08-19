@@ -31,13 +31,15 @@
         message:
           field: 4
     - name: "override_severity"
-      overrides:
-        - matchtype: "startswith"
-          matchkey: "CNI plugin version:"
-          loglevel: "notice"
-        - matchtype: "contains"
-          matchkey: "cniVersion"
-          loglevel: "notice"
+      options:
+        severity:
+          overrides:
+            - matchtype: "startswith"
+              matchkey: "CNI plugin version:"
+              loglevel: "notice"
+            - matchtype: "contains"
+              matchkey: "cniVersion"
+              loglevel: "notice"
 - name: "calico"
   matchkeys:
     - container_name: "calico-apiserver"
@@ -45,13 +47,15 @@
     - name: "glog"
     - name: "key_value"
     - name: "override_severity"
-      overrides:
-        - matchtype: "startswith"
-          matchkey: "Version:"
-          loglevel: "notice"
-        - matchtype: "startswith"
-          matchkey: "Trace["
-          loglevel: "debug"
+      options:
+        severity:
+          overrides:
+            - matchtype: "startswith"
+              matchkey: "Version:"
+              loglevel: "notice"
+            - matchtype: "startswith"
+              matchkey: "Trace["
+              loglevel: "debug"
 - name: "calico"
   matchkeys:
     - container_name: "csi-node-driver-registrar"
@@ -110,23 +114,26 @@
             matchkey: '^[^|+]'
             format_block_end: false
             process_block_end: false
-        loglevel: "notice"
+        severity:
+          default: "notice"
     - name: "override_severity"
-      overrides:
-        - matchtype: "regex"
-          # yamllint disable-line rule:line-length
-          matchkey: "^Unable to open configuration file.*No such file or directory$"
-          loglevel: "warning"
-        - matchtype: "startswith"
-          matchkey: "Typha starting up"
-          loglevel: "notice"
-        - matchtype: "regex"
-          matchkey: 'Starting node .* with version'
-          loglevel: "notice"
-        - matchtype: "startswith"
-          matchkey: "Felix starting up"
-          loglevel: "notice"
-        - matchtype: "contains"
-          matchkey: "CalicoVersion"
-          loglevel: "notice"
+      options:
+        severity:
+          overrides:
+            - matchtype: "regex"
+              # yamllint disable-line rule:line-length
+              matchkey: "^Unable to open configuration file.*No such file or directory$"
+              loglevel: "warning"
+            - matchtype: "startswith"
+              matchkey: "Typha starting up"
+              loglevel: "notice"
+            - matchtype: "regex"
+              matchkey: 'Starting node .* with version'
+              loglevel: "notice"
+            - matchtype: "startswith"
+              matchkey: "Felix starting up"
+              loglevel: "notice"
+            - matchtype: "contains"
+              matchkey: "CalicoVersion"
+              loglevel: "notice"
     - name: "key_value"

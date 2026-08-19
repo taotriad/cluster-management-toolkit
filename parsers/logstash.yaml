@@ -26,10 +26,12 @@
         message:
           field: 2
     - name: "override_severity"
-      overrides:
-        - matchtype: "startswith"
-          matchkey: "OpenJDK 64-Bit Server VM warning:"
-          loglevel: "warning"
+      options:
+        severity:
+          overrides:
+            - matchtype: "startswith"
+              matchkey: "OpenJDK 64-Bit Server VM warning:"
+              loglevel: "warning"
     - name: "custom_splitter"
       options:
         # yamllint disable-line rule:line-length

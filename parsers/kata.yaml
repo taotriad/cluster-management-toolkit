@@ -6,10 +6,12 @@
       container_name: "kube-kata"
   parser_rules:
     - name: "override_severity"
-      overrides:
-        - matchtype: "startswith"
-          matchkey: "ERROR"
-          loglevel: "error"
-        - matchtype: "startswith"
-          matchkey: "warning"
-          loglevel: "warning"
+      options:
+        severity:
+          overrides:
+            - matchtype: "startswith"
+              matchkey: "ERROR"
+              loglevel: "error"
+            - matchtype: "startswith"
+              matchkey: "warning"
+              loglevel: "warning"

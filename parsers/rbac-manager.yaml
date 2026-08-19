@@ -5,6 +5,3 @@
     - image_name: "/reactiveops/rbac-manager"
   parser_rules:
     - name: "key_value"
-      options:
-        versions:
-          - "version"

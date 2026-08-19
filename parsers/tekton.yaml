@@ -9,14 +9,17 @@
     - name: "glog"
     - name: "json"
       options:
-        severities:
-          - "level"
-          - "severity"
+        severity:
+          keys:
+            - "level"
+            - "severity"
     - name: "override_severity"
-      overrides:
-        - matchtype: "startswith"
-          matchkey: "http: TLS handshake error"
-          loglevel: "error"
-        - matchtype: "startswith"
-          matchkey: "Trace["
-          loglevel: "debug"
+      options:
+        severity:
+          overrides:
+            - matchtype: "startswith"
+              matchkey: "http: TLS handshake error"
+              loglevel: "error"
+            - matchtype: "startswith"
+              matchkey: "Trace["
+              loglevel: "debug"

@@ -6,7 +6,9 @@
   parser_rules:
     - name: "json"
     - name: "override_severity"
-      overrides:
-        - matchtype: "startswith"
-          matchkey: "Starting Kilo "
-          loglevel: "notice"
+      options:
+        severity:
+          overrides:
+            - matchtype: "startswith"
+              matchkey: "Starting Kilo "
+              loglevel: "notice"

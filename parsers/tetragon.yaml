@@ -6,9 +6,6 @@
       container_name: "tetragon"
   parser_rules:
     - name: "key_value"
-      options:
-        versions:
-          - "version"
 - name: "tetragon"
   show_in_selector: false
   matchkeys:

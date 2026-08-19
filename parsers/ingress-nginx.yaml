@@ -12,18 +12,21 @@
     - name: "bracketed_severity"
     - name: "http"
       options:
-        reformat_timestamps: true
+        timestamp:
+          reformat: true
     - name: "override_severity"
-      overrides:
-        - matchtype: "startswith"
-          matchkey: "NGINX Ingress controller"
-          loglevel: "notice"
-        - matchtype: "startswith"
-          matchkey: "  Release:"
-          loglevel: "notice"
-        - matchtype: "startswith"
-          matchkey: "Trace["
-          loglevel: "debug"
+      options:
+        severity:
+          overrides:
+            - matchtype: "startswith"
+              matchkey: "NGINX Ingress controller"
+              loglevel: "notice"
+            - matchtype: "startswith"
+              matchkey: "  Release:"
+              loglevel: "notice"
+            - matchtype: "startswith"
+              matchkey: "Trace["
+              loglevel: "debug"
 - name: "ingress-nginx"
   show_in_selector: false
   matchkeys:

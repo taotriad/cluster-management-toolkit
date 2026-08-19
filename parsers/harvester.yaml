@@ -12,6 +12,13 @@
     - image_name: "/rancher/harvester-seeder"
   parser_rules:
     - name: "glog"
+    - name: "override_severity"
+      options:
+        severity:
+          overrides:
+            - matchtype: "regex"
+              matchkey: "Starting harvester-eventrouter version"
+              loglevel: "notice"
     - name: "json"
     - name: "key_value"
       options:
@@ -61,8 +68,17 @@
     - name: "yaml_line"
       options:
         block_start:
+          # FIXME: The first rule isn't perfect
+          - matchtype: "regex"
+            matchkey: "Upgrade repo deployment is ready."
+            matchline: "any"
+            format_block_start: false
           - matchtype: "regex"
             matchkey: "The final content of .* patch file"
+            matchline: "any"
+            format_block_start: false
+          - matchtype: "startswith"
+            matchkey: "current valuesContent of the addon"
             matchline: "any"
             format_block_start: false
         block_end:
@@ -70,20 +86,30 @@
             matchkey: "Upgrad|Patch"
             format_block_end: false
             process_block_end: false
+          - matchtype: "regex"
+            matchkey: "Upgrad|Patch"
+            format_block_end: false
+            process_block_end: false
+          - matchtype: "regex"
+            matchkey: "managedchart.+ configured"
+            format_block_end: false
+            process_block_end: false
     - name: "override_severity"
-      overrides:
-        - matchtype: "startswith"
-          matchkey: "no such image"
-          loglevel: "warning"
-        - matchtype: "startswith"
-          matchkey: "Fail to remove images"
-          loglevel: "warning"
-        - matchtype: "startswith"
-          matchkey: "error of removing image"
-          loglevel: "warning"
-        - matchtype: "startswith"
-          matchkey: "\"Warning: "
-          loglevel: "warning"
-        - matchtype: "startswith"
-          matchkey: "Error: "
-          loglevel: "error"
+      options:
+        severity:
+          overrides:
+            - matchtype: "startswith"
+              matchkey: "no such image"
+              loglevel: "warning"
+            - matchtype: "startswith"
+              matchkey: "Fail to remove images"
+              loglevel: "warning"
+            - matchtype: "startswith"
+              matchkey: "error of removing image"
+              loglevel: "warning"
+            - matchtype: "startswith"
+              matchkey: "\"Warning: "
+              loglevel: "warning"
+            - matchtype: "startswith"
+              matchkey: "Error: "
+              loglevel: "error"

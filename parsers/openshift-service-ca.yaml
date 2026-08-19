@@ -12,13 +12,15 @@
     - name: "json_with_leading_message"
     - name: "key_value_with_leading_message"
     - name: "override_severity"
-      overrides:
-        - matchtype: "startswith"
-          matchkey: "service-ca-controller version"
-          loglevel: "notice"
-        - matchtype: "startswith"
-          matchkey: "service-ca-operator version"
-          loglevel: "notice"
-        - matchtype: "startswith"
-          matchkey: "Trace["
-          loglevel: "debug"
+      options:
+        severity:
+          overrides:
+            - matchtype: "startswith"
+              matchkey: "service-ca-controller version"
+              loglevel: "notice"
+            - matchtype: "startswith"
+              matchkey: "service-ca-operator version"
+              loglevel: "notice"
+            - matchtype: "startswith"
+              matchkey: "Trace["
+              loglevel: "debug"

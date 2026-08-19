@@ -8,7 +8,10 @@
     - name: "glog"
     - name: "expand_event"
     - name: "override_severity"
-      overrides:
-        - matchtype: "startswith"
-          matchkey: "openshift-kube-storage-version-migrator-operator version"
-          loglevel: "notice"
+      options:
+        severity:
+          overrides:
+            - matchtype: "startswith"
+              # yamllint disable-line rule:line-length
+              matchkey: "openshift-kube-storage-version-migrator-operator version"
+              loglevel: "notice"

@@ -6,4 +6,5 @@
   parser_rules:
     - name: "ts_8601"
     - name: "glog"
+    - name: "bracketed_severity"
     - name: "key_value_with_leading_message"

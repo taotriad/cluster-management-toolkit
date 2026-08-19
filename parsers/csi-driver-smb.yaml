@@ -17,4 +17,5 @@
           - matchtype: "empty"
             matchkey: ""
             format_block_end: true
-        loglevel: "notice"
+        severity:
+          default: "notice"

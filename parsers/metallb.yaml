@@ -11,16 +11,18 @@
     - name: "glog"
     - name: "json"
     - name: "override_severity"
-      overrides:
-        - matchtype: "startswith"
-          matchkey: "MetalLB controller starting version"
-          loglevel: "notice"
-        - matchtype: "startswith"
-          matchkey: "MetalLB speaker starting version"
-          loglevel: "notice"
-        - matchtype: "startswith"
-          matchkey: "Trace["
-          loglevel: "debug"
+      options:
+        severity:
+          overrides:
+            - matchtype: "startswith"
+              matchkey: "MetalLB controller starting version"
+              loglevel: "notice"
+            - matchtype: "startswith"
+              matchkey: "MetalLB speaker starting version"
+              loglevel: "notice"
+            - matchtype: "startswith"
+              matchkey: "Trace["
+              loglevel: "debug"
 - name: "metallb"
   show_in_selector: false
   matchkeys:

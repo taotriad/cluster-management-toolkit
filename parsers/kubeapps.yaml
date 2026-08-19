@@ -9,10 +9,12 @@
     - name: "key_value"
     - name: "expand_event"
     - name: "override_severity"
-      overrides:
-        - matchtype: "startswith"
-          matchkey: "Trace["
-          loglevel: "debug"
+      options:
+        severity:
+          overrides:
+            - matchtype: "startswith"
+              matchkey: "Trace["
+              loglevel: "debug"
 - name: "kubeapps"
   show_in_selector: false
   matchkeys:
@@ -32,7 +34,8 @@
           field: 3
     - name: "http"
       options:
-        reformat_timestamps: true
+        timestamp:
+          reformat: true
 - name: "kubeapps"
   show_in_selector: false
   matchkeys:
@@ -58,7 +61,8 @@
     - name: "ts_8601"
     - name: "http"
       options:
-        reformat_timestamps: true
+        timestamp:
+          reformat: true
 - name: "kubeapps"
   show_in_selector: false
   matchkeys:

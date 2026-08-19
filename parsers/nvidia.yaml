@@ -18,7 +18,8 @@
           - matchtype: "exact"
             matchkey: "}"
             format_block_end: true
-        loglevel: "info"
+        severity:
+          default: "info"
 - name: "nvidia"
   show_in_selector: false
   matchkeys:
@@ -28,19 +29,21 @@
       container_type: "InitContainer"
   parser_rules:
     - name: "override_severity"
-      overrides:
-        - matchtype: "startswith"
-          matchkey: "version: "
-          loglevel: "notice"
-        - matchtype: "startswith"
-          matchkey: "NVIDIA-SMI has failed"
-          loglevel: "error"
-        - matchtype: "startswith"
-          matchkey: "CRITICAL:"
-          loglevel: "critical"
-        - matchtype: "startswith"
-          matchkey: "Error:"
-          loglevel: "error"
+      options:
+        severity:
+          overrides:
+            - matchtype: "startswith"
+              matchkey: "version: "
+              loglevel: "notice"
+            - matchtype: "startswith"
+              matchkey: "NVIDIA-SMI has failed"
+              loglevel: "error"
+            - matchtype: "startswith"
+              matchkey: "CRITICAL:"
+              loglevel: "critical"
+            - matchtype: "startswith"
+              matchkey: "Error:"
+              loglevel: "error"
     - name: "custom_line"
       options:
         block_start:
@@ -53,7 +56,8 @@
             matchkey: "time"
             format_block_end: false
             process_block_end: false
-        loglevel: "info"
+        severity:
+          default: "info"
     - name: "custom_line"
       options:
         block_start:
@@ -66,5 +70,6 @@
             matchkey: "^(?![+|]|^$)"
             format_block_end: false
             process_block_end: false
-        loglevel: "info"
+        severity:
+          default: "info"
     - name: "key_value"

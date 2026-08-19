@@ -26,28 +26,28 @@
     - image_name: "/kubesphere/capkk-controller-manager"
   parser_rules:
     - name: "glog"
+    - name: "override_severity"
+      options:
+        severity:
+          overrides:
+            - matchtype: "startswith"
+              matchkey: "Trace["
+              loglevel: "debug"
+            - matchtype: "startswith"
+              matchkey: "\"Warning:"
+              loglevel: "warning"
+            - matchtype: "regex"
+              matchkey: "^Flag.*has been deprecated"
+              loglevel: "warning"
+            - matchtype: "startswith"
+              matchkey: "Cluster Autoscaler "
+              loglevel: "notice"
+            - matchtype: "startswith"
+              matchkey: "\"Version: "
+              loglevel: "notice"
     - name: "key_value_with_leading_message"
       options:
         allow_bare_keys: "lowercase"
-        versions:
-          - "version"
-    - name: "override_severity"
-      overrides:
-        - matchtype: "startswith"
-          matchkey: "Trace["
-          loglevel: "debug"
-        - matchtype: "startswith"
-          matchkey: "\"Warning:"
-          loglevel: "warning"
-        - matchtype: "regex"
-          matchkey: "^Flag.*has been deprecated"
-          loglevel: "warning"
-        - matchtype: "startswith"
-          matchkey: "Cluster Autoscaler "
-          loglevel: "notice"
-        - matchtype: "startswith"
-          matchkey: "\"Version: "
-          loglevel: "notice"
 - name: "cluster-api"
   show_in_selector: false
   matchkeys:
@@ -61,7 +61,9 @@
     - name: "glog"
     - name: "tab_separated"
     - name: "override_severity"
-      overrides:
-        - matchtype: "startswith"
-          matchkey: "Warning: "
-          loglevel: "warning"
+      options:
+        severity:
+          overrides:
+            - matchtype: "startswith"
+              matchkey: "Warning: "
+              loglevel: "warning"

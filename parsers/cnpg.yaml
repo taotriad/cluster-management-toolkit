@@ -8,6 +8,3 @@
     - image_name: "/cloudnative-pg/postgresql"
   parser_rules:
     - name: "json"
-      options:
-        versions:
-          - "version"

@@ -14,10 +14,12 @@
         message:
           field: 2
     - name: "override_severity"
-      overrides:
-        - matchtype: "startswith"
-          matchkey: "Kiali: Version: "
-          loglevel: "notice"
-        - matchtype: "startswith"
-          matchkey: "Kiali: Console version: "
-          loglevel: "notice"
+      options:
+        severity:
+          overrides:
+            - matchtype: "startswith"
+              matchkey: "Kiali: Version: "
+              loglevel: "notice"
+            - matchtype: "startswith"
+              matchkey: "Kiali: Console version: "
+              loglevel: "notice"

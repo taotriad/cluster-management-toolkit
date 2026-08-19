@@ -21,5 +21,6 @@
             matchkey: "panic: runtime error"
             matchline: "any"
             format_block_start: true
-        loglevel: "critical"
+        severity:
+          default: "critical"
     - name: "key_value"

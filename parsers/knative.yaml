@@ -36,15 +36,18 @@
           - matchtype: "startswith"
             matchkey: "--\\___\\"
             format_block_end: true
-        loglevel: "notice"
+        severity:
+          default: "notice"
     - name: "override_severity"
-      overrides:
-        - matchtype: "regex"
-          matchkey: ".*Apache Camel.+is starting"
-          loglevel: "notice"
-        - matchtype: "regex"
-          matchkey: ".*log-sink .+on JVM"
-          loglevel: "notice"
+      options:
+        severity:
+          overrides:
+            - matchtype: "regex"
+              matchkey: ".*Apache Camel.+is starting"
+              loglevel: "notice"
+            - matchtype: "regex"
+              matchkey: ".*log-sink .+on JVM"
+              loglevel: "notice"
 - name: "knative"
   show_in_selector: false
   matchkeys:

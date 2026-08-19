@@ -8,13 +8,16 @@
     - name: "key_value"
       options:
         allow_bare_keys: "lowercase"
-        versions:
-          - "release"
+        version:
+          keys:
+            - "release"
     - name: "override_severity"
-      overrides:
-        - matchtype: "startswith"
-          matchkey: "Error: "
-          loglevel: "error"
+      options:
+        severity:
+          overrides:
+            - matchtype: "startswith"
+              matchkey: "Error: "
+              loglevel: "error"
 - name: "kong"
   show_in_selector: false
   matchkeys:

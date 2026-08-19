@@ -8,7 +8,9 @@
     - name: "glog"
     - name: "key_value_with_leading_message"
     - name: "override_severity"
-      overrides:
-        - matchtype: "startswith"
-          matchkey: "http: TLS handshake"
-          loglevel: "error"
+      options:
+        severity:
+          overrides:
+            - matchtype: "startswith"
+              matchkey: "http: TLS handshake"
+              loglevel: "error"

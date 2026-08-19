@@ -12,10 +12,12 @@
     - name: "glog"
     - name: "json"
     - name: "override_severity"
-      overrides:
-        - matchtype: "startswith"
-          matchkey: "WARNING:"
-          loglevel: "warning"
+      options:
+        severity:
+          overrides:
+            - matchtype: "startswith"
+              matchkey: "WARNING:"
+              loglevel: "warning"
 - name: "eck"
   show_in_selector: false
   matchkeys:
@@ -35,10 +37,12 @@
         message:
           field: 3
     - name: "override_severity"
-      overrides:
-        - matchtype: "startswith"
-          matchkey: "Elastic APM Node.js Agent v"
-          loglevel: "notice"
+      options:
+        severity:
+          overrides:
+            - matchtype: "startswith"
+              matchkey: "Elastic APM Node.js Agent v"
+              loglevel: "notice"
 - name: "eck"
   show_in_selector: false
   matchkeys:
@@ -93,15 +97,18 @@
             # yamllint disable-line rule:line-length
             matchkey: "#########################################################"
             format_block_end: true
-        loglevel: "notice"
+        severity:
+          default: "notice"
     - name: "override_severity"
-      overrides:
-        - matchtype: "startswith"
-          matchkey: "WARNING:"
-          loglevel: "warning"
-        - matchtype: "startswith"
-          matchkey: "Error:"
-          loglevel: "error"
-        - matchtype: "startswith"
-          matchkey: "Elastic Enterprise Search version="
-          loglevel: "notice"
+      options:
+        severity:
+          overrides:
+            - matchtype: "startswith"
+              matchkey: "WARNING:"
+              loglevel: "warning"
+            - matchtype: "startswith"
+              matchkey: "Error:"
+              loglevel: "error"
+            - matchtype: "startswith"
+              matchkey: "Elastic Enterprise Search version="
+              loglevel: "notice"

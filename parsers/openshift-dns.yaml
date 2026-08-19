@@ -8,12 +8,15 @@
     - name: "glog"
     - name: "bracketed_severity"
       options:
-        default_loglevel: "info"
+        severity:
+          default: "info"
     - name: "override_severity"
-      overrides:
-        - matchtype: "startswith"
-          matchkey: "CoreDNS"
-          loglevel: "notice"
+      options:
+        severity:
+          overrides:
+            - matchtype: "startswith"
+              matchkey: "CoreDNS"
+              loglevel: "notice"
 - name: "openshift-dns"
   show_in_selector: false
   matchkeys:
@@ -23,9 +26,11 @@
     - name: "glog"
     - name: "tab_separated"
     - name: "override_severity"
-      overrides:
-        - matchtype: "startswith"
-          matchkey: "Trace["
-          loglevel: "debug"
+      options:
+        severity:
+          overrides:
+            - matchtype: "startswith"
+              matchkey: "Trace["
+              loglevel: "debug"
     - name: "expand_event"
     - name: "key_value"

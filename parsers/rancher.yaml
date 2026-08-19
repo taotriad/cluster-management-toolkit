@@ -4,14 +4,21 @@
   matchkeys:
     - image_name: "/rancher/rancher-webhook"
   parser_rules:
-    - name: "key_value"
-    - name: "ts_8601"
     - name: "glog"
+    - name: "key_value"
+      options:
+        severity:
+          overrides:
+            - matchtype: "regex"
+              matchkey: ".*Rancher-webhook version"
+              loglevel: "notice"
     - name: "override_severity"
-      overrides:
-        - matchtype: "startswith"
-          matchkey: "Rancher-webhook version"
-          loglevel: "notice"
+      options:
+        severity:
+          overrides:
+            - matchtype: "regex"
+              matchkey: "^Rancher-webhook version.+starting$"
+              loglevel: "notice"
 - name: "rancher"
   show_in_selector: false
   matchkeys:
@@ -26,16 +33,18 @@
         message:
           field: 1
     - name: "override_severity"
-      overrides:
-        - matchtype: "startswith"
-          matchkey: "Rancher version "
-          loglevel: "notice"
-        - matchtype: "startswith"
-          matchkey: "Error from server "
-          loglevel: "error"
-        - matchtype: "startswith"
-          matchkey: "\"Warning"
-          loglevel: "warning"
+      options:
+        severity:
+          overrides:
+            - matchtype: "startswith"
+              matchkey: "Rancher version "
+              loglevel: "notice"
+            - matchtype: "startswith"
+              matchkey: "Error from server "
+              loglevel: "error"
+            - matchtype: "startswith"
+              matchkey: "\"Warning"
+              loglevel: "warning"
 - name: "rancher"
   show_in_selector: false
   matchkeys:

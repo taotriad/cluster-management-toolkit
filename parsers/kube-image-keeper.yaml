@@ -9,13 +9,16 @@
     - name: "glog"
     - name: "key_value"
       options:
-        errors:
-          - "err"
-          - "error"
-          - "err.message"
+        error:
+          keys:
+            - "err"
+            - "error"
+            - "err.message"
     - name: "http"
     - name: "override_severity"
-      overrides:
-        - matchtype: "startswith"
-          matchkey: "http: TLS handshake error"
-          loglevel: "error"
+      options:
+        severity:
+          overrides:
+            - matchtype: "startswith"
+              matchkey: "http: TLS handshake error"
+              loglevel: "error"

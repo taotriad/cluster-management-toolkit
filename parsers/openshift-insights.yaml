@@ -32,6 +32,7 @@
             matchkey: '^\S'
             format_block_end: false
             process_block_end: false
-        loglevel: "info"
+        severity:
+          default: "info"
     - name: "expand_event"
     - name: "key_value_with_leading_message"

@@ -17,13 +17,15 @@
     - name: "glog"
     - name: "expand_event"
     - name: "override_severity"
-      overrides:
-        - matchtype: "startswith"
-          matchkey: "Version:"
-          loglevel: "notice"
-        - matchtype: "startswith"
-          matchkey: "Trace["
-          loglevel: "debug"
-        - matchtype: "startswith"
-          matchkey: "http: \"TLS\" handshake error"
-          loglevel: "error"
+      options:
+        severity:
+          overrides:
+            - matchtype: "startswith"
+              matchkey: "Version:"
+              loglevel: "notice"
+            - matchtype: "startswith"
+              matchkey: "Trace["
+              loglevel: "debug"
+            - matchtype: "startswith"
+              matchkey: "http: \"TLS\" handshake error"
+              loglevel: "error"

@@ -18,5 +18,6 @@
             # yamllint disable-line rule:line-length
             matchkey: "==> OpenBao server started! Log data will stream in below:"
             format_block_end: true
-        loglevel: "notice"
+        severity:
+          default: "notice"
     - name: "bracketed_severity"

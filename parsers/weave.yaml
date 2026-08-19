@@ -22,13 +22,15 @@
     - name: "ts_8601"
     - name: "glog"
     - name: "override_severity"
-      overrides:
-        - matchtype: "startswith"
-          matchkey: "probe starting, version"
-          loglevel: "notice"
-        - matchtype: "startswith"
-          matchkey: "app starting, version"
-          loglevel: "notice"
+      options:
+        severity:
+          overrides:
+            - matchtype: "startswith"
+              matchkey: "probe starting, version"
+              loglevel: "notice"
+            - matchtype: "startswith"
+              matchkey: "app starting, version"
+              loglevel: "notice"
 - name: "weave"
   show_in_selector: false
   matchkeys:
@@ -58,16 +60,18 @@
         message:
           field: 3
     - name: "override_severity"
-      overrides:
-        - matchtype: "startswith"
-          matchkey: "Starting Weaveworks NPC"
-          loglevel: "notice"
-        - matchtype: "startswith"
-          matchkey: "WARNING"
-          loglevel: "warning"
-        - matchtype: "startswith"
-          matchkey: "Trace["
-          loglevel: "debug"
+      options:
+        severity:
+          overrides:
+            - matchtype: "startswith"
+              matchkey: "Starting Weaveworks NPC"
+              loglevel: "notice"
+            - matchtype: "startswith"
+              matchkey: "WARNING"
+              loglevel: "warning"
+            - matchtype: "startswith"
+              matchkey: "Trace["
+              loglevel: "debug"
     - name: "json_event"
 - name: "weave"
   show_in_selector: false
@@ -86,10 +90,12 @@
     - name: "ts_8601"
     - name: "glog"
     - name: "override_severity"
-      overrides:
-        - matchtype: "startswith"
-          matchkey: "weave  "
-          loglevel: "notice"
-        - matchtype: "startswith"
-          matchkey: "Error checking version"
-          loglevel: "warning"
+      options:
+        severity:
+          overrides:
+            - matchtype: "startswith"
+              matchkey: "weave  "
+              loglevel: "notice"
+            - matchtype: "startswith"
+              matchkey: "Error checking version"
+              loglevel: "warning"

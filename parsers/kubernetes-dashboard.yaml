@@ -8,7 +8,9 @@
     - name: "ts_8601"
     - name: "ts_8601"
     - name: "override_severity"
-      overrides:
-        - matchtype: "startswith"
-          matchkey: "Successful initial request to the apiserver, version"
-          loglevel: "notice"
+      options:
+        severity:
+          overrides:
+            - matchtype: "startswith"
+              matchkey: "Successful initial request to the apiserver, version"
+              loglevel: "notice"

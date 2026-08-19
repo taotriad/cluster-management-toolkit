@@ -7,13 +7,15 @@
   parser_rules:
     - name: "glog"
     - name: "override_severity"
-      overrides:
-        - matchtype: "regex"
-          matchkey: "^Running.*kube-router version"
-          loglevel: "notice"
-        - matchtype: "startswith"
-          matchkey: "failed to run kube-router"
-          loglevel: "error"
-        - matchtype: "startswith"
-          matchkey: "Trace["
-          loglevel: "debug"
+      options:
+        severity:
+          overrides:
+            - matchtype: "regex"
+              matchkey: "^Running.*kube-router version"
+              loglevel: "notice"
+            - matchtype: "startswith"
+              matchkey: "failed to run kube-router"
+              loglevel: "error"
+            - matchtype: "startswith"
+              matchkey: "Trace["
+              loglevel: "debug"

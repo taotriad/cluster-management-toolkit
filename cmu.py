@@ -6120,11 +6120,13 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
             if tmpselection:
                 selection = tmpselection
             uip.refresh_all()
+            old_log_level = log_level
             if isinstance(selection, str) and selection:
                 log_level = name_to_loglevel(selection)
             uip.yoffset = 0
             uip.xoffset = 0
-            uip.force_update()
+            if old_log_level != log_level:
+                uip.force_update()
         elif c == ord("W"):
             wrap_lines = not wrap_lines
             uip.yoffset = 0

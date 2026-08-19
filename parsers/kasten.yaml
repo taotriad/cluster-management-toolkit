@@ -39,41 +39,28 @@
         message:
           field: 2
     - name: "override_severity"
-      overrides:
-        - matchtype: "startswith"
-          matchkey: " Error:"
-          loglevel: "error"
+      options:
+        severity:
+          overrides:
+            - matchtype: "startswith"
+              matchkey: " Error:"
+              loglevel: "error"
     - name: "json_with_leading_message"
       options:
-        versions:
-          - "version"
-        messages:
-          - "message"
-          - "Message"
-        severities:
-          - "level"
-          - "Level"
-        timestamps:
-          - "time"
-          - "Time"
-        facilities:
-          - keys:
-              - "File"
-              - "Line"
-            separators:
-              - ":"
-        errors:
-          - "Err"
+        facility:
+          keys:
+            - "File"
+            - "Line"
+          separators:
+            - ":"
     - name: "key_value"
       options:
-        versions:
-          - "version"
-        facilities:
-          - keys:
-              - "File"
-              - "Line"
-            separators:
-              - ":"
+        facility:
+          keys:
+            - "File"
+            - "Line"
+          separators:
+            - ":"
 - name: "kasten"
   show_in_selector: false
   matchkeys:
@@ -82,4 +69,5 @@
   parser_rules:
     - name: "http"
       options:
-        reformat_timestamps: true
+        timestamp:
+          reformat: true

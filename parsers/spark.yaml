@@ -24,7 +24,9 @@
     - name: "strip_ansicodes"
     - name: "tab_separated"
     - name: "override_severity"
-      overrides:
-        - matchtype: "startswith"
-          matchkey: "Spark Operator Version:"
-          loglevel: "notice"
+      options:
+        severity:
+          overrides:
+            - matchtype: "startswith"
+              matchkey: "Spark Operator Version:"
+              loglevel: "notice"

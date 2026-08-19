@@ -10,13 +10,15 @@
   parser_rules:
     - name: "glog"
     - name: "override_severity"
-      overrides:
-        - matchtype: "startswith"
-          matchkey: "Trace["
-          loglevel: "debug"
-        - matchtype: "startswith"
-          matchkey: "http2: server: error"
-          loglevel: "error"
+      options:
+        severity:
+          overrides:
+            - matchtype: "startswith"
+              matchkey: "Trace["
+              loglevel: "debug"
+            - matchtype: "startswith"
+              matchkey: "http2: server: error"
+              loglevel: "error"
     - name: "key_value_with_leading_message"
 - name: "prometheus"
   show_in_selector: false
@@ -42,17 +44,16 @@
     - image_name: "/rancher/mirrored-prometheus-operator-prometheus-operator"
   parser_rules:
     - name: "key_value"
-      options:
-        versions:
-          - "version"
     - name: "override_severity"
-      overrides:
-        - matchtype: "startswith"
-          matchkey: "Starting node_exporter"
-          loglevel: "notice"
-        - matchtype: "startswith"
-          matchkey: "Starting Prometheus Operator"
-          loglevel: "notice"
+      options:
+        severity:
+          overrides:
+            - matchtype: "startswith"
+              matchkey: "Starting node_exporter"
+              loglevel: "notice"
+            - matchtype: "startswith"
+              matchkey: "Starting Prometheus Operator"
+              loglevel: "notice"
 - name: "prometheus"
   show_in_selector: false
   matchkeys:
@@ -78,23 +79,22 @@
       container_type: "InitContainer"
   parser_rules:
     - name: "key_value"
-      options:
-        versions:
-          - "version"
     - name: "override_severity"
-      overrides:
-        - matchtype: "startswith"
-          matchkey: "Starting Prometheus"
-          loglevel: "notice"
-        - matchtype: "startswith"
-          matchkey: "Starting blackbox_exporter"
-          loglevel: "notice"
-        - matchtype: "startswith"
-          matchkey: "Starting Alertmanager"
-          loglevel: "notice"
-        - matchtype: "startswith"
-          matchkey: "Starting prometheus-config-reloader"
-          loglevel: "notice"
+      options:
+        severity:
+          overrides:
+            - matchtype: "startswith"
+              matchkey: "Starting Prometheus"
+              loglevel: "notice"
+            - matchtype: "startswith"
+              matchkey: "Starting blackbox_exporter"
+              loglevel: "notice"
+            - matchtype: "startswith"
+              matchkey: "Starting Alertmanager"
+              loglevel: "notice"
+            - matchtype: "startswith"
+              matchkey: "Starting prometheus-config-reloader"
+              loglevel: "notice"
 - name: "prometheus"
   show_in_selector: false
   matchkeys:
@@ -104,10 +104,15 @@
     - name: "glog"
     - name: "key_value"
       options:
-        versions:
-          - "version"
+        severity:
+          overrides:
+            - matchtype: "startswith"
+              matchkey: "\"Warning:"
+              loglevel: "warning"
     - name: "override_severity"
-      overrides:
-        - matchtype: "startswith"
-          matchkey: "Warning:"
-          loglevel: "warning"
+      options:
+        severity:
+          overrides:
+            - matchtype: "startswith"
+              matchkey: "Warning:"
+              loglevel: "warning"

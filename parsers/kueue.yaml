@@ -15,10 +15,12 @@
         message:
           field: 2
     - name: "override_severity"
-      overrides:
-        - matchtype: "startswith"
-          matchkey: "[GIN-debug]"
-          loglevel: "debug"
+      options:
+        severity:
+          overrides:
+            - matchtype: "startswith"
+              matchkey: "[GIN-debug]"
+              loglevel: "debug"
 - name: "kueue"
   show_in_selector: false
   matchkeys:
@@ -27,5 +29,6 @@
     - name: "glog"
     - name: "json"
       options:
-        versions:
-          - "gitVersion"
+        version:
+          keys:
+            - "gitVersion"

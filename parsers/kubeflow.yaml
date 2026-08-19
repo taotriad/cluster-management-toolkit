@@ -9,10 +9,12 @@
     - name: "tab_separated"
     - name: "key_value"
     - name: "override_severity"
-      overrides:
-        - matchtype: "startswith"
-          matchkey: "Trace["
-          loglevel: "debug"
+      options:
+        severity:
+          overrides:
+            - matchtype: "startswith"
+              matchkey: "Trace["
+              loglevel: "debug"
 - name: "kubeflow"
   show_in_selector: false
   matchkeys:
@@ -88,10 +90,12 @@
     - name: "glog"
     - name: "json"
     - name: "override_severity"
-      overrides:
-        - matchtype: "startswith"
-          matchkey: "Trace["
-          loglevel: "debug"
+      options:
+        severity:
+          overrides:
+            - matchtype: "startswith"
+              matchkey: "Trace["
+              loglevel: "debug"
 - name: "kubeflow"
   show_in_selector: false
   matchkeys:

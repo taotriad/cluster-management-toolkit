@@ -44,39 +44,48 @@
     - name: "expand_event"
     - name: "json"
       options:
-        versions:
-          - "etcd-version"
-        facilities:
-          - "caller"
+        version:
+          keys:
+            - "etcd-version"
+        facility:
+          keys:
+            - "caller"
+        severity:
+          overrides:
+            - matchtype: "startswith"
+              matchkey: "trace["
+              loglevel: "debug"
     - name: "override_severity"
-      overrides:
-        - matchtype: "startswith"
-          matchkey: "WARNING: "
-          loglevel: "warning"
-        - matchtype: "regex"
-          matchkey: "^Error: \"?context\"? deadline exceeded$"
-          loglevel: "error"
-        - matchtype: "startswith"
-          matchkey: "etcd Version"
-          loglevel: "notice"
-        - matchtype: "startswith"
-          matchkey: "openshift-cluster-etcd-operator version"
-          loglevel: "notice"
-        - matchtype: "startswith"
-          matchkey: "cluster-olm-operator version"
-          loglevel: "notice"
-        - matchtype: "regex"
-          matchkey: 'starting an etcd server.*etcd-version'
-          loglevel: "notice"
-        - matchtype: "startswith"
-          matchkey: "Trace["
-          loglevel: "debug"
-        - matchtype: "startswith"
-          matchkey: "trace["
-          loglevel: "debug"
-        - matchtype: "startswith"
-          matchkey: "http: TLS handshake error"
-          loglevel: "error"
+      options:
+        severity:
+          overrides:
+            - matchtype: "startswith"
+              matchkey: "WARNING: "
+              loglevel: "warning"
+            - matchtype: "regex"
+              matchkey: "^Error: \"?context\"? deadline exceeded$"
+              loglevel: "error"
+            - matchtype: "startswith"
+              matchkey: "etcd Version"
+              loglevel: "notice"
+            - matchtype: "startswith"
+              matchkey: "openshift-cluster-etcd-operator version"
+              loglevel: "notice"
+            - matchtype: "startswith"
+              matchkey: "cluster-olm-operator version"
+              loglevel: "notice"
+            - matchtype: "regex"
+              matchkey: 'starting an etcd server.*etcd-version'
+              loglevel: "notice"
+            - matchtype: "startswith"
+              matchkey: "Trace["
+              loglevel: "debug"
+            - matchtype: "startswith"
+              matchkey: "trace["
+              loglevel: "debug"
+            - matchtype: "startswith"
+              matchkey: "http: TLS handshake error"
+              loglevel: "error"
     - name: "custom_splitter"
       options:
         regex: '^([A-Z]+): \d{4}/\d\d/\d\d \d\d:\d\d:\d\d \[([^]]+)] (.*)'

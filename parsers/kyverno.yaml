@@ -27,7 +27,9 @@
         message:
           field: 3
     - name: "override_severity"
-      overrides:
-        - matchtype: "startswith"
-          matchkey: "version "
-          loglevel: "notice"
+      options:
+        severity:
+          overrides:
+            - matchtype: "startswith"
+              matchkey: "version "
+              loglevel: "notice"

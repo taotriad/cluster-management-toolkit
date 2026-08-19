@@ -53,16 +53,18 @@
         message:
           field: 2
     - name: "override_severity"
-      overrides:
-        - matchtype: "startswith"
-          matchkey: "Internal Error: "
-          loglevel: "error"
-        - matchtype: "startswith"
-          matchkey: "vllm: error:"
-          loglevel: "error"
-        - matchtype: "startswith"
-          matchkey: "Warning: "
-          loglevel: "warning"
+      options:
+        severity:
+          overrides:
+            - matchtype: "startswith"
+              matchkey: "Internal Error: "
+              loglevel: "error"
+            - matchtype: "startswith"
+              matchkey: "vllm: error:"
+              loglevel: "error"
+            - matchtype: "startswith"
+              matchkey: "Warning: "
+              loglevel: "warning"
 - name: "llm-d"
   show_in_selector: false
   matchkeys:

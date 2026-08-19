@@ -23,8 +23,9 @@
     - name: "strip_ansicodes"
     - name: "json"
       options:
-        facilities:
-          - "pos"
+        facility:
+          keys:
+            - "pos"
     - name: "custom_splitter"
       options:
         regex: '^\d{4}-\d\d-\d\d \d\d:\d\d:\d\d\.\d+[+-]\d{4}: (.*)'
@@ -36,34 +37,36 @@
         message:
           field: 1
     - name: "override_severity"
-      overrides:
-        - matchtype: "startswith"
-          matchkey: "Connecting to libvirt daemon failed: virError"
-          loglevel: "error"
-        - matchtype: "startswith"
-          matchkey: "http: TLS handshake error"
-          loglevel: "error"
-        - matchtype: "startswith"
-          matchkey: "http: \"TLS\" handshake error"
-          loglevel: "error"
-        - matchtype: "startswith"
-          matchkey: "Trace["
-          loglevel: "debug"
-        - matchtype: "startswith"
-          matchkey: "panic:"
-          loglevel: "alert"
-        - matchtype: "startswith"
-          matchkey: "qemu-kvm: warning:"
-          loglevel: "warning"
-        - matchtype: "startswith"
-          matchkey: "\"Warning: "
-          loglevel: "warning"
-        - matchtype: "startswith"
-          matchkey: "libvirt version:"
-          loglevel: "notice"
-        - matchtype: "startswith"
-          matchkey: "starting up libvirt version:"
-          loglevel: "notice"
+      options:
+        severity:
+          overrides:
+            - matchtype: "startswith"
+              matchkey: "Connecting to libvirt daemon failed: virError"
+              loglevel: "error"
+            - matchtype: "startswith"
+              matchkey: "http: TLS handshake error"
+              loglevel: "error"
+            - matchtype: "startswith"
+              matchkey: "http: \"TLS\" handshake error"
+              loglevel: "error"
+            - matchtype: "startswith"
+              matchkey: "Trace["
+              loglevel: "debug"
+            - matchtype: "startswith"
+              matchkey: "panic:"
+              loglevel: "alert"
+            - matchtype: "startswith"
+              matchkey: "qemu-kvm: warning:"
+              loglevel: "warning"
+            - matchtype: "startswith"
+              matchkey: "\"Warning: "
+              loglevel: "warning"
+            - matchtype: "startswith"
+              matchkey: "libvirt version:"
+              loglevel: "notice"
+            - matchtype: "startswith"
+              matchkey: "starting up libvirt version:"
+              loglevel: "notice"
 - name: "kubevirt"
   show_in_selector: false
   matchkeys:

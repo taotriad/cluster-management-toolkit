@@ -14,16 +14,18 @@
     - name: "expand_event"
     - name: "key_value_with_leading_message"
     - name: "override_severity"
-      overrides:
-        - matchtype: "startswith"
-          matchkey: "http: \"TLS\" handshake error"
-          loglevel: "error"
-        - matchtype: "startswith"
-          matchkey: "http: TLS handshake error"
-          loglevel: "error"
-        - matchtype: "startswith"
-          matchkey: "http: proxy error"
-          loglevel: "error"
+      options:
+        severity:
+          overrides:
+            - matchtype: "startswith"
+              matchkey: "http: \"TLS\" handshake error"
+              loglevel: "error"
+            - matchtype: "startswith"
+              matchkey: "http: TLS handshake error"
+              loglevel: "error"
+            - matchtype: "startswith"
+              matchkey: "http: proxy error"
+              loglevel: "error"
 - name: "openshift-console"
   show_in_selector: false
   matchkeys:
@@ -33,4 +35,5 @@
   parser_rules:
     - name: "http"
       options:
-        reformat_timestamps: true
+        timestamp:
+          reformat: true

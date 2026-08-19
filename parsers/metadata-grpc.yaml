@@ -6,7 +6,9 @@
   parser_rules:
     - name: "glog"
     - name: "override_severity"
-      overrides:
-        - matchtype: "startswith"
-          matchkey: "WARNING"
-          loglevel: "warning"
+      options:
+        severity:
+          overrides:
+            - matchtype: "startswith"
+              matchkey: "WARNING"
+              loglevel: "warning"

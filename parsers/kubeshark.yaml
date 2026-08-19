@@ -9,7 +9,8 @@
     - name: "bracketed_severity"
     - name: "http"
       options:
-        reformat_timestamps: true
+        timestamp:
+          reformat: true
 - name: "kubeshark"
   show_in_selector: false
   matchkeys:

@@ -8,22 +8,19 @@
   parser_rules:
     - name: "glog"
     - name: "key_value_with_leading_message"
-      options:
-        versions:
-          - "version"
-          - "\"version\""
-        allow_bare_keys: "lowercase"
     - name: "override_severity"
-      overrides:
-        - matchtype: "startswith"
-          matchkey: "\"starting\" version"
-          loglevel: "notice"
-        - matchtype: "regex"
-          matchkey: 'cert-manager.*starting controller.*version'
-          loglevel: "notice"
-        - matchtype: "startswith"
-          matchkey: "Trace["
-          loglevel: "debug"
-        - matchtype: "startswith"
-          matchkey: "http: TLS handshake"
-          loglevel: "error"
+      options:
+        severity:
+          overrides:
+            - matchtype: "startswith"
+              matchkey: "\"starting\" version"
+              loglevel: "notice"
+            - matchtype: "regex"
+              matchkey: 'cert-manager.*starting controller.*version'
+              loglevel: "notice"
+            - matchtype: "startswith"
+              matchkey: "Trace["
+              loglevel: "debug"
+            - matchtype: "startswith"
+              matchkey: "http: TLS handshake"
+              loglevel: "error"

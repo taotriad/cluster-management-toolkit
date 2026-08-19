@@ -17,10 +17,12 @@
           field: 2
     - name: "json_with_leading_message"
     - name: "override_severity"
-      overrides:
-        - matchtype: "startswith"
-          matchkey: "Starting Velero node-agent server"
-          loglevel: "notice"
+      options:
+        severity:
+          overrides:
+            - matchtype: "startswith"
+              matchkey: "Starting Velero node-agent server"
+              loglevel: "notice"
 - name: "velero"
   show_in_selector: false
   matchkeys:

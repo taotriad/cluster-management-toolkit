@@ -41,6 +41,3 @@
   parser_rules:
     - name: "glog"
     - name: "key_value"
-      options:
-        versions:
-          - "version"

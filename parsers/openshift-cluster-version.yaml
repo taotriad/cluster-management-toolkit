@@ -17,8 +17,10 @@
           - matchtype: "startswith"
             matchkey: "  }"
     - name: "override_severity"
-      overrides:
-        - matchtype: "startswith"
-          matchkey: "ClusterVersionOperator "
-          loglevel: "notice"
+      options:
+        severity:
+          overrides:
+            - matchtype: "startswith"
+              matchkey: "ClusterVersionOperator "
+              loglevel: "notice"
     - name: "key_value_with_leading_message"

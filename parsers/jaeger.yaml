@@ -20,14 +20,17 @@
     - name: "glog"
     - name: "key_value"
       options:
-        versions:
-          - "jaeger"
+        version:
+          keys:
+            - "jaeger"
     - name: "ts_8601"
     - name: "override_severity"
-      overrides:
-        - matchtype: "startswith"
-          matchkey: "Trace["
-          loglevel: "debug"
+      options:
+        severity:
+          overrides:
+            - matchtype: "startswith"
+              matchkey: "Trace["
+              loglevel: "debug"
 - name: "jaeger-tracing"
   show_in_selector: false
   matchkeys:
@@ -36,10 +39,12 @@
     - name: "tab_separated"
     - name: "ts_8601"
     - name: "override_severity"
-      overrides:
-        - matchtype: "startswith"
-          matchkey: "application version: "
-          loglevel: "notice"
+      options:
+        severity:
+          overrides:
+            - matchtype: "startswith"
+              matchkey: "application version: "
+              loglevel: "notice"
 - name: "jaeger-tracing"
   show_in_selector: false
   matchkeys:
@@ -68,10 +73,13 @@
           - matchtype: "startswith"
             matchkey: "******************"
             format_block_end: true
-        loglevel: "info"
+        severity:
+          default: "info"
     - name: "override_severity"
-      overrides:
-        - matchtype: "startswith"
-          matchkey: "application version: "
-          loglevel: "notice"
+      options:
+        severity:
+          overrides:
+            - matchtype: "startswith"
+              matchkey: "application version: "
+              loglevel: "notice"
     - name: "python_traceback"

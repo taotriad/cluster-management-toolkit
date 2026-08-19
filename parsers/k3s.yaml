@@ -16,10 +16,12 @@
         message:
           field: 2
     - name: "override_severity"
-      overrides:
-        - matchtype: "startswith"
-          matchkey: "Starting k3s"
-          loglevel: "notice"
-        - matchtype: "startswith"
-          matchkey: "trace["
-          loglevel: "debug"
+      options:
+        severity:
+          overrides:
+            - matchtype: "startswith"
+              matchkey: "Starting k3s"
+              loglevel: "notice"
+            - matchtype: "startswith"
+              matchkey: "trace["
+              loglevel: "debug"

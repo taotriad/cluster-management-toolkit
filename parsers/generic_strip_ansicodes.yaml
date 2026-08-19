@@ -1,10 +1,7 @@
 ---
-- name: "HTTP"
+- name: "strip_ansicodes"
   show_in_selector: true
   matchkeys:
     - pod_name: "NEVERMATCHANYTHING"
   parser_rules:
-    - name: "http"
-      options:
-        timestamp:
-          reformat: true
+    - name: "strip_ansicodes"

@@ -25,7 +25,9 @@
           field: 2
     - name: "python_traceback"
     - name: "override_severity"
-      overrides:
-        - matchtype: "regex"
-          matchkey: "^UserWarning|SyntaxWarning"
-          loglevel: "warning"
+      options:
+        severity:
+          overrides:
+            - matchtype: "regex"
+              matchkey: "^UserWarning|SyntaxWarning"
+              loglevel: "warning"

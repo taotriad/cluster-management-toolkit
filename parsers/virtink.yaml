@@ -8,10 +8,13 @@
     - name: "glog"
     - name: "tab_separated"
       options:
-        errors:
-          - "error"
+        error:
+          keys:
+            - "error"
     - name: "override_severity"
-      overrides:
-        - matchtype: "startswith"
-          matchkey: "Trace["
-          loglevel: "debug"
+      options:
+        severity:
+          overrides:
+            - matchtype: "startswith"
+              matchkey: "Trace["
+              loglevel: "debug"

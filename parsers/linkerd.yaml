@@ -52,13 +52,15 @@
     - name: "ts_8601"
     - name: "key_value"
     - name: "override_severity"
-      overrides:
-        - matchtype: "regex"
-          matchkey: "^https?: \"?TLS\"? handshake error"
-          loglevel: "warning"
-        - matchtype: "startswith"
-          matchkey: "running version "
-          loglevel: "notice"
+      options:
+        severity:
+          overrides:
+            - matchtype: "regex"
+              matchkey: "^https?: \"?TLS\"? handshake error"
+              loglevel: "warning"
+            - matchtype: "startswith"
+              matchkey: "running version "
+              loglevel: "notice"
 - name: "linkerd"
   matchkeys:
     - container_name: "linkerd-init"

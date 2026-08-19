@@ -8,10 +8,13 @@
     - name: "glog"
     - name: "key_value"
       options:
-        facilities:
-          - "scope"
+        facility:
+          keys:
+            - "scope"
     - name: "override_severity"
-      overrides:
-        - matchtype: "contains"
-          matchkey: "-- version "
-          loglevel: "notice"
+      options:
+        severity:
+          overrides:
+            - matchtype: "contains"
+              matchkey: "-- version "
+              loglevel: "notice"

@@ -8,7 +8,9 @@
   parser_rules:
     - name: "json"
       options:
-        timestamps: ["@timestamp"]
-        error_tags:
+        timestamp:
+          keys:
+            - "@timestamp"
+        error:
           tags:
             error: "error"

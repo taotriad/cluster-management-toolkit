@@ -8,10 +8,12 @@
     - name: "glog"
     - name: "json"
     - name: "override_severity"
-      overrides:
-        - matchtype: "startswith"
-          matchkey: "Starting operator"
-          loglevel: "notice"
+      options:
+        severity:
+          overrides:
+            - matchtype: "startswith"
+              matchkey: "Starting operator"
+              loglevel: "notice"
 - name: "starboard"
   show_in_selector: false
   matchkeys:

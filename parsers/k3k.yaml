@@ -10,10 +10,12 @@
     - name: "tab_separated"
     - name: "key_value"
     - name: "override_severity"
-      overrides:
-        - matchtype: "startswith"
-          matchkey: "Starting k3k"
-          loglevel: "notice"
-        - matchtype: "startswith"
-          matchkey: "Error:"
-          loglevel: "error"
+      options:
+        severity:
+          overrides:
+            - matchtype: "startswith"
+              matchkey: "Starting k3k"
+              loglevel: "notice"
+            - matchtype: "startswith"
+              matchkey: "Error:"
+              loglevel: "error"

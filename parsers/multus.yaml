@@ -63,10 +63,12 @@
   parser_rules:
     - name: "ts_8601"
     - name: "override_severity"
-      overrides:
-        - matchtype: "startswith"
-          matchkey: "[verbose]"
-          loglevel: "debug"
+      options:
+        severity:
+          overrides:
+            - matchtype: "startswith"
+              matchkey: "[verbose]"
+              loglevel: "debug"
     - name: "custom_splitter"
       options:
         regex: '^(\[verbose\] )?(.*)'
@@ -75,8 +77,9 @@
     - name: "glog"
     - name: "json"
       options:
-        versions:
-          - "cniVersion"
+        version:
+          keys:
+            - "cniVersion"
     - name: "expand_event"
     - name: "custom_splitter"
       options:
@@ -87,16 +90,18 @@
         message:
           field: 2
     - name: "override_severity"
-      overrides:
-        - matchtype: "startswith"
-          matchkey: "WARN: "
-          loglevel: "warning"
-        - matchtype: "endswith"
-          matchkey: "Text file busy"
-          loglevel: "warning"
-        - matchtype: "contains"
-          matchkey: "exit_with_error"
-          loglevel: "error"
+      options:
+        severity:
+          overrides:
+            - matchtype: "startswith"
+              matchkey: "WARN: "
+              loglevel: "warning"
+            - matchtype: "endswith"
+              matchkey: "Text file busy"
+              loglevel: "warning"
+            - matchtype: "contains"
+              matchkey: "exit_with_error"
+              loglevel: "error"
     - name: "key_value_with_leading_message"
 - name: "multus"
   show_in_selector: false
@@ -110,16 +115,18 @@
     - name: "ts_8601"
     - name: "glog"
     - name: "override_severity"
-      overrides:
-        - matchtype: "startswith"
-          matchkey: "http: \"TLS\" handshake error"
-          loglevel: "error"
-        - matchtype: "startswith"
-          matchkey: "http: TLS handshake error"
-          loglevel: "error"
-        - matchtype: "startswith"
-          matchkey: "Version:"
-          loglevel: "notice"
-        - matchtype: "startswith"
-          matchkey: "Trace["
-          loglevel: "debug"
+      options:
+        severity:
+          overrides:
+            - matchtype: "startswith"
+              matchkey: "http: \"TLS\" handshake error"
+              loglevel: "error"
+            - matchtype: "startswith"
+              matchkey: "http: TLS handshake error"
+              loglevel: "error"
+            - matchtype: "startswith"
+              matchkey: "Version:"
+              loglevel: "notice"
+            - matchtype: "startswith"
+              matchkey: "Trace["
+              loglevel: "debug"

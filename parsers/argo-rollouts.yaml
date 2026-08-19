@@ -5,7 +5,4 @@
     - image_name: "/argoproj/argo-rollouts"
   parser_rules:
     - name: "key_value"
-      options:
-        versions:
-          - "version"
     - name: "expand_event"

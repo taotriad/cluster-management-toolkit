@@ -17,14 +17,16 @@ from collections.abc import Callable
 from unittest import mock
 import yaml
 
-from clustermanagementtoolkit.cmttypes import deep_get, DictPath, LogLevel
+from clustermanagementtoolkit.cmtpaths import DEFAULT_THEME_FILE
+
+from clustermanagementtoolkit.cmttypes import deep_get, DictPath, LogLevel, name_to_loglevel
 
 from clustermanagementtoolkit.ansithemeprint import ANSIThemeStr
 from clustermanagementtoolkit.ansithemeprint import ansithemeprint, init_ansithemeprint
 
 from clustermanagementtoolkit import logparser as logparsers
 
-from clustermanagementtoolkit.curses_helper import ThemeStr, ThemeAttr, ThemeRef
+from clustermanagementtoolkit.curses_helper import read_theme, ThemeStr, ThemeAttr, ThemeRef
 
 real_import: Callable | None = None  # pylint: disable=invalid-name
 
@@ -306,13 +308,13 @@ def generic_split_severity(valid_indata: tuple[str], fun: Callable,
                            verbose: bool = False) -> tuple[str, bool]:
     message = ""
     result = True
-    options = {"default": LogLevel.INFO}
+    options = {"severity": {"default": "info"}}
 
     for indata in valid_indata:
         # indata is just a prefix; we want to test with a string prefixed by that prefix"
         indata = f"{indata} something or another"
         tmp = fun(indata, options=options)
-        default = deep_get(options, DictPath("default"))
+        default = name_to_loglevel(deep_get(options, DictPath("severity#default")))
         if tmp is None:
             message = f"{fun.__name__}() returned None with valid indata {indata}"
             result = False
@@ -384,13 +386,15 @@ def test_custom_override_severity(verbose: bool = False) -> tuple[str, bool]:
                 'use cluster.x-k8s.io/v1beta2 Machine', LogLevel.INFO,
                 {
                     "options": {
-                        "overrides": [
-                            {
-                                "matchtype": "startswith",
-                                "matchkey": "\"Warning: ",
-                                "loglevel": "warning",
-                            },
-                        ],
+                        "severity": {
+                            "overrides": [
+                                {
+                                    "matchtype": "startswith",
+                                    "matchkey": "\"Warning: ",
+                                    "loglevel": "warning",
+                                },
+                            ],
+                        },
                     },
                 },
                 ('"Warning: cluster.x-k8s.io/v1beta1 Machine is deprecated; '
@@ -402,13 +406,15 @@ def test_custom_override_severity(verbose: bool = False) -> tuple[str, bool]:
                 'use cluster.x-k8s.io/v1beta2 Machine', LogLevel.INFO,
                 {
                     "options": {
-                        "overrides": [
-                            {
-                                "matchtype": "startswith",
-                                "matchkey": "\"arning: ",
-                                "loglevel": "warning",
-                            },
-                        ],
+                        "severity": {
+                            "overrides": [
+                                {
+                                    "matchtype": "startswith",
+                                    "matchkey": "\"arning: ",
+                                    "loglevel": "warning",
+                                },
+                            ],
+                        },
                     },
                 },
                 ('"Warning: cluster.x-k8s.io/v1beta1 Machine is deprecated; '
@@ -421,13 +427,15 @@ def test_custom_override_severity(verbose: bool = False) -> tuple[str, bool]:
                           ThemeAttr("main", "default"))], LogLevel.INFO,
                 {
                     "options": {
-                        "overrides": [
-                            {
-                                "matchtype": "startswith",
-                                "matchkey": "\"Warning: ",
-                                "loglevel": "warning",
-                            },
-                        ],
+                        "severity": {
+                            "overrides": [
+                                {
+                                    "matchtype": "startswith",
+                                    "matchkey": "\"Warning: ",
+                                    "loglevel": "warning",
+                                },
+                            ],
+                        },
                     },
                 },
                 ([ThemeStr('"Warning: cluster.x-k8s.io/v1beta1 Machine is deprecated; '
@@ -440,13 +448,15 @@ def test_custom_override_severity(verbose: bool = False) -> tuple[str, bool]:
                 'use cluster.x-k8s.io/v1beta2 Machine', LogLevel.INFO,
                 {
                     "options": {
-                        "overrides": [
-                            {
-                                "matchtype": "endswith",
-                                "matchkey": "Machine",
-                                "loglevel": "debug",
-                            },
-                        ],
+                        "severity": {
+                            "overrides": [
+                                {
+                                    "matchtype": "endswith",
+                                    "matchkey": "Machine",
+                                    "loglevel": "debug",
+                                },
+                            ],
+                        },
                     },
                 },
                 ('"Warning: cluster.x-k8s.io/v1beta1 Machine is deprecated; '
@@ -458,13 +468,15 @@ def test_custom_override_severity(verbose: bool = False) -> tuple[str, bool]:
                 'use cluster.x-k8s.io/v1beta2 Machine', LogLevel.INFO,
                 {
                     "options": {
-                        "overrides": [
-                            {
-                                "matchtype": "endswith",
-                                "matchkey": "Machin",
-                                "loglevel": "debug",
-                            },
-                        ],
+                        "severity": {
+                            "overrides": [
+                                {
+                                    "matchtype": "endswith",
+                                    "matchkey": "Machin",
+                                    "loglevel": "debug",
+                                },
+                            ],
+                        },
                     },
                 },
                 ('"Warning: cluster.x-k8s.io/v1beta1 Machine is deprecated; '
@@ -476,13 +488,15 @@ def test_custom_override_severity(verbose: bool = False) -> tuple[str, bool]:
                 'use cluster.x-k8s.io/v1beta2 Machine', LogLevel.INFO,
                 {
                     "options": {
-                        "overrides": [
-                            {
-                                "matchtype": "contains",
-                                "matchkey": "deprecated",
-                                "loglevel": "notice",
-                            },
-                        ],
+                        "severity": {
+                            "overrides": [
+                                {
+                                    "matchtype": "contains",
+                                    "matchkey": "deprecated",
+                                    "loglevel": "notice",
+                                },
+                            ],
+                        },
                     },
                 },
                 ('"Warning: cluster.x-k8s.io/v1beta1 Machine is deprecated; '
@@ -494,13 +508,15 @@ def test_custom_override_severity(verbose: bool = False) -> tuple[str, bool]:
                 'use cluster.x-k8s.io/v1beta2 Machine', LogLevel.INFO,
                 {
                     "options": {
-                        "overrides": [
-                            {
-                                "matchtype": "contains",
-                                "matchkey": "dprecated",
-                                "loglevel": "notice",
-                            },
-                        ],
+                        "severity": {
+                            "overrides": [
+                                {
+                                    "matchtype": "contains",
+                                    "matchkey": "dprecated",
+                                    "loglevel": "notice",
+                                },
+                            ],
+                        },
                     },
                 },
                 ('"Warning: cluster.x-k8s.io/v1beta1 Machine is deprecated; '
@@ -511,13 +527,15 @@ def test_custom_override_severity(verbose: bool = False) -> tuple[str, bool]:
                 'warning', LogLevel.INFO,
                 {
                     "options": {
-                        "overrides": [
-                            {
-                                "matchtype": "exact",
-                                "matchkey": "Warning",
-                                "loglevel": "warning",
-                            },
-                        ],
+                        "severity": {
+                            "overrides": [
+                                {
+                                    "matchtype": "exact",
+                                    "matchkey": "Warning",
+                                    "loglevel": "warning",
+                                },
+                            ],
+                        },
                     },
                 },
                 ('warning', LogLevel.INFO),
@@ -527,13 +545,15 @@ def test_custom_override_severity(verbose: bool = False) -> tuple[str, bool]:
                 'Warning', LogLevel.INFO,
                 {
                     "options": {
-                        "overrides": [
-                            {
-                                "matchtype": "exact",
-                                "matchkey": "Warning",
-                                "loglevel": "warning",
-                            },
-                        ],
+                        "severity": {
+                            "overrides": [
+                                {
+                                    "matchtype": "exact",
+                                    "matchkey": "Warning",
+                                    "loglevel": "warning",
+                                },
+                            ],
+                        },
                     },
                 },
                 ('Warning', LogLevel.WARNING),
@@ -559,13 +579,15 @@ def test_custom_override_severity(verbose: bool = False) -> tuple[str, bool]:
                 'Warning', LogLevel.INFO,
                 {
                     "options": {
-                        "overrides": [
-                            {
-                                "matchtype": "regex",
-                                "matchkey": re.compile(".*rn"),
-                                "loglevel": "warning",
-                            },
-                        ],
+                        "severity": {
+                            "overrides": [
+                                {
+                                    "matchtype": "regex",
+                                    "matchkey": re.compile(".*rn"),
+                                    "loglevel": "warning",
+                                },
+                            ],
+                        },
                     },
                 },
                 ('Warning', LogLevel.WARNING),
@@ -575,13 +597,15 @@ def test_custom_override_severity(verbose: bool = False) -> tuple[str, bool]:
                 'Warning', LogLevel.INFO,
                 {
                     "options": {
-                        "overrides": [
-                            {
-                                "matchtype": "foobar",
-                                "matchkey": re.compile(".*rn"),
-                                "loglevel": "warning",
-                            },
-                        ],
+                        "severity": {
+                            "overrides": [
+                                {
+                                    "matchtype": "foobar",
+                                    "matchkey": re.compile(".*rn"),
+                                    "loglevel": "warning",
+                                },
+                            ],
+                        },
                     },
                 },
                 ('Warning', LogLevel.INFO),
@@ -1045,7 +1069,17 @@ def test_http(verbose: bool = False) -> tuple[str, bool]:
             # (string, fold_msg, expected_result, expected_remnants, expected_exception)
             ('::ffff:10.217.0.1 - - [06/May/2022 18:50:45] "GET / HTTP/1.1" 200 -',
              LogLevel.INFO, "", True, {},
-             [ThemeStr('::ffff:10.217.0.1', ThemeAttr('logview', 'hostname'), False),
+             [ThemeRef('separators', 'ipv6address', False),
+              ThemeRef('separators', 'ipv6address', False),
+              ThemeStr('ffff', ThemeAttr('types', 'address'), False),
+              ThemeRef('separators', 'ipv6address', False),
+              ThemeStr('10', ThemeAttr('types', 'address'), False),
+              ThemeRef('separators', 'ipv4address', False),
+              ThemeStr('217', ThemeAttr('types', 'address'), False),
+              ThemeRef('separators', 'ipv4address', False),
+              ThemeStr('0', ThemeAttr('types', 'address'), False),
+              ThemeRef('separators', 'ipv4address', False),
+              ThemeStr('1', ThemeAttr('types', 'address'), False),
               ThemeStr(' - - ', ThemeAttr('logview', 'severity_info'), False),
               ThemeStr('[06/May/2022:18:50:45]', ThemeAttr('logview', 'timestamp'), False),
               ThemeStr(' "', ThemeAttr('logview', 'severity_info'), False),
@@ -1054,10 +1088,21 @@ def test_http(verbose: bool = False) -> tuple[str, bool]:
               ThemeStr(' HTTP/1.1', ThemeAttr('logview', 'protocol'), False),
               ThemeStr('" ', ThemeAttr('logview', 'severity_info'), False),
               ThemeStr('200', ThemeAttr('logview', 'severity_notice'), False),
-              ThemeStr(' -', ThemeAttr('logview', 'severity_info'), False)], None),
+              ThemeStr(' -', ThemeAttr('logview', 'severity_info'), False)],
+             None),
             ('::ffff:10.217.0.1 - - [06/May/2022 18:50:45] "GET / HTTP/1.1" 400 -',
              LogLevel.INFO, "", True, {},
-             [ThemeStr('::ffff:10.217.0.1', ThemeAttr('logview', 'hostname'), False),
+             [ThemeRef('separators', 'ipv6address', False),
+              ThemeRef('separators', 'ipv6address', False),
+              ThemeStr('ffff', ThemeAttr('types', 'address'), False),
+              ThemeRef('separators', 'ipv6address', False),
+              ThemeStr('10', ThemeAttr('types', 'address'), False),
+              ThemeRef('separators', 'ipv4address', False),
+              ThemeStr('217', ThemeAttr('types', 'address'), False),
+              ThemeRef('separators', 'ipv4address', False),
+              ThemeStr('0', ThemeAttr('types', 'address'), False),
+              ThemeRef('separators', 'ipv4address', False),
+              ThemeStr('1', ThemeAttr('types', 'address'), False),
               ThemeStr(' - - ', ThemeAttr('logview', 'severity_info'), False),
               ThemeStr('[06/May/2022:18:50:45]', ThemeAttr('logview', 'timestamp'), False),
               ThemeStr(' "', ThemeAttr('logview', 'severity_info'), False),
@@ -1069,7 +1114,17 @@ def test_http(verbose: bool = False) -> tuple[str, bool]:
               ThemeStr(' -', ThemeAttr('logview', 'severity_info'), False)], None),
             ('::ffff:10.217.0.1 - - [06/May/2022 18:50:45] "GET / HTTP/1.1" 300 -',
              LogLevel.INFO, "", True, {},
-             [ThemeStr('::ffff:10.217.0.1', ThemeAttr('logview', 'hostname'), False),
+             [ThemeRef('separators', 'ipv6address', False),
+              ThemeRef('separators', 'ipv6address', False),
+              ThemeStr('ffff', ThemeAttr('types', 'address'), False),
+              ThemeRef('separators', 'ipv6address', False),
+              ThemeStr('10', ThemeAttr('types', 'address'), False),
+              ThemeRef('separators', 'ipv4address', False),
+              ThemeStr('217', ThemeAttr('types', 'address'), False),
+              ThemeRef('separators', 'ipv4address', False),
+              ThemeStr('0', ThemeAttr('types', 'address'), False),
+              ThemeRef('separators', 'ipv4address', False),
+              ThemeStr('1', ThemeAttr('types', 'address'), False),
               ThemeStr(' - - ', ThemeAttr('logview', 'severity_info'), False),
               ThemeStr('[06/May/2022:18:50:45]', ThemeAttr('logview', 'timestamp'), False),
               ThemeStr(' "', ThemeAttr('logview', 'severity_info'), False),
@@ -1085,13 +1140,18 @@ def test_http(verbose: bool = False) -> tuple[str, bool]:
              '368 0.002 [monitoring-prometheus-k8s-9090] [] 10.40.0.30:9090 528 0.004 '
              '200 5997e385f9f1e248446d28a810c4',
              LogLevel.INFO, "", True, {"reformat_timestamps": True},
-             [ThemeStr('10.32.0.1', ThemeAttr('logview', 'hostname'), False),
+             [ThemeStr('10', ThemeAttr('types', 'address'), False),
+              ThemeRef('separators', 'ipv4address', False),
+              ThemeStr('32', ThemeAttr('types', 'address'), False),
+              ThemeRef('separators', 'ipv4address', False),
+              ThemeStr('0', ThemeAttr('types', 'address'), False),
+              ThemeRef('separators', 'ipv4address', False),
+              ThemeStr('1', ThemeAttr('types', 'address'), False),
               ThemeStr(' - - ', ThemeAttr('logview', 'severity_info'), False),
-              ThemeStr('[2023-02-20 11:38:13 +0000]', ThemeAttr('logview', 'timestamp'), False),
+              ThemeStr('[20/Mar/2023:11:38:13 +0000]', ThemeAttr('logview', 'timestamp'), False),
               ThemeStr(' "', ThemeAttr('logview', 'severity_info'), False),
               ThemeStr('GET ', ThemeAttr('logview', 'protocol'), False),
-              ThemeStr('/api/v1/series?match%5B%5D=collectd_gpu_sysman_frequency_mhz'
-                       '&start=1679311983&end=1679312283', ThemeAttr('logview', 'uri'), False),
+              ThemeStr('/api/v1/series?match%5B%5D=collectd_gpu_sysman_frequency_mhz&start=1679311983&end=1679312283', ThemeAttr('logview', 'uri'), False),
               ThemeStr(' HTTP/1.1', ThemeAttr('logview', 'protocol'), False),
               ThemeStr('" ', ThemeAttr('logview', 'severity_info'), False),
               ThemeStr('404', ThemeAttr('logview', 'severity_error'), False),
@@ -1100,14 +1160,22 @@ def test_http(verbose: bool = False) -> tuple[str, bool]:
               ThemeStr('" "', ThemeAttr('logview', 'severity_info'), False),
               ThemeStr('Grafana/8.3.10', ThemeAttr('logview', 'uri'), False),
               ThemeStr('"', ThemeAttr('logview', 'severity_info'), False),
-              ThemeStr(' 368 0.002 [monitoring-prometheus-k8s-9090] [] 10.40.0.30:9090 528 '
-                       '0.004 200 5997e385f9f1e248446d28a810c4',
-                       ThemeAttr('types', 'generic'), False)], None),
+              ThemeStr(' 368 0.002 [monitoring-prometheus-k8s-9090] [] 10.40.0.30:9090 528 0.004 200 5997e385f9f1e248446d28a810c4', ThemeAttr('types', 'generic'), False)], None),
             ('::ffff:10.217.0.1 - - [06/May/2022 18:50:45] "GET / HTTP/1.1" 200 -',
              LogLevel.INFO, "", True, {"reformat_timestamps": True},
-             [ThemeStr('::ffff:10.217.0.1', ThemeAttr('logview', 'hostname'), False),
+             [ThemeRef('separators', 'ipv6address', False),
+              ThemeRef('separators', 'ipv6address', False),
+              ThemeStr('ffff', ThemeAttr('types', 'address'), False),
+              ThemeRef('separators', 'ipv6address', False),
+              ThemeStr('10', ThemeAttr('types', 'address'), False),
+              ThemeRef('separators', 'ipv4address', False),
+              ThemeStr('217', ThemeAttr('types', 'address'), False),
+              ThemeRef('separators', 'ipv4address', False),
+              ThemeStr('0', ThemeAttr('types', 'address'), False),
+              ThemeRef('separators', 'ipv4address', False),
+              ThemeStr('1', ThemeAttr('types', 'address'), False),
               ThemeStr(' - - ', ThemeAttr('logview', 'severity_info'), False),
-              ThemeStr('[2022-04-06 18:50:45]', ThemeAttr('logview', 'timestamp'), False),
+              ThemeStr('[06/May/2022:18:50:45]', ThemeAttr('logview', 'timestamp'), False),
               ThemeStr(' "', ThemeAttr('logview', 'severity_info'), False),
               ThemeStr('GET ', ThemeAttr('logview', 'protocol'), False),
               ThemeStr('/', ThemeAttr('logview', 'uri'), False),
@@ -1118,9 +1186,15 @@ def test_http(verbose: bool = False) -> tuple[str, bool]:
             ('10.244.0.1 - - [29/Jan/2022:10:34:20 +0000] "GET /v0/healthz HTTP/1.1" '
              '301 178 "-" "kube-probe/1.23"',
              LogLevel.INFO, "", True, {"reformat_timestamps": True},
-             [ThemeStr('10.244.0.1', ThemeAttr('logview', 'hostname'), False),
+             [ThemeStr('10', ThemeAttr('types', 'address'), False),
+              ThemeRef('separators', 'ipv4address', False),
+              ThemeStr('244', ThemeAttr('types', 'address'), False),
+              ThemeRef('separators', 'ipv4address', False),
+              ThemeStr('0', ThemeAttr('types', 'address'), False),
+              ThemeRef('separators', 'ipv4address', False),
+              ThemeStr('1', ThemeAttr('types', 'address'), False),
               ThemeStr(' - - ', ThemeAttr('logview', 'severity_info'), False),
-              ThemeStr('[2022-00-29 10:34:20 +0000]', ThemeAttr('logview', 'timestamp'), False),
+              ThemeStr('[29/Jan/2022:10:34:20 +0000]', ThemeAttr('logview', 'timestamp'), False),
               ThemeStr(' "', ThemeAttr('logview', 'severity_info'), False),
               ThemeStr('GET ', ThemeAttr('logview', 'protocol'), False),
               ThemeStr('/v0/healthz', ThemeAttr('logview', 'uri'), False),
@@ -1212,7 +1286,13 @@ def test_http(verbose: bool = False) -> tuple[str, bool]:
              'HTTP/1.1" 200 186 "-" "Grafana/8.5.27" 128 0.002 [monitoring-prometheus-k8s-9090] '
              '[] 10.245.96.3:9090 186 0.002 200 6931ce1fdbb3b5708d29add993693d80',
              LogLevel.INFO, "", True, {},
-             [ThemeStr('10.245.0.1', ThemeAttr('logview', 'hostname'), False),
+             [ThemeStr('10', ThemeAttr('types', 'address'), False),
+              ThemeRef('separators', 'ipv4address', False),
+              ThemeStr('245', ThemeAttr('types', 'address'), False),
+              ThemeRef('separators', 'ipv4address', False),
+              ThemeStr('0', ThemeAttr('types', 'address'), False),
+              ThemeRef('separators', 'ipv4address', False),
+              ThemeStr('1', ThemeAttr('types', 'address'), False),
               ThemeStr(' - - ', ThemeAttr('logview', 'severity_info'), False),
               ThemeStr('[01/Mar/2024:14:04:03 +0000]', ThemeAttr('logview', 'timestamp'), False),
               ThemeStr(' "', ThemeAttr('logview', 'severity_info'), False),
@@ -1226,15 +1306,19 @@ def test_http(verbose: bool = False) -> tuple[str, bool]:
               ThemeStr('" "', ThemeAttr('logview', 'severity_info'), False),
               ThemeStr('Grafana/8.5.27', ThemeAttr('logview', 'uri'), False),
               ThemeStr('"', ThemeAttr('logview', 'severity_info'), False),
-              ThemeStr(' 128 0.002 [monitoring-prometheus-k8s-9090] [] 10.245.96.3:9090 186 '
-                       '0.002 200 6931ce1fdbb3b5708d29add993693d80',
-                       ThemeAttr('types', 'generic'), False)], None),
+              ThemeStr(' 128 0.002 [monitoring-prometheus-k8s-9090] [] 10.245.96.3:9090 186 0.002 200 6931ce1fdbb3b5708d29add993693d80', ThemeAttr('types', 'generic'), False)], None),
             ('10.245.96.15 - - [28/Feb/2024:16:25:59 +0000] "GET '
              '/sd-shared-gpu-7b5548d864-pz77r.png HTTP/1.1" 304 0 '
              '"http://sd-preview.val.cluster:27080/" "Mozilla/5.0 (X11; Linux x86_64; rv:123.0) '
              'Gecko/20100101 Firefox/123.0" "10.245.0.1"',
              LogLevel.INFO, "", True, {},
-             [ThemeStr('10.245.96.15', ThemeAttr('logview', 'hostname'), False),
+             [ThemeStr('10', ThemeAttr('types', 'address'), False),
+              ThemeRef('separators', 'ipv4address', False),
+              ThemeStr('245', ThemeAttr('types', 'address'), False),
+              ThemeRef('separators', 'ipv4address', False),
+              ThemeStr('96', ThemeAttr('types', 'address'), False),
+              ThemeRef('separators', 'ipv4address', False),
+              ThemeStr('15', ThemeAttr('types', 'address'), False),
               ThemeStr(' - - ', ThemeAttr('logview', 'severity_info'), False),
               ThemeStr('[28/Feb/2024:16:25:59 +0000]', ThemeAttr('logview', 'timestamp'), False),
               ThemeStr(' "', ThemeAttr('logview', 'severity_info'), False),
@@ -1246,15 +1330,20 @@ def test_http(verbose: bool = False) -> tuple[str, bool]:
               ThemeStr(' 0 "', ThemeAttr('logview', 'severity_info'), False),
               ThemeStr('http://sd-preview.val.cluster:27080/', ThemeAttr('logview', 'uri'), False),
               ThemeStr('" "', ThemeAttr('logview', 'severity_info'), False),
-              ThemeStr('Mozilla/5.0 (X11; Linux x86_64; rv:123.0) Gecko/20100101 Firefox/123.0',
-                       ThemeAttr('logview', 'uri'), False),
+              ThemeStr('Mozilla/5.0 (X11; Linux x86_64; rv:123.0) Gecko/20100101 Firefox/123.0', ThemeAttr('logview', 'uri'), False),
               ThemeStr('"', ThemeAttr('logview', 'severity_info'), False),
               ThemeStr(' "10.245.0.1"', ThemeAttr('types', 'generic'), False)], None),
             ('10.245.96.15 - - [28/Feb/2024:16:29:57 +0000] "GET / HTTP/1.1" 200 1026 "-" '
              '"Mozilla/5.0 (X11; Linux x86_64; rv:123.0) Gecko/20100101 Firefox/123.0" '
              '"10.245.0.1"',
              LogLevel.INFO, "", True, {},
-             [ThemeStr('10.245.96.15', ThemeAttr('logview', 'hostname'), False),
+             [ThemeStr('10', ThemeAttr('types', 'address'), False),
+              ThemeRef('separators', 'ipv4address', False),
+              ThemeStr('245', ThemeAttr('types', 'address'), False),
+              ThemeRef('separators', 'ipv4address', False),
+              ThemeStr('96', ThemeAttr('types', 'address'), False),
+              ThemeRef('separators', 'ipv4address', False),
+              ThemeStr('15', ThemeAttr('types', 'address'), False),
               ThemeStr(' - - ', ThemeAttr('logview', 'severity_info'), False),
               ThemeStr('[28/Feb/2024:16:29:57 +0000]', ThemeAttr('logview', 'timestamp'), False),
               ThemeStr(' "', ThemeAttr('logview', 'severity_info'), False),
@@ -1266,8 +1355,7 @@ def test_http(verbose: bool = False) -> tuple[str, bool]:
               ThemeStr(' 1026 "', ThemeAttr('logview', 'severity_info'), False),
               ThemeStr('-', ThemeAttr('logview', 'uri'), False),
               ThemeStr('" "', ThemeAttr('logview', 'severity_info'), False),
-              ThemeStr('Mozilla/5.0 (X11; Linux x86_64; rv:123.0) Gecko/20100101 Firefox/123.0',
-                       ThemeAttr('logview', 'uri'), False),
+              ThemeStr('Mozilla/5.0 (X11; Linux x86_64; rv:123.0) Gecko/20100101 Firefox/123.0', ThemeAttr('logview', 'uri'), False),
               ThemeStr('"', ThemeAttr('logview', 'severity_info'), False),
               ThemeStr(' "10.245.0.1"', ThemeAttr('types', 'generic'), False)], None),
         )
@@ -1430,7 +1518,7 @@ def test_tab_separated(verbose: bool = False) -> tuple[str, bool]:
              None),
             ('2022-12-13T22:23:45.808Z\tINFO\tsetup\tfoo\t{"version": "v1.0"}',
              LogLevel.INFO, "",
-             False, {"versions": ["version"]},
+             False, {"version": {"keys": ["version"]}},
              ('foo',
               LogLevel.INFO, "setup",
               [([ThemeStr('{', ThemeAttr('types', 'yaml_punctuation'), False)], LogLevel.INFO),
@@ -1444,7 +1532,7 @@ def test_tab_separated(verbose: bool = False) -> tuple[str, bool]:
              None),
             ('2022-12-13T22:23:45.808Z\tINFO\tsetup\tfoo\t{"version: "v1.0"}',
              LogLevel.INFO, "",
-             False, {"versions": ["version"]},
+             False, {},
              ('foo {"version: "v1.0"}',
               LogLevel.INFO, "setup",
               [
@@ -2566,7 +2654,9 @@ def main() -> int:
     verbose = False
     failed_testcases = []
 
-    init_ansithemeprint(themefile=None)
+    defaultthemefile = DEFAULT_THEME_FILE
+    read_theme(defaultthemefile, defaultthemefile)
+    init_ansithemeprint(themefile=defaultthemefile)
 
     # How many non-prepare testcases do we have?
     # pylint: disable-next=consider-using-dict-items

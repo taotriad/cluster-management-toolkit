@@ -311,8 +311,8 @@ infoview:
         type: "int"
         formatter: "numerical"
   logpad:
-    timestamps: true
     infogetter: "get_traceflow"
+    timestamps: true
   shortcuts:
     "Open destination Pod":
       key: "p"

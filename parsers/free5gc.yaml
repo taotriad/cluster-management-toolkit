@@ -21,13 +21,15 @@
         message:
           field: 4
     - name: "override_severity"
-      overrides:
-        - matchtype: "startswith"
-          matchkey: "\tfree5GC version:"
-          loglevel: "notice"
-        - matchtype: "startswith"
-          matchkey: "UPF config version"
-          loglevel: "notice"
+      options:
+        severity:
+          overrides:
+            - matchtype: "startswith"
+              matchkey: "\tfree5GC version:"
+              loglevel: "notice"
+            - matchtype: "startswith"
+              matchkey: "UPF config version"
+              loglevel: "notice"
 - name: "free5gc"
   show_in_selector: false
   matchkeys:
@@ -45,7 +47,9 @@
         message:
           field: 3
     - name: "override_severity"
-      overrides:
-        - matchtype: "startswith"
-          matchkey: "UERANSIM v"
-          loglevel: "notice"
+      options:
+        severity:
+          overrides:
+            - matchtype: "startswith"
+              matchkey: "UERANSIM v"
+              loglevel: "notice"

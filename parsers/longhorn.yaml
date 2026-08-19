@@ -7,14 +7,25 @@
   parser_rules:
     - name: "glog"
     - name: "key_value"
+      options:
+        severity:
+          overrides:
+            - matchtype: "startswith"
+              matchkey: "\"CSI Driver: driver.longhorn.io version:"
+              loglevel: "notice"
+            - matchtype: "startswith"
+              matchkey: "\"Warning:"
+              loglevel: "warning"
     - name: "override_severity"
-      overrides:
-        - matchtype: "startswith"
-          matchkey: "CSI Driver: driver.longhorn.io version:"
-          loglevel: "notice"
-        - matchtype: "startswith"
-          matchkey: "\"Warning:"
-          loglevel: "warning"
+      options:
+        severity:
+          overrides:
+            - matchtype: "startswith"
+              matchkey: "CSI Driver: driver.longhorn.io version:"
+              loglevel: "notice"
+            - matchtype: "startswith"
+              matchkey: "\"Warning:"
+              loglevel: "warning"
     - name: "custom_splitter"
       options:
         regex: '^\d\d/\d\d/\d{4} \d\d:\d\d:\d\d : (.*)'
@@ -42,9 +53,6 @@
   parser_rules:
     - name: "glog"
     - name: "key_value_with_leading_message"
-      options:
-        versions:
-          - "version"
 - name: "longhorn"
   show_in_selector: false
   matchkeys:

@@ -34,8 +34,9 @@
           - matchtype: "exact"
             matchkey: "}"
             format_block_end: true
-        loglevel: "info"
-        overrides:
-          - matchtype: "contains"
-            matchkey: "\"version\""
-            loglevel: "notice"
+        severity:
+          default: "info"
+          overrides:
+            - matchtype: "contains"
+              matchkey: "\"version\""
+              loglevel: "notice"

@@ -6,6 +6,3 @@
       container_name: "registry"
   parser_rules:
     - name: "key_value"
-      options:
-        versions:
-          - "version"

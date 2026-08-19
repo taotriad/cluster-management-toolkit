@@ -7,13 +7,15 @@
   parser_rules:
     - name: "glog"
     - name: "override_severity"
-      overrides:
-        - matchtype: "startswith"
-          matchkey: "Version: "
-          loglevel: "notice"
-        - matchtype: "startswith"
-          matchkey: "Driver: nfs.csi.k8s.io version: "
-          loglevel: "notice"
+      options:
+        severity:
+          overrides:
+            - matchtype: "startswith"
+              matchkey: "Version: "
+              loglevel: "notice"
+            - matchtype: "startswith"
+              matchkey: "Driver: nfs.csi.k8s.io version: "
+              loglevel: "notice"
     - name: "custom_line"
       options:
         block_start:
@@ -25,4 +27,5 @@
           - matchtype: "empty"
             matchkey: ""
             format_block_end: true
-        loglevel: "notice"
+        severity:
+          default: "notice"

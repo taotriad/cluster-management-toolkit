@@ -17,17 +17,16 @@
     - name: "glog"
     - name: "json"
     - name: "key_value"
-      options:
-        versions:
-          - "version"
     - name: "override_severity"
-      overrides:
-        - matchtype: "startswith"
-          matchkey: "Alloc="
-          loglevel: "debug"
-        - matchtype: "startswith"
-          matchkey: "Trace["
-          loglevel: "debug"
+      options:
+        severity:
+          overrides:
+            - matchtype: "startswith"
+              matchkey: "Alloc="
+              loglevel: "debug"
+            - matchtype: "startswith"
+              matchkey: "Trace["
+              loglevel: "debug"
 - name: "argocd"
   show_in_selector: false
   matchkeys:
@@ -36,10 +35,12 @@
     - name: "glog"
     - name: "tab_separated"
     - name: "override_severity"
-      overrides:
-        - matchtype: "startswith"
-          matchkey: "Version of argocd-operator:"
-          loglevel: "notice"
+      options:
+        severity:
+          overrides:
+            - matchtype: "startswith"
+              matchkey: "Version of argocd-operator:"
+              loglevel: "notice"
 - name: "argocd"
   show_in_selector: false
   matchkeys:
@@ -48,7 +49,9 @@
       container_type: "InitContainer"
   parser_rules:
     - name: "override_severity"
-      overrides:
-        - matchtype: "startswith"
-          matchkey: "cp: warning:"
-          loglevel: "warning"
+      options:
+        severity:
+          overrides:
+            - matchtype: "startswith"
+              matchkey: "cp: warning:"
+              loglevel: "warning"

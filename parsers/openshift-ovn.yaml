@@ -19,10 +19,12 @@
     - name: "expand_event"
     - name: "key_value_with_leading_message"
     - name: "override_severity"
-      overrides:
-        - matchtype: "startswith"
-          matchkey: "================== ovnkube.sh --- version: "
-          loglevel: "notice"
+      options:
+        severity:
+          overrides:
+            - matchtype: "startswith"
+              matchkey: "================== ovnkube.sh --- version: "
+              loglevel: "notice"
 - name: "openshift-ovnkube"
   show_in_selector: false
   matchkeys:
@@ -56,7 +58,9 @@
         message:
           field: 3
     - name: "override_severity"
-      overrides:
-        - matchtype: "startswith"
-          matchkey: "================== ovnkube.sh --- version: "
-          loglevel: "notice"
+      options:
+        severity:
+          overrides:
+            - matchtype: "startswith"
+              matchkey: "================== ovnkube.sh --- version: "
+              loglevel: "notice"

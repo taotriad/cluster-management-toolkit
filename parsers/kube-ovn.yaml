@@ -14,10 +14,12 @@
             matchline: "any"
             format_block_start: false
     - name: "override_severity"
-      overrides:
-        - matchtype: "startswith"
-          matchkey: "WARNING"
-          loglevel: "warning"
+      options:
+        severity:
+          overrides:
+            - matchtype: "startswith"
+              matchkey: "WARNING"
+              loglevel: "warning"
     - name: "custom_splitter"
       options:
         regex: '^\|\d+?\|([^|]+?)\|([A-Z]{4})\|(.*)'
@@ -40,10 +42,12 @@
     - name: "glog"
     - name: "json"
     - name: "override_severity"
-      overrides:
-        - matchtype: "startswith"
-          matchkey: "  Version:"
-          loglevel: "notice"
+      options:
+        severity:
+          overrides:
+            - matchtype: "startswith"
+              matchkey: "  Version:"
+              loglevel: "notice"
     - name: "custom_splitter"
       options:
         # yamllint disable-line rule:line-length
@@ -61,11 +65,12 @@
           - matchtype: "startswith"
             matchkey: "--------"
             format_block_end: true
-        loglevel: "info"
-        overrides:
-          - matchtype: "startswith"
-            matchkey: "  Version: "
-            loglevel: "notice"
+        severity:
+          default: "info"
+          overrides:
+            - matchtype: "startswith"
+              matchkey: "  Version: "
+              loglevel: "notice"
 - name: "kube-ovn"
   show_in_selector: false
   matchkeys:
@@ -104,13 +109,17 @@
           - matchtype: "startswith"
             matchkey: "--------"
             format_block_end: true
-        loglevel: "info"
-        overrides:
-          - matchtype: "startswith"
-            matchkey: "  Version: "
-            loglevel: "notice"
+        severity:
+          default: "info"
+          overrides:
+            - matchtype: "startswith"
+              matchkey: "  Version: "
+              loglevel: "notice"
     - name: "override_severity"
-      overrides:
-        - matchtype: "startswith"
-          matchkey: "iptables v"
-          loglevel: "notice"
+      options:
+        severity:
+          overrides:
+            - matchtype: "startswith"
+              matchkey: "iptables v"
+              loglevel: "notice"
+    - name: "key_value_with_leading_message"

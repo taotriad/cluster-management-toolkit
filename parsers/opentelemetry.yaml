@@ -15,14 +15,13 @@
     - image_name: "/otel/opentelemetry-collector"
   parser_rules:
     - name: "tab_separated"
-      options:
-        versions:
-          - "Version"
     - name: "override_severity"
-      overrides:
-        - matchtype: "startswith"
-          matchkey: "Error: "
-          loglevel: "error"
+      options:
+        severity:
+          overrides:
+            - matchtype: "startswith"
+              matchkey: "Error: "
+              loglevel: "error"
     - name: "custom_splitter"
       options:
         regex: '^\d{4}/\d\d/\d\d \d\d:\d\d:\d\d (.*)'

@@ -8,14 +8,13 @@
   parser_rules:
     - name: "glog"
     - name: "key_value_with_leading_message"
-      options:
-        versions:
-          - "version"
     - name: "override_severity"
-      overrides:
-        - matchtype: "startswith"
-          matchkey: "Trace["
-          loglevel: "debug"
-        - matchtype: "startswith"
-          matchkey: "Version: v"
-          loglevel: "notice"
+      options:
+        severity:
+          overrides:
+            - matchtype: "startswith"
+              matchkey: "Trace["
+              loglevel: "debug"
+            - matchtype: "startswith"
+              matchkey: "Version: v"
+              loglevel: "notice"

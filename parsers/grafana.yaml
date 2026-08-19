@@ -9,10 +9,12 @@
     - name: "glog"
     - name: "tab_separated"
     - name: "override_severity"
-      overrides:
-        - matchtype: "startswith"
-          matchkey: "Trace["
-          loglevel: "debug"
+      options:
+        severity:
+          overrides:
+            - matchtype: "startswith"
+              matchkey: "Trace["
+              loglevel: "debug"
 - name: "grafana"
   show_in_selector: false
   matchkeys:
@@ -38,25 +40,14 @@
     - image_name: "/rancher/appco-grafana"
   parser_rules:
     - name: "key_value"
-      options:
-        versions:
-          - "version"
     - name: "json"
-      options:
-        severities:
-          - "@level"
-          - "level"
-        timestamps:
-          - "time"
-          - "@timestamp"
-        messages:
-          - "msg"
-          - "@message"
     - name: "override_severity"
-      overrides:
-        - matchtype: "startswith"
-          matchkey: "Starting Grafana"
-          loglevel: "notice"
-        - matchtype: "startswith"
-          matchkey: "Error checking server process "
-          loglevel: "warning"
+      options:
+        severity:
+          overrides:
+            - matchtype: "startswith"
+              matchkey: "Starting Grafana"
+              loglevel: "notice"
+            - matchtype: "startswith"
+              matchkey: "Error checking server process "
+              loglevel: "warning"

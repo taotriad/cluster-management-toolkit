@@ -763,190 +763,125 @@ def test_format_yaml_line(verbose: bool = False) -> tuple[str, bool]:
             (
                 "# A comment",
                 {},
-                (
-                    [ThemeStr("# A comment", ThemeAttr("types", "yaml_comment"))],
-                    []
-                ),
+                [ThemeStr("# A comment", ThemeAttr("types", "yaml_comment"))],
                 None
             ),
             (
                 "# A comment",
                 {"override_formatting": {"__all": ThemeAttr("types", "generic")}},
-                (
-                    [ThemeStr("# A comment", ThemeAttr("types", "generic"))],
-                    []
-                ),
+                [ThemeStr("# A comment", ThemeAttr("types", "generic"))],
                 None
             ),
             (
                 "    # Indented comment",
                 {},
-                (
-                    [ThemeStr("    # Indented comment", ThemeAttr("types", "yaml_comment"))],
-                    []
-                ),
+                [ThemeStr("    # Indented comment", ThemeAttr("types", "yaml_comment"))],
                 None
             ),
             (
                 "key: value",
                 {},
-                (
-                    [ThemeStr("key", ThemeAttr("types", "yaml_key")),
-                     ThemeStr(": ", ThemeAttr("types", "yaml_key_separator")),
-                     ThemeStr("value", ThemeAttr("types", "yaml_value"))],
-                    []
-                ),
+                [ThemeStr("key", ThemeAttr("types", "yaml_key")),
+                 ThemeStr(": ", ThemeAttr("types", "yaml_key_separator")),
+                 ThemeStr("value", ThemeAttr("types", "yaml_value"))],
                 None
             ),
             (
                 "\"key\": \"value\"",
                 {},
-                (
-                    [ThemeStr("\"key\"", ThemeAttr("types", "yaml_key")),
-                     ThemeStr(": ", ThemeAttr("types", "yaml_key_separator")),
-                     ThemeStr("\"value\"", ThemeAttr("types", "yaml_value"))],
-                    []
-                ),
-                None
-            ),
-            (
-                "\"config\": \"value1\"\\n\"value2\"\\n\"value3\"",
-                {"expand_newline_fields": ("config",)},
-                # XXX: This looks very wrong
-                (
-                    [ThemeStr("\"config\"", ThemeAttr("types", "yaml_key")),
-                     ThemeStr(": ", ThemeAttr("types", "yaml_key_separator")),
-                     ThemeStr("\"value1\"", ThemeAttr("types", "yaml_value"))],
-                    [
-                        [ThemeStr("           ", ThemeAttr("types", "yaml_key"), False),
-                         ThemeStr("\"value2\"", ThemeAttr("types", "yaml_value"), False)],
-                        [ThemeStr("           ", ThemeAttr("types", "yaml_key"), False),
-                         ThemeStr("\"value3\"", ThemeAttr("types", "yaml_value"), False)],
-                    ]
-                ),
+                [ThemeStr("\"key\"", ThemeAttr("types", "yaml_key")),
+                 ThemeStr(": ", ThemeAttr("types", "yaml_key_separator")),
+                 ThemeStr("\"value\"", ThemeAttr("types", "yaml_value"))],
                 None
             ),
             (
                 "\"key\": \"\033[0;4;37mvalue\"",
                 {"value_strip_ansicodes": True},
-                (
-                    [ThemeStr("\"key\"", ThemeAttr("types", "yaml_key")),
-                     ThemeStr(": ", ThemeAttr("types", "yaml_key_separator")),
-                     ThemeStr("\"value\"", ThemeAttr("types", "yaml_value"))],
-                    []
-                ),
+                [ThemeStr("\"key\"", ThemeAttr("types", "yaml_key")),
+                 ThemeStr(": ", ThemeAttr("types", "yaml_key_separator")),
+                 ThemeStr("\"value\"", ThemeAttr("types", "yaml_value"))],
                 None
             ),
             (
                 "\"key\": \"value\"",
                 {},
-                (
-                    [ThemeStr("\"key\"", ThemeAttr("types", "yaml_key")),
-                     ThemeStr(": ", ThemeAttr("types", "yaml_key_separator")),
-                     ThemeStr("\"value\"", ThemeAttr("types", "yaml_value"))],
-                    []
-                ),
+                [ThemeStr("\"key\"", ThemeAttr("types", "yaml_key")),
+                 ThemeStr(": ", ThemeAttr("types", "yaml_key_separator")),
+                 ThemeStr("\"value\"", ThemeAttr("types", "yaml_value"))],
                 None
             ),
             (
                 "key: &define",
                 {},
-                (
-                    [ThemeStr("key", ThemeAttr("types", "yaml_key")),
-                     ThemeStr(": ", ThemeAttr("types", "yaml_key_separator")),
-                     ThemeStr("&", ThemeAttr("types", "yaml_reference")),
-                     ThemeStr("define", ThemeAttr("types", "yaml_anchor"))],
-                    []
-                ),
+                [ThemeStr("key", ThemeAttr("types", "yaml_key")),
+                 ThemeStr(": ", ThemeAttr("types", "yaml_key_separator")),
+                 ThemeStr("&", ThemeAttr("types", "yaml_reference")),
+                 ThemeStr("define", ThemeAttr("types", "yaml_anchor"))],
                 None
             ),
             (
                 "key: &define '#112233'",
                 {},
-                (
-                    [ThemeStr("key", ThemeAttr("types", "yaml_key")),
-                     ThemeStr(": ", ThemeAttr("types", "yaml_key_separator")),
-                     ThemeStr("&", ThemeAttr("types", "yaml_reference")),
-                     ThemeStr("define", ThemeAttr("types", "yaml_anchor")),
-                     ThemeStr(" '#112233'", ThemeAttr("types", "yaml_value"))],
-                    []
-                ),
+                [ThemeStr("key", ThemeAttr("types", "yaml_key")),
+                 ThemeStr(": ", ThemeAttr("types", "yaml_key_separator")),
+                 ThemeStr("&", ThemeAttr("types", "yaml_reference")),
+                 ThemeStr("define", ThemeAttr("types", "yaml_anchor")),
+                 ThemeStr(" '#112233'", ThemeAttr("types", "yaml_value"))],
                 None
             ),
             (
                 "key: *define",
                 {},
-                (
-                    [ThemeStr("key", ThemeAttr("types", "yaml_key")),
-                     ThemeStr(": ", ThemeAttr("types", "yaml_key_separator")),
-                     ThemeStr("*", ThemeAttr("types", "yaml_reference")),
-                     ThemeStr("define", ThemeAttr("types", "yaml_anchor"))],
-                    []
-                ),
+                [ThemeStr("key", ThemeAttr("types", "yaml_key")),
+                 ThemeStr(": ", ThemeAttr("types", "yaml_key_separator")),
+                 ThemeStr("*", ThemeAttr("types", "yaml_reference")),
+                 ThemeStr("define", ThemeAttr("types", "yaml_anchor"))],
                 None
             ),
             (
                 "key:",
                 {"override_formatting": {"key": {"key": ThemeAttr("types", "generic")}}},
-                (
-                    [ThemeStr("key", ThemeAttr("types", "generic")),
-                     ThemeStr(":", ThemeAttr("types", "yaml_key_separator"))],
-                    []
-                ),
+                [ThemeStr("key", ThemeAttr("types", "generic")),
+                 ThemeStr(":", ThemeAttr("types", "yaml_key_separator"))],
                 None
             ),
             (
                 "key: {",
                 {},
-                (
-                    [ThemeStr("key", ThemeAttr("types", "yaml_key")),
-                     ThemeStr(": ", ThemeAttr("types", "yaml_key_separator")),
-                     ThemeStr("{", ThemeAttr("types", "yaml_value"))],
-                    []
-                ),
+                [ThemeStr("key", ThemeAttr("types", "yaml_key")),
+                 ThemeStr(": ", ThemeAttr("types", "yaml_key_separator")),
+                 ThemeStr("{", ThemeAttr("types", "yaml_value"))],
                 None
             ),
             (
                 "key: {",
                 {},
-                (
-                    [ThemeStr("key", ThemeAttr("types", "yaml_key")),
-                     ThemeStr(": ", ThemeAttr("types", "yaml_key_separator")),
-                     ThemeStr("{", ThemeAttr("types", "yaml_value"))],
-                    []
-                ),
+                [ThemeStr("key", ThemeAttr("types", "yaml_key")),
+                 ThemeStr(": ", ThemeAttr("types", "yaml_key_separator")),
+                 ThemeStr("{", ThemeAttr("types", "yaml_value"))],
                 None
             ),
             (
                 "}",
                 {},
-                (
-                    [ThemeStr("}", ThemeAttr("types", "yaml_value"))],
-                    []
-                ),
+                [ThemeStr("}", ThemeAttr("types", "yaml_value"))],
                 None
             ),
             (
                 "- value",
                 {},
-                (
-                    [ThemeStr("", ThemeAttr("types", "generic")),
-                     ThemeRef("separators", "yaml_list"),
-                     ThemeStr("value", ThemeAttr("types", "yaml_value"))],
-                    []
-                ),
+                [ThemeStr("", ThemeAttr("types", "generic")),
+                 ThemeRef("separators", "yaml_list"),
+                 ThemeStr("value", ThemeAttr("types", "yaml_value"))],
                 None
             ),
             (
                 "- key:",
                 {},
-                (
-                    [ThemeStr("", ThemeAttr("types", "generic")),
-                     ThemeRef("separators", "yaml_list"),
-                     ThemeStr("key", ThemeAttr("types", "yaml_key")),
-                     ThemeStr(':', ThemeAttr('types', 'yaml_key_separator'), False)],
-                    []
-                ),
+                [ThemeStr("", ThemeAttr("types", "generic")),
+                 ThemeRef("separators", "yaml_list"),
+                 ThemeStr("key", ThemeAttr("types", "yaml_key")),
+                 ThemeStr(':', ThemeAttr('types', 'yaml_key_separator'), False)],
                 None
             ),
             (
@@ -977,16 +912,13 @@ def test_format_yaml_line(verbose: bool = False) -> tuple[str, bool]:
                             'value': ThemeAttr('logview', 'severity_error')
                         }
                     },
-                    'expand_newline_fields': ('config', 'errorVerbose',
-                                              'stacktrace', 'status.message'),
                 },
-                (
-                    [ThemeStr('  "error"', ThemeAttr('types', 'yaml_key_error'), False),
-                     ThemeStr(': ', ThemeAttr('types', 'yaml_key_separator'), False),
-                     ThemeStr('"please install istio or disable the istio ingress plugin: '
-                              'no matches for kind \\"Gateway\\" in version '
-                              '\\"networking.istio.io/v1beta1\\"",',
-                              ThemeAttr('logview', 'severity_error'), False)], []),
+                [ThemeStr('  "error"', ThemeAttr('types', 'yaml_key_error'), False),
+                 ThemeStr(': ', ThemeAttr('types', 'yaml_key_separator'), False),
+                 ThemeStr('"please install istio or disable the istio ingress plugin: '
+                          'no matches for kind \\"Gateway\\" in version '
+                          '\\"networking.istio.io/v1beta1\\"",',
+                          ThemeAttr('logview', 'severity_error'), False)],
                 None
             ),
         )
@@ -994,7 +926,6 @@ def test_format_yaml_line(verbose: bool = False) -> tuple[str, bool]:
         for indata, options, expected_result, expected_exception in testdata:
             try:
                 if (tmp := fun(indata, **options)) != expected_result:
-                    output, remnants = tmp
                     message = f"{fun.__name__}() did not yield expected result:\n" \
                               f"           input: \"{indata}\"\n" \
                               "         options:\n" \

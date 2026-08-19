@@ -16,6 +16,3 @@
         message:
           field: 2
     - name: "key_value_with_leading_message"
-      options:
-        versions:
-          - "version"

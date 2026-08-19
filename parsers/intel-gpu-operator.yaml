@@ -16,11 +16,12 @@
           - matchtype: "startswith"
             matchkey: "Platform: "
             format_block_end: true
-        loglevel: "info"
-        overrides:
-          - matchtype: "startswith"
-            matchkey: "Git Info: "
-            loglevel: "notice"
+        severity:
+          default: "info"
+          overrides:
+            - matchtype: "startswith"
+              matchkey: "Git Info: "
+              loglevel: "notice"
     - name: "diff_line"
       options:
         block_start:
@@ -32,6 +33,7 @@
           - matchtype: "exact"
             matchkey: "  }"
             format_block_end: true
-        loglevel: "info"
+        severity:
+          default: "info"
     - name: "json"
     - name: "key_value_with_leading_message"

@@ -41,10 +41,12 @@
         message:
           field: 2
     - name: "override_severity"
-      overrides:
-        - matchtype: "startswith"
-          matchkey: "Seldon Core version:"
-          loglevel: "notice"
+      options:
+        severity:
+          overrides:
+            - matchtype: "startswith"
+              matchkey: "Seldon Core version:"
+              loglevel: "notice"
 - name: "seldon"
   show_in_selector: false
   matchkeys:

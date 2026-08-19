@@ -8,9 +8,12 @@
     - name: "json"
     - name: "http"
       options:
-        reformat_timestamps: true
+        timestamp:
+          reformat: true
     - name: "override_severity"
-      overrides:
-        - matchtype: "startswith"
-          matchkey: "Kubernetes host:"
-          loglevel: "notice"
+      options:
+        severity:
+          overrides:
+            - matchtype: "startswith"
+              matchkey: "Kubernetes host:"
+              loglevel: "notice"

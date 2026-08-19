@@ -7,8 +7,9 @@
   parser_rules:
     - name: "json"
       options:
-        severities:
-          - "severity"
+        severity:
+          keys:
+            - "severity"
 - name: "kserve"
   show_in_selector: false
   matchkeys:
@@ -65,7 +66,9 @@
         message:
           field: 2
     - name: "override_severity"
-      overrides:
-        - matchtype: "startswith"
-          matchkey: "InconsistentVersionWarning"
-          loglevel: "warning"
+      options:
+        severity:
+          overrides:
+            - matchtype: "startswith"
+              matchkey: "InconsistentVersionWarning"
+              loglevel: "warning"

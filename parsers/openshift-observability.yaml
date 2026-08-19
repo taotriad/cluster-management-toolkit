@@ -6,9 +6,6 @@
   parser_rules:
     - name: "glog"
     - name: "key_value_with_leading_message"
-      options:
-        versions:
-          - "version"
 - name: "openshift-observability"
   show_in_selector: false
   matchkeys:

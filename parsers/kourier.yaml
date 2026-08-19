@@ -21,4 +21,5 @@
           field: 4
     - name: "http"
       options:
-        reformat_timestamps: true
+        timestamp:
+          reformat: true

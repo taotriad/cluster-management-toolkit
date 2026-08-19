@@ -9,7 +9,8 @@
     - name: "bracketed_severity"
     - name: "http"
       options:
-        reformat_timestamps: true
+        timestamp:
+          reformat: true
 - name: "nginx"
   show_in_selector: false
   matchkeys:
@@ -18,11 +19,10 @@
       container_type: "InitContainer"
   parser_rules:
     - name: "json"
-      options:
-        versions:
-          - "version"
     - name: "override_severity"
-      overrides:
-        - matchtype: "startswith"
-          matchkey: "Starting the NGINX Gateway Fabric"
-          loglevel: "notice"
+      options:
+        severity:
+          overrides:
+            - matchtype: "startswith"
+              matchkey: "Starting the NGINX Gateway Fabric"
+              loglevel: "notice"

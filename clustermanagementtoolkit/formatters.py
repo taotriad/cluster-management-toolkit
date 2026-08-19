@@ -2109,8 +2109,7 @@ def format_diff_line(line: str, **kwargs: Any) -> list[ThemeRef | ThemeStr]:
 
 
 # pylint: disable-next=too-many-locals,too-many-branches,too-many-statements
-def format_yaml_line(line: str, **kwargs: Any) -> tuple[list[ThemeRef | ThemeStr],
-                                                        list[list[ThemeRef | ThemeStr]]]:
+def format_yaml_line(line: str, **kwargs: Any) -> list[ThemeRef | ThemeStr]:
     """
     Formats a single line of YAML.
 
@@ -2120,15 +2119,11 @@ def format_yaml_line(line: str, **kwargs: Any) -> tuple[list[ThemeRef | ThemeStr
                 override_formatting (dict): Overrides instead of default formatting
                 value_strip_ansicodes (bool): Strip ansicodes from the value
         Returns:
-            (themearray): A themearray
-            ([themearray]): A list of themearrays,
-                            in case the YAML-line is expanded into multiple lines;
-                            used when encountering keys belonging to expand_newline_fields
+            (ThemeArray): A themearray
     """
     override_formatting: dict[str, ThemeAttr] = \
         deep_get(kwargs, DictPath("override_formatting"), {})
     value_strip_ansicodes: bool = deep_get(kwargs, DictPath("value_strip_ansicodes"), True)
-    remnants: list[list[ThemeRef | ThemeStr]] = []
 
     if not isinstance(override_formatting, dict):
         raise TypeError("override_formatting should be of type(dict)")
@@ -2148,7 +2143,7 @@ def format_yaml_line(line: str, **kwargs: Any) -> tuple[list[ThemeRef | ThemeStr
 
     if (tmp := deep_get(override_formatting, DictPath("__all"))) is not None:
         # We just return the line unformatted
-        return [ThemeStr(line, tmp)], []
+        return [ThemeStr(line, tmp)]
 
     tmpline: list[ThemeRef | ThemeStr] = []
 
@@ -2164,7 +2159,7 @@ def format_yaml_line(line: str, **kwargs: Any) -> tuple[list[ThemeRef | ThemeStr
         tmpline += [
             ThemeStr(line, comment_format),
         ]
-        return tmpline, remnants
+        return tmpline
     if line.lstrip(" ").startswith("- "):
         tmp = yaml_list_regex.match(line)
         if tmp is not None:
@@ -2174,9 +2169,8 @@ def format_yaml_line(line: str, **kwargs: Any) -> tuple[list[ThemeRef | ThemeStr
             ]
             line = tmp[2]
             if not line:
-                return tmpline, remnants
+                return tmpline
 
-    # pylint: disable-next=too-many-nested-blocks
     if line.endswith(":"):
         _key_format = deep_get(override_formatting, DictPath(f"{line[:-1]}#key"), key_format)
         tmpline += [
@@ -2235,7 +2229,7 @@ def format_yaml_line(line: str, **kwargs: Any) -> tuple[list[ThemeRef | ThemeStr
                 ThemeStr(f"{line}", _value_format),
             ]
 
-    return tmpline, remnants
+    return tmpline
 
 
 class KnownHostsLexer(RegexLexer):
@@ -2505,7 +2499,9 @@ class ThemeArrayFormatter(Formatter):
                                   DictPath("formatting"), ThemeAttr("main", "default"))
             value_type = deep_get(formatting_entry,
                                   DictPath("type"), "generic")
-            if value_type == "key":
+            if "__all" in self.override_formatting:
+                formatting = deep_get(self.override_formatting, DictPath("__all"), formatting)
+            elif value_type == "key":
                 self.latest_key = value
                 formatting = deep_get(self.override_formatting,
                                       DictPath(f"{self.latest_key}#key"), formatting)

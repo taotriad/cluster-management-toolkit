@@ -6,5 +6,6 @@
   parser_rules:
     - name: "json"
       options:
-        timestamps:
-          - "t"
+        timestamp:
+          keys:
+            - "t"
