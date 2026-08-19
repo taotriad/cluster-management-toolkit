@@ -1897,6 +1897,10 @@ RemoveFailed:
   field_colors:
     - context: "main"
       type: "status_warning"
+RemoveJob:
+  field_colors:
+    - context: "main"
+      type: "status_ok"
 RemoveSigtermProtection:
   field_colors:
     - context: "main"
