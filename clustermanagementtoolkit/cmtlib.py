@@ -399,6 +399,12 @@ def disksize_to_human(size: int) -> str:
             TypeError: size is not an integer
             ValueError: size is not >= 0
     """
+    # If we cannot convert the value, just return the input value.
+    try:
+        size = int(size)
+    except ValueError:
+        return size
+
     tmp = normalise_mem_bytes_to_str(size, fmt="int")
     if tmp[:-1].isnumeric():
         tmp = f"{tmp[:-1]} bytes"
