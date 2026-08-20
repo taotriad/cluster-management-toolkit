@@ -766,7 +766,10 @@ def install_software_with_pip_fallback(packages: dict, pip_proxy: str = "",
 
         for pkg in packages:
             if pkg not in pkgs:
-                fallbacks.add(deep_get(packages, DictPath(f"{pkg}#fallback")))
+                fallback = deep_get(packages, DictPath(f"{pkg}#fallback"))
+                if not fallback:
+                    continue
+                fallbacks.add(fallback)
     elif distro == "suse":
         try:
             zypper_path = secure_which(FilePath("/usr/bin/zypper"),
@@ -793,10 +796,16 @@ def install_software_with_pip_fallback(packages: dict, pip_proxy: str = "",
                     if re_tmp[1] in packages and re_tmp[1] not in pkgs:
                         pkgs[re_tmp[1]] = packages[re_tmp[1]]
                     continue
-                fallbacks.add(deep_get(packages, DictPath(f"{re_tmp[1]}#fallback")))
+                fallback = deep_get(packages, DictPath(f"{re_tmp[1]}#fallback"))
+                if not fallback:
+                    continue
+                fallbacks.add(fallback)
                 continue
             if (re_tmp := not_found_regex.match(line)) is not None:
-                fallbacks.add(deep_get(packages, DictPath(f"{re_tmp[1]}#fallback")))
+                fallback = deep_get(packages, DictPath(f"{re_tmp[1]}#fallback"))
+                if not fallback:
+                    continue
+                fallbacks.add(fallback)
     elif distro in ("fedora", "rhel"):
         try:
             yum_path = secure_which(FilePath("/usr/bin/yum"),
@@ -832,7 +841,10 @@ def install_software_with_pip_fallback(packages: dict, pip_proxy: str = "",
                         pkgs[re_tmp[1]] = packages[re_tmp[1]]
                     continue
         for missing in all_packages.difference(found_packages):
-            fallbacks.add(deep_get(packages, DictPath(f"{missing}#fallback")))
+            fallback = deep_get(packages, DictPath(f"{missing}#fallback"))
+            if not fallback:
+                continue
+            fallbacks.add(fallback)
 
     if pkgs and not dryrun:
         install_software(pkgs, verbose=verbose, distro=distro)

@@ -91,6 +91,10 @@ N/A
 
 ### Changes to other files in v0.8.10
 
+* Fix broken fallbacks in `cmt-install`; if a package has no fallback
+  (such as would be the case with optional dependencies),
+  we ended up adding the string representation of `None` to the list of fallbacks,
+  which obviously failed to install.
 * Parser-rules that are block-based no longer bypass the severity filter.
 * `key_value_with_message()` now retains formatting even when the message is folded.
 * `json()` now retains formatting even when the message is folded.
