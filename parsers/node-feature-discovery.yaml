@@ -3,6 +3,7 @@
   show_in_selector: false
   matchkeys:
     - image_name: "/nfd/node-feature-discovery"
+    - image_name: "/openshift4/ose-node-feature-discovery-rhel9"
   parser_rules:
     - name: "ts_8601"
     - name: "glog"

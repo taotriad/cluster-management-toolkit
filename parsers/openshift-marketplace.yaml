@@ -15,7 +15,7 @@
   parser_rules:
     - name: "strip_ansicodes"
     - name: "glog"
-    - name: "key_value"
+    - name: "key_value_with_leading_message"
     - name: "custom_splitter"
       options:
         regex: '^\[([a-z]+?)\] (.*)'

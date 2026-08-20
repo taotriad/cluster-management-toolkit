@@ -22,7 +22,13 @@
         severity:
           overrides:
             - matchtype: "startswith"
+              matchkey: "\"Warning:"
+              loglevel: "warning"
+            - matchtype: "startswith"
               matchkey: "cluster-policy-controller version"
+              loglevel: "notice"
+            - matchtype: "startswith"
+              matchkey: "cert-recovery-controller version"
               loglevel: "notice"
             - matchtype: "startswith"
               matchkey: "Version: v"

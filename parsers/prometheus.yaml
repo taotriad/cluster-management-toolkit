@@ -42,8 +42,17 @@
       container_name: "kube-prometheus-stack"
     - image_name: "/prometheus-operator/prometheus-operator"
     - image_name: "/rancher/mirrored-prometheus-operator-prometheus-operator"
+    - pod_name: "prometheus-operator"
+      container_name: "prometheus-operator"
   parser_rules:
-    - name: "key_value"
+    - name: "glog"
+    - name: "key_value_with_leading_message"
+      options:
+        severity:
+          overrides:
+            - matchtype: "startswith"
+              matchkey: "\"Warning:"
+              loglevel: "warning"
     - name: "override_severity"
       options:
         severity:

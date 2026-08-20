@@ -37,3 +37,4 @@
             format_block_end: true
         severity:
           default: "warning"
+    - name: "key_value_with_leading_message"

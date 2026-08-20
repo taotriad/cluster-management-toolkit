@@ -17,3 +17,4 @@
             - matchtype: "startswith"
               matchkey: "Trace["
               loglevel: "debug"
+    - name: "key_value_with_leading_message"

@@ -14,3 +14,4 @@
             - matchtype: "startswith"
               matchkey: "config-operator version "
               loglevel: "notice"
+    - name: "key_value_with_leading_message"

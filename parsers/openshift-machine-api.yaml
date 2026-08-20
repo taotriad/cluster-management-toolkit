@@ -1,5 +1,5 @@
 ---
-- name: "machine-api"
+- name: "openshift-machine-api"
   show_in_selector: false
   matchkeys:
     - pod_name: "machine-api"
@@ -29,3 +29,4 @@
             - matchtype: "startswith"
               matchkey: "http: \"TLS\" handshake error"
               loglevel: "error"
+    - name: "key_value_with_leading_message"
