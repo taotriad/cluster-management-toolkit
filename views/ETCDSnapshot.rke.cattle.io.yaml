@@ -1,0 +1,154 @@
+---
+kind: "ETCDSnapshot"
+api_family: "rke.cattle.io"
+default_command: "etcdsnapshots"
+command:
+  - "etcdsnapshots"
+  - "etcdsnapshot"
+listview:
+  name: "ETCD Snapshots"
+  group: "Rancher"
+  field_indexes:
+    Wide:
+      fields: ["namespace", "name", "cluster_name", "node_name", "size",
+               "status", "age", "snapshot_name", "location"]
+      sortcolumn: "namespace"
+    Normal:
+      fields: ["namespace", "name", "size", "status", "age"]
+      sortcolumn: "namespace"
+  fields:
+    cluster_name:
+      header: "Cluster:"
+      path: "spec#clusterName"
+      default: "<unset>"
+      type: "str"
+    location:
+      header: "Location:"
+      path: "snapshotFile#location"
+      type: "str"
+      formatter: "uri"
+    node_name:
+      header: "Node:"
+      path: "snapshotFile#nodeName"
+      default: "<unset>"
+      type: "str"
+      formatting:
+        field_colors:
+          - type: "host"
+    size:
+      header: "Size:"
+      paths:
+        - path: "snapshotFile#size"
+          type: "disk_usage"
+          default: 0
+      formatter: "numerical"
+      align: "right"
+    snapshot_name:
+      header: "Snapshot Name:"
+      path: "snapshotFile#name"
+      default: "<unset>"
+      type: "str"
+    status:
+      header: "Status:"
+      path: "snapshotFile#status"
+      default: "<unset>"
+      type: "str"
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          mappings:
+            failed:
+              field_colors:
+                - context: "main"
+                  type: "status_not_ok"
+            successful:
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+infoview:
+  name: "ETCD Snapshot Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["cluster_name", "node_name", "location", "snapshot_name",
+                 "storage", "size", "status"]
+    rows:
+      cluster_name:
+        header: [["Cl", ["main", "infoheader"]],
+                 ["u", ["main", "infoheader_shortcut"]],
+                 ["ster:", ["main", "infoheader"]]]
+        path: "spec#clusterName"
+        default: "<unset>"
+        type: "str"
+      location:
+        header: [["Location:", ["main", "infoheader"]]]
+        path: "snapshotFile#location"
+        type: "str"
+        formatter: "uri"
+      node_name:
+        header: [["N", ["main", "infoheader"]],
+                 ["o", ["main", "infoheader_shortcut"]],
+                 ["de:", ["main", "infoheader"]]]
+        path: "snapshotFile#nodeName"
+        default: "<unset>"
+        type: "str"
+        formatting:
+          field_colors:
+            - type: "host"
+      size:
+        header: [["Size:", ["main", "infoheader"]]]
+        paths:
+          - path: "snapshotFile#size"
+            type: "disk_usage"
+            default: 0
+        formatter: "numerical"
+      snapshot_name:
+        header: [["Snapshot Name:", ["main", "infoheader"]]]
+        path: "snapshotFile#name"
+        default: "<unset>"
+        type: "str"
+      status:
+        header: [["Status:", ["main", "infoheader"]]]
+        path: "snapshotFile#status"
+        default: "<unset>"
+        type: "str"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              failed:
+                field_colors:
+                  - context: "main"
+                    type: "status_not_ok"
+              successful:
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+      storage:
+        header: [["Storage:", ["main", "infoheader"]]]
+        path: "metadata#annotations#etcdsnapshot.rke.io/storage"
+        default: "<unset>"
+        type: "str"
+  shortcuts:
+    "Open Cluster":
+      key: "u"
+      read_only: true
+      helptext: "Open info page for Cluster"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        name_path: "spec#clusterName"
+        namespace_path: "metadata#namespace"
+        kind: "Cluster"
+        api_family: "provisioning.cattle.io"
+    "Open Node":
+      key: "d"
+      read_only: true
+      helptext: "Open info page for Node"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        name_path: "snapshotFile#nodeName"
+        kind: "Node"

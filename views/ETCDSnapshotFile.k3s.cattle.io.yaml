@@ -2,25 +2,22 @@
 kind: "ETCDSnapshotFile"
 api_family: "k3s.cattle.io"
 default_command: "etcdsnapshotfiles"
-command:
-  - "etcdsnapshots"
-  - "etcdsnapshot"
 listview:
   name: "ETCD Snapshot Files"
   group: "Rancher"
   field_indexes:
     Wide:
-      fields: ["name", "snapshotname", "node", "location", "size",
-               "ready", "age"]
+      fields: ["name", "node_name", "size",
+               "ready", "age", "snapshot_name", "location"]
     Normal:
-      fields: ["name", "snapshotname", "node", "size", "ready", "age"]
+      fields: ["name", "node_name", "size", "ready", "age"]
   fields:
     location:
       header: "Location:"
       path: "spec#location"
       type: "str"
       formatter: "uri"
-    node:
+    node_name:
       header: "Node:"
       path: "spec#nodeName"
       type: "host"
@@ -46,10 +43,12 @@ listview:
                   type: "status_ok"
     size:
       header: "Size:"
-      path: "status#size"
-      type: "str"
+      paths:
+        - path: "status#size"
+          type: "disk_usage"
+          default: 0
       formatter: "numerical"
-    snapshotname:
+    snapshot_name:
       header: "Snapshot Name:"
       path: "spec#snapshotName"
       type: "str"
@@ -58,14 +57,15 @@ infoview:
   infopad:
     row_indexes:
       Normal:
-        fields: ["snapshotname", "node", "location", "size", "ready_to_use"]
+        fields: ["node_name", "location", "snapshot_name",
+                 "location", "size", "ready_to_use"]
     rows:
       location:
         header: [["Location:", ["main", "infoheader"]]]
         path: "spec#location"
         type: "str"
         formatter: "uri"
-      node:
+      node_name:
         header: [["No", ["main", "infoheader"]],
                  ["d", ["main", "infoheader_shortcut"]],
                  ["e:", ["main", "infoheader"]]]
@@ -93,10 +93,12 @@ infoview:
                     type: "status_ok"
       size:
         header: [["Size:", ["main", "infoheader"]]]
-        path: "status#size"
-        type: "str"
+        paths:
+          - path: "status#size"
+            type: "disk_usage"
+            default: 0
         formatter: "numerical"
-      snapshotname:
+      snapshot_name:
         header: [["Snapshot Name:", ["main", "infoheader"]]]
         path: "spec#snapshotName"
         type: "str"
