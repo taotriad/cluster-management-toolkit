@@ -48,7 +48,12 @@ from pygments.lexers.javascript import JavascriptLexer
 from pygments.lexers.markup import MarkdownLexer
 from pygments.lexers.promql import PromQLLexer
 from pygments.lexers.python import PythonLexer, PythonTracebackLexer
-from pygments.lexers.rego import RegoLexer
+try:
+    from pygments.lexers.rego import RegoLexer
+    REGOLEXER_AVAILABLE = True
+except ModuleNotFoundError:
+    # RegoLexer is available from Pygments 2.19
+    REGOLEXER_AVAILABLE = False
 from pygments.lexers.shell import BashLexer, PowerShellLexer
 from pygments.lexers.textfmts import KernelLogLexer
 from pygments.token import Token
@@ -3342,9 +3347,11 @@ def format_rego(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef | T
         Returns:
             list[themearray]: A list of themearrays
     """
-    return format_pygments_generic(lines, **kwargs,
-                                   lexer=RegoLexer(),
-                                   colorscheme=COLORSCHEME_REGO)
+    if REGOLEXER_AVAILABLE:
+        return format_pygments_generic(lines, **kwargs,
+                                       lexer=RegoLexer(),
+                                       colorscheme=COLORSCHEME_REGO)
+    return format_none(lines)
 
 
 def format_shellscript(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef | ThemeStr]]:
