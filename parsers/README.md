@@ -152,6 +152,7 @@ message:
 ```
 severity:
   default: (str) The default loglevel to use (valid: debug, info, notice, warning, err, crit, alert, emerg)
+  highlight_reason: (bool) Should Event reason be highlighted?
   keys (list):
     - (str) The keys in a structured log message that may contain the severity
     ...
@@ -208,6 +209,7 @@ since they are in active use; some suggested parser-files:
 ## Special notes
 
 * Currently there's no way to override a leading message without affecting the rest of the structure.
+* The rule `tab_separated` expects a leading timestamp; hence it will not work if `ts_8601` is included before that rule.
 * While overriding the severity of a structured message normally only changes the formatting of the matching value,
   an exception is made for debug-severity. Messages with debug-severity will have the entire structured message formatted
   as a debug message. This is to ensure that it's clear the message is purely for debugging purposes.

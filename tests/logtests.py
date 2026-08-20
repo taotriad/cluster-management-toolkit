@@ -1151,7 +1151,7 @@ def test_http(verbose: bool = False) -> tuple[str, bool]:
               ThemeStr('[20/Mar/2023:11:38:13 +0000]', ThemeAttr('logview', 'timestamp'), False),
               ThemeStr(' "', ThemeAttr('logview', 'severity_info'), False),
               ThemeStr('GET ', ThemeAttr('logview', 'protocol'), False),
-              ThemeStr('/api/v1/series?match%5B%5D=collectd_gpu_sysman_frequency_mhz&start=1679311983&end=1679312283', ThemeAttr('logview', 'uri'), False),
+              ThemeStr('/api/v1/series?match%5B%5D=collectd_gpu_sysman_frequency_mhz&start=1679311983&end=1679312283', ThemeAttr('logview', 'uri'), False),  # noqa: E501 pylint: disable=line-too-long
               ThemeStr(' HTTP/1.1', ThemeAttr('logview', 'protocol'), False),
               ThemeStr('" ', ThemeAttr('logview', 'severity_info'), False),
               ThemeStr('404', ThemeAttr('logview', 'severity_error'), False),
@@ -1160,7 +1160,7 @@ def test_http(verbose: bool = False) -> tuple[str, bool]:
               ThemeStr('" "', ThemeAttr('logview', 'severity_info'), False),
               ThemeStr('Grafana/8.3.10', ThemeAttr('logview', 'uri'), False),
               ThemeStr('"', ThemeAttr('logview', 'severity_info'), False),
-              ThemeStr(' 368 0.002 [monitoring-prometheus-k8s-9090] [] 10.40.0.30:9090 528 0.004 200 5997e385f9f1e248446d28a810c4', ThemeAttr('types', 'generic'), False)], None),
+              ThemeStr(' 368 0.002 [monitoring-prometheus-k8s-9090] [] 10.40.0.30:9090 528 0.004 200 5997e385f9f1e248446d28a810c4', ThemeAttr('types', 'generic'), False)], None),  # noqa: E501 pylint: disable=line-too-long
             ('::ffff:10.217.0.1 - - [06/May/2022 18:50:45] "GET / HTTP/1.1" 200 -',
              LogLevel.INFO, "", True, {"reformat_timestamps": True},
              [ThemeRef('separators', 'ipv6address', False),
@@ -1306,7 +1306,7 @@ def test_http(verbose: bool = False) -> tuple[str, bool]:
               ThemeStr('" "', ThemeAttr('logview', 'severity_info'), False),
               ThemeStr('Grafana/8.5.27', ThemeAttr('logview', 'uri'), False),
               ThemeStr('"', ThemeAttr('logview', 'severity_info'), False),
-              ThemeStr(' 128 0.002 [monitoring-prometheus-k8s-9090] [] 10.245.96.3:9090 186 0.002 200 6931ce1fdbb3b5708d29add993693d80', ThemeAttr('types', 'generic'), False)], None),
+              ThemeStr(' 128 0.002 [monitoring-prometheus-k8s-9090] [] 10.245.96.3:9090 186 0.002 200 6931ce1fdbb3b5708d29add993693d80', ThemeAttr('types', 'generic'), False)], None),  # noqa: E501 pylint: disable=line-too-long
             ('10.245.96.15 - - [28/Feb/2024:16:25:59 +0000] "GET '
              '/sd-shared-gpu-7b5548d864-pz77r.png HTTP/1.1" 304 0 '
              '"http://sd-preview.val.cluster:27080/" "Mozilla/5.0 (X11; Linux x86_64; rv:123.0) '
@@ -1330,7 +1330,8 @@ def test_http(verbose: bool = False) -> tuple[str, bool]:
               ThemeStr(' 0 "', ThemeAttr('logview', 'severity_info'), False),
               ThemeStr('http://sd-preview.val.cluster:27080/', ThemeAttr('logview', 'uri'), False),
               ThemeStr('" "', ThemeAttr('logview', 'severity_info'), False),
-              ThemeStr('Mozilla/5.0 (X11; Linux x86_64; rv:123.0) Gecko/20100101 Firefox/123.0', ThemeAttr('logview', 'uri'), False),
+              ThemeStr('Mozilla/5.0 (X11; Linux x86_64; rv:123.0) Gecko/20100101 Firefox/123.0',
+                       ThemeAttr('logview', 'uri'), False),
               ThemeStr('"', ThemeAttr('logview', 'severity_info'), False),
               ThemeStr(' "10.245.0.1"', ThemeAttr('types', 'generic'), False)], None),
             ('10.245.96.15 - - [28/Feb/2024:16:29:57 +0000] "GET / HTTP/1.1" 200 1026 "-" '
@@ -1355,7 +1356,8 @@ def test_http(verbose: bool = False) -> tuple[str, bool]:
               ThemeStr(' 1026 "', ThemeAttr('logview', 'severity_info'), False),
               ThemeStr('-', ThemeAttr('logview', 'uri'), False),
               ThemeStr('" "', ThemeAttr('logview', 'severity_info'), False),
-              ThemeStr('Mozilla/5.0 (X11; Linux x86_64; rv:123.0) Gecko/20100101 Firefox/123.0', ThemeAttr('logview', 'uri'), False),
+              ThemeStr('Mozilla/5.0 (X11; Linux x86_64; rv:123.0) Gecko/20100101 Firefox/123.0',
+                       ThemeAttr('logview', 'uri'), False),
               ThemeStr('"', ThemeAttr('logview', 'severity_info'), False),
               ThemeStr(' "10.245.0.1"', ThemeAttr('types', 'generic'), False)], None),
         )

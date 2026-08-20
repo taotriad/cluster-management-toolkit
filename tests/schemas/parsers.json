@@ -51,6 +51,10 @@
                 "default": {
                     "$ref": "#/$defs/loglevel"
                 },
+                "highlight_reason": {
+                    "description": "Should Event reason be highlighted?",
+                    "type": "boolean"
+                },
                 "keys": {
                     "description": "A list of keys should be regarded as severity fields",
                     "type": "array",

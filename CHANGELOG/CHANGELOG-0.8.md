@@ -100,6 +100,7 @@ N/A
 * `json()` now retains formatting even when the message is folded.
 * Fixed a bug in `logparser.py` that would lose parts of the message when folding key/value messages
   using the `key_value()` parser-rule.
+* `expand_events()` now retain formatting even when the message is folded.
 * The "Expand Newlines" option has been removed from the logparser;
   it was Work in Progress that never progressed, was rarely used,
   and caused a lot of special-cases in the code.

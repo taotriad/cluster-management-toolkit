@@ -9,6 +9,8 @@
     - name: "key_value_with_leading_message"
       options:
         allow_bare_keys: "lowercase"
+        severity:
+          highlight_reason: true
     - name: "override_severity"
       options:
         severity:
