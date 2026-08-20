@@ -665,8 +665,7 @@ def iptables(message: str,
 
 
 # pylint: disable-next=too-many-locals,too-many-branches,too-many-statements
-def http(message: str,
-         **kwargs: Any) -> tuple[Sequence[ThemeRef | ThemeStr], LogLevel, str]:
+def http(message: str, **kwargs: Any) -> tuple[Sequence[ThemeRef | ThemeStr], LogLevel, str]:
     """
     Format various http log style messages.
 

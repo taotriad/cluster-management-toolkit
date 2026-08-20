@@ -39,6 +39,12 @@ try:
 except ModuleNotFoundError:
     # CELLexer is available from Pygments 2.21
     CELLEXER_AVAILABLE = False
+try:
+    from pygments.configs import CaddyfileLexer
+    CADDYFILELEXER_AVAILABLE = True
+except ModuleNotFoundError:
+    # CaddyfileLexer is available from Pygments 2.21
+    CADDYFILELEXER_AVAILABLE = False
 from pygments.lexers.configs import DockerLexer, IniLexer, NginxConfLexer, TOMLLexer
 from pygments.lexers.css import CssLexer
 from pygments.lexers.data import JsonLexer, YamlLexer
@@ -101,6 +107,16 @@ class ColorSchemeEntry(TypedDict, total=True):
     """
     formatting: ThemeAttr
     type: str
+
+
+COLORSCHEME_CADDYFILE: dict[Any, ColorSchemeEntry] = {
+    # <whitespace>
+    Token.Text.Whitespace: {
+        "formatting": ThemeAttr("types", "generic"),
+        "type": "whitespace",
+    },
+    # TODO
+}
 
 
 COLORSCHEME_CEL: dict[Any, ColorSchemeEntry] = {
@@ -2680,6 +2696,11 @@ def format_caddyfile(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRe
             list[themearray]: A list of themearrays
     """
     dumps: list[list[ThemeRef | ThemeStr]] = []
+
+    if CADDYFILELEXER_AVAILABLE:
+        return format_pygments_generic(lines, **kwargs,
+                                       lexer=CaddyfileLexer(),
+                                       colorscheme=COLORSCHEME_CADDYFILE)
 
     if deep_get(kwargs, DictPath("raw"), False):
         return format_none(lines)
