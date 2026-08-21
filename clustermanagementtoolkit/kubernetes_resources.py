@@ -456,6 +456,15 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api_paths": ["apis/rbac.authorization.k8s.io/v1/"],
         "api": "rolebindings",
     },
+    # resource.nvidia.com
+    ("ComputeDomainClique", "resource.nvidia.com"): {
+        "api_paths": ["apis/resource.nvidia.com/v1beta1/"],
+        "api": "computedomaincliques",
+    },
+    ("ComputeDomain", "resource.nvidia.com"): {
+        "api_paths": ["apis/resource.nvidia.com/v1beta1/"],
+        "api": "computedomains",
+    },
     # resource.k8s.io
     ("DeviceClass", "resource.k8s.io"): {
         "api_paths": ["apis/resource.k8s.io/v1/",
@@ -6436,6 +6445,11 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
     ("ClusterPolicy", "nvidia.com"): {
         "api_paths": ["apis/nvidia.com/v1/"],
         "api": "clusterpolicies",
+        "namespaced": False,
+    },
+    ("GPUCluster", "nvidia.com"): {
+        "api_paths": ["apis/nvidia.com/v1alpha1/"],
+        "api": "gpuclusters",
         "namespaced": False,
     },
     ("NVIDIADriver", "nvidia.com"): {
