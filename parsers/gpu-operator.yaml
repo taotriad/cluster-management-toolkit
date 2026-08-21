@@ -6,6 +6,7 @@
   parser_rules:
     - name: "glog"
     - name: "json"
+    - name: "key_value_with_leading_message"
     - name: "override_severity"
       options:
         severity:
@@ -27,12 +28,19 @@
             matchline: "any"
             format_block_start: true
         block_end:
-          - matchtype: "startswith"
-            matchkey: "+------------"
-            format_block_end: true
+          - matchtype: "regex"
+            matchkey: "[^+^|]"
+            format_block_end: false
+            process_block_end: false
         severity:
           default: "info"
     - name: "key_value"
+      options:
+        severity:
+          overrides:
+            - matchtype: "startswith"
+              matchkey: "\"version: "
+              loglevel: "notice"
     - name: "override_severity"
       options:
         severity:
