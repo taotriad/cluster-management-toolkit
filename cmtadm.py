@@ -4708,7 +4708,7 @@ def create_cluster(options: list[tuple[str, str]], args: list[str]) -> None:
         prepare_options.append(("--verbose", None))
     if save_ansible_logs:
         prepare_options.append(("--save-ansible-logs", None))
-    if not no_password:
+    if no_password:
         prepare_options.append(("--no-password", None))
 
     prepare_args = [

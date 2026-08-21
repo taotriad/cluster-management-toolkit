@@ -77,7 +77,8 @@ N/A
 
 ### Changes to _cmtadm_ in v0.8.10
 
-N/A
+* Fixed logic bug when using `cmtadm create-cluster` that would cause `promptForPassword`
+  to always be *false*.
 
 ### Changes to _cmtinv_ in v0.8.10
 
