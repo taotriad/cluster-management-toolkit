@@ -13,3 +13,5 @@ htmlcov
 bin
 build
 *.so
+views/__event_reasons.yaml
+views/__resource_type_index.yaml
