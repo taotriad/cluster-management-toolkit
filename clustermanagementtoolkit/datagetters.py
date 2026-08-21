@@ -434,8 +434,8 @@ def get_pod_status(obj: dict[str, Any], **kwargs: Any) -> tuple[str, StatusGroup
                     reason = deep_get(container, DictPath("state#waiting#reason"), "").rstrip()
                     if reason is None or not reason:
                         continue
-                    if reason in ("CrashLoopBackOff", "ImagePullBackOff",
-                                  "ErrImageNeverPull", "ErrImagePull"):
+                    if reason in ("CrashLoopBackOff", "ErrImageNeverPull", "ErrImagePull",
+                                  "ImagePullBackOff", "InvalidImageName"):
                         status_group = StatusGroup.NOT_OK
                     status = f"Init:{reason}"
                     break
@@ -445,8 +445,8 @@ def get_pod_status(obj: dict[str, Any], **kwargs: Any) -> tuple[str, StatusGroup
                     reason = deep_get(container, DictPath("state#waiting#reason"), "").rstrip()
                     if reason is None or not reason:
                         continue
-                    if reason in ("CrashLoopBackOff", "ImagePullBackOff",
-                                  "ErrImageNeverPull", "ErrImagePull"):
+                    if reason in ("CrashLoopBackOff", "ErrImageNeverPull", "ErrImagePull",
+                                  "ImagePullBackOff", "InvalidImageName"):
                         status_group = StatusGroup.NOT_OK
                     status = reason
                     break
