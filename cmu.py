@@ -10205,7 +10205,7 @@ def populate_views(refresh_apis: str = "none") -> None:
                                 "apiVersion",
                                 "name",
                                 {
-                                    "name": "controller",
+                                    "path": "controller",
                                     "default": False,
                                 },
                             ],

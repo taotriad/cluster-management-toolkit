@@ -86,6 +86,8 @@ N/A
 
 ### Changes to _cmu_ in v0.8.10
 
+* The owner references shortcut passed incorrect arguments to the itemgetter,
+  thus failing to get correct values for the controller field.
 * The statusbar in the lower screen has been abstracted a bit under the hood;
   it should behave more consistently in list- and info-views as a result.
   The `Cluster Overview` and container log view still uses the old behaviour.
