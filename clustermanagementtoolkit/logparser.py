@@ -4024,6 +4024,9 @@ def parsing_multiplexer(message: str | list[ThemeRef | ThemeStr],
                         split_json_style(message, severity=severity, facility=facility,
                                          fold_msg=fold_msg, options=filter_options)
             elif _filter == "json_with_leading_message" and isinstance(message, str):
+                # If the line doesn't end with a "}" it's not JSON.
+                if not message.endswith("}"):
+                    continue
                 parts = message.split("{", 1)
                 if len(parts) == 2:
                     # No leading message
@@ -4033,7 +4036,7 @@ def parsing_multiplexer(message: str | list[ThemeRef | ThemeStr],
                                              fold_msg=fold_msg, options=filter_options)
                     elif parts[0].rstrip() != parts[0]:
                         parts[0] = parts[0].rstrip()
-                        # It isn't leading message + JSON unless there's whitespace in-between
+                        # It isn't leading message + JSON unless there's whitespace in-between.
                         _message, severity, facility, remnants = \
                             split_json_style("{" + parts[1], severity=severity,
                                              facility=facility, fold_msg=fold_msg,
