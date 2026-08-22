@@ -41,7 +41,7 @@ import re
 import sys
 from typing import Any, cast
 try:
-    import ruyaml
+    import ruyaml  # type: ignore[import-not-found]
     ryaml = ruyaml.YAML()
     sryaml = ruyaml.YAML(typ="safe")
 except ModuleNotFoundError:  # pragma: no cover
@@ -231,6 +231,7 @@ def str_to_severity(string: str, **kwargs: Any) -> LogLevel:
         "info": LogLevel.INFO,
         "debug": LogLevel.DEBUG,
         "debu": LogLevel.DEBUG,
+        "dbg": LogLevel.DEBUG,
     }
     # Special case for severity found in trust-manager
     if string.lower().startswith("debug+"):
@@ -362,7 +363,7 @@ def split_bracketed_severity(message: str, **kwargs: Any) -> tuple[str, LogLevel
                 (str): The input string with the severity prefix removed
                 (LogLevel): The extracted LogLevel
     """
-    default: LogLevel = deep_get(kwargs, DictPath("options#severity#default"), "default")
+    default: str = deep_get(kwargs, DictPath("options#severity#default"), "default")
 
     severities: dict[str, LogLevel] = {
         "[default]": LogLevel.DEFAULT,
@@ -607,6 +608,13 @@ def iptables(message: str,
         for themearray, _loglevel in remnants:
             old_messages.append(themearray_to_string(themearray))
 
+    programname_regex = re.compile(r"^/.+?iptables$|"
+                                   r"^/.+?iptables-save$|"
+                                   r"^/.+?iptables-legacy$|"
+                                   r"^/.+?iptables-legacy-save$|"
+                                   r"^/.+?iptables-nft$|"
+                                   r"^/.+?iptables-nft-save$")
+
     variable_regex = re.compile(r"^[A-Z][A-Z0-9_]*=.*")
     for i, items in enumerate(old_messages):
         tmp_message: list[ThemeRef | ThemeStr] = []
@@ -618,7 +626,7 @@ def iptables(message: str,
                 break
 
             if not j:
-                if item.startswith(("/usr/sbin/iptables", "/sbin/iptables")):
+                if programname_regex.match(item):
                     tmp_message.append(ThemeStr(item,
                                        ThemeAttr("types", "iptables_programname")))
                 elif item.startswith("*"):
@@ -3722,12 +3730,13 @@ def custom_line(message: str, **kwargs: Any) -> tuple[tuple[str, Callable | None
                     (ThemeArray): The formatted strings of the remnant
                     (LogLevel): The severity of the remnant
     """
+    severity: LogLevel = deep_get(kwargs, DictPath("severity"), LogLevel.DEFAULT)
     options: dict = deep_get(kwargs, DictPath("options"), {})
 
     block_start: list[dict] = deep_get(options, DictPath("block_start"), [])
     loglevel_name: str = deep_get(options, DictPath("severity#default"), "info")
 
-    base_severity: LogLevel = name_to_loglevel(loglevel_name, LogLevel.INFO)
+    base_severity: LogLevel = name_to_loglevel(loglevel_name, severity)
     remnants: list[tuple[list[ThemeRef | ThemeStr], LogLevel]] = []
     matched = False
 
@@ -3759,19 +3768,21 @@ def custom_line(message: str, **kwargs: Any) -> tuple[tuple[str, Callable | None
                     matched = True
 
     message, new_severity = custom_override_severity(message, base_severity, options=options)
+    return_severity = severity
 
     if matched:
         if format_block_start:
             severity_name = f"severity_{loglevel_to_name(new_severity).lower()}"
             remnants = [ThemeStr(message, ThemeAttr("logview", severity_name))]
+            return_severity = new_severity
         else:
-            severity_name = f"severity_{loglevel_to_name(base_severity).lower()}"
+            severity_name = f"severity_{loglevel_to_name(severity).lower()}"
             remnants = [ThemeStr(message, ThemeAttr("logview", severity_name))]
         processor: tuple[str, Callable | None, dict] = \
             ("start_block", custom_line_scanner, options)
-        return processor, remnants
+        return processor, remnants, return_severity
 
-    return message, remnants
+    return message, remnants, return_severity
 
 
 # pylint: disable-next=too-many-locals,too-many-branches,too-many-statements
@@ -3814,6 +3825,8 @@ def custom_splitter(message: str, **kwargs: Any) -> \
     compiled_regex: re.Pattern[str] = deep_get(options, DictPath("regex"))
     severity_field = deep_get(options, DictPath("severity#field"))
     severity_transform = deep_get(options, DictPath("severity#transform"))
+    severity_default: str = deep_get(kwargs, DictPath("options#severity#default"), "default")
+    severity = name_to_loglevel(severity_default, severity)
     facility_fields: list[int] | None = deep_get(options, DictPath("facility#fields"))
     facility_separators: list[str] = deep_get(options, DictPath("facility#separators"), [""])
     message_field = deep_get(options, DictPath("message#field"))
@@ -4112,7 +4125,7 @@ def parsing_multiplexer(message: str | list[ThemeRef | ThemeStr],
                     ansible_line(message, fold_msg=fold_msg, severity=severity,
                                  options=filter_options)
             elif _filter == "custom_line":
-                message, remnants = \
+                message, remnants, severity = \
                     custom_line(message, fold_msg=fold_msg, severity=severity,
                                 options=filter_options)
             elif _filter == "tab_separated":

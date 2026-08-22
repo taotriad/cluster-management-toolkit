@@ -717,8 +717,8 @@ def test_disksize_to_human(verbose: bool = False) -> tuple[str, bool]:
             (1024 ** 6 - 1024, "1023PiB", None),
             (1024 ** 6, "1EiB", None),
             (None, None, TypeError),
-            ("a", None, TypeError),
-            ("2", None, TypeError),
+            ("a", "a", None),
+            ("2", "2 bytes", TypeError),
             (-(1024 ** 4), None, ValueError),
         )
         for size, expected_result, expected_exception in testdata:

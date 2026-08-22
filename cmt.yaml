@@ -9,8 +9,7 @@
 # can be imported without having to touch the distributed version
 # of cmt.yaml.
 #
-# Using cmt.yaml.d also makes it easier to debug configuration
-# issues.
+# Using cmt.yaml.d also makes it easier to debug configuration issues.
 #
 # Using this configuration file you can change the defaults
 # for various options; note that a bit of sanity checking
@@ -57,15 +56,15 @@
 # prepended to the list, meaning that if a custom order is
 # preferred you should make sure to include them).
 #
-# Other configuration options are described below
+# Other configuration options are described below.
 
-# Global configuration options
+# Global configuration options.
 Global:
   # The theme to use; if no suffix is used, the program will
-  # try to load THEME.yaml if loading THEME fails
+  # try to load THEME.yaml if loading THEME fails.
   # theme: "default"
 
-  # Default indentation level when dumping YAML
+  # Default indentation level when dumping YAML.
   # indent: 2
 
   # The default view to use when calling cmu without
@@ -88,24 +87,24 @@ Network:
   # when connecting to that host; all known flawed protocols will still
   # remain disabled though.
   # This might be necessary for compatibility with older systems.
-  # If ["ALL"] (uppercase only) is specified, relaxed SSH is used for all hosts
+  # If ["ALL"] (uppercase only) is specified, relaxed SSH is used for all hosts.
   relaxed_ssh_hosts: []
 
 Ansible:
   # Output Ansible event information as soon as they take place instead
-  # of only as a summarise once the play completes
+  # of only as a summarise once the play completes.
   # verbose: true
 
   # This determines the parallelism of the commands being executed;
   # the default used by ansible is 5, which makes things slow in any
-  # reasonably sized Kubernetes cluster
+  # reasonably sized Kubernetes cluster.
   # forks: 10
 
   # User for ansible connections
   # Unless the user you are running cmu as is the same as the user to login as
-  # on nodes you probably want to specify this either here or in the inventory
+  # on nodes you probably want to specify this either here or in the inventory.
   #
-  # This user will also be used when ssh:ing to nodes
+  # This user will also be used when ssh:ing to nodes.
   # ansible_user:
 
   # Password for users
@@ -118,7 +117,7 @@ Ansible:
 
   # If this is set to true all logs are saved whenever you execute ansible
   # actions; these logs can later be accessed per host (via the node/host view)
-  # or per action (in the logs view)
+  # or per action (in the logs view).
   # save_logs: true
 
   # Path to directories with locally installed playbooks; this can also be used
@@ -128,8 +127,7 @@ Ansible:
   # would override a playbook in the second, etc.
   #
   # Playbook paths must be quoted. To reference playbook directories relative
-  # to the user's home directory
-  # you can use "{HOME}/", so for instance:
+  # to the user's home directory you can use "{HOME}/", so for instance:
   # local_playbooks:
   #   - "{HOME}/local_playbooks"
   #   - "/opt/cmt/playbooks"
@@ -142,14 +140,12 @@ Containerd:
 
 Debug:
   # The image to use when creating ephemeral containers
-  # Good choices are, for instance, busybox (simple)
-  # or debian (powerful)
+  # Good choices are, for instance, busybox (simple) or debian (powerful).
   # ephemeral_image: "busybox"
 
   # The image to use when debugging networking issues
-  # Good choices are, for instance, dnsutils (simple)
-  # or debian (powerful)
-  # network_image: "registry.k8s.io/e2e-test-images/jessie-dnsutils:1.7"
+  # Good choices are, for instance, dnsutils (simple) # or debian (powerful).
+  # network_image: "registry.k8s.io/e2e-test-images/glibc-dns-testing:2.0.0"
 
   # The loglevel to use for log statements in the code;
   # note that this is NOT related to the logparser.
@@ -157,7 +153,7 @@ Debug:
   # loglevel: "info"
 
 Docker:
-  # Settings to use when configuring docker
+  # Settings to use when configuring docker.
   # insecure_registries:
 
 Mouse:
@@ -279,22 +275,25 @@ Pod:
   # skip: "<source>"
   # kind_format: "mixed"
 
-  # Filter out successfully completed pods in Pod List
+  # Filter out successfully completed pods in Pod List.
   # filter_succeeded: false
 
+  # Squash empty lines; only output lines with content.
+  # squash_empty_lines: true
+
   # Merge repeated messages; this will display the first occurence
-  # and then a count of how many times the message is repeated
+  # and then a count of how many times the message is repeated.
   # merge_repeated_messages: false
 
   # Resources to filter out on the Pod Info page;
   # filtering out resources will impair the navigation
   # between pages and makes it harder to see logical
-  # connections between resources
+  # connections between resources.
   #
   # This needs to be specified as a list;
   # containers and init_containers cannot be filtered
   # out since there's no way to get to these resources
-  # without going through the Pod Info page
+  # without going through the Pod Info page.
   #
   # filter_resources:
   #   - "antrea_agent"
@@ -313,7 +312,7 @@ Pod:
   #   - "secret"
   #   - "service_account"
 
-  # The number of container log lines shown by default
+  # The number of container log lines shown by default.
   # logsize: 4000
 
   # Default loglevel:
@@ -330,7 +329,7 @@ Pod:
   # Fold log messages by default;
   # choosing false here will (try)
   # to expand lines that are valid JSON, YAML, or Python dicts,
-  # as well as lines that contain multiple key=value pairs
+  # as well as lines that contain multiple key=value pairs.
   # fold_msg: true
 
   # How to show the log facility:
@@ -342,7 +341,7 @@ Pod:
   # Show timestamps
   # show_timestamps: true
 
-  # Prefix all messages with the severity
+  # Prefix all messages with the severity.
   # By default all identifiable severity markers are stripped; severity is
   # instead visualised by log message colour.  From an accessibility point of
   # view this can be suboptimal, so optionally a severity prefix can be used.
@@ -372,29 +371,28 @@ Pod:
   # override a playbook in the second, etc.
   #
   # Parser paths must be quoted. To reference parser directories relative to
-  # the user's home directory
-  # you can use "{HOME}/", so for instance:
+  # the user's home directory you can use "{HOME}/", so for instance:
   # local_parsers:
   #   - "{HOME}/local_parsers"
   #   - "/opt/cmt/parsers"
   #   - ...
 
-  # For structured log entries, pop the timestamp
+  # For structured log entries, pop the timestamp.
   # pop_timestamps: false
 
-  # For structured log entries, pop the severity
+  # For structured log entries, pop the severity.
   # pop_severity: false
 
-  # For structured log entries, pop the facility
+  # For structured log entries, pop the facility.
   # pop_facility: false
 
-  # For structured log entries, extract the message
+  # For structured log entries, extract the message.
   # extract_message: false
 
-  # For structured log entries, reorder the entries to put the message first
+  # For structured log entries, reorder the entries to put the message first.
   # message_first: false
 
-  # Enable severity override rules specified in parser-files
+  # Enable severity override rules specified in parser-files.
   # override_severity: true
 
 __ResourceView:

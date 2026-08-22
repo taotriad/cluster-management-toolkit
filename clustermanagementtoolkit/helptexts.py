@@ -190,6 +190,7 @@ containerinfo: list[tuple[str, str]] = [
     ("[Shift] + R", "Toggle highlighting / formatting (default: On)"),
     ("[Shift] + T", "Toggle timestamps (default: On)"),
     ("[Shift] + D", "Toggle merging of duplicate messages"),
+    ("[Shift] + S", "Toggle squashing of empty lines"),
 ] + linewrap + toggleborders + [
     ("[Shift] + O", "Toggle parser options"),
     ("[Shift] + P", "Override logparser"),

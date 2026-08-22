@@ -36,7 +36,7 @@ from types import FrameType
 from typing import Any, cast, Sequence
 
 try:
-    import ruyaml
+    import ruyaml  # type: ignore[import-not-found]
     ryaml = ruyaml.YAML()
     sryaml = ruyaml.YAML(typ="safe")
 except ModuleNotFoundError:  # pragma: no cover
@@ -4981,7 +4981,7 @@ def eventdispatch(stdscr: curses.window, **kwargs: Any) -> Retval:
     return resourceinfodispatch(stdscr, obj=ref, kind=kind)
 
 
-# pylint: disable-next=too-many-arguments,too-many-positional-arguments
+# pylint: disable-next=too-many-arguments,too-many-positional-arguments,too-many-locals
 def log_add_line(timestamps: list[datetime],
                  facilities: list[tuple[list[ThemeRef | ThemeStr], str] | str],
                  severities: list[LogLevel],
@@ -4990,11 +4990,13 @@ def log_add_line(timestamps: list[datetime],
                  facility: str,
                  severity: LogLevel,
                  message: list[ThemeRef | ThemeStr],
-                 facility_extended: list[ThemeRef | ThemeStr]) \
+                 facility_extended: list[ThemeRef | ThemeStr],
+                 **kwargs: Any) \
         -> tuple[list[datetime],
                  list[tuple[list[ThemeRef | ThemeStr], str] | str],
                  list[LogLevel],
-                 list[list[ThemeRef | ThemeStr] | str]]:
+                 list[list[ThemeRef | ThemeStr] | str],
+                 int]:
     """
     Add a new line to the log.
 
@@ -5009,13 +5011,25 @@ def log_add_line(timestamps: list[datetime],
             message ([ThemeRef | ThemeStr] | str): The message to add
             facility_extended ([ThemeRef | ThemeStr): A formatted facility;
                                                       used in podlog-viewer
+            **kwargs (dict[str, Any]): Keyword arguments
+                squash_empty_lines (str): Don't add empty lines
         Returns:
-            (([datetime], [str], [LogLevel], [ThemeRef|ThemeStr])):
+            (([datetime], [str], [LogLevel], [ThemeRef|ThemeStr]), int):
                 ([datetime]): The updated list of timestamps
                 ([([ThemeRef | ThemeStr], str) | str]): The updated list of facilities
                 ([LogLevel]): The updated list of severities
                 ([[ThemeRef | ThemeStr] | str]): The updated list of log messages
+                (int): Number of lines added (currently only 0-1 supported)
     """
+    squash_empty_lines = deep_get(kwargs, DictPath("squash_empty_lines"), True)
+    added: int = 0
+
+    # If the message is empty, don't append it.
+    if squash_empty_lines \
+            and (isinstance(message, str) and not message
+                 or isinstance(message, list) and not themearray_len(message)):
+        return timestamps, facilities, severities, messages, added
+
     if timestamp is not None and timestamp != none_timestamp():
         timestamps.append(timestamp.astimezone())
     else:
@@ -5041,10 +5055,12 @@ def log_add_line(timestamps: list[datetime],
                 tab = "".ljust(tabsize)
             message = "".join(new_message)
         messages.append(message)
+        added += 1
     else:
         messages.append(themearray_detab(message))
+        added += 1
 
-    return timestamps, facilities, severities, messages
+    return timestamps, facilities, severities, messages, added
 
 
 # noqa: E501 pylint: disable-next=too-many-locals,too-many-branches,too-many-statements,too-many-return-statements
@@ -5103,6 +5119,8 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
     tail_lines = override_tail_lines
 
     uip.continuous_log = False
+    squash_empty_lines = deep_get(cmtlib.cmtconfig, DictPath("Pod#squash_empty_lines"), True)
+    saved_squash_empty_lines = squash_empty_lines
     merge_repeats = deep_get(cmtlib.cmtconfig, DictPath("Pod#merge_repeated_messages"), False)
     saved_merge_repeats = merge_repeats
     raw_logs = False
@@ -5141,6 +5159,8 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
     curses.doupdate()
 
     facility_regex: re.Pattern[str] = re.compile(r"^.*/(.*)")
+
+    added: int = 0
 
     # pylint: disable-next=too-many-nested-blocks
     while True:
@@ -5274,6 +5294,7 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
             uip.refresh_statusbars()
             curses.doupdate()
 
+            added = 0
             timestamps: list[datetime] = []
             facilities: list[tuple[list[ThemeRef | ThemeStr], str] | str] = []
             severities: list[LogLevel] = []
@@ -5386,18 +5407,22 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                             # OK, we've got a block and it's a severity we want to add;
                             # start by appending the first line.
                             if _logentries:
-                                timestamps, facilities, severities, messages = \
+                                timestamps, facilities, severities, messages, new_added = \
                                     log_add_line(timestamps, facilities, severities, messages,
                                                  timestamp_, facility, severity,
                                                  cast(list[ThemeRef | ThemeStr], _logentries[0][3]),
-                                                 facility_extended)
+                                                 facility_extended,
+                                                 squash_empty_lines=squash_empty_lines)
+                            added += new_added
                             if len(_logentries) > 1:
                                 for _timestamp, _facility, _severity, _message in _logentries[1:]:
-                                    timestamps, facilities, severities, messages = \
+                                    timestamps, facilities, severities, messages, new_added = \
                                         log_add_line(timestamps, facilities, severities, messages,
                                                      _timestamp, "".ljust(len(facility)), severity,
                                                      cast(list[ThemeRef | ThemeStr], _message),
-                                                     facility_extended)
+                                                     facility_extended,
+                                                     squash_empty_lines=squash_empty_lines)
+                                    added += new_added
                                 break
                         elif _block_state == "break":
                             # We got something indicating that this is not a valid block; abort
@@ -5406,11 +5431,13 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                         if _logentries \
                                 and deep_get(options, DictPath("eof"), "break") == "end_block":
                             for _timestamp, _facility, _severity, _message in _logentries:
-                                timestamps, facilities, severities, messages = \
+                                timestamps, facilities, severities, messages, new_added = \
                                     log_add_line(timestamps, facilities, severities, messages,
                                                  _timestamp, "".ljust(len(facility)), severity,
                                                  cast(list[ThemeRef | ThemeStr], _message),
-                                                 facility_extended)
+                                                 facility_extended,
+                                                 squash_empty_lines=squash_empty_lines)
+                                added += new_added
                             _block_state = "end_block"
                         else:
                             _block_state = "break"
@@ -5447,8 +5474,8 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                         merged_lines += 1
                         continue
                 else:
-                    if repeat_count and merge_repeats:
-                        timestamps, facilities, severities, messages = \
+                    if repeat_count and merge_repeats and added:
+                        timestamps, facilities, severities, messages, _added = \
                             log_add_line(timestamps, facilities, severities, messages,
                                          prev_timestamp, prev_facility, prev_severity,
                                          [ThemeStr("[previous message repeated ",
@@ -5457,7 +5484,8 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                                                    ThemeAttr("logview", "repeat_count")),
                                           ThemeStr(" times]",
                                                    color_log_severity(prev_severity))],
-                                         facility_extended)
+                                         facility_extended,
+                                         squash_empty_lines=squash_empty_lines)
                     repeat_count = 0
                     prev_timestamp = timestamp_
                     prev_facility = facility
@@ -5465,11 +5493,12 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                     prev_message = cast(list[ThemeRef | ThemeStr], message)
                     prev_remnants = remnants
 
-                timestamps, facilities, severities, messages = \
+                timestamps, facilities, severities, messages, new_added = \
                     log_add_line(timestamps, facilities, severities, messages, timestamp_,
                                  facility, severity,
                                  cast(list[ThemeRef | ThemeStr], message),
-                                 facility_extended)
+                                 facility_extended, squash_empty_lines=squash_empty_lines)
+                added = new_added
 
                 if remnants is not None and remnants:
                     # Remnants are used for unfolding multi-line messages that have been
@@ -5488,16 +5517,20 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                             tmpmsg = tmpmessages.split("\n")
 
                         for message in tmpmsg:
-                            timestamps, facilities, severities, messages = \
+                            timestamps, facilities, severities, messages, new_added = \
                                 log_add_line(timestamps, facilities, severities, messages, None,
                                              "".ljust(len(facility)), severity, message,
-                                             facility_extended)
+                                             facility_extended,
+                                             squash_empty_lines=squash_empty_lines)
+                            added = new_added
                     else:
                         for message, severity in remnants:
-                            timestamps, facilities, severities, messages = \
+                            timestamps, facilities, severities, messages, new_added = \
                                 log_add_line(timestamps, facilities, severities, messages, None,
                                              "".ljust(len(facility)), severity, message,
-                                             facility_extended)
+                                             facility_extended,
+                                             squash_empty_lines=squash_empty_lines)
+                            added = new_added
 
             # The data in some fields might become shorter, so we need to trigger a clear
             if uip.infopad is not None:
@@ -5508,8 +5541,8 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
             del progressbar
 
             # If the last message in the log is a repeat we need to add the repeat signature
-            if repeat_count and merge_repeats:
-                timestamps, facilities, severities, messages = \
+            if repeat_count and merge_repeats and added:
+                timestamps, facilities, severities, messages, _added = \
                     log_add_line(timestamps, facilities, severities, messages, prev_timestamp,
                                  prev_facility, prev_severity,
                                  [ThemeStr("[previous message repeated ",
@@ -5517,7 +5550,7 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                                   ThemeStr(f"{repeat_count}",
                                            ThemeAttr("logview", "repeat_count")),
                                   ThemeStr(" times]", color_log_severity(prev_severity))],
-                                 facility_extended)
+                                 facility_extended, squash_empty_lines=squash_empty_lines)
 
             uip.update_log_info(timestamps, facilities, severities, messages)
             uip.update_window()
@@ -5691,6 +5724,11 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                         ThemeStr("Repeats merged", ThemeAttr("statusbar", "highlight")),
                         ThemeRef("separators", "statusbar"),
                     ]
+                if squash_empty_lines:
+                    statusarray2 += [
+                        ThemeStr("Squashing empty lines", ThemeAttr("statusbar", "highlight")),
+                        ThemeRef("separators", "statusbar"),
+                    ]
 
                 statusarray2 += [
                     ThemeStr("Facility: ", ThemeAttr("statusbar", "infoheader")),
@@ -5730,7 +5768,12 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                     ]
                 if merge_repeats:
                     statusarray2 += [
-                        ThemeStr("Repeats merged", ThemeAttr("statusbar", "highlight")),
+                        ThemeStr("Merging", ThemeAttr("statusbar", "highlight")),
+                        ThemeRef("separators", "statusbar_compact"),
+                    ]
+                if squash_empty_lines:
+                    statusarray2 += [
+                        ThemeStr("Squashing", ThemeAttr("statusbar", "highlight")),
                         ThemeRef("separators", "statusbar_compact"),
                     ]
 
@@ -6058,11 +6101,14 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
             if not raw_logs:
                 saved_fold_msg = fold_msg
                 saved_merge_repeats = merge_repeats
+                saved_squash_empty_lines = squash_empty_lines
                 fold_msg = True
                 merge_repeats = False
+                squash_empty_lines = False
             else:
                 fold_msg = saved_fold_msg
                 merge_repeats = saved_merge_repeats
+                squash_empty_lines = saved_squash_empty_lines
             raw_logs = not raw_logs
             uip.yoffset = 0
             uip.xoffset = 0
@@ -6145,6 +6191,14 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                 continue
 
             merge_repeats = not merge_repeats
+            uip.yoffset = 0
+            uip.xoffset = 0
+            uip.force_update()
+        elif c == ord("S"):
+            if uip.continuous_log or raw_logs:
+                continue
+
+            squash_empty_lines = not squash_empty_lines
             uip.yoffset = 0
             uip.xoffset = 0
             uip.force_update()
@@ -6395,7 +6449,7 @@ def executecommand(stdscr: curses.window,
                 waitforkeypress = True
         elif command == ["<dnsutils>"]:
             dnsutils_image = deep_get(cmtlib.cmtconfig, DictPath("Debug#network_image"),
-                                      "registry.k8s.io/e2e-test-images/jessie-dnsutils:1.7")
+                                      "registry.k8s.io/e2e-test-images/glibc-dns-testing:2.0.0")
             args = [kubectl_path, "debug", f"node/{obj_name}", "-n", "default", "-i", "-t",
                     "--profile", "netadmin", "--image", dnsutils_image, "--attach=false"]
             result = subprocess.run(args, stdout=subprocess.PIPE,

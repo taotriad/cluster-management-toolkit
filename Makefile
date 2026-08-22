@@ -173,6 +173,7 @@ coverage: setup_tests
 # Run this to augment existing coverage data with tests that require manual interaction
 coverage-manual: setup_tests
 	@cmd=python3-coverage ;\
+	export PYTHONPATH=. ;\
 	if command -v python3-coverage > /dev/null 2> /dev/null; then \
 		cmd=python3-coverage ;\
 	elif command -v coverage-3 > /dev/null 2> /dev/null; then \
@@ -191,6 +192,7 @@ coverage-manual: setup_tests
 # Run this to augment existing coverage data with tests that require an ansible inventory
 coverage-ansible: setup_tests
 	@cmd=python3-coverage ;\
+	export PYTHONPATH=. ;\
 	if command -v python3-coverage > /dev/null 2> /dev/null; then \
 		cmd=python3-coverage ;\
 	elif command -v coverage-3 > /dev/null 2> /dev/null; then \
@@ -211,6 +213,7 @@ coverage-ansible: setup_tests
 # Run this to augment existing coverage data with tests that require a running cluster
 coverage-cluster: setup_tests
 	@cmd=python3-coverage ;\
+	export PYTHONPATH=. ;\
 	if command -v python3-coverage > /dev/null 2> /dev/null; then \
 		cmd=python3-coverage ;\
 	elif command -v coverage-3 > /dev/null 2> /dev/null; then \
@@ -239,6 +242,7 @@ coverage-all: coverage coverage-ansible coverage-cluster
 
 coverage-markdown:
 	@cmd=python3-coverage ;\
+	export PYTHONPATH=. ;\
 	if command -v python3-coverage > /dev/null 2> /dev/null; then \
 		cmd=python3-coverage ;\
 	elif command -v coverage-3 > /dev/null 2> /dev/null; then \

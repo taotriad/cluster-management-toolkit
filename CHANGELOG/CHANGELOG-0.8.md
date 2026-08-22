@@ -91,6 +91,9 @@ N/A
 * The statusbar in the lower screen has been abstracted a bit under the hood;
   it should behave more consistently in list- and info-views as a result.
   The `Cluster Overview` and container log view still uses the old behaviour.
+* `cmu` will now squash empty lines by default in the container log.
+  This behaviour is configurable (and can also be toggled runtime).
+* Use `glibc-dns-testing:2.0.0` instead of `jessie-dnsutils:1.7` as DNS default debug image.
 
 ### Changes to other files in v0.8.10
 
@@ -101,6 +104,8 @@ N/A
 * Parser-rules that are block-based no longer bypass the severity filter.
 * `key_value_with_message()` now retains formatting even when the message is folded.
 * `json()` now retains formatting even when the message is folded.
+* Fixed a bug in `logparser.py` that caused the `iptables` parser-rule to miss out
+  on the name of the program being executed.
 * Fixed a bug in `logparser.py` that would lose parts of the message when folding key/value messages
   using the `key_value()` parser-rule.
 * `expand_events()` now retain formatting even when the message is folded.
