@@ -403,7 +403,7 @@ def disksize_to_human(size: int) -> str:
     try:
         size = int(size)
     except ValueError:
-        return size
+        return str(size)
 
     tmp = normalise_mem_bytes_to_str(size, fmt="int")
     if tmp[:-1].isnumeric():
