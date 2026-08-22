@@ -2321,6 +2321,10 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api_paths": ["apis/ceph.rook.io/v1/"],
         "api": "cephnfses",
     },
+    ("CephNVMeOFGateway", "ceph.rook.io"): {
+        "api_paths": ["apis/ceph.rook.io/v1/"],
+        "api": "cephnvmeofgateways",
+    },
     ("CephObjectRealm", "ceph.rook.io"): {
         "api_paths": ["apis/ceph.rook.io/v1/"],
         "api": "cephobjectrealms",
@@ -2328,6 +2332,10 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
     ("CephObjectStore", "ceph.rook.io"): {
         "api_paths": ["apis/ceph.rook.io/v1/"],
         "api": "cephobjectstores",
+    },
+    ("CephObjectStoreAccount", "ceph.rook.io"): {
+        "api_paths": ["apis/ceph.rook.io/v1/"],
+        "api": "cephobjectstoreaccounts",
     },
     ("CephObjectStoreUser", "ceph.rook.io"): {
         "api_paths": ["apis/ceph.rook.io/v1/"],
@@ -3191,6 +3199,27 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api_paths": ["apis/crd.projectcalico.org/v1/"],
         "api": "tiers",
         "namespaced": False,
+    },
+    # csi.ceph.io
+    ("CephConnection", "csi.ceph.io"): {
+        "api_paths": ["apis/csi.ceph.io/v1/"],
+        "api": "cephconnections",
+    },
+    ("ClientProfileMapping", "csi.ceph.io"): {
+        "api_paths": ["apis/csi.ceph.io/v1/"],
+        "api": "clientprofilemappings",
+    },
+    ("ClientProfile", "csi.ceph.io"): {
+        "api_paths": ["apis/csi.ceph.io/v1/"],
+        "api": "clientprofiles",
+    },
+    ("Driver", "csi.ceph.io"): {
+        "api_paths": ["apis/csi.ceph.io/v1/"],
+        "api": "drivers",
+    },
+    ("OperatorConfig", "csi.ceph.io"): {
+        "api_paths": ["apis/csi.ceph.io/v1/"],
+        "api": "operatorconfigs",
     },
     # dapr.io
     ("Component", "dapr.io"): {
