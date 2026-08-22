@@ -39,7 +39,7 @@ from clustermanagementtoolkit.cmttypes import FilePath, FilePathAuditError
 from clustermanagementtoolkit.cmttypes import SecurityChecks, SecurityStatus, validate_args
 
 try:
-    import ruyaml
+    import ruyaml  # type: ignore[import-not-found]
     ryaml = ruyaml.YAML()
     sryaml = ruyaml.YAML(typ="safe")
 except ModuleNotFoundError:  # pragma: no cover

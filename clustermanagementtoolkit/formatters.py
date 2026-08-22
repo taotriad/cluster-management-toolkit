@@ -40,9 +40,9 @@ except ModuleNotFoundError:
     # CELLexer is available from Pygments 2.21
     CELLEXER_AVAILABLE = False
 try:
-    from pygments.configs import CaddyfileLexer
+    from pygments.lexers.configs import CaddyfileLexer  # type: ignore[attr-defined]
     CADDYFILELEXER_AVAILABLE = True
-except ModuleNotFoundError:
+except (ImportError, ModuleNotFoundError):
     # CaddyfileLexer is available from Pygments 2.21
     CADDYFILELEXER_AVAILABLE = False
 from pygments.lexers.configs import DockerLexer, IniLexer, NginxConfLexer, TOMLLexer

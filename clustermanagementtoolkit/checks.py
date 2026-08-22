@@ -1290,8 +1290,6 @@ def __check_permissions(recommended_permissions: Sequence[DirectoryPermissions |
                         continue
 
                 try:
-                    # Not sure why pylint flags this; Path.owner() definitely returns a value.
-                    # pylint: disable-next=assignment-from-no-return
                     path_owner = entry.owner()
                 except KeyError:
                     ansithemeprint([ANSIThemeStr("  ", "default"),
@@ -1305,8 +1303,6 @@ def __check_permissions(recommended_permissions: Sequence[DirectoryPermissions |
                     sys.exit(errno.ENOENT)
 
                 try:
-                    # Not sure why pylint flags this; Path.group() definitely returns a value.
-                    # pylint: disable-next=assignment-from-no-return
                     path_group = entry.group()
                 except KeyError:
                     ansithemeprint([ANSIThemeStr("  ", "default"),

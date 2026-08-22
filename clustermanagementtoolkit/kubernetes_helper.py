@@ -34,7 +34,7 @@ from cryptography.hazmat.primitives import serialization
 from cryptography import x509
 
 try:
-    import ruyaml
+    import ruyaml  # type: ignore[import-not-found]
     ryaml = ruyaml.YAML()
     sryaml = ruyaml.YAML(typ="safe")
 except ModuleNotFoundError:  # pragma: no cover
