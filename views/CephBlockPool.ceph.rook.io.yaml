@@ -1,0 +1,118 @@
+---
+kind: "CephBlockPool"
+api_family: "ceph.rook.io"
+default_command: "cephblockpools"
+command:
+  - "cephblkpools"
+  - "cephblkpool"
+listview:
+  name: "Ceph Block Pools"
+  group: "Storage & Backups"
+  field_indexes:
+    Normal:
+      fields: ["namespace", "name", "failure_domain", "phase", "age"]
+      sortcolumn: "namespace"
+  fields:
+    failure_domain:
+      header: "Failure Domain:"
+      path: "spec#failureDomain"
+      default: "<unset>"
+      type: "str"
+    phase:
+      header: "Phase:"
+      path: "status#phase"
+      default: "<unknown>"
+      type: "str"
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          mappings:
+            Connecting:
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+            Connected:
+              field_colors:
+                - context: "main"
+                  type: "status_done"
+            Deleting:
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+            DeletionIsBlocked:
+              field_colors:
+                - context: "main"
+                  type: "status_warning"
+            Failure:
+              field_colors:
+                - context: "main"
+                  type: "status_not_ok"
+            PoolDeletionIsBlocked:
+              field_colors:
+                - context: "main"
+                  type: "status_warning"
+            Progressing:
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+            RadosNamespaceDeletionIsBlocked:
+              field_colors:
+                - context: "main"
+                  type: "status_warning"
+            Ready:
+              field_colors:
+                - context: "main"
+                  type: "status_done"
+infoview:
+  name: "Ceph Block Pool Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: [
+                 "phase"]
+    rows:
+      phase:
+        header: [["Phase:", ["main", "infoheader"]]]
+        path: "status#phase"
+        default: "<unknown>"
+        type: "str"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              Connecting:
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+              Connected:
+                field_colors:
+                  - context: "main"
+                    type: "status_done"
+              Deleting:
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+              DeletionIsBlocked:
+                field_colors:
+                  - context: "main"
+                    type: "status_warning"
+              Failure:
+                field_colors:
+                  - context: "main"
+                    type: "status_not_ok"
+              PoolDeletionIsBlocked:
+                field_colors:
+                  - context: "main"
+                    type: "status_warning"
+              Progressing:
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+              RadosNamespaceDeletionIsBlocked:
+                field_colors:
+                  - context: "main"
+                    type: "status_warning"
+              Ready:
+                field_colors:
+                  - context: "main"
+                    type: "status_done"

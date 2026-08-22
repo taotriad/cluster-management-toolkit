@@ -1,0 +1,120 @@
+---
+kind: "ClientProfile"
+api_family: "csi.ceph.io"
+default_command: "clientprofiles.csi.ceph.io"
+command:
+  - "cephclientprofiles"
+  - "cephclientprofile"
+  - "cephclientprofs"
+  - "cephclientprof"
+listview:
+  name: "Client Profiles"
+  group: "Storage & Backups"
+  field_indexes:
+    Normal:
+      fields: ["namespace", "name", "connection", "age"]
+      sortcolumn: "namespace"
+  fields:
+    connection:
+      header: "Connection:"
+      path: "spec#cephConnectionRef#name"
+      default: "<none>"
+      type: "str"
+infoview:
+  name: "Client Profile Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["connection",
+                 "cephfs_header",
+                 "cephfs_ceph_csi_secrets_header",
+                 "cephfs_ceph_csi_secrets_controller_publish_secret",
+                 "rbd_header",
+                 "rbd_ceph_csi_secrets_header",
+                 "rbd_ceph_csi_secrets_controller_publish_secret",
+                 ]
+    rows:
+      connection:
+        header: [["C", ["main", "infoheader"]],
+                 ["o", ["main", "infoheader_shortcut"]],
+                 ["nnection:", ["main", "infoheader"]]]
+        path: "spec#cephConnectionRef#name"
+        default: "<none>"
+        type: "str"
+      cephfs_header:
+        header: [["CephFS:", ["main", "infoheader"]]]
+      cephfs_ceph_csi_secrets_header:
+        header: [["  Ceph CSI Secrets:", ["main", "infoheader"]]]
+      cephfs_ceph_csi_secrets_controller_publish_secret:
+        header: [["    Controller Publish ", ["main", "infoheader"]],
+                 ["S", ["main", "infoheader_shortcut"]],
+                 ["ecret:", ["main", "infoheader"]]]
+        paths:
+          - path: [["spec#cephFs#cephCsiSecrets#controllerPublishSecret#namespace"],
+                   ["spec#cephFs#cephCsiSecrets#controllerPublishSecret#name"]]
+            pathtype: "tuple"
+            default: ["", "<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "namespace"
+            - type: "generic"
+          field_separators:
+            - type: "namespace"
+      rbd_header:
+        header: [["RBD:", ["main", "infoheader"]]]
+      rbd_ceph_csi_secrets_header:
+        header: [["  Ceph CSI Secrets:", ["main", "infoheader"]]]
+      rbd_ceph_csi_secrets_controller_publish_secret:
+        header: [["    Controller ", ["main", "infoheader"]],
+                 ["P", ["main", "infoheader_shortcut"]],
+                 ["ublish Secret:", ["main", "infoheader"]]]
+        paths:
+          - path: [["spec#rbd#cephCsiSecrets#controllerPublishSecret#namespace"],
+                   ["spec#rbd#cephCsiSecrets#controllerPublishSecret#name"]]
+            pathtype: "tuple"
+            default: ["", "<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "namespace"
+            - type: "generic"
+          field_separators:
+            - type: "namespace"
+  shortcuts:
+    "Open Ceph Connection":
+      key: "o"
+      read_only: true
+      helptext: "Open info page for Ceph Connection"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind: "CephConnection"
+        api_family: "csi.ceph.io"
+        name_path: "spec#cephConnectionRef#name"
+        namespace_path: "metadata#namespace"
+    "Open CephFS Controller Publish Secret":
+      key: "s"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for CephFS Controller Publish Secret"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind: "Secret"
+        namespace_path: "spec#cephFs#cephCsiSecrets#controllerPublishSecret#namespace"
+        name_path: "spec#cephFs#cephCsiSecrets#controllerPublishSecret#name"
+    "Open RBD Controller Publish Secret":
+      key: "p"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for RBD Controller Publish Secret"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind: "Secret"
+        namespace_path: "spec#rbd#cephCsiSecrets#controllerPublishSecret#namespace"
+        name_path: "spec#rbd#cephCsiSecrets#controllerPublishSecret#name"

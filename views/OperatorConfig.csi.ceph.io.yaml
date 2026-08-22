@@ -1,0 +1,19 @@
+---
+kind: "OperatorConfig"
+api_family: "csi.ceph.io"
+default_command: "operatorconfig.csi.ceph.io"
+command:
+  - "cephoperatorconfigs"
+  - "cephoperatorconfig"
+  - "cephopconfs"
+  - "cephopconf"
+listview:
+  name: "Operator Configs"
+  group: "Storage & Backups"
+  field_indexes:
+    Normal:
+      fields: ["namespace", "name", "age"]
+      sortcolumn: "namespace"
+infoview:
+  name: "Operator Config Info"
+  infopad:

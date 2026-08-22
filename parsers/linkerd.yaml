@@ -51,6 +51,12 @@
   parser_rules:
     - name: "ts_8601"
     - name: "key_value"
+      options:
+        severity:
+          overrides:
+            - matchtype: "startswith"
+              matchkey: "\"running version "
+              loglevel: "notice"
     - name: "override_severity"
       options:
         severity:
@@ -66,5 +72,34 @@
     - container_name: "linkerd-init"
       container_type: "InitContainer"
   parser_rules:
-    - name: "key_value"
+    # While the log uses key=value, we want to extract the messages
+    # without parsing them with the key_value rule, to be able to pass
+    # the messages to iptables.
+    - name: "custom_splitter"
+      options:
+        # yamllint disable-line rule:line-length
+        regex: '^.*msg="(.+)".*'
+        message:
+          field: 1
     - name: "iptables"
+- name: "linkerd"
+  matchkeys:
+    - image_name: "/linkerd/cni-plugin"
+  parser_rules:
+    - name: "custom_splitter"
+      options:
+        # yamllint disable-line rule:line-length
+        regex: '^\[\d{4}-\d\d-\d\d \d\d:\d\d:\d\d\] (.*)'
+        message:
+          field: 1
+    - name: "json_line"
+      options:
+        block_start:
+          - matchtype: "exact"
+            matchkey: "CNI config: {"
+            matchline: "any"
+            format_block_start: false
+          - matchtype: "exact"
+            matchkey: "}"
+            matchline: "any"
+            format_block_end: true

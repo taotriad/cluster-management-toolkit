@@ -1,0 +1,47 @@
+---
+kind: "Driver"
+api_family: "csi.ceph.io"
+default_command: "drivers.csi.ceph.io"
+command:
+  - "cephdrivers"
+  - "cephdriver"
+  - "cephdrvs"
+  - "cephdrv"
+listview:
+  name: "Drivers"
+  group: "Storage & Backups"
+  field_indexes:
+    Wide:
+      fields: ["namespace", "name", "fs_client_type", "fs_group_policy", "age"]
+      sortcolumn: "namespace"
+    Normal:
+      fields: ["namespace", "name", "age"]
+      sortcolumn: "namespace"
+  fields:
+    fs_client_type:
+      header: "Client Type:"
+      path: "spec#cephFsClientType"
+      default: "<none>"
+      type: "str"
+    fs_group_policy:
+      header: "Group Policy:"
+      path: "spec#fsGroupPolicy"
+      default: "<unset>"
+      type: "str"
+infoview:
+  name: "Driver Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["fs_client_type", "fs_group_policy"]
+    rows:
+      fs_client_type:
+        header: [["CephFS Client Type:", ["main", "infoheader"]]]
+        path: "spec#cephFsClientType"
+        default: "<none>"
+        type: "str"
+      fs_group_policy:
+        header: [["FS Group Policy:", ["main", "infoheader"]]]
+        path: "spec#fsGroupPolicy"
+        default: "<unset>"
+        type: "str"

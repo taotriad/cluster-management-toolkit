@@ -1,0 +1,8 @@
+---
+- name: "jupyter"
+  show_in_selector: false
+  matchkeys:
+    - image_name: "/jupyter-infra/jupyter-k8s-controller"
+  parser_rules:
+    - name: "glog"
+    - name: "json"

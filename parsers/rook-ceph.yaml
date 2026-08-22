@@ -17,6 +17,130 @@
             - 2
         message:
           field: 3
+    - name: "diff_line"
+      options:
+        block_start:
+          - matchtype: "startswith"
+            matchkey: '[rook-ceph] CR has changed for "rook-ceph". diff='
+            matchline: "any"
+            format_block_start: true
+        block_end:
+          - matchtype: "exact"
+            matchkey: "  }"
+            format_block_end: true
+        severity:
+          default: "info"
+    - name: "override_severity"
+      options:
+        severity:
+          overrides:
+            - matchtype: "startswith"
+              matchkey: "starting Rook "
+              loglevel: "notice"
+- name: "ceph"
+  show_in_selector: false
+  matchkeys:
+    - container_name: "mon"
+      image_name: "/ceph/ceph"
+    - container_name: "init-mon-fs"
+      image_name: "/ceph/ceph"
+      container_type: "InitContainer"
+  parser_rules:
+    - name: "custom_splitter"
+      options:
+        # yamllint disable-line rule:line-length
+        regex: '^(debug) \d{4}-\d\d-\d\dT\d\d:\d\d:\d\d.[0-9+-]+ ([0-9a-f]{12}\s*\d+ |)(rocksdb): \[(.+?:\d+)] (.*)'
+        severity:
+          field: 1
+          transform: "str"
+        facility:
+          fields:
+            - 3
+            - 4
+          separators:
+            - ":"
+        message:
+          field: 5
+    - name: "custom_splitter"
+      options:
+        # yamllint disable-line rule:line-length
+        regex: '^(debug) \d{4}-\d\d-\d\dT\d\d:\d\d:\d\d.[0-9+-]+ ([0-9a-f]{12}\s+\d+ |)(rocksdb): (.*)'
+        severity:
+          field: 1
+          transform: "str"
+        facility:
+          fields:
+            - 3
+          separators:
+            - ":"
+        message:
+          field: 4
+    - name: "custom_splitter"
+      options:
+        # yamllint disable-line rule:line-length
+        regex: '^[a-z]+? \d{4}-\d\d-\d\dT\d\d:\d\d:\d\d.[0-9+-]+ ([^\s]+) ([^\s]+) \d+ : (cluster|debug|audit) \[([A-Z]{3})\] (.*)'
+        severity:
+          field: 4
+          transform: "3letter"
+        facility:
+          fields:
+            - 1
+            - 2
+          separators:
+            - ":"
+        message:
+          field: 5
+    - name: "custom_splitter"
+      options:
+        # yamllint disable-line rule:line-length
+        regex: '^(debug) \d{4}-\d\d-\d\dT\d\d:\d\d:\d\d.[0-9+-]+ [0-9a-f]{12}\s+\d+ ([^\s]+) ([^\s]+) (.*)'
+        severity:
+          field: 1
+          transform: "str"
+        facility:
+          fields:
+            - 2
+            - 3
+          separators:
+            - ":"
+        message:
+          field: 4
+    - name: "custom_line"
+      options:
+        block_start:
+          - matchtype: "endswith"
+            matchkey: "------- DUMPING STATS -------"
+            matchline: "any"
+            format_block_start: true
+        block_end:
+          - matchtype: "exact"
+            # yamllint disable-line rule:line-length
+            matchkey: "** File Read Latency Histogram By Level [default] **"
+            format_block_end: true
+        severity:
+          default: "debug"
+    - name: "json_with_leading_message"
+    - name: "override_severity"
+      options:
+        severity:
+          overrides:
+            - matchtype: "startswith"
+              matchkey: "ceph version"
+              loglevel: "notice"
+    - name: "custom_line"
+      options:
+        block_start:
+          - matchtype: "contains"
+            matchkey: "table_factory options:"
+            matchline: "any"
+            format_block_start: false
+        block_end:
+          - matchtype: "empty"
+            matchkey: ""
+            format_block_end: false
+            process_block_end: false
+        severity:
+          default: "debug"
 - name: "ceph"
   show_in_selector: false
   matchkeys:
@@ -42,3 +166,106 @@
             - matchtype: "startswith"
               matchkey: "[errno "
               loglevel: "error"
+- name: "csi-ceph"
+  show_in_selector: false
+  matchkeys:
+    - image_name: "/cephcsi/ceph-csi-operator"
+  parser_rules:
+    - name: "glog"
+    - name: "tab_separated"
+    - name: "key_value_with_leading_message"
+- name: "csi-ceph"
+  show_in_selector: false
+  matchkeys:
+    - container_name: "mgr"
+      image_name: "/ceph/ceph"
+  parser_rules:
+    - name: "custom_splitter"
+      options:
+        # yamllint disable-line rule:line-length
+        regex: '^debug \d{4}-\d\d-\d\dT\d\d:\d\d:\d\d.[0-9+-]+ ([0-9a-f]{12}\s*\d+) (.*)'
+        message:
+          field: 2
+    - name: "override_severity"
+      options:
+        severity:
+          overrides:
+            - matchtype: "contains"
+              matchkey: "[DBG]"
+              loglevel: "debug"
+            - matchtype: "contains"
+              matchkey: " INFO "
+              loglevel: "info"
+            - matchtype: "contains"
+              matchkey: " WARNING "
+              loglevel: "warning"
+            - matchtype: "contains"
+              matchkey: " ERROR "
+              loglevel: "error"
+- name: "csi-ceph"
+  show_in_selector: false
+  matchkeys:
+    - container_name: "provision"
+      image_name: "/ceph/ceph"
+  parser_rules:
+    - name: "custom_splitter"
+      options:
+        # yamllint disable-line rule:line-length
+        regex: '^\d{4}-\d\d-\d\d \d\d:\d\d:\d\d.\d+ ([A-Z]) \| ([^:]+): (config file @ .*:)$'
+        severity:
+          field: 1
+          transform: "letter"
+        facility:
+          fields:
+            - 2
+        message:
+          field: 3
+    # This needs to be here before we strip the timestamps to have a reliable
+    # way to detect the end of the block; we do, however, need to format
+    # the block start.
+    - name: "custom_line"
+      options:
+        block_start:
+          - matchtype: "contains"
+            matchkey: "config file @ "
+            matchline: "any"
+            format_block_start: false
+        block_end:
+          - matchtype: "regex"
+            matchkey: '^\d\d\d\d-\d\d-\d\d'
+            format_block_end: false
+            process_block_end: false
+        severity:
+          default: "notice"
+    - name: "ts_8601"
+    - name: "custom_splitter"
+      options:
+        regex: '^([A-Z]) \| ([^:]+): (.*)'
+        severity:
+          field: 1
+          transform: "letter"
+        facility:
+          fields:
+            - 2
+        message:
+          field: 3
+    - name: "custom_line"
+      options:
+        block_start:
+          - matchtype: "startswith"
+            matchkey: "Library version:"
+            matchline: "any"
+            format_block_start: true
+        block_end:
+          - matchtype: "startswith"
+            matchkey: "Driver version:"
+            format_block_end: true
+        severity:
+          default: "notice"
+    - name: "override_severity"
+      options:
+        severity:
+          overrides:
+            - matchtype: "startswith"
+              matchkey: "starting Rook"
+              loglevel: "notice"

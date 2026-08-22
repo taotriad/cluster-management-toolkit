@@ -1,0 +1,34 @@
+---
+kind: "CephConnection"
+api_family: "csi.ceph.io"
+default_command: "cephconnections"
+command:
+  - "cephconns"
+  - "cephconn"
+listview:
+  name: "Ceph Connections"
+  group: "Storage & Backups"
+  field_indexes:
+    Normal:
+      fields: ["namespace", "name", "age", "monitors"]
+      sortcolumn: "namespace"
+  fields:
+    monitors:
+      header: "Monitors:"
+      path: "spec#monitors"
+      default: ["<none>"]
+      type: "raw"
+      formatter: "address"
+infoview:
+  name: "Ceph Connection Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["monitors"]
+    rows:
+      monitors:
+        header: [["Monitors:", ["main", "infoheader"]]]
+        path: "spec#monitors"
+        default: ["<none>"]
+        type: "raw"
+        formatter: "address"
