@@ -2725,6 +2725,10 @@ WorkflowSucceeded:
   field_colors:
     - context: "main"
       type: "status_done"
+WorkspaceRunning:
+  field_colors:
+    - context: "main"
+      type: "status_ok"
 XGBoostJobSucceeded:
   field_colors:
     - context: "main"

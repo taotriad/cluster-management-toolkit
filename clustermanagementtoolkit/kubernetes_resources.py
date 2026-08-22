@@ -8302,6 +8302,19 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api_paths": ["apis/workload.linkerd.io/v1beta1/"],
         "api": "externalworkloads",
     },
+    # workspace.jupyter.org
+    ("WorkspaceAccessStrategy", "workspace.jupyter.org"): {
+        "api_paths": ["apis/workspace.jupyter.org/v1alpha1/"],
+        "api": "workspaceaccessstrategies",
+    },
+    ("Workspace", "workspace.jupyter.org"): {
+        "api_paths": ["apis/workspace.jupyter.org/v1alpha1/"],
+        "api": "workspaces",
+    },
+    ("WorkspaceTemplate", "workspace.jupyter.org"): {
+        "api_paths": ["apis/workspace.jupyter.org/v1alpha1/"],
+        "api": "workspacetemplates",
+    },
     # xgboostjob.kubeflow.org
     ("XGBoostJob", "kubeflow.org"): {
         "api_paths": ["apis/kubeflow.org/v1/"],

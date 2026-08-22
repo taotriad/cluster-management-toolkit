@@ -1,0 +1,218 @@
+---
+kind: "Workspace"
+api_family: "workspace.jupyter.org"
+default_command: "workspaces"
+listview:
+  name: "Workspaces"
+  group: "Workloads"
+  field_indexes:
+    Wide:
+      fields: ["namespace", "name", "display_name",
+               "access_type", "ownership_type", "image", "age"]
+      sortcolumn: "namespace"
+    Normal:
+      fields: ["namespace", "name", "display_name", "age"]
+      sortcolumn: "namespace"
+  fields:
+    access_type:
+      header: "Access:"
+      path: "spec#accessType"
+      default: "<unset>"
+      type: "str"
+    display_name:
+      header: "Display Name:"
+      path: "spec#displayName"
+      default: "<unset>"
+      type: "str"
+    image:
+      header: "Image:"
+      paths:
+        - path: "spec#image"
+          pathtype: "regex"
+          regex: "^([^:]+):(.*)"
+          default: ["<none>"]
+      formatter: "list"
+      formatting:
+        field_colors:
+          - type: "generic"
+          - type: "version"
+        field_separators:
+          - type: "version"
+        field_formatters:
+          - ""
+          - "version"
+    ownership_type:
+      header: "Ownership:"
+      path: "spec#ownershipType"
+      default: "<unset>"
+      type: "str"
+infoview:
+  name: "Workspace Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["display_name", "image", "access_type", "ownership_type",
+                 "service_account", "service", "deployment",
+                 "storage_header", "storage_size", "storage_mount_path",
+                 "storage_class", "workspace_template"]
+    rows:
+      access_type:
+        header: [["Access:", ["main", "infoheader"]]]
+        path: "spec#accessType"
+        default: "<unset>"
+        type: "str"
+      deployment:
+        header: [["D", ["main", "infoheader_shortcut"]],
+                 ["eployment:", ["main", "infoheader"]]]
+        path: "status#deploymentName"
+        default: "<none>"
+        type: "str"
+      display_name:
+        header: [["Display Name:", ["main", "infoheader"]]]
+        path: "spec#displayName"
+        default: "<unset>"
+        type: "str"
+      image:
+        header: [["Image:", ["main", "infoheader"]]]
+        paths:
+          - path: "spec#image"
+            pathtype: "regex"
+            regex: "^([^:]+):(.*)"
+            default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "generic"
+            - type: "version"
+          field_separators:
+            - type: "version"
+          field_formatters:
+            - ""
+            - "version"
+      ownership_type:
+        header: [["Ownership:", ["main", "infoheader"]]]
+        path: "spec#ownershipType"
+        default: "<unset>"
+        type: "str"
+      service:
+        header: [["S", ["main", "infoheader_shortcut"]],
+                 ["ervice:", ["main", "infoheader"]]]
+        path: "status#deploymentName"
+        default: "<none>"
+        type: "str"
+      service_account:
+        header: [["Service ", ["main", "infoheader"]],
+                 ["A", ["main", "infoheader_shortcut"]],
+                 ["ccount:", ["main", "infoheader"]]]
+        path: "spec#serviceAccountName"
+        default: "<none>"
+        type: "str"
+      storage_class:
+        header: [["  Storage Cla", ["main", "infoheader"]],
+                 ["s", ["main", "infoheader_shortcut"]],
+                 ["s:", ["main", "infoheader"]]]
+        path: "spec#storage#storageClassName"
+        default: "<unset>"
+        type: "str"
+      storage_header:
+        header: [["Storage:", ["main", "infoheader"]]]
+      storage_mount_path:
+        header: [["  Mount Path:", ["main", "infoheader"]]]
+        path: "spec#storage#mountPath"
+        default: "<unset>"
+        type: "str"
+        formatting:
+          field_colors:
+            - type: "path"
+      storage_size:
+        header: [["  Size:", ["main", "infoheader"]]]
+        path: "spec#storage#size"
+        default: "<unset>"
+        type: "str"
+        formatter: "numerical"
+      workspace_template:
+        header: [["W", ["main", "infoheader_shortcut"]],
+                 ["orkspace Template:", ["main", "infoheader"]]]
+        path: "spec#templateRef#name"
+        default: "<none>"
+        type: "str"
+  shortcuts:
+    "Deployment":
+      key: "d"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for Deployment"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind: "Deployment"
+        api_family: "apps"
+        name_path: "status#deploymentName"
+        namespace_path: "metadata#namespace"
+    "Show container resources":
+      key: "r"
+      modifier: "shift"
+      read_only: true
+      helptext: "Show container resources"
+      widget: "windowwidget"
+      widget_args:
+        title: "Resources:"
+        headers: ["Request Type:", "Resource:"]
+        formatting: [["windowwidget", "default"],
+                     ["windowwidget", "highlight"]]
+        itemgetter: "get_key_value"
+        itemgetter_args:
+          path: "spec#resources"
+          ignored_keys:
+            - "claims"
+        # This isn't supported for now
+        sortcolumn: "requests"
+    "Service":
+      key: "s"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for Service"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind: "Service"
+        name_path: "status#serviceName"
+        namespace_path: "metadata#namespace"
+    "Service Account":
+      key: "a"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for Service Account"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind: "ServiceAccount"
+        name_path: "spec#serviceAccountName"
+        namespace_path: "metadata#namespace"
+    "Storage Class":
+      key: "s"
+      read_only: true
+      helptext: "Open info page for Storage Class"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind: "StorageClass"
+        api_family: "storage.k8s.io"
+        name_path: "spec#storage#storageClassName"
+    "Workspace Template":
+      key: "w"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for Workspace Template"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind: "WorkspaceTemplate"
+        api_family: "workspace.jupyter.org"
+        name_path: "spec#templateRef#name"
+        namespace_path: "metadata#namespace"

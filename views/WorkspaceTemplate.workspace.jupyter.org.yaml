@@ -1,0 +1,56 @@
+---
+kind: "WorkspaceTemplate"
+api_family: "workspace.jupyter.org"
+default_command: "workspacetemplates"
+command:
+  - "workspacetmpls"
+  - "workspacetmpl"
+listview:
+  name: "Workspace Templates"
+  group: "Workloads"
+  field_indexes:
+    Normal:
+      fields: ["namespace", "name", "display_name", "age"]
+      sortcolumn: "namespace"
+  fields:
+    access_type:
+      header: "Access:"
+      path: "spec#accessType"
+      default: "<unset>"
+      type: "str"
+    display_name:
+      header: "Display Name:"
+      path: "spec#displayName"
+      default: "<unset>"
+      type: "str"
+    image:
+      header: "Image:"
+      paths:
+        - path: "spec#image"
+          pathtype: "regex"
+          regex: "^([^:]+):(.*)"
+          default: ["<none>"]
+      formatter: "list"
+      formatting:
+        field_colors:
+          - type: "generic"
+          - type: "version"
+        field_separators:
+          - type: "version"
+        field_formatters:
+          - ""
+          - "version"
+    ownership_type:
+      header: "Ownership:"
+      path: "spec#ownershipType"
+      default: "<unset>"
+      type: "str"
+infoview:
+  name: "Workspace Template Info"
+  infopad:
+  logpad:
+    infogetter: "logpad_formatted"
+    infogetter_args:
+      formatter: "format_yaml"
+      path: "spec"
+    timestamps: false
