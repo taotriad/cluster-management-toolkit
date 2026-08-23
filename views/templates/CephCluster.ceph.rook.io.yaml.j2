@@ -95,7 +95,9 @@ infoview:
                  "monitors_header",
                  "monitors_count",
                  "monitors_allow_multiple_per_node",
-                 "phase", "state", "message"]
+                 "health",
+                 "state", "message",
+                 "phase"]
     rows:
       ceph_version_allow_unsupported:
         header: [["  Allow Unsupported:", ["main", "infoheader"]]]
@@ -134,6 +136,21 @@ infoview:
         formatting:
           field_colors:
             - type: "path"
+      health:
+        header: [["Healt", ["main", "infoheader"]],
+                 ["h", ["main", "infoheader_shortcut"]],
+                 [":", ["main", "infoheader"]]]
+        path: "status#ceph#health"
+        default: "<unset>"
+        type: "str"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              HEALTH_WARN:
+                field_colors:
+                  - context: "main"
+                    type: "status_warning"
       message:
         header: [["Message:", ["main", "infoheader"]]]
         path: "status#message"
@@ -180,6 +197,7 @@ infoview:
             pathtype: "items"
             subpaths:
               - "name"
+        default: ["<none>"]
         formatter: "list"
         formatting:
           field_colors:
@@ -230,6 +248,21 @@ infoview:
                   - context: "main"
                     type: "status_pending"
   shortcuts:
+    "Ceph Health":
+      key: "h"
+      read_only: true
+      helptext: "Show Ceph health"
+      widget: "windowwidget"
+      widget_args:
+        title: "Ceph Health:"
+        headers: ["Metric:", "Severity:", "Message:"]
+        itemgetter: "get_dict_list"
+        itemgetter_args:
+          path: "status#ceph#details"
+          fields:
+            - "key"
+            - "value#severity"
+            - "value#message"
     "Storage Devices":
       key: "d"
       modifier: "shift"

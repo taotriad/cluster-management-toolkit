@@ -106,6 +106,9 @@ N/A
 * `json()` now retains formatting even when the message is folded.
 * Fixed a bug in `logparser.py` that caused the `iptables` parser-rule to miss out
   on the name of the program being executed.
+* Add a generator for `address_with_port`; it should only ever be used on addresses
+  that actually provide a port, because IPv6-addresses can end in `:<digits>` just like
+  an address with port does, so there's room for misrendering.
 * Fixed a bug in `logparser.py` that would lose parts of the message when folding key/value messages
   using the `key_value()` parser-rule.
 * `expand_events()` now retain formatting even when the message is folded.

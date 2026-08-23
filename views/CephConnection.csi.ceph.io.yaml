@@ -18,7 +18,7 @@ listview:
       path: "spec#monitors"
       default: ["<none>"]
       type: "raw"
-      formatter: "address"
+      formatter: "address_with_port"
 infoview:
   name: "Ceph Connection Info"
   infopad:
@@ -28,7 +28,8 @@ infoview:
     rows:
       monitors:
         header: [["Monitors:", ["main", "infoheader"]]]
-        path: "spec#monitors"
+        paths:
+          - path: "spec#monitors"
         default: ["<none>"]
         type: "raw"
-        formatter: "address"
+        formatter: "address_with_port"

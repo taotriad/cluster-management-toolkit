@@ -10,7 +10,7 @@ listview:
   group: "Storage & Backups"
   field_indexes:
     Normal:
-      fields: ["namespace", "name", "failure_domain", "phase", "age"]
+      fields: ["namespace", "name", "failure_domain", "type", "phase", "age"]
       sortcolumn: "namespace"
   fields:
     failure_domain:
@@ -63,14 +63,23 @@ listview:
               field_colors:
                 - context: "main"
                   type: "status_done"
+    type:
+      header: "Type:"
+      path: "status#info#type"
+      default: "<unset>"
+      type: "str"
 infoview:
   name: "Ceph Block Pool Info"
   infopad:
     row_indexes:
       Normal:
-        fields: [
-                 "phase"]
+        fields: ["failure_domain", "type", "phase"]
     rows:
+      failure_domain:
+        header: [["Failure Domain:", ["main", "infoheader"]]]
+        path: "spec#failureDomain"
+        default: "<unset>"
+        type: "str"
       phase:
         header: [["Phase:", ["main", "infoheader"]]]
         path: "status#phase"
@@ -116,3 +125,8 @@ infoview:
                 field_colors:
                   - context: "main"
                     type: "status_done"
+      type:
+        header: [["Type:", ["main", "infoheader"]]]
+        path: "status#info#type"
+        default: "<unset>"
+        type: "str"

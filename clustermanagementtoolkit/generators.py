@@ -488,6 +488,74 @@ def align_and_pad(array: list[ThemeRef | ThemeStr], fieldlen: int,
     return tmp_array
 
 
+def format_address_with_port(items: str | list[str],
+                             selected: bool, **kwargs: Any) -> list[ThemeRef | ThemeStr]:
+    """
+    Given a list of strings, return them formatted as addresses with ports;
+    this has to be kept separate from address since IPv6-address can be of the form
+    <...>:<digit> which would be mistaken for <address>:<port>.
+
+        Parameters:
+            items (str|[str]): The strings to format
+            selected (bool): Should the strings be treated as selected?
+            **kwargs (dict[str, Any]): Keyword arguments
+                formatting (FormattingType): Formatting for the data
+        Returns:
+            ([ThemeRef | ThemeStr]): A formatted string
+    """
+    formatting: FormattingType = deep_get(kwargs, DictPath("formatting"), {})
+
+    if isinstance(items, (str, tuple)):
+        items = [items]
+
+    item_separator = deep_get(formatting, DictPath("item_separator"),
+                              ThemeRef("separators", "list", selected))
+
+    separator_lookup = {}
+
+    separators = [ThemeRef("separators", "ipv4address", selected),
+                  ThemeRef("separators", "ipv6address", selected)]
+
+    for separator in separators:
+        separator_lookup[str(separator)] = separator
+
+    array: list[ThemeRef | ThemeStr] = []
+
+    for item in items:
+        try:
+            address, port = item.rsplit(":", maxsplit=1)
+        except ValueError:
+            address = item
+            port = ""
+
+        _vlist: list[ThemeRef | ThemeStr] = []
+        tmp = ""
+        for ch in address:
+            if ch in separator_lookup:
+                _vlist.append(ThemeStr(tmp, ThemeAttr("types", "address"), selected))
+                _vlist.append(separator_lookup[ch])
+                tmp = ""
+            else:
+                tmp += ch
+
+        if tmp:
+            _vlist.append(ThemeStr(tmp, ThemeAttr("types", "address"), selected))
+        if port:
+            _vlist.append(ThemeRef("separators", "port", selected))
+            _vlist.append(ThemeStr(port, ThemeAttr("types", "port"), selected))
+        if array:
+            item_separator.selected = selected
+            array.append(item_separator)
+        array += _vlist
+
+    if not array:
+        array = [
+            ThemeStr("", ThemeAttr("types", "generic"), selected)
+        ]
+
+    return array
+
+
 # pylint: disable-next=too-many-branches
 def format_address(items: str | list[str],
                    selected: bool, **kwargs: Any) -> list[ThemeRef | ThemeStr]:
@@ -806,6 +874,34 @@ def generator_address(obj: dict, field: str, fieldlen: int, pad: bool,
         return format_list([items], fieldlen, pad, ralign=ralign, selected=selected)
 
     array = format_address(items, selected, formatting=formatting)
+
+    return align_and_pad(array, fieldlen=fieldlen, pad=pad, ralign=ralign, selected=selected)
+
+
+# pylint: disable-next=too-many-arguments,too-many-positional-arguments
+def generator_address_with_port(obj: dict, field: str, fieldlen: int, pad: bool,
+                                ralign: bool, selected: bool,
+                                **formatting: FormattingType) -> list[ThemeRef | ThemeStr]:
+    """
+    A generator for IP-addresses with port.
+
+        Parameters:
+            obj (dict): The object to get data from
+            field (str): The field in the object to get data from
+            fieldlen (int): The length of the field
+            pad (bool): Pad the string?
+            ralign (bool): Should the text be right-aligned?
+            selected (bool): Should the generated field be selected?
+            **formatting (dict): Formatting for the data
+        Returns:
+            ([ThemeRef | ThemeStr]): A formatted string
+    """
+    items = deep_get(obj, DictPath(field), [])
+
+    if isinstance(items, str) and items in ("<unset>", "<none>"):
+        return format_list([items], fieldlen, pad, ralign=ralign, selected=selected)
+
+    array = format_address_with_port(items, selected, formatting=formatting)
 
     return align_and_pad(array, fieldlen=fieldlen, pad=pad, ralign=ralign, selected=selected)
 
@@ -1764,6 +1860,11 @@ formatter_to_generator_and_processor: dict[str, dict[str, Any]] = {
         "processor": processor_list,
         "field_separators_default": [],
     },
+    "address_with_port": {
+        "generator": generator_address_with_port,
+        "processor": processor_list,
+        "field_separators_default": [],
+    },
     "age": {
         "generator": generator_age,
         "processor": processor_age,
@@ -2079,6 +2180,7 @@ def fieldgenerator(view: str | tuple[str, str], selected_namespace: str = "",
 # Formatters acceptable for use with list fields
 field_formatter_allowlist: dict[str, Callable] = {
     "address": format_address,
+    "address_with_port": format_address_with_port,
     "numerical_with_units": format_numerical_with_units,
     "uri": format_uri,
     "version": format_version,

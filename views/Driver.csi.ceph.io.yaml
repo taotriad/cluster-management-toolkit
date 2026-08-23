@@ -33,7 +33,8 @@ infoview:
   infopad:
     row_indexes:
       Normal:
-        fields: ["fs_client_type", "fs_group_policy"]
+        fields: ["fs_client_type", "fs_group_policy",
+                 "node_plugin_header", "node_plugin_update_strategy"]
     rows:
       fs_client_type:
         header: [["CephFS Client Type:", ["main", "infoheader"]]]
@@ -45,3 +46,46 @@ infoview:
         path: "spec#fsGroupPolicy"
         default: "<unset>"
         type: "str"
+      node_plugin_header:
+        header: [["Node Plugin:", ["main", "infoheader"]]]
+      node_plugin_update_strategy:
+        header: [["  Update Strategy:", ["main", "infoheader"]]]
+        paths:
+          - path: [["spec#nodePlugin#updateStrategy#type"],
+                   " (", "Max Surge: ",
+                   ["spec#nodePlugin#updateStrategy#rollingUpdate#maxSurge"],
+                   "Max Unavailable: ",
+                   # yamllint disable-line rule:line-length
+                   ["spec#nodePlugin#updateStrategy#rollingUpdate#maxUnavailable"], ")"]
+            pathtype: "tuple"
+            when:
+              - key: "spec#nodePlugin#updateStrategy#type"
+                eq: "RollingUpdate"
+            default: ["", "", "", "<unset>", "", "<unset>", ""]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "generic"
+            - type: "generic"
+            - context: "main"
+              type: "infoheader"
+            - type: "numerical"
+            - context: "main"
+              type: "infoheader"
+            - type: "numerical"
+            - type: "generic"
+          field_separators:
+            - type: "no_pad"
+            - type: "no_pad"
+            - type: "no_pad"
+            - type: "list"
+            - type: "no_pad"
+            - type: "no_pad"
+          field_formatters:
+            - ""
+            - ""
+            - ""
+            - "numerical_with_units"
+            - ""
+            - "numerical_with_units"
+            - ""

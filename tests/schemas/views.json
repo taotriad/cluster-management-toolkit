@@ -294,6 +294,7 @@
                 "enum": [
                     "",
                     "address",
+                    "address_with_port",
                     "numerical_with_units",
                     "uri",
                     "version"
@@ -328,6 +329,7 @@
             "description": "Function to use to format the text before viewing it",
             "enum": [
                 "address",
+                "address_with_port",
                 "age",
                 "float",
                 "hex",
