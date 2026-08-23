@@ -31,8 +31,7 @@ infoview:
                  "cephfs_ceph_csi_secrets_controller_publish_secret",
                  "rbd_header",
                  "rbd_ceph_csi_secrets_header",
-                 "rbd_ceph_csi_secrets_controller_publish_secret",
-                 ]
+                 "rbd_ceph_csi_secrets_controller_publish_secret"]
     rows:
       connection:
         header: [["C", ["main", "infoheader"]],
@@ -50,6 +49,7 @@ infoview:
                  ["S", ["main", "infoheader_shortcut"]],
                  ["ecret:", ["main", "infoheader"]]]
         paths:
+          # yamllint disable-line rule:line-length
           - path: [["spec#cephFs#cephCsiSecrets#controllerPublishSecret#namespace"],
                    ["spec#cephFs#cephCsiSecrets#controllerPublishSecret#name"]]
             pathtype: "tuple"
@@ -70,6 +70,7 @@ infoview:
                  ["P", ["main", "infoheader_shortcut"]],
                  ["ublish Secret:", ["main", "infoheader"]]]
         paths:
+          # yamllint disable-line rule:line-length
           - path: [["spec#rbd#cephCsiSecrets#controllerPublishSecret#namespace"],
                    ["spec#rbd#cephCsiSecrets#controllerPublishSecret#name"]]
             pathtype: "tuple"
@@ -104,6 +105,7 @@ infoview:
       action_args:
         _pass_obj: true
         kind: "Secret"
+        # yamllint disable-line rule:line-length
         namespace_path: "spec#cephFs#cephCsiSecrets#controllerPublishSecret#namespace"
         name_path: "spec#cephFs#cephCsiSecrets#controllerPublishSecret#name"
     "Open RBD Controller Publish Secret":
@@ -116,5 +118,6 @@ infoview:
       action_args:
         _pass_obj: true
         kind: "Secret"
+        # yamllint disable-line rule:line-length
         namespace_path: "spec#rbd#cephCsiSecrets#controllerPublishSecret#namespace"
         name_path: "spec#rbd#cephCsiSecrets#controllerPublishSecret#name"

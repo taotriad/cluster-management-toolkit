@@ -19,8 +19,6 @@
           - matchtype: "exact"
             matchkey: "}"
             format_block_end: true
-        severity:
-          default: "info"
     - name: "override_severity"
       options:
         severity:
