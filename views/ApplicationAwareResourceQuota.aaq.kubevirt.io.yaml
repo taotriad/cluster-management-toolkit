@@ -29,10 +29,12 @@ listview:
       formatting:
         field_colors:
           - type: "key"
-          # Ideally we'd use numerical_with_units
           - type: "numerical"
         field_separators:
           - type: "keyvalue"
+        field_formatters:
+          - ""
+          - "numerical_with_units"
     request:
       header: "Request:"
       paths:
@@ -44,10 +46,12 @@ listview:
       formatting:
         field_colors:
           - type: "key"
-          # Ideally we'd use numerical_with_units
           - type: "numerical"
         field_separators:
           - type: "keyvalue"
+        field_formatters:
+          - ""
+          - "numerical_with_units"
 infoview:
   name: "Application Aware Resource Quota Info"
   infopad:

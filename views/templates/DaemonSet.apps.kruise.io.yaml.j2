@@ -339,11 +339,9 @@ infoview:
             - type: "generic"
             - context: "main"
               type: "infoheader"
-            # Ideally we want to achieve numerical with unit here
             - type: "numerical"
             - context: "main"
               type: "infoheader"
-            # Ideally we want to achieve numerical with unit here
             - type: "numerical"
             - context: "main"
               type: "infoheader"
@@ -365,6 +363,20 @@ infoview:
             - type: "list"
             - type: "no_pad"
             - type: "no_pad"
+          field_formatters:
+            - ""
+            - ""
+            - ""
+            - ""
+            - ""
+            - "numerical_with_units"
+            - ""
+            - "numerical_with_units"
+            - ""
+            - ""
+            - ""
+            - ""
+            - ""
   {%- for line in listpad_pod_spec_selector_matchlabels.split("\n") %}
   {{ line }}
   {%- endfor %}

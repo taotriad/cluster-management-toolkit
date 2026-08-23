@@ -184,7 +184,6 @@ infoview:
             - type: "generic"
             - context: "main"
               type: "infoheader"
-            # Ideally we want to achieve numerical with unit here
             - type: "numerical"
             - type: "generic"
           field_separators:
@@ -192,6 +191,12 @@ infoview:
             - type: "no_pad"
             - type: "no_pad"
             - type: "no_pad"
+          field_formatters:
+            - ""
+            - ""
+            - ""
+            - "numerical_with_units"
+            - ""
       selector:
         header: [["Selector:", ["main", "infoheader"]]]
         path: "status#selector"
