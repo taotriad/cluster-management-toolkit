@@ -2542,6 +2542,33 @@ class ThemeArrayFormatter(Formatter):
             self.buffer.append(line)
 
 
+def apply_focus_filter(obj: dict, **kwargs: Any) -> dict:
+    """
+    Given a dict and a focus filter, return the data with the filtered paths pruned.
+
+        Parameters:
+            obj (dict): The data to filter
+            **kwargs (dict[str, Any]): Keyword arguments
+                focus_mode (str): Disabled: No filtering
+                                  <key>,...: Name of other filters
+                focus_filters (dict[str, str|[str]]): A dict of a list of key or path + key
+    """
+    focus_mode: str = deep_get(kwargs, DictPath("focus_mode"), "Disabled")
+    focus_filters: list[dict[str, list[str]]] = deep_get(kwargs, DictPath("focus_filters"), {})
+
+    if not focus_mode or focus_mode not in focus_filters:
+        return obj
+
+    for focus_filter in deep_get(focus_filters, DictPath(focus_mode), []):
+        if isinstance(focus_filter, list):
+            path, key = focus_filter
+            deep_pop(obj, DictPath(path), key, None)
+        else:
+            obj.pop(focus_filter, None)
+
+    return obj
+
+
 # pylint: disable-next=too-many-branches
 def format_yaml(lines: str | list[str] | dict | list[dict], **kwargs: Any) -> \
         list[list[ThemeRef | ThemeStr]]:
@@ -2562,9 +2589,12 @@ def format_yaml(lines: str | list[str] | dict | list[dict], **kwargs: Any) -> \
     unfold_msg: bool = deep_get(kwargs, DictPath("unfold_msg"), False)
     yaml.add_representer(str, __str_representer)
 
+    if not lines:
+        return []
+
     new_lines = copy.deepcopy(lines)
 
-    if isinstance(new_lines, list) and new_lines and isinstance(new_lines[0], str):
+    if isinstance(new_lines, list) and isinstance(new_lines[0], str):
         new_lines = "\n".join(new_lines)
 
     if isinstance(new_lines, str):
@@ -2577,41 +2607,56 @@ def format_yaml(lines: str | list[str] | dict | list[dict], **kwargs: Any) -> \
                 # may result in the file being reformatted. This isn't ideal,
                 # but it's the only reliable way to be able to expand a JSON/YAML structure.
                 d = yaml.safe_load(new_lines)
+                d = apply_focus_filter(d, **kwargs)
                 new_lines = json_dumps(d)
             except (ValueError, json.decoder.JSONDecodeError):
                 pass
     elif isinstance(new_lines, dict):
         new_lines = copy.deepcopy(new_lines)
-
-        focus_mode: str = deep_get(kwargs, DictPath("focus_mode"), "Disabled")
-        focus_filters: list[dict[str, list[str]]] = deep_get(kwargs, DictPath("focus_filters"), {})
-
-        for focus_filter in deep_get(focus_filters, DictPath(focus_mode), []):
-            if isinstance(focus_filter, list):
-                path, key = focus_filter
-                deep_pop(new_lines, DictPath(path), key, None)
-            else:
-                new_lines.pop(focus_filter, None)
+        new_lines = apply_focus_filter(new_lines, **kwargs)
 
         if is_json:
             new_lines = json_dumps(new_lines)
         else:
             new_lines = yaml.dump(new_lines, sort_keys=False)
-    elif isinstance(new_lines, list) and new_lines:
+    elif isinstance(new_lines, list):
+        # We've already checked; we know that new_lines has data,
+        # hence we can safely check the first element of the data.
         if isinstance(new_lines[0], dict):
             # When we get multiple objects it's because they're intended to be flattened
             # into the same logpad.
             lline = []
             for d in new_lines:
+                d = apply_focus_filter(d, **kwargs)
                 if is_json:
                     lline.append(json_dumps(d))
                 else:
                     lline.append(yaml.dump(d, sort_keys=False))
             new_lines = "\n".join(lline)
-        elif isinstance(new_lines[0], str) and "\n" in new_lines[0]:
-            new_lines = "\n".join(new_lines)
+        else:
+            errmsg = [
+                [("Cannot handle input “", "default"),
+                 (f"{new_lines}", "argument"),
+                 ("“.", "default")],
+            ]
+            unformatted_msg, formatted_msg = ANSIThemeStr.format_error_msg(errmsg)
+            cmtlog.log(LogLevel.ERR, msg=unformatted_msg, messages=formatted_msg)
+            return [[ThemeStr("format_yaml()", ThemeAttr("types", "python_function")),
+                     ThemeStr(": Cannot handle input “", ThemeAttr("types", "generic")),
+                     ThemeStr(f"{new_lines}", ThemeAttr("main", "highlight")),
+                     ThemeStr("“.", ThemeAttr("types", "generic"))]]
     else:
-        new_lines = "\n".join(cast(list[str], new_lines))
+        errmsg = [
+            [("Cannot handle input “", "default"),
+             (f"{new_lines}", "argument"),
+             ("“.", "default")],
+        ]
+        unformatted_msg, formatted_msg = ANSIThemeStr.format_error_msg(errmsg)
+        cmtlog.log(LogLevel.ERR, msg=unformatted_msg, messages=formatted_msg)
+        return [[ThemeStr("format_yaml()", ThemeAttr("types", "python_function")),
+                 ThemeStr(": Cannot handle input “", ThemeAttr("types", "generic")),
+                 ThemeStr(f"{new_lines}", ThemeAttr("main", "highlight")),
+                 ThemeStr("“.", ThemeAttr("types", "generic"))]]
 
     if deep_get(kwargs, DictPath("raw"), False):
         return format_none(new_lines)
