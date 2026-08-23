@@ -10,10 +10,10 @@ Structured log module for CMT.
 """
 
 from datetime import datetime
+import inspect
 import logging
 import logging.handlers
 import os
-import sys
 from typing import Any, cast
 from collections.abc import Callable
 
@@ -68,7 +68,7 @@ def set_logger(name: str, loglevel: LogLevel) -> None:
                           '"timestamp": "%(timestamp)s", "severity": "%(levelname)s", '
                           '"facility": "%(name)s", "message": "%(message)s", '
                           '"file": "%(file)s", "function": "%(function)s", '
-                          '"lineno": "%(lineno)s", "ppid": "%(process)s", %(messages)s'
+                          '"lineno": "%(linenr)s", "ppid": "%(process)s", %(messages)s'
                           '}')
     handler = \
         logging.handlers.RotatingFileHandler(cmtpaths.CMT_LOGS_DIR.joinpath(f"{name}.log.yaml"),
@@ -139,19 +139,18 @@ def log(loglevel: LogLevel, **kwargs: Any) -> None:
             msg = messages[0]
     messages_joined = log_array_to_string(messages)
     timestamp = f"{datetime.now().astimezone():%Y-%m-%d %H:%M:%S%z}"
-    try:
-        # This is to get the necessary stack info
-        raise UserWarning
-    except UserWarning:
-        frame = sys.exc_info()[2].tb_frame.f_back  # type: ignore
-        file = str(frame.f_code.co_filename)  # type: ignore
-        function = str(frame.f_code.co_name)  # type: ignore
+
+    frame = inspect.currentframe()
+    file = str(frame.f_code.co_filename)    # type: ignore[union-attr]
+    function = str(frame.f_back.f_code.co_name)    # type: ignore[union-attr]
+    lineno = frame.f_back.f_lineno    # type: ignore[union-attr]
 
     extra = {
         "messages": messages_joined,
         "timestamp": timestamp,
-        "function": function,  # pylint: disable=used-before-assignment
-        "file": f"{os.path.basename(file)}",  # pylint: disable=used-before-assignment
+        "function": function,
+        "file": f"{os.path.basename(file)}",
+        "linenr": lineno,
     }
     __loglevel_to_logger(loglevel)(msg, extra=extra)
 

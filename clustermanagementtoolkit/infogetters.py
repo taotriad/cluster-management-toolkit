@@ -27,7 +27,7 @@ except ModuleNotFoundError:  # pragma: no cover
              "you may need to (re-)run `cmt-install.py` or `pip3 install natsort`; aborting.")
 
 try:
-    import ruyaml  # type: ignore[import-not-found]
+    import ruyaml  # type: ignore[import-not-found,unused-ignore]
     ryaml = ruyaml.YAML()
     sryaml = ruyaml.YAML(typ="safe")
 except ModuleNotFoundError:  # pragma: no cover
@@ -2713,7 +2713,7 @@ def logpad_formatted(obj: dict, **kwargs: Any) -> list[list[ThemeRef | ThemeStr]
 
 # pylint: disable-next=too-many-locals,too-many-branches,too-many-statements
 def get_cmt_log(obj: dict, **kwargs: Any) -> \
-        tuple[list[datetime], list[str | tuple[str, str]], list[LogLevel],
+        tuple[list[datetime], list[str | tuple[list[ThemeRef | ThemeStr], str]], list[LogLevel],
               list[list[ThemeRef | ThemeStr] | str]]:
     """
     Extract log entries from CMT log.
@@ -2735,7 +2735,7 @@ def get_cmt_log(obj: dict, **kwargs: Any) -> \
     filepath = deep_get(obj, DictPath("filepath"), "")
     severity_prefixes = deep_get(kwargs, DictPath("severity_prefixes"), False)
     timestamps: list[datetime] = []
-    facilities: list[str | tuple[str, str]] = []
+    facilities: list[tuple[list[ThemeRef | ThemeStr], str] | str] = []
     severities: list[LogLevel] = []
     messages: list[list[ThemeRef | ThemeStr] | str] = []
 
@@ -2757,12 +2757,18 @@ def get_cmt_log(obj: dict, **kwargs: Any) -> \
         timestamp = deep_get(message, DictPath("timestamp"), "")
         severitystr = deep_get(message, DictPath("severity"), "")
         severity = name_to_loglevel(severitystr)
-        facility = deep_get(message, DictPath("facility"), "")
+        facility = deep_get(message, DictPath("facility"), "<unknown>")
         file = deep_get(message, DictPath("file"), "")
         function = deep_get(message, DictPath("function"), "")
         lineno = deep_get(message, DictPath("lineno"), "")
 
-        facilitystr = f"{file}:{lineno} [{function}()]"
+        facilityarray: list[ThemeRef | ThemeStr] = [
+            ThemeStr(f"{file}", ThemeAttr("types", "path")),
+            ThemeStr(":", ThemeAttr("types", "separator")),
+            ThemeStr(f"{lineno}", ThemeAttr("types", "lineno")),
+            ThemeStr("|", ThemeAttr("types", "separator")),
+            ThemeStr(f"{function}()", ThemeAttr("types", "python_function")),
+        ]
 
         themestrings = True
         msgs = deep_get(message, DictPath("themearray"), [])
@@ -2776,17 +2782,14 @@ def get_cmt_log(obj: dict, **kwargs: Any) -> \
         for msg in msgs:
             if first:
                 timestamps.append(d_timestamp.astimezone())
-                if facility:
-                    facilities.append((facilitystr, facility))
-                else:
-                    facilities.append(facilitystr)
+                facilities.append((facilityarray, facility))
                 first = False
             else:
                 timestamps.append(none_timestamp())
-                if facility:
-                    facilities.append(("".ljust(len(facilitystr)), "".ljust(len(facility))))
-                else:
-                    facilities.append("".ljust(len(facilitystr)))
+                facilitypad = "".ljust(themearray_len(facilityarray))
+                facilitypadarray: list[ThemeRef | ThemeStr] = \
+                    [ThemeStr(facilitypad, ThemeAttr("types", "generic"))]
+                facilities.append((facilitypadarray + facilityarray, "".ljust(len(facility))))
             severities.append(severity)
 
             reformatted_msg: list[ThemeRef | ThemeStr] = []
