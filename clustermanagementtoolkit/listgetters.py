@@ -1411,10 +1411,10 @@ def get_pod_resource_list(obj: dict[str, Any], **kwargs: Any) -> tuple[list[dict
             for pdb in vlist_:
                 pdb_name = deep_get(pdb, DictPath("metadata#name"))
                 pdb_namespace = deep_get(pdb, DictPath("metadata#namespace"))
-                pdb_selector = deep_get(pdb, DictPath("spec#selector#matchLabels"))
+                pdb_selector = deep_get(pdb, DictPath("spec#selector#matchLabels"), {})
                 obj_labels = deep_get(obj, DictPath("metadata#labels"), {})
                 # If the selector matches we're happy
-                if pdb_selector.items() & obj_labels.items() != pdb_selector.items():
+                if pdb_selector.items() and obj_labels.items() != pdb_selector.items():
                     continue
                 resource_tuple = ("", "", pdb_name)
                 ref = pdb
