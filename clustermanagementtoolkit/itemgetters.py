@@ -844,8 +844,8 @@ def get_prepopulated_list(obj: dict, **kwargs: Any) -> list[dict]:
             if isinstance(column, list):
                 column = deep_get_with_fallback(obj, column, "")
                 tmp_column: list[str] = []
-                 if not isinstance(column, (list, tuple)):
-                     column = [column]
+                if not isinstance(column, (list, tuple)):
+                    column = [column]
                 for val in column:
                     tmp_column.append(str(val))
                 column = ",".join(tmp_column)
