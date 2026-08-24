@@ -3237,8 +3237,11 @@ def format_key_value(lines: dict[str, Any], **kwargs: Any) -> list[list[ThemeRef
                         format_numerical_with_units(str(value), selected, ftype="numerical",
                                                     non_units=set("0123456789abcdefABCDEF"))
                 case _, "int" | "integer" | "float", _:
-                    formatted_value = \
-                        format_numerical_with_units(value, selected, ftype="numerical")
+                    try:
+                        formatted_value = \
+                            format_numerical_with_units(value, selected, ftype="numerical")
+                    except TypeError:
+                        formatted_value = ThemeStr(f"{value}", ThemeAttr("types", "generic"))
                 case _, _, value if isinstance(value, (float, int)):
                     formatted_value = \
                         format_numerical_with_units(str(value), selected, ftype="numerical")
