@@ -3,7 +3,7 @@ kind: "__ResourceSliceDevice"
 api_family: "resource.k8s.io"
 default_command: "__"
 infoview:
-  name: "Resource Slice Info"
+  name: "Resource Slice Device Info"
   infopad:
     name_path: "name"
     row_indexes:
@@ -11,7 +11,8 @@ infoview:
         fields: ["capacity"]
     rows:
       capacity:
-        header: [["Capacity:", ["main", "infoheader"]]]
+        header: [["C", ["main", "infoheader_shortcut"]],
+                 ["apacity:", ["main", "infoheader"]]]
         paths:
           - path: "capacity"
             pathtype: "key_value"
