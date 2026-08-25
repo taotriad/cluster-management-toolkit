@@ -483,21 +483,30 @@ def get_selector_list(obj: dict, **kwargs: Any) -> list[list[str]]:
             ([[str]]): A list of selector expressions
     """
     path: str = deep_get(kwargs, DictPath("path"))
+    reparent: str = deep_get(kwargs, DictPath("reparent"))
+
     selectors: list[list[str]] = []
 
     tmp: dict | list = deep_get(obj, DictPath(path), {})
     if isinstance(tmp, dict):
-        tmp = [tmp]
+        if reparent:
+            tmp = [
+                {
+                    reparent: tmp,
+                },
+            ]
+        else:
+            tmp = [tmp]
 
     for selector in tmp:
+        if "cel" in selector:
+            selectors.append([make_cel_expression([selector["cel"]])])
         if "matchExpressions" in selector:
             selectors.append([make_set_expression(selector["matchExpressions"])])
         if "matchFields" in selector:
             selectors.append([make_set_expression(selector["matchFields"])])
         if "matchLabels" in selector:
             selectors.append([make_label_selector(selector["matchLabels"])])
-        if "cel" in selector:
-            selectors.append([make_cel_expression([selector["cel"]])])
     return selectors
 
 
