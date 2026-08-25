@@ -1486,7 +1486,7 @@ def reformat_message_remnants(message: str | list[ThemeRef | ThemeStr],
 
 def fold_message_with_remnants(message: str | list[ThemeRef | ThemeStr],
                                remnants: list[tuple[list[ThemeRef | ThemeStr], LogLevel]],
-                               severity: LogLevel) -> list[ThemeRef | ThemeStr]:
+                               severity: LogLevel, pad: bool = False) -> list[ThemeRef | ThemeStr]:
     """
     Given message and remnants, fold the remnants into the message;
     this is only intended to be used with structured formats, such as key=value.
@@ -1495,6 +1495,7 @@ def fold_message_with_remnants(message: str | list[ThemeRef | ThemeStr],
             message (str|ThemeArray): The message to format
             remnants ([(ThemeArray, LogLevel)]): The remnants to merge into the message
             severity (LogLevel): The severity to use for the formatted message
+            pad (bool): Add a space between the message and the remnant.
         Returns:
             (ThemeArray): The folded message
     """
@@ -1510,6 +1511,10 @@ def fold_message_with_remnants(message: str | list[ThemeRef | ThemeStr],
         return message
 
     new_message = message
+
+    if pad:
+        new_message.append(ThemeStr(" ", ThemeAttr("types", "generic"), selected=False))
+
     for line, _severity in remnants:
         new_message += themearray_rstrip(line)
 
@@ -4060,6 +4065,10 @@ def parsing_multiplexer(message: str | list[ThemeRef | ThemeStr],
                             merge_message(_message, remnants=remnants, severity=_severity)
                         severity_name = f"severity_{loglevel_to_name(_severity).lower()}"
                         message = [ThemeStr(parts[0], ThemeAttr("logview", severity_name))]
+                        if fold_msg:
+                            message = fold_message_with_remnants(message, remnants, _severity,
+                                                                 pad=True)
+                            remnants = []
             elif _filter == "json_event":
                 # We do not extract the facility/severity from folded messages,
                 # so just skip if fold_msg == True.
