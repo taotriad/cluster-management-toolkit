@@ -769,6 +769,16 @@ def get_obj(obj: dict, field_dict: dict, field_names: list[str],
                     tmp = deep_get_with_fallback(obj, path, {})
                     vtype, _value = cmtlib.decode_value(tmp)
                     _values.append((vtype, "str"))
+                elif ptype == "obj":
+                    reparent = deep_get(_path, DictPath("reparent"))
+                    if not path:
+                        tmp = obj
+                    else:
+                        tmp = deep_get_with_fallback(obj, path, {})
+                    if reparent:
+                        _values.append(([{reparent: tmp}], "raw"))
+                    else:
+                        _values.append(([tmp], "raw"))
                 elif ptype == "key_value":
                     value = []
                     tmp = deep_get_with_fallback(obj, path, {})
