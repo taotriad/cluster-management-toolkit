@@ -720,13 +720,8 @@ def generate_list_row(uip: UIProps, data: dict, field_dict: dict,
             tagprefix = []
             tagprefixlen = 0
 
-        generator = field_dict[field].get("generator")
-        if generator is None:
+        if (generator := field_dict[field].get("generator")) is None:
             continue
-        if isinstance(generator, str):
-            generator = \
-                deep_get(generators.generator_allowlist,
-                         DictPath(generator), generators.generator_basic)
 
         fieldlen = field_dict[field]["fieldlen"]
         fpad = i < len(field_dict)
@@ -5102,10 +5097,10 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
     uip.init_window(windowheader="Container Info", helptext=helptext)
 
     # For generic information
-    uip.init_infopad(height=7, width=-1, ypos=1, xpos=1)
+    uip.init_infopad(height=8, width=-1, ypos=1, xpos=1)
 
     # For the pod log
-    uip.init_logpad(width=-1, ypos=9, xpos=1)
+    uip.init_logpad(width=-1, ypos=10, xpos=1)
 
     # The statusbars are always located at the top
     # and bottom of the screen and fill the entire width.
@@ -5165,6 +5160,9 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
     # pylint: disable-next=too-many-nested-blocks
     while True:
         if uip.is_update_triggered():
+            podsandnamespace: list[tuple[str, str]] = []
+            namespaces: list[str] = []
+            containersandtype: list[tuple[str, str]] = []
             containerinfolist = []
             # When following the log we update the log continuously, but tail lines is limited to
             # the number of lines that fits on the screen, and cursor movements are disabled; as
@@ -5176,8 +5174,8 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
             if not multilog_containers:
                 pod_info = infogetters.get_pod_info(**{"vlist": [obj]}, kubernetes_helper=kh,
                                                     kh_cache=kh_cache)[0]
-                podname = deep_get(pod_info, DictPath("name"))
-                namespace = deep_get(pod_info, DictPath("namespace"))
+                namespaces = [deep_get(pod_info, DictPath("namespace"))]
+                podsandnamespace = [(namespaces[0], deep_get(pod_info, DictPath("name")))]
                 pod_info_ref = deep_get(pod_info, DictPath("ref"))
                 containername = deep_get(container, DictPath("name"))
 
@@ -5189,6 +5187,7 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                     src_statuses = \
                         deep_get(pod_info_ref, DictPath("status#containerStatuses"), [])
                     container_type = "Container"
+                containersandtype = [(container_type, containername)]
                 container_status = None
                 for container_status in src_statuses:
                     if deep_get(container_status, DictPath("name")) == containername:
@@ -5208,8 +5207,9 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                                               message="Fetching log")
             if not multilog_containers:
                 rawmsg, internal_error = \
-                    get_pod_log_by_name_namespace_container(podname, namespace, containername,
-                                                            tail_lines=tail_lines)
+                    get_pod_log_by_name_namespace_container(podsandnamespace[0][1],
+                                                            podsandnamespace[0][0],
+                                                            containername, tail_lines=tail_lines)
                 splitmsg: Sequence[str | tuple[str, str, str, str,
                                                list[ThemeRef | ThemeStr]]] = split_msg(rawmsg)
             else:
@@ -5218,6 +5218,9 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                 image_id = None
                 for namespace, podname, container_type, \
                         containername, image, image_id in multilog_containers_full:
+                    namespaces.append(namespace)
+                    podsandnamespace.append((namespace, podname))
+                    containersandtype.append((container_type, containername))
                     # Since we might need the containerinfo later to show the container list,
                     # and since we're iterating all the info here anyway, let's populate that
                     # information here instead of iterating the list again elsewhere.
@@ -5357,7 +5360,7 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                                   container_type=container_type, line=i)
                 elif override_parser is not None or _parser is None or parser is None:
                     timestamp_, facility, severity, message, remnants, parser, _parser = \
-                        logparser(pod_name=podname, container_name=containername,
+                        logparser(pod_name=podsandnamespace[0][1], container_name=containername,
                                   image_name=image, message=line, fold_msg=fold_msg,
                                   override_parser=override_parser,
                                   container_type=container_type, line=i)
@@ -5555,6 +5558,70 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
             uip.update_log_info(timestamps, facilities, severities, messages)
             uip.update_window()
 
+            if len(containersandtype) == 1:
+                containersarray: list[ThemeRef | ThemeStr] = [
+                    ThemeStr("C", ThemeAttr("main", "infoheader_shortcut")),
+                    ThemeStr("ontainer: ", ThemeAttr("main", "infoheader")),
+                ]
+            else:
+                containersarray = [
+                    ThemeStr("C", ThemeAttr("main", "infoheader_shortcut")),
+                    ThemeStr("ontainers: ", ThemeAttr("main", "infoheader")),
+                ]
+            containersandtype = list(set(containersandtype))
+            containersarray += \
+                generators.format_list(containersandtype, fieldlen=0, pad=False,
+                                       field_colors=[
+                                           ThemeAttr("types", "kind"),
+                                           ThemeAttr("types", "generic"),
+                                       ],
+                                       field_separators=[
+                                           ThemeRef("separators", "kind"),
+                                       ],
+                                       ellipsise=3)
+            namespaces = list(set(namespaces))
+            if len(namespaces) == 1:
+                namespacesarray: list[ThemeRef | ThemeStr] = [
+                    ThemeStr("N", ThemeAttr("main", "infoheader_shortcut")),
+                    ThemeStr("amespace: ", ThemeAttr("main", "infoheader")),
+                ]
+            else:
+                namespacesarray = [
+                    ThemeStr("N", ThemeAttr("main", "infoheader_shortcut")),
+                    ThemeStr("amespaces: ", ThemeAttr("main", "infoheader")),
+                ]
+            namespacesarray += generators.format_list(namespaces, fieldlen=0,
+                                                       pad=False, ellipsise=6)
+            podsandnamespace = list(set(podsandnamespace))
+            if len(podsandnamespace) == 1:
+                podsarray: list[ThemeRef | ThemeStr] = [
+                    ThemeStr("Po", ThemeAttr("main", "infoheader")),
+                    ThemeStr("d", ThemeAttr("main", "infoheader_shortcut")),
+                    ThemeStr(": ", ThemeAttr("main", "infoheader")),
+                ]
+            else:
+                podsarray = [
+                    ThemeStr("Po", ThemeAttr("main", "infoheader")),
+                    ThemeStr("d", ThemeAttr("main", "infoheader_shortcut")),
+                    ThemeStr("s: ", ThemeAttr("main", "infoheader")),
+                ]
+            if len(namespaces) > 1:
+                podsarray += generators.format_list(podsandnamespace, fieldlen=0, pad=False,
+                                                    field_colors=[
+                                                        ThemeAttr("types", "namespace"),
+                                                        ThemeAttr("types", "generic"),
+                                                    ],
+                                                    field_separators=[
+                                                        ThemeRef("separators", "namespace"),
+                                                    ],
+                                                    ellipsise=3)
+            else:
+                podsarray += generators.format_list([p for ns, p in podsandnamespace], fieldlen=0,
+                                                    pad=False, ellipsise=6)
+            uip.addthemearray(uip.infopad, containersarray, y=0, x=0)
+            uip.addthemearray(uip.infopad, podsarray, y=1, x=0)
+            uip.addthemearray(uip.infopad, namespacesarray, y=2, x=0)
+
             if not multilog_containers:
                 containertypearray = f" [Type: {kind[0]}]"
                 if kind == ("InitContainer", ""):
@@ -5571,11 +5638,6 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
 
                 status, status_group, restarts, status_message, _age = \
                     datagetters.get_container_status(src_statuses, containername)
-                containerarray: list[ThemeRef | ThemeStr] = [
-                    ThemeStr("C", ThemeAttr("main", "infoheader_shortcut")),
-                    ThemeStr("ontainer: ", ThemeAttr("main", "infoheader")),
-                    ThemeStr(f"{containername}{containertypearray}", ThemeAttr("types", "generic"))
-                ]
                 statusarray: list[ThemeRef | ThemeStr] = [
                     ThemeStr("Status: ", ThemeAttr("main", "infoheader")),
                     ThemeStr(f"{status}", color_status_group(status_group))
@@ -5587,10 +5649,6 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                 restartsarray: list[ThemeRef | ThemeStr] = [
                     ThemeStr("Restarts: ", ThemeAttr("main", "infoheader")),
                     ThemeStr(f"{restarts}", ThemeAttr("types", "numerical"))
-                ]
-                podarray: list[ThemeRef | ThemeStr] = [
-                    ThemeStr("Pod: ", ThemeAttr("main", "infoheader")),
-                    ThemeStr(f"{podname}", ThemeAttr("types", "generic")),
                 ]
                 containeridarray: list[ThemeRef | ThemeStr] = [
                     ThemeStr("Container ID: ", ThemeAttr("main", "infoheader")),
@@ -5611,63 +5669,30 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                     ThemeStr("Image ID: ", ThemeAttr("main", "infoheader")),
                     ThemeStr(f"{image_id}", ThemeAttr("types", "generic")),
                 ]
-                uip.addthemearray(uip.infopad, containerarray, y=0, x=0)
-                uip.addthemearray(uip.infopad, statusarray, y=1, x=0)
-                uip.addthemearray(uip.infopad, restartsarray, y=2, x=0)
-                uip.addthemearray(uip.infopad, podarray, y=3, x=0)
-                uip.addthemearray(uip.infopad, containeridarray, y=4, x=0)
-                uip.addthemearray(uip.infopad, imagearray, y=5, x=0)
-                uip.addthemearray(uip.infopad, imageidarray, y=6, x=0)
+                uip.addthemearray(uip.infopad, restartsarray, y=3, x=0)
+                uip.addthemearray(uip.infopad, statusarray, y=4, x=0)
+                uip.addthemearray(uip.infopad, containeridarray, y=5, x=0)
+                uip.addthemearray(uip.infopad, imagearray, y=6, x=0)
+                uip.addthemearray(uip.infopad, imageidarray, y=7, x=0)
             else:
-                if len(multilog_containers) == 1:
-                    containerarray = [
-                        ThemeStr("C", ThemeAttr("main", "infoheader_shortcut")),
-                        ThemeStr("ontainer: ", ThemeAttr("main", "infoheader")),
-                        ThemeStr(f"{container_type}", ThemeAttr("types", "kind")),
-                        ThemeRef("separators", "kind"),
-                        ThemeStr(f"{containername}", ThemeAttr("types", "generic")),
+                    imagearray = [
+                        ThemeStr("Image: ", ThemeAttr("main", "infoheader")),
                     ]
-                    podarray = [
-                        ThemeStr("Pod: ", ThemeAttr("main", "infoheader")),
-                        ThemeStr(f"{podname}", ThemeAttr("types", "generic")),
-                    ]
-                    namespacearray: list[ThemeRef | ThemeStr] = [
-                        ThemeStr("Namespace: ", ThemeAttr("main", "infoheader")),
-                        ThemeStr(f"{namespace}", ThemeAttr("types", "namespace")),
-                    ]
-                    containeridarray = [
+                    tmp_image = image.split(":")
+                    if len(tmp_image) == 2:
+                        imagestr, versionstr = tmp_image
+                        imagearray += [
+                            ThemeStr(f"{imagestr}", ThemeAttr("types", "generic")),
+                            ThemeRef("separators", "version"),
+                        ] + generators.format_version(versionstr, selected=False)
+                    else:
+                        imagearray += [ThemeStr(f"{image}", ThemeAttr("types", "generic"))]
+                    imageidarray = [
                         ThemeStr("Image ID: ", ThemeAttr("main", "infoheader")),
                         ThemeStr(f"{image_id}", ThemeAttr("types", "generic")),
                     ]
-                    uip.addthemearray(uip.infopad, podarray, y=1, x=0)
-                    uip.addthemearray(uip.infopad, namespacearray, y=2, x=0)
-                    uip.addthemearray(uip.infopad, containeridarray, y=3, x=0)
-                else:
-                    containerarray = [
-                        ThemeStr("C", ThemeAttr("main", "infoheader_shortcut")),
-                        ThemeStr("ontainers: ", ThemeAttr("main", "infoheader")),
-                    ]
-                    containerarray += \
-                        generators.format_list(multilog_containers, fieldlen=0, pad=False,
-                                               field_colors=[
-                                                   ThemeAttr("types", "namespace"),
-                                                   ThemeAttr("types", "generic"),
-                                                   ThemeAttr("types", "kind"),
-                                                   ThemeAttr("types", "generic"),
-                                               ],
-                                               field_separators=[
-                                                   ThemeRef("separators", "namespace"),
-                                                   ThemeRef("separators", "container"),
-                                                   ThemeRef("separators", "kind"),
-                                               ],
-                                               ellipsise=3)
-                    if all_same_namespace:
-                        namespacearray = [
-                            ThemeStr("Namespace: ", ThemeAttr("main", "infoheader")),
-                            ThemeStr(f"{namespace}", ThemeAttr("types", "namespace")),
-                        ]
-                        uip.addthemearray(uip.infopad, namespacearray, y=1, x=0)
-                uip.addthemearray(uip.infopad, containerarray, y=0, x=0)
+                    uip.addthemearray(uip.infopad, imagearray, y=3, x=0)
+                    uip.addthemearray(uip.infopad, imageidarray, y=4, x=0)
 
             uip.refresh = True
 
@@ -6027,6 +6052,60 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                     break
             if retval is not None and retval == Retval.RETURNFULL:
                 return retval
+        elif c == ord("d"):
+            retval = None
+            if podsandnamespace and len(podsandnamespace) > 1:
+                pod_list = []
+                for p_ns, p in podsandnamespace:
+                    pod_list.append({
+                        "lineattrs": WidgetLineAttrs.NORMAL,
+                        "columns": [[ThemeStr(p_ns, ThemeAttr("windowwidget", "default"))],
+                                    [ThemeStr(p, ThemeAttr("windowwidget", "default"))]],
+                        "retval": (p_ns, p),
+                    })
+                # List Namespaces (and upon selection open the infopage for the namespace).
+                tmpselection = curses_helper.windowwidget(uip.stdscr, uip.maxy, uip.maxx,
+                                                          uip.maxy // 2, uip.maxx // 2,
+                                                          pod_list, title="Pods", cursor=True)
+                uip.refresh_all()
+                if not tmpselection:
+                    continue
+                p_ns, p = tmpselection
+            else:
+                p_ns, p = podsandnamespace[0]
+
+            retval = resourceinfodispatch_with_lookup(stdscr, name=p, namespace=p_ns,
+                                                      kind=("Pod", ""))
+            if retval is not None and retval == Retval.RETURNFULL:
+                return retval
+            uip.force_update()
+        elif c == ord("N"):
+            retval = None
+            if namespaces and len(namespaces) > 1:
+                namespaces_list = []
+                for ns in namespaces:
+                    namespaces_list.append({
+                        "lineattrs": WidgetLineAttrs.NORMAL,
+                        "columns": [[ThemeStr(ns, ThemeAttr("windowwidget", "default"))]],
+                        "retval": ns,
+                    })
+                # List Namespaces (and upon selection open the infopage for the namespace).
+                tmpselection = curses_helper.windowwidget(uip.stdscr, uip.maxy, uip.maxx,
+                                                          uip.maxy // 2, uip.maxx // 2,
+                                                          namespaces_list,
+                                                          title="Namespaces", cursor=True)
+                uip.refresh_all()
+                if not tmpselection:
+                    continue
+                namespace = tmpselection
+            else:
+                namespace = namespaces[0]
+
+            retval = resourceinfodispatch_with_lookup(stdscr, name=namespace,
+                                                      kind=("Namespace", ""))
+            if retval is not None and retval == Retval.RETURNFULL:
+                return retval
+            uip.force_update()
         elif c == ord("O"):
             option_list = [
                 {
@@ -7384,7 +7463,10 @@ def view_pod_logs(stdscr: curses.window, **kwargs: Any) -> Retval:
         image_id = deep_get(obj, DictPath("ref#image_id"))
         image = deep_get(obj, DictPath("image"))
         if image and isinstance(image, list):
-            image = image[0]
+            if isinstance(image[0], str):
+                image = ":".join(image)
+            else:
+                image = ":".join(image[0])
         if image and isinstance(image, tuple):
             image = image[0]
         if image.startswith("sha256:"):
