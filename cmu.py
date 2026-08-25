@@ -36,7 +36,7 @@ from types import FrameType
 from typing import Any, cast, Sequence
 
 try:
-    import ruyaml  # type: ignore[import-not-found]
+    import ruyaml  # type: ignore[import-not-found,unused-ignore]
     ryaml = ruyaml.YAML()
     sryaml = ruyaml.YAML(typ="safe")
 except ModuleNotFoundError:  # pragma: no cover
@@ -56,7 +56,7 @@ except ModuleNotFoundError:  # pragma: no cover
              "you may need to (re-)run `cmt-install.py` or `pip3 install natsort`; aborting.")
 
 try:
-    import prctl  # type: ignore[import-not-found]
+    import prctl  # type: ignore[import-not-found,unused-ignore]
     prctl.set_name(PurePath(sys.argv[0]).name)  # pylint: disable=no-member,useless-suppression
     prctl.set_proctitle(" ".join(sys.argv))
 except ModuleNotFoundError:  # pragma: no cover
@@ -157,10 +157,9 @@ from clustermanagementtoolkit import listgetters
 from clustermanagementtoolkit import listgetters_async
 
 from clustermanagementtoolkit.logparser import LogparserConfiguration, init_logparser_configuration
-
 from clustermanagementtoolkit.logparser import get_parser_list
-from clustermanagementtoolkit.logparser import logparser, logparser_initialised, init_parser_list
-from clustermanagementtoolkit.logparser import severity_to_string
+from clustermanagementtoolkit.logparser import initialise_logparser, logparser
+from clustermanagementtoolkit.logparser import init_parser_list, severity_to_string
 
 from clustermanagementtoolkit import networkio
 
@@ -5321,7 +5320,7 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
             merged_lines: int = 0
 
             linecount: int = len(splitmsg)
-            linepercent: int = int(linecount * 0.1)
+            linepercent: int = int(linecount * 0.01)
 
             progressbar: curses.window | None = None
             if linecount > 1000:
@@ -5333,11 +5332,16 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
             while i < len(splitmsg):
                 _line = splitmsg[i]
 
-                # We probably need a progress bar once we reach this many lines
-                if linecount > 1000 and (i % linepercent) == 0:
-                    curses_helper.progressbar(progressbar, y=uip.maxy // 2, minx=(uip.minx + 8),
-                                              maxx=(uip.maxx - 8),
-                                              progress=100 - 100 * ((linecount - i) // linecount))
+                # We probably need a progress bar once we reach 500 lines.
+                if linecount > 500 and (i % linepercent) == 0:
+                    try:
+                        progress = (linecount - (linecount - i)) // linepercent
+                        curses_helper.progressbar(progressbar, y=uip.maxy // 2, minx=(uip.minx + 8),
+                                                  maxx=(uip.maxx - 8), progress=progress)
+                    except ZeroDivisionError:
+                        # Somehow a stray zero occurred.
+                        pass
+
                     if progressbar:
                         progressbar.timeout(10)
                         c = progressbar.getch()
@@ -5346,28 +5350,25 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
 
                 if isinstance(_line, tuple):
                     line, podname, containername, image, facility_extended = _line
-                    # We need to identify parser again and again and again for every line
+                    # We need to identify parser again and again and again for every line.
                     _parser = None
                 else:
                     line = _line
                 if internal_error:
-                    timestamp_, facility, severity, message, remnants, parser, _parser = \
-                        logparser(pod_name="internal_error", message=line,
-                                  container_type=container_type, line=i)
+                    parser, _parser = initialise_logparser(pod_name="internal_error",
+                                                           container_type=container_type)
                 elif raw_logs:
-                    timestamp_, facility, severity, message, remnants, parser, _parser = \
-                        logparser(pod_name="raw", message=line,
-                                  container_type=container_type, line=i)
-                elif override_parser is not None or _parser is None or parser is None:
-                    timestamp_, facility, severity, message, remnants, parser, _parser = \
-                        logparser(pod_name=podsandnamespace[0][1], container_name=containername,
-                                  image_name=image, message=line, fold_msg=fold_msg,
-                                  override_parser=override_parser,
-                                  container_type=container_type, line=i)
-                else:
-                    timestamp_, facility, severity, message, remnants = \
-                        logparser_initialised(parser=_parser, message=line,
-                                              fold_msg=fold_msg, line=i)
+                    parser, _parser = initialise_logparser(pod_name="raw",
+                                                           container_type=container_type)
+                elif override_parser or _parser is None or parser is None:
+                    parser, _parser = initialise_logparser(pod_name=podsandnamespace[0][1],
+                                                           container_name=containername,
+                                                           image_name=image,
+                                                           override_parser=override_parser,
+                                                           container_type=container_type)
+
+                timestamp_, facility, severity, message, remnants = \
+                    logparser(parser=_parser, message=line, fold_msg=fold_msg, line=i)
 
                 i += 1
 
