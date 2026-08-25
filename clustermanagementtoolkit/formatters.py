@@ -91,8 +91,7 @@ from clustermanagementtoolkit.curses_helper import themearray_lstrip
 from clustermanagementtoolkit.curses_helper import themearray_compact, themearray_split
 from clustermanagementtoolkit.curses_helper import themearray_flatten, themearray_replace
 
-from clustermanagementtoolkit.generators import format_list, format_numerical_with_units
-from clustermanagementtoolkit.generators import format_timestamp
+from clustermanagementtoolkit import generators
 
 from clustermanagementtoolkit.github_tags import GITHUB_ALERTS, GITHUB_EMOJIS
 
@@ -3221,11 +3220,12 @@ def format_key_value(lines: dict[str, Any], **kwargs: Any) -> list[list[ThemeRef
                         ThemeStr(value, ThemeAttr(context, ftype))
                 case _, "age", _:
                     formatted_value = \
-                        format_numerical_with_units(f"{get_since(value)}", selected, ftype="age")
+                        generators.format_numerical_with_units(f"{get_since(value)}",
+                                                               selected, ftype="age")
                 case _, "timestamp", _:
-                    formatted_value = format_timestamp(value, selected)
+                    formatted_value = generators.format_timestamp(value, selected)
                 case _, _, value if isinstance(value, datetime):
-                    formatted_value = format_timestamp(value, selected)
+                    formatted_value = generators.format_timestamp(value, selected)
                 case _, "bool" | "boolean", _:
                     formatted_value = ThemeStr(f"{value}", ThemeAttr("types", "generic"))
                 case _, _, _ if isinstance(value, bool):
@@ -3234,21 +3234,24 @@ def format_key_value(lines: dict[str, Any], **kwargs: Any) -> list[list[ThemeRef
                     formatted_value = ThemeStr(f"{value}", ThemeAttr("types", "generic"))
                 case _, "hex", _ if isinstance(value, (str, int)):
                     formatted_value = \
-                        format_numerical_with_units(str(value), selected, ftype="numerical",
-                                                    non_units=set("0123456789abcdefABCDEF"))
+                        generators.format_numerical_with_units(str(value), selected,
+                                                               ftype="numerical",
+                                                               non_units=set("0123456789abcdefABCDEF"))  # noqa: E501 pylint: disable=line-too-long
                 case _, "int" | "integer" | "float", _:
                     try:
                         formatted_value = \
-                            format_numerical_with_units(value, selected, ftype="numerical")
+                            generators.format_numerical_with_units(value, selected,
+                                                                   ftype="numerical")
                     except TypeError:
                         formatted_value = ThemeStr(f"{value}", ThemeAttr("types", "generic"))
                 case _, _, value if isinstance(value, (float, int)):
                     formatted_value = \
-                        format_numerical_with_units(str(value), selected, ftype="numerical")
+                        generators.format_numerical_with_units(str(value), selected,
+                                                               ftype="numerical")
                 case _, "list" | "tuple", _:
-                    formatted_value = format_list(list(value), fieldlen=0, pad=False)
+                    formatted_value = generators.format_list(list(value), fieldlen=0, pad=False)
                 case _, _, value if isinstance(value, (list, tuple)):
-                    formatted_value = format_list(list(value), fieldlen=0, pad=False)
+                    formatted_value = generators.format_list(list(value), fieldlen=0, pad=False)
                 case _, _, _:
                     formatted_value = ThemeStr(f"{value}", ThemeAttr("types", "generic"))
 

@@ -201,9 +201,9 @@ infoview:
   infopad:
     row_indexes:
       Normal:
-        fields: ["controller", "label_selector", "set_based_selector",
+        fields: ["controller", "selector",
                  "replicas", "burst_replicas", "update_strategy",
-                 "rolling_update_label_selector"]
+                 "rolling_update_selector"]
     rows:
       burst_replicas:
         header: [["Burst Replicas:", ["main", "infoheader"]]]
@@ -214,21 +214,6 @@ infoview:
       {%- for line in row_controller.split("\n") %}
       {{ line }}
       {%- endfor %}
-      label_selector:
-        header: [["La", ["main", "infoheader"]],
-                 ["b", ["main", "infoheader_shortcut"]],
-                 ["el Selector:", ["main", "infoheader"]]]
-        paths:
-          - path: ["spec#selector#matchLabels"]
-            pathtype: "key_value"
-            default: ["<none>"]
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "key"
-            - type: "value"
-          field_separators:
-            - type: "selector"
       minimum_ready_seconds:
         header: [["Minimum Ready:", ["main", "infoheader"]]]
         path: "spec#minReadySeconds"
@@ -275,34 +260,23 @@ infoview:
             - type: "no_pad"
             - type: "fraction_spaced"
             - type: "no_pad"
-      rolling_update_label_selector:
-        header: [["Rolling Update Label Selector:", ["main", "infoheader"]]]
+      rolling_update_selector:
+        header: [["Rolling Update Selector:", ["main", "infoheader"]]]
         paths:
-          - path: ["spec#updateStrategy#rollingUpdate#selector#matchLabels"]
-            pathtype: "key_value"
-            default: ["<none>"]
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "key"
-            - type: "value"
-          field_separators:
-            - type: "selector"
-      set_based_selector:
-        header: [["Set-based Selector:", ["main", "infoheader"]]]
-        paths:
-          - path: "spec#selector#matchExpressions"
-            pathtype: "match_expression"
+          - path: "spec#updateStrategy#rollingUpdate#selector#matchLabels"
+          - path: "spec#selector"
+            pathtype: "obj"
             default: "<none>"
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "key"
-            - type: "operator"
-            - type: "value"
-          field_separators:
-            - type: "space"
-            - type: "no_pad"
+        formatter: "selector"
+      selector:
+        header: [["Selec", ["main", "infoheader"]],
+                 ["t", ["main", "infoheader_shortcut"]],
+                 ["or:", ["main", "infoheader"]]]
+        paths:
+          - path: "spec#selector"
+            pathtype: "obj"
+            default: "<none>"
+        formatter: "selector"
       update_strategy:
         header: [["Update Strategy:", ["main", "infoheader"]]]
         paths:
@@ -381,17 +355,16 @@ infoview:
   {{ line }}
   {%- endfor %}
   shortcuts:
-    "Label Selector":
-      key: "b"
+    "Selector":
+      key: "t"
       read_only: true
-      helptext: "Show label selector"
+      helptext: "Show selector"
       widget: "windowwidget"
       widget_args:
-        title: "Label Selector:"
-        headers: ["Key:", "Value:"]
-        itemgetter: "get_key_value"
+        title: "Selector:"
+        itemgetter: "get_selector_list"
         itemgetter_args:
-          path: "spec#selector#matchLabels"
+          path: "spec#selector"
     {%- for line in shortcut_controller.split("\n") %}
     {{ line }}
     {%- endfor %}

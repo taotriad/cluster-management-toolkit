@@ -85,8 +85,50 @@
             process_block_end: false
         severity:
           default: "info"
+    - name: "custom_line"
+      options:
+        block_start:
+          - matchtype: "startswith"
+            matchkey: "****************"
+            matchline: "any"
+            format_block_start: true
+        block_end:
+          - matchtype: "endswith"
+            matchkey: "****************"
+            format_block_end: true
+            process_block_end: true
+        severity:
+          default: "info"
     - name: "key_value"
       options:
         version:
           keys:
             - "Version"
+- name: "nvidia"
+  show_in_selector: false
+  matchkeys:
+    - image_name: "/nvidia/dra-driver-nvidia-gpu"
+  parser_rules:
+    - name: "glog"
+    - name: "key_value_with_leading_message"
+    - name: "custom_line"
+      options:
+        block_start:
+          - matchtype: "exact"
+            matchkey: "Flags: (*main.Flags)({"
+            matchline: "any"
+            format_block_start: true
+        block_end:
+          - matchtype: "exact"
+            matchkey: "})"
+            format_block_end: true
+            process_block_end: true
+        severity:
+          default: "info"
+    - name: "override_severity"
+      options:
+        severity:
+          overrides:
+            - matchtype: "startswith"
+              matchkey: "Commit: "
+              loglevel: "notice"

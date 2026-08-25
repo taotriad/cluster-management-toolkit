@@ -48,9 +48,9 @@ infoview:
         header: "Selectors:"
         paths:
           - path: []
-            pathtype: "selectors"
+            pathtype: "obj"
             default: "<none>"
-        type: "str"
+        formatter: "selector"
   shortcuts:
     {%- for line in shortcut_controller.split("\n") %}
     {{ line }}

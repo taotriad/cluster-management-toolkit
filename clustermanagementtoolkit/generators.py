@@ -33,6 +33,8 @@ from clustermanagementtoolkit.cmttypes import StatusGroup, LogLevel, Programming
 
 from clustermanagementtoolkit import datagetters
 
+from clustermanagementtoolkit import formatters
+
 
 class RangeType(TypedDict):
     """
@@ -626,80 +628,6 @@ def format_address(items: str | list[str],
     return array
 
 
-# pylint: disable-next=too-many-branches
-def format_uri(items: str | list[str],
-               selected: bool, **kwargs: Any) -> list[ThemeRef | ThemeStr]:
-    """
-    Given a list of strings, return them formatted as URIs.
-
-        Parameters:
-            items (str|[str]): The strings to format
-            selected (bool): Should the strings be treated as selected?
-            **kwargs (dict[str, Any]): Keyword arguments
-                formatting (FormattingType): Formatting for the data
-        Returns:
-            ([ThemeRef | ThemeStr]): A formatted string
-    """
-    formatting: FormattingType = deep_get(kwargs, DictPath("formatting"), {})
-
-    if isinstance(items, (str, tuple)):
-        items = [items]
-
-    item_separator = deep_get(formatting, DictPath("item_separator"),
-                              ThemeRef("separators", "list", selected))
-
-    array: list[ThemeRef | ThemeStr] = []
-
-    for item in items:
-        # If the object is a tuple we assume it's an URI made up of parts that should be joined.
-        if isinstance(item, tuple):
-            item = "".join(item)
-        _vlist: list[ThemeRef | ThemeStr] = []
-        urisplit = item.split("://", maxsplit=1)
-        if len(urisplit) != 2:
-            # This isn't a properly formatted URI, just add it unformatted.
-            _vlist = [ThemeStr(item, ThemeAttr("types", "generic"), selected)]
-        else:
-            scheme = urisplit[0]
-            rest = urisplit[1]
-
-            # Split the server address from the rest.
-            urisplit = rest.split("/", maxsplit=1)
-            authority = urisplit[0]
-            uripath: list[ThemeRef | ThemeStr] = []
-            if len(urisplit) == 2:
-                # We have a path too; split and rejoin it with formatting.
-                uripathsplit = urisplit[1].split("/")
-                uripath = []
-                for segment in uripathsplit:
-                    if uripath:
-                        uripath += [ThemeRef("separators", "uri_path", selected)]
-                    uripath += [ThemeStr(segment, ThemeAttr("types", "address"), selected)]
-            urisplit = authority.split(":")
-            if len(urisplit) > 2:
-                # This URI is malformed.
-                _vlist = [ThemeStr(item, ThemeAttr("types", "generic"), selected)]
-            else:
-                _vlist = [ThemeStr(scheme, ThemeAttr("types", "protocol"), selected)]
-                _vlist += [ThemeRef("separators", "uri_separator", selected)]
-                _vlist += format_address(authority, selected, formatting=formatting)
-                if uripath:
-                    _vlist += [ThemeRef("separators", "uri_path", selected)]
-                    _vlist += uripath
-
-        if array:
-            item_separator.selected = selected
-            array.append(item_separator)
-        array += _vlist
-
-    if not array:
-        array = [
-            ThemeStr("", ThemeAttr("types", "generic"), selected)
-        ]
-
-    return array
-
-
 # pylint: disable-next=too-many-branches,too-many-statements
 def format_numerical_with_units(string: str,
                                 selected: bool, **kwargs: Any) -> list[ThemeRef | ThemeStr]:
@@ -783,6 +711,184 @@ def format_numerical_with_units(string: str,
                     array.append(ThemeStr(substring, fmt))
                 else:
                     array.append(ThemeStr(substring, fmt, selected))
+
+    if not array:
+        array = [
+            ThemeStr("", ThemeAttr("types", "generic"), selected)
+        ]
+
+    return array
+
+
+# pylint: disable-next=too-many-branches,too-many-locals,too-many-statements
+def format_selector(items: dict | list[dict],
+                    selected: bool, **kwargs: Any) -> list[ThemeRef | ThemeStr]:
+    """
+    Given a list of selectors, return them formatted as selectors.
+
+        Parameters:
+            items (dict|[dict]): The strings to format
+            selected (bool): Should the strings be treated as selected?
+            **kwargs (dict[str, Any]): Keyword arguments
+                formatting (FormattingType): Formatting for the data
+        Returns:
+            ([ThemeRef | ThemeStr]): A formatted string
+    """
+    formatting: FormattingType = deep_get(kwargs, DictPath("formatting"), {})
+
+    if not isinstance(items, (list, tuple)):
+        items = [items]
+
+    item_separator: ThemeRef = deep_get(formatting, DictPath("item_separator"),
+                                        ThemeRef("separators", "list", selected))
+
+    array: list[ThemeRef | ThemeStr] = []
+
+    # pylint: disable-next=too-many-nested-blocks
+    for selectors in items:
+        # The same selector probably shouldn't contain multiple types in one item,
+        # but just in case they do we handle it.
+        for selector_type, selector in selectors.items():
+            _vlist: list[ThemeRef | ThemeStr] = []
+            if selector_type == "cel":
+                tmp = formatters.format_cel(deep_get(selector, DictPath("expression"), ""))
+                if tmp:
+                    if _vlist:
+                        _vlist.append(item_separator)
+                    _vlist += themearray_select(tmp[0], selected=selected, force=True)
+            elif selector_type == "matchExpressions":
+                for expression in selector:
+                    key = deep_get(expression, DictPath("key"), "")
+                    operator = deep_get(expression, DictPath("operator"), "")
+                    values = deep_get(expression, DictPath("values"), "")
+                    if _vlist:
+                        _vlist.append(item_separator)
+                    values_joined: list[ThemeRef | ThemeStr] = []
+                    for value in values:
+                        if values_joined:
+                            values_joined.append(item_separator)
+                        if isinstance(value, (int, float)):
+                            valueattr = ThemeAttr("types", "numerical")
+                        else:
+                            valueattr = ThemeAttr("types", "generic")
+                        if isinstance(value, (int, float)):
+                            values_joined.append(ThemeStr(str(value), valueattr))
+                        else:
+                            values_joined.append(ThemeStr(str(value), valueattr))
+                    if values_joined:
+                        values_joined = [
+                            ThemeRef("separators", "space"),
+                            ThemeRef("separators", "list_start"),
+                        ] + values_joined + [
+                            ThemeRef("separators", "list_end"),
+                        ]
+
+                    _vlist += [
+                        ThemeStr(f"{key}", ThemeAttr("types", "key")),
+                        ThemeRef("separators", "space"),
+                        ThemeStr(f"{operator}", ThemeAttr("types", "operator")),
+                    ]
+                    _vlist += values_joined
+            elif selector_type == "matchFields":
+                raise NotImplementedError("format_selector() does not support matchFields yet")
+            elif selector_type == "matchLabels":
+                for key, value in selector.items():
+                    if _vlist:
+                        _vlist.append(item_separator)
+                    try:
+                        # float() is useful here since it accepts both int and float.
+                        # Should we perhaps format float using numerical with units?
+                        if isinstance(value, (int, float)) or float(value):
+                            valueattr = ThemeAttr("types", "numerical")
+                        else:
+                            valueattr = ThemeAttr("types", "generic")
+                    except ValueError:
+                        valueattr = ThemeAttr("types", "generic")
+
+                    _vlist += [
+                        ThemeStr(f"{key}", valueattr),
+                        ThemeRef("separators", "selector"),
+                        ThemeStr(f"{value}", valueattr),
+                    ]
+
+            if array and _vlist:
+                array.append(item_separator)
+            # This doesn't need to be conditional, since it'll be a no-op if _vlist is empty.
+            array += _vlist
+
+    if not array:
+        array = [
+            ThemeStr("", ThemeAttr("types", "generic"), selected)
+        ]
+
+    return array
+
+
+# pylint: disable-next=too-many-branches
+def format_uri(items: str | list[str],
+               selected: bool, **kwargs: Any) -> list[ThemeRef | ThemeStr]:
+    """
+    Given a list of strings, return them formatted as URIs.
+
+        Parameters:
+            items (str|[str]): The strings to format
+            selected (bool): Should the strings be treated as selected?
+            **kwargs (dict[str, Any]): Keyword arguments
+                formatting (FormattingType): Formatting for the data
+        Returns:
+            ([ThemeRef | ThemeStr]): A formatted string
+    """
+    formatting: FormattingType = deep_get(kwargs, DictPath("formatting"), {})
+
+    if isinstance(items, (str, tuple)):
+        items = [items]
+
+    item_separator = deep_get(formatting, DictPath("item_separator"),
+                              ThemeRef("separators", "list", selected))
+
+    array: list[ThemeRef | ThemeStr] = []
+
+    for item in items:
+        # If the object is a tuple we assume it's an URI made up of parts that should be joined.
+        if isinstance(item, tuple):
+            item = "".join(item)
+        _vlist: list[ThemeRef | ThemeStr] = []
+        urisplit = item.split("://", maxsplit=1)
+        if len(urisplit) != 2:
+            # This isn't a properly formatted URI, just add it unformatted.
+            _vlist = [ThemeStr(item, ThemeAttr("types", "generic"), selected)]
+        else:
+            scheme = urisplit[0]
+            rest = urisplit[1]
+
+            # Split the server address from the rest.
+            urisplit = rest.split("/", maxsplit=1)
+            authority = urisplit[0]
+            uripath: list[ThemeRef | ThemeStr] = []
+            if len(urisplit) == 2:
+                # We have a path too; split and rejoin it with formatting.
+                uripathsplit = urisplit[1].split("/")
+                uripath = []
+                for segment in uripathsplit:
+                    if uripath:
+                        uripath += [ThemeRef("separators", "uri_path", selected)]
+                    uripath += [ThemeStr(segment, ThemeAttr("types", "address"), selected)]
+            urisplit = authority.split(":")
+            if len(urisplit) > 2:
+                # This URI is malformed.
+                _vlist = [ThemeStr(item, ThemeAttr("types", "generic"), selected)]
+            else:
+                _vlist = [ThemeStr(scheme, ThemeAttr("types", "protocol"), selected)]
+                _vlist += [ThemeRef("separators", "uri_separator", selected)]
+                _vlist += format_address(authority, selected, formatting=formatting)
+                if uripath:
+                    _vlist += [ThemeRef("separators", "uri_path", selected)]
+                    _vlist += uripath
+
+        if array:
+            item_separator.selected = selected
+            array.append(item_separator)
+        array += _vlist
 
     if not array:
         array = [
@@ -902,6 +1008,34 @@ def generator_address_with_port(obj: dict, field: str, fieldlen: int, pad: bool,
         return format_list([items], fieldlen, pad, ralign=ralign, selected=selected)
 
     array = format_address_with_port(items, selected, formatting=formatting)
+
+    return align_and_pad(array, fieldlen=fieldlen, pad=pad, ralign=ralign, selected=selected)
+
+
+# pylint: disable-next=too-many-arguments,too-many-positional-arguments
+def generator_selector(obj: dict, field: str, fieldlen: int, pad: bool,
+                       ralign: bool, selected: bool,
+                       **formatting: FormattingType) -> list[ThemeRef | ThemeStr]:
+    """
+    A generator for selectors (cel, matchFields, matchExpressions, matchLabels).
+
+        Parameters:
+            obj (dict): The object to get data from
+            field (str): The field in the object to get data from
+            fieldlen (int): The length of the field
+            pad (bool): Pad the string?
+            ralign (bool): Should the text be right-aligned?
+            selected (bool): Should the generated field be selected?
+            **formatting (dict): Formatting for the data
+        Returns:
+            ([ThemeRef | ThemeStr]): A formatted string
+    """
+    items = deep_get(obj, DictPath(field), [])
+
+    if isinstance(items, str) and items in ("<unset>", "<none>"):
+        return format_list([items], fieldlen, pad, ralign=ralign, selected=selected)
+
+    array = format_selector(items, selected, formatting=formatting)
 
     return align_and_pad(array, fieldlen=fieldlen, pad=pad, ralign=ralign, selected=selected)
 
@@ -1722,6 +1856,21 @@ def processor_list_with_status(obj: dict, field: str, **kwargs: Any) -> str:
     return vstring
 
 
+def processor_selector(obj: dict, field: str) -> str:
+    """
+    A processor for selector; given a value,
+    return the processed string for that value.
+
+        Parameters:
+            obj (dict): The object to get data from
+            field (str): The field in the object to get data from
+        Returns:
+            (str): The processed value
+    """
+    items = deep_get(obj, DictPath(field))
+    return themearray_to_string(format_selector(items, False))
+
+
 def processor_age(obj: dict, field: str) -> str:
     """
     A processor for timestamps in age format; given a value,
@@ -1772,9 +1921,11 @@ def processor_mem(obj: dict, field: str) -> str:
 default_processor: dict[Callable, Callable] = {
     generator_age: processor_age,
     generator_address: processor_list,
+    generator_address_with_port: processor_list,
     generator_list: processor_list,
     generator_list_with_status: processor_list_with_status,
     generator_mem: processor_mem,
+    generator_selector: processor_selector,
     generator_timestamp: processor_timestamp,
 }
 
@@ -1885,6 +2036,15 @@ formatter_to_generator_and_processor: dict[str, dict[str, Any]] = {
         "generator": generator_numerical_with_units,
         "processor": None,
     },
+    "selector": {
+        "generator": generator_selector,
+        "processor": processor_selector,
+        "field_separators_default": [],
+    },
+    "status": {
+        "generator": generator_status,
+        "processor": None,
+    },
     "timestamp": {
         "generator": generator_timestamp,
         "processor": processor_timestamp,
@@ -1928,8 +2088,6 @@ def get_formatter(field: dict) -> dict:
 
     formatter = deep_get(field, DictPath("formatter"))
     generator = deep_get(field, DictPath("generator"), generator_basic)
-    if isinstance(generator, str):
-        generator = deep_get(generator_allowlist, DictPath(generator), generator_basic)
     processor = deep_get(field, DictPath("processor"))
 
     field_separators_default = [ThemeRef("separators", "field")]
@@ -2177,18 +2335,12 @@ def fieldgenerator(view: str | tuple[str, str], selected_namespace: str = "",
     return tmp_fields, field_names, sortcolumn, sortorder_reverse
 
 
-# Formatters acceptable for use with list fields
+# Formatters acceptable for use with list fields.
 field_formatter_allowlist: dict[str, Callable] = {
     "address": format_address,
     "address_with_port": format_address_with_port,
     "numerical_with_units": format_numerical_with_units,
+    "selector": format_selector,
     "uri": format_uri,
     "version": format_version,
-}
-
-
-# Generators acceptable for direct use in view files
-generator_allowlist: dict[str, Callable] = {
-    "generator_mem": generator_mem,
-    "generator_status": generator_status,
 }

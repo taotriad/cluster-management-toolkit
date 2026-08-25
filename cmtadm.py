@@ -3440,7 +3440,7 @@ def __find_requested_version(k8s_distro: str, version: str | None = None) -> str
                     requested_version = package_version
                     break
         else:
-            # If no version was requested, we pick the candidate version
+            # If no version was requested, we pick the candidate version.
             requested_version = versions[0][2]
             if not requested_version:
                 requested_version = versions[0][1]
@@ -3457,19 +3457,19 @@ def __find_requested_version(k8s_distro: str, version: str | None = None) -> str
             return "latest"
 
         # FIXME: we could fetch the channel file from upstream to get the version list,
-        # but for now we just accept any version
+        # but for now we just accept any version.
         if (re_tmp := re.match(r"^v?(\d+\.\d+).*", version)) is not None:
             requested_version = re_tmp[1]
     else:
-        raise ValueError(f"No support for distro {k8s_distro} implemented")
+        raise NotImplementedError(f"No support for distro {k8s_distro} implemented")
 
     if k8s_distro == "kubeadm":
-        # First remove the distro revision
+        # First remove the distro revision.
         major_minor_patchrev = requested_version.split("-")
         # Now split the version tuple
         _major, minor, _patchrev = major_minor_patchrev[0].split(".")
     else:
-        # Split the version tuple
+        # Split the version tuple.
         _major, minor = requested_version.split(".")
         requested_version = f"v{requested_version}"
 

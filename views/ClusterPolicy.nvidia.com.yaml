@@ -51,7 +51,7 @@ infoview:
     row_indexes:
       Normal:
         fields: ["daemon_sets_header", "daemon_sets_label_selector",
-                 "priority_class", "state"]
+                 "priority_class", "enabled_features", "namespace", "state"]
     rows:
       daemon_sets_header:
         header: [["Daemon Sets:", ["main", "infoheader"]]]
@@ -70,6 +70,145 @@ infoview:
             - type: "value"
           field_separators:
             - type: "selector"
+      enabled_features:
+        header: [["Enabled ", ["main", "infoheader"]],
+                 ["F", ["main", "infoheader_shortcut"]],
+                 ["eatures:", ["main", "infoheader"]]]
+        paths:
+          - path: "spec#ccManager"
+            pathtype: "substitution"
+            when:
+              - key: "enabled"
+                eq: true
+            substitute: "Confidential Compute"
+          - path: "spec#cdi"
+            pathtype: "substitution"
+            when:
+              - key: "enabled"
+                eq: true
+            substitute: "CDI"
+          - path: "spec#cdi"
+            pathtype: "substitution"
+            when:
+              - key: "nriPluginEnabled"
+                eq: true
+            substitute: "NRI Plugin"
+          - path: "spec#dcgm"
+            pathtype: "substitution"
+            when:
+              - key: "enabled"
+                eq: true
+            substitute: "Data Center GPU Manager"
+          - path: "spec#dcgmExporter"
+            pathtype: "substitution"
+            when:
+              - key: "enabled"
+                eq: true
+            substitute: "Data Center GPU Manager Exporter"
+          - path: "spec#devicePlugin"
+            pathtype: "substitution"
+            when:
+              - key: "enabled"
+                eq: true
+            substitute: "Device Plugin"
+          - path: "spec#driver"
+            pathtype: "substitution"
+            when:
+              - key: "enabled"
+                eq: true
+            substitute: "Driver"
+          - path: "spec#gdrcopy"
+            pathtype: "substitution"
+            when:
+              - key: "enabled"
+                eq: true
+            substitute: "GPUDirect RDMA Copy"
+          - path: "spec#gds"
+            pathtype: "substitution"
+            when:
+              - key: "enabled"
+                eq: true
+            substitute: "GPUDirect Storage"
+          - path: "spec#gfd"
+            pathtype: "substitution"
+            when:
+              - key: "enabled"
+                eq: true
+            substitute: "GPU Feature Discovery"
+          - path: "spec#kataManager"
+            pathtype: "substitution"
+            when:
+              - key: "enabled"
+                eq: true
+            substitute: "Kata Manager"
+          - path: "spec#kataSandboxDevicePlugin"
+            pathtype: "substitution"
+            when:
+              - key: "enabled"
+                eq: true
+            substitute: "Kata Sandbox Device Plugin"
+          - path: "spec#migManager"
+            pathtype: "substitution"
+            when:
+              - key: "enabled"
+                eq: true
+            substitute: "MIG Manager"
+          - path: "spec#nodeStatusExporter"
+            pathtype: "substitution"
+            when:
+              - key: "enabled"
+                eq: true
+            substitute: "Node Status Exporter"
+          - path: "spec#psa"
+            pathtype: "substitution"
+            when:
+              - key: "enabled"
+                eq: true
+            substitute: "Pod Security Admission"
+          - path: "spec#sandboxDevicePlugin"
+            pathtype: "substitution"
+            when:
+              - key: "enabled"
+                eq: true
+            substitute: "Sandbox Device Plugin"
+          - path: "spec#sandboxWorkloads"
+            pathtype: "substitution"
+            when:
+              - key: "enabled"
+                eq: true
+            substitute: "Sandbox Workloads"
+          - path: "spec#toolkit"
+            pathtype: "substitution"
+            when:
+              - key: "enabled"
+                eq: true
+            substitute: "Toolkit"
+          - path: "spec#vfioManager"
+            pathtype: "substitution"
+            when:
+              - key: "enabled"
+                eq: true
+            substitute: "VFIO Manager"
+          - path: "spec#vgpuDeviceManager"
+            pathtype: "substitution"
+            when:
+              - key: "enabled"
+                eq: true
+            substitute: "vGPU Device Manager"
+          - path: "spec#vgpuManager"
+            pathtype: "substitution"
+            when:
+              - key: "enabled"
+                eq: true
+            substitute: "vGPU Manager"
+        formatter: "list"
+      namespace:
+        header: [["Namespace:", ["main", "infoheader"]]]
+        path: "status#namespace"
+        type: "str"
+        formatting:
+          field_colors:
+            - type: "namespace"
       priority_class:
         header: [["  ", ["main", "infoheader"]],
                  ["P", ["main", "infoheader_shortcut"]],
@@ -108,6 +247,47 @@ infoview:
       path: "spec"
     timestamps: false
   shortcuts:
+    "Enabled Features":
+      key: "f"
+      modifier: "shift"
+      read_only: true
+      helptext: "Show label selector"
+      widget: "windowwidget"
+      widget_args:
+        title: "Enabled Features:"
+        headers: ["Feature:", "Enabled:"]
+        formatting: [["windowwidget", "default"],
+                     ["windowwidget", "highlight"]]
+        itemgetter: "get_prepopulated_list"
+        itemgetter_args:
+          items:
+            - columns: ["Confidential Computer Manager",
+                        ["spec#ccManager#enabled"]]
+            - columns: ["CDI", ["spec#cdi#enabled"]]
+            - columns: ["NRI Plugin", ["spec#cdi#nriPluginEnabled"]]
+            - columns: ["Data Center GPU Manager", ["spec#dcgm#enabled"]]
+            - columns: ["Data Center GPU Manager Exporter",
+                        ["spec#dcgmExporter#enabled"]]
+            - columns: ["Device Plugin", ["spec#devicePlugin#enabled"]]
+            - columns: ["Driver", ["spec#driver#enabled"]]
+            - columns: ["GPUDirect RDMA Copy", ["spec#gdrcopy#enabled"]]
+            - columns: ["GPUDirect Storage", ["spec#gds#enabled"]]
+            - columns: ["GPU Feature Discovery", ["spec#gfd#enabled"]]
+            - columns: ["Kata Manager", ["spec#kataManager#enabled"]]
+            - columns: ["Kata Sandbox Device Plugin",
+                        ["spec#kataSandboxDevicePlugin#enabled"]]
+            - columns: ["MIG Manager", ["spec#migManager#enabled"]]
+            - columns: ["Node Status Exporter",
+                        ["spec#nodeStatusExporter#enabled"]]
+            - columns: ["Pod Security Admission", ["spec#psa#enabled"]]
+            - columns: ["Sandbox Device Plugin",
+                        ["spec#sandboxDevicePlugin#enabled"]]
+            - columns: ["Sandbox Workloads", ["spec#sandboxWorkloads#enabled"]]
+            - columns: ["Toolkit", ["spec#toolkit#enabled"]]
+            - columns: ["VFIO Manager", ["spec#vfioManager#enabled"]]
+            - columns: ["vGPU Device Manager",
+                        ["spec#vgpuDeviceManager#enabled"]]
+            - columns: ["vGPU Manager", ["spec#vgpuManager#enabled"]]
     "Label Selector":
       key: "b"
       read_only: true
@@ -119,6 +299,17 @@ infoview:
         itemgetter: "get_key_value"
         itemgetter_args:
           path: "spec#daemonsets#labels"
+    "Namespace":
+      key: "n"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for Namespace"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind: "Namespace"
+        name_path: "status#namespace"
     "Priority Class":
       key: "p"
       modifier: "shift"

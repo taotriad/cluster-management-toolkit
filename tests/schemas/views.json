@@ -261,10 +261,6 @@
                         "formatting": {
                             "$ref": "#/$defs/formatting"
                         },
-                        "generator": {
-                            "description": "Custom generator to use when formatting the data",
-                            "$ref": "#/$defs/generator_allowlist"
-                        },
                         "header": {
                             "$ref": "#/$defs/header"
                         },
@@ -296,6 +292,7 @@
                     "address",
                     "address_with_port",
                     "numerical_with_units",
+                    "selector",
                     "uri",
                     "version"
                 ]
@@ -340,6 +337,8 @@
                 "mem",
                 "numerical",
                 "reformat_json",
+                "selector",
+                "status",
                 "timestamp",
                 "timestamp_with_age",
                 "uri",
@@ -494,13 +493,6 @@
                 }
             },
             "addititionalProperties": false
-        },
-        "generator_allowlist": {
-            "description": "The permitted values for generator",
-            "enum": [
-                "generator_mem",
-                "generator_status"
-            ]
         },
         "header": {
             "description": "A header to use for fields",
@@ -746,6 +738,10 @@
                     },
                     "regex": {
                         "description": "Regular expression to process data; used when pathtype is regex",
+                        "type": "string"
+                    },
+                    "reparent": {
+                        "description": "If the selector lacks a selector type (matchLabels, matchExpressions, matchFields, cel), add this parent",
                         "type": "string"
                     },
                     "replace_quotes": {
@@ -1008,6 +1004,7 @@
                 "lookup",
                 "match_expression",
                 "milliseconds",
+                "obj",
                 "ranges",
                 "regex",
                 "remap",
@@ -4456,8 +4453,13 @@
                                                                 "properties": {
                                                                     "path": {
                                                                         "$ref": "#/$defs/simple_path"
+                                                                    },
+                                                                    "reparent": {
+                                                                        "description": "If the selector lacks a selector type (matchLabels, matchExpressions, matchFields, cel), add this parent",
+                                                                        "type": "string"
                                                                     }
                                                                 },
+                                                                "required": [ "path" ],
                                                                 "additionalProperties": false
                                                             }
                                                         }

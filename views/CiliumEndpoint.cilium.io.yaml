@@ -14,8 +14,7 @@ listview:
     Wide:
       fields: ["namespace", "name", "endpoint_id", "cilium_identity",
                "ingress_enforcement", "egress_enforcement",
-               "visibility_policy", "endpoint_state",
-               "ipv4", "ipv6", "node", "age"]
+               "endpoint_state", "ipv4", "ipv6", "node", "age"]
       sortcolumn: "namespace"
     Normal:
       fields: ["namespace", "name", "endpoint_state",
@@ -30,9 +29,9 @@ listview:
       align: "right"
     egress_enforcement:
       header: "Egress Enforcement:"
-      paths:
-        - path: "status#policy#egress#enforcing"
-          pathtype: "value"
+      path: "status#policy#ingress#state"
+      default: "<unset>"
+      type: "str"
     endpoint_id:
       header: "Endpoint ID:"
       path: "status#id"
@@ -95,9 +94,9 @@ listview:
                   type: "status_unknown"
     ingress_enforcement:
       header: "Ingress Enforcement:"
-      paths:
-        - path: "status#policy#ingress#enforcing"
-          pathtype: "value"
+      path: "status#policy#ingress#state"
+      default: "<unset>"
+      type: "str"
     ipv4:
       header: "IPv4:"
       paths:
@@ -120,11 +119,6 @@ listview:
         - path: "status#networking#node"
           pathtype: "value"
       formatter: "address"
-    visibility_policy:
-      header: "Visibility Policy:"
-      paths:
-        - path: "status#policy#visibility#enforcing"
-          pathtype: "value"
 infoview:
   name: "Cilium Endpoint Info"
   infopad:
@@ -132,7 +126,7 @@ infoview:
       Normal:
         fields: ["endpoint_id", "cilium_identity", "pod",
                  "ingress_enforcement", "egress_enforcement",
-                 "visibility_policy", "endpoint_state", "ipv4", "ipv6", "node"]
+                 "endpoint_state", "ipv4", "ipv6", "node"]
     rows:
       cilium_identity:
         header: [["C", ["main", "infoheader_shortcut"]],
@@ -142,9 +136,9 @@ infoview:
         formatter: "numerical"
       egress_enforcement:
         header: [["Egress Enforcement:", ["main", "infoheader"]]]
-        paths:
-          - path: "status#policy#egress#enforcing"
-            pathtype: "value"
+        path: "status#policy#egress#state"
+        default: "<unset>"
+        type: "str"
       endpoint_id:
         header: [["Endpoint ID:", ["main", "infoheader"]]]
         path: "status#id"
@@ -206,9 +200,9 @@ infoview:
                     type: "status_unknown"
       ingress_enforcement:
         header: [["Ingress Enforcement:", ["main", "infoheader"]]]
-        paths:
-          - path: "status#policy#ingress#enforcing"
-            pathtype: "value"
+        path: "status#policy#ingress#state"
+        default: "<unset>"
+        type: "str"
       ipv4:
         header: [["IPv4:", ["main", "infoheader"]]]
         paths:
@@ -246,11 +240,6 @@ infoview:
             - type: "generic"
           field_separators:
             - type: "namespace"
-      visibility_policy:
-        header: [["Visibility Policy:", ["main", "infoheader"]]]
-        paths:
-          - path: "status#policy#visibility#enforcing"
-            pathtype: "value"
   shortcuts:
     "Cilium Identity":
       key: "c"

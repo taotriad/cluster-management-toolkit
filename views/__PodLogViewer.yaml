@@ -27,7 +27,7 @@ listview:
       paths:
         - path: "image"
           pathtype: "regex"
-          regex: "^([^:]+):(.*)"
+          regex: "^([^:]+):([^@]*)"
           default: ["<none>"]
       formatter: "list"
       formatting:
@@ -61,7 +61,7 @@ listview:
     status:
       header: "Status:"
       datagetter: "datagetter_container_status"
-      generator: "generator_status"
+      formatter: "status"
     type:
       header: "Type:"
       path: "container_type"

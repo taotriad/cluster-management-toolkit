@@ -1,0 +1,70 @@
+---
+kind: "GPUCluster"
+api_family: "nvidia.com"
+default_command: "gpuclusters"
+command:
+  - "gpuclusters.nvidia"
+  - "gpucluster.nvidia"
+listview:
+  name: "GPU Clusters"
+  group: "Accelerators"
+  field_indexes:
+    Normal:
+      fields: ["name", "state", "age"]
+  fields:
+    state:
+      header: "State:"
+      path: "status#state"
+      type: "str"
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          mappings:
+            ignored:
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+            notReady:
+              field_colors:
+                - context: "main"
+                  type: "status_not_ok"
+            ready:
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+            "<unset>":
+              field_colors:
+                - context: "types"
+                  type: "unset"
+infoview:
+  name: "GPU Cluster Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["state"]
+    rows:
+      state:
+        header: [["State:", ["main", "infoheader"]]]
+        path: "status#state"
+        default: "<unset>"
+        type: "str"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              ignored:
+                field_colors:
+                  - context: "main"
+                    type: "status_ignored"
+              notReady:
+                field_colors:
+                  - context: "main"
+                    type: "status_not_ok"
+              ready:
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+              "<unset>":
+                field_colors:
+                  - context: "types"
+                    type: "unset"

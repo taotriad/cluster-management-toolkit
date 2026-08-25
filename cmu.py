@@ -5623,7 +5623,6 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
             uip.addthemearray(uip.infopad, namespacesarray, y=2, x=0)
 
             if not multilog_containers:
-                containertypearray = f" [Type: {kind[0]}]"
                 if kind == ("InitContainer", ""):
                     src_statuses = deep_get(pod_info_ref, DictPath("status#initContainerStatuses"))
                 else:
@@ -5675,24 +5674,25 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                 uip.addthemearray(uip.infopad, imagearray, y=6, x=0)
                 uip.addthemearray(uip.infopad, imageidarray, y=7, x=0)
             else:
-                    imagearray = [
-                        ThemeStr("Image: ", ThemeAttr("main", "infoheader")),
+                imagearray = [
+                    ThemeStr("Image: ", ThemeAttr("main", "infoheader")),
+                ]
+                tmp_image = image.split(":")
+                if len(tmp_image) == 2:
+                    imagestr, versionstr = tmp_image
+                    imagearray += [
+                        ThemeStr(f"{imagestr}", ThemeAttr("types", "generic")),
+                        ThemeRef("separators", "version"),
                     ]
-                    tmp_image = image.split(":")
-                    if len(tmp_image) == 2:
-                        imagestr, versionstr = tmp_image
-                        imagearray += [
-                            ThemeStr(f"{imagestr}", ThemeAttr("types", "generic")),
-                            ThemeRef("separators", "version"),
-                        ] + generators.format_version(versionstr, selected=False)
-                    else:
-                        imagearray += [ThemeStr(f"{image}", ThemeAttr("types", "generic"))]
-                    imageidarray = [
-                        ThemeStr("Image ID: ", ThemeAttr("main", "infoheader")),
-                        ThemeStr(f"{image_id}", ThemeAttr("types", "generic")),
-                    ]
-                    uip.addthemearray(uip.infopad, imagearray, y=3, x=0)
-                    uip.addthemearray(uip.infopad, imageidarray, y=4, x=0)
+                    imagearray += generators.format_version(versionstr, selected=False)
+                else:
+                    imagearray += [ThemeStr(f"{image}", ThemeAttr("types", "generic"))]
+                imageidarray = [
+                    ThemeStr("Image ID: ", ThemeAttr("main", "infoheader")),
+                    ThemeStr(f"{image_id}", ThemeAttr("types", "generic")),
+                ]
+                uip.addthemearray(uip.infopad, imagearray, y=3, x=0)
+                uip.addthemearray(uip.infopad, imageidarray, y=4, x=0)
 
             uip.refresh = True
 

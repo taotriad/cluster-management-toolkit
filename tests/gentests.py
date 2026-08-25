@@ -2366,37 +2366,6 @@ def test_get_formatter(verbose: bool = False) -> tuple[str, bool]:
             ),
             (
                 {
-                    "generator": "generator_status",
-                },
-                {
-                    "generator": generators.generator_status,
-                    "processor": None,
-                    "field_colors": [ThemeAttr('types', 'field')],
-                    "field_prefixes": [],
-                    "field_suffixes": [],
-                    "field_separators": [ThemeRef('separators', 'field')],
-                    "ellipsise": -1,
-                    "ellipsis": ThemeRef('separators', 'ellipsis'),
-                    'item_separator': ThemeRef('separators', 'list'),
-                    'mapping': {},
-                    'field_formatters': [],
-                    'formatting': {
-                        'item_separator': ThemeRef('separators', 'list'),
-                        'field_separators': [ThemeRef('separators', 'field')],
-                        'field_colors': [ThemeAttr('types', 'field')],
-                        'ellipsise': -1,
-                        'ellipsis': ThemeRef('separators', 'ellipsis'),
-                        'field_prefixes': [],
-                        'field_suffixes': [],
-                        'mapping': {},
-                        'field_formatters': [],
-                        'unit': '',
-                    }
-                },
-                None,
-            ),
-            (
-                {
                     "formatter": "address",
                 },
                 {

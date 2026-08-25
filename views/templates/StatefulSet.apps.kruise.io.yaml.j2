@@ -159,16 +159,10 @@ infoview:
                  ["b", ["main", "infoheader_shortcut"]],
                  ["el Selector:", ["main", "infoheader"]]]
         paths:
-          - path: ["spec#selector#matchLabels"]
-            pathtype: "key_value"
-            default: ["<none>"]
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "key"
-            - type: "value"
-          field_separators:
-            - type: "selector"
+          - path: "spec#selector"
+            pathtype: "obj"
+            default: "<none>"
+        formatter: "selector"
       pod_management_policy:
         header: [["Pod Management Policy:", ["main", "infoheader"]]]
         path: "spec#podManagementPolicy"

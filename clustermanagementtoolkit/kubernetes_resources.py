@@ -1771,11 +1771,13 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
     },
     # apps.kruise.io
     ("AdvancedCronJob", "apps.kruise.io"): {
-        "api_paths": ["apis/apps.kruise.io/v1alpha1/"],
+        "api_paths": ["apis/apps.kruise.io/v1beta1/",
+                      "apis/apps.kruise.io/v1alpha1/"],
         "api": "advancedcronjobs",
     },
     ("BroadcastJob", "apps.kruise.io"): {
-        "api_paths": ["apis/apps.kruise.io/v1alpha1/"],
+        "api_paths": ["apis/apps.kruise.io/v1beta1/",
+                      "apis/apps.kruise.io/v1alpha1/"],
         "api": "broadcastjobs",
     },
     ("CloneSet", "apps.kruise.io"): {
@@ -1787,19 +1789,27 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api": "containerrecreaterequests",
     },
     ("DaemonSet", "apps.kruise.io"): {
-        "api_paths": ["apis/apps.kruise.io/v1alpha1/"],
+        "api_paths": ["apis/apps.kruise.io/v1beta1/",
+                      "apis/apps.kruise.io/v1alpha1/"],
         "api": "daemonsets",
     },
-    ("ImageListPullJob", "apps.kruise.io"): {
+    ("EphemeralJob", "apps.kruise.io"): {
         "api_paths": ["apis/apps.kruise.io/v1alpha1/"],
+        "api": "ephemeraljobs",
+    },
+    ("ImageListPullJob", "apps.kruise.io"): {
+        "api_paths": ["apis/apps.kruise.io/v1beta1/",
+                      "apis/apps.kruise.io/v1alpha1/"],
         "api": "imagelistpulljobs",
     },
     ("ImagePullJob", "apps.kruise.io"): {
-        "api_paths": ["apis/apps.kruise.io/v1alpha1/"],
+        "api_paths": ["apis/apps.kruise.io/v1beta1/",
+                      "apis/apps.kruise.io/v1alpha1/"],
         "api": "imagepulljobs",
     },
     ("NodeImage", "apps.kruise.io"): {
-        "api_paths": ["apis/apps.kruise.io/v1alpha1/"],
+        "api_paths": ["apis/apps.kruise.io/v1beta1/",
+                      "apis/apps.kruise.io/v1alpha1/"],
         "api": "nodeimages",
         "namespaced": False,
     },
@@ -1822,7 +1832,8 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "namespaced": False,
     },
     ("SidecarSet", "apps.kruise.io"): {
-        "api_paths": ["apis/apps.kruise.io/v1alpha1/"],
+        "api_paths": ["apis/apps.kruise.io/v1beta1/",
+                      "apis/apps.kruise.io/v1alpha1/"],
         "api": "sidecarsets",
         "namespaced": False,
     },

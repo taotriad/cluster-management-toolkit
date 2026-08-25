@@ -93,7 +93,8 @@ N/A
   The `Cluster Overview` and container log view still uses the old behaviour.
 * `cmu` will now squash empty lines by default in the container log.
   This behaviour is configurable (and can also be toggled runtime).
-* Use `glibc-dns-testing:2.0.0` instead of `jessie-dnsutils:1.7` as DNS default debug image.
+* `glibc-dns-testing:2.0.0` is now used instead of `jessie-dnsutils:1.7` as DNS default debug image.
+* The container view now has a bit more functionality.
 
 ### Changes to other files in v0.8.10
 
@@ -133,6 +134,8 @@ N/A
 * There's now a target that converts the output from make coverage to a Markdown table,
   to make it suitable for use in the changelog. We do this using the output
   from `python3-coverage report --format markdown` combined with `mdtable.py --reformat`.
+* It is now no longer possible to use generators directly from view-files.
+* There is now a generator and field-formatter for selectors.
 * **FIXME** Insert output from `make changelog`
 
 ## Known Regressions in v0.8.10
