@@ -420,7 +420,7 @@ def get_pod_containers_list(**kwargs: Any) -> tuple[list[dict[str, Any]], int | 
                     if deep_get(container_status, DictPath("name")) == container_name:
                         break
                 if container_status is not None:
-                    image = deep_get(container_status, DictPath("image"), "")
+                    image = deep_get(container, DictPath("image"), "")
                     image_id = deep_get(container_status, DictPath("imageID"), "")
                 else:
                     image = "<unavailable>"
@@ -450,7 +450,7 @@ def get_pod_containers_list(**kwargs: Any) -> tuple[list[dict[str, Any]], int | 
                     if deep_get(container_status, DictPath("name")) == container_name:
                         break
                 if container_status is not None:
-                    image = deep_get(container_status, DictPath("image"), "")
+                    image = deep_get(container, DictPath("image"), "")
                     image_id = deep_get(container_status, DictPath("imageID"), "")
                 else:
                     image = "<unavailable>"
