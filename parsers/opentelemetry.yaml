@@ -7,6 +7,10 @@
     - image_name: "/open-telemetry/opentelemetry-operator/opentelemetry-operator"
   parser_rules:
     - name: "json"
+      options:
+        version:
+          keys:
+            - "opentelemetry-operator"
 - name: "opentelemetry"
   show_in_selector: false
   matchkeys:
