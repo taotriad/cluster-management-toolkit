@@ -42,6 +42,7 @@
     - image_name: "/nvidia/cloud-native/gpu-operator-validator"
       container_type: "InitContainer"
   parser_rules:
+    - name: "glog"
     - name: "override_severity"
       options:
         severity:
@@ -100,7 +101,7 @@
             process_block_end: true
         severity:
           default: "info"
-    - name: "key_value"
+    - name: "key_value_with_leading_message"
       options:
         version:
           keys:
