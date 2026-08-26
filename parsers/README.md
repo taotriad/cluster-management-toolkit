@@ -34,7 +34,7 @@ in the selector.
 | :----------------------------- | :----------------------------------------------------------------- | :------------------------------------------------------------------------------------------ |
 | ansible_line                   | Block scanner for results from *Ansible* runs                      | *block_start*, *block_end*, diff_space, indent, severity(default,overrides)                 |
 | bracketed_severity             | Extract severity formatted as `[severity]`                         | severity(default)                                                                           |
-| custom_line                    | Custom block scanner                                               | *block_start*, *block_end*, eof, severity(default,overrides)                                |
+| custom_line                    | Custom block scanner                                               | *block_start*, *block_end*, eof, formatter, severity(default,overrides)                     |
 | custom_splitter                | Custom line splitter                                               | *regex*, severity(field,overrides,transform), facility(fields,separators), *message(field)* |
 | diff_line                      | Block scanner for output from `diff`                               | *block_start*, *block_end*, diff_space, indent, severity(default,overrides)                 |
 | directory                      | Formatter for output from `ls`                                     | **N/A**                                                                                     |
@@ -56,7 +56,6 @@ in the selector.
 | sysctl                         | Format output from `sysctl`                                        | **N/A**                                                                                     |
 | tab_separated                  | Format tab-separated data; will format trailing `JSON`-format      | error, message, version                                                                     |
 | ts_8601                        | Strip timestamps resembling *ISO-8601* format                      | **N/A**                                                                                     |
-| yaml_line                      | Block scanner for *YAML*                                           | *block_start*, *block_end*                                                                  |
 
 Options in **bold** are mandatory. Paranthesis are an option indicates that it has subrules, of which only the indicated ones are supported.
 
@@ -128,6 +127,12 @@ facility:
     ...
 ```
 
+
+#### formatter
+
+```
+formatter: (str) A formatter to use when formatting the content of block from custom_line (currently only format_yaml is supported); default is format_none
+```
 
 #### indent
 

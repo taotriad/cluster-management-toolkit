@@ -25,7 +25,7 @@
     - name: "tab_separated"
     # This match rule is NOT robust, it will fail if the elements
     # in the configuration block is reordered, for instance.
-    - name: "yaml_line"
+    - name: "custom_line"
       options:
         block_start:
           - matchtype: "exact"
@@ -38,3 +38,4 @@
             matchkey: '^[A-Z]\d{4} .*'
             format_block_end: false
             process_block_end: false
+        formatter: "format_yaml"

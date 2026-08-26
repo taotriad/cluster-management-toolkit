@@ -12,7 +12,7 @@
     - image_name: "cr.agentgateway.dev/agentgateway"
   parser_rules:
     - name: "tab_separated"
-    - name: "yaml_line"
+    - name: "custom_line"
       options:
         block_start:
           - matchtype: "startswith"
@@ -23,6 +23,7 @@
           - matchtype: "empty"
             format_block_end: false
             process_block_end: false
+        formatter: "format_yaml"
     - name: "custom_line"
       options:
         block_start:

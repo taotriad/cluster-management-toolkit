@@ -17,7 +17,7 @@
           transform: "str"
         message:
           field: 2
-    - name: "yaml_line"
+    - name: "custom_line"
       options:
         block_start:
           - matchtype: "startswith"
@@ -29,7 +29,8 @@
             matchkey: '\d\d\d\d-\d\d-\d\d'
             format_block_end: false
             process_block_end: false
-    - name: "yaml_line"
+        formatter: "format_yaml"
+    - name: "custom_line"
       options:
         block_start:
           - matchtype: "startswith"
@@ -41,6 +42,7 @@
             matchkey: '\d\d\d\d-\d\d-\d\d'
             format_block_end: false
             process_block_end: false
+        formatter: "format_yaml"
     - name: "override_severity"
       options:
         severity:

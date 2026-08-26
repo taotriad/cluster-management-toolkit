@@ -65,7 +65,7 @@
             - matchtype: "regex"
               matchkey: ".*controller .+ starting"
               loglevel: "notice"
-    - name: "yaml_line"
+    - name: "custom_line"
       options:
         block_start:
           # FIXME: The first rule isn't perfect
@@ -94,6 +94,7 @@
             matchkey: "managedchart.+ configured"
             format_block_end: false
             process_block_end: false
+        formatter: "format_yaml"
     - name: "override_severity"
       options:
         severity:

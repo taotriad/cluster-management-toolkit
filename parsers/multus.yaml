@@ -35,7 +35,7 @@
           transform: "4letter"
         message:
           field: 2
-    - name: "yaml_line"
+    - name: "custom_line"
       options:
         block_start:
           - matchtype: "startswith"
@@ -44,6 +44,7 @@
             format_block_start: true
         block_end:
           - matchtype: "empty"
+        formatter: "format_yaml"
 - name: "multus"
   show_in_selector: false
   matchkeys:

@@ -19,7 +19,7 @@
             matchkey: "}"
             format_block_end: false
             process_block_end: false
-    - name: "yaml_line"
+    - name: "custom_line"
       options:
         block_start:
           - matchtype: "endswith"
@@ -31,6 +31,7 @@
             matchkey: " >"
             format_block_end: true
             process_block_end: true
+        formatter: "format_yaml"
     - name: "override_severity"
       options:
         severity:

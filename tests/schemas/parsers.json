@@ -30,6 +30,36 @@
             },
             "minItems": 1
         },
+        "formatter_allowlist": {
+            "enum": [
+                "format_autodetect",
+                "format_caddyfile",
+                "format_cel",
+                "format_crt",
+                "format_css",
+                "format_docker",
+                "format_fluentbit",
+                "format_haproxy",
+                "format_html",
+                "format_ini",
+                "format_javascript",
+                "format_key_value",
+                "format_known_hosts",
+                "format_mosquitto",
+                "format_nginx",
+                "format_none",
+                "format_powershell",
+                "format_promql",
+                "format_python",
+                "format_python_traceback",
+                "format_rego",
+                "format_toml",
+                "format_xml",
+                "format_yaml",
+                "reformat_json",
+                "render_markdown"
+            ]
+        },
         "message": {
             "description": "Configuration options related to messages",
             "type": "object",
@@ -738,6 +768,10 @@
                                             "description": "Should EOF be regarded as a block end?",
                                             "type": "boolean"
                                         },
+                                        "formatter": {
+                                            "description": "Formatter to use when formatting the block (default: format_none())",
+                                            "$ref": "#/$defs/formatter_allowlist"
+                                        },
                                         "severity": {
                                             "type": "object",
                                             "properties": {
@@ -771,83 +805,6 @@
                                             "description": "Should empty lines be permitted?",
                                             "type": "boolean"
                                         },
-                                        "block_start": {
-                                            "type": "array",
-                                            "items": {
-                                                "type": "object",
-                                                "properties": {
-                                                    "matchtype": {
-                                                        "enum": [
-                                                            "contains",
-                                                            "endswith",
-                                                            "exact",
-                                                            "regex",
-                                                            "startswith"
-                                                        ]
-                                                    },
-                                                    "matchkey": {
-                                                        "type": "string"
-                                                    },
-                                                    "matchline": {
-                                                        "enum": [
-                                                            "any",
-                                                            "first"
-                                                        ]
-                                                    },
-                                                    "format_block_start": {
-                                                        "type": "boolean"
-                                                    }
-                                                },
-                                                "additionalProperties": false
-                                            },
-                                            "minItems": 1
-                                        },
-                                        "block_end": {
-                                            "type": "array",
-                                            "items": {
-                                                "type": "object",
-                                                "properties": {
-                                                    "matchtype": {
-                                                        "enum": [
-                                                            "contains",
-                                                            "empty",
-                                                            "endswith",
-                                                            "exact",
-                                                            "regex",
-                                                            "startswith"
-                                                        ]
-                                                    },
-                                                    "matchkey": {
-                                                        "type": "string"
-                                                    },
-                                                    "format_block_end": {
-                                                        "type": "boolean"
-                                                    },
-                                                    "process_block_end": {
-                                                        "type": "boolean"
-                                                    }
-                                                },
-                                                "additionalProperties": false
-                                            },
-                                            "minItems": 1
-                                        }
-                                    },
-                                    "additionalProperties": false
-                                }
-                            },
-                            "requiredProperties": [ "name", "block_start", "block_end" ],
-                            "additionalProperties": false
-                        }, {
-                            "type": "object",
-                            "properties": {
-                                "name": {
-                                    "enum": [
-                                        "yaml_line"
-                                    ]
-                                },
-                                "options": {
-                                    "type": "object",
-                                    "properties": {
                                         "block_start": {
                                             "type": "array",
                                             "items": {

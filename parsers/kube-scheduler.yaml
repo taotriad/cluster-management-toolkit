@@ -25,7 +25,7 @@
       container_name: "kube-scheduler"
   parser_rules:
     - name: "glog"
-    - name: "yaml_line"
+    - name: "custom_line"
       options:
         block_start:
           - matchtype: "startswith"
@@ -35,7 +35,8 @@
         block_end:
           - matchtype: "exact"
             matchkey: " >"
-    - name: "yaml_line"
+        formatter: "format_yaml"
+    - name: "custom_line"
       options:
         block_start:
           - matchtype: "exact"
@@ -47,7 +48,8 @@
             # yamllint disable-line rule:line-length
             matchkey: "------------------------------------Configuration File Contents End Here---------------------------------"
           - matchtype: "empty"
-    - name: "yaml_line"
+        formatter: "format_yaml"
+    - name: "custom_line"
       options:
         block_start:
           - matchtype: "exact"
@@ -55,6 +57,7 @@
             matchline: "any"
         block_end:
           - matchtype: "empty"
+        formatter: "format_yaml"
     - name: "expand_event"
     - name: "key_value_with_leading_message"
     - name: "override_severity"

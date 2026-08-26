@@ -8,7 +8,7 @@
   parser_rules:
     - name: "ts_8601"
     - name: "glog"
-    - name: "yaml_line"
+    - name: "custom_line"
       options:
         block_start:
           - matchtype: "exact"
@@ -19,6 +19,7 @@
           - matchtype: "exact"
             matchkey: "}"
             format_block_end: true
+        formatter: "format_yaml"
     - name: "override_severity"
       options:
         severity:

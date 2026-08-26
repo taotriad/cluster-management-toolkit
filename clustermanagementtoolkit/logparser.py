@@ -4425,6 +4425,11 @@ def init_parser_list(force_reinit: bool = False) -> None:
                                      "tab_separated",
                                      "ts_8601",
                                      "yaml_line"):
+                        if rule_name == "custom_line":
+                            # To allow for easy transition of rules, alias rules for now.
+                            formatter = deep_get(rule, DictPath("options#formatter"))
+                            if formatter == "format_yaml":
+                                rule_name = "yaml_line"
                         options = {}
                         for key, value in deep_get(rule, DictPath("options"), {}).items():
                             if key in ("block_start", "block_end"):
