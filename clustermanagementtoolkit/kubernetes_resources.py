@@ -222,9 +222,14 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "namespaced": False,
     },
     ("ClusterTrustBundle", "certificates.k8s.io"): {
-        "api_paths": ["apis/certificates.k8s.io/v1alpha1/"],
+        "api_paths": ["apis/certificates.k8s.io/v1/",
+                      "apis/certificates.k8s.io/v1alpha1/"],
         "api": "clustertrustbundles",
         "namespaced": False,
+    },
+    ("PodCertificateRequest", "certificates.k8s.io"): {
+        "api_paths": ["apis/certificates.k8s.io/v1/"],
+        "api": "podcertificaterequests",
     },
     # coordination.k8s.io
     ("Lease", "coordination.k8s.io"): {
@@ -456,15 +461,6 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api_paths": ["apis/rbac.authorization.k8s.io/v1/"],
         "api": "rolebindings",
     },
-    # resource.nvidia.com
-    ("ComputeDomainClique", "resource.nvidia.com"): {
-        "api_paths": ["apis/resource.nvidia.com/v1beta1/"],
-        "api": "computedomaincliques",
-    },
-    ("ComputeDomain", "resource.nvidia.com"): {
-        "api_paths": ["apis/resource.nvidia.com/v1beta1/"],
-        "api": "computedomains",
-    },
     # resource.k8s.io
     ("DeviceClass", "resource.k8s.io"): {
         "api_paths": ["apis/resource.k8s.io/v1/",
@@ -474,7 +470,8 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "namespaced": False,
     },
     ("DeviceTaintRule", "resource.k8s.io"): {
-        "api_paths": ["apis/resource.k8s.io/v1alpha3/"],
+        "api_paths": ["apis/resource.k8s.io/v1/",
+                      "apis/resource.k8s.io/v1alpha3/"],
         "api": "devicetaintrules",
         "namespaced": False,
     },
@@ -587,6 +584,12 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api_paths": ["apis/storage.k8s.io/v1/",
                       "apis/storage.k8s.io/v1beta1/"],
         "api": "volumeattributesclasses",
+        "namespaced": False,
+    },
+    # storagemigration.k8s.io
+    ("StorageVersionMigration", "storagemigration.k8s.io"): {
+        "api_paths": ["apis/storagemigration.k8s.io/v1/"],
+        "api": "storageversionmigrations",
         "namespaced": False,
     },
     # topology.node.k8s.io
@@ -5527,6 +5530,11 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api_paths": ["apis/longhorn.io/v1beta2/"],
         "api": "volumes",
     },
+    # production-stack.vllm.ai
+    ("LoraAdapter", "production-stack.vllm.ai"): {
+        "api_paths": ["apis/production-stack.vllm.ai/v1alpha1/"],
+        "api": "loraadapters",
+    },
     # lvm.topolvm.io
     ("LVMCluster", "lvm.topolvm.io"): {
         "api_paths": ["apis/lvm.topolvm.io/v1alpha1/"],
@@ -7326,6 +7334,15 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
     ("EphemeralReport", "reports.kyverno.io"): {
         "api_paths": ["apis/reports.kyverno.io/v1/"],
         "api": "ephemeralreports",
+    },
+    # resource.nvidia.com
+    ("ComputeDomainClique", "resource.nvidia.com"): {
+        "api_paths": ["apis/resource.nvidia.com/v1beta1/"],
+        "api": "computedomaincliques",
+    },
+    ("ComputeDomain", "resource.nvidia.com"): {
+        "api_paths": ["apis/resource.nvidia.com/v1beta1/"],
+        "api": "computedomains",
     },
     # resolution.tekton.dev
     ("ResolutionRequest", "resolution.tekton.dev"): {
