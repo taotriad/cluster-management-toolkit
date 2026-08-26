@@ -633,6 +633,10 @@ Drain:
   field_colors:
     - context: "main"
       type: "status_ok"
+DrainingClaimConsumers:
+  field_colors:
+    - context: "main"
+      type: "status_ok"
 DuplicatePodCreatedOnSameNode:
   field_colors:
     - context: "main"
@@ -1833,6 +1837,10 @@ Rebooted:
   field_colors:
     - context: "main"
       type: "status_warning"
+Reconciled:
+  field_colors:
+    - context: "main"
+      type: "status_done"
 ReconcileCompleted:
   field_colors:
     - context: "main"
