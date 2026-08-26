@@ -34,7 +34,7 @@ in the selector.
 | :----------------------------- | :----------------------------------------------------------------- | :------------------------------------------------------------------------------------------ |
 | ansible_line                   | Block scanner for results from *Ansible* runs                      | *block_start*, *block_end*, diff_space, indent, severity(default,overrides)                 |
 | bracketed_severity             | Extract severity formatted as `[severity]`                         | severity(default)                                                                           |
-| custom_line                    | Custom block scanner                                               | *block_start*, *block_end*, eof, formatter, severity(default,overrides)                     |
+| custom_line                    | Custom block scanner                                               | *block_start*, *block_end*, eof, formatter, regex, severity(default,overrides)              |
 | custom_splitter                | Custom line splitter                                               | *regex*, severity(field,overrides,transform), facility(fields,separators), *message(field)* |
 | diff_line                      | Block scanner for output from `diff`                               | *block_start*, *block_end*, diff_space, indent, severity(default,overrides)                 |
 | directory                      | Formatter for output from `ls`                                     | **N/A**                                                                                     |
@@ -50,7 +50,6 @@ in the selector.
 | key_value_with_leading_message | Format data in *key=value* format preceded by a plain-text message | allow_bare_keys, newlines, error, facility, message, severity, timestamp, version           |
 | modinfo                        | Format output from `modinfo`                                       | **N/A**                                                                                     |
 | override_severity              | Based on match-rules, override the severity of a line              | *severity(overrides)*                                                                       |
-| python_traceback               | Block scanner for *Python* tracebacks                              | **N/A**                                                                                     |
 | seconds_severity_facility      | Formatter for data in `[  0.0123s] INFO ThreadID(01) ...` format   | **N/A**                                                                                     |
 | strip_ansicodes                | Strip *ANSI-codes* from log message                                | **N/A**                                                                                     |
 | sysctl                         | Format output from `sysctl`                                        | **N/A**                                                                                     |
@@ -131,8 +130,9 @@ facility:
 #### formatter
 
 ```
-formatter: (str) A formatter to use when formatting the content of block from custom_line (currently only format_yaml is supported); default is format_none
+formatter: (str) A formatter to use when formatting the content of block from custom_line (valid: format_none, format_python_traceback, format_yaml; default: format_none)
 ```
+
 
 #### indent
 
@@ -149,6 +149,16 @@ message:
   keys (list):
     - (str) The keys in a structure log message that may contain messages
     ...
+```
+
+
+#### regex
+
+```
+regex: (str) A regular expression to use when extracting information;
+             in most cases the regex corresponds to the field(s) arguments,
+             but in a few cases only one match-group is expected to be non-null,
+             and thus the first match group will be used (if any).
 ```
 
 

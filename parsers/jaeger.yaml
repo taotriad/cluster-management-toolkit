@@ -5,29 +5,15 @@
     - pod_name: "jaeger"
       container_name: "jaeger-operator"
   parser_rules:
-    - name: "custom_splitter"
-      options:
-        # yamllint disable-line rule:line-length
-        regex: '^(\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d\.\d\d\dZ)\s([A-Z]+)\s([^\s]+)\s(.*)'
-        severity:
-          field: 2
-          transform: "4letter"
-        facility:
-          fields:
-            - 3
-        message:
-          field: 4
     - name: "glog"
-    - name: "key_value"
-      options:
-        version:
-          keys:
-            - "jaeger"
-    - name: "ts_8601"
+    - name: "tab_separated"
     - name: "override_severity"
       options:
         severity:
           overrides:
+            - matchtype: "startswith"
+              matchkey: "error getting"
+              loglevel: "warning"
             - matchtype: "startswith"
               matchkey: "Trace["
               loglevel: "debug"
@@ -82,4 +68,21 @@
             - matchtype: "startswith"
               matchkey: "application version: "
               loglevel: "notice"
-    - name: "python_traceback"
+    - name: "custom_line"
+      options:
+        block_start:
+          - matchtype: "startswith"
+            matchkey: "Traceback (most recent call last):"
+            matchline: "any"
+            format_block_start: true
+          - matchtype: "startswith"
+            # yamllint disable-line rule:line-length
+            matchkey: "During handling of the above exception, another exception occurred:"
+            matchline: "any"
+            format_block_start: true
+        block_end:
+          - matchtype: "regex"
+            # yamllint disable-line rule:line-length
+            matchkey: '^(\S+?Error|\S+?Exception|GeneratorExit|KeyboardInterrupt|Stop.*?Iteration|SystemExit|socket.gaierror|UserWarning|SyntaxWarning): '
+            format_block_end: true
+        formatter: "format_python_traceback"

@@ -294,7 +294,6 @@
                                         "glog",
                                         "iptables",
                                         "modinfo",
-                                        "python_traceback",
                                         "seconds_severity_facility",
                                         "strip_ansicodes",
                                         "sysctl",
@@ -771,6 +770,10 @@
                                         "formatter": {
                                             "description": "Formatter to use when formatting the block (default: format_none())",
                                             "$ref": "#/$defs/formatter_allowlist"
+                                        },
+                                        "regex": {
+                                            "description": "The regex pattern to use for matches",
+                                            "type": "string"
                                         },
                                         "severity": {
                                             "type": "object",

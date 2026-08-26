@@ -2845,23 +2845,32 @@ def python_traceback_scanner(message: str, **kwargs: Any) \
                         (ThemeArray): The formatted strings of the remnant
                         (LogLevel): The severity of the remnant
     """
+    options: dict = deep_get(kwargs, DictPath("options"), {})
+
+    regex = deep_get(options, DictPath("regex"),
+                     re.compile(r"^([A-Z])\d\d\d\d \d\d:\d\d:\d\d\.\d+\s+(\d+)\s(.+?:\d+)\] (.*)"))
     timestamp: datetime = none_timestamp()
     facility: str = ""
     severity: LogLevel = LogLevel.ERR
     message, _timestamp = split_iso_timestamp(message, none_timestamp())
     processor: tuple[str, Callable | None, dict] = ("block", python_traceback_scanner, {})
 
-    # Default case
+    # Default case.
     remnants: list[ThemeRef | ThemeStr] = [
         ThemeStr(message, ThemeAttr("logview", "severity_info"))
     ]
 
-    re_tmp = re.match(r"^([A-Z])\d\d\d\d \d\d:\d\d:\d\d\.\d+\s+(\d+)\s(.+?:\d+)\] (.*)", message)
+    re_tmp = regex.match(message)
     if re_tmp is not None:
-        message = re_tmp[4]
-        remnants = [
-            ThemeStr(message, ThemeAttr("logview", "severity_info"))
-        ]
+        # We want the first group that isn't None (if any).
+        for group in re_tmp.groups():
+            if group is None:
+                continue
+            message = group
+            remnants = [
+                ThemeStr(message, ThemeAttr("logview", "severity_info"))
+            ]
+            break
 
     if (re_tmp := re.match(r"^(\s+File \")(.+?)(\", line )(\d+)(, in )(.*)", message)) is not None:
         remnants = [
@@ -2923,20 +2932,25 @@ def python_traceback(message: str, **kwargs: Any) \
                     (ThemeArray): The formatted strings of the remnant
                     (LogLevel): The severity of the remnant
     """
+    options: dict = deep_get(kwargs, DictPath("options"), {})
+
+    if options is None:
+        options = {}
+
     remnants: list[tuple[list[ThemeRef | ThemeStr], LogLevel]] = []
 
     if message.startswith(("Traceback (most recent call last):",
                            "Exception in thread ")):
         remnants = [ThemeStr(message, ThemeAttr("logview", "severity_error"))]
         processor: tuple[str, Callable | None, dict] = \
-            ("start_block", python_traceback_scanner, {})
+            ("start_block", python_traceback_scanner, options)
         return processor, remnants
 
     if message == "During handling of the above exception, " \
                   "another exception occurred:":
         remnants = [ThemeStr(message, ThemeAttr("logview", "severity_error"))]
         processor = \
-            ("start_block", python_traceback_scanner_nested_exception, {})
+            ("start_block", python_traceback_scanner_nested_exception, options)
         return processor, remnants
 
     return message, remnants
@@ -4116,7 +4130,8 @@ def parsing_multiplexer(message: str | list[ThemeRef | ThemeStr],
                 message = strip_ansicodes(message)
             # Block starters
             elif _filter == "python_traceback":
-                message, remnants = python_traceback(message, fold_msg=fold_msg)
+                message, remnants = python_traceback(message, fold_msg=fold_msg,
+                                                     options=filter_options)
             # Block starters; these are treated as parser loop terminators if a match is found
             elif _filter == "json_line":
                 message, remnants = \
@@ -4418,20 +4433,24 @@ def init_parser_list(force_reinit: bool = False) -> None:
                                      "key_value_with_leading_message",
                                      "modinfo",
                                      "override_severity",
-                                     "python_traceback",
                                      "seconds_severity_facility",
                                      "strip_ansicodes",
                                      "sysctl",
                                      "tab_separated",
                                      "ts_8601",
                                      "yaml_line"):
+
+                        options = deep_get(rule, DictPath("options"), {})
+
                         if rule_name == "custom_line":
                             # To allow for easy transition of rules, alias rules for now.
                             formatter = deep_get(rule, DictPath("options#formatter"))
                             if formatter == "format_yaml":
                                 rule_name = "yaml_line"
-                        options = {}
-                        for key, value in deep_get(rule, DictPath("options"), {}).items():
+                            elif formatter == "format_python_traceback":
+                                rule_name = "python_traceback"
+
+                        for key, value in options.items():
                             if key in ("block_start", "block_end"):
                                 tmp = []
                                 for entry in value:
