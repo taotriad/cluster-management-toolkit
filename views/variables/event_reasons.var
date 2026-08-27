@@ -2577,6 +2577,10 @@ Unschedulable:
   field_colors:
     - context: "main"
       type: "status_not_ok"
+UnsupportedOperatorGroup:
+  field_colors:
+    - context: "main"
+      type: "status_warning"
 UPDATE:
   field_colors:
     - context: "main"
