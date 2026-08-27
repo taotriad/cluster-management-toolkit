@@ -13,6 +13,7 @@ from collections.abc import Callable
 import re
 import sys
 from typing import Any
+import uuid
 
 try:
     from natsort import natsorted
@@ -22,7 +23,8 @@ except ModuleNotFoundError:  # pragma: no cover
 
 from clustermanagementtoolkit import cmtlib
 
-from clustermanagementtoolkit.cmttypes import deep_get, DictPath, StatusGroup, ProgrammingError
+from clustermanagementtoolkit.cmttypes import deep_get, deep_set
+from clustermanagementtoolkit.cmttypes import DictPath, StatusGroup, ProgrammingError
 
 from clustermanagementtoolkit import infogetters
 
@@ -77,6 +79,13 @@ def get_kubernetes_list(*args: Any,
                                                   label_selector=label_selector,
                                                   field_selector=field_selector,
                                                   resource_cache=kh_cache)
+
+    # This will slow things down, but we need to ensure that all resources have a uid.
+
+    for d in vlist:
+        if not deep_get(d, DictPath("metadata#uid")):
+            deep_set(d, DictPath("metadata#uid"), str(uuid.uuid4()), create_path=True)
+
     if sort_key:
         vlist = natsorted(vlist,
                           key=lambda x: deep_get(x, DictPath(sort_key), ""), reverse=sort_reverse)
@@ -96,6 +105,7 @@ def get_kubernetes_list(*args: Any,
         extra_data = status
     if limit is not None:
         vlist = vlist[:limit]
+
     return vlist, extra_data
 
 
