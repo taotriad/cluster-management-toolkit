@@ -16,10 +16,12 @@ listview:
     description:
       header: "Description:"
       path: "spec#compliance#description"
+      default: "<unset>"
       type: "str"
     severity_fail:
       header: "Fail:"
       path: "status#summary#failCount"
+      default: 0
       type: "raw"
       formatter: "value_mapper"
       formatting:
@@ -38,16 +40,19 @@ listview:
     severity_pass:
       header: "Pass:"
       path: "status#summary#passCount"
+      default: 0
       type: "int"
       formatter: "numerical"
       align: "right"
     title:
       header: "Title:"
       path: "spec#compliance#title"
+      default: "<unset>"
       type: "str"
     version:
       header: "Version:"
       path: "spec#compliance#version"
+      default: "<unset>"
       type: "str"
       formatter: "version"
 infoview:

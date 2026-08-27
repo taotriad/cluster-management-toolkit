@@ -1239,10 +1239,11 @@ def get_obj(obj: dict, field_dict: dict, field_names: list[str],
 
                                 if isinstance(suffix, list):
                                     tmp += suffix
-                        if len(tmp) == 1:
-                            value.append(tmp[0])
-                        else:
-                            value.append(tuple(tmp))
+                        if limit and len(value) < limit:
+                            if len(tmp) == 1:
+                                value.append(tmp[0])
+                            else:
+                                value.append(tuple(tmp))
                     if not value:
                         value = default
                     if value is not None:

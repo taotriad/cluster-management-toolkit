@@ -140,8 +140,10 @@ infoview:
           - path: "licenses"
             pathtype: "items"
             subpaths:
+              - "license#id"
               - "license#name"
-            default: ["<unspecified>"]
+            limit: 1
+        default: ["<unspecified>"]
         formatter: "list"
       name:
         header: "Name:"
