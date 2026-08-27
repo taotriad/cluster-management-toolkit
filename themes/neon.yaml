@@ -383,8 +383,8 @@ color_pairs_curses:
     unselected: [["cyan", "normal"], ["black", "normal"]]
     selected: [["cyan", "normal"], ["white", "normal"]]
   type_protocol:
-    unselected: [["black", "bright"], ["black", "normal"]]
-    selected: [["black", "bright"], ["white", "normal"]]
+    unselected: [["green", "bright"], ["black", "normal"]]
+    selected: [["green", "normal"], ["white", "normal"]]
   type_secret_type:
     unselected: [["cyan", "normal"], ["black", "normal"]]
     selected: [["cyan", "normal"], ["white", "normal"]]
@@ -1446,7 +1446,7 @@ types:
   promql_string: "type_promql_string"
   promql_value: "type_promql_value"
   promql_variable: "type_promql_variable"
-  protocol: ["type_protocol", "bold"]
+  protocol: "type_protocol"
   python_builtin: "type_python_builtin"
   python_comment: "type_python_comment"
   python_docstring: "type_python_docstring"
