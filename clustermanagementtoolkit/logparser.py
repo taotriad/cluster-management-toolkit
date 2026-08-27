@@ -2819,7 +2819,6 @@ def python_traceback_scanner_nested_exception(message: str, **kwargs: Any) \
     return processor, (timestamp, facility, severity, remnants)
 
 
-# pylint: disable-next=unused-argument
 def python_traceback_scanner(message: str, **kwargs: Any) \
         -> tuple[tuple[str, Callable | None, dict],
                  tuple[datetime, str, LogLevel, list[ThemeRef | ThemeStr]]]:
@@ -2907,7 +2906,6 @@ def python_traceback_scanner(message: str, **kwargs: Any) \
     return processor, (timestamp, facility, severity, remnants)
 
 
-# pylint: disable-next=unused-argument
 def python_traceback(message: str, **kwargs: Any) \
         -> tuple[str | tuple[str, Callable | None, dict],
                  list[tuple[list[ThemeRef | ThemeStr], LogLevel]]]:

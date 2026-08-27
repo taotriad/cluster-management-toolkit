@@ -5335,7 +5335,8 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                 # We probably need a progress bar once we reach 500 lines.
                 if linecount > 500 and (i % linepercent) == 0:
                     try:
-                        progress = clamp((linecount - (linecount - i)) // linepercent, 0, 100)
+                        progress = cast(int,
+                                        clamp((linecount - (linecount - i)) // linepercent, 0, 100))
                         curses_helper.progressbar(progressbar, y=uip.maxy // 2, minx=(uip.minx + 8),
                                                   maxx=(uip.maxx - 8), progress=progress)
                     except ZeroDivisionError:
@@ -9288,6 +9289,7 @@ listviewactions: dict[str, dict[str, Any]] = {
                     "Dockerfile": "Docker",
                     ".Dockerfile": "Docker",
                     ".docker": "Docker",
+                    ".go": "Go",
                     ".html": "HTML",
                     ".ini": "INI",
                     ".js": "JavaScript",
@@ -10927,7 +10929,9 @@ COMMANDLINE: dict[str, CommandType] = {
                      ANSIThemeStr("|", "separator"),
                      ANSIThemeStr("patch", "argument"),
                      ANSIThemeStr(",", "separator")],
-                    [ANSIThemeStr("html", "argument"),
+                    [ANSIThemeStr("go", "argument"),
+                     ANSIThemeStr(", ", "separator"),
+                     ANSIThemeStr("html", "argument"),
                      ANSIThemeStr(", ", "separator"),
                      ANSIThemeStr("ini", "argument"),
                      ANSIThemeStr(", ", "separator"),
@@ -10980,6 +10984,7 @@ COMMANDLINE: dict[str, CommandType] = {
                         "diff",
                         "dmesg",
                         "docker",
+                        "go",
                         "html",
                         "ini",
                         "javascript",
