@@ -187,7 +187,7 @@ color_pairs_curses:
     selected: [["red", "bright"], ["black", "normal"]]
   severity_critical:
     unselected: [["black", "normal"], ["red", "normal"]]
-    selected: [["red", "normal"], ["black", "normal"]]
+    selected: [["white", "bright"], ["red", "normal"]]
   severity_error:
     unselected: [["red", "bright"], ["black", "normal"]]
     selected: [["red", "bright"], ["white", "normal"]]
@@ -674,6 +674,36 @@ color_pairs_curses:
   type_generic_crypto:
     unselected: [["blue", "bright"], ["black", "normal"]]
     selected: [["blue", "bright"], ["white", "normal"]]
+  type_go_builtin:
+    unselected: [["cyan", "bright"], ["black", "normal"]]
+    selected: [["cyan", "bright"], ["white", "normal"]]
+  type_go_comment:
+    unselected: [["cyan", "normal"], ["black", "normal"]]
+    selected: [["cyan", "normal"], ["white", "normal"]]
+  type_go_declaration:
+    unselected: [["yellow", "bright"], ["black", "normal"]]
+    selected: [["yellow", "bright"], ["white", "normal"]]
+  type_go_keyword:
+    unselected: [["yellow", "bright"], ["black", "normal"]]
+    selected: [["yellow", "bright"], ["white", "normal"]]
+  type_go_name:
+    unselected: [["white", "normal"], ["black", "normal"]]
+    selected: [["black", "normal"], ["white", "normal"]]
+  type_go_namespace:
+    unselected: [["white", "normal"], ["black", "normal"]]
+    selected: [["black", "normal"], ["white", "normal"]]
+  type_go_operator:
+    unselected: [["white", "normal"], ["black", "normal"]]
+    selected: [["black", "normal"], ["white", "normal"]]
+  type_go_punctuation:
+    unselected: [["white", "normal"], ["black", "normal"]]
+    selected: [["black", "normal"], ["white", "normal"]]
+  type_go_type:
+    unselected: [["green", "normal"], ["black", "normal"]]
+    selected: [["green", "normal"], ["white", "normal"]]
+  type_go_value:
+    unselected: [["magenta", "normal"], ["black", "normal"]]
+    selected: [["magenta", "normal"], ["white", "normal"]]
   type_html_attribute:
     unselected: [["green", "bright"], ["black", "normal"]]
     selected: [["green", "bright"], ["white", "normal"]]
@@ -1297,6 +1327,16 @@ types:
   facility_extended: "type_facility_extended"
   fixme: ["type_fixme", "bold"]
   genericbullet: ["genericbullet", "bold"]
+  go_builtin: "type_go_builtin"
+  go_comment: "type_go_comment"
+  go_declaration: "type_go_declaration"
+  go_keyword: "type_go_keyword"
+  go_name: "type_go_name"
+  go_namespace: "type_go_namespace"
+  go_operator: "type_go_operator"
+  go_punctuation: "type_go_punctuation"
+  go_type: "type_go_type"
+  go_value: "type_go_value"
   group: "type_group"
   haproxy_label: "type_haproxy_label"
   haproxy_section: "type_generic"

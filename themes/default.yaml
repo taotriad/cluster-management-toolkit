@@ -187,7 +187,7 @@ color_pairs_curses:
     selected: [["red", "bright"], ["black", "normal"]]
   severity_critical:
     unselected: [["black", "normal"], ["red", "normal"]]
-    selected: [["red", "normal"], ["black", "normal"]]
+    selected: [["white", "bright"], ["red", "normal"]]
   severity_error:
     unselected: [["red", "bright"], ["black", "normal"]]
     selected: [["red", "bright"], ["white", "normal"]]
