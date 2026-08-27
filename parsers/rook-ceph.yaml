@@ -183,7 +183,7 @@
     - name: "custom_splitter"
       options:
         # yamllint disable-line rule:line-length
-        regex: '^debug \d{4}-\d\d-\d\dT\d\d:\d\d:\d\d.[0-9+-]+ ([0-9a-f]{12}\s*\d+) (.*)'
+        regex: '^debug \d{4}-\d\d-\d\dT\d\d:\d\d:\d\d.[0-9+-]+ ([0-9a-f]{12}\s*-?\d+) (.*)'
         message:
           field: 2
     - name: "override_severity"

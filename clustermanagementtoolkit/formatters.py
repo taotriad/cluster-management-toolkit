@@ -49,6 +49,7 @@ from pygments.lexers.configs import DockerLexer, IniLexer, NginxConfLexer, TOMLL
 from pygments.lexers.css import CssLexer
 from pygments.lexers.data import JsonLexer, YamlLexer
 from pygments.lexers.diff import DiffLexer
+from pygments.lexers.go import GoLexer
 from pygments.lexers.html import HtmlLexer, XmlLexer
 from pygments.lexers.javascript import JavascriptLexer
 from pygments.lexers.markup import MarkdownLexer
@@ -467,6 +468,95 @@ COLORSCHEME_DOCKER: dict[Any, ColorSchemeEntry] = {
 }
 
 
+COLORSCHEME_GO: dict[Any, ColorSchemeEntry] = {
+    # <whitespace>
+    Token.Text.Whitespace: {
+        "formatting": ThemeAttr("types", "generic"),
+        "type": "whitespace",
+    },
+    # /* Comment */
+    Token.Comment.Multiline: {
+        "formatting": ThemeAttr("types", "go_comment"),
+        "type": "comment",
+    },
+    # // Comment
+    Token.Comment.Single: {
+        "formatting": ThemeAttr("types", "go_comment"),
+        "type": "comment",
+    },
+    # return
+    Token.Keyword: {
+        "formatting": ThemeAttr("types", "go_keyword"),
+        "type": "keyword",
+    },
+    # false
+    Token.Keyword.Constant: {
+        "formatting": ThemeAttr("types", "go_value"),
+        "type": "value",
+    },
+    # type
+    Token.Keyword.Declaration: {
+        "formatting": ThemeAttr("types", "go_declaration"),
+        "type": "keyword",
+    },
+    # package
+    Token.Keyword.Namespace: {
+        "formatting": ThemeAttr("types", "go_namespace"),
+        "type": "namespace",
+    },
+    # float64
+    Token.Keyword.Type: {
+        "formatting": ThemeAttr("types", "go_type"),
+        "type": "type",
+    },
+    # 1.2
+    Token.Literal.Number.Float: {
+        "formatting": ThemeAttr("types", "go_value"),
+        "type": "value",
+    },
+    # 0x0a
+    Token.Literal.Number.Hex: {
+        "formatting": ThemeAttr("types", "go_value"),
+        "type": "value",
+    },
+    # 42
+    Token.Literal.Number.Integer: {
+        "formatting": ThemeAttr("types", "go_value"),
+        "type": "value",
+    },
+    # 'a'
+    Token.Literal.String.Char: {
+        "formatting": ThemeAttr("types", "go_value"),
+        "type": "value",
+    },
+    # "string"
+    Token.Literal.String: {
+        "formatting": ThemeAttr("types", "go_value"),
+        "type": "value",
+    },
+    # Name
+    Token.Name.Builtin: {
+        "formatting": ThemeAttr("types", "go_builtin"),
+        "type": "builtin",
+    },
+    # Name
+    Token.Name.Other: {
+        "formatting": ThemeAttr("types", "go_name"),
+        "type": "name",
+    },
+    # *
+    Token.Operator: {
+        "formatting": ThemeAttr("types", "go_operator"),
+        "type": "operator",
+    },
+    # (
+    Token.Punctuation: {
+        "formatting": ThemeAttr("types", "go_punctuation"),
+        "type": "punctuation",
+    },
+}
+
+
 COLORSCHEME_HTML: dict[Any, ColorSchemeEntry] = {
     # <whitespace>
     Token.Text.Whitespace: {
@@ -483,7 +573,7 @@ COLORSCHEME_HTML: dict[Any, ColorSchemeEntry] = {
         "formatting": ThemeAttr("types", "javascript_comment"),
         "type": "comment",
     },
-    # <!-- -->
+    # <!-- Comment -->
     Token.Comment.Multiline: {
         "formatting": ThemeAttr("types", "xml_comment"),
         "type": "comment",
@@ -2497,12 +2587,14 @@ class ThemeArrayFormatter(Formatter):
             # Use this when adding new formatters; we can ignore empty strings.
             if ttype not in self.colorscheme \
                     and ttype not in self.unknown_ttypes and value:  # pragma: nocover
-                tmpvalue = value.replace("\"", "\\\\\"")
+                tmpvalue = value.replace(r'"', r'\"')
+                # We don't want multiple lines in the error log.
+                tmpvalue2 = tmpvalue.split("\n", maxsplit=1)[0]
                 errmsg = [
                     [("Encountered unknown token type ", "default"),
                      (f"{ttype}", "argument"),
-                     (" for substring “", "default"),
-                     (f"{tmpvalue}", "argument"),
+                     (" for substring starting with “", "default"),
+                     (f"{tmpvalue2}", "argument"),
                      ("“ when formatting using lexer ", "default"),
                      (f"{self.lexer}", "argument")]
                 ]
@@ -3117,6 +3209,23 @@ def format_haproxy(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef 
     return dumps
 
 
+def format_go(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef | ThemeStr]]:
+    """
+    Go formatter; returns the text with syntax highlighting for Go.
+
+        Parameters:
+            lines (list[str]): A list of strings
+            *or*
+            lines (str): A string with newlines that should be split
+            **kwargs (dict[str, Any]): Keyword arguments [passthrough to format_pygments_generic]
+        Returns:
+            list[themearray]: A list of themearrays
+    """
+    return format_pygments_generic(lines, **kwargs,
+                                   lexer=GoLexer(),
+                                   colorscheme=COLORSCHEME_GO)
+
+
 def format_html(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef | ThemeStr]]:
     """
     HTML formatter; returns the text with syntax highlighting for HTML.
@@ -3478,6 +3587,9 @@ formatter_mapping: tuple[tuple[tuple[str, ...], tuple[str, ...], Callable], ...]
     (("docker",), ("docker",), format_docker),
     (("",), (".zsh",), format_shellscript),
     (("zsh",), ("zsh",), format_shellscript),
+    (("",), (".go",), format_go),
+    (("go",), ("go",), format_go),
+    (("golang",), ("golang",), format_go),
     (("",), (".html",), format_html),
     (("html",), ("html",), format_html),
     (("json",), ("json",), format_yaml),
@@ -3554,6 +3666,7 @@ formatter_allowlist: dict[str, Callable] = {
     "format_css": format_css,
     "format_docker": format_docker,
     "format_fluentbit": format_fluentbit,
+    "format_go": format_go,
     "format_haproxy": format_haproxy,
     "format_html": format_html,
     "format_ini": format_ini,

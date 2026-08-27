@@ -39,6 +39,7 @@
                 "format_css",
                 "format_docker",
                 "format_fluentbit",
+                "format_go",
                 "format_haproxy",
                 "format_html",
                 "format_ini",
