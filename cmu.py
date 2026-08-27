@@ -1472,6 +1472,8 @@ def genericlistloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                 uip.force_update()
                 continue
         elif c in (ord("w"), ord("A"), ord("N")) and is_namespaced:
+            tmp_selected_namespace = selected_namespace
+
             if c == ord("w"):
                 if selected_namespace != "":
                     continue
@@ -7592,6 +7594,41 @@ def view_last_applied_configuration(stdscr: curses.window, **kwargs: Any) -> Ret
                                 title=title, formatter=formatter)
 
 
+def create_resource(**kwargs: Any) -> Retval:
+    """
+    Create a resource.
+
+        Parameters:
+            **kwargs (dict[str, Any]): Keyword arguments
+        Returns:
+            (Retval): The return value
+    """
+    actionfunc_args: dict[str, Any] = deep_get(kwargs, DictPath("action#actionfunc_args"), {})
+    injections: dict[str, dict[str, str | list[str]]] = \
+        deep_get(actionfunc_args, DictPath("injections"), {})
+    items = deep_get(kwargs, DictPath("values#_tagged_items"), [])
+    extravars = deep_get(kwargs, DictPath("action#extravars"), {})
+
+    for item in items:
+        # We want a pristine copy for every new item.
+        template: dict[str, Any] = \
+            copy.deepcopy(deep_get(actionfunc_args, DictPath("template"), {}))
+        for src_path, data in injections.items():
+            # source_path is where we'll get data from.
+            source = deep_get(data, DictPath("source"), "obj")
+            dst_paths = deep_get(data, DictPath("paths"), [])
+            value = None
+            if source == "obj":
+                value = deep_get(item, DictPath(f"ref#{src_path}"))
+            elif source == "query":
+                value = deep_get(extravars, DictPath(f"{src_path}"))
+            # Now let's populate the template.
+            for dst_path in dst_paths:
+                deep_set(template, DictPath(dst_path), value, create_path=True)
+        _msg, _status = kh.create_resource(template)
+    return Retval.RETURNDONE
+
+
 # pylint: disable-next=too-many-locals
 def delete_resource(**kwargs: Any) -> Retval:
     """
@@ -9536,6 +9573,7 @@ actionfunc_allowlist: dict[str, Callable] = {
     "action_view_pod_logs": action_view_pod_logs,
     "action_view_file": action_view_file,
     "cordon_node": cordon_node,
+    "create_resource": create_resource,
     "delete_logs": delete_logs,
     "delete_resource": delete_resource,
     "drain_node": drain_node,

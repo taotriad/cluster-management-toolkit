@@ -589,6 +589,38 @@ def guess_kind(kind: str | tuple[str, str]) -> tuple[str, str]:
     return kind
 
 
+def guess_kind_with_version(kind: str | tuple[str, str]) -> tuple[str, str]:
+    """
+    A wrapper around guess_kind() that, if a lookup is successful,
+    returns the api_family with the latest supported version.
+
+        Parameters:
+            kind (str):
+                kind (str): The Kubernetes kind
+            kind ((str, str)):
+                kind (str): The API-name
+                api_group (str): The API-group
+        Returns:
+            (str, str):
+                (str): The Kubernetes kind
+                (str): The API-group
+        Raises:
+            NameError: No matching API could be found
+            TypeError: kind is not a str or (str, str) tuple
+    """
+    kind = guess_kind(kind)
+
+    newest_api_path = deep_get(kubernetes_resources[kind], DictPath("api_paths"))[0]
+    # This is for core APIs.
+    newest_api_path = newest_api_path.removeprefix("api/")
+    # This is for all APIs.
+    newest_api_path = newest_api_path.removesuffix("/")
+    # This is for non-core APIs.
+    newest_api_path = newest_api_path.removeprefix("apis/")
+
+    return (kind[0], newest_api_path)
+
+
 def update_api_status(kind: tuple[str, str], listview: bool = False,
                       infoview: bool = False, local: bool = False) -> None:
     """
@@ -2298,16 +2330,16 @@ class KubernetesHelper:
             except urllib3.exceptions.ConnectTimeoutError:
                 # Connection timed out; the API-server might not be available,
                 # suffer from too high load, or similar 504 is Gateway Timeout;
-                # using 42504 to indicate connection timeout thus seems reasonable
+                # using 42504 to indicate connection timeout thus seems reasonable.
                 status = 42504
 
-            # We don't want to try to renew the token multiple times
+            # We don't want to try to renew the token multiple times.
             if reauth_retry == 42:
                 break
 
             if status in (401, 403):
                 # Unauthorized:
-                # Try to renew the token then retry
+                # Try to renew the token then retry.
                 if self.token is not None:
                     with renew_lock:
                         self.renew_token(self.cluster_name, self.context_name)
@@ -2321,19 +2353,19 @@ class KubernetesHelper:
             data = result.data
         elif status == 201:
             # Created
-            # (Assuming we tried to create something this means success
+            # (Assuming we tried to create something this means success).
             data = result.data
         elif status == 202:
             # Accepted
             # (Operation queued for batch processing; no further status available;
-            #  returned when deleting things with a finalizer)
+            #  returned when deleting things with a finalizer).
             pass
         elif status == 204:
             # No Content
             pass
         elif status == 400:
             # Bad request
-            # The feature might be disabled, or the pod is waiting to start/terminated
+            # The feature might be disabled, or the pod is waiting to start/terminated.
             try:
                 d = json_loads(result.data)
                 message = "400: Bad Request; " + deep_get(d, DictPath("message"), "")
@@ -2349,7 +2381,8 @@ class KubernetesHelper:
             message = f"403: Forbidden; method: {method}, URL: {url}, " \
                       f"header_params: {header_params}"
         elif status == 404:
-            # page not found (API not available or possibly programming error)
+            # page not found
+            # (API not available or possibly programming error).
             message = f"404: Not Found; method: {method}, URL: {url}, " \
                       f"header_params: {header_params}"
         elif status == 405:
@@ -2360,6 +2393,10 @@ class KubernetesHelper:
             # Not Acceptable
             raise TypeError(f"406: Not Acceptable; this is probably a programming error; "
                             f"method: {method}, URL: {url}; header_params: {header_params}")
+        elif status == 409:
+            # Conflict
+            # A resource by the same name already exists.
+            pass
         elif status == 410:
             # Gone
             # Most likely a update events were requested (using resourceVersion),
@@ -2379,7 +2416,7 @@ class KubernetesHelper:
                             f"body: {decoded_body}")
         elif status == 422:
             # Unprocessable Entity
-            # The content and syntax is correct, but the request cannot be processed
+            # The content and syntax is correct, but the request cannot be processed.
             msg = result.data.decode("utf-8", errors="replace")
             message = f"422: Unprocessable Entity; method: {method}, URL: {url}; " \
                       f"header_params: {header_params}; message: {msg}"
@@ -2399,17 +2436,17 @@ class KubernetesHelper:
                       f"header_params: {header_params}; message: {msg}"
         elif status == 502:
             # Bad Gateway
-            # Either a malfunctioning or a malicious proxy
+            # Either a malfunctioning or a malicious proxy.
             message = "502: Bad Gateway"
         elif status == 503:
             # Service Unavailable
-            # This might be a CRD that has failed to deploy properly
+            # This might be a CRD that has failed to deploy properly.
             message = f"503: Service Unavailable; method: {method}, URL: {url}; " \
                       f"header_params: {header_params}"
         elif status == 504:
             # Gateway Timeout
             # A request was made for an unrecognised resourceVersion,
-            # and timed out waiting for it to become available
+            # and timed out waiting for it to become available.
             message = f"504: Gateway Timeout; method: {method}, URL: {url}; " \
                       f"header_params: {header_params}"
         elif status == 525:
@@ -2482,7 +2519,8 @@ class KubernetesHelper:
         if namespaced:
             fullitem = f"{fullitem} (namespace: {namespace})"
 
-        name = f"/{name}"
+        if name:
+            name = f"/{name}"
 
         if not namespaced:
             namespace_part = ""
@@ -2788,6 +2826,36 @@ class KubernetesHelper:
             server_git_version = f"{tmp[1]}.{tmp[2]}.{tmp[3]}"
 
         return server_major_version, server_minor_version, server_git_version
+
+    def create_resource(self, obj: dict[str, Any]) -> tuple[str, int]:
+        """
+        Create a new resource.
+
+            Parameters:
+                obj (str): An object to create.
+            Returns:
+                (message, status):
+                    message (str): The status message, if any
+                    status (int): The HTTP response
+        """
+        if not obj:
+            return "", 200
+
+        kind: str = deep_get(obj, DictPath("kind"))
+        api_version: str = deep_get(obj, DictPath("apiVersion"), "")
+        if kind is None:
+            # Bad request seems reasonable.
+            return "No kind provided", 400
+
+        unversioned_tuple = guess_kind((kind, api_version))
+        versioned_tuple = guess_kind_with_version((kind, api_version))
+
+        kind, api_version = versioned_tuple
+
+        obj["apiVersion"] = api_version
+        namespace = deep_get(obj, DictPath("metadata#namespace"), "")
+        body = json_dumps(obj).encode("utf-8")
+        return self.__rest_helper_post(kind=unversioned_tuple, body=body, namespace=namespace)
 
     def create_namespace(self, name: str) -> tuple[str, int]:
         """

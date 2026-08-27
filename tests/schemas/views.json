@@ -1404,6 +1404,7 @@
                                             "enum": [
                                                 "action_view_pod_logs",
                                                 "cordon_node",
+                                                "create_resource",
                                                 "delete_logs",
                                                 "delete_resource",
                                                 "drain_node",
