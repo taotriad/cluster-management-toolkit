@@ -20,38 +20,17 @@ infoview:
   infopad:
     row_indexes:
       Normal:
-        fields: ["label_selector", "set_based_selector"]
+        fields: ["label_selector"]
     rows:
       label_selector:
         header: [["La", ["main", "infoheader"]],
                  ["b", ["main", "infoheader_shortcut"]],
                  ["el Selector:", ["main", "infoheader"]]]
         paths:
-          - path: ["status#components#labelSelector#matchLabels"]
-            pathtype: "key_value"
-            default: ["<none>"]
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "key"
-            - type: "value"
-          field_separators:
-            - type: "selector"
-      set_based_selector:
-        header: [["Set-based Selector:", ["main", "infoheader"]]]
-        paths:
-          - path: "status#components#labelSelector#matchExpressions"
-            pathtype: "match_expression"
+          - path: ["status#components#labelSelector"]
+            pathtype: "obj"
             default: "<none>"
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "key"
-            - type: "operator"
-            - type: "value"
-          field_separators:
-            - type: "space"
-            - type: "no_pad"
+        formatter: "selector"
   shortcuts:
     "Label Selector":
       key: "b"
@@ -60,10 +39,9 @@ infoview:
       widget: "windowwidget"
       widget_args:
         title: "Label Selector:"
-        headers: ["Key:", "Value:"]
-        itemgetter: "get_key_value"
+        itemgetter: "get_selector_list"
         itemgetter_args:
-          path: "status#components#labelSelector#matchLabels"
+          path: "status#components#labelSelector"
     "List References":
       key: "r"
       modifier: "shift"
