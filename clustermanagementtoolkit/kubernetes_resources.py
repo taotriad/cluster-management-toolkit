@@ -2133,6 +2133,10 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api": "virtualmachinebackuptrackers",
     },
     # batch.volcano.sh
+    ("CronJob", "batch.volcano.sh"): {
+        "api_paths": ["apis/batch.volcano.sh/v1alpha1/"],
+        "api": "cronjobs",
+    },
     ("Job", "batch.volcano.sh"): {
         "api_paths": ["apis/batch.volcano.sh/v1alpha1/"],
         "api": "jobs",
@@ -2879,6 +2883,11 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
     ("UDPIngress", "configuration.konghq.com"): {
         "api_paths": ["apis/configuration.konghq.com/v1beta1/"],
         "api": "udpingresses",
+    },
+    # config.volcano.sh
+    ("ColocationConfiguration", "config.volcano.sh"): {
+        "api_paths": ["apis/config.volcano.sh/v1alpha1/"],
+        "api": "colocationconfigurations",
     },
     # connection.gatekeeper.sh
     ("Connection", "connection.gatekeeper.sh"): {
@@ -7667,6 +7676,12 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api_paths": ["apis/serving.kubeflow.org/v1alpha2/"],
         "api": "trainedmodels",
     },
+    # shard.volcano.sh
+    ("NodeShard", "shard.volcano.sh"): {
+        "api_paths": ["apis/shard.volcano.sh/v1alpha1/"],
+        "api": "nodeshards",
+        "namespaced": False,
+    },
     # sharedresource.openshift.io
     ("SharedConfigMap", "sharedresource.openshift.io"): {
         "api_paths": ["apis/sharedresource.openshift.io/v1alpha1/"],
@@ -8097,6 +8112,12 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
     ("Workflow", "tinkerbell.org"): {
         "api_paths": ["apis/tinkerbell.org/v1alpha1/"],
         "api": "workflows",
+    },
+    # topology.volcano.sh
+    ("HyperNode", "topology.volcano.sh"): {
+        "api_paths": ["apis/topology.volcano.sh/v1alpha1/"],
+        "api": "hypernodes",
+        "namespaced": False,
     },
     # topolvm.io
     ("LogicalVolume", "topolvm.io"): {
