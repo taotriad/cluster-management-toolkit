@@ -4443,10 +4443,12 @@ def init_parser_list(force_reinit: bool = False) -> None:
                         if rule_name == "custom_line":
                             # To allow for easy transition of rules, alias rules for now.
                             formatter = deep_get(rule, DictPath("options#formatter"))
-                            if formatter == "format_yaml":
-                                rule_name = "yaml_line"
+                            if formatter == "format_json":
+                                rule_name = "json_line"
                             elif formatter == "format_python_traceback":
                                 rule_name = "python_traceback"
+                            elif formatter == "format_yaml":
+                                rule_name = "yaml_line"
 
                         for key, value in options.items():
                             if key in ("block_start", "block_end"):

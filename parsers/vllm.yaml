@@ -63,7 +63,7 @@
           field: 5
     - name: "custom_splitter"
       options:
-        regex: '^\((\S+) pid=\d+\) (Warning): (.*)'
+        regex: '^\((\S+) pid=\d+\) (Warning|INFO):\s+(.*)'
         facility:
           fields:
             - 1
