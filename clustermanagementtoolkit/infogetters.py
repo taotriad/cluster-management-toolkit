@@ -1239,7 +1239,7 @@ def get_obj(obj: dict, field_dict: dict, field_names: list[str],
 
                                 if isinstance(suffix, list):
                                     tmp += suffix
-                        if limit and len(value) < limit:
+                        if not limit or len(value) < limit:
                             if len(tmp) == 1:
                                 value.append(tmp[0])
                             else:
