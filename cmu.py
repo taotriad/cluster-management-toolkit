@@ -6713,7 +6713,8 @@ def patch_object(stdscr: curses.window, **kwargs: Any) -> Retval:
     kind: tuple[str, str] = deep_get(kwargs, DictPath("kind"))
     _parent_name: str = deep_get(kwargs, DictPath("_parent_name"))
     name: str = deep_get(kwargs, DictPath("name"), _parent_name)
-    namespace: str = deep_get(kwargs, DictPath("namespace"))
+    _parent_namespace: str = deep_get(kwargs, DictPath("_parent_namespace"))
+    namespace: str = deep_get(kwargs, DictPath("namespace"), _parent_namespace)
     patch: dict[str, Any] = deep_get(kwargs, DictPath("args#patch"))
     values: dict[str, Any] = deep_get(kwargs, DictPath("values"), {})
     if not values and "selected" in kwargs:
