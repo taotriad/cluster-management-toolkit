@@ -1,0 +1,8 @@
+---
+- name: "node-healthcheck"
+  show_in_selector: false
+  matchkeys:
+    - image_name: "/medik8s/node-healthcheck-operator"
+  parser_rules:
+    - name: "glog"
+    - name: "tab_separated"

@@ -1,0 +1,8 @@
+---
+- name: "cert-monitor"
+  show_in_selector: false
+  matchkeys:
+    - image_name: "/nachoperator/cert-monitor-operator"
+  parser_rules:
+    - name: "glog"
+    - name: "tab_separated"

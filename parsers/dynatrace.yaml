@@ -1,0 +1,10 @@
+---
+- name: "dynatrace"
+  show_in_selector: false
+  matchkeys:
+    - image_name: "/dynatrace/dynatrace-operator"
+    - image_name: "/dynatrace/dynatrace-operator"
+      container_type: "InitContainer"
+  parser_rules:
+    - name: "glog"
+    - name: "json"

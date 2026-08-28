@@ -6,6 +6,7 @@
   parser_rules:
     - name: "glog"
     - name: "tab_separated"
+    - name: "key_value_with_leading_message"
     - name: "override_severity"
       options:
         severity:

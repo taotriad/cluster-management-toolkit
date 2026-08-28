@@ -39,3 +39,13 @@
             format_block_end: false
             process_block_end: false
         formatter: "format_yaml"
+    - name: "override_severity"
+      options:
+        severity:
+          overrides:
+            - matchtype: "contains"
+              matchkey: "Starting clickhouse-operator"
+              loglevel: "notice"
+            - matchtype: "startswith"
+              matchkey: "Starting metrics exporter"
+              loglevel: "notice"
