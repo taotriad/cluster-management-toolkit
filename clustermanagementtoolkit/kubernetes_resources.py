@@ -2393,6 +2393,11 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
                       "apis/cert-manager.io/v1alpha2/"],
         "api": "issuers",
     },
+    # certmonitor.nachoperator.io
+    ("CertificateMonitor", "certmonitor.nachoperator.io"): {
+        "api_paths": ["apis/certmonitor.nachoperator.io/v1alpha1/"],
+        "api": "certificatemonitors",
+    },
     # cilium.io
     ("CiliumCIDRGroup", "cilium.io"): {
         "api_paths": ["apis/cilium.io/v2/",
@@ -3713,6 +3718,15 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api": "dscinitializations",
         "namespaced": False,
     },
+    # dynatrace.com
+    ("EdgeConnect", "dynatrace.com"): {
+        "api_paths": ["apis/dynatrace.com/v1alpha2/"],
+        "api": "edgeconnects",
+    },
+    ("DynaKube", "dynatrace.com"): {
+        "api_paths": ["apis/dynatrace.com/v1beta6/"],
+        "api": "dynakubes",
+    },
     # ebpf.monitoring.dev
     ("EbpfDaemonSet", "ebpf.monitoring.dev"): {
         "api_paths": ["apis/ebpf.monitoring.dev/v1alpha1/"],
@@ -4305,6 +4319,15 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api": "hostpathprovisioners",
         "namespaced": False,
     },
+    # http.keda.sh
+    ("HTTPScaledObject", "http.keda.sh"): {
+        "api_paths": ["apis/http.keda.sh/v1alpha1/"],
+        "api": "httpscaledobjects",
+    },
+    ("InterceptorRoute", "http.keda.sh"): {
+        "api_paths": ["apis/http.keda.sh/v1beta1/"],
+        "api": "interceptorroutes",
+    },
     # hub.traefik.io
     ("AccessControlPolicy", "hub.traefik.io"): {
         "api_paths": ["apis/hub.traefik.io/v1alpha1/"],
@@ -4854,6 +4877,10 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api_paths": ["apis/keda.sh/v1alpha1/"],
         "api": "clustertriggerauthentications",
     },
+    ("KedaController", "keda.sh"): {
+        "api_paths": ["apis/keda.sh/v1alpha1/"],
+        "api": "kedacontrollers",
+    },
     ("ScaledJob", "keda.sh"): {
         "api_paths": ["apis/keda.sh/v1alpha1/"],
         "api": "scaledjobs",
@@ -5326,6 +5353,15 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api_paths": ["apis/linkerd.io/v1alpha2/"],
         "api": "serviceprofiles",
     },
+    # llm-d.ai
+    ("InferenceModelRewrite", "llm-d.ai"): {
+        "api_paths": ["apis/llm-d.ai/v1alpha2/"],
+        "api": "inferencemodelrewrites",
+    },
+    ("InferenceObjective", "llm-d.ai"): {
+        "api_paths": ["apis/llm-d.ai/v1alpha2/"],
+        "api": "inferenceobjectives",
+    },
     # loadbalancer.harvesterhci.io
     ("IPPool", "loadbalancer.harvesterhci.io"): {
         "api_paths": ["apis/loadbalancer.harvesterhci.io/v1beta1/"],
@@ -5406,6 +5442,27 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
     ("SyslogNGOutput", "logging.banzaicloud.io"): {
         "api_paths": ["apis/logging.banzaicloud.io/v1beta1/"],
         "api": "syslogngoutputs",
+    },
+    # logging.logging.opstreelabs.in
+    ("Elasticsearch", "logging.logging.opstreelabs.in"): {
+        "api_paths": ["apis/logging.logging.opstreelabs.in/v1beta1/"],
+        "api": "elasticsearches",
+    },
+    ("Fluentd", "logging.logging.opstreelabs.in"): {
+        "api_paths": ["apis/logging.logging.opstreelabs.in/v1beta1/"],
+        "api": "fluentds",
+    },
+    ("IndexLifeCycle", "logging.logging.opstreelabs.in"): {
+        "api_paths": ["apis/logging.logging.opstreelabs.in/v1beta1/"],
+        "api": "indexlifecycles",
+    },
+    ("IndexTemplate", "logging.logging.opstreelabs.in"): {
+        "api_paths": ["apis/logging.logging.opstreelabs.in/v1beta1/"],
+        "api": "indextemplates",
+    },
+    ("Kibana", "logging.logging.opstreelabs.in"): {
+        "api_paths": ["apis/logging.logging.opstreelabs.in/v1beta1/"],
+        "api": "kibanas",
     },
     # logging.openshift.io
     ("LogFileMetricExporter", "logging.openshift.io"): {
@@ -7328,6 +7385,12 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
     ("ObjectSync", "reliablesyncs.kubeedge.io"): {
         "api_paths": ["apis/reliablesyncs.kubeedge.io/v1alpha1/"],
         "api": "objectsyncs",
+    },
+    # remediation.medik8s.io
+    ("NodeHealthCheck", "remediation.medik8s.io"): {
+        "api_paths": ["apis/remediation.medik8s.io/v1alpha1/"],
+        "api": "nodehealthchecks",
+        "namespaced": False,
     },
     # reporting.kio.kasten.io
     ("Report", "reporting.kio.kasten.io"): {
