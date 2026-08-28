@@ -19,7 +19,7 @@
           - matchtype: "exact"
             matchkey: "}"
             format_block_end: true
-        formatter: "format_json"
+        formatter: "reformat_json"
     - name: "override_severity"
       options:
         severity:

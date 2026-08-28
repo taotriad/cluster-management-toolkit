@@ -4443,7 +4443,7 @@ def init_parser_list(force_reinit: bool = False) -> None:
                         if rule_name == "custom_line":
                             # To allow for easy transition of rules, alias rules for now.
                             formatter = deep_get(rule, DictPath("options#formatter"))
-                            if formatter == "format_json":
+                            if formatter == "reformat_json":
                                 rule_name = "json_line"
                             elif formatter == "format_python_traceback":
                                 rule_name = "python_traceback"

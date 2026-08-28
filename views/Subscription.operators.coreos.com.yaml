@@ -26,6 +26,7 @@ listview:
       paths:
         - path: ["status#installedCSV", "status#currentCSV"]
           pathtype: "value"
+      default: "<none>"
     source:
       header: "Source:"
       path: "spec#source"
@@ -82,12 +83,14 @@ infoview:
       current_csv:
         header: [["Current Cluster Service Version:", ["main", "infoheader"]]]
         path: "status#currentCSV"
+        default: "<none>"
         type: "str"
       installed_csv:
         header: [["Installed ", ["main", "infoheader"]],
                  ["C", ["main", "infoheader_shortcut"]],
                  ["luster Service Version:", ["main", "infoheader"]]]
         path: "status#installedCSV"
+        default: "<none>"
         type: "str"
       install_plan:
         header: [["I", ["main", "infoheader_shortcut"]],
@@ -98,6 +101,7 @@ infoview:
             pathtype: "tuple"
             default: ["", "<none>"]
             type: ["name", "name"]
+        default: ["<none>"]
         formatter: "list"
         formatting:
           field_colors:
@@ -108,6 +112,7 @@ infoview:
       install_plan_approval:
         header: [["Install Plan Approval:", ["main", "infoheader"]]]
         path: "spec#installPlanApproval"
+        default: "<none>"
         type: "str"
       source:
         header: [["S", ["main", "infoheader_shortcut"]],

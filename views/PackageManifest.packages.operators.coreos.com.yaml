@@ -30,6 +30,52 @@ listview:
       header: "Provider:"
       path: "status#provider#name"
       type: "str"
+  actions:
+    actionlist:
+      "Subscribe":
+        description: "Subscribe to resource"
+        category: "Resource Level"
+        confirm: true
+        query: "Destination namespace"
+        queryval: "namespace"
+        queryfunc: "string"
+        extravars:
+          namespace: ""
+        actionfunc: "create_resource"
+        actionfunc_args:
+          injections:
+            "status#packageName":
+              source: "obj"
+              paths: [
+                "metadata#name",
+                "spec#name",
+              ]
+            "status#catalogSourceNamespace":
+              source: "obj"
+              paths: [
+                "spec#sourceNamespace",
+              ]
+            "namespace":
+              source: "query"
+              paths: [
+                "metadata#namespace",
+              ]
+            "status#catalogSource":
+              source: "obj"
+              paths: [
+                "spec#source",
+              ]
+            "status#defaultChannel":
+              source: "obj"
+              paths: [
+                "spec#channel",
+              ]
+          template:
+            apiVersion: "operators.coreos.com"
+            kind: "Subscription"
+            spec:
+              installPlanApproval: "manual"
+              # Nothing more to see here; everything is else injected.
 infoview:
   name: "Package Manifest Info"
   infopad:

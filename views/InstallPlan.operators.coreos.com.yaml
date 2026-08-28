@@ -72,6 +72,41 @@ listview:
               field_colors:
                 - context: "main"
                   type: "status_highlight"
+  actions:
+    actionlist:
+      "Approve Install Plan":
+        description: "Approve Install Plan"
+        category: "Resource Level"
+        actionfunc: "patch_resource"
+        extravars:
+          action_str: "Approving Install Plan"
+          args:
+            patch:
+              spec:
+                approved: true
+            strategic_merge: false
+      "Enable Automated Upgrades":
+        description: "Enable automated upgrades"
+        category: "Resource Level"
+        actionfunc: "patch_resource"
+        extravars:
+          action_str: "Enabling automated upgrades"
+          args:
+            patch:
+              spec:
+                approval: "Automatic"
+            strategic_merge: false
+      "Disable Automated Upgrades":
+        description: "Disable automated upgrades"
+        category: "Resource Level"
+        actionfunc: "patch_resource"
+        extravars:
+          action_str: "Disabling automated upgrades"
+          args:
+            patch:
+              spec:
+                approval: "Manual"
+            strategic_merge: false
 infoview:
   name: "Install Plan Info"
   infopad:
