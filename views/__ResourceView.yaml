@@ -26,6 +26,8 @@ infoview:
           - ["metadata", "managedFields"]
           - ["metadata", "resourceVersion"]
           - ["metadata", "uid"]
+          # Icon; this is typically a base64-encoded image.
+          - ["spec", "icon"]
           # Status fields
           # Note: adding these to Full is not necessary since
           # Full drops all status fields.
@@ -67,6 +69,8 @@ infoview:
           - ["metadata", "ownerReferences"]
           - ["metadata", "resourceVersion"]
           - ["metadata", "uid"]
+          # Icon; this is typically a base64-encoded image.
+          - ["spec", "icon"]
           # Status fields
           - "status"
   statusmsg:
