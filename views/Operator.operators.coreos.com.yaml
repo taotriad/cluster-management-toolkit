@@ -15,6 +15,13 @@ listview:
       type: "len"
       formatter: "numerical"
       align: "right"
+  actions:
+    actionlist:
+      "Delete resource":
+        description: "Delete resource"
+        category: "Resource Level"
+        confirm: true
+        actionfunc: "delete_resource"
 infoview:
   name: "Operator Info"
   infopad:
@@ -31,6 +38,91 @@ infoview:
             pathtype: "obj"
             default: "<none>"
         formatter: "selector"
+  listpad:
+    on_activation:
+      call: "resourceinfodispatch_with_lookup"
+      kind_path: "kind"
+      api_version_path: "apiVersion"
+      name_path: "name"
+      namespace_path: "namespace"
+    listgetter: "listgetter_path"
+    listgetter_args:
+      path: "status#components#refs"
+    infogetter: "generic_infogetter"
+    field_indexes:
+      Normal:
+        fields: ["namespace", "name", "kind", "status"]
+        sortcolumn: "kind"
+    fields:
+      kind:
+        header: "Kind:"
+        paths:
+          - path: [["kind"], ["apiVersion"]]
+            pathtype: "tuple"
+            type: ["kind", "kind"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "kind"
+            - type: "api_group"
+          field_separators:
+            - type: "kind_api_group"
+      name:
+        header: "Name:"
+        path: "name"
+        type: "str"
+      namespace:
+        header: "Namespace:"
+        path: "namespace"
+        type: "str"
+      status:
+        header: "Status:"
+        paths:
+          - path: "conditions"
+            pathtype: "items"
+            subpath: "reason"
+            limit: 1
+            default: ["<unset>"]
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              AllCatalogSourcesHealthy:
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+              CatalogSourcesAdded:
+                field_colors:
+                  - context: "main"
+                    type: "status_done"
+              InstallComponentFailed:
+                field_colors:
+                  - context: "main"
+                    type: "status_not_ok"
+              InstallSucceeded:
+                field_colors:
+                  - context: "main"
+                    type: "status_done"
+              MinimumReplicasAvailable:
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+              NoConflicts:
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+              RequirementsNotMet:
+                field_colors:
+                  - context: "main"
+                    type: "status_warning"
+              UnsupportedOperatorGroup:
+                field_colors:
+                  - context: "main"
+                    type: "status_warning"
+              "<unset>":
+                field_colors:
+                  - context: "types"
+                    type: "unset"
   shortcuts:
     "Label Selector":
       key: "b"
@@ -42,30 +134,3 @@ infoview:
         itemgetter: "get_selector_list"
         itemgetter_args:
           path: "status#components#labelSelector"
-    "List References":
-      key: "r"
-      modifier: "shift"
-      read_only: true
-      helptext: "List references"
-      widget: "windowwidget"
-      widget_args:
-        title: "References:"
-        headers: ["Kind:", "API-version:", "Namespace:", "Name:"]
-        selectable: true
-        itemgetter: "get_list_fields"
-        itemgetter_args:
-          path: "status#components#refs"
-          fields:
-            - "kind"
-            - "apiVersion"
-            - "namespace"
-            - "name"
-        # This isn't supported for now
-        sortcolumn: "name"
-      action: "call"
-      action_call: "resourceinfodispatch_with_lookup"
-      action_args:
-        kind_path: 0
-        api_version_path: 1
-        namespace_path: 2
-        name_path: 3

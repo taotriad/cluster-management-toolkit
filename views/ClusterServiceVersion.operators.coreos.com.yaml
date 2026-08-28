@@ -67,6 +67,14 @@ listview:
               field_colors:
                 - context: "main"
                   type: "status_ok"
+            RequirementsNotMet:
+              field_colors:
+                - context: "main"
+                  type: "status_warning"
+            UnsupportedOperatorGroup:
+              field_colors:
+                - context: "main"
+                  type: "status_warning"
     version:
       header: "Version:"
       path: "spec#version"
@@ -151,6 +159,14 @@ infoview:
                 field_colors:
                   - context: "main"
                     type: "status_ok"
+              RequirementsNotMet:
+                field_colors:
+                  - context: "main"
+                    type: "status_warning"
+              UnsupportedOperatorGroup:
+                field_colors:
+                  - context: "main"
+                    type: "status_warning"
       version:
         header: [["Version:", ["main", "infoheader"]]]
         path: "spec#version"

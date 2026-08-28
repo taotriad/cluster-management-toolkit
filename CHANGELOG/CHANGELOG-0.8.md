@@ -95,6 +95,8 @@ N/A
   This behaviour is configurable (and can also be toggled runtime).
 * `glibc-dns-testing:2.0.0` is now used instead of `jessie-dnsutils:1.7` as DNS default debug image.
 * The container view now has a bit more functionality.
+* Fix `patch_object()` to handle namespaces better.
+* Add `create_resource()` to allow actions to create (simple) Kubernetes objects.
 
 ### Changes to other files in v0.8.10
 

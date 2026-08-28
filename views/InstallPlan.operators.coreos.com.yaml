@@ -71,9 +71,14 @@ listview:
             RequiresApproval:
               field_colors:
                 - context: "main"
-                  type: "status_highlight"
+                  type: "status_attention"
   actions:
     actionlist:
+      "Delete resource":
+        description: "Delete resource"
+        category: "Resource Level"
+        confirm: true
+        actionfunc: "delete_resource"
       "Approve Install Plan":
         description: "Approve Install Plan"
         category: "Resource Level"
@@ -171,7 +176,7 @@ infoview:
               RequiresApproval:
                 field_colors:
                   - context: "main"
-                    type: "status_highlight"
+                    type: "status_attention"
       subscription:
         header: [["S", ["main", "infoheader_shortcut"]],
                  ["ubscription:", ["main", "infoheader"]]]
@@ -283,6 +288,24 @@ infoview:
           field_colors:
             - type: "version"
   shortcuts:
+    "Approve":
+      key: "a"
+      modifier: "shift"
+      read_only: false
+      helptext: "Approve Install Plan"
+      action: "call"
+      action_call: "patch_object"
+      action_args:
+        _pass_obj: true
+        args:
+          patch:
+            spec:
+              approved: true
+          strategic_merge: false
+        kind: "InstallPlan"
+        api_family: "operators.coreos.com"
+        _parent_name_path: "metadata#name"
+        _parent_namespace_path: "metadata#namespace"
     "Catalog Sources":
       key: "s"
       read_only: true
