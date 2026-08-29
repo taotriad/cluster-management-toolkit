@@ -4,7 +4,18 @@
   matchkeys:
     - pod_name: "ml-pipeline-ui-artifact"
   parser_rules:
-    - name: "json_line"
+    - name: "custom_line"
+      options:
+        block_start:
+          - matchtype: "exact"
+            matchkey: "{"
+            matchline: "any"
+            format_block_start: false
+        block_end:
+          - matchtype: "exact"
+            matchkey: "}"
+            format_block_end: true
+        formatter: "reformat_json"
     - name: "custom_splitter"
       options:
         regex: '^\[([A-Z]+?)\] (.*)'

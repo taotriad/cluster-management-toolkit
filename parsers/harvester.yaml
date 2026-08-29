@@ -84,15 +84,12 @@
           - matchtype: "match"
             matchkey: "Upgrad|Patch"
             format_block_end: false
-            process_block_end: false
           - matchtype: "match"
             matchkey: "Upgrad|Patch"
             format_block_end: false
-            process_block_end: false
           - matchtype: "match"
             matchkey: "managedchart.+ configured"
             format_block_end: false
-            process_block_end: false
         formatter: "format_yaml"
     - name: "override_severity"
       options:

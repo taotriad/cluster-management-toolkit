@@ -72,7 +72,6 @@
             # yamllint disable-line rule:line-length
             matchkey: "["
             format_block_end: false
-            process_block_end: false
         severity:
           default: "notice"
     - name: "custom_splitter"

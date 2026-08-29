@@ -22,7 +22,6 @@
         block_end:
           - matchtype: "empty"
             format_block_end: false
-            process_block_end: false
         formatter: "format_yaml"
     - name: "custom_line"
       options:

@@ -30,7 +30,6 @@
           - matchtype: "match"
             matchkey: '\S'
             format_block_end: false
-            process_block_end: false
         severity:
           default: "info"
     - name: "expand_event"

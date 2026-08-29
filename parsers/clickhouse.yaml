@@ -37,7 +37,6 @@
             # The start of a message in glog format
             matchkey: '[A-Z]\d{4} .*'
             format_block_end: false
-            process_block_end: false
         formatter: "format_yaml"
     - name: "override_severity"
       options:

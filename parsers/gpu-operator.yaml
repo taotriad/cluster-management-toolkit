@@ -37,7 +37,6 @@
           - matchtype: "match"
             matchkey: "[^+^|]"
             format_block_end: false
-            process_block_end: false
         severity:
           default: "info"
     - name: "key_value"

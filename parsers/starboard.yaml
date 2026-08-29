@@ -35,12 +35,19 @@
     - image_name: "aquasec/trivy"
     - image_name: "/fairwinds/polaris"
   parser_rules:
-    - name: "json_line"
+    - name: "custom_line"
       options:
         block_start:
           - matchtype: "exact"
             matchkey: "{"
             matchline: "any"
+            format_block_start: true
           - matchtype: "startswith"
             matchkey: "  "
             matchline: "first"
+            format_block_start: false
+        block_end:
+          - matchtype: "exact"
+            matchkey: "}"
+            format_block_end: true
+        formatter: "reformat_json"

@@ -11,12 +11,17 @@
         severity:
           default: "info"
     - name: "glog"
-    - name: "json_line"
+    - name: "custom_line"
       options:
         block_start:
           - matchtype: "exact"
             matchkey: "Params from apiserver:"
             matchline: "any"
+        block_end:
+          - matchtype: "exact"
+            matchkey: "}"
+            format_block_end: true
+        formatter: "reformat_json"
     - name: "custom_splitter"
       options:
         regex: '^(plugin/[^:]+): (.*)'

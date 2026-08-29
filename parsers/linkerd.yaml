@@ -92,7 +92,7 @@
         regex: '^\[\d{4}-\d\d-\d\d \d\d:\d\d:\d\d\] (.*)'
         message:
           field: 1
-    - name: "json_line"
+    - name: "custom_line"
       options:
         block_start:
           - matchtype: "exact"
@@ -102,3 +102,4 @@
           - matchtype: "exact"
             matchkey: "}"
             matchline: "any"
+        formatter: "reformat_json"

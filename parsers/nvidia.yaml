@@ -70,7 +70,6 @@
           - matchtype: "startswith"
             matchkey: "time"
             format_block_end: false
-            process_block_end: false
         severity:
           default: "info"
     - name: "custom_line"
@@ -84,7 +83,6 @@
           - matchtype: "match"
             matchkey: "(?![+|]|^$)"
             format_block_end: false
-            process_block_end: false
         severity:
           default: "info"
     - name: "custom_line"
@@ -98,7 +96,6 @@
           - matchtype: "endswith"
             matchkey: "****************"
             format_block_end: true
-            process_block_end: true
         severity:
           default: "info"
     - name: "key_value_with_leading_message"
@@ -124,7 +121,6 @@
           - matchtype: "exact"
             matchkey: "})"
             format_block_end: true
-            process_block_end: true
         severity:
           default: "info"
     - name: "override_severity"

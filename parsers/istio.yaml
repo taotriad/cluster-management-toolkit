@@ -25,7 +25,6 @@
           - matchtype: "match"
             matchkey: '\d\d\d\d-\d\d-\d\d'
             format_block_end: false
-            process_block_end: false
         formatter: "format_yaml"
     - name: "override_severity"
       options:
@@ -62,7 +61,6 @@
           - matchtype: "match"
             matchkey: '\d\d\d\d-\d\d-\d\d'
             format_block_end: false
-            process_block_end: false
         formatter: "format_yaml"
     - name: "custom_line"
       options:
@@ -75,7 +73,6 @@
           - matchtype: "match"
             matchkey: '\d\d\d\d-\d\d-\d\d'
             format_block_end: false
-            process_block_end: false
         formatter: "format_yaml"
     - name: "override_severity"
       options:
@@ -117,7 +114,6 @@
           - matchtype: "match"
             matchkey: '\d\d\d\d-\d\d-\d\d'
             format_block_end: false
-            process_block_end: false
         formatter: "format_yaml"
     - name: "custom_line"
       options:
@@ -130,7 +126,6 @@
           - matchtype: "contains"
             matchkey: '-----END CERTIFICATE-----'
             format_block_end: true
-            process_block_end: true
         formatter: "format_crt"
     # We're using the timestamps to detect block ends for YAML,
     # so we cannot move this earlier.

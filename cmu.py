@@ -34,6 +34,7 @@ import subprocess  # nosec
 import sys
 from types import FrameType
 from typing import Any, cast, Sequence
+import yaml
 
 try:
     import ruyaml  # type: ignore[import-not-found,unused-ignore]
@@ -5370,10 +5371,83 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                                                            override_parser=override_parser,
                                                            container_type=container_type)
 
-                timestamp_, facility, severity, message, remnants = \
+                timestamp_, facility, severity, message, remnants, block = \
                     logparser(parser=_parser, message=line, fold_msg=fold_msg, line=i)
 
                 i += 1
+
+                if block:
+                    scanner: Callable = deep_get(block, DictPath("scanner"))
+                    formatter: Callable = deep_get(block, DictPath("formatter"))
+                    options: dict[str, Any] = deep_get(block, DictPath("options"), {})
+                    format_block_end: bool = False
+                    unprocessed_lines: list[str] = \
+                        deep_get(block, DictPath("unprocessed_lines"), [])
+                    unprocessed_lines_2: list[str] = []
+                    new_lines: list[str] = []
+                    matched: bool = False
+
+                    # Start with the unprocessed lines.
+                    k = 0
+                    for k, unprocessed_line in enumerate(unprocessed_lines):
+                        newstr, matched, format_block_end = scanner(unprocessed_line, **options)
+                        if not matched:
+                            new_lines.append(newstr)
+                            continue
+                        # We have found the end; should we format the match?
+                        if format_block_end:
+                            new_lines.append(newstr)
+
+                    # If we have a message output that first.
+                    if message:
+                        log_add_line(timestamps, facilities, severities, messages,
+                                     timestamp_, facility, severity,
+                                     cast(list[ThemeRef | ThemeStr], message), facility_extended)
+                        total_msgs += 1
+
+                        if severity > log_level:
+                            hidden_msgs += 1
+
+                    # Continue scanning until we get a match or give up.
+                    j = 0
+                    if not matched:
+                        for j in range(i, len(splitmsg)):
+                            newstr, matched, format_block_end = scanner(splitmsg[j], **options)
+                            if matched:
+                                if format_block_end:
+                                    new_lines.append(newstr)
+                                break
+                            new_lines.append(newstr)
+
+                    if matched and new_lines:
+                        try:
+                            new_lines_formatted = formatter("\n".join(new_lines))
+                        except yaml.parser.ParserError:
+                            new_lines_formatted = formatters.format_none("\n".join(new_lines))
+
+                        for j, new_line_formatted in enumerate(new_lines_formatted):
+                            if j == 0:
+                                _facility = facility
+                                _timestamp = timestamp_
+                                _facility_extended = facility_extended
+                            else:
+                                _facility = "".ljust(len(facility))
+                                _facility_extended = []
+                                _timestamp = None
+                            _message = cast(list[ThemeRef | ThemeStr], new_line_formatted)
+
+                            log_add_line(timestamps, facilities, severities, messages,
+                                         _timestamp, _facility, severity, _message,
+                                         _facility_extended)
+
+                        # This is a block, so we've only added 1 message.
+                        total_msgs += 1
+
+                        if severity > log_level:
+                            hidden_msgs += 1
+
+                    i += j + k + 1
+                    continue
 
                 # In some cases rather than expanding a single line into multiple lines,
                 # we want to parse multiple lines as a single block;

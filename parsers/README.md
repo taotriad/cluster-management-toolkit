@@ -44,7 +44,6 @@ in the selector.
 | iptables                       | Format output from `iptables`                                      | **N/A**                                                                                     |
 | json                           | Format single-line *JSON*                                          | error, facility, message, severity, timestamp, version                                      |
 | json_event                     | Format events logged as single-line *JSON*                         | error, facility, message, severity, timestamp, version                                      |
-| json_line                      | Block scanner for *JSON*                                           | *block_start*, *block_end*                                                                  |
 | json_with_leading_message      | Format *JSON* preceded by a plain-text message                     | error, facility, message, severity, timestamp, version                                      |
 | key_value                      | Format data in *key=value* format                                  | allow_bare_keys, newlines, error, facility, message, severity, timestamp, version           |
 | key_value_with_leading_message | Format data in *key=value* format preceded by a plain-text message | allow_bare_keys, newlines, error, facility, message, severity, timestamp, version           |
@@ -130,7 +129,7 @@ facility:
 #### formatter
 
 ```
-formatter: (str) A formatter to use when formatting the content of block from custom_line (valid: format_none, format_python_traceback, format_yaml; default: format_none)
+formatter: (str) A formatter to use when formatting the content of block from custom_line (valid: format_none, format_python_traceback, format_yaml, reformat_json; default: format_none)
 ```
 
 

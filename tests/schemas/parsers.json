@@ -763,18 +763,11 @@
                                                     },
                                                     "format_block_end": {
                                                         "type": "boolean"
-                                                    },
-                                                    "process_block_end": {
-                                                        "type": "boolean"
                                                     }
                                                 },
                                                 "additionalProperties": false
                                             },
                                             "minItems": 1
-                                        },
-                                        "eof": {
-                                            "description": "Should EOF be regarded as a block end?",
-                                            "type": "boolean"
                                         },
                                         "formatter": {
                                             "description": "Formatter to use when formatting the block (default: format_none())",
@@ -795,89 +788,6 @@
                                                 }
                                             },
                                             "additionalProperties": false
-                                        }
-                                    },
-                                    "additionalProperties": false
-                                }
-                            },
-                            "requiredProperties": [ "name", "block_start", "block_end" ],
-                            "additionalProperties": false
-                        }, {
-                            "type": "object",
-                            "properties": {
-                                "name": {
-                                    "enum": [
-                                        "json_line"
-                                    ]
-                                },
-                                "options": {
-                                    "type": "object",
-                                    "properties": {
-                                        "allow_empty_lines": {
-                                            "description": "Should empty lines be permitted?",
-                                            "type": "boolean"
-                                        },
-                                        "block_start": {
-                                            "type": "array",
-                                            "items": {
-                                                "type": "object",
-                                                "properties": {
-                                                    "matchtype": {
-                                                        "enum": [
-                                                            "contains",
-                                                            "endswith",
-                                                            "exact",
-                                                            "match",
-                                                            "search",
-                                                            "startswith"
-                                                        ]
-                                                    },
-                                                    "matchkey": {
-                                                        "type": "string"
-                                                    },
-                                                    "matchline": {
-                                                        "enum": [
-                                                            "any",
-                                                            "first"
-                                                        ]
-                                                    },
-                                                    "format_block_start": {
-                                                        "type": "boolean"
-                                                    }
-                                                },
-                                                "additionalProperties": false
-                                            },
-                                            "minItems": 1
-                                        },
-                                        "block_end": {
-                                            "type": "array",
-                                            "items": {
-                                                "type": "object",
-                                                "properties": {
-                                                    "matchtype": {
-                                                        "enum": [
-                                                            "contains",
-                                                            "empty",
-                                                            "endswith",
-                                                            "exact",
-                                                            "match",
-                                                            "search",
-                                                            "startswith"
-                                                        ]
-                                                    },
-                                                    "matchkey": {
-                                                        "type": "string"
-                                                    },
-                                                    "format_block_end": {
-                                                        "type": "boolean"
-                                                    },
-                                                    "process_block_end": {
-                                                        "type": "boolean"
-                                                    }
-                                                },
-                                                "additionalProperties": false
-                                            },
-                                            "minItems": 1
                                         }
                                     },
                                     "additionalProperties": false

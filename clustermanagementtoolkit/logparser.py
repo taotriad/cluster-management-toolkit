@@ -2976,16 +2976,16 @@ def python_traceback(message: str, **kwargs: Any) \
         remnants = [ThemeStr(message, ThemeAttr("logview", "severity_error"))]
         processor: tuple[str, Callable | None, dict] = \
             ("start_block", python_traceback_scanner, options)
-        return processor, remnants
+        return message, remnants, processor
 
     if message == "During handling of the above exception, " \
                   "another exception occurred:":
         remnants = [ThemeStr(message, ThemeAttr("logview", "severity_error"))]
         processor = \
             ("start_block", python_traceback_scanner_nested_exception, options)
-        return processor, remnants
+        return message, remnants, processor
 
-    return message, remnants
+    return message, remnants, {}
 
 
 # pylint: disable-next=too-many-branches
@@ -3056,7 +3056,7 @@ def match_block_start(matchrules: list[MatchBlockStart],
 # pylint: disable-next=too-many-branches
 def match_block_end(matchrules: list[MatchBlockEnd], message: str) -> tuple[bool, bool, bool]:
     """
-    Find a block end; returns False if the block end is found additional rules.
+    Find a block end; returns False if the block end is found.
 
         Parameters:
             matchrules ([MatchBlockEnd]): A list of matchrules
@@ -3213,161 +3213,6 @@ def json_line(message: str,
         return processor, remnants
 
     return message, []
-
-
-def yaml_line_scanner(message: str,
-                      **kwargs: Any) -> tuple[tuple[str, Callable | None, dict],
-                                              tuple[datetime, str, LogLevel,
-                                                    list[tuple[list[ThemeRef | ThemeStr],
-                                                               LogLevel]]]]:
-    """
-    Scanner for YAML.
-
-        Parameters:
-            message (str): The message to format
-            **kwargs (dict[str, Any]): Keyword arguments [unused]
-        Returns:
-            (((str, Callable, dict),
-              (datetime, str, LogLevel, [(ThemeArray, LogLevel)]))):
-                ((str, Callable, dict)):
-                    (str, Callable, dict):
-                        (str): Command to the block parser
-                        (Callable): The block parser to use
-                        (dict): Arguments to the block parser
-                ((datetime, str, LogLevel, Callable, dict)):
-                    (datetime): The timestamp
-                    (str): The facility of the message
-                    (LogLevel): The LogLevel of the message
-                    ([(ThemeArray, LogLevel)]):
-                        (ThemeArray): The formatted strings of the remnant
-                        (LogLevel): The severity of the remnant
-    """
-    options: dict = deep_get(kwargs, DictPath("options"), {})
-
-    timestamp: datetime = none_timestamp()
-    facility: str = ""
-    severity: LogLevel = LogLevel.INFO
-    message, _timestamp = split_iso_timestamp(message, none_timestamp())
-    remnants: list[tuple[list[ThemeRef | ThemeStr], LogLevel]] = []
-    matched = True
-
-    # If no block end is defined we continue until EOF
-    block_end: list[MatchBlockEnd] = deep_get(options, DictPath("block_end"), [])
-
-    matched, format_block_end, process_block_end = match_block_end(block_end, message)
-
-    if matched:
-        remnants = formatters.format_yaml_line(message, override_formatting={})
-        processor: tuple[str, Callable | None, dict] = ("block", yaml_line_scanner, options)
-    else:
-        if process_block_end:
-            if format_block_end:
-                remnants = formatters.format_yaml_line(message, override_formatting={})
-            else:
-                severity_name = f"severity_{loglevel_to_name(severity).lower()}"
-                remnants = [ThemeStr(message, ThemeAttr("logview", severity_name))]
-            processor = ("end_block", None, {})
-        else:
-            processor = ("end_block_not_processed", None, {})
-
-    return processor, (timestamp, facility, severity, remnants)
-
-
-# pylint: disable-next=too-many-branches,too-many-locals
-def yaml_line(message: str, **kwargs: Any) -> \
-        tuple[str | tuple[str, Callable | None, dict],
-              str | list[tuple[list[ThemeRef | ThemeStr], LogLevel]]]:
-    """
-    Parser for YAML.
-
-        Parameters:
-            message (str): The message to format
-            **kwargs (dict[str, Any]): Keyword arguments [unused]
-        Returns:
-            ((str | (str, Callable, dict)), [(ThemeArray, LogLevel)]):
-                ((str | (str, Callable, dict))):
-                    (str): The unformatted message
-                    (str, Callable, dict):
-                        (str): Command to the block parser
-                        (Callable): The block parser to use
-                        (dict): Arguments to the block parser
-                (ThemeArray): The formatted message
-                (LogLevel): The LogLevel of the message
-                (str): The facility of the message
-                ([(ThemeArray, LogLevel)]):
-                    (ThemeArray): The formatted strings of the remnant
-                    (LogLevel): The severity of the remnant
-    """
-    severity: LogLevel = deep_get(kwargs, DictPath("severity"), LogLevel.INFO)
-    options: dict = deep_get(kwargs, DictPath("options"), {})
-
-    if options is None:
-        options = {}
-
-    remnants: list[tuple[list[ThemeRef | ThemeStr], LogLevel]] = []
-    matched = False
-
-    block_start: list[MatchBlockStart] = deep_get(options, DictPath("block_start"), [{
-        "matchtype": "regex",
-        "matchkey": re.compile(r"^\S+?: \S.*$|^\S+?:$"),
-        "matchline": "any",
-        "format_block_start": False,
-    }])
-    line = deep_get(options, DictPath("__line"), 0)
-    if deep_get(options, DictPath("eof")) is None:
-        options["eof"] = "end_block"
-
-    for _bs in block_start:
-        matchtype = _bs["matchtype"]
-        matchkey = _bs["matchkey"]
-        matchline = _bs["matchline"]
-        format_block_start = deep_get(_bs, DictPath("format_block_start"), False)
-        if matchline == "any" or matchline == "first" and not line:
-            if matchtype == "contains":
-                if cast(str, matchkey) in message:
-                    matched = True
-            elif matchtype == "exact":
-                if message == cast(str, matchkey):
-                    matched = True
-            elif matchtype == "search":
-                tmp = cast(re.Pattern[str], matchkey).search(message)
-                if tmp is not None:
-                    matched = True
-                    # If the regex matches groups, it means we want the message split into
-                    # multiple lines; this is useful, for instance, when we have something
-                    # like this:
-                    # New Configuration: {
-                    # <json goes here>
-                    # }
-                    # if len(tmp.groups()):
-                    # ...
-            elif matchtype in ("regex", "match"):
-                tmp = cast(re.Pattern[str], matchkey).match(message)
-                if tmp is not None:
-                    matched = True
-                    # If the regex matches groups, it means we want the message split into
-                    # multiple lines; this is useful, for instance, when we have something
-                    # like this:
-                    # New Configuration: {
-                    # <json goes here>
-                    # }
-                    # if len(tmp.groups()):
-                    # ...
-            elif matchtype == "startswith":
-                if message.startswith(cast(str, matchkey)):
-                    matched = True
-
-    if matched:
-        if format_block_start:
-            remnants = formatters.format_yaml_line(message, override_formatting={})
-        else:
-            severity_name = f"severity_{loglevel_to_name(severity).lower()}"
-            remnants = [ThemeStr(message, ThemeAttr("logview", severity_name))]
-        processor: tuple[str, Callable | None, dict] = \
-            ("start_block", yaml_line_scanner, options)
-        return processor, remnants
-
-    return message, remnants
 
 
 def diff_line_scanner(message: str,
@@ -3631,86 +3476,29 @@ def ansible_line(message: str,
     return message, remnants
 
 
-# pylint: disable-next=too-many-locals
-def custom_line_scanner(message: str, **kwargs: Any) \
-        -> tuple[tuple[str, Callable | None, dict],
-                 tuple[datetime, str, LogLevel, list[ThemeRef | ThemeStr]]]:
+def strip_timestamp_and_match_block_end(message: str, **kwargs: Any) -> tuple[str, bool, bool]:
     """
-    Scanner for custom block messages.
+    Blocks are likely to be preceded by a timestamp, so we need to strip if before we can
+    pass it to match_block_end().
 
         Parameters:
-            message (str): The message to format
+            message (str): The string to match
             **kwargs (dict[str, Any]): Keyword arguments
-                options (dict[str, Any]):
-                    loglevel (str): The default loglevel to use for processed entries
-                    block_start ([MatchBlockStart]]): [unused]
-                    block_end ([MatchBlockEnd]]): Rules to use when matching the block
-                    overrides ([dict[str, str]]): A list of severity override match rules
-                                                  to pass to custom_override_severity()
-                        matchtype (str): The type of match; must be one of:
-                                         - "contains"
-                                         - "endswith"
-                                         - "exact"
-                                         - "match"
-                                         - "regex"
-                                         - "search"
-                                         - "startswith"
-                        loglevel (str): The loglevel to return if the condition matches
-
+                block_end ([MatchBlockEnd]): The block end rules
         Returns:
-            (((str, Callable, dict),
-              (datetime, str, LogLevel, [(ThemeArray, LogLevel)]))):
-                ((str, Callable, dict)):
-                    (str, Callable, dict):
-                        (str): Command to the block parser
-                        (Callable): The block parser to use
-                        (dict): Arguments to the block parser
-                ((datetime, str, LogLevel, Callable, dict)):
-                    (datetime): The timestamp
-                    (str): The facility of the message
-                    (LogLevel): The LogLevel of the message
-                    ([(ThemeArray, LogLevel)]):
-                        (ThemeArray): The formatted strings of the remnant
-                        (LogLevel): The severity of the remnant
+            (str, bool):
+                (str): The processed string
+                (bool): True if this is the end, False if not
+                (bool): True if the block end should be formatted
     """
-    options: dict = deep_get(kwargs, DictPath("options"), {})
-    loglevel_name: str = deep_get(options, DictPath("severity#default"), "info")
-
-    timestamp: datetime = none_timestamp()
-    facility: str = ""
-    base_severity: LogLevel = name_to_loglevel(loglevel_name, LogLevel.INFO)
+    block_end = deep_get(kwargs, DictPath("block_end"), [])
     message, _timestamp = split_iso_timestamp(message, none_timestamp())
-    remnants: list[ThemeRef | ThemeStr] = []
-
-    # If no block end is defined we continue until EOF
-    block_end: list[MatchBlockEnd] = deep_get(options, DictPath("block_end"), [])
-
-    matched, format_block_end, process_block_end = match_block_end(block_end, message)
-
-    message, new_severity = custom_override_severity(message, base_severity, options=options)
-
-    if matched:
-        severity_name = f"severity_{loglevel_to_name(new_severity).lower()}"
-        remnants = [ThemeStr(message, ThemeAttr("logview", severity_name))]
-        processor: tuple[str, Callable | None, dict] = ("block", custom_line_scanner, options)
-    else:
-        if process_block_end:
-            if format_block_end:
-                severity_name = f"severity_{loglevel_to_name(new_severity).lower()}"
-                remnants = [ThemeStr(message, ThemeAttr("logview", severity_name))]
-            else:
-                severity_name = f"severity_{loglevel_to_name(base_severity).lower()}"
-                remnants = [ThemeStr(message, ThemeAttr("logview", severity_name))]
-            processor = ("end_block", None, {})
-        else:
-            processor = ("end_block_not_processed", None, {})
-
-    return processor, (timestamp, facility, base_severity, remnants)
+    matched, format_block_end, _process_block_end = match_block_end(block_end, message)
+    return message, not matched, format_block_end
 
 
-def custom_line(message: str, **kwargs: Any) -> tuple[tuple[str, Callable | None, dict],
-                                                      list[tuple[list[ThemeRef | ThemeStr],
-                                                                 LogLevel]], LogLevel]:
+def custom_line(message: str, **kwargs: Any) -> tuple[list[ThemeRef | ThemeStr], LogLevel,
+                                                      dict[str, Any]]:
     """
     Parser for custom block messages.
 
@@ -3747,19 +3535,11 @@ def custom_line(message: str, **kwargs: Any) -> tuple[tuple[str, Callable | None
                                         to use when matching
                         loglevel (str): The loglevel to return if the condition matches
         Returns:
-            ((str | (str, Callable, dict)), [(ThemeArray, LogLevel)]):
-                ((str | (str, Callable, dict))):
-                    (str): The unformatted message
-                    (str, Callable, dict):
-                        (str): Command to the block parser
-                        (Callable): The block parser to use
-                        (dict): Arguments to the block parser
-                (ThemeArray): The formatted message
-                (LogLevel): The LogLevel of the message
-                (str): The facility of the message
-                ([(ThemeArray, LogLevel)]):
-                    (ThemeArray): The formatted strings of the remnant
-                    (LogLevel): The severity of the remnant
+            (ThemeArray, LogLevel, dict[str, Any]):
+                (ThemeArray): The matched line, if not being processed by the scanner
+                (LogLevel): The severity; this will be used by the matched line,
+                            but also, unless the scanner extracts something else, for the block
+                (dict[str, Any]): Block processor information
     """
     severity: LogLevel = deep_get(kwargs, DictPath("severity"), LogLevel.DEFAULT)
     options: dict = deep_get(kwargs, DictPath("options"), {})
@@ -3768,34 +3548,43 @@ def custom_line(message: str, **kwargs: Any) -> tuple[tuple[str, Callable | None
     loglevel_name: str = deep_get(options, DictPath("severity#default"), "info")
 
     base_severity: LogLevel = name_to_loglevel(loglevel_name, severity)
-    remnants: list[tuple[list[ThemeRef | ThemeStr], LogLevel]] = []
+
+    processor: dict[str, Any] = {}
 
     line = deep_get(options, DictPath("__line"), 0)
-    if deep_get(options, DictPath("eof")) is None:
-        options["eof"] = "end_block"
 
     matched, format_block_start = match_block_start(block_start, message, line)
-    # XXX: Adjust when we add group support.
     if matched:
         message = matched[0]
+        unprocessed_lines = matched[1:]
 
-    # XXX: Adjust when we add group support.
     message, new_severity = custom_override_severity(message, base_severity, options=options)
-    return_severity = severity
+    severity_name = f"severity_{loglevel_to_name(new_severity).lower()}"
+    formatter: Callable = cmtlib.check_allowlist(formatters.formatter_allowlist,
+                                                 "formatter_allowlist",
+                                                 deep_get(options, DictPath("formatter")),
+                                                 formatters.format_none,
+                                                 exit_on_fail=False)
+
 
     if matched:
+        # If format_block_start is set we pass the block start along with the rest of the lines
+        # to be parsed by the scanner (if possible).
         if format_block_start:
-            severity_name = f"severity_{loglevel_to_name(new_severity).lower()}"
-            remnants = [ThemeStr(message, ThemeAttr("logview", severity_name))]
-            return_severity = new_severity
+            message = []
+            unprocessed_lines = matched
         else:
-            severity_name = f"severity_{loglevel_to_name(severity).lower()}"
-            remnants = [ThemeStr(message, ThemeAttr("logview", severity_name))]
-        processor: tuple[str, Callable | None, dict] = \
-            ("start_block", custom_line_scanner, options)
-        return processor, remnants, return_severity
+            message = [ThemeStr(message, ThemeAttr("logview", severity_name))]
+        processor = {
+            "scanner": strip_timestamp_and_match_block_end,
+            "formatter": formatter,
+            "options": options,
+            "severity": new_severity,
+            "unprocessed_lines": unprocessed_lines,
+        }
+        return message, new_severity, processor
 
-    return message, remnants, return_severity
+    return message, new_severity, {}
 
 
 # pylint: disable-next=too-many-locals,too-many-branches,too-many-statements
@@ -3970,7 +3759,7 @@ def parsing_multiplexer(message: str | list[ThemeRef | ThemeStr],
                         filters: list[tuple[str, dict]], **kwargs: Any) \
         -> tuple[str, LogLevel,
                  list[ThemeRef | ThemeStr] | tuple[str, Callable | None, dict],
-                 list[tuple[list[ThemeRef | ThemeStr], LogLevel]]]:
+                 list[tuple[list[ThemeRef | ThemeStr], LogLevel]], dict]:
     """
     The main loop for the parser; it will iterate loop through all rules specified for
     a particular log until a line has been fully processed.
@@ -3998,6 +3787,7 @@ def parsing_multiplexer(message: str | list[ThemeRef | ThemeStr],
     facility: str = ""
     severity: LogLevel = LogLevel.DEFAULT
     remnants: list[tuple[list[ThemeRef | ThemeStr], LogLevel]] = []
+    processor: dict = {}
 
     # pylint: disable-next=too-many-nested-blocks
     for _filter, filter_options in filters:
@@ -4121,19 +3911,15 @@ def parsing_multiplexer(message: str | list[ThemeRef | ThemeStr],
             # Filters
             elif _filter == "strip_ansicodes":
                 message = strip_ansicodes(message)
-            # Block starters
+            # The content from these rules will typically not be processed further
+            elif _filter == "tab_separated":
+                message, severity, facility, remnants = \
+                    tab_separated(message, severity=severity, facility=facility,
+                                  fold_msg=fold_msg, options=filter_options)
+            # Block starters; these are treated as parser loop terminators if a match is found
             elif _filter == "python_traceback":
                 message, remnants = python_traceback(message, fold_msg=fold_msg,
                                                      options=filter_options)
-            # Block starters; these are treated as parser loop terminators if a match is found
-            elif _filter == "json_line":
-                message, remnants = \
-                    json_line(message, fold_msg=fold_msg, severity=severity,
-                              options=filter_options)
-            elif _filter == "yaml_line":
-                message, remnants = \
-                    yaml_line(message, fold_msg=fold_msg, severity=severity,
-                              options=filter_options)
             elif _filter == "diff_line":
                 message, remnants = \
                     diff_line(message, fold_msg=fold_msg, severity=severity,
@@ -4143,13 +3929,12 @@ def parsing_multiplexer(message: str | list[ThemeRef | ThemeStr],
                     ansible_line(message, fold_msg=fold_msg, severity=severity,
                                  options=filter_options)
             elif _filter == "custom_line":
-                message, remnants, severity = \
+                message, severity, processor = \
                     custom_line(message, fold_msg=fold_msg, severity=severity,
                                 options=filter_options)
-            elif _filter == "tab_separated":
-                message, severity, facility, remnants = \
-                    tab_separated(message, severity=severity, facility=facility,
-                                  fold_msg=fold_msg, options=filter_options)
+                if processor:
+                    remnants = []
+                    break
         # These parsers CAN handle ThemeArrays
         # Severity formats
         if _filter == "override_severity":
@@ -4169,7 +3954,7 @@ def parsing_multiplexer(message: str | list[ThemeRef | ThemeStr],
     else:
         rmessage = message
 
-    return facility, severity, rmessage, remnants
+    return facility, severity, rmessage, remnants, processor
 
 
 Parser = namedtuple("Parser", "name show_in_selector match rules")
@@ -4420,7 +4205,6 @@ def init_parser_list(force_reinit: bool = False) -> None:
                                      "iptables",
                                      "json",
                                      "json_event",
-                                     "json_line",
                                      "json_with_leading_message",
                                      "key_value",
                                      "key_value_with_leading_message",
@@ -4430,20 +4214,9 @@ def init_parser_list(force_reinit: bool = False) -> None:
                                      "strip_ansicodes",
                                      "sysctl",
                                      "tab_separated",
-                                     "ts_8601",
-                                     "yaml_line"):
+                                     "ts_8601"):
 
                         options = deep_get(rule, DictPath("options"), {})
-
-                        if rule_name == "custom_line":
-                            # To allow for easy transition of rules, alias rules for now.
-                            formatter = deep_get(rule, DictPath("options#formatter"))
-                            if formatter == "reformat_json":
-                                rule_name = "json_line"
-                            elif formatter == "format_python_traceback":
-                                rule_name = "python_traceback"
-                            elif formatter == "format_yaml":
-                                rule_name = "yaml_line"
 
                         for key, value in options.items():
                             if key in ("block_start", "block_end"):
@@ -4546,7 +4319,7 @@ def logparser(**kwargs: Any) -> tuple[datetime, str, LogLevel,
     options = {
         "__line": line,
     }
-    facility, severity, rmessage, remnants = \
+    facility, severity, rmessage, remnants, block = \
         parsing_multiplexer(message, filters=parser.rules, fold_msg=fold_msg, options=options)
 
     max_untruncated_len = 16384
@@ -4591,7 +4364,7 @@ def logparser(**kwargs: Any) -> tuple[datetime, str, LogLevel,
         unformatted_msg, formatted_msg = ANSIThemeStr.format_error_msg(errmsg)
         cmtlog.log(LogLevel.WARNING, msg=unformatted_msg, messages=formatted_msg)
 
-    return timestamp, facility, severity, rmessage, remnants
+    return timestamp, facility, severity, rmessage, remnants, block
 
 
 def match_name(matchrule: str, name: str) -> bool:

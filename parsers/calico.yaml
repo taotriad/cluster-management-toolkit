@@ -14,7 +14,18 @@
   parser_rules:
     - name: "ts_8601"
     - name: "glog"
-    - name: "json_line"
+    - name: "custom_line"
+      options:
+        block_start:
+          - matchtype: "exact"
+            matchkey: "{"
+            matchline: "any"
+            format_block_start: false
+        block_end:
+          - matchtype: "exact"
+            matchkey: "}"
+            format_block_end: true
+        formatter: "reformat_json"
     - name: "key_value"
     - name: "custom_splitter"
       options:
@@ -113,7 +124,6 @@
             # yamllint disable-line rule:line-length
             matchkey: '[^|+]'
             format_block_end: false
-            process_block_end: false
         severity:
           default: "notice"
     - name: "override_severity"
