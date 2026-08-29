@@ -10,7 +10,7 @@
     - name: "diff_line"
       options:
         block_start:
-          - matchtype: "regex"
+          - matchtype: "match"
             matchkey: "^\"updated object\".+diff=<$"
             matchline: "any"
         block_end:

@@ -445,7 +445,8 @@
                                                             "contains",
                                                             "endswith",
                                                             "exact",
-                                                            "regex",
+                                                            "match",
+                                                            "search",
                                                             "startswith"
                                                         ]
                                                     },
@@ -477,7 +478,8 @@
                                                             "empty",
                                                             "endswith",
                                                             "exact",
-                                                            "regex",
+                                                            "match",
+                                                            "search",
                                                             "startswith"
                                                         ]
                                                     },
@@ -704,6 +706,10 @@
                                 "options": {
                                     "type": "object",
                                     "properties": {
+                                        "allow_empty_lines": {
+                                            "description": "Should empty lines be permitted? (this is only relevant when formatter is reformat_json)",
+                                            "type": "boolean"
+                                        },
                                         "block_start": {
                                             "type": "array",
                                             "items": {
@@ -714,7 +720,8 @@
                                                             "contains",
                                                             "endswith",
                                                             "exact",
-                                                            "regex",
+                                                            "match",
+                                                            "search",
                                                             "startswith"
                                                         ]
                                                     },
@@ -746,7 +753,8 @@
                                                             "empty",
                                                             "endswith",
                                                             "exact",
-                                                            "regex",
+                                                            "match",
+                                                            "search",
                                                             "startswith"
                                                         ]
                                                     },
@@ -819,7 +827,8 @@
                                                             "contains",
                                                             "endswith",
                                                             "exact",
-                                                            "regex",
+                                                            "match",
+                                                            "search",
                                                             "startswith"
                                                         ]
                                                     },
@@ -851,7 +860,8 @@
                                                             "empty",
                                                             "endswith",
                                                             "exact",
-                                                            "regex",
+                                                            "match",
+                                                            "search",
                                                             "startswith"
                                                         ]
                                                     },

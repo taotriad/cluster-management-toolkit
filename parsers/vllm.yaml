@@ -6,7 +6,7 @@
   parser_rules:
     - name: "custom_splitter"
       options:
-        regex: '^([A-Z]+) \d\d-\d\d \d\d:\d\d:\d\d \[([^]]+)\] (.*)'
+        regex: '([A-Z]+) \d\d-\d\d \d\d:\d\d:\d\d \[([^]]+)\] (.*)'
         severity:
           field: 1
           transform: "str"
@@ -17,7 +17,7 @@
           field: 3
     - name: "custom_splitter"
       options:
-        regex: '^(/.+?:\d+:) (.*)'
+        regex: '(/.+?:\d+:) (.*)'
         facility:
           fields:
             - 1
@@ -36,9 +36,9 @@
             matchline: "any"
             format_block_start: true
         block_end:
-          - matchtype: "regex"
+          - matchtype: "match"
             # yamllint disable-line rule:line-length
-            matchkey: '^(\S+?Error|\S+?Exception|GeneratorExit|KeyboardInterrupt|Stop.*?Iteration|SystemExit|socket.gaierror|UserWarning|SyntaxWarning): '
+            matchkey: '(\S+?Error|\S+?Exception|GeneratorExit|KeyboardInterrupt|Stop.*?Iteration|SystemExit|socket.gaierror|UserWarning|SyntaxWarning): '
             format_block_end: true
         formatter: "format_python_traceback"
 - name: "vllm"
@@ -49,7 +49,7 @@
     - name: "custom_splitter"
       options:
         # yamllint disable-line rule:line-length
-        regex: '^\((\S+) pid=\d+\) ([A-Z]+) \d\d-\d\d \d\d:\d\d:\d\d \[(.+?:\d+)(\]$|\] )(.*)'
+        regex: '\((\S+) pid=\d+\) ([A-Z]+) \d\d-\d\d \d\d:\d\d:\d\d \[(.+?:\d+)(\]$|\] )(.*)'
         severity:
           field: 2
           transform: "str"
@@ -63,7 +63,7 @@
           field: 5
     - name: "custom_splitter"
       options:
-        regex: '^\((\S+) pid=\d+\) (Warning|INFO):\s+(.*)'
+        regex: '\((\S+) pid=\d+\) (Warning|INFO):\s+(.*)'
         facility:
           fields:
             - 1
@@ -74,7 +74,7 @@
           field: 3
     - name: "custom_splitter"
       options:
-        regex: '^\[(.+?)\]:\[([A-Z])\d+ \d\d:\d\d:\d\d.\d+ (.+?:\d+)\] (.*)'
+        regex: '\[(.+?)\]:\[([A-Z])\d+ \d\d:\d\d:\d\d.\d+ (.+?:\d+)\] (.*)'
         facility:
           fields:
             - 1
@@ -88,7 +88,7 @@
     # extract the log message.
     - name: "custom_splitter"
       options:
-        regex: '^\((\S+) pid=\d+\) (.*)'
+        regex: '\((\S+) pid=\d+\) (.*)'
         facility:
           fields:
             - 1
@@ -98,7 +98,7 @@
     # to format the empty message properly...
     - name: "custom_splitter"
       options:
-        regex: '^\((\S+) pid=\d+\)()$'
+        regex: '\((\S+) pid=\d+\)()$'
         facility:
           fields:
             - 1
@@ -117,13 +117,13 @@
             matchline: "any"
             format_block_start: true
         block_end:
-          - matchtype: "regex"
+          - matchtype: "match"
             # yamllint disable-line rule:line-length
-            matchkey: '^(\S+?Error|\S+?Exception|GeneratorExit|KeyboardInterrupt|Stop.*?Iteration|SystemExit|socket.gaierror|UserWarning|SyntaxWarning): '
+            matchkey: '(\S+?Error|\S+?Exception|GeneratorExit|KeyboardInterrupt|Stop.*?Iteration|SystemExit|socket.gaierror|UserWarning|SyntaxWarning): '
             format_block_end: true
         formatter: "format_python_traceback"
         # yamllint disable-line rule:line-length
-        regex: '^\(\S+ pid=\d+\) [A-Z]+ \d\d-\d\d \d\d:\d\d:\d\d \[.+?:\d+\] (.*)|^\(\S+ pid=\d+\) (.*)'
+        regex: '\(\S+ pid=\d+\) [A-Z]+ \d\d-\d\d \d\d:\d\d:\d\d \[.+?:\d+\] (.*)|^\(\S+ pid=\d+\) (.*)'
 - name: "vllm"
   show_in_selector: false
   matchkeys:

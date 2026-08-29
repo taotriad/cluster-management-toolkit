@@ -39,9 +39,9 @@ import json
 from pathlib import Path
 import re
 import sys
-from typing import Any, cast
+from typing import Any, cast, Literal, TypedDict
 try:
-    import ruyaml  # type: ignore[import-not-found]
+    import ruyaml  # type: ignore[import-not-found,unused-ignore]
     ryaml = ruyaml.YAML()
     sryaml = ruyaml.YAML(typ="safe")
 except ModuleNotFoundError:  # pragma: no cover
@@ -95,6 +95,40 @@ from clustermanagementtoolkit.ansithemeprint import ANSIThemeStr
 from clustermanagementtoolkit.generators import format_address
 
 from clustermanagementtoolkit.kubernetes_resources import event_reasons
+
+
+class MatchBlockStart(TypedDict):
+    """
+    A match-rule for block parsers; this one for finding block starts.
+    """
+    matchtype: Literal[
+        "contains",
+        "endswith",
+        "match",
+        "regex",
+        "search",
+        "startswith"]
+    matchkey: str | re.Pattern[str]
+    matchline: Literal["any", "first"]
+    format_block_start: bool
+
+
+class MatchBlockEnd(TypedDict):
+    """
+    A match-rule for block parsers; this one for finding block ends.
+    """
+    matchtype: Literal[
+        "contains",
+        "empty",
+        "endswith",
+        "match",
+        "regex",
+        "search",
+        "startswith"]
+    matchkey: str | re.Pattern[str]
+    matchline: Literal["any", "end"]
+    format_block_end: bool
+    process_block_end: bool
 
 
 # pylint: disable-next=too-few-public-methods
@@ -1853,7 +1887,6 @@ def expand_event_objectmeta(message: str, severity: LogLevel, **kwargs: Any) \
                 return severity, message, remnants
 
     new_message: list[ThemeRef | ThemeStr] = []
-    remnants: list[tuple[list[ThemeRef | ThemeStr], LogLevel]] = []
     indent = 2
     depth = 0
     escaped = False
@@ -2388,6 +2421,7 @@ def key_value_with_leading_message(message: str, **kwargs: Any) -> \
     fold_msg: bool = deep_get(kwargs, DictPath("fold_msg"), True)
     options: dict = deep_get(kwargs, DictPath("options"), {})
     allow_bare_keys: bool = deep_get(options, DictPath("allow_bare_keys"), "")
+    new_message: str | None = None
 
     # This warning seems incorrect
     # pylint: disable-next=global-variable-not-assigned
@@ -2438,7 +2472,7 @@ def key_value_with_leading_message(message: str, **kwargs: Any) -> \
         if new_remnants and fold_msg or "FLAG:" in new_message and "FLAG: " in message:
             new_remnants_strs, new_remnants_severity = new_remnants
             severity_name = f"severity_{loglevel_to_name(new_remnants_severity).lower()}"
-            new_remnants_2 = []
+            new_remnants_2: list[ThemeRef | ThemeStr] = []
             for row in new_remnants_strs:
                 if not new_remnants_2:
                     if isinstance(row, str):
@@ -2954,7 +2988,120 @@ def python_traceback(message: str, **kwargs: Any) \
     return message, remnants
 
 
-# pylint: disable-next=too-many-locals,too-many-branches
+# pylint: disable-next=too-many-branches
+def match_block_start(matchrules: list[MatchBlockStart],
+                      message: str, line: int) -> tuple[list[str], bool]:
+    """
+    Find a block start; returns False if the block end is found additional rules.
+
+        Parameters:
+            matchrules ([MatchBlockStart]): A list of matchrules
+            message (str): The message to match against the matchrules
+            line (int): The line number
+        Returns:
+            ([str], bool):
+                ([str]): The list of matches if matched, empty list if no match
+                (bool): Should the block start be formatted?
+    """
+    matched: list[str] = []
+
+    for _bs in matchrules:
+        matchtype = _bs["matchtype"]
+        matchkey = _bs["matchkey"]
+        matchline = _bs["matchline"]
+        format_block_start = deep_get(_bs, DictPath("format_block_start"), False)
+        if matchline == "any" or matchline == "first" and not line:
+            if matchtype == "contains":
+                if cast(str, matchkey) in message:
+                    matched = [message]
+            elif matchtype == "exact":
+                if message == cast(str, matchkey):
+                    matched = [message]
+            elif matchtype == "endswith":
+                if message.endswith(cast(str, matchkey)):
+                    matched = [message]
+            elif matchtype == "search":
+                tmp = cast(re.Pattern[str], matchkey).search(message)
+                if tmp is not None:
+                    matched = [message]
+                    # If the regex matches groups, it means we want the message split into
+                    # multiple lines; this is useful, for instance, when we have something
+                    # like this:
+                    # New Configuration: {
+                    # <json goes here>
+                    # }
+                    # if tmp.groups():
+                    #     matched = [tmp.groups()]
+            elif matchtype in ("regex", "match"):
+                tmp = cast(re.Pattern[str], matchkey).match(message)
+                if tmp is not None:
+                    matched = [message]
+                    # XXX: Adjust when we add group support.
+                    # If the regex matches groups, it means we want the message split into
+                    # multiple lines; this is useful, for instance, when we have something
+                    # like this:
+                    # New Configuration: {
+                    # <json goes here>
+                    # }
+                    # if tmp.groups():
+                    #     matched = [tmp.groups()]
+            elif matchtype == "startswith":
+                if message.startswith(cast(str, matchkey)):
+                    matched = [message]
+        if matched:
+            break
+    return matched, format_block_start
+
+
+# pylint: disable-next=too-many-branches
+def match_block_end(matchrules: list[MatchBlockEnd], message: str) -> tuple[bool, bool, bool]:
+    """
+    Find a block end; returns False if the block end is found additional rules.
+
+        Parameters:
+            matchrules ([MatchBlockEnd]): A list of matchrules
+            message (str): The message to match against the matchrules
+        Returns:
+            (bool, bool, bool):
+                (bool): Was there a match?
+                (bool): Should the block end be formatted?
+                (bool): Should the block end be processed?
+    """
+    matched: bool = True
+
+    for _be in matchrules:
+        matchtype = deep_get(_be, DictPath("matchtype"))
+        matchkey = deep_get(_be, DictPath("matchkey"))
+        format_block_end = deep_get(_be, DictPath("format_block_end"), False)
+        process_block_end = deep_get(_be, DictPath("process_block_end"), True)
+
+        if matchtype == "empty":
+            if not message.strip():
+                matched = False
+        elif matchtype == "contains":
+            if matchkey in message:
+                matched = False
+        elif matchtype == "exact":
+            if message == matchkey:
+                matched = False
+        elif matchtype == "endswith":
+            if message.endswith(matchkey):
+                matched = False
+        elif matchtype == "search":
+            tmp = matchkey.search(message)
+            if tmp is not None:
+                matched = False
+        elif matchtype in ("regex", "match"):
+            tmp = matchkey.match(message)
+            if tmp is not None:
+                matched = False
+        elif matchtype == "startswith":
+            if message.startswith(matchkey):
+                matched = False
+
+    return matched, format_block_end, process_block_end
+
+
 def json_line_scanner(message: str, **kwargs: Any) \
         -> tuple[tuple[str, Callable | None, dict],
                  tuple[datetime, str, LogLevel,
@@ -2991,35 +3138,9 @@ def json_line_scanner(message: str, **kwargs: Any) \
     matched: bool = True
 
     # If no block end is defined we continue until EOF
-    block_end = deep_get(options, DictPath("block_end"), [])
+    block_end: list[MatchBlockEnd] = deep_get(options, DictPath("block_end"), [])
 
-    # format_block_end = False
-    # process_block_end = True
-
-    for _be in block_end:
-        matchtype = deep_get(_be, DictPath("matchtype"))
-        matchkey = deep_get(_be, DictPath("matchkey"))
-        # format_block_end = deep_get(_be, DictPath("format_block_end"), False)
-        # process_block_end = deep_get(_be, DictPath("process_block_end"), True)
-        if matchtype == "empty":
-            if not message.strip():
-                matched = False
-        elif matchtype == "contains":
-            if matchkey in message:
-                matched = False
-        elif matchtype == "exact":
-            if message == matchkey:
-                matched = False
-        elif matchtype == "startswith":
-            if message.startswith(matchkey):
-                matched = False
-        elif matchtype == "endswith":
-            if message.endswith(matchkey):
-                matched = False
-        elif matchtype == "regex":
-            tmp = matchkey.match(message)
-            if tmp is not None:
-                matched = False
+    matched, _format_block_end, _process_block_end = match_block_end(block_end, message)
 
     if message == "}".rstrip() or not matched:
         remnants = formatters.format_yaml_line(message, override_formatting={})
@@ -3037,7 +3158,6 @@ def json_line_scanner(message: str, **kwargs: Any) \
     return processor, (timestamp, facility, severity, remnants)
 
 
-# pylint: disable-next=too-many-branches
 def json_line(message: str,
               **kwargs: Any) -> tuple[str | tuple[str, Callable | None, dict],
                                       list[tuple[list[ThemeRef | ThemeStr], LogLevel]]]:
@@ -3069,9 +3189,8 @@ def json_line(message: str,
         options = {}
 
     remnants: str | list[tuple[list[ThemeRef | ThemeStr], LogLevel]] = []
-    matched = False
 
-    block_start = deep_get(options, DictPath("block_start"), [{
+    block_start: list[MatchBlockStart] = deep_get(options, DictPath("block_start"), [{
         "matchtype": "exact",
         "matchkey": "{",
         "matchline": "any",
@@ -3079,29 +3198,11 @@ def json_line(message: str,
     }])
     line = deep_get(options, DictPath("__line"), 0)
 
-    for _bs in block_start:
-        matchtype = _bs["matchtype"]
-        matchkey = _bs["matchkey"]
-        matchline = _bs["matchline"]
-        format_block_start = deep_get(_bs, DictPath("format_block_start"), False)
-        if matchline == "any" or matchline == "first" and not line:
-            if matchtype == "exact":
-                if message == matchkey:
-                    matched = True
-            elif matchtype == "contains":
-                if matchkey in message:
-                    matched = True
-            elif matchtype == "startswith":
-                if message.startswith(matchkey):
-                    matched = True
-            elif matchtype == "endswith":
-                if message.endswith(matchkey):
-                    matched = True
-            elif matchtype == "regex":
-                if re.match(matchkey, message) is not None:
-                    matched = True
+    matched, format_block_start = match_block_start(block_start, message, line)
 
     if matched:
+        # XXX: Adjust when we add group support.
+        message = matched[0]
         if format_block_start:
             remnants = formatters.format_yaml_line(message, override_formatting={})
         else:
@@ -3114,7 +3215,6 @@ def json_line(message: str,
     return message, []
 
 
-# pylint: disable-next=too-many-locals,too-many-branches
 def yaml_line_scanner(message: str,
                       **kwargs: Any) -> tuple[tuple[str, Callable | None, dict],
                                               tuple[datetime, str, LogLevel,
@@ -3152,34 +3252,9 @@ def yaml_line_scanner(message: str,
     matched = True
 
     # If no block end is defined we continue until EOF
-    block_end = deep_get(options, DictPath("block_end"), [])
+    block_end: list[MatchBlockEnd] = deep_get(options, DictPath("block_end"), [])
 
-    format_block_end = False
-    process_block_end = True
-
-    for _be in block_end:
-        matchtype = deep_get(_be, DictPath("matchtype"))
-        matchkey = deep_get(_be, DictPath("matchkey"))
-        format_block_end = deep_get(_be, DictPath("format_block_end"), False)
-        process_block_end = deep_get(_be, DictPath("process_block_end"), True)
-        if matchtype == "empty":
-            if not message.strip():
-                matched = False
-        elif matchtype == "contains":
-            if matchkey in message:
-                matched = False
-        elif matchtype == "exact":
-            if message == matchkey:
-                matched = False
-        elif matchtype == "startswith":
-            if message.startswith(matchkey):
-                matched = False
-        elif matchtype == "endswith":
-            if message.endswith(matchkey):
-                matched = False
-        elif matchtype == "regex":
-            if matchkey.match(message) is not None:
-                matched = False
+    matched, format_block_end, process_block_end = match_block_end(block_end, message)
 
     if matched:
         remnants = formatters.format_yaml_line(message, override_formatting={})
@@ -3198,7 +3273,7 @@ def yaml_line_scanner(message: str,
     return processor, (timestamp, facility, severity, remnants)
 
 
-# pylint: disable-next=too-many-branches
+# pylint: disable-next=too-many-branches,too-many-locals
 def yaml_line(message: str, **kwargs: Any) -> \
         tuple[str | tuple[str, Callable | None, dict],
               str | list[tuple[list[ThemeRef | ThemeStr], LogLevel]]]:
@@ -3232,7 +3307,7 @@ def yaml_line(message: str, **kwargs: Any) -> \
     remnants: list[tuple[list[ThemeRef | ThemeStr], LogLevel]] = []
     matched = False
 
-    block_start = deep_get(options, DictPath("block_start"), [{
+    block_start: list[MatchBlockStart] = deep_get(options, DictPath("block_start"), [{
         "matchtype": "regex",
         "matchkey": re.compile(r"^\S+?: \S.*$|^\S+?:$"),
         "matchline": "any",
@@ -3248,20 +3323,38 @@ def yaml_line(message: str, **kwargs: Any) -> \
         matchline = _bs["matchline"]
         format_block_start = deep_get(_bs, DictPath("format_block_start"), False)
         if matchline == "any" or matchline == "first" and not line:
-            if matchtype == "exact":
-                if message == matchkey:
+            if matchtype == "contains":
+                if cast(str, matchkey) in message:
                     matched = True
-            elif matchtype == "contains":
-                if matchkey in message:
+            elif matchtype == "exact":
+                if message == cast(str, matchkey):
                     matched = True
+            elif matchtype == "search":
+                tmp = cast(re.Pattern[str], matchkey).search(message)
+                if tmp is not None:
+                    matched = True
+                    # If the regex matches groups, it means we want the message split into
+                    # multiple lines; this is useful, for instance, when we have something
+                    # like this:
+                    # New Configuration: {
+                    # <json goes here>
+                    # }
+                    # if len(tmp.groups()):
+                    # ...
+            elif matchtype in ("regex", "match"):
+                tmp = cast(re.Pattern[str], matchkey).match(message)
+                if tmp is not None:
+                    matched = True
+                    # If the regex matches groups, it means we want the message split into
+                    # multiple lines; this is useful, for instance, when we have something
+                    # like this:
+                    # New Configuration: {
+                    # <json goes here>
+                    # }
+                    # if len(tmp.groups()):
+                    # ...
             elif matchtype == "startswith":
-                if message.startswith(matchkey):
-                    matched = True
-            elif matchtype == "endswith":
-                if message.endswith(matchkey):
-                    matched = True
-            elif matchtype == "regex":
-                if re.match(matchkey, message) is not None:
+                if message.startswith(cast(str, matchkey)):
                     matched = True
 
     if matched:
@@ -3277,7 +3370,6 @@ def yaml_line(message: str, **kwargs: Any) -> \
     return message, remnants
 
 
-# pylint: disable-next=too-many-locals,too-many-branches
 def diff_line_scanner(message: str,
                       **kwargs: Any) -> tuple[tuple[str, Callable | None, dict],
                                               tuple[datetime, str, LogLevel,
@@ -3315,34 +3407,9 @@ def diff_line_scanner(message: str,
     matched = True
 
     # If no block end is defined we continue until EOF
-    block_end = deep_get(options, DictPath("block_end"), [])
+    block_end: list[MatchBlockEnd] = deep_get(options, DictPath("block_end"), [])
 
-    format_block_end = False
-    process_block_end = True
-
-    for _be in block_end:
-        matchtype = deep_get(_be, DictPath("matchtype"))
-        matchkey = deep_get(_be, DictPath("matchkey"))
-        format_block_end = deep_get(_be, DictPath("format_block_end"), False)
-        process_block_end = deep_get(_be, DictPath("process_block_end"), True)
-        if matchtype == "empty":
-            if not message.strip():
-                matched = False
-        elif matchtype == "contains":
-            if matchkey in message:
-                matched = False
-        elif matchtype == "exact":
-            if message == matchkey:
-                matched = False
-        elif matchtype == "startswith":
-            if message.startswith(matchkey):
-                matched = False
-        elif matchtype == "endswith":
-            if message.endswith(matchkey):
-                matched = False
-        elif matchtype == "regex":
-            if matchkey.match(message) is not None:
-                matched = False
+    matched, format_block_end, process_block_end = match_block_end(block_end, message)
 
     if matched:
         remnants = formatters.format_diff_line(message,
@@ -3364,7 +3431,6 @@ def diff_line_scanner(message: str,
     return processor, (timestamp, facility, severity, remnants)
 
 
-# pylint: disable-next=too-many-branches
 def diff_line(message: str, **kwargs: Any) -> tuple[tuple[str, Callable | None, dict],
                                                     list[tuple[list[ThemeRef | ThemeStr],
                                                                LogLevel]]]:
@@ -3396,9 +3462,8 @@ def diff_line(message: str, **kwargs: Any) -> tuple[tuple[str, Callable | None, 
         options = {}
 
     remnants: list[tuple[list[ThemeRef | ThemeStr], LogLevel]] = []
-    matched = False
 
-    block_start = deep_get(options, DictPath("block_start"), [{
+    block_start: list[MatchBlockStart] = deep_get(options, DictPath("block_start"), [{
         "matchtype": "regex",
         "matchkey": re.compile(r"^\S+?: \S.*$|^\S+?:$"),
         "matchline": "any",
@@ -3408,29 +3473,11 @@ def diff_line(message: str, **kwargs: Any) -> tuple[tuple[str, Callable | None, 
     if deep_get(options, DictPath("eof")) is None:
         options["eof"] = "end_block"
 
-    for _bs in block_start:
-        matchtype = _bs["matchtype"]
-        matchkey = _bs["matchkey"]
-        matchline = _bs["matchline"]
-        format_block_start = deep_get(_bs, DictPath("format_block_start"), False)
-        if matchline == "any" or matchline == "first" and not line:
-            if matchtype == "exact":
-                if message == matchkey:
-                    matched = True
-            elif matchtype == "contains":
-                if matchkey in message:
-                    matched = True
-            elif matchtype == "startswith":
-                if message.startswith(matchkey):
-                    matched = True
-            elif matchtype == "endswith":
-                if message.endswith(matchkey):
-                    matched = True
-            elif matchtype == "regex":
-                if matchkey.match(message) is not None:
-                    matched = True
+    matched, format_block_start = match_block_start(block_start, message, line)
 
     if matched:
+        # XXX: Adjust when we add group support.
+        message = matched[0]
         if format_block_start:
             remnants = formatters.format_diff_line(message,
                                                    indent=deep_get(options, DictPath("indent"), ""))
@@ -3584,7 +3631,7 @@ def ansible_line(message: str,
     return message, remnants
 
 
-# pylint: disable-next=too-many-locals,too-many-branches
+# pylint: disable-next=too-many-locals
 def custom_line_scanner(message: str, **kwargs: Any) \
         -> tuple[tuple[str, Callable | None, dict],
                  tuple[datetime, str, LogLevel, list[ThemeRef | ThemeStr]]]:
@@ -3596,25 +3643,17 @@ def custom_line_scanner(message: str, **kwargs: Any) \
             **kwargs (dict[str, Any]): Keyword arguments
                 options (dict[str, Any]):
                     loglevel (str): The default loglevel to use for processed entries
-                    block_start ([dict[str, str | bool]]): [unused]
-                    block_end ([dict[str, str | bool]]):
-                        matchtype (str): The type of match; must be one of:
-                                         - "contains"
-                                         - "empty"
-                                         - "endswith"
-                                         - "exact"
-                                         - "regex"
-                                         - "startswith"
-                        matchkey (str): The key (either a plain string or a regular expression)
-                                        to use when matching
-                        format_block_end (bool): Should the last line of the block be formatted?
+                    block_start ([MatchBlockStart]]): [unused]
+                    block_end ([MatchBlockEnd]]): Rules to use when matching the block
                     overrides ([dict[str, str]]): A list of severity override match rules
                                                   to pass to custom_override_severity()
                         matchtype (str): The type of match; must be one of:
                                          - "contains"
                                          - "endswith"
                                          - "exact"
+                                         - "match"
                                          - "regex"
+                                         - "search"
                                          - "startswith"
                         loglevel (str): The loglevel to return if the condition matches
 
@@ -3642,38 +3681,11 @@ def custom_line_scanner(message: str, **kwargs: Any) \
     base_severity: LogLevel = name_to_loglevel(loglevel_name, LogLevel.INFO)
     message, _timestamp = split_iso_timestamp(message, none_timestamp())
     remnants: list[ThemeRef | ThemeStr] = []
-    matched = True
 
     # If no block end is defined we continue until EOF
-    block_end = deep_get(options, DictPath("block_end"), [])
+    block_end: list[MatchBlockEnd] = deep_get(options, DictPath("block_end"), [])
 
-    format_block_end = False
-    process_block_end = True
-
-    for _be in block_end:
-        matchtype = deep_get(_be, DictPath("matchtype"))
-        matchkey = deep_get(_be, DictPath("matchkey"))
-        format_block_end = deep_get(_be, DictPath("format_block_end"), False)
-        process_block_end = deep_get(_be, DictPath("process_block_end"), True)
-        if matchtype == "empty":
-            if not message.strip():
-                matched = False
-        elif matchtype == "contains":
-            if matchkey in message:
-                matched = False
-        elif matchtype == "exact":
-            if message == matchkey:
-                matched = False
-        elif matchtype == "startswith":
-            if message.startswith(matchkey):
-                matched = False
-        elif matchtype == "endswith":
-            if message.endswith(matchkey):
-                matched = False
-        elif matchtype == "regex":
-            tmp = matchkey.match(message)
-            if tmp is not None:
-                matched = False
+    matched, format_block_end, process_block_end = match_block_end(block_end, message)
 
     message, new_severity = custom_override_severity(message, base_severity, options=options)
 
@@ -3696,10 +3708,9 @@ def custom_line_scanner(message: str, **kwargs: Any) \
     return processor, (timestamp, facility, base_severity, remnants)
 
 
-# pylint: disable-next=too-many-locals,too-many-branches
 def custom_line(message: str, **kwargs: Any) -> tuple[tuple[str, Callable | None, dict],
                                                       list[tuple[list[ThemeRef | ThemeStr],
-                                                                 LogLevel]]]:
+                                                                 LogLevel]], LogLevel]:
     """
     Parser for custom block messages.
 
@@ -3714,7 +3725,9 @@ def custom_line(message: str, **kwargs: Any) -> tuple[tuple[str, Callable | None
                                          - "contains"
                                          - "endswith"
                                          - "exact"
+                                         - "match"
                                          - "regex"
+                                         - "search"
                                          - "startswith"
                         matchkey (str): The key (either a plain string or a regular expression)
                                         to use when matching
@@ -3751,40 +3764,22 @@ def custom_line(message: str, **kwargs: Any) -> tuple[tuple[str, Callable | None
     severity: LogLevel = deep_get(kwargs, DictPath("severity"), LogLevel.DEFAULT)
     options: dict = deep_get(kwargs, DictPath("options"), {})
 
-    block_start: list[dict] = deep_get(options, DictPath("block_start"), [])
+    block_start: list[MatchBlockStart] = deep_get(options, DictPath("block_start"), [])
     loglevel_name: str = deep_get(options, DictPath("severity#default"), "info")
 
     base_severity: LogLevel = name_to_loglevel(loglevel_name, severity)
     remnants: list[tuple[list[ThemeRef | ThemeStr], LogLevel]] = []
-    matched = False
 
     line = deep_get(options, DictPath("__line"), 0)
     if deep_get(options, DictPath("eof")) is None:
         options["eof"] = "end_block"
 
-    for _bs in block_start:
-        matchtype = _bs["matchtype"]
-        matchkey = _bs["matchkey"]
-        matchline = _bs["matchline"]
-        format_block_start = deep_get(_bs, DictPath("format_block_start"), False)
-        if matchline == "any" or matchline == "first" and not line:
-            if matchtype == "exact":
-                if message == matchkey:
-                    matched = True
-            elif matchtype == "contains":
-                if matchkey in message:
-                    matched = True
-            elif matchtype == "startswith":
-                if message.startswith(matchkey):
-                    matched = True
-            elif matchtype == "endswith":
-                if message.endswith(matchkey):
-                    matched = True
-            elif matchtype == "regex":
-                tmp = matchkey.match(message)
-                if tmp is not None:
-                    matched = True
+    matched, format_block_start = match_block_start(block_start, message, line)
+    # XXX: Adjust when we add group support.
+    if matched:
+        message = matched[0]
 
+    # XXX: Adjust when we add group support.
     message, new_severity = custom_override_severity(message, base_severity, options=options)
     return_severity = severity
 
@@ -4454,13 +4449,19 @@ def init_parser_list(force_reinit: bool = False) -> None:
                             if key in ("block_start", "block_end"):
                                 tmp = []
                                 for entry in value:
-                                    if deep_get(entry, DictPath("matchtype"), "") == "regex":
+                                    if deep_get(entry, DictPath("matchtype"), "") \
+                                            in ("match", "regex", "search"):
                                         regex = deep_get(entry, DictPath("matchkey"), "")
                                         if regex is not None:
                                             compiled_regex = re.compile(regex)
                                             entry["matchkey"] = compiled_regex
                                     tmp.append(entry)
-                            elif key == "regex":
+                            elif key in ("match", "regex", "search"):
+                                # Regular expressions:
+                                # search will use re.search()
+                                # match will use re.match()
+                                # regex is retained for backwards compatibility
+                                # and will use re.match()
                                 regex = deep_get(rule, DictPath("options#regex"), "")
                                 value = re.compile(regex)
                             elif key == "severity":
@@ -4627,7 +4628,7 @@ def match_name(matchrule: str, name: str) -> bool:
 
 
 # pylint: disable-next=too-many-locals,too-many-branches
-def initialise_logparser(**kwargs: Any) -> [tuple[str | None, str], Parser]:
+def initialise_logparser(**kwargs: Any) -> tuple[tuple[str | None, str | None], Parser | None]:
     """
     This (re-)initialises the parser; it will identify what parser rules to use
     helped by pod_name, container_name, and image_name;
@@ -4668,8 +4669,8 @@ def initialise_logparser(**kwargs: Any) -> [tuple[str | None, str], Parser]:
     image_name = image_name.removeprefix("docker-pullable://")
 
     for parser in parsers:
-        uparser = None
-        lparser = None
+        uparser: str | None = None
+        lparser: str | None = None
 
         for matchrule_pod_name, matchrule_container_name, matchrule_image_prefix, \
                 matchrule_container_type, matchrule_image_regex in parser.match:

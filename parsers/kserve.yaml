@@ -3,8 +3,12 @@
   show_in_selector: false
   matchkeys:
     - image_name: "/kserve/kserve-controller"
+      container_name: "manager"
+    - image_name: "/kserve/kserve-localmodel-controller"
+      container_name: "manager"
     - image_name: "/knative-releases/knative.dev/serving/cmd/queue"
   parser_rules:
+    - name: "glog"
     - name: "json"
       options:
         severity:

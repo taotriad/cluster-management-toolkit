@@ -72,7 +72,7 @@ allow_bare_keys: (str) Should keys allowed to be of the type *key* rather than *
 
 ```
 block_end (list):
-  - matchtype: (str) The type of match to use (valid: contains, empty, endswith, exact, regex, startswith)
+  - matchtype: (str) The type of match to use (valid: contains, empty, endswith, exact, match, search, startswith)
     matchkey: (str) The string to use when applying the matchtype
     matchline: (str) The line a match can start at (valid: any, first)
     format_block_start: (bool) Should the line that matched the expression be formatted?
@@ -85,7 +85,7 @@ block_end (list):
 
 ```
 block_start (list):
-  - matchtype: (str) The type of match to use (valid: contains, endswith, exact, regex, startswith)
+  - matchtype: (str) The type of match to use (valid: contains, endswith, exact, match, search, startswith)
     matchkey: (str) The string to use when applying the matchtype
     matchline: (str) The line a match can start at (valid: any, first)
     format_block_start: (bool) Should the line that matched the expression be formatted?

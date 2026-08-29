@@ -2664,7 +2664,7 @@ def __task_adjust_kubeconfig_server_address(installation_info: dict, **kwargs: A
             # Is this cluster a localhost?
             server = deep_get(cluster, DictPath("cluster#server"), "")
             if server.startswith("https://127") or server == "::1":
-                if (re_tmp := re.match(r"^(https://)([^:]+)(:.*)", server)) is None:
+                if (re_tmp := re.match(r"(https://)([^:]+)(:.*)", server)) is None:
                     ansithemeprint([ANSIThemeStr("Error", "error"),
                                     ANSIThemeStr(": Failed to extract server address.",
                                                  "default")])
@@ -3458,7 +3458,7 @@ def __find_requested_version(k8s_distro: str, version: str | None = None) -> str
 
         # FIXME: we could fetch the channel file from upstream to get the version list,
         # but for now we just accept any version.
-        if (re_tmp := re.match(r"^v?(\d+\.\d+).*", version)) is not None:
+        if (re_tmp := re.match(r"v?(\d+\.\d+).*", version)) is not None:
             requested_version = re_tmp[1]
     else:
         raise NotImplementedError(f"No support for distro {k8s_distro} implemented")
@@ -4145,7 +4145,7 @@ def show_configuration(action: str,
             if str(e) in ("[Errno -2] Name or service not known",
                           "[Errno -3] Temporary failure in name resolution",
                           "[Errno -5] No address associated with hostname"):
-                if (re_tmp := re.match(r"^\[Errno (-\d+)\] (.+)", str(e))) is None:
+                if (re_tmp := re.match(r"\[Errno (-\d+)\] (.+)", str(e))) is None:
                     # If we cannot extract the error we re-raise it since we don't know
                     # how to handle it
                     raise
@@ -4163,7 +4163,7 @@ def show_configuration(action: str,
             if str(e) in ("[Errno -2] Name or service not known",
                           "[Errno -3] Temporary failure in name resolution",
                           "[Errno -5] No address associated with hostname"):
-                if (re_tmp := re.match(r"^\[Errno (-\d+)\] (.+)", str(e))) is None:
+                if (re_tmp := re.match(r"\[Errno (-\d+)\] (.+)", str(e))) is None:
                     # If we cannot extract the error we re-raise it since we don't know
                     # how to handle it
                     raise
@@ -5476,7 +5476,7 @@ def create_cluster(options: list[tuple[str, str]], args: list[str]) -> None:
                     args = [helm_path, "list", "--namespace", namespace,
                             "--filter", f"^{hname}$", "--no-headers"]
                     response, _retval = execute_command_with_response(args, env=env)
-                    if re.match(fr"^{hname}\s.+{version}$", response) is not None:
+                    if re.match(fr"{hname}\s.+{version}$", response) is not None:
                         # We've got an exact match for version and name; for now we just ignore.
                         # We might add a remove + install policy later.
                         ansithemeprint([ANSIThemeStr("Warning", "warning"),

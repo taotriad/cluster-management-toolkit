@@ -30,8 +30,8 @@
             matchline: "any"
             format_block_start: true
         block_end:
-          - matchtype: "regex"
+          - matchtype: "match"
             # yamllint disable-line rule:line-length
-            matchkey: '^(\S+?Error|\S+?Exception|GeneratorExit|KeyboardInterrupt|Stop.*?Iteration|SystemExit|socket.gaierror|UserWarning|SyntaxWarning): '
+            matchkey: '(\S+?Error|\S+?Exception|GeneratorExit|KeyboardInterrupt|Stop.*?Iteration|SystemExit|socket.gaierror|UserWarning|SyntaxWarning): '
             format_block_end: true
         formatter: "format_python_traceback"

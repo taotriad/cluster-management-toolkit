@@ -68,12 +68,11 @@
     - name: "custom_line"
       options:
         block_start:
-          # FIXME: The first rule isn't perfect
-          - matchtype: "regex"
+          - matchtype: "startswith"
             matchkey: "Upgrade repo deployment is ready."
             matchline: "any"
             format_block_start: false
-          - matchtype: "regex"
+          - matchtype: "match"
             matchkey: "The final content of .* patch file"
             matchline: "any"
             format_block_start: false
@@ -82,15 +81,15 @@
             matchline: "any"
             format_block_start: false
         block_end:
-          - matchtype: "regex"
+          - matchtype: "match"
             matchkey: "Upgrad|Patch"
             format_block_end: false
             process_block_end: false
-          - matchtype: "regex"
+          - matchtype: "match"
             matchkey: "Upgrad|Patch"
             format_block_end: false
             process_block_end: false
-          - matchtype: "regex"
+          - matchtype: "match"
             matchkey: "managedchart.+ configured"
             format_block_end: false
             process_block_end: false

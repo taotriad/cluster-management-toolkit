@@ -6545,7 +6545,7 @@ def executecommand(stdscr: curses.window,
             else:
                 output = result.stdout.decode("utf-8", errors="replace")
                 match_tmp = \
-                    re.match(r"^Creating debugging pod (\S+) with container (\S+) .*", output)
+                    re.match(r"Creating debugging pod (\S+) with container (\S+) .*", output)
                 if match_tmp is not None:
                     pod_name = match_tmp[1]
                     container_name = match_tmp[2]
@@ -6664,7 +6664,7 @@ def listviewdispatch(stdscr: curses.window, **kwargs: Any) -> Retval:
         api_family, _api_version = api_family.split("/", maxsplit=1)
     else:
         # Is the api_family only a version#? Then it's a core API
-        match_tmp = re.match(r"^v\d+(alpha\d+|beta\d+|)", api_family)
+        match_tmp = re.match(r"v\d+(alpha\d+|beta\d+|)", api_family)
         if match_tmp is not None:
             api_family = ""
 

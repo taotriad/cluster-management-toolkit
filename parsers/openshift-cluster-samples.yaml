@@ -9,8 +9,8 @@
     - name: "custom_line"
       options:
         block_start:
-          - matchtype: "regex"
-            matchkey: "^Watching for changes in.*{$"
+          - matchtype: "match"
+            matchkey: "Watching for changes in.*{$"
             matchline: "any"
             format_block_start: true
         block_end:
