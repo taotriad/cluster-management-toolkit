@@ -33,6 +33,9 @@
             matchline: "any"
             format_block_start: false
         block_end:
+          - matchtype: "eof"
+            matchkey: ''
+            format_block_end: false
           - matchtype: "match"
             matchkey: '[A-Z]\d{4} \d\d:\d\d:\d\d'
             format_block_end: false

@@ -121,6 +121,7 @@ class MatchBlockEnd(TypedDict):
         "contains",
         "empty",
         "endswith",
+        "eof",
         "match",
         "regex",
         "search",
@@ -3023,7 +3024,6 @@ def match_block_start(matchrules: list[MatchBlockStart],
             elif matchtype == "search":
                 tmp = cast(re.Pattern[str], matchkey).search(message)
                 if tmp is not None:
-                    matched = [message]
                     # If the regex matches groups, it means we want the message split into
                     # multiple lines; this is useful, for instance, when we have something
                     # like this:
@@ -3032,11 +3032,11 @@ def match_block_start(matchrules: list[MatchBlockStart],
                     # }
                     if tmp.groups():
                         matched = list(tmp.groups())
+                    else:
+                        matched = [message]
             elif matchtype in ("regex", "match"):
                 tmp = cast(re.Pattern[str], matchkey).match(message)
                 if tmp is not None:
-                    matched = [message]
-                    # XXX: Adjust when we add group support.
                     # If the regex matches groups, it means we want the message split into
                     # multiple lines; this is useful, for instance, when we have something
                     # like this:
@@ -3045,6 +3045,8 @@ def match_block_start(matchrules: list[MatchBlockStart],
                     # }
                     if tmp.groups():
                         matched = list(tmp.groups())
+                    else:
+                        matched = [message]
             elif matchtype == "startswith":
                 if message.startswith(cast(str, matchkey)):
                     matched = [message]
@@ -3075,6 +3077,12 @@ def match_block_end(matchrules: list[MatchBlockEnd], message: str) -> tuple[bool
         format_block_end = deep_get(_be, DictPath("format_block_end"), False)
         process_block_end = deep_get(_be, DictPath("process_block_end"), True)
 
+        # We can only match None against EOF.
+        if message is None:
+            if matchtype == "eof":
+                matched = False
+                break
+            continue
         if matchtype == "empty":
             if not message.strip():
                 matched = False
@@ -3492,7 +3500,8 @@ def strip_timestamp_and_match_block_end(message: str, **kwargs: Any) -> tuple[st
                 (bool): True if the block end should be formatted
     """
     block_end = deep_get(kwargs, DictPath("block_end"), [])
-    message, _timestamp = split_iso_timestamp(message, none_timestamp())
+    if message is not None:
+        message, _timestamp = split_iso_timestamp(message, none_timestamp())
     matched, format_block_end, _process_block_end = match_block_end(block_end, message)
     return message, not matched, format_block_end
 
@@ -3566,7 +3575,6 @@ def custom_line(message: str, **kwargs: Any) -> tuple[list[ThemeRef | ThemeStr],
                                                  deep_get(options, DictPath("formatter")),
                                                  formatters.format_generic,
                                                  exit_on_fail=False)
-
 
     if matched:
         # If format_block_start is set we pass the block start along with the rest of the lines
@@ -4288,7 +4296,7 @@ def get_parser_list() -> set[Parser]:
 # pylint: disable-next=too-many-locals
 def logparser(**kwargs: Any) -> tuple[datetime, str, LogLevel,
                                       list[ThemeRef | ThemeStr] | tuple[str, Callable | None, dict],
-                                      list[tuple[list[ThemeRef | ThemeStr], LogLevel]]]:
+                                      list[tuple[list[ThemeRef | ThemeStr], LogLevel]], dict]:
     """
     This is used when the parser is already initialised.
 

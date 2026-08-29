@@ -754,6 +754,7 @@
                                                             "contains",
                                                             "empty",
                                                             "endswith",
+                                                            "eof",
                                                             "exact",
                                                             "match",
                                                             "search",

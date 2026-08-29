@@ -130,3 +130,60 @@
             - matchtype: "startswith"
               matchkey: "Commit: "
               loglevel: "notice"
+- name: "nvidia"
+  show_in_selector: false
+  matchkeys:
+    - image_name: "/nvidia/gpu-operator"
+  parser_rules:
+    - name: "glog"
+    - name: "json"
+      options:
+        severity:
+          overrides:
+            - matchtype: "startswith"
+              matchkey: "version: "
+              loglevel: "notice"
+    - name: "key_value_with_leading_message"
+    - name: "override_severity"
+      options:
+        severity:
+          overrides:
+            - matchtype: "startswith"
+              matchkey: "version: "
+              loglevel: "notice"
+- name: "nvidia"
+  show_in_selector: false
+  matchkeys:
+    - image_name: "/nvidia/gpu-operator"
+      container_type: "InitContainer"
+  parser_rules:
+    - name: "custom_line"
+      options:
+        block_start:
+          - matchtype: "startswith"
+            matchkey: "+---------------"
+            matchline: "any"
+            format_block_start: true
+        block_end:
+          - matchtype: "match"
+            matchkey: "(?![+|]|^$)"
+            format_block_end: false
+          - matchtype: "eof"
+            matchkey: ""
+            format_block_end: false
+        severity:
+          default: "info"
+    - name: "key_value"
+      options:
+        severity:
+          overrides:
+            - matchtype: "startswith"
+              matchkey: "\"version: "
+              loglevel: "notice"
+    - name: "override_severity"
+      options:
+        severity:
+          overrides:
+            - matchtype: "startswith"
+              matchkey: "version: "
+              loglevel: "notice"

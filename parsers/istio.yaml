@@ -39,6 +39,7 @@
     - image_name: "/istio/proxyv2"
       container_type: "InitContainer"
     - image_name: "/release/proxyv2"
+    - image_name: "/release/proxyv2"
       container_type: "InitContainer"
     - image_name: "/istio-release/proxyv2"
       container_type: "InitContainer"

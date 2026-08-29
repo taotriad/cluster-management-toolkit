@@ -116,7 +116,7 @@ COLORSCHEME_CADDYFILE: dict[Any, ColorSchemeEntry] = {
         "formatting": ThemeAttr("types", "generic"),
         "type": "whitespace",
     },
-    # TODO
+    # TODO(Fill this out once we have a pygments build with Caddyfile support)
 }
 
 
@@ -2149,7 +2149,7 @@ def format_generic(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef 
             ([themearray]): A list of themearrays
     """
     dumps: list[list[ThemeRef | ThemeStr]] = []
-    options: dict[str, Any] =  deep_get(kwargs, DictPath("options"), {})
+    options: dict[str, Any] = deep_get(kwargs, DictPath("options"), {})
     severity: LogLevel = deep_get(options, DictPath("severity"), LogLevel.INFO)
     severity_name = f"severity_{loglevel_to_name(severity).lower()}"
 

@@ -5397,19 +5397,26 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                         # We have found the end; should we format the match?
                         if format_block_end:
                             new_lines.append(newstr)
-                            k += 1
+                            i += 1
+                        break
 
                     # Continue scanning until we get a match or give up.
                     j = 0
+                    iadd = 0
                     if not matched:
                         for j in range(i, len(splitmsg)):
                             newstr, matched, format_block_end = scanner(splitmsg[j], **options)
                             if matched:
                                 if format_block_end:
                                     new_lines.append(newstr)
-                                    j += 1
+                                    iadd += 1
                                 break
+                            iadd += 1
                             new_lines.append(newstr)
+
+                        # EOF; check for match, in case EOF is one of the match blocks.
+                        if not matched and j == len(splitmsg) - 1:
+                            _newstr, matched, _format_block_end = scanner(None, **options)
 
                     _severity = severity
 
@@ -5459,7 +5466,7 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                         if _severity > log_level:
                             hidden_msgs += 1
 
-                        i += j
+                        i += iadd
                     continue
 
                 # In some cases rather than expanding a single line into multiple lines,
