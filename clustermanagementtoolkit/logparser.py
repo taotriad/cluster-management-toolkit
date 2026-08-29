@@ -3030,8 +3030,8 @@ def match_block_start(matchrules: list[MatchBlockStart],
                     # New Configuration: {
                     # <json goes here>
                     # }
-                    # if tmp.groups():
-                    #     matched = [tmp.groups()]
+                    if tmp.groups():
+                        matched = list(tmp.groups())
             elif matchtype in ("regex", "match"):
                 tmp = cast(re.Pattern[str], matchkey).match(message)
                 if tmp is not None:
@@ -3043,8 +3043,8 @@ def match_block_start(matchrules: list[MatchBlockStart],
                     # New Configuration: {
                     # <json goes here>
                     # }
-                    # if tmp.groups():
-                    #     matched = [tmp.groups()]
+                    if tmp.groups():
+                        matched = list(tmp.groups())
             elif matchtype == "startswith":
                 if message.startswith(cast(str, matchkey)):
                     matched = [message]
@@ -3563,7 +3563,7 @@ def custom_line(message: str, **kwargs: Any) -> tuple[list[ThemeRef | ThemeStr],
     formatter: Callable = cmtlib.check_allowlist(formatters.formatter_allowlist,
                                                  "formatter_allowlist",
                                                  deep_get(options, DictPath("formatter")),
-                                                 formatters.format_none,
+                                                 formatters.format_generic,
                                                  exit_on_fail=False)
 
 

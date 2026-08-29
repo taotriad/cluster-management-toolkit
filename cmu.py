@@ -5380,10 +5380,10 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                     scanner: Callable = deep_get(block, DictPath("scanner"))
                     formatter: Callable = deep_get(block, DictPath("formatter"))
                     options: dict[str, Any] = deep_get(block, DictPath("options"), {})
+                    options_severity: LogLevel = deep_get(block, DictPath("severity"), severity)
                     format_block_end: bool = False
                     unprocessed_lines: list[str] = \
                         deep_get(block, DictPath("unprocessed_lines"), [])
-                    unprocessed_lines_2: list[str] = []
                     new_lines: list[str] = []
                     matched: bool = False
 
@@ -5397,6 +5397,7 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                         # We have found the end; should we format the match?
                         if format_block_end:
                             new_lines.append(newstr)
+                            k += 1
 
                     # If we have a message output that first.
                     if message:
@@ -5416,14 +5417,18 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                             if matched:
                                 if format_block_end:
                                     new_lines.append(newstr)
+                                    k += 1
                                 break
                             new_lines.append(newstr)
 
                     if matched and new_lines:
+                        options["severity"] = options_severity
                         try:
-                            new_lines_formatted = formatter("\n".join(new_lines))
+                            new_lines_formatted = formatter("\n".join(new_lines),
+                                                            options=options)
                         except yaml.parser.ParserError:
-                            new_lines_formatted = formatters.format_none("\n".join(new_lines))
+                            new_lines_formatted = formatters.format_generic("\n".join(new_lines),
+                                                                            options=options)
 
                         for j, new_line_formatted in enumerate(new_lines_formatted):
                             if j == 0:
@@ -5446,7 +5451,7 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                         if severity > log_level:
                             hidden_msgs += 1
 
-                    i += j + k + 1
+                    i += j + k
                     continue
 
                 # In some cases rather than expanding a single line into multiple lines,

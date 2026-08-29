@@ -80,7 +80,8 @@ from clustermanagementtoolkit import cmtlog
 
 from clustermanagementtoolkit.cmtpaths import HOMEDIR, SYSTEM_PARSERS_DIR, PARSER_DIR
 
-from clustermanagementtoolkit.cmttypes import deep_get, deep_pop, DictPath, FilePath, LogLevel
+from clustermanagementtoolkit.cmttypes import deep_get, deep_pop, loglevel_to_name
+from clustermanagementtoolkit.cmttypes import DictPath, FilePath, LogLevel
 from clustermanagementtoolkit.cmttypes import FilePathAuditError, StatusGroup
 
 from clustermanagementtoolkit.cmtio_yaml import json_dumps
@@ -2134,6 +2135,32 @@ def format_none(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef | T
     return dumps
 
 
+# pylint: disable=unused-argument
+def format_generic(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef | ThemeStr]]:
+    """
+    Generic formatter; only supports severity overrides.
+
+        Parameters:
+            lines ([str]): A list of strings
+            *or*
+            lines (str): a string with newlines that should be split
+            **kwargs (dict[str, Any]): Keyword arguments [unused]
+        Returns:
+            ([themearray]): A list of themearrays
+    """
+    dumps: list[list[ThemeRef | ThemeStr]] = []
+    options: dict[str, Any] =  deep_get(kwargs, DictPath("options"), {})
+    severity: LogLevel = deep_get(options, DictPath("severity"), LogLevel.INFO)
+    severity_name = f"severity_{loglevel_to_name(severity).lower()}"
+
+    if isinstance(lines, str):
+        lines = split_msg(lines)
+
+    for line in lines:
+        dumps.append([ThemeStr(line, ThemeAttr("logview", severity_name))])
+    return dumps
+
+
 def format_ansible_line(line: str, **kwargs: Any) -> list[ThemeRef | ThemeStr]:
     """
     Formats a single line of an Ansible play.
@@ -3664,8 +3691,10 @@ formatter_allowlist: dict[str, Callable] = {
     "format_cel": format_cel,
     "format_crt": format_crt,
     "format_css": format_css,
+    "format_diff": format_diff,
     "format_docker": format_docker,
     "format_fluentbit": format_fluentbit,
+    "format_generic": format_generic,
     "format_go": format_go,
     "format_haproxy": format_haproxy,
     "format_html": format_html,

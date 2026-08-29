@@ -7,15 +7,18 @@
   parser_rules:
     - name: "glog"
     - name: "expand_event"
-    - name: "diff_line"
+    - name: "custom_line"
       options:
         block_start:
-          - matchtype: "startswith"
-            matchkey: "Updating "
+          - matchtype: "match"
+            matchkey: "(Updating.*due to diff: )(.*)$"
             matchline: "any"
+            format_block_start: false
         block_end:
-          - matchtype: "startswith"
-            matchkey: "  }"
+          - matchtype: "match"
+            matchkey: '[A-Z]\d{4} \d\d:\d\d:\d\d'
+            format_block_end: false
+        formatter: "format_diff"
     - name: "override_severity"
       options:
         severity:
