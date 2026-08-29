@@ -2135,7 +2135,6 @@ def format_none(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef | T
     return dumps
 
 
-# pylint: disable=unused-argument
 def format_generic(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef | ThemeStr]]:
     """
     Generic formatter; only supports severity overrides.
@@ -2144,7 +2143,8 @@ def format_generic(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef 
             lines ([str]): A list of strings
             *or*
             lines (str): a string with newlines that should be split
-            **kwargs (dict[str, Any]): Keyword arguments [unused]
+            **kwargs (dict[str, Any]): Keyword arguments
+                severity (LogLevel): The severity to use
         Returns:
             ([themearray]): A list of themearrays
     """
@@ -2161,88 +2161,101 @@ def format_generic(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef 
     return dumps
 
 
-def format_ansible_line(line: str, **kwargs: Any) -> list[ThemeRef | ThemeStr]:
+# pylint: disable-next=too-many-locals,too-many-branches
+def format_ansible(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef | ThemeStr]]:
     """
-    Formats a single line of an Ansible play.
+    Ansible formatter; formats output from Ansible plays.
 
         Parameters:
-            line (str): a string
-            **kwargs (dict[str, Any]): Keyword arguments
-                override_formatting (dict): Overrides instead of default formatting
+            lines ([str]): A list of strings
+            *or*
+            lines (str): a string with newlines that should be split
+            **kwargs (dict[str, Any]): Keyword arguments [unused]
         Returns:
-            (themearray): A themearray
+            ([themearray]): A list of themearrays
     """
-    override_formatting: dict[str, ThemeAttr] = \
-        deep_get(kwargs, DictPath("override_formatting"), {})
-    tmpline: list[ThemeRef | ThemeStr] = []
-    formatting: ThemeAttr = ThemeAttr("types", "generic")
-    if (tmp := deep_get(override_formatting, DictPath("__all"))) is not None:
-        formatting = tmp
+    dumps: list[list[ThemeRef | ThemeStr]] = []
+    recap_flag: bool = False
 
-    tmpline += [
-        ThemeStr(line, formatting),
-    ]
-    return tmpline
+    if isinstance(lines, str):
+        lines = split_msg(lines)
 
+    for line in lines:
+        fmt: ThemeAttr | None = None
 
-def format_diff_line(line: str, **kwargs: Any) -> list[ThemeRef | ThemeStr]:
-    """
-    Formats a single line of a diff.
+        if line.startswith("No config file found; using defaults"):
+            fmt = ThemeAttr("logview", "severity_debug")
+        elif line.startswith("[WARNING]: "):
+            fmt = ThemeAttr("logview", "severity_warning")
+        elif line.startswith(("[ERROR]: ", "fatal: ")):
+            fmt = ThemeAttr("logview", "severity_error")
+        elif line.startswith("ok: "):
+            fmt = ThemeAttr("main", "status_ok")
+        elif line.startswith("skipping: "):
+            fmt = ThemeAttr("main", "status_ignored")
+        elif line.startswith("PLAY RECAP "):
+            fmt = ThemeAttr("types", "generic")
+            recap_flag = True
 
-        Parameters:
-            line (str): a string
-            **kwargs (dict[str, Any]): Keyword arguments
-                override_formatting (dict): Overrides instead of default formatting
-                indent (str): Indentation to insert
-                diffspace (str): The indentation to insert after the diff characters
-        Returns:
-            (themearray): A themearray
-    """
-    override_formatting: dict[str, ThemeAttr] = \
-        deep_get(kwargs, DictPath("override_formatting"), {})
-    indent: str = deep_get(kwargs, DictPath("indent"), "")
-    diffspace: str = deep_get(kwargs, DictPath("diffspace"), " ")
+        if not recap_flag and not fmt:
+            fmt = ThemeAttr("types", "generic")
 
-    tmpline: list[ThemeRef | ThemeStr] = []
+        if fmt:
+            dumps.append([ThemeStr(line, fmt)])
+            continue
 
-    # Override all formatting?
-    if (tmp := deep_get(override_formatting, DictPath("__all"))) is not None:
-        diffheader_format = tmp
-        diffatat_format = tmp
-        diffplus_format = tmp
-        diffminus_format = tmp
-        diffsame_format = tmp
-    else:
-        diffheader_format = ThemeAttr("logview", "severity_diffheader")
-        diffatat_format = ThemeAttr("logview", "severity_diffatat")
-        diffplus_format = ThemeAttr("logview", "severity_diffplus")
-        diffminus_format = ThemeAttr("logview", "severity_diffminus")
-        diffsame_format = ThemeAttr("logview", "severity_diffsame")
+        tmp = re.match(r"(\S+)(\s+: )(ok=)(\d+)(\s+)(changed=)(\d+)(\s+)"
+                       r"(unreachable=)(\d+)(\s+)"
+                       r"(failed=)(\d+)(\s+)(skipped=)(\d+)(\s+)"
+                       r"(rescued=)(\d+)(\s+)(ignored=)(\d+)", line)
+        if not tmp:
+            fmt = ThemeAttr("types", "generic")
+            dumps.append([ThemeStr(line, fmt)])
+            continue
 
-    if line.startswith(("+++ ", "--- ")):
-        tmpline += [
-            ThemeStr(line, diffheader_format),
-        ]
-        return tmpline
-    if line.startswith("@@ "):
-        tmpline += [
-            ThemeStr(line, diffatat_format),
-        ]
-        return tmpline
-    if line.startswith(f"{indent}+{diffspace}"):
-        tmpline += [
-            ThemeStr(line, diffplus_format),
-        ]
-        return tmpline
-    if line.startswith(f"{indent}-{diffspace}"):
-        tmpline += [
-            ThemeStr(line, diffminus_format),
-        ]
-        return tmpline
-    tmpline += [
-        ThemeStr(line, diffsame_format),
-    ]
-    return tmpline
+        hostname, ws1, ok, okcount, ws2, changed, changedcount, ws3, unreachable, \
+                unreachablecount, ws4, failed, failedcount, ws5, skipped, skippedcount, \
+                ws6, rescued, rescuedcount, ws7, ignored, ignoredcount = tmp.groups()
+
+        try:
+            if int(failedcount) or int(unreachablecount):
+                fmt = ThemeAttr("logview", "severity_error")
+            elif int(rescuedcount):
+                fmt = ThemeAttr("main", "status_warning")
+            elif int(changedcount):
+                fmt = ThemeAttr("main", "status_pending")
+            elif int(skippedcount) or int(ignoredcount):
+                fmt = ThemeAttr("main", "status_ignored")
+            elif int(okcount):
+                fmt = ThemeAttr("main", "status_ok")
+            else:
+                fmt = ThemeAttr("types", "generic")
+        except ValueError:
+            fmt = ThemeAttr("main", "status_attention")
+
+        dumps.append([ThemeStr(hostname, fmt),                                      # hostname
+                      ThemeStr(ws1, ThemeAttr("types", "generic")),                 # whitespace
+                      ThemeStr(ok, ThemeAttr("main", "status_ok")),                 # ok=
+                      ThemeStr(okcount, ThemeAttr("types", "numerical")),           # count
+                      ThemeStr(ws2, ThemeAttr("types", "generic")),                 # whitespace
+                      ThemeStr(changed, ThemeAttr("main", "status_pending")),       # changed=
+                      ThemeStr(changedcount, ThemeAttr("types", "numerical")),      # count
+                      ThemeStr(ws3, ThemeAttr("types", "generic")),                 # whitespace
+                      ThemeStr(unreachable, ThemeAttr("main", "status_warning")),   # unreachable=
+                      ThemeStr(unreachablecount, ThemeAttr("types", "numerical")),  # count
+                      ThemeStr(ws4, ThemeAttr("types", "generic")),                 # whitespace
+                      ThemeStr(failed, ThemeAttr("main", "status_not_ok")),         # failed=
+                      ThemeStr(failedcount, ThemeAttr("types", "numerical")),       # count
+                      ThemeStr(ws5, ThemeAttr("types", "generic")),                 # whitespace
+                      ThemeStr(skipped, ThemeAttr("main", "status_ignored")),       # skipped=
+                      ThemeStr(skippedcount, ThemeAttr("types", "numerical")),      # count
+                      ThemeStr(ws6, ThemeAttr("types", "generic")),                 # whitespace
+                      ThemeStr(rescued, ThemeAttr("main", "status_warning")),       # rescued=
+                      ThemeStr(rescuedcount, ThemeAttr("types", "numerical")),      # count
+                      ThemeStr(ws7, ThemeAttr("types", "generic")),                 # whitespace
+                      ThemeStr(ignored, ThemeAttr("main", "status_ignored")),       # ignored=
+                      ThemeStr(ignoredcount, ThemeAttr("types", "numerical"))])     # count
+    return dumps
 
 
 # pylint: disable-next=too-many-locals,too-many-branches,too-many-statements
@@ -3598,6 +3611,7 @@ def format_toml(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef | T
 
 # (startswith, endswith, formatter)
 formatter_mapping: tuple[tuple[tuple[str, ...], tuple[str, ...], Callable], ...] = (
+    (("ansible",), ("ansible",), format_ansible),
     (("shell",), ("shell",), format_shellscript),
     (("shell script",), ("shell script",), format_shellscript),
     (("",), (".sh",), format_shellscript),
@@ -3686,6 +3700,7 @@ def map_dataformat(dataformat: str) -> Callable[[str | list[str]], list[list[The
 
 # Formatters acceptable for direct use in view files
 formatter_allowlist: dict[str, Callable] = {
+    "format_ansible": format_ansible,
     "format_autodetect": map_dataformat,
     "format_caddyfile": format_caddyfile,
     "format_cel": format_cel,

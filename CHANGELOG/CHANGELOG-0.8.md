@@ -104,7 +104,10 @@ N/A
   (such as would be the case with optional dependencies),
   we ended up adding the string representation of `None` to the list of fallbacks,
   which obviously failed to install.
-* Parser-rules that are block-based no longer bypass the severity filter.
+* All block-based parser-rules have now been rewritten; they all use the same
+  block scanner, from which the result is then passed on to one of the formatters;
+  these are the same formatters used in viewers, so there should be fairly
+  good availability of formats, and adding one benefits the other.
 * `key_value_with_message()` now retains formatting even when the message is folded.
 * `json()` now retains formatting even when the message is folded.
 * Fixed a bug in `logparser.py` that caused the `iptables` parser-rule to miss out
@@ -114,7 +117,7 @@ N/A
   an address with port does, so there's room for misrendering.
 * Fixed a bug in `logparser.py` that would lose parts of the message when folding key/value messages
   using the `key_value()` parser-rule.
-* `expand_events()` now retain formatting even when the message is folded.
+* `expand_events()` now retains formatting even when the message is folded.
 * The "Expand Newlines" option has been removed from the logparser;
   it was Work in Progress that never progressed, was rarely used,
   and caused a lot of special-cases in the code.

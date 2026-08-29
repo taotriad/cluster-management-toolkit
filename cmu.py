@@ -5387,9 +5387,9 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                     new_lines: list[str] = []
                     matched: bool = False
 
-                    # Start with the unprocessed lines.
-                    k = 0
-                    for k, unprocessed_line in enumerate(unprocessed_lines):
+                    # Start with the unprocessed lines; note that this *should* never occur.
+                    # But until we've confirmed that it's not useful we'll keep it.
+                    for j, unprocessed_line in enumerate(unprocessed_lines):
                         newstr, matched, format_block_end = scanner(unprocessed_line, **options)
                         if not matched:
                             new_lines.append(newstr)
@@ -5401,8 +5401,7 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                         break
 
                     # Continue scanning until we get a match or give up.
-                    j = 0
-                    iadd = 0
+                    iadd: int = 0
                     if not matched:
                         for j in range(i, len(splitmsg)):
                             newstr, matched, format_block_end = scanner(splitmsg[j], **options)
@@ -11046,7 +11045,9 @@ COMMANDLINE: dict[str, CommandType] = {
                                   "description")],
                     [ANSIThemeStr("the file format. Valid formats are:",
                                   "description")],
-                    [ANSIThemeStr("bash", "argument"),
+                    [ANSIThemeStr("ansible", "argument"),
+                     ANSIThemeStr(", ", "separator"),
+                     ANSIThemeStr("bash", "argument"),
                      ANSIThemeStr(", ", "separator"),
                      ANSIThemeStr("cel", "argument"),
                      ANSIThemeStr(", ", "separator"),
@@ -11057,12 +11058,12 @@ COMMANDLINE: dict[str, CommandType] = {
                      ANSIThemeStr("docker", "argument"),
                      ANSIThemeStr(", ", "separator"),
                      ANSIThemeStr("dmesg", "argument"),
-                     ANSIThemeStr(", ", "separator"),
-                     ANSIThemeStr("diff", "argument"),
+                     ANSIThemeStr(",", "separator")],
+                    [ANSIThemeStr("diff", "argument"),
                      ANSIThemeStr("|", "separator"),
                      ANSIThemeStr("patch", "argument"),
-                     ANSIThemeStr(",", "separator")],
-                    [ANSIThemeStr("go", "argument"),
+                     ANSIThemeStr(", ", "separator"),
+                     ANSIThemeStr("go", "argument"),
                      ANSIThemeStr(", ", "separator"),
                      ANSIThemeStr("html", "argument"),
                      ANSIThemeStr(", ", "separator"),
@@ -11071,34 +11072,34 @@ COMMANDLINE: dict[str, CommandType] = {
                      ANSIThemeStr("javascript", "argument"),
                      ANSIThemeStr("|", "separator"),
                      ANSIThemeStr("js", "argument"),
+                     ANSIThemeStr(",", "separator")],
+                    [ANSIThemeStr("json", "argument"),
                      ANSIThemeStr(", ", "separator"),
-                     ANSIThemeStr("json", "argument"),
-                     ANSIThemeStr(",", "separator"),
                      ANSIThemeStr("markdown", "argument"),
                      ANSIThemeStr("|", "separator"),
                      ANSIThemeStr("md", "argument"),
-                     ANSIThemeStr(",", "separator")],
-                    [ANSIThemeStr("ndjson", "argument"),
+                     ANSIThemeStr(", ", "separator"),
+                     ANSIThemeStr("ndjson", "argument"),
                      ANSIThemeStr(", ", "separator"),
                      ANSIThemeStr("powershell", "argument"),
                      ANSIThemeStr("|", "separator"),
                      ANSIThemeStr("ps1", "argument"),
-                     ANSIThemeStr(", ", "separator"),
-                     ANSIThemeStr("promql", "argument"),
+                     ANSIThemeStr(",", "separator")],
+                    [ANSIThemeStr("promql", "argument"),
                      ANSIThemeStr(", ", "separator"),
                      ANSIThemeStr("python", "argument"),
                      ANSIThemeStr("|", "separator"),
                      ANSIThemeStr("py", "argument"),
                      ANSIThemeStr(", ", "separator"),
                      ANSIThemeStr("rego", "argument"),
-                     ANSIThemeStr(",", "separator")],
-                    [ANSIThemeStr("shell", "argument"),
+                     ANSIThemeStr(", ", "separator"),
+                     ANSIThemeStr("shell", "argument"),
                      ANSIThemeStr("|", "separator"),
                      ANSIThemeStr("sh", "argument"),
                      ANSIThemeStr(", ", "separator"),
                      ANSIThemeStr("svg", "argument"),
-                     ANSIThemeStr(", ", "separator"),
-                     ANSIThemeStr("toml", "argument"),
+                     ANSIThemeStr(",", "separator")],
+                    [ANSIThemeStr("toml", "argument"),
                      ANSIThemeStr(", ", "separator"),
                      ANSIThemeStr("xhtml", "argument"),
                      ANSIThemeStr(", ", "separator"),
@@ -11110,6 +11111,7 @@ COMMANDLINE: dict[str, CommandType] = {
                 "validation": {
                     "validator": "allowlist",
                     "allowlist": [
+                        "ansible",
                         "bash",
                         "cel",
                         "crt",

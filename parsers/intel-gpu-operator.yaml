@@ -22,7 +22,7 @@
             - matchtype: "startswith"
               matchkey: "Git Info: "
               loglevel: "notice"
-    - name: "diff_line"
+    - name: "custom_line"
       options:
         block_start:
           - matchtype: "startswith"
@@ -33,8 +33,7 @@
           - matchtype: "exact"
             matchkey: "  }"
             format_block_end: true
-        severity:
-          default: "info"
+        formatter: "format_diff"
     - name: "json"
     - name: "key_value_with_leading_message"
     - name: "override_severity"

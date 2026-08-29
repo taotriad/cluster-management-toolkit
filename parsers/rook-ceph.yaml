@@ -17,19 +17,18 @@
             - 2
         message:
           field: 3
-    - name: "diff_line"
+    - name: "custom_line"
       options:
         block_start:
           - matchtype: "startswith"
             matchkey: '[rook-ceph] CR has changed for "rook-ceph". diff='
             matchline: "any"
-            format_block_start: true
+            format_block_start: false
         block_end:
           - matchtype: "exact"
             matchkey: "  }"
             format_block_end: true
-        severity:
-          default: "info"
+        formatter: "format_diff"
     - name: "override_severity"
       options:
         severity:

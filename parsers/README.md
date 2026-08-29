@@ -32,11 +32,9 @@ in the selector.
 
 | Rule name                      | Summary                                                            | Options                                                                                     |
 | :----------------------------- | :----------------------------------------------------------------- | :------------------------------------------------------------------------------------------ |
-| ansible_line                   | Block scanner for results from *Ansible* runs                      | *block_start*, *block_end*, diff_space, indent, severity(default,overrides)                 |
 | bracketed_severity             | Extract severity formatted as `[severity]`                         | severity(default)                                                                           |
 | custom_line                    | Custom block scanner                                               | *block_start*, *block_end*, eof, formatter, regex, severity(default,overrides)              |
 | custom_splitter                | Custom line splitter                                               | *regex*, severity(field,overrides,transform), facility(fields,separators), *message(field)* |
-| diff_line                      | Block scanner for output from `diff`                               | *block_start*, *block_end*, diff_space, indent, severity(default,overrides)                 |
 | directory                      | Formatter for output from `ls`                                     | **N/A**                                                                                     |
 | expand_event                   | Expand event message                                               | **N/A**                                                                                     |
 | glog                           | Extract severity and facility from output from `glog`              | **N/A**                                                                                     |
@@ -75,7 +73,6 @@ block_end (list):
     matchkey: (str) The string to use when applying the matchtype
     matchline: (str) The line a match can start at (valid: any, first)
     format_block_start: (bool) Should the line that matched the expression be formatted?
-    process_block_end: (bool) Should the last line be processed by the block formatter?
   ...
 ```
 
@@ -129,7 +126,8 @@ facility:
 #### formatter
 
 ```
-formatter: (str) A formatter to use when formatting the content of block from custom_line (valid: format_none, format_python_traceback, format_yaml, reformat_json; default: format_none)
+formatter: (str) A formatter to use when formatting the content of block from custom_line
+                 (valid: format_ansible, format_diff, format_generic, format_none, format_python_traceback, format_yaml, reformat_json; default: format_generic)
 ```
 
 
@@ -213,7 +211,7 @@ since they are in active use; some suggested parser-files:
 
 * `kube-app-manager.yaml` (Simple rule-file that extracts severity and facility from *glog*-style messages, then formats the file using the *tab_separated* rule)
 * `kube-proxy.yaml` (Formats messages in key=value format that has a leading plain-text message; it allows for lower-case keys lacking a value; it also provides some examples of basic severity overrides)
-* `intel-gpu-operator.yaml` (Provides examples of how to use both the *custom_line* and *diff_line* block scanners)
+* `intel-gpu-operator.yaml` (Provides examples of how to use the *custom_line* block scanner, both for generic output and formatted as a diff)
 
 ## Validating your parser-file
 

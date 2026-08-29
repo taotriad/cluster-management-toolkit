@@ -6,7 +6,7 @@
       container_name: "update"
       container_type: "InitContainer"
   parser_rules:
-    - name: "diff_line"
+    - name: "custom_line"
       options:
         block_start:
           - matchtype: "startswith"
@@ -16,6 +16,5 @@
         block_end:
           - matchtype: "startswith"
             matchkey: "Done."
-            process_block_end: false
-        diffspace: ""
-        indent: ""
+            format_block_end: false
+        formatter: "format_diff"

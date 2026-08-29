@@ -32,7 +32,7 @@
         },
         "formatter_allowlist": {
             "enum": [
-                "format_autodetect",
+                "format_ansible",
                 "format_caddyfile",
                 "format_cel",
                 "format_crt",
@@ -425,106 +425,6 @@
                                 }
                             },
                             "requiredProperties": [ "name" ],
-                            "additionalProperties": false
-                        }, {
-                            "type": "object",
-                            "properties": {
-                                "name": {
-                                    "enum": [
-                                        "diff_line"
-                                    ]
-                                },
-                                "options": {
-                                    "type": "object",
-                                    "properties": {
-                                        "block_start": {
-                                            "type": "array",
-                                            "items": {
-                                                "type": "object",
-                                                "properties": {
-                                                    "matchtype": {
-                                                        "enum": [
-                                                            "contains",
-                                                            "endswith",
-                                                            "exact",
-                                                            "match",
-                                                            "search",
-                                                            "startswith"
-                                                        ]
-                                                    },
-                                                    "matchkey": {
-                                                        "type": "string"
-                                                    },
-                                                    "matchline": {
-                                                        "enum": [
-                                                            "any",
-                                                            "first"
-                                                        ]
-                                                    },
-                                                    "format_block_start": {
-                                                        "type": "boolean"
-                                                    }
-                                                },
-                                                "additionalProperties": false
-                                            },
-                                            "minItems": 1
-                                        },
-                                        "block_end": {
-                                            "type": "array",
-                                            "items": {
-                                                "type": "object",
-                                                "properties": {
-                                                    "matchtype": {
-                                                        "enum": [
-                                                            "contains",
-                                                            "empty",
-                                                            "endswith",
-                                                            "exact",
-                                                            "match",
-                                                            "search",
-                                                            "startswith"
-                                                        ]
-                                                    },
-                                                    "matchkey": {
-                                                        "type": "string"
-                                                    },
-                                                    "format_block_end": {
-                                                        "type": "boolean"
-                                                    },
-                                                    "process_block_end": {
-                                                        "type": "boolean"
-                                                    }
-                                                },
-                                                "additionalProperties": false
-                                            },
-                                            "minItems": 1
-                                        },
-                                        "diffspace": {
-                                            "description": "Spaces between diff signs and data",
-                                            "type": "string"
-                                        },
-                                        "indent": {
-                                            "description": "Indentation before diff",
-                                            "type": "string"
-                                        },
-                                        "severity": {
-
-                                            "type": "object",
-                                            "properties": {
-                                                "default": {
-                                                    "$ref": "#/$defs/loglevel"
-                                                },
-                                                "overrides": {
-                                                    "$ref": "#/$defs/severity_overrides"
-                                                }
-                                            },
-                                            "additionalProperties": false
-                                        }
-                                    },
-                                    "additionalProperties": false
-                                }
-                            },
-                            "requiredProperties": [ "name", "block_start", "block_end" ],
                             "additionalProperties": false
                         }, {
                             "type": "object",
