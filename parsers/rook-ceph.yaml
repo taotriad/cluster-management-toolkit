@@ -197,7 +197,7 @@
             - "|"
         severity:
           field: 2
-          transform: "string"
+          transform: "str"
         message:
           field: 4
     - name: "override_severity"
