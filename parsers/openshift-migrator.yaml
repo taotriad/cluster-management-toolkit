@@ -6,3 +6,4 @@
       container_name: "migrator"
   parser_rules:
     - name: "glog"
+    - name: "key_value_with_leading_message"

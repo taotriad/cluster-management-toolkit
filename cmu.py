@@ -5399,16 +5399,6 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                             new_lines.append(newstr)
                             k += 1
 
-                    # If we have a message output that first.
-                    if message:
-                        log_add_line(timestamps, facilities, severities, messages,
-                                     timestamp_, facility, severity,
-                                     cast(list[ThemeRef | ThemeStr], message), facility_extended)
-                        total_msgs += 1
-
-                        if severity > log_level:
-                            hidden_msgs += 1
-
                     # Continue scanning until we get a match or give up.
                     j = 0
                     if not matched:
@@ -5417,12 +5407,30 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                             if matched:
                                 if format_block_end:
                                     new_lines.append(newstr)
-                                    k += 1
+                                    j += 1
                                 break
                             new_lines.append(newstr)
 
+                    _severity = severity
+
+                    # If we have a message output that first.
+                    if message:
+                        if matched:
+                            _severity = options_severity
+                        log_add_line(timestamps, facilities, severities, messages,
+                                     timestamp_, facility, _severity,
+                                     cast(list[ThemeRef | ThemeStr], message), facility_extended)
+                        total_msgs += 1
+
+                        if _severity > log_level:
+                            hidden_msgs += 1
+
+                    _severity = severity
+
                     if matched and new_lines:
-                        options["severity"] = options_severity
+                        _severity = options_severity
+                        options["severity"] = _severity
+
                         try:
                             new_lines_formatted = formatter("\n".join(new_lines),
                                                             options=options)
@@ -5442,16 +5450,16 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                             _message = cast(list[ThemeRef | ThemeStr], new_line_formatted)
 
                             log_add_line(timestamps, facilities, severities, messages,
-                                         _timestamp, _facility, severity, _message,
+                                         _timestamp, _facility, _severity, _message,
                                          _facility_extended)
 
                         # This is a block, so we've only added 1 message.
                         total_msgs += 1
 
-                        if severity > log_level:
+                        if _severity > log_level:
                             hidden_msgs += 1
 
-                    i += j + k
+                        i += j
                     continue
 
                 # In some cases rather than expanding a single line into multiple lines,

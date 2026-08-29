@@ -10,7 +10,7 @@
     - name: "custom_splitter"
       options:
         # yamllint disable-line rule:line-length
-        regex: '^[A-Z][a-z]{2} [A-Z][a-z]{2} +\d+ \d\d:\d\d:\d\d \d{4} <(\d)> (\S+:\d+) (.*)'
+        regex: '[A-Z][a-z]{2} [A-Z][a-z]{2} +\d+ \d\d:\d\d:\d\d \d{4} <(\d)> (\S+:\d+) (.*)'
         severity:
           field: 1
           transform: "int"

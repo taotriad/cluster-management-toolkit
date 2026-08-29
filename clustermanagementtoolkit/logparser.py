@@ -3545,6 +3545,7 @@ def custom_line(message: str, **kwargs: Any) -> tuple[list[ThemeRef | ThemeStr],
     options: dict = deep_get(kwargs, DictPath("options"), {})
 
     block_start: list[MatchBlockStart] = deep_get(options, DictPath("block_start"), [])
+    # This is the loglevel to apply to the block if it matches.
     loglevel_name: str = deep_get(options, DictPath("severity#default"), "info")
 
     base_severity: LogLevel = name_to_loglevel(loglevel_name, severity)
@@ -3582,9 +3583,9 @@ def custom_line(message: str, **kwargs: Any) -> tuple[list[ThemeRef | ThemeStr],
             "severity": new_severity,
             "unprocessed_lines": unprocessed_lines,
         }
-        return message, new_severity, processor
+        return message, severity, processor
 
-    return message, new_severity, {}
+    return message, severity, {}
 
 
 # pylint: disable-next=too-many-locals,too-many-branches,too-many-statements
