@@ -2753,242 +2753,6 @@ def seconds_severity_facility(message: str, **kwargs: Any) \
     return facility, severity, message, remnants
 
 
-# pylint: disable-next=unused-argument
-def python_traceback_scanner_nested_exception(message: str, **kwargs: Any) \
-        -> tuple[tuple[str, Callable | None, dict],
-                 tuple[datetime, str, LogLevel, list[ThemeRef | ThemeStr]]]:
-    """
-    Scanner for nested Python tracebacks.
-
-        Parameters:
-            message (str): The message to format
-            **kwargs (dict[str, Any]): Keyword arguments [unused]
-        Returns:
-            (((str, Callable, dict),
-              (datetime, str, LogLevel, [(ThemeArray, LogLevel)]))):
-                ((str, Callable, dict)):
-                    (str, Callable, dict):
-                        (str): Command to the block parser
-                        (Callable): The block parser to use
-                        (dict): Arguments to the block parser
-                ((datetime, str, LogLevel, Callable, dict)):
-                    (datetime): The timestamp
-                    (str): The facility of the message
-                    (LogLevel): The LogLevel of the message
-                    ([(ThemeArray, LogLevel)]):
-                        (ThemeArray): The formatted strings of the remnant
-                        (LogLevel): The severity of the remnant
-    """
-    timestamp: datetime = none_timestamp()
-    facility: str = ""
-    severity: LogLevel = LogLevel.ERR
-    message, _timestamp = split_iso_timestamp(message, none_timestamp())
-    processor: tuple[str, Callable | None, dict] = \
-        ("block", python_traceback_scanner_nested_exception, {})
-
-    # Default case
-    remnants: list[ThemeRef | ThemeStr] = [
-        ThemeStr(message, ThemeAttr("logview", "severity_info"))
-    ]
-
-    re_tmp = re.match(r"^([A-Z])\d\d\d\d \d\d:\d\d:\d\d\.\d+\s+(\d+)\s(.+?:\d+)\] (.*)", message)
-    if re_tmp is not None:
-        message = re_tmp[4]
-        remnants = [
-            ThemeStr(message, ThemeAttr("logview", "severity_info"))
-        ]
-
-    if (re_tmp := re.match(r"^(\s+\+ )"
-                           r"(Exception Group Traceback "
-                           r"\(most recent call last\):)", message)) is not None:
-        remnants = [
-            ThemeStr(re_tmp[1], ThemeAttr("logview", "severity_info")),
-            ThemeStr(re_tmp[2], ThemeAttr("logview", "severity_error")),
-        ]
-    elif (re_tmp := re.match(r"^(\s+\|\s+)(During handling of the above "
-                             r"exception, another exception occurred:)",
-                             message)) is not None:
-        remnants = [
-            ThemeStr(re_tmp[1], ThemeAttr("logview", "severity_info")),
-            ThemeStr(re_tmp[2], ThemeAttr("logview", "severity_error")),
-        ]
-    elif (re_tmp := re.match(r"^(\s+\|\s+)(Traceback "
-                             r"\(most recent call last\):)", message)) is not None:
-        remnants = [
-            ThemeStr(re_tmp[1], ThemeAttr("logview", "severity_info")),
-            ThemeStr(re_tmp[2], ThemeAttr("logview", "severity_error")),
-        ]
-    elif (re_tmp := re.match(r"^(\s+\|\s+)(File \")(.+?)(\", line )"
-                             r"(\d+)(, in )(.*)", message)) is not None:
-        remnants = [
-            ThemeStr(re_tmp[1], ThemeAttr("logview", "severity_info")),
-            ThemeStr(re_tmp[2], ThemeAttr("types", "path")),
-            ThemeStr(re_tmp[3], ThemeAttr("logview", "severity_info")),
-            ThemeStr(re_tmp[4], ThemeAttr("types", "lineno")),
-            ThemeStr(re_tmp[5], ThemeAttr("logview", "severity_info")),
-            ThemeStr(re_tmp[6], ThemeAttr("types", "path")),
-        ]
-    elif re.match(r"^\s+\+-+$", message):
-        remnants = [
-            ThemeStr(message, ThemeAttr("logview", "severity_info")),
-        ]
-        processor = ("end_block", None, {})
-    else:
-        if (re_tmp := re.match(r"^(\s+\|\s+)"
-                               r"(\S+?Error:|"
-                               r"\S+?Exception:|"
-                               r"ExceptionGroup:|"
-                               r"GeneratorExit:|"
-                               r"KeyboardInterrupt:|"
-                               r"StopIteration:|"
-                               r"StopAsyncIteration:|"
-                               r"SystemExit:|"
-                               r"socket.gaierror:"
-                               r")( .*)", message)) is not None:
-            remnants = [
-                ThemeStr(re_tmp[1], ThemeAttr("logview", "severity_info")),
-                ThemeStr(re_tmp[2], ThemeAttr("logview", "severity_error")),
-                ThemeStr(re_tmp[3], ThemeAttr("logview", "severity_info")),
-            ]
-
-    return processor, (timestamp, facility, severity, remnants)
-
-
-def python_traceback_scanner(message: str, **kwargs: Any) \
-        -> tuple[tuple[str, Callable | None, dict],
-                 tuple[datetime, str, LogLevel, list[ThemeRef | ThemeStr]]]:
-    """
-    Scanner for Python tracebacks.
-
-        Parameters:
-            message (str): The message to format
-            **kwargs (dict[str, Any]): Keyword arguments [unused]
-        Returns:
-            (((str, Callable, dict),
-              (datetime, str, LogLevel, [(ThemeArray, LogLevel)]))):
-                ((str, Callable, dict)):
-                    (str, Callable, dict):
-                        (str): Command to the block parser
-                        (Callable): The block parser to use
-                        (dict): Arguments to the block parser
-                ((datetime, str, LogLevel, Callable, dict)):
-                    (datetime): The timestamp
-                    (str): The facility of the message
-                    (LogLevel): The LogLevel of the message
-                    ([(ThemeArray, LogLevel)]):
-                        (ThemeArray): The formatted strings of the remnant
-                        (LogLevel): The severity of the remnant
-    """
-    options: dict = deep_get(kwargs, DictPath("options"), {})
-
-    regex = deep_get(options, DictPath("regex"),
-                     re.compile(r"^([A-Z])\d\d\d\d \d\d:\d\d:\d\d\.\d+\s+(\d+)\s(.+?:\d+)\] (.*)"))
-    timestamp: datetime = none_timestamp()
-    facility: str = ""
-    severity: LogLevel = LogLevel.ERR
-    message, _timestamp = split_iso_timestamp(message, none_timestamp())
-    processor: tuple[str, Callable | None, dict] = ("block", python_traceback_scanner, {})
-
-    # Default case.
-    remnants: list[ThemeRef | ThemeStr] = [
-        ThemeStr(message, ThemeAttr("logview", "severity_info"))
-    ]
-
-    re_tmp = regex.match(message)
-    if re_tmp is not None:
-        # We want the first group that isn't None (if any).
-        for group in re_tmp.groups():
-            if group is None:
-                continue
-            message = group
-            remnants = [
-                ThemeStr(message, ThemeAttr("logview", "severity_info"))
-            ]
-            break
-
-    if (re_tmp := re.match(r"^(\s+File \")(.+?)(\", line )(\d+)(, in )(.*)", message)) is not None:
-        remnants = [
-            ThemeStr(re_tmp[1], ThemeAttr("logview", "severity_info")),
-            ThemeStr(re_tmp[2], ThemeAttr("types", "path")),
-            ThemeStr(re_tmp[3], ThemeAttr("logview", "severity_info")),
-            ThemeStr(re_tmp[4], ThemeAttr("types", "lineno")),
-            ThemeStr(re_tmp[5], ThemeAttr("logview", "severity_info")),
-            ThemeStr(re_tmp[6], ThemeAttr("types", "path")),
-        ]
-    else:
-        if (re_tmp := re.match(r"(^\S+?Error:|"
-                               r"^\S+?Exception:|"
-                               r"GeneratorExit:|"
-                               r"KeyboardInterrupt:|"
-                               r"StopIteration:|"
-                               r"StopAsyncIteration:|"
-                               r"SystemExit:|"
-                               r"socket.gaierror:"
-                               r")( .*)", message)) is not None:
-            remnants = [
-                ThemeStr(re_tmp[1], ThemeAttr("logview", "severity_error")),
-                ThemeStr(re_tmp[2], ThemeAttr("logview", "severity_info")),
-            ]
-            # This doesn't handle the stack trace that may follow the traceback,
-            # but we cannot support that unless we have a forward-looking scanner.
-            if not re_tmp[2].startswith(" <") or re_tmp[2].endswith(">"):
-                processor = ("end_block", None, {})
-        elif message == ">":
-            processor = ("end_block", None, {})
-        elif message.lstrip() == message:
-            processor = ("break", None, {})
-
-    return processor, (timestamp, facility, severity, remnants)
-
-
-def python_traceback(message: str, **kwargs: Any) \
-        -> tuple[str | tuple[str, Callable | None, dict],
-                 list[tuple[list[ThemeRef | ThemeStr], LogLevel]]]:
-    """
-    Parser for Python tracebacks.
-
-        Parameters:
-            message (str): The message to format
-            **kwargs (dict[str, Any]): Keyword arguments [unused]
-        Returns:
-            ((str | (str, Callable, dict)), [(ThemeArray, LogLevel)]):
-                ((str | (str, Callable, dict))):
-                    (str): The unformatted message
-                    (str, Callable, dict):
-                        (str): Command to the block parser
-                        (Callable): The block parser to use
-                        (dict): Arguments to the block parser
-                (ThemeArray): The formatted message
-                (LogLevel): The LogLevel of the message
-                (str): The facility of the message
-                ([(ThemeArray, LogLevel)]):
-                    (ThemeArray): The formatted strings of the remnant
-                    (LogLevel): The severity of the remnant
-    """
-    options: dict = deep_get(kwargs, DictPath("options"), {})
-
-    if options is None:
-        options = {}
-
-    remnants: list[tuple[list[ThemeRef | ThemeStr], LogLevel]] = []
-
-    if message.startswith(("Traceback (most recent call last):",
-                           "Exception in thread ")):
-        remnants = [ThemeStr(message, ThemeAttr("logview", "severity_error"))]
-        processor: tuple[str, Callable | None, dict] = \
-            ("start_block", python_traceback_scanner, options)
-        return message, remnants, processor
-
-    if message == "During handling of the above exception, " \
-                  "another exception occurred:":
-        remnants = [ThemeStr(message, ThemeAttr("logview", "severity_error"))]
-        processor = \
-            ("start_block", python_traceback_scanner_nested_exception, options)
-        return message, remnants, processor
-
-    return message, remnants, {}
-
-
 # pylint: disable-next=too-many-branches
 def match_block_start(matchrules: list[MatchBlockStart],
                       message: str, line: int) -> tuple[list[str], bool]:
@@ -3506,7 +3270,7 @@ def custom_splitter(message: str, **kwargs: Any) -> \
 def parsing_multiplexer(message: str | list[ThemeRef | ThemeStr],
                         filters: list[tuple[str, dict]], **kwargs: Any) \
         -> tuple[str, LogLevel,
-                 list[ThemeRef | ThemeStr] | tuple[str, Callable | None, dict],
+                 list[ThemeRef | ThemeStr],
                  list[tuple[list[ThemeRef | ThemeStr], LogLevel]], dict]:
     """
     The main loop for the parser; it will iterate loop through all rules specified for
@@ -3519,15 +3283,15 @@ def parsing_multiplexer(message: str | list[ThemeRef | ThemeStr],
                 fold_msg (bool): Should the message be expanded or folded?
                 options (dict[str, Any]): Options to pass to the block parsers
         Returns:
-            (str, LogLevel, [(ThemeArray, LogLevel)] | (str, Callable, dict[str, Any]),
-             [([ThemeArray], LogLevel)]):
+            (str, LogLevel, [ThemeArray], [(ThemeArray, LogLevel)], dict):
                 (str): The log facility
                 (LogLevel): The log severity
                 (ThemeArray | (str, Callable, dict[str, Any])):
-                    Either the formatted message or the block parser tuple
+                    A formatted message
                 ([(ThemeArray, LogLevel)]):
                     (ThemeArray): The formatted strings of the remnant
                     (LogLevel): The severity of the remnant
+                (dict): Block processing instructions
     """
     fold_msg: bool = deep_get(kwargs, DictPath("fold_msg"), True)
     options: dict = deep_get(kwargs, DictPath("options"), {})
@@ -3631,6 +3395,7 @@ def parsing_multiplexer(message: str | list[ThemeRef | ThemeStr],
                     severity_name = f"severity_{loglevel_to_name(remnants_severity).lower()}"
                     if isinstance(message, str):
                         message = [ThemeStr(f"{message}", ThemeAttr("logview", "severity_name"))]
+                    row: Sequence[ThemeRef | ThemeStr]
                     for row in remnants_strs:
                         if not message:
                             if isinstance(row, str):
@@ -3664,10 +3429,7 @@ def parsing_multiplexer(message: str | list[ThemeRef | ThemeStr],
                 message, severity, facility, remnants = \
                     tab_separated(message, severity=severity, facility=facility,
                                   fold_msg=fold_msg, options=filter_options)
-            # Block starters; these are treated as parser loop terminators if a match is found
-            elif _filter == "python_traceback":
-                message, remnants = python_traceback(message, fold_msg=fold_msg,
-                                                     options=filter_options)
+            # Block starters; these are parser loop terminators if a match is found.
             elif _filter == "custom_line":
                 message, severity, processor = \
                     custom_line(message, fold_msg=fold_msg, severity=severity,
@@ -3688,9 +3450,9 @@ def parsing_multiplexer(message: str | list[ThemeRef | ThemeStr],
 
     # As a step towards always using ThemeStr, convert all regular strings
     if isinstance(message, str):
-        rmessage = [ThemeStr(message,
-                             ThemeAttr("logview",
-                                       f"severity_{loglevel_to_name(severity).lower()}"))]
+        rmessage: list[ThemeRef | ThemeStr] = \
+            [ThemeStr(message, ThemeAttr("logview",
+                                         f"severity_{loglevel_to_name(severity).lower()}"))]
     else:
         rmessage = message
 
@@ -3930,7 +3692,7 @@ def init_parser_list(force_reinit: bool = False) -> None:
                 rules: list[tuple[str, dict]] = []
 
                 for rule in parser_rules:
-                    overrides: list[dict[str, Any]] = {}
+                    overrides: list[dict[str, Any]] = []
 
                     rule_name = deep_get(rule, DictPath("name"))
                     if rule_name in ("bracketed_severity",
@@ -4024,7 +3786,7 @@ def get_parser_list() -> set[Parser]:
 
 # pylint: disable-next=too-many-locals
 def logparser(**kwargs: Any) -> tuple[datetime, str, LogLevel,
-                                      list[ThemeRef | ThemeStr] | tuple[str, Callable | None, dict],
+                                      list[ThemeRef | ThemeStr],
                                       list[tuple[list[ThemeRef | ThemeStr], LogLevel]], dict]:
     """
     This is used when the parser is already initialised.

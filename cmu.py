@@ -5376,6 +5376,8 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
 
                 i += 1
 
+                # Block parser; anyything that returns a block will trigger
+                # an attempt to parse extract it as a block and pass it to a formatter.
                 if block:
                     scanner: Callable = deep_get(block, DictPath("scanner"))
                     formatter: Callable = deep_get(block, DictPath("formatter"))
@@ -5423,13 +5425,15 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                     if message:
                         if matched:
                             _severity = options_severity
-                        log_add_line(timestamps, facilities, severities, messages,
-                                     timestamp_, facility, _severity,
-                                     cast(list[ThemeRef | ThemeStr], message), facility_extended)
-                        total_msgs += 1
 
                         if _severity > log_level:
                             hidden_msgs += 1
+                        else:
+                            log_add_line(timestamps, facilities, severities, messages,
+                                         timestamp_, facility, _severity,
+                                         cast(list[ThemeRef | ThemeStr], message),
+                                         facility_extended)
+                        total_msgs += 1
 
                     _severity = severity
 
@@ -5443,6 +5447,11 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                         except yaml.parser.ParserError:
                             new_lines_formatted = formatters.format_generic("\n".join(new_lines),
                                                                             options=options)
+
+                        if _severity > log_level:
+                            hidden_msgs += 1
+                            # This will "hide" the block.
+                            new_lines_formatted = []
 
                         for j, new_line_formatted in enumerate(new_lines_formatted):
                             if j == 0:
@@ -5467,94 +5476,6 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
 
                         i += iadd
                     continue
-
-                # In some cases rather than expanding a single line into multiple lines,
-                # we want to parse multiple lines as a single block;
-                # we signal this by returning message == ["start_block", processor],
-                # then continue parsing until we either get ["end_block", *],
-                # ["break", *], or reach the end of the file
-                if isinstance(message, tuple) and message[0] == "start_block" and not raw_logs:
-                    _logentries = [(timestamp_, facility, severity, remnants)]
-                    processor = message
-                    options = processor[2]
-                    _block_state = "none"
-                    for j in range(i, len(splitmsg)):
-                        if not callable(processor[1]):
-                            raise ProgrammingError(f"processor: {processor} does not "
-                                                   "contain a valid processor")
-                        if isinstance(splitmsg[j], tuple):
-                            processor, _logentry = \
-                                processor[1](splitmsg[j][0], fold_msg=fold_msg, options=options)
-                        else:
-                            # Maybe I'm missing something, but we're checking whether
-                            # processor[1] is callable above, and the conditional above
-                            # is binary, so it cannot get into this branch with a different
-                            # value than in the other branch. It doesn't make sense that
-                            # the above call is accepted but this one needs a cast.
-                            # Oh well; the cast below is only to make mypy happy.
-                            processor, _logentry = \
-                                cast(Callable, processor[1])(splitmsg[j],
-                                                             fold_msg=fold_msg, options=options)
-                        _block_state = processor[0]
-                        if _block_state != "end_block_not_processed":
-                            _logentries.append(_logentry)
-
-                        if _block_state in ("end_block", "end_block_not_processed"):
-                            if _logentries[0][2] > log_level:
-                                hidden_msgs += 1
-                                break
-
-                            # OK, we've got a block and it's a severity we want to add;
-                            # start by appending the first line.
-                            if _logentries:
-                                timestamps, facilities, severities, messages, new_added = \
-                                    log_add_line(timestamps, facilities, severities, messages,
-                                                 timestamp_, facility, severity,
-                                                 cast(list[ThemeRef | ThemeStr], _logentries[0][3]),
-                                                 facility_extended,
-                                                 squash_empty_lines=squash_empty_lines)
-                            added += new_added
-                            if len(_logentries) > 1:
-                                for _timestamp, _facility, _severity, _message in _logentries[1:]:
-                                    timestamps, facilities, severities, messages, new_added = \
-                                        log_add_line(timestamps, facilities, severities, messages,
-                                                     _timestamp, "".ljust(len(facility)), severity,
-                                                     cast(list[ThemeRef | ThemeStr], _message),
-                                                     facility_extended,
-                                                     squash_empty_lines=squash_empty_lines)
-                                    added += new_added
-                                break
-                        elif _block_state == "break":
-                            # We got something indicating that this is not a valid block; abort
-                            break
-                    else:
-                        if _logentries \
-                                and deep_get(options, DictPath("eof"), "break") == "end_block":
-                            for _timestamp, _facility, _severity, _message in _logentries:
-                                timestamps, facilities, severities, messages, new_added = \
-                                    log_add_line(timestamps, facilities, severities, messages,
-                                                 _timestamp, "".ljust(len(facility)), severity,
-                                                 cast(list[ThemeRef | ThemeStr], _message),
-                                                 facility_extended,
-                                                 squash_empty_lines=squash_empty_lines)
-                                added += new_added
-                            _block_state = "end_block"
-                        else:
-                            _block_state = "break"
-
-                    if _block_state == "end_block":
-                        # We got a block and it has been appended, so go on
-                        i = j + 1
-                        continue
-
-                    if _block_state == "end_block_not_processed":
-                        # We got a block and it has been appended,
-                        # but the last line needs processing again
-                        i = j
-                        continue
-
-                    message = remnants
-                    remnants = []
 
                 total_msgs += 1
 
