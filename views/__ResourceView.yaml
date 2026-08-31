@@ -119,7 +119,7 @@ infoview:
       action_call: "export_data"
       action_args:
         _pass_result: true
-        _pass_obj: true
+        _pass_formatted: true
         _extra_args:
           raw_export: true
           base_path: ""

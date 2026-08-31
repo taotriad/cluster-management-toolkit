@@ -3379,8 +3379,9 @@ def export_data(stdscr: curses.window, **kwargs: Any) -> Retval:
     """
     selected = deep_get(kwargs, DictPath("selected"))
     obj = deep_get(kwargs, DictPath("obj"))
+    formatted = deep_get(kwargs, DictPath("formatted"))
 
-    if selected is None and obj is None:
+    if selected is None and obj is None and formatted is None:
         return Retval.RETURNDONE
 
     extra_args = deep_get(kwargs, DictPath("_extra_args"), {})
@@ -3399,6 +3400,14 @@ def export_data(stdscr: curses.window, **kwargs: Any) -> Retval:
                 value = obj
             else:
                 value = deep_get(obj, DictPath(f"{base_path}"))
+    if formatted is not None:
+        values = []
+        try:
+            for themearray in formatted:
+                values.append(themearray_to_string(themearray))
+        except ValueError:
+            return Retval.RETURNDONE
+        value = "\n".join(values)
 
     if not isinstance(value, (str, bytes)):
         errmsg = [
@@ -4735,6 +4744,8 @@ def genericinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                     action_args["obj"] = obj
                 if "_pass_result" in action_args:
                     action_args["result"] = w_result
+                if "_pass_formatted" in action_args and formatter and uip.logpad:
+                    action_args["formatted"] = uip.messages
                 if "_pass_selected" in action_args and selected is not None:
                     action_args["selected"] = selected
                 if "_pass_selected_obj" in action_args and selected is not None:
