@@ -3362,7 +3362,7 @@ def decode_and_view_file_templates(stdscr: curses.window, **kwargs: Any) -> Retv
                                 title=title, formatter=formatter)
 
 
-# pylint: disable-next=too-many-branches
+# pylint: disable-next=too-many-branches,too-many-locals,too-many-statements
 def export_data(stdscr: curses.window, **kwargs: Any) -> Retval:
     """
     Export data to a file.
