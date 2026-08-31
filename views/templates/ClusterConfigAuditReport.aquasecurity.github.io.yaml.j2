@@ -10,13 +10,11 @@ listview:
   group: "Security"
   field_indexes:
     Wide:
-      fields: ["name", "controller", "scanner",
-               "severity_critical", "severity_high",
-               "severity_medium", "severity_low", "age"]
+      fields: ["name", "controller", "severity_critical", "severity_high",
+               "severity_medium", "severity_low", "age", "scanner"]
     Normal:
-      fields: ["name", "scanner",
-               "severity_critical", "severity_high",
-               "severity_medium", "severity_low", "age"]
+      fields: ["name", "severity_critical", "severity_high",
+               "severity_medium", "severity_low", "age", "scanner"]
   fields:
     {%- for line in field_controller.split("\n") %}
     {{ line }}

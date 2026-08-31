@@ -10,12 +10,14 @@ listview:
   group: "Security"
   field_indexes:
     Wide:
-      fields: ["namespace", "name", "controller", "scanner", "repository",
-               "tag", "components_count", "dependencies_count", "age"]
+      fields: ["namespace", "name", "controller", "repository",
+               "components_count", "dependencies_count", "age",
+               "tag", "scanner"]
       sortcolumn: "namespace"
     Normal:
-      fields: ["namespace", "name", "scanner", "repository",
-               "tag", "components_count", "dependencies_count", "age"]
+      fields: ["namespace", "name", "repository",
+               "components_count", "dependencies_count", "age",
+               "tag", "scanner"]
       sortcolumn: "namespace"
   fields:
     components_count:
