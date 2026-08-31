@@ -21,10 +21,12 @@ listview:
     distinguisher_method:
       header: "Distinguisher Method:"
       path: "spec#distinguisherMethod#type"
+      default: "<unset>"
       type: "str"
     distinguisher_method_abbrev:
       header: "Distinguisher:"
       path: "spec#distinguisherMethod#type"
+      default: "<unset>"
       type: "str"
     matching_precedence:
       header: "Matching Precedence:"
@@ -35,7 +37,9 @@ listview:
     matching_precedence_abbrev:
       header: "Precedence:"
       path: "spec#matchingPrecedence"
+      default: "<unset>"
       type: "raw"
+      formatter: "numerical"
       align: "right"
     priority_level:
       header: "Priority Level:"
