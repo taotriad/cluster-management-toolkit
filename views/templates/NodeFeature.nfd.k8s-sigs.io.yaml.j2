@@ -32,6 +32,7 @@ infoview:
       cpu_family:
         header: [["  Family:", ["main", "infoheader"]]]
         path: "spec#features#attributes#cpu.model#elements#family"
+        default: "<unset>"
         type: "int"
         formatter: "numerical"
       cpu_flags:
@@ -43,6 +44,7 @@ infoview:
             pathtype: "dictlist"
             transform:
               output: ["key"]
+        default: ["<unset>"]
         formatter: "list"
         formatting:
           ellipsise: 20
@@ -51,6 +53,7 @@ infoview:
       cpu_model:
         header: [["  Model:", ["main", "infoheader"]]]
         path: "spec#features#attributes#cpu.model#elements#id"
+        default: "<unset>"
         type: "int"
         formatter: "numerical"
       cpu_cstate:
@@ -70,6 +73,7 @@ infoview:
             when:
               - key: "enabled"
                 eq: "false"
+        default: ["<unset>"]
       cpu_sgx:
         header: [["  SGX:", ["main", "infoheader"]]]
         paths:
@@ -87,8 +91,8 @@ infoview:
             when:
               - key: "enabled"
                 eq: "false"
-        type: "str"
         default: "<unsupported>"
+        type: "str"
         formatter: "value_mapper"
         formatting:
           mapping:
@@ -100,6 +104,7 @@ infoview:
       cpu_vendor:
         header: [["  Vendor:", ["main", "infoheader"]]]
         path: "spec#features#attributes#cpu.model#elements#vendor_id"
+        default: "<unset>"
         type: "str"
       network_devices:
         header: [["Net", ["main", "infoheader"]],
@@ -110,6 +115,7 @@ infoview:
             pathtype: "items"
             subpaths:
               - "attributes#name"
+        default: ["<none>"]
         formatter: "list"
         formatting:
           ellipsise: 20
@@ -140,10 +146,12 @@ infoview:
       pstate_governor:
         header: [["  Governor:", ["main", "infoheader"]]]
         path: "spec#features#attributes#cpu.pstate#elements#scaling_governor"
+        default: "<unset>"
         type: "str"
       pstate_status:
         header: [["  Status:", ["main", "infoheader"]]]
         path: "spec#features#attributes#cpu.pstate#elements#status"
+        default: "<unset>"
         type: "str"
       pstate_turbo:
         header: [["  Turbo:", ["main", "infoheader"]]]
@@ -162,6 +170,7 @@ infoview:
             when:
               - key: "turbo"
                 eq: "false"
+        default: ["<unset>"]
       storage:
         header: [["S", ["main", "infoheader_shortcut"]],
                  ["torage:", ["main", "infoheader"]]]
@@ -170,6 +179,7 @@ infoview:
             pathtype: "items"
             subpaths:
               - "attributes#name"
+        default: ["<unset>"]
         formatter: "list"
         formatting:
           ellipsise: 20
