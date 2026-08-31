@@ -331,7 +331,6 @@ def format_timestamp(timestamp: datetime,
     return array
 
 
-# pylint: disable-next=too-many-locals
 def update_field_widths(field_dict: dict, field_names: list[str], objects: list[dict]) -> int:
     """
     Process the fields for a line; calcute how wide each field should be,
@@ -351,42 +350,16 @@ def update_field_widths(field_dict: dict, field_names: list[str], objects: list[
         field_dict[field_name]["pos"] = pos
         field_dict[field_name]["fieldlen"] = 0
 
-        # These are necessary to calculate width of list items
-        item_separator = \
-            field_dict[field_name].get("item_separator", ThemeRef("separators", "list"))
-        field_separators = \
-            field_dict[field_name].get("field_separators", [ThemeRef("separators", "field")])
-        ellipsise = field_dict[field_name].get("ellipsise", -1)
-        ellipsis = field_dict[field_name].get("ellipsis", ThemeRef("separators", "ellipsis"))
-        field_prefixes = field_dict[field_name].get("field_prefixes", [])
-        field_suffixes = field_dict[field_name].get("field_suffixes", [])
-        field_formatters = field_dict[field_name].get("field_formatters", [])
         formatting: generators.FormattingType = \
             deep_get(field_dict, DictPath(f"{field_name}#formatting"), {})
 
         tmplen = 0
 
         for obj in objects:
-            generator = field_dict[field_name].get("generator")
-            processor = field_dict[field_name].get("processor")
-
-            if processor is None:
-                processor = generators.default_processor.get(generator)
-
-            if processor is not None:
-                if processor in (generators.processor_list,
-                                 generators.processor_list_with_status):
-                    tmp = processor(obj, field_name,
-                                    item_separator=item_separator,
-                                    field_separators=field_separators,
-                                    ellipsise=ellipsise, ellipsis=ellipsis,
-                                    field_prefixes=field_prefixes,
-                                    field_suffixes=field_suffixes,
-                                    field_formatters=field_formatters)
-                elif processor.__name__ == generators.processor_timestamp_with_age.__name__:
-                    tmp = processor(obj, field_name, formatting)
-                else:
-                    tmp = processor(obj, field_name)
+            generator = deep_get(field_dict, DictPath(f"{field_name}#generator"))
+            if generator:
+                tmp = themearray_to_string(generator(obj, field_name, fieldlen=0, pad=0,
+                                                     ralign=False, selected=False, **formatting))
             else:
                 tmp = deep_get(obj, DictPath(field_name))
 
@@ -728,19 +701,8 @@ def generate_list_row(uip: UIProps, data: dict, field_dict: dict,
 
         ralign = field_dict[field].get("ralign", False)
 
-        formatting: generators.FormattingType = {
-            "item_separator":
-                field_dict[field].get("item_separator", ThemeRef("separators", "list")),
-            "field_separators":
-                field_dict[field].get("field_separators", [ThemeRef("separators", "field")]),
-            "field_colors": field_dict[field].get("field_colors", [ThemeAttr("types", "field")]),
-            "ellipsise": field_dict[field].get("ellipsise", -1),
-            "ellipsis": field_dict[field].get("ellipsis", ThemeRef("separators", "ellipsis")),
-            "field_prefixes": field_dict[field].get("field_prefixes", []),
-            "field_suffixes": field_dict[field].get("field_suffixes", []),
-            "mapping": field_dict[field].get("mapping", {}),
-            "field_formatters": field_dict[field].get("field_formatters", []),
-        }
+        formatting: generators.FormattingType = \
+            deep_get(field_dict, DictPath(f"{field}#formatting"), {})
 
         tmp = generator(data, field, fieldlen=fieldlen, pad=fpad,
                         ralign=ralign, selected=is_selected, **formatting)
@@ -5430,8 +5392,7 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                             hidden_msgs += 1
                         else:
                             log_add_line(timestamps, facilities, severities, messages,
-                                         timestamp_, facility, _severity,
-                                         cast(list[ThemeRef | ThemeStr], message),
+                                         timestamp_, facility, _severity, message,
                                          facility_extended)
                         total_msgs += 1
 
@@ -5511,13 +5472,12 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                     prev_timestamp = timestamp_
                     prev_facility = facility
                     prev_severity = severity
-                    prev_message = cast(list[ThemeRef | ThemeStr], message)
+                    prev_message = message
                     prev_remnants = remnants
 
                 timestamps, facilities, severities, messages, new_added = \
                     log_add_line(timestamps, facilities, severities, messages, timestamp_,
-                                 facility, severity,
-                                 cast(list[ThemeRef | ThemeStr], message),
+                                 facility, severity, message,
                                  facility_extended, squash_empty_lines=squash_empty_lines)
                 added = new_added
 

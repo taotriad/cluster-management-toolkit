@@ -769,6 +769,9 @@ def get_obj(obj: dict, field_dict: dict, field_names: list[str],
                     tmp = deep_get_with_fallback(obj, path, {})
                     vtype, _value = cmtlib.decode_value(tmp)
                     _values.append((vtype, "str"))
+                elif ptype == "constant":
+                    # The constant is taken from the default value.
+                    _values.append((default, "raw"))
                 elif ptype == "obj":
                     reparent = deep_get(_path, DictPath("reparent"))
                     if not path:
@@ -898,8 +901,15 @@ def get_obj(obj: dict, field_dict: dict, field_names: list[str],
                     else:
                         _values.append((default, "raw"))
                 elif ptype == "lookup":
-                    lookup_kind, lookup_api_group, lookup_namespace, \
-                        lookup_name, tmp_lookup_selector = path
+                    vtype = deep_get(_path, DictPath("type"), "raw")
+                    tmp_lookup_selector = []
+                    tmp_lookup_field_selector = []
+                    if len(path) == 5:
+                        lookup_kind, lookup_api_group, lookup_namespace, \
+                            lookup_name, tmp_lookup_selector = path
+                    elif len(path) == 6:
+                        lookup_kind, lookup_api_group, lookup_namespace, \
+                            lookup_name, tmp_lookup_selector, tmp_lookup_field_selector = path
                     if isinstance(lookup_kind, list):
                         lookup_kind = deep_get_with_fallback(obj, lookup_kind, "")
                     if isinstance(lookup_api_group, list):
@@ -919,6 +929,17 @@ def get_obj(obj: dict, field_dict: dict, field_names: list[str],
                                 ls_value = deep_get_with_fallback(obj, ls_value)
                             _lookup_selector[ls_key] = ls_value
                         lookup_selector = make_label_selector(_lookup_selector)
+                    if not tmp_lookup_field_selector:
+                        lookup_field_selector = ""
+                    else:
+                        _lookup_selector = {}
+                        for ls in tmp_lookup_field_selector:
+                            ls_key = ls[0]
+                            ls_value = ls[1]
+                            if isinstance(ls_value, list):
+                                ls_value = deep_get_with_fallback(obj, ls_value)
+                            _lookup_selector[ls_key] = ls_value
+                        lookup_field_selector = make_label_selector(_lookup_selector)
 
                     try:
                         if not lookup_name:
@@ -926,6 +947,7 @@ def get_obj(obj: dict, field_dict: dict, field_names: list[str],
                                 kh.get_list_by_kind_namespace((lookup_kind, lookup_api_group),
                                                               lookup_namespace,
                                                               label_selector=lookup_selector,
+                                                              field_selector=lookup_field_selector,
                                                               resource_cache=kh_cache)
                         else:
                             lookup_obj = \
@@ -962,6 +984,11 @@ def get_obj(obj: dict, field_dict: dict, field_names: list[str],
                     substitute = deep_get(_path, DictPath("substitute"))
                     if substitute is not None:
                         value = substitute
+                    if vtype == "len" and value:
+                        if len(value) > 1:
+                            value = len(value)
+                        elif isinstance(value, list) and isinstance(value[0], tuple):
+                            value = len(value[0])
                     _values.append((value, "raw"))
                 elif ptype == "remap":
                     value = []

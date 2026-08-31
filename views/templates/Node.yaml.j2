@@ -10,10 +10,10 @@ listview:
     Wide:
       fields: ["name", "status", "roles", "age", "kubelet_version",
                "internal_ips", "os_image", "kernel_version",
-               "container_runtime", "cpu", "mem", "taints"]
+               "container_runtime", "cpu", "pods", "mem", "taints"]
     Normal:
       fields: ["name", "status", "roles", "age", "kubelet_version",
-               "internal_ips", "cpu", "mem", "taints"]
+               "internal_ips", "cpu", "pods", "mem", "taints"]
   fields:
     container_runtime:
       header: "Container Runtime:"
@@ -62,6 +62,51 @@ listview:
       fallback_on_empty: true
       default: "<unset>"
       type: "str"
+    pods:
+      header: "Pods:"
+      paths:
+        - path: ["Pod", "", "", "", "",
+                 [["spec.nodeName", ["metadata#name"]]]]
+          pathtype: "lookup"
+          subpaths:
+            - "metadata#name"
+          type: "len"
+        - path: "status#capacity#pods"
+          pathtype: "value"
+        - path: "status#capacity#pods"
+          pathtype: "value"
+        - path: ""
+          default: null
+          pathtype: "constant"
+      formatter: "list"
+      formatting:
+        args:
+          collate: 2
+        item_separator:
+          type: "fraction"
+        mapping:
+          source: "output"
+          ranges:
+            - min: null
+              max: null
+              field_colors:
+                - context: "types"
+                  type: "numerical"
+            - min: "0%"
+              max: "60%"
+              field_colors:
+                - context: "types"
+                  type: "watermark_low"
+            - min: "60%"
+              max: "90%"
+              field_colors:
+                - context: "types"
+                  type: "watermark_medium"
+            - default: true
+              field_colors:
+                - context: "types"
+                  type: "watermark_high"
+      align: "right"
     roles:
       header: "Roles:"
       paths:

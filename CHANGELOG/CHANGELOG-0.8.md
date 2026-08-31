@@ -97,9 +97,16 @@ N/A
 * The container view now has a bit more functionality.
 * Fix `patch_object()` to handle namespaces better.
 * Add `create_resource()` to allow actions to create (simple) Kubernetes objects.
+* A bug that caused log blocks to ignore the loglevel has been fixed.
 
 ### Changes to other files in v0.8.10
 
+* `Namespace` info-view now includes age.
+* `Node` list-view now includes number of pods.
+* Internally, we no longer use a generator/processor combination.
+  The processor is used for both purposes, thus a.) eliminating a lot of code, b.) removing some bugs.
+* The value-mapper has been given some new superpowers, allowing it to compare values against
+  the percentage of a reference value.
 * Fix broken fallbacks in `cmt-install`; if a package has no fallback
   (such as would be the case with optional dependencies),
   we ended up adding the string representation of `None` to the list of fallbacks,

@@ -383,6 +383,16 @@
             "description": "Formatting to use when outputting a field",
             "type": "object",
             "properties": {
+                "args": {
+                    "description": "Additionally arguments to pass to the formatters",
+                    "type": "object",
+                    "properties": {
+                        "collate": {
+                            "description": "Should the listgetter group multiple list entries into tuples, and if so, how many? Default: 1",
+                            "type": "integer"
+                        }
+                    }
+                },
                 "ellipsise": {
                     "description": "Ellipsise the list after this many entries",
                     "type": "integer"
@@ -444,16 +454,23 @@
                                     },
                                     "max": {
                                         "description": "Upper value in the range",
-                                        "type": "integer"
+                                        "type": ["integer", "string", "null"]
                                     },
                                     "min": {
                                         "description": "Lower value in the range",
-                                        "type": "integer"
+                                        "type": ["integer", "string", "null"]
                                     }
                                 },
                                 "additionalProperties": false
                             },
                             "minItems": 1
+                        },
+                        "source": {
+                            "description": "When doing a comparison against a range, should the range apply to the value directly, or a percentage of a reference value?",
+                            "enum": [
+                                "output",
+                                "reference"
+                            ]
                         },
                         "substitutions": {
                             "type": "object",
@@ -596,6 +613,7 @@
                 "int",
                 "kind",
                 "kind_api_group",
+                "len",
                 "mem_usage",
                 "name",
                 "raw",
@@ -995,6 +1013,7 @@
                 "age",
                 "appenditems",
                 "comparison",
+                "constant",
                 "count",
                 "dictfields",
                 "dictkeys",
@@ -1206,6 +1225,9 @@
             "anyOf": [
                 {
                     "$ref": "#/$defs/path"
+                }, {
+                    "type": "string",
+                    "maxLength": 0
                 }, {
                     "type": "array",
                     "items": {

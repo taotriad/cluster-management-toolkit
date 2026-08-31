@@ -18,10 +18,11 @@ from typing import Any, cast, TypedDict
 from collections.abc import Callable
 import yaml
 
+from clustermanagementtoolkit import cmtlog
+
 from clustermanagementtoolkit.ansithemeprint import ANSIThemeStr
 
-from clustermanagementtoolkit.curses_helper import color_status_group
-from clustermanagementtoolkit.curses_helper import themearray_len, themearray_to_string
+from clustermanagementtoolkit.curses_helper import color_status_group, themearray_len
 from clustermanagementtoolkit.curses_helper import themearray_compact, themearray_select
 from clustermanagementtoolkit.curses_helper import ThemeAttr, ThemeRef, ThemeStr, get_theme_ref
 
@@ -96,6 +97,7 @@ class FormattingTypeOptional(TypedDict, total=False):
     ellipsis: ThemeRef
     field_prefixes: list[list[ThemeRef]]
     field_suffixes: list[list[ThemeRef]]
+    args: dict[str, dict[str, Any]]
     mapping: dict[str, MappingType]
     field_formatters: list[str]
 
@@ -143,17 +145,15 @@ def format_version(items: str | list[str],
             items (str|[str]): The strings to format
             selected (bool): Should the strings be treated as selected?
             **kwargs (dict[str, Any]): Keyword arguments
-                formatting (FormattingType): Formatting for the data
         Returns:
             ([ThemeRef | ThemeStr]): A formatted string
     """
-    formatting: FormattingType = deep_get(kwargs, DictPath("formatting"), {})
     array: list[ThemeRef | ThemeStr] = []
 
     if isinstance(items, (int, str, tuple)):
         items = [items]
 
-    item_separator = deep_get(formatting, DictPath("item_separator"),
+    item_separator = deep_get(kwargs, DictPath("item_separator"),
                               ThemeRef("separators", "list", selected))
 
     separators: set = set("+-~.,")
@@ -219,8 +219,7 @@ def format_timestamp(timestamp: str | datetime, selected: bool) -> list[ThemeRef
 
 
 # pylint: disable-next=too-many-locals,too-many-branches,too-many-statements
-def format_list(items: Any, fieldlen: int, pad: bool,
-                **kwargs: Any) -> list[ThemeRef | ThemeStr]:
+def format_list(items: Any, fieldlen: int, pad: bool, **kwargs: Any) -> list[ThemeRef | ThemeStr]:
     """
     Format the elements of a list.
 
@@ -244,30 +243,23 @@ def format_list(items: Any, fieldlen: int, pad: bool,
     """
     ralign: bool = deep_get(kwargs, DictPath("ralign"), False)
     selected: bool = deep_get(kwargs, DictPath("selected"), False)
-    item_separator: ThemeRef | None = deep_get(kwargs, DictPath("item_separator"))
-    field_separators: list[ThemeRef] | None = deep_get(kwargs, DictPath("field_separators"))
-    field_colors: list[ThemeAttr] | None = deep_get(kwargs, DictPath("field_colors"))
+    item_separator: ThemeRef = deep_get(kwargs, DictPath("item_separator"),
+                                        ThemeRef("separators", "list", selected))
+    field_separators: list[ThemeRef] = deep_get(kwargs, DictPath("field_separators"),
+                                                [ThemeRef("separators", "field", selected)])
+    field_colors: list[ThemeAttr] = deep_get(kwargs, DictPath("field_colors"),
+                                             [ThemeAttr("types", "field")])
     ellipsise: int = deep_get(kwargs, DictPath("ellipsise"), -1)
-    ellipsis: ThemeRef | None = deep_get(kwargs, DictPath("ellipsis"))
+    ellipsis: ThemeRef = deep_get(kwargs, DictPath("ellipsis"),
+                                  ThemeRef("separators", "ellipsis", selected))
     field_prefixes: list[list[ThemeRef]] = deep_get(kwargs, DictPath("field_prefixes"))
     field_suffixes: list[list[ThemeRef]] = deep_get(kwargs, DictPath("field_suffixes"))
     mapping: dict = deep_get(kwargs, DictPath("mapping"), {})
+    collate: int = deep_get(kwargs, DictPath("args#collate"), 1)
     field_formatters: list[Callable | None] = \
         deep_get(kwargs, DictPath("field_formatters"), [])
 
     array: list[ThemeRef | ThemeStr] = []
-
-    if item_separator is None:
-        item_separator = ThemeRef("separators", "list", selected)
-
-    if ellipsis is None:
-        ellipsis = ThemeRef("separators", "ellipsis", selected)
-
-    if field_separators is None:
-        field_separators = [ThemeRef("separators", "field", selected)]
-
-    if field_colors is None:
-        field_colors = [ThemeAttr("types", "generic")]
 
     if not isinstance(field_separators, list):
         raise TypeError("field_separators should be a list of ThemeRef, "
@@ -279,6 +271,24 @@ def format_list(items: Any, fieldlen: int, pad: bool,
 
     if not isinstance(items, list):
         items = [items]
+
+    if collate > 1 and isinstance(items, list):
+        if items and isinstance(items[0], tuple):
+            tmpitems: Any = items[0]
+        else:
+            tmpitems = items
+        newitems = []
+        itemgroup = []
+        for i, item in enumerate(tmpitems):
+            itemgroup.append(item)
+            if i % collate == collate - 1:
+                newitems.append(tuple(itemgroup))
+                itemgroup = []
+        if itemgroup and len(itemgroup) < collate:
+            itemgroup.extend([None] * (collate - len(itemgroup)))
+        if itemgroup:
+            newitems.append(tuple(itemgroup))
+        items = newitems
 
     elcount = 0
     skip_separator = True
@@ -300,6 +310,19 @@ def format_list(items: Any, fieldlen: int, pad: bool,
         # since tuples consist of 2+ elements we add None.
         if not isinstance(item, tuple):
             item = (item, None)
+
+        # If we're collating and using a ranges-mapping and the tuple is 2 entries long
+        # we're trying to do a comparison.
+        if collate and "ranges" in mapping and len(item) == 2:
+            formatted_string, __string = map_value(item, selected=selected, mapping=mapping)
+            # OK, we know now that we will be appending the field, so do the prefix
+            if field_prefixes:
+                array += themearray_select(field_prefixes[0], selected=selected, force=True)
+            array.append(formatted_string)
+            # And now the suffix
+            if field_suffixes:
+                array += themearray_select(field_suffixes[0], selected=selected, force=True)
+            continue
 
         for i, data in enumerate(item):
             if data is None:
@@ -337,7 +360,7 @@ def format_list(items: Any, fieldlen: int, pad: bool,
                 default_field_color = field_colors[min(i, len(field_colors) - 1)]
                 formatted_string, __string = map_value(string, selected=selected,
                                                        default_field_color=default_field_color,
-                                                       mapping=mapping)
+                                                       mapping=mapping, mapitems=items)
 
             # OK, we know now that we will be appending the field, so do the prefix
             if field_prefixes is not None and i < len(field_prefixes):
@@ -380,6 +403,7 @@ def map_value(value: Any, selected: bool = False,
 
     substitutions = deep_get(kwargs, DictPath("mapping#substitutions"), {})
     ranges = deep_get(kwargs, DictPath("mapping#ranges"), [])
+    source = deep_get(kwargs, DictPath("mapping#source"), "reference")
     match_case = deep_get(kwargs, DictPath("mapping#match_case"), True)
     mappings = deep_get(kwargs, DictPath("mapping#mappings"), {})
 
@@ -406,14 +430,31 @@ def map_value(value: Any, selected: bool = False,
         if isinstance(value, ThemeRef):
             return value, str(value)
 
-    # OK, so we want to output output_value, but compare using reference_value
+    # OK, so we want to output output_value, but compare using reference_value.
+    # Unless source is output, in which case we want to compare output value to reference value;
+    # this requires min/max to be percentages.
     if isinstance(value, tuple) and ranges:
         output_value, reference_value = value
     else:
         output_value = value
         reference_value = value
 
-    if isinstance(reference_value, (int, float)) and ranges:
+    try:
+        if ranges:
+            if isinstance(reference_value, str):
+                if "." in reference_value:
+                    reference_value = float(reference_value)
+                else:
+                    reference_value = int(reference_value)
+            if isinstance(output_value, str):
+                if "." in output_value:
+                    output_value = float(output_value)
+                else:
+                    output_value = int(output_value)
+    except ValueError:
+        pass
+
+    if (reference_value is None or isinstance(reference_value, (int, float))) and ranges:
         default_index = -1
         for i, data in enumerate(ranges):
             if deep_get(data, DictPath("default"), False):
@@ -421,13 +462,44 @@ def map_value(value: Any, selected: bool = False,
                     raise ValueError("Range cannot contain more than one default")
                 default_index = i
                 continue
+
+            # For simplicity's sake we only support percentage comparison if both min and max
+            # are percentages.
             _min = deep_get(data, DictPath("min"))
             _max = deep_get(data, DictPath("max"))
-            if (_min is None or reference_value >= _min) \
-                    and (_max is None or reference_value < _max):
+
+            if _min is None and _max is None:
+                if reference_value is None:
+                    field_colors = deep_get(data, DictPath("field_colors"))
+                    break
+                continue
+
+            if isinstance(_min, str) and _min.endswith("%") \
+                    and isinstance(_max, str) and _max.endswith("%"):
+                try:
+                    _min = int(reference_value * (int(_min[:-1]) / 100))  # type: ignore[operator]
+                    _max = int(reference_value * (int(_max[:-1]) / 100))  # type: ignore[operator]
+                except ValueError:
+                    errmsg = [
+                        [("Viewfile contains invalid min/max values in range comparison; min: ",
+                         "default"),
+                         (f"{_min}", "argument"),
+                         (", max: ", "default"),
+                         (f"{_max}", "argument")],
+                    ]
+                    unformatted_msg, formatted_msg = ANSIThemeStr.format_error_msg(errmsg)
+                    cmtlog.log(LogLevel.ERR, msg=unformatted_msg, messages=formatted_msg)
+                    _min = None
+                    _max = None
+
+            if source == "output":
+                compare_value = output_value
+            else:
+                compare_value = reference_value
+            if (_min is None or compare_value >= _min) \
+                    and (_max is None or compare_value < _max):
                 field_colors = deep_get(data, DictPath("field_colors"))
                 break
-        if field_colors is None and default_index != -1:
             field_colors = deep_get(ranges[default_index], DictPath("field_colors"))
         string = str(output_value)
     elif isinstance(reference_value, (str, bool)) or not ranges:
@@ -501,16 +573,14 @@ def format_address_with_port(items: str | list[str],
             items (str|[str]): The strings to format
             selected (bool): Should the strings be treated as selected?
             **kwargs (dict[str, Any]): Keyword arguments
-                formatting (FormattingType): Formatting for the data
+                item_separator (ThemeRef): Separator between items
         Returns:
             ([ThemeRef | ThemeStr]): A formatted string
     """
-    formatting: FormattingType = deep_get(kwargs, DictPath("formatting"), {})
-
     if isinstance(items, (str, tuple)):
         items = [items]
 
-    item_separator = deep_get(formatting, DictPath("item_separator"),
+    item_separator = deep_get(kwargs, DictPath("item_separator"),
                               ThemeRef("separators", "list", selected))
 
     separator_lookup = {}
@@ -730,16 +800,14 @@ def format_selector(items: dict | list[dict],
             items (dict|[dict]): The strings to format
             selected (bool): Should the strings be treated as selected?
             **kwargs (dict[str, Any]): Keyword arguments
-                formatting (FormattingType): Formatting for the data
+                item_separator (ThemeRef): The separator between each element in the list
         Returns:
             ([ThemeRef | ThemeStr]): A formatted string
     """
-    formatting: FormattingType = deep_get(kwargs, DictPath("formatting"), {})
-
     if not isinstance(items, (list, tuple)):
         items = [items]
 
-    item_separator: ThemeRef = deep_get(formatting, DictPath("item_separator"),
+    item_separator: ThemeRef = deep_get(kwargs, DictPath("item_separator"),
                                         ThemeRef("separators", "list", selected))
 
     array: list[ThemeRef | ThemeStr] = []
@@ -838,12 +906,10 @@ def format_uri(items: str | list[str],
         Returns:
             ([ThemeRef | ThemeStr]): A formatted string
     """
-    formatting: FormattingType = deep_get(kwargs, DictPath("formatting"), {})
-
     if isinstance(items, (str, tuple)):
         items = [items]
 
-    item_separator = deep_get(formatting, DictPath("item_separator"),
+    item_separator = deep_get(kwargs, DictPath("item_separator"),
                               ThemeRef("separators", "list", selected))
 
     array: list[ThemeRef | ThemeStr] = []
@@ -880,7 +946,7 @@ def format_uri(items: str | list[str],
             else:
                 _vlist = [ThemeStr(scheme, ThemeAttr("types", "protocol"), selected)]
                 _vlist += [ThemeRef("separators", "uri_separator", selected)]
-                _vlist += format_address(authority, selected, formatting=formatting)
+                _vlist += format_address(authority, selected, item_separator=item_separator)
                 if uripath:
                     _vlist += [ThemeRef("separators", "uri_path", selected)]
                     _vlist += uripath
@@ -932,8 +998,7 @@ def generator_age_raw(value: int | str, selected: bool) -> list[ThemeRef | Theme
 
 # pylint: disable-next=unused-argument,too-many-arguments,too-many-positional-arguments
 def generator_age(obj: dict, field: str, fieldlen: int, pad: bool,
-                  ralign: bool, selected: bool,
-                  **formatting: FormattingType) -> list[ThemeRef | ThemeStr]:
+                  ralign: bool, selected: bool, **kwargs: Any) -> list[ThemeRef | ThemeStr]:
     """
     A generator for age.
 
@@ -944,7 +1009,7 @@ def generator_age(obj: dict, field: str, fieldlen: int, pad: bool,
             pad (bool): The amount of padding
             ralign (bool): Should the text be right-aligned?
             selected (bool): Should the generated field be selected?
-            **formatting (dict): Formatting for the data
+            **kwargs (dict[str, Any]): Keyword arguments [unused]
         Returns:
             ([ThemeRef | ThemeStr]): A formatted string
     """
@@ -958,8 +1023,7 @@ def generator_age(obj: dict, field: str, fieldlen: int, pad: bool,
 
 # pylint: disable-next=too-many-arguments,too-many-positional-arguments
 def generator_address(obj: dict, field: str, fieldlen: int, pad: bool,
-                      ralign: bool, selected: bool,
-                      **formatting: FormattingType) -> list[ThemeRef | ThemeStr]:
+                      ralign: bool, selected: bool, **kwargs: Any) -> list[ThemeRef | ThemeStr]:
     """
     A generator for IP-addresses and IP-masks.
 
@@ -970,7 +1034,7 @@ def generator_address(obj: dict, field: str, fieldlen: int, pad: bool,
             pad (bool): Pad the string?
             ralign (bool): Should the text be right-aligned?
             selected (bool): Should the generated field be selected?
-            **formatting (dict): Formatting for the data
+            **kwargs (dict[str, Any]): Keyword arguments
         Returns:
             ([ThemeRef | ThemeStr]): A formatted string
     """
@@ -979,7 +1043,10 @@ def generator_address(obj: dict, field: str, fieldlen: int, pad: bool,
     if isinstance(items, str) and items in ("<unset>", "<none>"):
         return format_list([items], fieldlen, pad, ralign=ralign, selected=selected)
 
-    array = format_address(items, selected, formatting=formatting)
+    item_separator = deep_get(kwargs, DictPath("item_separator"),
+                              ThemeRef("separators", "list", selected))
+
+    array = format_address(items, selected, item_separator=item_separator)
 
     return align_and_pad(array, fieldlen=fieldlen, pad=pad, ralign=ralign, selected=selected)
 
@@ -987,7 +1054,7 @@ def generator_address(obj: dict, field: str, fieldlen: int, pad: bool,
 # pylint: disable-next=too-many-arguments,too-many-positional-arguments
 def generator_address_with_port(obj: dict, field: str, fieldlen: int, pad: bool,
                                 ralign: bool, selected: bool,
-                                **formatting: FormattingType) -> list[ThemeRef | ThemeStr]:
+                                **kwargs: Any) -> list[ThemeRef | ThemeStr]:
     """
     A generator for IP-addresses with port.
 
@@ -998,7 +1065,8 @@ def generator_address_with_port(obj: dict, field: str, fieldlen: int, pad: bool,
             pad (bool): Pad the string?
             ralign (bool): Should the text be right-aligned?
             selected (bool): Should the generated field be selected?
-            **formatting (dict): Formatting for the data
+            **kwargs (dict[str, Any]): Keyword arguments
+                item_separator (ThemeRef): The separator between each item
         Returns:
             ([ThemeRef | ThemeStr]): A formatted string
     """
@@ -1007,15 +1075,17 @@ def generator_address_with_port(obj: dict, field: str, fieldlen: int, pad: bool,
     if isinstance(items, str) and items in ("<unset>", "<none>"):
         return format_list([items], fieldlen, pad, ralign=ralign, selected=selected)
 
-    array = format_address_with_port(items, selected, formatting=formatting)
+    item_separator = deep_get(kwargs, DictPath("item_separator"),
+                              ThemeRef("separators", "list", selected))
+
+    array = format_address_with_port(items, selected, item_separator=item_separator)
 
     return align_and_pad(array, fieldlen=fieldlen, pad=pad, ralign=ralign, selected=selected)
 
 
 # pylint: disable-next=too-many-arguments,too-many-positional-arguments
 def generator_selector(obj: dict, field: str, fieldlen: int, pad: bool,
-                       ralign: bool, selected: bool,
-                       **formatting: FormattingType) -> list[ThemeRef | ThemeStr]:
+                       ralign: bool, selected: bool, **kwargs: Any) -> list[ThemeRef | ThemeStr]:
     """
     A generator for selectors (cel, matchFields, matchExpressions, matchLabels).
 
@@ -1026,7 +1096,8 @@ def generator_selector(obj: dict, field: str, fieldlen: int, pad: bool,
             pad (bool): Pad the string?
             ralign (bool): Should the text be right-aligned?
             selected (bool): Should the generated field be selected?
-            **formatting (dict): Formatting for the data
+            **kwargs (dict[str, Any]): Keyword arguments
+                item_separator (ThemeRef): The separator between each element in the list
         Returns:
             ([ThemeRef | ThemeStr]): A formatted string
     """
@@ -1035,15 +1106,17 @@ def generator_selector(obj: dict, field: str, fieldlen: int, pad: bool,
     if isinstance(items, str) and items in ("<unset>", "<none>"):
         return format_list([items], fieldlen, pad, ralign=ralign, selected=selected)
 
-    array = format_selector(items, selected, formatting=formatting)
+    item_separator: ThemeRef = deep_get(kwargs, DictPath("item_separator"),
+                                        ThemeRef("separators", "list", selected))
+
+    array = format_selector(items, selected, item_separator=item_separator)
 
     return align_and_pad(array, fieldlen=fieldlen, pad=pad, ralign=ralign, selected=selected)
 
 
 # pylint: disable-next=too-many-arguments,too-many-positional-arguments
 def generator_uri(obj: dict, field: str, fieldlen: int, pad: bool,
-                  ralign: bool, selected: bool,
-                  **formatting: FormattingType) -> list[ThemeRef | ThemeStr]:
+                  ralign: bool, selected: bool, **kwargs: Any) -> list[ThemeRef | ThemeStr]:
     """
     A generator for URIs.
 
@@ -1054,7 +1127,7 @@ def generator_uri(obj: dict, field: str, fieldlen: int, pad: bool,
             pad (bool): Pad the string?
             ralign (bool): Should the text be right-aligned?
             selected (bool): Should the generated field be selected?
-            **formatting (dict): Formatting for the data
+            **kwargs (dict[str, Any]): Keyword arguments
         Returns:
             ([ThemeRef | ThemeStr]): A formatted string
     """
@@ -1063,15 +1136,17 @@ def generator_uri(obj: dict, field: str, fieldlen: int, pad: bool,
     if isinstance(items, str) and items in ("<unset>", "<none>"):
         return format_list([items], fieldlen, pad, ralign=ralign, selected=selected)
 
-    array = format_uri(items, selected, formatting=formatting)
+    item_separator = deep_get(kwargs, DictPath("item_separator"),
+                              ThemeRef("separators", "list", selected))
+
+    array = format_uri(items, selected, item_separator=item_separator)
 
     return align_and_pad(array, fieldlen=fieldlen, pad=pad, ralign=ralign, selected=selected)
 
 
 # pylint: disable-next=too-many-arguments,too-many-positional-arguments
 def generator_basic(obj: dict, field: str, fieldlen: int, pad: bool,
-                    ralign: bool, selected: bool,
-                    **formatting: FormattingType) -> list[ThemeRef | ThemeStr]:
+                    ralign: bool, selected: bool, **kwargs: Any) -> list[ThemeRef | ThemeStr]:
     """
     The default generator; it knows about certain special strings,
     but otherwise will use the provided formatting.
@@ -1083,14 +1158,15 @@ def generator_basic(obj: dict, field: str, fieldlen: int, pad: bool,
             pad (bool): Pad the string?
             ralign (bool): Should the text be right-aligned?
             selected (bool): Should the generated field be selected?
-            **formatting (dict): Formatting for the data
+            **kwargs (dict[str, Any]): Keyword arguments
+                field_colors ([ThemeAttr]): The colors to use for each member in a field
         Returns:
             ([ThemeRef | ThemeStr]): A formatted string
     """
     array: list[ThemeRef | ThemeStr] = []
     value = deep_get(obj, DictPath(field))
     string = str(value)
-    field_colors = deep_get(formatting, DictPath("field_colors"), [ThemeAttr("types", "generic")])
+    field_colors = deep_get(kwargs, DictPath("field_colors"), [ThemeAttr("types", "generic")])
 
     if string == "None":
         string = "<none>"
@@ -1116,8 +1192,7 @@ def generator_basic(obj: dict, field: str, fieldlen: int, pad: bool,
 
 # pylint: disable-next=too-many-arguments,too-many-positional-arguments
 def generator_version(obj: dict, field: str, fieldlen: int, pad: bool,
-                      ralign: bool, selected: bool,
-                      **formatting: FormattingType) -> list[ThemeRef | ThemeStr]:
+                      ralign: bool, selected: bool, **kwargs: Any) -> list[ThemeRef | ThemeStr]:
     """
     A generator for version numbers.
 
@@ -1128,25 +1203,28 @@ def generator_version(obj: dict, field: str, fieldlen: int, pad: bool,
             pad (bool): Pad the string?
             ralign (bool): Should the text be right-aligned?
             selected (bool): Should the generated field be selected?
-            **formatting (dict): Formatting for the data
+            **kwargs (dict[str, Any]): Keyword arguments
+                item_separator (ThemeRef): The separator between each element in the list
         Returns:
             ([ThemeRef | ThemeStr]): A formatted string
     """
     array: list[ThemeRef | ThemeStr] = []
     items = deep_get(obj, DictPath(field), [])
 
+    item_separator = deep_get(kwargs, DictPath("item_separator"),
+                              ThemeRef("separators", "list", selected))
+
     if isinstance(items, str) and (tmp := format_special(items, selected)) is not None:
         array = [tmp]
     else:
-        array = format_version(items, selected, formatting=formatting)
+        array = format_version(items, selected, item_separator=item_separator)
 
     return align_and_pad(array, fieldlen=fieldlen, pad=pad, ralign=ralign, selected=selected)
 
 
 # pylint: disable-next=unused-argument,too-many-arguments,too-many-positional-arguments
 def generator_hex(obj: dict, field: str, fieldlen: int, pad: bool,
-                  ralign: bool, selected: bool,
-                  **formatting: FormattingType) -> list[ThemeRef | ThemeStr]:
+                  ralign: bool, selected: bool, **kwargs: Any) -> list[ThemeRef | ThemeStr]:
     """
     A generator for hexadecimal values.
 
@@ -1157,7 +1235,7 @@ def generator_hex(obj: dict, field: str, fieldlen: int, pad: bool,
             pad (bool): Pad the string?
             ralign (bool): Should the text be right-aligned?
             selected (bool): Should the generated field be selected?
-            **formatting (dict): Formatting for the data
+            **kwargs (dict[str, Any]): Keyword arguments [unused]
         Returns:
             ([ThemeRef | ThemeStr]): A formatted string
     """
@@ -1179,10 +1257,9 @@ def generator_hex(obj: dict, field: str, fieldlen: int, pad: bool,
     return align_and_pad(array, fieldlen=fieldlen, pad=pad, ralign=ralign, selected=selected)
 
 
-# pylint: disable-next=too-many-locals,too-many-arguments,too-many-positional-arguments
+# pylint: disable-next=too-many-arguments,too-many-positional-arguments
 def generator_list(obj: dict, field: str, fieldlen: int, pad: bool,
-                   ralign: bool, selected: bool,
-                   **formatting: FormattingType) -> list[ThemeRef | ThemeStr]:
+                   ralign: bool, selected: bool, **kwargs: Any) -> list[ThemeRef | ThemeStr]:
     """
     Generate a formatted list, with support for custom list separators,
     grouped tuples, ellipsising after a certain length, etc.
@@ -1194,51 +1271,19 @@ def generator_list(obj: dict, field: str, fieldlen: int, pad: bool,
             pad (bool): Pad the string?
             ralign (bool): Should the text be right-aligned?
             selected (bool): Should the generated field be selected?
-            **formatting (dict): Formatting for the data
+            **kwargs (dict[str, Any]): Keyword arguments
         Returns:
             ([ThemeRef | ThemeStr]): A formatted string
     """
     items = deep_get(obj, DictPath(field))
 
-    item_separator = deep_get(formatting, DictPath("item_separator"),
-                              ThemeRef("separators", "list", selected))
-
-    field_separators = deep_get(formatting, DictPath("field_separators"),
-                                [ThemeRef("separators", "field", selected)])
-
-    field_colors = deep_get(formatting, DictPath("field_colors"),
-                            [ThemeAttr("types", "field")])
-
-    ellipsise = deep_get(formatting, DictPath("ellipsise"), -1)
-
-    ellipsis = deep_get(formatting, DictPath("ellipsis"),
-                        ThemeRef("separators", "ellipsis", selected))
-
-    field_prefixes = deep_get(formatting, DictPath("field_prefixes"))
-    field_suffixes = deep_get(formatting, DictPath("field_suffixes"))
-
-    mapping = deep_get(formatting, DictPath("mapping"), {})
-
-    field_formatters = deep_get(formatting, DictPath("field_formatters"))
-
-    return format_list(items, fieldlen, pad,
-                       ralign=ralign,
-                       selected=selected,
-                       item_separator=item_separator,
-                       field_separators=field_separators,
-                       field_colors=field_colors,
-                       ellipsise=ellipsise,
-                       ellipsis=ellipsis,
-                       field_prefixes=field_prefixes,
-                       field_suffixes=field_suffixes,
-                       mapping=mapping,
-                       field_formatters=field_formatters)
+    return format_list(items, fieldlen, pad, ralign=ralign, selected=selected, **kwargs)
 
 
-# noqa: E501 pylint: disable-next=too-many-branches,too-many-locals,too-many-arguments,too-many-positional-arguments
+# pylint: disable-next=too-many-arguments,too-many-positional-arguments
 def generator_list_with_status(obj: dict, field: str, fieldlen: int, pad: bool,
                                ralign: bool, selected: bool,
-                               **formatting: FormattingType) -> list[ThemeRef | ThemeStr]:
+                               **kwargs: Any) -> list[ThemeRef | ThemeStr]:
     """
     Generate a formatted list, mapping the items based on their status.
     FIXME: This implementation is really ugly.
@@ -1250,7 +1295,7 @@ def generator_list_with_status(obj: dict, field: str, fieldlen: int, pad: bool,
             pad (bool): Pad the string?
             ralign (bool): Should the text be right-aligned?
             selected (bool): Should the generated field be selected?
-            **formatting (dict): Formatting for the data
+            **kwargs (dict[str, Any]): Keyword arguments
         Returns:
             ([ThemeRef | ThemeStr]): A formatted string
     """
@@ -1258,27 +1303,10 @@ def generator_list_with_status(obj: dict, field: str, fieldlen: int, pad: bool,
     if isinstance(items, tuple):
         items = [items]
 
-    item_separator = deep_get(formatting, DictPath("item_separator"))
-    if item_separator is None:
-        item_separator = ThemeRef("separators", "list", selected)
-
-    field_separators = deep_get(formatting, DictPath("field_separators"))
-    if field_separators is None:
-        field_separators = [ThemeRef("separators", "field", selected)]
-
-    ellipsise = deep_get(formatting, DictPath("ellipsise"), -1)
-
-    ellipsis = deep_get(formatting, DictPath("ellipsis"))
-    if ellipsis is None:
-        ellipsis = ThemeRef("separators", "ellipsis", selected)
-
-    field_prefixes = deep_get(formatting, DictPath("field_prefixes"))
-    field_suffixes = deep_get(formatting, DictPath("field_prefixes"))
-
     # Well, this works:ish, but it is ugly beyond belief.
     # it would be solved so much better with a mapping that uses a secondary value.
     newitems = []
-    field_colors = [
+    kwargs["field_colors"] = [
         ThemeAttr("main", "status_done"),
         ThemeAttr("main", "status_ok"),
         ThemeAttr("main", "status_pending"),
@@ -1288,7 +1316,7 @@ def generator_list_with_status(obj: dict, field: str, fieldlen: int, pad: bool,
         ThemeAttr("main", "status_unknown"),
         ThemeAttr("main", "status_critical"),
         ThemeAttr("types", "generic")]
-    field_separators = [ThemeRef("separators", "no_pad", selected)]
+    kwargs["field_separators"] = [ThemeRef("separators", "no_pad", selected)]
 
     for item, status in items:
         if status == StatusGroup.DONE:
@@ -1312,22 +1340,12 @@ def generator_list_with_status(obj: dict, field: str, fieldlen: int, pad: bool,
         else:
             newitems.append(("", "", "", "", "", "", "", "", item))
 
-    return format_list(newitems, fieldlen, pad,
-                       ralign=ralign,
-                       selected=selected,
-                       item_separator=item_separator,
-                       field_separators=field_separators,
-                       field_colors=field_colors,
-                       ellipsise=ellipsise,
-                       ellipsis=ellipsis,
-                       field_prefixes=field_prefixes,
-                       field_suffixes=field_suffixes)
+    return format_list(newitems, fieldlen, pad, ralign=ralign, selected=selected, **kwargs)
 
 
 # pylint: disable-next=unused-argument,too-many-arguments,too-many-positional-arguments
 def generator_mem(obj: dict, field: str, fieldlen: int, pad: bool,
-                  ralign: bool, selected: bool,
-                  **formatting: FormattingType) -> list[ThemeRef | ThemeStr]:
+                  ralign: bool, selected: bool, **kwargs: Any) -> list[ThemeRef | ThemeStr]:
     """
     Generate formatting for memory usage tuples (free / total).
 
@@ -1338,7 +1356,7 @@ def generator_mem(obj: dict, field: str, fieldlen: int, pad: bool,
             pad (bool): Pad the string?
             ralign (bool): Should the text be right-aligned?
             selected (bool): Should the generated field be selected?
-            **formatting (dict): Formatting for the data
+            **kwargs (dict[str, Any]): Keyword arguments
         Returns:
             ([ThemeRef | ThemeStr]): A formatted string
     """
@@ -1378,7 +1396,7 @@ def generator_mem(obj: dict, field: str, fieldlen: int, pad: bool,
 # pylint: disable-next=too-many-arguments,too-many-positional-arguments
 def generator_numerical_with_units(obj: dict, field: str, fieldlen: int, pad: bool,
                                    ralign: bool, selected: bool,
-                                   **formatting: FormattingType) -> list[ThemeRef | ThemeStr]:
+                                   **kwargs: Any) -> list[ThemeRef | ThemeStr]:
     """
     Generate numerical values with units.
 
@@ -1389,7 +1407,7 @@ def generator_numerical_with_units(obj: dict, field: str, fieldlen: int, pad: bo
             pad (bool): Pad the string?
             ralign (bool): Should the text be right-aligned?
             selected (bool): Should the generated field be selected?
-            **formatting (dict): Formatting for the data
+            **kwargs (dict[str, Any]): Keyword arguments [unused]
         Returns:
             ([ThemeRef | ThemeStr]): A formatted string
     """
@@ -1404,10 +1422,10 @@ def generator_numerical_with_units(obj: dict, field: str, fieldlen: int, pad: bo
         array = [ThemeStr(value, fmt, selected)]
         return align_and_pad(array, fieldlen=fieldlen, pad=pad, ralign=ralign, selected=selected)
 
-    unit = deep_get(formatting, DictPath("unit"), "")
+    unit = deep_get(kwargs, DictPath("unit"), "")
 
     # Currently allow_signed seems to be unused
-    if value == -1 and not deep_get(formatting, DictPath("allow_signed")):
+    if value == -1 and not deep_get(kwargs, DictPath("allow_signed")):
         string = ""
     else:
         string = f"{value}{unit}"
@@ -1419,8 +1437,7 @@ def generator_numerical_with_units(obj: dict, field: str, fieldlen: int, pad: bo
 
 # pylint: disable-next=unused-argument,too-many-arguments,too-many-positional-arguments
 def generator_status(obj: dict, field: str, fieldlen: int, pad: bool,
-                     ralign: bool, selected: bool,
-                     **formatting: FormattingType) -> list[ThemeRef | ThemeStr]:
+                     ralign: bool, selected: bool, **kwargs: Any) -> list[ThemeRef | ThemeStr]:
     """
     Generate formatting for status messages.
 
@@ -1431,7 +1448,7 @@ def generator_status(obj: dict, field: str, fieldlen: int, pad: bool,
             pad (bool): Pad the string?
             ralign (bool): Should the text be right-aligned?
             selected (bool): Should the generated field be selected?
-            **formatting (dict): Formatting for the data
+            **kwargs (dict[str, Any]): Keyword arguments [unused]
         Returns:
             ([ThemeRef | ThemeStr]): A formatted string
     """
@@ -1449,8 +1466,7 @@ def generator_status(obj: dict, field: str, fieldlen: int, pad: bool,
 
 # pylint: disable-next=unused-argument,too-many-arguments,too-many-positional-arguments
 def generator_timestamp(obj: dict, field: str, fieldlen: int, pad: bool,
-                        ralign: bool, selected: bool,
-                        **formatting: FormattingType) -> list[ThemeRef | ThemeStr]:
+                        ralign: bool, selected: bool, **kwargs: Any) -> list[ThemeRef | ThemeStr]:
     """
     Generate a formatted string either from a timestamp or a string;
     special strings such as "<none>" are also handled.
@@ -1462,7 +1478,7 @@ def generator_timestamp(obj: dict, field: str, fieldlen: int, pad: bool,
             pad (bool): Pad the string?
             ralign (bool): Should the text be right-aligned?
             selected (bool): Should the generated field be selected?
-            **formatting (dict): Formatting for the data
+            **kwargs (dict[str, Any]): Keyword arguments [unused]
         Returns:
             ([ThemeRef | ThemeStr]): A formatted string
     """
@@ -1476,7 +1492,7 @@ def generator_timestamp(obj: dict, field: str, fieldlen: int, pad: bool,
 # pylint: disable-next=too-many-arguments,too-many-positional-arguments
 def generator_timestamp_with_age(obj: dict, field: str, fieldlen: int, pad: bool,
                                  ralign: bool, selected: bool,
-                                 **formatting: FormattingType) -> list[ThemeRef | ThemeStr]:
+                                 **kwargs: Any) -> list[ThemeRef | ThemeStr]:
     """
     Generate a formatted string either from a timestamp or a string;
     with both timestamp *and* age. Typically used to represent timestamp + duration.
@@ -1488,14 +1504,17 @@ def generator_timestamp_with_age(obj: dict, field: str, fieldlen: int, pad: bool
             pad (bool): Pad the string?
             ralign (bool): Should the text be right-aligned?
             selected (bool): Should the generated field be selected?
-            **formatting (dict): Formatting for the data
+            **kwargs (dict[str, Any]): Keyword arguments
+                field_colors ([ThemeAttr]): The colors to use for each member in a field
         Returns:
             ([ThemeRef | ThemeStr]): A formatted string
     """
     array: list[ThemeRef | ThemeStr] = []
     values = deep_get(obj, DictPath(field))
 
-    if len(deep_get(formatting, DictPath("field_colors"), [])) < 2 < len(values):
+    field_colors = deep_get(kwargs, DictPath("field_colors"), [])
+
+    if len(field_colors) < 2 < len(values):
         raise ValueError("Received more than 2 fields for timestamp_with_age "
                          "but no formatting to specify what the values signify")
 
@@ -1520,11 +1539,10 @@ def generator_timestamp_with_age(obj: dict, field: str, fieldlen: int, pad: bool
         for i, data in enumerate(values):
             # If there's no formatting for this field we assume that
             # it is a generic string
-            if len(deep_get(formatting, DictPath("field_colors"), [])) <= i:
+            if len(field_colors) <= i:
                 fmt = ThemeAttr("types", "generic")
                 array += [ThemeStr(data, fmt, selected)]
-            elif deep_get(formatting,
-                          DictPath("field_colors"))[i] == ThemeAttr("types", "timestamp"):
+            elif field_colors[i] == ThemeAttr("types", "timestamp"):
                 if data is None:
                     array += [
                         ThemeStr("<unset>", ThemeAttr("types", "none"), selected)
@@ -1534,11 +1552,11 @@ def generator_timestamp_with_age(obj: dict, field: str, fieldlen: int, pad: bool
                 timestamp = timestamp_to_datetime(data)
                 timestamp_string = f"{timestamp.astimezone():%Y-%m-%d %H:%M:%S}"
                 array += format_numerical_with_units(timestamp_string, selected, ftype="timestamp")
-            elif deep_get(formatting, DictPath("field_colors"))[i] == ThemeAttr("types", "age"):
+            elif field_colors[i] == ThemeAttr("types", "age"):
                 array += generator_age_raw(data, selected)
             else:
                 array += [
-                    ThemeStr(data, deep_get(formatting, DictPath("field_colors"))[i], selected)
+                    ThemeStr(data, field_colors[i], selected)
                 ]
 
     return align_and_pad(array, fieldlen=fieldlen, pad=pad, ralign=ralign, selected=selected)
@@ -1547,7 +1565,7 @@ def generator_timestamp_with_age(obj: dict, field: str, fieldlen: int, pad: bool
 # pylint: disable-next=too-many-arguments,too-many-positional-arguments
 def generator_value_mapper(obj: dict, field: "str", fieldlen: int, pad: bool,
                            ralign: bool, selected: bool,
-                           **formatting: FormattingType) -> list[ThemeRef | ThemeStr]:
+                           **kwargs: Any) -> list[ThemeRef | ThemeStr]:
     """
     Generate a formatted string with value mapping.
 
@@ -1558,110 +1576,26 @@ def generator_value_mapper(obj: dict, field: "str", fieldlen: int, pad: bool,
             pad (bool): Pad the string?
             ralign (bool): Should the text be right-aligned?
             selected (bool): Should the generated field be selected?
-            **formatting (dict): Formatting for the data
+            **kwargs (dict[str, Any]): Keyword arguments
+                field_colors ([ThemeAttr]): The colors to use for each member in a field
+                mapping (dict): Mappings passed to map_value()
         Returns:
             ([ThemeRef | ThemeStr]): A formatted string
     """
     array: list[ThemeRef | ThemeStr] = []
     value = deep_get(obj, DictPath(field))
 
-    default_field_color = cast(ThemeAttr,
-                               deep_get(formatting, DictPath("field_colors"),
-                                        [("types", "generic")])[0])
+    default_field_color = deep_get(kwargs, DictPath("field_colors"), [("types", "generic")])[0]
 
     formatted_string, _string = map_value(value,
                                           selected=selected,
                                           default_field_color=default_field_color,
-                                          mapping=deep_get(formatting, DictPath("mapping"), {}))
+                                          mapping=deep_get(kwargs, DictPath("mapping"), {}))
     array = [
         formatted_string
     ]
 
     return align_and_pad(array, fieldlen=fieldlen, pad=pad, ralign=ralign, selected=selected)
-
-
-# Processors should be possible to be replaced by using generator + str().
-
-def processor_timestamp(obj: dict, field: str) -> str:
-    """
-    A processor for timestamps; given a value,
-    return the processed string for that value.
-
-        Parameters:
-            obj (dict): The object to get data from
-            field (str): The field in the object to get data from
-        Returns:
-            (str): The processed value
-    """
-    if (value := deep_get(obj, DictPath(field))) is None:
-        return ""
-
-    if isinstance(value, str):
-        return value
-    if isinstance(value, datetime):
-        return f"{value.astimezone():%Y-%m-%d %H:%M:%S}"
-    return str(value)
-
-
-def processor_timestamp_with_age(obj: dict, field: str, formatting: FormattingType) -> str:
-    """
-    A processor for timestamps with age; given a value,
-    return the processed string for that value.
-
-        Parameters:
-            obj (dict): The object to get data from
-            field (str): The field in the object to get data from
-        Returns:
-            (str): The processed value
-    """
-    values = deep_get(obj, DictPath(field))
-
-    if len(deep_get(cast(dict, formatting), DictPath("field_colors"), [])) < 2 < len(values):
-        raise ValueError("Received more than 2 fields for timestamp_with_age "
-                         "but no formatting to specify what the values signify")
-
-    if len(values) == 2:
-        if values[0] is None:
-            array: list[ThemeRef | ThemeStr] = [
-                ThemeStr("<none>", ThemeAttr("types", "none"))
-            ]
-        else:
-            timestamp_string = datetime_to_timestamp(values[0])
-            array = format_numerical_with_units(timestamp_string, selected=False, ftype="timestamp")
-            array += [
-                ThemeStr(" (", ThemeAttr("types", "generic"))
-            ]
-            array += generator_age_raw(values[1], False)
-            array += [
-                ThemeStr(")", ThemeAttr("types", "generic"))
-            ]
-    else:
-        array = []
-
-        for i, data in enumerate(values):
-            # If there is no formatting for this field we assume that
-            # it is a generic string
-            if len(deep_get(cast(dict, formatting), DictPath("field_colors"), [])) <= i:
-                fmt = ThemeAttr("types", "generic")
-                array += [
-                    ThemeStr(data, fmt)
-                ]
-            elif formatting["field_colors"][i] == ThemeAttr("types", "timestamp"):
-                if data is None:
-                    array += [
-                        ThemeStr("<none>", ThemeAttr("types", "none"))
-                    ]
-                else:
-                    # timestamp_string = datetime_to_timestamp(values[0])
-                    array += format_numerical_with_units(data, selected=False, ftype="timestamp")
-            elif formatting["field_colors"][i] == ThemeAttr("types", "age"):
-                array += generator_age_raw(data, False)
-            else:
-                array += [
-                    ThemeStr(data, formatting["field_colors"][i])
-                ]
-
-    return themearray_to_string(array)
 
 
 def __fix_to_str(fix: list[ThemeRef | tuple[str, str]] | ThemeRef | tuple[str, str]) -> str:
@@ -1696,245 +1630,16 @@ def __fix_to_str(fix: list[ThemeRef | tuple[str, str]] | ThemeRef | tuple[str, s
     return fixstr
 
 
-# For the list processor to work we need to know the length of all the separators
-# pylint: disable-next=too-many-locals
-def processor_list(obj: dict, field: str, **kwargs: Any) -> str:
-    """
-    Return the field with separators, prefixes, suffixes, ellipsis, etc.,
-    but with formatting stripped; to be used when calculating string length.
-    This processor is used for lists.
-
-        Parameters:
-            obj (dict): The object to extract the field from
-            field (str): The field to process
-            **kwargs (dict[str, Any]): Keyword arguments
-                item_separator (ThemeRef): The separator between each element in the list
-                field_separators ([ThemeRef|ThemeStr]): The separators between each part
-                                                        of the field
-                ellipsise (bool): After how many elements should the list be ellipsised;
-                                  -1 = never
-                ellipsis (ThemeRef): The ellipsis to use when ellipsising
-                field_prefixes ([ThemeRef]): Prefixes before each part of the list
-                field_suffixes ([ThemeRef]): Suffixes after each part of the list
-        Returns:
-            (str): The processed, unformatted string
-    """
-    item_separator: ThemeRef = deep_get(kwargs, DictPath("item_separator"))
-    field_separators: list[ThemeRef | ThemeStr] = \
-        deep_get(kwargs, DictPath("field_separators"))
-    ellipsise: int = deep_get(kwargs, DictPath("ellipsise"))
-    ellipsis: ThemeRef = deep_get(kwargs, DictPath("ellipsis"))
-    field_prefixes: list[ThemeRef] = deep_get(kwargs, DictPath("field_prefixes"))
-    field_suffixes: list[ThemeRef] = deep_get(kwargs, DictPath("field_suffixes"))
-
-    items = deep_get(obj, DictPath(field))
-    if not isinstance(items, list):
-        items = [items]
-
-    strings: list[str] = []
-
-    elcount = 0
-    skip_separator = True
-
-    if items is None:
-        items = []
-    if isinstance(items, tuple):
-        items = [items]
-
-    for item in items:
-        if elcount == ellipsise:
-            strings.append(themearray_to_string([ellipsis]))
-            break
-
-        if not isinstance(item, tuple):
-            item = (item, None)
-
-        # Join all elements of the field into one string
-        string = ""
-
-        for i, data in enumerate(item):
-            if data is None:
-                continue
-
-            if not (tmp := str(data)):
-                continue
-
-            if i and not skip_separator:
-                string += themearray_to_string([field_separators[min(i - 1,
-                                                                     len(field_separators) - 1)]])
-
-            if field_prefixes is not None and i < len(field_prefixes):
-                string += __fix_to_str(field_prefixes[i])
-            string += tmp
-            if field_suffixes is not None and i < len(field_suffixes):
-                string += __fix_to_str(field_suffixes[i])
-            skip_separator = False
-
-        strings.append(string)
-        elcount += 1
-
-    return themearray_to_string([item_separator]).join(strings)
-
-
-# For the list processor to work we need to know the length of all the separators
-# pylint: disable-next=too-many-locals
-def processor_list_with_status(obj: dict, field: str, **kwargs: Any) -> str:
-    """
-    Return the field with separators, prefixes, suffixes, ellipsis, etc.,
-    but with formatting stripped; to be used when calculating string length.
-    This processor is used for lists with status.
-
-        Parameters:
-            obj (dict): The object to extract the field from
-            field (str): The field to process
-            **kwargs (dict[str, Any]): Keyword arguments
-                item_separator (ThemeRef): The separator between each element in the list
-                field_separators ([ThemeRef|ThemeStr]): The separators between each part
-                                                        of the field
-                ellipsise (bool): After how many elements should the list be ellipsised;
-                                  -1 = never
-                ellipsis (ThemeRef): The ellipsis to use when ellipsising
-                field_prefixes ([ThemeStr]): Prefixes before each part of the list
-                field_suffixes ([ThemeStr]): Suffixes after each part of the list
-        Returns:
-            (str): The processed, unformatted string
-    """
-    item_separator: ThemeRef = deep_get(kwargs, DictPath("item_separator"))
-    field_separators: list[ThemeRef | ThemeStr] = \
-        deep_get(kwargs, DictPath("field_separators"))
-    ellipsise: int = deep_get(kwargs, DictPath("ellipsise"))
-    ellipsis: ThemeRef = deep_get(kwargs, DictPath("ellipsis"))
-    field_prefixes: list[ThemeRef] = deep_get(kwargs, DictPath("field_prefixes"))
-    field_suffixes: list[ThemeRef] = deep_get(kwargs, DictPath("field_suffixes"))
-
-    items = deep_get(obj, DictPath(field))
-    if items is None:
-        items = []
-
-    strings: list[str] = []
-
-    elcount = 0
-    skip_separator = True
-
-    newitems = []
-    for item in items:
-        newitems.append(item[0])
-
-    for item in newitems:
-        if elcount == ellipsise:
-            strings.append(themearray_to_string([ellipsis]))
-            break
-
-        item = (item, None)
-
-        # Join all elements of the field into one string
-        string = ""
-
-        for i, data in enumerate(item):
-            if data is None:
-                continue
-
-            if not (tmp := str(data)):
-                continue
-
-            if i and not skip_separator:
-                string += themearray_to_string([field_separators[min(i - 1,
-                                                                     len(field_separators) - 1)]])
-
-            if field_prefixes is not None and i < len(field_prefixes):
-                string += __fix_to_str(field_prefixes[i])
-            string += tmp
-            if field_suffixes is not None and i < len(field_suffixes):
-                string += __fix_to_str(field_suffixes[i])
-            skip_separator = False
-
-        strings.append(string)
-        elcount += 1
-
-    vstring = themearray_to_string([item_separator]).join(strings)
-
-    return vstring
-
-
-def processor_selector(obj: dict, field: str) -> str:
-    """
-    A processor for selector; given a value,
-    return the processed string for that value.
-
-        Parameters:
-            obj (dict): The object to get data from
-            field (str): The field in the object to get data from
-        Returns:
-            (str): The processed value
-    """
-    items = deep_get(obj, DictPath(field))
-    return themearray_to_string(format_selector(items, False))
-
-
-def processor_age(obj: dict, field: str) -> str:
-    """
-    A processor for timestamps in age format; given a value,
-    return the processed string for that value.
-
-        Parameters:
-            obj (dict): The object to get data from
-            field (str): The field in the object to get data from
-        Returns:
-            (str): The processed value
-    """
-    seconds = deep_get(obj, DictPath(field))
-    return cmtlib.seconds_to_age(seconds, negative_is_skew=True)
-
-
 def __remove_units(numstr: str) -> str:
     if not (unitfree := re.match(r"^(\d+).*", numstr)):
         raise ValueError(f"Could not remove unit from string {numstr}")
     return unitfree[1]
 
 
-def processor_mem(obj: dict, field: str) -> str:
-    """
-    A processor for memory usage tuples (free / total); given two values,
-    return the processed string for those values.
-
-        Parameters:
-            obj (dict): The object to get data from
-            field (str): The field in the object to get data from
-        Returns:
-            (str): The processed value
-    """
-    tmp_free, tmp_total = deep_get(obj, DictPath(field))
-    free = __remove_units(tmp_free)
-    total = __remove_units(tmp_total)
-
-    string = f"{100 - (100 * int(free)) / int(total):0.1f}"
-    string += str(ThemeRef("separators", "percentage"))
-    string += " "
-    string += str(ThemeRef("separators", "fraction"))
-    string += " "
-    string += f"{int(total) / (1024 * 1024):0.1f}"
-    string += "GiB"
-
-    return string
-
-
-default_processor: dict[Callable, Callable] = {
-    generator_age: processor_age,
-    generator_address: processor_list,
-    generator_address_with_port: processor_list,
-    generator_list: processor_list,
-    generator_list_with_status: processor_list_with_status,
-    generator_mem: processor_mem,
-    generator_selector: processor_selector,
-    generator_timestamp: processor_timestamp,
-}
-
-
 # The return type of the formatting will be the same
 # as the type of the default, so default == None is a programming error
 # pylint: disable-next=too-many-branches
-def get_formatting(field: dict[str, Any],
-                   formatting: str,
+def get_formatting(field: dict[str, Any], formatting: str,
                    default: dict[str, Any]) -> list[ThemeAttr | ThemeStr | ThemeRef] | ThemeRef:
     """
     Given a field dict, the formatting we want to extract, and the default value to return
@@ -2005,66 +1710,52 @@ def get_formatting(field: dict[str, Any],
     return result
 
 
-formatter_to_generator_and_processor: dict[str, dict[str, Any]] = {
+formatter_to_generator: dict[str, dict[str, Any]] = {
     "address": {
         "generator": generator_address,
-        "processor": processor_list,
         "field_separators_default": [],
     },
     "address_with_port": {
         "generator": generator_address_with_port,
-        "processor": processor_list,
         "field_separators_default": [],
     },
     "age": {
         "generator": generator_age,
-        "processor": processor_age,
     },
     "hex": {
         "generator": generator_hex,
-        "processor": None,
     },
     "list": {
         "generator": generator_list,
-        "processor": processor_list,
     },
     "list_with_status": {
         "generator": generator_list_with_status,
-        "processor": processor_list_with_status,
     },
     "numerical": {
         "generator": generator_numerical_with_units,
-        "processor": None,
     },
     "selector": {
         "generator": generator_selector,
-        "processor": processor_selector,
         "field_separators_default": [],
     },
     "status": {
         "generator": generator_status,
-        "processor": None,
     },
     "timestamp": {
         "generator": generator_timestamp,
-        "processor": processor_timestamp,
     },
     "timestamp_with_age": {
         "generator": generator_timestamp_with_age,
-        "processor": processor_timestamp_with_age,
     },
     "uri": {
         "generator": generator_uri,
-        "processor": processor_list,
         "field_separators_default": [],
     },
     "value_mapper": {
         "generator": generator_value_mapper,
-        "processor": None,
     },
     "version": {
         "generator": generator_version,
-        "processor": processor_list,
         "field_separators_default": [],
     },
 }
@@ -2074,10 +1765,10 @@ formatter_to_generator_and_processor: dict[str, dict[str, Any]] = {
 # pylint: disable-next=too-many-locals
 def get_formatter(field: dict) -> dict:
     """
-    Based on formatter, generator, processor, etc and data type,
+    Based on formatter, generator, etc and data type,
     figure out what the rest of the fields need to be.
     For instance, given only formatter this function will
-    return also the generator and (if relevant), the processor.
+    return also the generator.
 
         Parameters:
             field (dict): The field to complete
@@ -2088,12 +1779,11 @@ def get_formatter(field: dict) -> dict:
 
     formatter = deep_get(field, DictPath("formatter"))
     generator = deep_get(field, DictPath("generator"), generator_basic)
-    processor = deep_get(field, DictPath("processor"))
 
     field_separators_default = [ThemeRef("separators", "field")]
 
     if formatter is not None:
-        if formatter not in formatter_to_generator_and_processor:
+        if formatter not in formatter_to_generator:
             msg = [
                 [("get_formatter()", "emphasis"),
                  (" called with invalid argument(s):", "error")],
@@ -2109,11 +1799,9 @@ def get_formatter(field: dict) -> dict:
                                    severity=LogLevel.ERR,
                                    formatted_msg=formatted_msg)
 
-        generator = deep_get(formatter_to_generator_and_processor,
+        generator = deep_get(formatter_to_generator,
                              DictPath(f"{formatter}#generator"))
-        processor = deep_get(formatter_to_generator_and_processor,
-                             DictPath(f"{formatter}#processor"))
-        field_separators_default = deep_get(formatter_to_generator_and_processor,
+        field_separators_default = deep_get(formatter_to_generator,
                                             DictPath(f"{formatter}#field_separators_default"),
                                             field_separators_default)
 
@@ -2130,6 +1818,7 @@ def get_formatter(field: dict) -> dict:
                             get_formatting(field, "field_colors",
                                            {"field_colors": [ThemeAttr("types", "field")]}))
 
+    formatter_args = deep_get(field, DictPath("formatting#args"), {})
     field_prefixes = get_formatting(field, "field_prefixes", {"field_prefixes": []})
     field_suffixes = get_formatting(field, "field_suffixes", {"field_suffixes": []})
     field_separators = get_formatting(field, "field_separators",
@@ -2147,22 +1836,12 @@ def get_formatter(field: dict) -> dict:
     unit = deep_get(field, DictPath("formatting#unit"), "")
 
     tmp_field["generator"] = generator
-    tmp_field["processor"] = processor
-    # Fix all of these to use the new format
-    tmp_field["field_colors"] = field_colors
-    tmp_field["field_prefixes"] = field_prefixes
-    tmp_field["field_suffixes"] = field_suffixes
-    tmp_field["field_separators"] = field_separators
-    tmp_field["ellipsise"] = ellipsise
-    tmp_field["ellipsis"] = ellipsis
-    tmp_field["item_separator"] = item_separator
-    tmp_field["mapping"] = mapping
     if "align" in field:
         align = deep_get(field, DictPath("align"), "left")
         tmp_field["ralign"] = align == "right"
-    tmp_field["field_formatters"] = field_formatters
 
     formatting = {
+        "args": formatter_args,
         "item_separator": item_separator,
         "field_separators": field_separators,
         "field_colors": field_colors,
