@@ -5,13 +5,9 @@
 * When running either cmt or cmu, check whether `.ssh/id_*.pub` is in authorized_keys.
   in `.cmt/ansible/inventory.yaml`; if not, add it.
 * Add `--dry-run` support for more commands.
-* Is it possible to rewrite the generator/processor system in a way that processors
-  could be completely eliminated?
 * Introduce `.kube/current-context` and have all clusters in `.kube` have their own files
   (named config-clustername) rather than merging the config-files;
   or even have them in `.kube/config.d/clustername.yaml`?
-* Check whether it'd be measurably beneficial to use orjson instead of ujson.
-* Maybe use yaml.dump(..., explicit_start=True)?
 * itemgetters should ideally either have feature parity, or (preferred),
   be a strict subset of listgetters; check what would be necessary to achieve
   the latter. Currently we have no itemgetter that can join lists of dicts.
@@ -24,7 +20,7 @@
 ## commandparser.py and cmtvalidators.py
 
 * Investigate whether using argparse would be better than using our own parser;
-  it would require some effort too rewrite, but it would standardise things.
+  it would require some effort to rewrite, but it would standardise things.
   After a rewrite only the helptexts would need to be customised.
 * __commandparser__: Add support for aliases.
 * __commandparser__: Add support for global vs local options.
