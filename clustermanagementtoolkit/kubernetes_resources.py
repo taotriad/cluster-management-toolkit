@@ -731,11 +731,13 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api": "k0smotroncontrolplanetemplates",
     },
     ("KamajiControlPlane", "controlplane.cluster.x-k8s.io"): {
-        "api_paths": ["apis/controlplane.cluster.x-k8s.io/v1alpha1/"],
+        "api_paths": ["apis/controlplane.cluster.x-k8s.io/v1alpha2/",
+                      "apis/controlplane.cluster.x-k8s.io/v1alpha1/"],
         "api": "kamajicontrolplanes",
     },
     ("KamajiControlPlaneTemplate", "controlplane.cluster.x-k8s.io"): {
-        "api_paths": ["apis/controlplane.cluster.x-k8s.io/v1alpha1/"],
+        "api_paths": ["apis/controlplane.cluster.x-k8s.io/v1alpha2/",
+                      "apis/controlplane.cluster.x-k8s.io/v1alpha1/"],
         "api": "kamajicontrolplanetemplates",
     },
     ("KubeadmControlPlane", "controlplane.cluster.x-k8s.io"): {
@@ -5640,6 +5642,11 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
     ("ControllerConfig", "machineconfiguration.openshift.io"): {
         "api_paths": ["apis/machineconfiguration.openshift.io/v1/"],
         "api": "controllerconfigs",
+        "namespaced": False,
+    },
+    ("InternalReleaseImage", "machineconfiguration.openshift.io"): {
+        "api_paths": ["apis/machineconfiguration.openshift.io/v1/"],
+        "api": "internalreleaseimages",
         "namespaced": False,
     },
     ("KubeletConfig", "machineconfiguration.openshift.io"): {
