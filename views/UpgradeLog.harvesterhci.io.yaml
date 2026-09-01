@@ -20,6 +20,13 @@ listview:
       path: "spec#upgradeName"
       default: "<unset>"
       type: "str"
+  actions:
+    actionlist:
+      "Delete resource":
+        description: "Delete resource"
+        category: "Resource Level"
+        confirm: true
+        actionfunc: "delete_resource"
 infoview:
   name: "Upgrade Log Info"
   infopad:

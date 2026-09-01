@@ -97,7 +97,12 @@ infoview:
     row_indexes:
       Normal:
         fields: ["capacity", "persistent_volume_claim", "access_modes",
-                 "csi_driver", "storage_class", "reclaim_policy",
+                 "csi_header",
+                 "csi_driver",
+                 "csi_fs_type",
+                 "csi_volume_handle",
+                 "csi_volume_attributes",
+                 "storage_class", "reclaim_policy",
                  "volume_mode", "reason", "status"]
     rows:
       access_modes:
@@ -118,10 +123,37 @@ infoview:
         type: "raw"
         formatter: "numerical"
       csi_driver:
-        header: [["CSI ", ["main", "infoheader"]],
+        header: [["  ", ["main", "infoheader"]],
                  ["D", ["main", "infoheader_shortcut"]],
                  ["river:", ["main", "infoheader"]]]
         path: "spec#csi#driver"
+        default: "<unset>"
+        type: "str"
+      csi_fs_type:
+        header: [["  Filesystem Type:", ["main", "infoheader"]]]
+        path: "spec#csi#fsType"
+        default: "<unset>"
+        type: "str"
+      csi_header:
+        header: [["CSI:", ["main", "infoheader"]]]
+      csi_volume_attributes:
+        header: [["  ", ["main", "infoheader"]],
+                 ["V", ["main", "infoheader_shortcut"]],
+                 ["olume Attributes:", ["main", "infoheader"]]]
+        paths:
+          - path: "spec#csi#volumeAttributes"
+            pathtype: "key_value"
+        default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "key"
+            - type: "value"
+          field_separators:
+            - type: "keyvalue"
+      csi_volume_handle:
+        header: [["  Volume Handle:", ["main", "infoheader"]]]
+        path: "spec#csi#volumeHandle"
         default: "<unset>"
         type: "str"
       persistent_volume_claim:
@@ -340,3 +372,19 @@ infoview:
         formatting: [["windowwidget", "default"], ["windowwidget", "highlight"]]
         # This isn't supported for now
         sortcolumn: "key"
+    "CSI Volume Attributes":
+      key: "v"
+      modifier: "shift"
+      read_only: true
+      helptext: "Show CSI volume attributes"
+      widget: "windowwidget"
+      widget_args:
+        title: "CSI Volume Attributes:"
+        headers: ["Attribute:", "Value:"]
+        formatting: [["windowwidget", "default"],
+                     ["windowwidget", "highlight"]]
+        itemgetter: "get_key_value"
+        itemgetter_args:
+          path: "spec#csi#volumeAttributes"
+        # This isn't supported for now
+        sortcolumn: "attribute"
