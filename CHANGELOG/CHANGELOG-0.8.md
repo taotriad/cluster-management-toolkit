@@ -156,10 +156,8 @@ No known regressions.
 
 ## Known Issues in v0.8.10
 
-* The Markdown formatter doesn't handle dashes and brackets in `@mentions`; this is an upstream
-  issue in Pygments and has been reported as [Pygments Issue #3135](https://github.com/pygments/pygments/issues/3135).
-* The Markdown formatter currently doesn't handle Bold Italics `***example***`; this is an upstream
-  issue in Pygments and has been reported as [Pygments Issue #3067](https://github.com/pygments/pygments/issues/3067).
+* The Markdown formatter doesn't handle brackets in mentions, such as `@dependabot[bot]`; this is an upstream
+  issue in Pygments and has been reported as [Pygments Issue #3252](https://github.com/pygments/pygments/issues/3252).
 * Due to the way `cmu` works the file-viewer needs a backing listview,
   so `Debug Logs` was picked for the purpose (since it's always available
   even when the cluster is unavailable (or `--disable-kubernetes` is used).

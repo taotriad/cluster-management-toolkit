@@ -561,11 +561,11 @@ color_pairs_curses:
     unselected: [["cyan", "bright"], ["black", "normal"]]
     selected: [["cyan", "bright"], ["white", "normal"]]
   type_cel_operator:
-    unselected: [["cyan", "normal"], ["black", "normal"]]
-    selected: [["cyan", "normal"], ["white", "normal"]]
+    unselected: [["green", "normal"], ["black", "normal"]]
+    selected: [["green", "normal"], ["white", "normal"]]
   type_cel_punctuation:
-    unselected: [["cyan", "normal"], ["black", "normal"]]
-    selected: [["cyan", "normal"], ["white", "normal"]]
+    unselected: [["white", "normal"], ["black", "normal"]]
+    selected: [["black", "normal"], ["white", "normal"]]
   type_cel_value:
     unselected: [["magenta", "bright"], ["black", "normal"]]
     selected: [["magenta", "bright"], ["white", "normal"]]
@@ -1024,11 +1024,13 @@ color_pairs_curses:
   type_nginx_punctuation: [["white", "normal"], ["black", "normal"]]
   type_nginx_namespace: [["cyan", "bright"], ["black", "normal"]]
   type_nginx_regex: [["white", "normal"], ["black", "normal"]]
-  type_caddyfile_site: [["blue", "bright"], ["black", "normal"]]
-  type_caddyfile_matcher: [["magenta", "bright"], ["black", "normal"]]
   type_caddyfile_argument: [["green", "bright"], ["black", "normal"]]
   type_caddyfile_comment: [["cyan", "normal"], ["black", "normal"]]
   type_caddyfile_directive: [["magenta", "normal"], ["black", "normal"]]
+  type_caddyfile_matcher: [["magenta", "bright"], ["black", "normal"]]
+  type_caddyfile_punctuation: [["white", "normal"], ["black", "normal"]]
+  type_caddyfile_site: [["blue", "bright"], ["black", "normal"]]
+  type_caddyfile_variable: [["cyan", "bright"], ["black", "normal"]]
   type_facility_extended: [["yellow", "normal"], ["black", "normal"]]
   type_haproxy_label: [["green", "normal"], ["black", "normal"]]
   type_haproxy_section:
@@ -1260,8 +1262,10 @@ types:
   caddyfile_comment: "type_caddyfile_comment"
   caddyfile_directive: "type_caddyfile_directive"
   caddyfile_matcher: "type_caddyfile_matcher"
+  caddyfile_punctuation: "type_caddyfile_punctuation"
   caddyfile_site: "type_caddyfile_site"
   caddyfile_snippet: "type_generic"
+  caddyfile_variable: "type_caddyfile_variable"
   cel_comment: "type_cel_comment"
   cel_constant: "type_cel_constant"
   cel_escape: "type_cel_escape"

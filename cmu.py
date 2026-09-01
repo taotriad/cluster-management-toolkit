@@ -10941,6 +10941,8 @@ COMMANDLINE: dict[str, CommandType] = {
                      ANSIThemeStr(", ", "separator"),
                      ANSIThemeStr("bash", "argument"),
                      ANSIThemeStr(", ", "separator"),
+                     ANSIThemeStr("caddyfile", "argument"),
+                     ANSIThemeStr(", ", "separator"),
                      ANSIThemeStr("cel", "argument"),
                      ANSIThemeStr(", ", "separator"),
                      ANSIThemeStr("crt", "argument"),
@@ -11005,6 +11007,7 @@ COMMANDLINE: dict[str, CommandType] = {
                     "allowlist": [
                         "ansible",
                         "bash",
+                        "caddyfile",
                         "cel",
                         "crt",
                         "css",

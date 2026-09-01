@@ -42,7 +42,7 @@ except ModuleNotFoundError:
 try:
     from pygments.lexers.configs import CaddyfileLexer  # type: ignore[attr-defined]
     CADDYFILELEXER_AVAILABLE = True
-except (ImportError, ModuleNotFoundError):
+except ImportError:
     # CaddyfileLexer is available from Pygments 2.21
     CADDYFILELEXER_AVAILABLE = False
 from pygments.lexers.configs import DockerLexer, IniLexer, NginxConfLexer, TOMLLexer
@@ -116,7 +116,46 @@ COLORSCHEME_CADDYFILE: dict[Any, ColorSchemeEntry] = {
         "formatting": ThemeAttr("types", "generic"),
         "type": "whitespace",
     },
-    # TODO(Fill this out once we have a pygments build with Caddyfile support)
+    # # Comment
+    Token.Comment.Single: {
+        "formatting": ThemeAttr("types", "caddyfile_comment"),
+        "type": "comment",
+    },
+    # 5s
+    Token.Keyword: {
+        "formatting": ThemeAttr("types", "caddyfile_directive"),
+        "type": "keyword",
+    },
+    # 5s
+    Token.Literal.Number: {
+        "formatting": ThemeAttr("types", "caddyfile_argument"),
+        "type": "argument",
+    },
+    # "foo"
+    Token.Literal.String.Double: {
+        "formatting": ThemeAttr("types", "caddyfile_argument"),
+        "type": "argument",
+    },
+    # @post
+    Token.Name.Decorator: {
+        "formatting": ThemeAttr("types", "caddyfile_matcher"),
+        "type": "text",
+    },
+    # {$SITE_ADDRESS}
+    Token.Name.Variable: {
+        "formatting": ThemeAttr("types", "caddyfile_variable"),
+        "type": "variable",
+    },
+    #  { }
+    Token.Punctuation: {
+        "formatting": ThemeAttr("types", "caddyfile_punctuation"),
+        "type": "punctuation",
+    },
+    # .:53
+    Token.Text: {
+        "formatting": ThemeAttr("types", "generic"),
+        "type": "text",
+    },
 }
 
 
@@ -2258,130 +2297,6 @@ def format_ansible(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef 
     return dumps
 
 
-# pylint: disable-next=too-many-locals,too-many-branches,too-many-statements
-def format_yaml_line(line: str, **kwargs: Any) -> list[ThemeRef | ThemeStr]:
-    """
-    Formats a single line of YAML.
-
-        Parameters:
-            line (str): a string
-            **kwargs (dict[str, Any]): Keyword arguments
-                override_formatting (dict): Overrides instead of default formatting
-                value_strip_ansicodes (bool): Strip ansicodes from the value
-        Returns:
-            (ThemeArray): A themearray
-    """
-    override_formatting: dict[str, ThemeAttr] = \
-        deep_get(kwargs, DictPath("override_formatting"), {})
-    value_strip_ansicodes: bool = deep_get(kwargs, DictPath("value_strip_ansicodes"), True)
-
-    if not isinstance(override_formatting, dict):
-        raise TypeError("override_formatting should be of type(dict)")
-
-    # Since we do not necessarily override all
-    # formatting we need to set defaults;
-    # doing it here instead of in the code makes
-    # it easier to change the defaults of necessary
-    generic_format = ThemeAttr("types", "generic")
-    comment_format = ThemeAttr("types", "yaml_comment")
-    key_format = ThemeAttr("types", "yaml_key")
-    value_format = ThemeAttr("types", "yaml_value")
-    list_format: ThemeRef | ThemeStr = ThemeRef("separators", "yaml_list")
-    separator_format = ThemeAttr("types", "yaml_key_separator")
-    reference_format = ThemeAttr("types", "yaml_reference")
-    anchor_format = ThemeAttr("types", "yaml_anchor")
-
-    if (tmp := deep_get(override_formatting, DictPath("__all"))) is not None:
-        # We just return the line unformatted
-        return [ThemeStr(line, tmp)]
-
-    tmpline: list[ThemeRef | ThemeStr] = []
-
-    # [whitespace]-<whitespace><value>
-    yaml_list_regex: re.Pattern[str] = re.compile(r"^(\s*)- (.*)")
-    # <key>:<whitespace><value>
-    # <key>:<whitespace>&<anchor>[<whitespace><value>]
-    # <key>: *<alias>
-    yaml_key_reference_value_regex: re.Pattern[str] = \
-        re.compile(r"^([^:]+)(:\s*)(&|\*|)([^\s]+)([\s]+.+|)")
-
-    if line.lstrip(" ").startswith("#"):
-        tmpline += [
-            ThemeStr(line, comment_format),
-        ]
-        return tmpline
-    if line.lstrip(" ").startswith("- "):
-        tmp = yaml_list_regex.match(line)
-        if tmp is not None:
-            tmpline += [
-                ThemeStr(tmp[1], generic_format),
-                list_format,
-            ]
-            line = tmp[2]
-            if not line:
-                return tmpline
-
-    if line.endswith(":"):
-        _key_format = deep_get(override_formatting, DictPath(f"{line[:-1]}#key"), key_format)
-        tmpline += [
-            ThemeStr(f"{line[:-1]}", _key_format),
-            ThemeStr(":", separator_format),
-        ]
-    else:
-        tmp = yaml_key_reference_value_regex.match(line)
-
-        if (tmp is not None
-                and (tmp[1].strip().startswith("\"") and tmp[1].strip().endswith("\"")
-                     or (not tmp[1].strip().startswith("\"")
-                         and not tmp[1].strip().endswith("\"")))):
-            key = tmp[1]
-            separator = tmp[2]
-            reference = tmp[3]
-            anchor = ""
-            value_or_anchor = tmp[4]
-            value = tmp[5]
-
-            if reference:
-                if value:
-                    anchor = value_or_anchor
-                else:
-                    anchor = value_or_anchor
-                    value = ""
-                value_or_anchor = ""
-            else:
-                value = f"{value_or_anchor}{value}"
-                value_or_anchor = ""
-
-            _key_format = deep_get(override_formatting, DictPath(f"{key.strip()}#key"), key_format)
-            if value.strip() in ("{", "["):
-                _value_format = value_format
-            else:
-                _value_format = deep_get(override_formatting,
-                                         DictPath(f"{key.strip()}#value"), value_format)
-
-            if value_strip_ansicodes:
-                value = strip_ansicodes(value)
-
-            tmpline += [
-                ThemeStr(f"{key}", _key_format),
-                ThemeStr(f"{separator}", separator_format),
-            ]
-
-            if reference:
-                tmpline.append(ThemeStr(f"{reference}", reference_format))
-            if anchor:
-                tmpline.append(ThemeStr(f"{anchor}", anchor_format))
-            if value:
-                tmpline.append(ThemeStr(f"{value}", _value_format))
-        else:
-            _value_format = deep_get(override_formatting, DictPath(f"{line}#value"), value_format)
-            tmpline += [
-                ThemeStr(f"{line}", _value_format),
-            ]
-
-    return tmpline
-
-
 class KnownHostsLexer(RegexLexer):
     """
     A Pygments lexer for SSH known_hosts files.
@@ -2565,6 +2480,10 @@ def markdown_renderer(ttype: Any, value: str, **kwargs: Any) \
                 # To ensure that the width-counting remains correct we need to substitute
                 # for a single character.
                 new_value = value[1:-1].replace("|", "🜂")
+        case (Token.Generic.EmphStrong, x):
+            if x.startswith("___") and x.endswith("___") \
+                    or x.startswith("***") and x.endswith("***"):
+                new_value = value[3:-3]
         case (Token.Generic.Strong, x):
             if x.startswith("__") and x.endswith("__") \
                     or x.startswith("**") and x.endswith("**"):
@@ -2627,16 +2546,21 @@ class ThemeArrayFormatter(Formatter):
             # Use this when adding new formatters; we can ignore empty strings.
             if ttype not in self.colorscheme \
                     and ttype not in self.unknown_ttypes and value:  # pragma: nocover
-                tmpvalue = value.replace(r'"', r'\"')
+                tmpvalue = value.replace(r'"', r'\\"')
+                tmpvalue = value.replace('\\', r'\\\\')
+                tmpvalue = value.replace('\r', r'\\r')
+                tmpvalue = value.replace('\t', r'\\t')
+                tmpvalue = value.replace('\b', r'\\b')
+                tmpvalue = value.replace('\f', r'\\f')
                 # We don't want multiple lines in the error log.
                 tmpvalue2 = tmpvalue.split("\n", maxsplit=1)[0]
                 errmsg = [
                     [("Encountered unknown token type ", "default"),
-                     (f"{ttype}", "argument"),
+                     (f'{ttype}', "argument"),
                      (" for substring starting with “", "default"),
-                     (f"{tmpvalue2}", "argument"),
+                     (f'{tmpvalue2}', "argument"),
                      ("“ when formatting using lexer ", "default"),
-                     (f"{self.lexer}", "argument")]
+                     (f'{str(self.lexer)}', "argument")]
                 ]
                 unformatted_msg, formatted_msg = ANSIThemeStr.format_error_msg(errmsg)
                 cmtlog.log(LogLevel.ERR, msg=unformatted_msg, messages=formatted_msg)
@@ -2767,7 +2691,7 @@ def format_yaml(lines: str | list[str] | dict | list[dict], **kwargs: Any) -> \
         else:
             errmsg = [
                 [("Cannot handle input “", "default"),
-                 (f"{new_lines}", "argument"),
+                 (f'{new_lines}', "argument"),
                  ("“.", "default")],
             ]
             unformatted_msg, formatted_msg = ANSIThemeStr.format_error_msg(errmsg)
@@ -2779,7 +2703,7 @@ def format_yaml(lines: str | list[str] | dict | list[dict], **kwargs: Any) -> \
     else:
         errmsg = [
             [("Cannot handle input “", "default"),
-             (f"{new_lines}", "argument"),
+             (f'{new_lines}', "argument"),
              ("“.", "default")],
         ]
         unformatted_msg, formatted_msg = ANSIThemeStr.format_error_msg(errmsg)

@@ -19,7 +19,7 @@ from clustermanagementtoolkit import cmtio_yaml
 
 from clustermanagementtoolkit.cmtpaths import DEFAULT_THEME_FILE
 
-from clustermanagementtoolkit.cmttypes import deep_get, DictPath
+from clustermanagementtoolkit.cmttypes import deep_get, DictPath, LogLevel
 
 from clustermanagementtoolkit.ansithemeprint import ANSIThemeStr
 from clustermanagementtoolkit.ansithemeprint import ansithemeprint, init_ansithemeprint
@@ -113,6 +113,24 @@ def test_render_markdown(verbose: bool = False) -> tuple[str, bool]:
         # Indata format:
         # (lines, options, expected_result, expected_exception)
         testdata: tuple[Any, ...] = (
+            # StrongEmph; this test-case requires Pygments 2.21+.
+            #(
+            #    "***bold-italics***",
+            #    {},
+            #    [[ThemeStr('bold-italics', ThemeAttr('types', 'markdown_bold_italics'), False)]],
+            #    None
+            #),
+            # Block quote
+            (
+                "> A block\n"
+                "> of text",
+                {},
+                [[ThemeStr('┃ ', ThemeAttr('main', 'highlight'), False),
+                  ThemeStr('A block', ThemeAttr('types', 'markdown_italics'), False)],
+                [ThemeStr('┃ ', ThemeAttr('main', 'highlight'), False),
+                 ThemeStr('of text', ThemeAttr('types', 'markdown_italics'), False)]],
+                None
+            ),
             # GitHub header, bold, italics, and emoji tag; tag NOT replaced.
             (
                 ["# Header 1",
@@ -601,175 +619,36 @@ def test_format_none(verbose: bool = False) -> tuple[str, bool]:
     return message, result
 
 
-def test_format_yaml_line(verbose: bool = False) -> tuple[str, bool]:
+def test_format_generic(verbose: bool = False) -> tuple[str, bool]:
     message = ""
     result = True
 
-    fun = formatters.format_yaml_line
+    fun = formatters.format_generic
 
     if result:
         # Indata format:
         # (lines, options, expected_result, expected_exception)
         testdata: tuple[Any, ...] = (
             (
-                "# A comment",
+                "Not reformatted",
                 {},
-                [ThemeStr("# A comment", ThemeAttr("types", "yaml_comment"))],
+                [[ThemeStr("Not reformatted", ThemeAttr("logview", "severity_info"))]],
                 None
             ),
             (
-                "# A comment",
-                {"override_formatting": {"__all": ThemeAttr("types", "generic")}},
-                [ThemeStr("# A comment", ThemeAttr("types", "generic"))],
-                None
-            ),
-            (
-                "    # Indented comment",
+                ["Not reformatted"],
                 {},
-                [ThemeStr("    # Indented comment", ThemeAttr("types", "yaml_comment"))],
+                [[ThemeStr("Not reformatted", ThemeAttr("logview", "severity_info"))]],
                 None
             ),
             (
-                "key: value",
-                {},
-                [ThemeStr("key", ThemeAttr("types", "yaml_key")),
-                 ThemeStr(": ", ThemeAttr("types", "yaml_key_separator")),
-                 ThemeStr("value", ThemeAttr("types", "yaml_value"))],
-                None
-            ),
-            (
-                "\"key\": \"value\"",
-                {},
-                [ThemeStr("\"key\"", ThemeAttr("types", "yaml_key")),
-                 ThemeStr(": ", ThemeAttr("types", "yaml_key_separator")),
-                 ThemeStr("\"value\"", ThemeAttr("types", "yaml_value"))],
-                None
-            ),
-            (
-                "\"key\": \"\033[0;4;37mvalue\"",
-                {"value_strip_ansicodes": True},
-                [ThemeStr("\"key\"", ThemeAttr("types", "yaml_key")),
-                 ThemeStr(": ", ThemeAttr("types", "yaml_key_separator")),
-                 ThemeStr("\"value\"", ThemeAttr("types", "yaml_value"))],
-                None
-            ),
-            (
-                "\"key\": \"value\"",
-                {},
-                [ThemeStr("\"key\"", ThemeAttr("types", "yaml_key")),
-                 ThemeStr(": ", ThemeAttr("types", "yaml_key_separator")),
-                 ThemeStr("\"value\"", ThemeAttr("types", "yaml_value"))],
-                None
-            ),
-            (
-                "key: &define",
-                {},
-                [ThemeStr("key", ThemeAttr("types", "yaml_key")),
-                 ThemeStr(": ", ThemeAttr("types", "yaml_key_separator")),
-                 ThemeStr("&", ThemeAttr("types", "yaml_reference")),
-                 ThemeStr("define", ThemeAttr("types", "yaml_anchor"))],
-                None
-            ),
-            (
-                "key: &define '#112233'",
-                {},
-                [ThemeStr("key", ThemeAttr("types", "yaml_key")),
-                 ThemeStr(": ", ThemeAttr("types", "yaml_key_separator")),
-                 ThemeStr("&", ThemeAttr("types", "yaml_reference")),
-                 ThemeStr("define", ThemeAttr("types", "yaml_anchor")),
-                 ThemeStr(" '#112233'", ThemeAttr("types", "yaml_value"))],
-                None
-            ),
-            (
-                "key: *define",
-                {},
-                [ThemeStr("key", ThemeAttr("types", "yaml_key")),
-                 ThemeStr(": ", ThemeAttr("types", "yaml_key_separator")),
-                 ThemeStr("*", ThemeAttr("types", "yaml_reference")),
-                 ThemeStr("define", ThemeAttr("types", "yaml_anchor"))],
-                None
-            ),
-            (
-                "key:",
-                {"override_formatting": {"key": {"key": ThemeAttr("types", "generic")}}},
-                [ThemeStr("key", ThemeAttr("types", "generic")),
-                 ThemeStr(":", ThemeAttr("types", "yaml_key_separator"))],
-                None
-            ),
-            (
-                "key: {",
-                {},
-                [ThemeStr("key", ThemeAttr("types", "yaml_key")),
-                 ThemeStr(": ", ThemeAttr("types", "yaml_key_separator")),
-                 ThemeStr("{", ThemeAttr("types", "yaml_value"))],
-                None
-            ),
-            (
-                "key: {",
-                {},
-                [ThemeStr("key", ThemeAttr("types", "yaml_key")),
-                 ThemeStr(": ", ThemeAttr("types", "yaml_key_separator")),
-                 ThemeStr("{", ThemeAttr("types", "yaml_value"))],
-                None
-            ),
-            (
-                "}",
-                {},
-                [ThemeStr("}", ThemeAttr("types", "yaml_value"))],
-                None
-            ),
-            (
-                "- value",
-                {},
-                [ThemeStr("", ThemeAttr("types", "generic")),
-                 ThemeRef("separators", "yaml_list"),
-                 ThemeStr("value", ThemeAttr("types", "yaml_value"))],
-                None
-            ),
-            (
-                "- key:",
-                {},
-                [ThemeStr("", ThemeAttr("types", "generic")),
-                 ThemeRef("separators", "yaml_list"),
-                 ThemeStr("key", ThemeAttr("types", "yaml_key")),
-                 ThemeStr(':', ThemeAttr('types', 'yaml_key_separator'), False)],
-                None
-            ),
-            (
-                "- key:",
-                {"override_formatting": "a"},
-                None,
-                TypeError
-            ),
-            (
-                '  "error": "please install istio or disable the istio ingress plugin: '
-                'no matches for kind \\"Gateway\\" in version \\"networking.istio.io/v1beta1\\"",',
+                "Different severity",
                 {
-                    "override_formatting": {
-                        '"msg"': {
-                            'key': ThemeAttr('types', 'yaml_key'),
-                            'value': ThemeAttr('logview', 'severity_info')
-                        },
-                        '"message"': {
-                            'key': ThemeAttr('types', 'yaml_key'),
-                            'value': ThemeAttr('logview', 'severity_info')
-                        },
-                        '"err"': {
-                            'key': ThemeAttr('types', 'yaml_key_error'),
-                            'value': ThemeAttr('logview', 'severity_error')
-                        },
-                        '"error"': {
-                            'key': ThemeAttr('types', 'yaml_key_error'),
-                            'value': ThemeAttr('logview', 'severity_error')
-                        }
+                    "options": {
+                        "severity": LogLevel.DEBUG,
                     },
                 },
-                [ThemeStr('  "error"', ThemeAttr('types', 'yaml_key_error'), False),
-                 ThemeStr(': ', ThemeAttr('types', 'yaml_key_separator'), False),
-                 ThemeStr('"please install istio or disable the istio ingress plugin: '
-                          'no matches for kind \\"Gateway\\" in version '
-                          '\\"networking.istio.io/v1beta1\\"",',
-                          ThemeAttr('logview', 'severity_error'), False)],
+                [[ThemeStr("Different severity", ThemeAttr("logview", "severity_debug"))]],
                 None
             ),
         )
@@ -781,7 +660,8 @@ def test_format_yaml_line(verbose: bool = False) -> tuple[str, bool]:
                               f"           input: \"{indata}\"\n" \
                               "         options:\n" \
                               f"{yaml_dump(options, base_indent=17)}\n" \
-                              f"          output: {tmp}\n" \
+                              "          output:\n" \
+                              f"{themearray_to_string(tmp)}\n" \
                               f"        expected: {expected_result}"
                     result = False
                     break
@@ -3558,186 +3438,403 @@ def test_format_caddyfile(verbose: bool = False) -> tuple[str, bool]:
     fun = formatters.format_caddyfile
 
     if result:
+        try:
+            from pygments.lexers.configs import CaddyfileLexer  # type: ignore[attr-defined]
+            caddyfilelexer_available: bool = True
+        except ImportError:
+            # CaddyfileLexer is available from Pygments 2.22
+            caddyfilelexer_available = False
+
+        if caddyfilelexer_available:
         # Indata format:
         # (lines, options, expected_result, expected_exception)
-        testdata: tuple[Any, ...] = (
-            ([".:53 {",
-              "    # comment",
-              "",
-              "}"], {},
-             [
-                [ThemeStr('.:53', ThemeAttr('types', 'caddyfile_site'), False),
-                 ThemeStr(' ', ThemeAttr('types', 'caddyfile_block'), False),
-                 ThemeStr('{', ThemeAttr('types', 'caddyfile_block'), False)],
-                [ThemeStr('    # comment', ThemeAttr('types', 'caddyfile_comment'), False)],
-                [ThemeStr('', ThemeAttr('types', 'generic'), False)],
-                [ThemeStr('}', ThemeAttr('types', 'caddyfile_block'), False)]
-            ], None),
-            ([".:53 {",
-              "    errors",
-              "    health {",
-              "       lameduck 5s",
-              "    }",
-              "    ready",
-              "    kubernetes cluster.local in-addr.arpa ip6.arpa {",
-              "       pods insecure",
-              "       fallthrough in-addr.arpa ip6.arpa",
-              "       ttl 30",
-              "    }",
-              "    prometheus :9153",
-              "    forward . /etc/resolv.conf {",
-              "       max_concurrent 1000",
-              "    }",
-              "    cache 30",
-              "    loop",
-              "    reload",
-              "    loadbalance",
-              "}"], {},
-             [
-                [ThemeStr('.:53', ThemeAttr('types', 'caddyfile_site'), False),
-                 ThemeStr(' ', ThemeAttr('types', 'caddyfile_block'), False),
-                 ThemeStr('{', ThemeAttr('types', 'caddyfile_block'), False)],
-                [ThemeStr('    ', ThemeAttr('types', 'caddyfile_directive'), False),
-                 ThemeStr('errors', ThemeAttr('types', 'caddyfile_directive'), False)],
-                [ThemeStr('    ', ThemeAttr('types', 'caddyfile_directive'), False),
-                 ThemeStr('health', ThemeAttr('types', 'caddyfile_directive'), False),
-                 ThemeStr(' ', ThemeAttr('types', 'caddyfile_block'), False),
-                 ThemeStr('{', ThemeAttr('types', 'caddyfile_block'), False)],
-                [ThemeStr('       ', ThemeAttr('types', 'caddyfile_directive'), False),
-                 ThemeStr('lameduck', ThemeAttr('types', 'caddyfile_directive'), False),
-                 ThemeStr(' 5s', ThemeAttr('types', 'caddyfile_argument'), False)],
-                [ThemeStr('    ', ThemeAttr('types', 'caddyfile_block'), False),
-                 ThemeStr('}', ThemeAttr('types', 'caddyfile_block'), False)],
-                [ThemeStr('    ', ThemeAttr('types', 'caddyfile_directive'), False),
-                 ThemeStr('ready', ThemeAttr('types', 'caddyfile_directive'), False)],
-                [ThemeStr('    ', ThemeAttr('types', 'caddyfile_directive'), False),
-                 ThemeStr('kubernetes', ThemeAttr('types', 'caddyfile_directive'), False),
-                 ThemeStr(' cluster.local in-addr.arpa ip6.arpa',
-                          ThemeAttr('types', 'caddyfile_argument'), False),
-                 ThemeStr(' ', ThemeAttr('types', 'caddyfile_block'), False),
-                 ThemeStr('{', ThemeAttr('types', 'caddyfile_block'), False)],
-                [ThemeStr('       ', ThemeAttr('types', 'caddyfile_directive'), False),
-                 ThemeStr('pods', ThemeAttr('types', 'caddyfile_directive'), False),
-                 ThemeStr(' insecure', ThemeAttr('types', 'caddyfile_argument'), False)],
-                [ThemeStr('       ', ThemeAttr('types', 'caddyfile_directive'), False),
-                 ThemeStr('fallthrough', ThemeAttr('types', 'caddyfile_directive'), False),
-                 ThemeStr(' in-addr.arpa ip6.arpa',
-                          ThemeAttr('types', 'caddyfile_argument'), False)],
-                [ThemeStr('       ', ThemeAttr('types', 'caddyfile_directive'), False),
-                 ThemeStr('ttl', ThemeAttr('types', 'caddyfile_directive'), False),
-                 ThemeStr(' 30', ThemeAttr('types', 'caddyfile_argument'), False)],
-                [ThemeStr('    ', ThemeAttr('types', 'caddyfile_block'), False),
-                 ThemeStr('}', ThemeAttr('types', 'caddyfile_block'), False)],
-                [ThemeStr('    ', ThemeAttr('types', 'caddyfile_directive'), False),
-                 ThemeStr('prometheus', ThemeAttr('types', 'caddyfile_directive'), False),
-                 ThemeStr(' :9153', ThemeAttr('types', 'caddyfile_argument'), False)],
-                [ThemeStr('    ', ThemeAttr('types', 'caddyfile_directive'), False),
-                 ThemeStr('forward', ThemeAttr('types', 'caddyfile_directive'), False),
-                 ThemeStr(' . /etc/resolv.conf', ThemeAttr('types', 'caddyfile_argument'), False),
-                 ThemeStr(' ', ThemeAttr('types', 'caddyfile_block'), False),
-                 ThemeStr('{', ThemeAttr('types', 'caddyfile_block'), False)],
-                [ThemeStr('       ', ThemeAttr('types', 'caddyfile_directive'), False),
-                 ThemeStr('max_concurrent', ThemeAttr('types', 'caddyfile_directive'), False),
-                 ThemeStr(' 1000', ThemeAttr('types', 'caddyfile_argument'), False)],
-                [ThemeStr('    ', ThemeAttr('types', 'caddyfile_block'), False),
-                 ThemeStr('}', ThemeAttr('types', 'caddyfile_block'), False)],
-                [ThemeStr('    ', ThemeAttr('types', 'caddyfile_directive'), False),
-                 ThemeStr('cache', ThemeAttr('types', 'caddyfile_directive'), False),
-                 ThemeStr(' 30', ThemeAttr('types', 'caddyfile_argument'), False)],
-                [ThemeStr('    ', ThemeAttr('types', 'caddyfile_directive'), False),
-                 ThemeStr('loop', ThemeAttr('types', 'caddyfile_directive'), False)],
-                [ThemeStr('    ', ThemeAttr('types', 'caddyfile_directive'), False),
-                 ThemeStr('reload', ThemeAttr('types', 'caddyfile_directive'), False)],
-                [ThemeStr('    ', ThemeAttr('types', 'caddyfile_directive'), False),
-                 ThemeStr('loadbalance', ThemeAttr('types', 'caddyfile_directive'), False)],
-                [ThemeStr('}', ThemeAttr('types', 'caddyfile_block'), False)]
-            ], None),
-            (".:53 {\n"
-             "    errors\n"
-             "    health {\n"
-             "       lameduck 5s\n"
-             "    }\n"
-             "    ready\n"
-             "    kubernetes cluster.local in-addr.arpa ip6.arpa {\n"
-             "       pods insecure\n"
-             "       fallthrough in-addr.arpa ip6.arpa\n"
-             "       ttl 30\n"
-             "    }\n"
-             "    prometheus :9153\n"
-             "    forward . /etc/resolv.conf {\n"
-             "       max_concurrent 1000\n"
-             "    }\n"
-             "    cache 30\n"
-             "    loop\n"
-             "    reload\n"
-             "    loadbalance\n"
-             "}", {},
-             [
-                 [ThemeStr('.:53', ThemeAttr('types', 'caddyfile_site'), False),
-                  ThemeStr(' ', ThemeAttr('types', 'caddyfile_block'), False),
-                  ThemeStr('{', ThemeAttr('types', 'caddyfile_block'), False)],
-                 [ThemeStr('    ', ThemeAttr('types', 'caddyfile_directive'), False),
-                  ThemeStr('errors', ThemeAttr('types', 'caddyfile_directive'), False)],
-                 [ThemeStr('    ', ThemeAttr('types', 'caddyfile_directive'), False),
-                  ThemeStr('health', ThemeAttr('types', 'caddyfile_directive'), False),
-                  ThemeStr(' ', ThemeAttr('types', 'caddyfile_block'), False),
-                  ThemeStr('{', ThemeAttr('types', 'caddyfile_block'), False)],
-                 [ThemeStr('       ', ThemeAttr('types', 'caddyfile_directive'), False),
-                  ThemeStr('lameduck', ThemeAttr('types', 'caddyfile_directive'), False),
-                  ThemeStr(' 5s', ThemeAttr('types', 'caddyfile_argument'), False)],
-                 [ThemeStr('    ', ThemeAttr('types', 'caddyfile_block'), False),
-                  ThemeStr('}', ThemeAttr('types', 'caddyfile_block'), False)],
-                 [ThemeStr('    ', ThemeAttr('types', 'caddyfile_directive'), False),
-                  ThemeStr('ready', ThemeAttr('types', 'caddyfile_directive'), False)],
-                 [ThemeStr('    ', ThemeAttr('types', 'caddyfile_directive'), False),
-                  ThemeStr('kubernetes', ThemeAttr('types', 'caddyfile_directive'), False),
-                  ThemeStr(' cluster.local in-addr.arpa ip6.arpa',
-                           ThemeAttr('types', 'caddyfile_argument'), False),
-                  ThemeStr(' ', ThemeAttr('types', 'caddyfile_block'), False),
-                  ThemeStr('{', ThemeAttr('types', 'caddyfile_block'), False)],
-                 [ThemeStr('       ', ThemeAttr('types', 'caddyfile_directive'), False),
-                  ThemeStr('pods', ThemeAttr('types', 'caddyfile_directive'), False),
-                  ThemeStr(' insecure', ThemeAttr('types', 'caddyfile_argument'), False)],
-                 [ThemeStr('       ', ThemeAttr('types', 'caddyfile_directive'), False),
-                  ThemeStr('fallthrough', ThemeAttr('types', 'caddyfile_directive'), False),
-                  ThemeStr(' in-addr.arpa ip6.arpa',
-                           ThemeAttr('types', 'caddyfile_argument'), False)],
-                 [ThemeStr('       ', ThemeAttr('types', 'caddyfile_directive'), False),
-                  ThemeStr('ttl', ThemeAttr('types', 'caddyfile_directive'), False),
-                  ThemeStr(' 30', ThemeAttr('types', 'caddyfile_argument'), False)],
-                 [ThemeStr('    ', ThemeAttr('types', 'caddyfile_block'), False),
-                  ThemeStr('}', ThemeAttr('types', 'caddyfile_block'), False)],
-                 [ThemeStr('    ', ThemeAttr('types', 'caddyfile_directive'), False),
-                  ThemeStr('prometheus', ThemeAttr('types', 'caddyfile_directive'), False),
-                  ThemeStr(' :9153', ThemeAttr('types', 'caddyfile_argument'), False)],
-                 [ThemeStr('    ', ThemeAttr('types', 'caddyfile_directive'), False),
-                  ThemeStr('forward', ThemeAttr('types', 'caddyfile_directive'), False),
-                  ThemeStr(' . /etc/resolv.conf', ThemeAttr('types', 'caddyfile_argument'), False),
-                  ThemeStr(' ', ThemeAttr('types', 'caddyfile_block'), False),
-                  ThemeStr('{', ThemeAttr('types', 'caddyfile_block'), False)],
-                 [ThemeStr('       ', ThemeAttr('types', 'caddyfile_directive'), False),
-                  ThemeStr('max_concurrent', ThemeAttr('types', 'caddyfile_directive'), False),
-                  ThemeStr(' 1000', ThemeAttr('types', 'caddyfile_argument'), False)],
-                 [ThemeStr('    ', ThemeAttr('types', 'caddyfile_block'), False),
-                  ThemeStr('}', ThemeAttr('types', 'caddyfile_block'), False)],
-                 [ThemeStr('    ', ThemeAttr('types', 'caddyfile_directive'), False),
-                  ThemeStr('cache', ThemeAttr('types', 'caddyfile_directive'), False),
-                  ThemeStr(' 30', ThemeAttr('types', 'caddyfile_argument'), False)],
-                 [ThemeStr('    ', ThemeAttr('types', 'caddyfile_directive'), False),
-                  ThemeStr('loop', ThemeAttr('types', 'caddyfile_directive'), False)],
-                 [ThemeStr('    ', ThemeAttr('types', 'caddyfile_directive'), False),
-                  ThemeStr('reload', ThemeAttr('types', 'caddyfile_directive'), False)],
-                 [ThemeStr('    ', ThemeAttr('types', 'caddyfile_directive'), False),
-                  ThemeStr('loadbalance', ThemeAttr('types', 'caddyfile_directive'), False)],
-                 [ThemeStr('}', ThemeAttr('types', 'caddyfile_block'), False)]], None),
-            ([".:53 {",
-              "    # comment",
-              "}"], {"raw": True},
-             [
-                [ThemeStr('.:53 {', ThemeAttr('types', 'generic'), False)],
-                [ThemeStr('    # comment', ThemeAttr('types', 'generic'), False)],
-                [ThemeStr('}', ThemeAttr('types', 'generic'), False)]], None),
-        )
+            testdata: tuple[Any, ...] = (
+                ([".:53 {",
+                  "    # comment",
+                  "",
+                  "}"], {},
+                 [
+                    [ThemeStr('.:53', ThemeAttr('types', 'generic'), False),
+                     ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                     ThemeStr('{', ThemeAttr('types', 'caddyfile_punctuation'), False)],
+                    [ThemeStr('    ', ThemeAttr('types', 'generic'), False),
+                     ThemeStr('# comment', ThemeAttr('types', 'caddyfile_comment'), False)],
+                    [],
+                    [ThemeStr('}', ThemeAttr('types', 'caddyfile_punctuation'), False)]
+                ], None),
+                ([".:53 {",
+                  "    errors",
+                  "    health {",
+                  "       lameduck 5s",
+                  "    }",
+                  "    ready",
+                  "    kubernetes cluster.local in-addr.arpa ip6.arpa {",
+                  "       pods insecure",
+                  "       fallthrough in-addr.arpa ip6.arpa",
+                  "       ttl 30",
+                  "    }",
+                  "    prometheus :9153",
+                  "    forward . /etc/resolv.conf {",
+                  "       max_concurrent 1000",
+                  "    }",
+                  "    cache 30",
+                  "    loop",
+                  "    reload",
+                  "    loadbalance",
+                  "}"], {},
+                 [
+                    [ThemeStr('.:53', ThemeAttr('types', 'generic'), False),
+                     ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                     ThemeStr('{', ThemeAttr('types', 'caddyfile_punctuation'), False)],
+                    [ThemeStr('    ', ThemeAttr('types', 'generic'), False),
+                     ThemeStr('errors', ThemeAttr('types', 'generic'), False)],
+                    [ThemeStr('    ', ThemeAttr('types', 'generic'), False),
+                     ThemeStr('health', ThemeAttr('types', 'generic'), False),
+                     ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                     ThemeStr('{', ThemeAttr('types', 'caddyfile_punctuation'), False)],
+                    [ThemeStr('       ', ThemeAttr('types', 'generic'), False),
+                     ThemeStr('lameduck', ThemeAttr('types', 'generic'), False),
+                     ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                     ThemeStr('5s', ThemeAttr('types', 'caddyfile_argument'), False)],
+                    [ThemeStr('    ', ThemeAttr('types', 'generic'), False),
+                     ThemeStr('}', ThemeAttr('types', 'caddyfile_punctuation'), False)],
+                    [ThemeStr('    ', ThemeAttr('types', 'generic'), False),
+                     ThemeStr('ready', ThemeAttr('types', 'generic'), False)],
+                    [ThemeStr('    ', ThemeAttr('types', 'generic'), False),
+                     ThemeStr('kubernetes', ThemeAttr('types', 'generic'), False),
+                     ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                     ThemeStr('cluster.local', ThemeAttr('types', 'generic'), False),
+                     ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                     ThemeStr('in-addr.arpa', ThemeAttr('types', 'generic'), False),
+                     ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                     ThemeStr('ip6.arpa', ThemeAttr('types', 'generic'), False),
+                     ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                     ThemeStr('{', ThemeAttr('types', 'caddyfile_punctuation'), False)],
+                    [ThemeStr('       ', ThemeAttr('types', 'generic'), False),
+                     ThemeStr('pods', ThemeAttr('types', 'generic'), False),
+                     ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                     ThemeStr('insecure', ThemeAttr('types', 'generic'), False)],
+                    [ThemeStr('       ', ThemeAttr('types', 'generic'), False),
+                     ThemeStr('fallthrough', ThemeAttr('types', 'generic'), False),
+                     ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                     ThemeStr('in-addr.arpa', ThemeAttr('types', 'generic'), False),
+                     ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                     ThemeStr('ip6.arpa', ThemeAttr('types', 'generic'), False)],
+                    [ThemeStr('       ', ThemeAttr('types', 'generic'), False),
+                     ThemeStr('ttl', ThemeAttr('types', 'generic'), False),
+                     ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                     ThemeStr('30', ThemeAttr('types', 'caddyfile_argument'), False)],
+                    [ThemeStr('    ', ThemeAttr('types', 'generic'), False),
+                     ThemeStr('}', ThemeAttr('types', 'caddyfile_punctuation'), False)],
+                    [ThemeStr('    ', ThemeAttr('types', 'generic'), False),
+                     ThemeStr('prometheus', ThemeAttr('types', 'generic'), False),
+                     ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                     ThemeStr(':9153', ThemeAttr('types', 'generic'), False)],
+                    [ThemeStr('    ', ThemeAttr('types', 'generic'), False),
+                     ThemeStr('forward', ThemeAttr('types', 'generic'), False),
+                     ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                     ThemeStr('.', ThemeAttr('types', 'generic'), False),
+                     ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                     ThemeStr('/etc/resolv.conf', ThemeAttr('types', 'generic'), False),
+                     ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                     ThemeStr('{', ThemeAttr('types', 'caddyfile_punctuation'), False)],
+                    [ThemeStr('       ', ThemeAttr('types', 'generic'), False),
+                     ThemeStr('max_concurrent', ThemeAttr('types', 'generic'), False),
+                     ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                     ThemeStr('1000', ThemeAttr('types', 'caddyfile_argument'), False)],
+                    [ThemeStr('    ', ThemeAttr('types', 'generic'), False),
+                     ThemeStr('}', ThemeAttr('types', 'caddyfile_punctuation'), False)],
+                    [ThemeStr('    ', ThemeAttr('types', 'generic'), False),
+                     ThemeStr('cache', ThemeAttr('types', 'generic'), False),
+                     ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                     ThemeStr('30', ThemeAttr('types', 'caddyfile_argument'), False)],
+                    [ThemeStr('    ', ThemeAttr('types', 'generic'), False),
+                     ThemeStr('loop', ThemeAttr('types', 'generic'), False)],
+                    [ThemeStr('    ', ThemeAttr('types', 'generic'), False),
+                     ThemeStr('reload', ThemeAttr('types', 'generic'), False)],
+                    [ThemeStr('    ', ThemeAttr('types', 'generic'), False),
+                     ThemeStr('loadbalance', ThemeAttr('types', 'generic'), False)],
+                    [ThemeStr('}', ThemeAttr('types', 'caddyfile_punctuation'), False)]], None),
+                (".:53 {\n"
+                 "    errors\n"
+                 "    health {\n"
+                 "       lameduck 5s\n"
+                 "    }\n"
+                 "    ready\n"
+                 "    kubernetes cluster.local in-addr.arpa ip6.arpa {\n"
+                 "       pods insecure\n"
+                 "       fallthrough in-addr.arpa ip6.arpa\n"
+                 "       ttl 30\n"
+                 "    }\n"
+                 "    prometheus :9153\n"
+                 "    forward . /etc/resolv.conf {\n"
+                 "       max_concurrent 1000\n"
+                 "    }\n"
+                 "    cache 30\n"
+                 "    loop\n"
+                 "    reload\n"
+                 "    loadbalance\n"
+                 "}", {},
+                 [
+                    [ThemeStr('.:53', ThemeAttr('types', 'generic'), False),
+                     ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                     ThemeStr('{', ThemeAttr('types', 'caddyfile_punctuation'), False)],
+                    [ThemeStr('    ', ThemeAttr('types', 'generic'), False),
+                     ThemeStr('errors', ThemeAttr('types', 'generic'), False)],
+                    [ThemeStr('    ', ThemeAttr('types', 'generic'), False),
+                     ThemeStr('health', ThemeAttr('types', 'generic'), False),
+                     ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                     ThemeStr('{', ThemeAttr('types', 'caddyfile_punctuation'), False)],
+                    [ThemeStr('       ', ThemeAttr('types', 'generic'), False),
+                     ThemeStr('lameduck', ThemeAttr('types', 'generic'), False),
+                     ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                     ThemeStr('5s', ThemeAttr('types', 'caddyfile_argument'), False)],
+                    [ThemeStr('    ', ThemeAttr('types', 'generic'), False),
+                     ThemeStr('}', ThemeAttr('types', 'caddyfile_punctuation'), False)],
+                    [ThemeStr('    ', ThemeAttr('types', 'generic'), False),
+                     ThemeStr('ready', ThemeAttr('types', 'generic'), False)],
+                    [ThemeStr('    ', ThemeAttr('types', 'generic'), False),
+                     ThemeStr('kubernetes', ThemeAttr('types', 'generic'), False),
+                     ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                     ThemeStr('cluster.local', ThemeAttr('types', 'generic'), False),
+                     ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                     ThemeStr('in-addr.arpa', ThemeAttr('types', 'generic'), False),
+                     ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                     ThemeStr('ip6.arpa', ThemeAttr('types', 'generic'), False),
+                     ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                     ThemeStr('{', ThemeAttr('types', 'caddyfile_punctuation'), False)],
+                    [ThemeStr('       ', ThemeAttr('types', 'generic'), False),
+                     ThemeStr('pods', ThemeAttr('types', 'generic'), False),
+                     ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                     ThemeStr('insecure', ThemeAttr('types', 'generic'), False)],
+                    [ThemeStr('       ', ThemeAttr('types', 'generic'), False),
+                     ThemeStr('fallthrough', ThemeAttr('types', 'generic'), False),
+                     ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                     ThemeStr('in-addr.arpa', ThemeAttr('types', 'generic'), False),
+                     ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                     ThemeStr('ip6.arpa', ThemeAttr('types', 'generic'), False)],
+                    [ThemeStr('       ', ThemeAttr('types', 'generic'), False),
+                     ThemeStr('ttl', ThemeAttr('types', 'generic'), False),
+                     ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                     ThemeStr('30', ThemeAttr('types', 'caddyfile_argument'), False)],
+                    [ThemeStr('    ', ThemeAttr('types', 'generic'), False),
+                     ThemeStr('}', ThemeAttr('types', 'caddyfile_punctuation'), False)],
+                    [ThemeStr('    ', ThemeAttr('types', 'generic'), False),
+                     ThemeStr('prometheus', ThemeAttr('types', 'generic'), False),
+                     ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                     ThemeStr(':9153', ThemeAttr('types', 'generic'), False)],
+                    [ThemeStr('    ', ThemeAttr('types', 'generic'), False),
+                     ThemeStr('forward', ThemeAttr('types', 'generic'), False),
+                     ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                     ThemeStr('.', ThemeAttr('types', 'generic'), False),
+                     ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                     ThemeStr('/etc/resolv.conf', ThemeAttr('types', 'generic'), False),
+                     ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                     ThemeStr('{', ThemeAttr('types', 'caddyfile_punctuation'), False)],
+                    [ThemeStr('       ', ThemeAttr('types', 'generic'), False),
+                     ThemeStr('max_concurrent', ThemeAttr('types', 'generic'), False),
+                     ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                     ThemeStr('1000', ThemeAttr('types', 'caddyfile_argument'), False)],
+                    [ThemeStr('    ', ThemeAttr('types', 'generic'), False),
+                     ThemeStr('}', ThemeAttr('types', 'caddyfile_punctuation'), False)],
+                    [ThemeStr('    ', ThemeAttr('types', 'generic'), False),
+                     ThemeStr('cache', ThemeAttr('types', 'generic'), False),
+                     ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                     ThemeStr('30', ThemeAttr('types', 'caddyfile_argument'), False)],
+                    [ThemeStr('    ', ThemeAttr('types', 'generic'), False),
+                     ThemeStr('loop', ThemeAttr('types', 'generic'), False)],
+                    [ThemeStr('    ', ThemeAttr('types', 'generic'), False),
+                     ThemeStr('reload', ThemeAttr('types', 'generic'), False)],
+                    [ThemeStr('    ', ThemeAttr('types', 'generic'), False),
+                     ThemeStr('loadbalance', ThemeAttr('types', 'generic'), False)],
+                    [ThemeStr('}', ThemeAttr('types', 'caddyfile_punctuation'), False)]], None),
+                ([".:53 {",
+                  "    # comment",
+                  "}"], {"raw": True},
+                 [
+                    [ThemeStr('.:53 {', ThemeAttr('types', 'generic'), False)],
+                    [ThemeStr('    # comment', ThemeAttr('types', 'generic'), False)],
+                    [ThemeStr('}', ThemeAttr('types', 'generic'), False)]], None),
+            )
+        else:
+            testdata: tuple[Any, ...] = (
+                ([".:53 {",
+                  "    # comment",
+                  "",
+                  "}"], {},
+                 [
+                    [ThemeStr('.:53', ThemeAttr('types', 'caddyfile_site'), False),
+                     ThemeStr(' ', ThemeAttr('types', 'caddyfile_block'), False),
+                     ThemeStr('{', ThemeAttr('types', 'caddyfile_block'), False)],
+                    [ThemeStr('    # comment', ThemeAttr('types', 'caddyfile_comment'), False)],
+                    [ThemeStr('', ThemeAttr('types', 'generic'), False)],
+                    [ThemeStr('}', ThemeAttr('types', 'caddyfile_block'), False)]
+                ], None),
+                ([".:53 {",
+                  "    errors",
+                  "    health {",
+                  "       lameduck 5s",
+                  "    }",
+                  "    ready",
+                  "    kubernetes cluster.local in-addr.arpa ip6.arpa {",
+                  "       pods insecure",
+                  "       fallthrough in-addr.arpa ip6.arpa",
+                  "       ttl 30",
+                  "    }",
+                  "    prometheus :9153",
+                  "    forward . /etc/resolv.conf {",
+                  "       max_concurrent 1000",
+                  "    }",
+                  "    cache 30",
+                  "    loop",
+                  "    reload",
+                  "    loadbalance",
+                  "}"], {},
+                 [
+                    [ThemeStr('.:53', ThemeAttr('types', 'caddyfile_site'), False),
+                     ThemeStr(' ', ThemeAttr('types', 'caddyfile_block'), False),
+                     ThemeStr('{', ThemeAttr('types', 'caddyfile_block'), False)],
+                    [ThemeStr('    ', ThemeAttr('types', 'caddyfile_directive'), False),
+                     ThemeStr('errors', ThemeAttr('types', 'caddyfile_directive'), False)],
+                    [ThemeStr('    ', ThemeAttr('types', 'caddyfile_directive'), False),
+                     ThemeStr('health', ThemeAttr('types', 'caddyfile_directive'), False),
+                     ThemeStr(' ', ThemeAttr('types', 'caddyfile_block'), False),
+                     ThemeStr('{', ThemeAttr('types', 'caddyfile_block'), False)],
+                    [ThemeStr('       ', ThemeAttr('types', 'caddyfile_directive'), False),
+                     ThemeStr('lameduck', ThemeAttr('types', 'caddyfile_directive'), False),
+                     ThemeStr(' 5s', ThemeAttr('types', 'caddyfile_argument'), False)],
+                    [ThemeStr('    ', ThemeAttr('types', 'caddyfile_block'), False),
+                     ThemeStr('}', ThemeAttr('types', 'caddyfile_block'), False)],
+                    [ThemeStr('    ', ThemeAttr('types', 'caddyfile_directive'), False),
+                     ThemeStr('ready', ThemeAttr('types', 'caddyfile_directive'), False)],
+                    [ThemeStr('    ', ThemeAttr('types', 'caddyfile_directive'), False),
+                     ThemeStr('kubernetes', ThemeAttr('types', 'caddyfile_directive'), False),
+                     ThemeStr(' cluster.local in-addr.arpa ip6.arpa',
+                              ThemeAttr('types', 'caddyfile_argument'), False),
+                     ThemeStr(' ', ThemeAttr('types', 'caddyfile_block'), False),
+                     ThemeStr('{', ThemeAttr('types', 'caddyfile_block'), False)],
+                    [ThemeStr('       ', ThemeAttr('types', 'caddyfile_directive'), False),
+                     ThemeStr('pods', ThemeAttr('types', 'caddyfile_directive'), False),
+                     ThemeStr(' insecure', ThemeAttr('types', 'caddyfile_argument'), False)],
+                    [ThemeStr('       ', ThemeAttr('types', 'caddyfile_directive'), False),
+                     ThemeStr('fallthrough', ThemeAttr('types', 'caddyfile_directive'), False),
+                     ThemeStr(' in-addr.arpa ip6.arpa',
+                              ThemeAttr('types', 'caddyfile_argument'), False)],
+                    [ThemeStr('       ', ThemeAttr('types', 'caddyfile_directive'), False),
+                     ThemeStr('ttl', ThemeAttr('types', 'caddyfile_directive'), False),
+                     ThemeStr(' 30', ThemeAttr('types', 'caddyfile_argument'), False)],
+                    [ThemeStr('    ', ThemeAttr('types', 'caddyfile_block'), False),
+                     ThemeStr('}', ThemeAttr('types', 'caddyfile_block'), False)],
+                    [ThemeStr('    ', ThemeAttr('types', 'caddyfile_directive'), False),
+                     ThemeStr('prometheus', ThemeAttr('types', 'caddyfile_directive'), False),
+                     ThemeStr(' :9153', ThemeAttr('types', 'caddyfile_argument'), False)],
+                    [ThemeStr('    ', ThemeAttr('types', 'caddyfile_directive'), False),
+                     ThemeStr('forward', ThemeAttr('types', 'caddyfile_directive'), False),
+                     ThemeStr(' . /etc/resolv.conf', ThemeAttr('types', 'caddyfile_argument'), False),
+                     ThemeStr(' ', ThemeAttr('types', 'caddyfile_block'), False),
+                     ThemeStr('{', ThemeAttr('types', 'caddyfile_block'), False)],
+                    [ThemeStr('       ', ThemeAttr('types', 'caddyfile_directive'), False),
+                     ThemeStr('max_concurrent', ThemeAttr('types', 'caddyfile_directive'), False),
+                     ThemeStr(' 1000', ThemeAttr('types', 'caddyfile_argument'), False)],
+                    [ThemeStr('    ', ThemeAttr('types', 'caddyfile_block'), False),
+                     ThemeStr('}', ThemeAttr('types', 'caddyfile_block'), False)],
+                    [ThemeStr('    ', ThemeAttr('types', 'caddyfile_directive'), False),
+                     ThemeStr('cache', ThemeAttr('types', 'caddyfile_directive'), False),
+                     ThemeStr(' 30', ThemeAttr('types', 'caddyfile_argument'), False)],
+                    [ThemeStr('    ', ThemeAttr('types', 'caddyfile_directive'), False),
+                     ThemeStr('loop', ThemeAttr('types', 'caddyfile_directive'), False)],
+                    [ThemeStr('    ', ThemeAttr('types', 'caddyfile_directive'), False),
+                     ThemeStr('reload', ThemeAttr('types', 'caddyfile_directive'), False)],
+                    [ThemeStr('    ', ThemeAttr('types', 'caddyfile_directive'), False),
+                     ThemeStr('loadbalance', ThemeAttr('types', 'caddyfile_directive'), False)],
+                    [ThemeStr('}', ThemeAttr('types', 'caddyfile_block'), False)]
+                ], None),
+                (".:53 {\n"
+                 "    errors\n"
+                 "    health {\n"
+                 "       lameduck 5s\n"
+                 "    }\n"
+                 "    ready\n"
+                 "    kubernetes cluster.local in-addr.arpa ip6.arpa {\n"
+                 "       pods insecure\n"
+                 "       fallthrough in-addr.arpa ip6.arpa\n"
+                 "       ttl 30\n"
+                 "    }\n"
+                 "    prometheus :9153\n"
+                 "    forward . /etc/resolv.conf {\n"
+                 "       max_concurrent 1000\n"
+                 "    }\n"
+                 "    cache 30\n"
+                 "    loop\n"
+                 "    reload\n"
+                 "    loadbalance\n"
+                 "}", {},
+                 [
+                     [ThemeStr('.:53', ThemeAttr('types', 'caddyfile_site'), False),
+                      ThemeStr(' ', ThemeAttr('types', 'caddyfile_block'), False),
+                      ThemeStr('{', ThemeAttr('types', 'caddyfile_block'), False)],
+                     [ThemeStr('    ', ThemeAttr('types', 'caddyfile_directive'), False),
+                      ThemeStr('errors', ThemeAttr('types', 'caddyfile_directive'), False)],
+                     [ThemeStr('    ', ThemeAttr('types', 'caddyfile_directive'), False),
+                      ThemeStr('health', ThemeAttr('types', 'caddyfile_directive'), False),
+                      ThemeStr(' ', ThemeAttr('types', 'caddyfile_block'), False),
+                      ThemeStr('{', ThemeAttr('types', 'caddyfile_block'), False)],
+                     [ThemeStr('       ', ThemeAttr('types', 'caddyfile_directive'), False),
+                      ThemeStr('lameduck', ThemeAttr('types', 'caddyfile_directive'), False),
+                      ThemeStr(' 5s', ThemeAttr('types', 'caddyfile_argument'), False)],
+                     [ThemeStr('    ', ThemeAttr('types', 'caddyfile_block'), False),
+                      ThemeStr('}', ThemeAttr('types', 'caddyfile_block'), False)],
+                     [ThemeStr('    ', ThemeAttr('types', 'caddyfile_directive'), False),
+                      ThemeStr('ready', ThemeAttr('types', 'caddyfile_directive'), False)],
+                     [ThemeStr('    ', ThemeAttr('types', 'caddyfile_directive'), False),
+                      ThemeStr('kubernetes', ThemeAttr('types', 'caddyfile_directive'), False),
+                      ThemeStr(' cluster.local in-addr.arpa ip6.arpa',
+                               ThemeAttr('types', 'caddyfile_argument'), False),
+                      ThemeStr(' ', ThemeAttr('types', 'caddyfile_block'), False),
+                      ThemeStr('{', ThemeAttr('types', 'caddyfile_block'), False)],
+                     [ThemeStr('       ', ThemeAttr('types', 'caddyfile_directive'), False),
+                      ThemeStr('pods', ThemeAttr('types', 'caddyfile_directive'), False),
+                      ThemeStr(' insecure', ThemeAttr('types', 'caddyfile_argument'), False)],
+                     [ThemeStr('       ', ThemeAttr('types', 'caddyfile_directive'), False),
+                      ThemeStr('fallthrough', ThemeAttr('types', 'caddyfile_directive'), False),
+                      ThemeStr(' in-addr.arpa ip6.arpa',
+                               ThemeAttr('types', 'caddyfile_argument'), False)],
+                     [ThemeStr('       ', ThemeAttr('types', 'caddyfile_directive'), False),
+                      ThemeStr('ttl', ThemeAttr('types', 'caddyfile_directive'), False),
+                      ThemeStr(' 30', ThemeAttr('types', 'caddyfile_argument'), False)],
+                     [ThemeStr('    ', ThemeAttr('types', 'caddyfile_block'), False),
+                      ThemeStr('}', ThemeAttr('types', 'caddyfile_block'), False)],
+                     [ThemeStr('    ', ThemeAttr('types', 'caddyfile_directive'), False),
+                      ThemeStr('prometheus', ThemeAttr('types', 'caddyfile_directive'), False),
+                      ThemeStr(' :9153', ThemeAttr('types', 'caddyfile_argument'), False)],
+                     [ThemeStr('    ', ThemeAttr('types', 'caddyfile_directive'), False),
+                      ThemeStr('forward', ThemeAttr('types', 'caddyfile_directive'), False),
+                      ThemeStr(' . /etc/resolv.conf', ThemeAttr('types', 'caddyfile_argument'), False),
+                      ThemeStr(' ', ThemeAttr('types', 'caddyfile_block'), False),
+                      ThemeStr('{', ThemeAttr('types', 'caddyfile_block'), False)],
+                     [ThemeStr('       ', ThemeAttr('types', 'caddyfile_directive'), False),
+                      ThemeStr('max_concurrent', ThemeAttr('types', 'caddyfile_directive'), False),
+                      ThemeStr(' 1000', ThemeAttr('types', 'caddyfile_argument'), False)],
+                     [ThemeStr('    ', ThemeAttr('types', 'caddyfile_block'), False),
+                      ThemeStr('}', ThemeAttr('types', 'caddyfile_block'), False)],
+                     [ThemeStr('    ', ThemeAttr('types', 'caddyfile_directive'), False),
+                      ThemeStr('cache', ThemeAttr('types', 'caddyfile_directive'), False),
+                      ThemeStr(' 30', ThemeAttr('types', 'caddyfile_argument'), False)],
+                     [ThemeStr('    ', ThemeAttr('types', 'caddyfile_directive'), False),
+                      ThemeStr('loop', ThemeAttr('types', 'caddyfile_directive'), False)],
+                     [ThemeStr('    ', ThemeAttr('types', 'caddyfile_directive'), False),
+                      ThemeStr('reload', ThemeAttr('types', 'caddyfile_directive'), False)],
+                     [ThemeStr('    ', ThemeAttr('types', 'caddyfile_directive'), False),
+                      ThemeStr('loadbalance', ThemeAttr('types', 'caddyfile_directive'), False)],
+                     [ThemeStr('}', ThemeAttr('types', 'caddyfile_block'), False)]], None),
+                ([".:53 {",
+                  "    # comment",
+                  "}"], {"raw": True},
+                 [
+                    [ThemeStr('.:53 {', ThemeAttr('types', 'generic'), False)],
+                    [ThemeStr('    # comment', ThemeAttr('types', 'generic'), False)],
+                    [ThemeStr('}', ThemeAttr('types', 'generic'), False)]], None),
+            )
 
         for indata, options, expected_result, expected_exception in testdata:
             if isinstance(indata, list):
@@ -3751,8 +3848,7 @@ def test_format_caddyfile(verbose: bool = False) -> tuple[str, bool]:
                               f"           input: \"{indata_quoted}\"\n" \
                               "         options:\n" \
                               f"{yaml_dump(options, base_indent=17)}\n" \
-                              "          output:\n" \
-                              f"{yaml_dump(tmp, base_indent=17)}\n" \
+                              f"          output: {tmp}\n" \
                               f"        expected: {expected_result}"
                     result = False
                     break
@@ -4792,8 +4888,8 @@ tests: dict[tuple[str, ...], dict[str, Any]] = {
         "callable": test_format_none,
         "result": None,
     },
-    ("format_yaml_line",): {
-        "callable": test_format_yaml_line,
+    ("format_generic",): {
+        "callable": test_format_generic,
         "result": None,
     },
     ("format_yaml",): {
