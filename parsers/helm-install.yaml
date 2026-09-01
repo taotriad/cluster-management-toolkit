@@ -7,6 +7,7 @@
     - pod_name: "helm-install"
       container_name: "helm"
   parser_rules:
+    - name: "strip_ansicodes"
     - name: "ts_8601"
     - name: "custom_splitter"
       options:
@@ -33,13 +34,35 @@
             format_block_end: false
         severity:
           default: "notice"
+        strip_ansicodes: true
+    - name: "custom_line"
+      options:
+        block_start:
+          - matchtype: "startswith"
+            matchkey: "NAME:"
+            matchline: "any"
+            format_block_start: true
+        block_end:
+          - matchtype: "startswith"
+            matchkey: "TEST SUITE:"
+            format_block_end: true
+        severity:
+          default: "notice"
+        strip_ansicodes: true
     - name: "override_severity"
       options:
         severity:
           overrides:
             - matchtype: "startswith"
+              matchkey: "helm upgrade"
+              loglevel: "notice"
+            - matchtype: "startswith"
               matchkey: "Starting Tiller v"
               loglevel: "notice"
+            - matchtype: "startswith"
+              matchkey: "SUCCESS: "
+              loglevel: "notice"
+    - name: "key_value"
 - name: "helm-operationn"
   show_in_selector: false
   matchkeys:

@@ -74,7 +74,7 @@ except ModuleNotFoundError:  # pragma: no cover
 from clustermanagementtoolkit.ansithemeprint import ANSIThemeStr
 
 from clustermanagementtoolkit import cmtlib
-from clustermanagementtoolkit.cmtlib import get_since, split_msg, strip_ansicodes
+from clustermanagementtoolkit.cmtlib import get_since, split_msg
 
 from clustermanagementtoolkit import cmtlog
 
@@ -2402,7 +2402,7 @@ class MosquittoLexer(RegexLexer):
     }
 
 
-# pylint: disable-next=too-many-branches
+# pylint: disable-next=too-many-branches,too-many-statements
 def markdown_renderer(ttype: Any, value: str, **kwargs: Any) \
         -> tuple[Any, str | list[ThemeRef | ThemeStr], bool]:
     """

@@ -5356,6 +5356,7 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                     formatter: Callable = deep_get(block, DictPath("formatter"))
                     options: dict[str, Any] = deep_get(block, DictPath("options"), {})
                     options_severity: LogLevel = deep_get(block, DictPath("severity"), severity)
+                    strip_ansicodes: bool = deep_get(options, DictPath("strip_ansicodes"), False)
                     format_block_end: bool = False
                     unprocessed_lines: list[str] = \
                         deep_get(block, DictPath("unprocessed_lines"), [])
@@ -5366,6 +5367,8 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                     # But until we've confirmed that it's not useful we'll keep it.
                     for j, unprocessed_line in enumerate(unprocessed_lines):
                         newstr, matched, format_block_end = scanner(unprocessed_line, **options)
+                        if strip_ansicodes:
+                            newstr = cmtlib.strip_ansicodes(newstr)
                         if not matched:
                             new_lines.append(newstr)
                             continue
@@ -5380,6 +5383,8 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                     if not matched:
                         for j in range(i, len(splitmsg)):
                             newstr, matched, format_block_end = scanner(splitmsg[j], **options)
+                            if strip_ansicodes:
+                                newstr = cmtlib.strip_ansicodes(newstr)
                             if matched:
                                 if format_block_end:
                                     new_lines.append(newstr)

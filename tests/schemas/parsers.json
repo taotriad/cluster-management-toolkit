@@ -691,6 +691,10 @@
                                                 }
                                             },
                                             "additionalProperties": false
+                                        },
+                                        "strip_ansicodes": {
+                                            "description": "Remove ANSI-codes from text",
+                                            "type": "boolean"
                                         }
                                     },
                                     "additionalProperties": false

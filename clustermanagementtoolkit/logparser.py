@@ -81,7 +81,7 @@ from clustermanagementtoolkit.cmttypes import loglevel_to_name, name_to_loglevel
 from clustermanagementtoolkit.cmtio_yaml import secure_read_yaml, secure_read_yaml_all
 
 from clustermanagementtoolkit import cmtlib
-from clustermanagementtoolkit.cmtlib import none_timestamp, strip_ansicodes
+from clustermanagementtoolkit.cmtlib import none_timestamp
 
 from clustermanagementtoolkit import formatters
 from clustermanagementtoolkit.cmtio_yaml import json_dumps, json_loads
@@ -129,7 +129,6 @@ class MatchBlockEnd(TypedDict):
     matchkey: str | re.Pattern[str]
     matchline: Literal["any", "end"]
     format_block_end: bool
-    process_block_end: bool
 
 
 # pylint: disable-next=too-few-public-methods
@@ -2769,6 +2768,7 @@ def match_block_start(matchrules: list[MatchBlockStart],
                 (bool): Should the block start be formatted?
     """
     matched: list[str] = []
+    format_block_start: bool = False
 
     for _bs in matchrules:
         matchtype = _bs["matchtype"]
@@ -2820,7 +2820,7 @@ def match_block_start(matchrules: list[MatchBlockStart],
 
 
 # pylint: disable-next=too-many-branches
-def match_block_end(matchrules: list[MatchBlockEnd], message: str) -> tuple[bool, bool, bool]:
+def match_block_end(matchrules: list[MatchBlockEnd], message: str) -> tuple[bool, bool]:
     """
     Find a block end; returns False if the block end is found.
 
@@ -2831,15 +2831,14 @@ def match_block_end(matchrules: list[MatchBlockEnd], message: str) -> tuple[bool
             (bool, bool, bool):
                 (bool): Was there a match?
                 (bool): Should the block end be formatted?
-                (bool): Should the block end be processed?
     """
     matched: bool = True
+    format_block_end: bool = False
 
     for _be in matchrules:
         matchtype = deep_get(_be, DictPath("matchtype"))
         matchkey = deep_get(_be, DictPath("matchkey"))
         format_block_end = deep_get(_be, DictPath("format_block_end"), False)
-        process_block_end = deep_get(_be, DictPath("process_block_end"), True)
 
         # We can only match None against EOF.
         if message is None:
@@ -2871,7 +2870,7 @@ def match_block_end(matchrules: list[MatchBlockEnd], message: str) -> tuple[bool
             if message.startswith(matchkey):
                 matched = False
 
-    return matched, format_block_end, process_block_end
+    return matched, format_block_end
 
 
 def strip_timestamp_and_match_block_end(message: str, **kwargs: Any) -> tuple[str, bool, bool]:
@@ -2892,10 +2891,11 @@ def strip_timestamp_and_match_block_end(message: str, **kwargs: Any) -> tuple[st
     block_end = deep_get(kwargs, DictPath("block_end"), [])
     if message is not None:
         message, _timestamp = split_iso_timestamp(message, none_timestamp())
-    matched, format_block_end, _process_block_end = match_block_end(block_end, message)
+    matched, format_block_end = match_block_end(block_end, message)
     return message, not matched, format_block_end
 
 
+# pylint: disable-next=too-many-locals
 def custom_line(message: str, **kwargs: Any) -> tuple[list[ThemeRef | ThemeStr], LogLevel,
                                                       dict[str, Any]]:
     """
@@ -2943,6 +2943,7 @@ def custom_line(message: str, **kwargs: Any) -> tuple[list[ThemeRef | ThemeStr],
     severity: LogLevel = deep_get(kwargs, DictPath("severity"), LogLevel.DEFAULT)
     options: dict = deep_get(kwargs, DictPath("options"), {})
 
+    strip_ansicodes: bool = deep_get(options, DictPath("strip_ansicodes"), False)
     block_start: list[MatchBlockStart] = deep_get(options, DictPath("block_start"), [])
     # This is the loglevel to apply to the block if it matches.
     loglevel_name: str = deep_get(options, DictPath("severity#default"), "info")
@@ -2958,6 +2959,8 @@ def custom_line(message: str, **kwargs: Any) -> tuple[list[ThemeRef | ThemeStr],
         message = matched[0]
         unprocessed_lines = matched[1:]
 
+    if strip_ansicodes:
+        message = cmtlib.strip_ansicodes(message)
     message, new_severity = custom_override_severity(message, base_severity, options=options)
     severity_name = f"severity_{loglevel_to_name(new_severity).lower()}"
     formatter: Callable = cmtlib.check_allowlist(formatters.formatter_allowlist,
@@ -3310,7 +3313,7 @@ def parsing_multiplexer(message: str | list[ThemeRef | ThemeStr],
                 message, severity = split_bracketed_severity(message, default=filter_options)
             # Filters
             elif _filter == "strip_ansicodes":
-                message = strip_ansicodes(message)
+                message = cmtlib.strip_ansicodes(message)
             # The content from these rules will typically not be processed further
             elif _filter == "tab_separated":
                 message, severity, facility, remnants = \

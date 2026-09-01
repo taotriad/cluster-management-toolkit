@@ -3551,6 +3551,10 @@
                                                     "description": "Path to get the namespace of the parent obj",
                                                     "$ref": "#/$defs/simple_path"
                                                 },
+                                                "_pass_formatted": {
+                                                    "description": "Pass the formatted data from formatter()/infogetter() instead of the object",
+                                                    "type": "boolean"
+                                                },
                                                 "_pass_obj": {
                                                     "type": "boolean"
                                                 },
