@@ -4549,54 +4549,63 @@ class UIProps:
                     break
         self.reselect_uid()
 
-    def next_line_by_severity(self, severities: list[LogLevel]) -> None:
+    def next_line_by_severity(self, severities: list[LogLevel], timestamps: list[datetime]) -> None:
         """
-        Find the next line that has a severity > NOTICE,
+        Find the next line that has a severity < NOTICE,
         and move the the y-offset to that position.
 
             Parameters:
                 severities ([LogLevel]): A list of the severities
         """
-        y = 0
         newoffset = self.yoffset
 
-        if severities is None:
+        if severities is None or self.yoffset + 1 >= self.maxyoffset:
             return
 
-        for severity in severities:
-            # We are only searching forward
-            if y > self.yoffset and severity < LogLevel.NOTICE:
+        for y in range(self.yoffset + 1, self.maxyoffset):
+            try:
+                # If we don't have a timestamp this is a block, so we don't
+                # care about its individual lines; instead we just skip past it.
+                if severities[y] < LogLevel.NOTICE and timestamps[y] != cmtlib.none_timestamp():
+                    newoffset = y
+                    break
+            except IndexError:
+                # We've run out of timestamps; just jump to the next elevated line.
                 newoffset = y
                 break
-            y += 1
 
         self.yoffset = min(newoffset, self.maxyoffset)
         self.refresh = True
 
     # Find the prev line that has severity > NOTICE
-    def prev_line_by_severity(self, severities: list[LogLevel]) -> None:
+    def prev_line_by_severity(self, severities: list[LogLevel], timestamps: list[datetime]) -> None:
         """
-        Find the previous line that has a severity > NOTICE,
+        Find the previous line that has a severity < NOTICE,
         and move the the y-offset to that position.
 
             Parameters:
                 severities ([LogLevel]): A list of the severities
         """
-        y = 0
-        newoffset = self.yoffset
-
-        if severities is None:
+        if severities is None or self.yoffset - 1 <= 0:
             return
 
-        for severity in severities:
-            # We are only searching backward
-            if y == self.yoffset:
-                break
-            if severity < LogLevel.NOTICE:
-                newoffset = y
-            y += 1
+        for y in range(self.yoffset - 1, -1, -1):
+            if severities[y] >= LogLevel.NOTICE:
+                continue
 
-        self.yoffset = newoffset
+            try:
+                # If we don't have a timestamp this is a block, so we don't
+                # care about its individual lines; instead we just skip past it.
+                if timestamps[y] != cmtlib.none_timestamp():
+                    self.yoffset = y
+                    break
+            except IndexError:
+                # We've run out of timestamps; since we're going backwards this likely means
+                # that we don't have any timestamps at all; since we had a match,
+                # let's jump to this.
+                self.yoffset = y
+                break
+
         self.refresh = True
 
     def next_by_sortkey(self, info: list[dict]) -> None:
@@ -5398,13 +5407,13 @@ class UIProps:
             if self.listpad:
                 self.next_by_sortkey(self.info)
             elif self.logpad and not self.continuous_log:
-                self.next_line_by_severity(self.severities)
+                self.next_line_by_severity(self.severities, self.timestamps)
             return Retval.MATCH
         if c == curses.KEY_BTAB:
             if self.listpad:
                 self.prev_by_sortkey(self.info)
             elif self.logpad and not self.continuous_log:
-                self.prev_line_by_severity(self.severities)
+                self.prev_line_by_severity(self.severities, self.timestamps)
             return Retval.MATCH
         if c == ord("§"):
             # For listpads this jumps to the next column

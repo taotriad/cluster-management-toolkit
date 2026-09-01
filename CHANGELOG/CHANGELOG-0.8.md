@@ -101,6 +101,7 @@ N/A
 
 ### Changes to other files in v0.8.10
 
+* Tabbing to the next message with elevated severity now skips blocks.
 * `Namespace` info-view now includes age.
 * `Node` list-view now includes number of pods.
 * Internally, we no longer use a generator/processor combination.
