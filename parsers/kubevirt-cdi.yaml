@@ -5,7 +5,9 @@
     - pod_name: "cdi-apiserver"
     - pod_name: "cdi-deployment"
     - pod_name: "cdi-operator"
+    # This quite clearly indicates that we have need for regex-patching.
     - image_name: "/suse/sles/15.7/cdi-importer"
+    - image_name: "/suse/sles/16.0/cdi-importer"
   parser_rules:
     - name: "ts_8601"
     - name: "glog"

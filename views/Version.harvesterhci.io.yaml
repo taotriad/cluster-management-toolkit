@@ -13,6 +13,30 @@ listview:
     Normal:
       fields: ["namespace", "name", "age"]
       sortcolumn: "namespace"
+  actions:
+    actionlist:
+      "Upgrade":
+        description: "Create Upgrade from Version"
+        category: "Cluster Level"
+        confirm: true
+        actionfunc: "create_resource"
+        actionfunc_args:
+          injections:
+            "metadata#name":
+              source: "obj"
+              paths: [
+                "spec#version",
+              ]
+          template:
+            apiVersion: "harvesterhci.io"
+            kind: "Upgrade"
+            metadata:
+              annotations:
+                harvesterhci.io/minCertsExpirationInDay: "14"
+              generateName: "hvst-upgrade-"
+              namespace: "harvester-system"
+            spec:
+              logEnabled: true
 infoview:
   name: "Version Info"
   infopad:

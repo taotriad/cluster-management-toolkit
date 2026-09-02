@@ -59,6 +59,14 @@ listview:
       default: "<unset>"
       type: "str"
       formatter: "version"
+  actions:
+    actionlist:
+      "Delete resource":
+        description: "Delete resource"
+        metadata: [["(Aborts Upgrade)", ["windowwidget", "diffminus"]]]
+        category: "Resource Level"
+        confirm: true
+        actionfunc: "delete_resource"
 infoview:
   name: "Upgrade Info"
   infopad:

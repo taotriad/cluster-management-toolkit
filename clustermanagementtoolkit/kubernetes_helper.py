@@ -2396,7 +2396,13 @@ class KubernetesHelper:
         elif status == 409:
             # Conflict
             # A resource by the same name already exists.
-            pass
+            try:
+                raw_data = result.data.decode("utf-8", errors="replace")
+                d = json_loads(raw_data)
+                message = deep_get(d, DictPath("message"), "")
+            except (ValueError, json.decoder.JSONDecodeError):
+                # We got a response, but the data is malformed; make do the with the return code.
+                pass
         elif status == 410:
             # Gone
             # Most likely a update events were requested (using resourceVersion),
