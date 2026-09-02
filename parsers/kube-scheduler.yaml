@@ -3,6 +3,7 @@
   show_in_selector: false
   matchkeys:
     - image_name: "/kube-scheduler"
+    - image_name: "/google_containers/kube-scheduler"
     - container_name: "kube-scheduler"
       image_name: "/rancher/hardened-kubernetes"
   parser_rules:
@@ -18,6 +19,30 @@
             - matchtype: "startswith"
               matchkey: "Version: v"
               loglevel: "notice"
+    - name: "custom_line"
+      options:
+        block_start:
+          - matchtype: "startswith"
+            matchkey: "\"Using component config"
+            matchline: "any"
+            format_block_start: false
+        block_end:
+          - matchtype: "exact"
+            matchkey: " >"
+        formatter: "format_yaml"
+    - name: "custom_line"
+      options:
+        block_start:
+          - matchtype: "exact"
+            # yamllint disable-line rule:line-length
+            matchkey: "-------------------------Configuration File Contents Start Here----------------------"
+            matchline: "any"
+        block_end:
+          - matchtype: "exact"
+            # yamllint disable-line rule:line-length
+            matchkey: "------------------------------------Configuration File Contents End Here---------------------------------"
+          - matchtype: "empty"
+        formatter: "format_yaml"
 - name: "kube-scheduler"
   show_in_selector: false
   matchkeys:
