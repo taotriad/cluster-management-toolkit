@@ -94,16 +94,28 @@ def test_decode_value(verbose: bool = False) -> tuple[str, bool]:
             ("Zm9vIGJhcg==", ("string", "foo bar"), None),
             (b"Zm9vCmJhcg==", ("base64-utf-8", b"Zm9vCmJhcg=="), None),
             (b"H4sICFYeZGoAA3Rlc3R3b3JkLnR4dAArycgsVgCiRIWS1OISheKSosy8dC4ARscgiRYAAAA=",
-             ("base64-binary",
-              b"H4sICFYeZGoAA3Rlc3R3b3JkLnR4dAArycgsVgCiRIWS1OISheKSosy8dC4ARscgiRYAAAA="), None),
+             ("gzip",
+              b'\x1f\x8b\x08\x08V\x1edj\x00\x03testword.txt\x00+\xc9\xc8,V\x00\xa2D\x85\x92\xd4\xe2\x12\x85\xe2\x92\xa2\xcc\xbct.\x00F\xc7 \x89\x16\x00\x00\x00'), None),
+            (b"/Td6WFoAAATm1rRGBMAQDCEBFgAAAAAAAAAAAHuwVCgBAAtoZWxsbyB3b3JsZAoAofL/xGp/v88AASwMrpIBEB+2830BAAAAAARZWg==",
+             ("xz",
+              b'\xfd7zXZ\x00\x00\x04\xe6\xd6\xb4F\x04\xc0\x10\x0c!\x01\x16\x00\x00\x00\x00\x00\x00\x00\x00\x00{\xb0T(\x01\x00\x0bhello world\n\x00\xa1\xf2\xff\xc4j\x7f\xbf\xcf\x00\x01,\x0c\xae\x92\x01\x10\x1f\xb6\xf3}\x01\x00\x00\x00\x00\x04YZ'), None),
+            (b"QlpoOTFBWSZTWU7s6DYAAAJRgAAQQAAGRJCAIAAxBkxBAaeppYC7lDH4u5IpwoSCd2dBsA==",
+             ("bz2",
+              b'BZh91AY&SYN\xec\xe86\x00\x00\x02Q\x80\x00\x10@\x00\x06D\x90\x80 \x001\x06LA\x01\xa7\xa9\xa5\x80\xbb\x941\xf8\xbb\x92)\xc2\x84\x82wgA\xb0'), None),
+            (b"UUZJAP/xA0ZG",
+             ("qcow",
+              b'QFI\x00\xff\xf1\x03FF'), None),
         )
-        for value, expected_result, expected_exception in testdata:
+        for indata, expected_result, expected_exception in testdata:
             try:
-                if (tmp := fun(value)) != expected_result:
+                vtype, value = fun(indata)
+                if (vtype, value) != expected_result:
                     message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"         indata: {indata}\n" \
+                              f"          vtype: {vtype}\n" \
                               f"          value: {value}\n" \
-                              f"         output: {tmp}\n" \
                               f"       expected: {expected_result}"
+                    print(value)
                     result = False
                     break
             except Exception as e:
@@ -112,6 +124,8 @@ def test_decode_value(verbose: bool = False) -> tuple[str, bool]:
                         pass
                     else:
                         message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  f"         indata: {indata}\n" \
+                                  f"          vtype: {vtype}\n" \
                                   f"          value: {value}\n" \
                                   f"      exception: {type(e)}\n" \
                                   f"       expected: {expected_exception}"
@@ -119,6 +133,8 @@ def test_decode_value(verbose: bool = False) -> tuple[str, bool]:
                         break
                 else:
                     message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"         indata: {indata}\n" \
+                              f"          vtype: {vtype}\n" \
                               f"          value: {value}\n" \
                               f"      exception: {type(e)}\n" \
                               f"       expected: {expected_result}"
@@ -1365,6 +1381,60 @@ def test_timestamp_to_datetime(verbose: bool = False) -> tuple[str, bool]:
     return message, result
 
 
+def test_make_label_selector_set_expression(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = cmtlib.make_label_selector_set_expression
+
+    if result:
+        # Indata format:
+        # (indata, expected_result, expected_exception)
+        testdata: tuple[Any, ...] = (
+            # Valid
+            ([{"operator": "Exists",
+               "key": "node-role.kubernetes.io/control-plane",
+               "values": [""]}],
+             "node-role.kubernetes.io/control-plane exists ()", None),
+            # Valid
+            ([{"operator": "In",
+               "key": "node-role.kubernetes.io/control-plane",
+               "values": ["foo", "bar", "baz"]}],
+             "node-role.kubernetes.io/control-plane in (foo,bar,baz)", None),
+        )
+        for indata, expected_result, expected_exception in testdata:
+            try:
+                if (tmp := fun(indata)) != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              "           input:\n" \
+                              f"{yaml_dump(indata, base_indent=17)}\n" \
+                              f"          output: {tmp}\n" \
+                              f"        expected: {expected_result}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  "           input:\n" \
+                                  f"{yaml_dump(indata, base_indent=17)}\n" \
+                                  f"       exception: {type(e)}\n" \
+                                  f"        expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              "           input:\n" \
+                              f"{yaml_dump(indata, base_indent=17)}\n" \
+                              f"       exception: {type(e)}\n" \
+                              f"        expected: {expected_result}"
+                    result = False
+                    break
+    return message, result
+
+
 def test_make_label_selector(verbose: bool = False) -> tuple[str, bool]:
     message = ""
     result = True
@@ -2218,6 +2288,10 @@ tests: dict[tuple[str, ...], dict[str, Any]] = {
     },
     ("timestamp_to_datetime()",): {
         "callable": test_timestamp_to_datetime,
+        "result": None,
+    },
+    ("make_label_selector_set_expression()",): {
+        "callable": test_make_label_selector_set_expression,
         "result": None,
     },
     ("make_label_selector()",): {

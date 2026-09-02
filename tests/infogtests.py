@@ -1477,6 +1477,267 @@ def test_format_controller(verbose: bool = False) -> tuple[str, bool]:
     return message, result
 
 
+def test_transform_list(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = infogetters.transform_list
+
+    if result:
+        # Indata format:
+        # (list, transform, expected_result, expected_exception)
+        testdata: tuple = (
+            (
+                [2, 1],
+                {
+                    "sorted": True,
+                    "output": ["key"],
+                },
+                ["1", "2"],
+                None,
+            ),
+            (
+                {2: "", 1: ""},
+                {
+                    "sorted": True,
+                    "output": ["key"],
+                },
+                ["1", "2"],
+                None,
+            ),
+            (
+                ["image1:v2.16", "image2:v2.17"],
+                {
+                    "key": {
+                        "regex": [r"^([^:]+):(.*)"],
+                        "groups": [0, 1],
+                    },
+                    "output": ["key"],
+                },
+                [("image1", "v2.16"), ("image2", "v2.17")],
+                None,
+            ),
+            (
+                ["image1:v2.16", "image2:v2.17"],
+                {
+                    "key": {
+                        "regex": r"^([^:]+):(.*)",
+                        "groups": [0, 1],
+                    },
+                    "output": ["key"],
+                },
+                [("image1", "v2.16"), ("image2", "v2.17")],
+                None,
+            ),
+            (
+                ["image1:v2.16", "image2:v2.17"],
+                {
+                    "key": {
+                        "regex": [r"^([^:]+):(.*)"],
+                        "groups": [0, 1],
+                        "join": "/",
+                    },
+                    "output": ["key"],
+                },
+                [("image1/v2.16"), ("image2/v2.17")],
+                None,
+            ),
+            (
+                {"image": "image1:v2.16"},
+                {
+                    "value": {
+                        "regex": [r"^([^:]+):(.*)"],
+                        "groups": [0, 1],
+                        "join": "/",
+                    },
+                    "output": ["value"],
+                },
+                [("image1/v2.16")],
+                None,
+            ),
+            (
+                {"image": "image1:v2.16"},
+                {
+                    "value": {
+                        "regex": [r"^([^:]+):(.*)"],
+                        "groups": [0],
+                    },
+                    "output": ["value"],
+                },
+                [("image1")],
+                None,
+            ),
+            (
+                {"image": "image1:v2.16"},
+                {
+                    "value": {
+                        "regex": [r"^([^:]+):(.*)"],
+                        "groups": [0, 1],
+                        "join": "/",
+                    },
+                    "output": ["key", "value"],
+                },
+                [("image", "image1/v2.16")],
+                None,
+            ),
+        )
+
+        for vlist, transform, expected_result, expected_exception in testdata:
+            try:
+                tmp = fun(vlist, transform)
+                if tmp != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"            vlist: {vlist}\n" \
+                              f"        transform: {transform}\n" \
+                              f"           result: {tmp}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+            except Exception as e:
+                raise
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  f"        exception: {type(e)}\n" \
+                                  f"          message: {str(e)}\n" \
+                                  f"         expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"        exception: {type(e)}\n" \
+                              f"          message: {str(e)}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+    return message, result
+
+
+def test_format_controller(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = infogetters.format_controller
+
+    if result:
+        # Indata format:
+        # (field, formatting, default, expected_result, expected_exception)
+        testdata: tuple = (
+            (
+                (("DaemonSet", "apps"), "coredns-76f75df574-fbjjx"),
+                "full",
+                ('DaemonSet.apps', 'coredns-76f75df574-fbjjx'),
+                None,
+            ),
+            (
+                (("Node", ""), "coredns-76f75df574-fbjjx"),
+                "full",
+                ("Node", "coredns-76f75df574-fbjjx"),
+                None,
+            ),
+            (
+                (("TFJob", "kubeflow.org"), "coredns-76f75df574-fbjjx"),
+                "full",
+                ("TFJob.kubeflow.org", "coredns-76f75df574-fbjjx"),
+                None,
+            ),
+            (
+                (("DaemonSet", "apps"), "coredns-76f75df574-fbjjx"),
+                "mixed",
+                ("DaemonSet", "coredns-76f75df574-fbjjx"),
+                None,
+            ),
+            (
+                (("Node", ""), "coredns-76f75df574-fbjjx"),
+                "mixed",
+                ("Node", "coredns-76f75df574-fbjjx"),
+                None,
+            ),
+            (
+                (("TFJob", "kubeflow.org"), "coredns-76f75df574-fbjjx"),
+                "mixed",
+                ("TFJob.kubeflow.org", "coredns-76f75df574-fbjjx"),
+                None,
+            ),
+            (
+                (("DaemonSet", "apps"), "coredns-76f75df574-fbjjx"),
+                "short",
+                ("DaemonSet", "coredns-76f75df574-fbjjx"),
+                None,
+            ),
+            (
+                (("Node", ""), "coredns-76f75df574-fbjjx"),
+                "short",
+                ("Node", "coredns-76f75df574-fbjjx"),
+                None,
+            ),
+            (
+                (("TFJob", "kubeflow.org"), "coredns-76f75df574-fbjjx"),
+                "short",
+                ("TFJob", "coredns-76f75df574-fbjjx"),
+                None,
+            ),
+            (
+                (("DaemonSet", "apps"), "coredns-76f75df574-fbjjx"),
+                "",
+                ("", "coredns-76f75df574-fbjjx"),
+                None,
+            ),
+            (
+                (("Node", ""), "coredns-76f75df574-fbjjx"),
+                "",
+                ("", "coredns-76f75df574-fbjjx"),
+                None,
+            ),
+            (
+                (("TFJob", "kubeflow.org"), "coredns-76f75df574-fbjjx"),
+                "",
+                ("", "coredns-76f75df574-fbjjx"),
+                None,
+            ),
+            (
+                (("Node", ""), "coredns-76f75df574-fbjjx"),
+                "notavalidoption",
+                None,
+                ValueError,
+            ),
+        )
+
+        for controller, show_kind, expected_result, expected_exception in testdata:
+            try:
+                tmp = fun(controller, show_kind)
+                if tmp != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"        show_kind: {show_kind}\n" \
+                              f"           result: {tmp}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  f"        show_kind: {show_kind}\n" \
+                                  f"        exception: {type(e)}\n" \
+                                  f"          message: {str(e)}\n" \
+                                  f"         expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"        show_kind: {show_kind}\n" \
+                              f"        exception: {type(e)}\n" \
+                              f"          message: {str(e)}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+    return message, result
+
+
 def test_get_key_value_info(verbose: bool = False) -> tuple[str, bool]:
     message = ""
     result = True
@@ -2489,6 +2750,10 @@ tests: dict[tuple[str, ...], dict[str, Any]] = {
     },
     ("when_filter()",): {
         "callable": test_when_filter,
+        "result": None,
+    },
+    ("transform_list()",): {
+        "callable": test_transform_list,
         "result": None,
     },
     ("format_controller()",): {

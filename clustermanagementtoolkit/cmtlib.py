@@ -107,16 +107,16 @@ def decode_value(value: str | bytes) -> tuple[str, str | bytes]:
             vtype = "base64-binary"
 
             try:
-                if len(decoded) >= 2 and decoded[0:2] == [0x1f, 0x8b]:
+                if len(decoded) >= 2 and bytes(decoded[0:2]) == bytes([0x1f, 0x8b]):
                     vtype = "gzip"
                     value = decoded
-                elif len(decoded) >= 6 and decoded[0:6] == [0xfd, 0x37, 0x7a, 0x58, 0x5a, 0x0]:
+                elif len(decoded) >= 6 and bytes(decoded[0:6]) == bytes([0xfd, 0x37, 0x7a, 0x58, 0x5a, 0x0]):
                     vtype = "xz"
                     value = decoded
-                elif len(decoded) >= 3 and decoded[0:3] == [0x42, 0x5a, 0x68]:
+                elif len(decoded) >= 3 and bytes(decoded[0:3]) == bytes([0x42, 0x5a, 0x68]):
                     vtype = "bz2"
                     value = decoded
-                elif len(decoded) >= 3 and decoded[0:3] == [0x51, 0x46, 0x49]:
+                elif len(decoded) >= 3 and bytes(decoded[0:3]) == bytes([0x51, 0x46, 0x49]):
                     vtype = "qcow"
                     value = decoded
             except binascii.Error:

@@ -484,6 +484,8 @@ def transform_list(vlist: list | dict, transform: dict) -> list[Any]:
 
         key = str(key)
 
+        if isinstance(key_regexes, str):
+            key_regexes = [key_regexes]
         if not key_regexes:
             key_data.append(key)
         else:

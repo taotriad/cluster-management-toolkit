@@ -68,6 +68,157 @@ def test_uninitialized_ansithemeprint_functions(verbose: bool = False) -> tuple[
 
 
 # pylint: disable-next=unused-argument
+def test_ansithemeprint_formatted(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = ansithemeprint.ansithemeprint_formatted
+
+    if result:
+        testdata: tuple[Any, ...] = (
+            # Indata format:
+            # (indata, expected_result, expected_exception)
+            # Valid indata
+            (
+                "apiVersion: ceph.rook.io/v1\n"
+                "kind: CephFilesystem\n"
+                "metadata:\n"
+                "  name: myfs\n"
+                "  namespace: rook-ceph\n"
+                "spec:\n"
+                "  metadataPool:\n"
+                "  replicated:\n"
+                "    size: 1",
+                {
+                    "input_format": "yaml",
+                },
+                None,
+            ),
+            (
+                "apiVersion: ceph.rook.io/v1\n"
+                "kind: CephFilesystem\n"
+                "metadata:\n"
+                "  name: myfs\n"
+                "  namespace: rook-ceph\n"
+                "spec:\n"
+                "  metadataPool:\n"
+                "  replicated:\n"
+                "    size: 1",
+                {
+                    "input_format": "text",
+                },
+                None,
+            ),
+            (
+                ["apiVersion: ceph.rook.io/v1",
+                 "kind: CephFilesystem",
+                 "metadata:",
+                 "  name: myfs",
+                 "  namespace: rook-ceph",
+                 "spec:",
+                 "  metadataPool:",
+                 "  replicated:",
+                 "    size: 1"],
+                {
+                    "input_format": "yaml",
+                },
+                None,
+            ),
+            (
+                ["apiVersion: ceph.rook.io/v1",
+                 "kind: CephFilesystem",
+                 "metadata:",
+                 "  name: myfs",
+                 "  namespace: rook-ceph",
+                 "spec:",
+                 "  metadataPool:",
+                 "  replicated:",
+                 "    size: 1"],
+                {
+                    "input_format": "yaml",
+                    "color": "never",
+                },
+                None,
+            ),
+            (
+                "apiVersion: ceph.rook.io/v1\n"
+                "kind: CephFilesystem\n"
+                "metadata:\n"
+                "  name: myfs\n"
+                "  namespace: rook-ceph\n"
+                "spec:\n"
+                "  metadataPool:\n"
+                "  replicated:\n"
+                "    size: 1",
+                {
+                    "input_format": "yaml",
+                    "color": "foobar",
+                },
+                ValueError,
+            ),
+            (
+                '{\n'
+                '  "apiVersion": "ceph.rook.io/v1",\n'
+                '  "kind": "CephFilesystem",\n'
+                '  "metadata": {\n'
+                '    "name": "myfs",\n'
+                '    "namespace": "rook-ceph",\n'
+                '  },\n'
+                '  "spec": {\n'
+                '    "metadataPool": {\n'
+                '      "replicated": {\n'
+                '        "size": 1\n'
+                '      }\n'
+                '    }\n'
+                '  }\n'
+                '}',
+                {
+                    "input_format": "json",
+                },
+                ValueError,
+            ),
+            (
+                "apiVersion: ceph.rook.io/v1\n"
+                "kind: CephFilesystem\n"
+                "metadata:\n"
+                "  name: myfs\n"
+                "  namespace: rook-ceph\n"
+                "spec:\n"
+                "  metadataPool:\n"
+                "  replicated:\n"
+                "    size: 1",
+                {
+                    "stderr": True,
+                },
+                None,
+            ),
+        )
+
+        for indata, options, expected_exception in testdata:
+            try:
+                # For now the only expected result is that we raise Exceptions only when we should.
+                fun(indata, **options)
+            except Exception as e:  # pylint: disable=broad-except
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  f"          input: {indata}\n" \
+                                  f"      exception: {type(e)}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"          input: {indata}\n" \
+                              f"      exception: {type(e)}"
+                    result = False
+                    break
+
+    return message, result
+
+
+# pylint: disable-next=unused-argument
 def test_init_ansithemeprint(verbose: bool = False) -> tuple[str, bool]:
     message = ""
     result = True
@@ -760,6 +911,10 @@ tests: dict[tuple[str, ...], dict[str, Any]] = {
     },
     ("ansithemeprint",): {
         "callable": test_ansithemeprint,
+        "result": None,
+    },
+    ("ansithemeprint_formatted",): {
+        "callable": test_ansithemeprint_formatted,
         "result": None,
     },
     ("ansithemestr_join_list",): {
