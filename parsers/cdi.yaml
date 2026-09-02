@@ -1,13 +1,13 @@
 ---
-- name: "kubevirt-cdi"
+- name: "cdi"
   show_in_selector: false
   matchkeys:
-    - pod_name: "cdi-apiserver"
-    - pod_name: "cdi-deployment"
-    - pod_name: "cdi-operator"
-    # This quite clearly indicates that we have need for regex-patching.
-    - image_name: "/suse/sles/15.7/cdi-importer"
-    - image_name: "/suse/sles/16.0/cdi-importer"
+    - image_regex: "/cdi-apiserver"
+    - image_regex: "/cdi-controller"
+    - image_regex: "/cdi-deployment"
+    - image_regex: "/cdi-operator"
+    - image_regex: "/cdi-importer"
+    - image_regex: "/cdi-uploadproxy"
   parser_rules:
     - name: "ts_8601"
     - name: "glog"
@@ -26,10 +26,3 @@
             - matchtype: "startswith"
               matchkey: "Trace["
               loglevel: "debug"
-- name: "kubevirt-cdi"
-  show_in_selector: false
-  matchkeys:
-    - pod_name: "cdi-uploadproxy"
-  parser_rules:
-    - name: "glog"
-    - name: "key_value_with_leading_message"

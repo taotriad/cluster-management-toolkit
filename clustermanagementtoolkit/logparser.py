@@ -3567,7 +3567,7 @@ def init_parser_list(force_reinit: bool = False) -> None:
                         image_regex = None
                     container_type = deep_get(matchkey, DictPath("container_type"), "Container")
                     # We need at least one way of matching
-                    if not pod_name and not container_name and not image_name:
+                    if not any((pod_name, container_name, image_name, image_regex)):
                         continue
                     matchrule = (pod_name, container_name, image_name, container_type, image_regex)
                     matchrules.append(matchrule)
@@ -3838,21 +3838,26 @@ def initialise_logparser(**kwargs: Any) -> tuple[tuple[str | None, str | None], 
         for matchrule_pod_name, matchrule_container_name, matchrule_image_prefix, \
                 matchrule_container_type, matchrule_image_regex in parser.match:
             _image_name = image_name
+
             if matchrule_image_prefix.startswith("/"):
                 tmp = image_name.split("/", 1)
                 if len(tmp) == 2:
                     _image_name = f"/{tmp[1]}"
 
+            # Will always match
+            if not matchrule_image_prefix:
+                matchrule_image_prefix = _image_name
+
             if matchrule_image_regex is None:
                 regex_match = True
             else:
-                tmp = matchrule_image_regex.match(_image_name)
+                tmp = matchrule_image_regex.search(_image_name)
                 regex_match = tmp is not None
 
-            if match_name(matchrule_pod_name, pod_name) \
-                    and match_name(matchrule_container_name, container_name) \
-                    and _image_name.startswith(matchrule_image_prefix) \
-                    and container_type == matchrule_container_type and regex_match:
+            if all((match_name(matchrule_pod_name, pod_name),
+                    match_name(matchrule_container_name, container_name),
+                    _image_name.startswith(matchrule_image_prefix),
+                    container_type == matchrule_container_type, regex_match)):
                 uparser = parser.name
                 _lparser = []
                 if matchrule_pod_name:

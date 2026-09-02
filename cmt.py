@@ -41,7 +41,7 @@ except ModuleNotFoundError:  # pragma: no cover
              "you may need to (re-)run `cmt-install.py` or `pip3 install natsort`; aborting.")
 
 try:
-    import ruyaml  # type: ignore[import-not-found]
+    import ruyaml  # type: ignore[import-not-found,unused-ignore]
     ryaml = ruyaml.YAML()
     sryaml = ruyaml.YAML(typ="safe")
 except ModuleNotFoundError:  # pragma: no cover
