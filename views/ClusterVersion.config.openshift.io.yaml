@@ -13,7 +13,7 @@ listview:
   group: "OpenShift"
   field_indexes:
     Normal:
-      fields: ["name", "versions", "available", "progressing", "age", "status"]
+      fields: ["name", "versions", "available", "updates", "progressing", "age", "status"]
   fields:
     available:
       header: "Available:"
@@ -58,11 +58,11 @@ listview:
             "True":
               field_colors:
                 - context: "main"
-                  type: "status_ok"
+                  type: "status_pending"
             "False":
               field_colors:
                 - context: "main"
-                  type: "status_not_ok"
+                  type: "status_done"
             "<unknown>":
               field_colors:
                 - context: "main"
@@ -77,6 +77,16 @@ listview:
           when:
             - key: "type"
               eq: "Progressing"
+    updates:
+      header: "Updates:"
+      paths:
+        - path: "status#availableUpdates"
+          pathtype: "items"
+          subpaths:
+            - "version"
+          default: ["<none>"]
+      type: "raw"
+      formatter: "version"
     versions:
       header: "Versions:"
       paths:
@@ -98,8 +108,19 @@ infoview:
                  "desired_header",
                  "desired_channels", "desired_image",
                  "desired_url", "desired_version",
+                 "available_updates",
                  "version"]
     rows:
+      available_updates:
+        header: [["Available Updates:", ["main", "infoheader"]]]
+        paths:
+          - path: "status#availableUpdates"
+            pathtype: "items"
+            subpaths:
+              - "version"
+            default: ["<none>"]
+        type: "raw"
+        formatter: "version"
       channel:
         header: [["Channel:", ["main", "infoheader"]]]
         path: "spec#channel"
