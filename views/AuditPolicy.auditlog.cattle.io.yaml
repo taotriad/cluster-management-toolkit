@@ -1,0 +1,255 @@
+---
+kind: "AuditPolicy"
+api_family: "auditlog.cattle.io"
+default_command: "auditpolicies"
+command:
+  - "auditpols"
+  - "auditpol"
+listview:
+  name: "Audit Policies"
+  group: "Rancher"
+  field_indexes:
+    Normal:
+      fields: ["name", "enabled", "active", "valid", "age"]
+  fields:
+    active:
+      header: "Active:"
+      paths:
+        - path: "status#conditions"
+          pathtype: "items"
+          subpath: "status"
+          when:
+            - key: "type"
+              eq: "Ready"
+      default: "<unset>"
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          mappings:
+            "False":
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+            "True":
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+            "<unset>":
+              field_colors:
+                - context: "main"
+                  type: "status_ignored"
+    enabled:
+      header: "Enabled:"
+      path: "spec#enabled"
+      default: "<unset>"
+      type: "bool"
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          mappings:
+            "False":
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+            "True":
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+            "<unset>":
+              field_colors:
+                - context: "main"
+                  type: "status_ignored"
+    valid:
+      header: "Valid:"
+      paths:
+        - path: "status#conditions"
+          pathtype: "items"
+          subpath: "status"
+          when:
+            - key: "type"
+              eq: "Valid"
+      default: "<unset>"
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          mappings:
+            "False":
+              field_colors:
+                - context: "main"
+                  type: "status_warning"
+            "True":
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+            "<unset>":
+              field_colors:
+                - context: "main"
+                  type: "status_ignored"
+infoview:
+  name: "Audit Policy Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["verbosity_header",
+                 "verbosity_level",
+                 "verbosity_request_header",
+                 "verbosity_request_headers",
+                 "verbosity_request_body",
+                 "verbosity_response_header",
+                 "verbosity_response_headers",
+                 "verbosity_response_body",
+                 "enabled", "active", "valid"]
+    rows:
+      verbosity_header:
+        header: [["Verbosity:", ["main", "infoheader"]]]
+      verbosity_level:
+        header: [["  Level:", ["main", "infoheader"]]]
+        path: "spec#verbosity#level"
+        default: "<unset>"
+        type: "int"
+        formatter: "numerical"
+      verbosity_request_header:
+        header: [["  Request:", ["main", "infoheader"]]]
+      verbosity_request_body:
+        header: [["    Body:", ["main", "infoheader"]]]
+        path: "spec#verbosity#request#body"
+        default: "<unset>"
+        type: "bool"
+      verbosity_request_headers:
+        header: [["    Headers:", ["main", "infoheader"]]]
+        path: "spec#verbosity#request#headers"
+        default: "<unset>"
+        type: "bool"
+      verbosity_response_header:
+        header: [["  Response:", ["main", "infoheader"]]]
+      verbosity_response_body:
+        header: [["    Body:", ["main", "infoheader"]]]
+        path: "spec#verbosity#response#body"
+        default: "<unset>"
+        type: "bool"
+      verbosity_response_headers:
+        header: [["    Headers:", ["main", "infoheader"]]]
+        path: "spec#verbosity#response#headers"
+        default: "<unset>"
+        type: "bool"
+      active:
+        header: [["Active:", ["main", "infoheader"]]]
+        paths:
+          - path: "status#conditions"
+            pathtype: "items"
+            subpath: "status"
+            when:
+              - key: "type"
+                eq: "Active"
+        default: "<unset>"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              "False":
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+              "True":
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+              "<unset>":
+                field_colors:
+                  - context: "main"
+                    type: "status_ignored"
+      enabled:
+        header: [["Enabled:", ["main", "infoheader"]]]
+        path: "spec#enabled"
+        default: "<unset>"
+        type: "bool"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              "False":
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+              "True":
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+              "<unset>":
+                field_colors:
+                  - context: "main"
+                    type: "status_ignored"
+      valid:
+        header: [["Valid:", ["main", "infoheader"]]]
+        paths:
+          - path: "status#conditions"
+            pathtype: "items"
+            subpath: "status"
+            when:
+              - key: "type"
+                eq: "Valid"
+        default: "<unset>"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              "False":
+                field_colors:
+                  - context: "main"
+                    type: "status_warning"
+              "True":
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+              "<unset>":
+                field_colors:
+                  - context: "main"
+                    type: "status_ignored"
+  listpad:
+    listgetter: "listgetter_path"
+    listgetter_args:
+      paths:
+        - path: "spec#filters"
+          key_name: "type"
+          key_value: "Filter"
+          type: "list"
+        - path: "spec#additionalRedactions"
+          key_name: "type"
+          key_value: "Additional Redaction"
+          type: "list"
+    infogetter: "generic_infogetter"
+    field_indexes:
+      Normal:
+        fields: ["type", "action", "request_uri", "headers", "paths"]
+        sortcolumn: "type"
+    fields:
+      action:
+        header: "Action:"
+        path: "action"
+        default: "<unset>"
+        type: "str"
+      headers:
+        header: "Headers:"
+        path: "headers"
+        default: ["<none>"]
+        type: "raw"
+        formatter: "list"
+      paths:
+        header: "Paths:"
+        path: "paths"
+        default: ["<none>"]
+        type: "raw"
+        formatter: "list"
+      request_uri:
+        header: "Request URI:"
+        path: "requestURI"
+        default: "<unset>"
+        type: "str"
+        formatting:
+          field_colors:
+            - type: "address"
+      type:
+        header: "Type:"
+        path: "type"
+        default: "<unset>"
+        type: "str"
