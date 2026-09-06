@@ -1,0 +1,112 @@
+---
+kind: "KedaController"
+api_family: "keda.sh"
+default_command: "kedacontrollers"
+command:
+  - "kedactrls"
+  - "kedactrl"
+listview:
+  name: "Keda Controllers"
+  group: "Scheduling & Scaling"
+  field_indexes:
+    Wide:
+      fields: ["namespace", "name", "version", "phase", "age", "reason"]
+      sortcolumn: "namespace"
+    Normal:
+      fields: ["namespace", "name", "version", "phase", "age"]
+      sortcolumn: "namespace"
+  fields:
+    phase:
+      header: "Phase:"
+      path: "status#phase"
+      default: "<unset>"
+      type: "str"
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          mappings:
+            "Installation Succeeded":
+              field_colors:
+                - context: "main"
+                  type: "status_done"
+    reason:
+      header: "Reason:"
+      path: "status#reason"
+      default: "<unset>"
+      type: "str"
+    version:
+      header: "Version:"
+      path: "status#version"
+      default: "<unset>"
+      type: "str"
+      formatter: "version"
+infoview:
+  name: "Keda Controller Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["admission_webhooks_header",
+                 "admission_webhooks_log_encoder",
+                 "admission_webhooks_log_level",
+                 "metrics_server_header",
+                 "metrics_server_log_level",
+                 "operator_header",
+                 "operator_log_encoder",
+                 "operator_log_level",
+                 "version", "reason", "phase"]
+    rows:
+      admission_webhooks_header:
+        header: [["Admission Webhooks:", ["main", "infoheader"]]]
+      admission_webhooks_log_encoder:
+        header: [["  Log Encoder:", ["main", "infoheader"]]]
+        path: "spec#admissionWebhooks#logEncoder"
+        default: "<unset>"
+        type: "str"
+      admission_webhooks_log_level:
+        header: [["  Loglevel:", ["main", "infoheader"]]]
+        path: "spec#admissionWebhooks#logLevel"
+        default: "<unset>"
+        type: "str"
+      metrics_server_header:
+        header: [["Metrics Server:", ["main", "infoheader"]]]
+      metrics_server_log_level:
+        header: [["  Loglevel:", ["main", "infoheader"]]]
+        path: "spec#metricsServer#logLevel"
+        default: "<unset>"
+        type: "str"
+      operator_header:
+        header: [["Operator:", ["main", "infoheader"]]]
+      operator_log_encoder:
+        header: [["  Log Encoder:", ["main", "infoheader"]]]
+        path: "spec#operator#logEncoder"
+        default: "<unset>"
+        type: "str"
+      operator_log_level:
+        header: [["  Loglevel:", ["main", "infoheader"]]]
+        path: "spec#operator#logLevel"
+        default: "<unset>"
+        type: "str"
+      phase:
+        header: [["Phase:", ["main", "infoheader"]]]
+        path: "status#phase"
+        default: "<unset>"
+        type: "str"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              "Installation Succeeded":
+                field_colors:
+                  - context: "main"
+                    type: "status_done"
+      reason:
+        header: [["Reason:", ["main", "infoheader"]]]
+        path: "status#reason"
+        default: "<unset>"
+        type: "str"
+      version:
+        header: [["Version:", ["main", "infoheader"]]]
+        path: "status#version"
+        default: "<unset>"
+        type: "str"
+        formatter: "version"
