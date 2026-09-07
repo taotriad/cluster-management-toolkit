@@ -31,9 +31,9 @@ restructed, and highlighted based on the severity of the messages.
 Structures can be unfolded, repeating lines can be deduplicated,
 debug messages and traces are hidden by default, etc.
 
-Currently a bit over 800 object types are supporting to varying levels,
-250 different pod log files are defined (most of them matching multiple signatures),
-and 40+ ConfigMap data types.
+Currently a bit over 900 object types are supported to varying levels,
+over 270 different pod log files are defined (most of them matching multiple signatures),
+and close to 50 ConfigMap data types, many of them with syntax highlighting.
 
 The inventory tool, _cmtinv_, allows for managing the Ansible inventory,
 but also running of playbooks.
