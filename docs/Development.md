@@ -35,8 +35,8 @@ components are accepted.
 > changes have been made. This covers only the final steps.
 
 > [!TIP]
-> To verify that the changelog looks good it can be helpful to copy it to
-> `.cmt/version-cache/cmt_changelog.md`, and check it using `cmu cv`.
+> To verify that the changelog looks good it can be helpful to view it using:
+> `cmu view CHANGELOG/CHANGELOG-<version>.md`.
 
 * [ ] Double-check that all dependencies in the *Dependencies* chapter
       matches the dependencies in `requirements.txt`.
@@ -44,19 +44,12 @@ components are accepted.
       *Note:* Despite the name this target does not generate everything
       needed for the changelog; at least not yet...
 * [ ] Insert the output from `make bandit`.
-* [ ] `make coverage-clean`.
-* [ ] Insert the output from `make coverage-all`.
-      *(this requires a working cluster and Ansible installation)*.
 * [ ] Insert the output from `make flake8`.
-* [ ] `make mypy-markdown` *(Note: mypy is likely to account the issues in __logparser.py__
-      to several files; if any file ends up with the exact same number of errors
-      as logparser.py has it's likely that this is the case; if so you need to manually
-      adjust the numbers. Likewise, if cmu says that it found errors in two files
-      that's also `logparser.py` being accounted for twice)*.
-* [ ] Insert the output from `make mypy-markdown` in the changelog,
-      and if necessary, adjust it.
+* [ ] Insert the output from `make mypy-markdown`.
 * [ ] Insert the output from `make pylint-markdown`.
+* [ ] Run `make coverage-clean`.
 * [ ] Insert the output from `make coverage-markdown`.
+      *(this requires a working cluster and Ansible installation)*.
 * [ ] Insert the output from `make regexploit`.
 * [ ] Insert the output from `make ruff`.
 * [ ] Insert the output from `make semgrep`.
