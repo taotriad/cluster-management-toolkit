@@ -25,7 +25,7 @@ from clustermanagementtoolkit.ansithemeprint import ANSIThemeStr, ansithemeprint
 
 from clustermanagementtoolkit import cmtlog
 
-from clustermanagementtoolkit.cmttypes import deep_get, deep_get_with_fallback, DictPath
+from clustermanagementtoolkit.cmttypes import deep_get, deep_get_with_fallback, deep_set, DictPath
 from clustermanagementtoolkit.cmttypes import SecurityChecks, SecurityPolicy, SecurityStatus
 from clustermanagementtoolkit.cmttypes import FilePath, ProgrammingError, LogLevel
 
@@ -123,6 +123,36 @@ def decode_value(value: str | bytes) -> tuple[str, str | bytes]:
             except binascii.Error:
                 pass
     return vtype, value
+
+
+def populate_template(template: dict[str, Any], injections: dict[str, Any],
+                      **kwargs: Any) -> dict[str, Any]:
+    """
+    Given a template, a list of injections to make into that template,
+    and a set of data sources, inject data from those sources into the template,
+    and return the populated template.
+
+        Parameters:
+            template (dict[str, Any]): A template to populate
+            injections (dict[str, Any]): A dict that describes what injections to make:
+                                         source_path:
+                                           source: "source to get data from"
+                                           paths: [
+                                             "paths in template to populate with data",
+                                           ],
+        Returns:
+            (dict[str, Any]): The populated template.
+    """
+    for src_path, data in injections.items():
+        # source specifies where to get data from;
+        # by default we get it from the object named obj.
+        # query is reserved for variables obtained through user queries.
+        source = deep_get(data, DictPath("source"), "obj")
+        dst_paths = deep_get(data, DictPath("paths"), [])
+        value = deep_get(kwargs, DictPath(f"{source}#{src_path}"), None)
+        for dst_path in dst_paths:
+            deep_set(template, DictPath(dst_path), value, create_path=True)
+    return template
 
 
 def substitute_string(string: str, substitutions: dict) -> str:

@@ -2833,9 +2833,9 @@ class KubernetesHelper:
 
         return server_major_version, server_minor_version, server_git_version
 
-    def create_resource(self, obj: dict[str, Any]) -> tuple[str, int]:
+    def create_object(self, obj: dict[str, Any]) -> tuple[str, int]:
         """
-        Create a new resource.
+        Create a new Kubernetes object.
 
             Parameters:
                 obj (str): An object to create.
@@ -2862,36 +2862,6 @@ class KubernetesHelper:
         namespace = deep_get(obj, DictPath("metadata#namespace"), "")
         body = json_dumps(obj).encode("utf-8")
         return self.__rest_helper_post(kind=unversioned_tuple, body=body, namespace=namespace)
-
-    def create_namespace(self, name: str) -> tuple[str, int]:
-        """
-        Create a new namespace.
-
-            Parameters:
-                name (str): The name of the new namespace
-            Returns:
-                (message, status):
-                    message (str): The status message, if any
-                    status (int): The HTTP response
-        """
-        kind = ("Namespace", "")
-
-        if name is None or not name:
-            return "", 200
-
-        data = {
-            "kind": "Namespace",
-            "apiVersion": "v1",
-            "metadata": {
-                "creationTimestamp": None,
-                "name": name,
-            },
-            "spec": {},
-            "status": {},
-        }
-
-        body = json_dumps(data).encode("utf-8")
-        return self.__rest_helper_post(kind=kind, body=body)
 
     # pylint: disable-next=too-many-locals
     def taint_node(self, node: str, taints: list[dict],

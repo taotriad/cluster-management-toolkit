@@ -89,11 +89,12 @@ from clustermanagementtoolkit.cmtio_yaml import json_loads
 from clustermanagementtoolkit.cmtio_yaml import secure_read_yaml
 
 from clustermanagementtoolkit import cmtlib
-from clustermanagementtoolkit.cmtlib import check_allowlist
-from clustermanagementtoolkit.cmtlib import decode_value, clamp, get_package_versions, next_option
+from clustermanagementtoolkit.cmtlib import check_allowlist, clamp, decode_value
+from clustermanagementtoolkit.cmtlib import get_package_versions
 from clustermanagementtoolkit.cmtlib import make_label_selector, make_label_selector_set_expression
-from clustermanagementtoolkit.cmtlib import none_timestamp, timestamp_to_datetime
-from clustermanagementtoolkit.cmtlib import split_msg, read_cmtconfig, substitute_list
+from clustermanagementtoolkit.cmtlib import next_option, none_timestamp, populate_template
+from clustermanagementtoolkit.cmtlib import read_cmtconfig, split_msg, substitute_list
+from clustermanagementtoolkit.cmtlib import timestamp_to_datetime
 
 from clustermanagementtoolkit import cmtlog
 
@@ -7585,9 +7586,9 @@ def view_last_applied_configuration(stdscr: curses.window, **kwargs: Any) -> Ret
                                 title=title, formatter=formatter)
 
 
-def create_resource(**kwargs: Any) -> Retval:
+def create_objects(**kwargs: Any) -> Retval:
     """
-    Create a resource.
+    Create Kubernetes objects.
 
         Parameters:
             **kwargs (dict[str, Any]): Keyword arguments
@@ -7595,28 +7596,23 @@ def create_resource(**kwargs: Any) -> Retval:
             (Retval): The return value
     """
     actionfunc_args: dict[str, Any] = deep_get(kwargs, DictPath("action#actionfunc_args"), {})
-    injections: dict[str, dict[str, str | list[str]]] = \
-        deep_get(actionfunc_args, DictPath("injections"), {})
-    items = deep_get(kwargs, DictPath("values#_tagged_items"), [])
-    extravars = deep_get(kwargs, DictPath("action#extravars"), {})
+    resources = deep_get(actionfunc_args, DictPath("resources"), [])
+    # If we're not using the object as a source we still need to pass something to the loop
+    # to ensure that it doesn't terminate without doing anything.
+    items = deep_get(kwargs, DictPath("values#_tagged_items"), [None])
+    query = deep_get(kwargs, DictPath("action#extravars"), {})
 
+    # We might want to perform this on multiple objects
     for item in items:
-        # We want a pristine copy for every new item.
-        template: dict[str, Any] = \
-            copy.deepcopy(deep_get(actionfunc_args, DictPath("template"), {}))
-        for src_path, data in injections.items():
-            # source_path is where we'll get data from.
-            source = deep_get(data, DictPath("source"), "obj")
-            dst_paths = deep_get(data, DictPath("paths"), [])
-            value = None
-            if source == "obj":
-                value = deep_get(item, DictPath(f"ref#{src_path}"))
-            elif source == "query":
-                value = deep_get(extravars, DictPath(f"{src_path}"))
-            # Now let's populate the template.
-            for dst_path in dst_paths:
-                deep_set(template, DictPath(dst_path), value, create_path=True)
-        _msg, _status = kh.create_resource(template)
+        for resource in resources:
+            obj = deep_get(item, DictPath("ref"), {})
+            injections: dict[str, dict[str, str | list[str]]] = \
+                deep_get(resource, DictPath("injections"), {})
+            # We want a pristine copy for every new item.
+            template: dict[str, Any] = \
+                copy.deepcopy(deep_get(resource, DictPath("template"), {}))
+            template = populate_template(template, injections, obj=obj, query=query)
+            _msg, _status = kh.create_object(template)
     return Retval.RETURNDONE
 
 
@@ -7733,7 +7729,14 @@ def create_namespace(stdscr: curses.window, **kwargs: Any) -> Retval:
                ANSIThemeStr(name, "argument"),
                ANSIThemeStr("“", "default")]
         ansithemeprint(msg)
-        _msg, _status = kh.create_namespace(name)
+        obj = {
+            "kind": "Namespace",
+            "metadata": {
+                "name": name,
+            },
+        }
+
+        _msg, _status = kh.create_object(obj)
 
     print("\n")
 
@@ -9564,7 +9567,7 @@ actionfunc_allowlist: dict[str, Callable] = {
     "action_view_pod_logs": action_view_pod_logs,
     "action_view_file": action_view_file,
     "cordon_node": cordon_node,
-    "create_resource": create_resource,
+    "create_objects": create_objects,
     "delete_logs": delete_logs,
     "delete_resource": delete_resource,
     "drain_node": drain_node,
