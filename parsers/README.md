@@ -30,28 +30,28 @@ in the selector.
 
 ## Supported parser-rules
 
-| Rule name                      | Summary                                                            | Options                                                                                     |
-| :----------------------------- | :----------------------------------------------------------------- | :------------------------------------------------------------------------------------------ |
-| bracketed_severity             | Extract severity formatted as `[severity]`                         | severity(default)                                                                           |
-| custom_line                    | Custom block scanner                                               | *block_start*, *block_end*, eof, formatter, regex, severity(default,overrides)              |
-| custom_splitter                | Custom line splitter                                               | *regex*, severity(field,overrides,transform), facility(fields,separators), *message(field)* |
-| directory                      | Formatter for output from `ls`                                     | **N/A**                                                                                     |
-| expand_event                   | Expand event message                                               | **N/A**                                                                                     |
-| glog                           | Extract severity and facility from output from `glog`              | **N/A**                                                                                     |
-| http                           | Format log messages from various HTTP servers                      | **N/A**                                                                                     |
-| iptables                       | Format output from `iptables`                                      | **N/A**                                                                                     |
-| json                           | Format single-line *JSON*                                          | error, facility, message, severity, timestamp, version                                      |
-| json_event                     | Format events logged as single-line *JSON*                         | error, facility, message, severity, timestamp, version                                      |
-| json_with_leading_message      | Format *JSON* preceded by a plain-text message                     | error, facility, message, severity, timestamp, version                                      |
-| key_value                      | Format data in *key=value* format                                  | allow_bare_keys, newlines, error, facility, message, severity, timestamp, version           |
-| key_value_with_leading_message | Format data in *key=value* format preceded by a plain-text message | allow_bare_keys, newlines, error, facility, message, severity, timestamp, version           |
-| modinfo                        | Format output from `modinfo`                                       | **N/A**                                                                                     |
-| override_severity              | Based on match-rules, override the severity of a line              | *severity(overrides)*                                                                       |
-| seconds_severity_facility      | Formatter for data in `[  0.0123s] INFO ThreadID(01) ...` format   | **N/A**                                                                                     |
-| strip_ansicodes                | Strip *ANSI-codes* from log message                                | **N/A**                                                                                     |
-| sysctl                         | Format output from `sysctl`                                        | **N/A**                                                                                     |
-| tab_separated                  | Format tab-separated data; will format trailing `JSON`-format      | error, message, version                                                                     |
-| ts_8601                        | Strip timestamps resembling *ISO-8601* format                      | **N/A**                                                                                     |
+| Rule name                      | Summary                                                            | Options                                                                                         |
+| :----------------------------- | :----------------------------------------------------------------- | :---------------------------------------------------------------------------------------------- |
+| bracketed_severity             | Extract severity formatted as `[severity]`                         | severity(default)                                                                               |
+| custom_line                    | Custom block scanner                                               | *block_start*, *block_end*, eof, formatter, regex, severity(default,overrides), strip_ansicodes |
+| custom_splitter                | Custom line splitter                                               | *regex*, severity(field,overrides,transform), facility(fields,separators), *message(field)*     |
+| directory                      | Formatter for output from `ls`                                     | **N/A**                                                                                         |
+| expand_event                   | Expand event message                                               | **N/A**                                                                                         |
+| glog                           | Extract severity and facility from output from `glog`              | **N/A**                                                                                         |
+| http                           | Format log messages from various HTTP servers                      | **N/A**                                                                                         |
+| iptables                       | Format output from `iptables`                                      | **N/A**                                                                                         |
+| json                           | Format single-line *JSON*                                          | error, facility, message, severity, timestamp, version                                          |
+| json_event                     | Format events logged as single-line *JSON*                         | error, facility, message, severity, timestamp, version                                          |
+| json_with_leading_message      | Format *JSON* preceded by a plain-text message                     | error, facility, message, severity, timestamp, version                                          |
+| key_value                      | Format data in *key=value* format                                  | allow_bare_keys, newlines, error, facility, message, severity, timestamp, version               |
+| key_value_with_leading_message | Format data in *key=value* format preceded by a plain-text message | allow_bare_keys, newlines, error, facility, message, severity, timestamp, version               |
+| modinfo                        | Format output from `modinfo`                                       | **N/A**                                                                                         |
+| override_severity              | Based on match-rules, override the severity of a line              | *severity(overrides)*                                                                           |
+| seconds_severity_facility      | Formatter for data in `[  0.0123s] INFO ThreadID(01) ...` format   | **N/A**                                                                                         |
+| strip_ansicodes                | Strip *ANSI-codes* from log message                                | **N/A**                                                                                         |
+| sysctl                         | Format output from `sysctl`                                        | **N/A**                                                                                         |
+| tab_separated                  | Format tab-separated data; will format trailing `JSON`-format      | error, message, version                                                                         |
+| ts_8601                        | Strip timestamps resembling *ISO-8601* format                      | **N/A**                                                                                         |
 
 Options in **bold** are mandatory. Paranthesis are an option indicates that it has subrules, of which only the indicated ones are supported.
 
@@ -173,6 +173,13 @@ severity:
       matchkey: (str) The string to use when applying the matchtype
       loglevel: (str) The loglevel to override with (valid: debug, info, notice, warning, err, crit, alert, emerg)
     ...
+```
+
+
+#### severity
+
+```
+strip_ansicodes (bool): Should ANSI-codes be stripped or retained (default: false)
 ```
 
 
