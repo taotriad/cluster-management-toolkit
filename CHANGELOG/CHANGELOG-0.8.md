@@ -63,7 +63,7 @@ secrets, etc.
 
 ## Urgent Upgrade Notes for v0.8.10
 
-N/A.
+`cmt-install.py` did not work properly on some platforms in CMT v0.8.9; this has now been fixed.
 
 ## Deprecations in v0.8.10
 
@@ -93,19 +93,19 @@ N/A
   The `Cluster Overview` and container log view still uses the old behaviour.
 * `cmu` will now squash empty lines by default in the container log.
   This behaviour is configurable (and can also be toggled runtime).
-* `glibc-dns-testing:2.0.0` is now used instead of `jessie-dnsutils:1.7` as DNS default debug image.
+* `glibc-dns-testing:2.0.0` is now used instead of `jessie-dnsutils:1.7` as default DNS debug image.
 * The container view now has a bit more functionality.
 * Fix `patch_object()` to handle namespaces better.
 * Add `create_resource()` to allow actions to create (simple) Kubernetes objects.
 * A bug that caused log blocks to ignore the loglevel has been fixed.
+* Tabbing to the next message with elevated severity now skips blocks.
 
 ### Changes to other files in v0.8.10
 
-* Tabbing to the next message with elevated severity now skips blocks.
 * `Namespace` info-view now includes age.
 * `Node` list-view now includes number of pods.
 * Internally, we no longer use a generator/processor combination.
-  The processor is used for both purposes, thus a.) eliminating a lot of code, b.) removing some bugs.
+  The generator is used for both purposes, thus a.) eliminating a lot of code, b.) removing some bugs.
 * The value-mapper has been given some new superpowers, allowing it to compare values against
   the percentage of a reference value.
 * Fix broken fallbacks in `cmt-install`; if a package has no fallback
@@ -134,7 +134,7 @@ N/A
 * Some progress has been made towards overriding severity on a per-key basis rather than per-message.
 * The file-format for parser-files is now simplified; all parser-rules
   have unified options behaviour.
-* The readme file for parsers has gone through a massive update. It's now actually useful
+* `parsers/README.md` has gone through a massive update. It's now actually useful
   as documentation for someone who would like to write a parser-file;
   it documents all parser-rules, as well as their options.
 * The test-cases for the logparser as well as the schema for parser-files have been
@@ -149,7 +149,23 @@ N/A
   from `python3-coverage report --format markdown` combined with `mdtable.py --reformat`.
 * It is now no longer possible to use generators directly from view-files.
 * There is now a generator and field-formatter for selectors.
-* **FIXME** Insert output from `make changelog`
+* diffstat: 315 files changed, 11490 insertions(+), 7859 deletions(-)
+
+### Notable view-file changes (changed API-files)
+
+* aquasecurity.github.io.yaml (10 changed files)
+* operators.coreos.com (5 changed files)
+* yaml (5 changed files)
+
+### Notable view-file changes (changed line count)
+
+* views/ClusterPolicy.nvidia.com.yaml (191 changed lines)
+* views/CatalogSource.operators.coreos.com.yaml (69 changed lines)
+* views/InstallPlan.operators.coreos.com.yaml (59 changed lines)
+
+### parser-file changes
+
+10 parserfiles were added.
 
 ## Known Regressions in v0.8.10
 
@@ -165,6 +181,9 @@ No known regressions.
 * Nested lists and lists with checkboxes in Markdown have some formatting issues.
 * When changing views or reloading data the screen still looks a bit buggy;
   this is a long-standing issue, and is purely cosmetic.
+* As of preparing this release the version of `pylint` packaged for Debian unstable is incompatible
+  with the version of `python3-astroid` packaged for Debian unstable.
+  As a workaround the version of `python3-astroid` in Debian testing has been used instead.
 
 ## Dependencies for v0.8.10
 
@@ -253,7 +272,7 @@ Test results:
 	No issues identified.
 
 Code scanned:
-	Total lines of code: 105529
+	Total lines of code: 104800
 	Total lines skipped (#nosec): 7
 
 Run metrics:
@@ -279,6 +298,7 @@ Execute with:
 ```
 make coverage-clean
 make coverage-all
+make coverage-markdown
 ```
 
 Version: 7.8.2
@@ -288,31 +308,31 @@ Output:
 | File                                                 | Statements |  Missing | Branches | Partial |  Coverage |
 | :--------------------------------------------------- | ---------: | -------: | -------: | ------: | --------: |
 | clustermanagementtoolkit/cluster\_actions.py         |        226 |      178 |       74 |       3 |     19.0% |
-| clustermanagementtoolkit/curses\_helper.py           |       2759 |     2012 |     1254 |      24 |     24.1% |
-| clustermanagementtoolkit/infogetters.py              |       1770 |     1318 |     1084 |      22 |     24.5% |
+| clustermanagementtoolkit/curses\_helper.py           |       2762 |     2015 |     1254 |      24 |     24.1% |
 | clustermanagementtoolkit/networkio.py                |        395 |      289 |      188 |       3 |     25.2% |
-| clustermanagementtoolkit/kubernetes\_helper.py       |       1625 |     1104 |      788 |      77 |     28.2% |
-| clustermanagementtoolkit/listgetters\_async.py       |        118 |       75 |       52 |       2 |     31.2% |
-| clustermanagementtoolkit/logparser.py                |       2106 |     1356 |     1192 |      38 |     31.5% |
+| clustermanagementtoolkit/kubernetes\_helper.py       |       1654 |     1134 |      796 |      78 |     27.7% |
+| clustermanagementtoolkit/infogetters.py              |       1802 |     1283 |     1108 |      32 |     27.9% |
+| clustermanagementtoolkit/listgetters\_async.py       |        123 |       76 |       56 |       3 |     33.5% |
 | clustermanagementtoolkit/listgetters.py              |       1230 |      780 |      686 |      17 |     34.8% |
+| clustermanagementtoolkit/logparser.py                |       1772 |     1024 |      954 |      41 |     37.9% |
 | clustermanagementtoolkit/checks.py                   |        620 |      326 |      246 |       1 |     44.9% |
+| clustermanagementtoolkit/generators.py               |        828 |      403 |      446 |      39 |     49.3% |
 | clustermanagementtoolkit/datagetters.py              |        272 |       85 |      142 |      13 |     67.1% |
-| clustermanagementtoolkit/generators.py               |        838 |      258 |      430 |      47 |     67.9% |
-| clustermanagementtoolkit/ansible\_helper.py          |        818 |      219 |      486 |      27 |     72.1% |
-| clustermanagementtoolkit/cmtlib.py                   |        686 |      133 |      380 |      19 |     79.0% |
-| clustermanagementtoolkit/ansithemeprint.py           |        294 |       53 |      126 |       5 |     80.0% |
-| clustermanagementtoolkit/cmtio\_yaml.py              |        108 |       13 |       32 |       5 |     85.7% |
+| clustermanagementtoolkit/ansible\_helper.py          |        818 |      221 |      486 |      27 |     71.9% |
+| clustermanagementtoolkit/cmtlib.py                   |        690 |      118 |      380 |      16 |     80.9% |
+| clustermanagementtoolkit/cmtio\_yaml.py              |        111 |       16 |       32 |       5 |     83.9% |
+| clustermanagementtoolkit/formatters.py               |        893 |      111 |      396 |      42 |     84.6% |
 | clustermanagementtoolkit/cmtio.py                    |        426 |       45 |      226 |      20 |     88.2% |
-| clustermanagementtoolkit/formatters.py               |        913 |       49 |      400 |      42 |     92.2% |
 | clustermanagementtoolkit/cni\_data.py                |         80 |        0 |       40 |       9 |     92.5% |
 | clustermanagementtoolkit/cmtvalidators.py            |        337 |       18 |      212 |       8 |     93.4% |
-| clustermanagementtoolkit/itemgetters.py              |        565 |       25 |      320 |      20 |     94.5% |
+| clustermanagementtoolkit/ansithemeprint.py           |        294 |       15 |      126 |       9 |     93.8% |
+| clustermanagementtoolkit/itemgetters.py              |        575 |       26 |      328 |      23 |     94.1% |
 | clustermanagementtoolkit/reexecutor.py               |         69 |        1 |       26 |       2 |     96.8% |
 | clustermanagementtoolkit/objgetters.py               |         56 |        0 |       12 |       1 |     98.5% |
 | clustermanagementtoolkit/commandparser.py            |        431 |        2 |      262 |       2 |     99.4% |
 | clustermanagementtoolkit/cmttypes.py                 |        493 |        1 |      188 |       0 |     99.9% |
 | clustermanagementtoolkit/about.py                    |         17 |        0 |        0 |       0 |    100.0% |
-| clustermanagementtoolkit/cmtlog.py                   |         80 |        0 |       40 |       0 |    100.0% |
+| clustermanagementtoolkit/cmtlog.py                   |         78 |        0 |       40 |       0 |    100.0% |
 | clustermanagementtoolkit/cmtpaths.py                 |         90 |        0 |        0 |       0 |    100.0% |
 | clustermanagementtoolkit/fieldgetters.py             |         67 |        0 |       30 |       0 |    100.0% |
 | clustermanagementtoolkit/github\_tags.py             |          3 |        0 |        0 |       0 |    100.0% |
@@ -320,7 +340,7 @@ Output:
 | clustermanagementtoolkit/kubernetes\_resources.py    |          5 |        0 |        0 |       0 |    100.0% |
 | clustermanagementtoolkit/pvtypes.py                  |          3 |        0 |        0 |       0 |    100.0% |
 | clustermanagementtoolkit/recommended\_permissions.py |         15 |        0 |        0 |       0 |    100.0% |
-| **TOTAL**                                            |  **17539** | **8340** | **8916** | **407** | **50.0%** |
+| **TOTAL**                                            |  **17259** | **8167** | **8734** | **418** | **50.3%** |
 
 ### Flake8 Results for v0.8.10
 
@@ -374,7 +394,7 @@ Version: 2.1.0
 | clustermanagementtoolkit/kubernetes_resources.py    | Success: no issues found in 1 source file             |
 | clustermanagementtoolkit/listgetters.py             | Success: no issues found in 1 source file             |
 | clustermanagementtoolkit/listgetters_async.py       | Success: no issues found in 1 source file             |
-| clustermanagementtoolkit/logparser.py               | **Found 60 errors in 1 file (checked 1 source file)** |
+| clustermanagementtoolkit/logparser.py               | **Found 29 errors in 1 file (checked 1 source file)** |
 | clustermanagementtoolkit/networkio.py               | Success: no issues found in 1 source file             |
 | clustermanagementtoolkit/objgetters.py              | Success: no issues found in 1 source file             |
 | clustermanagementtoolkit/pvtypes.py                 | Success: no issues found in 1 source file             |
@@ -388,7 +408,7 @@ Table generated with `make pylint-markdown`.
 
 Version: 4.0.6
 
-| Source file                                         | Score    |
+| Source file                                         |    Score |
 | :-------------------------------------------------- | -------: |
 | cmt.py                                              | 10.00/10 |
 | cmtadm.py                                           | 10.00/10 |
@@ -440,10 +460,10 @@ Output:
 
 ```
 Checking executables
-Processed 96 regexes
+Processed 102 regexes
 
 Checking libraries
-Processed 144 regexes
+Processed 130 regexes
 ```
 
 ### Ruff Results for v0.8.10
@@ -462,7 +482,7 @@ No Output.
 Commandline: `semgrep scan --exclude-rule "generic.secrets.security.detected-generic-secret.detected-generic-secret.semgrep-legacy.30980" --exclude-rule "python.flask.security.xss.audit.direct-use-of-jinja2.direct-use-of-jinja2" --exclude "*.yaml" --exclude "*.j2" --exclude "*.json" --timeout=0 --no-git-ignore`.
 Execute with `make semgrep`.
 
-Version: 1.173.0
+Version: 1.176.1
 
 Output:
 
@@ -501,9 +521,20 @@ Output:
 Summary:
      fail: 0
      skip: 6
-  success: 1227
-    total: 1233
+  success: 1243
+    total: 1249
 ```
+
+### YAMLlint Results for v0.8.10
+
+Commandline: `yamllint`.
+Execute with `make yamllint`.
+
+Version: 1.38.0
+
+Output:
+
+No output.
 
 * [v0.8.9](#v089)
     * [Downloads](#downloads-for-v089)
@@ -1045,6 +1076,17 @@ Summary:
   success: 1227
     total: 1233
 ```
+
+### YAMLlint Results for v0.8.9
+
+Commandline: `yamllint`.
+Execute with `make yamllint`.
+
+Version: 1.38.0
+
+Output:
+
+No output.
 
 * [v0.8.8](#v088)
     * [Downloads](#downloads-for-v088)
