@@ -13,7 +13,8 @@ listview:
   group: "OpenShift"
   field_indexes:
     Normal:
-      fields: ["name", "versions", "available", "updates", "progressing", "age", "status"]
+      fields: ["name", "versions", "available", "updates", "progressing",
+               "age", "status"]
   fields:
     available:
       header: "Available:"

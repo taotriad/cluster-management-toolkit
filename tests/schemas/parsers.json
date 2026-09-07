@@ -697,10 +697,11 @@
                                             "type": "boolean"
                                         }
                                     },
+                                    "requiredProperties": [ "block_start", "block_end" ],
                                     "additionalProperties": false
                                 }
                             },
-                            "requiredProperties": [ "name", "block_start", "block_end" ],
+                            "requiredProperties": [ "name", "options" ],
                             "additionalProperties": false
                         }
                     ],
