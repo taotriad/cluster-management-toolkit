@@ -1521,7 +1521,7 @@ def reformat_message_remnants(message: str | list[ThemeRef | ThemeStr],
 # pylint: disable-next=too-many-branches
 def fold_message_with_remnants(message: str | list[ThemeRef | ThemeStr],
                                remnants: list[tuple[list[ThemeRef | ThemeStr], LogLevel]],
-                               severity: LogLevel, pad: bool = False) -> list[ThemeRef | ThemeStr]:
+                               severity: LogLevel, pad: str = "none") -> list[ThemeRef | ThemeStr]:
     """
     Given message and remnants, fold the remnants into the message;
     this is only intended to be used with structured formats, such as key=value.
@@ -1530,7 +1530,11 @@ def fold_message_with_remnants(message: str | list[ThemeRef | ThemeStr],
             message (str|ThemeArray): The message to format
             remnants ([(ThemeArray, LogLevel)]): The remnants to merge into the message
             severity (LogLevel): The severity to use for the formatted message
-            pad (bool): Add a space between the message and the remnant.
+            pad (str): Add padding.
+                       "none": No padding [default]
+                       "message": Padding after message
+                       "all": Add padding between all remnants; if all is used
+                              the message will not be reformatted afterwards
         Returns:
             (ThemeArray): The folded message
     """
@@ -1547,11 +1551,13 @@ def fold_message_with_remnants(message: str | list[ThemeRef | ThemeStr],
 
     new_message = message
 
-    if pad:
+    if pad == "message":
         new_message.append(ThemeStr(" ", ThemeAttr("types", "generic"), selected=False))
 
     for line, _severity in remnants:
-        new_message += themearray_rstrip(line)
+        if pad == "all":
+            new_message.append(ThemeStr(" ", ThemeAttr("types", "generic"), selected=False))
+        new_message += themearray_rstrip(themearray_flatten(line))
 
     # OK, we've joined everything into one line; now time for reformatting it.
     message = []
@@ -2029,9 +2035,10 @@ def expand_event(message: str, severity: LogLevel, **kwargs: Any) \
 
     for i, _key_value in enumerate(raw_message[refstart:refend].split(", ")):
         key, value = _key_value.split(":", 1)
-        remnant = [ThemeStr(" ".ljust(indent * 2) + key, ThemeAttr("types", "yaml_key")),
-                   ThemeRef("separators", "yaml_key_separator"),
-                   ThemeStr(f" {value}", ThemeAttr("types", "yaml_value"))]
+        remnant: list[ThemeRef | ThemeStr] = \
+            [ThemeStr(" ".ljust(indent * 2) + key, ThemeAttr("types", "yaml_key")),
+             ThemeRef("separators", "yaml_key_separator"),
+             ThemeStr(f" {value}", ThemeAttr("types", "yaml_value"))]
         if i + 1 < len(raw_message[refstart:refend].split(", ")):
             remnant += [ThemeStr(",", ThemeAttr("types", "yaml_list"))]
         remnants.append((remnant, severity))
@@ -2160,7 +2167,6 @@ def key_value(message: str, **kwargs: Any) -> tuple[str, LogLevel, str,
             **kwargs (dict[str, Any]): Keyword arguments
                 severity (LogLevel): The log severity
                 facility (str): The log facility
-                fold_msg (bool): Should the message be expanded or folded?
                 options (dict): Additional, rule specific, options
         Returns:
             (str|ThemeArray, LogLevel, str, [(ThemeArray, LogLevel)]):
@@ -2174,7 +2180,6 @@ def key_value(message: str, **kwargs: Any) -> tuple[str, LogLevel, str,
     """
     severity: LogLevel = deep_get(kwargs, DictPath("severity"), LogLevel.INFO)
     facility: str = deep_get(kwargs, DictPath("facility"), "")
-    fold_msg: bool = deep_get(kwargs, DictPath("fold_msg"), True)
     options: dict = deep_get(kwargs, DictPath("options"), {})
 
     remnants: list[tuple[list[ThemeRef | ThemeStr], LogLevel]] = []
@@ -2232,7 +2237,7 @@ def key_value(message: str, **kwargs: Any) -> tuple[str, LogLevel, str,
                     if (quoted := value.startswith("\"") and value.endswith("\"")):
                         value = value[1:-1]
                     if newlines == "strip_trailing":
-                        value = value.rstrip("\\n")
+                        value = value.rstrip("\n")
                     if quoted:
                         value = f"\"{value}\""
                     d[key] = value
@@ -2371,7 +2376,8 @@ def key_value(message: str, **kwargs: Any) -> tuple[str, LogLevel, str,
         else:
             message = ""
         if msg_tmp:
-            remnants = (msg_tmp, severity)
+            for line in msg_tmp:
+                remnants.append((line, severity))
 
     if facility.startswith("\"") and facility.endswith("\""):
         facility = facility[1:-1]
@@ -2383,13 +2389,6 @@ def key_value(message: str, **kwargs: Any) -> tuple[str, LogLevel, str,
 
     if isinstance(message, str):
         message = [ThemeStr(message, ThemeAttr("logview", severity_str))]
-
-    if fold_msg and remnants:
-        remnant_lines, _severity = remnants
-        for line in remnant_lines:
-            message += [ThemeStr(" ", ThemeAttr("logview", severity_str))]
-            message += cast(list[ThemeStr | ThemeRef], line)
-        remnants = []
 
     return facility, severity, message, remnants
 
@@ -2405,7 +2404,6 @@ def key_value_with_leading_message(message: str, **kwargs: Any) -> \
             **kwargs (dict[str, Any]): Keyword arguments
                 severity (LogLevel): The log severity
                 facility (str): The log facility
-                fold_msg (bool): Should the message be expanded or folded?
                 options (dict): Additional, rule specific, options
         Returns:
             (str|ThemeArray, LogLevel, str, [(ThemeArray, LogLevel)]):
@@ -2418,7 +2416,6 @@ def key_value_with_leading_message(message: str, **kwargs: Any) -> \
     """
     severity: LogLevel = deep_get(kwargs, DictPath("severity"), LogLevel.INFO)
     facility: str = deep_get(kwargs, DictPath("facility"), "")
-    fold_msg: bool = deep_get(kwargs, DictPath("fold_msg"), True)
     options: dict = deep_get(kwargs, DictPath("options"), {})
     allow_bare_keys: bool = deep_get(options, DictPath("allow_bare_keys"), "")
     new_message: str | None = None
@@ -2443,8 +2440,7 @@ def key_value_with_leading_message(message: str, **kwargs: Any) -> \
         if "=" in tmp[0]:
             # Try parsing this as regular key_value
             facility, severity, new_message, remnants = \
-                key_value(message, fold_msg=fold_msg, severity=severity,
-                          facility=facility, options=options)
+                key_value(message, severity=severity, facility=facility, options=options)
             return facility, severity, new_message, remnants
 
         for item in tmp[1:]:
@@ -2459,33 +2455,20 @@ def key_value_with_leading_message(message: str, **kwargs: Any) -> \
         if "Event" in new_message:
             deep_set(options, DictPath("severity#highlight_reason"), True, create_path=True)
         facility, severity, first_message, tmp_new_remnants = \
-            key_value(rest, fold_msg=False, severity=severity, facility=facility, options=options)
+            key_value(rest, severity=severity, facility=facility, options=options)
         LogparserConfiguration.msg_extract = tmp_msg_extract
         if tmp_new_remnants:
-            new_remnants_strs, new_remnants_severity = tmp_new_remnants
-            new_remnants = ([first_message] + new_remnants_strs, new_remnants_severity)
+            _message, new_remnants = \
+                merge_message(first_message, remnants=tmp_new_remnants, severity=severity)
         else:
             if first_message:
-                new_remnants = ([first_message], severity)
+                new_remnants = [(first_message, severity)]
             else:
-                new_remnants = None
-        if new_remnants and fold_msg or "FLAG:" in new_message and "FLAG: " in message:
-            new_remnants_strs, new_remnants_severity = new_remnants
-            severity_name = f"severity_{loglevel_to_name(new_remnants_severity).lower()}"
-            new_remnants_2: list[ThemeRef | ThemeStr] = []
-            for row in new_remnants_strs:
-                if not new_remnants_2:
-                    if isinstance(row, str):
-                        row = [ThemeStr(row, ThemeAttr("logview", severity_name))]
-                    new_remnants_2 += \
-                        [ThemeStr(f"{new_message} ", ThemeAttr("logview", severity_name))] + row
-                    new_message = None
-                else:
-                    if isinstance(row, str):
-                        row = [ThemeStr(row, ThemeAttr("logview", severity_name))]
-                    row = [ThemeStr(" ", ThemeAttr("logview", severity_name))] + row
-                    new_remnants_2 += row
-            new_remnants = ([new_remnants_2], new_remnants_severity)
+                new_remnants = []
+        if "FLAG:" in new_message and "FLAG: " in message:
+            new_message = fold_message_with_remnants(new_message, new_remnants,
+                                                     severity, pad="all")
+            new_remnants = []
         return facility, severity, new_message, new_remnants
     return facility, severity, message, remnants
 
@@ -3267,7 +3250,7 @@ def parsing_multiplexer(message: str | list[ThemeRef | ThemeStr],
                         message = [ThemeStr(parts[0], ThemeAttr("logview", severity_name))]
                         if fold_msg:
                             message = fold_message_with_remnants(message, remnants, _severity,
-                                                                 pad=True)
+                                                                 pad="message")
                             remnants = []
             elif _filter == "json_event":
                 # We do not extract the facility/severity from folded messages,
@@ -3279,31 +3262,18 @@ def parsing_multiplexer(message: str | list[ThemeRef | ThemeStr],
                 facility, severity, message, remnants = \
                     key_value(message, fold_msg=False, severity=severity,
                               facility=facility, options=filter_options)
-                # Fold the message
-                if fold_msg and remnants:
-                    remnants_strs, remnants_severity = remnants
-                    severity_name = f"severity_{loglevel_to_name(remnants_severity).lower()}"
-                    if isinstance(message, str):
-                        message = [ThemeStr(f"{message}", ThemeAttr("logview", "severity_name"))]
-                    row: Sequence[ThemeRef | ThemeStr]
-                    for row in remnants_strs:
-                        if not message:
-                            if isinstance(row, str):
-                                row = [ThemeStr(row, ThemeAttr("logview", severity_name))]
-                        else:
-                            if isinstance(row, str):
-                                row = [ThemeStr(row, ThemeAttr("logview", severity_name))]
-                            row = [ThemeStr(" ", ThemeAttr("logview", severity_name))] + row
-                        message += row
+                # Fold the message if needed.
+                if fold_msg:
+                    message = fold_message_with_remnants(message, remnants, severity, pad="all")
                     remnants = []
             elif _filter == "key_value_with_leading_message" and "=" in message:
                 facility, severity, message, remnants = \
                     key_value_with_leading_message(message, fold_msg=fold_msg,
                                                    severity=severity, facility=facility,
                                                    options=filter_options)
-                # We've merged message and remnants into one; stop processing.
-                if message is None and remnants:
-                    message = remnants[0][0]
+                # Fold the message if needed.
+                if fold_msg:
+                    message = fold_message_with_remnants(message, remnants, severity, pad="all")
                     remnants = []
             # Timestamp formats
             elif _filter == "ts_8601":  # Anything that resembles ISO-8601 / RFC 3339
