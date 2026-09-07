@@ -48,6 +48,7 @@ components are accepted.
 * [ ] Insert the output from `make mypy-markdown`.
 * [ ] Insert the output from `make pylint-markdown`.
 * [ ] Run `make coverage-clean`.
+* [ ] Run `make coverage-all`.
 * [ ] Insert the output from `make coverage-markdown`.
       *(this requires a working cluster and Ansible installation)*.
 * [ ] Insert the output from `make regexploit`.
