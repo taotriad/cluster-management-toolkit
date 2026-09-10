@@ -320,13 +320,13 @@ def generic_split_severity(valid_indata: tuple[str], fun: Callable,
             result = False
         elif not isinstance(tmp, tuple):
             message = f"{fun.__name__}() returned wrong type ({type(tmp)}) for valid indata " \
-                      f"{indata}, expected (str, LogLevel)"
+                      f"{indata}, expected (LogLevel, str)"
             result = False
         elif len(tmp) != 2:
             message = f"{fun.__name__}() return-value has length {len(tmp)} for valid indata " \
                       f"{indata}, expected 2"
             result = False
-        elif not isinstance(tmp[0], str) or not isinstance(tmp[1], LogLevel):
+        elif not isinstance(tmp[0], LogLevel) or not isinstance(tmp[1], str):
             message = f"{fun.__name__}() returned wrong type ({type(tmp[0])}, {type(tmp[1])}) " \
                       f"for valid indata {indata}, expected (str, LogLevel)"
             result = False
@@ -349,13 +349,13 @@ def generic_split_severity(valid_indata: tuple[str], fun: Callable,
             message = f"{fun.__name__}() return-value has length {len(tmp)} for invalid indata " \
                       f"{indata}, expected 2"
             result = False
-        elif not isinstance(tmp[0], str) or not isinstance(tmp[1], LogLevel):
+        elif not isinstance(tmp[0], LogLevel) or not isinstance(tmp[1], str):
             message = f"{fun.__name__}() returned wrong type ({type(tmp[0])}, {type(tmp[1])}) " \
-                      f"for invalid indata {indata}, expected (str, LogLevel)"
+                      f"for invalid indata {indata}, expected (LogLevel, str)"
             result = False
-        elif tmp[0] != indata or tmp[1] != default:
+        elif tmp[0] != default or tmp[1] != indata:
             message = f"{fun.__name__}() returned wrong result ({tmp}) for invalid indata " \
-                      f"{indata}, expected ({indata}, {options})"
+                      f"{indata}, expected ({options}, {indata})"
             result = False
 
     return message, result
@@ -397,8 +397,8 @@ def test_custom_override_severity(verbose: bool = False) -> tuple[str, bool]:
                         },
                     },
                 },
-                ('"Warning: cluster.x-k8s.io/v1beta1 Machine is deprecated; '
-                 'use cluster.x-k8s.io/v1beta2 Machine', LogLevel.WARNING),
+                (LogLevel.WARNING, '"Warning: cluster.x-k8s.io/v1beta1 Machine is deprecated; '
+                 'use cluster.x-k8s.io/v1beta2 Machine'),
                 None,
             ),
             (
@@ -417,8 +417,8 @@ def test_custom_override_severity(verbose: bool = False) -> tuple[str, bool]:
                         },
                     },
                 },
-                ('"Warning: cluster.x-k8s.io/v1beta1 Machine is deprecated; '
-                 'use cluster.x-k8s.io/v1beta2 Machine', LogLevel.INFO),
+                (LogLevel.INFO, '"Warning: cluster.x-k8s.io/v1beta1 Machine is deprecated; '
+                 'use cluster.x-k8s.io/v1beta2 Machine'),
                 None,
             ),
             (
@@ -438,9 +438,10 @@ def test_custom_override_severity(verbose: bool = False) -> tuple[str, bool]:
                         },
                     },
                 },
-                ([ThemeStr('"Warning: cluster.x-k8s.io/v1beta1 Machine is deprecated; '
+                (LogLevel.WARNING,
+                 [ThemeStr('"Warning: cluster.x-k8s.io/v1beta1 Machine is deprecated; '
                            'use cluster.x-k8s.io/v1beta2 Machine',
-                           ThemeAttr("logview", "severity_warning"))], LogLevel.WARNING),
+                           ThemeAttr("logview", "severity_warning"))]),
                 None,
             ),
             (
@@ -459,8 +460,8 @@ def test_custom_override_severity(verbose: bool = False) -> tuple[str, bool]:
                         },
                     },
                 },
-                ('"Warning: cluster.x-k8s.io/v1beta1 Machine is deprecated; '
-                 'use cluster.x-k8s.io/v1beta2 Machine', LogLevel.DEBUG),
+                (LogLevel.DEBUG, '"Warning: cluster.x-k8s.io/v1beta1 Machine is deprecated; '
+                 'use cluster.x-k8s.io/v1beta2 Machine'),
                 None,
             ),
             (
@@ -479,8 +480,8 @@ def test_custom_override_severity(verbose: bool = False) -> tuple[str, bool]:
                         },
                     },
                 },
-                ('"Warning: cluster.x-k8s.io/v1beta1 Machine is deprecated; '
-                 'use cluster.x-k8s.io/v1beta2 Machine', LogLevel.INFO),
+                (LogLevel.INFO, '"Warning: cluster.x-k8s.io/v1beta1 Machine is deprecated; '
+                 'use cluster.x-k8s.io/v1beta2 Machine'),
                 None,
             ),
             (
@@ -499,8 +500,8 @@ def test_custom_override_severity(verbose: bool = False) -> tuple[str, bool]:
                         },
                     },
                 },
-                ('"Warning: cluster.x-k8s.io/v1beta1 Machine is deprecated; '
-                 'use cluster.x-k8s.io/v1beta2 Machine', LogLevel.NOTICE),
+                (LogLevel.NOTICE, '"Warning: cluster.x-k8s.io/v1beta1 Machine is deprecated; '
+                 'use cluster.x-k8s.io/v1beta2 Machine'),
                 None,
             ),
             (
@@ -519,8 +520,8 @@ def test_custom_override_severity(verbose: bool = False) -> tuple[str, bool]:
                         },
                     },
                 },
-                ('"Warning: cluster.x-k8s.io/v1beta1 Machine is deprecated; '
-                 'use cluster.x-k8s.io/v1beta2 Machine', LogLevel.INFO),
+                (LogLevel.INFO, '"Warning: cluster.x-k8s.io/v1beta1 Machine is deprecated; '
+                 'use cluster.x-k8s.io/v1beta2 Machine'),
                 None,
             ),
             (
@@ -538,7 +539,7 @@ def test_custom_override_severity(verbose: bool = False) -> tuple[str, bool]:
                         },
                     },
                 },
-                ('warning', LogLevel.INFO),
+                (LogLevel.INFO, 'warning'),
                 None,
             ),
             (
@@ -556,7 +557,7 @@ def test_custom_override_severity(verbose: bool = False) -> tuple[str, bool]:
                         },
                     },
                 },
-                ('Warning', LogLevel.WARNING),
+                (LogLevel.WARNING, 'Warning'),
                 None,
             ),
             (
@@ -572,7 +573,7 @@ def test_custom_override_severity(verbose: bool = False) -> tuple[str, bool]:
                         ],
                     },
                 },
-                ('Warning', LogLevel.INFO),
+                (LogLevel.INFO, 'Warning'),
                 None,
             ),
             (
@@ -590,7 +591,7 @@ def test_custom_override_severity(verbose: bool = False) -> tuple[str, bool]:
                         },
                     },
                 },
-                ('Warning', LogLevel.WARNING),
+                (LogLevel.WARNING, 'Warning'),
                 None,
             ),
             (
@@ -608,7 +609,7 @@ def test_custom_override_severity(verbose: bool = False) -> tuple[str, bool]:
                         },
                     },
                 },
-                ('Warning', LogLevel.INFO),
+                (LogLevel.INFO, 'Warning'),
                 None,
             ),
         )
@@ -854,7 +855,7 @@ def test_split_iso_timestamp(verbose: bool = False) -> tuple[str, bool]:
         # indata is just a prefix; we want to test with a string prefixed by that prefix"
         indata = f"{indata} something or another"
         tmp = fun(indata, timestamp=timestamp)
-        if tmp == (indata, timestamp):
+        if tmp == (timestamp, indata):
             message = f"{fun.__name__} failed to split timestamp from valid indata {indata}"
             result = False
             break
@@ -862,7 +863,7 @@ def test_split_iso_timestamp(verbose: bool = False) -> tuple[str, bool]:
     if result:
         indata = "something or another"
         tmp = fun(indata, timestamp=timestamp)
-        if tmp != (indata, timestamp):
+        if tmp != (timestamp, indata):
             message = f"{fun.__name__} did not return the indata {indata} unmodified"
             result = False
 
@@ -1026,7 +1027,7 @@ def test_iptables(verbose: bool = False) -> tuple[str, bool]:
         for string, _remnants, fold_msg, expected_result, \
                 _expected_remnants, expected_exception in testdata:
             try:
-                tmp, _loglevel, _facility, _remnants = fun(string, [], fold_msg=fold_msg)
+                _facility, _loglevel, tmp, _remnants = fun(string, [], fold_msg=fold_msg)
                 if tmp != expected_result:
                     message = f"{fun.__name__}() did not yield expected result:\n" \
                               f"          input: {string}\n" \
@@ -1365,7 +1366,7 @@ def test_http(verbose: bool = False) -> tuple[str, bool]:
         for string, severity, facility, fold_msg, \
                 options, expected_result, expected_exception in testdata:
             try:
-                tmp, severity, facility = fun(string, severity=severity, facility=facility,
+                facility, severity, tmp = fun(string, severity=severity, facility=facility,
                                               fold_msg=fold_msg, options=options)
                 if tmp != expected_result:
                     message = f"{fun.__name__}() did not yield expected result:\n" \
@@ -1409,26 +1410,26 @@ def test_split_glog(verbose: bool = False) -> tuple[str, bool]:
             # (string, severity, facility, expected_result, expected_remnants, expected_exception)
             ('E0514 09:01:55.108028382       1 server_chttp2.cc:40] foo',
              LogLevel.INFO, "",
-             ("foo", LogLevel.ERR, "server_chttp2.cc:40", [], True), None),
+             ("server_chttp2.cc:40", LogLevel.ERR, "foo", [], True), None),
             ('I0511 14:31:10.500543       1 start.go:76] bar',
              LogLevel.INFO, "",
-             ("bar", LogLevel.INFO, "start.go:76", [], True), None),
+             ("start.go:76", LogLevel.INFO, "bar", [], True), None),
             ('I0511 14:31:10.500543       1 start.go:76]',
              LogLevel.INFO, "",
-             ("", LogLevel.INFO, "start.go:76", [], True), None),
+             ("start.go:76", LogLevel.INFO, "", [], True), None),
             ('I0417 09:32:43.32022-04-17T09:32:43.343052189Z 41605       1 tlsconfig.go:178] buggy',
              LogLevel.INFO, "",
-             ("buggy", LogLevel.INFO, "tlsconfig.go:178", [], True), None),
+             ("tlsconfig.go:178", LogLevel.INFO, "buggy", [], True), None),
             ('Not a match',
              LogLevel.INFO, "",
-             ("Not a match", LogLevel.INFO, "", [], False), None),
+             ("", LogLevel.INFO, "Not a match", [], False), None),
             ('Not a match',
              None, "",
-             ("Not a match", LogLevel.DEFAULT, "", [], False), None),
+             ("", LogLevel.DEFAULT, "Not a match", [], False), None),
             ('ERROR: logging before flag.Parse: E0514 09:01:55.108028382       '
              '1 server_chttp2.cc:40] foo',
              LogLevel.INFO, "",
-             ("ERROR: logging before flag.Parse", LogLevel.ERR, "server_chttp2.cc:40",
+             ("server_chttp2.cc:40", LogLevel.ERR, "ERROR: logging before flag.Parse",
               [([ThemeStr('foo', ThemeAttr('logview', 'severity_error'), False)],
                 LogLevel.ERR)], True), None),
         )
@@ -1569,15 +1570,30 @@ def test_tab_separated(verbose: bool = False) -> tuple[str, bool]:
         for string, severity, facility, fold_msg, options, \
                 expected_result, expected_exception in testdata:
             try:
-                tmp = fun(string, severity=severity, facility=facility,
-                          fold_msg=fold_msg, options=options)
-                if tmp[0] != expected_result[0] \
-                        or tmp[1] != expected_result[1] \
-                        or tmp[2] != expected_result[2] or tmp[3] != expected_result[3]:
+                expected_facility = expected_result[2]
+                expected_severity = expected_result[1]
+                expected_message = expected_result[0]
+                expected_remnants = expected_result[3]
+            except IndexError:
+                expected_facility = ""
+                expected_severity = LogLevel.DEBUG
+                expected_message = ""
+                expected_remnants = []
+            try:
+                facility_, severity_, message_, remnants_ = \
+                    fun(string, severity=severity, facility=facility,
+                        fold_msg=fold_msg, options=options)
+                if facility_ != expected_facility or severity_ != expected_severity \
+                        or message_ != expected_message or remnants_ != expected_remnants:
                     message = f"{fun.__name__}() did not yield expected result:\n" \
                               f"        options: {options}\n" \
-                              f"          input: {string}\n" \
-                              f"         output: {tmp}\n" \
+                              f"  input message: {string}\n" \
+                              f" input facility: {facility}\n" \
+                              f" input severity: {severity}\n" \
+                              f"output facility: {facility_}\n" \
+                              f"output severity: {severity_}\n" \
+                              f" output message: {message_}\n" \
+                              f"output remnants: {remnants_}\n" \
                               f"       expected: {expected_result}"
                     result = False
                     break
@@ -2431,11 +2447,13 @@ def test_custom_splitter(verbose: bool = False) -> tuple[str, bool]:
 
         for indata, kwargs, expected_result, expected_exception in testdata:
             try:
-                tmp = fun(indata, **kwargs)
-                if tmp != expected_result:
+                facility, severity, message = fun(indata, **kwargs)
+                if (message, severity, facility) != expected_result:
                     message = f"{fun.__name__}() did not yield expected result:\n" \
                               f"          input: {indata}\n" \
-                              f"         output: {tmp}\n" \
+                              f"       facility: {facility}\n" \
+                              f"       severity: {severity}\n" \
+                              f"        message: {message}\n" \
                               f"       expected: {expected_result}"
                     result = False
             except Exception as e:  # pylint: disable=broad-except
@@ -2447,7 +2465,6 @@ def test_custom_splitter(verbose: bool = False) -> tuple[str, bool]:
                                   f"          input:\n" \
                                   f"{indata}" \
                                   f"      exception: {type(e)}\n" \
-                                  f"         output: {tmp}\n" \
                                   f"       expected: {expected_result}"
                         result = False
                 else:
@@ -2455,7 +2472,6 @@ def test_custom_splitter(verbose: bool = False) -> tuple[str, bool]:
                               f"          input:\n" \
                               f"{indata}" \
                               f"      exception: {type(e)}\n" \
-                              f"         output: {tmp}\n" \
                               f"       expected: {expected_result}"
                     result = False
 

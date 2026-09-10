@@ -57,7 +57,7 @@ except ModuleNotFoundError:  # pragma: no cover
              "you may need to (re-)run `cmt-install.py` or `pip3 install natsort`; aborting.")
 
 try:
-    import prctl  # type: ignore[import-not-found,unused-ignore]
+    import prctl  # type: ignore[import-not-found,import-untyped,unused-ignore]
     prctl.set_name(PurePath(sys.argv[0]).name)  # pylint: disable=no-member,useless-suppression
     prctl.set_proctitle(" ".join(sys.argv))
 except ModuleNotFoundError:  # pragma: no cover

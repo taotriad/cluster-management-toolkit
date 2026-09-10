@@ -2555,7 +2555,7 @@ def get_journalctl_log(obj: dict, **kwargs: Any) -> \
             facility, severity, msg, remnants = \
                 logparsers.key_value(raw_msg, severity=raw_severity, fold_msg=False)
         elif raw_msg.startswith("{\"") and raw_msg.endswith("\"}"):
-            msg, severity, facility, remnants = \
+            facility, severity, msg, remnants = \
                 logparsers.split_json_style(raw_msg, severity=raw_severity, fold_msg=False)
         else:
             severity = raw_severity
