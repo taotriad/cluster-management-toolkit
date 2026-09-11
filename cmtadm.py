@@ -6120,6 +6120,8 @@ def teardown_control_plane(options: list[tuple[str, str]], args: list[str]) -> N
         if opt == "list-tasks":
             __list_phases(teardown_control_plane_tasks)
             sys.exit(0)
+        elif opt == "--ignore-errors":
+            ignore_errors = True
 
     if not Path(CMT_INSTALLATION_INFO_FILE).is_file():
         ansithemeprint([ANSIThemeStr("Error", "error"),
@@ -6129,7 +6131,20 @@ def teardown_control_plane(options: list[tuple[str, str]], args: list[str]) -> N
 
     # This is the cluster name according to .kube/config; this is what we care about when upgrading,
     # not whatever is currently set as the target in installation info.
-    cluster_name = get_cluster_name()
+    try:
+        cluster_name = get_cluster_name()
+    except FilePathAuditError as e:
+        if "DOES_NOT_EXIST" in str(e):
+            ansithemeprint([ANSIThemeStr("Warning", "warning"),
+                            ANSIThemeStr(": ", "default"),
+                            ANSIThemeStr(f"{KUBE_CONFIG_FILE}", "path"),
+                            ANSIThemeStr(" does not exist. "
+                                         "Aborting.", "default")], stderr=True)
+            if ignore_errors:
+                installation_info = update_installation_info(state="torn_down",
+                                                             phase=0, cni="<none>")
+            sys.exit(errno.ENOENT)
+        raise
 
     if not cluster_name:
         ansithemeprint([ANSIThemeStr("Error", "error"),
@@ -6216,8 +6231,6 @@ def teardown_control_plane(options: list[tuple[str, str]], args: list[str]) -> N
             phase = __validate_task_index(teardown_control_plane_tasks, phase)
         elif opt == "--save-ansible-logs":
             ansible_configuration["save_logs"] = True
-        elif opt == "--ignore-errors":
-            ignore_errors = True
         elif opt == "--verbose":
             verbose = True
         elif opt == "-Y":

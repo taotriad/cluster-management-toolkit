@@ -57,7 +57,7 @@ except ModuleNotFoundError:  # pragma: no cover
              "you may need to (re-)run `cmt-install.py` or `pip3 install natsort`; aborting.")
 
 try:
-    import prctl  # type: ignore[import-not-found,unused-ignore]
+    import prctl  # type: ignore[import-not-found,import-untyped,unused-ignore]
     prctl.set_name(PurePath(sys.argv[0]).name)  # pylint: disable=no-member,useless-suppression
     prctl.set_proctitle(" ".join(sys.argv))
 except ModuleNotFoundError:  # pragma: no cover
@@ -5498,37 +5498,18 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                                  facility_extended, squash_empty_lines=squash_empty_lines)
                 added = new_added
 
-                if remnants is not None and remnants:
-                    # Remnants are used for unfolding multi-line messages that have been
-                    # folded into one, such as YAML/JSON, etc.
-                    #
-                    # Remnants can, for the time being, be either:
-                    # (list of string, severity)
-                    # (string(newline separated strings), severity)
-                    # or
-                    # [(string, severity), ...]
-                    if isinstance(remnants, tuple):
-                        tmpmessages, severity = remnants
-                        if isinstance(tmpmessages, list):
-                            tmpmsg = tmpmessages
-                        else:
-                            tmpmsg = tmpmessages.split("\n")
-
-                        for message in tmpmsg:
-                            timestamps, facilities, severities, messages, new_added = \
-                                log_add_line(timestamps, facilities, severities, messages, None,
-                                             "".ljust(len(facility)), severity, message,
-                                             facility_extended,
-                                             squash_empty_lines=squash_empty_lines)
-                            added = new_added
-                    else:
-                        for message, severity in remnants:
-                            timestamps, facilities, severities, messages, new_added = \
-                                log_add_line(timestamps, facilities, severities, messages, None,
-                                             "".ljust(len(facility)), severity, message,
-                                             facility_extended,
-                                             squash_empty_lines=squash_empty_lines)
-                            added = new_added
+                if remnants:
+                    # XXX: We can remove this after some testing.
+                    if not isinstance(remnants, list):
+                        sys.exit("PROGRAMMING ERROR! Convert remnants to [(remnants, severity)]; "
+                                 "{remnants=}")
+                    for message, severity in remnants:
+                        timestamps, facilities, severities, messages, new_added = \
+                            log_add_line(timestamps, facilities, severities, messages, None,
+                                         "".ljust(len(facility)), severity, message,
+                                         facility_extended,
+                                         squash_empty_lines=squash_empty_lines)
+                        added = new_added
 
             # The data in some fields might become shorter, so we need to trigger a clear
             if uip.infopad is not None:

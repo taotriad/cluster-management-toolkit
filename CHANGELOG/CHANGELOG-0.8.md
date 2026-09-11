@@ -1,3 +1,326 @@
+* [v0.8.11](#v0811)
+    * [Downloads](#downloads-for-v0811)
+        * [Source Code](#source-code-for-v0811)
+        * [Distro Packages](#distro-packages-for-v0811)
+    * [General Release Notes](#general-release-notes-for-v0811)
+    * [Urgent Upgrade Notes](#urgent-upgrade-notes-for-v0811)
+    * [Changes by Component](#changes-by-component-in-v0811)
+        * [Changes to _cmt_](#changes-to-cmt-in-v0811)
+        * [Changes to _cmtadm_](#changes-to-cmtadm-in-v0811)
+        * [Changes to _cmtinv_](#changes-to-cmtinv-in-v0811)
+        * [Changes to _cmu_](#changes-to-cmu-in-v0811)
+        * [Changes to other files](#changes-to-other-files-in-v0811)
+    * [Known Regressions](#known-regressions-in-v0811)
+    * [Dependencies](#dependencies-for-v0811)
+    * [Test Results](#test-results-for-v0811)
+        * [Bandit](#bandit-results-for-v0811)
+        * [Coverage](#coverage-results-for-v0811)
+        * [Flake8](#flake8-results-for-v0811)
+        * [Mypy](#mypy-results-for-v0811)
+        * [Pylint](#pylint-results-for-v0811)
+        * [Regexploit](#regexploit-results-for-v0811)
+        * [Ruff](#ruff-results-for-v0811)
+        * [Semgrep](#semgrep-results-for-v0811)
+        * [validate_playbooks](#validate_playbooks-results-for-v0811)
+        * [validate_yaml](#validate_yaml-results-for-v0811)
+        * [YAMLlint](#yamllint-results-for-v0811)
+
+# v0.8.11
+
+## Downloads for v0.8.11
+
+### Source Code for v0.8.11
+
+Source code tarballs are created by GitHub. The source code is also
+available by checking out the git repository.
+
+### Distro packages for v0.8.11
+
+CMT v0.8.11 does not include distro packages. It is just a git tag.
+We aim for CMT v0.9.0 to be the first release with distro packages.
+
+<!--
+| Filename | sha512 hash |
+| :------- | :---------- |
+| [fixme](https://fixme) (Debian 12+ all / Ubuntu 24.04+ all / Raspberry Pi OS arm64) | `fixme` |
+| [fixme](https://fixme) (RHEL 8+ amd64) | `fixme` |
+| [fixme](https://fixme) (SLES/openSUSE 15.6+ amd64) | `fixme` |
+-->
+
+## General Release Notes for v0.8.11
+
+This is a tagged release of __Cluster Management Toolkit for Kubernetes__ (CMT).
+It provides support for setting up Kubernetes clusters either using templates (recommended)
+or step by step.
+
+It also provides tools for managing the underlying hosts (and, optionally, hosts
+that are not part of the cluster) using Ansible.
+
+Finally it contains a Curses-based user interface (_cmu_) that provides an overview
+of the cluster objects and their relations; for instance the user interface provides
+links from the Pod view directly to its controller, config maps, logs, namespace,
+secrets, etc.
+
+## Urgent Upgrade Notes for v0.8.11
+
+N/A
+
+## Deprecations in v0.8.11
+
+* The `kiosk.sh` Kubernetes API was deprecated in CMT v0.8.8, and will be removed in v0.9.0.
+
+## Changes by Component in v0.8.11
+
+### Changes to _cmt_ in v0.8.11
+
+N/A
+
+### Changes to _cmtadm_ in v0.8.11
+
+N/A
+
+### Changes to _cmtinv_ in v0.8.11
+
+N/A
+
+### Changes to _cmu_ in v0.8.11
+
+* Simplify remnants handling now that all parser-rules return remnants
+  in a unified manner. For the time being we'll keep some code in _cmu_
+  that exits if one of the parser-rules returns invalid remnants,
+  but that will be removed if sufficient testing can be done before
+  the v0.8.11 release.
+
+### Changes to other files in v0.8.11
+
+* All logparsers have been restructed to return
+  the same parameters in the same order (where applicable).
+* All logparsers have had their type signatures
+  corrected and verified; from now on `logparser.py` will
+  no longer get release exceptions for type warnings.
+* All remnants returned form `logparser.py` now behave in the same manner.
+
+## Known Regressions in v0.8.11
+
+No known regressions.
+
+## Known Issues in v0.8.11
+
+* The Markdown formatter doesn't handle brackets in mentions, such as `@dependabot[bot]`; this is an upstream
+  issue in Pygments and has been reported as [Pygments Issue #3252](https://github.com/pygments/pygments/issues/3252).
+* Due to the way `cmu` works the file-viewer needs a backing listview,
+  so `Debug Logs` was picked for the purpose (since it's always available
+  even when the cluster is unavailable (or `--disable-kubernetes` is used).
+* Nested lists and lists with checkboxes in Markdown have some formatting issues.
+* When changing views or reloading data the screen still looks a bit buggy;
+  this is a long-standing issue, and is purely cosmetic.
+* As of preparing this release the version of `pylint` packaged for Debian unstable is incompatible
+  with the version of `python3-astroid` packaged for Debian unstable.
+  As a workaround the version of `python3-astroid` in Debian testing has been used instead.
+
+## Dependencies for v0.8.11
+
+### Python
+
+> [!NOTE]
+> In most/all cases there are suitable distro packages for these dependencies in SUSE,
+> but the package have the Python-version included in their names, so `cmt-install.py`
+> currently does not handle these dependencies properly. Once we switch to providing
+> proper distro packages instead this problem should go away.
+
+| PIP Name       | Minimum Version | Note                                    |
+| :------------- | :-------------- | :-------------------------------------- |
+| ansible-runner | 2.1.4           | openSUSE/SLES/RHEL, unsupported distros |
+| cryptography   |                 | openSUSE, unsupported distros           |
+| jinja2         | 3.1.6           | openSUSE/SLES/RHEL, unsupported distros |
+| natsort        | 8.0.2           | openSUSE/SLES/RHEL, unsupported distros |
+| orjson         | 3.11.7          | openSUSE/SLES/RHEL, unsupported distros |
+| paramiko       |                 | openSUSE/SLES/RHEL, unsupported distros |
+| pygments       | 2.20.0          | OpenSUSE/SLES/RHEL, unsupported distros |
+| PyYAML         | 6.0             | Unsupported distros                     |
+| ruamel.yaml    | 0.17.21         | Unsupported distros [1]                 |
+| ruyaml         | 0.91.0          | Unsupported distros [1]                 |
+| setuptools     | 83.0.0          | openSUSE/SLES/RHEL, unsupported distros |
+| ujson          | 5.13.0          | openSUSE/SLES/RHEL, unsupported distros |
+| urllib3        | 2.7.0           | openSUSE/SLES, unsupported distros      |
+| validators     | 0.28.3          | openSUSE/SLES/RHEL, unsupported distros |
+
+**[1]**: Only one of `ruamel.yaml` and `ruyaml` is necessary.
+
+### Distro Packages
+
+| Package Name                  | Distro             |
+| :---------------------------- | :----------------- |
+| ansible                       | Debian/Ubuntu/SUSE |
+| python3-ansible-runner        | Debian/Ubuntu      |
+| python3-cryptography          | Debian/RHEL/Ubuntu |
+| python3-jinja2                | Debian/Ubuntu      |
+| python3-natsort               | Debian/Ubuntu      |
+| python3-paramiko              | Debian/Ubuntu      |
+| python3-pip                   | Debian/Ubuntu      |
+| python3-pygments              | Debian/Ubuntu      |
+| python3-pyyaml                | RHEL               |
+| python3-ruyaml                | Debian/Ubuntu [2]  |
+| python3-ruamel.yaml           | Debian/Ubuntu [2]  |
+| python3-ruamel-yaml           | RHEL/SUSE          |
+| python3-orjson                | Debian/Ubuntu      |
+| python3-ujson                 | Debian/Ubuntu      |
+| python3-urllib3               | Debian/Ubuntu/RHEL |
+| python3-validators            | Debian/Ubuntu      |
+| python3-yaml                  | Debian/Ubuntu      |
+| sshpass                       | All                |
+
+**[2]**: Only one of `ruamel.yaml` and `ruyaml` is necessary.
+
+### Manual Installation or Unknown Distro Packages
+
+| Software | Distro              |
+| :------- | :------------------ |
+| ansible  | Unsupported distros |
+| sshpass  | Unsupported distros |
+
+## Test Results for v0.8.11
+
+Before release the code quality has been checked with _pylint_, _flake8_, _mypy_, and _ruff_.
+The code has been checked for security issues using _bandit_, _regexploit_, and _semgrep_.
+The _Ansible_ playbooks have been checked using _ansible-lint_.
+YAML-files have been checked using _yamllint_ and validated against predefined schemas.
+JSON-files have been checked using _jsonlint-php_.
+Unit-test coverage has been measured using _python3-coverage_.
+Additionally the repository is checked by _snyk_, _codeql_, and _dependabot_.
+
+The results of these tests are as follows:
+
+### Bandit Results for v0.8.11
+
+Commandline: `bandit -c .bandit`.
+Execute with `make bandit`.
+
+Version: 1.9.4
+
+Output:
+
+```
+TODO
+```
+
+### Coverage Results for v0.8.11
+
+Commandline: `python3-coverage run --branch --append <file> && python3-coverage report --sort cover --precision 1`.
+
+Execute with:
+
+```
+make coverage-clean
+make coverage-all
+make coverage-markdown
+```
+
+Version: 7.8.2
+
+Output:
+
+TODO
+
+### Flake8 Results for v0.8.11
+
+Commandline: `flake8 --max-line-length 100 --ignore F841,W503 --statistics`.
+Execute with `make flake8`.
+
+Version: 7.3.0
+
+Output:
+
+TODO
+
+### mypy Results for v0.8.11
+
+Commandline: `mypy --follow-imports silent --explicit-package-bases --ignore-missing --disallow-untyped-calls --disallow-untyped-defs --disallow-incomplete-defs --check-untyped-defs --disallow-untyped-decorators --warn-redundant-casts --warn-unused-ignores`.
+Execute with `make mypy-markdown`.
+
+Version: 2.1.0
+
+TODO
+
+### Pylint Results for v0.8.11
+
+Commandline: `pylint --py-version 3.11 --disable W0511, similarities --enable useless-suppression`.
+Table generated with `make pylint-markdown`.
+
+Version: 4.0.6
+
+TODO
+
+### Regexploit Results for v0.8.11
+
+Commandline: `regexploit`.
+Execute with `make regexploit`.
+
+Version: 1.0.0
+
+Output:
+
+```
+TODO
+```
+
+### Ruff Results for v0.8.11
+
+Commandline: `ruff check --target-version py39`.
+Execute with `make ruff`.
+
+Version: 0.0.291
+
+Output:
+
+TODO
+
+### Semgrep Results for v0.8.11
+
+Commandline: `semgrep scan --exclude-rule "generic.secrets.security.detected-generic-secret.detected-generic-secret.semgrep-legacy.30980" --exclude-rule "python.flask.security.xss.audit.direct-use-of-jinja2.direct-use-of-jinja2" --exclude "*.yaml" --exclude "*.j2" --exclude "*.json" --timeout=0 --no-git-ignore`.
+Execute with `make semgrep`.
+
+Version: 1.176.1
+
+Output:
+
+```
+TODO
+```
+
+### validate_playbooks Results for v0.8.11
+
+Version: 26.4.0
+
+Commandline: `ansible-lint`.
+Execute with: `make validate_playbooks`.
+
+```
+TODO
+```
+
+### validate_yaml Results for v0.8.11
+
+Commandline: `tests/validate_yaml`.
+Execute with: `make validate_yaml`.
+
+Output:
+
+```
+TODO
+```
+
+### YAMLlint Results for v0.8.11
+
+Commandline: `yamllint`.
+Execute with `make yamllint`.
+
+Version: 1.38.0
+
+Output:
+
+TODO
+
 * [v0.8.10](#v0810)
     * [Downloads](#downloads-for-v0810)
         * [Source Code](#source-code-for-v0810)

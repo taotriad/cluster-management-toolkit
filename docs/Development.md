@@ -24,9 +24,7 @@ It tries to provide a highlevel view of what is planned for the upcoming year or
 * [ ] `make generate_mdtoc` *(If paragraphs have been added or removed in the documentation)*
 * [ ] Make sure that all commands work on the platforms listed in [Supported platforms](Supported_platforms.md).
 
-Release exceptions must be granted for any new warnings from `make mypy` (the existing
-warnings are acceptable for the time being). No new warnings from any other
-components are accepted.
+No new warnings are accepted.
 
 ### Prepare changelog
 
@@ -182,8 +180,6 @@ You _should_ also check for code quality issues using:
 make checks
 make code-checks
 ```
-
-`logparser.py` will report issues from the mypy tests, but no other errors should be reported.
 
 ### Testing Parser-files, Themes, and View-files
 
