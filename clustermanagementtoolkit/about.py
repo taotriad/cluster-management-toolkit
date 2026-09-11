@@ -23,7 +23,7 @@ PROGRAM_SUITE_FULL_NAME: str = "Cluster Management Toolkit for Kubernetes"
 PROGRAM_SUITE_VERSION: str = "0.8.10"
 
 UI_PROGRAM_NAME: str = "cmu"
-UI_PROGRAM_VERSION: str = "0.5.7"
+UI_PROGRAM_VERSION: str = "0.5.8"
 
 TOOL_PROGRAM_NAME: str = "cmt"
 TOOL_PROGRAM_VERSION: str = "0.6.9"
@@ -32,7 +32,7 @@ INSTALL_PROGRAM_NAME: str = "cmt-install.py"
 INSTALL_PROGRAM_VERSION: str = "0.14.2"
 
 ADMIN_PROGRAM_NAME: str = "cmtadm"
-ADMIN_PROGRAM_VERSION: str = "0.9.7"
+ADMIN_PROGRAM_VERSION: str = "0.9.8"
 
 INVENTORY_PROGRAM_NAME: str = "cmtinv"
 INVENTORY_PROGRAM_VERSION: str = "0.4.9"
