@@ -2204,6 +2204,8 @@ def format_generic(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef 
 def format_ansible(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef | ThemeStr]]:
     """
     Ansible formatter; formats output from Ansible plays.
+    Note: The Pygments lexer for Ansible has been tested, but found, at least currently,
+    not fit for the purpose of replacing this formatter.
 
         Parameters:
             lines ([str]): A list of strings
@@ -2546,12 +2548,14 @@ class ThemeArrayFormatter(Formatter):
             # Use this when adding new formatters; we can ignore empty strings.
             if ttype not in self.colorscheme \
                     and ttype not in self.unknown_ttypes and value:  # pragma: nocover
-                tmpvalue = value.replace(r'"', r'\\"')
-                tmpvalue = value.replace('\\', r'\\\\')
-                tmpvalue = value.replace('\r', r'\\r')
-                tmpvalue = value.replace('\t', r'\\t')
-                tmpvalue = value.replace('\b', r'\\b')
-                tmpvalue = value.replace('\f', r'\\f')
+                tmpvalue = value
+                tmpvalue = tmpvalue.replace('\\', r'<backslash>')
+                tmpvalue = tmpvalue.replace(r'"', r'\\\"')
+                tmpvalue = tmpvalue.replace('\r', r'\\\r')
+                tmpvalue = tmpvalue.replace('\t', r'\\\t')
+                tmpvalue = tmpvalue.replace('\b', r'\\\b')
+                tmpvalue = tmpvalue.replace('\f', r'\\\f')
+                tmpvalue = tmpvalue.replace('<backslash>', r'\\\\')
                 # We don't want multiple lines in the error log.
                 tmpvalue2 = tmpvalue.split("\n", maxsplit=1)[0]
                 errmsg = [
