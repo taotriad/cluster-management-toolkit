@@ -3700,7 +3700,7 @@ def init_parser_list(force_reinit: bool = False) -> None:
                                  rules=[ParserRule("ts_8601", {})]))
 
 
-def get_parser_list() -> set[Parser]:
+def get_parser_list() -> set[str]:
     """
     Return a set with the parsers that should be visible in the override menu.
 
@@ -3711,7 +3711,7 @@ def get_parser_list() -> set[Parser]:
     for parser in parsers:
         if not parser.show_in_selector:
             continue
-        parsers_.add(parser)
+        parsers_.add(parser.name)
 
     return parsers_
 
