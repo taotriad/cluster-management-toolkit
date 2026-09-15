@@ -31,7 +31,6 @@ unit-tests:
 # pylint: disable=too-many-lines
 
 import ast
-from collections import namedtuple
 from collections.abc import Callable
 from datetime import datetime
 import difflib
@@ -39,7 +38,7 @@ import json
 from pathlib import Path
 import re
 import sys
-from typing import Any, cast, Literal, TypedDict
+from typing import Any, cast, Literal, NamedTuple, TypedDict
 try:
     import ruyaml  # type: ignore[import-not-found,unused-ignore]
     ryaml = ruyaml.YAML()
@@ -163,6 +162,61 @@ class LogparserConfiguration:
     override_severity: bool = True
     # Are parser-files read from BUNDLE.yaml?
     using_bundles: bool = False
+
+
+class ParserRule(NamedTuple):
+    """
+    A single parser-rule directive.
+
+        Parameters:
+            rule_name (str): The rule to apply (see parsers/README.md)
+            options (dict[str, Any]): The options to pass to the rule (see parsers/README.md)
+    """
+    rule_name: str
+    options: dict[str, Any]
+
+
+class MatchRule(NamedTuple):
+    """
+    A rule to use when identifying what containers the parser-rules apply to.
+    One of pod_name, container_name, image_name, or image_regex is required.
+    Stricter matcher is typically better, since it prevents the parser-rules from
+    overriding unrelated logs.
+
+        Parameters:
+            pod_name (str): The ^prefix, suffix$ or ^exact match$ for the pod
+            container_name (str): The ^prefix, suffix$ or ^exact match$ for the container
+            image_name (str): The ^prefix, suffix$ or ^exact match$ for the image
+            image_regex (re.Pattern[str]): A regular expression that matches the image name
+            container_type ("Container", "InitContainer"): The container type; default "Container"
+    """
+    pod_name: str
+    container_name: str
+    image_name: str
+    container_type: Literal["InitContainer", "Container"]
+    image_regex: re.Pattern[str] | None
+
+
+class Parser(NamedTuple):
+    """
+    A parser-file rule to be used when the log from a container.
+
+        Parameters:
+            name (str): The name of the parser-file rule; NOT unique; if you want multiple
+                        rules to share the same name (for instance when you have a class
+                        of different logs that all belong to the same project, but require
+                        different parser-rules) you can; these will be identified by
+                        their MatchRules instead.
+            show_in_selector (bool): Show the rule in the Override Parser list; should typically
+                                     only be specified for generic rules. Default: False.
+            match ([MatchRule]): The rules used to identifying what containers the parser-rule
+                                 applies to.
+            rules ([ParserRule]): The parser-rules to apply to the container log.
+    """
+    name: str
+    show_in_selector: bool
+    match: list[MatchRule]
+    rules: list[ParserRule]
 
 
 def month_to_numerical(month: str) -> str:
@@ -3158,7 +3212,7 @@ def custom_splitter(message: str, **kwargs: Any) -> \
 
 # pylint: disable-next=too-many-locals,too-many-branches,too-many-statements
 def parsing_multiplexer(message: str | list[ThemeRef | ThemeStr],
-                        filters: list[tuple[str, dict]], **kwargs: Any) \
+                        filters: list[ParserRule], **kwargs: Any) \
         -> tuple[str, LogLevel,
                  list[ThemeRef | ThemeStr],
                  list[tuple[list[ThemeRef | ThemeStr], LogLevel]], LogBlock]:
@@ -3168,7 +3222,7 @@ def parsing_multiplexer(message: str | list[ThemeRef | ThemeStr],
 
         Parameters:
             message (str): The message to format
-            filters ([(str, dict)]): The list of parser rules to apply (and options)
+            filters ([ParserRule]): The list of parser-rules to apply
             **kwargs (dict[str, Any]): Keyword arguments
                 fold_msg (bool): Should the message be expanded or folded?
                 options (dict[str, Any]): Options to pass to the block parsers
@@ -3335,7 +3389,6 @@ def parsing_multiplexer(message: str | list[ThemeRef | ThemeStr],
     return facility, severity, rmessage, remnants, processor
 
 
-Parser = namedtuple("Parser", "name show_in_selector match rules")
 parsers: list[Parser] = []
 
 
@@ -3541,21 +3594,23 @@ def init_parser_list(force_reinit: bool = False) -> None:
                 if not parser_name:
                     continue
                 show_in_selector = deep_get(parser, DictPath("show_in_selector"), False)
-                matchrules = []
+                matchrules: list[MatchRule] = []
                 for matchkey in deep_get(parser, DictPath("matchkeys")):
                     pod_name = deep_get(matchkey, DictPath("pod_name"), "")
                     container_name = deep_get(matchkey, DictPath("container_name"), "")
                     image_name = deep_get(matchkey, DictPath("image_name"), "")
                     image_regex_raw = deep_get(matchkey, DictPath("image_regex"), "")
                     if image_regex_raw:
-                        image_regex = re.compile(image_regex_raw)
+                        image_regex: re.Pattern | None = re.compile(image_regex_raw)
                     else:
                         image_regex = None
-                    container_type = deep_get(matchkey, DictPath("container_type"), "Container")
+                    container_type: Literal["Container", "InitContainer"] = \
+                        deep_get(matchkey, DictPath("container_type"), "Container")
                     # We need at least one way of matching
                     if not any((pod_name, container_name, image_name, image_regex)):
                         continue
-                    matchrule = (pod_name, container_name, image_name, container_type, image_regex)
+                    matchrule: MatchRule = \
+                        MatchRule(pod_name, container_name, image_name, container_type, image_regex)
                     matchrules.append(matchrule)
 
                 if not matchrules:
@@ -3565,7 +3620,7 @@ def init_parser_list(force_reinit: bool = False) -> None:
                 if not parser_rules:
                     continue
 
-                rules: list[tuple[str, dict]] = []
+                rules: list[ParserRule] = []
 
                 for rule in parser_rules:
                     overrides: list[dict[str, Any]] = []
@@ -3620,7 +3675,7 @@ def init_parser_list(force_reinit: bool = False) -> None:
                                     value["overrides"] = \
                                         compile_override_rules(parser_file, overrides)
                             options[key] = value
-                        rules.append((rule_name, options))
+                        rules.append(ParserRule(rule_name, options))
                     else:
                         errmsg = [
                             [("Parser-file ", "default"),
@@ -3638,10 +3693,11 @@ def init_parser_list(force_reinit: bool = False) -> None:
 
     # Fallback entries
     parsers.append(Parser(name="basic_8601_raw", show_in_selector=True,
-                          match=[("raw", "", "", "Container", None)], rules=[]))
+                          match=[MatchRule("raw", "", "", "Container", None)], rules=[]))
     # This should always be last
     parsers.append(Parser(name="basic_8601", show_in_selector=True,
-                          match=[("raw", "", "", "Container", None)], rules=[("ts_8601", {})]))
+                          match=[MatchRule("raw", "", "", "Container", None)],
+                                 rules=[ParserRule("ts_8601", {})]))
 
 
 def get_parser_list() -> set[Parser]:
@@ -3655,7 +3711,7 @@ def get_parser_list() -> set[Parser]:
     for parser in parsers:
         if not parser.show_in_selector:
             continue
-        parsers_.add(parser.name)
+        parsers_.add(parser)
 
     return parsers_
 
@@ -3818,9 +3874,12 @@ def initialise_logparser(**kwargs: Any) -> tuple[tuple[str | None, str | None], 
 
     image_name = image_name.removeprefix("docker-pullable://")
 
+    uparser: str | None = None
+    lparser: str | None = None
+
     for parser in parsers:
-        uparser: str | None = None
-        lparser: str | None = None
+        uparser = None
+        lparser = None
 
         for matchrule_pod_name, matchrule_container_name, matchrule_image_prefix, \
                 matchrule_container_type, matchrule_image_regex in parser.match:
@@ -3838,8 +3897,8 @@ def initialise_logparser(**kwargs: Any) -> tuple[tuple[str | None, str | None], 
             if matchrule_image_regex is None:
                 regex_match = True
             else:
-                tmp = matchrule_image_regex.search(_image_name)
-                regex_match = tmp is not None
+                tmp_match = matchrule_image_regex.search(_image_name)
+                regex_match = tmp_match is not None
 
             if all((match_name(matchrule_pod_name, pod_name),
                     match_name(matchrule_container_name, container_name),
@@ -3859,10 +3918,11 @@ def initialise_logparser(**kwargs: Any) -> tuple[tuple[str | None, str | None], 
         if lparser is not None:
             break
 
-    if uparser is None and (lparser is None or not lparser):
+    if uparser is None and not lparser:
         lparser = "<unknown format>"
         uparser = "basic_8601"
         parser = Parser(name="basic_8601", show_in_selector=True,
-                        match=[("raw", "", "", "Container", None)], rules=[("ts_8601", {})])
+                        match=[MatchRule("raw", "", "", "Container", None)],
+                        rules=[ParserRule("ts_8601", {})])
 
     return (lparser, uparser), parser
