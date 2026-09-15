@@ -1567,12 +1567,14 @@ def genericlistloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                         uip.list_needs_regeneration(True)
                 except re.error:
                     continue
-        elif c == ord("l") and is_taggable and vlist is not None and uip.listlen:
-            # List the union of all labels of the tagged objects (if the objects support labels)
+        elif c in (ord("f"), ord("l")) and is_taggable and vlist is not None and uip.listlen:
+            # List the union of all labels of the tagged objects and create a label selector
+            # from the choices made by the user (if the objects support labels)
             if not get_tagged_items():
                 selected = uip.get_selected()
                 tag_item(selected)
                 uip.list_needs_regeneration(True)
+
             labellist = []
             labels = []
             if "namespace" in deep_get(vlist[0], DictPath("metadata"), "") and "namespace" in item:
@@ -1611,77 +1613,37 @@ def genericlistloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                                 [ThemeStr(f"{value_}", ThemeAttr("windowwidget", "default"))]],
                 })
             label_headers = ["Label:", "Value:"]
-            curses_helper.windowwidget(uip.stdscr, uip.maxy, uip.maxx,
-                                       uip.maxy // 2, uip.maxx // 2,
-                                       labellist, headers=label_headers,
-                                       cursor=False)
-            clear_tagged_items()
-            uip.list_needs_regeneration(True)
-            uip.refresh_all()
-            curses.doupdate()
-        elif c == ord("f") and is_taggable and vlist is not None and uip.listlen:
-            # List the union of all labels of the tagged objects and create a label selector
-            # from the choices made by the user (if the objects support labels)
-            if not get_tagged_items():
-                selected = uip.get_selected()
-                tag_item(selected)
-                uip.list_needs_regeneration(True)
-
-            labellist = []
-            labels = []
-            if "namespace" in deep_get(vlist[0], DictPath("metadata"), "") and "namespace" in item:
-                itemlist = [(deep_get(item, DictPath("namespace"), ""),
-                             deep_get(item, DictPath("name")))
-                                for item in get_tagged_objects(uip.sorted_list)]
-            else:
-                itemlist = [deep_get(item, DictPath("name"))
-                                for item in get_tagged_objects(uip.sorted_list)]
-
-            if not itemlist:
-                continue
-
-            for obj in vlist:
-                if isinstance(itemlist[0], tuple):
-                    if (deep_get(obj, DictPath("metadata#namespace"), ""),
-                            deep_get(obj, DictPath("metadata#name"))) not in itemlist:
-                        continue
-                else:
-                    if deep_get(obj, DictPath("metadata#name")) not in itemlist:
-                        continue
-
-                labelref = deep_get(obj, DictPath("metadata#labels"), {})
-                for key in labelref:
-                    if (key, labelref[key]) not in labels:
-                        labels.append((key, labelref[key]))
-            if not labels:
-                continue
-            for key, value in labels:
-                labellist.append({
-                    "lineattrs": WidgetLineAttrs.NORMAL,
-                    "columns": [[ThemeStr(f"{key}", ThemeAttr("windowwidget", "default"))],
-                                [ThemeStr(f"{value}", ThemeAttr("windowwidget", "default"))]],
-                })
-            label_headers = ["Label:", "Value:"]
+            l_show_cursor: bool = False
+            l_is_taggable: bool = False
+            title: str = "Labels:"
+            if c == ord("f"):
+                l_show_cursor = True
+                l_is_taggable = True
+                title = "Select Labels for Label Selector:"
             tagged_labels = cast(set, curses_helper.windowwidget(uip.stdscr, uip.maxy, uip.maxx,
                                                                  uip.maxy // 2, uip.maxx // 2,
                                                                  labellist, headers=label_headers,
-                                                                 title="Labels", cursor=True,
-                                                                 taggable=True))
-            if tagged_labels:
+                                                                 title=title, cursor=l_show_cursor,
+                                                                 taggable=l_is_taggable))
+            clear_tagged_items()
+
+            if l_is_taggable and tagged_labels:
                 selectors = {}
                 for i, label in enumerate(labels):
                     if i in tagged_labels:
                         selectors[label[0]] = label[1]
                 label_selector = make_label_selector(selectors)
                 uip.force_update()
-            clear_tagged_items()
-            uip.update_info([])
-            uip.force_update()
-            if ".".join(kind) in executor:
-                executor.update(".".join(kind), label_selector=label_selector)
-            uip.update_window(update="false")
+                if ".".join(kind) in executor:
+                    executor.update(".".join(kind), label_selector=label_selector)
+                uip.update_window(update="false")
+                infogetter_extra_args["_vlist"] = []
+                uip.update_info([])
+                uip.force_update()
+            else:
+                uip.refresh_all()
+                curses.doupdate()
             uip.list_needs_regeneration(True)
-            infogetter_extra_args["_vlist"] = []
         elif c == ord("A") and view == "Inventory" and not get_tagged_items():
             if not (selected := uip.get_selected()):
                 continue
@@ -1991,13 +1953,13 @@ def genericlistloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                 if "_parent_kind_tuple_paths" in action_args and selected is not None:
                     parent_kind_path, parent_api_version_path = \
                         deep_get(action_args, DictPath("_parent_kind_tuple_paths"))
-                    parent_kind = deep_get(obj, parent_kind_path, "")
-                    parent_api_version = deep_get(obj, parent_api_version_path, "")
+                    parent_kind = deep_get(ref, parent_kind_path, "")
+                    parent_api_version = deep_get(ref, parent_api_version_path, "")
                     action_args["_parent_kind_tuple"] = (parent_kind, parent_api_version)
                 if "_parent_namespace_path" in action_args and selected is not None:
                     parent_namespace_path = \
                         deep_get(action_args, DictPath("_parent_namespace_path"))
-                    action_args["_parent_namespace"] = deep_get(obj, parent_namespace_path, "")
+                    action_args["_parent_namespace"] = deep_get(ref, parent_namespace_path, "")
                 if "_named_title" in action_args and selected is not None:
                     title = deep_get(action_args, DictPath("title"), "")
                     title_name = ""
