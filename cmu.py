@@ -531,14 +531,13 @@ def get_control_planes() -> list[tuple[dict[str, Any], str]]:
     return control_planes
 
 
-# pylint: disable-next=unused-argument
-def set_cluster_context(stdscr: curses.window, **kwargs: Any) -> Retval:
+def set_cluster_context(**kwargs: Any) -> Retval:
     """
     Set Kubernetes cluster context.
 
         Parameters:
-            stdscr (curses.window): The curses window to operate on
             **kwargs (dict[str, Any]): Keyword arguments
+                stdscr (curses.window): The curses window to operate on
                 selected (dict): The selected obj from a listpad
         Returns:
             (Retval): The return value
@@ -1426,7 +1425,7 @@ def genericlistloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                     defaultpath = ("", "")
 
                 if action:
-                    retval = actionfunc(uip=uip, items=[], action=actionlist[action],
+                    retval = actionfunc(stdscr=uip.stdscr, items=[], action=actionlist[action],
                                         values=selection_vars, kind=kind,
                                         **actionfunc_args)
                     uip.update_window(update="false")
@@ -1891,7 +1890,7 @@ def genericlistloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                 selection_vars["_tagged_items"] = get_tagged_objects(uip.sorted_list)
                 selection_vars["action_args"] = action_args
                 if action:
-                    retval = actionfunc(uip=uip, items=items, action=actionlist[action],
+                    retval = actionfunc(stdscr=uip.stdscr, items=items, action=actionlist[action],
                                         values=selection_vars, kind=kind, title=title,
                                         **actionfunc_args)
                     if retval is not None and retval == Retval.RETURNFULL:
@@ -1987,7 +1986,7 @@ def genericlistloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                         tmp = deep_get(listview_args, DictPath(var))
                         deep_set(listview_args, DictPath(var), next_option(tmp, var_options))
                 elif action == "call" and action_call is not None:
-                    retval = action_call(uip.stdscr, **action_args)
+                    retval = action_call(stdscr=uip.stdscr, **action_args)
                     if retval is not None and retval == Retval.RETURNFULL:
                         return retval
                 elif action == "command" and action_args is not None:
@@ -2092,7 +2091,7 @@ def __open_listview(**kwargs: Any) -> tuple[Retval, dict]:
     uip = deep_get(kwargs, DictPath("uip"))
     kind = deep_get(kwargs, DictPath("kind"), "")
     api_family = deep_get(kwargs, DictPath("api_family"), "")
-    return listviewdispatch(uip.stdscr, obj={}, kind=(kind, api_family), root=True), {}
+    return listviewdispatch(stdscr=uip.stdscr, obj={}, kind=(kind, api_family), root=True), {}
 
 
 def __open_reference(**kwargs: Any) -> tuple[Retval, dict]:
@@ -2121,7 +2120,7 @@ def __open_reference(**kwargs: Any) -> tuple[Retval, dict]:
         kind = ("Pod", "")
 
     ref = kh.get_ref_by_kind_name_namespace(kind, name, namespace, resource_cache=kh_cache)
-    retval = resourceinfodispatch(uip.stdscr, obj=ref, kind=kind)
+    retval = resourceinfodispatch(stdscr=uip.stdscr, obj=ref, kind=kind)
     if retval is not None and retval == Retval.RETURNFULL:
         return retval, {}
     uip.force_update()
@@ -3191,13 +3190,13 @@ def clusteroverviewloop(stdscr: curses.window, **kwargs: Any) -> Retval:
 
 
 # pylint: disable-next=too-many-branches
-def decode_and_view_data(stdscr: curses.window, **kwargs: Any) -> Retval:
+def decode_and_view_data(**kwargs: Any) -> Retval:
     """
     Decode and view data.
 
         Parameters:
-            stdscr (curses.window): The curses window to operate on
             **kwargs (dict[str, Any]): Keyword arguments
+                stdscr (curses.window): The curses window to operate on
                 obj (dict[str, Any]): An object to extract data from
                 selected (dict): A dict to extract data from
                 path (str): The path into the obj
@@ -3205,6 +3204,8 @@ def decode_and_view_data(stdscr: curses.window, **kwargs: Any) -> Retval:
         Returns:
             (Retval): The return value
     """
+    stdscr: curses.window = deep_get(kwargs, DictPath("stdscr"))
+
     if "selected" in kwargs:
         bvalue = deep_get(kwargs, DictPath("selected#value"))
         title = deep_get(kwargs, DictPath("selected#key"))
@@ -3272,17 +3273,17 @@ def decode_and_view_data(stdscr: curses.window, **kwargs: Any) -> Retval:
         formatter = formatters.format_fluentbit
     else:
         formatter = formatters.format_none
-    return resourceinfodispatch(stdscr, obj=obj, kind=("__ResourceView", ""),
+    return resourceinfodispatch(stdscr=stdscr, obj=obj, kind=("__ResourceView", ""),
                                 title=title, formatter=formatter)
 
 
-def decode_and_view_file_templates(stdscr: curses.window, **kwargs: Any) -> Retval:
+def decode_and_view_file_templates(**kwargs: Any) -> Retval:
     """
     Decode and view file templates.
 
         Parameters:
-            stdscr (curses.window): The curses window to operate on
             **kwargs (dict[str, Any]): Keyword arguments
+                stdscr (curses.window): The curses window to operate on
                 obj (dict[str, Any]): An object to extract data from
                 selection (Any): The selection data
                 name_path (str): The path to the name
@@ -3290,6 +3291,7 @@ def decode_and_view_file_templates(stdscr: curses.window, **kwargs: Any) -> Retv
         Returns:
             (Retval): The return value
     """
+    stdscr: curses.window = deep_get(kwargs, DictPath("stdscr"))
     selection = deep_get(kwargs, DictPath("selection"), {})
     if not selection:
         return Retval.RETURNDONE
@@ -3310,7 +3312,7 @@ def decode_and_view_file_templates(stdscr: curses.window, **kwargs: Any) -> Retv
     title = name
     if encoding == "":
         formatter = formatters.map_dataformat(title)
-        return resourceinfodispatch(stdscr, obj=content, kind=("__ResourceView", ""),
+        return resourceinfodispatch(stdscr=stdscr, obj=content, kind=("__ResourceView", ""),
                                     title=title, formatter=formatter)
 
     vtype, value = decode_value(content)
@@ -3321,18 +3323,18 @@ def decode_and_view_file_templates(stdscr: curses.window, **kwargs: Any) -> Retv
     elif vtype.startswith(("base64-binary", "gzip")):
         return Retval.RETURNDONE
     formatter = formatters.map_dataformat(title)
-    return resourceinfodispatch(stdscr, obj=obj, kind=("__ResourceView", ""),
+    return resourceinfodispatch(stdscr=stdscr, obj=obj, kind=("__ResourceView", ""),
                                 title=title, formatter=formatter)
 
 
 # pylint: disable-next=too-many-branches,too-many-locals,too-many-statements
-def export_data(stdscr: curses.window, **kwargs: Any) -> Retval:
+def export_data(**kwargs: Any) -> Retval:
     """
     Export data to a file.
 
         Parameters:
-            stdscr (curses.window): The curses window to operate on
             **kwargs (dict[str, Any]): Keyword arguments
+                stdscr (curses.window): The curses window to operate on
                 selected (dict): The selected obj from a listpad
                 obj (dict[str, Any]): An object to extract data from
                 extra_args (dict[str, Any]):
@@ -3340,6 +3342,7 @@ def export_data(stdscr: curses.window, **kwargs: Any) -> Retval:
                     name_attr (str): The attribute containing the file name
                     raw_export (bool): Export without decoding data?
     """
+    stdscr: curses.window = deep_get(kwargs, DictPath("stdscr"))
     selected = deep_get(kwargs, DictPath("selected"))
     obj = deep_get(kwargs, DictPath("obj"))
     formatted = deep_get(kwargs, DictPath("formatted"))
@@ -4440,7 +4443,7 @@ def genericinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
             uip.refresh_all()
             continue
         if c == ord("^"):
-            retval = listviewdispatch(uip.stdscr, obj={}, kind=kind, root=True)
+            retval = listviewdispatch(stdscr=uip.stdscr, obj={}, kind=kind, root=True)
             if retval == Retval.RETURNFULL:
                 return retval
             continue
@@ -4753,7 +4756,7 @@ def genericinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                 if action == "call" and action_call is not None:
                     if "process_selection" in action_args:
                         action_args = process_selection(**action_args)
-                    retval = action_call(uip.stdscr, **action_args)
+                    retval = action_call(stdscr=uip.stdscr, **action_args)
                     if retval is not None:
                         if retval == Retval.RETURNFULL:
                             return retval
@@ -4852,7 +4855,7 @@ def genericinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
 
                 if call is not None and call_name is not None:
                     if kind is None or kind == ("", ""):
-                        retval = call(uip.stdscr, **{"selected": call_name})
+                        retval = call(stdscr=uip.stdscr, **{"selected": call_name})
                         if retval is not None and retval == Retval.RETURNFULL:
                             return retval
                     elif kind:
@@ -4860,7 +4863,7 @@ def genericinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                             kind = guess_kind(kind)
                         ref = kh.get_ref_by_kind_name_namespace(kind, call_name, call_namespace,
                                                                 resource_cache=kh_cache)
-                        retval = call(uip.stdscr, obj=ref, kind=kind)
+                        retval = call(stdscr=uip.stdscr, obj=ref, kind=kind)
                         if retval is not None and retval == Retval.RETURNFULL:
                             return retval
                 if force_update is None:
@@ -4871,13 +4874,14 @@ def genericinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                 uip.force_idle()
 
 
-def eventdispatch(stdscr: curses.window, **kwargs: Any) -> Retval:
+def eventdispatch(**kwargs: Any) -> Retval:
     """
     Dispatch from an event to the infoview of an involved object;
     this could probably be achieved using the regular dispatcher.
 
         Parameters:
             **kwargs (dict[str, Any]): Keyword arguments
+                stdscr (curses.window): The curses window to operate on
                 obj (dict): The object to get information from
                 kind_path (DictPath): The path to get the kind from
                 api_version_path (DictPath): The path to get the API-version from
@@ -4887,6 +4891,7 @@ def eventdispatch(stdscr: curses.window, **kwargs: Any) -> Retval:
             (Retval): Retval.RETURNDONE if no match was found, otherwise
                       Retval from the involved object whenever that returns.
     """
+    stdscr: curses.window = deep_get(kwargs, DictPath("stdscr"))
     obj = deep_get(kwargs, DictPath("obj"))
     if obj is None:
         return Retval.RETURNDONE
@@ -4911,7 +4916,7 @@ def eventdispatch(stdscr: curses.window, **kwargs: Any) -> Retval:
     namespace_path = deep_get(kwargs, DictPath("namespace_path"))
     namespace = deep_get_with_fallback(obj, namespace_path + ["metadata#namespace"], "")
     ref = kh.get_ref_by_kind_name_namespace(kind, name, namespace, resource_cache=kh_cache)
-    return resourceinfodispatch(stdscr, obj=ref, kind=kind)
+    return resourceinfodispatch(stdscr=stdscr, obj=ref, kind=kind)
 
 
 # pylint: disable-next=too-many-arguments,too-many-positional-arguments,too-many-locals
@@ -5064,15 +5069,8 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
     show_timestamps = deep_get(cmtlib.cmtconfig, DictPath("Pod#show_timestamps"), True)
     uip.toggle_timestamps(show_timestamps)
     wrap_lines = False
-    # Show severity as text
+    # Show severity as text.
     severity_prefix = deep_get(cmtlib.cmtconfig, DictPath("Pod#severity_prefix"), [])
-    # Backwards compatibility
-    # pylint: disable-next=unidiomatic-typecheck
-    if type(severity_prefix) == bool:  # noqa: E721
-        if not severity_prefix:
-            severity_prefix = []
-        else:
-            severity_prefix = ["[", "4LETTER", "] "]
 
     # This decides whether or not compound log messages,
     # such as Python dicts and JSON, should be expanded
@@ -5112,8 +5110,10 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
             if not multilog_containers:
                 pod_info = infogetters.get_pod_info(**{"vlist": [obj]}, kubernetes_helper=kh,
                                                     kh_cache=kh_cache)[0]
-                namespaces = [deep_get(pod_info, DictPath("namespace"))]
-                podsandnamespace = [(namespaces[0], deep_get(pod_info, DictPath("name")))]
+                namespace = deep_get(pod_info, DictPath("namespace"))
+                podname = deep_get(pod_info, DictPath("name"))
+                namespaces = [namespace]
+                podsandnamespace = [(namespace, podname)]
                 pod_info_ref = deep_get(pod_info, DictPath("ref"))
                 containername = deep_get(container, DictPath("name"))
 
@@ -5145,8 +5145,7 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                                               message="Fetching log")
             if not multilog_containers:
                 rawmsg, internal_error = \
-                    get_pod_log_by_name_namespace_container(podsandnamespace[0][1],
-                                                            podsandnamespace[0][0],
+                    get_pod_log_by_name_namespace_container(podname, namespace,
                                                             containername, tail_lines=tail_lines)
                 splitmsg: Sequence[str | tuple[str, str, str, str,
                                                list[ThemeRef | ThemeStr]]] = split_msg(rawmsg)
@@ -5301,7 +5300,7 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                     parser, _parser = initialise_logparser(pod_name="raw",
                                                            container_type=container_type)
                 elif override_parser or _parser is None or parser is None:
-                    parser, _parser = initialise_logparser(pod_name=podsandnamespace[0][1],
+                    parser, _parser = initialise_logparser(pod_name=podname,
                                                            container_name=containername,
                                                            image_name=image,
                                                            override_parser=override_parser,
@@ -5312,7 +5311,7 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
 
                 i += 1
 
-                # Block parser; anyything that returns a block will trigger
+                # Block parser; anything that returns a block will trigger
                 # an attempt to parse extract it as a block and pass it to a formatter.
                 if block:
                     scanner: Callable = deep_get(block, DictPath("scanner"))
@@ -5345,6 +5344,9 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                     iadd: int = 0
                     if not matched:
                         for j in range(i, len(splitmsg)):
+                            # The block parser cannot handle multiline entries.
+                            if not isinstance(splitmsg[j], str):
+                                break
                             newstr, matched, format_block_end = scanner(splitmsg[j], **options)
                             if strip_ansicodes:
                                 newstr = cmtlib.strip_ansicodes(newstr)
@@ -5985,7 +5987,8 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                 _obj_image_id = deep_get(_obj, DictPath("image_id"))
                 _obj_ref = deep_get(_obj, DictPath("ref"))
                 if _obj_name == containername and _obj_image_id == image_id:
-                    retval = resourceinfodispatch(stdscr, obj=_obj_ref, kind=("__Container", ""))
+                    retval = resourceinfodispatch(stdscr=stdscr, obj=_obj_ref,
+                                                  kind=("__Container", ""))
                     uip.force_update()
                     break
             if retval is not None and retval == Retval.RETURNFULL:
@@ -6012,7 +6015,7 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
             else:
                 p_ns, p = podsandnamespace[0]
 
-            retval = resourceinfodispatch_with_lookup(stdscr, name=p, namespace=p_ns,
+            retval = resourceinfodispatch_with_lookup(stdscr=stdscr, name=p, namespace=p_ns,
                                                       kind=("Pod", ""))
             if retval is not None and retval == Retval.RETURNFULL:
                 return retval
@@ -6039,7 +6042,7 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
             else:
                 namespace = namespaces[0]
 
-            retval = resourceinfodispatch_with_lookup(stdscr, name=namespace,
+            retval = resourceinfodispatch_with_lookup(stdscr=stdscr, name=namespace,
                                                       kind=("Namespace", ""))
             if retval is not None and retval == Retval.RETURNFULL:
                 return retval
@@ -6546,13 +6549,13 @@ def executecommand(stdscr: curses.window,
 
 
 # pylint: disable-next=too-many-branches
-def listviewdispatch(stdscr: curses.window, **kwargs: Any) -> Retval:
+def listviewdispatch(**kwargs: Any) -> Retval:
     """
     Dispatch from an object to listview of a Kind.
 
         Parameters:
-            stdscr (curses.window): The curses window to operate on
             **kwargs (dict[str, Any]): Keyword arguments
+                stdscr (curses.window): The curses window to operate on
                 obj (dict): The object to get information from
                 kind_path (DictPath): The path to get the kind from
                 api_version_path (DictPath): The path to get the API-version from
@@ -6561,6 +6564,8 @@ def listviewdispatch(stdscr: curses.window, **kwargs: Any) -> Retval:
                       otherwise Retval from the involved object whenever that returns.
     """
     global defaultview  # pylint: disable=global-statement
+
+    stdscr: curses.window = deep_get(kwargs, DictPath("stdscr"))
 
     root: bool = deep_get(kwargs, DictPath("root"), False)
     obj = deep_get(kwargs, DictPath("obj"))
@@ -6627,13 +6632,12 @@ def listviewdispatch(stdscr: curses.window, **kwargs: Any) -> Retval:
     return Retval.RETURNDONE
 
 
-# pylint: disable-next=unused-argument,too-many-locals
-def patch_object(stdscr: curses.window, **kwargs: Any) -> Retval:
+# pylint: disable-next=too-many-locals
+def patch_object(**kwargs: Any) -> Retval:
     """
     Patch an object.
 
         Parameters:
-            stdscr (curses.window): The curses window to operate on
             **kwargs (dict[str, Any]): Keyword arguments
                 kind ((str, str)): The kind of the object to patch
                 name (str): The name of the object to patch
@@ -6670,13 +6674,13 @@ def patch_object(stdscr: curses.window, **kwargs: Any) -> Retval:
 
 # This dispatches to info views; as soon as one is added this function will
 # dispatch to that view.
-def resourceinfodispatch(stdscr: curses.window, **kwargs: Any) -> Retval:
+def resourceinfodispatch(**kwargs: Any) -> Retval:
     """
     Dispatch from an object to the infoview of another object.
 
         Parameters:
-            stdscr (curses.window): The curses window to operate on
             **kwargs (dict[str, Any]): Keyword arguments
+                stdscr (curses.window): The curses window to operate on
                 obj (dict): The object to get information from
                 kind_path (DictPath): The path to get the kind from
                 api_version_path (DictPath): The path to get the API-version from
@@ -6686,6 +6690,7 @@ def resourceinfodispatch(stdscr: curses.window, **kwargs: Any) -> Retval:
             (Retval): Retval.NOMATCH if no match was found or a container had invalid status,
                       otherwise Retval from the involved object whenever that returns.
     """
+    stdscr: curses.window = deep_get(kwargs, DictPath("stdscr"))
     kind: str | tuple[str, str] = deep_get(kwargs, DictPath("kind"), ("", ""))
     obj: dict = deep_get(kwargs, DictPath("obj"))
     info = deep_get(kwargs, DictPath("info"))
@@ -6724,18 +6729,18 @@ def resourceinfodispatch(stdscr: curses.window, **kwargs: Any) -> Retval:
         return containerinfoloop(stdscr, obj=info, kind=kind, container=obj)
 
     if kind in infoviews:
-        return genericinfoloop(stdscr, **kwargs)
+        return genericinfoloop(**kwargs)
 
     return Retval.RETURNDONE
 
 
-def resourceinfodispatch_from_pod_resource_list(stdscr: curses.window, **kwargs: Any) -> Retval:
+def resourceinfodispatch_from_pod_resource_list(**kwargs: Any) -> Retval:
     """
     Dispatch from a pod resource to the infoview of that object.
 
         Parameters:
-            stdscr (curses.window): The curses window to operate on
             **kwargs (dict[str, Any]): Keyword arguments
+                stdscr (curses.window): The curses window to operate on
                 obj (dict): The object to get information from
                 kind (str): The kind of the object to dispatch to
                 api_version (str): The API-version of the object to dispatch to
@@ -6752,16 +6757,16 @@ def resourceinfodispatch_from_pod_resource_list(stdscr: curses.window, **kwargs:
     kwargs["obj"] = deep_get_with_fallback(kwargs, [DictPath("obj#ref"), DictPath("obj")])
     kwargs["kind"] = (kind, api_family)
 
-    return resourceinfodispatch(stdscr, **kwargs)
+    return resourceinfodispatch(**kwargs)
 
 
-def resourceinfodispatch_from_selection(stdscr: curses.window, **kwargs: Any) -> Retval:
+def resourceinfodispatch_from_selection(**kwargs: Any) -> Retval:
     """
     Dispatch from a selection to the infoview of another object.
 
         Parameters:
-            stdscr (curses.window): The curses window to operate on
             **kwargs (dict[str, Any]): Keyword arguments
+                stdscr (curses.window): The curses window to operate on
                 obj (dict): The object to get information from
                 kind (str): The kind of the object to dispatch to
                 api_version (str): The API-version of the object to dispatch to
@@ -6775,18 +6780,18 @@ def resourceinfodispatch_from_selection(stdscr: curses.window, **kwargs: Any) ->
     api_family = deep_get(kwargs, DictPath("api_family"), "")
     kwargs.pop("kind", None)
     kwargs.pop("api_family", None)
-    return resourceinfodispatch(stdscr, obj=obj, kind=(kind, api_family), **kwargs)
+    return resourceinfodispatch(obj=obj, kind=(kind, api_family), **kwargs)
 
 
 # noqa: E501 pylint: disable-next=too-many-locals,too-many-branches,too-many-statements,too-many-return-statements
-def resourceinfodispatch_with_lookup(stdscr: curses.window, **kwargs: Any) -> Retval:
+def resourceinfodispatch_with_lookup(**kwargs: Any) -> Retval:
     """
     Dispatch to an object after doing various types of path-based lookups from
     the source object.
 
         Parameters:
-            stdscr (curses.window): The curses window to operate on
             **kwargs (dict[str, Any]): Keyword arguments
+                stdscr (curses.window): The curses window to operate on
                 obj (dict): The object to get information from
                 selected (dict): The selected obj from a listpad
                 selected_obj (dict): The selected obj from a widget list
@@ -6814,6 +6819,8 @@ def resourceinfodispatch_with_lookup(stdscr: curses.window, **kwargs: Any) -> Re
             (Retval): Retval.NOMATCH if no match was found or the kind is unknown,
                       otherwise Retval from the involved object whenever that returns.
     """
+    stdscr: curses.window = deep_get(kwargs, DictPath("stdscr"))
+
     # Do not pass both direct and _path versions at the same time
     obj = deep_get(kwargs, DictPath("obj"))
     # pylint: disable-next=too-many-nested-blocks
@@ -7186,7 +7193,7 @@ def resourceinfodispatch_with_lookup(stdscr: curses.window, **kwargs: Any) -> Re
     except NameError:
         return Retval.NOMATCH
 
-    return resourceinfodispatch(stdscr, obj=obj, kind=kind)
+    return resourceinfodispatch(stdscr=stdscr, obj=obj, kind=kind)
 
 
 def __run_playbook(playbookpath: FilePath, hosts: list[str], **kwargs: Any) -> int:
@@ -7239,13 +7246,13 @@ def run_playbook(playbook: dict, hosts: list[str], values: dict | None = None) -
                           extra_values=values, verbose=verbose)
 
 
-def view_obj(stdscr: curses.window, **kwargs: Any) -> Retval:
+def view_obj(**kwargs: Any) -> Retval:
     """
     View an object using the resource view.
 
         Parameters:
-            stdscr (curses.window): The curses window to operate on
             **kwargs (dict[str, Any]): Keyword arguments
+                stdscr (curses.window): The curses window to operate on
                 obj (dict[str, Any]): An object to extract data from
                 selection (Any): The selection data
                 named_title (str): The title to use for the window
@@ -7256,6 +7263,7 @@ def view_obj(stdscr: curses.window, **kwargs: Any) -> Retval:
                 formatter (Callable|str): The formatter to use to format the data
                 formatter_args (dict[str, Any]): Arguments to pass to the formatter
     """
+    stdscr: curses.window = deep_get(kwargs, DictPath("stdscr"))
     selection = deep_get(kwargs, DictPath("selection"))
     if selection is not None:
         obj = selection
@@ -7286,7 +7294,7 @@ def view_obj(stdscr: curses.window, **kwargs: Any) -> Retval:
         if _formatter is None:
             raise ValueError(f"{formatter} is not in formatter_allowlist")
         formatter = _formatter
-    return resourceinfodispatch(stdscr, obj=obj, kind=("__ResourceView", ""),
+    return resourceinfodispatch(stdscr=stdscr, obj=obj, kind=("__ResourceView", ""),
                                 title=title, formatter=formatter,
                                 formatter_args=formatter_args)
 
@@ -7332,7 +7340,7 @@ def view_yaml(stdscr: curses.window, **kwargs: Any) -> Retval:
     obj = [obj]
     title = deep_get_with_fallback(kwargs, [DictPath("named_title"), DictPath("title")])
     formatter = formatters.format_yaml
-    return resourceinfodispatch(stdscr, obj=obj, kind=("__ResourceView", ""),
+    return resourceinfodispatch(stdscr=stdscr, obj=obj, kind=("__ResourceView", ""),
                                 title=title, formatter=formatter)
 
 
@@ -7373,20 +7381,21 @@ def view_json(stdscr: curses.window, **kwargs: Any) -> Retval:
         obj = [obj]
     title = deep_get_with_fallback(kwargs, [DictPath("named_title"), DictPath("title")])
     formatter = formatters.reformat_json
-    return resourceinfodispatch(stdscr, obj=obj, kind=("__ResourceView", ""),
+    return resourceinfodispatch(stdscr=stdscr, obj=obj, kind=("__ResourceView", ""),
                                 title=title, formatter=formatter)
 
 
-def view_pod_logs(stdscr: curses.window, **kwargs: Any) -> Retval:
+def view_pod_logs(**kwargs: Any) -> Retval:
     """
     View pod logs.
 
         Parameters:
-            stdscr (curses.window): The curses window to operate on
             **kwargs (dict[str, Any]): Keyword arguments
+                stdscr (curses.window): The curses window to operate on
                 selected (dict): The selected obj from a listpad
                 _tagged_items (list): A list of tagged items
     """
+    stdscr: curses.window = deep_get(kwargs, DictPath("stdscr"))
     containers: list[tuple[str, str, str, str]] = []
     containers_full: list[tuple[str, str, str, str, str, str]] = []
     items = deep_get(kwargs, DictPath("_tagged_items"), [])
@@ -7420,7 +7429,7 @@ def view_pod_logs(stdscr: curses.window, **kwargs: Any) -> Retval:
         "all_same_namespace": len(namespaces) == 1,
     }
 
-    return containerinfoloop(stdscr, container=None, kind=None, obj=None, **multilog_args)
+    return containerinfoloop(stdscr=stdscr, container=None, kind=None, obj=None, **multilog_args)
 
 
 def action_view_pod_logs(**kwargs: Any) -> Retval:
@@ -7429,14 +7438,14 @@ def action_view_pod_logs(**kwargs: Any) -> Retval:
 
         Parameters:
             **kwargs (dict[str, Any]): Keyword arguments
-                uip (UIProps): A reference to the UI Properties object
+                stdscr (curses.window): The curses window to operate on
                 values (dict[str, Any]): The items to operate on
         Returns:
             (Retval): The return value
     """
-    uip: UIProps = deep_get(kwargs, DictPath("uip"))
+    stdscr: curses.window = deep_get(kwargs, DictPath("stdscr"))
     values: dict = deep_get(kwargs, DictPath("values"))
-    return view_pod_logs(uip.stdscr, **values)
+    return view_pod_logs(stdscr=stdscr, **values)
 
 
 def action_view_file(**kwargs: Any) -> Retval:
@@ -7445,14 +7454,14 @@ def action_view_file(**kwargs: Any) -> Retval:
 
         Parameters:
             **kwargs (dict[str, Any]): Keyword arguments
-                uip (UIProps): A reference to the UI Properties object
+                stdscr (curses.window): The curses window to operate on
                 values (dict[str, Any]): The items to operate on
                 formatter (str): The formatter to use
                 formatter_args (str): Arguments to pass to the formatter
         Returns:
             (Retval): The return value
     """
-    uip: UIProps = deep_get(kwargs, DictPath("uip"))
+    stdscr: curses.window = deep_get(kwargs, DictPath("stdscr"))
     values: dict = deep_get(kwargs, DictPath("values"))
     formatter_str: str = deep_get(kwargs, DictPath("action#actionfunc_args#formatter"))
     formatter: Callable | None = \
@@ -7467,21 +7476,21 @@ def action_view_file(**kwargs: Any) -> Retval:
     data = {"data": tmp}
     formatter_args["filetype"] = filetype
 
-    return view_obj(stdscr=uip.stdscr, formatter=formatter, obj=data,
+    return view_obj(stdscr=stdscr, formatter=formatter, obj=data,
                     formatter_args=formatter_args, path="data")
 
 
-# pylint: disable-next=unused-argument
-def update_version_cache(stdscr: curses.window, **kwargs: Any) -> Retval:
+def update_version_cache(**kwargs: Any) -> Retval:
     """
     Update the list of component versions, and, where applicable, fetch their changelogs
 
         Parameters:
-            stdscr (UIProps): A reference to the UI Properties object
             **kwargs (dict[str, Any]): Keyword arguments [unused]
+                stdscr (curses.window): The curses window to operate on
         Returns:
             (Retval): The return value
     """
+    stdscr: curses.window = deep_get(kwargs, DictPath("stdscr"))
 
     msg = [ANSIThemeStr("Updating version cache", "action")]
 
@@ -7496,18 +7505,19 @@ def update_version_cache(stdscr: curses.window, **kwargs: Any) -> Retval:
     return Retval.RETURNDONE
 
 
-def view_last_applied_configuration(stdscr: curses.window, **kwargs: Any) -> Retval:
+def view_last_applied_configuration(**kwargs: Any) -> Retval:
     """
     View the last applied configuration (if available).
 
         Parameters:
-            stdscr (UIProps): A reference to the UI Properties object
             **kwargs (dict[str, Any]): Keyword arguments
+                stdscr (curses.window): The curses window to operate on
                 obj (dict): The object to extract data from
                 title (str): The title to use for the page
         Returns:
             (Retval): The return value
     """
+    stdscr: curses.window = deep_get(kwargs, DictPath("stdscr"))
     obj: dict[str, Any] = deep_get(kwargs, DictPath("obj"), {})
 
     last_applied_configuration_path = \
@@ -7525,7 +7535,7 @@ def view_last_applied_configuration(stdscr: curses.window, **kwargs: Any) -> Ret
     title = deep_get(kwargs, DictPath("title"), "")
     # themearrays = formatters.format_yaml([data])
     formatter = formatters.format_yaml
-    return resourceinfodispatch(stdscr, obj=[data], kind=("__ResourceView", ""),
+    return resourceinfodispatch(stdscr=stdscr, obj=[data], kind=("__ResourceView", ""),
                                 title=title, formatter=formatter)
 
 
@@ -7539,10 +7549,16 @@ def create_objects(**kwargs: Any) -> Retval:
             (Retval): The return value
     """
     actionfunc_args: dict[str, Any] = deep_get(kwargs, DictPath("action#actionfunc_args"), {})
-    resources = deep_get(actionfunc_args, DictPath("resources"), [])
+    if "resources" in kwargs:
+        resources = deep_get(kwargs, DictPath("resources"), [])
+    else:
+        resources = deep_get(actionfunc_args, DictPath("resources"), [])
     # If we're not using the object as a source we still need to pass something to the loop
     # to ensure that it doesn't terminate without doing anything.
-    items = deep_get(kwargs, DictPath("values#_tagged_items"), [None])
+    if "values" in kwargs:
+        items = deep_get(kwargs, DictPath("values#_tagged_items"), [None])
+    elif "obj" in kwargs:
+        items = [{"ref": deep_get(kwargs, DictPath("obj"), {})}]
     query = deep_get(kwargs, DictPath("action#extravars"), {})
 
     # We might want to perform this on multiple objects
@@ -7566,7 +7582,7 @@ def delete_resource(**kwargs: Any) -> Retval:
 
         Parameters:
             **kwargs (dict[str, Any]): Keyword arguments
-                uip (UIProps): A reference to the UI Properties object
+                stdscr (curses.window): The curses window to operate on
                 kind (str): The kind of the resource to delete
                 items ([str]): The list of resources to delete
                 force (bool): Force-delete the resources? True to force deletion,
@@ -7576,13 +7592,13 @@ def delete_resource(**kwargs: Any) -> Retval:
         Returns:
             (Retval): The return value
     """
-    success: bool = True
-    uip: UIProps = deep_get(kwargs, DictPath("uip"))
+    stdscr: curses.window = deep_get(kwargs, DictPath("stdscr"))
     kind: tuple[str, str] = deep_get(kwargs, DictPath("kind"))
     force: bool = deep_get(kwargs, DictPath("force"), False)
     items: list[str] = deep_get(kwargs, DictPath("items"), [])
     delete_owner: bool = deep_get(kwargs, DictPath("delete_owner"), False)
     owner_reference_path: str = deep_get(kwargs, DictPath("owner_reference_path"), "")
+    success: bool = True
 
     for item in items:
         if isinstance(item, tuple):
@@ -7607,7 +7623,7 @@ def delete_resource(**kwargs: Any) -> Retval:
                     match_tmp = re.match(r"^(.+?), URL:.*", message)
                     if match_tmp is not None:
                         message = match_tmp[1]
-                    win = curses_helper.alert(uip.stdscr, message=message)
+                    win = curses_helper.alert(stdscr, message=message)
                     success = False
                     break
 
@@ -7617,19 +7633,19 @@ def delete_resource(**kwargs: Any) -> Retval:
             match_tmp = re.match(r"^(.+?), URL:.*", message)
             if match_tmp is not None:
                 message = match_tmp[1]
-            win = curses_helper.alert(uip.stdscr, message=message)
+            win = curses_helper.alert(stdscr, message=message)
             success = False
             break
 
     # We successfully deleted everything
     if success:
-        win = curses_helper.notice(uip.stdscr,
+        win = curses_helper.notice(stdscr,
                                    message="Successfully deleted all specified resources")
 
     # Wait for a keypress
     while True:
-        uip.stdscr.timeout(100)
-        c = uip.stdscr.getch()
+        stdscr.timeout(100)
+        c = stdscr.getch()
         if c != -1:
             del win
             break
@@ -7637,17 +7653,18 @@ def delete_resource(**kwargs: Any) -> Retval:
     return Retval.RETURNDONE
 
 
-def create_namespace(stdscr: curses.window, **kwargs: Any) -> Retval:
+def create_namespace(**kwargs: Any) -> Retval:
     """
     Create a namespace.
 
         Parameters:
-            stdscr (curses.window): The curses window to operate on
             **kwargs (dict[str, Any]): Keyword arguments
+                stdscr (curses.window): The curses window to operate on
                 selection_vars#namespace (str): The name of the namespace to create
         Returns:
             (Retval): Retval.RETURNDONE
     """
+    stdscr: curses.window = deep_get(kwargs, DictPath("stdscr"))
     name = deep_get(kwargs, DictPath("selection_vars#namespace"))
 
     curses.endwin()
@@ -8004,18 +8021,19 @@ def format_commandline(args: list[str], implicit_command: bool = True) -> list[A
     return themearray
 
 
-def edit_resource(stdscr: curses.window, **kwargs: Any) -> None:
+def edit_resource(**kwargs: Any) -> None:
     """
     Edit a Kubernetes object.
 
         Parameters:
-            stdscr (curses.window): The curses window to operate on
             **kwargs (dict[str, Any]): Keyword arguments
+                stdscr (curses.window): The curses window to operate on
                 obj (dict[str, Any]): An object to extract data from
                 kind ((str, str)): The Kind of the object to operate on
                 name (str): The path to the name of the object to edit
                 namespace (str): The path to the namespace of the object to edit
     """
+    stdscr: curses.window = deep_get(kwargs, DictPath("stdscr"))
     obj = deep_get(kwargs, DictPath("obj"))
     kind = deep_get(kwargs, DictPath("kind"))
     name = deep_get(obj, DictPath("metadata#name"))
@@ -8045,7 +8063,7 @@ def patch_resource(**kwargs: Any) -> Retval:
 
         Parameters:
             **kwargs (dict[str, Any]): Keyword arguments
-                uip (UIProps): A reference to the UI Properties object
+                stdscr (curses.window): The curses window to operate on
                 kind (str): The kind of the resource to delete
                 items ([str]): The list of resources to delete
                 values (dict[str, Any]): Extra arguments
@@ -8054,7 +8072,7 @@ def patch_resource(**kwargs: Any) -> Retval:
         Returns:
             (Retval): The return value
     """
-    uip: UIProps = deep_get(kwargs, DictPath("uip"))
+    stdscr: curses.window = deep_get(kwargs, DictPath("stdscr"))
     kind: tuple[str, str] = deep_get(kwargs, DictPath("kind"))
     action_str: str = deep_get(kwargs, DictPath("values#action_str"))
     args: dict = deep_get(kwargs, DictPath("values#args"), {})
@@ -8080,18 +8098,18 @@ def patch_resource(**kwargs: Any) -> Retval:
                     ANSIThemeStr("“", "default")]
             ansithemeprint(msg)
 
-        patch_object(uip.stdscr, **{"kind": kind,
-                                    "name": name,
-                                    "namespace": namespace,
-                                    "args": args,
-                                    "values": values})
+        patch_object(**{"kind": kind,
+                        "name": name,
+                        "namespace": namespace,
+                        "args": args,
+                        "values": values})
 
     print("\n")
 
     waitforkeypress = True
     if waitforkeypress:
         ansithemeinput([ANSIThemeStr("\nPress Enter to continue...", "default")])
-    uip.stdscr.refresh()
+    stdscr.refresh()
 
     return Retval.RETURNDONE
 
@@ -8102,13 +8120,13 @@ def restart_resource_rescale(**kwargs: Any) -> Retval:
 
         Parameters:
             **kwargs (dict[str, Any]): Keyword arguments
-                uip (UIProps): A reference to the UI Properties object
+                stdscr (curses.window): The curses window to operate on
                 kind (str): The kind of the resource to delete
                 items ([str]): The list of resources to delete
         Returns:
             (Retval): The return value
     """
-    uip: UIProps = deep_get(kwargs, DictPath("uip"))
+    stdscr: curses.window = deep_get(kwargs, DictPath("stdscr"))
     kind: tuple[str, str] = deep_get(kwargs, DictPath("kind"))
     items: list[tuple[str, str]] = deep_get(kwargs, DictPath("items"), [])
 
@@ -8138,7 +8156,7 @@ def restart_resource_rescale(**kwargs: Any) -> Retval:
     waitforkeypress = True
     if waitforkeypress:
         ansithemeinput([ANSIThemeStr("\nPress Enter to continue...", "default")])
-    uip.stdscr.refresh()
+    stdscr.refresh()
 
     return Retval.RETURNDONE
 
@@ -8149,13 +8167,13 @@ def restart_resource_rollout(**kwargs: Any) -> Retval:
 
         Parameters:
             **kwargs (dict[str, Any]): Keyword arguments
-                uip (UIProps): A reference to the UI Properties object
+                stdscr (curses.window): The curses window to operate on
                 kind (str): The kind of the resource to delete
                 items ([str]): The list of resources to delete
         Returns:
             (Retval): The return value
     """
-    uip: UIProps = deep_get(kwargs, DictPath("uip"))
+    stdscr: curses.window = deep_get(kwargs, DictPath("stdscr"))
     kind: tuple[str, str] = deep_get(kwargs, DictPath("kind"))
     items: list[tuple[str, str]] = deep_get(kwargs, DictPath("items"), [])
 
@@ -8182,7 +8200,7 @@ def restart_resource_rollout(**kwargs: Any) -> Retval:
     waitforkeypress = True
     if waitforkeypress:
         ansithemeinput([ANSIThemeStr("\nPress Enter to continue...", "default")])
-    uip.stdscr.refresh()
+    stdscr.refresh()
 
     return Retval.RETURNDONE
 
@@ -8193,14 +8211,14 @@ def rescale_resource(**kwargs: Any) -> Retval:
 
         Parameters:
             **kwargs (dict[str, Any]): Keyword arguments
-                uip (UIProps): A reference to the UI Properties object
+                stdscr (curses.window): The curses window to operate on
                 kind (str): The kind of the resource to delete
                 items ([str]): The list of resources to delete
                 values (dict[str, Any]): The items to operate on
         Returns:
             (Retval): The return value
     """
-    uip: UIProps = deep_get(kwargs, DictPath("uip"))
+    stdscr: curses.window = deep_get(kwargs, DictPath("stdscr"))
     kind: tuple[str, str] = deep_get(kwargs, DictPath("kind"))
     items: list[tuple[str, str]] = deep_get(kwargs, DictPath("items"), [])
     values: dict = deep_get(kwargs, DictPath("values"))
@@ -8235,7 +8253,7 @@ def rescale_resource(**kwargs: Any) -> Retval:
     waitforkeypress = True
     if waitforkeypress:
         ansithemeinput([ANSIThemeStr("\nPress Enter to continue...", "default")])
-    uip.stdscr.refresh()
+    stdscr.refresh()
 
     return Retval.RETURNDONE
 
@@ -8248,14 +8266,14 @@ def stop_resource_rescale(**kwargs: Any) -> Retval:
 
         Parameters:
             **kwargs (dict[str, Any]): Keyword arguments
-                uip (UIProps): A reference to the UI Properties object
+                stdscr (curses.window): The curses window to operate on
                 kind (str): The kind of the resource to delete
                 items ([str]): The list of resources to delete
                 values (dict[str, Any]): The items to operate on
         Returns:
             (Retval): The return value
     """
-    uip: UIProps = deep_get(kwargs, DictPath("uip"))
+    stdscr: curses.window = deep_get(kwargs, DictPath("stdscr"))
     kind: tuple[str, str] = deep_get(kwargs, DictPath("kind"))
     items: list[tuple[str, str]] = deep_get(kwargs, DictPath("items"), [])
 
@@ -8286,7 +8304,7 @@ def stop_resource_rescale(**kwargs: Any) -> Retval:
     waitforkeypress = True
     if waitforkeypress:
         ansithemeinput([ANSIThemeStr("\nPress Enter to continue...", "default")])
-    uip.stdscr.refresh()
+    stdscr.refresh()
 
     return Retval.RETURNDONE
 
@@ -9484,6 +9502,7 @@ availability_checker_allowlist: dict[str, Callable] = {
 # action calls acceptable for direct use in view files from shortcuts
 action_call_allowlist: dict[str, Callable] = {
     "create_namespace": create_namespace,
+    "create_objects": create_objects,
     "decode_and_view_data": decode_and_view_data,
     "decode_and_view_file_templates": decode_and_view_file_templates,
     "edit_resource": edit_resource,

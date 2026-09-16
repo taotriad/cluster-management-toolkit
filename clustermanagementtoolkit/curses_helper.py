@@ -5058,18 +5058,18 @@ class UIProps:
                         kind = deep_get(on_activation, DictPath("kind"), view)
                         on_activation.pop("kind", None)
                         if data is not None:
-                            _retval = activatedfun(self.stdscr,
+                            _retval = activatedfun(stdscr=self.stdscr,
                                                    obj=deep_get(selected, DictPath("ref")),
                                                    kind=kind, info=data, **on_activation)
                         else:
-                            _retval = activatedfun(self.stdscr,
+                            _retval = activatedfun(stdscr=self.stdscr,
                                                    obj=deep_get(selected, DictPath("ref")),
                                                    kind=kind, **on_activation)
                     else:
                         on_activation = copy.deepcopy(self.on_activation)
                         kind = deep_get(on_activation, DictPath("kind"), self.view)
                         on_activation.pop("kind", None)
-                        _retval = activatedfun(self.stdscr,
+                        _retval = activatedfun(stdscr=self.stdscr,
                                                obj=deep_get(selected, DictPath("ref")),
                                                kind=kind, **on_activation)
                     if _retval is not None:
@@ -5104,18 +5104,18 @@ class UIProps:
                             kind = deep_get(on_activation, DictPath("kind"), view)
                             on_activation.pop("kind", None)
                             if data is not None:
-                                _retval = activatedfun(self.stdscr,
+                                _retval = activatedfun(stdscr=self.stdscr,
                                                        obj=deep_get(selected, DictPath("ref")),
                                                        kind=kind, info=data, **on_activation)
                             else:
-                                _retval = activatedfun(self.stdscr,
+                                _retval = activatedfun(stdscr=self.stdscr,
                                                        obj=deep_get(selected, DictPath("ref")),
                                                        kind=kind, **on_activation)
                         else:
                             on_activation = copy.deepcopy(self.on_activation)
                             kind = deep_get(on_activation, DictPath("kind"), self.view)
                             on_activation.pop("kind", None)
-                            _retval = activatedfun(self.stdscr,
+                            _retval = activatedfun(stdscr=self.stdscr,
                                                    obj=deep_get(selected, DictPath("ref")),
                                                    kind=kind, **on_activation)
                         if _retval is not None:
@@ -5206,18 +5206,18 @@ class UIProps:
                 kind = deep_get(on_activation, DictPath("kind"), view)
                 on_activation.pop("kind", None)
                 if data is not None:
-                    _retval = activatedfun(self.stdscr,
+                    _retval = activatedfun(stdscr=self.stdscr,
                                            obj=deep_get(selected, DictPath("ref")),
                                            kind=kind, info=data, **on_activation)
                 else:
-                    _retval = activatedfun(self.stdscr,
+                    _retval = activatedfun(stdscr=self.stdscr,
                                            obj=deep_get(selected, DictPath("ref")),
                                            kind=kind, **on_activation)
             else:
                 on_activation = copy.deepcopy(self.on_activation)
                 kind = deep_get(on_activation, DictPath("kind"), self.view)
                 on_activation.pop("kind", None)
-                _retval = activatedfun(self.stdscr,
+                _retval = activatedfun(stdscr=self.stdscr,
                                        obj=deep_get(selected, DictPath("ref")),
                                        kind=kind, **on_activation)
             if _retval is not None:
