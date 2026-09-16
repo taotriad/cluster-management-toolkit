@@ -768,8 +768,12 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api": "rosacontrolplanes",
     },
     # disaggregatedset.x-k8s.io
+    ("DisaggregatedSetRoleScaler", "disaggregatedset.x-k8s.io"): {
+        "api_paths": ["apis/disaggregatedset.x-k8s.io/v1/"],
+        "api": "disaggregatedsetrolescalers",
+    },
     ("DisaggregatedSet", "disaggregatedset.x-k8s.io"): {
-        "api_paths": ["apis/disaggregatedset.x-k8s.io/v1alpha1/"],
+        "api_paths": ["apis/disaggregatedset.x-k8s.io/v1/"],
         "api": "disaggregatedsets",
     },
     # gateway.networking.x-k8s.io
@@ -1441,6 +1445,11 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api": "admissionchecks",
         "namespaced": False,
     },
+    ("CapacityProvider", "kueue.x-k8s.io"): {
+        "api_paths": ["apis/kueue.x-k8s.io/v1alpha1/"],
+        "api": "capacityproviders",
+        "namespaced": False,
+    },
     ("ClusterQueue", "kueue.x-k8s.io"): {
         "api_paths": ["apis/kueue.x-k8s.io/v1beta2/",
                       "apis/kueue.x-k8s.io/v1beta1/"],
@@ -1451,6 +1460,11 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api_paths": ["apis/kueue.x-k8s.io/v1beta2/",
                       "apis/kueue.x-k8s.io/v1beta1/"],
         "api": "cohorts",
+        "namespaced": False,
+    },
+    ("DynamicQuotaOrchestrator", "kueue.x-k8s.io"): {
+        "api_paths": ["apis/kueue.x-k8s.io/v1alpha1/"],
+        "api": "dynamicquotaorchestrators",
         "namespaced": False,
     },
     ("LocalQueue", "kueue.x-k8s.io"): {
