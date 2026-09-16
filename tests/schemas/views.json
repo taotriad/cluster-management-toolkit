@@ -91,6 +91,7 @@
             "description": "The permitted values for action_call",
             "enum": [
                 "create_namespace",
+                "create_objects",
                 "decode_and_view_data",
                 "decode_and_view_file_templates",
                 "edit_resource",
@@ -3525,6 +3526,10 @@
                                                 },
                                                 "replace_quotes": {
                                                     "$ref": "#/$defs/replace_quotes"
+                                                },
+                                                "resources": {
+                                                    "description": "A dict containing information used by create_objects()",
+                                                    "type": "array"
                                                 },
                                                 "title": {
                                                     "type": "string"

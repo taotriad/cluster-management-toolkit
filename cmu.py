@@ -7555,10 +7555,12 @@ def create_objects(**kwargs: Any) -> Retval:
         resources = deep_get(actionfunc_args, DictPath("resources"), [])
     # If we're not using the object as a source we still need to pass something to the loop
     # to ensure that it doesn't terminate without doing anything.
+    items: list[dict[str, Any] | None] = [None]
     if "values" in kwargs:
-        items = deep_get(kwargs, DictPath("values#_tagged_items"), [None])
+        items = deep_get(kwargs, DictPath("values#_tagged_items"), items)
     elif "obj" in kwargs:
         items = [{"ref": deep_get(kwargs, DictPath("obj"), {})}]
+
     query = deep_get(kwargs, DictPath("action#extravars"), {})
 
     # We might want to perform this on multiple objects

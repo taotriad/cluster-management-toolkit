@@ -76,3 +76,30 @@ infoview:
           field_separators:
             - type: "date"
             - type: "date"
+  shortcuts:
+    "Create Upgrade from Version":
+      key: "u"
+      modifier: "shift"
+      read_only: false
+      helptext: "Create Upgrade from Version"
+      action: "call"
+      action_call: "create_objects"
+      action_args:
+        _pass_obj: true
+        resources:
+          - injections:
+              "metadata#name":
+                source: "obj"
+                paths: [
+                  "spec#version",
+                ]
+            template:
+              apiVersion: "harvesterhci.io"
+              kind: "Upgrade"
+              metadata:
+                annotations:
+                  harvesterhci.io/minCertsExpirationInDay: "14"
+                generateName: "hvst-upgrade-"
+                namespace: "harvester-system"
+              spec:
+                logEnabled: true
