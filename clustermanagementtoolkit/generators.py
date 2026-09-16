@@ -804,11 +804,24 @@ def format_selector(items: dict | list[dict],
         Returns:
             ([ThemeRef | ThemeStr]): A formatted string
     """
+    string_selector_type: str = deep_get(kwargs, DictPath("args#selector#type"), "matchLabels")
+
     if not isinstance(items, (list, tuple)):
+        if isinstance(items, str):
+            if string_selector_type == "matchLabels":
+                items = {
+                    "matchLabels": cmtlib.split_match_label_selector(items)
+                }
+            elif string_selector_type == "cel":
+                items = {
+                    "cel": {
+                        "expression": items,
+                    },
+                }
         items = [items]
 
     item_separator: ThemeRef = deep_get(kwargs, DictPath("item_separator"),
-                                        ThemeRef("separators", "list", selected))
+                                        ThemeRef("separators", "list"))
 
     array: list[ThemeRef | ThemeStr] = []
 
@@ -823,7 +836,7 @@ def format_selector(items: dict | list[dict],
                 if tmp:
                     if _vlist:
                         _vlist.append(item_separator)
-                    _vlist += themearray_select(tmp[0], selected=selected, force=True)
+                    _vlist += tmp[0]
             elif selector_type == "matchExpressions":
                 for expression in selector:
                     key = deep_get(expression, DictPath("key"), "")
@@ -886,10 +899,10 @@ def format_selector(items: dict | list[dict],
 
     if not array:
         array = [
-            ThemeStr("", ThemeAttr("types", "generic"), selected)
+            ThemeStr("", ThemeAttr("types", "generic"))
         ]
 
-    return array
+    return cast(list, themearray_select(array, selected=selected, force=True))
 
 
 # pylint: disable-next=too-many-branches
@@ -1106,10 +1119,7 @@ def generator_selector(obj: dict, field: str, fieldlen: int, pad: bool,
     if isinstance(items, str) and items in ("<unset>", "<none>"):
         return format_list([items], fieldlen, pad, ralign=ralign, selected=selected)
 
-    item_separator: ThemeRef = deep_get(kwargs, DictPath("item_separator"),
-                                        ThemeRef("separators", "list", selected))
-
-    array = format_selector(items, selected, item_separator=item_separator)
+    array = format_selector(items, selected, **kwargs)
 
     return align_and_pad(array, fieldlen=fieldlen, pad=pad, ralign=ralign, selected=selected)
 

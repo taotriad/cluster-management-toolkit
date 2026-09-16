@@ -390,8 +390,23 @@
                         "collate": {
                             "description": "Should the listgetter group multiple list entries into tuples, and if so, how many? Default: 1",
                             "type": "integer"
+                        },
+                        "selector": {
+                            "description": "Arguments to format_selector",
+                            "type": "object",
+                            "properties": {
+                                "type": {
+                                    "description": "The selector type to use if the input is a string; currently only cel and matchLabels are supported",
+                                    "enum": [
+                                        "cel",
+                                        "matchLabels"
+                                    ]
+                                }
+                            },
+                            "additionalProperties": false
                         }
-                    }
+                    },
+                    "additionalProperties": false
                 },
                 "ellipsise": {
                     "description": "Ellipsise the list after this many entries",

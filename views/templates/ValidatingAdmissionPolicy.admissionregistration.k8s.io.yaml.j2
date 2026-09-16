@@ -171,9 +171,12 @@ infoview:
           key_value: "Variable"
     infogetter: "generic_infogetter"
     field_indexes:
-      Normal:
+      Wide:
         fields: ["type", "name", "key", "message", "reason",
                  "expression", "value_expression"]
+        sortcolumn: "message"
+      Normal:
+        fields: ["type", "name", "key", "message", "reason"]
         sortcolumn: "message"
     fields:
       expression:
@@ -181,6 +184,11 @@ infoview:
         path: "expression"
         default: "<unset>"
         type: "str"
+        formatter: "selector"
+        formatting:
+          args:
+            selector:
+              type: "cel"
       key:
         header: "Key:"
         path: "key"
@@ -209,6 +217,11 @@ infoview:
         header: "Value Expression:"
         path: "valueExpression"
         type: "str"
+        formatter: "selector"
+        formatting:
+          args:
+            selector:
+              type: "cel"
   shortcuts:
     {%- for line in shortcut_controller.split("\n") %}
     {{ line }}

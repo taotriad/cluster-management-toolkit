@@ -307,7 +307,8 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api": "referencegrants",
     },
     ("TCPRoute", "gateway.networking.k8s.io"): {
-        "api_paths": ["apis/gateway.networking.k8s.io/v1alpha2/"],
+        "api_paths": ["apis/gateway.networking.k8s.io/v1/",
+                      "apis/gateway.networking.k8s.io/v1alpha2/"],
         "api": "tcproutes",
     },
     ("TLSRoute", "gateway.networking.k8s.io"): {
@@ -315,7 +316,8 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api": "tlsroutes",
     },
     ("UDPRoute", "gateway.networking.k8s.io"): {
-        "api_paths": ["apis/gateway.networking.k8s.io/v1alpha2/"],
+        "api_paths": ["apis/gateway.networking.k8s.io/v1/",
+                      "apis/gateway.networking.k8s.io/v1alpha2/"],
         "api": "udproutes",
     },
     # groupsnapshot.storage.k8s.io

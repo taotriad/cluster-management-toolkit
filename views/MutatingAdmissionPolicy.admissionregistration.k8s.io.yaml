@@ -164,9 +164,12 @@ infoview:
           key_value: "Variable"
     infogetter: "generic_infogetter"
     field_indexes:
-      Normal:
+      Wide:
         fields: ["type", "name", "patch_type", "expression"]
-        sortcolumn: "message"
+        sortcolumn: "type"
+      Normal:
+        fields: ["type", "name", "patch_type"]
+        sortcolumn: "type"
     fields:
       expression:
         header: "Expression:"
@@ -175,6 +178,11 @@ infoview:
             type: "str"
         default: "<unset>"
         type: "str"
+        formatter: "selector"
+        formatting:
+          args:
+            selector:
+              type: "cel"
       name:
         header: "Name:"
         path: "name"

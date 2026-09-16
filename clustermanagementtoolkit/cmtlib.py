@@ -1120,6 +1120,28 @@ def make_label_selector_set_expression(expression_list: list[dict]) -> str:
     return ", ".join(vlist)
 
 
+def split_match_label_selector(selector: str) -> dict[str, Any]:
+    """
+    Given a string-representation of a matchLabel selector,
+    return a dict-representation.
+
+        Parameters:
+            selector (str): A matchLabel selector expressed as a string
+        Returns:
+            (dict[str, Any]): A matchLabel selector expressed as a dict
+    """
+    new_selector: dict[str, Any] = {}
+
+    item = ""
+    try:
+        for item in selector.split(","):
+            key, value = item.split(":", maxsplit=1)
+            new_selector[key] = value
+    except ValueError:
+        pass
+    return new_selector
+
+
 def make_label_selector(selector_dict: dict) -> str:
     """
     Given a label selector dict entry, create a selector list string.
