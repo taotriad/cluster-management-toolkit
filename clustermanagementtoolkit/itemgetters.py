@@ -59,7 +59,9 @@ def get_conditions(obj: dict, **kwargs: Any) -> list[dict]:
         ctype = deep_get(condition, DictPath("type"), "")
         status = deep_get_with_fallback(condition, [DictPath("status"), DictPath("phase")], "")
         reason = deep_get(condition, DictPath("reason"), "<unset>")
-        last_transition = deep_get(condition, DictPath("lastTransitionTime"))
+        last_transition = \
+            deep_get_with_fallback(condition, [DictPath("lastTransitionTime"),
+                                               DictPath("lastUpdateTime")])
         if last_transition is None:
             last_transition = "<unset>"
         else:
