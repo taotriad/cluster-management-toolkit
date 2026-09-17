@@ -3,7 +3,9 @@ kind: "MachinePool"
 api_family: "cluster.x-k8s.io"
 default_command: "machinepools"
 command:
-  - "mp"
+  - "mchpools"
+  - "mchpool"
+  - "mps"
 listview:
   name: "Machine Pools"
   group: "Cluster Configuration"
@@ -37,7 +39,7 @@ listview:
                 - context: "main"
                   type: "status_pending"
     cluster:
-      header: "Current:"
+      header: "Cluster:"
       path: "spec#cluster"
       default: "<unset>"
       type: "str"
@@ -86,13 +88,18 @@ listview:
       type: "str"
       formatter: "value_mapper"
       formatting:
+      formatting:
         mapping:
           mappings:
-            Pending:
+            Deleting:
               field_colors:
                 - context: "main"
                   type: "status_pending"
-            Terminating:
+            Failed:
+              field_colors:
+                - context: "main"
+                  type: "status_not_ok"
+            Pending:
               field_colors:
                 - context: "main"
                   type: "status_pending"
@@ -104,10 +111,10 @@ listview:
               field_colors:
                 - context: "main"
                   type: "status_ok"
-            Failed:
+            Terminating:
               field_colors:
                 - context: "main"
-                  type: "status_not_ok"
+                  type: "status_pending"
     ready_replicas:
       header: "Ready:"
       paths:
@@ -224,11 +231,15 @@ infoview:
         formatting:
           mapping:
             mappings:
-              Pending:
+              Deleting:
                 field_colors:
                   - context: "main"
                     type: "status_pending"
-              Terminating:
+              Failed:
+                field_colors:
+                  - context: "main"
+                    type: "status_not_ok"
+              Pending:
                 field_colors:
                   - context: "main"
                     type: "status_pending"
@@ -240,10 +251,10 @@ infoview:
                 field_colors:
                   - context: "main"
                     type: "status_ok"
-              Failed:
+              Terminating:
                 field_colors:
                   - context: "main"
-                    type: "status_not_ok"
+                    type: "status_pending"
       replicas:
         header: [["Replicas:", ["main", "infoheader"]]]
         paths:

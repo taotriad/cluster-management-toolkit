@@ -16,14 +16,14 @@ listview:
                "condition_ready", "age"]
       sortcolumn: "namespace"
   fields:
+    {%- for line in field_condition_ready.split("\n") %}
+    {{ line }}
+    {%- endfor %}
     installed_version:
       header: "Installed Version:"
       path: "status#installedVersion"
       type: "str"
       formatter: "version"
-    {%- for line in field_condition_ready.split("\n") %}
-    {{ line }}
-    {%- endfor %}
 infoview:
   name: "Control Plane Provider Info"
   infopad:

@@ -1,12 +1,12 @@
 ---
-kind: "KubeadmConfigTemplate"
-api_family: "bootstrap.cluster.x-k8s.io"
-default_command: "kubeadmconfigtemplates"
+kind: "DevMachinePoolTemplate"
+api_family: "infrastructure.cluster.x-k8s.io"
+default_command: "devmachinepooltemplates"
 command:
-  - "kubeadmconftmpls"
-  - "kubeadmconftmpl"
+  - "devmchpooltempls"
+  - "devmchpooltempl"
 listview:
-  name: "Kubeadm Config Templates"
+  name: "Dev Machine Pool Templates"
   group: "Cluster Configuration"
   field_indexes:
     Normal:
@@ -34,25 +34,12 @@ listview:
         confirm: true
         actionfunc: "delete_resource"
 infoview:
-  name: "Kubeadm Config Template Info"
+  name: "Dev Machine Pool Template Info"
   infopad:
     row_indexes:
       Normal:
-        fields: ["cluster_class", "cluster"]
+        fields: ["cluster_class"]
     rows:
-      cluster:
-        header: [["Cl", ["main", "infoheader"]],
-                 ["u", ["main", "infoheader_shortcut"]],
-                 ["ster:", ["main", "infoheader"]]]
-        paths:
-          - path: "metadata#ownerReferences"
-            pathtype: "items"
-            subpaths:
-              - "name"
-            when:
-              - key: "kind"
-                eq: "Cluster"
-        default: "<none>"
       cluster_class:
         header: [["C", ["main", "infoheader_shortcut"]],
                  ["luster Class:", ["main", "infoheader"]]]
@@ -84,19 +71,7 @@ infoview:
       path: "spec#template"
     timestamps: false
   shortcuts:
-    "Open Cluster":
-      key: "u"
-      read_only: true
-      helptext: "Open info page for Cluster"
-      action: "call"
-      action_call: "resourceinfodispatch_with_lookup"
-      action_args:
-        _pass_obj: true
-        kind: "Cluster"
-        api_family: "cluster.x-k8s.io"
-        namespace_path: "metadata#namespace"
-        owner_reference_path: "metadata#ownerReferences"
-    "Open cluster class":
+    "Open Cluster Class":
       key: "c"
       modifier: "shift"
       read_only: true

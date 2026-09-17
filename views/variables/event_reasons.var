@@ -2533,6 +2533,10 @@ TopologyCreate:
   field_colors:
     - context: "main"
       type: "status_ok"
+TopologyDelete:
+  field_colors:
+    - context: "main"
+      type: "status_ok"
 TopologyUpdate:
   field_colors:
     - context: "main"

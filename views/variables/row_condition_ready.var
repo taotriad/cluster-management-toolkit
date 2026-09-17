@@ -21,6 +21,10 @@ condition_ready:
           field_colors:
             - context: "main"
               type: "status_not_ok"
+        "Unknown":
+          field_colors:
+            - context: "types"
+              type: "unset"
         "<unknown>":
           field_colors:
             - context: "types"

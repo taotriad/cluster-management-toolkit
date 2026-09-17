@@ -75,6 +75,8 @@ views/DaemonSet.apps.kruise.io.yaml
 views/DaemonSet.apps.yaml
 views/Deployment.apps.yaml
 views/DeviceClass.resource.k8s.io.yaml
+views/DevCluster.infrastructure.cluster.x-k8s.io.yaml
+views/DevMachinePool.infrastructure.cluster.x-k8s.io.yaml
 views/DockerCluster.infrastructure.cluster.x-k8s.io.yaml
 views/EndpointSlice.discovery.k8s.io.yaml
 views/EngineImage.longhorn.io.yaml

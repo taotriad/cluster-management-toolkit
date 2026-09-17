@@ -1,0 +1,119 @@
+---
+kind: "DevMachinePool"
+api_family: "infrastructure.cluster.x-k8s.io"
+default_command: "devmachinepools"
+command:
+  - "devmchpools"
+  - "devmchpool"
+  - "devmps"
+  - "devmp"
+listview:
+  name: "Dev Machine Pools"
+  group: "Cluster Configuration"
+  field_indexes:
+    Normal:
+      fields: ["namespace", "name", "cluster", "condition_ready", "age"]
+      sortcolumn: "namespace"
+  fields:
+    cluster:
+      header: "Cluster:"
+      path: "spec#cluster"
+      default: "<unset>"
+      type: "str"
+    {%- for line in field_condition_ready.split("\n") %}
+    {{ line }}
+    {%- endfor %}
+infoview:
+  name: "Dev Machine Pool Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["cluster",
+                 "backend_header",
+                 "backend_docker_header",
+                 "backend_docker_custom_image",
+                 "infrastructure_machine_kind",
+                 "condition_ready"]
+    rows:
+      backend_docker_custom_image:
+        header: [["    Custom Image:", ["main", "infoheader"]]]
+        paths:
+          - path: "spec#backend#docker#customImage"
+            pathtype: "regex"
+            regex: "^([^:]+):(.*)"
+            default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "generic"
+            - type: "version"
+          field_separators:
+            - type: "version"
+          field_formatters:
+            - ""
+            - "version"
+      backend_docker_header:
+        header: [["  Docker:", ["main", "infoheader"]]]
+      backend_header:
+        header: [["Backend:", ["main", "infoheader"]]]
+      cluster:
+        header: [["Cl", ["main", "infoheader"]],
+                 ["u", ["main", "infoheader_shortcut"]],
+                 ["ster:", ["main", "infoheader"]]]
+        paths:
+          - path: "metadata#ownerReferences"
+            pathtype: "items"
+            subpaths:
+              - "name"
+            when:
+              - key: "kind"
+                eq: "Cluster"
+        default: "<unset>"
+        type: "str"
+      {%- for line in row_condition_ready.split("\n") %}
+      {{ line }}
+      {%- endfor %}
+      infrastructure_machine_kind:
+        header: [["Infrastructure Machine Kind:", ["main", "infoheader"]]]
+        path: "status#infrastructureMachineKind"
+        default: "<unset>"
+        type: "str"
+  shortcuts:
+    "Open Cluster":
+      key: "u"
+      read_only: true
+      helptext: "Open info page for Cluster"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind: "Cluster"
+        api_family: "cluster.x-k8s.io"
+        controller: false
+        namespace_path: "metadata#namespace"
+        owner_reference_path: "metadata#ownerReferences"
+    "Open bootstrap":
+      key: "o"
+      read_only: true
+      helptext: "Open info page for bootstrap"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        api_version_path: "spec#template#spec#bootstrap#configRef#apiVersion"
+        kind_path: "spec#template#spec#bootstrap#configRef#kind"
+        namespace_path: "metadata#namespace"
+        name_path: "spec#template#spec#bootstrap#configRef#name"
+    "Open infrastructure":
+      key: "i"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for infrastructure"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        api_version_path: "spec#template#spec#infrastructureRef#apiVersion"
+        kind_path: "spec#template#spec#infrastructureRef#kind"
+        namespace_path: "metadata#namespace"
+        name_path: "spec#template#spec#infrastructureRef#name"

@@ -1,0 +1,106 @@
+---
+kind: "DevCluster"
+api_family: "infrastructure.cluster.x-k8s.io"
+default_command: "devclusters"
+command:
+  - "devclrs"
+  - "devclr"
+listview:
+  name: "Dev Clusters"
+  group: "Cluster Configuration"
+  field_indexes:
+    Normal:
+      fields: ["namespace", "name", "controller",
+               "condition_ready", "age"]
+      sortcolumn: "namespace"
+  fields:
+    {%- for line in field_condition_ready.split("\n") %}
+    {{ line }}
+    {%- endfor %}
+    controller:
+      header: "Controller:"
+      paths:
+        - path: "metadata#ownerReferences"
+          pathtype: "items"
+          subpaths:
+            - "kind"
+            - "apiVersion"
+            - "name"
+          when:
+            - key: "controller"
+              eq: true
+          type: ["kind", "api_group", "name"]
+          default: ["<none>"]
+      formatter: "list"
+      formatting:
+        field_colors:
+          - type: "kind"
+          - type: "api_group"
+          - type: "generic"
+        field_separators:
+          - type: "kind_api_group"
+          - type: "kind"
+infoview:
+  name: "Dev Cluster Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["controller", "control_plane_endpoint",
+                 "condition_ready"]
+    rows:
+      {%- for line in row_condition_ready.split("\n") %}
+      {{ line }}
+      {%- endfor %}
+      controller:
+        header: [["C", ["main", "infoheader_shortcut"]],
+                 ["ontroller:", ["main", "infoheader"]]]
+        paths:
+          - path: "metadata#ownerReferences"
+            pathtype: "items"
+            subpaths:
+              - "kind"
+              - "apiVersion"
+              - "name"
+            when:
+              - key: "controller"
+                eq: true
+            type: ["kind", "api_group", "name"]
+            default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "kind"
+            - type: "api_group"
+            - type: "generic"
+          field_separators:
+            - type: "kind_api_group"
+            - type: "kind"
+      control_plane_endpoint:
+        header: [["Control Plane Endpoint:", ["main", "infoheader"]]]
+        paths:
+          - path: [["spec#controlPlaneEndpoint#host"],
+                   ["spec#controlPlaneEndpoint#port"]]
+            default: ["<unset>"]
+            pathtype: "tuple"
+            type: ["name", "name"]
+        # FIXME: The formatter needs to be improved to handle lists
+        # that contain addresses, etc.
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "address"
+            - type: "port"
+          field_separators:
+            - type: "port"
+  shortcuts:
+    "Open controller":
+      key: "c"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for controller"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        namespace_path: "metadata#namespace"
+        owner_reference_path: "metadata#ownerReferences"
