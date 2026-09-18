@@ -1129,12 +1129,14 @@ def split_match_label_selector(selector: str) -> dict[str, Any]:
             selector (str): A matchLabel selector expressed as a string
         Returns:
             (dict[str, Any]): A matchLabel selector expressed as a dict
+        Raises:
+            ValueError: Data contained both ":" and "=" as separator
     """
     new_selector: dict[str, Any] = {}
 
     # If the string contains both : and = we have no idea how to interpret this as a selector.
     if ":" in selector and "=" in selector:
-        return selector
+        raise ValueError
 
     item = ""
     try:

@@ -105,7 +105,6 @@ infoview:
         default: "<unset>"
         type: "str"
         formatter: "numerical"
-        align: "right"
       network_disabled:
         header: [["Network Disabled:", ["main", "infoheader"]]]
         path: "spec#networkDisabled"
@@ -167,7 +166,6 @@ infoview:
         default: "<unset>"
         type: "str"
         formatter: "numerical"
-        align: "right"
   shortcuts:
     {%- for line in shortcut_controller.split("\n") %}
     {{ line }}

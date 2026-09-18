@@ -806,21 +806,21 @@ def format_selector(items: dict | list[dict],
     """
     string_selector_type: str = deep_get(kwargs, DictPath("args#selector#type"), "matchLabels")
 
+    array: list[ThemeRef | ThemeStr] = []
+
     if not isinstance(items, (list, tuple)):
         if isinstance(items, str):
             if string_selector_type == "matchLabels":
-                formatted = cmtlib.split_match_label_selector(items)
-                # If we get the raw value back the string wasn't possible to interpret
-                # as a label selector.
-                if isinstance(formatted, str):
+                try:
+                    formatted = cmtlib.split_match_label_selector(items)
+                    items = {
+                        "matchLabels": formatted,
+                    }
+                except ValueError:
                     array = [
                         ThemeStr(f"{items}", ThemeAttr("types", "generic"))
                     ]
                     items = []
-                else:
-                    items = {
-                        "matchLabels": formatted,
-                    }
             elif string_selector_type == "cel":
                 items = {
                     "cel": {
@@ -832,8 +832,6 @@ def format_selector(items: dict | list[dict],
 
     item_separator: ThemeRef = deep_get(kwargs, DictPath("item_separator"),
                                         ThemeRef("separators", "list"))
-
-    array: list[ThemeRef | ThemeStr] = []
 
     # pylint: disable-next=too-many-nested-blocks
     for selectors in items:
