@@ -20,7 +20,6 @@ listview:
       path: "status#canaryStatus#currentStepState"
       default: "<unset>"
       type: "str"
-      type: "str"
       formatter: "value_mapper"
       formatting:
         mapping:
@@ -135,7 +134,6 @@ infoview:
         path: "status#canaryStatus#currentStepState"
         default: "<unset>"
         type: "str"
-        type: "str"
         formatter: "value_mapper"
         formatting:
           mapping:
@@ -170,7 +168,6 @@ infoview:
         default: "<unset>"
         type: "int"
         formatter: "numerical"
-        align: "right"
       disabled:
         header: [["Disabled:", ["main", "infoheader"]]]
         path: "spec#disabled"

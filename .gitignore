@@ -86,6 +86,7 @@ views/Event.yaml
 views/EventType.eventing.knative.dev.yaml
 views/ExposedSecretReport.aquasecurity.github.io.yaml
 views/FlowSchema.flowcontrol.apiserver.k8s.io.yaml
+views/GameServer.game.kruise.io.yaml
 views/GameServerSet.agones.dev.yaml
 views/GraphRevision.internal.kro.run.yaml
 views/HTTPProxy.projectcontour.io.yaml

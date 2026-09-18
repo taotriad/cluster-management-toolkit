@@ -1132,10 +1132,17 @@ def split_match_label_selector(selector: str) -> dict[str, Any]:
     """
     new_selector: dict[str, Any] = {}
 
+    # If the string contains both : and = we have no idea how to interpret this as a selector.
+    if ":" in selector and "=" in selector:
+        return selector
+
     item = ""
     try:
         for item in selector.split(","):
-            key, value = item.split(":", maxsplit=1)
+            if "=" in item:
+                key, value = item.split("=", maxsplit=1)
+            else:
+                key, value = item.split(":", maxsplit=1)
             new_selector[key] = value
     except ValueError:
         pass

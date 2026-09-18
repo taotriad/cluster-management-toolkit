@@ -294,7 +294,7 @@ ConfigMissing:
 ConfigOperatorStatusChanged:
   field_colors:
     - context: "main"
-      type: "status_ok"
+      type: "status_done"
 ConfigurationReady:
   field_colors:
     - context: "main"
@@ -312,6 +312,10 @@ ContainerCreating:
     - context: "main"
       type: "status_pending"
 ContainerGCFailed:
+  field_colors:
+    - context: "main"
+      type: "status_warning"
+ContainersNotReady:
   field_colors:
     - context: "main"
       type: "status_warning"
@@ -396,6 +400,10 @@ CreateStarted:
     - context: "main"
       type: "status_ok"
 CreateVirtualService:
+  field_colors:
+    - context: "main"
+      type: "status_ok"
+CreateWorkload:
   field_colors:
     - context: "main"
       type: "status_ok"
@@ -1033,6 +1041,10 @@ GroupsUpdating:
   field_colors:
     - context: "main"
       type: "status_pending"
+GsStateChanged:
+  field_colors:
+    - context: "main"
+      type: "status_done"
 HcoUpdateError:
   field_colors:
     - context: "main"
@@ -1064,7 +1076,7 @@ ImagePullBackOff:
 ImageStreamImportModeChanged:
   field_colors:
     - context: "main"
-      type: "status_ok"
+      type: "status_done"
 importFailed:
   field_colors:
     - context: "main"
@@ -1412,7 +1424,7 @@ nodeAssigned:
 NodeCurrentRevisionChanged:
   field_colors:
     - context: "main"
-      type: "status_ok"
+      type: "status_done"
 NodeDone:
   field_colors:
     - context: "main"
@@ -1460,7 +1472,7 @@ NodeSchedulable:
 NodeTargetRevisionChanged:
   field_colors:
     - context: "main"
-      type: "status_ok"
+      type: "status_done"
 NodeUnresponsive:
   field_colors:
     - context: "main"
@@ -1516,7 +1528,7 @@ ObserveConsoleURL:
 ObserveExternalRegistryHostnameChanged:
   field_colors:
     - context: "main"
-      type: "status_ok"
+      type: "status_done"
 ObserveFeatureFlagsUpdated:
   field_colors:
     - context: "main"
@@ -1528,7 +1540,7 @@ ObserveIdentityProviders:
 ObserveInternalRegistryHostnameChanged:
   field_colors:
     - context: "main"
-      type: "status_ok"
+      type: "status_done"
 ObserveProxyConfig:
   field_colors:
     - context: "main"
@@ -1568,7 +1580,7 @@ ObserveWebhookTokenAuthenticator:
 ObservedConfigChanged:
   field_colors:
     - context: "main"
-      type: "status_ok"
+      type: "status_done"
 ObservedConfigWriteError:
   field_colors:
     - context: "main"
@@ -1632,11 +1644,11 @@ OperationStarted:
 OperatorStatusChanged:
   field_colors:
     - context: "main"
-      type: "status_ok"
+      type: "status_done"
 OperatorVersionChanged:
   field_colors:
     - context: "main"
-      type: "status_ok"
+      type: "status_done"
 OperatorVersionUpdated:
   field_colors:
     - context: "main"
@@ -2100,11 +2112,11 @@ Route-Controller-ManagerPanic:
 RoutingConfigSubdomainChanged:
   field_colors:
     - context: "main"
-      type: "status_ok"
+      type: "status_done"
 SandboxChanged:
   field_colors:
     - context: "main"
-      type: "status_ok"
+      type: "status_done"
 SATokenSignerControllerOK:
   field_colors:
     - context: "main"

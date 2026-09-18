@@ -499,6 +499,13 @@ def get_selector_list(obj: dict, **kwargs: Any) -> list[list[str]]:
             ]
         else:
             tmp = [tmp]
+    elif isinstance(tmp, str):
+        if reparent == "matchLabels":
+            tmp = [
+                {
+                    reparent: cmtlib.split_match_label_selector(tmp),
+                },
+            ]
 
     for selector in tmp:
         if "cel" in selector:

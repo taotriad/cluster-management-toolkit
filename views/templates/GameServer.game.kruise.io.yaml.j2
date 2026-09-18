@@ -1,0 +1,174 @@
+---
+kind: "GameServer"
+api_family: "game.kruise.io"
+default_command: "gameservers"
+listview:
+  name: "Game Servers"
+  group: "Kruise"
+  field_indexes:
+    Wide:
+      fields: ["namespace", "name", "controller", "update_priority",
+               "deletion_priority", "operations_state", "state", "age"]
+      sortcolumn: "namespace"
+    Normal:
+      fields: ["namespace", "name", "operations_state", "state", "age"]
+      sortcolumn: "namespace"
+  fields:
+    {%- for line in field_controller.split("\n") %}
+    {{ line }}
+    {%- endfor %}
+    deletion_priority:
+      header: "Deletion Priority:"
+      path: "status#deletionPriority"
+      default: "<unset>"
+      type: "str"
+      formatter: "numerical"
+      align: "right"
+    operations_state:
+      header: "Operations State:"
+      path: "spec#opsState"
+      default: "<unset>"
+      type: "str"
+    state:
+      header: "State:"
+      path: "status#currentState"
+      default: "<unset>"
+      type: "str"
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          mappings:
+            Ready:
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+            Creating:
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+            NotReady:
+              field_colors:
+                - context: "main"
+                  type: "status_not_ok"
+            Crash:
+              field_colors:
+                - context: "main"
+                  type: "status_not_ok"
+            Deleting:
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+            Updating:
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+            PreDelete:
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+            PreUpdate:
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+            Unknown:
+              field_colors:
+                - context: "main"
+                  type: "status_unknown"
+    update_priority:
+      header: "Update Priority:"
+      path: "status#updatePriority"
+      default: "<unset>"
+      type: "str"
+      formatter: "numerical"
+      align: "right"
+  actions:
+    actionlist:
+      "Delete resource":
+        description: "Disable resource"
+        category: "Resource Level"
+        confirm: true
+        actionfunc: "delete_resource"
+infoview:
+  name: "Game Server Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["controller", "update_priority", "deletion_priority",
+                 "network_disabled", "operations_state", "state"]
+    rows:
+      {%- for line in row_controller.split("\n") %}
+      {{ line }}
+      {%- endfor %}
+      deletion_priority:
+        header: [["Deletion Priority:", ["main", "infoheader"]]]
+        path: "status#deletionPriority"
+        default: "<unset>"
+        type: "str"
+        formatter: "numerical"
+        align: "right"
+      network_disabled:
+        header: [["Network Disabled:", ["main", "infoheader"]]]
+        path: "spec#networkDisabled"
+        default: "<unset>"
+        type: "bool"
+      operations_state:
+        header: [["Operations State:", ["main", "infoheader"]]]
+        path: "spec#opsState"
+        default: "<unset>"
+        type: "str"
+      state:
+        header: [["State:", ["main", "infoheader"]]]
+        path: "status#currentState"
+        default: "<unset>"
+        type: "str"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              Ready:
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+              Creating:
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+              NotReady:
+                field_colors:
+                  - context: "main"
+                    type: "status_not_ok"
+              Crash:
+                field_colors:
+                  - context: "main"
+                    type: "status_not_ok"
+              Deleting:
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+              Updating:
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+              PreDelete:
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+              PreUpdate:
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+              Unknown:
+                field_colors:
+                  - context: "main"
+                    type: "status_unknown"
+      update_priority:
+        header: [["Update Priority:", ["main", "infoheader"]]]
+        path: "status#updatePriority"
+        default: "<unset>"
+        type: "str"
+        formatter: "numerical"
+        align: "right"
+  shortcuts:
+    {%- for line in shortcut_controller.split("\n") %}
+    {{ line }}
+    {%- endfor %}

@@ -1,0 +1,317 @@
+---
+kind: "GameServerSet"
+api_family: "game.kruise.io"
+default_command: "gameserversets"
+listview:
+  name: "Game Server Sets"
+  group: "Kruise"
+  field_indexes:
+    Wide:
+      fields: ["namespace", "name",
+               "desired_replicas", "current_replicas",
+               "ready_replicas", "uptodate_replicas", "maintaining_replicas",
+               "pending_deletion_replicas", "pre_deletion_replicas", "age"]
+      sortcolumn: "namespace"
+    Normal:
+      fields: ["namespace", "name",
+               "desired_replicas", "current_replicas",
+               "ready_replicas", "uptodate_replicas", "maintaining_replicas",
+               "pending_deletion_replicas", "pre_deletion_replicas", "age"]
+      sortcolumn: "namespace"
+  fields:
+    current_replicas:
+      header: "Current:"
+      paths:
+        - path: ["status#currentReplicas", "spec#replicas"]
+          pathtype: "comparison"
+          default: [0, 0]
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          ranges:
+            - min: 0
+              max: 1
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+            - default: true
+              field_colors:
+                - context: "main"
+                  type: "status_not_ok"
+      align: "right"
+    desired_replicas:
+      header: "Desired:"
+      path: "spec#replicas"
+      default: 0
+      type: "int"
+      formatter: "numerical"
+      align: "right"
+    maintaining_replicas:
+      header: "Maintaining:"
+      path: "status#maintainingReplicas"
+      default: 0
+      type: "int"
+      formatter: "numerical"
+      align: "right"
+    pending_deletion_replicas:
+      header: "Pending Deletion:"
+      path: "status#waitToBeDeletedReplicas"
+      default: 0
+      type: "int"
+      formatter: "numerical"
+      align: "right"
+    pre_deletion_replicas:
+      header: "Pre-Deletion:"
+      path: "status#preDeleteReplicas"
+      default: 0
+      type: "int"
+      formatter: "numerical"
+      align: "right"
+    ready_replicas:
+      header: "Ready:"
+      paths:
+        - path: ["status#readyReplicas", "spec#replicas"]
+          pathtype: "comparison"
+          default: [0, 0]
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          ranges:
+            - min: 0
+              max: 1
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+            - min: -1
+              max: 0
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+            - default: true
+              field_colors:
+                - context: "main"
+                  type: "status_not_ok"
+      align: "right"
+    uptodate_replicas:
+      header: "Up to Date:"
+      paths:
+        - path: ["status#updatedReplicas",
+                 "status#currentReplicas"]
+          pathtype: "comparison"
+          default: [0, 0]
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          ranges:
+            - min: 0
+              max: 1
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+            - default: true
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+      align: "right"
+  actions:
+    actionlist:
+      "Delete resource":
+        description: "Disable resource"
+        category: "Resource Level"
+        confirm: true
+        actionfunc: "delete_resource"
+infoview:
+  name: "Game Server Set Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["selector", "replicas"]
+    rows:
+      replicas:
+        header: [["Replicas:", ["main", "infoheader"]]]
+        paths:
+          - path: [["spec#replicas"], " Desired",
+                   ["status#currentReplicas"], " Current",
+                   ["status#readyReplicas"], " Ready",
+                   ["status#updatedReplicas"], " Up to Date",
+                   ["status#maintainingReplicas"], " Maintaining",
+                   ["status#waitToBeDeletedReplicas"], " Pending Deletion",
+                   ["status#preDeleteReplicas"], " Pre-Deletion"]
+            pathtype: "tuple"
+            default: [0, "", 0, "", 0, "", 0, "", 0, "", 0, "", 0, ""]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "numerical"
+            - type: "generic"
+            - type: "numerical"
+            - type: "generic"
+            - type: "numerical"
+            - type: "generic"
+            - type: "numerical"
+            - type: "generic"
+            - type: "numerical"
+            - type: "generic"
+            - type: "numerical"
+            - type: "generic"
+            - type: "numerical"
+            - type: "generic"
+          field_separators:
+            - type: "no_pad"
+            - type: "fraction_spaced"
+            - type: "no_pad"
+            - type: "fraction_spaced"
+            - type: "no_pad"
+            - type: "fraction_spaced"
+            - type: "no_pad"
+            - type: "fraction_spaced"
+            - type: "no_pad"
+            - type: "fraction_spaced"
+            - type: "no_pad"
+            - type: "fraction_spaced"
+            - type: "no_pad"
+      selector:
+        header: [["Selec", ["main", "infoheader"]],
+                 ["t", ["main", "infoheader_shortcut"]],
+                 ["or:", ["main", "infoheader"]]]
+        paths:
+          - path: "status#labelSelector"
+            pathtype: "obj"
+            default: "<none>"
+        formatter: "selector"
+        formatting:
+          args:
+            selector:
+              type: "matchLabels"
+  listpad:
+    listgetter: "generic_listgetter"
+    listgetter_args:
+      _kind: "GameServer"
+      _api_family: "game.kruise.io"
+      _label_selector_path: "status#labelSelector"
+      _none_on_empty_selector: true
+    infogetter: "generic_infogetter"
+    on_activation:
+      call: "resourceinfodispatch"
+      kind: "GameServer"
+      api_family: "game.kruise.io"
+    field_indexes:
+      Wide:
+        fields: ["namespace", "name", "controller", "update_priority",
+                 "deletion_priority", "operations_state", "state", "age"]
+        sortcolumn: "namespace"
+      Normal:
+        fields: ["namespace", "name", "operations_state", "state", "age"]
+        sortcolumn: "namespace"
+    fields:
+      controller:
+        header: "Controller:"
+        paths:
+          - path: "metadata#ownerReferences"
+            pathtype: "items"
+            subpaths:
+              - "kind"
+              - "apiVersion"
+              - "name"
+            when:
+              - key: "controller"
+                eq: true
+            type: ["kind", "api_group", "name"]
+            default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "kind"
+            - type: "api_group"
+            - type: "generic"
+          field_separators:
+            - type: "kind_api_group"
+            - type: "kind"
+      deletion_priority:
+        header: "Deletion Priority:"
+        path: "status#deletionPriority"
+        default: "<unset>"
+        type: "str"
+        formatter: "numerical"
+        align: "right"
+      operations_state:
+        header: "Operations State:"
+        path: "spec#opsState"
+        default: "<unset>"
+        type: "str"
+      state:
+        header: "State:"
+        path: "status#currentState"
+        default: "<unset>"
+        type: "str"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              Ready:
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+              Creating:
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+              NotReady:
+                field_colors:
+                  - context: "main"
+                    type: "status_not_ok"
+              Crash:
+                field_colors:
+                  - context: "main"
+                    type: "status_not_ok"
+              Deleting:
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+              Updating:
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+              PreDelete:
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+              PreUpdate:
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+              Unknown:
+                field_colors:
+                  - context: "main"
+                    type: "status_unknown"
+      update_priority:
+        header: "Update Priority:"
+        path: "status#updatePriority"
+        default: "<unset>"
+        type: "str"
+        formatter: "numerical"
+        align: "right"
+  shortcuts:
+    "View Game Server Template":
+      key: "t"
+      modifier: "shift"
+      read_only: true
+      helptext: "Show Game Server Template"
+      action: "call"
+      action_call: "view_yaml"
+      action_args:
+        title: "Game Server Template"
+        _named_title: true
+        _pass_obj: true
+        path: "spec#gameServerTemplate"
+    "Selector":
+      key: "t"
+      read_only: true
+      helptext: "Show selector"
+      widget: "windowwidget"
+      widget_args:
+        title: "Selector:"
+        itemgetter: "get_selector_list"
+        itemgetter_args:
+          path: "status#labelSelector"
+          reparent: "matchLabels"

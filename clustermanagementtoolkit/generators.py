@@ -809,16 +809,26 @@ def format_selector(items: dict | list[dict],
     if not isinstance(items, (list, tuple)):
         if isinstance(items, str):
             if string_selector_type == "matchLabels":
-                items = {
-                    "matchLabels": cmtlib.split_match_label_selector(items)
-                }
+                formatted = cmtlib.split_match_label_selector(items)
+                # If we get the raw value back the string wasn't possible to interpret
+                # as a label selector.
+                if isinstance(formatted, str):
+                    array = [
+                        ThemeStr(f"{items}", ThemeAttr("types", "generic"))
+                    ]
+                    items = []
+                else:
+                    items = {
+                        "matchLabels": formatted,
+                    }
             elif string_selector_type == "cel":
                 items = {
                     "cel": {
                         "expression": items,
                     },
                 }
-        items = [items]
+        if items:
+            items = [items]
 
     item_separator: ThemeRef = deep_get(kwargs, DictPath("item_separator"),
                                         ThemeRef("separators", "list"))
@@ -887,7 +897,7 @@ def format_selector(items: dict | list[dict],
                         valueattr = ThemeAttr("types", "generic")
 
                     _vlist += [
-                        ThemeStr(f"{key}", valueattr),
+                        ThemeStr(f"{key}", ThemeAttr("types", "key")),
                         ThemeRef("separators", "selector"),
                         ThemeStr(f"{value}", valueattr),
                     ]
