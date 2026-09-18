@@ -1,0 +1,247 @@
+---
+kind: "Rollout"
+api_family: "rollouts.kruise.io"
+default_command: "rollouts"
+listview:
+  name: "Rollouts"
+  group: "Kruise"
+  field_indexes:
+    Wide:
+      fields: ["namespace", "name", "workload", "canary_step", "canary_state",
+               "disabled", "phase", "age", "message"]
+      sortcolumn: "namespace"
+    Normal:
+      fields: ["namespace", "name", "canary_step", "canary_state",
+               "disabled", "phase", "age"]
+      sortcolumn: "namespace"
+  fields:
+    canary_state:
+      header: "Canary State:"
+      path: "status#canaryStatus#currentStepState"
+      default: "<unset>"
+      type: "str"
+      type: "str"
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          mappings:
+            Completed:
+              field_colors:
+                - context: "main"
+                  type: "status_done"
+            StepUpgrade:
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+            StepTrafficRouting:
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+            StepMetricsAnalysis:
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+            StepPaused:
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+            StepReady:
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+    canary_step:
+      header: "Canary Step:"
+      path: "status#canaryStatus#currentStepIndex"
+      default: "<unset>"
+      type: "int"
+      formatter: "numerical"
+      align: "right"
+    disabled:
+      header: "Disabled:"
+      path: "spec#disabled"
+      default: "<unset>"
+      type: "bool"
+    message:
+      header: "Message:"
+      path: "status#message"
+      type: "str"
+    phase:
+      header: "Phase:"
+      path: "status#phase"
+      default: "<unset>"
+      type: "str"
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          mappings:
+            Disabled:
+              field_colors:
+                - context: "main"
+                  type: "status_ignored"
+            Disabling:
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+            Healthy:
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+            Initial:
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+            Progressing:
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+            Terminating:
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+    workload:
+      header: "Workload:"
+      paths:
+        - path: [["spec#workloadRef#kind"],
+                 ["spec#workloadRef#apiVersion"],
+                 ["spec#workloadRef#name"]]
+          pathtype: "tuple"
+          type: ["kind", "api_group", "name"]
+      formatter: "list"
+      formatting:
+        field_colors:
+          - type: "kind"
+          - type: "api_group"
+          - type: "generic"
+        field_separators:
+          - type: "kind_api_group"
+          - type: "kind"
+  actions:
+    actionlist:
+      "Delete resource":
+        description: "Disable resource"
+        category: "Resource Level"
+        confirm: true
+        actionfunc: "delete_resource"
+infoview:
+  name: "Rollout Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["workload", "canary_step", "canary_state",
+                 "disabled", "message", "phase"]
+    rows:
+      canary_state:
+        header: [["Canary State:", ["main", "infoheader"]]]
+        path: "status#canaryStatus#currentStepState"
+        default: "<unset>"
+        type: "str"
+        type: "str"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              Completed:
+                field_colors:
+                  - context: "main"
+                    type: "status_done"
+              StepUpgrade:
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+              StepTrafficRouting:
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+              StepMetricsAnalysis:
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+              StepPaused:
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+              StepReady:
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+      canary_step:
+        header: [["Canary Step:", ["main", "infoheader"]]]
+        path: "status#canaryStatus#currentStepIndex"
+        default: "<unset>"
+        type: "int"
+        formatter: "numerical"
+        align: "right"
+      disabled:
+        header: [["Disabled:", ["main", "infoheader"]]]
+        path: "spec#disabled"
+        default: "<unset>"
+        type: "bool"
+      message:
+        header: [["Message:", ["main", "infoheader"]]]
+        path: "status#message"
+        type: "str"
+      phase:
+        header: [["Phase:", ["main", "infoheader"]]]
+        path: "status#phase"
+        default: "<unset>"
+        type: "str"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              Disabled:
+                field_colors:
+                  - context: "main"
+                    type: "status_ignored"
+              Disabling:
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+              Healthy:
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+              Initial:
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+              Progressing:
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+              Terminating:
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+      workload:
+        header: [["W", ["main", "infoheader_shortcut"]],
+                 ["orkload:", ["main", "infoheader"]]]
+        paths:
+          - path: [["spec#workloadRef#kind"],
+                   ["spec#workloadRef#apiVersion"],
+                   ["spec#workloadRef#name"]]
+            pathtype: "tuple"
+            type: ["kind", "api_group", "name"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "kind"
+            - type: "api_group"
+            - type: "generic"
+          field_separators:
+            - type: "kind_api_group"
+            - type: "kind"
+  shortcuts:
+    "Open Workload":
+      key: "w"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for workload"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        namespace_path: "metadata#namespace"
+        kind_path: "spec#workloadRef#kind"
+        api_version_path: "spec#workloadRef#apiVersion"
+        name_path: "spec#workloadRef#name"
