@@ -18,6 +18,7 @@ except ModuleNotFoundError:  # pragma: no cover
              "you may need to (re-)run `cmt-install.py` or `pip3 install jinja2`; aborting.")
 
 
+# pylint: disable-next=too-many-branches
 def main() -> None:
     """
     Main function for the program.
