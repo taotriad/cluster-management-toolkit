@@ -1772,6 +1772,31 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api_paths": ["apis/agentgateway.dev/v1alpha1/"],
         "api": "agentgatewaypolicies",
     },
+    # agents.kruise.io
+    ("Checkpoint", "agents.kruise.io"): {
+        "api_paths": ["apis/agents.kruise.io/v1alpha1/"],
+        "api": "checkpoints",
+    },
+    ("SandboxClaim", "agents.kruise.io"): {
+        "api_paths": ["apis/agents.kruise.io/v1alpha1/"],
+        "api": "sandboxclaims",
+    },
+    ("Sandbox", "agents.kruise.io"): {
+        "api_paths": ["apis/agents.kruise.io/v1alpha1/"],
+        "api": "sandboxes",
+    },
+    ("SandboxSet", "agents.kruise.io"): {
+        "api_paths": ["apis/agents.kruise.io/v1alpha1/"],
+        "api": "sandboxsets",
+    },
+    ("SandboxTemplate", "agents.kruise.io"): {
+        "api_paths": ["apis/agents.kruise.io/v1alpha1/"],
+        "api": "sandboxtemplates",
+    },
+    ("SandboxUpdateOps", "agents.kruise.io"): {
+        "api_paths": ["apis/agents.kruise.io/v1alpha1/"],
+        "api": "sandboxupdateops",
+    },
     # analysis.koordinator.sh
     ("Recommendation", "analysis.koordinator.sh"): {
         "api_paths": ["apis/analysis.koordinator.sh/v1alpha1/"],
@@ -3993,6 +4018,15 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api_paths": ["apis/frrk8s.metallb.io/v1beta1/"],
         "api": "frrnodestates",
         "namespaced": False,
+    },
+    # game.kruise.io
+    ("GameServer", "game.kruise.io"): {
+        "api_paths": ["apis/game.kruise.io/v1alpha1/"],
+        "api": "gameservers",
+    },
+    ("GameServerSet", "game.kruise.io"): {
+        "api_paths": ["apis/game.kruise.io/v1alpha1/"],
+        "api": "gameserversets",
     },
     # gateway.kgateway.dev
     ("Backend", "gateway.kgateway.dev"): {
@@ -7555,6 +7589,23 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
     ("RKEControlPlane", "rke.cattle.io"): {
         "api_paths": ["apis/rke.cattle.io/v1/"],
         "api": "rkecontrolplanes",
+    },
+    # rollouts.kruise.io
+    ("RolloutHistory", "rollouts.kruise.io"): {
+        "api_paths": ["apis/rollouts.kruise.io/v1alpha1/"],
+        "api": "rollouthistories",
+    },
+    ("TrafficRouting", "rollouts.kruise.io"): {
+        "api_paths": ["apis/rollouts.kruise.io/v1alpha1/"],
+        "api": "trafficroutings",
+    },
+    ("BatchRelease", "rollouts.kruise.io"): {
+        "api_paths": ["apis/rollouts.kruise.io/v1beta1/"],
+        "api": "batchreleases",
+    },
+    ("Rollout", "rollouts.kruise.io"): {
+        "api_paths": ["apis/rollouts.kruise.io/v1beta1/"],
+        "api": "rollouts",
     },
     # route.openshift.io
     ("Route", "route.openshift.io"): {
