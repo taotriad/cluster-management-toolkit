@@ -1,14 +1,14 @@
 ---
-kind: "PodGroup"
+kind: "CompositePodGroup"
 api_family: "scheduling.k8s.io"
 default_command: "podgroups"
 command:
-  - "podgrps"
-  - "podgrp"
-  - "pgs"
-  - "pg"
+  - "comppodgrps"
+  - "comppodgrp"
+  - "cpgs"
+  - "cpg"
 listview:
-  name: "Pod Groups"
+  name: "Composite Pod Groups"
   group: "Workloads"
   field_indexes:
     Normal:
@@ -67,7 +67,7 @@ listview:
         confirm: true
         actionfunc: "delete_resource"
 infoview:
-  name: "Pod Group Info"
+  name: "Composite Pod Group Info"
   infopad:
     row_indexes:
       Normal:

@@ -12,12 +12,15 @@ listview:
   group: "Dynamic Resource Allocation"
   field_indexes:
     Wide:
-      fields: ["namespace", "name", "requests", "age"]
+      fields: ["namespace", "name", "controller", "requests", "age"]
       sortcolumn: "namespace"
     Normal:
-      fields: ["namespace", "name", "requests_count", "age"]
+      fields: ["namespace", "name", "controller", "requests_count", "age"]
       sortcolumn: "namespace"
   fields:
+    {%- for line in field_controller.split("\n") %}
+    {{ line }}
+    {%- endfor %}
     requests:
       header: "Requests:"
       paths:
@@ -36,6 +39,13 @@ listview:
 infoview:
   name: "Resource Claim Template Info"
   infopad:
+    row_indexes:
+      Normal:
+        fields: ["controller"]
+    rows:
+      {%- for line in row_controller.split("\n") %}
+      {{ line }}
+      {%- endfor %}
   listpad:
     listgetter: "listgetter_path"
     listgetter_args:
@@ -112,3 +122,7 @@ infoview:
             - ""
             - ""
             - "numerical_with_units"
+  shortcuts:
+    {%- for line in shortcut_controller.split("\n") %}
+    {{ line }}
+    {%- endfor %}

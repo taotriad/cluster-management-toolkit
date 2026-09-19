@@ -363,8 +363,10 @@ infoview:
         path: "spec#schedulerName"
         type: "str"
       scheduling_group:
-        header: [["Scheduling Group:", ["main", "infoheader"]]]
-        path: "spec#schedulingGroup"
+        header: [["Scheduling ", ["main", "infoheader"]],
+                 ["G", ["main", "infoheader_shortcut"]],
+                 ["roup:", ["main", "infoheader"]]]
+        path: "spec#schedulingGroup#podGroupName"
         default: "<unset>"
         type: "str"
       termination_grace_period:
@@ -670,6 +672,19 @@ infoview:
         itemgetter: "get_tolerations"
         # This isn't supported for now
         sortcolumn: "key"
+    "Scheduling Group":
+      key: "g"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for Scheduling Group"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind: "PodGroup"
+        api_family: "scheduling.k8s.io"
+        name_path: "spec#schedulingGroup#podGroupName"
+        namespace_path: "metadata#namespace"
     "Priority Class":
       key: "p"
       modifier: "shift"

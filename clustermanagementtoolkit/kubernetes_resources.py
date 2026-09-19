@@ -510,7 +510,8 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api": "compositepodgroups",
     },
     ("PodGroup", "scheduling.k8s.io"): {
-        "api_paths": ["apis/scheduling.k8s.io/v1alpha3/",
+        "api_paths": ["apis/scheduling.k8s.io/v1beta1/",
+                      "apis/scheduling.k8s.io/v1alpha3/",
                       "apis/scheduling.k8s.io/v1alpha2/"],
         "api": "podgroups",
     },
@@ -520,7 +521,8 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "namespaced": False,
     },
     ("Workload", "scheduling.k8s.io"): {
-        "api_paths": ["apis/scheduling.k8s.io/v1alpha3/",
+        "api_paths": ["apis/scheduling.k8s.io/v1beta1/",
+                      "apis/scheduling.k8s.io/v1alpha3/",
                       "apis/scheduling.k8s.io/v1alpha2/"],
         "api": "workloads",
     },

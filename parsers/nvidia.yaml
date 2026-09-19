@@ -123,6 +123,7 @@
             format_block_end: true
         severity:
           default: "info"
+        formatter: "format_go"
     - name: "override_severity"
       options:
         severity:

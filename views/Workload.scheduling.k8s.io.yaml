@@ -28,6 +28,13 @@ listview:
         field_separators:
           - type: "kind_api_group"
           - type: "kind"
+  actions:
+    actionlist:
+      "Delete resource":
+        description: "Delete resource"
+        category: "Resource Level"
+        confirm: true
+        actionfunc: "delete_resource"
 infoview:
   name: "Workload Info"
   infopad:
@@ -55,42 +62,84 @@ infoview:
   listpad:
     listgetter: "listgetter_path"
     listgetter_args:
-      path: "spec#podGroups"
+      paths:
+        - path: "spec#podGroupTemplates"
+          key_name: "kind"
+          key_value: "PodGroup"
+          type: "list"
+        - path: "spec#compositePodGroupTemplates"
+          key_name: "kind"
+          key_value: "CompositePodGroup"
+          type: "list"
     infogetter: "generic_infogetter"
     field_indexes:
       Normal:
-        fields: ["pod_group", "policy", "gang_minimum_count"]
-        sortcolumn: "pod_group"
+        fields: ["kind", "name", "disruption_mode", "policy",
+                 "priority", "priority_class"]
+        sortcolumn: "name"
     fields:
-      pod_group:
-        header: "Pod Group:"
+      disruption_mode:
+        header: "Disruption Mode:"
+        paths:
+          - path: "disruptionMode"
+            pathtype: "substitution"
+            substitute: "Single"
+            else: null
+            when:
+              - key: "single"
+                notmissing: "single"
+          - path: "disruptionMode"
+            pathtype: "substitution"
+            substitute: "All"
+            else: null
+            when:
+              - key: "all"
+                notmissing: "all"
+        default: "<unset>"
+        type: "str"
+      kind:
+        header: "Kind:"
+        path: "kind"
+        default: "<unset>"
+        type: "str"
+        formatting:
+          field_colors:
+            - type: "kind"
+      name:
+        header: "Name:"
         path: "name"
         default: "<unset>"
         type: "str"
-      gang_minimum_count:
-        header: "Gang Minimum Count:"
-        path: "policy#gang#minCount"
-        default: "<none>"
-        type: "int"
-        formatter: "numerical"
-        align: "right"
       policy:
         header: "Policy:"
         paths:
-          - path: "policy"
+          - path: "schedulingPolicy"
             pathtype: "substitution"
-            when:
-              - key: "basic"
-                notnone: true
-            substitute: "Basic"
-          - path: "policy"
-            pathtype: "substitution"
+            substitute: "Gang"
+            else: null
             when:
               - key: "gang"
-                notnone: true
-            substitute: "Gang"
-        default: ["<unset>"]
-        formatter: "list"
+                notmissing: "gang"
+          - path: "schedulingPolicy"
+            pathtype: "substitution"
+            substitute: "Basic"
+            else: null
+            when:
+              - key: "basic"
+                notmissing: "basic"
+        default: "<unset>"
+        type: "str"
+      priority:
+        header: "Priority:"
+        path: "priority"
+        default: "<unset>"
+        type: "int"
+        formatter: "numerical"
+      priority_class:
+        header: "Priority Class:"
+        path: "priorityClassName"
+        default: "<default>"
+        type: "str"
   shortcuts:
     "Open controller":
       key: "c"

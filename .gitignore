@@ -169,6 +169,7 @@ views/RbacAssessmentReport.aquasecurity.github.io.yaml
 views/ReplicaSet.apps.yaml
 views/ReplicationController.yaml
 views/ResourceClaim.resource.k8s.io.yaml
+views/ResourceClaimTemplate.resource.k8s.io.yaml
 views/ResourceQuota.yaml
 views/ResourceSlice.resource.k8s.io.yaml
 views/Revision.serving.knative.dev.yaml

@@ -427,6 +427,12 @@ configmap_signatures:
   yaml:
     format_name: "YAML"
     signatures:
+      - name: "otel-agent-conf"
+        data_prefix: "otel-agent-config"
+        data_suffix: "otel-agent-config"
+      - name: "otel-collector-conf"
+        data_prefix: "otel-collector-config"
+        data_suffix: "otel-collector-config"
       - namespace: "harvester-system"
         name: "cdi-crd-manifest"
         data_prefix: "crd"
