@@ -4314,6 +4314,10 @@ def __get_configuration_data(configuration_file: FilePath, configuration_type: s
                         ANSIThemeStr("; aborting.", "default")], stderr=True)
         sys.exit(errno.EINVAL)
 
+    # Fully expand home directory reference.
+    if path and path.startswith("~/"):
+        path = path.replace("~", HOMEDIR, 1)
+
     if data is not None:
         # pylint: disable-next=consider-using-with
         tf = tempfile.NamedTemporaryFile(suffix=".yaml.j2", delete=False)

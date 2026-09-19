@@ -77,7 +77,7 @@ N/A
 
 ### Changes to _cmtadm_ in v0.8.11
 
-N/A
+* Add support for expansion of `~/` to `cmtadm create-cluster`.
 
 ### Changes to _cmtinv_ in v0.8.11
 
