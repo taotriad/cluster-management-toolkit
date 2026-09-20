@@ -1236,7 +1236,7 @@ def genericlistloop(stdscr: curses.window, **kwargs: Any) -> Retval:
             if unique_match is not None:
                 selected = uip.get_selected()
                 if uip.activatedfun is not None:
-                    if (retval := uip.activatedfun(uip.stdscr,
+                    if (retval := uip.activatedfun(stdscr=uip.stdscr,
                                                    obj=unique_match,
                                                    kind=kind)) == Retval.RETURNFULL:
                         return retval
@@ -4398,13 +4398,13 @@ def genericinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                         on_activation_args["formatter_path"] = formatter_path
                     retval: Retval | None = None
                     if view == ("ConfigMap", "") and callable(uip.activatedfun):
-                        retval = uip.activatedfun(uip.stdscr,
+                        retval = uip.activatedfun(stdscr=uip.stdscr,
                                                   obj=deep_get(obj, DictPath(f"data#{match}"), ""),
                                                   kind=ikind, info=None, title=name,
                                                   **on_activation_args)
                     elif callable(uip.activatedfun):
-                        retval = uip.activatedfun(uip.stdscr, obj=match, kind=ikind, info=obj,
-                                                  **on_activation_args)
+                        retval = uip.activatedfun(stdscr=uip.stdscr, obj=match, kind=ikind,
+                                                  info=obj, **on_activation_args)
                     if retval == Retval.RETURNFULL:
                         return retval
                     uip.update_forced = True
