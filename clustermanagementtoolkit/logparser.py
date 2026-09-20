@@ -2254,7 +2254,7 @@ def key_value(message: str, **kwargs: Any) -> tuple[str, LogLevel, list[ThemeRef
     errors = deep_get(options, DictPath("error#keys"), ["err", "error"])
     highlight_reason = deep_get(options, DictPath("severity#highlight_reason"), False)
     timestamps = deep_get(options, DictPath("timestamp#keys"), ["t", "ts", "time"])
-    severities = deep_get(options, DictPath("severity#keys"), ["level", "lvl"])
+    severities = deep_get(options, DictPath("severity#keys"), ["level", "lvl", "logLevel"])
     facilities = deep_get(options, DictPath("facility#keys"),
                           ["source", "subsys", "caller", "logger", "Topic"])
     versions = deep_get(options, DictPath("version#keys"), ["version"])
@@ -2328,21 +2328,9 @@ def key_value(message: str, **kwargs: Any) -> tuple[str, LogLevel, list[ThemeRef
 
         if facility == "":
             for _fac in facilities:
-                if isinstance(_fac, str):
-                    facility = deep_get(d, DictPath(_fac), "")
+                # For now we only support single facilities.
+                if (facility := deep_get(d, DictPath(_fac), "")):
                     break
-
-                if isinstance(_fac, dict):
-                    _facilities = deep_get(_fac, DictPath("keys"), [])
-                    _separators = deep_get(_fac, DictPath("separators"), [])
-                    for i, _fac in enumerate(_facilities):
-                        # This is to allow prefixes/suffixes
-                        if _fac != "":
-                            if _fac not in d:
-                                break
-                            facility += str(deep_get(d, DictPath(_fac), ""))
-                        if i < len(_separators):
-                            facility += _separators[i]
         if LogparserConfiguration.pop_facility:
             for _fac in facilities:
                 if isinstance(_fac, str):
@@ -2407,6 +2395,9 @@ def key_value(message: str, **kwargs: Any) -> tuple[str, LogLevel, list[ThemeRef
             elif d_key in versions:
                 msg_tmp.append(format_key_value(d_key, d_value,
                                                 LogLevel.NOTICE, force_severity=True))
+            elif d_key in severities:
+                msg_tmp.append(format_key_value(d_key, d_value,
+                                                severity, force_severity=True))
             else:
                 if is_event and d_key == "type":
                     severity_ = severity
@@ -2825,9 +2816,9 @@ def match_block_start(matchrules: list[MatchBlockStart],
     format_block_start: bool = False
 
     for _bs in matchrules:
-        matchtype = _bs["matchtype"]
-        matchkey = _bs["matchkey"]
-        matchline = _bs["matchline"]
+        matchtype = deep_get(_bs, DictPath("matchtype"))
+        matchkey = deep_get(_bs, DictPath("matchkey"))
+        matchline = deep_get(_bs, DictPath("matchline"), "any")
         format_block_start = deep_get(_bs, DictPath("format_block_start"), False)
         if matchline == "any" or matchline == "first" and not line:
             if matchtype == "contains":
@@ -2936,6 +2927,8 @@ def strip_timestamp_and_match_block_end(message: str, **kwargs: Any) -> tuple[st
             message (str): The string to match
             **kwargs (dict[str, Any]): Keyword arguments
                 block_end ([MatchBlockEnd]): The block end rules
+                strip_tab (bool): Some blocks are tab-indented, which may confuse some formatters;
+                                  this option allows for stripping the first leading tab.
         Returns:
             (str, bool):
                 (str): The processed string
@@ -2943,8 +2936,13 @@ def strip_timestamp_and_match_block_end(message: str, **kwargs: Any) -> tuple[st
                 (bool): True if the block end should be formatted
     """
     block_end = deep_get(kwargs, DictPath("block_end"), [])
+    strip_tab = deep_get(kwargs, DictPath("strip_tab"), False)
+
     if message is not None:
         _timestamp, message = split_iso_timestamp(message, none_timestamp())
+        if strip_tab and message.startswith("\t"):
+            message = message[1:]
+
     matched, format_block_end = match_block_end(block_end, message)
     return message, not matched, format_block_end
 

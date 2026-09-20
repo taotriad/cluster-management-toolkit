@@ -176,10 +176,17 @@ severity:
 ```
 
 
-#### severity
+#### strip_ansicodes
 
 ```
 strip_ansicodes (bool): Should ANSI-codes be stripped or retained (default: false)
+```
+
+
+#### strip_tab
+
+```
+strip_tab (bool): Should the first tab of every line in a block be stripped (default: false)
 ```
 
 

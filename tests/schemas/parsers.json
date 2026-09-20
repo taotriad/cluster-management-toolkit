@@ -695,6 +695,10 @@
                                         "strip_ansicodes": {
                                             "description": "Remove ANSI-codes from text",
                                             "type": "boolean"
+                                        },
+                                        "strip_tab": {
+                                            "description": "Remove leading tab from block",
+                                            "type": "boolean"
                                         }
                                     },
                                     "requiredProperties": [ "block_start", "block_end" ],
