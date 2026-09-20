@@ -780,6 +780,8 @@ def get_obj(obj: dict, field_dict: dict, field_names: list[str],
                         tmp = obj
                     else:
                         tmp = deep_get_with_fallback(obj, path, {})
+                        if not tmp and default:
+                            tmp = default
                     if reparent:
                         _values.append(([{reparent: tmp}], "raw"))
                     else:
