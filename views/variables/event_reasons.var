@@ -1700,7 +1700,7 @@ PatchPodDeletionCostFailed:
 PayloadLoaded:
   field_colors:
     - context: "main"
-      type: "status_ok"
+      type: "status_done"
 Pending:
   field_colors:
     - context: "main"
@@ -1769,6 +1769,10 @@ PreflightConfigDriftCheckFailed:
   field_colors:
     - context: "main"
       type: "status_warning"
+Presented:
+  field_colors:
+    - context: "main"
+      type: "status_done"
 ProbeError:
   field_colors:
     - context: "main"
