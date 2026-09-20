@@ -14,6 +14,7 @@
   parser_rules:
     - name: "glog"
     - name: "json"
+    - name: "tab_separated"
     - name: "override_severity"
       options:
         severity:
@@ -21,3 +22,17 @@
             - matchtype: "startswith"
               matchkey: "shell-operator v"
               loglevel: "notice"
+- name: "deckhouse"
+  show_in_selector: false
+  matchkeys:
+    # We need to specify the container name too;
+    # otherwise it'll match kube-rbac-proxy which we want to match
+    # from another file.
+    - image_name: "/deckhouse/ce"
+      container_name: "alerts-receiver"
+    - image_name: "/deckhouse/ce"
+      container_name: "mimir"
+    - image_name: "/deckhouse/ce"
+      container_name: "promxy"
+  parser_rules:
+    - name: "json"

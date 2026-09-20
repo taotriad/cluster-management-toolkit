@@ -1,0 +1,119 @@
+---
+kind: "__ValidationWebhookContext"
+api_family: "deckhouse.io"
+default_command: "__"
+infoview:
+  name: "Validation Webhook Context"
+  infopad:
+    name_path: "name"
+    creation_timestamp_path: null
+    row_indexes:
+      Normal:
+        fields: ["kind",
+                 "api_version",
+                 "name_selector",
+                 "label_selector",
+                 "namespace_header",
+                 "namespace_label_selector",
+                 "namespace_name_selector"]
+    rows:
+      namespace_header:
+        header: [["Namespace:", ["main", "infoheader"]]]
+      label_selector:
+        header: [["La", ["main", "infoheader"]],
+                 ["b", ["main", "infoheader_shortcut"]],
+                 ["el Selector:", ["main", "infoheader"]]]
+        paths:
+          - path: "kubernetes#labelSelector"
+            pathtype: "obj"
+            default: "<none>"
+        formatter: "selector"
+      namespace_label_selector:
+        header: [["  Label Sele", ["main", "infoheader"]],
+                 ["c", ["main", "infoheader_shortcut"]],
+                 ["tor:", ["main", "infoheader"]]]
+        paths:
+          - path: "kubernetes#namespace#labelSelector"
+            pathtype: "obj"
+            default: "<none>"
+        formatter: "selector"
+      namespace_name_selector:
+        header: [["  ", ["main", "infoheader"]],
+                 ["N", ["main", "infoheader_shortcut"]],
+                 ["amespace Name Selector:", ["main", "infoheader"]]]
+        path: "kubernetes#namespace#nameSelector#matchNames"
+        default: ["<none>"]
+        type: "raw"
+        formatter: "list"
+      name_selector:
+        header: [["Name ", ["main", "infoheader"]],
+                 ["S", ["main", "infoheader_shortcut"]],
+                 ["elector:", ["main", "infoheader"]]]
+        path: "kubernetes#nameSelector#matchNames"
+        default: ["<none>"]
+        type: "raw"
+        formatter: "list"
+      api_version:
+        header: [["API-version:", ["main", "infoheader"]]]
+        path: "kubernetes#apiVersion"
+        default: "<unset>"
+        type: "str"
+        formatter: "version"
+      kind:
+        header: [["Kind:", ["main", "infoheader"]]]
+        path: "kubernetes#kind"
+        default: "<unset>"
+        type: "str"
+        formatting:
+          field_colors:
+            - type: "kind"
+  logpad:
+    infogetter: "logpad_formatted"
+    infogetter_args:
+      formatter: "format_none"
+      path: "kubernetes#jqFilter"
+    timestamps: false
+  shortcuts:
+    "Label Selector":
+      key: "b"
+      read_only: true
+      helptext: "Show label selector"
+      widget: "windowwidget"
+      widget_args:
+        title: "Label Selector:"
+        itemgetter: "get_selector_list"
+        itemgetter_args:
+          path: "spec#selector"
+          path: "kubernetes#labelSelector"
+    "Name Selector":
+      key: "s"
+      modifier: "shift"
+      read_only: true
+      helptext: "Show name selector"
+      widget: "windowwidget"
+      widget_args:
+        title: "Name Selector:"
+        itemgetter: "get_list_as_list"
+        itemgetter_args:
+          path: "kubernetes#nameSelector#matchNames"
+    "Namespace Label Selector":
+      key: "t"
+      read_only: true
+      helptext: "Show Namespace label selector"
+      widget: "windowwidget"
+      widget_args:
+        title: "Label Selector:"
+        itemgetter: "get_selector_list"
+        itemgetter_args:
+          path: "kubernetes#namespace#labelSelector"
+    "Namespace Name Selector":
+      key: "n"
+      modifier: "shift"
+      read_only: true
+      helptext: "Show Namespace name selector"
+      widget: "windowwidget"
+      widget_args:
+        title: "Namespace Name Selector:"
+        itemgetter: "get_list_as_list"
+        itemgetter_args:
+          path: "kubernetes#namespace#nameSelector#matchNames"

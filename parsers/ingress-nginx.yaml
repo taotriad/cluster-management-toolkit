@@ -14,6 +14,17 @@
       options:
         timestamp:
           reformat: true
+    - name: "custom_line"
+      options:
+        block_start:
+          - matchtype: "startswith"
+            matchkey: "-----------------------"
+            matchline: "any"
+            format_block_start: true
+        block_end:
+          - matchtype: "empty"
+            matchkey: ""
+            format_block_end: true
     - name: "override_severity"
       options:
         severity:
@@ -34,3 +45,47 @@
   parser_rules:
     - name: "glog"
     - name: "json"
+- name: "ingress-nginx"
+  show_in_selector: false
+  matchkeys:
+    - pod_name: "controller-nginx"
+      container_name: "protobuf-exporter"
+  parser_rules:
+    - name: "key_value"
+- name: "ingress-nginx"
+  show_in_selector: false
+  matchkeys:
+    - pod_name: "validator-nginx"
+      container_name: "validator"
+    - pod_name: "controller-nginx"
+      container_name: "controller"
+  parser_rules:
+    - name: "glog"
+    - name: "custom_line"
+      options:
+        block_start:
+          - matchtype: "match"
+            matchkey: '"NGINX configuration change" diff=<'
+            matchline: "any"
+            format_block_start: false
+        block_end:
+          - matchtype: "match"
+            matchkey: '[A-Z]\d{4} \d\d:\d\d:\d\d'
+            format_block_end: false
+        formatter: "format_diff"
+        strip_tab: true
+    - name: "custom_line"
+      options:
+        block_start:
+          - matchtype: "startswith"
+            matchkey: "-----------------------"
+            matchline: "any"
+            format_block_start: true
+        block_end:
+          - matchtype: "empty"
+            matchkey: ""
+            format_block_end: true
+        severity:
+          default: "notice"
+    - name: "expand_event"
+    - name: "key_value_with_leading_message"

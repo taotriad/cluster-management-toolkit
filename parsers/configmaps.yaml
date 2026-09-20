@@ -407,6 +407,9 @@ configmap_signatures:
     format_name: "TOML"
     signatures:
       - data_suffix: ".toml"
+      - name: "trickster-config"
+        data_prefix: "trickster.conf"
+        data_suffix: "trickster.conf"
 
   xar:
     format_name: "xar"

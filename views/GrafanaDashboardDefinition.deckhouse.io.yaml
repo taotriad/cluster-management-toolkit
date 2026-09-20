@@ -1,0 +1,38 @@
+---
+kind: "GrafanaDashboardDefinition"
+api_family: "deckhouse.io"
+default_command: "grafanadashboarddefinitions"
+command:
+  - "grafanadbdefs"
+  - "grafanadbdef"
+listview:
+  name: "Grafana Dashboard Definitions"
+  group: "Deckhouse"
+  field_indexes:
+    Normal:
+      fields: ["name", "folder", "age"]
+      sortcolumn: "namespace"
+  fields:
+    folder:
+      header: "Folder:"
+      path: "spec#folder"
+      default: "<unset>"
+      type: "str"
+infoview:
+  name: "Grafana Dashboard Definition Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["folder"]
+    rows:
+      folder:
+        header: [["Folder:", ["main", "infoheader"]]]
+        path: "spec#folder"
+        default: "<unset>"
+        type: "str"
+  logpad:
+    infogetter: "logpad_formatted"
+    infogetter_args:
+      formatter: "format_yaml"
+      path: "spec#definition"
+    timestamps: false

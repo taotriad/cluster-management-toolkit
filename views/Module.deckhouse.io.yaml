@@ -142,7 +142,7 @@ infoview:
   infopad:
     row_indexes:
       Normal:
-        fields: ["description", "weight", "critical", "version",
+        fields: ["namespace", "description", "weight", "critical", "version",
                  "channel", "source", "stage", "enabled", "ready", "phase"]
     rows:
       channel:
@@ -169,6 +169,14 @@ infoview:
               - key: "type"
                 eq: "EnabledByModuleManager"
         type: "str"
+      namespace:
+        header: [["Namespace:", ["main", "infoheader"]]]
+        path: "properties#namespace"
+        default: "<unset>"
+        type: "str"
+        formatting:
+          field_colors:
+            - type: "namespace"
       phase:
         header: [["Phase:", ["main", "infoheader"]]]
         path: "status#phase"

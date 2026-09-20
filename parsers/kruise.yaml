@@ -11,6 +11,8 @@
     - image_name: "/openkruise/kruise-game-manager"
     - image_name: "/openkruise/kruise-manager"
     - image_name: "/openkruise/kruise-rollout"
+    - pod_name: "kruise-controller-manager"
+      image_name: "/deckhouse/ce"
   parser_rules:
     - name: "glog"
     - name: "key_value_with_leading_message"

@@ -31,6 +31,15 @@
 - name: "prometheus"
   show_in_selector: false
   matchkeys:
+    - pod_name: "trickster"
+      container_name: "trickster"
+    - pod_name: "memcached"
+      container_name: "exporter"
+  parser_rules:
+    - name: "key_value"
+- name: "prometheus"
+  show_in_selector: false
+  matchkeys:
     - pod_name: "prometheus-stack-prometheus-node-exporter"
       container_name: "node-exporter"
     - pod_name: "prometheus-node-exporter"
@@ -125,3 +134,10 @@
             - matchtype: "startswith"
               matchkey: "Warning:"
               loglevel: "warning"
+- name: "prometheus"
+  show_in_selector: false
+  matchkeys:
+    - pod_name: "oom-kills-exporter"
+      container_name: "oom-kills-exporter"
+  parser_rules:
+    - name: "glog"

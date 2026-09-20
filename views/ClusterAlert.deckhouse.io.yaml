@@ -1,0 +1,104 @@
+---
+kind: "ClusterAlert"
+api_family: "deckhouse.io"
+default_command: "clusteralerts"
+command:
+  - "clralerts"
+  - "clralert"
+listview:
+  name: "Cluster Alerts"
+  group: "Deckhouse"
+  field_indexes:
+    Wide:
+      fields: ["name", "alert_name",
+               "severity", "alert_status", "age", "summary"]
+      sortcolumn: "namespace"
+    Normal:
+      fields: ["name", "alert_name",
+               "severity", "alert_status", "age"]
+      sortcolumn: "namespace"
+  fields:
+    alert_name:
+      header: "Alert Name:"
+      path: "alert#name"
+      default: "<unset>"
+      type: "str"
+    alert_status:
+      header: "Alert Status:"
+      path: "status#alertStatus"
+      default: "<unset>"
+      type: "str"
+    severity:
+      header: "Severity:"
+      path: "alert#severityLevel"
+      default: "<unset>"
+      type: "int"
+      formatter: "numerical"
+      align: "right"
+    summary:
+      header: "Summary:"
+      path: "alert#summary"
+      default: "<unset>"
+      type: "str"
+infoview:
+  name: "Cluster Alert Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["severity", "alert_name", "alert_labels", "alert_status",
+                 "summary"]
+    rows:
+      alert_name:
+        header: [["Alert Name:", ["main", "infoheader"]]]
+        path: "alert#name"
+        default: "<unset>"
+        type: "str"
+      alert_labels:
+        header: [["Alert La", ["main", "infoheader"]],
+                 ["b", ["main", "infoheader_shortcut"]],
+                 ["els:", ["main", "infoheader"]]]
+        paths:
+          - path: ["alert#labels"]
+            pathtype: "key_value"
+            default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "key"
+            - type: "value"
+          field_separators:
+            - type: "selector"
+      alert_status:
+        header: [["Alert Status:", ["main", "infoheader"]]]
+        path: "status#alertStatus"
+        default: "<unset>"
+        type: "str"
+      severity:
+        header: [["Severity:", ["main", "infoheader"]]]
+        path: "alert#severityLevel"
+        default: "<unset>"
+        type: "int"
+        formatter: "numerical"
+      summary:
+        header: [["Summary:", ["main", "infoheader"]]]
+        path: "alert#summary"
+        default: "<unset>"
+        type: "str"
+  logpad:
+    infogetter: "logpad_formatted"
+    infogetter_args:
+      formatter: "render_markdown"
+      path: "alert#description"
+    timestamps: false
+  shortcuts:
+    "Alert Labels":
+      key: "b"
+      read_only: true
+      helptext: "Show alert labels"
+      widget: "windowwidget"
+      widget_args:
+        title: "Alert Labels:"
+        headers: ["Key:", "Value:"]
+        itemgetter: "get_key_value"
+        itemgetter_args:
+          path: "alert#labels"

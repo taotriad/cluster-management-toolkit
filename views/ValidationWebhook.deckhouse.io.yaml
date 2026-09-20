@@ -1,0 +1,73 @@
+---
+kind: "ValidationWebhook"
+api_family: "deckhouse.io"
+default_command: "validationwebhooks"
+command:
+  - "dhvwhc"
+listview:
+  name: "Validation Webhooks"
+  group: "Deckhouse"
+  field_indexes:
+    Normal:
+      fields: ["name", "age"]
+      sortcolumn: "namespace"
+infoview:
+  name: "Validation Webhook Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["contexts",
+                 "validation_object_header",
+                 "validation_object_name",
+                 "validation_object_group"]
+    rows:
+      validation_object_group:
+        header: [["  Group:", ["main", "infoheader"]]]
+        path: "validationObject#group"
+        default: "<unset>"
+        type: "str"
+      validation_object_header:
+        header: [["Validation Object:", ["main", "infoheader"]]]
+      validation_object_name:
+        header: [["  Name:", ["main", "infoheader"]]]
+        path: "validationObject#name"
+        default: "<unset>"
+        type: "str"
+      contexts:
+        header: [["Conte", ["main", "infoheader"]],
+                 ["x", ["main", "infoheader_shortcut"]],
+                 ["ts:", ["main", "infoheader"]]]
+        paths:
+          - path: "context"
+            pathtype: "items"
+            subpath: "name"
+        default: ["<none>"]
+        formatter: "list"
+  logpad:
+    infogetter: "logpad_formatted"
+    infogetter_args:
+      formatter: "format_python"
+      path: "handler#python"
+    timestamps: false
+  shortcuts:
+    "Open Validation Webhook Context":
+      key: "x"
+      read_only: true
+      helptext: "Open info page for Validation Webhook context"
+      widget: "windowwidget"
+      widget_args:
+        title: "Contexts:"
+        selectable: true
+        itemgetter: "get_list_fields"
+        itemgetter_args:
+          path: "context"
+          fields:
+            - "name"
+          pass_ref: true
+        # This isn't supported for now
+        sortcolumn: "name"
+      action: "call"
+      action_call: "resourceinfodispatch_from_selection"
+      action_args:
+        kind: "__ValidationWebhookContext"
+        api_family: "deckhouse.io"
