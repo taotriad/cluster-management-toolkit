@@ -6,10 +6,18 @@ listview:
   name: "Challenges"
   group: "Certificate Management"
   field_indexes:
+    Wide:
+      fields: ["namespace", "name", "controller",
+               "processing", "state", "age"]
+      sortcolumn: "namespace"
     Normal:
-      fields: ["namespace", "name", "processing", "state", "age"]
+      fields: ["namespace", "name",
+               "processing", "state", "age"]
       sortcolumn: "namespace"
   fields:
+    {%- for line in field_controller.split("\n") %}
+    {{ line }}
+    {%- endfor %}
     processing:
       header: "Processing:"
       path: "status#processing"
@@ -58,3 +66,116 @@ listview:
               field_colors:
                 - context: "main"
                   type: "status_unknown"
+infoview:
+  name: "Challenge Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["controller", "authorization_url",
+                 "dns_name", "key", "token", "type",
+                 "url", "wildcard",
+                 "presented", "processing", "state"]
+    rows:
+      authorization_url:
+        header: [["Authorization URL:", ["main", "infoheader"]]]
+        path: "spec#authorizationURL"
+        default: "<unset>"
+        type: "str"
+      {%- for line in row_controller.split("\n") %}
+      {{ line }}
+      {%- endfor %}
+      dns_name:
+        header: [["DNS Name:", ["main", "infoheader"]]]
+        path: "spec#dnsName"
+        default: "<unset>"
+        type: "str"
+        formatter: "address"
+      key:
+        header: [["Key:", ["main", "infoheader"]]]
+        path: "spec#key"
+        default: "<unset>"
+        type: "str"
+      presented:
+        header: [["Presented:", ["main", "infoheader"]]]
+        path: "status#presented"
+        default: "<unset>"
+        type: "bool"
+      processing:
+        header: [["Processing:", ["main", "infoheader"]]]
+        path: "status#processing"
+        default: "<unset>"
+        type: "bool"
+      state:
+        header: [["State:", ["main", "infoheader"]]]
+        path: "status#state"
+        type: "str"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              errored:
+                field_colors:
+                  - context: "main"
+                    type: "status_not_ok"
+              expired:
+                field_colors:
+                  - context: "main"
+                    type: "status_warning"
+              invalid:
+                field_colors:
+                  - context: "main"
+                    type: "status_not_ok"
+              pending:
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+              processing:
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+              revoked:
+                field_colors:
+                  - context: "main"
+                    type: "status_not_ok"
+              ready:
+                field_colors:
+                  - context: "main"
+                    type: "status_done"
+              valid:
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+              __default:
+                field_colors:
+                  - context: "main"
+                    type: "status_unknown"
+      token:
+        header: [["Token:", ["main", "infoheader"]]]
+        path: "spec#token"
+        default: "<unset>"
+        type: "str"
+      type:
+        header: [["Type:", ["main", "infoheader"]]]
+        path: "spec#type"
+        default: "<unset>"
+        type: "str"
+      url:
+        header: [["URL:", ["main", "infoheader"]]]
+        path: "spec#url"
+        default: "<unset>"
+        type: "str"
+      wildcard:
+        header: [["Wildcard:", ["main", "infoheader"]]]
+        path: "spec#wildcard"
+        default: "<unset>"
+        type: "bool"
+  logpad:
+    infogetter: "logpad_formatted"
+    infogetter_args:
+      formatter: "format_yaml"
+      path: "spec#solver"
+    timestamps: false
+  shortcuts:
+    {%- for line in shortcut_controller.split("\n") %}
+    {{ line }}
+    {%- endfor %}

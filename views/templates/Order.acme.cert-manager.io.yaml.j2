@@ -6,10 +6,18 @@ listview:
   name: "Orders"
   group: "Certificate Management"
   field_indexes:
+    Wide:
+      fields: ["namespace", "name", "controller",
+               "state", "issuer", "age", "reason"]
+      sortcolumn: "namespace"
     Normal:
-      fields: ["namespace", "name", "state", "issuer", "reason", "age"]
+      fields: ["namespace", "name",
+               "state", "issuer", "age", "reason"]
       sortcolumn: "namespace"
   fields:
+    {%- for line in field_controller.split("\n") %}
+    {{ line }}
+    {%- endfor %}
     issuer:
       header: "Issuer:"
       path: "spec#issuerRef#name"
@@ -58,3 +66,127 @@ listview:
               field_colors:
                 - context: "main"
                   type: "status_unknown"
+infoview:
+  name: "Order Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["controller", "issuer", "common_name", "dns_names",
+                 "url", "reason", "state"]
+    rows:
+      common_name:
+        header: [["Common Name:", ["main", "infoheader"]]]
+        path: "spec#commonName"
+        default: "<unset>"
+        type: "str"
+        formatter: "address"
+      {%- for line in row_controller.split("\n") %}
+      {{ line }}
+      {%- endfor %}
+      dns_names:
+        header: [["D", ["main", "infoheader_shortcut"]],
+                 ["NS Names:", ["main", "infoheader"]]]
+        path: "spec#dnsNames"
+        default: "<unset>"
+        type: "raw"
+        formatter: "address"
+      issuer:
+        header: [["Issuer:", ["main", "infoheader"]]]
+        path: "spec#issuerRef#name"
+        type: "str"
+      reason:
+        header: [["Reason:", ["main", "infoheader"]]]
+        path: "status#reason"
+        default: "<unset>"
+        type: "str"
+      state:
+        header: [["State:", ["main", "infoheader"]]]
+        path: "status#state"
+        type: "str"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              errored:
+                field_colors:
+                  - context: "main"
+                    type: "status_not_ok"
+              expired:
+                field_colors:
+                  - context: "main"
+                    type: "status_warning"
+              invalid:
+                field_colors:
+                  - context: "main"
+                    type: "status_not_ok"
+              pending:
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+              processing:
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+              ready:
+                field_colors:
+                  - context: "main"
+                    type: "status_done"
+              valid:
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+              __default:
+                field_colors:
+                  - context: "main"
+                    type: "status_unknown"
+      url:
+        header: [["URL:", ["main", "infoheader"]]]
+        path: "status#url"
+        default: "<unset>"
+        type: "str"
+  listpad:
+    listgetter: "listgetter_path"
+    listgetter_args:
+      path: "status#authorizations"
+    infogetter: "generic_infogetter"
+    field_indexes:
+      Normal:
+        fields: ["identifier", "initial_state", "wildcard", "url"]
+        sortcolumn: "identifier"
+    fields:
+      identifier:
+        header: "Identifier:"
+        path: "identifier"
+        default: "<unset>"
+        type: "str"
+        formatter: "address"
+      initial_state:
+        header: "Initial State:"
+        path: "initialState"
+        default: "<unset>"
+        type: "str"
+      url:
+        header: "URL:"
+        path: "url"
+        default: "<unset>"
+        type: "str"
+      wildcard:
+        header: "Wildcard:"
+        path: "wildcard"
+        default: "<unset>"
+        type: "bool"
+  shortcuts:
+    {%- for line in shortcut_controller.split("\n") %}
+    {{ line }}
+    {%- endfor %}
+    "List DNS Names":
+      key: "d"
+      modifier: "shift"
+      read_only: true
+      helptext: "List DNS Names"
+      widget: "windowwidget"
+      widget_args:
+        title: "DNS Names:"
+        itemgetter: "get_list_as_list"
+        itemgetter_args:
+          path: "spec#dnsNames"

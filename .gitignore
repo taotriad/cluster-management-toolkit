@@ -39,6 +39,7 @@ views/Certificate.cert-manager.io.yaml
 views/Certificate.networking.internal.knative.dev.yaml
 views/CertificateRequest.cert-manager.io.yaml
 views/CertificateRequestPolicy.policy.cert-manager.io.yaml
+views/Challenge.acme.cert-manager.io.yaml
 views/Channel.messaging.knative.dev.yaml
 views/Cluster.cluster.x-k8s.io.yaml
 views/Cluster.management.cattle.io.yaml
@@ -142,6 +143,7 @@ views/OpenTelemetryCollector.opentelemetry.io.yaml
 views/OperatorCondition.operators.coreos.com.yaml
 views/OperatorGroup.operators.coreos.com.yaml
 views/OperatorPKI.network.operator.openshift.io.yaml
+views/Order.acme.cert-manager.io.yaml
 views/PaddleJob.kubeflow.org.yaml
 views/Parallel.flows.knative.dev.yaml
 views/PersistentVolume.yaml
