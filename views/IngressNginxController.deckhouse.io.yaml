@@ -1,0 +1,159 @@
+---
+kind: "IngressNginxController"
+api_family: "deckhouse.io"
+default_command: "ingressnginxcontrollers"
+command:
+  - "ingressnginxctrls"
+  - "ingressnginxctrl"
+listview:
+  name: "Ingress Nginx Controllers"
+  group: "OpenShift"
+  field_indexes:
+    Normal:
+      fields: ["name", "ingress_class", "inlet", "age"]
+  fields:
+    ingress_class:
+      header: "Ingress Class:"
+      path: "spec#ingressClass"
+      default: "<unset>"
+      type: "str"
+    inlet:
+      header: "Inlet:"
+      path: "spec#inlet"
+      default: "<unset>"
+      type: "str"
+infoview:
+  name: "Ingress Nginx Controller Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["ingress_class", "annotation_validation_enabled",
+                 "chaos_monkey", "controller_log_level", "inlet",
+                 "http2_disable", "http3_enable", "hsts_enable",
+                 "underscores_in_headers", "validation_enabled",
+                 "replicas_header", "replicas_min", "replicas_max",
+                 "host_port_header", "host_port_accept_client_headers_from",
+                 "host_port_http_port", "host_port_https_port",
+                 "host_port_real_ip_header"]
+    rows:
+      annotation_validation_enabled:
+        header: [["Annotation Validation Enabled:", ["main", "infoheader"]]]
+        path: "spec#annotationValidationEnabled"
+        default: "<unset>"
+        type: "str"
+      chaos_monkey:
+        header: [["Chaos Monkey:", ["main", "infoheader"]]]
+        path: "spec#chaosMonkey"
+        default: "<unset>"
+        type: "bool"
+      controller_log_level:
+        header: [["Controller Log Level:", ["main", "infoheader"]]]
+        path: "spec#controllerLogLevel"
+        default: "<unset>"
+        type: "str"
+      host_port_header:
+        header: [["Host Port:", ["main", "infoheader"]]]
+      host_port_accept_client_headers_from:
+        header: [["  ", ["main", "infoheader"]],
+                 ["A", ["main", "infoheader_shortcut"]],
+                 ["ccept Client IP Headers From:", ["main", "infoheader"]]]
+        path: "spec#hostPort#acceptClientIPHeadersFrom"
+        default: ["<none>"]
+        type: "raw"
+        formatter: "address"
+      host_port_http_port:
+        header: [["  HTTP Port:", ["main", "infoheader"]]]
+        path: "spec#hostPort#httpPort"
+        default: "<none>"
+        type: "int"
+        formatting:
+          field_colors:
+            - type: "port"
+      host_port_https_port:
+        header: [["  HTTPS Port:", ["main", "infoheader"]]]
+        path: "spec#hostPort#httpsPort"
+        default: "<none>"
+        type: "int"
+        formatting:
+          field_colors:
+            - type: "port"
+      host_port_real_ip_header:
+        header: [["  Real IP Header:", ["main", "infoheader"]]]
+        path: "spec#hostPort#realIPHeader"
+        default: "<none>"
+        type: "str"
+      http2_disable:
+        header: [["HTTP2 Disabled:", ["main", "infoheader"]]]
+        path: "spec#disableHTTP2"
+        default: "<unset>"
+        type: "bool"
+      http3_enable:
+        header: [["HTTP2 Enabled:", ["main", "infoheader"]]]
+        path: "spec#enableHTTP3"
+        default: "<unset>"
+        type: "bool"
+      hsts_enable:
+        header: [["HSTS Enabled:", ["main", "infoheader"]]]
+        path: "spec#hsts"
+        default: "<unset>"
+        type: "bool"
+      ingress_class:
+        header: [["Ingress ", ["main", "infoheader"]],
+                 ["C", ["main", "infoheader_shortcut"]],
+                 ["lass:", ["main", "infoheader"]]]
+        path: "spec#ingressClass"
+        default: "<unset>"
+        type: "str"
+      inlet:
+        header: [["Inlet:", ["main", "infoheader"]]]
+        path: "spec#inlet"
+        default: "<unset>"
+        type: "str"
+      replicas_header:
+        header: [["Replicas:", ["main", "infoheader"]]]
+      replicas_max:
+        header: [["  Max:", ["main", "infoheader"]]]
+        path: "spec#maxReplicas"
+        default: "<unset>"
+        type: "int"
+        formatter: "numerical"
+      replicas_min:
+        header: [["  Min:", ["main", "infoheader"]]]
+        path: "spec#minReplicas"
+        default: "<unset>"
+        type: "int"
+        formatter: "numerical"
+      underscores_in_headers:
+        header: [["Underscores in Headers:", ["main", "infoheader"]]]
+        path: "spec#underscoresInHeaders"
+        default: "<unset>"
+        type: "bool"
+      validation_enabled:
+        header: [["Validation Enabled:", ["main", "infoheader"]]]
+        path: "spec#validationEnabled"
+        default: "<unset>"
+        type: "bool"
+  shortcuts:
+    "Ingress Class":
+      key: "c"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for Ingress Class"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind: "IngressClass"
+        api_family: "networking.k8s.io"
+        name_path: "spec#ingressClass"
+    "Accept Client IP Headers From":
+      key: "a"
+      modifier: "shift"
+      read_only: true
+      helptext: "List addresses to accept client IP headers from"
+      widget: "windowwidget"
+      widget_args:
+        title: "Accept Client IP Headers From:"
+        itemgetter: "get_list_as_list"
+        itemgetter_args:
+          path: "spec#hostPort#acceptClientIPHeadersFrom"

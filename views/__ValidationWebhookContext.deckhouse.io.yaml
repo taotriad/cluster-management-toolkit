@@ -83,7 +83,6 @@ infoview:
         title: "Label Selector:"
         itemgetter: "get_selector_list"
         itemgetter_args:
-          path: "spec#selector"
           path: "kubernetes#labelSelector"
     "Name Selector":
       key: "s"
