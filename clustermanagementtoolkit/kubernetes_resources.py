@@ -3337,6 +3337,20 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api": "datascienceclusters",
     },
     # deckhouse.io
+    ("ApplicationPackage", "deckhouse.io"): {
+        "api_paths": ["apis/deckhouse.io/v1alpha1/"],
+        "api": "applicationpackages",
+        "namespaced": False,
+    },
+    ("ApplicationPackageVersion", "deckhouse.io"): {
+        "api_paths": ["apis/deckhouse.io/v1alpha1/"],
+        "api": "applicationpackageversions",
+        "namespaced": False,
+    },
+    ("Application", "deckhouse.io"): {
+        "api_paths": ["apis/deckhouse.io/v1alpha1/"],
+        "api": "applications",
+    },
     ("AuthorizationRule", "deckhouse.io"): {
         "api_paths": ["apis/deckhouse.io/v1alpha1/"],
         "api": "authorizationrules",
@@ -3389,6 +3403,11 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
     ("ClusterStatefulSetMetric", "deckhouse.io"): {
         "api_paths": ["apis/deckhouse.io/v1beta1/"],
         "api": "clusterstatefulsetmetrics",
+        "namespaced": False,
+    },
+    ("ConversionWebhook", "deckhouse.io"): {
+        "api_paths": ["apis/deckhouse.io/v1alpha1/"],
+        "api": "conversionwebhooks",
         "namespaced": False,
     },
     ("CustomAlertmanager", "deckhouse.io"): {
@@ -3550,6 +3569,16 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api": "operationpolicies",
         "namespaced": False,
     },
+    ("PackageRepository", "deckhouse.io"): {
+        "api_paths": ["apis/deckhouse.io/v1alpha1/"],
+        "api": "packagerepositories",
+        "namespaced": False,
+    },
+    ("PackageRepositoryOperation", "deckhouse.io"): {
+        "api_paths": ["apis/deckhouse.io/v1alpha1/"],
+        "api": "packagerepositoryoperations",
+        "namespaced": False,
+    },
     ("PodMetric", "deckhouse.io"): {
         "api_paths": ["apis/deckhouse.io/v1beta1/"],
         "api": "podmetrics",
@@ -3613,6 +3642,11 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
     ("User", "deckhouse.io"): {
         "api_paths": ["apis/deckhouse.io/v1/"],
         "api": "users",
+        "namespaced": False,
+    },
+    ("ValidationWebhook", "deckhouse.io"): {
+        "api_paths": ["apis/deckhouse.io/v1alpha1/"],
+        "api": "validationwebhooks",
         "namespaced": False,
     },
     # deviceplugin.intel.com
@@ -6428,6 +6462,17 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
     ("PrivateEndpoint", "network.azure.com"): {
         "api_paths": ["apis/network.azure.com/v1api20220701/"],
         "api": "privateendpoints",
+    },
+    # network.deckhouse.io
+    ("CNIMigration", "network.deckhouse.io"): {
+        "api_paths": ["apis/network.deckhouse.io/v1alpha1/"],
+        "api": "cnimigrations",
+        "namespaced": False,
+    },
+    ("CNINodeMigration", "network.deckhouse.io"): {
+        "api_paths": ["apis/network.deckhouse.io/v1alpha1/"],
+        "api": "cninodemigrations",
+        "namespaced": False,
     },
     # networkaddonsoperator.network.kubevirt.io
     ("NetworkAddonsConfig", "networkaddonsoperator.network.kubevirt.io"): {
