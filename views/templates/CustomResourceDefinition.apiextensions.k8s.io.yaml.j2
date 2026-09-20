@@ -25,6 +25,9 @@ listview:
       header: "API-Group:"
       path: "spec#group"
       type: "str"
+      formatting:
+        field_colors:
+          - type: "api_group"
     {%- for line in field_controller.split("\n") %}
     {{ line }}
     {%- endfor %}
@@ -39,6 +42,9 @@ listview:
       header: "Kind:"
       path: "spec#names#kind"
       type: "str"
+      formatting:
+        field_colors:
+          - type: "kind"
     plural:
       header: "Plural:"
       path: "spec#names#plural"
