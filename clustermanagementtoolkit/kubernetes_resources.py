@@ -598,6 +598,12 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api": "volumeattributesclasses",
         "namespaced": False,
     },
+    # storage.virtualization.deckhouse.io
+    ("StorageProfile", "storage.virtualization.deckhouse.io"): {
+        "api_paths": ["apis/storage.virtualization.deckhouse.io/v1alpha1/"],
+        "api": "storageprofiles",
+        "namespaced": False,
+    },
     # storagemigration.k8s.io
     ("StorageVersionMigration", "storagemigration.k8s.io"): {
         "api_paths": ["apis/storagemigration.k8s.io/v1/"],
@@ -1715,19 +1721,6 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
     },
 
     # Other APIs
-    # agones.dev
-    ("Fleet", "agones.dev"): {
-        "api_paths": ["apis/agones.dev/v1/"],
-        "api": "fleets",
-    },
-    ("GameServer", "agones.dev"): {
-        "api_paths": ["apis/agones.dev/v1/"],
-        "api": "gameservers",
-    },
-    ("GameServerSet", "agones.dev"): {
-        "api_paths": ["apis/agones.dev/v1/"],
-        "api": "gameserversets",
-    },
     # aaq.kubevirt.io
     ("AAQ", "aaq.kubevirt.io"): {
         "api_paths": ["apis/aaq.kubevirt.io/v1alpha1/"],
@@ -1799,10 +1792,42 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api_paths": ["apis/agents.kruise.io/v1alpha1/"],
         "api": "sandboxupdateops",
     },
+    # agones.dev
+    ("Fleet", "agones.dev"): {
+        "api_paths": ["apis/agones.dev/v1/"],
+        "api": "fleets",
+    },
+    ("GameServer", "agones.dev"): {
+        "api_paths": ["apis/agones.dev/v1/"],
+        "api": "gameservers",
+    },
+    ("GameServerSet", "agones.dev"): {
+        "api_paths": ["apis/agones.dev/v1/"],
+        "api": "gameserversets",
+    },
+    # alerts.observability.deckhouse.io
+    ("ClusterObservabilityAlert", "alerts.observability.deckhouse.io"): {
+        "api_paths": ["apis/alerts.observability.deckhouse.io/v1alpha1/"],
+        "api": "clusterobservabilityalerts",
+        "namespaced": False,
+    },
+    ("ObservabilityAlert", "alerts.observability.deckhouse.io"): {
+        "api_paths": ["apis/alerts.observability.deckhouse.io/v1alpha1/"],
+        "api": "observabilityalerts",
+    },
     # analysis.koordinator.sh
     ("Recommendation", "analysis.koordinator.sh"): {
         "api_paths": ["apis/analysis.koordinator.sh/v1alpha1/"],
         "api": "recommendations",
+    },
+    # ansible.deckhouse.io
+    ("AnsibleRun", "ansible.deckhouse.io"): {
+        "api_paths": ["apis/ansible.deckhouse.io/v1alpha1/"],
+        "api": "ansibleruns",
+    },
+    ("AnsibleRunSchedule", "ansible.deckhouse.io"): {
+        "api_paths": ["apis/ansible.deckhouse.io/v1alpha1/"],
+        "api": "ansiblerunschedules",
     },
     # apiserver.openshift.io
     ("APIRequestCount", "apiserver.openshift.io"): {
@@ -2302,6 +2327,12 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api": "packages",
         "namespaced": False,
     },
+    # cdi.internal.virtualization.deckhouse.io
+    ("InternalVirtualizationCDI", "cdi.internal.virtualization.deckhouse.io"): {
+        "api_paths": ["apis/cdi.internal.virtualization.deckhouse.io/v1beta1/"],
+        "api": "internalvirtualizationcdis",
+        "namespaced": False,
+    },
     # cdi.kubevirt.io
     ("CDI", "cdi.kubevirt.io"): {
         "api_paths": ["apis/cdi.kubevirt.io/v1beta1/"],
@@ -2452,10 +2483,45 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api": "certificatemonitors",
     },
     # cilium.io
+    ("CiliumBGPAdvertisement", "cilium.io"): {
+        "api_paths": ["apis/cilium.io/v2alpha1/"],
+        "api": "ciliumbgpadvertisements",
+        "namespaced": False,
+    },
+    ("CiliumBGPClusterConfig", "cilium.io"): {
+        "api_paths": ["apis/cilium.io/v2alpha1/"],
+        "api": "ciliumbgpclusterconfigs",
+        "namespaced": False,
+    },
+    ("CiliumBGPNodeConfigOverride", "cilium.io"): {
+        "api_paths": ["apis/cilium.io/v2alpha1/"],
+        "api": "ciliumbgpnodeconfigoverrides",
+        "namespaced": False,
+    },
+    ("CiliumBGPNodeConfig", "cilium.io"): {
+        "api_paths": ["apis/cilium.io/v2alpha1/"],
+        "api": "ciliumbgpnodeconfigs",
+        "namespaced": False,
+    },
+    ("CiliumBGPPeerConfig", "cilium.io"): {
+        "api_paths": ["apis/cilium.io/v2alpha1/"],
+        "api": "ciliumbgppeerconfigs",
+        "namespaced": False,
+    },
+    ("CiliumBGPPeeringPolicy", "cilium.io"): {
+        "api_paths": ["apis/cilium.io/v2alpha1/"],
+        "api": "ciliumbgppeeringpolicies",
+        "namespaced": False,
+    },
     ("CiliumCIDRGroup", "cilium.io"): {
         "api_paths": ["apis/cilium.io/v2/",
                       "apis/cilium.io/v2alpha1/"],
         "api": "ciliumcidrgroups",
+        "namespaced": False,
+    },
+    ("CiliumClusterwideEnvoyConfig", "cilium.io"): {
+        "api_paths": ["apis/cilium.io/v2/"],
+        "api": "ciliumclusterwideenvoyconfigs",
         "namespaced": False,
     },
     ("CiliumClusterwideNetworkPolicy", "cilium.io"): {
@@ -2463,9 +2529,23 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api": "ciliumclusterwidenetworkpolicies",
         "namespaced": False,
     },
+    ("CiliumEgressGatewayPolicy", "cilium.io"): {
+        "api_paths": ["apis/cilium.io/v2/"],
+        "api": "ciliumegressgatewaypolicies",
+        "namespaced": False,
+    },
     ("CiliumEndpoint", "cilium.io"): {
         "api_paths": ["apis/cilium.io/v2/"],
         "api": "ciliumendpoints",
+    },
+    ("CiliumEndpointSlice", "cilium.io"): {
+        "api_paths": ["apis/cilium.io/v2alpha1/"],
+        "api": "ciliumendpointslices",
+        "namespaced": False,
+    },
+    ("CiliumEnvoyConfig", "cilium.io"): {
+        "api_paths": ["apis/cilium.io/v2/"],
+        "api": "ciliumenvoyconfigs",
     },
     ("CiliumExternalWorkload", "cilium.io"): {
         "api_paths": ["apis/cilium.io/v2/"],
@@ -3381,7 +3461,8 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "namespaced": False,
     },
     ("ClusterLogDestination", "deckhouse.io"): {
-        "api_paths": ["apis/deckhouse.io/v1alpha1/"],
+        "api_paths": ["apis/deckhouse.io/v1alpha2/",
+                      "apis/deckhouse.io/v1alpha1/"],
         "api": "clusterlogdestinations",
         "namespaced": False,
     },
@@ -3474,6 +3555,16 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
     ("Group", "deckhouse.io"): {
         "api_paths": ["apis/deckhouse.io/v1alpha1/"],
         "api": "groups",
+        "namespaced": False,
+    },
+    ("HubbleMonitoringConfig", "deckhouse.io"): {
+        "api_paths": ["apis/deckhouse.io/v1alpha1/"],
+        "api": "hubblemonitoringconfigs",
+        "namespaced": False,
+    },
+    ("IngressIstioController", "deckhouse.io"): {
+        "api_paths": ["apis/deckhouse.io/v1alpha1/"],
+        "api": "ingressistiocontrollers",
         "namespaced": False,
     },
     ("IngressMetric", "deckhouse.io"): {
@@ -3602,6 +3693,10 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api": "prometheusremotewrites",
         "namespaced": False,
     },
+    ("SecretsStoreImport", "deckhouse.io"): {
+        "api_paths": ["apis/deckhouse.io/v1alpha1/"],
+        "api": "secretsstoreimports",
+    },
     ("SecurityPolicy", "deckhouse.io"): {
         "api_paths": ["apis/deckhouse.io/v1alpha1/"],
         "api": "securitypolicies",
@@ -3642,6 +3737,11 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
     ("User", "deckhouse.io"): {
         "api_paths": ["apis/deckhouse.io/v1/"],
         "api": "users",
+        "namespaced": False,
+    },
+    ("UserOperation", "deckhouse.io"): {
+        "api_paths": ["apis/deckhouse.io/v1/"],
+        "api": "useroperations",
         "namespaced": False,
     },
     ("ValidationWebhook", "deckhouse.io"): {
@@ -4388,6 +4488,27 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api_paths": ["apis/helm.cattle.io/v1/"],
         "api": "helmcharts",
     },
+    # helm.deckhouse.io
+    ("HelmClusterAddonChart", "helm.deckhouse.io"): {
+        "api_paths": ["apis/helm.deckhouse.io/v1alpha1/"],
+        "api": "helmclusteraddoncharts",
+        "namespaced": False,
+    },
+    ("HelmClusterAddonRepository", "helm.deckhouse.io"): {
+        "api_paths": ["apis/helm.deckhouse.io/v1alpha1/"],
+        "api": "helmclusteraddonrepositories",
+        "namespaced": False,
+    },
+    ("HelmClusterAddon", "helm.deckhouse.io"): {
+        "api_paths": ["apis/helm.deckhouse.io/v1alpha1/"],
+        "api": "helmclusteraddons",
+        "namespaced": False,
+    },
+    # helm.internal.operator-helm.deckhouse.io
+    ("InternalNelmOperatorHelmRelease", "helm.internal.operator-helm.deckhouse.io"): {
+        "api_paths": ["apis/helm.internal.operator-helm.deckhouse.io/v2/"],
+        "api": "internalnelmoperatorhelmreleases",
+    },
     # helm.k0sproject.io
     ("Chart", "helm.k0sproject.io"): {
         "api_paths": ["apis/helm.k0sproject.io/v1beta1/"],
@@ -4585,6 +4706,19 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api_paths": ["apis/internal.kro.run/v1alpha1/"],
         "api": "graphrevisions",
         "namespaced": False,
+    },
+    # internal.virtualization.deckhouse.io
+    ("InternalVirtualizationKubeVirt", "internal.virtualization.deckhouse.io"): {
+        "api_paths": ["apis/internal.virtualization.deckhouse.io/v1/"],
+        "api": "internalvirtualizationkubevirts",
+    },
+    ("InternalVirtualizationVirtualMachineInstance", "internal.virtualization.deckhouse.io"): {
+        "api_paths": ["apis/internal.virtualization.deckhouse.io/v1/"],
+        "api": "internalvirtualizationvirtualmachineinstances",
+    },
+    ("InternalVirtualizationVirtualMachine", "internal.virtualization.deckhouse.io"): {
+        "api_paths": ["apis/internal.virtualization.deckhouse.io/v1/"],
+        "api": "internalvirtualizationvirtualmachines",
     },
     # ipam.metal3.io
     ("IPAddress", "ipam.metal3.io"): {
@@ -6464,6 +6598,11 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api": "privateendpoints",
     },
     # network.deckhouse.io
+    ("ClusterALBInstance", "network.deckhouse.io"): {
+        "api_paths": ["apis/network.deckhouse.io/v1alpha1/"],
+        "api": "clusteralbinstances",
+        "namespaced": False,
+    },
     ("CNIMigration", "network.deckhouse.io"): {
         "api_paths": ["apis/network.deckhouse.io/v1alpha1/"],
         "api": "cnimigrations",
@@ -6720,14 +6859,29 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "namespaced": False,
     },
     # observability.deckhouse.io
+    ("ClusterLog", "observability.deckhouse.io"): {
+        "api_paths": ["apis/observability.deckhouse.io/v1alpha1/"],
+        "api": "clusterlogs",
+        "namespaced": False,
+    },
     ("ClusterMetric", "observability.deckhouse.io"): {
         "api_paths": ["apis/observability.deckhouse.io/v1alpha1/"],
         "api": "clustermetrics",
         "namespaced": False,
     },
+    ("ClusterObservabilityAlertAdditionalLabels", "observability.deckhouse.io"): {
+        "api_paths": ["apis/observability.deckhouse.io/v1alpha1/"],
+        "api": "clusterobservabilityalertadditionallabels",
+        "namespaced": False,
+    },
     ("ClusterObservabilityDashboard", "observability.deckhouse.io"): {
         "api_paths": ["apis/observability.deckhouse.io/v1alpha1/"],
         "api": "clusterobservabilitydashboards",
+        "namespaced": False,
+    },
+    ("ClusterObservabilityLogsRulesGroup", "observability.deckhouse.io"): {
+        "api_paths": ["apis/observability.deckhouse.io/v1alpha1/"],
+        "api": "clusterobservabilitylogsrulesgroups",
         "namespaced": False,
     },
     ("ClusterObservabilityMetricsRecordingRule", "observability.deckhouse.io"): {
@@ -6770,6 +6924,11 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api": "clusterobservabilitypropagatednotificationchannels",
         "namespaced": False,
     },
+    ("ClusterObservabilityPropagatedNotificationPolicy", "observability.deckhouse.io"): {
+        "api_paths": ["apis/observability.deckhouse.io/v1alpha1/"],
+        "api": "clusterobservabilitypropagatednotificationpolicies",
+        "namespaced": False,
+    },
     ("ObservabilityDashboard", "observability.deckhouse.io"): {
         "api_paths": ["apis/observability.deckhouse.io/v1alpha1/"],
         "api": "observabilitydashboards",
@@ -6777,6 +6936,10 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
     ("ObservabilityDatasource", "observability.deckhouse.io"): {
         "api_paths": ["apis/observability.deckhouse.io/v1alpha1/"],
         "api": "observabilitydatasources",
+    },
+    ("ObservabilityLogsRulesGroup", "observability.deckhouse.io"): {
+        "api_paths": ["apis/observability.deckhouse.io/v1alpha1/"],
+        "api": "observabilitylogsrulesgroups",
     },
     ("ObservabilityMetricsAlertingRuleOverride", "observability.deckhouse.io"): {
         "api_paths": ["apis/observability.deckhouse.io/v1alpha1/"],
@@ -7921,6 +8084,31 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
                       "apis/snapshot.kubevirt.io/v1alpha1/"],
         "api": "virtualmachinesnapshots",
     },
+    # source.internal.operator-helm.deckhouse.io
+    ("InternalNelmOperatorBucket", "source.internal.operator-helm.deckhouse.io"): {
+        "api_paths": ["apis/source.internal.operator-helm.deckhouse.io/v1/"],
+        "api": "internalnelmoperatorbuckets",
+    },
+    ("InternalNelmOperatorExternalArtifact", "source.internal.operator-helm.deckhouse.io"): {
+        "api_paths": ["apis/source.internal.operator-helm.deckhouse.io/v1/"],
+        "api": "internalnelmoperatorexternalartifacts",
+    },
+    ("InternalNelmOperatorGitRepository", "source.internal.operator-helm.deckhouse.io"): {
+        "api_paths": ["apis/source.internal.operator-helm.deckhouse.io/v1/"],
+        "api": "internalnelmoperatorgitrepositories",
+    },
+    ("InternalNelmOperatorHelmChart", "source.internal.operator-helm.deckhouse.io"): {
+        "api_paths": ["apis/source.internal.operator-helm.deckhouse.io/v1/"],
+        "api": "internalnelmoperatorhelmcharts",
+    },
+    ("InternalNelmOperatorHelmRepository", "source.internal.operator-helm.deckhouse.io"): {
+        "api_paths": ["apis/source.internal.operator-helm.deckhouse.io/v1/"],
+        "api": "internalnelmoperatorhelmrepositories",
+    },
+    ("InternalNelmOperatorOCIRepository", "source.internal.operator-helm.deckhouse.io"): {
+        "api_paths": ["apis/source.internal.operator-helm.deckhouse.io/v1/"],
+        "api": "internalnelmoperatorocirepositories",
+    },
     # sources.knative.dev
     ("ApiServerSource", "sources.knative.dev"): {
         "api_paths": ["apis/sources.knative.dev/v1/",
@@ -8010,6 +8198,21 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api_paths": ["apis/stackconfigpolicy.k8s.elastic.co/v1alpha1/"],
         "api": "stackconfigpolicies",
     },
+    # state-snapshotter.deckhouse.io
+    ("ManifestCaptureRequest", "state-snapshotter.deckhouse.io"): {
+        "api_paths": ["apis/state-snapshotter.deckhouse.io/v1alpha1/"],
+        "api": "manifestcapturerequests",
+    },
+    ("ManifestCheckpointContentChunk", "state-snapshotter.deckhouse.io"): {
+        "api_paths": ["apis/state-snapshotter.deckhouse.io/v1alpha1/"],
+        "api": "manifestcheckpointcontentchunks",
+        "namespaced": False,
+    },
+    ("ManifestCheckpoint", "state-snapshotter.deckhouse.io"): {
+        "api_paths": ["apis/state-snapshotter.deckhouse.io/v1alpha1/"],
+        "api": "manifestcheckpoints",
+        "namespaced": False,
+    },
     # stats.antrea.io
     ("AntreaClusterNetworkPolicyStats", "stats.antrea.io"): {
         "api_paths": ["apis/stats.antrea.io/v1alpha1/"],
@@ -8062,6 +8265,90 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
     ("ProviderPodStatus", "status.gatekeeper.sh"): {
         "api_paths": ["apis/status.gatekeeper.sh/v1beta1/"],
         "api": "providerpodstatuses",
+    },
+    # storage.deckhouse.io
+    ("BlockDeviceFilter", "storage.deckhouse.io"): {
+        "api_paths": ["apis/storage.deckhouse.io/v1alpha1/"],
+        "api": "blockdevicefilters",
+        "namespaced": False,
+    },
+    ("BlockDevice", "storage.deckhouse.io"): {
+        "api_paths": ["apis/storage.deckhouse.io/v1alpha1/"],
+        "api": "blockdevices",
+        "namespaced": False,
+    },
+    ("CephClusterAuthentication", "storage.deckhouse.io"): {
+        "api_paths": ["apis/storage.deckhouse.io/v1alpha1/"],
+        "api": "cephclusterauthentications",
+        "namespaced": False,
+    },
+    ("CephClusterConnection", "storage.deckhouse.io"): {
+        "api_paths": ["apis/storage.deckhouse.io/v1alpha1/"],
+        "api": "cephclusterconnections",
+        "namespaced": False,
+    },
+    ("CephMetadataBackup", "storage.deckhouse.io"): {
+        "api_paths": ["apis/storage.deckhouse.io/v1alpha1/"],
+        "api": "cephmetadatabackups",
+        "namespaced": False,
+    },
+    ("CephStorageClass", "storage.deckhouse.io"): {
+        "api_paths": ["apis/storage.deckhouse.io/v1alpha1/"],
+        "api": "cephstorageclasses",
+        "namespaced": False,
+    },
+    ("LocalStorageClass", "storage.deckhouse.io"): {
+        "api_paths": ["apis/storage.deckhouse.io/v1alpha1/"],
+        "api": "localstorageclasses",
+        "namespaced": False,
+    },
+    ("LVMLogicalVolume", "storage.deckhouse.io"): {
+        "api_paths": ["apis/storage.deckhouse.io/v1alpha1/"],
+        "api": "lvmlogicalvolumes",
+        "namespaced": False,
+    },
+    ("LVMLogicalVolumeSnapshot", "storage.deckhouse.io"): {
+        "api_paths": ["apis/storage.deckhouse.io/v1alpha1/"],
+        "api": "lvmlogicalvolumesnapshots",
+        "namespaced": False,
+    },
+    ("LVMVolumeGroup", "storage.deckhouse.io"): {
+        "api_paths": ["apis/storage.deckhouse.io/v1alpha1/"],
+        "api": "lvmvolumegroups",
+        "namespaced": False,
+    },
+    ("LVMVolumeGroupSet", "storage.deckhouse.io"): {
+        "api_paths": ["apis/storage.deckhouse.io/v1alpha1/"],
+        "api": "lvmvolumegroupsets",
+        "namespaced": False,
+    },
+    ("NFSStorageClass", "storage.deckhouse.io"): {
+        "api_paths": ["apis/storage.deckhouse.io/v1alpha1/"],
+        "api": "nfsstorageclasses",
+        "namespaced": False,
+    },
+    ("ReplicatedStorageClass", "storage.deckhouse.io"): {
+        "api_paths": ["apis/storage.deckhouse.io/v1alpha1/"],
+        "api": "replicatedstorageclasses",
+        "namespaced": False,
+    },
+    ("ReplicatedStorageMetadataBackup", "storage.deckhouse.io"): {
+        "api_paths": ["apis/storage.deckhouse.io/v1alpha1/"],
+        "api": "replicatedstoragemetadatabackups",
+        "namespaced": False,
+    },
+    ("ReplicatedStoragePool", "storage.deckhouse.io"): {
+        "api_paths": ["apis/storage.deckhouse.io/v1alpha1/"],
+        "api": "replicatedstoragepools",
+        "namespaced": False,
+    },
+    ("VolumeCaptureRequest", "storage.deckhouse.io"): {
+        "api_paths": ["apis/storage.deckhouse.io/v1alpha1/"],
+        "api": "volumecapturerequests",
+    },
+    ("VolumeRestoreRequest", "storage.deckhouse.io"): {
+        "api_paths": ["apis/storage.deckhouse.io/v1alpha1/"],
+        "api": "volumerestorerequests",
     },
     # storage.loft.sh
     ("AccessKey", "storage.loft.sh"): {
@@ -8532,6 +8819,80 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
     ("VirtualMachineMigration", "virt.virtink.smartx.com"): {
         "api_paths": ["apis/virt.virtink.smartx.com/v1alpha1/"],
         "api": "virtualmachinemigrations",
+    },
+    # virtualization.deckhouse.io
+    ("ClusterVirtualImage", "virtualization.deckhouse.io"): {
+        "api_paths": ["apis/virtualization.deckhouse.io/v1alpha2/"],
+        "api": "clustervirtualimages",
+        "namespaced": False,
+    },
+    ("NodeUSBDevice", "virtualization.deckhouse.io"): {
+        "api_paths": ["apis/virtualization.deckhouse.io/v1alpha2/"],
+        "api": "nodeusbdevices",
+        "namespaced": False,
+    },
+    ("USBDevice", "virtualization.deckhouse.io"): {
+        "api_paths": ["apis/virtualization.deckhouse.io/v1alpha2/"],
+        "api": "usbdevices",
+    },
+    ("VirtualDisk", "virtualization.deckhouse.io"): {
+        "api_paths": ["apis/virtualization.deckhouse.io/v1alpha2/"],
+        "api": "virtualdisks",
+    },
+    ("VirtualDiskSnapshot", "virtualization.deckhouse.io"): {
+        "api_paths": ["apis/virtualization.deckhouse.io/v1alpha2/"],
+        "api": "virtualdisksnapshots",
+    },
+    ("VirtualImage", "virtualization.deckhouse.io"): {
+        "api_paths": ["apis/virtualization.deckhouse.io/v1alpha2/"],
+        "api": "virtualimages",
+    },
+    ("VirtualMachineBlockDeviceAttachment", "virtualization.deckhouse.io"): {
+        "api_paths": ["apis/virtualization.deckhouse.io/v1alpha2/"],
+        "api": "virtualmachineblockdeviceattachments",
+    },
+    ("VirtualMachineIPAddress", "virtualization.deckhouse.io"): {
+        "api_paths": ["apis/virtualization.deckhouse.io/v1alpha2/"],
+        "api": "virtualmachineipaddresses",
+    },
+    ("VirtualMachineIPAddressLease", "virtualization.deckhouse.io"): {
+        "api_paths": ["apis/virtualization.deckhouse.io/v1alpha2/"],
+        "api": "virtualmachineipaddressleases",
+        "namespaced": False,
+    },
+    ("VirtualMachineMACAddress", "virtualization.deckhouse.io"): {
+        "api_paths": ["apis/virtualization.deckhouse.io/v1alpha2/"],
+        "api": "virtualmachinemacaddresses",
+    },
+    ("VirtualMachineMACAddressLease", "virtualization.deckhouse.io"): {
+        "api_paths": ["apis/virtualization.deckhouse.io/v1alpha2/"],
+        "api": "virtualmachinemacaddressleases",
+        "namespaced": False,
+    },
+    ("VirtualMachineOperation", "virtualization.deckhouse.io"): {
+        "api_paths": ["apis/virtualization.deckhouse.io/v1alpha2/"],
+        "api": "virtualmachineoperations",
+    },
+    ("VirtualMachinePool", "virtualization.deckhouse.io"): {
+        "api_paths": ["apis/virtualization.deckhouse.io/v1alpha2/"],
+        "api": "virtualmachinepools",
+    },
+    ("VirtualMachine", "virtualization.deckhouse.io"): {
+        "api_paths": ["apis/virtualization.deckhouse.io/v1alpha2/"],
+        "api": "virtualmachines",
+    },
+    ("VirtualMachineSnapshotOperation", "virtualization.deckhouse.io"): {
+        "api_paths": ["apis/virtualization.deckhouse.io/v1alpha2/"],
+        "api": "virtualmachinesnapshotoperations",
+    },
+    ("VirtualMachineSnapshot", "virtualization.deckhouse.io"): {
+        "api_paths": ["apis/virtualization.deckhouse.io/v1alpha2/"],
+        "api": "virtualmachinesnapshots",
+    },
+    ("VirtualMachineClass", "virtualization.deckhouse.io"): {
+        "api_paths": ["apis/virtualization.deckhouse.io/v1alpha3/"],
+        "api": "virtualmachineclasses",
+        "namespaced": False,
     },
     # webconsole.openshift.io
     ("OpenShiftWebConsoleConfig", "webconsole.openshift.io"): {
