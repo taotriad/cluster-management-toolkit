@@ -137,13 +137,52 @@ listview:
       type: "int"
       formatter: "numerical"
       align: "right"
+  actions:
+    actionlist:
+      "Enable Module":
+        description: "Enable Module"
+        category: "Cluster Level"
+        confirm: true
+        actionfunc: "create_objects"
+        actionfunc_args:
+          resources:
+            - injections:
+                "metadata#name":
+                  source: "obj"
+                  paths: [
+                    "metadata#name",
+                  ]
+              template:
+                apiVersion: "deckhouse.io"
+                kind: "ModuleConfig"
+                spec:
+                  enabled: true
+      "Disable Module":
+        description: "Disable Module"
+        category: "Cluster Level"
+        confirm: true
+        actionfunc: "create_objects"
+        actionfunc_args:
+          resources:
+            - injections:
+                "metadata#name":
+                  source: "obj"
+                  paths: [
+                    "metadata#name",
+                  ]
+              template:
+                apiVersion: "deckhouse.io"
+                kind: "ModuleConfig"
+                spec:
+                  enabled: false
 infoview:
   name: "Module Info"
   infopad:
     row_indexes:
       Normal:
         fields: ["namespace", "description", "weight", "critical", "version",
-                 "channel", "source", "stage", "enabled", "ready", "phase"]
+                 "channel", "source", "subsystems",
+                 "stage", "enabled", "ready", "phase"]
     rows:
       channel:
         header: [["Channel:", ["main", "infoheader"]]]
@@ -257,6 +296,13 @@ infoview:
         path: "properties#stage"
         default: "<unset>"
         type: "str"
+      subsystems:
+        header: [["S", ["main", "infoheader_shortcut"]],
+                 ["ubsystems:", ["main", "infoheader"]]]
+        path: "properties#subsystems"
+        default: ["<none>"]
+        type: "raw"
+        formatter: "list"
       version:
         header: [["Version:", ["main", "infoheader"]]]
         path: "properties#version"
@@ -266,5 +312,20 @@ infoview:
       weight:
         header: [["Weight:", ["main", "infoheader"]]]
         path: "properties#weight"
+        default: "<unset>"
         type: "int"
         formatter: "numerical"
+  shortcuts:
+    "List Subsystems":
+      key: "s"
+      modifier: "shift"
+      read_only: false
+      helptext: "List subsystems"
+      widget: "windowwidget"
+      widget_args:
+        title: "Subsystems:"
+        itemgetter: "get_list_as_list"
+        itemgetter_args:
+          path: "properties#subsystems"
+        # This isn't supported for now
+        sortcolumn: "name"

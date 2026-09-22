@@ -1,0 +1,24 @@
+---
+- name: "deckhouse"
+  show_in_selector: false
+  matchkeys:
+    - image_name: "/deckhouse/ce"
+      pod_name: "chrony"
+      container_name: "chrony-exporter"
+  parser_rules:
+    - name: "key_value"
+- name: "deckhouse"
+  show_in_selector: false
+  matchkeys:
+    - image_name: "/deckhouse/ce"
+      pod_name: "chrony"
+      container_name: "chrony"
+  parser_rules:
+    - name: "ts_8601"
+    - name: "override_severity"
+      options:
+        severity:
+          overrides:
+            - matchtype: "startswith"
+              matchkey: "chronyd version"
+              loglevel: "notice"

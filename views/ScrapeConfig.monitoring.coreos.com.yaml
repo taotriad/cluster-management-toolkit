@@ -15,6 +15,42 @@ listview:
 infoview:
   name: "Scrape Config Info"
   infopad:
+    row_indexes:
+      Normal:
+        fields: ["authorization", "honor_labels", "metrics_path", "scheme",
+                 "tls_config_header", "tls_config_insecure_skip_verify"]
+    rows:
+      authorization:
+        header: [["A", ["main", "infoheader_shortcut"]],
+                 ["uthorization:", ["main", "infoheader"]]]
+        path: "spec#authorization#credentials#name"
+        default: "<none>"
+        type: "str"
+      honor_labels:
+        header: [["Honor Labels:", ["main", "infoheader"]]]
+        path: "spec#honorLabels"
+        default: "<unset>"
+        type: "bool"
+      metrics_path:
+        header: [["Metrics Path:", ["main", "infoheader"]]]
+        path: "spec#metricsPath"
+        default: "<unset>"
+        type: "str"
+        formatting:
+          field_colors:
+            - type: "path"
+      scheme:
+        header: [["Scheme:", ["main", "infoheader"]]]
+        path: "spec#scheme"
+        default: "<unset>"
+        type: "str"
+      tls_config_header:
+        header: [["TLS Config:", ["main", "infoheader"]]]
+      tls_config_insecure_skip_verify:
+        header: [["  Insecure Skip Verify:", ["main", "infoheader"]]]
+        path: "spec#tlsConfig#insecureSkipVerify"
+        default: "<unset>"
+        type: "bool"
   listpad:
     listgetter: "listgetter_path"
     listgetter_args:
@@ -101,3 +137,16 @@ infoview:
         default: "<unset>"
         type: "raw"
         formatter: "uri"
+  shortcuts:
+    "Authorization":
+      key: "a"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for authorization"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind: "Secret"
+        name_path: "spec#authorization#credentials#name"
+        namespace_path: "metadata#namespace"

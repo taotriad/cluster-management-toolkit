@@ -1,0 +1,101 @@
+---
+kind: "ClusterObservabilityAlert"
+api_family: "alerts.observability.deckhouse.io"
+default_command: "clusterobservabilityalerts"
+command:
+  - "clro11yalerts"
+  - "clro11yalert"
+listview:
+  name: "Cluster Observability Alerts"
+  group: "Deckhouse"
+  field_indexes:
+    Wide:
+      fields: ["name", "severity", "duration", "status", "age", "summary"]
+    Normal:
+      fields: ["name", "severity", "duration", "status", "age"]
+  fields:
+    duration:
+      header: "Duration:"
+      paths:
+        - path: "status#duration"
+          pathtype: "regex"
+          regex: "(.+?m|.*)"
+      default: "<unset>"
+      type: "str"
+      formatter: "list"
+      formatting:
+        field_formatters:
+          - "numerical_with_units"
+      align: "right"
+    severity:
+      header: "Severity:"
+      path: "alert#labels#severity_level"
+      default: "<unset>"
+      type: "str"
+      formatter: "numerical"
+      align: "right"
+    status:
+      header: "Status:"
+      path: "status#alertStatus"
+      default: "<unset>"
+      type: "str"
+    summary:
+      header: "Summary:"
+      path: "alert#annotations#summary"
+      default: "<unset>"
+      type: "str"
+infoview:
+  name: "Cluster Observability Alert Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["pod", "duration", "status"]
+    rows:
+      duration:
+        header: [["Duration:", ["main", "infoheader"]]]
+        paths:
+          - path: "status#duration"
+            pathtype: "regex"
+            regex: "(.+?m|.*)"
+        default: "<unset>"
+        type: "str"
+        formatter: "list"
+        formatting:
+          field_formatters:
+            - "numerical_with_units"
+      pod:
+        header: [["P", ["main", "infoheader_shortcut"]],
+                 ["od:", ["main", "infoheader"]]]
+        paths:
+          - path: [["alert#labels#namespace"], ["alert#labels#pod"]]
+            pathtype: "tuple"
+        default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "namespace"
+            - type: "generic"
+      status:
+        header: [["Status:", ["main", "infoheader"]]]
+        path: "status#alertStatus"
+        default: "<unset>"
+        type: "str"
+  logpad:
+    infogetter: "logpad_formatted"
+    infogetter_args:
+      formatter: "format_yaml"
+      path: "alert"
+    timestamps: false
+  shortcuts:
+    "Open controller":
+      key: "p"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for Pod"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind: "Pod"
+        namespace_path: "alert#labels#namespace"
+        name_path: "alert#labels#pod"

@@ -7,7 +7,7 @@ command:
   - "ingressnginxctrl"
 listview:
   name: "Ingress Nginx Controllers"
-  group: "OpenShift"
+  group: "Deckhouse"
   field_indexes:
     Normal:
       fields: ["name", "ingress_class", "inlet", "age"]

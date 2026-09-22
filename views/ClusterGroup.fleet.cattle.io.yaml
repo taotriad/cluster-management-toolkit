@@ -15,9 +15,11 @@ listview:
   field_indexes:
     Wide:
       fields: ["namespace", "name", "ready_bundles", "ready_clusters", "age"]
+      sortcolumn: "namespace"
     Normal:
       fields: ["namespace", "name", "ready_bundles_narrow",
                "ready_clusters_narrow", "age"]
+      sortcolumn: "namespace"
   fields:
     ready_bundles:
       header: "Ready Bundles:"

@@ -91,7 +91,6 @@ infoview:
       widget: "windowwidget"
       widget_args:
         title: "Redirect URI:"
-        selectable: true
         itemgetter: "get_list_as_list"
         itemgetter_args:
           paths: ["redirectURIs"]

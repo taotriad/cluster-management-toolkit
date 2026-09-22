@@ -1,0 +1,79 @@
+---
+kind: "ClusterObservabilityMetricsRulesGroup"
+api_family: "observability.deckhouse.io"
+default_command: "clusterobservabilitymetricsrulesgroups"
+command:
+  - "clro11ymetricsrulesgroups"
+  - "clro11ymetricsrulesgroup"
+  - "clro11ymetricsrulesgrps"
+  - "clro11ymetricsrulesgrp"
+listview:
+  name: "Cluster Observability Metrics Rules Groups"
+  group: "Deckhouse"
+  field_indexes:
+    Normal:
+      fields: ["name", "age"]
+infoview:
+  name: "Cluster Observability Metrics Rules Group Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["prometheus_rule"]
+    rows:
+      prometheus_rule:
+        header: [["P", ["main", "infoheader_shortcut"]],
+                 ["rometheus Rule:", ["main", "infoheader"]]]
+        path: "status#prometheusRuleName"
+        default: "<unset>"
+        type: "str"
+  listpad:
+    on_activation:
+      call: "resourceinfodispatch"
+      kind: "__ClusterObservabilityMetricsRule"
+      api_family: "observability.deckhouse.io"
+    listgetter: "listgetter_path"
+    listgetter_args:
+      path: "spec#rules"
+    infogetter: "generic_infogetter"
+    field_indexes:
+      Wide:
+        fields: ["alert", "duration", "expression", "summary"]
+      Normal:
+        fields: ["alert", "duration", "expression"]
+    fields:
+      alert:
+        header: "Alert:"
+        path: "alert"
+        default: "<unset>"
+        type: "str"
+      duration:
+        header: "Duration:"
+        path: "for"
+        default: "<unset>"
+        type: "str"
+        formatter: "numerical"
+        align: "right"
+      expression:
+        header: "Expression:"
+        path: "expr"
+        default: "<unset>"
+        type: "str"
+      summary:
+        header: "Summary:"
+        path: "annotations#summary"
+        default: "<unset>"
+        type: "str"
+  shortcuts:
+    "Open Prometheus Rule":
+      key: "p"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for Prometheus Rule"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind: "PrometheusRule"
+        api_family: "monitoring.coreos.com"
+        namespace: "d8-observability"
+        name_path: "status#prometheusRuleName"

@@ -12,11 +12,9 @@ listview:
     Wide:
       fields: ["name", "alert_name",
                "severity", "alert_status", "age", "summary"]
-      sortcolumn: "namespace"
     Normal:
       fields: ["name", "alert_name",
                "severity", "alert_status", "age"]
-      sortcolumn: "namespace"
   fields:
     alert_name:
       header: "Alert Name:"

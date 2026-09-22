@@ -14,6 +14,7 @@ listview:
     Normal:
       fields: ["namespace", "name", "ttl",
                "secret", "expiration_date", "age"]
+      sortcolumn: "namespace"
   fields:
     expiration_date:
       header: "Expiration Date:"

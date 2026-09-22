@@ -4,6 +4,10 @@
   matchkeys:
     - image_name: "/library/nginx"
     - image_name: "/nginxinc/nginx-unprivileged"
+    - image_name: "/deckhouse/ce/modules/observability"
+      container_name: "nginx"
+    - image_name: "/deckhouse/ce/modules/console"
+      container_name: "nginx"
   parser_rules:
     - name: "ts_8601"
     - name: "bracketed_severity"

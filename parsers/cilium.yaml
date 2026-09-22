@@ -4,8 +4,16 @@
   matchkeys:
     - pod_name: "cilium"
       container_name: "cilium-agent"
+    - pod_name: "safe-agent-updater"
+      container_name: "safe-agent-updater"
+      container_type: "InitContainer"
     - pod_name: "cilium-operator"
       container_name: "cilium-operator"
+    # This is a very poor match; let's hope that deckhouse doesn't have
+    # other operators named equally vaguely.
+    - pod_name: "operator"
+      container_name: "operator"
+      image_name: "/deckhouse/ce"
     - pod_name: "cilium"
       container_name: "mount-cgroup"
       container_type: "InitContainer"
@@ -37,3 +45,16 @@
             - matchtype: "startswith"
               matchkey: "cilium-envoy  version:"
               loglevel: "notice"
+- name: "cilium"
+  show_in_selector: false
+  matchkeys:
+    - pod_name: "agent"
+      container_name: "cni-migration-init-checker"
+      container_type: "InitContainer"
+      image_name: "/deckhouse/ce"
+    - pod_name: "safe-agent"
+      container_name: "check-wg-kernel-compat"
+      container_type: "InitContainer"
+      image_name: "/deckhouse/ce"
+  parser_rules:
+    - name: "json"

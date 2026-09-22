@@ -1,0 +1,64 @@
+---
+kind: "__ClusterObservabilityMetricsRule"
+api_family: "observability.deckhouse.io"
+default_command: "__"
+infoview:
+  name: "Cluster Observability Metrics Rule"
+  infopad:
+    name_path: null
+    row_indexes:
+      Normal:
+        fields: ["alert", "summary", "record",
+                 "severity", "tier", "duration"]
+    rows:
+      alert:
+        header: [["Alert:", ["main", "infoheader"]]]
+        path: "alert"
+        default: "<unset>"
+        type: "str"
+      duration:
+        header: [["Duration:", ["main", "infoheader"]]]
+        path: "for"
+        default: "<unset>"
+        type: "str"
+        formatter: "numerical"
+      record:
+        header: [["Record:", ["main", "infoheader"]]]
+        path: "record"
+        default: "<unset>"
+        type: "str"
+      severity:
+        header: [["Severity:", ["main", "infoheader"]]]
+        path: "labels#severity_level"
+        default: "<unset>"
+        type: "int"
+        formatter: "numerical"
+      summary:
+        header: [["Summary:", ["main", "infoheader"]]]
+        path: "annotations#summary"
+        default: "<unset>"
+        type: "str"
+      tier:
+        header: [["Tier:", ["main", "infoheader"]]]
+        path: "labels#tier"
+        default: "<unset>"
+        type: "str"
+  logpad:
+    infogetter: "logpad_formatted"
+    infogetter_args:
+      formatter: "format_promql"
+      path: "expr"
+    timestamps: false
+  shortcuts:
+    "Show Description":
+      key: "d"
+      modifier: "shift"
+      read_only: true
+      helptext: "Show description"
+      widget: "windowwidget"
+      widget_args:
+        title: "Description:"
+        itemgetter: "get_strings_from_string"
+        itemgetter_args:
+          path: "annotations#description"
+#         unescape_newlines: true

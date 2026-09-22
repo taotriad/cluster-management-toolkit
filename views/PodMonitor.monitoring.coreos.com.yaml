@@ -17,7 +17,7 @@ infoview:
   infopad:
     row_indexes:
       Normal:
-        fields: ["job_label", "label_selector", "set_based_selector",
+        fields: ["job_label", "selector", "namespace_selector",
                  "attach_metadata_header", "attach_metadata_node"]
     rows:
       attach_metadata_header:
@@ -32,35 +32,32 @@ infoview:
         path: "spec#jobLabel"
         default: "<unset>"
         type: "str"
-      label_selector:
-        header: [["Label Selector:", ["main", "infoheader"]]]
-        paths:
-          - path: ["spec#selector#matchLabels"]
-            pathtype: "key_value"
-            default: ["<none>"]
+      namespace_selector:
+        header: [["Namespace Selector:", ["main", "infoheader"]]]
+        path: "spec#namespaceSelector#matchNames"
+        default: ["<unset>"]
+        type: "raw"
         formatter: "list"
-        formatting:
-          field_colors:
-            - type: "key"
-            - type: "value"
-          field_separators:
-            - type: "selector"
-      set_based_selector:
-        header: [["Set-based Selector:", ["main", "infoheader"]]]
+      selector:
+        header: [["Selec", ["main", "infoheader"]],
+                 ["t", ["main", "infoheader_shortcut"]],
+                 ["or:", ["main", "infoheader"]]]
         paths:
-          - path: "spec#selector#matchExpressions"
-            pathtype: "match_expression"
+          - path: "spec#selector"
+            pathtype: "obj"
             default: "<none>"
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "key"
-            - type: "operator"
-            - type: "value"
-          field_separators:
-            - type: "space"
-            - type: "no_pad"
+        formatter: "selector"
   shortcuts:
+    "Selector":
+      key: "t"
+      read_only: true
+      helptext: "Show selector"
+      widget: "windowwidget"
+      widget_args:
+        title: "Selector:"
+        itemgetter: "get_selector_list"
+        itemgetter_args:
+          path: "spec#selector"
     "Pod Monitor Endpoints":
       key: "e"
       modifier: "shift"

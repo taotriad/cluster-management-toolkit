@@ -1,0 +1,42 @@
+---
+kind: "UpmeterHookProbe"
+api_family: "deckhouse.io"
+default_command: "upmeterhookprobes"
+listview:
+  name: "Upmeter Hook Probes"
+  group: "Deckhouse"
+  field_indexes:
+    Normal:
+      fields: ["name", "inited", "mirror", "age"]
+  fields:
+    inited:
+      header: "Inited:"
+      path: "spec#inited"
+      default: "<unset>"
+      type: "str"
+      formatter: "hex"
+    mirror:
+      header: "Mirror:"
+      path: "spec#mirror"
+      default: "<unset>"
+      type: "str"
+      formatter: "hex"
+infoview:
+  name: "Upmeter Hook Probe Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["inited", "mirror"]
+    rows:
+      inited:
+        header: [["Inited:", ["main", "infoheader"]]]
+        path: "spec#inited"
+        default: "<unset>"
+        type: "str"
+        formatter: "hex"
+      mirror:
+        header: [["Mirror:", ["main", "infoheader"]]]
+        path: "spec#mirror"
+        default: "<unset>"
+        type: "str"
+        formatter: "hex"

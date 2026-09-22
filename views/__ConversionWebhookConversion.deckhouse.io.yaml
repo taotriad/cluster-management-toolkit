@@ -1,0 +1,12 @@
+---
+kind: "__ConversionWebhookConversion"
+api_family: "deckhouse.io"
+default_command: "__"
+infoview:
+  name: "Conversion Webhook Conversion"
+  logpad:
+    infogetter: "logpad_formatted"
+    infogetter_args:
+      formatter: "format_python"
+      path: "handler#python"
+    timestamps: false

@@ -1653,6 +1653,14 @@ OperatorVersionUpdated:
   field_colors:
     - context: "main"
       type: "status_done"
+OrderCreated:
+  field_colors:
+    - context: "main"
+      type: "status_done"
+OrderPending:
+  field_colors:
+    - context: "main"
+      type: "status_pending"
 Orphaned:
   field_colors:
     - context: "main"
@@ -1773,6 +1781,10 @@ Presented:
   field_colors:
     - context: "main"
       type: "status_done"
+PresentError:
+  field_colors:
+    - context: "main"
+      type: "status_warning"
 ProbeError:
   field_colors:
     - context: "main"

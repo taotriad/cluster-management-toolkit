@@ -1,0 +1,84 @@
+---
+kind: "NodeGroupConfiguration"
+api_family: "deckhouse.io"
+default_command: "nodegroupconfigurations"
+command:
+  - "nodegroupconfs"
+  - "nodegroupconf"
+  - "nodegrpconfs"
+  - "nodegrpconf"
+listview:
+  name: "Node Group Configurations"
+  group: "Deckhouse"
+  field_indexes:
+    Normal:
+      fields: ["name", "weight", "age"]
+  fields:
+    weight:
+      header: "Weight:"
+      path: "spec#weight"
+      default: "<unset>"
+      type: "int"
+      formatter: "numerical"
+      align: "right"
+infoview:
+  name: "Node Group Configuration Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["node_groups", "bundles", "weight"]
+    rows:
+      bundles:
+        header: [["Bun", ["main", "infoheader"]],
+                 ["d", ["main", "infoheader_shortcut"]],
+                 ["les:", ["main", "infoheader"]]]
+        path: "spec#bundles"
+        default: ["<none>"]
+        type: "raw"
+        formatter: "list"
+      node_groups:
+        header: [["Node ", ["main", "infoheader"]],
+                 ["G", ["main", "infoheader_shortcut"]],
+                 ["roups:", ["main", "infoheader"]]]
+        path: "spec#nodeGroups"
+        default: ["<none>"]
+        type: "raw"
+        formatter: "list"
+      weight:
+        header: [["Weight:", ["main", "infoheader"]]]
+        path: "spec#weight"
+        default: "<unset>"
+        type: "int"
+        formatter: "numerical"
+  logpad:
+    infogetter: "logpad_formatted"
+    infogetter_args:
+      formatter: "format_shellscript"
+      path: "spec#content"
+    timestamps: false
+  shortcuts:
+    "List Bundles":
+      key: "d"
+      read_only: true
+      helptext: "List bundles"
+      widget: "windowwidget"
+      widget_args:
+        title: "Bundles:"
+        itemgetter: "get_list_as_list"
+        itemgetter_args:
+          path: "spec#bundles"
+        # Not supported for now
+        sortcolumn: "name"
+    "List Node Groups":
+      key: "g"
+      modifier: "shift"
+      read_only: true
+      helptext: "List Node Groups"
+      widget: "windowwidget"
+      widget_args:
+        title: "Bundles:"
+        itemgetter: "get_list_as_list"
+        itemgetter_args:
+          path: "spec#nodeGroups"
+        # Not supported for now
+        sortcolumn: "name"

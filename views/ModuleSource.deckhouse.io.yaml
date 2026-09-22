@@ -132,3 +132,4 @@ infoview:
         path: "checksum"
         default: "<unset>"
         type: "str"
+        formatter: "hex"

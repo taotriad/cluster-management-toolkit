@@ -1,0 +1,22 @@
+---
+kind: "ClusterObservabilityPropagatedDashboard"
+api_family: "observability.deckhouse.io"
+default_command: "clusterobservabilitypropagateddashboards"
+command:
+  - "clro11ypropagateddashboards"
+  - "clro11ypropagateddashboard"
+listview:
+  name: "Cluster Observability Propagated Dashboards"
+  group: "Deckhouse"
+  field_indexes:
+    Normal:
+      fields: ["name", "age"]
+infoview:
+  name: "Cluster Observability Propagated Dashboard Info"
+  infopad:
+  logpad:
+    infogetter: "logpad_formatted"
+    infogetter_args:
+      formatter: "format_yaml"
+      path: "spec#definition"
+    timestamps: false

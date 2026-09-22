@@ -17,3 +17,12 @@
             - matchtype: "startswith"
               matchkey: "Kubernetes host:"
               loglevel: "notice"
+- name: "metrics-scraper"
+  show_in_selector: false
+  matchkeys:
+    - image_name: "/deckhouse/ce/modules/dashboard"
+      container_name: "metrics-scraper"
+  parser_rules:
+    - name: "glog"
+    - name: "key_value_with_leading_message"
+    - name: "http"

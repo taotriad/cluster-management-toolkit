@@ -41,6 +41,7 @@
   parser_rules:
     - name: "key_value"
     - name: "json"
+    - name: "ts_8601"
     - name: "override_severity"
       options:
         severity:

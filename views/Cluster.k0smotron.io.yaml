@@ -11,6 +11,7 @@ listview:
   field_indexes:
     Normal:
       fields: ["namespace", "name", "age", "status"]
+      sortcolumn: "namespace"
   fields:
     status:
       header: "Status:"

@@ -8,7 +8,6 @@ listview:
   field_indexes:
     Normal:
       fields: ["name", "ipv4_cidr", "ipv6_cidr", "per_node_host_bits"]
-      sortcolumn: "name"
   fields:
     ipv4_cidr:
       header: "CIDR (IPv4):"

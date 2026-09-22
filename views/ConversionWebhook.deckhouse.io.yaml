@@ -1,0 +1,39 @@
+---
+kind: "ConversionWebhook"
+api_family: "deckhouse.io"
+default_command: "conversionwebhooks"
+command:
+  - "dhcwhc"
+listview:
+  name: "Conversion Webhooks"
+  group: "Deckhouse"
+  field_indexes:
+    Normal:
+      fields: ["name", "age"]
+      sortcolumn: "namespace"
+infoview:
+  name: "Conversion Webhook Info"
+  infopad:
+  listpad:
+    on_activation:
+      call: "resourceinfodispatch"
+      kind: "__ConversionWebhookConversion"
+      api_family: "deckhouse.io"
+    listgetter: "listgetter_path"
+    listgetter_args:
+      path: "conversions"
+    infogetter: "generic_infogetter"
+    field_indexes:
+      Normal:
+        fields: ["from", "to"]
+    fields:
+      from:
+        header: "From:"
+        path: "from"
+        default: ["<unset>"]
+        type: "str"
+      to:
+        header: "To:"
+        path: "to"
+        default: "<unset>"
+        type: "str"

@@ -11,14 +11,28 @@
       container_name: "handler"
     - image_name: "/deckhouse/ce"
       container_name: "registry-packages-proxy"
+    - image_name: "/deckhouse/ce/modules/observability"
+      container_name: "opagent"
   parser_rules:
     - name: "glog"
     - name: "json"
     - name: "tab_separated"
+    - name: "custom_splitter"
+      options:
+        # yamllint disable-line rule:line-length
+        regex: '\d{4}/\d\d/\d\d \d\d:\d\d:\d\d\.\d+ ([^:]+?:\d+): (.+)'
+        facility:
+          fields:
+            - 1
+        message:
+          field: 2
     - name: "override_severity"
       options:
         severity:
           overrides:
+            - matchtype: "startswith"
+              matchkey: "agent version"
+              loglevel: "notice"
             - matchtype: "startswith"
               matchkey: "shell-operator v"
               loglevel: "notice"
@@ -34,5 +48,55 @@
       container_name: "mimir"
     - image_name: "/deckhouse/ce"
       container_name: "promxy"
+    - image_name: "/deckhouse/ce/modules/console"
+      container_name: "backend"
+    - image_name: "/deckhouse/ce/modules/observability"
+      container_name: "enforcer"
+    - image_name: "/deckhouse/ce"
+      pod_name: "upmeter-agent"
+      container_name: "agent"
+    - image_name: "/deckhouse/ce"
+      pod_name: "upmeter"
+      container_name: "upmeter"
+    - image_name: "/deckhouse/ce"
+      pod_name: "smoke-mini"
+      container_name: "smoke-mini"
   parser_rules:
+    - name: "glog"
     - name: "json"
+- name: "deckhouse"
+  show_in_selector: false
+  matchkeys:
+    - image_name: "/deckhouse/ce/modules/dashboard"
+      container_name: "web"
+    - image_name: "/deckhouse/ce/modules/dashboard"
+      container_name: "auth"
+    - image_name: "/deckhouse/ce/modules/dashboard"
+      container_name: "api"
+  parser_rules:
+    - name: "glog"
+    - name: "key_value_with_leading_message"
+    - name: "http"
+- name: "deckhouse"
+  show_in_selector: false
+  matchkeys:
+    - image_name: "/deckhouse/ce/modules/observability"
+      container_name: "observability-webhook"
+    - image_name: "/deckhouse/ce/modules/observability"
+      container_name: "observability-controller"
+    - image_name: "/deckhouse/ce/modules/observability"
+      container_name: "logs-ruler"
+    - image_name: "/deckhouse/ce/modules/observability"
+      container_name: "alert-kube-api"
+  parser_rules:
+    - name: "glog"
+    - name: "key_value_with_leading_message"
+    - name: "json"
+    - name: "ts_8601"
+    - name: "override_severity"
+      options:
+        severity:
+          overrides:
+            - matchtype: "startswith"
+              matchkey: "http: TLS handshake error"
+              loglevel: "error"
