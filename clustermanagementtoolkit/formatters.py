@@ -3653,6 +3653,7 @@ formatter_allowlist: dict[str, Callable] = {
     "format_python": format_python,
     "format_python_traceback": format_python_traceback,
     "format_rego": format_rego,
+    "format_shellscript": format_shellscript,
     "format_toml": format_toml,
     "format_xml": format_xml,
     "format_yaml": format_yaml,
