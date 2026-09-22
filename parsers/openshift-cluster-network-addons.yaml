@@ -1,0 +1,11 @@
+---
+- name: "openshift-cluster-network-addons"
+  show_in_selector: false
+  matchkeys:
+    - image_name: "/container-native-virtualization/cluster-network-addons"
+  parser_rules:
+    - name: "json"
+      options:
+        version:
+          keys:
+            - "version"
