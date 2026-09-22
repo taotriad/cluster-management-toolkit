@@ -2223,7 +2223,7 @@ def __ssh_to_node(**kwargs: Any) -> tuple[Retval, dict]:
     node = deep_get(kwargs, DictPath("node"))
 
     if node and uip:
-        ssh_to_host(uip.stdscr, name=node)
+        ssh_to_host(stdscr=uip.stdscr, name=node)
 
     return Retval.MATCH, {}
 
@@ -4811,7 +4811,7 @@ def genericinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                     }
                     items = [(deep_get(obj, DictPath("metadata#namespace"), ""),
                               deep_get(obj, DictPath("metadata#name")))]
-                    action_execute_command(uip, items=items, action={},
+                    action_execute_command(stdscr=uip.stdscr, items=items, action={},
                                            values=_values)
                 if force_update is None:
                     force_update = True
@@ -7299,13 +7299,13 @@ def view_obj(**kwargs: Any) -> Retval:
                                 formatter_args=formatter_args)
 
 
-def view_yaml(stdscr: curses.window, **kwargs: Any) -> Retval:
+def view_yaml(**kwargs: Any) -> Retval:
     """
     View data formatted as YAML.
 
         Parameters:
-            stdscr (curses.window): The curses window to operate on
             **kwargs (dict[str, Any]): Keyword arguments
+                stdscr (curses.window): The curses window to operate on
                 selection (dict): The selected object
                 obj (dict): The object to get information from
                 path (str): The path to get the data from
@@ -7315,6 +7315,7 @@ def view_yaml(stdscr: curses.window, **kwargs: Any) -> Retval:
         Returns:
             (Retval): The return value
     """
+    stdscr: curses.window = deep_get(kwargs, DictPath("stdscr"))
     selection = deep_get(kwargs, DictPath("selection"))
     if selection is not None:
         obj = selection
@@ -7344,13 +7345,13 @@ def view_yaml(stdscr: curses.window, **kwargs: Any) -> Retval:
                                 title=title, formatter=formatter)
 
 
-def view_json(stdscr: curses.window, **kwargs: Any) -> Retval:
+def view_json(**kwargs: Any) -> Retval:
     """
     View data formatted as JSON.
 
         Parameters:
-            stdscr (curses.window): The curses window to operate on
             **kwargs (dict[str, Any]): Keyword arguments
+                stdscr (curses.window): The curses window to operate on
                 selection (dict): The selected object
                 obj (dict): The object to get information from
                 path (str): The path to get the data from
@@ -7360,6 +7361,7 @@ def view_json(stdscr: curses.window, **kwargs: Any) -> Retval:
         Returns:
             (Retval): The return value
     """
+    stdscr: curses.window = deep_get(kwargs, DictPath("stdscr"))
     selection = deep_get(kwargs, DictPath("selection"))
     if selection is not None:
         obj = selection
@@ -8334,15 +8336,17 @@ def delete_logs(**kwargs: Any) -> Retval:
 
 
 # pylint: disable-next=too-many-locals,too-many-branches,too-many-statements
-def action_execute_command(uip: UIProps, **kwargs: Any) -> None:
+def action_execute_command(**kwargs: Any) -> None:
     """
     Execute a command on localhost.
 
         Parameters:
             **kwargs (dict[str, Any]): Keyword arguments
+                stdscr (curses.window): The curses window to operate on
                 values (dict[str, Any]): Values
                 items ([(str, str)]): A list of items that can be substituted into argument lists
     """
+    stdscr: curses.window = deep_get(kwargs, DictPath("stdscr"))
     values: dict[str, Any] = deep_get(kwargs, DictPath("values"))
     items: list[tuple[str, str] | str] | tuple[str, str] | str = deep_get(kwargs, DictPath("items"))
 
@@ -8420,23 +8424,24 @@ def action_execute_command(uip: UIProps, **kwargs: Any) -> None:
     waitforkeypress = True
     if waitforkeypress or retval > 0:
         ansithemeinput([ANSIThemeStr("\nPress Enter to continue...", "default")])
-    uip.stdscr.refresh()
+    stdscr.refresh()
 
 
 # pylint: disable-next=too-many-locals,too-many-branches
-def command_hosts(uip: UIProps, **kwargs: Any) -> None:
+def command_hosts(**kwargs: Any) -> None:
     """
     Execute a playbook on multiple hosts, including pre- and post-hooks.
     TODO: This should be renamed.
 
         Parameters:
-            uip (UIProps): A reference to the UI Properties object
             **kwargs (dict[str, Any]): Keyword arguments
-            values (dict[str, Any]): Values to pass to __run_playbook()
-            actions (dict[str, Any]): The action data
-            items ([str]): The hosts to execute the playbook(s) on
-            verbose (bool): Output status updates for every new Ansible event?
+                stdscr (curses.window): The curses window to operate on
+                values (dict[str, Any]): Values to pass to __run_playbook()
+                actions (dict[str, Any]): The action data
+                items ([str]): The hosts to execute the playbook(s) on
+                verbose (bool): Output status updates for every new Ansible event?
     """
+    stdscr: curses.window = deep_get(kwargs, DictPath("stdscr"))
     values: dict[str, Any] = deep_get(kwargs, DictPath("values"))
     action: dict[str, Any] = deep_get(kwargs, DictPath("action"))
     items: list[str] = deep_get(kwargs, DictPath("items"), [])
@@ -8501,7 +8506,7 @@ def command_hosts(uip: UIProps, **kwargs: Any) -> None:
     waitforkeypress = True
     if waitforkeypress or retval:
         ansithemeinput([ANSIThemeStr("\nPress Enter to continue...", "default")])
-    uip.stdscr.refresh()
+    stdscr.refresh()
 
 
 def cordon_node(**kwargs: Any) -> Retval:
@@ -8555,13 +8560,13 @@ def uncordon_node(**kwargs: Any) -> Retval:
 
 
 # pylint: disable-next=too-many-locals
-def ssh_to_host(stdscr: curses.window, **kwargs: Any) -> Retval:
+def ssh_to_host(**kwargs: Any) -> Retval:
     """
     SSH to a host
 
         Parameters:
-            stdscr (curses.window): The curses window to operate on
             **kwargs (dict[str, Any]): Keyword arguments
+                stdscr (curses.window): The curses window to operate on
                 obj (dict[str, Any]): The object to fetch information from [optional]
                 name_path (str): The path to the member of the object
                                  to fetch the name from [optional]
@@ -8569,6 +8574,7 @@ def ssh_to_host(stdscr: curses.window, **kwargs: Any) -> Retval:
         Returns:
             (Retval): Retval.RETURNDONE
     """
+    stdscr: curses.window = deep_get(kwargs, DictPath("stdscr"))
     host = None
 
     if "selected" in kwargs:
