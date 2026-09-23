@@ -1,0 +1,72 @@
+---
+kind: "NvAdmissionControlSecurityRule"
+api_family: "neuvector.com"
+default_command: "nvadmissioncontrolsecurityrules"
+command:
+  - "nvadmctrlsecrules"
+  - "nvadmctrlsecrule"
+listview:
+  name: "Nv Admission Control Security Rules"
+  group: "Security"
+  field_indexes:
+    Normal:
+      fields: ["name", "age"]
+# fields:
+infoview:
+  name: "Nv Admission Control Security Rule Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["client_mode", "mode", "enabled"]
+    rows:
+      client_mode:
+        header: [["Client Mode:", ["main", "infoheader"]]]
+        path: "spec#config#client_mode"
+        default: "<unset>"
+        type: "str"
+      enabled:
+        header: [["Enabled:", ["main", "infoheader"]]]
+        path: "spec#config#enable"
+        default: "<unset>"
+        type: "bool"
+      mode:
+        header: [["Mode:", ["main", "infoheader"]]]
+        path: "spec#config#mode"
+        default: "<unset>"
+        type: "str"
+  listpad:
+    on_activation:
+      call: "resourceinfodispatch"
+      kind: "__NvAdmissionControlSecurityRule"
+      api_family: "neuvector.com"
+    listgetter: "listgetter_path"
+    listgetter_args:
+      path: "spec#rules"
+    infogetter: "generic_infogetter"
+    field_indexes:
+      Normal:
+        fields: ["action", "disabled", "rule_mode", "containers"]
+        sortcolumn: "action"
+    fields:
+      action:
+        header: "Action:"
+        path: "action"
+        default: "<unset>"
+        type: "str"
+      containers:
+        header: "Containers:"
+        path: "containers"
+        default: ["<none>"]
+        type: "raw"
+        formatter: "list"
+      disabled:
+        header: "Disabled:"
+        path: "disabled"
+        default: "<unset>"
+        type: "bool"
+      rule_mode:
+        header: "Rule Mode:"
+        path: "rule_mode"
+        fallback_on_empty: true
+        default: "<unset>"
+        type: "str"

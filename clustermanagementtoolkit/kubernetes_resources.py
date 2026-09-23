@@ -6742,6 +6742,50 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
                       "apis/networking.istio.io/v1beta1/"],
         "api": "workloadgroups",
     },
+    # neuvector.com
+    ("NvAdmissionControlSecurityRule", "neuvector.com"): {
+        "api_paths": ["apis/neuvector.com/v1/"],
+        "api": "nvadmissioncontrolsecurityrules",
+        "namespaced": False,
+    },
+    ("NvClusterSecurityRule", "neuvector.com"): {
+        "api_paths": ["apis/neuvector.com/v1/"],
+        "api": "nvclustersecurityrules",
+        "namespaced": False,
+    },
+    ("NvComplianceProfile", "neuvector.com"): {
+        "api_paths": ["apis/neuvector.com/v1/"],
+        "api": "nvcomplianceprofiles",
+        "namespaced": False,
+    },
+    ("NvDlpSecurityRule", "neuvector.com"): {
+        "api_paths": ["apis/neuvector.com/v1/"],
+        "api": "nvdlpsecurityrules",
+        "namespaced": False,
+    },
+    ("NvGroupDefinition", "neuvector.com"): {
+        "api_paths": ["apis/neuvector.com/v1/"],
+        "api": "nvgroupdefinitions",
+    },
+    ("NvResponseRuleSecurityRule", "neuvector.com"): {
+        "api_paths": ["apis/neuvector.com/v1/"],
+        "api": "nvresponserulesecurityrules",
+        "namespaced": False,
+    },
+    ("NvSecurityRule", "neuvector.com"): {
+        "api_paths": ["apis/neuvector.com/v1/"],
+        "api": "nvsecurityrules",
+    },
+    ("NvVulnerabilityProfile", "neuvector.com"): {
+        "api_paths": ["apis/neuvector.com/v1/"],
+        "api": "nvvulnerabilityprofiles",
+        "namespaced": False,
+    },
+    ("NvWafSecurityRule", "neuvector.com"): {
+        "api_paths": ["apis/neuvector.com/v1/"],
+        "api": "nvwafsecurityrules",
+        "namespaced": False,
+    },
     # nfd.k8s-sigs.io
     ("NodeFeature", "nfd.k8s-sigs.io"): {
         "api_paths": ["apis/nfd.k8s-sigs.io/v1alpha1/"],

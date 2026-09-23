@@ -1,0 +1,39 @@
+---
+kind: "__NvWafSecurityRule"
+api_family: "neuvector.com"
+default_command: "__"
+# fields:
+infoview:
+  name: "Nv Waf Security Rule Info Info"
+  infopad:
+    name_path: "name"
+  listpad:
+    listgetter: "listgetter_path"
+    listgetter_args:
+      path: "patterns"
+    infogetter: "generic_infogetter"
+    field_indexes:
+      Normal:
+        fields: ["context", "key", "op", "value"]
+        sortcolumn: "context"
+    fields:
+      context:
+        header: "Context:"
+        path: "context"
+        default: "<unset>"
+        type: "str"
+      key:
+        header: "Key:"
+        path: "key"
+        default: "<unset>"
+        type: "str"
+      op:
+        header: "Op:"
+        path: "op"
+        default: "<unset>"
+        type: "str"
+      value:
+        header: "Value:"
+        path: "value"
+        default: "<unset>"
+        type: "str"

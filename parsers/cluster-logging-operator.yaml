@@ -10,11 +10,11 @@
         timestamp:
           keys:
             - "_ts"
-       # FIXME: At the moment we don't know what the levels represent.
+        # FIXME: At the moment we don't know what the levels represent.
         severity:
           default: info
-       #  keys:
-       #    - "_level"
+        # keys:
+        #   - "_level"
         message:
           keys:
             - "_message"

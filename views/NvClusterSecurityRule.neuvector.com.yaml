@@ -1,0 +1,176 @@
+---
+kind: "NvClusterSecurityRule"
+api_family: "neuvector.com"
+default_command: "nvclustersecurityrules"
+command:
+  - "nvclrsecrules"
+  - "nvclrsecrule"
+listview:
+  name: "Nv Cluster Security Rules"
+  group: "Security"
+  field_indexes:
+    Normal:
+      fields: ["name", "age"]
+# fields:
+infoview:
+  name: "Nv Cluster Security Rule Info Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["target_header", "target_policy_mode",
+                 "target_selector_header", "target_selector_name",
+                 "target_selector_criteria", "process"]
+    rows:
+      process:
+        header: [["P", ["main", "infoheader_shortcut"]],
+                 ["rocess:", ["main", "infoheader"]]]
+        paths:
+          - path: "spec#process"
+            pathtype: "items"
+            subpaths:
+              - "name"
+              - "action"
+        default: ["<unset>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "key"
+            - type: "value"
+          field_separators:
+            - type: "keyvalue"
+      target_header:
+        header: [["Target:", ["main", "infoheader"]]]
+      target_policy_mode:
+        header: [["  Policy Mode:", ["main", "infoheader"]]]
+        path: "spec#target#policymode"
+        default: "<unset>"
+        type: "str"
+      target_selector_criteria:
+        header: [["    ", ["main", "infoheader"]],
+                 ["C", ["main", "infoheader_shortcut"]],
+                 ["riteria:", ["main", "infoheader"]]]
+        paths:
+          - path: "spec#target#selector#criteria"
+            pathtype: "items"
+            subpaths:
+              - "key"
+              - "op"
+              - "value"
+        default: ["<unset>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "key"
+            - type: "operator"
+            - type: "value"
+          field_separators:
+            - type: "space"
+            - type: "space"
+      target_selector_header:
+        header: [["  Selector:", ["main", "infoheader"]]]
+      target_selector_name:
+        header: [["    Name:", ["main", "infoheader"]]]
+        path: "spec#target#selector#name"
+        default: "<unset>"
+        type: "str"
+  listpad:
+    listgetter: "listgetter_path"
+    listgetter_args:
+      paths:
+        - path: "spec#ingress"
+          key_name: "type"
+          key_value: "ingress"
+          type: "list"
+        - path: "spec#egress"
+          key_name: "type"
+          key_value: "egress"
+          type: "list"
+    infogetter: "generic_infogetter"
+    field_indexes:
+      Normal:
+        fields: ["action", "name", "ports", "applications",
+                 "selector_name", "selector_criteria"]
+        sortcolumn: "action"
+    fields:
+      action:
+        header: "Action:"
+        path: "action"
+        default: "<unset>"
+        type: "str"
+      applications:
+        header: "Applications:"
+        path: "applications"
+        default: ["<none>"]
+        type: "raw"
+        formatter: "list"
+      name:
+        header: "Name:"
+        path: "name"
+        default: "<unset>"
+        type: "str"
+      ports:
+        header: "Ports:"
+        path: "ports"
+        default: "<unset>"
+        type: "str"
+      selector_criteria:
+        header: "Selector Criteria:"
+        paths:
+          - path: "selector#criteria"
+            pathtype: "items"
+            subpaths:
+              - "key"
+              - "op"
+              - "value"
+        default: ["<unset>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "key"
+            - type: "operator"
+            - type: "value"
+          field_separators:
+            - type: "space"
+            - type: "space"
+      selector_name:
+        header: "Selector Name:"
+        path: "selector#name"
+        default: "<unset>"
+        type: "str"
+  shortcuts:
+    "List Criteria":
+      key: "c"
+      modifier: "shift"
+      read_only: true
+      helptext: "List selector criteria"
+      widget: "windowwidget"
+      widget_args:
+        title: "Selector Criteria:"
+        headers: ["Key:", "Operator:", "Value:"]
+        itemgetter: "get_list_fields"
+        itemgetter_args:
+          path: "spec#target#selector#criteria"
+          fields:
+            - "key"
+            - "op"
+            - "value"
+        # Not supported for now
+        sortcolumn: "key"
+    "List Process":
+      key: "p"
+      modifier: "shift"
+      read_only: true
+      helptext: "List process"
+      widget: "windowwidget"
+      widget_args:
+        title: "Process:"
+        headers: ["Name:", "Action:", "Path:"]
+        itemgetter: "get_list_fields"
+        itemgetter_args:
+          path: "spec#process"
+          fields:
+            - "name"
+            - "action"
+            - "path"
+        # Not supported for now
+        sortcolumn: "name"

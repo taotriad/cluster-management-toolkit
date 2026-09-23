@@ -1,0 +1,60 @@
+---
+kind: "NvWafSecurityRule"
+api_family: "neuvector.com"
+default_command: "nvwafsecurityrules"
+command:
+  - "nvwafsecrules"
+  - "nvwafsecrule"
+listview:
+  name: "Nv Waf Security Rules"
+  group: "Security"
+  field_indexes:
+    Normal:
+      fields: ["name", "sensor_name", "age", "comment"]
+  fields:
+    comment:
+      header: "Comment:"
+      path: "spec#sensor#comment"
+      default: "<unset>"
+      type: "str"
+    sensor_name:
+      header: "Sensor Name:"
+      path: "spec#sensor#name"
+      default: "<unset>"
+      type: "str"
+infoview:
+  name: "Nv Waf Security Rule Info Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["sensor_name", "comment"]
+    rows:
+      comment:
+        header: [["Comment:", ["main", "infoheader"]]]
+        path: "spec#sensor#comment"
+        default: "<unset>"
+        type: "str"
+      sensor_name:
+        header: [["Sensor Name:", ["main", "infoheader"]]]
+        path: "spec#sensor#name"
+        default: "<unset>"
+        type: "str"
+  listpad:
+    on_activation:
+      call: "resourceinfodispatch"
+      kind: "__NvWafSecurityRule"
+      api_family: "neuvector.com"
+    listgetter: "listgetter_path"
+    listgetter_args:
+      path: "spec#sensor#rules"
+    infogetter: "generic_infogetter"
+    field_indexes:
+      Normal:
+        fields: ["name"]
+        sortcolumn: "name"
+    fields:
+      name:
+        header: "Name:"
+        path: "name"
+        default: "<unset>"
+        type: "str"

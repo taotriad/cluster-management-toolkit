@@ -1,0 +1,80 @@
+---
+kind: "__NvAdmissionControlSecurityRule"
+api_family: "neuvector.com"
+default_command: "__"
+# fields:
+infoview:
+  name: "Nv Admission Control Security Rule Info"
+  infopad:
+    name_path: null
+    row_indexes:
+      Normal:
+        fields: ["action", "disabled", "rule_mode", "containers"]
+    rows:
+      action:
+        header: [["Action:", ["main", "infoheader"]]]
+        path: "action"
+        default: "<unset>"
+        type: "str"
+      containers:
+        header: [["C", ["main", "infoheader_shortcut"]],
+                 ["ontainers:", ["main", "infoheader"]]]
+        path: "containers"
+        default: ["<none>"]
+        type: "raw"
+        formatter: "list"
+      disabled:
+        header: [["Disabled:", ["main", "infoheader"]]]
+        path: "disabled"
+        default: "<unset>"
+        type: "bool"
+      rule_mode:
+        header: [["Rule Mode:", ["main", "infoheader"]]]
+        path: "rule_mode"
+        fallback_on_empty: true
+        default: "<unset>"
+        type: "str"
+  listpad:
+    listgetter: "listgetter_path"
+    listgetter_args:
+      path: "criteria"
+    infogetter: "generic_infogetter"
+    field_indexes:
+      Normal:
+        fields: ["name", "op", "value", "path"]
+        sortcolumn: "name"
+    fields:
+      name:
+        header: "Name:"
+        path: "name"
+        default: "<unset>"
+        type: "str"
+      op:
+        header: "Op:"
+        path: "op"
+        default: "<unset>"
+        type: "str"
+      path:
+        header: "Path:"
+        path: "path"
+        default: "<unset>"
+        type: "str"
+      value:
+        header: "Value:"
+        path: "value"
+        default: "<unset>"
+        type: "str"
+  shortcuts:
+    "List Containers":
+      key: "c"
+      modifier: "shift"
+      read_only: true
+      helptext: "Show list of containers"
+      widget: "windowwidget"
+      widget_args:
+        title: "Containers:"
+        itemgetter: "get_list_as_list"
+        itemgetter_args:
+          path: "containers"
+        # This isn't supported for now
+        sortcolumn: "name"
