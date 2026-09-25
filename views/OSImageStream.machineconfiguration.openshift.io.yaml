@@ -1,0 +1,78 @@
+---
+kind: "OSImageStream"
+api_family: "machineconfiguration.openshift.io"
+default_command: "osimagestreams"
+command:
+  - "osimgstreams.mchconf"
+  - "osimgstream.mchconf"
+listview:
+  name: "OS Image Streams"
+  group: "OpenShift"
+  field_indexes:
+    Normal:
+      fields: ["name", "default_stream", "age"]
+  fields:
+    default_stream:
+      header: "Default Stream:"
+      paths:
+        - path: ["status#defaultStream", "spec#defaultStream"]
+          pathtype: "value"
+      default: "<unset>"
+      type: "str"
+infoview:
+  name: "OS Image Stream Info"
+  infopad:
+  listpad:
+    listgetter: "listgetter_path"
+    listgetter_args:
+      path: "status#availableStreams"
+    infogetter: "generic_infogetter"
+    field_indexes:
+      Normal:
+        fields: ["name", "os_image", "os_extensions_image"]
+        sortcolumn: "name"
+        sortorder_reverse: true
+    fields:
+      name:
+        header: "Name:"
+        path: "name"
+        default: "<unset>"
+        type: "str"
+      os_extensions_image:
+        header: "OS Extensions Image:"
+        paths:
+          - path: "osExtensionsImage"
+            pathtype: "regex"
+            regex: "^([^:]+):(.*)"
+            default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "generic"
+            - type: "version"
+          field_separators:
+            - type: "version"
+          field_formatters:
+            - ""
+            - "version"
+        default: "<unset>"
+        type: "str"
+      os_image:
+        header: "OS Image:"
+        paths:
+          - path: "osImage"
+            pathtype: "regex"
+            regex: "^([^:]+):(.*)"
+            default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "generic"
+            - type: "version"
+          field_separators:
+            - type: "version"
+          field_formatters:
+            - ""
+            - "version"
+        default: "<unset>"
+        type: "str"
