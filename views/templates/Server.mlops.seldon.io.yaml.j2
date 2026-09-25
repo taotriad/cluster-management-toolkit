@@ -1,0 +1,104 @@
+---
+kind: "Server"
+api_family: "mlops.seldon.io"
+default_command: "servers.mlops.seldon.io"
+command:
+  - "seldonservers"
+  - "seldonserver"
+listview:
+  name: "Servers"
+  group: "Machine Learning"
+  field_indexes:
+    Normal:
+      fields: ["namespace", "name", "loaded_models", "replicas",
+               "condition_ready", "age"]
+      sortcolumn: "namespace"
+  fields:
+    {%- for line in field_condition_ready.split("\n") %}
+    {{ line }}
+    {%- endfor %}
+    loaded_models:
+      header: "Loaded Models:"
+      path: "status#loadedModels"
+      default: 0
+      type: "int"
+      formatter: "numerical"
+      align: "right"
+    replicas:
+      header: "Replicas:"
+      path: "status#replicas"
+      default: 0
+      type: "int"
+      formatter: "numerical"
+      align: "right"
+infoview:
+  name: "Server Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["server_config",
+                 "capabilities",
+                 "loaded_models", "replicas",
+                 "condition_ready"]
+    rows:
+      capabilities:
+        header: [["C", ["main", "infoheader_shortcut"]],
+                 ["apabilities:", ["main", "infoheader"]]]
+        path: "spec#capabilities"
+        default: ["<none>"]
+        type: "raw"
+        formatter: "list"
+      {%- for line in row_condition_ready.split("\n") %}
+      {{ line }}
+      {%- endfor %}
+      loaded_models:
+        header: [["Loaded Models:", ["main", "infoheader"]]]
+        path: "status#loadedModels"
+        default: 0
+        type: "int"
+        formatter: "numerical"
+      replicas:
+        header: [["Replicas:", ["main", "infoheader"]]]
+        path: "status#replicas"
+        default: 0
+        type: "int"
+        formatter: "numerical"
+      server_config:
+        header: [["S", ["main", "infoheader_shortcut"]],
+                 ["erver Config:", ["main", "infoheader"]]]
+        path: "spec#serverConfig"
+        default: "<unset>"
+        type: "str"
+  logpad:
+    infogetter: "logpad_formatted"
+    infogetter_args:
+      path: "spec#podSpec"
+      formatter: "format_yaml"
+    timestamps: false
+  shortcuts:
+    "List Capabilities":
+      key: "c"
+      modifier: "shift"
+      read_only: true
+      helptext: "List capabilities"
+      widget: "windowwidget"
+      widget_args:
+        title: "Capabilities:"
+        itemgetter: "get_list_as_list"
+        itemgetter_args:
+          path: "spec#capabilities"
+        # This isn't supported for now
+        sortcolumn: "name"
+    "Server Config":
+      key: "s"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for Server Config"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind: "ServerConfig"
+        api_family: "mlops.seldon.io"
+        namespace_path: "metadata#namespace"
+        name_path: "spec#serverConfig"

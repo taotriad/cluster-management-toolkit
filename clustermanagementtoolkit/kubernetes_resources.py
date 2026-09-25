@@ -2870,6 +2870,11 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api": "consoles",
         "namespaced": False,
     },
+    ("CRIOCredentialProviderConfig", "config.openshift.io"): {
+        "api_paths": ["apis/config.openshift.io/v1/"],
+        "api": "criocredentialproviderconfigs",
+        "namespaced": False,
+    },
     ("DNS", "config.openshift.io"): {
         "api_paths": ["apis/config.openshift.io/v1/"],
         "api": "dnses",
@@ -5910,6 +5915,11 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api": "machineosconfigs",
         "namespaced": False,
     },
+    ("OSImageStream", "machineconfiguration.openshift.io"): {
+        "api_paths": ["apis/machineconfiguration.openshift.io/v1/"],
+        "api": "osimagestreams",
+        "namespaced": False,
+    },
     ("PinnedImageSet", "machineconfiguration.openshift.io"): {
         "api_paths": ["apis/machineconfiguration.openshift.io/v1/",
                       "apis/machineconfiguration.openshift.io/v1alpha1/"],
@@ -6443,6 +6453,35 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
     ("Tenant", "minio.min.io"): {
         "api_paths": ["apis/minio.min.io/v2/"],
         "api": "tenants",
+    },
+    # mlops.seldon.io
+    ("Experiment", "mlops.seldon.io"): {
+        "api_paths": ["apis/mlops.seldon.io/v1alpha1/"],
+        "api": "experiments",
+    },
+    ("Model", "mlops.seldon.io"): {
+        "api_paths": ["apis/mlops.seldon.io/v1alpha1/"],
+        "api": "models",
+    },
+    ("Pipeline", "mlops.seldon.io"): {
+        "api_paths": ["apis/mlops.seldon.io/v1alpha1/"],
+        "api": "pipelines",
+    },
+    ("SeldonConfig", "mlops.seldon.io"): {
+        "api_paths": ["apis/mlops.seldon.io/v1alpha1/"],
+        "api": "seldonconfigs",
+    },
+    ("SeldonRuntime", "mlops.seldon.io"): {
+        "api_paths": ["apis/mlops.seldon.io/v1alpha1/"],
+        "api": "seldonruntimes",
+    },
+    ("ServerConfig", "mlops.seldon.io"): {
+        "api_paths": ["apis/mlops.seldon.io/v1alpha1/"],
+        "api": "serverconfigs",
+    },
+    ("Server", "mlops.seldon.io"): {
+        "api_paths": ["apis/mlops.seldon.io/v1alpha1/"],
+        "api": "servers",
     },
     # monitoring.coreos.com
     ("Alertmanager", "monitoring.coreos.com"): {

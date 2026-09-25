@@ -1,0 +1,141 @@
+---
+kind: "Pipeline"
+api_family: "mlops.seldon.io"
+default_command: "pipelines.mlops.seldon.io"
+command:
+  - "seldonpipelines"
+  - "seldonpipeline"
+listview:
+  name: "Pipelines"
+  group: "Machine Learning"
+  field_indexes:
+    Normal:
+      fields: ["namespace", "name", "pipeline_ready", "condition_ready", "age"]
+      sortcolumn: "namespace"
+  fields:
+    {%- for line in field_condition_ready.split("\n") %}
+    {{ line }}
+    {%- endfor %}
+    pipeline_ready:
+      header: "Pipeline Ready:"
+      paths:
+        - path: "status#conditions"
+          pathtype: "items"
+          subpath: "status"
+          when:
+            - key: "type"
+              eq: "PipelineReady"
+          default: ["<unknown>"]
+      type: "str"
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          mappings:
+            "True":
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+            "False":
+              field_colors:
+                - context: "main"
+                  type: "status_not_ok"
+            "Unknown":
+              field_colors:
+                - context: "types"
+                  type: "unset"
+            "<unknown>":
+              field_colors:
+                - context: "types"
+                  type: "unset"
+infoview:
+  name: "Pipeline Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["output_header",
+                 "output_steps", "output_steps_join",
+                 "pipeline_ready", "condition_ready"]
+    rows:
+      {%- for line in row_condition_ready.split("\n") %}
+      {{ line }}
+      {%- endfor %}
+      output_header:
+        header: [["Output:", ["main", "infoheader"]]]
+      output_steps:
+        header: [["  Steps:", ["main", "infoheader"]]]
+        path: "spec#output#steps"
+        default: ["<none>"]
+        type: "raw"
+        formatter: "list"
+      output_steps_join:
+        header: [["  Steps Join:", ["main", "infoheader"]]]
+        path: "spec#output#stepsJoin"
+        default: "<unset>"
+        type: "str"
+      pipeline_ready:
+        header: [["Pipeline Ready:", ["main", "infoheader"]]]
+        paths:
+          - path: "status#conditions"
+            pathtype: "items"
+            subpath: "status"
+            when:
+              - key: "type"
+                eq: "PipelineReady"
+            default: ["<unknown>"]
+        type: "str"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              "True":
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+              "False":
+                field_colors:
+                  - context: "main"
+                    type: "status_not_ok"
+              "Unknown":
+                field_colors:
+                  - context: "types"
+                    type: "unset"
+              "<unknown>":
+                field_colors:
+                  - context: "types"
+                    type: "unset"
+  listpad:
+    listgetter: "listgetter_path"
+    listgetter_args:
+      path: "spec#steps"
+    infogetter: "generic_infogetter"
+    field_indexes:
+      Normal:
+        fields: ["name", "inputs_join_type", "inputs", "tensor_map"]
+        sortcolumn: "name"
+    fields:
+      name:
+        header: "Name:"
+        path: "name"
+        default: "<unset>"
+        type: "str"
+      inputs_join_type:
+        header: "Inputs Join Type:"
+        path: "inputsJoinType"
+        default: "<unset>"
+        type: "str"
+      inputs:
+        header: "Inputs Join Type:"
+        path: "inputs"
+        default: ["<none>"]
+        type: "raw"
+        formatter: "list"
+      tensor_map:
+        header: "Tensor Map:"
+        paths:
+          - path: ["tensorMap"]
+            pathtype: "key_value"
+            default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_separators:
+            - type: "selector"

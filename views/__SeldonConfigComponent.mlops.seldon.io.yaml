@@ -1,0 +1,54 @@
+---
+kind: "__SeldonConfigComponent"
+api_family: "mlops.seldon.io"
+default_command: "__"
+infoview:
+  name: "Seldon Config Component Info"
+  annotations: "annotations"
+  infopad:
+    name_path: "name"
+    row_indexes:
+      Normal:
+        fields: ["volume_claim_templates", "replicas"]
+    rows:
+      replicas:
+        header: [["Replicas:", ["main", "infoheader"]]]
+        path: "replicas"
+        default: 0
+        type: "int"
+        formatter: "numerical"
+      volume_claim_templates:
+        header: [["V", ["main", "infoheader_shortcut"]],
+                 ["olume Claim Templates:", ["main", "infoheader"]]]
+        paths:
+          - path: "volumeClaimTemplates"
+            pathtype: "items"
+            subpaths:
+              - "name"
+            default: ["<none>"]
+        formatter: "list"
+  logpad:
+    infogetter: "logpad_formatted"
+    infogetter_args:
+      path: "podSpec"
+      formatter: "format_yaml"
+    timestamps: false
+  shortcuts:
+    "Show Volume Claim Templates":
+      key: "v"
+      modifier: "shift"
+      read_only: true
+      helptext: "Show Volume Claim Template"
+      widget: "windowwidget"
+      widget_args:
+        title: "Volume Claim Templates:"
+        headers: ["Name:", "Access Modes:", "Resources:"]
+        itemgetter: "get_list_fields"
+        itemgetter_args:
+          path: "volumeClaimTemplates"
+          fields:
+            - "name"
+            - "spec#accessModes"
+            - "spec#resources"
+        # This isn't supported for now
+        sortcolumn: "name"

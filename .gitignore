@@ -130,6 +130,7 @@ views/MachineSet.cluster.x-k8s.io.yaml
 views/Management.k0rdent.mirantis.com.yaml
 views/Metric.autoscaling.internal.knative.dev.yaml
 views/MiniCluster.flux-framework.org.yaml
+views/Model.mlops.seldon.io.yaml
 views/ModuleRelease.deckhouse.io.yaml
 views/MutatingWebhookConfiguration.admissionregistration.k8s.io.yaml
 views/Namespace.yaml
@@ -149,6 +150,7 @@ views/Parallel.flows.knative.dev.yaml
 views/PersistentVolume.yaml
 views/PersistentVolumeClaim.yaml
 views/PingSource.sources.knative.dev.yaml
+views/Pipeline.mlops.seldon.io.yaml
 views/Pod.yaml
 views/PodAutoscaler.autoscaling.internal.knative.dev.yaml
 views/PodClique.grove.io.yaml
@@ -190,6 +192,7 @@ views/SchedulingShard.kai.scheduler.yaml
 views/Secret.yaml
 views/SecurityContextConstraints.security.openshift.io.yaml
 views/Sequence.flows.knative.dev.yaml
+views/Server.mlops.seldon.io.yaml
 views/ServerlessService.networking.internal.knative.dev.yaml
 views/Service.serving.knative.dev.yaml
 views/Service.yaml

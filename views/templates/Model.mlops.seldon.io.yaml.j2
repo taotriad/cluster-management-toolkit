@@ -1,0 +1,121 @@
+---
+kind: "Model"
+api_family: "mlops.seldon.io"
+default_command: "models.mlops.seldon.io"
+command:
+  - "seldonmodels"
+  - "seldonmodel"
+listview:
+  name: "Models"
+  group: "Machine Learning"
+  field_indexes:
+    Normal:
+      fields: ["namespace", "name", "model_ready", "condition_ready", "age"]
+      sortcolumn: "namespace"
+  fields:
+    {%- for line in field_condition_ready.split("\n") %}
+    {{ line }}
+    {%- endfor %}
+    model_ready:
+      header: "Model Ready:"
+      paths:
+        - path: "status#conditions"
+          pathtype: "items"
+          subpath: "status"
+          when:
+            - key: "type"
+              eq: "ModelReady"
+          default: ["<unknown>"]
+      type: "str"
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          mappings:
+            "True":
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+            "False":
+              field_colors:
+                - context: "main"
+                  type: "status_not_ok"
+            "Unknown":
+              field_colors:
+                - context: "types"
+                  type: "unset"
+            "<unknown>":
+              field_colors:
+                - context: "types"
+                  type: "unset"
+infoview:
+  name: "Model Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["dataflow_header",
+                 "dataflow_clean_topics_on_delete",
+                 "memory",
+                 "requirements",
+                 "storage_uri",
+                 "model_ready", "condition_ready"]
+    rows:
+      {%- for line in row_condition_ready.split("\n") %}
+      {{ line }}
+      {%- endfor %}
+      dataflow_clean_topics_on_delete:
+        header: [["  Clean Topics on Delete:", ["main", "infoheader"]]]
+        path: "spec#dataflow#cleanTopicsOnDelete"
+        default: "<unset>"
+        type: "bool"
+      dataflow_header:
+        header: [["Dataflow Header:", ["main", "infoheader"]]]
+      memory:
+        header: [["Memory:", ["main", "infoheader"]]]
+        path: "spec#memory"
+        default: "<unset>"
+        type: "str"
+        formatter: "numerical"
+      model_ready:
+        header: [["Model Ready:", ["main", "infoheader"]]]
+        paths:
+          - path: "status#conditions"
+            pathtype: "items"
+            subpath: "status"
+            when:
+              - key: "type"
+                eq: "ModelReady"
+            default: ["<unknown>"]
+        type: "str"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              "True":
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+              "False":
+                field_colors:
+                  - context: "main"
+                    type: "status_not_ok"
+              "Unknown":
+                field_colors:
+                  - context: "types"
+                    type: "unset"
+              "<unknown>":
+                field_colors:
+                  - context: "types"
+                    type: "unset"
+      requirements:
+        header: [["R", ["main", "infoheader_shortcut"]],
+                 ["equirements:", ["main", "infoheader"]]]
+        path: "spec#requirements"
+        default: "<unset>"
+        type: "raw"
+        formatter: "list"
+      storage_uri:
+        header: [["Storage URI:", ["main", "infoheader"]]]
+        path: "spec#storageUri"
+        default: "<unset>"
+        type: "str"
+        formatter: "uri"

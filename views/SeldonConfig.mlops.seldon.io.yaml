@@ -1,0 +1,45 @@
+---
+kind: "SeldonConfig"
+api_family: "mlops.seldon.io"
+default_command: "seldonconfigs.mlops.seldon.io"
+command:
+  - "seldonconfigs"
+  - "seldonconfig"
+  - "seldonconfs"
+  - "seldonconf"
+listview:
+  name: "Seldon Configs"
+  group: "Machine Learning"
+  field_indexes:
+    Normal:
+      fields: ["namespace", "name", "age"]
+      sortcolumn: "namespace"
+infoview:
+  name: "Seldon Config Info"
+  infopad:
+  listpad:
+    on_activation:
+      call: "resourceinfodispatch"
+      kind: "__SeldonConfigComponent"
+      api_family: "mlops.seldon.io"
+    listgetter: "listgetter_path"
+    listgetter_args:
+      path: "spec#components"
+    infogetter: "generic_infogetter"
+    field_indexes:
+      Normal:
+        fields: ["name", "replicas"]
+        sortcolumn: "name"
+    fields:
+      name:
+        header: "Name:"
+        path: "name"
+        default: "<unset>"
+        type: "str"
+      replicas:
+        header: "Replicas:"
+        path: "replicas"
+        default: 0
+        type: "int"
+        formatter: "numerical"
+        align: "right"

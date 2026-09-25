@@ -1,0 +1,58 @@
+---
+kind: "ServerConfig"
+api_family: "mlops.seldon.io"
+default_command: "serverconfigs.mlops.seldon.io"
+command:
+  - "seldonserverconfigs"
+  - "seldonserverconfig"
+  - "seldonserverconfs"
+  - "seldonserverconf"
+listview:
+  name: "Server Configs"
+  group: "Machine Learning"
+  field_indexes:
+    Normal:
+      fields: ["namespace", "name", "age"]
+      sortcolumn: "namespace"
+infoview:
+  name: "Server Config Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["volume_claim_templates"]
+    rows:
+      volume_claim_templates:
+        header: [["V", ["main", "infoheader_shortcut"]],
+                 ["olume Claim Templates:", ["main", "infoheader"]]]
+        paths:
+          - path: "spec#volumeClaimTemplates"
+            pathtype: "items"
+            subpaths:
+              - "name"
+            default: ["<none>"]
+        formatter: "list"
+  logpad:
+    infogetter: "logpad_formatted"
+    infogetter_args:
+      path: "spec#podSpec"
+      formatter: "format_yaml"
+    timestamps: false
+  shortcuts:
+    "Show Volume Claim Templates":
+      key: "v"
+      modifier: "shift"
+      read_only: true
+      helptext: "Show Volume Claim Template"
+      widget: "windowwidget"
+      widget_args:
+        title: "Volume Claim Templates:"
+        headers: ["Name:", "Access Modes:", "Resources:"]
+        itemgetter: "get_list_fields"
+        itemgetter_args:
+          path: "spec#volumeClaimTemplates"
+          fields:
+            - "name"
+            - "spec#accessModes"
+            - "spec#resources"
+        # This isn't supported for now
+        sortcolumn: "name"

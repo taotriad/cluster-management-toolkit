@@ -1,0 +1,138 @@
+---
+kind: "Experiment"
+api_family: "mlops.seldon.io"
+default_command: "experiments.mlops.seldon.io"
+command:
+  - "seldonexperiments"
+  - "seldonexperiment"
+listview:
+  name: "Experiments"
+  group: "Machine Learning"
+  field_indexes:
+    Normal:
+      fields: ["namespace", "name", "model_ready", "age"]
+      sortcolumn: "namespace"
+  fields:
+    model_ready:
+      header: "Model Ready:"
+      paths:
+        - path: "status#conditions"
+          pathtype: "items"
+          subpath: "status"
+          when:
+            - key: "type"
+              eq: "ModelReady"
+          default: ["<unknown>"]
+      type: "str"
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          mappings:
+            "True":
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+            "False":
+              field_colors:
+                - context: "main"
+                  type: "status_not_ok"
+            "Unknown":
+              field_colors:
+                - context: "types"
+                  type: "unset"
+            "<unknown>":
+              field_colors:
+                - context: "types"
+                  type: "unset"
+infoview:
+  name: "Experiment Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["model_header", "model_default",
+                 "model_resource_type",
+                 "model_mirror_header",
+                 "model_mirror_name",
+                 "model_mirror_percent",
+                 "model_ready"]
+    rows:
+      model_default:
+        header: [["  Default:", ["main", "infoheader"]]]
+        path: "spec#default"
+        default: "<unset>"
+        type: "str"
+      model_header:
+        header: [["Model:", ["main", "infoheader"]]]
+      model_mirror_header:
+        header: [["  Mirror:", ["main", "infoheader"]]]
+      model_mirror_name:
+        header: [["    Name:", ["main", "infoheader"]]]
+        path: "spec#mirror#name"
+        default: "<unset>"
+        type: "str"
+      model_mirror_percent:
+        header: [["    Percent:", ["main", "infoheader"]]]
+        path: "spec#mirror#percent"
+        default: "<unset>"
+        type: "int"
+        formatter: "numerical"
+        formatting:
+          unit: "%"
+      model_ready:
+        header: [["  Ready:", ["main", "infoheader"]]]
+        paths:
+          - path: "status#conditions"
+            pathtype: "items"
+            subpath: "status"
+            when:
+              - key: "type"
+                eq: "ModelReady"
+            default: ["<unknown>"]
+        type: "str"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              "True":
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+              "False":
+                field_colors:
+                  - context: "main"
+                    type: "status_not_ok"
+              "Unknown":
+                field_colors:
+                  - context: "types"
+                    type: "unset"
+              "<unknown>":
+                field_colors:
+                  - context: "types"
+                    type: "unset"
+      model_resource_type:
+        header: [["  Resource Type:", ["main", "infoheader"]]]
+        path: "spec#resourceType"
+        default: "<unset>"
+        type: "str"
+  listpad:
+    listgetter: "listgetter_path"
+    listgetter_args:
+      path: "spec#candidates"
+    infogetter: "generic_infogetter"
+    field_indexes:
+      Normal:
+        fields: ["name", "weight"]
+        sortcolumn: "name"
+    fields:
+      name:
+        header: "Name:"
+        path: "name"
+        default: "<unset>"
+        type: "str"
+      weight:
+        header: "Weight:"
+        path: "weight"
+        default: "<unset>"
+        type: "int"
+        formatter: "numerical"
+        align: "right"

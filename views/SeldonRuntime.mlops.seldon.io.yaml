@@ -1,0 +1,47 @@
+---
+kind: "SeldonRuntime"
+api_family: "mlops.seldon.io"
+default_command: "seldonruntimes.mlops.seldon.io"
+command:
+  - "seldonruntimes"
+  - "seldonruntime"
+listview:
+  name: "Seldon Runtimes"
+  group: "Machine Learning"
+  field_indexes:
+    Normal:
+      fields: ["namespace", "name", "age"]
+      sortcolumn: "namespace"
+infoview:
+  name: "Seldon Runtime Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["seldon_config"]
+    rows:
+      seldon_config:
+        header: [["S", ["main", "infoheader_shortcut"]],
+                 ["eldon Config:", ["main", "infoheader"]]]
+        path: "spec#seldonConfig"
+        default: "<unset>"
+        type: "str"
+  logpad:
+    infogetter: "logpad_formatted"
+    infogetter_args:
+      path: "spec#config"
+      formatter: "format_yaml"
+    timestamps: false
+  shortcuts:
+    "Seldon Config":
+      key: "s"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for Seldon Config"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind: "SeldonConfig"
+        api_family: "mlops.seldon.io"
+        namespace_path: "metadata#namespace"
+        name_path: "spec#seldonConfig"

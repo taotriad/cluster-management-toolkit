@@ -1481,6 +1481,10 @@ NonGracefulTermination:
   field_colors:
     - context: "main"
       type: "status_warning"
+NonReadyRequests:
+  field_colors:
+    - context: "main"
+      type: "status_warning"
 NoOperatorGroup:
   field_colors:
     - context: "main"

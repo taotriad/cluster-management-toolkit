@@ -1,0 +1,7 @@
+- name: "seldon-core-2"
+  show_in_selector: false
+  matchkeys:
+    - image_name: "/seldonio/seldonv2-controller"
+  parser_rules:
+    - name: "glog"
+    - name: "tab_separated"
