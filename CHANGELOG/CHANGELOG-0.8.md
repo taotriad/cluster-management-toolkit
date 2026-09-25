@@ -90,6 +90,8 @@ N/A
   that exits if one of the parser-rules returns invalid remnants,
   but that will be removed if sufficient testing can be done before
   the v0.8.11 release.
+* Fix reversed sorting for listpads in info-view.
+* Fix alternate paths for labels and annotations for the info view.
 
 ### Changes to other files in v0.8.11
 

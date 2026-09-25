@@ -3682,7 +3682,6 @@ def genericinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                 formatter_args[key] = \
                     deep_get(cmtlib.cmtconfig, DictPath(f"{kind_joined}#formatter_args#{key}"))
 
-    sortorder_reverse = deep_get(viewref, DictPath("sortorder_reverse"), False)
     reversible = deep_get(viewref, DictPath("reversible"), True)
     sortable = deep_get(viewref, DictPath("sortable"), True)
     activatedfun = deep_get(viewref, DictPath("activatedfun"))
@@ -10154,11 +10153,11 @@ def populate_views(refresh_apis: str = "none") -> None:
                 on_activation["kind"] = viewoverride
                 on_activation.pop("api_family", "")
 
-            if "labels" in deep_get(d, DictPath("listview"), {}):
-                labels = deep_get(d, DictPath("listview#labels"))
+            if "labels" in deep_get(d, DictPath("infoview"), {}):
+                labels = deep_get(d, DictPath("infoview#labels"))
             else:
                 labels = "metadata#labels"
-            if "annotations" in deep_get(d, DictPath("listview"), {}):
+            if "annotations" in deep_get(d, DictPath("infoview"), {}):
                 annotations = deep_get(d, DictPath("infoview#annotations"))
             else:
                 annotations = "metadata#annotations"
