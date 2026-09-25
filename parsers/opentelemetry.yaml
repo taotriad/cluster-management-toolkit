@@ -5,6 +5,7 @@
     - image_name: "/open-telemetry/opentelemetry-operator/target-allocator"
     # yamllint disable-line rule:line-length
     - image_name: "/open-telemetry/opentelemetry-operator/opentelemetry-operator"
+    - image_regex: "opentelemetry-.*operator"
   parser_rules:
     - name: "json"
       options:

@@ -1,0 +1,11 @@
+---
+- name: "tempo"
+  show_in_selector: false
+  matchkeys:
+    - image_name: "/grafana/tempo-operator/tempo-operator"
+  parser_rules:
+    - name: "json"
+      options:
+        version:
+          keys:
+            - "tempo-operator"

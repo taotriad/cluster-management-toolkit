@@ -9,3 +9,11 @@
   parser_rules:
     - name: "glog"
     - name: "json"
+- name: "openshift-virtualization"
+  show_in_selector: false
+  matchkeys:
+    - image_name: "/container-native-virtualization/virt-platform-autopilot"
+  parser_rules:
+    - name: "glog"
+    - name: "tab_separated"
+    - name: "key_value_with_leading_message"
