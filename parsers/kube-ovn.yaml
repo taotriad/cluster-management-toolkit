@@ -46,13 +46,6 @@
   parser_rules:
     - name: "glog"
     - name: "json"
-    - name: "override_severity"
-      options:
-        severity:
-          overrides:
-            - matchtype: "startswith"
-              matchkey: "  Version:"
-              loglevel: "notice"
     - name: "custom_splitter"
       options:
         # yamllint disable-line rule:line-length
@@ -71,11 +64,7 @@
             matchkey: "--------"
             format_block_end: true
         severity:
-          default: "info"
-          overrides:
-            - matchtype: "startswith"
-              matchkey: "  Version: "
-              loglevel: "notice"
+          default: "notice"
 - name: "kube-ovn"
   show_in_selector: false
   matchkeys:
@@ -115,11 +104,7 @@
             matchkey: "--------"
             format_block_end: true
         severity:
-          default: "info"
-          overrides:
-            - matchtype: "startswith"
-              matchkey: "  Version: "
-              loglevel: "notice"
+          default: "notice"
     - name: "override_severity"
       options:
         severity:
