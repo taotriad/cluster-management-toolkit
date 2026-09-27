@@ -1497,6 +1497,11 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api": "multikueueconfigs",
         "namespaced": False,
     },
+    ("PreemptionConfig", "kueue.x-k8s.io"): {
+        "api_paths": ["apis/kueue.x-k8s.io/v1alpha1/"],
+        "api": "preemptionconfigs",
+        "namespaced": False,
+    },
     ("ProvisioningRequestConfig", "kueue.x-k8s.io"): {
         "api_paths": ["apis/kueue.x-k8s.io/v1beta2/",
                       "apis/kueue.x-k8s.io/v1beta1/"],
