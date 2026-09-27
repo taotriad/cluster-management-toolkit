@@ -5330,7 +5330,9 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                         newstr, matched, format_block_end = scanner(unprocessed_line, **options)
                         if strip_ansicodes:
                             newstr = cmtlib.strip_ansicodes(newstr)
-                        if not matched:
+                        if not matched or j == 0:
+                            # Matches for first line doesn't count.
+                            matched = False
                             new_lines.append(newstr)
                             continue
                         # We have found the end; should we format the match?
