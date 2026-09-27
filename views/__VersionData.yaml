@@ -337,7 +337,8 @@ listview:
             fieldgetter_args:
               executable: ["/usr/bin/kueuectl", "/usr/bin/kubectl-kueue"]
               args: ["version"]
-              version_regex: '^Client Version: v(\d+)(\.)(\d+)(\.)(\d+)'
+              # yamllint disable-line rule:line-length
+              version_regex: '^Client Version: v(\d+)(\.)(\d+)(\.)(\d+)(-rc\.\d+|)'
           file_not_found_status: "No changelog found"
           paths:
             - filepath: "{HOME}/.cmt/version-cache/kueue_changelog.md"
