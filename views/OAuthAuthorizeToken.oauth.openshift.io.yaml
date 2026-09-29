@@ -1,0 +1,76 @@
+---
+kind: "OAuthAuthorizeToken"
+api_family: "oauth.openshift.io"
+default_command: "oauthauthorizetokens.oauth.openshift.io"
+command:
+  - "oauthauthorizetoken.oauth.openshift.io"
+  - "oauthauthorizetokens.openshift"
+  - "oauthauthorizetoken.openshift"
+  - "osoauthauthorizetokens"
+  - "osoauthauthorizetoken"
+  - "osoauthauthtokens"
+  - "osoauthauthtoken"
+listview:
+  name: "OAuth Authorize Tokens"
+  group: "OpenShift"
+  field_indexes:
+    Wide:
+      fields: ["name", "user_name", "client_name", "expiration",
+               "redirect_uri", "scopes", "age"]
+    Normal:
+      fields: ["name", "user_name", "client_name", "expiration", "age"]
+  fields:
+    client_name:
+      header: "Client Name:"
+      path: "clientName"
+      type: "str"
+    expiration:
+      header: "Expiration:"
+      paths:
+        - paths: [["metadata#creationTimestamp"], ["expiresIn"]]
+          pathtype: "timediff"
+      formatter: "age"
+    redirect_uri:
+      header: "Redirect URI:"
+      path: "redirectURI"
+      type: "str"
+    scopes:
+      header: "Scopes:"
+      path: "scopes"
+      type: "raw"
+      formatter: "list"
+    user_name:
+      header: "User Name:"
+      path: "userName"
+      type: "str"
+infoview:
+  name: "OAuth Authorize Token Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["user_name", "client_name", "expiration",
+                 "redirect_uri", "scopes"]
+    rows:
+      client_name:
+        header: [["Client Name:", ["main", "infoheader"]]]
+        path: "clientName"
+        type: "str"
+      expiration:
+        header: [["Expiration:", ["main", "infoheader"]]]
+        paths:
+          - paths: [["metadata#creationTimestamp"], ["expiresIn"]]
+            pathtype: "timediff"
+        formatter: "age"
+      redirect_uri:
+        header: [["Redirect URI:", ["main", "infoheader"]]]
+        path: "redirectURI"
+        type: "str"
+      scopes:
+        header: [["Scopes:", ["main", "infoheader"]]]
+        path: "scopes"
+        type: "raw"
+        formatter: "list"
+      user_name:
+        header: [["User Name:", ["main", "infoheader"]]]
+        path: "userName"
+        type: "str"
