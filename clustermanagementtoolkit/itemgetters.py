@@ -399,7 +399,7 @@ def get_list_as_list(obj: dict, **kwargs: Any) -> list[Any]:
             tmp = deep_get(obj, DictPath(column))
             if isinstance(tmp, list):
                 maxlen = max(len(tmp), maxlen)
-        for i in range(0, maxlen):
+        for i in range(maxlen):
             item = []
             for column in paths:
                 tmp = deep_get(obj, DictPath(column))

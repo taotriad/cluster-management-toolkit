@@ -5,7 +5,7 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
-from datetime import datetime, timezone
+from datetime import datetime, UTC
 from pathlib import PurePath
 import sys
 from typing import Any
@@ -1207,7 +1207,7 @@ def test_get_since(verbose: bool = False) -> tuple[str, bool]:
             (int(f"{6 * 24 * 60 * 60 + 5 * 60 * 60 + 43 * 60 + 21}"), None),
             (int(f"{0 * 24 * 60 * 60 + 5 * 60 * 60 + 43 * 60 + 0}"), None),
             (int(f"{0 * 24 * 60 * 60 + 0 * 60 * 60 + 43 * 60 + 1}"), None),
-            (datetime.now(timezone.utc), None),
+            (datetime.now(UTC), None),
             (cmtlib.none_timestamp(), None),
             (None, None),
             ("a", TypeError),

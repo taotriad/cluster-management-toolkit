@@ -115,7 +115,7 @@ recommended_directory_permissions: list[DirectoryPermissions] = [
             ("cmu", "programname"),
             (" to malfunction and possibly hide signs\n", "default"),
             ("    of a compromised cluster and may be able to "
-             "obtain sensitive information\n", "default"),
+             + "obtain sensitive information\n", "default"),
             ("    from audit messages.", "default")]
     },
     {
@@ -220,8 +220,7 @@ recommended_directory_permissions: list[DirectoryPermissions] = [
             (f"{PARSER_DIR}", "path"),
             (" they can cause ", "default"),
             ("cmu", "programname"),
-            (" to malfunction and possibly hide signs "
-             "of a compromised cluster", "default")]
+            (" to malfunction and possibly hide signs of a compromised cluster", "default")]
     },
     {
         "path": VIEW_DIR,
@@ -233,8 +232,7 @@ recommended_directory_permissions: list[DirectoryPermissions] = [
             (f"{VIEW_DIR}", "path"),
             (" they can cause ", "default"),
             ("cmu", "programname"),
-            (" to malfunction and possibly hide signs of a "
-             "compromised cluster", "default")]
+            (" to malfunction and possibly hide signs of a compromised cluster", "default")]
     },
 ]
 
@@ -247,7 +245,7 @@ recommended_file_permissions: list[FilePermissions] = [
         "severity": "critical",
         "justification": [
             ("If others users can modify executables they can obtain "
-             "elevated privileges", "default")]
+             + "elevated privileges", "default")]
     },
     {
         "path": FilePath(os.path.join(BINDIR, "cmtinv")),
@@ -257,7 +255,7 @@ recommended_file_permissions: list[FilePermissions] = [
         "severity": "critical",
         "justification": [
             ("If others users can modify executables they can obtain "
-             "elevated privileges", "default")]
+             + "elevated privileges", "default")]
     },
     {
         "path": FilePath(os.path.join(BINDIR, "cmt")),
@@ -267,7 +265,7 @@ recommended_file_permissions: list[FilePermissions] = [
         "severity": "critical",
         "justification": [
             ("If others users can modify executables they can obtain "
-             "elevated privileges", "default")]
+             + "elevated privileges", "default")]
     },
     {
         "path": FilePath(os.path.join(BINDIR, "cmu")),
@@ -277,7 +275,7 @@ recommended_file_permissions: list[FilePermissions] = [
         "severity": "critical",
         "justification": [
             ("If others users can modify configlets they may be able "
-             "to obtain elevated privileges", "default")]
+             + "to obtain elevated privileges", "default")]
     },
     {
         "path": CMT_CONFIG_FILE,
@@ -287,7 +285,7 @@ recommended_file_permissions: list[FilePermissions] = [
         "severity": "critical",
         "justification": [
             ("If others users can modify the CMT configuration file they may be "
-             "able to obtain elevated privileges", "default")]
+             + "able to obtain elevated privileges", "default")]
     },
     {
         "path": CMT_CONFIG_FILE_DIR,
@@ -298,7 +296,7 @@ recommended_file_permissions: list[FilePermissions] = [
         "severity": "critical",
         "justification": [
             ("If others users can modify configlets they may be "
-             "able to obtain elevated privileges", "default")]
+             + "able to obtain elevated privileges", "default")]
     },
     {
         "path": ANSIBLE_PLAYBOOK_DIR,
@@ -309,7 +307,7 @@ recommended_file_permissions: list[FilePermissions] = [
         "severity": "critical",
         "justification": [
             ("If other users can modify playbooks they can obtain "
-             "elevated privileges", "default")]
+             + "elevated privileges", "default")]
     },
     {
         "path": ANSIBLE_INVENTORY,
@@ -318,7 +316,7 @@ recommended_file_permissions: list[FilePermissions] = [
         "severity": "critical",
         "justification": [
             ("If other users can read or modify the Ansible inventory "
-             "they can obtain elevated privileges", "default")]
+             + "they can obtain elevated privileges", "default")]
     },
     {
         "path": KUBE_CONFIG_FILE,
@@ -328,7 +326,7 @@ recommended_file_permissions: list[FilePermissions] = [
         "severity": "critical",
         "justification": [
             ("If others users can read or modify cluster configuration files "
-             "they can obtain cluster access", "default")]
+             + "they can obtain cluster access", "default")]
     },
     {
         "path": KUBE_CREDENTIALS_FILE,
@@ -338,7 +336,7 @@ recommended_file_permissions: list[FilePermissions] = [
         "severity": "critical",
         "justification": [
             ("If others users can read or modify cluster credential "
-             "files they can obtain cluster access", "default")],
+             + "files they can obtain cluster access", "default")],
         # This is not a required file, so don't warn if it doesn't exist
         "optional": True,
     },

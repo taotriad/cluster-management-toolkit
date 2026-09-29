@@ -1947,7 +1947,7 @@ def expand_event_objectmeta(message: str, severity: LogLevel, **kwargs: Any) \
     curlydepth = 0
 
     # This just makes sure that the indentation matches up
-    for i in range(0, len(raw_message)):
+    for i in range(len(raw_message)):
         if message[i] == "{":
             curlydepth += 1
         elif message[i] == "}":
@@ -2053,7 +2053,7 @@ def expand_event(message: str, severity: LogLevel, **kwargs: Any) \
     refstart = 0
     refend = 0
 
-    for i in range(0, len(raw_message)):
+    for i in range(len(raw_message)):
         if message[i] == "(":
             parendepth += 1
             if eventstart is None:
@@ -3182,9 +3182,8 @@ def custom_splitter(message: str, **kwargs: Any) -> \
         else:
             message = tmp[message_field]
         if facility_fields and not facility:
-            i = 0
             facility = ""
-            for field in facility_fields:
+            for i, field in enumerate(facility_fields):
                 if field > group_count:
                     errmsg = [
                         [("The parser rule references non-existing capture group ", "default"),
@@ -3202,7 +3201,6 @@ def custom_splitter(message: str, **kwargs: Any) -> \
                     facility += facility_separators[min(i - 1, len(facility_separators) - 1)]
                 if field != 0:
                     facility += tmp[field]
-                i += 1
 
     return facility, severity, message
 
@@ -3260,11 +3258,11 @@ def parsing_multiplexer(message: str | list[ThemeRef | ThemeStr],
                 facility, severity, message, remnants = \
                     seconds_severity_facility(message, fold_msg=fold_msg)
             elif _filter == "expand_event":
-                if message.startswith(("Event(v1.ObjectReference{")):
+                if message.startswith("Event(v1.ObjectReference{"):
                     severity, message, remnants = \
                         expand_event(message, severity=severity,
                                      remnants=remnants, fold_msg=fold_msg)
-                elif message.startswith(("&Event{ObjectMeta:")):
+                elif message.startswith("&Event{ObjectMeta:"):
                     severity, message, remnants = \
                         expand_event_objectmeta(message, severity=severity,
                                                 remnants=remnants, fold_msg=fold_msg)

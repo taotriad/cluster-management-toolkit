@@ -5,7 +5,7 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
-from datetime import datetime, timezone
+from datetime import datetime, UTC
 import os
 from pathlib import PurePath
 import sys
@@ -54,7 +54,7 @@ def test_get_conditions(verbose: bool = False) -> tuple[str, bool]:
     fun = itemgetters.get_conditions
 
     if result:
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         now_str = f"{now:%Y-%m-%d %H:%M:%S}Z"
         now_str_fmt = f"{now.astimezone():%Y-%m-%d %H:%M:%S}"
         # Indata format:

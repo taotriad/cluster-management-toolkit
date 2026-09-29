@@ -12,7 +12,7 @@ Helpers used by various components of CMT.
 
 import base64
 import binascii
-from datetime import datetime, timezone, timedelta, date
+from datetime import datetime, timedelta, date, UTC
 import errno
 from pathlib import Path
 import re
@@ -273,7 +273,7 @@ def chunk_list(items: list[Any], chunksize: int) -> Generator[list, None, None]:
         yield items[i:i + chunksize]
 
 
-def clamp(value: int | float, minval: int | float, maxval: int | float) -> int | float:
+def clamp(value: float, minval: float, maxval: float) -> int | float:
     """
     Clamp value inside the range minval, maxval.
 
@@ -301,7 +301,7 @@ def none_timestamp() -> datetime:
             timestamp (datetime): A "None" timestamp
     """
     return (datetime.combine(date.min, datetime.min.time())
-            + timedelta(days=1)).replace(tzinfo=timezone.utc)
+            + timedelta(days=1)).replace(tzinfo=UTC)
 
 
 def normalise_cpu_usage_to_millicores(cpu_usage: str) -> float:
@@ -753,7 +753,7 @@ def get_since(timestamp: int | datetime | None) -> int:
     elif isinstance(timestamp, int):
         since = timestamp
     else:
-        timediff = datetime.now(timezone.utc) - timestamp
+        timediff = datetime.now(UTC) - timestamp
         since = timediff.days * 24 * 60 * 60 + timediff.seconds
 
     return since
@@ -850,8 +850,7 @@ def timestamp_to_datetime(timestamp: str, default: datetime = none_timestamp()) 
     timestamp = str(timestamp)
 
     # Timestamps that end with Z are already in UTC; strip that
-    if timestamp.endswith("Z"):
-        timestamp = timestamp[:-1]
+    timestamp = timestamp.removesuffix("Z")
 
     # Timestamps that have both a numerical timezone offset and a timezone name do not make sense
     tmp = re.match(r"^(.+ [+-]\d{4}) [A-Z]{3}$", timestamp)

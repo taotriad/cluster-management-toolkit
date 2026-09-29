@@ -3022,15 +3022,15 @@ def __task_remove_kubeconfig(installation_info: dict, **kwargs: Any) -> None:
         # This is not perfect--there might be leftover users and contexts
         # belonging to this cluster; but we better not go on a killing spree--better leave
         # cruft behind than remove everything.
-        for i in range(0, len(d1["clusters"])):
+        for i in range(len(d1["clusters"])):
             if d1["clusters"][i].get("name") == cluster_name:
                 d1["clusters"].pop(i)
                 break
-        for i in range(0, len(d1["users"])):
+        for i in range(len(d1["users"])):
             if d1["users"][i].get("name") == admin_name:
                 d1["users"].pop(i)
                 break
-        for i in range(0, len(d1["contexts"])):
+        for i in range(len(d1["contexts"])):
             if d1["contexts"][i].get("name") == context_name:
                 d1["contexts"].pop(i)
                 break
@@ -4698,7 +4698,7 @@ def create_cluster(options: list[tuple[str, str]], args: list[str]) -> None:
     nodes: list[str] = []
 
     # Get a list of all nodes in the cluster
-    for _node_group, data in deep_get(cd, DictPath("nodes#groups"), {}).items():
+    for data in deep_get(cd, DictPath("nodes#groups"), {}).values():
         nodes += deep_get(data, DictPath("nodes"), [])
 
     prepare_options = [

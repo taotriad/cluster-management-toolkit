@@ -100,7 +100,7 @@ def scan_and_add_ssh_keys(hosts: list[str]) -> None:
 
     try:
         hostfile = paramiko.HostKeys(filename=known_hosts)
-    except IOError:
+    except OSError:
         ansithemeprint([ANSIThemeStr("Critical", "critical"),
                         ANSIThemeStr(": Failed to open/read “", "default"),
                         ANSIThemeStr(known_hosts, "path"),
@@ -141,7 +141,7 @@ def scan_and_add_ssh_keys(hosts: list[str]) -> None:
 
     try:
         hostfile.save(filename=known_hosts)
-    except IOError:
+    except OSError:
         ansithemeprint([ANSIThemeStr("Critical", "critical"),
                         ANSIThemeStr(": Failed to save modifications to “", "default"),
                         ANSIThemeStr(known_hosts, "path"),

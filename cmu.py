@@ -17,10 +17,10 @@ UI for managing Kubernetes clusters.
 
 import base64
 import binascii
-from collections.abc import Callable
+from collections.abc import Callable, Sequence
 import copy
 import curses
-from datetime import datetime, timezone
+from datetime import datetime, UTC
 import errno
 from getpass import getuser
 import json
@@ -33,7 +33,7 @@ import socket
 import subprocess  # nosec
 import sys
 from types import FrameType
-from typing import Any, cast, Sequence
+from typing import Any, cast
 import yaml
 
 try:
@@ -469,19 +469,19 @@ def get_pod_log_by_name_namespace_container(name: str, namespace: str, container
         internal_error = False
     elif status == 400:
         # Not successful; error in rawmsg
-        rawmsg = f"{datetime.now(timezone.utc):%Y-%m-%d %H:%M:%S} CRITICAL: {rawmsg}"
+        rawmsg = f"{datetime.now(UTC):%Y-%m-%d %H:%M:%S} CRITICAL: {rawmsg}"
         internal_error = True
     elif status == 500:
         # Not successful; error in rawmsg
         internal_error = True
     else:
-        rawmsg = f"{datetime.now(timezone.utc):%Y-%m-%d %H:%M:%S} CRITICAL: Failed to fetch log " \
+        rawmsg = f"{datetime.now(UTC):%Y-%m-%d %H:%M:%S} CRITICAL: Failed to fetch log " \
                  f"for pod (name: {name}, namespace: {namespace}, container: {container}); " \
                  f"Request Status: {status}"
         internal_error = True
 
     if rawmsg.startswith("unable to retrieve container logs for"):
-        rawmsg = f"{datetime.now(timezone.utc):%Y-%m-%d %H:%M:%S} CRITICAL: {rawmsg}"
+        rawmsg = f"{datetime.now(UTC):%Y-%m-%d %H:%M:%S} CRITICAL: {rawmsg}"
         internal_error = True
 
     return rawmsg, internal_error
@@ -583,8 +583,8 @@ def generate_list_header(uip: UIProps, field_dict: dict, is_taggable: bool = Fal
         headerarray.append(ThemeRef("separators", "tag"))
         tabstop = themearray_len(headerarray)
 
-    for field in field_dict:
-        generator = field_dict[field].get("generator")
+    for field, d in field_dict.items():
+        generator = deep_get(d, DictPath("generator"))
         if generator is None:
             continue
 
@@ -615,8 +615,8 @@ def generate_list_header(uip: UIProps, field_dict: dict, is_taggable: bool = Fal
         tabstop = themearray_len(headerarray)
 
         # This tells the length of the alignment of the header
-        fieldlen = deep_get(field_dict, DictPath(f"{field}#fieldlen"))
-        header = deep_get(field_dict, DictPath(f"{field}#header"))
+        fieldlen = deep_get(d, DictPath("fieldlen"))
+        header = deep_get(d, DictPath("header"))
         if isinstance(header, list):
             errmsg = [
                 [("Headers for lists should be regular strings; ", "error")],
@@ -633,7 +633,7 @@ def generate_list_header(uip: UIProps, field_dict: dict, is_taggable: bool = Fal
             raise ProgrammingError(unformatted_msg,
                                    severity=LogLevel.ERR,
                                    formatted_msg=formatted_msg)
-        ralign = deep_get(field_dict, DictPath(f"{field}#ralign"), False)
+        ralign = deep_get(d, DictPath("ralign"), False)
 
         # We cannot use ljust/rjust on the string,
         # because we want the string and arrow in different colours,
@@ -679,7 +679,7 @@ def generate_list_row(uip: UIProps, data: dict, field_dict: dict,
     first: bool = True
     i: int = 0
 
-    for field in field_dict:
+    for field, d in field_dict.items():
         i += 1
 
         if is_taggable:
@@ -693,21 +693,20 @@ def generate_list_row(uip: UIProps, data: dict, field_dict: dict,
             tagprefix = []
             tagprefixlen = 0
 
-        if (generator := field_dict[field].get("generator")) is None:
+        if (generator := deep_get(d, DictPath("generator"))) is None:
             continue
 
-        fieldlen = field_dict[field]["fieldlen"]
+        fieldlen = deep_get(d, DictPath("fieldlen"))
         fpad = i < len(field_dict)
 
-        ralign = field_dict[field].get("ralign", False)
+        ralign = deep_get(d, DictPath("ralign"), False)
 
-        formatting: generators.FormattingType = \
-            deep_get(field_dict, DictPath(f"{field}#formatting"), {})
+        formatting: generators.FormattingType = deep_get(d, DictPath("formatting"), {})
 
         tmp = generator(data, field, fieldlen=fieldlen, pad=fpad,
                         ralign=ralign, selected=is_selected, **formatting)
 
-        pos = field_dict[field]["pos"]
+        pos = deep_get(d, DictPath("pos"))
 
         if first and is_taggable:
             uip.addthemearray(uip.listpad, tagprefix, y=ypos, x=pos, deleted=is_deleted)
@@ -913,7 +912,7 @@ def genericlistloop(stdscr: curses.window, **kwargs: Any) -> Retval:
     elif "Wide" in field_indexes:
         field_index = "Wide"
     else:
-        field_index = list(field_indexes)[0]
+        field_index = next(iter(field_indexes))
 
     fieldgenerator_args = {
         "field_index": field_index,
@@ -1108,14 +1107,14 @@ def genericlistloop(stdscr: curses.window, **kwargs: Any) -> Retval:
             elif (execution_result_dict := executor.get("pings")) != ([], []):
                 ansible_results, _ansible_status = execution_result_dict
                 vlist = deep_get(infogetter_extra_args, DictPath("_vlist"), [])
-                for i, item in enumerate(vlist):
+                for item in vlist:
                     host = deep_get(item, DictPath(infogetter_extra_args["_match_key"]))
                     for result in deep_get(cast(dict[str, Any], ansible_results),
                                            DictPath(f"{host}"), []):
                         if deep_get(result, DictPath("task")) == "Ping":
-                            if not deep_get(vlist[i], DictPath("__deleted"), False):
+                            if not deep_get(item, DictPath("__deleted"), False):
                                 status = deep_get(result, DictPath("status"))
-                                vlist[i]["status"] = status
+                                item["status"] = status
                                 ips = []
                                 if (ip := deep_get(result,
                                                    DictPath("ansible_facts#"
@@ -1125,7 +1124,7 @@ def genericlistloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                                                    DictPath("ansible_facts#"
                                                             "ansible_default_ipv6#address"), "")):
                                     ips.append(ip)
-                                vlist[i]["ips"] = copy.deepcopy(ips)
+                                item["ips"] = copy.deepcopy(ips)
                 _pings_args, pings_kwargs = executor.get_parameters("pings")
                 if set(async_data["hosts"]) != set(deep_get(pings_kwargs,
                                                             DictPath("selection"), [])):
@@ -2936,7 +2935,7 @@ def clusteroverviewloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                 tmp2.append(ThemeStr("  ", ThemeAttr("main", "listheader")))
         eventarrays.append(tmp2)
 
-        for evindex in range(0, 5):
+        for evindex in range(5):
             tmp2 = []
 
             if evindex < len(events):
@@ -3501,7 +3500,7 @@ def generate_helptext(view: str | tuple[str, str], viewtype: str, **kwargs: Any)
             helptext += additional_helptexts
 
         if shortcuts:
-            for _shortcut, data in shortcuts.items():
+            for data in shortcuts.values():
                 tmp = deep_get(data, DictPath("helptext"))
                 if tmp is not None:
                     helptext.append(tmp)
@@ -4205,7 +4204,7 @@ def genericinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
             yadd = 0
 
             tscount = 0
-            for y in range(0, min(uip.logpadheight, len(messages))):
+            for y in range(min(uip.logpadheight, len(messages))):
                 facility: list[ThemeRef | ThemeStr] = []
                 if uip.yoffset + y < len(facilities):
                     fac = facilities[uip.yoffset + y]
@@ -4511,7 +4510,7 @@ def genericinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
             uip.force_update()
             continue
 
-        for _key, sc_value in shortcuts.items():
+        for sc_value in shortcuts.values():
             if c not in deep_get(sc_value, DictPath("shortcut"), []):
                 continue
 
@@ -4868,7 +4867,7 @@ def genericinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
 
                 if call is not None and call_name is not None:
                     if kind is None or kind == ("", ""):
-                        retval = call(stdscr=uip.stdscr, **{"selected": call_name})
+                        retval = call(stdscr=uip.stdscr, selected=call_name)
                         if retval is not None and retval == Retval.RETURNFULL:
                             return retval
                     elif kind:
@@ -5121,7 +5120,7 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                 tail_lines = uip.logpadheight
 
             if not multilog_containers:
-                pod_info = infogetters.get_pod_info(**{"vlist": [obj]}, kubernetes_helper=kh,
+                pod_info = infogetters.get_pod_info(vlist=[obj], kubernetes_helper=kh,
                                                     kh_cache=kh_cache)[0]
                 namespace = deep_get(pod_info, DictPath("namespace"))
                 podname = deep_get(pod_info, DictPath("name"))
@@ -5805,7 +5804,7 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
             yadd = 0
             timestamp: str = ""
             tscount = 0
-            for y in range(0, min(uip.logpadheight, uip.loglen)):
+            for y in range(min(uip.logpadheight, uip.loglen)):
                 if timestamps is None or uip.yoffset + y >= len(timestamps) \
                         or timestamps[uip.yoffset + y] == none_timestamp():
                     timestamp = "".ljust(uip.tspadwidth)
@@ -6300,7 +6299,7 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
 
             data = ""
 
-            for y in range(0, uip.loglen):
+            for y in range(uip.loglen):
                 # Even when the log is raw we want the first timestamp
                 if y >= len(timestamps) or isinstance(timestamps[y], str) \
                         or timestamps[y] == none_timestamp():
@@ -7746,8 +7745,7 @@ def __restart_resource(kind: tuple[str, str], namespace: str, name: str) -> int:
 
     args = [kubectl_path, "rollout", "restart",
             f"{kind[0]}.{kind[1]}/{name}", f"--namespace={namespace}"]
-    result = subprocess.run(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                            universal_newlines=True, check=False)
+    result = subprocess.run(args, capture_output=True, text=True, check=False)
     return result.returncode
 
 
@@ -7805,8 +7803,7 @@ def __scale_replicas(**kwargs: Any) -> int:
 
     args = [kubectl_path, "scale", f"{kind[0]}.{kind[1]}/{name}",
             f"--namespace={namespace}", f"--replicas={scale}"]
-    result = subprocess.run(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                            universal_newlines=True, check=False)
+    result = subprocess.run(args, capture_output=True, text=True, check=False)
     return result.returncode
 
 
@@ -7827,7 +7824,7 @@ def __edit_resource(kind: tuple[str, str], namespace: str, name: str) -> tuple[i
         args = [kubectl_path, "edit", f"{kind[0]}.{kind[1]}/{name}"]
     else:
         args = [kubectl_path, "edit", f"{kind[0]}.{kind[1]}/{name}", f"--namespace={namespace}"]
-    result = subprocess.run(args, universal_newlines=True, check=False)
+    result = subprocess.run(args, text=True, check=False)
     return result.returncode, args
 
 
@@ -7909,7 +7906,7 @@ def perform_action_on_configuration(uip: UIProps, **kwargs: Any) -> Retval:
         raise TypeError(f"Unknown resource type {rtype}; this is a programming error.")
 
     args.append(resource_path)
-    _result = subprocess.run(args, universal_newlines=True, check=False)
+    _result = subprocess.run(args, text=True, check=False)
 
     # waitforkeypress = deep_get(kwargs, DictPath("wait_for_keypress"), False)
     waitforkeypress = True
@@ -7968,8 +7965,7 @@ def diff_resource_configuration(uip: UIProps, **kwargs: Any) -> Retval:
     else:
         raise TypeError(f"Unknown resource type {rtype}; this is a programming error.")
 
-    result = subprocess.run(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                            universal_newlines=True, check=False)
+    result = subprocess.run(args, capture_output=True, text=True, check=False)
     indent = deep_get(cmtlib.cmtconfig, DictPath("Global#indent"), 2)
     diff = []
 
@@ -8029,7 +8025,7 @@ def format_commandline(args: list[str], implicit_command: bool = True) -> list[A
         if i == 0:
             themearray += [ANSIThemeStr(f"{arg}", "programname")]
         # This is an option
-        elif arg.startswith(("-")):
+        elif arg.startswith("-"):
             themearray += [ANSIThemeStr(f" {arg}", "option")]
         # The first non-option argument is the command
         elif not command:
@@ -8117,11 +8113,7 @@ def patch_resource(**kwargs: Any) -> Retval:
                     ANSIThemeStr("“", "default")]
             ansithemeprint(msg)
 
-        patch_object(**{"kind": kind,
-                        "name": name,
-                        "namespace": namespace,
-                        "args": args,
-                        "values": values})
+        patch_object(kind=kind, name=name, namespace=namespace, args=args, values=values)
 
     print("\n")
 
@@ -8775,8 +8767,8 @@ def populate_actionlist(**kwargs: Any) -> tuple[list[dict[str, Any]], dict[str, 
             elif isinstance(md[1], list):
                 tmp.append(ThemeStr(md[0], ThemeAttr(md[1][0], md[1][1])))
             else:
-                raise ValueError(f"Unknown type for metadata {type(md)} for metadata {md}; "
-                                 "expected ThemeStr(str, ThemeAttr) or [str, [str, str]]")
+                raise TypeError(f"Unknown type for metadata {type(md)} for metadata {md}; "
+                                "expected ThemeStr(str, ThemeAttr) or [str, [str, str]]")
         metadata = tmp
         if singleonly and not single_item:
             continue
@@ -9119,9 +9111,8 @@ def format_selection_list(uip: UIProps, refresh_apis: str = "none") -> list[dict
                                              DictPath("available"), False)):
                     continue
             check_availability = deep_get(viewref, DictPath("check_availability"), None)
-            if check_availability is not None:
-                if not check_availability():
-                    continue
+            if check_availability is not None and not check_availability():
+                continue
         group = deep_get(viewref, DictPath("group"))
         # XXX: Do override in a nicer manner; perhaps we want all "built-in" groups first?
         if group == "Administration":
@@ -9759,20 +9750,19 @@ def populate_views(refresh_apis: str = "none") -> None:
             continue
 
         api_family = deep_get(d, DictPath("api_family"), "")
-        # Use a set to avoid duplicates
+        # Use a set to avoid duplicates.
+        # If there's a "." in the command it means the plural or singular
+        # is not unique without api_family;
+        # do not add the lowercase form of kind automagically.
         _command = set()
-        if not kind.startswith("__"):
-            # If there's a "." in the command it means the plural or singular
-            # is not unique without api_family;
-            # do not add the lowercase form of kind automagically
-            if "." not in default_command:
-                _command.add(kind.lower())
+        if not kind.startswith("__") and "." not in default_command:
+            _command.add(kind.lower())
         if deep_get(d, DictPath("command"), []):
             _command = set.union(_command, set(deep_get(d, DictPath("command"), [])))
-        # OK, we've got all commands we wanted; now we want the preferred form first
+        # OK, we've got all commands we wanted; now we want the preferred form first.
         _command.discard(default_command)
         _command.add(default_command)
-        # Finally, now that we have a list, add variants with api_family suffixed
+        # Finally, now that we have a list, add variants with api_family suffixed.
         command = list(_command)
         if api_family:
             for item in _command:
@@ -10023,23 +10013,23 @@ def populate_views(refresh_apis: str = "none") -> None:
                     "force_refresh": True,
                 }
 
-            for shortcut in _shortcuts:
+            for shortcut, shortcut_data in _shortcuts.items():
                 # If the shortcut is empty we are disabling a default shortcut
-                if _shortcuts[shortcut] is None or not _shortcuts[shortcut]:
+                if not shortcut_data:
                     shortcuts[shortcut] = {}
                     continue
 
-                key = deep_get(_shortcuts[shortcut], DictPath("key"), "<missing>")
-                modifier = deep_get(_shortcuts[shortcut], DictPath("modifier"), "")
-                helptext = deep_get(_shortcuts[shortcut], DictPath("helptext"), "<missing>")
-                action = deep_get(_shortcuts[shortcut], DictPath("action"), "<missing>")
-                action_args = deep_get(_shortcuts[shortcut], DictPath("action_args"), {})
-                queryfunc = deep_get(_shortcuts[shortcut], DictPath("queryfunc"))
-                queryval = deep_get(_shortcuts[shortcut], DictPath("queryval"))
-                query = deep_get(_shortcuts[shortcut], DictPath("query"))
-                read_only = deep_get(_shortcuts[shortcut], DictPath("read_only"), False)
-                force_update = deep_get(_shortcuts[shortcut], DictPath("force_update"), True)
-                force_refresh = deep_get(_shortcuts[shortcut], DictPath("force_refresh"), True)
+                key = deep_get(shortcut_data, DictPath("key"), "<missing>")
+                modifier = deep_get(shortcut_data, DictPath("modifier"), "")
+                helptext = deep_get(shortcut_data, DictPath("helptext"), "<missing>")
+                action = deep_get(shortcut_data, DictPath("action"), "<missing>")
+                action_args = deep_get(shortcut_data, DictPath("action_args"), {})
+                queryfunc = deep_get(shortcut_data, DictPath("queryfunc"))
+                queryval = deep_get(shortcut_data, DictPath("queryval"))
+                query = deep_get(shortcut_data, DictPath("query"))
+                read_only = deep_get(shortcut_data, DictPath("read_only"), False)
+                force_update = deep_get(shortcut_data, DictPath("force_update"), True)
+                force_refresh = deep_get(shortcut_data, DictPath("force_refresh"), True)
 
                 if key is None or helptext is None \
                         or action is None or "<missing>" in (key, helptext, action):

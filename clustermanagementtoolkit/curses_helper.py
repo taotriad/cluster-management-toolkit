@@ -3679,7 +3679,7 @@ class UIProps:
         if xpos == -1:
             xpos = self.maxx
         if update == "true" or self.last_timestamp_update is None:
-            # Elsewhere we use now(timezone.utc), but here we want the local timezone
+            # Elsewhere we use now(UTC), but here we want the local timezone.
             self.last_timestamp_update = f"{datetime.now():%Y-%m-%d %H:%M:%S}"
         urcorner = deep_get(theme, DictPath("boxdrawing#urcorner"))
 
