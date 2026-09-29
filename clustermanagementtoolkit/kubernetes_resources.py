@@ -3983,6 +3983,29 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
                       "apis/install.istio.io/v1alpha1/"],
         "api": "wasmplugins",
     },
+    # external-secrets.io
+    ("PushSecret", "external-secrets.io"): {
+        "api_paths": ["apis/external-secrets.io/v1alpha1/"],
+        "api": "pushsecrets",
+    },
+    ("ClusterExternalSecret", "external-secrets.io"): {
+        "api_paths": ["apis/external-secrets.io/v1beta1/"],
+        "api": "clusterexternalsecrets",
+        "namespaced": False,
+    },
+    ("ClusterSecretStore", "external-secrets.io"): {
+        "api_paths": ["apis/external-secrets.io/v1beta1/"],
+        "api": "clustersecretstores",
+        "namespaced": False,
+    },
+    ("ExternalSecret", "external-secrets.io"): {
+        "api_paths": ["apis/external-secrets.io/v1beta1/"],
+        "api": "externalsecrets",
+    },
+    ("SecretStore", "external-secrets.io"): {
+        "api_paths": ["apis/external-secrets.io/v1beta1/"],
+        "api": "secretstores",
+    },
     # externaldata.gatekeeper.sh
     ("Provider", "externaldata.gatekeeper.sh"): {
         "api_paths": ["apis/externaldata.gatekeeper.sh/v1beta1/"],
@@ -4262,6 +4285,27 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api": "gaudiclassparameters",
         "namespaced": False,
     },
+    # generators.external-secrets.io
+    ("ACRAccessToken", "generators.external-secrets.io"): {
+        "api_paths": ["apis/generators.external-secrets.io/v1alpha1/"],
+        "api": "acraccesstokens",
+    },
+    ("ECRAuthorizationToken", "generators.external-secrets.io"): {
+        "api_paths": ["apis/generators.external-secrets.io/v1alpha1/"],
+        "api": "ecrauthorizationtokens",
+    },
+    ("Fake", "generators.external-secrets.io"): {
+        "api_paths": ["apis/generators.external-secrets.io/v1alpha1/"],
+        "api": "fakes",
+    },
+    ("GCRAccessToken", "generators.external-secrets.io"): {
+        "api_paths": ["apis/generators.external-secrets.io/v1alpha1/"],
+        "api": "gcraccesstokens",
+    },
+    ("Password", "generators.external-secrets.io"): {
+        "api_paths": ["apis/generators.external-secrets.io/v1alpha1/"],
+        "api": "passwords",
+    },
     # getambassador.io
     ("AuthService", "getambassador.io"): {
         "api_paths": ["apis/getambassador.io/v2/"],
@@ -4390,6 +4434,11 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
     ("PodCliqueSet", "grove.io"): {
         "api_paths": ["apis/grove.io/v1alpha1/"],
         "api": "podcliquesets",
+    },
+    # habana.ai
+    ("Workload", "habana.ai"): {
+        "api_paths": ["apis/habana.ai/v1/"],
+        "api": "workloads",
     },
     # habanalabs.habana.ai
     ("ClusterPolicy", "habanalabs.habana.ai"): {
@@ -4537,7 +4586,8 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
     # helm.toolkit.fluxcd.io
     ("HelmRelease", "helm.toolkit.fluxcd.io"): {
         "api_paths": ["apis/helm.toolkit.fluxcd.io/v2/",
-                      "apis/helm.toolkit.fluxcd.io/v2beta2/"],
+                      "apis/helm.toolkit.fluxcd.io/v2beta2/",
+                      "apis/helm.toolkit.fluxcd.io/v2beta1/"],
         "api": "helmreleases",
     },
     # hostpathprovisioner.kubevirt.io
@@ -4638,6 +4688,19 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
     ("ImageTag", "image.openshift.io"): {
         "api_paths": ["apis/image.openshift.io/v1/"],
         "api": "imagetags",
+    },
+    # image.toolkit.fluxcd.io
+    ("ImageUpdateAutomation", "image.toolkit.fluxcd.io"): {
+        "api_paths": ["apis/image.toolkit.fluxcd.io/v1beta1/"],
+        "api": "imageupdateautomations",
+    },
+    ("ImagePolicy", "image.toolkit.fluxcd.io"): {
+        "api_paths": ["apis/image.toolkit.fluxcd.io/v1beta2/"],
+        "api": "imagepolicies",
+    },
+    ("ImageRepository", "image.toolkit.fluxcd.io"): {
+        "api_paths": ["apis/image.toolkit.fluxcd.io/v1beta2/"],
+        "api": "imagerepositories",
     },
     # imageregistry.operator.openshift.io
     ("Config", "imageregistry.operator.openshift.io"): {
@@ -5431,16 +5494,19 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
     },
     # kustomize.toolkit.fluxcd.io
     ("Kustomization", "kustomize.toolkit.fluxcd.io"): {
-        "api_paths": ["apis/kustomize.toolkit.fluxcd.io/v1/"],
+        "api_paths": ["apis/kustomize.toolkit.fluxcd.io/v1/",
+                      "apis/kustomize.toolkit.fluxcd.io/v1beta2/"],
         "api": "kustomizations",
     },
     # kyverno.io
     ("AdmissionReport", "kyverno.io"): {
-        "api_paths": ["apis/kyverno.io/v1alpha2/"],
+        "api_paths": ["apis/kyverno.io/v2/",
+                      "apis/kyverno.io/v1alpha2/"],
         "api": "admissionreports",
     },
     ("BackgroundScanReport", "kyverno.io"): {
-        "api_paths": ["apis/kyverno.io/v1alpha2/"],
+        "api_paths": ["apis/kyverno.io/v2/",
+                      "apis/kyverno.io/v1alpha2/"],
         "api": "backgroundscanreports",
     },
     ("CleanupPolicy", "kyverno.io"): {
@@ -5449,12 +5515,14 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api": "cleanuppolicies",
     },
     ("ClusterAdmissionReport", "kyverno.io"): {
-        "api_paths": ["apis/kyverno.io/v1alpha2/"],
+        "api_paths": ["apis/kyverno.io/v2/",
+                      "apis/kyverno.io/v1alpha2/"],
         "api": "clusteradmissionreports",
         "namespaced": False,
     },
     ("ClusterBackgroundScanReport", "kyverno.io"): {
-        "api_paths": ["apis/kyverno.io/v1alpha2/"],
+        "api_paths": ["apis/kyverno.io/v2/",
+                      "apis/kyverno.io/v1alpha2/"],
         "api": "clusterbackgroundscanreports",
         "namespaced": False,
     },
@@ -6883,15 +6951,18 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
     },
     # notification.toolkit.fluxcd.io
     ("Receiver", "notification.toolkit.fluxcd.io"): {
-        "api_paths": ["apis/notification.toolkit.fluxcd.io/v1/"],
+        "api_paths": ["apis/notification.toolkit.fluxcd.io/v1/",
+                      "apis/notification.toolkit.fluxcd.io/v1beta2/"],
         "api": "receivers",
     },
     ("Alert", "notification.toolkit.fluxcd.io"): {
-        "api_paths": ["apis/notification.toolkit.fluxcd.io/v1beta3/"],
+        "api_paths": ["apis/notification.toolkit.fluxcd.io/v1beta3/",
+                      "apis/notification.toolkit.fluxcd.io/v1beta2/"],
         "api": "alerts",
     },
     ("Provider", "notification.toolkit.fluxcd.io"): {
-        "api_paths": ["apis/notification.toolkit.fluxcd.io/v1beta3/"],
+        "api_paths": ["apis/notification.toolkit.fluxcd.io/v1beta3/",
+                      "apis/notification.toolkit.fluxcd.io/v1beta2/"],
         "api": "providers",
     },
     # nvidia.com
@@ -8233,7 +8304,8 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api": "externalartifacts",
     },
     ("GitRepository", "source.toolkit.fluxcd.io"): {
-        "api_paths": ["apis/source.toolkit.fluxcd.io/v1/"],
+        "api_paths": ["apis/source.toolkit.fluxcd.io/v1/",
+                      "apis/source.toolkit.fluxcd.io/v1beta2/"],
         "api": "gitrepositories",
     },
     ("HelmChart", "source.toolkit.fluxcd.io"): {
@@ -8274,6 +8346,15 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
                       "apis/split.smi-spec.io/v1alpha2/",
                       "apis/split.smi-spec.io/v1alpha1/"],
         "api": "trafficsplits",
+    },
+    # sriovnetwork.k8snetworkplumbingwg.io
+    ("DeviceAttributes", "sriovnetwork.k8snetworkplumbingwg.io"): {
+        "api_paths": ["apis/sriovnetwork.k8snetworkplumbingwg.io/v1alpha1/"],
+        "api": "deviceattributes",
+    },
+    ("SriovResourcePolicy", "sriovnetwork.k8snetworkplumbingwg.io"): {
+        "api_paths": ["apis/sriovnetwork.k8snetworkplumbingwg.io/v1alpha1/"],
+        "api": "sriovresourcepolicies",
     },
     # ssp.kubevirt.io
     ("SSP", "ssp.kubevirt.io"): {
