@@ -101,6 +101,9 @@ FLAKE8_IGNORE := F841,W503,F824,E126,E127,H301,H404,H405
 # Used by ruff to check for future and/or deprecated features
 RUFF_PYTHON_VERSION := py311
 
+# Ignore warning about import block sorting
+RUFF_IGNORE := I001,RUF100
+
 # Used by pylint to check for future and/or deprecated features
 PYLINT_PYTHON_VERSION := 3.11
 
@@ -323,7 +326,7 @@ ruff:
 	printf -- "\n" ;\
 	for file in *.py devtools/*.py clustermanagementtoolkit/*.py; do \
 		printf -- "File: $$file\n" ;\
-		$$cmd check --target-version $(RUFF_PYTHON_VERSION) $$file ;\
+		$$cmd check --ignore $(RUFF_IGNORE) --target-version $(RUFF_PYTHON_VERSION) $$file ;\
 	done
 
 ruff-tests:
