@@ -689,6 +689,10 @@ ErrWorkloadCompose:
   field_colors:
     - context: "main"
       type: "status_warning"
+error:
+  field_colors:
+    - context: "main"
+      type: "status_warning"
 Error:
   field_colors:
     - context: "main"
@@ -1021,10 +1025,18 @@ GangScheduling:
   field_colors:
     - context: "main"
       type: "status_pending"
+GarbageCollectionSucceeded:
+  field_colors:
+    - context: "main"
+      type: "status_done"
 Generated:
   field_colors:
     - context: "main"
       type: "status_ok"
+GitOperationSucceeded:
+  field_colors:
+    - context: "main"
+      type: "status_done"
 GPUDriverUpgrade:
   field_colors:
     - context: "main"
@@ -1401,6 +1413,10 @@ NetworkPolicyUpdated:
   field_colors:
     - context: "main"
       type: "status_done"
+NewArtifact:
+  field_colors:
+    - context: "main"
+      type: "status_ok"
 NewReplicaSetAvailable:
   field_colors:
     - context: "main"
@@ -2713,6 +2729,10 @@ ValidatingWebhookConfigurationUpdated:
   field_colors:
     - context: "main"
       type: "status_done"
+ValidationFailed:
+  field_colors:
+    - context: "main"
+      type: "status_warning"
 VMShutdownCompleted:
   field_colors:
     - context: "main"
