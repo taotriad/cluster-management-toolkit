@@ -75,6 +75,13 @@ Global:
   # Whether or not to show borders around the UI.
   # borders: true
 
+  # Should support for UTF-8 color symbols be enabled?  This requires
+  # terminal support for UTF-8 coloured symbols and a suitable font
+  # being installed.
+  # Note: this does not affect whether or not color symbols will be used
+  # (or at least attempted to be used) in the Markdown viewer.
+  # utf8_color_symbols: false
+
 Network:
   # These settings are for the system, not internal to Kubernetes.
   # They are used for communicating with other computers outside the context

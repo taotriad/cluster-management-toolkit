@@ -974,7 +974,11 @@ def genericlistloop(stdscr: curses.window, **kwargs: Any) -> Retval:
 
     uip.last_action = datetime.now()
     uip.idle_timeout = 5
-    serverstatus: str = "ok"
+    utf8_color_symbols: bool = \
+        deep_get(cmtlib.cmtconfig, DictPath("Global#utf8_color_symbols"), False)
+    serverstatus: str = "Pending"
+    if utf8_color_symbols:
+        serverstatus += "⏳"
 
     first_fetch: bool = True
     new_data: str = "false"
@@ -1143,6 +1147,16 @@ def genericlistloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                     serverstatus = "Connection Timeout"
                 else:
                     serverstatus = str(status)
+                if utf8_color_symbols:
+                    # 102 is Processing.
+                    if status == 102:
+                        serverstatus += "⏳"
+                    elif status in (200, 201, 202, 204):
+                        serverstatus += "🟢"
+                    elif status in (401, 403):
+                        serverstatus += "🛑"
+                    elif status >= 400:
+                        serverstatus += "⚠️ "
                 if not uip.listlen:
                     uip.force_update()
                 new_data = "pending"
