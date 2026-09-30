@@ -661,6 +661,8 @@ def format_address(items: str | list[str],
     array: list[ThemeRef | ThemeStr] = []
 
     for item in items:
+        if item is None:
+            continue
         subnet = False
         _vlist: list[ThemeRef | ThemeStr] = []
         tmp = ""
