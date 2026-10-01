@@ -962,7 +962,7 @@ class KubernetesHelper:
     config_path: FilePath | None = None
 
     control_plane_ip: str | None = None
-    control_plane_port: str | None = None
+    control_plane_port: str = ""
     control_plane_path: str | None = None
 
     def list_contexts(self, config_path: FilePath | None = None) \
@@ -1218,23 +1218,40 @@ class KubernetesHelper:
             return unchanged_is_success
 
         control_plane_ip = None
-        control_plane_port = None
+        control_plane_port = ""
         control_plane_path = None
         self.insecuretlsskipverify = False
         ca_certs = None
 
         # OK, we have a user and a cluster to look for
-        host_port_path_regex = re.compile(r"^https?://(.*):(\d+)(.*)")
+        host_rest_regex = re.compile(r"^https?://(.*)")
 
         for cluster in deep_get(kubeconfig, DictPath("clusters"), []):
             if deep_get(cluster, DictPath("name")) != cluster_name:
                 continue
 
-            tmp = host_port_path_regex.match(cluster["cluster"]["server"])
-            if tmp is not None:
-                control_plane_ip = tmp[1]
-                control_plane_port = tmp[2]
-                control_plane_path = tmp[3]
+            host_rest = host_rest_regex.match(cluster["cluster"]["server"])
+            if host_rest is None:
+                continue
+            host_all = "".join(host_rest.groups())
+            host_port = host_all.split(":")
+            control_plane_port = ""
+            control_plane_path = ""
+            if len(host_port) > 1:
+                control_plane_ip = host_port[0]
+                port_path = host_port[1].split("/", maxsplit=1)
+                if len(port_path) > 1:
+                    control_plane_port, control_plane_path = port_path
+                else:
+                    control_plane_port = host_port[1]
+            else:
+                control_plane_port = ""
+                host_path = host_port[0].split("/", maxsplit=1)
+                if len(host_path) > 1:
+                    control_plane_ip, control_plane_path = host_path
+                    control_plane_path = f"/{control_plane_path}"
+                else:
+                    control_plane_ip = host_port
 
             self.insecuretlsskipverify = \
                 deep_get(cluster, DictPath("cluster#insecure-skip-tls-verify"), False)
@@ -1318,7 +1335,8 @@ class KubernetesHelper:
         self.__close_certs()
 
         self.control_plane_ip = control_plane_ip
-        self.control_plane_port = control_plane_port
+        if control_plane_port:
+            self.control_plane_port = f":{control_plane_port}"
         self.control_plane_path = control_plane_path
         if key is not None:
             key = str(key)
@@ -1883,7 +1901,7 @@ class KubernetesHelper:
 
         # First get all core APIs
         method = "GET"
-        url = f"https://{self.control_plane_ip}:{self.control_plane_port}" \
+        url = f"https://{self.control_plane_ip}{self.control_plane_port}" \
               f"{self.control_plane_path}/api/v1"
         with PoolManagerContext(cert_file=self.cert_file, key_file=self.key_file,
                                 ca_certs_file=self.ca_certs_file, token=self.token,
@@ -1930,7 +1948,7 @@ class KubernetesHelper:
             }
             aggregated_data: dict[str, Any] = {}
 
-            url = f"https://{self.control_plane_ip}:{self.control_plane_port}" \
+            url = f"https://{self.control_plane_ip}{self.control_plane_port}" \
                   f"{self.control_plane_path}/apis"
             with PoolManagerContext(cert_file=self.cert_file, key_file=self.key_file,
                                     ca_certs_file=self.ca_certs_file, token=self.token,
@@ -1998,7 +2016,7 @@ class KubernetesHelper:
                         if group_version is None:
                             # This should not happen, but ignore it
                             continue
-                        url = f"https://{self.control_plane_ip}:{self.control_plane_port}" \
+                        url = f"https://{self.control_plane_ip}{self.control_plane_port}" \
                               f"{self.control_plane_path}/apis/{group_version}"
                         raw_data, _message, status = \
                             self.__rest_helper_generic_json(pool_manager=pool_manager,
@@ -2068,7 +2086,7 @@ class KubernetesHelper:
 
         # First get all core APIs
         method = "GET"
-        url = f"https://{self.control_plane_ip}:{self.control_plane_port}" \
+        url = f"https://{self.control_plane_ip}{self.control_plane_port}" \
               f"{self.control_plane_path}/api/v1"
         with PoolManagerContext(cert_file=self.cert_file, key_file=self.key_file,
                                 ca_certs_file=self.ca_certs_file, token=self.token,
@@ -2127,7 +2145,7 @@ class KubernetesHelper:
             }
             aggregated_data: dict[str, Any] = {}
 
-            url = f"https://{self.control_plane_ip}:{self.control_plane_port}" \
+            url = f"https://{self.control_plane_ip}{self.control_plane_port}" \
                   f"{self.control_plane_path}/apis"
             raw_data, _message, status = \
                 self.__rest_helper_generic_json(pool_manager=pool_manager, method=method,
@@ -2192,7 +2210,7 @@ class KubernetesHelper:
                     if (version_ := deep_get(version, DictPath("groupVersion"))) is None:
                         # This should not happen, but ignore it
                         continue
-                    url = f"https://{self.control_plane_ip}:{self.control_plane_port}" \
+                    url = f"https://{self.control_plane_ip}{self.control_plane_port}" \
                           f"{self.control_plane_path}/apis/{version_}"
                     raw_data, _message, status = \
                         self.__rest_helper_generic_json(pool_manager=pool_manager,
@@ -2317,6 +2335,7 @@ class KubernetesHelper:
                 # No route to host does not have a HTTP response; make one up...
                 # 503 is Service Unavailable; this is generally temporary,
                 # but to distinguish it from a real 503 we prefix it...
+                print(f"{e=}")
                 if "CERTIFICATE_VERIFY_FAILED" in str(e):
                     # Client Handshake Failed (Cloudflare)
                     status = 525
@@ -2542,7 +2561,7 @@ class KubernetesHelper:
                                 ca_certs_file=self.ca_certs_file, token=self.token,
                                 insecuretlsskipverify=self.insecuretlsskipverify) as pool_manager:
             for api_path in api_paths:
-                url = f"https://{self.control_plane_ip}:{self.control_plane_port}" \
+                url = f"https://{self.control_plane_ip}{self.control_plane_port}" \
                       f"{self.control_plane_path}/{api_path}" \
                       f"{namespace_part}{api}{name}{subresource_part}"
                 _data, message, status = \
@@ -2622,7 +2641,7 @@ class KubernetesHelper:
                                 ca_certs_file=self.ca_certs_file, token=self.token,
                                 insecuretlsskipverify=self.insecuretlsskipverify) as pool_manager:
             for api_path in api_paths:
-                url = f"https://{self.control_plane_ip}:{self.control_plane_port}" \
+                url = f"https://{self.control_plane_ip}{self.control_plane_port}" \
                       f"{self.control_plane_path}/{api_path}{namespace_part}{api}" \
                       f"{name}{subresource_part}"
                 _data, message, status = \
@@ -2686,7 +2705,7 @@ class KubernetesHelper:
                                 ca_certs_file=self.ca_certs_file, token=self.token,
                                 insecuretlsskipverify=self.insecuretlsskipverify) as pool_manager:
             for api_path in api_paths:
-                url = f"https://{self.control_plane_ip}:{self.control_plane_port}" \
+                url = f"https://{self.control_plane_ip}{self.control_plane_port}" \
                       f"{self.control_plane_path}/{api_path}{namespace_part}{api}{name}"
                 _data, message, status = \
                     self.__rest_helper_generic_json(pool_manager=pool_manager, method=method,
@@ -2768,7 +2787,7 @@ class KubernetesHelper:
                                 ca_certs_file=self.ca_certs_file, token=self.token,
                                 insecuretlsskipverify=self.insecuretlsskipverify) as pool_manager:
             for api_path in api_paths:
-                url = f"https://{self.control_plane_ip}:{self.control_plane_port}" \
+                url = f"https://{self.control_plane_ip}{self.control_plane_port}" \
                       f"{self.control_plane_path}/{api_path}{namespace_part}{api}{name}"
                 raw_data, _message, status = \
                     self.__rest_helper_generic_json(pool_manager=pool_manager, method=method,
@@ -3139,7 +3158,7 @@ class KubernetesHelper:
             return msg, status
 
         query_params: list[tuple[str, Any] | None] = []
-        url = f"https://{self.control_plane_ip}:{self.control_plane_port}" \
+        url = f"https://{self.control_plane_ip}{self.control_plane_port}" \
               f"{self.control_plane_path}/metrics"
         with PoolManagerContext(cert_file=self.cert_file, key_file=self.key_file,
                                 ca_certs_file=self.ca_certs_file, token=self.token,
@@ -3297,7 +3316,7 @@ class KubernetesHelper:
         query_params.append(("timestamps", True))
 
         method = "GET"
-        url = f"https://{self.control_plane_ip}:{self.control_plane_port}" \
+        url = f"https://{self.control_plane_ip}{self.control_plane_port}" \
               f"{self.control_plane_path}/api/v1/namespaces/{namespace}/pods/{name}/log"
         with PoolManagerContext(cert_file=self.cert_file, key_file=self.key_file,
                                 ca_certs_file=self.ca_certs_file, token=self.token,
