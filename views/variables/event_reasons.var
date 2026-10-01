@@ -1921,6 +1921,10 @@ ReconciliationError:
   field_colors:
     - context: "main"
       type: "status_warning"
+ReconciliationSucceeded:
+  field_colors:
+    - context: "main"
+      type: "status_done"
 RecoverSchedulable:
   field_colors:
     - context: "main"
