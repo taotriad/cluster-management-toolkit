@@ -13,11 +13,11 @@ listview:
   group: "Harvester"
   field_indexes:
     Wide:
-      fields: ["namespace", "name", "description",
-               "version_id", "version_default", "version_latest", "age"]
+      fields: ["namespace", "name", "version_id", "version_default",
+               "version_latest", "age", "description"]
       sortcolumn: "namespace"
     Normal:
-      fields: ["namespace", "name", "description", "age"]
+      fields: ["namespace", "name", "age", "description"]
       sortcolumn: "namespace"
   fields:
     description:

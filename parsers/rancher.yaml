@@ -45,6 +45,9 @@
             - matchtype: "startswith"
               matchkey: "\"Warning"
               loglevel: "warning"
+            - matchtype: "startswith"
+              matchkey: "ERROR: "
+              loglevel: "error"
 - name: "rancher"
   show_in_selector: false
   matchkeys:
