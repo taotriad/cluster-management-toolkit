@@ -1,0 +1,60 @@
+---
+kind: "CapacityProvider"
+api_family: "kueue.x-k8s.io"
+default_command: "capacityproviders"
+command:
+  - "capprovs"
+  - "capprov"
+listview:
+  name: "Capacity Providers"
+  group: "Batch Scheduling"
+  field_indexes:
+    Normal:
+      fields: ["name", "age"]
+# fields:
+infoview:
+  name: "Capacity Provider Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["controller", "orchestrated_flavors"]
+    rows:
+      controller:
+        header: [["Controller:", ["main", "infoheader"]]]
+        path: "spec#controllerName"
+        default: "<unset>"
+        type: "str"
+      orchestrated_flavors:
+        header: [["Orchestrated ", ["main", "infoheader"]],
+                 ["F", ["main", "infoheader_shortcut"]],
+                 ["lavors:", ["main", "infoheader"]]]
+        paths:
+          - path: "spec#orchestratedFlavors"
+            pathtype: "items"
+            subpath: "name"
+        default: ["<none>"]
+        type: "raw"
+        formatter: "list"
+  shortcuts:
+    "Orchestrated Flavors":
+      key: "f"
+      modifier: "shift"
+      read_only: true
+      helptext: "List extra label Namespaces"
+      widget: "windowwidget"
+      widget_args:
+        title: "Extra Label Namespaces:"
+        selectable: true
+        itemgetter: "get_list_fields"
+        itemgetter_args:
+          path: "spec#orchestratedFlavors"
+          fields:
+            - "name"
+        # Not supported for now
+        sortcolumn: "name"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        kind: "ResourceFlavor"
+        api_family: "kueue.x-k8s.io"
+        name_path: 0

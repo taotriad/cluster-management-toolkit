@@ -1,0 +1,76 @@
+---
+kind: "DynamicQuotaOrchestrator"
+api_family: "kueue.x-k8s.io"
+default_command: "dynamicquotaorchestrators"
+command:
+  - "dynqorchestrators"
+  - "dynqorchestrator"
+listview:
+  name: "Dynamic Quota Orchestrators"
+  group: "Batch Scheduling"
+  field_indexes:
+    Normal:
+      fields: ["name", "age"]
+# fields:
+infoview:
+  name: "Dynamic Quota Orchestrator Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["capacity_distribution_header",
+                 "capacity_distribution_subtree_root_quota_ref"]
+    rows:
+      capacity_distribution_header:
+        header: [["Capacity Distribution:", ["main", "infoheader"]]]
+      capacity_distribution_subtree_root_quota_ref:
+        header: [["  Subtree Root ", ["main", "infoheader"]],
+                 ["Q", ["main", "infoheader_shortcut"]],
+                 ["uota:", ["main", "infoheader"]]]
+        paths:
+          - path: [["spec#capacityDistribution#subtreeRootQuotaRef#kind"],
+                   ["spec#capacityDistribution#subtreeRootQuotaRef#name"]]
+            pathtype: "tuple"
+        default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "kind"
+            - type: "generic"
+          field_separators:
+            - type: "kind"
+  listpad:
+    listgetter: "listgetter_path"
+    listgetter_args:
+      path: "spec#capacityDiscovery#providers"
+    infogetter: "generic_infogetter"
+    field_indexes:
+      Normal:
+        fields: ["name", "effective_capacity_multiplier"]
+        sortcolumn: "name"
+    fields:
+      effective_capacity_multiplier:
+        header: "Effective Capacity Multiplier:"
+        path: "effectiveCapacityMultiplier"
+        default: "<unset>"
+        type: "str"
+        formatter: "numerical"
+        align: "right"
+      name:
+        header: "Name:"
+        path: "name"
+        default: "<unset>"
+        type: "str"
+  shortcuts:
+    "Open Subtree Root Quota":
+      key: "q"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for suibtree root quota"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind_path: "spec#capacityDistribution#subtreeRootQuotaRef#kind"
+        api_family: "kueue.x-k8s.io"
+        namespace_path: "metadata#namespace"
+        name_path: "spec#capacityDistribution#subtreeRootQuotaRef#name"

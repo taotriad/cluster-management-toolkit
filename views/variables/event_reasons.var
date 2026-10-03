@@ -1769,6 +1769,10 @@ PodGangCreateOrUpdateSuccessful:
   field_colors:
     - context: "main"
       type: "status_ok"
+PodGroupCreated:
+  field_colors:
+    - context: "main"
+      type: "status_done"
 PodGroupPending:
   field_colors:
     - context: "main"
@@ -2798,6 +2802,10 @@ WorkflowRunning:
     - context: "main"
       type: "status_ok"
 WorkflowSucceeded:
+  field_colors:
+    - context: "main"
+      type: "status_done"
+WorkloadCreated:
   field_colors:
     - context: "main"
       type: "status_done"

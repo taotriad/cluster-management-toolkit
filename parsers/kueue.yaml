@@ -25,6 +25,13 @@
   show_in_selector: false
   matchkeys:
     - image_name: "/kueue/kueue"
+      container_name: "manager"
+  parser_rules:
+    - name: "tab_separated"
+- name: "kueue"
+  show_in_selector: false
+  matchkeys:
+    - image_name: "/kueue/kueue"
   parser_rules:
     - name: "glog"
     - name: "json"
