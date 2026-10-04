@@ -179,12 +179,10 @@ def format_table(file: str, separator: str, headers: list[str], **kwargs: Any) -
 
         for j, column in enumerate(columns):
             adjust = 0
-            if bold_regex or (bold_footer and tablelen - 1 == i):
-                if re.match(bold_regex, column) is not None:
-                    adjust = 2
-            if italics_regex and not adjust:
-                if re.match(italics_regex, column) is not None:
-                    adjust = 1
+            if bold_regex or (bold_footer and tablelen - 1 == i) and re.match(bold_regex, column):
+                adjust = 2
+            if italics_regex and not adjust and re.match(italics_regex, column):
+                adjust = 1
             adjusts[j] = max(adjusts[j], adjust)
             widths[j] = max(widths[j], len(column.strip()) + adjust)
 
@@ -243,10 +241,9 @@ def format_table(file: str, separator: str, headers: list[str], **kwargs: Any) -
 
             before = ""
             after = ""
-            if bold_regex or (bold_footer and tablelen - 1 == i):
-                if re.match(bold_regex, column) is not None:
-                    before = "**"
-                    after = "**"
+            if bold_regex or (bold_footer and tablelen - 1 == i) and re.match(bold_regex, column):
+                before = "**"
+                after = "**"
             if italics_regex and before == "" and not (bold_footer and tablelen - 1 == i):
                 print(f"{bold_footer=}\n{tablelen - 1=}\n{i=}")
                 if re.match(italics_regex, column) is not None:

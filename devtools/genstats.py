@@ -108,13 +108,12 @@ def main() -> None:
             continue
         file_stats[path] = abs(added - removed)
         # If this is a view, find the API
-        if path.startswith("views/"):
-            if len(path.split(".")) > 2:
-                api = ".".join(path.split(".")[1:-1])
-                if api not in api_stats:
-                    api_stats[api] = 1
-                else:
-                    api_stats[api] += 1
+        if path.startswith("views/") and len(path.split(".")) > 2:
+            api = ".".join(path.split(".")[1:-1])
+            if api not in api_stats:
+                api_stats[api] = 1
+            else:
+                api_stats[api] += 1
 
     # Finally we want the --name-status, to know what files are new
     # (new files are not notable changes)

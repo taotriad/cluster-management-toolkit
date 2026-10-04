@@ -1578,9 +1578,8 @@ def add_ssh_keys_to_authorized_keys() -> bool:
 
     # Since we run create_ssh_key() before this task we can safely assume that .ssh/ exists
     for path in Path(SSH_DIR).glob("*.pub"):
-        if (tmp := secure_read_string(FilePath(path))) is not None:
-            if not (pubkey := tmp.splitlines()[0]):
-                continue
+        if (tmp := secure_read_string(FilePath(path))) and not (pubkey := tmp.splitlines()[0]):
+            continue
 
         exists = False
 
@@ -4097,13 +4096,13 @@ def check_for_updates(options: list[tuple[str, str]], args: list[str]) -> None:
         "runc",
     ]
 
-    if os_distro == "suse":
-        if (kubernetes_upstream_version := get_latest_upstream_version("kubernetes")):
-            _upstream_major, upstream_minor, _rest = kubernetes_upstream_version.split(".")
+    if os_distro == "suse" \
+            and (kubernetes_upstream_version := get_latest_upstream_version("kubernetes")):
+        _upstream_major, upstream_minor, _rest = kubernetes_upstream_version.split(".")
 
-            for package in ("client", "kubeadm", "kubelet"):
-                for i in range(17, int(upstream_minor) + 1):
-                    pkg_packages.append(f"kubernetes1.{i}-{package}")
+        for package in ("client", "kubeadm", "kubelet"):
+            for i in range(17, int(upstream_minor) + 1):
+                pkg_packages.append(f"kubernetes1.{i}-{package}")
 
     pkg_packages = cast(list[str], natsorted(pkg_packages))
     version_checks: list = []

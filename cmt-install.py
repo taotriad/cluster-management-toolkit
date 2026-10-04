@@ -760,9 +760,11 @@ def install_software_with_pip_fallback(packages: dict, pip_proxy: str = "",
             if "distros" in deep_get(packages, DictPath(f"{_pkg[0]}"), {}) and \
                     distro not in deep_get(packages, DictPath(f"{_pkg[0]}#distros"), []):
                 continue
-            if distro not in deep_get(packages, DictPath(f"{_pkg[0]}#always-fallback-distros"), []):
-                if _pkg[0] in packages and _pkg[0] not in pkgs:
-                    pkgs[_pkg[0]] = packages[_pkg[0]]
+            always_fallback_packages = \
+                deep_get(packages, DictPath(f"{_pkg[0]}#always-fallback-distros"), [])
+            if distro not in always_fallback_packages \
+                    and _pkg[0] in packages and _pkg[0] not in pkgs:
+                pkgs[_pkg[0]] = packages[_pkg[0]]
 
         for pkg in packages:
             if pkg not in pkgs:
