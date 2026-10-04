@@ -572,7 +572,7 @@ def format_controller(controller: tuple[tuple[str, str], str], show_kind: str) -
         case "full":
             fmt_controller = ".".join(controller[0])
         case "mixed":
-            # Strip the API group for standard controllers,
+            # Strip the API-group for standard controllers,
             # but show for custom controllers
             if controller[0] in (("StatefulSet", "apps"), ("ReplicaSet", "apps"),
                                  ("DaemonSet", "apps"), ("Job", "batch"),

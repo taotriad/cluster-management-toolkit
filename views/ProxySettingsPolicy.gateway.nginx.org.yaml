@@ -149,7 +149,7 @@ infoview:
       widget_args:
         title: "Targets:"
         selectable: true
-        headers: ["Kind:", "API-Group:", "Name:"]
+        headers: ["Kind:", "API-group:", "Name:"]
         itemgetter: "get_list_fields"
         itemgetter_args:
           path: "spec#targetRefs"

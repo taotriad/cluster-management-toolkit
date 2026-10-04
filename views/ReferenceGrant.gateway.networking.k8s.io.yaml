@@ -66,7 +66,7 @@ infoview:
       widget_args:
         title: "Destinations:"
         selectable: true
-        headers: ["Kind:", "API-Group:", "Name:"]
+        headers: ["Kind:", "API-group:", "Name:"]
         itemgetter: "get_list_fields"
         itemgetter_args:
           path: "spec#to"

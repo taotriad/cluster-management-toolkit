@@ -47,7 +47,7 @@ infoview:
       widget_args:
         title: "Parents:"
         selectable: true
-        headers: ["Kind:", "API-Group:", "Name:", "Section:"]
+        headers: ["Kind:", "API-group:", "Name:", "Section:"]
         itemgetter: "get_list_fields"
         itemgetter_args:
           path: "spec#parentRefs"

@@ -96,7 +96,7 @@ infoview:
         sortcolumn: "api_group"
     fields:
       api_group:
-        header: "API-Group:"
+        header: "API-group:"
         path: "api_group"
         type: "str"
       resource:

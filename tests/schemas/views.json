@@ -1758,7 +1758,7 @@
                                                     "$ref": "#/$defs/path"
                                                 },
                                                 "api_version_path": {
-                                                    "description": "Path to get the API version of the object from, optionally with fallback(s)",
+                                                    "description": "Path to get the API-version of the object from, optionally with fallback(s)",
                                                     "$ref": "#/$defs/path"
                                                 },
                                                 "command": {
@@ -3349,7 +3349,7 @@
                                                     "$ref": "#/$defs/api_family"
                                                 },
                                                 "api_group_path": {
-                                                    "description": "Path to get the API group of the object from",
+                                                    "description": "Path to get the API-group of the object from",
                                                     "anyof": [
                                                         {
                                                             "$ref": "#/$defs/simple_path"
@@ -3361,7 +3361,7 @@
                                                     ]
                                                 },
                                                 "api_version_path": {
-                                                    "description": "Path to get the API version of the object from, optionally with fallback(s)",
+                                                    "description": "Path to get the API-version of the object from, optionally with fallback(s)",
                                                     "anyof": [
                                                         {
                                                             "$ref": "#/$defs/simple_path"
@@ -4033,7 +4033,7 @@
                                                                         "$ref": "#/$defs/path"
                                                                     },
                                                                     "api_version_path": {
-                                                                        "description": "Path to get the API version of the object from, optionally with fallback(s)",
+                                                                        "description": "Path to get the API-version of the object from, optionally with fallback(s)",
                                                                         "$ref": "#/$defs/path"
                                                                     },
                                                                     "field_paths": {
