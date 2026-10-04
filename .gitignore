@@ -47,6 +47,7 @@ views/Cluster.postgresql.cnpg.io.yaml
 views/ClusterConfigAuditReport.aquasecurity.github.io.yaml
 views/ClusterImagePolicy.config.openshift.io.yaml
 views/ClusterInfraAssessmentReport.aquasecurity.github.io.yaml
+views/ClusterInterceptor.triggers.tekton.dev.yaml
 views/ClusterIssuer.cert-manager.io.yaml
 views/ClusterNetwork.network.harvesterhci.io.yaml
 views/ClusterNetwork.network.openshift.io.yaml
@@ -131,6 +132,7 @@ views/Management.k0rdent.mirantis.com.yaml
 views/Metric.autoscaling.internal.knative.dev.yaml
 views/MiniCluster.flux-framework.org.yaml
 views/Model.mlops.seldon.io.yaml
+views/ModuleDocumentation.deckhouse.io.yaml
 views/ModuleRelease.deckhouse.io.yaml
 views/MutatingWebhookConfiguration.admissionregistration.k8s.io.yaml
 views/Namespace.yaml
@@ -211,6 +213,12 @@ views/Subscription.messaging.knative.dev.yaml
 views/Suggestion.kubeflow.org.yaml
 views/TFJob.kubeflow.org.yaml
 views/TdxQuoteGenerationService.trustedservices.intel.com.yaml
+views/TektonChain.operator.tekton.dev.yaml
+views/TektonConfig.operator.tekton.dev.yaml
+views/TektonInstallerSet.operator.tekton.dev.yaml
+views/TektonPipeline.operator.tekton.dev.yaml
+views/TektonResult.operator.tekton.dev.yaml
+views/TektonTrigger.operator.tekton.dev.yaml
 views/Telemetry.telemetry.istio.io.yaml
 views/TenantControlPlane.kamaji.clastix.io.yaml
 views/Topology.kai.scheduler.yaml

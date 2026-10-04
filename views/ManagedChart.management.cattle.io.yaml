@@ -156,7 +156,7 @@ infoview:
       widget: "windowwidget"
       widget_args:
         title: "Compare Patches:"
-        headers: ["Kind:", "API-Version:", "Name:", "JSON Pointers:"]
+        headers: ["Kind:", "API-version:", "Name:", "JSON Pointers:"]
         selectable: true
         itemgetter: "get_list_fields"
         itemgetter_args:

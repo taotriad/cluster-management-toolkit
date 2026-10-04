@@ -135,16 +135,6 @@ infoview:
                  "termination_grace_period", "enable_service_links",
                  "container_launch_priority", "conditions", "phase"]
     rows:
-      hostname:
-        header: [["Hostname:", ["main", "infoheader"]]]
-        paths:
-          - path: [["spec#hostname"], ["spec#subdomain"]]
-            pathtype: "tuple"
-            default: ["<none>"]
-        formatter: "list"
-        formatting:
-          field_separators:
-            - type: "ipv4address"
       conditions:
         header: [["Conditions:", ["main", "infoheader"]]]
         paths:
@@ -272,6 +262,16 @@ infoview:
         fallback_on_empty: true
         unique: true
         formatter: "address"
+      hostname:
+        header: [["Hostname:", ["main", "infoheader"]]]
+        paths:
+          - path: [["spec#hostname"], ["spec#subdomain"]]
+            pathtype: "tuple"
+            default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_separators:
+            - type: "ipv4address"
       node_label_selector:
         header: [["Node La", ["main", "infoheader"]],
                  ["b", ["main", "infoheader_shortcut"]],

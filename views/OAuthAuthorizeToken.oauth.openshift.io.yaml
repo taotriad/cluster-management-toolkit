@@ -65,6 +65,7 @@ infoview:
         header: [["Redirect URI:", ["main", "infoheader"]]]
         path: "redirectURI"
         type: "str"
+        formatter: "uri"
       scopes:
         header: [["Scopes:", ["main", "infoheader"]]]
         path: "scopes"
