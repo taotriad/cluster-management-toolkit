@@ -250,6 +250,15 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api_paths": ["apis/events.k8s.io/v1/"],
         "api": "events",
     },
+    # fileintegrity.openshift.io
+    ("FileIntegrity", "fileintegrity.openshift.io"): {
+        "api_paths": ["apis/fileintegrity.openshift.io/v1alpha1/"],
+        "api": "fileintegrities",
+    },
+    ("FileIntegrityNodeStatus", "fileintegrity.openshift.io"): {
+        "api_paths": ["apis/fileintegrity.openshift.io/v1alpha1/"],
+        "api": "fileintegritynodestatuses",
+    },
     # flowcontrol.apiserver.k8s.io
     ("FlowSchema", "flowcontrol.apiserver.k8s.io"): {
         "api_paths": ["apis/flowcontrol.apiserver.k8s.io/v1/",
@@ -1450,6 +1459,11 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api": "preflightvalidationsocp",
         "namespaced": False,
     },
+    # korrel8r.openshift.io
+    ("Korrel8r", "korrel8r.openshift.io"): {
+        "api_paths": ["apis/korrel8r.openshift.io/v1alpha1/"],
+        "api": "korrel8rs",
+    },
     # kueue.x-k8s.io
     ("AdmissionCheck", "kueue.x-k8s.io"): {
         "api_paths": ["apis/kueue.x-k8s.io/v1beta2/",
@@ -1843,6 +1857,19 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
     ("ApmServer", "apm.k8s.elastic.co"): {
         "api_paths": ["apis/apm.k8s.elastic.co/v1/"],
         "api": "apmservers",
+    },
+    # apps.3scale.net
+    ("APIManagerBackup", "apps.3scale.net"): {
+        "api_paths": ["apis/apps.3scale.net/v1alpha1/"],
+        "api": "apimanagerbackups",
+    },
+    ("APIManagerRestore", "apps.3scale.net"): {
+        "api_paths": ["apis/apps.3scale.net/v1alpha1/"],
+        "api": "apimanagerrestores",
+    },
+    ("APIManager", "apps.3scale.net"): {
+        "api_paths": ["apis/apps.3scale.net/v1alpha1/"],
+        "api": "apimanagers",
     },
     # apps.kubeedge.io
     ("EdgeApplication", "apps.kubeedge.io"): {
@@ -2272,6 +2299,43 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
     ("Image", "caching.internal.knative.dev"): {
         "api_paths": ["apis/caching.internal.knative.dev/v1alpha1/"],
         "api": "images",
+    },
+    # capabilities.3scale.net
+    ("Tenant", "capabilities.3scale.net"): {
+        "api_paths": ["apis/capabilities.3scale.net/v1alpha1/"],
+        "api": "tenants",
+    },
+    ("ActiveDoc", "capabilities.3scale.net"): {
+        "api_paths": ["apis/capabilities.3scale.net/v1beta1/"],
+        "api": "activedocs",
+    },
+    ("Backend", "capabilities.3scale.net"): {
+        "api_paths": ["apis/capabilities.3scale.net/v1beta1/"],
+        "api": "backends",
+    },
+    ("CustomPolicyDefinition", "capabilities.3scale.net"): {
+        "api_paths": ["apis/capabilities.3scale.net/v1beta1/"],
+        "api": "custompolicydefinitions",
+    },
+    ("DeveloperAccount", "capabilities.3scale.net"): {
+        "api_paths": ["apis/capabilities.3scale.net/v1beta1/"],
+        "api": "developeraccounts",
+    },
+    ("DeveloperUser", "capabilities.3scale.net"): {
+        "api_paths": ["apis/capabilities.3scale.net/v1beta1/"],
+        "api": "developerusers",
+    },
+    ("OpenAPI", "capabilities.3scale.net"): {
+        "api_paths": ["apis/capabilities.3scale.net/v1beta1/"],
+        "api": "openapis",
+    },
+    ("Product", "capabilities.3scale.net"): {
+        "api_paths": ["apis/capabilities.3scale.net/v1beta1/"],
+        "api": "products",
+    },
+    ("ProxyConfigPromote", "capabilities.3scale.net"): {
+        "api_paths": ["apis/capabilities.3scale.net/v1beta1/"],
+        "api": "proxyconfigpromotes",
     },
     # cassandra.datastax.com
     ("CassandraDatacenter", "cassandra.datastax.com"): {
@@ -5201,6 +5265,15 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api": "keplers",
         "namespaced": False,
     },
+    # kiali.io
+    ("Kiali", "kiali.io"): {
+        "api_paths": ["apis/kiali.io/v1alpha1/"],
+        "api": "kialis",
+    },
+    ("OSSMConsole", "kiali.io"): {
+        "api_paths": ["apis/kiali.io/v1alpha1/"],
+        "api": "ossmconsoles",
+    },
     # kibana.k8s.elastic.co
     ("Kibana", "kibana.k8s.elastic.co"): {
         "api_paths": ["apis/kibana.k8s.elastic.co/v1/"],
@@ -7454,6 +7527,77 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api": "whiskers",
         "namespaced": False,
     },
+    # operator.tekton.dev
+    ("ManualApprovalGate", "operator.tekton.dev"): {
+        "api_paths": ["apis/operator.tekton.dev/v1alpha1/"],
+        "api": "manualapprovalgates",
+        "namespaced": False,
+    },
+    ("OpenShiftPipelinesAsCode", "operator.tekton.dev"): {
+        "api_paths": ["apis/operator.tekton.dev/v1alpha1/"],
+        "api": "openshiftpipelinesascodes",
+        "namespaced": False,
+    },
+    ("SyncerService", "operator.tekton.dev"): {
+        "api_paths": ["apis/operator.tekton.dev/v1alpha1/"],
+        "api": "syncerservices",
+        "namespaced": False,
+    },
+    ("TektonAddon", "operator.tekton.dev"): {
+        "api_paths": ["apis/operator.tekton.dev/v1alpha1/"],
+        "api": "tektonaddons",
+        "namespaced": False,
+    },
+    ("TektonChain", "operator.tekton.dev"): {
+        "api_paths": ["apis/operator.tekton.dev/v1alpha1/"],
+        "api": "tektonchains",
+        "namespaced": False,
+    },
+    ("TektonConfig", "operator.tekton.dev"): {
+        "api_paths": ["apis/operator.tekton.dev/v1alpha1/"],
+        "api": "tektonconfigs",
+        "namespaced": False,
+    },
+    ("TektonDashboard", "operator.tekton.dev"): {
+        "api_paths": ["apis/operator.tekton.dev/v1alpha1/"],
+        "api": "tektondashboards",
+        "namespaced": False,
+    },
+    ("TektonInstallerSet", "operator.tekton.dev"): {
+        "api_paths": ["apis/operator.tekton.dev/v1alpha1/"],
+        "api": "tektoninstallersets",
+        "namespaced": False,
+    },
+    ("TektonMulticlusterProxyAAE", "operator.tekton.dev"): {
+        "api_paths": ["apis/operator.tekton.dev/v1alpha1/"],
+        "api": "tektonmulticlusterproxyaaes",
+        "namespaced": False,
+    },
+    ("TektonPipeline", "operator.tekton.dev"): {
+        "api_paths": ["apis/operator.tekton.dev/v1alpha1/"],
+        "api": "tektonpipelines",
+        "namespaced": False,
+    },
+    ("TektonPruner", "operator.tekton.dev"): {
+        "api_paths": ["apis/operator.tekton.dev/v1alpha1/"],
+        "api": "tektonpruners",
+        "namespaced": False,
+    },
+    ("TektonResult", "operator.tekton.dev"): {
+        "api_paths": ["apis/operator.tekton.dev/v1alpha1/"],
+        "api": "tektonresults",
+        "namespaced": False,
+    },
+    ("TektonScheduler", "operator.tekton.dev"): {
+        "api_paths": ["apis/operator.tekton.dev/v1alpha1/"],
+        "api": "tektonschedulers",
+        "namespaced": False,
+    },
+    ("TektonTrigger", "operator.tekton.dev"): {
+        "api_paths": ["apis/operator.tekton.dev/v1alpha1/"],
+        "api": "tektontriggers",
+        "namespaced": False,
+    },
     # operators.coreos.com
     ("CatalogSource", "operators.coreos.com"): {
         "api_paths": ["apis/operators.coreos.com/v1alpha1/"],
@@ -7504,6 +7648,20 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
     ("PackageManifest", "packages.operators.coreos.com"): {
         "api_paths": ["apis/packages.operators.coreos.com/v1/"],
         "api": "packagemanifests",
+    },
+    # paperclip.inc
+    ("Instance", "paperclip.inc"): {
+        "api_paths": ["apis/paperclip.inc/v1alpha1/"],
+        "api": "instances",
+    },
+    ("PaperclipClusterDefaults", "paperclip.inc"): {
+        "api_paths": ["apis/paperclip.inc/v1alpha1/"],
+        "api": "paperclipclusterdefaults",
+        "namespaced": False,
+    },
+    ("PaperclipSelfConfig", "paperclip.inc"): {
+        "api_paths": ["apis/paperclip.inc/v1alpha1/"],
+        "api": "paperclipselfconfigs",
     },
     # performance.openshift.io
     ("PerformanceProfile", "performance.openshift.io"): {
@@ -8647,23 +8805,31 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api": "pipelineresources",
     },
     ("PipelineRun", "tekton.dev"): {
-        "api_paths": ["apis/tekton.dev/v1beta1/"],
+        "api_paths": ["apis/tekton.dev/v1/",
+                      "apis/tekton.dev/v1beta1/"],
         "api": "pipelineruns",
     },
     ("Pipeline", "tekton.dev"): {
-        "api_paths": ["apis/tekton.dev/v1beta1/"],
+        "api_paths": ["apis/tekton.dev/v1/",
+                      "apis/tekton.dev/v1beta1/"],
         "api": "pipelines",
     },
     ("Run", "tekton.dev"): {
         "api_paths": ["apis/tekton.dev/v1alpha1/"],
         "api": "runs",
     },
-    ("TaskRun", "tekton.dev"): {
+    ("StepAction", "tekton.dev"): {
         "api_paths": ["apis/tekton.dev/v1beta1/"],
+        "api": "stepactions",
+    },
+    ("TaskRun", "tekton.dev"): {
+        "api_paths": ["apis/tekton.dev/v1/",
+                      "apis/tekton.dev/v1beta1/"],
         "api": "taskruns",
     },
     ("Task", "tekton.dev"): {
-        "api_paths": ["apis/tekton.dev/v1beta1/"],
+        "api_paths": ["apis/tekton.dev/v1/",
+                      "apis/tekton.dev/v1beta1/"],
         "api": "tasks",
     },
     ("VerificationPolicy", "tekton.dev"): {
