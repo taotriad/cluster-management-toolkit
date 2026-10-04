@@ -2221,7 +2221,7 @@ def list_api_resources(options: list[tuple[str, str]], args: list[str]) -> int:
     if header:
         name_header = "Name:"
         shortnames_header = "Shortnames:"
-        api_version_header = "API-Version:"
+        api_version_header = "API-version:"
         namespaced_header = "Namespaced:"
         kind_header = "Kind:"
         verbs_header = "Verbs:"

@@ -10342,7 +10342,7 @@ def populate_views(refresh_apis: str = "none") -> None:
                     "widget_args": {
                         "title": "Owner References:",
                         "selectable": True,
-                        "headers": ["Kind:", "API-Version:", "Name:", "Controller:"],
+                        "headers": ["Kind:", "API-version:", "Name:", "Controller:"],
                         "itemgetter": "get_list_fields",
                         "itemgetter_args": {
                             "path": "metadata#ownerReferences",
