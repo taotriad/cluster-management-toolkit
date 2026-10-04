@@ -779,11 +779,14 @@ def get_obj(obj: dict, field_dict: dict, field_names: list[str],
                         tmp = obj
                     else:
                         tmp = deep_get_with_fallback(obj, path, {})
+                    if reparent:
+                        if tmp:
+                            _values.append(([{reparent: tmp}], "raw"))
+                        else:
+                            _values.append((default, "raw"))
+                    else:
                         if not tmp and default:
                             tmp = default
-                    if reparent:
-                        _values.append(([{reparent: tmp}], "raw"))
-                    else:
                         _values.append(([tmp], "raw"))
                 elif ptype == "key_value":
                     value = []
