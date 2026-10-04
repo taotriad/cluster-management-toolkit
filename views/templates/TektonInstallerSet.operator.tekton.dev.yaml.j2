@@ -1,0 +1,80 @@
+---
+kind: "TektonInstallerSet"
+api_family: "operator.tekton.dev"
+default_command: "tektoninstallersets"
+listview:
+  name: "Tekton Installer Sets"
+  group: "CI/CD"
+  field_indexes:
+    Normal:
+      fields: ["name", "controller", "condition_ready", "age"]
+  fields:
+    {%- for line in field_condition_ready.split("\n") %}
+    {{ line }}
+    {%- endfor %}
+    {%- for line in field_controller.split("\n") %}
+    {{ line }}
+    {%- endfor %}
+infoview:
+  name: "Tekton Installer Set Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["controller",
+                 "condition_ready"]
+    rows:
+      {%- for line in row_condition_ready.split("\n") %}
+      {{ line }}
+      {%- endfor %}
+      {%- for line in row_controller.split("\n") %}
+      {{ line }}
+      {%- endfor %}
+  listpad:
+    listgetter: "listgetter_path"
+    listgetter_args:
+      path: "spec#manifests"
+    infogetter: "generic_infogetter"
+    on_activation:
+      call: "resourceinfodispatch"
+      kind: "__ResourceView"
+      formatter: "format_yaml"
+      title: "Manifest: "
+      title_path: "metadata#name"
+    field_indexes:
+      Normal:
+        fields: ["kind", "api_version", "namespace", "name"]
+        sortcolumn: "kind"
+    fields:
+      api_version:
+        header: "API-version:"
+        path: "apiVersion"
+        default: "<unset>"
+        type: "str"
+        formatting:
+          field_colors:
+            - type: "api_group"
+      kind:
+        header: "Kind:"
+        path: "kind"
+        default: "<unset>"
+        type: "str"
+        formatting:
+          field_colors:
+            - type: "kind"
+      name:
+        header: "Name:"
+        path: "metadata#name"
+        default: "<unset>"
+        type: "str"
+      namespace:
+        header: "Namespace:"
+        path: "metadata#namespace"
+        default: "<none>"
+        type: "str"
+        formatting:
+          field_colors:
+            - type: "namespace"
+  shortcuts:
+    {%- for line in shortcut_controller.split("\n") %}
+    {{ line }}
+    {%- endfor %}

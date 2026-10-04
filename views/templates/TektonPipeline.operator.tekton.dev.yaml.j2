@@ -1,0 +1,97 @@
+---
+kind: "TektonPipeline"
+api_family: "operator.tekton.dev"
+default_command: "tektonpipelines"
+listview:
+  name: "Tekton Pipelines"
+  group: "CI/CD"
+  field_indexes:
+    Normal:
+      fields: ["name", "controller", "version", "condition_ready", "age"]
+  fields:
+    {%- for line in field_condition_ready.split("\n") %}
+    {{ line }}
+    {%- endfor %}
+    {%- for line in field_controller.split("\n") %}
+    {{ line }}
+    {%- endfor %}
+    version:
+      header: "Version:"
+      path: "status#version"
+      default: "<unset>"
+      type: "str"
+      formatter: "version"
+infoview:
+  name: "Tekton Pipeline Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["controller", "target_namespace",
+                 "default_service_account",
+                 "performance_header", "performance_disable_ha",
+                 "coschedule", "disabled",
+                 "version", "condition_ready"]
+    rows:
+      {%- for line in row_condition_ready.split("\n") %}
+      {{ line }}
+      {%- endfor %}
+      {%- for line in row_controller.split("\n") %}
+      {{ line }}
+      {%- endfor %}
+      coschedule:
+        header: [["Coschedule:", ["main", "infoheader"]]]
+        path: "spec#coschedule"
+        default: "<unset>"
+        type: "str"
+      default_service_account:
+        header: [["Default Service Account:", ["main", "infoheader"]]]
+        path: "spec#default-service-account"
+        default: "<none>"
+        type: "str"
+      disabled:
+        header: [["Disabled:", ["main", "infoheader"]]]
+        path: "spec#disabled"
+        default: "<unset>"
+        type: "str"
+      performance_disable_ha:
+        header: [["  Disable HA:", ["main", "infoheader"]]]
+        path: "spec#performance#disable-ha"
+        default: "<unset>"
+        type: "bool"
+      performance_header:
+        header: [["Performance:", ["main", "infoheader"]]]
+      target_namespace:
+        header: [["T", ["main", "infoheader_shortcut"]],
+                 ["arget Namespace:", ["main", "infoheader"]]]
+        path: "spec#targetNamespace"
+        type: "str"
+        formatting:
+          field_colors:
+            - type: "namespace"
+      version:
+        header: [["Version:", ["main", "infoheader"]]]
+        path: "status#version"
+        default: "<unset>"
+        type: "str"
+        formatter: "version"
+  logpad:
+    infogetter: "logpad_formatted"
+    infogetter_args:
+      formatter: "format_yaml"
+      path: "spec"
+    timestamps: false
+  shortcuts:
+    {%- for line in shortcut_controller.split("\n") %}
+    {{ line }}
+    {%- endfor %}
+    "Open Target Namespace":
+      key: "t"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for target Namespace"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind: "Namespace"
+        name_path: "spec#targetNamespace"

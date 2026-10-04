@@ -1,0 +1,109 @@
+---
+kind: "TektonConfig"
+api_family: "operator.tekton.dev"
+default_command: "tektonconfigs"
+listview:
+  name: "Tekton Configs"
+  group: "CI/CD"
+  field_indexes:
+    Normal:
+      fields: ["name", "profile", "version", "condition_ready", "age"]
+  fields:
+    {%- for line in field_condition_ready.split("\n") %}
+    {{ line }}
+    {%- endfor %}
+    profile:
+      header: "Profile:"
+      path: "spec#profile"
+      default: "<unset>"
+      type: "str"
+    version:
+      header: "Version:"
+      path: "status#version"
+      default: "<unset>"
+      type: "str"
+      formatter: "version"
+infoview:
+  name: "Tekton Config Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["target_namespace", "profile",
+                 "tekton_installer_sets", "version", "condition_ready"]
+    rows:
+      {%- for line in row_condition_ready.split("\n") %}
+      {{ line }}
+      {%- endfor %}
+      profile:
+        header: [["Profile:", ["main", "infoheader"]]]
+        path: "spec#profile"
+        default: "<unset>"
+        type: "str"
+      target_namespace:
+        header: [["T", ["main", "infoheader_shortcut"]],
+                 ["arget Namespace:", ["main", "infoheader"]]]
+        path: "spec#targetNamespace"
+        type: "str"
+        formatting:
+          field_colors:
+            - type: "namespace"
+      tekton_installer_sets:
+        header: [["Tekton ", ["main", "infoheader"]],
+                 ["I", ["main", "infoheader_shortcut"]],
+                 ["nstaller Sets:", ["main", "infoheader"]]]
+        paths:
+          - path: ["status#tektonInstallerSets"]
+            pathtype: "key_value"
+            default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "key"
+            - type: "value"
+          field_separators:
+            - type: "selector"
+      version:
+        header: [["Version:", ["main", "infoheader"]]]
+        path: "status#version"
+        default: "<unset>"
+        type: "str"
+        formatter: "version"
+  logpad:
+    infogetter: "logpad_formatted"
+    infogetter_args:
+      formatter: "format_yaml"
+      path: "spec"
+    timestamps: false
+  shortcuts:
+    "Open Target Namespace":
+      key: "t"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for target Namespace"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind: "Namespace"
+        name_path: "spec#targetNamespace"
+    "Tekton Installer Sets":
+      key: "i"
+      modifier: "shift"
+      read_only: true
+      helptext: "List Tekton Installer Sets"
+      widget: "windowwidget"
+      widget_args:
+        title: "Tekton Installer Sets:"
+        selectable: true
+        headers: ["Key:", "Value:"]
+        itemgetter: "get_key_value"
+        itemgetter_args:
+          path: "status#tektonInstallerSets"
+        # Not supported for now
+        sortcolumn: "key"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        kind: "TektonInstallerSet"
+        api_family: "operator.tekton.dev"
+        name_path: 1

@@ -1,0 +1,118 @@
+---
+kind: "TektonResult"
+api_family: "operator.tekton.dev"
+default_command: "tektonresults"
+listview:
+  name: "Tekton Results"
+  group: "CI/CD"
+  field_indexes:
+    Normal:
+      fields: ["name", "controller", "version", "condition_ready", "age"]
+  fields:
+    {%- for line in field_condition_ready.split("\n") %}
+    {{ line }}
+    {%- endfor %}
+    {%- for line in field_controller.split("\n") %}
+    {{ line }}
+    {%- endfor %}
+    version:
+      header: "Version:"
+      path: "status#version"
+      default: "<unset>"
+      type: "str"
+      formatter: "version"
+infoview:
+  name: "Tekton Result Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["controller", "target_namespace",
+                 "is_external_db",
+                 "performance_header", "performance_disable_ha",
+                 "route_header", "route_enabled", "route_tls_termination",
+                 "disabled", "tekton_installer_set",
+                 "version", "condition_ready"]
+    rows:
+      {%- for line in row_condition_ready.split("\n") %}
+      {{ line }}
+      {%- endfor %}
+      {%- for line in row_controller.split("\n") %}
+      {{ line }}
+      {%- endfor %}
+      disabled:
+        header: [["Disabled:", ["main", "infoheader"]]]
+        path: "spec#disabled"
+        default: "<unset>"
+        type: "str"
+      is_external_db:
+        header: [["Is External Database:", ["main", "infoheader"]]]
+        path: "spec#is_external_db"
+        default: "<unset>"
+        type: "bool"
+      performance_disable_ha:
+        header: [["  Disable HA:", ["main", "infoheader"]]]
+        path: "spec#performance#disable-ha"
+        default: "<unset>"
+        type: "bool"
+      performance_header:
+        header: [["Performance:", ["main", "infoheader"]]]
+      route_enabled:
+        header: [["  Enabled:", ["main", "infoheader"]]]
+        path: "spec#route_enabled"
+        default: "<unset>"
+        type: "bool"
+      route_header:
+        header: [["Route:", ["main", "infoheader"]]]
+      route_tls_termination:
+        header: [["  TLS Termination:", ["main", "infoheader"]]]
+        path: "spec#route_tls_termination"
+        default: "<unset>"
+        type: "str"
+      target_namespace:
+        header: [["T", ["main", "infoheader_shortcut"]],
+                 ["arget Namespace:", ["main", "infoheader"]]]
+        path: "spec#targetNamespace"
+        type: "str"
+        formatting:
+          field_colors:
+            - type: "namespace"
+      tekton_installer_set:
+        header: [["Tekton ", ["main", "infoheader"]],
+                 ["I", ["main", "infoheader_shortcut"]],
+                 ["nstaller Set:", ["main", "infoheader"]]]
+        path: "status#tektonInstallerSet"
+        default: "<unset>"
+        type: "str"
+      version:
+        header: [["Version:", ["main", "infoheader"]]]
+        path: "status#version"
+        default: "<unset>"
+        type: "str"
+        formatter: "version"
+  shortcuts:
+    {%- for line in shortcut_controller.split("\n") %}
+    {{ line }}
+    {%- endfor %}
+    "Open Target Namespace":
+      key: "t"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for target Namespace"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind: "Namespace"
+        name_path: "spec#targetNamespace"
+    "Open Tekton Installer Set":
+      key: "i"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for Tekton Installer Set"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind: "TektonInstallerSet"
+        api_family: "operator.tekton.dev"
+        name_path: "status#tektonInstallerSet"

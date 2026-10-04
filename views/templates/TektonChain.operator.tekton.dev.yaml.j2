@@ -1,0 +1,147 @@
+---
+kind: "TektonChain"
+api_family: "operator.tekton.dev"
+default_command: "tektonchains"
+listview:
+  name: "Tekton Chains"
+  group: "CI/CD"
+  field_indexes:
+    Normal:
+      fields: ["name", "controller", "version", "condition_ready", "age"]
+  fields:
+    {%- for line in field_condition_ready.split("\n") %}
+    {{ line }}
+    {%- endfor %}
+    {%- for line in field_controller.split("\n") %}
+    {{ line }}
+    {%- endfor %}
+    version:
+      header: "Version:"
+      path: "status#version"
+      default: "<unset>"
+      type: "str"
+      formatter: "version"
+infoview:
+  name: "Tekton Chain Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["controller", "target_namespace",
+                 "artifacts_header",
+                 "artifacts_oci_header",
+                 "artifacts_oci_format",
+                 "artifacts_oci_storage",
+                 "artifacts_pipeline_run_header",
+                 "artifacts_pipeline_run_format",
+                 "artifacts_pipeline_run_storage",
+                 "artifacts_task_run_header",
+                 "artifacts_task_run_format",
+                 "artifacts_task_run_storage",
+                 "performance_header", "performance_disable_ha",
+                 "disabled", "tekton_installer_set",
+                 "version", "condition_ready"]
+    rows:
+      artifacts_header:
+        header: [["Artifacts:", ["main", "infoheader"]]]
+      artifacts_oci_header:
+        header: [["  OCI:", ["main", "infoheader"]]]
+      artifacts_oci_format:
+        header: [["    Format:", ["main", "infoheader"]]]
+        path: "spec#artifacts.oci.format"
+        default: "<unset>"
+        type: "str"
+      artifacts_oci_storage:
+        header: [["    Storage:", ["main", "infoheader"]]]
+        path: "spec#artifacts.oci.storage"
+        default: "<unset>"
+        type: "str"
+      artifacts_pipeline_run_header:
+        header: [["  Pipeline Run:", ["main", "infoheader"]]]
+      artifacts_pipeline_run_format:
+        header: [["    Format:", ["main", "infoheader"]]]
+        path: "spec#artifacts.pipelinerun.format"
+        default: "<unset>"
+        type: "str"
+      artifacts_pipeline_run_storage:
+        header: [["    Storage:", ["main", "infoheader"]]]
+        path: "spec#artifacts.oci.storage"
+        default: "<unset>"
+        type: "str"
+      artifacts_task_run_header:
+        header: [["  Task Run:", ["main", "infoheader"]]]
+      artifacts_task_run_format:
+        header: [["    Format:", ["main", "infoheader"]]]
+        path: "spec#artifacts.taskrun.format"
+        default: "<unset>"
+        type: "str"
+      artifacts_task_run_storage:
+        header: [["    Storage:", ["main", "infoheader"]]]
+        path: "spec#artifacts.taskrun.storage"
+        default: "<unset>"
+        type: "str"
+      {%- for line in row_condition_ready.split("\n") %}
+      {{ line }}
+      {%- endfor %}
+      {%- for line in row_controller.split("\n") %}
+      {{ line }}
+      {%- endfor %}
+      disabled:
+        header: [["Disabled:", ["main", "infoheader"]]]
+        path: "spec#disabled"
+        default: "<unset>"
+        type: "str"
+      performance_disable_ha:
+        header: [["  Disable HA:", ["main", "infoheader"]]]
+        path: "spec#performance#disable-ha"
+        default: "<unset>"
+        type: "bool"
+      performance_header:
+        header: [["Performance:", ["main", "infoheader"]]]
+      target_namespace:
+        header: [["T", ["main", "infoheader_shortcut"]],
+                 ["arget Namespace:", ["main", "infoheader"]]]
+        path: "spec#targetNamespace"
+        type: "str"
+        formatting:
+          field_colors:
+            - type: "namespace"
+      tekton_installer_set:
+        header: [["Tekton ", ["main", "infoheader"]],
+                 ["I", ["main", "infoheader_shortcut"]],
+                 ["nstaller Set:", ["main", "infoheader"]]]
+        path: "status#tektonInstallerSet"
+        default: "<unset>"
+        type: "str"
+      version:
+        header: [["Version:", ["main", "infoheader"]]]
+        path: "status#version"
+        default: "<unset>"
+        type: "str"
+        formatter: "version"
+  shortcuts:
+    {%- for line in shortcut_controller.split("\n") %}
+    {{ line }}
+    {%- endfor %}
+    "Open Target Namespace":
+      key: "t"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for target Namespace"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind: "Namespace"
+        name_path: "spec#targetNamespace"
+    "Open Tekton Installer Set":
+      key: "i"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for Tekton Installer Set"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind: "TektonInstallerSet"
+        api_family: "operator.tekton.dev"
+        name_path: "status#tektonInstallerSet"

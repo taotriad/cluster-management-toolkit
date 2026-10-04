@@ -10,19 +10,27 @@ listview:
   group: "CI/CD"
   field_indexes:
     Normal:
-      fields: ["name", "age"]
+      fields: ["name", "controller", "age"]
+  fields:
+    {%- for line in field_controller.split("\n") %}
+    {{ line }}
+    {%- endfor %}
 infoview:
   name: "Cluster Interceptor Info"
   infopad:
     row_indexes:
       Normal:
-        fields: ["address", "service_header", "service_reference",
+        fields: ["controller", "address", "service_header", "service_reference",
                  "service_path", "service_port"]
     rows:
       address:
         header: [["Address:", ["main", "infoheader"]]]
         path: "status#address#url"
         type: "str"
+        formatter: "uri"
+      {%- for line in row_controller.split("\n") %}
+      {{ line }}
+      {%- endfor %}
       service_header:
         header: [["S", ["main", "infoheader_shortcut"]],
                  ["ervice:", ["main", "infoheader"]]]
@@ -52,6 +60,9 @@ infoview:
           field_separators:
             - type: "namespace"
   shortcuts:
+    {%- for line in shortcut_controller.split("\n") %}
+    {{ line }}
+    {%- endfor %}
     "Service":
       key: "s"
       modifier: "shift"
@@ -65,7 +76,7 @@ infoview:
         name_path: "spec#clientConfig#service#name"
         namespace_path: "spec#clientConfig#service#namespace"
     "View serving certs":
-      key: "c"
+      key: "a"
       modifier: "shift"
       read_only: true
       helptext: "View CA bundle"

@@ -1,0 +1,82 @@
+---
+kind: "TektonTrigger"
+api_family: "operator.tekton.dev"
+default_command: "tektontriggers"
+listview:
+  name: "Tekton Triggers"
+  group: "CI/CD"
+  field_indexes:
+    Normal:
+      fields: ["name", "controller", "version", "condition_ready", "age"]
+  fields:
+    {%- for line in field_condition_ready.split("\n") %}
+    {{ line }}
+    {%- endfor %}
+    {%- for line in field_controller.split("\n") %}
+    {{ line }}
+    {%- endfor %}
+    version:
+      header: "Version:"
+      path: "status#version"
+      default: "<unset>"
+      type: "str"
+      formatter: "version"
+infoview:
+  name: "Tekton Trigger Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["controller", "target_namespace",
+                 "default_service_account", "enable_api_fields", "disabled",
+                 "version", "condition_ready"]
+    rows:
+      {%- for line in row_condition_ready.split("\n") %}
+      {{ line }}
+      {%- endfor %}
+      {%- for line in row_controller.split("\n") %}
+      {{ line }}
+      {%- endfor %}
+      default_service_account:
+        header: [["Default Service Account:", ["main", "infoheader"]]]
+        path: "spec#default-service-account"
+        default: "<none>"
+        type: "str"
+      disabled:
+        header: [["Disabled:", ["main", "infoheader"]]]
+        path: "spec#disabled"
+        default: "<unset>"
+        type: "str"
+      enable_api_fields:
+        header: [["Enable API Fields:", ["main", "infoheader"]]]
+        path: "spec#enable-api-fields"
+        default: "<unset>"
+        type: "str"
+      target_namespace:
+        header: [["T", ["main", "infoheader_shortcut"]],
+                 ["arget Namespace:", ["main", "infoheader"]]]
+        path: "spec#targetNamespace"
+        type: "str"
+        formatting:
+          field_colors:
+            - type: "namespace"
+      version:
+        header: [["Version:", ["main", "infoheader"]]]
+        path: "status#version"
+        default: "<unset>"
+        type: "str"
+        formatter: "version"
+  shortcuts:
+    {%- for line in shortcut_controller.split("\n") %}
+    {{ line }}
+    {%- endfor %}
+    "Open Target Namespace":
+      key: "t"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for target Namespace"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind: "Namespace"
+        name_path: "spec#targetNamespace"
