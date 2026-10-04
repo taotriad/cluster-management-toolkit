@@ -153,7 +153,7 @@ def validate_fqdn(fqdn: str, message_on_error: bool = False) -> HostNameStatus:
                  (stripped_fqdn, "hostname"),
                  (" contains NUL-bytes (replaced here).", "default")],
                 [("This is either a programming error, a system error, "
-                  "file or memory corruption, ", "default"),
+                  + "file or memory corruption, ", "default"),
                  ("or a deliberate attempt to bypass security; aborting.", "default")]]
         raise ArgumentValidationError(formatted_msg=emsg)
     if len(fqdn) > 253:

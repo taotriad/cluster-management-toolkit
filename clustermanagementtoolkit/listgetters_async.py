@@ -89,12 +89,12 @@ def get_kubernetes_list(*args: Any,
         vlist = natsorted(vlist,
                           key=lambda x: deep_get(x, DictPath(sort_key), ""), reverse=sort_reverse)
     if postprocess == "node":
-        vlist = infogetters.get_node_info(**{"vlist": vlist})
+        vlist = infogetters.get_node_info(vlist=vlist)
         extra_data = [deep_get(s, DictPath("status_group")) for s in vlist]
     elif postprocess == "pod":
-        vlist = infogetters.get_pod_info(**{"vlist": vlist,
-                                            "in_depth_node_status": False,
-                                            "kubernetes_helper": kh})
+        vlist = infogetters.get_pod_info(vlist=vlist,
+                                         in_depth_node_status=False,
+                                         kubernetes_helper=kh)
         extra_data = [deep_get(s, DictPath("status_group")) for s in vlist]
     elif callable(postprocessor) or postprocessor in listgetter_postprocessors:
         if not callable(postprocessor):
@@ -181,8 +181,8 @@ def get_context_list(**kwargs: Any) -> tuple[list[dict], list[str]]:
 
 # pylint: disable-next=too-many-branches
 def add_resource(key: str, units: dict[str, list[str]],
-                 resources: int | float | list[str],
-                 resource: int | float | str | None) -> int | float | list[str]:
+                 resources: float | list[str],
+                 resource: float | str | None) -> int | float | list[str]:
     """
     Add a resource to the node resource list.
 

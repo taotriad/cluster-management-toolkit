@@ -11,7 +11,7 @@ using the concurrent.futures ThreadPoolExecutor
 
 from collections.abc import Callable
 import concurrent.futures
-from datetime import datetime
+from datetime import datetime, UTC
 import threading
 from typing import Any
 
@@ -66,7 +66,7 @@ class ReExecutor:
                     "function": fn,
                     "args": args,
                     "kwargs": kwargs,
-                    "last_update": datetime.now(),
+                    "last_update": datetime.now(UTC),
                     "future": None,
                     "interval": interval,
                 }
@@ -124,10 +124,10 @@ class ReExecutor:
         status = []
 
         if key in self.futures:
-            update_timeout = (datetime.now() - self.futures[key]["last_update"]).seconds
+            update_timeout = (datetime.now(UTC) - self.futures[key]["last_update"]).seconds
             interval = self.futures[key]["interval"]
             if self.futures[key]["triggered"] and self.futures[key]["future"].done():
-                self.futures[key]["last_update"] = datetime.now()
+                self.futures[key]["last_update"] = datetime.now(UTC)
                 info, status = self.futures[key]["future"].result()
                 self.futures[key]["triggered"] = False
                 self.futures[key]["future"] = None

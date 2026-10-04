@@ -1,4 +1,3 @@
-#! /usr/bin/env python3
 # vim: ts=4 filetype=python expandtab shiftwidth=4 softtabstop=4 syntax=python
 # Requires: python3 (>= 3.11)
 #
@@ -350,8 +349,7 @@ class KubernetesResourceCache:
                 key = key.replace(".", "#")
                 label_selector_dict[f"metadata#labels#{key}"] = value
 
-            for uid, resource in deep_get(self.resource_cache[kind],
-                                          DictPath("resources"), {}).items():
+            for resource in deep_get(self.resource_cache[kind], DictPath("resources"), {}).values():
                 if deep_get(resource, DictPath("metadata#namespace"), "") != namespace:
                     continue
                 for key, value in field_selector_dict.items():
@@ -468,7 +466,7 @@ class PoolManagerContext:
 
         return self.pool_manager
 
-    def __exit__(self, *args: list, **kwargs: Any) -> None:
+    def __exit__(self, *args: object, **kwargs: Any) -> None:
         if self.pool_manager is not None:
             self.pool_manager.clear()
         self.pool_manager = None
@@ -515,10 +513,10 @@ def guess_kind(kind: str | tuple[str, str]) -> tuple[str, str]:
             TypeError: kind is not a str or (str, str) tuple
     """
     if not isinstance(kind, (str, tuple)):
-        raise TypeError(f"kind must be str or (str, str); got {repr(kind)}")
+        raise TypeError(f"kind must be str or (str, str); got {kind!r}")
     if isinstance(kind, tuple) \
             and not (len(kind) == 2 and isinstance(kind[0], str) and isinstance(kind[1], str)):
-        raise TypeError(f"kind must be str or (str, str); got {repr(kind)}")
+        raise TypeError(f"kind must be str or (str, str); got {kind!r}")
 
     if isinstance(kind, str):
         if "." in kind:
@@ -950,7 +948,7 @@ class KubernetesHelper:
     key_file: str | None = None
     token: str | None = None
 
-    pool_manager_args: dict = {}
+    pool_manager_args: dict | None = None
     pool_manager_proxy = ""
 
     programname = ""
@@ -1251,7 +1249,7 @@ class KubernetesHelper:
                     control_plane_ip, control_plane_path = host_path
                     control_plane_path = f"/{control_plane_path}"
                 else:
-                    control_plane_ip = host_port
+                    control_plane_ip = host_port[0]
 
             self.insecuretlsskipverify = \
                 deep_get(cluster, DictPath("cluster#insecure-skip-tls-verify"), False)
@@ -1344,7 +1342,7 @@ class KubernetesHelper:
         if not self.insecuretlsskipverify:
             ca_certs = str(ca_certs)
             # pylint: disable-next=consider-using-with
-            self.tmp_ca_certs_file = tempfile.NamedTemporaryFile()
+            self.tmp_ca_certs_file = tempfile.NamedTemporaryFile()  # noqa: SIM115
             self.ca_certs_file = self.tmp_ca_certs_file.name
             self.tmp_ca_certs_file.write(ca_certs.encode("utf-8"))
             self.tmp_ca_certs_file.flush()
@@ -1354,9 +1352,9 @@ class KubernetesHelper:
         # If we have a cert we also have a key, but check anyway, to make mypy happy
         if cert is not None and key is not None:
             # pylint: disable-next=consider-using-with
-            self.tmp_cert_file = tempfile.NamedTemporaryFile()
+            self.tmp_cert_file = tempfile.NamedTemporaryFile()  # noqa: SIM115
             # pylint: disable-next=consider-using-with
-            self.tmp_key_file = tempfile.NamedTemporaryFile()
+            self.tmp_key_file = tempfile.NamedTemporaryFile()  # noqa: SIM115
             self.cert_file = self.tmp_cert_file.name
             self.key_file = self.tmp_key_file.name
 
@@ -1987,7 +1985,7 @@ class KubernetesHelper:
                             for resource in deep_get(version, DictPath("resources"), []):
                                 name = deep_get(resource, DictPath("resource"), [])
                                 shortnames = deep_get(resource, DictPath("shortNames"), [])
-                                api_version = "/".join([api_group_name, _version])
+                                api_version = f"{api_group_name}/{_version}"
                                 namespaced = \
                                     deep_get(resource, DictPath("scope"), "") == "Namespaced"
                                 kind = deep_get(resource, DictPath("responseKind#kind"), "")
@@ -2108,7 +2106,7 @@ class KubernetesHelper:
                 return kubernetes_resources, 42422, False
 
             # Flush the entire API list
-            for _resource_kind, resource_data in kubernetes_resources.items():
+            for resource_data in kubernetes_resources.values():
                 resource_data["available"] = False
             unknown_kubernetes_resources = {}
 
@@ -2160,7 +2158,7 @@ class KubernetesHelper:
                     return kubernetes_resources, 42422, False
 
             # These are all API-groups we know of
-            _api_groups = set(api_group for kind, api_group in kubernetes_resources)
+            _api_groups = {api_group for kind, api_group in kubernetes_resources}
 
             # We successfully got aggregated data
             if deep_get(aggregated_data, DictPath("kind"), "") == "APIGroupDiscoveryList":

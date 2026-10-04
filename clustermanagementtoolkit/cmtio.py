@@ -508,7 +508,7 @@ def secure_write_string(path: FilePath, string: str | bytes, **kwargs: Any) -> N
                     f.write(string)
         except FileExistsError as e:
             if write_mode == "xb":
-                raise FilePathAuditError(f"Violated rules: {repr(SecurityStatus.EXISTS)}",
+                raise FilePathAuditError(f"Violated rules: {SecurityStatus.EXISTS!r}",
                                          path=path) from e
     else:
         # We have no default recourse if this write fails, so if the caller
@@ -523,7 +523,7 @@ def secure_write_string(path: FilePath, string: str | bytes, **kwargs: Any) -> N
                     f.write(string)
         except FileExistsError as e:
             if write_mode == "x":
-                raise FilePathAuditError(f"Violated rules: {repr(SecurityStatus.EXISTS)}",
+                raise FilePathAuditError(f"Violated rules: {SecurityStatus.EXISTS!r}",
                                          path=path) from e
 
 

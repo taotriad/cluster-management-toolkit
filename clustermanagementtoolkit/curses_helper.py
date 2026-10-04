@@ -1,4 +1,3 @@
-#! /usr/bin/env python3
 # vim: ts=4 filetype=python expandtab shiftwidth=4 softtabstop=4 syntax=python
 # Requires: python3 (>= 3.11)
 #
@@ -16,7 +15,7 @@ Curses-based User Interface helpers.
 import copy
 import curses
 import curses.textpad
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, UTC
 from enum import IntFlag
 import errno
 from operator import itemgetter
@@ -194,7 +193,7 @@ class ThemeStr:
         return len(self.string)
 
     def __repr__(self) -> str:
-        return f"ThemeStr('{self.string}', {repr(self.themeattr)}, {self.selected})"
+        return f"ThemeStr('{self.string}', {self.themeattr!r}, {self.selected})"
 
     def get_themeattr(self) -> ThemeAttr:
         """
@@ -223,7 +222,7 @@ class ThemeStr:
         """
         return self.selected
 
-    def __eq__(self, obj: Any) -> bool:
+    def __eq__(self, obj: object) -> bool:
         if not isinstance(obj, ThemeStr):
             return False
 
@@ -362,7 +361,7 @@ class ThemeRef:
         """
         return self.selected
 
-    def __eq__(self, obj: Any) -> bool:
+    def __eq__(self, obj: object) -> bool:
         if not isinstance(obj, ThemeRef):
             return False
 
@@ -480,7 +479,7 @@ class ThemeArray:
         self.array.append(item)
 
     # We need to use Union here since we have a forward declaration.
-    def __add__(self, array: Union["ThemeArray", list[Union[ThemeRef, ThemeStr]]]) -> "ThemeArray":
+    def __add__(self, array: Union["ThemeArray", list[Union[ThemeRef, ThemeStr]]]) -> "ThemeArray":  # noqa: UP007,E501
         if isinstance(array, ThemeArray):
             return ThemeArray(self.to_list() + array.to_list())
 
@@ -524,13 +523,13 @@ class ThemeArray:
         first = True
         for item in self.array:
             if first:
-                references += f"{repr(item)}"
+                references += f"{item!r}"
             else:
-                references += f", {repr(item)}"
+                references += f", {item!r}"
             first = False
         return f"ThemeArray([{references}])"
 
-    def __eq__(self, obj: Any) -> bool:
+    def __eq__(self, obj: object) -> bool:
         if not isinstance(obj, ThemeArray):
             return False
 
@@ -884,7 +883,7 @@ def read_theme(configthemefile: FilePath, defaultthemefile: FilePath) -> None:
         else:
             errmsg = [
                 [("Failed to load themefile; both the configthemefile "
-                  "and the defaultthemefile paths are empty", "error")],
+                  + "and the defaultthemefile paths are empty", "error")],
             ]
         unformatted_msg, formatted_msg = ANSIThemeStr.format_error_msg(errmsg)
         cmtlog.log(LogLevel.ERR, msg=unformatted_msg, messages=formatted_msg)
@@ -995,9 +994,9 @@ def dump_themearray(themearray: list[Any]) -> NoReturn:
     invalid = False
     for substr in themearray:
         if isinstance(substr, ThemeStr):
-            tmp += f"-    ThemeStr: {repr(substr)}; (len: {len(substr)})\n"
+            tmp += f"-    ThemeStr: {substr!r}; (len: {len(substr)})\n"
         elif isinstance(substr, ThemeRef):
-            tmp += f"-    ThemeRef: {repr(substr)} (“{str(substr)}“); (len: {len(substr)})\n"
+            tmp += f"-    ThemeRef: {substr!r} (“{substr!s}“); (len: {len(substr)})\n"
         elif isinstance(substr, tuple):
             tmp += f"-     tuple: {substr} [invalid]\n"
             invalid = True
@@ -1005,7 +1004,7 @@ def dump_themearray(themearray: list[Any]) -> NoReturn:
             tmp += f"-      list: {substr} [invalid]\n"
             invalid = True
         else:
-            tmp += f"- {type(substr)}: {repr(substr)} [invalid]\n"
+            tmp += f"- {type(substr)}: {substr!r} [invalid]\n"
             invalid = True
     if invalid:
         raise TypeError(f"themearray contains invalid substring(s):\n{tmp}")
@@ -1044,10 +1043,10 @@ def color_status_group(status_group: StatusGroup) -> ThemeAttr:
              (" (type: ", "default"),
              (f"{type(status_group)}", "argument"),
              (", expected: ", "default"),
-             (f"{repr(StatusGroup)}", "argument"),
+             (f"{StatusGroup!r}", "argument"),
              (")", "default")],
             [("Defaulting to: ", "default"),
-             (f"{repr(StatusGroup.UNKNOWN)}", "argument")],
+             (f"{StatusGroup.UNKNOWN!r}", "argument")],
         ]
         unformatted_msg, formatted_msg = ANSIThemeStr.format_error_msg(errmsg)
         cmtlog.log(LogLevel.ERR, msg=unformatted_msg, messages=formatted_msg)
@@ -1548,7 +1547,7 @@ def progressbar(win: curses.window | None, y: int, minx: int, maxx: int,
             [("progress = ", "default"),
              (f"{progress}", "argument")],
             [("That's impossible. No one can give more than 100%. "
-              "By definition, that is the most anyone can give.", "default")],
+              + "By definition, that is the most anyone can give.", "default")],
         ]
         unformatted_msg, formatted_msg = ANSIThemeStr.format_error_msg(errmsg)
         raise ProgrammingError(unformatted_msg,
@@ -1569,7 +1568,7 @@ def progressbar(win: curses.window | None, y: int, minx: int, maxx: int,
     # progress is in % of the total length
     solidblock = deep_get(theme, DictPath("boxdrawing#solidblock"))
     dimmedblock = deep_get(theme, DictPath("boxdrawing#dimmedblock"))
-    for x in range(0, width - 2):
+    for x in range(width - 2):
         try:
             if x < (width * progress) // 100:
                 addthemearray(win, [ThemeStr(solidblock, ThemeAttr("main", "progressbar"))],
@@ -2652,7 +2651,7 @@ def windowwidget(stdscr: curses.window, maxy: int, maxx: int, y: int, x: int,
             raise ValueError("Mismatch: Number of headers passed to windowwidget "
                              f"({len(headers)}) does not match number of columns ({columns})")
 
-        for i in range(0, columns):
+        for i in range(columns):
             lengths[i] = len(headers[i])
 
     tagprefix = str(ThemeRef("separators", "tag"))
@@ -2665,12 +2664,12 @@ def windowwidget(stdscr: curses.window, maxy: int, maxx: int, y: int, x: int,
 
     # Every item is a line
     for item in items:
-        for i in range(0, columns):
+        for i in range(columns):
             length = themearray_len(item["columns"][i])
             lengths[i] = max(lengths[i], length)
 
     listpadwidth = 0
-    for i in range(0, columns):
+    for i in range(columns):
         if i > 0:
             listpadwidth += padwidth
         listpadwidth += lengths[i]
@@ -2732,7 +2731,7 @@ def windowwidget(stdscr: curses.window, maxy: int, maxx: int, y: int, x: int,
     if headers is not None:
         if taggable:
             headerarray.append(ThemeStr(f"{tagprefix}", ThemeAttr("windowwidget", "highlight")))
-        for i in range(0, columns):
+        for i in range(columns):
             extrapad = padwidth
             if i == columns - 1:
                 extrapad = 0
@@ -2756,8 +2755,8 @@ def windowwidget(stdscr: curses.window, maxy: int, maxx: int, y: int, x: int,
     elif isinstance(preselection, set):
         ww_tagged_items = preselection.copy()
     else:
-        raise ValueError("is_taggable() == True, "
-                         f"but type(preselection) == {type(preselection)} (must be str or set())")
+        raise TypeError("is_taggable() == True, "
+                        f"but type(preselection) == {type(preselection)} (must be str or set())")
 
     uip = UIProps(stdscr)
 
@@ -3179,7 +3178,7 @@ class UIProps:
         self.last_timestamp_update: str | None = None
 
         self.idle_timeout: int = 5
-        self.last_action: datetime = datetime.now()
+        self.last_action: datetime = datetime.now(UTC)
 
         # Info to use for populating lists, etc.
         self.sorted_list: list[dict] = []
@@ -3398,7 +3397,7 @@ class UIProps:
         """
         self.update_delay = delay
         if delay > 0:
-            self.last_update = datetime.now()
+            self.last_update = datetime.now(UTC)
 
     def force_update(self) -> None:
         """
@@ -3429,7 +3428,7 @@ class UIProps:
         Reset the update delay.
         """
         if self.update_delay > 0:
-            self.last_update = datetime.now()
+            self.last_update = datetime.now(UTC)
 
     def is_update_triggered(self) -> bool:
         """
@@ -3447,7 +3446,7 @@ class UIProps:
         if self.last_update == cmtlib.none_timestamp() or self.update_delay == 0:
             return False
 
-        timediff = datetime.now() - self.last_update
+        timediff = datetime.now(UTC) - self.last_update
         duration = int(timediff.total_seconds())
 
         return duration >= self.update_delay
@@ -3470,14 +3469,14 @@ class UIProps:
             Returns:
                 (bool): True if idle, False if not idle
         """
-        return (datetime.now() - self.last_action).seconds > self.idle_timeout
+        return (datetime.now(UTC) - self.last_action).seconds > self.idle_timeout
 
     def force_idle(self) -> None:
         """
         Set last_action far enough back so that the system is considered idle;
         this should be done when doing a force reload.
         """
-        self.last_action = datetime.now() - timedelta(seconds=self.idle_timeout)
+        self.last_action = datetime.now(UTC) - timedelta(seconds=self.idle_timeout)
 
     def is_list_regenerated(self) -> bool:
         """
@@ -3679,8 +3678,9 @@ class UIProps:
         if xpos == -1:
             xpos = self.maxx
         if update == "true" or self.last_timestamp_update is None:
-            # Elsewhere we use now(UTC), but here we want the local timezone.
-            self.last_timestamp_update = f"{datetime.now():%Y-%m-%d %H:%M:%S}"
+            # Here we need to be sure to convert to local timezone,
+            # since we're outputting this to the UI.
+            self.last_timestamp_update = f"{datetime.now(UTC).astimezone():%Y-%m-%d %H:%M:%S}"
         urcorner = deep_get(theme, DictPath("boxdrawing#urcorner"))
 
         timestamparray: list[ThemeRef | ThemeStr] = []
@@ -4109,7 +4109,7 @@ class UIProps:
         if self.tspad and self.tspadxpos != self.logpadxpos:
             hline = deep_get(theme, DictPath("boxdrawing#hline"))
             if CursesConfiguration.borders:
-                for i in range(0, self.tspadwidth):
+                for i in range(self.tspadwidth):
                     self.addthemearray(self.stdscr,
                                        [ThemeStr(hline, ThemeAttr("main", "default"))],
                                        y=self.maxy - 2, x=1 + i)
@@ -4540,7 +4540,7 @@ class UIProps:
         end = self.match_index
         if end is None:
             end = self.yoffset
-        for y in reversed(range(0, end)):
+        for y in reversed(range(end)):
             if y in self.search_matches:
                 # We do not want to return the same match over and over...
                 if self.match_index is None or self.match_index != y:
@@ -4840,7 +4840,7 @@ class UIProps:
             return
 
         match = False
-        for y in reversed(range(0, pos)):
+        for y in reversed(range(pos)):
             tmp2 = deep_get(sorted_list[y], DictPath(self.sortcolumn))
             if self.sortkey1 in ("age", "seen"):
                 tmp2 = [cmtlib.seconds_to_age(tmp2)]
@@ -4972,12 +4972,9 @@ class UIProps:
         field = self.field_dict.get(self.sortcolumn)
 
         if field is None:
-            valid_fields = []
-            for f in self.field_dict:
-                valid_fields.append(f)
             raise ValueError(f"Invalid sortcolumn: {self.sortcolumn} does not exist "
                              "in field_dict:\n"
-                             f"    Valid fields are: {valid_fields}")
+                             f"    Valid fields are: {list(self.field_dict)}")
 
         sortkey1 = self.field_dict[self.sortcolumn]["sortkey1"]
         sortkey2 = self.field_dict[self.sortcolumn]["sortkey2"]
@@ -5244,7 +5241,7 @@ class UIProps:
             return Retval.NOMATCH
 
         # We got some type of keypress; postpone idle
-        self.last_action = datetime.now()
+        self.last_action = datetime.now(UTC)
 
         if c == curses.KEY_RESIZE:
             self.resize_window()

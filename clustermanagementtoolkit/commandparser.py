@@ -201,7 +201,7 @@ def __sub_usage(command: str) -> int:
     headerstring: list[ANSIThemeStr] = []
     command_found = False
 
-    for _key, value in commandline.items():
+    for value in commandline.values():
         if command in deep_get(value, DictPath("command"), {}):
             commandstring = deep_get(value, DictPath("command_alias"), command)
             headerstring = [ANSIThemeStr(f"{programname}", "programname"),
@@ -419,8 +419,7 @@ def __usage(options: list[tuple[str, str]], args: list[str]) -> int:
                 tmp.append(ANSIThemeStr(" ", "default"))
             elif output_format == "markdown":  # pragma: no branch
                 tmp.append(ANSIThemeStr(" _", "default"))
-            for part in values:
-                tmp.append(part)
+            tmp += list(values)
             if output_format == "markdown":
                 tmp.append(ANSIThemeStr("_", "default"))
 
@@ -477,8 +476,7 @@ def __usage(options: list[tuple[str, str]], args: list[str]) -> int:
                 if output_format == "markdown":
                     tmp2.append(ANSIThemeStr("_", "default"))
 
-                for part in values:
-                    tmp2.append(part)
+                tmp2 += list(values)
                 if output_format == "markdown":
                     tmp2.append(ANSIThemeStr("_", "default"))
             tlen = themearray_len(tmp2)
@@ -530,8 +528,7 @@ def __usage(options: list[tuple[str, str]], args: list[str]) -> int:
 
     if "extended_description" in commandline:
         output.append([ANSIThemeStr("", "default")])
-        for line in deep_get(commandline, DictPath("extended_description"), []):
-            output.append(line)
+        output += list(deep_get(commandline, DictPath("extended_description"), []))
 
     # Post-processing filtering
     for line in output:

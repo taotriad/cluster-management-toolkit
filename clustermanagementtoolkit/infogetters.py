@@ -12,7 +12,7 @@ Get information
 
 import base64
 from collections.abc import Callable, Sequence
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, UTC
 import json
 import os
 import re
@@ -208,7 +208,7 @@ def process_value(value: Any, vtype: str | list, **kwargs: Any) -> \
         else:
             new_value = str(len(cast(str | Sequence, value)))
     elif vtype == "unix_timestamp":
-        new_value = datetime.fromtimestamp(value)
+        new_value = datetime.fromtimestamp(value, tz=UTC)
     elif vtype == "timestamp":
         new_value = __process_timestamp(value, action, formatter)
     elif isinstance(vtype, list):
@@ -583,8 +583,8 @@ def format_controller(controller: tuple[tuple[str, str], str], show_kind: str) -
         case _:
             raise ValueError(f"unknown value passed to show_kind: {show_kind}")
 
-    if fmt_controller.endswith("."):
-        fmt_controller = fmt_controller[:-1]
+    fmt_controller = fmt_controller.removesuffix(".")
+
     return (fmt_controller, pod)
 
 
@@ -1009,7 +1009,7 @@ def get_obj(obj: dict, field_dict: dict, field_names: list[str],
                     if isinstance(tmp, list):
                         for _tmp in tmp:
                             if isinstance(_tmp, bool):
-                                _tmp = f"__{str(_tmp)}"
+                                _tmp = f"__{_tmp!s}"
 
                             if _tmp in substitutions:
                                 value.append(substitutions.get(_tmp))
@@ -1448,15 +1448,15 @@ def get_obj(obj: dict, field_dict: dict, field_names: list[str],
 
     # We've got all the information we can get now; time to apply filters
     skip = False
-    for f in filters:
-        if not deep_get(filters[f], DictPath("enabled"), True):
+    for f_filter in filters.values():
+        if not deep_get(f_filter, DictPath("enabled"), True):
             continue
 
         # If len(allow) > 0, we only allow fields that match
-        allow = deep_get(filters[f], DictPath("allow"), [])
+        allow = deep_get(f_filter, DictPath("allow"), [])
         # If len(block) > 0, we skip fields that match
-        block = deep_get(filters[f], DictPath("block"), [])
-        source = deep_get(filters[f], DictPath("source"), "")
+        block = deep_get(f_filter, DictPath("block"), [])
+        source = deep_get(f_filter, DictPath("source"), "")
         if source == "object":
             src = obj
         else:
@@ -1755,8 +1755,8 @@ def get_node_addresses(addresses: list[dict]) -> tuple[str, list[str], list[str]
                     [("A host was encountered with multiple hostnames; ", "default"),
                      (f"{about.UI_PROGRAM_NAME}", "programname"),
                      (" currently only supports single hostnames.", "default")],
-                    [("Please file a bugreport and include a YAML or JSON-dump "
-                      "for the node ", "default"),
+                    [("Please file a bugreport and include a YAML or JSON-dump for the node ",
+                      "default"),
                      (f"{new_name}", "hostname"),
                      (".", "default")],
                 ]
@@ -2476,7 +2476,7 @@ def get_traceflow(obj: dict, **kwargs: Any) -> \
                                                   ThemeRef("separators", "facility_padding")])
         tmp_timestamp = deep_get(result, DictPath("timestamp"), -1)
         if tmp_timestamp >= 0:
-            saved_timestamp = datetime.fromtimestamp(tmp_timestamp)
+            saved_timestamp = datetime.fromtimestamp(tmp_timestamp, tz=UTC)
         else:
             saved_timestamp = none_timestamp()
         message: list[ThemeRef | ThemeStr] = []
@@ -2536,7 +2536,8 @@ def get_journalctl_log(obj: dict, **kwargs: Any) -> \
             d = {}
 
         timestamp = \
-            datetime.fromtimestamp(int(deep_get(d, DictPath("__REALTIME_TIMESTAMP")), 0) / 1000000)
+            datetime.fromtimestamp(int(deep_get(d, DictPath("__REALTIME_TIMESTAMP")), 0) / 1000000,
+                                   tz=UTC)
         severity = LogLevel.DEFAULT
         facility = None
         remnants = None
@@ -2955,7 +2956,8 @@ def get_log_info(**kwargs: Any) -> list[dict]:
             hostname = deep_get(d, DictPath("_HOSTNAME"), "<unknown>")
             split_response[0]["host"] = hostname
             created_at = \
-                datetime.fromtimestamp(int(deep_get(d, DictPath("__REALTIME_TIMESTAMP"))) / 1000000)
+                datetime.fromtimestamp(int(deep_get(d, DictPath("__REALTIME_TIMESTAMP"))) / 1000000,
+                                       tz=UTC)
             split_response[0]["created_at"] = created_at
 
             info.append({

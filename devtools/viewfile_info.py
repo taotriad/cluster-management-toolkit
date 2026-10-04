@@ -104,7 +104,7 @@ def generate_statistics(file: str, parser_rules: list[dict[str, Any]]) -> None:
                 rule_statistics["listview"]["infogetter"][tmp] = []
             rule_statistics["listview"]["infogetter"][tmp].append(file)
         if (tmp := deep_get(parser_rules, "listview#shortcuts", {})):
-            for _key, d in tmp.items():
+            for d in tmp.values():
                 if not d:
                     continue
                 if (tmp2 := deep_get(d, "action")):
@@ -144,7 +144,7 @@ def generate_statistics(file: str, parser_rules: list[dict[str, Any]]) -> None:
                 rule_statistics["infoview"]["logpad"]["formatter"][tmp].append(file)
 
         if (tmp := deep_get(parser_rules, "infoview#shortcuts", {})):
-            for _key, d in tmp.items():
+            for d in tmp.values():
                 if not d:
                     continue
                 if (action := deep_get(d, "action")):

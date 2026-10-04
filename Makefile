@@ -101,8 +101,15 @@ FLAKE8_IGNORE := F841,W503,F824,E126,E127,H301,H404,H405
 # Used by ruff to check for future and/or deprecated features
 RUFF_PYTHON_VERSION := py311
 
-# Ignore warning about import block sorting
+# Ignore warning about import block sorting.
 RUFF_IGNORE := I001,RUF100
+# Disabled for the time being; we should re-enable these later.
+# SIM102: Use a single `if` statement instead of nested `if` statements
+# SIM114: [*] Combine `if` branches using logical `or` operator
+# PLW0602: Using global for `LogparserConfiguration` but no assignment is done
+# RUF012: Mutable default value for class attribute
+# PYI063: Use PEP 570 syntax for positional-only parameters
+# RUFF_IGNORE := $(RUFF_IGNORE),SIM102,SIM114,PLW0602,RUF012,PYI063
 
 # Used by pylint to check for future and/or deprecated features
 PYLINT_PYTHON_VERSION := 3.11

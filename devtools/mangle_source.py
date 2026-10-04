@@ -16,8 +16,7 @@ import sys
 hack = [
     "#! /bin/sh",
 
-    "# vim: ts=4 filetype=python expandtab "
-    "shiftwidth=4 softtabstop=4 syntax=python",
+    "# vim: ts=4 filetype=python expandtab shiftwidth=4 softtabstop=4 syntax=python",
 
     "''''eval version=$( ls /usr/bin/python3.* | \\",
 
@@ -25,8 +24,7 @@ hack = [
 
     "    version=${version##/usr/bin/python3.} && [ ${version} ] && \\",
 
-    "    [ ${version} -ge 9 ] && exec /usr/bin/python3.${version} "
-    "\"$0\" \"$@\" || \\",
+    "    [ ${version} -ge 9 ] && exec /usr/bin/python3.${version} \"$0\" \"$@\" || \\",
 
     "    exec /usr/bin/env python3 \"$0\" \"$@\"' #'''",
 

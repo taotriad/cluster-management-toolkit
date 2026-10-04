@@ -879,7 +879,7 @@ def timestamp_to_datetime(timestamp: str, default: datetime = none_timestamp()) 
                 "%Y-%m-%dT%H:%M:%S%z",
                 "%Y-%m-%d %H:%M:%S%z"):
         try:
-            return datetime.strptime(timestamp, fmt)
+            return datetime.strptime(timestamp, fmt)  # noqa: DTZ007
         except ValueError:
             pass
 

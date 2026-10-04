@@ -10,7 +10,7 @@ Ansible-related helpers
 
 # pylint: disable=too-many-lines
 
-from datetime import datetime
+from datetime import datetime, UTC
 import errno
 from pathlib import Path, PurePath
 import re
@@ -336,7 +336,7 @@ def ansible_get_inventory_pretty(**kwargs: Any) -> list[list[ANSIThemeStr] | str
     except ruyaml.constructor.DuplicateKeyError as e:
         if (re_tmp := re.match(r".*found duplicate key \"(.+?)\".*", str(e).replace("\n", "\\n"))):
             raise KeyError(f"duplicate key: {re_tmp[1]}") from e
-        raise e
+        raise
 
     # We want the entire inventory
     if not groups:
@@ -421,17 +421,12 @@ def ansible_get_hosts_by_group(inventory: FilePath, group: str) -> list[str]:
         Returns:
             ([str]): A list of hosts
     """
-    hosts = []
-
     if not Path(inventory).exists():
         return []
 
     d = secure_read_yaml(inventory)
 
-    for host in deep_get(d, DictPath(f"{group}#hosts"), []):
-        hosts.append(host)
-
-    return hosts
+    return list(deep_get(d, DictPath(f"{group}#hosts"), []))
 
 
 def ansible_get_groups(inventory: FilePath) -> list[str]:
@@ -1070,7 +1065,7 @@ def ansible_get_logs() -> list[tuple[str, str, FilePath, datetime]]:
         if (re_tmp := timestamp_regex.match(filename)) is None:
             # Skip files that cannot be interpreted as filenames
             continue
-        date = datetime.strptime(re_tmp[1], "%Y-%m-%d_%H:%M:%S.%f")
+        date = datetime.strptime(re_tmp[1], "%Y-%m-%d_%H:%M:%S.%f").replace(tzinfo=UTC)
         name = re_tmp[2]
         logs.append((filename, name, FilePath(path), date))
     return logs
@@ -1493,10 +1488,10 @@ def ansible_print_play_results(retval: int, ansible_results: dict, **kwargs: Any
         ansithemeprint([ANSIThemeStr("Failed to execute playbook; retval: ", "error"),
                         ANSIThemeStr(f"{retval}", "errorvalue")], stderr=True)
     else:
-        for host in ansible_results:
+        for host, data in ansible_results.items():
             count_total += 1
 
-            plays = ansible_results[host]
+            plays = data
             header_output = False
 
             for play in plays:
@@ -1622,7 +1617,7 @@ def ansible_run_playbook(playbook: FilePath, **kwargs: Any) -> tuple[int, dict]:
     else:
         inventories = inventory
 
-    start_date = datetime.now()
+    start_date = datetime.now(UTC)
 
     event_handler = None
     if verbose:

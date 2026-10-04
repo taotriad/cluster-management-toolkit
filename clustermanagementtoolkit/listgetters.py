@@ -14,7 +14,7 @@ from collections.abc import Callable
 import concurrent.futures
 import copy
 import csv
-from datetime import datetime
+from datetime import datetime, UTC
 from itertools import zip_longest
 import json
 from operator import itemgetter
@@ -76,9 +76,7 @@ def check_matchlists(item: str,
     for in_ in ins:
         if in_ in item:
             return True
-    if prefixes and item.startswith(prefixes) or suffixes and item.endswith(suffixes):
-        return True
-    return False
+    return prefixes and item.startswith(prefixes) or suffixes and item.endswith(suffixes)
 
 
 # Takes an unprocessed matchlist, splits it into individual matchlists, and checks for matches
@@ -168,14 +166,14 @@ def filter_list_entry(obj: dict[str, Any], caller_obj: dict[str, Any], filters: 
     skip: bool = False
 
     # pylint: disable-next=too-many-nested-blocks
-    for f in filters:
-        if not deep_get(filters[f], DictPath("enabled"), True):
+    for f_filter in filters.values():
+        if not deep_get(f_filter, DictPath("enabled"), True):
             continue
 
         # If len(allow) > 0, we only allow fields that match
-        allow = deep_get(filters[f], DictPath("allow"), [])
+        allow = deep_get(f_filter, DictPath("allow"), [])
         # If len(block) > 0, we skip fields that match
-        block = deep_get(filters[f], DictPath("block"), [])
+        block = deep_get(f_filter, DictPath("block"), [])
         if allow:
             # If all field + value pairs match we allow
             for rule in allow:
@@ -668,8 +666,8 @@ def listgetter_dir(**kwargs: Any) -> tuple[list[dict[str, Any]], int]:
             filepath: FilePath = FilePath(dirpath).joinpath(filename)
             filepath_entry: Path = Path(filepath)
             fstat: os.stat_result = filepath_entry.stat()
-            mtime: datetime = datetime.fromtimestamp(fstat.st_mtime)
-            ctime: datetime = datetime.fromtimestamp(fstat.st_ctime)
+            mtime: datetime = datetime.fromtimestamp(fstat.st_mtime, tz=UTC)
+            ctime: datetime = datetime.fromtimestamp(fstat.st_ctime, tz=UTC)
             filesize: str = disksize_to_human(fstat.st_size)
 
             vlist.append({
@@ -1111,7 +1109,7 @@ def get_pod_resource_list(obj: dict[str, Any], **kwargs: Any) -> tuple[list[dict
 
     # OK, we have the controller kind (and thus trivy_selector);
     # time to fire off the requests for lists.
-    for resource, kwargs in (
+    for resource, r_kwargs in (
             ("event", {
                 "kind": ("Event", ""),
                 "namespace": pod_namespace,
@@ -1152,12 +1150,12 @@ def get_pod_resource_list(obj: dict[str, Any], **kwargs: Any) -> tuple[list[dict
             ("resourceclaim", {
                 "kind": ("ResourceClaim", "resource.k8s.io"),
                 "namespace": pod_namespace})):
-        kind = deep_get(kwargs, DictPath("kind"))
-        if "kubernetes_helper" not in kwargs:
-            kwargs["kubernetes_helper"] = kh
-            kwargs["kh_cache"] = kh_cache
+        kind = deep_get(r_kwargs, DictPath("kind"))
+        if "kubernetes_helper" not in r_kwargs:
+            r_kwargs["kubernetes_helper"] = kh
+            r_kwargs["kh_cache"] = kh_cache
         if resource not in filter_resources and kh.is_kind_available(kind):
-            executors[kind] = executor_.submit(listgetters_async.get_kubernetes_list, **kwargs)
+            executors[kind] = executor_.submit(listgetters_async.get_kubernetes_list, **r_kwargs)
 
     if "persistent_volume_claim" not in filter_resources:
         for volume in deep_get(obj, DictPath("spec#volumes"), []):
@@ -1404,8 +1402,7 @@ def get_pod_resource_list(obj: dict[str, Any], **kwargs: Any) -> tuple[list[dict
                     "message": message,
                     "age": seen,
                 })
-            for event in natsorted(tmp_vlist, key=itemgetter("age")):
-                vlist.append(event)
+            vlist += list(natsorted(tmp_vlist, key=itemgetter("age")))
             continue
 
         if kind == ("PodDisruptionBudget", "policy"):

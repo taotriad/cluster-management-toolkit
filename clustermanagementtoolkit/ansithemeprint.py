@@ -131,7 +131,7 @@ class ANSIThemeStr:
         """
         return ANSIThemeStr(self.string.capitalize(), self.themeref)
 
-    def __eq__(self, themestring: Any) -> bool:
+    def __eq__(self, themestring: object) -> bool:
         """
         Compare two ANSIThemeStrs and return True if both string and formatting are identical
 

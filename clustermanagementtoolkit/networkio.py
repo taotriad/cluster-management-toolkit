@@ -8,7 +8,7 @@
 Network I/O helpers
 """
 
-from datetime import datetime
+from datetime import datetime, UTC
 import errno
 from getpass import getuser
 import hashlib
@@ -662,12 +662,12 @@ def update_version_cache(**kwargs: Any) -> None:
         interval = deep_get(data, DictPath("interval"), 60 * 60)
         version_last_updated = deep_get(last_update_data, DictPath(f"{key}#version"))
         if version_last_updated:
-            version_age = datetime.now() - version_last_updated
+            version_age = datetime.now(UTC) - version_last_updated
         else:
             version_age = None
         changelog_last_updated = deep_get(last_update_data, DictPath(f"{key}#changelog"))
         if changelog_last_updated:
-            changelog_age = datetime.now() - changelog_last_updated
+            changelog_age = datetime.now(UTC) - changelog_last_updated
         else:
             changelog_age = None
         tmp: str = deep_get(data, DictPath("candidate_version#function"), "")
@@ -694,7 +694,7 @@ def update_version_cache(**kwargs: Any) -> None:
                     candidate_versions[key]["release_date"] = "".join(release_date)
                     if key not in last_update_data:
                         last_update_data[key] = {}
-                    last_update_data[key]["version"] = datetime.now()
+                    last_update_data[key]["version"] = datetime.now(UTC)
                     secure_write_yaml(VERSION_CACHE_LAST_UPDATED_PATH,
                                       last_update_data, permissions=0o644)
             changed = True
@@ -762,7 +762,7 @@ def update_version_cache(**kwargs: Any) -> None:
                 continue
         if key not in last_update_data:
             last_update_data[key] = {}
-        last_update_data[key]["changelog"] = datetime.now()
+        last_update_data[key]["changelog"] = datetime.now(UTC)
         secure_write_yaml(VERSION_CACHE_LAST_UPDATED_PATH,
                           last_update_data, permissions=0o644)
 

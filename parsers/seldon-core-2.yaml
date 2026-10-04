@@ -1,3 +1,4 @@
+---
 - name: "seldon-core-2"
   show_in_selector: false
   matchkeys:

@@ -5,7 +5,7 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
-from datetime import datetime
+from datetime import datetime, UTC
 import faulthandler
 import sys
 import time
@@ -81,33 +81,38 @@ def main() -> None:
         time.sleep(1)
         if (result := executor.get("node")) != ([], []):
             nodeinfo, node_statuses = result
-            print(f"got nodeinfo: len: {len(nodeinfo)}; timestamp: {datetime.now().strftime('%S')}")
+            print(f"got nodeinfo: len: {len(nodeinfo)}; "
+                  f"timestamp: {datetime.now(UTC).astimezone().strftime('%S')}")
             fetches -= 1
         if (result := executor.get("pod")) != ([], []):
             podinfo, pod_statuses = result
-            print(f"got podinfo: len: {len(podinfo)}; timestamp: {datetime.now().strftime('%S')}")
+            print(f"got podinfo: len: {len(podinfo)}; "
+                  f"timestamp: {datetime.now(UTC).astimezone().strftime('%S')}")
             fetches -= 1
         if (result := executor.get("event")) != ([], []):
             events, _status = result
-            print(f"got events: len: {len(events)}; timestamp: {datetime.now().strftime('%S')}")
+            print(f"got events: len: {len(events)}; "
+                  f"timestamp: {datetime.now(UTC).astimezone().strftime('%S')}")
             fetches -= 1
         if (result := executor.get("namespace")) != ([], []):
             namespaces, _status = result
             print(f"got namespaces: len: {len(namespaces)}; "
-                  f"timestamp: {datetime.now().strftime('%S')}")
+                  f"timestamp: {datetime.now(UTC).astimezone().strftime('%S')}")
             fetches -= 1
         if (result := executor.get("secret")) != ([], []):
             secrets, _status = result
-            print(f"got secrets: len: {len(secrets)}; timestamp: {datetime.now().strftime('%S')}")
+            print(f"got secrets: len: {len(secrets)}; "
+                  f"timestamp: {datetime.now(UTC).astimezone().strftime('%S')}")
             fetches -= 1
         if (result := executor.get("configmap")) != ([], []):
             configmaps, _status = result
             print(f"got configmaps: len: {len(configmaps)}; "
-                  f"timestamp: {datetime.now().strftime('%S')}")
+                  f"timestamp: {datetime.now(UTC).astimezone().strftime('%S')}")
             fetches -= 1
         if (result := executor.get("service")) != ([], []):
             services, _status = result
-            print(f"got services: len: {len(services)}; timestamp: {datetime.now().strftime('%S')}")
+            print(f"got services: len: {len(services)}; "
+                  f"timestamp: {datetime.now(UTC).astimezone().strftime('%S')}")
             fetches -= 1
 
         if fetches < 0:

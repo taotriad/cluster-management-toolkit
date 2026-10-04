@@ -258,7 +258,8 @@ def format_table(file: str, separator: str, headers: list[str], **kwargs: Any) -
             # Just to make sure we don't add extra italics/bold.
             if before == "**" and after == "**" \
                     and column.startswith("**") and column.endswith("**"):
-                column = column.strip("**")
+                column = column.removeprefix("**")
+                column = column.removesuffix("**")
             elif before == "*" and after == "*" \
                     and column.startswith("*") and column.endswith("*"):
                 column = column.strip("*")

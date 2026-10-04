@@ -8,7 +8,7 @@
 # pylint: disable=too-many-lines,missing-function-docstring,line-too-long
 
 import builtins
-from datetime import datetime
+from datetime import datetime, UTC
 import importlib
 import re
 import sys
@@ -848,7 +848,7 @@ def test_split_iso_timestamp(verbose: bool = False) -> tuple[str, bool]:
         "2020/02/20 13:47:41",
     )
 
-    timestamp = datetime.now()
+    timestamp = datetime.now(UTC)
     fun = logparsers.split_iso_timestamp
 
     for indata in valid_indata:

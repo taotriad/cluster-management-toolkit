@@ -65,8 +65,7 @@ def fieldgetter_executable_version(**kwargs: Any) -> list[str]:
         if result:
             for line in result.splitlines():
                 if (tmp := re.match(version_regex, line)) is not None:
-                    for field in tmp.groups():
-                        version.append(field)
+                    version += list(tmp.groups())
                     break
         if version:
             break
@@ -137,8 +136,7 @@ def fieldgetter_kubernetes_object_version(**kwargs: Any) -> list[Any]:
     for obj in vlist:
         value = deep_get(obj, DictPath(path), "")
         if (tmp := re.match(version_regex, value)) is not None:
-            for field in tmp.groups():
-                version.append(field)
+            version += list(tmp.groups())
             break
     return ["".join(version)]
 

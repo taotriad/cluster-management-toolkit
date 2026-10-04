@@ -1145,7 +1145,7 @@ def get_pv_type(obj: dict) -> str | None:
         Returns:
             (str): The volume type
     """
-    for pv_type, _pv_data in KNOWN_PV_TYPES.items():
+    for pv_type in KNOWN_PV_TYPES:
         if pv_type in deep_get(obj, DictPath("spec"), {}):
             return pv_type
     return None

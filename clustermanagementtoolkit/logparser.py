@@ -2668,13 +2668,8 @@ def directory(message: str,
         _message += [
             ThemeStr(f"{name}", ThemeAttr("types", "dir_file"))
         ]
-    # block device
-    elif etype == "b":
-        _message += [
-            ThemeStr(f"{name}", ThemeAttr("types", "dir_dev"))
-        ]
-    # character device
-    elif etype == "c":
+    # block or character device
+    elif etype in ("b", "c"):
         _message += [
             ThemeStr(f"{name}", ThemeAttr("types", "dir_dev"))
         ]

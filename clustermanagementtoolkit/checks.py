@@ -15,13 +15,13 @@ This module requires init_ansithemeprint() to have been executed first.
 
 # pylint: disable=too-many-lines
 
-from collections.abc import Generator
+from collections.abc import Generator, Sequence
 import errno
 import os
 from pathlib import Path
 import re
 import sys
-from typing import Any, cast, Sequence, TypedDict
+from typing import Any, cast, TypedDict
 
 from clustermanagementtoolkit import about
 
@@ -915,7 +915,7 @@ required_pods: dict[str, list[PodListType]] = {
     "kube-controller-manager": [
         {
             "any_of": [("kube-system", "kube-controller-manager"),
-                       ("openshift-kube-controller-manager", "kube-controller-manager-crc")],
+                       ("openshift-kube-controller-manager", "kube-controller-managerd")],
         },
     ],
     # DaemonSet
@@ -1100,14 +1100,14 @@ def check_running_pods(**kwargs: Any) -> tuple[bool, int, int, int, int]:
                                 ANSIThemeStr(f"{rp}", "programname"),
                                 ANSIThemeStr(" is skipped for Kubernetes distro ", "default"),
                                 ANSIThemeStr(f"{k8s_distro}", "programname")])
-                continue
+                break
 
             any_of_matches, all_of_matches = get_pod_set(cast(list[dict], pods), any_of, all_of)
 
             if any_of_matches or all_of_matches:
                 matches.append((any_of_matches, all_of_matches))
 
-        if not matches:
+        if not matches and not skip:
             if any_of and not any_of_matches:
                 ansithemeprint([ANSIThemeStr("  ", "default"),
                                 ANSIThemeStr("Error", "error"),
@@ -1154,8 +1154,7 @@ def check_running_pods(**kwargs: Any) -> tuple[bool, int, int, int, int]:
 
             for any_of_matches, all_of_matches in matches:
                 all_pods += any_of_matches
-                for _key, value in all_of_matches.items():
-                    all_pods += value
+                all_pods += list(all_of_matches.values())
 
             first = True
 

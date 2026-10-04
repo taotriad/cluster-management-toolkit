@@ -4320,7 +4320,7 @@ def __get_configuration_data(configuration_file: FilePath, configuration_type: s
 
     if data is not None:
         # pylint: disable-next=consider-using-with
-        tf = tempfile.NamedTemporaryFile(suffix=".yaml.j2", delete=False)
+        tf = tempfile.NamedTemporaryFile(suffix=".yaml.j2", delete=False)  # noqa: SIM115
         path = FilePath(tf.name)
         secure_write_string(path, data, temporary=True)
 
@@ -5421,7 +5421,7 @@ def create_cluster(options: list[tuple[str, str]], args: list[str]) -> None:
                                 _result, _retval = execute_command_with_response(args, env=env)
                     if data is not None:
                         # pylint: disable-next=consider-using-with
-                        tf = tempfile.NamedTemporaryFile(delete=True)
+                        tf = tempfile.NamedTemporaryFile(delete=True)  # noqa: SIM115
                         path = FilePath(tf.name)
                         secure_write_string(path, data, temporary=True)
                         if verbose:
@@ -5550,7 +5550,7 @@ def merge_configurations(configuration_paths: list[FilePath]) -> FilePath:
 
     configurations = ""
     # pylint: disable-next=consider-using-with
-    tf = tempfile.NamedTemporaryFile(suffix=".yaml.j2", delete=False)
+    tf = tempfile.NamedTemporaryFile(suffix=".yaml.j2", delete=False)  # noqa: SIM115
 
     for path in configuration_paths:
         configuration = secure_read_string(path, checks=security_checks)

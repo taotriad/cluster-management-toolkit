@@ -1893,7 +1893,7 @@ def format_markdown_table(lines: list[list[ThemeRef | ThemeStr]]) -> list[list[T
         row = [themearray_strip(segment) for segment in row]
         for i, field in enumerate(row):
             try:
-                widths[i] = max(themearray_len(cast(list[ThemeRef | ThemeStr], row[i])), widths[i])
+                widths[i] = max(themearray_len(cast(list[ThemeRef | ThemeStr], field)), widths[i])
             except IndexError:
                 pass
 
@@ -2563,7 +2563,7 @@ class ThemeArrayFormatter(Formatter):
                      (" for substring starting with “", "default"),
                      (f'{tmpvalue2}', "argument"),
                      ("“ when formatting using lexer ", "default"),
-                     (f'{str(self.lexer)}', "argument")]
+                     (f'{self.lexer!s}', "argument")]
                 ]
                 unformatted_msg, formatted_msg = ANSIThemeStr.format_error_msg(errmsg)
                 cmtlog.log(LogLevel.ERR, msg=unformatted_msg, messages=formatted_msg)
@@ -3766,8 +3766,7 @@ def import_configmap_signatures() -> StatusGroup:
 
         cmdata_base64_overrides = deep_get(d, DictPath("base64_overrides"), [])
 
-        # The key is just the group for the type and can be safely ignored
-        for _key, entry in deep_get(d, DictPath("configmap_signatures"), {}).items():
+        for entry in deep_get(d, DictPath("configmap_signatures"), {}).values():
             format_name = deep_get(entry, DictPath("format_name"), "<unknown>")
             for signature in deep_get(entry, DictPath("signatures"), []):
                 # Namespace of the ConfigMap

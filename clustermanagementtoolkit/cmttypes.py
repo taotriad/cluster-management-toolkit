@@ -10,7 +10,7 @@ This file contains custom types used to define types used by CMT.
 
 # pylint: disable=too-many-lines
 
-from datetime import datetime
+from datetime import datetime, UTC
 from enum import auto, Enum, IntEnum
 from functools import reduce
 import os
@@ -196,7 +196,7 @@ class UnknownError(Exception):
         self.facility = facility
         self.formatted_msg = formatted_msg
         if timestamp is None:
-            self.timestamp = datetime.now()
+            self.timestamp = datetime.now(UTC)
         else:
             self.timestamp = timestamp
         if file is not None:
@@ -303,7 +303,7 @@ class ArgumentValidationError(Exception):
         self.facility = facility
         self.formatted_msg = formatted_msg
         if timestamp is None:
-            self.timestamp = datetime.now()
+            self.timestamp = datetime.now(UTC)
         else:
             self.timestamp = timestamp
         if file is not None:
@@ -411,7 +411,7 @@ class ProgrammingError(Exception):
         self.facility = facility
         self.formatted_msg = formatted_msg
         if timestamp is None:
-            self.timestamp = datetime.now()
+            self.timestamp = datetime.now(UTC)
         else:
             self.timestamp = timestamp
         if file is not None:
@@ -519,7 +519,7 @@ class FilePathAuditError(Exception):
         self.facility = facility
         self.formatted_msg = formatted_msg
         if timestamp is None:
-            self.timestamp = datetime.now()
+            self.timestamp = datetime.now(UTC)
         else:
             self.timestamp = timestamp
         if file is not None:
@@ -610,14 +610,14 @@ def validate_args(kwargs_spec: dict[str, Any], kwargs: Any) -> None:
             [("validate_arguments()", "emphasis"),
              (" called with invalid argument(s):", "error")],
             [("    __anyof", "argument"), (" is ", "default"), (f"{type(anyof)}", "argument"),
-             (" expected ", "default"), (f"{repr(tuple)}", "emphasis")],
+             (" expected ", "default"), (f"{tuple!r}", "emphasis")],
             [("    __allof", "argument"), (" is ", "default"), (f"{type(allof)}", "argument"),
-             (" expected ", "default"), (f"{repr(tuple)}", "emphasis")],
+             (" expected ", "default"), (f"{tuple!r}", "emphasis")],
             [("    kwargs_spec", "argument"), (" is ", "default"),
              (f"{type(kwargs_spec)}", "argument"),
-             (" expected ", "default"), (f"{repr(dict)}", "emphasis")],
+             (" expected ", "default"), (f"{dict!r}", "emphasis")],
             [("    kwargs", "argument"), (" is ", "default"), (f"{type(kwargs)}", "argument"),
-             (" expected ", "default"), (f"{repr(dict)}", "emphasis")],
+             (" expected ", "default"), (f"{dict!r}", "emphasis")],
         ]
 
         raise ArgumentValidationError(subexception=TypeError, formatted_msg=msg)
@@ -645,12 +645,12 @@ def validate_args(kwargs_spec: dict[str, Any], kwargs: Any) -> None:
                  (" is ", "default"),
                  (f"{type(expected_types)}", "argument"),
                  (" expected ", "default"),
-                 (f"{repr(tuple)}", "emphasis")],
+                 (f"{tuple!r}", "emphasis")],
                 [("    none", "argument"),
                  (" is ", "default"),
                  (f"{type(none_acceptable)}", "argument"),
                  (" expected ", "default"),
-                 (f"{repr(bool)}", "emphasis")],
+                 (f"{bool!r}", "emphasis")],
                 [("    range", "argument"),
                  (" is ", "default"),
                  (f"{type(min_max)}", "argument"),

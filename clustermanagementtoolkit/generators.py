@@ -378,7 +378,6 @@ def format_list(items: Any, fieldlen: int, pad: bool, **kwargs: Any) -> list[The
 
 # pylint: disable-next=too-many-locals,too-many-statements,too-many-branches
 def map_value(value: Any, selected: bool = False,
-              default_field_color: ThemeAttr = ThemeAttr("types", "generic"),
               **kwargs: Any) -> tuple[ThemeRef | ThemeStr, str]:
     """
     Perform value based mappings; either by doing numerical ranges,
@@ -396,6 +395,9 @@ def map_value(value: Any, selected: bool = False,
                 (ThemeArray): The formatted themearray
                 (str): The string-representation of the value
     """
+    default_field_color: ThemeAttr = \
+        deep_get(kwargs, DictPath("default_field_color"), ThemeAttr("types", "generic"))
+
     # If we lack a mapping, use the default color for this field
     if not deep_get(kwargs, DictPath("mapping"), {}):
         return ThemeStr(value, default_field_color, selected), value
@@ -1339,7 +1341,7 @@ def generator_list_with_status(obj: dict, field: str, fieldlen: int, pad: bool,
 
     for item, status in items:
         if status == StatusGroup.DONE:
-            newitems.append((item))
+            newitems.append((item,))
         if status == StatusGroup.OK:
             newitems.append(("", item))
         elif status == StatusGroup.PENDING:
@@ -1981,7 +1983,7 @@ def fieldgenerator(view: str | tuple[str, str], selected_namespace: str = "",
 
     # OK, we've pruned the denylisted fields; now we need to check
     # whether the sort column still applies, and if not try to pick
-    # another sortcolumn
+    # another sortcolumn.
     if not sortcolumn or sortcolumn not in field_names:
         if "name" in field_names:
             sortcolumn = "name"
@@ -2018,8 +2020,8 @@ def fieldgenerator(view: str | tuple[str, str], selected_namespace: str = "",
     tmp_fields = {}
 
     for field_name, field in field_dict.items():
-        # This is a custom field, so we need to construct one that's usable here
-        tmp_fields[field_name] = copy.deepcopy(field_dict[field_name])
+        # This is a custom field, so we need to construct one that's usable here.
+        tmp_fields[field_name] = copy.deepcopy(field)
 
         if (tmp_field := get_formatter(field)) is None:
             continue
@@ -2027,7 +2029,7 @@ def fieldgenerator(view: str | tuple[str, str], selected_namespace: str = "",
         for key, value in tmp_field.items():
             tmp_fields[field_name][key] = value
         tmp_fields[field_name]["sortkey1"] = field_name
-        # If sortkey1 == sortcolumn this "fails", but it is good enough
+        # If sortkey1 == sortcolumn this "fails", but it is good enough.
         tmp_fields[field_name]["sortkey2"] = sortcolumn
 
     return tmp_fields, field_names, sortcolumn, sortorder_reverse

@@ -8,7 +8,7 @@
 Structured log module for CMT.
 """
 
-from datetime import datetime
+from datetime import datetime, UTC
 import inspect
 import logging
 import logging.handlers
@@ -46,7 +46,7 @@ def log_array_to_string(msglist: list[str | list[ANSIThemeStr]]) -> str:
         logline = []
         for linesegment in line:
             linesegment = cast(ANSIThemeStr, linesegment)
-            logline.append(f'{{"string": "{str(linesegment)}", '
+            logline.append(f'{{"string": "{linesegment!s}", '
                            f'"themeref": "{linesegment.themeref}"}}')
         loglines.append(f'[{", ".join(logline)}]')
     return f'"themearray": [{", ".join(loglines)}]'
@@ -105,7 +105,7 @@ def __loglevel_to_logger(loglevel: LogLevel) -> Callable:
         return logger.error
     if loglevel == LogLevel.CRIT:
         return logger.critical
-    raise ValueError(f"Unsupported LogLevel: {repr(loglevel)}; "
+    raise ValueError(f"Unsupported LogLevel: {loglevel!r}; "
                      "supported LogLevels: {DEBUG|INFO|WARNING|ERR|CRIT}.")
 
 
@@ -137,7 +137,7 @@ def log(loglevel: LogLevel, **kwargs: Any) -> None:
         else:
             msg = messages[0]
     messages_joined = log_array_to_string(messages)
-    timestamp = f"{datetime.now().astimezone():%Y-%m-%d %H:%M:%S%z}"
+    timestamp = f"{datetime.now(UTC).astimezone():%Y-%m-%d %H:%M:%S%z}"
 
     frame = inspect.currentframe()
     file = str(frame.f_code.co_filename)    # type: ignore[union-attr]

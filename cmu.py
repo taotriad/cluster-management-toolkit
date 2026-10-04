@@ -971,7 +971,7 @@ def genericlistloop(stdscr: curses.window, **kwargs: Any) -> Retval:
     if "filters" in listview_args:
         infogetter_extra_args["_filters"] = deep_get(listview_args, DictPath("filters"))
 
-    uip.last_action = datetime.now()
+    uip.last_action = datetime.now(UTC)
     uip.idle_timeout = 5
     utf8_color_symbols: bool = \
         deep_get(cmtlib.cmtconfig, DictPath("Global#utf8_color_symbols"), False)
@@ -10061,7 +10061,7 @@ def populate_views(refresh_apis: str = "none") -> None:
                 if action == "call":
                     shortcuts[shortcut]["action_call"] = \
                         check_allowlist(action_call_allowlist, "action_call_allowlist",
-                                        deep_get(_shortcuts[shortcut], DictPath("action_call")),
+                                        deep_get(shortcut_data, DictPath("action_call")),
                                         allow_none=True)
 
             if shortcuts:

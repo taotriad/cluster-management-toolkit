@@ -418,7 +418,7 @@ def install_software_suse(packages: dict | set, verbose: bool = False) -> None:
         sys.exit(errno.ENOENT)
 
     if isinstance(packages, set):
-        packages = dict.fromkeys(packages, {})
+        packages = {k: {} for k in packages}
     args = [sudo_path, zypper_path, "-n", "install", "-y"] + list(packages)
 
     _retval = subprocess.run(args, check=False).returncode
@@ -500,7 +500,7 @@ def install_software_fedora(packages: dict | set, verbose: bool = False) -> None
                                      "default")], stderr=True)
 
     if isinstance(packages, set):
-        packages = dict.fromkeys(packages, {})
+        packages = {k: {} for k in packages}
     args = [sudo_path, yum_path, "-y", "install"] + list(packages)
 
     _retval = subprocess.run(args, check=False).returncode
