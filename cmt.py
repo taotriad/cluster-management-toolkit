@@ -564,11 +564,7 @@ def drain_nodes(options: Sequence[tuple[str, str | None]], args: list[str]) -> i
     drain_args = ["/usr/bin/kubectl", "drain"]
 
     for opt, _optarg in options:
-        if opt in "--delete-emptydir-data":
-            drain_args.append("--delete-emptydir-data")
-        elif opt == "--disable-eviction":
-            drain_args.append(opt)
-        elif opt == "--ignore-daemonsets":
+        if opt in ("--delete-emptydir-data", "--disable-eviction", "--ignore-daemonsets"):
             drain_args.append(opt)
         elif opt == "--include-control-planes":
             include_control_planes = True
