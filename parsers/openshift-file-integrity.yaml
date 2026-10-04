@@ -1,0 +1,8 @@
+---
+- name: "openshift-file-integrity"
+  show_in_selector: false
+  matchkeys:
+    - image_regex: '/compliance/openshift-file-integrity.*-operator'
+  parser_rules:
+    - name: "glog"
+    - name: "json"

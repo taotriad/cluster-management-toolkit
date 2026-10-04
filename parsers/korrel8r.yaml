@@ -1,0 +1,16 @@
+---
+- name: "korrel8r"
+  show_in_selector: false
+  matchkeys:
+    - image_name: "/korrel8r/operator"
+  parser_rules:
+    - name: "custom_splitter"
+      options:
+        # yamllint disable-line rule:line-length
+        regex: '\d{4}.\d\d.\d\d \d\d:\d\d:\d\d (.+?): (.*)'
+        facility:
+          fields:
+            - 1
+        message:
+          field: 2
+    - name: "key_value"

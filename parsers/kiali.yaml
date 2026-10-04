@@ -23,3 +23,9 @@
             - matchtype: "startswith"
               matchkey: "Kiali: Console version: "
               loglevel: "notice"
+- name: "kiali"
+  show_in_selector: false
+  matchkeys:
+    - image_regex: '.*openshift-service-mesh/kiali-.*-operator'
+  parser_rules:
+    - name: "json"
