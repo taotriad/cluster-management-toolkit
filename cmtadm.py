@@ -4589,7 +4589,15 @@ def create_cluster(options: list[tuple[str, str]], args: list[str]) -> None:
         SecurityChecks.PARENT_PERMISSIONS,
         SecurityChecks.IS_FILE,
     ]
-    cd = secure_read_yaml(cluster_deployment_file, checks=security_checks)
+    try:
+        cd = secure_read_yaml(cluster_deployment_file, checks=security_checks)
+    except (ruyaml.constructor.DuplicateKeyError, ruyaml.parser.ParserError):
+        ansithemeprint([ANSIThemeStr("Error", "error"),
+                        ANSIThemeStr(": ", "default"),
+                        ANSIThemeStr(f"{cluster_deployment_file}", "path"),
+                        ANSIThemeStr(" is not valid YAML; aborting.", "default")], stderr=True)
+        sys.exit(errno.ENOENT)
+
     cd_kind = deep_get(cd, DictPath("kind"), "")
     cd_api_version = deep_get(cd, DictPath("apiVersion"), "")
 

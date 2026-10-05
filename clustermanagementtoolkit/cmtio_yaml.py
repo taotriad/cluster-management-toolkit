@@ -245,6 +245,8 @@ def secure_read_yaml(path: FilePath, **kwargs: Any) -> dict | \
         _d2 = sryaml.load(string)
     except ruyaml.constructor.DuplicateKeyError as e:
         raise ruyaml.constructor.DuplicateKeyError(f"Duplicate keys in file: {path}") from e
+    except ruyaml.parser.ParserError as e:
+        raise ruyaml.parser.ParserError(f"Failed to parse file: {path}") from e
 
     # If nothing went wrong, we import the round-trip formatted data.
     tmp = ryaml.load(string)
