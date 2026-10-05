@@ -479,6 +479,7 @@ class ThemeArray:
         self.array.append(item)
 
     # We need to use Union here since we have a forward declaration.
+    # pylint: disable-next=line-too-long
     def __add__(self, array: Union["ThemeArray", list[Union[ThemeRef, ThemeStr]]]) -> "ThemeArray":  # noqa: UP007,E501
         if isinstance(array, ThemeArray):
             return ThemeArray(self.to_list() + array.to_list())

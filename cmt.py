@@ -2018,7 +2018,8 @@ def get_contexts(options: list[tuple[str, str]], args: list[str]) -> int:
                     ANSIThemeStr("".ljust(namespace_len - len(namespace_header) + 2), "default"),
                     ANSIThemeStr(server_header, "header")])
 
-    for i, current, name, cluster, authinfo, namespace, server in enumerate(contexts):
+    for i, context in enumerate(contexts):
+        current, name, cluster, authinfo, namespace, server = context
         if current:
             current_str = "✓"
         else:
@@ -2066,8 +2067,9 @@ def use_context(options: list[tuple[str, str]], args: list[str]) -> int:
 
     current_context = None
 
-    for i, current, name, _cluster, _authinfo, _namespace, _server in enumerate(contexts):
-        if context_index is not None and context_index == i:
+    for i, context in enumerate(contexts):
+        current, name, _cluster, _authinfo, _namespace, _server = context
+        if context_index == i:
             context_name = name
         if current is True:
             current_context = name

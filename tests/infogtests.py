@@ -5,7 +5,7 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
-from datetime import datetime
+from datetime import datetime, UTC
 from pathlib import PurePath
 import sys
 from typing import Any
@@ -70,8 +70,8 @@ def test_process_value(verbose: bool = False) -> tuple[str, bool]:
             (None, "len", {}, "0", None),
             ("foobar", "len", {}, "6", None),
             ([1, 2], "len", {}, "2", None),
-            (0, "unix_timestamp", {}, datetime.fromtimestamp(0), None),
-            ("1970-01-01 02:00:00", "timestamp", {},
+            (1, "unix_timestamp", {}, datetime.fromtimestamp(1, tz=UTC), None),
+            ("1970-01-01 02:00:00+00:00", "timestamp", {},
              datetime.strptime("1970-01-01 02:00:00+00:00", "%Y-%m-%d %H:%M:%S%z"), None),
             (-1, "timestamp", {},
              datetime.strptime("0001-01-02 00:00:00+00:00", "%Y-%m-%d %H:%M:%S%z"), None),

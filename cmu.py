@@ -1111,20 +1111,20 @@ def genericlistloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                     host = deep_get(item, DictPath(infogetter_extra_args["_match_key"]))
                     for result in deep_get(cast(dict[str, Any], ansible_results),
                                            DictPath(f"{host}"), []):
-                        if deep_get(result, DictPath("task")) == "Ping":
-                            if not deep_get(item, DictPath("__deleted"), False):
-                                status = deep_get(result, DictPath("status"))
-                                item["status"] = status
-                                ips = []
-                                if (ip := deep_get(result,
-                                                   DictPath("ansible_facts#"
-                                                            "ansible_default_ipv4#address"), "")):
-                                    ips.append(ip)
-                                if (ip := deep_get(result,
-                                                   DictPath("ansible_facts#"
-                                                            "ansible_default_ipv6#address"), "")):
-                                    ips.append(ip)
-                                item["ips"] = copy.deepcopy(ips)
+                        if deep_get(result, DictPath("task")) == "Ping" \
+                                and not deep_get(item, DictPath("__deleted"), False):
+                            status = deep_get(result, DictPath("status"))
+                            item["status"] = status
+                            ips = []
+                            if (ip := deep_get(result,
+                                               DictPath("ansible_facts#"
+                                                        "ansible_default_ipv4#address"), "")):
+                                ips.append(ip)
+                            if (ip := deep_get(result,
+                                               DictPath("ansible_facts#"
+                                                        "ansible_default_ipv6#address"), "")):
+                                ips.append(ip)
+                            item["ips"] = copy.deepcopy(ips)
                 _pings_args, pings_kwargs = executor.get_parameters("pings")
                 if set(async_data["hosts"]) != set(deep_get(pings_kwargs,
                                                             DictPath("selection"), [])):
@@ -1162,9 +1162,9 @@ def genericlistloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                 uip.update_timestamp(update=new_data)
                 first_fetch = False
 
-        if uip.is_idle() or uip.is_update_triggered():
+        if uip.is_idle() or uip.is_update_triggered():  # noqa: SIM102
             # We need to generate the list info even if the list is empty,
-            # otherwise we'll crash elsewhere
+            # otherwise we'll crash elsewhere.
             if not uip.listlen and first_fetch \
                     or new_data == "pending" and (uip.update_forced or not get_tagged_items()):
                 if "kubernetes_helper" not in infogetter_extra_args:
@@ -1556,10 +1556,9 @@ def genericlistloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                 try:
                     match_tmp = compiled_pattern.match(deep_get(listitem, DictPath("name")))
 
-                    if match_tmp and match_tmp[0]:
-                        if not in_tagged_items(listitem):
-                            tag_item(listitem)
-                            uip.list_needs_regeneration(True)
+                    if match_tmp and match_tmp[0] and not in_tagged_items(listitem):
+                        tag_item(listitem)
+                        uip.list_needs_regeneration(True)
                 except re.error:
                     continue
         elif c == ord("") and is_taggable:
@@ -4700,11 +4699,10 @@ def genericinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
             if "action" in sc_value:
                 selected = uip.get_selected()
                 action = deep_get(sc_value, DictPath("action"), "<missing>")
-                if action == "<missing>":
-                    # No action defined; unless we're forced to update
-                    # we don't.
-                    if force_update is None:
-                        continue
+                # No action defined; unless we're forced to update
+                # we don't.
+                if action == "<missing>" and force_update is None:
+                    continue
                 if action == "from_ref":
                     ref = tmpselection
                     action = deep_get(ref, DictPath("action"))
@@ -7137,11 +7135,11 @@ def resourceinfodispatch_with_lookup(**kwargs: Any) -> Retval:
             is_controller: bool = deep_get(ref, DictPath("controller"), False)
             if is_controller:
                 controller = (ref_kind, ref_name)
+            # pylint: disable-next=R0916
             elif kind is not None and kind == ref_kind \
                     or holder_identity is not None \
-                    or accept_only_owner and len(owner_references) == 1:
-                if non_controller is None:
-                    non_controller = (ref_kind, ref_name)
+                    or accept_only_owner and len(owner_references) == 1 and non_controller is None:
+                non_controller = (ref_kind, ref_name)
             if must_be_controller is not None and is_controller == must_be_controller:
                 if is_controller:
                     non_controller = None
@@ -7179,9 +7177,8 @@ def resourceinfodispatch_with_lookup(**kwargs: Any) -> Retval:
         if len(tmp) == 2:
             namespace, name = tmp
 
-    if name_regex:
-        if (tmp := re.match(name_regex, name)):
-            name = tmp[1]
+    if name_regex and (tmp := re.match(name_regex, name)):
+        name = tmp[1]
 
     if name is None or not name:
         return Retval.NOMATCH
@@ -8864,9 +8861,8 @@ def __populate_playbooklist(path: FilePath, action_list: dict) -> dict:
         queryfunc = deep_get(d[0], DictPath("vars#metadata#query#function"))
 
         # Sanity check
-        if queryfunc is not None:
-            if queryfunc not in ("int", "string", "yesno", "filechooser"):
-                raise ValueError(f"unknown queryfunc “{queryfunc}“ provided")
+        if queryfunc not in ("int", "string", "yesno", "filechooser"):
+            raise ValueError(f"unknown queryfunc “{queryfunc}“ provided")
 
         confirm = deep_get(d[0], DictPath("vars#metadata#confirm"), False)
         tmpallowoncontrolplane = deep_get(d[0], DictPath("vars#metadata#allow_on_control_plane"))
@@ -9104,12 +9100,11 @@ def format_selection_list(uip: UIProps, refresh_apis: str = "none") -> list[dict
             continue
         if hide_unavailable:
             kind = deep_get(viewref, DictPath("kind"), ("", ""))
-            if kind is not None and kind != ("", ""):
-                if not kind[0].startswith("__") \
-                        and (kind not in available_api_families
-                             or not deep_get(available_api_families[kind],
-                                             DictPath("available"), False)):
-                    continue
+            if kind is not None and kind != ("", "") and not kind[0].startswith("__") \
+                    and (kind not in available_api_families
+                         or not deep_get(available_api_families[kind],
+                                         DictPath("available"), False)):
+                continue
             check_availability = deep_get(viewref, DictPath("check_availability"), None)
             if check_availability is not None and not check_availability():
                 continue
@@ -9220,7 +9215,7 @@ def selectwindow(uip: UIProps, **kwargs: Any) -> Retval:
                                        preselection=defaultview, **extra_args)
         if tmpselection is not None:
             # pylint: disable-next=unidiomatic-typecheck
-            if type(tmpselection) == int and tmpselection < 0:  # noqa: E721
+            if type(tmpselection) == int and tmpselection < 0:  # noqa: E721,SIM102
                 if tmpselection == -curses.KEY_F6:
                     categorise = not categorise
                     deep_set(cmtlib.cmtconfig, DictPath("__Selector#categorise"),

@@ -1466,10 +1466,7 @@ class KubernetesHelper:
                         pod_matches += 1
                         continue
                     cni_version_tuple = cmtlib.versiontuple(cni_version)
-                    if image_version_tuple > cni_version_tuple:
-                        cni_version = image_version
-                        pod_matches += 1
-                    elif image_version != cni_version:
+                    if image_version_tuple > cni_version_tuple or image_version != cni_version:
                         cni_version = image_version
                         pod_matches += 1
 
@@ -1798,13 +1795,12 @@ class KubernetesHelper:
                                 break
                         if tmp_k8s_distro is not None:
                             break
-                if tmp_k8s_distro is None:
-                    # Older versions of Kubernetes do not have managedFields;
-                    # fall back to checking whether the annotation
-                    # kubeadm.alpha.kubernetes.io/cri-socket exists.
-                    if deep_get(node, DictPath("metadata#annotations#"
-                                               "kubeadm.alpha.kubernetes.io/cri-socket"), ""):
-                        tmp_k8s_distro = "kubeadm"
+                # Older versions of Kubernetes do not have managedFields;
+                # fall back to checking whether the annotation
+                # kubeadm.alpha.kubernetes.io/cri-socket exists.
+                if not tmp_k8s_distro and deep_get(node, DictPath("metadata#annotations#"
+                                                   "kubeadm.alpha.kubernetes.io/cri-socket"), ""):
+                    tmp_k8s_distro = "kubeadm"
                 if tmp_k8s_distro is not None:
                     if k8s_distro is not None:
                         if exit_on_failure:
@@ -1814,8 +1810,9 @@ class KubernetesHelper:
                 if k8s_distro:
                     break
             else:
-                # This isn't a control plane; but this might still be vcluster
-                if deep_get(labels, DictPath("vcluster.loft.sh/fake-node"), 'false') == "true":
+                # This isn't a control plane; but this might still be vcluster.
+                # pylint: disable-next=line-too-long
+                if deep_get(labels, DictPath("vcluster.loft.sh/fake-node"), "false") == "true":  # noqa: E501,SIM102
                     if k8s_distro is None and tmp_k8s_distro is None:
                         tmp_k8s_distro = "vcluster"
         if k8s_distro is None and tmp_k8s_distro is not None:
@@ -2913,7 +2910,7 @@ class KubernetesHelper:
             _old_effect = deep_get(taint, DictPath("effect"))
 
             # Do we want to *remove* the taint?
-            if new_effect is None:
+            if new_effect is None:  # noqa: SIM102
                 # If old_effect is None we remove taints matching this key or key=value
                 # If old_effect is not None we remove taints matching key=value:effect
                 # value is None: remove all taints for key
@@ -3205,11 +3202,11 @@ class KubernetesHelper:
 
         if deep_get(cmtlib.cmtconfig, DictPath("Debug#developer_mode")) \
                 and deep_get(cmtlib.cmtconfig, DictPath("Debug#use_testdata")):
-            if resource_cache:
-                if vlist := resource_cache.get_resources(kind, namespace=namespace,
-                                                         label_selector=label_selector,
-                                                         field_selector=field_selector):
-                    return vlist, 200
+            if resource_cache \
+                    and (vlist := resource_cache.get_resources(kind, namespace=namespace,
+                                                               label_selector=label_selector,
+                                                               field_selector=field_selector)):
+                return vlist, 200
 
             if not kind[1]:
                 joined_kind = kind[0]

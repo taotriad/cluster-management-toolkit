@@ -21,7 +21,7 @@ import json
 from pathlib import Path
 import re
 import sys
-from typing import Any, cast, TypedDict
+from typing import Any, cast, ClassVar, TypedDict
 try:
     import yaml
 except ModuleNotFoundError:  # pragma: no cover
@@ -2302,11 +2302,11 @@ class KnownHostsLexer(RegexLexer):
     """
     A Pygments lexer for SSH known_hosts files.
     """
-    name = "KnownHosts"
-    aliases = ["known_hosts"]
-    filenames = ["known_hosts", "ssh_known_hosts"]
+    name: ClassVar[str] = "KnownHosts"
+    aliases: ClassVar[list[str]] = ["known_hosts"]
+    filenames: ClassVar[list[str]] = ["known_hosts", "ssh_known_hosts"]
 
-    tokens = {
+    tokens: ClassVar[dict[str, list]] = {
         "root": [
             # Comment
             (r"^#.*", Token.Comment.Single),
@@ -2343,11 +2343,11 @@ class MosquittoLexer(RegexLexer):
     """
     A Pygments lexer for Mosquitto files.
     """
-    name = "Mosquitto"
-    aliases = ["mosquitto"]
-    filenames = ["mosquitto.conf"]
+    name: ClassVar[str] = "Mosquitto"
+    aliases: ClassVar[list[str]] = ["mosquitto"]
+    filenames: ClassVar[list[str]] = ["mosquitto.conf"]
 
-    tokens = {
+    tokens: ClassVar[dict[str, list]] = {
         "root": [
             # Comment
             (r"^#.*", Token.Comment.Single),
@@ -2503,26 +2503,32 @@ def markdown_renderer(ttype: Any, value: str, **kwargs: Any) \
     return ttype, new_value, False
 
 
+# pylint: disable-next=too-many-instance-attributes
 class ThemeArrayFormatter(Formatter):
     """
     A formatter for Pygments that implements support for outputting ThemeArrays.
     """
-    buffer: list[list[ThemeRef | ThemeStr]] = []
-    colorscheme: dict[str, ColorSchemeEntry] = {}
-    override_formatting: dict[str, ThemeAttr] = {}
+    # These are initialized in __init__ to avoid complexities with None.
+    # buffer: list[list[ThemeRef | ThemeStr]] = None
+    # colorscheme: dict[str, ColorSchemeEntry] = None
+    # override_formatting: dict[str, ThemeAttr] = None
+    # unknown_ttypes: set[Any] = None
     latest_key: str = ""
     lexer: Any | None = None
     renderer: Callable | None = None
-    unknown_ttypes: set[Any] = set()
     use_github_alerts: bool = False
 
     def __init__(self, **options: Any):
         Formatter.__init__(self, **options)
-        self.colorscheme = deep_get(options, DictPath("colorscheme"), {})
-        self.override_formatting = deep_get(options, DictPath("override_formatting"), {})
+        self.colorscheme: dict[str, ColorSchemeEntry] = \
+            deep_get(options, DictPath("colorscheme"), {})
+        self.override_formatting: dict[str, ThemeAttr] = \
+            deep_get(options, DictPath("override_formatting"), {})
         self.lexer = deep_get(options, DictPath("lexer"))
         self.renderer = deep_get(options, DictPath("renderer"))
         self.use_github_alerts = deep_get(options, DictPath("use_github_alerts"), False)
+        self.buffer: list[list[ThemeRef | ThemeStr]] = []
+        self.unknown_ttypes: set[Any] = set()
 
     # pylint: disable-next=too-many-locals
     def format(self, tokensource: Generator, outfile: io.StringIO) -> None:
@@ -2874,19 +2880,18 @@ def format_caddyfile(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRe
 
             # Is this a site?
             tmp = site_regex.match(line)
-            if tmp is not None:
-                if not block_depth and not site and (single_site or "{" in tmp[3]):
-                    if tmp[1]:
-                        tmpline += [
-                            ThemeStr(tmp[1], ThemeAttr("types", "caddyfile_site")),
-                        ]
+            if tmp and not block_depth and not site and (single_site or "{" in tmp[3]):
+                if tmp[1]:
                     tmpline += [
-                        ThemeStr(tmp[2], ThemeAttr("types", "caddyfile_site")),
+                        ThemeStr(tmp[1], ThemeAttr("types", "caddyfile_site")),
                     ]
-                    line = tmp[3]
-                    site = True
-                    single_site = False
-                    continue
+                tmpline += [
+                    ThemeStr(tmp[2], ThemeAttr("types", "caddyfile_site")),
+                ]
+                line = tmp[3]
+                site = True
+                single_site = False
+                continue
 
             # Are we closing a block?
             tmp = block_close_regex.match(line)

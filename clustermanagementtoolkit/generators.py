@@ -1320,7 +1320,7 @@ def generator_list_with_status(obj: dict, field: str, fieldlen: int, pad: bool,
         Returns:
             ([ThemeRef | ThemeStr]): A formatted string
     """
-    items = deep_get(obj, DictPath(field))
+    items: list[tuple[str, ...]] = deep_get(obj, DictPath(field))
     if isinstance(items, tuple):
         items = [items]
 

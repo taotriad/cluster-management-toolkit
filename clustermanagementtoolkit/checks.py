@@ -579,8 +579,8 @@ def check_client_server_version_match(**kwargs: Any) -> tuple[bool, int, int, in
         ansithemeprint([ANSIThemeStr("         kubectl ", "programname"),
                         ANSIThemeStr("version: ", "default"),
                         ANSIThemeStr(f"{kubectl_git_version}", "version")])
-    if server_git_version == "<unavailable>" or \
-            server_major_version is None or server_minor_version is None:
+    if server_git_version == "<unavailable>" \
+            or server_major_version is None or server_minor_version is None:
         print()
         ansithemeprint([ANSIThemeStr("  ", "default"),
                         ANSIThemeStr("Critical", "critical"),
@@ -915,7 +915,7 @@ required_pods: dict[str, list[PodListType]] = {
     "kube-controller-manager": [
         {
             "any_of": [("kube-system", "kube-controller-manager"),
-                       ("openshift-kube-controller-manager", "kube-controller-managerd")],
+                       ("openshift-kube-controller-manager", "kube-controller-manager")],
         },
     ],
     # DaemonSet
@@ -1150,11 +1150,12 @@ def check_running_pods(**kwargs: Any) -> tuple[bool, int, int, int, int]:
             all_ok = False
 
         if matches:
-            all_pods = []
+            all_pods: list[dict] = []
 
             for any_of_matches, all_of_matches in matches:
                 all_pods += any_of_matches
-                all_pods += list(all_of_matches.values())
+                for objs in all_of_matches.values():
+                    all_pods += objs
 
             first = True
 
@@ -1559,51 +1560,51 @@ def check_control_plane(**kwargs: Any) -> tuple[bool, int, int, int, int]:
                                              DictPath("ansible_facts#ansible_os_family"), "")
                 continue
 
-            if taskname == "Checking whether the host runs an OS supported for control planes":
-                if deep_get(taskdata, DictPath("retval")) != 0:
-                    abort = True
-                    critical += 1
-                    ansithemeprint([ANSIThemeStr("  ", "default"),
-                                    ANSIThemeStr("Critical", "critical"),
-                                    ANSIThemeStr(":", "default")], stderr=True)
-                    ansithemeprint([ANSIThemeStr("    Unsupported Operating System ",
-                                                 "default"),
-                                    ANSIThemeStr(f"{ansible_os_family}", "programname"),
-                                    ANSIThemeStr("; currently the only supported OS families",
-                                                 "default")], stderr=True)
-                    ansithemeprint([ANSIThemeStr("    for control planes are ", "default"),
-                                    ANSIThemeStr("Debian", "programname"),
-                                    ANSIThemeStr(" and ", "default"),
-                                    ANSIThemeStr("Red Hat", "programname"),
-                                    ANSIThemeStr("; aborting.\n", "default")], stderr=True)
-                    break
+            if taskname == "Checking whether the host runs an OS supported for control planes" \
+                    and deep_get(taskdata, DictPath("retval")) != 0:
+                abort = True
+                critical += 1
+                ansithemeprint([ANSIThemeStr("  ", "default"),
+                                ANSIThemeStr("Critical", "critical"),
+                                ANSIThemeStr(":", "default")], stderr=True)
+                ansithemeprint([ANSIThemeStr("    Unsupported Operating System ",
+                                             "default"),
+                                ANSIThemeStr(f"{ansible_os_family}", "programname"),
+                                ANSIThemeStr("; currently the only supported OS families",
+                                             "default")], stderr=True)
+                ansithemeprint([ANSIThemeStr("    for control planes are ", "default"),
+                                ANSIThemeStr("Debian", "programname"),
+                                ANSIThemeStr(" and ", "default"),
+                                ANSIThemeStr("Red Hat", "programname"),
+                                ANSIThemeStr("; aborting.\n", "default")], stderr=True)
+                break
 
-            if taskname == "Check whether the host is a Kubernetes control plane":
-                if deep_get(taskdata, DictPath("retval")) != 0:
-                    abort = True
-                    critical += 1
-                    ansithemeprint([ANSIThemeStr("  ", "default"),
-                                    ANSIThemeStr("Critical", "critical"),
-                                    ANSIThemeStr(":", "default")])
-                    ansithemeprint([ANSIThemeStr("    Host ", "default"),
-                                    ANSIThemeStr(f"{host}", "hostname"),
-                                    ANSIThemeStr(" seems to already be running a Kubernetes "
-                                                 "API-server; aborting.\n",
-                                                 "default")], stderr=True)
-                    break
+            if taskname == "Check whether the host is a Kubernetes control plane" \
+                    and deep_get(taskdata, DictPath("retval")) != 0:
+                abort = True
+                critical += 1
+                ansithemeprint([ANSIThemeStr("  ", "default"),
+                                ANSIThemeStr("Critical", "critical"),
+                                ANSIThemeStr(":", "default")])
+                ansithemeprint([ANSIThemeStr("    Host ", "default"),
+                                ANSIThemeStr(f"{host}", "hostname"),
+                                ANSIThemeStr(" seems to already be running a Kubernetes "
+                                             "API-server; aborting.\n",
+                                             "default")], stderr=True)
+                break
 
-            if taskname == "Check whether the host is a Kubernetes node":
-                if deep_get(taskdata, DictPath("retval")) != 0:
-                    abort = True
-                    critical += 1
-                    ansithemeprint([ANSIThemeStr("  ", "default"),
-                                    ANSIThemeStr("Critical", "critical"),
-                                    ANSIThemeStr(":", "default")], stderr=True)
-                    ansithemeprint([ANSIThemeStr("    Host ", "default"),
-                                    ANSIThemeStr(f"{host}", "hostname"),
-                                    ANSIThemeStr(" seems to already have a running kubelet; "
-                                                 "aborting.\n", "default")], stderr=True)
-                    break
+            if taskname == "Check whether the host is a Kubernetes node" \
+                    and deep_get(taskdata, DictPath("retval")) != 0:
+                abort = True
+                critical += 1
+                ansithemeprint([ANSIThemeStr("  ", "default"),
+                                ANSIThemeStr("Critical", "critical"),
+                                ANSIThemeStr(":", "default")], stderr=True)
+                ansithemeprint([ANSIThemeStr("    Host ", "default"),
+                                ANSIThemeStr(f"{host}", "hostname"),
+                                ANSIThemeStr(" seems to already have a running kubelet; "
+                                             "aborting.\n", "default")], stderr=True)
+                break
     if not abort:
         print()
 

@@ -862,9 +862,9 @@ def timestamp_to_datetime(timestamp: str, default: datetime = none_timestamp()) 
     if tmp is not None:
         timestamp = f"{tmp[1]}{tmp[2]}"
 
-    tmp = re.match(r"^(.+?) ?([+-]\d{4})$", timestamp)
+    tmp = re.match(r"^(.+) ?([+-])(\d\d)(:|)(\d\d)$", timestamp)
     if tmp is not None:
-        timestamp = f"{tmp[1]}{tmp[2]}"
+        timestamp = f"{tmp[1]}{tmp[2]}{tmp[3]}{tmp[5]}"
     else:
         # If the timestamp has too many, or too few, decimals (should be 6), adjust it
         tmp = re.match(r"^(\d{4}-\d\d-\d\d.\d\d:\d\d:\d\d\.)(\d+)", timestamp)
