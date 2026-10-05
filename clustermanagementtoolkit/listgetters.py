@@ -76,7 +76,8 @@ def check_matchlists(item: str,
     for in_ in ins:
         if in_ in item:
             return True
-    return prefixes and item.startswith(prefixes) or suffixes and item.endswith(suffixes)
+    return bool(prefixes) and item.startswith(prefixes) \
+            or bool(suffixes) and item.endswith(suffixes)
 
 
 # Takes an unprocessed matchlist, splits it into individual matchlists, and checks for matches
@@ -1211,7 +1212,7 @@ def get_pod_resource_list(obj: dict[str, Any], **kwargs: Any) -> tuple[list[dict
             "age": -1,
         })
 
-    for vol in deep_get(obj, DictPath("spec#volumes"), []):
+    for i, vol in enumerate(deep_get(obj, DictPath("spec#volumes"), [])):
         status = ""
 
         if deep_get(vol, DictPath("secret")) is not None and "secret" not in filter_resources:
@@ -1270,6 +1271,9 @@ def get_pod_resource_list(obj: dict[str, Any], **kwargs: Any) -> tuple[list[dict
                 "restarts": "",
                 "message": "",
                 "age": -1,
+                # We need this because multiple volumes can refer to different
+                # data in the same ConfigMap.
+                "metadata": {"uid": i},
             })
 
     if "secret" not in filter_resources:
