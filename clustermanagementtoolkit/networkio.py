@@ -661,15 +661,25 @@ def update_version_cache(**kwargs: Any) -> None:
                             ANSIThemeStr(description, "programname")])
         interval = deep_get(data, DictPath("interval"), 60 * 60)
         version_last_updated = deep_get(last_update_data, DictPath(f"{key}#version"))
+        version_age = None
         if version_last_updated:
-            version_age = datetime.now(UTC) - version_last_updated
-        else:
-            version_age = None
+            try:
+                version_age = datetime.now(UTC) - version_last_updated
+            except TypeError:
+                # version_last_updated used to use offset-naïve timestamps;
+                # if we encounter one of those we ignore the timestamp,
+                # which will trigger an update.
+                pass
         changelog_last_updated = deep_get(last_update_data, DictPath(f"{key}#changelog"))
+        changelog_age = None
         if changelog_last_updated:
-            changelog_age = datetime.now(UTC) - changelog_last_updated
-        else:
-            changelog_age = None
+            try:
+                changelog_age = datetime.now(UTC) - changelog_last_updated
+            except TypeError:
+                # changelog_last_updated used to use offset-naïve timestamps;
+                # if we encounter one of those we ignore the timestamp,
+                # which will trigger an update.
+                pass
         tmp: str = deep_get(data, DictPath("candidate_version#function"), "")
         candidate_version_func: Callable | None = \
             deep_get(candidate_version_function_allowlist, DictPath(tmp))
