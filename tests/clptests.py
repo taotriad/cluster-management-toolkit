@@ -1390,7 +1390,7 @@ def test_parse_commandline(verbose: bool = False) -> tuple[str, bool]:
             try:
                 with mock.patch("sys.exit", side_effect=Exception(str(errno.EINVAL))):
                     tmp = fun(programname, programversion, programdescription, programauthors,
-                              argv, commandline, default_command, theme=theme)
+                              argv, commandline, default_command=default_command, theme=theme)
 
                 if tmp != expected_result:
                     message = f"{fun.__name__}() did not yield expected result:\n" \
