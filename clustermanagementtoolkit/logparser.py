@@ -37,7 +37,7 @@ import json
 from pathlib import Path
 import re
 import sys
-from typing import Any, cast, Literal, NamedTuple, TypedDict
+from typing import Any, cast, ClassVar, Literal, NamedTuple, TypedDict
 try:
     import ruyaml  # type: ignore[import-not-found,unused-ignore]
     ryaml = ruyaml.YAML()
@@ -146,21 +146,21 @@ class LogparserConfiguration:
     Various configuration options used by the logparsers
     """
     # Keep or strip timestamps in structured logs
-    pop_ts: bool = False
+    pop_ts: ClassVar[bool] = False
     # Keep or strip severity in structured logs
-    pop_severity: bool = False
+    pop_severity: ClassVar[bool] = False
     # Keep or strip facility in structured logs
-    pop_facility: bool = False
+    pop_facility: ClassVar[bool] = False
     # msg="foo" or msg=foo => foo
-    msg_extract: bool = False
+    msg_extract: ClassVar[bool] = False
     # If msg_extract is False,
     # this decides whether or not to put msg="foo" first or not
     # this also affects err="foo" and error="foo"
-    msg_first: bool = False
+    msg_first: ClassVar[bool] = False
     # Should override severity rules be applied?
-    override_severity: bool = True
+    override_severity: ClassVar[bool] = True
     # Are parser-files read from BUNDLE.yaml?
-    using_bundles: bool = False
+    using_bundles: ClassVar[bool] = False
 
 
 class ParserRule(NamedTuple):
@@ -332,9 +332,9 @@ def str_to_severity(string: str, **kwargs: Any) -> LogLevel:
         "dbg": LogLevel.DEBUG,
     }
     # Special case for severity found in trust-manager
-    if string.lower().startswith("debug+"):
-        if re.match(r"debug\+(\d+)$", string, re.IGNORECASE) is not None:
-            return LogLevel.DEBUG
+    if string.lower().startswith("debug+") \
+            and re.match(r"debug\+(\d+)$", string, re.IGNORECASE) is not None:
+        return LogLevel.DEBUG
     # Special case for severity found in jobset
     level_regex = re.compile(r"LEVEL\((-\d+)\)")
     if (re_tmp := level_regex.match(string)) is not None:
@@ -794,13 +794,13 @@ def http(message: str, **kwargs: Any) -> tuple[str, LogLevel, list[ThemeRef | Th
 
     ipaddress = ""
 
-    # If the message starts with a timestamp without a leading IP-address, skip this
-    if not message.startswith("["):
-        # First try to check if it's an IP-address
-        if (re_tmp := re.match(r"^([a-f0-9:][a-f0-9:.]+[a-f0-9])( - - .*)", message)) is not None:
+    # If the message starts with a timestamp without a leading IP-address, skip this.
+    if not message.startswith("["):  # noqa: SIM102
+        # First try to check if it's an IP-address.
+        # pylint: disable-next=line-too-long
+        if (re_tmp := re.match(r"^([a-f0-9:][a-f0-9:.]+[a-f0-9])( - - .*)", message)) is not None:  # noqa: SIM102,E501
             # Just pass-through if validators isn't installed;
-            # this might lead to false positives, but it's better than
-            # not working at all
+            # this might lead to false positives, but it's better than not working at all.
             if not has_validators or validators.ipv4(re_tmp[1]) or validators.ipv6(re_tmp[1]):
                 ipaddress = re_tmp[1]
                 message = re_tmp[2]
@@ -1650,12 +1650,11 @@ def fold_message_with_remnants(message: str | list[ThemeRef | ThemeStr],
             # Strip all leading spaces.
             string = string.lstrip()
 
-            if string.lstrip().startswith(("}", "]")):
-                # Strip all spaces before "}" / "]".
-                if prevstr.endswith(" ") and prevfmt:
-                    new_prevstr = prevstr.rstrip()
-                    message = message[:-1]
-                    message.append(ThemeStr(new_prevstr, prevfmt))
+            # Strip all spaces before "}" / "]".
+            if string.lstrip().startswith(("}", "]")) and prevstr.endswith(" ") and prevfmt:
+                new_prevstr = prevstr.rstrip()
+                message = message[:-1]
+                message.append(ThemeStr(new_prevstr, prevfmt))
             message.append(ThemeStr(string, fmt))
         else:
             # Just append the segment unmodified.
@@ -1694,10 +1693,6 @@ def split_json_style_raw(message: str, **kwargs: Any) \
     fold_msg: bool = deep_get(kwargs, DictPath("fold_msg"), True)
     options: dict = deep_get(kwargs, DictPath("options"), {})
     merge_msg: bool = deep_get(kwargs, DictPath("merge_msg"), False)
-
-    # This warning seems incorrect
-    # pylint: disable-next=global-variable-not-assigned
-    global LogparserConfiguration
 
     tmp_msg_first = LogparserConfiguration.msg_first
     tmp_msg_extract = LogparserConfiguration.msg_extract
@@ -2480,9 +2475,6 @@ def key_value_with_leading_message(message: str, **kwargs: Any) -> \
     allow_bare_keys: bool = deep_get(options, DictPath("allow_bare_keys"), "")
     new_message: list[ThemeRef | ThemeStr] | str | None = None
 
-    # This warning seems incorrect
-    # pylint: disable-next=global-variable-not-assigned
-    global LogparserConfiguration
     remnants: list[tuple[list[ThemeRef | ThemeStr], LogLevel]] = []
 
     # Split into substrings based on spaces
@@ -2850,9 +2842,8 @@ def match_block_start(matchrules: list[MatchBlockStart],
                         matched = list(tmp.groups())
                     else:
                         matched = [message]
-            elif matchtype == "startswith":
-                if message.startswith(cast(str, matchkey)):
-                    matched = [message]
+            elif matchtype == "startswith" and message.startswith(cast(str, matchkey)):
+                matched = [message]
         if matched:
             break
     return matched, format_block_start
@@ -2905,9 +2896,8 @@ def match_block_end(matchrules: list[MatchBlockEnd], message: str) -> tuple[bool
             tmp = matchkey.match(message)
             if tmp is not None:
                 matched = False
-        elif matchtype == "startswith":
-            if message.startswith(matchkey):
-                matched = False
+        elif matchtype == "startswith" and message.startswith(matchkey):
+            matched = False
 
     return matched, format_block_end
 
@@ -3418,10 +3408,6 @@ def init_logparser_configuration() -> None:
     """
     Read logparser configurations from cmtconfig.
     """
-    # This warning seems incorrect
-    # pylint: disable-next=global-variable-not-assigned
-    global LogparserConfiguration
-
     for key, data in logparser_configkeys.items():
         default = deep_get(data, DictPath("default"))
         configkey = deep_get(data, DictPath("key"))

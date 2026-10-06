@@ -1797,14 +1797,13 @@ def move_cur_with_offset(curypos: int, yoffset: int,
             else:
                 newcurypos = maxcurypos
                 newyoffset = min(yoffset + movement - (maxcurypos - curypos), maxyoffset)
-    elif movement < 0:
-        if newcurypos < 0:
-            if (yoffset + curypos) + newcurypos < 0 and wraparound:
-                newcurypos = maxcurypos
-                newyoffset = maxyoffset
-            else:
-                newcurypos = 0
-                newyoffset = max(yoffset + movement + curypos, 0)
+    elif movement < 0 and newcurypos < 0:
+        if (yoffset + curypos) + newcurypos < 0 and wraparound:
+            newcurypos = maxcurypos
+            newyoffset = maxyoffset
+        else:
+            newcurypos = 0
+            newyoffset = max(yoffset + movement + curypos, 0)
     return newcurypos, newyoffset
 
 
@@ -4004,9 +4003,8 @@ class UIProps:
                 tspadxpos (int): The x-position of the timestamp pad
                 timestamps (bool): Are the timestamps enabled?
         """
-        if tspadxpos == -1:
-            if self.tspadxpos is None:
-                raise ProgrammingError("logpad is not initialised and no tspad xpos provided")
+        if tspadxpos == -1 and self.tspadxpos is None:
+            raise ProgrammingError("logpad is not initialised and no tspad xpos provided")
 
         if timestamps is None:
             timestamps = self.tspadxpos != self.logpadxpos
@@ -4527,11 +4525,10 @@ class UIProps:
         if start is None:
             start = self.yoffset
         for y in range(start, self.loglen):
-            if y in self.search_matches:
-                if self.match_index is None or self.match_index != y:
-                    self.match_index = y
-                    self.yoffset = min(y, self.maxyoffset)
-                    break
+            if y in self.search_matches and self.match_index != y:
+                self.match_index = y
+                self.yoffset = min(y, self.maxyoffset)
+                break
         self.reselect_uid()
 
     def find_prev_match(self) -> None:
@@ -4542,12 +4539,11 @@ class UIProps:
         if end is None:
             end = self.yoffset
         for y in reversed(range(end)):
-            if y in self.search_matches:
-                # We do not want to return the same match over and over...
-                if self.match_index is None or self.match_index != y:
-                    self.match_index = y
-                    self.yoffset = min(y, self.maxyoffset)
-                    break
+            # We do not want to return the same match over and over...
+            if y in self.search_matches and self.match_index != y:
+                self.match_index = y
+                self.yoffset = min(y, self.maxyoffset)
+                break
         self.reselect_uid()
 
     def next_line_by_severity(self, severities: list[LogLevel], timestamps: list[datetime]) -> None:
@@ -4788,10 +4784,10 @@ class UIProps:
                 else:
                     tmp2 = [str(tmp2)]
             for part in tmp2:
-                if part and bool(searchkey_regex.search(part)) != negate_match:
-                    if (offset := y - pos) > 0:
-                        match = True
-                        break
+                if part and bool(searchkey_regex.search(part)) != negate_match \
+                        and (offset := y - pos) > 0:
+                    match = True
+                    break
             if match:
                 break
 
@@ -4851,10 +4847,10 @@ class UIProps:
                 else:
                     tmp2 = [str(tmp2)]
             for part in tmp2:
-                if part and bool(searchkey_regex.search(part)) != negate_match:
-                    if (offset := y - pos) < 0:
-                        match = True
-                        break
+                if part and bool(searchkey_regex.search(part)) != negate_match \
+                        and (offset := y - pos) < 0:
+                    match = True
+                    break
             if match:
                 break
 
@@ -4890,9 +4886,9 @@ class UIProps:
         match_count = 0
 
         for y, listitem in enumerate(sorted_list):
-            if "namespace" in sorted_list[0]:
-                if namespace and deep_get(listitem, DictPath("namespace")) == namespace:
-                    continue
+            if "namespace" in sorted_list[0] and namespace \
+                    and deep_get(listitem, DictPath("namespace")) == namespace:
+                continue
 
             if deep_get(listitem, DictPath("name")) == name:
                 first_match = y
@@ -5292,26 +5288,24 @@ class UIProps:
             self.update_forced = True
             self.force_idle()
             return Retval.MATCH
-        if c == ord("a"):
-            if self.annotations:
-                title = "Annotations:"
+        if c == ord("a") and self.annotations:
+            title = "Annotations:"
 
-                windowwidget(self.stdscr, self.maxy, self.maxx, self.maxy // 2, self.maxx // 2,
-                             items=self.annotations, headers=annotation_headers,
-                             title=title, cursor=False)
+            windowwidget(self.stdscr, self.maxy, self.maxx, self.maxy // 2, self.maxx // 2,
+                         items=self.annotations, headers=annotation_headers,
+                         title=title, cursor=False)
 
-                self.refresh_all()
-                return Retval.MATCH
-        if c == ord("l"):
-            if self.labels:
-                title = "Labels:"
+            self.refresh_all()
+            return Retval.MATCH
+        if c == ord("l") and self.labels:
+            title = "Labels:"
 
-                windowwidget(self.stdscr, self.maxy, self.maxx, self.maxy // 2, self.maxx // 2,
-                             items=self.labels, headers=label_headers,
-                             title=title, cursor=False)
+            windowwidget(self.stdscr, self.maxy, self.maxx, self.maxy // 2, self.maxx // 2,
+                         items=self.labels, headers=label_headers,
+                         title=title, cursor=False)
 
-                self.refresh_all()
-                return Retval.MATCH
+            self.refresh_all()
+            return Retval.MATCH
 
         # Everything below is either for logpads or listpads;
         # leave the shortcuts unused for cases where they're not needed

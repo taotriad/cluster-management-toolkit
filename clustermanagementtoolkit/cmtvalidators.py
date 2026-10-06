@@ -547,18 +547,17 @@ def validate_argument(arg: str, arg_string: list[ANSIThemeStr], options: dict) -
             else:  # pragma: no cover
                 valid_ipv4_address = True
                 valid_ipv6_address = True
-            if not (valid_ipv4_address or valid_ipv6_address):
-                # If the DNS-label is not an IP-address
-                # it cannot end with a fully numerical dns-subdomain
-                if "." in subarg and subarg.split(".")[-1:][0].isnumeric():
-                    valid_dns_label = False
+            # If the DNS-label is not an IP-address
+            # it cannot end with a fully numerical dns-subdomain.
+            if not (valid_ipv4_address or valid_ipv6_address) \
+                    and "." in subarg and subarg.split(".")[-1:][0].isnumeric():
+                valid_dns_label = False
 
             if validator in ("hostname", "hostname_or_path") and not valid_dns_label:
                 # If validation failed as subdomain we check if it's a valid path;
-                # this will need deeper checks in the main function
-                if validator == "hostname_or_path":
-                    if Path(subarg).is_file():
-                        break
+                # this will need deeper checks in the main function.
+                if validator == "hostname_or_path" and Path(subarg).is_file():
+                    break
                 if error_on_failure:
                     ansithemeprint([ANSIThemeStr(f"{programname}", "programname"),
                                     ANSIThemeStr(": “", "default"),
@@ -567,8 +566,7 @@ def validate_argument(arg: str, arg_string: list[ANSIThemeStr], options: dict) -
                                                  "default")], stderr=True)
                 result = False
                 break
-            if validator == "ip" \
-                    and not any((valid_ipv4_address, valid_ipv6_address)):
+            if validator == "ip" and not any((valid_ipv4_address, valid_ipv6_address)):
                 if error_on_failure:
                     ansithemeprint([ANSIThemeStr(f"{programname}", "programname"),
                                     ANSIThemeStr(": “", "default"),

@@ -1014,9 +1014,8 @@ def deep_set(dictionary: Any, path: DictPath, value: Any, create_path: bool = Fa
             raise ValueError(f"Path {path} does not exist in dictionary {dictionary} "
                              f"or is the wrong type {type(ref)}")
 
-        if pathsegment not in ref or ref[pathsegment] is None:
-            if create_path:
-                ref[pathsegment] = {}
+        if (pathsegment not in ref or ref[pathsegment] is None) and create_path:
+            ref[pathsegment] = {}
 
         if i == len(pathsplit) - 1:
             ref[pathsegment] = value

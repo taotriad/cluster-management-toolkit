@@ -7113,7 +7113,7 @@ def resourceinfodispatch_with_lookup(**kwargs: Any) -> Retval:
     if holder_identity_path is not None:
         holder_identity = deep_get(obj, DictPath(holder_identity_path))
 
-    if owner_reference_path is not None and obj is not None:
+    if owner_reference_path and obj:
         # Search for a controller, or the first reference that matches the kind if specified
         owner_references = deep_get(obj, DictPath(owner_reference_path), [])
         accept_only_owner: bool = deep_get(kwargs, DictPath("accept_only_owner"), False)
@@ -7122,8 +7122,8 @@ def resourceinfodispatch_with_lookup(**kwargs: Any) -> Retval:
             ref_name = deep_get(ref, DictPath("name"))
 
             # We only want to dispatch if there's an owner reference
-            # that matches the holder identity
-            if holder_identity is not None and ref_name != holder_identity:
+            # that matches the holder identity.
+            if holder_identity and ref_name != holder_identity:
                 continue
 
             ref_api_version = deep_get(ref, DictPath("apiVersion"))
@@ -7136,9 +7136,9 @@ def resourceinfodispatch_with_lookup(**kwargs: Any) -> Retval:
             if is_controller:
                 controller = (ref_kind, ref_name)
             # pylint: disable-next=R0916
-            elif kind is not None and kind == ref_kind \
-                    or holder_identity is not None \
-                    or accept_only_owner and len(owner_references) == 1 and non_controller is None:
+            elif (kind and kind == ref_kind
+                  or holder_identity
+                  or accept_only_owner and len(owner_references) == 1) and non_controller is None:
                 non_controller = (ref_kind, ref_name)
             if must_be_controller is not None and is_controller == must_be_controller:
                 if is_controller:

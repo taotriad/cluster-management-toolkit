@@ -118,9 +118,8 @@ def __process_timestamp(value: Sequence[int | str] | str,
             if tmp_timestamp == none_timestamp():
                 tmp_timestamp = timestamp
             else:
-                if timestamp < tmp_timestamp and action == "earliest":
-                    tmp_timestamp = timestamp
-                elif timestamp > tmp_timestamp and action == "latest":
+                if timestamp < tmp_timestamp and action == "earliest" \
+                        or timestamp > tmp_timestamp and action == "latest":
                     tmp_timestamp = timestamp
         new_value = tmp_timestamp
     else:
@@ -637,9 +636,8 @@ def get_obj(obj: dict, field_dict: dict, field_names: list[str],
                 substitutions[subst] = subst_with
             path = cmtlib.substitute_string(path, substitutions)
         datagetter = deep_get(field, DictPath("datagetter"))
-        if datagetter is not None:
-            if isinstance(datagetter, str):
-                datagetter = deep_get(datagetter_allowlist, DictPath(datagetter))
+        if isinstance(datagetter, str):
+            datagetter = deep_get(datagetter_allowlist, DictPath(datagetter))
         if "default" not in field:
             default = ""
         else:
@@ -1424,9 +1422,8 @@ def get_obj(obj: dict, field_dict: dict, field_names: list[str],
                 # Remove duplicates
                 _values = list(dict.fromkeys(_values))
             for value, vtype_ in _values:
-                if isinstance(vtype_, list):
-                    if value is None or not value:
-                        value = []
+                if isinstance(vtype_, list) and not value:
+                    value = []
                 if isinstance(value, list) and vtype_ == "raw":
                     values += value
                     continue

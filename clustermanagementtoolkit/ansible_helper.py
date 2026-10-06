@@ -467,8 +467,8 @@ def ansible_get_groups_by_host(inventory_dict: dict, host: str) -> list[str]:
 
     groups = []
 
-    for group in inventory_dict:
-        if host in deep_get(inventory_dict, DictPath(f"{group}#hosts"), {}):
+    for group, group_data in inventory_dict.items():
+        if host in deep_get(group_data, DictPath("hosts"), {}):
             groups.append(group)
 
     return groups
@@ -927,15 +927,13 @@ def ansible_add_hosts(inventory: FilePath, hosts: list[str], **kwargs: Any) -> b
                 d["all"]["hosts"][host] = {}
                 changed = True
 
-        # If the group does not exist,
-        # create it--we currently do not support
-        # nested groups, node vars or anything like that
+        # If the group does not exist, create it--we currently do not support
+        # nested groups, node vars, or anything like that.
         #
-        # We do not want to overwrite groups
-        if group not in ("", "all"):
-            if host not in deep_get(d, DictPath(f"{group}#hosts"), {}):
-                deep_set(d, DictPath(f"{group}#hosts#{host}"), {}, create_path=True)
-                changed = True
+        # We do not want to overwrite groups.
+        if group not in ("", "all") and host not in deep_get(d, DictPath(f"{group}#hosts"), {}):
+            deep_set(d, DictPath(f"{group}#hosts#{host}"), {}, create_path=True)
+            changed = True
 
     if changed:
         secure_write_yaml(inventory, d, permissions=0o600,
@@ -978,10 +976,9 @@ def ansible_remove_hosts(inventory: FilePath, hosts: list[str], **kwargs: Any) -
     d = secure_read_yaml(inventory, temporary=temporary)
 
     for host in hosts:
-        if group in d and d[group].get("hosts") is not None:
-            if host in d[group]["hosts"]:
-                deep_pop(d, DictPath(f"{group}#hosts"), DictPath(host), None)
-                changed = True
+        if host in deep_get(d, DictPath(f"{group}#hosts"), {}):
+            deep_pop(d, DictPath(f"{group}#hosts"), DictPath(host), None)
+            changed = True
 
     if changed:
         secure_write_yaml(inventory, d, permissions=0o600,

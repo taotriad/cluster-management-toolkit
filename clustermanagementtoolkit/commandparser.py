@@ -577,7 +577,7 @@ def __command_usage(options: list[tuple[str, str]], args: list[str]) -> int:
     return __sub_usage(args[0])
 
 
-def __find_command(__commandline: dict[str, Any], arg: str) -> \
+def __find_command(d_commandline: dict[str, Any], arg: str) -> \
         tuple[str,
               Callable[[tuple[str, str], list[str]], None] | None,
               str,
@@ -587,7 +587,7 @@ def __find_command(__commandline: dict[str, Any], arg: str) -> \
     Find the command that matches the string, if any.
 
         Parameters:
-            __commandline (dict[str, Any]: The command-line dict
+            d_commandline (dict[str, Any]: The command-line dict
             arg (str): The string to check for a matching command
         Returns:
             ((str, Callable, str, [dict], [dict])):
@@ -603,7 +603,7 @@ def __find_command(__commandline: dict[str, Any], arg: str) -> \
     optional_args: list[ArgumentWithOptionalDefaultType] = []
     key: str = ""
 
-    for key, value in __commandline.items():
+    for key, value in d_commandline.items():
         if key == "extended_description":
             continue
 
@@ -696,28 +696,25 @@ COMMANDLINEDEFAULTS: dict[str, CommandType] = {
 }
 
 
-# pylint: disable-next=too-many-locals,too-many-branches,too-many-statements
-def parse_commandline(__programname: str, __programversion: str,
-                      __programdescription: str, __programauthors: str,
-                      argv: list[str],
-                      __commandline: dict[str, Any],
-                      default_command: str | None = None,
-                      theme: FilePath | None = None) -> tuple[Callable,
-                                                              list[tuple[str, str]],
-                                                              list[str]]:
+# noqa: E501 pylint: disable-next=too-many-locals,too-many-branches,too-many-statements,too-many-arguments,too-many-positional-arguments
+def parse_commandline(p_programname: str, p_programversion: str,
+                      p_programdescription: str, p_programauthors: str,
+                      argv: list[str], p_commandline: dict[str, Any],
+                      **kwargs: Any) -> tuple[Callable, list[tuple[str, str]], list[str]]:
     """
     Parse the command line.
 
         Parameters:
-            __programname (str): The name of the program
+            p_programname (str): The name of the program
                                  (used in usage and version information, and in error messages)
-            __programversion (str): The version of the program (used in version information)
-            __programdescription (str): The description of the program (used in usage information)
-            __programauthors (str): The authors of the program (used in version information)
+            p_programversion (str): The version of the program (used in version information)
+            p_programdescription (str): The description of the program (used in usage information)
+            p_programauthors (str): The authors of the program (used in version information)
             argv ([str]): The command line from sys.argv
-            __commandline (dict): The command line struct
-            default_command (str): The command to run if none was provided
-            theme (FilePath): The theme to use
+            p_commandline (dict): The command line struct
+            **kwargs (dict[str, Any]): Keyword arguments
+                default_command (str): The command to run if none was provided
+                theme (FilePath): The theme to use
         Returns:
             (Callable, [(str, str)], [str]):
                 (Callable): The command to call
@@ -730,15 +727,18 @@ def parse_commandline(__programname: str, __programversion: str,
     global programdescription  # pylint: disable=global-statement
     global programauthors  # pylint: disable=global-statement
 
+    default_command: str | None = deep_get(kwargs, DictPath("default_command"))
+    theme: FilePath | None = deep_get(kwargs, DictPath("theme"))
+
     i: int = 1
 
-    programname = __programname
+    programname = p_programname
     cmtvalidators.set_programname(programname)
-    programversion = __programversion
-    programdescription = __programdescription
-    programauthors = __programauthors
+    programversion = p_programversion
+    programdescription = p_programdescription
+    programauthors = p_programauthors
 
-    commandline = {**__commandline, **COMMANDLINEDEFAULTS}
+    commandline = {**p_commandline, **COMMANDLINEDEFAULTS}
 
     if theme is not None:
         init_ansithemeprint(theme)

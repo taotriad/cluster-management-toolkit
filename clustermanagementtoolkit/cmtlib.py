@@ -826,16 +826,19 @@ def reformat_timestamp(timestamp: str) -> str:
 
 
 # Will take a timestamp and convert it to datetime
-def timestamp_to_datetime(timestamp: str, default: datetime = none_timestamp()) -> datetime:
+def timestamp_to_datetime(timestamp: str) -> datetime:
     """
     Takes a timestamp and converts it to datetime.
 
         Parameters:
             timestamp (str): The timestamp string to convert
-            default (datetime): The value to return if timestamp is None, 0, "", or "None"
         Returns:
-            (int | datetime): -1 if the timestamp was -1, datetime otherwise
+            (int | datetime): -1 if the timestamp was -1,
+                              none_timestamp() if timestamp was None, 0, "", or "None",
+                              datetime otherwise
     """
+    default: datetime = none_timestamp()
+
     rtimestamp = timestamp
 
     if timestamp is None \
@@ -868,9 +871,8 @@ def timestamp_to_datetime(timestamp: str, default: datetime = none_timestamp()) 
     else:
         # If the timestamp has too many, or too few, decimals (should be 6), adjust it
         tmp = re.match(r"^(\d{4}-\d\d-\d\d.\d\d:\d\d:\d\d\.)(\d+)", timestamp)
-        if tmp is not None:
-            if len(tmp[2]) != 6:
-                timestamp = f"{tmp[1]}{tmp[2]:06.6}"
+        if tmp is not None and len(tmp[2]) != 6:
+            timestamp = f"{tmp[1]}{tmp[2]:06.6}"
         # For timestamp without timezone add one; all timestamps are assumed to be UTC
         timestamp += "+0000"
 
@@ -1400,20 +1402,19 @@ def check_versions_zypper(packages: list[str]) -> list[tuple[str, str, str, list
 
     for line in split_response:
         if (tmp := package_version.match(line)):
-            if tmp is not None:
-                package = tmp[2]
-                version = tmp[3]
+            package = tmp[2]
+            version = tmp[3]
 
-                if package not in versions_dict:
-                    versions_dict[package] = {
-                        "installed": "<none>",
-                        "candidate": "<none>",
-                        "available": [],
-                    }
+            if package not in versions_dict:
+                versions_dict[package] = {
+                    "installed": "<none>",
+                    "candidate": "<none>",
+                    "available": [],
+                }
 
-                if tmp[1] == "i":
-                    versions_dict[package]["installed"] = version
-                versions_dict[package]["available"].append(version)
+            if tmp[1] == "i":
+                versions_dict[package]["installed"] = version
+            versions_dict[package]["available"].append(version)
 
     # Now summarise
     for package, data in versions_dict.items():
@@ -1484,9 +1485,7 @@ def identify_arch(**kwargs: Any) -> str:
     response, _retval = cmtio.execute_command_with_response(args)
     splitlines = response.splitlines()
 
-    if cmd == "dpkg-architecture":
-        arch = splitlines[0]
-    elif cmd == "arch":
+    if cmd in ("dpkg-architecture", "arch"):
         arch = splitlines[0]
 
     return arch
@@ -1683,10 +1682,9 @@ def setup_paths() -> list[SecurityStatus]:
 
     for path, permissions in required_dir_or_symlink_paths:
         if not Path(path).is_dir():
-            if not system_path_installation:
-                if not Path(path).is_symlink():
-                    sys.exit(f"The symlink {path} is missing; "
-                             "you may need to (re-)run `cmt-install.py`; aborting.")
+            if not system_path_installation and not Path(path).is_symlink():
+                sys.exit(f"The symlink {path} is missing; "
+                         "you may need to (re-)run `cmt-install.py`; aborting.")
             result = cmtio.secure_mkdir(directory=path, permissions=permissions, exist_ok=False)
             if result != [SecurityStatus.OK]:
                 return result

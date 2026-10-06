@@ -203,11 +203,7 @@ def format_timestamp(timestamp: str | datetime, selected: bool) -> list[ThemeRef
     if not array:
         if not isinstance(timestamp, str):
             string = datetime_to_timestamp(timestamp)
-        if timestamp is None:
-            array = [
-                ThemeStr(string, ThemeAttr("types", "generic"), selected)
-            ]
-        elif timestamp == datetime.fromtimestamp(0).astimezone():
+        if timestamp is None or timestamp == datetime.fromtimestamp(0).astimezone():
             array = [
                 ThemeStr(string, ThemeAttr("types", "generic"), selected)
             ]
