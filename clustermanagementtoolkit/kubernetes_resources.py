@@ -798,6 +798,10 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api": "disaggregatedsets",
     },
     # gateway.networking.x-k8s.io
+    ("XBackend", "gateway.networking.x-k8s.io"): {
+        "api_paths": ["apis/gateway.networking.x-k8s.io/v1alpha1/"],
+        "api": "xbackends",
+    },
     ("XBackendTrafficPolicy", "gateway.networking.x-k8s.io"): {
         "api_paths": ["apis/gateway.networking.x-k8s.io/v1alpha1/"],
         "api": "xbackendtrafficpolicies",
