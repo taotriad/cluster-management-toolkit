@@ -5,7 +5,7 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
-# unit-tests for logparser.py
+# unit-tests for cmttypes.py
 
 import copy
 from datetime import datetime, timedelta, date
