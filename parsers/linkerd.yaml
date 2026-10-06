@@ -86,6 +86,7 @@
   matchkeys:
     - image_name: "/linkerd/cni-plugin"
   parser_rules:
+    - name: "key_value"
     - name: "custom_splitter"
       options:
         # yamllint disable-line rule:line-length
