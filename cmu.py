@@ -202,7 +202,7 @@ read_only_mode = False  # pylint: disable=invalid-name
 
 # Is Kubernetes support enabled
 kubernetes_support = True  # pylint: disable=invalid-name
-kube_config_file = None  # pylint: disable=invalid-name
+kube_config_file: FilePath | None = None  # pylint: disable=invalid-name
 
 # Namespace
 selected_namespace = ""  # pylint: disable=invalid-name
@@ -11497,7 +11497,7 @@ def main() -> None:
         # is a good thing to have.
         if opt in ("--kubeconfig", "--kube-config"):
             global kube_config_file  # pylint: disable=global-statement
-            kube_config_file = optarg
+            kube_config_file = FilePath(optarg)
 
     if themeindex >= 0 and not theme_path_found:
         ansithemeprint([ANSIThemeStr("Warning", "warning"),
