@@ -1,0 +1,40 @@
+---
+kind: "__DisaggregatedSetRole"
+api_family: "disaggregatedset.x-k8s.io"
+default_command: "__"
+infoview:
+  name: "Disaggregated Set Role Info"
+  infopad:
+    name_path: "name"
+    row_indexes:
+      Normal:
+        fields: ["startup_policy", "group_identity",
+                 "group_replacement_policy", "desired_replicas"]
+    rows:
+      desired_replicas:
+        header: [["Desired Replicas:", ["main", "infoheader"]]]
+        path: "spec#replicas"
+        default: "<unset>"
+        type: "int"
+        formatter: "numerical"
+      group_identity:
+        header: [["Group Identity:", ["main", "infoheader"]]]
+        path: "spec#groupIdentity"
+        default: "<unset>"
+        type: "str"
+      group_replacement_policy:
+        header: [["Group Replacement Policy:", ["main", "infoheader"]]]
+        path: "spec#groupReplacementPolicy"
+        default: "<unset>"
+        type: "str"
+      startup_policy:
+        header: [["Startup Policy:", ["main", "infoheader"]]]
+        path: "spec#startupPolicy"
+        default: "<unset>"
+        type: "str"
+  logpad:
+    infogetter: "logpad_formatted"
+    infogetter_args:
+      formatter: "format_yaml"
+      path: "spec#leaderWorkerTemplate"
+    timestamps: false

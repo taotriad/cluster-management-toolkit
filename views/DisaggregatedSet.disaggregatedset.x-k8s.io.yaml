@@ -1,0 +1,91 @@
+---
+kind: "DisaggregatedSet"
+api_family: "disaggregatedset.x-k8s.io"
+default_command: "disaggregatedsets"
+command:
+  - "disaggsets"
+  - "disaggset"
+listview:
+  name: "Disaggregated Sets"
+  group: "Workloads"
+  field_indexes:
+    Normal:
+      fields: ["namespace", "name", "slices", "age"]
+  fields:
+    slices:
+      header: "Slices:"
+      path: "spec#slices"
+      default: "<unset>"
+      type: "int"
+      formatter: "numerical"
+      align: "right"
+infoview:
+  name: "Disaggregated Set Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["placement_policy_header",
+                 "placement_policy_topology",
+                 "placement_policy_type",
+                 "slices"]
+    rows:
+      placement_policy_header:
+        header: [["Placement Policy:", ["main", "infoheader"]]]
+      placement_policy_topology:
+        header: [["  Topology:", ["main", "infoheader"]]]
+        path: "spec#placementPolicy#topology"
+        default: "<unset>"
+        type: "str"
+      placement_policy_type:
+        header: [["  Type:", ["main", "infoheader"]]]
+        path: "spec#placementPolicy#type"
+        default: "<unset>"
+        type: "str"
+      slices:
+        header: [["Slices:", ["main", "infoheader"]]]
+        path: "spec#slices"
+        default: "<unset>"
+        type: "int"
+        formatter: "numerical"
+  listpad:
+    listgetter: "listgetter_path"
+    listgetter_args:
+      path: "spec#roles"
+    infogetter: "generic_infogetter"
+    on_activation:
+      call: "resourceinfodispatch"
+      kind: "__DisaggregatedSetRole"
+      api_family: "disaggregatedset.x-k8s.io"
+    field_indexes:
+      Normal:
+        fields: ["name", "startup_policy", "group_identity",
+                 "group_replacement_policy", "desired_replicas"]
+        sortcolumn: "name"
+    fields:
+      desired_replicas:
+        header: "Desired Replicas:"
+        path: "spec#replicas"
+        default: "<unset>"
+        type: "int"
+        formatter: "numerical"
+        align: "right"
+      group_identity:
+        header: "Group Identity:"
+        path: "spec#groupIdentity"
+        default: "<unset>"
+        type: "str"
+      group_replacement_policy:
+        header: "Group Replacement Policy:"
+        path: "spec#groupReplacementPolicy"
+        default: "<unset>"
+        type: "str"
+      name:
+        header: "Name:"
+        path: "name"
+        default: "<unset>"
+        type: "str"
+      startup_policy:
+        header: "Startup Policy:"
+        path: "spec#startupPolicy"
+        default: "<unset>"
+        type: "str"

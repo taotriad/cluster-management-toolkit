@@ -8,8 +8,12 @@ listview:
   name: "Horizontal Pod Autoscalers"
   group: "Scheduling & Scaling"
   field_indexes:
-    Normal:
+    Wide:
       fields: ["namespace", "name", "reference", "minpods",
+               "maxpods", "replicas", "age"]
+      sortcolumn: "namespace"
+    Normal:
+      fields: ["namespace", "name", "minpods",
                "maxpods", "replicas", "age"]
       sortcolumn: "namespace"
   fields:

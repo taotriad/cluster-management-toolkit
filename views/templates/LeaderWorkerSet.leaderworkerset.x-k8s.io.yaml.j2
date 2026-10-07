@@ -8,11 +8,20 @@ listview:
   name: "Leader Worker Sets"
   group: "Workloads"
   field_indexes:
+    Wide:
+      fields: ["namespace", "name", "controller", "desired_replicas",
+               "current_replicas", "ready_replicas",
+               "uptodate_replicas", "age"]
+      sortcolumn: "namespace"
     Normal:
       fields: ["namespace", "name", "desired_replicas",
                "current_replicas", "ready_replicas",
                "uptodate_replicas", "age"]
+      sortcolumn: "namespace"
   fields:
+    {%- for line in field_controller.split("\n") %}
+    {{ line }}
+    {%- endfor %}
     current_replicas:
       header: "Current:"
       paths:
@@ -97,10 +106,24 @@ infoview:
   infopad:
     row_indexes:
       Normal:
-        fields: ["hpa_pod_selector", "total_pods", "subgroup_size",
-                 "network_subdomain_policy", "restart_policy",
-                 "startup_policy", "rollout_strategy", "replicas"]
+        fields: ["controller", "hpa_pod_selector", "total_pods",
+                 "subgroup_size", "network_subdomain_policy", "restart_policy",
+                 "startup_policy", "rollout_strategy",
+                 "group_identity", "group_replacement_policy", "replicas"]
     rows:
+      {%- for line in row_controller.split("\n") %}
+      {{ line }}
+      {%- endfor %}
+      group_identity:
+        header: [["Group Identity:", ["main", "infoheader"]]]
+        path: "spec#groupIdentity"
+        default: "<unset>"
+        type: "str"
+      group_replacement_policy:
+        header: [["Group Replacement Policy:", ["main", "infoheader"]]]
+        path: "spec#groupReplacementPolicy"
+        default: "<unset>"
+        type: "str"
       hpa_pod_selector:
         header: [["HPA Pod Selector:", ["main", "infoheader"]]]
         paths:
@@ -282,6 +305,9 @@ infoview:
         formatter: "numerical"
         align: "right"
   shortcuts:
+    {%- for line in shortcut_controller.split("\n") %}
+    {{ line }}
+    {%- endfor %}
     "Leader template":
       key: "l"
       read_only: true

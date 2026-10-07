@@ -2181,6 +2181,10 @@ ScaledObjectCheckFailed:
   field_colors:
     - context: "main"
       type: "status_warning"
+ScalerCreated:
+  field_colors:
+    - context: "main"
+      type: "status_done"
 ScalingReplicaSet:
   field_colors:
     - context: "main"

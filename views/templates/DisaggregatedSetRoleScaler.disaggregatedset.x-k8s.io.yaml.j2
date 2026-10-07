@@ -1,0 +1,85 @@
+---
+kind: "DisaggregatedSetRoleScaler"
+api_family: "disaggregatedset.x-k8s.io"
+default_command: "disaggregatedsetrolescalers"
+command:
+  - "disaggsetrolescalers"
+  - "disaggsetrolescaler"
+listview:
+  name: "Disaggregated Set Role Scalers"
+  group: "Workloads"
+  field_indexes:
+    Wide:
+      fields: ["namespace", "name", "controller", "desired_replicas",
+               "current_replicas", "age"]
+      sortcolumn: "namespace"
+    Normal:
+      fields: ["namespace", "name", "desired_replicas",
+               "current_replicas", "age"]
+      sortcolumn: "namespace"
+  fields:
+    {%- for line in field_controller.split("\n") %}
+    {{ line }}
+    {%- endfor %}
+    current_replicas:
+      header: "Current:"
+      path: "status#replicas"
+      default: "<unset>"
+      type: "int"
+      formatter: "numerical"
+      align: "right"
+    desired_replicas:
+      header: "Desired:"
+      path: "spec#replicas"
+      default: "<unset>"
+      type: "int"
+      formatter: "numerical"
+      align: "right"
+infoview:
+  name: "Disaggregated Set Role Scaler Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["controller", "selector", "replicas"]
+    rows:
+      {%- for line in row_controller.split("\n") %}
+      {{ line }}
+      {%- endfor %}
+      replicas:
+        header: [["Replicas:", ["main", "infoheader"]]]
+        paths:
+          - path: [["status#replicas"],
+                   " Current",
+                   ["spec#replicas"],
+                   " Desired"]
+            pathtype: "tuple"
+            default: [0, "", 0, ""]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "numerical"
+            - type: "generic"
+            - type: "numerical"
+            - type: "generic"
+          field_separators:
+            - type: "no_pad"
+            - type: "fraction_spaced"
+            - type: "no_pad"
+      selector:
+        header: [["Selector:", ["main", "infoheader"]]]
+        paths:
+          - path: "status#selector"
+            pathtype: "key_value"
+            subtype: "strlist"
+            default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "key"
+            - type: "value"
+          field_separators:
+            - type: "selector"
+  shortcuts:
+    {%- for line in shortcut_controller.split("\n") %}
+    {{ line }}
+    {%- endfor %}
