@@ -16,7 +16,6 @@ listview:
     Normal:
       fields: ["namespace", "name", "age"]
       sortcolumn: "namespace"
-  fields:
 infoview:
   name: "Virtual Machine Pool Info"
   infopad:

@@ -3074,6 +3074,10 @@
                                     "timestamps": {
                                         "description": "Should the timestamp column be displayed",
                                         "type": "boolean"
+                                    },
+                                    "title": {
+                                        "description": "The title of the logpad",
+                                        "type": "string"
                                     }
                                 },
                                 "additionalProperties": false
@@ -3189,6 +3193,10 @@
                                     "timestamps": {
                                         "description": "Should the timestamp column be displayed",
                                         "type": "boolean"
+                                    },
+                                    "title": {
+                                        "description": "The title of the logpad",
+                                        "type": "string"
                                     }
                                 },
                                 "additionalProperties": false
@@ -3213,6 +3221,10 @@
                                     "timestamps": {
                                         "description": "Should the timestamp column be displayed",
                                         "type": "boolean"
+                                    },
+                                    "title": {
+                                        "description": "The title of the logpad",
+                                        "type": "string"
                                     }
                                 },
                                 "additionalProperties": false
@@ -3231,6 +3243,10 @@
                                     "timestamps": {
                                         "description": "Should the timestamp column be displayed",
                                         "type": "boolean"
+                                    },
+                                    "title": {
+                                        "description": "The title of the logpad",
+                                        "type": "string"
                                     }
                                 },
                                 "additionalProperties": false
@@ -3245,6 +3261,10 @@
                                     "infogetter": { "const": "get_journalctl_log" },
                                     "infogetter_args": {
                                         "additionalProperties": false
+                                    },
+                                    "title": {
+                                        "description": "The title of the logpad",
+                                        "type": "string"
                                     }
                                 },
                                 "additionalProperties": false
@@ -3263,6 +3283,10 @@
                                     "timestamps": {
                                         "description": "Should the timestamp column be displayed",
                                         "type": "boolean"
+                                    },
+                                    "title": {
+                                        "description": "The title of the logpad",
+                                        "type": "string"
                                     }
                                 },
                                 "additionalProperties": false
@@ -3281,6 +3305,10 @@
                                     "timestamps": {
                                         "description": "Should the timestamp column be displayed",
                                         "type": "boolean"
+                                    },
+                                    "title": {
+                                        "description": "The title of the logpad",
+                                        "type": "string"
                                     }
                                 },
                                 "additionalProperties": false
@@ -3299,6 +3327,10 @@
                                     "timestamps": {
                                         "description": "Should the timestamp column be displayed",
                                         "type": "boolean"
+                                    },
+                                    "title": {
+                                        "description": "The title of the logpad",
+                                        "type": "string"
                                     }
                                 },
                                 "additionalProperties": false
