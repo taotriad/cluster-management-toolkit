@@ -3041,6 +3041,10 @@
                         "timestamps": {
                             "description": "Should the timestamp column be displayed",
                             "type": "boolean"
+                        },
+                        "title": {
+                            "description": "The title of the logpad",
+                            "type": "string"
                         }
                     },
                     "allOf": [
