@@ -6,19 +6,18 @@ command:
   - "migrationpols"
   - "migrationpol"
 listview:
-  name: "Migration Policys"
+  name: "Migration Policies"
   group: "Virtualization"
   field_indexes:
     Normal:
       fields: ["name", "age"]
-# fields:
 infoview:
   name: "Migration Policy Info"
   infopad:
     row_indexes:
       Normal:
         fields: ["allow_auto_converge", "allow_post_copy",
-                 "bandwidthPerMigration", "completion_timeout_per_gib",
+                 "bandwidth_per_migration", "completion_timeout_per_gib",
                  "selectors_header", "selectors_namespace_selector",
                  "selectors_virtual_machine_instance_selector"]
     rows:
@@ -32,7 +31,7 @@ infoview:
         path: "spec#allowPostCopy"
         default: "<unset>"
         type: "bool"
-      bandwidthPerMigration:
+      bandwidth_per_migration:
         header: [["bandwidthPerMigration:", ["main", "infoheader"]]]
         path: "spec#bandwidthPerMigration"
         default: "<unset>"
@@ -61,7 +60,7 @@ infoview:
             - type: "selector"
       selectors_virtual_machine_instance_selector:
         header: [["  Virtual Machine Instance Selector:",
-                 ["main", "infoheader"]]]
+                  ["main", "infoheader"]]]
         paths:
           - path: ["spec#selectors#virtualMachineInstanceSelector"]
             pathtype: "key_value"
