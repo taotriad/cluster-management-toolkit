@@ -1,0 +1,67 @@
+---
+kind: "VirtualMachineTemplate"
+api_family: "template.kubevirt.io"
+default_command: "virtualmachinetemplates"
+command:
+  - "virtmchtmpls"
+  - "virtmchtmpl"
+listview:
+  name: "Virtual Machine Templates"
+  group: "Virtualization"
+  field_indexes:
+    Normal:
+      fields: ["namespace", "name", "condition_ready", "age"]
+      sortcolumn: "namespace"
+  fields:
+    {%- for line in field_condition_ready.split("\n") %}
+    {{ line }}
+    {%- endfor %}
+infoview:
+  name: "Virtual Machine Template Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["parameters", "condition_ready"]
+    rows:
+      {%- for line in row_condition_ready.split("\n") %}
+      {{ line }}
+      {%- endfor %}
+      parameters:
+        header: [["P", ["main", "infoheader_shortcut"]],
+                 ["arameters:", ["main", "infoheader"]]]
+        paths:
+          - path: "spec#parameters"
+            pathtype: "items"
+            subpath: "name"
+        formatter: "list"
+  logpad:
+    title: "Template:"
+    infogetter: "logpad_formatted"
+    infogetter_args:
+      formatter: "format_yaml"
+      path: "spec#virtualMachine"
+    timestamps: false
+  shortcuts:
+    "List Parameters":
+      key: "p"
+      modifier: "shift"
+      read_only: true
+      helptext: "List parameters"
+      widget: "windowwidget"
+      widget_args:
+        title: "Parameters:"
+        headers: ["Name:", "Value:", "From:",
+                  "Generate:", "Required:", "Description"]
+        selectable: true
+        itemgetter: "get_list_fields"
+        itemgetter_args:
+          path: "spec#parameters"
+          fields:
+            - "name"
+            - "value"
+            - "from"
+            - "generate"
+            - "required"
+            - "description"
+        # Not supported for now
+        sortcolumn: "clusterroles"

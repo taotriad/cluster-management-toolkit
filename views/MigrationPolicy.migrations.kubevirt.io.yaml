@@ -32,13 +32,13 @@ infoview:
         default: "<unset>"
         type: "bool"
       bandwidth_per_migration:
-        header: [["bandwidthPerMigration:", ["main", "infoheader"]]]
+        header: [["Bandwidth per Migration:", ["main", "infoheader"]]]
         path: "spec#bandwidthPerMigration"
         default: "<unset>"
         type: "str"
         formatter: "numerical"
       completion_timeout_per_gib:
-        header: [["Completion Timeout Per GiB:", ["main", "infoheader"]]]
+        header: [["Completion Timeout per GiB:", ["main", "infoheader"]]]
         path: "spec#completionTimeoutPerGiB"
         default: "<unset>"
         type: "int"
