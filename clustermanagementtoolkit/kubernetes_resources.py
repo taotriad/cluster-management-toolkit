@@ -4841,6 +4841,11 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api": "gpufirmwareupdates",
         "namespaced": False,
     },
+    ("GPURecoveryPlan", "intel.com"): {
+        "api_paths": ["apis/intel.com/v1alpha1/"],
+        "api": "gpurecoveryplans",
+        "namespaced": False,
+    },
     # internal.kro.run
     ("GraphRevision", "internal.kro.run"): {
         "api_paths": ["apis/internal.kro.run/v1alpha1/"],
