@@ -2351,6 +2351,10 @@
                         "sortable": {
                             "description": "Is the list sortable",
                             "type": "boolean"
+                        },
+                        "title": {
+                            "description": "The title of the logpad",
+                            "type": "string"
                         }
                     },
                     "allOf": [

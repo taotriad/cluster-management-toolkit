@@ -15,12 +15,21 @@ infoview:
   infopad:
     row_indexes:
       Normal:
-        fields: []
+        fields: ["failure_strategy", "condition"]
     rows:
-      configuration_additional_guest_memory_overhead_ratio:
-        header: [["  Additional Guest Memory Overhead Ratio:",
-                  ["main", "infoheader"]]]
+      condition:
+        header: [["Condition:", ["main", "infoheader"]]]
+        path: "spec#condition"
+        default: "<unset>"
+        type: "str"
+        formatter: "selector"
+      failure_strategy:
+        header: [["Failure Strategy:", ["main", "infoheader"]]]
+        path: "spec#failureStrategy"
+        default: "<unset>"
+        type: "str"
   listpad:
+    title: "Hooks / References:"
     listgetter: "listgetter_path"
     listgetter_args:
       paths:
@@ -56,7 +65,8 @@ infoview:
       name_path: "name"
     field_indexes:
       Normal:
-        fields: ["type", "name", "socket", "permitted_hooks", "cel_expression"]
+        fields: ["type", "name", "socket", "permitted_hooks",
+                 "failure_strategy", "timeout", "condition", "cel_expression"]
         sortcolumn: "type"
     fields:
       cel_expression:
@@ -65,6 +75,17 @@ infoview:
         default: "<none>"
         type: "raw"
         formatter: "selector"
+      condition:
+        header: "Condition:"
+        path: "spec#condition"
+        default: "<none>"
+        type: "raw"
+        formatter: "selector"
+      failure_strategy:
+        header: "Failure Strategy:"
+        path: "failureStrategy"
+        default: "<unset>"
+        type: "str"
       name:
         header: "Name:"
         path: "name"
@@ -86,6 +107,12 @@ infoview:
         formatting:
           field_colors:
             - type: "path"
+      timeout:
+        header: "Timeout:"
+        path: "timeout"
+        default: "<unset>"
+        type: "str"
+        formatter: "numerical"
       type:
         header: "Type:"
         path: "type"
