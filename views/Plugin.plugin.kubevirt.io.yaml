@@ -1,0 +1,93 @@
+kind: "Plugin"
+api_family: "plugin.kubevirt.io"
+default_command: "plugins.plugins.kubevirt.io"
+command:
+  - "kvplugins"
+  - "kvplugin"
+listview:
+  name: "Plugins"
+  group: "Virtualization"
+  field_indexes:
+    Wide:
+      fields: ["name", "age"]
+infoview:
+  name: "Plugin Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: []
+    rows:
+      configuration_additional_guest_memory_overhead_ratio:
+        header: [["  Additional Guest Memory Overhead Ratio:",
+                  ["main", "infoheader"]]]
+  listpad:
+    listgetter: "listgetter_path"
+    listgetter_args:
+      paths:
+        - path: "spec#mutatingAdmissionPolicies"
+          key_name: "type"
+          key_value: "MutatingAdmissionPolicy"
+          type: "list"
+        - path: "spec#mutatingAdmissionWebhooks"
+          key_name: "type"
+          key_value: "MutatingWebhookConfiguration"
+          type: "list"
+        - path: "spec#validatingAdmissionPolicies"
+          key_name: "type"
+          key_value: "ValidatingAdmissionPolicy"
+          type: "list"
+        - path: "spec#validatingAdmissionWebhooks"
+          key_name: "type"
+          key_value: "ValidatingWebhookConfiguration"
+          type: "list"
+        - path: "spec#domainHooks"
+          key_name: "type"
+          key_value: "DomainHook"
+          type: "list"
+        - path: "spec#nodeHooks"
+          key_name: "type"
+          key_value: "NodeHook"
+          type: "list"
+    infogetter: "generic_infogetter"
+    on_activation:
+      call: "resourceinfodispatch_with_lookup"
+      kind_path: "type"
+      api_family: "admissionregistration.k8s.io"
+      name_path: "name"
+    field_indexes:
+      Normal:
+        fields: ["type", "name", "socket", "permitted_hooks", "cel_expression"]
+        sortcolumn: "type"
+    fields:
+      cel_expression:
+        header: "CEL Expression:"
+        path: "cel#expression"
+        default: "<none>"
+        type: "raw"
+        formatter: "selector"
+      name:
+        header: "Name:"
+        path: "name"
+        default: "<unset>"
+        type: "str"
+      permitted_hooks:
+        header: "Permitted Hooks:"
+        path: "permittedHooks"
+        default: "<none>"
+        type: "raw"
+        formatter: "list"
+      socket:
+        header: "Socket:"
+        paths:
+          - path: ["socket", "sidecar#socketPath"]
+            pathtype: "value"
+        default: "<unset>"
+        type: "str"
+        formatting:
+          field_colors:
+            - type: "path"
+      type:
+        header: "Type:"
+        path: "type"
+        default: "<unset>"
+        type: "str"
