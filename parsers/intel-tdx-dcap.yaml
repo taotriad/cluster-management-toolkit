@@ -3,9 +3,13 @@
   show_in_selector: false
   matchkeys:
     - image_name: "/intel/intel-tdx-qgs"
+    - image_name: "/ocpeng/intel-tdx-qgs"
     - image_name: "/intel/intel-tdx-qgs"
       container_type: "InitContainer"
+    - image_name: "/ocpeng/intel-tdx-qgs"
+      container_type: "InitContainer"
     - image_name: "/intel/intel-tdx-dcap-operator"
+    - image_name: "/ocpeng/intel-tdx-dcap-operator"
   parser_rules:
     - name: "strip_ansicodes"
     - name: "ts_8601"
