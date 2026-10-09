@@ -71,6 +71,10 @@ infoview:
                  "configuration_vm_state_storage_class",
                  "configuration_vm_rollout_strategy",
                  "configuration_additional_guest_memory_overhead_ratio",
+                 "configuration_developer_configuration_header",
+                 "configuration_developer_configuration_feature_gates_header",
+                 "configuration_developer_configuration_feature_gates_enabled",
+                 "configuration_developer_configuration_feature_gates_disabled",
                  "outdated_virtual_machine_instance_workloads",
                  "replicas", "phase"]
     rows:
@@ -81,6 +85,26 @@ infoview:
         default: "<unset>"
         type: "str"
         formatter: "numerical"
+      configuration_developer_configuration_header:
+        header: [["  Developer Configuration:", ["main", "infoheader"]]]
+      configuration_developer_configuration_feature_gates_header:
+        header: [["    Feature Gates:", ["main", "infoheader"]]]
+      configuration_developer_configuration_feature_gates_enabled:
+        header: [["      ", ["main", "infoheader"]],
+                 ["E", ["main", "infoheader_shortcut"]],
+                 ["nabled:", ["main", "infoheader"]]]
+        path: "spec#configuration#developerConfiguration#featureGates"
+        default: ["<none>"]
+        type: "raw"
+        formatter: "list"
+      configuration_developer_configuration_feature_gates_disabled:
+        header: [["      ", ["main", "infoheader"]],
+                 ["D", ["main", "infoheader_shortcut"]],
+                 ["isabled:", ["main", "infoheader"]]]
+        path: "spec#configuration#developerConfiguration#disabledFeatureGates"
+        default: ["<none>"]
+        type: "raw"
+        formatter: "list"
       configuration_header:
         header: [["Configuration:", ["main", "infoheader"]]]
       configuration_vm_rollout_strategy:
@@ -202,6 +226,32 @@ infoview:
         title: "Observed Target Config"
         _pass_obj: true
         path: "status#targetDeploymentConfig"
+    "List Disabled Feature Gates":
+      key: "d"
+      modifier: "shift"
+      read_only: true
+      helptext: "List enabled feature gates"
+      widget: "windowwidget"
+      widget_args:
+        title: "Disabled Feature Gates:"
+        itemgetter: "get_list_as_list"
+        itemgetter_args:
+          path: "spec#configuration#developerConfiguration#disabledFeatureGates"
+        # Not supported for now
+        sortcolumn: "name"
+    "List Enabled Feature Gates":
+      key: "e"
+      modifier: "shift"
+      read_only: true
+      helptext: "List enabled feature gates"
+      widget: "windowwidget"
+      widget_args:
+        title: "Enabled Feature Gates:"
+        itemgetter: "get_list_as_list"
+        itemgetter_args:
+          path: "spec#configuration#developerConfiguration#featureGates"
+        # Not supported for now
+        sortcolumn: "name"
     "List Generations":
       key: "g"
       read_only: true
