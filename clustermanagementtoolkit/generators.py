@@ -895,7 +895,7 @@ def format_selector(items: dict | list[dict],
 
                     _vlist += [
                         ThemeStr(f"{key}", ThemeAttr("types", "key")),
-                        ThemeRef("separators", "selector"),
+                        ThemeRef("separators", "keyvalue"),
                         ThemeStr(f"{value}", valueattr),
                     ]
 
