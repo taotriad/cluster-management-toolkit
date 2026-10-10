@@ -1,3 +1,4 @@
+---
 kind: "Plugin"
 api_family: "plugin.kubevirt.io"
 default_command: "plugins.plugins.kubevirt.io"
