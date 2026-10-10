@@ -4250,6 +4250,10 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api_paths": ["apis/frrk8s.metallb.io/v1beta1/"],
         "api": "frrconfigurations",
     },
+    ("FRRK8sConfiguration", "frrk8s.metallb.io"): {
+        "api_paths": ["apis/frrk8s.metallb.io/v1beta1/"],
+        "api": "frrk8sconfigurations",
+    },
     ("FRRNodeState", "frrk8s.metallb.io"): {
         "api_paths": ["apis/frrk8s.metallb.io/v1beta1/"],
         "api": "frrnodestates",
