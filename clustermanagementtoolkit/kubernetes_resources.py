@@ -8315,6 +8315,24 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api_paths": ["apis/serving.kserve.io/v1beta1/"],
         "api": "inferenceservices",
     },
+    ("KernelCacheCapture", "serving.kserve.io"): {
+        "api_paths": ["apis/serving.kserve.io/v1alpha1/"],
+        "api": "kernelcachecaptures",
+    },
+    ("KernelCacheNodeGroup", "serving.kserve.io"): {
+        "api_paths": ["apis/serving.kserve.io/v1alpha1/"],
+        "api": "kernelcachenodegroups",
+        "namespaced": False,
+    },
+    ("KernelCacheNode", "serving.kserve.io"): {
+        "api_paths": ["apis/serving.kserve.io/v1alpha1/"],
+        "api": "kernelcachenodes",
+        "namespaced": False,
+    },
+    ("KernelCache", "serving.kserve.io"): {
+        "api_paths": ["apis/serving.kserve.io/v1alpha1/"],
+        "api": "kernelcaches",
+    },
     ("LLMInferenceServiceConfig", "serving.kserve.io"): {
         "api_paths": ["apis/serving.kserve.io/v1alpha2/"],
         "api": "llminferenceserviceconfigs",
