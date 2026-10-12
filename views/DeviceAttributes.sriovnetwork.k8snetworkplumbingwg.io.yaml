@@ -1,0 +1,40 @@
+---
+kind: "DeviceAttributes"
+api_family: "sriovnetwork.k8snetworkplumbingwg.io"
+default_command: "deviceattributes"
+command:
+  - "deviceattrs"
+  - "deviceattr"
+  - "devattrs"
+  - "devattr"
+listview:
+  name: "Device Attributes"
+  group: "Dynamic Resource Allocation"
+  field_indexes:
+    Normal:
+      fields: ["namespace", "name", "age"]
+      sortcolumn: "namespace"
+infoview:
+  name: "Device Attribute Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["attributes"]
+    rows:
+      attributes:
+        header: [["Attributes:", ["main", "infoheader"]]]
+        paths:
+          - path: "spec#attributes"
+            pathtype: "key_value"
+            subpaths:
+              - "bool"
+              - "int"
+              - "string"
+              - "version"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "key"
+            - type: "value"
+          field_separators:
+            - type: "keyvalue"

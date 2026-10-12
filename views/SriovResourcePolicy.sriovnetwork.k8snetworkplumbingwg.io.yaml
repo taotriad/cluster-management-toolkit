@@ -1,0 +1,64 @@
+---
+kind: "SriovResourcePolicy"
+api_family: "sriovnetwork.k8snetworkplumbingwg.io"
+default_command: "sriovresourcepolicies"
+command:
+  - "sriovrespolicies"
+  - "sriovrespolicy"
+  - "sriovrespols"
+  - "sriovrespol"
+listview:
+  name: "SR-IOV Resource Policies"
+  group: "Dynamic Resource Allocation"
+  field_indexes:
+    Normal:
+      fields: ["namespace", "name", "age"]
+      sortcolumn: "namespace"
+infoview:
+  name: "SR-IOV Resource Policy Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["node_selector"]
+    rows:
+      node_selector:
+        header: [["Node Selec", ["main", "infoheader"]],
+                 ["t", ["main", "infoheader_shortcut"]],
+                 ["or:", ["main", "infoheader"]]]
+        paths:
+          - path: "spec#nodeSelector#nodeSelectorTerms"
+            pathtype: "obj"
+            default: "<none>"
+        formatter: "selector"
+  listpad:
+    listgetter: "listgetter_path"
+    listgetter_args:
+      path: "spec#configs"
+    infogetter: "generic_infogetter"
+    field_indexes:
+      Normal:
+        fields: ["device_attributes_selector", "resource_filters"]
+    fields:
+      device_attributes_selector:
+        header: "Device Attributes Selector:"
+        paths:
+          - path: "deviceAttributesSelector"
+            pathtype: "obj"
+            default: "<none>"
+        formatter: "selector"
+      resource_filters:
+        header: "Resource Filters:"
+        path: "resourceFilters"
+        type: "raw"
+        formatter: "list"
+  shortcuts:
+    "Node Selector":
+      key: "t"
+      read_only: true
+      helptext: "Show Node selector"
+      widget: "windowwidget"
+      widget_args:
+        title: "Node Selector:"
+        itemgetter: "get_selector_list"
+        itemgetter_args:
+          path: "spec#nodeSelector#nodeSelectorTerms"
