@@ -1,0 +1,14 @@
+---
+- name: "oauth2-proxy"
+  show_in_selector: false
+  matchkeys:
+    - image_name: "/oauth2-proxy/oauth2-proxy"
+  parser_rules:
+    - name: "custom_splitter"
+      options:
+        regex: '^\[\d{4}.\d\d.\d\d \d\d:\d\d:\d\d\] \[([^]]+)\] (.*)'
+        facility:
+          fields:
+            - 1
+        message:
+          field: 2
