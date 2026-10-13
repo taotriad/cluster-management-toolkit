@@ -742,7 +742,7 @@ def input_query(uip: UIProps, queryfunc: str | None,
     result: str | int | None = None
 
     # pylint: disable-next=too-many-nested-blocks
-    if queryfunc is not None and queryval is not None and query is not None:
+    if queryfunc and queryval and query:
         if queryfunc in ("int", "string"):
             # Not supported by inputbox widget
             # querydefault = ""
@@ -8861,7 +8861,7 @@ def __populate_playbooklist(path: FilePath, action_list: dict) -> dict:
         queryfunc = deep_get(d[0], DictPath("vars#metadata#query#function"))
 
         # Sanity check
-        if queryfunc not in ("int", "string", "yesno", "filechooser"):
+        if queryfunc and queryfunc not in ("int", "string", "yesno", "filechooser"):
             raise ValueError(f"unknown queryfunc “{queryfunc}“ provided")
 
         confirm = deep_get(d[0], DictPath("vars#metadata#confirm"), False)
