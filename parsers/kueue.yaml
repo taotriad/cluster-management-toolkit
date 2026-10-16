@@ -28,6 +28,7 @@
       container_name: "manager"
   parser_rules:
     - name: "tab_separated"
+    - name: "json"
 - name: "kueue"
   show_in_selector: false
   matchkeys:
