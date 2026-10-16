@@ -2330,7 +2330,6 @@ class KubernetesHelper:
                 # No route to host does not have a HTTP response; make one up...
                 # 503 is Service Unavailable; this is generally temporary,
                 # but to distinguish it from a real 503 we prefix it...
-                print(f"{e=}")
                 if "CERTIFICATE_VERIFY_FAILED" in str(e):
                     # Client Handshake Failed (Cloudflare)
                     status = 525
