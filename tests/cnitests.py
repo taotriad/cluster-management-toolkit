@@ -13,7 +13,8 @@ import yaml
 
 from clustermanagementtoolkit.cmtio import secure_read_string, secure_write_string
 from clustermanagementtoolkit.cmttypes import deep_get, DictPath
-from clustermanagementtoolkit.cmttypes import FilePath, FilePathAuditError, SecurityStatus
+from clustermanagementtoolkit.cmttypes import FilePath, SecurityStatus
+from clustermanagementtoolkit.cmttypes.exceptions import FilePathAuditError
 from clustermanagementtoolkit.ansithemeprint import ANSIThemeStr
 from clustermanagementtoolkit.ansithemeprint import ansithemeprint, init_ansithemeprint
 from clustermanagementtoolkit import cni_data

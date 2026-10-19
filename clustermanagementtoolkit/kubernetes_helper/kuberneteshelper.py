@@ -1,0 +1,2654 @@
+# vim: ts=4 filetype=python expandtab shiftwidth=4 softtabstop=4 syntax=python
+# Requires: python3 (>= 3.11)
+#
+# Copyright the Cluster Management Toolkit for Kubernetes contributors.
+# SPDX-License-Identifier: MIT
+
+"""
+A class for interacting with Kubernetes clusters.
+"""
+
+# pylint: disable=too-many-lines
+
+import base64
+import copy
+import errno
+import hashlib
+import json
+from pathlib import Path
+import re
+import sys
+import tempfile
+import threading
+from typing import Any, cast, ClassVar
+import yaml
+
+from cryptography.hazmat.primitives import serialization
+from cryptography import x509
+
+try:
+    import urllib3
+except ModuleNotFoundError:  # pragma: no cover
+    sys.exit("ModuleNotFoundError: Could not import urllib3; "
+             "you may need to (re-)run `cmt-install.py` or `pip3 install urllib3`; aborting.")
+
+from clustermanagementtoolkit.ansithemeprint import ANSIThemeStr
+
+from clustermanagementtoolkit.cmtio import secure_read
+
+from clustermanagementtoolkit.cmtio_yaml import json_dumps
+from clustermanagementtoolkit.cmtio_yaml import json_loads
+from clustermanagementtoolkit.cmtio_yaml import secure_read_yaml
+from clustermanagementtoolkit.cmtio_yaml import secure_write_yaml
+
+from clustermanagementtoolkit import cmtlib
+from clustermanagementtoolkit.cmtlib import datetime_to_timestamp
+from clustermanagementtoolkit.cmtlib import get_since
+from clustermanagementtoolkit.cmtlib import make_label_selector
+from clustermanagementtoolkit.cmtlib import timestamp_to_datetime
+from clustermanagementtoolkit.cmtlib import versiontuple
+
+from clustermanagementtoolkit import cmtlog
+
+from clustermanagementtoolkit.cmtpaths import HOMEDIR
+from clustermanagementtoolkit.cmtpaths import KUBE_CONFIG_FILE
+from clustermanagementtoolkit.cmtpaths import KUBE_CREDENTIALS_FILE
+
+from clustermanagementtoolkit.cmttypes import DictPath
+from clustermanagementtoolkit.cmttypes import FilePath
+from clustermanagementtoolkit.cmttypes import LogLevel
+from clustermanagementtoolkit.cmttypes import SecurityChecks
+from clustermanagementtoolkit.cmttypes import StatusGroup
+from clustermanagementtoolkit.cmttypes import deep_get
+from clustermanagementtoolkit.cmttypes import deep_get_with_fallback
+from clustermanagementtoolkit.cmttypes.exceptions import FilePathAuditError
+from clustermanagementtoolkit.cmttypes.exceptions import ProgrammingError
+
+# pylint: disable=line-too-long
+from clustermanagementtoolkit.kubernetes_helper.get_image_version import get_image_version
+from clustermanagementtoolkit.kubernetes_helper.get_node_roles import get_node_roles
+from clustermanagementtoolkit.kubernetes_helper.get_controller_from_owner_references import get_controller_from_owner_references  # noqa: E501
+from clustermanagementtoolkit.kubernetes_helper.guess_kind import guess_kind
+from clustermanagementtoolkit.kubernetes_helper.guess_kind_with_version import guess_kind_with_version  # noqa: E501
+from clustermanagementtoolkit.kubernetes_helper.list_contexts import list_contexts
+from clustermanagementtoolkit.kubernetes_helper.kubernetesresourcecache import KubernetesResourceCache  # noqa: E501
+from clustermanagementtoolkit.kubernetes_helper.poolmanagercontext import PoolManagerContext
+# pylint: enable=line-too-long
+
+from clustermanagementtoolkit import kubernetes_resources
+
+
+# pylint: disable-next=too-many-instance-attributes,too-many-public-methods
+class KubernetesHelper:
+    """
+    A class used for interacting with a Kubernetes cluster.
+    """
+
+    renew_lock: ClassVar[threading.Lock] = threading.Lock()
+
+    # There doesn't seem to be any better type-hint than Any
+    # for NamedTemporaryFile for the time being.
+    tmp_ca_certs_file: Any = None
+    tmp_cert_file: Any = None
+    tmp_key_file: Any = None
+
+    ca_certs_file: str | None = None
+    cert_file: str | None = None
+    key_file: str | None = None
+    token: str | None = None
+
+    pool_manager_args: dict | None = None
+    pool_manager_proxy = ""
+
+    programname = ""
+    programversion = ""
+
+    cluster_unreachable: bool = True
+    cluster_name: str = ""
+    coontext_name: str = ""
+    config_path: FilePath | None = None
+
+    control_plane_ip: str | None = None
+    control_plane_port: str = ""
+    control_plane_path: str | None = None
+
+    def list_contexts(self, config_path: FilePath | None = None) \
+            -> list[tuple[bool, str, str, str, str, str]]:
+        """
+        Given the path to a kubeconfig file, returns the available contexts.
+
+            Parameters:
+                config_path (FilePath): The path to the kubeconfig file
+            Returns:
+                contexts (list[(current, name, cluster, authinfo, namespace)]):
+                    current (bool): Is this the current context?
+                    name (str): The name of the context
+                    cluster (str): The name of the cluster
+                    authinfo (str): The name of the user
+                    namespace (str): The name of the namespace
+                    server (str): The API-server of the cluster
+        """
+        # If config_path is passed as a parameter, use it,
+        # else use the path used when initialising the class
+        if config_path is None:
+            config_path = self.config_path
+        # This should never be needed, but just in case
+        if config_path is None:
+            config_path = KUBE_CONFIG_FILE
+
+        return list_contexts(config_path)
+
+    def list_clusters(self, config_path: FilePath | None = None) -> list[tuple[str, str]]:
+        """
+        Returns a list of (cluster, context) with only one context per cluster,
+        priority given to contexts with admin in the username.
+
+            Parameters:
+                config_path (FilePath): The path to the kubeconfig file
+            Returns:
+                clusters (list[(cluster, context)]):
+                    cluster (str): The name of the cluster
+                    context (str): The name of the context
+        """
+        # If config_path is passed as a parameter, use it,
+        # else use the path used when initialising the class
+        if config_path is None:
+            config_path = self.config_path
+        # This should never be needed, but just in case
+        if config_path is None:
+            config_path = KUBE_CONFIG_FILE
+
+        contexts = self.list_contexts(config_path=config_path)
+        __clusters: dict = {}
+        clusters = []
+
+        for context in contexts:
+            name = context[1]
+            cluster = context[2]
+            authinfo = context[3]
+
+            # Add the first context we find for a cluster
+            if cluster not in __clusters:
+                __clusters[cluster] = {
+                    "context": name,
+                    "authinfo": authinfo,
+                }
+            else:
+                # Only override that entry if we find an admin
+                if "admin" in authinfo and "admin" not in __clusters[cluster]["authinfo"]:
+                    __clusters[cluster]["context"] = name
+                    __clusters[cluster]["authinfo"] = authinfo
+
+        # If we find a context where the authinfo mentions admin, pick that one,
+        # otherwise just find the first context for each cluster
+        for cluster, data in __clusters.items():
+            clusters.append((cluster, data["context"]))
+
+        return clusters
+
+    # pylint: disable-next=too-many-locals
+    def renew_token(self, cluster_name: str, context_name: str) -> None:
+        """
+        Renew the authentication token, if applicable.
+
+            Parameters:
+                cluster_name (str): The name of the cluster
+                context_name (str): The name of the context
+        """
+        # If the current cluster_name + context_name
+        # has a matching entry in credentials we (attempt to) authenticate here
+
+        try:
+            credentials = secure_read_yaml(KUBE_CREDENTIALS_FILE)
+        except FilePathAuditError as e:
+            if "SecurityStatus.PARENT_DOES_NOT_EXIST" in str(e) \
+                    or "SecurityStatus.DOES_NOT_EXIST" in str(e):
+                return
+            raise
+        except FileNotFoundError:
+            # We can handle FileNotFoundError and PARENT_DOES_NOT_EXIST;
+            # other exceptions might be security related, so we let them raise
+            return
+        except yaml.parser.ParserError as e:
+            e.args += (f"{KUBE_CREDENTIALS_FILE} is not valid YAML; aborting.",)
+            raise
+
+        # We got ourselves a credentials file;
+        # is there a password for the current cluster + context?
+        name = deep_get(credentials,
+                        DictPath(f"clusters#{cluster_name}#contexts#{context_name}#name"), None)
+        password = deep_get(credentials,
+                            DictPath(f"clusters#{cluster_name}#contexts#{context_name}#password"),
+                            None)
+
+        if name is None or password is None:
+            return
+
+        # This only applies for CRC
+        if "crc" in cluster_name:
+            url = "https://oauth-openshift.apps-crc.testing/oauth/" \
+                  "authorize?response_type=token&client_id=openshift-challenging-client"
+            auth = f"{name}:{password}".encode("ascii")
+
+            header_params = {
+                "X-CSRF-Token": "xxx",
+                "Authorization": f"Basic {base64.b64encode(auth).decode('ascii')}",
+                # "Accept": "application/json",
+                # "Content-Type": "application/json",
+                "User-Agent": f"{self.programname} v{self.programversion}",
+            }
+
+            connect_timeout: float = 3.0
+
+            try:
+                with PoolManagerContext(cert_file=self.cert_file, key_file=self.key_file,
+                                        ca_certs_file=self.ca_certs_file, token=self.token,
+                                        insecuretlsskipverify=self.insecuretlsskipverify) \
+                        as pool_manager:
+                    result = pool_manager.request("GET", url, headers=header_params,
+                                                  timeout=urllib3.Timeout(connect=connect_timeout),
+                                                  redirect=False)
+                    status = result.status
+            except urllib3.exceptions.MaxRetryError as e:
+                # No route to host does not have a HTTP response; make one up...
+                # 503 is Service Unavailable; this is generally temporary,
+                # but to distinguish it from a real 503 we prefix it...
+                if "CERTIFICATE_VERIFY_FAILED" in str(e):
+                    # Client Handshake Failed (Cloudflare)
+                    status = 525
+                else:
+                    status = 42503
+            except urllib3.exceptions.ConnectTimeoutError:
+                # Connection timed out; the API-server might not be available,
+                # suffer from too high load, or similar
+                # 504 is Gateway Timeout; using 42504 to indicate
+                # connection timeout thus seems reasonable
+                status = 42504
+
+            if status == 302:
+                location = result.headers.get("Location", "")
+                tmp = re.match(r".*implicit#access_token=([^&]+)", location)
+                if tmp is not None:
+                    self.token = tmp[1]
+
+    def get_current_context(self, config_path: FilePath | None = None) -> str:
+        """
+        Get current context.
+
+            Parameters:
+                config_path (FilePath): The path to the kubeconfig file
+            Returns:
+                (str): The current context
+        """
+        # If config_path is passed as a parameter, use it,
+        # else use the path used when initialising the class
+        if config_path is None:
+            config_path = self.config_path
+        # This should never be needed, but just in case
+        if config_path is None:
+            config_path = KUBE_CONFIG_FILE
+
+        kubeconfig = secure_read_yaml(FilePath(config_path))
+
+        return deep_get(kubeconfig, DictPath("current-context"), "")
+
+    # pylint: disable-next=too-many-locals,too-many-branches,too-many-statements
+    def set_context(self, config_path: FilePath | None = None,
+                    name: str | None = None, unchanged_is_success: bool = False) -> bool:
+        """
+        Change context.
+
+            Parameters:
+                config_path (FilePath): The path to the kubeconfig file
+                name (str): The context to change to
+                unchanged_is_success (bool): True to return success if the context didn't change,
+                                             False otherwise
+            Returns:
+                (bool): True on success, False on failure
+        """
+        context_name = ""
+        cluster_name = ""
+        user_name = ""
+        # namespace_name = ""
+
+        # If config_path is passed as a parameter, use it,
+        # else use the path used when initialising the class
+        if config_path is None:
+            config_path = self.config_path
+        # This should never be needed, but just in case
+        if config_path is None:
+            config_path = KUBE_CONFIG_FILE
+
+        config_path = FilePath(config_path)
+
+        # We are semi-OK with the file not existing
+        checks = [
+            SecurityChecks.PARENT_RESOLVES_TO_SELF,
+            SecurityChecks.OWNER_IN_ALLOWLIST,
+            SecurityChecks.PARENT_OWNER_IN_ALLOWLIST,
+            SecurityChecks.CAN_READ_IF_EXISTS,
+            SecurityChecks.PERMISSIONS,
+            SecurityChecks.PARENT_PERMISSIONS,
+            SecurityChecks.IS_FILE,
+        ]
+
+        try:
+            kubeconfig = secure_read_yaml(config_path, checks=checks)
+        except FileNotFoundError:
+            return False
+        except FilePathAuditError as e:
+            if "SecurityStatus.PARENT_DOES_NOT_EXIST" in str(e) \
+               or "SecurityStatus.PERMISSIONS" in str(e):
+                return False
+            raise
+
+        current_context = deep_get(kubeconfig, DictPath("current-context"), "")
+
+        unchanged = True
+        # If we did not get a context name we try current-context
+        if name is None or not name:
+            unchanged = False
+            name = current_context
+        name = str(name)
+
+        for context in deep_get(kubeconfig, DictPath("contexts"), []):
+            # If we still do not have a context name,
+            # pick the first match
+            if not name or deep_get(context, DictPath("name")) == name:
+                context_name = deep_get(context, DictPath("name"))
+                user_name = deep_get(context, DictPath("context#user"), "")
+                cluster_name = deep_get(context, DictPath("context#cluster"), "")
+                # namespace_name = deep_get(context, DictPath("context#namespace"), "")
+                break
+
+        if unchanged and current_context == context_name:
+            return unchanged_is_success
+
+        control_plane_ip = None
+        control_plane_port = ""
+        control_plane_path = None
+        self.insecuretlsskipverify = False
+        ca_certs = None
+
+        # OK, we have a user and a cluster to look for
+        host_rest_regex = re.compile(r"^https?://(.*)")
+
+        for cluster in deep_get(kubeconfig, DictPath("clusters"), []):
+            if deep_get(cluster, DictPath("name")) != cluster_name:
+                continue
+
+            host_rest = host_rest_regex.match(cluster["cluster"]["server"])
+            if host_rest is None:
+                continue
+            host_all = "".join(host_rest.groups())
+            host_port = host_all.split(":")
+            control_plane_port = ""
+            control_plane_path = ""
+            if len(host_port) > 1:
+                control_plane_ip = host_port[0]
+                port_path = host_port[1].split("/", maxsplit=1)
+                if len(port_path) > 1:
+                    control_plane_port, control_plane_path = port_path
+                else:
+                    control_plane_port = host_port[1]
+            else:
+                control_plane_port = ""
+                host_path = host_port[0].split("/", maxsplit=1)
+                if len(host_path) > 1:
+                    control_plane_ip, control_plane_path = host_path
+                    control_plane_path = f"/{control_plane_path}"
+                else:
+                    control_plane_ip = host_port[0]
+
+            self.insecuretlsskipverify = \
+                deep_get(cluster, DictPath("cluster#insecure-skip-tls-verify"), False)
+            if self.insecuretlsskipverify:
+                break
+
+            # ca_certs
+            ccac = deep_get(cluster, DictPath("cluster#certificate-authority-data"))
+            # ca_certs file
+            ccac_file = deep_get(cluster, DictPath("cluster#certificate-authority"))
+
+            if ccac is not None:
+                try:
+                    ca_certs = base64.b64decode(ccac).decode("utf-8", errors="replace")
+                except UnicodeDecodeError as e:
+                    e.args += (f"failed to decode certificate-authority-data: {e}",)
+                    raise
+                break
+            if ccac_file is not None:
+                ca_certs = cast(str, secure_read(ccac_file))
+
+        if control_plane_ip is None or control_plane_port is None:
+            return False
+
+        # OK, we have a cluster, try to find a user
+
+        cert = None
+        key = None
+        self.token = None
+
+        for _userindex, user in enumerate(deep_get(kubeconfig, DictPath("users"), [])):
+            if deep_get(user, DictPath("name")) == user_name:
+                if not deep_get(user, DictPath("user"), {}):
+                    # We didn't get any user data at all;
+                    # we might still be able to use a token
+                    # if this is CRC
+                    if "crc" in cluster_name:
+                        self.token = ""
+                    break
+                # cert
+                ccd = deep_get(user, DictPath("user#client-certificate-data"))
+                # cert file
+                ccd_file = deep_get(user, DictPath("user#client-certificate"))
+
+                if ccd is not None:
+                    try:
+                        cert = base64.b64decode(ccd).decode("utf-8", errors="replace")
+                    except UnicodeDecodeError as e:
+                        e.args += (f"failed to decode client-certificate-data: {e}",)
+                        raise
+                elif ccd_file is not None:
+                    cert = cast(str, secure_read(ccd_file))
+
+                # key
+                ckd = deep_get(user, DictPath("user#client-key-data"))
+                # key file
+                ckd_file = deep_get(user, DictPath("user#client-key"))
+
+                if ckd is not None:
+                    try:
+                        key = base64.b64decode(ckd).decode("utf-8", errors="replace")
+                    except UnicodeDecodeError as e:
+                        e.args += (f"failed to decode client-key-data: {e}",)
+                        raise
+                elif ckd_file is not None:
+                    key = cast(str, secure_read(ckd_file))
+
+                self.token = deep_get(user, DictPath("user#token"))
+                break
+
+        # We either do not have the cert or token needed to access the server
+        # or we cannot authenticate the server correctly
+        if self.token is None and (cert is None or key is None) \
+           or ca_certs is None and not self.insecuretlsskipverify:
+            return False
+
+        # OK, we've got the cluster IP and port,
+        # as well as the certs we need; time to switch context
+
+        # If we are switching contexts we might have open files
+        self.__close_certs()
+
+        self.control_plane_ip = control_plane_ip
+        if control_plane_port:
+            self.control_plane_port = f":{control_plane_port}"
+        self.control_plane_path = control_plane_path
+        if key is not None:
+            key = str(key)
+
+        if not self.insecuretlsskipverify:
+            ca_certs = str(ca_certs)
+            # pylint: disable-next=consider-using-with
+            self.tmp_ca_certs_file = tempfile.NamedTemporaryFile()  # noqa: SIM115
+            self.ca_certs_file = self.tmp_ca_certs_file.name
+            self.tmp_ca_certs_file.write(ca_certs.encode("utf-8"))
+            self.tmp_ca_certs_file.flush()
+        else:
+            urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
+        # If we have a cert we also have a key, but check anyway, to make mypy happy
+        if cert is not None and key is not None:
+            # pylint: disable-next=consider-using-with
+            self.tmp_cert_file = tempfile.NamedTemporaryFile()  # noqa: SIM115
+            # pylint: disable-next=consider-using-with
+            self.tmp_key_file = tempfile.NamedTemporaryFile()  # noqa: SIM115
+            self.cert_file = self.tmp_cert_file.name
+            self.key_file = self.tmp_key_file.name
+
+            self.tmp_cert_file.write(cert.encode("utf-8"))
+            self.tmp_cert_file.flush()
+
+            self.tmp_key_file.write(key.encode("utf-8"))
+            self.tmp_key_file.flush()
+
+        self.cluster_unreachable = False
+        self.cluster_name = cluster_name
+        self.context_name = context_name
+
+        # If we are switching contexts, update the config file
+        if context_name != current_context:
+            kubeconfig["current-context"] = context_name
+
+        secure_write_yaml(config_path, kubeconfig, permissions=0o600, sort_keys=False)
+
+        return True
+
+    def get_pod_network_cidr(self) -> str | None:
+        """
+        Returns the Pod network CIDR for the cluster.
+
+            Returns:
+                pod_network_cidr (str): The Pod network CIDR
+        """
+        # First try to get the CIDR from kubeadm-config, if it exists
+        ref = self.get_ref_by_kind_name_namespace(("ConfigMap", ""),
+                                                  name="kubeadm-config", namespace="kube-system")
+        if ref is not None:
+            data = deep_get(ref, DictPath("data#ClusterConfiguration"), {})
+            try:
+                d = yaml.safe_load(data)
+                return deep_get(d, DictPath("networking#podSubnet"))
+            except yaml.scanner.ScannerError:
+                pass
+        nodes, status = \
+            self.get_list_by_kind_namespace(("Node", ""), "",
+                                            label_selector="node-role.kubernetes.io/control-plane")
+        if nodes is None or not nodes or status != 200:
+            nodes, status = \
+                self.get_list_by_kind_namespace(("Node", ""), "",
+                                                label_selector="node-role.kubernetes.io/master")
+        if nodes is None or not nodes or status != 200:
+            return None
+        return deep_get(nodes[0], DictPath("spec#podCIDR"))
+
+    # CNI detection helpers
+    # pylint: disable-next=too-many-locals,too-many-branches
+    def __identify_cni(self, cni_name: str, controller_kind: tuple[str, str],
+                       controller_selector: str,
+                       container_name: str) -> list[tuple[str, str, tuple[str, StatusGroup, str]]]:
+        cni: list[tuple[str, str, tuple[str, StatusGroup, str]]] = []
+
+        # Is there a controller matching the kind we are looking for?
+        vlist, _status = \
+            self.get_list_by_kind_namespace(controller_kind, "",
+                                            field_selector=controller_selector)
+
+        if vlist is None or not vlist or _status != 200:
+            return cni
+
+        pod_matches = 0
+        cni_version = None
+        cni_status: tuple[str, StatusGroup, str] = \
+            ("<unknown>", StatusGroup.UNKNOWN, "Could not get status")
+
+        # 2. Are there > 0 pods matching the label selector?
+        for obj in vlist:
+            if controller_kind == ("Deployment", "apps"):
+                cni_status = ("Unavailable", StatusGroup.NOT_OK, "")
+                for condition in deep_get(obj, DictPath("status#conditions")):
+                    ctype = deep_get(condition, DictPath("type"))
+                    if ctype == "Available":
+                        cni_status = (ctype, StatusGroup.OK, "")
+                        break
+            elif controller_kind == ("DaemonSet", "apps"):
+                num_unavailable = deep_get(obj, DictPath("status#numberUnavailable"), 0)
+                max_unavailable = deep_get(obj, DictPath("status#maxUnavailable"), 0)
+                if num_unavailable > max_unavailable:
+                    cni_status = ("Unavailable", StatusGroup.NOT_OK,
+                                  "numberUnavailable > maxUnavailable")
+                else:
+                    cni_status = ("Available", StatusGroup.OK, "")
+
+            match_label_selector = \
+                make_label_selector(deep_get(obj, DictPath("spec#selector#matchLabels")))
+            vlist2, _status = \
+                self.get_list_by_kind_namespace(("Pod", ""), "",
+                                                label_selector=match_label_selector)
+
+            if vlist is None or not vlist:
+                continue
+
+            for obj2 in vlist2:
+                # Try to get the version
+                for container in deep_get(obj2, DictPath("status#containerStatuses"), []):
+                    if deep_get(container, DictPath("name"), "") != container_name:
+                        continue
+                    image_version = get_image_version(deep_get(container, DictPath("image"), ""))
+                    if image_version == "<undefined>":
+                        continue
+
+                    image_version_tuple = versiontuple(image_version)
+                    if cni_version is None:
+                        cni_version = image_version
+                        pod_matches += 1
+                        continue
+                    cni_version_tuple = versiontuple(cni_version)
+                    if image_version_tuple > cni_version_tuple or image_version != cni_version:
+                        cni_version = image_version
+                        pod_matches += 1
+
+        if cni_version is None:
+            cni_version = "<unknown>"
+
+        if pod_matches == 0:
+            cni.append((cni_name, "<incomplete>", cni_status))
+        elif pod_matches == 1:
+            cni.append((cni_name, f"{cni_version}", cni_status))
+        else:
+            cni.append((cni_name, f"{cni_version}*", cni_status))
+
+        return cni
+
+    def identify_cni(self) -> list[tuple[str, str, tuple[str, StatusGroup, str]]]:
+        """
+        Attempt to identify what CNI the cluster is using;
+        if there are multiple possible matches all are returned.
+
+            Returns:
+                ([(str, str, (str, StatusGroup, str)])): A list of possible CNI candidates
+                    (str): The CNI name
+                    (str): The version of the CNI
+                    ((str, StatusGroup, str)):
+                        (str): A string representation of the CNI status
+                        (StatusGroup): An enum representation of the CNI status
+                        (str): The reason for the status, if known
+        """
+        cni: list[tuple[str, str, tuple[str, StatusGroup, str]]] = []
+
+        # We have to do some sleuthing here
+        # Antrea:
+        cni += self.__identify_cni("antrea", ("DaemonSet", "apps"),
+                                   "metadata.name=antrea-agent", "antrea-agent")
+        # Canal:
+        cni += self.__identify_cni("canal", ("DaemonSet", "apps"),
+                                   "metadata.name=canal", "calico-node")
+        cni += self.__identify_cni("canal", ("DaemonSet", "apps"),
+                                   "metadata.name=rke2-canal", "calico-node")
+        # Calico:
+        # Since canal is a combination of Calico and Flannel
+        # we need to skip Calico if Canal is detected
+        if "canal" not in (cni_name for cni_name, cni_version, cni_status in cni):
+            cni += self.__identify_cni("calico", ("Deployment", "apps"),
+                                       "metadata.name=calico-kube-controllers",
+                                       "calico-kube-controllers")
+        # Cilium:
+        cni += self.__identify_cni("cilium", ("Deployment", "apps"),
+                                   "metadata.name=cilium-operator", "cilium-operator")
+        # Flannel:
+        cni += self.__identify_cni("flannel", ("DaemonSet", "apps"),
+                                   "metadata.name=kube-flannel-ds", "kube-flannel")
+        cni += self.__identify_cni("flannel", ("DaemonSet", "apps"),
+                                   "metadata.name=kube-flannel", "kube-flannel")
+        # Kilo:
+        cni += self.__identify_cni("kilo", ("DaemonSet", "apps"),
+                                   "metadata.name=kilo", "kilo")
+        # Kindnet:
+        cni += self.__identify_cni("kindnet", ("DaemonSet", "apps"),
+                                   "metadata.name=kindnet", "kindnet-cni")
+        # Kube-OVN:
+        cni += self.__identify_cni("kube-ovn", ("DaemonSet", "apps"),
+                                   "metadata.name=kube-ovn-cni", "cni-server")
+        # OVN-Kubernetes:
+        cni += self.__identify_cni("ovn-kubernetes", ("DaemonSet", "apps"),
+                                   "metadata.name=ovnkube-node", "ovn-controller")
+        # OpenShift-SDN:
+        cni += self.__identify_cni("sdn", ("DaemonSet", "apps"),
+                                   "metadata.name=sdn", "sdn")
+        # Kube-router:
+        cni += self.__identify_cni("kube-router", ("DaemonSet", "apps"),
+                                   "metadata.name=kube-router", "kube-router")
+        # Weave:
+        cni += self.__identify_cni("weave", ("DaemonSet", "apps"),
+                                   "metadata.name=weave-net", "weave")
+
+        return cni
+
+    def __close_certs(self) -> None:
+        if self.tmp_ca_certs_file is not None:
+            self.tmp_ca_certs_file.close()
+        if self.tmp_cert_file is not None:
+            self.tmp_cert_file.close()
+        if self.tmp_key_file is not None:
+            self.tmp_key_file.close()
+
+    def __init__(self, programname: str, programversion: str,
+                 config_path: FilePath | None = None) -> None:
+        self.programname = programname
+        self.programversion = programversion
+        self.cluster_unreachable = True
+        self.context_name = ""
+        self.cluster_name = ""
+
+        if config_path is None:
+            self.config_path = KUBE_CONFIG_FILE
+        else:
+            self.config_path = config_path
+
+        self.set_context(config_path=config_path)
+
+    def __del__(self) -> None:
+        self.__close_certs()
+        self.context_name = ""
+        self.cluster_name = ""
+        self.config_path = None
+
+    def is_cluster_reachable(self) -> bool:
+        """
+        Checks if the cluster is reachable.
+
+            Returns:
+                (bool): True if cluster is reachable,
+                        False if the cluster is unreachable
+        """
+        return not self.cluster_unreachable
+
+    def get_control_plane_address(self) -> tuple[str | None, str | None, str | None]:
+        """
+        Returns the IP-address and port of the control plane.
+
+            Returns:
+                (str, str, str): The IP-address, port, and path of the control plane
+                    (str): An IP-address
+                    (str): A port
+                    (str): A path (can be the empty string)
+        """
+        return self.control_plane_ip, self.control_plane_port, self.control_plane_path
+
+    def get_join_token(self) -> str:
+        """
+        Returns the cluster join token.
+
+            Returns:
+                join_token (str): The cluster join token
+        """
+        join_token = ""
+
+        vlist, _status = self.get_list_by_kind_namespace(("Secret", ""), "kube-system")
+
+        if vlist is None or not vlist or _status != 200:
+            return join_token
+
+        age = -1
+
+        # Find the newest bootstrap token
+        for secret in vlist:
+            name = deep_get(secret, DictPath("metadata#name"))
+            if name.startswith("bootstrap-token-"):
+                creation_ts = deep_get(secret, DictPath("metadata#creationTimestamp"))
+                timestamp = timestamp_to_datetime(creation_ts)
+                newage = get_since(timestamp)
+                if age == -1 or newage < age:
+                    try:
+                        token_id = deep_get(secret, DictPath("data#token-id"), "")
+                        tmp1 = base64.b64decode(token_id).decode("utf-8", errors="replace")
+                    except UnicodeDecodeError:
+                        tmp2 = deep_get(secret, DictPath("data#token-id"), "")
+
+                    try:
+                        token_secret = deep_get(secret, DictPath("data#token-secret"), "")
+                        tmp2 = base64.b64decode(token_secret).decode("utf-8", errors="replace")
+                    except UnicodeDecodeError:
+                        tmp2 = deep_get(secret, DictPath("data#token-secret"), "")
+
+                    if tmp1 != "" and tmp2 != "":
+                        join_token = f"{tmp1}.{tmp2}"
+                        age = newage
+
+        return join_token
+
+    # pylint: disable-next=too-many-locals
+    def get_ca_cert_hash(self) -> str:
+        """
+        Returns the CA certificate hash.
+
+            Returns:
+                ca_cert_hash (str): The CA certificate hash
+        """
+        ca_cert_hash = ""
+
+        vlist, _status = self.get_list_by_kind_namespace(("Secret", ""), "kube-system")
+
+        if vlist is None or not vlist or _status != 200:
+            return ca_cert_hash
+
+        age = -1
+        ca_cert = ""
+
+        # Find the newest certificate-controller-token
+        for secret in vlist:
+            secret_name = deep_get(secret, DictPath("metadata#name"), "")
+            if secret_name.startswith("certificate-controller-token-"):
+                creation_ts = deep_get(secret, DictPath("metadata#creationTimestamp"))
+                timestamp = timestamp_to_datetime(creation_ts)
+                newage = get_since(timestamp)
+                if age == -1 or newage < age:
+                    try:
+                        undecoded_ca_cert = deep_get(secret, DictPath("data#ca.crt"), "")
+                        tmp1 = base64.b64decode(undecoded_ca_cert).decode("utf-8", errors="replace")
+                    except UnicodeDecodeError:
+                        tmp1 = deep_get(secret, DictPath("data#ca.crt"), "")
+
+                    if tmp1 != "":
+                        ca_cert = tmp1
+                        age = newage
+
+        if ca_cert == "":
+            ref = self.get_ref_by_kind_name_namespace(("ConfigMap", ""),
+                                                      "kube-root-ca.crt", "kube-public")
+            ca_cert = deep_get(ref, DictPath("data#ca.crt"), "")
+
+        # we have the CA cert; now to extract the public key and hash it
+        if ca_cert:
+            try:
+                x509obj = x509.load_pem_x509_certificate(ca_cert.encode("utf-8"))
+            except TypeError as e:
+                if "load_pem_x509_certificate() missing 1 required positional argument: " \
+                   "'backend'" in str(e):
+                    # This is to handle systems that doesn't have the latest version
+                    # of cryptography.
+                    # pylint: disable-next=import-outside-toplevel,no-name-in-module
+                    from cryptography.hazmat.primitives import default_backend  # type: ignore
+                    x509obj = x509.load_pem_x509_certificate(ca_cert.encode("utf-8"),
+                                                             backend=default_backend)
+                else:
+                    raise
+            pubkey_fmt = serialization.PublicFormat.SubjectPublicKeyInfo
+            pubkeyder = x509obj.public_key().public_bytes(encoding=serialization.Encoding.DER,
+                                                          format=pubkey_fmt)
+            ca_cert_hash = hashlib.sha256(pubkeyder).hexdigest()
+
+        return ca_cert_hash
+
+    def is_kind_namespaced(self, kind: tuple[str, str]) -> bool:
+        """
+        Is this kind namespaced?
+
+            Parameters:
+                kind ((str, str)): A (kind, api_group) tuple
+            Returns:
+                is_namespaced (bool): True if namespaced, False if not
+        """
+        if kind in kubernetes_resources.unknown_kubernetes_resources:
+            # Technically we don't know, but we have to return a value
+            return False
+        if kind not in kubernetes_resources.kubernetes_resources:
+            raise ValueError(f"Kind {kind} not known; "
+                             "this is likely a programming error (possibly a typo)")
+        return deep_get(kubernetes_resources.kubernetes_resources[kind],
+                        DictPath("namespaced"), True)
+
+    # pylint: disable-next=too-many-locals,too-many-branches,too-many-statements
+    def identify_k8s_distro(self, **kwargs: Any) -> tuple[str, int]:
+        """
+        Identify what Kubernetes distro (kubeadm, minikube, OpenShift, etc.) is in use.
+
+            Parameters:
+                **kwargs (dict[str, Any]): Keyword arguments
+                    exit_on_failure (bool): Exit on failure
+            Returns:
+                (str, int):
+                    (str): The identified Kubernetes distro; empty if no distro could be identified
+                    (int): API-server retval
+        """
+        kubernetes_distros: dict[str, str] = {
+            "crc": "crc",
+            "deploy@k3d": "k3d",
+            "harvester": "harvester",
+            "k0s": "k0s",
+            "k3s": "k3s",
+            "k8e": "k8e",
+            "kamaji": "kamaji",
+            "kubeadm": "kubeadm",
+            "rke2": "rke2",
+            "vcluster": "vcluster",
+        }
+
+        k8s_distro = None
+        exit_on_failure = deep_get(kwargs, DictPath("exit_on_failure"), True)
+
+        vlist, status = self.get_list_by_kind_namespace(("Node", ""), "")
+        if status != 200:
+            if exit_on_failure:  # pragma: no cover
+                sys.exit(errno.EINVAL)
+            return "<unknown>", status
+        if vlist is None:
+            if exit_on_failure:  # pragma: no cover
+                sys.exit(errno.EINVAL)
+            return "<unknown>", status
+
+        tmp_k8s_distro = None
+        # pylint: disable-next=too-many-nested-blocks
+        for node in vlist:
+            node_roles = get_node_roles(cast(dict, node))
+            labels = deep_get(node, DictPath("metadata#labels"), {})
+            if "control-plane" in node_roles or "master" in node_roles:
+                tmp_k8s_distro = None
+                if deep_get(node, DictPath("metadata#labels#minikube.k8s.io/name"), ""):
+                    tmp_k8s_distro = "minikube"
+                elif deep_get(labels, DictPath("microk8s.io/cluster"), False):
+                    tmp_k8s_distro = "microk8s"
+                elif deep_get(node, DictPath("spec#providerID"), "").startswith("kind://"):
+                    tmp_k8s_distro = "kind"
+                elif deep_get(node, DictPath("status#nodeInfo#osImage"), "").startswith("Talos"):
+                    tmp_k8s_distro = "talos"
+                else:
+                    managed_fields = deep_get(node, DictPath("metadata#managedFields"), [])
+                    for managed_field in managed_fields:
+                        manager = deep_get(managed_field, DictPath("manager"), "")
+                        if (tmp_k8s_distro := deep_get(kubernetes_distros, DictPath(manager))):
+                            if deep_get(node, DictPath("metadata#name"), "").startswith("k3d-") \
+                                    and tmp_k8s_distro == "k3s":
+                                tmp_k8s_distro = "k3d"
+                            break
+                if tmp_k8s_distro is None:
+                    images = deep_get(node, DictPath("status#images"), [])
+                    for image in images:
+                        names = deep_get(image, DictPath("names"), [])
+                        for name in names:
+                            if "openshift-crc-cluster" in name:
+                                tmp_k8s_distro = "crc"
+                                break
+                            if "openshift-" in name and "ocp-" in name:
+                                tmp_k8s_distro = "openshift"
+                                break
+                        if tmp_k8s_distro is not None:
+                            break
+                # Older versions of Kubernetes do not have managedFields;
+                # fall back to checking whether the annotation
+                # kubeadm.alpha.kubernetes.io/cri-socket exists.
+                if not tmp_k8s_distro and deep_get(node, DictPath("metadata#annotations#"
+                                                   "kubeadm.alpha.kubernetes.io/cri-socket"), ""):
+                    tmp_k8s_distro = "kubeadm"
+                if tmp_k8s_distro is not None:
+                    if k8s_distro is not None:
+                        if exit_on_failure:
+                            sys.exit(errno.EINVAL)
+                        return "<unknown>", status
+                    k8s_distro = tmp_k8s_distro
+                if k8s_distro:
+                    break
+            else:
+                # This isn't a control plane; but this might still be vcluster.
+                # pylint: disable-next=line-too-long
+                if deep_get(labels, DictPath("vcluster.loft.sh/fake-node"), "false") == "true":  # noqa: E501,SIM102
+                    if k8s_distro is None and tmp_k8s_distro is None:
+                        tmp_k8s_distro = "vcluster"
+        if k8s_distro is None and tmp_k8s_distro is not None:
+            k8s_distro = tmp_k8s_distro
+
+        if not k8s_distro:
+            # Check for distros that need special methods to detect
+            obj = self.get_ref_by_kind_name_namespace(("Deployment", "apps"),
+                                                      "coredns", "kube-system")
+            managed_fields = deep_get(obj, DictPath("metadata#managedFields"), [])
+            for managed_field in managed_fields:
+                manager = deep_get(managed_field, DictPath("manager"), "")
+                if (tmp_k8s_distro := deep_get(kubernetes_distros, DictPath(manager))):
+                    k8s_distro = tmp_k8s_distro
+                    break
+
+        if k8s_distro is None:
+            k8s_distro = "<unknown>"
+
+        return k8s_distro, status
+
+    def kind_api_version_to_kind(self, kind: str, api_version: str) -> tuple[str, str]:
+        """
+        Given a Kubernetes API as (kind, api_version) return (kind, api_group).
+
+            Parameters:
+                kind (str): A Kubernetes kind
+                api_version (str): A kubernetes API-version
+            Returns:
+                ((kind, api_group)): A (kind, api_group) tuple
+        """
+        # The API-group is anything before /, or the empty string if there's no "/"
+        if api_version is not None and "/" in api_version:
+            tmp = re.match(r"^(.*)/.*", api_version)
+            if tmp is None:
+                raise ValueError(f"Could not extract API-group from {api_version}",)
+            api_group = tmp[1]
+        else:
+            api_group = ""
+        return kind, api_group
+
+    def get_latest_api(self, kind: tuple[str, str]) -> str:
+        """
+        Given a Kubernetes API as (kind, api_group), returns the latest API-version.
+
+            Parameters:
+                kind ((str, str)): A (kind, api_group) tuple
+            Returns:
+                latest_api (str): The latest API-version
+        """
+        if kind in kubernetes_resources.unknown_kubernetes_resources:
+            # We don't know; return empty string
+            return ""
+
+        if kind not in kubernetes_resources.kubernetes_resources:
+            raise ValueError(f"Could not determine latest API; "
+                             f"kind {kind} not found in kubernetes_resources")
+
+        latest_api = deep_get(kubernetes_resources.kubernetes_resources[kind],
+                              DictPath("api_paths"))[0]
+        latest_api = latest_api.removeprefix("api/")
+        latest_api = latest_api.removeprefix("apis/")
+        latest_api = latest_api.removesuffix("/")
+        return latest_api
+
+    # pylint: disable-next=too-many-locals,too-many-branches,too-many-statements
+    def get_api_resources(self) -> tuple[int, list[tuple]]:
+        """
+        Return information about all API-resources available in the cluster.
+
+            Returns:
+                ((status, api_resources)):
+                    status (int): The HTTP response
+                    api_resources ([dict]): Information about all available API-resources
+        """
+        # If the list is not empty, but the cluster is unreachable, return it unchanged
+        if self.cluster_unreachable:
+            return 42503, []
+
+        api_resources: list[tuple] = []
+        core_apis: dict[str, Any] = {}
+
+        # First get all core APIs
+        method = "GET"
+        url = f"https://{self.control_plane_ip}{self.control_plane_port}" \
+              f"{self.control_plane_path}/api/v1"
+        with PoolManagerContext(cert_file=self.cert_file, key_file=self.key_file,
+                                ca_certs_file=self.ca_certs_file, token=self.token,
+                                insecuretlsskipverify=self.insecuretlsskipverify) as pool_manager:
+            raw_data, _message, status = \
+                self.__rest_helper_generic_json(pool_manager=pool_manager, method=method, url=url)
+
+            if status != 200 or raw_data is None:
+                # Something went wrong
+                self.cluster_unreachable = True
+                return status, []
+
+            # Success
+            try:
+                # core_apis is always a dict, not a list of dicts.
+                core_apis = cast(dict[str, Any], json_loads(raw_data))
+            except (ValueError, json.decoder.JSONDecodeError):
+                # We got a response, but the data is malformed
+                return 42422, []
+
+            group_version = deep_get(core_apis, DictPath("groupVersion"), "")
+
+            for api in deep_get(core_apis, DictPath("resources"), []):
+                name = deep_get(api, DictPath("name"), "")
+                shortnames = deep_get(api, DictPath("shortNames"), [])
+                api_version = group_version
+                namespaced = deep_get(api, DictPath("namespaced"), False)
+                kind = deep_get(api, DictPath("kind"), "")
+                if not (verbs := deep_get(api, DictPath("verbs"), [])):
+                    continue
+                api_resources.append((name, shortnames, api_version, namespaced, kind, verbs))
+
+            # Now fetch non-core APIs
+            non_core_apis = {}
+            non_core_api_dict = {}
+
+            # Attempt aggregated discovery; we need custom header_params to do this.
+            # Fallback to the old method if aggregate discovery isn't supported.
+            header_params = {
+                "Accept": "application/json;g=apidiscovery.k8s.io;v=v2;"
+                          "as=APIGroupDiscoveryList,application/json",
+                "Content-Type": "application/json",
+                "User-Agent": f"{self.programname} v{self.programversion}",
+            }
+            aggregated_data: dict[str, Any] = {}
+
+            url = f"https://{self.control_plane_ip}{self.control_plane_port}" \
+                  f"{self.control_plane_path}/apis"
+            with PoolManagerContext(cert_file=self.cert_file, key_file=self.key_file,
+                                    ca_certs_file=self.ca_certs_file, token=self.token,
+                                    insecuretlsskipverify=self.insecuretlsskipverify) \
+                    as pool_manager:
+                raw_data, _message, status = \
+                    self.__rest_helper_generic_json(pool_manager=pool_manager, method=method,
+                                                    url=url, header_params=header_params)
+
+                if status == 200 and raw_data is not None:
+                    # Success
+                    try:
+                        # aggregated_data is always a dict, not a list of dicts.
+                        aggregated_data = cast(dict[str, Any], json_loads(raw_data))
+                    except (ValueError, json.decoder.JSONDecodeError):
+                        # We got a response, but the data is malformed
+                        pass
+                else:
+                    # No non-core APIs found; this is a bit worrying, but OK...
+                    pass
+
+                # We successfully got aggregated data
+                if deep_get(aggregated_data, DictPath("kind"), "") == "APIGroupDiscoveryList":
+                    for api_group in deep_get(aggregated_data, DictPath("items"), []):
+                        api_group_name = deep_get(api_group, DictPath("metadata#name"), "")
+                        versions = deep_get(api_group, DictPath("versions"), [])
+
+                        # Now we need to check what kinds this api_group supports
+                        # and using what version
+                        for version in versions:
+                            _version = deep_get(version, DictPath("version"))
+                            if _version is None:
+                                # This should not happen, but ignore it
+                                continue
+                            resources = deep_get(api_group, DictPath("resources"), [])
+                            for resource in deep_get(version, DictPath("resources"), []):
+                                name = deep_get(resource, DictPath("resource"), [])
+                                shortnames = deep_get(resource, DictPath("shortNames"), [])
+                                api_version = f"{api_group_name}/{_version}"
+                                namespaced = \
+                                    deep_get(resource, DictPath("scope"), "") == "Namespaced"
+                                kind = deep_get(resource, DictPath("responseKind#kind"), "")
+                                verbs = deep_get(resource, DictPath("verbs"), [])
+                                kind_tuple = (kind, api_version.split("/", maxsplit=1)[0])
+                                # Let's hope we get them in the right order...
+                                if kind_tuple in non_core_api_dict:
+                                    continue
+                                non_core_api_dict[kind_tuple] = \
+                                    (name, shortnames, api_version, namespaced, kind, verbs)
+                    api_resources += list(non_core_api_dict.values())
+
+                    return status, api_resources
+
+                # Nope, this is only non-core APIs
+                non_core_apis = aggregated_data
+
+                for api_group in deep_get(non_core_apis, DictPath("groups"), []):
+                    name = deep_get(api_group, DictPath("name"), "")
+                    versions = deep_get(api_group, DictPath("versions"), [])
+
+                    # Now we need to check what kinds this api_group supports
+                    # and using what version
+                    for version in versions:
+                        group_version = deep_get(version, DictPath("groupVersion"))
+                        if group_version is None:
+                            # This should not happen, but ignore it
+                            continue
+                        url = f"https://{self.control_plane_ip}{self.control_plane_port}" \
+                              f"{self.control_plane_path}/apis/{group_version}"
+                        raw_data, _message, status = \
+                            self.__rest_helper_generic_json(pool_manager=pool_manager,
+                                                            method=method, url=url)
+
+                        if status != 200 or raw_data is None:
+                            # Could not get API info; this is worrying, but ignore it
+                            continue
+                        try:
+                            data = json_loads(raw_data)
+                        except (ValueError, json.decoder.JSONDecodeError):
+                            # We got a response, but the data is malformed
+                            continue
+
+                        resources = deep_get(data, DictPath("resources"), [])
+                        for resource in resources:
+                            if not (kind := deep_get(resource, DictPath("kind"), "")):
+                                continue
+
+                            name = deep_get(resource, DictPath("name"), "")
+                            shortnames = deep_get(resource, DictPath("shortNames"), [])
+                            api_version = group_version
+                            namespaced = deep_get(resource, DictPath("namespaced"), False)
+                            kind = deep_get(resource, DictPath("kind"), "")
+                            if not (verbs := deep_get(resource, DictPath("verbs"), [])):
+                                continue
+                            kind_tuple = (kind, api_version.split("/")[0])
+                            # Let's hope we get them in the right order...
+                            if kind_tuple in non_core_api_dict:
+                                continue
+                            non_core_api_dict[kind_tuple] = (name, shortnames, api_version,
+                                                             namespaced, kind, verbs)
+                api_resources += list(non_core_api_dict.values())
+
+        return status, api_resources
+
+    # TODO(This should ideally be modified to use get_api_resources())
+    # pylint: disable-next=too-many-locals,too-many-return-statements,too-many-branches,too-many-statements  # noqa: E501
+    def get_available_kinds(self, force_refresh: bool = False) -> tuple[dict, int, bool]:
+        """
+        Return a dict of Kinds known by both kubernetes_helper and the API-server.
+
+            Parameters:
+                force_refresh (bool): Flush the list (if existing) and create a new one
+            Returns:
+                ((dict, int, bool)):
+                    (dict): A list of all Kinds known
+                            by kubernetes_helper, with their support level (list, info) set
+                    (int): The HTTP response
+                    (bool): True if the list was updated, False otherwise
+        """
+        modified = False
+
+        # If the dict is not empty, but the cluster is unreachable, return it unchanged
+        if self.cluster_unreachable:
+            return kubernetes_resources.kubernetes_resources, 42503, modified
+
+        # It is fairly easy to check if the API-list is "fresh";
+        # just check whether Pod is available
+        if not force_refresh and deep_get(kubernetes_resources.kubernetes_resources[("Pod", "")],
+                                          DictPath("available"), False):
+            return kubernetes_resources.kubernetes_resources, 200, modified
+
+        core_apis: dict[str, Any] = {}
+
+        # First get all core APIs
+        method = "GET"
+        url = f"https://{self.control_plane_ip}{self.control_plane_port}" \
+              f"{self.control_plane_path}/api/v1"
+        with PoolManagerContext(cert_file=self.cert_file, key_file=self.key_file,
+                                ca_certs_file=self.ca_certs_file, token=self.token,
+                                insecuretlsskipverify=self.insecuretlsskipverify) as pool_manager:
+            raw_data, _message, status = self.__rest_helper_generic_json(pool_manager=pool_manager,
+                                                                         method=method, url=url)
+
+            if status != 200 or raw_data is None:
+                self.cluster_unreachable = True
+                # We could not get the core APIs; there is no use continuing
+                modified = True
+                return kubernetes_resources.kubernetes_resources, status, modified
+            # Success
+            try:
+                # core_apis is always a dict, not a list of dicts.
+                core_apis = cast(dict[str, Any], json_loads(raw_data))
+            except (ValueError, json.decoder.JSONDecodeError):
+                # We got a response, but the data is malformed
+                return kubernetes_resources.kubernetes_resources, 42422, False
+
+            # Flush the entire API list
+            for resource_data in kubernetes_resources.kubernetes_resources.values():
+                resource_data["available"] = False
+            kubernetes_resources.unknown_kubernetes_resources = {}
+
+            # When running in developer mode with testdata we allow reads from files,
+            # and can thus get data without the Kubernetes API being available.
+            if deep_get(cmtlib.cmtconfig, DictPath("Debug#developer_mode")) \
+                    and deep_get(cmtlib.cmtconfig, DictPath("Debug#use_testdata")):
+                for path in Path(f"{HOMEDIR}/testdata").glob("*.yaml"):
+                    tmp = path.name.removesuffix(".yaml")
+                    tmp_split = tmp.split(".", maxsplit=1)
+                    if len(tmp_split) == 1:
+                        kind = (tmp_split[0], "")
+                    else:
+                        kind = (tmp_split[0], tmp_split[1])
+                    if kind in kubernetes_resources.kubernetes_resources:
+                        kubernetes_resources.kubernetes_resources[kind]["available"] = True
+
+            for api in deep_get(core_apis, DictPath("resources"), []):
+                if "list" not in deep_get(api, DictPath("verbs"), []):
+                    # Ignore non-list APIs
+                    continue
+                name = deep_get(api, DictPath("name"), "")
+                kind_ = deep_get(api, DictPath("kind"), "")
+                if (kind_, "") in kubernetes_resources.kubernetes_resources:
+                    kubernetes_resources.kubernetes_resources[(kind_, "")]["available"] = True
+
+            # Attempt aggregated discovery; we need custom header_params to do this.
+            # Fallback to the old method if aggregate discovery isn't supported.
+            header_params = {
+                "Accept": "application/json;g=apidiscovery.k8s.io;v=v2;"
+                          "as=APIGroupDiscoveryList,application/json",
+                "Content-Type": "application/json",
+                "User-Agent": f"{self.programname} v{self.programversion}",
+            }
+            aggregated_data: dict[str, Any] = {}
+
+            url = f"https://{self.control_plane_ip}{self.control_plane_port}" \
+                  f"{self.control_plane_path}/apis"
+            raw_data, _message, status = \
+                self.__rest_helper_generic_json(pool_manager=pool_manager, method=method,
+                                                url=url, header_params=header_params)
+            if status == 200 and raw_data is not None:
+                # Success
+                try:
+                    # aggregated_data is always a dict, not a list of dicts.
+                    aggregated_data = cast(dict[str, Any], json_loads(raw_data))
+                except (ValueError, json.decoder.JSONDecodeError):
+                    # We got a response, but the data is malformed
+                    return kubernetes_resources.kubernetes_resources, 42422, False
+
+            # These are all API-groups we know of
+            _api_groups = \
+                {api_group for kind, api_group in kubernetes_resources.kubernetes_resources}
+
+            # We successfully got aggregated data
+            if deep_get(aggregated_data, DictPath("kind"), "") == "APIGroupDiscoveryList":
+                for api_group in deep_get(aggregated_data, DictPath("items"), []):
+                    name = deep_get(api_group, DictPath("metadata#name"), "")
+                    known_api_group = name in _api_groups
+                    if not known_api_group:
+                        continue
+
+                    versions = deep_get(api_group, DictPath("versions"), [])
+
+                    # Now we need to check what kinds this api_group supports
+                    # and using what version
+                    for version in versions:
+                        if (version_ := deep_get(version, DictPath("version"))) is None:
+                            # This should not happen, but ignore it
+                            continue
+                        resources = deep_get(version, DictPath("resources"), [])
+                        for resource in resources:
+                            if "list" not in deep_get(resource, DictPath("verbs"), []):
+                                continue
+                            if not (kind_ := deep_get(resource, DictPath("responseKind#kind"), "")):
+                                continue
+                            # pylint: disable=line-too-long
+                            if (kind_, name) in kubernetes_resources.kubernetes_resources \
+                                    and f"apis/{name}/{version_}/" in \
+                                    cast(list[str],
+                                         kubernetes_resources.kubernetes_resources[(kind_, name)].get("api_paths", [])):  # noqa: E501
+                                kubernetes_resources.kubernetes_resources[(kind_, name)]["available"] = True  # noqa: E501
+                                continue
+                            # pylint: enable=line-too-long
+                modified = True
+                return kubernetes_resources.kubernetes_resources, status, modified
+
+            # Nope, this is only non-core APIs
+            non_core_apis = aggregated_data
+
+            for api_group in deep_get(non_core_apis, DictPath("groups"), []):
+                name = deep_get(api_group, DictPath("name"), "")
+                known_api_group = name in _api_groups
+                if not known_api_group:
+                    continue
+
+                versions = deep_get(api_group, DictPath("versions"), [])
+
+                # Now we need to check what kinds this api_group supports
+                # and using what version
+                for version in versions:
+                    if (version_ := deep_get(version, DictPath("groupVersion"))) is None:
+                        # This should not happen, but ignore it
+                        continue
+                    url = f"https://{self.control_plane_ip}{self.control_plane_port}" \
+                          f"{self.control_plane_path}/apis/{version_}"
+                    raw_data, _message, status = \
+                        self.__rest_helper_generic_json(pool_manager=pool_manager,
+                                                        method=method, url=url)
+
+                    if status != 200 or raw_data is None:
+                        # Could not get API info; this is worrying, but ignore it
+                        continue
+                    try:
+                        data = json_loads(raw_data)
+                    except (ValueError, json.decoder.JSONDecodeError):
+                        # We got a response, but the data is malformed
+                        continue
+
+                    for resource in deep_get(data, DictPath("resources"), []):
+                        if "list" not in deep_get(resource, DictPath("verbs"), []) \
+                           or not (kind_ := deep_get(resource, DictPath("kind"), "")):
+                            continue
+                        # pylint: disable=line-too-long
+                        if (kind_, name) in kubernetes_resources.kubernetes_resources \
+                                and f"apis/{version_}/" in \
+                                cast(list[str],
+                                     kubernetes_resources.kubernetes_resources[(kind_, name)].get("api_paths", [])):  # noqa: E501
+                            if (kind_, name) in kubernetes_resources.kubernetes_resources:
+                                kubernetes_resources.kubernetes_resources[(kind_, name)]["available"] = True  # noqa: E501
+                            continue
+                        # pylint: enable=line-too-long
+
+        modified = True
+        return kubernetes_resources.kubernetes_resources, status, modified
+
+    def is_kind_available(self, kind: tuple[str, str]) -> bool:
+        """
+        Checks whether a kind tuple is available or not.
+
+            Parameters:
+                kind ((str, str)): The kind tuple
+            Returns:
+                (bool): True if the kind is available, False if not
+        """
+        try:
+            available = deep_get(kubernetes_resources.kubernetes_resources[kind],
+                                 DictPath("available"), False)
+        except NameError:
+            available = False
+        return available
+
+    def get_list_of_namespaced_resources(self) -> list[tuple[str, str]]:
+        """
+        Returns a list of all namespaced resources that are available in the cluster.
+
+            Returns:
+                vlist ([(kind, api_group)]): A list of namespaced kinds
+        """
+        vlist = []
+
+        for resource_kind, resource_data in kubernetes_resources.kubernetes_resources.items():
+            if deep_get(resource_data, DictPath("namespaced"), True) \
+               and deep_get(resource_data, DictPath("available"), True):
+                vlist.append(resource_kind)
+        return vlist
+
+    # pylint: disable-next=too-many-locals,too-many-branches,too-many-statements
+    def __rest_helper_generic_json(self, *,
+                                   pool_manager: urllib3.PoolManager | urllib3.ProxyManager,
+                                   **kwargs: Any) -> tuple[str | bytes | None, str, int]:
+        method: str | None = deep_get(kwargs, DictPath("method"))
+        url: str | None = deep_get(kwargs, DictPath("url"))
+        header_params: dict | None = deep_get(kwargs, DictPath("header_params"))
+        query_params: list[tuple[str, Any]] = \
+            deep_get(kwargs, DictPath("query_params"), [])
+        body: bytes | None = deep_get(kwargs, DictPath("body"))
+        retries: int = deep_get(kwargs, DictPath("retries"), 3)
+        connect_timeout: float = deep_get(kwargs, DictPath("connect_timeout"), 3.0)
+
+        if pool_manager is None:
+            raise ProgrammingError("__rest_helper_generic_json() "
+                                   "should never be called without a pool_manager")
+
+        if query_params is None:
+            query_params = []
+
+        if self.cluster_unreachable:
+            message = "Cluster Unreachable"
+            return None, "", 42503
+
+        if header_params is None:
+            header_params = {
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+                "User-Agent": f"{self.programname} v{self.programversion}",
+            }
+
+        if self.token is not None:
+            header_params["Authorization"] = f"Bearer {self.token}"
+
+        if method is None:
+            raise ValueError("REST API called without method; this is a programming error!")
+
+        if url is None:
+            raise ValueError("REST API called without URL; this is a programming error!")
+
+        if not retries:
+            _retries = False
+        else:
+            _retries = urllib3.Retry(retries)  # type: ignore
+
+        data = None
+        message = ""
+
+        reauth_retry = 1
+
+        while reauth_retry > 0:
+            try:
+                if body is not None:
+                    result = pool_manager.request(method, url, headers=header_params, body=body,
+                                                  timeout=urllib3.Timeout(connect=connect_timeout),
+                                                  retries=_retries)
+                else:
+                    result = pool_manager.request(method, url, headers=header_params,
+                                                  timeout=urllib3.Timeout(connect=connect_timeout),
+                                                  fields=query_params, retries=_retries)
+                status = result.status
+            except urllib3.exceptions.MaxRetryError as e:
+                # No route to host does not have a HTTP response; make one up...
+                # 503 is Service Unavailable; this is generally temporary,
+                # but to distinguish it from a real 503 we prefix it...
+                if "CERTIFICATE_VERIFY_FAILED" in str(e):
+                    # Client Handshake Failed (Cloudflare)
+                    status = 525
+                    if "certificate verify failed" in str(e):
+                        tmp = re.match(r".*SSL: CERTIFICATE_VERIFY_FAILED.*"
+                                       r"certificate verify failed: (.*) \(_ssl.*", str(e))
+                        if tmp is not None:
+                            message = f"; {tmp[1]}"
+                else:
+                    status = 42503
+            except urllib3.exceptions.ConnectTimeoutError:
+                # Connection timed out; the API-server might not be available,
+                # suffer from too high load, or similar 504 is Gateway Timeout;
+                # using 42504 to indicate connection timeout thus seems reasonable.
+                status = 42504
+
+            # We don't want to try to renew the token multiple times.
+            if reauth_retry == 42:
+                break
+
+            if status in (401, 403):
+                # Unauthorized:
+                # Try to renew the token then retry.
+                if self.token is not None:
+                    with self.renew_lock:
+                        self.renew_token(self.cluster_name, self.context_name)
+                    header_params["Authorization"] = f"Bearer {self.token}"
+                reauth_retry = 42
+            else:
+                reauth_retry = 0
+
+        if status == 200:
+            # YAY, things went fine!
+            data = result.data
+        elif status == 201:
+            # Created
+            # (Assuming we tried to create something this means success).
+            data = result.data
+        elif status == 202:
+            # Accepted
+            # (Operation queued for batch processing; no further status available;
+            #  returned when deleting things with a finalizer).
+            pass
+        elif status == 204:
+            # No Content
+            pass
+        elif status == 400:
+            # Bad request
+            # The feature might be disabled, or the pod is waiting to start/terminated.
+            try:
+                d = json_loads(result.data)
+                message = "400: Bad Request; " + deep_get(d, DictPath("message"), "")
+            except (ValueError, json.decoder.JSONDecodeError):
+                # We got a response, but the data is malformed
+                message = "400: Bad Request [return data invalid]"
+        elif status == 401:
+            # Unauthorized:
+            message = f"401: Unauthorized; method: {method}, URL: {url}, " \
+                      f"header_params: {header_params}"
+        elif status == 403:
+            # Forbidden: request denied
+            message = f"403: Forbidden; method: {method}, URL: {url}, " \
+                      f"header_params: {header_params}"
+        elif status == 404:
+            # page not found
+            # (API not available or possibly programming error).
+            message = f"404: Not Found; method: {method}, URL: {url}, " \
+                      f"header_params: {header_params}"
+        elif status == 405:
+            # Method not allowed
+            raise TypeError(f"405: Method Not Allowed; this is probably a programming error; "
+                            f"method: {method}, URL: {url}; header_params: {header_params}")
+        elif status == 406:
+            # Not Acceptable
+            raise TypeError(f"406: Not Acceptable; this is probably a programming error; "
+                            f"method: {method}, URL: {url}; header_params: {header_params}")
+        elif status == 409:
+            # Conflict
+            # A resource by the same name already exists.
+            try:
+                raw_data = result.data.decode("utf-8", errors="replace")
+                d = json_loads(raw_data)
+                message = deep_get(d, DictPath("message"), "")
+            except (ValueError, json.decoder.JSONDecodeError):
+                # We got a response, but the data is malformed; make do the with the return code.
+                pass
+        elif status == 410:
+            # Gone
+            # Most likely a update events were requested (using resourceVersion),
+            # but it has been too long since the previous request;
+            # caller should retry without &resourceVersion=xxxxx
+            pass
+        elif status == 415:
+            # Unsupported Media Type
+            # The server refused to accept the request because the payload
+            # was in an unsupported format;
+            # check Content-Type, Content-Encoding, and the data itself.
+            decoded_body = None
+            if body is not None:
+                decoded_body = body.decode("utf-8", errors="replace")
+            raise TypeError("415: Unsupported Media Type; this is probably a programming error; "
+                            f"method: {method}, URL: {url}; header_params: {header_params}, "
+                            f"body: {decoded_body}")
+        elif status == 422:
+            # Unprocessable Entity
+            # The content and syntax is correct, but the request cannot be processed.
+            msg = result.data.decode("utf-8", errors="replace")
+            message = f"422: Unprocessable Entity; method: {method}, URL: {url}; " \
+                      f"header_params: {header_params}; message: {msg}"
+        elif status == 429:
+            # Too Many Requests
+            # This may, for instance, be the response when attempting to evict a pod
+            # isn't allowed due to the PodDisruptionBudget.
+            msg = result.data.decode("utf-8", errors="replace")
+            message = f"429: Too Many Requests; method: {method}, URL: {url}; " \
+                      f"header_params: {header_params}; message: {msg}"
+        elif status == 500:
+            # Internal Server Error
+            # This may, for instance, be the response when attempting to evict a pod
+            # with multiple PodDisruptionBudgets referencing the pod.
+            msg = result.data.decode("utf-8", errors="replace")
+            message = f"500: Internal Server Error; method: {method}, URL: {url}; " \
+                      f"header_params: {header_params}; message: {msg}"
+        elif status == 502:
+            # Bad Gateway
+            # Either a malfunctioning or a malicious proxy.
+            message = "502: Bad Gateway"
+        elif status == 503:
+            # Service Unavailable
+            # This might be a CRD that has failed to deploy properly.
+            message = f"503: Service Unavailable; method: {method}, URL: {url}; " \
+                      f"header_params: {header_params}"
+        elif status == 504:
+            # Gateway Timeout
+            # A request was made for an unrecognised resourceVersion,
+            # and timed out waiting for it to become available.
+            message = f"504: Gateway Timeout; method: {method}, URL: {url}; " \
+                      f"header_params: {header_params}"
+        elif status == 525:
+            # SSL Handshake Failed (Cloudflare)
+            message = f"525: Client Handshake Failed{message}"
+        elif status == 42503:
+            message = f"No route to host; method: {method}, URL: {url}; " \
+                      f"header_params: {header_params}"
+        else:
+            errmsg: list[list[tuple[str, str]]] = [
+                [("Unhandled HTTP error: ", "default")],
+                [(f"{result.status}", "errorvalue")],
+                [("method: ", "default"),
+                 (f"{method}", "argument")],
+                [("URL: ", "default"),
+                 (f"{url}", "argument")],
+                [("header_params: ", "default"),
+                 (f"{header_params}", "argument")],
+            ]
+            unformatted_msg, formatted_msg = ANSIThemeStr.format_error_msg(errmsg)
+            cmtlog.log(LogLevel.ERR, msg=unformatted_msg, messages=formatted_msg)
+
+            sys.exit("__rest_helper_generic_json():\n" + unformatted_msg)
+
+        return data, message, status
+
+    # pylint: disable-next=too-many-locals
+    def __rest_helper_post(self, kind: tuple[str, str], **kwargs: Any) -> tuple[str, int]:
+        name: str = deep_get(kwargs, DictPath("name"), "")
+        namespace: str = deep_get(kwargs, DictPath("namespace"), "")
+        body: bytes | None = deep_get(kwargs, DictPath("body"))
+        subresource: str = deep_get(kwargs, DictPath("subresource"), "")
+        method = "POST"
+
+        if body is None or not body:
+            raise ValueError("__rest_helper_post called with empty body; "
+                             "this is most likely a programming error")
+
+        header_params = {
+            "Content-Type": "application/json",
+            "User-Agent": f"{self.programname} v{self.programversion}",
+        }
+
+        namespace_part = ""
+        if namespace is not None and namespace != "":
+            namespace_part = f"namespaces/{namespace}/"
+
+        if kind is None:
+            raise ValueError("__rest_helper_post called with kind None; "
+                             "this is most likely a programming error")
+
+        kind = guess_kind(kind)
+
+        if kind in kubernetes_resources.kubernetes_resources:
+            api_paths = deep_get(kubernetes_resources.kubernetes_resources[kind],
+                                 DictPath("api_paths"))
+            api = deep_get(kubernetes_resources.kubernetes_resources[kind], DictPath("api"))
+            namespaced = deep_get(kubernetes_resources.kubernetes_resources[kind],
+                                  DictPath("namespaced"), True)
+        else:
+            # If the kind is unknown we fail the request
+            errmsg: list[list[tuple[str, str]]] = [
+                [("Unhandled POST request: kind ", "default"),
+                 (f"{kind[0]}.{kind[1]}", "argument"),
+                 (" is not supported; ignoring request.", "default")],
+            ]
+            unformatted_msg, formatted_msg = ANSIThemeStr.format_error_msg(errmsg)
+            cmtlog.log(LogLevel.ERR, msg=unformatted_msg, messages=formatted_msg)
+            return f"POST requested for unknown kind {kind[0]}.{kind[1]}; ignoring.", 422
+
+        fullitem = f"{kind[0]}.{kind[1]} {name}"
+        if namespaced:
+            fullitem = f"{fullitem} (namespace: {namespace})"
+
+        if name:
+            name = f"/{name}"
+
+        if not namespaced:
+            namespace_part = ""
+
+        subresource_part = ""
+        if subresource is not None and subresource:
+            subresource_part = f"/{subresource}"
+
+        status = 42503
+
+        # Try the newest API first and iterate backwards
+        with PoolManagerContext(cert_file=self.cert_file, key_file=self.key_file,
+                                ca_certs_file=self.ca_certs_file, token=self.token,
+                                insecuretlsskipverify=self.insecuretlsskipverify) as pool_manager:
+            for api_path in api_paths:
+                url = f"https://{self.control_plane_ip}{self.control_plane_port}" \
+                      f"{self.control_plane_path}/{api_path}" \
+                      f"{namespace_part}{api}{name}{subresource_part}"
+                _data, message, status = \
+                    self.__rest_helper_generic_json(pool_manager=pool_manager, method=method,
+                                                    url=url, header_params=header_params,
+                                                    body=body)
+                if status in (200, 201, 202, 204, 42503):
+                    break
+
+        return message, status
+
+    # pylint: disable-next=too-many-locals
+    def __rest_helper_patch(self, kind: tuple[str, str], *, name: str,
+                            **kwargs: Any) -> tuple[str, int]:
+        namespace: str = deep_get(kwargs, DictPath("namespace"), "")
+        strategic_merge: bool = deep_get(kwargs, DictPath("strategic_merge"), True)
+        subresource: str = deep_get(kwargs, DictPath("subresource"), "")
+        body: bytes | None = deep_get(kwargs, DictPath("body"), None)
+        method = "PATCH"
+
+        header_params = {
+            "User-Agent": f"{self.programname} v{self.programversion}",
+        }
+
+        if strategic_merge:
+            header_params["Content-Type"] = "application/strategic-merge-patch+json"
+        else:
+            header_params["Content-Type"] = "application/merge-patch+json"
+
+        if body is None or not body:
+            raise ValueError("__rest_helper_patch called with empty body; "
+                             "this is most likely a programming error")
+
+        namespace_part = ""
+        if namespace is not None and namespace != "":
+            namespace_part = f"namespaces/{namespace}/"
+
+        subresource_part = ""
+        if subresource is not None and subresource != "":
+            subresource_part = f"/{subresource}"
+
+        if kind is None:
+            raise ValueError("__rest_helper_patch called with kind None; "
+                             "this is most likely a programming error")
+
+        kind = guess_kind(kind)
+
+        if kind in kubernetes_resources.kubernetes_resources:
+            api_paths = deep_get(kubernetes_resources.kubernetes_resources[kind],
+                                 DictPath("api_paths"))
+            api = deep_get(kubernetes_resources.kubernetes_resources[kind], DictPath("api"))
+            namespaced = deep_get(kubernetes_resources.kubernetes_resources[kind],
+                                  DictPath("namespaced"), True)
+        else:
+            # If the kind is unknown we fail the request
+            errmsg: list[list[tuple[str, str]]] = [
+                [("Unhandled PATCH request: kind ", "default"),
+                 (f"{kind[0]}.{kind[1]}", "argument"),
+                 (" is not supported; ignoring request.", "default")],
+            ]
+            unformatted_msg, formatted_msg = ANSIThemeStr.format_error_msg(errmsg)
+            cmtlog.log(LogLevel.ERR, msg=unformatted_msg, messages=formatted_msg)
+            return f"PATCH requested for unknown kind {kind[0]}.{kind[1]}; ignoring.", 422
+
+        fullitem = f"{kind[0]}.{kind[1]} {name}"
+        if namespaced:
+            fullitem = f"{fullitem} (namespace: {namespace})"
+
+        name = f"/{name}"
+
+        if not namespaced:
+            namespace_part = ""
+
+        message = ""
+        status = 42503
+
+        # Try the newest API first and iterate backwards
+        with PoolManagerContext(cert_file=self.cert_file, key_file=self.key_file,
+                                ca_certs_file=self.ca_certs_file, token=self.token,
+                                insecuretlsskipverify=self.insecuretlsskipverify) as pool_manager:
+            for api_path in api_paths:
+                url = f"https://{self.control_plane_ip}{self.control_plane_port}" \
+                      f"{self.control_plane_path}/{api_path}{namespace_part}{api}" \
+                      f"{name}{subresource_part}"
+                _data, message, status = \
+                    self.__rest_helper_generic_json(pool_manager=pool_manager, method=method,
+                                                    url=url, header_params=header_params,
+                                                    body=body)
+                if status in (200, 204, 42503):
+                    break
+
+        return message, status
+
+    # pylint: disable-next=too-many-locals
+    def __rest_helper_delete(self, kind: tuple[str, str], *,
+                             name: str, **kwargs: Any) -> tuple[str, int]:
+        namespace: str = deep_get(kwargs, DictPath("namespace"), "")
+        query_params: list[tuple[str, Any] | None] | None = \
+            deep_get(kwargs, DictPath("query_params"))
+        method = "DELETE"
+
+        if query_params is None:
+            query_params = []
+
+        namespace_part = ""
+        if namespace is not None and namespace != "":
+            namespace_part = f"namespaces/{namespace}/"
+
+        if kind is None:
+            raise ValueError("__rest_helper_delete called with kind None; "
+                             "this is most likely a programming error")
+
+        kind = guess_kind(kind)
+
+        if kind in kubernetes_resources.kubernetes_resources:
+            api_paths = deep_get(kubernetes_resources.kubernetes_resources[kind],
+                                 DictPath("api_paths"))
+            api = deep_get(kubernetes_resources.kubernetes_resources[kind], DictPath("api"))
+            namespaced = deep_get(kubernetes_resources.kubernetes_resources[kind],
+                                  DictPath("namespaced"), True)
+        else:
+            # If the kind is unknown we fail the request
+            errmsg: list[list[tuple[str, str]]] = [
+                [("Unhandled DELETE request: kind ", "default"),
+                 (f"{kind[0]}.{kind[1]}", "argument"),
+                 (" is not supported; ignoring request.", "default")],
+            ]
+            unformatted_msg, formatted_msg = ANSIThemeStr.format_error_msg(errmsg)
+            cmtlog.log(LogLevel.ERR, msg=unformatted_msg, messages=formatted_msg)
+            return f"DELETE requested for unknown kind {kind[0]}.{kind[1]}; ignoring.", 422
+
+        fullitem = f"{kind[0]}.{kind[1]} {name}"
+        if namespaced:
+            fullitem = f"{fullitem} (namespace: {namespace})"
+
+        name = f"/{name}"
+
+        if not namespaced:
+            namespace_part = ""
+
+        status = 42503
+
+        # Try the newest API first and iterate backwards
+        with PoolManagerContext(cert_file=self.cert_file, key_file=self.key_file,
+                                ca_certs_file=self.ca_certs_file, token=self.token,
+                                insecuretlsskipverify=self.insecuretlsskipverify) as pool_manager:
+            for api_path in api_paths:
+                url = f"https://{self.control_plane_ip}{self.control_plane_port}" \
+                      f"{self.control_plane_path}/{api_path}{namespace_part}{api}{name}"
+                _data, message, status = \
+                    self.__rest_helper_generic_json(pool_manager=pool_manager, method=method,
+                                                    url=url, query_params=query_params)
+                if status in (200, 202, 204, 42503):
+                    break
+
+        return message, status
+
+    # On failure this function should always return [] for list requests,
+    # and None for other requests; this way the result can be handled
+    # unconditionally in for loops.
+
+    # noqa: E501 pylint: disable-next=too-many-locals,too-many-branches,too-many-statements,too-many-return-statements
+    def __rest_helper_get(self, **kwargs: Any) -> \
+            tuple[dict[str, Any] | list[dict[str, Any]] | None, int]:
+        kind: tuple[str, str] | None = deep_get(kwargs, DictPath("kind"))
+        raw_path: str | None = deep_get(kwargs, DictPath("raw_path"))
+        name: str = deep_get(kwargs, DictPath("name"), "")
+        namespace: str = deep_get(kwargs, DictPath("namespace"), "")
+        label_selector: str = deep_get(kwargs, DictPath("label_selector"), "")
+        field_selector: str = deep_get(kwargs, DictPath("field_selector"), "")
+
+        if kind is None and raw_path is None:
+            raise ValueError("__rest_helper_get API called with kind None and raw_path None; "
+                             "this is most likely a programming error")
+
+        if self.cluster_unreachable:
+            # Our arbitrary return value for Cluster Unreachable
+            status = 42503
+
+            # If name is not set this is a list request, so return an empty list instead of None
+            if name == "" and not raw_path:
+                return [], status
+            return None, status
+
+        query_params: list[tuple[str, Any] | None] = []
+        if field_selector != "":
+            query_params.append(("fieldSelector", field_selector))
+        if label_selector != "":
+            query_params.append(("labelSelector", label_selector))
+
+        method = "GET"
+
+        namespace_part = ""
+        if namespace is not None and namespace != "":
+            namespace_part = f"namespaces/{namespace}/"
+
+        if raw_path is None:
+            if (kind := guess_kind(cast(tuple[str, str], kind))) \
+                    in kubernetes_resources.kubernetes_resources:
+                api_paths = deep_get(kubernetes_resources.kubernetes_resources[kind],
+                                     DictPath("api_paths"))
+                api = deep_get(kubernetes_resources.kubernetes_resources[kind], DictPath("api"))
+                namespaced = deep_get(kubernetes_resources.kubernetes_resources[kind],
+                                      DictPath("namespaced"), True)
+            else:
+                # If the kind is unknown we fail the request
+                errmsg: list[list[tuple[str, str]]] = [
+                    [("Unhandled GET request: kind ", "default"),
+                     (f"{kind[0]}.{kind[1]}", "argument"),
+                     (" is not supported; ignoring request.", "default")],
+                ]
+                unformatted_msg, formatted_msg = ANSIThemeStr.format_error_msg(errmsg)
+                cmtlog.log(LogLevel.ERR, msg=unformatted_msg, messages=formatted_msg)
+                return None, 422
+        else:
+            api_paths = [raw_path]
+            api = ""
+            namespaced = False
+
+        if name != "":
+            name = f"/{name}"
+
+        if not namespaced:
+            namespace_part = ""
+
+        status = 42503
+
+        # Try the newest API first and iterate backwards
+        with PoolManagerContext(cert_file=self.cert_file, key_file=self.key_file,
+                                ca_certs_file=self.ca_certs_file, token=self.token,
+                                insecuretlsskipverify=self.insecuretlsskipverify) as pool_manager:
+            for api_path in api_paths:
+                url = f"https://{self.control_plane_ip}{self.control_plane_port}" \
+                      f"{self.control_plane_path}/{api_path}{namespace_part}{api}{name}"
+                raw_data, _message, status = \
+                    self.__rest_helper_generic_json(pool_manager=pool_manager, method=method,
+                                                    url=url, query_params=query_params)
+
+                # All fatal failures are handled in __rest_helper_generic
+                if status == 200 and raw_data is not None:
+                    # Success
+                    try:
+                        d = json_loads(raw_data)
+                    except (ValueError, json.decoder.JSONDecodeError):
+                        # We got a response, but the data is malformed; skip the entry
+                        continue
+
+                    # If name is set this is a read request, not a list request
+                    if raw_path or name != "":
+                        return d, status
+                    return deep_get(d, DictPath("items"), []), status
+
+                if status in (204, 400, 403, 503):
+                    # We did not get any data, but we might not want to fail
+                    continue
+
+                # if status == 404:
+                    # We did not get any data, but we might not want to fail
+
+                    # page not found (API not available or possibly programming error)
+                    # raise UnknownError(f"API not available; this is probably "
+                    #                     "a programming error; URL {url}")
+
+                # if status == 410:
+                    # XXX: Should be handled when we implement support for update events
+
+                    # Gone
+                    # We requested update events (using resourceVersion),
+                    # but it has been too long since the previous request;
+                    # retry without &resourceVersion=xxxxx
+
+        # If name is not set this is a list request, so return an empty list instead of None
+        if name == "":
+            return [], status
+
+        return None, status
+
+    def get_api_server_version(self) -> tuple[int, int, str]:
+        """
+        Get API-server version.
+
+            Returns:
+                (int, int, str):
+                    (int): Major API-server version
+                    (int): Minor API-server version
+                    (str): API-server GIT version
+        """
+        ref, _status = self.__rest_helper_get(raw_path="version")
+        ref = cast(dict, ref)
+        server_major_version = deep_get(ref, DictPath("major"), "")
+        server_minor_version = deep_get(ref, DictPath("minor"), "")
+        server_git_version = deep_get(ref, DictPath("gitVersion"), "")
+        if (tmp := re.match(r"^v?(\d+?)\.(\d+?)\.(\d+?)$", server_git_version)) is not None:
+            server_git_version = f"{tmp[1]}.{tmp[2]}.{tmp[3]}"
+
+        return server_major_version, server_minor_version, server_git_version
+
+    def create_object(self, obj: dict[str, Any]) -> tuple[str, int]:
+        """
+        Create a new Kubernetes object.
+
+            Parameters:
+                obj (str): An object to create.
+            Returns:
+                (message, status):
+                    message (str): The status message, if any
+                    status (int): The HTTP response
+        """
+        if not obj:
+            return "", 200
+
+        kind: str = deep_get(obj, DictPath("kind"))
+        api_version: str = deep_get(obj, DictPath("apiVersion"), "")
+        if kind is None:
+            # Bad request seems reasonable.
+            return "No kind provided", 400
+
+        unversioned_tuple = guess_kind((kind, api_version))
+        versioned_tuple = guess_kind_with_version((kind, api_version))
+
+        kind, api_version = versioned_tuple
+
+        obj["apiVersion"] = api_version
+        namespace = deep_get(obj, DictPath("metadata#namespace"), "")
+        body = json_dumps(obj).encode("utf-8")
+        return self.__rest_helper_post(kind=unversioned_tuple, body=body, namespace=namespace)
+
+    # pylint: disable-next=too-many-locals
+    def taint_node(self, node: str, taints: list[dict],
+                   new_taint: tuple[str, str | None, str | None, str | None],
+                   overwrite: bool = False) -> tuple[str, int]:
+        """
+        Apply a new taint, replace an existing taint, or remove a taint for a node.
+
+            Parameters:
+                node (str): The node to taint
+                taints (list[dict]): The current taints
+                new_taint ((key, value, old_effect, new_effect): The modified or new taint
+                overwrite (bool): If overwrite is set, modify the taint, otherwise return
+            Returns:
+                ((str, int)): The return value from __rest_helper_patch
+        """
+        kind = ("Node", "")
+        if new_taint is None:
+            return "", 304
+
+        key, value, old_effect, new_effect = new_taint
+        modified_taints = []
+        modified = False
+
+        for taint in taints:
+            # If the taint is not the one to modify we keep it
+            if deep_get(taint, DictPath("key")) != key:
+                modified_taints.append(taint)
+                continue
+
+            _old_value = deep_get(taint, DictPath("value"))
+            _old_effect = deep_get(taint, DictPath("effect"))
+
+            # Do we want to *remove* the taint?
+            if new_effect is None:  # noqa: SIM102
+                # If old_effect is None we remove taints matching this key or key=value
+                # If old_effect is not None we remove taints matching key=value:effect
+                # value is None: remove all taints for key
+                # value == value: remove the taint for this key=value
+                if (old_effect is None or _old_effect == old_effect) \
+                        and (value is None or _old_value == value):
+                    modified = True
+                    continue
+
+            if _old_effect == new_effect:
+                if not overwrite:
+                    # We already have the right taint,
+                    # and we do not want to overwrite it
+                    return "", 42304
+
+                tmp = {
+                    "key": key,
+                    "effect": new_effect,
+                }
+
+                if value is not None:
+                    tmp["value"] = value
+                modified_taints.append(tmp)
+                modified = True
+                continue
+
+            # Same key, but different effect; we keep the taint
+            modified_taints.append(taint)
+
+        if not modified:
+            if new_effect is None:
+                return "", 304
+
+            tmp = {
+                "key": key,
+                "effect": new_effect,
+            }
+
+            if value is not None:
+                tmp["value"] = value
+            modified_taints.append(tmp)
+
+        data = {
+            "spec": {
+                "taints": modified_taints
+            }
+        }
+        body = json_dumps(data).encode("utf-8")
+        return self.__rest_helper_patch(kind=kind, name=node, body=body)
+
+    def cordon_node(self, node: str) -> tuple[str, int]:
+        """
+        Cordon a Node.
+
+            Parameters:
+                node (str): The node to cordon
+            Returns:
+                ((str, int)): the return value from __rest_helper_patch
+        """
+        kind = ("Node", "")
+        data = {
+            "spec": {
+                "unschedulable": True
+            }
+        }
+        body = json_dumps(data).encode("utf-8")
+        return self.__rest_helper_patch(kind=kind, name=node, body=body)
+
+    # pylint: disable-next=too-many-locals
+    def drain_node(self, node: str, **kwargs: Any) -> tuple[str, int]:
+        """
+        Drain a Node.
+
+            Parameters:
+                node (str): The node to drain
+                force (bool): Evict pods that lack a controller
+            Returns:
+                ((str, int)): the return value from cordon_node or
+                              evict_pod_by_name_namespace
+        """
+        force = deep_get(kwargs, DictPath("force"), False)
+        grace_period = deep_get(kwargs, DictPath("grace_period"), None)
+        if force:
+            grace_period = 0
+
+        # Draining a node is equivalent to first cordoning the node,
+        # then iterating over all pods running on the node,
+        # and evicting all pods that are not controlled by daemonsets or lack a controller.
+        # Force draining also evicts pods that lack a controller.
+        retstr, status = self.cordon_node(node)
+        if status != 200:
+            return retstr, status
+
+        field_selector = make_label_selector({"spec.nodeName": node})
+        pods, status = self.get_list_by_kind_namespace(("Pod", ""), namespace="",
+                                                       field_selector=field_selector)
+        if status != 200:
+            return "", status
+
+        error_message = ""
+        first_error_status = 200
+        for pod in pods:
+            name = deep_get(pod, DictPath("metadata#name"), "")
+            namespace = deep_get(pod, DictPath("metadata#namespace"), "")
+            owr = deep_get(pod, DictPath("metadata#ownerReferences"), [])
+            controller = get_controller_from_owner_references(owr)
+            if controller is not None:
+                controller_kind, _controller_name = controller
+                # Don't check the API-group; this way we allow
+                # for other types of DaemonSets.
+                if controller_kind[0] == "DaemonSet":
+                    continue
+                if controller == (("", ""), "") and not force:
+                    continue
+                retstr, status = self.evict_pod_by_name_namespace(name, namespace,
+                                                                  grace_period=grace_period)
+                if status in (200, 201):
+                    # Successfully created an eviction
+                    continue
+
+                if status in (429, 500):
+                    # PodDisruptionBudget messed up one or several evictions
+                    if not error_message:
+                        first_error_status = status
+                        error_message = "The following pod(s) failed to evict:\n"
+                    error_message += f"{namespace}/{name} (Error: {status}\n"
+                else:
+                    # We don't know why things went wrong; let's abort.
+                    return retstr, status
+            if error_message:
+                error_message += "\nThis is most likely caused by a PodDisruptionBudget"
+        return error_message, first_error_status
+
+    def uncordon_node(self, node: str) -> tuple[str, int]:
+        """
+        Uncordon a Node.
+
+            Parameters:
+                node (str): The node to uncordon
+            Returns:
+                ((str, int)): the return value from __rest_helper_patch
+        """
+        kind = ("Node", "")
+        data = {
+            "spec": {
+                "unschedulable": None
+            }
+        }
+        body = json_dumps(data).encode("utf-8")
+        return self.__rest_helper_patch(kind, name=node, body=body)
+
+    # pylint: disable-next=too-many-arguments,too-many-positional-arguments
+    def patch_obj_by_kind_name_namespace(self, kind: tuple[str, str], name: str,
+                                         namespace: str, patch: dict, subresource: str = "",
+                                         strategic_merge: bool = True) -> tuple[str, int]:
+        """
+        Patch an object.
+
+            Parameters:
+                kind ((kind, api_group)): Kind of object to patch
+                name (str): The name of the object
+                namespace (str): The namespace of the object (or "")
+                subresource (str): The subresource of the object (or "")
+                strategic_merge (bool): True to use strategic merge
+            Returns:
+                ((str, int)): the return value from __rest_helper_delete
+        """
+        body = json_dumps(patch).encode("utf-8")
+        return self.__rest_helper_patch(kind=kind, name=name, namespace=namespace, body=body,
+                                        subresource=subresource, strategic_merge=strategic_merge)
+
+    def evict_pod_by_name_namespace(self, name: str, namespace: str,
+                                    **kwargs: Any) -> tuple[str, int]:
+        """
+        Evict a pod.
+
+            Parameters:
+                name (str): The name of the object
+                namespace (str): The namespace of the object (or "")
+                grace_period (int): The number of seconds to wait before deleting an object;
+                                    None: use default
+                                    0: delete immediately
+            Returns:
+                ((str, int)): the return value from __rest_helper_post
+        """
+        kind = ("Pod", "")
+        subresource = "eviction"
+        grace_period = deep_get(kwargs, DictPath("grace_period"), None)
+
+        data = {
+            "apiVersion": "policy/v1",
+            "kind": "Eviction",
+            "deleteOptions": {
+                "gracePeriodSeconds": grace_period,
+            },
+            "metadata": {
+                "name": name,
+                "namespace": namespace,
+            }
+        }
+
+        body = json_dumps(data).encode("utf-8")
+        return self.__rest_helper_post(kind=kind, name=name, namespace=namespace,
+                                       body=body, subresource=subresource)
+
+    def delete_obj_by_kind_name_namespace(self, kind: tuple[str, str], name: str,
+                                          namespace: str, force: bool = False) -> tuple[str, int]:
+        """
+        Delete an object.
+
+            Parameters:
+                kind ((kind, api_group)): Kind of object to delete
+                name (str): The name of the object
+                namespace (str): The namespace of the object (or "")
+                force (bool): True = no grace period
+            Returns:
+                ((str, int)): the return value from __rest_helper_delete
+        """
+        query_params: list[tuple[str, Any] | None] = []
+
+        if force:
+            query_params.append(("gracePeriodSeconds", 0))
+
+        return self.__rest_helper_delete(kind=kind, name=name,
+                                         namespace=namespace, query_params=query_params)
+
+    def get_metrics(self) -> tuple[list[str], int]:
+        """
+        Get cluster metrics.
+
+            Returns:
+                (metrics, status):
+                    metrics (list[str]): The metrics
+                    status (int): The HTTP response
+        """
+        msg: list[str] = []
+        status = 42503
+
+        if self.cluster_unreachable:
+            return msg, status
+
+        query_params: list[tuple[str, Any] | None] = []
+        url = f"https://{self.control_plane_ip}{self.control_plane_port}" \
+              f"{self.control_plane_path}/metrics"
+        with PoolManagerContext(cert_file=self.cert_file, key_file=self.key_file,
+                                ca_certs_file=self.ca_certs_file, token=self.token,
+                                insecuretlsskipverify=self.insecuretlsskipverify) as pool_manager:
+            data, _message, status = self.__rest_helper_generic_json(pool_manager=pool_manager,
+                                                                     method="GET", url=url,
+                                                                     query_params=query_params)
+            if status == 200 and data is not None:
+                if isinstance(data, bytes):
+                    msg = data.decode("utf-8", errors="replace").splitlines()
+                elif isinstance(data, str):
+                    msg = data.splitlines()
+            elif status == 204:
+                # No Content; pretend that everything is fine
+                msg = []
+                status = 200
+            else:
+                msg = []
+        return msg, status
+
+    def get_list_by_kind_namespace(self, kind: tuple[str, str], namespace: str,
+                                   **kwargs: Any) -> tuple[list[dict[str, Any]], int]:
+        """
+        Given kind, namespace and optionally label and/or field selectors,
+        return all matching resources.
+
+            Parameters:
+                kind (str, str): A kind, API-group tuple
+                namespace (str): The namespace of the resource
+                                 (empty if the resource is not namespaced)
+                **kwargs (dict[str, Any]): Keyword arguments
+                    label_selector (str): A label selector
+                    field_selector (str): A field selector
+                    resource_cache (KubernetesResourceCache): A KubernetesResourceCache
+            Returns:
+                ([dict], int):
+                    ([dict]): A list of object dicts
+                    (int): The HTTP response
+        """
+        label_selector: str = deep_get(kwargs, DictPath("label_selector"), "")
+        field_selector: str = deep_get(kwargs, DictPath("field_selector"), "")
+        resource_cache: KubernetesResourceCache | None = deep_get(kwargs,
+                                                                  DictPath("resource_cache"))
+
+        vlist: list[dict[str, Any]] = []
+
+        if deep_get(cmtlib.cmtconfig, DictPath("Debug#developer_mode")) \
+                and deep_get(cmtlib.cmtconfig, DictPath("Debug#use_testdata")):
+            if resource_cache \
+                    and (vlist := resource_cache.get_resources(kind, namespace=namespace,
+                                                               label_selector=label_selector,
+                                                               field_selector=field_selector)):
+                return vlist, 200
+
+            if not kind[1]:
+                joined_kind = kind[0]
+            else:
+                joined_kind = ".".join(kind)
+            testdata = f"{HOMEDIR}/testdata/{joined_kind}.yaml"
+            if Path(testdata).is_file():
+                d = secure_read_yaml(FilePath(testdata), asynchronous=True)
+                if deep_get(d, DictPath("kind")) == "List":
+                    vlist = deep_get(d, DictPath("items"), [])
+                else:
+                    if d:
+                        vlist = list(d)
+                if vlist is None:
+                    d = []
+                if vlist and resource_cache is not None:
+                    resource_cache.update_resources(kind, vlist)
+                    # This way we get the selectors handled
+                    return resource_cache.get_resources(kind, namespace=namespace,
+                                                        label_selector=label_selector,
+                                                        field_selector=field_selector), 200
+                return vlist, 200
+
+        tmp, status = self.__rest_helper_get(kind=kind, namespace=namespace,
+                                             label_selector=label_selector,
+                                             field_selector=field_selector)
+        vlist = cast(list[dict[str, Any]], tmp)
+        return vlist, status
+
+    def get_ref_by_kind_name_namespace(self, kind: tuple[str, str], name: str,
+                                       namespace: str, **kwargs: Any) -> dict[str, Any] | None:
+        """
+        Given kind, name, namespace return a resource.
+
+            Parameters:
+                kind (str, str): A kind, API-group tuple
+                name (str): The name of the resource
+                namespace (str): The namespace of the resource
+                                 (empty if the resource is not namespaced)
+                **kwargs (dict[str, Any]): Keyword arguments
+                    resource_cache (KubernetesResourceCache): A KubernetesResourceCache
+            Returns:
+                (dict): An object dict
+        """
+        resource_cache: KubernetesResourceCache | None = deep_get(kwargs,
+                                                                  DictPath("resource_cache"))
+
+        if deep_get(cmtlib.cmtconfig, DictPath("Debug#developer_mode")) \
+                and deep_get(cmtlib.cmtconfig, DictPath("Debug#use_testdata")):
+            if not kind[1]:
+                joined_kind = kind[0]
+            else:
+                joined_kind = ".".join(kind)
+            testdata = f"{HOMEDIR}/testdata/{joined_kind}.yaml"
+            if resource_cache:
+                d = resource_cache.get_resources(kind, namespace=namespace)
+            else:
+                d = []
+            if not d and Path(testdata).is_file():
+                tmp = cast(dict, secure_read_yaml(FilePath(testdata)))
+                if deep_get(tmp, DictPath("kind")) == "List":
+                    d = deep_get(tmp, DictPath("items"), [])
+                else:
+                    d = [tmp]
+            if d is None:
+                d = []
+            for item in d:
+                i_name = deep_get(item, DictPath("metadata#name"), "")
+                i_namespace = deep_get(item, DictPath("metadata#namespace"))
+                if i_name == name and (not namespace or i_namespace == namespace):
+                    return item
+            return None
+
+        ref, _status = self.__rest_helper_get(kind=kind, name=name, namespace=namespace)
+        ref = cast(dict, ref)
+        return ref
+
+    def read_namespaced_pod_log(self, name: str, namespace: str,
+                                container: str | None = None,
+                                tail_lines: int = 0) -> tuple[str, int]:
+        """
+        Read a pod log.
+
+            Parameters:
+                name (str): The name of the pod
+                namespace (str): The namespace of the pod
+                container (str): The name of the container
+                tail_lines (int): The amount of lines to return (0 returns all)
+            Returns:
+                (msg, status):
+                    msg (str): A string with all log messages
+                    status (int): The HTTP response
+        """
+        msg = ""
+        status = 42503
+
+        query_params: list[tuple[str, Any] | None] = []
+        if container is not None:
+            query_params.append(("container", container))
+        if tail_lines is not None:
+            query_params.append(("tailLines", tail_lines))
+        query_params.append(("timestamps", True))
+
+        method = "GET"
+        url = f"https://{self.control_plane_ip}{self.control_plane_port}" \
+              f"{self.control_plane_path}/api/v1/namespaces/{namespace}/pods/{name}/log"
+        with PoolManagerContext(cert_file=self.cert_file, key_file=self.key_file,
+                                ca_certs_file=self.ca_certs_file, token=self.token,
+                                insecuretlsskipverify=self.insecuretlsskipverify) as pool_manager:
+            data, message, status = self.__rest_helper_generic_json(pool_manager=pool_manager,
+                                                                    method=method, url=url,
+                                                                    query_params=query_params)
+
+            if status == 200 and data is not None:
+                if isinstance(data, bytes):
+                    msg = data.decode("utf-8", errors="replace")
+                elif isinstance(data, str):
+                    msg = data
+            elif status == 204:
+                # No Content
+                msg = "No Content"
+            else:
+                msg = message
+
+        return msg, status
+
+    # Namespace must be the namespace of the resource; the owner reference itself lacks namespace
+    # since owners have to reside in the same namespace as their owned resources
+    def get_ref_from_owr(self, owr: dict, namespace: str) -> dict:
+        """
+        Given an Owner Reference (OWR), returns resource of the owner.
+
+            Parameters:
+                owr (dict): A reference to the owner of the resource
+                namespace (str): The namespace of the resource
+            Returns:
+                object (dict): An object dict
+        """
+        ref, _status = self.__rest_helper_get(kind=deep_get(owr, DictPath("kind")),
+                                              name=deep_get(owr, DictPath("name")),
+                                              namespace=namespace)
+        ref = cast(dict, ref)
+        return ref
+
+    # pylint: disable-next=too-many-locals
+    def get_events_by_kind_name_namespace(self, kind: tuple[str, str], name: str,
+                                          namespace: str, **kwargs: Any) \
+            -> list[tuple[str, str, str, str, str, str, str, str, str]]:
+        """
+        Given kind, name, and namespace, returns all matching events.
+
+            Parameters:
+                kind ((str, str)): A (kind, api_group) tuple
+                name (str): The name of the resource
+                namespace (str): The namespace of the resource
+                **kwargs (dict[str, Any]): Keyword arguments
+                    resource_cache (KubernetesResourceCache): A KubernetesResourceCache
+            Returns:
+                ([(str, str, str, str, str, str, str, str, str)]):
+                    (str): The namespace of the event
+                    (str): The name of the event
+                    (str): A string representation of the last seen datetime
+                    (str): The event status
+                    (str): The reason for the event
+                    (str): The source of the event
+                    (str): A string representation of the first seen datetime
+                    (str): The number of times this event has been emitted
+                    (str): A free-form explanation of the event
+        """
+        resource_cache: KubernetesResourceCache | None = \
+            deep_get(kwargs, DictPath("resource_cache"))
+
+        events: list[tuple[str, str, str, str, str, str, str, str, str]] = []
+        vlist, _status = self.get_list_by_kind_namespace(("Event", "events.k8s.io"), "",
+                                                         resource_cache=resource_cache)
+        if vlist is None or not vlist or _status != 200:
+            return events
+
+        for obj in vlist:
+            obj = cast(dict, obj)
+
+            __involved_kind = deep_get_with_fallback(obj, [DictPath("regarding#kind"),
+                                                           DictPath("involvedObject#kind")])
+            __involved_api_version = \
+                deep_get_with_fallback(obj, [DictPath("regarding#apiVersion"),
+                                             DictPath("involvedObject#apiVersion")])
+            involved_kind = self.kind_api_version_to_kind(__involved_kind, __involved_api_version)
+            involved_name = deep_get_with_fallback(obj, [DictPath("regarding#name"),
+                                                         DictPath("involvedObject#name")])
+            ev_name = deep_get(obj, DictPath("metadata#name"))
+            ev_namespace = deep_get(obj, DictPath("metadata#namespace"), "")
+            _last_seen = timestamp_to_datetime(deep_get_with_fallback(obj, [
+                DictPath("series#lastObservedTime"),
+                DictPath("deprecatedLastTimestamp"),
+                DictPath("lastTimestamp"),
+                DictPath("eventTime"),
+                DictPath("deprecatedFirstTimestamp"),
+                DictPath("firstTimestamp")]))
+            last_seen = datetime_to_timestamp(_last_seen)
+            status = deep_get(obj, DictPath("type"), "")
+            reason = deep_get(obj, DictPath("reason"), "")
+            reason = reason.replace("\\\"", "“").replace("\n", "\\n").rstrip()
+            if not (src_component := deep_get(obj, DictPath("reportingController"), "")):
+                src_component = deep_get_with_fallback(obj, [DictPath("deprecatedSource#component"),
+                                                             DictPath("source#component")], "")
+            if not (src_host := deep_get(obj, DictPath("reportingInstance"), "")):
+                src_host = deep_get_with_fallback(obj, [DictPath("deprecatedSource#host"),
+                                                        DictPath("source#host")], "")
+            if not src_component:
+                source = src_host
+            elif not src_host:
+                source = src_component
+            else:
+                source = f"{src_host}/{src_component}"
+            _first_seen = \
+                timestamp_to_datetime(
+                    deep_get_with_fallback(obj, [DictPath("eventTime"),
+                                                 DictPath("deprecatedFirstTimestamp"),
+                                                 DictPath("firstTimestamp")]))
+            first_seen = datetime_to_timestamp(_first_seen)
+
+            count: str = deep_get_with_fallback(obj, [DictPath("series#count"),
+                                                      DictPath("deprecatedCount"),
+                                                      DictPath("count")], "")
+            if count is None:
+                count = ""
+            else:
+                count = str(count)
+            message: str = deep_get_with_fallback(obj, [DictPath("message"), DictPath("note")], "")
+            message = message.replace("\\\"", "“").replace("\n", "\\n").rstrip()
+            if kind == involved_kind and name == involved_name and ev_namespace == namespace:
+                event = (str(ev_namespace),
+                         str(ev_name), last_seen, status,
+                         str(reason), str(source), first_seen, count, message)
+                events.append(event)
+        return events
+
+    def check_for_feature_gates(self, **kwargs: Any) -> dict[str, dict[str, Any]]:
+        """
+        Upgrading typically isn't supported when feature gates are enabled;
+        this provides a quick way to check whether there are feature gates enabled.
+        Note that this isn't 100% proof; we won't be able to detect manually enabled
+        feature gates.
+
+            Parameters:
+                **kwargs (dict[str, Any]): Keyword arguments
+                    resource_cache (KubernetesResourceCache): A KubernetesResourceCache
+            Returns:
+                (dict): A dict with that contains the set feature gates, if any
+        """
+        resource_cache: KubernetesResourceCache | None = \
+            deep_get(kwargs, DictPath("resource_cache"))
+
+        # We can find out whether feature gates were enabled by checking the configuration
+        # used when setting up the cluster.
+        ref = self.get_ref_by_kind_name_namespace(("ConfigMap", ""),
+                                                  "kube-proxy", "kube-system",
+                                                  resource_cache=resource_cache)
+        cm_str = deep_get(ref, DictPath("data#config.conf"), {})
+        cm = yaml.safe_load(cm_str)
+        kube_proxy_feature_gates = deep_get(cm, DictPath("featureGates"), {})
+
+        ref = self.get_ref_by_kind_name_namespace(("ConfigMap", ""),
+                                                  "kubeadm-config", "kube-system",
+                                                  resource_cache=resource_cache)
+        cm_str = deep_get(ref, DictPath("data#ClusterConfiguration"), {})
+        cm = yaml.safe_load(cm_str)
+        api_server_feature_gates = deep_get(cm, DictPath("apiServer#extraArgs#feature-gates"), {})
+        scheduler_feature_gates = deep_get(cm, DictPath("scheduler#extraArgs#feature-gates"), {})
+
+        ref = self.get_ref_by_kind_name_namespace(("ConfigMap", ""),
+                                                  "kubelet-config", "kube-system",
+                                                  resource_cache=resource_cache)
+        cm_str = deep_get(ref, DictPath("data#kubelet"), {})
+        cm = yaml.safe_load(cm_str)
+        kubelet_feature_gates = deep_get(cm, DictPath("featureGates"), {})
+        return {
+            "kube_proxy_feature_gates": copy.deepcopy(kube_proxy_feature_gates),
+            "api_server_feature_gates": copy.deepcopy(api_server_feature_gates),
+            "scheduler_feature_gates": copy.deepcopy(scheduler_feature_gates),
+            "kubelet_feature_gates": copy.deepcopy(kubelet_feature_gates),
+        }

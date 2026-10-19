@@ -17,7 +17,7 @@ import yaml
 from clustermanagementtoolkit.cmtpaths import DEFAULT_THEME_FILE
 
 from clustermanagementtoolkit.cmttypes import deep_get, DictPath, FilePath
-from clustermanagementtoolkit.cmttypes import ProgrammingError
+from clustermanagementtoolkit.cmttypes.exceptions import ProgrammingError
 
 from clustermanagementtoolkit.ansithemeprint import ANSIThemeStr
 from clustermanagementtoolkit.ansithemeprint import ansithemeprint, init_ansithemeprint
@@ -2406,7 +2406,7 @@ def test_get_package_version_list(verbose: bool = False) -> tuple[str, bool]:
         for obj, kwargs, mock_response, expected_result, expected_exception in testdata:
             try:
                 with mock.patch("clustermanagementtoolkit.itemgetters."
-                                "get_package_versions",
+                                "get_package_version_list.get_package_versions",
                                 return_value=mock_response):
                     tmp = fun(obj, **kwargs)
                 if tmp != expected_result:

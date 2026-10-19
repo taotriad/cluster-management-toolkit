@@ -151,9 +151,11 @@ def test_get_github_version(verbose: bool = False) -> tuple[str, bool]:
         for url, version_regex, mock_retval, mock_data, \
                 expected_result, expected_exception in testdata:
             try:
-                with mock.patch("clustermanagementtoolkit.networkio.download_files",
+                with mock.patch("clustermanagementtoolkit.networkio."
+                                "get_github_version.download_files",
                                 return_value=mock_retval), \
-                     mock.patch("clustermanagementtoolkit.networkio.secure_read_yaml",
+                     mock.patch("clustermanagementtoolkit.networkio."
+                                "get_github_version.secure_read_yaml",
                                 return_value=mock_data):
                     tmp = fun(url, version_regex)
                 if tmp != expected_result:

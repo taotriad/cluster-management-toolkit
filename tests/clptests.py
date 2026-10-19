@@ -184,7 +184,7 @@ def test___usage(verbose: bool = False) -> tuple[str, bool]:
                 expected_result, expected_exception, expected_exception_msg in testdata:
             try:
                 with mock.patch("sys.exit", side_effect=Exception(mock_exit)):
-                    commandparser.commandline = commandline
+                    commandparser.commandparser_types.commandline = commandline
                     tmp = fun(options, args)
 
                 if tmp != expected_result:

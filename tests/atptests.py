@@ -16,9 +16,14 @@ from unittest import mock
 from clustermanagementtoolkit import ansithemeprint
 from clustermanagementtoolkit.ansithemeprint import ANSIThemeStr
 
-from clustermanagementtoolkit.cmtpaths import DEFAULT_THEME_FILE, THEME_DIR
-from clustermanagementtoolkit.cmttypes import deep_get, DictPath
-from clustermanagementtoolkit.cmttypes import FilePath, FilePathAuditError, ProgrammingError
+from clustermanagementtoolkit.cmtpaths import DEFAULT_THEME_FILE
+from clustermanagementtoolkit.cmtpaths import THEMES_DIR
+
+from clustermanagementtoolkit.cmttypes import DictPath
+from clustermanagementtoolkit.cmttypes import FilePath
+from clustermanagementtoolkit.cmttypes import deep_get
+from clustermanagementtoolkit.cmttypes.exceptions import FilePathAuditError
+from clustermanagementtoolkit.cmttypes.exceptions import ProgrammingError
 
 real_import: Callable | None = None  # pylint: disable=invalid-name
 
@@ -233,9 +238,10 @@ def test_init_ansithemeprint(verbose: bool = False) -> tuple[str, bool]:
 
     if result:
         try:
-            with mock.patch("clustermanagementtoolkit.ansithemeprint.SYSTEM_DEFAULT_THEME_FILE",
+            with mock.patch("clustermanagementtoolkit.ansithemeprint."
+                            "init_ansithemeprint.SYSTEM_DEFAULT_THEME_FILE",
                             "/etc/passwd/nonexistingtheme.yaml"):
-                themepath = FilePath(os.path.join(THEME_DIR, "/etc/passwd/nonexistingtheme.yaml"))
+                themepath = FilePath(os.path.join(THEMES_DIR, "/etc/passwd/nonexistingtheme.yaml"))
                 fun(themefile=themepath)
             message = f"{fun.__name__} did not raise an exception for invalid path"
             result = False
@@ -246,7 +252,7 @@ def test_init_ansithemeprint(verbose: bool = False) -> tuple[str, bool]:
             result = False
 
     if result:
-        themepath = FilePath(os.path.join(THEME_DIR, "nonexistingtheme.yaml"))
+        themepath = FilePath(os.path.join(THEMES_DIR, "nonexistingtheme.yaml"))
         try:
             fun(themefile=themepath)
         except FilePathAuditError as e:
@@ -662,40 +668,6 @@ def test_themearray_override_formatting(verbose: bool = False) -> tuple[str, boo
 
 
 # pylint: disable-next=unused-argument
-def test___themearray_to_raw_string(verbose: bool = False) -> tuple[str, bool]:
-    message = ""
-    result = True
-
-    indata: Any = [ANSIThemeStr("1", "default"),
-                   ANSIThemeStr("2", "ok"),
-                   ANSIThemeStr("3", "ok")]
-    expected_result = "123"
-
-    fun = ansithemeprint.__themearray_to_raw_string  # pylint: disable=protected-access
-
-    if (tmp := fun(indata)) != expected_result:
-        message = f"{fun.__name__} returned incorrect output:\n" \
-                  f"       input: {indata})\n" \
-                  f"      output: {tmp}\n" \
-                  f"    expected: {expected_result}"
-        result = False
-
-    if result:
-        indata = ["1", ANSIThemeStr("2", "ok"), ANSIThemeStr("3", "ok")]
-        try:
-            tmp = fun(indata)
-            message = f"{fun.__name__}() silently accepted invalid indata:\n" \
-                      f"       input: {repr(indata)}\n" \
-                      f"      output: {repr(tmp)}\n" \
-                      f"    expected: TypeError"
-            result = False
-        except TypeError:
-            pass
-
-    return message, result
-
-
-# pylint: disable-next=unused-argument
 def test_ansithemearray_to_str(verbose: bool = False) -> tuple[str, bool]:
     message = ""
     result = True
@@ -883,7 +855,7 @@ def test_clear_screen(verbose: bool = False) -> tuple[str, bool]:
             message = f"{fun.__name__} failed (error code: {tmp}"
             result = False
     if result:
-        with mock.patch("clustermanagementtoolkit.ansithemeprint.cmtio.secure_which",
+        with mock.patch("clustermanagementtoolkit.ansithemeprint.clear_screen.secure_which",
                         side_effect=FileNotFoundError):
             if (tmp := fun()) != errno.ENOENT:
                 message = f"{fun.__name__} failed; returned {tmp} (expected errno.ENOENT)"
@@ -939,10 +911,6 @@ tests: dict[tuple[str, ...], dict[str, Any]] = {
     },
     ("themearray_to_string",): {
         "callable": test_ansithemearray_to_str,
-        "result": None,
-    },
-    ("__themearray_to_raw_string",): {
-        "callable": test___themearray_to_raw_string,
         "result": None,
     },
     ("ansithemeinput", "ansithemeinput_password"): {

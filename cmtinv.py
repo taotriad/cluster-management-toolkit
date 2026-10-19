@@ -41,37 +41,47 @@ from clustermanagementtoolkit import cmtio
 
 from clustermanagementtoolkit import cmtio_yaml
 
-from clustermanagementtoolkit.ansible_helper import ANSIBLE_INVENTORY
-
-from clustermanagementtoolkit.ansible_helper import ansible_configuration
-from clustermanagementtoolkit.ansible_helper import ansible_create_groups, ansible_remove_groups
-from clustermanagementtoolkit.ansible_helper import ansible_get_groups, ansible_get_groups_by_host
+from clustermanagementtoolkit.ansible_helper import AnsibleConfiguration
+from clustermanagementtoolkit.ansible_helper import ansible_add_hosts
+from clustermanagementtoolkit.ansible_helper import ansible_create_groups
+from clustermanagementtoolkit.ansible_helper import ansible_get_groups
+from clustermanagementtoolkit.ansible_helper import ansible_get_groups_by_host
 from clustermanagementtoolkit.ansible_helper import ansible_get_hosts_by_group
-from clustermanagementtoolkit.ansible_helper import ansible_add_hosts, ansible_remove_hosts
 from clustermanagementtoolkit.ansible_helper import ansible_get_inventory_dict
 from clustermanagementtoolkit.ansible_helper import ansible_get_inventory_pretty
 from clustermanagementtoolkit.ansible_helper import ansible_ping
 from clustermanagementtoolkit.ansible_helper import ansible_print_action_summary
 from clustermanagementtoolkit.ansible_helper import ansible_print_play_results
+from clustermanagementtoolkit.ansible_helper import ansible_remove_groups
+from clustermanagementtoolkit.ansible_helper import ansible_remove_hosts
 from clustermanagementtoolkit.ansible_helper import ansible_run_playbook_on_selection
+from clustermanagementtoolkit.ansible_helper import ansible_set_groupvars
+from clustermanagementtoolkit.ansible_helper import ansible_set_hostvars
 from clustermanagementtoolkit.ansible_helper import ansible_set_vars
-from clustermanagementtoolkit.ansible_helper import ansible_set_hostvars, ansible_unset_hostvars
-from clustermanagementtoolkit.ansible_helper import ansible_set_groupvars, ansible_unset_groupvars
+from clustermanagementtoolkit.ansible_helper import ansible_unset_groupvars
+from clustermanagementtoolkit.ansible_helper import ansible_unset_hostvars
 from clustermanagementtoolkit.ansible_helper import populate_playbooks_from_filenames
 
 from clustermanagementtoolkit.ansithemeprint import ANSIThemeStr, ansithemeprint
 from clustermanagementtoolkit.ansithemeprint import ansithemestr_join_list, ansithemearray_to_str
 
 from clustermanagementtoolkit import cmtlib
-from clustermanagementtoolkit.cmtlib import read_cmtconfig, get_latest_upstream_version
+from clustermanagementtoolkit.cmtlib import get_latest_upstream_version
 
-from clustermanagementtoolkit.cmtpaths import SYSTEM_ANSIBLE_PLAYBOOK_DIR, ANSIBLE_PLAYBOOK_DIR
+from clustermanagementtoolkit.cmtpaths import ANSIBLE_INVENTORY
+from clustermanagementtoolkit.cmtpaths import SYSTEM_ANSIBLE_PLAYBOOKS_DIR, ANSIBLE_PLAYBOOKS_DIR
 from clustermanagementtoolkit.cmtpaths import HOMEDIR, SSH_DIR, FPING_BIN_PATH
 from clustermanagementtoolkit.cmtpaths import DEFAULT_THEME_FILE
 
-from clustermanagementtoolkit.cmttypes import deep_get, deep_get_with_fallback, DictPath, FilePath
-from clustermanagementtoolkit.cmttypes import FilePathAuditError, ProgrammingError, UnknownError
-from clustermanagementtoolkit.cmttypes import SecurityPolicy, SecurityStatus
+from clustermanagementtoolkit.cmttypes import DictPath
+from clustermanagementtoolkit.cmttypes import FilePath
+from clustermanagementtoolkit.cmttypes import SecurityPolicy
+from clustermanagementtoolkit.cmttypes import SecurityStatus
+from clustermanagementtoolkit.cmttypes import deep_get
+from clustermanagementtoolkit.cmttypes import deep_get_with_fallback
+from clustermanagementtoolkit.cmttypes.exceptions import FilePathAuditError
+from clustermanagementtoolkit.cmttypes.exceptions import ProgrammingError
+from clustermanagementtoolkit.cmttypes.exceptions import UnknownError
 
 from clustermanagementtoolkit.commandparser import parse_commandline, CommandType
 
@@ -866,8 +876,8 @@ def populate_playbooks() -> dict:
         if not os.path.isdir(playbook_dir):
             continue
         playbook_dirs.append(playbook_dir)
-    playbook_dirs.append(ANSIBLE_PLAYBOOK_DIR)
-    playbook_dirs.append(SYSTEM_ANSIBLE_PLAYBOOK_DIR)
+    playbook_dirs.append(ANSIBLE_PLAYBOOKS_DIR)
+    playbook_dirs.append(SYSTEM_ANSIBLE_PLAYBOOKS_DIR)
 
     yaml_regex: re.Pattern[str] = re.compile(r"^(.*)\.ya?ml$")
 
@@ -1134,7 +1144,7 @@ def run_playbook(options: list[tuple[str, str]], args: list[str]) -> int:
 
     for opt, _optarg in options:
         if opt == "--save-ansible-logs":
-            ansible_configuration["save_logs"] = True
+            AnsibleConfiguration.save_logs = True
         elif opt == "--verbose":
             verbose = True
 
@@ -2431,12 +2441,12 @@ def main() -> None:
         sys.exit("CRITICAL: This program should not be run as the root user; aborting.")
 
     # Now check if all necessary paths exist
-    if (violations := cmtlib.setup_paths()) != [SecurityStatus.OK]:
+    if (violations := cmtio.setup_paths()) != [SecurityStatus.OK]:
         violations_joined = cmtio.join_securitystatus_set(",", set(violations))
         sys.exit(f"Failed to create necessary directories; violated rules: {violations_joined}")
 
     # Then initialise the configuration file
-    read_cmtconfig()
+    cmtlib.read_cmtconfig()
 
     command, options, args = parse_commandline(about.INVENTORY_PROGRAM_NAME,
                                                about.INVENTORY_PROGRAM_VERSION,
@@ -2455,13 +2465,13 @@ def main() -> None:
         checks.check_netrc_permissions(verbose=False, exit_on_error=True, quiet_on_ok=True)
 
     # Used by the ansible module
-    ansible_configuration["ansible_forks"] = \
+    AnsibleConfiguration.ansible_forks = \
         deep_get(cmtlib.cmtconfig, DictPath("Ansible#forks"), 10)
-    ansible_configuration["ansible_user"] = \
+    AnsibleConfiguration.ansible_user = \
         deep_get(cmtlib.cmtconfig, DictPath("Ansible#ansible_user"))
-    ansible_configuration["ansible_password"] = \
+    AnsibleConfiguration.ansible_password = \
         deep_get(cmtlib.cmtconfig, DictPath("Ansible#ansible_password"))
-    ansible_configuration["disable_strict_host_key_checking"] = \
+    AnsibleConfiguration.disable_strict_host_key_checking = \
         deep_get(cmtlib.cmtconfig, DictPath("Nodes#disablestricthostkeychecking"), False)
 
     command(options, args)

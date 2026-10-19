@@ -2,6 +2,9 @@
 
 # Requires: python3 (>= 3.11)
 # Requires: python3-jinja2
+#
+# Copyright the Cluster Management Toolkit for Kubernetes contributors.
+# SPDX-License-Identifier: MIT
 
 """
 Generate a stub view-file for a Kubernetes resource.

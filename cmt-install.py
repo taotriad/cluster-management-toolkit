@@ -30,17 +30,17 @@ from clustermanagementtoolkit.cmtpaths import BASH_COMPLETION_DIRNAME
 from clustermanagementtoolkit.cmtpaths import BINDIR, HOMEDIR, CMTDIR, CMT_LOGS_DIR
 from clustermanagementtoolkit.cmtpaths import VERSION_CACHE_DIR
 from clustermanagementtoolkit.cmtpaths import CHANGELOG_DIR, CHANGELOG_DIRNAME
-from clustermanagementtoolkit.cmtpaths import DEPLOYMENT_DIR, ANSIBLE_DIR, ANSIBLE_LOG_DIR
+from clustermanagementtoolkit.cmtpaths import DEPLOYMENTS_DIR, ANSIBLE_DIR, ANSIBLE_LOGS_DIR
 from clustermanagementtoolkit.cmtpaths import CMT_CONFIG_FILE_DIR, CMT_HOOKS_DIR
 from clustermanagementtoolkit.cmtpaths import CMT_PRE_PREPARE_DIR, CMT_POST_PREPARE_DIR
 from clustermanagementtoolkit.cmtpaths import CMT_PRE_SETUP_DIR, CMT_POST_SETUP_DIR
 from clustermanagementtoolkit.cmtpaths import CMT_PRE_UPGRADE_DIR, CMT_POST_UPGRADE_DIR
 from clustermanagementtoolkit.cmtpaths import CMT_PRE_TEARDOWN_DIR, CMT_POST_TEARDOWN_DIR
 from clustermanagementtoolkit.cmtpaths import CMT_PRE_PURGE_DIR, CMT_POST_PURGE_DIR
-from clustermanagementtoolkit.cmtpaths import ANSIBLE_PLAYBOOK_DIR, CMT_CONFIG_FILE
-from clustermanagementtoolkit.cmtpaths import PARSER_DIR, THEME_DIR, VIEW_DIR
-from clustermanagementtoolkit.cmtpaths import ANSIBLE_PLAYBOOK_DIRNAME, CMT_CONFIG_FILENAME
-from clustermanagementtoolkit.cmtpaths import PARSER_DIRNAME, THEME_DIRNAME, VIEW_DIRNAME
+from clustermanagementtoolkit.cmtpaths import ANSIBLE_PLAYBOOKS_DIR, CMT_CONFIG_FILE
+from clustermanagementtoolkit.cmtpaths import PARSERS_DIR, THEMES_DIR, VIEWS_DIR
+from clustermanagementtoolkit.cmtpaths import ANSIBLE_PLAYBOOKS_DIRNAME, CMT_CONFIG_FILENAME
+from clustermanagementtoolkit.cmtpaths import PARSERS_DIRNAME, THEMES_DIRNAME, VIEWS_DIRNAME
 from clustermanagementtoolkit.cmtpaths import SOFTWARE_SOURCES_DIRNAME, SOFTWARE_SOURCES_DIR
 
 from clustermanagementtoolkit.cmtio import execute_command_with_response
@@ -58,10 +58,10 @@ DIRECTORIES = [
     (BINDIR, 0o755),
     (CMTDIR, 0o755),
     (CMT_LOGS_DIR, 0o700),
-    (DEPLOYMENT_DIR, 0o755),
+    (DEPLOYMENTS_DIR, 0o755),
     (VERSION_CACHE_DIR, 0o700),
     (ANSIBLE_DIR, 0o755),
-    (ANSIBLE_LOG_DIR, 0o700),
+    (ANSIBLE_LOGS_DIR, 0o700),
     (CMT_CONFIG_FILE_DIR, 0o755),
     (CMT_HOOKS_DIR, 0o755),
     (CMT_PRE_PREPARE_DIR, 0o755),
@@ -98,10 +98,10 @@ EXECUTABLE_SYMLINKS = [
 
 MISC_SYMLINKS = [
     (FilePath(os.path.join(os.getcwd(), SOFTWARE_SOURCES_DIRNAME)), SOFTWARE_SOURCES_DIR),
-    (FilePath(os.path.join(os.getcwd(), ANSIBLE_PLAYBOOK_DIRNAME)), ANSIBLE_PLAYBOOK_DIR),
-    (FilePath(os.path.join(os.getcwd(), PARSER_DIRNAME)), PARSER_DIR),
-    (FilePath(os.path.join(os.getcwd(), THEME_DIRNAME)), THEME_DIR),
-    (FilePath(os.path.join(os.getcwd(), VIEW_DIRNAME)), VIEW_DIR),
+    (FilePath(os.path.join(os.getcwd(), ANSIBLE_PLAYBOOKS_DIRNAME)), ANSIBLE_PLAYBOOKS_DIR),
+    (FilePath(os.path.join(os.getcwd(), PARSERS_DIRNAME)), PARSERS_DIR),
+    (FilePath(os.path.join(os.getcwd(), THEMES_DIRNAME)), THEMES_DIR),
+    (FilePath(os.path.join(os.getcwd(), VIEWS_DIRNAME)), VIEWS_DIR),
     (FilePath(os.path.join(os.getcwd(), CHANGELOG_DIRNAME)), CHANGELOG_DIR),
     (FilePath(os.path.join(os.getcwd(), BASH_COMPLETION_DIRNAME, "cmt")),
      FilePath(os.path.join(BASH_COMPLETION_DIR, "cmt"))),

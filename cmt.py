@@ -57,50 +57,69 @@ except ModuleNotFoundError:  # pragma: no cover
 # This has to be first, since it checks for the correct Python version
 from clustermanagementtoolkit import about
 
-from clustermanagementtoolkit.ansible_helper import ANSIBLE_INVENTORY
+from clustermanagementtoolkit.cmtpaths import ANSIBLE_INVENTORY
 
-from clustermanagementtoolkit.ansible_helper import ansible_configuration, get_playbook_path
-from clustermanagementtoolkit.ansible_helper import ansible_get_hosts_by_group, ansible_add_hosts
+from clustermanagementtoolkit.ansible_helper import AnsibleConfiguration
+from clustermanagementtoolkit.ansible_helper import ansible_add_hosts
+from clustermanagementtoolkit.ansible_helper import ansible_get_hosts_by_group
 from clustermanagementtoolkit.ansible_helper import ansible_print_action_summary
 from clustermanagementtoolkit.ansible_helper import ansible_print_play_results
 from clustermanagementtoolkit.ansible_helper import ansible_remove_hosts
 from clustermanagementtoolkit.ansible_helper import ansible_run_playbook_on_selection
+from clustermanagementtoolkit.ansible_helper import get_playbook_path
 from clustermanagementtoolkit.ansible_helper import populate_playbooks_from_filenames
 
+from clustermanagementtoolkit.ansithemeprint import ANSIThemeStr
+from clustermanagementtoolkit.ansithemeprint import ansithemeinput
 from clustermanagementtoolkit.ansithemeprint import ansithemeinput_password
-from clustermanagementtoolkit.ansithemeprint import ansithemeprint, ansithemeinput
+from clustermanagementtoolkit.ansithemeprint import ansithemeprint
 from clustermanagementtoolkit.ansithemeprint import ansithemeprint_formatted
-from clustermanagementtoolkit.ansithemeprint import ANSIThemeStr, ansithemestr_join_list
+from clustermanagementtoolkit.ansithemeprint import ansithemestr_join_list
 
-from clustermanagementtoolkit import checks
+from clustermanagementtoolkit.checks import check_ansible_dir_permissions
+from clustermanagementtoolkit.checks import check_netrc_permissions
 
 from clustermanagementtoolkit.cluster_actions import get_crio_version
 
 from clustermanagementtoolkit.commandparser import parse_commandline, CommandType
 
 from clustermanagementtoolkit import cmtpaths
-from clustermanagementtoolkit.cmtpaths import CMT_CONFIG_FILE, CMT_CONFIG_FILENAME, HOMEDIR
-from clustermanagementtoolkit.cmtpaths import DEFAULT_THEME_FILE, VIEW_DIR, SYSTEM_VIEWS_DIR
+from clustermanagementtoolkit.cmtpaths import CMT_CONFIG_FILE
+from clustermanagementtoolkit.cmtpaths import CMT_CONFIG_FILENAME
+from clustermanagementtoolkit.cmtpaths import DEFAULT_THEME_FILE
+from clustermanagementtoolkit.cmtpaths import HOMEDIR
+from clustermanagementtoolkit.cmtpaths import SYSTEM_VIEWS_DIR
+from clustermanagementtoolkit.cmtpaths import VIEWS_DIR
 
-from clustermanagementtoolkit.cmttypes import deep_get, DictPath, SecurityStatus
-from clustermanagementtoolkit.cmttypes import FilePath, FilePathAuditError, HostNameStatus
+from clustermanagementtoolkit.cmttypes import DictPath
+from clustermanagementtoolkit.cmttypes import FilePath
+from clustermanagementtoolkit.cmttypes import HostNameStatus
+from clustermanagementtoolkit.cmttypes import SecurityStatus
+from clustermanagementtoolkit.cmttypes import deep_get
+from clustermanagementtoolkit.cmttypes.exceptions import FilePathAuditError
 
-from clustermanagementtoolkit.cmtvalidators import validate_fqdn, validator_bool
+from clustermanagementtoolkit.cmtvalidators import validate_fqdn
+from clustermanagementtoolkit.cmtvalidators import validator_bool
 
 from clustermanagementtoolkit import cmtlib
-from clustermanagementtoolkit.cmtlib import chunk_list, identify_distro, read_cmtconfig
+from clustermanagementtoolkit.cmtlib import chunk_list
 from clustermanagementtoolkit.cmtlib import get_latest_upstream_version
+from clustermanagementtoolkit.cmtlib import identify_distro
 
 from clustermanagementtoolkit import cmtio
-from clustermanagementtoolkit.cmtio import execute_command, secure_read_string
+from clustermanagementtoolkit.cmtio import execute_command
+from clustermanagementtoolkit.cmtio import secure_read_string
 
 from clustermanagementtoolkit.cmtio_yaml import json_dumps
 from clustermanagementtoolkit.cmtio_yaml import secure_read_yaml
 
 from clustermanagementtoolkit import kubernetes_helper
+from clustermanagementtoolkit.kubernetes_helper import get_cluster_name
+from clustermanagementtoolkit.kubernetes_helper import get_node_roles
 from clustermanagementtoolkit.kubernetes_helper import get_node_status
-from clustermanagementtoolkit.kubernetes_helper import list_contexts, get_node_roles
-from clustermanagementtoolkit.kubernetes_helper import set_context, guess_kind, get_cluster_name
+from clustermanagementtoolkit.kubernetes_helper import guess_kind
+from clustermanagementtoolkit.kubernetes_helper import list_contexts
+from clustermanagementtoolkit.kubernetes_helper import set_context
 from clustermanagementtoolkit.kubernetes_helper import update_api_status as kh_update_api_status
 
 from clustermanagementtoolkit.networkio import scan_and_add_ssh_keys
@@ -126,7 +145,7 @@ def request_ansible_password() -> None:
     Requests the ansible password.
     """
     # Check whether ansible_password is defined or not
-    if ansible_configuration["ansible_password"] is None:
+    if AnsibleConfiguration.ansible_password is None:
         ansithemeprint([ANSIThemeStr("Attention", "warning"),
                         ANSIThemeStr(": To be able to run playbooks you need to provide the "
                                      "ansible/ssh password.", "default")])
@@ -140,7 +159,7 @@ def request_ansible_password() -> None:
                             ANSIThemeStr(": Empty password; aborting.", "default")], stderr=True)
             sys.exit(errno.EINVAL)
 
-        ansible_configuration["ansible_password"] = ansible_password
+        AnsibleConfiguration.ansible_password = ansible_password
 
 
 # pylint: disable-next=too-many-locals
@@ -901,9 +920,9 @@ def prepare_hosts(options: list[tuple[str, str]], args: list[str]) -> int:
         elif opt == "--no-password":
             no_password = True
         elif opt == "--save-ansible-logs":
-            ansible_configuration["save_logs"] = True
+            AnsibleConfiguration.save_logs = True
         elif opt == "--forks":
-            ansible_configuration["ansible_forks"] = optarg
+            AnsibleConfiguration.ansible_forks = int(optarg)
         elif opt == "--from-file":
             from_file = True
         elif opt == "--verbose":
@@ -1040,8 +1059,8 @@ def prepare_hosts(options: list[tuple[str, str]], args: list[str]) -> int:
         request_ansible_password()
 
     extra_values = {
-        "ansible_become_pass": deep_get(ansible_configuration, DictPath("ansible_password")),
-        "ansible_ssh_pass": deep_get(ansible_configuration, DictPath("ansible_password")),
+        "ansible_become_pass": AnsibleConfiguration.ansible_password,
+        "ansible_ssh_pass": AnsibleConfiguration.ansible_password,
     }
 
     run_retval = run_playbooks(playbooks=playbooks, hosts=non_existing,
@@ -1097,11 +1116,11 @@ def add_nodes(options: list[tuple[str, str]], args: list[str]) -> int:
         elif opt == "--ignore-non-existing":
             ignore_non_existing = True
         elif opt == "--save-ansible-logs":
-            ansible_configuration["save_logs"] = True
+            AnsibleConfiguration.save_logs = True
         elif opt == "--ca-cert-path":
             ca_cert_path = optarg
         elif opt == "--forks":
-            ansible_configuration["ansible_forks"] = optarg
+            AnsibleConfiguration.ansible_forks = int(optarg)
         elif opt == "--cri":
             if optarg in ("containerd", "cri-o"):
                 cri = optarg
@@ -1578,9 +1597,9 @@ def remove_nodes(options: list[tuple[str, str]], args: list[str]) -> int:
         elif opt == "--purge":
             purge = True
         elif opt == "--save-ansible-logs":
-            ansible_configuration["save_logs"] = True
+            AnsibleConfiguration.save_logs = True
         elif opt == "--forks":
-            ansible_configuration["ansible_forks"] = optarg
+            AnsibleConfiguration.ansible_forks = int(optarg)
         elif opt == "--kubernetes-distro":
             k8s_distro = optarg
         elif opt == "--verbose":
@@ -1759,9 +1778,9 @@ def purge_hosts(options: Sequence[tuple[str, str | None]], args: list[str]) -> i
         if opt == "--ignore-non-existing":
             ignore_non_existing = True
         elif opt == "--save-ansible-logs":
-            ansible_configuration["save_logs"] = True
+            AnsibleConfiguration.save_logs = True
         elif opt == "--forks":
-            ansible_configuration["ansible_forks"] = optarg
+            AnsibleConfiguration.ansible_forks = int(cast(str, optarg))
         elif opt == "--verbose":
             verbose = True
         elif opt == "--kubernetes-distro":
@@ -1891,9 +1910,9 @@ def upgrade_nodes(options: list[tuple[str, str]], args: list[str]) -> int:
 
     for opt, optarg in options:
         if opt == "--save-ansible-logs":
-            ansible_configuration["save_logs"] = True
+            AnsibleConfiguration.save_logs = True
         elif opt == "--forks":
-            ansible_configuration["ansible_forks"] = optarg
+            AnsibleConfiguration.ansible_forks = int(optarg)
         elif opt == "--verbose":
             verbose = True
 
@@ -2229,12 +2248,12 @@ def list_api_resources(options: list[tuple[str, str]], args: list[str]) -> int:
     local_view_len = len(local_view_header)
 
     # Get a full list of views from all view directories
-    # Start by adding files from the views directory
+    # Start by adding files from the views directory.
     view_dirs = []
     if local_only is None or local_only is not None and local_only:
         view_dirs += deep_get(cmtlib.cmtconfig, DictPath("General#local_views"), [])
     if local_only is None or local_only is not None and not local_only:
-        view_dirs.append(VIEW_DIR)
+        view_dirs.append(VIEWS_DIR)
         view_dirs.append(SYSTEM_VIEWS_DIR)
 
     filtered_api_resources = []
@@ -2276,7 +2295,7 @@ def list_api_resources(options: list[tuple[str, str]], args: list[str]) -> int:
                         d = secure_read_yaml(view_file, directory_is_symlink=True)
                         has_list_view = "listview" in d
                         has_info_view = "infoview" in d
-                        is_local = view_dir not in (VIEW_DIR, SYSTEM_VIEWS_DIR)
+                        is_local = view_dir not in (VIEWS_DIR, SYSTEM_VIEWS_DIR)
                         kh_update_api_status(kind_tuple, listview=has_list_view,
                                              infoview=has_info_view, local=is_local)
                         # This won't do any updates except get the updated list & info view flags
@@ -2638,7 +2657,7 @@ def lookup_resource_type(resource_type: str) -> tuple[str, str]:
         view_dirs: list[str] = []
 
         view_dirs.append(cmtpaths.SYSTEM_VIEWS_DIR)
-        view_dirs.append(cmtpaths.VIEW_DIR)
+        view_dirs.append(cmtpaths.VIEWS_DIR)
         view_dirs += deep_get(cmtlib.cmtconfig, DictPath("General#local_views"), [])
 
         for view_dir in view_dirs:
@@ -4212,12 +4231,12 @@ def main() -> None:
         sys.exit("CRITICAL: This program should not be run as the root user; aborting.")
 
     # Now check if all necessary paths exist
-    if (violations := cmtlib.setup_paths()) != [SecurityStatus.OK]:
+    if (violations := cmtio.setup_paths()) != [SecurityStatus.OK]:
         violations_joined = cmtio.join_securitystatus_set(",", set(violations))
         sys.exit(f"Failed to create necessary directories; violated rules: {violations_joined}")
 
     # Then initialise the configuration file
-    read_cmtconfig()
+    cmtlib.read_cmtconfig()
 
     programname, commandline = get_programname(os.path.basename(sys.argv[0]))
 
@@ -4229,23 +4248,22 @@ def main() -> None:
         if key == "__commandname" and value in ("help", "version"):
             break
     else:
-        checks.check_ansible_dir_permissions(verbose=False, exit_on_error=True,
-                                             quiet_on_ok=True, user=getuser())
-        checks.check_netrc_permissions(verbose=False, exit_on_error=True, quiet_on_ok=True)
+        check_ansible_dir_permissions(verbose=False, exit_on_error=True,
+                                      quiet_on_ok=True, user=getuser())
+        check_netrc_permissions(verbose=False, exit_on_error=True, quiet_on_ok=True)
 
     # Used by the ansible module
-    ansible_configuration["ansible_forks"] = \
-        deep_get(cmtlib.cmtconfig, DictPath("Ansible#forks"), 10)
+    AnsibleConfiguration.ansible_forks = deep_get(cmtlib.cmtconfig, DictPath("Ansible#forks"), 10)
     ansible_user = deep_get(cmtlib.cmtconfig, DictPath("Ansible#ansible_user"))
     if ansible_user is None or not ansible_user:
         ansible_user = getuser()
-    ansible_configuration["ansible_user"] = ansible_user
+    AnsibleConfiguration.ansible_user = ansible_user
     ansible_password = deep_get(cmtlib.cmtconfig, DictPath("Ansible#ansible_password"))
     if ansible_password is not None and ansible_password:
-        ansible_configuration["ansible_password"] = ansible_password
-    ansible_configuration["disable_strict_host_key_checking"] = \
+        AnsibleConfiguration.ansible_password = ansible_password
+    AnsibleConfiguration.disable_strict_host_key_checking = \
         deep_get(cmtlib.cmtconfig, DictPath("Nodes#disablestricthostkeychecking"), False)
-    ansible_configuration["save_logs"] = \
+    AnsibleConfiguration.save_logs = \
         deep_get(cmtlib.cmtconfig, DictPath("Ansible#save_logs"), False)
 
     command(options, args)

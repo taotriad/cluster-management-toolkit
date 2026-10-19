@@ -12,7 +12,8 @@ from typing import Any
 from unittest import mock
 import yaml
 
-from clustermanagementtoolkit.cmttypes import deep_get, DictPath, FilePath, ProgrammingError
+from clustermanagementtoolkit.cmttypes import deep_get, DictPath, FilePath
+from clustermanagementtoolkit.cmttypes.exceptions import ProgrammingError
 from clustermanagementtoolkit.ansithemeprint import ANSIThemeStr, ansithemeprint
 from clustermanagementtoolkit.ansithemeprint import init_ansithemeprint, ansithemestr_join_list
 from clustermanagementtoolkit import cmtlib
@@ -1019,14 +1020,14 @@ def test_read_cmtconfig(verbose: bool = False) -> tuple[str, bool]:
 
     if result:
         try:
-            with mock.patch("clustermanagementtoolkit.cmtlib.cmtpaths.SYSTEM_CMT_CONFIG_FILE",
+            with mock.patch("clustermanagementtoolkit.cmtlib.read_cmtconfig.SYSTEM_CMT_CONFIG_FILE",
                             "/doesnotexist"), \
-                    mock.patch("clustermanagementtoolkit.cmtlib.cmtpaths.CMT_CONFIG_FILE",
+                    mock.patch("clustermanagementtoolkit.cmtlib.read_cmtconfig.CMT_CONFIG_FILE",
                                "/doesnotexist"), \
-                    mock.patch("clustermanagementtoolkit.cmtlib.cmtpaths."
+                    mock.patch("clustermanagementtoolkit.cmtlib.read_cmtconfig."
                                "SYSTEM_CMT_CONFIG_FILE_DIR",
                                "/doesnotexist"), \
-                    mock.patch("clustermanagementtoolkit.cmtlib.cmtpaths.CMT_CONFIG_FILE_DIR",
+                    mock.patch("clustermanagementtoolkit.cmtlib.read_cmtconfig.CMT_CONFIG_FILE_DIR",
                                "/doesnotexist"):
                 tmp = fun()
             if not isinstance(tmp, dict) or tmp:
@@ -1042,14 +1043,14 @@ def test_read_cmtconfig(verbose: bool = False) -> tuple[str, bool]:
             result = False
     if result:
         try:
-            with mock.patch("clustermanagementtoolkit.cmtlib.cmtpaths.SYSTEM_CMT_CONFIG_FILE",
+            with mock.patch("clustermanagementtoolkit.cmtlib.read_cmtconfig.SYSTEM_CMT_CONFIG_FILE",
                             f"{TEST_DIR}/cmt.yaml"), \
-                    mock.patch("clustermanagementtoolkit.cmtlib.cmtpaths.CMT_CONFIG_FILE",
+                    mock.patch("clustermanagementtoolkit.cmtlib.read_cmtconfig.CMT_CONFIG_FILE",
                                "/dev/zero"), \
-                    mock.patch("clustermanagementtoolkit.cmtlib."
-                               "cmtpaths.SYSTEM_CMT_CONFIG_FILE_DIR",
+                    mock.patch("clustermanagementtoolkit.cmtlib.read_cmtconfig."
+                               "SYSTEM_CMT_CONFIG_FILE_DIR",
                                "/dev/zero"), \
-                    mock.patch("clustermanagementtoolkit.cmtlib.cmtpaths.CMT_CONFIG_FILE_DIR",
+                    mock.patch("clustermanagementtoolkit.cmtlib.read_cmtconfig.CMT_CONFIG_FILE_DIR",
                                "/dev/zero"):
                 tmp = fun()
             if not isinstance(tmp, dict) or tmp != {"Debug": {"developer_mode": True}}:
@@ -1065,14 +1066,14 @@ def test_read_cmtconfig(verbose: bool = False) -> tuple[str, bool]:
             result = False
     if result:
         try:
-            with mock.patch("clustermanagementtoolkit.cmtlib.cmtpaths.SYSTEM_CMT_CONFIG_FILE",
+            with mock.patch("clustermanagementtoolkit.cmtlib.read_cmtconfig.SYSTEM_CMT_CONFIG_FILE",
                             f"{TEST_DIR}/cmt.yaml"), \
-                    mock.patch("clustermanagementtoolkit.cmtlib.cmtpaths.CMT_CONFIG_FILE",
+                    mock.patch("clustermanagementtoolkit.cmtlib.read_cmtconfig.CMT_CONFIG_FILE",
                                "/dev/zero"), \
-                    mock.patch("clustermanagementtoolkit.cmtlib.cmtpaths."
+                    mock.patch("clustermanagementtoolkit.cmtlib.read_cmtconfig."
                                "SYSTEM_CMT_CONFIG_FILE_DIR",
                                f"{TEST_DIR}/cmt.yaml.d"), \
-                    mock.patch("clustermanagementtoolkit.cmtlib.cmtpaths.CMT_CONFIG_FILE_DIR",
+                    mock.patch("clustermanagementtoolkit.cmtlib.read_cmtconfig.CMT_CONFIG_FILE_DIR",
                                "/dev/zero"):
                 tmp = fun()
             if not isinstance(tmp, dict) or tmp != {"Debug": {"developer_mode": False}}:
@@ -1868,7 +1869,7 @@ def test_get_package_versions(verbose: bool = False) -> tuple[str, bool]:
                     break
     if result:
         try:
-            with mock.patch("clustermanagementtoolkit.ansible_helper."
+            with mock.patch("clustermanagementtoolkit.cmtlib.get_package_versions."
                             "ansible_run_playbook_on_selection",
                             return_value=(-1, [])):
                 tmp = fun("localhost")
@@ -1892,7 +1893,8 @@ def test___extract_version(verbose: bool = False) -> tuple[str, bool]:
     message = ""
     result = True
 
-    fun = cmtlib.__extract_version
+    from clustermanagementtoolkit.cmtlib.check_versions_apt import __extract_version
+    fun = __extract_version
 
     if result:
         # Indata format:

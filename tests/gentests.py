@@ -14,7 +14,8 @@ import yaml
 from clustermanagementtoolkit.cmtpaths import DEFAULT_THEME_FILE
 
 from clustermanagementtoolkit.cmttypes import deep_get, DictPath
-from clustermanagementtoolkit.cmttypes import FilePath, ProgrammingError, StatusGroup
+from clustermanagementtoolkit.cmttypes import FilePath, StatusGroup
+from clustermanagementtoolkit.cmttypes.exceptions import ProgrammingError
 
 from clustermanagementtoolkit import curses_helper
 from clustermanagementtoolkit.curses_helper import ThemeAttr, ThemeRef, ThemeStr

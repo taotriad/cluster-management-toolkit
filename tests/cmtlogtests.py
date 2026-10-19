@@ -52,6 +52,7 @@ def test_log_array_to_string(verbose: bool = False) -> tuple[str, bool]:
                     result = False
                     break
             except Exception as e:
+                raise
                 if expected_exception is not None:
                     if isinstance(e, expected_exception):
                         pass
@@ -82,7 +83,7 @@ def test_set_logger(verbose: bool = False) -> tuple[str, bool]:
         try:
             with tempfile.TemporaryDirectory() as td:
                 tempdir = FilePath(td)
-                with mock.patch("clustermanagementtoolkit.cmtlog.cmtpaths.CMT_LOGS_DIR", tempdir):
+                with mock.patch("clustermanagementtoolkit.cmtlog.set_logger.CMT_LOGS_DIR", tempdir):
                     fun("cmtlogtessts", LogLevel.INFO)
         except Exception as e:
             message = f"{fun.__name__}() did not yield expected result:\n" \
@@ -110,10 +111,10 @@ def test_set_level(verbose: bool = False) -> tuple[str, bool]:
         )
 
         # First test whether None-check works properly
-        with mock.patch("clustermanagementtoolkit.cmtlog.logger", None):
+        with mock.patch("clustermanagementtoolkit.cmtlog.get_logger", None):
             try:
                 fun(LogLevel.DEBUG)
-                tmp = cmtlog.logger.getEffectiveLevel()
+                tmp = cmtlog.get_logger().getEffectiveLevel()
                 message = f"{fun.__name__}() did not yield expected result:\n" \
                           f"          input: {repr(LogLevel)} (logger not initialized)\n" \
                           f"         output: {tmp}\n" \
@@ -132,7 +133,7 @@ def test_set_level(verbose: bool = False) -> tuple[str, bool]:
         for loglevel, expected_result, expected_exception in testdata:
             try:
                 fun(loglevel)
-                tmp = cmtlog.logger.getEffectiveLevel()
+                tmp = cmtlog.get_logger().getEffectiveLevel()
                 if tmp != expected_result:
                     message = f"{fun.__name__}() did not yield expected result:\n" \
                               f"          input: {repr(LogLevel)}\n" \
