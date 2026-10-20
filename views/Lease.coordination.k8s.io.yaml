@@ -32,6 +32,7 @@ infoview:
       acquire_time:
         header: [["Acquire Time:", ["main", "infoheader"]]]
         path: "spec#acquireTime"
+        default: "<unset>"
         type: "timestamp"
         formatter: "timestamp"
       holder_identity:
@@ -46,6 +47,7 @@ infoview:
       lease_transitions:
         header: [["Lease Transitions:", ["main", "infoheader"]]]
         path: "spec#leaseTransitions"
+        default: "<unset>"
         type: "int"
         formatter: "numerical"
       renew_time:
