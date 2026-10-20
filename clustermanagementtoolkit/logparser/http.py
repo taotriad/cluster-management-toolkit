@@ -4,6 +4,10 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+Format HTTP log style messages.
+"""
+
 import re
 import sys
 from typing import Any

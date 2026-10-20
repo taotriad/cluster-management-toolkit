@@ -4,6 +4,10 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+Check whether ssh known_hosts hashing is enabled.
+"""
+
 import re
 from typing import Any
 

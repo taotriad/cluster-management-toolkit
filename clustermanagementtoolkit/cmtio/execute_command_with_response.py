@@ -4,11 +4,14 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+A helper that executes commands and captures the output.
+"""
+
 import subprocess  # nosec
 from subprocess import PIPE, STDOUT  # nosec
 
 
-# This executes a command with the output captured
 def execute_command_with_response(args: list[str], env: dict | None = None,
                                   stdinput: bytes | None = None) -> tuple[str, int]:
     """

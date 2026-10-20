@@ -4,6 +4,10 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+Convert 3-letter severity to LogLevel.
+"""
+
 from typing import Any
 
 from clustermanagementtoolkit.cmttypes import DictPath
@@ -11,7 +15,7 @@ from clustermanagementtoolkit.cmttypes import LogLevel
 from clustermanagementtoolkit.cmttypes import deep_get
 
 
-# Used by Kiali and kubeshark
+# Used by Kiali and kubeshark.
 def str_3letter_to_severity(string: str, **kwargs: Any) -> LogLevel:
     """
     Convert a 3-letter severity string to a LogLevel.

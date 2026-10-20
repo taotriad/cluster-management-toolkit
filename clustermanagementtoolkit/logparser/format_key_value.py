@@ -4,6 +4,10 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+Given key, value, and severity, return it as a ThemeArray.
+"""
+
 from typing import Any
 
 from clustermanagementtoolkit.cmttypes import DictPath

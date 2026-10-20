@@ -4,6 +4,10 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+Remove a directory in a secure manner.
+"""
+
 from pathlib import Path
 
 from clustermanagementtoolkit.cmtio.check_path import check_path

@@ -4,6 +4,10 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+Check whether all necessary pods are running.
+"""
+
 from typing import Any, cast, TypedDict
 
 from clustermanagementtoolkit.ansithemeprint import ANSIThemeStr

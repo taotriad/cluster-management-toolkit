@@ -4,6 +4,10 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+Check whether a host is suitable as control plane.
+"""
+
 from typing import Any
 
 from clustermanagementtoolkit.ansible_helper import AnsibleConfiguration
@@ -25,6 +29,7 @@ from clustermanagementtoolkit.cmttypes import deep_get
 def run_playbook(playbookpath: FilePath, hosts: list[str], **kwargs: Any) -> tuple[int, dict]:
     """
     Run a playbook.
+    XXX: This should almost certainly be refactored.
 
         Parameters:
             playbookpath (FilePath): A path to the playbook to run

@@ -4,6 +4,11 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+An itemgetter that takes a list or a list of lists and returns them as list elements.
+If multiple lists are given they are returned as columns.
+"""
+
 import re
 from typing import Any
 

@@ -4,6 +4,10 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+Extract messages from a tab-separated log entry.
+"""
+
 import json
 from typing import Any
 

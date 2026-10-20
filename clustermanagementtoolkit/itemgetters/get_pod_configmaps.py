@@ -4,6 +4,10 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+An itemgetter that returns a list of pods that references a ConfigMap.
+"""
+
 from typing import Any, cast
 
 from clustermanagementtoolkit.cmttypes import DictPath

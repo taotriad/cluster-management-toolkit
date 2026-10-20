@@ -4,6 +4,11 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+Check the permissions for the .ansible directory.
+This should probably be transitioned to use the generic path checker.
+"""
+
 import errno
 from pathlib import Path
 import sys

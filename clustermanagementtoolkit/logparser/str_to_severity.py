@@ -4,6 +4,10 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+Convert a severity string to LogLevel.
+"""
+
 import re
 from typing import Any
 

@@ -4,6 +4,10 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+Create all paths needed by CMT.
+"""
+
 from pathlib import Path
 import sys
 

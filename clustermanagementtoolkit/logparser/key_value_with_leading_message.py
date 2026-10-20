@@ -4,6 +4,10 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+Format a string with a message followed by a list of key=value.
+"""
+
 import re
 from typing import Any, cast
 

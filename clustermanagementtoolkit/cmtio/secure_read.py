@@ -4,6 +4,10 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+Read a file in a secure manner.
+"""
+
 from pathlib import PurePath
 
 from clustermanagementtoolkit.cmtio.check_path import check_path

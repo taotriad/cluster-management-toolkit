@@ -4,6 +4,10 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+An itemgetter that returns a list of tolerations.
+"""
+
 from typing import Any, cast
 
 from clustermanagementtoolkit.cmtlib import make_set_expression_list

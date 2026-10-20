@@ -21,7 +21,7 @@
 # Return format is timestamp, facility, severity, message
 
 """
-Log parsers for cmu
+Log parsers for cmu.
 
 unit-tests:
     tests/logtests

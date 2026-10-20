@@ -4,6 +4,10 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+Read a string from a file in a secure manner.
+"""
+
 from typing import cast
 
 from clustermanagementtoolkit.cmtio.secure_read import secure_read

@@ -4,6 +4,11 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+An itemgetter that, given a path to a dict or list or dict returns
+a list with the dict keys named as key and value.
+"""
+
 import re
 from typing import Any
 

@@ -4,6 +4,10 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+Copy a file in a secure manner.
+"""
+
 import errno
 import os
 from functools import partial

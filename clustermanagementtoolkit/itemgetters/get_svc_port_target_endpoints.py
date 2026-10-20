@@ -4,6 +4,10 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+An itemgetter that returns the endpoints for a Service port.
+"""
+
 from typing import Any
 
 from clustermanagementtoolkit.cmttypes import DictPath

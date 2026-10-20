@@ -4,6 +4,10 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+Write a string to a file in a secure manner.
+"""
+
 import os
 from functools import partial
 from typing import Any

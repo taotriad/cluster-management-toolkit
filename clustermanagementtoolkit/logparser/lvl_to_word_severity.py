@@ -4,6 +4,10 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+Convert a LogLevel to a string representation.
+"""
+
 from clustermanagementtoolkit.cmttypes import LogLevel
 
 

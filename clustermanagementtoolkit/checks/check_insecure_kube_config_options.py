@@ -4,6 +4,10 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+Check whether .kube/config contains insecure options.
+"""
+
 from typing import Any
 
 from clustermanagementtoolkit.ansithemeprint import ANSIThemeStr

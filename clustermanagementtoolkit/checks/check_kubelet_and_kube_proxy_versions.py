@@ -4,6 +4,10 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+Check whether the used versions of kubelet and kube-proxy are acceptable.
+"""
+
 import re
 from typing import Any
 

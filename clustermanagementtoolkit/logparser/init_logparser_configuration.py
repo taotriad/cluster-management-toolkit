@@ -4,6 +4,10 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+Read the logparser configuration from cmtconfig.
+"""
+
 from clustermanagementtoolkit import cmtlib
 
 from clustermanagementtoolkit.cmttypes import DictPath

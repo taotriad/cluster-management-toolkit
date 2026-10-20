@@ -4,6 +4,10 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+An itemgetter that merges elements of a list into a single string.
+"""
+
 from typing import Any
 
 from clustermanagementtoolkit.cmttypes import DictPath

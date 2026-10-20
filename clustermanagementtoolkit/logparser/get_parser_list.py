@@ -4,6 +4,10 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+Return a list of the parsers that should be available as override options.
+"""
+
 from clustermanagementtoolkit.logparser import logparser_types
 
 

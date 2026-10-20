@@ -4,6 +4,10 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+An itemgetter that returns fields from Kubernetes objects.
+"""
+
 from typing import Any
 
 from clustermanagementtoolkit.cmtlib import make_label_selector

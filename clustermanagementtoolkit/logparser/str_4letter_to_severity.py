@@ -4,6 +4,10 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+Convert 4-letter severity to LogLevel.
+"""
+
 from typing import Any
 
 from clustermanagementtoolkit.cmttypes import DictPath

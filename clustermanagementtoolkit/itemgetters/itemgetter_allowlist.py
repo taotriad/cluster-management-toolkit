@@ -4,6 +4,10 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+Itemgetters that are used to populate data for the windowwidget.
+"""
+
 from collections.abc import Callable
 
 from clustermanagementtoolkit.itemgetters.get_affinity import get_affinity

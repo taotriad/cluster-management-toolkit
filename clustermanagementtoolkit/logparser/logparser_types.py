@@ -4,6 +4,10 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+Various types used by the logparser.
+"""
+
 from collections.abc import Callable
 import re
 from typing import Any, ClassVar, Literal, NamedTuple, TypedDict

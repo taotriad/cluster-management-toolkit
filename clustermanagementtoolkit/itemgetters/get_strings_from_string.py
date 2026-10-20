@@ -4,6 +4,10 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+An itemgetter that splits a string with embedded newlines into multiple lines.
+"""
+
 from typing import Any
 import yaml
 

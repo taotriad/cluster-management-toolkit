@@ -4,6 +4,10 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+Override message severities using the supplied ruleset.
+"""
+
 from typing import Any
 
 from clustermanagementtoolkit.ansithemeprint import ANSIThemeStr

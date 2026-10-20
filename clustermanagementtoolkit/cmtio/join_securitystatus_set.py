@@ -4,6 +4,10 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+Join security violations into a sorted string.
+"""
+
 from clustermanagementtoolkit.cmttypes import SecurityStatus
 
 

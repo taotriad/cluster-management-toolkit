@@ -4,6 +4,10 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+Strip a timestamp and check for block end.
+"""
+
 from typing import Any
 
 from clustermanagementtoolkit.cmtlib import none_timestamp

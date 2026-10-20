@@ -4,6 +4,10 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+Strip timestamps that include a timezone and return the message.
+"""
+
 import re
 
 

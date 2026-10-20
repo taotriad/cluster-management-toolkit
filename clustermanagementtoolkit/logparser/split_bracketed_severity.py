@@ -4,6 +4,10 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+Remove a bracketed severity prefix from a string.
+"""
+
 import re
 from typing import Any
 

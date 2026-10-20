@@ -4,6 +4,10 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+Strip timestamps and return the string.
+"""
+
 from clustermanagementtoolkit.cmtlib import none_timestamp
 
 from clustermanagementtoolkit.logparser.split_iso_timestamp import split_iso_timestamp

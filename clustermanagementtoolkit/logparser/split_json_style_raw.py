@@ -4,6 +4,11 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+Split messages in JSON or JSON-resembling formats,
+without any reformatting rules applied.
+"""
+
 from typing import Any
 
 from clustermanagementtoolkit.cmttypes import DictPath

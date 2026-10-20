@@ -4,6 +4,10 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+Given a path/filename/partial filename, expand it to its full path.
+"""
+
 import os
 from pathlib import Path
 

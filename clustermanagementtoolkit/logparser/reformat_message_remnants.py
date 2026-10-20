@@ -4,6 +4,10 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+Given a message and a list of messages, reformat it.
+"""
+
 from clustermanagementtoolkit.cmttypes import LogLevel
 from clustermanagementtoolkit.cmttypes import loglevel_to_name
 

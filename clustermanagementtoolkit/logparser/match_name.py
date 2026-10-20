@@ -4,6 +4,12 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+Match a matchrule against a string; used by the parser to identify whether or not
+to apply a parser-file to a log.
+"""
+
+
 def match_name(matchrule: str, name: str) -> bool:
     """
     Match a matchrule against a name. Rules starting with ^ will be matched

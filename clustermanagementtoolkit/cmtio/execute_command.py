@@ -4,16 +4,19 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+A helper that executes commands without capturing the output.
+"""
+
 import subprocess  # nosec
 
 from clustermanagementtoolkit.cmttypes import FilePath
 
 
-# This executes a command without capturing the output
 def execute_command(args: list[FilePath | str],
                     env: dict | None = None, comparison: int = 0) -> bool:
     """
-    Executes a command.
+    Executes a command without capturing the output.
 
         Parameters:
             args ([str]): The commandline

@@ -4,6 +4,10 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+Check whether the user has sudo permissions and can sudo without a password.
+"""
+
 import re
 from typing import Any
 

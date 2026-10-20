@@ -4,6 +4,10 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+Create a directory in a secure manner.
+"""
+
 import errno
 from getpass import getuser
 from pathlib import Path

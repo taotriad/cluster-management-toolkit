@@ -4,6 +4,10 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+Convert LogLevel to a string representation, to be used when exporting logs to file.
+"""
+
 from clustermanagementtoolkit.cmttypes import LogLevel
 
 from clustermanagementtoolkit.logparser.lvl_to_4letter_severity import lvl_to_4letter_severity

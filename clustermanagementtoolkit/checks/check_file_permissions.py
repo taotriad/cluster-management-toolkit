@@ -4,6 +4,10 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+Generic permission checker for a path.
+"""
+
 from collections.abc import Generator, Sequence
 import errno
 from pathlib import Path

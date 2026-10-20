@@ -4,6 +4,10 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+Convert messages in [seconds] SEVERITY facility message format.
+"""
+
 import re
 from typing import Any
 

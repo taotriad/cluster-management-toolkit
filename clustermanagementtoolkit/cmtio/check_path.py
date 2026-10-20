@@ -4,6 +4,10 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+A checker that verifies security conditions for a path.
+"""
+
 import errno
 from getpass import getuser
 import os

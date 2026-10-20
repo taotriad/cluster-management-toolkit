@@ -4,6 +4,10 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+Given a list of severity overrides, format them for use in a parser-rule.
+"""
+
 import re
 from typing import Any
 

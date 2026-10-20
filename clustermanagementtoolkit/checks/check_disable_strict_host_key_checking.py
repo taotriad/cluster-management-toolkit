@@ -4,6 +4,10 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+Check whether strict host key checking is disabled.
+"""
+
 from typing import Any
 
 from clustermanagementtoolkit.ansithemeprint import ANSIThemeStr

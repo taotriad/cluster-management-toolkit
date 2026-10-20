@@ -4,6 +4,10 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+An itemgetter that returns package versions.
+"""
+
 from typing import Any
 
 from clustermanagementtoolkit.cmtlib import get_package_versions

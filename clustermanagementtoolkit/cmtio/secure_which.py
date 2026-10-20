@@ -4,6 +4,10 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+A secure implementation of which.
+"""
+
 import os
 from pathlib import Path, PurePath
 

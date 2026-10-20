@@ -4,6 +4,11 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+Check whether the versions of the various Kubernetes components are within
+acceptable range.
+"""
+
 import errno
 import os
 import sys

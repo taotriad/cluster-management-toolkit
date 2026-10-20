@@ -4,6 +4,10 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+Split a message into datetime + string.
+"""
+
 from datetime import datetime
 import re
 

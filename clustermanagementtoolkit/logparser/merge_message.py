@@ -4,6 +4,11 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+Given a message, merge it with a list of messages and return an empty
+message together with the list of messages.
+"""
+
 from typing import Any
 
 from clustermanagementtoolkit.cmttypes import DictPath
