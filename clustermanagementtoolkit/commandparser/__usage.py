@@ -267,8 +267,8 @@ def __usage(options: list[tuple[str, str]], args: list[str]) -> int:
                     ansithemeprint([ANSIThemeStr("“", "emphasis")] + string
                                    + [ANSIThemeStr("“", "emphasis")], stderr=True)
                     ansithemeprint([ANSIThemeStr(f"is {themearray_len(string)} characters long; "
-                                                  "it should be < 80 characters; "
-                                                  "please file a bug report.\n\n", "default")],
+                                                 "it should be < 80 characters; "
+                                                 "please file a bug report.\n\n", "default")],
                                    stderr=True)
                     sys.exit(errno.EINVAL)
             else:

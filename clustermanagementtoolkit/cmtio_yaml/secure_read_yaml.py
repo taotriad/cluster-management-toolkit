@@ -37,9 +37,8 @@ from clustermanagementtoolkit.cmttypes import SecurityChecks
 from clustermanagementtoolkit.cmttypes import deep_get
 
 
-def secure_read_yaml(path: FilePath, **kwargs: Any) -> dict | \
-                                                       ruyaml.comments.CommentedMap | \
-                                                       ruyaml.comments.CommentedSeq:
+def secure_read_yaml(path: FilePath, **kwargs: Any) \
+        -> dict | ruyaml.comments.CommentedMap | ruyaml.comments.CommentedSeq:
     """
     Read data in YAML-format from a file in a safe manner.
 

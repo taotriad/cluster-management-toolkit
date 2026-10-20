@@ -125,25 +125,16 @@ markdown_toc = \
 # W503 is for line break before binary operator;
 # flake8 warns *both* for breaks before and after.
 # Hence we we need to ignore one of those warnings.
-# flake8 doesn't give sensible suggestions when using modern style union
-# type annotations, so disable E126 and E127.
-# H301 is about multiple imports per line, which is a stupid warning.
 # H404 and H405 is about docstring formatting that we'll ignore.
-# Finally it seems flake8 doesn't seem to recognise when globals are used.
-FLAKE8_IGNORE := F841,W503,F824,E126,E127,H301,H404,H405
+# F824 is about globals; it seems flake8 doesn't seem to recognise when globals are used.
+FLAKE8_IGNORE := F841,W503,F824,H404,H405
 
-# Used by ruff to check for future and/or deprecated features
+# Used by ruff to check for future and/or deprecated features.
 RUFF_PYTHON_VERSION := py311
 
-# Ignore warning about import block sorting.
+# I001: Ignore warning about import block sorting.
+# RUF100: Ignore warning about Unused noqa directives, since flake8 also uses noqa.
 RUFF_IGNORE := I001,RUF100
-# Disabled for the time being; we should re-enable these later.
-# SIM102: Use a single `if` statement instead of nested `if` statements
-# SIM114: [*] Combine `if` branches using logical `or` operator
-# PLW0602: Using global for `LogparserConfiguration` but no assignment is done
-# RUF012: Mutable default value for class attribute
-# PYI063: Use PEP 570 syntax for positional-only parameters
-# RUFF_IGNORE := $(RUFF_IGNORE),SIM102,SIM114,PLW0602,RUF012,PYI063
 
 # Used by pylint to check for future and/or deprecated features
 PYLINT_PYTHON_VERSION := 3.11

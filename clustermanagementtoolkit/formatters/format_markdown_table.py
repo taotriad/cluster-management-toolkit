@@ -72,11 +72,11 @@ def format_markdown_table(lines: list[list[ThemeRef | ThemeStr]]) -> list[list[T
             header = [ThemeStr(themearray_to_string(cast(list[ThemeRef | ThemeStr], header)),
                                ThemeAttr("types", "markdown_table_header"))]
         columns[i * 2] = [ThemeStr("│", ThemeAttr("types", "generic"))]
-        columns[i * 2 + 1] = themearray_strip(header) \
-                         + [ThemeStr("".ljust(widths[i]
-                                              - themearray_len(cast(list[ThemeRef | ThemeStr],
-                                                                    header))),
-                                     ThemeAttr("types", "generic"))]
+        columns[i * 2 + 1] = \
+            themearray_strip(header) \
+            + [ThemeStr("".ljust(widths[i] - themearray_len(cast(list[ThemeRef | ThemeStr],
+                                                                 header))),
+               ThemeAttr("types", "generic"))]
     columns.append([ThemeStr("│", ThemeAttr("types", "generic"))])
     rows.append(themearray_compact([x for xx in columns for x in xx]))
 

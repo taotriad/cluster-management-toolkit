@@ -146,8 +146,8 @@ def map_key(shortcut: str, activatedfun: bool, key: str, modifier: str) -> tuple
             help_key = "[Enter]"
         else:
             msg = f"The shortcut “{shortcut}“" \
-                   " uses “enter“ as key; this conflicts with " \
-                   "built-in shortcut for “on_activation“"
+                  " uses “enter“ as key; this conflicts with " \
+                  "built-in shortcut for “on_activation“"
     elif modifier:
         if modifier == "shift":
             help_key = f"[Shift] + {key.upper()}"
@@ -620,7 +620,7 @@ def validate_references(obj: dict, verbose: int = 0) -> tuple[int, str]:
 
         if listfields - used_listfields:
             msg += f"\n  Warning: fields {sorted(listfields - used_listfields)} " \
-                    "in listpad are unused"
+                   "in listpad are unused"
             retval = 1
 
     return retval, msg

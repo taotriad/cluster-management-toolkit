@@ -1870,7 +1870,7 @@ def test_get_package_versions(verbose: bool = False) -> tuple[str, bool]:
     if result:
         try:
             with mock.patch("clustermanagementtoolkit.cmtlib.get_package_versions."
-                            "ansible_run_playbook_on_selection",
+                            "ansible_helper.ansible_run_playbook_on_selection",
                             return_value=(-1, [])):
                 tmp = fun("localhost")
                 message = f"{fun.__name__}() with mocked ansible_run_playbook_on_selection() " \

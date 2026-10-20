@@ -33,11 +33,8 @@ from clustermanagementtoolkit.cmttypes import DictPath, FilePath
 from clustermanagementtoolkit.cmttypes import deep_get
 
 
-def secure_write_yaml(path: FilePath,
-                      data: dict
-                            | list[dict]
-                            | ruyaml.comments.CommentedMap
-                            | ruyaml.comments.CommentedSeq,
+def secure_write_yaml(path: FilePath, data: dict | list[dict]
+                      | ruyaml.comments.CommentedMap | ruyaml.comments.CommentedSeq,
                       **kwargs: Any) -> None:
     """
     Dump a dict to a file in YAML-format in a safe manner.

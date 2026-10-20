@@ -2711,7 +2711,7 @@ def lookup_resource_type(resource_type: str) -> tuple[str, str]:
     if not kind:
         ansithemeprint([ANSIThemeStr("Error", "error"),
                         ANSIThemeStr(f": unknown resource type {resource_type}", "default")],
-                                     stderr=True)
+                       stderr=True)
         sys.exit(errno.ENOENT)
 
     return kind

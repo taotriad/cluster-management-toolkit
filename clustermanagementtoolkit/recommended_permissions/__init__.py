@@ -10,18 +10,29 @@ used when auditing the local system.
 """
 
 import os
-
 from typing import TypedDict
 
-from clustermanagementtoolkit.cmttypes import FilePath
+from clustermanagementtoolkit.cmtpaths import (
+    ANSIBLE_DIR,
+    ANSIBLE_INVENTORY,
+    ANSIBLE_LOGS_DIR,
+    ANSIBLE_PLAYBOOKS_DIR,
+    BINDIR,
+    CMT_CONFIG_FILE,
+    CMT_CONFIG_FILE_DIR,
+    CMT_HOOKS_DIR,
+    CMT_LOGS_DIR,
+    CMTDIR,
+    DEPLOYMENTS_DIR,
+    KUBE_CONFIG_DIR,
+    KUBE_CONFIG_FILE,
+    KUBE_CREDENTIALS_FILE,
+    PARSERS_DIR,
+    THEMES_DIR,
+    VIEWS_DIR,
+)
 
-from clustermanagementtoolkit.cmtpaths import BINDIR, CMTDIR, CMT_LOGS_DIR
-from clustermanagementtoolkit.cmtpaths import ANSIBLE_DIR, ANSIBLE_INVENTORY, ANSIBLE_LOGS_DIR
-from clustermanagementtoolkit.cmtpaths import ANSIBLE_PLAYBOOKS_DIR
-from clustermanagementtoolkit.cmtpaths import DEPLOYMENTS_DIR, CMT_CONFIG_FILE_DIR, CMT_HOOKS_DIR
-from clustermanagementtoolkit.cmtpaths import KUBE_CONFIG_DIR, PARSERS_DIR, THEMES_DIR, VIEWS_DIR
-from clustermanagementtoolkit.cmtpaths import CMT_CONFIG_FILE, KUBE_CONFIG_FILE
-from clustermanagementtoolkit.cmtpaths import KUBE_CREDENTIALS_FILE
+from clustermanagementtoolkit.cmttypes import FilePath
 
 
 # TODO(Check file permissions):

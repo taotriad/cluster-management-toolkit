@@ -32,7 +32,7 @@ def check_matchlists(item: str,
         if in_ in item:
             return True
     return bool(prefixes) and item.startswith(prefixes) \
-            or bool(suffixes) and item.endswith(suffixes)
+        or bool(suffixes) and item.endswith(suffixes)
 
 
 # Takes an unprocessed matchlist, splits it into individual matchlists, and checks for matches

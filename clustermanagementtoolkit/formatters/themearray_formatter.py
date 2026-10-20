@@ -69,7 +69,7 @@ class ThemeArrayFormatter(Formatter):
 
             if self.renderer:
                 ttype, value, flush = self.renderer(ttype, value,
-                                                      use_github_alerts=self.use_github_alerts)
+                                                    use_github_alerts=self.use_github_alerts)
             if isinstance(value, list) and value and isinstance(value[0], (ThemeRef, ThemeStr)):
                 line += value
                 if flush:

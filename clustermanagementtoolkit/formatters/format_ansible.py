@@ -74,8 +74,8 @@ def format_ansible(lines: str | list[str], **kwargs: Any) -> list[list[ThemeRef 
             continue
 
         hostname, ws1, ok, okcount, ws2, changed, changedcount, ws3, unreachable, \
-                unreachablecount, ws4, failed, failedcount, ws5, skipped, skippedcount, \
-                ws6, rescued, rescuedcount, ws7, ignored, ignoredcount = tmp.groups()
+            unreachablecount, ws4, failed, failedcount, ws5, skipped, skippedcount, \
+            ws6, rescued, rescuedcount, ws7, ignored, ignoredcount = tmp.groups()
 
         try:
             if int(failedcount) or int(unreachablecount):

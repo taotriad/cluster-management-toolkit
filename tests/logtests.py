@@ -1530,7 +1530,7 @@ def test_tab_separated(verbose: bool = False) -> tuple[str, bool]:
                  ThemeStr(':', ThemeAttr('types', 'yaml_punctuation'), False),
                  ThemeStr(' ', ThemeAttr('types', 'generic'), False),
                  ThemeStr('"v1.0"', ThemeAttr('logview', 'severity_notice'), False)],
-                          LogLevel.INFO),
+                LogLevel.INFO),
                ([ThemeStr('}', ThemeAttr('types', 'yaml_punctuation'), False)], LogLevel.INFO)]),
              None),
             ('2022-12-13T22:23:45.808Z\tINFO\tsetup\tfoo\t{"version: "v1.0"}',

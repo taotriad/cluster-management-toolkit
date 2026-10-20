@@ -15,7 +15,7 @@ COPYRIGHT: str = \
     "Copyright © 2025-2026 David Weinehall\n"
 
 LICENSE: str = "This is free software; see the source for copying conditions.  There is NO\n" \
-          "warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE."
+               "warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE."
 
 PROGRAM_SUITE_NAME: str = "CMT"
 PROGRAM_SUITE_FULL_NAME: str = "Cluster Management Toolkit for Kubernetes"

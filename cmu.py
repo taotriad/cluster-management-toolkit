@@ -1642,10 +1642,10 @@ def genericlistloop(stdscr: curses.window, **kwargs: Any) -> Retval:
             if "namespace" in deep_get(vlist[0], DictPath("metadata"), "") and "namespace" in item:
                 itemlist = [(deep_get(item, DictPath("namespace"), ""),
                              deep_get(item, DictPath("name")))
-                                for item in get_tagged_objects(uip.sorted_list)]
+                            for item in get_tagged_objects(uip.sorted_list)]
             else:
                 itemlist = [deep_get(item, DictPath("name"))
-                                for item in get_tagged_objects(uip.sorted_list)]
+                            for item in get_tagged_objects(uip.sorted_list)]
 
             if not itemlist:
                 continue
@@ -5309,8 +5309,8 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
             prev_remnants: list = []
             repeat_count: int = 0
             message: list[ThemeRef | ThemeStr] \
-                     | tuple[str, Callable[..., Any] | None, dict[Any, Any]] \
-                     | list[tuple[list[ThemeRef | ThemeStr], LogLevel]] = []
+                | tuple[str, Callable[..., Any] | None, dict[Any, Any]] \
+                | list[tuple[list[ThemeRef | ThemeStr], LogLevel]] = []
             facility: tuple[list[ThemeRef | ThemeStr], str] | str = ""
             _facility: tuple[list[ThemeRef | ThemeStr], str] | str = ""
 
@@ -5594,7 +5594,7 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                     ThemeStr("amespaces: ", ThemeAttr("main", "infoheader")),
                 ]
             namespacesarray += generators.format_list(namespaces, fieldlen=0,
-                                                       pad=False, ellipsise=6)
+                                                      pad=False, ellipsise=6)
             podsandnamespace = list(set(podsandnamespace))
             if len(podsandnamespace) == 1:
                 podsarray: list[ThemeRef | ThemeStr] = [
@@ -8420,7 +8420,7 @@ def action_execute_command(**kwargs: Any) -> None:
         ansithemeprint([ANSIThemeStr("Critical", "critical"),
                         ANSIThemeStr(": Request to execute empty or None command; ", "default"),
                         ANSIThemeStr("aborting.", "default")],
-                        stderr=True)
+                       stderr=True)
         tmpargs = []  # To skip the loop without special cases.
         retval = 2
 
@@ -8430,7 +8430,7 @@ def action_execute_command(**kwargs: Any) -> None:
                             ANSIThemeStr(": Command “", "default"),
                             ANSIThemeStr(f"{tmpargs[0]}", "programname"),
                             ANSIThemeStr("“ Received a None argument; aborting.", "default")],
-                            stderr=True)
+                           stderr=True)
             retval = 2
             break
         if arg == "<<<items>>>":
@@ -8473,7 +8473,7 @@ def action_execute_command(**kwargs: Any) -> None:
                                 ANSIThemeStr(": Command “", "default"),
                                 ANSIThemeStr(f"{args[0]}", "programname"),
                                 ANSIThemeStr("“ not found; aborting.", "default")],
-                                stderr=True)
+                               stderr=True)
                 retval = 2
 
     waitforkeypress = True
