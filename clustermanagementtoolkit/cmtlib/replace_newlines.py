@@ -4,6 +4,11 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+Convert newlines and optionally strip or replace them.
+"""
+
+
 def replace_newlines(string: str, policy: str = "keep") -> str:
     """
     Convert newlines, and optionally strip or replace them.

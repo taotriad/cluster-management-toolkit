@@ -4,6 +4,10 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+A generic formatter-wrapper using PYgments.
+"""
+
 from typing import Any
 
 import pygments

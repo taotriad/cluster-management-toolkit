@@ -4,6 +4,10 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+Infogetter for Endpoint subsets.
+"""
+
 from typing import Any
 
 from clustermanagementtoolkit import cmtlib

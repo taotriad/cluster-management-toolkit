@@ -4,6 +4,10 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+Generic formatter; only supports severity overrides.
+"""
+
 from typing import Any
 
 from clustermanagementtoolkit.cmtlib import split_msg

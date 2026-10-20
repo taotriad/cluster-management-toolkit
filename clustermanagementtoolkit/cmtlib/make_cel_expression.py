@@ -4,6 +4,10 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+Join CEL expressions data into one single string.
+"""
+
 from typing import Any
 
 from clustermanagementtoolkit.cmttypes import DictPath

@@ -4,6 +4,11 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+Given a memory usage string, normalise it to bytes.
+"""
+
+
 def normalise_mem_to_bytes(mem_usage: str) -> int:
     """
     Given a memory usage string, normalise it to bytes.

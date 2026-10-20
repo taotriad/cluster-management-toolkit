@@ -4,6 +4,10 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+Takes a timestamp and converts it to datetime.
+"""
+
 from datetime import datetime
 import re
 

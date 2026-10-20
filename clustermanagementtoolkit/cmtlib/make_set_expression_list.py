@@ -4,6 +4,11 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+Create a list of match expressions (key, operator, values)
+or tolerations {key, operator, values, effect}.
+"""
+
 from typing import Any
 
 from clustermanagementtoolkit.cmttypes import DictPath

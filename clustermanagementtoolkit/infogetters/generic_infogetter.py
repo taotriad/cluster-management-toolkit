@@ -4,6 +4,10 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+A generic infogetter usable for most data.
+"""
+
 import sys
 from typing import Any
 

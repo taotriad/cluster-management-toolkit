@@ -4,6 +4,10 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+A lexer for known_hosts.
+"""
+
 from typing import Any, ClassVar
 
 from pygments.lexer import bygroups

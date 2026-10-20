@@ -4,6 +4,10 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+Remove groups from the Ansible inventory.
+"""
+
 from pathlib import Path
 import sys
 from typing import Any
@@ -30,7 +34,7 @@ from clustermanagementtoolkit.cmttypes import deep_get, validate_args
 
 def ansible_remove_groups(inventory: FilePath, groups: list[str], **kwargs: Any) -> bool:
     """
-    Remove groups from the inventory.
+    Remove groups from the Ansible inventory.
 
         Parameters:
             inventory (FilePath): The inventory to use

@@ -4,6 +4,10 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+Returns a list of predefined packages for a host.
+"""
+
 import re
 
 from clustermanagementtoolkit import ansible_helper

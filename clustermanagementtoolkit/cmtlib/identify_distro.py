@@ -4,6 +4,10 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+Identify what distro (Debian, Red Hat, SUSE, etc.) is in use.
+"""
+
 import errno
 import sys
 from typing import Any

@@ -4,6 +4,10 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+Given error information from an Ansible run, return a suitable error message.
+"""
+
 from typing import Any
 
 from clustermanagementtoolkit.cmttypes import DictPath
@@ -13,7 +17,7 @@ from clustermanagementtoolkit.cmttypes import deep_get
 # pylint: disable-next=too-many-branches
 def ansible_extract_failure(retval: int, error_msg_lines: list[str], **kwargs: Any) -> str:
     """
-    Given error information from an ansible run, return a suitable error message.
+    Given error information from an Ansible run, return a suitable error message.
 
         Parameters:
             retval (int): The retval from the run

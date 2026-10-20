@@ -4,6 +4,10 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+Given a list or dict, modify the data according to a transformation ruleset.
+"""
+
 import re
 import sys
 from typing import Any

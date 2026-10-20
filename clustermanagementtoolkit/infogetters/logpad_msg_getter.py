@@ -4,6 +4,10 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+A logpad for strings with embedded newlines.
+"""
+
 from typing import Any
 
 from clustermanagementtoolkit.cmtlib import split_msg

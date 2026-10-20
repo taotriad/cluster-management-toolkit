@@ -4,6 +4,10 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+Given a timestamp in datetime format, convert it to a string.
+"""
+
 from datetime import date, datetime
 
 from clustermanagementtoolkit.ansithemeprint import ANSIThemeStr
@@ -17,8 +21,7 @@ from clustermanagementtoolkit.cmttypes.exceptions import ProgrammingError
 # Will take datetime and convert it to a timestamp
 def datetime_to_timestamp(timestamp: datetime) -> str:
     """
-    Given a timestamp in datetime format,
-    convert it to a string.
+    Given a timestamp in datetime format, convert it to a string.
 
         Parameters:
             timestamp (datetime): The timestamp in datetime

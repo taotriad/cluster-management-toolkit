@@ -4,6 +4,11 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+Substitutes substrings in all strings in a list.
+"""
+
+
 def substitute_list(strlist: list[str], substitutions: dict) -> list[str]:
     """
     Substitutes substrings in all strings in a list.

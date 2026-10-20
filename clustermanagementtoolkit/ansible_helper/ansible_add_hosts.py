@@ -4,6 +4,10 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+Add hosts to the ansible inventory; if the inventory does not exist, create it.
+"""
+
 from pathlib import Path
 import sys
 from typing import Any, cast
@@ -33,7 +37,7 @@ from clustermanagementtoolkit.cmttypes import deep_get, deep_set, validate_args
 
 def ansible_add_hosts(inventory: FilePath, hosts: list[str], **kwargs: Any) -> bool:
     """
-    Add hosts to the ansible inventory; if the inventory does not exist, create it.
+    Add hosts to the Ansible inventory; if the inventory does not exist, create it.
 
         Parameters:
             inventory (FilePath): The path to the inventory

@@ -4,6 +4,11 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+Given a time in seconds, convert it to X1dX2hX3mX4s.
+"""
+
+
 # pylint: disable-next=too-many-branches
 def seconds_to_age(seconds: int, negative_is_skew: bool = False) -> str:
     """

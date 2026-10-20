@@ -4,6 +4,10 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+Set one or several vars for the specified groups in the Ansible inventory.
+"""
+
 from typing import Any
 from collections.abc import Sequence
 
@@ -17,7 +21,7 @@ def ansible_set_groupvars(inventory: FilePath,
                           groups: list[str],
                           groupvars: Sequence[tuple[str, str | int]], **kwargs: Any) -> bool:
     """
-    Set one or several vars for the specified groups.
+    Set one or several vars for the specified groups in the Ansible inventory.
 
         Parameters:
             inventory (FilePath): The path to the inventory

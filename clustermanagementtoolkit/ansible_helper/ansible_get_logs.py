@@ -4,6 +4,10 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+Returns a list of all available logs.
+"""
+
 from datetime import datetime, UTC
 from pathlib import Path
 import re

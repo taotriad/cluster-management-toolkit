@@ -4,6 +4,10 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+Formatter for key:value data.
+"""
+
 from datetime import datetime
 import sys
 from typing import Any, cast

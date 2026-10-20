@@ -4,6 +4,11 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+Clamp value inside the range minval, maxval.
+"""
+
+
 def clamp(value: float, minval: float, maxval: float) -> int | float:
     """
     Clamp value inside the range minval, maxval.

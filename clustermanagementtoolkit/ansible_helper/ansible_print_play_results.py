@@ -4,6 +4,10 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+Pretty-print the result of an Ansible play.
+"""
+
 from typing import Any
 
 from clustermanagementtoolkit.ansithemeprint import ANSIThemeStr, ansithemeprint

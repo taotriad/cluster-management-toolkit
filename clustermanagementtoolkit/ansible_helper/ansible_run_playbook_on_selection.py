@@ -4,6 +4,10 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+Run an Ansible playbook on selected hosts.
+"""
+
 import errno
 from typing import Any
 
@@ -19,7 +23,7 @@ from clustermanagementtoolkit.cmttypes import deep_get
 def ansible_run_playbook_on_selection(playbook: FilePath,
                                       selection: list[str], **kwargs: Any) -> tuple[int, dict]:
     """
-    Run a playbook on selected nodes.
+    Run an Ansible playbook on selected hosts.
 
         Parameters:
             playbook (FilePath): The playbook to run

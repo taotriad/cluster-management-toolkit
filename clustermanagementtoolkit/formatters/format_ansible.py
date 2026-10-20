@@ -4,6 +4,11 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+Ansible formatter; formats output from Ansible plays; this formatter
+does NOT use Pygments, since the Pygments lexer was deemed inferior.
+"""
+
 import re
 from typing import Any
 

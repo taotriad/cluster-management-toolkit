@@ -4,10 +4,15 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+Given a string remove prefix and return the stripped string and the count of stripped characters.
+"""
+
+
 def rstrip_count(string: str, suffix: str) -> tuple[str, int]:
     """
-    Given a string remove suffix and return the stripped string
-    and the count of stripped characters.
+    Given a string remove suffix
+    and return the stripped string and the count of stripped characters.
 
         Parameters:
             string (str): The string to strip

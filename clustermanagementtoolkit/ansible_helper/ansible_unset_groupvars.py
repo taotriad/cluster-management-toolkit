@@ -4,6 +4,10 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+Unset one or several vars for the specified groups in the Ansible inventory.
+"""
+
 from typing import Any
 
 from clustermanagementtoolkit.cmtio_yaml import secure_read_yaml, secure_write_yaml
@@ -16,7 +20,7 @@ from clustermanagementtoolkit.cmttypes import deep_get, deep_pop, validate_args
 def ansible_unset_groupvars(inventory: FilePath,
                             groups: list[str], groupvars: list[str], **kwargs: Any) -> bool:
     """
-    Unset one or several vars for the specified groups.
+    Unset one or several vars for the specified groups in the Ansible inventory.
 
         Parameters:
             inventory (FilePath): The path to the inventory

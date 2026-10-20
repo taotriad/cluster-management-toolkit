@@ -4,6 +4,10 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+Infogetter for Resource Quotas.
+"""
+
 from typing import Any
 
 from clustermanagementtoolkit.cmttypes import DictPath

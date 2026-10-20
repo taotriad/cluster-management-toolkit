@@ -4,6 +4,10 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+Given a string-representation of a matchLabel selector, return a dict-representation.
+"""
+
 from typing import Any
 
 

@@ -4,6 +4,10 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+Split a list into sublists, each up to chunksize elements long.
+"""
+
 from collections.abc import Generator
 from typing import Any
 

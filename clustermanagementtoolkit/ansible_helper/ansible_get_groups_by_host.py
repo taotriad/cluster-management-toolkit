@@ -4,13 +4,17 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+Given an Ansible inventory, returns the groups a host belongs to.
+"""
+
 from clustermanagementtoolkit.cmttypes import DictPath
 from clustermanagementtoolkit.cmttypes import deep_get, validate_args
 
 
 def ansible_get_groups_by_host(inventory_dict: dict, host: str) -> list[str]:
     """
-    Given an inventory, returns the groups a host belongs to.
+    Given an Ansible inventory, returns the groups a host belongs to.
 
         Parameters:
             inventory_dict (dict): An Ansible inventory

@@ -4,6 +4,10 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+Delete a log file.
+"""
+
 from typing import Any
 from pathlib import Path
 

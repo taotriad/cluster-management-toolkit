@@ -4,6 +4,10 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+Given a disksize in bytes, convert it to a more readable format with size suffix.
+"""
+
 from clustermanagementtoolkit.cmtlib.normalise_mem_bytes_to_str import normalise_mem_bytes_to_str
 
 

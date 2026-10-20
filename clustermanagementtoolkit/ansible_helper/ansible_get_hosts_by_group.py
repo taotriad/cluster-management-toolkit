@@ -4,6 +4,10 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+Get the list of hosts belonging to a group in the Ansible inventory.
+"""
+
 from pathlib import Path
 
 from clustermanagementtoolkit.cmtio_yaml import secure_read_yaml
@@ -14,7 +18,7 @@ from clustermanagementtoolkit.cmttypes import deep_get
 
 def ansible_get_hosts_by_group(inventory: FilePath, group: str) -> list[str]:
     """
-    Get the list of hosts belonging to a group.
+    Get the list of hosts belonging to a group in the Ansible inventory.
 
         Parameters:
             inventory (FilePath): The inventory to use

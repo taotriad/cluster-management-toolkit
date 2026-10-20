@@ -4,6 +4,10 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+Formatter for Rego Policy Language.
+"""
+
 from typing import Any
 
 try:

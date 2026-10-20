@@ -4,6 +4,10 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+Split a string into a list of strings, strip NUL-bytes, and convert newlines.
+"""
+
 import re
 
 from clustermanagementtoolkit.cmtlib.replace_newlines import replace_newlines

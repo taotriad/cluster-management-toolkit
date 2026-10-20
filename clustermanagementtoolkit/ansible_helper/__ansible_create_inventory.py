@@ -4,6 +4,10 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+Create a new Ansible inventory at the path given if no inventory exists.
+"""
+
 from pathlib import Path
 from typing import Any
 
@@ -21,7 +25,7 @@ from clustermanagementtoolkit.cmttypes import deep_get, deep_set
 
 def __ansible_create_inventory(inventory: FilePath, **kwargs: Any) -> bool:
     """
-    Create a new inventory at the path given if no inventory exists.
+    Create a new Ansible inventory at the path given if no inventory exists.
 
         Parameters:
             inventory (FilePath): A path where to create a new inventory (if non-existing)

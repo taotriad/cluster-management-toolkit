@@ -4,6 +4,10 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+Color schemes used when formatting data using Pygments.
+"""
+
 # pylint: disable=too-many-lines
 
 from typing import Any, TypedDict

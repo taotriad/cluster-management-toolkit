@@ -4,6 +4,10 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+Given a list of playbook names, populate a list of playbook paths.
+"""
+
 from clustermanagementtoolkit.ansible_helper.get_playbook_path import get_playbook_path
 # pylint: disable-next=line-too-long
 from clustermanagementtoolkit.ansible_helper.populate_playbooks_from_paths import populate_playbooks_from_paths  # noqa: E501

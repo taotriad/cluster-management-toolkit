@@ -4,6 +4,10 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+String representer for YAML with |-style strings.
+"""
+
 import sys
 from typing import Any
 

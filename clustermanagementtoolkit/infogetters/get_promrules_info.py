@@ -4,6 +4,10 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+Infogetter for Prometheus Rules.
+"""
+
 from typing import Any
 
 from clustermanagementtoolkit.cmtlib import age_to_seconds

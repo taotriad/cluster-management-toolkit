@@ -4,6 +4,10 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+Formatter for Python tracebacks.
+"""
+
 from typing import Any
 
 from pygments.lexers.python import PythonTracebackLexer

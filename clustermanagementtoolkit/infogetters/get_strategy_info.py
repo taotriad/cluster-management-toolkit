@@ -4,6 +4,9 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+Infogetter for Telemetry Aware Scheduling policies.
+"""
 from typing import Any
 
 from clustermanagementtoolkit.cmttypes import DictPath

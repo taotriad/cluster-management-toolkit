@@ -4,6 +4,10 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+A helper that replaces newlines and quotes in strings.
+"""
+
 from clustermanagementtoolkit import cmtlib
 
 

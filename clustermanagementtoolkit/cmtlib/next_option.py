@@ -4,6 +4,12 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+Given a list of options, and the currently selected option,
+return the next entry in the list, by default with wraparound.
+"""
+
+
 def next_option(current: str, options: list[str], wraparound: bool = True) -> str:
     """
     Given a list of options, and the currently selected option,

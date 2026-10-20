@@ -4,6 +4,10 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+Given a dict and a focus filter, return the data with the filtered paths pruned.
+"""
+
 from typing import Any
 
 from clustermanagementtoolkit.cmttypes import DictPath

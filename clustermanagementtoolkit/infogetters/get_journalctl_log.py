@@ -4,6 +4,10 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+An infogetter that returns log entries from journalctl.
+"""
+
 from collections.abc import Sequence
 from datetime import datetime, UTC
 import json

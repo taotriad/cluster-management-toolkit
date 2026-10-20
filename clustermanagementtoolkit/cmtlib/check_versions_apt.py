@@ -4,6 +4,10 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+Given a list of packages, return installed, candidate, and all available versions.
+"""
+
 import re
 import sys
 

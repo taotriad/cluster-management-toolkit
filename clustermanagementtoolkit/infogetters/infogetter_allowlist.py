@@ -4,6 +4,10 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+The allowlist for infogetters.
+"""
+
 from collections.abc import Callable
 
 from clustermanagementtoolkit.infogetters.generic_infogetter import generic_infogetter

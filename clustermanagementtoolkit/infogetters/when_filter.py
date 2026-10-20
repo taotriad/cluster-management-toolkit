@@ -4,6 +4,11 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+A match-filter that, given constraints, returns True if all conditions evaluate
+to true, and False if not.
+"""
+
 from typing import Any
 
 from clustermanagementtoolkit.cmttypes import DictPath

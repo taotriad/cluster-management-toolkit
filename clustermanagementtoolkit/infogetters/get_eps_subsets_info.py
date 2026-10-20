@@ -4,6 +4,10 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+An infogetter that returns information about EndpointSlice subsets.
+"""
+
 from typing import Any
 
 from clustermanagementtoolkit.cmttypes import DictPath

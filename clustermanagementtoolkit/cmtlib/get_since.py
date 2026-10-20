@@ -4,6 +4,10 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+Given either a datetime, or an integer, returns how old that timestamp is in seconds.
+"""
+
 from datetime import datetime, UTC
 
 from clustermanagementtoolkit.cmtlib.none_timestamp import none_timestamp

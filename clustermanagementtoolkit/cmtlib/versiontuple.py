@@ -4,6 +4,11 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+Split a version string into a tuple.
+"""
+
+
 def versiontuple(ver: str) -> tuple[str, ...]:
     """
     Split a version string into a tuple.

@@ -4,6 +4,10 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+A helper that attempts to identify the formatter to use for data.
+"""
+
 import base64
 import binascii
 from collections.abc import Callable

@@ -4,6 +4,10 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+A formatter for NGINX.
+"""
+
 from typing import Any
 
 from pygments.lexers.configs import NginxConfLexer

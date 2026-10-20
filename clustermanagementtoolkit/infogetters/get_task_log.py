@@ -4,6 +4,10 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+Helper to get logs from Ansible tasks.
+"""
+
 from typing import Any
 
 from clustermanagementtoolkit.cmttypes import DictPath

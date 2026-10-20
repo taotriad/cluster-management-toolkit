@@ -4,6 +4,11 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+Given a label selector dict entry, create a selector list string.
+"""
+
+
 def make_label_selector(selector_dict: dict) -> str:
     """
     Given a label selector dict entry, create a selector list string.

@@ -4,6 +4,10 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+Render Markdown for display (as opposed to just formatting the source code).
+"""
+
 import functools
 import re
 from typing import Any, cast

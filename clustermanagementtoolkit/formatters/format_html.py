@@ -4,6 +4,10 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+Formatter for HTML.
+"""
+
 from typing import Any
 
 from pygments.lexers.html import HtmlLexer

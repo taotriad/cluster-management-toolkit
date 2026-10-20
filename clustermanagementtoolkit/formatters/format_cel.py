@@ -4,6 +4,10 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+A formatter for Common Expression Language.
+"""
+
 from typing import Any
 
 try:

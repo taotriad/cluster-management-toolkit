@@ -4,6 +4,10 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+Get the Ansible inventory and return it neatly formatted.
+"""
+
 from pathlib import Path
 import re
 import sys
@@ -37,7 +41,7 @@ from clustermanagementtoolkit.cmttypes import deep_get, deep_pop, deep_set
 # pylint: disable-next=too-many-locals,too-many-branches,too-many-statements
 def ansible_get_inventory_pretty(**kwargs: Any) -> list[list[ANSIThemeStr] | str]:
     """
-        Get the Ansible inventory and return it neatly formatted.
+    Get the Ansible inventory and return it neatly formatted.
 
         Parameters:
             **kwargs (dict[str, Any]): Keyword arguments

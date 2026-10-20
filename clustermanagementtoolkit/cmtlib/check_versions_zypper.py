@@ -4,6 +4,10 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+Given a list of packages, return installed, candidate, and all available versions from zypper.
+"""
+
 import re
 
 from clustermanagementtoolkit.cmtio import execute_command_with_response
@@ -16,7 +20,7 @@ from clustermanagementtoolkit.cmttypes import SecurityPolicy
 # pylint: disable-next=too-many-locals
 def check_versions_zypper(packages: list[str]) -> list[tuple[str, str, str, list[str]]]:
     """
-    Given a list of packages, return installed, candidate, and all available versions.
+    Given a list of packages, return installed, candidate, and all available versions from zypper.
 
         Parameters:
             packages ([str]): A list of packages to get versions for

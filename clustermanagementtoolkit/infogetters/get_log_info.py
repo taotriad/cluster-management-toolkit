@@ -4,6 +4,10 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+An infogetter for logs.
+"""
+
 from datetime import datetime, UTC
 import os
 from typing import Any, cast

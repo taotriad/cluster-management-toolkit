@@ -4,6 +4,10 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+Reform a string representation of JSON, reformat it.
+"""
+
 from typing import Any
 
 from clustermanagementtoolkit.curses_helper import ThemeRef

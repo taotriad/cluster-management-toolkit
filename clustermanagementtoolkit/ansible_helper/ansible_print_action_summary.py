@@ -4,6 +4,10 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+Given a list of playbook paths, print a summary of the actions that will be performed.
+"""
+
 from clustermanagementtoolkit.ansithemeprint import ANSIThemeStr, ansithemeprint
 
 from clustermanagementtoolkit.cmtio_yaml import secure_read_yaml

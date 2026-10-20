@@ -4,6 +4,10 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+A multi-purpose helper for generic_infogetter().
+"""
+
 from datetime import timedelta
 import re
 import sys

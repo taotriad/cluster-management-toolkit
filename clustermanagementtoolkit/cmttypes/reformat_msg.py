@@ -8,6 +8,7 @@
 Reformat a structured error message to plaintext.
 """
 
+
 def reformat_msg(msg: list[list[tuple[str, str]]]) -> str:
     """
     Given a structured error message return a plaintext representation.

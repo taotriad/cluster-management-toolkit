@@ -4,6 +4,10 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+Run an Ansible playbook.
+"""
+
 from datetime import datetime, UTC
 import sys
 from typing import Any
@@ -184,7 +188,7 @@ def __ansible_run_event_handler_verbose_cb(data: dict) -> bool:
 # pylint: disable-next=too-many-locals
 def ansible_run_playbook(playbook: FilePath, **kwargs: Any) -> tuple[int, dict]:
     """
-    Run a playbook.
+    Run an Ansible playbook.
 
         Parameters:
             playbook (FilePath): The playbook to run

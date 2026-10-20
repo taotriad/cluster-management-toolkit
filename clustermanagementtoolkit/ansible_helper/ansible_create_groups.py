@@ -4,6 +4,10 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+Create new groups in the Ansible inventory.
+"""
+
 from pathlib import Path
 from typing import Any
 
@@ -18,7 +22,7 @@ from clustermanagementtoolkit.cmttypes import deep_get
 
 def ansible_create_groups(inventory: FilePath, groups: list[str], **kwargs: Any) -> bool:
     """
-    Create new groups.
+    Create new groups in the Ansible inventory.
 
         Parameters:
             inventory (FilePath): The path to the inventory

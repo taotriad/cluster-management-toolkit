@@ -4,6 +4,10 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+A lexer for Mosquitto.
+"""
+
 from typing import Any, ClassVar
 
 from pygments.lexer import bygroups, RegexLexer

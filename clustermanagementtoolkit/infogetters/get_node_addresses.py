@@ -4,6 +4,10 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+A helper that returns a list of internal/external IPs and hostnames.
+"""
+
 from clustermanagementtoolkit import about
 
 from clustermanagementtoolkit.ansithemeprint import ANSIThemeStr

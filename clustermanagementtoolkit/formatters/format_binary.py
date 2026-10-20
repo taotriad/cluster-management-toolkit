@@ -4,6 +4,10 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+A dummy formatter for binaries.
+"""
+
 from typing import Any
 
 from clustermanagementtoolkit.curses_helper import ThemeAttr

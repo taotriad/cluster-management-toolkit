@@ -4,6 +4,10 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+A Pygments formatter that outputs to ThemeArray.
+"""
+
 from collections.abc import Callable, Generator
 import io
 from typing import Any

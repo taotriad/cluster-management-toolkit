@@ -4,6 +4,10 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+Get the Ansible inventory and return it as a dict.
+"""
+
 from pathlib import Path
 import sys
 from typing import Any
@@ -32,7 +36,7 @@ from clustermanagementtoolkit.cmttypes import deep_get, deep_set
 
 def ansible_get_inventory_dict() -> dict[str, Any] | ruyaml.comments.CommentedMap:
     """
-        Get the Ansible inventory and return it as a dict.
+    Get the Ansible inventory and return it as a dict.
 
         Returns:
             (dict): A dictionary with an Ansible inventory

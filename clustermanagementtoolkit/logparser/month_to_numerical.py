@@ -8,6 +8,7 @@
 A helper that converts a 3-letter month string to its index.
 """
 
+
 def month_to_numerical(month: str) -> str:
     """
     Convert a 3-letter month string to a numerical month string.

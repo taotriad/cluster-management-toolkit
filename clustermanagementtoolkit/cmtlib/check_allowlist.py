@@ -4,6 +4,11 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+Check whether the provided value is in the allowlist,
+and either return a default, or exit if it's not in the allowlist.
+"""
+
 import sys
 from typing import Any
 

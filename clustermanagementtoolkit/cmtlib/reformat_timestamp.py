@@ -4,6 +4,10 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+Reformat timestamps as ISO-8601.
+"""
+
 from datetime import datetime
 
 

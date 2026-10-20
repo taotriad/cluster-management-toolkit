@@ -5,7 +5,7 @@
 # SPDX-License-Identifier: MIT
 
 """
-Format text as themearrays
+Format text as ThemeArrays.
 """
 
 from collections.abc import Callable

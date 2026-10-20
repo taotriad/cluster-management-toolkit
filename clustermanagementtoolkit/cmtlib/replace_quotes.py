@@ -4,6 +4,11 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+Convert and/or substitute quotes.
+"""
+
+
 def replace_quotes(string: str, policy: str = "keep") -> str:
     """
     Convert and/or substitute quotes.

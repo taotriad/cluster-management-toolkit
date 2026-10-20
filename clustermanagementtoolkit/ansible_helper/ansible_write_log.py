@@ -4,6 +4,10 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+Save an Ansible log entry to a file.
+"""
+
 from datetime import datetime
 from pathlib import PurePath
 import re

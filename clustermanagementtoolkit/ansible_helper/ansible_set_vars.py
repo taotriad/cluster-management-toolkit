@@ -4,6 +4,10 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+Set one or several values for a group in the Ansible inventory.
+"""
+
 from pathlib import Path
 from typing import Any
 
@@ -18,7 +22,7 @@ from clustermanagementtoolkit.cmttypes import deep_get, deep_set, validate_args
 
 def ansible_set_vars(inventory: FilePath, group: str, values: dict, **kwargs: Any) -> bool:
     """
-    Set one or several values for a group.
+    Set one or several values for a group in the Ansible inventory.
 
         Parameters:
             inventory (FilePath): The path to the inventory

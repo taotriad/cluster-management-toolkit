@@ -4,6 +4,10 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+A helper that processes values of various types.
+"""
+
 from collections.abc import Sequence
 from datetime import datetime, UTC
 from typing import Any, cast

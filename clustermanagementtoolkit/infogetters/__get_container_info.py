@@ -4,14 +4,19 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+A helper to get information from containers.
+"""
+
+from typing import Literal
+
 from clustermanagementtoolkit.cmttypes import DictPath
 from clustermanagementtoolkit.cmttypes import deep_get
 
 from clustermanagementtoolkit.kubernetes_helper import get_image_version
 
 
-# We should probably have a real type for container_type here
-def __get_container_info(obj: dict, container_type: str,
+def __get_container_info(obj: dict, container_type: Literal["Container", "InitContainer"],
                          spec_path: DictPath, status_path: DictPath) -> dict:
     containers: dict = {}
 

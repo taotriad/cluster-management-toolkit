@@ -4,6 +4,10 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+A logpad wrapper around listgetter_files().
+"""
+
 from typing import Any, cast
 
 from clustermanagementtoolkit.cmttypes import DictPath

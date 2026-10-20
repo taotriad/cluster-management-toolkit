@@ -4,6 +4,10 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+Populate a list of playbook paths.
+"""
+
 from pathlib import PurePath
 import re
 

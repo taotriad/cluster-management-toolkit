@@ -4,6 +4,10 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+Return the path to the highest priority path to an Ansible playbook.
+"""
+
 from pathlib import Path
 
 from clustermanagementtoolkit import cmtlib

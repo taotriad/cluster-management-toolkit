@@ -4,6 +4,11 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+Given CPU usage information, convert it to CPU usage in millicores.
+"""
+
+
 def normalise_cpu_usage_to_millicores(cpu_usage: str) -> float:
     """
     Given CPU usage information, convert it to CPU usage in millicores.

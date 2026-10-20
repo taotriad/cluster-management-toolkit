@@ -4,6 +4,10 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+Remove hosts from the Ansible inventory.
+"""
+
 from typing import Any
 
 from clustermanagementtoolkit.cmtio_yaml import secure_read_yaml, secure_write_yaml
@@ -15,7 +19,7 @@ from clustermanagementtoolkit.cmttypes import deep_get, deep_pop, validate_args
 # Remove hosts from ansible groups
 def ansible_remove_hosts(inventory: FilePath, hosts: list[str], **kwargs: Any) -> bool:
     """
-    Remove hosts from the inventory.
+    Remove hosts from the Ansible inventory.
 
         Parameters:
             inventory (FilePath): The inventory to use

@@ -4,6 +4,10 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+Unset one or several vars for the specified hosts in the Ansible inventory.
+"""
+
 from typing import Any
 
 from clustermanagementtoolkit.cmtio_yaml import secure_read_yaml, secure_write_yaml
@@ -16,7 +20,7 @@ from clustermanagementtoolkit.cmttypes import deep_get, deep_pop, deep_set, vali
 def ansible_unset_hostvars(inventory: FilePath,
                            hosts: list[str], hostvars: list[str], **kwargs: Any) -> bool:
     """
-    Unset one or several vars for the specified hosts.
+    Unset one or several vars for the specified hosts in the Ansible inventory.
 
         Parameters:
             inventory (FilePath): The path to the inventory

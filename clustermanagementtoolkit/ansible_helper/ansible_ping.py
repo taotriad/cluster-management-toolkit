@@ -4,6 +4,10 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+Ansible ping all selected hosts.
+"""
+
 from typing import Any
 
 from clustermanagementtoolkit.ansible_helper.ansible_extract_failure import ansible_extract_failure
@@ -24,7 +28,7 @@ from clustermanagementtoolkit.cmttypes import validate_args
 
 def ansible_ping(selection: list[str] | None = None, **kwargs: Any) -> list[tuple[str, str]]:
     """
-    Ping all selected hosts.
+    Ansible ping all selected hosts.
 
         Parameters:
             selection ([str]): A list of hostnames

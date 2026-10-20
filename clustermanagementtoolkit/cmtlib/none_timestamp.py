@@ -4,6 +4,10 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+Return the timestamp used to represent None.
+"""
+
 from datetime import datetime, timedelta, UTC, date
 
 

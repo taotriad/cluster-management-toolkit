@@ -4,6 +4,11 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+A helper that reformats a controller kind-tuple.
+"""
+
+
 def format_controller(controller: tuple[tuple[str, str], str], show_kind: str) -> tuple[str, str]:
     """
     Reformat a controller kind + name tuple.

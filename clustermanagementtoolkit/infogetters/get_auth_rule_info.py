@@ -4,6 +4,10 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+An infogetter for Istio Authorization Policy rules.
+"""
+
 from typing import Any
 
 from clustermanagementtoolkit.cmttypes import DictPath

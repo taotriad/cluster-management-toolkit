@@ -4,6 +4,10 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+Given a time in X1dX2hX3mX4sX5ms, convert it to seconds.
+"""
+
 import re
 
 

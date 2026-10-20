@@ -4,6 +4,10 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+Set one or several vars for the specified hosts in the Ansible inventory.
+"""
+
 from typing import Any
 from collections.abc import Sequence
 
@@ -18,7 +22,7 @@ def ansible_set_hostvars(inventory: FilePath,
                          hosts: list[str],
                          hostvars: Sequence[tuple[str, str | int]], **kwargs: Any) -> bool:
     """
-    Set one or several vars for the specified hosts.
+    Set one or several vars for the specified hosts in the Ansible inventory.
 
         Parameters:
             inventory (FilePath): The path to the inventory

@@ -4,6 +4,11 @@
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 
+"""
+Given memory usage in bytes, convert it to a normalised string.
+"""
+
+
 def normalise_mem_bytes_to_str(mem_usage_bytes: int, fmt: str = "float") -> str:
     """
     Given memory usage in bytes, convert it to a normalised string.
