@@ -2446,7 +2446,7 @@ def main() -> None:
         sys.exit(f"Failed to create necessary directories; violated rules: {violations_joined}")
 
     # Then initialise the configuration file
-    cmtlib.read_cmtconfig()
+    cmtlib.cmtconfig = cmtlib.read_cmtconfig()
 
     command, options, args = parse_commandline(about.INVENTORY_PROGRAM_NAME,
                                                about.INVENTORY_PROGRAM_VERSION,

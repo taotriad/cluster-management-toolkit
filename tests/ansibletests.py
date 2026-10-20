@@ -2222,7 +2222,7 @@ def main() -> int:
     failed_testcases = []
 
     init_ansithemeprint(themefile=None)
-    cmtlib.read_cmtconfig()
+    cmtlib.cmtconfig = cmtlib.read_cmtconfig()
     deep_set(cmtlib.cmtconfig, DictPath("Ansible#local_playbooks"), [TEST_PLAYBOOKS_DIR],
              create_path=True)
 

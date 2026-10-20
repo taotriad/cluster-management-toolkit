@@ -11421,7 +11421,7 @@ def main() -> None:
         sys.exit(f"Failed to create necessary directories; violated rules: {violations_joined}")
 
     # Then initialise the configuration file
-    cmtlib.read_cmtconfig()
+    cmtlib.cmtconfig = cmtlib.read_cmtconfig()
 
     # Set the logparser defaults
     init_logparser_configuration()

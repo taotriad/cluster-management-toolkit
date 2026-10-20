@@ -1754,7 +1754,7 @@ def main() -> int:
     failed_testcases = []
 
     init_ansithemeprint(themefile=None)
-    cmtlib.read_cmtconfig()
+    cmtlib.cmtconfig = cmtlib.read_cmtconfig()
 
     defaultthemefile = DEFAULT_THEME_FILE
     tmpthemefile = deep_get(cmtlib.cmtconfig, DictPath("Global#theme"))

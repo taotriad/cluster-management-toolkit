@@ -741,7 +741,7 @@ def test_get_ref_by_kind_name_namespace(verbose: bool = False) -> tuple[str, boo
     result = True
 
     fun = kh.get_ref_by_kind_name_namespace
-    cmtlib.read_cmtconfig()
+    cmtlib.cmtconfig = cmtlib.read_cmtconfig()
     deep_set(cmtlib.cmtconfig, DictPath("Debug#developer_mode"), True, create_path=True)
     deep_set(cmtlib.cmtconfig, DictPath("Debug#use_testdata"), True, create_path=True)
 

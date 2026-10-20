@@ -16,6 +16,7 @@ from clustermanagementtoolkit.cmtlib.check_versions_yum import check_versions_yu
 from clustermanagementtoolkit.cmtlib.check_versions_zypper import check_versions_zypper
 from clustermanagementtoolkit.cmtlib.chunk_list import chunk_list
 from clustermanagementtoolkit.cmtlib.clamp import clamp
+from clustermanagementtoolkit.cmtlib.cmtconfig import cmtconfig
 from clustermanagementtoolkit.cmtlib.datetime_to_timestamp import datetime_to_timestamp
 from clustermanagementtoolkit.cmtlib.decode_value import decode_value
 from clustermanagementtoolkit.cmtlib.disksize_to_human import disksize_to_human
@@ -36,7 +37,6 @@ from clustermanagementtoolkit.cmtlib.normalise_cpu_usage_to_millicores import no
 from clustermanagementtoolkit.cmtlib.normalise_mem_bytes_to_str import normalise_mem_bytes_to_str
 from clustermanagementtoolkit.cmtlib.normalise_mem_to_bytes import normalise_mem_to_bytes
 from clustermanagementtoolkit.cmtlib.populate_template import populate_template
-from clustermanagementtoolkit.cmtlib.read_cmtconfig import cmtconfig
 from clustermanagementtoolkit.cmtlib.read_cmtconfig import read_cmtconfig
 from clustermanagementtoolkit.cmtlib.reformat_timestamp import reformat_timestamp
 from clustermanagementtoolkit.cmtlib.replace_newlines import replace_newlines
