@@ -185,18 +185,14 @@ infoview:
           - "condition_available"
     rows:
       alertmanager_config_selector:
-        header: [["AlertManagerConfig Selector:", ["main", "infoheader"]]]
+        header: [["Alertmanager Confi", ["main", "infoheader"]],
+                 ["g", ["main", "infoheader_shortcut"]],
+                 [" Selector:", ["main", "infoheader"]]]
         paths:
-          - path: ["spec#alertmanagerConfigSelector#matchLabels"]
-            pathtype: "key_value"
-            default: ["<unset>"]
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "key"
-            - type: "value"
-          field_separators:
-            - type: "selector"
+          - path: "spec#alertmanagerConfigSelector"
+            pathtype: "obj"
+            default: "<none>"
+        formatter: "selector"
       condition_available:
         header: [["Available:", ["main", "infoheader"]]]
         paths:
@@ -471,6 +467,16 @@ infoview:
         itemgetter_args:
           path: "spec#nodeSelector"
           reparent: "matchLabels"
+    "Alertmanager Config Selector":
+      key: "g"
+      read_only: true
+      helptext: "Show alertmanagerconfig selector"
+      widget: "windowwidget"
+      widget_args:
+        title: "Alertmanager Config Selector:"
+        itemgetter: "get_selector_list"
+        itemgetter_args:
+          path: "spec#alertmanagerConfigSelector"
     "Service Account":
       key: "s"
       modifier: "shift"

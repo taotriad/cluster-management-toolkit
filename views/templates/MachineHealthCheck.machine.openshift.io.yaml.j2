@@ -91,21 +91,6 @@ infoview:
         default: "<unset>"
         type: "int"
         formatter: "numerical"
-      set_based_selector:
-        header: [["Set-based Selector:", ["main", "infoheader"]]]
-        paths:
-          - path: "spec#selector#matchExpressions"
-            pathtype: "match_expression"
-            default: "<none>"
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "key"
-            - type: "operator"
-            - type: "value"
-          field_separators:
-            - type: "space"
-            - type: "no_pad"
   listpad:
     listgetter: "generic_listgetter"
     listgetter_args:

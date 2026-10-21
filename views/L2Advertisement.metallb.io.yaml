@@ -72,16 +72,10 @@ infoview:
                  ["S", ["main", "infoheader_shortcut"]],
                  ["electors:", ["main", "infoheader"]]]
         paths:
-          - path: ["spec#nodeSelectors"]
-            pathtype: "selectors"
-            default: ["<none>"]
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "key"
-            - type: "value"
-          field_separators:
-            - type: "selector"
+          - path: "spec#nodeSelectors"
+            pathtype: "obj"
+            default: "<none>"
+        formatter: "selector"
   shortcuts:
     "IP-Address Pools":
       key: "p"

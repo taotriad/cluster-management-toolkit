@@ -54,7 +54,7 @@ infoview:
   infopad:
     row_indexes:
       Normal:
-        fields: ["controller", "cluster", "label_selector",
+        fields: ["controller", "cluster", "selector",
                  "delete_policy", "replicas", "ready", "available",
                  "template_header", "template_cluster_name",
                  "template_failure_domain", "template_bootstrap",
@@ -79,21 +79,6 @@ infoview:
         path: "spec#deletion#order"
         default: "Random"
         type: "str"
-      label_selector:
-        header: [["La", ["main", "infoheader"]],
-                 ["b", ["main", "infoheader_shortcut"]],
-                 ["el Selector:", ["main", "infoheader"]]]
-        paths:
-          - path: ["spec#selector#matchLabels"]
-            pathtype: "key_value"
-            default: ["<none>"]
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "key"
-            - type: "value"
-          field_separators:
-            - type: "selector"
       ready:
         header: [["Ready:", ["main", "infoheader"]]]
         path: "status#readyReplicas"
@@ -104,6 +89,15 @@ infoview:
         path: "status#replicas"
         type: "int"
         formatter: "numerical"
+      selector:
+        header: [["Selec", ["main", "infoheader"]],
+                 ["t", ["main", "infoheader_shortcut"]],
+                 ["or:", ["main", "infoheader"]]]
+        paths:
+          - path: "spec#selector"
+            pathtype: "obj"
+            default: "<none>"
+        formatter: "selector"
       template_bootstrap:
         header: [["  B", ["main", "infoheader"]],
                  ["o", ["main", "infoheader_shortcut"]],
@@ -165,12 +159,14 @@ infoview:
     listgetter: "generic_listgetter"
     listgetter_args:
       _kind: "Machine"
-      _label_selector_path: "spec#nodeSelector#matchLabels"
+      _api_family: "cluster.x-k8s.io"
+      _label_selector_path: "status#selector"
       _none_on_empty_selector: true
     infogetter: "generic_infogetter"
     on_activation:
       call: "resourceinfodispatch"
-      kind: "Node"
+      kind: "Machine"
+      api_family: "cluster.x-k8s.io"
     field_indexes:
       Normal:
         fields: ["namespace", "name", "provider_id", "phase", "age", "taints"]
@@ -241,17 +237,16 @@ infoview:
                   - context: "main"
                     type: "status_not_ok"
   shortcuts:
-    "Label Selector":
-      key: "b"
+    "Selector":
+      key: "t"
       read_only: true
-      helptext: "Show label selector"
+      helptext: "Show selector"
       widget: "windowwidget"
       widget_args:
-        title: "Label Selector:"
-        headers: ["Key:", "Value:"]
-        itemgetter: "get_key_value"
+        title: "Selector:"
+        itemgetter: "get_selector_list"
         itemgetter_args:
-          path: "spec#selector#matchLabels"
+          path: "spec#selector"
     "Machine Template":
       key: "t"
       modifier: "shift"

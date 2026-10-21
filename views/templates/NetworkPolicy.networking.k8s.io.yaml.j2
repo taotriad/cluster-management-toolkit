@@ -11,8 +11,7 @@ listview:
   field_indexes:
     Wide:
       fields: ["namespace", "name", "controller",
-               "pod_label_selector", "pod_set_based_selector",
-               "policy_types", "age"]
+               "policy_types", "age", "pod_selector"]
       sortcolumn: "namespace"
     Normal:
       fields: ["namespace", "name", "controller", "age"]
@@ -21,34 +20,13 @@ listview:
     {%- for line in field_controller.split("\n") %}
     {{ line }}
     {%- endfor %}
-    pod_label_selector:
-      header: "Pod Label Selector:"
+    pod_selector:
+      header: "Pod Selector:"
       paths:
-        - path: ["spec#podSelector#matchLabels"]
-          pathtype: "key_value"
-          default: ["<none>"]
-      formatter: "list"
-      formatting:
-        field_colors:
-          - type: "key"
-          - type: "value"
-        field_separators:
-          - type: "selector"
-    pod_set_based_selector:
-      header: "Pod Set-based Selector:"
-      paths:
-        - path: "spec#podSelector#matchExpressions"
-          pathtype: "match_expression"
+        - path: "spec#podSelector"
+          pathtype: "obj"
           default: "<none>"
-      formatter: "list"
-      formatting:
-        field_colors:
-          - type: "key"
-          - type: "operator"
-          - type: "value"
-        field_separators:
-          - type: "space"
-          - type: "no_pad"
+      formatter: "selector"
     policy_types:
       header: "Policy Types:"
       path: "spec#policyTypes"
