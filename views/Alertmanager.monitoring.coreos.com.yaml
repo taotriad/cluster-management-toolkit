@@ -290,20 +290,15 @@ infoview:
         default: "<unset>"
         type: "str"
       node_selector:
-        header: [["Node La", ["main", "infoheader"]],
-                 ["b", ["main", "infoheader_shortcut"]],
-                 ["el Selector:", ["main", "infoheader"]]]
+        header: [["No", ["main", "infoheader"]],
+                 ["d", ["main", "infoheader_shortcut"]],
+                 ["e Selector:", ["main", "infoheader"]]]
         paths:
-          - path: ["spec#nodeSelector"]
-            pathtype: "key_value"
-            default: ["<unset>"]
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "key"
-            - type: "value"
-          field_separators:
-            - type: "selector"
+          - path: "spec#nodeSelector"
+            pathtype: "obj"
+            reparent: "matchLabels"
+            default: "<none>"
+        formatter: "selector"
       paused:
         header: [["Paused:", ["main", "infoheader"]]]
         path: "status#paused"
@@ -465,17 +460,17 @@ infoview:
         formatter: "numerical"
         align: "right"
   shortcuts:
-    "Node Label Selector":
-      key: "b"
+    "Node Selector":
+      key: "d"
       read_only: true
-      helptext: "Show Node label selector"
+      helptext: "Show Node selector"
       widget: "windowwidget"
       widget_args:
-        title: "Node Label Selector:"
-        headers: ["Key:", "Value:"]
-        itemgetter: "get_key_value"
+        title: "Node Selector:"
+        itemgetter: "get_selector_list"
         itemgetter_args:
           path: "spec#nodeSelector"
+          reparent: "matchLabels"
     "Service Account":
       key: "s"
       modifier: "shift"

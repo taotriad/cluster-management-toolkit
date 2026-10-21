@@ -2,6 +2,9 @@
 kind: "InferencePool"
 api_family: "inference.networking.k8s.io"
 default_command: "inferencepools"
+command:
+  - "infpools"
+  - "infpool"
 listview:
   name: "Inference Pools"
   group: "Machine Learning"

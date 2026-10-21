@@ -61,8 +61,7 @@ infoview:
                  "drain_disable_eviction",
                  "drain_skip_wait_for_delete_timeout", "channel",
                  "version", "latest_version",
-                 "node_label_selector",
-                 "node_set_based_selector",
+                 "node_selector",
                  "concurrency"]
     rows:
       channel:
@@ -110,42 +109,21 @@ infoview:
         default: "<unset>"
         type: "int"
         formatter: "numerical"
-      node_label_selector:
-        header: [["Node La", ["main", "infoheader"]],
-                 ["b", ["main", "infoheader_shortcut"]],
-                 ["el Selector:", ["main", "infoheader"]]]
+      node_selector:
+        header: [["Selec", ["main", "infoheader"]],
+                 ["t", ["main", "infoheader_shortcut"]],
+                 ["or:", ["main", "infoheader"]]]
         paths:
-          - path: ["spec#nodeSelector#matchLabels"]
-            pathtype: "key_value"
-            default: ["<none>"]
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "key"
-            - type: "value"
-          field_separators:
-            - type: "selector"
+          - path: "spec#nodeSelector"
+            pathtype: "obj"
+            default: "<none>"
+        formatter: "selector"
       latest_version:
         header: [["Latest Version:", ["main", "infoheader"]]]
         path: "status#latestVersion"
         default: "<unset>"
         type: "str"
         formatter: "version"
-      node_set_based_selector:
-        header: [["Node Set-based Selector:", ["main", "infoheader"]]]
-        paths:
-          - path: "spec#nodeSelector#matchExpressions"
-            pathtype: "match_expression"
-            default: "<none>"
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "key"
-            - type: "operator"
-            - type: "value"
-          field_separators:
-            - type: "space"
-            - type: "no_pad"
       prepare:
         header: [["P", ["main", "infoheader_shortcut"]],
                  ["repare:", ["main", "infoheader"]]]
@@ -194,17 +172,16 @@ infoview:
         type: "str"
         formatter: "version"
   shortcuts:
-    "Node Label Selector":
-      key: "b"
+    "Node Selector":
+      key: "t"
       read_only: true
-      helptext: "Show node label selector"
+      helptext: "Show Node selector"
       widget: "windowwidget"
       widget_args:
-        title: "Node Label Selector:"
-        headers: ["Key:", "Value:"]
-        itemgetter: "get_key_value"
+        title: "Node Selector:"
+        itemgetter: "get_selector_list"
         itemgetter_args:
-          path: "spec#nodeSelector#matchLabels"
+          path: "spec#nodeSelector"
     "Secrets":
       key: "s"
       read_only: true
