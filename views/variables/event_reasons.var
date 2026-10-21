@@ -1949,6 +1949,10 @@ RELOAD:
   field_colors:
     - context: "main"
       type: "status_ok"
+RemediationRestricted:
+  field_colors:
+    - context: "main"
+      type: "status_warning"
 Remount:
   field_colors:
     - context: "main"
