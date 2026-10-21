@@ -34,7 +34,6 @@ infoview:
     "Machine Config Pool Selector":
       key: "t"
       read_only: true
-      helptext: "Show selector"
       helptext: "Show Machine Config Pool selector"
       widget: "windowwidget"
       widget_args:
