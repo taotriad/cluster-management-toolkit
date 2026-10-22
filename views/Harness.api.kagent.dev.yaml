@@ -23,8 +23,7 @@ infoview:
                  "worker_pool_reference",
                  "workload_header",
                  "workload_image",
-                 "environment_variables",
-                 ]
+                 "environment_variables"]
     rows:
       environment_variables:
         header: [["E", ["main", "infoheader_shortcut"]],
