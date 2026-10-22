@@ -19,9 +19,9 @@ try:
     has_validators: bool = True  # pylint: disable=invalid-name
 except ModuleNotFoundError:
     has_validators = False  # pylint: disable=invalid-name
-    print("ModuleNotFoundError: Could not import validators; "
-          "you may need to (re-)run `cmt-install.py` "
-          "or `pip3 install validators`; disabling IP-address validation.\n", file=sys.stderr)
+    # There's not much point warning about missing validators;
+    # either cmt is correctly installed (but validators isn't available),
+    # or something would've failed earlier.
 
 from clustermanagementtoolkit.ansithemeprint import ANSIThemeStr
 from clustermanagementtoolkit.ansithemeprint import ansithemearray_to_str

@@ -193,12 +193,12 @@ from clustermanagementtoolkit import infogetters
 
 from clustermanagementtoolkit import itemgetters
 
+from clustermanagementtoolkit import kubernetes_helper
 from clustermanagementtoolkit.kubernetes_helper import KubernetesHelper
 from clustermanagementtoolkit.kubernetes_helper import KubernetesResourceCache
 from clustermanagementtoolkit.kubernetes_helper import get_controller_from_owner_references
 from clustermanagementtoolkit.kubernetes_helper import guess_kind
 from clustermanagementtoolkit.kubernetes_helper import kubectl_get_version
-from clustermanagementtoolkit.kubernetes_helper import update_api_status as kh_update_api_status
 
 from clustermanagementtoolkit.kubernetes_resources import event_reasons
 
@@ -10527,7 +10527,8 @@ def populate_views(refresh_apis: str = "none") -> None:
             has_infoview = True
 
         if kubernetes_support:
-            kh_update_api_status((kind, api_family), listview=has_listview, infoview=has_infoview)
+            kubernetes_helper.update_api_status((kind, api_family),
+                                                listview=has_listview, infoview=has_infoview)
 
 
 def setupui(stdscr: curses.window) -> None:

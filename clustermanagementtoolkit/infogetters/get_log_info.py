@@ -39,9 +39,12 @@ def get_log_info(**kwargs: Any) -> list[dict]:
     """
     info: list[dict] = []
 
-    # Fetch kubelet log, if available (for now only useful if run on the control plane)
+    # Fetch kubelet log, if available (for now only useful if run on the control plane).
+    # Ubuntu 26.04 uses the rust implementation of sudo,
+    # so sudo can be /usr/lib/cargo/bin instead.
     sudo_path: FilePath = secure_which(FilePath("sudo"),
-                                       fallback_allowlist=["/bin", "/usr/bin"],
+                                       fallback_allowlist=["/bin", "/usr/bin",
+                                                           "/usr/lib/cargo/bin"],
                                        security_policy=SecurityPolicy.ALLOWLIST_STRICT)
     journalctl_path: FilePath = secure_which(FilePath(os.path.join(BINDIR, "journalctl")),
                                              fallback_allowlist=["/bin", "/usr/bin"],

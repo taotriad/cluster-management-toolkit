@@ -167,7 +167,8 @@ from clustermanagementtoolkit.kubernetes_helper import get_cluster_name
 from clustermanagementtoolkit.kubernetes_helper import get_node_roles
 
 from clustermanagementtoolkit.networkio import download_files
-from clustermanagementtoolkit.networkio import scan_and_add_ssh_keys, update_version_cache
+from clustermanagementtoolkit.networkio import scan_and_add_ssh_keys
+from clustermanagementtoolkit.networkio import update_version_cache
 
 PROGRAMDESCRIPTION = "Setup or teardown a Kubernetes cluster."
 PROGRAMAUTHORS = "Written by David Weinehall."
@@ -1812,7 +1813,10 @@ def update_apt_cache() -> bool:
         Returns:
             (bool): True on success, False on failure
     """
-    sudo_path = cmtio.secure_which(FilePath("sudo"), fallback_allowlist=["/bin", "/usr/bin"],
+    # Ubuntu 26.04 uses the rust implementation of sudo,
+    # so it'll be in /usr/lib/cargo/bin instead.
+    sudo_path = cmtio.secure_which(FilePath("sudo"),
+                                   fallback_allowlist=["/bin", "/usr/bin", "/usr/lib/cargo/bin"],
                                    security_policy=SecurityPolicy.ALLOWLIST_STRICT)
     apt_get_path = cmtio.secure_which(FilePath("apt-get"), fallback_allowlist=["/bin", "/usr/bin"],
                                       security_policy=SecurityPolicy.ALLOWLIST_STRICT)
@@ -5175,9 +5179,12 @@ def create_cluster(options: list[tuple[str, str]], args: list[str]) -> None:
                 secure_which(FilePath("/usr/bin/kubectl"),
                              fallback_allowlist=["/etc/alternatives"],
                              security_policy=SecurityPolicy.ALLOWLIST_RELAXED)
+            # Ubuntu 26.04 uses the rust implementation of sudo,
+            # so it'll be in /usr/lib/cargo/bin instead.
             sudo_path = \
                 cmtio.secure_which(FilePath("sudo"),
-                                   fallback_allowlist=["/bin", "/usr/bin"],
+                                   fallback_allowlist=["/bin", "/usr/bin",
+                                                       "/usr/lib/cargo/bin"],
                                    security_policy=SecurityPolicy.ALLOWLIST_STRICT)
             try:
                 helm_path = \

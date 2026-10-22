@@ -62,16 +62,20 @@ from clustermanagementtoolkit.ansible_helper import ansible_unset_groupvars
 from clustermanagementtoolkit.ansible_helper import ansible_unset_hostvars
 from clustermanagementtoolkit.ansible_helper import populate_playbooks_from_filenames
 
-from clustermanagementtoolkit.ansithemeprint import ANSIThemeStr, ansithemeprint
-from clustermanagementtoolkit.ansithemeprint import ansithemestr_join_list, ansithemearray_to_str
+from clustermanagementtoolkit.ansithemeprint import ANSIThemeStr
+from clustermanagementtoolkit.ansithemeprint import ansithemearray_to_str
+from clustermanagementtoolkit.ansithemeprint import ansithemeprint
+from clustermanagementtoolkit.ansithemeprint import ansithemestr_join_list
 
 from clustermanagementtoolkit import cmtlib
-from clustermanagementtoolkit.cmtlib import get_latest_upstream_version
 
 from clustermanagementtoolkit.cmtpaths import ANSIBLE_INVENTORY
-from clustermanagementtoolkit.cmtpaths import SYSTEM_ANSIBLE_PLAYBOOKS_DIR, ANSIBLE_PLAYBOOKS_DIR
-from clustermanagementtoolkit.cmtpaths import HOMEDIR, SSH_DIR, FPING_BIN_PATH
+from clustermanagementtoolkit.cmtpaths import ANSIBLE_PLAYBOOKS_DIR
 from clustermanagementtoolkit.cmtpaths import DEFAULT_THEME_FILE
+from clustermanagementtoolkit.cmtpaths import FPING_BIN_PATH
+from clustermanagementtoolkit.cmtpaths import HOMEDIR
+from clustermanagementtoolkit.cmtpaths import SSH_DIR
+from clustermanagementtoolkit.cmtpaths import SYSTEM_ANSIBLE_PLAYBOOKS_DIR
 
 from clustermanagementtoolkit.cmttypes import DictPath
 from clustermanagementtoolkit.cmttypes import FilePath
@@ -83,10 +87,10 @@ from clustermanagementtoolkit.cmttypes.exceptions import FilePathAuditError
 from clustermanagementtoolkit.cmttypes.exceptions import ProgrammingError
 from clustermanagementtoolkit.cmttypes.exceptions import UnknownError
 
-from clustermanagementtoolkit.commandparser import parse_commandline, CommandType
+from clustermanagementtoolkit.commandparser import CommandType
+from clustermanagementtoolkit.commandparser import parse_commandline
 
 from clustermanagementtoolkit import kubernetes_helper
-from clustermanagementtoolkit.kubernetes_helper import get_cluster_name
 
 try:
     import prctl  # type: ignore[import-not-found,import-untyped,unused-ignore]
@@ -547,7 +551,7 @@ def rebuild_inventory(options: list[tuple[str, str]], args: list[str]) -> int:
 
     # We ideally want to iterate over all clusters here,
     # but for now we only import the current-context.
-    cluster_name = get_cluster_name()
+    cluster_name = kubernetes_helper.get_cluster_name()
     if cluster_name is None:
         ansithemeprint([ANSIThemeStr("Error", "error"),
                         ANSIThemeStr(": Could not obtain cluster name; do you ", "default"),
@@ -1204,7 +1208,7 @@ def run_playbook(options: list[tuple[str, str]], args: list[str]) -> int:
     # The first patch revision that isn't available from the new repositories is 1.24.0,
     # but anything older than 1.32.0 is signed with a key that has expired, so only
     # include 1.32.0 and newer; the old repository is no longer usable.
-    if not (kubernetes_upstream_version := get_latest_upstream_version("kubernetes")):
+    if not (kubernetes_upstream_version := cmtlib.get_latest_upstream_version("kubernetes")):
         ansithemeprint([ANSIThemeStr("Error", "error"),
                         ANSIThemeStr(": Could not determine the latest upstream Kubernetes "
                                      "version; ", "default"),

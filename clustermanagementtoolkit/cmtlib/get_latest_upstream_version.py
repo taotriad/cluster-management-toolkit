@@ -8,11 +8,10 @@
 Fetch the upstream version for an upstream component.
 """
 
-from clustermanagementtoolkit.cmtio_yaml import secure_read_yaml
+from clustermanagementtoolkit import cmtpaths
 
-from clustermanagementtoolkit.cmtpaths import VERSION_CANDIDATES_FILE
-
-from clustermanagementtoolkit.cmttypes import DictPath, SecurityChecks
+from clustermanagementtoolkit.cmttypes import DictPath
+from clustermanagementtoolkit.cmttypes import SecurityChecks
 from clustermanagementtoolkit.cmttypes import deep_get
 
 
@@ -26,6 +25,10 @@ def get_latest_upstream_version(component: str) -> str:
             (str): The latest upstream component version;
                    or an empty string if the version could not be determined
     """
+    # This is to allow use of ansithemeprint from cmt-install.py.
+    # pylint: disable-next=import-outside-toplevel
+    from clustermanagementtoolkit import cmtio_yaml
+
     if not component:
         return ""
 
@@ -41,7 +44,8 @@ def get_latest_upstream_version(component: str) -> str:
 
     try:
         candidate_versions = \
-            dict(secure_read_yaml(VERSION_CANDIDATES_FILE, checks=security_checks))
+            dict(cmtio_yaml.secure_read_yaml(cmtpaths.VERSION_CANDIDATES_FILE,
+                                             checks=security_checks))
     except (FileNotFoundError, TypeError):
         candidate_versions = {}
 

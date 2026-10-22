@@ -19,8 +19,7 @@ from clustermanagementtoolkit.ansithemeprint import themearray_ljust
 
 from clustermanagementtoolkit.commandparser import commandparser_types
 
-from clustermanagementtoolkit.cmtlib import lstrip_count
-from clustermanagementtoolkit.cmtlib import rstrip_count
+from clustermanagementtoolkit import cmtlib
 
 from clustermanagementtoolkit.cmttypes import DictPath
 from clustermanagementtoolkit.cmttypes import deep_get
@@ -295,14 +294,14 @@ def __usage(options: list[tuple[str, str]], args: list[str]) -> int:
                 rstring = rstring.replace(">", "\\>")
                 rstring = rstring.replace("`", "\\`")
                 if themeref in ("option", "emphasis"):
-                    stripped, lcount = lstrip_count(rstring, " ")
-                    stripped, rcount = rstrip_count(stripped, " ")
+                    stripped, lcount = cmtlib.lstrip_count(rstring, " ")
+                    stripped, rcount = cmtlib.rstrip_count(stripped, " ")
                     if stripped and not stripped.startswith("__") and not stripped.endswith("__"):
                         rstring = "".ljust(lcount) + f"__{stripped}__" + "".ljust(rcount)
                         segment = ANSIThemeStr(rstring, themeref)
                 elif themeref in ("argument", "note", "path", "version"):
-                    stripped, lcount = lstrip_count(rstring, " ")
-                    stripped, rcount = rstrip_count(stripped, " ")
+                    stripped, lcount = cmtlib.lstrip_count(rstring, " ")
+                    stripped, rcount = cmtlib.rstrip_count(stripped, " ")
                     if stripped and not stripped.startswith("_") and not stripped.endswith("_"):
                         rstring = "".ljust(lcount) + f"_{stripped}_" + "".ljust(rcount)
                         segment = ANSIThemeStr(rstring, themeref)

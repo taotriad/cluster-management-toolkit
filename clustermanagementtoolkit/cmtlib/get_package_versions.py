@@ -10,8 +10,6 @@ Returns a list of predefined packages for a host.
 
 import re
 
-from clustermanagementtoolkit import ansible_helper
-
 from clustermanagementtoolkit.cmttypes import DictPath
 from clustermanagementtoolkit.cmttypes import FilePath
 from clustermanagementtoolkit.cmttypes import deep_get
@@ -26,6 +24,10 @@ def get_package_versions(hostname: str) -> list[tuple[str, str]]:
         Returns:
             ([(str, str)]): The list of package versions
     """
+    # This is to allow use of ansithemeprint from cmt-install.py.
+    # pylint: disable-next=import-outside-toplevel
+    from clustermanagementtoolkit import ansible_helper
+
     package_versions: list[tuple[str, str]] = []
 
     if not isinstance(hostname, str):

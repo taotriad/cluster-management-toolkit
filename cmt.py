@@ -120,7 +120,6 @@ from clustermanagementtoolkit.kubernetes_helper import get_node_status
 from clustermanagementtoolkit.kubernetes_helper import guess_kind
 from clustermanagementtoolkit.kubernetes_helper import list_contexts
 from clustermanagementtoolkit.kubernetes_helper import set_context
-from clustermanagementtoolkit.kubernetes_helper import update_api_status as kh_update_api_status
 
 from clustermanagementtoolkit.networkio import scan_and_add_ssh_keys
 
@@ -2296,8 +2295,8 @@ def list_api_resources(options: list[tuple[str, str]], args: list[str]) -> int:
                         has_list_view = "listview" in d
                         has_info_view = "infoview" in d
                         is_local = view_dir not in (VIEWS_DIR, SYSTEM_VIEWS_DIR)
-                        kh_update_api_status(kind_tuple, listview=has_list_view,
-                                             infoview=has_info_view, local=is_local)
+                        kubernetes_helper.update_api_status(kind_tuple, listview=has_list_view,
+                                                            infoview=has_info_view, local=is_local)
                         # This won't do any updates except get the updated list & info view flags
                         kubernetes_resources, _result2, _modified = kh.get_available_kinds()
                     except FilePathAuditError as e:
