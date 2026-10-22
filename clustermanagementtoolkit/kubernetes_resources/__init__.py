@@ -1851,6 +1851,39 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api_paths": ["apis/ansible.deckhouse.io/v1alpha1/"],
         "api": "ansiblerunschedules",
     },
+    # api.kagent.dev
+    ("Agent", "api.kagent.dev"): {
+        "api_paths": ["apis/api.kagent.dev/v1alpha3/"],
+        "api": "agents",
+    },
+    ("AgentTemplate", "api.kagent.dev"): {
+        "api_paths": ["apis/api.kagent.dev/v1alpha3/"],
+        "api": "agenttemplates",
+    },
+    ("EgressPolicy", "api.kagent.dev"): {
+        "api_paths": ["apis/api.kagent.dev/v1alpha3/"],
+        "api": "egresspolicies",
+    },
+    ("Harness", "api.kagent.dev"): {
+        "api_paths": ["apis/api.kagent.dev/v1alpha3/"],
+        "api": "harnesses",
+    },
+    ("ModelConfig", "api.kagent.dev"): {
+        "api_paths": ["apis/api.kagent.dev/v1alpha3/"],
+        "api": "modelconfigs",
+    },
+    ("ModelProviderConfig", "api.kagent.dev"): {
+        "api_paths": ["apis/api.kagent.dev/v1alpha3/"],
+        "api": "modelproviderconfigs",
+    },
+    ("RemoteMCPServer", "api.kagent.dev"): {
+        "api_paths": ["apis/api.kagent.dev/v1alpha3/"],
+        "api": "remotemcpservers",
+    },
+    ("SandboxTemplate", "api.kagent.dev"): {
+        "api_paths": ["apis/api.kagent.dev/v1alpha3/"],
+        "api": "sandboxtemplates",
+    },
     # apiserver.openshift.io
     ("APIRequestCount", "apiserver.openshift.io"): {
         "api_paths": ["apis/apiserver.openshift.io/v1/"],
@@ -2003,6 +2036,71 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api_paths": ["apis/apps.openshift.io/v1/"],
         "api": "deploymentconfigs",
     },
+    # aquasecurity.github.io
+    ("CISKubeBenchReport", "aquasecurity.github.io"): {
+        "api_paths": ["apis/aquasecurity.github.io/v1alpha1/"],
+        "api": "ciskubebenchreports",
+        "namespaced": False,
+    },
+    ("ClusterComplianceReport", "aquasecurity.github.io"): {
+        "api_paths": ["apis/aquasecurity.github.io/v1alpha1/"],
+        "api": "clustercompliancereports",
+        "namespaced": False,
+    },
+    ("ClusterConfigAuditReport", "aquasecurity.github.io"): {
+        "api_paths": ["apis/aquasecurity.github.io/v1alpha1/"],
+        "api": "clusterconfigauditreports",
+        "namespaced": False,
+    },
+    ("ClusterInfraAssessmentReport", "aquasecurity.github.io"): {
+        "api_paths": ["apis/aquasecurity.github.io/v1alpha1/"],
+        "api": "clusterinfraassessmentreports",
+        "namespaced": False,
+    },
+    ("ClusterRbacAssessmentReport", "aquasecurity.github.io"): {
+        "api_paths": ["apis/aquasecurity.github.io/v1alpha1/"],
+        "api": "clusterrbacassessmentreports",
+        "namespaced": False,
+    },
+    ("ClusterSbomReport", "aquasecurity.github.io"): {
+        "api_paths": ["apis/aquasecurity.github.io/v1alpha1/"],
+        "api": "clustersbomreports",
+        "namespaced": False,
+    },
+    ("ClusterVulnerabilityReport", "aquasecurity.github.io"): {
+        "api_paths": ["apis/aquasecurity.github.io/v1alpha1/"],
+        "api": "clustervulnerabilityreports",
+        "namespaced": False,
+    },
+    ("ConfigAuditReport", "aquasecurity.github.io"): {
+        "api_paths": ["apis/aquasecurity.github.io/v1alpha1/"],
+        "api": "configauditreports",
+    },
+    ("ExposedSecretReport", "aquasecurity.github.io"): {
+        "api_paths": ["apis/aquasecurity.github.io/v1alpha1/"],
+        "api": "exposedsecretreports",
+    },
+    ("InfraAssessmentReport", "aquasecurity.github.io"): {
+        "api_paths": ["apis/aquasecurity.github.io/v1alpha1/"],
+        "api": "infraassessmentreports",
+    },
+    ("KubeHunterReport", "aquasecurity.github.io"): {
+        "api_paths": ["apis/aquasecurity.github.io/v1alpha1/"],
+        "api": "kubehunterreports",
+        "namespaced": False,
+    },
+    ("RbacAssessmentReport", "aquasecurity.github.io"): {
+        "api_paths": ["apis/aquasecurity.github.io/v1alpha1/"],
+        "api": "rbacassessmentreports",
+    },
+    ("SbomReport", "aquasecurity.github.io"): {
+        "api_paths": ["apis/aquasecurity.github.io/v1alpha1/"],
+        "api": "sbomreports",
+    },
+    ("VulnerabilityReport", "aquasecurity.github.io"): {
+        "api_paths": ["apis/aquasecurity.github.io/v1alpha1/"],
+        "api": "vulnerabilityreports",
+    },
     # argoproj.io
     ("AnalysisRun", "argoproj.io"): {
         "api_paths": ["apis/argoproj.io/v1alpha1/"],
@@ -2077,70 +2175,20 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api_paths": ["apis/argoproj.io/v1alpha1/"],
         "api": "workflowtemplates",
     },
-    # aquasecurity.github.io
-    ("CISKubeBenchReport", "aquasecurity.github.io"): {
-        "api_paths": ["apis/aquasecurity.github.io/v1alpha1/"],
-        "api": "ciskubebenchreports",
+    # ate.dev
+    ("CSIDriverConfig", "ate.dev"): {
+        "api_paths": ["apis/ate.dev/v1alpha1/"],
+        "api": "csidriverconfigs",
         "namespaced": False,
     },
-    ("ClusterComplianceReport", "aquasecurity.github.io"): {
-        "api_paths": ["apis/aquasecurity.github.io/v1alpha1/"],
-        "api": "clustercompliancereports",
+    ("SandboxConfig", "ate.dev"): {
+        "api_paths": ["apis/ate.dev/v1alpha1/"],
+        "api": "sandboxconfigs",
         "namespaced": False,
     },
-    ("ClusterConfigAuditReport", "aquasecurity.github.io"): {
-        "api_paths": ["apis/aquasecurity.github.io/v1alpha1/"],
-        "api": "clusterconfigauditreports",
-        "namespaced": False,
-    },
-    ("ClusterInfraAssessmentReport", "aquasecurity.github.io"): {
-        "api_paths": ["apis/aquasecurity.github.io/v1alpha1/"],
-        "api": "clusterinfraassessmentreports",
-        "namespaced": False,
-    },
-    ("ClusterRbacAssessmentReport", "aquasecurity.github.io"): {
-        "api_paths": ["apis/aquasecurity.github.io/v1alpha1/"],
-        "api": "clusterrbacassessmentreports",
-        "namespaced": False,
-    },
-    ("ClusterSbomReport", "aquasecurity.github.io"): {
-        "api_paths": ["apis/aquasecurity.github.io/v1alpha1/"],
-        "api": "clustersbomreports",
-        "namespaced": False,
-    },
-    ("ClusterVulnerabilityReport", "aquasecurity.github.io"): {
-        "api_paths": ["apis/aquasecurity.github.io/v1alpha1/"],
-        "api": "clustervulnerabilityreports",
-        "namespaced": False,
-    },
-    ("ConfigAuditReport", "aquasecurity.github.io"): {
-        "api_paths": ["apis/aquasecurity.github.io/v1alpha1/"],
-        "api": "configauditreports",
-    },
-    ("ExposedSecretReport", "aquasecurity.github.io"): {
-        "api_paths": ["apis/aquasecurity.github.io/v1alpha1/"],
-        "api": "exposedsecretreports",
-    },
-    ("InfraAssessmentReport", "aquasecurity.github.io"): {
-        "api_paths": ["apis/aquasecurity.github.io/v1alpha1/"],
-        "api": "infraassessmentreports",
-    },
-    ("KubeHunterReport", "aquasecurity.github.io"): {
-        "api_paths": ["apis/aquasecurity.github.io/v1alpha1/"],
-        "api": "kubehunterreports",
-        "namespaced": False,
-    },
-    ("RbacAssessmentReport", "aquasecurity.github.io"): {
-        "api_paths": ["apis/aquasecurity.github.io/v1alpha1/"],
-        "api": "rbacassessmentreports",
-    },
-    ("SbomReport", "aquasecurity.github.io"): {
-        "api_paths": ["apis/aquasecurity.github.io/v1alpha1/"],
-        "api": "sbomreports",
-    },
-    ("VulnerabilityReport", "aquasecurity.github.io"): {
-        "api_paths": ["apis/aquasecurity.github.io/v1alpha1/"],
-        "api": "vulnerabilityreports",
+    ("WorkerPool", "ate.dev"): {
+        "api_paths": ["apis/ate.dev/v1alpha1/"],
+        "api": "workerpools",
     },
     # auditlog.cattle.io
     ("AuditPolicy", "auditlog.cattle.io"): {
@@ -8314,6 +8362,24 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
     ("InferenceService", "serving.kserve.io"): {
         "api_paths": ["apis/serving.kserve.io/v1beta1/"],
         "api": "inferenceservices",
+    },
+    ("KernelCacheCapture", "serving.kserve.io"): {
+        "api_paths": ["apis/serving.kserve.io/v1alpha1/"],
+        "api": "kernelcachecaptures",
+    },
+    ("KernelCacheNodeGroup", "serving.kserve.io"): {
+        "api_paths": ["apis/serving.kserve.io/v1alpha1/"],
+        "api": "kernelcachenodegroups",
+        "namespaced": False,
+    },
+    ("KernelCacheNode", "serving.kserve.io"): {
+        "api_paths": ["apis/serving.kserve.io/v1alpha1/"],
+        "api": "kernelcachenodes",
+        "namespaced": False,
+    },
+    ("KernelCache", "serving.kserve.io"): {
+        "api_paths": ["apis/serving.kserve.io/v1alpha1/"],
+        "api": "kernelcaches",
     },
     ("LLMInferenceServiceConfig", "serving.kserve.io"): {
         "api_paths": ["apis/serving.kserve.io/v1alpha2/"],

@@ -7,7 +7,7 @@ command:
   - "kagent"
 listview:
   name: "Agents"
-  group: "API & Extendability"
+  group: "Machine Learning"
   field_indexes:
     Normal:
       fields: ["namespace", "name", "type", "age", "description"]

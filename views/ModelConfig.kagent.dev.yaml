@@ -9,7 +9,7 @@ command:
   - "kmodelconf"
 listview:
   name: "Model Configs"
-  group: "API & Extendability"
+  group: "Machine Learning"
   field_indexes:
     Normal:
       fields: ["namespace", "name", "model", "age"]

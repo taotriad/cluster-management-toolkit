@@ -1,0 +1,90 @@
+---
+kind: "ModelConfig"
+api_family: "api.kagent.dev"
+default_command: "modelconfig.api.kagent.dev"
+command:
+  - "kamodelconfigs"
+  - "kamodelconfig"
+  - "kamodelconfs"
+  - "kamodelconf"
+listview:
+  name: "Model Configs"
+  group: "Machine Learning"
+  field_indexes:
+    Normal:
+      fields: ["namespace", "name", "model", "provider", "age"]
+      sortcolumn: "namespace"
+  fields:
+    model:
+      header: "Model:"
+      path: "spec#model"
+      default: "<unset>"
+      type: "str"
+    provider:
+      header: "Provider:"
+      path: "spec#provider"
+      default: "<unset>"
+      type: "str"
+infoview:
+  name: "Model Config Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["model", "provider",
+                 "stream"]
+    rows:
+      model:
+        header: [["Model:", ["main", "infoheader"]]]
+        path: "spec#model"
+        default: "<unset>"
+        type: "str"
+      provider:
+        header: [["Provider:", ["main", "infoheader"]]]
+        path: "spec#provider"
+        default: "<unset>"
+        type: "str"
+      stream:
+        header: [["Stream:", ["main", "infoheader"]]]
+        path: "spec#stream"
+        default: "<unset>"
+        type: "bool"
+  logpad:
+    infogetter: "logpad_formatted"
+    infogetter_args:
+      paths:
+        - path: "spec#anthropic"
+        - path: "spec#anthropicVertexAI"
+        - path: "spec#azureOpenAI"
+        - path: "spec#bedrock"
+        - path: "spec#gemini"
+        - path: "spec#geminiVertexAI"
+        - path: "spec#ollama"
+        - path: "spec#openAI"
+        - path: "spec#sapAICore"
+      formatter: "format_yaml"
+    timestamps: false
+  shortcuts:
+    "Open API-Secret":
+      key: "s"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for API-key Secret"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind: "Secret"
+        name_path: "spec#apiKeySecret"
+        namespace_path: "metadata#namespace"
+    "Open TLS CA Certificate Secret":
+      key: "c"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for TLS CA certificate Secret"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind: "Secret"
+        name_path: "spec#tls#caCertSecretRef"
+        namespace_path: "metadata#namespace"

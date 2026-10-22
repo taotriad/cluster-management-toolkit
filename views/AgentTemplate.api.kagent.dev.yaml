@@ -1,0 +1,49 @@
+---
+kind: "AgentTemplate"
+api_family: "api.kagent.dev"
+default_command: "agenttemplates.api.kagent.dev"
+command:
+  - "kaagenttemplates"
+  - "kaagenttemplate"
+  - "kaagenttmpls"
+  - "kaagenttmpl"
+listview:
+  name: "Agent Templates"
+  group: "Machine Learning"
+  field_indexes:
+    Normal:
+      fields: ["namespace", "name", "age"]
+      sortcolumn: "namespace"
+infoview:
+  name: "Agent Template Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["model_config",
+                 "system_prompt"]
+    rows:
+      model_config:
+        header: [["Model C", ["main", "infoheader"]],
+                 ["o", ["main", "infoheader_shortcut"]],
+                 ["nfig:", ["main", "infoheader"]]]
+        path: "spec#modelConfig#name"
+        default: "<unset>"
+        type: "str"
+      system_prompt:
+        header: [["System Prompt:", ["main", "infoheader"]]]
+        path: "spec#systemPrompt"
+        default: "<unset>"
+        type: "str"
+  shortcuts:
+    "Open Model Config":
+      key: "o"
+      read_only: true
+      helptext: "Open info page for Model Config"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind: "ModelConfig"
+        api_family: "api.kagent.dev"
+        name_path: "spec#modelConfig#name"
+        namespace_path: "metadata#namespace"
