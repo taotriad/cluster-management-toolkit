@@ -10,6 +10,7 @@ Format text as ThemeArrays.
 
 from collections.abc import Callable
 
+from clustermanagementtoolkit.formatters.apply_focus_filter import apply_focus_filter
 from clustermanagementtoolkit.formatters.format_ansible import format_ansible
 from clustermanagementtoolkit.formatters.format_binary import format_binary
 from clustermanagementtoolkit.formatters.format_caddyfile import format_caddyfile
@@ -48,6 +49,7 @@ from clustermanagementtoolkit.formatters.reformat_json import reformat_json
 from clustermanagementtoolkit.formatters.render_markdown import render_markdown
 
 __all__ = [
+    "apply_focus_filter",
     "cmdata_format",
     "format_ansible",
     "format_binary",

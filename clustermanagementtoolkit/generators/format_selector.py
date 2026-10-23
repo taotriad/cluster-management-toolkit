@@ -77,7 +77,7 @@ def format_selector(items: dict | list[dict],
                     if _vlist:
                         _vlist.append(item_separator)
                     _vlist += tmp[0]
-            elif selector_type == "matchExpressions":
+            elif selector_type in ("matchExpressions", "matchFields"):
                 for expression in selector:
                     key = deep_get(expression, DictPath("key"), "")
                     operator = deep_get(expression, DictPath("operator"), "")
@@ -110,8 +110,6 @@ def format_selector(items: dict | list[dict],
                         ThemeStr(f"{operator}", ThemeAttr("types", "operator")),
                     ]
                     _vlist += values_joined
-            elif selector_type == "matchFields":
-                raise NotImplementedError("format_selector() does not support matchFields yet")
             elif selector_type == "matchLabels":
                 for key, value in selector.items():
                     if _vlist:

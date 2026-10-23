@@ -100,7 +100,6 @@ from clustermanagementtoolkit import cmtlib
 from clustermanagementtoolkit.cmtlib import check_allowlist
 from clustermanagementtoolkit.cmtlib import clamp
 from clustermanagementtoolkit.cmtlib import decode_value
-from clustermanagementtoolkit.cmtlib import get_package_versions
 from clustermanagementtoolkit.cmtlib import make_label_selector
 from clustermanagementtoolkit.cmtlib import make_label_selector_set_expression
 from clustermanagementtoolkit.cmtlib import next_option
@@ -109,6 +108,8 @@ from clustermanagementtoolkit.cmtlib import populate_template
 from clustermanagementtoolkit.cmtlib import split_msg
 from clustermanagementtoolkit.cmtlib import substitute_list
 from clustermanagementtoolkit.cmtlib import timestamp_to_datetime
+
+from clustermanagementtoolkit.cmtlib_ext import get_package_versions
 
 from clustermanagementtoolkit import cmtlog
 

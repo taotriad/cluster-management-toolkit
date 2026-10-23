@@ -26,6 +26,7 @@ python_libraries = \
 	clustermanagementtoolkit/checks \
 	clustermanagementtoolkit/cmtio \
 	clustermanagementtoolkit/cmtlib \
+	clustermanagementtoolkit/cmtlib_ext \
 	clustermanagementtoolkit/cmtpaths \
 	clustermanagementtoolkit/cmtvalidators \
 	clustermanagementtoolkit/commandparser \

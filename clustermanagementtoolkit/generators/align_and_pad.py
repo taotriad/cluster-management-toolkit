@@ -32,14 +32,18 @@ def align_and_pad(array: list[ThemeRef | ThemeStr], fieldlen: int,
     tmp_array: list[ThemeRef | ThemeStr] = []
     stringlen = themearray_len(array)
 
-    if ralign:
-        tmp_array.append(ThemeStr("".ljust(fieldlen - stringlen),
-                                  ThemeAttr("types", "generic"), selected))
-        tmp_array += array
+    # If the string is exactly the size of the field we don't need to realign.
+    if fieldlen != stringlen:
+        if ralign:
+            tmp_array.append(ThemeStr("".ljust(fieldlen - stringlen),
+                                      ThemeAttr("types", "generic"), selected))
+            tmp_array += array
+        else:
+            tmp_array += array
+            tmp_array.append(ThemeStr("".ljust(fieldlen - stringlen),
+                                      ThemeAttr("types", "generic"), selected))
     else:
-        tmp_array += array
-        tmp_array.append(ThemeStr("".ljust(fieldlen - stringlen),
-                                  ThemeAttr("types", "generic"), selected))
+        tmp_array = array
     if pad:
         tmp_array.append(ThemeRef("separators", "pad", selected))
     return tmp_array

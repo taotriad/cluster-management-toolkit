@@ -10,7 +10,7 @@ An itemgetter that returns package versions.
 
 from typing import Any
 
-from clustermanagementtoolkit.cmtlib import get_package_versions
+from clustermanagementtoolkit.cmtlib_ext import get_package_versions
 
 from clustermanagementtoolkit.cmttypes import DictPath
 from clustermanagementtoolkit.cmttypes import deep_get

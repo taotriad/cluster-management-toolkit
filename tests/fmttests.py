@@ -4711,6 +4711,148 @@ def test_format_toml(verbose: bool = False) -> tuple[str, bool]:
     return message, result
 
 
+def test_apply_focus_filter(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = formatters.apply_focus_filter
+
+    if result:
+        # Indata format:
+        # (lines, options, expected_result, expected_exception)
+        testdata: tuple[Any, ...] = (
+            (
+                {
+                    "metadata": {
+                        "name": "foo",
+                        "generation": 42,
+                    },
+                    "status": {
+                        "phase": "Running",
+                    },
+                },
+                {
+                    "focus_mode": "Disabled",
+                    "focus_filters": {
+                        "Disabled": [],
+                        "Partial": [
+                            ["metadata", "generation"],
+                        ],
+                        "Full": [
+                            ["metadata", "generation"],
+                            "status",
+                        ],
+                    },
+                },
+                {
+                    "metadata": {
+                        "name": "foo",
+                        "generation": 42,
+                    },
+                    "status": {
+                        "phase": "Running",
+                    },
+                },
+                None),
+            (
+                {
+                    "metadata": {
+                        "name": "foo",
+                        "generation": 42,
+                    },
+                    "status": {
+                        "phase": "Running",
+                    },
+                },
+                {
+                    "focus_mode": "Partial",
+                    "focus_filters": {
+                        "Disabled": [],
+                        "Partial": [
+                            ["metadata", "generation"],
+                        ],
+                        "Full": [
+                            ["metadata", "generation"],
+                            "status",
+                        ],
+                    },
+                },
+                {
+                    "metadata": {
+                        "name": "foo",
+                    },
+                    "status": {
+                        "phase": "Running",
+                    },
+                },
+                None),
+            (
+                {
+                    "metadata": {
+                        "name": "foo",
+                        "generation": 42,
+                    },
+                    "status": {
+                        "phase": "Running",
+                    },
+                },
+                {
+                    "focus_mode": "Full",
+                    "focus_filters": {
+                        "Disabled": [],
+                        "Partial": [
+                            ["metadata", "generation"],
+                        ],
+                        "Full": [
+                            ["metadata", "generation"],
+                            "status",
+                        ],
+                    },
+                },
+                {
+                    "metadata": {
+                        "name": "foo",
+                    },
+                },
+                None),
+        )
+
+        for obj, kwargs, expected_result, expected_exception in testdata:
+            try:
+                if (tmp := fun(obj, **kwargs)) != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"           input: {obj}\n" \
+                              "             args:\n" \
+                              f"{yaml_dump(kwargs, base_indent=17)}\n" \
+                              f"          output: {tmp}\n" \
+                              f"        expected: {expected_result}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  f"           input: {obj}\n" \
+                                  "         options:\n" \
+                                  f"{yaml_dump(kwargs, base_indent=17)}\n" \
+                                  f"       exception: {type(e)}\n" \
+                                  f"        expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"           input: {obj}\n" \
+                              "         options:\n" \
+                              f"{yaml_dump(kwargs, base_indent=17)}\n" \
+                              f"       exception: {type(e)}\n" \
+                              f"        expected: {expected_result}"
+                    result = False
+                    break
+    return message, result
+
+
 def test_map_dataformat(verbose: bool = False) -> tuple[str, bool]:
     message = ""
     result = True
@@ -4997,6 +5139,10 @@ tests: dict[tuple[str, ...], dict[str, Any]] = {
     },
     ("format_toml",): {
         "callable": test_format_toml,
+        "result": None,
+    },
+    ("apply_focus_filter",): {
+        "callable": test_apply_focus_filter,
         "result": None,
     },
     ("map_dataformat",): {

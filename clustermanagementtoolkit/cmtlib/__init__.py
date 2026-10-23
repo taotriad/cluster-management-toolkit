@@ -21,7 +21,6 @@ from clustermanagementtoolkit.cmtlib.datetime_to_timestamp import datetime_to_ti
 from clustermanagementtoolkit.cmtlib.decode_value import decode_value
 from clustermanagementtoolkit.cmtlib.disksize_to_human import disksize_to_human
 from clustermanagementtoolkit.cmtlib.get_latest_upstream_version import get_latest_upstream_version
-from clustermanagementtoolkit.cmtlib.get_package_versions import get_package_versions
 from clustermanagementtoolkit.cmtlib.get_since import get_since
 from clustermanagementtoolkit.cmtlib.identify_arch import identify_arch
 from clustermanagementtoolkit.cmtlib.identify_distro import identify_distro
@@ -66,7 +65,6 @@ __all__ = [
     "decode_value",
     "disksize_to_human",
     "get_latest_upstream_version",
-    "get_package_versions",
     "get_since",
     "identify_arch",
     "identify_distro",

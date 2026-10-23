@@ -61,7 +61,8 @@ def format_address_with_port(items: str | list[str],
         tmp = ""
         for ch in address:
             if ch in separator_lookup:
-                _vlist.append(ThemeStr(tmp, ThemeAttr("types", "address"), selected))
+                if tmp:
+                    _vlist.append(ThemeStr(tmp, ThemeAttr("types", "address"), selected))
                 _vlist.append(separator_lookup[ch])
                 tmp = ""
             else:

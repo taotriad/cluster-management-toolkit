@@ -30,10 +30,13 @@ def match_name(matchrule: str, name: str) -> bool:
         return True
 
     if matchrule.startswith("^") and matchrule.endswith("$"):
-        matchrule = matchrule[1:-1]
+        matchrule = matchrule.removeprefix("^").removesuffix("$")
         matchtype = "equals"
+    elif matchrule.startswith("^"):
+        matchrule = matchrule.removeprefix("^")
+        matchtype = "startswith"
     elif matchrule.endswith("$"):
-        matchrule = matchrule[:-1]
+        matchrule = matchrule.removesuffix("$")
         matchtype = "endswith"
 
     if matchtype == "startswith":

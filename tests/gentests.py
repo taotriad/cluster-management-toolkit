@@ -46,6 +46,235 @@ def test_callback(options: list[tuple[str, str]], args: list[str]) -> tuple[str,
     return ("callback", len(args))
 
 
+def test_format_selector(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = generators.format_selector
+
+    if result:
+        # Indata format:
+        # (string, selected, expected_result, expected_exception)
+        testdata: tuple = (
+            (
+                {
+                    "matchLabels": {
+                        "k8s-app": "kube-proxy",
+                    },
+                },
+                False,
+                {},
+                [ThemeStr("k8s-app", ThemeAttr("types", "key"), False),
+                 ThemeRef("separators", "keyvalue", False),
+                 ThemeStr("kube-proxy", ThemeAttr("types", "generic"), False)],
+                None,
+            ),
+            (
+                "k8s-app=kube-proxy",
+                False,
+                {
+                    "args": {
+                        "selector": {
+                            "type": "matchLabels",
+                        },
+                    },
+                },
+                [ThemeStr("k8s-app", ThemeAttr("types", "key"), False),
+                 ThemeRef("separators", "keyvalue", False),
+                 ThemeStr("kube-proxy", ThemeAttr("types", "generic"), False)],
+                None,
+            ),
+            (
+                # Invalid selector
+                "k8s-app:=kube-proxy",
+                False,
+                {
+                    "args": {
+                        "selector": {
+                            "type": "matchLabels",
+                        },
+                    },
+                },
+                [ThemeStr("k8s-app:=kube-proxy", ThemeAttr("types", "generic"), False)],
+                None,
+            ),
+            (
+                {
+                    "matchExpressions": [
+                        {
+                            "key": "gatekeeper.sh/operation",
+                            "operator": "In",
+                            "values": [
+                                "webhook",
+                            ],
+                        },
+                    ],
+                },
+                False,
+                {},
+                [ThemeStr("gatekeeper.sh/operation", ThemeAttr("types", "key"), False),
+                 ThemeRef("separators", "space", False),
+                 ThemeStr("In", ThemeAttr("types", "operator"), False),
+                 ThemeRef("separators", "space", False),
+                 ThemeRef("separators", "list_start", False),
+                 ThemeStr("webhook", ThemeAttr("types", "generic"), False),
+                 ThemeRef("separators", "list_end", False)],
+                None,
+            ),
+            (
+                {
+                    "matchFields": [
+                        {
+                            "key": "metadata.name",
+                            "operator": "In",
+                            "values": [
+                                "worker1",
+                                "worker2",
+                            ],
+                        },
+                    ],
+                },
+                False,
+                {},
+                [ThemeStr("metadata.name", ThemeAttr("types", "key"), False),
+                 ThemeRef("separators", "space", False),
+                 ThemeStr("In", ThemeAttr("types", "operator"), False),
+                 ThemeRef("separators", "space", False),
+                 ThemeRef("separators", "list_start", False),
+                 ThemeStr("worker1", ThemeAttr("types", "generic"), False),
+                 ThemeRef("separators", "list", False),
+                 ThemeStr("worker2", ThemeAttr("types", "generic"), False),
+                 ThemeRef("separators", "list_end", False)],
+                None,
+            ),
+            # This test only works with a recent version of pygments;
+            # this shouldn't be a problem since all development is expected to take place
+            # on recent enough platforms. The failure can be ignored if necessary.
+            (
+                {
+                    "cel": {
+                        "expression": 'name.matches("-test$") || size(description) >= 100',
+                    },
+                },
+                False,
+                {},
+                [ThemeStr('name', ThemeAttr('types', 'cel_name'), False),
+                 ThemeStr('.', ThemeAttr('types', 'cel_punctuation'), False),
+                 ThemeStr('matches', ThemeAttr('types', 'cel_name'), False),
+                 ThemeStr('(', ThemeAttr('types', 'cel_punctuation'), False),
+                 ThemeStr('"', ThemeAttr('types', 'cel_value'), False),
+                 ThemeStr('-test$', ThemeAttr('types', 'cel_value'), False),
+                 ThemeStr('"', ThemeAttr('types', 'cel_value'), False),
+                 ThemeStr(')', ThemeAttr('types', 'cel_punctuation'), False),
+                 ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                 ThemeStr('||', ThemeAttr('types', 'cel_operator'), False),
+                 ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                 ThemeStr('size', ThemeAttr('types', 'cel_name'), False),
+                 ThemeStr('(', ThemeAttr('types', 'cel_punctuation'), False),
+                 ThemeStr('description', ThemeAttr('types', 'cel_name'), False),
+                 ThemeStr(')', ThemeAttr('types', 'cel_punctuation'), False),
+                 ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                 ThemeStr('>=', ThemeAttr('types', 'cel_operator'), False),
+                 ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                 ThemeStr('100', ThemeAttr('types', 'cel_value'), False)],
+                None,
+            ),
+            # This test only works with a recent version of pygments;
+            # this shouldn't be a problem since all development is expected to take place
+            # on recent enough platforms. The failure can be ignored if necessary.
+            (
+                'name.matches("-test$") || size(description) >= 100',
+                False,
+                {
+                    "args": {
+                        "selector": {
+                            "type": "cel",
+                        },
+                    },
+                },
+                [ThemeStr('name', ThemeAttr('types', 'cel_name'), False),
+                 ThemeStr('.', ThemeAttr('types', 'cel_punctuation'), False),
+                 ThemeStr('matches', ThemeAttr('types', 'cel_name'), False),
+                 ThemeStr('(', ThemeAttr('types', 'cel_punctuation'), False),
+                 ThemeStr('"', ThemeAttr('types', 'cel_value'), False),
+                 ThemeStr('-test$', ThemeAttr('types', 'cel_value'), False),
+                 ThemeStr('"', ThemeAttr('types', 'cel_value'), False),
+                 ThemeStr(')', ThemeAttr('types', 'cel_punctuation'), False),
+                 ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                 ThemeStr('||', ThemeAttr('types', 'cel_operator'), False),
+                 ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                 ThemeStr('size', ThemeAttr('types', 'cel_name'), False),
+                 ThemeStr('(', ThemeAttr('types', 'cel_punctuation'), False),
+                 ThemeStr('description', ThemeAttr('types', 'cel_name'), False),
+                 ThemeStr(')', ThemeAttr('types', 'cel_punctuation'), False),
+                 ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                 ThemeStr('>=', ThemeAttr('types', 'cel_operator'), False),
+                 ThemeStr(' ', ThemeAttr('types', 'generic'), False),
+                 ThemeStr('100', ThemeAttr('types', 'cel_value'), False)],
+                None,
+            ),
+            # This test only works with a recent version of pygments;
+            # this shouldn't be a problem since all development is expected to take place
+            # on recent enough platforms. The failure can be ignored if necessary.
+            (
+                "",
+                False,
+                {
+                    "args": {
+                        "selector": {
+                            "type": "cel",
+                        },
+                    },
+                },
+                [ThemeStr("", ThemeAttr("types", "generic"), False)],
+                None,
+            ),
+            (
+                {},
+                False,
+                {},
+                [ThemeStr("", ThemeAttr("types", "generic"), False)],
+                None,
+            ),
+            (
+                {},
+                True,
+                {},
+                [ThemeStr("", ThemeAttr("types", "generic"), True)],
+                None,
+            ),
+        )
+
+        for items, selected, kwargs, expected_result, expected_exception in testdata:
+            try:
+                tmp = fun(items, selected, **kwargs)
+                if tmp != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"           result: {tmp}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  f"        exception: {type(e)}\n" \
+                                  f"          message: {str(e)}\n" \
+                                  f"         expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"        exception: {type(e)}\n" \
+                              f"          message: {str(e)}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+    return message, result
+
+
 def test_format_special(verbose: bool = False) -> tuple[str, bool]:
     message = ""
     result = True
@@ -1049,6 +1278,136 @@ def test_format_address(verbose: bool = False) -> tuple[str, bool]:
     return message, result
 
 
+def test_format_address_with_port(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = generators.format_address_with_port
+
+    if result:
+        # Indata format:
+        # ([str], selected, expected_result, expected_exception)
+        testdata: tuple = (
+            # IPv4
+            (
+                ["127.0.0.1:8080"],
+                False,
+                [ThemeStr("127", ThemeAttr("types", "address")),
+                 ThemeRef("separators", "ipv4address"),
+                 ThemeStr("0", ThemeAttr("types", "address")),
+                 ThemeRef("separators", "ipv4address"),
+                 ThemeStr("0", ThemeAttr("types", "address")),
+                 ThemeRef("separators", "ipv4address"),
+                 ThemeStr("1", ThemeAttr("types", "address")),
+                 ThemeRef("separators", "port", False),
+                 ThemeStr("8080", ThemeAttr("types", "port"), False)],
+                None,
+            ),
+            # IPv4, no port
+            (
+                ["127.0.0.1"],
+                False,
+                [ThemeStr("127", ThemeAttr("types", "address")),
+                 ThemeRef("separators", "ipv4address"),
+                 ThemeStr("0", ThemeAttr("types", "address")),
+                 ThemeRef("separators", "ipv4address"),
+                 ThemeStr("0", ThemeAttr("types", "address")),
+                 ThemeRef("separators", "ipv4address"),
+                 ThemeStr("1", ThemeAttr("types", "address"))],
+                None,
+            ),
+            # IPv4, IPv4
+            (
+                ["127.0.0.1:8080", "192.168.0.1:8081"],
+                False,
+                [ThemeStr("127", ThemeAttr("types", "address")),
+                 ThemeRef("separators", "ipv4address"),
+                 ThemeStr("0", ThemeAttr("types", "address")),
+                 ThemeRef("separators", "ipv4address"),
+                 ThemeStr("0", ThemeAttr("types", "address")),
+                 ThemeRef("separators", "ipv4address"),
+                 ThemeStr("1", ThemeAttr("types", "address")),
+                 ThemeRef("separators", "port", False),
+                 ThemeStr("8080", ThemeAttr("types", "port"), False),
+                 ThemeRef("separators", "list"),
+                 ThemeStr("192", ThemeAttr("types", "address")),
+                 ThemeRef("separators", "ipv4address"),
+                 ThemeStr("168", ThemeAttr("types", "address")),
+                 ThemeRef("separators", "ipv4address"),
+                 ThemeStr("0", ThemeAttr("types", "address")),
+                 ThemeRef("separators", "ipv4address"),
+                 ThemeStr("1", ThemeAttr("types", "address")),
+                 ThemeRef("separators", "port", False),
+                 ThemeStr("8081", ThemeAttr("types", "port"), False)],
+                None,
+            ),
+            # IPv4, string
+            (
+                "127.0.0.1:8080",
+                False,
+                [ThemeStr("127", ThemeAttr("types", "address")),
+                 ThemeRef("separators", "ipv4address"),
+                 ThemeStr("0", ThemeAttr("types", "address")),
+                 ThemeRef("separators", "ipv4address"),
+                 ThemeStr("0", ThemeAttr("types", "address")),
+                 ThemeRef("separators", "ipv4address"),
+                 ThemeStr("1", ThemeAttr("types", "address")),
+                 ThemeRef("separators", "port", False),
+                 ThemeStr("8080", ThemeAttr("types", "port"), False)],
+                None,
+            ),
+            # IPv6
+            (
+                ["64:ff9b::127.0.0.1:8080"],
+                False,
+                [ThemeStr("64", ThemeAttr("types", "address")),
+                 ThemeRef("separators", "ipv6address"),
+                 ThemeStr("ff9b", ThemeAttr("types", "address")),
+                 ThemeRef("separators", "ipv6address"),
+                 ThemeRef("separators", "ipv6address"),
+                 ThemeStr("127", ThemeAttr("types", "address")),
+                 ThemeRef("separators", "ipv4address"),
+                 ThemeStr("0", ThemeAttr("types", "address")),
+                 ThemeRef("separators", "ipv4address"),
+                 ThemeStr("0", ThemeAttr("types", "address")),
+                 ThemeRef("separators", "ipv4address"),
+                 ThemeStr("1", ThemeAttr("types", "address")),
+                 ThemeRef("separators", "port", False),
+                 ThemeStr("8080", ThemeAttr("types", "port"), False)],
+                None,
+            ),
+        )
+
+        for string, selected, expected_result, expected_exception in testdata:
+            try:
+                tmp = fun(string, selected)
+                if tmp != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"           result: {tmp}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  f"        exception: {type(e)}\n" \
+                                  f"          message: {str(e)}\n" \
+                                  f"         expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"        exception: {type(e)}\n" \
+                              f"          message: {str(e)}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+    return message, result
+
+
 def test_format_uri(verbose: bool = False) -> tuple[str, bool]:
     message = ""
     result = True
@@ -1183,6 +1542,369 @@ def test_format_uri(verbose: bool = False) -> tuple[str, bool]:
     return message, result
 
 
+def test_generator_hex(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = generators.generator_hex
+
+    if result:
+        # Indata format:
+        # (obj, field, fieldlen, pad, ralign, selected, expected_result, expected_exception)
+        testdata: tuple = (
+            (
+                {
+                    "value":
+                        "sha256:b9ae667ed9c160c9d5b66f55e8afec97fc5483a12db0ada5286541b0385cb9f4",
+                },
+                "value",
+                len("sha256:b9ae667ed9c160c9d5b66f55e8afec97fc5483a12db0ada5286541b0385cb9f4"),
+                False,  # No padding.
+                False,  # Not right-aligned.
+                False,   # Selected.
+                {},  # No custom formatting.
+                [
+                    ThemeStr("sha256", ThemeAttr("main", "highlight"), False),
+                    ThemeStr(":", ThemeAttr("types", "unit"), False),
+                    ThemeStr("b9ae667ed9c160c9d5b66f55e8afec97fc5483a12db0ada5286541b0385cb9f4",
+                             ThemeAttr("types", "numerical"), False),
+                ],
+                None,
+            ),
+        )
+
+        for obj, field, fieldlen, pad, ralign, selected, formatting, \
+                expected_result, expected_exception in testdata:
+            try:
+                tmp = fun(obj, field, fieldlen, pad, ralign, selected, **formatting)
+                if tmp != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"           result: {tmp}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  f"        exception: {type(e)}\n" \
+                                  f"          message: {str(e)}\n" \
+                                  f"         expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"        exception: {type(e)}\n" \
+                              f"          message: {str(e)}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+    return message, result
+
+
+def test_generator_numerical_with_units(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = generators.generator_numerical_with_units
+
+    if result:
+        # Indata format:
+        # (obj, field, fieldlen, pad, ralign, selected, expected_result, expected_exception)
+        testdata: tuple = (
+            (
+                {
+                    "value": "<default>",
+                },
+                "value",
+                len("<default>"),
+                False,  # No padding.
+                False,  # Not right-aligned.
+                False,   # Not selected.
+                {},  # No custom formatting.
+                [
+                    ThemeStr("<default>", ThemeAttr("types", "default"), False),
+                ],
+                None,
+            ),
+            (
+                {
+                    "value": "<none>",
+                },
+                "value",
+                len("<none>"),
+                False,  # No padding.
+                False,  # Not right-aligned.
+                False,   # Not selected.
+                {},  # No custom formatting.
+                [
+                    ThemeStr("<none>", ThemeAttr("types", "none"), False),
+                ],
+                None,
+            ),
+            (
+                {
+                    "value": "100ms",
+                },
+                "value",
+                len("100ms"),
+                False,  # No padding.
+                False,  # Not right-aligned.
+                False,   # Not selected.
+                {},  # No custom formatting.
+                [
+                    ThemeStr("100", ThemeAttr("types", "numerical"), False),
+                    ThemeStr("ms", ThemeAttr("types", "unit"), False),
+                ],
+                None,
+            ),
+            (
+                {
+                    "value": -1,
+                },
+                "value",
+                len(""),
+                False,  # No padding.
+                False,  # Not right-aligned.
+                False,   # Not selected.
+                {},  # No custom formatting.
+                [
+                    ThemeStr("", ThemeAttr("types", "generic"), False),
+                ],
+                None,
+            ),
+        )
+
+        for obj, field, fieldlen, pad, ralign, selected, formatting, \
+                expected_result, expected_exception in testdata:
+            try:
+                tmp = fun(obj, field, fieldlen, pad, ralign, selected, **formatting)
+                if tmp != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"           result: {tmp}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  f"        exception: {type(e)}\n" \
+                                  f"          message: {str(e)}\n" \
+                                  f"         expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"        exception: {type(e)}\n" \
+                              f"          message: {str(e)}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+    return message, result
+
+
+def test_generator_version(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = generators.generator_version
+
+    if result:
+        # Indata format:
+        # (obj, field, fieldlen, pad, ralign, selected, expected_result, expected_exception)
+        testdata: tuple = (
+            (
+                {
+                    "value": "<none>",
+                },
+                "value",
+                len("<none>"),
+                False,  # No padding.
+                False,  # Not right-aligned.
+                False,   # Not selected.
+                {},  # No custom formatting.
+                [
+                    ThemeStr("<none>", ThemeAttr("types", "none"), False),
+                ],
+                None,
+            ),
+            (
+                {
+                    "value": "v1.37.1",
+                },
+                "value",
+                len("v1.37.1"),
+                False,  # No padding.
+                False,  # Not right-aligned.
+                False,   # Not selected.
+                {},  # No custom formatting.
+                [
+                    ThemeStr("v", ThemeAttr("types", "version"), False),
+                    ThemeStr("1", ThemeAttr("types", "numerical"), False),
+                    ThemeStr(".", ThemeAttr("types", "unit"), False),
+                    ThemeStr("37", ThemeAttr("types", "numerical"), False),
+                    ThemeStr(".", ThemeAttr("types", "unit"), False),
+                    ThemeStr("1", ThemeAttr("types", "numerical"), False),
+                ],
+                None,
+            ),
+        )
+
+        for obj, field, fieldlen, pad, ralign, selected, formatting, \
+                expected_result, expected_exception in testdata:
+            try:
+                tmp = fun(obj, field, fieldlen, pad, ralign, selected, **formatting)
+                if tmp != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"           result: {tmp}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  f"        exception: {type(e)}\n" \
+                                  f"          message: {str(e)}\n" \
+                                  f"         expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"        exception: {type(e)}\n" \
+                              f"          message: {str(e)}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+    return message, result
+
+
+def test_generator_basic(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = generators.generator_basic
+
+    if result:
+        # Indata format:
+        # (obj, field, fieldlen, pad, ralign, selected, expected_result, expected_exception)
+        testdata: tuple = (
+            (
+                {
+                    "value": "None",
+                },
+                "value",
+                len("<none>"),
+                False,  # No padding.
+                False,  # Not right-aligned.
+                True,   # Selected.
+                {},  # No custom formatting.
+                [
+                    ThemeStr("<none>", ThemeAttr("types", "none"), True),
+                ],
+                None,
+            ),
+            (
+                {
+                    "value": "<default>",
+                },
+                "value",
+                len("<default>"),
+                False,  # No padding.
+                False,  # Not right-aligned.
+                True,   # Selected.
+                {},  # No custom formatting.
+                [
+                    ThemeStr("<default>", ThemeAttr("types", "default"), True),
+                ],
+                None,
+            ),
+            (
+                {
+                    "value": "<undefined>",
+                },
+                "value",
+                len("<undefined>"),
+                False,  # No padding.
+                False,  # Not right-aligned.
+                False,   # Not selected.
+                {},  # No custom formatting.
+                [
+                    ThemeStr("<undefined>", ThemeAttr("types", "undefined"), False),
+                ],
+                None,
+            ),
+            (
+                {
+                    "value": "<unset>",
+                },
+                "value",
+                len("<unset>"),
+                False,  # No padding.
+                False,  # Not right-aligned.
+                False,   # Not selected.
+                {},  # No custom formatting.
+                [
+                    ThemeStr("<unset>", ThemeAttr("types", "unset"), False),
+                ],
+                None,
+            ),
+            (
+                {
+                    "value": "Foobar",
+                },
+                "value",
+                len("Foobar"),
+                True,  # Padding.
+                False,  # Not right-aligned.
+                False,   # Not selected.
+                {},  # No custom formatting.
+                [
+                    ThemeStr("Foobar", ThemeAttr("types", "generic"), False),
+                    ThemeRef("separators", "pad", False),
+                ],
+                None,
+            ),
+        )
+
+        for obj, field, fieldlen, pad, ralign, selected, formatting, \
+                expected_result, expected_exception in testdata:
+            try:
+                tmp = fun(obj, field, fieldlen, pad, ralign, selected, **formatting)
+                if tmp != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"           result: {tmp}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  f"        exception: {type(e)}\n" \
+                                  f"          message: {str(e)}\n" \
+                                  f"         expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"        exception: {type(e)}\n" \
+                              f"          message: {str(e)}\n" \
+                              f"  expected result: {expected_result}"
+                    result = False
+                    break
+    return message, result
+
+
 def test_generator_value_mapper(verbose: bool = False) -> tuple[str, bool]:
     message = ""
     result = True
@@ -1191,7 +1913,7 @@ def test_generator_value_mapper(verbose: bool = False) -> tuple[str, bool]:
 
     if result:
         # Indata format:
-        # (obj, field, expected_result, expected_exception)
+        # (obj, field, fieldlen, pad, ralign, selected, expected_result, expected_exception)
         testdata: tuple = (
             (
                 {
@@ -1199,7 +1921,7 @@ def test_generator_value_mapper(verbose: bool = False) -> tuple[str, bool]:
                 },
                 "state",
                 9,
-                2,
+                True,
                 False,
                 True,
                 {
@@ -1262,7 +1984,6 @@ def test_generator_value_mapper(verbose: bool = False) -> tuple[str, bool]:
                 },
                 [
                     ThemeStr("Completed", ThemeAttr("main", "status_done"), True),
-                    ThemeStr("", ThemeAttr("types", "generic"), True),
                     ThemeRef("separators", "pad", True)
                 ],
                 None,
@@ -1569,6 +2290,10 @@ def test_get_formatter(verbose: bool = False) -> tuple[str, bool]:
 
 
 tests: dict[tuple[str], dict[str, Any]] = {
+    ("format_selector()",): {
+        "callable": test_format_selector,
+        "result": None,
+    },
     ("format_special()",): {
         "callable": test_format_special,
         "result": None,
@@ -1593,12 +2318,32 @@ tests: dict[tuple[str], dict[str, Any]] = {
         "callable": test_format_address,
         "result": None,
     },
+    ("format_address_with_port()",): {
+        "callable": test_format_address_with_port,
+        "result": None,
+    },
     ("format_uri()",): {
         "callable": test_format_uri,
         "result": None,
     },
+    ("generator_hex()",): {
+        "callable": test_generator_hex,
+        "result": None,
+    },
+    ("generator_numerical_with_units()",): {
+        "callable": test_generator_numerical_with_units,
+        "result": None,
+    },
+    ("generator_basic()",): {
+        "callable": test_generator_basic,
+        "result": None,
+    },
     ("generator_value_mapper()",): {
         "callable": test_generator_value_mapper,
+        "result": None,
+    },
+    ("generator_version()",): {
+        "callable": test_generator_version,
         "result": None,
     },
     ("get_formatting()",): {

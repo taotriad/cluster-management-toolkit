@@ -17,6 +17,7 @@ from clustermanagementtoolkit.cmttypes.exceptions import ProgrammingError
 from clustermanagementtoolkit.ansithemeprint import ANSIThemeStr, ansithemeprint
 from clustermanagementtoolkit.ansithemeprint import init_ansithemeprint, ansithemestr_join_list
 from clustermanagementtoolkit import cmtlib
+from clustermanagementtoolkit import cmtlib_ext
 
 # unit-tests for cmtlib.py
 
@@ -1814,7 +1815,7 @@ def test_get_package_versions(verbose: bool = False) -> tuple[str, bool]:
     message = ""
     result = True
 
-    fun = cmtlib.get_package_versions
+    fun = cmtlib_ext.get_package_versions
 
     if result:
         ansithemeprint([ANSIThemeStr("  Warning", "warning"),
@@ -1857,7 +1858,7 @@ def test_get_package_versions(verbose: bool = False) -> tuple[str, bool]:
                     else:
                         message = f"{fun.__name__}() did not yield expected result:\n" \
                                   f"          input: {indata}\n" \
-                                  f"      exception: {type(e)}\n" \
+                                  f"      exception: {repr(e)}\n" \
                                   f"       expected: {expected_exception}"
                         result = False
                         break
@@ -1869,7 +1870,7 @@ def test_get_package_versions(verbose: bool = False) -> tuple[str, bool]:
                     break
     if result:
         try:
-            with mock.patch("clustermanagementtoolkit.cmtlib.get_package_versions."
+            with mock.patch("clustermanagementtoolkit.cmtlib_ext.get_package_versions."
                             "ansible_helper.ansible_run_playbook_on_selection",
                             return_value=(-1, [])):
                 tmp = fun("localhost")
@@ -1884,6 +1885,7 @@ def test_get_package_versions(verbose: bool = False) -> tuple[str, bool]:
             else:
                 message = f"{fun.__name__}() with mocked ansible_run_playbook_on_selection() " \
                           f"failure did not yield expected result:\n" \
+                          f"      exception: {e!r}\n" \
                           "       expected: ValueError"
                 result = False
     return message, result

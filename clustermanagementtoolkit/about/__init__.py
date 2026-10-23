@@ -25,16 +25,16 @@ UI_PROGRAM_NAME: str = "cmu"
 UI_PROGRAM_VERSION: str = "0.5.8"
 
 TOOL_PROGRAM_NAME: str = "cmt"
-TOOL_PROGRAM_VERSION: str = "0.6.9"
+TOOL_PROGRAM_VERSION: str = "0.6.10"
 
 INSTALL_PROGRAM_NAME: str = "cmt-install.py"
-INSTALL_PROGRAM_VERSION: str = "0.14.2"
+INSTALL_PROGRAM_VERSION: str = "0.14.3"
 
 ADMIN_PROGRAM_NAME: str = "cmtadm"
 ADMIN_PROGRAM_VERSION: str = "0.9.9"
 
 INVENTORY_PROGRAM_NAME: str = "cmtinv"
-INVENTORY_PROGRAM_VERSION: str = "0.4.9"
+INVENTORY_PROGRAM_VERSION: str = "0.4.10"
 
 # We don't support Python-versions older than 3.11
 version_info = sys.version_info

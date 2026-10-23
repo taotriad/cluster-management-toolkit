@@ -53,8 +53,7 @@ def generator_numerical_with_units(obj: dict, field: str, fieldlen: int, pad: bo
 
     unit = deep_get(kwargs, DictPath("unit"), "")
 
-    # Currently allow_signed seems to be unused
-    if value == -1 and not deep_get(kwargs, DictPath("allow_signed")):
+    if value == -1:
         string = ""
     else:
         string = f"{value}{unit}"

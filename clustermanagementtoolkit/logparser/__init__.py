@@ -45,6 +45,7 @@ from clustermanagementtoolkit.logparser.logparser import logparser
 from clustermanagementtoolkit.logparser.lvl_to_4letter_severity import lvl_to_4letter_severity
 from clustermanagementtoolkit.logparser.lvl_to_letter_severity import lvl_to_letter_severity
 from clustermanagementtoolkit.logparser.lvl_to_word_severity import lvl_to_word_severity
+from clustermanagementtoolkit.logparser.match_name import match_name
 from clustermanagementtoolkit.logparser.month_to_numerical import month_to_numerical
 from clustermanagementtoolkit.logparser.modinfo import modinfo
 from clustermanagementtoolkit.logparser.seconds_severity_facility import seconds_severity_facility
@@ -80,6 +81,7 @@ __all__ = [
     "lvl_to_4letter_severity",
     "lvl_to_letter_severity",
     "lvl_to_word_severity",
+    "match_name",
     "modinfo",
     "month_to_numerical",
     "seconds_severity_facility",
