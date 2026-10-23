@@ -48,27 +48,17 @@ infoview:
       selectors_namespace_selector:
         header: [["  Namespace Selector:", ["main", "infoheader"]]]
         paths:
-          - path: ["spec#selectors#namespaceSelector"]
-            pathtype: "key_value"
-            default: ["<none>"]
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "key"
-            - type: "value"
-          field_separators:
-            - type: "selector"
+          - path: "spec#selectors#namespaceSelector"
+            pathtype: "obj"
+            reparent: "matchLabels"
+            default: "<none>"
+        formatter: "selector"
       selectors_virtual_machine_instance_selector:
         header: [["  Virtual Machine Instance Selector:",
                   ["main", "infoheader"]]]
         paths:
-          - path: ["spec#selectors#virtualMachineInstanceSelector"]
-            pathtype: "key_value"
-            default: ["<none>"]
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "key"
-            - type: "value"
-          field_separators:
-            - type: "selector"
+          - path: "spec#selectors#virtualMachineInstanceSelector"
+            pathtype: "obj"
+            reparent: "matchLabels"
+            default: "<none>"
+        formatter: "selector"

@@ -1,0 +1,82 @@
+---
+kind: "VirtualMachineSnapshotContent"
+api_family: "snapshot.kubevirt.io"
+default_command: "virtualmachinesnapshotcontents.snapshot.kubevirt.io"
+command:
+  - "kvvmsnapshotcontents"
+  - "kvvmsnapshotcontent"
+listview:
+  name: "Virtual Machine Snapshot Contents"
+  group: "Virtualization"
+  field_indexes:
+    Normal:
+      fields: ["namespace", "name", "ready", "age"]
+      sortcolumn: "namespace"
+  fields:
+    ready:
+      header: "Ready:"
+      path: "status#readyToUse"
+      default: "<unset>"
+      type: "bool"
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          mappings:
+            "True":
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+            "False":
+              field_colors:
+                - context: "main"
+                  type: "status_not_ok"
+infoview:
+  name: "Virtual Machine Snapshot Content Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["virtual_machine_snapshot", "ready"]
+    rows:
+      ready:
+        header: [["Ready:", ["main", "infoheader"]]]
+        path: "status#readyToUse"
+        default: "<unset>"
+        type: "bool"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              "True":
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+              "False":
+                field_colors:
+                  - context: "main"
+                    type: "status_not_ok"
+      virtual_machine_snapshot:
+        header: [["V", ["main", "infoheader_shortcut"]],
+                 ["irtual Machine Snapshot:", ["main", "infoheader"]]]
+        path: "spec#virtualMachineSnapshotName"
+        default: "<unset>"
+        type: "str"
+  logpad:
+    infogetter: "logpad_formatted"
+    infogetter_args:
+      path: "spec#source"
+      formatter: "format_yaml"
+    timestamps: false
+  shortcuts:
+    "Open Virtual Machine Snapshot":
+      key: "v"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for Virtual Machine Snapshot"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind: "VirtualMachineSnapshot"
+        api_family: "snapshot.kubevirt.io"
+        name_path: "spec#virtualMachineSnapshotName"
+        namespace_path: "metadata#namespace"

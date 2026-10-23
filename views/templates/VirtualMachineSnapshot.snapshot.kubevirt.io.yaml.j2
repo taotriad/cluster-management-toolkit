@@ -1,0 +1,225 @@
+---
+kind: "VirtualMachineSnapshot"
+api_family: "snapshot.kubevirt.io"
+default_command: "virtualmachinesnapshots.snapshot.kubevirt.io"
+command:
+  - "kvvmsnapshots"
+  - "kvvmsnapshot"
+listview:
+  name: "Virtual Machine Snapshots"
+  group: "Virtualization"
+  field_indexes:
+    Normal:
+      fields: ["namespace", "name",
+               "source", "kind", "phase", "condition_ready", "age"]
+      sortcolumn: "namespace"
+  fields:
+    {%- for line in field_condition_ready.split("\n") %}
+    {{ line }}
+    {%- endfor %}
+    kind:
+      header: "Kind:"
+      path: "spec#source#kind"
+      default: "<unset>"
+      type: "str"
+    phase:
+      header: "Phase:"
+      path: "status#phase"
+      default: "<unset>"
+      type: "str"
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          mappings:
+            Failed:
+              field_colors:
+                - context: "main"
+                  type: "status_not_ok"
+            InProgress:
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+            Succeeded:
+              field_colors:
+                - context: "main"
+                  type: "status_done"
+            __default:
+              field_colors:
+                - context: "types"
+                  type: "generic"
+    source:
+      header: "Source:"
+      path: "spec#source#name"
+      default: "<unset>"
+      type: "str"
+  actions:
+    actionlist:
+      "Delete snapshot":
+        description: "Delete snapshot"
+        category: "Resource Level"
+        confirm: true
+        actionfunc: "delete_resource"
+      "Restore Snapshot":
+        description: "Restore snapshot"
+        category: "Resource Level"
+        confirm: true
+        actionfunc: "create_objects"
+        actionfunc_args:
+          resources:
+            - injections:
+                "metadata#name":
+                  source: "obj"
+                  paths: [
+                    "metadata#name",
+                    "spec#target#name",
+                    "spec#virtualMachineSnapshotName",
+                  ]
+                "metadata#namespace":
+                  source: "obj"
+                  paths: [
+                    "metadata#namespace",
+                  ]
+              template:
+                apiVersion: "snapshot.kubevirt.io"
+                kind: "VirtualMachineRestore"
+                spec:
+                  target:
+                    apiGroup: "kubevirt.io"
+                    kind: "VirtualMachine"
+infoview:
+  name: "Virtual Machine Snapshot Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["source", "indications",
+                 "virtual_machine_snapshot_content",
+                 "snapshot_volumes_header",
+                 "snapshot_included_volumes",
+                 "snapshot_excluded_volumes",
+                 "phase", "condition_ready"]
+    rows:
+      {%- for line in row_condition_ready.split("\n") %}
+      {{ line }}
+      {%- endfor %}
+      indications:
+        header: [["Indications:", ["main", "infoheader"]]]
+        path: "status#indications"
+        default: "<unset>"
+        type: "raw"
+        formatter: "list"
+      phase:
+        header: [["Phase:", ["main", "infoheader"]]]
+        path: "status#phase"
+        default: "<unset>"
+        type: "str"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              Failed:
+                field_colors:
+                  - context: "main"
+                    type: "status_not_ok"
+              InProgress:
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+              Succeeded:
+                field_colors:
+                  - context: "main"
+                    type: "status_done"
+              __default:
+                field_colors:
+                  - context: "types"
+                    type: "generic"
+      snapshot_volumes_header:
+        header: [["Snapshot Volumes:", ["main", "infoheader"]]]
+      snapshot_excluded_volumes:
+        header: [["  ", ["main", "infoheader"]],
+                 ["E", ["main", "infoheader_shortcut"]],
+                 ["xcluded Volumes:", ["main", "infoheader"]]]
+        path: "status#snapshotVolumes#excludedVolumes"
+        default: ["<none>"]
+        type: "raw"
+        formatter: "list"
+      snapshot_included_volumes:
+        header: [["  ", ["main", "infoheader"]],
+                 ["I", ["main", "infoheader_shortcut"]],
+                 ["ncluded Volumes:", ["main", "infoheader"]]]
+        path: "status#snapshotVolumes#includedVolumes"
+        default: ["<none>"]
+        type: "raw"
+        formatter: "list"
+      source:
+        header: [["S", ["main", "infoheader_shortcut"]],
+                 ["ource:", ["main", "infoheader"]]]
+        paths:
+          - path: [["spec#source#kind"],
+                   ["spec#source#apiGroup"],
+                   ["spec#source#name"]]
+            pathtype: "tuple"
+        default: ["<unset>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "kind"
+            - type: "api_group"
+            - type: "generic"
+          field_separators:
+            - type: "kind_api_group"
+            - type: "kind"
+      virtual_machine_snapshot_content:
+        header: [["V", ["main", "infoheader_shortcut"]],
+                 ["irtual Machine Snapshot Content:", ["main", "infoheader"]]]
+        path: "status#virtualMachineSnapshotContentName"
+        default: "<unset>"
+        type: "str"
+  shortcuts:
+    "Open Source":
+      key: "s"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for source"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind_path: "spec#source#kind"
+        api_family_path: "spec#source#apiGroup"
+        name_path: "spec#source#name"
+        namespace_path: "metadata#namespace"
+    "Open Virtual Machine Snapshot Content":
+      key: "v"
+      modifier: "shift"
+      read_only: true
+      helptext: "Open info page for Virtual Machine Snapshot Content"
+      action: "call"
+      action_call: "resourceinfodispatch_with_lookup"
+      action_args:
+        _pass_obj: true
+        kind: "VirtualMachineSnapshotContent"
+        api_family: "snapshot.kubevirt.io"
+        name_path: "status#virtualMachineSnapshotContentName"
+        namespace_path: "metadata#namespace"
+    "Excluded Volumes":
+      key: "e"
+      modifier: "shift"
+      read_only: true
+      helptext: "List excluded volumes"
+      widget: "windowwidget"
+      widget_args:
+        title: "Excluded Volumes:"
+        itemgetter: "get_list_as_list"
+        itemgetter_args:
+          path: "status#snapshotVolumes#excludedVolumes"
+    "Included Volumes":
+      key: "i"
+      modifier: "shift"
+      read_only: true
+      helptext: "List included volumes"
+      widget: "windowwidget"
+      widget_args:
+        title: "Included Volumes:"
+        itemgetter: "get_list_as_list"
+        itemgetter_args:
+          path: "status#snapshotVolumes#includedVolumes"

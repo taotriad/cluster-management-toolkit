@@ -2749,6 +2749,10 @@ ValidationFailed:
   field_colors:
     - context: "main"
       type: "status_warning"
+VirtualMachineRestoreComplete:
+  field_colors:
+    - context: "main"
+      type: "status_done"
 VMShutdownCompleted:
   field_colors:
     - context: "main"

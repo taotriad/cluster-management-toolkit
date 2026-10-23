@@ -1,0 +1,148 @@
+---
+kind: "VirtualMachineRestore"
+api_family: "snapshot.kubevirt.io"
+default_command: "virtualmachinerestores.snapshot.kubevirt.io"
+command:
+  - "kvvmrestores"
+  - "kvvmrestore"
+listview:
+  name: "Virtual Machine Restores"
+  group: "Virtualization"
+  field_indexes:
+    Wide:
+      fields: ["namespace", "name", "controller",
+               "target_readiness_policy", "condition_progressing",
+               "complete", "age", "reason_progressing"]
+      sortcolumn: "namespace"
+    Normal:
+      fields: ["namespace", "name",
+               "target_readiness_policy", "condition_progressing",
+               "complete", "age", "reason_progressing"]
+      sortcolumn: "namespace"
+  actions:
+    actionlist:
+      "Delete resource":
+        description: "Delete resource"
+        category: "Resource Level"
+        confirm: true
+        actionfunc: "delete_resource"
+  fields:
+    complete:
+      header: "Complete:"
+      path: "status#complete"
+      default: "<unset>"
+      type: "bool"
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          mappings:
+            "True":
+              field_colors:
+                - context: "main"
+                  type: "status_done"
+            "False":
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+            "Unknown":
+              field_colors:
+                - context: "types"
+                  type: "unset"
+            "<unknown>":
+              field_colors:
+                - context: "types"
+                  type: "unset"
+    {%- for line in field_controller.split("\n") %}
+    {{ line }}
+    {%- endfor %}
+    condition_progressing:
+      header: "Progressing:"
+      paths:
+        - path: "status#conditions"
+          pathtype: "items"
+          subpath: "status"
+          when:
+            - key: "type"
+              in: ["Progressing"]
+          default: ["<unknown>"]
+      type: "str"
+      formatter: "value_mapper"
+      formatting:
+        mapping:
+          mappings:
+            "True":
+              field_colors:
+                - context: "main"
+                  type: "status_ok"
+            "False":
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+            "Unknown":
+              field_colors:
+                - context: "types"
+                  type: "unset"
+            "<unknown>":
+              field_colors:
+                - context: "types"
+                  type: "unset"
+    reason_progressing:
+      header: "Progressing:"
+      paths:
+        - path: "status#conditions"
+          pathtype: "items"
+          subpath: "reason"
+          when:
+            - key: "type"
+              in: ["Progressing"]
+          default: ["<unknown>"]
+      type: "str"
+    target_readiness_policy:
+      header: "Target Readiness Policy:"
+      path: "spec#targetReadinessPolicy"
+      default: "<unset>"
+      type: "str"
+infoview:
+  name: "Virtual Machine Restore Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["controller", "target_readiness_policy", "complete"]
+    rows:
+      complete:
+        header: [["Complete:", ["main", "infoheader"]]]
+        path: "status#complete"
+        default: "<unset>"
+        type: "bool"
+        formatter: "value_mapper"
+        formatting:
+          mapping:
+            mappings:
+              "True":
+                field_colors:
+                  - context: "main"
+                    type: "status_done"
+              "False":
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
+              "Unknown":
+                field_colors:
+                  - context: "types"
+                    type: "unset"
+              "<unknown>":
+                field_colors:
+                  - context: "types"
+                    type: "unset"
+      {%- for line in row_controller.split("\n") %}
+      {{ line }}
+      {%- endfor %}
+      target_readiness_policy:
+        header: [["Target Readiness Policy:", ["main", "infoheader"]]]
+        path: "spec#targetReadinessPolicy"
+        default: "<unset>"
+        type: "str"
+  shortcuts:
+    {%- for line in shortcut_controller.split("\n") %}
+    {{ line }}
+    {%- endfor %}
