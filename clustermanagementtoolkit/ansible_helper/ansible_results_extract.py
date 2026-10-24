@@ -80,7 +80,7 @@ def ansible_results_extract(event: dict) -> tuple[int, dict]:
 
     msg = deep_get(event, DictPath("event_data#res#msg"), "")
     msg_lines = []
-    if msg:
+    if isinstance(msg, str):
         msg_lines = msg.split("\n")
 
     start_date_timestamp = deep_get(event, DictPath("event_data#start"))

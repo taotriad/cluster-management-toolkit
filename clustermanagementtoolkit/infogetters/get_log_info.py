@@ -73,7 +73,7 @@ def get_log_info(**kwargs: Any) -> list[dict]:
                 continue
 
             # The first entry in the obj list holds metadata;
-            # the rest of the entries are strings
+            # the rest of the entries are strings.
             split_response: list[Any] = [{
                 # "parser": str
                 # "name": str
@@ -108,10 +108,10 @@ def get_log_info(**kwargs: Any) -> list[dict]:
     except FileNotFoundError:
         pass
 
-    # Get the list of available Ansible logs
+    # Get the list of available Ansible logs.
     ansible_logs = ansible_get_logs()
 
-    # TODO(Here we might possibly want to insert other logs?)
+    # TODO(Here we might possibly want to insert other logs?).
 
     for name, action, ref, created_at in ansible_logs:
         log_type = "Ansible Play"

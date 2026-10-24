@@ -30,14 +30,14 @@ def ansible_get_logs() -> list[tuple[str, str, FilePath, datetime]]:
     """
     logs = []
 
-    timestamp_regex = re.compile(r"^(\d{4}-\d\d-\d\d_\d\d:\d\d:\d\d\.\d+)_(.*)")
+    timestamp_regex = re.compile(r"^(\d{4}-\d\d-\d\d_\d\d:\d\d:\d\d\.\d+[+-]\d\d:\d\d)_(.*)")
 
     for path in Path(ANSIBLE_LOGS_DIR).iterdir():
         filename = str(path.name)
         if (re_tmp := timestamp_regex.match(filename)) is None:
-            # Skip files that cannot be interpreted as filenames
+            # Skip files that cannot be interpreted as filenames.
             continue
-        date = datetime.strptime(re_tmp[1], "%Y-%m-%d_%H:%M:%S.%f").replace(tzinfo=UTC)
+        date = datetime.strptime(re_tmp[1], "%Y-%m-%d_%H:%M:%S.%f%z")
         name = re_tmp[2]
         logs.append((filename, name, FilePath(path), date))
     return logs

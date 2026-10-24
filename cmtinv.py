@@ -132,7 +132,7 @@ def get_groups_or_hosts(groups_or_hosts: str = "", error_on_failure: bool = True
                                     ANSIThemeStr(": Skipping unknown or empty ", "default"),
                                     ANSIThemeStr("host or group “", "default"),
                                     ANSIThemeStr(group_or_host, "argument"),
-                                    ANSIThemeStr("“", "default")], stderr=True)
+                                    ANSIThemeStr("“.", "default")], stderr=True)
             else:
                 selection += hosts
         # Eliminate duplicates
@@ -1168,7 +1168,7 @@ def run_playbook(options: list[tuple[str, str]], args: list[str]) -> int:
                                 ANSIThemeStr(": Skipping unknown or empty ", "default"),
                                 ANSIThemeStr("host or group “", "default"),
                                 ANSIThemeStr(group_or_host, "argument"),
-                                ANSIThemeStr("“", "default")], stderr=True)
+                                ANSIThemeStr("“.", "default")], stderr=True)
         else:
             selection += hosts
     # Eliminate duplicates
@@ -1264,11 +1264,11 @@ def run_playbook(options: list[tuple[str, str]], args: list[str]) -> int:
 # pylint: disable-next=too-many-branches,too-many-locals,unused-argument,too-many-statements
 def fping(options: list[tuple[str, str]], args: list[str]) -> int:
     """
-    Fping hosts or groups of hosts.
+    fping hosts or groups of hosts.
     Default: fping all hosts.
     Note: A well-formed inventory should not have groups with the same name as any of the hosts,
-    thus mixing group and host names should be OK; but if there are overlaps group names
-    are prioritised over host names.
+    thus mixing group and host names should be OK; but group names will take priority over
+    host names if there are overlaps in naming.
 
         Parameters:
             options (list[(str, str)]): [unused]
@@ -1290,7 +1290,7 @@ def fping(options: list[tuple[str, str]], args: list[str]) -> int:
         ansithemeprint([ANSIThemeStr("Warning", "warning"),
                         ANSIThemeStr(": ", "default"),
                         ANSIThemeStr("fping", "programname"),
-                        ANSIThemeStr(" is not installed; cannot complete request", "default")],
+                        ANSIThemeStr(" is not installed; cannot complete request.", "default")],
                        stderr=True)
         sys.exit(errno.ENOENT)
 
