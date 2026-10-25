@@ -4616,7 +4616,8 @@ def genericinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                     lineattrs = WidgetLineAttrs.NORMAL
 
                     # Wrap the line if it's a single long line and wrap_lines is enabled.
-                    if len(w_items) == 1 and w_items[0] and w_wrap_lines:
+                    if len(w_items) == 1 and w_items[0] and w_wrap_lines \
+                            and isinstance(w_items[0], (str, list)):
                         if (uip.maxx - uip.minx) // 2 < 120:
                             wrap_width: int = uip.maxx - 5
                         else:

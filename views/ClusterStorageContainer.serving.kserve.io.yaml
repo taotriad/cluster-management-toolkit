@@ -25,6 +25,7 @@ infoview:
       container_name:
         header: [["  Name:", ["main", "infoheader"]]]
         path: "spec#container#name"
+        default: "<unset>"
         type: "str"
       container_image:
         header: [["  Image:", ["main", "infoheader"]]]

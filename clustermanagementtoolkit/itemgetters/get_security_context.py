@@ -12,7 +12,6 @@ from typing import Any
 
 from clustermanagementtoolkit.cmttypes import DictPath
 from clustermanagementtoolkit.cmttypes import deep_get
-from clustermanagementtoolkit.cmttypes import deep_get_with_fallback
 
 
 security_context_values: dict[str, list[DictPath]] = {
@@ -71,7 +70,6 @@ security_context_values: dict[str, list[DictPath]] = {
 }
 
 
-# pylint: disable-next=unused-argument
 def get_security_context(obj: dict, **kwargs: Any) -> list[tuple[str, str]]:
     """
     Get security context information.
@@ -88,7 +86,7 @@ def get_security_context(obj: dict, **kwargs: Any) -> list[tuple[str, str]]:
     for name, paths in security_context_values.items():
         for path in paths:
             if security_context_path:
-                path = f"{security_context_path}#{path}"
+                path = DictPath(f"{security_context_path}#{path}")
             if (policy := deep_get(obj, path)) is not None:
                 security_policies.append((name, str(policy)))
                 break
