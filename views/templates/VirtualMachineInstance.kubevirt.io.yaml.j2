@@ -32,6 +32,7 @@ listview:
         - path: "status#interfaces"
           pathtype: "items"
           subpath: "ipAddress"
+          default: ["<none>"]
       formatter: "address"
     live_migratable:
       header: "Live Migratable:"
@@ -182,6 +183,7 @@ infoview:
           - path: "status#interfaces"
             pathtype: "items"
             subpath: "ipAddress"
+            default: ["<none>"]
         formatter: "address"
       live_migratable:
         header: [["Live Migratable:", ["main", "infoheader"]]]
