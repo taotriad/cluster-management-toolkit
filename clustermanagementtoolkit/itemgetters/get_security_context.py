@@ -11,6 +11,7 @@ An itemgetter that returns a list containing the security context.
 from typing import Any
 
 from clustermanagementtoolkit.cmttypes import DictPath
+from clustermanagementtoolkit.cmttypes import deep_get
 from clustermanagementtoolkit.cmttypes import deep_get_with_fallback
 
 
@@ -82,9 +83,14 @@ def get_security_context(obj: dict, **kwargs: Any) -> list[tuple[str, str]]:
             ([(str, str)]): A list of security context information
     """
     security_policies: list[tuple[str, str]] = []
+    security_context_path: str = deep_get(kwargs, DictPath("path"), "")
 
-    for name, path in security_context_values.items():
-        if (policy := deep_get_with_fallback(obj, path)) is not None:
-            security_policies.append((name, str(policy)))
+    for name, paths in security_context_values.items():
+        for path in paths:
+            if security_context_path:
+                path = f"{security_context_path}#{path}"
+            if (policy := deep_get(obj, path)) is not None:
+                security_policies.append((name, str(policy)))
+                break
 
     return security_policies

@@ -11,8 +11,7 @@ Word wrap text.
 
 def wrap_line(string: str | list[str], wrap_width: int) -> list[str | list[str]]:
     """
-    Attempt to word wrap text. If a word does not fit
-    within a line it is emitted intact.
+    Attempt to word wrap text. If a word does not fit within a line it is emitted intact.
 
         Parameters:
             string (str|[str]): The string to word wrap

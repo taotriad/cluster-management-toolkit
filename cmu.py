@@ -4618,10 +4618,10 @@ def genericinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                     # Wrap the line if it's a single long line and wrap_lines is enabled.
                     if len(w_items) == 1 and w_items[0] and w_wrap_lines:
                         if (uip.maxx - uip.minx) // 2 < 120:
-                            wrap_width: int = uip.maxx - uip.minx
+                            wrap_width: int = uip.maxx - 5
                         else:
                             wrap_width = (uip.maxx - uip.minx) // 2
-                        w_items = cmtlib.wrap_line(w_items, wrap_width=wrap_width)
+                        w_items = cmtlib.wrap_line(w_items[0], wrap_width=wrap_width)
 
                     # w_item is a line
                     for w_item in w_items:
@@ -7340,6 +7340,11 @@ def view_obj(**kwargs: Any) -> Retval:
         title = deep_get(obj, DictPath(title_path))
     path = deep_get(kwargs, DictPath("path"))
     formatter = deep_get(kwargs, DictPath("formatter"), formatters.format_yaml)
+    if isinstance(formatter, str):
+        _formatter = deep_get(formatters.formatter_allowlist, DictPath(formatter))
+        if _formatter is None:
+            raise ValueError(f"{formatter} is not in formatter_allowlist")
+        formatter = _formatter
     formatter_args = deep_get(kwargs, DictPath("formatter_args"), {})
     if formatter.__name__ == formatters.map_dataformat.__name__:
         formatter = formatters.map_dataformat(deep_get(formatter_args, DictPath("filetype"), ""))
@@ -7352,11 +7357,6 @@ def view_obj(**kwargs: Any) -> Retval:
             obj = deep_get(obj, DictPath(path))
     else:
         obj = [obj]
-    if isinstance(formatter, str):
-        _formatter = deep_get(formatters.formatter_allowlist, DictPath(formatter))
-        if _formatter is None:
-            raise ValueError(f"{formatter} is not in formatter_allowlist")
-        formatter = _formatter
     return resourceinfodispatch(stdscr=stdscr, obj=obj, kind=("__ResourceView", ""),
                                 title=title, formatter=formatter,
                                 formatter_args=formatter_args)
