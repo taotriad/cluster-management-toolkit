@@ -31,6 +31,7 @@ listview:
     matching_precedence:
       header: "Matching Precedence:"
       path: "spec#matchingPrecedence"
+      default: "<unset>"
       type: "raw"
       formatter: "numerical"
       align: "right"
@@ -109,11 +110,13 @@ infoview:
       matching_precedence:
         header: [["Matching Precedence:", ["main", "infoheader"]]]
         path: "spec#matchingPrecedence"
+        default: "<unset>"
         type: "raw"
         formatter: "numerical"
       distinguisher_method:
         header: [["Distinguisher Method:", ["main", "infoheader"]]]
         path: "spec#distinguisherMethod#type"
+        default: "<unset>"
         type: "str"
   shortcuts:
     {%- for line in shortcut_controller.split("\n") %}

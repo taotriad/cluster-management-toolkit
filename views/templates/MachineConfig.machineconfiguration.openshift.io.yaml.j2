@@ -105,6 +105,7 @@ infoview:
         type: "str"
         default: "<none>"
         fallback_on_empty: true
+        formatter: "uri"
   shortcuts:
     {%- for line in shortcut_controller.split("\n") %}
     {{ line }}

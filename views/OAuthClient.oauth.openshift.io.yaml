@@ -28,7 +28,7 @@ listview:
       path: "redirectURIs"
       default: ["<none>"]
       type: "raw"
-      formatter: "list"
+      formatter: "uri"
     secret:
       header: "Secret:"
       path: "secret"
@@ -81,7 +81,7 @@ infoview:
         path: "redirectURIs"
         default: ["<none>"]
         type: "raw"
-        formatter: "list"
+        formatter: "uri"
   shortcuts:
     "Show Redirect URI list":
       key: "r"

@@ -95,6 +95,10 @@ infoview:
                 field_colors:
                   - context: "main"
                     type: "status_done"
+              ConstraintsNotSatisfiable:
+                field_colors:
+                  - context: "main"
+                    type: "status_warning"
               InstallComponentFailed:
                 field_colors:
                   - context: "main"
@@ -104,6 +108,10 @@ infoview:
                   - context: "main"
                     type: "status_done"
               MinimumReplicasAvailable:
+                field_colors:
+                  - context: "main"
+                    type: "status_ok"
+              NewReplicaSetAvailable:
                 field_colors:
                   - context: "main"
                     type: "status_ok"
@@ -119,6 +127,10 @@ infoview:
                 field_colors:
                   - context: "main"
                     type: "status_warning"
+              Upgradeable:
+                field_colors:
+                  - context: "main"
+                    type: "status_attention"
               "<unset>":
                 field_colors:
                   - context: "types"

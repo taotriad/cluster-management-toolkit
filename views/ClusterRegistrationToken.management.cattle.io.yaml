@@ -74,6 +74,7 @@ infoview:
       token:
         header: [["Token:", ["main", "infoheader"]]]
         path: "status#token"
+        fallback_on_empty: true
         default: "<none>"
         type: "str"
       windows_node_command:

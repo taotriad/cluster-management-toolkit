@@ -2,6 +2,9 @@
 kind: "SecurityContextConstraints"
 api_family: "security.openshift.io"
 default_command: "securitycontextconstraints"
+command:
+  - "securityctxconstraints"
+  - "securityctxconstraint"
 listview:
   name: "Security Context Constraints"
   group: "OpenShift"
@@ -131,7 +134,8 @@ infoview:
       {{ line }}
       {%- endfor %}
       description:
-        header: [["Description:", ["main", "infoheader"]]]
+        header: [["D", ["main", "infoheader_shortcut"]],
+                 ["escription:", ["main", "infoheader"]]]
         path: "metadata#annotations#kubernetes.io/description"
         type: "str"
       fsgroup:
@@ -219,6 +223,20 @@ infoview:
           path: "allowedCapabilities"
         # This isn't supported for now
         sortcolumn: "name"
+    "Show Description":
+      key: "d"
+      modifier: "shift"
+      read_only: true
+      helptext: "Show description"
+      widget: "windowwidget"
+      widget_args:
+        title: "Description:"
+        # If the data is one single line we reformat it.
+        wrap_lines: true
+        itemgetter: "get_strings_from_string"
+        itemgetter_args:
+          path: "metadata#annotations#kubernetes.io/description"
+          unescape_newlines: true
     "Groups":
       key: "g"
       modifier: "shift"

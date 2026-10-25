@@ -23,18 +23,21 @@ infoview:
         paths:
           - path: ["status#httpProxy", "spec#httpProxy"]
             pathtype: "value"
-        formatter: "address"
+        default: "<none>"
+        formatter: "uri"
       https_proxy:
         header: [["HTTPS Proxy:", ["main", "infoheader"]]]
         paths:
           - path: ["status#httpsProxy", "spec#httpProxy"]
             pathtype: "value"
-        formatter: "address"
+        default: "<none>"
+        formatter: "uri"
       no_proxy:
         header: [["No Proxy:", ["main", "infoheader"]]]
         paths:
           - path: ["status#noProxy", "spec#httpProxy"]
             pathtype: "value"
+        default: "<none>"
         type: "str"
       trusted_ca:
         header: [["Trusted CA:", ["main", "infoheader"]]]

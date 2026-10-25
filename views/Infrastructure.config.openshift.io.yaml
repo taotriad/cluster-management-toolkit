@@ -5,6 +5,8 @@ default_command: "infrastructures.config.openshift.io"
 command:
   - "infrastructures.config"
   - "infrastructure.config"
+  - "infras.config"
+  - "infra.config"
 listview:
   name: "Infrastructures"
   group: "OpenShift"
@@ -39,11 +41,15 @@ infoview:
       api_server_internal_uri:
         header: [["  Internal URL:", ["main", "infoheader"]]]
         path: "status#apiServerInternalURI"
+        default: "<unset>"
         type: "str"
+        formatter: "uri"
       api_server_url:
         header: [["  URL:", ["main", "infoheader"]]]
         path: "status#apiServerURL"
+        default: "<unset>"
         type: "str"
+        formatter: "uri"
       cloud_config:
         header: [["Cloud Config:", ["main", "infoheader"]]]
         paths:

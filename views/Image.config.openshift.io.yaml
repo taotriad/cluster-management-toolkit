@@ -21,7 +21,9 @@ infoview:
     row_indexes:
       Normal:
         fields: ["additional_trusted_ca",
-                 "internal_registry_hostname", "external_registry_hostnames"]
+                 "internal_registry_hostname",
+                 "external_registry_hostnames",
+                 "image_stream_import_mode"]
     rows:
       additional_trusted_ca:
         header: [["Additional Trusted CA:", ["main", "infoheader"]]]
@@ -37,5 +39,10 @@ infoview:
       internal_registry_hostname:
         header: [["Internal Registry Hostname:", ["main", "infoheader"]]]
         path: "status#internalRegistryHostname"
+        default: "<unset>"
+        type: "str"
+      image_stream_import_mode:
+        header: [["Image Stream Import Mode:", ["main", "infoheader"]]]
+        path: "status#imageStreamImportMode"
         default: "<unset>"
         type: "str"

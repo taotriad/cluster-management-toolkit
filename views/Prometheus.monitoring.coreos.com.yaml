@@ -260,7 +260,6 @@ infoview:
         namespace_path: 0
     "Resources":
       key: "r"
-      modifier: "shift"
       read_only: true
       helptext: "Show resources"
       widget: "windowwidget"

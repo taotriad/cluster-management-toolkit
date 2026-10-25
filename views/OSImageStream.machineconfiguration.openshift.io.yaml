@@ -22,6 +22,17 @@ listview:
 infoview:
   name: "OS Image Stream Info"
   infopad:
+    row_indexes:
+      Normal:
+        fields: ["default_stream"]
+    rows:
+      default_stream:
+        header: [["Default Stream:", ["main", "infoheader"]]]
+        paths:
+          - path: ["status#defaultStream", "spec#defaultStream"]
+            pathtype: "value"
+        default: "<unset>"
+        type: "str"
   listpad:
     listgetter: "listgetter_path"
     listgetter_args:

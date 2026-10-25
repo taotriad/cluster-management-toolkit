@@ -16,7 +16,9 @@ infoview:
   infopad:
     row_indexes:
       Normal:
-        fields: ["container_header", "container_name", "container_image"]
+        fields: ["container_header", "container_name", "container_image",
+                 "image_pull_policy", "supports_multi_model_download",
+                 "workload_type"]
     rows:
       container_header:
         header: [["Container:", ["main", "infoheader"]]]
@@ -40,6 +42,21 @@ infoview:
           field_formatters:
             - ""
             - "version"
+      image_pull_policy:
+        header: [["  Image Pull Policy:", ["main", "infoheader"]]]
+        path: "spec#container#imagePullPolicy"
+        default: "<unset>"
+        type: "str"
+      supports_multi_model_download:
+        header: [["Supports Multi Model Download:", ["main", "infoheader"]]]
+        path: "spec#supportsMultiModelDownload"
+        default: "<unset>"
+        type: "bool"
+      workload_type:
+        header: [["Workload Type:", ["main", "infoheader"]]]
+        path: "spec#workloadType"
+        default: "<unset>"
+        type: "str"
   listpad:
     listgetter: "listgetter_path"
     listgetter_args:
@@ -74,3 +91,18 @@ infoview:
           path: "spec#container#resources"
         # This isn't supported for now
         sortcolumn: "requests"
+    "Show Container Security Context":
+      key: "x"
+      read_only: true
+      helptext: "Show container security context information"
+      widget: "windowwidget"
+      widget_args:
+        title: "Security Context Policies:"
+        headers: ["Policy:", "Value:"]
+        formatting: [["windowwidget", "default"],
+                     ["windowwidget", "highlight"]]
+        itemgetter: "get_security_context"
+        itemgetter_args:
+          path: "spec#container"
+        # This isn't supported for now
+        sortcolumn: "policy"

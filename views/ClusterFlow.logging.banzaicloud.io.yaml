@@ -40,7 +40,9 @@ infoview:
   infopad:
     row_indexes:
       Normal:
-        fields: ["logging_reference", "problems", "active"]
+        fields: ["logging_reference",
+                 "global_output_references",
+                 "problems", "active"]
     rows:
       active:
         header: [["Active:", ["main", "infoheader"]]]
@@ -59,6 +61,13 @@ infoview:
                 field_colors:
                   - context: "main"
                     type: "status_pending"
+      global_output_references:
+        header: [["G", ["main", "infoheader_shortcut"]],
+                 ["lobal Output References:", ["main", "infoheader"]]]
+        path: "spec#loggingRef"
+        default: "<unset>"
+        type: "raw"
+        formatter: "list"
       logging_reference:
         header: [["Logging Reference:", ["main", "infoheader"]]]
         path: "spec#loggingRef"
@@ -122,8 +131,8 @@ infoview:
         _pass_obj: true
         path: "spec#filters"
         include_root: true
-    "List Cluster Outputs":
-      key: "c"
+    "List Global Output References":
+      key: "g"
       modifier: "shift"
       read_only: true
       helptext: "List Cluster Outputs"

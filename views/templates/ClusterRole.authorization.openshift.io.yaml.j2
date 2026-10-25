@@ -54,7 +54,7 @@ infoview:
           - path: ["aggregationRule#clusterRoleSelectors"]
             pathtype: "selectors"
             default: ["<none>"]
-        formatter: "list"
+        formatter: "selector"
       {%- for line in row_controller.split("\n") %}
       {{ line }}
       {%- endfor %}

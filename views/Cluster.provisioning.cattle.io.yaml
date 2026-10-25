@@ -99,6 +99,13 @@ infoview:
         path: "spec#kubernetesVersion"
         type: "str"
         formatter: "version"
+  logpad:
+    title: "RKE Config:"
+    infogetter: "logpad_formatted"
+    infogetter_args:
+      formatter: "format_yaml"
+      path: "spec#rkeConfig"
+    timestamps: false
   shortcuts:
     "Open Cluster":
       key: "u"
