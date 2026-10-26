@@ -2101,31 +2101,31 @@ def test_format_ini(verbose: bool = False) -> tuple[str, bool]:
               "[main]",
               "  setting1 = foo",
               "  setting2 = bar"], {},
-              [
-                  [ThemeStr("# comment", ThemeAttr("types", "ini_comment"))],
-                  [ThemeStr("[main]", ThemeAttr("types", "ini_section"))],
-                  [ThemeStr("  ", ThemeAttr("types", "generic")),
-                   ThemeStr("setting1", ThemeAttr("types", "ini_key")),
-                   ThemeStr(" ", ThemeAttr("types", "generic")),
-                   ThemeStr("=", ThemeAttr("types", "ini_separator")),
-                   ThemeStr(" ", ThemeAttr("types", "generic")),
-                   ThemeStr("foo", ThemeAttr("types", "ini_value"))],
-                  [ThemeStr("  ", ThemeAttr("types", "generic")),
-                   ThemeStr("setting2", ThemeAttr("types", "ini_key")),
-                   ThemeStr(" ", ThemeAttr("types", "generic")),
-                   ThemeStr("=", ThemeAttr("types", "ini_separator")),
-                   ThemeStr(" ", ThemeAttr("types", "generic")),
-                   ThemeStr("bar", ThemeAttr("types", "ini_value"))]],
+             [
+                 [ThemeStr("# comment", ThemeAttr("types", "ini_comment"))],
+                 [ThemeStr("[main]", ThemeAttr("types", "ini_section"))],
+                 [ThemeStr("  ", ThemeAttr("types", "generic")),
+                  ThemeStr("setting1", ThemeAttr("types", "ini_key")),
+                  ThemeStr(" ", ThemeAttr("types", "generic")),
+                  ThemeStr("=", ThemeAttr("types", "ini_separator")),
+                  ThemeStr(" ", ThemeAttr("types", "generic")),
+                  ThemeStr("foo", ThemeAttr("types", "ini_value"))],
+                 [ThemeStr("  ", ThemeAttr("types", "generic")),
+                  ThemeStr("setting2", ThemeAttr("types", "ini_key")),
+                  ThemeStr(" ", ThemeAttr("types", "generic")),
+                  ThemeStr("=", ThemeAttr("types", "ini_separator")),
+                  ThemeStr(" ", ThemeAttr("types", "generic")),
+                  ThemeStr("bar", ThemeAttr("types", "ini_value"))]],
              None),
             (["# comment",
               "[main]",
               "setting1 = foo",
               "setting2 = bar"], {"raw": True},
-              [
-                  [ThemeStr("# comment", ThemeAttr("types", "generic"))],
-                  [ThemeStr("[main]", ThemeAttr("types", "generic"))],
-                  [ThemeStr("setting1 = foo", ThemeAttr("types", "generic"))],
-                  [ThemeStr("setting2 = bar", ThemeAttr("types", "generic"))]],
+             [
+                 [ThemeStr("# comment", ThemeAttr("types", "generic"))],
+                 [ThemeStr("[main]", ThemeAttr("types", "generic"))],
+                 [ThemeStr("setting1 = foo", ThemeAttr("types", "generic"))],
+                 [ThemeStr("setting2 = bar", ThemeAttr("types", "generic"))]],
              None),
         )
 
@@ -2184,7 +2184,7 @@ def test_format_javascript(verbose: bool = False) -> tuple[str, bool]:
               "console.log('log message');",
               "let value1 = 'foo';"],
              {},
-              [
+             [
                 [ThemeStr('// A comment', ThemeAttr('types', 'javascript_comment'), False)],
                 [ThemeStr('console', ThemeAttr('types', 'generic'), False),
                  ThemeStr('.', ThemeAttr('types', 'javascript_punctuation'), False),
@@ -4711,6 +4711,148 @@ def test_format_toml(verbose: bool = False) -> tuple[str, bool]:
     return message, result
 
 
+def test_apply_focus_filter(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = formatters.apply_focus_filter
+
+    if result:
+        # Indata format:
+        # (lines, options, expected_result, expected_exception)
+        testdata: tuple[Any, ...] = (
+            (
+                {
+                    "metadata": {
+                        "name": "foo",
+                        "generation": 42,
+                    },
+                    "status": {
+                        "phase": "Running",
+                    },
+                },
+                {
+                    "focus_mode": "Disabled",
+                    "focus_filters": {
+                        "Disabled": [],
+                        "Partial": [
+                            ["metadata", "generation"],
+                        ],
+                        "Full": [
+                            ["metadata", "generation"],
+                            "status",
+                        ],
+                    },
+                },
+                {
+                    "metadata": {
+                        "name": "foo",
+                        "generation": 42,
+                    },
+                    "status": {
+                        "phase": "Running",
+                    },
+                },
+                None),
+            (
+                {
+                    "metadata": {
+                        "name": "foo",
+                        "generation": 42,
+                    },
+                    "status": {
+                        "phase": "Running",
+                    },
+                },
+                {
+                    "focus_mode": "Partial",
+                    "focus_filters": {
+                        "Disabled": [],
+                        "Partial": [
+                            ["metadata", "generation"],
+                        ],
+                        "Full": [
+                            ["metadata", "generation"],
+                            "status",
+                        ],
+                    },
+                },
+                {
+                    "metadata": {
+                        "name": "foo",
+                    },
+                    "status": {
+                        "phase": "Running",
+                    },
+                },
+                None),
+            (
+                {
+                    "metadata": {
+                        "name": "foo",
+                        "generation": 42,
+                    },
+                    "status": {
+                        "phase": "Running",
+                    },
+                },
+                {
+                    "focus_mode": "Full",
+                    "focus_filters": {
+                        "Disabled": [],
+                        "Partial": [
+                            ["metadata", "generation"],
+                        ],
+                        "Full": [
+                            ["metadata", "generation"],
+                            "status",
+                        ],
+                    },
+                },
+                {
+                    "metadata": {
+                        "name": "foo",
+                    },
+                },
+                None),
+        )
+
+        for obj, kwargs, expected_result, expected_exception in testdata:
+            try:
+                if (tmp := fun(obj, **kwargs)) != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"           input: {obj}\n" \
+                              "             args:\n" \
+                              f"{yaml_dump(kwargs, base_indent=17)}\n" \
+                              f"          output: {tmp}\n" \
+                              f"        expected: {expected_result}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  f"           input: {obj}\n" \
+                                  "         options:\n" \
+                                  f"{yaml_dump(kwargs, base_indent=17)}\n" \
+                                  f"       exception: {type(e)}\n" \
+                                  f"        expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"           input: {obj}\n" \
+                              "         options:\n" \
+                              f"{yaml_dump(kwargs, base_indent=17)}\n" \
+                              f"       exception: {type(e)}\n" \
+                              f"        expected: {expected_result}"
+                    result = False
+                    break
+    return message, result
+
+
 def test_map_dataformat(verbose: bool = False) -> tuple[str, bool]:
     message = ""
     result = True
@@ -4997,6 +5139,10 @@ tests: dict[tuple[str, ...], dict[str, Any]] = {
     },
     ("format_toml",): {
         "callable": test_format_toml,
+        "result": None,
+    },
+    ("apply_focus_filter",): {
+        "callable": test_apply_focus_filter,
         "result": None,
     },
     ("map_dataformat",): {

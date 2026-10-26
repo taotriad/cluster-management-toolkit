@@ -1,7 +1,7 @@
 #! /usr/bin/env python3
 
 # Requires: python3 (>= 3.11)
-
+#
 # Copyright David Weinehall
 # SPDX-License-Identifier: MIT
 

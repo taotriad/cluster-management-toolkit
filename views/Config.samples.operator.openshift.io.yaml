@@ -27,6 +27,7 @@ infoview:
       configuration_architectures:
         header: [["  Architectures:", ["main", "infoheader"]]]
         path: "spec#architectures"
+        default: ["<unset>"]
         type: "raw"
         formatter: "list"
       configuration_header:
@@ -34,24 +35,29 @@ infoview:
       configuration_management_state:
         header: [["  Management State:", ["main", "infoheader"]]]
         path: "spec#managementState"
+        default: "<unset>"
         type: "str"
       configuration_samples_registry:
         header: [["  Samples Registry:", ["main", "infoheader"]]]
         path: "spec#samplesRegistry"
+        default: "<unset>"
         type: "str"
       configuration_skipped_image_streams:
         header: [["  Skipped Image Streams:", ["main", "infoheader"]]]
         path: "spec#skippedImagestreams"
+        default: ["<none>"]
         type: "raw"
         formatter: "list"
       configuration_skipped_templates:
         header: [["  Skipped Templates:", ["main", "infoheader"]]]
         path: "spec#skippedTemplates"
+        default: ["<none>"]
         type: "raw"
         formatter: "list"
       status_architectures:
         header: [["  Architectures:", ["main", "infoheader"]]]
         path: "status#architectures"
+        default: ["<unset>"]
         type: "raw"
         formatter: "list"
       status_header:
@@ -59,23 +65,28 @@ infoview:
       status_management_state:
         header: [["  Management State:", ["main", "infoheader"]]]
         path: "status#managementState"
+        default: "<unset>"
         type: "str"
       status_samples_registry:
         header: [["  Samples Registry:", ["main", "infoheader"]]]
         path: "status#samplesRegistry"
+        default: "<unset>"
         type: "str"
       status_skipped_image_streams:
         header: [["  Skipped Image Streams:", ["main", "infoheader"]]]
         path: "status#skippedImagestreams"
+        default: ["<none>"]
         type: "raw"
         formatter: "list"
       status_skipped_templates:
         header: [["  Skipped Templates:", ["main", "infoheader"]]]
         path: "status#skippedTemplates"
+        default: ["<none>"]
         type: "raw"
         formatter: "list"
       status_version:
         header: [["  Version:", ["main", "infoheader"]]]
         path: "status#version"
+        default: "<unset>"
         type: "str"
         formatter: "version"

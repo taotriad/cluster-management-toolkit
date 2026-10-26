@@ -50,23 +50,8 @@ infoview:
   infopad:
     row_indexes:
       Normal:
-        fields: ["label_selector", "ready_bundles", "ready_clusters"]
+        fields: ["selector", "ready_bundles", "ready_clusters"]
     rows:
-      label_selector:
-        header: [["La", ["main", "infoheader"]],
-                 ["b", ["main", "infoheader_shortcut"]],
-                 ["el Selector:", ["main", "infoheader"]]]
-        paths:
-          - path: ["spec#selector#matchLabels"]
-            pathtype: "key_value"
-            default: ["<none>"]
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "key"
-            - type: "value"
-          field_separators:
-            - type: "selector"
       ready_bundles:
         header: [["Ready Bundles:", ["main", "infoheader"]]]
         path: "status#display#readyBundles"
@@ -77,6 +62,15 @@ infoview:
         path: "status#display#readyClusters"
         type: "str"
         formatter: "numerical"
+      selector:
+        header: [["Selec", ["main", "infoheader"]],
+                 ["t", ["main", "infoheader_shortcut"]],
+                 ["or:", ["main", "infoheader"]]]
+        paths:
+          - path: "spec#selector"
+            pathtype: "obj"
+            default: "<none>"
+        formatter: "selector"
   listpad:
     listgetter: "generic_listgetter"
     listgetter_args:
@@ -105,14 +99,13 @@ infoview:
         formatter: "numerical"
         align: "right"
   shortcuts:
-    "Label Selector":
-      key: "b"
+    "Selector":
+      key: "t"
       read_only: true
-      helptext: "Show label selector"
+      helptext: "Show selector"
       widget: "windowwidget"
       widget_args:
-        title: "Label Selector:"
-        headers: ["Key:", "Value:"]
-        itemgetter: "get_key_value"
+        title: "Selector:"
+        itemgetter: "get_selector_list"
         itemgetter_args:
-          path: "spec#selector#matchLabels"
+          path: "spec#selector"

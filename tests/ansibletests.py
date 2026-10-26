@@ -19,11 +19,15 @@ from clustermanagementtoolkit import cmtlib
 
 from clustermanagementtoolkit.cmtio_yaml import secure_read_yaml, secure_write_yaml
 
-from clustermanagementtoolkit.cmtpaths import SYSTEM_ANSIBLE_PLAYBOOK_DIR, ANSIBLE_PLAYBOOK_DIR
+from clustermanagementtoolkit.cmtpaths import SYSTEM_ANSIBLE_PLAYBOOKS_DIR, ANSIBLE_PLAYBOOKS_DIR
 from clustermanagementtoolkit.cmtpaths import ANSIBLE_INVENTORY
 
-from clustermanagementtoolkit.cmttypes import deep_get, deep_set, DictPath
-from clustermanagementtoolkit.cmttypes import FilePath, ArgumentValidationError, FilePathAuditError
+from clustermanagementtoolkit.cmttypes import deep_get
+from clustermanagementtoolkit.cmttypes import deep_set
+from clustermanagementtoolkit.cmttypes import DictPath
+from clustermanagementtoolkit.cmttypes import FilePath
+from clustermanagementtoolkit.cmttypes.exceptions import ArgumentValidationError
+from clustermanagementtoolkit.cmttypes.exceptions import FilePathAuditError
 
 from clustermanagementtoolkit.ansithemeprint import ANSIThemeStr
 from clustermanagementtoolkit.ansithemeprint import ansithemeprint, init_ansithemeprint
@@ -52,7 +56,7 @@ def test_get_playbook_path(verbose: bool = False) -> tuple[str, bool]:
 
     # Add non-existing local paths to cmtconfig
     deep_set(cmtlib.cmtconfig, DictPath("Ansible#local_playbooks"),
-             ["/NONEXISTINGPATH", "{HOME}/NONEXISTINGPATH2", "/etc/hosts", ANSIBLE_PLAYBOOK_DIR],
+             ["/NONEXISTINGPATH", "{HOME}/NONEXISTINGPATH2", "/etc/hosts", ANSIBLE_PLAYBOOKS_DIR],
              create_path=True)
 
     if result:
@@ -64,8 +68,8 @@ def test_get_playbook_path(verbose: bool = False) -> tuple[str, bool]:
         # (playbook, expected_result, expected_exception)
         testdata: tuple[Any, ...] = (
             ("get_versions.yaml",
-             (SYSTEM_ANSIBLE_PLAYBOOK_DIR.joinpath("get_versions.yaml"),
-              ANSIBLE_PLAYBOOK_DIR.joinpath("get_versions.yaml")), None),
+             (SYSTEM_ANSIBLE_PLAYBOOKS_DIR.joinpath("get_versions.yaml"),
+              ANSIBLE_PLAYBOOKS_DIR.joinpath("get_versions.yaml")), None),
             ("NONEXISTINGPLAYBOOK.yaml",
              None, FilePathAuditError),
             ("", None, ValueError),
@@ -123,8 +127,8 @@ def test_populate_playbooks_from_filenames(verbose: bool = False) -> tuple[str, 
             ([FilePath("get_versions.yaml")],
              [([ANSIThemeStr("  • ", "separator"),
                 ANSIThemeStr("Get package versions", "play")],
-               (SYSTEM_ANSIBLE_PLAYBOOK_DIR.joinpath("get_versions.yaml"),
-                ANSIBLE_PLAYBOOK_DIR.joinpath("get_versions.yaml")))], None),
+               (SYSTEM_ANSIBLE_PLAYBOOKS_DIR.joinpath("get_versions.yaml"),
+                ANSIBLE_PLAYBOOKS_DIR.joinpath("get_versions.yaml")))], None),
 
             ([FilePath("NONEXISTINGPLAYBOOK.yml")], None, FilePathAuditError),
 
@@ -253,15 +257,17 @@ def test_ansible_get_inventory_dict(verbose: bool = False) -> tuple[str, bool]:
         # Indata format:
         # (mock_path, mock_value, mock_return_value, inventory, expected_result)
         testdata: tuple[Any, ...] = (
-            ("clustermanagementtoolkit.ansible_helper.ANSIBLE_INVENTORY",
+            ("clustermanagementtoolkit.ansible_helper.ansible_get_inventory_dict.ANSIBLE_INVENTORY",
              "/doesnotexist", None,
              {"all": {"hosts": {}, "vars": {}}}),
-            ("clustermanagementtoolkit.ansible_helper.secure_read_yaml",
+            ("clustermanagementtoolkit.ansible_helper.ansible_get_inventory_dict.secure_read_yaml",
              None, {}, {"all": {"hosts": {}, "vars": {}}}),
-            ("clustermanagementtoolkit.ansible_helper.secure_read_yaml", None,
+            ("clustermanagementtoolkit.ansible_helper.ansible_get_inventory_dict.secure_read_yaml",
+             None,
              {"all": {"hosts": {"foo": {}}, "vars": {"bar": 42}}},
              {"all": {"hosts": {"foo": {}}, "vars": {"bar": 42}}}),
-            ("clustermanagementtoolkit.ansible_helper.secure_read_yaml", None,
+            ("clustermanagementtoolkit.ansible_helper.ansible_get_inventory_dict.secure_read_yaml",
+             None,
              {"all": {"hosts": None, "vars": None}},
              {"all": {"hosts": {}, "vars": {}}}),
         )
@@ -273,7 +279,8 @@ def test_ansible_get_inventory_dict(verbose: bool = False) -> tuple[str, bool]:
                         tmp = fun()
                 else:
                     # We might not have an inventory available, so pretend that we do
-                    with mock.patch("clustermanagementtoolkit.ansible_helper.Path.is_file",
+                    with mock.patch("clustermanagementtoolkit.ansible_helper."
+                                    "ansible_get_inventory_dict.Path.is_file",
                                     return_value=True), \
                          mock.patch(mock_path, return_value=mock_return_value):
                         tmp = fun()
@@ -297,7 +304,8 @@ def test_ansible_get_inventory_pretty(verbose: bool = False) -> tuple[str, bool]
 
     if result:
         expected_result = False
-        with mock.patch("clustermanagementtoolkit.ansible_helper.ANSIBLE_INVENTORY",
+        with mock.patch("clustermanagementtoolkit.ansible_helper."
+                        "ansible_get_inventory_pretty.ANSIBLE_INVENTORY",
                         "/doesnotexist"):
             if (tmp := fun(groups=["all"], highlight=False, include_groupvar=False,
                            include_hostvars=False, include_hosts=False)):
@@ -347,9 +355,11 @@ def test_ansible_get_inventory_pretty(verbose: bool = False) -> tuple[str, bool]
             groups, highlight, include_groupvars, \
                 include_hostvars, include_hosts, expected_exception = indata
             try:
-                with mock.patch("clustermanagementtoolkit.ansible_helper.Path.is_file",
+                with mock.patch("clustermanagementtoolkit.ansible_helper."
+                                "ansible_get_inventory_pretty.Path.is_file",
                                 return_value=True), \
-                        mock.patch("clustermanagementtoolkit.ansible_helper.secure_read_yaml",
+                        mock.patch("clustermanagementtoolkit.ansible_helper."
+                                   "ansible_get_inventory_pretty.secure_read_yaml",
                                    return_value=inventory):
                     tmp = fun(groups=groups, highlight=highlight,
                               include_groupvar=include_groupvars,
@@ -551,12 +561,10 @@ def test___ansible_create_inventory(verbose: bool = False) -> tuple[str, bool]:
     fun = ansible_helper.__ansible_create_inventory
 
     if result:
-        real_ansible_user = deep_get(ansible_helper.ansible_configuration, DictPath("ansible_user"))
-        real_ansible_password = \
-            deep_get(ansible_helper.ansible_configuration, DictPath("ansible_password"))
+        real_ansible_user = ansible_helper.AnsibleConfiguration.ansible_user
+        real_ansible_password = ansible_helper.AnsibleConfiguration.ansible_password
         real_ansible_disable_strict_host_key_checking = \
-            deep_get(ansible_helper.ansible_configuration,
-                     DictPath("disable_strict_host_key_checking"))
+            ansible_helper.AnsibleConfiguration.disable_strict_host_key_checking
 
         with tempfile.TemporaryDirectory() as td, tempfile.NamedTemporaryFile(delete=False) as tf:
             # __ansible_create_inventory() will open the file
@@ -582,14 +590,15 @@ def test___ansible_create_inventory(verbose: bool = False) -> tuple[str, bool]:
                 "ansible_ssh_common_args": "-o StrictHostKeyChecking=no",
             }
 
-            if (ansible_user := deep_get(ansible_helper.ansible_configuration,
-                                         DictPath("ansible_user"))) is not None:
+            if (ansible_user := getattr(ansible_helper.AnsibleConfiguration,
+                                        "ansible_user")) is not None:
                 deep_set(d, DictPath("all#vars#ansible_user"), ansible_user, create_path=True)
-            if deep_get(ansible_helper.ansible_configuration,
-                        DictPath("ansible_password")) is not None:
-                deep_set(d, DictPath("all#vars#ansible_ssh_pass"), ansible_user, create_path=True)
-            if deep_get(ansible_helper.ansible_configuration,
-                        DictPath("disable_strict_host_key_checking"), False):
+            if (ansible_password := getattr(ansible_helper.AnsibleConfiguration,
+                                            "ansible_password")) is not None:
+                deep_set(d, DictPath("all#vars#ansible_ssh_pass"),
+                         ansible_password, create_path=True)
+            if getattr(ansible_helper.AnsibleConfiguration,
+                       "disable_strict_host_key_checking", False):
                 deep_set(d, DictPath("ansible_ssh_common_args"),
                          "-o StrictHostKeyChecking=no", create_path=True)
             # Indata format:
@@ -612,13 +621,10 @@ def test___ansible_create_inventory(verbose: bool = False) -> tuple[str, bool]:
                     expected_result, expected_content, expected_exception = indata
                 try:
                     if override_ansible_configuration:
-                        deep_set(ansible_helper.ansible_configuration,
-                                 DictPath("ansible_user"), "foo", create_path=True)
-                        deep_set(ansible_helper.ansible_configuration,
-                                 DictPath("ansible_password"), "bar", create_path=True)
-                        deep_set(ansible_helper.ansible_configuration,
-                                 DictPath("disable_strict_host_key_checking"), True,
-                                 create_path=True)
+                        setattr(ansible_helper.AnsibleConfiguration, "ansible_user", "foo")
+                        setattr(ansible_helper.AnsibleConfiguration, "ansible_password", "bar")
+                        setattr(ansible_helper.AnsibleConfiguration,
+                                "disable_strict_host_key_checking", True)
                     if (tmp := fun(path, overwrite=overwrite, temporary=True)) != expected_result:
                         message = f"{fun.__name__}() did not yield expected result:\n" \
                                   f"           path: {path}\n" \
@@ -658,13 +664,11 @@ def test___ansible_create_inventory(verbose: bool = False) -> tuple[str, bool]:
                                   f"      exception: {type(e)}\n"
                         result = False
                         break
-            deep_set(ansible_helper.ansible_configuration,
-                     DictPath("ansible_user"), real_ansible_user, create_path=True)
-            deep_set(ansible_helper.ansible_configuration,
-                     DictPath("ansible_password"), real_ansible_password, create_path=True)
-            deep_set(ansible_helper.ansible_configuration,
-                     DictPath("disable_strict_host_key_checking"),
-                     real_ansible_disable_strict_host_key_checking, create_path=True)
+            setattr(ansible_helper.AnsibleConfiguration, "ansible_user", real_ansible_user)
+            setattr(ansible_helper.AnsibleConfiguration, "ansible_password", real_ansible_password)
+            setattr(ansible_helper.AnsibleConfiguration,
+                    "disable_strict_host_key_checking",
+                    real_ansible_disable_strict_host_key_checking)
             os.unlink(tf.name)
     return message, result
 
@@ -1742,12 +1746,12 @@ def test_ansible_results_extract(verbose: bool = False) -> tuple[str, bool]:
                         "end_date": None,
                         "start_date": None,
                         "msg_lines": [],
-                        "stdout_lines": ["<no output>"],
-                        "stderr_lines": [],
+                        "stdout_lines": [],
+                        "stderr_lines": [""],
                         "task": "A hidden task",
                         "unreachable": True,
                         "no_hosts_matched": False,
-                        "status": "UNREACHABLE (unknown reason)",
+                        "status": "UNREACHABLE (unknown error)",
                         "retval": -1,
                         "skipped": True,
                     }), None),
@@ -2218,7 +2222,7 @@ def main() -> int:
     failed_testcases = []
 
     init_ansithemeprint(themefile=None)
-    cmtlib.read_cmtconfig()
+    cmtlib.cmtconfig = cmtlib.read_cmtconfig()
     deep_set(cmtlib.cmtconfig, DictPath("Ansible#local_playbooks"), [TEST_PLAYBOOKS_DIR],
              create_path=True)
 

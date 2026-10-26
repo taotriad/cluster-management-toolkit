@@ -46,8 +46,8 @@ infoview:
   infopad:
     row_indexes:
       Normal:
-        fields: ["controller", "label_selector",
-                 "set_based_selector", "max_unhealthy", "expected_machines",
+        fields: ["controller", "selector",
+                 "max_unhealthy", "expected_machines",
                  "current_healthy", "remediations_allowed",
                  "node_startup_timeout"]
     rows:
@@ -66,21 +66,15 @@ infoview:
         default: "<unset>"
         type: "int"
         formatter: "numerical"
-      label_selector:
-        header: [["La", ["main", "infoheader"]],
-                 ["b", ["main", "infoheader_shortcut"]],
-                 ["el Selector:", ["main", "infoheader"]]]
+      selector:
+        header: [["Selec", ["main", "infoheader"]],
+                 ["t", ["main", "infoheader_shortcut"]],
+                 ["or:", ["main", "infoheader"]]]
         paths:
-          - path: ["spec#selector#matchLabels"]
-            pathtype: "key_value"
-            default: ["<none>"]
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "key"
-            - type: "value"
-          field_separators:
-            - type: "selector"
+          - path: "spec#selector"
+            pathtype: "obj"
+            default: "<none>"
+        formatter: "selector"
       max_unhealthy:
         header: [["Max Unhealthy:", ["main", "infoheader"]]]
         path: "spec#maxUnhealthy"
@@ -97,21 +91,6 @@ infoview:
         default: "<unset>"
         type: "int"
         formatter: "numerical"
-      set_based_selector:
-        header: [["Set-based Selector:", ["main", "infoheader"]]]
-        paths:
-          - path: "spec#selector#matchExpressions"
-            pathtype: "match_expression"
-            default: "<none>"
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "key"
-            - type: "operator"
-            - type: "value"
-          field_separators:
-            - type: "space"
-            - type: "no_pad"
   listpad:
     listgetter: "generic_listgetter"
     listgetter_args:
@@ -196,17 +175,16 @@ infoview:
     {%- for line in shortcut_controller.split("\n") %}
     {{ line }}
     {%- endfor %}
-    "Label Selector":
-      key: "b"
+    "Selector":
+      key: "t"
       read_only: true
-      helptext: "Show label selector"
+      helptext: "Show selector"
       widget: "windowwidget"
       widget_args:
-        title: "Label Selector:"
-        headers: ["Key:", "Value:"]
-        itemgetter: "get_key_value"
+        title: "Selector:"
+        itemgetter: "get_selector_list"
         itemgetter_args:
-          path: "spec#selector#matchLabels"
+          path: "spec#selector"
     "Unhealthy Conditions":
       key: "u"
       modifier: "shift"

@@ -32,8 +32,21 @@ infoview:
       {%- endfor %}
       image:
         header: [["Image:", ["main", "infoheader"]]]
-        path: "spec#image"
-        type: "str"
+        paths:
+          - path: "spec#image"
+            pathtype: "regex"
+            regex: "^([^:]+):(.*)"
+            default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "generic"
+            - type: "version"
+          field_separators:
+            - type: "version"
+          field_formatters:
+            - ""
+            - "version"
   shortcuts:
     {%- for line in shortcut_controller.split("\n") %}
     {{ line }}

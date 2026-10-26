@@ -28,6 +28,7 @@ infoview:
         default: "<unset>"
         type: "str"
   logpad:
+    title: "Values:"
     infogetter: "logpad_formatted"
     infogetter_args:
       formatter: "format_yaml"

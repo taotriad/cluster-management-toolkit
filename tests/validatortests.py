@@ -14,8 +14,9 @@ from unittest import mock
 import yaml
 
 from clustermanagementtoolkit.cmttypes import deep_get, DictPath
-from clustermanagementtoolkit.cmttypes import ArgumentValidationError
-from clustermanagementtoolkit.cmttypes import ProgrammingError, HostNameStatus
+from clustermanagementtoolkit.cmttypes import HostNameStatus
+from clustermanagementtoolkit.cmttypes.exceptions import ArgumentValidationError
+from clustermanagementtoolkit.cmttypes.exceptions import ProgrammingError
 
 from clustermanagementtoolkit.ansithemeprint import ANSIThemeStr
 from clustermanagementtoolkit.ansithemeprint import ansithemeprint, init_ansithemeprint

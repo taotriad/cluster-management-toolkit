@@ -321,7 +321,7 @@ infoview:
         path: "spec#source#http#url"
         default: "<unset>"
         type: "str"
-        formatter: "address"
+        formatter: "uri"
       volume_mode:
         header: [["Volume Mode:", ["main", "infoheader"]]]
         path: "spec#storage#volumeMode"
@@ -349,6 +349,8 @@ infoview:
       widget_args:
         title: "Storage Resources:"
         headers: ["Request Type:", "Resource:"]
+        formatting: [["windowwidget", "default"],
+                     ["windowwidget", "highlight"]]
         itemgetter: "get_key_value"
         itemgetter_args:
           path: "spec#storage#resources"

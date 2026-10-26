@@ -54,7 +54,8 @@ infoview:
       image_repository:
         header: [["Docker Image Repository:", ["main", "infoheader"]]]
         path: "status#dockerImageRepository"
-        default: "<unset>"
+        fallback_on_empty: true
+        default: "<empty>"
         type: "str"
       lookup_policy:
         header: [["Lookup Policy:", ["main", "infoheader"]]]
@@ -94,16 +95,19 @@ infoview:
       image_name:
         header: "Name:"
         path: "from#name"
+        default: "<unset>"
         type: "str"
       generation:
         header: "Generation:"
         path: "generation"
+        default: "<unset>"
         type: "int"
         formatter: "numerical"
         align: "right"
       kind:
         header: "Kind:"
         path: "from#kind"
+        default: "<unset>"
         type: "str"
         formatting:
           field_colors:
@@ -111,10 +115,12 @@ infoview:
       import_mode:
         header: "Import Mode:"
         path: "importPolicy#importMode"
+        default: "<unset>"
         type: "str"
       reference_policy:
         header: "Reference Policy:"
         path: "referencePolicy#type"
+        default: "<unset>"
         type: "str"
       scheduled:
         header: "Scheduled:"
@@ -124,6 +130,7 @@ infoview:
       tag:
         header: "Tag:"
         path: "name"
+        default: "<unset>"
         type: "str"
         formatter: "version"
   shortcuts:

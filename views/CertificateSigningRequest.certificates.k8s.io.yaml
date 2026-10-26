@@ -71,7 +71,7 @@ listview:
     requested_duration:
       header: "Requested Duration:"
       path: "spec#expirationSeconds"
-      default: -1
+      default: "<unset>"
       type: "age"
       formatter: "age"
       align: "right"
@@ -168,7 +168,7 @@ infoview:
       requested_duration:
         header: [["Requested Duration:", ["main", "infoheader"]]]
         path: "spec#expirationSeconds"
-        default: -1
+        default: "<unset>"
         type: "age"
         formatter: "age"
       requestor:

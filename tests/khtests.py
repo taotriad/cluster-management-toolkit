@@ -14,12 +14,18 @@ import yaml
 
 from clustermanagementtoolkit import cmtlib
 
-from clustermanagementtoolkit.cmttypes import deep_get, deep_set, DictPath, StatusGroup
+from clustermanagementtoolkit.cmttypes import DictPath
+from clustermanagementtoolkit.cmttypes import StatusGroup
+from clustermanagementtoolkit.cmttypes import deep_get
+from clustermanagementtoolkit.cmttypes import deep_set
 
 from clustermanagementtoolkit.ansithemeprint import ANSIThemeStr
-from clustermanagementtoolkit.ansithemeprint import ansithemeprint, init_ansithemeprint
+from clustermanagementtoolkit.ansithemeprint import ansithemeprint
+from clustermanagementtoolkit.ansithemeprint import init_ansithemeprint
 
 from clustermanagementtoolkit import kubernetes_helper
+
+from clustermanagementtoolkit.kubernetes_resources import kubernetes_resources
 
 # unit-tests for kubernetes_helper.py
 
@@ -160,12 +166,9 @@ def test_update_api_status(verbose: bool = False) -> tuple[str, bool]:
         for indata, listview, infoview, local, expected_result, expected_exception in testdata:
             try:
                 fun(indata, listview, infoview, local)
-                listview = deep_get(kubernetes_helper.kubernetes_resources[indata],
-                                    DictPath("list"), None)
-                infoview = deep_get(kubernetes_helper.kubernetes_resources[indata],
-                                    DictPath("info"), None)
-                local = deep_get(kubernetes_helper.kubernetes_resources[indata],
-                                 DictPath("local"), None)
+                listview = deep_get(kubernetes_resources[indata], DictPath("list"), None)
+                infoview = deep_get(kubernetes_resources[indata], DictPath("info"), None)
+                local = deep_get(kubernetes_resources[indata], DictPath("local"), None)
 
                 if (listview, infoview, local) != expected_result:
                     message = f"{fun.__name__}() did not yield expected result:\n" \
@@ -234,7 +237,8 @@ def test_kubectl_get_version(verbose: bool = False) -> tuple[str, bool]:
              '  minor: "28"\n'
              '  platform: linux/amd64', 0)
 
-        with mock.patch("clustermanagementtoolkit.kubernetes_helper.execute_command_with_response",
+        with mock.patch("clustermanagementtoolkit.kubernetes_helper."
+                        "kubectl_get_version.execute_command_with_response",
                         return_value=mock_response):
             tmp = fun()
         if not (isinstance(tmp, tuple) and len(tmp) == 6
@@ -737,7 +741,7 @@ def test_get_ref_by_kind_name_namespace(verbose: bool = False) -> tuple[str, boo
     result = True
 
     fun = kh.get_ref_by_kind_name_namespace
-    cmtlib.read_cmtconfig()
+    cmtlib.cmtconfig = cmtlib.read_cmtconfig()
     deep_set(cmtlib.cmtconfig, DictPath("Debug#developer_mode"), True, create_path=True)
     deep_set(cmtlib.cmtconfig, DictPath("Debug#use_testdata"), True, create_path=True)
 
@@ -939,7 +943,8 @@ def test_get_ref_by_kind_name_namespace(verbose: bool = False) -> tuple[str, boo
         )
         for indata, kind, name, namespace, kwargs, expected_result, expected_exception in testdata:
             try:
-                with mock.patch("clustermanagementtoolkit.kubernetes_helper.secure_read_yaml",
+                with mock.patch("clustermanagementtoolkit.kubernetes_helper."
+                                "kuberneteshelper.secure_read_yaml",
                                 return_value=indata), \
                         mock.patch("pathlib.Path.is_file", return_value=True):
                     if (tmp := fun(kind, name, namespace, **kwargs)) != expected_result:
@@ -950,6 +955,7 @@ def test_get_ref_by_kind_name_namespace(verbose: bool = False) -> tuple[str, boo
                         result = False
                         break
             except Exception as e:
+                raise
                 if expected_exception is not None:
                     if isinstance(e, expected_exception):
                         pass

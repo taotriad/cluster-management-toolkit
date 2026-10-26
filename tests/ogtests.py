@@ -17,7 +17,8 @@ from clustermanagementtoolkit.cmtio import secure_rm
 from clustermanagementtoolkit.cmtio_yaml import secure_write_yaml
 
 from clustermanagementtoolkit.cmttypes import deep_get, DictPath
-from clustermanagementtoolkit.cmttypes import FilePath, FilePathAuditError, SecurityStatus
+from clustermanagementtoolkit.cmttypes import FilePath, SecurityStatus
+from clustermanagementtoolkit.cmttypes.exceptions import FilePathAuditError
 
 from clustermanagementtoolkit.ansithemeprint import ANSIThemeStr
 from clustermanagementtoolkit.ansithemeprint import ansithemeprint, init_ansithemeprint
@@ -189,7 +190,7 @@ def test_objgetter_ansible_facts(verbose: bool = False) -> tuple[str, bool]:
         for obj, mockdata, expected_result, expected_exception in testdata:
             try:
                 with mock.patch("clustermanagementtoolkit.objgetters."
-                                "ansible_run_playbook_on_selection",
+                                "objgetter_ansible_facts.ansible_run_playbook_on_selection",
                                 return_value=mockdata):
                     tmp = fun(obj)
                 if tmp != expected_result:
@@ -493,7 +494,8 @@ def test_objgetter_ansible_log(verbose: bool = False) -> tuple[str, bool]:
             secure_write_yaml(obj.joinpath("01-myhost_Checking_uptime.yaml"), logfile)
             try:
                 if mock_check_path:
-                    with mock.patch("clustermanagementtoolkit.objgetters.check_path",
+                    with mock.patch("clustermanagementtoolkit.objgetters."
+                                    "objgetter_ansible_log.check_path",
                                     return_value=mock_check_path):
                         tmp = fun(obj)
                 else:

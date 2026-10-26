@@ -61,9 +61,7 @@ infoview:
                  "contract",
                  "additional_manifests",
                  "config_secret",
-                 "fetch_config_header",
-                 "fetch_config_label_selector",
-                 "fetch_config_set_based_selector",
+                 "fetch_config_selector",
                  "phase"]
     rows:
       additional_manifests:
@@ -95,38 +93,15 @@ infoview:
         header: [["Enable Automatic Update:", ["main", "infoheader"]]]
         path: "spec#enableAutomaticUpdate"
         type: "bool"
-      fetch_config_header:
-        header: [["Fetch Config Selector:", ["main", "infoheader"]]]
-      fetch_config_label_selector:
-        header: [["  La", ["main", "infoheader"]],
-                 ["b", ["main", "infoheader_shortcut"]],
-                 ["el Selector:", ["main", "infoheader"]]]
+      fetch_config_selector:
+        header: [["Fetch Config Selec", ["main", "infoheader"]],
+                 ["t", ["main", "infoheader_shortcut"]],
+                 ["or:", ["main", "infoheader"]]]
         paths:
-          - path: ["spec#fetchConfig#selector#matchLabels"]
-            pathtype: "key_value"
-            default: ["<none>"]
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "key"
-            - type: "value"
-          field_separators:
-            - type: "selector"
-      fetch_config_set_based_selector:
-        header: [["  Set-based Selector:", ["main", "infoheader"]]]
-        paths:
-          - path: ["spec#fetchConfig#selector#matchExpressions"]
-            pathtype: "match_expression"
+          - path: "spec#fetchConfig#selector"
+            pathtype: "obj"
             default: "<none>"
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "key"
-            - type: "operator"
-            - type: "value"
-          field_separators:
-            - type: "space"
-            - type: "no_pad"
+        formatter: "selector"
       installed_version:
         header: [["Installed Version:", ["main", "infoheader"]]]
         path: "status#installedVersion"
@@ -166,17 +141,16 @@ infoview:
         path: "spec#type"
         type: "str"
   shortcuts:
-    "Fetch Config Label Selector":
-      key: "b"
+    "Fetch Config Selector":
+      key: "t"
       read_only: true
-      helptext: "Show fetch config label selector"
+      helptext: "Show fetch config selector"
       widget: "windowwidget"
       widget_args:
-        title: "Fetch Config Label Selector:"
-        headers: ["Key:", "Value:"]
-        itemgetter: "get_key_value"
+        title: "Fetch Config Selector:"
+        itemgetter: "get_selector_list"
         itemgetter_args:
-          path: "spec#fetchConfig#selector#matchLabels"
+          path: "spec#fetchConfig#selector"
     "Additional Manifests":
       key: "a"
       modifier: "shift"

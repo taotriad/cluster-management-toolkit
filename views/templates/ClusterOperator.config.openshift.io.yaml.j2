@@ -5,6 +5,7 @@ default_command: "clusteroperators"
 command:
   - "clusteroperators.config"
   - "clusteroperator.config"
+  - "clrop.config"
 listview:
   name: "Cluster Operators"
   group: "OpenShift"
@@ -143,7 +144,6 @@ infoview:
       widget_args:
         title: "Versions:"
         headers: ["Name:", "Version:"]
-        selectable: true
         itemgetter: "get_list_fields"
         itemgetter_args:
           path: "status#versions"

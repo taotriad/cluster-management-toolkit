@@ -82,7 +82,7 @@ infoview:
         path: "status#url"
         default: "<unset>"
         type: "str"
-        formatter: "address"
+        formatter: "uri"
   shortcuts:
     "Open ConfigMap":
       key: "c"

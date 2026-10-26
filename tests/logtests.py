@@ -87,9 +87,10 @@ def test_month_to_numerical(verbose: bool = False) -> tuple[str, bool]:
     message = ""
     result = True
 
+    fun = logparsers.month_to_numerical
+
     for indata in ("jan", "feb", "mar", "apr", "may", "jun",
                    "jul", "aug", "sep", "oct", "nov", "dec"):
-        fun = logparsers.month_to_numerical
         tmp = fun(indata)
         if tmp is None:
             message = f"{fun.__name__}() returned None with valid indata {indata}"
@@ -244,6 +245,57 @@ def test_lvl_to_word_severity(verbose: bool = False) -> tuple[str, bool]:
     return generic_lvl_to_severity(valid_indata=(LogLevel.CRIT, LogLevel.ERR, LogLevel.WARNING,
                                                  LogLevel.NOTICE, LogLevel.INFO, LogLevel.DEBUG),
                                    fun=logparsers.lvl_to_word_severity)
+
+
+def test_match_name(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = logparsers.match_name
+
+    if result:
+        # Indata format:
+        # (matchrule, name, expected_result, expected_exception)
+        testdata: tuple[Any, ...] = (
+            ("", "foobar", True, None),
+            ("^foo", "foobar", True, None),
+            ("foo", "foobar", True, None),
+            ("foo$", "foobar", False, None),
+            ("^foobar$", "foobar", True, None),
+            ("bar$", "foobar", True, None),
+            ("foo", "bar", False, None),
+        )
+        for matchrule, name, expected_result, expected_exception in testdata:
+            try:
+                if (tmp := fun(matchrule, name)) != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"      matchrule: {matchrule}\n" \
+                              f"           name: {name}\n" \
+                              f"         output: {tmp}\n" \
+                              f"       expected: {expected_result}"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  f"      matchrule: {matchrule}\n" \
+                                  f"           name: {name}\n" \
+                                  f"      exception: {type(e)}\n" \
+                                  f"       expected: {expected_exception}"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"      matchrule: {matchrule}\n" \
+                              f"           name: {name}\n" \
+                              f"      exception: {type(e)}\n" \
+                              f"       expected: {expected_result}"
+                    result = False
+                    break
+    return message, result
 
 
 def test_severity_to_string(verbose: bool = False) -> tuple[str, bool]:
@@ -1530,7 +1582,7 @@ def test_tab_separated(verbose: bool = False) -> tuple[str, bool]:
                  ThemeStr(':', ThemeAttr('types', 'yaml_punctuation'), False),
                  ThemeStr(' ', ThemeAttr('types', 'generic'), False),
                  ThemeStr('"v1.0"', ThemeAttr('logview', 'severity_notice'), False)],
-                          LogLevel.INFO),
+                LogLevel.INFO),
                ([ThemeStr('}', ThemeAttr('types', 'yaml_punctuation'), False)], LogLevel.INFO)]),
              None),
             ('2022-12-13T22:23:45.808Z\tINFO\tsetup\tfoo\t{"version: "v1.0"}',
@@ -2574,6 +2626,10 @@ tests: dict[tuple[str, ...], dict[str, Any]] = {
     },
     ("lvl_to_word_severity",): {
         "callable": test_lvl_to_word_severity,
+        "result": None,
+    },
+    ("match_name",): {
+        "callable": test_match_name,
         "result": None,
     },
     ("severity_to_string",): {

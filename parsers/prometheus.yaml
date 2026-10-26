@@ -78,6 +78,16 @@
     - image_name: "/rancher/mirrored-kube-logging-config-reloader"
   parser_rules:
     - name: "ts_8601"
+    - name: "override_severity"
+      options:
+        severity:
+          overrides:
+            - matchtype: "startswith"
+              matchkey: "Error: "
+              loglevel: "error"
+            - matchtype: "startswith"
+              matchkey: "error: "
+              loglevel: "error"
 - name: "prometheus"
   show_in_selector: false
   matchkeys:

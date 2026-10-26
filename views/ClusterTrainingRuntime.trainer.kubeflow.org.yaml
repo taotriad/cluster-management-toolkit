@@ -1,8 +1,11 @@
 ---
 kind: "ClusterTrainingRuntime"
 api_family: "trainer.kubeflow.org"
-default_command: "clrtrrts"
+default_command: "clustertrainingruntimes"
 command:
+  - "clrtrainingruntimes"
+  - "clrtrainingruntime"
+  - "clrtrrts"
   - "clrtrrt"
 listview:
   name: "Cluster Training Runtimes"
@@ -67,6 +70,7 @@ infoview:
         path: "spec#mlPolicy#numNodes"
         default: "<unset>"
         type: "int"
+        formatter: "numerical"
       ml_policy_torch_header:
         header: [["  Torch:", ["main", "infoheader"]]]
       ml_policy_torch_num_proc_per_node:
@@ -75,6 +79,13 @@ infoview:
         default: "<unset>"
         type: "int"
         formatter: "numerical"
+  logpad:
+    title: "Template:"
+    infogetter: "logpad_formatted"
+    infogetter_args:
+      formatter: "format_yaml"
+      path: "spec#template"
+    timestamps: false
   shortcuts:
     "View Template":
       key: "t"

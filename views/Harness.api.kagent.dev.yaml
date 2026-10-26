@@ -1,0 +1,97 @@
+---
+kind: "Harness"
+api_family: "api.kagent.dev"
+default_command: "harnesses.api.kagent.dev"
+command:
+  - "kaharnesses"
+  - "kaharness"
+listview:
+  name: "Harnesses"
+  group: "Machine Learning"
+  field_indexes:
+    Normal:
+      fields: ["namespace", "name", "age"]
+      sortcolumn: "namespace"
+infoview:
+  name: "Harness Info"
+  infopad:
+    row_indexes:
+      Normal:
+        fields: ["substrate_header",
+                 "substrate_snapshot_policy_header",
+                 "substrate_snapshot_policy_location",
+                 "worker_pool_reference",
+                 "workload_header",
+                 "workload_image",
+                 "environment_variables"]
+    rows:
+      environment_variables:
+        header: [["E", ["main", "infoheader_shortcut"]],
+                 ["nvironment Variables:", ["main", "infoheader"]]]
+        paths:
+          - path: "spec#env"
+            pathtype: "items"
+            subpaths:
+              - "name"
+              - "value"
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "key"
+            - type: "value"
+          field_separators:
+            - type: "keyvalue"
+      substrate_header:
+        header: [["Substrate:", ["main", "infoheader"]]]
+      substrate_snapshot_policy_header:
+        header: [["  Snapshot Policy:", ["main", "infoheader"]]]
+      substrate_snapshot_policy_location:
+        header: [["    Location:", ["main", "infoheader"]]]
+        path: "spec#substrate#snapshotPolicy#location"
+        default: "<unset>"
+        type: "str"
+        formatter: "uri"
+      worker_pool_reference:
+        header: [["  Worker Pool Reference:", ["main", "infoheader"]]]
+        path: "spec#substrate#workerPoolRef#name"
+        default: "<unset>"
+        type: "str"
+      workload_header:
+        header: [["Workload:", ["main", "infoheader"]]]
+      workload_image:
+        header: [["  Image:", ["main", "infoheader"]]]
+        paths:
+          - path: "spec#workload#image"
+            pathtype: "regex"
+            regex: "^([^:]+):(.*)"
+            default: ["<none>"]
+        formatter: "list"
+        formatting:
+          field_colors:
+            - type: "generic"
+            - type: "version"
+          field_separators:
+            - type: "version"
+          field_formatters:
+            - ""
+            - "version"
+  shortcuts:
+    "List Environment Variables":
+      key: "e"
+      modifier: "shift"
+      read_only: true
+      helptext: "List environment variables"
+      widget: "windowwidget"
+      widget_args:
+        title: "Environment Variables:"
+        headers: ["Name:", "Value:"]
+        formatting: [["windowwidget", "default"],
+                     ["windowwidget", "highlight"]]
+        itemgetter: "get_list_fields"
+        itemgetter_args:
+          path: "spec#env"
+          fields:
+            - "name"
+            - "value"
+        # This isn't supported for now
+        sortcolumn: "name"

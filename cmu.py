@@ -66,73 +66,121 @@ except ModuleNotFoundError:  # pragma: no cover
 # This has to be first, since it checks for the correct Python version
 from clustermanagementtoolkit import about
 
-from clustermanagementtoolkit.ansible_helper import ANSIBLE_INVENTORY
-from clustermanagementtoolkit.ansible_helper import ansible_add_hosts, ansible_remove_hosts
-from clustermanagementtoolkit.ansible_helper import ansible_configuration
+from clustermanagementtoolkit.ansible_helper import AnsibleConfiguration
+from clustermanagementtoolkit.ansible_helper import ansible_add_hosts
 from clustermanagementtoolkit.ansible_helper import ansible_delete_log
-from clustermanagementtoolkit.ansible_helper import ansible_get_groups, ansible_get_groups_by_host
+from clustermanagementtoolkit.ansible_helper import ansible_get_groups
+from clustermanagementtoolkit.ansible_helper import ansible_get_groups_by_host
 from clustermanagementtoolkit.ansible_helper import ansible_get_inventory_dict
-from clustermanagementtoolkit.ansible_helper import ansible_print_play_results, get_playbook_path
+from clustermanagementtoolkit.ansible_helper import ansible_print_play_results
+from clustermanagementtoolkit.ansible_helper import ansible_remove_hosts
 from clustermanagementtoolkit.ansible_helper import ansible_run_playbook_on_selection
 from clustermanagementtoolkit.ansible_helper import ansible_set_vars
+from clustermanagementtoolkit.ansible_helper import get_playbook_path
 
-from clustermanagementtoolkit.ansithemeprint import ANSIThemeStr, ansithemestr_join_list
-from clustermanagementtoolkit.ansithemeprint import clear_screen, ansithemeinput, ansithemeprint
+from clustermanagementtoolkit.ansithemeprint import ANSIThemeStr
+from clustermanagementtoolkit.ansithemeprint import ansithemeinput
+from clustermanagementtoolkit.ansithemeprint import ansithemeprint
+from clustermanagementtoolkit.ansithemeprint import ansithemestr_join_list
+from clustermanagementtoolkit.ansithemeprint import clear_screen
 
-from clustermanagementtoolkit import checks
+from clustermanagementtoolkit.checks import check_netrc_permissions
 
-from clustermanagementtoolkit import cmtio
 from clustermanagementtoolkit.cmtio import expand_path
-from clustermanagementtoolkit.cmtio import secure_read_string, secure_which, secure_write_string
+from clustermanagementtoolkit.cmtio import join_securitystatus_set
+from clustermanagementtoolkit.cmtio import secure_read_string
+from clustermanagementtoolkit.cmtio import secure_which
+from clustermanagementtoolkit.cmtio import secure_write_string
+from clustermanagementtoolkit.cmtio import setup_paths
 
 from clustermanagementtoolkit.cmtio_yaml import json_loads
 from clustermanagementtoolkit.cmtio_yaml import secure_read_yaml
 
 from clustermanagementtoolkit import cmtlib
-from clustermanagementtoolkit.cmtlib import check_allowlist, clamp, decode_value
-from clustermanagementtoolkit.cmtlib import get_package_versions
-from clustermanagementtoolkit.cmtlib import make_label_selector, make_label_selector_set_expression
-from clustermanagementtoolkit.cmtlib import next_option, none_timestamp, populate_template
-from clustermanagementtoolkit.cmtlib import read_cmtconfig, split_msg, substitute_list
+from clustermanagementtoolkit.cmtlib import check_allowlist
+from clustermanagementtoolkit.cmtlib import clamp
+from clustermanagementtoolkit.cmtlib import decode_value
+from clustermanagementtoolkit.cmtlib import make_label_selector
+from clustermanagementtoolkit.cmtlib import make_label_selector_set_expression
+from clustermanagementtoolkit.cmtlib import next_option
+from clustermanagementtoolkit.cmtlib import none_timestamp
+from clustermanagementtoolkit.cmtlib import populate_template
+from clustermanagementtoolkit.cmtlib import split_msg
+from clustermanagementtoolkit.cmtlib import substitute_list
 from clustermanagementtoolkit.cmtlib import timestamp_to_datetime
+
+from clustermanagementtoolkit.cmtlib_ext import get_package_versions
 
 from clustermanagementtoolkit import cmtlog
 
-from clustermanagementtoolkit import cmtpaths
-from clustermanagementtoolkit.cmtpaths import ANSIBLE_PLAYBOOK_DIR, SYSTEM_ANSIBLE_PLAYBOOK_DIR
-from clustermanagementtoolkit.cmtpaths import KUBE_CONFIG_FILE, HOMEDIR, DEPLOYMENT_DIR
-from clustermanagementtoolkit.cmtpaths import CMT_CONFIG_FILE_DIR, THEME_DIR
-from clustermanagementtoolkit.cmtpaths import CMT_CONFIG_FILE_DIRNAME, CMT_CONFIG_FILE
+from clustermanagementtoolkit.cmtpaths import ANSIBLE_INVENTORY
+from clustermanagementtoolkit.cmtpaths import ANSIBLE_PLAYBOOKS_DIR
+from clustermanagementtoolkit.cmtpaths import CMT_CONFIG_FILE
+from clustermanagementtoolkit.cmtpaths import CMT_CONFIG_FILE_DIR
+from clustermanagementtoolkit.cmtpaths import CMT_CONFIG_FILE_DIRNAME
 from clustermanagementtoolkit.cmtpaths import CMT_CONFIG_FILENAME
 from clustermanagementtoolkit.cmtpaths import DEFAULT_THEME_FILE
-from clustermanagementtoolkit.cmtpaths import SSH_ARGS_RELAXED, SSH_ARGS_STRICT, SSH_BIN_PATH
+from clustermanagementtoolkit.cmtpaths import DEPLOYMENTS_DIR
+from clustermanagementtoolkit.cmtpaths import HOMEDIR
+from clustermanagementtoolkit.cmtpaths import KUBE_CONFIG_FILE
+from clustermanagementtoolkit.cmtpaths import SSH_ARGS_RELAXED
+from clustermanagementtoolkit.cmtpaths import SSH_ARGS_STRICT
+from clustermanagementtoolkit.cmtpaths import SSH_BIN_PATH
+from clustermanagementtoolkit.cmtpaths import SYSTEM_ANSIBLE_PLAYBOOKS_DIR
+from clustermanagementtoolkit.cmtpaths import SYSTEM_THEMES_DIR
+from clustermanagementtoolkit.cmtpaths import SYSTEM_VIEWS_DIR
+from clustermanagementtoolkit.cmtpaths import THEMES_DIR
+from clustermanagementtoolkit.cmtpaths import VIEWS_DIR
 
-from clustermanagementtoolkit.cmttypes import deep_get, deep_get_with_fallback
-from clustermanagementtoolkit.cmttypes import deep_get_str_tuple_paths, deep_set, DictPath
-from clustermanagementtoolkit.cmttypes import FilePath, Retval, LogLevel
-from clustermanagementtoolkit.cmttypes import SecurityPolicy, SecurityStatus, StatusGroup
-from clustermanagementtoolkit.cmttypes import ProgrammingError, FilePathAuditError
-from clustermanagementtoolkit.cmttypes import name_to_loglevel, loglevel_to_name
+from clustermanagementtoolkit.cmttypes import DictPath
+from clustermanagementtoolkit.cmttypes import FilePath
+from clustermanagementtoolkit.cmttypes import LogLevel
+from clustermanagementtoolkit.cmttypes import Retval
+from clustermanagementtoolkit.cmttypes import SecurityPolicy
+from clustermanagementtoolkit.cmttypes import SecurityStatus
+from clustermanagementtoolkit.cmttypes import StatusGroup
+from clustermanagementtoolkit.cmttypes import deep_get
+from clustermanagementtoolkit.cmttypes import deep_get_str_tuple_paths
+from clustermanagementtoolkit.cmttypes import deep_get_with_fallback
+from clustermanagementtoolkit.cmttypes import deep_set
 from clustermanagementtoolkit.cmttypes import get_loglevel_names
+from clustermanagementtoolkit.cmttypes import loglevel_to_name
+from clustermanagementtoolkit.cmttypes import name_to_loglevel
+from clustermanagementtoolkit.cmttypes.exceptions import ProgrammingError
+from clustermanagementtoolkit.cmttypes.exceptions import FilePathAuditError
 
 from clustermanagementtoolkit.cmtvalidators import validate_name
 
-from clustermanagementtoolkit.commandparser import parse_commandline, CommandType
+from clustermanagementtoolkit.commandparser import CommandType
+from clustermanagementtoolkit.commandparser import parse_commandline
 
 from clustermanagementtoolkit import curses_helper
-from clustermanagementtoolkit.curses_helper import clear_tagged_items, tag_item, untag_item
-from clustermanagementtoolkit.curses_helper import in_tagged_items, get_tagged_items
+from clustermanagementtoolkit.curses_helper import CursesConfiguration
+from clustermanagementtoolkit.curses_helper import ThemeAttr
+from clustermanagementtoolkit.curses_helper import ThemeRef
+from clustermanagementtoolkit.curses_helper import ThemeStr
+from clustermanagementtoolkit.curses_helper import UIProps
+from clustermanagementtoolkit.curses_helper import WidgetLineAttrs
+from clustermanagementtoolkit.curses_helper import clear_tagged_items
+from clustermanagementtoolkit.curses_helper import color_log_severity
+from clustermanagementtoolkit.curses_helper import color_status_group
+from clustermanagementtoolkit.curses_helper import format_helptext
+from clustermanagementtoolkit.curses_helper import get_mousemask
+from clustermanagementtoolkit.curses_helper import get_tagged_items
 from clustermanagementtoolkit.curses_helper import get_tagged_objects
-from clustermanagementtoolkit.curses_helper import CursesConfiguration, color_log_severity
-from clustermanagementtoolkit.curses_helper import format_helptext, get_mousemask
-from clustermanagementtoolkit.curses_helper import color_status_group, map_key
-from clustermanagementtoolkit.curses_helper import UIProps, WidgetLineAttrs
-from clustermanagementtoolkit.curses_helper import get_theme_ref, read_theme
-from clustermanagementtoolkit.curses_helper import ThemeAttr, ThemeRef, ThemeStr
-from clustermanagementtoolkit.curses_helper import themearray_strip, themearray_flatten
-from clustermanagementtoolkit.curses_helper import themearray_wrap_line, themearray_to_string
-from clustermanagementtoolkit.curses_helper import themearray_len, themearray_detab
+from clustermanagementtoolkit.curses_helper import get_theme_ref
+from clustermanagementtoolkit.curses_helper import in_tagged_items
+from clustermanagementtoolkit.curses_helper import map_key
+from clustermanagementtoolkit.curses_helper import read_theme
+from clustermanagementtoolkit.curses_helper import tag_item
+from clustermanagementtoolkit.curses_helper import themearray_detab
+from clustermanagementtoolkit.curses_helper import themearray_flatten
+from clustermanagementtoolkit.curses_helper import themearray_len
+from clustermanagementtoolkit.curses_helper import themearray_strip
+from clustermanagementtoolkit.curses_helper import themearray_to_string
 from clustermanagementtoolkit.curses_helper import themearray_truncate
+from clustermanagementtoolkit.curses_helper import themearray_wrap_line
+from clustermanagementtoolkit.curses_helper import untag_item
 
 from clustermanagementtoolkit import datagetters
 
@@ -146,11 +194,12 @@ from clustermanagementtoolkit import infogetters
 
 from clustermanagementtoolkit import itemgetters
 
-from clustermanagementtoolkit.kubernetes_helper import KubernetesHelper, KubernetesResourceCache
+from clustermanagementtoolkit import kubernetes_helper
+from clustermanagementtoolkit.kubernetes_helper import KubernetesHelper
+from clustermanagementtoolkit.kubernetes_helper import KubernetesResourceCache
 from clustermanagementtoolkit.kubernetes_helper import get_controller_from_owner_references
 from clustermanagementtoolkit.kubernetes_helper import guess_kind
 from clustermanagementtoolkit.kubernetes_helper import kubectl_get_version
-from clustermanagementtoolkit.kubernetes_helper import update_api_status as kh_update_api_status
 
 from clustermanagementtoolkit.kubernetes_resources import event_reasons
 
@@ -158,10 +207,13 @@ from clustermanagementtoolkit import listgetters
 
 from clustermanagementtoolkit import listgetters_async
 
-from clustermanagementtoolkit.logparser import LogparserConfiguration, init_logparser_configuration
+from clustermanagementtoolkit.logparser import LogparserConfiguration
 from clustermanagementtoolkit.logparser import get_parser_list
-from clustermanagementtoolkit.logparser import initialise_logparser, logparser
-from clustermanagementtoolkit.logparser import init_parser_list, severity_to_string
+from clustermanagementtoolkit.logparser import initialise_logparser
+from clustermanagementtoolkit.logparser import init_logparser_configuration
+from clustermanagementtoolkit.logparser import init_parser_list
+from clustermanagementtoolkit.logparser import logparser
+from clustermanagementtoolkit.logparser import severity_to_string
 
 from clustermanagementtoolkit import networkio
 
@@ -951,7 +1003,7 @@ def genericlistloop(stdscr: curses.window, **kwargs: Any) -> Retval:
     uip.init_statusbars()
 
     # For the list
-    uip.init_listpad(listheight=1, width=-1, ypos=1, xpos=1)
+    uip.init_listpad(width=-1, ypos=1, xpos=1)
 
     label_selector = ""
 
@@ -1591,10 +1643,10 @@ def genericlistloop(stdscr: curses.window, **kwargs: Any) -> Retval:
             if "namespace" in deep_get(vlist[0], DictPath("metadata"), "") and "namespace" in item:
                 itemlist = [(deep_get(item, DictPath("namespace"), ""),
                              deep_get(item, DictPath("name")))
-                                for item in get_tagged_objects(uip.sorted_list)]
+                            for item in get_tagged_objects(uip.sorted_list)]
             else:
                 itemlist = [deep_get(item, DictPath("name"))
-                                for item in get_tagged_objects(uip.sorted_list)]
+                            for item in get_tagged_objects(uip.sorted_list)]
 
             if not itemlist:
                 continue
@@ -2436,7 +2488,7 @@ def run_ansible_play_async(*args: Any, **kwargs: Any) -> tuple[dict[str, Any], i
                 playbook (FilePath): The playbook to run
                 selection ([str]): The hosts to run the play on
                 verbose (bool): Output status updates for every new Ansible event?
-                save_logs (bool | None): Override the save_logs variable in ansible_configuration
+                save_logs (bool | None): Override the save_logs variable in AnsibleConfiguration
         Returns:
             ((dict, int)):
                 (dict): The results of the run
@@ -2493,7 +2545,7 @@ def clusteroverviewloop(stdscr: curses.window, **kwargs: Any) -> Retval:
     uip.init_infopad(height=infopadheight + eventpadheight + 1, width=-1, ypos=infopadypos, xpos=1)
 
     # For the status panes
-    uip.init_listpad(listheight=1, width=-1,
+    uip.init_listpad(width=-1,
                      ypos=infopadypos + infopadheight + eventpadheight + 1, xpos=1, header=False)
 
     # The statusbars are always located at the top
@@ -3854,9 +3906,9 @@ def genericinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
     # For lists
     if deep_get(viewref, DictPath("listpad"), {}):
         if infopadheight == 0:
-            uip.init_listpad(listheight=1, width=-1, ypos=1, xpos=1)
+            uip.init_listpad(width=-1, ypos=1, xpos=1)
         else:
-            uip.init_listpad(listheight=1, width=-1, ypos=infopadheight + 2, xpos=1)
+            uip.init_listpad(width=-1, ypos=infopadheight + 2, xpos=1)
 
     # For log pads; we cannot have both a logpad and a listpad simultaneously;
     # at least not with the current implementation
@@ -4564,12 +4616,13 @@ def genericinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                     lineattrs = WidgetLineAttrs.NORMAL
 
                     # Wrap the line if it's a single long line and wrap_lines is enabled.
-                    if len(w_items) == 1 and w_items[0] and w_wrap_lines:
+                    if len(w_items) == 1 and w_items[0] and w_wrap_lines \
+                            and isinstance(w_items[0], (str, list)):
                         if (uip.maxx - uip.minx) // 2 < 120:
-                            wrap_width: int = uip.maxx - uip.minx
+                            wrap_width: int = uip.maxx - 5
                         else:
                             wrap_width = (uip.maxx - uip.minx) // 2
-                        w_items = cmtlib.wrap_line(w_items, wrap_width=wrap_width)
+                        w_items = cmtlib.wrap_line(w_items[0], wrap_width=wrap_width)
 
                     # w_item is a line
                     for w_item in w_items:
@@ -5258,8 +5311,8 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
             prev_remnants: list = []
             repeat_count: int = 0
             message: list[ThemeRef | ThemeStr] \
-                     | tuple[str, Callable[..., Any] | None, dict[Any, Any]] \
-                     | list[tuple[list[ThemeRef | ThemeStr], LogLevel]] = []
+                | tuple[str, Callable[..., Any] | None, dict[Any, Any]] \
+                | list[tuple[list[ThemeRef | ThemeStr], LogLevel]] = []
             facility: tuple[list[ThemeRef | ThemeStr], str] | str = ""
             _facility: tuple[list[ThemeRef | ThemeStr], str] | str = ""
 
@@ -5543,7 +5596,7 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
                     ThemeStr("amespaces: ", ThemeAttr("main", "infoheader")),
                 ]
             namespacesarray += generators.format_list(namespaces, fieldlen=0,
-                                                       pad=False, ellipsise=6)
+                                                      pad=False, ellipsise=6)
             podsandnamespace = list(set(podsandnamespace))
             if len(podsandnamespace) == 1:
                 podsarray: list[ThemeRef | ThemeStr] = [
@@ -7288,6 +7341,11 @@ def view_obj(**kwargs: Any) -> Retval:
         title = deep_get(obj, DictPath(title_path))
     path = deep_get(kwargs, DictPath("path"))
     formatter = deep_get(kwargs, DictPath("formatter"), formatters.format_yaml)
+    if isinstance(formatter, str):
+        _formatter = deep_get(formatters.formatter_allowlist, DictPath(formatter))
+        if _formatter is None:
+            raise ValueError(f"{formatter} is not in formatter_allowlist")
+        formatter = _formatter
     formatter_args = deep_get(kwargs, DictPath("formatter_args"), {})
     if formatter.__name__ == formatters.map_dataformat.__name__:
         formatter = formatters.map_dataformat(deep_get(formatter_args, DictPath("filetype"), ""))
@@ -7300,11 +7358,6 @@ def view_obj(**kwargs: Any) -> Retval:
             obj = deep_get(obj, DictPath(path))
     else:
         obj = [obj]
-    if isinstance(formatter, str):
-        _formatter = deep_get(formatters.formatter_allowlist, DictPath(formatter))
-        if _formatter is None:
-            raise ValueError(f"{formatter} is not in formatter_allowlist")
-        formatter = _formatter
     return resourceinfodispatch(stdscr=stdscr, obj=obj, kind=("__ResourceView", ""),
                                 title=title, formatter=formatter,
                                 formatter_args=formatter_args)
@@ -8369,7 +8422,7 @@ def action_execute_command(**kwargs: Any) -> None:
         ansithemeprint([ANSIThemeStr("Critical", "critical"),
                         ANSIThemeStr(": Request to execute empty or None command; ", "default"),
                         ANSIThemeStr("aborting.", "default")],
-                        stderr=True)
+                       stderr=True)
         tmpargs = []  # To skip the loop without special cases.
         retval = 2
 
@@ -8379,7 +8432,7 @@ def action_execute_command(**kwargs: Any) -> None:
                             ANSIThemeStr(": Command “", "default"),
                             ANSIThemeStr(f"{tmpargs[0]}", "programname"),
                             ANSIThemeStr("“ Received a None argument; aborting.", "default")],
-                            stderr=True)
+                           stderr=True)
             retval = 2
             break
         if arg == "<<<items>>>":
@@ -8422,7 +8475,7 @@ def action_execute_command(**kwargs: Any) -> None:
                                 ANSIThemeStr(": Command “", "default"),
                                 ANSIThemeStr(f"{args[0]}", "programname"),
                                 ANSIThemeStr("“ not found; aborting.", "default")],
-                                stderr=True)
+                               stderr=True)
                 retval = 2
 
     waitforkeypress = True
@@ -8945,8 +8998,8 @@ def populate_playbooklist(**kwargs: Any) -> tuple[list[dict], dict]:
         if not os.path.isdir(playbook_path):
             continue
         action_list = __populate_playbooklist(playbook_path, action_list=action_list)
-    action_list = __populate_playbooklist(ANSIBLE_PLAYBOOK_DIR, action_list=action_list)
-    action_list = __populate_playbooklist(SYSTEM_ANSIBLE_PLAYBOOK_DIR, action_list=action_list)
+    action_list = __populate_playbooklist(ANSIBLE_PLAYBOOKS_DIR, action_list=action_list)
+    action_list = __populate_playbooklist(SYSTEM_ANSIBLE_PLAYBOOKS_DIR, action_list=action_list)
 
     order: list[tuple[str, str, str]] = []
     for item in action_list:
@@ -9332,7 +9385,7 @@ listviewactions: dict[str, dict[str, Any]] = {
             "listgetter_args": {
                 "kubernetes_configuration": True,
             },
-            "basedir": DEPLOYMENT_DIR,
+            "basedir": DEPLOYMENTS_DIR,
         },
         # "confirmfunc":
         # "confirmstring": "The following changes will be performed:",
@@ -9349,7 +9402,7 @@ listviewactions: dict[str, dict[str, Any]] = {
             "listgetter_args": {
                 "kubernetes_configuration": True,
             },
-            "basedir": DEPLOYMENT_DIR,
+            "basedir": DEPLOYMENTS_DIR,
         },
     },
     "Apply configuration (URL to file)": {
@@ -9415,7 +9468,7 @@ listviewactions: dict[str, dict[str, Any]] = {
             "listgetter_args": {
                 "kubernetes_configuration": True,
             },
-            "basedir": DEPLOYMENT_DIR,
+            "basedir": DEPLOYMENTS_DIR,
         },
     },
     "Delete resources (URL to file)": {
@@ -9451,7 +9504,7 @@ listviewactions: dict[str, dict[str, Any]] = {
             "listgetter_args": {
                 "kubernetes_configuration": True,
             },
-            "basedir": DEPLOYMENT_DIR,
+            "basedir": DEPLOYMENTS_DIR,
         },
     },
     "Diff resource creation (URL to file)": {
@@ -9629,8 +9682,8 @@ def populate_views(refresh_apis: str = "none") -> None:
     # this way local modifications will override system views.
     view_dirs: list[str] = []
 
-    view_dirs.append(cmtpaths.SYSTEM_VIEWS_DIR)
-    view_dirs.append(cmtpaths.VIEW_DIR)
+    view_dirs.append(SYSTEM_VIEWS_DIR)
+    view_dirs.append(VIEWS_DIR)
     view_dirs += deep_get(cmtlib.cmtconfig, DictPath("General#local_views"), [])
 
     view_files = []
@@ -10476,7 +10529,8 @@ def populate_views(refresh_apis: str = "none") -> None:
             has_infoview = True
 
         if kubernetes_support:
-            kh_update_api_status((kind, api_family), listview=has_listview, infoview=has_infoview)
+            kubernetes_helper.update_api_status((kind, api_family),
+                                                listview=has_listview, infoview=has_infoview)
 
 
 def setupui(stdscr: curses.window) -> None:
@@ -11365,12 +11419,12 @@ def main() -> None:
         sys.exit("CRITICAL: This program should not be run as the root user; aborting.")
 
     # Now check if all necessary paths exist
-    if (violations := cmtlib.setup_paths()) != [SecurityStatus.OK]:
-        violations_joined = cmtio.join_securitystatus_set(",", set(violations))
+    if (violations := setup_paths()) != [SecurityStatus.OK]:
+        violations_joined = join_securitystatus_set(",", set(violations))
         sys.exit(f"Failed to create necessary directories; violated rules: {violations_joined}")
 
     # Then initialise the configuration file
-    read_cmtconfig()
+    cmtlib.cmtconfig = cmtlib.read_cmtconfig()
 
     # Set the logparser defaults
     init_logparser_configuration()
@@ -11392,7 +11446,7 @@ def main() -> None:
         tmpthemefile = deep_get(cmtlib.cmtconfig, DictPath("Global#theme"))
     themefile, theme_path_found = \
         expand_path(path=tmpthemefile,
-                    search_paths=[os.getcwd(), THEME_DIR, cmtpaths.SYSTEM_THEMES_DIR],
+                    search_paths=[os.getcwd(), THEMES_DIR, SYSTEM_THEMES_DIR],
                     suffixes=[".yaml"], fallback=defaultthemefile)
 
     try:
@@ -11452,17 +11506,17 @@ def main() -> None:
     CursesConfiguration.mousescroll_down = \
         deep_get(cmtlib.cmtconfig, DictPath("Mouse#scrolldown"), 0)
     # Used by the ansible module
-    ansible_configuration["ansible_forks"] = \
+    AnsibleConfiguration.ansible_forks = \
         deep_get(cmtlib.cmtconfig, DictPath("Ansible#forks"), 10)
     ansible_user = deep_get(cmtlib.cmtconfig, DictPath("Ansible#ansible_user"))
     if ansible_user is None or not ansible_user:
         ansible_user = getuser()
-    ansible_configuration["ansible_user"] = ansible_user
-    ansible_configuration["ansible_password"] = \
+    AnsibleConfiguration.ansible_user = ansible_user
+    AnsibleConfiguration.ansible_password = \
         deep_get(cmtlib.cmtconfig, DictPath("Ansible#ansible_password"))
-    ansible_configuration["disable_strict_host_key_checking"] = \
+    AnsibleConfiguration.disable_strict_host_key_checking = \
         deep_get(cmtlib.cmtconfig, DictPath("Node#disablestricthostkeychecking"), False)
-    ansible_configuration["save_logs"] = \
+    AnsibleConfiguration.save_logs = \
         deep_get(cmtlib.cmtconfig, DictPath("Ansible#save_logs"), True)
 
     if "--developer-mode" in sys.argv:
@@ -11489,7 +11543,7 @@ def main() -> None:
         if key == "__commandname" and value in ("help", "version"):
             break
     else:
-        checks.check_netrc_permissions(verbose=False, exit_on_error=True, quiet_on_ok=True)
+        check_netrc_permissions(verbose=False, exit_on_error=True, quiet_on_ok=True)
 
     for opt, optarg in options:
         # Currently we only support --kube-config, but in case

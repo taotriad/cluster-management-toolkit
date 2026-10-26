@@ -18,17 +18,25 @@ from clustermanagementtoolkit import cmtlib
 
 from clustermanagementtoolkit.cmtio import expand_path
 
-from clustermanagementtoolkit.cmtpaths import DEFAULT_THEME_FILE, THEME_DIR
+from clustermanagementtoolkit.cmtpaths import DEFAULT_THEME_FILE
+from clustermanagementtoolkit.cmtpaths import THEMES_DIR
 
-from clustermanagementtoolkit.cmttypes import deep_get, DictPath
-from clustermanagementtoolkit.cmttypes import ProgrammingError, LogLevel, StatusGroup
+from clustermanagementtoolkit.cmttypes import DictPath
+from clustermanagementtoolkit.cmttypes import LogLevel
+from clustermanagementtoolkit.cmttypes import StatusGroup
+from clustermanagementtoolkit.cmttypes import deep_get
+from clustermanagementtoolkit.cmttypes.exceptions import ProgrammingError
 
 from clustermanagementtoolkit.ansithemeprint import ANSIThemeStr
-from clustermanagementtoolkit.ansithemeprint import ansithemeprint, init_ansithemeprint
+from clustermanagementtoolkit.ansithemeprint import ansithemeprint
+from clustermanagementtoolkit.ansithemeprint import init_ansithemeprint
 
 from clustermanagementtoolkit import curses_helper
-from clustermanagementtoolkit.curses_helper import ThemeAttr, ThemeRef, ThemeStr
-from clustermanagementtoolkit.curses_helper import ThemeArray, WidgetLineAttrs
+from clustermanagementtoolkit.curses_helper import ThemeAttr
+from clustermanagementtoolkit.curses_helper import ThemeRef
+from clustermanagementtoolkit.curses_helper import ThemeStr
+from clustermanagementtoolkit.curses_helper import ThemeArray
+from clustermanagementtoolkit.curses_helper import WidgetLineAttrs
 
 TEST_DIR = str(PurePath(__file__).parent.joinpath("testthemes"))
 
@@ -859,12 +867,12 @@ def test_read_theme(verbose: bool = False) -> tuple[str, bool]:
         # Indata format:
         # (configthemefile, defaultthemefile, expected_exception)
         testdata: tuple[Any, ...] = (
-            (os.path.join(THEME_DIR, "cvd.yaml"), DEFAULT_THEME_FILE, None),
-            (os.path.join(THEME_DIR, "cvd"), DEFAULT_THEME_FILE, None),
-            (os.path.join(THEME_DIR, "NonExistingTheme"), DEFAULT_THEME_FILE, None),
-            (os.path.join(THEME_DIR, "NonExistingTheme"), None, ProgrammingError),
+            (os.path.join(THEMES_DIR, "cvd.yaml"), DEFAULT_THEME_FILE, None),
+            (os.path.join(THEMES_DIR, "cvd"), DEFAULT_THEME_FILE, None),
+            (os.path.join(THEMES_DIR, "NonExistingTheme"), DEFAULT_THEME_FILE, None),
+            (os.path.join(THEMES_DIR, "NonExistingTheme"), None, ProgrammingError),
             (None, DEFAULT_THEME_FILE, None),
-            (None, os.path.join(THEME_DIR, "NonExistingTheme"), ProgrammingError),
+            (None, os.path.join(THEMES_DIR, "NonExistingTheme"), ProgrammingError),
             (None, None, ProgrammingError),
         )
         for configthemefile, defaultthemefile, expected_exception in testdata:
@@ -903,9 +911,9 @@ def test_get_theme_ref(verbose: bool = False) -> tuple[str, bool]:
 
     if result:
         tmp = fun()
-        if tmp != curses_helper.theme:
+        if tmp != curses_helper.themestr.ThemeStrConfiguration.theme:
             message = f"{fun.__name__}() did not yield expected result:\n" \
-                      f"        expected: {curses_helper.theme}\n" \
+                      f"        expected: {curses_helper.themestr.ThemeStrConfiguration.theme}\n" \
                       f"             got: {tmp}\n"
             result = False
     return message, result
@@ -959,79 +967,6 @@ def test_init_curses(verbose: bool = False) -> tuple[str, bool]:
         curses.endwin()
     except curses.error:
         pass
-    return message, result
-
-
-def test_dump_themearray(verbose: bool = False) -> tuple[str, bool]:
-    message = ""
-    result = True
-
-    fun = curses_helper.dump_themearray
-
-    if result:
-        # Indata format:
-        # (obj, expected_result, expected_exception)
-        testdata: tuple[Any, ...] = (
-            # Valid
-            (
-                [ThemeStr("This is valid", ThemeAttr("types", "generic")),
-                 ThemeRef("strings", "none")],
-                "-    ThemeStr: ThemeStr('This is valid', "
-                "ThemeAttr('types', 'generic'), False); (len: 13)\n"
-                "-    ThemeRef: ThemeRef('strings', 'none', False) "
-                "(“<none>“); (len: 6)\n",
-                None
-            ),
-            # Invalid
-            (
-                [["These are invalid", ("types", "generic")],
-                 ("string components", "none"),
-                 42],
-                "themearray contains invalid substring(s):\n"
-                "-      list: ['These are invalid', ('types', 'generic')] [invalid]\n"
-                "-     tuple: ('string components', 'none') [invalid]\n"
-                f"- {type(42)}: 42 [invalid]\n",
-                TypeError,
-            ),
-        )
-
-        for obj, expected_result, expected_exception in testdata:
-            try:
-                try:
-                    tmp = fun(obj)
-                except SystemExit as e:
-                    tmp = str(e)
-                if tmp != expected_result:
-                    message = f"{fun.__name__}() did not yield expected result:\n" \
-                              f"           result: {tmp}\n" \
-                              f"  expected result: {expected_result}"
-                    result = False
-                    break
-            except Exception as e:
-                tmp = str(e)
-                if expected_exception is not None:
-                    if isinstance(e, expected_exception):
-                        if not expected_result or expected_result == tmp:
-                            continue
-                        message = f"{fun.__name__}() did not yield expected result:\n" \
-                                  f"           result: {tmp}\n" \
-                                  f"  expected result: {expected_result}"
-                        result = False
-                        break
-                    else:
-                        message = f"{fun.__name__}() did not yield expected result:\n" \
-                                  f"        exception: {type(e)}\n" \
-                                  f"          message: {tmp}\n" \
-                                  f"         expected: {expected_exception}"
-                        result = False
-                        break
-                else:
-                    message = f"{fun.__name__}() did not yield expected result:\n" \
-                              f"        exception: {type(e)}\n" \
-                              f"          message: {tmp}\n" \
-                              f"  expected result: {expected_result}"
-                    result = False
-                    break
     return message, result
 
 
@@ -1767,10 +1702,6 @@ tests: dict[tuple[str, ...], dict[str, Any]] = {
         "callable": test_init_curses,
         "result": None,
     },
-    ("dump_themearray()",): {
-        "callable": test_dump_themearray,
-        "result": None,
-    },
     ("color_log_severity()",): {
         "callable": test_color_log_severity,
         "result": None,
@@ -1823,12 +1754,12 @@ def main() -> int:
     failed_testcases = []
 
     init_ansithemeprint(themefile=None)
-    cmtlib.read_cmtconfig()
+    cmtlib.cmtconfig = cmtlib.read_cmtconfig()
 
     defaultthemefile = DEFAULT_THEME_FILE
     tmpthemefile = deep_get(cmtlib.cmtconfig, DictPath("Global#theme"))
     themefile, _theme_path_found = \
-        expand_path(path=tmpthemefile, search_paths=[os.getcwd(), THEME_DIR],
+        expand_path(path=tmpthemefile, search_paths=[os.getcwd(), THEMES_DIR],
                     suffixes=[".yaml"], fallback=defaultthemefile)
     curses_helper.read_theme(themefile, defaultthemefile)
 

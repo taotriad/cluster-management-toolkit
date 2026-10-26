@@ -12,7 +12,17 @@ listview:
   group: "API & Extendability"
   field_indexes:
     Normal:
-      fields: ["name", "age"]
+      fields: ["name", "resync_period", "age"]
+  fields:
+    resync_period:
+      header: "Resync Period:"
+      path: "spec#resyncPeriodSeconds"
+      default: "<unset>"
+      type: "int"
+      formatter: "numerical"
+      formatting:
+        unit: "s"
+      align: "right"
 infoview:
   name: "Decorator Controller Info"
   infopad:

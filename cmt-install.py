@@ -23,33 +23,59 @@ import sys
 # This has to be first, since it checks for the correct Python version
 from clustermanagementtoolkit import about
 
-from clustermanagementtoolkit.cmttypes import deep_get, DictPath, FilePath, SecurityPolicy
+from clustermanagementtoolkit import cmtio
 
-from clustermanagementtoolkit.cmtpaths import BASH_COMPLETION_BASE_DIR, BASH_COMPLETION_DIR
-from clustermanagementtoolkit.cmtpaths import BASH_COMPLETION_DIRNAME
-from clustermanagementtoolkit.cmtpaths import BINDIR, HOMEDIR, CMTDIR, CMT_LOGS_DIR
-from clustermanagementtoolkit.cmtpaths import VERSION_CACHE_DIR
-from clustermanagementtoolkit.cmtpaths import CHANGELOG_DIR, CHANGELOG_DIRNAME
-from clustermanagementtoolkit.cmtpaths import DEPLOYMENT_DIR, ANSIBLE_DIR, ANSIBLE_LOG_DIR
-from clustermanagementtoolkit.cmtpaths import CMT_CONFIG_FILE_DIR, CMT_HOOKS_DIR
-from clustermanagementtoolkit.cmtpaths import CMT_PRE_PREPARE_DIR, CMT_POST_PREPARE_DIR
-from clustermanagementtoolkit.cmtpaths import CMT_PRE_SETUP_DIR, CMT_POST_SETUP_DIR
-from clustermanagementtoolkit.cmtpaths import CMT_PRE_UPGRADE_DIR, CMT_POST_UPGRADE_DIR
-from clustermanagementtoolkit.cmtpaths import CMT_PRE_TEARDOWN_DIR, CMT_POST_TEARDOWN_DIR
-from clustermanagementtoolkit.cmtpaths import CMT_PRE_PURGE_DIR, CMT_POST_PURGE_DIR
-from clustermanagementtoolkit.cmtpaths import ANSIBLE_PLAYBOOK_DIR, CMT_CONFIG_FILE
-from clustermanagementtoolkit.cmtpaths import PARSER_DIR, THEME_DIR, VIEW_DIR
-from clustermanagementtoolkit.cmtpaths import ANSIBLE_PLAYBOOK_DIRNAME, CMT_CONFIG_FILENAME
-from clustermanagementtoolkit.cmtpaths import PARSER_DIRNAME, THEME_DIRNAME, VIEW_DIRNAME
-from clustermanagementtoolkit.cmtpaths import SOFTWARE_SOURCES_DIRNAME, SOFTWARE_SOURCES_DIR
+from clustermanagementtoolkit.cmtpaths import (
+    ANSIBLE_DIR,
+    ANSIBLE_LOGS_DIR,
+    ANSIBLE_PLAYBOOKS_DIR,
+    ANSIBLE_PLAYBOOKS_DIRNAME,
+    BASH_COMPLETION_BASE_DIR,
+    BASH_COMPLETION_DIR,
+    BASH_COMPLETION_DIRNAME,
+    BINDIR,
+    CHANGELOG_DIR,
+    CHANGELOG_DIRNAME,
+    CMTDIR,
+    CMT_CONFIG_FILE,
+    CMT_CONFIG_FILENAME,
+    CMT_CONFIG_FILE_DIR,
+    CMT_HOOKS_DIR,
+    CMT_LOGS_DIR,
+    CMT_POST_PREPARE_DIR,
+    CMT_POST_PURGE_DIR,
+    CMT_POST_SETUP_DIR,
+    CMT_POST_TEARDOWN_DIR,
+    CMT_POST_UPGRADE_DIR,
+    CMT_PRE_PREPARE_DIR,
+    CMT_PRE_PURGE_DIR,
+    CMT_PRE_SETUP_DIR,
+    CMT_PRE_TEARDOWN_DIR,
+    CMT_PRE_UPGRADE_DIR,
+    DEPLOYMENTS_DIR,
+    HOMEDIR,
+    PARSERS_DIR,
+    PARSERS_DIRNAME,
+    SOFTWARE_SOURCES_DIR,
+    SOFTWARE_SOURCES_DIRNAME,
+    THEMES_DIR,
+    THEMES_DIRNAME,
+    VERSION_CACHE_DIR,
+    VIEWS_DIR,
+    VIEWS_DIRNAME,
+)
 
-from clustermanagementtoolkit.cmtio import execute_command_with_response
-from clustermanagementtoolkit.cmtio import secure_copy, secure_mkdir, secure_symlink
-from clustermanagementtoolkit.cmtio import secure_rm, secure_which, secure_write_string
+from clustermanagementtoolkit.cmttypes import DictPath
+from clustermanagementtoolkit.cmttypes import FilePath
+from clustermanagementtoolkit.cmttypes import SecurityPolicy
+from clustermanagementtoolkit.cmttypes import deep_get
 
-from clustermanagementtoolkit.commandparser import parse_commandline, CommandType
+from clustermanagementtoolkit.commandparser import CommandType
+from clustermanagementtoolkit.commandparser import parse_commandline
 
-from clustermanagementtoolkit.ansithemeprint import ANSIThemeStr, ansithemeprint, ansithemeinput
+from clustermanagementtoolkit.ansithemeprint import ANSIThemeStr
+from clustermanagementtoolkit.ansithemeprint import ansithemeprint
+from clustermanagementtoolkit.ansithemeprint import ansithemeinput
 
 PROGRAMDESCRIPTION = f"Setup {about.PROGRAM_SUITE_FULL_NAME}."
 PROGRAMAUTHORS = "Written by David Weinehall."
@@ -58,10 +84,10 @@ DIRECTORIES = [
     (BINDIR, 0o755),
     (CMTDIR, 0o755),
     (CMT_LOGS_DIR, 0o700),
-    (DEPLOYMENT_DIR, 0o755),
+    (DEPLOYMENTS_DIR, 0o755),
     (VERSION_CACHE_DIR, 0o700),
     (ANSIBLE_DIR, 0o755),
-    (ANSIBLE_LOG_DIR, 0o700),
+    (ANSIBLE_LOGS_DIR, 0o700),
     (CMT_CONFIG_FILE_DIR, 0o755),
     (CMT_HOOKS_DIR, 0o755),
     (CMT_PRE_PREPARE_DIR, 0o755),
@@ -98,10 +124,10 @@ EXECUTABLE_SYMLINKS = [
 
 MISC_SYMLINKS = [
     (FilePath(os.path.join(os.getcwd(), SOFTWARE_SOURCES_DIRNAME)), SOFTWARE_SOURCES_DIR),
-    (FilePath(os.path.join(os.getcwd(), ANSIBLE_PLAYBOOK_DIRNAME)), ANSIBLE_PLAYBOOK_DIR),
-    (FilePath(os.path.join(os.getcwd(), PARSER_DIRNAME)), PARSER_DIR),
-    (FilePath(os.path.join(os.getcwd(), THEME_DIRNAME)), THEME_DIR),
-    (FilePath(os.path.join(os.getcwd(), VIEW_DIRNAME)), VIEW_DIR),
+    (FilePath(os.path.join(os.getcwd(), ANSIBLE_PLAYBOOKS_DIRNAME)), ANSIBLE_PLAYBOOKS_DIR),
+    (FilePath(os.path.join(os.getcwd(), PARSERS_DIRNAME)), PARSERS_DIR),
+    (FilePath(os.path.join(os.getcwd(), THEMES_DIRNAME)), THEMES_DIR),
+    (FilePath(os.path.join(os.getcwd(), VIEWS_DIRNAME)), VIEWS_DIR),
     (FilePath(os.path.join(os.getcwd(), CHANGELOG_DIRNAME)), CHANGELOG_DIR),
     (FilePath(os.path.join(os.getcwd(), BASH_COMPLETION_DIRNAME, "cmt")),
      FilePath(os.path.join(BASH_COMPLETION_DIR, "cmt"))),
@@ -299,7 +325,7 @@ def create_directories(directories: list[tuple[FilePath, int]], verbose: bool = 
             verbose (bool): Be more verbose
     """
     for directory, permissions in directories:
-        secure_mkdir(directory, permissions=permissions, verbose=verbose)
+        cmtio.secure_mkdir(directory, permissions=permissions, verbose=verbose)
 
 
 def remove_wrappers(wrappers: list[tuple[FilePath, FilePath]], verbose: bool = False) -> None:
@@ -316,7 +342,7 @@ def remove_wrappers(wrappers: list[tuple[FilePath, FilePath]], verbose: bool = F
         if verbose:
             print(f"Deleting old wrapper or symlink {dst}")
 
-        secure_rm(dst, ignore_non_existing=True)
+        cmtio.secure_rm(dst, ignore_non_existing=True)
 
 
 def create_wrappers(wrappers: list[tuple[FilePath, FilePath]], verbose: bool = False) -> None:
@@ -338,7 +364,7 @@ def create_wrappers(wrappers: list[tuple[FilePath, FilePath]], verbose: bool = F
         try:
             if verbose:
                 print(f"Creating a wrapper for {src} in {dst}")
-            secure_write_string(dst, wrapper, permissions=0o755)
+            cmtio.secure_write_string(dst, wrapper, permissions=0o755)
         except PermissionError:
             print()
             ansithemeprint([ANSIThemeStr("Critical", "critical"),
@@ -361,7 +387,7 @@ def create_symlinks(symlinks: list[tuple[FilePath, FilePath]], verbose: bool = F
     """
     for src, dst in symlinks:
         try:
-            _violations = secure_symlink(src, dst, verbose=verbose, replace_existing=True)
+            _violations = cmtio.secure_symlink(src, dst, verbose=verbose, replace_existing=True)
         except PermissionError:
             print()
             ansithemeprint([ANSIThemeStr("Critical", "critical"),
@@ -383,7 +409,7 @@ def copy_files(files: list[tuple[FilePath, FilePath, int]], verbose: bool = Fals
             verbose (bool): Be more verbose
     """
     for src, dst, permissions in files:
-        _violations = secure_copy(src, dst, verbose=verbose, permissions=permissions)
+        _violations = cmtio.secure_copy(src, dst, verbose=verbose, permissions=permissions)
 
 
 # pylint: disable-next=unused-argument
@@ -396,9 +422,9 @@ def install_software_suse(packages: dict | set, verbose: bool = False) -> None:
             verbose (bool): [unused]
     """
     try:
-        sudo_path = secure_which(FilePath("/usr/bin/sudo"),
-                                 fallback_allowlist=[],
-                                 security_policy=SecurityPolicy.STRICT)
+        sudo_path = cmtio.secure_which(FilePath("/usr/bin/sudo"),
+                                       fallback_allowlist=[],
+                                       security_policy=SecurityPolicy.STRICT)
     except FileNotFoundError:
         ansithemeprint([ANSIThemeStr("Critical", "critical"),
                         ANSIThemeStr(": Could not find ", "default"),
@@ -407,9 +433,9 @@ def install_software_suse(packages: dict | set, verbose: bool = False) -> None:
         sys.exit(errno.ENOENT)
 
     try:
-        zypper_path = secure_which(FilePath("/usr/bin/zypper"),
-                                   fallback_allowlist=[],
-                                   security_policy=SecurityPolicy.STRICT)
+        zypper_path = cmtio.secure_which(FilePath("/usr/bin/zypper"),
+                                         fallback_allowlist=[],
+                                         security_policy=SecurityPolicy.STRICT)
     except FileNotFoundError:
         ansithemeprint([ANSIThemeStr("Critical", "critical"),
                         ANSIThemeStr(": Could not find ", "default"),
@@ -465,9 +491,9 @@ def install_software_fedora(packages: dict | set, verbose: bool = False) -> None
             verbose (bool): [unused]
     """
     try:
-        sudo_path = secure_which(FilePath("/usr/bin/sudo"),
-                                 fallback_allowlist=[],
-                                 security_policy=SecurityPolicy.STRICT)
+        sudo_path = cmtio.secure_which(FilePath("/usr/bin/sudo"),
+                                       fallback_allowlist=[],
+                                       security_policy=SecurityPolicy.STRICT)
     except FileNotFoundError:
         ansithemeprint([ANSIThemeStr("Critical", "critical"),
                         ANSIThemeStr(": Could not find ", "default"),
@@ -476,9 +502,9 @@ def install_software_fedora(packages: dict | set, verbose: bool = False) -> None
         sys.exit(errno.ENOENT)
 
     try:
-        yum_path = secure_which(FilePath("/usr/bin/yum"),
-                                fallback_allowlist=["/usr/bin"],
-                                security_policy=SecurityPolicy.ALLOWLIST_RELAXED)
+        yum_path = cmtio.secure_which(FilePath("/usr/bin/yum"),
+                                      fallback_allowlist=["/usr/bin"],
+                                      security_policy=SecurityPolicy.ALLOWLIST_RELAXED)
     except FileNotFoundError:
         ansithemeprint([ANSIThemeStr("Critical", "critical"),
                         ANSIThemeStr(": Could not find ", "default"),
@@ -489,9 +515,9 @@ def install_software_fedora(packages: dict | set, verbose: bool = False) -> None
     rpmdev_vercmp_path = None
 
     try:
-        rpmdev_vercmp_path = secure_which(FilePath("/usr/bin/rpmdev-vercmp"),
-                                          fallback_allowlist=[],
-                                          security_policy=SecurityPolicy.STRICT)
+        rpmdev_vercmp_path = cmtio.secure_which(FilePath("/usr/bin/rpmdev-vercmp"),
+                                                fallback_allowlist=[],
+                                                security_policy=SecurityPolicy.STRICT)
     except FileNotFoundError:
         ansithemeprint([ANSIThemeStr("Warning", "warning"),
                         ANSIThemeStr(": Could not find ", "default"),
@@ -548,9 +574,12 @@ def install_software_deb(packages: dict, verbose: bool = False) -> None:
             verbose (bool): [unused]
     """
     try:
-        sudo_path = secure_which(FilePath("/usr/bin/sudo"),
-                                 fallback_allowlist=[],
-                                 security_policy=SecurityPolicy.STRICT)
+        # Ubuntu 26.04 uses the rust implementation of sudo,
+        # so it'll be in /usr/lib/cargo/bin instead.
+        sudo_path = cmtio.secure_which(FilePath("sudo"),
+                                       fallback_allowlist=["/bin", "/usr/bin",
+                                                           "/usr/lib/cargo/bin"],
+                                       security_policy=SecurityPolicy.ALLOWLIST_STRICT)
     except FileNotFoundError:
         ansithemeprint([ANSIThemeStr("Critical", "critical"),
                         ANSIThemeStr(": Could not find ", "default"),
@@ -559,9 +588,9 @@ def install_software_deb(packages: dict, verbose: bool = False) -> None:
         sys.exit(errno.ENOENT)
 
     try:
-        apt_get_path = secure_which(FilePath("/usr/bin/apt-get"),
-                                    fallback_allowlist=[],
-                                    security_policy=SecurityPolicy.STRICT)
+        apt_get_path = cmtio.secure_which(FilePath("/usr/bin/apt-get"),
+                                          fallback_allowlist=[],
+                                          security_policy=SecurityPolicy.STRICT)
     except FileNotFoundError:
         ansithemeprint([ANSIThemeStr("Critical", "critical"),
                         ANSIThemeStr(": Could not find ", "default"),
@@ -574,9 +603,9 @@ def install_software_deb(packages: dict, verbose: bool = False) -> None:
     _retval = subprocess.run(args, check=False).returncode
 
     try:
-        apt_cache_path = secure_which(FilePath("/usr/bin/apt-cache"),
-                                      fallback_allowlist=[],
-                                      security_policy=SecurityPolicy.STRICT)
+        apt_cache_path = cmtio.secure_which(FilePath("/usr/bin/apt-cache"),
+                                            fallback_allowlist=[],
+                                            security_policy=SecurityPolicy.STRICT)
     except FileNotFoundError:
         ansithemeprint([ANSIThemeStr("Critical", "critical"),
                         ANSIThemeStr(": Could not find ", "default"),
@@ -585,9 +614,9 @@ def install_software_deb(packages: dict, verbose: bool = False) -> None:
         sys.exit(errno.ENOENT)
 
     try:
-        dpkg_path = secure_which(FilePath("/usr/bin/dpkg"),
-                                 fallback_allowlist=[],
-                                 security_policy=SecurityPolicy.STRICT)
+        dpkg_path = cmtio.secure_which(FilePath("/usr/bin/dpkg"),
+                                       fallback_allowlist=[],
+                                       security_policy=SecurityPolicy.STRICT)
     except FileNotFoundError:
         ansithemeprint([ANSIThemeStr("Critical", "critical"),
                         ANSIThemeStr(": Could not find ", "default"),
@@ -693,8 +722,8 @@ def install_software_with_pip(packages: list[str],
         try:
             # Depending on what distro we use we might need to use a versioned pip,
             # so test multiple paths until we find a suitable one.
-            pip3_path = secure_which(path, fallback_allowlist=["/bin", "/usr/bin"],
-                                     security_policy=SecurityPolicy.ALLOWLIST_RELAXED)
+            pip3_path = cmtio.secure_which(path, fallback_allowlist=["/bin", "/usr/bin"],
+                                           security_policy=SecurityPolicy.ALLOWLIST_RELAXED)
             break
         except FileNotFoundError:
             pass
@@ -739,9 +768,9 @@ def install_software_with_pip_fallback(packages: dict, pip_proxy: str = "",
 
     if distro == "debian":
         try:
-            apt_cache_path = secure_which(FilePath("/usr/bin/apt-cache"),
-                                          fallback_allowlist=[],
-                                          security_policy=SecurityPolicy.STRICT)
+            apt_cache_path = cmtio.secure_which(FilePath("/usr/bin/apt-cache"),
+                                                fallback_allowlist=[],
+                                                security_policy=SecurityPolicy.STRICT)
         except FileNotFoundError:
             ansithemeprint([ANSIThemeStr("Critical", "critical"),
                             ANSIThemeStr(": Could not find ", "default"),
@@ -750,7 +779,7 @@ def install_software_with_pip_fallback(packages: dict, pip_proxy: str = "",
             sys.exit(errno.ENOENT)
 
         args = [apt_cache_path, "madison"] + list(packages)
-        response, _retval = execute_command_with_response(args)
+        response, _retval = cmtio.execute_command_with_response(args)
         split_response = response.splitlines()
 
         for line in split_response:
@@ -774,9 +803,9 @@ def install_software_with_pip_fallback(packages: dict, pip_proxy: str = "",
                 fallbacks.add(fallback)
     elif distro == "suse":
         try:
-            zypper_path = secure_which(FilePath("/usr/bin/zypper"),
-                                       fallback_allowlist=[],
-                                       security_policy=SecurityPolicy.STRICT)
+            zypper_path = cmtio.secure_which(FilePath("/usr/bin/zypper"),
+                                             fallback_allowlist=[],
+                                             security_policy=SecurityPolicy.STRICT)
         except FileNotFoundError:
             ansithemeprint([ANSIThemeStr("Critical", "critical"),
                             ANSIThemeStr(": Could not find ", "default"),
@@ -785,7 +814,7 @@ def install_software_with_pip_fallback(packages: dict, pip_proxy: str = "",
             sys.exit(errno.ENOENT)
 
         args = [zypper_path, "info"] + list(packages)
-        response, _retval = execute_command_with_response(args)
+        response, _retval = cmtio.execute_command_with_response(args)
         split_response = response.splitlines()
 
         information_for_regex: re.Pattern[str] = re.compile(r"^Information for package (.+):$")
@@ -810,9 +839,9 @@ def install_software_with_pip_fallback(packages: dict, pip_proxy: str = "",
                 fallbacks.add(fallback)
     elif distro in ("fedora", "rhel"):
         try:
-            yum_path = secure_which(FilePath("/usr/bin/yum"),
-                                    fallback_allowlist=["/usr/bin"],
-                                    security_policy=SecurityPolicy.ALLOWLIST_RELAXED)
+            yum_path = cmtio.secure_which(FilePath("/usr/bin/yum"),
+                                          fallback_allowlist=["/usr/bin"],
+                                          security_policy=SecurityPolicy.ALLOWLIST_RELAXED)
         except FileNotFoundError:
             ansithemeprint([ANSIThemeStr("Critical", "critical"),
                             ANSIThemeStr(": Could not find ", "default"),
@@ -821,7 +850,7 @@ def install_software_with_pip_fallback(packages: dict, pip_proxy: str = "",
             sys.exit(errno.ENOENT)
 
         args = [yum_path, "list", "-q"] + list(packages)
-        response, _retval = execute_command_with_response(args)
+        response, _retval = cmtio.execute_command_with_response(args)
         split_response = response.splitlines()
 
         information_for_regex = re.compile(r"^([^.]+).+$")
@@ -899,10 +928,10 @@ def install(options: list[tuple[str, str]], args: list[str]) -> int:
 
     # Find out what distro this is run on
     try:
-        distro_path = secure_which(FilePath("/etc/os-release"),
-                                   fallback_allowlist=["/usr/lib", "/lib"],
-                                   security_policy=SecurityPolicy.ALLOWLIST_STRICT,
-                                   executable=False)
+        distro_path = cmtio.secure_which(FilePath("/etc/os-release"),
+                                         fallback_allowlist=["/usr/lib", "/lib"],
+                                         security_policy=SecurityPolicy.ALLOWLIST_STRICT,
+                                         executable=False)
     except FileNotFoundError:
         ansithemeprint([ANSIThemeStr("Error:", "error"),
                         ANSIThemeStr(" Cannot find an “", "default"),

@@ -27,11 +27,13 @@ listview:
             "ReadWriteMany": "RWM"
             "ReadOnlyMany": "ROX"
       type: "raw"
+      default: ["<none>"]
       formatter: "list"
     capacity:
       header: "Capacity:"
       path: "status#capacity#storage"
       type: "raw"
+      default: ["<unset>"]
       formatter: "numerical"
       align: "right"
     {%- for line in field_controller.split("\n") %}
@@ -40,6 +42,7 @@ listview:
     persistent_volume:
       header: "Persistent Volume:"
       path: "spec#volumeName"
+      default: "<none>"
       type: "str"
     status:
       header: "Status:"
@@ -72,10 +75,12 @@ listview:
     storage_class:
       header: "Storage Class:"
       path: "spec#storageClassName"
+      default: "<unset>"
       type: "str"
     volume_mode:
       header: "Volume Mode:"
       path: "spec#volumeMode"
+      default: "<unset>"
       type: "str"
   actions:
     actionlist:
@@ -102,11 +107,13 @@ infoview:
               "ReadWriteOncePod": "RWOP"
               "ReadWriteMany": "RWM"
               "ReadOnlyMany": "ROX"
+        default: ["<none>"]
         formatter: "list"
       capacity:
         header: [["Capacity:", ["main", "infoheader"]]]
         path: "status#capacity#storage"
         type: "raw"
+        default: ["<unset>"]
         formatter: "numerical"
       {%- for line in row_controller.split("\n") %}
       {{ line }}
@@ -143,15 +150,18 @@ infoview:
         header: [["S", ["main", "infoheader_shortcut"]],
                  ["torage Class:", ["main", "infoheader"]]]
         path: "spec#storageClassName"
+        default: "<unset>"
         type: "str"
       volume:
         header: [["P", ["main", "infoheader_shortcut"]],
                  ["ersistent Volume:", ["main", "infoheader"]]]
         path: "spec#volumeName"
+        default: "<none>"
         type: "str"
       volume_mode:
         header: [["Volume Mode:", ["main", "infoheader"]]]
         path: "spec#volumeMode"
+        default: "<unset>"
         type: "str"
   listpad:
     listgetter: "listgetter_join_dicts_to_list"

@@ -41,42 +41,56 @@ from clustermanagementtoolkit import cmtio
 
 from clustermanagementtoolkit import cmtio_yaml
 
-from clustermanagementtoolkit.ansible_helper import ANSIBLE_INVENTORY
-
-from clustermanagementtoolkit.ansible_helper import ansible_configuration
-from clustermanagementtoolkit.ansible_helper import ansible_create_groups, ansible_remove_groups
-from clustermanagementtoolkit.ansible_helper import ansible_get_groups, ansible_get_groups_by_host
+from clustermanagementtoolkit.ansible_helper import AnsibleConfiguration
+from clustermanagementtoolkit.ansible_helper import ansible_add_hosts
+from clustermanagementtoolkit.ansible_helper import ansible_create_groups
+from clustermanagementtoolkit.ansible_helper import ansible_get_groups
+from clustermanagementtoolkit.ansible_helper import ansible_get_groups_by_host
 from clustermanagementtoolkit.ansible_helper import ansible_get_hosts_by_group
-from clustermanagementtoolkit.ansible_helper import ansible_add_hosts, ansible_remove_hosts
 from clustermanagementtoolkit.ansible_helper import ansible_get_inventory_dict
 from clustermanagementtoolkit.ansible_helper import ansible_get_inventory_pretty
 from clustermanagementtoolkit.ansible_helper import ansible_ping
 from clustermanagementtoolkit.ansible_helper import ansible_print_action_summary
 from clustermanagementtoolkit.ansible_helper import ansible_print_play_results
+from clustermanagementtoolkit.ansible_helper import ansible_remove_groups
+from clustermanagementtoolkit.ansible_helper import ansible_remove_hosts
 from clustermanagementtoolkit.ansible_helper import ansible_run_playbook_on_selection
+from clustermanagementtoolkit.ansible_helper import ansible_set_groupvars
+from clustermanagementtoolkit.ansible_helper import ansible_set_hostvars
 from clustermanagementtoolkit.ansible_helper import ansible_set_vars
-from clustermanagementtoolkit.ansible_helper import ansible_set_hostvars, ansible_unset_hostvars
-from clustermanagementtoolkit.ansible_helper import ansible_set_groupvars, ansible_unset_groupvars
+from clustermanagementtoolkit.ansible_helper import ansible_unset_groupvars
+from clustermanagementtoolkit.ansible_helper import ansible_unset_hostvars
 from clustermanagementtoolkit.ansible_helper import populate_playbooks_from_filenames
 
-from clustermanagementtoolkit.ansithemeprint import ANSIThemeStr, ansithemeprint
-from clustermanagementtoolkit.ansithemeprint import ansithemestr_join_list, ansithemearray_to_str
+from clustermanagementtoolkit.ansithemeprint import ANSIThemeStr
+from clustermanagementtoolkit.ansithemeprint import ansithemearray_to_str
+from clustermanagementtoolkit.ansithemeprint import ansithemeprint
+from clustermanagementtoolkit.ansithemeprint import ansithemestr_join_list
 
 from clustermanagementtoolkit import cmtlib
-from clustermanagementtoolkit.cmtlib import read_cmtconfig, get_latest_upstream_version
 
-from clustermanagementtoolkit.cmtpaths import SYSTEM_ANSIBLE_PLAYBOOK_DIR, ANSIBLE_PLAYBOOK_DIR
-from clustermanagementtoolkit.cmtpaths import HOMEDIR, SSH_DIR, FPING_BIN_PATH
+from clustermanagementtoolkit.cmtpaths import ANSIBLE_INVENTORY
+from clustermanagementtoolkit.cmtpaths import ANSIBLE_PLAYBOOKS_DIR
 from clustermanagementtoolkit.cmtpaths import DEFAULT_THEME_FILE
+from clustermanagementtoolkit.cmtpaths import FPING_BIN_PATH
+from clustermanagementtoolkit.cmtpaths import HOMEDIR
+from clustermanagementtoolkit.cmtpaths import SSH_DIR
+from clustermanagementtoolkit.cmtpaths import SYSTEM_ANSIBLE_PLAYBOOKS_DIR
 
-from clustermanagementtoolkit.cmttypes import deep_get, deep_get_with_fallback, DictPath, FilePath
-from clustermanagementtoolkit.cmttypes import FilePathAuditError, ProgrammingError, UnknownError
-from clustermanagementtoolkit.cmttypes import SecurityPolicy, SecurityStatus
+from clustermanagementtoolkit.cmttypes import DictPath
+from clustermanagementtoolkit.cmttypes import FilePath
+from clustermanagementtoolkit.cmttypes import SecurityPolicy
+from clustermanagementtoolkit.cmttypes import SecurityStatus
+from clustermanagementtoolkit.cmttypes import deep_get
+from clustermanagementtoolkit.cmttypes import deep_get_with_fallback
+from clustermanagementtoolkit.cmttypes.exceptions import FilePathAuditError
+from clustermanagementtoolkit.cmttypes.exceptions import ProgrammingError
+from clustermanagementtoolkit.cmttypes.exceptions import UnknownError
 
-from clustermanagementtoolkit.commandparser import parse_commandline, CommandType
+from clustermanagementtoolkit.commandparser import CommandType
+from clustermanagementtoolkit.commandparser import parse_commandline
 
 from clustermanagementtoolkit import kubernetes_helper
-from clustermanagementtoolkit.kubernetes_helper import get_cluster_name
 
 try:
     import prctl  # type: ignore[import-not-found,import-untyped,unused-ignore]
@@ -118,7 +132,7 @@ def get_groups_or_hosts(groups_or_hosts: str = "", error_on_failure: bool = True
                                     ANSIThemeStr(": Skipping unknown or empty ", "default"),
                                     ANSIThemeStr("host or group “", "default"),
                                     ANSIThemeStr(group_or_host, "argument"),
-                                    ANSIThemeStr("“", "default")], stderr=True)
+                                    ANSIThemeStr("“.", "default")], stderr=True)
             else:
                 selection += hosts
         # Eliminate duplicates
@@ -537,7 +551,7 @@ def rebuild_inventory(options: list[tuple[str, str]], args: list[str]) -> int:
 
     # We ideally want to iterate over all clusters here,
     # but for now we only import the current-context.
-    cluster_name = get_cluster_name()
+    cluster_name = kubernetes_helper.get_cluster_name()
     if cluster_name is None:
         ansithemeprint([ANSIThemeStr("Error", "error"),
                         ANSIThemeStr(": Could not obtain cluster name; do you ", "default"),
@@ -866,8 +880,8 @@ def populate_playbooks() -> dict:
         if not os.path.isdir(playbook_dir):
             continue
         playbook_dirs.append(playbook_dir)
-    playbook_dirs.append(ANSIBLE_PLAYBOOK_DIR)
-    playbook_dirs.append(SYSTEM_ANSIBLE_PLAYBOOK_DIR)
+    playbook_dirs.append(ANSIBLE_PLAYBOOKS_DIR)
+    playbook_dirs.append(SYSTEM_ANSIBLE_PLAYBOOKS_DIR)
 
     yaml_regex: re.Pattern[str] = re.compile(r"^(.*)\.ya?ml$")
 
@@ -1134,7 +1148,7 @@ def run_playbook(options: list[tuple[str, str]], args: list[str]) -> int:
 
     for opt, _optarg in options:
         if opt == "--save-ansible-logs":
-            ansible_configuration["save_logs"] = True
+            AnsibleConfiguration.save_logs = True
         elif opt == "--verbose":
             verbose = True
 
@@ -1154,7 +1168,7 @@ def run_playbook(options: list[tuple[str, str]], args: list[str]) -> int:
                                 ANSIThemeStr(": Skipping unknown or empty ", "default"),
                                 ANSIThemeStr("host or group “", "default"),
                                 ANSIThemeStr(group_or_host, "argument"),
-                                ANSIThemeStr("“", "default")], stderr=True)
+                                ANSIThemeStr("“.", "default")], stderr=True)
         else:
             selection += hosts
     # Eliminate duplicates
@@ -1194,7 +1208,7 @@ def run_playbook(options: list[tuple[str, str]], args: list[str]) -> int:
     # The first patch revision that isn't available from the new repositories is 1.24.0,
     # but anything older than 1.32.0 is signed with a key that has expired, so only
     # include 1.32.0 and newer; the old repository is no longer usable.
-    if not (kubernetes_upstream_version := get_latest_upstream_version("kubernetes")):
+    if not (kubernetes_upstream_version := cmtlib.get_latest_upstream_version("kubernetes")):
         ansithemeprint([ANSIThemeStr("Error", "error"),
                         ANSIThemeStr(": Could not determine the latest upstream Kubernetes "
                                      "version; ", "default"),
@@ -1250,11 +1264,11 @@ def run_playbook(options: list[tuple[str, str]], args: list[str]) -> int:
 # pylint: disable-next=too-many-branches,too-many-locals,unused-argument,too-many-statements
 def fping(options: list[tuple[str, str]], args: list[str]) -> int:
     """
-    Fping hosts or groups of hosts.
+    fping hosts or groups of hosts.
     Default: fping all hosts.
     Note: A well-formed inventory should not have groups with the same name as any of the hosts,
-    thus mixing group and host names should be OK; but if there are overlaps group names
-    are prioritised over host names.
+    thus mixing group and host names should be OK; but group names will take priority over
+    host names if there are overlaps in naming.
 
         Parameters:
             options (list[(str, str)]): [unused]
@@ -1276,7 +1290,7 @@ def fping(options: list[tuple[str, str]], args: list[str]) -> int:
         ansithemeprint([ANSIThemeStr("Warning", "warning"),
                         ANSIThemeStr(": ", "default"),
                         ANSIThemeStr("fping", "programname"),
-                        ANSIThemeStr(" is not installed; cannot complete request", "default")],
+                        ANSIThemeStr(" is not installed; cannot complete request.", "default")],
                        stderr=True)
         sys.exit(errno.ENOENT)
 
@@ -2431,12 +2445,12 @@ def main() -> None:
         sys.exit("CRITICAL: This program should not be run as the root user; aborting.")
 
     # Now check if all necessary paths exist
-    if (violations := cmtlib.setup_paths()) != [SecurityStatus.OK]:
+    if (violations := cmtio.setup_paths()) != [SecurityStatus.OK]:
         violations_joined = cmtio.join_securitystatus_set(",", set(violations))
         sys.exit(f"Failed to create necessary directories; violated rules: {violations_joined}")
 
     # Then initialise the configuration file
-    read_cmtconfig()
+    cmtlib.cmtconfig = cmtlib.read_cmtconfig()
 
     command, options, args = parse_commandline(about.INVENTORY_PROGRAM_NAME,
                                                about.INVENTORY_PROGRAM_VERSION,
@@ -2455,13 +2469,13 @@ def main() -> None:
         checks.check_netrc_permissions(verbose=False, exit_on_error=True, quiet_on_ok=True)
 
     # Used by the ansible module
-    ansible_configuration["ansible_forks"] = \
+    AnsibleConfiguration.ansible_forks = \
         deep_get(cmtlib.cmtconfig, DictPath("Ansible#forks"), 10)
-    ansible_configuration["ansible_user"] = \
+    AnsibleConfiguration.ansible_user = \
         deep_get(cmtlib.cmtconfig, DictPath("Ansible#ansible_user"))
-    ansible_configuration["ansible_password"] = \
+    AnsibleConfiguration.ansible_password = \
         deep_get(cmtlib.cmtconfig, DictPath("Ansible#ansible_password"))
-    ansible_configuration["disable_strict_host_key_checking"] = \
+    AnsibleConfiguration.disable_strict_host_key_checking = \
         deep_get(cmtlib.cmtconfig, DictPath("Nodes#disablestricthostkeychecking"), False)
 
     command(options, args)

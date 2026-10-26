@@ -10,7 +10,8 @@ from typing import Any
 from unittest import mock
 import yaml
 
-from clustermanagementtoolkit.cmttypes import deep_get, DictPath, StatusGroup, ProgrammingError
+from clustermanagementtoolkit.cmttypes import deep_get, DictPath, StatusGroup
+from clustermanagementtoolkit.cmttypes.exceptions import ProgrammingError
 from clustermanagementtoolkit.ansithemeprint import ANSIThemeStr
 from clustermanagementtoolkit.ansithemeprint import ansithemeprint, init_ansithemeprint
 from clustermanagementtoolkit import datagetters

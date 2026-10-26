@@ -17,7 +17,7 @@ import yaml
 from clustermanagementtoolkit.cmtpaths import DEFAULT_THEME_FILE
 
 from clustermanagementtoolkit.cmttypes import deep_get, DictPath, FilePath
-from clustermanagementtoolkit.cmttypes import ProgrammingError
+from clustermanagementtoolkit.cmttypes.exceptions import ProgrammingError
 
 from clustermanagementtoolkit.ansithemeprint import ANSIThemeStr
 from clustermanagementtoolkit.ansithemeprint import ansithemeprint, init_ansithemeprint
@@ -2406,7 +2406,7 @@ def test_get_package_version_list(verbose: bool = False) -> tuple[str, bool]:
         for obj, kwargs, mock_response, expected_result, expected_exception in testdata:
             try:
                 with mock.patch("clustermanagementtoolkit.itemgetters."
-                                "get_package_versions",
+                                "get_package_version_list.get_package_versions",
                                 return_value=mock_response):
                     tmp = fun(obj, **kwargs)
                 if tmp != expected_result:
@@ -3531,19 +3531,49 @@ def test_get_security_context(verbose: bool = False) -> tuple[str, bool]:
                         },
                     },
                 },
+                {},
                 [
-                    ('Run as User', '65534'),
-                    ('Run as non-Root', 'True'),
-                    ('SELinux Options', "{'level': 's0:c16,c10'}"),
-                    ('Seccomp Profile', "{'type': 'RuntimeDefault'}"),
+                    ("Run as User", '65534'),
+                    ("Run as non-Root", 'True'),
+                    ("SELinux Options", "{'level': 's0:c16,c10'}"),
+                    ("Seccomp Profile", "{'type': 'RuntimeDefault'}"),
+                ],
+                None,
+            ),
+            (
+                # Valid data
+                {
+                    'kind': 'Pod',
+                    'apiVersion': 'v1',
+                    'spec': {
+                        'securityContext': {
+                            'runAsNonRoot': True,
+                            'runAsUser': 65534,
+                            'seLinuxOptions': {
+                                'level': 's0:c16,c10',
+                            },
+                            'seccompProfile': {
+                                'type': 'RuntimeDefault',
+                            },
+                        },
+                    },
+                },
+                {
+                    "path": "spec",
+                },
+                [
+                    ("Run as User", '65534'),
+                    ("Run as non-Root", 'True'),
+                    ("SELinux Options", "{'level': 's0:c16,c10'}"),
+                    ("Seccomp Profile", "{'type': 'RuntimeDefault'}"),
                 ],
                 None,
             ),
         )
 
-        for obj, expected_result, expected_exception in testdata:
+        for obj, kwargs, expected_result, expected_exception in testdata:
             try:
-                tmp = fun(obj)
+                tmp = fun(obj, **kwargs)
                 if tmp != expected_result:
                     message = f"{fun.__name__}() did not yield expected result:\n" \
                               f"           result: {tmp}\n" \

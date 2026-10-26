@@ -14,7 +14,8 @@ import yaml
 
 from clustermanagementtoolkit.cluster_actions import get_control_planes
 
-from clustermanagementtoolkit.cmttypes import deep_get, DictPath, ProgrammingError, StatusGroup
+from clustermanagementtoolkit.cmttypes import deep_get, DictPath, StatusGroup
+from clustermanagementtoolkit.cmttypes.exceptions import ProgrammingError
 
 from clustermanagementtoolkit.ansithemeprint import ANSIThemeStr
 from clustermanagementtoolkit.ansithemeprint import ansithemeprint, init_ansithemeprint
@@ -61,7 +62,8 @@ def test_check_matchlists(verbose: bool = False) -> tuple[str, bool]:
     message = ""
     result = True
 
-    fun = listgetters.check_matchlists
+    from clustermanagementtoolkit.listgetters.check_matchlist import check_matchlists
+    fun = check_matchlists
 
     if result:
         # Indata format:

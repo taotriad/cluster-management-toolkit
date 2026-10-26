@@ -4523,6 +4523,9 @@
                                                                 "description": "Arguments to pass to get_security_context()",
                                                                 "type": "object",
                                                                 "properties": {
+                                                                    "path": {
+                                                                        "$ref": "#/$defs/simple_path"
+                                                                    },
                                                                     "source": {
                                                                         "$ref": "#/$defs/itemgetter_source"
                                                                     }

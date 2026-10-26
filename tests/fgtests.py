@@ -101,7 +101,7 @@ def test_fieldgetter_executable_version(verbose: bool = False) -> tuple[str, boo
         for kwargs, mock_response, expected_result, expected_exception in testdata:
             try:
                 with mock.patch("clustermanagementtoolkit.fieldgetters."
-                                "execute_command_with_response",
+                                "fieldgetter_executable_version.execute_command_with_response",
                                 return_value=mock_response):
                     tmp = fun(**kwargs)
                 if tmp != expected_result:

@@ -5,6 +5,41 @@ python_executables = \
 	cmt-install \
 	cmtinv \
 	cmu
+python_libraries = \
+	clustermanagementtoolkit/about \
+	clustermanagementtoolkit/ansithemeprint \
+	clustermanagementtoolkit/cluster_actions \
+	clustermanagementtoolkit/cmtio_yaml \
+	clustermanagementtoolkit/cmtlog \
+	clustermanagementtoolkit/cmttypes \
+	clustermanagementtoolkit/cni_data \
+	clustermanagementtoolkit/curses_helper \
+	clustermanagementtoolkit/fieldgetters \
+	clustermanagementtoolkit/generators \
+	clustermanagementtoolkit/helptexts \
+	clustermanagementtoolkit/kubernetes_helper \
+	clustermanagementtoolkit/listgetters \
+	clustermanagementtoolkit/logparser \
+	clustermanagementtoolkit/objgetters \
+	clustermanagementtoolkit/reexecutor \
+	clustermanagementtoolkit/ansible_helper \
+	clustermanagementtoolkit/checks \
+	clustermanagementtoolkit/cmtio \
+	clustermanagementtoolkit/cmtlib \
+	clustermanagementtoolkit/cmtlib_ext \
+	clustermanagementtoolkit/cmtpaths \
+	clustermanagementtoolkit/cmtvalidators \
+	clustermanagementtoolkit/commandparser \
+	clustermanagementtoolkit/datagetters \
+	clustermanagementtoolkit/formatters \
+	clustermanagementtoolkit/github_tags \
+	clustermanagementtoolkit/infogetters \
+	clustermanagementtoolkit/itemgetters \
+	clustermanagementtoolkit/kubernetes_resources \
+	clustermanagementtoolkit/listgetters_async \
+	clustermanagementtoolkit/networkio \
+	clustermanagementtoolkit/pvtypes \
+	clustermanagementtoolkit/recommended_permissions
 python_executables_py = \
 	cmt.py \
 	cmtadm.py \
@@ -91,25 +126,16 @@ markdown_toc = \
 # W503 is for line break before binary operator;
 # flake8 warns *both* for breaks before and after.
 # Hence we we need to ignore one of those warnings.
-# flake8 doesn't give sensible suggestions when using modern style union
-# type annotations, so disable E126 and E127.
-# H301 is about multiple imports per line, which is a stupid warning.
 # H404 and H405 is about docstring formatting that we'll ignore.
-# Finally it seems flake8 doesn't seem to recognise when globals are used.
-FLAKE8_IGNORE := F841,W503,F824,E126,E127,H301,H404,H405
+# F824 is about globals; it seems flake8 doesn't seem to recognise when globals are used.
+FLAKE8_IGNORE := F841,W503,F824,H404,H405
 
-# Used by ruff to check for future and/or deprecated features
+# Used by ruff to check for future and/or deprecated features.
 RUFF_PYTHON_VERSION := py311
 
-# Ignore warning about import block sorting.
+# I001: Ignore warning about import block sorting.
+# RUF100: Ignore warning about Unused noqa directives, since flake8 also uses noqa.
 RUFF_IGNORE := I001,RUF100
-# Disabled for the time being; we should re-enable these later.
-# SIM102: Use a single `if` statement instead of nested `if` statements
-# SIM114: [*] Combine `if` branches using logical `or` operator
-# PLW0602: Using global for `LogparserConfiguration` but no assignment is done
-# RUF012: Mutable default value for class attribute
-# PYI063: Use PEP 570 syntax for positional-only parameters
-# RUFF_IGNORE := $(RUFF_IGNORE),SIM102,SIM114,PLW0602,RUF012,PYI063
 
 # Used by pylint to check for future and/or deprecated features
 PYLINT_PYTHON_VERSION := 3.11
@@ -143,6 +169,15 @@ generate_helptexts: bin
 
 generate_mdtoc:
 	@(cd docs; ../devtools/mdtoc.py --split-sections $(markdown_toc)) > docs/Table_of_contents.md
+
+check_licenses:
+	@lack=$$(grep -c "SPDX-License-Identifier:" $$(find . -type f -name "*.py" 2> /dev/null) | grep ":0$$" | sed -e "s/:0$$//") ;\
+	if [ -n "$${lack}" ]; then \
+		printf -- "The following files lack SPDX license headers:\n\n" ;\
+		for file in $${lack}; do \
+			printf -- "    $${file}\n" ;\
+		done ;\
+        fi
 
 check_helptexts:
 	@printf -- "\n\nChecking helptexts\n\n" ;\
@@ -287,7 +322,7 @@ semgrep:
 	printf -- "Note: if this is taking a very long time you might be behind a proxy;\n" ;\
 	printf -- "if that's the case you need to set the environment variable https_proxy\n\n" ;\
 	$$cmd --version ;\
-	$$cmd scan $(semgrep_flags) --timeout=0 --no-git-ignore *.py clustermanagementtoolkit/*.py
+	$$cmd scan $(semgrep_flags) --timeout=0 --no-git-ignore *.py $(python_libraries)
 
 # Generate as much of the changelog as possible;
 # the output is intended for insertion directly as the last line of the
@@ -320,7 +355,8 @@ bandit:
 	printf -- "\n\nRunning $$cmd to check for common security issues in Python code\n\n" ;\
 	$$cmd --version ;\
 	printf -- "\n" ;\
-	$$cmd -c .bandit $(python_executables_py) $(python_test_executables) clustermanagementtoolkit/*.py
+	$$cmd -c .bandit $(python_executables_py) $(python_test_executables) ;\
+	$$cmd -r -c .bandit $(python_libraries)
 
 ruff:
 	@cmd=ruff ;\
@@ -331,7 +367,7 @@ ruff:
 	printf -- "\n\nRunning $$cmd to check Python code quality\n\n" ;\
 	$$cmd --version ;\
 	printf -- "\n" ;\
-	for file in *.py devtools/*.py clustermanagementtoolkit/*.py; do \
+	for file in $(python_executables_py) $(python_libraries); do \
 		printf -- "File: $$file\n" ;\
 		$$cmd check --ignore $(RUFF_IGNORE) --target-version $(RUFF_PYTHON_VERSION) $$file ;\
 	done
@@ -359,7 +395,7 @@ pylint:
 	printf -- "\n\nRunning $$cmd to check Python code quality\n\n" ;\
 	$$cmd --version ;\
 	printf -- "\n" ;\
-	for file in *.py devtools/*.py clustermanagementtoolkit/*.py; do \
+	for file in $(python_executables_py) $(python_libraries); do \
 		printf -- "File: $$file\n" ;\
 		PYTHONPATH=. $$cmd --py-version $(PYLINT_PYTHON_VERSION) --disable $(PYLINT_DISABLE) --enable $(PYLINT_ENABLE) $$file ;\
 	done
@@ -371,7 +407,7 @@ pylint-markdown:
 		exit 0 ;\
 	fi ;\
 	tmpfile=$$(mktemp); \
-	for file in $(python_executables_py) clustermanagementtoolkit/*.py; do \
+	for file in $(python_executables_py) $(python_libraries); do \
 		result=$$(PYTHONPATH=. $$cmd --py-version $(PYLINT_PYTHON_VERSION) --disable $(PYLINT_DISABLE) --enable $(PYLINT_ENABLE) $$file | grep "Your code" | sed -e 's/Your code has been rated at //;s/ (previous run.*//') ;\
 		row="$$file | $$result\n" ;\
 		printf -- "$$row" >> $${tmpfile} ;\
@@ -399,7 +435,7 @@ flake8:
 	printf -- "\n\nRunning $$cmd to check Python code quality\n\n" ;\
 	$$cmd --version ;\
 	printf -- "\n" ;\
-	$$cmd --ignore $(FLAKE8_IGNORE) --max-line-length 100 --statistics *.py  devtools/*.py clustermanagementtoolkit/*.py && printf -- "OK\n\n" ;\
+	$$cmd --ignore $(FLAKE8_IGNORE) --max-line-length 100 --statistics *.py $(python_libraries) devtools/*.py && printf -- "OK\n\n" ;\
 	printf -- "\n\nRunning $$cmd to check Python test case code quality\n\n" ;\
 	$$cmd --version ;\
 	printf -- "\n" ;\
@@ -415,7 +451,7 @@ regexploit:
 	printf -- "Checking executables\n" ;\
 	$$cmd $(python_executables_py) $(python_test_executables) &&\
 	printf -- "\nChecking libraries\n" ;\
-	$$cmd clustermanagementtoolkit/*.py
+	$$cmd $(python_libraries)
 
 jsonlint:
 	@cmd=jsonlint-php ;\
@@ -460,7 +496,7 @@ mypy:
 	printf -- "\n\nRunning $$cmd to check Python typing\n\n"; \
 	$$cmd --version ;\
 	printf -- "\n" ;\
-	for file in $(python_executables_py) devtools/*.py clustermanagementtoolkit/*.py; do \
+	for file in $(python_executables_py) $(python_libraries) devtools/*.py; do \
 		$$cmd $(MYPY_FLAGS) $$file || true; \
 	done
 
@@ -488,7 +524,7 @@ mypy-markdown:
 		exit 0; \
 	fi; \
 	tmpfile=$$(mktemp); \
-	for file in $(python_executables_py) clustermanagementtoolkit/*.py; do \
+	for file in $(python_executables_py) $(python_libraries); do \
 		result=$$($$cmd $(MYPY_FLAGS) $$file | grep -E "^Found|^Success") ;\
 		row="$$file | $$result\n" ;\
 		printf -- "$$row" >> $${tmpfile} ;\

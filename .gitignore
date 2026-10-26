@@ -236,6 +236,10 @@ views/VirtinkMachine.infrastructure.cluster.x-k8s.io.yaml
 views/VirtualMachine.kubevirt.io.yaml
 views/VirtualMachineInstance.kubevirt.io.yaml
 views/VirtualMachineInstanceReplicaSet.kubevirt.io.yaml
+views/VirtualMachinePool.pool.kubevirt.io.yaml
+views/VirtualMachineRestore.snapshot.kubevirt.io.yaml
+views/VirtualMachineSnapshot.snapshot.kubevirt.io.yaml
+views/VirtualMachineSnapshotContent.snapshot.kubevirt.io.yaml
 views/VirtualMachineTemplate.template.kubevirt.io.yaml
 views/VirtualMachineTemplateVersion.harvesterhci.io.yaml
 views/VirtualService.networking.istio.io.yaml

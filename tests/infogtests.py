@@ -2692,7 +2692,7 @@ def main() -> int:
             sys.exit(f"Unknown argument: {opt}")
         i += 1
 
-    cmtlib.read_cmtconfig()
+    cmtlib.cmtconfig = cmtlib.read_cmtconfig()
 
     for i, test in enumerate(tests):
         if i < start_at_task:

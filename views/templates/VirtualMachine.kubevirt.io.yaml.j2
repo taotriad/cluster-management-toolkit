@@ -26,6 +26,10 @@ listview:
       formatting:
         mapping:
           mappings:
+            CrashLoopBackOff:
+              field_colors:
+                - context: "main"
+                  type: "status_not_ok"
             ErrorUnschedulable:
               field_colors:
                 - context: "main"
@@ -35,6 +39,14 @@ listview:
                 - context: "main"
                   type: "status_ok"
             Starting:
+              field_colors:
+                - context: "main"
+                  type: "status_pending"
+            Stopped:
+              field_colors:
+                - context: "main"
+                  type: "status_done"
+            Stopping:
               field_colors:
                 - context: "main"
                   type: "status_pending"
@@ -49,12 +61,14 @@ listview:
       type: "str"
   actions:
     actionlist:
-      "Delete resource":
-        description: "Delete resource"
+      "Delete VM":
+        description: "Delete VM"
+        category: "Resource Level"
         confirm: true
         actionfunc: "delete_resource"
       "Start VM":
         description: "Start VM"
+        category: "Resource Level"
         actionfunc: "patch_resource"
         extravars:
           action_str: "Starting"
@@ -65,6 +79,7 @@ listview:
             strategic_merge: false
       "Halt VM":
         description: "Halt VM"
+        category: "Resource Level"
         actionfunc: "patch_resource"
         extravars:
           action_str: "Halting"
@@ -73,6 +88,32 @@ listview:
               spec:
                 runStrategy: "Halted"
             strategic_merge: false
+      "Create VM snapshot":
+        description: "Create VM snapshot"
+        category: "Resource Level"
+        confirm: true
+        actionfunc: "create_objects"
+        actionfunc_args:
+          resources:
+            - injections:
+                "metadata#name":
+                  source: "obj"
+                  paths: [
+                    "metadata#name",
+                    "spec#source#name",
+                  ]
+                "metadata#namespace":
+                  source: "obj"
+                  paths: [
+                    "metadata#namespace",
+                  ]
+              template:
+                apiVersion: "snapshot.kubevirt.io"
+                kind: "VirtualMachineSnapshot"
+                spec:
+                  source:
+                    apiGroup: "kubevirt.io"
+                    kind: "VirtualMachine"
 infoview:
   name: "Virtual Machine Info"
   infopad:
@@ -95,6 +136,10 @@ infoview:
         formatting:
           mapping:
             mappings:
+              CrashLoopBackOff:
+                field_colors:
+                  - context: "main"
+                    type: "status_not_ok"
               ErrorUnschedulable:
                 field_colors:
                   - context: "main"
@@ -107,6 +152,14 @@ infoview:
                 field_colors:
                   - context: "main"
                     type: "status_pending"
+              Stopped:
+                field_colors:
+                  - context: "main"
+                    type: "status_done"
+              Stopping:
+                field_colors:
+                  - context: "main"
+                    type: "status_pending"
               __default:
                 field_colors:
                   - context: "types"
@@ -114,6 +167,7 @@ infoview:
       vm_created:
         header: [["VM Created:", ["main", "infoheader"]]]
         path: "status#created"
+        default: "<unset>"
         type: "str"
   listpad:
     listgetter: "generic_listgetter"

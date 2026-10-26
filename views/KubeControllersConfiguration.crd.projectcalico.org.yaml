@@ -70,15 +70,18 @@ infoview:
       configuration_etcd_v3_compaction_period:
         header: [["  etcd v3 Compaction Period:", ["main", "infoheader"]]]
         path: "spec#etcdV3CompactionPeriod"
+        default: "<unset>"
         type: "raw"
         formatter: "age"
       configuration_health_checks:
         header: [["  Health Checks:", ["main", "infoheader"]]]
         path: "spec#healthChecks"
+        default: "<unset>"
         type: "str"
       configuration_log_severity_screen:
         header: [["  Log Severity Screen:", ["main", "infoheader"]]]
         path: "spec#logSeverityScreen"
+        default: "<unset>"
         type: "str"
       configuration_namespace_controller_header:
         header: [["  Namespace Controller:", ["main", "infoheader"]]]
@@ -198,15 +201,18 @@ infoview:
       running_etcd_v3_compaction_period:
         header: [["  etcd v3 Compaction Period:", ["main", "infoheader"]]]
         path: "status#runningConfig#etcdV3CompactionPeriod"
+        default: "<unset>"
         type: "raw"
         formatter: "age"
       running_health_checks:
         header: [["  Health Checks:", ["main", "infoheader"]]]
         path: "status#runningConfig#healthChecks"
+        default: "<unset>"
         type: "str"
       running_log_severity_screen:
         header: [["  Log Severity Screen:", ["main", "infoheader"]]]
         path: "status#runningConfig#logSeverityScreen"
+        default: "<unset>"
         type: "str"
       running_namespace_controller_header:
         header: [["  Namespace Controller:", ["main", "infoheader"]]]
@@ -229,10 +235,12 @@ infoview:
               - key: "namespace"
                 none: true
             substitute: "False"
+        default: "<unset>"
         formatter: "list"
       running_namespace_controller_reconciler_period:
         header: [["    Reconciler Period:", ["main", "infoheader"]]]
         path: "status#runningConfig#controllers#namespace#reconcilerPeriod"
+        default: "<unset>"
         type: "raw"
         formatter: "age"
       running_node_controller_header:
@@ -254,9 +262,11 @@ infoview:
               - key: "node"
                 none: true
             substitute: "False"
+        default: "<unset>"
       running_node_controller_reconciler_period:
         header: [["    Reconciler Period:", ["main", "infoheader"]]]
         path: "status#runningConfig#controllers#node#reconcilerPeriod"
+        default: "<unset>"
         type: "raw"
         formatter: "age"
       running_node_controller_host_endpoint_header:
@@ -278,6 +288,7 @@ infoview:
       running_node_controller_sync_labels:
         header: [["    Sync Labels:", ["main", "infoheader"]]]
         path: "status#runningConfig#controllers#node#syncLabels"
+        default: "<unset>"
         type: "raw"
       running_policy_controller_header:
         header: [["  Policy Controller:", ["main", "infoheader"]]]
@@ -298,9 +309,11 @@ infoview:
               - key: "policy"
                 none: true
             substitute: "False"
+        default: "<unset>"
       running_policy_controller_reconciler_period:
         header: [["    Reconciler Period:", ["main", "infoheader"]]]
         path: "status#runningConfig#controllers#policy#reconcilerPeriod"
+        default: "<unset>"
         type: "raw"
         formatter: "age"
       running_service_account_controller_header:
@@ -322,10 +335,12 @@ infoview:
               - key: "serviceAccount"
                 none: true
             substitute: "False"
+        default: "<unset>"
       running_service_account_controller_reconciler_period:
         header: [["    Reconciler Period:", ["main", "infoheader"]]]
         # yamllint disable-line rule:line-length
         path: "status#runningConfig#controllers#serviceAccount#reconcilerPeriod"
+        default: "<unset>"
         type: "raw"
         formatter: "age"
       running_workload_endpoint_controller_header:
@@ -347,10 +362,12 @@ infoview:
               - key: "workloadEndpoint"
                 none: true
             substitute: "False"
+        default: "<unset>"
       running_workload_endpoint_controller_reconciler_period:
         header: [["    Reconciler Period:", ["main", "infoheader"]]]
         # yamllint disable-line rule:line-length
         path: "status#runningConfig#controllers#workloadEndpoint#reconcilerPeriod"
+        default: "<unset>"
         type: "raw"
         formatter: "age"
   shortcuts:

@@ -19,8 +19,10 @@ from clustermanagementtoolkit import cmttypes
 from clustermanagementtoolkit.cmttypes import deep_get, deep_get_list, deep_get_with_fallback
 from clustermanagementtoolkit.cmttypes import deep_pop, deep_set, DictPath
 from clustermanagementtoolkit.cmttypes import FilePath, LogLevel, validate_args
-from clustermanagementtoolkit.cmttypes import UnknownError, ArgumentValidationError
-from clustermanagementtoolkit.cmttypes import ProgrammingError, FilePathAuditError
+from clustermanagementtoolkit.cmttypes.exceptions import ArgumentValidationError
+from clustermanagementtoolkit.cmttypes.exceptions import FilePathAuditError
+from clustermanagementtoolkit.cmttypes.exceptions import ProgrammingError
+from clustermanagementtoolkit.cmttypes.exceptions import UnknownError
 
 from clustermanagementtoolkit.ansithemeprint import ANSIThemeStr
 from clustermanagementtoolkit.ansithemeprint import ansithemeprint, init_ansithemeprint

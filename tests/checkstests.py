@@ -12,7 +12,8 @@ from typing import Any
 from unittest import mock
 import yaml
 
-from clustermanagementtoolkit.cmttypes import deep_get, DictPath, FilePath, ProgrammingError
+from clustermanagementtoolkit.cmttypes import deep_get, DictPath, FilePath
+from clustermanagementtoolkit.cmttypes.exceptions import ProgrammingError
 from clustermanagementtoolkit.ansithemeprint import ANSIThemeStr
 from clustermanagementtoolkit.ansithemeprint import ansithemeprint, init_ansithemeprint
 from clustermanagementtoolkit import checks
@@ -202,7 +203,8 @@ def test_check_sudo_configuration(verbose: bool = False) -> tuple[str, bool]:
 
         for kwargs, mock_response, expected_result, expected_exception in testdata:
             try:
-                with mock.patch("clustermanagementtoolkit.checks.execute_command_with_response",
+                with mock.patch("clustermanagementtoolkit.checks.check_sudo_configuration."
+                                "execute_command_with_response",
                                 return_value=mock_response):
                     tmp = fun(**kwargs)
                 if tmp != expected_result:
@@ -358,7 +360,8 @@ def test_check_ansible_dir_permissions(verbose: bool = False) -> tuple[str, bool
         for kwargs, mock_response, \
                 expected_result, expected_exception, expected_exception_msg in testdata:
             try:
-                with mock.patch("clustermanagementtoolkit.checks.DOT_ANSIBLE_PATH",
+                with mock.patch("clustermanagementtoolkit."
+                                "checks.check_ansible_dir_permissions.DOT_ANSIBLE_PATH",
                                 mock_response), \
                      mock.patch("sys.exit", side_effect=Exception("errno.EPERM")):
                     tmp = fun(**kwargs)
@@ -486,7 +489,8 @@ def test_check_netrc_permissions(verbose: bool = False) -> tuple[str, bool]:
         for kwargs, mock_response, \
                 expected_result, expected_exception, expected_exception_msg in testdata:
             try:
-                with mock.patch("clustermanagementtoolkit.checks.NETRC_PATH",
+                with mock.patch("clustermanagementtoolkit.checks."
+                                "check_netrc_permissions.NETRC_PATH",
                                 mock_response), \
                      mock.patch("sys.exit", side_effect=Exception("errno.EPERM")):
                     tmp = fun(**kwargs)
@@ -665,7 +669,8 @@ def test_check_known_hosts_hashing(verbose: bool = False) -> tuple[str, bool]:
         )
 
         for kwargs, mock_response, expected_result in testdata:
-            with mock.patch("clustermanagementtoolkit.checks.execute_command_with_response",
+            with mock.patch("clustermanagementtoolkit.checks."
+                            "check_known_hosts_hashing.execute_command_with_response",
                             return_value=mock_response):
                 tmp = fun(**kwargs)
             if tmp != expected_result:
@@ -800,7 +805,8 @@ def test_check_client_server_version_match(verbose: bool = False) -> tuple[str, 
         for kwargs, mock_response, \
                 expected_result, expected_exception, expected_exception_msg in testdata:
             try:
-                with mock.patch("clustermanagementtoolkit.checks.kubectl_get_version",
+                with mock.patch("clustermanagementtoolkit.checks."
+                                "check_client_server_version_match.kubectl_get_version",
                                 return_value=mock_response), \
                      mock.patch("sys.exit", side_effect=Exception("errno.ENOTSUP")):
                     tmp = fun(**kwargs)

@@ -41,8 +41,9 @@ from clustermanagementtoolkit.networkio import verify_checksum
 from clustermanagementtoolkit.ansithemeprint import ANSIThemeStr
 from clustermanagementtoolkit.ansithemeprint import ansithemeprint, init_ansithemeprint
 
-from clustermanagementtoolkit.cmttypes import deep_get, DictPath, FilePath, FilePathAuditError
+from clustermanagementtoolkit.cmttypes import deep_get, DictPath, FilePath
 from clustermanagementtoolkit.cmttypes import SecurityChecks, SecurityPolicy, SecurityStatus
+from clustermanagementtoolkit.cmttypes.exceptions import FilePathAuditError
 
 # from clustermanagementtoolkit.cmtpaths import HOMEDIR
 

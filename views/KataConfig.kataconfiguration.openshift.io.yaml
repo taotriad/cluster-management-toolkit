@@ -40,7 +40,7 @@ infoview:
     row_indexes:
       Normal:
         fields: ["check_node_eligibility", "enable_peer_pods", "loglevel",
-                 "pool_label_selector", "runtime_classes",
+                 "pool_selector", "runtime_classes",
                  "waiting_for_mco_to_start"]
     rows:
       check_node_eligibility:
@@ -58,21 +58,15 @@ infoview:
         path: "spec#logLevel"
         default: "<unset>"
         type: "str"
-      pool_label_selector:
-        header: [["Pool La", ["main", "infoheader"]],
-                 ["b", ["main", "infoheader_shortcut"]],
-                 ["el Selector:", ["main", "infoheader"]]]
+      pool_selector:
+        header: [["Pool Selec", ["main", "infoheader"]],
+                 ["t", ["main", "infoheader_shortcut"]],
+                 ["or:", ["main", "infoheader"]]]
         paths:
-          - path: ["spec#kataConfigPoolSelector#matchLabels"]
-            pathtype: "key_value"
-            default: ["<none>"]
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "key"
-            - type: "value"
-          field_separators:
-            - type: "selector"
+          - path: "spec#kataConfigPoolSelector"
+            pathtype: "obj"
+            default: "<none>"
+        formatter: "selector"
       runtime_classes:
         header: [["R", ["main", "infoheader_shortcut"]],
                  ["untime Classes:", ["main", "infoheader"]]]
@@ -180,17 +174,16 @@ infoview:
                   - context: "main"
                     type: "status_pending"
   shortcuts:
-    "Pool Label Selector":
-      key: "b"
+    "Pool Selector":
+      key: "t"
       read_only: true
-      helptext: "Show pool label selector"
+      helptext: "Show pool selector"
       widget: "windowwidget"
       widget_args:
-        title: "Pool Label Selector:"
-        headers: ["Key:", "Value:"]
-        itemgetter: "get_key_value"
+        title: "Pool Selector:"
+        itemgetter: "get_selector_list"
         itemgetter_args:
-          path: "spec#kataConfigPoolSelector#matchLabels"
+          path: "spec#kataConfigPoolSelector"
     "Runtime Classes":
       key: "r"
       modifier: "shift"

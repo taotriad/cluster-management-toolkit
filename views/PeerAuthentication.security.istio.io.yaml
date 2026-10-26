@@ -23,21 +23,8 @@ infoview:
   infopad:
     row_indexes:
       Normal:
-        fields: ["label_selector", "mtls_mode", "port_level_mtls"]
+        fields: ["selector", "mtls_mode", "port_level_mtls"]
     rows:
-      label_selector:
-        header: [["Label Selector:", ["main", "infoheader"]]]
-        paths:
-          - path: ["spec#selector#matchLabels"]
-            pathtype: "key_value"
-            default: ["<none>"]
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "key"
-            - type: "value"
-          field_separators:
-            - type: "selector"
       mtls_mode:
         header: [["mTLS Mode:", ["main", "infoheader"]]]
         path: "spec#mtls#mode"
@@ -55,3 +42,23 @@ infoview:
           field_colors:
             - type: "port"
             - type: "generic"
+      selector:
+        header: [["Selec", ["main", "infoheader"]],
+                 ["t", ["main", "infoheader_shortcut"]],
+                 ["or:", ["main", "infoheader"]]]
+        paths:
+          - path: "spec#selector"
+            pathtype: "obj"
+            default: "<none>"
+        formatter: "selector"
+  shortcuts:
+    "Selector":
+      key: "t"
+      read_only: true
+      helptext: "Show selector"
+      widget: "windowwidget"
+      widget_args:
+        title: "Selector:"
+        itemgetter: "get_selector_list"
+        itemgetter_args:
+          path: "spec#selector"

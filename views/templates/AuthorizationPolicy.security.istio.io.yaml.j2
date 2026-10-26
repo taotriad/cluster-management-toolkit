@@ -41,17 +41,14 @@ infoview:
       {{ line }}
       {%- endfor %}
       workload_selector:
-        header: [["Selector:", ["main", "infoheader"]]]
+        header: [["Workload Selec", ["main", "infoheader"]],
+                 ["t", ["main", "infoheader_shortcut"]],
+                 ["or:", ["main", "infoheader"]]]
         paths:
-          - path: ["spec#selector#matchLabels"]
-            pathtype: "key_value"
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "key"
-            - type: "value"
-          field_separators:
-            - type: "selector"
+          - path: "spec#selector"
+            pathtype: "obj"
+            default: "<none>"
+        formatter: "selector"
   listpad:
     listgetter: "listgetter_path"
     listgetter_args:
@@ -210,3 +207,13 @@ infoview:
     {%- for line in shortcut_controller.split("\n") %}
     {{ line }}
     {%- endfor %}
+    "Workload Selector":
+      key: "t"
+      read_only: true
+      helptext: "Show workload selector"
+      widget: "windowwidget"
+      widget_args:
+        title: "Workload Selector:"
+        itemgetter: "get_selector_list"
+        itemgetter_args:
+          path: "spec#selector"

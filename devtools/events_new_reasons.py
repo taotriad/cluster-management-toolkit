@@ -1,7 +1,7 @@
 #! /usr/bin/env python3
 
 # Requires: python3 (>= 3.11)
-
+#
 # Copyright the Cluster Management Toolkit for Kubernetes contributors.
 # SPDX-License-Identifier: MIT
 

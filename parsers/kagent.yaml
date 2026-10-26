@@ -44,6 +44,12 @@
 - name: "kagent"
   show_in_selector: false
   matchkeys:
+    - image_name: "/kagent-dev/substrate/podcertcontroller"
+  parser_rules:
+    - name: "json"
+- name: "kagent"
+  show_in_selector: false
+  matchkeys:
     - pod_name: "kagent"
       container_name: "ui"
   parser_rules:

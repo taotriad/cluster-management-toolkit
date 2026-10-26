@@ -15,20 +15,20 @@ Setup or teardown a Kubernetes cluster.
 """
 
 import errno
-from getpass import getuser
-from glob import glob
 import grp
 import os
-from pathlib import Path, PurePath
 import pwd
 import re
 import shutil
 import socket
-from subprocess import CalledProcessError  # nosec
 import sys
 import tempfile
-from typing import Any, cast
 from collections.abc import Callable
+from getpass import getuser
+from glob import glob
+from pathlib import Path, PurePath
+from subprocess import CalledProcessError  # nosec
+from typing import Any, cast
 
 try:
     from natsort import natsorted
@@ -50,77 +50,125 @@ except ModuleNotFoundError:  # pragma: no cover
                  "you may need to (re-)run `cmt-install.py` or `pip3 install ruyaml/ruamel.yaml`; "
                  "aborting.")
 
-# This has to be first, since it checks for the correct Python version
-from clustermanagementtoolkit import about
-
-from clustermanagementtoolkit.cluster_actions import create_vm_hosts, join_nodes, get_crio_version
-from clustermanagementtoolkit.cluster_actions import prepare_nodes, prepare_vm_template
-
-from clustermanagementtoolkit.cmttypes import deep_get, DictPath, FilePath, FilePathAuditError
-from clustermanagementtoolkit.cmttypes import SecurityChecks, SecurityPolicy, SecurityStatus
-
-from clustermanagementtoolkit.cmtpaths import BASH_COMPLETION_BASE_DIR, BASH_COMPLETION_DIR
-from clustermanagementtoolkit.cmtpaths import BINDIR, HOMEDIR
-from clustermanagementtoolkit.cmtpaths import SSH_DIR, SSH_KEYGEN_BIN_PATH, SSH_KEYGEN_ARGS
-from clustermanagementtoolkit.cmtpaths import DEPLOYMENT_DIR
-from clustermanagementtoolkit.cmtpaths import CMT_PRE_PREPARE_DIR, CMT_POST_PREPARE_DIR
-from clustermanagementtoolkit.cmtpaths import CMT_PRE_SETUP_DIR, CMT_POST_SETUP_DIR
-from clustermanagementtoolkit.cmtpaths import CMT_PRE_UPGRADE_DIR, CMT_POST_UPGRADE_DIR
-from clustermanagementtoolkit.cmtpaths import CMT_PRE_TEARDOWN_DIR, CMT_POST_TEARDOWN_DIR
-from clustermanagementtoolkit.cmtpaths import CMT_PRE_PURGE_DIR, CMT_POST_PURGE_DIR
-from clustermanagementtoolkit.cmtpaths import ANSIBLE_INVENTORY
-from clustermanagementtoolkit.cmtpaths import DEFAULT_THEME_FILE
-from clustermanagementtoolkit.cmtpaths import CMT_CONFIG_FILE, CMT_INSTALLATION_INFO_FILE
-from clustermanagementtoolkit.cmtpaths import KUBE_CONFIG_DIR, KUBE_CONFIG_FILE
-
-from clustermanagementtoolkit.commandparser import parse_commandline, CommandType
-
-from clustermanagementtoolkit.ansible_helper import ansible_add_hosts
-from clustermanagementtoolkit.ansible_helper import ansible_configuration
-from clustermanagementtoolkit.ansible_helper import ansible_get_hosts_by_group, get_playbook_path
-from clustermanagementtoolkit.ansible_helper import ansible_get_inventory_dict, ansible_set_vars
-from clustermanagementtoolkit.ansible_helper import ansible_print_play_results
-from clustermanagementtoolkit.ansible_helper import ansible_run_playbook_on_selection
-from clustermanagementtoolkit.ansible_helper import populate_playbooks_from_filenames
-
-from clustermanagementtoolkit import cmtio
-from clustermanagementtoolkit.cmtio import check_path
-from clustermanagementtoolkit.cmtio import execute_command, execute_command_with_response
-from clustermanagementtoolkit.cmtio import secure_mkdir, secure_read_string, secure_rm
-from clustermanagementtoolkit.cmtio import secure_which, secure_write_string
-
-from clustermanagementtoolkit.cmtio_yaml import secure_read_yaml, secure_write_yaml
-
-from clustermanagementtoolkit.networkio import download_files
-from clustermanagementtoolkit.networkio import scan_and_add_ssh_keys, update_version_cache
-
-from clustermanagementtoolkit import cmtlib
-from clustermanagementtoolkit.cmtlib import check_versions_apt
-from clustermanagementtoolkit.cmtlib import check_versions_yum, check_versions_zypper
-from clustermanagementtoolkit.cmtlib import get_latest_upstream_version
-from clustermanagementtoolkit.cmtlib import identify_arch, identify_distro, read_cmtconfig
-from clustermanagementtoolkit.cmtlib import substitute_list, substitute_string
-
-from clustermanagementtoolkit.cni_data import cni_data
-
-from clustermanagementtoolkit import kubernetes_helper
-from clustermanagementtoolkit.kubernetes_helper import get_node_roles, get_cluster_name
-
-from clustermanagementtoolkit.ansithemeprint import ANSIThemeStr, ansithemeinput
-from clustermanagementtoolkit.ansithemeprint import ansithemeinput_password, ansithemeprint
-from clustermanagementtoolkit.ansithemeprint import ansithemestr_join_list
-from clustermanagementtoolkit.ansithemeprint import themearray_override_formatting
-
-from clustermanagementtoolkit import fieldgetters
-
-from clustermanagementtoolkit import checks
-
 try:
     import prctl  # type: ignore[import-not-found,import-untyped,unused-ignore]
     prctl.set_name(PurePath(sys.argv[0]).name)  # pylint: disable=no-member,useless-suppression
     prctl.set_proctitle(" ".join(sys.argv))
 except ModuleNotFoundError:  # pragma: no cover
     pass
+
+# This has to be first, since it checks for the correct Python version
+from clustermanagementtoolkit import about
+
+from clustermanagementtoolkit.ansible_helper import (
+    AnsibleConfiguration,
+    ansible_add_hosts,
+    ansible_get_hosts_by_group,
+    ansible_get_inventory_dict,
+    ansible_print_play_results,
+    ansible_run_playbook_on_selection,
+    ansible_set_vars,
+    get_playbook_path,
+    populate_playbooks_from_filenames,
+)
+
+from clustermanagementtoolkit.ansithemeprint import (
+    ANSIThemeStr,
+    ansithemeinput,
+    ansithemeinput_password,
+    ansithemeprint,
+    ansithemestr_join_list,
+    themearray_override_formatting,
+)
+
+from clustermanagementtoolkit import checks
+
+from clustermanagementtoolkit.cluster_actions import (
+    create_vm_hosts,
+    get_crio_version,
+    join_nodes,
+    prepare_nodes,
+    prepare_vm_template,
+)
+
+from clustermanagementtoolkit import cmtio
+from clustermanagementtoolkit.cmtio import (
+    check_path,
+    execute_command,
+    execute_command_with_response,
+    secure_mkdir,
+    secure_read_string,
+    secure_rm,
+    secure_which,
+    secure_write_string,
+)
+
+from clustermanagementtoolkit.cmtio_yaml import secure_read_yaml
+from clustermanagementtoolkit.cmtio_yaml import secure_write_yaml
+
+from clustermanagementtoolkit.cmtpaths import (
+    ANSIBLE_INVENTORY,
+    BASH_COMPLETION_BASE_DIR,
+    BASH_COMPLETION_DIR,
+    BINDIR,
+    CMT_CONFIG_FILE,
+    CMT_INSTALLATION_INFO_FILE,
+    CMT_POST_PREPARE_DIR,
+    CMT_POST_PURGE_DIR,
+    CMT_POST_SETUP_DIR,
+    CMT_POST_TEARDOWN_DIR,
+    CMT_POST_UPGRADE_DIR,
+    CMT_PRE_PREPARE_DIR,
+    CMT_PRE_PURGE_DIR,
+    CMT_PRE_SETUP_DIR,
+    CMT_PRE_TEARDOWN_DIR,
+    CMT_PRE_UPGRADE_DIR,
+    DEFAULT_THEME_FILE,
+    DEPLOYMENTS_DIR,
+    HOMEDIR,
+    KUBE_CONFIG_DIR,
+    KUBE_CONFIG_FILE,
+    SSH_DIR,
+    SSH_KEYGEN_ARGS,
+    SSH_KEYGEN_BIN_PATH,
+)
+
+from clustermanagementtoolkit.cmttypes import (
+    DictPath,
+    FilePath,
+    SecurityChecks,
+    SecurityPolicy,
+    SecurityStatus,
+    deep_get,
+)
+from clustermanagementtoolkit.cmttypes.exceptions import FilePathAuditError
+
+from clustermanagementtoolkit import cmtlib
+from clustermanagementtoolkit.cmtlib import (
+    check_versions_apt,
+    check_versions_yum,
+    check_versions_zypper,
+    get_latest_upstream_version,
+    identify_arch,
+    identify_distro,
+    substitute_list,
+    substitute_string,
+)
+
+from clustermanagementtoolkit.cni_data import cni_data
+
+from clustermanagementtoolkit.commandparser import CommandType
+from clustermanagementtoolkit.commandparser import parse_commandline
+
+from clustermanagementtoolkit import fieldgetters
+
+from clustermanagementtoolkit import kubernetes_helper
+from clustermanagementtoolkit.kubernetes_helper import get_cluster_name
+from clustermanagementtoolkit.kubernetes_helper import get_node_roles
+
+from clustermanagementtoolkit.networkio import download_files
+from clustermanagementtoolkit.networkio import scan_and_add_ssh_keys
+from clustermanagementtoolkit.networkio import update_version_cache
 
 PROGRAMDESCRIPTION = "Setup or teardown a Kubernetes cluster."
 PROGRAMAUTHORS = "Written by David Weinehall."
@@ -920,8 +968,8 @@ def __upgrade_cni(cni: str, upgradetype: str, context: str,
             }
 
             if upgradetype == "CNI":
-                secure_mkdir(DEPLOYMENT_DIR)
-                directory = DEPLOYMENT_DIR.joinpath("cni")
+                secure_mkdir(DEPLOYMENTS_DIR)
+                directory = DEPLOYMENTS_DIR.joinpath("cni")
                 permissions = 0o644
             elif upgradetype == "executable":
                 directory = BINDIR
@@ -1194,7 +1242,7 @@ def teardown_cni(options: list[tuple[str, str]], args: list[str]) -> None:
                         ANSIThemeStr(": No CNI installed; aborting.", "default")], stderr=True)
         sys.exit(errno.ENOENT)
 
-    directory = DEPLOYMENT_DIR.joinpath("cni")
+    directory = DEPLOYMENTS_DIR.joinpath("cni")
 
     # This will only work for running clusters
     if kh is None:
@@ -1765,7 +1813,10 @@ def update_apt_cache() -> bool:
         Returns:
             (bool): True on success, False on failure
     """
-    sudo_path = cmtio.secure_which(FilePath("sudo"), fallback_allowlist=["/bin", "/usr/bin"],
+    # Ubuntu 26.04 uses the rust implementation of sudo,
+    # so it'll be in /usr/lib/cargo/bin instead.
+    sudo_path = cmtio.secure_which(FilePath("sudo"),
+                                   fallback_allowlist=["/bin", "/usr/bin", "/usr/lib/cargo/bin"],
                                    security_policy=SecurityPolicy.ALLOWLIST_STRICT)
     apt_get_path = cmtio.secure_which(FilePath("apt-get"), fallback_allowlist=["/bin", "/usr/bin"],
                                       security_policy=SecurityPolicy.ALLOWLIST_STRICT)
@@ -2085,7 +2136,7 @@ def __task_request_ansible_password(installation_info: dict, **kwargs: Any) -> N
             **kwargs (dict[str, Any]): Keyword arguments [unused]
     """
     # Check whether ansible_password is defined or not
-    if deep_get(ansible_configuration, DictPath("ansible_password")) is None and not no_password:
+    if AnsibleConfiguration.ansible_password is None and not no_password:
         ansithemeprint([ANSIThemeStr("Attention", "warning"),
                         ANSIThemeStr(": To be able to run playbooks you need to provide the "
                                      "ansible/ssh", "default")])
@@ -2106,7 +2157,7 @@ def __task_request_ansible_password(installation_info: dict, **kwargs: Any) -> N
                             ANSIThemeStr(": Empty password; aborting.", "default")], stderr=True)
             sys.exit(errno.EINVAL)
         else:
-            ansible_configuration["ansible_password"] = ansible_password
+            AnsibleConfiguration.ansible_password = ansible_password
 
 
 def __run_playbooks_on_selection(playbooks: list[tuple[list[ANSIThemeStr], FilePath]],
@@ -2239,8 +2290,8 @@ def __task_run_preparation_playbooks_on_localhost(installation_info: dict, **kwa
     extra_values = {
         "packages": packages,
         "held_packages": held_packages,
-        "ansible_become_pass": deep_get(ansible_configuration, DictPath("ansible_password")),
-        "ansible_ssh_pass": deep_get(ansible_configuration, DictPath("ansible_password")),
+        "ansible_become_pass": AnsibleConfiguration.ansible_password,
+        "ansible_ssh_pass": AnsibleConfiguration.ansible_password,
         "minor_versions": minor_versions,
     }
     __run_playbooks_on_selection(playbooks=playbooks, selection=selection,
@@ -2301,8 +2352,8 @@ def __task_run_preparation_playbooks_on_hosts(installation_info: dict, **kwargs:
     extra_values = {
         "packages": packages,
         "held_packages": held_packages,
-        "ansible_become_pass": deep_get(ansible_configuration, DictPath("ansible_password")),
-        "ansible_ssh_pass": deep_get(ansible_configuration, DictPath("ansible_password")),
+        "ansible_become_pass": AnsibleConfiguration.ansible_password,
+        "ansible_ssh_pass": AnsibleConfiguration.ansible_password,
         "minor_versions": minor_versions,
     }
     __run_playbooks_on_selection(playbooks=playbooks, selection=selection,
@@ -3614,7 +3665,7 @@ def prepare_installation(options: list[tuple[str, Any]], args: list[str]) -> Non
         elif opt == "--verbose":
             verbose = True
         elif opt == "--save-ansible-logs":
-            ansible_configuration["save_logs"] = True
+            AnsibleConfiguration.save_logs = True
         elif opt == "-Y":
             confirm = False
 
@@ -3745,7 +3796,7 @@ def import_cluster(options: list[tuple[str, str]], args: list[str]) -> None:
         elif opt == "--no-password":
             no_password = True
         elif opt == "--save-ansible-logs":
-            ansible_configuration["save_logs"] = True
+            AnsibleConfiguration.save_logs = True
         elif opt == "--verbose":
             verbose = True
 
@@ -3882,8 +3933,8 @@ def import_cluster(options: list[tuple[str, str]], args: list[str]) -> None:
         __task_request_ansible_password(installation_info={})
 
         extra_values = {
-            "ansible_become_pass": deep_get(ansible_configuration, DictPath("ansible_password")),
-            "ansible_ssh_pass": deep_get(ansible_configuration, DictPath("ansible_password")),
+            "ansible_become_pass": AnsibleConfiguration.ansible_password,
+            "ansible_ssh_pass": AnsibleConfiguration.ansible_password,
         }
 
         install_ansible_posix()
@@ -4366,7 +4417,7 @@ def add_nodes(options: list[tuple[str, Any]], args: list[Any]) -> None:
         if opt == "--verbose":
             verbose = True
         elif opt == "--save-ansible-logs":
-            ansible_configuration["save_logs"] = True
+            AnsibleConfiguration.save_logs = True
         elif opt == "--configuration-paths":
             configuration_paths = optarg
         elif opt == "--cordon-on-join":
@@ -4376,7 +4427,7 @@ def add_nodes(options: list[tuple[str, Any]], args: list[Any]) -> None:
         elif opt == "--cri-version":
             cri_version = optarg
         elif opt == "--forks":
-            ansible_configuration["ansible_forks"] = optarg
+            AnsibleConfiguration.ansible_forks = optarg
 
     configuration_path = merge_configurations(configuration_paths)
 
@@ -4450,8 +4501,8 @@ def add_nodes(options: list[tuple[str, Any]], args: list[Any]) -> None:
         minor_versions.append(f"{minor_version}")
 
     extra_values = {
-        "ansible_become_pass": deep_get(ansible_configuration, DictPath("ansible_password")),
-        "ansible_ssh_pass": deep_get(ansible_configuration, DictPath("ansible_password")),
+        "ansible_become_pass": AnsibleConfiguration.ansible_password,
+        "ansible_ssh_pass": AnsibleConfiguration.ansible_password,
         "cluster_name": cluster_name,
         "control_plane_ip": control_plane_ip,
         "control_plane_port": control_plane_port,
@@ -4854,8 +4905,7 @@ def create_cluster(options: list[tuple[str, str]], args: list[str]) -> None:
         ansithemeprint([ANSIThemeStr("\n[Adding nodes]", "phase")])
 
         # Check whether ansible_password is defined or not
-        if deep_get(ansible_configuration,
-                    DictPath("ansible_password")) is None and not no_password:
+        if AnsibleConfiguration.ansible_password is None and not no_password:
             ansithemeprint([ANSIThemeStr("Attention", "warning"),
                             ANSIThemeStr(": To be able to run playbooks you need to provide the "
                                          "ansible/ssh password.", "default")])
@@ -4875,7 +4925,7 @@ def create_cluster(options: list[tuple[str, str]], args: list[str]) -> None:
                                stderr=True)
                 sys.exit(errno.EINVAL)
             else:
-                ansible_configuration["ansible_password"] = ansible_password
+                AnsibleConfiguration.ansible_password = ansible_password
 
         node_global_cri = deep_get(cd, DictPath("nodes#options#cri"), cri)
         node_global_cri_version = deep_get(cd, DictPath("nodes#options#cri_version"), cri_version)
@@ -5129,9 +5179,12 @@ def create_cluster(options: list[tuple[str, str]], args: list[str]) -> None:
                 secure_which(FilePath("/usr/bin/kubectl"),
                              fallback_allowlist=["/etc/alternatives"],
                              security_policy=SecurityPolicy.ALLOWLIST_RELAXED)
+            # Ubuntu 26.04 uses the rust implementation of sudo,
+            # so it'll be in /usr/lib/cargo/bin instead.
             sudo_path = \
                 cmtio.secure_which(FilePath("sudo"),
-                                   fallback_allowlist=["/bin", "/usr/bin"],
+                                   fallback_allowlist=["/bin", "/usr/bin",
+                                                       "/usr/lib/cargo/bin"],
                                    security_policy=SecurityPolicy.ALLOWLIST_STRICT)
             try:
                 helm_path = \
@@ -5671,7 +5724,7 @@ def setup_control_planes(options: list[tuple[str, Any]], args: list[str]) -> Non
         elif opt == "--override-cni":
             override_cni = True
         elif opt == "--save-ansible-logs":
-            ansible_configuration["save_logs"] = True
+            AnsibleConfiguration.save_logs = True
         elif opt == "--enable-dra":
             enable_dra = True
         elif opt == "--verbose":
@@ -6241,7 +6294,7 @@ def teardown_control_plane(options: list[tuple[str, str]], args: list[str]) -> N
                 sys.exit(0)
             phase = __validate_task_index(teardown_control_plane_tasks, phase)
         elif opt == "--save-ansible-logs":
-            ansible_configuration["save_logs"] = True
+            AnsibleConfiguration.save_logs = True
         elif opt == "--verbose":
             verbose = True
         elif opt == "-Y":
@@ -6337,7 +6390,7 @@ def purge_control_plane(options: list[tuple[str, str]], args: list[str]) -> None
         elif opt == "--verbose":
             verbose = True
         elif opt == "--save-ansible-logs":
-            ansible_configuration["save_logs"] = True
+            AnsibleConfiguration.save_logs = True
         elif opt == "-Y":
             confirm = False
 
@@ -6511,7 +6564,7 @@ def upgrade_control_plane(options: list[tuple[str, str]], args: list[str]) -> No
         elif opt == "--verbose":
             verbose = True
         elif opt == "--save-ansible-logs":
-            ansible_configuration["save_logs"] = True
+            AnsibleConfiguration.save_logs = True
         elif opt == "--ignore-feature-gates":
             ignore_feature_gates = True
         elif opt == "-Y":
@@ -8382,12 +8435,12 @@ def main() -> None:
         sys.exit("CRITICAL: This program should not be run as the root user; aborting.")
 
     # Now check if all necessary paths exist
-    if (violations := cmtlib.setup_paths()) != [SecurityStatus.OK]:
+    if (violations := cmtio.setup_paths()) != [SecurityStatus.OK]:
         violations_joined = cmtio.join_securitystatus_set(",", set(violations))
         sys.exit(f"Failed to create necessary directories; violated rules: {violations_joined}")
 
     # Then initialise the configuration file
-    read_cmtconfig()
+    cmtlib.cmtconfig = cmtlib.read_cmtconfig()
 
     command, options, args = \
         parse_commandline(about.ADMIN_PROGRAM_NAME, about.ADMIN_PROGRAM_VERSION,
@@ -8403,18 +8456,18 @@ def main() -> None:
         checks.check_netrc_permissions(verbose=False, exit_on_error=True, quiet_on_ok=True)
 
     # Used by the ansible module
-    ansible_configuration["ansible_forks"] = \
+    AnsibleConfiguration.ansible_forks = \
         deep_get(cmtlib.cmtconfig, DictPath("Ansible#forks"), 10)
     ansible_user = deep_get(cmtlib.cmtconfig, DictPath("Ansible#ansible_user"))
     if ansible_user is None or len(ansible_user) == 0:
         ansible_user = getuser()
-    ansible_configuration["ansible_user"] = ansible_user
+    AnsibleConfiguration.ansible_user = ansible_user
     ansible_password = deep_get(cmtlib.cmtconfig, DictPath("Ansible#ansible_password"))
     if ansible_password is not None and ansible_password:
-        ansible_configuration["ansible_password"] = ansible_password
-    ansible_configuration["disable_strict_host_key_checking"] = \
+        AnsibleConfiguration.ansible_password = ansible_password
+    AnsibleConfiguration.disable_strict_host_key_checking = \
         deep_get(cmtlib.cmtconfig, DictPath("Nodes#disablestricthostkeychecking"), False)
-    ansible_configuration["save_logs"] = \
+    AnsibleConfiguration.save_logs = \
         deep_get(cmtlib.cmtconfig, DictPath("Ansible#save_logs"), False)
 
     return command(options, args)

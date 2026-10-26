@@ -9,7 +9,7 @@ command:
   - "kremmcpserver"
 listview:
   name: "Remote MCP Servers"
-  group: "API & Extendability"
+  group: "Machine Learning"
   field_indexes:
     Normal:
       fields: ["namespace", "name", "protocol", "accepted", "age", "url"]

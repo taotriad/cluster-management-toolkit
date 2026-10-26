@@ -100,11 +100,13 @@ infoview:
         path: "spec#proxy#httpProxy"
         default: "<none>"
         type: "str"
+        formatter: "uri"
       proxy_https_proxy:
         header: [["  HTTPS Proxy:", ["main", "infoheader"]]]
         path: "spec#proxy#httpsProxy"
         default: "<none>"
         type: "str"
+        formatter: "uri"
       proxy_no_proxy:
         header: [["  No Proxy:", ["main", "infoheader"]]]
         path: "spec#proxy#noProxy"
