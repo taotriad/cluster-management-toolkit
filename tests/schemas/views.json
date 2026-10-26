@@ -785,9 +785,6 @@
                     "replace_quotes": {
                         "$ref": "#/$defs/replace_quotes"
                     },
-                    "subpath": {
-                        "$ref": "#/$defs/path"
-                    },
                     "subpaths": {
                         "description": "Fields to fetch within a dict path",
                         "type": "array",

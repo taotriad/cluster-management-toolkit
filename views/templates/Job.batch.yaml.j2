@@ -106,7 +106,8 @@ listview:
       paths:
         - path: "status"
           pathtype: "substitution"
-          subpath: "active"
+          subpaths:
+            - "active"
           when:
             - key: "active"
               notnone: true
@@ -115,7 +116,8 @@ listview:
           substitute: "Running"
         - path: "status#conditions"
           pathtype: "items"
-          subpath: "reason"
+          subpaths:
+            - "reason"
           when:
             - key: "type"
               eq: "Failed"
@@ -123,7 +125,8 @@ listview:
               eq: "True"
         - path: "status#conditions"
           pathtype: "substitution"
-          subpath: "type"
+          subpaths:
+            - "type"
           when:
             - key: "status"
               eq: "True"
@@ -292,7 +295,8 @@ infoview:
         paths:
           - path: "status"
             pathtype: "substitution"
-            subpath: "active"
+            subpaths:
+              - "active"
             when:
               - key: "active"
                 notnone: true
@@ -301,7 +305,8 @@ infoview:
             substitute: "Running"
           - path: "status#conditions"
             pathtype: "items"
-            subpath: "reason"
+            subpaths:
+              - "reason"
             when:
               - key: "type"
                 eq: "Failed"
@@ -309,7 +314,8 @@ infoview:
                 eq: "True"
           - path: "status#conditions"
             pathtype: "substitution"
-            subpath: "type"
+            subpaths:
+              - "type"
             when:
               - key: "status"
                 eq: "True"

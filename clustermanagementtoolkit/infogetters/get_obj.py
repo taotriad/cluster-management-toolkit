@@ -10,14 +10,7 @@ A multi-purpose helper for generic_infogetter().
 
 from datetime import timedelta
 import re
-import sys
 from typing import Any
-
-try:
-    from natsort import natsorted
-except ModuleNotFoundError:  # pragma: no cover
-    sys.exit("ModuleNotFoundError: Could not import natsort; "
-             "you may need to (re-)run `cmt-install.py` or `pip3 install natsort`; aborting.")
 
 from clustermanagementtoolkit import cmtlib
 from clustermanagementtoolkit.cmtlib import age_to_seconds
@@ -30,16 +23,19 @@ from clustermanagementtoolkit.cmtlib import timestamp_to_datetime
 from clustermanagementtoolkit.cmttypes import DictPath
 from clustermanagementtoolkit.cmttypes import StatusGroup
 from clustermanagementtoolkit.cmttypes import deep_get
-from clustermanagementtoolkit.cmttypes import deep_get_list
 from clustermanagementtoolkit.cmttypes import deep_get_with_fallback
 
 from clustermanagementtoolkit.fieldgetters import fieldgetter_allowlist
 
 from clustermanagementtoolkit.datagetters import datagetter_allowlist
 
-from clustermanagementtoolkit.infogetters.__process_string import __process_string
+from clustermanagementtoolkit.infogetters.filter_data import filter_data
+from clustermanagementtoolkit.infogetters.get_obj_items import get_obj_items
+from clustermanagementtoolkit.infogetters.get_obj_key_value import get_obj_key_value
+from clustermanagementtoolkit.infogetters.get_obj_list import get_obj_list
+from clustermanagementtoolkit.infogetters.get_obj_lookup import get_obj_lookup
+from clustermanagementtoolkit.infogetters.get_obj_ranges import get_obj_ranges
 from clustermanagementtoolkit.infogetters.process_value import process_value
-from clustermanagementtoolkit.infogetters.transform_filter import transform_filter
 from clustermanagementtoolkit.infogetters.transform_list import transform_list
 from clustermanagementtoolkit.infogetters.when_filter import when_filter
 
@@ -146,28 +142,15 @@ def get_obj(obj: dict, field_dict: dict, field_names: list[str],
                 ptype = deep_get(_path, DictPath("pathtype"), "list")
                 limit = deep_get(_path, DictPath("limit"))
                 action = deep_get(_path, DictPath("action"), "")
-                subpath = deep_get(_path, DictPath("subpath"), "")
                 subpaths = deep_get(_path, DictPath("subpaths"), [])
                 fallback_on_empty = deep_get(_path, DictPath("fallback_on_empty"), False)
                 replace_quotes = deep_get(_path, DictPath("replace_quotes"), "keep")
                 newlines = deep_get(_path, DictPath("newlines"), "escape")
                 if ptype == "list":
-                    tmp = deep_get_with_fallback(obj, path, default=default,
-                                                 fallback_on_empty=fallback_on_empty)
-                    if deep_get(_path, DictPath("sorted"), False) and tmp is not None:
-                        tmp = natsorted(tmp)
-
-                    if tmp is not None and tmp in ("None", ["None"]) \
-                            and deep_get(_path, DictPath("none_str_as_none"), False):
-                        tmp = default
-
-                    # Just return the list, unless a subset has been requested
-                    if limit is not None and tmp is not None:
-                        value = tmp[0:limit]
-                    else:
-                        value = tmp
-
-                    _values.append((value, vtype))
+                    _values = get_obj_list(obj=obj, path=path, default=default,
+                                           fallback_on_empty=fallback_on_empty,
+                                           ipath=_path, values=_values, vtype=vtype,
+                                           limit=limit)
                 elif ptype == "dictlist":
                     _raw = deep_get_with_fallback(obj, path, default=default,
                                                   fallback_on_empty=fallback_on_empty)
@@ -178,49 +161,7 @@ def get_obj(obj: dict, field_dict: dict, field_names: list[str],
                 # This takes a list of paths as indata, and--for all numerical entries in the list,
                 # builds ranges; all non-numerical entries are included as is
                 elif ptype == "ranges":
-                    rawvals = []
-                    for p in path:
-                        tmp = deep_get(obj, DictPath(p))
-                        if tmp is not None:
-                            rawvals += tmp
-                    rangevals = []
-                    if tmp is not None:
-                        firstnum = None
-                        lastnum = None
-                        sortedvals = natsorted(tmp)
-                        for i, sortedval in enumerate(sortedvals):
-                            # The range is sorted; this means that we add everything as is except
-                            # None until we reach the first numerical, create ranges for
-                            # the numericals, then add everything as is except None until the end
-                            if sortedval is None:
-                                continue
-                            # pylint: disable-next=unidiomatic-typecheck
-                            if type(sortedval) == int:  # noqa: E721
-                                if firstnum is None:
-                                    firstnum = sortedval
-                                else:
-                                    if lastnum is None or sortedval == lastnum + 1:
-                                        lastnum = sortedval
-                                    else:
-                                        # Flush and start a new range
-                                        rangevals.append((f"{firstnum}", f"{lastnum}", ""))
-                                        firstnum = sortedval
-                                        lastnum = None
-                            else:
-                                if firstnum is not None:
-                                    if lastnum is None:
-                                        rangevals.append((f"{firstnum}", "", ""))
-                                    else:
-                                        rangevals.append((f"{firstnum}", f"{lastnum}", ""))
-                                        lastnum = None
-                                    firstnum = None
-                                rangevals.append(("", "", sortedval))
-                        if firstnum is not None:
-                            if lastnum is None:
-                                rangevals.append((f"{firstnum}", "", ""))
-                            else:
-                                rangevals.append((f"{firstnum}", f"{lastnum}", ""))
-                    _values.append((rangevals, "raw"))
+                    _values = get_obj_ranges(obj=obj, path=path, values=_values)
                 elif ptype == "identify_type":
                     tmp = deep_get_with_fallback(obj, path, {})
                     vtype, _value = cmtlib.decode_value(tmp)
@@ -244,79 +185,8 @@ def get_obj(obj: dict, field_dict: dict, field_names: list[str],
                             tmp = default
                         _values.append(([tmp], "raw"))
                 elif ptype == "key_value":
-                    value = []
-                    tmp = deep_get_with_fallback(obj, path, {})
-                    subtype = deep_get(_path, DictPath("subtype"), "dict")
-                    # This is to be for key_value-lists provided as strings
-                    if subtype == "strlist" and isinstance(tmp, str):
-                        strlist = {}
-                        for kv in tmp.split(","):
-                            kv_tuple = kv.split("=")
-                            if len(kv_tuple) != 2:
-                                break
-                            strlist[kv_tuple[0]] = kv_tuple[1]
-                            tmp = strlist
-                    if isinstance(tmp, list):
-                        tmp2: dict[str, Any] = {}
-                        for item in tmp:
-                            if not isinstance(item, dict):
-                                break
-                            tmp2 = {**tmp2, **item}
-                        tmp = tmp2
-                    for _key, _value in tmp.items():
-                        subpaths = deep_get(_path, DictPath("subpaths"), [])
-                        if subpaths:
-                            _value = deep_get_with_fallback(_value, subpaths)
-                        if not when_filter(_path, item={}, key=_key, value=_value):
-                            continue
-                        _regexes_key = deep_get(_path, DictPath("key#regex"), [])
-                        _regexes_value = deep_get(_path, DictPath("value#regex"), [])
-                        if isinstance(_regexes_key, str):
-                            _regexes_key = [_regexes_key]
-                        if isinstance(_regexes_value, str):
-                            _regexes_value = [_regexes_value]
-                        _key = transform_filter(_key,
-                                                deep_get(_path, DictPath("key#transform"), {}))
-                        _value = transform_filter(_value,
-                                                  deep_get(_path, DictPath("value#transform"), {}))
-                        # A regex for key/value is required to capture only one group;
-                        # (though conceivably there might be scenario for joining),
-                        # thus the first non-None capture group will exit the match;
-                        # when using multiple regexes the first matching regex exits
-                        match = False
-                        for _regex in _regexes_key:
-                            if (re_tmp := re.match(_regex, _key)) is None:
-                                continue
-
-                            for group in re_tmp.groups():
-                                if group is not None:
-                                    _key = group
-                                    match = True
-                            if match:
-                                break
-                        match = False
-                        for _regex in _regexes_value:
-                            if (re_tmp := re.match(_regex, _value)) is None:
-                                continue
-
-                            for group in re_tmp.groups():
-                                if group is not None:
-                                    _value = group
-                                    match = True
-                            if match:
-                                break
-                        # A transform might yield multiple identical key/value pairs;
-                        # ignore all except the first one
-                        if (_key, _value) in value:
-                            continue
-                        value.append((_key, _value))
-                    if not value:
-                        if default is None:
-                            value = []
-                        else:
-                            value = default
-                    for tmp in value:
-                        _values.append((tmp, vtype))
+                    _values = get_obj_key_value(obj=obj, path=path, ipath=_path, default=default,
+                                                values=_values, vtype=vtype)
                 elif ptype == "selectors":
                     value = []
                     # This is a list of selectors
@@ -362,95 +232,11 @@ def get_obj(obj: dict, field_dict: dict, field_names: list[str],
                     else:
                         _values.append((default, "raw"))
                 elif ptype == "lookup":
-                    vtype = deep_get(_path, DictPath("type"), "raw")
-                    tmp_lookup_selector = []
-                    tmp_lookup_field_selector = []
-                    if len(path) == 5:
-                        lookup_kind, lookup_api_group, lookup_namespace, \
-                            lookup_name, tmp_lookup_selector = path
-                    elif len(path) == 6:
-                        lookup_kind, lookup_api_group, lookup_namespace, \
-                            lookup_name, tmp_lookup_selector, tmp_lookup_field_selector = path
-                    if isinstance(lookup_kind, list):
-                        lookup_kind = deep_get_with_fallback(obj, lookup_kind, "")
-                    if isinstance(lookup_api_group, list):
-                        lookup_api_group = deep_get_with_fallback(obj, lookup_api_group, "")
-                    if isinstance(lookup_namespace, list):
-                        lookup_namespace = deep_get_with_fallback(obj, lookup_namespace, "")
-                    if isinstance(lookup_name, list):
-                        lookup_name = deep_get_with_fallback(obj, lookup_name, "")
-                    if not tmp_lookup_selector:
-                        lookup_selector = ""
-                    else:
-                        _lookup_selector = {}
-                        for ls in tmp_lookup_selector:
-                            ls_key = ls[0]
-                            ls_value = ls[1]
-                            if isinstance(ls_value, list):
-                                ls_value = deep_get_with_fallback(obj, ls_value)
-                            _lookup_selector[ls_key] = ls_value
-                        lookup_selector = make_label_selector(_lookup_selector)
-                    if not tmp_lookup_field_selector:
-                        lookup_field_selector = ""
-                    else:
-                        _lookup_selector = {}
-                        for ls in tmp_lookup_field_selector:
-                            ls_key = ls[0]
-                            ls_value = ls[1]
-                            if isinstance(ls_value, list):
-                                ls_value = deep_get_with_fallback(obj, ls_value)
-                            _lookup_selector[ls_key] = ls_value
-                        lookup_field_selector = make_label_selector(_lookup_selector)
-
-                    try:
-                        if not lookup_name:
-                            lookup_obj, _status = \
-                                kh.get_list_by_kind_namespace((lookup_kind, lookup_api_group),
-                                                              lookup_namespace,
-                                                              label_selector=lookup_selector,
-                                                              field_selector=lookup_field_selector,
-                                                              resource_cache=kh_cache)
-                        else:
-                            lookup_obj = \
-                                kh.get_ref_by_kind_name_namespace((lookup_kind, lookup_api_group),
-                                                                  lookup_name, lookup_namespace,
-                                                                  resource_cache=kh_cache)
-                    except NameError:
-                        unknown = deep_get(_path, DictPath("unknown"), "Unknown Kind")
-                        _values.append((unknown, "raw"))
+                    _values, success = get_obj_lookup(obj=obj, path=path, ipath=_path,
+                                                      default=default, values=_values,
+                                                      kubernetes_helper=kh, kh_cache=kh_cache)
+                    if not success:
                         continue
-                    if lookup_obj is None \
-                            or isinstance(lookup_obj, dict) and not when_filter(_path,
-                                                                                item=lookup_obj):
-                        _values.append((default, "raw"))
-                        continue
-                    subpaths = deep_get(_path, DictPath("subpaths"), [])
-                    value = []
-                    if subpaths:
-                        tmp = []
-                        if isinstance(lookup_obj, dict):
-                            lookup_obj = [lookup_obj]
-
-                        for _lookup_obj in lookup_obj:
-                            for i, subpath in enumerate(subpaths):
-                                tmp.append(deep_get(_lookup_obj, DictPath(subpath)))
-                        if len(tmp) == 1:
-                            value.append(tmp[0])
-                        else:
-                            value.append(tuple(tmp))
-
-                    if not value:
-                        value = default
-
-                    substitute = deep_get(_path, DictPath("substitute"))
-                    if substitute is not None:
-                        value = substitute
-                    if vtype == "len" and value:
-                        if len(value) > 1:
-                            value = len(value)
-                        elif isinstance(value, list) and isinstance(value[0], tuple):
-                            value = len(value[0])
-                    _values.append((value, "raw"))
                 elif ptype == "remap":
                     value = []
                     substitutions = deep_get(_path, DictPath("substitutions"), "")
@@ -616,130 +402,11 @@ def get_obj(obj: dict, field_dict: dict, field_names: list[str],
                     tmp = fieldgetter(**fieldgetter_args, kubernetes_helper=kh)
                     _values.append((tmp, vtype))
                 elif ptype in ("items", "appenditems"):
-                    if subpath:
-                        if subpaths:
-                            raise ValueError(f"Field {name}: when using action: 'items' exactly "
-                                             "one of subpath and subpaths must be specified")
-                        subpaths = [subpath]
-                    value = []
-                    items = []
-                    index = deep_get(_path, DictPath("index"))
-                    for mpath in mpaths:
-                        if isinstance(mpath, str):
-                            mpath = [mpath]
-                        tmp = deep_get_list(obj, mpath, default=[],
-                                            fallback_on_empty=fallback_on_empty)
-                        if tmp is not None and index is not None:
-                            try:
-                                tmp = [tmp[index]]
-                            except IndexError:
-                                pass
-                        # XXX: This is to avoid breaking anything
-                        # Ideally the "appenditems" behaviour should be the only one,
-                        # but requires rewriting a lot of files
-                        if ptype == "items":
-                            items += tmp
-                        else:
-                            items.append(tmp)
-                    for item in items:
-                        if not when_filter(_path, item):
-                            continue
-
-                        tmp = []
-                        for i, subpath in enumerate(subpaths):
-                            if isinstance(default, list):
-                                if i < len(default):
-                                    _default = default[i]
-                                else:
-                                    _default = None
-                            else:
-                                _default = default
-
-                            if (vtype in ("int", "float") or action in ["sum"]) \
-                                    and type(default) not in (int, float):
-                                _default = 0
-
-                            if isinstance(subpath, dict):
-                                _subpath = deep_get(subpath, DictPath("str"))
-                                if _subpath is not None:
-                                    tmp.append(_subpath)
-                                else:
-                                    _subpath = deep_get(subpath, DictPath("subpath"))
-                                    _default = deep_get(subpath, DictPath("default"), _default)
-                                    _fallback_path = deep_get(subpath, DictPath("fallback_path"))
-                                    _fallback_value = deep_get(obj, DictPath(_fallback_path))
-                                    if _fallback_value is not None and _default is None:
-                                        _default = _fallback_value
-                                    if isinstance(_subpath, str):
-                                        _subpath = [_subpath]
-                                    _regexes = deep_get(subpath, DictPath("regex"), [])
-                                    if isinstance(_regexes, str):
-                                        _regexes = [_regexes]
-                                    _raw = deep_get_with_fallback(item, _subpath, _default)
-                                    _raw = transform_filter(_raw,
-                                                            deep_get(subpath,
-                                                                     DictPath("transform"), {}))
-                                    for _regex in _regexes:
-                                        if (re_tmp := re.match(_regex, _raw)) is not None:
-                                            for group in re_tmp.groups():
-                                                if group is not None:
-                                                    tmp.append(group)
-                                            break
-                                        tmp.append("")
-                                    if not tmp or not _regexes:
-                                        tmp.append(_raw)
-                            else:
-                                prefix = deep_get(_path, DictPath("prefix"), [])
-                                suffix = deep_get(_path, DictPath("suffix"), [])
-                                regex_ = deep_get(_path, DictPath("regex"))
-                                _subpath = subpath
-                                if isinstance(_subpath, str):
-                                    _subpath = [_subpath]
-                                tmp_ = deep_get_with_fallback(item, _subpath, _default)
-                                if isinstance(tmp_, str):
-                                    if regex_:
-                                        if (re_tmp := re.match(regex_, tmp_)) is not None:
-                                            tmp_ = []
-                                            for group in re_tmp.groups():
-                                                if group is not None:
-                                                    tmp_.append(group)
-                                            if len(tmp_) > 1:
-                                                tmp_ = tuple(_tmp)
-                                        elif fallback_on_empty:
-                                            tmp_ = _default
-                                    else:
-                                        tmp_ = __process_string(tmp_, quotes="same")
-                                if isinstance(prefix, str):
-                                    if isinstance(tmp_, str):
-                                        tmp_ = prefix + tmp_
-                                    else:
-                                        tmp_ = [prefix] + tmp_
-                                else:
-                                    tmp += prefix
-
-                                if isinstance(suffix, str):
-                                    if isinstance(tmp_, str):
-                                        tmp_ += suffix
-                                    else:
-                                        tmp_ += [suffix]
-
-                                tmp.append(tmp_)
-
-                                if isinstance(suffix, list):
-                                    tmp += suffix
-                        if not limit or len(value) < limit:
-                            if len(tmp) == 1:
-                                value.append(tmp[0])
-                            else:
-                                value.append(tuple(tmp))
-                    if not value:
-                        value = default
-                    if value is not None:
-                        if action in ("sum", "latest", "earliest"):
-                            _values.append((value, vtype))
-                        else:
-                            for tmp in value:
-                                _values.append((tmp, vtype))
+                    _values = get_obj_items(obj=obj, mpaths=mpaths, ipath=_path,
+                                            values=_values, default=default,
+                                            fallback_on_empty=fallback_on_empty,
+                                            subpaths=subpaths,
+                                            action=action, pathtype=ptype, vtype=vtype)
                 elif ptype == "count":
                     count = 0
                     for p in path:
@@ -840,10 +507,7 @@ def get_obj(obj: dict, field_dict: dict, field_names: list[str],
                         if tmp:
                             _values.append((tmp, "raw"))
                 elif ptype == "dictfields":
-                    subpaths = deep_get_with_fallback(_path, [DictPath("subpaths"),
-                                                              DictPath("subpath")], [])
-                    if isinstance(subpaths, str):
-                        subpaths = [[subpaths]]
+                    subpaths = deep_get_with_fallback(_path, [DictPath("subpaths")], [])
                     for mpath in mpaths:
                         tmp = deep_get_with_fallback(obj, mpath)
                         if not when_filter(_path, item=tmp):
@@ -900,46 +564,6 @@ def get_obj(obj: dict, field_dict: dict, field_names: list[str],
             else:
                 d[name] = values
 
-    # We've got all the information we can get now; time to apply filters
-    skip = False
-    for f_filter in filters.values():
-        if not deep_get(f_filter, DictPath("enabled"), True):
-            continue
-
-        # If len(allow) > 0, we only allow fields that match
-        allow = deep_get(f_filter, DictPath("allow"), [])
-        # If len(block) > 0, we skip fields that match
-        block = deep_get(f_filter, DictPath("block"), [])
-        source = deep_get(f_filter, DictPath("source"), "")
-        if source == "object":
-            src = obj
-        else:
-            src = d
-        if allow:
-            # If all field + value pairs match we allow
-            for rule in allow:
-                key = deep_get(rule, DictPath("key"), "")
-                values = deep_get(rule, DictPath("values"), "")
-
-                if deep_get(src, DictPath(key), "").rstrip() not in values:
-                    skip = True
-                    break
-        if block:
-            # If all field + value pairs match we block
-            for rule in block:
-                key = deep_get(rule, DictPath("key"), "")
-                values = deep_get(rule, DictPath("values"), "")
-                if deep_get(src, DictPath(key), "").rstrip() in values:
-                    skip = True
-                    break
-        if skip:
-            break
-    if skip:
-        entry = None
-    else:
-        d["ref"] = obj
-        d["__deleted"] = deleted
-        d["__uid"] = deep_get(obj, DictPath("metadata#uid"))
-        entry = dict(d)
-
-    return entry
+    # We've got all the information we can get now; time to apply filters,
+    # and return the remaining data.
+    return filter_data(filters=filters, obj=obj, d=d, deleted=deleted)

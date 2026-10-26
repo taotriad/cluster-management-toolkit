@@ -157,7 +157,8 @@ infoview:
         paths:
           - path: "status#conditions"
             pathtype: "items"
-            subpath: "status"
+            subpaths:
+              - "status"
             when:
               - key: "type"
                 eq: "ControlPlaneMachinesReady"
@@ -261,7 +262,8 @@ infoview:
         paths:
           - path: "status#conditions"
             pathtype: "items"
-            subpath: "status"
+            subpaths:
+              - "status"
             when:
               - key: "type"
                 eq: "InfrastructureReady"

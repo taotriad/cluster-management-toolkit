@@ -159,7 +159,8 @@ infoview:
         paths:
           - path: "status#interfaces"
             pathtype: "items"
-            subpath: "ipAddress"
+            subpaths:
+              - "ipAddress"
         formatter: "address"
       node_name:
         header: "Node:"
@@ -209,7 +210,8 @@ infoview:
         paths:
           - path: "status#conditions"
             pathtype: "items"
-            subpath: "status"
+            subpaths:
+              - "status"
             when:
               - key: "type"
                 eq: "Paused"

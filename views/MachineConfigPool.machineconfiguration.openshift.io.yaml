@@ -113,7 +113,8 @@ listview:
       paths:
         - path: "status#conditions"
           pathtype: "items"
-          subpath: "status"
+          subpaths:
+            - "status"
           when:
             - key: "type"
               eq: "Updated"
@@ -135,7 +136,8 @@ listview:
       paths:
         - path: "status#conditions"
           pathtype: "items"
-          subpath: "status"
+          subpaths:
+            - "status"
           when:
             - key: "type"
               eq: "Updating"
@@ -231,7 +233,8 @@ infoview:
         paths:
           - path: "status#conditions"
             pathtype: "items"
-            subpath: "status"
+            subpaths:
+              - "status"
             when:
               - key: "type"
                 eq: "Updated"
@@ -246,7 +249,8 @@ infoview:
         paths:
           - path: "status#conditions"
             pathtype: "items"
-            subpath: "status"
+            subpaths:
+              - "status"
             when:
               - key: "type"
                 eq: "Updating"
@@ -295,7 +299,8 @@ infoview:
         paths:
           - path: "status#addresses"
             pathtype: "items"
-            subpath: "address"
+            subpaths:
+              - "address"
             when:
               - key: "type"
                 eq: "InternalIP"
@@ -340,7 +345,8 @@ infoview:
         paths:
           - path: "status#conditions"
             pathtype: "substitution"
-            subpath: "status"
+            subpaths:
+              - "status"
             when:
               - key: "type"
                 eq: "Ready"

@@ -17,7 +17,8 @@ listview:
       paths:
         - path: "agentConditions"
           pathtype: "items"
-          subpath: "status"
+          subpaths:
+            - "status"
           when:
             - key: "type"
               eq: "AgentHealthy"
@@ -42,7 +43,8 @@ listview:
       paths:
         - path: "agentConditions"
           pathtype: "items"
-          subpath: "lastHeartbeatTime"
+          subpaths:
+            - "lastHeartbeatTime"
           when:
             - key: "type"
               eq: "AgentHealthy"

@@ -19,7 +19,8 @@ listview:
       paths:
         - path: "status#conditions"
           pathtype: "items"
-          subpath: "status"
+          subpaths:
+            - "status"
           when:
             - key: "type"
               eq: "Paused"
@@ -41,7 +42,8 @@ listview:
       paths:
         - path: "status#conditions"
           pathtype: "items"
-          subpath: "status"
+          subpaths:
+            - "status"
           when:
             - key: "type"
               eq: "VariablesReady"
@@ -139,7 +141,8 @@ infoview:
         paths:
           - path: "status#conditions"
             pathtype: "items"
-            subpath: "status"
+            subpaths:
+              - "status"
             when:
               - key: "type"
                 eq: "Paused"
@@ -161,7 +164,8 @@ infoview:
         paths:
           - path: "status#conditions"
             pathtype: "items"
-            subpath: "status"
+            subpaths:
+              - "status"
             when:
               - key: "type"
                 eq: "VariablesReady"

@@ -17,7 +17,8 @@ listview:
       paths:
         - path: "controllerConditions"
           pathtype: "items"
-          subpath: "status"
+          subpaths:
+            - "status"
           when:
             - key: "type"
               in: ["controllerHealthy", "ControllerHealthy"]
@@ -42,7 +43,8 @@ listview:
       paths:
         - path: "controllerConditions"
           pathtype: "items"
-          subpath: "lastHeartbeatTime"
+          subpaths:
+            - "lastHeartbeatTime"
           when:
             - key: "type"
               in: ["controllerHealthy", "ControllerHealthy"]

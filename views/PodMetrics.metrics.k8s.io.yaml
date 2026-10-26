@@ -28,7 +28,8 @@ listview:
       paths:
         - path: "containers"
           pathtype: "items"
-          subpath: "usage#cpu"
+          subpaths:
+            - "usage#cpu"
           action: "sum"
           type: "cpu_usage"
       formatter: "numerical"
@@ -38,7 +39,8 @@ listview:
       paths:
         - path: "containers"
           pathtype: "items"
-          subpath: "usage#cpu"
+          subpaths:
+            - "usage#cpu"
           action: "sum"
           type: "cpu_usage"
       formatter: "numerical"
@@ -48,7 +50,8 @@ listview:
       paths:
         - path: "containers"
           pathtype: "items"
-          subpath: "usage#memory"
+          subpaths:
+            - "usage#memory"
           action: "sum"
           type: "mem_usage"
       formatter: "numerical"
@@ -76,7 +79,8 @@ infoview:
         paths:
           - path: "containers"
             pathtype: "items"
-            subpath: "usage#cpu"
+            subpaths:
+              - "usage#cpu"
             action: "sum"
             type: "cpu_usage"
         formatter: "numerical"
@@ -85,7 +89,8 @@ infoview:
         paths:
           - path: "containers"
             pathtype: "items"
-            subpath: "usage#memory"
+            subpaths:
+              - "usage#memory"
             action: "sum"
             type: "mem_usage"
         formatter: "numerical"

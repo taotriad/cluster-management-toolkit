@@ -20,7 +20,8 @@ listview:
       paths:
         - path: "status#conditions"
           pathtype: "substitution"
-          subpath: "type"
+          subpaths:
+            - "type"
           when:
             - key: "type"
               eq: "Denied"
@@ -30,7 +31,8 @@ listview:
           default: null
         - path: "status#conditions"
           pathtype: "substitution"
-          subpath: "type"
+          subpaths:
+            - "type"
           when:
             - key: "type"
               eq: "Approved"
@@ -112,7 +114,8 @@ infoview:
         paths:
           - path: "status#conditions"
             pathtype: "substitution"
-            subpath: "type"
+            subpaths:
+              - "type"
             when:
               - key: "type"
                 eq: "Denied"
@@ -122,7 +125,8 @@ infoview:
             default: null
           - path: "status#conditions"
             pathtype: "substitution"
-            subpath: "type"
+            subpaths:
+              - "type"
             when:
               - key: "type"
                 eq: "Approved"

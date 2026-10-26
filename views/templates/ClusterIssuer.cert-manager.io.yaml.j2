@@ -45,42 +45,48 @@ infoview:
         paths:
           - path: "spec"
             pathtype: "substitution"
-            subpath: "selfSigned"
+            subpaths:
+              - "selfSigned"
             when:
               - key: "selfSigned"
                 notnone: true
             substitute: "Self-Signed"
           - path: "spec"
             pathtype: "substitution"
-            subpath: "ca"
+            subpaths:
+              - "ca"
             when:
               - key: "ca"
                 notnone: true
             substitute: "CA"
           - path: "spec"
             pathtype: "substitution"
-            subpath: "vault"
+            subpaths:
+              - "vault"
             when:
               - key: "vault"
                 notnone: true
             substitute: "Vault"
           - path: "spec"
             pathtype: "substitution"
-            subpath: "venafi"
+            subpaths:
+              - "venafi"
             when:
               - key: "venafi"
                 notnone: true
             substitute: "Venafi"
           - path: "spec"
             pathtype: "substitution"
-            subpath: "external"
+            subpaths:
+              - "external"
             when:
               - key: "external"
                 notnone: true
             substitute: "External"
           - path: "spec"
             pathtype: "substitution"
-            subpath: "acme"
+            subpaths:
+              - "acme"
             when:
               - key: "acme"
                 notnone: true
@@ -135,7 +141,8 @@ infoview:
         paths:
           - path: "status#conditions"
             pathtype: "items"
-            subpath: "message"
+            subpaths:
+              - "message"
             when:
               - key: "type"
                 eq: "Ready"

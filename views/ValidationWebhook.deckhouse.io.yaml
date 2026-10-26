@@ -40,7 +40,8 @@ infoview:
         paths:
           - path: "context"
             pathtype: "items"
-            subpath: "name"
+            subpaths:
+              - "name"
         default: ["<none>"]
         formatter: "list"
   logpad:

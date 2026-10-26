@@ -21,7 +21,8 @@ listview:
       paths:
         - path: "status#conditions"
           pathtype: "items"
-          subpath: "status"
+          subpaths:
+            - "status"
           when:
             - key: "type"
               eq: "Cordoned"
@@ -50,7 +51,8 @@ listview:
       paths:
         - path: "status#conditions"
           pathtype: "items"
-          subpath: "status"
+          subpaths:
+            - "status"
           when:
             - key: "type"
               eq: "Drained"
@@ -75,7 +77,8 @@ listview:
       paths:
         - path: "status#conditions"
           pathtype: "items"
-          subpath: "status"
+          subpaths:
+            - "status"
           when:
             - key: "type"
               eq: "RebootedNode"
@@ -104,7 +107,8 @@ listview:
       paths:
         - path: "status#conditions"
           pathtype: "items"
-          subpath: "status"
+          subpaths:
+            - "status"
           when:
             - key: "type"
               eq: "ReloadedCRIO"
@@ -133,7 +137,8 @@ listview:
       paths:
         - path: "status#conditions"
           pathtype: "items"
-          subpath: "status"
+          subpaths:
+            - "status"
           when:
             - key: "type"
               eq: "Resumed"
@@ -162,7 +167,8 @@ listview:
       paths:
         - path: "status#conditions"
           pathtype: "items"
-          subpath: "status"
+          subpaths:
+            - "status"
           when:
             - key: "type"
               eq: "UpdateCompatible"
@@ -191,7 +197,8 @@ listview:
       paths:
         - path: "status#conditions"
           pathtype: "items"
-          subpath: "status"
+          subpaths:
+            - "status"
           when:
             - key: "type"
               eq: "UpdateComplete"
@@ -220,7 +227,8 @@ listview:
       paths:
         - path: "status#conditions"
           pathtype: "items"
-          subpath: "status"
+          subpaths:
+            - "status"
           when:
             - key: "type"
               eq: "UpdateExecuted"
@@ -245,7 +253,8 @@ listview:
       paths:
         - path: "status#conditions"
           pathtype: "items"
-          subpath: "status"
+          subpaths:
+            - "status"
           when:
             - key: "type"
               eq: "Updated"
@@ -274,7 +283,8 @@ listview:
       paths:
         - path: "status#conditions"
           pathtype: "items"
-          subpath: "status"
+          subpaths:
+            - "status"
           when:
             - key: "type"
               eq: "AppliedFilesAndOS"
@@ -299,7 +309,8 @@ listview:
       paths:
         - path: "status#conditions"
           pathtype: "items"
-          subpath: "status"
+          subpaths:
+            - "status"
           when:
             - key: "type"
               eq: "UpdatePostActionComplete"
@@ -328,7 +339,8 @@ listview:
       paths:
         - path: "status#conditions"
           pathtype: "items"
-          subpath: "status"
+          subpaths:
+            - "status"
           when:
             - key: "type"
               eq: "UpdatePrepared"
@@ -382,7 +394,8 @@ infoview:
         paths:
           - path: "status#conditions"
             pathtype: "items"
-            subpath: "status"
+            subpaths:
+              - "status"
             when:
               - key: "type"
                 eq: "Cordoned"
@@ -411,7 +424,8 @@ infoview:
         paths:
           - path: "status#conditions"
             pathtype: "items"
-            subpath: "status"
+            subpaths:
+              - "status"
             when:
               - key: "type"
                 eq: "Drained"
@@ -458,7 +472,8 @@ infoview:
         paths:
           - path: "status#conditions"
             pathtype: "items"
-            subpath: "status"
+            subpaths:
+              - "status"
             when:
               - key: "type"
                 eq: "RebootedNode"
@@ -487,7 +502,8 @@ infoview:
         paths:
           - path: "status#conditions"
             pathtype: "items"
-            subpath: "status"
+            subpaths:
+              - "status"
             when:
               - key: "type"
                 eq: "ReloadedCRIO"
@@ -516,7 +532,8 @@ infoview:
         paths:
           - path: "status#conditions"
             pathtype: "items"
-            subpath: "status"
+            subpaths:
+              - "status"
             when:
               - key: "type"
                 eq: "Resumed"
@@ -545,7 +562,8 @@ infoview:
         paths:
           - path: "status#conditions"
             pathtype: "items"
-            subpath: "status"
+            subpaths:
+              - "status"
             when:
               - key: "type"
                 eq: "UpdateCompatible"
@@ -574,7 +592,8 @@ infoview:
         paths:
           - path: "status#conditions"
             pathtype: "items"
-            subpath: "status"
+            subpaths:
+              - "status"
             when:
               - key: "type"
                 eq: "UpdateComplete"
@@ -603,7 +622,8 @@ infoview:
         paths:
           - path: "status#conditions"
             pathtype: "items"
-            subpath: "status"
+            subpaths:
+              - "status"
             when:
               - key: "type"
                 eq: "UpdateExecuted"
@@ -632,7 +652,8 @@ infoview:
         paths:
           - path: "status#conditions"
             pathtype: "items"
-            subpath: "status"
+            subpaths:
+              - "status"
             when:
               - key: "type"
                 eq: "Updated"
@@ -661,7 +682,8 @@ infoview:
         paths:
           - path: "status#conditions"
             pathtype: "items"
-            subpath: "status"
+            subpaths:
+              - "status"
             when:
               - key: "type"
                 eq: "AppliedFilesAndOS"
@@ -690,7 +712,8 @@ infoview:
         paths:
           - path: "status#conditions"
             pathtype: "items"
-            subpath: "status"
+            subpaths:
+              - "status"
             when:
               - key: "type"
                 eq: "UpdatePostActionComplete"
@@ -719,7 +742,8 @@ infoview:
         paths:
           - path: "status#conditions"
             pathtype: "items"
-            subpath: "status"
+            subpaths:
+              - "status"
             when:
               - key: "type"
                 eq: "UpdatePrepared"

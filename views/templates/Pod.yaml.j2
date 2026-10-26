@@ -32,8 +32,8 @@ listview:
       paths:
         - path: "status#containerStatuses"
           pathtype: "items"
-          subpath: ["state#running#startedAt",
-                    "lastState#terminated#finishedAt"]
+          subpaths:
+            - ["state#running#startedAt", "lastState#terminated#finishedAt"]
           when:
             - key: "restartCount"
               gt: 0
@@ -61,7 +61,8 @@ listview:
       paths:
         - path: "status#containerStatuses"
           pathtype: "items"
-          subpath: "restartCount"
+          subpaths:
+            - "restartCount"
           action: "sum"
           type: "int"
       default: 0
@@ -140,7 +141,8 @@ infoview:
         paths:
           - path: "status#conditions"
             pathtype: "items"
-            subpath: "type"
+            subpaths:
+              - "type"
             when:
               - key: "type"
                 in: ["ContainersReady", "Degraded", "DiskPressure",
@@ -153,7 +155,8 @@ infoview:
                 eq: "True"
           - path: "status#conditions"
             pathtype: "items"
-            subpath: "type"
+            subpaths:
+              - "type"
             when:
               - key: "type"
                 in: ["ContainersReady", "Initialized", "PodHasNetwork",
@@ -257,7 +260,8 @@ infoview:
             pathtype: "value"
           - path: "status#hostIPs"
             pathtype: "items"
-            subpath: "ip"
+            subpaths:
+              - "ip"
         default: ["<unset>"]
         fallback_on_empty: true
         unique: true
@@ -332,7 +336,8 @@ infoview:
             pathtype: "value"
           - path: "status#podIPs"
             pathtype: "items"
-            subpath: "ip"
+            subpaths:
+              - "ip"
         unique: true
         default: ["<unset>"]
         fallback_on_empty: true

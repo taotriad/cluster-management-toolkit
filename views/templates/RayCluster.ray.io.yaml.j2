@@ -211,21 +211,24 @@ infoview:
         paths:
           - path: "metadata#labels"
             pathtype: "substitution"
-            subpath: "ray.io/scheduler-name"
+            subpaths:
+              - "ray.io/scheduler-name"
             when:
               - key: "ray.io/scheduler-name"
                 notnone: true
             substitute: "volcano"
           - path: "metadata#labels"
             pathtype: "substitution"
-            subpath: "kueue.x-k8s.io/queue-name"
+            subpaths:
+              - "kueue.x-k8s.io/queue-name"
             when:
               - key: "kueue.x-k8s.io/queue-name"
                 notnone: true
             substitute: "kueue"
           - path: "metadata#labels"
             pathtype: "substitution"
-            subpath: "yunikorn.apache.org/app-id"
+            subpaths:
+              - "yunikorn.apache.org/app-id"
             when:
               - key: "yunikorn.apache.org/app-id"
                 notnone: true

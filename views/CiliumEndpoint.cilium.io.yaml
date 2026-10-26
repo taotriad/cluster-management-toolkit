@@ -102,7 +102,8 @@ listview:
       paths:
         - path: "status#networking#addressing"
           pathtype: "items"
-          subpath: "ipv4"
+          subpaths:
+            - "ipv4"
           default: "<unset>"
       formatter: "address"
     ipv6:
@@ -110,7 +111,8 @@ listview:
       paths:
         - path: "status#networking#addressing"
           pathtype: "items"
-          subpath: "ipv6"
+          subpaths:
+            - "ipv6"
           default: "<unset>"
       formatter: "address"
     node:
@@ -208,7 +210,8 @@ infoview:
         paths:
           - path: "status#networking#addressing"
             pathtype: "items"
-            subpath: "ipv4"
+            subpaths:
+              - "ipv4"
             default: "<unset>"
         formatter: "address"
       ipv6:
@@ -216,7 +219,8 @@ infoview:
         paths:
           - path: "status#networking#addressing"
             pathtype: "items"
-            subpath: "ipv6"
+            subpaths:
+              - "ipv6"
             default: "<unset>"
         formatter: "address"
       node:

@@ -49,8 +49,8 @@ listpad:
       paths:
         - path: "status#containerStatuses"
           pathtype: "items"
-          subpath: ["state#running#startedAt",
-                    "lastState#terminated#finishedAt"]
+          subpaths:
+            - ["state#running#startedAt", "lastState#terminated#finishedAt"]
           when:
             - key: "restartCount"
               gt: 0
@@ -78,7 +78,8 @@ listpad:
       paths:
         - path: "status#containerStatuses"
           pathtype: "items"
-          subpath: "restartCount"
+          subpaths:
+            - "restartCount"
           action: "sum"
           type: "int"
       default: 0

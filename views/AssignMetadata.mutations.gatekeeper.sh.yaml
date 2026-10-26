@@ -46,7 +46,8 @@ infoview:
         paths:
           - path: "spec#match#kinds#groups"
             pathtype: "items"
-            subpath: "groups"
+            subpaths:
+              - "groups"
             default: ["<unset>"]
         formatter: "list"
         formatting:
@@ -59,7 +60,8 @@ infoview:
         paths:
           - path: "spec#match#kinds#kinds"
             pathtype: "items"
-            subpath: "kinds"
+            subpaths:
+              - "kinds"
             default: ["<unset>"]
         formatter: "list"
         formatting:

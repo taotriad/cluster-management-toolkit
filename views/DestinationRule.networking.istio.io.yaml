@@ -146,7 +146,7 @@ infoview:
         paths:
           - path: "spec#trafficPolicy#connectionPool#tcp"
             pathtype: "dictfields"
-            subpath:
+            subpaths:
               - ["connectTimeout"]
             default: "10s"
         formatter: "numerical"

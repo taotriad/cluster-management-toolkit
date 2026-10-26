@@ -154,7 +154,8 @@ infoview:
         paths:
           - path: "spec#allowedHostPaths"
             pathtype: "items"
-            subpath: "pathPrefix"
+            subpaths:
+              - "pathPrefix"
             when:
               - key: "readOnly"
                 eq: true
@@ -162,13 +163,15 @@ infoview:
               - " (Read Only)"
           - path: "spec#allowedHostPaths"
             pathtype: "items"
-            subpath: "pathPrefix"
+            subpaths:
+              - "pathPrefix"
             when:
               - key: "readOnly"
                 ne: true
           - path: "spec#allowedHostPaths"
             pathtype: "items"
-            subpath: "pathPrefix"
+            subpaths:
+              - "pathPrefix"
             when:
               - key: "readOnly"
                 none: true

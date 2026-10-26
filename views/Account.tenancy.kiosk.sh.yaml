@@ -46,7 +46,8 @@ infoview:
         paths:
           - path: "status#namespaces"
             pathtype: "items"
-            subpath: "name"
+            subpaths:
+              - "name"
         formatter: "list"
         formatting:
           field_colors:

@@ -204,14 +204,16 @@ infoview:
         paths:
           - path: "status#interfaces"
             pathtype: "items"
-            subpath: "ipAddress"
+            subpaths:
+              - "ipAddress"
         formatter: "address"
       live_migratable:
         header: "Live Migratable:"
         paths:
           - path: "status#conditions"
             pathtype: "items"
-            subpath: "status"
+            subpaths:
+              - "status"
             when:
               - key: "type"
                 eq: "LiveMigratable"
@@ -264,7 +266,8 @@ infoview:
         paths:
           - path: "status#conditions"
             pathtype: "items"
-            subpath: "status"
+            subpaths:
+              - "status"
             when:
               - key: "type"
                 eq: "Paused"
@@ -275,7 +278,8 @@ infoview:
         paths:
           - path: "status#conditions"
             pathtype: "items"
-            subpath: "status"
+            subpaths:
+              - "status"
             when:
               - key: "type"
                 eq: "Ready"

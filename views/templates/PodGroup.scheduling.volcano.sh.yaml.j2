@@ -207,7 +207,8 @@ infoview:
             pathtype: "tuple"
           - path: "status#conditions"
             pathtype: "items"
-            subpath: "message"
+            subpaths:
+              - "message"
           - path: [")"]
             pathtype: "tuple"
         default: ["Unknown"]

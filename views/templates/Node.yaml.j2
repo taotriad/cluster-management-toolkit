@@ -38,7 +38,8 @@ listview:
       paths:
         - path: "status#addresses"
           pathtype: "items"
-          subpath: "address"
+          subpaths:
+            - "address"
           when:
             - key: "type"
               eq: "InternalIP"
@@ -128,7 +129,8 @@ listview:
       paths:
         - path: "status#conditions"
           pathtype: "substitution"
-          subpath: "status"
+          subpaths:
+            - "status"
           when:
             - key: "type"
               eq: "Ready"
@@ -224,11 +226,11 @@ infoview:
   infopad:
     row_indexes:
       Normal:
-        fields: ["csi_node", "status", "hostname",
+        fields: ["csi_node", "hostname",
                  "internal_ips", "external_ips",
                  "architecture", "kernel_version", "os", "os_image",
                  "kubelet_version", "kubelet_endpoint",
-                 "container_runtime", "pod_cidrs", "taints"]
+                 "container_runtime", "pod_cidrs", "taints", "status"]
     rows:
       architecture:
         header: [["Architecture:", ["main", "infoheader"]]]
@@ -325,7 +327,8 @@ infoview:
         paths:
           - path: "status#conditions"
             pathtype: "substitution"
-            subpath: "status"
+            subpaths:
+              - "status"
             when:
               - key: "type"
                 eq: "Ready"
@@ -336,7 +339,8 @@ infoview:
             default: null
           - path: "status#conditions"
             pathtype: "substitution"
-            subpath: "status"
+            subpaths:
+              - "status"
             when:
               - key: "type"
                 eq: "Ready"
@@ -347,7 +351,8 @@ infoview:
             default: null
           - path: "status#conditions"
             pathtype: "substitution"
-            subpath: "status"
+            subpaths:
+              - "status"
             when:
               - key: "type"
                 eq: "Ready"
@@ -433,8 +438,8 @@ infoview:
         paths:
           - path: "status#containerStatuses"
             pathtype: "items"
-            subpath: ["state#running#startedAt",
-                      "lastState#terminated#finishedAt"]
+            subpaths:
+              - ["state#running#startedAt", "lastState#terminated#finishedAt"]
             when:
               - key: "restartCount"
                 gt: 0
@@ -454,7 +459,8 @@ infoview:
         paths:
           - path: "status#containerStatuses"
             pathtype: "items"
-            subpath: "restartCount"
+            subpaths:
+              - "restartCount"
             action: "sum"
             type: "int"
         default: 0

@@ -90,7 +90,8 @@ infoview:
         paths:
           - path: "spec#controllers"
             pathtype: "substitution"
-            subpath: "namespace"
+            subpaths:
+              - "namespace"
             when:
               - key: "namespace"
                 isdict: true
@@ -221,14 +222,16 @@ infoview:
         paths:
           - path: "status#runningConfig#controllers"
             pathtype: "substitution"
-            subpath: "namespace"
+            subpaths:
+              - "namespace"
             when:
               - key: "namespace"
                 notnone: true
             substitute: "True"
           - path: "status#runningConfig#controllers"
             pathtype: "substitution"
-            subpath: "namespace"
+            subpaths:
+              - "namespace"
             when:
               - key: "namespace"
                 notmissing: true

@@ -26,7 +26,8 @@ infoview:
         paths:
           - path: "spec#applyTo"
             pathtype: "items"
-            subpath: "groups"
+            subpaths:
+              - "groups"
             default: ["<unset>"]
         formatter: "list"
         formatting:
@@ -39,7 +40,8 @@ infoview:
         paths:
           - path: "spec#applyTo"
             pathtype: "items"
-            subpath: "kinds"
+            subpaths:
+              - "kinds"
             default: ["<unset>"]
         formatter: "list"
         formatting:
@@ -50,7 +52,8 @@ infoview:
         paths:
           - path: "spec#applyTo"
             pathtype: "items"
-            subpath: "versions"
+            subpaths:
+              - "versions"
             default: ["<unset>"]
         formatter: "version"
       enforcement_action:

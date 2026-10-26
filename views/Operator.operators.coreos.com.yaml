@@ -80,7 +80,8 @@ infoview:
         paths:
           - path: "conditions"
             pathtype: "items"
-            subpath: "reason"
+            subpaths:
+              - "reason"
             limit: 1
             default: ["<unset>"]
         formatter: "value_mapper"

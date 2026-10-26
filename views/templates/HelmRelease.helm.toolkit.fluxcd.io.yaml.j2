@@ -49,7 +49,8 @@ listview:
       paths:
         - path: "status#conditions"
           pathtype: "items"
-          subpath: "message"
+          subpaths:
+            - "message"
           when:
             - key: "type"
               eq: "Ready"
@@ -60,7 +61,8 @@ listview:
       paths:
         - path: "status#conditions"
           pathtype: "items"
-          subpath: "reason"
+          subpaths:
+            - "reason"
           when:
             - key: "type"
               eq: "Ready"
@@ -142,7 +144,8 @@ infoview:
         paths:
           - path: "status#conditions"
             pathtype: "items"
-            subpath: "reason"
+            subpaths:
+              - "reason"
             when:
               - key: "type"
                 eq: "Ready"

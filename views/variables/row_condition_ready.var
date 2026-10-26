@@ -3,7 +3,8 @@ condition_ready:
   paths:
     - path: "status#conditions"
       pathtype: "items"
-      subpath: "status"
+      subpaths:
+        - "status"
       when:
         - key: "type"
           in: ["ready", "Ready"]

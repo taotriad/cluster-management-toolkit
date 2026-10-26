@@ -101,7 +101,8 @@ infoview:
         paths:
           - path: "status#admissionCheckStates"
             pathtype: "items"
-            subpath: "type"
+            subpaths:
+              - "type"
             index: -1
             default: ["<unset>"]
         formatter: "value_mapper"

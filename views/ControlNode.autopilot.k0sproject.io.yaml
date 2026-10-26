@@ -23,7 +23,8 @@ listview:
       paths:
         - path: "status#addresses"
           pathtype: "items"
-          subpath: "address"
+          subpaths:
+            - "address"
           when:
             - key: "type"
               eq: "InternalIP"

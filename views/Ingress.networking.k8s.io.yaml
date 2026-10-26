@@ -31,7 +31,7 @@ listview:
       paths:
         - path: ["spec#rules"]
           pathtype: "items"
-          subpath:
+          subpaths:
             - "host"
           default: ["<none>"]
       formatter: "list"
