@@ -645,6 +645,10 @@ DrainingClaimConsumers:
   field_colors:
     - context: "main"
       type: "status_ok"
+DSCInitializationReconcileError:
+  field_colors:
+    - context: "main"
+      type: "status_not_ok"
 DuplicatePodCreatedOnSameNode:
   field_colors:
     - context: "main"
@@ -1897,6 +1901,10 @@ ReconcileCompleted:
   field_colors:
     - context: "main"
       type: "status_done"
+ReconcileError:
+  field_colors:
+    - context: "main"
+      type: "status_not_ok"
 ReconcileFailed:
   field_colors:
     - context: "main"
