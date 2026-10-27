@@ -147,6 +147,287 @@ def test_process_value(verbose: bool = False) -> tuple[str, bool]:
     return message, result
 
 
+def test_filter_data(verbose: bool = False) -> tuple[str, bool]:
+    message = ""
+    result = True
+
+    fun = infogetters.filter_data
+
+    if result:
+        # Indata format:
+        # (filters, obj, caller_obj, deleted, expected_result, expected_exception)
+        testdata: tuple = (
+            # The required keys do not exist in the object; fail.
+            (
+                {
+                    "foo": {
+                        # Only allow if all conditions match.
+                        "allow": [
+                            {
+                                "key": "bar",
+                                "values": [
+                                    "1", "2", "3",
+                                ],
+                            },
+                            {
+                                "key": "baz",
+                                "values": [
+                                    "a",
+                                ],
+                            },
+                        ],
+                        "enabled": True,
+                        "source": "object",
+                    },
+                }, {  # Caller data.
+                    "bla": {},
+                },
+                {},  # We're getting the data from the object, not the source.
+                False,  # Not deleted
+                None,  # No data returned.
+                None),
+            # The required keys exists in the object, but have the wrong values; fail.
+            (
+                {
+                    "foo": {
+                        # Only allow if all conditions match.
+                        "allow": [
+                            {
+                                "key": "bar",
+                                "values": [
+                                    "1", "2", "3",
+                                ],
+                            },
+                            {
+                                "key": "baz",
+                                "values": [
+                                    "a",
+                                ],
+                            },
+                        ],
+                        "enabled": True,
+                        "source": "object",
+                    },
+                },
+                {  # Caller data.
+                    "bar": "42",
+                    "baz": "b",
+                },
+                {},  # We're getting the data from the object, not the source.
+                False,  # Not deleted
+                None,  # No data returned.
+                None),
+            # The required keys exists in the object, and have accepted values; pass.
+            (
+                {
+                    "foo": {
+                        # Only allow if all conditions match.
+                        "allow": [
+                            {
+                                "key": "bar",
+                                "values": [
+                                    "1", "2", "3",
+                                ],
+                            },
+                            {
+                                "key": "baz",
+                                "values": [
+                                    "a",
+                                ],
+                            },
+                        ],
+                        "enabled": True,
+                        "source": "object",
+                    },
+                }, {  # Object data.
+                    "bar": "1",
+                    "baz": "a",
+                },
+                {},  # We're getting the data from the object, not the source.
+                False,  # Not deleted
+                {
+                    "ref": {
+                        "bar": "1",
+                        "baz": "a",
+                    },
+                    "__deleted": False,
+                    "__uid": None,
+                },
+                None),
+            # The blocked key / values combination exists in the object; filter.
+            (
+                {
+                    "foo": {
+                        # Only block if all conditions match.
+                        "block": [
+                            {
+                                "key": "bar",
+                                "values": [
+                                    "1", "2", "3",
+                                ],
+                            },
+                            {
+                                "key": "baz",
+                                "values": [
+                                    "a",
+                                ],
+                            },
+                        ],
+                        "enabled": True,
+                        "source": "object",
+                    },
+                }, {  # Object data.
+                    "bar": "1",
+                    "baz": "a",
+                },
+                {},  # We're getting the data from the object, not the source.
+                False,  # Not deleted
+                None,
+                None),
+            # The blocked key / values combination do not exist in the object; allow.
+            (
+                {
+                    "foo": {
+                        # Only block if all conditions match.
+                        "block": [
+                            {
+                                "key": "bar",
+                                "values": [
+                                    "1", "2", "3",
+                                ],
+                            },
+                            {
+                                "key": "baz",
+                                "values": [
+                                    "a",
+                                ],
+                            },
+                        ],
+                        "enabled": True,
+                        "source": "object",
+                    },
+                }, {  # Object data.
+                    "bar": "4",
+                    "baz": "b",
+                },
+                {},  # We're getting the data from the object, not the source.
+                False,  # Not deleted
+                {
+                    "ref": {
+                        "bar": "4",
+                        "baz": "b",
+                    },
+                    "__deleted": False,
+                    "__uid": None,
+                },
+                None),
+            # The filter is disabled; allow.
+            (
+                {
+                    "foo": {
+                        # Only block if all conditions match.
+                        "block": [
+                            {
+                                "key": "bar",
+                                "values": [
+                                    "1", "2", "3",
+                                ],
+                            },
+                            {
+                                "key": "baz",
+                                "values": [
+                                    "a",
+                                ],
+                            },
+                        ],
+                        "enabled": False,
+                        "source": "object",
+                    },
+                }, {  # Object data.
+                    "bar": "1",
+                    "baz": "a",
+                },
+                {},  # We're getting the data from the object, not the source.
+                False,  # Not deleted
+                {
+                    "ref": {
+                        "bar": "1",
+                        "baz": "a",
+                    },
+                    "__deleted": False,
+                    "__uid": None,
+                },
+                None),
+            # The required keys exists in the caller, and have accepted values; pass.
+            (
+                {
+                    "foo": {
+                        # Only allow if all conditions match.
+                        "allow": [
+                            {
+                                "key": "bar",
+                                "values": [
+                                    "2",
+                                ],
+                            },
+                        ],
+                        "enabled": True,
+                        "source": "caller",
+                    },
+                }, {  # Object data.
+                    "bar": "1",
+                    "baz": "a",
+                },
+                {
+                    "bar": "2",
+                },  # We're getting the data from the object, not the source.
+                False,  # Not deleted
+                {
+                    "bar": "2",
+                    "ref": {
+                        "bar": "1",
+                        "baz": "a",
+                    },
+                    "__deleted": False,
+                    "__uid": None,
+                },
+                None),
+        )
+
+        for filters, obj, caller_obj, deleted, expected_result, expected_exception in testdata:
+            try:
+                tmp = fun(filters=filters, obj=obj, caller_obj=caller_obj, deleted=deleted)
+                if tmp != expected_result:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"          filters: {filters}\n" \
+                              f"           result: {tmp} (type: {type(tmp)})\n" \
+                              f"  expected result: {expected_result} " \
+                              f"(type: {type(expected_result)})\n"
+                    result = False
+                    break
+            except Exception as e:
+                if expected_exception is not None:
+                    if isinstance(e, expected_exception):
+                        pass
+                    else:
+                        message = f"{fun.__name__}() did not yield expected result:\n" \
+                                  f"          filters: {filters}\n" \
+                                  f"        exception: {type(e)}\n" \
+                                  f"          message: {str(e)}\n" \
+                                  f"         expected: {expected_exception}\n"
+                        result = False
+                        break
+                else:
+                    message = f"{fun.__name__}() did not yield expected result:\n" \
+                              f"          filters: {filters}\n" \
+                              f"        exception: {type(e)}\n" \
+                              f"          message: {str(e)}\n" \
+                              f"  expected result: {expected_result}\n"
+                    result = False
+                    break
+    return message, result
+
+
 def test_transform_filter(verbose: bool = False) -> tuple[str, bool]:
     message = ""
     result = True
@@ -2619,6 +2900,10 @@ def test_get_themearrays(verbose: bool = False) -> tuple[str, bool]:
 tests: dict[tuple[str, ...], dict[str, Any]] = {
     ("process_value()",): {
         "callable": test_process_value,
+        "result": None,
+    },
+    ("filter_data()",): {
+        "callable": test_filter_data,
         "result": None,
     },
     ("transform_filter()",): {

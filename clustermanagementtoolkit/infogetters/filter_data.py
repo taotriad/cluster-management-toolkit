@@ -43,7 +43,8 @@ class FilterType(TypedDict, total=False):
     source: Literal["caller", "object", ""]
 
 
-def filter_data(filters: dict[str, FilterType], obj: dict, d: dict, deleted: bool) -> dict | None:
+def filter_data(filters: dict[str, FilterType], obj: dict,
+                caller_obj: dict, deleted: bool) -> dict | None:
     """
     Given a set of filters, an object to extract data from,
     and a dict with ready-processed data, filter out data
@@ -72,7 +73,7 @@ def filter_data(filters: dict[str, FilterType], obj: dict, d: dict, deleted: boo
         if source == "object":
             src = obj
         else:
-            src = d
+            src = caller_obj
         if allow:
             # If all field + value pairs match we allow.
             for rule in allow:
@@ -94,9 +95,10 @@ def filter_data(filters: dict[str, FilterType], obj: dict, d: dict, deleted: boo
             break
 
     if not skip:
-        d["ref"] = obj
-        d["__deleted"] = deleted
-        d["__uid"] = deep_get(obj, DictPath("metadata#uid"))
-        entry = dict(d)
+        # Add the reference in the caller_obj.
+        caller_obj["ref"] = obj
+        caller_obj["__deleted"] = deleted
+        caller_obj["__uid"] = deep_get(obj, DictPath("metadata#uid"))
+        entry = dict(caller_obj)
 
     return entry

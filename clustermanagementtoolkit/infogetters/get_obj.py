@@ -566,4 +566,4 @@ def get_obj(obj: dict, field_dict: dict, field_names: list[str],
 
     # We've got all the information we can get now; time to apply filters,
     # and return the remaining data.
-    return filter_data(filters=filters, obj=obj, d=d, deleted=deleted)
+    return filter_data(filters=filters, obj=obj, caller_obj=d, deleted=deleted)
