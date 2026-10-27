@@ -46,6 +46,7 @@
   matchkeys:
     - image_name: "/vllm/vllm-openai"
   parser_rules:
+    - name: "glog"
     - name: "custom_splitter"
       options:
         # yamllint disable-line rule:line-length
@@ -124,6 +125,13 @@
         formatter: "format_python_traceback"
         # yamllint disable-line rule:line-length
         regex: '\(\S+ pid=\d+\) [A-Z]+ \d\d-\d\d \d\d:\d\d:\d\d \[.+?:\d+\] (.*)|^\(\S+ pid=\d+\) (.*)'
+    - name: "override_severity"
+      options:
+        severity:
+          overrides:
+            - matchtype: "startswith"
+              matchkey: "OpenBLAS WARNING - "
+              loglevel: "warning"
 - name: "vllm"
   show_in_selector: false
   matchkeys:
