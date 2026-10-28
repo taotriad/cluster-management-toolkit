@@ -3979,6 +3979,10 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api_paths": ["apis/dex.coreos.com/v1/"],
         "api": "authrequests",
     },
+    ("AuthSession", "dex.coreos.com"): {
+        "api_paths": ["apis/dex.coreos.com/v1/"],
+        "api": "authsessions",
+    },
     ("Connector", "dex.coreos.com"): {
         "api_paths": ["apis/dex.coreos.com/v1/"],
         "api": "connectors",
@@ -4010,6 +4014,10 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
     ("SigningKey", "dex.coreos.com"): {
         "api_paths": ["apis/dex.coreos.com/v1/"],
         "api": "signingkeies",
+    },
+    ("UserIdentity", "dex.coreos.com"): {
+        "api_paths": ["apis/dex.coreos.com/v1/"],
+        "api": "useridentities",
     },
     # dist.kio.kasten.io
     ("Bootstrap", "dist.kio.kasten.io"): {
@@ -5433,6 +5441,15 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api_paths": ["apis/kubeflow.org/v1beta1/",
                       "apis/kubeflow.org/v1alpha3/"],
         "api": "viewers",
+    },
+    ("WorkspaceKind", "kubeflow.org"): {
+        "api_paths": ["apis/kubeflow.org/v1beta1/"],
+        "api": "workspacekinds",
+        "namespaced": False,
+    },
+    ("Workspace", "kubeflow.org"): {
+        "api_paths": ["apis/kubeflow.org/v1beta1/"],
+        "api": "workspaces",
     },
     # kubekey.kubesphere.io
     ("Inventory", "kubekey.kubesphere.io"): {
