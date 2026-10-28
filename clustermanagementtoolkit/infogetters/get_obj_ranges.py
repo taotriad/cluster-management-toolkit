@@ -26,6 +26,9 @@ def get_obj_ranges(obj: dict, path: list[DictPath], values: list[Any]) -> list[A
             path ([DictPath]): A path with fallbacks
             ipath (dict): The subpath to extra data from
             values (list[Any]): The list of values to append the data to
+        Returns:
+            ([Any]):
+                ([Any]): A list of objects
     """
     rawvals = []
     for p in path:

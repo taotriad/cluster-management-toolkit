@@ -33,6 +33,9 @@ def get_obj_key_value(obj: dict, path: list[DictPath], ipath: dict,
             **kwargs (dict[str, Any]): Keyword arguments
                 default (Any): The value to return if no matches are found
                 vtype (str): The value type
+        Returns:
+            ([Any]):
+                ([Any]): A list of objects
     """
     default = deep_get(kwargs, DictPath("default"))
     vtype = deep_get(kwargs, DictPath("vtype"))

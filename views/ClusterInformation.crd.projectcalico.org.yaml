@@ -13,9 +13,13 @@ listview:
       header: "Cluster Type:"
       paths:
         - path: "spec#clusterType"
-          pathtype: "split"
+          pathtype: "regex"
+          findall: '([^,]+)'
           type: "str"
       formatter: "list"
+      formatting:
+        field_separators:
+          - type: "list"
     datastore_ready:
       header: "Datastore Ready:"
       path: "spec#datastoreReady"
@@ -43,9 +47,13 @@ infoview:
         header: [["Cluster Type:", ["main", "infoheader"]]]
         paths:
           - path: "spec#clusterType"
-            pathtype: "split"
+            pathtype: "regex"
+            findall: '([^,]+)'
             type: "str"
         formatter: "list"
+        formatting:
+          field_separators:
+            - type: "list"
       datastore_ready:
         header: [["Datastore Ready:", ["main", "infoheader"]]]
         path: "spec#datastoreReady"

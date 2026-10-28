@@ -664,6 +664,10 @@
                         "description": "Normally an existing, but empty, field is treated as valid; this option allows for using the fallback path if the field is empty",
                         "type": "boolean"
                     },
+                    "findall": {
+                        "description": "Regular expression to process data; used when pathtype is regex",
+                        "type": "string"
+                    },
                     "index": {
                         "description": "Array index",
                         "type": "integer"
@@ -791,10 +795,10 @@
                         "items": {
                             "anyOf": [
                                 {
-                                    "description": "A field name to fetch, or for dictfields a literal string",
+                                    "description": "A field name to fetch",
                                     "type": "string"
                                 }, {
-                                    "description": "For dictfields a field name to fetch",
+                                    "description": "Used by get_obj_items",
                                     "type": "array"
                                 }, {
                                     "description": "A field object with post processing",
@@ -1029,7 +1033,6 @@
                 "comparison",
                 "constant",
                 "count",
-                "dictfields",
                 "dictkeys",
                 "dictlist",
                 "fieldgetter",
@@ -1045,7 +1048,6 @@
                 "regex",
                 "remap",
                 "selectors",
-                "split",
                 "status_tuple",
                 "substitution",
                 "timediff",
@@ -3118,6 +3120,10 @@
                                                     "properties": {
                                                         "path": {
                                                             "$ref": "#/$defs/simple_path"
+                                                        },
+                                                        "name": {
+                                                            "description": "Alternate name to use for the path instead of the path itself",
+                                                            "type": "string"
                                                         }
                                                     },
                                                     "additionalProperties": false

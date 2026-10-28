@@ -20,7 +20,9 @@ listview:
       header: "Tags:"
       paths:
         - path: "metadata#annotations#tags"
-          pathtype: "split"
+          pathtype: "regex"
+          findall: '([^,]+)'
+          type: "str"
       formatter: "list"
 infoview:
   name: "Virtual Machine Cluster Preference Info"
@@ -200,7 +202,9 @@ infoview:
         header: [["Tags:", ["main", "infoheader"]]]
         paths:
           - path: "metadata#annotations#tags"
-            pathtype: "split"
+            pathtype: "regex"
+            findall: '([^,]+)'
+            type: "str"
         formatter: "list"
   shortcuts:
     "Open Documentation URL":

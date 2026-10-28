@@ -21,7 +21,6 @@ from clustermanagementtoolkit.cmtlib import make_set_expression_list
 from clustermanagementtoolkit.cmtlib import timestamp_to_datetime
 
 from clustermanagementtoolkit.cmttypes import DictPath
-from clustermanagementtoolkit.cmttypes import StatusGroup
 from clustermanagementtoolkit.cmttypes import deep_get
 from clustermanagementtoolkit.cmttypes import deep_get_with_fallback
 
@@ -35,6 +34,8 @@ from clustermanagementtoolkit.infogetters.get_obj_key_value import get_obj_key_v
 from clustermanagementtoolkit.infogetters.get_obj_list import get_obj_list
 from clustermanagementtoolkit.infogetters.get_obj_lookup import get_obj_lookup
 from clustermanagementtoolkit.infogetters.get_obj_ranges import get_obj_ranges
+from clustermanagementtoolkit.infogetters.get_obj_status_tuple import get_obj_status_tuple
+from clustermanagementtoolkit.infogetters.get_obj_tuple import get_obj_tuple
 from clustermanagementtoolkit.infogetters.process_value import process_value
 from clustermanagementtoolkit.infogetters.transform_list import transform_list
 from clustermanagementtoolkit.infogetters.when_filter import when_filter
@@ -98,7 +99,7 @@ def get_obj(obj: dict, field_dict: dict, field_names: list[str],
         global_default: Any = default
         fallback_on_empty = deep_get(field, DictPath("fallback_on_empty"), False)
         formatter = deep_get(field, DictPath("formatter"))
-        action = None
+        action = ""
         newlines = None
         replace_quotes = None
 
@@ -158,9 +159,10 @@ def get_obj(obj: dict, field_dict: dict, field_names: list[str],
                     if _raw is not None:
                         for tmp in transform_list(_raw, transform=transform):
                             _values.append((tmp, vtype))
-                # This takes a list of paths as indata, and--for all numerical entries in the list,
-                # builds ranges; all non-numerical entries are included as is
                 elif ptype == "ranges":
+                    # This takes a list of paths as indata,
+                    # and--for all numerical entries in the list-- builds range;
+                    # all non-numerical entries are included as is.
                     _values = get_obj_ranges(obj=obj, path=path, values=_values)
                 elif ptype == "identify_type":
                     tmp = deep_get_with_fallback(obj, path, {})
@@ -412,19 +414,15 @@ def get_obj(obj: dict, field_dict: dict, field_names: list[str],
                     for p in path:
                         count += len(deep_get(obj, DictPath(p), {}))
                     _values.append((count, vtype))
-                elif ptype == "split":
-                    value = []
-                    separator = deep_get(_path, DictPath("separator"), ",")
-                    _raw = deep_get_with_fallback(obj, path, "")
-                    if _raw is not None:
-                        for tmp in _raw.split(separator):
-                            _values.append((tmp, vtype))
                 elif ptype == "regex":
                     value = []
                     _raw = deep_get_with_fallback(obj, path, "")
                     _regexes = deep_get(_path, DictPath("regex"), [])
+                    _findalls = deep_get(_path, DictPath("findall"), [])
                     if isinstance(_regexes, str):
                         _regexes = [_regexes]
+                    if isinstance(_findalls, str):
+                        _findalls = [_findalls]
                     if _raw is not None and _raw:
                         for _regex in _regexes:
                             if (re_tmp := re.match(_regex, _raw)) is not None:
@@ -432,96 +430,30 @@ def get_obj(obj: dict, field_dict: dict, field_names: list[str],
                                     if group is not None:
                                         value.append(group)
                                 break
+                        for _findall in _findalls:
+                            if (fa_tmp := re.findall(_findall, _raw)) is not None:
+                                value += fa_tmp
+                                break
                     elif default:
                         value = default
                     value = tuple(value)
                     _values.append((value, "raw"))
                 elif ptype == "tuple":
-                    value = []
-                    if not when_filter(_path, item=obj):
+                    _values, success = get_obj_tuple(obj=obj, path=path, ipath=_path,
+                                                     default=default, values=_values,
+                                                     vtype=vtype, view=view,
+                                                     field_index=field_index)
+                    if not success:
                         continue
-                    for i, element in enumerate(path):
-                        if isinstance(default, list):
-                            if i < len(default):
-                                _default = default[i]
-                            else:
-                                _default = None
-                        else:
-                            _default = default
-
-                        if vtype in ("int", "float") and type(default) not in (int, float):
-                            _default = 0
-
-                        # This is a literal string, not a path
-                        if isinstance(element, str):
-                            tmp = element
-                        else:
-                            tmp = deep_get_with_fallback(obj, element, default=_default,
-                                                         fallback_on_empty=fallback_on_empty)
-
-                        if vtype == "api_group":
-                            override_paths = [DictPath(f"Views#{view}#kind_format_{field_index}"),
-                                              DictPath(f"Views#{view}#kind_format"),
-                                              DictPath(f"Global#kind_format_{field_index}"),
-                                              DictPath("Global#kind_format")]
-                            override_kind = \
-                                deep_get_with_fallback(cmtlib.cmtconfig, override_paths, "mixed")
-                            if override_kind == "skip" \
-                                    or override_kind == "mixed" and "." not in tmp:
-                                tmp = ""
-                            vtype = "kind"
-                        value.append(tmp)
-                    if isinstance(deep_get(_path, DictPath("substitute")), list):
-                        value = deep_get(_path, DictPath("substitute"))
-                    value = tuple(value)
-                    _values.append((value, vtype))
                 elif ptype == "status_tuple":
-                    if "lookup" in _path:
-                        lookup_kind = deep_get(_path, DictPath("lookup#kind"))
-                        lookup_api_family = deep_get(_path, DictPath("lookup#api_family"))
-                        lookup_status = deep_get(_path, DictPath("lookup#status"))
-                    else:
-                        raise ValueError(f"Field {name}: currently status_tuple "
-                                         "only supports 'lookup'")
-                    path = deep_get(_path, DictPath("path"))
-                    value = deep_get(obj, DictPath(path))
-                    tmp = kh.get_ref_by_kind_name_namespace((lookup_kind, lookup_api_family),
-                                                            value, "", resource_cache=kh_cache)
-                    if lookup_status == "highlight":
-                        if tmp is None:
-                            status_group = StatusGroup.NOT_OK
-                        else:
-                            status_group = StatusGroup.OK
-                        value = (value, status_group)
-                    elif lookup_status == "message":
-                        if tmp is None:
-                            value = (deep_get(_path, DictPath("lookup#messages#not_ok")),
-                                     StatusGroup.NEUTRAL)
-                        else:
-                            value = (deep_get(_path, DictPath("lookup#messages#ok")),
-                                     StatusGroup.NEUTRAL)
-                    _values.append((value, "raw"))
+                    _values = get_obj_status_tuple(obj=obj, ipath=_path,
+                                                   values=_values, field_name=name,
+                                                   kubernetes_helper=kh, kh_cache=kh_cache)
                 elif ptype == "dictkeys":
                     for mpath in mpaths:
                         tmp = list(deep_get_with_fallback(obj, mpath, {}))
                         if tmp:
                             _values.append((tmp, "raw"))
-                elif ptype == "dictfields":
-                    subpaths = deep_get_with_fallback(_path, [DictPath("subpaths")], [])
-                    for mpath in mpaths:
-                        tmp = deep_get_with_fallback(obj, mpath)
-                        if not when_filter(_path, item=tmp):
-                            continue
-                        value = []
-                        for key in subpaths:
-                            if isinstance(key, str):
-                                value.append(key)
-                            else:
-                                value.append(deep_get_with_fallback(tmp, key, default))
-                        if len(value) == 1:
-                            _values.append((value[0], "raw"))
-                        else:
-                            _values.append((tuple(value), "raw"))
                 else:
                     value = deep_get_with_fallback(obj, path, default,
                                                    fallback_on_empty=fallback_on_empty)
@@ -540,7 +472,7 @@ def get_obj(obj: dict, field_dict: dict, field_names: list[str],
                 "view": view,
             }
             if unique_values:
-                # Remove duplicates
+                # Remove duplicates.
                 _values = list(dict.fromkeys(_values))
             for value, vtype_ in _values:
                 if isinstance(vtype_, list) and not value:

@@ -32,6 +32,9 @@ def get_obj_list(obj: dict, path: list[DictPath], ipath: dict,
                 fallback_on_empty (bool): Use the default vault if the list is empty?
                 limit (int | None): The max number of list entries to return
                 vtype (str): The value type
+        Returns:
+            ([Any]):
+                ([Any]): A list of objects
     """
     default = deep_get(kwargs, DictPath("default"))
     fallback_on_empty = deep_get(kwargs, DictPath("fallback_on_empty"), False)

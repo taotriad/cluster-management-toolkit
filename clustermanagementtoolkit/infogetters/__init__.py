@@ -26,6 +26,8 @@ from clustermanagementtoolkit.infogetters.get_obj_key_value import get_obj_key_v
 from clustermanagementtoolkit.infogetters.get_obj_list import get_obj_list
 from clustermanagementtoolkit.infogetters.get_obj_lookup import get_obj_lookup
 from clustermanagementtoolkit.infogetters.get_obj_ranges import get_obj_ranges
+from clustermanagementtoolkit.infogetters.get_obj_status_tuple import get_obj_status_tuple
+from clustermanagementtoolkit.infogetters.get_obj_tuple import get_obj_tuple
 from clustermanagementtoolkit.infogetters.get_pod_info import get_pod_info
 from clustermanagementtoolkit.infogetters.get_promrules_info import get_promrules_info
 from clustermanagementtoolkit.infogetters.get_rq_item_info import get_rq_item_info
@@ -63,6 +65,8 @@ __all__ = [
     "get_obj_list",
     "get_obj_lookup",
     "get_obj_ranges",
+    "get_obj_status_tuple",
+    "get_obj_tuple",
     "get_pod_info",
     "get_promrules_info",
     "get_rq_item_info",

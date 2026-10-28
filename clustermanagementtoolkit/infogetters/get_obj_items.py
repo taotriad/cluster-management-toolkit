@@ -9,7 +9,7 @@ Helper for get_obj() to get dict items.
 """
 
 import re
-from typing import Any
+from typing import Any, Literal
 
 from clustermanagementtoolkit.cmttypes import DictPath
 from clustermanagementtoolkit.cmttypes import deep_get
@@ -29,19 +29,23 @@ def get_obj_items(obj: dict, mpaths: list[list[DictPath]], ipath: dict,
 
         Parameters:
             obj (dict): The object to extract data from
-            mpath ([[DictPath]]): Multiple paths to iterate over
-            path ([DictPath]): A path with fallbacks
+            mpaths ([[DictPath]]): Multiple paths to iterate over
             ipath (dict): The subpath to extra data from
             values (list[Any]): The list of values to append the data to
             **kwargs (dict[str, Any]): Keyword arguments
+                action (str): An action to perform on the data; can be one of:
+                              sum, latest, earliest
                 default (Any): The value to return if no matches are found
                 fallback_on_empty (bool): Use the default vault if the list is empty?
                 limit (int | None): The max number of list entries to return
                 pathtype (str): The path type
                 subpaths (str): The subpaths of the items to get
                 vtype (str): The value type
+        Returns:
+            ([Any]):
+                ([Any]): A list of objects
     """
-    action = deep_get(kwargs, DictPath("action"))
+    action: Literal["earliest", "latest", "sum", ""] = deep_get(kwargs, DictPath("action"), "")
     default = deep_get(kwargs, DictPath("default"))
     fallback_on_empty = deep_get(kwargs, DictPath("fallback_on_empty"), False)
     limit = deep_get(kwargs, DictPath("limit"))
@@ -96,8 +100,8 @@ def get_obj_items(obj: dict, mpaths: list[list[DictPath]], ipath: dict,
                 else:
                     _subpath = deep_get(subpath, DictPath("subpath"))
                     _default = deep_get(subpath, DictPath("default"), _default)
-                    _fallbackipath = deep_get(subpath, DictPath("fallbackipath"))
-                    _fallback_value = deep_get(obj, DictPath(_fallbackipath))
+                    _fallback_path = deep_get(subpath, DictPath("fallback_path"))
+                    _fallback_value = deep_get(obj, DictPath(_fallback_path))
                     if _fallback_value is not None and _default is None:
                         _default = _fallback_value
                     if isinstance(_subpath, str):
