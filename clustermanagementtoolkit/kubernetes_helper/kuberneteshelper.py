@@ -1601,6 +1601,13 @@ class KubernetesHelper:
             msg = result.data.decode("utf-8", errors="replace")
             message = f"429: Too Many Requests; method: {method}, URL: {url}; " \
                       f"header_params: {header_params}; message: {msg}"
+        elif status == 431:
+            # Too Many Request Headers
+            # This may, for instance, be the response in Kubernetes 1.37.1 and earlier
+            # if having impersonated or proxied users with about 500 or more groups.
+            msg = result.data.decode("utf-8", errors="replace")
+            message = f"431: Too Many Request Headers; method: {method}, URL: {url}; " \
+                      f"header_params: {header_params}; message: {msg}"
         elif status == 500:
             # Internal Server Error
             # This may, for instance, be the response when attempting to evict a pod
