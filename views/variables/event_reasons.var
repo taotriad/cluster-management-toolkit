@@ -1613,6 +1613,10 @@ OnDiskStateValidationFailed:
   field_colors:
     - context: "main"
       type: "status_warning"
+OOMKilled:
+  field_colors:
+    - context: "main"
+      type: "status_warning"
 OOMKilling:
   field_colors:
     - context: "main"
