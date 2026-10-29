@@ -5,6 +5,7 @@
     - image_name: "/jetstack/cert-manager-controller"
     - image_name: "/jetstack/cert-manager-cainjector"
     - image_name: "/jetstack/cert-manager-webhook"
+    - image_name: "/jetstack/cert-manager-startupapicheck"
     - pod_name: "cert-manager"
       container_name: "cert-manager"
       image_name: "/deckhouse/ce"
