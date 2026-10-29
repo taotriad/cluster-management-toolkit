@@ -52,8 +52,7 @@ infoview:
         fields: ["controller", "param_kind", "failure_policy",
                  "match_constraints_header", "match_constraints_match_policy",
                  "match_constraints_namespace_selector",
-                 "match_constraints_object_label_selector",
-                 "match_constraints_object_set_based_selector"]
+                 "match_constraints_object_selector"]
     rows:
       {%- for line in row_controller.split("\n") %}
       {{ line }}
@@ -70,44 +69,23 @@ infoview:
         path: "spec#matchConstraints#matchPolicy"
         type: "str"
       match_constraints_namespace_selector:
-        header: [["  Namespace Selec", ["main", "infoheader"]],
-                 ["t", ["main", "infoheader_shortcut"]],
-                 ["or:", ["main", "infoheader"]]]
+        header: [["  Namespace ", ["main", "infoheader"]],
+                 ["S", ["main", "infoheader_shortcut"]],
+                 ["elector:", ["main", "infoheader"]]]
         paths:
           - path: "spec#matchConstraints#namespaceSelector"
             pathtype: "obj"
             default: "<none>"
         formatter: "selector"
-      match_constraints_object_label_selector:
+      match_constraints_object_selector:
         header: [["  Objec", ["main", "infoheader"]],
                  ["t", ["main", "infoheader_shortcut"]],
-                 [" Label Selector:", ["main", "infoheader"]]]
+                 [" Selector:", ["main", "infoheader"]]]
         paths:
-          - path: ["spec#matchConstraints#objectSelector#matchLabels"]
-            pathtype: "key_value"
-            default: ["<none>"]
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "key"
-            - type: "value"
-          field_separators:
-            - type: "selector"
-      match_constraints_object_set_based_selector:
-        header: [["  Set-based Object Selector:", ["main", "infoheader"]]]
-        paths:
-          - path: "spec#matchConstraints#objectSelector#matchExpressions"
-            pathtype: "match_expression"
+          - path: "spec#matchConstraints#objectSelector"
+            pathtype: "obj"
             default: "<none>"
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "key"
-            - type: "operator"
-            - type: "value"
-          field_separators:
-            - type: "space"
-            - type: "no_pad"
+        formatter: "selector"
       param_kind:
         header: [["P", ["main", "infoheader_shortcut"]],
                  ["arameter Kind:", ["main", "infoheader"]]]
@@ -204,8 +182,9 @@ infoview:
     {%- for line in shortcut_controller.split("\n") %}
     {{ line }}
     {%- endfor %}
-    "Namespace Label Selector":
-      key: "t"
+    "Namespace Selector":
+      key: "s"
+      modifier: "shift"
       read_only: true
       helptext: "Show namespace selector"
       widget: "windowwidget"
@@ -214,17 +193,16 @@ infoview:
         itemgetter: "get_selector_list"
         itemgetter_args:
           path: "spec#matchConstraints#namespaceSelector"
-    "Object Label Selector":
+    "Object Selector":
       key: "t"
       read_only: true
       helptext: "Show object label selector"
       widget: "windowwidget"
       widget_args:
-        title: "Object Label Selector:"
-        headers: ["Key:", "Value:"]
-        itemgetter: "get_key_value"
+        title: "Object Selector:"
+        itemgetter: "get_selector_list"
         itemgetter_args:
-          path: "spec#matchConstraints#objectSelector#matchLabels"
+          path: "spec#matchConstraints#objectSelector"
     "List Parameter Kind":
       key: "p"
       modifier: "shift"

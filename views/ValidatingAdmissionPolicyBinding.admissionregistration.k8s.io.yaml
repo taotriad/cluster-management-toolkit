@@ -41,14 +41,11 @@ infoview:
                  "param_ref_name",
                  "param_ref_namespace",
                  "param_ref_parameter_not_found_action",
-                 "param_ref_label_selector",
-                 "param_ref_set_based_selector",
+                 "param_ref_selector",
                  "match_resources_header",
                  "match_policy",
-                 "namespace_label_selector",
-                 "namespace_set_based_selector",
-                 "object_label_selector",
-                 "object_set_based_selector",
+                 "namespace_selector",
+                 "object_selector",
                  "validation_actions"]
     rows:
       match_policy:
@@ -58,66 +55,24 @@ infoview:
         type: "str"
       match_resources_header:
         header: [["Match Resources:", ["main", "infoheader"]]]
-      namespace_label_selector:
-        header: [["  Namespace La", ["main", "infoheader"]],
-                 ["b", ["main", "infoheader_shortcut"]],
-                 ["el Selector:", ["main", "infoheader"]]]
+      namespace_selector:
+        header: [["  Namespace ", ["main", "infoheader"]],
+                 ["S", ["main", "infoheader_shortcut"]],
+                 ["elector:", ["main", "infoheader"]]]
         paths:
-          - path: ["spec#matchResources#namespaceSelector#matchLabels"]
-            pathtype: "key_value"
-            default: ["<none>"]
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "key"
-            - type: "value"
-          field_separators:
-            - type: "selector"
-      namespace_set_based_selector:
-        header: [["  Namespace Set-based Selector:", ["main", "infoheader"]]]
-        paths:
-          - path: ["spec#matchResources#namespaceSelector#matchExpressions"]
-            pathtype: "match_expression"
+          - path: "spec#matchResources#namespaceSelector"
+            pathtype: "obj"
             default: "<none>"
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "key"
-            - type: "operator"
-            - type: "value"
-          field_separators:
-            - type: "space"
-            - type: "no_pad"
-      object_label_selector:
+        formatter: "selector"
+      object_selector:
         header: [["  Objec", ["main", "infoheader"]],
                  ["t", ["main", "infoheader_shortcut"]],
-                 [" Label Selector:", ["main", "infoheader"]]]
+                 [" Selector:", ["main", "infoheader"]]]
         paths:
-          - path: ["spec#matchResources#objectSelector#matchLabels"]
-            pathtype: "key_value"
-            default: ["<none>"]
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "key"
-            - type: "value"
-          field_separators:
-            - type: "selector"
-      object_set_based_selector:
-        header: [["  Object Set-based Selector:", ["main", "infoheader"]]]
-        paths:
-          - path: ["spec#matchResources#objectSelector#matchExpressions"]
-            pathtype: "match_expression"
+          - path: "spec#matchResources#objectSelector"
+            pathtype: "obj"
             default: "<none>"
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "key"
-            - type: "operator"
-            - type: "value"
-          field_separators:
-            - type: "space"
-            - type: "no_pad"
+        formatter: "selector"
       param_ref_header:
         header: [["Parameter Reference:", ["main", "infoheader"]]]
       param_ref_name:
@@ -135,36 +90,15 @@ infoview:
         path: "spec#paramRef#parameterNotFoundAction"
         default: "<unset>"
         type: "str"
-      param_ref_label_selector:
-        header: [["  Labe", ["main", "infoheader"]],
-                 ["l", ["main", "infoheader_shortcut"]],
-                 [" Selector:", ["main", "infoheader"]]]
+      param_ref_selector:
+        header: [["  Select", ["main", "infoheader"]],
+                 ["o", ["main", "infoheader_shortcut"]],
+                 ["r:", ["main", "infoheader"]]]
         paths:
-          - path: ["spec#paramRef#selector#matchLabels"]
-            pathtype: "key_value"
-            default: ["<none>"]
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "key"
-            - type: "value"
-          field_separators:
-            - type: "selector"
-      param_ref_set_based_selector:
-        header: [["  Set-based Selector:", ["main", "infoheader"]]]
-        paths:
-          - path: ["spec#paramRef#selector#matchExpressions"]
-            pathtype: "match_expression"
+          - path: "spec#paramRef#selector"
+            pathtype: "obj"
             default: "<none>"
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "key"
-            - type: "operator"
-            - type: "value"
-          field_separators:
-            - type: "space"
-            - type: "no_pad"
+        formatter: "selector"
       policy_name:
         header: [["P", ["main", "infoheader_shortcut"]],
                  ["olicy:", ["main", "infoheader"]]]
@@ -177,40 +111,38 @@ infoview:
             pathtype: "list"
         formatter: "list"
   shortcuts:
-    "Namespace Label Selector":
-      key: "b"
+    "Namespace Selector":
+      key: "s"
+      modifier: "shift"
       read_only: true
-      helptext: "Show namespace label selector"
+      helptext: "Show Namespace selector"
       widget: "windowwidget"
       widget_args:
-        title: "Namespace Label Selector:"
-        headers: ["Key:", "Value:"]
-        itemgetter: "get_key_value"
+        title: "Namespace Selector:"
+        itemgetter: "get_selector_list"
         itemgetter_args:
-          path: "spec#matchResources#namespaceSelector#matchLabels"
-    "Object Label Selector":
+          path: "spec#matchResources#namespaceSelector"
+    "Object Selector":
       key: "t"
       modifier: "shift"
       read_only: true
-      helptext: "Show object label selector"
+      helptext: "Show object selector"
       widget: "windowwidget"
       widget_args:
-        title: "Object Label Selector:"
-        headers: ["Key:", "Value:"]
-        itemgetter: "get_key_value"
+        title: "Object Selector:"
+        itemgetter: "get_selector_list"
         itemgetter_args:
-          path: "spec#matchResources#objectSelector#matchLabels"
-    "Param Ref Label Selector":
-      key: "l"
+          path: "spec#matchResources#objectSelector"
+    "Parameter Reference Selector":
+      key: "o"
       read_only: true
-      helptext: "Show param ref label selector"
+      helptext: "Show parameter reference selector"
       widget: "windowwidget"
       widget_args:
-        title: "Param Ref Label Selector:"
-        headers: ["Key:", "Value:"]
-        itemgetter: "get_key_value"
+        title: "Parameter Reference Selector:"
+        itemgetter: "get_selector_list"
         itemgetter_args:
-          path: "spec#paramRef#selector#matchLabels"
+          path: "spec#paramRef#selector"
     "Show ValidatingAdmissionPolicy":
       key: "p"
       modifier: "shift"
