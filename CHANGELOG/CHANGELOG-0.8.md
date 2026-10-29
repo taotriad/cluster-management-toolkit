@@ -78,6 +78,7 @@ N/A
 ### Changes to _cmtadm_ in v0.8.11
 
 * Add support for expansion of `~/` to `cmtadm create-cluster`.
+* The sudo-path used by new versions of Ubuntu is now supported.
 
 ### Changes to _cmtinv_ in v0.8.11
 
@@ -92,6 +93,9 @@ N/A
   the v0.8.11 release.
 * Fix reversed sorting for listpads in info-view.
 * Fix alternate paths for labels and annotations for the info view.
+* You can now select and open a node from the control plane list
+  in `Cluster Overview`.
+* It's now possible to show the API-server status using UTF-8 symbols.
 
 ### Changes to other files in v0.8.11
 
@@ -101,10 +105,11 @@ N/A
   corrected and verified; from now on `logparser.py` will
   no longer get release exceptions for type warnings.
 * All remnants returned form `logparser.py` now behave in the same manner.
+* All modules have been refactored.
 
 ## Known Regressions in v0.8.11
 
-No known regressions.
+No known regressions, but the large amount of refactoring may have introduced issues.
 
 ## Known Issues in v0.8.11
 
@@ -116,9 +121,6 @@ No known regressions.
 * Nested lists and lists with checkboxes in Markdown have some formatting issues.
 * When changing views or reloading data the screen still looks a bit buggy;
   this is a long-standing issue, and is purely cosmetic.
-* As of preparing this release the version of `pylint` packaged for Debian unstable is incompatible
-  with the version of `python3-astroid` packaged for Debian unstable.
-  As a workaround the version of `python3-astroid` in Debian testing has been used instead.
 
 ## Dependencies for v0.8.11
 
@@ -142,9 +144,9 @@ No known regressions.
 | PyYAML         | 6.0             | Unsupported distros                     |
 | ruamel.yaml    | 0.17.21         | Unsupported distros [1]                 |
 | ruyaml         | 0.91.0          | Unsupported distros [1]                 |
-| setuptools     | 83.0.0          | openSUSE/SLES/RHEL, unsupported distros |
+| setuptools     | 84.1.0          | openSUSE/SLES/RHEL, unsupported distros |
 | ujson          | 5.13.0          | openSUSE/SLES/RHEL, unsupported distros |
-| urllib3        | 2.7.0           | openSUSE/SLES, unsupported distros      |
+| urllib3        | 2.8.0           | openSUSE/SLES, unsupported distros      |
 | validators     | 0.28.3          | openSUSE/SLES/RHEL, unsupported distros |
 
 **[1]**: Only one of `ruamel.yaml` and `ruyaml` is necessary.
@@ -218,7 +220,7 @@ make coverage-all
 make coverage-markdown
 ```
 
-Version: 7.8.2
+Version: 7.16.1
 
 Output:
 
@@ -240,7 +242,7 @@ TODO
 Commandline: `mypy --follow-imports silent --explicit-package-bases --ignore-missing --disallow-untyped-calls --disallow-untyped-defs --disallow-incomplete-defs --check-untyped-defs --disallow-untyped-decorators --warn-redundant-casts --warn-unused-ignores`.
 Execute with `make mypy-markdown`.
 
-Version: 2.1.0
+Version: 2.4.0
 
 TODO
 
@@ -249,7 +251,7 @@ TODO
 Commandline: `pylint --py-version 3.11 --disable W0511, similarities --enable useless-suppression`.
 Table generated with `make pylint-markdown`.
 
-Version: 4.0.6
+Version: 4.0.8
 
 TODO
 
@@ -271,7 +273,7 @@ TODO
 Commandline: `ruff check --target-version py39`.
 Execute with `make ruff`.
 
-Version: 0.0.291
+Version: 0.16.10
 
 Output:
 
@@ -282,7 +284,7 @@ TODO
 Commandline: `semgrep scan --exclude-rule "generic.secrets.security.detected-generic-secret.detected-generic-secret.semgrep-legacy.30980" --exclude-rule "python.flask.security.xss.audit.direct-use-of-jinja2.direct-use-of-jinja2" --exclude "*.yaml" --exclude "*.j2" --exclude "*.json" --timeout=0 --no-git-ignore`.
 Execute with `make semgrep`.
 
-Version: 1.176.1
+Version: 1.182.1
 
 Output:
 

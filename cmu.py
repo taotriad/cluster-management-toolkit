@@ -2241,8 +2241,15 @@ def __list_control_planes(**kwargs: Any) -> tuple[Retval, dict]:
 
     title = "Control Planes:"
     headers = ["Node:", "Hostname:", "Internal IPs:", "External IPs:"]
-    curses_helper.windowwidget(uip.stdscr, uip.maxy, uip.maxx, uip.maxy // 2, uip.maxx // 2,
-                               control_planes, title=title, headers=headers, cursor=False)
+    tmpselection = \
+        curses_helper.windowwidget(uip.stdscr, uip.maxy, uip.maxx, uip.maxy // 2, uip.maxx // 2,
+                                   control_planes, title=title, headers=headers, cursor=True)
+    if tmpselection:
+        node = str(tmpselection[0][0])
+        retval = resourceinfodispatch_with_lookup(stdscr=uip.stdscr, name=node, kind=("Node", ""))
+        if retval == Retval.RETURNFULL:
+            return retval, {}
+        uip.force_update()
     return Retval.MATCH, {}
 
 
@@ -6082,7 +6089,7 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
 
             retval = resourceinfodispatch_with_lookup(stdscr=stdscr, name=p, namespace=p_ns,
                                                       kind=("Pod", ""))
-            if retval is not None and retval == Retval.RETURNFULL:
+            if retval == Retval.RETURNFULL:
                 return retval
             uip.force_update()
         elif c == ord("N"):
@@ -6109,7 +6116,7 @@ def containerinfoloop(stdscr: curses.window, **kwargs: Any) -> Retval:
 
             retval = resourceinfodispatch_with_lookup(stdscr=stdscr, name=namespace,
                                                       kind=("Namespace", ""))
-            if retval is not None and retval == Retval.RETURNFULL:
+            if retval == Retval.RETURNFULL:
                 return retval
             uip.force_update()
         elif c == ord("O"):
