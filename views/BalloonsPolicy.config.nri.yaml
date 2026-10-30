@@ -22,6 +22,9 @@ infoview:
     row_indexes:
       Normal:
         fields:
+          - "agent_header"
+          - "agent_node_resource_topology"
+          - "agent_podresource_api"
           - "allocator_topology_balancing"
           - "instrumentation_header"
           - "instrumentation_http_endpoint"
@@ -36,29 +39,46 @@ infoview:
           - "reserved_pool_namespaces"
           - "reserved_resources"
     rows:
+      agent_header:
+        header: [["Agent:", ["main", "infoheader"]]]
+      agent_node_resource_topology:
+        header: [["  Node Resource Topology:", ["main", "infoheader"]]]
+        path: "spec#agent#nodeResourceTopology"
+        default: "<unset>"
+        type: "bool"
+      agent_podresource_api:
+        header: [["  Pod Resource API:", ["main", "infoheader"]]]
+        path: "spec#agent#podResourceAPI"
+        default: "<unset>"
+        type: "bool"
       allocator_topology_balancing:
         header: [["Allocator Topology Balancing:", ["main", "infoheader"]]]
         path: "spec#allocatorTopologyBalancing"
+        default: "<unset>"
         type: "str"
       instrumentation_header:
         header: [["Instrumentation:", ["main", "infoheader"]]]
       instrumentation_http_endpoint:
         header: [["  HTTP Endpoint:", ["main", "infoheader"]]]
         path: "spec#instrumentation#httpEndpoint"
+        default: "<unset>"
         type: "str"
         formatter: "numerical"
       instrumentation_prometheus_export:
         header: [["  Prometheus Export:", ["main", "infoheader"]]]
         path: "spec#instrumentation#prometheusExport"
+        default: "<unset>"
         type: "str"
       instrumentation_report_period:
         header: [["  Report Period:", ["main", "infoheader"]]]
         path: "spec#instrumentation#reportPeriod"
+        default: "<unset>"
         type: "str"
         formatter: "numerical"
       instrumentation_sampling_rate_per_million:
         header: [["  Sampling Rate Per Million:", ["main", "infoheader"]]]
         path: "spec#instrumentation#samplingRatePerMillion"
+        default: "<unset>"
         type: "str"
         formatter: "numerical"
       log_debug:
@@ -75,22 +95,25 @@ infoview:
       pin_cpu:
         header: [["Pin CPU:", ["main", "infoheader"]]]
         path: "spec#pinCPU"
+        default: "<unset>"
         type: "str"
       pin_memory:
         header: [["Pin Memory:", ["main", "infoheader"]]]
         path: "spec#pinMemory"
+        default: "<unset>"
         type: "str"
       reserved_pool_namespaces:
         header: [["Reserved Pool Namespaces:", ["main", "infoheader"]]]
         path: "spec#reservedPoolNamespaces"
+        default: ["<none>"]
         type: "raw"
-        default: "<none>"
         formatter: "list"
       reserved_resources:
         header: [["Reserved Resources:", ["main", "infoheader"]]]
         paths:
           - path: "spec#reservedResources"
             pathtype: "key_value"
+        default: ["<none>"]
         formatter: "list"
         formatting:
           field_colors:
@@ -112,22 +135,16 @@ infoview:
       hide_hyperthreads:
         header: "Hide Hyperthreads:"
         path: "hideHyperthreads"
+        default: "<unset>"
         type: "str"
       match_expressions:
         header: "Match Expressions:"
         paths:
           - path: "matchExpressions"
-            pathtype: "match_expression"
-            default: "<none>"
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "key"
-            - type: "operator"
-            - type: "value"
-          field_separators:
-            - type: "space"
-            - type: "no_pad"
+            pathtype: "obj"
+            reparent: "matchExpressions"
+            default: ["<none>"]
+        formatter: "selector"
       min_balloons:
         header: "Min Balloons:"
         path: "minBalloons"
@@ -138,33 +155,36 @@ infoview:
       min_cpus:
         header: "Min CPUs:"
         path: "minCPUs"
+        default: "<unset>"
         type: "str"
         formatter: "numerical"
         align: "right"
       name:
         header: "Name:"
         path: "name"
+        default: "<unset>"
         type: "str"
       namespaces:
         header: "Namespaces:"
         path: "namespaces"
+        default: ["<none>"]
         type: "raw"
-        default: "<none>"
         formatter: "list"
       prefer_new_balloons:
         header: "Prefer New Ballons:"
         path: "preferNewBalloons"
-        type: "str"
         default: "<unset>"
+        type: "str"
       priority:
         header: "Priority:"
         path: "allocatorPriority"
+        default: "<unset>"
         type: "str"
       share_idle_cpus_in_same:
         header: "Share Idle CPUs in Same:"
         path: "shareIdleCPUsInSame"
-        type: "str"
         default: "<unset>"
+        type: "str"
   shortcuts:
     "Show status":
       key: "s"

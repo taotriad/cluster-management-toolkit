@@ -47,26 +47,18 @@ infoview:
   infopad:
     row_indexes:
       Normal:
-        fields: ["image_pull_policy", "infrastructure_header",
-                 "infrastructure_node_label_selector",
+        fields: ["image_pull_policy",
+                 "infrastructure_header",
+                 "infrastructure_node_selector",
                  "infrastructure_tolerations",
                  "workload_header",
-                 "workload_node_label_selector",
-                 "configuration_header",
-                 "configuration_vmi_counting_mode",
+                 "workload_node_selector",
                  "version_header",
                  "version_observed",
                  "version_operator",
                  "version_target",
                  "phase"]
     rows:
-      configuration_header:
-        header: [["Configuration:", ["main", "infoheader"]]]
-      configuration_vmi_counting_mode:
-        header: [["  VMI Counting Mode:", ["main", "infoheader"]]]
-        path: "spec#configuration#vmiCalculatorConfiguration#configName"
-        default: "<unset>"
-        type: "str"
       image_pull_policy:
         header: [["Image Pull Policy:", ["main", "infoheader"]]]
         path: "spec#imagePullPolicy"
@@ -74,26 +66,22 @@ infoview:
         type: "str"
       infrastructure_header:
         header: [["Infrastructure:", ["main", "infoheader"]]]
-      infrastructure_node_label_selector:
-        header: [["  Node La", ["main", "infoheader"]],
-                 ["b", ["main", "infoheader_shortcut"]],
-                 ["el Selector:", ["main", "infoheader"]]]
-        paths:
-          - path: ["spec#infra#nodeSelector"]
-            pathtype: "key_value"
-            default: ["<none>"]
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "key"
-            - type: "value"
-          field_separators:
-            - type: "selector"
-      infrastructure_tolerations:
-        header: [["  Tolera", ["main", "infoheader"]],
+      infrastructure_node_selector:
+        header: [["  Node Selec", ["main", "infoheader"]],
                  ["t", ["main", "infoheader_shortcut"]],
-                 ["ions:", ["main", "infoheader"]]]
+                 ["or:", ["main", "infoheader"]]]
         paths:
+          - path: "spec#infra#nodeSelector"
+            pathtype: "obj"
+            reparent: "matchLabels"
+            default: "<none>"
+        formatter: "selector"
+      infrastructure_tolerations:
+        header: [["  ", ["main", "infoheader"]],
+                 ["T", ["main", "infoheader_shortcut"]],
+                 ["olerations:", ["main", "infoheader"]]]
+        paths:
+          # FIXME: Pathtype toleration or obj, formatter toleration
           - path: "spec#infra#tolerations"
             pathtype: "match_expression"
             default: "<none>"
@@ -161,46 +149,49 @@ infoview:
         formatter: "version"
       workload_header:
         header: [["Workload:", ["main", "infoheader"]]]
-      workload_node_label_selector:
+      workload_node_selector:
         header: [["  No", ["main", "infoheader"]],
                  ["d", ["main", "infoheader_shortcut"]],
-                 ["e Label Selector:", ["main", "infoheader"]]]
+                 ["e Selector:", ["main", "infoheader"]]]
         paths:
-          - path: ["spec#workload#nodeSelector"]
-            pathtype: "key_value"
-            default: ["<none>"]
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "key"
-            - type: "value"
-          field_separators:
-            - type: "selector"
+          - path: "spec#workload#nodeSelector"
+            pathtype: "obj"
+            reparent: "matchLabels"
+            default: "<none>"
+        formatter: "selector"
+  logpad:
+    title: "Configuration:"
+    infogetter: "logpad_formatted"
+    infogetter_args:
+      formatter: "format_yaml"
+      path: "spec#configuration"
+    timestamps: false
   shortcuts:
-    "Infrastructure Node Label Selector":
-      key: "b"
+    "Infrastructure Node Selector":
+      key: "t"
       read_only: true
-      helptext: "Show Infrastructure Node label selector"
+      helptext: "Show Infrastructure Node selector"
       widget: "windowwidget"
       widget_args:
-        title: "Node Label Selector:"
-        headers: ["Key:", "Value:"]
-        itemgetter: "get_key_value"
+        title: "Infrastructure Node Selector:"
+        itemgetter: "get_selector_list"
         itemgetter_args:
           path: "spec#infra#nodeSelector"
-    "Workload Node Label Selector":
+          reparent: "matchLabels"
+    "Workload Node Selector":
       key: "d"
       read_only: true
-      helptext: "Show Workload Node label selector"
+      helptext: "Show Workload Node selector"
       widget: "windowwidget"
       widget_args:
-        title: "Workload Node Label Selector:"
-        headers: ["Key:", "Value:"]
-        itemgetter: "get_key_value"
+        title: "Workload Node Selector:"
+        itemgetter: "get_selector_list"
         itemgetter_args:
           path: "spec#workload#nodeSelector"
+          reparent: "matchLabels"
     "Show Infrastructure tolerations":
       key: "t"
+      modifier: "shift"
       read_only: true
       helptext: "Show Infrastructure tolerations"
       widget: "windowwidget"

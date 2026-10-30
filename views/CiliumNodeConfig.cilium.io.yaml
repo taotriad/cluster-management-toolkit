@@ -17,9 +17,7 @@ infoview:
   infopad:
     row_indexes:
       Normal:
-        fields: ["node_label_selector",
-                 "node_set_based_selector",
-                 "default_ip_pool"]
+        fields: ["node_selector", "default_ip_pool"]
     rows:
       default_ip_pool:
         header: [["Default Pod ", ["main", "infoheader"]],
@@ -28,36 +26,15 @@ infoview:
         path: "spec#defaults#ipam-default-ip-pool"
         default: "<unset>"
         type: "str"
-      node_label_selector:
-        header: [["Node La", ["main", "infoheader"]],
-                 ["b", ["main", "infoheader_shortcut"]],
-                 ["el Selector:", ["main", "infoheader"]]]
+      node_selector:
+        header: [["Node Selec", ["main", "infoheader"]],
+                 ["t", ["main", "infoheader_shortcut"]],
+                 ["or:", ["main", "infoheader"]]]
         paths:
-          - path: ["spec#nodeSelector#matchLabels"]
-            pathtype: "key_value"
-            default: ["<none>"]
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "key"
-            - type: "value"
-          field_separators:
-            - type: "selector"
-      node_set_based_selector:
-        header: [["Node Set-based Selector:", ["main", "infoheader"]]]
-        paths:
-          - path: "spec#nodeSelector#matchExpressions"
-            pathtype: "match_expression"
+          - path: "spec#nodeSelector"
+            pathtype: "obj"
             default: "<none>"
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "key"
-            - type: "operator"
-            - type: "value"
-          field_separators:
-            - type: "space"
-            - type: "no_pad"
+        formatter: "selector"
   shortcuts:
     "Default Pod IP Pool":
       key: "I"
@@ -83,14 +60,13 @@ infoview:
         itemgetter: "get_key_value"
         itemgetter_args:
           path: "spec#defaults"
-    "Node Label Selector":
-      key: "b"
+    "Node Selector":
+      key: "t"
       read_only: true
-      helptext: "Show node label selector"
+      helptext: "Show Node selector"
       widget: "windowwidget"
       widget_args:
-        title: "Node Label Selector:"
-        headers: ["Key:", "Value:"]
-        itemgetter: "get_key_value"
+        title: "Node Selector:"
+        itemgetter: "get_selector_list"
         itemgetter_args:
-          path: "spec#nodeSelector#matchLabels"
+          path: "spec#nodeSelector"

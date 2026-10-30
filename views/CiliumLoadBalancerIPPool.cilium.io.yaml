@@ -34,9 +34,7 @@ infoview:
   infopad:
     row_indexes:
       Normal:
-        fields: ["service_label_selector",
-                 "service_set_based_selector",
-                 "disabled"]
+        fields: ["service_selector", "disabled"]
     rows:
       disabled:
         header: [["Disabled:", ["main", "infoheader"]]]
@@ -55,36 +53,15 @@ infoview:
                 field_colors:
                   - context: "main"
                     type: "status_not_ok"
-      service_label_selector:
-        header: [["Service La", ["main", "infoheader"]],
-                 ["b", ["main", "infoheader_shortcut"]],
-                 ["el Selector:", ["main", "infoheader"]]]
+      service_selector:
+        header: [["Service ", ["main", "infoheader"]],
+                 ["S", ["main", "infoheader_shortcut"]],
+                 ["elector:", ["main", "infoheader"]]]
         paths:
-          - path: ["spec#serviceSelector#matchLabels"]
-            pathtype: "key_value"
-            default: ["<none>"]
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "key"
-            - type: "value"
-          field_separators:
-            - type: "selector"
-      service_set_based_selector:
-        header: [["Service Set-based Selector:", ["main", "infoheader"]]]
-        paths:
-          - path: "spec#serviceSelector#matchExpressions"
-            pathtype: "match_expression"
+          - path: "spec#serviceSelector"
+            pathtype: "obj"
             default: "<none>"
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "key"
-            - type: "operator"
-            - type: "value"
-          field_separators:
-            - type: "space"
-            - type: "no_pad"
+        formatter: "selector"
   listpad:
     listgetter: "listgetter_path"
     listgetter_args:
@@ -114,14 +91,14 @@ infoview:
         type: "str"
         formatter: "address"
   shortcuts:
-    "Service Label Selector":
-      key: "b"
+    "Service Selector":
+      key: "s"
+      modifier: "shift"
       read_only: true
-      helptext: "Show Service label selector"
+      helptext: "Show Service selector"
       widget: "windowwidget"
       widget_args:
-        title: "Service Label Selector:"
-        headers: ["Key:", "Value:"]
-        itemgetter: "get_key_value"
+        title: "Service Selector:"
+        itemgetter: "get_selector_list"
         itemgetter_args:
-          path: "spec#serviceSelector#matchLabels"
+          path: "spec#serviceSelector"

@@ -19,11 +19,9 @@ infoview:
                  "match_kinds_kinds", "match_kinds_groups",
                  "match_name",
                  "match_namespaces",
-                 "match_namespace_label_selector",
-                 "match_namespace_set_based_selector",
+                 "match_namespace_selector",
                  "match_excluded_namespaces",
                  "match_label_selector",
-                 "match_set_based_selector",
                  "match_scope", "match_source",
                  "location"]
     rows:
@@ -68,7 +66,7 @@ infoview:
         default: "<unset>"
         type: "str"
       match_excluded_namespaces:
-        header: [["  Excludeed Namespaces:", ["main", "infoheader"]]]
+        header: [["  Excluded Namespaces:", ["main", "infoheader"]]]
         path: "spec#match#excludedNamespaces"
         default: ["<none>"]
         type: "raw"
@@ -105,20 +103,14 @@ infoview:
           field_colors:
             - type: "kind"
       match_label_selector:
-        header: [["  Objec", ["main", "infoheader"]],
-                 ["t", ["main", "infoheader_shortcut"]],
-                 [" Label Selector:", ["main", "infoheader"]]]
+        header: [["  La", ["main", "infoheader"]],
+                 ["b", ["main", "infoheader_shortcut"]],
+                 ["el Selector:", ["main", "infoheader"]]]
         paths:
-          - path: ["spec#match#labelSelector#matchLabels"]
-            pathtype: "key_value"
-            default: ["<none>"]
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "key"
-            - type: "value"
-          field_separators:
-            - type: "selector"
+          - path: "spec#match#labelSelector"
+            pathtype: "obj"
+            default: "<none>"
+        formatter: "selector"
       match_name:
         header: [["  Name:", ["main", "infoheader"]]]
         path: "spec#match#name"
@@ -133,51 +125,15 @@ infoview:
         formatting:
           field_colors:
             - type: "namespace"
-      match_namespace_label_selector:
-        header: [["  Namespace La", ["main", "infoheader"]],
-                 ["b", ["main", "infoheader_shortcut"]],
-                 ["el Selector:", ["main", "infoheader"]]]
+      match_namespace_selector:
+        header: [["  Namespace Selec", ["main", "infoheader"]],
+                 ["t", ["main", "infoheader_shortcut"]],
+                 ["or:", ["main", "infoheader"]]]
         paths:
-          - path: ["spec#match#namespaceSelector#matchLabels"]
-            pathtype: "key_value"
-            default: ["<none>"]
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "key"
-            - type: "value"
-          field_separators:
-            - type: "selector"
-      match_namespace_set_based_selector:
-        header: [["  Set-based Namespace Selector:", ["main", "infoheader"]]]
-        paths:
-          - path: "spec#match#namespaceSelector#matchExpressions"
-            pathtype: "match_expression"
+          - path: "spec#match#namespaceSelector"
+            pathtype: "obj"
             default: "<none>"
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "key"
-            - type: "operator"
-            - type: "value"
-          field_separators:
-            - type: "space"
-            - type: "no_pad"
-      match_set_based_selector:
-        header: [["  Set-based Object Selector:", ["main", "infoheader"]]]
-        paths:
-          - path: "spec#match#labelSelector#matchExpressions"
-            pathtype: "match_expression"
-            default: "<none>"
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "key"
-            - type: "operator"
-            - type: "value"
-          field_separators:
-            - type: "space"
-            - type: "no_pad"
+        formatter: "selector"
       match_scope:
         header: [["  Scope:", ["main", "infoheader"]]]
         path: "spec#match#scope"
@@ -195,6 +151,26 @@ infoview:
       path: "spec#parameters"
     timestamps: false
   shortcuts:
+    "Match Label Selector":
+      key: "b"
+      read_only: true
+      helptext: "Show match label selector"
+      widget: "windowwidget"
+      widget_args:
+        title: "Match Label Selector:"
+        itemgetter: "get_selector_list"
+        itemgetter_args:
+          path: "spec#labelSelector"
+    "Match Namespace Selector":
+      key: "t"
+      read_only: true
+      helptext: "Show match namespace selector"
+      widget: "windowwidget"
+      widget_args:
+        title: "Match Namespace Selector:"
+        itemgetter: "get_selector_list"
+        itemgetter_args:
+          path: "spec#match#namespaceSelector"
     "Show Pod Statuses":
       key: "s"
       modifier: "shift"

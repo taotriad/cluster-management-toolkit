@@ -14,7 +14,7 @@ infoview:
   infopad:
     row_indexes:
       Normal:
-        fields: ["dashboard_set_based_selector", "auth_header",
+        fields: ["dashboard_label_selector", "auth_header",
                  "auth_disable_login_form", "auth_disable_signout_menu",
                  "auth_enable_anonymous", "loglevel", "log_mode",
                  "admin_user", "admin_password", "ingress_header",
@@ -48,21 +48,15 @@ infoview:
         type: "bool"
       auth_header:
         header: [["Auth:", ["main", "infoheader"]]]
-      dashboard_set_based_selector:
-        header: [["Dashboard Set-based Selector:", ["main", "infoheader"]]]
+      dashboard_label_selector:
+        header: [["Dashboard Label Selec", ["main", "infoheader"]],
+                 ["t", ["main", "infoheader_shortcut"]],
+                 ["or:", ["main", "infoheader"]]]
         paths:
-          - path: "spec#dashboardLabelSelector#matchExpressions"
-            pathtype: "match_expression"
+          - path: "spec#dashboardLabelSelector"
+            pathtype: "obj"
             default: "<none>"
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "key"
-            - type: "operator"
-            - type: "value"
-          field_separators:
-            - type: "space"
-            - type: "no_pad"
+        formatter: "selector"
       ingress_enabled:
         header: [["  Enabled:", ["main", "infoheader"]]]
         path: "spec#ingress#enabled"
@@ -98,3 +92,14 @@ infoview:
         path: "spec#config#log#mode"
         default: "<unset>"
         type: "str"
+  shortcuts:
+    "Dashboard Label Selector":
+      key: "t"
+      read_only: true
+      helptext: "Show dashboard label selector"
+      widget: "windowwidget"
+      widget_args:
+        title: "Dashboard Label Selector:"
+        itemgetter: "get_selector_list"
+        itemgetter_args:
+          path: "spec#dashboardLabelSelector"

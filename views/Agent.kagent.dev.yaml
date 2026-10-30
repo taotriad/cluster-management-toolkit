@@ -32,9 +32,7 @@ infoview:
         fields: ["description",
                  "allowed_namespaces_header",
                  "allowed_namespaces_from",
-                 "allowed_namespaces_selector_header",
-                 "allowed_namespaces_label_selector",
-                 "allowed_namespaces_set_based_selector",
+                 "allowed_namespaces_selector",
                  "sandbox_header",
                  "sandbox_network_header",
                  "sandbox_network_allowed_domains",
@@ -51,38 +49,15 @@ infoview:
         path: "spec#allowedNamespaces#from"
         default: "Same"
         type: "str"
-      allowed_namespaces_label_selector:
-        header: [["    La", ["main", "infoheader"]],
-                 ["b", ["main", "infoheader_shortcut"]],
-                 ["el Selector:", ["main", "infoheader"]]]
+      allowed_namespaces_selector:
+        header: [["  Selec", ["main", "infoheader"]],
+                 ["t", ["main", "infoheader_shortcut"]],
+                 ["or:", ["main", "infoheader"]]]
         paths:
-          - path: ["spec#allowedNamespaces#selector#matchLabels"]
-            pathtype: "key_value"
-            default: ["<none>"]
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "key"
-            - type: "value"
-          field_separators:
-            - type: "selector"
-      allowed_namespaces_selector_header:
-        header: [["  Selector:", ["main", "infoheader"]]]
-      allowed_namespaces_set_based_selector:
-        header: [["    Set-based Selector:", ["main", "infoheader"]]]
-        paths:
-          - path: "spec#allowedNamespaces#selector#matchExpressions"
-            pathtype: "match_expression"
+          - path: "spec#allowedNamespaces#selector"
+            pathtype: "obj"
             default: "<none>"
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "key"
-            - type: "operator"
-            - type: "value"
-          field_separators:
-            - type: "space"
-            - type: "no_pad"
+        formatter: "selector"
       description:
         header: [["Description:", ["main", "infoheader"]]]
         path: "spec#description"
@@ -139,16 +114,15 @@ infoview:
     timestamps: false
   shortcuts:
     "Allowed Namespaces Label Selector":
-      key: "b"
+      key: "t"
       read_only: true
-      helptext: "Show allowed Namespaces label selector"
+      helptext: "Show allowed Namespaces selector"
       widget: "windowwidget"
       widget_args:
-        title: "Allowed Namespaces Label Selector:"
-        headers: ["Key:", "Value:"]
-        itemgetter: "get_key_value"
+        title: "Allowed Namespaces Selector:"
+        itemgetter: "get_selector_list"
         itemgetter_args:
-          path: "spec#allowedNamespaces#selector#matchLabels"
+          path: "spec#allowedNamespaces#selector"
     "List Allowed Domains":
       key: "d"
       modifier: "shift"

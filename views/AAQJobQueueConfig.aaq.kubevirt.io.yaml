@@ -1,0 +1,18 @@
+---
+kind: "AAQJobQueueConfig"
+api_family: "aaq.kubevirt.io"
+default_command: "aaqjobqueueconfigs"
+command:
+  - "aaqjobqueueconfs"
+  - "aaqjobqueueconf"
+  - "aaqjobqconfs"
+  - "aaqjobqconf"
+listview:
+  name: "AAQ Job Queue Configs"
+  group: "Policy"
+  field_indexes:
+    Normal:
+      fields: ["namespace", "name", "age"]
+infoview:
+  name: "AAQ Job Queue Config Info"
+  infopad:

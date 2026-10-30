@@ -57,23 +57,17 @@ infoview:
   infopad:
     row_indexes:
       Normal:
-        fields: ["scope_set_based_selector"]
+        fields: ["scope_selector"]
     rows:
-      scope_set_based_selector:
-        header: [["Scope Set-Based Selector:", ["main", "infoheader"]]]
+      scope_selector:
+        header: [["Scope Selec", ["main", "infoheader"]],
+                 ["t", ["main", "infoheader_shortcut"]],
+                 ["or:", ["main", "infoheader"]]]
         paths:
-          - path: "spec#scopeSelector#matchExpressions"
-            pathtype: "match_expression"
+          - path: "spec#scopeSelector"
+            pathtype: "obj"
             default: "<none>"
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "key"
-            - type: "operator"
-            - type: "value"
-          field_separators:
-            - type: "space"
-            - type: "no_pad"
+        formatter: "selector"
   listpad:
     listgetter: "listgetter_path"
     listgetter_args:
@@ -99,3 +93,14 @@ infoview:
         type: "str"
         formatter: "numerical"
         align: "right"
+  shortcuts:
+    "Scope Selector":
+      key: "t"
+      read_only: true
+      helptext: "Show scope selector"
+      widget: "windowwidget"
+      widget_args:
+        title: "Scope Selector:"
+        itemgetter: "get_selector_list"
+        itemgetter_args:
+          path: "spec#scopeSelector"

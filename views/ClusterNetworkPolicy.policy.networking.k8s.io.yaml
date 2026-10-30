@@ -31,13 +31,10 @@ infoview:
         fields: ["tier", "priority",
                  "subject_header",
                  "subject_namespace_header",
-                 "subject_namespace_label_selector",
-                 "subject_namespace_set_based_selector",
+                 "subject_namespace_selector",
                  "subject_pod_header",
-                 "subject_pod_label_selector",
-                 "subject_pod_set_based_selector",
-                 "subject_pod_namespace_label_selector",
-                 "subject_pod_namespace_set_based_selector"]
+                 "subject_pod_selector",
+                 "subject_pod_namespace_selector"]
     rows:
       priority:
         header: [["Priority:", ["main", "infoheader"]]]
@@ -48,136 +45,72 @@ infoview:
         header: [["Subject:", ["main", "infoheader"]]]
       subject_namespace_header:
         header: [["  Namespace:", ["main", "infoheader"]]]
-      subject_namespace_label_selector:
-        header: [["    Label Selec", ["main", "infoheader"]],
+      subject_namespace_selector:
+        header: [["    Selec", ["main", "infoheader"]],
                  ["t", ["main", "infoheader_shortcut"]],
                  ["or:", ["main", "infoheader"]]]
         paths:
-          - path: ["spec#subject#namespaces#matchLabels"]
-            pathtype: "key_value"
-            default: ["<none>"]
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "key"
-            - type: "value"
-          field_separators:
-            - type: "selector"
-      subject_namespace_set_based_selector:
-        header: [["    Set-based Selector:", ["main", "infoheader"]]]
-        paths:
-          - path: "spec#subject#namespaces#matchExpressions"
-            pathtype: "match_expression"
+          - path: "spec#subject#namespaces"
+            pathtype: "obj"
             default: "<none>"
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "key"
-            - type: "operator"
-            - type: "value"
-          field_separators:
-            - type: "space"
-            - type: "no_pad"
+        formatter: "selector"
       subject_pod_header:
         header: [["  Pod:", ["main", "infoheader"]]]
-      subject_pod_label_selector:
-        header: [["    La", ["main", "infoheader"]],
-                 ["b", ["main", "infoheader_shortcut"]],
-                 ["el Selector:", ["main", "infoheader"]]]
+      subject_pod_selector:
+        header: [["    ", ["main", "infoheader"]],
+                 ["S", ["main", "infoheader_shortcut"]],
+                 ["elector:", ["main", "infoheader"]]]
         paths:
-          - path: ["spec#subject#pods#podSelector#matchLabels"]
-            pathtype: "key_value"
-            default: ["<none>"]
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "key"
-            - type: "value"
-          field_separators:
-            - type: "selector"
-      subject_pod_namespace_label_selector:
+          - path: "spec#subject#pods#podSelector"
+            pathtype: "obj"
+            default: "<none>"
+        formatter: "selector"
+      subject_pod_namespace_selector:
         header: [["    Names", ["main", "infoheader"]],
                  ["p", ["main", "infoheader_shortcut"]],
-                 ["ace Label Selector:", ["main", "infoheader"]]]
+                 ["ace Selector:", ["main", "infoheader"]]]
         paths:
-          - path: ["spec#subject#pods#namespaceSelector#matchLabels"]
-            pathtype: "key_value"
-            default: ["<none>"]
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "key"
-            - type: "value"
-          field_separators:
-            - type: "selector"
-      subject_pod_namespace_set_based_selector:
-        header: [["    Namespace Set-based Selector:", ["main", "infoheader"]]]
-        paths:
-          - path: "spec#subject#pods#namespaceSelector#matchExpressions"
-            pathtype: "match_expression"
+          - path: "spec#subject#pods#namespaceSelector"
+            pathtype: "obj"
             default: "<none>"
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "key"
-            - type: "operator"
-            - type: "value"
-          field_separators:
-            - type: "space"
-            - type: "no_pad"
-      subject_pod_set_based_selector:
-        header: [["    Set-based Selector:", ["main", "infoheader"]]]
-        paths:
-          - path: "spec#subject#pods#podSelector#matchExpressions"
-            pathtype: "match_expression"
-            default: "<none>"
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "key"
-            - type: "operator"
-            - type: "value"
-          field_separators:
-            - type: "space"
-            - type: "no_pad"
+        formatter: "selector"
       tier:
         header: [["Tier:", ["main", "infoheader"]]]
         path: "spec#tier"
+        default: "<unset>"
         type: "str"
   shortcuts:
-    "Subject Namespace Label Selector":
+    "Subject Namespace Selector":
       key: "t"
       read_only: true
-      helptext: "Show subject Namespace label selector"
+      helptext: "Show subject Namespace selector"
       widget: "windowwidget"
       widget_args:
-        title: "Subject Namespace Label Selector:"
-        headers: ["Key:", "Value:"]
-        itemgetter: "get_key_value"
+        title: "Subject Namespace Selector:"
+        itemgetter: "get_selector_list"
         itemgetter_args:
-          path: "spec#subject#namespaces#matchLabels"
-    "Subject Pod Label Selector":
-      key: "b"
+          path: "spec#subject#namespaces"
+    "Subject Pod Selector":
+      key: "S"
+      modifier: "shift"
       read_only: true
-      helptext: "Show subject Pod label selector"
+      helptext: "Show subject Pod selector"
       widget: "windowwidget"
       widget_args:
-        title: "Subject Pod Label Selector:"
-        headers: ["Key:", "Value:"]
-        itemgetter: "get_key_value"
+        title: "Subject Pod Selector:"
+        itemgetter: "get_selector_list"
         itemgetter_args:
-          path: "spec#subject#pods#podSelector#matchLabels"
-    "Subject Pod Namespace Label Selector":
+          path: "spec#subject#pods#podSelector"
+    "Subject Pod Namespace Selector":
       key: "p"
       read_only: true
-      helptext: "Show subject Pod Namespace label selector"
+      helptext: "Show subject Pod Namespace selector"
       widget: "windowwidget"
       widget_args:
-        title: "Subject Pod Namespace Label Selector:"
-        headers: ["Key:", "Value:"]
-        itemgetter: "get_key_value"
+        title: "Subject Pod Namespace Selector:"
+        itemgetter: "get_selector_list"
         itemgetter_args:
-          path: "spec#subject#pods#namespaceSelector#matchLabels"
+          path: "spec#subject#pods#namespaceSelector"
     "View Ingress rules":
       key: "i"
       modifier: "shift"

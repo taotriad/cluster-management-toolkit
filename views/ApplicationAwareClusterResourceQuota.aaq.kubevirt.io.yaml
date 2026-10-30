@@ -19,7 +19,7 @@ listview:
     limit:
       header: "Limit:"
       paths:
-        - path: "spec#hard"
+        - path: "spec#quota#hard"
           pathtype: "key_value"
           when:
             - key_startswith: "limits."
@@ -36,7 +36,7 @@ listview:
     request:
       header: "Request:"
       paths:
-        - path: "spec#hard"
+        - path: "spec#quota#hard"
           pathtype: "key_value"
           when:
             - key_notstartswith: "limits."
@@ -55,43 +55,25 @@ infoview:
   infopad:
     row_indexes:
       Normal:
-        fields: ["label_selector", "set_based_selector"]
+        fields: ["selector"]
     rows:
-      label_selector:
-        header: [["La", ["main", "infoheader"]],
-                 ["b", ["main", "infoheader_shortcut"]],
-                 ["el Selector:", ["main", "infoheader"]]]
+      selector:
+        header: [["Label Selec", ["main", "infoheader"]],
+                 ["t", ["main", "infoheader_shortcut"]],
+                 ["or:", ["main", "infoheader"]]]
         paths:
-          - path: ["spec#selector#matchLabels"]
-            pathtype: "key_value"
-            default: ["<none>"]
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "key"
-            - type: "value"
-          field_separators:
-            - type: "selector"
-      set_based_selector:
-        header: [["Set-Based Selector:", ["main", "infoheader"]]]
-        paths:
-          - path: "spec#selector#matchExpressions"
-            pathtype: "match_expression"
+          - path: "spec#selector#labels"
+            pathtype: "obj"
             default: "<none>"
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "key"
-            - type: "operator"
-            - type: "value"
-          field_separators:
-            - type: "space"
-            - type: "no_pad"
+        formatter: "selector"
   listpad:
     listgetter: "listgetter_path"
     listgetter_args:
       path: ""
     infogetter: "get_rq_item_info"
+    infogetter_args:
+      hard_path: "spec#quota#hard"
+      used_path: "status#total#used"
     field_indexes:
       Normal:
         fields: ["resource", "used", "hard"]
@@ -113,14 +95,13 @@ infoview:
         formatter: "numerical"
         align: "right"
   shortcuts:
-    "Label Selector":
-      key: "b"
+    "Selector":
+      key: "t"
       read_only: true
-      helptext: "Show label selector"
+      helptext: "Show selector"
       widget: "windowwidget"
       widget_args:
-        title: "Label Selector:"
-        headers: ["Key:", "Value:"]
-        itemgetter: "get_key_value"
+        title: "Selector:"
+        itemgetter: "get_selector_list"
         itemgetter_args:
-          path: "spec#selector#matchLabels"
+          path: "spec#selector#labels"

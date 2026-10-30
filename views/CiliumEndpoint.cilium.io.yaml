@@ -14,11 +14,11 @@ listview:
     Wide:
       fields: ["namespace", "name", "endpoint_id", "cilium_identity",
                "ingress_enforcement", "egress_enforcement",
-               "endpoint_state", "ipv4", "ipv6", "node", "age"]
+               "ipv4", "ipv6", "node", "endpoint_state", "age"]
       sortcolumn: "namespace"
     Normal:
-      fields: ["namespace", "name", "endpoint_state",
-               "ipv4", "ipv6", "node", "age"]
+      fields: ["namespace", "name",
+               "ipv4", "ipv6", "node", "endpoint_state", "age"]
       sortcolumn: "namespace"
   fields:
     cilium_identity:
@@ -128,7 +128,7 @@ infoview:
       Normal:
         fields: ["endpoint_id", "cilium_identity", "pod",
                  "ingress_enforcement", "egress_enforcement",
-                 "endpoint_state", "ipv4", "ipv6", "node"]
+                 "ipv4", "ipv6", "node", "endpoint_state"]
     rows:
       cilium_identity:
         header: [["C", ["main", "infoheader_shortcut"]],
@@ -233,17 +233,26 @@ infoview:
         header: [["P", ["main", "infoheader_shortcut"]],
                  ["od:", ["main", "infoheader"]]]
         paths:
-          - path: [["status#external-identifiers#k8s-namespace"],
-                   ["status#external-identifiers#k8s-pod-name"]]
-            pathtype: "tuple"
+          - path: "metadata#ownerReferences"
+            pathtype: "items"
+            subpaths:
+              - "kind"
+              - "apiVersion"
+              - "name"
+            when:
+              - key: "kind"
+                eq: "Pod"
+            type: ["kind", "api_group", "name"]
         default: "<none>"
         formatter: "list"
         formatting:
           field_colors:
-            - type: "namespace"
+            - type: "kind"
+            - type: "api_group"
             - type: "generic"
           field_separators:
-            - type: "namespace"
+            - type: "kind_api_group"
+            - type: "kind"
   shortcuts:
     "Cilium Identity":
       key: "c"
@@ -289,8 +298,8 @@ infoview:
       action_args:
         _pass_obj: true
         kind: "Pod"
-        name_path: "status#external-identifiers#k8s-pod-name"
-        namespace_path: "status#external-identifiers#k8s-namespace"
+        _parent_namespace_path: "metadata#namespace"
+        owner_reference_path: "metadata#ownerReferences"
     "Show Named Ports":
       key: "s"
       modifier: "shift"

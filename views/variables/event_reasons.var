@@ -2701,6 +2701,10 @@ UpdateFailed:
   field_colors:
     - context: "main"
       type: "status_warning"
+UpdateResourceFailed:
+  field_colors:
+    - context: "main"
+      type: "status_warning"
 UpdateResourceSuccess:
   field_colors:
     - context: "main"
