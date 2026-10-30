@@ -1,0 +1,7 @@
+---
+- name: "ollama"
+  show_in_selector: false
+  matchkeys:
+    - image_name: "/ollama/ollama"
+  parser_rules:
+    - name: "key_value"

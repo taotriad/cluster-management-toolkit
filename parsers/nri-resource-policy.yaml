@@ -2,7 +2,23 @@
 - name: "nri-resource-policy"
   show_in_selector: false
   matchkeys:
-    - pod_name: "nri-resource-policy-balloons"
+    - image_name: "/containers/nri-plugins/nri-resource-policy-balloons"
+  parser_rules:
+    - name: "key_value"
+    - name: "custom_splitter"
+      options:
+        regex: '^([A-Z]): \[(\s*\S+\s*)\] (.*)'
+        severity:
+          field: 1
+          transform: "letter"
+        facility:
+          fields:
+            - 2
+        message:
+          field: 3
+- name: "nri-resource-policy"
+  show_in_selector: false
+  matchkeys:
     - image_name: "/containers/nri-plugins/nri-resource-policy-topology-aware"
   parser_rules:
     - name: "glog"
