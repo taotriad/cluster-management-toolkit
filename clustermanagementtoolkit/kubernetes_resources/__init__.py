@@ -1753,6 +1753,15 @@ kubernetes_resources: dict[tuple[str, str], dict[str, list[str] | str | bool]] =
         "api_paths": ["apis/aaq.kubevirt.io/v1alpha1/"],
         "api": "aaqjobqueueconfigs",
     },
+    ("ApplicationAwareAppliedClusterResourceQuota", "aaq.kubevirt.io"): {
+        "api_paths": ["apis/aaq.kubevirt.io/v1alpha1/"],
+        "api": "applicationawareappliedclusterresourcequotas",
+    },
+    ("ApplicationAwareClusterResourceQuota", "aaq.kubevirt.io"): {
+        "api_paths": ["apis/aaq.kubevirt.io/v1alpha1/"],
+        "api": "applicationawareclusterresourcequotas",
+        "namespaced": False,
+    },
     ("ApplicationAwareResourceQuota", "aaq.kubevirt.io"): {
         "api_paths": ["apis/aaq.kubevirt.io/v1alpha1/"],
         "api": "applicationawareresourcequotas",
