@@ -25,7 +25,7 @@ try:
 except ModuleNotFoundError:
     sys.exit("ModuleNotFoundError: you probably need to install python3-natsort")
 
-__version__ = "0.7"
+__version__ = "0.8"
 
 failed_files = []
 
@@ -289,7 +289,7 @@ listview_reserved_shortcuts: dict[str, dict[str, str]] = {
     },
     "J": {
         # Note: this is not a typo;
-        # the same override is used for both JSON and YAML
+        # the same override is used for both JSON and YAML.
         "override": "View YAML dump",
         "description": "View JSON dump of resource",
     },
@@ -328,7 +328,7 @@ infoview_reserved_shortcuts: dict[str, dict[str, str]] = {
     },
     "J": {
         # Note: this is not a typo;
-        # the same override is used for both JSON and YAML
+        # the same override is used for both JSON and YAML.
         "override": "View YAML dump",
         "description": "View JSON dump of resource",
     },
@@ -761,22 +761,36 @@ def main() -> int:
                 sys.exit("Too few arguments; --resume-from requires a PATH")
         else:
             # If schema hasn't been set this is the schema to use;
-            # either an alias {views,themes,parsers} or a full path
+            # either an alias {views,themes,parsers} or a full path.
             if not schema:
                 schema = sys.argv[i]
                 if schema in ["themes", "views", "parsers"]:
                     schema_path = f"tests/schemas/{schema}.json"
                 else:
-                    schema_path = schema
+                    yaml_path = None
+                    # If no schema is supplied we try to get it from the path.
+                    if schema.startswith(("themes/", "views/", "parsers/")) \
+                            and schema.endswith(".yaml"):
+                        yaml_path = schema
+                        schema, _ = schema.split("/", maxsplit=1)
+                        schema_path = f"tests/schemas/{schema}.json"
+                    else:
+                        schema_path = schema
+                        schema = None
+                    # If the schema was not a schema/file.yaml combination
+                    # we need to check if it's a path to a schema.
                     if not os.path.isfile(schema_path) or not schema_path.lower().endswith(".json"):
                         sys.exit("SCHEMA has to be a path to a JSON schema file"
                                  " or one of {parsers,themes,views}")
+                    if yaml_path:
+                        # This is a path to validate.
+                        yaml_paths.append((yaml_path, schema_path))
             else:
-                # This is a path to validate
+                # This is a path to validate.
                 yaml_paths.append((sys.argv[i], schema_path))
         i += 1
 
-    # This way it's possible to disable the summary even when verbose
+    # This way it's possible to disable the summary even when verbose.
     if no_summary is None:
         if verbose > 0:
             no_summary = False
