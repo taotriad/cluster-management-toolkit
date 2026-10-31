@@ -25,28 +25,22 @@ infoview:
     row_indexes:
       Normal:
         fields: ["topology",
-                 "namespace_label_selector",
+                 "namespace_selector",
                  "layer2_header",
                  "layer2_ipam_header",
                  "layer2_ipam_lifecycle",
                  "layer2_role",
                  "layer2_subnets"]
     rows:
-      namespace_label_selector:
-        header: [["Namespace La", ["main", "infoheader"]],
-                 ["b", ["main", "infoheader_shortcut"]],
-                 ["el Selector:", ["main", "infoheader"]]]
+      namespace_selector:
+        header: [["Namespace Selec", ["main", "infoheader"]],
+                 ["t", ["main", "infoheader_shortcut"]],
+                 ["or:", ["main", "infoheader"]]]
         paths:
-          - path: ["spec#namespaceSelector#matchLabels"]
-            pathtype: "key_value"
-            default: ["<none>"]
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "key"
-            - type: "value"
-          field_separators:
-            - type: "selector"
+          - path: "spec#namespaceSelector"
+            pathtype: "obj"
+            default: "<none>"
+        formatter: "selector"
       layer2_header:
         header: [["Layer 2:", ["main", "infoheader"]]]
       layer2_ipam_header:
@@ -75,14 +69,13 @@ infoview:
         default: "<unset>"
         type: "str"
   shortcuts:
-    "Namespace Label Selector":
-      key: "b"
+    "Namespace Selector":
+      key: "t"
       read_only: true
-      helptext: "Show namespace label selector"
+      helptext: "Show Namespace selector"
       widget: "windowwidget"
       widget_args:
-        title: "Namespace Label Selector:"
-        headers: ["Key:", "Value:"]
-        itemgetter: "get_key_value"
+        title: "Namespace Selector:"
+        itemgetter: "get_selector_list"
         itemgetter_args:
-          path: "spec#namespaceSelector#matchLabels"
+          path: "spec#namespaceSelector"

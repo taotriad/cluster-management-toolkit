@@ -104,44 +104,32 @@ infoview:
   infopad:
     row_indexes:
       Normal:
-        fields: ["description", "endpoint_label_selector",
-                 "node_label_selector", "valid"]
+        fields: ["description", "endpoint_selector",
+                 "node_selector", "valid"]
     rows:
       description:
         header: [["Description:", ["main", "infoheader"]]]
         path: "spec#description"
         default: "<unset>"
         type: "str"
-      endpoint_label_selector:
-        header: [["Endpoint La", ["main", "infoheader"]],
-                 ["b", ["main", "infoheader_shortcut"]],
-                 ["el Selector:", ["main", "infoheader"]]]
-        paths:
-          - path: ["spec#endpointSelector#matchLabels"]
-            pathtype: "key_value"
-            default: ["<none>"]
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "key"
-            - type: "value"
-          field_separators:
-            - type: "selector"
-      node_label_selector:
-        header: [["Node Label ", ["main", "infoheader"]],
+      endpoint_selector:
+        header: [["Endpoint ", ["main", "infoheader"]],
                  ["S", ["main", "infoheader_shortcut"]],
                  ["elector:", ["main", "infoheader"]]]
         paths:
-          - path: ["spec#nodeSelectors#matchLabels"]
-            pathtype: "key_value"
-            default: ["<none>"]
-        formatter: "list"
-        formatting:
-          field_colors:
-            - type: "key"
-            - type: "value"
-          field_separators:
-            - type: "selector"
+          - path: "spec#endpointSelector"
+            pathtype: "obj"
+            default: "<none>"
+        formatter: "selector"
+      node_selector:
+        header: [["Node Selec", ["main", "infoheader"]],
+                 ["t", ["main", "infoheader_shortcut"]],
+                 ["or:", ["main", "infoheader"]]]
+        paths:
+          - path: "spec#nodeSelector"
+            pathtype: "obj"
+            default: "<none>"
+        formatter: "selector"
       valid:
         header: [["Valid:", ["main", "infoheader"]]]
         paths:
@@ -170,29 +158,27 @@ infoview:
                   - context: "types"
                     type: "unset"
   shortcuts:
-    "Endpoint Label Selector":
-      key: "b"
-      read_only: true
-      helptext: "Show Endpoint label selector"
-      widget: "windowwidget"
-      widget_args:
-        title: "Endpoint Label Selector:"
-        headers: ["Key:", "Value:"]
-        itemgetter: "get_key_value"
-        itemgetter_args:
-          path: "spec#endpointSelector#matchLabels"
-    "Node Label Selector":
+    "Endpoint Selector":
       key: "s"
       modifier: "shift"
       read_only: true
-      helptext: "Show node label selector"
+      helptext: "Show Endpoint selector"
       widget: "windowwidget"
       widget_args:
-        title: "Node Label Selector:"
-        headers: ["Key:", "Value:"]
-        itemgetter: "get_key_value"
+        title: "Endpoint Selector:"
+        itemgetter: "get_selector_list"
         itemgetter_args:
-          path: "spec#nodeSelectors#matchLabels"
+          path: "spec#endpointSelector"
+    "Node Selector":
+      key: "t"
+      read_only: true
+      helptext: "Show Node selector"
+      widget: "windowwidget"
+      widget_args:
+        title: "Node Selector:"
+        itemgetter: "get_selector_list"
+        itemgetter_args:
+          path: "spec#nodeSelector"
     "View Egress Rules":
       key: "e"
       modifier: "shift"

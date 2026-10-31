@@ -175,14 +175,10 @@ infoview:
                  ["t", ["main", "infoheader_shortcut"]],
                  ["or:", ["main", "infoheader"]]]
         paths:
-          - path: "status#labelSelector"
+          - path: "spec#selector"
             pathtype: "obj"
             default: "<none>"
         formatter: "selector"
-        formatting:
-          args:
-            selector:
-              type: "matchLabels"
   listpad:
     listgetter: "generic_listgetter"
     listgetter_args:
@@ -292,6 +288,16 @@ infoview:
         formatter: "numerical"
         align: "right"
   shortcuts:
+    "Selector":
+      key: "t"
+      read_only: true
+      helptext: "Show selector"
+      widget: "windowwidget"
+      widget_args:
+        title: "Selector:"
+        itemgetter: "get_selector_list"
+        itemgetter_args:
+          path: "spec#selector"
     "View Game Server Template":
       key: "t"
       modifier: "shift"
@@ -304,14 +310,3 @@ infoview:
         _named_title: true
         _pass_obj: true
         path: "spec#gameServerTemplate"
-    "Selector":
-      key: "t"
-      read_only: true
-      helptext: "Show selector"
-      widget: "windowwidget"
-      widget_args:
-        title: "Selector:"
-        itemgetter: "get_selector_list"
-        itemgetter_args:
-          path: "status#labelSelector"
-          reparent: "matchLabels"
